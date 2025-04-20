@@ -99,7 +99,7 @@ class Stats_View {
 	public static function output_events_overview( $data, $date_from, $date_to ) {
 		$total_events = $data['overview_total_events'];
 		$user_stats = $data['user_stats'];
-		$top_users = $data['user_rankings_formatted'];
+		$top_users = $data['user_rankings'];
 		$user_total_count = $data['user_total_count'];
 
 		$sitename = get_bloginfo( 'name' );

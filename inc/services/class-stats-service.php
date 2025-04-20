@@ -270,7 +270,6 @@ class Stats_Service extends Service {
 
 		// Get top users.
 		$top_users = $this->stats->get_top_users( $date_from, $date_to );
-		$formatted_top_users = $this->format_top_users_data( $top_users );
 
 		return [
 			'stats' => $this->stats,
@@ -286,7 +285,6 @@ class Stats_Service extends Service {
 			'media_stats' => $media_stats,
 			'media_stats_details' => $media_stats_details,
 			'user_rankings' => $top_users,
-			'user_rankings_formatted' => $formatted_top_users,
 			'user_total_count' => $this->stats->get_total_users( $date_from, $date_to ),
 			'user_stats_details' => $this->stats->get_detailed_user_stats( $date_from, $date_to ),
 		];
@@ -299,18 +297,7 @@ class Stats_Service extends Service {
 	 * @return array Formatted top users data.
 	 */
 	private function format_top_users_data( $top_users ) {
-		return array_map(
-			function ( $user ) {
-				return [
-					'id' => $user->user_id,
-					/* translators: %s: numeric user ID */
-					'display_name' => $user->display_name,
-					'avatar' => get_avatar_url( $user->user_id ),
-					'count' => (int) $user->count,
-				];
-			},
-			$top_users ? $top_users : []
-		);
+		return $top_users ? $top_users : [];
 	}
 
 	/**
@@ -327,7 +314,7 @@ class Stats_Service extends Service {
 			[
 				'data' => [
 					'activityOverview' => $data['overview_activity_by_date'] ? $data['overview_activity_by_date'] : [],
-					'topUsers' => $data['user_rankings_formatted'] ? $data['user_rankings_formatted'] : [],
+					'topUsers' => $data['user_rankings'] ? $data['user_rankings'] : [],
 					'peakTimes' => $data['overview_peak_times'] ? $data['overview_peak_times'] : [],
 					'peakDays' => $data['overview_peak_days'] ? $data['overview_peak_days'] : [],
 				],
