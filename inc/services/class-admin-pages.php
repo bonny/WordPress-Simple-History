@@ -182,27 +182,30 @@ class Admin_Pages extends Service {
 			?>
 		</header>
 		
-		<div class="sh-PageHeader-notificationBar">
-			<p>
-			<?php
-			echo wp_kses(
-				sprintf(
-					/* translators: 1: Link to premium page. */
-					__( 'NEW: Stats and Summaries | More things | <a href="%s" target="_blank">Upgrade to premium now</a>', 'simple-history' ),
-					'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar'
-				),
-				[
-					'a' => [
-						'href' => true,
-						'target' => true,
-					],
-				]
-			);
-			?>
-			</p>
-		</div>
-
 		<?php
+		if ( ! Helpers::is_premium_add_on_active() ) {
+			?>
+			<p class="sh-PageHeader-notificationBar">
+				<?php
+				$premium_messages = [
+					__( 'New in premium: Stats and Summaries that gives you insights into your site\'s activity', 'simple-history' ),
+					__( 'Simple History Premium: Extended log storage and thoughtful new features to explore', 'simple-history' ),
+					__( 'Preserve your logs longer and gain helpful new tools with Simple History Premium', 'simple-history' ),
+					__( 'Did you know? Simple History Premium lets you set custom log retention periods', 'simple-history' ),
+				];
+
+				$random_message = $premium_messages[ array_rand( $premium_messages ) ];
+
+				$premium_link = 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar';
+				?>
+				<?php echo esc_html( $random_message ); ?>
+				|
+				<a href="<?php echo esc_url( $premium_link ); ?>" target="_blank" class="sh-PageHeader-notificationBar-link">
+					<?php echo esc_html__( 'Learn more', 'simple-history' ); ?>
+				</a>
+			</p>
+			<?php
+		}
 
 		// Output sub nav items.
 		// Todo: this contains the full html output so it should not be in this header function.

@@ -1069,16 +1069,19 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-PageHeader-notificationBar {
+	position: relative;
 	text-align: center;
 	background-color: var(--sh-color-cream);
 	padding: var(--sh-spacing-small) var(--sh-spacing-large);
-	margin-left: calc(var(--sh-spacing-large) * -1);
+	margin: 0 0 0 calc(var(--sh-spacing-large) * -1);
 	font-weight: 600;
 	border-bottom: 1px solid var(--sh-color-gray);
+}
 
-	> p {
-		margin: 0;
-	}
+.sh-PageHeader-notificationBar-link::after {
+	content: "";
+	position: absolute;
+	inset: 0;
 }
 
 .sh-PremiumFeatureBadge {
