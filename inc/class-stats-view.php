@@ -596,6 +596,7 @@ class Stats_View {
 				?>
 				<p class="sh-mt-0 sh-mb-large">
 					<?php echo esc_html( $description_text ); ?>
+					<a href="https://simple-history.com/premium/" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>
 				</p>
 				<?php
 			}
