@@ -29,6 +29,7 @@ class Stats_View {
 			echo wp_kses(
 				Helpers::get_settings_section_title_output(
 					__( 'Stats & Summaries', 'simple-history' ),
+					'moving'
 				),
 				[
 					'span' => [
