@@ -430,7 +430,7 @@ class Setup_Database extends Service {
 					'Extend Simple History with more features using <a href="%1$s" target="_blank">add-ons</a>.',
 					'simple-history'
 				),
-				esc_url( 'https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=welcome-message' )
+				esc_url( 'https://simple-history.com/add-ons/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=welcome-message' )
 			)
 		);
 

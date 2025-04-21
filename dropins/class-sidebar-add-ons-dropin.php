@@ -35,13 +35,13 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		?>
 		<!-- 
 		Insert promo:
-		"Our New Year’s Sale is Here – 50% Off All Add-Ons 🙀".
-		Link to: https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=new-year-sale-sidebar
+		"Our New Year's Sale is Here - 50% Off All Add-Ons 🙀".
+		Link to: https://simple-history.com/add-ons/?utm_source=wordpress_admin&utm_content=new-year-sale-sidebar
 		-->
 		<div class="postbox">
 			<div class="inside" style="background-color: var(--sh-color-pink-light); padding: 1rem; margin-top: 0;">
 				<p style="margin: 0; font-size: 1rem; font-weight: bold;">
-					<?php esc_html_e( 'Our New Year’s Sale is Here – 50% Off All Add-Ons 🙀', 'simple-history' ); ?>
+					<?php esc_html_e( 'Our New Year\'s Sale is Here - 50% Off All Add-Ons 🙀', 'simple-history' ); ?>
 				</p>
 
 				<p>Hurry - this sale ends January 31.</p>
@@ -49,7 +49,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				<p>
 					<a 
 						class="sh-PremiumFeaturesPostbox-button"
-						href="https://simple-history.com/add-ons/?utm_source=wpadmin&utm_content=new-year-sale-sidebar" 
+						href="https://simple-history.com/add-ons/?utm_source=wordpress_admin&utm_content=new-year-sale-sidebar" 
 						target="_blank"
 						>
 						<?php esc_html_e( 'Get Add-Ons Now', 'simple-history' ); ?>
@@ -111,7 +111,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * @return string HTML
 	 */
 	public static function get_debug_and_monitor_features_postbox_html() {
-		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wpadmin&utm_content=debug-monitor-sidebar';
+		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=debug-monitor-sidebar';
 
 		ob_start();
 		?>
@@ -157,7 +157,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * @return string HTML
 	 */
 	public static function get_premium_features_postbox_html() {
-		$premium_url = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=premium-sidebar';
+		$premium_url = 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=premium-sidebar';
 
 		ob_start();
 		?>
@@ -222,7 +222,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * @return string HTML
 	 */
 	public static function get_woocommerce_logger_features_postbox_html() {
-		$woocommerce_logger_url = 'https://simple-history.com/add-ons/woocommerce/?utm_source=wpadmin&utm_content=wc-logger-sidebar';
+		$woocommerce_logger_url = 'https://simple-history.com/add-ons/woocommerce/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=wc-logger-sidebar';
 
 		ob_start();
 		?>
