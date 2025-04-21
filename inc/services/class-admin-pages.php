@@ -181,6 +181,26 @@ class Admin_Pages extends Service {
 			echo $main_subnav_html_output;
 			?>
 		</header>
+		
+		<div class="sh-PageHeader-notificationBar">
+			<p>
+			<?php
+			echo wp_kses(
+				sprintf(
+					/* translators: 1: Link to premium page. */
+					__( 'NEW: Stats and Summaries | More things | <a href="%s" target="_blank">Upgrade to premium now</a>', 'simple-history' ),
+					'https://simple-history.com/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar'
+				),
+				[
+					'a' => [
+						'href' => true,
+						'target' => true,
+					],
+				]
+			);
+			?>
+			</p>
+		</div>
 
 		<?php
 

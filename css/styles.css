@@ -35,6 +35,8 @@
 	--sh-font-size-xxxlarge: 2rem;
 
 	/* Spacing */
+	--sh-spacing-xxsmall: 0.1rem;
+	--sh-spacing-xsmall: 0.25rem;
 	--sh-spacing-small: 0.5rem;
 	--sh-spacing-medium: 1rem;
 	--sh-spacing-large: 1.5rem;
@@ -47,21 +49,21 @@
 
 	/* Shadows. Resources to create: https://www.joshwcomeau.com/shadow-palette/ */
 	--sh-shadow-color: 0deg 0% 57%;
-	--sh-shadow-elevation-low:
-	  0.1px 0.2px 0.2px hsl(var(--sh-shadow-color) / 0.4),
-	  0.2px 0.3px 0.4px -1.5px hsl(var(--sh-shadow-color) / 0.36),
-	  0.6px 0.8px 1.1px -3px hsl(var(--sh-shadow-color) / 0.31);
-	--sh-shadow-elevation-medium:
-	  0.1px 0.2px 0.2px hsl(var(--sh-shadow-color) / 0.42),
-	  0.4px 0.6px 0.8px -1px hsl(var(--sh-shadow-color) / 0.38),
-	  1.2px 1.5px 2px -2px hsl(var(--sh-shadow-color) / 0.35),
-	  2.9px 3.8px 5px -3px hsl(var(--sh-shadow-color) / 0.31);
-	--sh-shadow-elevation-high:
-	  0.1px 0.2px 0.2px hsl(var(--sh-shadow-color) / 0.45),
-	  0.6px 0.8px 1px -0.5px hsl(var(--sh-shadow-color) / 0.42),
-	  1.8px 2.3px 3px -1px hsl(var(--sh-shadow-color) / 0.38),
-	  3.5px 4.5px 6px -1.5px hsl(var(--sh-shadow-color) / 0.35),
-	  6px 8px 10px -2px hsl(var(--sh-shadow-color) / 0.32);
+	--sh-shadow-elevation-low: 0.1px 0.2px 0.2px
+			hsl(var(--sh-shadow-color) / 0.4),
+		0.2px 0.3px 0.4px -1.5px hsl(var(--sh-shadow-color) / 0.36),
+		0.6px 0.8px 1.1px -3px hsl(var(--sh-shadow-color) / 0.31);
+	--sh-shadow-elevation-medium: 0.1px 0.2px 0.2px
+			hsl(var(--sh-shadow-color) / 0.42),
+		0.4px 0.6px 0.8px -1px hsl(var(--sh-shadow-color) / 0.38),
+		1.2px 1.5px 2px -2px hsl(var(--sh-shadow-color) / 0.35),
+		2.9px 3.8px 5px -3px hsl(var(--sh-shadow-color) / 0.31);
+	--sh-shadow-elevation-high: 0.1px 0.2px 0.2px
+			hsl(var(--sh-shadow-color) / 0.45),
+		0.6px 0.8px 1px -0.5px hsl(var(--sh-shadow-color) / 0.42),
+		1.8px 2.3px 3px -1px hsl(var(--sh-shadow-color) / 0.38),
+		3.5px 4.5px 6px -1.5px hsl(var(--sh-shadow-color) / 0.35),
+		6px 8px 10px -2px hsl(var(--sh-shadow-color) / 0.32);
 }
 
 /* clearfix */
@@ -1019,7 +1021,7 @@ Modal window with detailss
  */
 .sh-PageHeader {
 	margin: 0 0 0 -20px;
-	padding: 1.5rem;
+	padding: var(--sh-spacing-large);
 	background: #fff;
 	border-bottom: 1px solid var(--sh-color-gray);
 	display: flex;
@@ -1064,6 +1066,19 @@ so add some extra place then to make it look a bit less ugly.
 
 .sh-PageHeader-settingsLinkIcon {
 	--sh-icon-size: 25px;
+}
+
+.sh-PageHeader-notificationBar {
+	text-align: center;
+	background-color: var(--sh-color-pink-light);
+	padding: var(--sh-spacing-small) var(--sh-spacing-large);
+	margin-left: calc(var(--sh-spacing-large) * -1);
+	font-weight: 600;
+	border-bottom: 1px solid var(--sh-color-pink);
+
+	> p {
+		margin: 0;
+	}
 }
 
 .sh-PremiumFeatureBadge {
