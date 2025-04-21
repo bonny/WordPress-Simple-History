@@ -189,7 +189,7 @@ class Admin_Pages extends Service {
 				sprintf(
 					/* translators: 1: Link to premium page. */
 					__( 'NEW: Stats and Summaries | More things | <a href="%s" target="_blank">Upgrade to premium now</a>', 'simple-history' ),
-					'https://simple-history.com/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar'
+					'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar'
 				),
 				[
 					'a' => [

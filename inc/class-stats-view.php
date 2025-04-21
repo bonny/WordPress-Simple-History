@@ -456,7 +456,7 @@ class Stats_View {
 
 			<p class="sh-mt-0">
 				Premium users get access to charts with detailed stats.
-				<a target="_blank" href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-charts">Upgrade to Premium</a>.
+				<a href="https://simple-history.com/add-ons/premium/" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>.
 			</p>
 
 			<div class="sh-StatsDashboard-content">
@@ -597,7 +597,7 @@ class Stats_View {
 				?>
 				<p class="sh-mt-0 sh-mb-large">
 					<?php echo esc_html( $description_text ); ?>
-					<a href="https://simple-history.com/premium/" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>
+					<a href="https://simple-history.com/add-ons/premium/" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>
 				</p>
 				<?php
 			}

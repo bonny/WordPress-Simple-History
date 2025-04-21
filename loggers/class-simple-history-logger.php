@@ -184,7 +184,7 @@ class Simple_History_Logger extends Logger {
 				$message = sprintf(
 				/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
 					__( '<a href="%1$s" target="_blank" class="sh-ExternalLink">Get Premium to set number of days the log is kept.</a>', 'simple-history' ),
-					esc_url( 'https://simple-history.com/premium/?utm_source=wpadmin&utm_content=premium-purged-events' )
+					esc_url( 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_content=premium-purged-events' )
 				);
 			}
 
