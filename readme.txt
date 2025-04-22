@@ -321,6 +321,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Add hook `simple_history/admin_page/after_header` to allow plugins to add content after the header in Simple History admin pages.
 
+**Fixed**
+
+-   Don't show upsell boxes in Simple History settings page if premium is active.
+
 **Changed**
 
 -   Tested on WordPress 6.8.
