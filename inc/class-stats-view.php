@@ -29,7 +29,9 @@ class Stats_View {
 			echo wp_kses(
 				Helpers::get_settings_section_title_output(
 					__( 'Stats & Summaries', 'simple-history' ),
-					'moving'
+					// Icons that could be used:
+					// query stats, search insights, analytics, monitoring.
+					'bar_chart'
 				),
 				[
 					'span' => [
@@ -577,6 +579,7 @@ class Stats_View {
 	 * @param string $title Card title.
 	 * @param array  $stats Array of stats, each containing 'label' and 'value'.
 	 * @param string $color_var CSS variable name for the color.
+	 * @param string $description_text Description text.
 	 */
 	public static function output_stats_box_section( $title, $stats, $color_var, $description_text = '' ) {
 		?>
