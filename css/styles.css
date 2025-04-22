@@ -1068,7 +1068,7 @@ so add some extra place then to make it look a bit less ugly.
 	--sh-icon-size: 25px;
 }
 
-.sh-PageHeader-notificationBar {
+.sh-NotificationBar {
 	position: relative;
 	text-align: center;
 	background-color: var(--sh-color-cream);
@@ -1076,9 +1076,10 @@ so add some extra place then to make it look a bit less ugly.
 	margin: 0 0 0 calc(var(--sh-spacing-large) * -1);
 	font-weight: 600;
 	border-bottom: 1px solid var(--sh-color-gray);
+	transition: background-color 0.125s ease-out;
 }
 
-.sh-PageHeader-notificationBar-link::after {
+.sh-NotificationBar-link::after {
 	content: "";
 	position: absolute;
 	inset: 0;
@@ -1161,10 +1162,6 @@ so add some extra place then to make it look a bit less ugly.
 	font-size: var(--sh-font-size-small);
 	line-height: 1.4;
 	font-style: normal;
-}
-
-.sh-Page-content {
-	margin: 0 1rem;
 }
 
 .sh-PageNav {
@@ -1633,4 +1630,10 @@ a.sh-SettingsTabs-link:hover {
 .SimpleHistory__modal {
 	min-width: 50vw;
 	min-height: 50vh;
+}
+
+.sh-PageHeader a,
+.sh-NotificationBar a,
+.sh-Page-content a {
+	text-underline-position: from-font;
 }
