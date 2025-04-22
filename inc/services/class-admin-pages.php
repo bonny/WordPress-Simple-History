@@ -185,25 +185,45 @@ class Admin_Pages extends Service {
 		<?php
 		if ( ! Helpers::is_premium_add_on_active() ) {
 			?>
-			<p class="sh-PageHeader-notificationBar">
+			<aside class="sh-NotificationBar" role="complementary">
 				<?php
-				$premium_messages = [
-					__( 'New in premium: Stats and Summaries that gives you insights into your site\'s activity', 'simple-history' ),
-					__( 'Simple History Premium: Extended log storage and thoughtful new features to explore', 'simple-history' ),
-					__( 'Preserve your logs longer and gain helpful new tools with Simple History Premium', 'simple-history' ),
-					__( 'Did you know? Simple History Premium lets you set custom log retention periods', 'simple-history' ),
+				$notification_bar_messages = [
+					// [
+					// 'message' => __( 'New in premium: Stats and Summaries that gives you insights into your site\'s activity', 'simple-history' ),
+					// 'link' => 'https://simple-history.com/add-ons/premium/stats-and-summaries/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_stats',
+					// 'read_more' => __( 'View stats and summaries', 'simple-history' ),
+					// ],
+					// [
+					// 'message' => __( 'Simple History Premium: Extended log storage and thoughtful new features to explore', 'simple-history' ),
+					// 'link' => 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar',
+					// 'read_more' => __( 'Explore premium features', 'simple-history' ),
+					// ],
+					// [
+					// 'message' => __( 'Preserve your logs longer and gain helpful new tools with Simple History Premium', 'simple-history' ),
+					// 'link' => 'https://simple-history.com/add-ons/premium/log-retention/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_retention',
+					// 'read_more' => __( 'Learn about log retention', 'simple-history' ),
+					// ],
+					// [
+					// 'message' => __( 'Did you know? Simple History Premium lets you set custom log retention periods', 'simple-history' ),
+					// 'link' => 'https://simple-history.com/add-ons/premium/log-retention/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_retention',
+					// 'read_more' => __( 'See retention options', 'simple-history' ),
+					// ],
+					[
+						'message' => __( 'New feature: Stats & Summaries.', 'simple-history' ),
+						'link' => Menu_Manager::get_admin_url_by_slug( 'simple_history_stats_page' ),
+						'read_more' => __( 'Let\'s try it', 'simple-history' ),
+					],
 				];
 
-				$random_message = $premium_messages[ array_rand( $premium_messages ) ];
+				$random_message = $notification_bar_messages[ array_rand( $notification_bar_messages ) ];
 
-				$premium_link = 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar';
 				?>
-				<?php echo esc_html( $random_message ); ?>
+				<?php echo esc_html( $random_message['message'] ); ?>
 				|
-				<a href="<?php echo esc_url( $premium_link ); ?>" target="_blank" class="sh-PageHeader-notificationBar-link">
-					<?php echo esc_html__( 'Learn more', 'simple-history' ); ?>
+				<a href="<?php echo esc_url( $random_message['link'] ); ?>" class="sh-NotificationBar-link">
+					<?php echo esc_html( $random_message['read_more'] ); ?>
 				</a>
-			</p>
+			</aside>
 			<?php
 		}
 
