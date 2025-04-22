@@ -25,11 +25,11 @@ class Compat {
 	 * Note that, unlike `date_i18n()`, this function accepts a true Unix timestamp, not summed
 	 * with timezone offset .
 	 *
-	 * @global WP_Locale $wp_locale WordPress date and time locale object .
+	 * @global \WP_Locale $wp_locale WordPress date and time locale object .
 	 *
-	 * @param string       $format    PHP date format .
-	 * @param int          $timestamp Optional . Unix timestamp . Defaults to current time .
-	 * @param DateTimeZone $timezone  Optional. Timezone to output result in. Defaults to timezone
+	 * @param string        $format    PHP date format .
+	 * @param int           $timestamp Optional . Unix timestamp . Defaults to current time .
+	 * @param \DateTimeZone $timezone  Optional. Timezone to output result in. Defaults to timezone
 	 *                                from site settings.
 	 * @return string|false The date, translated if locale specifies it. False on invalid timestamp input.
 	 */
@@ -112,7 +112,7 @@ class Compat {
 		 * @param string       $date      Formatted date string.
 		 * @param string       $format    Format to display the date.
 		 * @param int          $timestamp Unix timestamp.
-		 * @param DateTimeZone $timezone  Timezone.
+		 * @param \DateTimeZone $timezone  Timezone.
 		 */
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$date = apply_filters( 'wp_date', $date, $format, $timestamp, $timezone );
