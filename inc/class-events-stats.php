@@ -9,8 +9,11 @@ use WP_Session_Tokens;
  */
 class Events_Stats {
 	/**
-	 * Base method for getting event counts by logger and message value.
-	 * This replaces both get_stats_for_logger_and_value() and get_stats_for_logger_and_values().
+	 * Method for getting event counts by logger and message value.
+	 *
+	 * Examples:
+	 * get_event_count( 'SimpleUserLogger', [ 'user_login_failed', 'user_unknown_login_failed' ], $date_from, $date_to );
+	 * et_event_count( 'SimpleUserLogger', 'user_created', $date_from, $date_to );
 	 *
 	 * @param string       $logger_slug    The logger slug (e.g. 'SimpleMediaLogger').
 	 * @param string|array $message_value  The value(s) to match against.
@@ -25,25 +28,31 @@ class Events_Stats {
 		$values = (array) $message_value;
 
 		// Create placeholders for the IN clause.
+		// This creates a string like this: "%s,%s,%s".
 		$value_placeholders = implode( ',', array_fill( 0, count( $values ), '%s' ) );
 
-		$sql = $wpdb->prepare(
-			"SELECT COUNT(DISTINCT h.id)
-			FROM {$wpdb->prefix}simple_history h
-			JOIN {$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
-			WHERE h.logger = %s
-			AND c.key = '_message_key'
-			AND c.value IN ($value_placeholders)
-			AND h.date >= FROM_UNIXTIME(%d)
-			AND h.date <= FROM_UNIXTIME(%d)",
-			array_merge(
-				[ $logger_slug ],
-				$values,
-				[ $date_from, $date_to ]
-			)
+		$query_args = array_merge(
+			[ $logger_slug ],
+			$values,
+			[ $date_from, $date_to ]
 		);
 
-		return (int) $wpdb->get_var( $sql );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"	SELECT COUNT(DISTINCT h.id)
+					FROM {$wpdb->prefix}simple_history h
+					JOIN {$wpdb->prefix}simple_history_contexts c ON h.id = c.history_id
+					WHERE h.logger = %s
+					AND c.key = '_message_key'
+					AND c.value IN ($value_placeholders)
+					AND h.date >= FROM_UNIXTIME(%d)
+					AND h.date <= FROM_UNIXTIME(%d)
+				",
+				$query_args
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
@@ -227,7 +236,7 @@ class Events_Stats {
 			return [];
 		}
 
-		// Format user data with avatars and proper types
+		// Format user data with avatars and proper types.
 		return array_map(
 			function ( $user ) {
 				return [
@@ -531,15 +540,16 @@ class Events_Stats {
 		$sql .= " AND c.value IN ($where_in) ORDER BY h.date DESC LIMIT %d";
 
 		// Prepare the complete query with all parameters.
-		$query = $wpdb->prepare(
-			$sql,
-			array_merge(
-				$message_keys,
-				array( $limit )
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				$sql,
+				array_merge(
+					$message_keys,
+					array( $limit )
+				)
 			)
 		);
-
-		$results = $wpdb->get_results( $query );
 
 		$plugins = array();
 		foreach ( $results as $result ) {
@@ -1462,6 +1472,7 @@ class Events_Stats {
 		// Second query: Get all context data for these history entries.
 		$context_results = $wpdb->get_results(
 			$wpdb->prepare(
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT 
 						history_id,
 						`key`,
@@ -1473,6 +1484,7 @@ class Events_Stats {
 				$history_ids
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Combine the results.
 		$context_by_history_id = array();
