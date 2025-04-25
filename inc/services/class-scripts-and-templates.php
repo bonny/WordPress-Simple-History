@@ -52,6 +52,13 @@ class Scripts_And_Templates extends Service {
 		);
 
 		wp_enqueue_style(
+			'simple_history_icons',
+			SIMPLE_HISTORY_DIR_URL . 'css/icons.css',
+			false,
+			SIMPLE_HISTORY_VERSION
+		);
+
+		wp_enqueue_style(
 			'simple_history_utility_styles',
 			SIMPLE_HISTORY_DIR_URL . 'css/utility-classes.css',
 			false,
