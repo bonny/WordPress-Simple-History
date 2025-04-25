@@ -320,6 +320,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 ### Unreleased
 
 -   Load icons from a separate CSS file, so it get's cachebusted when the icon CSS file is changed.
+-   Make interface even clearer by hiding some promo boxes if [Premium](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) is active.
 
 ### 5.9.0 (April 2025)
 
