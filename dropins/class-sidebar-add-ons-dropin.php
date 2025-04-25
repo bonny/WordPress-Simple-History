@@ -88,6 +88,11 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			return;
 		}
 
+		// Hide if Premium is installed, because one feature of premium is hiding promos.
+		if ( Helpers::is_premium_add_on_active() ) {
+			return;
+		}
+		
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo self::get_woocommerce_logger_features_postbox_html();
 	}
@@ -101,6 +106,11 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			return;
 		}
 
+		// Hide if Premium is installed, because one feature of premium is hiding promos.
+		if ( Helpers::is_premium_add_on_active() ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo self::get_debug_and_monitor_features_postbox_html();
 	}
@@ -111,6 +121,11 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * @return string HTML
 	 */
 	public static function get_debug_and_monitor_features_postbox_html() {
+		// Hide if Premium is installed, because one feature of premium is hiding promos.
+		if ( Helpers::is_premium_add_on_active() ) {
+			return;
+		}
+		
 		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=debug-monitor-sidebar';
 
 		ob_start();
