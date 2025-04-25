@@ -315,20 +315,29 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.9.0 (April 2025)
+
+📊 This release adds a new [stats and summaries page](https://simple-history.com/features/stats-and-summaries/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_stats_summaries) that gives you a quick overview summary of your site's activity.
+[Read more about the new stats and summaries page in the release post](https://simple-history.com/2025/simple-history-5-9-0-released/).
 
 **Added**
 
--   Add hook `simple_history/admin_page/after_header` to allow plugins to add content after the header in Simple History admin pages.
--   Add link to stats and summaries page in quick stats box.
+-   New stats and summaries page that gives you a lot of information about your site's activity. For the last month (customizable in [Premium](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)) you can see things like:
+    -   Quick numbers like total events during this period, total number of users that performed actions, number of posts and pages created, etc.
+    -   A big chart with the number of events logged each day.
+    -   A visual overview of the most active users.
+-   Quick access link to [stats and summaries](https://simple-history.com/features/stats-and-summaries/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_stats_summaries) in the quick stats box
+
+-   Hook `simple_history/admin_page/after_header` to allow plugins to add content after the header in Simple History admin pages.
+-   A discrete notification bar at top.
 
 **Fixed**
 
--   Don't show upsell boxes in Simple History settings page if premium is active.
+-   Remove upsell boxes in settings page when [Premium](https://simple-history.com/add-ons/premium/) is active
 
 **Changed**
 
--   Tested on WordPress 6.8.
+-   Verified compatibility with WordPress 6.8
 
 ### 5.8.2 (April 2025)
 
