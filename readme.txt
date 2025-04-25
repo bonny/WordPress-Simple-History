@@ -320,6 +320,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Add hook `simple_history/admin_page/after_header` to allow plugins to add content after the header in Simple History admin pages.
+-   Add link to stats and summaries page in quick stats box.
 
 **Fixed**
 
