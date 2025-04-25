@@ -208,7 +208,6 @@ class Quick_Stats extends Dropin {
 	 * Output some simple quick stats.
 	 */
 	public function output_quick_stats() {
-		$msg = $this->get_stats_message();
-		echo wp_kses_post( $msg );
+		echo wp_kses_post( $this->get_stats_message() );
 	}
 }
