@@ -92,7 +92,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		if ( Helpers::is_premium_add_on_active() ) {
 			return;
 		}
-		
+
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo self::get_woocommerce_logger_features_postbox_html();
 	}
@@ -125,7 +125,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		if ( Helpers::is_premium_add_on_active() ) {
 			return;
 		}
-		
+
 		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=debug-monitor-sidebar';
 
 		ob_start();
