@@ -139,15 +139,17 @@ $faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 		</div>
 	</div>
 
-	<!-- Grid with premium features.	 -->
+	<!-- Grid with premium features. -->
 	<div class="sh-grid sh-grid-cols-1/3">
 		<?php
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo Sidebar_Add_Ons_Dropin::get_premium_features_postbox_html();
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_features_postbox_html();
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_features_postbox_html();
+		if ( ! Helpers::is_premium_add_on_active() ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo Sidebar_Add_Ons_Dropin::get_premium_features_postbox_html();
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo Sidebar_Add_Ons_Dropin::get_woocommerce_logger_features_postbox_html();
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_features_postbox_html();
+		}
 		?>
 	</div>
 
