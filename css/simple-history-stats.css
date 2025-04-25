@@ -364,7 +364,7 @@
 	margin-right: 0.5em;
 }
 
-/* Container for mulitple stats numbers and charts. */
+/* Container for multiple stats numbers and charts. */
 .sh-StatsDashboard-stats {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
