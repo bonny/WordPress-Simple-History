@@ -56,13 +56,20 @@ function EventsGUI() {
 		parseAsString.withDefault( '' )
 	);
 
-	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] = useState(
-		SEARCH_FILTER_DEFAULT_START_DATE
+	// Custom date from and to. Default to today.
+	// Example values: "2025-04-01T00:00:00", "2025-04-30T23:59:59".
+	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] = useQueryState(
+		'from',
+		parseAsString.withDefault( SEARCH_FILTER_DEFAULT_START_DATE )
 	);
-	const [ selectedCustomDateTo, setSelectedCustomDateTo ] = useState(
-		SEARCH_FILTER_DEFAULT_END_DATE
+	const [ selectedCustomDateTo, setSelectedCustomDateTo ] = useQueryState(
+		'to',
+		parseAsString.withDefault( SEARCH_FILTER_DEFAULT_END_DATE )
 	);
+
+	// Search text, ie. the text in the search input field.
 	const [ enteredSearchText, setEnteredSearchText ] = useQueryState( 'q' );
+
 	const [ selectedLogLevels, setSelectedLogLevels ] = useState( [] );
 	// const [ selectedLogLevels, setSelectedLogLevels ] = useQueryState(
 	// 	'logLevels',
