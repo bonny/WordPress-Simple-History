@@ -1,3 +1,4 @@
+import { useQueryState, parseAsString, parseAsArrayOf } from 'nuqs';
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
@@ -43,15 +44,34 @@ function EventsGUI() {
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
-	const [ selectedDateOption, setSelectedDateOption ] = useState( '' );
+
+	/**
+	 * Start filter/search options states.
+	 */
+
+	// Value selected in dates dropdown.
+	// Example values: "lastdays:30", "month:2025-04", "allDates", "customRange".
+	const [ selectedDateOption, setSelectedDateOption ] = useQueryState(
+		'date',
+		parseAsString.withDefault( '' )
+	);
+
 	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] = useState(
 		SEARCH_FILTER_DEFAULT_START_DATE
 	);
 	const [ selectedCustomDateTo, setSelectedCustomDateTo ] = useState(
 		SEARCH_FILTER_DEFAULT_END_DATE
 	);
-	const [ enteredSearchText, setEnteredSearchText ] = useState( '' );
+	const [ enteredSearchText, setEnteredSearchText ] = useQueryState( 'q' );
 	const [ selectedLogLevels, setSelectedLogLevels ] = useState( [] );
+	// const [ selectedLogLevels, setSelectedLogLevels ] = useQueryState(
+	// 	'logLevels',
+	// 	parseAsArrayOf( parseAsString ).withDefault( [] )
+	// );
+
+	// Array with the selected message types.
+	// Contains the same values as the messageTypesSuggestions array.
+	const [ selectedMessageTypes, setSelectedMessageTypes ] = useState( [] );
 
 	// Array with objects that contains message types suggestions, used in the message types select control.
 	// Keys are "slug" for search and "value".
@@ -59,15 +79,22 @@ function EventsGUI() {
 		[]
 	);
 
-	// Array with the selected message types.
-	// Contains the same values as the messageTypesSuggestions array.
-	const [ selectedMessageTypes, setSelectedMessageTypes ] = useState( [] );
+	// const [ selectedMessageTypes, setSelectedMessageTypes ] = useQueryState(
+	// 	'messageTypes',
+	// 	parseAsArrayOf( parseAsString ).withDefault( [] )
+	// );
 
 	// Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
 	// All users that are selected are added here.
 	// This data is used to get user id from the name+email when we send the selected users to the API.
 	const [ selectedUsersWithId, setSelectedUsersWithId ] = useState( [] );
 
+	/**
+	 * End filter/search options states.
+	 */
+
+	// Generate the events query params.
+	// Memoized to avoid unnecessary re-renders in the child components.
 	const eventsQueryParams = useMemo( () => {
 		return generateAPIQueryParams( {
 			selectedLogLevels,

@@ -76,9 +76,13 @@ export function EventsSearchFilters( props ) {
 				allDatesOption,
 			] );
 
-			setSelectedDateOption(
-				`lastdays:${ searchOptions.dates.daysToShow }`
-			);
+			// Set selected date option to "recommended" option from API.
+			// Only set if not already set, because it can be set in the URL.
+			if ( ! selectedDateOption ) {
+				setSelectedDateOption(
+					`lastdays:${ searchOptions.dates.daysToShow }`
+				);
+			}
 
 			/**
 			 * Generate message types suggestions.
