@@ -185,15 +185,6 @@ class Stats_Service extends Service {
 		// Get activity overview by date.
 		$activity_overview_by_date = $this->stats->get_activity_overview_by_date( $date_from, $date_to );
 
-		// Get peak activity times.
-		$peak_activity_times = $this->stats->get_peak_activity_times( $date_from, $date_to );
-
-		// Get peak days.
-		$peak_days = $this->stats->get_peak_days( $date_from, $date_to );
-
-		// Get logged in users.
-		$logged_in_users = $this->stats->get_logged_in_users();
-
 		// Get user statistics.
 		$user_stats = [
 			'user_logins_successful' => $this->stats->get_successful_logins_count( $date_from, $date_to ),
@@ -262,12 +253,6 @@ class Stats_Service extends Service {
 		];
 		$media_stats['total_count'] = array_sum( array_filter( array_values( $media_stats ), 'is_numeric' ) );
 
-		$media_stats_details = [
-			'media_files_uploaded_details' => $this->stats->get_media_uploaded_details( $date_from, $date_to ),
-			'media_files_edited_details' => $this->stats->get_media_edited_details( $date_from, $date_to ),
-			'media_files_deleted_details' => $this->stats->get_media_deleted_details( $date_from, $date_to ),
-		];
-
 		// Get top users.
 		$top_users = $this->stats->get_top_users( $date_from, $date_to );
 
@@ -275,31 +260,15 @@ class Stats_Service extends Service {
 			'stats' => $this->stats,
 			'overview_total_events' => $total_events,
 			'overview_activity_by_date' => $activity_overview_by_date,
-			'overview_peak_times' => $peak_activity_times,
-			'overview_peak_days' => $peak_days,
-			'overview_logged_in_users' => $logged_in_users,
 			'user_stats' => $user_stats,
 			'plugin_stats' => $plugin_stats,
 			'wordpress_stats' => $wordpress_stats,
 			'content_stats' => $posts_pages_stats,
 			'media_stats' => $media_stats,
-			'media_stats_details' => $media_stats_details,
 			'user_rankings' => $top_users,
 			'user_total_count' => $this->stats->get_total_users( $date_from, $date_to ),
-			'user_stats_details' => $this->stats->get_detailed_user_stats( $date_from, $date_to ),
 		];
 	}
-
-	/**
-	 * Format top users data for the chart.
-	 *
-	 * @param array $top_users Array of top users.
-	 * @return array Formatted top users data.
-	 */
-	private function format_top_users_data( $top_users ) {
-		return $top_users ? $top_users : [];
-	}
-
 	/**
 	 * Localize script data.
 	 *
@@ -315,17 +284,8 @@ class Stats_Service extends Service {
 				'data' => [
 					'activityOverview' => $data['overview_activity_by_date'] ? $data['overview_activity_by_date'] : [],
 					'topUsers' => $data['user_rankings'] ? $data['user_rankings'] : [],
-					'peakTimes' => $data['overview_peak_times'] ? $data['overview_peak_times'] : [],
-					'peakDays' => $data['overview_peak_days'] ? $data['overview_peak_days'] : [],
-				],
-				'dateRange' => [
-					'from' => $date_from,
-					'to' => $date_to,
 				],
 				'strings' => [
-					'events' => __( 'Events', 'simple-history' ),
-					'actions' => __( 'Actions', 'simple-history' ),
-					'users' => __( 'Users', 'simple-history' ),
 					'weekdays' => [
 						__( 'Sunday', 'simple-history' ),
 						__( 'Monday', 'simple-history' ),
