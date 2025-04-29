@@ -1504,4 +1504,99 @@ class Events_Stats {
 
 		return $history_results;
 	}
+
+	/**
+	 * Get total count of plugin events (updates, bulk updates, installations, deletions, activations, deactivations).
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Total count of plugin events, or false if invalid dates.
+	 */
+	public function get_plugin_total_count( $date_from, $date_to ) {
+		$plugin_events = [
+			'plugin_updated',
+			'plugin_bulk_updated',
+			'plugin_installed',
+			'plugin_deleted',
+			'plugin_activated',
+			'plugin_deactivated',
+			'plugin_update_available',
+		];
+
+		// Get counts from both loggers since plugin update available events are logged in AvailableUpdatesLogger.
+		$simple_plugin_logger_count = $this->get_event_count( 'SimplePluginLogger', $plugin_events, $date_from, $date_to );
+		$available_updates_logger_count = $this->get_event_count( 'AvailableUpdatesLogger', [ 'plugin_update_available' ], $date_from, $date_to );
+
+		return $simple_plugin_logger_count + $available_updates_logger_count;
+	}
+
+	/**
+	 * Get total count of user events (logins, failed logins, profile updates, user creation/deletion).
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Total count of user events, or false if invalid dates.
+	 */
+	public function get_user_total_count( $date_from, $date_to ) {
+		$user_events = [
+			'user_logged_in',
+			'user_unknown_logged_in',
+			'user_login_failed',
+			'user_unknown_login_failed',
+			'user_updated_profile',
+			'user_created',
+			'user_deleted',
+		];
+		return $this->get_event_count( 'SimpleUserLogger', $user_events, $date_from, $date_to );
+	}
+
+	/**
+	 * Get total count of content events (posts/pages created, updated, trashed, deleted).
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Total count of content events, or false if invalid dates.
+	 */
+	public function get_content_total_count( $date_from, $date_to ) {
+		$content_events = [
+			'post_created',
+			'post_updated',
+			'post_trashed',
+			'post_deleted',
+			'post_restored',
+		];
+		return $this->get_event_count( 'SimplePostLogger', $content_events, $date_from, $date_to );
+	}
+
+	/**
+	 * Get total count of media events (uploads, edits, deletions).
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Total count of media events, or false if invalid dates.
+	 */
+	public function get_media_total_count( $date_from, $date_to ) {
+		$media_events = [
+			'attachment_created',
+			'attachment_updated',
+			'attachment_deleted',
+		];
+		return $this->get_event_count( 'SimpleMediaLogger', $media_events, $date_from, $date_to );
+	}
+
+	/**
+	 * Get total count of core update events.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Total count of core update events, or false if invalid dates.
+	 */
+	public function get_core_total_count( $date_from, $date_to ) {
+		$core_events = [
+			'core_updated',
+			'core_auto_updated',
+			'core_update_available',
+		];
+		return $this->get_event_count( 'SimpleCoreUpdatesLogger', $core_events, $date_from, $date_to );
+	}
 }
