@@ -185,18 +185,17 @@ class Stats_Service extends Service {
 		// Get activity overview by date.
 		$activity_overview_by_date = $this->stats->get_activity_overview_by_date( $date_from, $date_to );
 
-		// Get user statistics.
+		// Get user statistics with optimized total count.
 		$user_stats = [
 			'user_logins_successful' => $this->stats->get_successful_logins_count( $date_from, $date_to ),
 			'user_logins_failed' => $this->stats->get_failed_logins_count( $date_from, $date_to ),
 			'user_profiles_updated' => $this->stats->get_user_updated_count( $date_from, $date_to ),
 			'user_accounts_added' => $this->stats->get_user_added_count( $date_from, $date_to ),
 			'user_accounts_removed' => $this->stats->get_user_removed_count( $date_from, $date_to ),
-			'total_count' => 0, // Will be calculated below.
+			'total_count' => $this->stats->get_user_total_count( $date_from, $date_to ),
 		];
-		$user_stats['total_count'] = array_sum( array_filter( array_values( $user_stats ), 'is_numeric' ) );
 
-		// Get WordPress and plugin statistics.
+		// Get WordPress and plugin statistics with optimized total count.
 		$plugin_stats = [
 			'plugin_updates_completed' => $this->stats->get_plugin_updates_count( $date_from, $date_to ),
 			'plugin_installs_completed' => $this->stats->get_plugin_installs_count( $date_from, $date_to ),
@@ -204,54 +203,33 @@ class Stats_Service extends Service {
 			'plugin_activations_completed' => $this->stats->get_plugin_activations_count( $date_from, $date_to ),
 			'plugin_deactivations_completed' => $this->stats->get_plugin_deactivations_count( $date_from, $date_to ),
 			'plugin_updates_found' => $this->stats->get_plugin_updates_found_count( $date_from, $date_to ),
-			'total_count' => 0, // Initialize total count that will be summed up later.
+			'total_count' => $this->stats->get_plugin_total_count( $date_from, $date_to ),
 		];
-		$plugin_stats['total_count'] = array_sum( array_filter( array_values( $plugin_stats ), 'is_numeric' ) );
 
-		// Get WordPress core statistics.
+		// Get WordPress core statistics with optimized total count.
 		$wordpress_stats = [
 			'wordpress_core_updates_found' => $this->stats->get_wordpress_core_updates_found_count( $date_from, $date_to ),
 			'wordpress_core_updates_completed' => $this->stats->get_wordpress_core_updates_count( $date_from, $date_to ),
-			'total_count' => 0, // Will be calculated below.
+			'total_count' => $this->stats->get_core_total_count( $date_from, $date_to ),
 		];
-		$wordpress_stats['total_count'] = array_sum( array_filter( array_values( $wordpress_stats ), 'is_numeric' ) );
 
-		// Get posts and pages statistics.
+		// Get posts and pages statistics with optimized total count.
 		$posts_pages_stats = [
 			'content_items_created' => $this->stats->get_posts_pages_created( $date_from, $date_to ),
 			'content_items_updated' => $this->stats->get_posts_pages_updated( $date_from, $date_to ),
 			'content_items_deleted' => $this->stats->get_posts_pages_deleted( $date_from, $date_to ),
 			'content_items_trashed' => $this->stats->get_posts_pages_trashed( $date_from, $date_to ),
 			'content_items_most_edited' => $this->stats->get_most_edited_posts( $date_from, $date_to ),
-			'total_count' => 0, // Will be calculated below.
+			'total_count' => $this->stats->get_content_total_count( $date_from, $date_to ),
 		];
-		// Don't include most_edited in total since it's an array of items.
-		$posts_pages_stats['total_count'] = array_sum(
-			array_filter(
-				[
-					$posts_pages_stats['content_items_created'],
-					$posts_pages_stats['content_items_updated'],
-					$posts_pages_stats['content_items_deleted'],
-					$posts_pages_stats['content_items_trashed'],
-				],
-				'is_numeric'
-			)
-		);
 
-		// Get detailed content stats.
-		$detailed_content_stats = $this->stats->get_detailed_content_stats( $date_from, $date_to );
-		if ( $detailed_content_stats ) {
-			$posts_pages_stats = array_merge( $posts_pages_stats, $detailed_content_stats );
-		}
-
-		// Get media statistics for the period.
+		// Get media statistics with optimized total count.
 		$media_stats = [
 			'media_files_uploaded' => $this->stats->get_media_uploads_count( $date_from, $date_to ),
 			'media_files_edited' => $this->stats->get_media_edits_count( $date_from, $date_to ),
 			'media_files_deleted' => $this->stats->get_media_deletions_count( $date_from, $date_to ),
-			'total_count' => 0, // Will be calculated below.
+			'total_count' => $this->stats->get_media_total_count( $date_from, $date_to ),
 		];
-		$media_stats['total_count'] = array_sum( array_filter( array_values( $media_stats ), 'is_numeric' ) );
 
 		// Get top users.
 		$top_users = $this->stats->get_top_users( $date_from, $date_to );
@@ -269,6 +247,7 @@ class Stats_Service extends Service {
 			'user_total_count' => $this->stats->get_total_users( $date_from, $date_to ),
 		];
 	}
+
 	/**
 	 * Localize script data.
 	 *
