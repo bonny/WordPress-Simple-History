@@ -1,10 +1,21 @@
 import { LOGLEVELS_OPTIONS } from './constants';
 import { useState, useEffect } from '@wordpress/element';
+import { format } from 'date-fns';
 
 /**
- * Generate api query object based on selected filters.
+ * Generate API query object based on selected filters.
  *
  * @param {Object} props
+ * @param {Array}  props.selectedLogLevels
+ * @param {Array}  props.selectedMessageTypes
+ * @param {Array}  props.selectedUsersWithId
+ * @param {string} props.enteredSearchText
+ * @param {string} props.selectedDateOption
+ * @param {Date}   props.selectedCustomDateFrom
+ * @param {Date}   props.selectedCustomDateTo
+ * @param {number} props.page
+ * @param {Object} props.pagerSize
+ * @return {Object} API query object.
  */
 export function generateAPIQueryParams( props ) {
 	const {
@@ -57,8 +68,14 @@ export function generateAPIQueryParams( props ) {
 
 	if ( selectedDateOption ) {
 		if ( selectedDateOption === 'customRange' ) {
-			eventsQueryParams.date_from = selectedCustomDateFrom;
-			eventsQueryParams.date_to = selectedCustomDateTo;
+			eventsQueryParams.date_from = format(
+				selectedCustomDateFrom,
+				"yyyy-MM-dd'T'HH:mm:ss"
+			);
+			eventsQueryParams.date_to = format(
+				selectedCustomDateTo,
+				"yyyy-MM-dd'T'HH:mm:ss"
+			);
 		} else {
 			eventsQueryParams.dates = selectedDateOption;
 		}
@@ -78,6 +95,7 @@ export function generateAPIQueryParams( props ) {
 				selectedLogLevelsValues.push( logLevelOption.value );
 			}
 		} );
+
 		if ( selectedLogLevelsValues.length ) {
 			eventsQueryParams.loglevels = selectedLogLevelsValues;
 		}
@@ -156,7 +174,7 @@ export const useURLFragment = () => {
  *
  * @param {number} min
  * @param {number} max
- * @returns {number} Random number between min and max.
+ * @return {number} Random number between min and max.
  */
 export function randomIntFromInterval( min, max ) {
 	return Math.floor( Math.random() * ( max - min + 1 ) + min );

@@ -8,8 +8,7 @@ import {
 import { getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { endOfDay, format, startOfDay } from 'date-fns';
-import { TIMEZONELESS_FORMAT } from '../constants';
+import { endOfDay, startOfDay } from 'date-fns';
 
 export function DefaultFilters( props ) {
 	const {
@@ -65,10 +64,7 @@ export function DefaultFilters( props ) {
 							startOfWeek={ firstDayOfWeek }
 							onChange={ ( nextDate ) => {
 								setSelectedCustomDateFrom(
-									format(
-										startOfDay( nextDate ),
-										TIMEZONELESS_FORMAT
-									)
+									startOfDay( new Date( nextDate ) )
 								);
 							} }
 							currentDate={ selectedCustomDateFrom }
@@ -84,10 +80,7 @@ export function DefaultFilters( props ) {
 							startOfWeek={ firstDayOfWeek }
 							onChange={ ( nextDate ) => {
 								setSelectedCustomDateTo(
-									format(
-										endOfDay( nextDate ),
-										TIMEZONELESS_FORMAT
-									)
+									endOfDay( new Date( nextDate ) )
 								);
 							} }
 							currentDate={ selectedCustomDateTo }
