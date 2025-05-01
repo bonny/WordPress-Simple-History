@@ -151,7 +151,7 @@ class User_Logger extends Logger {
 	 */
 	public function loaded() {
 		// Plain logins and logouts.
-		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
+		add_action( 'wp_login', array( $this, 'on_wp_login' ), 10, 2 );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ), 10, 1 );
 
 		// Failed login attempt to username that exists.
@@ -758,7 +758,7 @@ class User_Logger extends Logger {
 	 * @param string $user_login Username.
 	 * @param object $user   WP_User object.
 	 */
-	public function onWpLogin( $user_login = null, $user = null ) {
+	public function on_wp_login( $user_login = null, $user = null ) {
 
 		$user_obj = null;
 		$context = array(
