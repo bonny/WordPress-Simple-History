@@ -328,6 +328,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Refactor query date_from and date_to parsing so sending Y-m-d means start/end of day automatically. This means that if you use the API there is no need to pass `date_from` and `date_to` as timestamps just to get the start/end of day.
 -   Add notice log level to the GUI filters.
 -   Misc internal improvements.
+-   Use priority 1 for `wp_login` action instead of the default 10. This should make the log catch more logins when auth plugins like [Two Factor](https://wordpress.org/plugins/two-factor/) is used.
 
 ### 5.9.0 (April 2025)
 
