@@ -324,23 +324,23 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Add option to include header row in CSV exports
--   Add URL-based filters for easy bookmarking and sharing of search selections
+-   Add option to include header row in CSV exports.
+-   Add URL-based search filters for easy bookmarking and sharing of search selections.
 
 **Changed**
 
--   Load icons from a separate CSS file for better cache busting
--   Make interface even clearer by hiding some promo boxes if [Premium](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) is active
--   Remove `server_http_user_agent` from user updates, user creation, user deletion. It is still available for user successful and failed logins. If support personal needs to know the user agent, the login event is the best place to find this. Note: if you need event more debug info, you can enable [Detective Mode](https://simple-history.com/support/detective-mode/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_detective_mode) or get the [Debug and Monitor add-on](https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_debug_monitor)
--   Use priority 1 for `wp_login` action instead of default 10 for better compatibility with auth plugins like [Two Factor](https://wordpress.org/plugins/two-factor/)
--   Improve performance of stats and summaries page
--   Refactor query date_from and date_to parsing so sending Y-m-d means start/end of day automatically
+-   Load icons from a separate CSS file for better cache busting.
+-   Make interface even clearer by hiding some promo boxes if [Premium](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) is active.
+-   Remove `server_http_user_agent` from user updates, user creation, user deletion. It is still available for user successful and failed logins. If support personal needs to know the user agent, the login event is the best place to find this. Note: if you need event more debug info, you can enable [Detective Mode](https://simple-history.com/support/detective-mode/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_detective_mode) or get the [Debug and Monitor add-on](https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_debug_monitor).
+-   Use priority 1 for `wp_login` action instead of default 10 for better compatibility with auth plugins like [Two Factor](https://wordpress.org/plugins/two-factor/).
+-   Improve performance of stats and summaries page.
+-   Refactor query `date_from` and `date_to` parsing so sending in format `Y-m-d` means start/end of day automatically.
 
 **Fixed**
 
--   Add notice log level to the GUI filters
--   Remove duplicate `date_gmt` column from event details table
--   Misc internal improvements
+-   Add log level `notice` to the GUI filters.
+-   Remove duplicate `date_gmt` column from event details table.
+-   Misc internal improvements.
 
 ### 5.9.0 (April 2025)
 
