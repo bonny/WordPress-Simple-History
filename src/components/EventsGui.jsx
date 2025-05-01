@@ -158,7 +158,6 @@ function EventsGUI() {
 		parseAsJson( messageTypesSchema.parse ).withDefault( emptyArray )
 	);
 
-
 	// Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
 	// All users that are selected are added here.
 	// This data is used to get user id from the name+email when we send the selected users to the API.
