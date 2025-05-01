@@ -151,7 +151,7 @@ class User_Logger extends Logger {
 	 */
 	public function loaded() {
 		// Plain logins and logouts.
-		add_action( 'wp_login', array( $this, 'on_wp_login' ), 10, 2 );
+		add_action( 'wp_login', array( $this, 'on_wp_login' ), 1, 2 );
 		add_action( 'wp_logout', array( $this, 'onWpLogout' ), 10, 1 );
 
 		// Failed login attempt to username that exists.
