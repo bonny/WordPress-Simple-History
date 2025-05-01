@@ -254,8 +254,7 @@ class Log_Query {
 		 * TODO: Add where for messages. Check that both logger and key are correct.
 		 */
 		$inner_sql_statement_template = '
-			
-		
+
 			## START INNER_SQL_QUERY_STATEMENT
 			SELECT
 				id,
@@ -274,7 +273,6 @@ class Log_Query {
 
 			ORDER BY id DESC
 			## END INNER_SQL_QUERY_STATEMENT
-
 
 		';
 
@@ -301,7 +299,6 @@ class Log_Query {
 		 */
 		$sql_statement_max_ids_and_count_template = '
 
-
 			## START SQL_STATEMENT_MAX_IDS_AND_COUNT_TEMPLATE
 			SELECT 
 				max(h.id) as maxId,
@@ -321,7 +318,6 @@ class Log_Query {
 
 			# Limit
 			%5$s
-
 
 			## END SQL_STATEMENT_MAX_IDS_AND_COUNT_TEMPLATE
 		';
@@ -364,7 +360,6 @@ class Log_Query {
 		 */
 		$sql_statement_log_rows = '
 
-
 			## START SQL_STATEMENT_LOG_ROWS
 			SELECT
 				simple_history_1.id,
@@ -387,7 +382,6 @@ class Log_Query {
 
 			ORDER BY simple_history_1.id DESC
 			## END SQL_STATEMENT_LOG_ROWS
-
 
 		';
 
@@ -765,21 +759,31 @@ class Log_Query {
 		}
 
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
-		if ( isset( $args['date_from'] ) && ! is_numeric( $args['date_from'] ) ) {
-			$args['date_from'] = strtotime( $args['date_from'] );
-		} elseif ( isset( $args['date_from'] ) && is_numeric( $args['date_from'] ) ) {
+		if ( isset( $args['date_from'] ) && is_numeric( $args['date_from'] ) ) {
 			$args['date_from'] = (int) $args['date_from'];
 		} elseif ( isset( $args['date_from'] ) && is_string( $args['date_from'] ) ) {
-			$args['date_from'] = (int) $args['date_from'];
+			// If value is "2025-03-29" that means the beginning of the day on 2025-03-29.
+			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_from'], 'Y-m-d' );
+			if ( $is_start_of_day_date_format ) {
+				$args['date_from'] = strtotime( $args['date_from'] . ' 00:00:00' );
+			} else {
+				$args['date_from'] = strtotime( $args['date_from'] );
+			}
 		} elseif ( isset( $args['date_from'] ) ) {
 			throw new \InvalidArgumentException( 'Invalid date_from' );
 		}
 
 		// "date_to" must be timestamp or string. If string then convert to timestamp.
-		if ( isset( $args['date_to'] ) && ! is_numeric( $args['date_to'] ) ) {
-			$args['date_to'] = strtotime( $args['date_to'] );
-		} elseif ( isset( $args['date_to'] ) && is_string( $args['date_to'] ) ) {
+		if ( isset( $args['date_to'] ) && is_numeric( $args['date_to'] ) ) {
 			$args['date_to'] = (int) $args['date_to'];
+		} elseif ( isset( $args['date_to'] ) && is_string( $args['date_to'] ) ) {
+			// If value is "2025-03-29" that means the end of the day on 2025-03-29.
+			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_to'], 'Y-m-d' );
+			if ( $is_start_of_day_date_format ) {
+				$args['date_to'] = strtotime( $args['date_to'] . ' 23:59:59' );
+			} else {
+				$args['date_to'] = strtotime( $args['date_to'] );
+			}
 		} elseif ( isset( $args['date_to'] ) ) {
 			throw new \InvalidArgumentException( 'Invalid date_to' );
 		}
@@ -1452,5 +1456,21 @@ class Log_Query {
 		$inner_where[] = "\n(\n {$str_search_conditions} \n ) ";
 
 		return $inner_where;
+	}
+
+	/**
+	 * Check if a date string is in the specified format.
+	 *
+	 * Example:
+	 * Function returns true for dates like "2024-03-29" and false for dates like "2024/03/29"
+	 * or "29-03-2024".
+	 *
+	 * @param string $date_string The date string to check.
+	 * @param string $format The format to check the date string against. Default is "Y-m-d" (which means for example "2024-03-29").
+	 * @return bool True if the date string is in the specified format, false otherwise.
+	 */
+	protected function is_valid_date_format( $date_string, $format = 'Y-m-d' ) {
+		$d = \DateTime::createFromFormat( $format, $date_string );
+		return $d && $d->format( $format ) === $date_string;
 	}
 }
