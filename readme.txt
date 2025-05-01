@@ -325,6 +325,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Remove duplicate `date_gmt` column from event details table.
 -   Improve performance of stats and summaries page by removing some unused data.
 -   Filters are now added in the URL. This makes it easy to bookmark and share specific search selections and filters.
+-   Refactor query date_from and date_to parsing so sending Y-m-d means start/end of day automatically. This means that if you use the API there is no need to pass `date_from` and `date_to` as timestamps just to get the start/end of day.
 
 ### 5.9.0 (April 2025)
 
