@@ -2,6 +2,7 @@ import {
 	useQueryState,
 	parseAsString,
 	parseAsIsoDate,
+	parseAsArrayOf,
 } from 'nuqs';
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
@@ -76,11 +77,14 @@ function EventsGUI() {
 	// Search text, ie. the text in the search input field.
 	const [ enteredSearchText, setEnteredSearchText ] = useQueryState( 'q' );
 
-	const [ selectedLogLevels, setSelectedLogLevels ] = useState( [] );
-	// const [ selectedLogLevels, setSelectedLogLevels ] = useQueryState(
-	// 	'logLevels',
-	// 	parseAsArrayOf( parseAsString ).withDefault( [] )
-	// );
+	// Empty array to use as default value for the log levels.
+	// If [] is passed to the withDefault() then a new array is created on each render,
+	// causing useEffect to trigger on each render and the log reloads indefinitely.
+	const emptyArray = useMemo( () => [], [] );
+	const [ selectedLogLevels, setSelectedLogLevels ] = useQueryState(
+		'levels',
+		parseAsArrayOf( parseAsString ).withDefault( emptyArray )
+	);
 
 	// Array with the selected message types.
 	// Contains the same values as the messageTypesSuggestions array.
@@ -89,7 +93,9 @@ function EventsGUI() {
 
 	// Array with objects that contains message types suggestions, used in the message types select control.
 	// Keys are "slug" for search and "value".
-	const [ messageTypesSuggestions, setMessageTypesSuggestions ] = useState( [] );
+	const [ messageTypesSuggestions, setMessageTypesSuggestions ] = useState(
+		[]
+	);
 
 	// const [ selectedMessageTypes, setSelectedMessageTypes ] = useQueryState(
 	// 	'messageTypes',
