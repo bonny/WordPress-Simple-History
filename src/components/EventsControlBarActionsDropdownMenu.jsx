@@ -41,15 +41,17 @@ export function EventsControlBarActionsDropdownMenu( props ) {
 			) : null }
 
 			<DropdownMenu
+				text={ __( 'Event options', 'simple-history' ) }
 				label={ __(
 					'Actions (Export & other tools)',
 					'simple-history'
 				) }
 				icon={ moreHorizontalMobile } // or moreHorizontal or moreHorizontalMobile
+				// Props passed to the toggle button.
 				toggleProps={ {
 					iconPosition: 'right',
+					variant: 'tertiary',
 				} }
-				// text={ __( 'Actions', 'simple-history' ) }
 			>
 				{ ( { onClose } ) => (
 					<>
