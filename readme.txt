@@ -329,6 +329,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Add notice log level to the GUI filters.
 -   Misc internal improvements.
 -   Use priority 1 for `wp_login` action instead of the default 10. This should make the log catch more logins when auth plugins like [Two Factor](https://wordpress.org/plugins/two-factor/) is used.
+-   Add option to include header row in CSV exports.
 
 ### 5.9.0 (April 2025)
 

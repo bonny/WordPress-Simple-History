@@ -19,6 +19,9 @@ class Export {
 	/** @var Simple_History $simple_history Simple History instance. */
 	protected $simple_history;
 
+	/** @var array $options Export options. */
+	protected $options = [];
+
 	/**
 	 * Constructor.
 	 */
@@ -48,6 +51,29 @@ class Export {
 		$this->format = $format;
 
 		return $this;
+	}
+
+	/**
+	 * Set export options.
+	 *
+	 * @param array $options Export options.
+	 * @return self Chainable method.
+	 */
+	public function set_options( $options ) {
+		$this->options = $options;
+
+		return $this;
+	}
+
+	/**
+	 * Get an export option value.
+	 *
+	 * @param string $key Option key.
+	 * @param mixed  $default Default value if option not set.
+	 * @return mixed Option value or default if not set.
+	 */
+	protected function get_option( $key, $default = null ) {
+		return $this->options[ $key ] ?? $default;
 	}
 
 	/**
@@ -161,12 +187,36 @@ class Export {
 	}
 
 	/**
+	 * Get CSV headers.
+	 *
+	 * @return array Array of CSV column headers.
+	 */
+	protected function get_csv_headers() {
+		return array(
+			_x( 'Date (UTC)', 'CSV export header', 'simple-history' ),
+			_x( 'Date (local)', 'CSV export header', 'simple-history' ),
+			_x( 'Logger', 'CSV export header', 'simple-history' ),
+			_x( 'Level', 'CSV export header', 'simple-history' ),
+			_x( 'Initiator', 'CSV export header', 'simple-history' ),
+			_x( 'Message Key', 'CSV export header', 'simple-history' ),
+			_x( 'User Email', 'CSV export header', 'simple-history' ),
+			_x( 'User Login', 'CSV export header', 'simple-history' ),
+			_x( 'User Roles', 'CSV export header', 'simple-history' ),
+			_x( 'Header Message', 'CSV export header', 'simple-history' ),
+			_x( 'Details', 'CSV export header', 'simple-history' ),
+			_x( 'Occasions', 'CSV export header', 'simple-history' ),
+		);
+	}
+
+	/**
 	 * Output a CSV row.
 	 *
 	 * @param resource $fp File pointer.
 	 * @param object   $one_row Log row.
 	 */
 	protected function output_csv_row( $fp, $one_row ) {
+		static $headers_outputted = false;
+
 		$header_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 		$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
 
@@ -184,6 +234,12 @@ class Export {
 		$user_roles_comma_separated = implode( ', ', $user_roles );
 
 		$date_local = Compat::wp_date( 'Y-m-d H:i:s', strtotime( $one_row->date ) );
+
+		// Output headers if this is the first row and headers are enabled.
+		if ( ! $headers_outputted && $this->get_option( 'include_headers', false ) ) {
+			fputcsv( $fp, $this->get_csv_headers() );
+			$headers_outputted = true;
+		}
 
 		fputcsv(
 			$fp,

@@ -80,6 +80,8 @@ class Export_Dropin extends Dropin {
 
 		$export_format = sanitize_text_field( wp_unslash( $_POST['format'] ?? 'json' ) );
 
+		$csv_include_headers = isset( $_POST['csv_include_headers'] ) ? true : false;
+
 		$export = new Export();
 		$export->set_query_args(
 			[
@@ -89,6 +91,11 @@ class Export_Dropin extends Dropin {
 			]
 		);
 		$export->set_download_format( $export_format );
+		$export->set_options(
+			[
+				'include_headers' => $csv_include_headers,
+			]
+		);
 		$export->download();
 	}
 
@@ -119,12 +126,21 @@ class Export_Dropin extends Dropin {
 
 			<form method="post">
 
-				<h3><?php echo esc_html_x( 'Choose format to export to', 'Export dropin: format', 'simple-history' ); ?></h3>
+				<h3>
+					<?php echo esc_html_x( 'Choose format to export to', 'Export dropin: format', 'simple-history' ); ?>
+				</h3>
 
 				<p>
 					<label>
 						<input type="radio" name="format" value="csv" checked>
 						<?php echo esc_html_x( 'CSV', 'Export dropin: export format', 'simple-history' ); ?>
+					</label>
+				</p>
+
+				<p style="margin-left: 1rem;">
+					<label>
+						<input type="checkbox" name="csv_include_headers" value="1">
+						<?php echo esc_html_x( 'Include headers', 'Export dropin: include headers', 'simple-history' ); ?>
 					</label>
 				</p>
 
