@@ -29,6 +29,37 @@ const usersSchema = z.array(
 	} )
 );
 
+// Schema for the message types object.
+// [
+// 	{
+// 		"value": "WordPress and plugins updates found",
+// 		"search_options": [
+// 			"AvailableUpdatesLogger:core_update_available",
+// 			"AvailableUpdatesLogger:plugin_update_available",
+// 			"AvailableUpdatesLogger:theme_update_available"
+// 		]
+// 	},
+// 	{
+// 		"value": "Term edited",
+// 		"search_options": [
+// 			"SimpleCategoriesLogger:edited_term"
+// 		]
+// 	},
+// 	{
+// 		"value": "Plugin updates found",
+// 		"search_options": [
+// 			"AvailableUpdatesLogger:plugin_update_available"
+// 		]
+// 	}
+// ]
+
+const messageTypesSchema = z.array(
+	z.object( {
+		value: z.string(),
+		search_options: z.array( z.string() ),
+	} )
+);
+
 function EventsGUI() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
 	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
@@ -99,7 +130,34 @@ function EventsGUI() {
 	// Array with the selected message types.
 	// Contains the same values as the messageTypesSuggestions array.
 	// This is a weird format that contains much info.
-	const [ selectedMessageTypes, setSelectedMessageTypes ] = useState( [] );
+	// Example contents:
+	// [
+	// 	{
+	// 		"value": "WordPress and plugins updates found",
+	// 		"search_options": [
+	// 			"AvailableUpdatesLogger:core_update_available",
+	// 			"AvailableUpdatesLogger:plugin_update_available",
+	// 			"AvailableUpdatesLogger:theme_update_available"
+	// 		]
+	// 	},
+	// 	{
+	// 		"value": "Term edited",
+	// 		"search_options": [
+	// 			"SimpleCategoriesLogger:edited_term"
+	// 		]
+	// 	},
+	// 	{
+	// 		"value": "Plugin updates found",
+	// 		"search_options": [
+	// 			"AvailableUpdatesLogger:plugin_update_available"
+	// 		]
+	// 	}
+	// ]
+	const [ selectedMessageTypes, setSelectedMessageTypes ] = useQueryState(
+		'messages',
+		parseAsJson( messageTypesSchema.parse ).withDefault( emptyArray )
+	);
+
 
 	// Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
 	// All users that are selected are added here.
@@ -117,7 +175,7 @@ function EventsGUI() {
 	// ]
 	const [ selectedUsersWithId, setSelectedUsersWithId ] = useQueryState(
 		'users',
-		parseAsJson( usersSchema ).withDefault( emptyArray )
+		parseAsJson( usersSchema.parse ).withDefault( emptyArray )
 	);
 
 	/**
