@@ -70,11 +70,11 @@ export function generateAPIQueryParams( props ) {
 		if ( selectedDateOption === 'customRange' ) {
 			eventsQueryParams.date_from = format(
 				selectedCustomDateFrom,
-				"yyyy-MM-dd'T'HH:mm:ss"
+				'yyyy-MM-dd'
 			);
 			eventsQueryParams.date_to = format(
 				selectedCustomDateTo,
-				"yyyy-MM-dd'T'HH:mm:ss"
+				'yyyy-MM-dd'
 			);
 		} else {
 			eventsQueryParams.dates = selectedDateOption;

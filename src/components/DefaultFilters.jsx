@@ -8,7 +8,6 @@ import {
 import { getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { endOfDay, startOfDay } from 'date-fns';
 
 export function DefaultFilters( props ) {
 	const {
@@ -63,9 +62,16 @@ export function DefaultFilters( props ) {
 							id="simple-history-datepicker-from"
 							startOfWeek={ firstDayOfWeek }
 							onChange={ ( nextDate ) => {
-								setSelectedCustomDateFrom(
-									startOfDay( new Date( nextDate ) )
+								// Create date at UTC midnight for the selected date
+								const date = new Date( nextDate );
+								const utcDate = new Date(
+									Date.UTC(
+										date.getFullYear(),
+										date.getMonth(),
+										date.getDate()
+									)
 								);
+								setSelectedCustomDateFrom( utcDate );
 							} }
 							currentDate={ selectedCustomDateFrom }
 							isInvalidDate={ isInvalidDate }
@@ -79,9 +85,16 @@ export function DefaultFilters( props ) {
 						<DatePicker
 							startOfWeek={ firstDayOfWeek }
 							onChange={ ( nextDate ) => {
-								setSelectedCustomDateTo(
-									endOfDay( new Date( nextDate ) )
+								// Create date at UTC midnight for the selected date
+								const date = new Date( nextDate );
+								const utcDate = new Date(
+									Date.UTC(
+										date.getFullYear(),
+										date.getMonth(),
+										date.getDate()
+									)
 								);
+								setSelectedCustomDateTo( utcDate );
 							} }
 							currentDate={ selectedCustomDateTo }
 							isInvalidDate={ isInvalidDate }

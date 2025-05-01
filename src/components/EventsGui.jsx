@@ -1,10 +1,7 @@
 import {
 	useQueryState,
 	parseAsString,
-	parseAsArrayOf,
 	parseAsIsoDate,
-	parseAsIsoDateTime,
-	parseAsJson,
 } from 'nuqs';
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
@@ -64,19 +61,16 @@ function EventsGUI() {
 	);
 
 	// Custom from date. Default to today.
-	// Example values: "2025-04-01T00:00:00", "2025-04-30T23:59:59".
-	// const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] = useState(
-	// 	SEARCH_FILTER_DEFAULT_START_DATE
-	// );
+	// Stored in URL as "from=2025-04-01", variable is a Date object.
 	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] = useQueryState(
 		'from',
-		parseAsIsoDateTime.withDefault( SEARCH_FILTER_DEFAULT_START_DATE )
+		parseAsIsoDate.withDefault( SEARCH_FILTER_DEFAULT_START_DATE )
 	);
 
 	// Custom to date. Default to today.
 	const [ selectedCustomDateTo, setSelectedCustomDateTo ] = useQueryState(
 		'to',
-		parseAsIsoDateTime.withDefault( SEARCH_FILTER_DEFAULT_END_DATE )
+		parseAsIsoDate.withDefault( SEARCH_FILTER_DEFAULT_END_DATE )
 	);
 
 	// Search text, ie. the text in the search input field.
@@ -92,17 +86,10 @@ function EventsGUI() {
 	// Contains the same values as the messageTypesSuggestions array.
 	// This is a weird format that contains much info.
 	const [ selectedMessageTypes, setSelectedMessageTypes ] = useState( [] );
-	// const [ selectedMessageTypes, setSelectedMessageTypes ] = useQueryState(
-	// 	'messageTypes',
-	// 	parseAsJson
-	// );
-	console.log( 'selectedMessageTypes', selectedMessageTypes );
 
 	// Array with objects that contains message types suggestions, used in the message types select control.
 	// Keys are "slug" for search and "value".
-	const [ messageTypesSuggestions, setMessageTypesSuggestions ] = useState(
-		[]
-	);
+	const [ messageTypesSuggestions, setMessageTypesSuggestions ] = useState( [] );
 
 	// const [ selectedMessageTypes, setSelectedMessageTypes ] = useQueryState(
 	// 	'messageTypes',
