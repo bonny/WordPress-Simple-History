@@ -36,8 +36,16 @@ export const OPTIONS_LOADING = [
 ];
 export const LOGLEVELS_OPTIONS = [
 	{
+		label: _x( 'Debug', 'Log level in gui', 'simple-history' ),
+		value: 'debug',
+	},
+	{
 		label: _x( 'Info', 'Log level in gui', 'simple-history' ),
 		value: 'info',
+	},
+	{
+		label: _x( 'Notice', 'Log level in gui', 'simple-history' ),
+		value: 'notice',
 	},
 	{
 		label: _x( 'Warning', 'Log level in gui', 'simple-history' ),
@@ -58,10 +66,6 @@ export const LOGLEVELS_OPTIONS = [
 	{
 		label: _x( 'Emergency', 'Log level in gui', 'simple-history' ),
 		value: 'emergency',
-	},
-	{
-		label: _x( 'Debug', 'Log level in gui', 'simple-history' ),
-		value: 'debug',
 	},
 ];
 
