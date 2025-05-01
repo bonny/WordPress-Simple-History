@@ -20,6 +20,7 @@ export function Event( props ) {
 		hasPremiumAddOn,
 		isNewAfterFetchNewEvents,
 		eventsSettingsPageURL,
+		eventsAdminPageURL,
 	} = props;
 
 	const containerClassNames = clsx(
@@ -60,7 +61,11 @@ export function Event( props ) {
 					eventsSettingsPageURL={ eventsSettingsPageURL }
 				/>
 
-				<EventActionsButton event={ event } eventVariant={ variant } />
+				<EventActionsButton
+					event={ event }
+					eventVariant={ variant }
+					eventsAdminPageURL={ eventsAdminPageURL }
+				/>
 			</div>
 		</li>
 	);

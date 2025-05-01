@@ -24,6 +24,7 @@ export function EventsList( props ) {
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
 		eventsSettingsPageURL,
+		eventsAdminPageURL,
 		eventsLoadingHasErrors,
 		eventsLoadingErrorDetails,
 	} = props;
@@ -63,6 +64,7 @@ export function EventsList( props ) {
 				hasPremiumAddOn={ hasPremiumAddOn }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				eventsSettingsPageURL={ eventsSettingsPageURL }
+				eventsAdminPageURL={ eventsAdminPageURL }
 			/>
 
 			<Spacer margin={ 4 } />
@@ -87,6 +89,7 @@ function EventsListItemsList( props ) {
 		hasPremiumAddOn,
 		eventsIsLoading,
 		eventsSettingsPageURL,
+		eventsAdminPageURL,
 	} = props;
 
 	// Bail if no events.
@@ -110,6 +113,7 @@ function EventsListItemsList( props ) {
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
 					eventsSettingsPageURL={ eventsSettingsPageURL }
+					eventsAdminPageURL={ eventsAdminPageURL }
 					isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
 				/>
 			) ) }

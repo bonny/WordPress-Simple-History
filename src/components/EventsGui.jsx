@@ -378,6 +378,7 @@ function EventsGUI() {
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				hasPremiumAddOn={ hasPremiumAddOn }
 				eventsSettingsPageURL={ settingsPageURL }
+				eventsAdminPageURL={ eventsAdminPageURL }
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 			/>

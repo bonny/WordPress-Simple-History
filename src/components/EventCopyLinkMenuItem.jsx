@@ -25,4 +25,4 @@ export function EventCopyLinkMenuItem( { event } ) {
 			{ dynamicCopyText }
 		</MenuItem>
 	);
-} 
+}
