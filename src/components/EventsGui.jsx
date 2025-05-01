@@ -3,7 +3,9 @@ import {
 	parseAsString,
 	parseAsIsoDate,
 	parseAsArrayOf,
+	parseAsJson,
 } from 'nuqs';
+import { z } from 'zod';
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
@@ -97,15 +99,32 @@ function EventsGUI() {
 		[]
 	);
 
-	// const [ selectedMessageTypes, setSelectedMessageTypes ] = useQueryState(
-	// 	'messageTypes',
-	// 	parseAsArrayOf( parseAsString ).withDefault( [] )
-	// );
+	// Schema for the users object.
+	const usersSchema = z.array(
+		z.object( {
+			id: z.string(),
+			value: z.string(),
+		} )
+	);
 
 	// Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
 	// All users that are selected are added here.
 	// This data is used to get user id from the name+email when we send the selected users to the API.
-	const [ selectedUsersWithId, setSelectedUsersWithId ] = useState( [] );
+	// Example object:
+	// [
+	// 	  {
+	// 	    "id": "1",
+	// 	    "value": "Jane (jane@example.com)"
+	// 	  },
+	// 	  {
+	// 	    "id": "2",
+	// 	    "value": "John (john@example.com)"
+	//    }
+	// ]
+	const [ selectedUsersWithId, setSelectedUsersWithId ] = useQueryState(
+		'users',
+		parseAsJson( usersSchema ).withDefault( emptyArray )
+	);
 
 	/**
 	 * End filter/search options states.
