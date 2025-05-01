@@ -317,19 +317,30 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.10.0 (May 2025)
 
--   Load icons from a separate CSS file, so it get's cachebusted when the icon CSS file is changed.
--   Make interface even clearer by hiding some promo boxes if [Premium](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) is active.
--   `server_http_user_agent` is removed from user updates, user creation, user deletion. It is still available for user successful and failed logins. If support personal needs to know the user agent, the login event is the best place to find this. Note: if you need event more debug info, you can enable [Detective Mode](https://simple-history.com/support/detective-mode/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_detective_mode) or get the [Debug and Monitor add-on](https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_debug_monitor).
--   Remove duplicate `date_gmt` column from event details table.
--   Improve performance of stats and summaries page by removing some unused data.
--   Filters are now added in the URL. This makes it easy to bookmark and share specific search selections and filters. Linkable/bookmarkable.
--   Refactor query date_from and date_to parsing so sending Y-m-d means start/end of day automatically. This means that if you use the API there is no need to pass `date_from` and `date_to` as timestamps just to get the start/end of day.
--   Add notice log level to the GUI filters.
--   Misc internal improvements.
--   Use priority 1 for `wp_login` action instead of the default 10. This should make the log catch more logins when auth plugins like [Two Factor](https://wordpress.org/plugins/two-factor/) is used.
--   Add option to include header row in CSV exports.
+🎯 This release improves performance, enhances the user interface, and adds several quality-of-life improvements to make Simple History more efficient and user-friendly.
+[Read the release post](https://simple-history.com/2025/simple-history-5-10-0-released/) for more details.
+
+**Added**
+
+-   Add option to include header row in CSV exports
+-   Add URL-based filters for easy bookmarking and sharing of search selections
+
+**Changed**
+
+-   Load icons from a separate CSS file for better cache busting
+-   Make interface even clearer by hiding some promo boxes if [Premium](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) is active
+-   Remove `server_http_user_agent` from user updates, user creation, user deletion. It is still available for user successful and failed logins. If support personal needs to know the user agent, the login event is the best place to find this. Note: if you need event more debug info, you can enable [Detective Mode](https://simple-history.com/support/detective-mode/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_detective_mode) or get the [Debug and Monitor add-on](https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_debug_monitor)
+-   Use priority 1 for `wp_login` action instead of default 10 for better compatibility with auth plugins like [Two Factor](https://wordpress.org/plugins/two-factor/)
+-   Improve performance of stats and summaries page
+-   Refactor query date_from and date_to parsing so sending Y-m-d means start/end of day automatically
+
+**Fixed**
+
+-   Add notice log level to the GUI filters
+-   Remove duplicate `date_gmt` column from event details table
+-   Misc internal improvements
 
 ### 5.9.0 (April 2025)
 
