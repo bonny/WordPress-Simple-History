@@ -21,6 +21,14 @@ import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
+// Schema for the users object.
+const usersSchema = z.array(
+	z.object( {
+		id: z.string(),
+		value: z.string(),
+	} )
+);
+
 function EventsGUI() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
 	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
@@ -99,13 +107,6 @@ function EventsGUI() {
 		[]
 	);
 
-	// Schema for the users object.
-	const usersSchema = z.array(
-		z.object( {
-			id: z.string(),
-			value: z.string(),
-		} )
-	);
 
 	// Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
 	// All users that are selected are added here.
