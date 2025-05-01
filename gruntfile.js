@@ -3,18 +3,6 @@ module.exports = function ( grunt ) {
 	require( 'load-grunt-tasks' )( grunt );
 
 	const pkg = grunt.file.readJSON( 'package.json' );
-	const gig = require( 'gitignore-globs' );
-	const gag = require( 'gitattributes-globs' );
-	const ignored_gitignore = gig( '.gitignore', { negate: true } ).map(
-		function ( value ) {
-			return value.replace( /^!\//, '!' );
-		}
-	);
-	const ignored_gitattributes = gag( '.gitattributes', { negate: true } ).map(
-		function ( value ) {
-			return value.replace( /^!\//, '!' );
-		}
-	);
 
 	const config = {};
 
@@ -44,82 +32,7 @@ module.exports = function ( grunt ) {
 		},
 	};
 
-	config.wp_deploy = {
-		deploy: {
-			options: {
-				deploy_trunk: true,
-				deploy_tag: true,
-				plugin_slug: '<%= pkg.name %>',
-				plugin_main_file: 'index.php',
-				build_dir: 'build',
-				assets_dir: 'assets-wp-repo',
-				svn_user: 'eskapism',
-			},
-		},
-		// Deploy without tagging the release, useful when only changes to the readme,
-		// for example when changing the "Tested up to" value.
-		deploy_without_tag: {
-			options: {
-				deploy_trunk: true,
-				deploy_tag: false,
-				plugin_slug: '<%= pkg.name %>',
-				plugin_main_file: 'index.php',
-				build_dir: 'build',
-				assets_dir: 'assets-wp-repo',
-				svn_user: 'eskapism',
-			},
-		},
-		assets: {
-			options: {
-				deploy_trunk: false,
-				deploy_tag: false,
-				plugin_slug: '<%= pkg.name %>',
-				plugin_main_file:
-					'<%= wp_deploy.deploy.options.plugin_main_file %>',
-				build_dir: '<%= wp_deploy.deploy.options.build_dir %>',
-				assets_dir: '<%= wp_deploy.deploy.options.assets_dir %>',
-				svn_user: '<%= wp_deploy.deploy.options.svn_user %>',
-			},
-		},
-	};
-
-	config.clean = {
-		main: [ '<%= wp_deploy.deploy.options.build_dir %>' ],
-	};
-
-	config.copy = {
-		main: {
-			src: [
-				'**',
-				'!.*',
-				'!.git/**',
-				'!<%= wp_deploy.deploy.options.assets_dir %>/**',
-				'!<%= wp_deploy.deploy.options.build_dir %>/**',
-				'!README.md',
-				ignored_gitignore,
-				ignored_gitattributes,
-			],
-			dest: '<%= wp_deploy.deploy.options.build_dir %>/',
-		},
-	};
-
 	grunt.initConfig( config );
-
-	// Task(s) to run. Default is default.
-
-	grunt.registerTask( 'build', 'Clean and copy', [ 'clean', 'copy' ] );
-
-	grunt.registerTask(
-		'deploy',
-		'Deploy plugin to WordPress plugin repository',
-		[ 'build', 'wp_deploy:deploy' ]
-	);
-
-	grunt.registerTask(
-		'deploy:assets',
-		'Deploy plugin asssets to WordPress plugin repository',
-		[ 'build', 'wp_deploy:assets' ]
-	);
 
 	grunt.registerTask(
 		'bump',
