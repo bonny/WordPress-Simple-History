@@ -4,11 +4,7 @@ import { dateI18n } from '@wordpress/date';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import {
-	DEFAULT_DATE_OPTIONS,
-	OPTIONS_LOADING,
-	SUBITEM_PREFIX,
-} from '../constants';
+import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
 
@@ -33,8 +29,6 @@ export function EventsSearchFilters( props ) {
 		setSelectedCustomDateFrom,
 		selectedCustomDateTo,
 		setSelectedCustomDateTo,
-		messageTypesSuggestions,
-		setMessageTypesSuggestions,
 		selectedUsersWithId,
 		setSelectedUsersWithId,
 		searchOptionsLoaded,
@@ -51,14 +45,17 @@ export function EventsSearchFilters( props ) {
 	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] =
 		useState( false );
 	const [ dateOptions, setDateOptions ] = useState( OPTIONS_LOADING );
+	const [ searchOptions, setSearchOptions ] = useState( null );
 
 	// Load search options when component mounts.
 	useEffect( () => {
 		apiFetch( {
 			path: addQueryArgs( '/simple-history/v1/search-options', {} ),
-		} ).then( ( searchOptions ) => {
+		} ).then( ( searchOptionsResponse ) => {
+			setSearchOptions( searchOptionsResponse );
+
 			// Append result_months and all dates to dateOptions.
-			const monthsOptions = searchOptions.dates.result_months.map(
+			const monthsOptions = searchOptionsResponse.dates.result_months.map(
 				( row ) => ( {
 					label: dateI18n( 'F Y', row.yearMonth ),
 					value: `month:${ row.yearMonth }`,
@@ -80,76 +77,33 @@ export function EventsSearchFilters( props ) {
 			// Only set if not already set, because it can be set in the URL.
 			if ( ! selectedDateOption ) {
 				setSelectedDateOption(
-					`lastdays:${ searchOptions.dates.daysToShow }`
+					`lastdays:${ searchOptionsResponse.dates.daysToShow }`
 				);
 			}
 
-			/**
-			 * Generate message types suggestions.
-			 *
-			 * Format is object
-			 * {
-			 *  key: "logger:message",
-			 *  label: "WordPress and plugin updates"
-			 * }
-			 */
-			const nextMessageTypesSuggestions = [];
-			searchOptions.loggers.forEach( ( logger ) => {
-				const searchData = logger.search_data || {};
-
-				if ( ! searchData.search ) {
-					return;
-				}
-
-				// "WordPress och tilläggsuppdateringar"
-				nextMessageTypesSuggestions.push( {
-					value: searchData.search.label,
-					search_options: searchData.search.options,
-					// key: logger.slug,
-				} );
-
-				// "Alla hittade uppdateringar"
-				if ( searchData?.search_all?.label ) {
-					nextMessageTypesSuggestions.push( {
-						value: SUBITEM_PREFIX + searchData.search_all.label,
-						// key: `${logger.slug}:all`,
-						search_options: searchData.search_all.options,
-					} );
-				}
-
-				// Each single message.
-				if ( searchData?.search_options ) {
-					searchData.search_options.forEach( ( option ) => {
-						nextMessageTypesSuggestions.push( {
-							value: SUBITEM_PREFIX + option.label,
-							// key: `${logger.slug}:${option.key}`,
-							search_options: option.options,
-						} );
-					} );
-				}
-			} );
-
-			setMessageTypesSuggestions( nextMessageTypesSuggestions );
-			setPagerSize( searchOptions.pager_size );
-			setMapsApiKey( searchOptions.maps_api_key );
+			setPagerSize( searchOptionsResponse.pager_size );
+			setMapsApiKey( searchOptionsResponse.maps_api_key );
 
 			setHasExtendedSettingsAddOn(
-				searchOptions.addons.has_extended_settings_add_on
+				searchOptionsResponse.addons.has_extended_settings_add_on
 			);
 
-			setHasPremiumAddOn( searchOptions.addons.has_premium_add_on );
+			setHasPremiumAddOn(
+				searchOptionsResponse.addons.has_premium_add_on
+			);
 
 			setIsExperimentalFeaturesEnabled(
-				searchOptions.experimental_features_enabled
+				searchOptionsResponse.experimental_features_enabled
 			);
 
-			setEventsAdminPageURL( searchOptions.events_admin_page_url );
-			setEventsSettingsPageURL( searchOptions.settings_page_url );
+			setEventsAdminPageURL(
+				searchOptionsResponse.events_admin_page_url
+			);
+			setEventsSettingsPageURL( searchOptionsResponse.settings_page_url );
 
 			setSearchOptionsLoaded( true );
 		} );
 	}, [
-		setMessageTypesSuggestions,
 		setPagerSize,
 		setSearchOptionsLoaded,
 		setSelectedDateOption,
@@ -159,6 +113,7 @@ export function EventsSearchFilters( props ) {
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
+		selectedDateOption,
 	] );
 
 	const showMoreOrLessText = moreOptionsIsExpanded
@@ -184,16 +139,13 @@ export function EventsSearchFilters( props ) {
 				/>
 				{ moreOptionsIsExpanded ? (
 					<ExpandedFilters
-						messageTypesSuggestions={ messageTypesSuggestions }
-						setMessageTypesSuggestions={
-							setMessageTypesSuggestions
-						}
 						selectedLogLevels={ selectedLogLevels }
 						setSelectedLogLevels={ setSelectedLogLevels }
 						selectedMessageTypes={ selectedMessageTypes }
 						setSelectedMessageTypes={ setSelectedMessageTypes }
 						setSelectedUsersWithId={ setSelectedUsersWithId }
 						selectedUsersWithId={ selectedUsersWithId }
+						searchOptions={ searchOptions }
 					/>
 				) : null }
 				<p className="SimpleHistory__filters__filterSubmitWrap">

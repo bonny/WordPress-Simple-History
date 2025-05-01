@@ -101,13 +101,6 @@ function EventsGUI() {
 	// This is a weird format that contains much info.
 	const [ selectedMessageTypes, setSelectedMessageTypes ] = useState( [] );
 
-	// Array with objects that contains message types suggestions, used in the message types select control.
-	// Keys are "slug" for search and "value".
-	const [ messageTypesSuggestions, setMessageTypesSuggestions ] = useState(
-		[]
-	);
-
-
 	// Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
 	// All users that are selected are added here.
 	// This data is used to get user id from the name+email when we send the selected users to the API.
@@ -284,8 +277,6 @@ function EventsGUI() {
 				setSelectedCustomDateFrom={ setSelectedCustomDateFrom }
 				selectedCustomDateTo={ selectedCustomDateTo }
 				setSelectedCustomDateTo={ setSelectedCustomDateTo }
-				messageTypesSuggestions={ messageTypesSuggestions }
-				setMessageTypesSuggestions={ setMessageTypesSuggestions }
 				selectedUsersWithId={ selectedUsersWithId }
 				setSelectedUsersWithId={ setSelectedUsersWithId }
 				searchOptionsLoaded={ searchOptionsLoaded }

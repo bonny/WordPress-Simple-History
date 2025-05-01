@@ -6,7 +6,7 @@ import {
 	FlexItem,
 	FormTokenField,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
@@ -19,14 +19,20 @@ import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
  */
 export function ExpandedFilters( props ) {
 	const {
-		messageTypesSuggestions,
 		selectedLogLevels,
 		setSelectedLogLevels,
 		selectedMessageTypes,
 		setSelectedMessageTypes,
 		selectedUsersWithId,
 		setSelectedUsersWithId,
+		searchOptions,
 	} = props;
+
+	// Array with objects that contains message types suggestions, used in the message types select control.
+	// Keys are "slug" for search and "value".
+	const [ messageTypesSuggestions, setMessageTypesSuggestions ] = useState(
+		[]
+	);
 
 	// User suggestions is the list of users that are loaded from the API
 	// and that is used to display user suggestions in the FormTokenField component.
@@ -38,6 +44,51 @@ export function ExpandedFilters( props ) {
 	const LOGLEVELS_SUGGESTIONS = LOGLEVELS_OPTIONS.map( ( logLevel ) => {
 		return logLevel.label;
 	} );
+
+	// Update message types suggestions when searchOptions changes
+	useEffect( () => {
+		if ( ! searchOptions?.loggers ) {
+			return;
+		}
+
+		const nextMessageTypesSuggestions = [];
+		searchOptions.loggers.forEach( ( logger ) => {
+			const searchData = logger.search_data || {};
+
+			if ( ! searchData.search ) {
+				return;
+			}
+
+			// "WordPress och tilläggsuppdateringar"
+			nextMessageTypesSuggestions.push( {
+				value: searchData.search.label,
+				search_options: searchData.search.options,
+				// key: logger.slug,
+			} );
+
+			// "Alla hittade uppdateringar"
+			if ( searchData?.search_all?.label ) {
+				nextMessageTypesSuggestions.push( {
+					value: SUBITEM_PREFIX + searchData.search_all.label,
+					// key: `${logger.slug}:all`,
+					search_options: searchData.search_all.options,
+				} );
+			}
+
+			// Each single message.
+			if ( searchData?.search_options ) {
+				searchData.search_options.forEach( ( option ) => {
+					nextMessageTypesSuggestions.push( {
+						value: SUBITEM_PREFIX + option.label,
+						// key: `${logger.slug}:${option.key}`,
+						search_options: option.options,
+					} );
+				} );
+			}
+		} );
+
+		setMessageTypesSuggestions( nextMessageTypesSuggestions );
+	}, [ searchOptions ] );
 
 	const searchUsers = async ( searchText ) => {
 		if ( searchText.length < 2 ) {
