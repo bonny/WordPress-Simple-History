@@ -52,7 +52,7 @@ function EventViewMoreSimilarEventsMenuItem( { event, eventsAdminPageURL } ) {
 						window.location.href = viewUserEventsURL;
 					} }
 				>
-					View more events from this user
+					{ __( 'Find events by the same user', 'simple-history' ) }
 				</MenuItem>
 			) : null }
 
@@ -79,7 +79,10 @@ function EventViewMoreSimilarEventsMenuItem( { event, eventsAdminPageURL } ) {
 						window.location.href = viewUserEventsURL;
 					} }
 				>
-					View more events of this type
+					{ __(
+						'Filter event by this event type',
+						'simple-history'
+					) }
 				</MenuItem>
 			) : null }
 		</>
