@@ -95,28 +95,42 @@ function EventsGUI() {
 	 * Start filter/search options states.
 	 */
 
+	const isDashboard = window.pagenow === 'dashboard';
+	const useQueryStateOptions = {
+		// On dashboard we set throttle to +Infinity to avoid setting the URL at all
+		// (since it's a "shared" page and we don't want to change the URL.)
+		throttleMs: isDashboard ? +Infinity : 50,
+	};
+
 	// Value selected in dates dropdown.
 	// Example values: "lastdays:30", "month:2025-04", "allDates", "customRange".
 	const [ selectedDateOption, setSelectedDateOption ] = useQueryState(
 		'date',
-		parseAsString.withDefault( '' )
+		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
 	);
 
 	// Custom from date. Default to today.
 	// Stored in URL as "from=2025-04-01", variable is a Date object.
 	const [ selectedCustomDateFrom, setSelectedCustomDateFrom ] = useQueryState(
 		'from',
-		parseAsIsoDate.withDefault( SEARCH_FILTER_DEFAULT_START_DATE )
+		parseAsIsoDate
+			.withDefault( SEARCH_FILTER_DEFAULT_START_DATE )
+			.withOptions( useQueryStateOptions )
 	);
 
 	// Custom to date. Default to today.
 	const [ selectedCustomDateTo, setSelectedCustomDateTo ] = useQueryState(
 		'to',
-		parseAsIsoDate.withDefault( SEARCH_FILTER_DEFAULT_END_DATE )
+		parseAsIsoDate
+			.withDefault( SEARCH_FILTER_DEFAULT_END_DATE )
+			.withOptions( useQueryStateOptions )
 	);
 
 	// Search text, ie. the text in the search input field.
-	const [ enteredSearchText, setEnteredSearchText ] = useQueryState( 'q' );
+	const [ enteredSearchText, setEnteredSearchText ] = useQueryState(
+		'q',
+		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
+	);
 
 	// Empty array to use as default value for the log levels.
 	// If [] is passed to the withDefault() then a new array is created on each render,
@@ -124,7 +138,9 @@ function EventsGUI() {
 	const emptyArray = useMemo( () => [], [] );
 	const [ selectedLogLevels, setSelectedLogLevels ] = useQueryState(
 		'levels',
-		parseAsArrayOf( parseAsString ).withDefault( emptyArray )
+		parseAsArrayOf( parseAsString )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
 	);
 
 	// Array with the selected message types.
@@ -155,7 +171,9 @@ function EventsGUI() {
 	// ]
 	const [ selectedMessageTypes, setSelectedMessageTypes ] = useQueryState(
 		'messages',
-		parseAsJson( messageTypesSchema.parse ).withDefault( emptyArray )
+		parseAsJson( messageTypesSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
 	);
 
 	// Array with objects that contain both the user id and the name+email in the same object. Keys are "id" and "value".
@@ -174,7 +192,9 @@ function EventsGUI() {
 	// ]
 	const [ selectedUsersWithId, setSelectedUsersWithId ] = useQueryState(
 		'users',
-		parseAsJson( usersSchema.parse ).withDefault( emptyArray )
+		parseAsJson( usersSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
 	);
 
 	/**
