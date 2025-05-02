@@ -6,22 +6,6 @@ import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
 
 /**
- * Add menu item that let user view more results from
- *
- * Can add now:
- * - This user
- * - Logger and message
- *
- * Can add in the future, when support is added to search filter:
- *   - Initiator
- *   - IP address
- *
- * @param {Object} props
- * @param {Object} props.event
- * @param {string} props.eventsAdminPageURL URL to the events admin page
- */
-
-/**
  * The button with three dots that opens a dropdown with actions for the event.
  *
  * @param {Object} props
