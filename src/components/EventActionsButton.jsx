@@ -4,7 +4,7 @@ import { moreHorizontalMobile } from '@wordpress/icons';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
 import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
-import { EventCopyDetails } from './EventCopyDetails';
+import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
 
 /**
  * The button with three dots that opens a dropdown with actions for the event.
@@ -45,6 +45,8 @@ export function EventActionsButton( {
 							/>
 
 							<EventCopyDetails event={ event } />
+
+							<EventCopyDetailsDetailed event={ event } />
 
 							<EventCopyLinkMenuItem event={ event } />
 

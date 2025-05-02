@@ -49,6 +49,27 @@ function formatEventDetails( event ) {
 }
 
 /**
+ * Format event context as a markdown table.
+ *
+ * @param {Object} context
+ * @return {string} Markdown table or empty string
+ */
+function formatContextAsMarkdownTable( context ) {
+	if (
+		!context ||
+		typeof context !== 'object' ||
+		Object.keys( context ).length === 0
+	) {
+		return '';
+	}
+	let table = '\n\n| Key | Value |\n| --- | ----- |';
+	for ( const [ key, value ] of Object.entries( context ) ) {
+		table += `\n| ${ key } | ${ value } |`;
+	}
+	return table;
+}
+
+/**
  * Menu Item to copy event details to clipboard.
  *
  * @param {Object} props
@@ -60,6 +81,36 @@ export function EventCopyDetails( { event } ) {
 	const copiedText = __( 'Event message copied', 'simple-history' );
 	const [ dynamicCopyText, setDynamicCopyText ] = useState( copyText );
 	const formattedDetails = formatEventDetails( event );
+	const ref = useCopyToClipboard( formattedDetails, () => {
+		setDynamicCopyText( copiedText );
+		setTimeout( () => {
+			setDynamicCopyText( copyText );
+		}, 2000 );
+	} );
+
+	return (
+		<MenuItem icon={ info } iconPosition="left" ref={ ref }>
+			{ dynamicCopyText }
+		</MenuItem>
+	);
+}
+
+/**
+ * Menu Item to copy event details (detailed) to clipboard.
+ *
+ * @param {Object} props
+ * @param {Object} props.event
+ * @return {Object} React element
+ */
+export function EventCopyDetailsDetailed( { event } ) {
+	const copyText = __( 'Copy event details (detailed)', 'simple-history' );
+	const copiedText = __( 'Event details copied', 'simple-history' );
+	const [ dynamicCopyText, setDynamicCopyText ] = useState( copyText );
+	let formattedDetails = formatEventDetails( event );
+	const contextTable = formatContextAsMarkdownTable( event.context );
+	if ( contextTable ) {
+		formattedDetails += contextTable;
+	}
 	const ref = useCopyToClipboard( formattedDetails, () => {
 		setDynamicCopyText( copiedText );
 		setTimeout( () => {
