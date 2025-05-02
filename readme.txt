@@ -326,6 +326,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Add option to include header row in CSV exports.
 -   Add URL-based search filters for easy bookmarking and sharing of search selections.
+-   Add option to view more events from the same user or for the same type of event.
 
 **Changed**
 
