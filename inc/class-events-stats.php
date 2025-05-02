@@ -1599,4 +1599,26 @@ class Events_Stats {
 		];
 		return $this->get_event_count( 'SimpleCoreUpdatesLogger', $core_events, $date_from, $date_to );
 	}
+
+	/**
+	 * Get the oldest event.
+	 *
+	 * @return array|false Array of oldest event, or false if no events.
+	 */
+	public function get_oldest_event() {
+		global $wpdb;
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}simple_history ORDER BY date ASC LIMIT 1"
+			),
+			ARRAY_A
+		);
+
+		if ( empty( $results ) ) {
+			return false;
+		}
+
+		return $results[0];
+	}
 }

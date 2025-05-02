@@ -165,6 +165,19 @@ echo Admin_Pages::header_output();
 		echo '</p>';
 	}
 
+	// Date of oldest event.
+	$oldest_event = ( new Events_Stats() )->get_oldest_event();
+
+	if ( $oldest_event ) {
+		echo '<p>';
+		printf(
+			/* translators: %s date of oldest event. */
+			esc_html_x( 'Oldest event is from %1$s and has id %2$s.', 'debug dropin', 'simple-history' ),
+			esc_html( $oldest_event['date'] ),
+			esc_html( $oldest_event['id'] )
+		);
+		echo '</p>';
+	}
 	// Output Stealh Mode status if Full or Partial Stealth Mode is enabled.
 	/** @var Stealth_Mode|null $stealh_mode_service */
 	$stealh_mode_service = $args['simple_history_instance']->get_service( Stealth_Mode::class );
