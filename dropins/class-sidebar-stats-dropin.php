@@ -268,6 +268,11 @@ class Sidebar_Stats_Dropin extends Dropin {
 	protected function get_stats_and_summaries_link_html() {
 		$stats_page_url = Menu_Manager::get_admin_url_by_slug( 'simple_history_stats_page' );
 
+		// Bail if no stats page url (user has no access to stats page).
+		if ( empty( $stats_page_url ) ) {
+			return '';
+		}
+
 		ob_start();
 		?>
 		<p>

@@ -346,6 +346,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Add log level `notice` to the GUI filters.
 -   Remove duplicate `date_gmt` column from event details table.
+-   Hide link to stats and summaries page from quick stats box if user doesn't have permission to view it.
+-   Hide notification bar if user can't visit link that is provided for the notification message.
 -   Misc internal improvements.
 
 ### 5.9.0 (April 2025)
