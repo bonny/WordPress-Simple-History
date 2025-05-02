@@ -44,9 +44,9 @@ export function EventActionsButton( {
 								onClose={ onClose }
 							/>
 
-							<EventCopyLinkMenuItem event={ event } />
-
 							<EventCopyDetails event={ event } />
+
+							<EventCopyLinkMenuItem event={ event } />
 
 							<EventViewMoreSimilarEventsMenuItem
 								event={ event }
