@@ -56,12 +56,13 @@ function formatEventDetails( event ) {
  */
 function formatContextAsMarkdownTable( context ) {
 	if (
-		!context ||
+		! context ||
 		typeof context !== 'object' ||
 		Object.keys( context ).length === 0
 	) {
 		return '';
 	}
+
 	let table = '\n\n| Key | Value |\n| --- | ----- |';
 	for ( const [ key, value ] of Object.entries( context ) ) {
 		table += `\n| ${ key } | ${ value } |`;
@@ -106,10 +107,12 @@ export function EventCopyDetailsDetailed( { event } ) {
 	const copyText = __( 'Copy event details (detailed)', 'simple-history' );
 	const copiedText = __( 'Event details copied', 'simple-history' );
 	const [ dynamicCopyText, setDynamicCopyText ] = useState( copyText );
-	let formattedDetails = formatEventDetails( event );
-	const contextTable = formatContextAsMarkdownTable( event.context );
-	if ( contextTable ) {
-		formattedDetails += contextTable;
+	let formattedDetails = `# Event Message\n\n`;
+	formattedDetails += formatEventDetails( event ) + '\n\n';
+	const objectTable = formatContextAsMarkdownTable( event );
+	if ( objectTable ) {
+		formattedDetails += '## Event Details Data\n';
+		formattedDetails += objectTable;
 	}
 	const ref = useCopyToClipboard( formattedDetails, () => {
 		setDynamicCopyText( copiedText );
