@@ -49,14 +49,14 @@ class Notification_Bar extends Service {
 			],
 			[
 				'message' => __( 'Preserve your logs longer and gain helpful new tools with Simple History Premium', 'simple-history' ),
-				'link' => 'https://simple-history.com/add-ons/premium/log-retention/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_retention',
+				'link' => 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_retention',
 				'link_is_external' => true,
 				'read_more' => __( 'Learn about log retention', 'simple-history' ),
 				'message_available' => true,
 			],
 			// [
 			// 'message' => __( 'Did you know? Simple History Premium lets you set custom log retention periods', 'simple-history' ),
-			// 'link' => 'https://simple-history.com/add-ons/premium/log-retention/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_retention',
+			// 'link' => 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_retention',
 			// 'read_more' => __( 'See retention options', 'simple-history' ),
 			// ],
 			[
