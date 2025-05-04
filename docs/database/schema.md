@@ -138,3 +138,23 @@ The plugin maintains a database version in the WordPress options table:
 -   Used for managing database upgrades
 
 For more information about database versioning and upgrades, see [Database Versioning](versioning.md).
+
+## Sticky Events Storage
+
+Sticky (or pinned) status for events is stored in the `wp_simple_history_contexts` table as a context entry with the key `sticky`.
+
+-   The `value` field contains a JSON object with metadata about the sticky status.
+-   Example fields in the JSON object:
+    -   `user`: The user ID who made the event sticky
+    -   Additional fields can be added as needed in the future (e.g., `reason`)
+
+### Example
+
+| context_id | history_id | key    | value       |
+| ---------- | ---------- | ------ | ----------- |
+| 20         | 59890      | sticky | {"user": 2} |
+| 21         | 59891      | sticky | {"user": 5} |
+
+-   To check if an event is sticky, look for a `sticky` context entry for that event.
+-   To query for all sticky events, filter for context rows where `key = 'sticky'`.
+-   The JSON object can be extended in the future for more metadata.
