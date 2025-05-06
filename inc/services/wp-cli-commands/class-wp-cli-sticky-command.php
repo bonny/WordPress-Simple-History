@@ -38,7 +38,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 
 		// Bail if event does not exist.
 		if ( ! Helpers::event_exists( $event_id ) ) {
-			WP_CLI::error( 'Event does not exist.' );
+			WP_CLI::error( "Event {$event_id} does not exist." );
 		}
 
 		$simple_history = Simple_History::get_instance();
@@ -92,7 +92,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 
 		// Bail if event does not exist.
 		if ( ! Helpers::event_exists( $event_id ) ) {
-			WP_CLI::error( 'Event does not exist.' );
+			WP_CLI::error( "Event {$event_id} does not exist." );
 		}
 
 		$simple_history = Simple_History::get_instance();
@@ -189,7 +189,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 
 		// Bail if event does not exist.
 		if ( ! Helpers::event_exists( $event_id ) ) {
-			WP_CLI::error( 'Event does not exist.' );
+			WP_CLI::error( "Event {$event_id} does not exist." );
 		}
 
 		$simple_history = Simple_History::get_instance();
