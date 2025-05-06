@@ -7,6 +7,7 @@ use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
 use Simple_History\Compat;
+use Simple_History\Helpers;
 
 /**
  * REST API controller for events.
@@ -149,7 +150,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		// Event must exist.
-		if ( ! $this->event_exists( $request['id'] ) ) {
+		if ( ! Helpers::event_exists( $request['id'], $this->simple_history->get_events_table_name() ) ) {
 			return new WP_Error(
 				'rest_event_invalid_id',
 				__( 'Invalid event ID.', 'simple-history' ),
@@ -188,23 +189,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Checks if a event exists in the database.
-	 *
-	 * @param int $event_id Event ID.
-	 * @return bool True if event exists, false otherwise.
-	 */
-	protected function event_exists( $event_id ) {
-		global $wpdb;
-		return (bool) $wpdb->get_var(
-			$wpdb->prepare(
-				'SELECT COUNT(*) FROM %i WHERE id = %d',
-				$this->simple_history->get_events_table_name(),
-				$event_id
-			)
-		);
 	}
 
 	/**

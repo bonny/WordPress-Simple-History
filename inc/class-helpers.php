@@ -1745,4 +1745,23 @@ class Helpers {
 			self::get_settings_page_url()
 		);
 	}
+
+	/**
+	 * Checks if an event exists in the database.
+	 * Does not check permissions.
+	 *
+	 * @param int    $event_id         Event ID.
+	 * @param string $events_table_name Name of the events table.
+	 * @return bool  True if event exists, false otherwise.
+	 */
+	public static function event_exists( $event_id, $events_table_name ) {
+		global $wpdb;
+		return (bool) $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM %i WHERE id = %d',
+				$events_table_name,
+				$event_id
+			)
+		);
+	}
 }
