@@ -150,7 +150,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		// Event must exist.
-		if ( ! Helpers::event_exists( $request['id'], $this->simple_history->get_events_table_name() ) ) {
+		if ( ! Helpers::event_exists( $request['id'] ) ) {
 			return new WP_Error(
 				'rest_event_invalid_id',
 				__( 'Invalid event ID.', 'simple-history' ),

@@ -1750,12 +1750,13 @@ class Helpers {
 	 * Checks if an event exists in the database.
 	 * Does not check permissions.
 	 *
-	 * @param int    $event_id         Event ID.
-	 * @param string $events_table_name Name of the events table.
-	 * @return bool  True if event exists, false otherwise.
+	 * @param int $event_id Event ID.
+	 * @return bool True if event exists, false otherwise.
 	 */
-	public static function event_exists( $event_id, $events_table_name ) {
+	public static function event_exists( $event_id ) {
 		global $wpdb;
+		$simple_history = Simple_History::get_instance();
+		$events_table_name = $simple_history->get_events_table_name();
 		return (bool) $wpdb->get_var(
 			$wpdb->prepare(
 				'SELECT COUNT(*) FROM %i WHERE id = %d',
