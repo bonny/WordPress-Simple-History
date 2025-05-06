@@ -1757,6 +1757,7 @@ class Helpers {
 		global $wpdb;
 		$simple_history = Simple_History::get_instance();
 		$events_table_name = $simple_history->get_events_table_name();
+
 		return (bool) $wpdb->get_var(
 			$wpdb->prepare(
 				'SELECT COUNT(*) FROM %i WHERE id = %d',
