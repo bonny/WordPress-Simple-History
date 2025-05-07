@@ -321,6 +321,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Don't change the URL on the dashboard when using the search filters.
 -   Show date and id of oldest event on debug page.
+-   Add WP-CLI commands to manage sticky events.
 
 ### 5.10.0 (May 2025)
 
