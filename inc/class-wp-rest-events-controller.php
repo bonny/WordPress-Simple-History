@@ -34,6 +34,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 */
 	public function register_routes() {
 		// GET /wp-json/simple-history/v1/events.
+		// To get events.
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
@@ -49,6 +50,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		);
 
 		// POST /wp-json/simple-history/v1/events.
+		// To create an event.
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
@@ -384,6 +386,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'type'        => 'integer',
 		);
 
+		$query_params['include_sticky'] = array(
+			'description' => __( 'Include sticky events in the result set.', 'simple-history' ),
+			'type'        => 'boolean',
+			'default'     => false,
+		);
+
 		return $query_params;
 	}
 
@@ -489,6 +497,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				'permalink' => array(
 					'description' => __( 'The permalink of the event.', 'simple-history' ),
 					'type'        => 'string',
+				),
+				'sticky' => array(
+					'description' => __( 'Whether the event is sticky.', 'simple-history' ),
+					'type'        => 'boolean',
 				),
 			),
 		);
@@ -631,6 +643,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'messages'                => 'messages',
 			'users'                   => 'users',
 			'user'                    => 'user',
+			'include_sticky'          => 'include_sticky',
 		);
 
 		/*
@@ -817,6 +830,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		if ( Compat::rest_is_field_included( 'subsequent_occasions_count', $fields ) ) {
 			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$data['subsequent_occasions_count'] = (int) $item->subsequentOccasions;
+		}
+
+		if ( Compat::rest_is_field_included( 'sticky', $fields ) ) {
+			$data['sticky'] = isset( $item->context['sticky'] ) ? true : false;
 		}
 
 		if ( Compat::rest_is_field_included( 'context', $fields ) ) {

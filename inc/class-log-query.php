@@ -30,6 +30,7 @@ class Log_Query {
 	 *      @type string $messages Messages to include. Array or string with commaa separated in format "LoggerSlug:Message", e.g. "SimplePluginLogger:plugin_activated,SimplePluginLogger:plugin_deactivated". Default null = show all messages.
 	 *      @type int $user Single user ID as number. Default null.
 	 *      @type string $users User IDs, comma separated or array. Default null.
+	 *      @type boolean $include_sticky Include sticky events in the result set. Default false.
 	 * }
 	 * @return array
 	 * @throws \InvalidArgumentException If invalid query type.
@@ -464,6 +465,24 @@ class Log_Query {
 		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
 		$page_rows_to = $page_rows_from + $log_rows_count - 1;
 
+		// Prepend sticky events to the result.
+		// Sticky events are added first in the result set and does not
+		// count towards the total found rows or modify pagination, etc.
+		if ( $args['include_sticky'] ) {
+			$sticky_events = $this->get_sticky_events();
+
+			if ( ! empty( $sticky_events ) ) {
+				$query_sticky_events = $this->query(
+					[
+						'post__in' => $sticky_events,
+					]
+				);
+
+				// Prepend sticky events to the result, at the top.
+				$result_log_rows = array_merge( $query_sticky_events['log_rows'], $result_log_rows );
+			}
+		}
+
 		// Create array to return.
 		// Add log rows to sub key 'log_rows' because meta info is also added.
 		$arr_return = [
@@ -694,6 +713,9 @@ class Log_Query {
 
 				// User ids, comma separated or array.
 				'users' => null,
+
+				// Should sticky events be included in the result set.
+				'include_sticky' => false,
 
 			// Can also contain:
 			// logRowID
@@ -1472,5 +1494,27 @@ class Log_Query {
 	protected function is_valid_date_format( $date_string, $format = 'Y-m-d' ) {
 		$d = \DateTime::createFromFormat( $format, $date_string );
 		return $d && $d->format( $format ) === $date_string;
+	}
+
+	/**
+	 * Get all sticky events. Does not take user capability into account.
+	 *
+	 * @return array<int> Array of sticky event IDs.
+	 */
+	protected function get_sticky_events() {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+		$contexts_table = $simple_history->get_contexts_table_name();
+
+		$results = $wpdb->get_col(
+			$wpdb->prepare(
+				'SELECT history_id, value FROM %i WHERE `key` = %s',
+				$contexts_table,
+				'sticky'
+			)
+		);
+
+		return $results;
 	}
 }

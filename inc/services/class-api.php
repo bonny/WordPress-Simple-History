@@ -7,6 +7,7 @@ use Simple_History\Log_Query;
 
 /**
  * Setup API Ajax support.
+ * This is the old API, using the REST API is recommended.
  */
 class API extends Service {
 	/**
