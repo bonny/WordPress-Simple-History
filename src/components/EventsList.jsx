@@ -105,9 +105,9 @@ function EventsListItemsList( props ) {
 
 	return (
 		<ul className={ ulClasses }>
-			{ events.map( ( event ) => (
+			{ events.map( ( event, index ) => (
 				<Event
-					key={ event.id }
+					key={ `${ event.id }-${ index }` }
 					event={ event }
 					mapsApiKey={ mapsApiKey }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }

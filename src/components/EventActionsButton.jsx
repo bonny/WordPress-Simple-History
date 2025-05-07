@@ -1,10 +1,37 @@
-import { DropdownMenu, MenuGroup, Slot } from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem, Slot } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { moreHorizontalMobile } from '@wordpress/icons';
+import { moreHorizontalMobile, pin } from '@wordpress/icons';
+import apiFetch from '@wordpress/api-fetch';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
 import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
 import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
+
+function EventUnStickMenuItem( { event } ) {
+	// Bail if event is not sticky.
+	if ( ! event.sticky ) {
+		return null;
+	}
+
+	const handleUnstick = async () => {
+		try {
+			await apiFetch( {
+				path: `/simple-history/v1/events/${ event.id }/unstick`,
+				method: 'POST',
+			} );
+			// Refresh the page to show updated state
+			//	window.location.reload();
+		} catch ( error ) {
+			// Silently fail - the user will see the event is still sticky
+		}
+	};
+
+	return (
+		<MenuItem onClick={ handleUnstick } icon={ pin }>
+			{ __( 'Unstick', 'simple-history' ) }
+		</MenuItem>
+	);
+}
 
 /**
  * The button with three dots that opens a dropdown with actions for the event.
@@ -54,6 +81,8 @@ export function EventActionsButton( {
 								event={ event }
 								eventsAdminPageURL={ eventsAdminPageURL }
 							/>
+
+							<EventUnStickMenuItem event={ event } />
 						</MenuGroup>
 
 						<Slot

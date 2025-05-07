@@ -59,6 +59,7 @@ export function generateAPIQueryParams( props ) {
 			'ip_addresses',
 			'via',
 			'permalink',
+			'sticky',
 		],
 	};
 
@@ -129,6 +130,11 @@ export function generateAPIQueryParams( props ) {
 		);
 
 		eventsQueryParams.users = selectedUsersValues;
+	}
+
+	// If first page then include sticky events.
+	if ( page === 1 ) {
+		eventsQueryParams.include_sticky = true;
 	}
 
 	return eventsQueryParams;

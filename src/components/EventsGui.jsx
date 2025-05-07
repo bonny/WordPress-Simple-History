@@ -274,7 +274,10 @@ function EventsGUI() {
 
 			// To keep track of new events we need to store both old max id and new max id.
 			if ( eventsJson && eventsJson.length && page === 1 ) {
-				setEventsMaxId( eventsJson[ 0 ].id );
+				const firstEventThatIsNotSticky = eventsJson.find(
+					( event ) => ! event.sticky
+				);
+				setEventsMaxId( firstEventThatIsNotSticky.id );
 			}
 
 			setEvents( eventsJson );
