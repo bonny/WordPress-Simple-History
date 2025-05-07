@@ -30,12 +30,13 @@ export function Event( props ) {
 		`SimpleHistoryLogitem--logger-${ event.logger }`,
 		`SimpleHistoryLogitem--initiator-${ event.initiator }`,
 		{
+			'SimpleHistoryLogitem--is-sticky': event.sticky,
 			'SimpleHistoryLogitem--newRowSinceReload': isNewAfterFetchNewEvents,
 		}
 	);
 
 	return (
-		<li key={ event.id } className={ containerClassNames }>
+		<li className={ containerClassNames }>
 			<div className="SimpleHistoryLogitem__firstcol">
 				<EventInitiatorImage event={ event } />
 			</div>
