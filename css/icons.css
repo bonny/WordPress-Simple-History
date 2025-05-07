@@ -185,3 +185,11 @@
 .sh-Icon--bar_chart {
 	background-image: url(./icons/bar_chart_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
 }
+
+.sh-Icon--keep {
+	background-image: url(./icons/keep_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--keep_off {
+	background-image: url(./icons/keep_off_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
