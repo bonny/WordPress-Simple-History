@@ -192,6 +192,22 @@
 	background: none;
 }
 
+/* Sticky events style */
+.SimpleHistoryLogitem--is-sticky {
+	/* background-color: var(--sh-color-cream); */
+}
+
+/* Text inside event, contains tooltip and SVG icon component */
+.SimpleHistoryLogitem--sticky {
+	display: inline-block;
+	line-height: 1;
+	vertical-align: middle;
+
+	> svg {
+		display: block;
+	}
+}
+
 /*
 Style different log levels.
 Tag = the pill with the log level.
@@ -202,7 +218,6 @@ Tag = the pill with the log level.
 	font-size: 10px;
 	padding: 3px 4px;
 	border-radius: 3px;
-	/*opacity: .75;*/
 	vertical-align: 1px;
 	line-height: 1;
 }
@@ -244,10 +259,6 @@ Tag = the pill with the log level.
 .SimpleHistoryLogitem--logleveltag-emergency {
 	background-color: #df0101;
 	color: #eee;
-}
-
-.SimpleHistoryLogitem--is-sticky {
-	background-color: var(--sh-color-cream);
 }
 
 .SimpleHistoryLogitem a {
