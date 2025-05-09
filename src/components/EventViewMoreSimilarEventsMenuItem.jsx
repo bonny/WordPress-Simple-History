@@ -34,7 +34,6 @@ export function EventViewMoreSimilarEventsMenuItem( {
 			{ isWPUserInitiatorWithIdAndEmail ? (
 				<MenuItem
 					icon={ search }
-					iconPosition="left"
 					onClick={ () => {
 						// Example URL when searching for user, where user key is an array of objects with id and value keys.
 						// /wp-admin/admin.php?page=simple_history_admin_menu_page&users=[{%22id%22:%221%22,%22value%22:%22P%C3%A4r+(par@earthpeople.se)%22}]
@@ -60,7 +59,6 @@ export function EventViewMoreSimilarEventsMenuItem( {
 			{ isLoggerAndMessageEvent ? (
 				<MenuItem
 					icon={ search }
-					iconPosition="left"
 					onClick={ () => {
 						// /wp-admin/admin.php?page=simple_history_admin_menu_page&messages=[{"value":"+-+All+found+updates","search_options":["AvailableUpdatesLogger:core_update_available","AvailableUpdatesLogger:plugin_update_available","AvailableUpdatesLogger:theme_update_available"]}]
 						const messageJsonString = JSON.stringify( [

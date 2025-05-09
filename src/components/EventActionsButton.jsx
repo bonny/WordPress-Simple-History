@@ -1,35 +1,70 @@
-import { DropdownMenu, MenuGroup, MenuItem, Slot } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
+import {
+	__experimentalConfirmDialog as ConfirmDialog,
+	DropdownMenu,
+	MenuGroup,
+	MenuItem,
+	Slot,
+} from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { moreHorizontalMobile, pin } from '@wordpress/icons';
-import apiFetch from '@wordpress/api-fetch';
+import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
 import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
-import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
 
-function EventUnStickMenuItem( { event } ) {
+function EventUnStickMenuItem( { event, onClose } ) {
+	const [ isConfirmDialogOpen, setIsConfirmDialogOpen ] = useState( false );
+
 	// Bail if event is not sticky.
 	if ( ! event.sticky ) {
 		return null;
 	}
 
-	const handleUnstick = async () => {
+	const handleUnstickClick = () => {
+		setIsConfirmDialogOpen( true );
+	};
+
+	const handleUnstickClickConfirm = async () => {
 		try {
-			await apiFetch( {
+			const response = await apiFetch( {
 				path: `/simple-history/v1/events/${ event.id }/unstick`,
 				method: 'POST',
 			} );
-			// Refresh the page to show updated state
-			//	window.location.reload();
+
+			console.log( 'unstick success response', response );
 		} catch ( error ) {
 			// Silently fail - the user will see the event is still sticky
+			console.error( 'unstick error', error );
+		} finally {
+			onClose();
 		}
 	};
 
 	return (
-		<MenuItem onClick={ handleUnstick } icon={ pin }>
-			{ __( 'Unstick', 'simple-history' ) }
-		</MenuItem>
+		<>
+			<MenuItem onClick={ handleUnstickClick } icon={ pin }>
+				{ __( 'Unstick…', 'simple-history' ) }
+			</MenuItem>
+
+			{ isConfirmDialogOpen ? (
+				<ConfirmDialog
+					cancelButtonText={ __( 'Nope', 'simple-history' ) }
+					confirmButtonText={ __(
+						'Yes, unstick it',
+						'simple-history'
+					) }
+					onConfirm={ handleUnstickClickConfirm }
+					onCancel={ () => setIsConfirmDialogOpen( false ) }
+				>
+					{ __(
+						`Unstick event "${ event.message }"?`,
+						'simple-history'
+					) }
+				</ConfirmDialog>
+			) : null }
+		</>
 	);
 }
 
@@ -70,19 +105,26 @@ export function EventActionsButton( {
 								eventVariant={ eventVariant }
 								onClose={ onClose }
 							/>
-
-							<EventCopyDetails event={ event } />
-
-							<EventCopyDetailsDetailed event={ event } />
-
 							<EventCopyLinkMenuItem event={ event } />
+						</MenuGroup>
 
+						<MenuGroup>
+							<EventCopyDetails event={ event } />
+							<EventCopyDetailsDetailed event={ event } />
+						</MenuGroup>
+
+						<MenuGroup>
 							<EventViewMoreSimilarEventsMenuItem
 								event={ event }
 								eventsAdminPageURL={ eventsAdminPageURL }
 							/>
+						</MenuGroup>
 
-							<EventUnStickMenuItem event={ event } />
+						<MenuGroup>
+							<EventUnStickMenuItem
+								event={ event }
+								onClose={ onClose }
+							/>
 						</MenuGroup>
 
 						<Slot

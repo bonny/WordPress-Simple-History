@@ -6,7 +6,7 @@ import { link } from '@wordpress/icons';
 
 export function EventCopyLinkMenuItem( { event } ) {
 	const permalink = event.permalink;
-	const copyText = __( 'Copy link to event', 'simple-history' );
+	const copyText = __( 'Copy link to event details', 'simple-history' );
 	const copiedText = __( 'Link copied to clipboard', 'simple-history' );
 
 	const [ dynamicCopyText, setDynamicCopyText ] = useState( copyText );
@@ -21,7 +21,7 @@ export function EventCopyLinkMenuItem( { event } ) {
 	} );
 
 	return (
-		<MenuItem icon={ link } iconPosition="left" ref={ ref }>
+		<MenuItem icon={ link } ref={ ref }>
 			{ dynamicCopyText }
 		</MenuItem>
 	);

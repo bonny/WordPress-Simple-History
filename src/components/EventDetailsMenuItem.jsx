@@ -7,7 +7,6 @@ export function EventDetailsMenuItem( { event, onClose } ) {
 	return (
 		<MenuItem
 			icon={ info }
-			iconPosition="left"
 			onClick={ () => {
 				navigateToEventPermalink( { event } );
 				onClose();
@@ -16,4 +15,4 @@ export function EventDetailsMenuItem( { event, onClose } ) {
 			{ __( 'View event details', 'simple-history' ) }
 		</MenuItem>
 	);
-} 
+}

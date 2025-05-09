@@ -90,7 +90,7 @@ export function EventCopyDetails( { event } ) {
 	} );
 
 	return (
-		<MenuItem icon={ info } iconPosition="left" ref={ ref }>
+		<MenuItem icon={ info } ref={ ref }>
 			{ dynamicCopyText }
 		</MenuItem>
 	);
@@ -104,8 +104,9 @@ export function EventCopyDetails( { event } ) {
  * @return {Object} React element
  */
 export function EventCopyDetailsDetailed( { event } ) {
-	const copyText = __( 'Copy event details (detailed)', 'simple-history' );
-	const copiedText = __( 'Event details copied', 'simple-history' );
+	const copyText = __( 'Copy detailed event message', 'simple-history' );
+	const copiedText = __( 'Event message copied', 'simple-history' );
+
 	const [ dynamicCopyText, setDynamicCopyText ] = useState( copyText );
 	let formattedDetails = `# Event Message\n\n`;
 	formattedDetails += formatEventDetails( event ) + '\n\n';
@@ -122,7 +123,7 @@ export function EventCopyDetailsDetailed( { event } ) {
 	} );
 
 	return (
-		<MenuItem icon={ info } iconPosition="left" ref={ ref }>
+		<MenuItem icon={ info } ref={ ref }>
 			{ dynamicCopyText }
 		</MenuItem>
 	);
