@@ -7,7 +7,7 @@ import {
 	Slot,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { moreHorizontalMobile, pin } from '@wordpress/icons';
 import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
@@ -58,9 +58,10 @@ function EventUnStickMenuItem( { event, onClose } ) {
 					onConfirm={ handleUnstickClickConfirm }
 					onCancel={ () => setIsConfirmDialogOpen( false ) }
 				>
-					{ __(
-						`Unstick event "${ event.message }"?`,
-						'simple-history'
+					{ sprintf(
+						/* translators: %s: The message of the event. */
+						__( 'Unstick event “%s”?', 'simple-history' ),
+						event.message
 					) }
 				</ConfirmDialog>
 			) : null }
