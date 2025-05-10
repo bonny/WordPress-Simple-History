@@ -31,6 +31,7 @@ class Log_Query {
 	 *      @type int $user Single user ID as number. Default null.
 	 *      @type string $users User IDs, comma separated or array. Default null.
 	 *      @type boolean $include_sticky Include sticky events in the result set. Default false.
+	 *      @type boolean $only_sticky Only return sticky events. Default false.
 	 * }
 	 * @return array
 	 * @throws \InvalidArgumentException If invalid query type.
@@ -717,6 +718,9 @@ class Log_Query {
 				// Should sticky events be included in the result set.
 				'include_sticky' => false,
 
+				// Only return sticky events.
+				'only_sticky' => false,
+
 			// Can also contain:
 			// logRowID
 			// occasionsCount
@@ -1316,6 +1320,14 @@ class Log_Query {
 				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'_user_id\' AND c.value IN (%2$s) )',
 				$contexts_table_name, // 1
 				implode( ',', $args['users'] ), // 2
+			);
+		}
+
+		// If only_sticky is true, only return sticky events.
+		if ( ! empty( $args['only_sticky'] ) ) {
+			$inner_where[] = sprintf(
+				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'sticky\' )',
+				$contexts_table_name
 			);
 		}
 
