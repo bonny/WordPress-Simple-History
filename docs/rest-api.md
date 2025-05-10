@@ -51,6 +51,8 @@ Retrieve a list of events from the Simple History log.
 | `users` | array | Limit result set to rows with specific user IDs | - |
 | `user` | integer | Limit result set to rows with a specific user ID | - |
 | `offset` | integer | Offset the result set by a specific number of items | - |
+| `include_sticky` | boolean | Include sticky events in the result set | false |
+| `only_sticky` | boolean | Only return sticky events | false |
 
 **Example Response:**
 

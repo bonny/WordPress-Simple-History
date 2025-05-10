@@ -430,6 +430,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'default'     => false,
 		);
 
+		$query_params['only_sticky'] = array(
+			'description' => __( 'Only return sticky events.', 'simple-history' ),
+			'type'        => 'boolean',
+			'default'     => false,
+		);
+
 		return $query_params;
 	}
 
@@ -682,6 +688,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'users'                   => 'users',
 			'user'                    => 'user',
 			'include_sticky'          => 'include_sticky',
+			'only_sticky'             => 'only_sticky',
 		);
 
 		/*
