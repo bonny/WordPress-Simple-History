@@ -28,7 +28,10 @@ const modalIcon = (
 /**
  * Modal that is shown when you click on a premium feature.
  *
- * @param {Object} props
+ * @param {Object}   props
+ * @param {string}   props.premiumFeatureModalTitle
+ * @param {string}   props.premiumFeatureDescription
+ * @param {Function} props.handleModalClose
  */
 export const PremiumFeaturesUnlockModal = ( props ) => {
 	const {
@@ -87,6 +90,12 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 					listStyleType: 'none',
 				} }
 			>
+				<li style={ liStyles }>
+					{ __(
+						'More details on Stats & Summaries page',
+						'simple-history'
+					) }
+				</li>
 				<li style={ liStyles }>
 					{ __(
 						'Add events manually using a GUI',

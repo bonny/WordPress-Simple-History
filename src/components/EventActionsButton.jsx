@@ -13,7 +13,68 @@ import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
 import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
+import { PremiumFeaturesUnlockModal } from './PremiumFeaturesUnlockModal';
+/**
+ * Menu item to promote Stick events.
+ * When clicked the premium version of Simple History is promoted.
+ *
+ * @param {Object}   props
+ * @param {Function} props.onClose Callback to close the dropdown
+ * @param {Object}   props.event   The event object
+ * @return {Object|null} React element or null if variant is modal
+ */
+function EventStickMenuItem( {
+	event,
+	onClose,
+	setShowPremiumFeaturesUnlockModal,
+	setPremiumModalTitle,
+	setPremiumModalDescription,
+} ) {
+	// Bail if event is sticky already.
+	if ( event.sticky ) {
+		return null;
+	}
 
+	const handleStickClick = () => {
+		setPremiumModalTitle( __( 'Stick events', 'simple-history' ) );
+		setPremiumModalDescription(
+			<>
+				<p
+					style={ {
+						backgroundColor: 'var(--sh-color-yellow)',
+						fontSize: 'var(--sh-font-size-large)',
+						padding: '1rem 2rem',
+					} }
+				>
+					<strong>Sticking events</strong> using the GUI is a premium
+					feature.
+				</p>
+
+				<p
+					style={ {
+						fontSize: 'var(--sh-font-size-large)',
+					} }
+				>
+					This feature lets you stick any event to the top of the
+					list.
+				</p>
+			</>
+		);
+		setShowPremiumFeaturesUnlockModal( true );
+
+		onClose();
+	};
+
+	const handleModalClose = () => {
+		setShowPremiumFeaturesUnlockModal( false );
+	};
+
+	return (
+		<MenuItem onClick={ handleStickClick } icon={ pin }>
+			{ __( 'Stick…', 'simple-history' ) }
+		</MenuItem>
+	);
+}
 function EventUnStickMenuItem( { event, onClose } ) {
 	const [ isConfirmDialogOpen, setIsConfirmDialogOpen ] = useState( false );
 
@@ -83,6 +144,23 @@ export function EventActionsButton( {
 	eventVariant,
 	eventsAdminPageURL,
 } ) {
+	const [
+		showPremiumFeaturesUnlockModal,
+		setShowPremiumFeaturesUnlockModal,
+	] = useState( false );
+
+	const [ premiumModalTitle, setPremiumModalTitle ] = useState(
+		__( 'Stick events', 'simple-history' )
+	);
+
+	const [ premiumModalDescription, setPremiumModalDescription ] = useState(
+		__( 'Stick events to the top of the list.', 'simple-history' )
+	);
+
+	const handlePremiumModalClose = () => {
+		setShowPremiumFeaturesUnlockModal( false );
+	};
+
 	// Don't show actions on modal events.
 	if ( eventVariant === 'modal' ) {
 		return null;
@@ -90,6 +168,14 @@ export function EventActionsButton( {
 
 	return (
 		<div className="SimpleHistoryLogitem__actions">
+			{ showPremiumFeaturesUnlockModal ? (
+				<PremiumFeaturesUnlockModal
+					premiumFeatureModalTitle={ premiumModalTitle }
+					premiumFeatureDescription={ premiumModalDescription }
+					handleModalClose={ handlePremiumModalClose }
+				/>
+			) : null }
+
 			<DropdownMenu
 				label={ __( 'Actions…', 'simple-history' ) }
 				icon={ moreHorizontalMobile }
@@ -125,6 +211,17 @@ export function EventActionsButton( {
 							<EventUnStickMenuItem
 								event={ event }
 								onClose={ onClose }
+							/>
+							<EventStickMenuItem
+								event={ event }
+								onClose={ onClose }
+								setShowPremiumFeaturesUnlockModal={
+									setShowPremiumFeaturesUnlockModal
+								}
+								setPremiumModalTitle={ setPremiumModalTitle }
+								setPremiumModalDescription={
+									setPremiumModalDescription
+								}
 							/>
 						</MenuGroup>
 
