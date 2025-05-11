@@ -5,6 +5,7 @@ import { createRoot } from '@wordpress/element';
 import EventsGUI from './components/EventsGui';
 import { EmptyFilteredComponent } from './EmptyFilteredComponent';
 import { NuqsAdapter } from 'nuqs/adapters/react';
+import { PremiumFeaturesModalProvider } from './components/PremiumFeaturesModalContext';
 
 // Filter that can be used by other plugins as a gateway to add content to different areas of
 // the core plugin, using slots.
@@ -23,10 +24,12 @@ domReady( () => {
 		if ( createRoot ) {
 			createRoot( target ).render(
 				<NuqsAdapter>
-					<SlotFillProvider>
-						<EventsControlBarSlotfillsFilter />
-						<EventsGUI />
-					</SlotFillProvider>
+					<PremiumFeaturesModalProvider>
+						<SlotFillProvider>
+							<EventsControlBarSlotfillsFilter />
+							<EventsGUI />
+						</SlotFillProvider>
+					</PremiumFeaturesModalProvider>
 				</NuqsAdapter>
 			);
 		}

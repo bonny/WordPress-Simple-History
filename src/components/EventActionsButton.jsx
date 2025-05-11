@@ -13,8 +13,8 @@ import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
 import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
-import { PremiumFeaturesUnlockModal } from './PremiumFeaturesUnlockModal';
 import { EventStickMenuItem } from './EventStickMenuItem';
+import { usePremiumFeaturesModal } from './PremiumFeaturesModalContext';
 
 function EventUnStickMenuItem( { event, onClose } ) {
 	const [ isConfirmDialogOpen, setIsConfirmDialogOpen ] = useState( false );
@@ -82,22 +82,7 @@ export function EventActionsButton( {
 	eventVariant,
 	eventsAdminPageURL,
 } ) {
-	const [
-		showPremiumFeaturesUnlockModal,
-		setShowPremiumFeaturesUnlockModal,
-	] = useState( false );
-
-	const [ premiumModalTitle, setPremiumModalTitle ] = useState(
-		__( 'Stick events', 'simple-history' )
-	);
-
-	const [ premiumModalDescription, setPremiumModalDescription ] = useState(
-		__( 'Stick events to the top of the list.', 'simple-history' )
-	);
-
-	const handlePremiumModalClose = () => {
-		setShowPremiumFeaturesUnlockModal( false );
-	};
+	const { showModal } = usePremiumFeaturesModal();
 
 	// Don't show actions on modal events.
 	if ( eventVariant === 'modal' ) {
@@ -106,14 +91,6 @@ export function EventActionsButton( {
 
 	return (
 		<div className="SimpleHistoryLogitem__actions">
-			{ showPremiumFeaturesUnlockModal ? (
-				<PremiumFeaturesUnlockModal
-					premiumFeatureModalTitle={ premiumModalTitle }
-					premiumFeatureDescription={ premiumModalDescription }
-					handleModalClose={ handlePremiumModalClose }
-				/>
-			) : null }
-
 			<DropdownMenu
 				label={ __( 'Actions…', 'simple-history' ) }
 				icon={ moreHorizontalMobile }
@@ -153,13 +130,7 @@ export function EventActionsButton( {
 							<EventStickMenuItem
 								event={ event }
 								onClose={ onClose }
-								setShowPremiumFeaturesUnlockModal={
-									setShowPremiumFeaturesUnlockModal
-								}
-								setPremiumModalTitle={ setPremiumModalTitle }
-								setPremiumModalDescription={
-									setPremiumModalDescription
-								}
+								showPremiumModal={ showModal }
 							/>
 						</MenuGroup>
 

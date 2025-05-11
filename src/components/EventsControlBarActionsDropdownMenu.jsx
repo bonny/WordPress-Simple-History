@@ -1,9 +1,7 @@
 import { DropdownMenu, Slot } from '@wordpress/components';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
 import { PremiumAddonsPromoMenuGroup } from './PremiumAddonsPromoMenuGroup';
-import { PremiumFeaturesUnlockModal } from './PremiumFeaturesUnlockModal';
 
 /**
  * Dropdown menu with information about the actions you can do with the events.
@@ -14,71 +12,39 @@ import { PremiumFeaturesUnlockModal } from './PremiumFeaturesUnlockModal';
 export function EventsControlBarActionsDropdownMenu( props ) {
 	const { eventsQueryParams, eventsTotal } = props;
 
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const [ premiumFeatureDescription, setPremiumFeatureDescription ] =
-		useState( '' );
-	const [ premiumFeatureTitle, setPremiumFeatureTitle ] = useState( '' );
-
-	const handleOnClickPremiumFeature = ( localProps ) => {
-		const { featureDescription = '', featureTitle = '' } = localProps;
-		setIsModalOpen( true );
-		setPremiumFeatureTitle( featureTitle );
-		setPremiumFeatureDescription( featureDescription );
-	};
-
-	const handleModalClose = () => {
-		setIsModalOpen( false );
-	};
-
 	return (
-		<>
-			{ isModalOpen ? (
-				<PremiumFeaturesUnlockModal
-					premiumFeatureModalTitle={ premiumFeatureTitle }
-					premiumFeatureDescription={ premiumFeatureDescription }
-					handleModalClose={ handleModalClose }
-				/>
-			) : null }
+		<DropdownMenu
+			text={ __( 'Event options', 'simple-history' ) }
+			label={ __( 'Actions (Export & other tools)', 'simple-history' ) }
+			icon={ moreHorizontalMobile } // or moreHorizontal or moreHorizontalMobile
+			// Props passed to the toggle button.
+			toggleProps={ {
+				iconPosition: 'right',
+				variant: 'tertiary',
+			} }
+		>
+			{ ( { onClose } ) => (
+				<>
+					{ /* <MenuGroup>
+						<MenuItem onClick={ onClose }>
+							Copy link to search
+						</MenuItem>
+					</MenuGroup> */ }
 
-			<DropdownMenu
-				text={ __( 'Event options', 'simple-history' ) }
-				label={ __(
-					'Actions (Export & other tools)',
-					'simple-history'
-				) }
-				icon={ moreHorizontalMobile } // or moreHorizontal or moreHorizontalMobile
-				// Props passed to the toggle button.
-				toggleProps={ {
-					iconPosition: 'right',
-					variant: 'tertiary',
-				} }
-			>
-				{ ( { onClose } ) => (
-					<>
-						{ /* <MenuGroup>
-							<MenuItem onClick={ onClose }>
-								Copy link to search
-							</MenuItem>
-						</MenuGroup> */ }
+					<PremiumAddonsPromoMenuGroup
+						onCloseDropdownMenu={ onClose }
+					/>
 
-						<PremiumAddonsPromoMenuGroup
-							handleOnClickPremiumFeature={
-								handleOnClickPremiumFeature
-							}
-							onCloseDropdownMenu={ onClose }
-						/>
-
-						<Slot
-							name="SimpleHistorySlotEventsControlBarMenu"
-							fillProps={ {
-								onClose,
-								eventsQueryParams,
-								eventsTotal,
-							} }
-						/>
-					</>
-				) }
-			</DropdownMenu>
-		</>
+					<Slot
+						name="SimpleHistorySlotEventsControlBarMenu"
+						fillProps={ {
+							onClose,
+							eventsQueryParams,
+							eventsTotal,
+						} }
+					/>
+				</>
+			) }
+		</DropdownMenu>
 	);
 }

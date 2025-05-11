@@ -7,28 +7,20 @@ import { pin } from '@wordpress/icons';
  * When clicked the premium version of Simple History is promoted.
  *
  * @param {Object}   props
- * @param {Function} props.onClose                           Callback to close the dropdown
- * @param {Object}   props.event                             The event object
- * @param {Function} props.setShowPremiumFeaturesUnlockModal Callback to set the show premium features unlock modal
- * @param {Function} props.setPremiumModalTitle              Callback to set the premium modal title
- * @param {Function} props.setPremiumModalDescription        Callback to set the premium modal description
+ * @param {Function} props.onClose          Callback to close the dropdown
+ * @param {Object}   props.event            The event object
+ * @param {Function} props.showPremiumModal Function to show the premium modal
  * @return {Object|null} React element or null if variant is modal
  */
-export function EventStickMenuItem( {
-	event,
-	onClose,
-	setShowPremiumFeaturesUnlockModal,
-	setPremiumModalTitle,
-	setPremiumModalDescription,
-} ) {
+export function EventStickMenuItem( { event, onClose, showPremiumModal } ) {
 	// Bail if event is sticky already.
 	if ( event.sticky ) {
 		return null;
 	}
 
 	const handleStickClick = () => {
-		setPremiumModalTitle( __( 'Stick events', 'simple-history' ) );
-		setPremiumModalDescription(
+		showPremiumModal(
+			__( 'Stick events', 'simple-history' ),
 			<>
 				<p
 					style={ {
@@ -51,7 +43,6 @@ export function EventStickMenuItem( {
 				</p>
 			</>
 		);
-		setShowPremiumFeaturesUnlockModal( true );
 
 		onClose();
 	};
