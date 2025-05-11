@@ -49,7 +49,7 @@ export function EventStickMenuItem( { event, onClose, showPremiumModal } ) {
 
 	return (
 		<MenuItem onClick={ handleStickClick } icon={ pin }>
-			{ __( 'Stick…', 'simple-history' ) }
+			{ __( 'Stick event to top…', 'simple-history' ) }
 		</MenuItem>
 	);
 }

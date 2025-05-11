@@ -44,7 +44,7 @@ function EventUnStickMenuItem( { event, onClose } ) {
 	return (
 		<>
 			<MenuItem onClick={ handleUnstickClick } icon={ pin }>
-				{ __( 'Unstick…', 'simple-history' ) }
+				{ __( 'Unstick event…', 'simple-history' ) }
 			</MenuItem>
 
 			{ isConfirmDialogOpen ? (
