@@ -5,6 +5,7 @@ import { EventHeader } from './EventHeader';
 import { EventInitiatorImage } from './EventInitiator';
 import { EventOccasions } from './EventOccasions';
 import { EventText } from './EventText';
+import { EventSeparator } from './EventSeparator';
 
 /**
  * Component for a single event in the list of events.
@@ -21,6 +22,9 @@ export function Event( props ) {
 		isNewAfterFetchNewEvents,
 		eventsSettingsPageURL,
 		eventsAdminPageURL,
+		prevEvent,
+		nextEvent,
+		loopIndex,
 	} = props;
 
 	const containerClassNames = clsx(
@@ -37,6 +41,13 @@ export function Event( props ) {
 
 	return (
 		<li className={ containerClassNames }>
+			<EventSeparator
+				event={ event }
+				prevEvent={ prevEvent }
+				nextEvent={ nextEvent }
+				loopIndex={ loopIndex }
+			/>
+
 			<div className="SimpleHistoryLogitem__firstcol">
 				<EventInitiatorImage event={ event } />
 			</div>

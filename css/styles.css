@@ -11,6 +11,7 @@
 	--sh-color-gray-4: #ededed;
 	--sh-color-green: #3f9349;
 	--sh-color-green-2: darkgreen;
+	--sh-color-separator: rgb(229, 229, 229);
 
 	/* Colors from Figma document 2025 */
 	--sh-color-black: #000000;
@@ -147,8 +148,8 @@
 .SimpleHistoryLogitems {
 	margin: 0;
 	background: #fff;
-	border-top: 1px solid rgb(229, 229, 229);
-	border-bottom: 1px solid rgb(229, 229, 229);
+	border-top: 1px solid var(--sh-color-separator);
+	border-bottom: 1px solid var(--sh-color-separator);
 	opacity: 1;
 	transition: all 0.25s ease-out;
 }
@@ -174,7 +175,7 @@
 }
 
 /* add border below items */
-.SimpleHistoryLogitem::before {
+/* .SimpleHistoryLogitem::before {
 	content: "";
 	position: absolute;
 	bottom: 0;
@@ -182,7 +183,7 @@
 	height: 1px;
 	right: 0;
 	background: rgb(229, 229, 229);
-}
+} */
 
 .postbox .SimpleHistoryLogitem::before {
 	left: 0;

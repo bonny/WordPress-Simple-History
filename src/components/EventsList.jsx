@@ -109,6 +109,9 @@ function EventsListItemsList( props ) {
 				<Event
 					key={ `${ event.id }-${ index }` }
 					event={ event }
+					loopIndex={ index }
+					prevEvent={ events[ index - 1 ] }
+					nextEvent={ events[ index + 1 ] }
 					mapsApiKey={ mapsApiKey }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
