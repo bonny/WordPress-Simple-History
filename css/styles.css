@@ -171,7 +171,10 @@
 	position: relative;
 	list-style-type: none;
 	margin: 0;
-	padding: 20px 20px 20px 16px;
+	/* padding: 20px 20px 20px 16px; */
+	padding: var(--sh-spacing-medium);
+	/* Margin top gets same height as separator */
+	margin-top: var(--sh-spacing-medium);
 }
 
 /* add border below items */

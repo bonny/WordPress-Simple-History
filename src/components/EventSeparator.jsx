@@ -3,7 +3,6 @@ import {
 	dateI18n,
 	__experimentalGetSettings as dateSettings,
 } from '@wordpress/date';
-import { useState, useEffect } from '@wordpress/element';
 
 function getEventDividerLabel( { event, loopIndex } ) {
 	let label = '';
@@ -23,44 +22,34 @@ function getEventDividerLabel( { event, loopIndex } ) {
 	return label;
 }
 
-export function EventSeparator( { event, prevEvent, nextEvent, loopIndex } ) {
+export function EventSeparator( { event, prevEvent, loopIndex } ) {
 	const label = getEventDividerLabel( { event, loopIndex } );
-
-	// Bail if label is empty.
-	if ( label === '' ) {
-		return null;
-	}
 
 	const prevEventLabel = getEventDividerLabel( {
 		event: prevEvent,
 		loopIndex: loopIndex - 1,
 	} );
 
-	// Bail if label is the same as the previous event had.
-	if ( label === prevEventLabel ) {
-		return null;
-	}
+	const outputLabel = label !== prevEventLabel && prevEventLabel !== 'Sticky events';
 
 	const separatorClassNames = clsx( {
 		SimpleHistoryEventSeparator: true,
-		//'is-separator': isSeparator,
+		'SimpleHistoryEventSeparator--hasLabel': outputLabel,
 	} );
 
-	const style = {
-		// backgroundColor: 'red',
-		// position: 'absolute',
-		// top: 0,
-		// left: 0,
-		// transform: 'translateY(-60%)',
+	const containerStyles = {
 		width: '100%',
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
 		borderTop: '1px solid var(--sh-color-separator)',
+		marginTop: 'calc( var(--sh-spacing-medium) * -1)',
+		minHeight: '30px',
+		fontWeight: '600',
 	};
 
 	const labelStyles = {
-		padding: '0.25rem 2rem',
+		padding: 'var(--sh-spacing-small) var(--sh-spacing-medium)',
 		borderRadius: '1rem',
 		lineHeight: 1,
 		backgroundColor: 'var(--sh-color-white)',
@@ -70,8 +59,11 @@ export function EventSeparator( { event, prevEvent, nextEvent, loopIndex } ) {
 	};
 
 	return (
-		<div className={ separatorClassNames } style={ style }>
-			<span style={ labelStyles }>{ label }</span>
+		<div className={ separatorClassNames } style={ containerStyles }>
+			{ /* Dont show albel if current label has same value as the previous event had. */ }
+			{ outputLabel ? (
+				<span style={ labelStyles }>{ label }</span>
+			) : null }
 		</div>
 	);
 }
