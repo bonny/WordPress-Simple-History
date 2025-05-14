@@ -43,6 +43,7 @@ export function Event( props ) {
 		<li className={ containerClassNames }>
 			<EventSeparator
 				event={ event }
+				eventVariant={ variant }
 				prevEvent={ prevEvent }
 				nextEvent={ nextEvent }
 				loopIndex={ loopIndex }
