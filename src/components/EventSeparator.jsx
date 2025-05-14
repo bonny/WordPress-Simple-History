@@ -40,7 +40,16 @@ function getEventDividerLabel( { event, loopIndex } ) {
 	return label;
 }
 
-export function EventSeparator( { event, prevEvent, loopIndex } ) {
+export function EventSeparator( {
+	event,
+	eventVariant,
+	prevEvent,
+	loopIndex,
+} ) {
+	if ( eventVariant === 'modal' ) {
+		return null;
+	}
+
 	const label = getEventDividerLabel( { event, loopIndex } );
 
 	const prevEventLabel = getEventDividerLabel( {
