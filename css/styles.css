@@ -196,6 +196,28 @@
 	background: none;
 }
 
+.SimpleHistoryEventSeparator {
+	width: calc(100% + var(--sh-spacing-medium) * 2);
+	margin-left: calc(var(--sh-spacing-medium) * -1);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-top: 1px solid var(--sh-color-separator);
+	margin-top: calc(var(--sh-spacing-medium) * -1);
+	min-height: 30px;
+	font-weight: 600;
+}
+
+.SimpleHistoryEventSeparator__label {
+	padding: var(--sh-spacing-small) var(--sh-spacing-medium);
+	border-radius: 1rem;
+	line-height: 1;
+	background-color: var(--sh-color-white);
+	border: 1px solid var(--sh-color-separator);
+	font-size: var(--sh-font-size-small);
+	transform: translateY(-50%);
+}
+
 /* Sticky events style */
 .SimpleHistoryLogitem--is-sticky {
 	/* background-color: var(--sh-color-cream); */

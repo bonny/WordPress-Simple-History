@@ -17,6 +17,23 @@ function getEventDividerLabel( { event, loopIndex } ) {
 	} else {
 		// Current event have date label.
 		label = dateI18n( dateSettings().formats.date, event.date_local );
+
+		// Output "Today" and "Yesterday" if the date is today or yesterday.
+		const eventYmd = new Date( event.date_local )
+			.toISOString()
+			.split( 'T' )[ 0 ];
+		const todayYmd = new Date().toISOString().split( 'T' )[ 0 ];
+		const yesterdayYmd = new Date(
+			new Date().setDate( new Date().getDate() - 1 )
+		)
+			.toISOString()
+			.split( 'T' )[ 0 ];
+
+		if ( eventYmd === todayYmd ) {
+			label = 'Today';
+		} else if ( eventYmd === yesterdayYmd ) {
+			label = 'Yesterday';
+		}
 	}
 
 	return label;
@@ -30,39 +47,20 @@ export function EventSeparator( { event, prevEvent, loopIndex } ) {
 		loopIndex: loopIndex - 1,
 	} );
 
-	const outputLabel = label !== prevEventLabel && prevEventLabel !== 'Sticky events';
+	const outputLabel =
+		label !== prevEventLabel && prevEventLabel !== 'Sticky events';
 
 	const separatorClassNames = clsx( {
 		SimpleHistoryEventSeparator: true,
 		'SimpleHistoryEventSeparator--hasLabel': outputLabel,
 	} );
 
-	const containerStyles = {
-		width: '100%',
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
-		borderTop: '1px solid var(--sh-color-separator)',
-		marginTop: 'calc( var(--sh-spacing-medium) * -1)',
-		minHeight: '30px',
-		fontWeight: '600',
-	};
-
-	const labelStyles = {
-		padding: 'var(--sh-spacing-small) var(--sh-spacing-medium)',
-		borderRadius: '1rem',
-		lineHeight: 1,
-		backgroundColor: 'var(--sh-color-white)',
-		border: '1px solid var(--sh-color-separator)',
-		fontSize: 'var(--sh-font-size-small)',
-		transform: 'translateY(-50%)',
-	};
+	const labelClasses = 'SimpleHistoryEventSeparator__label';
 
 	return (
-		<div className={ separatorClassNames } style={ containerStyles }>
-			{ /* Dont show albel if current label has same value as the previous event had. */ }
+		<div className={ separatorClassNames }>
 			{ outputLabel ? (
-				<span style={ labelStyles }>{ label }</span>
+				<span className={ labelClasses }>{ label }</span>
 			) : null }
 		</div>
 	);
