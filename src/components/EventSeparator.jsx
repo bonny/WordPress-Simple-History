@@ -15,6 +15,7 @@ function getEventDividerLabel( { event, loopIndex } ) {
 	if ( loopIndex === 0 && event.sticky ) {
 		label = 'Sticky events';
 	} else {
+		// Not sticky event for first item.
 		// Current event have date label.
 		label = dateI18n( dateSettings().formats.date, event.date_local );
 
