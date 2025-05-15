@@ -277,7 +277,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		?>
 		<p>
 			<a class="sh-PremiumFeaturesPostbox-button" href="<?php echo esc_url( $stats_page_url ); ?>">
-				<?php esc_html_e( 'View detailed stats & summaries', 'simple-history' ); ?>
+				<?php esc_html_e( 'See all History Insights', 'simple-history' ); ?>
 			</a>
 		</p>
 		<?php
@@ -294,7 +294,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		<div class="postbox sh-PremiumFeaturesPostbox">			
 			<div class="inside">
 				<h3 class="sh-PremiumFeaturesPostbox-title">
-					<?php esc_html_e( 'Stats & Insights', 'simple-history' ); ?>
+					<?php esc_html_e( 'History Insights', 'simple-history' ); ?>
 				</h3>
 
 				<?php
