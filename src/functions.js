@@ -132,8 +132,16 @@ export function generateAPIQueryParams( props ) {
 		eventsQueryParams.users = selectedUsersValues;
 	}
 
-	// If first page then include sticky events.
-	if ( page === 1 ) {
+	// Check if there are any search options, besides date.
+	// Anything selected besides date will disable sticky events.
+	const hasSearchOptions =
+		enteredSearchText ||
+		selectedLogLevels.length ||
+		selectedMessageTypes.length ||
+		selectedUsersWithId.length;
+
+	// If first page and no search options then include sticky events.
+	if ( page === 1 && ! hasSearchOptions ) {
 		eventsQueryParams.include_sticky = true;
 	}
 
