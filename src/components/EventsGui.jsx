@@ -20,6 +20,7 @@ import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
+import { __ } from '@wordpress/i18n';
 
 // Schema for the users object.
 const usersSchema = z.array(
@@ -284,18 +285,32 @@ function EventsGUI() {
 		} catch ( error ) {
 			setEventsLoadingHasErrors( true );
 
+			// Base error details that we fill with data from the error.
 			const errorDetails = {
-				code: error.status, // Example number "500".
-				statusText: error.statusText, // Example "Internal Server Error".
+				code: null, // Example number "500".
+				statusText: null, // Example "Internal Server Error".
 				bodyJson: null,
 				bodyText: null,
 			};
 
-			const contentType = error.headers.get( 'Content-Type' );
-			if ( contentType && contentType.includes( 'application/json' ) ) {
-				errorDetails.bodyJson = await error.json();
+			// Fetch error response.
+			if ( error.headers && error.status && error.statusText ) {
+				const contentType = error.headers.get( 'Content-Type' );
+
+				errorDetails.code = error.status;
+				errorDetails.statusText = error.statusText;
+
+				if (
+					contentType &&
+					contentType.includes( 'application/json' )
+				) {
+					errorDetails.bodyJson = await error.json();
+				} else {
+					errorDetails.bodyText = await error.text();
+				}
 			} else {
-				errorDetails.bodyText = await error.text();
+				// Unknown error.
+				errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
 			}
 
 			setEventsLoadingErrorDetails( errorDetails );
