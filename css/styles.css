@@ -149,7 +149,7 @@
 .SimpleHistoryLogitems {
 	margin: 0;
 	background: #fff;
-	border-top: 1px solid var(--sh-color-separator);
+	/* border-top: 1px solid var(--sh-color-separator); */
 	border-bottom: 1px solid var(--sh-color-separator);
 	opacity: 1;
 	transition: all 0.25s ease-out;
@@ -232,6 +232,7 @@
 	border: 1px solid var(--sh-color-separator);
 	font-size: var(--sh-font-size-small);
 	transform: translateY(-50%);
+	box-shadow: 0px 3px 3px 0px #f7f7f7;
 }
 
 /* Sticky events style */
@@ -1615,8 +1616,9 @@ a.sh-SettingsTabs-link:hover {
 	max-height: 0;
 	overflow: hidden;
 	text-align: center;
-	background: white;
 	background: rgba(0, 255, 30, 0.15);
+	/* Make room for divider label that will overlap otherwise. */
+	border-bottom: 30px;
 	transition:
 		max-height 0.5s ease-out,
 		background 0s;

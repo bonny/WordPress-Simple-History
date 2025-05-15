@@ -38,6 +38,8 @@ export function EventsList( props ) {
 				minHeight: '300px',
 				display: 'flex',
 				flexDirection: 'column',
+				// Make room for divider label that will overlap otherwise.
+				paddingTop: '30px',
 			} }
 		>
 			<EventsListSkeletonList

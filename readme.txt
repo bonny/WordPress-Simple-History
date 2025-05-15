@@ -322,6 +322,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Don't change the URL on the dashboard when using the search filters.
 -   Show date and id of oldest event on debug page.
 -   Add WP-CLI commands to manage sticky events.
+-   Add divider labels to the event log, for example "Sticky events", "Today", "Yesterday", "May 14, 2025".
 
 ### 5.10.0 (May 2025)
 
