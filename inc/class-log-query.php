@@ -479,8 +479,21 @@ class Log_Query {
 					]
 				);
 
+				$sticky_log_rows = $query_sticky_events['log_rows'];
+
+				// Append sticky_appended=true to each event,
+				// so we on clien side can differentiate between sticky events and other events.
+				$sticky_log_rows = array_map(
+					function ( $log_row ) {
+						$log_row->sticky_appended = true;
+
+						return $log_row;
+					},
+					$sticky_log_rows
+				);
+
 				// Prepend sticky events to the result, at the top.
-				$result_log_rows = array_merge( $query_sticky_events['log_rows'], $result_log_rows );
+				$result_log_rows = array_merge( $sticky_log_rows, $result_log_rows );
 			}
 		}
 

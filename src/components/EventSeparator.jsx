@@ -12,7 +12,7 @@ function getEventDividerLabel( { event, loopIndex } ) {
 		return '';
 	}
 
-	if ( loopIndex === 0 && event.sticky ) {
+	if ( event.sticky_appended ) {
 		label = 'Sticky events';
 	} else {
 		// Not sticky event for first item.
@@ -57,8 +57,7 @@ export function EventSeparator( {
 		loopIndex: loopIndex - 1,
 	} );
 
-	const outputLabel =
-		label !== prevEventLabel && prevEventLabel !== 'Sticky events';
+	const outputLabel = label !== prevEventLabel;
 
 	const separatorClassNames = clsx( {
 		SimpleHistoryEventSeparator: true,

@@ -60,6 +60,7 @@ export function generateAPIQueryParams( props ) {
 			'via',
 			'permalink',
 			'sticky',
+			'sticky_appended',
 		],
 	};
 
