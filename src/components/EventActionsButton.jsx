@@ -79,14 +79,16 @@ export function EventActionsButton( {
 							/>
 						</MenuGroup>
 
-						<Slot
-							name="SimpleHistorySlotEventActionsMenu"
-							fillProps={ {
-								onClose,
-								event,
-								eventVariant,
-							} }
-						/>
+						<MenuGroup>
+							<Slot
+								name="SimpleHistorySlotEventActionsMenu"
+								fillProps={ {
+									onClose,
+									event,
+									eventVariant,
+								} }
+							/>
+						</MenuGroup>
 					</>
 				) }
 			</DropdownMenu>
