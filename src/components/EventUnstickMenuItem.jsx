@@ -6,12 +6,14 @@ import {
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { pin } from '@wordpress/icons';
+import { useUserHasCapability } from '../hooks/useUserHasCapability';
 
 export function EventUnstickMenuItem( { event, onClose } ) {
 	const [ isConfirmDialogOpen, setIsConfirmDialogOpen ] = useState( false );
+	const canManageOptions = useUserHasCapability( 'manage_options' );
 
-	// Bail if event is not sticky.
-	if ( ! event.sticky ) {
+	// Bail if event is not sticky or user is not an admin.
+	if ( ! event.sticky || ! canManageOptions ) {
 		return null;
 	}
 
