@@ -13,7 +13,7 @@ function getEventDividerLabel( { event, loopIndex } ) {
 	}
 
 	if ( event.sticky_appended ) {
-		label = 'Sticky events';
+		label = 'Sticky';
 	} else {
 		// Not sticky event for first item.
 		// Current event have date label.
