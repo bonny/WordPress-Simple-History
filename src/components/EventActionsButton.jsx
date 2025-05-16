@@ -13,16 +13,18 @@ import { usePremiumFeaturesModal } from './PremiumFeaturesModalContext';
 /**
  * The button with three dots that opens a dropdown with actions for the event.
  *
- * @param {Object} props
- * @param {Object} props.event              The event object
- * @param {string} props.eventVariant       The variant of the event ('normal' or 'modal')
- * @param {string} props.eventsAdminPageURL URL to the events admin page
+ * @param {Object}  props
+ * @param {Object}  props.event              The event object
+ * @param {string}  props.eventVariant       The variant of the event ('normal' or 'modal')
+ * @param {string}  props.eventsAdminPageURL URL to the events admin page
+ * @param {boolean} props.hasPremiumAddOn    Whether the premium add-on is installed
  * @return {Object|null} React element or null if variant is modal
  */
 export function EventActionsButton( {
 	event,
 	eventVariant,
 	eventsAdminPageURL,
+	hasPremiumAddOn,
 } ) {
 	const { showModal } = usePremiumFeaturesModal();
 
@@ -73,6 +75,7 @@ export function EventActionsButton( {
 								event={ event }
 								onClose={ onClose }
 								showPremiumModal={ showModal }
+								hasPremiumAddOn={ hasPremiumAddOn }
 							/>
 						</MenuGroup>
 

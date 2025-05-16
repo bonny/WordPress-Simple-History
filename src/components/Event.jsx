@@ -78,6 +78,7 @@ export function Event( props ) {
 					event={ event }
 					eventVariant={ variant }
 					eventsAdminPageURL={ eventsAdminPageURL }
+					hasPremiumAddOn={ hasPremiumAddOn }
 				/>
 			</div>
 		</li>

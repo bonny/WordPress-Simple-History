@@ -20,18 +20,22 @@ const EventsControlBarSlotfillsFilter = withFilters(
 domReady( () => {
 	const target = document.getElementById( 'simple-history-react-root' );
 
-	if ( target ) {
-		if ( createRoot ) {
-			createRoot( target ).render(
-				<NuqsAdapter>
-					<PremiumFeaturesModalProvider>
-						<SlotFillProvider>
-							<EventsControlBarSlotfillsFilter />
-							<EventsGUI />
-						</SlotFillProvider>
-					</PremiumFeaturesModalProvider>
-				</NuqsAdapter>
-			);
-		}
+	if ( ! target ) {
+		return;
 	}
+
+	if ( ! createRoot ) {
+		return;
+	}
+
+	createRoot( target ).render(
+		<NuqsAdapter>
+			<PremiumFeaturesModalProvider>
+				<SlotFillProvider>
+					<EventsControlBarSlotfillsFilter />
+					<EventsGUI />
+				</SlotFillProvider>
+			</PremiumFeaturesModalProvider>
+		</NuqsAdapter>
+	);
 } );

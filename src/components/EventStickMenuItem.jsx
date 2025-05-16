@@ -10,9 +10,20 @@ import { pin } from '@wordpress/icons';
  * @param {Function} props.onClose          Callback to close the dropdown
  * @param {Object}   props.event            The event object
  * @param {Function} props.showPremiumModal Function to show the premium modal
+ * @param {boolean}  props.hasPremiumAddOn  Whether the premium add-on is installed
  * @return {Object|null} React element or null if variant is modal
  */
-export function EventStickMenuItem( { event, onClose, showPremiumModal } ) {
+export function EventStickMenuItem( {
+	event,
+	onClose,
+	showPremiumModal,
+	hasPremiumAddOn,
+} ) {
+	// Bail if premium add-on is installed.
+	if ( hasPremiumAddOn ) {
+		return null;
+	}
+
 	// Bail if event is sticky already.
 	if ( event.sticky ) {
 		return null;
