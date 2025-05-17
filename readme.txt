@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.8
-Stable tag: 5.10.0
+Stable tag: 5.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -322,6 +322,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Don't change the URL on the dashboard when using the search filters.
 -   Show date and id of oldest event on debug page.
 -   Add WP-CLI commands to manage sticky events.
+-   Dont' show link to stats and summaries page in quick stats box if user doesn't have permission to view it.
+-   Sticky events support!
+    -   Wp cli command to stick, list, unstick events.
+    -   shown at top
+    -   can be unstuck
+    -   stick events to top of the log
 -   Add divider labels to the event log, for example "Sticky events", "Today", "Yesterday", "May 14, 2025". Improves scannability of the log. Better/improved overview.
 
 ### 5.10.0 (May 2025)
