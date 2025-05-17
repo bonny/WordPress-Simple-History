@@ -49,7 +49,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 			$contexts_table,
 			[
 				'history_id' => $event_id,
-				'key'        => 'sticky',
+				'key'        => '_sticky',
 			]
 		);
 
@@ -59,7 +59,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 			$contexts_table,
 			[
 				'history_id' => $event_id,
-				'key'        => 'sticky',
+				'key'        => '_sticky',
 				'value'      => $value,
 			]
 		);
@@ -102,7 +102,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 			$contexts_table,
 			[
 				'history_id' => $event_id,
-				'key'        => 'sticky',
+				'key'        => '_sticky',
 			]
 		);
 
@@ -146,7 +146,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 			$wpdb->prepare(
 				'SELECT history_id, value FROM %i WHERE `key` = %s',
 				$contexts_table,
-				'sticky'
+				'_sticky'
 			)
 		);
 
@@ -200,7 +200,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 				'SELECT value FROM %i WHERE history_id = %d AND `key` = %s',
 				$contexts_table,
 				$event_id,
-				'sticky'
+				'_sticky'
 			)
 		);
 		if ( $row ) {

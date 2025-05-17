@@ -141,7 +141,7 @@ For more information about database versioning and upgrades, see [Database Versi
 
 ## Sticky Events Storage
 
-Sticky (or pinned) status for events is stored in the `wp_simple_history_contexts` table as a context entry with the key `sticky`.
+Sticky (or pinned) status for events is stored in the `wp_simple_history_contexts` table as a context entry with the key `_sticky`.
 
 -   The `value` field contains an empty JSON object (`{}`) to indicate sticky status.
 -   No user or other metadata is stored for sticky events.
@@ -149,11 +149,11 @@ Sticky (or pinned) status for events is stored in the `wp_simple_history_context
 
 ### Example
 
-| context_id | history_id | key    | value |
-| ---------- | ---------- | ------ | ----- |
-| 20         | 59890      | sticky | {}    |
-| 21         | 59891      | sticky | {}    |
+| history_id | context_id | key      | value |
+|------------|------------|----------|-------|
+| 20         | 59890      | _sticky  | {}    |
+| 21         | 59891      | _sticky  | {}    |
 
--   To check if an event is sticky, look for a `sticky` context entry for that event.
--   To query for all sticky events, filter for context rows where `key = 'sticky'`.
+-   To check if an event is sticky, look for a `_sticky` context entry for that event.
+-   To query for all sticky events, filter for context rows where `key = '_sticky'`.
 -   The JSON object can be extended in the future for more metadata if needed.

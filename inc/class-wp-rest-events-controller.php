@@ -882,7 +882,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( Compat::rest_is_field_included( 'sticky', $fields ) ) {
-			$data['sticky'] = isset( $item->context['sticky'] ) ? true : false;
+			$data['sticky'] = isset( $item->context['_sticky'] ) ? true : false;
 		}
 
 		if ( Compat::rest_is_field_included( 'sticky_appended', $fields ) ) {
@@ -1012,7 +1012,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$table_name,
 			array(
 				'history_id' => $event_id,
-				'key' => 'sticky',
+				'key' => '_sticky',
 			),
 			array( '%d', '%s' )
 		);
@@ -1022,7 +1022,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$table_name,
 			array(
 				'history_id' => $event_id,
-				'key' => 'sticky',
+				'key' => '_sticky',
 				'value' => '{}',
 			),
 			array( '%d', '%s', '%s' )
@@ -1052,7 +1052,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$table_name,
 			array(
 				'history_id' => $event_id,
-				'key' => 'sticky',
+				'key' => '_sticky',
 			),
 			array( '%d', '%s' )
 		);

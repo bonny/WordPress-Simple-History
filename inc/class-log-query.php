@@ -1052,12 +1052,12 @@ class Log_Query {
 	 * Swedish examples:
 	 *
 	 * Search phrase "tillägg uppdaterade":
-	 * - Should match logger "SimplePluginLogger", message key "plugin_updated", message "uppdaterade tillägget ”{plugin_name}” till {plugin_version} från {plugin_prev_version}"
-	 * - Should match logger "SimplePluginLogger", message key "plugin_bulk_updated", message "uppdaterade tillägget ”{plugin_name}” till {plugin_version} från {plugin_prev_version}"
+	 * - Should match logger "SimplePluginLogger", message key "plugin_updated", message "uppdaterade tillägget "{plugin_name}" till {plugin_version} från {plugin_prev_version}"
+	 * - Should match logger "SimplePluginLogger", message key "plugin_bulk_updated", message "uppdaterade tillägget "{plugin_name}" till {plugin_version} från {plugin_prev_version}"
 	 *
 	 * Search phrase "misslyckades logga in":
-	 * - Should match logger "SimpleUserLogger", message key "user_login_failed", message "misslyckades att logga in med användarnamnet ”{login}” (felaktigt lösenord angavs)"
-	 * - Should match logger "SimpleUserLogger", message key "user_unknown_login_failed", message "misslyckades att logga in med användarnamnet ”{failed_username}” (användarnamnet finns inte)"
+	 * - Should match logger "SimpleUserLogger", message key "user_login_failed", message "misslyckades att logga in med användarnamnet "{login}" (felaktigt lösenord angavs)"
+	 * - Should match logger "SimpleUserLogger", message key "user_unknown_login_failed", message "misslyckades att logga in med användarnamnet "{failed_username}" (användarnamnet finns inte)"
 	 *
 	 * @param string $searchstring Search string, for example "misslyckades logga in".
 	 * @return array<int,array> Array with logger and message that matched search string.
@@ -1339,7 +1339,7 @@ class Log_Query {
 		// If only_sticky is true, only return sticky events.
 		if ( ! empty( $args['only_sticky'] ) ) {
 			$inner_where[] = sprintf(
-				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'sticky\' )',
+				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'_sticky\' )',
 				$contexts_table_name
 			);
 		}
@@ -1536,7 +1536,7 @@ class Log_Query {
 			$wpdb->prepare(
 				'SELECT history_id, value FROM %i WHERE `key` = %s',
 				$contexts_table,
-				'sticky'
+				'_sticky'
 			)
 		);
 
