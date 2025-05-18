@@ -324,7 +324,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Visual divider labels to the event log, e.g., "Sticky", "Today", "Yesterday", "May 14, 2025", for improved scannability and better log overview.
+-   Visual day divider labels to the event log, e.g., "Sticky", "Today", "Yesterday", "May 14, 2025", for improved scannability and better log overview.
 -   Sticky Events: pin important events to the top of your log. Add WP-CLI commands to manage sticky events (stick, unstick, list).
 -   Date and ID of the oldest event is now shown on the debug page.
 
