@@ -320,12 +320,17 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 ### 5.11.0 (May 2025)
 
 📌 This release introduces Sticky Events support for sticking important events to the top of your log, adds visual dividers for better log overview, and includes several UX improvements.
-[Read the release post](https://simple-history.com/2025/simple-history-5-11-0-released/) for more details.
+[Read the release post](https://simple-history.com/2025/simple-history-5-11-0-released-sticky-events-visual-day-dividers/) for more details and screenshots.
 
 **Added**
 
 -   Visual day divider labels to the event log, e.g., "Sticky", "Today", "Yesterday", "May 14, 2025", for improved scannability and better log overview.
--   Sticky Events: pin important events to the top of your log. Add WP-CLI commands to manage sticky events (stick, unstick, list).
+-   Sticky Events: pin important events to the top of your log.
+-   WP-CLI commands to manage sticky events (stick, unstick, list):
+    -   wp simple-history event stick
+    -   wp simple-history event unstick
+    -   wp simple-history event is_sticky
+    -   wp simple-history event list_sticky [--format=<format>]
 -   Date and ID of the oldest event is now shown on the debug page.
 
 **Fixed**
