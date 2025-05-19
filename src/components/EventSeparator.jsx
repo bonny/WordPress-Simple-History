@@ -3,8 +3,9 @@ import {
 	dateI18n,
 	__experimentalGetSettings as dateSettings,
 } from '@wordpress/date';
+import { __ } from '@wordpress/i18n';
 
-function getEventDividerLabel( { event, loopIndex } ) {
+function getEventDividerLabel( { event } ) {
 	let label = '';
 
 	// Bail if not event.
@@ -13,7 +14,7 @@ function getEventDividerLabel( { event, loopIndex } ) {
 	}
 
 	if ( event.sticky_appended ) {
-		label = 'Sticky';
+		label = __( 'Sticky', 'simple-history' );
 	} else {
 		// Not sticky event for first item.
 		// Current event have date label.
@@ -31,9 +32,9 @@ function getEventDividerLabel( { event, loopIndex } ) {
 			.split( 'T' )[ 0 ];
 
 		if ( eventYmd === todayYmd ) {
-			label = 'Today';
+			label = __( 'Today', 'simple-history' );
 		} else if ( eventYmd === yesterdayYmd ) {
-			label = 'Yesterday';
+			label = __( 'Yesterday', 'simple-history' );
 		}
 	}
 
