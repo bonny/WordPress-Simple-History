@@ -69,8 +69,8 @@ export function EventDate( props ) {
 			<table>
 				<thead>
 					<tr>
-						<th>Date</th>
-						<th>Description</th>
+						<th>{ __( 'Date', 'simple-history' ) }</th>
+						<th>{ __( 'Description', 'simple-history' ) }</th>
 					</tr>
 				</thead>
 
