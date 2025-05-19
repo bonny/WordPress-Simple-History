@@ -63,7 +63,7 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 		onCloseDropdownMenu();
 
 		showModal(
-			'Create log entry',
+			__( 'Create log entry', 'simple-history' ),
 			<>
 				<p
 					style={ {
@@ -72,18 +72,24 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 						padding: '1rem 2rem',
 					} }
 				>
-					<strong>Create log entry manually</strong> is a premium
-					feature.
+					{ __(
+						'Create log entry manually is a premium feature.',
+						'simple-history'
+					) }
 				</p>
 
 				<p style={ { fontSize: 'var(--sh-font-size-large)' } }>
-					This feature allows you to manually add custom events to the
-					activity log, using a simple GUI.
+					{ __(
+						'This feature allows you to manually add custom events to the activity log, using a simple GUI.',
+						'simple-history'
+					) }
 				</p>
 
 				<p style={ { fontSize: 'var(--sh-font-size-large)' } }>
-					Only administrators can add events, but all users who can
-					view the log can see the added entries.
+					{ __(
+						'Only administrators can add events, but all users who can view the log can see the added entries.',
+						'simple-history'
+					) }
 				</p>
 			</>
 		);
