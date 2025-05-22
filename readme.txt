@@ -321,7 +321,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
--   Make event day divider labels translateable.
+-   Improve translateability.
 
 ### 5.11.0 (May 2025)
 
