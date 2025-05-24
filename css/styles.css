@@ -1161,6 +1161,7 @@ so add some extra place then to make it look a bit less ugly.
 	text-wrap-style: pretty;
 	padding: 1rem;
 	background-color: var(--box-bg-color);
+	border-radius: 10px;
 }
 
 .sh-PremiumFeaturesPostbox-preTitleFeaturesBadge {
