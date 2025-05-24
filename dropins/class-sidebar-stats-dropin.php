@@ -2,7 +2,7 @@
 
 namespace Simple_History\Dropins;
 
-use DateTime;
+use DateTimeImmutable;
 use DateInterval;
 use DatePeriod;
 use Simple_History\Helpers;
@@ -144,30 +144,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
-	 * Get text for stats, i.e. "X events have been logged since plugin install."
-	 *
-	 * @return string HTML, contains tags for bold, paragraph, and span.
-	 */
-	protected function get_events_since_plugin_install_stats_text() {
-		$total_events = Helpers::get_total_logged_events_count();
-
-		$msg_text = sprintf(
-			// translators: 1 is number of events, 2 is description of when the plugin was installed.
-			__( 'Events since Simple History <span class="sh-Tooltip" title="%2$s">was installed</span>.', 'simple-history' ),
-			number_format_i18n( $total_events ),
-			__( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' )
-		);
-
-		$msg_stats = $this->output_stat_dashboard_item(
-			__( 'Total', 'simple-history' ),
-			number_format_i18n( $total_events ),
-			$msg_text
-		);
-
-		return $msg_stats;
-	}
-
-	/**
 	 * Get data for chart.
 	 *
 	 * @param int $num_days Number of days to get data for.
@@ -179,8 +155,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$num_events_per_day_for_period = Helpers::get_num_events_per_day_last_n_days( $num_days );
 
 		// Period = all dates, so empty ones don't get lost.
-		$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$num_days days" ) );
-		$period_end_date = DateTime::createFromFormat( 'U', time() );
+		$period_start_date = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days days" ) );
+		$period_end_date = DateTimeImmutable::createFromFormat( 'U', time() );
 		$interval = DateInterval::createFromDateString( '1 day' );
 
 		$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
@@ -188,7 +164,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		?>
 
 		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
-			<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Events per day last 28 days', 'simple-history' ); ?></div>
+			<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Daily activity over last 28 days', 'simple-history' ); ?></div>
 
 			<div class="sh-StatsDashboard-statValue">
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
@@ -342,23 +318,25 @@ class Sidebar_Stats_Dropin extends Dropin {
 				<div class="sh-flex sh-justify-between sh-mb-large sh-mt-large">
 					<?php
 
-					echo $this->output_stat_dashboard_item(
+					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo $this->get_stat_dashboard_item(
 						__( 'Today', 'simple-history' ),
 						number_format_i18n( $num_events_today ),
 						_n( 'event', 'events', $num_events_today, 'simple-history' ),
 					);
 
-					echo $this->output_stat_dashboard_item(
+					echo $this->get_stat_dashboard_item(
 						__( 'Last 7 days', 'simple-history' ),
 						number_format_i18n( $num_events_7_days ),
 						_n( 'event', 'events', $num_events_7_days, 'simple-history' ),
 					);
 
-					echo $this->output_stat_dashboard_item(
+					echo $this->get_stat_dashboard_item(
 						__( 'Last 28 days', 'simple-history' ),
 						number_format_i18n( $num_events_last_n_days ),
 						_n( 'event', 'events', $num_events_last_n_days, 'simple-history' )
 					);
+					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 					?>
 				</div>
@@ -381,7 +359,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 					__( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' )
 				);
 
-				echo wp_kses_post( "<p class='sh-my-medium'>" . $msg_text . '</p>' );
+				echo wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_stats_and_summaries_link_html();
@@ -516,13 +494,13 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output a stat dashboard stats item.
+	 * Get a stat dashboard stats item.
 	 *
 	 * @param string $stat_label The label text for the stat.
 	 * @param string $stat_value The main value text to display.
 	 * @param string $stat_subvalue Optional subvalue to display below main value.
 	 */
-	protected function output_stat_dashboard_item( $stat_label, $stat_value, $stat_subvalue = '' ) {
+	protected function get_stat_dashboard_item( $stat_label, $stat_value, $stat_subvalue = '' ) {
 		ob_start();
 
 		?>
