@@ -387,7 +387,21 @@
 	gap: var(--sh-spacing-small);
 }
 
-.sh-StatsDashboard-statLabel {
+.sh-StatsDashboard-stat--small {
+	gap: var(--sh-spacing-xsmall);
+
+	.sh-StatsDashboard-statLabel,
+	.sh-StatsDashboard-statSubValue {
+		font-size: var(--sh-font-size-normal);
+	}
+
+	.sh-StatsDashboard-statValue {
+		font-size: var(--sh-font-size-xxlarge);
+	}
+}
+
+.sh-StatsDashboard-statLabel,
+.sh-StatsDashboard-statSubValue {
 	font-size: var(--sh-font-size-medium);
 	color: var(--sh-color-black-2);
 }

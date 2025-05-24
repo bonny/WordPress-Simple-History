@@ -194,35 +194,46 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
 
 		?>
-		<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
-		<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
-			<canvas style="position: absolute; left: 0; right: 0;" class="SimpleHistory_SidebarChart_ChartCanvas" width="100" height="40"></canvas>
+
+		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
+			<div class="sh-StatsDashboard-statLabel">Last 28 days / per day</div>
+
+			<div class="sh-StatsDashboard-statValue">
+				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
+				<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
+					<canvas style="position: absolute; left: 0; right: 0;" class="SimpleHistory_SidebarChart_ChartCanvas" width="100" height="40"></canvas>
+				</div>
+			</div>
+			
+			<div class="sh-StatsDashboard-statSubValue">
+				<p class="sh-flex sh-justify-between sh-m-0">
+					<span>
+						<?php
+						// From date, localized.
+						echo esc_html(
+							wp_date(
+								get_option( 'date_format' ),
+								$period_start_date->getTimestamp()
+							)
+						);
+						?>
+					</span>
+					<span>
+						<?php
+						// To date, localized.
+						echo esc_html(
+							wp_date(
+								get_option( 'date_format' ),
+								$period_end_date->getTimestamp()
+							)
+						);
+						?>
+					</span>
+				</p>
+
+			</div>
 		</div>
 
-		<p class="SimpleHistory_SidebarChart_ChartDescription sh-flex sh-justify-between sh-mb-large sh-mt-0">
-			<span>
-				<?php
-				// From date, localized.
-				echo esc_html(
-					wp_date(
-						get_option( 'date_format' ),
-						$period_start_date->getTimestamp()
-					)
-				);
-				?>
-			</span>
-			<span>
-				<?php
-				// To date, localized.
-				echo esc_html(
-					wp_date(
-						get_option( 'date_format' ),
-						$period_end_date->getTimestamp()
-					)
-				);
-				?>
-			</span>
-		</p>
 
 		<?php
 		$arr_labels = array();
@@ -370,14 +381,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 					?>
 				</div>
 
-				<!-- <div class="sh-flex sh-justify-between sh-mb-large sh-mt-large">
-					<?php
-					// Output total number of events logged since plugin install.
-					echo $this->get_events_since_plugin_install_stats_text();
-					?>
-				</div> -->
-
-
 				<?php
 				/**
 				 * Fires inside the stats sidebar box, after the headline but before any content.
@@ -391,12 +394,12 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 				$msg_text = sprintf(
 					// translators: 1 is number of events, 2 is description of when the plugin was installed.
-					__( '<b>%1$s events</b> have been logged since Simple History <span class="sh-Tooltip" title="%2$s">was installed</span>.', 'simple-history' ),
+					__( 'A total of <b>%1$s events</b> have been logged since Simple History <span class="sh-Tooltip" title="%2$s">was installed</span>.', 'simple-history' ),
 					number_format_i18n( $total_events ),
 					__( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' )
 				);
 
-				echo wp_kses_post( "<p class='SimpleHistoryQuickStats'>" . $msg_text . '</p>' );
+				echo wp_kses_post( "<p class='sh-my-medium'>" . $msg_text . '</p>' );
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_stats_and_summaries_link_html();
@@ -541,7 +544,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		ob_start();
 
 		?>
-		<div class="sh-StatsDashboard-stat">
+		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
 			<span class="sh-StatsDashboard-statLabel"><?php echo esc_html( $stat_label ); ?></span>
 			<span class="sh-StatsDashboard-statValue"><?php echo esc_html( $stat_value ); ?></span>
 			<?php
