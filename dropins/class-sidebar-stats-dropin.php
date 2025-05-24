@@ -267,7 +267,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 *
 	 * @return string HTML.
 	 */
-	protected function get_stats_and_summaries_link_html() {
+	protected function get_cta_link_html() {
 		$stats_page_url = Menu_Manager::get_admin_url_by_slug( 'simple_history_stats_page' );
 
 		// Bail if no stats page url (user has no access to stats page).
@@ -292,11 +292,9 @@ class Sidebar_Stats_Dropin extends Dropin {
 	public function on_sidebar_html() {
 		$num_days = 28;
 		$num_events_last_n_days = Helpers::get_num_events_last_n_days( $num_days );
-
 		$num_events_today = $this->get_num_events_today();
 		$num_events_7_days = Helpers::get_num_events_last_n_days( 7 );
-		$num_users_with_events_today = $this->get_num_users_today();
-		$num_other_sources_today = $this->get_other_sources_count();
+		$total_events = Helpers::get_total_logged_events_count();
 
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
@@ -307,17 +305,19 @@ class Sidebar_Stats_Dropin extends Dropin {
 				</h3>
 
 				<?php
-
 				/**
 				 * Fires inside the stats sidebar box, after the headline but before any content.
 				 */
 				do_action( 'simple_history/dropin/stats/today' );
 
+				/**
+				 * Fires inside the stats sidebar box, after the headline but before any content.
+				 */
+				do_action( 'simple_history/dropin/stats/before_content' );
 				?>
 
 				<div class="sh-flex sh-justify-between sh-mb-large sh-mt-large">
 					<?php
-
 					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo $this->get_stat_dashboard_item(
 						__( 'Today', 'simple-history' ),
@@ -337,20 +337,13 @@ class Sidebar_Stats_Dropin extends Dropin {
 						_n( 'event', 'events', $num_events_last_n_days, 'simple-history' )
 					);
 					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-
 					?>
 				</div>
 
 				<?php
-				/**
-				 * Fires inside the stats sidebar box, after the headline but before any content.
-				 */
-				do_action( 'simple_history/dropin/stats/before_content' );
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_chart_data( $num_days );
-
-				$total_events = Helpers::get_total_logged_events_count();
 
 				$msg_text = sprintf(
 					// translators: 1 is number of events, 2 is description of when the plugin was installed.
@@ -362,7 +355,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 				echo wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $this->get_stats_and_summaries_link_html();
+				echo $this->get_cta_link_html();
 				?>
 			</div>
 		</div>
