@@ -973,7 +973,7 @@ Modal window with detailss
 /**
  * span is used as tooltip.
  */
-.SimpleHistoryQuickStats--totalLoggedEvents span {
+ .sh-Tooltip {
 	text-decoration: dotted underline;
 	text-underline-offset: 2px;
 	cursor: help;
@@ -1147,9 +1147,8 @@ so add some extra place then to make it look a bit less ugly.
 	align-items: center;
 	text-transform: uppercase;
 	font-size: 0.8em;
-	font-weight: normal;
+	font-weight: 600;
 	font-style: normal;
-	/* border: 1px solid var(--sh-color-green-2); */
 	border-radius: 4px;
 	padding: 0.25em 0.5em;
 	opacity: 0.75;

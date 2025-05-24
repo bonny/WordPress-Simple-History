@@ -47,8 +47,8 @@ class Stats_Service extends Service {
 
 		// Create insights page.
 		$insights_page = ( new Menu_Page() )
-			->set_page_title( _x( 'Stats & Summaries - Simple History', 'dashboard title name', 'simple-history' ) )
-			->set_menu_title( _x( 'Stats & Summaries', 'dashboard menu name', 'simple-history' ) . ' ' . $new_badge_text )
+			->set_page_title( _x( 'History Insights - Simple History', 'dashboard title name', 'simple-history' ) )
+			->set_menu_title( _x( 'History Insights', 'dashboard menu name', 'simple-history' ) . ' ' . $new_badge_text )
 			->set_menu_slug( 'simple_history_stats_page' )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_page' ] );

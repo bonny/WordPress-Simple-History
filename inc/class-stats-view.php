@@ -28,7 +28,7 @@ class Stats_View {
 			<?php
 			echo wp_kses(
 				Helpers::get_settings_section_title_output(
-					__( 'Stats & Summaries', 'simple-history' ),
+					__( 'History Insights', 'simple-history' ),
 					// Icons that could be used:
 					// query stats, search insights, analytics, monitoring.
 					'bar_chart'
