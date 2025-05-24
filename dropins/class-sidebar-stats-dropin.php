@@ -10,7 +10,7 @@ use Simple_History\Menu_Manager;
 use Simple_History\Log_Query;
 
 /**
- * Dropin Name: Sidebar with short stats
+ * Dropin Name: Sidebar with eventstats.
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
@@ -52,18 +52,27 @@ class Sidebar_Stats_Dropin extends Dropin {
 					var chartLabelsToDates =  JSON.parse( $(".SimpleHistory_SidebarChart_ChartLabelsToDates").val() );
 					var chartDatasetData = JSON.parse( $(".SimpleHistory_SidebarChart_ChartDatasetData").val() );
 
+					const color = getComputedStyle(document.documentElement).getPropertyValue('--sh-color-blue');
+
+					// Create chart.
 					var myChart = new Chart(ctx, {
-						type: 'bar',
+						type: 'line',
 						data: {
 							labels: chartLabels,
 							datasets: [{
 								label: '',
 								data: chartDatasetData,
-								backgroundColor: "rgb(210,210,210)",
-								hoverBackgroundColor: "rgb(175,175,175)",
+								borderColor: color,
+								backgroundColor: color,
+								borderWidth: 2,
+								pointRadius: 0
 							}]
 						},
 						options: {
+							interaction: {
+								intersect: false,
+								mode: 'index',
+							},
 							scales: {
 								y: {
 									ticks: {
@@ -135,23 +144,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
-	 * Get text for stats, i.e. "X events have been logged the last Y days."
-	 *
-	 * @param int $num_days Number of days to get stats for.
-	 * @return string HTML, contains tags for bold and paragraph.
-	 */
-	protected function get_events_in_last_days_stats_text( $num_days ) {
-		$msg = sprintf(
-			// translators: 1 is number of events, 2 is number of days.
-			__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
-			number_format_i18n( Helpers::get_num_events_last_n_days( $num_days ) ),
-			number_format_i18n( $num_days )
-		);
-
-		return '<p class="SimpleHistoryQuickStats">' . $msg . '</p>';
-	}
-
-	/**
 	 * Get text for stats, i.e. "X events have been logged since plugin install."
 	 *
 	 * @return string HTML, contains tags for bold, paragraph, and span.
@@ -196,7 +188,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		?>
 
 		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
-			<div class="sh-StatsDashboard-statLabel">Last 28 days / per day</div>
+			<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Events per day last 28 days', 'simple-history' ); ?></div>
 
 			<div class="sh-StatsDashboard-statValue">
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
@@ -344,16 +336,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 				 * Fires inside the stats sidebar box, after the headline but before any content.
 				 */
 				do_action( 'simple_history/dropin/stats/today' );
-
-				// echo wp_kses(
-				// 	$this->get_events_in_last_days_stats_text( $num_days ),
-				// 	array(
-				// 		'p' => array(
-				// 			'class' => array(),
-				// 		),
-				// 		'b' => array(),
-				// 	)
-				// );
 
 				?>
 
