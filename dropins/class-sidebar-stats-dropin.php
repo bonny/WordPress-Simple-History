@@ -359,6 +359,13 @@ class Sidebar_Stats_Dropin extends Dropin {
 					?>
 				</div>
 
+				<div class="sh-flex sh-justify-between sh-mb-large sh-mt-large">
+					<?php
+					// Output total number of events logged since plugin install.
+					echo $this->get_events_since_plugin_install_stats_text();
+					?>
+				</div>
+
 
 				<?php
 				/**
@@ -378,24 +385,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_chart_data( $num_days );
-
-				// Output total number of events logged since plugin install.
-				echo wp_kses(
-					$this->get_events_since_plugin_install_stats_text(),
-					array(
-						'p' => array(
-							'class' => array(),
-						),
-						'b' => array(),
-						'span' => array(
-							'title' => array(),
-							'class' => array(),
-						),
-						'div' => array(
-							'class' => array(),
-						),
-					)
-				);
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_stats_and_summaries_link_html();
