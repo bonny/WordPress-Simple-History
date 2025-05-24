@@ -333,6 +333,17 @@ class Sidebar_Stats_Dropin extends Dropin {
 				 * Fires inside the stats sidebar box, after the headline but before any content.
 				 */
 				do_action( 'simple_history/dropin/stats/today' );
+
+				// echo wp_kses(
+				// 	$this->get_events_in_last_days_stats_text( $num_days ),
+				// 	array(
+				// 		'p' => array(
+				// 			'class' => array(),
+				// 		),
+				// 		'b' => array(),
+				// 	)
+				// );
+
 				?>
 
 				<div class="sh-flex sh-justify-between sh-mb-large sh-mt-large">
@@ -359,12 +370,12 @@ class Sidebar_Stats_Dropin extends Dropin {
 					?>
 				</div>
 
-				<div class="sh-flex sh-justify-between sh-mb-large sh-mt-large">
+				<!-- <div class="sh-flex sh-justify-between sh-mb-large sh-mt-large">
 					<?php
 					// Output total number of events logged since plugin install.
 					echo $this->get_events_since_plugin_install_stats_text();
 					?>
-				</div>
+				</div> -->
 
 
 				<?php
@@ -373,18 +384,19 @@ class Sidebar_Stats_Dropin extends Dropin {
 				 */
 				do_action( 'simple_history/dropin/stats/before_content' );
 
-				echo wp_kses(
-					$this->get_events_in_last_days_stats_text( $num_days ),
-					array(
-						'p' => array(
-							'class' => array(),
-						),
-						'b' => array(),
-					)
-				);
-
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_chart_data( $num_days );
+
+				$total_events = Helpers::get_total_logged_events_count();
+
+				$msg_text = sprintf(
+					// translators: 1 is number of events, 2 is description of when the plugin was installed.
+					__( '<b>%1$s events</b> have been logged since Simple History <span class="sh-Tooltip" title="%2$s">was installed</span>.', 'simple-history' ),
+					number_format_i18n( $total_events ),
+					__( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' )
+				);
+
+				echo wp_kses_post( "<p class='SimpleHistoryQuickStats'>" . $msg_text . '</p>' );
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_stats_and_summaries_link_html();
