@@ -301,8 +301,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days days" ) );
 		$date_to = DateTimeImmutable::createFromFormat( 'U', time() );
 
-		$stats_events = new Events_Stats();
-		$top_users = $stats_events->get_top_users( $date_from->getTimestamp(), $date_to->getTimestamp(), 5 );
+		$top_users = ( new Events_Stats() )->get_top_users( $date_from->getTimestamp(), $date_to->getTimestamp(), 5 );
 
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
