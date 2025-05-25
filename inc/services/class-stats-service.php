@@ -79,42 +79,56 @@ class Stats_Service extends Service {
 	 * }
 	 */
 	private function get_selected_date_range() {
+		// Example periods:
+		// 1h: 1 hour ago
+		// 24h: 1 day ago
+		// 7d: 7 days ago
+		// 14d: 14 days ago
+		// 1m: 1 month ago
+		// 3m: 3 months ago
+		// 6m: 6 months ago.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$period = isset( $_GET['period'] ) ? sanitize_text_field( wp_unslash( $_GET['period'] ) ) : '1m';
-		$date_to = time();
+		if ( empty( $period ) ) {
+			$period = '1m';
+		}
 
-		switch ( $period ) {
-			case '1h':
-				$date_from = strtotime( '-1 hour' );
+		// Get current date in UTC.
+		$now = new \DateTimeImmutable( 'now', new \DateTimeZone( 'UTC' ) );
+		$date_to = $now->getTimestamp();
+
+		// Get the number of the period, i.e. 1, 24, 7, 14, 1, 3, 6, 12.
+		$period_number = substr( $period, 0, -1 );
+
+		// Get the last character of the period, i.e. h, d, m, y.
+		$period_string_suffix = substr( $period, -1 );
+
+		switch ( $period_string_suffix ) {
+			case 'h':
+				$period_string_full_name = 'hour';
 				break;
-			case '24h':
-				$date_from = strtotime( '-24 hours' );
+			case 'd':
+				$period_string_full_name = 'day';
 				break;
-			case '14d':
-				$date_from = strtotime( '-14 days' );
+			case 'm':
+				$period_string_full_name = 'month';
 				break;
-			case '1m':
-				$date_from = strtotime( '-1 month' );
-				break;
-			case '7d':
-				$date_from = strtotime( '-7 days' );
-				break;
-			case '3m':
-				$date_from = strtotime( '-3 months' );
-				break;
-			case '6m':
-				$date_from = strtotime( '-6 months' );
-				break;
-			case '12m':
-				$date_from = strtotime( '-12 months' );
+			case 'y':
+				$period_string_full_name = 'year';
 				break;
 			default:
-				$date_from = strtotime( '-1 month' );
+				$period_string_full_name = 'month';
 				break;
 		}
 
+		// Generate string like "-1 hour", "-1 day", "-1 month", "-1 year".
+		$date_time_modifier = "-{$period_number} {$period_string_full_name}";
+
+		$date_from = $now->modify( $date_time_modifier )->getTimestamp();
+
 		return [
 			'date_from' => $date_from,
-			'date_to' => $date_to,
+			'date_to'   => $date_to,
 		];
 	}
 
