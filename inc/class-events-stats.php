@@ -196,7 +196,7 @@ class Events_Stats {
 	 * @param int $date_from  Required. Start date as Unix timestamp.
 	 * @param int $date_to    Required. End date as Unix timestamp.
 	 * @param int $limit      Optional. Number of users to return. Default 10.
-	 * @return array|false Array of users with their activity counts, or false if invalid dates.
+	 * @return array<int,array{id:string,display_name:string,avatar:string,count:int}>|false Array of users with their activity counts, or false if invalid dates.
 	 */
 	public function get_top_users( $date_from, $date_to, $limit = 10 ) {
 		global $wpdb;

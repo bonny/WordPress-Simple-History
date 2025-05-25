@@ -64,6 +64,9 @@
 		1.8px 2.3px 3px -1px hsl(var(--sh-shadow-color) / 0.38),
 		3.5px 4.5px 6px -1.5px hsl(var(--sh-shadow-color) / 0.35),
 		6px 8px 10px -2px hsl(var(--sh-shadow-color) / 0.32);
+
+	/* Avatar size */
+	--sh-avatar-size: var(--sh-font-size-xxxlarge);
 }
 
 /* clearfix */

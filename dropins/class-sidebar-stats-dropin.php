@@ -8,6 +8,8 @@ use DatePeriod;
 use Simple_History\Helpers;
 use Simple_History\Menu_Manager;
 use Simple_History\Log_Query;
+use Simple_History\Events_Stats;
+use Simple_History\Stats_View;
 
 /**
  * Dropin Name: Sidebar with eventstats.
@@ -296,6 +298,12 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$num_events_7_days = Helpers::get_num_events_last_n_days( 7 );
 		$total_events = Helpers::get_total_logged_events_count();
 
+		$date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days days" ) );
+		$date_to = DateTimeImmutable::createFromFormat( 'U', time() );
+
+		$stats_events = new Events_Stats();
+		$top_users = $stats_events->get_top_users( $date_from->getTimestamp(), $date_to->getTimestamp(), 5 );
+
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
@@ -340,6 +348,10 @@ class Sidebar_Stats_Dropin extends Dropin {
 					?>
 				</div>
 
+				<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
+					<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Most active users in last 28 days', 'simple-history' ); ?></span>
+					<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $top_users ); ?></span>
+				</div>
 				<?php
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
