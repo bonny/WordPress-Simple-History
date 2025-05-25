@@ -203,8 +203,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 			</div>
 		</div>
-
-
 		<?php
 		$arr_labels = array();
 		$arr_labels_to_datetime = array();
@@ -292,16 +290,18 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 * Output HTML for sidebar.
 	 */
 	public function on_sidebar_html() {
+		$events_stats = new Events_Stats();
+
 		$num_days = 28;
 		$num_events_last_n_days = Helpers::get_num_events_last_n_days( $num_days );
-		$num_events_today = $this->get_num_events_today();
+		$num_events_today = Events_Stats::get_num_events_today();
 		$num_events_7_days = Helpers::get_num_events_last_n_days( 7 );
 		$total_events = Helpers::get_total_logged_events_count();
 
 		$date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days days" ) );
 		$date_to = DateTimeImmutable::createFromFormat( 'U', time() );
 
-		$top_users = ( new Events_Stats() )->get_top_users( $date_from->getTimestamp(), $date_to->getTimestamp(), 5 );
+		$top_users = $events_stats->get_top_users( $date_from->getTimestamp(), $date_to->getTimestamp(), 5 );
 
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
@@ -371,27 +371,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 			</div>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Get the number of events today.
-	 * Uses log_query so it respects the user's permissions,
-	 * meaning that the number of events is the number
-	 * of events that the current user is allowed to see.
-	 *
-	 * @return int
-	 */
-	protected function get_num_events_today() {
-		$logQuery = new Log_Query();
-
-		$logResults = $logQuery->query(
-			array(
-				'posts_per_page' => 1,
-				'date_from' => strtotime( 'today' ),
-			)
-		);
-
-		return (int) $logResults['total_row_count'];
 	}
 
 	/**

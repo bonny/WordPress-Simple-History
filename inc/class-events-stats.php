@@ -1654,4 +1654,25 @@ class Events_Stats {
 
 		return $results[0];
 	}
+
+	/**
+	 * Get the number of events today.
+	 * Uses log_query so it respects the user's permissions,
+	 * meaning that the number of events is the number
+	 * of events that the current user is allowed to see.
+	 *
+	 * @return int
+	 */
+	public static function get_num_events_today() {
+		$logQuery = new Log_Query();
+
+		$logResults = $logQuery->query(
+			array(
+				'posts_per_page' => 1,
+				'date_from' => strtotime( 'today' ),
+			)
+		);
+
+		return (int) $logResults['total_row_count'];
+	}
 }
