@@ -287,21 +287,49 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
+	 * Get data for the quick stats.
+	 * Data is cached in transient for 10 minutes.
+	 *
+	 * @param int $num_days_month Number of days to consider month, to get data for.
+	 * @param int $num_days_week Number of days to consider week, to get data for.
+	 * @return array<string,mixed>
+	 */
+	protected function get_quick_stats_data( $num_days_month, $num_days_week ) {
+		$args_serialized = serialize( [ $num_days_month, $num_days_week ] );
+		$cache_key = 'sh_quick_stats_data_' . md5( $args_serialized );
+
+		$results = get_transient( $cache_key );
+
+		if ( false !== $results ) {
+			return $results;
+		}
+
+		$month_date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days_month days" ) );
+		$month_date_to = DateTimeImmutable::createFromFormat( 'U', time() );
+
+		$events_stats = new Events_Stats();
+
+		$results = [
+			'num_events_today' => Events_Stats::get_num_events_today(),
+			'num_events_week' => Helpers::get_num_events_last_n_days( $num_days_week ),
+			'num_events_month' => Helpers::get_num_events_last_n_days( $num_days_month ),
+			'total_events' => Helpers::get_total_logged_events_count(),
+			'top_users' => $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 ),
+		];
+
+		set_transient( $cache_key, $results, 10 * MINUTE_IN_SECONDS );
+
+		return $results;
+	}
+
+	/**
 	 * Output HTML for sidebar.
 	 */
 	public function on_sidebar_html() {
-		$events_stats = new Events_Stats();
+		$num_days_month = 28;
+		$num_days_week = 7;
 
-		$num_days = 28;
-		$num_events_last_n_days = Helpers::get_num_events_last_n_days( $num_days );
-		$num_events_today = Events_Stats::get_num_events_today();
-		$num_events_7_days = Helpers::get_num_events_last_n_days( 7 );
-		$total_events = Helpers::get_total_logged_events_count();
-
-		$date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days days" ) );
-		$date_to = DateTimeImmutable::createFromFormat( 'U', time() );
-
-		$top_users = $events_stats->get_top_users( $date_from->getTimestamp(), $date_to->getTimestamp(), 5 );
+		$stats_data = $this->get_quick_stats_data( $num_days_month, $num_days_week );
 
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
@@ -328,20 +356,20 @@ class Sidebar_Stats_Dropin extends Dropin {
 					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo $this->get_stat_dashboard_item(
 						__( 'Today', 'simple-history' ),
-						number_format_i18n( $num_events_today ),
-						_n( 'event', 'events', $num_events_today, 'simple-history' ),
+						number_format_i18n( $stats_data['num_events_today'] ),
+						_n( 'event', 'events', $stats_data['num_events_today'], 'simple-history' ),
 					);
 
 					echo $this->get_stat_dashboard_item(
 						__( 'Last 7 days', 'simple-history' ),
-						number_format_i18n( $num_events_7_days ),
-						_n( 'event', 'events', $num_events_7_days, 'simple-history' ),
+						number_format_i18n( $stats_data['num_events_week'] ),
+						_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
 					);
 
 					echo $this->get_stat_dashboard_item(
 						__( 'Last 28 days', 'simple-history' ),
-						number_format_i18n( $num_events_last_n_days ),
-						_n( 'event', 'events', $num_events_last_n_days, 'simple-history' )
+						number_format_i18n( $stats_data['num_events_month'] ),
+						_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
 					);
 					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 					?>
@@ -349,17 +377,17 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 				<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
 					<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Most active users in last 28 days', 'simple-history' ); ?></span>
-					<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $top_users ); ?></span>
+					<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
 				</div>
 				<?php
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $this->get_chart_data( $num_days );
+				echo $this->get_chart_data( $num_days_month );
 
 				$msg_text = sprintf(
 					// translators: 1 is number of events, 2 is description of when the plugin was installed.
 					__( 'A total of <b>%1$s events</b> have been logged since Simple History <span class="sh-Tooltip" title="%2$s">was installed</span>.', 'simple-history' ),
-					number_format_i18n( $total_events ),
+					number_format_i18n( $stats_data['total_events'] ),
 					__( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' )
 				);
 
