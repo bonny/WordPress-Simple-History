@@ -319,8 +319,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
-- Add more stats to quick stats box (to the right of the main events listing), including graphical list of most active users in the last 28 days.
-- Make it easier to see the values in the quick stats box, now you don't have to hover the exact bar, just hover anywhere on the box to show the values.
+-   Add more stats to quick stats box (to the right of the main events listing), including graphical list of most active users in the last 28 days.
+-   Make it easier to see the values in the quick stats box, now you don't have to hover the exact bar, just hover anywhere on the box to show the values.
 
 **Fixed**
 
