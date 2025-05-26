@@ -297,6 +297,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 	protected function get_quick_stats_data( $num_days_month, $num_days_week ) {
 		$args_serialized = serialize( [ $num_days_month, $num_days_week ] );
 		$cache_key = 'sh_quick_stats_data_' . md5( $args_serialized );
+		$cache_expiration_seconds = 5 * MINUTE_IN_SECONDS;
 
 		$results = get_transient( $cache_key );
 
@@ -317,7 +318,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 			'top_users' => $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 ),
 		];
 
-		set_transient( $cache_key, $results, 10 * MINUTE_IN_SECONDS );
+		set_transient( $cache_key, $results, $cache_expiration_seconds );
 
 		return $results;
 	}
