@@ -1609,9 +1609,7 @@ class Events_Stats {
 		global $wpdb;
 
 		$results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}simple_history ORDER BY date ASC LIMIT 1"
-			),
+			"SELECT * FROM {$wpdb->prefix}simple_history ORDER BY date ASC LIMIT 1",
 			ARRAY_A
 		);
 
