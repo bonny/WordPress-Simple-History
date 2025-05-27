@@ -64,6 +64,9 @@
 		1.8px 2.3px 3px -1px hsl(var(--sh-shadow-color) / 0.38),
 		3.5px 4.5px 6px -1.5px hsl(var(--sh-shadow-color) / 0.35),
 		6px 8px 10px -2px hsl(var(--sh-shadow-color) / 0.32);
+
+	/* Avatar size */
+	--sh-avatar-size: var(--sh-font-size-xxxlarge);
 }
 
 /* clearfix */
@@ -973,7 +976,7 @@ Modal window with detailss
 /**
  * span is used as tooltip.
  */
-.SimpleHistoryQuickStats--totalLoggedEvents span {
+ .sh-Tooltip {
 	text-decoration: dotted underline;
 	text-underline-offset: 2px;
 	cursor: help;
@@ -1147,9 +1150,8 @@ so add some extra place then to make it look a bit less ugly.
 	align-items: center;
 	text-transform: uppercase;
 	font-size: 0.8em;
-	font-weight: normal;
+	font-weight: 600;
 	font-style: normal;
-	/* border: 1px solid var(--sh-color-green-2); */
 	border-radius: 4px;
 	padding: 0.25em 0.5em;
 	opacity: 0.75;
@@ -1162,6 +1164,7 @@ so add some extra place then to make it look a bit less ugly.
 	text-wrap-style: pretty;
 	padding: 1rem;
 	background-color: var(--box-bg-color);
+	border-radius: 10px;
 }
 
 .sh-PremiumFeaturesPostbox-preTitleFeaturesBadge {

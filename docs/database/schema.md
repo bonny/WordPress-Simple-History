@@ -24,7 +24,7 @@ CREATE TABLE wp_simple_history (
 ### Fields Description
 
 -   `id`: Unique identifier for each log entry
--   `date`: When the event occurred
+-   `date`: When the event occurred. Stored in UTC/GMT timezone in the database, but displayed to users in the site's configured timezone.
 -   `logger`: The logger class that created the entry (e.g., 'SimpleLogger')
 -   `level`: Log level (e.g., 'info', 'warning', 'debug')
 -   `message`: The log message with placeholders (e.g., 'Plugin "{plugin_name}" {plugin_action}')

@@ -2,13 +2,17 @@
 
 namespace Simple_History\Dropins;
 
-use DateTime;
+use DateTimeImmutable;
 use DateInterval;
 use DatePeriod;
 use Simple_History\Helpers;
 use Simple_History\Menu_Manager;
+use Simple_History\Log_Query;
+use Simple_History\Events_Stats;
+use Simple_History\Stats_View;
+
 /**
- * Dropin Name: Sidebar with short stats
+ * Dropin Name: Sidebar with eventstats.
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
@@ -28,7 +32,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
-	 * Run JS in footer.
+	 * Run JS in footer to generate chart.
 	 */
 	public function on_admin_footer() {
 		?>
@@ -50,18 +54,27 @@ class Sidebar_Stats_Dropin extends Dropin {
 					var chartLabelsToDates =  JSON.parse( $(".SimpleHistory_SidebarChart_ChartLabelsToDates").val() );
 					var chartDatasetData = JSON.parse( $(".SimpleHistory_SidebarChart_ChartDatasetData").val() );
 
+					const color = getComputedStyle(document.documentElement).getPropertyValue('--sh-color-blue');
+
+					// Create chart.
 					var myChart = new Chart(ctx, {
-						type: 'bar',
+						type: 'line',
 						data: {
 							labels: chartLabels,
 							datasets: [{
 								label: '',
 								data: chartDatasetData,
-								backgroundColor: "rgb(210,210,210)",
-								hoverBackgroundColor: "rgb(175,175,175)",
+								borderColor: color,
+								backgroundColor: color,
+								borderWidth: 2,
+								pointRadius: 0
 							}]
 						},
 						options: {
+							interaction: {
+								intersect: false,
+								mode: 'index',
+							},
 							scales: {
 								y: {
 									ticks: {
@@ -76,8 +89,19 @@ class Sidebar_Stats_Dropin extends Dropin {
 								legend: {
 									display: false
 								},
+								// https://www.chartjs.org/docs/4.4.0/configuration/tooltip.html
+								tooltip: {
+									displayColors: false,
+									callbacks: {
+										label: function(context) {
+											let eventsCount = context.parsed.y;
+											let label = `${eventsCount} events`;
+											return label;
+										}
+									}
+								}
 							},
-							onClick: clickChart
+							onClick: clickChart,
 						},
 					});
 
@@ -129,48 +153,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		</script>
 
-		<style>
-			.SimpleHistory_SidebarChart_ChartDescription {
-				margin-bottom: 0;
-			}
-		</style>
-
 		<?php
-	}
-
-	/**
-	 * Get text for stats, i.e. "X events have been logged the last Y days."
-	 *
-	 * @param int $num_days Number of days to get stats for.
-	 * @return string HTML, contains tags for bold and paragraph.
-	 */
-	protected function get_events_in_last_days_stats_text( $num_days ) {
-		$msg = sprintf(
-			// translators: 1 is number of events, 2 is number of days.
-			__( '<b>%1$s events</b> have been logged the last <b>%2$s days</b>.', 'simple-history' ),
-			number_format_i18n( Helpers::get_num_events_last_n_days( $num_days ) ),
-			number_format_i18n( $num_days )
-		);
-
-		return '<p class="SimpleHistoryQuickStats">' . $msg . '</p>';
-	}
-
-	/**
-	 * Get text for stats, i.e. "X events have been logged since plugin install."
-	 *
-	 * @return string HTML, contains tags for bold, paragraph, and span.
-	 */
-	protected function get_events_since_plugin_install_stats_text() {
-		$total_events = Helpers::get_total_logged_events_count();
-
-		$msg = sprintf(
-			// translators: 1 is number of events, 2 is description of when the plugin was installed.
-			__( '<b>%1$s events</b> have been logged since Simple History <span title="%2$s">was installed</span>.', 'simple-history' ),
-			number_format_i18n( $total_events ),
-			__( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' )
-		);
-
-		return '<p class="SimpleHistoryQuickStats SimpleHistoryQuickStats--totalLoggedEvents">' . $msg . '</p>';
 	}
 
 	/**
@@ -185,22 +168,52 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$num_events_per_day_for_period = Helpers::get_num_events_per_day_last_n_days( $num_days );
 
 		// Period = all dates, so empty ones don't get lost.
-		$period_start_date = DateTime::createFromFormat( 'U', strtotime( "-$num_days days" ) );
-		$period_end_date = DateTime::createFromFormat( 'U', time() );
+		$period_start_date = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days days" ) );
+		$period_end_date = DateTimeImmutable::createFromFormat( 'U', time() );
 		$interval = DateInterval::createFromDateString( '1 day' );
 
 		$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
 
 		?>
-		<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
-		<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
-			<canvas style="position: absolute; left: 0; right: 0;" class="SimpleHistory_SidebarChart_ChartCanvas" width="100" height="40"></canvas>
+
+		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
+			<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Daily activity over last 28 days', 'simple-history' ); ?></div>
+
+			<div class="sh-StatsDashboard-statValue">
+				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
+				<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
+					<canvas style="position: absolute; left: 0; right: 0;" class="SimpleHistory_SidebarChart_ChartCanvas" width="100" height="40"></canvas>
+				</div>
+			</div>
+			
+			<div class="sh-StatsDashboard-statSubValue">
+				<p class="sh-flex sh-justify-between sh-m-0">
+					<span>
+						<?php
+						// From date, localized.
+						echo esc_html(
+							wp_date(
+								get_option( 'date_format' ),
+								$period_start_date->getTimestamp()
+							)
+						);
+						?>
+					</span>
+					<span>
+						<?php
+						// To date, localized.
+						echo esc_html(
+							wp_date(
+								get_option( 'date_format' ),
+								$period_end_date->getTimestamp()
+							)
+						);
+						?>
+					</span>
+				</p>
+
+			</div>
 		</div>
-
-		<p class="SimpleHistory_SidebarChart_ChartDescription" style="font-style: italic; color: #777; text-align: center;">
-			<?php esc_html_e( 'Number of events per day.', 'simple-history' ); ?>
-		</p>
-
 		<?php
 		$arr_labels = array();
 		$arr_labels_to_datetime = array();
@@ -265,7 +278,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 *
 	 * @return string HTML.
 	 */
-	protected function get_stats_and_summaries_link_html() {
+	protected function get_cta_link_html() {
 		$stats_page_url = Menu_Manager::get_admin_url_by_slug( 'simple_history_stats_page' );
 
 		// Bail if no stats page url (user has no access to stats page).
@@ -285,14 +298,55 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
+	 * Get data for the quick stats.
+	 * Data is cached in transient for 10 minutes.
+	 *
+	 * @param int $num_days_month Number of days to consider month, to get data for.
+	 * @param int $num_days_week Number of days to consider week, to get data for.
+	 * @return array<string,mixed>
+	 */
+	protected function get_quick_stats_data( $num_days_month, $num_days_week ) {
+		$args_serialized = serialize( [ $num_days_month, $num_days_week ] );
+		$cache_key = 'sh_quick_stats_data_' . md5( $args_serialized );
+		$cache_expiration_seconds = 5 * MINUTE_IN_SECONDS;
+
+		$results = get_transient( $cache_key );
+
+		if ( false !== $results ) {
+			return $results;
+		}
+
+		$month_date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days_month days" ) );
+		$month_date_to = DateTimeImmutable::createFromFormat( 'U', time() );
+
+		$events_stats = new Events_Stats();
+
+		$results = [
+			'num_events_today' => Events_Stats::get_num_events_today(),
+			'num_events_week' => Helpers::get_num_events_last_n_days( $num_days_week ),
+			'num_events_month' => Helpers::get_num_events_last_n_days( $num_days_month ),
+			'total_events' => Helpers::get_total_logged_events_count(),
+			'top_users' => $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 ),
+		];
+
+		set_transient( $cache_key, $results, $cache_expiration_seconds );
+
+		return $results;
+	}
+
+	/**
 	 * Output HTML for sidebar.
 	 */
 	public function on_sidebar_html() {
-		$num_days = 28;
+		$num_days_month = 28;
+		$num_days_week = 7;
+
+		$stats_data = $this->get_quick_stats_data( $num_days_month, $num_days_week );
 
 		?>
-		<div class="postbox sh-PremiumFeaturesPostbox">			
+		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
+
 				<h3 class="sh-PremiumFeaturesPostbox-title">
 					<?php esc_html_e( 'History Insights', 'simple-history' ); ?>
 				</h3>
@@ -301,40 +355,193 @@ class Sidebar_Stats_Dropin extends Dropin {
 				/**
 				 * Fires inside the stats sidebar box, after the headline but before any content.
 				 */
+				do_action( 'simple_history/dropin/stats/today' );
+
+				/**
+				 * Fires inside the stats sidebar box, after the headline but before any content.
+				 */
 				do_action( 'simple_history/dropin/stats/before_content' );
+				?>
 
-				echo wp_kses(
-					$this->get_events_in_last_days_stats_text( $num_days ),
-					array(
-						'p' => array(
-							'class' => array(),
-						),
-						'b' => array(),
-					)
-				);
+				<div class="sh-flex sh-justify-between sh-mb-large sh-mt-large">
+					<?php
+					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo $this->get_stat_dashboard_item(
+						__( 'Today', 'simple-history' ),
+						number_format_i18n( $stats_data['num_events_today'] ),
+						_n( 'event', 'events', $stats_data['num_events_today'], 'simple-history' ),
+					);
 
-				// Output total number of events logged since plugin install.
-				echo wp_kses(
-					$this->get_events_since_plugin_install_stats_text(),
-					array(
-						'p' => array(
-							'class' => array(),
-						),
-						'b' => array(),
-						'span' => array(
-							'title' => array(),
-						),
-					)
-				);
+					echo $this->get_stat_dashboard_item(
+						__( 'Last 7 days', 'simple-history' ),
+						number_format_i18n( $stats_data['num_events_week'] ),
+						_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
+					);
+
+					echo $this->get_stat_dashboard_item(
+						__( 'Last 28 days', 'simple-history' ),
+						number_format_i18n( $stats_data['num_events_month'] ),
+						_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
+					);
+					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+					?>
+				</div>
+
+				<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
+					<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Most active users in last 28 days', 'simple-history' ); ?></span>
+					<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
+				</div>
+				<?php
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $this->get_chart_data( $num_days );
+				echo $this->get_chart_data( $num_days_month );
+
+				$msg_text = sprintf(
+					// translators: 1 is number of events, 2 is description of when the plugin was installed.
+					__( 'A total of <b>%1$s events</b> have been logged since Simple History <span class="sh-Tooltip" title="%2$s">was installed</span>.', 'simple-history' ),
+					number_format_i18n( $stats_data['total_events'] ),
+					__( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' )
+				);
+
+				echo wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $this->get_stats_and_summaries_link_html();
+				echo $this->get_cta_link_html();
 				?>
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Get the SQL for the loggers that the current user is allowed to read.
+	 *
+	 * @return string
+	 */
+	protected function get_sql_loggers_in() {
+		return $this->simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
+	}
+
+	/**
+	 * Get the number of users that have done something today.
+	 *
+	 * @return int
+	 */
+	protected function get_num_users_today() {
+		global $wpdb;
+
+		$sql_loggers_in = $this->get_sql_loggers_in();
+
+		// Get number of users today, i.e. events with wp_user as initiator.
+		$sql_users_today = sprintf(
+			'
+            SELECT
+                DISTINCT(c.value) AS user_id
+                FROM %3$s AS h
+            INNER JOIN %4$s AS c
+            ON c.history_id = h.id AND c.key = \'_user_id\'
+            WHERE
+                initiator = \'wp_user\'
+                AND logger IN %1$s
+                AND date > \'%2$s\'
+            ',
+			$sql_loggers_in,
+			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
+			$this->simple_history->get_events_table_name(),
+			$this->simple_history->get_contexts_table_name()
+		);
+
+		$cache_key = 'quick_stats_users_today_' . md5( serialize( $sql_loggers_in ) );
+		$cache_group = Helpers::get_cache_group();
+		$results_users_today = wp_cache_get( $cache_key, $cache_group );
+
+		if ( false === $results_users_today ) {
+			$results_users_today = $wpdb->get_results( $sql_users_today ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			wp_cache_set( $cache_key, $results_users_today, $cache_group );
+		}
+
+		$count_users_today = is_countable( $results_users_today ) ? count( $results_users_today ) : 0;
+
+		return $count_users_today;
+	}
+
+	/**
+	 * Get number of other sources (not wp_user).
+	 *
+	 * @return int Number of other sources.
+	 */
+	protected function get_other_sources_count() {
+		global $wpdb;
+
+		$cache_group = Helpers::get_cache_group();
+		$sql_loggers_in = $this->get_sql_loggers_in();
+
+		$sql_other_sources_where = sprintf(
+			'
+                initiator <> \'wp_user\'
+                AND logger IN %1$s
+                AND date > \'%2$s\'
+            ',
+			$sql_loggers_in,
+			gmdate( 'Y-m-d H:i', strtotime( 'today' ) )
+		);
+
+		$sql_other_sources_where = apply_filters( 'simple_history/quick_stats_where', $sql_other_sources_where );
+
+		$sql_other_sources = sprintf(
+			'
+            SELECT
+                DISTINCT(h.initiator) AS initiator
+            FROM %3$s AS h
+            WHERE
+                %5$s
+            ',
+			$sql_loggers_in,
+			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
+			$this->simple_history->get_events_table_name(),
+			$this->simple_history->get_contexts_table_name(),
+			$sql_other_sources_where // 5
+		);
+
+		$cache_key = 'quick_stats_results_other_sources_today_' . md5( serialize( $sql_other_sources ) );
+		$results_other_sources_today = wp_cache_get( $cache_key, $cache_group );
+
+		if ( false === $results_other_sources_today ) {
+			$results_other_sources_today = $wpdb->get_results( $sql_other_sources ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			wp_cache_set( $cache_key, $results_other_sources_today, $cache_group );
+		}
+
+		$count_other_sources = is_countable( $results_other_sources_today ) ? count( $results_other_sources_today ) : 0;
+
+		return $count_other_sources;
+	}
+
+	/**
+	 * Get a stat dashboard stats item.
+	 *
+	 * @param string $stat_label The label text for the stat.
+	 * @param string $stat_value The main value text to display.
+	 * @param string $stat_subvalue Optional subvalue to display below main value.
+	 */
+	protected function get_stat_dashboard_item( $stat_label, $stat_value, $stat_subvalue = '' ) {
+		ob_start();
+
+		?>
+		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
+			<span class="sh-StatsDashboard-statLabel"><?php echo esc_html( $stat_label ); ?></span>
+			<span class="sh-StatsDashboard-statValue"><?php echo esc_html( $stat_value ); ?></span>
+			<?php
+			if ( ! empty( $stat_subvalue ) ) {
+				?>
+				<span class="sh-StatsDashboard-statSubValue">
+					<?php echo wp_kses_post( $stat_subvalue ); ?>
+				</span>
+				<?php
+			}
+			?>
+		</div>
+		<?php
+
+		return ob_get_clean();
 	}
 }
