@@ -322,6 +322,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Improve translateability.
+-   Fix undefined chart label on Stats and Summaries page.
 
 ### 5.11.0 (May 2025)
 
