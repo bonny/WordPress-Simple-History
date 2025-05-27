@@ -32,7 +32,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
-	 * Run JS in footer.
+	 * Run JS in footer to generate chart.
 	 */
 	public function on_admin_footer() {
 		?>
@@ -89,8 +89,19 @@ class Sidebar_Stats_Dropin extends Dropin {
 								legend: {
 									display: false
 								},
+								// https://www.chartjs.org/docs/4.4.0/configuration/tooltip.html
+								tooltip: {
+									displayColors: false,
+									callbacks: {
+										label: function(context) {
+											let eventsCount = context.parsed.y;
+											let label = `${eventsCount} events`;
+											return label;
+										}
+									}
+								}
 							},
-							onClick: clickChart
+							onClick: clickChart,
 						},
 					});
 
