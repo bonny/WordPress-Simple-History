@@ -974,12 +974,24 @@ Modal window with detailss
 }
 
 /**
- * span is used as tooltip.
+ * span is used as tooltip. The tooltip is text with dotted underline and the tooltip is shown on hover, using
+ * built in browser tooltip.
  */
- .sh-Tooltip {
+.sh-Tooltip {
 	text-decoration: dotted underline;
 	text-underline-offset: 2px;
 	cursor: help;
+}
+
+/**
+ * An icon that is used as tooltip.
+ */
+.sh-TooltipIcon {
+	--sh-icon-size: 1.2em;
+	cursor: help;
+	top: -0.1em;
+	margin-left: 0.25em;
+	opacity: 0.6;
 }
 
 /* if not hits when using filter function + if ajax error */

@@ -398,10 +398,12 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 				$msg_text = sprintf(
 					// translators: 1 is number of events, 2 is description of when the plugin was installed.
-					__( 'A total of <b>%1$s events</b> have been logged since Simple History <span class="sh-Tooltip" title="%2$s">was installed</span>.', 'simple-history' ),
+					__( 'A total of <b>%1$s events</b> have been logged since Simple History was installed.', 'simple-history' ),
 					number_format_i18n( $stats_data['total_events'] ),
-					__( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' )
 				);
+
+				// Append tooltip.
+				$msg_text .= $this->get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' ) );
 
 				echo wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
 
@@ -411,6 +413,26 @@ class Sidebar_Stats_Dropin extends Dropin {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Returns markup for a tooltip with and help text icon.
+	 *
+	 * @param string $tooltip_text The text to display in the tooltip.
+	 * @return string
+	 */
+	protected function get_tooltip_html( $tooltip_text ) {
+		$tooltip_text = trim( $tooltip_text );
+
+		if ( empty( $tooltip_text ) ) {
+			return '';
+		}
+
+		ob_start();
+		?>
+		<span class="sh-Icon sh-Icon--help sh-TooltipIcon" title="<?php echo esc_html( $tooltip_text ); ?>"></span>
+		<?php
+		return trim( ob_get_clean() );
 	}
 
 	/**
