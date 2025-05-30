@@ -317,16 +317,22 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.12.0 (May 2025)
 
--   Fix deprecated function warning when searching for events.
--   Add more stats to quick stats box (to the right of the main events listing), including graphical list of most active users in the last 28 days.
--   Make it easier to see the values in the quick stats box, now you don't have to hover the exact bar, just hover anywhere on the box to show the values.
+**Improved**
+
+-   Redesign the "quick stats" box (to the right of the main events listing):
+    -   Improve readability of the stats.
+    -   Add stats numbers for today and last 7 days (in addition to previous existing stats for last 28 days, and total events).
+    -   Add graphical list of most active users in the last 28 days (only visible to administrators).
+    -   Make it easier to see the day values in the chart, now you don't have to hover the exact bar for each day, just hover anywhere on the box to show the values.
+    -   Change chart from bar chart to line chart.
 
 **Fixed**
 
--   Improve translateability.
+-   Fix deprecated function warning when searching for events.
 -   Fix undefined chart label on Stats and Summaries page.
+-   Improve translateability.
 
 ### 5.11.0 (May 2025)
 
