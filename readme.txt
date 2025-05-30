@@ -319,20 +319,23 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.12.0 (May 2025)
 
+📊 This release enhances the quick stats visualization with improved readability and additional metrics, while also addressing several minor issues.
+[Read the release post](https://simple-history.com/2025/simple-history-5-12-0-released/) for more details.
+
 **Improved**
 
 -   Redesign the "quick stats" box (to the right of the main events listing):
-    -   Improve readability of the stats.
-    -   Add stats numbers for today and last 7 days (in addition to previous existing stats for last 28 days, and total events).
-    -   Add graphical list of most active users in the last 28 days (only visible to administrators).
-    -   Make it easier to see the day values in the chart, now you don't have to hover the exact bar for each day, just hover anywhere on the box to show the values.
-    -   Change chart from bar chart to line chart.
+    -   Improve readability of statistics.
+    -   Add metrics for today and last 7 days (in addition to existing stats for last 28 days and total events).
+    -   Add graphical list of most active users in the last 28 days (visible only to administrators).
+    -   Improve chart interaction - hover anywhere on the box to view daily values.
+    -   Change chart visualization from bar chart to line chart.
 
 **Fixed**
 
 -   Fix deprecated function warning when searching for events.
 -   Fix undefined chart label on Stats and Summaries page.
--   Improve translateability.
+-   Enhance translation support.
 
 ### 5.11.0 (May 2025)
 
