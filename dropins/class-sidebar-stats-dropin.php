@@ -343,6 +343,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		$stats_data = $this->get_quick_stats_data( $num_days_month, $num_days_week );
 
+		$current_user_can_list_users = current_user_can( 'list_users' );
+
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
@@ -387,11 +389,18 @@ class Sidebar_Stats_Dropin extends Dropin {
 					?>
 				</div>
 
-				<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
-					<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Most active users in last 28 days', 'simple-history' ); ?></span>
-					<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
-				</div>
 				<?php
+				if ( $current_user_can_list_users ) {
+					?>
+					<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
+						<span class="sh-StatsDashboard-statLabel">
+							<?php esc_html_e( 'Most active users in last 28 days', 'simple-history' ); ?>
+							<?php echo wp_kses_post( $this->get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
+						</span>
+						<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
+					</div>
+					<?php
+				}
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_chart_data( $num_days_month );
@@ -409,7 +418,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_cta_link_html();
-				?>
+		?>
 			</div>
 		</div>
 		<?php
