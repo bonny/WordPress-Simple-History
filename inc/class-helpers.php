@@ -1766,4 +1766,24 @@ class Helpers {
 			)
 		);
 	}
+
+	/**
+	 * Returns markup for a tooltip with help text icon.
+	 *
+	 * @param string $tooltip_text The text to display in the tooltip.
+	 * @return string
+	 */
+	public static function get_tooltip_html( $tooltip_text ) {
+		$tooltip_text = trim( $tooltip_text );
+
+		if ( empty( $tooltip_text ) ) {
+			return '';
+		}
+
+		ob_start();
+		?>
+		<span class="sh-Icon sh-Icon--help sh-TooltipIcon" title="<?php echo esc_html( $tooltip_text ); ?>"></span>
+		<?php
+		return trim( ob_get_clean() );
+	}
 }

@@ -395,7 +395,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 					<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
 						<span class="sh-StatsDashboard-statLabel">
 							<?php esc_html_e( 'Most active users in last 28 days', 'simple-history' ); ?>
-							<?php echo wp_kses_post( $this->get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
+							<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
 						</span>
 						<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
 					</div>
@@ -412,7 +412,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 				);
 
 				// Append tooltip.
-				$msg_text .= $this->get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' ) );
+				$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' ) );
 
 				echo wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
 
@@ -422,26 +422,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 			</div>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Returns markup for a tooltip with and help text icon.
-	 *
-	 * @param string $tooltip_text The text to display in the tooltip.
-	 * @return string
-	 */
-	protected function get_tooltip_html( $tooltip_text ) {
-		$tooltip_text = trim( $tooltip_text );
-
-		if ( empty( $tooltip_text ) ) {
-			return '';
-		}
-
-		ob_start();
-		?>
-		<span class="sh-Icon sh-Icon--help sh-TooltipIcon" title="<?php echo esc_html( $tooltip_text ); ?>"></span>
-		<?php
-		return trim( ob_get_clean() );
 	}
 
 	/**
