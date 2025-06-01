@@ -5,7 +5,8 @@ namespace Simple_History;
 use WP_Session_Tokens;
 
 /**
- * Class that handles stats functionality for Simple History.
+ * Class that handles stats functionality for Simple History,
+ * i.e. retrieving stats data for the stats page and for the Stats REST API.
  */
 class Events_Stats {
 	/**
