@@ -317,6 +317,26 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+-   🚀 **New REST API Statistics Endpoints**
+    -   🔒 All endpoints require administrator privileges
+    -   📊 Enhanced filtering capabilities:
+        -   Date range selection
+        -   Detailed statistics for users, content, and plugins
+        -   Total events count since installation
+    -   📈 Available endpoints:
+        -   `/wp-json/simple-history/v1/stats/summary` - Brief overview with total counts for events, users, content, media, plugins, and core updates
+        -   `/wp-json/simple-history/v1/stats/activity-overview` - Daily activity breakdown
+        -   `/wp-json/simple-history/v1/stats/peak-days` - High activity day analysis
+        -   `/wp-json/simple-history/v1/stats/peak-times` - Peak activity time patterns
+        -   `/wp-json/simple-history/v1/stats/users` - Detailed user activity insights
+        -   `/wp-json/simple-history/v1/stats/content` - Content modification statistics
+        -   `/wp-json/simple-history/v1/stats/media` - Media upload and management metrics
+        -   `/wp-json/simple-history/v1/stats/plugins` - Plugin installation and update data
+        -   `/wp-json/simple-history/v1/stats/core` - WordPress core update tracking
+    -   These endpoints contain the same data as the [Premium add-on](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) uses on the [Stats and Summaries page/History insights page](https://simple-history.com/add-ons/premium/#stats-and-summaries?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium).
+
 ### 5.12.0 (May 2025)
 
 📊 This release enhances the quick stats visualization with improved readability and additional metrics, while also addressing several minor issues.
