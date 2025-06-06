@@ -362,7 +362,7 @@ class Events_Stats {
 		$simple_history = Simple_History::get_instance();
 		$events_table = $simple_history->get_events_table_name();
 
-		return $wpdb->get_results(
+		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT 
 					HOUR(date) as hour,
@@ -381,6 +381,14 @@ class Events_Stats {
 				$date_to
 			)
 		);
+
+		// Add human readable time spans to each result
+		foreach ( $results as $result ) {
+			$hour = (int) $result->hour;
+			$result->time_span = sprintf( '%02d:00-%02d:59', $hour, $hour );
+		}
+
+		return $results;
 	}
 
 	/**
