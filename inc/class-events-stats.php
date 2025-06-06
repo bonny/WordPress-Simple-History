@@ -397,7 +397,7 @@ class Events_Stats {
 			return false;
 		}
 
-		return $wpdb->get_results(
+		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
 					DAYOFWEEK(date) - 1 as day,
@@ -415,6 +415,26 @@ class Events_Stats {
 				$date_to
 			)
 		);
+
+		// Add day names to the results.
+		// No domain for translation because we are reusing the WordPress core translations.
+		// phpcs:disable WordPress.WP.I18n.MissingArgDomain
+		$day_names = array(
+			0 => __( 'Sunday' ),
+			1 => __( 'Monday' ),
+			2 => __( 'Tuesday' ),
+			3 => __( 'Wednesday' ),
+			4 => __( 'Thursday' ),
+			5 => __( 'Friday' ),
+			6 => __( 'Saturday' ),
+		);
+		// phpcs:enable WordPress.WP.I18n.MissingArgDomain
+
+		foreach ( $results as $result ) {
+			$result->day_name = $day_names[ $result->day ];
+		}
+
+		return $results;
 	}
 
 	/**
