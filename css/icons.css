@@ -193,3 +193,7 @@
 .sh-Icon--keep_off {
 	background-image: url(./icons/keep_off_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
 }
+
+.sh-Icon--mark_email_unread {
+	background-image: url(./icons/mark_email_unread_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}

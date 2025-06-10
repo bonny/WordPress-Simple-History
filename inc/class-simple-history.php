@@ -14,6 +14,7 @@ use Simple_History\Event_Details\Event_Details_Simple_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Services\Setup_Settings_Page;
+use Simple_History\Services\Email_Report_Service;
 
 /**
  * Main class for Simple History.

@@ -178,6 +178,7 @@ echo Admin_Pages::header_output();
 		);
 		echo '</p>';
 	}
+
 	// Output Stealh Mode status if Full or Partial Stealth Mode is enabled.
 	/** @var Stealth_Mode|null $stealh_mode_service */
 	$stealh_mode_service = $args['simple_history_instance']->get_service( Stealth_Mode::class );
