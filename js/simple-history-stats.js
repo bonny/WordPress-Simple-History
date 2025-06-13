@@ -157,16 +157,22 @@ jQuery( function () {
 			} )
 		);
 
+		const color = getComputedStyle(
+			document.documentElement
+		).getPropertyValue( '--sh-color-blue' );
+
 		new Chart( ctx, {
-			type: 'bar',
+			type: 'line',
 			data: {
 				labels: data.map( ( item ) => item.date ),
 				datasets: [
 					{
 						label: simpleHistoryStats.strings.events,
 						data: data.map( ( item ) => item.count ),
-						barPercentage: 0.99,
-						categoryPercentage: 1,
+						borderColor: color,
+						backgroundColor: color,
+						borderWidth: 3,
+						pointRadius: 0,
 					},
 				],
 			},
