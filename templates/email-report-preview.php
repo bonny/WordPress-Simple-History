@@ -1,140 +1,53 @@
 <?php
 /**
- * Template for weekly email preview.
- *
- * @package Simple_History
+ * Template for weekly emails.
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-$site_name = get_bloginfo('name');
-$site_url = get_bloginfo('url');
+$site_name = get_bloginfo( 'name' );
+$site_url = get_bloginfo( 'url' );
 $date_range = sprintf(
-    /* translators: 1: start date, 2: end date */
-    __('%1$s to %2$s', 'simple-history'),
-    date_i18n(get_option('date_format'), strtotime('-7 days')),
-    date_i18n(get_option('date_format'), time())
+	/* translators: 1: start date, 2: end date */
+	__( '%1$s to %2$s', 'simple-history' ),
+	date_i18n( get_option( 'date_format' ), strtotime( '-7 days' ) ),
+	date_i18n( get_option( 'date_format' ), time() )
 );
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title><?php esc_html_e('Weekly Website Statistics Report', 'simple-history'); ?></title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .stats-section {
-            margin-bottom: 30px;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .stat-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2271b1;
-            margin: 10px 0;
-        }
-        .stat-label {
-            color: #666;
-            font-size: 14px;
-        }
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-        }
-    </style>
+	<meta charset="UTF-8">
+	<title><?php esc_html_e( 'Weekly Website Statistics Report', 'simple-history' ); ?></title>
+	<style>
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+			line-height: 1.6;
+			color: #333;
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+	</style>
 </head>
 <body>
-    <div class="header">
-        <h1><?php echo esc_html($site_name); ?></h1>
-        <h2><?php esc_html_e('Weekly Website Statistics Report', 'simple-history'); ?></h2>
-        <p><?php echo esc_html($date_range); ?></p>
-    </div>
+	<div class="header">
+		<h1><?php echo esc_html( $site_name ); ?></h1>
+		<h2><?php esc_html_e( 'Weekly Website Statistics Report', 'simple-history' ); ?></h2>
+		<p><?php echo esc_html( $date_range ); ?></p>
+	</div>
 
-    <div class="stats-section">
-        <h3><?php esc_html_e('Activity Overview', 'simple-history'); ?></h3>
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-number"><?php echo esc_html($stats['total_events'] ?? 0); ?></div>
-                <div class="stat-label"><?php esc_html_e('Total Events', 'simple-history'); ?></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number"><?php echo esc_html($stats['unique_users'] ?? 0); ?></div>
-                <div class="stat-label"><?php esc_html_e('Active Users', 'simple-history'); ?></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number"><?php echo esc_html($stats['unique_ips'] ?? 0); ?></div>
-                <div class="stat-label"><?php esc_html_e('Unique IPs', 'simple-history'); ?></div>
-            </div>
-        </div>
-    </div>
-
-    <?php if (!empty($stats['top_users'])) : ?>
-    <div class="stats-section">
-        <h3><?php esc_html_e('Top Users', 'simple-history'); ?></h3>
-        <div class="stats-grid">
-            <?php foreach ($stats['top_users'] as $user) : ?>
-            <div class="stat-box">
-                <div class="stat-number"><?php echo esc_html($user['count']); ?></div>
-                <div class="stat-label"><?php echo esc_html($user['name']); ?></div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <?php if (!empty($stats['top_events'])) : ?>
-    <div class="stats-section">
-        <h3><?php esc_html_e('Most Common Events', 'simple-history'); ?></h3>
-        <div class="stats-grid">
-            <?php foreach ($stats['top_events'] as $event) : ?>
-            <div class="stat-box">
-                <div class="stat-number"><?php echo esc_html($event['count']); ?></div>
-                <div class="stat-label"><?php echo esc_html($event['name']); ?></div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <div class="footer">
-        <p>
-            <?php
-            printf(
-                /* translators: 1: site name, 2: site URL */
-                esc_html__('This report was automatically generated by %1$s. Visit %2$s to view more detailed statistics.', 'simple-history'),
-                '<a href="' . esc_url($site_url) . '">' . esc_html($site_name) . '</a>',
-                '<a href="' . esc_url(admin_url('admin.php?page=simple_history_page')) . '">' . esc_html__('Simple History', 'simple-history') . '</a>'
-            );
-            ?>
-        </p>
-    </div>
+	<div class="footer">
+		<p>
+			<?php
+			printf(
+				/* translators: 1: site name, 2: site URL */
+				esc_html__( 'This report was automatically generated by %1$s. Visit %2$s to view more detailed statistics.', 'simple-history' ),
+				'<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_name ) . '</a>',
+				'<a href="' . esc_url( admin_url( 'admin.php?page=simple_history_page' ) ) . '">' . esc_html__( 'Simple History', 'simple-history' ) . '</a>'
+			);
+			?>
+		</p>
+	</div>
 </body>
-</html> 
+</html>
