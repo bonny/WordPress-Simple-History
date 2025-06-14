@@ -103,7 +103,7 @@ class Email_Report_Service extends Service {
 		$site_name = get_bloginfo( 'name' );
 		$subject = sprintf(
 			// translators: %s: Site name.
-			__( '[%s] Website Statistics Report (Test)', 'simple-history' ),
+			__( 'Simple History: Weekly Activity Summary for %s', 'simple-history' ),
 			$site_name
 		);
 
@@ -169,13 +169,7 @@ class Email_Report_Service extends Service {
 		// Set content type to HTML.
 		header( 'Content-Type: text/html; charset=UTF-8' );
 
-		// Allow style tags in the output.
-		$allowed_html = wp_kses_allowed_html( 'post' );
-		$allowed_html['style'] = [
-			'type' => true,
-		];
-
-		echo wp_kses( $html_content, $allowed_html );
+		echo $html_content;
 		exit;
 	}
 
