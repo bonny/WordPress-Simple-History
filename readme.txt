@@ -319,6 +319,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+-   Improvements to the layout of the quick stats box.
 -   🚀 **New REST API Statistics Endpoints**
     -   🔒 All endpoints require administrator privileges
     -   📊 Enhanced filtering capabilities:
