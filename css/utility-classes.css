@@ -142,6 +142,17 @@
 	justify-content: space-evenly;
 }
 
+/* Align Items */
+.sh-items-center {
+	align-items: center;
+}
+.sh-items-start {
+	align-items: flex-start;
+}
+.sh-items-end {
+	align-items: flex-end;
+}
+
 /* Margin */
 .sh-m-small {
 	margin: var(--sh-spacing-small);
