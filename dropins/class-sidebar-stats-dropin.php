@@ -365,7 +365,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 				do_action( 'simple_history/dropin/stats/before_content' );
 				?>
 
-				<div class="sh-flex sh-justify-between sh-mb-large sh-mt-large">
+				<div class="sh-flex sh-justify-between sh-items-end sh-mb-large sh-mt-large">
 					<?php
 					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo $this->get_stat_dashboard_item(
