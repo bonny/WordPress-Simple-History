@@ -162,14 +162,15 @@ class Email_Report_Service extends Service {
 			],
 		];
 
-		ob_start();
-		include SIMPLE_HISTORY_PATH . 'templates/email-report-preview.php';
-		$html_content = ob_get_clean();
-
 		// Set content type to HTML.
 		header( 'Content-Type: text/html; charset=UTF-8' );
 
-		echo $html_content;
+		load_template(
+			SIMPLE_HISTORY_PATH . 'templates/email-report-preview.php',
+			false,
+			[ 'stats' => $stats ]
+		);
+
 		exit;
 	}
 
@@ -249,11 +250,11 @@ class Email_Report_Service extends Service {
 		);
 		?>
 		<p>
-			<a href="<?php echo esc_url( $preview_url ); ?>" target="_blank" class="button">
+			<a href="<?php echo esc_url( $preview_url ); ?>" target="_blank" class="button button-link">
 				<?php esc_html_e( 'Show email preview', 'simple-history' ); ?>
 			</a>
 			|
-			<button type="button" class="button" id="simple-history-email-test">
+			<button type="button" class="button button-link" id="simple-history-email-test">
 				<?php
 				printf(
 					// translators: %s: Current user's email address.
