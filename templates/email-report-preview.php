@@ -14,14 +14,15 @@ $date_range = sprintf(
 	date_i18n( get_option( 'date_format' ), time() )
 );
 
+$learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summary-email-unsubscribe/';
 ?>
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="<?php echo esc_attr( get_locale() ); ?>" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<meta name="x-apple-disable-message-reformatting">
-	<title>Simple History: Weekly Activity Summary</title>
+	<title><?php echo esc_html( sprintf( __( 'Simple History: Weekly Activity Summary', 'simple-history' ) ) ); ?></title>
 	<!--[if mso]>
 	<noscript>
 		<xml>
@@ -77,11 +78,20 @@ $date_range = sprintf(
 </head>
 <body style="margin: 0; padding: 0; width: 100%; word-break: break-word; -webkit-font-smoothing: antialiased; background-color: #F5F2E9;">
 	
-	<div role="article" aria-roledescription="email" lang="en" style="text-size-adjust: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #F5F2E9;">
+	<div role="article" aria-roledescription="email" lang="<?php echo esc_attr( get_locale() ); ?>" style="text-size-adjust: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #F5F2E9;">
 		
 		<!-- Visually Hidden Preheader Text -->
 		<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-			293 events this week • Thursday was your busiest day
+			<?php
+			echo esc_html(
+				sprintf(
+					/* translators: 1: number of events, 2: day of the week */
+					__( '%1$d events this week • %2$s was your busiest day', 'simple-history' ),
+					293,
+					__( 'Thursday', 'simple-history' )
+				)
+			);
+			?>
 		</div>
 		
 		<!-- Email Container -->
@@ -90,7 +100,7 @@ $date_range = sprintf(
 			<!-- Logo on Background -->
 			<tr>
 				<td style="padding: 40px 0 20px; text-align: left;">
-					<img src="https://simple-history.com/wp/wp-content/uploads/2023/09/SH_logo_NEW-768x156.png" width="200" height="41" alt="Simple History - WordPress Activity Log Plugin" border="0" style="height: auto; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #333333; display: block;">
+					<img src="https://simple-history.com/wp/wp-content/uploads/2023/09/SH_logo_NEW-768x156.png" width="200" height="41" alt="<?php echo esc_attr( __( 'Simple History', 'simple-history' ) ); ?>" border="0" style="height: auto; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #333333; display: block;">
 				</td>
 			</tr>
 			
@@ -102,26 +112,26 @@ $date_range = sprintf(
 							<td style="padding: 30px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center; background-color: #ffffff;" class="mobile-padding email-container" role="main">
 								
 					<!-- Main Headline -->
-					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;" class="mobile-header">Website Weekly Activity Summary</h1>
+					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;" class="mobile-header"><?php echo esc_html( __( 'Website Weekly Activity Summary', 'simple-history' ) ); ?></h1>
 					
 					<!-- Date Range and Domain -->
-					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">May 12-18, 2025 • <a href="https://www.simple-history.com" style="color: #0040FF; text-decoration: none;">www.simple-history.com</a></p>
+					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;"><?php echo esc_html( $date_range ); ?> • <a href="<?php echo esc_url( $site_url ); ?>" style="color: #0040FF; text-decoration: none;"><?php echo esc_html( $site_url ); ?></a></p>
 					
 					<!-- Subtitle -->
-					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" class="mobile-text">Here's a summary of what Simple History recorded happening on your WordPress site this week.</p>
+					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" class="mobile-text"><?php echo esc_html( __( 'Here\'s a summary of what Simple History recorded happening on your WordPress site this week.', 'simple-history' ) ); ?></p>
 					
 					<!-- Key Metrics Section -->
 					<div style="margin-bottom: 40px;">
 						
 						<!-- This Week's Activity -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
-							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">Events this week</h2>
+							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Events this week', 'simple-history' ) ); ?></h2>
 							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">293</div>
 						</div>
 						
 						<!-- Most Active Days -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
-							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">Most Active Days</h2>
+							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Most Active Days', 'simple-history' ) ); ?></h2>
 							
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
@@ -182,7 +192,7 @@ $date_range = sprintf(
 						<tr>
 							<td style="border-radius: 6px; background: #0040FF;">
 								<a href="https://simple-history.com" style="background: #0040FF; border: 16px solid #0040FF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; text-decoration: none; color: #ffffff; display: block; border-radius: 6px; font-weight: 600;">
-									View All Events
+									<?php echo esc_html( __( 'View All Events', 'simple-history' ) ); ?>
 								</a>
 							</td>
 						</tr>
@@ -194,7 +204,7 @@ $date_range = sprintf(
 						<p style="margin: 0 0 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000;">Simple History Premium includes detailed activity breakdowns, user insights, security monitoring, and weekly trends.</p>
 						
 						<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000;">
-							<a href="https://simple-history.com/premium" style="color: #0040FF; text-decoration: underline; font-weight: 500;">Learn More About Premium</a>
+							<a href="https://simple-history.com/add-ons/premium/" style="color: #0040FF; text-decoration: underline; font-weight: 500;">Learn More About Premium</a>
 						</p>
 					</div>
 					
@@ -217,10 +227,11 @@ $date_range = sprintf(
 			<tr>
 				<td style="padding: 20px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; text-align: center; color: #000000;" class="mobile-padding">
 					<p style="margin: 15px 0 0; font-size: 12px; color: #000000;">
-						You're receiving this email because your email address was entered in the WordPress admin settings for Simple History.
+						<?php echo esc_html( __( 'You\'re receiving this email because your email address was entered in the WordPress admin settings for Simple History.', 'simple-history' ) ); ?>
 					</p>
 					<p style="margin: 10px 0 0; font-size: 12px; color: #000000;">
-						This email was auto-generated and sent from www.simple-history.com. <a href="https://simple-history.com" style="color: #000000; text-decoration: underline;">Learn how to unsubscribe/stop receiving emails</a>.
+						<?php echo esc_html( __( 'This email was auto-generated and sent from www.simple-history.com.', 'simple-history' ) ); ?>
+						<a href="<?php echo esc_url( $learn_how_to_unsubscribe_url ); ?>" style="color: #000000; text-decoration: underline;"><?php echo esc_html( __( 'Learn how to unsubscribe/stop receiving emails', 'simple-history' ) ); ?></a>.
 					</p>
 				</td>
 			</tr>
