@@ -75,6 +75,7 @@ class Email_Report_Service extends Service {
 		// Get stats for the specified period.
 		$events_stats = new Events_Stats();
 
+		// Get basic site info.
 		$stats = [
 			'site_name' => get_bloginfo( 'name' ),
 			'site_url' => get_bloginfo( 'url' ),
@@ -85,25 +86,60 @@ class Email_Report_Service extends Service {
 				date_i18n( get_option( 'date_format' ), $date_from ),
 				date_i18n( get_option( 'date_format' ), $date_to )
 			),
-			'total_logged_events_count' => Helpers::get_total_logged_events_count(),
-			'period_stats' => [
-				'total_events' => $events_stats->get_total_events( $date_from, $date_to ),
-				'total_users' => $events_stats->get_total_users( $date_from, $date_to ),
-				'most_active_users' => $events_stats->get_top_users( $date_from, $date_to, 5 ),
-				'pages_created' => $events_stats->get_posts_pages_created( $date_from, $date_to ),
-				'pages_updated' => $events_stats->get_posts_pages_updated( $date_from, $date_to ),
-				'pages_deleted' => $events_stats->get_posts_pages_deleted( $date_from, $date_to ),
-				'pages_trashed' => $events_stats->get_posts_pages_trashed( $date_from, $date_to ),
-				'peak_days' => $events_stats->get_peak_days( $date_from, $date_to ),
-				'peak_times' => $events_stats->get_peak_activity_times( $date_from, $date_to ),
-				'activity_overview' => $events_stats->get_activity_overview_by_date( $date_from, $date_to ),
-				'failed_logins' => $events_stats->get_failed_logins_count( $date_from, $date_to ),
-				'successful_logins' => $events_stats->get_successful_logins_count( $date_from, $date_to ),
-				'user_added' => $events_stats->get_user_added_count( $date_from, $date_to ),
-				'user_removed' => $events_stats->get_user_removed_count( $date_from, $date_to ),
-				'user_updated' => $events_stats->get_user_updated_count( $date_from, $date_to ),
-			],
+			'total_events_since_install' => Helpers::get_total_logged_events_count(),
 		];
+
+		// Get total events for this week.
+		$stats['total_events_this_week'] = $events_stats->get_total_events( $date_from, $date_to );
+
+		// Get most active days and format them for the template.
+		$peak_days = $events_stats->get_peak_days( $date_from, $date_to );
+		if ( $peak_days && is_array( $peak_days ) ) {
+			// Sort by count descending to get the most active days first.
+			usort(
+				$peak_days,
+				function ( $a, $b ) {
+					return $b->count - $a->count;
+				}
+			);
+
+			// Get the top 3 most active days.
+			$top_3_days = array_slice( $peak_days, 0, 3 );
+
+			// Map to the expected template variables.
+			$stats['most_active_day_1_name'] = isset( $top_3_days[0] ) ? $top_3_days[0]->day_name : '';
+			$stats['most_active_day_1_count'] = isset( $top_3_days[0] ) ? $top_3_days[0]->count : 0;
+			$stats['most_active_day_2_name'] = isset( $top_3_days[1] ) ? $top_3_days[1]->day_name : '';
+			$stats['most_active_day_2_count'] = isset( $top_3_days[1] ) ? $top_3_days[1]->count : 0;
+			$stats['most_active_day_3_name'] = isset( $top_3_days[2] ) ? $top_3_days[2]->day_name : '';
+			$stats['most_active_day_3_count'] = isset( $top_3_days[2] ) ? $top_3_days[2]->count : 0;
+		} else {
+			$stats['most_active_day_1_name'] = '';
+			$stats['most_active_day_1_count'] = 0;
+			$stats['most_active_day_2_name'] = '';
+			$stats['most_active_day_2_count'] = 0;
+			$stats['most_active_day_3_name'] = '';
+			$stats['most_active_day_3_count'] = 0;
+		}
+
+		// Get most active users and format them for the template.
+		$top_users = $events_stats->get_top_users( $date_from, $date_to, 3 );
+		if ( $top_users && is_array( $top_users ) ) {
+			// Map to the expected template variables.
+			$stats['most_active_user_1_name'] = isset( $top_users[0] ) ? $top_users[0]['display_name'] : '';
+			$stats['most_active_user_1_count'] = isset( $top_users[0] ) ? $top_users[0]['count'] : 0;
+			$stats['most_active_user_2_name'] = isset( $top_users[1] ) ? $top_users[1]['display_name'] : '';
+			$stats['most_active_user_2_count'] = isset( $top_users[1] ) ? $top_users[1]['count'] : 0;
+			$stats['most_active_user_3_name'] = isset( $top_users[2] ) ? $top_users[2]['display_name'] : '';
+			$stats['most_active_user_3_count'] = isset( $top_users[2] ) ? $top_users[2]['count'] : 0;
+		} else {
+			$stats['most_active_user_1_name'] = '';
+			$stats['most_active_user_1_count'] = 0;
+			$stats['most_active_user_2_name'] = '';
+			$stats['most_active_user_2_count'] = 0;
+			$stats['most_active_user_3_name'] = '';
+			$stats['most_active_user_3_count'] = 0;
+		}
 
 		return $stats;
 	}
