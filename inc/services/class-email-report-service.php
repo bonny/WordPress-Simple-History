@@ -276,36 +276,6 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
-	 * Check if this is an email preview request and handle it.
-	 */
-	public function maybe_handle_email_preview() {
-		// Bail if not a preview request.
-		if ( ! isset( $_GET['simple_history_email_preview'] ) || ! isset( $_GET['_wpnonce'] ) ) {
-			return;
-		}
-
-		// Verify nonce.
-		if ( ! wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'simple_history_email_preview' ) ) {
-			wp_die( esc_html__( 'Invalid nonce.', 'simple-history' ) );
-		}
-
-		// Check user capabilities.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'simple-history' ) );
-		}
-
-		$date_from = strtotime( '-7 days' );
-		$date_to = time();
-
-		// Get stats for preview.
-		$stats = $this->get_summary_report_data( $date_from, $date_to );
-
-		// Include the preview template.
-		load_template( SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php', false, array() );
-		exit;
-	}
-
-	/**
 	 * Sanitize email recipients.
 	 *
 	 * Detects all emails in textarea and sanitizes them.
