@@ -67,9 +67,9 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 		}
 	</style>
 </head>
-<body style="margin: 0; padding: 0; width: 100%; word-break: break-word; -webkit-font-smoothing: antialiased; background-color: #F5F2E9;">
+<body style="margin: 0; padding: 0; width: 100%; word-break: break-word; -webkit-font-smoothing: antialiased; background-color: #FFF4E4;">
 	
-	<div role="article" aria-roledescription="email" lang="<?php echo esc_attr( get_locale() ); ?>" style="text-size-adjust: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #F5F2E9;">
+	<div role="article" aria-roledescription="email" lang="<?php echo esc_attr( get_locale() ); ?>" style="text-size-adjust: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #FFF4E4;">
 		
 		<!-- Visually Hidden Preheader Text -->
 		<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
