@@ -65,14 +65,14 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
-	 * REST API endpoint for sending preview email.
+	 * Get summary report data for a given date range.
+	 *
+	 * @param int $date_from Start timestamp.
+	 * @param int $date_to End timestamp.
+	 * @return array
 	 */
-	public function rest_preview_email() {
-		$current_user = wp_get_current_user();
-		$date_from = strtotime( '-7 days' );
-		$date_to = time();
-
-		// Get stats for test email.
+	public function get_summary_report_data( $date_from, $date_to ) {
+		// Get stats for the specified period.
 		$events_stats = new Events_Stats();
 
 		$stats = [
@@ -95,6 +95,20 @@ class Email_Report_Service extends Service {
 				'user_updated' => $events_stats->get_user_updated_count( $date_from, $date_to ),
 			],
 		];
+
+		return $stats;
+	}
+
+	/**
+	 * REST API endpoint for sending preview email.
+	 */
+	public function rest_preview_email() {
+		$current_user = wp_get_current_user();
+		$date_from = strtotime( '-7 days' );
+		$date_to = time();
+
+		// Get stats for test email.
+		$stats = $this->get_summary_report_data( $date_from, $date_to );
 
 		ob_start();
 		include SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php';
@@ -139,28 +153,7 @@ class Email_Report_Service extends Service {
 		$date_to = time();
 
 		// Get stats for preview.
-		$events_stats = new Events_Stats();
-
-		$stats = [
-			'total_logged_events_count' => Helpers::get_total_logged_events_count(),
-			'period_stats' => [
-				'total_events' => $events_stats->get_total_events( $date_from, $date_to ),
-				'total_users' => $events_stats->get_total_users( $date_from, $date_to ),
-				'most_active_users' => $events_stats->get_top_users( $date_from, $date_to, 5 ),
-				'pages_created' => $events_stats->get_posts_pages_created( $date_from, $date_to ),
-				'pages_updated' => $events_stats->get_posts_pages_updated( $date_from, $date_to ),
-				'pages_deleted' => $events_stats->get_posts_pages_deleted( $date_from, $date_to ),
-				'pages_trashed' => $events_stats->get_posts_pages_trashed( $date_from, $date_to ),
-				'peak_days' => $events_stats->get_peak_days( $date_from, $date_to ),
-				'peak_times' => $events_stats->get_peak_activity_times( $date_from, $date_to ),
-				'activity_overview' => $events_stats->get_activity_overview_by_date( $date_from, $date_to ),
-				'failed_logins' => $events_stats->get_failed_logins_count( $date_from, $date_to ),
-				'successful_logins' => $events_stats->get_successful_logins_count( $date_from, $date_to ),
-				'user_added' => $events_stats->get_user_added_count( $date_from, $date_to ),
-				'user_removed' => $events_stats->get_user_removed_count( $date_from, $date_to ),
-				'user_updated' => $events_stats->get_user_updated_count( $date_from, $date_to ),
-			],
-		];
+		$stats = $this->get_summary_report_data( $date_from, $date_to );
 
 		// Set content type to HTML.
 		header( 'Content-Type: text/html; charset=UTF-8' );
@@ -305,28 +298,7 @@ class Email_Report_Service extends Service {
 		$date_to = time();
 
 		// Get stats for preview.
-		$events_stats = new Events_Stats();
-
-		$stats = [
-			'total_logged_events_count' => Helpers::get_total_logged_events_count(),
-			'period_stats' => [
-				'total_events' => $events_stats->get_total_events( $date_from, $date_to ),
-				'total_users' => $events_stats->get_total_users( $date_from, $date_to ),
-				'most_active_users' => $events_stats->get_top_users( $date_from, $date_to, 5 ),
-				'pages_created' => $events_stats->get_posts_pages_created( $date_from, $date_to ),
-				'pages_updated' => $events_stats->get_posts_pages_updated( $date_from, $date_to ),
-				'pages_deleted' => $events_stats->get_posts_pages_deleted( $date_from, $date_to ),
-				'pages_trashed' => $events_stats->get_posts_pages_trashed( $date_from, $date_to ),
-				'peak_days' => $events_stats->get_peak_days( $date_from, $date_to ),
-				'peak_times' => $events_stats->get_peak_activity_times( $date_from, $date_to ),
-				'activity_overview' => $events_stats->get_activity_overview_by_date( $date_from, $date_to ),
-				'failed_logins' => $events_stats->get_failed_logins_count( $date_from, $date_to ),
-				'successful_logins' => $events_stats->get_successful_logins_count( $date_from, $date_to ),
-				'user_added' => $events_stats->get_user_added_count( $date_from, $date_to ),
-				'user_removed' => $events_stats->get_user_removed_count( $date_from, $date_to ),
-				'user_updated' => $events_stats->get_user_updated_count( $date_from, $date_to ),
-			],
-		];
+		$stats = $this->get_summary_report_data( $date_from, $date_to );
 
 		// Include the preview template.
 		load_template( SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php', false, array() );
@@ -440,28 +412,7 @@ class Email_Report_Service extends Service {
 		$date_to = time();
 
 		// Get stats for email.
-		$events_stats = new Events_Stats();
-
-		$stats = [
-			'total_logged_events_count' => Helpers::get_total_logged_events_count(),
-			'period_stats' => [
-				'total_events' => $events_stats->get_total_events( $date_from, $date_to ),
-				'total_users' => $events_stats->get_total_users( $date_from, $date_to ),
-				'most_active_users' => $events_stats->get_top_users( $date_from, $date_to, 5 ),
-				'pages_created' => $events_stats->get_posts_pages_created( $date_from, $date_to ),
-				'pages_updated' => $events_stats->get_posts_pages_updated( $date_from, $date_to ),
-				'pages_deleted' => $events_stats->get_posts_pages_deleted( $date_from, $date_to ),
-				'pages_trashed' => $events_stats->get_posts_pages_trashed( $date_from, $date_to ),
-				'peak_days' => $events_stats->get_peak_days( $date_from, $date_to ),
-				'peak_times' => $events_stats->get_peak_activity_times( $date_from, $date_to ),
-				'activity_overview' => $events_stats->get_activity_overview_by_date( $date_from, $date_to ),
-				'failed_logins' => $events_stats->get_failed_logins_count( $date_from, $date_to ),
-				'successful_logins' => $events_stats->get_successful_logins_count( $date_from, $date_to ),
-				'user_added' => $events_stats->get_user_added_count( $date_from, $date_to ),
-				'user_removed' => $events_stats->get_user_removed_count( $date_from, $date_to ),
-				'user_updated' => $events_stats->get_user_updated_count( $date_from, $date_to ),
-			],
-		];
+		$stats = $this->get_summary_report_data( $date_from, $date_to );
 
 		ob_start();
 		include SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php';
