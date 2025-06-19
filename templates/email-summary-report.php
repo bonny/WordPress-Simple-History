@@ -133,7 +133,7 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 						<!-- This Week's Activity -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Events this week', 'simple-history' ) ); ?></h2>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">293</div>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( $args['total_events_this_week'] ?? '293' ); ?></div>
 						</div>
 						
 						<!-- Most Active Days -->
@@ -143,19 +143,19 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">Thursday</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">73</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( __( 'Thursday', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( $args['most_active_day_1_count'] ?? '73' ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
 									</td>
 									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">Wednesday</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">56</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( __( 'Wednesday', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( $args['most_active_day_2_count'] ?? '56' ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
 									</td>
 									<td style="width: 33.33%; vertical-align: top;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">Monday</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">42</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( __( 'Monday', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( $args['most_active_day_3_count'] ?? '42' ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
 									</td>
 								</tr>
 							</table>
@@ -163,24 +163,24 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 						
 						<!-- Most Active Users -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
-							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">Most Active Users</h2>
+							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Most Active Users', 'simple-history' ) ); ?></h2>
 							
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">admin</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">127</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $args['most_active_user_1_name'] ?? __( 'admin', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( $args['most_active_user_1_count'] ?? '127' ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
 									</td>
 									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">editor</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">89</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $args['most_active_user_2_name'] ?? __( 'editor', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( $args['most_active_user_2_count'] ?? '89' ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
 									</td>
 									<td style="width: 33.33%; vertical-align: top;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">author</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">77</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $args['most_active_user_3_name'] ?? __( 'author', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( $args['most_active_user_3_count'] ?? '77' ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
 									</td>
 								</tr>
 							</table>
@@ -188,8 +188,8 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 						
 						<!-- Total Events Since Install -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
-							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">Total Events Since Install</h2>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">22,327</div>
+							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Total Events Since Install', 'simple-history' ) ); ?></h2>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( $args['total_events_since_install'] ?? '22,327' ); ?></div>
 						</div>
 						
 					</div>
@@ -207,11 +207,11 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 					
 					<!-- Upsell Section -->
 					<div style="text-align: center; margin: 60px 0 25px; padding: 25px; background: linear-gradient(135deg, #FFE4EC 0%, #B4EDE2 100%); border-radius: 8px; border: 1px solid #B4EDE2;">
-						<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600;">Want More Insights?</h2>
-						<p style="margin: 0 0 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000;">Simple History Premium includes detailed activity breakdowns, user insights, security monitoring, and weekly trends.</p>
+						<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600;"><?php echo esc_html( __( 'Want More Insights?', 'simple-history' ) ); ?></h2>
+						<p style="margin: 0 0 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000;"><?php echo esc_html( __( 'Simple History Premium includes detailed activity breakdowns, user insights, security monitoring, and weekly trends.', 'simple-history' ) ); ?></p>
 						
 						<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000;">
-							<a href="https://simple-history.com/add-ons/premium/" style="color: #0040FF; text-decoration: underline; font-weight: 500;">Learn More About Premium</a>
+							<a href="https://simple-history.com/add-ons/premium/" style="color: #0040FF; text-decoration: underline; font-weight: 500;"><?php echo esc_html( __( 'Learn More About Premium', 'simple-history' ) ); ?></a>
 						</p>
 					</div>
 					
