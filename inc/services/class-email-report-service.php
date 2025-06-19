@@ -97,7 +97,7 @@ class Email_Report_Service extends Service {
 		];
 
 		ob_start();
-		include SIMPLE_HISTORY_PATH . 'templates/email-report-preview.php';
+		include SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php';
 		$email_content = ob_get_clean();
 
 		$site_name = get_bloginfo( 'name' );
@@ -166,7 +166,7 @@ class Email_Report_Service extends Service {
 		header( 'Content-Type: text/html; charset=UTF-8' );
 
 		load_template(
-			SIMPLE_HISTORY_PATH . 'templates/email-report-preview.php',
+			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
 			[ 'stats' => $stats ]
 		);
@@ -329,7 +329,7 @@ class Email_Report_Service extends Service {
 		];
 
 		// Include the preview template.
-		load_template( SIMPLE_HISTORY_PATH . 'templates/email-report-preview.php', false, array() );
+		load_template( SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php', false, array() );
 		exit;
 	}
 
@@ -464,7 +464,7 @@ class Email_Report_Service extends Service {
 		];
 
 		ob_start();
-		include SIMPLE_HISTORY_PATH . 'templates/email-report-preview.php';
+		include SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php';
 		$email_content = ob_get_clean();
 
 		$site_name = get_bloginfo( 'name' );
