@@ -16,85 +16,23 @@ $date_range = sprintf(
 
 ?>
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<meta name="x-apple-disable-message-reformatting">
 	<title>Simple History: Weekly Activity Summary</title>
-	
 	<!--[if mso]>
 	<noscript>
 		<xml>
 			<o:OfficeDocumentSettings>
-				<o:AllowPNG/>
 				<o:PixelsPerInch>96</o:PixelsPerInch>
 			</o:OfficeDocumentSettings>
 		</xml>
 	</noscript>
 	<![endif]-->
-	
 	<style>
-		/* Reset styles */
-		html, body {
-			margin: 0 !important;
-			padding: 0 !important;
-			height: 100% !important;
-			width: 100% !important;
-			background: #FFF4E4;
-		}
-		
-		* {
-			-ms-text-size-adjust: 100%;
-			-webkit-text-size-adjust: 100%;
-		}
-		
-		div[style*="margin: 16px 0"] {
-			margin: 0 !important;
-		}
-		
-		#MessageViewBody, #MessageWebViewDiv {
-			width: 100% !important;
-		}
-		
-		table {
-			border-collapse: collapse !important;
-			border-spacing: 0 !important;
-			table-layout: fixed !important;
-			margin: 0 auto !important;
-		}
-		
-		table table table {
-			table-layout: auto;
-		}
-		
-		th {
-			font-weight: normal;
-		}
-		
-		img {
-			-ms-interpolation-mode: bicubic;
-			max-width: 100%;
-			border: 0;
-			height: auto;
-			line-height: 100%;
-			outline: none;
-			text-decoration: none;
-		}
-		
-		a {
-			text-decoration: none;
-		}
-		
-		/* Dark mode styles */
-		@media (prefers-color-scheme: dark) {
-			.email-bg { background-color: #1a1a1a !important; }
-			.email-container { background-color: #2d2d30 !important; }
-		}
-		
-		[data-ogsc] .email-bg { background-color: #1a1a1a !important; }
-		[data-ogsc] .email-container { background-color: #2d2d30 !important; }
+		table, td, div, h1, p {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;}
 		
 		/* Mobile styles */
 		@media only screen and (max-width: 599px) {
@@ -137,13 +75,13 @@ $date_range = sprintf(
 		}
 	</style>
 </head>
-
-	<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #FFF4E4;" class="email-bg">
-	<center style="width: 100%; background-color: #FFF4E4;" class="email-bg">
+<body style="margin: 0; padding: 0; width: 100%; word-break: break-word; -webkit-font-smoothing: antialiased; background-color: #F5F2E9;">
+	
+	<div role="article" aria-roledescription="email" lang="en" style="text-size-adjust: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #F5F2E9;">
 		
 		<!-- Visually Hidden Preheader Text -->
 		<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-			Your weekly WordPress activity summary - see what happened on your site this week
+			293 events this week • Thursday was your busiest day
 		</div>
 		
 		<!-- Email Container -->
@@ -151,8 +89,8 @@ $date_range = sprintf(
 			
 			<!-- Logo on Background -->
 			<tr>
-				<td style="padding: 40px 0 20px; text-align: center;">
-					<img src="https://simple-history.com/wp/wp-content/uploads/2023/09/SH_logo_NEW-768x156.png" width="200" height="41" alt="Simple History - WordPress Activity Log Plugin" border="0" style="height: auto; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #333333; display: block; margin: 0 auto;">
+				<td style="padding: 40px 0 20px; text-align: left;">
+					<img src="https://simple-history.com/wp/wp-content/uploads/2023/09/SH_logo_NEW-768x156.png" width="200" height="41" alt="Simple History - WordPress Activity Log Plugin" border="0" style="height: auto; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #333333; display: block;">
 				</td>
 			</tr>
 			
@@ -161,80 +99,86 @@ $date_range = sprintf(
 				<td style="background-color: #ffffff; border-radius: 8px 8px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" class="email-container">
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 						<tr>
-							<td style="padding: 30px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center; background-color: #ffffff;" class="mobile-padding email-container">
-					
+							<td style="padding: 30px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center; background-color: #ffffff;" class="mobile-padding email-container" role="main">
+								
 					<!-- Main Headline -->
-					<h1 style="margin: 0 0 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 30px; line-height: 38px; color: #000000; font-weight: 600;" class="mobile-header">Weekly Activity Summary for <a href="https://www.simple-history.com" style="color: #0040FF; text-decoration: none;">www.simple-history.com</a></h1>
+					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;" class="mobile-header">Website Weekly Activity Summary</h1>
+					
+					<!-- Date Range and Domain -->
+					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">May 12-18, 2025 • <a href="https://www.simple-history.com" style="color: #0040FF; text-decoration: none;">www.simple-history.com</a></p>
 					
 					<!-- Subtitle -->
-					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000;" class="mobile-text">Here's what Simple History recorded happening on your WordPress site this week.</p>
+					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" class="mobile-text">Here's a summary of what Simple History recorded happening on your WordPress site this week.</p>
 					
 					<!-- Key Metrics Section -->
-					<div style="text-align: center; margin-bottom: 40px;">
+					<div style="margin-bottom: 40px;">
 						
-						<!-- Top Stats Row -->
-						<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 30px;">
-							<tr>
-								<!-- Total Events -->
-								<td style="width: 33.33%; padding: 20px 10px; background-color: #B4EDE2; border-radius: 8px; text-align: center;" class="mobile-stat">
-									<h3 style="margin: 0 0 5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Total Events</h3>
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 40px; color: #000000; font-weight: 700;">293</div>
-								</td>
-								<td style="width: 5px;"></td>
-								<!-- Total Users -->
-								<td style="width: 33.33%; padding: 20px 10px; background-color: #FFE4EC; border-radius: 8px; text-align: center;" class="mobile-stat">
-									<h3 style="margin: 0 0 5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Total Users</h3>
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 40px; color: #000000; font-weight: 700;">6</div>
-								</td>
-								<td style="width: 5px;"></td>
-								<!-- Active Users -->
-								<td style="width: 33.33%; padding: 20px 10px; background-color: #FFF4E4; border-radius: 8px; text-align: center;" class="mobile-stat">
-									<h3 style="margin: 0 0 5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Most Active</h3>
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; color: #000000; font-weight: 600;">Multiple Users</div>
-								</td>
-							</tr>
-						</table>
+						<!-- This Week's Activity -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">Events this week</h2>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">293</div>
+						</div>
 						
-						<!-- Activity Breakdown -->
-						<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-							<tr>
-								<!-- User Profile Actions -->
-								<td style="width: 23%; padding: 15px 8px; text-align: center;" class="mobile-breakdown">
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 28px; line-height: 32px; color: #0040FF; font-weight: 700; margin-bottom: 5px;">42</div>
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; color: #000000; font-weight: 500;">User Profile</div>
-								</td>
-								<td style="width: 2%;"></td>
-								<!-- Content Actions -->
-								<td style="width: 23%; padding: 15px 8px; text-align: center;" class="mobile-breakdown">
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 28px; line-height: 32px; color: #0040FF; font-weight: 700; margin-bottom: 5px;">31</div>
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; color: #000000; font-weight: 500;">Content</div>
-								</td>
-								<td style="width: 2%;"></td>
-								<!-- Plugin Actions -->
-								<td style="width: 23%; padding: 15px 8px; text-align: center;" class="mobile-breakdown">
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 28px; line-height: 32px; color: #0040FF; font-weight: 700; margin-bottom: 5px;">75</div>
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; color: #000000; font-weight: 500;">Plugins</div>
-								</td>
-								<td style="width: 2%;"></td>
-								<!-- Media Actions -->
-								<td style="width: 23%; padding: 15px 8px; text-align: center;" class="mobile-breakdown">
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 28px; line-height: 32px; color: #0040FF; font-weight: 700; margin-bottom: 5px;">0</div>
-									<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; color: #000000; font-weight: 500;">Media</div>
-								</td>
-							</tr>
-						</table>
+						<!-- Most Active Days -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">Most Active Days</h2>
+							
+							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+								<tr>
+									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">Thursday</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">73</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+									</td>
+									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">Wednesday</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">56</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+									</td>
+									<td style="width: 33.33%; vertical-align: top;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">Monday</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">42</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						
+						<!-- Most Active Users -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">Most Active Users</h2>
+							
+							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+								<tr>
+									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">admin</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">127</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+									</td>
+									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">editor</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">89</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+									</td>
+									<td style="width: 33.33%; vertical-align: top;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;">author</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;">77</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;">events</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						
+						<!-- Total Events Since Install -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">Total Events Since Install</h2>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">22,327</div>
+						</div>
+						
 					</div>
 					
-					
-					<!-- Total Events Since Install -->
-					<div style="text-align: center; margin-bottom: 30px; padding: 20px; background-color: #FFF4E4; border-radius: 8px; border: 1px solid #B4EDE2;">
-						<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 22px; color: #000000;">
-							A total of <strong style="color: #0040FF;">22,327 events</strong> have been logged since Simple History was installed.
-						</p>
-					</div>
-					
-					<!-- Secondary Button -->
-					<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto 40px;">
+					<!-- View All Events Button -->
+					<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto 60px;">
 						<tr>
 							<td style="border-radius: 6px; background: #0040FF;">
 								<a href="https://simple-history.com" style="background: #0040FF; border: 16px solid #0040FF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; text-decoration: none; color: #ffffff; display: block; border-radius: 6px; font-weight: 600;">
@@ -243,6 +187,16 @@ $date_range = sprintf(
 							</td>
 						</tr>
 					</table>
+					
+					<!-- Upsell Section -->
+					<div style="text-align: center; margin: 60px 0 25px; padding: 25px; background: linear-gradient(135deg, #FFE4EC 0%, #B4EDE2 100%); border-radius: 8px; border: 1px solid #B4EDE2;">
+						<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600;">Want More Insights?</h2>
+						<p style="margin: 0 0 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000;">Simple History Premium includes detailed activity breakdowns, user insights, security monitoring, and weekly trends.</p>
+						
+						<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000;">
+							<a href="https://simple-history.com/premium" style="color: #0040FF; text-decoration: underline; font-weight: 500;">Learn More About Premium</a>
+						</p>
+					</div>
 					
 								</td>
 							</tr>
@@ -270,9 +224,8 @@ $date_range = sprintf(
 					</p>
 				</td>
 			</tr>
-			
 		</table>
 		
-	</center>
+	</div>
 </body>
 </html>
