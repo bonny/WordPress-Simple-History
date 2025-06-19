@@ -77,6 +77,14 @@ class Email_Report_Service extends Service {
 
 		$stats = [
 			'total_logged_events_count' => Helpers::get_total_logged_events_count(),
+			'site_name' => get_bloginfo( 'name' ),
+			'site_url' => get_bloginfo( 'url' ),
+			'date_range' => sprintf(
+				/* translators: 1: start date, 2: end date */
+				__( '%1$s to %2$s', 'simple-history' ),
+				date_i18n( get_option( 'date_format' ), $date_from ),
+				date_i18n( get_option( 'date_format' ), $date_to )
+			),
 			'period_stats' => [
 				'total_events' => $events_stats->get_total_events( $date_from, $date_to ),
 				'total_users' => $events_stats->get_total_users( $date_from, $date_to ),
@@ -111,7 +119,11 @@ class Email_Report_Service extends Service {
 		$stats = $this->get_summary_report_data( $date_from, $date_to );
 
 		ob_start();
-		include SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php';
+		load_template(
+			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
+			false,
+			[ 'stats' => $stats ]
+		);
 		$email_content = ob_get_clean();
 
 		$site_name = get_bloginfo( 'name' );
@@ -385,7 +397,11 @@ class Email_Report_Service extends Service {
 		$stats = $this->get_summary_report_data( $date_from, $date_to );
 
 		ob_start();
-		include SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php';
+		load_template(
+			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
+			false,
+			[ 'stats' => $stats ]
+		);
 		$email_content = ob_get_clean();
 
 		$site_name = get_bloginfo( 'name' );
