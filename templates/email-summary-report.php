@@ -5,14 +5,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$site_name = get_bloginfo( 'name' );
-$site_url = get_bloginfo( 'url' );
-$date_range = sprintf(
-	/* translators: 1: start date, 2: end date */
-	__( '%1$s to %2$s', 'simple-history' ),
-	date_i18n( get_option( 'date_format' ), strtotime( '-7 days' ) ),
-	date_i18n( get_option( 'date_format' ), time() )
-);
+$stats = $args['stats'];
+$site_name = $stats['site_name'];
+$site_url = $stats['site_url'];
+$date_range = $stats['date_range'];
 
 $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summary-email-unsubscribe/';
 ?>
