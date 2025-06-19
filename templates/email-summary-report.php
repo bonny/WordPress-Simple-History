@@ -5,10 +5,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$stats = $args['stats'];
-$site_name = $stats['site_name'];
-$site_url = $stats['site_url'];
-$date_range = $stats['date_range'];
+$site_name = $args['site_name'];
+$site_url = $args['site_url'];
+$date_range = $args['date_range'];
 
 $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summary-email-unsubscribe/';
 ?>

@@ -119,7 +119,7 @@ class Email_Report_Service extends Service {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			[ 'stats' => $this->get_summary_report_data( $date_from, $date_to ) ]
+			$this->get_summary_report_data( $date_from, $date_to )
 		);
 		$email_content = ob_get_clean();
 
@@ -167,7 +167,7 @@ class Email_Report_Service extends Service {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			[ 'stats' => $this->get_summary_report_data( $date_from, $date_to ) ]
+			$this->get_summary_report_data( $date_from, $date_to )
 		);
 
 		exit;
@@ -391,7 +391,7 @@ class Email_Report_Service extends Service {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			[ 'stats' => $this->get_summary_report_data( $date_from, $date_to ) ]
+			$this->get_summary_report_data( $date_from, $date_to )
 		);
 		$email_content = ob_get_clean();
 
