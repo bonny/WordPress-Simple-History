@@ -115,14 +115,11 @@ class Email_Report_Service extends Service {
 		$date_from = strtotime( '-7 days' );
 		$date_to = time();
 
-		// Get stats for test email.
-		$stats = $this->get_summary_report_data( $date_from, $date_to );
-
 		ob_start();
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			[ 'stats' => $stats ]
+			[ 'stats' => $this->get_summary_report_data( $date_from, $date_to ) ]
 		);
 		$email_content = ob_get_clean();
 
@@ -164,16 +161,13 @@ class Email_Report_Service extends Service {
 		$date_from = strtotime( '-7 days' );
 		$date_to = time();
 
-		// Get stats for preview.
-		$stats = $this->get_summary_report_data( $date_from, $date_to );
-
 		// Set content type to HTML.
 		header( 'Content-Type: text/html; charset=UTF-8' );
 
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			[ 'stats' => $stats ]
+			[ 'stats' => $this->get_summary_report_data( $date_from, $date_to ) ]
 		);
 
 		exit;
@@ -393,14 +387,11 @@ class Email_Report_Service extends Service {
 		$date_from = strtotime( '-7 days' );
 		$date_to = time();
 
-		// Get stats for email.
-		$stats = $this->get_summary_report_data( $date_from, $date_to );
-
 		ob_start();
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			[ 'stats' => $stats ]
+			[ 'stats' => $this->get_summary_report_data( $date_from, $date_to ) ]
 		);
 		$email_content = ob_get_clean();
 
