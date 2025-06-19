@@ -5,10 +5,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$site_name = $args['site_name'];
-$site_url = $args['site_url'];
-$date_range = $args['date_range'];
-
 $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summary-email-unsubscribe/';
 ?>
 <!DOCTYPE html>
@@ -109,8 +105,24 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 					<!-- Main Headline -->
 					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;" class="mobile-header"><?php echo esc_html( __( 'Website Weekly Activity Summary', 'simple-history' ) ); ?></h1>
 					
-					<!-- Date Range and Domain -->
-					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;"><?php echo esc_html( $date_range ); ?> • <a href="<?php echo esc_url( $site_url ); ?>" style="color: #0040FF; text-decoration: none;"><?php echo esc_html( $site_url ); ?></a></p>
+					<!-- Date Range -->
+					<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
+						<?php echo esc_html( $args['date_range'] ); ?> 
+					</p>
+
+					<!-- Site name -->
+					<p style="margin: 5px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-align: left;">
+						<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
+							<?php echo esc_html( $args['site_name'] ); ?>
+						</a>
+					</p>
+					
+					<!-- Domain -->
+					<p style="margin: 5px 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-align: left;">
+						<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
+							<?php echo esc_html( $args['site_url_domain'] ); ?>
+						</a>
+					</p>
 					
 					<!-- Subtitle -->
 					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" class="mobile-text"><?php echo esc_html( __( 'Here\'s a summary of what Simple History recorded happening on your WordPress site this week.', 'simple-history' ) ); ?></p>
