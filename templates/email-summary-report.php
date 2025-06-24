@@ -74,12 +74,13 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 		<!-- Visually Hidden Preheader Text -->
 		<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
 			<?php
+			$busiest_day = ! empty( $args['most_active_days'][0]['name'] ) ? $args['most_active_days'][0]['name'] : __( 'No activity', 'simple-history' );
 			echo esc_html(
 				sprintf(
 					/* translators: 1: number of events, 2: day of the week */
 					__( '%1$d events this week • %2$s was your busiest day', 'simple-history' ),
 					$args['total_events_this_week'],
-					$args['most_active_day_1_name']
+					$busiest_day
 				)
 			);
 			?>
@@ -139,10 +140,11 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 						<!-- Most Active Users -->
 						<?php
 						$has_active_users = false;
-						if ( ( $args['most_active_user_1_count'] ) > 0 ||
-							 ( $args['most_active_user_2_count'] ) > 0 ||
-							 ( $args['most_active_user_3_count'] ) > 0 ) {
-							$has_active_users = true;
+						foreach ( $args['most_active_users'] as $user ) {
+							if ( $user['count'] > 0 ) {
+								$has_active_users = true;
+								break;
+							}
 						}
 						?>
 						<?php if ( $has_active_users ) { ?>
@@ -151,26 +153,14 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 							
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
-									<?php if ( ( $args['most_active_user_1_count'] ) > 0 ) { ?>
-									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $args['most_active_user_1_name'] ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $args['most_active_user_1_count'] ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
-									</td>
-									<?php } ?>
-									<?php if ( ( $args['most_active_user_2_count'] ) > 0 ) { ?>
-									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $args['most_active_user_2_name'] ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $args['most_active_user_2_count'] ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
-									</td>
-									<?php } ?>
-									<?php if ( ( $args['most_active_user_3_count'] ) > 0 ) { ?>
-									<td style="width: 33.33%; vertical-align: top;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $args['most_active_user_3_name'] ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $args['most_active_user_3_count'] ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
-									</td>
+									<?php foreach ( $args['most_active_users'] as $index => $user ) { ?>
+										<?php if ( $user['count'] > 0 ) { ?>
+										<td style="width: 33.33%; vertical-align: top;<?php echo $index < 2 ? ' padding-right: 15px;' : ''; ?>">
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $user['name'] ); ?></div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?></div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
+										</td>
+										<?php } ?>
 									<?php } ?>
 								</tr>
 							</table>
@@ -180,10 +170,11 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 						<!-- Most Active Days -->
 						<?php
 						$has_active_days = false;
-						if ( ( $args['most_active_day_1_count'] ) > 0 ||
-							 ( $args['most_active_day_2_count'] ) > 0 ||
-							 ( $args['most_active_day_3_count'] ) > 0 ) {
-							$has_active_days = true;
+						foreach ( $args['most_active_days'] as $day ) {
+							if ( $day['count'] > 0 ) {
+								$has_active_days = true;
+								break;
+							}
 						}
 						?>
 						<?php if ( $has_active_days ) { ?>
@@ -192,26 +183,14 @@ $learn_how_to_unsubscribe_url = 'https://simple-history.com/support/weekly-summa
 							
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
-									<?php if ( ( $args['most_active_day_1_count'] ) > 0 ) { ?>
-									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $args['most_active_day_1_name'] ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $args['most_active_day_1_count'] ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
-									</td>
-									<?php } ?>
-									<?php if ( ( $args['most_active_day_2_count'] ) > 0 ) { ?>
-									<td style="width: 33.33%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $args['most_active_day_2_name'] ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $args['most_active_day_2_count'] ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
-									</td>
-									<?php } ?>
-									<?php if ( ( $args['most_active_day_3_count'] ) > 0 ) { ?>
-									<td style="width: 33.33%; vertical-align: top;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $args['most_active_day_3_name'] ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $args['most_active_day_3_count'] ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
-									</td>
+									<?php foreach ( $args['most_active_days'] as $index => $day ) { ?>
+										<?php if ( $day['count'] > 0 ) { ?>
+										<td style="width: 33.33%; vertical-align: top;<?php echo $index < 2 ? ' padding-right: 15px;' : ''; ?>">
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $day['name'] ); ?></div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $day['count'] ) ); ?></div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
+										</td>
+										<?php } ?>
 									<?php } ?>
 								</tr>
 							</table>

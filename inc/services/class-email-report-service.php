@@ -65,6 +65,37 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
+	 * Prepare top items array with safe fallbacks.
+	 *
+	 * @param array $items Raw items array.
+	 * @param int $limit Maximum number of items to return.
+	 * @param string $name_key Key for the name field.
+	 * @param string $count_key Key for the count field.
+	 * @return array
+	 */
+	private function prepare_top_items( $items, $limit = 3, $name_key = 'name', $count_key = 'count' ) {
+		$result = [];
+		
+		if ( ! is_array( $items ) || empty( $items ) ) {
+			return array_fill( 0, $limit, [ 'name' => '', 'count' => 0 ] );
+		}
+		
+		for ( $i = 0; $i < $limit; $i++ ) {
+			if ( isset( $items[ $i ] ) ) {
+				$item = $items[ $i ];
+				$result[] = [
+					'name' => is_object( $item ) ? $item->$name_key : $item[ $name_key ],
+					'count' => is_object( $item ) ? $item->$count_key : $item[ $count_key ],
+				];
+			} else {
+				$result[] = [ 'name' => '', 'count' => 0 ];
+			}
+		}
+		
+		return $result;
+	}
+
+	/**
 	 * Get summary report data for a given date range.
 	 *
 	 * @param int $date_from Start timestamp.
@@ -102,44 +133,13 @@ class Email_Report_Service extends Service {
 					return $b->count - $a->count;
 				}
 			);
-
-			// Get the top 3 most active days.
-			$top_3_days = array_slice( $peak_days, 0, 3 );
-
-			// Map to the expected template variables.
-			$stats['most_active_day_1_name'] = isset( $top_3_days[0] ) ? $top_3_days[0]->day_name : '';
-			$stats['most_active_day_1_count'] = isset( $top_3_days[0] ) ? $top_3_days[0]->count : 0;
-			$stats['most_active_day_2_name'] = isset( $top_3_days[1] ) ? $top_3_days[1]->day_name : '';
-			$stats['most_active_day_2_count'] = isset( $top_3_days[1] ) ? $top_3_days[1]->count : 0;
-			$stats['most_active_day_3_name'] = isset( $top_3_days[2] ) ? $top_3_days[2]->day_name : '';
-			$stats['most_active_day_3_count'] = isset( $top_3_days[2] ) ? $top_3_days[2]->count : 0;
-		} else {
-			$stats['most_active_day_1_name'] = '';
-			$stats['most_active_day_1_count'] = 0;
-			$stats['most_active_day_2_name'] = '';
-			$stats['most_active_day_2_count'] = 0;
-			$stats['most_active_day_3_name'] = '';
-			$stats['most_active_day_3_count'] = 0;
 		}
+		
+		$stats['most_active_days'] = $this->prepare_top_items( $peak_days, 3, 'day_name', 'count' );
 
 		// Get most active users and format them for the template.
 		$top_users = $events_stats->get_top_users( $date_from, $date_to, 3 );
-		if ( $top_users && is_array( $top_users ) ) {
-			// Map to the expected template variables.
-			$stats['most_active_user_1_name'] = isset( $top_users[0] ) ? $top_users[0]['display_name'] : '';
-			$stats['most_active_user_1_count'] = isset( $top_users[0] ) ? $top_users[0]['count'] : 0;
-			$stats['most_active_user_2_name'] = isset( $top_users[1] ) ? $top_users[1]['display_name'] : '';
-			$stats['most_active_user_2_count'] = isset( $top_users[1] ) ? $top_users[1]['count'] : 0;
-			$stats['most_active_user_3_name'] = isset( $top_users[2] ) ? $top_users[2]['display_name'] : '';
-			$stats['most_active_user_3_count'] = isset( $top_users[2] ) ? $top_users[2]['count'] : 0;
-		} else {
-			$stats['most_active_user_1_name'] = '';
-			$stats['most_active_user_1_count'] = 0;
-			$stats['most_active_user_2_name'] = '';
-			$stats['most_active_user_2_count'] = 0;
-			$stats['most_active_user_3_name'] = '';
-			$stats['most_active_user_3_count'] = 0;
-		}
+		$stats['most_active_users'] = $this->prepare_top_items( $top_users, 3, 'display_name', 'count' );
 
 		return $stats;
 	}
