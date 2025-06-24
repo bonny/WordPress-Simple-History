@@ -277,7 +277,9 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 					</p>
 					<p style="margin: 10px 0 0; font-size: 12px; color: #000000;">
 						<?php echo esc_html( __( 'This email was auto-generated and sent from www.simple-history.com.', 'simple-history' ) ); ?>
-						<a href="<?php echo esc_url( $learn_how_to_unsubscribe_url ); ?>" style="color: #000000; text-decoration: underline;"><?php echo esc_html( __( 'Learn how to unsubscribe/stop receiving emails', 'simple-history' ) ); ?></a>.
+						<a href="<?php echo esc_url( $learn_how_to_unsubscribe_url ); ?>" style="color: #000000; text-decoration: underline;">
+							<?php echo esc_html( __( 'Learn how to unsubscribe/stop receiving emails', 'simple-history' ) ); ?>
+						</a>.
 					</p>
 				</td>
 			</tr>
