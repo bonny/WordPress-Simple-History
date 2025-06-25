@@ -267,7 +267,7 @@ class Stats_Service extends Service {
 						__( 'Friday', 'simple-history' ),
 						__( 'Saturday', 'simple-history' ),
 					],
-					'events' => __( 'Events', 'simple-history' )
+					'events' => __( 'Events', 'simple-history' ),
 				],
 			]
 		);

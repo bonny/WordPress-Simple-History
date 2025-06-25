@@ -614,4 +614,4 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 
 		return $this->add_additional_fields_schema( $this->schema );
 	}
-} 
+}

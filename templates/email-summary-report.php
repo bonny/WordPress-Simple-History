@@ -232,7 +232,7 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 						<?php } ?>
 					</div>
 
-					<?php echo $content_after_core_stats; ?>
+					<?php echo wp_kses_post( $content_after_core_stats ); ?>
 					
 					<!-- View All Events Button -->
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
@@ -257,7 +257,7 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 								<a href="https://simple-history.com/add-ons/premium/" style="color: #0040FF; text-decoration: underline; font-weight: 500;"><?php echo esc_html( __( 'Learn More About Premium', 'simple-history' ) ); ?></a>
 							</p>
 						</div>
-						<?php 
+						<?php
 					}
 					?>
 								</td>

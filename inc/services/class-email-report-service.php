@@ -67,19 +67,26 @@ class Email_Report_Service extends Service {
 	/**
 	 * Prepare top items array with safe fallbacks.
 	 *
-	 * @param array $items Raw items array.
-	 * @param int $limit Maximum number of items to return.
+	 * @param array  $items Raw items array.
+	 * @param int    $limit Maximum number of items to return.
 	 * @param string $name_key Key for the name field.
 	 * @param string $count_key Key for the count field.
 	 * @return array
 	 */
 	private function prepare_top_items( $items, $limit = 3, $name_key = 'name', $count_key = 'count' ) {
 		$result = [];
-		
+
 		if ( ! is_array( $items ) || empty( $items ) ) {
-			return array_fill( 0, $limit, [ 'name' => '', 'count' => 0 ] );
+			return array_fill(
+				0,
+				$limit,
+				[
+					'name' => '',
+					'count' => 0,
+				]
+			);
 		}
-		
+
 		for ( $i = 0; $i < $limit; $i++ ) {
 			if ( isset( $items[ $i ] ) ) {
 				$item = $items[ $i ];
@@ -88,10 +95,13 @@ class Email_Report_Service extends Service {
 					'count' => is_object( $item ) ? $item->$count_key : $item[ $count_key ],
 				];
 			} else {
-				$result[] = [ 'name' => '', 'count' => 0 ];
+				$result[] = [
+					'name' => '',
+					'count' => 0,
+				];
 			}
 		}
-		
+
 		return $result;
 	}
 
@@ -134,7 +144,7 @@ class Email_Report_Service extends Service {
 				}
 			);
 		}
-		
+
 		$stats['most_active_days'] = $this->prepare_top_items( $peak_days, 3, 'day_name', 'count' );
 
 		// Get most active users and format them for the template.

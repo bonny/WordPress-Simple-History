@@ -42,7 +42,7 @@ class Events_Stats {
 			[ $date_from, $date_to ]
 		);
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- value_placeholders is safe here
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- value_placeholders is safe here
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				'SELECT COUNT(DISTINCT h.id)
@@ -56,7 +56,7 @@ class Events_Stats {
 				$query_args
 			)
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
 	}
 
 	/**
@@ -382,7 +382,7 @@ class Events_Stats {
 			)
 		);
 
-		// Add human readable time spans to each result
+		// Add human readable time spans to each result.
 		foreach ( $results as $result ) {
 			$hour = (int) $result->hour;
 			$result->time_span = sprintf( '%02d:00-%02d:59', $hour, $hour );
