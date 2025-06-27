@@ -170,14 +170,14 @@ class Email_Report_Service extends Service {
 		);
 		$email_content = ob_get_clean();
 
-		$site_name = get_bloginfo( 'name' );
 		$subject = sprintf(
 			// translators: %s: Site name.
 			__( 'Simple History: Weekly Activity Summary for %s', 'simple-history' ),
-			$site_name
+			get_bloginfo( 'name' )
 		);
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
+
 		$sent = wp_mail(
 			$current_user->user_email,
 			$subject,
@@ -442,11 +442,10 @@ class Email_Report_Service extends Service {
 		);
 		$email_content = ob_get_clean();
 
-		$site_name = get_bloginfo( 'name' );
 		$subject = sprintf(
 			// translators: %s: Site name.
 			__( '[%s] Website Statistics Report', 'simple-history' ),
-			$site_name
+			get_bloginfo( 'name' )
 		);
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
