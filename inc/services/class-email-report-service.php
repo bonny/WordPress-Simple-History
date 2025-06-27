@@ -336,6 +336,7 @@ class Email_Report_Service extends Service {
 	 *
 	 * Detects all emails in textarea and sanitizes them.
 	 * Emails are separated by spaces, commas or newlines.
+	 * Final result is a string with one email address per line (separated by \n).
 	 *
 	 * @param string $textarea_contents Textarea contents.
 	 * @return string
@@ -373,6 +374,15 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
+	 * Get email report recipients.
+	 *
+	 * @return string One email address per line (separated by \n).
+	 */
+	private function get_email_report_recipients() {
+		return get_option( 'simple_history_email_report_recipients', '' );
+	}
+
+	/**
 	 * Output for the enabled setting field.
 	 */
 	public function settings_field_enabled() {
@@ -394,7 +404,7 @@ class Email_Report_Service extends Service {
 	 * Output for the email recipients field.
 	 */
 	public function settings_field_recipients() {
-		$recipients = get_option( 'simple_history_email_report_recipients', '' );
+		$recipients = $this->get_email_report_recipients();
 		$current_user_email = wp_get_current_user()->user_email;
 		?>
 		<textarea 
@@ -434,7 +444,7 @@ class Email_Report_Service extends Service {
 			return;
 		}
 
-		$recipients = get_option( 'simple_history_email_report_recipients', '' );
+		$recipients = $this->get_email_report_recipients();
 		if ( empty( $recipients ) ) {
 			return;
 		}
