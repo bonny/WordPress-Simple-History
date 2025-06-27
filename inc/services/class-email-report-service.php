@@ -23,13 +23,16 @@ class Email_Report_Service extends Service {
 
 		// Register settings.
 		add_action( 'admin_init', [ $this, 'register_settings' ] );
+
 		// Add settings fields to general section.
 		add_action( 'simple_history/settings_page/general_section_output', [ $this, 'on_general_section_output' ] );
+
 		// Register REST API endpoints.
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
+
 		// Schedule email report.
 		add_action( 'init', [ $this, 'schedule_email_report' ] );
-		add_action( 'simple_history_email_report', [ $this, 'send_email_report' ] );
+		add_action( 'simple_history/email_report', [ $this, 'send_email_report' ] );
 	}
 
 	/**
@@ -361,10 +364,19 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
+	 * Check if email reports are enabled.
+	 *
+	 * @return bool
+	 */
+	private function is_email_reports_enabled() {
+		return get_option( 'simple_history_email_report_enabled', false );
+	}
+
+	/**
 	 * Output for the enabled setting field.
 	 */
 	public function settings_field_enabled() {
-		$enabled = get_option( 'simple_history_email_report_enabled', false );
+		$enabled = $this->is_email_reports_enabled();
 		?>
 		<label>
 			<input 
@@ -406,10 +418,10 @@ class Email_Report_Service extends Service {
 	 * Schedule the email report.
 	 */
 	public function schedule_email_report() {
-		if ( ! wp_next_scheduled( 'simple_history_email_report' ) ) {
+		if ( ! wp_next_scheduled( 'simple_history/email_report' ) ) {
 			// Schedule for next Monday at 8:00 AM.
 			$next_monday = strtotime( 'next monday 8:00:00' );
-			wp_schedule_event( $next_monday, 'weekly', 'simple_history_email_report' );
+			wp_schedule_event( $next_monday, 'weekly', 'simple_history/email_report' );
 		}
 	}
 
@@ -418,7 +430,7 @@ class Email_Report_Service extends Service {
 	 */
 	public function send_email_report() {
 		// Check if email report is enabled.
-		if ( ! get_option( 'simple_history_email_report_enabled', false ) ) {
+		if ( ! $this->is_email_reports_enabled() ) {
 			return;
 		}
 
