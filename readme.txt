@@ -338,6 +338,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
         -   `/wp-json/simple-history/v1/stats/core` - WordPress core update tracking
     -   These endpoints contain the same data as the [Premium add-on](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) uses on the [Stats and Summaries page/History insights page](https://simple-history.com/add-ons/premium/#stats-and-summaries?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium).
 
+**Added**
+
+-   Weekly email reports. To start with this is enabled for users with experimental features enabled. We have not yet decided on the exact contents of the email, so please test and send feedback.
+
+-   Misc internal code improvements.
+
 ### 5.12.0 (May 2025)
 
 📊 This release enhances the quick stats visualization with improved readability and additional metrics, while also addressing several minor issues.
