@@ -72,9 +72,8 @@ class Events_Stats {
 		// This creates a string like this: "%s,%s,%s".
 		$value_placeholders = implode( ',', array_fill( 0, count( $values ), '%s' ) );
 
-		$simple_history = Simple_History::get_instance();
-		$events_table = $simple_history->get_events_table_name();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$events_table = $this->get_events_table_name();
+		$contexts_table = $this->get_contexts_table_name();
 
 		$query_args = array_merge(
 			[ $events_table, $contexts_table, $logger_slug ],
@@ -147,8 +146,7 @@ class Events_Stats {
 			return false;
 		}
 
-		$simple_history = Simple_History::get_instance();
-		$events_table = $simple_history->get_events_table_name();
+		$events_table = $this->get_events_table_name();
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
@@ -180,9 +178,8 @@ class Events_Stats {
 			return false;
 		}
 
-		$simple_history = Simple_History::get_instance();
-		$events_table = $simple_history->get_events_table_name();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$events_table = $this->get_events_table_name();
+		$contexts_table = $this->get_contexts_table_name();
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
@@ -218,9 +215,8 @@ class Events_Stats {
 			return false;
 		}
 
-		$simple_history = Simple_History::get_instance();
-		$events_table = $simple_history->get_events_table_name();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$events_table = $this->get_events_table_name();
+		$contexts_table = $this->get_contexts_table_name();
 
 		return $wpdb->get_row(
 			$wpdb->prepare(
@@ -265,9 +261,8 @@ class Events_Stats {
 			return false;
 		}
 
-		$simple_history = Simple_History::get_instance();
-		$events_table = $simple_history->get_events_table_name();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$events_table = $this->get_events_table_name();
+		$contexts_table = $this->get_contexts_table_name();
 
 		$users = $wpdb->get_results(
 			$wpdb->prepare(
@@ -332,8 +327,7 @@ class Events_Stats {
 			return false;
 		}
 
-		$simple_history = Simple_History::get_instance();
-		$events_table = $simple_history->get_events_table_name();
+		$events_table = $this->get_events_table_name();
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -399,8 +393,7 @@ class Events_Stats {
 			return false;
 		}
 
-		$simple_history = Simple_History::get_instance();
-		$events_table = $simple_history->get_events_table_name();
+		$events_table = $this->get_events_table_name();
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -1710,9 +1703,12 @@ class Events_Stats {
 	public function get_oldest_event() {
 		global $wpdb;
 
+		$events_table = $this->get_events_table_name();
+
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}simple_history ORDER BY date ASC LIMIT 1"
+				'SELECT * FROM %i ORDER BY date ASC LIMIT 1',
+				$events_table
 			),
 			ARRAY_A
 		);
