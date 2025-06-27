@@ -10,6 +10,46 @@ use WP_Session_Tokens;
  */
 class Events_Stats {
 	/**
+	 * Events table name.
+	 *
+	 * @var string
+	 */
+	private $events_table;
+
+	/**
+	 * Contexts table name.
+	 *
+	 * @var string
+	 */
+	private $contexts_table;
+
+	/**
+	 * Get the events table name, lazy-loading if needed.
+	 *
+	 * @return string
+	 */
+	private function get_events_table_name() {
+		if ( ! $this->events_table ) {
+			$simple_history = Simple_History::get_instance();
+			$this->events_table = $simple_history->get_events_table_name();
+		}
+		return $this->events_table;
+	}
+
+	/**
+	 * Get the contexts table name, lazy-loading if needed.
+	 *
+	 * @return string
+	 */
+	private function get_contexts_table_name() {
+		if ( ! $this->contexts_table ) {
+			$simple_history = Simple_History::get_instance();
+			$this->contexts_table = $simple_history->get_contexts_table_name();
+		}
+		return $this->contexts_table;
+	}
+
+	/**
 	 * Method for getting event counts by logger and message value.
 	 *
 	 * Examples:
