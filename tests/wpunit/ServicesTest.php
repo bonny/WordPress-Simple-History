@@ -45,6 +45,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Menu_Service',
 			'Stats_Service',
 			'Notification_Bar',
+			'Email_Report_Service',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);
