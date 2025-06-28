@@ -317,32 +317,24 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.13.0 (June 2025)
 
--   Improvements to the layout of the quick stats box.
--   🚀 **New REST API Statistics Endpoints**
-    -   🔒 All endpoints require administrator privileges
-    -   📊 Enhanced filtering capabilities:
-        -   Date range selection
-        -   Detailed statistics for users, content, and plugins
-        -   Total events count since installation
-    -   📈 Available endpoints:
-        -   `/wp-json/simple-history/v1/stats/summary` - Brief overview with total counts for events, users, content, media, plugins, and core updates
-        -   `/wp-json/simple-history/v1/stats/activity-overview` - Daily activity breakdown
-        -   `/wp-json/simple-history/v1/stats/peak-days` - High activity day analysis
-        -   `/wp-json/simple-history/v1/stats/peak-times` - Peak activity time patterns
-        -   `/wp-json/simple-history/v1/stats/users` - Detailed user activity insights
-        -   `/wp-json/simple-history/v1/stats/content` - Content modification statistics
-        -   `/wp-json/simple-history/v1/stats/media` - Media upload and management metrics
-        -   `/wp-json/simple-history/v1/stats/plugins` - Plugin installation and update data
-        -   `/wp-json/simple-history/v1/stats/core` - WordPress core update tracking
-    -   These endpoints contain the same data as the [Premium add-on](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) uses on the [Stats and Summaries page/History insights page](https://simple-history.com/add-ons/premium/#stats-and-summaries?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium).
+📧 This release introduces weekly email reports for site activity monitoring and adds REST API endpoints for event statistics.
+[Read the release post](https://simple-history.com/2025/simple-history-5-13-0-released/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_13_0) for more details.
 
 **Added**
 
--   Weekly email reports. To start with this is enabled for users with experimental features enabled. We have not yet decided on the exact contents of the email, so please test and send feedback.
+-   Weekly email reports. Enabled for users with experimental features enabled, this new feature let you get an weekly email with a brief summary of what's been happening on your site. The emails are opt-in so you need to add your email address to the settings to start receiving them.
+-   REST API Endpoints for Event Statistics.
 
+**Changed**
+
+-   Improvements to the layout of the quick stats box.
 -   Misc internal code improvements.
+
+**Fixed**
+
+-   Fix PHP notice due to `wpdb::prepare()` not using placeholders correctly.
 
 ### 5.12.0 (May 2025)
 
