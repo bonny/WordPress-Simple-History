@@ -271,12 +271,19 @@ class Menu_Manager {
 	/**
 	 * Get menu pages that are subpages to a tools, dashboard or options page.
 	 * I.e. the pages that are to be shown as main tabs.
+	 *
+	 * @return array<Menu_Page> Array of main tabs for page with tabs.
 	 */
 	public function get_main_tabs_for_page_with_tabs() {
 		$menu_page_location = Helpers::get_menu_page_location();
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
 
 		$current_menu_page_root = $this->get_page_by_slug( $page );
+
+		// Bail if no menu page found.
+		if ( ! $current_menu_page_root ) {
+			return [];
+		}
 
 		// Skip if menu page object has it's location at top level, i.e. menu_bottom or menu_top.
 		if ( in_array( $current_menu_page_root->get_location(), [ 'menu_top', 'menu_bottom' ], true ) ) {
@@ -292,6 +299,11 @@ class Menu_Manager {
 
 		// Should this now just be the children of any page? Just as long as it has children.
 		$current_menu_page_root = $this->get_page_by_slug( $page );
+
+		// Bail if no menu page found after potential page slug change.
+		if ( ! $current_menu_page_root ) {
+			return [];
+		}
 
 		$current_menu_page_root_children = $current_menu_page_root->get_children();
 		return $current_menu_page_root_children;
