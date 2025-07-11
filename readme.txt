@@ -317,6 +317,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+-   Add more checks in Admin Bar Quick Stats before initing the code.
+
 ### 5.13.0 (June 2025)
 
 📧 This release introduces weekly email reports for site activity monitoring and adds REST API endpoints for event statistics.

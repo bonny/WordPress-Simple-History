@@ -1,4 +1,5 @@
 // Entrypoint used by wp-scripts start and build.
+
 import domReady from '@wordpress/dom-ready';
 import { createRoot } from '@wordpress/element';
 import AdminBarQuickView from './components/AdminBarQuickView';
@@ -17,7 +18,16 @@ domReady( () => {
 		'wp-admin-bar-simple-history-react-root-group'
 	);
 
-	if ( adminBarTarget ) {
-		createRoot( adminBarTarget ).render( <AdminBarQuickView /> );
+	// Bail if the admin bar target is not found.
+	if ( ! adminBarTarget ) {
+		return;
 	}
+
+	// Bail if createRoot is not available.
+	// Happens for example when using Divi theme frontend builder.
+	if ( typeof createRoot !== 'function' ) {
+		return;
+	}
+
+	createRoot( adminBarTarget ).render( <AdminBarQuickView /> );
 } );
