@@ -319,7 +319,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
--   Add more checks in Admin Bar Quick Stats before initing the code.
+-   Fix issue when Divi frontend builder is active. [#565](https://github.com/bonny/WordPress-Simple-History/issues/565)
+-   Add more checks in Admin Bar Quick Stats before initing the JS code.
 
 ### 5.13.0 (June 2025)
 

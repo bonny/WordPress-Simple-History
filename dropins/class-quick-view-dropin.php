@@ -3,7 +3,6 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
-use Simple_History\Simple_History;
 
 /**
  * Displays the latest events from Simple History in the admin bar using React.
@@ -11,7 +10,7 @@ use Simple_History\Simple_History;
 class Quick_View_Dropin extends Dropin {
 	/** @inheritDoc */
 	public function loaded() {
-		// Init the plugin at prio so it's easy to modify on init, without having to use a lower prio.
+		// Init the plugin at prio 20 so it's easy to modify on init, without having to use a lower prio.
 		add_action( 'init', [ $this, 'initialize' ], 20 );
 	}
 
@@ -20,6 +19,14 @@ class Quick_View_Dropin extends Dropin {
 	 * Fired from the 'init' hook.
 	 */
 	public function initialize() {
+		$divi_frontend_builder_active = isset( $_GET['et_fb'] );
+
+		// Bail if Divi frontend builder is active because it will cause React errors/issues.
+		// https://github.com/bonny/WordPress-Simple-History/issues/565.
+		if ( $divi_frontend_builder_active ) {
+			return;
+		}
+
 		// Only available for users with the view history capability.
 		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return;
