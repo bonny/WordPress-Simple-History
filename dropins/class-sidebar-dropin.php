@@ -28,7 +28,7 @@ class Sidebar_Dropin extends Dropin {
 		$donate_link = 'https://simple-history.com/sponsor/';
 
 		$boxDonate = '
-			<div class="postbox">
+			<div class="postbox sh-PremiumFeaturesPostbox">
 				<h3 class="hndle">' . esc_html( $headline ) . '</h3>
 				<div class="inside">
 					<p>' . esc_html( $donate_first_para ) . '</p>
@@ -49,7 +49,7 @@ class Sidebar_Dropin extends Dropin {
 		$body2 = _x( 'A good review will help new users find this plugin. And it will make the plugin author very happy :)', 'Sidebar box', 'simple-history' );
 
 		$boxReview = '
-			<div class="postbox">
+			<div class="postbox sh-PremiumFeaturesPostbox">
 				<h3 class="hndle">' . $headline . '</h3>
 				<div class="inside">
 					<p>' . $body1 . '</p>
@@ -61,7 +61,7 @@ class Sidebar_Dropin extends Dropin {
 		// Box about support.
 		$boxSupport = sprintf(
 			'
-			<div class="postbox">
+			<div class="postbox sh-PremiumFeaturesPostbox">
 				<h3 class="hndle">%1$s</h3>
 				<div class="inside">
 					<p>%2$s</p>
