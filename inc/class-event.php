@@ -374,10 +374,27 @@ class Event {
 	 *
 	 * Loads the main event data and associated context from the database.
 	 * Sets $this->data to false if event doesn't exist.
+	 *
+	 * Uses WordPress object cache to avoid repeated database queries for the same event.
 	 */
 	private function load_data(): void {
 		global $wpdb;
 
+		// Create cache key based on event ID.
+		$cache_key = md5( __METHOD__ . serialize( [ 'event_id' => $this->id ] ) );
+		$cache_group = Helpers::get_cache_group();
+
+		// Try to get cached data first.
+		$cached_data = wp_cache_get( $cache_key, $cache_group );
+
+		// Use cached data if it exists.
+		if ( false !== $cached_data ) {
+			$this->data = $cached_data['data'];
+			$this->context = $cached_data['context'];
+			return;
+		}
+
+		// No cached data, so load from database.
 		$table_name = $this->simple_history->get_table_name();
 		$contexts_table = $this->simple_history->get_contexts_table_name();
 
@@ -390,8 +407,20 @@ class Event {
 			)
 		);
 
+		// No event found.
 		if ( ! $event_data ) {
 			$this->data = false;
+			$this->context = [];
+
+			// Cache the result even if event doesn't exist to avoid repeated DB queries.
+			wp_cache_set(
+				$cache_key,
+				[
+					'data' => false,
+					'context' => [],
+				],
+				$cache_group
+			);
 			return;
 		}
 
@@ -422,5 +451,15 @@ class Event {
 		}
 
 		$this->data = $event_data;
+
+		// Cache the result.
+		wp_cache_set(
+			$cache_key,
+			[
+				'data' => $this->data,
+				'context' => $this->context,
+			],
+			$cache_group
+		);
 	}
 }
