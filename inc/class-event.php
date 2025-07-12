@@ -172,9 +172,7 @@ class Event {
 
 		if ( $result ) {
 			// Reload data to reflect changes.
-			$this->data = null;
-			$this->context = [];
-			$this->load_data();
+			$this->reload_data();
 		}
 
 		return (bool) $result;
@@ -201,9 +199,7 @@ class Event {
 
 		if ( $result ) {
 			// Reload data to reflect changes.
-			$this->data = null;
-			$this->context = [];
-			$this->load_data();
+			$this->reload_data();
 		}
 
 		return (bool) $result;
@@ -354,6 +350,24 @@ class Event {
 	}
 
 
+
+	/**
+	 * Clear cached data and context.
+	 */
+	private function clear_data(): void {
+		$this->data = null;
+		$this->context = [];
+	}
+
+	/**
+	 * Reload event data from database.
+	 *
+	 * Clears cached data and reloads from database.
+	 */
+	private function reload_data(): void {
+		$this->clear_data();
+		$this->load_data();
+	}
 
 	/**
 	 * Load event data from database.
