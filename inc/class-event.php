@@ -2,18 +2,16 @@
 
 namespace Simple_History;
 
-use stdClass;
-use WP_Error;
 use Simple_History\Helpers;
 use Simple_History\Simple_History;
 
-	/**
-	 * Event class for managing Simple History events.
-	 *
-	 * This class provides methods to load, manipulate, and retrieve information
-	 * about Simple History events. It handles both existing events loaded from
-	 * the database and new events that haven't been saved yet.
-	 */
+/**
+ * Event class for managing Simple History events.
+ *
+ * This class provides methods to load, manipulate, and retrieve information
+ * about Simple History events. It handles both existing events loaded from
+ * the database and new events that haven't been saved yet.
+ */
 class Event {
 	/**
 	 * Event ID.
