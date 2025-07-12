@@ -7,9 +7,13 @@ use WP_Error;
 use Simple_History\Helpers;
 use Simple_History\Simple_History;
 
-/**
- * Event class for managing Simple History events.
- */
+	/**
+	 * Event class for managing Simple History events.
+	 *
+	 * This class provides methods to load, manipulate, and retrieve information
+	 * about Simple History events. It handles both existing events loaded from
+	 * the database and new events that haven't been saved yet.
+	 */
 class Event {
 	/**
 	 * Event ID.
@@ -49,7 +53,7 @@ class Event {
 	/**
 	 * Constructor for existing events.
 	 *
-	 * @param int|null $event_id Event ID.
+	 * @param int|null $event_id Event ID. If null, creates an empty event instance.
 	 */
 	public function __construct( int $event_id = null ) {
 		if ( empty( $event_id ) ) {
@@ -67,8 +71,8 @@ class Event {
 	 * Create a new event instance.
 	 * Untested so far - not used yet.
 	 *
-	 * @param array $event_data Event data for new event.
-	 * @return Event
+	 * @param array $event_data Event data for new event. Should include 'context' key for context data.
+	 * @return Event New event instance.
 	 */
 	public static function create( array $event_data = [] ): Event {
 		$event = new Event();
@@ -81,8 +85,8 @@ class Event {
 	/**
 	 * Load an existing event with null safety.
 	 *
-	 * @param int $event_id Event ID.
-	 * @return Event|null Event instance if exists, null otherwise.
+	 * @param int $event_id Event ID to load.
+	 * @return Event|null Event instance if exists and is valid, null otherwise.
 	 */
 	public static function load( int $event_id ): ?Event {
 		$event = new Event( $event_id );
@@ -92,7 +96,7 @@ class Event {
 	/**
 	 * Get event ID.
 	 *
-	 * @return int|null
+	 * @return int|null Event ID if set, null for new events.
 	 */
 	public function get_id(): ?int {
 		return $this->id;
@@ -101,7 +105,7 @@ class Event {
 	/**
 	 * Check if event exists.
 	 *
-	 * @return bool
+	 * @return bool True if event has a valid ID, false otherwise.
 	 */
 	public function exists(): bool {
 		return $this->id !== null;
@@ -110,7 +114,7 @@ class Event {
 	/**
 	 * Check if this is a new event (not yet saved).
 	 *
-	 * @return bool
+	 * @return bool True if this is a new event, false if loaded from database.
 	 */
 	public function is_new(): bool {
 		return $this->is_new;
@@ -119,7 +123,7 @@ class Event {
 	/**
 	 * Get event data.
 	 *
-	 * @return object|false Event data on success, false on failure.
+	 * @return object|false Event data object on success, false if event doesn't exist or failed to load.
 	 */
 	public function get_data() {
 		return $this->data;
@@ -128,7 +132,7 @@ class Event {
 	/**
 	 * Check if event is sticky.
 	 *
-	 * @return bool
+	 * @return bool True if event has sticky context, false otherwise.
 	 */
 	public function is_sticky(): bool {
 		$context = $this->get_context();
@@ -138,7 +142,7 @@ class Event {
 	/**
 	 * Make event sticky.
 	 *
-	 * @return bool True on success, false on failure.
+	 * @return bool True if sticky context was successfully added, false on database error.
 	 */
 	public function stick(): bool {
 		global $wpdb;
@@ -179,7 +183,7 @@ class Event {
 	/**
 	 * Remove sticky status from event.
 	 *
-	 * @return bool True on success, false on failure.
+	 * @return bool True if sticky context was successfully removed, false on database error.
 	 */
 	public function unstick(): bool {
 		global $wpdb;
@@ -208,7 +212,7 @@ class Event {
 	/**
 	 * Get event message.
 	 *
-	 * @return string
+	 * @return string Plain text message, empty string if event doesn't exist.
 	 */
 	public function get_message(): string {
 		$data = $this->get_data();
@@ -223,7 +227,7 @@ class Event {
 	/**
 	 * Get event message with HTML.
 	 *
-	 * @return string
+	 * @return string HTML formatted message, empty string if event doesn't exist.
 	 */
 	public function get_message_html(): string {
 		$data = $this->get_data();
@@ -236,7 +240,7 @@ class Event {
 	/**
 	 * Get event details as HTML.
 	 *
-	 * @return string
+	 * @return string HTML formatted details, empty string if event doesn't exist.
 	 */
 	public function get_details_html(): string {
 		$data = $this->get_data();
@@ -249,7 +253,7 @@ class Event {
 	/**
 	 * Get event details as JSON.
 	 *
-	 * @return object|false Event details on success, false on failure.
+	 * @return object|false JSON object with event details on success, false if event doesn't exist.
 	 */
 	public function get_details_json() {
 		$data = $this->get_data();
@@ -262,7 +266,7 @@ class Event {
 	/**
 	 * Get event context.
 	 *
-	 * @return array
+	 * @return array Context data as key-value pairs, empty array if no context.
 	 */
 	public function get_context(): array {
 		return $this->context;
@@ -271,7 +275,7 @@ class Event {
 	/**
 	 * Get event logger.
 	 *
-	 * @return string
+	 * @return string Logger name, empty string if event doesn't exist.
 	 */
 	public function get_logger(): string {
 		$data = $this->get_data();
@@ -284,7 +288,7 @@ class Event {
 	/**
 	 * Get event log level.
 	 *
-	 * @return string
+	 * @return string Log level (e.g., 'info', 'warning', 'error'), empty string if event doesn't exist.
 	 */
 	public function get_log_level(): string {
 		$data = $this->get_data();
@@ -297,7 +301,7 @@ class Event {
 	/**
 	 * Get event initiator.
 	 *
-	 * @return string
+	 * @return string Initiator type (e.g., 'wp_user', 'wp_cli', 'other'), empty string if event doesn't exist.
 	 */
 	public function get_initiator(): string {
 		$data = $this->get_data();
@@ -310,7 +314,7 @@ class Event {
 	/**
 	 * Get event date in local timezone.
 	 *
-	 * @return string
+	 * @return string Date in local timezone format, empty string if event doesn't exist.
 	 */
 	public function get_date_local(): string {
 		$data = $this->get_data();
@@ -323,7 +327,7 @@ class Event {
 	/**
 	 * Get event date in GMT.
 	 *
-	 * @return string
+	 * @return string Date in GMT format, empty string if event doesn't exist.
 	 */
 	public function get_date_gmt(): string {
 		$data = $this->get_data();
@@ -336,7 +340,7 @@ class Event {
 	/**
 	 * Get event permalink.
 	 *
-	 * @return string
+	 * @return string URL to the event in admin interface, empty string if event doesn't exist.
 	 */
 	public function get_permalink(): string {
 		if ( ! $this->exists() ) {
@@ -353,6 +357,9 @@ class Event {
 
 	/**
 	 * Load event data from database.
+	 *
+	 * Loads the main event data and associated context from the database.
+	 * Sets $this->data to false if event doesn't exist.
 	 */
 	private function load_data(): void {
 		global $wpdb;
