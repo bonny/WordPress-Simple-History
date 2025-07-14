@@ -73,18 +73,18 @@ class Event {
 	}
 
 	/**
-	 * Load an existing event with null safety.
+	 * Get an existing event with null safety.
 	 *
 	 * Example:
 	 *
 	 * ```php
-	 * $event = Event::load( 123 );
+	 * $event = Event::get( 123 );
 	 * ```
 	 *
-	 * @param int $event_id Event ID to load.
+	 * @param int $event_id Event ID to get.
 	 * @return Event|null Event instance if exists and is valid, null otherwise.
 	 */
-	public static function load( int $event_id ): ?Event {
+	public static function get( int $event_id ): ?Event {
 		$event = new Event( $event_id );
 		return $event->exists() ? $event : null;
 	}
