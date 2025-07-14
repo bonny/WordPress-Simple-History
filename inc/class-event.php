@@ -42,13 +42,6 @@ class Event {
 	private bool $is_new = false;
 
 	/**
-	 * Simple History instance.
-	 *
-	 * @var Simple_History
-	 */
-	private Simple_History $simple_history;
-
-	/**
 	 * Constructor for existing events.
 	 *
 	 * @param int|null $event_id Event ID. If null, creates an empty event instance.
@@ -59,7 +52,6 @@ class Event {
 		}
 
 		$this->id = $event_id;
-		$this->simple_history = Simple_History::get_instance();
 
 		// Load data immediately to validate event exists.
 		$this->load_data();
@@ -82,6 +74,12 @@ class Event {
 
 	/**
 	 * Load an existing event with null safety.
+	 *
+	 * Example:
+	 *
+	 * ```php
+	 * $event = Event::load( 123 );
+	 * ```
 	 *
 	 * @param int $event_id Event ID to load.
 	 * @return Event|null Event instance if exists and is valid, null otherwise.
@@ -145,7 +143,8 @@ class Event {
 	public function stick(): bool {
 		global $wpdb;
 
-		$contexts_table = $this->simple_history->get_contexts_table_name();
+		$simple_history = Simple_History::get_instance();
+		$contexts_table = $simple_history->get_contexts_table_name();
 
 		// First remove any existing sticky context.
 		$wpdb->delete(
@@ -184,7 +183,8 @@ class Event {
 	public function unstick(): bool {
 		global $wpdb;
 
-		$contexts_table = $this->simple_history->get_contexts_table_name();
+		$simple_history = Simple_History::get_instance();
+		$contexts_table = $simple_history->get_contexts_table_name();
 
 		$result = $wpdb->delete(
 			$contexts_table,
@@ -213,7 +213,8 @@ class Event {
 		if ( ! $data ) {
 			return '';
 		}
-		$message = $this->simple_history->get_log_row_plain_text_output( $data );
+		$simple_history = Simple_History::get_instance();
+		$message = $simple_history->get_log_row_plain_text_output( $data );
 		$message = html_entity_decode( $message );
 		return wp_strip_all_tags( $message );
 	}
@@ -228,7 +229,8 @@ class Event {
 		if ( ! $data ) {
 			return '';
 		}
-		return $this->simple_history->get_log_row_html_output( $data, [] );
+		$simple_history = Simple_History::get_instance();
+		return $simple_history->get_log_row_html_output( $data, [] );
 	}
 
 	/**
@@ -241,7 +243,8 @@ class Event {
 		if ( ! $data ) {
 			return '';
 		}
-		return $this->simple_history->get_log_row_details_output( $data )->to_html();
+		$simple_history = Simple_History::get_instance();
+		return $simple_history->get_log_row_details_output( $data )->to_html();
 	}
 
 	/**
@@ -254,7 +257,8 @@ class Event {
 		if ( ! $data ) {
 			return false;
 		}
-		return $this->simple_history->get_log_row_details_output( $data )->to_json();
+		$simple_history = Simple_History::get_instance();
+		return $simple_history->get_log_row_details_output( $data )->to_json();
 	}
 
 	/**
@@ -347,8 +351,6 @@ class Event {
 		);
 	}
 
-
-
 	/**
 	 * Clear cached data and context.
 	 */
@@ -393,8 +395,9 @@ class Event {
 		}
 
 		// No cached data, so load from database.
-		$table_name = $this->simple_history->get_table_name();
-		$contexts_table = $this->simple_history->get_contexts_table_name();
+		$simple_history = Simple_History::get_instance();
+		$table_name = $simple_history->get_events_table_name();
+		$contexts_table = $simple_history->get_contexts_table_name();
 
 		// Get main event data.
 		$event_data = $wpdb->get_row(
