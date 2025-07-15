@@ -122,6 +122,84 @@ class Event {
 	}
 
 	/**
+	 * Get multiple existing events efficiently using a single query.
+	 *
+	 * Example:
+	 *
+	 * ```php
+	 * $events = Event::get_many( [123, 456, 789] );
+	 * ```
+	 *
+	 * @param array $event_ids Array of event IDs to get.
+	 * @return array Array of Event objects, indexed by event ID. Missing events are not included.
+	 */
+	public static function get_many( array $event_ids ): array {
+		// Convert to ints, remove duplicates, remove empty values, then check if empty.
+		$event_ids = array_map( 'intval', $event_ids );
+		$event_ids = array_unique( $event_ids );
+		$event_ids = array_filter( $event_ids );
+
+		if ( empty( $event_ids ) ) {
+			return [];
+		}
+
+		// Create cache key based on event IDs.
+		$cache_key = md5( __METHOD__ . serialize( [ 'event_ids' => $event_ids ] ) );
+		$cache_group = Helpers::get_cache_group();
+
+		// Try to get cached data first.
+		$cached_data = wp_cache_get( $cache_key, $cache_group );
+
+		// Use cached data if it exists.
+		if ( false !== $cached_data ) {
+			$events = [];
+			foreach ( $cached_data as $event_id => $event_data ) {
+				$events[ $event_id ] = self::from_array( $event_id, $event_data );
+			}
+			return $events;
+		}
+
+		// No cached data, so load from database using the shared query method.
+		$events_data = self::query_db_for_events( $event_ids );
+
+		if ( empty( $events_data ) ) {
+			// Cache empty result to avoid repeated DB queries.
+			wp_cache_set( $cache_key, [], $cache_group );
+			return [];
+		}
+
+		// Create Event objects using from_array().
+		$events = [];
+		foreach ( $events_data as $event_id => $event_data ) {
+			$events[ $event_id ] = self::from_array( $event_id, $event_data, 'LOADED_FROM_DB' );
+		}
+
+		// Cache the results.
+		wp_cache_set( $cache_key, $events_data, $cache_group );
+
+		return $events;
+	}
+
+	/**
+	 * Create an Event object from array data.
+	 *
+	 * Useful for creating Event objects from cached data or other sources.
+	 *
+	 * @param int    $event_id Event ID.
+	 * @param array  $event_data Event data array with 'data' and 'context' keys.
+	 * @param string $load_status Optional load status. Defaults to 'LOADED_FROM_CACHE'.
+	 * @return Event Event instance.
+	 */
+	public static function from_array( int $event_id, array $event_data, string $load_status = 'LOADED_FROM_CACHE' ): Event {
+		$event = new Event();
+		$event->id = $event_id;
+		$event->data = $event_data['data'] ?? null;
+		$event->context = $event_data['context'] ?? [];
+		$event->load_status = $load_status;
+		return $event;
+	}
+
+	/**
 	 * Get event ID.
 	 *
 	 * @return int|null Event ID if set, null for new events.
@@ -345,7 +423,7 @@ class Event {
 	/**
 	 * Load event data from database.
 	 *
-	 * Loads the main event data and associated context from the database.
+	 * Loads the main event data and associated context from the database using a single JOIN query.
 	 * Sets $this->data to false if event doesn't exist.
 	 *
 	 * Uses WordPress object cache to avoid repeated database queries for the same event.
@@ -353,8 +431,6 @@ class Event {
 	 * @return bool True if event exists and data was loaded, false if event does not exist.
 	 */
 	private function load_data(): bool {
-		global $wpdb;
-
 		// Create cache key based on event ID.
 		$cache_key = md5( __METHOD__ . serialize( [ 'event_id' => $this->id ] ) );
 		$cache_group = Helpers::get_cache_group();
@@ -371,22 +447,11 @@ class Event {
 			return ( $this->data !== null );
 		}
 
-		// No cached data, so load from database.
-		$simple_history = Simple_History::get_instance();
-		$table_name = $simple_history->get_events_table_name();
-		$contexts_table = $simple_history->get_contexts_table_name();
-
-		// Get main event data.
-		$event_data = $wpdb->get_row(
-			$wpdb->prepare(
-				'SELECT * FROM %i WHERE id = %d',
-				$table_name,
-				$this->id
-			)
-		);
+		// No cached data, so load from database using the shared query method.
+		$events_data = self::query_db_for_events( $this->id );
 
 		// No event found.
-		if ( ! $event_data ) {
+		if ( empty( $events_data ) ) {
 			$this->clear_data();
 			$this->load_status = 'NOT_FOUND';
 
@@ -404,43 +469,14 @@ class Event {
 			return false;
 		}
 
-		// Get context data.
-		$context_data = $wpdb->get_results(
-			$wpdb->prepare(
-				'SELECT `key`, value FROM %i WHERE history_id = %d',
-				$contexts_table,
-				$this->id
-			)
-		);
-
-		// Build context array.
-		$this->context = [];
-		foreach ( $context_data as $context_row ) {
-			$this->context[ $context_row->key ] = $context_row->value;
-		}
+		// Get the event data (should only be one since we queried for a single ID).
+		$event_data = reset( $events_data );
+		$this->data = $event_data['data'];
+		$this->context = $event_data['context'];
 
 		// Add context to event data.
-		$event_data->context = $this->context;
+		$this->data->context = $this->context;
 
-		// Add repeatCount, subsequentOccasions, maxId, minId manually.
-        // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$event_data->repeatCount = 1;
-        // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$event_data->subsequentOccasions = 1;
-        // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$event_data->maxId = $this->id;
-        // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$event_data->minId = $this->id;
-
-		// Move up _message_key from context row to main row as context_message_key.
-		// This is because that's the way it was before SQL was rewritten
-		// to support FULL_GROUP_BY in December 2023.
-		$event_data->context_message_key = null;
-		if ( isset( $this->context['_message_key'] ) ) {
-			$event_data->context_message_key = $this->context['_message_key'];
-		}
-
-		$this->data = $event_data;
 		$this->load_status = 'LOADED_FROM_DB';
 
 		// Cache the result.
@@ -454,6 +490,110 @@ class Event {
 		);
 
 		return true;
+	}
+
+	/**
+	 * Query database for events and their contexts.
+	 *
+	 * @param int|array $event_ids Single event ID or array of event IDs.
+	 * @return array Array of event data grouped by event ID, or empty array if no events found.
+	 */
+	private static function query_db_for_events( $event_ids ): array {
+		global $wpdb;
+		$simple_history = Simple_History::get_instance();
+		$table_name = $simple_history->get_events_table_name();
+		$contexts_table = $simple_history->get_contexts_table_name();
+
+		// Normalize to array and ensure all are integers.
+		$ids = is_array( $event_ids ) ? $event_ids : [ $event_ids ];
+		$ids = array_map( 'intval', $ids );
+
+		if ( empty( $ids ) ) {
+			return [];
+		}
+
+		// Build the query based on number of IDs.
+		if ( count( $ids ) === 1 ) {
+			// Single ID query.
+			$results = $wpdb->get_results(
+				$wpdb->prepare(
+					'SELECT 
+						e.*,
+						c.key,
+						c.value
+					FROM %i e
+					LEFT JOIN %i c ON e.id = c.history_id
+					WHERE e.id = %d
+					ORDER BY c.context_id',
+					$table_name,
+					$contexts_table,
+					$ids[0]
+				)
+			);
+		} else {
+			// Multiple IDs query.
+			$results = $wpdb->get_results(
+				$wpdb->prepare(
+					'SELECT 
+						e.*,
+						c.key,
+						c.value
+					FROM %i e
+					LEFT JOIN %i c ON e.id = c.history_id
+					WHERE e.id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')
+					ORDER BY e.id, c.context_id',
+					array_merge( [ $table_name, $contexts_table ], $ids )
+				)
+			);
+		}
+
+		if ( empty( $results ) ) {
+			return [];
+		}
+
+		// Group results by event ID.
+		$events_data = [];
+		foreach ( $results as $row ) {
+			$event_id = $row->id;
+
+			// Initialize event data if not exists.
+			if ( ! isset( $events_data[ $event_id ] ) ) {
+				$events_data[ $event_id ] = [
+					'data' => (object) [
+						'id' => $row->id,
+						'date' => $row->date,
+						'logger' => $row->logger,
+						'level' => $row->level,
+						'message' => $row->message,
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						'occasionsID' => $row->occasionsID,
+						'initiator' => $row->initiator,
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						'repeatCount' => '1',
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						'subsequentOccasions' => '1',
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						'maxId' => $row->id,
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						'minId' => $row->id,
+						'context_message_key' => null,
+					],
+					'context' => [],
+				];
+			}
+
+			// Add context data if exists.
+			if ( $row->key !== null ) {
+				$events_data[ $event_id ]['context'][ $row->key ] = $row->value;
+
+				// Move up _message_key from context to main data.
+				if ( $row->key === '_message_key' ) {
+					$events_data[ $event_id ]['data']->context_message_key = $row->value;
+				}
+			}
+		}
+
+		return $events_data;
 	}
 
 	/**
