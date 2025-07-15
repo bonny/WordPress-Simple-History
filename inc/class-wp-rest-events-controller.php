@@ -7,6 +7,7 @@ use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
 use Simple_History\Compat;
+use Simple_History\Event;
 use Simple_History\Helpers;
 
 /**
@@ -1002,36 +1003,25 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function stick_event( $request ) {
-		$event_id = $request['id'];
+		$event = new Event( $request['id'] );
 
-		global $wpdb;
-		$table_name = $this->simple_history->get_contexts_table_name();
+		if ( ! $event->exists() ) {
+			return new WP_Error(
+				'rest_event_not_found',
+				__( 'Event not found.', 'simple-history' ),
+				array( 'status' => 404 )
+			);
+		}
 
-		// First remove any existing sticky context.
-		$wpdb->delete(
-			$table_name,
-			array(
-				'history_id' => $event_id,
-				'key' => '_sticky',
-			),
-			array( '%d', '%s' )
-		);
+		if ( ! $event->stick() ) {
+			return new WP_Error(
+				'rest_stick_event_failed',
+				__( 'Failed to stick event.', 'simple-history' ),
+				array( 'status' => 500 )
+			);
+		}
 
-		// Add the sticky context.
-		$wpdb->insert(
-			$table_name,
-			array(
-				'history_id' => $event_id,
-				'key' => '_sticky',
-				'value' => '{}',
-			),
-			array( '%d', '%s', '%s' )
-		);
-
-		// Get the updated event.
-		$event = $this->get_single_event( $event_id );
-		$data = $this->prepare_item_for_response( $event, $request );
-
+		$data = $this->prepare_item_for_response( $event->get_data(), $request );
 		return rest_ensure_response( $data );
 	}
 
@@ -1042,25 +1032,25 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function unstick_event( $request ) {
-		$event_id = $request['id'];
+		$event = new Event( $request['id'] );
 
-		global $wpdb;
-		$table_name = $this->simple_history->get_contexts_table_name();
+		if ( ! $event->exists() ) {
+			return new WP_Error(
+				'rest_event_not_found',
+				__( 'Event not found.', 'simple-history' ),
+				array( 'status' => 404 )
+			);
+		}
 
-		// Delete the sticky context entry for this event.
-		$wpdb->delete(
-			$table_name,
-			array(
-				'history_id' => $event_id,
-				'key' => '_sticky',
-			),
-			array( '%d', '%s' )
-		);
+		if ( ! $event->unstick() ) {
+			return new WP_Error(
+				'rest_unstick_event_failed',
+				__( 'Failed to unstick event.', 'simple-history' ),
+				array( 'status' => 500 )
+			);
+		}
 
-		// Get the updated event.
-		$event = $this->get_single_event( $event_id );
-		$data = $this->prepare_item_for_response( $event, $request );
-
+		$data = $this->prepare_item_for_response( $event->get_data(), $request );
 		return rest_ensure_response( $data );
 	}
 }
