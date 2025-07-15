@@ -1,0 +1,115 @@
+<?php
+
+use Simple_History\Event;
+use Simple_History\Log_Query;
+
+class EventTest extends \Codeception\TestCase\WPTestCase {
+
+	/** @var int The ID of the last inserted event, i.e. the event we will use to test loading. */
+	private $event_id;
+	
+	public function setUp(): void {
+		parent::setUp();
+
+		// Set current user to administrator so we can get the events.
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		// Log something to the database, so we
+		// have something to test.
+		$logger = SimpleLogger()->info( 
+			'Test event from user with id {test_user_id}', 
+			[ 
+				'test_user_id' => $user_id,
+				'some_other_data_key' => 'some other data value',
+			] 
+		);
+		$this->event_id = $logger->last_insert_id;
+	}
+
+	public function test_event_class() {
+		$event = new Event();
+		$this->assertInstanceOf(Event::class, $event);
+	}
+
+	public function test_event_class_basics() {
+		$event = Event::get( $this->event_id );
+		
+		$this->assertInstanceOf(Event::class, $event, 'Event should be an instance of Event class.' );
+		$this->assertEquals( $this->event_id, $event->get_id(), 'Event ID should match the inserted event ID.' );
+		$this->assertTrue( $event->exists(), 'Event should exist.' );
+		
+		$this->assertIsObject( $event->get_data(), 'Event data should be an object.' );
+		$this->assertIsArray( $event->get_context(), 'Event data should be an object.' );
+	}
+
+	public function test_event_class_vs_log_query_result() {
+		$event = Event::get( $this->event_id );
+		sh_d( '$event', $event );
+		
+		$log_query = new Log_Query();
+		$query_results = $log_query->query( [ 
+				'post__in' => [ $this->event_id ]
+			] 
+		);
+		$first_log_row = $query_results['log_rows'][0];
+		
+		sh_d( '$first_log_row', $first_log_row );
+
+		// Ensure that the event data matches the log query result,
+		// so that we can use the event class to get the data just like we use the
+		// log query result.
+		$this->assertEquals( $first_log_row, $event->get_data(), 'Event data should match the log query result.' );
+		$this->assertEquals( $first_log_row->context, $event->get_context(), 'Event context should match the log query result.' );
+
+		// Ensure that the event message matches the log query result.
+		//$this->assertEquals( $event->get_message(), $first_log_row->message, 'Event message should match the log query result.' );
+
+		#exit;
+
+	}
+
+	public function test_event_class_load_status() {
+		$event = Event::get( $this->event_id );
+		$this->assertEquals( 'LOADED_FROM_DB', $event->get_load_status(), 'Event load status should be LOADED_FROM_DB.' );
+	}
+
+	public function test_event_class_load_status_cache() {
+		$event = Event::get( $this->event_id );
+		$this->assertEquals( 'LOADED_FROM_DB', $event->get_load_status(), 'Event load status should be LOADED_FROM_DB.' );
+
+		// Get the event again, this time it should be loaded from cache.
+		$event = Event::get( $this->event_id );
+		$this->assertEquals( 'LOADED_FROM_CACHE', $event->get_load_status(), 'Event load status should be LOADED_FROM_CACHE.' );
+
+		// Get another event, this time it should be loaded from the database.
+		// Log something new to the database.
+		$logger = SimpleLogger()->info( 
+			'Another test event', 
+			[ 
+				'test_abc' => 'Testing xyz.',
+			] 
+		);
+		$new_event_id = $logger->last_insert_id;
+
+		$event = Event::get( $new_event_id );
+		$this->assertEquals( 'LOADED_FROM_DB', $event->get_load_status(), 'Event load status should be LOADED_FROM_DB.' );
+	}
+
+	// Test event that does not exist.
+	public function test_event_class_load_status_not_found() {
+		$event = Event::get( PHP_INT_MAX );
+		
+		// Event should be null when event does not exist.
+		$this->assertNull( $event, 'Event should be null when event does not exist.' );
+
+		// Reload same again to make sure cache does not mess things up.
+		$event = Event::get( PHP_INT_MAX );
+		$this->assertNull( $event, 'Event should still be null when event does not exist.' );
+	}
+
+	public function test_event_class_access_data() {
+		$event = Event::get( $this->event_id );
+		#sh_dd('event', $event);
+	}
+}
