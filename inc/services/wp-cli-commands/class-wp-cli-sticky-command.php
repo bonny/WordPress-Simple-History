@@ -144,33 +144,8 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 				continue;
 			}
 
-			// $data = [];
-			// foreach ( $fields as $field ) {
-			// switch ( $field ) {
-			// case 'event_id':
-			// $data['event_id'] = $event_id;
-			// break;
-			// case 'date':
-			// $data['date'] = $event->get_date_local();
-			// break;
-			// case 'logger':
-			// $data['logger'] = $event->get_logger();
-			// break;
-			// case 'level':
-			// $data['level'] = $event->get_log_level();
-			// break;
-			// case 'message':
-			// $data['message'] = $event->get_message();
-			// break;
-			// case 'initiator':
-			// $data['initiator'] = $event->get_initiator();
-			// break;
-			// }
-			// }
 			$output[] = $event;
 		}
-
-		#sh_d( (array) $output[0] );
 
 		if ( empty( $output ) ) {
 			// Return empty output - this is the WP-CLI way.
