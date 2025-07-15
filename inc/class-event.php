@@ -23,16 +23,16 @@ class Event {
 	/**
 	 * Event data.
 	 *
-	 * @var object|false|null
+	 * @var object|null Objet with event data. Null if event does not loaded or found.
 	 */
-	private $data = null;
+	private ?object $data = null;
 
 	/**
 	 * Event context.
 	 *
-	 * @var array
+	 * @var array|null Array of context data. Null if event does not loaded or found.
 	 */
-	private array $context = [];
+	private ?array $context = null;
 
 	/**
 	 * Whether this is a new event (not yet saved).
@@ -40,6 +40,13 @@ class Event {
 	 * @var bool
 	 */
 	private bool $is_new = false;
+
+	/**
+	 * Load status.
+	 *
+	 * @var string 'NOT_LOADED', 'LOADED_FROM_CACHE', 'LOADED_FROM_DB', 'NOT_FOUND'
+	 */
+	private string $load_status = 'NOT_LOADED';
 
 	/**
 	 * Constructor for existing events.
@@ -85,8 +92,15 @@ class Event {
 	 * @return Event|null Event instance if exists and is valid, null otherwise.
 	 */
 	public static function get( int $event_id ): ?Event {
-		$event = new Event( $event_id );
-		return $event->exists() ? $event : null;
+		$event = new Event();
+		$event->id = $event_id;
+		$event_exists = $event->load_data();
+
+		if ( ! $event_exists ) {
+			return null;
+		}
+
+		return $event;
 	}
 
 	/**
@@ -114,6 +128,15 @@ class Event {
 	 */
 	public function is_new(): bool {
 		return $this->is_new;
+	}
+
+	/**
+	 * Get the current load status of the event.
+	 *
+	 * @return string Current load status: 'NOT_LOADED', 'LOADED_FROM_CACHE', 'LOADED_FROM_DB', 'NOT_FOUND'
+	 */
+	public function get_load_status(): string {
+		return $this->load_status;
 	}
 
 	/**
@@ -356,7 +379,8 @@ class Event {
 	 */
 	private function clear_data(): void {
 		$this->data = null;
-		$this->context = [];
+		$this->context = null;
+		$this->load_status = 'NOT_LOADED';
 	}
 
 	/**
@@ -376,8 +400,10 @@ class Event {
 	 * Sets $this->data to false if event doesn't exist.
 	 *
 	 * Uses WordPress object cache to avoid repeated database queries for the same event.
+	 *
+	 * @return bool True if event exists and data was loaded, false if event does not exist.
 	 */
-	private function load_data(): void {
+	private function load_data(): bool {
 		global $wpdb;
 
 		// Create cache key based on event ID.
@@ -391,7 +417,9 @@ class Event {
 		if ( false !== $cached_data ) {
 			$this->data = $cached_data['data'];
 			$this->context = $cached_data['context'];
-			return;
+			$this->load_status = 'LOADED_FROM_CACHE';
+
+			return ( $this->data !== null );
 		}
 
 		// No cached data, so load from database.
@@ -410,19 +438,21 @@ class Event {
 
 		// No event found.
 		if ( ! $event_data ) {
-			$this->data = false;
-			$this->context = [];
+			$this->clear_data();
+			$this->load_status = 'NOT_FOUND';
 
 			// Cache the result even if event doesn't exist to avoid repeated DB queries.
 			wp_cache_set(
 				$cache_key,
 				[
-					'data' => false,
+					'data' => null,
 					'context' => [],
 				],
 				$cache_group
 			);
-			return;
+
+			// Return false to indicate that event does not exist.
+			return false;
 		}
 
 		// Get context data.
@@ -443,6 +473,16 @@ class Event {
 		// Add context to event data.
 		$event_data->context = $this->context;
 
+		// Add repeatCount, subsequentOccasions, maxId, minId manually.
+        // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$event_data->repeatCount = 1;
+        // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$event_data->subsequentOccasions = 1;
+        // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$event_data->maxId = $this->id;
+        // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$event_data->minId = $this->id;
+
 		// Move up _message_key from context row to main row as context_message_key.
 		// This is because that's the way it was before SQL was rewritten
 		// to support FULL_GROUP_BY in December 2023.
@@ -452,6 +492,7 @@ class Event {
 		}
 
 		$this->data = $event_data;
+		$this->load_status = 'LOADED_FROM_DB';
 
 		// Cache the result.
 		wp_cache_set(
@@ -462,5 +503,7 @@ class Event {
 			],
 			$cache_group
 		);
+
+		return true;
 	}
 }
