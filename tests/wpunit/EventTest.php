@@ -21,6 +21,7 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 			'Test event from user with id {test_user_id}', 
 			[ 
 				'test_user_id' => $user_id,
+				'test_key' => 'test value',
 				'some_other_data_key' => 'some other data value',
 			] 
 		);
@@ -135,5 +136,23 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $event->get_data()->minId, $event->minId, 'minId should be accessable on event object.' );
 		// Test that context_message_key can be accessable on event object.
 		$this->assertEquals( $event->get_data()->context_message_key, $event->context_message_key, 'context_message_key should be accessable on event object.' );
+	}
+
+	public function test_event_class_access_context() {
+		$event = Event::get( $this->event_id );
+
+		// Context should be accessible via get_context()
+		$this->assertIsArray( $event->get_context(), 'Context should be an array.' );
+		$this->assertIsArray( $event->context, 'Context should exist as a property on event object.' );
+
+		// Check that a known context key exists and has the expected value
+		$this->assertArrayHasKey( 'test_key', $event->get_context(), 'Context should contain test_key key.' );
+		$this->assertEquals(
+			'test value',
+			$event->get_data()->context['test_key'],
+			'Context value for test_abc should match expected.'
+		);
+
+		$this->assertEquals('test value', $event->context['test_key']);
 	}
 }
