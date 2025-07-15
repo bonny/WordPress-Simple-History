@@ -466,6 +466,15 @@ class Event {
 		return $this->data->$name ?? null;
 	}
 
+	/**
+	 * Magic method to check if a property exists in the event data object.
+	 *
+	 * @param string $name Property name.
+	 * @return bool True if property exists, false otherwise.
+	 */
+	public function __isset( string $name ): bool {
+		return isset( $this->data->$name );
+	}
 
 	/**
 	 * Make event sticky.
