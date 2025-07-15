@@ -110,6 +110,30 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 
 	public function test_event_class_access_data() {
 		$event = Event::get( $this->event_id );
-		#sh_dd('event', $event);
+		
+		// Test that id, data can be accessable on event object.
+		$this->assertEquals( $event->get_data()->id, $event->id, 'ID should be accessable on event object.' );
+		// Test that message can be accessable on event object.
+		$this->assertEquals( $event->get_data()->message, $event->message, 'Message should be accessable on event object.' );
+		// Test that date can be accessable on event object.
+		$this->assertEquals( $event->get_data()->date, $event->date, 'Date should be accessable on event object.' );
+		// Test that logger can be accessable on event object.
+		$this->assertEquals( $event->get_data()->logger, $event->logger, 'Logger should be accessable on event object.' );
+		// Test that level can be accessable on event object.
+		$this->assertEquals( $event->get_data()->level, $event->level, 'Level should be accessable on event object.' );
+		// Test that occasionsID can be accessable on event object.
+		$this->assertEquals( $event->get_data()->occasionsID, $event->occasionsID, 'occasionsID should be accessable on event object.' );
+		// Test that initiator can be accessable on event object.
+		$this->assertEquals( $event->get_data()->initiator, $event->initiator, 'Initiator should be accessable on event object.' );
+		// Test that repeatCount can be accessable on event object.
+		$this->assertEquals( $event->get_data()->repeatCount, $event->repeatCount, 'repeatCount should be accessable on event object.' );
+		// Test that subsequentOccasions can be accessable on event object.
+		$this->assertEquals( $event->get_data()->subsequentOccasions, $event->subsequentOccasions, 'subsequentOccasions should be accessable on event object.' );
+		// Test that maxId can be accessable on event object.
+		$this->assertEquals( $event->get_data()->maxId, $event->maxId, 'maxId should be accessable on event object.' );
+		// Test that minId can be accessable on event object.
+		$this->assertEquals( $event->get_data()->minId, $event->minId, 'minId should be accessable on event object.' );
+		// Test that context_message_key can be accessable on event object.
+		$this->assertEquals( $event->get_data()->context_message_key, $event->context_message_key, 'context_message_key should be accessable on event object.' );
 	}
 }
