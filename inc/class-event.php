@@ -21,16 +21,34 @@ class Event {
 	private ?int $id = null;
 
 	/**
-	 * Event data.
+	 * Event data object.
 	 *
-	 * @var object|null Objet with event data. Null if event does not loaded or found.
+	 * Object containing event data loaded from the database, or null if not loaded or not found.
+	 *
+	 * @var object{
+	 *     id: int,
+	 *     date: string,
+	 *     logger: string,
+	 *     level: string,
+	 *     message: string,
+	 *     occasionsID: string,
+	 *     initiator: string,
+	 *     repeatCount: int,
+	 *     subsequentOccasions: int,
+	 *     maxId: int,
+	 *     minId: int,
+	 *     context_message_key: mixed
+	 * }|null
 	 */
-	private ?object $data = null;
+	private $data = null;
 
 	/**
 	 * Event context.
 	 *
-	 * @var array|null Array of context data. Null if event does not loaded or found.
+	 * Array of context data, where each key is a string and each value can be of any type (mixed).
+	 * Null if event is not loaded or not found.
+	 *
+	 * @var array{string: mixed}|null
 	 */
 	private ?array $context = null;
 
@@ -154,76 +172,7 @@ class Event {
 	 * @return bool True if event has sticky context, false otherwise.
 	 */
 	public function is_sticky(): bool {
-		$context = $this->get_context();
-		return isset( $context['_sticky'] );
-	}
-
-	/**
-	 * Make event sticky.
-	 *
-	 * @return bool True if sticky context was successfully added, false on database error.
-	 */
-	public function stick(): bool {
-		global $wpdb;
-
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
-
-		// First remove any existing sticky context.
-		$wpdb->delete(
-			$contexts_table,
-			[
-				'history_id' => $this->id,
-				'key'        => '_sticky',
-			],
-			[ '%d', '%s' ]
-		);
-
-		// Add the sticky context.
-		$result = $wpdb->insert(
-			$contexts_table,
-			[
-				'history_id' => $this->id,
-				'key'        => '_sticky',
-				'value'      => '{}',
-			],
-			[ '%d', '%s', '%s' ]
-		);
-
-		if ( $result ) {
-			// Reload data to reflect changes.
-			$this->reload_data();
-		}
-
-		return (bool) $result;
-	}
-
-	/**
-	 * Remove sticky status from event.
-	 *
-	 * @return bool True if sticky context was successfully removed, false on database error.
-	 */
-	public function unstick(): bool {
-		global $wpdb;
-
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
-
-		$result = $wpdb->delete(
-			$contexts_table,
-			[
-				'history_id' => $this->id,
-				'key'        => '_sticky',
-			],
-			[ '%d', '%s' ]
-		);
-
-		if ( $result ) {
-			// Reload data to reflect changes.
-			$this->reload_data();
-		}
-
-		return (bool) $result;
+		return isset( $this->context['_sticky'] );
 	}
 
 	/**
@@ -505,5 +454,90 @@ class Event {
 		);
 
 		return true;
+	}
+
+	/**
+	 * Magic method to get properties of the event data object.
+	 *
+	 * @param string $name Property name.
+	 * @return mixed Property value, null if property does not exist.
+	 */
+	public function __get( string $name ) {
+		return $this->data->$name ?? null;
+	}
+
+
+	/**
+	 * Make event sticky.
+	 *
+	 * @return bool True if sticky context was successfully added, false on database error.
+	 */
+	public function stick(): bool {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+		$contexts_table = $simple_history->get_contexts_table_name();
+
+		// First remove any existing sticky context.
+		$wpdb->delete(
+			$contexts_table,
+			[
+				'history_id' => $this->id,
+				'key'        => '_sticky',
+			],
+			[ '%d', '%s' ]
+		);
+
+		// Add the sticky context.
+		$result = $wpdb->insert(
+			$contexts_table,
+			[
+				'history_id' => $this->id,
+				'key'        => '_sticky',
+				'value'      => '{}',
+			],
+			[ '%d', '%s', '%s' ]
+		);
+
+		if ( $result ) {
+			// Clear cache to ensure all related data is fresh.
+			Helpers::clear_cache();
+
+			// Reload data to reflect changes.
+			$this->reload_data();
+		}
+
+		return (bool) $result;
+	}
+
+	/**
+	 * Remove sticky status from event.
+	 *
+	 * @return bool True if sticky context was successfully removed, false on database error.
+	 */
+	public function unstick(): bool {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+		$contexts_table = $simple_history->get_contexts_table_name();
+
+		$result = $wpdb->delete(
+			$contexts_table,
+			[
+				'history_id' => $this->id,
+				'key'        => '_sticky',
+			],
+			[ '%d', '%s' ]
+		);
+
+		if ( $result ) {
+			// Clear cache to ensure all related data is fresh.
+			Helpers::clear_cache();
+
+			// Reload data to reflect changes.
+			$this->reload_data();
+		}
+
+		return (bool) $result;
 	}
 }
