@@ -1786,4 +1786,26 @@ class Helpers {
 		<?php
 		return trim( ob_get_clean() );
 	}
+
+	/**
+	 * Get all sticky event IDs.
+	 *
+	 * @return array<int> Array of sticky event IDs.
+	 */
+	public static function get_sticky_event_ids() {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+		$contexts_table = $simple_history->get_contexts_table_name();
+
+		$results = $wpdb->get_col(
+			$wpdb->prepare(
+				'SELECT history_id FROM %i WHERE `key` = %s',
+				$contexts_table,
+				'_sticky'
+			)
+		);
+
+		return array_map( 'intval', $results );
+	}
 }
