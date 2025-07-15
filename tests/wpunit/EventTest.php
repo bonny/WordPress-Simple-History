@@ -136,6 +136,14 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( $event->get_data()->minId, $event->minId, 'minId should be accessable on event object.' );
 		// Test that context_message_key can be accessable on event object.
 		$this->assertEquals( $event->get_data()->context_message_key, $event->context_message_key, 'context_message_key should be accessable on event object.' );
+
+		// Test that isset() works on event object.
+		$this->assertTrue( isset( $event->id ), 'id should be accessable on event object.' );
+		$this->assertTrue( isset( $event->message ), 'message should be accessable on event object.' );
+		$this->assertTrue( isset( $event->date ), 'date should be accessable on event object.' );
+		$this->assertTrue( isset( $event->logger ), 'logger should be accessable on event object.' );
+		$this->assertTrue( isset( $event->level ), 'level should be accessable on event object.' );
+		$this->assertTrue( isset( $event->occasionsID ), 'occasionsID should be accessable on event object.' );
 	}
 
 	public function test_event_class_access_context() {
