@@ -155,4 +155,13 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals('test value', $event->context['test_key']);
 	}
+
+	public function test_event_class_stick_unstick() {
+		$event = Event::get( $this->event_id );
+		$this->assertFalse( $event->is_sticky(), 'Event should not be sticky.' );
+
+		$event->stick();
+
+		$this->assertTrue( $event->is_sticky(), 'Event should be sticky.' );		
+	}
 }
