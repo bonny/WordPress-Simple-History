@@ -154,7 +154,7 @@ class Event {
 		if ( false !== $cached_data ) {
 			$events = [];
 			foreach ( $cached_data as $event_id => $event_data ) {
-				$events[ $event_id ] = self::from_array( $event_id, $event_data );
+				$events[ $event_id ] = self::from_object( $event_data );
 			}
 			return $events;
 		}
@@ -168,10 +168,10 @@ class Event {
 			return [];
 		}
 
-		// Create Event objects using from_array().
+		// Create Event objects using from_object().
 		$events = [];
 		foreach ( $events_data as $event_id => $event_data ) {
-			$events[ $event_id ] = self::from_array( $event_id, $event_data, 'LOADED_FROM_DB' );
+			$events[ $event_id ] = self::from_object( $event_data, 'LOADED_FROM_DB' );
 		}
 
 		// Cache the results.
@@ -181,20 +181,19 @@ class Event {
 	}
 
 	/**
-	 * Create an Event object from array data.
+	 * Create an Event object from Log_Query result object.
 	 *
-	 * Useful for creating Event objects from cached data or other sources.
+	 * Useful for creating Event objects from Log_Query results.
 	 *
-	 * @param int    $event_id Event ID.
-	 * @param array  $event_data Event data array with 'data' and 'context' keys.
+	 * @param object $event_data Log_Query result object with context as a property.
 	 * @param string $load_status Optional load status. Defaults to 'LOADED_FROM_CACHE'.
 	 * @return Event Event instance.
 	 */
-	public static function from_array( int $event_id, array $event_data, string $load_status = 'LOADED_FROM_CACHE' ): Event {
+	public static function from_object( object $event_data, string $load_status = 'LOADED_FROM_CACHE' ): Event {
 		$event = new Event();
-		$event->id = $event_id;
-		$event->data = $event_data['data'] ?? null;
-		$event->context = $event_data['context'] ?? [];
+		$event->id = $event_data->id ?? null;
+		$event->data = $event_data;
+		$event->context = $event_data->context ?? [];
 		$event->load_status = $load_status;
 		return $event;
 	}
@@ -460,7 +459,7 @@ class Event {
 				$cache_key,
 				[
 					'data' => null,
-					'context' => [],
+					'context' => null,
 				],
 				$cache_group
 			);
@@ -471,8 +470,8 @@ class Event {
 
 		// Get the event data (should only be one since we queried for a single ID).
 		$event_data = reset( $events_data );
-		$this->data = $event_data['data'];
-		$this->context = $event_data['context'];
+		$this->data = $event_data;
+		$this->context = $event_data->context;
 
 		// Add context to event data.
 		$this->data->context = $this->context;
@@ -512,40 +511,20 @@ class Event {
 			return [];
 		}
 
-		// Build the query based on number of IDs.
-		if ( count( $ids ) === 1 ) {
-			// Single ID query.
-			$results = $wpdb->get_results(
-				$wpdb->prepare(
-					'SELECT 
-						e.*,
-						c.key,
-						c.value
-					FROM %i e
-					LEFT JOIN %i c ON e.id = c.history_id
-					WHERE e.id = %d
-					ORDER BY c.context_id',
-					$table_name,
-					$contexts_table,
-					$ids[0]
-				)
-			);
-		} else {
-			// Multiple IDs query.
-			$results = $wpdb->get_results(
-				$wpdb->prepare(
-					'SELECT 
-						e.*,
-						c.key,
-						c.value
-					FROM %i e
-					LEFT JOIN %i c ON e.id = c.history_id
-					WHERE e.id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')
-					ORDER BY e.id, c.context_id',
-					array_merge( [ $table_name, $contexts_table ], $ids )
-				)
-			);
-		}
+		// Query for events using IN clause (works for both single and multiple IDs).
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT 
+					e.*,
+					c.key,
+					c.value
+				FROM %i e
+				LEFT JOIN %i c ON e.id = c.history_id
+				WHERE e.id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')
+				ORDER BY e.id, c.context_id',
+				array_merge( [ $table_name, $contexts_table ], $ids )
+			)
+		);
 
 		if ( empty( $results ) ) {
 			return [];
@@ -559,25 +538,23 @@ class Event {
 			// Initialize event data if not exists.
 			if ( ! isset( $events_data[ $event_id ] ) ) {
 				$events_data[ $event_id ] = [
-					'data' => (object) [
-						'id' => $row->id,
-						'date' => $row->date,
-						'logger' => $row->logger,
-						'level' => $row->level,
-						'message' => $row->message,
-						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						'occasionsID' => $row->occasionsID,
-						'initiator' => $row->initiator,
-						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						'repeatCount' => '1',
-						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						'subsequentOccasions' => '1',
-						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						'maxId' => $row->id,
-						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						'minId' => $row->id,
-						'context_message_key' => null,
-					],
+					'id' => $row->id,
+					'date' => $row->date,
+					'logger' => $row->logger,
+					'level' => $row->level,
+					'message' => $row->message,
+                    // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					'occasionsID' => $row->occasionsID,
+					'initiator' => $row->initiator,
+                    // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					'repeatCount' => '1',
+                    // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					'subsequentOccasions' => '1',
+                    // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					'maxId' => $row->id,
+                    // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					'minId' => $row->id,
+					'context_message_key' => null,
 					'context' => [],
 				];
 			}
@@ -588,9 +565,14 @@ class Event {
 
 				// Move up _message_key from context to main data.
 				if ( $row->key === '_message_key' ) {
-					$events_data[ $event_id ]['data']->context_message_key = $row->value;
+					$events_data[ $event_id ]['context_message_key'] = $row->value;
 				}
 			}
+		}
+
+		// Convert to object.
+		foreach ( $events_data as $event_id => $event_data ) {
+			$events_data[ $event_id ] = (object) $event_data;
 		}
 
 		return $events_data;
