@@ -319,6 +319,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+-   Fix cache issue when sticking or unsticking events. [#566](https://github.com/bonny/WordPress-Simple-History/issues/566)
 -   Trigger warning when a call is made to non-existing function on the Simple_History class
 -   Fix issue when Divi frontend builder is active. [#565](https://github.com/bonny/WordPress-Simple-History/issues/565)
 -   Fix issue when no menu page is found. [#564](https://github.com/bonny/WordPress-Simple-History/issues/564)
