@@ -208,4 +208,12 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 			$this->assertEquals( $log_row->id, $events[$log_row_event_id]->id, 'Event ID should match log row ID.' );
 		}
 	}
+
+	public function test_event_class_exists_using_constructor() {
+		$event = new Event( $this->event_id );
+		$this->assertTrue( $event->exists(), 'Event should exist.' );
+
+		$event = new Event( PHP_INT_MAX );
+		$this->assertFalse( $event->exists(), 'Event should not exist.' );
+	}
 }

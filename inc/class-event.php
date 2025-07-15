@@ -210,10 +210,16 @@ class Event {
 	/**
 	 * Check if event exists.
 	 *
-	 * @return bool True if event has a valid ID, false otherwise.
+	 * @return bool True if event has a valid ID and exists in database, false otherwise.
 	 */
 	public function exists(): bool {
-		return $this->id !== null;
+		// If no ID is set, event doesn't exist.
+		if ( $this->id === null ) {
+			return false;
+		}
+
+		// Event exists if it was found in database (not NOT_FOUND).
+		return $this->load_status !== 'NOT_FOUND';
 	}
 
 	/**
