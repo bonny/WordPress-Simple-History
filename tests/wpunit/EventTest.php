@@ -46,7 +46,6 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 
 	public function test_event_class_vs_log_query_result() {
 		$event = Event::get( $this->event_id );
-		sh_d( '$event', $event );
 		
 		$log_query = new Log_Query();
 		$query_results = $log_query->query( [ 
@@ -55,19 +54,11 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 		);
 		$first_log_row = $query_results['log_rows'][0];
 		
-		sh_d( '$first_log_row', $first_log_row );
-
 		// Ensure that the event data matches the log query result,
 		// so that we can use the event class to get the data just like we use the
 		// log query result.
 		$this->assertEquals( $first_log_row, $event->get_data(), 'Event data should match the log query result.' );
 		$this->assertEquals( $first_log_row->context, $event->get_context(), 'Event context should match the log query result.' );
-
-		// Ensure that the event message matches the log query result.
-		//$this->assertEquals( $event->get_message(), $first_log_row->message, 'Event message should match the log query result.' );
-
-		#exit;
-
 	}
 
 	public function test_event_class_load_status() {
