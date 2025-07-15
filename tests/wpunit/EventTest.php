@@ -3,6 +3,10 @@
 use Simple_History\Event;
 use Simple_History\Log_Query;
 
+/**
+ * Run tests with:
+ * `docker compose run --rm php-cli vendor/bin/codecept run wpunit EventTest`
+ */
 class EventTest extends \Codeception\TestCase\WPTestCase {
 
 	/** @var int The ID of the last inserted event, i.e. the event we will use to test loading. */
@@ -35,7 +39,7 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 
 	public function test_event_class_basics() {
 		$event = Event::get( $this->event_id );
-		
+
 		$this->assertInstanceOf(Event::class, $event, 'Event should be an instance of Event class.' );
 		$this->assertEquals( $this->event_id, $event->get_id(), 'Event ID should match the inserted event ID.' );
 		$this->assertTrue( $event->exists(), 'Event should exist.' );
@@ -162,5 +166,46 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 		$event->stick();
 
 		$this->assertTrue( $event->is_sticky(), 'Event should be sticky.' );		
+	}
+
+	public function test_event_class_from_array() {
+		$log_query = new Log_Query();
+		$query_results = $log_query->query( [ 
+				'post__in' => [ $this->event_id ]
+			] 
+		);
+		$first_log_row = $query_results['log_rows'][0];
+
+		$event = Event::from_object( $first_log_row );
+
+		$this->assertEquals( $first_log_row, $event->get_data(), 'Event data should match the log query result.' );
+		$this->assertEquals( $first_log_row->context, $event->get_context(), 'Event context should match the log query result.' );
+	}
+
+	public function test_event_class_get_many() {
+		// Get last 10 events.
+		$log_query = new Log_Query();
+		$query_results = $log_query->query();
+		$log_rows = $query_results['log_rows'];
+
+		$log_rows_event_ids = array_map( function( $log_row ) {
+			return $log_row->id;
+		}, $log_rows );
+
+		$events = Event::get_many( $log_rows_event_ids );
+
+		$this->assertCount( count( $log_rows ), $events, 'Number of events should match number of log rows.' );
+
+		foreach ( $events as $event ) {
+			$this->assertInstanceOf( Event::class, $event, 'Event should be an instance of Event class.' );
+		}
+
+		// Index log rows so they start with event id.
+		$log_rows_indexed = array_combine( $log_rows_event_ids, $log_rows );
+
+		// Compare log rows and events.
+		foreach ( $log_rows_indexed as $log_row_event_id => $log_row ) {
+			$this->assertEquals( $log_row->id, $events[$log_row_event_id]->id, 'Event ID should match log row ID.' );
+		}
 	}
 }
