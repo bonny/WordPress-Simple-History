@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Disabled } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useEffect, useState, Fragment } from '@wordpress/element';
+import { useEffect, useState, Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from '../constants';
@@ -42,10 +42,29 @@ export function EventsSearchFilters( props ) {
 		setEventsSettingsPageURL,
 	} = props;
 
-	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] =
-		useState( false );
+	// Check if search options should be auto-expanded based on URL parameters.
+	// Only check filters that are hidden behind the "Show search options" button.
+	const hasActiveFilters = useCallback( () => {
+		return (
+			selectedLogLevels.length > 0 ||
+			selectedMessageTypes.length > 0 ||
+			selectedUsersWithId.length > 0
+		);
+	}, [ selectedLogLevels, selectedMessageTypes, selectedUsersWithId ] );
+
+	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] = useState( () =>
+		hasActiveFilters()
+	);
 	const [ dateOptions, setDateOptions ] = useState( OPTIONS_LOADING );
 	const [ searchOptions, setSearchOptions ] = useState( null );
+
+	// Auto-expand search options when filters are applied via URL parameters
+	// Only expand, never collapse automatically
+	useEffect( () => {
+		if ( hasActiveFilters() && ! moreOptionsIsExpanded ) {
+			setMoreOptionsIsExpanded( true );
+		}
+	}, [ hasActiveFilters, moreOptionsIsExpanded ] );
 
 	// Load search options when component mounts.
 	useEffect( () => {
