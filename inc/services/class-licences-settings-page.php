@@ -7,12 +7,11 @@ use Simple_History\Services\AddOns_Licences;
 use Simple_History\AddOn_Plugin;
 use Simple_History\Menu_Manager;
 use Simple_History\Menu_Page;
-use Simple_History\Services\Setup_Settings_Page as ServicesSetup_Settings_Page;
-use Simple_History\Simple_History;
 use Simple_History\Services\Setup_Settings_Page;
 
 /**
- * Settings page for licences.
+ * Settings page for licences, where users can enter their license keys
+ * for installed add-ons.
  */
 class Licences_Settings_Page extends Service {
 	/** @var AddOns_Licences $licences_service */
@@ -184,6 +183,41 @@ class Licences_Settings_Page extends Service {
 	 * how do they enter the key?
 	 */
 	public function license_keys_field_output() {
+
+		// If no add-ons.
+		if ( ! $this->licences_service->has_add_ons() ) {
+			?>
+			<p><?php esc_html_e( 'No add-ons activated.', 'simple-history' ); ?></p>
+			
+			<p>
+				<?php esc_html_e( 'If you have bought an add-on then install and activate the add-on and then return here to enter the license key.', 'simple-history' ); ?>
+			</p>
+
+			<p>
+				<?php
+				$install_help_url = 'https://simple-history.com/support/add-ons/how-to-install/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=install_help&utm_content=licences-settings';
+				$install_help_text = __( 'How to install an add-on', 'simple-history' );
+				echo wp_kses(
+					sprintf(
+						'<a href="%1$s" class="sh-ExternalLink" target="_blank">%2$s</a>',
+						esc_url( $install_help_url ),
+						esc_html( $install_help_text )
+					),
+					[
+						'a' => [
+							'href' => [],
+							'class' => [],
+							'target' => [],
+						],
+					]
+				);
+				?>
+			</p>
+			<?php
+
+			return;
+		}
+
 		if ( is_main_site() ) {
 			foreach ( $this->licences_service->get_addon_plugins() as $one_plus_plugin ) {
 				$this->output_licence_key_fields_for_plugin( $one_plus_plugin );
