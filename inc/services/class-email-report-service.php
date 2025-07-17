@@ -282,6 +282,14 @@ class Email_Report_Service extends Service {
 			$settings_menu_slug,
 			'simple_history_email_report_section'
 		);
+
+		add_settings_field(
+			'simple_history_email_report_preview',
+			Helpers::get_settings_field_title_output( __( 'Preview', 'simple-history' ), '' ),
+			[ $this, 'settings_field_preview' ],
+			$settings_menu_slug,
+			'simple_history_email_report_section'
+		);
 	}
 
 	/**
@@ -289,7 +297,14 @@ class Email_Report_Service extends Service {
 	 */
 	public function settings_section_output() {
 		echo '<p>' . esc_html__( 'Configure automatic email reports with website statistics. Reports are sent every Monday morning.', 'simple-history' ) . '</p>';
+	}
 
+
+
+	/**
+	 * Output for the preview and test setting field.
+	 */
+	public function settings_field_preview() {
 		$current_user = wp_get_current_user();
 		$preview_url = add_query_arg(
 			[
@@ -298,21 +313,23 @@ class Email_Report_Service extends Service {
 			rest_url( 'simple-history/v1/email-report/preview/html' )
 		);
 		?>
-		<p>
-			<a href="<?php echo esc_url( $preview_url ); ?>" target="_blank" class="button button-link">
-				<?php esc_html_e( 'Show email preview', 'simple-history' ); ?>
-			</a>
-			|
-			<button type="button" class="button button-link" id="simple-history-email-test">
-				<?php
-				printf(
-					// translators: %s: Current user's email address.
-					esc_html__( 'Send test email to %s', 'simple-history' ),
-					esc_html( $current_user->user_email )
-				);
-				?>
-			</button>
-		</p>
+		<div>
+			<p>
+				<a href="<?php echo esc_url( $preview_url ); ?>" target="_blank" class="button button-link">
+					<?php esc_html_e( 'Show email preview', 'simple-history' ); ?>
+				</a>
+				|
+				<button type="button" class="button button-link" id="simple-history-email-test">
+					<?php
+					printf(
+						// translators: %s: Current user's email address.
+						esc_html__( 'Send test email to %s', 'simple-history' ),
+						esc_html( $current_user->user_email )
+					);
+					?>
+				</button>
+			</p>
+		</div>
 		<script>
 			jQuery(document).ready(function($) {
 				// Handle test email
