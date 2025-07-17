@@ -55,8 +55,7 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 		/* Mobile styles */
 		@media only screen and (max-width: 599px) {
 			.email-container {
-				width: 100% !important;
-				margin: auto !important;
+				width: calc(100% - 40px) !important;
 			}
 			
 			.fluid {
