@@ -510,7 +510,7 @@ class Options_Logger extends Logger {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'New value', 'simple-history' ),
-				__( 'Your latests posts', 'simple-history' )
+				__( 'Your latest posts', 'simple-history' )
 			);
 		}
 
@@ -536,7 +536,7 @@ class Options_Logger extends Logger {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'Old value', 'simple-history' ),
-				__( 'Your latests posts', 'simple-history' )
+				__( 'Your latest posts', 'simple-history' )
 			);
 		}
 
