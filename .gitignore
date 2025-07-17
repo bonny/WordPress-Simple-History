@@ -45,3 +45,6 @@ readme.branch.*.md
 # Ignore the build directory
 # Since 2024-12-30 we build during GitHub deployment.
 build/
+
+# Ignore Claude config files
+.claude
