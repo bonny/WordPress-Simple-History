@@ -72,6 +72,7 @@ docker compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H_%M
 
 Changes made to the test site and SQL-file.
 
+-   18 jul 2025: Update WP to 6.3.2.
 -   24 aug 2024: Try to update from WP 6.1 to WP 6.6.
     -   Update wp using wp cli
     -   Getting messages during test "Upgrading db". So need to make that change and then export the db again.
