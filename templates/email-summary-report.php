@@ -32,7 +32,10 @@ $show_main_core_stats = apply_filters( 'simple_history/email_summary_report/show
  */
 $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/content_after_core_stats', '' );
 
-// Ensure $args is an array and provide fallback values for all used data
+// Ensure $args is defined and is an array with fallback values for all used data
+if ( ! isset( $args ) ) {
+	$args = array();
+}
 $args = wp_parse_args( $args, array(
 	'email_subject' => __( 'Website Activity Summary', 'simple-history' ),
 	'total_events_this_week' => 0,
