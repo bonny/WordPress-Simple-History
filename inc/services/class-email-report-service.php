@@ -168,6 +168,9 @@ class Email_Report_Service extends Service {
 		$stats['plugin_activations'] = $events_stats->get_plugin_activations_count( $date_from, $date_to );
 		$stats['plugin_deactivations'] = $events_stats->get_plugin_deactivations_count( $date_from, $date_to );
 
+		// Get WordPress core statistics.
+		$stats['wordpress_updates'] = $events_stats->get_wordpress_core_updates_count( $date_from, $date_to );
+
 		return $stats;
 	}
 
