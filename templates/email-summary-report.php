@@ -44,6 +44,8 @@ $args = wp_parse_args( $args, array(
 	'total_events_since_install' => 0,
 	'successful_logins' => 0,
 	'failed_logins' => 0,
+	'posts_created' => 0,
+	'posts_updated' => 0,
 ) );
 
 // Extract variables for easier use in template
@@ -57,6 +59,8 @@ $site_url_domain = $args['site_url_domain'];
 $total_events_since_install = $args['total_events_since_install'];
 $successful_logins = $args['successful_logins'];
 $failed_logins = $args['failed_logins'];
+$posts_created = $args['posts_created'];
+$posts_updated = $args['posts_updated'];
 
 ?>
 <!DOCTYPE html>
@@ -204,6 +208,24 @@ $failed_logins = $args['failed_logins'];
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Failed logins', 'simple-history' ) ); ?></div>
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $failed_logins ) ); ?></div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						
+						<!-- Posts Section -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Posts and Pages', 'simple-history' ) ); ?></h2>
+							
+							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+								<tr>
+									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Posts created', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $posts_created ) ); ?></div>
+									</td>
+									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Updates', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $posts_updated ) ); ?></div>
 									</td>
 								</tr>
 							</table>

@@ -160,6 +160,10 @@ class Email_Report_Service extends Service {
 		$stats['successful_logins'] = $events_stats->get_successful_logins_count( $date_from, $date_to );
 		$stats['failed_logins'] = $events_stats->get_failed_logins_count( $date_from, $date_to );
 
+		// Get posts statistics.
+		$stats['posts_created'] = $events_stats->get_posts_pages_created( $date_from, $date_to );
+		$stats['posts_updated'] = $events_stats->get_posts_pages_updated( $date_from, $date_to );
+
 		return $stats;
 	}
 
