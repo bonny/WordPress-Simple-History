@@ -2,10 +2,8 @@
 
 namespace Simple_History\Services;
 
-use Automattic\Jetpack\Import\Endpoints\Template_Part;
 use Simple_History\Simple_History;
 use Simple_History\Helpers;
-use Simple_History\Services\Stats_Service;
 use Simple_History\Events_Stats;
 
 /**
