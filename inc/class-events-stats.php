@@ -708,6 +708,8 @@ class Events_Stats {
 
 	/**
 	 * Get number of posts and pages updated in a given period.
+	 * This is the number of edits, not the number of posts and pages updated.
+	 * So same post can be updated multiple times.
 	 *
 	 * @param int $date_from Required. Start date as Unix timestamp.
 	 * @param int $date_to   Required. End date as Unix timestamp.

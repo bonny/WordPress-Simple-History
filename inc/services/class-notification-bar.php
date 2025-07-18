@@ -76,6 +76,7 @@ class Notification_Bar extends Service {
 		);
 
 		// Bail if no messages are available for user.
+		/** @phpstan-ignore empty.variable */
 		if ( empty( $notification_bar_messages ) ) {
 			return '';
 		}

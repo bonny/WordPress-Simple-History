@@ -2,10 +2,8 @@
 
 namespace Simple_History\Services;
 
-use Automattic\Jetpack\Import\Endpoints\Template_Part;
 use Simple_History\Simple_History;
 use Simple_History\Helpers;
-use Simple_History\Services\Stats_Service;
 use Simple_History\Events_Stats;
 
 /**
@@ -111,11 +109,12 @@ class Email_Report_Service extends Service {
 	/**
 	 * Get summary report data for a given date range.
 	 *
-	 * @param int $date_from Start timestamp.
-	 * @param int $date_to End timestamp.
+	 * @param int  $date_from Start timestamp.
+	 * @param int  $date_to End timestamp.
+	 * @param bool $is_preview Whether this is a preview email.
 	 * @return array
 	 */
-	public function get_summary_report_data( $date_from, $date_to ) {
+	public function get_summary_report_data( $date_from, $date_to, $is_preview = false ) {
 		// Get stats for the specified period.
 		$events_stats = new Events_Stats();
 
@@ -126,11 +125,12 @@ class Email_Report_Service extends Service {
 			'site_url_domain' => parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ),
 			'date_range' => sprintf(
 				/* translators: 1: start date, 2: end date */
-				__( '%1$s to %2$s', 'simple-history' ),
+				__( '%1$s – %2$s', 'simple-history' ),
 				date_i18n( get_option( 'date_format' ), $date_from ),
 				date_i18n( get_option( 'date_format' ), $date_to )
 			),
 			'total_events_since_install' => Helpers::get_total_logged_events_count(),
+			'email_subject' => $this->get_email_subject( $is_preview ),
 		];
 
 		// Get total events for this week.
@@ -154,7 +154,42 @@ class Email_Report_Service extends Service {
 		$top_users = $events_stats->get_top_users( $date_from, $date_to, 3 );
 		$stats['most_active_users'] = $this->prepare_top_items( $top_users, 3, 'display_name', 'count' );
 
+		// Get user login statistics.
+		$stats['successful_logins'] = $events_stats->get_successful_logins_count( $date_from, $date_to );
+		$stats['failed_logins'] = $events_stats->get_failed_logins_count( $date_from, $date_to );
+
+		// Get posts statistics.
+		$stats['posts_created'] = $events_stats->get_posts_pages_created( $date_from, $date_to );
+		$stats['posts_updated'] = $events_stats->get_posts_pages_updated( $date_from, $date_to );
+
+		// Get plugins statistics.
+		$stats['plugin_activations'] = $events_stats->get_plugin_activations_count( $date_from, $date_to );
+		$stats['plugin_deactivations'] = $events_stats->get_plugin_deactivations_count( $date_from, $date_to );
+
+		// Get WordPress core statistics.
+		$stats['wordpress_updates'] = $events_stats->get_wordpress_core_updates_count( $date_from, $date_to );
+
 		return $stats;
+	}
+
+	/**
+	 * Generate email subject for reports.
+	 *
+	 * @param bool $is_preview Whether this is a preview email.
+	 * @return string
+	 */
+	private function get_email_subject( $is_preview = false ) {
+		$subject = sprintf(
+			// translators: %s: Site name.
+			__( 'Weekly Activity Summary for %s', 'simple-history' ),
+			get_bloginfo( 'name' )
+		);
+
+		if ( $is_preview ) {
+			$subject .= ' (preview)';
+		}
+
+		return $subject;
 	}
 
 	/**
@@ -169,15 +204,11 @@ class Email_Report_Service extends Service {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			$this->get_summary_report_data( $date_from, $date_to )
+			$this->get_summary_report_data( $date_from, $date_to, true )
 		);
 		$email_content = ob_get_clean();
 
-		$subject = sprintf(
-			// translators: %s: Site name.
-			__( 'Simple History: Weekly Activity Summary for %s', 'simple-history' ),
-			get_bloginfo( 'name' )
-		);
+		$subject = $this->get_email_subject( true );
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
@@ -217,7 +248,7 @@ class Email_Report_Service extends Service {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			$this->get_summary_report_data( $date_from, $date_to )
+			$this->get_summary_report_data( $date_from, $date_to, true )
 		);
 
 		exit;
@@ -282,6 +313,14 @@ class Email_Report_Service extends Service {
 			$settings_menu_slug,
 			'simple_history_email_report_section'
 		);
+
+		add_settings_field(
+			'simple_history_email_report_preview',
+			Helpers::get_settings_field_title_output( __( 'Preview', 'simple-history' ), '' ),
+			[ $this, 'settings_field_preview' ],
+			$settings_menu_slug,
+			'simple_history_email_report_section'
+		);
 	}
 
 	/**
@@ -289,7 +328,14 @@ class Email_Report_Service extends Service {
 	 */
 	public function settings_section_output() {
 		echo '<p>' . esc_html__( 'Configure automatic email reports with website statistics. Reports are sent every Monday morning.', 'simple-history' ) . '</p>';
+	}
 
+
+
+	/**
+	 * Output for the preview and test setting field.
+	 */
+	public function settings_field_preview() {
 		$current_user = wp_get_current_user();
 		$preview_url = add_query_arg(
 			[
@@ -298,21 +344,23 @@ class Email_Report_Service extends Service {
 			rest_url( 'simple-history/v1/email-report/preview/html' )
 		);
 		?>
-		<p>
-			<a href="<?php echo esc_url( $preview_url ); ?>" target="_blank" class="button button-link">
-				<?php esc_html_e( 'Show email preview', 'simple-history' ); ?>
-			</a>
-			|
-			<button type="button" class="button button-link" id="simple-history-email-test">
-				<?php
-				printf(
-					// translators: %s: Current user's email address.
-					esc_html__( 'Send test email to %s', 'simple-history' ),
-					esc_html( $current_user->user_email )
-				);
-				?>
-			</button>
-		</p>
+		<div>
+			<p>
+				<a href="<?php echo esc_url( $preview_url ); ?>" target="_blank" class="button button-link">
+					<?php esc_html_e( 'Show email preview', 'simple-history' ); ?>
+				</a>
+				|
+				<button type="button" class="button button-link" id="simple-history-email-test">
+					<?php
+					printf(
+						// translators: %s: Current user's email address.
+						esc_html__( 'Send test email to %s', 'simple-history' ),
+						esc_html( $current_user->user_email )
+					);
+					?>
+				</button>
+			</p>
+		</div>
 		<script>
 			jQuery(document).ready(function($) {
 				// Handle test email
@@ -460,15 +508,11 @@ class Email_Report_Service extends Service {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			$this->get_summary_report_data( $date_from, $date_to )
+			$this->get_summary_report_data( $date_from, $date_to, false )
 		);
 		$email_content = ob_get_clean();
 
-		$subject = sprintf(
-			// translators: %s: Site name.
-			__( '[%s] Website Statistics Report', 'simple-history' ),
-			get_bloginfo( 'name' )
-		);
+		$subject = $this->get_email_subject( false );
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
