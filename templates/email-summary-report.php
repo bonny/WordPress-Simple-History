@@ -211,8 +211,8 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
 						<tr>
 							<td style="border-radius: 6px; background: #0040FF;">
-								<a href="https://simple-history.com" style="background: #0040FF; border: 16px solid #0040FF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; text-decoration: none; color: #ffffff; display: block; border-radius: 6px; font-weight: 600;">
-									<?php echo esc_html( __( 'View All Events', 'simple-history' ) ); ?>
+								<a href="<?php echo esc_url( \Simple_History\Helpers::get_history_admin_url() ); ?>" style="background: #0040FF; border: 16px solid #0040FF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; text-decoration: none; color: #ffffff; display: block; border-radius: 6px; font-weight: 600;">
+									<?php echo esc_html( __( 'View Activity Log', 'simple-history' ) ); ?>
 								</a>
 							</td>
 						</tr>
