@@ -167,35 +167,47 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 						
 
 					
-						<!-- Most Active Days -->
-						<?php
-						$has_active_days = false;
-						foreach ( $args['most_active_days'] as $day ) {
-							if ( $day['count'] > 0 ) {
-								$has_active_days = true;
-								break;
-							}
-						}
-						?>
-						<?php if ( $has_active_days ) { ?>
+						<!-- Weekly Activity Breakdown -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
-							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Most Active Days', 'simple-history' ) ); ?></h2>
+							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Activity by Day', 'simple-history' ) ); ?></h2>
+							
+							<?php
+							// Create an array of all days of the week
+							$all_days = array(
+								'monday' => __( 'Monday', 'simple-history' ),
+								'tuesday' => __( 'Tuesday', 'simple-history' ),
+								'wednesday' => __( 'Wednesday', 'simple-history' ),
+								'thursday' => __( 'Thursday', 'simple-history' ),
+								'friday' => __( 'Friday', 'simple-history' ),
+								'saturday' => __( 'Saturday', 'simple-history' ),
+								'sunday' => __( 'Sunday', 'simple-history' ),
+							);
+							
+							// Create a lookup array from most_active_days for easy access
+							$day_counts = array();
+							foreach ( $args['most_active_days'] as $day ) {
+								$day_counts[ strtolower( $day['name'] ) ] = $day['count'];
+							}
+							?>
 							
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
-									<?php foreach ( $args['most_active_days'] as $index => $day ) { ?>
-										<?php if ( $day['count'] > 0 ) { ?>
-										<td style="width: 33.33%; vertical-align: top;<?php echo $index < 2 ? ' padding-right: 15px;' : ''; ?>">
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left;"><?php echo esc_html( $day['name'] ); ?></div>
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $day['count'] ) ); ?></div>
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #666; text-align: left;"><?php echo esc_html( __( 'events', 'simple-history' ) ); ?></div>
+									<?php
+									$day_index = 0;
+									foreach ( $all_days as $day_key => $day_name ) {
+										$count = isset( $day_counts[ $day_key ] ) ? $day_counts[ $day_key ] : 0;
+										?>
+										<td style="width: 14.28%; vertical-align: top; text-align: center;<?php echo $day_index < 6 ? ' padding-right: 8px;' : ''; ?>">
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; color: #000000; text-align: center; font-weight: 500;"><?php echo esc_html( substr( $day_name, 0, 3 ) ); ?></div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000; font-weight: 700; text-align: center; margin-top: 2px;"><?php echo esc_html( number_format_i18n( $count ) ); ?></div>
 										</td>
-										<?php } ?>
-									<?php } ?>
+										<?php
+										$day_index++;
+									}
+									?>
 								</tr>
 							</table>
 						</div>
-						<?php } ?>
 						
 						<!-- Total Events Since Install -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
