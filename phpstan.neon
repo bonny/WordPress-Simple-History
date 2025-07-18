@@ -15,6 +15,18 @@ parameters:
   level: 2
   ignoreErrors:
     # - '#Access to an undefined property object::\$context_message_key.#'
+    # External plugin functions - these are from plugins that may not be installed
+    - '#Function get_field_object not found#'
+    - '#Function acf_get_field_group not found#'
+    - '#Function acf_get_valid_field_group not found#'
+    - '#Function acf_get_field not found#'
+    - '#Call to static method get_available_modules\(\) on an unknown class Jetpack#'
+    - '#Call to static method get_module\(\) on an unknown class Jetpack#'
+    - '#Function limit_login_get_address not found#'
+    - '#Function is_limit_login_ip_whitelisted not found#'
+    - '#Function limit_login_option not found#'
+    - '#Call to static method get\(\) on an unknown class Red_Group#'
+    - '#Call to static method get_by_id\(\) on an unknown class Red_Item#'
   WPCompat:
     pluginFile: index.php
     requiresAtLeast: '6.3'
