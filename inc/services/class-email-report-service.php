@@ -132,7 +132,7 @@ class Email_Report_Service extends Service {
 				date_i18n( get_option( 'date_format' ), $date_to )
 			),
 			'total_events_since_install' => Helpers::get_total_logged_events_count(),
-			'email_subject' => $this->generate_email_subject( $is_preview ),
+			'email_subject' => $this->get_email_subject( $is_preview ),
 		];
 
 		// Get total events for this week.
@@ -165,7 +165,7 @@ class Email_Report_Service extends Service {
 	 * @param bool $is_preview Whether this is a preview email.
 	 * @return string
 	 */
-	private function generate_email_subject( $is_preview = false ) {
+	private function get_email_subject( $is_preview = false ) {
 		$subject = sprintf(
 			// translators: %s: Site name.
 			__( 'Weekly Activity Summary for %s', 'simple-history' ),
@@ -195,7 +195,7 @@ class Email_Report_Service extends Service {
 		);
 		$email_content = ob_get_clean();
 
-		$subject = $this->generate_email_subject( true );
+		$subject = $this->get_email_subject( true );
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
@@ -499,7 +499,7 @@ class Email_Report_Service extends Service {
 		);
 		$email_content = ob_get_clean();
 
-		$subject = $this->generate_email_subject( false );
+		$subject = $this->get_email_subject( false );
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
