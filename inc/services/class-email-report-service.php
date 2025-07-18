@@ -111,11 +111,12 @@ class Email_Report_Service extends Service {
 	/**
 	 * Get summary report data for a given date range.
 	 *
-	 * @param int $date_from Start timestamp.
-	 * @param int $date_to End timestamp.
+	 * @param int  $date_from Start timestamp.
+	 * @param int  $date_to End timestamp.
+	 * @param bool $is_preview Whether this is a preview email.
 	 * @return array
 	 */
-	public function get_summary_report_data( $date_from, $date_to ) {
+	public function get_summary_report_data( $date_from, $date_to, $is_preview = false ) {
 		// Get stats for the specified period.
 		$events_stats = new Events_Stats();
 
@@ -126,11 +127,12 @@ class Email_Report_Service extends Service {
 			'site_url_domain' => parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ),
 			'date_range' => sprintf(
 				/* translators: 1: start date, 2: end date */
-				__( '%1$s to %2$s', 'simple-history' ),
+				__( '%1$s – %2$s', 'simple-history' ),
 				date_i18n( get_option( 'date_format' ), $date_from ),
 				date_i18n( get_option( 'date_format' ), $date_to )
 			),
 			'total_events_since_install' => Helpers::get_total_logged_events_count(),
+			'email_subject' => $this->generate_email_subject( $is_preview ),
 		];
 
 		// Get total events for this week.
@@ -158,6 +160,26 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
+	 * Generate email subject for reports.
+	 *
+	 * @param bool $is_preview Whether this is a preview email.
+	 * @return string
+	 */
+	private function generate_email_subject( $is_preview = false ) {
+		$subject = sprintf(
+			// translators: %s: Site name.
+			__( 'Weekly Activity Summary for %s', 'simple-history' ),
+			get_bloginfo( 'name' )
+		);
+
+		if ( $is_preview ) {
+			$subject .= ' (preview)';
+		}
+
+		return $subject;
+	}
+
+	/**
 	 * REST API endpoint for sending preview email.
 	 */
 	public function rest_preview_email() {
@@ -169,15 +191,11 @@ class Email_Report_Service extends Service {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			$this->get_summary_report_data( $date_from, $date_to )
+			$this->get_summary_report_data( $date_from, $date_to, true )
 		);
 		$email_content = ob_get_clean();
 
-		$subject = sprintf(
-			// translators: %s: Site name.
-			__( 'Simple History: Weekly Activity Summary for %s', 'simple-history' ),
-			get_bloginfo( 'name' )
-		);
+		$subject = $this->generate_email_subject( true );
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
@@ -217,7 +235,7 @@ class Email_Report_Service extends Service {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			$this->get_summary_report_data( $date_from, $date_to )
+			$this->get_summary_report_data( $date_from, $date_to, true )
 		);
 
 		exit;
@@ -477,15 +495,11 @@ class Email_Report_Service extends Service {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			$this->get_summary_report_data( $date_from, $date_to )
+			$this->get_summary_report_data( $date_from, $date_to, false )
 		);
 		$email_content = ob_get_clean();
 
-		$subject = sprintf(
-			// translators: %s: Site name.
-			__( '[%s] Website Statistics Report', 'simple-history' ),
-			get_bloginfo( 'name' )
-		);
+		$subject = $this->generate_email_subject( false );
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 

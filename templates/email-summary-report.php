@@ -39,7 +39,7 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<meta name="x-apple-disable-message-reformatting">
-	<title><?php echo esc_html( sprintf( __( 'Simple History: Weekly Activity Summary', 'simple-history' ) ) ); ?></title>
+	<title><?php echo esc_html( $args['email_subject'] ); ?></title>
 	<!--[if mso]>
 	<noscript>
 		<xml>
@@ -69,8 +69,7 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 			}
 			
 			.mobile-text {
-				font-size: 16px !important;
-				line-height: 24px !important;
+				font-size: 16px !important; line-height: 24px !important;
 			}
 			
 			.mobile-header {
@@ -132,30 +131,33 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;" class="mobile-header"><?php echo esc_html( __( 'Website Weekly Activity Summary', 'simple-history' ) ); ?></h1>
 					
 					<!-- Date Range -->
-					<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
+					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
 						<?php echo esc_html( $args['date_range'] ); ?> 
-					</p>
-
-					<!-- Site name -->
-					<p style="margin: 5px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-align: left;">
-						<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
-							<?php echo esc_html( $args['site_name'] ); ?>
-						</a>
-					</p>
-					
-					<!-- Domain -->
-					<p style="margin: 5px 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-align: left;">
-						<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
-							<?php echo esc_html( $args['site_url_domain'] ); ?>
-						</a>
 					</p>
 					
 					<!-- Subtitle -->
-					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" class="mobile-text"><?php echo esc_html( __( 'Here\'s a summary of what Simple History recorded happening on your WordPress site this week.', 'simple-history' ) ); ?></p>
+					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" class="mobile-text">
+						<?php echo esc_html( __( 'Here\'s a summary of what happened on your website last week.', 'simple-history' ) ); ?>
+					</p>
 					
 					<?php if ( $show_main_core_stats ) { ?>
 					<!-- Key Metrics Section -->
 					<div style="margin-bottom: 40px;">
+						
+						<!-- Website Information -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Website', 'simple-history' ) ); ?></h2>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-bottom: 5px;">
+								<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
+									<?php echo esc_html( $args['site_name'] ); ?>
+								</a>
+							</div>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; color: #666; text-align: left;">
+								<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
+									<?php echo esc_html( $args['site_url_domain'] ); ?>
+								</a>
+							</div>
+						</div>
 						
 						<!-- This Week's Activity -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
