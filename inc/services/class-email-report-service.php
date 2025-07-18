@@ -156,6 +156,10 @@ class Email_Report_Service extends Service {
 		$top_users = $events_stats->get_top_users( $date_from, $date_to, 3 );
 		$stats['most_active_users'] = $this->prepare_top_items( $top_users, 3, 'display_name', 'count' );
 
+		// Get user login statistics.
+		$stats['successful_logins'] = $events_stats->get_successful_logins_count( $date_from, $date_to );
+		$stats['failed_logins'] = $events_stats->get_failed_logins_count( $date_from, $date_to );
+
 		return $stats;
 	}
 
