@@ -1,6 +1,6 @@
 services:
   wordpress:
-    image: wordpress:${WORDPRESS_VERSION:-6.3}-php${PHP_VERSION:-7.4}
+    image: wordpress:${WORDPRESS_VERSION:-6.3}-php${PHP_VERSION:-8.1}
     container_name: simple-history-wordpress
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     user: "33:33"
@@ -102,6 +102,15 @@ services:
       # Make tests folder available so we can export/import db.
       - ./tests/_data/:/var/www/html/tests/_data:rw
       - ./:/var/www/html/wp-content/plugins/simple-history
+      - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
+      - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
+      - ./tests/plugins/duplicate-post:/var/www/html/wp-content/plugins/duplicate-post
+      - ./tests/plugins/redirection:/var/www/html/wp-content/plugins/redirection
+      - ./tests/plugins/enable-media-replace:/var/www/html/wp-content/plugins/enable-media-replace
+      - ./tests/plugins/user-switching:/var/www/html/wp-content/plugins/user-switching
+      - ./tests/plugins/developer-loggers-for-simple-history:/var/www/html/wp-content/plugins/developer-loggers-for-simple-history
+      - ./tests/plugins/issue-373-disable-core-loggers:/var/www/html/wp-content/plugins/issue-373-disable-core-loggers
+      - ./tests/_data/mu-plugins:/var/www/html/wp-content/mu-plugins
     profiles:
       - noautostart
 

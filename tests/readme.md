@@ -59,12 +59,13 @@ docker compose run --rm wp-cli option set siteurl http://localhost:9191
 docker compose run --rm wp-cli option set home http://localhost:9191
 
 # Go to http://localhost:9191 and make changes
-# ...
+# Login using http://localhost:9191/wp-login.php and use admin/admin.
 
 # Then export sql file again:
 docker compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H_%M"`.sql
 
 # Replace the old dump.sql with the new one
+# I.e. rename the new one to dump.sql and remove the old one.
 ```
 
 ## Update log
