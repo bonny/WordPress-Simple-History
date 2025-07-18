@@ -319,6 +319,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+-   Improve email summary report.
 -   Improve license key settings page text to make it more clear that you need to install and activate the add-on first, before you can enter the license key.
 -   Auto expand search options when filters are applied via URL parameters. [#567](https://github.com/bonny/WordPress-Simple-History/issues/567)
 -   Fix cache issue when sticking or unsticking events. [#566](https://github.com/bonny/WordPress-Simple-History/issues/566)
