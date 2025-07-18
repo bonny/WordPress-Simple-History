@@ -29,7 +29,7 @@ function simple_history_old_version_admin_notice() {
 				esc_html(
 					/* translators: 1: WordPress version */
 					__(
-						'Simple History requires WordPress version 6.1 or higher (you have version %s).',
+						'Simple History requires WordPress version 6.3 or higher (you have version %s).',
 						'simple-history'
 					)
 				),

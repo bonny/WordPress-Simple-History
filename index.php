@@ -34,7 +34,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 if (
 	version_compare( phpversion(), '7.4', '<' )
-	|| version_compare( $GLOBALS['wp_version'], '6.1', '<' )
+	|| version_compare( $GLOBALS['wp_version'], '6.3', '<' )
 ) {
 	// User is running to old version of php, add admin notice about that.
 	require_once __DIR__ . '/inc/oldversions.php';
