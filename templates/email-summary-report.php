@@ -46,6 +46,8 @@ $args = wp_parse_args( $args, array(
 	'failed_logins' => 0,
 	'posts_created' => 0,
 	'posts_updated' => 0,
+	'plugin_activations' => 0,
+	'plugin_deactivations' => 0,
 ) );
 
 // Extract variables for easier use in template
@@ -61,6 +63,8 @@ $successful_logins = $args['successful_logins'];
 $failed_logins = $args['failed_logins'];
 $posts_created = $args['posts_created'];
 $posts_updated = $args['posts_updated'];
+$plugin_activations = $args['plugin_activations'];
+$plugin_deactivations = $args['plugin_deactivations'];
 
 ?>
 <!DOCTYPE html>
@@ -226,6 +230,24 @@ $posts_updated = $args['posts_updated'];
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Updates', 'simple-history' ) ); ?></div>
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $posts_updated ) ); ?></div>
+									</td>
+								</tr>
+							</table>
+						</div>
+						
+						<!-- Plugins Section -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Plugins', 'simple-history' ) ); ?></h2>
+							
+							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+								<tr>
+									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Activations', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $plugin_activations ) ); ?></div>
+									</td>
+									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Deactivations', 'simple-history' ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $plugin_deactivations ) ); ?></div>
 									</td>
 								</tr>
 							</table>

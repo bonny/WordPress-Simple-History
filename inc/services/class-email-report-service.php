@@ -164,6 +164,10 @@ class Email_Report_Service extends Service {
 		$stats['posts_created'] = $events_stats->get_posts_pages_created( $date_from, $date_to );
 		$stats['posts_updated'] = $events_stats->get_posts_pages_updated( $date_from, $date_to );
 
+		// Get plugins statistics.
+		$stats['plugin_activations'] = $events_stats->get_plugin_activations_count( $date_from, $date_to );
+		$stats['plugin_deactivations'] = $events_stats->get_plugin_deactivations_count( $date_from, $date_to );
+
 		return $stats;
 	}
 
