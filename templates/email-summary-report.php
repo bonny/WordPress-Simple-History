@@ -32,27 +32,30 @@ $show_main_core_stats = apply_filters( 'simple_history/email_summary_report/show
  */
 $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/content_after_core_stats', '' );
 
-// Ensure $args is defined and is an array with fallback values for all used data
+// Ensure $args is defined and is an array with fallback values for all used data.
 if ( ! isset( $args ) ) {
 	$args = array();
 }
-$args = wp_parse_args( $args, array(
-	'email_subject' => __( 'Website Activity Summary', 'simple-history' ),
-	'total_events_this_week' => 0,
-	'most_active_days' => array(),
-	'date_range' => '',
-	'site_url' => '',
-	'site_name' => '',
-	'site_url_domain' => '',
-	'total_events_since_install' => 0,
-	'successful_logins' => 0,
-	'failed_logins' => 0,
-	'posts_created' => 0,
-	'posts_updated' => 0,
-	'plugin_activations' => 0,
-	'plugin_deactivations' => 0,
-	'wordpress_updates' => 0,
-) );
+$args = wp_parse_args(
+	$args,
+	array(
+		'email_subject' => __( 'Website Activity Summary', 'simple-history' ),
+		'total_events_this_week' => 0,
+		'most_active_days' => array(),
+		'date_range' => '',
+		'site_url' => '',
+		'site_name' => '',
+		'site_url_domain' => '',
+		'total_events_since_install' => 0,
+		'successful_logins' => 0,
+		'failed_logins' => 0,
+		'posts_created' => 0,
+		'posts_updated' => 0,
+		'plugin_activations' => 0,
+		'plugin_deactivations' => 0,
+		'wordpress_updates' => 0,
+	)
+);
 
 ?>
 
@@ -209,7 +212,7 @@ $args = wp_parse_args( $args, array(
 							</h2>
 							
 							<?php
-							// Create an array of all days of the week
+							// Create an array of all days of the week.
 							$all_days = array(
 								'monday' => __( 'Monday', 'simple-history' ),
 								'tuesday' => __( 'Tuesday', 'simple-history' ),
@@ -219,13 +222,13 @@ $args = wp_parse_args( $args, array(
 								'saturday' => __( 'Saturday', 'simple-history' ),
 								'sunday' => __( 'Sunday', 'simple-history' ),
 							);
-							
-							// Create a lookup array from most_active_days for easy access
+
+							// Create a lookup array from most_active_days for easy access.
 							$day_counts = array();
 							foreach ( $args['most_active_days'] as $day ) {
 								if ( isset( $day['name'] ) && isset( $day['count'] ) ) {
-									// The day name comes from Events_Stats as full day name (e.g., "Monday")
-									// We need to match it against our all_days array values
+									// The day name comes from Events_Stats as full day name (e.g., "Monday").
+									// We need to match it against our all_days array values.
 									$day_name_lower = strtolower( $day['name'] );
 									$day_counts[ $day_name_lower ] = $day['count'];
 								}
