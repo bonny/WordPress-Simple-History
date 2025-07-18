@@ -32,6 +32,28 @@ $show_main_core_stats = apply_filters( 'simple_history/email_summary_report/show
  */
 $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/content_after_core_stats', '' );
 
+// Ensure $args is an array and provide fallback values for all used data
+$args = wp_parse_args( $args, array(
+	'email_subject' => __( 'Website Activity Summary', 'simple-history' ),
+	'total_events_this_week' => 0,
+	'most_active_days' => array(),
+	'date_range' => '',
+	'site_url' => '',
+	'site_name' => '',
+	'site_url_domain' => '',
+	'total_events_since_install' => 0,
+) );
+
+// Extract variables for easier use in template
+$email_subject = $args['email_subject'];
+$total_events_this_week = $args['total_events_this_week'];
+$most_active_days = is_array( $args['most_active_days'] ) ? $args['most_active_days'] : array();
+$date_range = $args['date_range'];
+$site_url = $args['site_url'];
+$site_name = $args['site_name'];
+$site_url_domain = $args['site_url_domain'];
+$total_events_since_install = $args['total_events_since_install'];
+
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo esc_attr( get_locale() ); ?>" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -39,7 +61,7 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<meta name="x-apple-disable-message-reformatting">
-	<title><?php echo esc_html( $args['email_subject'] ); ?></title>
+	<title><?php echo esc_html( $email_subject ); ?></title>
 	<!--[if mso]>
 	<noscript>
 		<xml>
@@ -98,12 +120,12 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 		<!-- Visually Hidden Preheader Text -->
 		<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
 			<?php
-			$busiest_day = ! empty( $args['most_active_days'][0]['name'] ) ? $args['most_active_days'][0]['name'] : __( 'No activity', 'simple-history' );
+			$busiest_day = ! empty( $most_active_days[0]['name'] ) ? $most_active_days[0]['name'] : __( 'No activity', 'simple-history' );
 			echo esc_html(
 				sprintf(
 					/* translators: 1: number of events, 2: day of the week */
 					__( '%1$d events this week • %2$s was your busiest day', 'simple-history' ),
-					$args['total_events_this_week'],
+					$total_events_this_week,
 					$busiest_day
 				)
 			);
@@ -132,7 +154,7 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 					
 					<!-- Date Range -->
 					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
-						<?php echo esc_html( $args['date_range'] ); ?> 
+						<?php echo esc_html( $date_range ); ?> 
 					</p>
 					
 					<!-- Subtitle -->
@@ -148,13 +170,13 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Website', 'simple-history' ) ); ?></h2>
 							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-bottom: 5px;">
-								<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
-									<?php echo esc_html( $args['site_name'] ); ?>
+								<a href="<?php echo esc_url( $site_url ); ?>" style="color: #0040FF; text-decoration: none;">
+									<?php echo esc_html( $site_name ); ?>
 								</a>
 							</div>
 							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; color: #666; text-align: left;">
-								<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
-									<?php echo esc_html( $args['site_url_domain'] ); ?>
+								<a href="<?php echo esc_url( $site_url ); ?>" style="color: #0040FF; text-decoration: none;">
+									<?php echo esc_html( $site_url_domain ); ?>
 								</a>
 							</div>
 						</div>
@@ -162,7 +184,7 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 						<!-- This Week's Activity -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Events this week', 'simple-history' ) ); ?></h2>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['total_events_this_week'] ) ); ?></div>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $total_events_this_week ) ); ?></div>
 						</div>
 						
 
@@ -185,8 +207,13 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 							
 							// Create a lookup array from most_active_days for easy access
 							$day_counts = array();
-							foreach ( $args['most_active_days'] as $day ) {
-								$day_counts[ strtolower( $day['name'] ) ] = $day['count'];
+							foreach ( $most_active_days as $day ) {
+								if ( isset( $day['name'] ) && isset( $day['count'] ) ) {
+									// The day name comes from Events_Stats as full day name (e.g., "Monday")
+									// We need to match it against our all_days array values
+									$day_name_lower = strtolower( $day['name'] );
+									$day_counts[ $day_name_lower ] = $day['count'];
+								}
 							}
 							?>
 							
@@ -212,7 +239,7 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 						<!-- Total Events Since Install -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Total Events Since Install', 'simple-history' ) ); ?></h2>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['total_events_since_install'] ) ); ?></div>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $total_events_since_install ) ); ?></div>
 						</div>
 						<?php } ?>
 					</div>
