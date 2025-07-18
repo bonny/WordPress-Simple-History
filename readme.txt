@@ -317,17 +317,21 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.13.1 (July 2025)
 
--   Improve email summary report (still only available for users with experimental features enabled).
--   Misc internal code improvements and spelling fixes.
--   Improve license key settings page text to make it more clear that you need to install and activate the add-on first, before you can enter the license key.
--   Auto expand search options when filters are applied via URL parameters. [#567](https://github.com/bonny/WordPress-Simple-History/issues/567)
+**Fixed**
+
 -   Fix cache issue when sticking or unsticking events. [#566](https://github.com/bonny/WordPress-Simple-History/issues/566)
--   Trigger warning when a call is made to non-existing function on the Simple_History class
 -   Fix issue when Divi frontend builder is active. [#565](https://github.com/bonny/WordPress-Simple-History/issues/565)
 -   Fix issue when no menu page is found. [#564](https://github.com/bonny/WordPress-Simple-History/issues/564)
+
+**Improved**
+
+-   Improve email summary report (still only available for users with experimental features enabled).
+-   Improve license key settings page text to make it more clear that you need to install and activate the add-on first, before you can enter the license key.
+-   Auto expand search options when filters are applied via URL parameters. [#567](https://github.com/bonny/WordPress-Simple-History/issues/567)
 -   Add more checks in Admin Bar Quick Stats before initing the JS code.
+-   Misc internal code improvements and spelling fixes.
 
 ### 5.13.0 (June 2025)
 
