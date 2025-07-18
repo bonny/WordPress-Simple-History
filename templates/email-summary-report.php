@@ -51,22 +51,7 @@ $args = wp_parse_args( $args, array(
 	'wordpress_updates' => 0,
 ) );
 
-// Extract variables for easier use in template
-$email_subject = $args['email_subject'];
-$total_events_this_week = $args['total_events_this_week'];
-$most_active_days = is_array( $args['most_active_days'] ) ? $args['most_active_days'] : array();
-$date_range = $args['date_range'];
-$site_url = $args['site_url'];
-$site_name = $args['site_name'];
-$site_url_domain = $args['site_url_domain'];
-$total_events_since_install = $args['total_events_since_install'];
-$successful_logins = $args['successful_logins'];
-$failed_logins = $args['failed_logins'];
-$posts_created = $args['posts_created'];
-$posts_updated = $args['posts_updated'];
-$plugin_activations = $args['plugin_activations'];
-$plugin_deactivations = $args['plugin_deactivations'];
-$wordpress_updates = $args['wordpress_updates'];
+
 
 ?>
 <!DOCTYPE html>
@@ -75,7 +60,7 @@ $wordpress_updates = $args['wordpress_updates'];
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<meta name="x-apple-disable-message-reformatting">
-	<title><?php echo esc_html( $email_subject ); ?></title>
+	<title><?php echo esc_html( $args['email_subject'] ); ?></title>
 	<!--[if mso]>
 	<noscript>
 		<xml>
@@ -134,12 +119,12 @@ $wordpress_updates = $args['wordpress_updates'];
 		<!-- Visually Hidden Preheader Text -->
 		<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
 			<?php
-			$busiest_day = ! empty( $most_active_days[0]['name'] ) ? $most_active_days[0]['name'] : __( 'No activity', 'simple-history' );
+			$busiest_day = ! empty( $args['most_active_days'][0]['name'] ) ? $args['most_active_days'][0]['name'] : __( 'No activity', 'simple-history' );
 			echo esc_html(
 				sprintf(
 					/* translators: 1: number of events, 2: day of the week */
 					__( '%1$d events this week • %2$s was your busiest day', 'simple-history' ),
-					$total_events_this_week,
+					$args['total_events_this_week'],
 					$busiest_day
 				)
 			);
@@ -168,7 +153,7 @@ $wordpress_updates = $args['wordpress_updates'];
 					
 					<!-- Date Range -->
 					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
-						<?php echo esc_html( $date_range ); ?> 
+						<?php echo esc_html( $args['date_range'] ); ?> 
 					</p>
 					
 					<!-- Subtitle -->
@@ -184,13 +169,13 @@ $wordpress_updates = $args['wordpress_updates'];
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Website', 'simple-history' ) ); ?></h2>
 							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left; margin-bottom: 5px;">
-								<a href="<?php echo esc_url( $site_url ); ?>" style="color: #0040FF; text-decoration: none;">
-									<?php echo esc_html( $site_name ); ?>
+								<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
+									<?php echo esc_html( $args['site_name'] ); ?>
 								</a>
 							</div>
 							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; color: #666; text-align: left;">
-								<a href="<?php echo esc_url( $site_url ); ?>" style="color: #0040FF; text-decoration: none;">
-									<?php echo esc_html( $site_url_domain ); ?>
+								<a href="<?php echo esc_url( $args['site_url'] ); ?>" style="color: #0040FF; text-decoration: none;">
+									<?php echo esc_html( $args['site_url_domain'] ); ?>
 								</a>
 							</div>
 						</div>
@@ -198,7 +183,7 @@ $wordpress_updates = $args['wordpress_updates'];
 						<!-- This Week's Activity -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Events this week', 'simple-history' ) ); ?></h2>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $total_events_this_week ) ); ?></div>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['total_events_this_week'] ) ); ?></div>
 						</div>
 						
 						<!-- Users Section -->
@@ -209,11 +194,11 @@ $wordpress_updates = $args['wordpress_updates'];
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Successful logins', 'simple-history' ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $successful_logins ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['successful_logins'] ) ); ?></div>
 									</td>
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Failed logins', 'simple-history' ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $failed_logins ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['failed_logins'] ) ); ?></div>
 									</td>
 								</tr>
 							</table>
@@ -227,11 +212,11 @@ $wordpress_updates = $args['wordpress_updates'];
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Posts created', 'simple-history' ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $posts_created ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['posts_created'] ) ); ?></div>
 									</td>
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Updates', 'simple-history' ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $posts_updated ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['posts_updated'] ) ); ?></div>
 									</td>
 								</tr>
 							</table>
@@ -245,11 +230,11 @@ $wordpress_updates = $args['wordpress_updates'];
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Activations', 'simple-history' ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $plugin_activations ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['plugin_activations'] ) ); ?></div>
 									</td>
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
 										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Deactivations', 'simple-history' ) ); ?></div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $plugin_deactivations ) ); ?></div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['plugin_deactivations'] ) ); ?></div>
 									</td>
 								</tr>
 							</table>
@@ -259,7 +244,7 @@ $wordpress_updates = $args['wordpress_updates'];
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'WordPress', 'simple-history' ) ); ?></h2>
 							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;"><?php echo esc_html( __( 'Updates completed', 'simple-history' ) ); ?></div>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $wordpress_updates ) ); ?></div>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['wordpress_updates'] ) ); ?></div>
 						</div>
 						
 
@@ -282,7 +267,7 @@ $wordpress_updates = $args['wordpress_updates'];
 							
 							// Create a lookup array from most_active_days for easy access
 							$day_counts = array();
-							foreach ( $most_active_days as $day ) {
+							foreach ( $args['most_active_days'] as $day ) {
 								if ( isset( $day['name'] ) && isset( $day['count'] ) ) {
 									// The day name comes from Events_Stats as full day name (e.g., "Monday")
 									// We need to match it against our all_days array values
@@ -314,7 +299,7 @@ $wordpress_updates = $args['wordpress_updates'];
 						<!-- Total Events Since Install -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;"><?php echo esc_html( __( 'Total Events Since Install', 'simple-history' ) ); ?></h2>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $total_events_since_install ) ); ?></div>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;"><?php echo esc_html( number_format_i18n( $args['total_events_since_install'] ) ); ?></div>
 						</div>
 						<?php } ?>
 					</div>
