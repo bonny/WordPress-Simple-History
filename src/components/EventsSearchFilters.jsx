@@ -1,13 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Disabled } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import {
-	useEffect,
-	useState,
-	Fragment,
-	useCallback,
-	useRef,
-} from '@wordpress/element';
+import { useEffect, useState, Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from '../constants';
@@ -58,24 +52,21 @@ export function EventsSearchFilters( props ) {
 		);
 	}, [ selectedLogLevels, selectedMessageTypes, selectedUsersWithId ] );
 
-	const [ moreOptionsIsExpanded, setMoreOptionsIsExpanded ] = useState( () =>
+	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () =>
 		hasActiveFilters()
 	);
+	const [ isManuallyExpanded, setIsManuallyExpanded ] = useState( null );
+	const moreOptionsIsExpanded =
+		isManuallyExpanded !== null ? isManuallyExpanded : isAutoExpanded;
 	const [ dateOptions, setDateOptions ] = useState( OPTIONS_LOADING );
 	const [ searchOptions, setSearchOptions ] = useState( null );
-	const manuallyCollapsedRef = useRef( false );
 
 	// Auto-expand search options when filters are applied via URL parameters
-	// Only expand, never collapse automatically
 	useEffect( () => {
-		if (
-			hasActiveFilters() &&
-			! moreOptionsIsExpanded &&
-			! manuallyCollapsedRef.current
-		) {
-			setMoreOptionsIsExpanded( true );
+		if ( hasActiveFilters() && ! isAutoExpanded ) {
+			setIsAutoExpanded( true );
 		}
-	}, [ hasActiveFilters, moreOptionsIsExpanded ] );
+	}, [ hasActiveFilters, isAutoExpanded ] );
 
 	// Load search options when component mounts.
 	useEffect( () => {
@@ -186,11 +177,11 @@ export function EventsSearchFilters( props ) {
 					<Button
 						variant="tertiary"
 						onClick={ () => {
-							const newValue = ! moreOptionsIsExpanded;
-							setMoreOptionsIsExpanded( newValue );
-							if ( ! newValue ) {
-								manuallyCollapsedRef.current = true;
-							}
+							const currentExpanded =
+								isManuallyExpanded !== null
+									? isManuallyExpanded
+									: isAutoExpanded;
+							setIsManuallyExpanded( ! currentExpanded );
 						} }
 						className="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"
 					>
