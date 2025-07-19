@@ -1,7 +1,13 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Disabled } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useEffect, useState, Fragment, useCallback } from '@wordpress/element';
+import {
+	useEffect,
+	useState,
+	Fragment,
+	useCallback,
+	useRef,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from '../constants';
@@ -57,11 +63,16 @@ export function EventsSearchFilters( props ) {
 	);
 	const [ dateOptions, setDateOptions ] = useState( OPTIONS_LOADING );
 	const [ searchOptions, setSearchOptions ] = useState( null );
+	const manuallyCollapsedRef = useRef( false );
 
 	// Auto-expand search options when filters are applied via URL parameters
 	// Only expand, never collapse automatically
 	useEffect( () => {
-		if ( hasActiveFilters() && ! moreOptionsIsExpanded ) {
+		if (
+			hasActiveFilters() &&
+			! moreOptionsIsExpanded &&
+			! manuallyCollapsedRef.current
+		) {
 			setMoreOptionsIsExpanded( true );
 		}
 	}, [ hasActiveFilters, moreOptionsIsExpanded ] );
@@ -174,9 +185,13 @@ export function EventsSearchFilters( props ) {
 
 					<Button
 						variant="tertiary"
-						onClick={ () =>
-							setMoreOptionsIsExpanded( ! moreOptionsIsExpanded )
-						}
+						onClick={ () => {
+							const newValue = ! moreOptionsIsExpanded;
+							setMoreOptionsIsExpanded( newValue );
+							if ( ! newValue ) {
+								manuallyCollapsedRef.current = true;
+							}
+						} }
 						className="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"
 					>
 						{ showMoreOrLessText }
