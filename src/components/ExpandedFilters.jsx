@@ -375,6 +375,22 @@ export function ExpandedFilters( props ) {
 							options={ initiatorOptions }
 						/>
 					</div>
+					<BaseControl
+						__nextHasNoMarginBottom
+						help={ 
+							<>
+								{ __( 'Learn more about ', 'simple-history' ) }
+								<a 
+									href="https://simple-history.com/what-is-initiator" 
+									target="_blank" 
+									rel="noopener noreferrer"
+								>
+									{ __( 'what an initiator is', 'simple-history' ) }
+								</a>
+								.
+							</>
+						}
+					/>
 				</FlexBlock>
 			</Flex>
 		</div>
