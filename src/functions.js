@@ -9,6 +9,7 @@ import { format } from 'date-fns';
  * @param {Array}  props.selectedLogLevels
  * @param {Array}  props.selectedMessageTypes
  * @param {Array}  props.selectedUsersWithId
+ * @param {string} props.selectedInitiator
  * @param {string} props.enteredSearchText
  * @param {string} props.selectedDateOption
  * @param {Date}   props.selectedCustomDateFrom
@@ -22,6 +23,7 @@ export function generateAPIQueryParams( props ) {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsersWithId,
+		selectedInitiator,
 		enteredSearchText,
 		selectedDateOption,
 		selectedCustomDateFrom,
@@ -133,13 +135,19 @@ export function generateAPIQueryParams( props ) {
 		eventsQueryParams.users = selectedUsersValues;
 	}
 
+	// Add selected initiator to query params.
+	if ( selectedInitiator && selectedInitiator !== 'all' ) {
+		eventsQueryParams.initiator = selectedInitiator;
+	}
+
 	// Check if there are any search options, besides date.
 	// Anything selected besides date will disable sticky events.
 	const hasSearchOptions =
 		enteredSearchText ||
 		selectedLogLevels.length ||
 		selectedMessageTypes.length ||
-		selectedUsersWithId.length;
+		selectedUsersWithId.length ||
+		( selectedInitiator && selectedInitiator !== 'all' );
 
 	// If first page and no search options then include sticky events.
 	if ( page === 1 && ! hasSearchOptions ) {

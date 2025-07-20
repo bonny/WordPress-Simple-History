@@ -5,8 +5,9 @@ import {
 	FlexBlock,
 	FlexItem,
 	FormTokenField,
+	SelectControl,
 } from '@wordpress/components';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
@@ -25,6 +26,8 @@ export function ExpandedFilters( props ) {
 		setSelectedMessageTypes,
 		selectedUsersWithId,
 		setSelectedUsersWithId,
+		selectedInitiator,
+		setSelectedInitiator,
 		searchOptions,
 	} = props;
 
@@ -38,6 +41,29 @@ export function ExpandedFilters( props ) {
 	// and that is used to display user suggestions in the FormTokenField component.
 	// userSuggestions is an array of objects with properties "id" (user id) and "value" (name email).
 	const [ userSuggestions, setUserSuggestions ] = useState( [] );
+
+	// Generate initiator options for the SelectControl.
+	const initiatorOptions = useMemo( () => {
+		const options = [
+			{
+				value: 'all',
+				label: __( 'All initiators', 'simple-history' ),
+			},
+		];
+
+		if ( searchOptions?.initiators ) {
+			const initiators = searchOptions.initiators
+				.filter( Boolean )
+				.map( ( initiator ) => ( {
+					value: initiator.value,
+					label: initiator.label,
+				} ) );
+			
+			options.push( ...initiators );
+		}
+
+		return options;
+	}, [ searchOptions ] );
 
 	// Generate loglevels suggestions based on LOGLEVELS_OPTIONS.
 	// This way we can find the original untranslated label.
@@ -325,6 +351,30 @@ export function ExpandedFilters( props ) {
 							'simple-history'
 						) }
 					/>
+				</FlexBlock>
+			</Flex>
+
+			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
+				<FlexItem style={ { margin: '.5em 0' } }>
+					<div className="SimpleHistory__filters__filterLabel">
+						{ __( 'Initiator', 'simple-history' ) }
+					</div>
+				</FlexItem>
+				<FlexBlock>
+					<div
+						className="SimpleHistory__filters__loglevels__select"
+						style={ {
+							width: '310px',
+							backgroundColor: 'white',
+						} }
+					>
+						<SelectControl
+							__nextHasNoMarginBottom
+							value={ selectedInitiator }
+							onChange={ setSelectedInitiator }
+							options={ initiatorOptions }
+						/>
+					</div>
 				</FlexBlock>
 			</Flex>
 		</div>

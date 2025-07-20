@@ -71,7 +71,10 @@ class Log_Initiators {
 						$context['_user_email'] ?? '', // 2
 						$context['_user_login'] ?? '' // 3
 					);
-				} // End if().
+				} else {
+					// No user context provided (e.g., for filter options), use generic label.
+					$initiatorText = __( 'WordPress user', 'simple-history' );
+				}
 				break;
 			case 'web_user':
 				$initiatorText = __( 'Anonymous web user', 'simple-history' );
@@ -84,5 +87,39 @@ class Log_Initiators {
 		}// End switch().
 
 		return $initiatorText;
+	}
+
+	/**
+	 * Get a human-readable label for an initiator constant.
+	 * Used for filter options and similar contexts where no specific event context is available.
+	 *
+	 * @param string $initiator The initiator constant.
+	 * @return string Human readable initiator label.
+	 */
+	public static function get_initiator_label( $initiator ) {
+		$labels = [
+			self::WP_USER => __( 'WordPress user', 'simple-history' ),
+			self::WEB_USER => __( 'Anonymous web user', 'simple-history' ),
+			self::WORDPRESS => 'WordPress',
+			self::WP_CLI => 'WP-CLI',
+			self::OTHER => _x( 'Other', 'Event header output, when initiator is unknown', 'simple-history' ),
+		];
+
+		return $labels[ $initiator ] ?? $initiator;
+	}
+
+	/**
+	 * Get all valid initiator constants.
+	 *
+	 * @return array Array of valid initiator constants.
+	 */
+	public static function get_valid_initiators() {
+		return [
+			self::WP_USER,
+			self::WEB_USER,
+			self::WORDPRESS,
+			self::WP_CLI,
+			self::OTHER,
+		];
 	}
 }

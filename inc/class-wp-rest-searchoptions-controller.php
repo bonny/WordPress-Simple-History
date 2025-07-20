@@ -163,6 +163,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		$data = [
 			'dates' => Helpers::get_data_for_date_filter(),
 			'loggers' => $this->get_loggers_and_messages(),
+			'initiators' => $this->get_initiator_options(),
 			'pager_size' => [
 				'page' => (int) Helpers::get_pager_size(),
 				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
@@ -249,6 +250,24 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		}
 
 		return $loggers_and_messages;
+	}
+
+	/**
+	 * Get initiator options for search filter.
+	 *
+	 * @return array Array of initiator options with value and label.
+	 */
+	protected function get_initiator_options() {
+		$options = [];
+		
+		foreach ( Log_Initiators::get_valid_initiators() as $initiator ) {
+			$options[] = [
+				'value' => $initiator,
+				'label' => Log_Initiators::get_initiator_label( $initiator ),
+			];
+		}
+		
+		return $options;
 	}
 
 	/**

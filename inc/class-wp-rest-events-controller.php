@@ -437,6 +437,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'default'     => false,
 		);
 
+		$query_params['initiator'] = array(
+			'description' => __( 'Limit result set to events from a specific initiator.', 'simple-history' ),
+			'type'        => 'string',
+			'enum'        => array( 'wp_user', 'web_user', 'wp', 'wp_cli', 'other' ),
+		);
+
 		return $query_params;
 	}
 
@@ -620,6 +626,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'messages'                => 'messages',
 			'users'                   => 'users',
 			'user'                    => 'user',
+			'initiator'               => 'initiator',
 		);
 
 		/*
@@ -694,6 +701,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'user'                    => 'user',
 			'include_sticky'          => 'include_sticky',
 			'only_sticky'             => 'only_sticky',
+			'initiator'               => 'initiator',
 		);
 
 		/*

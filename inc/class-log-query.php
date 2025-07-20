@@ -30,6 +30,7 @@ class Log_Query {
 	 *      @type string $messages Messages to include. Array or string with commaa separated in format "LoggerSlug:Message", e.g. "SimplePluginLogger:plugin_activated,SimplePluginLogger:plugin_deactivated". Default null = show all messages.
 	 *      @type int $user Single user ID as number. Default null.
 	 *      @type string $users User IDs, comma separated or array. Default null.
+	 *      @type string $initiator Initiator to filter by. Default null.
 	 *      @type boolean $include_sticky Include sticky events in the result set. Default false.
 	 *      @type boolean $only_sticky Only return sticky events. Default false.
 	 * }
@@ -728,6 +729,9 @@ class Log_Query {
 				// User ids, comma separated or array.
 				'users' => null,
 
+				// Initiator to filter by.
+				'initiator' => null,
+
 				// Should sticky events be included in the result set.
 				'include_sticky' => false,
 
@@ -919,6 +923,16 @@ class Log_Query {
 		if ( isset( $args['users'] ) ) {
 			$args['users'] = array_map( 'intval', $args['users'] );
 			$args['users'] = array_filter( $args['users'] );
+		}
+
+		// "initiator" must be string and a valid initiator constant.
+		if ( isset( $args['initiator'] ) && ! is_string( $args['initiator'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid initiator' );
+		} elseif ( isset( $args['initiator'] ) ) {
+			// Validate against Log_Initiators constants.
+			if ( ! in_array( $args['initiator'], Log_Initiators::get_valid_initiators(), true ) ) {
+				throw new \InvalidArgumentException( 'Invalid initiator value' );
+			}
 		}
 
 		return $args;
@@ -1343,6 +1357,14 @@ class Log_Query {
 			$inner_where[] = sprintf(
 				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'_sticky\' )',
 				$contexts_table_name
+			);
+		}
+
+		// Add where clause for initiator filter.
+		if ( isset( $args['initiator'] ) ) {
+			$inner_where[] = sprintf(
+				'initiator = \'%s\'',
+				esc_sql( $args['initiator'] )
 			);
 		}
 

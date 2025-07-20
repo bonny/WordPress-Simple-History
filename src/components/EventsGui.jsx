@@ -198,6 +198,12 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
+	// Selected initiator filter.
+	const [ selectedInitiator, setSelectedInitiator ] = useQueryState(
+		'initiator',
+		parseAsString.withDefault( 'all' ).withOptions( useQueryStateOptions )
+	);
+
 	/**
 	 * End filter/search options states.
 	 */
@@ -209,6 +215,7 @@ function EventsGUI() {
 			selectedLogLevels,
 			selectedMessageTypes,
 			selectedUsersWithId,
+			selectedInitiator,
 			enteredSearchText,
 			selectedDateOption,
 			selectedCustomDateFrom,
@@ -222,6 +229,7 @@ function EventsGUI() {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsersWithId,
+		selectedInitiator,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		page,
@@ -236,6 +244,7 @@ function EventsGUI() {
 		enteredSearchText,
 		selectedLogLevels,
 		selectedMessageTypes,
+		selectedInitiator,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 	] );
@@ -374,6 +383,8 @@ function EventsGUI() {
 				setSelectedCustomDateTo={ setSelectedCustomDateTo }
 				selectedUsersWithId={ selectedUsersWithId }
 				setSelectedUsersWithId={ setSelectedUsersWithId }
+				selectedInitiator={ selectedInitiator }
+				setSelectedInitiator={ setSelectedInitiator }
 				searchOptionsLoaded={ searchOptionsLoaded }
 				setSearchOptionsLoaded={ setSearchOptionsLoaded }
 				setPagerSize={ setPagerSize }

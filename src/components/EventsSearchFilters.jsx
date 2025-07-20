@@ -31,6 +31,8 @@ export function EventsSearchFilters( props ) {
 		setSelectedCustomDateTo,
 		selectedUsersWithId,
 		setSelectedUsersWithId,
+		selectedInitiator,
+		setSelectedInitiator,
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
 		setPagerSize,
@@ -48,9 +50,15 @@ export function EventsSearchFilters( props ) {
 		return (
 			selectedLogLevels.length > 0 ||
 			selectedMessageTypes.length > 0 ||
-			selectedUsersWithId.length > 0
+			selectedUsersWithId.length > 0 ||
+			( selectedInitiator && selectedInitiator !== 'all' )
 		);
-	}, [ selectedLogLevels, selectedMessageTypes, selectedUsersWithId ] );
+	}, [
+		selectedLogLevels,
+		selectedMessageTypes,
+		selectedUsersWithId,
+		selectedInitiator,
+	] );
 
 	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () =>
 		hasActiveFilters()
@@ -166,6 +174,8 @@ export function EventsSearchFilters( props ) {
 						setSelectedMessageTypes={ setSelectedMessageTypes }
 						setSelectedUsersWithId={ setSelectedUsersWithId }
 						selectedUsersWithId={ selectedUsersWithId }
+						selectedInitiator={ selectedInitiator }
+						setSelectedInitiator={ setSelectedInitiator }
 						searchOptions={ searchOptions }
 					/>
 				) : null }
