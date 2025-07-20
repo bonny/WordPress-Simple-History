@@ -381,7 +381,7 @@ export function ExpandedFilters( props ) {
 							<>
 								{ __( 'Learn more about ', 'simple-history' ) }
 								<a 
-									href="https://simple-history.com/what-is-initiator" 
+									href="https://simple-history.com/support/what-is-an-initiator/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=initiator-filter-help" 
 									target="_blank" 
 									rel="noopener noreferrer"
 								>
