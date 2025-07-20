@@ -7,7 +7,12 @@ import {
 	FormTokenField,
 	SelectControl,
 } from '@wordpress/components';
-import { useState, useEffect, useMemo } from '@wordpress/element';
+import {
+	useState,
+	useEffect,
+	useMemo,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
@@ -58,7 +63,7 @@ export function ExpandedFilters( props ) {
 					value: initiator.value,
 					label: initiator.label,
 				} ) );
-			
+
 			options.push( ...initiators );
 		}
 
@@ -377,19 +382,22 @@ export function ExpandedFilters( props ) {
 					</div>
 					<BaseControl
 						__nextHasNoMarginBottom
-						help={ 
-							<>
-								{ __( 'Learn more about ', 'simple-history' ) }
-								<a 
-									href="https://simple-history.com/support/what-is-an-initiator/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=initiator-filter-help" 
-									target="_blank" 
-									rel="noopener noreferrer"
-								>
-									{ __( 'what an initiator is', 'simple-history' ) }
-								</a>
-								.
-							</>
-						}
+						help={ createInterpolateElement(
+							__(
+								'Learn more about <a>what an initiator is</a>.',
+								'simple-history'
+							),
+							{
+								a: (
+									// eslint-disable-next-line jsx-a11y/anchor-has-content
+									<a
+										href="https://simple-history.com/support/what-is-an-initiator/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=initiator-filter-help"
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							}
+						) }
 					/>
 				</FlexBlock>
 			</Flex>
