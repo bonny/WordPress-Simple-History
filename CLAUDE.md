@@ -24,3 +24,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Proper escaping required for all output
 - No mb_* string functions allowed
 - Text domain: 'simple-history'
+
+## Docker/WP-CLI Commands
+- Test WP-CLI commands on local website: `cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot && docker compose run --rm wpcli_mariadb help simple-history list`
