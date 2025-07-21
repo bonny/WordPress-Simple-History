@@ -322,6 +322,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Add search filter for initiators. This allows you to filter events by the initiator, e.g. "Web user", "WordPress user", "WP-CLI", "Other". Support is added both in search GUI but also in the REST API.
+-   Add footer to dashboard page with links to the [blog](https://simple-history.com/blog/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_14_0), [support](https://simple-history.com/support/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_14_0) and [premium features](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_14_0).
 
 **Fixed**
 

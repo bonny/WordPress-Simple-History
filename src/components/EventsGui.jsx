@@ -1,26 +1,27 @@
-import {
-	useQueryState,
-	parseAsString,
-	parseAsIsoDate,
-	parseAsArrayOf,
-	parseAsJson,
-} from 'nuqs';
-import { z } from 'zod';
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import {
+	parseAsArrayOf,
+	parseAsIsoDate,
+	parseAsJson,
+	parseAsString,
+	useQueryState,
+} from 'nuqs';
+import { z } from 'zod';
 import {
 	SEARCH_FILTER_DEFAULT_END_DATE,
 	SEARCH_FILTER_DEFAULT_START_DATE,
 } from '../constants';
 import { generateAPIQueryParams } from '../functions';
+import { DashboardFooter } from './DashboardFooter';
 import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
-import { __ } from '@wordpress/i18n';
 
 // Schema for the users object.
 const usersSchema = z.array(
@@ -442,6 +443,8 @@ function EventsGUI() {
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 			/>
+
+			{ isDashboard ? <DashboardFooter /> : null }
 
 			<EventsModalIfFragment />
 		</>
