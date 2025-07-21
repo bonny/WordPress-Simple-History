@@ -4,6 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
+use Simple_History\Log_Levels;
 use WP_CLI;
 use WP_CLI_Command;
 use WP_CLI\Utils;
@@ -29,6 +30,42 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * Parse comma-separated values into array and validate.
+	 *
+	 * @param string $value Comma-separated string.
+	 * @param array  $valid_values Array of valid values to check against.
+	 * @param string $param_name Parameter name for error messages.
+	 * @return array|false Array of valid values or false on error.
+	 */
+	private function parse_comma_separated_values( $value, $valid_values = array(), $param_name = '' ) {
+		if ( empty( $value ) ) {
+			return array();
+		}
+
+		$values = array_map( 'trim', explode( ',', $value ) );
+
+		// If valid values are provided, validate each value.
+		if ( ! empty( $valid_values ) ) {
+			$invalid_values = array_diff( $values, $valid_values );
+			if ( ! empty( $invalid_values ) ) {
+				WP_CLI::error(
+					sprintf(
+						// translators: %1$s: parameter name, %2$s: invalid values, %3$s: valid values.
+						__( 'Error: Invalid %1$s values: %2$s. Valid values are: %3$s', 'simple-history' ),
+						$param_name,
+						implode( ', ', $invalid_values ),
+						implode( ', ', $valid_values )
+					)
+				);
+				return false;
+			}
+		}
+
+		return $values;
+	}
+
+
+	/**
 	 * Display the latest events from the history.
 	 *
 	 * ## Options
@@ -48,9 +85,72 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * ---
 	 * default: 10
 	 *
+	 * [--initiator=<initiators>]
+	 * : Filter by who/what initiated the event. Comma-separated list.
+	 * ---
+	 * options:
+	 *   - wp_user
+	 *   - web_user
+	 *   - wp
+	 *   - wp_cli
+	 *   - other
+	 *
+	 * [--log_level=<levels>]
+	 * : Filter by log levels. Comma-separated list.
+	 * ---
+	 * options:
+	 *   - emergency
+	 *   - alert
+	 *   - critical
+	 *   - error
+	 *   - warning
+	 *   - notice
+	 *   - info
+	 *   - debug
+	 *
+	 * [--logger=<loggers>]
+	 * : Filter by specific loggers. Comma-separated list.
+	 *
+	 * [--message=<messages>]
+	 * : Filter by specific message types in format "LoggerSlug:MessageKey". Comma-separated list.
+	 *
+	 * [--user=<users>]
+	 * : Filter by user IDs. Comma-separated list.
+	 *
+	 * [--search=<term>]
+	 * : Text search across message content, logger names, and context values.
+	 *
+	 * [--date_from=<date>]
+	 * : Show events from this date onwards. Accepts Unix timestamp or Y-m-d H:i:s format.
+	 *
+	 * [--date_to=<date>]
+	 * : Show events up to this date. Accepts Unix timestamp or Y-m-d H:i:s format.
+	 *
+	 * [--months=<months>]
+	 * : Filter by months in Y-m format. Comma-separated list.
+	 *
+	 * [--include_sticky]
+	 * : Include sticky events in results.
+	 *
+	 * [--only_sticky]
+	 * : Show only sticky events.
+	 *
 	 * ## Examples
 	 *
+	 *     # Basic usage
 	 *     wp simple-history list --count=20 --format=json
+	 *
+	 *     # Filter by initiator and log level
+	 *     wp simple-history list --initiator=wp_user,web_user --log_level=info,debug
+	 *
+	 *     # Search with date range
+	 *     wp simple-history list --search="login failed" --date_from="2024-01-01"
+	 *
+	 *     # Filter by specific users and loggers
+	 *     wp simple-history list --user=1,2,3 --logger=SimpleUserLogger,SimplePluginLogger
+	 *
+	 *     # Show only sticky events
+	 *     wp simple-history list --only_sticky --format=json
 	 *
 	 * @when after_wp_load
 	 *
@@ -64,6 +164,17 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			array(
 				'format' => 'table',
 				'count' => 10,
+				'initiator' => '',
+				'log_level' => '',
+				'logger' => '',
+				'message' => '',
+				'user' => '',
+				'search' => '',
+				'date_from' => '',
+				'date_to' => '',
+				'months' => '',
+				'include_sticky' => false,
+				'only_sticky' => false,
 			)
 		);
 
@@ -71,14 +182,82 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			WP_CLI::error( __( 'Error: parameter "count" must be a number', 'simple-history' ) );
 		}
 
+		// Validate and parse filter parameters.
+		$initiators = $this->parse_comma_separated_values(
+			$assoc_args['initiator'],
+			Log_Initiators::get_valid_initiators(),
+			'initiator'
+		);
+
+		$log_levels = $this->parse_comma_separated_values(
+			$assoc_args['log_level'],
+			Log_Levels::get_valid_log_levels(),
+			'log_level'
+		);
+
+		$loggers = $this->parse_comma_separated_values( $assoc_args['logger'] );
+		$messages = $this->parse_comma_separated_values( $assoc_args['message'] );
+		$users = $this->parse_comma_separated_values( $assoc_args['user'] );
+		$months = $this->parse_comma_separated_values( $assoc_args['months'] );
+
 		// Override capability check: if you can run wp cli commands you can read all loggers.
 		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
 
 		$query = new Log_Query();
 
+		// Build query args with filters.
 		$query_args = array(
 			'posts_per_page' => $assoc_args['count'],
 		);
+
+		// Add filters to query args if provided.
+		if ( ! empty( $initiators ) ) {
+			$query_args['initiator'] = $initiators;
+		}
+
+		if ( ! empty( $log_levels ) ) {
+			$query_args['loglevels'] = $log_levels;
+		}
+
+		if ( ! empty( $loggers ) ) {
+			$query_args['loggers'] = $loggers;
+		}
+
+		if ( ! empty( $messages ) ) {
+			$query_args['messages'] = $messages;
+		}
+
+		if ( ! empty( $users ) ) {
+			// Convert to integers for user IDs.
+			$user_ids = array_map( 'intval', array_filter( $users, 'is_numeric' ) );
+			if ( ! empty( $user_ids ) ) {
+				$query_args['users'] = $user_ids;
+			}
+		}
+
+		if ( ! empty( $assoc_args['search'] ) ) {
+			$query_args['search'] = $assoc_args['search'];
+		}
+
+		if ( ! empty( $assoc_args['date_from'] ) ) {
+			$query_args['date_from'] = $assoc_args['date_from'];
+		}
+
+		if ( ! empty( $assoc_args['date_to'] ) ) {
+			$query_args['date_to'] = $assoc_args['date_to'];
+		}
+
+		if ( ! empty( $months ) ) {
+			$query_args['months'] = $months;
+		}
+
+		if ( ! empty( $assoc_args['include_sticky'] ) ) {
+			$query_args['include_sticky'] = true;
+		}
+
+		if ( ! empty( $assoc_args['only_sticky'] ) ) {
+			$query_args['only_sticky'] = true;
+		}
 
 		$events = $query->query( $query_args );
 
