@@ -100,14 +100,13 @@ class Log_Levels {
 	}
 
 	/**
-	 * Check if a string is a valid log level.
+	 * Get all valid log levels.
 	 *
-	 * @since 4.0.0
-	 * @param string $level Level to check.
-	 * @return bool True if valid log level, false otherwise.
+	 * @since 5.13.1
+	 * @return array Array of valid log levels.
 	 */
-	public static function is_valid_level( $level ) {
-		$valid_levels = array(
+	public static function get_valid_log_levels() {
+		return array(
 			self::EMERGENCY,
 			self::ALERT,
 			self::CRITICAL,
@@ -117,7 +116,16 @@ class Log_Levels {
 			self::INFO,
 			self::DEBUG,
 		);
+	}
 
-		return in_array( strtolower( $level ), $valid_levels, true );
+	/**
+	 * Check if a string is a valid log level.
+	 *
+	 * @since 4.0.0
+	 * @param string $level Level to check.
+	 * @return bool True if valid log level, false otherwise.
+	 */
+	public static function is_valid_level( $level ) {
+		return in_array( strtolower( $level ), self::get_valid_log_levels(), true );
 	}
 }
