@@ -7,11 +7,7 @@ import {
 	FlexItem,
 	FormTokenField,
 } from '@wordpress/components';
-import {
-	createInterpolateElement,
-	useEffect,
-	useState,
-} from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
