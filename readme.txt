@@ -319,6 +319,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Added**
+
+-   Add search filter for initiators. This allows you to filter events by the initiator, e.g. "Web user", "WordPress user", "WP-CLI", "Other". Support is added both in search GUI but also in the REST API.
+
 **Fixed**
 
 -   Fix collapse of search filters not working. [#569](https://github.com/bonny/WordPress-Simple-History/issues/569)
