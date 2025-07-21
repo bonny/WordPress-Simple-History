@@ -1196,7 +1196,7 @@ class Plugin_Logger extends Logger {
 			);
 		}
 
-		// Add link with more info about the plugin
+		// Add link with more info about the plugin.
 		$output .= $this->get_plugin_info_link( $context );
 
 		$output .= '</table>';
@@ -1305,6 +1305,7 @@ class Plugin_Logger extends Logger {
 	private function get_plugin_action_details_output( $context, $message_key ) {
 		$output = '';
 		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
+		$plugin_version = empty( $context['plugin_version'] ) ? '' : $context['plugin_version'];
 
 		if ( $plugin_slug && empty( $context['plugin_github_url'] ) ) {
 			$link_title = esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title', 'simple-history' );
@@ -1317,6 +1318,36 @@ class Plugin_Logger extends Logger {
 					$url = network_admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
 				} else {
 					$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
+				}
+
+				/**
+				 * Allow plugins (or Simple History itself) to add extra details to the plugin update details output.
+				 *
+				 * The filter name is dynamic and includes the plugin slug and version to ensure specificity:
+				 *   simple_history/pluginlogger/plugin_updated_details/{plugin_slug}/{plugin_version}
+				 *
+				 * Example with actual values:
+				 *   simple_history/pluginlogger/plugin_updated_details/simple-history
+				 *
+				 * @param string $extra_details   Extra HTML to output after the changelog link. Probably empty string.
+				 */
+				$extra_details = apply_filters( "simple_history/pluginlogger/plugin_updated_details/{$plugin_slug}", '' );
+
+				/**
+				 * Allow plugins (or Simple History itself) to add extra details to the plugin update details output.
+				 *
+				 * The filter name is dynamic and includes the plugin slug and version to ensure specificity:
+				 *   simple_history/pluginlogger/plugin_updated_details/{plugin_slug}/{plugin_version}
+				 *
+				 * Example with actual values:
+				 *   simple_history/pluginlogger/plugin_updated_details/simple-history/5.14.0
+				 *
+				 * @param string $extra_details   Extra HTML to output after the changelog link. Probably empty string.
+				 */
+				$extra_details = apply_filters( "simple_history/pluginlogger/plugin_updated_details/{$plugin_slug}/{$plugin_version}", $extra_details );
+
+				if ( ! empty( $extra_details ) ) {
+					$output .= $extra_details;
 				}
 			}
 
