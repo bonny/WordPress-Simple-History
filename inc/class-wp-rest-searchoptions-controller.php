@@ -259,14 +259,14 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	 */
 	protected function get_initiator_options() {
 		$options = [];
-		
+
 		foreach ( Log_Initiators::get_valid_initiators() as $initiator ) {
 			$options[] = [
 				'value' => $initiator,
 				'label' => Log_Initiators::get_initiator_label( $initiator ),
 			];
 		}
-		
+
 		return $options;
 	}
 

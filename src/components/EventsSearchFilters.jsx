@@ -51,7 +51,7 @@ export function EventsSearchFilters( props ) {
 			selectedLogLevels.length > 0 ||
 			selectedMessageTypes.length > 0 ||
 			selectedUsersWithId.length > 0 ||
-			( selectedInitiator && selectedInitiator !== 'all' )
+			selectedInitiator.length > 0
 		);
 	}, [
 		selectedLogLevels,

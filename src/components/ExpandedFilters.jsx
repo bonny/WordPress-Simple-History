@@ -5,12 +5,10 @@ import {
 	FlexBlock,
 	FlexItem,
 	FormTokenField,
-	SelectControl,
 } from '@wordpress/components';
 import {
 	useState,
 	useEffect,
-	useMemo,
 	createInterpolateElement,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -47,28 +45,48 @@ export function ExpandedFilters( props ) {
 	// userSuggestions is an array of objects with properties "id" (user id) and "value" (name email).
 	const [ userSuggestions, setUserSuggestions ] = useState( [] );
 
-	// Generate initiator options for the SelectControl.
-	const initiatorOptions = useMemo( () => {
-		const options = [
-			{
-				value: 'all',
-				label: __( 'All initiators', 'simple-history' ),
-			},
-		];
+	// Generate initiator suggestions for the FormTokenField.
+	const [ initiatorSuggestions, setInitiatorSuggestions ] = useState( [] );
 
+	// Update initiator suggestions when searchOptions changes
+	useEffect( () => {
 		if ( searchOptions?.initiators ) {
-			const initiators = searchOptions.initiators
+			const suggestions = searchOptions.initiators
 				.filter( Boolean )
 				.map( ( initiator ) => ( {
-					value: initiator.value,
-					label: initiator.label,
+					value: initiator.label,
+					initiator_key: initiator.value,
+					search_options: [ initiator.label ],
 				} ) );
 
-			options.push( ...initiators );
+			setInitiatorSuggestions( suggestions );
 		}
-
-		return options;
 	}, [ searchOptions ] );
+
+	const handleInitiatorsChange = ( nextValues ) => {
+		nextValues.map( ( value, index ) => {
+			if ( typeof value === 'string' ) {
+				// This is a new entry, we need to replace the string with an object.
+				// Find the initiator suggestion that has the same label as the value.
+				const initiatorSuggestion = initiatorSuggestions.find(
+					( suggestion ) => {
+						return suggestion.value.trim() === value.trim();
+					}
+				);
+
+				if ( initiatorSuggestion ) {
+					nextValues[ index ] = initiatorSuggestion;
+				}
+			} else {
+				// This is an existing entry that already is an object.
+				// No need to do anything.
+			}
+
+			return value;
+		} );
+
+		setSelectedInitiator( nextValues );
+	};
 
 	// Generate loglevels suggestions based on LOGLEVELS_OPTIONS.
 	// This way we can find the original untranslated label.
@@ -373,11 +391,24 @@ export function ExpandedFilters( props ) {
 							backgroundColor: 'white',
 						} }
 					>
-						<SelectControl
-							__nextHasNoMarginBottom
+						<FormTokenField
+							__experimentalAutoSelectFirstMatch
+							__experimentalExpandOnFocus
+							__experimentalShowHowTo={ false }
+							label=""
+							placeholder={ __(
+								'All initiators',
+								'simple-history'
+							) }
+							onChange={ ( nextValues ) => {
+								handleInitiatorsChange( nextValues );
+							} }
 							value={ selectedInitiator }
-							onChange={ setSelectedInitiator }
-							options={ initiatorOptions }
+							suggestions={ initiatorSuggestions.map(
+								( suggestion ) => {
+									return suggestion.value;
+								}
+							) }
 						/>
 					</div>
 					<BaseControl

@@ -438,9 +438,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['initiator'] = array(
-			'description' => __( 'Limit result set to events from a specific initiator.', 'simple-history' ),
-			'type'        => 'string',
-			'enum'        => array( 'wp_user', 'web_user', 'wp', 'wp_cli', 'other' ),
+			'description'       => __( 'Limit result set to events from specific initiator(s).', 'simple-history' ),
+			'type'              => array( 'string', 'array' ),
+			'items'             => array(
+				'type' => 'string',
+			),
+			'validate_callback' => array( $this, 'validate_initiator_param' ),
+			'sanitize_callback' => array( $this, 'sanitize_initiator_param' ),
 		);
 
 		return $query_params;
@@ -1060,5 +1064,68 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		$data = $this->prepare_item_for_response( $event->get_data(), $request );
 		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Validate initiator parameter.
+	 *
+	 * @param mixed           $value   Value of the parameter.
+	 * @param WP_REST_Request $request REST request object.
+	 * @param string          $param   Parameter name.
+	 * @return bool|WP_Error True if valid, WP_Error otherwise.
+	 */
+	public function validate_initiator_param( $value, $request, $param ) {
+		$valid_initiators = array( 'wp_user', 'web_user', 'wp', 'wp_cli', 'other' );
+
+		if ( is_string( $value ) ) {
+			// Single initiator.
+			if ( ! in_array( $value, $valid_initiators, true ) ) {
+				return new WP_Error(
+					'rest_invalid_param',
+					/* translators: %1$s: parameter name, %2$s: list of valid values */
+					sprintf( __( '%1$s is not one of %2$s', 'simple-history' ), $param, implode( ', ', $valid_initiators ) ),
+					array( 'status' => 400 )
+				);
+			}
+		} elseif ( is_array( $value ) ) {
+			// Multiple initiators.
+			foreach ( $value as $initiator ) {
+				if ( ! is_string( $initiator ) || ! in_array( $initiator, $valid_initiators, true ) ) {
+					return new WP_Error(
+						'rest_invalid_param',
+						/* translators: %1$s: parameter name, %2$s: list of valid values */
+						sprintf( __( '%1$s is not one of %2$s', 'simple-history' ), $param, implode( ', ', $valid_initiators ) ),
+						array( 'status' => 400 )
+					);
+				}
+			}
+		} else {
+			return new WP_Error(
+				'rest_invalid_param',
+				/* translators: %s: parameter name */
+				sprintf( __( '%s must be a string or array of strings', 'simple-history' ), $param ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Sanitize initiator parameter.
+	 *
+	 * @param mixed           $value   Value of the parameter.
+	 * @param WP_REST_Request $request REST request object.
+	 * @param string          $param   Parameter name.
+	 * @return string|array Sanitized value.
+	 */
+	public function sanitize_initiator_param( $value, $request, $param ) {
+		if ( is_string( $value ) ) {
+			return sanitize_text_field( $value );
+		} elseif ( is_array( $value ) ) {
+			return array_map( 'sanitize_text_field', $value );
+		}
+
+		return $value;
 	}
 }

@@ -61,6 +61,15 @@ const messageTypesSchema = z.array(
 	} )
 );
 
+// Schema for the initiator objects.
+const initiatorSchema = z.array(
+	z.object( {
+		value: z.string(),
+		initiator_key: z.string().optional(),
+		search_options: z.array( z.string() ),
+	} )
+);
+
 function EventsGUI() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
 	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
@@ -201,7 +210,9 @@ function EventsGUI() {
 	// Selected initiator filter.
 	const [ selectedInitiator, setSelectedInitiator ] = useQueryState(
 		'initiator',
-		parseAsString.withDefault( 'all' ).withOptions( useQueryStateOptions )
+		parseAsJson( initiatorSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
 	);
 
 	/**

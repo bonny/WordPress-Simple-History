@@ -925,13 +925,23 @@ class Log_Query {
 			$args['users'] = array_filter( $args['users'] );
 		}
 
-		// "initiator" must be string and a valid initiator constant.
-		if ( isset( $args['initiator'] ) && ! is_string( $args['initiator'] ) ) {
-			throw new \InvalidArgumentException( 'Invalid initiator' );
-		} elseif ( isset( $args['initiator'] ) ) {
-			// Validate against Log_Initiators constants.
-			if ( ! in_array( $args['initiator'], Log_Initiators::get_valid_initiators(), true ) ) {
-				throw new \InvalidArgumentException( 'Invalid initiator value' );
+		// "initiator" must be string or array of strings and contain valid initiator constants.
+		if ( isset( $args['initiator'] ) ) {
+			if ( is_string( $args['initiator'] ) ) {
+				// Single initiator - validate it's a valid constant.
+				if ( ! in_array( $args['initiator'], Log_Initiators::get_valid_initiators(), true ) ) {
+					throw new \InvalidArgumentException( 'Invalid initiator value' );
+				}
+			} elseif ( is_array( $args['initiator'] ) ) {
+				// Multiple initiators - validate each one and filter out empty values.
+				$args['initiator'] = array_filter( $args['initiator'] );
+				foreach ( $args['initiator'] as $initiator ) {
+					if ( ! is_string( $initiator ) || ! in_array( $initiator, Log_Initiators::get_valid_initiators(), true ) ) {
+						throw new \InvalidArgumentException( 'Invalid initiator value: ' . esc_html( $initiator ) );
+					}
+				}
+			} else {
+				throw new \InvalidArgumentException( 'Invalid initiator type' );
 			}
 		}
 
@@ -1362,10 +1372,20 @@ class Log_Query {
 
 		// Add where clause for initiator filter.
 		if ( isset( $args['initiator'] ) ) {
-			$inner_where[] = sprintf(
-				'initiator = \'%s\'',
-				esc_sql( $args['initiator'] )
-			);
+			if ( is_string( $args['initiator'] ) ) {
+				// Single initiator.
+				$inner_where[] = sprintf(
+					'initiator = \'%s\'',
+					esc_sql( $args['initiator'] )
+				);
+			} elseif ( is_array( $args['initiator'] ) && ! empty( $args['initiator'] ) ) {
+				// Multiple initiators - use IN clause.
+				$escaped_initiators = array_map( 'esc_sql', $args['initiator'] );
+				$inner_where[] = sprintf(
+					'initiator IN (\'%s\')',
+					implode( '\',\'', $escaped_initiators )
+				);
+			}
 		}
 
 		/**
