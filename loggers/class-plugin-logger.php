@@ -1123,187 +1123,220 @@ class Plugin_Logger extends Logger {
 	 * @param object $row Log row.
 	 */
 	public function get_log_row_details_output( $row ) {
-
 		$context     = $row->context;
 		$message_key = $context['_message_key'];
 		$output      = '';
 
-		// When a plugin is installed we show a bit more information
-		// We do it only on install because we don't want to clutter to log,
-		// and when something is installed the description is most useful for other
-		// admins on the site.
-		if ( 'plugin_installed' === $message_key ) {
-			if ( isset( $context['plugin_description'] ) ) {
-				// Description includes a link to author, remove that, i.e. all text after and including <cite>.
-				$plugin_description = $context['plugin_description'];
-				$cite_pos           = strpos( $plugin_description, '<cite>' );
-				if ( $cite_pos ) {
-					$plugin_description = substr( $plugin_description, 0, $cite_pos );
+		switch ( $message_key ) {
+			case 'plugin_installed':
+				$output = $this->get_plugin_installed_details_output( $context );
+				break;
+			case 'plugin_bulk_updated':
+			case 'plugin_updated':
+			case 'plugin_activated':
+			case 'plugin_deactivated':
+				$output = $this->get_plugin_action_details_output( $context, $message_key );
+				break;
+		}
+
+		return $output;
+	}
+
+	/**
+	 * Get detailed output for plugin installation
+	 *
+	 * @param array $context Log context.
+	 * @return string HTML output.
+	 */
+	private function get_plugin_installed_details_output( $context ) {
+		$output = '';
+
+		if ( ! isset( $context['plugin_description'] ) ) {
+			return $output;
+		}
+
+		// Description includes a link to author, remove that, i.e. all text after and including <cite>.
+		$plugin_description = $context['plugin_description'];
+		$cite_pos           = strpos( $plugin_description, '<cite>' );
+		if ( $cite_pos ) {
+			$plugin_description = substr( $plugin_description, 0, $cite_pos );
+		}
+
+		// Keys to show.
+		$arr_plugin_keys = array(
+			'plugin_description'         => _x( 'Description', 'plugin logger - detailed output', 'simple-history' ),
+			'plugin_install_source'      => _x( 'Source', 'plugin logger - detailed output install source', 'simple-history' ),
+			'plugin_install_source_file' => _x( 'Source file name', 'plugin logger - detailed output install source', 'simple-history' ),
+			'plugin_version'             => _x( 'Version', 'plugin logger - detailed output version', 'simple-history' ),
+			'plugin_author'              => _x( 'Author', 'plugin logger - detailed output author', 'simple-history' ),
+			'plugin_url'                 => _x( 'URL', 'plugin logger - detailed output url', 'simple-history' ),
+		);
+
+		$arr_plugin_keys = apply_filters( 'simple_history/plugin_logger/row_details_plugin_info_keys', $arr_plugin_keys );
+
+		// Start output of plugin meta data table.
+		$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
+
+		foreach ( $arr_plugin_keys as $key => $desc ) {
+			$desc_output = $this->get_plugin_key_description_output( $key, $context, $plugin_description );
+
+			if ( trim( $desc_output ) === '' ) {
+				continue;
+			}
+
+			$output .= sprintf(
+				'
+				<tr>
+					<td>%1$s</td>
+					<td>%2$s</td>
+				</tr>
+				',
+				esc_html( $desc ),
+				$desc_output
+			);
+		}
+
+		// Add link with more info about the plugin
+		$output .= $this->get_plugin_info_link( $context );
+
+		$output .= '</table>';
+
+		return $output;
+	}
+
+	/**
+	 * Get description output for a specific plugin key
+	 *
+	 * @param string $key Plugin key.
+	 * @param array  $context Log context.
+	 * @param string $plugin_description Plugin description.
+	 * @return string Description output.
+	 */
+	private function get_plugin_key_description_output( $key, $context, $plugin_description ) {
+		switch ( $key ) {
+			case 'plugin_downloaded':
+				return esc_html( number_format_i18n( (int) $context[ $key ] ) );
+
+			case 'plugin_author':
+				// Author is already formatted.
+				return $context[ $key ];
+
+			case 'plugin_url':
+				return sprintf( '<a href="%1$s">%2$s</a>', esc_attr( $context['plugin_url'] ), esc_html( $context['plugin_url'] ) );
+
+			case 'plugin_description':
+				return $plugin_description;
+
+			case 'plugin_install_source':
+				if ( ! isset( $context[ $key ] ) ) {
+					return '';
 				}
 
-				// Keys to show.
-				$arr_plugin_keys = array(
-					'plugin_description'         => _x( 'Description', 'plugin logger - detailed output', 'simple-history' ),
-					'plugin_install_source'      => _x( 'Source', 'plugin logger - detailed output install source', 'simple-history' ),
-					'plugin_install_source_file' => _x( 'Source file name', 'plugin logger - detailed output install source', 'simple-history' ),
-					'plugin_version'             => _x( 'Version', 'plugin logger - detailed output version', 'simple-history' ),
-					'plugin_author'              => _x( 'Author', 'plugin logger - detailed output author', 'simple-history' ),
-					'plugin_url'                 => _x( 'URL', 'plugin logger - detailed output url', 'simple-history' ),
-					// "plugin_downloaded" => _x("Downloads", "plugin logger - detailed output downloaded", "simple-history"),
-					// "plugin_requires" => _x("Requires", "plugin logger - detailed output author", "simple-history"),
-					// "plugin_tested" => _x("Compatible up to", "plugin logger - detailed output compatible", "simple-history"),
-					// also available: plugin_rating, plugin_num_ratings
-				);
-
-				$arr_plugin_keys = apply_filters( 'simple_history/plugin_logger/row_details_plugin_info_keys', $arr_plugin_keys );
-
-				// Start output of plugin meta data table.
-				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
-
-				foreach ( $arr_plugin_keys as $key => $desc ) {
-					$desc_output = '';
-
-					switch ( $key ) {
-						case 'plugin_downloaded':
-							$desc_output = esc_html( number_format_i18n( (int) $context[ $key ] ) );
-							break;
-
-						// author is already formatted.
-						case 'plugin_author':
-							$desc_output = $context[ $key ];
-							break;
-
-						// URL needs a link.
-						case 'plugin_url':
-							$desc_output = sprintf( '<a href="%1$s">%2$s</a>', esc_attr( $context['plugin_url'] ), esc_html( $context['plugin_url'] ) );
-							break;
-
-						case 'plugin_description':
-							$desc_output = $plugin_description;
-							break;
-
-						case 'plugin_install_source':
-							if ( ! isset( $context[ $key ] ) ) {
-								break;
-							}
-
-							if ( 'web' == $context[ $key ] ) {
-								$desc_output = esc_html( __( 'WordPress Plugin Repository', 'simple-history' ) );
-							} elseif ( 'upload' == $context[ $key ] ) {
-								// $plugin_upload_name = isset( $context["plugin_upload_name"] ) ? $context["plugin_upload_name"] : __("Unknown archive name", "simple-history");
-								$desc_output = esc_html( __( 'Uploaded ZIP archive', 'simple-history' ) );
-								// $desc_output = esc_html( sprintf( __('Uploaded ZIP archive (%1$s)', "simple-history"), $plugin_upload_name ) );
-								// $desc_output = esc_html( sprintf( __('%1$s (uploaded ZIP archive)', "simple-history"), $plugin_upload_name ) );
-							} else {
-								$desc_output = esc_html( $context[ $key ] );
-							}
-
-							break;
-
-						case 'plugin_install_source_file':
-							if ( ! isset( $context['plugin_upload_name'] ) || ! isset( $context['plugin_install_source'] ) ) {
-								break;
-							}
-
-							if ( 'upload' == $context['plugin_install_source'] ) {
-								$plugin_upload_name = $context['plugin_upload_name'];
-								$desc_output        = esc_html( $plugin_upload_name );
-							}
-
-							break;
-
-						default:
-							$desc_output = esc_html( $context[ $key ] );
-							break;
-					}// End switch().
-
-					if ( trim( $desc_output ) === '' ) {
-						continue;
-					}
-
-					$output .= sprintf(
-						'
-						<tr>
-							<td>%1$s</td>
-							<td>%2$s</td>
-						</tr>
-						',
-						esc_html( $desc ),
-						$desc_output
-					);
-				}// End foreach().
-
-				// Add link with more info about the plugin
-				// If plugin_install_source = web then it should be a wordpress.org-plugin
-				// If plugin_github_url is set then it's a zip from github
-				// so use link to that.
-				$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
-
-				// Slug + web as install source = show link to wordpress.org.
-				if ( $plugin_slug && isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'web' ) {
-					$output .= sprintf(
-						'
-						<tr>
-							<td></td>
-							<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
-						</tr>
-						',
-						admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" ),
-						esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
-					);
-				} elseif ( isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'upload' && ! empty( $context['plugin_github_url'] ) ) {
-					// Can't embed iframe
-					// Must use API instead
-					// https://api.github.com/repos/<username>/<repo>/readme?callback=<callbackname>.
-					$output .= sprintf(
-						'
-						<tr>
-							<td></td>
-							<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
-						</tr>
-						',
-						admin_url( sprintf( 'admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&amp;repo=%1$s&amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url_raw( $context['plugin_github_url'] ) ) ),
-						esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
-					);
+				if ( 'web' == $context[ $key ] ) {
+					return esc_html( __( 'WordPress Plugin Repository', 'simple-history' ) );
+				} elseif ( 'upload' == $context[ $key ] ) {
+					return esc_html( __( 'Uploaded ZIP archive', 'simple-history' ) );
+				} else {
+					return esc_html( $context[ $key ] );
 				}
 
-				$output .= '</table>';
-			}// End if().
-		} elseif ( 'plugin_bulk_updated' === $message_key || 'plugin_updated' === $message_key || 'plugin_activated' === $message_key || 'plugin_deactivated' === $message_key ) {
-			$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
-
-			if ( $plugin_slug && empty( $context['plugin_github_url'] ) ) {
-				$link_title = esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title', 'simple-history' );
-				$url        = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" );
-
-				if ( 'plugin_updated' == $message_key || 'plugin_bulk_updated' == $message_key ) {
-					$link_title = esc_html_x( 'View changelog', 'plugin logger: plugin info thickbox title', 'simple-history' );
-
-					if ( is_multisite() ) {
-						$url = network_admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
-					} else {
-						$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
-					}
+			case 'plugin_install_source_file':
+				if ( ! isset( $context['plugin_upload_name'] ) || ! isset( $context['plugin_install_source'] ) ) {
+					return '';
 				}
 
-				$output .= sprintf(
-					'<p><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></p>',
-					$url,
-					$link_title
-				);
-			} elseif ( ! empty( $context['plugin_github_url'] ) ) {
-				$output .= sprintf(
-					'
-					<tr>
-						<td></td>
-						<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
-					</tr>
-					',
-					admin_url( sprintf( 'admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&amp;repo=%1$s&amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url_raw( $context['plugin_github_url'] ) ) ),
-					esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
-				);
-			} // End if().
-		} // End if().
+				if ( 'upload' == $context['plugin_install_source'] ) {
+					$plugin_upload_name = $context['plugin_upload_name'];
+					return esc_html( $plugin_upload_name );
+				}
+
+				return '';
+
+			default:
+				return esc_html( $context[ $key ] );
+		}
+	}
+
+	/**
+	 * Get plugin info link
+	 *
+	 * @param array $context Log context.
+	 * @return string HTML output.
+	 */
+	private function get_plugin_info_link( $context ) {
+		$output = '';
+		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
+
+		// Slug + web as install source = show link to wordpress.org.
+		if ( $plugin_slug && isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'web' ) {
+			$output .= sprintf(
+				'
+				<tr>
+					<td></td>
+					<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
+				</tr>
+				',
+				admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" ),
+				esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
+			);
+		} elseif ( isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'upload' && ! empty( $context['plugin_github_url'] ) ) {
+			$output .= sprintf(
+				'
+				<tr>
+					<td></td>
+					<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
+				</tr>
+				',
+				admin_url( sprintf( 'admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&amp;repo=%1$s&amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url_raw( $context['plugin_github_url'] ) ) ),
+				esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
+			);
+		}
+
+		return $output;
+	}
+
+	/**
+	 * Get detailed output for plugin actions (update, activate, deactivate)
+	 *
+	 * @param array  $context Log context.
+	 * @param string $message_key Message key.
+	 * @return string HTML output.
+	 */
+	private function get_plugin_action_details_output( $context, $message_key ) {
+		$output = '';
+		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
+
+		if ( $plugin_slug && empty( $context['plugin_github_url'] ) ) {
+			$link_title = esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title', 'simple-history' );
+			$url        = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" );
+
+			if ( 'plugin_updated' == $message_key || 'plugin_bulk_updated' == $message_key ) {
+				$link_title = esc_html_x( 'View changelog', 'plugin logger: plugin info thickbox title', 'simple-history' );
+
+				if ( is_multisite() ) {
+					$url = network_admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
+				} else {
+					$url = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=changelog&amp;TB_iframe=true&amp;width=772&amp;height=550" );
+				}
+			}
+
+			$output .= sprintf(
+				'<p><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></p>',
+				$url,
+				$link_title
+			);
+		} elseif ( ! empty( $context['plugin_github_url'] ) ) {
+			$output .= sprintf(
+				'
+				<tr>
+					<td></td>
+					<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
+				</tr>
+				',
+				admin_url( sprintf( 'admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&amp;repo=%1$s&amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url_raw( $context['plugin_github_url'] ) ) ),
+				esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
+			);
+		}
 
 		return $output;
 	}
