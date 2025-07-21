@@ -9,6 +9,7 @@ use WP_REST_Server;
 use Simple_History\Compat;
 use Simple_History\Event;
 use Simple_History\Helpers;
+use Simple_History\Log_Initiators;
 
 /**
  * REST API controller for events.
@@ -1075,7 +1076,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
 	public function validate_initiator_param( $value, $request, $param ) {
-		$valid_initiators = array( 'wp_user', 'web_user', 'wp', 'wp_cli', 'other' );
+		$valid_initiators = Log_Initiators::get_valid_initiators();
 
 		if ( is_string( $value ) ) {
 			// Single initiator.
