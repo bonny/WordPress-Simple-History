@@ -1,15 +1,16 @@
 import apiFetch from '@wordpress/api-fetch';
 import {
 	BaseControl,
+	ExternalLink,
 	Flex,
 	FlexBlock,
 	FlexItem,
 	FormTokenField,
 } from '@wordpress/components';
 import {
-	useState,
-	useEffect,
 	createInterpolateElement,
+	useEffect,
+	useState,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -380,7 +381,7 @@ export function ExpandedFilters( props ) {
 			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
 				<FlexItem style={ { margin: '.5em 0' } }>
 					<div className="SimpleHistory__filters__filterLabel">
-						{ __( 'Initiator', 'simple-history' ) }
+						{ __( 'Initiators', 'simple-history' ) }
 					</div>
 				</FlexItem>
 				<FlexBlock>
@@ -409,27 +410,23 @@ export function ExpandedFilters( props ) {
 									return suggestion.value;
 								}
 							) }
-						/>
-					</div>
-					<BaseControl
-						__nextHasNoMarginBottom
-						help={ createInterpolateElement(
-							__(
+							help={ __(
 								'Learn more about <a>what an initiator is</a>.',
 								'simple-history'
-							),
-							{
-								a: (
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									<a
-										href="https://simple-history.com/support/what-is-an-initiator/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=initiator-filter-help"
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							}
+							) }
+						/>
+					</div>
+
+					<ExternalLink
+						href="https://simple-history.com/support/what-is-an-initiator/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=initiator-filter-help"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{ __(
+							'About initiators and how they work',
+							'simple-history'
 						) }
-					/>
+					</ExternalLink>
 				</FlexBlock>
 			</Flex>
 		</div>
