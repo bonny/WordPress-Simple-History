@@ -1310,7 +1310,7 @@ class Plugin_Logger extends Logger {
 			$link_title = esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title', 'simple-history' );
 			$url        = admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" );
 
-			if ( 'plugin_updated' == $message_key || 'plugin_bulk_updated' == $message_key ) {
+			if ( in_array( $message_key, [ 'plugin_updated', 'plugin_bulk_updated' ], true ) ) {
 				$link_title = esc_html_x( 'View changelog', 'plugin logger: plugin info thickbox title', 'simple-history' );
 
 				if ( is_multisite() ) {
