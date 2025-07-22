@@ -25,10 +25,7 @@ class Event_Details_Group_FormattersTest extends \Codeception\TestCase\WPTestCas
 		$html = $formatter->to_html( $group );
 		$json = $formatter->to_json( $group );
 		
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain table tag with correct class' );
-		$this->assertStringContainsString( '<tbody>', $html, 'Should contain tbody tag' );
-		$this->assertStringContainsString( '</tbody>', $html, 'Should close tbody tag' );
-		$this->assertStringContainsString( '</table>', $html, 'Should close table tag' );
+		$this->assertEquals( '', $html, 'Empty group should return empty string, not empty table' );
 		
 		$this->assertIsArray( $json, 'JSON should be an array' );
 		$this->assertArrayHasKey( 'title', $json, 'JSON should have title key' );
@@ -184,8 +181,7 @@ class Event_Details_Group_FormattersTest extends \Codeception\TestCase\WPTestCas
 		$html = $formatter->to_html( $group );
 		$json = $formatter->to_json( $group );
 		
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain table even when empty' );
-		$this->assertStringContainsString( '<tbody></tbody>', $html, 'Should contain empty tbody' );
+		$this->assertEquals( '', $html, 'Empty group should return empty string, not empty table' );
 		$this->assertEmpty( $json['items'], 'JSON items should be empty for empty group' );
 	}
 
