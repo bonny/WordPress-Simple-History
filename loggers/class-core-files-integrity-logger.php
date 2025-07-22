@@ -3,6 +3,8 @@
 namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
 
 /**
  * Logger to detect modifications to WordPress core files
@@ -226,56 +228,84 @@ class Core_Files_Integrity_Logger extends Logger {
 	 * Get output for log row details
 	 *
 	 * @param object $row Log row.
-	 * @return string HTML
+	 * @return Event_Details_Group|null
 	 */
 	public function get_log_row_details_output( $row ) {
 		$context = $row->context;
 		$message_key = $context['_message_key'] ?? null;
 
-		if ( ! $message_key ) {
-			return '';
+		if ( ! $message_key || 'core_files_modified_detected' !== $message_key ) {
+			return null;
 		}
 
-		$output = '';
+		if ( empty( $context['file_details'] ) ) {
+			return null;
+		}
 
-		// Show details for modified files detection.
-		if ( 'core_files_modified_detected' === $message_key && ! empty( $context['file_details'] ) ) {
-			$output .= '<h4>' . __( 'Modified Core Files', 'simple-history' ) . '</h4>';
-			$output .= '<table class="SimpleHistoryLogitem__keyValueTable">';
+		// Decode the JSON stored file_details.
+		$file_details = json_decode( $context['file_details'] );
+		if ( ! is_array( $file_details ) ) {
+			return null;
+		}
 
-			// Decode the JSON stored file_details.
-			$file_details = json_decode( $context['file_details'] );
-			if ( is_array( $file_details ) ) {
-				foreach ( $file_details as $file_data ) {
-					// Handle stdClass objects.
-					$file = $file_data->file ?? '';
-					$issue = $file_data->issue ?? '';
+		$event_details_group = new Event_Details_Group();
+		$event_details_group->set_title( __( 'Modified Core Files', 'simple-history' ) );
 
-					if ( empty( $file ) || empty( $issue ) ) {
-						continue;
-					}
+		// Limit to first 5 files to keep log events manageable.
+		$limited_file_details = array_slice( $file_details, 0, 5 );
+		$total_files = count( $file_details );
 
-					if ( 'modified' === $issue ) {
-						$status_text = __( 'Hash mismatch', 'simple-history' );
-					} elseif ( 'unreadable' === $issue ) {
-						$status_text = __( 'File unreadable', 'simple-history' );
-					} elseif ( 'missing' === $issue ) {
-						$status_text = __( 'File missing', 'simple-history' );
-					} else {
-						$status_text = esc_html( $issue );
-					}
+		foreach ( $limited_file_details as $file_data ) {
+			// Handle stdClass objects.
+			$file = $file_data->file ?? '';
+			$issue = $file_data->issue ?? '';
 
-					$output .= sprintf(
-						'<tr><td>%s</td><td>%s</td></tr>',
-						esc_html( $file ),
-						esc_html( $status_text )
-					);
-				}
+			if ( empty( $file ) || empty( $issue ) ) {
+				continue;
 			}
 
-			$output .= '</table>';
+			// Determine the status text.
+			if ( 'modified' === $issue ) {
+				$status_text = __( 'Hash mismatch', 'simple-history' );
+			} elseif ( 'unreadable' === $issue ) {
+				$status_text = __( 'File unreadable', 'simple-history' );
+			} elseif ( 'missing' === $issue ) {
+				$status_text = __( 'File missing', 'simple-history' );
+			} else {
+				$status_text = esc_html( $issue );
+			}
+
+			// Create an Event_Details_Item for each file without context key.
+			$event_details_group->add_item(
+				( new Event_Details_Item(
+					null, // No context key needed.
+					$file // Label (file name).
+				) )->set_new_value( $status_text ) // Manually set the value.
+			);
 		}
 
-		return $output;
+		// Add summary if there are more files than displayed.
+		if ( $total_files > 5 ) {
+			$remaining_count = $total_files - 5;
+			$event_details_group->add_item(
+				( new Event_Details_Item(
+					null,
+					__( 'Additional files', 'simple-history' )
+				) )->set_new_value(
+					sprintf(
+						/* translators: %d: number of additional files not shown */
+						_n(
+							'%d more file affected',
+							'%d more files affected',
+							$remaining_count,
+							'simple-history'
+						),
+						$remaining_count
+					)
+				)
+			);
+		}
+
+		return $event_details_group;
 	}
 }
