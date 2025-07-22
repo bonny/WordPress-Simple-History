@@ -61,6 +61,11 @@ abstract class Event_Details_Item_Formatter {
 				esc_html( $this->item->new_value ),
 				esc_html( $this->item->prev_value )
 			);
+		} elseif ( $this->item->is_removed ) {
+			$value_output .= sprintf(
+				'<span class="SimpleHistoryLogitem__keyValueTable__removedThing">%1$s</span>',
+				esc_html( $this->item->prev_value )
+			);
 		} else {
 			$value_output .= sprintf(
 				'<span class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</span>',
