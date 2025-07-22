@@ -322,7 +322,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Add ungrouped events support for the Log Query API and the REST API. This will get you a list of events without grouping them by occasion. This is useful for getting a simple list of events without the overhead of grouping.
--   Adds a sidebar panel to the Gutenberg block editor showing Simple History events for the current post.
+-   New experimental feature: Adds a sidebar panel to the Gutenberg block editor showing Simple History events for the current post.
 -   Add search filter for initiators. This allows you to filter events by the initiator, e.g. "Web user", "WordPress user", "WP-CLI", "Other". Support is added both in search GUI but also in the REST API.
 -   Add footer to dashboard page with links to the [blog](https://simple-history.com/blog/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_14_0), [support](https://simple-history.com/support/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_14_0) and [premium features](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_14_0).
 -   Add filters to customize plugin update details. Plugin authors can now add custom information about new features and improvements when their plugins are updated. This is done using the filter `simple_history/pluginlogger/plugin_updated_details/{plugin-slug}/{version}`. For example, to add custom details for Simple History version 5.14.0, use the filter `simple_history/pluginlogger/plugin_updated_details/simple-history/5.14.0`.
