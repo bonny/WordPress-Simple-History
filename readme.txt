@@ -321,6 +321,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   New experimental feature: Added Core Files Integrity Logger to detect and monitor modifications to
+    WordPress core files through automated checksum verification.
 -   Add ungrouped events support for the Log Query API and the REST API. This will get you a list of events without grouping them by occasion. This is useful for getting a simple list of events without the overhead of grouping.
 -   New experimental feature: Adds a sidebar panel to the Gutenberg block editor showing Simple History events for the current post.
 -   Add search filter for initiators. This allows you to filter events by the initiator, e.g. "Web user", "WordPress user", "WP-CLI", "Other". Support is added both in search GUI but also in the REST API.
