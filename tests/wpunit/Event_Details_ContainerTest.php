@@ -7,6 +7,7 @@ use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Event_Details\Event_Details_Group_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Group_Inline_Formatter;
 use Simple_History\Event_Details\Event_Details_Group_Single_Item_Formatter;
+use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
 
 /**
  * Tests for Event_Details_Container class.
@@ -383,5 +384,67 @@ class Event_Details_ContainerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotEmpty( $html_output, 'HTML output should not be empty' );
 		$this->assertIsArray( $json_output, 'JSON output should be an array' );
 		$this->assertCount( 3, $json_output, 'JSON output should have three group entries' );
+	}
+
+	public function test_raw_formatter_items_always_included() {
+		// Test that items with RAW formatters are always included, regardless of context
+		$container = new Event_Details_Container();
+		$group = new Event_Details_Group();
+
+		// Create item with context key that won't exist in context
+		$item = new Event_Details_Item('nonexistent_key', 'My Field');
+		
+		// Set RAW formatter with custom output
+		$raw_formatter = new Event_Details_Item_RAW_Formatter();
+		$raw_formatter->set_html_output('<div>Custom RAW content</div>');
+		$raw_formatter->set_json_output(['type' => 'custom', 'content' => 'RAW content']);
+		
+		$item->set_formatter($raw_formatter);
+		$group->add_item($item);
+		$container->add_group($group);
+
+		// Verify item is present before setting context
+		$this->assertCount(1, $group->items, 'Group should have one item initially');
+		$this->assertTrue($item->has_custom_formatter(), 'Item should have custom formatter');
+
+		// Set context that doesn't contain the item's key
+		$context = ['some_other_key' => 'some value'];
+		$container->set_context($context);
+
+		// Item with RAW formatter should still be present
+		$this->assertCount(1, $group->items, 'Item with RAW formatter should not be removed');
+		
+		// Output should contain the RAW formatter content
+		$html = $container->to_html();
+		$json = $container->to_json();
+		
+		$this->assertStringContainsString('Custom RAW content', $html, 'HTML should contain RAW formatter content');
+		$this->assertNotEmpty($json, 'JSON output should not be empty');
+		$this->assertEquals('custom', $json[0]['items'][0]['type'], 'JSON should contain RAW formatter output');
+	}
+
+	public function test_raw_formatter_with_existing_context_key() {
+		// Test that RAW formatter works even when context key exists
+		$container = new Event_Details_Container();
+		$group = new Event_Details_Group();
+
+		$item = new Event_Details_Item('existing_key', 'Field With Context');
+		
+		$raw_formatter = new Event_Details_Item_RAW_Formatter();
+		$raw_formatter->set_html_output('<span>RAW output ignores context</span>');
+		
+		$item->set_formatter($raw_formatter);
+		$group->add_item($item);
+		$container->add_group($group);
+
+		// Set context that contains the item's key
+		$context = ['existing_key' => 'context value'];
+		$container->set_context($context);
+
+		// Item should still be present
+		$this->assertCount(1, $group->items, 'Item should be present');
+		
+		$html = $container->to_html();
+		$this->assertStringContainsString('RAW output ignores context', $html, 'Should use RAW formatter output, not context value');
 	}
 }
