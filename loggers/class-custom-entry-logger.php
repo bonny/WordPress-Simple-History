@@ -68,20 +68,17 @@ class Custom_Entry_Logger extends Logger {
 			return null;
 		}
 
-		$event_details_group = new Event_Details_Group();
-
-		// Add note if it exists.
-		if ( ! empty( $context['note'] ) ) {
-			// Create a group for the note.
-
-			$event_details_group->add_item(
-				new Event_Details_Item(
-					'note',
-					__( 'Entry notes', 'simple-history' ),
-				)
-			);
-
+		if ( empty( $context['note'] ) ) {
+			return null;
 		}
+
+		$event_details_group = new Event_Details_Group();
+		$event_details_group->add_item(
+			new Event_Details_Item(
+				'note',
+				__( 'Entry notes', 'simple-history' ),
+			)
+		);
 
 		return $event_details_group;
 	}
