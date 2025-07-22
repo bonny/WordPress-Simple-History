@@ -36,6 +36,7 @@ const usePostEvents = ( postId ) => {
 					context_filters: {
 						post_id: postId.toString(),
 					},
+					ungrouped: true,
 				} ),
 				parse: false,
 			} );
