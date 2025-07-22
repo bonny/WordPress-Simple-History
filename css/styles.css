@@ -1705,3 +1705,40 @@ a.sh-SettingsTabs-link:hover {
 .sh-Page-content a {
 	text-underline-position: from-font;
 }
+
+/*
+Styles for plugin update details. Markup looks like this:
+
+<div class="sh-PluginUpdateDetails">
+    <h4 class="sh-PluginUpdateDetails-title">What's new in this version</h4>
+    <ul class="sh-PluginUpdateDetails-features">
+        <li class="sh-PluginUpdateDetails-feature">Feature 1</li>
+        <li class="sh-PluginUpdateDetails-feature">Feature 2</li>
+    </ul>
+    <p class="sh-PluginUpdateDetails-releaseLink">
+        <a href="..." target="_blank">Read full release notes</a>
+    </p>
+</div>
+*/
+
+.sh-PluginUpdateDetails {
+	margin-top: var(--sh-spacing-medium);
+	margin-bottom: var(--sh-spacing-medium);
+}
+
+.sh-PluginUpdateDetails-title {
+	font-size: var(--sh-font-size-medium);
+	font-weight: 600;
+	margin-bottom: var(--sh-spacing-small);
+}
+
+.sh-PluginUpdateDetails-features {
+	list-style: disc;
+	padding-left: var(--sh-spacing-medium);
+	margin: var(--sh-spacing-small) 0;
+}
+
+.SimpleHistoryLogitem__details .sh-PluginUpdateDetails-releaseLink {
+	margin-top: var(--sh-spacing-small);
+	margin-bottom: var(--sh-spacing-small);
+}
