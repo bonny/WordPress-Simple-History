@@ -13,6 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Unit: `docker compose run --rm php-cli vendor/bin/codecept run wpunit:TestName`
   - Functional: `docker compose run --rm php-cli vendor/bin/codecept run functional:TestName`
   - Acceptance: `docker compose run --rm php-cli vendor/bin/codecept run acceptance:TestName`
+ - Run "npm run php:phpstan" to check for PHP errors
 
 ## Code Style Guidelines
 - WordPress Coding Standards with modifications (see phpcs.xml.dist)
@@ -27,3 +28,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Docker/WP-CLI Commands
 - Test WP-CLI commands on local website: `cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot && docker compose run --rm wpcli_mariadb help simple-history list`
+
+## Git Workflow
+- Check out a new branch before working on changes for a github issue or any other larger code
