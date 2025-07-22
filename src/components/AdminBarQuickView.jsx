@@ -4,8 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
 import { useInView } from 'react-intersection-observer';
-import { EventDate } from './EventDate';
-import { EventInitiatorName } from './EventInitiatorName';
+import { EventsCompactList } from './EventsCompactList';
 import RefreshImage from '../../css/icons/refresh_24dp_5F6368_FILL0_wght400_GRAD0_opsz48.svg';
 import './AdminBarQuickView.scss';
 
@@ -31,58 +30,6 @@ const EventsCompactListLoadingSkeleton = () => {
 				) ) }
 			</ul>
 		</>
-	);
-};
-
-/**
- * One compact event for the compact event list in the admin bar.
- * @param {Object} props
- * @return {Object} React element
- */
-const CompactEvent = ( props ) => {
-	const { event } = props;
-
-	return (
-		<MenuBarLiItem
-			href={ event.link }
-			className="SimpleHistory-adminBarEventsList-item"
-			title={ __( 'View event details', 'simple-history' ) }
-		>
-			<div className="SimpleHistory-adminBarEventsList-item-dot"></div>
-			<div className="SimpleHistory-adminBarEventsList-item-content">
-				<div className="SimpleHistory-adminBarEventsList-item-content-meta">
-					<EventInitiatorName
-						event={ event }
-						eventVariant="compact"
-					/>
-					<EventDate event={ event } eventVariant="compact" />
-				</div>
-				<div className="SimpleHistory-adminBarEventsList-item-content-message">
-					<p>{ event.message }</p>
-				</div>
-			</div>
-		</MenuBarLiItem>
-	);
-};
-
-const EventsCompactList = ( props ) => {
-	const { events, isLoading } = props;
-
-	if ( isLoading ) {
-		return <EventsCompactListLoadingSkeleton />;
-	}
-
-	// Events not loaded yet.
-	if ( events.length === 0 ) {
-		return null;
-	}
-
-	return (
-		<ul className="SimpleHistory-adminBarEventsList">
-			{ events.map( ( event ) => (
-				<CompactEvent key={ event.id } event={ event } />
-			) ) }
-		</ul>
 	);
 };
 
@@ -218,7 +165,14 @@ const AdminBarQuickView = () => {
 					{ __( 'Events from the last 7 days', 'simple-history' ) }
 				</div>
 
-				<EventsCompactList events={ events } isLoading={ isLoading } />
+				{ isLoading ? (
+					<EventsCompactListLoadingSkeleton />
+				) : (
+					<EventsCompactList
+						events={ events }
+						isLoading={ isLoading }
+					/>
+				) }
 
 				<div className="SimpleHistory-adminBarEventsList-actions">
 					{ viewFullHistoryLink }
