@@ -243,25 +243,34 @@ class Core_Files_Integrity_Logger extends Logger {
 			$output .= '<h4>' . __( 'Modified Core Files', 'simple-history' ) . '</h4>';
 			$output .= '<table class="SimpleHistoryLogitem__keyValueTable">';
 
-			foreach ( $context['file_details'] as $file_data ) {
-				$file = $file_data['file'];
-				$issue = $file_data['issue'];
+			// Decode the JSON stored file_details.
+			$file_details = json_decode( $context['file_details'] );
+			if ( is_array( $file_details ) ) {
+				foreach ( $file_details as $file_data ) {
+					// Handle stdClass objects.
+					$file = $file_data->file ?? '';
+					$issue = $file_data->issue ?? '';
 
-				if ( 'modified' === $issue ) {
-					$status_text = __( 'Hash mismatch', 'simple-history' );
-				} elseif ( 'unreadable' === $issue ) {
-					$status_text = __( 'File unreadable', 'simple-history' );
-				} elseif ( 'missing' === $issue ) {
-					$status_text = __( 'File missing', 'simple-history' );
-				} else {
-					$status_text = esc_html( $issue );
+					if ( empty( $file ) || empty( $issue ) ) {
+						continue;
+					}
+
+					if ( 'modified' === $issue ) {
+						$status_text = __( 'Hash mismatch', 'simple-history' );
+					} elseif ( 'unreadable' === $issue ) {
+						$status_text = __( 'File unreadable', 'simple-history' );
+					} elseif ( 'missing' === $issue ) {
+						$status_text = __( 'File missing', 'simple-history' );
+					} else {
+						$status_text = esc_html( $issue );
+					}
+
+					$output .= sprintf(
+						'<tr><td>%s</td><td>%s</td></tr>',
+						esc_html( $file ),
+						esc_html( $status_text )
+					);
 				}
-
-				$output .= sprintf(
-					'<tr><td>%s</td><td>%s</td></tr>',
-					esc_html( $file ),
-					esc_html( $status_text )
-				);
 			}
 
 			$output .= '</table>';
