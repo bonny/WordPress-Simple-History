@@ -34,7 +34,7 @@ class Core_Files_Integrity_Logger extends Logger {
 			'capability'  => 'manage_options',
 			'messages'    => [
 				'core_files_modified_detected' => __( 'WordPress core file modifications detected: {file_count} files modified', 'simple-history' ),
-				'core_files_integrity_restored' => __( 'WordPress core file integrity restored', 'simple-history' ),
+				'core_files_integrity_restored' => __( 'WordPress core file integrity restored: {file_count} files fixed', 'simple-history' ),
 				'core_files_check_failed' => __( 'WordPress core files integrity check failed: {error_message}', 'simple-history' ),
 			],
 			'labels'      => [
@@ -217,7 +217,13 @@ class Core_Files_Integrity_Logger extends Logger {
 
 		// Log resolved issues.
 		if ( ! empty( $resolved_issues ) && ! empty( $previous_results ) ) {
-			$this->info_message( 'core_files_integrity_restored' );
+			$context = [
+				'file_count' => count( $resolved_issues ),
+				'restored_files' => array_keys( $resolved_issues ),
+				'file_details' => array_values( $resolved_issues ),
+			];
+
+			$this->info_message( 'core_files_integrity_restored', $context );
 		}
 
 		// Update stored results.
@@ -234,7 +240,12 @@ class Core_Files_Integrity_Logger extends Logger {
 		$context = $row->context;
 		$message_key = $context['_message_key'] ?? null;
 
-		if ( ! $message_key || 'core_files_modified_detected' !== $message_key ) {
+		if ( ! $message_key ) {
+			return null;
+		}
+
+		// Handle both detected and restored events.
+		if ( ! in_array( $message_key, [ 'core_files_modified_detected', 'core_files_integrity_restored' ], true ) ) {
 			return null;
 		}
 
@@ -249,7 +260,13 @@ class Core_Files_Integrity_Logger extends Logger {
 		}
 
 		$event_details_group = new Event_Details_Group();
-		$event_details_group->set_title( __( 'Modified Core Files', 'simple-history' ) );
+		
+		// Set appropriate title based on the event type.
+		if ( 'core_files_integrity_restored' === $message_key ) {
+			$event_details_group->set_title( __( 'Restored Core Files', 'simple-history' ) );
+		} else {
+			$event_details_group->set_title( __( 'Modified Core Files', 'simple-history' ) );
+		}
 
 		// Limit to first 5 files to keep log events manageable.
 		$limited_file_details = array_slice( $file_details, 0, 5 );
@@ -265,14 +282,28 @@ class Core_Files_Integrity_Logger extends Logger {
 			}
 
 			// Determine the status text.
-			if ( 'modified' === $issue ) {
-				$status_text = __( 'Hash mismatch', 'simple-history' );
-			} elseif ( 'unreadable' === $issue ) {
-				$status_text = __( 'File unreadable', 'simple-history' );
-			} elseif ( 'missing' === $issue ) {
-				$status_text = __( 'File missing', 'simple-history' );
+			if ( 'core_files_integrity_restored' === $message_key ) {
+				// For restored files, show what was fixed.
+				if ( 'modified' === $issue ) {
+					$status_text = __( 'Hash mismatch fixed', 'simple-history' );
+				} elseif ( 'unreadable' === $issue ) {
+					$status_text = __( 'File readability restored', 'simple-history' );
+				} elseif ( 'missing' === $issue ) {
+					$status_text = __( 'Missing file restored', 'simple-history' );
+				} else {
+					$status_text = sprintf( __( '%s fixed', 'simple-history' ), esc_html( $issue ) );
+				}
 			} else {
-				$status_text = esc_html( $issue );
+				// For detected issues, show the current problem.
+				if ( 'modified' === $issue ) {
+					$status_text = __( 'Hash mismatch', 'simple-history' );
+				} elseif ( 'unreadable' === $issue ) {
+					$status_text = __( 'File unreadable', 'simple-history' );
+				} elseif ( 'missing' === $issue ) {
+					$status_text = __( 'File missing', 'simple-history' );
+				} else {
+					$status_text = esc_html( $issue );
+				}
 			}
 
 			// Create an Event_Details_Item for each file without context key.
