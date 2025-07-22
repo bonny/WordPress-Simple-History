@@ -33,21 +33,15 @@ const usePostEvents = ( postId ) => {
 				path: addQueryArgs( '/simple-history/v1/events', {
 					per_page: 100,
 					loggers: 'SimplePostLogger',
+					context_filters: {
+						post_id: postId.toString(),
+					},
 				} ),
 				parse: false,
 			} );
 
 			const eventsJson = await response.json();
-
-			// Filter events for this post on the client side
-			const postSpecificEvents = eventsJson.filter(
-				( event ) =>
-					event.context &&
-					event.context.post_id &&
-					event.context.post_id.toString() === postId.toString()
-			);
-
-			setEvents( postSpecificEvents );
+			setEvents( eventsJson );
 		} catch ( err ) {
 			setError( err.message );
 		} finally {
