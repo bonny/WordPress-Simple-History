@@ -738,6 +738,9 @@ class Log_Query {
 				// Only return sticky events.
 				'only_sticky' => false,
 
+				// Context filters as key-value pairs.
+				'context_filters' => null,
+
 			// Can also contain:
 			// logRowID
 			// occasionsCount
@@ -1384,6 +1387,18 @@ class Log_Query {
 				$inner_where[] = sprintf(
 					'initiator IN (\'%s\')',
 					implode( '\',\'', $escaped_initiators )
+				);
+			}
+		}
+
+		// Add where clause for context filters.
+		if ( ! empty( $args['context_filters'] ) && is_array( $args['context_filters'] ) ) {
+			foreach ( $args['context_filters'] as $context_key => $context_value ) {
+				$inner_where[] = sprintf(
+					'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'%2$s\' AND c.value = \'%3$s\' )',
+					$contexts_table_name,
+					esc_sql( $context_key ),
+					esc_sql( $context_value )
 				);
 			}
 		}

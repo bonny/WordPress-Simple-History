@@ -448,6 +448,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'sanitize_callback' => array( $this, 'sanitize_initiator_param' ),
 		);
 
+		$query_params['context_filters'] = array(
+			'description' => __( 'Context filters as key-value pairs to filter events by context data.', 'simple-history' ),
+			'type'        => 'object',
+			'additionalProperties' => array(
+				'type' => 'string',
+			),
+		);
+
 		return $query_params;
 	}
 
@@ -632,6 +640,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'users'                   => 'users',
 			'user'                    => 'user',
 			'initiator'               => 'initiator',
+			'context_filters'         => 'context_filters',
 		);
 
 		/*
@@ -707,6 +716,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'include_sticky'          => 'include_sticky',
 			'only_sticky'             => 'only_sticky',
 			'initiator'               => 'initiator',
+			'context_filters'         => 'context_filters',
 		);
 
 		/*
