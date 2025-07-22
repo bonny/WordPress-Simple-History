@@ -44,11 +44,6 @@ class Gutenberg_Sidebar_Dropin extends Dropin {
 			return;
 		}
 
-		// Ensure required WordPress APIs are available.
-		// if ( ! function_exists( 'wp_enqueue_script' ) || ! function_exists( 'wp_enqueue_style' ) ) {
-		// 	return;
-		// }
-
 		// Ensure the built asset file exists.
 		$asset_file_path = SIMPLE_HISTORY_PATH . 'build/index-gutenberg.asset.php';
 		if ( ! file_exists( $asset_file_path ) ) {
