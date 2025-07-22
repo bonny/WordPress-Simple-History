@@ -42,3 +42,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Git Workflow
 
 -   Check out a new branch before working on changes for a github issue or any other larger code
+
+## GitHub Commands
+
+-   Use github cli to fetch github issues
