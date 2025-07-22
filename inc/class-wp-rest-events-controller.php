@@ -456,6 +456,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			),
 		);
 
+		$query_params['ungrouped'] = array(
+			'description' => __( 'Return ungrouped events without occasions grouping.', 'simple-history' ),
+			'type'        => 'boolean',
+			'default'     => false,
+		);
+
 		return $query_params;
 	}
 
@@ -641,6 +647,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'user'                    => 'user',
 			'initiator'               => 'initiator',
 			'context_filters'         => 'context_filters',
+			'ungrouped'               => 'ungrouped',
 		);
 
 		/*
@@ -717,6 +724,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'only_sticky'             => 'only_sticky',
 			'initiator'               => 'initiator',
 			'context_filters'         => 'context_filters',
+			'ungrouped'               => 'ungrouped',
 		);
 
 		/*

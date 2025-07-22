@@ -64,6 +64,11 @@ class Log_Query {
 	 * @throws \ErrorException If invalid DB engine.
 	 */
 	public function query_overview( $args ) {
+		// Force simple query for ungrouped results.
+		if ( ! empty( $args['ungrouped'] ) ) {
+			return $this->query_overview_simple( $args );
+		}
+
 		$db_engine = $this->get_db_engine();
 
 		if ( $db_engine === 'mysql' ) {
@@ -71,22 +76,22 @@ class Log_Query {
 			return $this->query_overview_mysql( $args );
 		} else if ( $db_engine === 'sqlite' ) {
 			// Call sqlite method.
-			return $this->query_overview_sqlite( $args );
+			return $this->query_overview_simple( $args );
 		} else {
 			throw new \ErrorException( 'Invalid DB engine' );
 		}
 	}
 
 	/**
-	 * SQLite compatible version of query_overview_mysql().
-	 * Main difference is that the SQL query is simpler,
-	 * because it does not support occasions.
+	 * Simplified version of query_overview_mysql() that returns ungrouped events.
+	 * This query does not group events by occasions, returning each event individually.
+	 * Originally created for SQLite compatibility but useful for any ungrouped display.
 	 *
 	 * @param string|array|object $args Arguments.
 	 * @return array Log rows.
 	 * @throws \Exception If error when performing query.
 	 */
-	protected function query_overview_sqlite( $args ) {
+	protected function query_overview_simple( $args ) {
 		$args = $this->prepare_args( $args );
 
 		// Create cache key based on args and current user.
@@ -740,6 +745,9 @@ class Log_Query {
 
 				// Context filters as key-value pairs.
 				'context_filters' => null,
+
+				// Return ungrouped events without occasions grouping.
+				'ungrouped' => false,
 
 			// Can also contain:
 			// logRowID
