@@ -27,6 +27,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 -   Proper escaping required for all output
 -   No mb\_\* string functions allowed
 -   Text domain: 'simple-history'
+-   Don't write code like this: 
+    -   `<?php foreach ( $settings_fields as $field ) : ?>`. Prefer newline before foreach and use { instead of :.
+    -   `<?php if ( ! empty( $field['title'] ) ) : ?>`. Prefer newline before if and use { instead of :.
 
 # CSS rules
 
