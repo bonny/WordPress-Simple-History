@@ -47,6 +47,8 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Notification_Bar',
 			'Email_Report_Service',
 			'Simple_History_Updates',
+			'Integrations_Service',
+			'Integrations_Settings_Page'
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);
