@@ -122,7 +122,7 @@ class Integrations_Settings_Page extends Service {
 		// Add a field group for this integration.
 		add_settings_field(
 			'integration_' . $integration_slug,
-			Helpers::get_settings_field_title_output( $integration->get_name(), 'extension' ),
+			Helpers::get_settings_field_title_output( $integration->get_name() ),
 			[ $this, 'render_integration_settings' ],
 			self::SETTINGS_PAGE_SLUG,
 			self::SETTINGS_SECTION_ID,
