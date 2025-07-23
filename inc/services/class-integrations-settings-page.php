@@ -153,7 +153,7 @@ class Integrations_Settings_Page extends Service {
 		/** @var \Simple_History\Integrations\Interfaces\Integration_Interface $integration */
 		$integration = $args['integration'];
 		$settings_fields = $integration->get_settings_fields();
-		$option_name = 'simple_history_integration_' . $integration->get_slug();
+		$option_name = $integration->get_settings_option_name();
 
 		?>
 		<div class="sh-Integration-settings">
