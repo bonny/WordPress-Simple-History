@@ -15,6 +15,41 @@ use Simple_History\Integrations\Integration;
  */
 class File_Integration extends Integration {
 	/**
+	 * Cache for directory existence checks.
+	 *
+	 * @var array<string, bool>
+	 */
+	private static $directory_cache = [];
+
+	/**
+	 * Cache for settings to avoid repeated lookups.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private $settings_cache = null;
+
+	/**
+	 * Last cleanup time to avoid frequent cleanup operations.
+	 *
+	 * @var int
+	 */
+	private static $last_cleanup_time = 0;
+
+	/**
+	 * Write buffer to batch multiple log entries.
+	 *
+	 * @var array<string, string>
+	 */
+	private static $write_buffer = [];
+
+	/**
+	 * Maximum buffer size before forcing a flush.
+	 *
+	 * @var int
+	 */
+	private static $buffer_max_size = 10;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -22,6 +57,9 @@ class File_Integration extends Integration {
 		$this->supports_async = false; // File writing is fast, no need for async.
 
 		parent::__construct();
+
+		// Register cleanup hook for async processing.
+		add_action( 'simple_history_cleanup_log_files', [ $this, 'handle_async_cleanup' ] );
 	}
 
 	/**
@@ -58,9 +96,9 @@ class File_Integration extends Integration {
 			return false;
 		}
 
-		// Ensure directory exists.
+		// Ensure directory exists (with caching).
 		$log_dir = dirname( $log_file );
-		if ( ! $this->ensure_directory_exists( $log_dir ) ) {
+		if ( ! $this->ensure_directory_exists_cached( $log_dir ) ) {
 			$this->log_error( 'Could not create log directory: ' . $log_dir );
 			return false;
 		}
@@ -68,8 +106,8 @@ class File_Integration extends Integration {
 		// Format the log entry.
 		$log_entry = $this->format_log_entry( $event_data, $formatted_message );
 
-		// Write to file.
-		return $this->write_to_file( $log_file, $log_entry );
+		// Add to buffer for batch writing.
+		return $this->add_to_write_buffer( $log_file, $log_entry );
 	}
 
 	/**
@@ -138,6 +176,30 @@ class File_Integration extends Integration {
 	}
 
 	/**
+	 * Get cached settings to avoid repeated database calls.
+	 *
+	 * @return array<string, mixed> Cached settings.
+	 */
+	private function get_cached_settings() {
+		if ( null === $this->settings_cache ) {
+			$this->settings_cache = $this->get_settings();
+		}
+		return $this->settings_cache;
+	}
+
+	/**
+	 * Get a setting with caching.
+	 *
+	 * @param string $setting_name Setting name.
+	 * @param mixed  $default Default value.
+	 * @return mixed Setting value.
+	 */
+	private function get_cached_setting( $setting_name, $default = null ) {
+		$settings = $this->get_cached_settings();
+		return $settings[ $setting_name ] ?? $default;
+	}
+
+	/**
 	 * Get the log file path based on current settings.
 	 *
 	 * @return string|false Log file path or false on error.
@@ -145,7 +207,7 @@ class File_Integration extends Integration {
 	private function get_log_file_path() {
 		$log_dir = $this->get_default_log_directory();
 		/** @var string $rotation */
-		$rotation = $this->get_setting( 'rotation_frequency', 'daily' );
+		$rotation = $this->get_cached_setting( 'rotation_frequency', 'daily' );
 		/** @var string|false $filename */
 		$filename = $this->get_log_filename( $rotation );
 
@@ -262,7 +324,7 @@ class File_Integration extends Integration {
 		// Always include initiator.
 		$structured_data[] = 'initiator=' . $initiator;
 
-		$structured_suffix = ! empty( $structured_data ) ? ' [' . implode( ' ', $structured_data ) . ']' : '';
+		$structured_suffix = count( $structured_data ) > 0 ? ' [' . implode( ' ', $structured_data ) . ']' : '';
 
 		return sprintf(
 			"[%s] %s %s: %s%s\n",
@@ -272,6 +334,24 @@ class File_Integration extends Integration {
 			$formatted_message,
 			$structured_suffix
 		);
+	}
+
+	/**
+	 * Ensure a directory exists with caching to avoid repeated filesystem checks.
+	 *
+	 * @param string $directory Directory path.
+	 * @return bool True if directory exists or was created successfully.
+	 */
+	private function ensure_directory_exists_cached( $directory ) {
+		// Check cache first.
+		if ( isset( self::$directory_cache[ $directory ] ) ) {
+			return self::$directory_cache[ $directory ];
+		}
+
+		$result = $this->ensure_directory_exists( $directory );
+		self::$directory_cache[ $directory ] = $result;
+
+		return $result;
 	}
 
 	/**
@@ -296,25 +376,63 @@ class File_Integration extends Integration {
 	}
 
 	/**
-	 * Write content to a log file.
+	 * Write content to a log file with optimizations for high-traffic scenarios.
 	 *
 	 * @param string $file_path Path to the log file.
 	 * @param string $content Content to write.
 	 * @return bool True on success, false on failure.
 	 */
-	private function write_to_file( $file_path, $content ) {
-		// Write to file with locking.
-		$result = file_put_contents( $file_path, $content, FILE_APPEND | LOCK_EX );
+	private function write_to_file_optimized( $file_path, $content ) {
+		// Attempt to write with retry mechanism.
+		$max_attempts = 3;
+		$attempt = 0;
 
-		if ( false === $result ) {
-			$this->log_error( 'Failed to write to log file: ' . $file_path );
-			return false;
+		while ( $attempt < $max_attempts ) {
+			$attempt++;
+
+			// Write to file with locking.
+			$result = file_put_contents( $file_path, $content, FILE_APPEND | LOCK_EX );
+
+			if ( false !== $result ) {
+				// Success - schedule cleanup if needed (throttled).
+				$this->schedule_cleanup_if_needed();
+				return true;
+			}
+
+			// Failed - wait briefly before retry.
+			if ( $attempt < $max_attempts ) {
+				usleep( 100000 ); // 100ms delay.
+			}
 		}
 
-		// Clean up old files if needed.
-		$this->cleanup_old_files();
+		// All attempts failed.
+		$this->log_error( 'Failed to write to log file after ' . $max_attempts . ' attempts: ' . $file_path );
+		return false;
+	}
 
-		return true;
+	/**
+	 * Schedule cleanup if needed (throttled to avoid running on every write).
+	 */
+	private function schedule_cleanup_if_needed() {
+		$cleanup_interval = 3600; // Run cleanup at most once per hour.
+		$current_time = time();
+
+		// Check if enough time has passed since last cleanup.
+		if ( ( $current_time - self::$last_cleanup_time ) < $cleanup_interval ) {
+			return;
+		}
+
+		// Update last cleanup time to prevent concurrent runs.
+		self::$last_cleanup_time = $current_time;
+
+		// Run cleanup asynchronously if possible.
+		if ( function_exists( 'wp_schedule_single_event' ) ) {
+			// Schedule cleanup to run in background.
+			wp_schedule_single_event( time() + 60, 'simple_history_cleanup_log_files', [ $this->get_slug() ] );
+		} else {
+			// Fallback to immediate cleanup if WP Cron not available.
+			$this->cleanup_old_files();
+		}
 	}
 
 	/**
@@ -324,9 +442,9 @@ class File_Integration extends Integration {
 	 */
 	private function cleanup_old_files() {
 		/** @var int $keep_files */
-		$keep_files = $this->get_setting( 'keep_files', 30 );
+		$keep_files = $this->get_cached_setting( 'keep_files', 30 );
 		/** @var string $rotation */
-		$rotation = $this->get_setting( 'rotation_frequency', 'daily' );
+		$rotation = $this->get_cached_setting( 'rotation_frequency', 'daily' );
 
 		if ( $keep_files <= 0 ) {
 			return; // Keep all files.
@@ -345,7 +463,7 @@ class File_Integration extends Integration {
 
 		// Get files that match the current rotation pattern only.
 		$pattern = $this->get_cleanup_pattern( $rotation );
-		/** @var array<string>|false $log_files */
+		/** @var list<string>|false $log_files */
 		$log_files = glob( trailingslashit( $log_dir ) . $pattern );
 
 		if ( empty( $log_files ) || count( $log_files ) <= $keep_files ) {
@@ -395,5 +513,99 @@ class File_Integration extends Integration {
 				// Fallback for any unexpected rotation values.
 				return 'events*.log*';
 		}
+	}
+
+	/**
+	 * Handle async cleanup triggered by WordPress cron.
+	 *
+	 * @param string $integration_slug The integration slug to clean up for.
+	 */
+	public function handle_async_cleanup( $integration_slug ) {
+		// Only process if this is our integration.
+		if ( $integration_slug !== $this->get_slug() ) {
+			return;
+		}
+
+		$this->cleanup_old_files();
+	}
+
+	/**
+	 * Add log entry to write buffer for batch processing.
+	 *
+	 * @param string $log_file Path to the log file.
+	 * @param string $log_entry Formatted log entry.
+	 * @return bool True on success, false on failure.
+	 */
+	private function add_to_write_buffer( $log_file, $log_entry ) {
+		// Initialize buffer for this file if needed.
+		if ( ! isset( self::$write_buffer[ $log_file ] ) ) {
+			self::$write_buffer[ $log_file ] = '';
+		}
+
+		// Add entry to buffer.
+		self::$write_buffer[ $log_file ] .= $log_entry;
+
+		// Check if we should flush the buffer.
+		if ( $this->should_flush_buffer() ) {
+			return $this->flush_write_buffer();
+		}
+
+		// Register shutdown hook to ensure buffer is flushed.
+		if ( ! has_action( 'shutdown', [ $this, 'flush_write_buffer_on_shutdown' ] ) ) {
+			add_action( 'shutdown', [ $this, 'flush_write_buffer_on_shutdown' ] );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if write buffer should be flushed.
+	 *
+	 * @return bool True if buffer should be flushed.
+	 */
+	private function should_flush_buffer() {
+		// Flush if buffer is getting large.
+		if ( count( self::$write_buffer ) >= self::$buffer_max_size ) {
+			return true;
+		}
+
+		// Flush if total buffer size is large.
+		$total_size = 0;
+		foreach ( self::$write_buffer as $content ) {
+			$total_size += strlen( $content );
+		}
+
+		// Flush if buffer exceeds 64KB.
+		return $total_size > 65536;
+	}
+
+	/**
+	 * Flush the write buffer to disk.
+	 *
+	 * @return bool True if all writes succeeded, false otherwise.
+	 */
+	public function flush_write_buffer() {
+		if ( empty( self::$write_buffer ) ) {
+			return true;
+		}
+
+		$success = true;
+		foreach ( self::$write_buffer as $log_file => $content ) {
+			if ( ! $this->write_to_file_optimized( $log_file, $content ) ) {
+				$success = false;
+			}
+		}
+
+		// Clear the buffer after writing.
+		self::$write_buffer = [];
+
+		return $success;
+	}
+
+	/**
+	 * Flush write buffer on shutdown to ensure no data is lost.
+	 */
+	public function flush_write_buffer_on_shutdown() {
+		$this->flush_write_buffer();
 	}
 }
