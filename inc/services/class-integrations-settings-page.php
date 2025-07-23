@@ -149,6 +149,7 @@ class Integrations_Settings_Page extends Service {
 	 * @param array $args Arguments containing the integration instance.
 	 */
 	public function render_integration_settings( $args ) {
+		/** @var \Simple_History\Integrations\Interfaces\Integration_Interface $integration */
 		$integration = $args['integration'];
 		$settings = $integration->get_settings();
 		$settings_fields = $integration->get_settings_fields();

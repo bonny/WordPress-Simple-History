@@ -321,6 +321,7 @@ class File_Integration extends Integration {
 
 		// Get files that match the current rotation pattern only.
 		$pattern = $this->get_cleanup_pattern( $rotation );
+		/** @var array<string>|false $log_files */
 		$log_files = glob( trailingslashit( $log_dir ) . $pattern );
 
 		if ( empty( $log_files ) || count( $log_files ) <= $keep_files ) {
@@ -334,6 +335,7 @@ class File_Integration extends Integration {
 		$files_to_delete = array_slice( $log_files, 0, count( $log_files ) - $keep_files );
 
 		foreach ( $files_to_delete as $file ) {
+			/** @var string $file */
 			if ( unlink( $file ) ) {
 				$this->log_debug( 'Deleted old log file: ' . basename( $file ) );
 			} else {

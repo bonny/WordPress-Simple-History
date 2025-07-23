@@ -128,6 +128,7 @@ abstract class Integration implements Integration_Interface {
 	 */
 	public function get_settings() {
 		$defaults = $this->get_default_settings();
+		/** @var array<string, mixed> $saved_settings */
 		$saved_settings = get_option( $this->settings_option_name, [] );
 
 		return wp_parse_args( $saved_settings, $defaults );
@@ -143,6 +144,7 @@ abstract class Integration implements Integration_Interface {
 
 		// Extract defaults from settings fields.
 		foreach ( $this->get_settings_fields() as $field ) {
+			/** @var array<string, mixed> $field - Individual settings field configuration */
 			if ( isset( $field['default'] ) ) {
 				$defaults[ $field['name'] ] = $field['default'];
 			}
