@@ -19,11 +19,27 @@ class Example_Integration extends Integration {
 	 */
 	public function __construct() {
 		$this->slug = 'example';
-		$this->name = __( 'Example Integration', 'simple-history' );
-		$this->description = __( 'This is an example integration showing all available field types.', 'simple-history' );
 		$this->supports_async = true;
 
 		parent::__construct();
+	}
+
+	/**
+	 * Get the display name for this integration.
+	 *
+	 * @return string The integration display name.
+	 */
+	public function get_name() {
+		return __( 'Example Integration', 'simple-history' );
+	}
+
+	/**
+	 * Get the description for this integration.
+	 *
+	 * @return string The integration description.
+	 */
+	public function get_description() {
+		return __( 'This is an example integration showing all available field types.', 'simple-history' );
 	}
 
 	/**
