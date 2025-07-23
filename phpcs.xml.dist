@@ -93,6 +93,9 @@
 
 	<rule ref="PHPCompatibilityWP"/>
 
+	<!-- Disallow alternative syntax for control structures (use braces instead of colons) -->
+	<rule ref="Universal.ControlStructures.DisallowAlternativeSyntax"/>
+
 	<rule ref="WordPress.Security.EscapeOutput">
 		<properties>
 			<property name="customEscapingFunctions" type="array">

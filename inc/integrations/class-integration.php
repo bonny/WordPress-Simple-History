@@ -74,8 +74,7 @@ abstract class Integration implements Integration_Interface {
 	 * @return bool True if enabled, false otherwise.
 	 */
 	public function is_enabled() {
-		$settings = $this->get_settings();
-		return ! empty( $settings['enabled'] );
+		return ! empty( $this->get_setting( 'enabled', false ) );
 	}
 
 	/**
@@ -132,6 +131,31 @@ abstract class Integration implements Integration_Interface {
 		$saved_settings = get_option( $this->settings_option_name, [] );
 
 		return wp_parse_args( $saved_settings, $defaults );
+	}
+
+	/**
+	 * Get a specific setting value for this integration.
+	 *
+	 * @param string $setting_name The name of the setting to retrieve.
+	 * @param mixed  $default Optional. Default value to return if setting doesn't exist.
+	 * @return mixed The setting value or default if not found.
+	 */
+	public function get_setting( $setting_name, $default = null ) {
+		$settings = $this->get_settings();
+		return $settings[ $setting_name ] ?? $default;
+	}
+
+	/**
+	 * Set a specific setting value for this integration.
+	 *
+	 * @param string $setting_name The name of the setting to set.
+	 * @param mixed  $value The value to set.
+	 * @return bool True on success, false on failure.
+	 */
+	public function set_setting( $setting_name, $value ) {
+		$settings = $this->get_settings();
+		$settings[ $setting_name ] = $value;
+		return $this->save_settings( $settings );
 	}
 
 	/**
@@ -249,8 +273,7 @@ abstract class Integration implements Integration_Interface {
 	 * @return array Array of alert rules.
 	 */
 	public function get_alert_rules() {
-		$settings = $this->get_settings();
-		return $settings['alert_rules'] ?? [];
+		return $this->get_setting( 'alert_rules', [] );
 	}
 
 	/**
@@ -260,9 +283,7 @@ abstract class Integration implements Integration_Interface {
 	 * @return bool True on success, false on failure.
 	 */
 	public function set_alert_rules( $rules ) {
-		$settings = $this->get_settings();
-		$settings['alert_rules'] = $rules;
-		return $this->save_settings( $settings );
+		return $this->set_setting( 'alert_rules', $rules );
 	}
 
 	/**

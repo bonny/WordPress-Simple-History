@@ -71,6 +71,24 @@ interface Integration_Interface {
 	public function get_settings();
 
 	/**
+	 * Get a specific setting value for this integration.
+	 *
+	 * @param string $setting_name The name of the setting to retrieve.
+	 * @param mixed  $default Optional. Default value to return if setting doesn't exist.
+	 * @return mixed The setting value or default if not found.
+	 */
+	public function get_setting( $setting_name, $default = null );
+
+	/**
+	 * Set a specific setting value for this integration.
+	 *
+	 * @param string $setting_name The name of the setting to set.
+	 * @param mixed  $value The value to set.
+	 * @return bool True on success, false on failure.
+	 */
+	public function set_setting( $setting_name, $value );
+
+	/**
 	 * Save settings for this integration.
 	 *
 	 * @param array $settings The settings to save.

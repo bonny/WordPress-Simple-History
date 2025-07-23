@@ -138,7 +138,7 @@ class Integrations_Settings_Page extends Service {
 	public function settings_section_output() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Configure where Simple History sends your logs and events. Enable integrations to automatically forward events to external systems like files, Slack, email, and more.', 'simple-history' ); ?></p>
+			<p><?php esc_html_e( 'Enable integrations to automatically forward events to external systems like log files, Slack, email, and more.', 'simple-history' ); ?></p>
 		</div>
 		<?php
 	}
@@ -151,7 +151,6 @@ class Integrations_Settings_Page extends Service {
 	public function render_integration_settings( $args ) {
 		/** @var \Simple_History\Integrations\Interfaces\Integration_Interface $integration */
 		$integration = $args['integration'];
-		$settings = $integration->get_settings();
 		$settings_fields = $integration->get_settings_fields();
 		$option_name = 'simple_history_integration_' . $integration->get_slug();
 
@@ -169,9 +168,13 @@ class Integrations_Settings_Page extends Service {
 
 			<?php
 			foreach ( $settings_fields as $field ) {
+				/** @var string $field_name */
+				$field_name = $field['name'];
+				/** @var mixed $field_value */
+				$field_value = $integration->get_setting( $field_name, $field['default'] ?? '' );
 				?>
 				<div class="sh-Integration-field">
-					<?php $this->render_field( $field, $settings[ $field['name'] ] ?? '', $option_name ); ?>
+					<?php $this->render_field( $field, $field_value, $option_name ); ?>
 				</div>
 				<?php
 			}
@@ -213,9 +216,9 @@ class Integrations_Settings_Page extends Service {
 			case 'url':
 			case 'email':
 				?>
-				<?php if ( ! empty( $field['title'] ) ) : ?>
+				<?php if ( ! empty( $field['title'] ) ) { ?>
 					<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
-				<?php endif; ?>
+				<?php } ?>
 				<input type="<?php echo esc_attr( $field['type'] ); ?>" id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="<?php echo esc_attr( $field['placeholder'] ?? '' ); ?>" />
 				<?php
 				if ( ! empty( $field['description'] ) ) {
@@ -229,9 +232,9 @@ class Integrations_Settings_Page extends Service {
 
 			case 'number':
 				?>
-				<?php if ( ! empty( $field['title'] ) ) : ?>
+				<?php if ( ! empty( $field['title'] ) ) { ?>
 					<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
-				<?php endif; ?>
+				<?php } ?>
 				<input type="number" id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $value ); ?>" min="<?php echo esc_attr( $field['min'] ?? '' ); ?>" max="<?php echo esc_attr( $field['max'] ?? '' ); ?>" />
 				<?php
 				if ( ! empty( $field['description'] ) ) {
@@ -245,9 +248,9 @@ class Integrations_Settings_Page extends Service {
 
 			case 'select':
 				?>
-				<?php if ( ! empty( $field['title'] ) ) : ?>
+				<?php if ( ! empty( $field['title'] ) ) { ?>
 					<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
-				<?php endif; ?>
+				<?php } ?>
 				<select id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>">
 					<?php
 					foreach ( $field['options'] as $option_value => $option_label ) {
@@ -271,9 +274,9 @@ class Integrations_Settings_Page extends Service {
 
 			case 'textarea':
 				?>
-				<?php if ( ! empty( $field['title'] ) ) : ?>
+				<?php if ( ! empty( $field['title'] ) ) { ?>
 					<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
-				<?php endif; ?>
+				<?php } ?>
 				<textarea id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" rows="5" cols="50" class="large-text"><?php echo esc_textarea( $value ); ?></textarea>
 				<?php
 				if ( ! empty( $field['description'] ) ) {

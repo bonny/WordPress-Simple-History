@@ -50,10 +50,8 @@ class File_Integration extends Integration {
 	 * @return bool True on success, false on failure.
 	 */
 	public function send_event( $event_data, $formatted_message ) {
-		$settings = $this->get_settings();
-
 		// Get the log file path.
-		$log_file = $this->get_log_file_path( $settings );
+		$log_file = $this->get_log_file_path();
 
 		if ( ! $log_file ) {
 			$this->log_error( 'Could not determine log file path' );
@@ -68,7 +66,7 @@ class File_Integration extends Integration {
 		}
 
 		// Format the log entry.
-		$log_entry = $this->format_log_entry( $event_data, $formatted_message, $settings );
+		$log_entry = $this->format_log_entry( $event_data, $formatted_message );
 
 		// Write to file.
 		return $this->write_to_file( $log_file, $log_entry );
@@ -115,10 +113,6 @@ class File_Integration extends Integration {
 	 * @return string HTML content to display.
 	 */
 	public function get_settings_info_after_fields_html() {
-		if ( ! $this->is_enabled() ) {
-			return '';
-		}
-
 		$log_directory = $this->get_log_directory_path();
 
 		ob_start();
@@ -130,6 +124,7 @@ class File_Integration extends Integration {
 			</p>
 		</div>
 		<?php
+
 		return ob_get_clean();
 	}
 
@@ -143,14 +138,15 @@ class File_Integration extends Integration {
 	}
 
 	/**
-	 * Get the log file path based on settings.
+	 * Get the log file path based on current settings.
 	 *
-	 * @param array $settings Integration settings.
 	 * @return string|false Log file path or false on error.
 	 */
-	private function get_log_file_path( $settings ) {
+	private function get_log_file_path() {
 		$log_dir = $this->get_default_log_directory();
-		$rotation = $settings['rotation_frequency'] ?? 'daily';
+		/** @var string $rotation */
+		$rotation = $this->get_setting( 'rotation_frequency', 'daily' );
+		/** @var string|false $filename */
 		$filename = $this->get_log_filename( $rotation );
 
 		if ( ! $filename ) {
@@ -235,10 +231,9 @@ class File_Integration extends Integration {
 	 *
 	 * @param array  $event_data The event data.
 	 * @param string $formatted_message The formatted message.
-	 * @param array  $settings Integration settings (unused).
 	 * @return string Formatted log entry.
 	 */
-	private function format_log_entry( $event_data, $formatted_message, $settings ) {
+	private function format_log_entry( $event_data, $formatted_message ) {
 		$timestamp = current_time( 'Y-m-d H:i:s' );
 
 		return sprintf(
@@ -300,9 +295,10 @@ class File_Integration extends Integration {
 	 * Only removes files that match the current rotation pattern.
 	 */
 	private function cleanup_old_files() {
-		$settings = $this->get_settings();
-		$keep_files = $settings['keep_files'] ?? 30;
-		$rotation = $settings['rotation_frequency'] ?? 'daily';
+		/** @var int $keep_files */
+		$keep_files = $this->get_setting( 'keep_files', 30 );
+		/** @var string $rotation */
+		$rotation = $this->get_setting( 'rotation_frequency', 'daily' );
 
 		if ( $keep_files <= 0 ) {
 			return; // Keep all files.
