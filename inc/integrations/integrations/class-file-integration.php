@@ -77,7 +77,7 @@ class File_Integration extends Integration {
 	 * @return string The integration description.
 	 */
 	public function get_description() {
-		return __( 'Automatically save all events to a log file.', 'simple-history' );
+		return __( 'Save all events to a log file', 'simple-history' );
 	}
 
 	/**
