@@ -159,6 +159,14 @@ class Integrations_Settings_Page extends Service {
 			<p class="sh-Integration-description"><?php echo esc_html( $integration->get_description() ); ?></p>
 
 			<?php
+			// Show integration-specific info before fields if available.
+			$info_before_html = $integration->get_settings_info_before_fields_html();
+			if ( ! empty( $info_before_html ) ) {
+				echo wp_kses_post( $info_before_html );
+			}
+			?>
+
+			<?php
 			foreach ( $settings_fields as $field ) {
 				?>
 				<div class="sh-Integration-field">
@@ -169,18 +177,10 @@ class Integrations_Settings_Page extends Service {
 			?>
 
 			<?php
-			// Show file path for file integration.
-			if ( $integration->get_slug() === 'file' ) {
-				$log_directory = $integration->get_log_directory_path();
-				?>
-				<div class="sh-Integration-info">
-					<p class="description">
-						<!-- <strong><?php esc_html_e( 'Log files location', 'simple-history' ); ?></strong> -->
-						Files are saved to directory:<br>
-						<code><?php echo esc_html( $log_directory ); ?></code>
-					</p>
-				</div>
-				<?php
+			// Show integration-specific info after fields if available.
+			$info_after_html = $integration->get_settings_info_after_fields_html();
+			if ( ! empty( $info_after_html ) ) {
+				echo wp_kses_post( $info_after_html );
 			}
 			?>
 		</div>

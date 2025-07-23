@@ -110,6 +110,30 @@ class File_Integration extends Integration {
 	}
 
 	/**
+	 * Get additional info HTML to display after the settings fields.
+	 *
+	 * @return string HTML content to display.
+	 */
+	public function get_settings_info_after_fields_html() {
+		if ( ! $this->is_enabled() ) {
+			return '';
+		}
+
+		$log_directory = $this->get_log_directory_path();
+
+		ob_start();
+		?>
+		<div class="sh-Integration-info">
+			<p class="description">
+				<?php esc_html_e( 'Files are saved to directory:', 'simple-history' ); ?><br>
+				<code><?php echo esc_html( $log_directory ); ?></code>
+			</p>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
 	 * Get the current log directory path for display to users.
 	 *
 	 * @return string The log directory path.

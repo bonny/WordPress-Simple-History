@@ -330,4 +330,28 @@ abstract class Integration implements Integration_Interface {
 
 		error_log( $log_message );
 	}
+
+	/**
+	 * Get additional info HTML to display before the settings fields.
+	 *
+	 * This method can be overridden by child classes to provide
+	 * integration-specific information to users.
+	 *
+	 * @return string HTML content to display, or empty string if none.
+	 */
+	public function get_settings_info_before_fields_html() {
+		return '';
+	}
+
+	/**
+	 * Get additional info HTML to display after the settings fields.
+	 *
+	 * This method can be overridden by child classes to provide
+	 * integration-specific information to users.
+	 *
+	 * @return string HTML content to display, or empty string if none.
+	 */
+	public function get_settings_info_after_fields_html() {
+		return '';
+	}
 }

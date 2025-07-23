@@ -100,4 +100,18 @@ interface Integration_Interface {
 	 * @return bool True if event should be sent, false otherwise.
 	 */
 	public function should_send_event( $event_data );
+
+	/**
+	 * Get additional info HTML to display before the settings fields.
+	 *
+	 * @return string HTML content to display, or empty string if none.
+	 */
+	public function get_settings_info_before_fields_html();
+
+	/**
+	 * Get additional info HTML to display after the settings fields.
+	 *
+	 * @return string HTML content to display, or empty string if none.
+	 */
+	public function get_settings_info_after_fields_html();
 }

@@ -20,20 +20,30 @@
 - ✅ Validated PHP syntax for all new files
 
 **Next Steps:**
-- Test the integration system with actual logging
 - Add basic CSS styles for settings UI
+- Test the integration system with actual logging
 - Create commit with initial implementation
 
 **Blockers/Notes:**
-- Fixed autoloader issue: Interface files must be named with pattern `interface-{class-name}.php`
+- ✅ Fixed autoloader issue: Interface files must be named with pattern `interface-{class-name}.php`
   - Renamed: `interface-integration.php` → `interface-integration-interface.php`
   - Renamed: `interface-alert-rule.php` → `interface-alert-rule-interface.php`
-- Fixed PHP 8.2 deprecation warning: Added property declaration for `$integrations_manager` in Simple_History class
+- ✅ Fixed PHP 8.2 deprecation warning: Added property declaration for `$integrations_manager` in Simple_History class
+- ✅ Fixed WordPress 6.7 translation loading warning: Moved translatable strings from constructor to getter methods to ensure translations load after `init` action
+- ✅ Fixed missing settings page: Created proper `Integrations_Settings_Page` service using Menu Manager and Menu Page classes (following the pattern from Licences Settings Page)
+- ✅ Fixed PHPStan error: Added proper type checking for `get_service()` return value in settings page
+- ✅ Fixed all WordPress coding standards violations: All integrations code now passes PHPCS linting
 
 **Technical Details:**
 - Used industry-standard "Integrations" terminology
-- File integration includes multiple formats (simple, JSON, CSV)
-- Supports file rotation and cleanup
+- File integration uses simple, human-readable log format only
+- Secure log directory with hard-to-guess names based on site hash (e.g., `simple-history-logs-a1b2c3d4/`)
+- Stores logs in wp-content with site-specific hash for security
+- Log files use "events" naming (e.g., `events-2025-01-23.log`)
+- Minimal settings: only file rotation frequency and cleanup retention
+- No complex features: no file size limits, no custom directories, no format selection, no test connection button
+- Shows file path to users so they know where to find the log files
+- Smart cleanup: only removes files matching current rotation frequency pattern
 - Async processing foundation (ready for premium integrations)
 - Proper error handling and logging throughout
 
