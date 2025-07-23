@@ -216,9 +216,13 @@ class Integrations_Settings_Page extends Service {
 			case 'url':
 			case 'email':
 				?>
-				<?php if ( ! empty( $field['title'] ) ) { ?>
+				<?php
+				if ( ! empty( $field['title'] ) ) {
+					?>
 					<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
-				<?php } ?>
+					<?php
+				}
+				?>
 				<input type="<?php echo esc_attr( $field['type'] ); ?>" id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="<?php echo esc_attr( $field['placeholder'] ?? '' ); ?>" />
 				<?php
 				if ( ! empty( $field['description'] ) ) {
@@ -232,9 +236,13 @@ class Integrations_Settings_Page extends Service {
 
 			case 'number':
 				?>
-				<?php if ( ! empty( $field['title'] ) ) { ?>
+				<?php
+				if ( ! empty( $field['title'] ) ) {
+					?>
 					<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
-				<?php } ?>
+					<?php
+				}
+				?>
 				<input type="number" id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $value ); ?>" min="<?php echo esc_attr( $field['min'] ?? '' ); ?>" max="<?php echo esc_attr( $field['max'] ?? '' ); ?>" />
 				<?php
 				if ( ! empty( $field['description'] ) ) {
@@ -248,9 +256,13 @@ class Integrations_Settings_Page extends Service {
 
 			case 'select':
 				?>
-				<?php if ( ! empty( $field['title'] ) ) { ?>
+				<?php
+				if ( ! empty( $field['title'] ) ) {
+					?>
 					<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
-				<?php } ?>
+					<?php
+				}
+				?>
 				<select id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>">
 					<?php
 					foreach ( $field['options'] as $option_value => $option_label ) {
@@ -274,9 +286,13 @@ class Integrations_Settings_Page extends Service {
 
 			case 'textarea':
 				?>
-				<?php if ( ! empty( $field['title'] ) ) { ?>
+				<?php
+				if ( ! empty( $field['title'] ) ) {
+					?>
 					<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
-				<?php } ?>
+					<?php
+				}
+				?>
 				<textarea id="<?php echo esc_attr( $field_id ); ?>" name="<?php echo esc_attr( $field_name ); ?>" rows="5" cols="50" class="large-text"><?php echo esc_textarea( $value ); ?></textarea>
 				<?php
 				if ( ! empty( $field['description'] ) ) {

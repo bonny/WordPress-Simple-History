@@ -236,13 +236,41 @@ class File_Integration extends Integration {
 	private function format_log_entry( $event_data, $formatted_message ) {
 		$timestamp = current_time( 'Y-m-d H:i:s' );
 
+		// Standard log format: timestamp level logger: message [key=value ...].
+		$level = strtoupper( $event_data['level'] ?? 'info' );
+		$logger = $event_data['logger'] ?? 'Unknown';
+		$initiator = $event_data['initiator'] ?? 'unknown';
+
+		// Use $context for easier access.
+		$context = $event_data['context'] ?? [];
+
+		// Add essential structured data for better parsing.
+		$structured_data = [];
+
+		// Only include most important and commonly available fields.
+		$essential_fields = [ '_message_key', '_server_remote_addr', '_user_id', '_user_login', '_user_email' ];
+
+		if ( ! empty( $context ) ) {
+			foreach ( $essential_fields as $field ) {
+				if ( isset( $context[ $field ] ) && is_scalar( $context[ $field ] ) ) {
+					$clean_key = ltrim( $field, '_' ); // Remove leading underscore for cleaner output.
+					$structured_data[] = $clean_key . '=' . $context[ $field ];
+				}
+			}
+		}
+
+		// Always include initiator.
+		$structured_data[] = 'initiator=' . $initiator;
+
+		$structured_suffix = ! empty( $structured_data ) ? ' [' . implode( ' ', $structured_data ) . ']' : '';
+
 		return sprintf(
-			"[%s] %s %s: %s (via %s)\n",
+			"[%s] %s %s: %s%s\n",
 			$timestamp,
-			strtoupper( $event_data['level'] ?? 'info' ),
-			$event_data['logger'] ?? 'Unknown',
+			$level,
+			$logger,
 			$formatted_message,
-			$event_data['initiator'] ?? 'unknown'
+			$structured_suffix
 		);
 	}
 
