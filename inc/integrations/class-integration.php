@@ -29,6 +29,8 @@ abstract class Integration implements Integration_Interface {
 
 	/**
 	 * The settings option name for this integration.
+	 * This is the name of the option where settings are stored in the database.
+	 * The option are automatically saved thanks to the WordPress settings API.
 	 *
 	 * @var string
 	 */
@@ -219,6 +221,15 @@ abstract class Integration implements Integration_Interface {
 		$settings = $this->get_settings();
 		$settings[ $setting_name ] = $value;
 		return $this->save_settings( $settings );
+	}
+
+	/**
+	 * Get the WordPress option name for this integration's settings.
+	 *
+	 * @return string The option name used to store settings in the database.
+	 */
+	public function get_settings_option_name() {
+		return $this->settings_option_name;
 	}
 
 	/**

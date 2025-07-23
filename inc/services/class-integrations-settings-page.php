@@ -110,7 +110,8 @@ class Integrations_Settings_Page extends Service {
 		}
 
 		// Register the settings option for this integration.
-		$option_name = 'simple_history_integration_' . $integration_slug;
+		$option_name = $integration->get_settings_option_name();
+		
 		register_setting(
 			self::SETTINGS_OPTION_GROUP,
 			$option_name,

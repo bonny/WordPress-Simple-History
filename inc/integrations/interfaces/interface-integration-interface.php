@@ -89,6 +89,13 @@ interface Integration_Interface {
 	public function set_setting( $setting_name, $value );
 
 	/**
+	 * Get the WordPress option name for this integration's settings.
+	 *
+	 * @return string The option name used to store settings in the database.
+	 */
+	public function get_settings_option_name();
+
+	/**
 	 * Save settings for this integration.
 	 *
 	 * @param array $settings The settings to save.

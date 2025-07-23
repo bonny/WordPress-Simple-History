@@ -315,6 +315,20 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test settings option name method.
+	 */
+	public function test_settings_option_name() {
+		$integration = new File_Integration();
+		
+		$option_name = $integration->get_settings_option_name();
+		$this->assertEquals( 'simple_history_integration_file', $option_name );
+		
+		$example_integration = new Example_Integration();
+		$example_option_name = $example_integration->get_settings_option_name();
+		$this->assertEquals( 'simple_history_integration_example', $example_option_name );
+	}
+
+	/**
 	 * Test custom field type passes through validation.
 	 */
 	public function test_custom_field_type() {
