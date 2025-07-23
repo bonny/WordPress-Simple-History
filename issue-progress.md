@@ -25,7 +25,9 @@
 - Create commit with initial implementation
 
 **Blockers/Notes:**
-- None
+- Fixed autoloader issue: Interface files must be named with pattern `interface-{class-name}.php`
+  - Renamed: `interface-integration.php` → `interface-integration-interface.php`
+  - Renamed: `interface-alert-rule.php` → `interface-alert-rule-interface.php`
 
 **Technical Details:**
 - Used industry-standard "Integrations" terminology
