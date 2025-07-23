@@ -41,9 +41,6 @@ class Integrations_Manager extends Service {
 
 		// Hook into the logging system to process events.
 		add_action( 'simple_history/log/inserted', [ $this, 'process_logged_event' ], 10, 3 );
-
-		// Add settings page integration.
-		add_filter( 'simple_history/settings_tabs', [ $this, 'add_settings_tab' ] );
 	}
 
 	/**
@@ -104,9 +101,12 @@ class Integrations_Manager extends Service {
 	 * @return Integration_Interface[] Array of enabled integrations.
 	 */
 	public function get_enabled_integrations() {
-		return array_filter( $this->integrations, function( $integration ) {
-			return $integration->is_enabled();
-		} );
+		return array_filter(
+			$this->integrations,
+			function ( $integration ) {
+				return $integration->is_enabled();
+			}
+		);
 	}
 
 	/**
@@ -156,7 +156,7 @@ class Integrations_Manager extends Service {
 	 * Send event data to a specific integration.
 	 *
 	 * @param Integration_Interface $integration The integration to send to.
-	 * @param array $event_data The event data to send.
+	 * @param array                 $event_data The event data to send.
 	 */
 	private function send_to_integration( Integration_Interface $integration, $event_data ) {
 		// Check if the event should be sent based on alert rules.
@@ -179,13 +179,13 @@ class Integrations_Manager extends Service {
 	 * Format a message for a specific integration.
 	 *
 	 * @param Integration_Interface $integration The integration.
-	 * @param array $event_data The event data.
+	 * @param array                 $event_data The event data.
 	 * @return string The formatted message.
 	 */
 	private function format_message_for_integration( Integration_Interface $integration, $event_data ) {
 		// For now, use a simple format. This will be enhanced later.
 		$message = $event_data['message'];
-		
+
 		// Interpolate context variables into the message.
 		if ( ! empty( $event_data['context'] ) ) {
 			foreach ( $event_data['context'] as $key => $value ) {
@@ -214,8 +214,8 @@ class Integrations_Manager extends Service {
 	 * Queue an event for asynchronous processing.
 	 *
 	 * @param Integration_Interface $integration The integration.
-	 * @param array $event_data The event data.
-	 * @param string $formatted_message The formatted message.
+	 * @param array                 $event_data The event data.
+	 * @param string                $formatted_message The formatted message.
 	 */
 	private function queue_for_async_processing( Integration_Interface $integration, $event_data, $formatted_message ) {
 		// TODO: Implement async queue system using WordPress cron.
@@ -227,74 +227,18 @@ class Integrations_Manager extends Service {
 	 * Send an event synchronously to an integration.
 	 *
 	 * @param Integration_Interface $integration The integration.
-	 * @param array $event_data The event data.
-	 * @param string $formatted_message The formatted message.
+	 * @param array                 $event_data The event data.
+	 * @param string                $formatted_message The formatted message.
 	 */
 	private function send_sync( Integration_Interface $integration, $event_data, $formatted_message ) {
 		try {
 			$result = $integration->send_event( $event_data, $formatted_message );
-			
+
 			if ( ! $result ) {
 				error_log( 'Simple History: Failed to send event to integration: ' . $integration->get_slug() );
 			}
 		} catch ( \Exception $e ) {
 			error_log( 'Simple History: Exception sending event to integration ' . $integration->get_slug() . ': ' . $e->getMessage() );
 		}
-	}
-
-	/**
-	 * Add integrations tab to settings page.
-	 *
-	 * @param array $tabs Current settings tabs.
-	 * @return array Modified settings tabs.
-	 */
-	public function add_settings_tab( $tabs ) {
-		$tabs[] = [
-			'slug' => 'integrations',
-			'name' => __( 'Integrations', 'simple-history' ),
-			'function' => [ $this, 'settings_tab_output' ],
-		];
-
-		return $tabs;
-	}
-
-	/**
-	 * Output the integrations settings tab content.
-	 */
-	public function settings_tab_output() {
-		echo '<h3>' . esc_html__( 'Log Forwarding & Integrations', 'simple-history' ) . '</h3>';
-		echo '<p>' . esc_html__( 'Configure where Simple History sends your logs and events.', 'simple-history' ) . '</p>';
-
-		echo '<div class="sh-integrations-list">';
-		
-		foreach ( $this->get_integrations() as $integration ) {
-			$this->render_integration_card( $integration );
-		}
-
-		echo '</div>';
-	}
-
-	/**
-	 * Render a single integration card in the settings.
-	 *
-	 * @param Integration_Interface $integration The integration to render.
-	 */
-	private function render_integration_card( Integration_Interface $integration ) {
-		$is_enabled = $integration->is_enabled();
-		$slug = $integration->get_slug();
-
-		echo '<div class="sh-integration-card" data-integration="' . esc_attr( $slug ) . '">';
-		echo '<h4>' . esc_html( $integration->get_name() ) . '</h4>';
-		echo '<p>' . esc_html( $integration->get_description() ) . '</p>';
-		
-		echo '<div class="sh-integration-actions">';
-		if ( $is_enabled ) {
-			echo '<span class="sh-integration-status enabled">' . esc_html__( 'Enabled', 'simple-history' ) . '</span>';
-		} else {
-			echo '<span class="sh-integration-status disabled">' . esc_html__( 'Disabled', 'simple-history' ) . '</span>';
-		}
-		echo '</div>';
-
-		echo '</div>';
 	}
 }

@@ -19,26 +19,42 @@ class File_Integration extends Integration {
 	 */
 	public function __construct() {
 		$this->slug = 'file';
-		$this->name = __( 'File Backup', 'simple-history' );
-		$this->description = __( 'Automatically save all events to log files. Never lose your history even if the database is compromised.', 'simple-history' );
 		$this->supports_async = false; // File writing is fast, no need for async.
 
 		parent::__construct();
 	}
 
 	/**
+	 * Get the display name for this integration.
+	 *
+	 * @return string The integration display name.
+	 */
+	public function get_name() {
+		return __( 'Log to file', 'simple-history' );
+	}
+
+	/**
+	 * Get the description for this integration.
+	 *
+	 * @return string The integration description.
+	 */
+	public function get_description() {
+		return __( 'Automatically save all events to a log file.', 'simple-history' );
+	}
+
+	/**
 	 * Send an event to this integration.
 	 *
-	 * @param array $event_data The event data to send.
+	 * @param array  $event_data The event data to send.
 	 * @param string $formatted_message The formatted message.
 	 * @return bool True on success, false on failure.
 	 */
 	public function send_event( $event_data, $formatted_message ) {
 		$settings = $this->get_settings();
-		
+
 		// Get the log file path.
 		$log_file = $this->get_log_file_path( $settings );
-		
+
 		if ( ! $log_file ) {
 			$this->log_error( 'Could not determine log file path' );
 			return false;
@@ -69,21 +85,8 @@ class File_Integration extends Integration {
 		$file_fields = [
 			[
 				'type' => 'select',
-				'name' => 'log_format',
-				'title' => __( 'Log Format', 'simple-history' ),
-				'description' => __( 'Choose the format for log entries.', 'simple-history' ),
-				'options' => [
-					'simple' => __( 'Simple (Human readable)', 'simple-history' ),
-					'json' => __( 'JSON (Machine readable)', 'simple-history' ),
-					'csv' => __( 'CSV (Spreadsheet compatible)', 'simple-history' ),
-				],
-				'default' => 'simple',
-			],
-			[
-				'type' => 'select',
 				'name' => 'rotation_frequency',
-				'title' => __( 'File Rotation', 'simple-history' ),
-				'description' => __( 'How often to create new log files.', 'simple-history' ),
+				'title' => __( 'Create new files', 'simple-history' ),
 				'options' => [
 					'daily' => __( 'Daily', 'simple-history' ),
 					'weekly' => __( 'Weekly', 'simple-history' ),
@@ -93,26 +96,10 @@ class File_Integration extends Integration {
 				'default' => 'daily',
 			],
 			[
-				'type' => 'text',
-				'name' => 'log_directory',
-				'title' => __( 'Log Directory', 'simple-history' ),
-				'description' => __( 'Directory to store log files. Leave empty for default location.', 'simple-history' ),
-				'placeholder' => $this->get_default_log_directory(),
-			],
-			[
-				'type' => 'number',
-				'name' => 'max_file_size',
-				'title' => __( 'Max File Size (MB)', 'simple-history' ),
-				'description' => __( 'Maximum size for log files before rotation. Set to 0 for no limit.', 'simple-history' ),
-				'default' => 10,
-				'min' => 0,
-				'max' => 1000,
-			],
-			[
 				'type' => 'number',
 				'name' => 'keep_files',
-				'title' => __( 'Keep Files', 'simple-history' ),
-				'description' => __( 'Number of old log files to keep. Set to 0 to keep all files.', 'simple-history' ),
+				'title' => __( 'Number of files to keep', 'simple-history' ),
+				'description' => __( 'Oldest file will be deleted. Set to 0 to keep forever.', 'simple-history' ),
 				'default' => 30,
 				'min' => 0,
 				'max' => 365,
@@ -123,60 +110,12 @@ class File_Integration extends Integration {
 	}
 
 	/**
-	 * Test the integration connection/configuration.
+	 * Get the current log directory path for display to users.
 	 *
-	 * @return array Array with 'success' boolean and 'message' string.
+	 * @return string The log directory path.
 	 */
-	public function test_connection() {
-		$settings = $this->get_settings();
-		$log_file = $this->get_log_file_path( $settings );
-
-		if ( ! $log_file ) {
-			return [
-				'success' => false,
-				'message' => __( 'Could not determine log file path.', 'simple-history' ),
-			];
-		}
-
-		$log_dir = dirname( $log_file );
-		
-		// Check if directory exists or can be created.
-		if ( ! $this->ensure_directory_exists( $log_dir ) ) {
-			return [
-				'success' => false,
-				'message' => sprintf(
-					/* translators: %s: Directory path */
-					__( 'Cannot create or write to log directory: %s', 'simple-history' ),
-					$log_dir
-				),
-			];
-		}
-
-		// Test write permissions.
-		$test_content = sprintf(
-			"[%s] TEST: Simple History file integration test\n",
-			current_time( 'Y-m-d H:i:s' )
-		);
-
-		if ( ! $this->write_to_file( $log_file, $test_content ) ) {
-			return [
-				'success' => false,
-				'message' => sprintf(
-					/* translators: %s: File path */
-					__( 'Cannot write to log file: %s', 'simple-history' ),
-					$log_file
-				),
-			];
-		}
-
-		return [
-			'success' => true,
-			'message' => sprintf(
-				/* translators: %s: File path */
-				__( 'Successfully tested writing to log file: %s', 'simple-history' ),
-				$log_file
-			),
-		];
+	public function get_log_directory_path() {
+		return $this->get_default_log_directory();
 	}
 
 	/**
@@ -186,10 +125,7 @@ class File_Integration extends Integration {
 	 * @return string|false Log file path or false on error.
 	 */
 	private function get_log_file_path( $settings ) {
-		$log_dir = ! empty( $settings['log_directory'] ) ? 
-			$settings['log_directory'] : 
-			$this->get_default_log_directory();
-
+		$log_dir = $this->get_default_log_directory();
 		$rotation = $settings['rotation_frequency'] ?? 'daily';
 		$filename = $this->get_log_filename( $rotation );
 
@@ -203,86 +139,92 @@ class File_Integration extends Integration {
 	/**
 	 * Get the default log directory.
 	 *
+	 * Uses a hard-to-guess directory within wp-content for security.
+	 *
 	 * @return string Default log directory path.
 	 */
 	private function get_default_log_directory() {
-		$upload_dir = wp_upload_dir();
-		return trailingslashit( $upload_dir['basedir'] ) . 'simple-history-logs';
+		// Generate a hard-to-guess directory name based on site specifics.
+		$site_hash = $this->get_site_hash();
+
+		return trailingslashit( WP_CONTENT_DIR ) . 'simple-history-logs-' . $site_hash;
+	}
+
+	/**
+	 * Generate a site-specific hash for directory naming.
+	 *
+	 * Uses site URL and auth keys to create a unique, hard-to-guess identifier.
+	 *
+	 * @return string 8-character hash based on site specifics.
+	 */
+	private function get_site_hash() {
+		// Combine site-specific data for uniqueness.
+		$site_data = get_site_url() . ABSPATH;
+
+		// Add auth keys/salts if available for additional uniqueness.
+		if ( defined( 'AUTH_KEY' ) ) {
+			$site_data .= AUTH_KEY;
+		}
+		if ( defined( 'SECURE_AUTH_KEY' ) ) {
+			$site_data .= SECURE_AUTH_KEY;
+		}
+
+		// Generate hash and return first 8 characters.
+		return substr( md5( $site_data ), 0, 8 );
 	}
 
 	/**
 	 * Get the log filename based on rotation frequency.
 	 *
+	 * Example formats:
+	 * - Daily: events-2023-10-01.log
+	 * - Weekly: events-2023-W40.log
+	 * - Monthly: events-2023-10.log
+	 *
 	 * @param string $rotation Rotation frequency.
 	 * @return string|false Log filename or false on error.
 	 */
 	private function get_log_filename( $rotation ) {
-		$base_name = 'simple-history';
+		$base_name = 'events';
 		$extension = '.log';
 
 		switch ( $rotation ) {
 			case 'daily':
 				return $base_name . '-' . current_time( 'Y-m-d' ) . $extension;
-			
+
 			case 'weekly':
 				return $base_name . '-' . current_time( 'Y' ) . '-W' . current_time( 'W' ) . $extension;
-			
+
 			case 'monthly':
 				return $base_name . '-' . current_time( 'Y-m' ) . $extension;
-			
+
 			case 'never':
 				return $base_name . $extension;
-			
+
 			default:
 				return false;
 		}
 	}
 
 	/**
-	 * Format a log entry based on settings.
+	 * Format a log entry in simple human-readable format.
 	 *
-	 * @param array $event_data The event data.
+	 * @param array  $event_data The event data.
 	 * @param string $formatted_message The formatted message.
-	 * @param array $settings Integration settings.
+	 * @param array  $settings Integration settings (unused).
 	 * @return string Formatted log entry.
 	 */
 	private function format_log_entry( $event_data, $formatted_message, $settings ) {
-		$format = $settings['log_format'] ?? 'simple';
 		$timestamp = current_time( 'Y-m-d H:i:s' );
 
-		switch ( $format ) {
-			case 'json':
-				$entry_data = [
-					'timestamp' => $timestamp,
-					'level' => $event_data['level'] ?? 'info',
-					'logger' => $event_data['logger'] ?? '',
-					'message' => $formatted_message,
-					'initiator' => $event_data['initiator'] ?? '',
-					'context' => $event_data['context'] ?? [],
-				];
-				return wp_json_encode( $entry_data ) . "\n";
-
-			case 'csv':
-				$csv_data = [
-					$timestamp,
-					$event_data['level'] ?? 'info',
-					$event_data['logger'] ?? '',
-					str_replace( '"', '""', $formatted_message ), // Escape quotes for CSV.
-					$event_data['initiator'] ?? '',
-				];
-				return '"' . implode( '","', $csv_data ) . "\"\n";
-
-			case 'simple':
-			default:
-				return sprintf(
-					"[%s] %s %s: %s (via %s)\n",
-					$timestamp,
-					strtoupper( $event_data['level'] ?? 'info' ),
-					$event_data['logger'] ?? 'Unknown',
-					$formatted_message,
-					$event_data['initiator'] ?? 'unknown'
-				);
-		}
+		return sprintf(
+			"[%s] %s %s: %s (via %s)\n",
+			$timestamp,
+			strtoupper( $event_data['level'] ?? 'info' ),
+			$event_data['logger'] ?? 'Unknown',
+			$formatted_message,
+			$event_data['initiator'] ?? 'unknown'
+		);
 	}
 
 	/**
@@ -300,11 +242,6 @@ class File_Integration extends Integration {
 		if ( wp_mkdir_p( $directory ) ) {
 			// Set appropriate permissions.
 			chmod( $directory, 0755 );
-			
-			// Create .htaccess to prevent direct access.
-			$htaccess_content = "Order deny,allow\nDeny from all\n";
-			file_put_contents( trailingslashit( $directory ) . '.htaccess', $htaccess_content );
-			
 			return true;
 		}
 
@@ -319,14 +256,6 @@ class File_Integration extends Integration {
 	 * @return bool True on success, false on failure.
 	 */
 	private function write_to_file( $file_path, $content ) {
-		// Check file size limits before writing.
-		$settings = $this->get_settings();
-		$max_size = ( $settings['max_file_size'] ?? 10 ) * 1024 * 1024; // Convert MB to bytes.
-		
-		if ( $max_size > 0 && file_exists( $file_path ) && filesize( $file_path ) >= $max_size ) {
-			$this->rotate_log_file( $file_path );
-		}
-
 		// Write to file with locking.
 		$result = file_put_contents( $file_path, $content, FILE_APPEND | LOCK_EX );
 
@@ -342,60 +271,79 @@ class File_Integration extends Integration {
 	}
 
 	/**
-	 * Rotate a log file when it gets too large.
+	 * Clean up old log files based on current rotation frequency and keep settings.
 	 *
-	 * @param string $file_path Path to the log file to rotate.
-	 */
-	private function rotate_log_file( $file_path ) {
-		$rotated_path = $file_path . '.' . time();
-		
-		if ( rename( $file_path, $rotated_path ) ) {
-			$this->log_debug( 'Rotated log file: ' . $file_path . ' to ' . $rotated_path );
-		} else {
-			$this->log_error( 'Failed to rotate log file: ' . $file_path );
-		}
-	}
-
-	/**
-	 * Clean up old log files based on settings.
+	 * Only removes files that match the current rotation pattern.
 	 */
 	private function cleanup_old_files() {
 		$settings = $this->get_settings();
 		$keep_files = $settings['keep_files'] ?? 30;
-		
+		$rotation = $settings['rotation_frequency'] ?? 'daily';
+
 		if ( $keep_files <= 0 ) {
 			return; // Keep all files.
 		}
 
-		$log_dir = ! empty( $settings['log_directory'] ) ? 
-			$settings['log_directory'] : 
-			$this->get_default_log_directory();
+		// No cleanup needed for "never" rotation - only one file exists.
+		if ( $rotation === 'never' ) {
+			return;
+		}
+
+		$log_dir = $this->get_default_log_directory();
 
 		if ( ! is_dir( $log_dir ) ) {
 			return;
 		}
 
-		// Get all log files.
-		$log_files = glob( trailingslashit( $log_dir ) . 'simple-history*.log*' );
-		
+		// Get files that match the current rotation pattern only.
+		$pattern = $this->get_cleanup_pattern( $rotation );
+		$log_files = glob( trailingslashit( $log_dir ) . $pattern );
+
 		if ( empty( $log_files ) || count( $log_files ) <= $keep_files ) {
 			return; // Not enough files to clean up.
 		}
 
-		// Sort by modification time (oldest first).
-		usort( $log_files, function( $a, $b ) {
-			return filemtime( $a ) - filemtime( $b );
-		} );
+		// Sort by filename (which contains date) for consistent ordering.
+		sort( $log_files );
 
-		// Delete oldest files.
+		// Delete oldest files, keeping the most recent ones.
 		$files_to_delete = array_slice( $log_files, 0, count( $log_files ) - $keep_files );
-		
+
 		foreach ( $files_to_delete as $file ) {
 			if ( unlink( $file ) ) {
-				$this->log_debug( 'Deleted old log file: ' . $file );
+				$this->log_debug( 'Deleted old log file: ' . basename( $file ) );
 			} else {
-				$this->log_error( 'Failed to delete old log file: ' . $file );
+				$this->log_error( 'Failed to delete old log file: ' . basename( $file ) );
 			}
+		}
+	}
+
+	/**
+	 * Get the glob pattern for cleanup based on rotation frequency.
+	 *
+	 * Note: This method is only called for rotated files (daily, weekly, monthly).
+	 * The "never" case is handled by early exit in cleanup_old_files().
+	 *
+	 * @param string $rotation The rotation frequency.
+	 * @return string The glob pattern to match log files.
+	 */
+	private function get_cleanup_pattern( $rotation ) {
+		switch ( $rotation ) {
+			case 'daily':
+				// Matches files like events-2025-01-23.log.
+				return 'events-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].log*';
+
+			case 'weekly':
+				// Matches files like events-2025-W04.log.
+				return 'events-[0-9][0-9][0-9][0-9]-W[0-9][0-9].log*';
+
+			case 'monthly':
+				// Matches files like events-2025-01.log.
+				return 'events-[0-9][0-9][0-9][0-9]-[0-9][0-9].log*';
+
+			default:
+				// Fallback for any unexpected rotation values.
+				return 'events*.log*';
 		}
 	}
 }

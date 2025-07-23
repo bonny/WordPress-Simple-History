@@ -50,7 +50,7 @@ interface Integration_Interface {
 	/**
 	 * Send an event to this integration.
 	 *
-	 * @param array $event_data The event data to send.
+	 * @param array  $event_data The event data to send.
 	 * @param string $formatted_message The formatted message.
 	 * @return bool True on success, false on failure.
 	 */
@@ -77,13 +77,6 @@ interface Integration_Interface {
 	 * @return bool True on success, false on failure.
 	 */
 	public function save_settings( $settings );
-
-	/**
-	 * Test the integration connection/configuration.
-	 *
-	 * @return array Array with 'success' boolean and 'message' string.
-	 */
-	public function test_connection();
 
 	/**
 	 * Get the alert rules for this integration.

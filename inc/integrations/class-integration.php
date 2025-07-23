@@ -21,20 +21,6 @@ abstract class Integration implements Integration_Interface {
 	protected string $slug;
 
 	/**
-	 * The display name for this integration.
-	 *
-	 * @var string
-	 */
-	protected string $name;
-
-	/**
-	 * The description for this integration.
-	 *
-	 * @var string
-	 */
-	protected string $description;
-
-	/**
 	 * Whether this integration supports async processing.
 	 *
 	 * @var bool
@@ -67,20 +53,20 @@ abstract class Integration implements Integration_Interface {
 	/**
 	 * Get the display name for this integration.
 	 *
+	 * This method must be implemented by child classes.
+	 *
 	 * @return string The integration display name.
 	 */
-	public function get_name() {
-		return $this->name;
-	}
+	abstract public function get_name();
 
 	/**
 	 * Get the description for this integration.
 	 *
+	 * This method must be implemented by child classes.
+	 *
 	 * @return string The integration description.
 	 */
-	public function get_description() {
-		return $this->description;
-	}
+	abstract public function get_description();
 
 	/**
 	 * Check if this integration is enabled.
@@ -106,7 +92,7 @@ abstract class Integration implements Integration_Interface {
 	 *
 	 * This method must be implemented by child classes.
 	 *
-	 * @param array $event_data The event data to send.
+	 * @param array  $event_data The event data to send.
 	 * @param string $formatted_message The formatted message.
 	 * @return bool True on success, false on failure.
 	 */
@@ -128,7 +114,7 @@ abstract class Integration implements Integration_Interface {
 				'title' => __( 'Enable Integration', 'simple-history' ),
 				'description' => sprintf(
 					/* translators: %s: Integration name */
-					__( 'Enable sending events to %s', 'simple-history' ),
+					__( 'Enable', 'simple-history' ),
 					$this->get_name()
 				),
 			],
@@ -154,7 +140,7 @@ abstract class Integration implements Integration_Interface {
 	 */
 	protected function get_default_settings() {
 		$defaults = [ 'enabled' => false ];
-		
+
 		// Extract defaults from settings fields.
 		foreach ( $this->get_settings_fields() as $field ) {
 			if ( isset( $field['default'] ) ) {
@@ -174,7 +160,7 @@ abstract class Integration implements Integration_Interface {
 	public function save_settings( $settings ) {
 		// Validate settings first.
 		$validated_settings = $this->validate_settings( $settings );
-		
+
 		if ( is_wp_error( $validated_settings ) ) {
 			return false;
 		}
@@ -201,64 +187,58 @@ abstract class Integration implements Integration_Interface {
 				case 'checkbox':
 					$validated[ $name ] = ! empty( $value );
 					break;
-				
+
 				case 'text':
 				case 'textarea':
 					$validated[ $name ] = sanitize_text_field( $value );
 					break;
-				
+
 				case 'url':
 					$validated[ $name ] = esc_url_raw( $value );
 					if ( ! empty( $value ) && empty( $validated[ $name ] ) ) {
-						return new \WP_Error( 'invalid_url', sprintf(
+						return new \WP_Error(
+							'invalid_url',
+							sprintf(
 							/* translators: %s: Field name */
-							__( 'Invalid URL in field: %s', 'simple-history' ),
-							$field['title'] ?? $name
-						) );
+								__( 'Invalid URL in field: %s', 'simple-history' ),
+								$field['title'] ?? $name
+							)
+						);
 					}
 					break;
-				
+
 				case 'email':
 					$validated[ $name ] = sanitize_email( $value );
 					if ( ! empty( $value ) && ! is_email( $validated[ $name ] ) ) {
-						return new \WP_Error( 'invalid_email', sprintf(
+						return new \WP_Error(
+							'invalid_email',
+							sprintf(
 							/* translators: %s: Field name */
-							__( 'Invalid email in field: %s', 'simple-history' ),
-							$field['title'] ?? $name
-						) );
+								__( 'Invalid email in field: %s', 'simple-history' ),
+								$field['title'] ?? $name
+							)
+						);
 					}
 					break;
-				
+
 				default:
 					$validated[ $name ] = $value;
 			}
 
 			// Check required fields.
 			if ( ! empty( $field['required'] ) && empty( $validated[ $name ] ) ) {
-				return new \WP_Error( 'required_field', sprintf(
+				return new \WP_Error(
+					'required_field',
+					sprintf(
 					/* translators: %s: Field name */
-					__( 'Required field is empty: %s', 'simple-history' ),
-					$field['title'] ?? $name
-				) );
+						__( 'Required field is empty: %s', 'simple-history' ),
+						$field['title'] ?? $name
+					)
+				);
 			}
 		}
 
 		return $validated;
-	}
-
-	/**
-	 * Test the integration connection/configuration.
-	 *
-	 * This method should be overridden by child classes to provide
-	 * specific connection testing.
-	 *
-	 * @return array Array with 'success' boolean and 'message' string.
-	 */
-	public function test_connection() {
-		return [
-			'success' => true,
-			'message' => __( 'Test connection not implemented for this integration.', 'simple-history' ),
-		];
 	}
 
 	/**
@@ -296,7 +276,7 @@ abstract class Integration implements Integration_Interface {
 		}
 
 		$rules = $this->get_alert_rules();
-		
+
 		// If no rules are configured, send all events.
 		if ( empty( $rules ) ) {
 			return true;
@@ -311,7 +291,7 @@ abstract class Integration implements Integration_Interface {
 	 * Log an error for this integration.
 	 *
 	 * @param string $message The error message.
-	 * @param array $context Additional context data.
+	 * @param array  $context Additional context data.
 	 */
 	protected function log_error( $message, $context = [] ) {
 		$log_message = sprintf(
@@ -331,7 +311,7 @@ abstract class Integration implements Integration_Interface {
 	 * Log debug information for this integration.
 	 *
 	 * @param string $message The debug message.
-	 * @param array $context Additional context data.
+	 * @param array  $context Additional context data.
 	 */
 	protected function log_debug( $message, $context = [] ) {
 		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {

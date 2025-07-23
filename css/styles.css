@@ -1742,3 +1742,39 @@ Styles for plugin update details. Markup looks like this:
 	margin-top: var(--sh-spacing-small);
 	margin-bottom: var(--sh-spacing-small);
 }
+
+/* Integration Settings Form Styling */
+.sh-Integration-settings {
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	border-radius: var(--sh-border-radius);
+	padding: var(--sh-spacing-large);
+	margin-bottom: var(--sh-spacing-large);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sh-Integration-field {
+	margin-bottom: var(--sh-spacing-large);
+}
+
+.sh-Integration-field:last-child {
+	margin-bottom: 0;
+}
+
+.sh-Integration-field label {
+	display: block;
+	margin-bottom: var(--sh-spacing-xsmall);
+}
+
+.sh-Integration-settings .sh-Integration-description {
+	font-size: var(--sh-font-size-large);
+	margin-bottom: var(--sh-spacing-large);
+	line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 782px) {
+	.sh-Integration-settings {
+		padding: var(--sh-spacing-medium);
+	}
+}

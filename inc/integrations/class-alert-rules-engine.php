@@ -83,8 +83,8 @@ class Alert_Rules_Engine {
 	/**
 	 * Evaluate a set of rules against event data.
 	 *
-	 * @param array $rules Array of rule configurations.
-	 * @param array $event_data The event data to evaluate.
+	 * @param array  $rules Array of rule configurations.
+	 * @param array  $event_data The event data to evaluate.
 	 * @param string $operator The logical operator ('AND' or 'OR') for combining rules.
 	 * @return bool True if rules match, false otherwise.
 	 */
@@ -124,7 +124,7 @@ class Alert_Rules_Engine {
 		}
 
 		$rule_type = $this->get_rule_type( $rule_config['type'] );
-		
+
 		if ( ! $rule_type ) {
 			// Unknown rule type, log warning and return false.
 			error_log( 'Simple History: Unknown alert rule type: ' . $rule_config['type'] );
@@ -155,15 +155,15 @@ class Alert_Rules_Engine {
 		}
 
 		$rule_type = $this->get_rule_type( $rule_config['type'] );
-		
+
 		if ( ! $rule_type ) {
 			return [
 				'valid' => false,
-				'errors' => [ 
+				'errors' => [
 					sprintf(
 						/* translators: %s: Rule type */
-						__( 'Unknown rule type: %s', 'simple-history' ), 
-						$rule_config['type'] 
+						__( 'Unknown rule type: %s', 'simple-history' ),
+						$rule_config['type']
 					),
 				],
 			];
@@ -184,10 +184,10 @@ class Alert_Rules_Engine {
 
 		foreach ( $rules as $index => $rule_config ) {
 			$validation = $this->validate_rule( $rule_config );
-			
+
 			if ( ! $validation['valid'] ) {
 				$all_valid = false;
-				
+
 				if ( ! empty( $validation['errors'] ) ) {
 					foreach ( $validation['errors'] as $error ) {
 						$all_errors[] = sprintf(
@@ -202,7 +202,7 @@ class Alert_Rules_Engine {
 		}
 
 		$result = [ 'valid' => $all_valid ];
-		
+
 		if ( ! empty( $all_errors ) ) {
 			$result['errors'] = $all_errors;
 		}
@@ -213,7 +213,7 @@ class Alert_Rules_Engine {
 	/**
 	 * Get a human-readable description of rules.
 	 *
-	 * @param array $rules Array of rule configurations.
+	 * @param array  $rules Array of rule configurations.
 	 * @param string $operator The logical operator ('AND' or 'OR') for combining rules.
 	 * @return string Human-readable description.
 	 */
@@ -226,7 +226,7 @@ class Alert_Rules_Engine {
 
 		foreach ( $rules as $rule_config ) {
 			$rule_type = $this->get_rule_type( $rule_config['type'] ?? '' );
-			
+
 			if ( $rule_type ) {
 				$descriptions[] = $rule_type->get_readable_description( $rule_config );
 			}
@@ -236,10 +236,10 @@ class Alert_Rules_Engine {
 			return __( 'No valid rules configured', 'simple-history' );
 		}
 
-		$operator_text = 'AND' === $operator ? 
+		$operator_text = 'AND' === $operator ?
 			/* translators: Used to join multiple rule descriptions with AND logic */
-			__( ' AND ', 'simple-history' ) : 
-			/* translators: Used to join multiple rule descriptions with OR logic */  
+			__( ' AND ', 'simple-history' ) :
+			/* translators: Used to join multiple rule descriptions with OR logic */
 			__( ' OR ', 'simple-history' );
 
 		return implode( $operator_text, $descriptions );
@@ -251,7 +251,7 @@ class Alert_Rules_Engine {
 	 * This is a helper method for creating properly formatted rule configurations.
 	 *
 	 * @param string $type The rule type.
-	 * @param array $config The rule-specific configuration.
+	 * @param array  $config The rule-specific configuration.
 	 * @return array The complete rule configuration.
 	 */
 	public static function create_rule( $type, $config = [] ) {
