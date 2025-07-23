@@ -103,6 +103,69 @@ abstract class Integration implements Integration_Interface {
 	 * This method should be overridden by child classes to provide
 	 * specific configuration fields.
 	 *
+	 * ## Supported Field Types:
+	 *
+	 * ### checkbox
+	 * - Renders as a checkbox input
+	 * - Value is stored as boolean (true/false)
+	 * - Example: ['type' => 'checkbox', 'name' => 'enabled', 'title' => 'Enable']
+	 *
+	 * ### text
+	 * - Renders as a single-line text input
+	 * - Value is sanitized with sanitize_text_field()
+	 * - Example: ['type' => 'text', 'name' => 'api_key', 'title' => 'API Key']
+	 *
+	 * ### textarea
+	 * - Renders as a multi-line text area
+	 * - Value is sanitized with sanitize_text_field()
+	 * - Example: ['type' => 'textarea', 'name' => 'message', 'title' => 'Message']
+	 *
+	 * ### url
+	 * - Renders as a URL input field
+	 * - Value is validated and sanitized with esc_url_raw()
+	 * - Validation fails if an invalid URL is provided
+	 * - Example: ['type' => 'url', 'name' => 'webhook_url', 'title' => 'Webhook URL']
+	 *
+	 * ### email
+	 * - Renders as an email input field
+	 * - Value is validated with is_email() and sanitized with sanitize_email()
+	 * - Validation fails if an invalid email is provided
+	 * - Example: ['type' => 'email', 'name' => 'recipient', 'title' => 'Email Address']
+	 *
+	 * ### select
+	 * - Renders as a dropdown select field
+	 * - Requires 'options' array with key => label pairs
+	 * - Example: [
+	 *     'type' => 'select',
+	 *     'name' => 'frequency',
+	 *     'title' => 'Frequency',
+	 *     'options' => ['daily' => 'Daily', 'weekly' => 'Weekly']
+	 * ]
+	 *
+	 * ### number
+	 * - Renders as a number input field
+	 * - Supports 'min' and 'max' attributes
+	 * - Example: [
+	 *     'type' => 'number',
+	 *     'name' => 'retention_days',
+	 *     'title' => 'Days to Keep',
+	 *     'min' => 1,
+	 *     'max' => 365
+	 * ]
+	 *
+	 * ## Common Field Properties:
+	 * - name: (required) The field name/key for storing the value
+	 * - title: (required) The label displayed to users
+	 * - description: (optional) Help text shown below the field
+	 * - default: (optional) Default value if none is set
+	 * - required: (optional) Boolean, marks field as required
+	 * - placeholder: (optional) Placeholder text for input fields
+	 *
+	 * ## Custom Field Types:
+	 * If you need a field type not listed above, the value will be passed
+	 * through without validation (see the default case in validate_settings()).
+	 * You should implement custom validation in your integration class.
+	 *
 	 * @return array Array of settings fields.
 	 */
 	public function get_settings_fields() {
@@ -244,6 +307,32 @@ abstract class Integration implements Integration_Interface {
 								$field['title'] ?? $name
 							)
 						);
+					}
+					break;
+
+				case 'number':
+					$validated[ $name ] = intval( $value );
+					
+					// Check min/max bounds if specified.
+					if ( isset( $field['min'] ) && $validated[ $name ] < $field['min'] ) {
+						$validated[ $name ] = $field['min'];
+					}
+					if ( isset( $field['max'] ) && $validated[ $name ] > $field['max'] ) {
+						$validated[ $name ] = $field['max'];
+					}
+					break;
+
+				case 'select':
+					// Validate that the value is one of the allowed options.
+					if ( isset( $field['options'] ) && is_array( $field['options'] ) ) {
+						if ( array_key_exists( $value, $field['options'] ) ) {
+							$validated[ $name ] = $value;
+						} else {
+							// Use the default or first option if invalid value.
+							$validated[ $name ] = $field['default'] ?? array_key_first( $field['options'] );
+						}
+					} else {
+						$validated[ $name ] = $value;
 					}
 					break;
 
