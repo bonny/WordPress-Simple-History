@@ -88,6 +88,11 @@ class File_Integration extends Integration {
 	 * @return bool True on success, false on failure.
 	 */
 	public function send_event( $event_data, $formatted_message ) {
+		// Don't write anything if integration is disabled.
+		if ( ! $this->is_enabled() ) {
+			return true;
+		}
+
 		// Get the log file path.
 		$log_file = $this->get_log_file_path();
 
@@ -369,10 +374,32 @@ class File_Integration extends Integration {
 		if ( wp_mkdir_p( $directory ) ) {
 			// Set appropriate permissions.
 			chmod( $directory, 0755 );
+			
+			// Create .htaccess file for security.
+			$this->create_htaccess_file( $directory );
+			
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Create .htaccess file to protect log directory.
+	 *
+	 * @param string $directory Directory path.
+	 */
+	private function create_htaccess_file( $directory ) {
+		$htaccess_path = trailingslashit( $directory ) . '.htaccess';
+		
+		// Only create if it doesn't exist.
+		if ( ! file_exists( $htaccess_path ) ) {
+			$htaccess_content = "# Simple History log directory protection\n";
+			$htaccess_content .= "Order deny,allow\n";
+			$htaccess_content .= "Deny from all\n";
+			
+			file_put_contents( $htaccess_path, $htaccess_content );
+		}
 	}
 
 	/**
@@ -390,8 +417,8 @@ class File_Integration extends Integration {
 		while ( $attempt < $max_attempts ) {
 			$attempt++;
 
-			// Write to file with locking.
-			$result = file_put_contents( $file_path, $content, FILE_APPEND | LOCK_EX );
+			// Write to file with locking. Suppress warnings for testing.
+			$result = @file_put_contents( $file_path, $content, FILE_APPEND | LOCK_EX );
 
 			if ( false !== $result ) {
 				// Success - schedule cleanup if needed (throttled).

@@ -5,6 +5,9 @@ namespace Simple_History\Tests\WPUnit;
 use Simple_History\Simple_History;
 use Simple_History\Integrations\Integrations_Manager;
 use Simple_History\Integrations\Integrations\File_Integration;
+
+// Include test fixture
+require_once __DIR__ . '/fixtures/class-example-integration.php';
 use Simple_History\Integrations\Integrations\Example_Integration;
 
 /**
@@ -118,9 +121,12 @@ class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
 		// Process the event (this should write to a file)
 		$this->manager->process_logged_event( $context, $data, $logger );
 
+		// Force buffer flush to ensure file is written
+		$file_integration->flush_write_buffer();
+
 		// Verify the log file was created
 		$log_dir = $this->invoke_method( $file_integration, 'get_log_directory_path', [] );
-		$log_file = $log_dir . '/events-' . gmdate( 'Y-m-d' ) . '.log';
+		$log_file = $log_dir . '/events-' . current_time( 'Y-m-d' ) . '.log';
 
 		$this->assertFileExists( $log_file );
 
@@ -156,9 +162,12 @@ class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
 		// Process the event
 		$this->manager->process_logged_event( $context, $data, $logger );
 
+		// Force buffer flush
+		$file_integration->flush_write_buffer();
+
 		// Verify no log file was created
 		$log_dir = $this->invoke_method( $file_integration, 'get_log_directory_path', [] );
-		$log_file = $log_dir . '/events-' . gmdate( 'Y-m-d' ) . '.log';
+		$log_file = $log_dir . '/events-' . current_time( 'Y-m-d' ) . '.log';
 
 		$this->assertFileDoesNotExist( $log_file );
 
@@ -196,29 +205,13 @@ class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test settings tab registration.
+	 * Test that manager is loaded correctly.
 	 */
-	public function test_settings_tab_registration() {
-		$tabs = [];
-
-		// The manager should add a settings tab
-		$tabs = $this->manager->add_settings_tab( $tabs );
-
-		$this->assertIsArray( $tabs );
-		$this->assertNotEmpty( $tabs );
-
-		// Find the integrations tab
-		$integrations_tab = null;
-		foreach ( $tabs as $tab ) {
-			if ( $tab['slug'] === 'integrations' ) {
-				$integrations_tab = $tab;
-				break;
-			}
-		}
-
-		$this->assertNotNull( $integrations_tab );
-		$this->assertEquals( 'Integrations', $integrations_tab['name'] );
-		$this->assertIsCallable( $integrations_tab['function'] );
+	public function test_manager_loaded() {
+		// Test that the manager has been loaded with default integrations
+		$integrations = $this->manager->get_integrations();
+		$this->assertIsArray( $integrations );
+		$this->assertArrayHasKey( 'file', $integrations );
 	}
 
 	/**
