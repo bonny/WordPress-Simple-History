@@ -30,7 +30,7 @@ class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 	 */
 	public function to_json() {
 		$output = $this->json_output;
-		
+
 		// Include item name if it exists and isn't already in custom output,
 		// but only if the custom output seems to be structured data that could benefit from a name field.
 		// If it's a simple array with basic keys, don't add the name to avoid breaking existing usage.
@@ -41,7 +41,7 @@ class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 				$output['name'] = $this->item->name;
 			}
 		}
-		
+
 		return $output;
 	}
 

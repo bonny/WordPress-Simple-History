@@ -143,7 +143,7 @@ class Event_Details_Item {
 	/**
 	 * Check if a formatter is available for this item.
 	 * Always returns true because get_formatter() guarantees a formatter.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function has_formatter() {
@@ -152,7 +152,7 @@ class Event_Details_Item {
 
 	/**
 	 * Check if this item has a custom formatter explicitly set.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function has_custom_formatter() {
