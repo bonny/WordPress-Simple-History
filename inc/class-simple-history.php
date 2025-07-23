@@ -56,6 +56,9 @@ class Simple_History {
 	/** @var array<int,mixed>  Registered settings tabs. */
 	private array $arr_settings_tabs = [];
 
+	/** @var \Simple_History\Integrations\Integrations_Manager|null The integrations manager instance. */
+	public $integrations_manager = null;
+
 	public const DBTABLE = 'simple_history';
 	public const DBTABLE_CONTEXTS = 'simple_history_contexts';
 

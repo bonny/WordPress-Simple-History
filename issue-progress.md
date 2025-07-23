@@ -28,6 +28,7 @@
 - Fixed autoloader issue: Interface files must be named with pattern `interface-{class-name}.php`
   - Renamed: `interface-integration.php` → `interface-integration-interface.php`
   - Renamed: `interface-alert-rule.php` → `interface-alert-rule-interface.php`
+- Fixed PHP 8.2 deprecation warning: Added property declaration for `$integrations_manager` in Simple_History class
 
 **Technical Details:**
 - Used industry-standard "Integrations" terminology
