@@ -57,11 +57,28 @@ class Menu_Manager {
 	}
 
 	/**
+	 * Get pages sorted by their order.
+	 */
+	public function get_pages_ordered() {
+		$pages = $this->get_pages();
+
+		// Sort pages by order.
+		usort(
+			$pages,
+			function ( $a, $b ) {
+				return $a->get_order() - $b->get_order();
+			}
+		);
+
+		return $pages;
+	}
+
+	/**
 	 * Register all menu pages with WordPress.
 	 * Called during admin_menu.
 	 */
 	public function register_pages() {
-		foreach ( $this->get_pages() as $page ) {
+		foreach ( $this->get_pages_ordered() as $page ) {
 			$location = $page->get_location();
 
 			switch ( $location ) {
