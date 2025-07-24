@@ -31,6 +31,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 -   WordPress hooks must use prefixes
 -   WordPress Coding Standards with modifications (see phpcs.xml.dist)
 -   PHP: 7.4+ compatibility
+-   **Happy path last**: Handle error conditions first, success case last
+-   **Avoid else**: Use early returns instead of nested conditions
+-   **Separate conditions**: Prefer multiple if statements over compound conditions
+-   **Always use curly brackets** even for single statements
+-   **Ternary operators**: Each part on own line unless very short
+
+```php
+// Happy path last
+if (! $user) {
+    return null;
+}
+
+if (! $user->isActive()) {
+    return null;
+}
+
+// Process active user...
+
+// Short ternary
+$name = $isFoo ? 'foo' : 'bar';
+
+// Multi-line ternary
+$result = $object instanceof Model ?
+    $object->name :
+    'A default value';
+
+// Ternary instead of else
+$condition
+    ? $this->doSomething()
+    : $this->doSomethingElse();
+```
 
 # CSS rules
 
