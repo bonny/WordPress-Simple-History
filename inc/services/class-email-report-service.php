@@ -14,10 +14,6 @@ class Email_Report_Service extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		// Only load if experimental features are enabled.
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return;
-		}
 
 		// Register settings.
 		add_action( 'admin_init', [ $this, 'register_settings' ] );
@@ -266,7 +262,7 @@ class Email_Report_Service extends Service {
 		// Add settings section for email reports.
 		Helpers::add_settings_section(
 			'simple_history_email_report_section',
-			[ __( 'Email Reports (experimental)', 'simple-history' ), 'mark_email_unread' ],
+			[ __( 'Email Reports', 'simple-history' ), 'mark_email_unread' ],
 			[ $this, 'settings_section_output' ],
 			$settings_menu_slug
 		);
