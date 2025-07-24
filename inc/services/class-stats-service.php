@@ -49,7 +49,8 @@ class Stats_Service extends Service {
 			->set_menu_title( _x( 'History Insights', 'dashboard menu name', 'simple-history' ) )
 			->set_menu_slug( 'simple_history_stats_page' )
 			->set_capability( 'manage_options' )
-			->set_callback( [ $this, 'output_page' ] );
+			->set_callback( [ $this, 'output_page' ] )
+			->set_order( 2 );
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {

@@ -32,7 +32,7 @@ class Admin_Page_Premium_Promo extends Service {
 			->set_menu_slug( 'simple_history_promo_upsell' )
 			->set_callback( [ $this, 'promo_upsell_page_output' ] )
 			->set_icon( 'workspace_premium' )
-			->set_order( 999 );
+			->set_order( 6 );
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {

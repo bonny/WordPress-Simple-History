@@ -40,7 +40,8 @@ class Export_Dropin extends Dropin {
 			->set_page_title( _x( 'Simple History Export', 'dashboard title name', 'simple-history' ) )
 			->set_menu_slug( self::MENU_SLUG )
 			->set_callback( [ $this, 'output_export_page' ] )
-			->set_icon( 'download' );
+			->set_icon( 'download' )
+			->set_order( 3 );
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {

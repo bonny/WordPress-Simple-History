@@ -54,6 +54,7 @@ class Admin_Pages extends Service {
 				->set_capability( Helpers::get_view_history_capability() )
 				->set_callback( [ $this, 'history_page_output' ] )
 				->set_location( 'submenu_default' )
+				->set_order( 1 )
 			);
 		}
 
