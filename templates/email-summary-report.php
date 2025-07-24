@@ -54,6 +54,7 @@ $args = wp_parse_args(
 		'plugin_activations' => 0,
 		'plugin_deactivations' => 0,
 		'wordpress_updates' => 0,
+		'history_admin_url' => '',
 	]
 );
 
@@ -129,7 +130,7 @@ $args = wp_parse_args(
 			echo esc_html(
 				sprintf(
 					/* translators: 1: number of events, 2: day of the week */
-					__( '%1$d events last week • %2$s was your busiest day', 'simple-history' ),
+					__( '%1$d events last week • %2$s was the busiest day', 'simple-history' ),
 					$args['total_events_this_week'],
 					$busiest_day
 				)
@@ -160,7 +161,7 @@ $args = wp_parse_args(
 					<!-- Main Headline -->
 					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;" 
 						class="mobile-header">
-						<?php echo esc_html( __( 'Website Weekly Activity Summary', 'simple-history' ) ); ?>
+						<?php echo esc_html( __( 'Website weekly activity summary', 'simple-history' ) ); ?>
 					</h1>
 					
 					<!-- Date Range -->
@@ -169,9 +170,14 @@ $args = wp_parse_args(
 					</p>
 					
 					<!-- Subtitle -->
-					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
+					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
 						class="mobile-text">
 						<?php echo esc_html( __( 'Here\'s a summary of what happened on your website last week.', 'simple-history' ) ); ?>
+					</p>
+
+					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
+						class="mobile-text">
+						<?php echo esc_html( __( 'View the Simple History event log on your website for a detailed list of all events.', 'simple-history' ) ); ?>
 					</p>
 					
 					<?php if ( $show_main_core_stats ) { ?>
@@ -208,7 +214,7 @@ $args = wp_parse_args(
 						<!-- Weekly Activity Breakdown -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Activity by Day', 'simple-history' ) ); ?>
+								<?php echo esc_html( __( 'Activity by day', 'simple-history' ) ); ?>
 							</h2>
 							
 							<?php
@@ -365,7 +371,7 @@ $args = wp_parse_args(
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
 						<tr>
 							<td style="border-radius: 6px; background: #0040FF;">
-								<a href="<?php echo esc_url( \Simple_History\Helpers::get_history_admin_url() ); ?>" 
+								<a href="<?php echo esc_url( $args['history_admin_url'] ); ?>" 
 									style="background: #0040FF; border: 16px solid #0040FF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; text-decoration: none; color: #ffffff; display: block; border-radius: 6px; font-weight: 600;">
 									<?php echo esc_html( __( 'View Activity Log', 'simple-history' ) ); ?>
 								</a>

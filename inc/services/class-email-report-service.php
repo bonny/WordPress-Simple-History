@@ -168,6 +168,9 @@ class Email_Report_Service extends Service {
 		// Get WordPress core statistics.
 		$stats['wordpress_updates'] = $events_stats->get_wordpress_core_updates_count( $date_from, $date_to );
 
+		// Add history admin URL.
+		$stats['history_admin_url'] = \Simple_History\Helpers::get_history_admin_url();
+
 		return $stats;
 	}
 
