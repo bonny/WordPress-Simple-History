@@ -34,14 +34,14 @@ $content_after_core_stats = apply_filters( 'simple_history/email_summary_report/
 
 // Ensure $args is defined and is an array with fallback values for all used data.
 if ( ! isset( $args ) ) {
-	$args = array();
+	$args = [];
 }
 $args = wp_parse_args(
 	$args,
-	array(
+	[
 		'email_subject' => __( 'Website Activity Summary', 'simple-history' ),
 		'total_events_this_week' => 0,
-		'most_active_days' => array(),
+		'most_active_days' => [],
 		'date_range' => '',
 		'site_url' => '',
 		'site_name' => '',
@@ -54,7 +54,7 @@ $args = wp_parse_args(
 		'plugin_activations' => 0,
 		'plugin_deactivations' => 0,
 		'wordpress_updates' => 0,
-	)
+	]
 );
 
 ?>
@@ -213,7 +213,7 @@ $args = wp_parse_args(
 							
 							<?php
 							// Create an array of all days of the week.
-							$all_days = array(
+							$all_days = [
 								'monday' => __( 'Monday', 'simple-history' ),
 								'tuesday' => __( 'Tuesday', 'simple-history' ),
 								'wednesday' => __( 'Wednesday', 'simple-history' ),
@@ -221,10 +221,10 @@ $args = wp_parse_args(
 								'friday' => __( 'Friday', 'simple-history' ),
 								'saturday' => __( 'Saturday', 'simple-history' ),
 								'sunday' => __( 'Sunday', 'simple-history' ),
-							);
+							];
 
 							// Create a lookup array from most_active_days for easy access.
-							$day_counts = array();
+							$day_counts = [];
 							foreach ( $args['most_active_days'] as $day ) {
 								if ( isset( $day['name'] ) && isset( $day['count'] ) ) {
 									// The day name comes from Events_Stats as full day name (e.g., "Monday").
