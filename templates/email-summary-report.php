@@ -402,7 +402,7 @@ $args = wp_parse_args(
 		</table>
 		
 		<!-- Unsubscribe Text Outside White Container -->
-		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="500" style="margin: 40px auto;" class="email-container">
+		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="500" style="padding: 40px 0;" class="email-container">
 			<tr>
 				<td style="padding: 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; text-align: center; color: #000000;" 
 					class="mobile-padding">
