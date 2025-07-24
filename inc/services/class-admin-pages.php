@@ -40,7 +40,8 @@ class Admin_Pages extends Service {
 			->set_capability( Helpers::get_view_history_capability() )
 			->set_icon( $logo_icon )
 			->set_location( $admin_page_location )
-			->set_callback( [ $this, 'history_page_output' ] );
+			->set_callback( [ $this, 'history_page_output' ] )
+			->set_order(1);
 
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
 			// Add "Event log" page that is the first submenu item.
@@ -54,7 +55,7 @@ class Admin_Pages extends Service {
 				->set_capability( Helpers::get_view_history_capability() )
 				->set_callback( [ $this, 'history_page_output' ] )
 				->set_location( 'submenu_default' )
-				->set_order( 1 )
+				->set_order( 2 )
 			);
 		}
 
