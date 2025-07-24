@@ -328,7 +328,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Add footer to dashboard widget with links to the [blog](https://simple-history.com/blog/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_14_0), [support](https://simple-history.com/support/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_14_0) and [premium features](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_14_0).
 -   Add filters to customize plugin update details. Plugin authors can now add custom information about new features and improvements when their plugins are updated. This is done using the filter `simple_history/pluginlogger/plugin_updated_details/{plugin-slug}/{version}`. For example, to add custom details for Simple History version 5.14.0, use the filter `simple_history/pluginlogger/plugin_updated_details/simple-history/5.14.0` :).
 
-**New experimental feature**:
+**New experimental features**
 
 These features are experimental and may change in future releases.
 You need to have experimental features enabled in the settings to use them.
