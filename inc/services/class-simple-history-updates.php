@@ -13,7 +13,7 @@ class Simple_History_Updates extends Service {
 	 */
 	public function loaded() {
 		// Hook into the plugin update details filter for Simple History.
-		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.14.0', [ $this, 'on_plugin_updated_details_5_14_0' ], 10, 1 );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.14.0', [ $this, 'on_plugin_updated_details_5_14_0' ] );
 	}
 
 	/**
@@ -65,12 +65,10 @@ class Simple_History_Updates extends Service {
 		$title = __( 'What\'s new in this version', 'simple-history' );
 
 		$new_features = [
-			'Fix collapse of search filters not working',
-			'Add footer to dashboard page',
-			'Add search filter for initiators',
+			'This release adds more filtering options, both in the frontend and in the REST API and WP-CLI. It also contains some bug fixes – and for the adventurous users we have two new experimental features',
 		];
 
-		$release_link = 'https://simple-history.com/releases/5-14-0/';
+		$release_link = 'https://simple-history.com/2025/simple-history-5-14-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
