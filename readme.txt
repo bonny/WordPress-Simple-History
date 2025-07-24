@@ -331,6 +331,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
+-   Fix export functionality not working when accessed from the settings page. [#574](https://github.com/bonny/WordPress-Simple-History/issues/574)
 -   Fix collapse of search filters not working. [#569](https://github.com/bonny/WordPress-Simple-History/issues/569)
 
 ### 5.13.1 (July 2025)
