@@ -291,9 +291,10 @@ class Core_Files_Integrity_Logger extends Logger {
 				} elseif ( 'missing' === $issue ) {
 					$status_text = __( 'Missing file restored', 'simple-history' );
 				} else {
+					/* translators: %s: issue type */
 					$status_text = sprintf( __( '%s fixed', 'simple-history' ), esc_html( $issue ) );
 				}
-			} else {
+			} else if ( 'core_files_modified_detected' === $message_key ) {
 				// For detected issues, show the current problem.
 				if ( 'modified' === $issue ) {
 					$status_text = __( 'Hash mismatch', 'simple-history' );
