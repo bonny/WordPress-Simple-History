@@ -1088,9 +1088,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Validate initiator parameter.
 	 *
-	 * @param mixed           $value   Value of the parameter.
+	 * @param mixed            $value   Value of the parameter.
 	 * @param \WP_REST_Request $request REST request object.
-	 * @param string          $param   Parameter name.
+	 * @param string           $param   Parameter name.
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
 	public function validate_initiator_param( $value, $request, $param ) {
@@ -1133,9 +1133,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Sanitize initiator parameter.
 	 *
-	 * @param mixed           $value   Value of the parameter.
+	 * @param mixed            $value   Value of the parameter.
 	 * @param \WP_REST_Request $request REST request object.
-	 * @param string          $param   Parameter name.
+	 * @param string           $param   Parameter name.
 	 * @return string|array Sanitized value.
 	 */
 	public function sanitize_initiator_param( $value, $request, $param ) {
