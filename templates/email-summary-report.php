@@ -177,7 +177,24 @@ $args = wp_parse_args(
 
 					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
 						class="mobile-text">
-						<?php echo esc_html( __( 'View the Simple History event log on your website for a detailed list of all events.', 'simple-history' ) ); ?>
+						<?php
+						$allowed_html = array(
+							'a' => array(
+								'href' => array(),
+								'style' => array(),
+							),
+						);
+						$link_style = 'style="color: #0040FF; text-decoration: underline;"';
+						echo wp_kses(
+							sprintf(
+								/* translators: 1: URL to history page, 2: link style attribute including style="" */
+								__( '<a href="%1$s" %2$s>View the Simple History event log</a> on your website for a detailed history of changes and activities.', 'simple-history' ),
+								esc_url( $args['history_admin_url'] ),
+								$link_style
+							),
+							$allowed_html
+						);
+						?>
 					</p>
 					
 					<?php if ( $show_main_core_stats ) { ?>
