@@ -129,7 +129,6 @@ class Email_Report_Service extends Service {
 				date_i18n( get_option( 'date_format' ), $date_from ),
 				date_i18n( get_option( 'date_format' ), $date_to )
 			),
-			'total_events_since_install' => Helpers::get_total_logged_events_count(),
 			'email_subject' => $this->get_email_subject( $is_preview ),
 		];
 

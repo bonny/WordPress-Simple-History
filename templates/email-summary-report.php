@@ -129,7 +129,7 @@ $args = wp_parse_args(
 			echo esc_html(
 				sprintf(
 					/* translators: 1: number of events, 2: day of the week */
-					__( '%1$d events this week • %2$s was your busiest day', 'simple-history' ),
+					__( '%1$d events last week • %2$s was your busiest day', 'simple-history' ),
 					$args['total_events_this_week'],
 					$busiest_day
 				)
@@ -354,18 +354,7 @@ $args = wp_parse_args(
 								<?php echo esc_html( number_format_i18n( $args['wordpress_updates'] ) ); ?>
 							</div>
 						</div>
-						
-
-					
-						<!-- Total Events Since Install -->
-						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
-							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Total Events Since Install', 'simple-history' ) ); ?>
-							</h2>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">
-								<?php echo esc_html( number_format_i18n( $args['total_events_since_install'] ) ); ?>
-							</div>
-						</div>
+											
 						<?php } ?>
 					</div>
 
