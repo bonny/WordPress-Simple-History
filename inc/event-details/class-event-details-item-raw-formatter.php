@@ -36,7 +36,7 @@ class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 		// If it's a simple array with basic keys, don't add the name to avoid breaking existing usage.
 		if ( $this->item && $this->item->name && ! isset( $output['name'] ) ) {
 			// Only add name if the output has some structured content (contains 'type' or 'content' keys)
-			// This ensures we don't interfere with purely custom JSON outputs
+			// This ensures we don't interfere with purely custom JSON outputs.
 			if ( isset( $output['type'] ) || isset( $output['content'] ) ) {
 				$output['name'] = $this->item->name;
 			}

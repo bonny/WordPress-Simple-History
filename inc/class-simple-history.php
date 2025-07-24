@@ -1569,7 +1569,7 @@ class Simple_History {
 					),
 				);
 			} else {
-				// Fallback for WordPress versions before 6.4.0
+				// Fallback for WordPress versions before 6.4.0.
 				error_log(
 					sprintf(
 						'Call to undefined or deprecated method %s::%s(). This indicates a bug in the calling code.',

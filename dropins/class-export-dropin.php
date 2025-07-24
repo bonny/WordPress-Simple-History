@@ -70,7 +70,7 @@ class Export_Dropin extends Dropin {
 		// When using a tab because SH is inside tools or dashboard:
 		// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/options-general.php?page=simple_history_settings_page&selected-tab=simple_history_export_history
 		// When showing in main menu:
-		// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_export_history
+		// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_export_history.
 		if ( $page !== self::MENU_SLUG && $page !== Simple_History::SETTINGS_MENU_PAGE_SLUG ) {
 			return;
 		}
