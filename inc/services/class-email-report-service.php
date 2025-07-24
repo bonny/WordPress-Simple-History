@@ -332,8 +332,6 @@ class Email_Report_Service extends Service {
 		echo '<p>' . esc_html__( 'Configure automatic email reports with website statistics. Reports are sent every Monday morning.', 'simple-history' ) . '</p>';
 	}
 
-
-
 	/**
 	 * Output for the preview and test setting field.
 	 */
