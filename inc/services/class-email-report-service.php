@@ -221,7 +221,11 @@ class Email_Report_Service extends Service {
 			return rest_ensure_response(
 				[
 					'success' => true,
-					'message' => __( 'Test email sent successfully.', 'simple-history' ),
+					'message' => sprintf(
+						/* translators: %s: Email address */
+						__( 'Test email sent successfully to %s.', 'simple-history' ),
+						$current_user->user_email
+					),
 				]
 			);
 		} else {
