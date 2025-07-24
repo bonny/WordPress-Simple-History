@@ -14,9 +14,8 @@ class Email_Report_Service extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-
-		// Register settings.
-		add_action( 'admin_init', [ $this, 'register_settings' ] );
+		// Register settings with priority 10 to ensure it loads before RSS feed (priority 15).
+		add_action( 'admin_menu', [ $this, 'register_settings' ], 13 );
 
 		// Add settings fields to general section.
 		add_action( 'simple_history/settings_page/general_section_output', [ $this, 'on_general_section_output' ] );
