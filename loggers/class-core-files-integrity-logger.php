@@ -260,7 +260,7 @@ class Core_Files_Integrity_Logger extends Logger {
 		}
 
 		$event_details_group = new Event_Details_Group();
-		
+
 		// Set appropriate title based on the event type.
 		if ( 'core_files_integrity_restored' === $message_key ) {
 			$event_details_group->set_title( __( 'Restored Core Files', 'simple-history' ) );
