@@ -130,6 +130,9 @@ class Event_Details_Item {
 			$formatter = $fallback_formatter_or_formatter_class;
 		} elseif ( is_subclass_of( $fallback_formatter_or_formatter_class, Event_Details_Item_Formatter::class ) ) {
 			$formatter = new $fallback_formatter_or_formatter_class();
+		} else {
+			// Use default formatter as final fallback.
+			$formatter = new Event_Details_Item_Default_Formatter();
 		}
 
 		$formatter->set_item( $this );
@@ -138,9 +141,21 @@ class Event_Details_Item {
 	}
 
 	/**
+	 * Check if a formatter is available for this item.
+	 * Always returns true because get_formatter() guarantees a formatter.
+	 *
 	 * @return bool
 	 */
 	public function has_formatter() {
 		return true;
+	}
+
+	/**
+	 * Check if this item has a custom formatter explicitly set.
+	 *
+	 * @return bool
+	 */
+	public function has_custom_formatter() {
+		return $this->formatter instanceof Event_Details_Item_Formatter;
 	}
 }

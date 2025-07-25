@@ -448,6 +448,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'sanitize_callback' => array( $this, 'sanitize_initiator_param' ),
 		);
 
+		$query_params['context_filters'] = array(
+			'description' => __( 'Context filters as key-value pairs to filter events by context data.', 'simple-history' ),
+			'type'        => 'object',
+			'additionalProperties' => array(
+				'type' => 'string',
+			),
+		);
+
+		$query_params['ungrouped'] = array(
+			'description' => __( 'Return ungrouped events without occasions grouping.', 'simple-history' ),
+			'type'        => 'boolean',
+			'default'     => false,
+		);
+
 		return $query_params;
 	}
 
@@ -632,6 +646,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'users'                   => 'users',
 			'user'                    => 'user',
 			'initiator'               => 'initiator',
+			'context_filters'         => 'context_filters',
+			'ungrouped'               => 'ungrouped',
 		);
 
 		/*
@@ -707,6 +723,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'include_sticky'          => 'include_sticky',
 			'only_sticky'             => 'only_sticky',
 			'initiator'               => 'initiator',
+			'context_filters'         => 'context_filters',
+			'ungrouped'               => 'ungrouped',
 		);
 
 		/*
@@ -1070,9 +1088,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Validate initiator parameter.
 	 *
-	 * @param mixed           $value   Value of the parameter.
-	 * @param WP_REST_Request $request REST request object.
-	 * @param string          $param   Parameter name.
+	 * @param mixed            $value   Value of the parameter.
+	 * @param \WP_REST_Request $request REST request object.
+	 * @param string           $param   Parameter name.
 	 * @return bool|WP_Error True if valid, WP_Error otherwise.
 	 */
 	public function validate_initiator_param( $value, $request, $param ) {
@@ -1115,9 +1133,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Sanitize initiator parameter.
 	 *
-	 * @param mixed           $value   Value of the parameter.
-	 * @param WP_REST_Request $request REST request object.
-	 * @param string          $param   Parameter name.
+	 * @param mixed            $value   Value of the parameter.
+	 * @param \WP_REST_Request $request REST request object.
+	 * @param string           $param   Parameter name.
 	 * @return string|array Sanitized value.
 	 */
 	public function sanitize_initiator_param( $value, $request, $param ) {

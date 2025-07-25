@@ -14,13 +14,8 @@ class Email_Report_Service extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		// Only load if experimental features are enabled.
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return;
-		}
-
-		// Register settings.
-		add_action( 'admin_init', [ $this, 'register_settings' ] );
+		// Register settings with priority 10 to ensure it loads before RSS feed (priority 15).
+		add_action( 'admin_menu', [ $this, 'register_settings' ], 13 );
 
 		// Add settings fields to general section.
 		add_action( 'simple_history/settings_page/general_section_output', [ $this, 'on_general_section_output' ] );
@@ -129,7 +124,6 @@ class Email_Report_Service extends Service {
 				date_i18n( get_option( 'date_format' ), $date_from ),
 				date_i18n( get_option( 'date_format' ), $date_to )
 			),
-			'total_events_since_install' => Helpers::get_total_logged_events_count(),
 			'email_subject' => $this->get_email_subject( $is_preview ),
 		];
 
@@ -168,6 +162,9 @@ class Email_Report_Service extends Service {
 
 		// Get WordPress core statistics.
 		$stats['wordpress_updates'] = $events_stats->get_wordpress_core_updates_count( $date_from, $date_to );
+
+		// Add history admin URL.
+		$stats['history_admin_url'] = \Simple_History\Helpers::get_history_admin_url();
 
 		return $stats;
 	}
@@ -223,7 +220,11 @@ class Email_Report_Service extends Service {
 			return rest_ensure_response(
 				[
 					'success' => true,
-					'message' => __( 'Test email sent successfully.', 'simple-history' ),
+					'message' => sprintf(
+						/* translators: %s: Email address */
+						__( 'Test email sent successfully to %s.', 'simple-history' ),
+						$current_user->user_email
+					),
 				]
 			);
 		} else {
@@ -264,7 +265,7 @@ class Email_Report_Service extends Service {
 		// Add settings section for email reports.
 		Helpers::add_settings_section(
 			'simple_history_email_report_section',
-			[ __( 'Email Reports (experimental)', 'simple-history' ), 'mark_email_unread' ],
+			[ __( 'Email Reports', 'simple-history' ), 'mark_email_unread' ],
 			[ $this, 'settings_section_output' ],
 			$settings_menu_slug
 		);
@@ -329,8 +330,6 @@ class Email_Report_Service extends Service {
 	public function settings_section_output() {
 		echo '<p>' . esc_html__( 'Configure automatic email reports with website statistics. Reports are sent every Monday morning.', 'simple-history' ) . '</p>';
 	}
-
-
 
 	/**
 	 * Output for the preview and test setting field.

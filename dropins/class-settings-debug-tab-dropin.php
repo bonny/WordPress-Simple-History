@@ -43,7 +43,8 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
 			->set_icon( 'troubleshoot' )
 			->set_callback( [ $this, 'output_help_and_support_page' ] )
-			->set_redirect_to_first_child_on_load();
+			->set_redirect_to_first_child_on_load()
+			->set_order( 5 );
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {

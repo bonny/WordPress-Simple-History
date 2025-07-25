@@ -13,7 +13,18 @@ class Event_Details_Group_Table_Formatter extends Event_Details_Group_Formatter 
 	 * @return string
 	 */
 	public function to_html( $group ) {
-		$output = '<table class="SimpleHistoryLogitem__keyValueTable">';
+		// Return empty string if there are no items.
+		if ( empty( $group->items ) ) {
+			return '';
+		}
+
+		$output = '';
+
+		// Add group title if present (screen reader only for accessibility).
+		if ( $group->get_title() ) {
+			$output .= '<h4 class="screen-reader-text">' . esc_html( $group->get_title() ) . '</h4>';
+		}
+		$output .= '<table class="SimpleHistoryLogitem__keyValueTable">';
 		$output .= '<tbody>';
 
 		foreach ( $group->items as $item ) {

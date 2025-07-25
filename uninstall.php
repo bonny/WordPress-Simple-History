@@ -38,4 +38,11 @@ $wpdb->query( "DROP TABLE IF EXISTS $table_name" ); // PHPCS:ignore
 $table_name = $wpdb->prefix . 'simple_history_contexts';
 $wpdb->query( "DROP TABLE IF EXISTS $table_name" ); // PHPCS:ignore
 
+// Remove scheduled events.
+$timestamp = wp_next_scheduled( 'simple_history/email_report' );
+if ( $timestamp ) {
+	wp_unschedule_event( $timestamp, 'simple_history/email_report' );
+}
+
+
 // And we are done. Simple History is ... history.

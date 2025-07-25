@@ -100,6 +100,12 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 
 		foreach ( $this->groups as $group_key => $group ) {
 			foreach ( $group->items as $item_key => $item ) {
+				// Don't remove items that have custom formatters set,
+				// as they may not rely on new_value/prev_value.
+				if ( $item->has_custom_formatter() ) {
+					continue;
+				}
+
 				if ( empty( $item->new_value ) && empty( $item->prev_value ) ) {
 					unset( $this->groups[ $group_key ]->items[ $item_key ] );
 				}
