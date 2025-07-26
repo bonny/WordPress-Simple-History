@@ -22,32 +22,11 @@ class File_Integration extends Integration {
 	private static $directory_cache = [];
 
 	/**
-	 * Cache for settings to avoid repeated lookups.
-	 *
-	 * @var array<string, mixed>|null
-	 */
-	private $settings_cache = null;
-
-	/**
 	 * Last cleanup time to avoid frequent cleanup operations.
 	 *
 	 * @var int
 	 */
 	private static $last_cleanup_time = 0;
-
-	/**
-	 * Write buffer to batch multiple log entries.
-	 *
-	 * @var array<string, string>
-	 */
-	private static $write_buffer = [];
-
-	/**
-	 * Maximum buffer size before forcing a flush.
-	 *
-	 * @var int
-	 */
-	private static $buffer_max_size = 10;
 
 	/**
 	 * Constructor.
@@ -111,8 +90,18 @@ class File_Integration extends Integration {
 		// Format the log entry.
 		$log_entry = $this->format_log_entry( $event_data, $formatted_message );
 
-		// Add to buffer for batch writing.
-		return $this->add_to_write_buffer( $log_file, $log_entry );
+		// Write to file.
+		$result = file_put_contents( $log_file, $log_entry, FILE_APPEND | LOCK_EX );
+		
+		if ( false === $result ) {
+			$this->log_error( 'Failed to write to log file: ' . $log_file );
+			return false;
+		}
+		
+		// Schedule cleanup if needed.
+		$this->schedule_cleanup_if_needed();
+		
+		return true;
 	}
 
 	/**
@@ -180,29 +169,6 @@ class File_Integration extends Integration {
 		return $this->get_default_log_directory();
 	}
 
-	/**
-	 * Get cached settings to avoid repeated database calls.
-	 *
-	 * @return array<string, mixed> Cached settings.
-	 */
-	private function get_cached_settings() {
-		if ( null === $this->settings_cache ) {
-			$this->settings_cache = $this->get_settings();
-		}
-		return $this->settings_cache;
-	}
-
-	/**
-	 * Get a setting with caching.
-	 *
-	 * @param string $setting_name Setting name.
-	 * @param mixed  $default Default value.
-	 * @return mixed Setting value.
-	 */
-	private function get_cached_setting( $setting_name, $default = null ) {
-		$settings = $this->get_cached_settings();
-		return $settings[ $setting_name ] ?? $default;
-	}
 
 	/**
 	 * Get the log file path based on current settings.
@@ -212,7 +178,7 @@ class File_Integration extends Integration {
 	private function get_log_file_path() {
 		$log_dir = $this->get_default_log_directory();
 		/** @var string $rotation */
-		$rotation = $this->get_cached_setting( 'rotation_frequency', 'daily' );
+		$rotation = $this->get_setting( 'rotation_frequency', 'daily' );
 		/** @var string|false $filename */
 		$filename = $this->get_log_filename( $rotation );
 
@@ -402,40 +368,6 @@ class File_Integration extends Integration {
 		}
 	}
 
-	/**
-	 * Write content to a log file with optimizations for high-traffic scenarios.
-	 *
-	 * @param string $file_path Path to the log file.
-	 * @param string $content Content to write.
-	 * @return bool True on success, false on failure.
-	 */
-	private function write_to_file_optimized( $file_path, $content ) {
-		// Attempt to write with retry mechanism.
-		$max_attempts = 3;
-		$attempt = 0;
-
-		while ( $attempt < $max_attempts ) {
-			$attempt++;
-
-			// Write to file with locking. Suppress warnings for testing.
-			$result = @file_put_contents( $file_path, $content, FILE_APPEND | LOCK_EX );
-
-			if ( false !== $result ) {
-				// Success - schedule cleanup if needed (throttled).
-				$this->schedule_cleanup_if_needed();
-				return true;
-			}
-
-			// Failed - wait briefly before retry.
-			if ( $attempt < $max_attempts ) {
-				usleep( 100000 ); // 100ms delay.
-			}
-		}
-
-		// All attempts failed.
-		$this->log_error( 'Failed to write to log file after ' . $max_attempts . ' attempts: ' . $file_path );
-		return false;
-	}
 
 	/**
 	 * Schedule cleanup if needed (throttled to avoid running on every write).
@@ -469,9 +401,9 @@ class File_Integration extends Integration {
 	 */
 	private function cleanup_old_files() {
 		/** @var int $keep_files */
-		$keep_files = $this->get_cached_setting( 'keep_files', 30 );
+		$keep_files = $this->get_setting( 'keep_files', 30 );
 		/** @var string $rotation */
-		$rotation = $this->get_cached_setting( 'rotation_frequency', 'daily' );
+		$rotation = $this->get_setting( 'rotation_frequency', 'daily' );
 
 		if ( $keep_files <= 0 ) {
 			return; // Keep all files.
@@ -556,83 +488,4 @@ class File_Integration extends Integration {
 		$this->cleanup_old_files();
 	}
 
-	/**
-	 * Add log entry to write buffer for batch processing.
-	 *
-	 * @param string $log_file Path to the log file.
-	 * @param string $log_entry Formatted log entry.
-	 * @return bool True on success, false on failure.
-	 */
-	private function add_to_write_buffer( $log_file, $log_entry ) {
-		// Initialize buffer for this file if needed.
-		if ( ! isset( self::$write_buffer[ $log_file ] ) ) {
-			self::$write_buffer[ $log_file ] = '';
-		}
-
-		// Add entry to buffer.
-		self::$write_buffer[ $log_file ] .= $log_entry;
-
-		// Check if we should flush the buffer.
-		if ( $this->should_flush_buffer() ) {
-			return $this->flush_write_buffer();
-		}
-
-		// Register shutdown hook to ensure buffer is flushed.
-		if ( ! has_action( 'shutdown', [ $this, 'flush_write_buffer_on_shutdown' ] ) ) {
-			add_action( 'shutdown', [ $this, 'flush_write_buffer_on_shutdown' ] );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Check if write buffer should be flushed.
-	 *
-	 * @return bool True if buffer should be flushed.
-	 */
-	private function should_flush_buffer() {
-		// Flush if buffer is getting large.
-		if ( count( self::$write_buffer ) >= self::$buffer_max_size ) {
-			return true;
-		}
-
-		// Flush if total buffer size is large.
-		$total_size = 0;
-		foreach ( self::$write_buffer as $content ) {
-			$total_size += strlen( $content );
-		}
-
-		// Flush if buffer exceeds 64KB.
-		return $total_size > 65536;
-	}
-
-	/**
-	 * Flush the write buffer to disk.
-	 *
-	 * @return bool True if all writes succeeded, false otherwise.
-	 */
-	public function flush_write_buffer() {
-		if ( empty( self::$write_buffer ) ) {
-			return true;
-		}
-
-		$success = true;
-		foreach ( self::$write_buffer as $log_file => $content ) {
-			if ( ! $this->write_to_file_optimized( $log_file, $content ) ) {
-				$success = false;
-			}
-		}
-
-		// Clear the buffer after writing.
-		self::$write_buffer = [];
-
-		return $success;
-	}
-
-	/**
-	 * Flush write buffer on shutdown to ensure no data is lost.
-	 */
-	public function flush_write_buffer_on_shutdown() {
-		$this->flush_write_buffer();
-	}
 }
