@@ -15,7 +15,7 @@ class Event_Details_Group_Inline_Formatter extends Event_Details_Group_Formatter
 	public function to_html( $group ) {
 		$output = '';
 
-		// Add group title if present (screen reader only for accessibility)
+		// Add group title if present (screen reader only for accessibility).
 		if ( $group->get_title() ) {
 			$output .= '<h4 class="screen-reader-text">' . esc_html( $group->get_title() ) . '</h4>';
 		}

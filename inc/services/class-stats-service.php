@@ -43,15 +43,14 @@ class Stats_Service extends Service {
 
 		$admin_page_location = Helpers::get_menu_page_location();
 
-		$new_badge_text = '<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">' . __( 'New', 'simple-history' ) . '</span>';
-
 		// Create insights page.
 		$insights_page = ( new Menu_Page() )
 			->set_page_title( _x( 'History Insights - Simple History', 'dashboard title name', 'simple-history' ) )
-			->set_menu_title( _x( 'History Insights', 'dashboard menu name', 'simple-history' ) . ' ' . $new_badge_text )
+			->set_menu_title( _x( 'History Insights', 'dashboard menu name', 'simple-history' ) )
 			->set_menu_slug( 'simple_history_stats_page' )
 			->set_capability( 'manage_options' )
-			->set_callback( [ $this, 'output_page' ] );
+			->set_callback( [ $this, 'output_page' ] )
+			->set_order( 2 );
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {

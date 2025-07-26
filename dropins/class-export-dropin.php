@@ -40,7 +40,8 @@ class Export_Dropin extends Dropin {
 			->set_page_title( _x( 'Simple History Export', 'dashboard title name', 'simple-history' ) )
 			->set_menu_slug( self::MENU_SLUG )
 			->set_callback( [ $this, 'output_export_page' ] )
-			->set_icon( 'download' );
+			->set_icon( 'download' )
+			->set_order( 3 );
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
@@ -66,7 +67,12 @@ class Export_Dropin extends Dropin {
 		$action = sanitize_key( wp_unslash( $_POST['simple-history-action'] ?? '' ) );
 
 		// Bail of not correct page.
-		if ( $page !== self::MENU_SLUG ) {
+		// Check for both the export page slug and the settings page slug (when export is shown as a tab).
+		// When using a tab because SH is inside tools or dashboard:
+		// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/options-general.php?page=simple_history_settings_page&selected-tab=simple_history_export_history
+		// When showing in main menu:
+		// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_export_history.
+		if ( $page !== self::MENU_SLUG && $page !== Simple_History::SETTINGS_MENU_PAGE_SLUG ) {
 			return;
 		}
 

@@ -20,7 +20,7 @@ function DashboardFooter() {
 						'Visit the Simple History blog for new features, tips and tricks',
 						'simple-history'
 					) }
-					href="https://simple-history.com/blog/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=initiator-filter-help"
+					href="https://simple-history.com/blog/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=blog_link"
 				>
 					{ __( 'Blog', 'simple-history' ) }
 				</ExternalLink>

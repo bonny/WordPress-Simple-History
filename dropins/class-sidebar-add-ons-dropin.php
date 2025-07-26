@@ -186,12 +186,22 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				</h3>
 
 				<ul class="sh-PremiumFeaturesPostbox-featuresList">
+					<!-- Sticky events -->
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item">
-						<?php esc_html_e( 'Add custom events manually', 'simple-history' ); ?>
+						<?php esc_html_e( 'Sticky events', 'simple-history' ); ?>
 
 						<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">
 							<strong><?php esc_html_e( 'New!', 'simple-history' ); ?></strong>
 						</span>
+
+						<em class="sh-PremiumFeaturesPostbox-featuresList-item-discrete">
+							<?php esc_html_e( 'Pin important log entries to the top of the log for easy access.', 'simple-history' ); ?>
+						</em>
+					</li>
+
+					<!-- Custom events -->
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item">
+						<?php esc_html_e( 'Add custom events manually', 'simple-history' ); ?>
 
 						<em class="sh-PremiumFeaturesPostbox-featuresList-item-discrete">
 							<?php esc_html_e( "Document important changes by creating custom log entries for team actions, content updates, or system changes that aren't automatically tracked.", 'simple-history' ); ?>
@@ -200,10 +210,6 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item">
 						<?php esc_html_e( 'Stealth Mode', 'simple-history' ); ?>
-
-						<span class="sh-PremiumFeatureBadge" style="--sh-badge-background-color: var(--sh-color-yellow);">
-							<strong><?php esc_html_e( 'New!', 'simple-history' ); ?></strong>
-						</span>
 
 						<em class="sh-PremiumFeaturesPostbox-featuresList-item-discrete">
 							<?php esc_html_e( 'Allow only specified users to see Simple History in the WordPress admin.', 'simple-history' ); ?>

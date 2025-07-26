@@ -260,7 +260,7 @@ class Core_Files_Integrity_Logger extends Logger {
 		}
 
 		$event_details_group = new Event_Details_Group();
-		
+
 		// Set appropriate title based on the event type.
 		if ( 'core_files_integrity_restored' === $message_key ) {
 			$event_details_group->set_title( __( 'Restored Core Files', 'simple-history' ) );
@@ -291,9 +291,10 @@ class Core_Files_Integrity_Logger extends Logger {
 				} elseif ( 'missing' === $issue ) {
 					$status_text = __( 'Missing file restored', 'simple-history' );
 				} else {
+					/* translators: %s: issue type */
 					$status_text = sprintf( __( '%s fixed', 'simple-history' ), esc_html( $issue ) );
 				}
-			} else {
+			} else if ( 'core_files_modified_detected' === $message_key ) {
 				// For detected issues, show the current problem.
 				if ( 'modified' === $issue ) {
 					$status_text = __( 'Hash mismatch', 'simple-history' );
