@@ -321,6 +321,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 - 📨 Email reports are now available for all users, not just those with experimental features enabled. Enable email reports in the settings page.
 - Change order of the menu items.
+- Update description of WP CLI command description.
 
 ### 5.14.0 (July 2025)
 
