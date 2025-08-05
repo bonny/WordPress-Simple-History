@@ -155,8 +155,8 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 			return [
 				'file' => $file_data['file'],
 				'issue' => $file_data['issue'],
-				'expected' => substr( $file_data['expected_hash'], 0, 8 ) . '...',
-				'actual' => $file_data['actual_hash'] ? substr( $file_data['actual_hash'], 0, 8 ) . '...' : 'N/A',
+				'expected' => $file_data['expected_hash'],
+				'actual' => $file_data['actual_hash'] ?? 'N/A',
 			];
 		}, $modified_files );
 
@@ -221,8 +221,8 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 			$formatted_files[] = [
 				'file' => $file,
 				'issue' => $file_data['issue'] ?? 'unknown',
-				'expected' => isset( $file_data['expected_hash'] ) ? substr( $file_data['expected_hash'], 0, 8 ) . '...' : 'N/A',
-				'actual' => isset( $file_data['actual_hash'] ) && $file_data['actual_hash'] ? substr( $file_data['actual_hash'], 0, 8 ) . '...' : 'N/A',
+				'expected' => $file_data['expected_hash'] ?? 'N/A',
+				'actual' => $file_data['actual_hash'] ?? 'N/A',
 			];
 		}
 
