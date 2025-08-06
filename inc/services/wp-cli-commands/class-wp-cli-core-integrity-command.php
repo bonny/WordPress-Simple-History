@@ -235,4 +235,72 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 
 		Utils\format_items( $format, $formatted_files, [ 'file', 'issue', 'expected', 'actual' ] );
 	}
+
+	/**
+	 * Perform integrity check and log results to Simple History.
+	 *
+	 * This command performs the same check as the scheduled cron job,
+	 * actually logging any new issues or resolved issues to Simple History.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Run integrity check and log results
+	 *     $ wp simple-history core-integrity check-and-log
+	 *
+	 * @subcommand check-and-log
+	 */
+	public function check_and_log( $args, $assoc_args ) {
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			WP_CLI::error( 'Core Files Integrity Logger requires experimental features to be enabled.' );
+			return;
+		}
+
+		// Get the Core Files Integrity Logger instance by its slug.
+		$core_integrity_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesIntegrityLogger' );
+
+		if ( ! $core_integrity_logger ) {
+			WP_CLI::error( 'Core Files Integrity Logger is not loaded. Make sure experimental features are enabled.' );
+			return;
+		}
+
+		WP_CLI::log( 'Performing core files integrity check and logging results...' );
+
+		// Start timing.
+		$start_time = microtime( true );
+
+		// Perform the actual integrity check using the logger's method.
+		$core_integrity_logger->perform_integrity_check();
+
+		// End timing.
+		$end_time = microtime( true );
+		$execution_time = round( $end_time - $start_time, 2 );
+
+		WP_CLI::log( sprintf( 'Integrity check completed in %s seconds.', $execution_time ) );
+
+		// Get the current stored results to show what was found/logged.
+		$stored_results = get_option( $this->option_name, [] );
+
+		if ( empty( $stored_results ) ) {
+			WP_CLI::success( 'No modified core files detected. Simple History log updated if there were previous issues that are now resolved.' );
+		} else {
+			WP_CLI::warning( sprintf( 'Found %d modified core files. Check Simple History log for details.', count( $stored_results ) ) );
+			
+			// Show a summary of what was found.
+			$issues_by_type = [];
+			foreach ( $stored_results as $file => $file_data ) {
+				$issue = $file_data['issue'] ?? 'unknown';
+				if ( ! isset( $issues_by_type[ $issue ] ) ) {
+					$issues_by_type[ $issue ] = 0;
+				}
+				$issues_by_type[ $issue ]++;
+			}
+
+			WP_CLI::log( 'Summary by issue type:' );
+			foreach ( $issues_by_type as $issue => $count ) {
+				WP_CLI::log( sprintf( '  - %s: %d files', $issue, $count ) );
+			}
+		}
+
+		WP_CLI::log( 'Check your Simple History log for the full details of any new or resolved issues.' );
+	}
 }
