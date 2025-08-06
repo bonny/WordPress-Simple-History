@@ -4,10 +4,10 @@ namespace Simple_History\Services\WP_CLI_Commands;
 
 use Simple_History\Simple_History;
 use Simple_History\Helpers;
-use Simple_History\Loggers\Core_Files_Integrity_Logger;
 use WP_CLI;
 use WP_CLI_Command;
 use WP_CLI\Utils;
+use Simple_History\Loggers\Core_Files_Integrity_Logger;
 
 /**
  * Debug and manage WordPress core files integrity checking.
@@ -64,6 +64,9 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 	 *     $ wp simple-history core-integrity check --format=json
 	 *
 	 * @subcommand check
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 */
 	public function check( $args, $assoc_args ) {
 		if ( ! Helpers::experimental_features_is_enabled() ) {
@@ -158,14 +161,17 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 		}
 
 		// Prepare data for table format.
-		$formatted_files = array_map( function( $file_data ) {
-			return [
-				'file' => $file_data['file'],
-				'issue' => $file_data['issue'],
-				'expected' => $file_data['expected_hash'],
-				'actual' => $file_data['actual_hash'] ?? 'N/A',
-			];
-		}, $modified_files );
+		$formatted_files = array_map(
+			function ( $file_data ) {
+				return [
+					'file' => $file_data['file'],
+					'issue' => $file_data['issue'],
+					'expected' => $file_data['expected_hash'],
+					'actual' => $file_data['actual_hash'] ?? 'N/A',
+				];
+			},
+			$modified_files
+		);
 
 		Utils\format_items( $format, $formatted_files, [ 'file', 'issue', 'expected', 'actual' ] );
 	}
@@ -199,6 +205,9 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 	 *     $ wp simple-history core-integrity list-stored --format=count
 	 *
 	 * @subcommand list-stored
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 */
 	public function list_stored( $args, $assoc_args ) {
 		if ( ! Helpers::experimental_features_is_enabled() ) {
@@ -248,6 +257,9 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 	 *     $ wp simple-history core-integrity check-and-log
 	 *
 	 * @subcommand check-and-log
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
 	 */
 	public function check_and_log( $args, $assoc_args ) {
 		if ( ! Helpers::experimental_features_is_enabled() ) {
@@ -258,7 +270,7 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 		// Get the Core Files Integrity Logger instance by its slug.
 		$core_integrity_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesIntegrityLogger' );
 
-		if ( ! $core_integrity_logger ) {
+		if ( ! $core_integrity_logger instanceof Core_Files_Integrity_Logger ) {
 			WP_CLI::error( 'Core Files Integrity Logger is not loaded. Make sure experimental features are enabled.' );
 			return;
 		}
@@ -284,7 +296,7 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 			WP_CLI::success( 'No modified core files detected. Simple History log updated if there were previous issues that are now resolved.' );
 		} else {
 			WP_CLI::warning( sprintf( 'Found %d modified core files. Check Simple History log for details.', count( $stored_results ) ) );
-			
+
 			// Show a summary of what was found.
 			$issues_by_type = [];
 			foreach ( $stored_results as $file => $file_data ) {
