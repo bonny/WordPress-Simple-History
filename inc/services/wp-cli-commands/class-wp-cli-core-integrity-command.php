@@ -73,6 +73,9 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 
 		WP_CLI::log( 'Checking WordPress core files integrity...' );
 
+		// Start timing.
+		$start_time = microtime( true );
+
 		global $wp_version;
 
 		// Get official WordPress checksums for current version.
@@ -133,7 +136,11 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 			}
 		}
 
-		WP_CLI::log( sprintf( 'Checked %d core files.', $total_files_checked ) );
+		// End timing.
+		$end_time = microtime( true );
+		$execution_time = round( $end_time - $start_time, 2 );
+
+		WP_CLI::log( sprintf( 'Checked %d core files in %s seconds.', $total_files_checked, $execution_time ) );
 
 		if ( empty( $modified_files ) ) {
 			WP_CLI::success( 'All WordPress core files are intact.' );
