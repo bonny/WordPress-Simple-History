@@ -315,4 +315,128 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 
 		WP_CLI::log( 'Check your Simple History log for the full details of any new or resolved issues.' );
 	}
+
+	/**
+	 * Debug cron scheduling for core files integrity checks.
+	 *
+	 * Shows information about the cron job status, scheduling, and configuration.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Check cron debug information
+	 *     $ wp simple-history core-integrity debug-cron
+	 *
+	 * @subcommand debug-cron
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 */
+	public function debug_cron( $args, $assoc_args ) {
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			WP_CLI::error( 'Core Files Integrity Logger requires experimental features to be enabled.' );
+			return;
+		}
+
+		WP_CLI::log( '=== Core Files Integrity Cron Debug Information ===' );
+		WP_CLI::log( '' );
+
+		// Check if WordPress cron is disabled.
+		if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
+			WP_CLI::warning( 'WordPress cron is DISABLED (DISABLE_WP_CRON is set to true)' );
+			WP_CLI::log( 'This means scheduled integrity checks will not run automatically.' );
+			WP_CLI::log( 'You need to set up a system cron job to trigger wp-cron.php' );
+		} else {
+			WP_CLI::success( 'WordPress cron is enabled' );
+		}
+		WP_CLI::log( '' );
+
+		// Get the cron hook name.
+		$cron_hook = 'simple_history/core_files_integrity_check';
+		
+		// Check if the logger is loaded.
+		$core_integrity_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesIntegrityLogger' );
+		if ( $core_integrity_logger instanceof Core_Files_Integrity_Logger ) {
+			WP_CLI::success( 'Core Files Integrity Logger is loaded' );
+		} else {
+			WP_CLI::error( 'Core Files Integrity Logger is NOT loaded!' );
+			return;
+		}
+		WP_CLI::log( '' );
+
+		// Check if the cron event is scheduled.
+		$next_scheduled = wp_next_scheduled( $cron_hook );
+		
+		if ( $next_scheduled ) {
+			WP_CLI::success( 'Integrity check cron job is scheduled' );
+			WP_CLI::log( 'Hook name: ' . $cron_hook );
+			WP_CLI::log( 'Next run: ' . date( 'Y-m-d H:i:s', $next_scheduled ) . ' (' . human_time_diff( time(), $next_scheduled ) . ' from now)' );
+			WP_CLI::log( 'Schedule: daily' );
+		} else {
+			WP_CLI::warning( 'Integrity check cron job is NOT scheduled!' );
+			WP_CLI::log( 'Expected hook name: ' . $cron_hook );
+			WP_CLI::log( 'This means automatic integrity checks will not run.' );
+		}
+		WP_CLI::log( '' );
+
+		// Show all Simple History related cron events.
+		WP_CLI::log( '=== All Simple History Cron Events ===' );
+		$crons = _get_cron_array();
+		$found_sh_crons = false;
+		
+		foreach ( $crons as $timestamp => $cron ) {
+			foreach ( $cron as $hook => $dings ) {
+				if ( strpos( $hook, 'simple_history' ) !== false ) {
+					$found_sh_crons = true;
+					foreach ( $dings as $sig => $data ) {
+						WP_CLI::log( sprintf(
+							'- %s: %s (%s from now)',
+							$hook,
+							date( 'Y-m-d H:i:s', $timestamp ),
+							human_time_diff( time(), $timestamp )
+						) );
+						if ( ! empty( $data['schedule'] ) ) {
+							WP_CLI::log( '  Schedule: ' . $data['schedule'] );
+						}
+					}
+				}
+			}
+		}
+		
+		if ( ! $found_sh_crons ) {
+			WP_CLI::log( 'No Simple History cron events found.' );
+		}
+		WP_CLI::log( '' );
+
+		// Check last run information (if we can deduce it).
+		$stored_results = get_option( $this->option_name, [] );
+		if ( ! empty( $stored_results ) ) {
+			WP_CLI::log( '=== Stored Results ===' );
+			WP_CLI::log( sprintf( 'Currently storing %d modified files in the database option.', count( $stored_results ) ) );
+			WP_CLI::log( 'This suggests the integrity check has run at least once.' );
+		} else {
+			WP_CLI::log( '=== Stored Results ===' );
+			WP_CLI::log( 'No modified files stored in the database option.' );
+			WP_CLI::log( 'This could mean:' );
+			WP_CLI::log( '- No issues have been detected' );
+			WP_CLI::log( '- The integrity check has never run' );
+		}
+		WP_CLI::log( '' );
+
+		// WordPress and locale information.
+		global $wp_version;
+		WP_CLI::log( '=== WordPress Information ===' );
+		WP_CLI::log( 'WordPress version: ' . $wp_version );
+		WP_CLI::log( 'Site locale: ' . get_locale() );
+		WP_CLI::log( 'Checksum locale used: en_US (hardcoded)' );
+		
+		// Test if checksums can be retrieved.
+		WP_CLI::log( '' );
+		WP_CLI::log( 'Testing checksum retrieval...' );
+		$checksums = get_core_checksums( $wp_version, 'en_US' );
+		if ( is_array( $checksums ) && ! empty( $checksums ) ) {
+			WP_CLI::success( sprintf( 'Successfully retrieved checksums for %d core files', count( $checksums ) ) );
+		} else {
+			WP_CLI::error( 'Failed to retrieve core checksums!' );
+		}
+	}
 }
