@@ -53,7 +53,7 @@ class Core_Files_Integrity_Logger extends Logger {
 	}
 
 	/**
-	 * Called when logger is loaded
+	 * Called when logger is loaded.
 	 */
 	public function loaded() {
 		// Only enable this logger if experimental features are enabled.
@@ -69,22 +69,25 @@ class Core_Files_Integrity_Logger extends Logger {
 	}
 
 	/**
-	 * Setup WordPress cron job for daily core files integrity checks
+	 * Setup WordPress cron job for daily core files integrity checks.
 	 */
 	public function setup_cron() {
 		if ( ! wp_next_scheduled( $this->cron_hook ) ) {
 			// Schedule daily check at 3 AM local time to minimize server impact.
 			$timestamp = strtotime( 'tomorrow 3:00 AM' );
 			wp_schedule_event( $timestamp, 'daily', $this->cron_hook );
+			$this->debug( 'Core files integrity check cron job scheduled' );
 		}
 	}
 
 	/**
-	 * Perform core files integrity check
+	 * Perform core files integrity check.
 	 *
 	 * This is the main method that gets called by the cron job
 	 */
 	public function perform_integrity_check() {
+		$this->debug( 'Performing core files integrity check' );
+
 		try {
 			$modified_files = $this->check_core_files_integrity();
 			$this->process_check_results( $modified_files );
