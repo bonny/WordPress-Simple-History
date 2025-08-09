@@ -131,6 +131,10 @@ class Core_Files_Integrity_Logger extends Logger {
 	private function check_core_files_integrity() {
 		global $wp_version;
 
+		// Make sure the `get_core_checksums()` function is available.
+		if ( ! function_exists( 'get_core_checksums' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/update.php';
+		}
 		// Get official WordPress checksums for current version.
 		$checksums = get_core_checksums( $wp_version, 'en_US' );
 
