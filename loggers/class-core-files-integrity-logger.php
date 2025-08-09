@@ -101,33 +101,33 @@ class Core_Files_Integrity_Logger extends Logger {
 		}
 	}
 
-	   /**
-		* Check WordPress core files integrity using official checksums.
-		*
-		* If modified files are found, they are returned like this:
-		*
-		* Array
-		* (
-		*     [0] => Array
-		*         (
-		*             [file] => xmlrpc.php
-		*             [issue] => modified
-		*             [expected_hash] => fb407463c202f1a8ab8783fa5b24ec13
-		*             [actual_hash] => 57cb4f86b855614dd3e7d565b2f6f888
-		*         )
-		*
-		*     [1] => Array
-		*         (
-		*             [file] => wp-settings.php
-		*             [issue] => modified
-		*             [expected_hash] => 0f52e2e688de1d2d776a12e55e5ca9c3
-		*             [actual_hash] => 2e60a9b2c1daef9089a8fea7e0a691dd
-		*         )
-		* )
-		*
-		* @return array Array of modified files with their details.
-		* @throws \Exception If checksums cannot be retrieved or check fails.
-		*/
+	/**
+	 * Check WordPress core files integrity using official checksums.
+	 *
+	 * If modified files are found, they are returned like this:
+	 *
+	 * Array
+	 * (
+	 *     [0] => Array
+	 *         (
+	 *             [file] => xmlrpc.php
+	 *             [issue] => modified
+	 *             [expected_hash] => fb407463c202f1a8ab8783fa5b24ec13
+	 *             [actual_hash] => 57cb4f86b855614dd3e7d565b2f6f888
+	 *         )
+	 *
+	 *     [1] => Array
+	 *         (
+	 *             [file] => wp-settings.php
+	 *             [issue] => modified
+	 *             [expected_hash] => 0f52e2e688de1d2d776a12e55e5ca9c3
+	 *             [actual_hash] => 2e60a9b2c1daef9089a8fea7e0a691dd
+	 *         )
+	 * )
+	 *
+	 * @return array Array of modified files with their details.
+	 * @throws \Exception If checksums cannot be retrieved or check fails.
+	 */
 	private function check_core_files_integrity() {
 		global $wp_version;
 
@@ -135,6 +135,7 @@ class Core_Files_Integrity_Logger extends Logger {
 		if ( ! function_exists( 'get_core_checksums' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/update.php';
 		}
+
 		// Get official WordPress checksums for current version.
 		$checksums = get_core_checksums( $wp_version, 'en_US' );
 
