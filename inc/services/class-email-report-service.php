@@ -442,7 +442,7 @@ class Email_Report_Service extends Service {
 				value="1" 
 				<?php checked( $enabled ); ?> 
 			/>
-			<?php esc_html_e( 'Send an email report with website statistics every Monday morning.', 'simple-history' ); ?>
+			<?php esc_html_e( 'Enable email reports', 'simple-history' ); ?>
 		</label>
 		<?php
 	}
