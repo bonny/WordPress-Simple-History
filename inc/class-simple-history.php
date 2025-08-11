@@ -493,7 +493,7 @@ class Simple_History {
 			Loggers\Categories_Logger::class,
 			Loggers\Comments_Logger::class,
 			Loggers\Core_Updates_Logger::class,
-			Loggers\Core_Files_Integrity_Logger::class,
+			Loggers\Core_Files_Logger::class,
 			Loggers\Export_Logger::class,
 			Loggers\Simple_Logger::class,
 			Loggers\Media_Logger::class,

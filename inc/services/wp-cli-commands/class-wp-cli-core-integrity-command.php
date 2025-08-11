@@ -7,7 +7,7 @@ use Simple_History\Helpers;
 use WP_CLI;
 use WP_CLI_Command;
 use WP_CLI\Utils;
-use Simple_History\Loggers\Core_Files_Integrity_Logger;
+use Simple_History\Loggers\Core_Files_Logger;
 
 /**
  * Debug and manage WordPress core files integrity checking.
@@ -270,7 +270,7 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 		// Get the Core Files Integrity Logger instance by its slug.
 		$core_integrity_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesIntegrityLogger' );
 
-		if ( ! $core_integrity_logger instanceof Core_Files_Integrity_Logger ) {
+		if ( ! $core_integrity_logger instanceof Core_Files_Logger ) {
 			WP_CLI::error( 'Core Files Integrity Logger is not loaded. Make sure experimental features are enabled.' );
 			return;
 		}
@@ -355,7 +355,7 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 		
 		// Check if the logger is loaded.
 		$core_integrity_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesIntegrityLogger' );
-		if ( $core_integrity_logger instanceof Core_Files_Integrity_Logger ) {
+		if ( $core_integrity_logger instanceof Core_Files_Logger ) {
 			WP_CLI::success( 'Core Files Integrity Logger is loaded' );
 		} else {
 			WP_CLI::error( 'Core Files Integrity Logger is NOT loaded!' );

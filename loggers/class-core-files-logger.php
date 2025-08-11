@@ -12,9 +12,9 @@ use Simple_History\Event_Details\Event_Details_Item;
  * Checks core file integrity by comparing MD5 hashes against WordPress checksums
  * and logs any detected modifications for security monitoring.
  */
-class Core_Files_Integrity_Logger extends Logger {
+class Core_Files_Logger extends Logger {
 	/** @var string Logger slug */
-	public $slug = 'CoreFilesIntegrityLogger';
+	public $slug = 'CoreFilesLogger';
 
 	/** @var string Option name to store previous check results */
 	private $option_name = 'simple_history_core_files_integrity_results';
@@ -29,7 +29,7 @@ class Core_Files_Integrity_Logger extends Logger {
 	 */
 	public function get_info() {
 		return [
-			'name'        => __( 'Core Files Integrity Logger', 'simple-history' ),
+			'name'        => __( 'Core Files Logger', 'simple-history' ),
 			'description' => __( 'Detects modifications to WordPress core files by checking file integrity against official checksums', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => [
