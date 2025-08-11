@@ -33,17 +33,17 @@ class Core_Files_Integrity_Logger extends Logger {
 			'description' => __( 'Detects modifications to WordPress core files by checking file integrity against official checksums', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => [
-				'core_files_modified_detected' => __( 'WordPress core file modifications detected: {file_count} files modified', 'simple-history' ),
-				'core_files_integrity_restored' => __( 'WordPress core file integrity restored: {file_count} files fixed', 'simple-history' ),
-				'core_files_check_failed' => __( 'WordPress core files integrity check failed: {error_message}', 'simple-history' ),
+				'core_files_modified' => __( 'Detected modifications to {file_count} WordPress core files', 'simple-history' ),
+				'core_files_restored' => __( 'Verified integrity restored for {file_count} WordPress core files', 'simple-history' ),
+				'core_files_check_failed' => __( 'Could not check WordPress core files integrity: {error_message}', 'simple-history' ),
 			],
 			'labels'      => [
 				'search' => [
 					'label' => _x( 'Core Files Security', 'Core Files Logger: search', 'simple-history' ),
 					'options' => [
 						_x( 'Core file modifications', 'Core Files Logger: search', 'simple-history' ) => [
-							'core_files_modified_detected',
-							'core_files_integrity_restored',
+							'core_files_modified',
+							'core_files_restored',
 							'core_files_check_failed',
 						],
 					],
@@ -220,7 +220,7 @@ class Core_Files_Integrity_Logger extends Logger {
 				'file_details' => array_values( $new_issues ),
 			];
 
-			$this->warning_message( 'core_files_modified_detected', $context );
+			$this->warning_message( 'core_files_modified', $context );
 		}
 
 		// Log resolved issues.
@@ -231,7 +231,7 @@ class Core_Files_Integrity_Logger extends Logger {
 				'file_details' => array_values( $resolved_issues ),
 			];
 
-			$this->info_message( 'core_files_integrity_restored', $context );
+			$this->info_message( 'core_files_restored', $context );
 		}
 
 		// Update stored results.
@@ -253,7 +253,7 @@ class Core_Files_Integrity_Logger extends Logger {
 		}
 
 		// Handle both detected and restored events.
-		if ( ! in_array( $message_key, [ 'core_files_modified_detected', 'core_files_integrity_restored' ], true ) ) {
+		if ( ! in_array( $message_key, [ 'core_files_modified', 'core_files_restored' ], true ) ) {
 			return null;
 		}
 
@@ -270,7 +270,7 @@ class Core_Files_Integrity_Logger extends Logger {
 		$event_details_group = new Event_Details_Group();
 
 		// Set appropriate title based on the event type.
-		if ( 'core_files_integrity_restored' === $message_key ) {
+		if ( 'core_files_restored' === $message_key ) {
 			$event_details_group->set_title( __( 'Restored Core Files', 'simple-history' ) );
 		} else {
 			$event_details_group->set_title( __( 'Modified Core Files', 'simple-history' ) );
@@ -290,7 +290,7 @@ class Core_Files_Integrity_Logger extends Logger {
 			}
 
 			// Determine the status text.
-			if ( 'core_files_integrity_restored' === $message_key ) {
+			if ( 'core_files_restored' === $message_key ) {
 				// For restored files, show what was fixed.
 				if ( 'modified' === $issue ) {
 					$status_text = __( 'Hash mismatch fixed', 'simple-history' );
@@ -302,7 +302,7 @@ class Core_Files_Integrity_Logger extends Logger {
 					/* translators: %s: issue type */
 					$status_text = sprintf( __( '%s fixed', 'simple-history' ), esc_html( $issue ) );
 				}
-			} else if ( 'core_files_modified_detected' === $message_key ) {
+			} else if ( 'core_files_modified' === $message_key ) {
 				// For detected issues, show the current problem.
 				if ( 'modified' === $issue ) {
 					$status_text = __( 'Hash mismatch', 'simple-history' );
