@@ -23,6 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 -   Proper escaping required for all output
 -   Text domain: 'simple-history'
+-   **Logger messages**: Use active tone that reads like someone telling you what happened. Messages should start with action verbs and be easily understood by regular users, not just developers (e.g., "Activated plugin", "Created menu", "Detected modifications" - as if someone is saying "WordPress/User did this thing")
 
 ### PHP coding guidelines
 
