@@ -62,11 +62,6 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function check( $args, $assoc_args ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			WP_CLI::error( 'Core Files Integrity Logger requires experimental features to be enabled.' );
-			return;
-		}
-
 		WP_CLI::log( 'Checking WordPress core files integrity...' );
 
 		// Start timing.
@@ -203,11 +198,6 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function list_stored( $args, $assoc_args ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			WP_CLI::error( 'Core Files Integrity Logger requires experimental features to be enabled.' );
-			return;
-		}
-
 		$stored_results = get_option( Core_Files_Logger::OPTION_NAME_FILE_CHECK_RESULTS, [] );
 
 		if ( empty( $stored_results ) ) {
@@ -255,16 +245,11 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function check_and_log( $args, $assoc_args ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			WP_CLI::error( 'Core Files Integrity Logger requires experimental features to be enabled.' );
-			return;
-		}
-
 		// Get the Core Files Integrity Logger instance by its slug.
 		$core_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesLogger' );
 
 		if ( ! $core_logger instanceof Core_Files_Logger ) {
-			WP_CLI::error( 'Core Files Integrity Logger is not loaded. Make sure experimental features are enabled.' );
+			WP_CLI::error( 'Core Files Integrity Logger is not loaded.' );
 			return;
 		}
 
@@ -325,11 +310,6 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function debug_cron( $args, $assoc_args ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			WP_CLI::error( 'Core Files Integrity Logger requires experimental features to be enabled.' );
-			return;
-		}
-
 		WP_CLI::log( '=== Core Files Integrity Cron Debug Information ===' );
 		WP_CLI::log( '' );
 

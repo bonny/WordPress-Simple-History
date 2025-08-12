@@ -56,11 +56,6 @@ class Core_Files_Logger extends Logger {
 	 * Called when logger is loaded.
 	 */
 	public function loaded() {
-		// Only enable this logger if experimental features are enabled.
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return;
-		}
-
 		// Set up cron job for daily integrity checks.
 		add_action( 'init', [ $this, 'setup_cron' ] );
 
