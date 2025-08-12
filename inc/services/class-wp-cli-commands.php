@@ -69,10 +69,10 @@ class WP_CLI_Commands extends Service {
 			WP_CLI_Stealth_Mode_Command::class,
 		);
 
-		// Add command `wp simple-history core-integrity` commands (check, list-stored).
+		// Add command `wp simple-history core-files` commands (check, list-stored).
 		WP_CLI::add_command(
-			'simple-history core-integrity',
-			WP_CLI_Commands\WP_CLI_Core_Integrity_Command::class,
+			'simple-history core-files',
+			WP_CLI_Commands\WP_CLI_Core_Files_Command::class,
 		);
 	}
 }
