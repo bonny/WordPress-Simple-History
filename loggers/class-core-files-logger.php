@@ -17,7 +17,7 @@ class Core_Files_Logger extends Logger {
 	public $slug = 'CoreFilesLogger';
 
 	/** @var string Option name to store previous check results */
-	private $option_name = 'simple_history_core_files_integrity_results';
+	const OPTION_NAME_FILE_CHECK_RESULTS = 'simple_history_core_files_integrity_results';
 
 	/** @var string Cron hook name */
 	private $cron_hook = 'simple_history/core_files_integrity_check';
@@ -200,7 +200,7 @@ class Core_Files_Logger extends Logger {
 	 * @param array $modified_files Array of modified files from integrity check.
 	 */
 	private function process_check_results( $modified_files ) {
-		$previous_results = get_option( $this->option_name, [] );
+		$previous_results = get_option( self::OPTION_NAME_FILE_CHECK_RESULTS, [] );
 		$current_results = [];
 
 		// Convert modified files to simple array for comparison.
@@ -235,7 +235,7 @@ class Core_Files_Logger extends Logger {
 		}
 
 		// Update stored results.
-		update_option( $this->option_name, $current_results );
+		update_option( self::OPTION_NAME_FILE_CHECK_RESULTS, $current_results );
 	}
 
 	/**
