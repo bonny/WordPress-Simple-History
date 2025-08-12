@@ -10,9 +10,9 @@ use WP_CLI\Utils;
 use Simple_History\Loggers\Core_Files_Logger;
 
 /**
- * Debug and manage WordPress core files integrity checking.
+ * Debug and manage WordPress core files checking.
  */
-class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
+class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 
 	/**
 	 * Simple_History instance.
@@ -20,13 +20,6 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 	 * @var Simple_History
 	 */
 	private $simple_history;
-
-	/**
-	 * Option name where integrity results are stored.
-	 *
-	 * @var string
-	 */
-	private $option_name = 'simple_history_core_files_integrity_results';
 
 	/**
 	 * Constructor.
@@ -57,11 +50,11 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Check core files integrity
-	 *     $ wp simple-history core-integrity check
+	 *     # Check core files
+	 *     $ wp simple-history core-files check
 	 *
 	 *     # Get results as JSON
-	 *     $ wp simple-history core-integrity check --format=json
+	 *     $ wp simple-history core-files check --format=json
 	 *
 	 * @subcommand check
 	 *
@@ -199,10 +192,10 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # List stored modified files
-	 *     $ wp simple-history core-integrity list-stored
+	 *     $ wp simple-history core-files list-stored
 	 *
 	 *     # Get count of stored modified files
-	 *     $ wp simple-history core-integrity list-stored --format=count
+	 *     $ wp simple-history core-files list-stored --format=count
 	 *
 	 * @subcommand list-stored
 	 *
@@ -215,7 +208,7 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 			return;
 		}
 
-		$stored_results = get_option( $this->option_name, [] );
+		$stored_results = get_option( Core_Files_Logger::OPTION_NAME_FILE_CHECK_RESULTS, [] );
 
 		if ( empty( $stored_results ) ) {
 			WP_CLI::success( 'No modified core files are currently stored in the database.' );
@@ -253,8 +246,8 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Run integrity check and log results
-	 *     $ wp simple-history core-integrity check-and-log
+	 *     # Run check and log results
+	 *     $ wp simple-history core-files check-and-log
 	 *
 	 * @subcommand check-and-log
 	 *
@@ -290,7 +283,7 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 		WP_CLI::log( sprintf( 'Integrity check completed in %s seconds.', $execution_time ) );
 
 		// Get the current stored results to show what was found/logged.
-		$stored_results = get_option( $this->option_name, [] );
+		$stored_results = get_option( Core_Files_Logger::OPTION_NAME_FILE_CHECK_RESULTS, [] );
 
 		if ( empty( $stored_results ) ) {
 			WP_CLI::success( 'No modified core files detected. Simple History log updated if there were previous issues that are now resolved.' );
@@ -324,7 +317,7 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Check cron debug information
-	 *     $ wp simple-history core-integrity debug-cron
+	 *     $ wp simple-history core-files debug-cron
 	 *
 	 * @subcommand debug-cron
 	 *
@@ -408,7 +401,7 @@ class WP_CLI_Core_Integrity_Command extends WP_CLI_Command {
 		WP_CLI::log( '' );
 
 		// Check last run information (if we can deduce it).
-		$stored_results = get_option( $this->option_name, [] );
+		$stored_results = get_option( Core_Files_Logger::OPTION_NAME_FILE_CHECK_RESULTS, [] );
 		if ( ! empty( $stored_results ) ) {
 			WP_CLI::log( '=== Stored Results ===' );
 			WP_CLI::log( sprintf( 'Currently storing %d modified files in the database option.', count( $stored_results ) ) );
