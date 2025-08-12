@@ -20,7 +20,7 @@ class Core_Files_Logger extends Logger {
 	const OPTION_NAME_FILE_CHECK_RESULTS = 'simple_history_core_files_integrity_results';
 
 	/** @var string Cron hook name */
-	private $cron_hook = 'simple_history/core_files_integrity_check';
+	const CRON_HOOK = 'simple_history/core_files_integrity_check';
 
 	/**
 	 * Get array with information about this logger
@@ -65,17 +65,17 @@ class Core_Files_Logger extends Logger {
 		add_action( 'init', [ $this, 'setup_cron' ] );
 
 		// Handle the actual cron job.
-		add_action( $this->cron_hook, [ $this, 'perform_integrity_check' ] );
+		add_action( self::CRON_HOOK, [ $this, 'perform_integrity_check' ] );
 	}
 
 	/**
 	 * Setup WordPress cron job for daily core files integrity checks.
 	 */
 	public function setup_cron() {
-		if ( ! wp_next_scheduled( $this->cron_hook ) ) {
+		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			// Schedule daily check at 3 AM local time to minimize server impact.
 			$timestamp = strtotime( 'tomorrow 3:00 AM' );
-			wp_schedule_event( $timestamp, 'daily', $this->cron_hook );
+			wp_schedule_event( $timestamp, 'daily', self::CRON_HOOK );
 			$this->debug( 'Core files integrity check cron job scheduled' );
 		}
 	}

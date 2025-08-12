@@ -344,7 +344,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		WP_CLI::log( '' );
 
 		// Get the cron hook name.
-		$cron_hook = 'simple_history/core_files_integrity_check';
+		$cron_hook = Core_Files_Logger::CRON_HOOK;
 		
 		// Check if the logger is loaded.
 		$core_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesLogger' );
