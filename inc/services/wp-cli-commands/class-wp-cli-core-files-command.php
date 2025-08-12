@@ -261,9 +261,9 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		}
 
 		// Get the Core Files Integrity Logger instance by its slug.
-		$core_integrity_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesIntegrityLogger' );
+		$core_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesLogger' );
 
-		if ( ! $core_integrity_logger instanceof Core_Files_Logger ) {
+		if ( ! $core_logger instanceof Core_Files_Logger ) {
 			WP_CLI::error( 'Core Files Integrity Logger is not loaded. Make sure experimental features are enabled.' );
 			return;
 		}
@@ -274,7 +274,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		$start_time = microtime( true );
 
 		// Perform the actual integrity check using the logger's method.
-		$core_integrity_logger->perform_integrity_check();
+		$core_logger->perform_integrity_check();
 
 		// End timing.
 		$end_time = microtime( true );
@@ -347,8 +347,8 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		$cron_hook = 'simple_history/core_files_integrity_check';
 		
 		// Check if the logger is loaded.
-		$core_integrity_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesIntegrityLogger' );
-		if ( $core_integrity_logger instanceof Core_Files_Logger ) {
+		$core_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesLogger' );
+		if ( $core_logger instanceof Core_Files_Logger ) {
 			WP_CLI::success( 'Core Files Integrity Logger is loaded' );
 		} else {
 			WP_CLI::error( 'Core Files Integrity Logger is NOT loaded!' );
