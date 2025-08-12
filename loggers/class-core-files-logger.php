@@ -73,8 +73,10 @@ class Core_Files_Logger extends Logger {
 	 */
 	public function setup_cron() {
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			// Schedule daily check at 3 AM local time to minimize server impact.
-			$timestamp = strtotime( 'tomorrow 3:00 AM' );
+			// Schedule daily check at 3 AM site time to minimize server impact.
+			$timezone = wp_timezone();
+			$datetime = new \DateTime( 'tomorrow 3:00 AM', $timezone );
+			$timestamp = $datetime->getTimestamp();
 			wp_schedule_event( $timestamp, 'daily', self::CRON_HOOK );
 			$this->debug( 'Core files integrity check cron job scheduled' );
 		}
