@@ -319,9 +319,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
-- 📨 Email reports are now available for all users, not just those with experimental features enabled. Enable email reports in the settings page.
-- Change order of the menu items.
-- Update description of WP CLI command description.
+-   📨 Email reports are now available for all users, not just those with experimental features enabled. Enable email reports in the settings page.
+-   Add Core Files Integrity Logger to detect and monitor modifications to WordPress core files through automated checksum verification. [#538](https://github.com/bonny/WordPress-Simple-History/issues/538)
+-   Change order of the menu items.
+-   Update description of WP CLI command description.
 
 ### 5.14.0 (July 2025)
 
