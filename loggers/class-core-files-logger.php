@@ -2,7 +2,6 @@
 
 namespace Simple_History\Loggers;
 
-use Simple_History\Helpers;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
 
@@ -39,7 +38,7 @@ class Core_Files_Logger extends Logger {
 			],
 			'labels'      => [
 				'search' => [
-					'label' => _x( 'Core Files Security', 'Core Files Logger: search', 'simple-history' ),
+					'label' => _x( 'Core Files Modifications', 'Core Files Logger: search', 'simple-history' ),
 					'options' => [
 						_x( 'Core file modifications', 'Core Files Logger: search', 'simple-history' ) => [
 							'core_files_modified',
@@ -73,7 +72,6 @@ class Core_Files_Logger extends Logger {
 			$datetime = new \DateTime( 'tomorrow 3:00 AM', $timezone );
 			$timestamp = $datetime->getTimestamp();
 			wp_schedule_event( $timestamp, 'daily', self::CRON_HOOK );
-			$this->debug( 'Core files integrity check cron job scheduled' );
 		}
 	}
 
@@ -83,19 +81,14 @@ class Core_Files_Logger extends Logger {
 	 * This is the main method that gets called by the cron job
 	 */
 	public function perform_integrity_check() {
-		$this->debug( 'Performing core files integrity check' );
+		$modified_files = $this->check_core_files_integrity();
 
-		try {
-			$modified_files = $this->check_core_files_integrity();
-			$this->process_check_results( $modified_files );
-		} catch ( \Exception $e ) {
-			$this->warning_message(
-				'core_files_check_failed',
-				[
-					'error_message' => $e->getMessage(),
-				]
-			);
+		// Bail if error.
+		if ( is_wp_error( $modified_files ) ) {
+			return;
 		}
+
+		$this->process_check_results( $modified_files );
 	}
 
 	/**
@@ -122,8 +115,7 @@ class Core_Files_Logger extends Logger {
 	 *         )
 	 * )
 	 *
-	 * @return array Array of modified files with their details.
-	 * @throws \Exception If checksums cannot be retrieved or check fails.
+	 * @return array|\WP_Error Array of modified files with their details or WP_Error if there is an error.
 	 */
 	private function check_core_files_integrity() {
 		global $wp_version;
@@ -137,7 +129,7 @@ class Core_Files_Logger extends Logger {
 		$checksums = get_core_checksums( $wp_version, 'en_US' );
 
 		if ( ! is_array( $checksums ) || empty( $checksums ) ) {
-			throw new \Exception( 'Unable to retrieve WordPress core checksums for version ' . esc_html( $wp_version ) );
+			return new \WP_Error( 'core_files_check_failed', 'Unable to retrieve WordPress core checksums for version ' . esc_html( $wp_version ) );
 		}
 
 		$modified_files = [];
@@ -249,7 +241,7 @@ class Core_Files_Logger extends Logger {
 			return null;
 		}
 
-		// Handle both detected and restored events.
+		// Handle detected and restored events.
 		if ( ! in_array( $message_key, [ 'core_files_modified', 'core_files_restored' ], true ) ) {
 			return null;
 		}
