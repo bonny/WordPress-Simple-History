@@ -317,10 +317,15 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.15.0 (August 2025)
 
--   📨 Email reports are now available for all users, not just those with experimental features enabled. Enable email reports in the settings page.
--   Add Core Files Integrity Logger to detect and monitor modifications to WordPress core files through automated checksum verification. [#538](https://github.com/bonny/WordPress-Simple-History/issues/538)
+**Added**
+
+-   📨 _Email reports_ are now available for all users, not just those with experimental features enabled. You can enable email reports in the settings page. Read more about [email reports](https://simple-history.com/features/weekly-email-report/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports).
+-   New _Core Files Integrity Logger_ that detects modifications to WordPress core files through daily checksum verification. Monitors for modified, missing, or unreadable files. Runs once every night. [#538](https://github.com/bonny/WordPress-Simple-History/issues/538)
+
+**Changed**
+
 -   Change order of the menu items.
 -   Update description of WP CLI command description.
 
