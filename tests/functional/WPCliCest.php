@@ -5,12 +5,14 @@ class WPCliCest {
 	public function test_wp_cli_commands( FunctionalTester $I ) {
         // Test WP Version so we are not surprised by WP version changes.
         $I->cli('--allow-root core version');
-        $I->seeInShellOutput('6.3.2');
+        $I->seeInShellOutput('6.6.1');
 
         $I->cli('--allow-root simple-history');
-        $I->seeInShellOutput('usage: wp simple-history db <command>
+        $I->seeInShellOutput('usage: wp simple-history core-files <command>
+   or: wp simple-history db <command>
    or: wp simple-history event <command>
-   or: wp simple-history list [--format=<format>] [--count=<count>]');
+   or: wp simple-history list [--format=<format>] [--count=<count>] [--initiator=<initiators>] [--log_level=<levels>] [--logger=<loggers>] [--message=<messages>] [--user=<users>] [--search=<term>] [--date_from=<date>] [--date_to=<date>] [--months=<months>] [--include_sticky] [--only_sticky]
+   or: wp simple-history stealth-mode <command>');
         
         $I->haveUserInDatabase(
             'luca', 
