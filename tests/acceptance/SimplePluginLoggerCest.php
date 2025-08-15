@@ -19,7 +19,7 @@ class SimplePluginLoggerCest
     public function testPluginActivation(Admin $I) {
         // plugin_activated
         $I->amOnAdminPage('plugins.php');
-        $I->click("#activate-akismet-anti-spam-spam-protection");
+        $I->click("#activate-akismet");
         $I->seeLogMessage('Activated plugin "Akismet Anti-spam: Spam Protection"');
         $I->seeLogContext(array(
             'plugin_name' => 'Akismet Anti-spam: Spam Protection',
@@ -27,7 +27,7 @@ class SimplePluginLoggerCest
             'plugin_title' => '<a href="https://akismet.com/">Akismet Anti-spam: Spam Protection</a>',
             'plugin_description' => 'Used by millions, Akismet is quite possibly the best way in the world to <strong>protect your blog from spam</strong>. Akismet Anti-spam keeps your site protected even while you sleep. To get started: activate the Akismet plugin and then go to your Akismet Settings page to set up your API key. <cite>By <a href="https://automattic.com/wordpress-plugins/">Automattic - Anti-spam Team</a>.</cite>',
             'plugin_author' => '<a href="https://automattic.com/wordpress-plugins/">Automattic - Anti-spam Team</a>',
-            'plugin_version' => '5.3',
+            'plugin_version' => '5.5',
             'plugin_url' => 'https://akismet.com/',
         ));
         
@@ -46,7 +46,7 @@ class SimplePluginLoggerCest
 
         // plugin_deactivated
         $I->amOnAdminPage('plugins.php');
-        $I->click("#deactivate-akismet-anti-spam-spam-protection");
+        $I->click("#deactivate-akismet");
         $I->seeLogMessage('Deactivated plugin "Akismet Anti-spam: Spam Protection"');
         $I->seeLogContext(array(
             'plugin_name' => 'Akismet Anti-spam: Spam Protection',
@@ -54,7 +54,7 @@ class SimplePluginLoggerCest
             'plugin_title' => '<a href="https://akismet.com/">Akismet Anti-spam: Spam Protection</a>',
             'plugin_description' => 'Used by millions, Akismet is quite possibly the best way in the world to <strong>protect your blog from spam</strong>. Akismet Anti-spam keeps your site protected even while you sleep. To get started: activate the Akismet plugin and then go to your Akismet Settings page to set up your API key. <cite>By <a href="https://automattic.com/wordpress-plugins/">Automattic - Anti-spam Team</a>.</cite>',
             'plugin_author' => '<a href="https://automattic.com/wordpress-plugins/">Automattic - Anti-spam Team</a>',
-            'plugin_version' => '5.3',
+            'plugin_version' => '5.5',
             'plugin_url' => 'https://akismet.com/',
         ));
 

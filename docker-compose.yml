@@ -19,6 +19,7 @@ services:
     volumes:
       - wordpress:/var/www/html
       - ./:/var/www/html/wp-content/plugins/simple-history
+      - ./tests/plugins/akismet:/var/www/html/wp-content/plugins/akismet
       - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
       - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
       - ./tests/plugins/duplicate-post:/var/www/html/wp-content/plugins/duplicate-post
@@ -71,6 +72,7 @@ services:
       - ./:/srv
       - wordpress:/wordpress
       - ./:/wordpress/wp-content/plugins/simple-history
+      - ./tests/plugins/akismet:/wordpress/wp-content/plugins/akismet
       - ./tests/plugins/jetpack:/wordpress/wp-content/plugins/jetpack
       - ./tests/plugins/wp-crontrol:/wordpress/wp-content/plugins/wp-crontrol
       - ./tests/plugins/duplicate-post:/wordpress/wp-content/plugins/duplicate-post
@@ -102,6 +104,7 @@ services:
       # Make tests folder available so we can export/import db.
       - ./tests/_data/:/var/www/html/tests/_data:rw
       - ./:/var/www/html/wp-content/plugins/simple-history
+      - ./tests/plugins/akismet:/var/www/html/wp-content/plugins/akismet
       - ./tests/plugins/jetpack:/var/www/html/wp-content/plugins/jetpack
       - ./tests/plugins/wp-crontrol:/var/www/html/wp-content/plugins/wp-crontrol
       - ./tests/plugins/duplicate-post:/var/www/html/wp-content/plugins/duplicate-post
