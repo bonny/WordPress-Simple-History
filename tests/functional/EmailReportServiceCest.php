@@ -245,4 +245,44 @@ class EmailReportServiceCest {
         $I->dontSeeInSource('Weekly Activity Summary');
         $I->seeResponseCodeIsClientError();
     }
+
+    public function test_send_email_rest_api_endpoint( FunctionalTester $I ) {
+        $I->amGoingTo('Test the send email REST API endpoint responds correctly');
+        
+        // Get the current user email
+        $current_user_email = $I->grabFromDatabase('wp_users', 'user_email', ['user_login' => 'admin']);
+        
+        // Get nonce from the preview link (best practice for this test setup)
+        $preview_link = $I->grabAttributeFrom('a.button-link', 'href');
+        preg_match('/[?&]_wpnonce=([^&]+)/', $preview_link, $matches);
+        $nonce = isset($matches[1]) ? $matches[1] : '';
+        
+        // Test the REST API endpoint via browser (functional testing approach)
+        $email_endpoint = "/index.php?rest_route=/simple-history/v1/email-report/preview/email&_wpnonce={$nonce}";
+        $I->amOnPage($email_endpoint);
+        
+        // Verify we get a JSON response
+        $response_content = $I->grabPageSource();
+        $I->assertStringStartsWith('{', trim($response_content), 'Response should be JSON');
+        $response_data = json_decode($response_content, true);
+        $I->assertIsArray($response_data, 'Response should be valid JSON');
+        
+        // Check response format - handles both success and expected failure scenarios
+        if (isset($response_data['success'])) {
+            // Custom success/error format from Simple History
+            if ($response_data['success']) {
+                $I->assertStringContainsString('Test email sent successfully', $response_data['message']);
+                $I->assertStringContainsString($current_user_email, $response_data['message']);
+            } else {
+                $I->assertStringContainsString('Failed to send test email', $response_data['message']);
+            }
+        } elseif (isset($response_data['code'])) {
+            // WordPress error format (expected when email sending fails in test environment)
+            $I->assertEquals('email_send_failed', $response_data['code']);
+            $I->assertEquals('Failed to send test email.', $response_data['message']);
+            $I->assertEquals(500, $response_data['data']['status']);
+        } else {
+            $I->fail('Response should be either success format or WordPress error format');
+        }
+    }
 }
