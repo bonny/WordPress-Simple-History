@@ -321,6 +321,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.15.0 (August 2025)
 
+📧 This release enables _Weekly Email Reports_ for all users.
+It also adds a new _Core Files Integrity Logger_ that detects modifications to WordPress core files through daily checksum verification.
+
+[Release post with details and screenshots.](https://simple-history.com/2025/simple-history-5-15-0/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_15_0)
+
 **Added**
 
 -   📨 _Email reports_ are now available for all users, not just those with experimental features enabled. You can enable email reports in the settings page. Read more about [email reports](https://simple-history.com/features/weekly-email-report/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports).
