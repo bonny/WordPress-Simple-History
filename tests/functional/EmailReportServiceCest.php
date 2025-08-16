@@ -156,4 +156,93 @@ class EmailReportServiceCest {
         $I->assertStringContainsString('email@example.com', $placeholder);
         $I->assertStringContainsString('another@example.com', $placeholder);
     }
+
+    public function test_html_preview_accessible( FunctionalTester $I ) {
+        $I->amGoingTo('Test that HTML preview is accessible and shows expected content');
+        
+        // Get the preview link URL
+        $preview_link = $I->grabAttributeFrom('a.button-link', 'href');
+        
+        // Visit the preview URL
+        $I->amOnUrl($preview_link);
+        
+        // Check that we see email preview content
+        $I->seeInSource('<!DOCTYPE html');
+        $I->seeInSource('Weekly Activity Summary');
+        
+        // Check for main sections in the email template
+        $I->seeInSource('Events this week');
+        $I->seeInSource('Activity by day');
+        $I->seeInSource('Posts and Pages');
+        
+        // Verify it's marked as preview
+        $I->seeInSource('(preview)');
+        
+        // Check for site name (wp-tests)
+        $I->seeInSource('wp-tests');
+    }
+
+    public function test_send_test_email_button_functionality( FunctionalTester $I ) {
+        $I->amGoingTo('Test that the send test email button is present and properly configured');
+        
+        // Get the current user email (we know admin user exists)
+        $current_user_email = $I->grabFromDatabase('wp_users', 'user_email', ['user_login' => 'admin']);
+        
+        // Check that the test email button exists and shows current user email
+        $I->seeElement('#simple-history-email-test');
+        $I->canSee("Send test email to {$current_user_email}");
+        
+        // Verify the button has the correct attributes
+        $button_type = $I->grabAttributeFrom('#simple-history-email-test', 'type');
+        $I->assertEquals('button', $button_type);
+        
+        $button_class = $I->grabAttributeFrom('#simple-history-email-test', 'class');
+        $I->assertStringContainsString('button', $button_class);
+        $I->assertStringContainsString('button-link', $button_class);
+        
+        // Check that the JavaScript for handling the button click is present
+        $I->seeInSource('simple-history-email-test');
+        $I->seeInSource('wp.apiFetch');
+        $I->seeInSource('simple-history/v1/email-report/preview/email');
+        
+        // Check that nonce and API fetch setup is present
+        $I->seeInSource('nonceMiddleware');
+        $I->seeInSource('wp.apiFetch.createNonceMiddleware');
+    }
+
+    public function test_preview_with_date_range( FunctionalTester $I ) {
+        $I->amGoingTo('Test that preview shows data for the last 7 days');
+        
+        // Visit the preview page
+        $preview_link = $I->grabAttributeFrom('a.button-link', 'href');
+        $I->amOnUrl($preview_link);
+        
+        // Check that date range is shown (should be last 7 days)
+        $I->seeInSource('–'); // Date range separator
+        
+        // Verify statistics sections are present even if empty
+        $I->seeInSource('Posts created');
+        $I->seeInSource('Posts and Pages');
+        $I->seeInSource('Activity by day');
+        $I->seeInSource('Events this week');
+    }
+
+    public function test_preview_link_requires_authentication( FunctionalTester $I ) {
+        $I->amGoingTo('Test that preview link requires authentication');
+        
+        // Get the preview link
+        $preview_link = $I->grabAttributeFrom('a.button-link', 'href');
+        
+        // Log out
+        $I->amOnPage('/wp-login.php?action=logout');
+        $I->click('log out');
+        
+        // Try to access preview without authentication
+        $I->amOnUrl($preview_link);
+        
+        // Should see error or be redirected
+        // The REST API should return a 401 or 403 error for unauthenticated users
+        $I->dontSeeInSource('Weekly Activity Summary');
+        $I->seeResponseCodeIsClientError();
+    }
 }
