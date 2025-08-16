@@ -294,7 +294,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
    are of type post and pages and media (i.e. images & other uploads), and only events
    initiated by a specific user.
 
-2. The **Post Quick Diff** feature will make it quick and easy for a user of a site to see what updates other users have done to posts and pages.
+2. The feature will make it quick and easy for a user of a site to see what updates other users have done to posts and pages.
 
 3. When users are created or changed you can see details on what have changed.
 
@@ -308,6 +308,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
    A simple way to see any uncommon activity, for example an increased number of logins or similar.
 
 8. Stats and summaries page that gives you a quick overview summary of your site's activity.
+
+9. Email reports: Get a weekly summary of your site's activity delivered straight to your inbox. Enable and configure this feature in the plugin settings.
 
 ## Changelog
 
