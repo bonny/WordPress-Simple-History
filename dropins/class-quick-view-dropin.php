@@ -99,6 +99,7 @@ class Quick_View_Dropin extends Dropin {
 			$asset_file['version'],
 			[
 				'in_footer' => true,
+				'strategy' => 'defer',
 			]
 		);
 
