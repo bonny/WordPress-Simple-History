@@ -114,7 +114,6 @@ class Post_Logger extends Logger {
 
 			// Rest delete is fired "immediately after a single post is deleted or trashed via the REST API".
 			add_filter( "rest_delete_{$post_type->name}", array( $this, 'on_rest_delete' ), 10, 3 );
-
 		}
 	}
 
