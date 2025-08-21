@@ -172,6 +172,10 @@ class Post_Logger extends Logger {
 	/**
 	 * Fires after a single post is completely created or updated via the REST API.
 	 *
+	 * This is fired when a post is saved:
+	 * - Using the Gutenberg block editor
+	 * - ...possible more times...
+	 *
 	 * Here we get the updated post, after it is updated in the db.
 	 *
 	 * @param \WP_Post         $updated_post     Inserted or updated post object.
@@ -532,6 +536,10 @@ class Post_Logger extends Logger {
 	/**
 	 * Maybe log a post creation, modification or deletion.
 	 *
+	 * Called from:
+	 * - on_transition_post_status
+	 * - on_rest_after_insert
+	 * 
 	 * Todo:
 	 * - support password protect.
 	 * - post_password is set
