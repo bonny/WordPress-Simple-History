@@ -43,7 +43,15 @@ export const CompactEvent = ( props ) => {
 						<span className="sh-GutenbergPanel-event__meta-separator">
 							•
 						</span>
-						<EventDate event={ event } eventVariant="compact" />
+						<a
+							href={ event.link }
+							title={ __(
+								'View event details',
+								'simple-history'
+							) }
+						>
+							<EventDate event={ event } eventVariant="compact" />
+						</a>
 					</HStack>
 
 					<Text>{ event.message }</Text>
