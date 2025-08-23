@@ -67,6 +67,13 @@ class Gutenberg_Sidebar_Dropin extends Dropin {
 
 		wp_enqueue_script( 'simple_history_gutenberg_sidebar' );
 		wp_set_script_translations( 'simple_history_gutenberg_sidebar', 'simple-history' );
+
+		wp_enqueue_style(
+			'simple_history_gutenberg_sidebar',
+			SIMPLE_HISTORY_DIR_URL . 'build/index-gutenberg.css',
+			[],
+			$asset_file['version']
+		);
 	}
 
 	/**
