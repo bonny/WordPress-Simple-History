@@ -37,8 +37,20 @@ const usePostEvents = ( postId ) => {
 						post_id: postId.toString(),
 					},
 					ungrouped: true,
-					_fields:
-						'id,message,initiator,link,date,initiator_data.user_login,initiator_data.user_profile_url,initiator_data.user_email,initiator_data.display_name,initiator_data.user_display_name,context.post_revision_id,context.post_id',
+					_fields: [
+						'id',
+						'message',
+						'initiator',
+						'link',
+						'date',
+						'initiator_data.user_login',
+						'initiator_data.user_profile_url',
+						'initiator_data.user_email',
+						'initiator_data.display_name',
+						'initiator_data.user_display_name',
+						'context.post_revision_id',
+						//'context.post_id',
+					],
 				} ),
 				parse: false,
 			} );
