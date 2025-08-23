@@ -1,4 +1,14 @@
 // .sh-GutenbergPanel {
-	// Panel container - minimal styling to blend with WordPress
-	// No style yet...
+// Panel container - minimal styling to blend with WordPress
+// No style yet...
 // }
+
+@import "../../../css/variables.css";
+
+body * {
+	outline: 1px solid red;
+}
+
+.sh-GutenbergPanel-event {
+	border-top: 1px solid var(--sh-color-separator);
+}
