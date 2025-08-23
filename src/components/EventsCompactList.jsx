@@ -1,12 +1,13 @@
+import {
+	__experimentalHStack as HStack,
+	__experimentalVStack as VStack,
+	__experimentalText as Text,
+} from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
-import { useSelect } from '@wordpress/data';
-import { store as coreStore } from '@wordpress/core-data';
-import {
-	__experimentalHStack as HStack,
-	__experimentalText as Text,
-} from '@wordpress/components';
 
 /**
  * One compact event for the compact event list.
@@ -33,7 +34,7 @@ export const CompactEvent = ( props ) => {
 
 		return (
 			<li className="sh-GutenbergPanel-event">
-				<div className="sh-GutenbergPanel-event__meta">
+				<VStack spacing={ 1 }>
 					<HStack justify="flex-start" spacing={ 1 }>
 						<EventInitiatorName
 							event={ event }
@@ -44,13 +45,11 @@ export const CompactEvent = ( props ) => {
 						</span>
 						<EventDate event={ event } eventVariant="compact" />
 					</HStack>
-				</div>
 
-				<div className="sh-GutenbergPanel-event__message">
-					{ event.message }
-				</div>
+					<Text>{ event.message }</Text>
 
-				{ revisionLink }
+					{ revisionLink }
+				</VStack>
 			</li>
 		);
 	}

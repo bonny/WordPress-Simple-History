@@ -5,10 +5,8 @@
 
 @import "../../../css/variables.css";
 
-body * {
-	outline: 1px solid red;
-}
-
 .sh-GutenbergPanel-event {
 	border-top: 1px solid var(--sh-color-separator);
+	// padding-inline: var(--sh-spacing-medium);
+	padding-block: var(--sh-spacing-small);
 }
