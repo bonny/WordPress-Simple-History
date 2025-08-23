@@ -3,6 +3,10 @@ import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
 import { useSelect } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
+import {
+	__experimentalHStack as HStack,
+	__experimentalText as Text,
+} from '@wordpress/components';
 
 /**
  * One compact event for the compact event list.
@@ -22,21 +26,30 @@ export const CompactEvent = ( props ) => {
 		// ie the Gutenberg post editor history with revision links.
 		const revisionLinkUrl = `${ adminUrl }revision.php?revision=${ event.context.post_revision_id }`;
 		const revisionLink = event.context.post_revision_id ? (
-			<a href={ revisionLinkUrl }>View revision</a>
+			<div className="sh-GutenbergPanel-event__meta-revision">
+				<a href={ revisionLinkUrl }>View revision</a>
+			</div>
 		) : null;
 
 		return (
 			<li className="sh-GutenbergPanel-event">
 				<div className="sh-GutenbergPanel-event__meta">
-					<EventInitiatorName
-						event={ event }
-						eventVariant="compact"
-					/>
-					<EventDate event={ event } eventVariant="compact" />
+					<HStack justify="flex-start" spacing={ 1 }>
+						<EventInitiatorName
+							event={ event }
+							eventVariant="compact"
+						/>
+						<span className="sh-GutenbergPanel-event__meta-separator">
+							•
+						</span>
+						<EventDate event={ event } eventVariant="compact" />
+					</HStack>
 				</div>
+
 				<div className="sh-GutenbergPanel-event__message">
 					{ event.message }
 				</div>
+
 				{ revisionLink }
 			</li>
 		);
