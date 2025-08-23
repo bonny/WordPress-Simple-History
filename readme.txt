@@ -321,6 +321,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### unreleased
 
+-   Store id of post revision for post/page updates.
 -   Add `strategy: 'defer'` to the admin bar script.
 
 ### 5.15.0 (August 2025)
