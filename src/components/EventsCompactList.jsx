@@ -1,17 +1,30 @@
 import { __ } from '@wordpress/i18n';
 import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
+import { useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
 
 /**
  * One compact event for the compact event list.
+ *
  * @param {Object} props
  * @return {Object} React element
  */
 export const CompactEvent = ( props ) => {
 	const { event, variant = 'default' } = props;
 
+	const adminUrl = useSelect( ( select ) => {
+		return select( coreStore ).getSite()?.url + '/wp-admin/';
+	}, [] );
+
 	if ( variant === 'sidebar' ) {
-		// Simplified version for sidebar panels
+		// Simplified version for post sidebar panels,
+		// ie the Gutenberg post editor history with revision links.
+		const revisionLinkUrl = `${ adminUrl }revision.php?revision=${ event.context.post_revision_id }`;
+		const revisionLink = event.context.post_revision_id ? (
+			<a href={ revisionLinkUrl }>View revision</a>
+		) : null;
+
 		return (
 			<li className="sh-GutenbergPanel-event">
 				<div className="sh-GutenbergPanel-event__meta">
@@ -24,6 +37,7 @@ export const CompactEvent = ( props ) => {
 				<div className="sh-GutenbergPanel-event__message">
 					{ event.message }
 				</div>
+				{ revisionLink }
 			</li>
 		);
 	}
@@ -57,6 +71,7 @@ export const CompactEvent = ( props ) => {
 
 /**
  * Compact list of events.
+ *
  * @param {Object} props
  * @return {Object} React element
  */
@@ -75,16 +90,17 @@ export const EventsCompactList = ( props ) => {
 	const displayEvents = maxEvents ? events.slice( 0, maxEvents ) : events;
 	const hasMoreEvents = maxEvents && events.length > maxEvents;
 
-	const listClassName = variant === 'sidebar' 
-		? 'sh-GutenbergPanel-events' 
-		: 'SimpleHistory-adminBarEventsList';
+	const listClassName =
+		variant === 'sidebar'
+			? 'sh-GutenbergPanel-events'
+			: 'SimpleHistory-adminBarEventsList';
 
 	return (
 		<ul className={ listClassName }>
 			{ displayEvents.map( ( event ) => (
-				<CompactEvent 
-					key={ event.id } 
-					event={ event } 
+				<CompactEvent
+					key={ event.id }
+					event={ event }
 					variant={ variant }
 				/>
 			) ) }
