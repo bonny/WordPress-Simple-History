@@ -1,7 +1,6 @@
 import {
 	__experimentalHStack as HStack,
 	__experimentalVStack as VStack,
-	__experimentalText as Text,
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -35,14 +34,12 @@ export const CompactEvent = ( props ) => {
 		return (
 			<li className="sh-GutenbergPanel-event">
 				<VStack spacing={ 1 }>
-					<HStack justify="flex-start" spacing={ 1 }>
+					<HStack justify="flex-start" spacing={ 1 } wrap>
 						<EventInitiatorName
 							event={ event }
 							eventVariant="compact"
 						/>
-						<span className="sh-GutenbergPanel-event__meta-separator">
-							•
-						</span>
+						<span className="">•</span>
 						<a
 							href={ event.link }
 							title={ __(
@@ -54,7 +51,7 @@ export const CompactEvent = ( props ) => {
 						</a>
 					</HStack>
 
-					<Text>{ event.message }</Text>
+					{ /* No event message since all the events are shown for the current post. */ }
 
 					{ revisionLink }
 				</VStack>

@@ -1,16 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
-import {
-	Button,
-	Spinner,
-	Notice,
-	__experimentalText as Text,
-} from '@wordpress/components';
-import { PluginDocumentSettingPanel } from '@wordpress/editor';
+import { Button, Notice, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { update } from '@wordpress/icons';
+import { addQueryArgs } from '@wordpress/url';
 import { EventsCompactList } from '../EventsCompactList';
 import './PostHistorySidebar.scss';
 
@@ -43,6 +38,8 @@ const usePostEvents = ( postId ) => {
 						'initiator',
 						'link',
 						'date',
+						'date_gmt',
+						'date_local',
 						'initiator_data.user_login',
 						'initiator_data.user_profile_url',
 						'initiator_data.user_email',
@@ -81,13 +78,6 @@ export const PostHistorySidebar = () => {
 	const renderContent = () => {
 		return (
 			<div className="sh-GutenbergPanel-content">
-				<Text as="p" className="xsh-GutenbergPanel-description">
-					{ __(
-						'Simple History tracks the history of this post.',
-						'simple-history'
-					) }
-				</Text>
-
 				<Button
 					variant="tertiary"
 					onClick={ loadEvents }
@@ -97,7 +87,7 @@ export const PostHistorySidebar = () => {
 				>
 					{ isLoading
 						? __( 'Loading…', 'simple-history' )
-						: __( 'Load history', 'simple-history' ) }
+						: __( 'Load edit history', 'simple-history' ) }
 				</Button>
 
 				{ error && (
