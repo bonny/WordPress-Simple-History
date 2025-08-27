@@ -154,23 +154,30 @@ Investigating discrepancies between three statistics features:
 - **Date filters**: Correctly handles day boundaries (00:00:00 for start, 23:59:59 for end)
 - **Timezone handling**: Consistent GMT storage → GMT queries → Local display
 
-### REST API (✅ Working Correctly):
+### Events REST API (✅ Working Correctly):
 - **Input**: Accepts Unix timestamps for `date_from` and `date_to` parameters
 - **Processing**: Uses same Log_Query class with proper GMT handling
 - **Output**: Returns both `date_gmt` (raw from DB) and `date_local` (converted to site timezone)
 - **Consistency**: Aligns with main log's timezone approach
+
+### Stats REST API (❌ Timezone Issues Found):
+- **Problem**: Uses `new \DateTime('today')` without timezone specification (line 231-234)
+- **Effect**: Default date range calculations use server timezone instead of UTC
+- **Impact**: API returns different results than main log for same time periods
+- **File**: `/inc/class-wp-rest-stats-controller.php`
 
 ### Summary of Component Status:
 
 **Components Working Correctly (GMT/UTC):**
 - ✅ Event storage (uses GMT)
 - ✅ Main log display and filtering
-- ✅ REST API for events
+- ✅ Events REST API (for events endpoint)
 - ✅ History Insights Page (uses UTC)
 
 **Components NOT Working (Using Server Timezone):**
 - ❌ History Insights Sidebar
 - ❌ Email Reports
+- ❌ Stats REST API (for stats endpoints)
 - ❌ Helper functions for sidebar
 
 ## FILES REQUIRING CHANGES
@@ -181,3 +188,4 @@ Priority files to update (to match the main log's GMT/UTC approach):
 3. `/inc/services/class-email-report-service.php` - Lines 198, 243, 503 (change strtotime to UTC)
 4. `/inc/class-events-stats.php` - Line 996 (get_num_events_today needs UTC)
 5. `/dropins/class-sidebar-stats-dropin.php` - Lines 171-172, 319-320 (use UTC DateTimeImmutable)
+6. `/inc/class-wp-rest-stats-controller.php` - Lines 231-234 (use UTC DateTime in get_default_date_range)
