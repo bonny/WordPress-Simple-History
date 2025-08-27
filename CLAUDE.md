@@ -38,6 +38,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 -   **Always use curly brackets** even for single statements
 -   **Ternary operators**: Each part on own line unless very short
 
+### Code examples
+
 ```php
 // Happy path last
 if (! $user) {
@@ -70,10 +72,6 @@ $condition
 -   Prefix is "sh", so example classes are:
     -   `sh-HelpSection`, `sh-LogEntry` for main components.
     -   `sh-HelpSection-subpart`, `sh-LogEntry-author` for parts.
-
-## Docker/WP-CLI Commands
-
--   Test WP-CLI commands on local website: `cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot && docker compose run --rm wpcli_mariadb help simple-history list`
 
 ## Git Workflow
 
