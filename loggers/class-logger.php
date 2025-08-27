@@ -1203,10 +1203,10 @@ abstract class Logger {
 		);
 
 		/**
-		 * Store date as GMT date, i.e. not local date/time
+		 * Store date as GMT/UTC date, i.e. not local date/time.
 		 *
 		 * @see http://www.skyverge.com/blog/down-the-rabbit-hole-wordpress-and-timezones/
-		 * @var string $date_gmt Date in GMT format.
+		 * @var string $date_gmt Date in GMT/UTC format.
 		 */
 		$date_gmt = current_time( 'mysql', 1 );
 
