@@ -321,6 +321,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### unreleased
 
+-   Correct query in get_successful_logins_details(), so the stats page shows the list of successful logins.
 -   Store id of post revision for post/page updates.
 -   Add `strategy: 'defer'` to the admin bar script.
 
