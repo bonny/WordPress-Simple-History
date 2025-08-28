@@ -319,8 +319,15 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### unreleased
+### Unreleased
 
+-   Change "month" to 30 days instead of the previous 28 days.
+    -   Why 30 Days is Better UX:
+        -   User Expectations: Most people think of a month as 30 days, not 28
+        -   Standard Periods: 30 days aligns with common business and reporting cycles
+        -   Easier Calculations: 30 days is easier to work with than 28 days
+        -   Better Alignment: More closely matches actual calendar months (most months are 30-31 days)
+        -   Consistent with Other Systems: Many analytics and reporting tools use 30-day periods
 -   Correct query in get_successful_logins_details(), so the stats page shows the list of successful logins.
 -   Store id of post revision for post/page updates.
 -   Add `strategy: 'defer'` to the admin bar script.

@@ -10,6 +10,7 @@ use Simple_History\Menu_Manager;
 use Simple_History\Log_Query;
 use Simple_History\Events_Stats;
 use Simple_History\Stats_View;
+use Simple_History\Constants;
 
 /**
  * Dropin Name: Sidebar with eventstats.
@@ -177,7 +178,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		?>
 
 		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
-			<div class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Daily activity over last 28 days', 'simple-history' ); ?></div>
+							<div class="sh-StatsDashboard-statLabel"><?php printf( esc_html__( 'Daily activity over last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ); ?></div>
 
 			<div class="sh-StatsDashboard-statValue">
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
@@ -338,8 +339,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 * Output HTML for sidebar.
 	 */
 	public function on_sidebar_html() {
-		$num_days_month = 28;
-		$num_days_week = 7;
+		$num_days_month = Constants::DAYS_PER_MONTH;
+		$num_days_week = Constants::DAYS_PER_WEEK;
 
 		$stats_data = $this->get_quick_stats_data( $num_days_month, $num_days_week );
 
@@ -375,13 +376,13 @@ class Sidebar_Stats_Dropin extends Dropin {
 					);
 
 					echo $this->get_stat_dashboard_item(
-						__( 'Last 7 days', 'simple-history' ),
+						sprintf( __( 'Last %d days', 'simple-history' ), Constants::DAYS_PER_WEEK ),
 						number_format_i18n( $stats_data['num_events_week'] ),
 						_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
 					);
 
 					echo $this->get_stat_dashboard_item(
-						__( 'Last 28 days', 'simple-history' ),
+						sprintf( __( 'Last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ),
 						number_format_i18n( $stats_data['num_events_month'] ),
 						_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
 					);
@@ -394,7 +395,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 					?>
 					<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
 						<span class="sh-StatsDashboard-statLabel">
-							<?php esc_html_e( 'Most active users in last 28 days', 'simple-history' ); ?>
+							<?php printf( esc_html__( 'Most active users in last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ); ?>
 							<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
 						</span>
 						<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>

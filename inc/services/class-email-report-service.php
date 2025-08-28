@@ -5,6 +5,7 @@ namespace Simple_History\Services;
 use Simple_History\Simple_History;
 use Simple_History\Helpers;
 use Simple_History\Events_Stats;
+use Simple_History\Constants;
 
 /**
  * Service that handles email reports.
@@ -194,7 +195,7 @@ class Email_Report_Service extends Service {
 	 */
 	public function rest_preview_email() {
 		$current_user = wp_get_current_user();
-		$date_from = strtotime( '-7 days' );
+		$date_from = strtotime( sprintf( '-%d days', Constants::DAYS_PER_WEEK ) );
 		$date_to = time();
 
 		ob_start();
@@ -240,7 +241,7 @@ class Email_Report_Service extends Service {
 	 * REST API endpoint for getting HTML preview.
 	 */
 	public function rest_preview_html() {
-		$date_from = strtotime( '-7 days' );
+		$date_from = strtotime( sprintf( '-%d days', Constants::DAYS_PER_WEEK ) );
 		$date_to = time();
 
 		// Set content type to HTML.
@@ -500,7 +501,7 @@ class Email_Report_Service extends Service {
 		$recipients = explode( "\n", $recipients );
 
 		// Get stats for the last 7 days.
-		$date_from = strtotime( '-7 days' );
+		$date_from = strtotime( sprintf( '-%d days', Constants::DAYS_PER_WEEK ) );
 		$date_to = time();
 
 		ob_start();
