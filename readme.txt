@@ -330,7 +330,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
         -   Consistent with Other Systems: Many analytics and reporting tools use 30-day periods
 -   Correct query in get_successful_logins_details(), so the stats page shows the list of successful logins.
 -   Store id of post revision for post/page updates.
--   Add `strategy: 'defer'` to the admin bar script.
+-   Add `strategy: 'defer'` to the admin bar script, to minimize the impact of the script on the page load time.
 
 ### 5.15.0 (August 2025)
 
