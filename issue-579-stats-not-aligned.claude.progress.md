@@ -94,41 +94,51 @@ Investigating discrepancies between three statistics features:
 
 ## ROOT CAUSES OF MISALIGNMENT
 
-1. **Primary Issue - Timezone Mismatch:**
-   - Stats Page uses UTC explicitly
-   - Sidebar and Email Reports use server's default timezone (likely local time)
-   - Database queries use MySQL server timezone via `FROM_UNIXTIME()`
-   - This can cause up to 24 hours of difference in displayed data
+1. **Primary Issue - Multiple Timezone Layers:**
+   - **PHP Timezone**: Stats Page uses UTC explicitly, others use server's default timezone
+   - **MySQL Timezone**: `NOW()` and `FROM_UNIXTIME()` use MySQL server timezone (independent of PHP)
+   - **WordPress Assumption**: WordPress assumes PHP is UTC but doesn't enforce MySQL timezone
+   - **Result**: Up to 3 different timezones in a single query (PHP calculation → MySQL processing → Display)
 
-2. **Secondary Issue - Day Boundary Handling:**
-   - Some features include partial days (time component in timestamps)
-   - Others start from midnight (`strtotime('today')`)
-   - Inconsistent handling of "last 7 days" vs "past week"
+2. **Secondary Issue - Different Time Window Calculations:**
+   - **"Today" (Sidebar)**: `strtotime('today')` = midnight to current time (partial day, PHP timezone)
+   - **"Last day" (Main GUI)**: `NOW() - INTERVAL 1 DAY` = last 24 hours (full day, MySQL timezone)
+   - **Result**: Completely different time periods being measured
 
-3. **Caching Issues:**
-   - Sidebar caches data for 5 minutes with transients
-   - Helper functions cache for 1 hour
-   - Can show stale data compared to real-time queries
+3. **Tertiary Issues:**
+   - Day boundary inconsistencies (partial vs full days)
+   - Different caching periods (5 minutes vs 1 hour)
+   - Mixed date calculation approaches across components
 
 ## RECOMMENDATIONS FOR FIXES
 
 ### Immediate Fixes (High Priority)
 
-1. **Standardize Timezone Handling:**
+1. **Standardize ALL Timezone Handling to UTC:**
    ```php
-   // All date calculations should use UTC
+   // All PHP date calculations should use UTC
    $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
    $date_from = $now->modify("-{$days} days")->setTime(0, 0, 0);
    $date_to = $now->setTime(23, 59, 59);
    ```
 
-2. **Update Helper Functions:**
-   - Modify `Helpers::get_num_events_last_n_days()` to use UTC
-   - Modify `Events_Stats::get_num_events_today()` to use UTC midnight
+2. **Fix MySQL Timezone Issues:**
+   ```sql
+   -- Instead of NOW() - use UTC functions
+   date >= UTC_TIMESTAMP() - INTERVAL 1 DAY
+   
+   -- Instead of FROM_UNIXTIME() - convert to UTC
+   date >= CONVERT_TZ(FROM_UNIXTIME(%d), @@session.time_zone, '+00:00')
+   
+   -- Or use gmdate() in PHP before query
+   date >= '%s'  -- where %s is gmdate('Y-m-d H:i:s', $timestamp)
+   ```
 
-3. **Fix Email Report Service:**
-   - Change line 198, 243, 503 from `strtotime('-7 days')` to UTC-based calculation
-   - Ensure consistent day boundaries (midnight to midnight)
+3. **Standardize Time Window Definitions:**
+   - **"Today"** = UTC midnight to current UTC time
+   - **"Last day"** = Last 24 hours from current UTC time  
+   - **"Last N days"** = UTC midnight N days ago to current UTC time
+   - Document which definition each feature should use
 
 ### Long-term Improvements
 
@@ -182,10 +192,19 @@ Investigating discrepancies between three statistics features:
 
 ## FILES REQUIRING CHANGES
 
-Priority files to update (to match the main log's GMT/UTC approach):
+Priority files to update (to achieve consistent UTC handling):
 1. `/inc/class-helpers.php` - Lines 1312, 1360, 1379 (change strtotime to UTC)
 2. `/inc/services/class-stats-service.php` - Already uses UTC ✅
 3. `/inc/services/class-email-report-service.php` - Lines 198, 243, 503 (change strtotime to UTC)
 4. `/inc/class-events-stats.php` - Line 996 (get_num_events_today needs UTC)
 5. `/dropins/class-sidebar-stats-dropin.php` - Lines 171-172, 319-320 (use UTC DateTimeImmutable)
 6. `/inc/class-wp-rest-stats-controller.php` - Lines 231-234 (use UTC DateTime in get_default_date_range)
+7. `/inc/class-log-query.php` - Lines with `NOW()` usage (replace with `UTC_TIMESTAMP()` or convert timestamps to GMT strings)
+
+## CRITICAL DISCOVERY: MySQL Timezone Independence
+
+**WordPress does NOT set MySQL connection timezone to UTC by default.**
+- MySQL server timezone is independent of PHP timezone
+- `NOW()`, `FROM_UNIXTIME()` use MySQL server timezone (could be different from PHP)
+- This creates a **3-layer timezone problem**: PHP → MySQL → Display
+- Main log's "Last day" filter also affected by this MySQL timezone issue
