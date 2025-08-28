@@ -208,3 +208,93 @@ Priority files to update (to achieve consistent UTC handling):
 - `NOW()`, `FROM_UNIXTIME()` use MySQL server timezone (could be different from PHP)
 - This creates a **3-layer timezone problem**: PHP → MySQL → Display
 - Main log's "Last day" filter also affected by this MySQL timezone issue
+
+## ⚠️ MAJOR DISCOVERY: EVENT GROUPING vs INDIVIDUAL EVENT COUNTING ⚠️
+
+### THE BIGGEST DISCREPANCY FOUND - OCCASION GROUPING MISMATCH!
+
+**Main Log Display:**
+- ✅ Uses sophisticated occasion grouping via `occasionsID`
+- ✅ Groups similar events together (login attacks, post edits, spam comments)
+- ✅ Shows grouped occasions with `repeatCount` and `subsequentOccasions`
+- ✅ Example: 100 failed logins → displayed as "1 login attack occasion"
+
+**ALL Statistics Features (Sidebar, Insights Page, Email Reports):**
+- ❌ Count individual events using `Events_Stats->get_event_count()`
+- ❌ Query: `SELECT COUNT(DISTINCT h.id)` - counts unique database IDs  
+- ❌ Completely ignores `occasionsID` grouping
+- ❌ Example: 100 failed logins → counted as "100 individual events"
+
+### EVENT GROUPING ANALYSIS
+
+**Events That Are Commonly Grouped:**
+
+1. **Failed Login Attempts** (User Logger):
+   - All failed logins use same occasionsID: `SimpleUserLogger/failed_user_login`
+   - **Potential Impact:** Sites under attack could have 100s-1000s of failed logins grouped into 1 occasion
+   - **Stats Discrepancy:** Main log shows "1 attack", stats show actual failed login count
+
+2. **Post Updates** (Post Logger):
+   - Each post gets unique occasionsID: `SimplePostLogger/post_updated/{$post->ID}`
+   - **Potential Impact:** Multiple edits to same post are grouped
+   - **Stats Discrepancy:** Main log shows "1 post editing session", stats show each edit
+
+3. **Spam Comments** (Comments Logger):
+   - Spam comments grouped: `SimpleCommentsLogger/anon_comment_added/type:spam`
+   - **Potential Impact:** Comment spam floods grouped into single occasions
+   - **Stats Discrepancy:** Main log shows "1 spam attack", stats show each spam comment
+
+4. **File Edits, Category Changes, Translations:**
+   - All use occasion grouping to prevent log flooding
+   - **Stats Discrepancy:** Multiple related actions shown as single occasions vs individual counts
+
+### MAGNITUDE OF THE PROBLEM
+
+**Real-World Impact Examples:**
+- **Login Attack:** 500 failed logins = Main log "1 occasion" vs Stats "500 events" (499x difference!)
+- **Heavy Post Editing:** 20 edits to one post = Main log "1 occasion" vs Stats "20 events" (20x difference!)
+- **Comment Spam:** 200 spam comments = Main log "1 occasion" vs Stats "200 events" (200x difference!)
+
+**This explains why users report massive discrepancies between main log and statistics!**
+
+### FILES INVOLVED IN GROUPING ISSUE
+
+**Event Counting (ALL use same flawed approach):**
+- `/inc/class-events-stats.php` - `get_event_count()` method (line 87): `SELECT COUNT(DISTINCT h.id)`
+- All sidebar, insights, and email report statistics use this method
+- Counts individual events, completely ignores occasionsID
+
+**Occasion Grouping (Main log only):**
+- `/inc/class-log-query.php` - Complex occasion grouping logic (lines 270-271)
+- `/loggers/class-*.php` - Logger files define occasionsID patterns
+- Main log display respects grouping, but total counts still use individual events
+
+### RECOMMENDED FIXES FOR GROUPING ISSUE
+
+**Option 1: Make Statistics Count Occasions (Recommended)**
+```sql
+-- Instead of: SELECT COUNT(DISTINCT h.id)
+-- Use: SELECT COUNT(DISTINCT h.occasionsID)
+SELECT COUNT(DISTINCT h.occasionsID) 
+FROM simple_history h 
+JOIN simple_history_contexts c ON h.id = c.history_id 
+WHERE /* existing filters */
+```
+
+**Option 2: Make Main Log Show Individual Events**
+- Disable occasion grouping in main log display
+- Show all individual events (not recommended - would flood the log)
+
+**Option 3: Add Configuration Option**
+- Allow users to choose: "Count individual events" vs "Count grouped occasions"
+- Display both counts in statistics: "45 occasions (156 individual events)"
+
+### PRIORITY ORDER OF ISSUES
+
+1. **🔥 CRITICAL:** Occasion grouping mismatch (can cause 100x+ discrepancies)
+2. **⚠️ HIGH:** Timezone inconsistencies (can cause day-boundary mismatches)  
+3. **📝 MEDIUM:** Different time window calculations (28 vs 30 days, etc.)
+
+### CONCLUSION
+
+**The occasion grouping mismatch is likely the PRIMARY cause of user-reported statistics discrepancies.** Sites experiencing login attacks, spam floods, or heavy content editing could see massive differences between what the main log shows (grouped occasions) and what the statistics count (individual events).
