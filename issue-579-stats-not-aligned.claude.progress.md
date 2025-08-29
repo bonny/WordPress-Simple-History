@@ -8,23 +8,25 @@ Investigating discrepancies between three statistics features:
 
 ## Investigation Areas
 - [x] Date range calculations consistency
-- [ ] Timezone handling
-- [ ] Event counting methods
-- [ ] Message key filtering
+- [x] Timezone handling
+- [x] Event counting methods
+- [x] Message key filtering
+- [x] OccasionsID grouping behavior
 
-## Progress
+## Executive Summary
 
-### Initial File Review
-- Starting investigation...
+**Primary Issue Found:** The statistics features use fundamentally different counting methods - some count grouped occasions while others count individual events, causing discrepancies that can be 100x or more.
+
+**Secondary Issue Found:** Mixed timezone handling across components creates day-boundary mismatches.
 
 ## CRITICAL FINDINGS
 
 ### 1. TIMEZONE INCONSISTENCY - MAJOR ISSUE FOUND! ⚠️
 
 **History Insights Sidebar:**
-- Uses `strtotime("-$period_days days")` in Helpers::get_num_events_last_n_days() (class-helpers.php:1312)
-- Uses `strtotime('today')` for today's events (class-events-stats.php:996)
-- These use **server's default timezone** (likely local time)
+- Week/Month: Uses `strtotime("-$period_days days")` in Helpers::get_num_events_last_n_days() (class-helpers.php:1313)
+- Today: Uses `Log_Query` class which properly handles timezone via `strtotime('today')` (class-events-stats.php:1776)
+- Week/Month use **server's default timezone**, Today uses server timezone but with proper Log_Query handling
 
 **History Insights Page:**
 - Uses UTC explicitly: `new \DateTimeImmutable('now', new \DateTimeZone('UTC'))` (class-stats-service.php:96)
@@ -83,9 +85,9 @@ Investigating discrepancies between three statistics features:
   - **IMPORTANT**: Expects timestamps in Unix format for date_from and date_to
 
 **Total Events Count:**
-- Sidebar uses cached count: `Helpers::get_total_logged_events_count()` (stored in option)
-- Stats Page uses direct query: `$events_stats->get_total_events($date_from, $date_to)`
-- Email Reports uses direct query: `$events_stats->get_total_events($date_from, $date_to)`
+- Sidebar uses cached count: `Helpers::get_total_logged_events_count()` (stored in option, counts ALL individual events ever logged)
+- Stats Page uses direct query: `$events_stats->get_total_events($date_from, $date_to)` (counts individual events in date range)
+- Email Reports uses direct query: `$events_stats->get_total_events($date_from, $date_to)` (counts individual events in date range)
 
 **Query Implementation Details:**
 - `get_event_count()` method uses: `h.date >= FROM_UNIXTIME(%d) AND h.date <= FROM_UNIXTIME(%d)`
@@ -193,10 +195,10 @@ Investigating discrepancies between three statistics features:
 ## FILES REQUIRING CHANGES
 
 Priority files to update (to achieve consistent UTC handling):
-1. `/inc/class-helpers.php` - Lines 1312, 1360, 1379 (change strtotime to UTC)
+1. `/inc/class-helpers.php` - Lines 1313, 1361, 1380 (change strtotime to UTC)
 2. `/inc/services/class-stats-service.php` - Already uses UTC ✅
 3. `/inc/services/class-email-report-service.php` - Lines 198, 243, 503 (change strtotime to UTC)
-4. `/inc/class-events-stats.php` - Line 996 (get_num_events_today needs UTC)
+4. `/inc/class-events-stats.php` - Line 1776 (get_num_events_today uses strtotime('today') which needs UTC)
 5. `/dropins/class-sidebar-stats-dropin.php` - Lines 171-172, 319-320 (use UTC DateTimeImmutable)
 6. `/inc/class-wp-rest-stats-controller.php` - Lines 231-234 (use UTC DateTime in get_default_date_range)
 7. `/inc/class-log-query.php` - Lines with `NOW()` usage (replace with `UTC_TIMESTAMP()` or convert timestamps to GMT strings)
@@ -211,7 +213,7 @@ Priority files to update (to achieve consistent UTC handling):
 
 ## ⚠️ MAJOR DISCOVERY: EVENT GROUPING vs INDIVIDUAL EVENT COUNTING ⚠️
 
-### THE BIGGEST DISCREPANCY FOUND - OCCASION GROUPING MISMATCH!
+### THE BIGGEST DISCREPANCY FOUND - MIXED COUNTING APPROACHES!
 
 **Main Log Display:**
 - ✅ Uses sophisticated occasion grouping via `occasionsID`
@@ -219,7 +221,25 @@ Priority files to update (to achieve consistent UTC handling):
 - ✅ Shows grouped occasions with `repeatCount` and `subsequentOccasions`
 - ✅ Example: 100 failed logins → displayed as "1 login attack occasion"
 
-**ALL Statistics Features (Sidebar, Insights Page, Email Reports):**
+**Sidebar "Today" Count:**
+- ✅ CORRECTLY uses `Log_Query` class via `Events_Stats::get_num_events_today()`
+- ✅ Counts grouped occasions (same as main log) when using MySQL
+- ✅ Respects occasionsID grouping for MySQL databases
+- ⚠️ Note: SQLite databases will use ungrouped counting
+
+**Sidebar "Week" and "Month" Counts:**
+- ❌ Uses direct SQL query via `Helpers::get_num_events_last_n_days()`
+- ❌ Query: `SELECT count(*) FROM events_table` - counts ALL individual events
+- ❌ Completely ignores `occasionsID` grouping
+- ❌ Example: 100 failed logins → counted as "100 individual events"
+
+**Sidebar "Total Events" Count:**
+- ❌ Uses `Helpers::get_total_logged_events_count()` - cached option value
+- ❌ Counts ALL individual events ever logged in the database
+- ❌ Updated immediately after each event is logged via `Helpers::increase_total_logged_events_count()` (class-logger.php:1330)
+- ❌ Ignores occasionsID grouping - increments for every individual event
+
+**Insights Page & Email Reports (All Statistics):**
 - ❌ Count individual events using `Events_Stats->get_event_count()`
 - ❌ Query: `SELECT COUNT(DISTINCT h.id)` - counts unique database IDs  
 - ❌ Completely ignores `occasionsID` grouping
@@ -259,15 +279,18 @@ Priority files to update (to achieve consistent UTC handling):
 
 ### FILES INVOLVED IN GROUPING ISSUE
 
-**Event Counting (ALL use same flawed approach):**
-- `/inc/class-events-stats.php` - `get_event_count()` method (line 87): `SELECT COUNT(DISTINCT h.id)`
-- All sidebar, insights, and email report statistics use this method
-- Counts individual events, completely ignores occasionsID
+**Correctly Counting Occasions:**
+- `/inc/class-log-query.php` - `query_overview_mysql()` method groups by occasions (line 324: `GROUP BY historyWithRepeated.repeated`)
+- `/inc/class-events-stats.php` - `get_num_events_today()` (line 1771) uses Log_Query, counts occasions correctly
 
-**Occasion Grouping (Main log only):**
-- `/inc/class-log-query.php` - Complex occasion grouping logic (lines 270-271)
+**Incorrectly Counting Individual Events:**
+- `/inc/class-helpers.php` - `get_num_events_last_n_days()` (line 1307-1317): `SELECT count(*)` - counts ALL events
+- `/inc/class-events-stats.php` - `get_event_count()` method (line 87): `SELECT COUNT(DISTINCT h.id)` - counts individual events
+- All insights page and email report statistics use `get_event_count()` method
+
+**Occasion ID Definition:**
 - `/loggers/class-*.php` - Logger files define occasionsID patterns
-- Main log display respects grouping, but total counts still use individual events
+- `/loggers/class-logger.php` - `append_occasions_id_to_context()` (line 1567) generates the occasion IDs
 
 ### RECOMMENDED FIXES FOR GROUPING ISSUE
 
