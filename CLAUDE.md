@@ -2,6 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project info
+
+The code in this folder is for a WordPress plugin called Simple History.
+Read more about the plugin in @readme.txt.
+This folder contains the free "CORE" version of Simple History. There is also a premium version available.
+We want the core version to be fully useable for free users. Users who needs more functions and features are encouraged in a non-intrusive way to upgrade to the Premium version of the plugin. The premium version is an additional plugin, so both plugins must be installed. 
+
 ## Build/Test Commands
 
 -   Install: `composer install` && `npm install`
