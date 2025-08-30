@@ -321,6 +321,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+-   Removed experimental feature Gutenberg sidebar post history module. It is now part of the [Simple History Premium](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) add-on and available for all users of that plugin.
 -   Change "month" to 30 days instead of the previous 28 days.
     -   Why 30 Days is Better UX:
         -   User Expectations: Most people think of a month as 30 days, not 28
