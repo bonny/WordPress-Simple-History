@@ -2,6 +2,13 @@
 
 This file provides guidance to AI-agents like Claude Code, GitHub Copilot, Cursor, etc. working with code in this repository.
 
+## Project info
+
+The code in this folder is for a WordPress plugin called Simple History.
+Read more about the plugin in @readme.txt.
+This folder contains the free "CORE" version of Simple History. There is also a premium version available.
+We want the core version to be fully useable for free users. Users who needs more functions and features are encouraged in a non-intrusive way to upgrade to the Premium version of the plugin. The premium version is an additional plugin, so both plugins must be installed.
+
 ## Build and test commands
 
 -   Install: `composer install` && `npm install`
@@ -18,11 +25,12 @@ This file provides guidance to AI-agents like Claude Code, GitHub Copilot, Curso
 
 ## Code Style Guidelines
 
+-   Do things "The WordPress way" - if there is a standardized best practice WordPress way to do something do it that way.
 -   Prefixes: 'sh', 'simplehistory', 'simple_history'
 -   JS: WordPress scripts (@wordpress/scripts) conventions
-
 -   Proper escaping required for all output
 -   Text domain: 'simple-history'
+-   **Logger messages**: Use active tone that reads like someone telling you what happened. Messages should start with action verbs and be easily understood by regular users, not just developers (e.g., "Activated plugin", "Created menu", "Detected modifications" - as if someone is saying "WordPress/User did this thing")
 
 ### PHP coding guidelines
 
