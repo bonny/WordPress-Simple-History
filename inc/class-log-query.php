@@ -1119,11 +1119,8 @@ class Log_Query {
 			$one_logger_slug = $logger_instance->get_slug();
 			$one_logger_name = $one_logger['name'];
 
-			// Ensure messages are loaded before accessing them.
-			$logger_instance->ensure_messages_loaded();
-
 			/** @var array<string,array> */
-			$logger_instance_messages = $one_logger['instance']->messages;
+			$logger_instance_messages = $logger_instance->get_messages();
 
 			foreach ( $logger_instance_messages as $one_message_key => $one_message ) {
 				$translated_text = strtolower( $one_message['translated_text'] );

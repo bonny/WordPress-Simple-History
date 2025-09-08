@@ -714,14 +714,13 @@ abstract class Logger {
 				$message = __( $message, $row->context['_gettext_domain'] );
 			}
 		} else {
-			// Ensure messages are loaded before checking if key exists.
-			$this->ensure_messages_loaded();
-
-			if ( isset( $this->messages[ $message_key ]['translated_text'] ) ) {
+			$translated_message = $this->get_translated_message( $message_key );
+			
+			if ( $translated_message !== null ) {
 				// Check that messages does exist
 				// If we for example disable a Logger we may have references
 				// to message keys that are unavailable. If so then fallback to message.
-				$message = $this->messages[ $message_key ]['translated_text'];
+				$message = $translated_message;
 			} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
 					// Not message exists for message key. Just keep using message.
 			}
@@ -900,9 +899,11 @@ abstract class Logger {
 		}
 
 		$context['_message_key'] = $messageKey;
-		$message = $this->messages[ $messageKey ]['untranslated_text'];
-
-		$this->log( $SimpleLoggerLogLevelsLevel, $message, $context );
+		
+		$message = $this->get_untranslated_message( $messageKey );
+		if ( $message !== null ) {
+			$this->log( $SimpleLoggerLogLevelsLevel, $message, $context );
+		}
 	}
 
 	/**
@@ -951,17 +952,15 @@ abstract class Logger {
 	 * @param array  $context Context to log.
 	 */
 	public function critical_message( $message, array $context = array() ) {
-		// Ensure messages are loaded before checking if key exists.
-		$this->ensure_messages_loaded();
+		$untranslated_message = $this->get_untranslated_message( $message );
 
-		if ( ! isset( $this->messages[ $message ]['untranslated_text'] ) ) {
+		if ( $untranslated_message === null ) {
 			return;
 		}
 
 		$context['_message_key'] = $message;
-		$message = $this->messages[ $message ]['untranslated_text'];
 
-		$this->log( Log_Levels::CRITICAL, $message, $context );
+		$this->log( Log_Levels::CRITICAL, $untranslated_message, $context );
 	}
 
 	/**
@@ -1461,6 +1460,55 @@ abstract class Logger {
 
 		$this->load_messages();
 		$this->messages_loaded = true;
+	}
+
+	/**
+	 * Get a single message by message key.
+	 *
+	 * @param string $message_key The message key.
+	 * @return array|null Array with 'translated_text' and 'untranslated_text' keys, or null if not found.
+	 */
+	public function get_message_by_key( string $message_key ): ?array {
+		$this->ensure_messages_loaded();
+
+		if ( ! isset( $this->messages[ $message_key ] ) ) {
+			return null;
+		}
+
+		return $this->messages[ $message_key ];
+	}
+
+	/**
+	 * Get all messages for this logger.
+	 *
+	 * @return array Array of messages with message keys as keys and message data as values.
+	 */
+	public function get_messages(): array {
+		$this->ensure_messages_loaded();
+
+		return $this->messages;
+	}
+
+	/**
+	 * Get translated text for a message key.
+	 *
+	 * @param string $message_key The message key.
+	 * @return string|null Translated text or null if not found.
+	 */
+	public function get_translated_message( string $message_key ): ?string {
+		$message_data = $this->get_message_by_key( $message_key );
+		return $message_data['translated_text'] ?? null;
+	}
+
+	/**
+	 * Get untranslated text for a message key.
+	 *
+	 * @param string $message_key The message key.
+	 * @return string|null Untranslated text or null if not found.
+	 */
+	public function get_untranslated_message( string $message_key ): ?string {
+		$message_data = $this->get_message_by_key( $message_key );
+		return $message_data['untranslated_text'] ?? null;
 	}
 
 	/**
