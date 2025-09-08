@@ -326,6 +326,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Optimized logger message loading to use on-demand approach instead of loading all messages during initialization. This eliminates ~980 gettext filter calls on every page load, reducing them to zero on pages that don't use Simple History and only calling them when actually needed (when logging events or displaying the history page).
 -   Added new convenience methods to Logger class: `get_translated_message()`, `get_untranslated_message()`, `get_message_by_key()`, and `get_messages()` for cleaner message access.
 -   Optimized Plugin Logger by implementing conditional hook registration - gettext filters and auto-update detection now only run on the plugins.php page instead of globally, further reducing overhead on all other admin pages.
+- Simplify plugin action list hooks by only hooking into our plugin
 
 ### 5.16.0 (August 2025)
 

@@ -10,7 +10,7 @@ use Simple_History\Helpers;
 class Plugin_List_Link extends Service {
 	/** @inheritdoc */
 	public function loaded() {
-		add_filter( 'plugin_action_links', array( $this, 'on_plugin_action_links' ), 10, 4 );
+		add_filter( 'plugin_action_links_simple-history/index.php', array( $this, 'on_plugin_action_links' ), 10, 4 );
 	}
 
 	/**
@@ -25,10 +25,6 @@ class Plugin_List_Link extends Service {
 	 * @return array
 	 */
 	public function on_plugin_action_links( $actions, $plugin_file, $plugin_data, $context ) {
-		if ( 'simple-history/index.php' !== $plugin_file ) {
-			return $actions;
-		}
-
 		// Only add link if user has the right to view the settings page.
 		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
 			return $actions;
