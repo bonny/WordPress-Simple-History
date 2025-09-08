@@ -47,13 +47,24 @@ abstract class Logger {
 	 * which results in the original, untranslated, string being added to the log and database
 	 * the translated string are then only used when showing the log in the GUI.
 	 *
-	 * Example array contents for Swedish language and core updated logger:
+	 * Example array contents for Swedish language and core updates logger:
 	 * 
 	 *     [messages] => Array
 	 *     (
-	 *         [core_update_available] => Hittade en uppdatering till WordPress
-	 *         [plugin_update_available] => Hittade en uppdatering till tillägget ”{plugin_name}”
-	 *         [theme_update_available] => Hittade en uppdatering till temat ”{theme_name}”
+	 *         [core_updated] => Array
+	 *         (
+	 *             [untranslated_text] => Updated WordPress to {new_version} from {prev_version}
+	 *             [translated_text] => Uppdaterade WordPress till {new_version} från {prev_version}
+	 *             [domain] => simple-history
+	 *             [context] => null
+	 *         )
+	 *         [core_auto_updated] => Array
+	 *         (
+	 *             [untranslated_text] => WordPress auto-updated to {new_version} from {prev_version}
+	 *             [translated_text] => WordPress auto-uppdaterades till {new_version} från {prev_version}
+	 *             [domain] => simple-history
+	 *             [context] => null
+	 *         )
 	 *     )
 	 *
 	 * @var array $messages
