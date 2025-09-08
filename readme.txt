@@ -319,6 +319,13 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+**Performance**
+
+-   Optimized logger message loading to use on-demand approach instead of loading all messages during initialization. This eliminates ~980 gettext filter calls on every page load, reducing them to zero on pages that don't use Simple History and only calling them when actually needed (when logging events or displaying the history page).
+-   Added new convenience methods to Logger class: `get_translated_message()`, `get_untranslated_message()`, `get_message_by_key()`, and `get_messages()` for cleaner message access.
+
 ### 5.16.0 (August 2025)
 
 **Added**
