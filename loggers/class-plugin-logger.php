@@ -206,8 +206,8 @@ class Plugin_Logger extends Logger {
 
 		// There is no way to use a filter and detect a plugin that is disabled because it can't be found or similar error.
 		// So we hook into gettext and look for the usage of the error that is returned when this happens.
-		add_filter( 'gettext', array( $this, 'on_gettext_detect_plugin_error_deactivation_reason' ), 10, 3 );
-		add_filter( 'gettext', array( $this, 'on_gettext' ), 10, 3 );
+		// Only register gettext filters when on plugins.php page for better performance.
+		add_action( 'load-plugins.php', array( $this, 'on_load_plugins_page' ) );
 
 		// Detect plugin auto update change.
 		add_action( 'load-plugins.php', array( $this, 'handle_auto_update_change' ) );
@@ -220,6 +220,26 @@ class Plugin_Logger extends Logger {
 		add_action( 'deleted_plugin', array( $this, 'on_action_deleted_plugin' ), 10, 2 );
 
 		add_filter( 'upgrader_install_package_result', [ $this, 'on_upgrader_install_package_result' ], 10, 2 );
+		add_filter( 'gettext', array( $this, 'on_gettext_debug' ), 10, 3 );
+
+	}
+
+	public function on_gettext_debug( $translation, $text, $domain ) {
+		static $number_of_calls = 0;
+		$number_of_calls++;
+
+		sh_error_log( 'gettext, calls: ' . $number_of_calls);
+
+		return $translation;
+	}
+
+	/**
+	 * Register gettext filters when loading the plugins.php page for performance optimization.
+	 * Only register these filters when they're actually needed.
+	 */
+	public function on_load_plugins_page() {
+		add_filter( 'gettext', array( $this, 'on_gettext_detect_plugin_error_deactivation_reason' ), 10, 3 );
+		add_filter( 'gettext', array( $this, 'on_gettext' ), 10, 3 );
 	}
 
 	/**
