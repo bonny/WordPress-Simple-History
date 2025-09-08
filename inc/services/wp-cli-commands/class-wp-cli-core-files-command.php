@@ -325,7 +325,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 
 		// Get the cron hook name.
 		$cron_hook = Core_Files_Logger::CRON_HOOK;
-		
+
 		// Check if the logger is loaded.
 		$core_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesLogger' );
 		if ( $core_logger instanceof Core_Files_Logger ) {
@@ -338,7 +338,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 
 		// Check if the cron event is scheduled.
 		$next_scheduled = wp_next_scheduled( $cron_hook );
-		
+
 		if ( $next_scheduled ) {
 			WP_CLI::success( 'Integrity check cron job is scheduled' );
 			WP_CLI::log( 'Hook name: ' . $cron_hook );
@@ -355,18 +355,20 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		WP_CLI::log( '=== All Simple History Cron Events ===' );
 		$crons = _get_cron_array();
 		$found_sh_crons = false;
-		
+
 		foreach ( $crons as $timestamp => $cron ) {
 			foreach ( $cron as $hook => $dings ) {
 				if ( strpos( $hook, 'simple_history' ) !== false ) {
 					$found_sh_crons = true;
 					foreach ( $dings as $sig => $data ) {
-						WP_CLI::log( sprintf(
-							'- %s: %s (%s from now)',
-							$hook,
-							date( 'Y-m-d H:i:s', $timestamp ),
-							human_time_diff( time(), $timestamp )
-						) );
+						WP_CLI::log(
+							sprintf(
+								'- %s: %s (%s from now)',
+								$hook,
+								date( 'Y-m-d H:i:s', $timestamp ),
+								human_time_diff( time(), $timestamp )
+							)
+						);
 						if ( ! empty( $data['schedule'] ) ) {
 							WP_CLI::log( '  Schedule: ' . $data['schedule'] );
 						}
@@ -374,7 +376,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 				}
 			}
 		}
-		
+
 		if ( ! $found_sh_crons ) {
 			WP_CLI::log( 'No Simple History cron events found.' );
 		}
@@ -401,7 +403,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		WP_CLI::log( 'WordPress version: ' . $wp_version );
 		WP_CLI::log( 'Site locale: ' . get_locale() );
 		WP_CLI::log( 'Checksum locale used: en_US (hardcoded)' );
-		
+
 		// Test if checksums can be retrieved.
 		WP_CLI::log( '' );
 		WP_CLI::log( 'Testing checksum retrieval...' );

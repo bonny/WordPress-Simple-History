@@ -48,7 +48,7 @@ abstract class Logger {
 	 * the translated string are then only used when showing the log in the GUI.
 	 *
 	 * Example array contents for Swedish language and core updates logger:
-	 * 
+	 *
 	 *     [messages] => Array
 	 *     (
 	 *         [core_updated] => Array
@@ -715,7 +715,7 @@ abstract class Logger {
 			}
 		} else {
 			$translated_message = $this->get_translated_message( $message_key );
-			
+
 			if ( $translated_message !== null ) {
 				// Check that messages does exist
 				// If we for example disable a Logger we may have references
@@ -899,7 +899,7 @@ abstract class Logger {
 		}
 
 		$context['_message_key'] = $messageKey;
-		
+
 		$message = $this->get_untranslated_message( $messageKey );
 		if ( $message !== null ) {
 			$this->log( $SimpleLoggerLogLevelsLevel, $message, $context );
