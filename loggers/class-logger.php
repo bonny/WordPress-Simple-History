@@ -1557,11 +1557,6 @@ abstract class Logger {
 	 * @return string Translated text.
 	 */
 	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
-		static $number_of_calls = 0;
-		$number_of_calls++;
-
-		sh_error_log( 'filter_gettext (logger: ' . $this->get_slug() . '), calls: ' . $number_of_calls . ', domain: ' . $domain );
-
 		$this->messages[] = array(
 			'untranslated_text' => $untranslated_text,
 			'translated_text' => $translated_text,
@@ -1583,11 +1578,6 @@ abstract class Logger {
 	 * @return string Translated text.
 	 */
 	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
-		static $number_of_calls = 0;
-		$number_of_calls++;
-
-		sh_error_log( 'filter_gettext_with_context (logger: ' . $this->get_slug() . '), calls: ' . $number_of_calls . ', domain: ' . $domain );
-
 		$this->messages[] = array(
 			'untranslated_text' => $untranslated_text,
 			'translated_text' => $translated_text,
