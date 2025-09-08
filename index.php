@@ -87,12 +87,27 @@ $sh_loader->add_namespace( 'Simple_History\Event_Details', SIMPLE_HISTORY_PATH .
 $sh_loader->add_namespace( 'Simple_History\Services', SIMPLE_HISTORY_PATH . 'inc/services' );
 $sh_loader->add_namespace( 'Simple_History\Services', SIMPLE_HISTORY_PATH . 'inc/services/wp-cli-commands' );
 
-// Load code for old, deprecated things, that does not use autoloader.
-require_once __DIR__ . '/inc/deprecated/class-simplehistory.php';
-require_once __DIR__ . '/inc/deprecated/class-simplelogger.php';
-require_once __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php';
-require_once __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php';
-require_once __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php';
+// Register autoloader for deprecated classes - loaded only when actually used.
+spl_autoload_register( function( $class_name ) {
+	// Only handle our deprecated classes, let other autoloaders handle the rest.
+	$deprecated_classes = array(
+		'SimpleHistory' => __DIR__ . '/inc/deprecated/class-simplehistory.php',
+		'SimpleLogger' => __DIR__ . '/inc/deprecated/class-simplelogger.php',
+		'SimpleLoggerLogInitiators' => __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php',
+		'SimpleLoggerLogLevels' => __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php',
+		'SimpleHistoryLogQuery' => __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php',
+	);
+
+	// Only handle classes we know about.
+	if ( ! isset( $deprecated_classes[ $class_name ] ) ) {
+		return; // Let other autoloaders handle it.
+	}
+
+	// Check class doesn't already exist and file exists.
+	if ( ! class_exists( $class_name, false ) && file_exists( $deprecated_classes[ $class_name ] ) ) {
+		require_once $deprecated_classes[ $class_name ];
+	}
+} );
 
 // Create singleton instance of Simple History.
 // This runs constructor that calls init method.
