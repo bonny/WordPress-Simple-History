@@ -1114,10 +1114,13 @@ class Log_Query {
 		$words = preg_split( '/[\s,]+/', $searchstring );
 
 		foreach ( $loggers_user_can_read as $one_logger ) {
-			/** @var \Simple_History\Loggers\Simple_Logger $logger_instance */
+			/** @var \Simple_History\Loggers\Logger $logger_instance */
 			$logger_instance = $one_logger['instance'];
 			$one_logger_slug = $logger_instance->get_slug();
 			$one_logger_name = $one_logger['name'];
+
+			// Ensure messages are loaded before accessing them.
+			$logger_instance->ensure_messages_loaded();
 
 			/** @var array<string,array> */
 			$logger_instance_messages = $one_logger['instance']->messages;

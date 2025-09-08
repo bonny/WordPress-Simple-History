@@ -104,6 +104,13 @@ abstract class Logger {
 	public $db_table_contexts;
 
 	/**
+	 * Flag to track if messages have been loaded for this logger.
+	 *
+	 * @var bool
+	 */
+	private bool $messages_loaded = false;
+
+	/**
 	 * Constructor. Remember to call this as parent constructor if making a child logger.
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
@@ -695,13 +702,18 @@ abstract class Logger {
    				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.NonSingularStringLiteralText
 				$message = __( $message, $row->context['_gettext_domain'] );
 			}
-		} elseif ( isset( $this->messages[ $message_key ]['translated_text'] ) ) {
-			// Check that messages does exist
-			// If we for example disable a Logger we may have references
-			// to message keys that are unavailable. If so then fallback to message.
-			$message = $this->messages[ $message_key ]['translated_text'];
-		} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
-				// Not message exists for message key. Just keep using message.
+		} else {
+			// Ensure messages are loaded before checking if key exists.
+			$this->ensure_messages_loaded();
+
+			if ( isset( $this->messages[ $message_key ]['translated_text'] ) ) {
+				// Check that messages does exist
+				// If we for example disable a Logger we may have references
+				// to message keys that are unavailable. If so then fallback to message.
+				$message = $this->messages[ $message_key ]['translated_text'];
+			} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
+					// Not message exists for message key. Just keep using message.
+			}
 		}
 
 		$html = helpers::interpolate( $message, $row->context, $row );
@@ -843,6 +855,9 @@ abstract class Logger {
 		$messageKey,
 		$context
 	) {
+		// Ensure messages are loaded before checking if key exists.
+		$this->ensure_messages_loaded();
+
 		// When logging by message then the key must exist.
 		if ( ! isset( $this->messages[ $messageKey ]['untranslated_text'] ) ) {
 			return;
@@ -925,6 +940,9 @@ abstract class Logger {
 	 * @param array  $context Context to log.
 	 */
 	public function critical_message( $message, array $context = array() ) {
+		// Ensure messages are loaded before checking if key exists.
+		$this->ensure_messages_loaded();
+
 		if ( ! isset( $this->messages[ $message ]['untranslated_text'] ) ) {
 			return;
 		}
@@ -1416,6 +1434,109 @@ abstract class Logger {
 		</script>
 		<?php
 		*/
+	}
+
+	/**
+	 * Ensure messages are loaded for this logger instance.
+	 * This method will load messages on-demand using gettext filters,
+	 * similar to the previous global approach but per-logger.
+	 *
+	 * @return void
+	 */
+	private function ensure_messages_loaded(): void {
+		if ( $this->messages_loaded ) {
+			return;
+		}
+
+		$this->load_messages();
+		$this->messages_loaded = true;
+	}
+
+	/**
+	 * Load messages for this logger using gettext filters.
+	 * This is the same approach as the global loader but applied per-logger.
+	 *
+	 * @return void
+	 */
+	private function load_messages(): void {
+		// Temporarily add gettext filters for this logger only.
+		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
+		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
+
+		// Get logger info to trigger translations.
+		$logger_info = $this->get_info();
+
+		// Remove gettext filters immediately.
+		remove_filter( 'gettext', array( $this, 'filter_gettext' ), 20 );
+		remove_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20 );
+
+		// Process messages (same logic as original Loggers_Loader).
+		$arr_messages_by_message_key = array();
+
+		if ( isset( $logger_info['messages'] ) && is_array( $logger_info['messages'] ) ) {
+			foreach ( $logger_info['messages'] as $message_key => $message_translated ) {
+				// Find message in array with both translated and non translated strings.
+				foreach ( $this->messages as $one_message_with_translation_info ) {
+					if ( $message_translated == $one_message_with_translation_info['translated_text'] ) {
+						$arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
+						continue;
+					}
+				}
+			}
+		}
+
+		$this->messages = $arr_messages_by_message_key;
+	}
+
+	/**
+	 * Store both translated and untranslated versions of a text.
+	 * Moved from Loggers_Loader to work per-logger.
+	 *
+	 * @param string $translated_text Translated text.
+	 * @param string $untranslated_text Untranslated text.
+	 * @param string $domain Text domain. Unique identifier for retrieving translated strings.
+	 * @return string Translated text.
+	 */
+	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
+		static $number_of_calls = 0;
+		$number_of_calls++;
+
+		sh_error_log( 'filter_gettext (logger: ' . $this->get_slug() . '), calls: ' . $number_of_calls . ', domain: ' . $domain );
+
+		$this->messages[] = array(
+			'untranslated_text' => $untranslated_text,
+			'translated_text' => $translated_text,
+			'domain' => $domain,
+			'context' => null,
+		);
+
+		return $translated_text;
+	}
+
+	/**
+	 * Store both translated and untranslated versions of a text with context.
+	 * Moved from Loggers_Loader to work per-logger.
+	 *
+	 * @param string $translated_text Translated text.
+	 * @param string $untranslated_text Untranslated text.
+	 * @param string $context Context information for the translators.
+	 * @param string $domain Text domain. Unique identifier for retrieving translated strings.
+	 * @return string Translated text.
+	 */
+	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
+		static $number_of_calls = 0;
+		$number_of_calls++;
+
+		sh_error_log( 'filter_gettext_with_context (logger: ' . $this->get_slug() . '), calls: ' . $number_of_calls . ', domain: ' . $domain );
+
+		$this->messages[] = array(
+			'untranslated_text' => $untranslated_text,
+			'translated_text' => $translated_text,
+			'domain' => $domain,
+			'context' => $context,
+		);
+
+		return $translated_text;
 	}
 
 	/**

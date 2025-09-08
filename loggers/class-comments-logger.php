@@ -549,6 +549,8 @@ class Comments_Logger extends Logger {
 		// Message is untranslated here, so get translated text
 		// Can't call parent __FUNCTION__ because it will interpolate too, which we don't want.
 		if ( ! empty( $message_key ) ) {
+			// Ensure messages are loaded before accessing them.
+			$this->ensure_messages_loaded();
 			$message = $this->messages[ $message_key ]['translated_text'];
 		}
 
