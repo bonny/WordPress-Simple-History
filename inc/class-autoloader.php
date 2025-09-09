@@ -170,6 +170,12 @@ class Autoloader {
 			. $path_and_file_lowercased_and_prefixed
 			. '.php';
 
+			// if the mapped file with "class-" prefix exists, require it.
+			if ( $this->require_file( $file_with_class_prefix ) ) {
+				// yes, we're done.
+				return $file_with_class_prefix;
+			}
+
 			// Check for file with prefixed 'namespace-' and lowercase filename.
 			$path_and_file_lowercased_and_prefixed_with_interface = strtolower( $path_and_file );
 			$path_and_file_lowercased_and_prefixed_with_interface = str_replace( '_', '-', $path_and_file_lowercased_and_prefixed_with_interface );
@@ -177,13 +183,7 @@ class Autoloader {
 			if ( ! str_contains( $path_and_file_lowercased_and_prefixed_with_interface, 'interface-' ) ) {
 				$path_and_file_lowercased_and_prefixed_with_interface = "interface-{$path_and_file_lowercased_and_prefixed_with_interface}";
 			}
-
-			// if the mapped file with "class-" prefix exists, require it.
-			if ( $this->require_file( $file_with_class_prefix ) ) {
-				// yes, we're done.
-				return $file_with_class_prefix;
-			}
-
+			
 			$file_with_interface_prefix = $base_dir . $path_and_file_lowercased_and_prefixed_with_interface . '.php';
 
 			// if the mapped file with "class-" prefix exists, require it.
