@@ -1402,6 +1402,97 @@ abstract class Logger {
 	}
 
 	/**
+	 * Append new info to the context of history item using batch inserts for better performance.
+	 * This method uses size-based batching to ensure queries stay within database limits.
+	 *
+	 * @param int   $history_id The id of the history row to add context to.
+	 * @param array $context Context to append to existing context for the row.
+	 * @return bool True if context was added, false if not (because row_id or context is empty).
+	 */
+	public function append_context_batched( $history_id, $context ) {
+		if ( empty( $history_id ) || empty( $context ) ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		// Conservative batch size: 500KB to ensure compatibility with 4MB max_allowed_packet.
+		$batch_max_size_bytes = 500000;
+		$current_batch_size = 0;
+		$current_batch = array();
+		// Array of batches, where each batch is an associative array of key => value pairs.
+		// Each batch will be inserted with a single query.
+		// Example structure:
+		// [
+		//     0 => ['post_title' => 'Hello', 'post_status' => 'publish', 'post_author' => '1'],  // Batch 1: 3 items, 1 query
+		//     1 => ['post_content' => 'Large content...', 'post_excerpt' => 'Summary...'],        // Batch 2: 2 items, 1 query
+		// ]
+		$batches = array();
+
+		foreach ( $context as $context_key => $context_value ) {
+			// Everything except strings should be json_encoded.
+			if ( ! is_string( $context_value ) ) {
+				$context_value = Helpers::json_encode( $context_value );
+			}
+
+			// Calculate size of this item: key + value + SQL overhead.
+			// Add 100 bytes for SQL syntax, quotes, escaping overhead.
+			$item_size = strlen( $context_key ) + strlen( $context_value ) + 100;
+
+			// If single item is larger than the batch max size, handle it separately.
+			if ( $item_size > $batch_max_size_bytes ) {
+				// Flush current batch first.
+				if ( ! empty( $current_batch ) ) {
+					$batches[] = $current_batch;
+					$current_batch = array();
+					$current_batch_size = 0;
+				}
+
+				// Add oversized item as single-item batch.
+				$batches[] = array( $context_key => $context_value );
+				continue;
+			}
+
+			// If adding this item would exceed batch size, start new batch.
+			if ( $current_batch_size + $item_size > $batch_max_size_bytes && ! empty( $current_batch ) ) {
+				$batches[] = $current_batch;
+				$current_batch = [];
+				$current_batch_size = 0;
+			}
+
+			$current_batch[ $context_key ] = $context_value;
+			$current_batch_size += $item_size;
+		}
+
+		// Add final batch if not empty.
+		if ( ! empty( $current_batch ) ) {
+			$batches[] = $current_batch;
+		}
+
+		// Execute batches.
+		foreach ( $batches as $batch ) {
+			// Build batch insert query.
+			$values = array();
+			$placeholders = array();
+
+			foreach ( $batch as $context_key => $context_value ) {
+				$values[] = $history_id;
+				$values[] = $context_key;
+				$values[] = $context_value;
+				$placeholders[] = '(%d, %s, %s)';
+			}
+
+			// Execute batch insert.
+			$sql = "INSERT INTO {$this->db_table_contexts} (history_id, `key`, value) VALUES " 
+				. implode( ', ', $placeholders );
+
+			$wpdb->query( $wpdb->prepare( $sql, $values ) );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Returns additional headers with ip numbers from context.
 	 *
 	 * @since 2.0.29
