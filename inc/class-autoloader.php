@@ -170,7 +170,6 @@ class Autoloader {
 			// if the mapped file with "class-" prefix exists, require it.
 			// <path>/WordPress-Simple-History/inc/services/class-admin-pages.php
 			if ( $this->require_file( $file_with_class_prefix ) ) {
-				sh_error_log( $file_with_class_prefix );
 				// yes, we're done.
 				return $file_with_class_prefix;
 			}
