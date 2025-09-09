@@ -166,9 +166,7 @@ class Autoloader {
 				$path_and_file_lowercased_and_prefixed = "class-{$path_and_file_lowercased_and_prefixed}";
 			}
 
-			$file_with_class_prefix = $base_dir
-			. $path_and_file_lowercased_and_prefixed
-			. '.php';
+			$file_with_class_prefix = $base_dir . $path_and_file_lowercased_and_prefixed . '.php';
 
 			// if the mapped file with "class-" prefix exists, require it.
 			if ( $this->require_file( $file_with_class_prefix ) ) {
