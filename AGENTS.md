@@ -2,6 +2,8 @@
 
 This file provides guidance to AI-agents like Claude Code, GitHub Copilot, Cursor, etc. working with code in this repository.
 
+@.cursor/rules/
+
 ## Project info
 
 The code in this folder is for a WordPress plugin called Simple History.
