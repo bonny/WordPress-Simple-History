@@ -7,7 +7,6 @@ use DateInterval;
 use DatePeriod;
 use Simple_History\Helpers;
 use Simple_History\Menu_Manager;
-use Simple_History\Log_Query;
 use Simple_History\Events_Stats;
 use Simple_History\Stats_View;
 use Simple_History\Constants;
