@@ -47,6 +47,26 @@ abstract class Logger {
 	 * which results in the original, untranslated, string being added to the log and database
 	 * the translated string are then only used when showing the log in the GUI.
 	 *
+	 * Example array contents for Swedish language and core updates logger:
+	 *
+	 *     [messages] => Array
+	 *     (
+	 *         [core_updated] => Array
+	 *         (
+	 *             [untranslated_text] => Updated WordPress to {new_version} from {prev_version}
+	 *             [translated_text] => Uppdaterade WordPress till {new_version} från {prev_version}
+	 *             [domain] => simple-history
+	 *             [context] => null
+	 *         )
+	 *         [core_auto_updated] => Array
+	 *         (
+	 *             [untranslated_text] => WordPress auto-updated to {new_version} from {prev_version}
+	 *             [translated_text] => WordPress auto-uppdaterades till {new_version} från {prev_version}
+	 *             [domain] => simple-history
+	 *             [context] => null
+	 *         )
+	 *     )
+	 *
 	 * @var array $messages
 	 */
 	public $messages;
@@ -93,6 +113,13 @@ abstract class Logger {
 	 * @var string
 	 */
 	public $db_table_contexts;
+
+	/**
+	 * Flag to track if messages have been loaded for this logger.
+	 *
+	 * @var bool
+	 */
+	private bool $messages_loaded = false;
 
 	/**
 	 * Constructor. Remember to call this as parent constructor if making a child logger.
@@ -686,13 +713,17 @@ abstract class Logger {
    				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralDomain, WordPress.WP.I18n.NonSingularStringLiteralText
 				$message = __( $message, $row->context['_gettext_domain'] );
 			}
-		} elseif ( isset( $this->messages[ $message_key ]['translated_text'] ) ) {
-			// Check that messages does exist
-			// If we for example disable a Logger we may have references
-			// to message keys that are unavailable. If so then fallback to message.
-			$message = $this->messages[ $message_key ]['translated_text'];
-		} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
-				// Not message exists for message key. Just keep using message.
+		} else {
+			$translated_message = $this->get_translated_message( $message_key );
+
+			if ( $translated_message !== null ) {
+				// Check that messages does exist
+				// If we for example disable a Logger we may have references
+				// to message keys that are unavailable. If so then fallback to message.
+				$message = $translated_message;
+			} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
+					// Not message exists for message key. Just keep using message.
+			}
 		}
 
 		$html = helpers::interpolate( $message, $row->context, $row );
@@ -834,6 +865,9 @@ abstract class Logger {
 		$messageKey,
 		$context
 	) {
+		// Ensure messages are loaded before checking if key exists.
+		$this->ensure_messages_loaded();
+
 		// When logging by message then the key must exist.
 		if ( ! isset( $this->messages[ $messageKey ]['untranslated_text'] ) ) {
 			return;
@@ -865,9 +899,11 @@ abstract class Logger {
 		}
 
 		$context['_message_key'] = $messageKey;
-		$message = $this->messages[ $messageKey ]['untranslated_text'];
 
-		$this->log( $SimpleLoggerLogLevelsLevel, $message, $context );
+		$message = $this->get_untranslated_message( $messageKey );
+		if ( $message !== null ) {
+			$this->log( $SimpleLoggerLogLevelsLevel, $message, $context );
+		}
 	}
 
 	/**
@@ -916,14 +952,15 @@ abstract class Logger {
 	 * @param array  $context Context to log.
 	 */
 	public function critical_message( $message, array $context = array() ) {
-		if ( ! isset( $this->messages[ $message ]['untranslated_text'] ) ) {
+		$untranslated_message = $this->get_untranslated_message( $message );
+
+		if ( $untranslated_message === null ) {
 			return;
 		}
 
 		$context['_message_key'] = $message;
-		$message = $this->messages[ $message ]['untranslated_text'];
 
-		$this->log( Log_Levels::CRITICAL, $message, $context );
+		$this->log( Log_Levels::CRITICAL, $untranslated_message, $context );
 	}
 
 	/**
@@ -1340,6 +1377,9 @@ abstract class Logger {
 	 * @return bool True if context was added, false if not (because row_id or context is empty).
 	 */
 	public function append_context( $history_id, $context ) {
+		// Use new batched method.
+		return $this->append_context_batched( $history_id, $context );
+
 		if ( empty( $history_id ) || empty( $context ) ) {
 			return false;
 		}
@@ -1359,6 +1399,126 @@ abstract class Logger {
 			);
 
 			$wpdb->insert( $this->db_table_contexts, $data );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Append new info to the context of history item using batch inserts for better performance.
+	 * This method uses size-based batching to ensure queries stay within database limits.
+	 *
+	 * @param int   $history_id The id of the history row to add context to.
+	 * @param array $context Context to append to existing context for the row.
+	 * @return bool True if context was added, false if not (because row_id or context is empty).
+	 */
+	public function append_context_batched( $history_id, $context ) {
+		if ( empty( $history_id ) || empty( $context ) ) {
+			return false;
+		}
+
+		global $wpdb;
+
+		// Debug tracking variables.
+		$debug_total_size = 0;
+		$debug_total_items = count( $context );
+		$debug_start_time = microtime( true );
+
+		// Conservative batch size: 500KB to ensure compatibility with 4MB max_allowed_packet.
+		$batch_max_size_bytes = 500000;
+		$current_batch_size = 0;
+		$current_batch = array();
+
+		/*
+		 * Array of batches, where each batch is an associative array of key => value pairs.
+		 * Each batch will be inserted with a single query.
+		 * Example structure:
+		 * [
+		 *     0 => ['post_title' => 'Hello', 'post_status' => 'publish', 'post_author' => '1'],  // Batch 1: 3 items, 1 query.
+		 *     1 => ['post_content' => 'Large content...', 'post_excerpt' => 'Summary...'],        // Batch 2: 2 items, 1 query.
+		 * ]
+		 */
+		$batches = array();
+
+		foreach ( $context as $context_key => $context_value ) {
+			// Everything except strings should be json_encoded.
+			if ( ! is_string( $context_value ) ) {
+				$context_value = Helpers::json_encode( $context_value );
+			}
+
+			// Calculate size of this item: key + value + SQL overhead.
+			// Add 100 bytes for SQL syntax, quotes, escaping overhead.
+			$item_size = strlen( $context_key ) + strlen( $context_value ) + 100;
+			$debug_total_size += $item_size;
+
+			// If single item is larger than the batch max size, handle it separately.
+			if ( $item_size > $batch_max_size_bytes ) {
+				// Flush current batch first.
+				if ( ! empty( $current_batch ) ) {
+					$batches[] = $current_batch;
+					$current_batch = array();
+					$current_batch_size = 0;
+				}
+
+				// Add oversized item as single-item batch.
+				$batches[] = array( $context_key => $context_value );
+				continue;
+			}
+
+			// If adding this item would exceed batch size, start new batch.
+			if ( $current_batch_size + $item_size > $batch_max_size_bytes && ! empty( $current_batch ) ) {
+				$batches[] = $current_batch;
+				$current_batch = array();
+				$current_batch_size = 0;
+			}
+
+			$current_batch[ $context_key ] = $context_value;
+			$current_batch_size += $item_size;
+		}
+
+		// Add final batch if not empty.
+		if ( ! empty( $current_batch ) ) {
+			$batches[] = $current_batch;
+		}
+
+		// Execute batches.
+		foreach ( $batches as $batch ) {
+			// Build batch insert query.
+			$values = array();
+			$placeholders = array();
+
+			foreach ( $batch as $context_key => $context_value ) {
+				$values[] = $history_id;
+				$values[] = $context_key;
+				$values[] = $context_value;
+				$placeholders[] = '(%d, %s, %s)';
+			}
+
+			// Execute batch insert.
+			$sql = "INSERT INTO {$this->db_table_contexts} (history_id, `key`, value) VALUES "
+				. implode( ', ', $placeholders );
+
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is prepared on the next line.
+			$wpdb->query( $wpdb->prepare( $sql, $values ) );
+		}
+
+		// Log debug summary if debug logging is enabled.
+		$enable_debug = false;
+		if ( $enable_debug ) {
+			$debug_elapsed_time = microtime( true ) - $debug_start_time;
+			$debug_num_batches = count( $batches );
+			$debug_avg_batch_size = $debug_num_batches > 0 ? round( $debug_total_size / $debug_num_batches ) : 0;
+
+			sh_error_log(
+				'[append_context_batched]',
+				'history_id=' . $history_id,
+				'items=' . $debug_total_items,
+				'total_size=' . size_format( $debug_total_size ),
+				'batches=' . $debug_num_batches,
+				'queries=' . $debug_num_batches,
+				'avg_batch=' . size_format( $debug_avg_batch_size ),
+				'time=' . $debug_elapsed_time . 's'
+			);
 		}
 
 		return true;
@@ -1407,6 +1567,148 @@ abstract class Logger {
 		</script>
 		<?php
 		*/
+	}
+
+	/**
+	 * Ensure messages are loaded for this logger instance.
+	 * This method will load messages on-demand using gettext filters,
+	 * similar to the previous global approach but per-logger.
+	 *
+	 * @return void
+	 */
+	private function ensure_messages_loaded(): void {
+		if ( $this->messages_loaded ) {
+			return;
+		}
+
+		$this->load_messages();
+		$this->messages_loaded = true;
+	}
+
+	/**
+	 * Get a single message by message key.
+	 *
+	 * @param string $message_key The message key.
+	 * @return array|null Array with 'translated_text' and 'untranslated_text' keys, or null if not found.
+	 */
+	public function get_message_by_key( string $message_key ): ?array {
+		$this->ensure_messages_loaded();
+
+		if ( ! isset( $this->messages[ $message_key ] ) ) {
+			return null;
+		}
+
+		return $this->messages[ $message_key ];
+	}
+
+	/**
+	 * Get all messages for this logger.
+	 *
+	 * @return array Array of messages with message keys as keys and message data as values.
+	 */
+	public function get_messages(): array {
+		$this->ensure_messages_loaded();
+
+		return $this->messages;
+	}
+
+	/**
+	 * Get translated text for a message key.
+	 *
+	 * @param string $message_key The message key.
+	 * @return string|null Translated text or null if not found.
+	 */
+	public function get_translated_message( string $message_key ): ?string {
+		$message_data = $this->get_message_by_key( $message_key );
+		return $message_data['translated_text'] ?? null;
+	}
+
+	/**
+	 * Get untranslated text for a message key.
+	 *
+	 * @param string $message_key The message key.
+	 * @return string|null Untranslated text or null if not found.
+	 */
+	public function get_untranslated_message( string $message_key ): ?string {
+		$message_data = $this->get_message_by_key( $message_key );
+		return $message_data['untranslated_text'] ?? null;
+	}
+
+	/**
+	 * Load messages for this logger using gettext filters.
+	 * This is the same approach as the global loader but applied per-logger.
+	 *
+	 * @return void
+	 */
+	private function load_messages(): void {
+		// Temporarily add gettext filters for this logger only.
+		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
+		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
+
+		// Get logger info to trigger translations.
+		$logger_info = $this->get_info();
+
+		// Remove gettext filters immediately.
+		remove_filter( 'gettext', array( $this, 'filter_gettext' ), 20 );
+		remove_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20 );
+
+		// Process messages (same logic as original Loggers_Loader).
+		$arr_messages_by_message_key = array();
+
+		if ( isset( $logger_info['messages'] ) && is_array( $logger_info['messages'] ) ) {
+			foreach ( $logger_info['messages'] as $message_key => $message_translated ) {
+				// Find message in array with both translated and non translated strings.
+				foreach ( $this->messages as $one_message_with_translation_info ) {
+					if ( $message_translated == $one_message_with_translation_info['translated_text'] ) {
+						$arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
+						continue;
+					}
+				}
+			}
+		}
+
+		$this->messages = $arr_messages_by_message_key;
+	}
+
+	/**
+	 * Store both translated and untranslated versions of a text.
+	 * Moved from Loggers_Loader to work per-logger.
+	 *
+	 * @param string $translated_text Translated text.
+	 * @param string $untranslated_text Untranslated text.
+	 * @param string $domain Text domain. Unique identifier for retrieving translated strings.
+	 * @return string Translated text.
+	 */
+	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
+		$this->messages[] = array(
+			'untranslated_text' => $untranslated_text,
+			'translated_text' => $translated_text,
+			'domain' => $domain,
+			'context' => null,
+		);
+
+		return $translated_text;
+	}
+
+	/**
+	 * Store both translated and untranslated versions of a text with context.
+	 * Moved from Loggers_Loader to work per-logger.
+	 *
+	 * @param string $translated_text Translated text.
+	 * @param string $untranslated_text Untranslated text.
+	 * @param string $context Context information for the translators.
+	 * @param string $domain Text domain. Unique identifier for retrieving translated strings.
+	 * @return string Translated text.
+	 */
+	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
+		$this->messages[] = array(
+			'untranslated_text' => $untranslated_text,
+			'translated_text' => $translated_text,
+			'domain' => $domain,
+			'context' => $context,
+		);
+
+		return $translated_text;
 	}
 
 	/**

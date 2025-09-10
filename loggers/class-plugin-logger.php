@@ -206,11 +206,8 @@ class Plugin_Logger extends Logger {
 
 		// There is no way to use a filter and detect a plugin that is disabled because it can't be found or similar error.
 		// So we hook into gettext and look for the usage of the error that is returned when this happens.
-		add_filter( 'gettext', array( $this, 'on_gettext_detect_plugin_error_deactivation_reason' ), 10, 3 );
-		add_filter( 'gettext', array( $this, 'on_gettext' ), 10, 3 );
-
-		// Detect plugin auto update change.
-		add_action( 'load-plugins.php', array( $this, 'handle_auto_update_change' ) );
+		// Only register gettext filters and auto-update hooks when on plugins.php page for better performance.
+		add_action( 'load-plugins.php', array( $this, 'on_load_plugins_page' ) );
 		add_action( 'wp_ajax_toggle-auto-updates', array( $this, 'handle_auto_update_change' ), 1, 1 );
 
 		// Log plugin deletions, i.e. when a user click "Delete" in the plugins listing
@@ -220,6 +217,18 @@ class Plugin_Logger extends Logger {
 		add_action( 'deleted_plugin', array( $this, 'on_action_deleted_plugin' ), 10, 2 );
 
 		add_filter( 'upgrader_install_package_result', [ $this, 'on_upgrader_install_package_result' ], 10, 2 );
+	}
+
+	/**
+	 * Register gettext filters and handle auto-update when loading the plugins.php page for performance optimization.
+	 * Only register these filters and run functionality when they're actually needed.
+	 */
+	public function on_load_plugins_page() {
+		add_filter( 'gettext', array( $this, 'on_gettext_detect_plugin_error_deactivation_reason' ), 10, 3 );
+		add_filter( 'gettext', array( $this, 'on_gettext' ), 10, 3 );
+		
+		// Handle auto-update change detection
+		$this->handle_auto_update_change();
 	}
 
 	/**

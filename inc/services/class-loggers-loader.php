@@ -10,20 +10,6 @@ use Simple_History\Loggers\Logger;
  * Class that load loggers.
  */
 class Loggers_Loader extends Service {
-	/**
-	 * Bool if gettext filter function should be active
-	 * Should only be active during the load of a logger
-	 *
-	 * @var bool
-	 */
-	private bool $do_filter_gettext = false;
-
-	/**
-	 * Used by gettext filter to temporarily store current logger.
-	 *
-	 * @var \Simple_History\Loggers\Logger
-	 */
-	private $do_filter_gettext_current_logger;
 
 	/** @inheritdoc */
 	public function loaded() {
@@ -81,10 +67,6 @@ class Loggers_Loader extends Service {
 			$arr_loggers_to_instantiate
 		);
 
-		// Add gettext filters so we can get untranslated messages.
-		add_filter( 'gettext', array( $this, 'filter_gettext' ), 20, 3 );
-		add_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20, 4 );
-
 		// Instantiate each logger.
 		foreach ( $arr_loggers_to_instantiate as $one_logger_class ) {
 			$is_valid_logger_subclass = is_subclass_of( $one_logger_class, Logger::class );
@@ -101,10 +83,6 @@ class Loggers_Loader extends Service {
 			if ( $logger_instance->is_enabled() ) {
 				$logger_instance->loaded();
 			}
-
-			// Tell gettext-filter to add untranslated messages.
-			$this->do_filter_gettext = true;
-			$this->do_filter_gettext_current_logger = $logger_instance;
 
 			$logger_info = $logger_instance->get_info();
 
@@ -145,29 +123,6 @@ class Loggers_Loader extends Service {
 				);
 			}
 
-			// Un-tell gettext filter.
-			$this->do_filter_gettext = false;
-			$this->do_filter_gettext_current_logger = null;
-
-			// LoggerInfo contains all messages, both translated an not, by key.
-			// Add messages to the loggerInstance.
-			$arr_messages_by_message_key = array();
-
-			// Check that required content in messages array exist.
-			if ( isset( $logger_info['messages'] ) && is_array( $logger_info['messages'] ) ) {
-				foreach ( $logger_info['messages'] as $message_key => $message_translated ) {
-					// Find message in array with both translated and non translated strings.
-					foreach ( $logger_instance->messages as $one_message_with_translation_info ) {
-						if ( $message_translated == $one_message_with_translation_info['translated_text'] ) {
-							$arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
-							continue;
-						}
-					}
-				}
-			}
-
-			$logger_instance->messages = $arr_messages_by_message_key;
-
 			$instantiated_loggers[ $logger_instance->get_slug() ] = array(
 				'name' => $logger_instance->get_info_value_by_key( 'name' ),
 				'instance' => $logger_instance,
@@ -175,10 +130,6 @@ class Loggers_Loader extends Service {
 		} // End foreach().
 
 		$this->simple_history->set_instantiated_loggers( $instantiated_loggers );
-
-		// Remove getText filters.
-		remove_filter( 'gettext', array( $this, 'filter_gettext' ), 20 );
-		remove_filter( 'gettext_with_context', array( $this, 'filter_gettext_with_context' ), 20 );
 
 		/**
 		 * Fired when all loggers are instantiated.
@@ -195,48 +146,5 @@ class Loggers_Loader extends Service {
 		 * @since 4.0
 		 */
 		do_action( 'simple_history/loggers/instantiated', $this->simple_history );
-	}
-
-	/**
-	 * Store both translated and untranslated versions of a text.
-	 *
-	 * @param string $translated_text Translated text.
-	 * @param string $untranslated_text Untranslated text.
-	 * @param string $domain Text domain. Unique identifier for retrieving translated strings.
-	 * @return string Translated text.
-	 */
-	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
-		if ( $this->do_filter_gettext ) {
-			$this->do_filter_gettext_current_logger->messages[] = array(
-				'untranslated_text' => $untranslated_text,
-				'translated_text' => $translated_text,
-				'domain' => $domain,
-				'context' => null,
-			);
-		}
-
-		return $translated_text;
-	}
-
-	/**
-	 * Store both translated and untranslated versions of a text with context.
-	 *
-	 * @param string $translated_text Translated text.
-	 * @param string $untranslated_text Untranslated text.
-	 * @param string $context Context information for the translators.
-	 * @param string $domain Text domain. Unique identifier for retrieving translated strings.
-	 * @return string Translated text.
-	 */
-	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
-		if ( $this->do_filter_gettext ) {
-			$this->do_filter_gettext_current_logger->messages[] = array(
-				'untranslated_text' => $untranslated_text,
-				'translated_text' => $translated_text,
-				'domain' => $domain,
-				'context' => $context,
-			);
-		}
-
-		return $translated_text;
 	}
 }

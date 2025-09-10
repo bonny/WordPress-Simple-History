@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.8
-Stable tag: 5.15.0
+Stable tag: 5.16.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -321,16 +321,31 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
--   Change "month" to 30 days instead of the previous 28 days.
-    -   Why 30 Days is Better UX:
-        -   User Expectations: Most people think of a month as 30 days, not 28
-        -   Standard Periods: 30 days aligns with common business and reporting cycles
-        -   Easier Calculations: 30 days is easier to work with than 28 days
-        -   Better Alignment: More closely matches actual calendar months (most months are 30-31 days)
-        -   Consistent with Other Systems: Many analytics and reporting tools use 30-day periods
--   Correct query in get_successful_logins_details(), so the stats page shows the list of successful logins.
--   Store id of post revision for post/page updates.
--   Add `strategy: 'defer'` to the admin bar script, to minimize the impact of the script on the page load time.
+**Performance**
+
+-   Optimized logger message loading to use on-demand approach instead of loading all messages during initialization. This eliminates ~980 gettext filter calls on every page load, reducing them to zero on pages that don't use Simple History and only calling them when actually needed (when logging events or displaying the history page).
+-   Added new convenience methods to Logger class: `get_translated_message()`, `get_untranslated_message()`, `get_message_by_key()`, and `get_messages()` for cleaner message access.
+-   Optimized Plugin Logger by implementing conditional hook registration - gettext filters and auto-update detection now only run on the plugins.php page instead of globally, further reducing overhead on all other admin pages.
+-   Simplify plugin action list hooks by only hooking into our plugin
+-   Add autoloading of deprecated classes, so they are only loaded if needed
+-   Optimized context handling in Logger class by implementing size-based batch inserts. This improves performance when logging events with many context items.
+
+### 5.16.0 (August 2025)
+
+**Added**
+
+-   Revision Post ID, if available, is stored in event context for post/page updates.
+-   Stats API responses now include human-readable, localized date formats.
+
+**Changed**
+
+-   The [_Post Activity Panel_](https://simple-history.com/features/post-activity-panel/) feature is now part of the [Simple History Premium](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) add-on and available for all users of that plugin. It was previously an experimental feature in the main plugin.
+-   The number of days for a month in sidebar stats is now 30 days instead of the previous 28 days, to make it more standard and consistent with common business and reporting cycles.
+-   The scripts for the [_Admin Bar Quick View_](https://simple-history.com/features/admin-bar-quick-view/) is now loaded using `strategy: 'defer'` to improve performance.
+
+**Fixed**
+
+-   Correct query in get_successful_logins_details(), so it will correctly fetch successful logins.
 
 ### 5.15.0 (August 2025)
 
