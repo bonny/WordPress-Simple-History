@@ -223,9 +223,9 @@ Priority files to update (to achieve consistent UTC handling):
 
 **Sidebar "Today" Count:**
 - ✅ CORRECTLY uses `Log_Query` class via `Events_Stats::get_num_events_today()`
-- ✅ Counts grouped occasions (same as main log) when using MySQL
-- ✅ Respects occasionsID grouping for MySQL databases
-- ⚠️ Note: SQLite databases will use ungrouped counting
+- ✅ Counts grouped occasions (same as main log)
+- ✅ Respects occasionsID grouping via `GROUP BY historyWithRepeated.repeated`
+- ✅ `total_row_count` counts the grouped results, not individual events
 
 **Sidebar "Week" and "Month" Counts:**
 - ❌ Uses direct SQL query via `Helpers::get_num_events_last_n_days()`
@@ -312,12 +312,191 @@ WHERE /* existing filters */
 - Allow users to choose: "Count individual events" vs "Count grouped occasions"
 - Display both counts in statistics: "45 occasions (156 individual events)"
 
-### PRIORITY ORDER OF ISSUES
+### PRIORITY ORDER OF ALL ISSUES FOUND
 
 1. **🔥 CRITICAL:** Occasion grouping mismatch (can cause 100x+ discrepancies)
-2. **⚠️ HIGH:** Timezone inconsistencies (can cause day-boundary mismatches)  
-3. **📝 MEDIUM:** Different time window calculations (28 vs 30 days, etc.)
+2. **⚠️ HIGH:** User permission cache issue (wrong counts for different user roles)
+3. **⚠️ HIGH:** Timezone inconsistencies (can cause day-boundary mismatches)  
+4. **📝 MEDIUM:** Different time window calculations (28 vs 30 days, etc.)
 
 ### CONCLUSION
 
 **The occasion grouping mismatch is likely the PRIMARY cause of user-reported statistics discrepancies.** Sites experiencing login attacks, spam floods, or heavy content editing could see massive differences between what the main log shows (grouped occasions) and what the statistics count (individual events).
+
+## ⚠️ CRITICAL BUG: USER PERMISSION CACHE ISSUE ⚠️
+
+### THE PROBLEM
+
+**User-specific event counts are being cached WITHOUT user identification in the cache key!** This causes incorrect statistics display where users see wrong event counts based on whoever triggered the cache first.
+
+### AFFECTED COMPONENTS
+
+1. **Sidebar Stats (`get_quick_stats_data` in class-sidebar-stats-dropin.php:308-335)**
+   - Cache key: `'sh_quick_stats_data_' . md5( serialize( [ $num_days_month, $num_days_week ] ) )`
+   - **Missing**: User ID or capabilities in cache key
+   - **Impact**: All users share the same cached data regardless of permissions
+
+2. **Helper Functions (class-helpers.php)**
+   - `get_num_events_last_n_days()` (line 1297): `'sh_' . md5( __METHOD__ . $period_days . '_2' )`
+   - `get_num_events_per_day_last_n_days()` (line 1334): `'sh_' . md5( __METHOD__ . $period_days . '_3' )`
+   - `get_total_logged_events_count()` (line 1380): Uses option, not user-specific at all
+   - **Missing**: User ID or capabilities in ALL cache keys
+   - **Impact**: Permission-filtered queries are cached and shared across all users
+
+3. **Top Users Display (`get_top_users` in class-events-stats.php)**
+   - No caching, but included in sidebar cache
+   - Query doesn't filter by loggers user can read
+   - **Impact**: Users without permission might see activity from restricted loggers
+
+### HOW THE VULNERABILITY WORKS
+
+1. **Editor user** loads the page first:
+   - Query runs with `get_loggers_that_user_can_read()` for editor's permissions
+   - Results cached with key that doesn't include user info
+   - Editor sees limited data (correct)
+
+2. **Administrator** loads the page next:
+   - Cache hit on same key (no user differentiation)
+   - Administrator sees editor's limited cached data
+   - **Administrator sees LESS data than they should** ❌
+
+3. **Reverse scenario:**
+   - Administrator loads first → full count cached
+   - Editor loads next → sees administrator's higher count
+   - **Editor sees incorrect (inflated) event count** ⚠️
+
+### SCOPE OF THE ISSUE
+
+**Permissions are filtered at query time:**
+- `get_loggers_that_user_can_read( $user_id )` returns different loggers per user
+- SQL includes: `AND logger IN {$sql_loggers_user_can_view}`
+- But cached results are shared across ALL users!
+
+**Example scenario:**
+- Site has custom logger for admin-only actions (e.g., "PluginLogger")
+- Only administrators can view PluginLogger events
+- Editor triggers cache → sees count of 100 events (excluding plugin events)
+- Administrator loads page → also sees 100 events (should see 150 including plugin events)
+- Or if Admin triggers cache first → Editor sees inflated count of 150 (should see 100)
+
+### PROOF IN CODE
+
+```php
+// class-sidebar-stats-dropin.php line 309-310
+$args_serialized = serialize( [ $num_days_month, $num_days_week ] );
+$cache_key = 'sh_quick_stats_data_' . md5( $args_serialized );
+// ❌ No user ID or capabilities in cache key!
+
+// class-helpers.php line 1297
+$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
+// ❌ No user ID or capabilities in cache key!
+
+// But the query IS filtered by user permissions (line 1304):
+$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+// ✅ Query is correctly filtered, but result is cached for ALL users!
+```
+
+### RECOMMENDED FIXES
+
+**Option 1: Include User ID in Cache Keys (Simple but Less Efficient)**
+```php
+$user_id = get_current_user_id();
+$cache_key = 'sh_quick_stats_data_' . md5( serialize( [ $num_days_month, $num_days_week, $user_id ] ) );
+```
+
+**Option 2: Include User Capabilities Hash (Better)**
+```php
+$user_loggers = $simple_history->get_loggers_that_user_can_read( null, 'array' );
+$loggers_hash = md5( implode( ',', array_keys( $user_loggers ) ) );
+$cache_key = 'sh_quick_stats_data_' . md5( serialize( [ $num_days_month, $num_days_week, $loggers_hash ] ) );
+```
+
+**Option 3: Don't Cache User-Specific Data (Safest)**
+- Remove caching for permission-filtered queries
+- Only cache truly global data
+- Or cache per-logger and combine at runtime based on permissions
+
+### PRIORITY LEVEL: ⚠️ HIGH
+
+This is a **DATA ACCURACY BUG** that causes incorrect event counts to be displayed to users with different permission levels. While not a security vulnerability (only counts are shown, not actual event data), it's still a significant issue that undermines the reliability of the statistics feature.
+
+### FILES TO FIX
+
+1. `/dropins/class-sidebar-stats-dropin.php` - Line 310 (add user context to cache key)
+2. `/inc/class-helpers.php` - Lines 1297, 1334, 1380 (add user context to cache keys)
+3. Consider removing caching entirely for user-specific queries
+
+## VERIFICATION STATUS (Latest Review)
+
+### ✅ CONFIRMED ISSUES
+
+1. **Timezone Inconsistencies** - VERIFIED
+   - Stats Service: Correctly uses UTC (`new \DateTimeImmutable('now', new \DateTimeZone('UTC'))`) ✅
+   - Sidebar: Uses server timezone (`strtotime("-$num_days days")`) ❌
+   - Email Reports: Uses server timezone (`strtotime('-7 days')`) ❌
+   - REST API Stats: Uses server timezone (`new \DateTime('today')` without timezone) ❌
+   - Main Log: Uses GMT for storage and queries ✅
+
+2. **Event Grouping Mismatch** - VERIFIED
+   - Log_Query: Groups by occasions (`GROUP BY historyWithRepeated.repeated` line 324) ✅
+   - Events_Stats: Counts individual events (`COUNT(DISTINCT h.id)` line 87) ❌
+   - Helpers week/month: Counts ALL events (`SELECT count(*)` line 1308) ❌
+   - Total count: Global option, no grouping, no user filtering ❌
+
+3. **User Permission Cache Issue** - VERIFIED
+   - Cache keys don't include user ID or capabilities ❌
+   - `get_loggers_that_user_can_read()` correctly filters by user ✅
+   - But results are cached globally for all users ❌
+   - `get_total_logged_events_count()` is global, not user-filtered at all ❌
+
+### 🆕 ADDITIONAL ISSUES DISCOVERED
+
+4. **No Cache Invalidation**
+   - Transients are never cleared when new events are logged
+   - Users see stale data until cache expires (5 minutes to 1 hour)
+   - No hooks to clear cache on event insertion
+
+5. **Total Events Count Never User-Filtered**
+   - `get_total_logged_events_count()` returns global option value
+   - Incremented for EVERY event via `increase_total_logged_events_count()`
+   - Shows same total for all users regardless of permissions
+   - Should either be removed or made user-specific
+
+6. **Chart Data Uses Same Flawed Functions**
+   - Sidebar chart uses `get_num_events_per_day_last_n_days()`
+   - Has same timezone issues (server timezone, not UTC)
+   - Has same permission cache issues (not user-specific)
+   - Has same grouping issues (counts individual events)
+
+7. **SQLite Database Differences** (Mentioned but not fully investigated)
+   - Document mentions SQLite doesn't support occasion grouping
+   - But code shows `get_db_engine()` detection without different SQL paths
+   - Needs further investigation for SQLite-specific issues
+
+### ✅ CLARIFIED ISSUES
+
+1. **"Today" Count Method** - VERIFIED CORRECT
+   - Uses `Events_Stats::get_num_events_today()` which calls Log_Query
+   - Returns `total_row_count` from Log_Query
+   - **CONFIRMED**: `total_row_count` DOES respect occasion grouping!
+   - The count query joins with the grouped results (`GROUP BY historyWithRepeated.repeated`)
+   - Counts occasions, not individual events ✅
+
+2. **Top Users Query**
+   - `get_top_users()` doesn't filter by `get_loggers_that_user_can_read()`
+   - Could show activity from loggers user shouldn't see
+   - But only shows user avatars, not event details
+   - Still a minor permission issue
+
+### SUMMARY OF VERIFICATION
+
+All three major issues are **CONFIRMED**:
+1. **Timezone inconsistencies** cause day-boundary mismatches
+2. **Event grouping mismatches** cause 100x+ discrepancies  
+3. **Permission cache issues** cause wrong counts for different users
+
+Additional issues found:
+- No cache invalidation mechanism
+- Total events count is never user-filtered
+- Chart data inherits all the same problems
+- SQLite handling needs investigation
