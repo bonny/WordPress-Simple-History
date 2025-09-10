@@ -1377,6 +1377,9 @@ abstract class Logger {
 	 * @return bool True if context was added, false if not (because row_id or context is empty).
 	 */
 	public function append_context( $history_id, $context ) {
+		// Use new batched method.
+		return $this->append_context_batched( $history_id, $context );
+
 		if ( empty( $history_id ) || empty( $context ) ) {
 			return false;
 		}
@@ -1416,17 +1419,25 @@ abstract class Logger {
 
 		global $wpdb;
 
+		// Debug tracking variables.
+		$debug_total_size = 0;
+		$debug_total_items = count( $context );
+		$debug_start_time = microtime( true );
+
 		// Conservative batch size: 500KB to ensure compatibility with 4MB max_allowed_packet.
 		$batch_max_size_bytes = 500000;
 		$current_batch_size = 0;
 		$current_batch = array();
-		// Array of batches, where each batch is an associative array of key => value pairs.
-		// Each batch will be inserted with a single query.
-		// Example structure:
-		// [
-		//     0 => ['post_title' => 'Hello', 'post_status' => 'publish', 'post_author' => '1'],  // Batch 1: 3 items, 1 query
-		//     1 => ['post_content' => 'Large content...', 'post_excerpt' => 'Summary...'],        // Batch 2: 2 items, 1 query
-		// ]
+
+		/*
+		 * Array of batches, where each batch is an associative array of key => value pairs.
+		 * Each batch will be inserted with a single query.
+		 * Example structure:
+		 * [
+		 *     0 => ['post_title' => 'Hello', 'post_status' => 'publish', 'post_author' => '1'],  // Batch 1: 3 items, 1 query.
+		 *     1 => ['post_content' => 'Large content...', 'post_excerpt' => 'Summary...'],        // Batch 2: 2 items, 1 query.
+		 * ]
+		 */
 		$batches = array();
 
 		foreach ( $context as $context_key => $context_value ) {
@@ -1438,6 +1449,7 @@ abstract class Logger {
 			// Calculate size of this item: key + value + SQL overhead.
 			// Add 100 bytes for SQL syntax, quotes, escaping overhead.
 			$item_size = strlen( $context_key ) + strlen( $context_value ) + 100;
+			$debug_total_size += $item_size;
 
 			// If single item is larger than the batch max size, handle it separately.
 			if ( $item_size > $batch_max_size_bytes ) {
@@ -1456,7 +1468,7 @@ abstract class Logger {
 			// If adding this item would exceed batch size, start new batch.
 			if ( $current_batch_size + $item_size > $batch_max_size_bytes && ! empty( $current_batch ) ) {
 				$batches[] = $current_batch;
-				$current_batch = [];
+				$current_batch = array();
 				$current_batch_size = 0;
 			}
 
@@ -1483,10 +1495,30 @@ abstract class Logger {
 			}
 
 			// Execute batch insert.
-			$sql = "INSERT INTO {$this->db_table_contexts} (history_id, `key`, value) VALUES " 
+			$sql = "INSERT INTO {$this->db_table_contexts} (history_id, `key`, value) VALUES "
 				. implode( ', ', $placeholders );
 
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is prepared on the next line.
 			$wpdb->query( $wpdb->prepare( $sql, $values ) );
+		}
+
+		// Log debug summary if debug logging is enabled.
+		$enable_debug = false;
+		if ( $enable_debug ) {
+			$debug_elapsed_time = microtime( true ) - $debug_start_time;
+			$debug_num_batches = count( $batches );
+			$debug_avg_batch_size = $debug_num_batches > 0 ? round( $debug_total_size / $debug_num_batches ) : 0;
+
+			sh_error_log(
+				'[append_context_batched]',
+				'history_id=' . $history_id,
+				'items=' . $debug_total_items,
+				'total_size=' . size_format( $debug_total_size ),
+				'batches=' . $debug_num_batches,
+				'queries=' . $debug_num_batches,
+				'avg_batch=' . size_format( $debug_avg_batch_size ),
+				'time=' . $debug_elapsed_time . 's'
+			);
 		}
 
 		return true;
