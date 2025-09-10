@@ -328,6 +328,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Optimized Plugin Logger by implementing conditional hook registration - gettext filters and auto-update detection now only run on the plugins.php page instead of globally, further reducing overhead on all other admin pages.
 -   Simplify plugin action list hooks by only hooking into our plugin
 -   Add autoloading of deprecated classes, so they are only loaded if needed
+-   Optimized context handling in Logger class by implementing size-based batch inserts. This improves performance when logging events with many context items.
 
 ### 5.16.0 (August 2025)
 
