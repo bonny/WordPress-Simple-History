@@ -285,12 +285,13 @@ class Helpers {
 	 * Based on code from https://www.tollmanz.com/invalidation-schemes/.
 	 *
 	 * @param bool $refresh Pass true to invalidate the cache.
-	 * @return string
+	 * @return string Incrementor value, example: `68c1c8545881b`.
 	 */
 	public static function get_cache_incrementor( $refresh = false ) {
 		$incrementor_key = 'simple_history_incrementor';
 		$incrementor_value = wp_cache_get( $incrementor_key );
 
+		// Generate a new incrementor if it doesn't exist or if we want to refresh it.
 		if ( false === $incrementor_value || $refresh ) {
 			$incrementor_value = uniqid();
 			wp_cache_set( $incrementor_key, $incrementor_value );
