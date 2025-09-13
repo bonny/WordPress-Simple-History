@@ -17,9 +17,14 @@ import { EventInitiatorName } from './EventInitiatorName';
 export const CompactEvent = ( props ) => {
 	const { event, variant = 'default' } = props;
 
-	const adminUrl = useSelect( ( select ) => {
-		return select( coreStore ).getSite()?.url + '/wp-admin/';
-	}, [] );
+	// Alternative way to get the admin URL: use window.ajaxurl
+	// because it always exists.
+	// Values for WordPress install in doc root:
+	// window.ajaxurl --> '/wp-admin/admin-ajax.php'
+	// Values for WordPress install in subfolder /blog/
+	// window.ajaxurl --> '/blog/wp-admin/admin-ajax.php'
+	let adminUrl = window.ajaxurl ?? '';
+	adminUrl = adminUrl.replace( 'admin-ajax.php', '' );
 
 	if ( variant === 'sidebar' ) {
 		// Simplified version for post sidebar panels,
