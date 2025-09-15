@@ -69,6 +69,8 @@ class File_Edits_Logger extends Logger {
 		if ( isset( $_POST['plugin'] ) && isset( $_POST['action'] ) && $_POST['action'] === 'edit-theme-plugin-file' ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$file = wp_unslash( $_POST['file'] ?? null );
+			$file = sanitize_file_name( $file );
+			
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$plugin_file = wp_unslash( $_POST['plugin'] ?? null );
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -81,8 +83,15 @@ class File_Edits_Logger extends Logger {
 			$pluginName = $pluginInfo['Name'] ?? null;
 			$pluginVersion = $pluginInfo['Version'] ?? null;
 
+			$file_full_path = WP_PLUGIN_DIR . '/' . $file;
+
+			// Check if file exists and bail if not.
+			if ( ! file_exists( $file_full_path ) ) {
+				return;
+			}
+
 			// Get contents before save.
-			$fileContentsBeforeEdit = file_get_contents( WP_PLUGIN_DIR . '/' . $file );
+			$fileContentsBeforeEdit = file_get_contents( $file_full_path );
 
 			$context = array(
 				'file_name' => $plugin_file,
@@ -130,6 +139,8 @@ class File_Edits_Logger extends Logger {
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$file = wp_unslash( $_POST['file'] ?? null );
+			$file = sanitize_file_name( $file );
+			
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$theme = wp_unslash( $_POST['theme'] ?? null );
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
