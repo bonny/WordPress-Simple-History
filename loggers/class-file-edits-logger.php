@@ -73,6 +73,8 @@ class File_Edits_Logger extends Logger {
 			
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$plugin_file = wp_unslash( $_POST['plugin'] ?? null );
+			$plugin_file = sanitize_file_name( $plugin_file );
+
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
 
