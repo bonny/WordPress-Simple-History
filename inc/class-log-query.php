@@ -1340,7 +1340,7 @@ class Log_Query {
 		}
 
 		// loggers, comma separated or array.
-		// http://playground-root.ep/wp-admin/admin-ajax.php?action=simple_history_api&type=overview&format=&posts_per_page=10&paged=1&max_id_first_page=27273&SimpleHistoryLogQuery-showDebug=0&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger.
+		// Example REST API call: /wp-json/simple-history/v1/events?per_page=10&page=1&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger
 		if ( ! empty( $args['loggers'] ) ) {
 			$sql_loggers = '';
 
