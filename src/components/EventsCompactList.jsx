@@ -2,8 +2,6 @@ import {
 	__experimentalHStack as HStack,
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
@@ -23,8 +21,7 @@ export const CompactEvent = ( props ) => {
 	// window.ajaxurl --> '/wp-admin/admin-ajax.php'
 	// Values for WordPress install in subfolder /blog/
 	// window.ajaxurl --> '/blog/wp-admin/admin-ajax.php'
-	let adminUrl = window.ajaxurl ?? '';
-	adminUrl = adminUrl.replace( 'admin-ajax.php', '' );
+	const adminUrl = ( window.ajaxurl ?? '' ).replace( 'admin-ajax.php', '' );
 
 	if ( variant === 'sidebar' ) {
 		// Simplified version for post sidebar panels,
