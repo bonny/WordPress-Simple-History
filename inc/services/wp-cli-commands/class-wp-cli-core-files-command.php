@@ -342,7 +342,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		if ( $next_scheduled ) {
 			WP_CLI::success( 'Integrity check cron job is scheduled' );
 			WP_CLI::log( 'Hook name: ' . $cron_hook );
-			WP_CLI::log( 'Next run: ' . date( 'Y-m-d H:i:s', $next_scheduled ) . ' (' . human_time_diff( time(), $next_scheduled ) . ' from now)' );
+			WP_CLI::log( 'Next run: ' . gmdate( 'Y-m-d H:i:s', $next_scheduled ) . ' (' . human_time_diff( time(), $next_scheduled ) . ' from now)' );
 			WP_CLI::log( 'Schedule: daily' );
 		} else {
 			WP_CLI::warning( 'Integrity check cron job is NOT scheduled!' );
@@ -365,7 +365,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 							sprintf(
 								'- %s: %s (%s from now)',
 								$hook,
-								date( 'Y-m-d H:i:s', $timestamp ),
+								gmdate( 'Y-m-d H:i:s', $timestamp ),
 								human_time_diff( time(), $timestamp )
 							)
 						);
