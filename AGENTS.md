@@ -3,6 +3,7 @@
 This file provides guidance to AI-agents like Claude Code, GitHub Copilot, Cursor, etc. working with code in this repository.
 
 @.cursor/rules/
+@code.md
 
 ## Project info
 
