@@ -181,7 +181,7 @@ class Autoloader {
 			if ( ! str_contains( $path_and_file_lowercased_and_prefixed_with_interface, 'interface-' ) ) {
 				$path_and_file_lowercased_and_prefixed_with_interface = "interface-{$path_and_file_lowercased_and_prefixed_with_interface}";
 			}
-			
+
 			$file_with_interface_prefix = $base_dir . $path_and_file_lowercased_and_prefixed_with_interface . '.php';
 
 			// if the mapped file with "class-" prefix exists, require it.
