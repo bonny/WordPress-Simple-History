@@ -178,7 +178,12 @@ class Sidebar_Stats_Dropin extends Dropin {
 		?>
 
 		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
-							<div class="sh-StatsDashboard-statLabel"><?php printf( esc_html__( 'Daily activity over last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ); ?></div>
+			<div class="sh-StatsDashboard-statLabel">
+				<?php
+				// translators: %d is the number of days.
+				printf( esc_html__( 'Daily activity over last %d days', 'simple-history' ), esc_html( Constants::DAYS_PER_MONTH ) );
+				?>
+			</div>
 
 			<div class="sh-StatsDashboard-statValue">
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
@@ -376,12 +381,14 @@ class Sidebar_Stats_Dropin extends Dropin {
 					);
 
 					echo $this->get_stat_dashboard_item(
+						// translators: %d is the number of days.
 						sprintf( __( 'Last %d days', 'simple-history' ), Constants::DAYS_PER_WEEK ),
 						number_format_i18n( $stats_data['num_events_week'] ),
 						_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
 					);
 
 					echo $this->get_stat_dashboard_item(
+						// translators: %d is the number of days.
 						sprintf( __( 'Last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ),
 						number_format_i18n( $stats_data['num_events_month'] ),
 						_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
@@ -395,7 +402,10 @@ class Sidebar_Stats_Dropin extends Dropin {
 					?>
 					<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
 						<span class="sh-StatsDashboard-statLabel">
-							<?php printf( esc_html__( 'Most active users in last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ); ?>
+							<?php
+							// translators: %d is the number of days.
+							printf( esc_html__( 'Most active users in last %d days', 'simple-history' ), esc_html( Constants::DAYS_PER_MONTH ) );
+							?>
 							<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
 						</span>
 						<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>

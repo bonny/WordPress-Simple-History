@@ -1,12 +1,9 @@
 <?php
-
-namespace Simple_History;
-
 /**
  * Constants class for Simple History.
- *
- * @package SimpleHistory
  */
+
+namespace Simple_History;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -44,7 +41,8 @@ class Constants {
 			case 'quarter':
 				return self::DAYS_PER_QUARTER;
 			default:
-				return self::DAYS_PER_MONTH; // Default to month
+				// Default to month.
+				return self::DAYS_PER_MONTH;
 		}
 	}
 

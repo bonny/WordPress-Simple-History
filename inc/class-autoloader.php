@@ -168,7 +168,7 @@ class Autoloader {
 			$file_with_class_prefix = $base_dir . $path_and_file_lowercased_and_prefixed . '.php';
 
 			// if the mapped file with "class-" prefix exists, require it.
-			// <path>/WordPress-Simple-History/inc/services/class-admin-pages.php
+			// <path>/WordPress-Simple-History/inc/services/class-admin-pages.php.
 			if ( $this->require_file( $file_with_class_prefix ) ) {
 				// yes, we're done.
 				return $file_with_class_prefix;
@@ -185,13 +185,13 @@ class Autoloader {
 			$file_with_interface_prefix = $base_dir . $path_and_file_lowercased_and_prefixed_with_interface . '.php';
 
 			// if the mapped file with "class-" prefix exists, require it.
-			// <path>/WordPress-Simple-History/inc/event-details/interface-event-details-container-interface.php
+			// <path>/WordPress-Simple-History/inc/event-details/interface-event-details-container-interface.php.
 			if ( $this->require_file( $file_with_interface_prefix ) ) {
 				// yes, we're done.
 				return $file_with_interface_prefix;
 			}
 
-			// <path>/WordPress-Simple-History/Dropins/Debug_Dropin.php
+			// <path>/WordPress-Simple-History/Dropins/Debug_Dropin.php.
 			$file = $base_dir . $path_and_file . '.php';
 
 			// if the mapped file exists, require it.
