@@ -11,7 +11,7 @@ This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, e
 
 - **Core Version**: Free, fully-featured version in this repository
 - **Premium Version**: Additional plugin with extended features (both must be installed together)
-- **Documentation**: See @readme.txt for detailed plugin information
+- **Documentation**: See readme.txt for detailed plugin information
 - **Philosophy**: Core version must be fully usable for free users with non-intrusive upgrade prompts
 
 ## Quick Start
