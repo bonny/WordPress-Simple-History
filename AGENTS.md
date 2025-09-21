@@ -91,3 +91,4 @@ $condition
 ## GitHub Commands
 
 -   Use github cli to fetch github issues
+- When working with branches a readme file is created for most branches, called readme.<branch-or-issue>.md. See and use that file for findings, progress, and todos.
