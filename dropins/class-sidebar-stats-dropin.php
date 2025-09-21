@@ -177,7 +177,15 @@ class Sidebar_Stats_Dropin extends Dropin {
 		?>
 
 		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
-							<div class="sh-StatsDashboard-statLabel"><?php printf( esc_html__( 'Daily activity over last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ); ?></div>
+			<div class="sh-StatsDashboard-statLabel">
+				<?php
+				printf(
+					// translators: 1 is number of days.
+					esc_html__( 'Daily activity over last %d days', 'simple-history' ),
+					esc_html( Constants::DAYS_PER_MONTH )
+				);
+				?>
+			</div>
 
 			<div class="sh-StatsDashboard-statValue">
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
@@ -349,7 +357,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
 
-				<h3 class="sh-PremiumFeaturesPostbox-title">
+				<h3 class="sh-PremiumFeaturesPostbox-title sh-mb-small">
 					<?php esc_html_e( 'History Insights', 'simple-history' ); ?>
 				</h3>
 
@@ -362,6 +370,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 					}
 					?>
 				</p>
+
 				<?php
 				/**
 				 * Fires inside the stats sidebar box, after the headline but before any content.
@@ -403,7 +412,13 @@ class Sidebar_Stats_Dropin extends Dropin {
 					?>
 					<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
 						<span class="sh-StatsDashboard-statLabel">
-							<?php printf( esc_html__( 'Most active users in last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ); ?>
+							<?php
+							printf(
+								// translators: 1 is number of days.
+								esc_html__( 'Most active users in last %d days', 'simple-history' ),
+								esc_html( Constants::DAYS_PER_MONTH )
+							);
+							?>
 							<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
 						</span>
 						<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
@@ -414,20 +429,23 @@ class Sidebar_Stats_Dropin extends Dropin {
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_chart_data( $num_days_month );
 
-				$msg_text = sprintf(
-					// translators: 1 is number of events, 2 is description of when the plugin was installed.
-					__( 'A total of <b>%1$s events</b> have been logged since Simple History was installed.', 'simple-history' ),
-					number_format_i18n( $stats_data['total_events'] ),
-				);
+				// Show total installs and CTA for admins.
+				if ( current_user_can( 'manage_options' ) ) {
+					$msg_text = sprintf(
+						// translators: 1 is number of events, 2 is description of when the plugin was installed.
+						__( 'A total of <b>%1$s events</b> have been logged since Simple History was installed.', 'simple-history' ),
+						number_format_i18n( $stats_data['total_events'] ),
+					);
 
-				// Append tooltip.
-				$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' ) );
+					// Append tooltip.
+					$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' ) );
+					echo wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
 
-				echo wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo $this->get_cta_link_html();
+				}
 
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $this->get_cta_link_html();
-		?>
+				?>
 			</div>
 		</div>
 		<?php
