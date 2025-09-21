@@ -353,6 +353,15 @@ class Sidebar_Stats_Dropin extends Dropin {
 					<?php esc_html_e( 'History Insights', 'simple-history' ); ?>
 				</h3>
 
+				<p class="sh-mt-0">
+					<?php
+					if ( current_user_can( 'manage_options' ) ) {
+						esc_html_e( 'Calculated from all events.', 'simple-history' );
+					} else {
+						esc_html_e( 'Based on events you can view.', 'simple-history' );
+					}
+					?>
+				</p>
 				<?php
 				/**
 				 * Fires inside the stats sidebar box, after the headline but before any content.
