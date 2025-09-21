@@ -68,10 +68,11 @@ docker compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H_%M
 # I.e. rename the new one to dump.sql and remove the old one.
 ```
 
-## Update log
+## Update log / Changelog
 
 Changes made to the test site and SQL-file.
 
+-   15 aug 2025: Add Akismet to docker compose config and add plugin folder to tests/plugins. It stopped working and I can't see how it was loaded before. Also update tests to use updated Akismet plugin names
 -   18 jul 2025: Update WP to 6.3.2.
 -   24 aug 2024: Try to update from WP 6.1 to WP 6.6.
     -   Update wp using wp cli

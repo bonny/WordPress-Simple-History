@@ -1,0 +1,67 @@
+:root {
+	--sh-color-gray: #c3c4c7;
+	/* For dividers and similar, like "Item 1 | Item 2". */
+	--sh-color-gray-2: #a7aaad;
+	/* For smaller meta header text */
+	--sh-color-gray-3: rgb(137, 143, 156);
+	/* For discrete elements like skeleton loading background */
+	--sh-color-gray-4: #ededed;
+	--sh-color-green: #3f9349;
+	--sh-color-green-2: darkgreen;
+	--sh-color-separator: rgb(229, 229, 229);
+	--sh-color-item-hover: #fafafa;
+
+	/* Colors from Figma document 2025 */
+	--sh-color-black: #000000;
+	--sh-color-black-2: #666666;
+	--sh-color-white: #ffffff;
+	--sh-color-blue: #004cff;
+	--sh-color-green-mint: #12e2a3;
+	--sh-color-green-light: #b0f4e6;
+	--sh-color-cream: #fcf9ec;
+	--sh-color-pink-light: #ffcee4;
+	--sh-color-pink: #fb90b7;
+	--sh-color-yellow: #fcc72c;
+
+	/* Font sizes */
+	--sh-font-size-small: 0.75rem;
+	--sh-font-size-medium: 0.9rem;
+	--sh-font-size-large: 1.1rem;
+	--sh-font-size-xlarge: 1.3rem;
+	--sh-font-size-xxlarge: 1.5rem;
+	--sh-font-size-xxxlarge: 2rem;
+
+	/* Spacing */
+	--sh-spacing-xxsmall: 0.1rem;
+	--sh-spacing-xsmall: 0.25rem;
+	--sh-spacing-small: 0.5rem;
+	--sh-spacing-medium: 1rem;
+	--sh-spacing-large: 1.5rem;
+	--sh-spacing-xlarge: 2rem;
+	--sh-spacing-xxlarge: 3rem;
+	--sh-spacing-xxxlarge: 5rem;
+
+	/* Border radius */
+	--sh-border-radius: 4px;
+
+	/* Shadows. Resources to create: https://www.joshwcomeau.com/shadow-palette/ */
+	--sh-shadow-color: 0deg 0% 57%;
+	--sh-shadow-elevation-low: 0.1px 0.2px 0.2px
+			hsl(var(--sh-shadow-color) / 0.4),
+		0.2px 0.3px 0.4px -1.5px hsl(var(--sh-shadow-color) / 0.36),
+		0.6px 0.8px 1.1px -3px hsl(var(--sh-shadow-color) / 0.31);
+	--sh-shadow-elevation-medium: 0.1px 0.2px 0.2px
+			hsl(var(--sh-shadow-color) / 0.42),
+		0.4px 0.6px 0.8px -1px hsl(var(--sh-shadow-color) / 0.38),
+		1.2px 1.5px 2px -2px hsl(var(--sh-shadow-color) / 0.35),
+		2.9px 3.8px 5px -3px hsl(var(--sh-shadow-color) / 0.31);
+	--sh-shadow-elevation-high: 0.1px 0.2px 0.2px
+			hsl(var(--sh-shadow-color) / 0.45),
+		0.6px 0.8px 1px -0.5px hsl(var(--sh-shadow-color) / 0.42),
+		1.8px 2.3px 3px -1px hsl(var(--sh-shadow-color) / 0.38),
+		3.5px 4.5px 6px -1.5px hsl(var(--sh-shadow-color) / 0.35),
+		6px 8px 10px -2px hsl(var(--sh-shadow-color) / 0.32);
+
+	/* Avatar size */
+	--sh-avatar-size: var(--sh-font-size-xxxlarge);
+}

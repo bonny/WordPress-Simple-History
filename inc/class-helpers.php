@@ -4,6 +4,7 @@ namespace Simple_History;
 
 use Simple_History\Simple_History;
 use Simple_History\Services\Setup_Settings_Page;
+use Simple_History\Constants;
 
 /**
  * Helper functions.
@@ -1290,7 +1291,7 @@ class Helpers {
 	 * @param int $period_days Number of days to get events for.
 	 * @return int Number of days.
 	 */
-	public static function get_num_events_last_n_days( $period_days = 28 ) {
+	public static function get_num_events_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
 		$simple_history = Simple_History::get_instance();
 		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
 
@@ -1327,7 +1328,7 @@ class Helpers {
 	 * @param int $period_days Number of days to get events for.
 	 * @return array Array with date as key and number of events as value.
 	 */
-	public static function get_num_events_per_day_last_n_days( $period_days = 28 ) {
+	public static function get_num_events_per_day_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
 		$simple_history = Simple_History::get_instance();
 		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_3' );
 		$dates = get_transient( $transient_key );

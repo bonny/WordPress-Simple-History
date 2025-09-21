@@ -71,7 +71,7 @@ class Event {
 	 *
 	 * @param int|null $event_id Event ID. If null, creates an empty event instance.
 	 */
-	public function __construct( int $event_id = null ) {
+	public function __construct( ?int $event_id = null ) {
 		if ( empty( $event_id ) ) {
 			return;
 		}

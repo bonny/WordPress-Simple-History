@@ -549,7 +549,10 @@ class Comments_Logger extends Logger {
 		// Message is untranslated here, so get translated text
 		// Can't call parent __FUNCTION__ because it will interpolate too, which we don't want.
 		if ( ! empty( $message_key ) ) {
-			$message = $this->messages[ $message_key ]['translated_text'];
+			$translated_message = $this->get_translated_message( $message_key );
+			if ( $translated_message !== null ) {
+				$message = $translated_message;
+			}
 		}
 
 		// Wrap links around {comment_post_title}.

@@ -48,3 +48,5 @@ build/
 
 # Ignore Claude config files
 .claude
+scripts/copy-current-to-simple-history-com.sh
+CLAUDE.local.md

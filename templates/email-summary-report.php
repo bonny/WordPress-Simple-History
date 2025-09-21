@@ -46,7 +46,6 @@ $args = wp_parse_args(
 		'site_url' => '',
 		'site_name' => '',
 		'site_url_domain' => '',
-		'total_events_since_install' => 0,
 		'successful_logins' => 0,
 		'failed_logins' => 0,
 		'posts_created' => 0,
@@ -387,7 +386,7 @@ $args = wp_parse_args(
 					<!-- View All Events Button -->
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
 						<tr>
-							<td style="border-radius: 6px; background: #0040FF;">
+							<td>
 								<a href="<?php echo esc_url( $args['history_admin_url'] ); ?>" 
 									style="background: #0040FF; border: 16px solid #0040FF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; text-decoration: none; color: #ffffff; display: block; border-radius: 6px; font-weight: 600;">
 									<?php echo esc_html( __( 'View Activity Log', 'simple-history' ) ); ?>

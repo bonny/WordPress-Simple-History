@@ -1001,7 +1001,9 @@ class Events_Stats {
 					AND c2.key = 'user_login'
 					AND c3.key = 'user_email'
 					AND h.date >= FROM_UNIXTIME(%d)
+					# Placeholder 6 below
 					AND h.date <= FROM_UNIXTIME(%d)
+					# Exists check that the message key is either user_logged_in or user_unknown_logged_in
 					AND EXISTS (
 						SELECT 1 
 						FROM %i c_msg 
@@ -1017,11 +1019,11 @@ class Events_Stats {
 				$events_table,
 				$contexts_table,
 				$contexts_table,
-				$contexts_table,
-				$contexts_table,
-				$date_from,
-				$date_to,
-				$limit
+				$contexts_table, // 4
+				$date_from, // 5
+				$date_to, // 6
+				$contexts_table, // 7
+				$limit // 8
 			)
 		);
 	}

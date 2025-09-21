@@ -14,6 +14,7 @@ class Simple_History_Updates extends Service {
 	public function loaded() {
 		// Hook into the plugin update details filter for Simple History.
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.14.0', [ $this, 'on_plugin_updated_details_5_14_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.15.0', [ $this, 'on_plugin_updated_details_5_15_0' ] );
 	}
 
 	/**
@@ -69,6 +70,25 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2025/simple-history-5-14-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Handle update details for Simple History version 5.14.0.
+	 *
+	 * @param string $extra_details Extra HTML to output after the changelog link.
+	 * @return string Extra HTML to output after the changelog link.
+	 */
+	public function on_plugin_updated_details_5_15_0( $extra_details ) {
+		$title = __( 'New features in this version', 'simple-history' );
+
+		$new_features = [
+			'Email reports are now available for all users. Go to the settings page to enable!',
+			'New Core Files Integrity Logger that detects modifications to WordPress core files through daily checksum verification',
+		];
+
+		$release_link = 'https://simple-history.com/2025/simple-history-5-15-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}

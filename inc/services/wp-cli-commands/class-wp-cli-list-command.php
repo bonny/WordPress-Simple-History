@@ -11,7 +11,7 @@ use WP_CLI\Utils;
 use Simple_History\Log_Query;
 
 /**
- * WP CLI command that search the history.
+ * Interact with the Simple History log via WP-CLI.
  */
 class WP_CLI_List_Command extends WP_CLI_Command {
 

@@ -62,6 +62,22 @@ const AdminBarQuickView = () => {
 	const [ events, setEvents ] = useState( [] );
 	const [ reloadTime, setReloadTime ] = useState( null );
 
+	const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
+	const settingsURL = window.simpleHistoryAdminBar.viewSettingsUrl;
+
+	const userCanViewHistory = Boolean(
+		Number( window.simpleHistoryAdminBar.currentUserCanViewHistory )
+	);
+
+	const viewFullHistoryLink = userCanViewHistory ? (
+		<a
+			href={ viewHistoryURL }
+			className="SimpleHistory-adminBarEventsList-actions-settings"
+		>
+			View full history
+		</a>
+	) : null;
+
 	// https://www.npmjs.com/package/react-intersection-observer
 	const { ref, inView } = useInView( {} );
 
@@ -115,21 +131,6 @@ const AdminBarQuickView = () => {
 
 		fetchEntries();
 	}, [ reloadTime ] );
-
-	const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
-	const settingsURL = window.simpleHistoryAdminBar.viewSettingsUrl;
-
-	const userCanViewHistory = Boolean(
-		Number( window.simpleHistoryAdminBar.currentUserCanViewHistory )
-	);
-	const viewFullHistoryLink = userCanViewHistory ? (
-		<a
-			href={ viewHistoryURL }
-			className="SimpleHistory-adminBarEventsList-actions-settings"
-		>
-			View full history
-		</a>
-	) : null;
 
 	const handleReloadButtonClick = () => {
 		setReloadTime( Date.now() );

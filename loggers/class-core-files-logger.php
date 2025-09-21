@@ -2,7 +2,6 @@
 
 namespace Simple_History\Loggers;
 
-use Simple_History\Helpers;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
 
@@ -12,15 +11,15 @@ use Simple_History\Event_Details\Event_Details_Item;
  * Checks core file integrity by comparing MD5 hashes against WordPress checksums
  * and logs any detected modifications for security monitoring.
  */
-class Core_Files_Integrity_Logger extends Logger {
+class Core_Files_Logger extends Logger {
 	/** @var string Logger slug */
-	public $slug = 'CoreFilesIntegrityLogger';
+	public $slug = 'CoreFilesLogger';
 
 	/** @var string Option name to store previous check results */
-	private $option_name = 'simple_history_core_files_integrity_results';
+	const OPTION_NAME_FILE_CHECK_RESULTS = 'simple_history_core_files_integrity_results';
 
 	/** @var string Cron hook name */
-	private $cron_hook = 'simple_history/core_files_integrity_check';
+	const CRON_HOOK = 'simple_history/core_files_integrity_check';
 
 	/**
 	 * Get array with information about this logger
@@ -29,21 +28,21 @@ class Core_Files_Integrity_Logger extends Logger {
 	 */
 	public function get_info() {
 		return [
-			'name'        => __( 'Core Files Integrity Logger', 'simple-history' ),
+			'name'        => __( 'Core Files Logger', 'simple-history' ),
 			'description' => __( 'Detects modifications to WordPress core files by checking file integrity against official checksums', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => [
-				'core_files_modified_detected' => __( 'WordPress core file modifications detected: {file_count} files modified', 'simple-history' ),
-				'core_files_integrity_restored' => __( 'WordPress core file integrity restored: {file_count} files fixed', 'simple-history' ),
-				'core_files_check_failed' => __( 'WordPress core files integrity check failed: {error_message}', 'simple-history' ),
+				'core_files_modified' => __( 'Detected modifications to {file_count} WordPress core files', 'simple-history' ),
+				'core_files_restored' => __( 'Verified integrity restored for {file_count} WordPress core files', 'simple-history' ),
+				'core_files_check_failed' => __( 'Could not check WordPress core files integrity: {error_message}', 'simple-history' ),
 			],
 			'labels'      => [
 				'search' => [
-					'label' => _x( 'Core Files Security', 'Core Files Logger: search', 'simple-history' ),
+					'label' => _x( 'Core Files Modifications', 'Core Files Logger: search', 'simple-history' ),
 					'options' => [
 						_x( 'Core file modifications', 'Core Files Logger: search', 'simple-history' ) => [
-							'core_files_modified_detected',
-							'core_files_integrity_restored',
+							'core_files_modified',
+							'core_files_restored',
 							'core_files_check_failed',
 						],
 					],
@@ -53,86 +52,84 @@ class Core_Files_Integrity_Logger extends Logger {
 	}
 
 	/**
-	 * Called when logger is loaded
+	 * Called when logger is loaded.
 	 */
 	public function loaded() {
-		// Only enable this logger if experimental features are enabled.
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return;
-		}
-
 		// Set up cron job for daily integrity checks.
 		add_action( 'init', [ $this, 'setup_cron' ] );
 
 		// Handle the actual cron job.
-		add_action( $this->cron_hook, [ $this, 'perform_integrity_check' ] );
+		add_action( self::CRON_HOOK, [ $this, 'perform_integrity_check' ] );
 	}
 
 	/**
-	 * Setup WordPress cron job for daily core files integrity checks
+	 * Setup WordPress cron job for daily core files integrity checks.
 	 */
 	public function setup_cron() {
-		if ( ! wp_next_scheduled( $this->cron_hook ) ) {
-			// Schedule daily check at 3 AM local time to minimize server impact.
-			$timestamp = strtotime( 'tomorrow 3:00 AM' );
-			wp_schedule_event( $timestamp, 'daily', $this->cron_hook );
+		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
+			// Schedule daily check at 3 AM site time to minimize server impact.
+			$timezone = wp_timezone();
+			$datetime = new \DateTime( 'tomorrow 3:00 AM', $timezone );
+			$timestamp = $datetime->getTimestamp();
+			wp_schedule_event( $timestamp, 'daily', self::CRON_HOOK );
 		}
 	}
 
 	/**
-	 * Perform core files integrity check
+	 * Perform core files integrity check.
 	 *
 	 * This is the main method that gets called by the cron job
 	 */
 	public function perform_integrity_check() {
-		try {
-			$modified_files = $this->check_core_files_integrity();
-			$this->process_check_results( $modified_files );
-		} catch ( \Exception $e ) {
-			$this->warning_message(
-				'core_files_check_failed',
-				[
-					'error_message' => $e->getMessage(),
-				]
-			);
+		$modified_files = $this->check_core_files_integrity();
+
+		// Bail if error.
+		if ( is_wp_error( $modified_files ) ) {
+			return;
 		}
+
+		$this->process_check_results( $modified_files );
 	}
 
-	   /**
-		* Check WordPress core files integrity using official checksums.
-		*
-		* If modified files are found, they are returned like this:
-		*
-		* Array
-		* (
-		*     [0] => Array
-		*         (
-		*             [file] => xmlrpc.php
-		*             [issue] => modified
-		*             [expected_hash] => fb407463c202f1a8ab8783fa5b24ec13
-		*             [actual_hash] => 57cb4f86b855614dd3e7d565b2f6f888
-		*         )
-		*
-		*     [1] => Array
-		*         (
-		*             [file] => wp-settings.php
-		*             [issue] => modified
-		*             [expected_hash] => 0f52e2e688de1d2d776a12e55e5ca9c3
-		*             [actual_hash] => 2e60a9b2c1daef9089a8fea7e0a691dd
-		*         )
-		* )
-		*
-		* @return array Array of modified files with their details.
-		* @throws \Exception If checksums cannot be retrieved or check fails.
-		*/
+	/**
+	 * Check WordPress core files integrity using official checksums.
+	 *
+	 * If modified files are found, they are returned like this:
+	 *
+	 * Array
+	 * (
+	 *     [0] => Array
+	 *         (
+	 *             [file] => xmlrpc.php
+	 *             [issue] => modified
+	 *             [expected_hash] => fb407463c202f1a8ab8783fa5b24ec13
+	 *             [actual_hash] => 57cb4f86b855614dd3e7d565b2f6f888
+	 *         )
+	 *
+	 *     [1] => Array
+	 *         (
+	 *             [file] => wp-settings.php
+	 *             [issue] => modified
+	 *             [expected_hash] => 0f52e2e688de1d2d776a12e55e5ca9c3
+	 *             [actual_hash] => 2e60a9b2c1daef9089a8fea7e0a691dd
+	 *         )
+	 * )
+	 *
+	 * @return array|\WP_Error Array of modified files with their details or WP_Error if there is an error.
+	 */
 	private function check_core_files_integrity() {
 		global $wp_version;
+
+		// Make sure the `get_core_checksums()` function is available.
+		if ( ! function_exists( 'get_core_checksums' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/update.php';
+		}
 
 		// Get official WordPress checksums for current version.
 		$checksums = get_core_checksums( $wp_version, 'en_US' );
 
 		if ( ! is_array( $checksums ) || empty( $checksums ) ) {
-			throw new \Exception( 'Unable to retrieve WordPress core checksums for version ' . esc_html( $wp_version ) );
+			return new \WP_Error( 'core_files_check_failed', 'Unable to retrieve WordPress core checksums for version ' . esc_html( $wp_version ) );
 		}
 
 		$modified_files = [];
@@ -192,7 +189,7 @@ class Core_Files_Integrity_Logger extends Logger {
 	 * @param array $modified_files Array of modified files from integrity check.
 	 */
 	private function process_check_results( $modified_files ) {
-		$previous_results = get_option( $this->option_name, [] );
+		$previous_results = get_option( self::OPTION_NAME_FILE_CHECK_RESULTS, [] );
 		$current_results = [];
 
 		// Convert modified files to simple array for comparison.
@@ -212,7 +209,7 @@ class Core_Files_Integrity_Logger extends Logger {
 				'file_details' => array_values( $new_issues ),
 			];
 
-			$this->warning_message( 'core_files_modified_detected', $context );
+			$this->warning_message( 'core_files_modified', $context );
 		}
 
 		// Log resolved issues.
@@ -223,11 +220,11 @@ class Core_Files_Integrity_Logger extends Logger {
 				'file_details' => array_values( $resolved_issues ),
 			];
 
-			$this->info_message( 'core_files_integrity_restored', $context );
+			$this->info_message( 'core_files_restored', $context );
 		}
 
 		// Update stored results.
-		update_option( $this->option_name, $current_results );
+		update_option( self::OPTION_NAME_FILE_CHECK_RESULTS, $current_results );
 	}
 
 	/**
@@ -244,8 +241,8 @@ class Core_Files_Integrity_Logger extends Logger {
 			return null;
 		}
 
-		// Handle both detected and restored events.
-		if ( ! in_array( $message_key, [ 'core_files_modified_detected', 'core_files_integrity_restored' ], true ) ) {
+		// Handle detected and restored events.
+		if ( ! in_array( $message_key, [ 'core_files_modified', 'core_files_restored' ], true ) ) {
 			return null;
 		}
 
@@ -262,7 +259,7 @@ class Core_Files_Integrity_Logger extends Logger {
 		$event_details_group = new Event_Details_Group();
 
 		// Set appropriate title based on the event type.
-		if ( 'core_files_integrity_restored' === $message_key ) {
+		if ( 'core_files_restored' === $message_key ) {
 			$event_details_group->set_title( __( 'Restored Core Files', 'simple-history' ) );
 		} else {
 			$event_details_group->set_title( __( 'Modified Core Files', 'simple-history' ) );
@@ -282,7 +279,7 @@ class Core_Files_Integrity_Logger extends Logger {
 			}
 
 			// Determine the status text.
-			if ( 'core_files_integrity_restored' === $message_key ) {
+			if ( 'core_files_restored' === $message_key ) {
 				// For restored files, show what was fixed.
 				if ( 'modified' === $issue ) {
 					$status_text = __( 'Hash mismatch fixed', 'simple-history' );
@@ -294,7 +291,7 @@ class Core_Files_Integrity_Logger extends Logger {
 					/* translators: %s: issue type */
 					$status_text = sprintf( __( '%s fixed', 'simple-history' ), esc_html( $issue ) );
 				}
-			} else if ( 'core_files_modified_detected' === $message_key ) {
+			} else if ( 'core_files_modified' === $message_key ) {
 				// For detected issues, show the current problem.
 				if ( 'modified' === $issue ) {
 					$status_text = __( 'Hash mismatch', 'simple-history' );

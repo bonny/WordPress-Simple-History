@@ -15,6 +15,7 @@ use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Services\Setup_Settings_Page;
 use Simple_History\Services\Email_Report_Service;
+use Simple_History\Constants;
 
 /**
  * Main class for Simple History.
@@ -496,7 +497,7 @@ class Simple_History {
 			Loggers\Categories_Logger::class,
 			Loggers\Comments_Logger::class,
 			Loggers\Core_Updates_Logger::class,
-			Loggers\Core_Files_Integrity_Logger::class,
+			Loggers\Core_Files_Logger::class,
 			Loggers\Export_Logger::class,
 			Loggers\Simple_Logger::class,
 			Loggers\Media_Logger::class,
@@ -1490,7 +1491,7 @@ class Simple_History {
 	 * @param int $period_days Number of days to get events for.
 	 * @return int
 	 */
-	public function get_num_events_last_n_days( $period_days = 28 ) {
+	public function get_num_events_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
 		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_num_events_last_n_days()' );
 		return Helpers::get_num_events_last_n_days( $period_days );
 	}
@@ -1502,7 +1503,7 @@ class Simple_History {
 	 * @param int $period_days Number of days to get events for.
 	 * @return array Array with date as key and number of events as value.
 	 */
-	public function get_num_events_per_day_last_n_days( $period_days = 28 ) {
+	public function get_num_events_per_day_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
 		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_num_events_per_day_last_n_days()' );
 		return Helpers::get_num_events_per_day_last_n_days( $period_days );
 	}
