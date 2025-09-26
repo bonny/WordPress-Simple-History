@@ -166,5 +166,5 @@ gh api graphql -f query='
 - Create a new branch for each GitHub issue or feature
 - Branch naming: `issue-NUMBER-brief-description`
 - Follow OneFlow model (see code.md for details)
--   Use github cli to fetch github issues
-- When working with branches a readme file is created for most branches, called readme.<branch-or-issue>.md. See and use that file for findings, progress, and todos.
+- Use GitHub CLI to fetch GitHub issues
+- When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos.
