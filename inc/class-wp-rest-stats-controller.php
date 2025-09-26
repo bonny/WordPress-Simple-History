@@ -195,6 +195,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$params = parent::get_collection_params();
 
 		$params['date_from'] = array(
+			// translators: %d is the number of days.
 			'description' => sprintf( __( 'Start date as Unix timestamp. If not provided, defaults to %d days ago.', 'simple-history' ), Constants::DAYS_PER_MONTH ),
 			'type'        => 'integer',
 			'required'    => false,
