@@ -325,6 +325,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Legacy AJAX API endpoint (`simple_history_api`) - the plugin now uses the WordPress REST API exclusively for all data fetching operations.
 
+
+**Changes**
+
+- Use wp_doing_cron() and wp_doing_ajax() instead of DOING_CRON and DOING_AJAX.
+
 **Performance**
 
 -   Optimized logger message loading to use on-demand approach instead of loading all messages during initialization. This eliminates ~980 gettext filter calls on every page load, reducing them to zero on pages that don't use Simple History and only calling them when actually needed (when logging events or displaying the history page).
