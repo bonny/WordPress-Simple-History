@@ -325,10 +325,14 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Legacy AJAX API endpoint (`simple_history_api`) - the plugin now uses the WordPress REST API exclusively for all data fetching operations.
 
+**Added**
+
+-   Add new format `slugs` to `get_loggers_that_user_can_read()` method.
 
 **Changes**
 
-- Use wp_doing_cron() and wp_doing_ajax() instead of DOING_CRON and DOING_AJAX.
+-   Use wp_doing_cron() and wp_doing_ajax() instead of DOING_CRON and DOING_AJAX.
+-   Sidebar stats box now uses the new format `slugs` to get the loggers that the user can read and to make sure the cache key is consistent.
 
 **Performance**
 
