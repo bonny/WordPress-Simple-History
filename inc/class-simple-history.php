@@ -1385,7 +1385,7 @@ class Simple_History {
 	 * with all loggers they are allowed to read.
 	 *
 	 * @param int|null $user_id Id of user to get loggers for. Defaults to current user id.
-	 * @param string   $format format to return loggers in. Default is array. Can also be "sql".
+	 * @param string   $format format to return loggers in. array|sql|slugs. Default is "array".
 	 * @return array<\Simple_History\Loggers\Simple_Logger>|string Array or SQL string with loggers that user can read.
 	 */
 	public function get_loggers_that_user_can_read( $user_id = null, $format = 'array' ) {
@@ -1445,7 +1445,7 @@ class Simple_History {
 		}
 
 		/**
-		 * Fires before Simple History does it's init stuff
+		 * Filter loggers that user can read.
 		 *
 		 * @since 2.0
 		 *
@@ -1456,6 +1456,14 @@ class Simple_History {
 			'simple_history/loggers_user_can_read',
 			$arr_loggers_user_can_view,
 			$user_id
+		);
+
+		// Sort loggers by slug to ensure consistent ordering for caching.
+		usort(
+			$arr_loggers_user_can_view,
+			function ( $a, $b ) {
+				return strcmp( $a['instance']->get_slug(), $b['instance']->get_slug() );
+			}
 		);
 
 		// just return array with slugs in parenthesis suitable for sql-where.
@@ -1476,8 +1484,18 @@ class Simple_History {
 			$str_return .= ')';
 
 			return $str_return;
+		} elseif ( 'slugs' == $format ) {
+			$logger_slugs = array_map(
+				function ( $logger ) {
+					return $logger['instance']->get_slug();
+				},
+				$arr_loggers_user_can_view
+			);
+
+			return $logger_slugs;
 		}
 
+		// Return array with loggers that user can read.
 		return $arr_loggers_user_can_view;
 	}
 
