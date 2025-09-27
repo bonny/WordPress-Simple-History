@@ -1294,7 +1294,8 @@ class Helpers {
 	 */
 	public static function get_num_events_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
 		$simple_history = Simple_History::get_instance();
-		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
+		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
+		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2_' . implode( ',', $loggers_slugs ) );
 
 		$count = get_transient( $transient_key );
 
@@ -1331,7 +1332,8 @@ class Helpers {
 	 */
 	public static function get_num_events_per_day_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
 		$simple_history = Simple_History::get_instance();
-		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_3' );
+		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
+		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_3_' . implode( ',', $loggers_slugs ) );
 		$dates = get_transient( $transient_key );
 
 		if ( false === $dates ) {
@@ -1454,7 +1456,8 @@ class Helpers {
 		$loggers_user_can_read_sql_in = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
 		// Get unique months.
-		$cache_key = 'sh_filter_unique_months';
+		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
+		$cache_key = 'sh_filter_unique_months_' . md5( implode( ',', $loggers_slugs ) );
 		$result_months = get_transient( $cache_key );
 
 		if ( false === $result_months ) {

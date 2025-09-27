@@ -771,7 +771,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				// @phpstan-ignore method.internal
 				$response->link_header( 'prev', $prev_link );
 			}
-			
+
 			if ( $max_pages > $page ) {
 				$next_page = $page + 1;
 				$next_link = add_query_arg( 'page', $next_page, $base );

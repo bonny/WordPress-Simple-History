@@ -10,6 +10,7 @@ use Simple_History\Menu_Manager;
 use Simple_History\Events_Stats;
 use Simple_History\Stats_View;
 use Simple_History\Constants;
+use Simple_History\Simple_History;
 
 /**
  * Dropin Name: Sidebar with eventstats.
@@ -314,7 +315,9 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 * @return array<string,mixed>
 	 */
 	protected function get_quick_stats_data( $num_days_month, $num_days_week ) {
-		$args_serialized = serialize( [ $num_days_month, $num_days_week ] );
+		$simple_history = Simple_History::get_instance();
+		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
+		$args_serialized = serialize( [ $num_days_month, $num_days_week, $loggers_slugs ] );
 		$cache_key = 'sh_quick_stats_data_' . md5( $args_serialized );
 		$cache_expiration_seconds = 5 * MINUTE_IN_SECONDS;
 
@@ -491,7 +494,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 			$this->simple_history->get_contexts_table_name()
 		);
 
-		$cache_key = 'quick_stats_users_today_' . md5( serialize( $sql_loggers_in ) );
+		$cache_key = 'sh_quick_stats_users_today_' . md5( serialize( $sql_loggers_in ) );
 		$cache_group = Helpers::get_cache_group();
 		$results_users_today = wp_cache_get( $cache_key, $cache_group );
 
@@ -543,7 +546,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 			$sql_other_sources_where // 5
 		);
 
-		$cache_key = 'quick_stats_results_other_sources_today_' . md5( serialize( $sql_other_sources ) );
+		$cache_key = 'sh_quick_stats_other_sources_today_' . md5( serialize( $sql_other_sources ) );
 		$results_other_sources_today = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false === $results_other_sources_today ) {
