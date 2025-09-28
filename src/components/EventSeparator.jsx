@@ -4,7 +4,16 @@ import {
 	__experimentalGetSettings as dateSettings,
 } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
+import { Icon } from '@wordpress/components';
+import { pinSmall } from '@wordpress/icons';
 
+/**
+ * Get the label for the event divider.
+ *
+ * @param {Object} root0       - The parameter object.
+ * @param {Object} root0.event - The event object.
+ * @return {string} The label for the event divider.
+ */
 function getEventDividerLabel( { event } ) {
 	let label = '';
 
@@ -14,7 +23,12 @@ function getEventDividerLabel( { event } ) {
 	}
 
 	if ( event.sticky_appended ) {
-		label = __( 'Sticky', 'simple-history' );
+		label = (
+			<>
+				<Icon icon={ pinSmall } />
+				{ __( 'Sticky', 'simple-history' ) }
+			</>
+		);
 	} else {
 		// Not sticky event for first item.
 		// Current event have date label.
