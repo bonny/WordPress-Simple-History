@@ -74,17 +74,55 @@ echo sprintf(__('Showing: %s', 'simple-history'), 'Posts, pages, comments, and m
 - `/inc/class-wp-rest-stats-controller.php` - Lines 231-234: Use UTC
 - `/dropins/class-sidebar-stats-dropin.php` - Lines 171-172, 319-320: Use UTC
 
-### Priority 4 - Cache Invalidation
-- Add hook to clear transients when events are logged:
-```php
-add_action('simple_history/log_inserted', function() {
-    // Clear all sh_* transients
-});
-```
+### Priority 4 - Cache Invalidation (DECISION: NOT IMPLEMENTING)
+- **Original idea**: Clear transients when events are logged
+- **Decision**: Keep 5-minute cache for performance reasons
+- **Rationale**: Clearing cache on every event would be inefficient for busy sites
+- **Solution**: Inform users about the 5-minute refresh interval
+
+## COMPLETED WORK ✅
+
+### Fixed Multi-Layer Caching Issue (Dec 2024)
+
+**Problem**: The sidebar stats widget had conflicting cache layers:
+- Helper functions cached for 1 hour
+- Sidebar cached for 5 minutes
+- Chart data bypassed cache entirely
+- Result: Cache synchronization issues and stale data after new events were logged
+
+**Solution Implemented**:
+1. **Removed caching from helper functions** (`inc/class-helpers.php`):
+   - `get_num_events_last_n_days()` - removed transient caching
+   - `get_num_events_per_day_last_n_days()` - removed transient caching
+
+2. **Consolidated caching at sidebar level** (`dropins/class-sidebar-stats-dropin.php`):
+   - `get_quick_stats_data()` now caches chart data along with stats
+   - `get_chart_data()` updated to use cached data instead of calling helpers directly
+   - Single 5-minute cache for all sidebar data
+
+**Benefits Achieved**:
+- ✅ Single cache layer eliminates synchronization issues
+- ✅ Eliminated cache desync between helper functions and sidebar
+- ✅ Caching moved to "user layer" (presentation layer)
+- ✅ Simpler architecture and maintenance
+- ⚠️ Data still cached for 5 minutes (sidebar cache remains)
+
+**Files Modified**:
+- `/inc/class-helpers.php` - Lines 1295-1374: Removed caching from helper functions
+- `/dropins/class-sidebar-stats-dropin.php` - Lines 317-347, 167: Added chart data to cache, updated function signature
+
+**Testing**: Confirmed working correctly - sidebar stats now update properly when new events are logged.
+
+### Added Cache Refresh Notice (Dec 2024)
+
+**Implementation**: Added "Updates every 5 minutes" text to sidebar stats to inform users about refresh interval
+- **File Modified**: `/dropins/class-sidebar-stats-dropin.php` - Lines 370-372
+- **Approach**: Non-intrusive text added to existing permission-based message
+- **Result**: Users now understand why stats may not immediately reflect new events
 
 ## Expected Outcomes
 - Consistent counts across all statistics displays
 - Correct permission-based filtering
 - Accurate timezone handling
-- Fresh data after new events are logged
-- Clear communication to users about what they're seeing
+- ✅ Clear communication to users about what they're seeing (COMPLETED - added cache refresh notice)
+- ✅ Performance-friendly caching (COMPLETED - kept 5-minute cache for efficiency)
