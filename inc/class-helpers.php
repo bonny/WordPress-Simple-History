@@ -1293,33 +1293,23 @@ class Helpers {
 	 * @return int Number of days.
 	 */
 	public static function get_num_events_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
+		global $wpdb;
 		$simple_history = Simple_History::get_instance();
-		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
-		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2_' . implode( ',', $loggers_slugs ) );
+		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
-		$count = get_transient( $transient_key );
+		$sql = sprintf(
+			'
+                SELECT count(*)
+                FROM %1$s
+                WHERE UNIX_TIMESTAMP(date) >= %2$d
+                AND logger IN %3$s
+            ',
+			$simple_history->get_events_table_name(),
+			strtotime( "-$period_days days" ),
+			$sqlStringLoggersUserCanRead
+		);
 
-		if ( false === $count ) {
-			global $wpdb;
-
-			$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
-
-			$sql = sprintf(
-				'
-                    SELECT count(*)
-                    FROM %1$s
-                    WHERE UNIX_TIMESTAMP(date) >= %2$d
-                    AND logger IN %3$s
-                ',
-				$simple_history->get_events_table_name(),
-				strtotime( "-$period_days days" ),
-				$sqlStringLoggersUserCanRead
-			);
-
-			$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-			set_transient( $transient_key, $count, HOUR_IN_SECONDS );
-		}
+		$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		return $count;
 	}
@@ -1331,64 +1321,55 @@ class Helpers {
 	 * @return array Array with date as key and number of events as value.
 	 */
 	public static function get_num_events_per_day_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
+		/** @var \wpdb $wpdb */
+		global $wpdb;
+
 		$simple_history = Simple_History::get_instance();
-		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
-		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_3_' . implode( ',', $loggers_slugs ) );
-		$dates = get_transient( $transient_key );
+		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+		$db_engine = Log_Query::get_db_engine();
 
-		if ( false === $dates ) {
-			/** @var \wpdb $wpdb */
-			global $wpdb;
+		$sql = null;
 
-			$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
-
-			$db_engine = Log_Query::get_db_engine();
-
-			$sql = null;
-
-			if ( $db_engine === 'mysql' ) {
-				$sql = sprintf(
-					'
-						SELECT
-							date_format(date, "%%Y-%%m-%%d") AS yearDate,
-							count(date) AS count
-						FROM
-							%1$s
-						WHERE
-							UNIX_TIMESTAMP(date) >= %2$d
-							AND logger IN %3$s
-						GROUP BY yearDate
-						ORDER BY yearDate ASC
-					',
-					$simple_history->get_events_table_name(),
-					strtotime( "-$period_days days" ),
-					$sqlStringLoggersUserCanRead
-				);
-			} elseif ( $db_engine === 'sqlite' ) {
-				// SQLite does not support date_format() or UNIX_TIMESTAMP so we need to use strftime().
-				$sql = sprintf(
-					'
-						SELECT
-							strftime("%%Y-%%m-%%d", date) AS yearDate,
-							count(date) AS count
-						FROM
-							%1$s
-						WHERE
-							unixepoch(date) >= %2$d
-							AND logger IN %3$s
-						GROUP BY yearDate
-						ORDER BY yearDate ASC
-					',
-					$simple_history->get_events_table_name(),
-					strtotime( "-$period_days days" ),
-					$sqlStringLoggersUserCanRead
-				);
-			}
-
-			$dates = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-			set_transient( $transient_key, $dates, HOUR_IN_SECONDS );
+		if ( $db_engine === 'mysql' ) {
+			$sql = sprintf(
+				'
+					SELECT
+						date_format(date, "%%Y-%%m-%%d") AS yearDate,
+						count(date) AS count
+					FROM
+						%1$s
+					WHERE
+						UNIX_TIMESTAMP(date) >= %2$d
+						AND logger IN %3$s
+					GROUP BY yearDate
+					ORDER BY yearDate ASC
+				',
+				$simple_history->get_events_table_name(),
+				strtotime( "-$period_days days" ),
+				$sqlStringLoggersUserCanRead
+			);
+		} elseif ( $db_engine === 'sqlite' ) {
+			// SQLite does not support date_format() or UNIX_TIMESTAMP so we need to use strftime().
+			$sql = sprintf(
+				'
+					SELECT
+						strftime("%%Y-%%m-%%d", date) AS yearDate,
+						count(date) AS count
+					FROM
+						%1$s
+					WHERE
+						unixepoch(date) >= %2$d
+						AND logger IN %3$s
+					GROUP BY yearDate
+					ORDER BY yearDate ASC
+				',
+				$simple_history->get_events_table_name(),
+				strtotime( "-$period_days days" ),
+				$sqlStringLoggersUserCanRead
+			);
 		}
+
+		$dates = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		return $dates;
 	}
