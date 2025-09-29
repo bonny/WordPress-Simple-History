@@ -18,6 +18,13 @@ use Simple_History\Simple_History;
  * Author: Pär Thernström
  */
 class Sidebar_Stats_Dropin extends Dropin {
+	/**
+	 * Cache duration in minutes for sidebar stats.
+	 *
+	 * @var int
+	 */
+	const CACHE_DURATION_MINUTES = 5;
+
 	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 4 );
@@ -318,7 +325,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
 		$args_serialized = serialize( [ $num_days_month, $num_days_week, $loggers_slugs ] );
 		$cache_key = 'sh_quick_stats_data_' . md5( $args_serialized );
-		$cache_expiration_seconds = 5 * MINUTE_IN_SECONDS;
+		$cache_expiration_seconds = self::CACHE_DURATION_MINUTES * MINUTE_IN_SECONDS;
 
 		$results = get_transient( $cache_key );
 
@@ -367,9 +374,17 @@ class Sidebar_Stats_Dropin extends Dropin {
 				<p class="sh-mt-0">
 					<?php
 					if ( current_user_can( 'manage_options' ) ) {
-						esc_html_e( 'Calculated from all events.', 'simple-history' );
+						printf(
+							/* translators: %d is the number of minutes between cache refreshes */
+							esc_html__( 'Calculated from all events. Updates every %d minutes.', 'simple-history' ),
+							absint( self::CACHE_DURATION_MINUTES )
+						);
 					} else {
-						esc_html_e( 'Based on events you can view.', 'simple-history' );
+						printf(
+							/* translators: %d is the number of minutes between cache refreshes */
+							esc_html__( 'Based on events you can view. Updates every %d minutes.', 'simple-history' ),
+							absint( self::CACHE_DURATION_MINUTES )
+						);
 					}
 					?>
 				</p>
