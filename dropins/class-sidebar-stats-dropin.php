@@ -160,13 +160,12 @@ class Sidebar_Stats_Dropin extends Dropin {
 	/**
 	 * Get data for chart.
 	 *
-	 * @param int $num_days Number of days to get data for.
+	 * @param int   $num_days Number of days to get data for.
+	 * @param array $num_events_per_day_for_period Cached chart data from get_quick_stats_data.
 	 * @return string HTML.
 	 */
-	protected function get_chart_data( $num_days ) {
+	protected function get_chart_data( $num_days, $num_events_per_day_for_period ) {
 		ob_start();
-
-		$num_events_per_day_for_period = Helpers::get_num_events_per_day_last_n_days( $num_days );
 
 		// Period = all dates, so empty ones don't get lost.
 		$period_start_date = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days days" ) );
@@ -338,6 +337,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 			'num_events_month' => Helpers::get_num_events_last_n_days( $num_days_month ),
 			'total_events' => Helpers::get_total_logged_events_count(),
 			'top_users' => $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 ),
+			'chart_data_month' => Helpers::get_num_events_per_day_last_n_days( $num_days_month ),
 		];
 
 		set_transient( $cache_key, $results, $cache_expiration_seconds );
@@ -432,7 +432,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 				}
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $this->get_chart_data( $num_days_month );
+				echo $this->get_chart_data( $num_days_month, $stats_data['chart_data_month'] );
 
 				// Show total installs and CTA for admins.
 				if ( current_user_can( 'manage_options' ) ) {
