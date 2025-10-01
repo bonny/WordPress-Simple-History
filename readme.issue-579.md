@@ -5,16 +5,16 @@ Statistics shown in different parts of Simple History are inconsistent, showing 
 
 ## Root Causes Identified
 
-### 1. Event Grouping Mismatch (PRIMARY CAUSE - 100x+ discrepancies)
-- **Main log**: Groups similar events by `occasionsID` (e.g., 500 failed logins = 1 occasion)
-- **Stats "Week/Month"**: Counts ALL individual events (`SELECT count(*)`)
-- **Stats "Today"**: Correctly counts occasions (uses `Log_Query`)
-- **Impact**: Sites under attack or with heavy editing show massive discrepancies
+### 1. Event Grouping Difference ✅ WORKING AS INTENDED
+- **Main log GUI**: Groups similar events by `occasionsID` for readability (e.g., 500 failed logins = 1 grouped row)
+- **Stats counts**: Count ALL individual events (`SELECT count(*)`) - this is correct behavior
+- **Design**: Stats should reflect actual event volume, while GUI groups for usability
+- **Not a bug**: Different display purposes require different approaches
 
-### 2. User Permission Cache Issue (HIGH PRIORITY)
-- **Problem**: Cache keys don't include user ID or capabilities
-- **Result**: All users see the same cached counts regardless of their permissions
-- **Example**: Editor loads page → Admin sees editor's limited counts
+### 2. User Permission Cache Issue ✅ FIXED
+- **Problem**: Cache keys didn't include user capabilities
+- **Result**: All users saw the same cached counts regardless of their permissions
+- **Fix**: Cache key now includes `$loggers_slugs` based on user capabilities (line 326)
 
 ### 3. Timezone Inconsistencies
 - **Stats Service**: Uses UTC ✅
@@ -61,13 +61,14 @@ echo sprintf(__('Showing: %s', 'simple-history'), 'Posts, pages, comments, and m
 
 ## Files to Fix
 
-### Priority 1 - Event Counting
-- `/inc/class-helpers.php` - Lines 1307-1317: Change to count occasions, not events
-- `/inc/class-events-stats.php` - Line 87: Consider counting occasions
+### Priority 1 - Event Counting ✅ WORKING AS INTENDED
+- Stats should count ALL individual events (current behavior is correct)
+- Main log GUI groups events for readability (already implemented via `occasionsID`)
+- No changes needed
 
-### Priority 2 - Cache Keys
-- `/dropins/class-sidebar-stats-dropin.php` - Line 310: Add capability hash to cache key
-- `/inc/class-helpers.php` - Lines 1297, 1334: Add capability hash to cache keys
+### Priority 2 - Cache Keys ✅ COMPLETED
+- ✅ `/dropins/class-sidebar-stats-dropin.php` - Line 326: Cache key includes `$loggers_slugs` based on user capabilities
+- ✅ `/inc/class-helpers.php` - Lines 1298, 1328: Helper functions filter by `get_loggers_that_user_can_read()` (no longer cache)
 
 ### Priority 3 - Timezone
 - `/inc/services/class-email-report-service.php` - Lines 198, 243, 503: Use UTC
