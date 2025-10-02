@@ -323,7 +323,9 @@ class Sidebar_Stats_Dropin extends Dropin {
 	protected function get_quick_stats_data( $num_days_month, $num_days_week ) {
 		$simple_history = Simple_History::get_instance();
 		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
-		$args_serialized = serialize( [ $num_days_month, $num_days_week, $loggers_slugs ] );
+		$current_user_can_manage_options = current_user_can( 'manage_options' );
+		$current_user_can_list_users = current_user_can( 'list_users' );
+		$args_serialized = serialize( [ $num_days_month, $num_days_week, $loggers_slugs, $current_user_can_manage_options, $current_user_can_list_users ] );
 		$cache_key = 'sh_quick_stats_data_' . md5( $args_serialized );
 		$cache_expiration_seconds = self::CACHE_DURATION_MINUTES * MINUTE_IN_SECONDS;
 
@@ -333,19 +335,25 @@ class Sidebar_Stats_Dropin extends Dropin {
 			return $results;
 		}
 
-		$month_date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days_month days" ) );
-		$month_date_to = DateTimeImmutable::createFromFormat( 'U', time() );
-
-		$events_stats = new Events_Stats();
-
 		$results = [
 			'num_events_today' => Events_Stats::get_num_events_today(),
 			'num_events_week' => Helpers::get_num_events_last_n_days( $num_days_week ),
 			'num_events_month' => Helpers::get_num_events_last_n_days( $num_days_month ),
-			'total_events' => Helpers::get_total_logged_events_count(),
-			'top_users' => $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 ),
 			'chart_data_month' => Helpers::get_num_events_per_day_last_n_days( $num_days_month ),
 		];
+
+		// Only fetch total_events for admins.
+		if ( $current_user_can_manage_options ) {
+			$results['total_events'] = Helpers::get_total_logged_events_count();
+		}
+
+		// Only fetch top_users for users who can list users.
+		if ( $current_user_can_list_users ) {
+			$month_date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days_month days" ) );
+			$month_date_to = DateTimeImmutable::createFromFormat( 'U', time() );
+			$events_stats = new Events_Stats();
+			$results['top_users'] = $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 );
+		}
 
 		set_transient( $cache_key, $results, $cache_expiration_seconds );
 
@@ -428,7 +436,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 				</div>
 
 				<?php
-				if ( $current_user_can_list_users ) {
+				if ( $current_user_can_list_users && isset( $stats_data['top_users'] ) ) {
 					?>
 					<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
 						<span class="sh-StatsDashboard-statLabel">
@@ -450,7 +458,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 				echo $this->get_chart_data( $num_days_month, $stats_data['chart_data_month'] );
 
 				// Show total installs and CTA for admins.
-				if ( current_user_can( 'manage_options' ) ) {
+				if ( current_user_can( 'manage_options' ) && isset( $stats_data['total_events'] ) ) {
 					$msg_text = sprintf(
 						// translators: 1 is number of events, 2 is description of when the plugin was installed.
 						__( 'A total of <b>%1$s events</b> have been logged since Simple History was installed.', 'simple-history' ),
