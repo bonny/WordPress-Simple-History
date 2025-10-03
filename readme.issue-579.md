@@ -121,6 +121,77 @@ echo sprintf(__('Showing: %s', 'simple-history'), 'Posts, pages, comments, and m
 - **Approach**: Non-intrusive text added to existing permission-based message
 - **Result**: Users now understand why stats may not immediately reflect new events
 
+### Optimized Cache Data Fetching (Oct 2024)
+
+**Problem**: Cache was fetching `total_events` and `top_users` for all users, even though only admins can view this data.
+
+**Solution Implemented**:
+1. **Conditional data fetching** (`dropins/class-sidebar-stats-dropin.php` lines 345-356):
+   - `total_events` only fetched when user has `manage_options` capability
+   - `top_users` only fetched when user has `list_users` capability
+
+2. **Updated cache key** to include user capabilities:
+   - Cache key now includes `$current_user_can_manage_options` and `$current_user_can_list_users`
+   - Ensures separate cache entries for different permission levels
+
+3. **Added defensive checks** when displaying data:
+   - Added `isset()` checks before accessing `total_events` and `top_users` in cache
+
+**Benefits**:
+- ✅ Improved performance for non-admin users (fewer database queries)
+- ✅ Better security (separate cache entries per permission level)
+- ✅ More efficient resource usage
+
+### Created Date_Helper Class for WordPress Timezone-Aware Operations (Oct 2024)
+
+**Problem**: Date/time calculations scattered throughout codebase, using server timezone (UTC) instead of WordPress timezone setting.
+
+**Solution Implemented**:
+1. **Created centralized Date_Helper class** (`/inc/class-date-helper.php`):
+   - Renamed from `Constants` class to better reflect purpose
+   - All methods respect WordPress timezone setting from Settings > General
+   - Single source of truth for all date/time calculations
+
+2. **New timezone-aware timestamp methods**:
+   - `get_current_timestamp()` - Current Unix timestamp
+   - `get_today_start_timestamp()` - Today at 00:00:00 in WP timezone
+   - `get_today_end_timestamp()` - Today at 23:59:59 in WP timezone
+   - `get_n_days_ago_timestamp($days)` - N days ago at 00:00:00 in WP timezone
+
+3. **New date range helper methods**:
+   - `get_default_date_range()` - Last 30 days to end of today
+   - `get_last_n_days_range($days)` - Last N days to end of today
+   - `get_period_range($period)` - Range for 'week', 'month', 'fortnight', 'quarter'
+
+4. **Timezone utility methods**:
+   - `get_wp_timezone()` - Returns WordPress DateTimeZone object
+   - `get_wp_timezone_string()` - Returns timezone string (e.g., 'Europe/Stockholm')
+
+**Implementation Details**:
+- Uses `DateTimeImmutable` with `wp_timezone()` for proper timezone handling
+- Returns timezone-neutral Unix timestamps for database queries
+- Follows WordPress 5.3+ best practices (uses `wp_date()`, `wp_timezone()`)
+
+**Files Modified**:
+- Created: `/inc/class-date-helper.php` (renamed from `class-constants.php`)
+- Updated 6 files to use `Date_Helper` instead of `Constants`:
+  - `/inc/class-helpers.php`
+  - `/inc/class-simple-history.php`
+  - `/inc/services/class-email-report-service.php`
+  - `/inc/class-wp-rest-stats-controller.php`
+  - `/dropins/class-sidebar-stats-dropin.php`
+
+**Testing**: All methods verified to correctly respect WordPress timezone (tested with Europe/Stockholm UTC+2).
+
+**Benefits**:
+- ✅ Centralized date/time logic - easier to maintain
+- ✅ WordPress timezone-aware - respects user settings
+- ✅ Consistent behavior across plugin
+- ✅ Foundation for fixing Priority 3 (Timezone Inconsistencies)
+- ✅ Better code organization and self-documentation
+
+**Next Steps**: Use `Date_Helper` methods throughout codebase to replace direct `strtotime()` calls and fix timezone issues.
+
 ## Expected Outcomes
 - Consistent counts across all statistics displays
 - Correct permission-based filtering
