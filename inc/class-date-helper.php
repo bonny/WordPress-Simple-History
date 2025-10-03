@@ -1,6 +1,8 @@
 <?php
 /**
- * Constants class for Simple History.
+ * Date_Helper class for Simple History.
+ *
+ * Provides centralized date/time utilities and constants.
  */
 
 namespace Simple_History;
@@ -10,11 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Constants
+ * Class Date_Helper
  *
- * Centralized constants for Simple History plugin.
+ * Centralized date/time helper methods and time period constants.
+ * All date/time calculations respect WordPress timezone settings.
  */
-class Constants {
+class Date_Helper {
 
 	/**
 	 * Time period constants in days.

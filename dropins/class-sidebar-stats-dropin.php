@@ -9,7 +9,7 @@ use Simple_History\Helpers;
 use Simple_History\Menu_Manager;
 use Simple_History\Events_Stats;
 use Simple_History\Stats_View;
-use Simple_History\Constants;
+use Simple_History\Date_Helper;
 use Simple_History\Simple_History;
 
 /**
@@ -189,7 +189,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 				printf(
 					// translators: 1 is number of days.
 					esc_html__( 'Daily activity over last %d days', 'simple-history' ),
-					esc_html( Constants::DAYS_PER_MONTH )
+					esc_html( Date_Helper::DAYS_PER_MONTH )
 				);
 				?>
 			</div>
@@ -364,8 +364,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 * Output HTML for sidebar.
 	 */
 	public function on_sidebar_html() {
-		$num_days_month = Constants::DAYS_PER_MONTH;
-		$num_days_week = Constants::DAYS_PER_WEEK;
+		$num_days_month = Date_Helper::DAYS_PER_MONTH;
+		$num_days_week = Date_Helper::DAYS_PER_WEEK;
 
 		$stats_data = $this->get_quick_stats_data( $num_days_month, $num_days_week );
 
@@ -420,14 +420,14 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 					echo $this->get_stat_dashboard_item(
 						// translators: %d is the number of days.
-						sprintf( __( 'Last %d days', 'simple-history' ), Constants::DAYS_PER_WEEK ),
+						sprintf( __( 'Last %d days', 'simple-history' ), Date_Helper::DAYS_PER_WEEK ),
 						number_format_i18n( $stats_data['num_events_week'] ),
 						_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
 					);
 
 					echo $this->get_stat_dashboard_item(
 						// translators: %d is the number of days.
-						sprintf( __( 'Last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ),
+						sprintf( __( 'Last %d days', 'simple-history' ), Date_Helper::DAYS_PER_MONTH ),
 						number_format_i18n( $stats_data['num_events_month'] ),
 						_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
 					);
@@ -444,7 +444,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 							printf(
 								// translators: 1 is number of days.
 								esc_html__( 'Most active users in last %d days', 'simple-history' ),
-								esc_html( Constants::DAYS_PER_MONTH )
+								esc_html( Date_Helper::DAYS_PER_MONTH )
 							);
 							?>
 							<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
