@@ -1289,8 +1289,11 @@ class Helpers {
 	/**
 	 * Get number of events the last n days.
 	 *
+	 * Respects user permissions - only counts events from loggers the current user can view.
+	 * Uses WordPress timezone for date calculations.
+	 *
 	 * @param int $period_days Number of days to get events for.
-	 * @return int Number of days.
+	 * @return int Number of events user can view.
 	 */
 	public static function get_num_events_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
 		global $wpdb;
@@ -1305,7 +1308,7 @@ class Helpers {
                 AND logger IN %3$s
             ',
 			$simple_history->get_events_table_name(),
-			strtotime( "-$period_days days" ),
+			Date_Helper::get_n_days_ago_timestamp( $period_days ),
 			$sqlStringLoggersUserCanRead
 		);
 
@@ -1378,7 +1381,7 @@ class Helpers {
 					ORDER BY yearDate ASC
 				',
 				$simple_history->get_events_table_name(),
-				strtotime( "-$period_days days" ),
+				Date_Helper::get_n_days_ago_timestamp( $period_days ),
 				$sqlStringLoggersUserCanRead
 			);
 		} elseif ( $db_engine === 'sqlite' ) {
@@ -1397,7 +1400,7 @@ class Helpers {
 					ORDER BY yearDate ASC
 				',
 				$simple_history->get_events_table_name(),
-				strtotime( "-$period_days days" ),
+				Date_Helper::get_n_days_ago_timestamp( $period_days ),
 				$sqlStringLoggersUserCanRead
 			);
 		}

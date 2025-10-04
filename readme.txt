@@ -333,7 +333,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
--   Fix stats not aligning correctly with the new user permissions system.
+-   Fix sidebar stats not aligning correctly with the new user permissions system.
+-   Fix sidebar stats not calculating day boundaries correctly (did use server timezone instead of WordPress timezone, and using current time instead of start of day).
 
 **Changes**
 
