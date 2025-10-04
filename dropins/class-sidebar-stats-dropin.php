@@ -175,8 +175,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 		ob_start();
 
 		// Period = all dates, so empty ones don't get lost.
-		$period_start_date = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days days" ) );
-		$period_end_date = DateTimeImmutable::createFromFormat( 'U', time() );
+		$period_start_date = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_n_days_ago_timestamp( $num_days ) );
+		$period_end_date = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_current_timestamp() );
 		$interval = DateInterval::createFromDateString( '1 day' );
 
 		$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
@@ -353,8 +353,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		// Only fetch top_users for users who can list users.
 		if ( $current_user_can_list_users ) {
-			$month_date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days_month days" ) );
-			$month_date_to = DateTimeImmutable::createFromFormat( 'U', time() );
+			$month_date_from = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_n_days_ago_timestamp( $num_days_month ) );
+			$month_date_to = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_current_timestamp() );
 			$events_stats = new Events_Stats();
 			$results['top_users'] = $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 );
 		}
