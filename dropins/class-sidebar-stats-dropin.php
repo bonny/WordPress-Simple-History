@@ -336,7 +336,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		}
 
 		$results = [
-			'num_events_today' => Events_Stats::get_num_events_today(),
+			'num_events_today' => Helpers::get_num_events_today(),
 			'num_events_week' => Helpers::get_num_events_last_n_days( $num_days_week ),
 			'num_events_month' => Helpers::get_num_events_last_n_days( $num_days_month ),
 			'chart_data_month' => Helpers::get_num_events_per_day_last_n_days( $num_days_month ),

@@ -1315,10 +1315,43 @@ class Helpers {
 	}
 
 	/**
+	 * Get number of events today (WordPress timezone-aware).
+	 *
+	 * Counts individual events from midnight today (00:00:00) in WordPress timezone.
+	 * Respects user permissions - only counts events from loggers the current user can view.
+	 *
+	 * @return int Number of events today that user can view.
+	 */
+	public static function get_num_events_today() {
+		global $wpdb;
+		$simple_history = Simple_History::get_instance();
+		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+
+		$sql = sprintf(
+			'
+                SELECT count(*)
+                FROM %1$s
+                WHERE UNIX_TIMESTAMP(date) >= %2$d
+                AND logger IN %3$s
+            ',
+			$simple_history->get_events_table_name(),
+			Date_Helper::get_today_start_timestamp(),
+			$sqlStringLoggersUserCanRead
+		);
+
+		$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		return (int) $count;
+	}
+
+	/**
 	 * Get number of events per day the last n days.
 	 *
+	 * Respects user permissions - only counts events from loggers the current user can view.
+	 * Uses WordPress timezone for date calculations.
+	 *
 	 * @param int $period_days Number of days to get events for.
-	 * @return array Array with date as key and number of events as value.
+	 * @return array Array with date as key and number of events user can view as value.
 	 */
 	public static function get_num_events_per_day_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
 		/** @var \wpdb $wpdb */
