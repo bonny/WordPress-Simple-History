@@ -172,6 +172,37 @@ echo sprintf(__('Showing: %s', 'simple-history'), 'Posts, pages, comments, and m
 - Returns timezone-neutral Unix timestamps for database queries
 - Follows WordPress 5.3+ best practices (uses `wp_date()`, `wp_timezone()`)
 
+**Why This Matters - The Timezone Difference Explained**:
+
+*Old approach using `strtotime()`*:
+```php
+strtotime("-30 days")  // Uses server timezone (typically UTC)
+```
+- Calculates from current server time, not day boundaries
+- Example: If server is UTC and it's Oct 4, 2025 17:00 UTC
+  - Returns: Sep 4, 2025 17:00 UTC
+- **Problem**: Ignores WordPress timezone setting, misaligned day boundaries
+
+*New approach using `Date_Helper`*:
+```php
+Date_Helper::get_n_days_ago_timestamp(30)  // Uses WordPress timezone
+```
+- Calculates from midnight (00:00:00) in WordPress timezone
+- Example: If WordPress timezone is Europe/Stockholm (UTC+2) on Oct 4, 2025
+  - Returns: Sep 4, 2025 00:00:00 Stockholm time (Sep 3, 2025 22:00 UTC)
+- **Benefit**: Respects user's timezone, predictable day boundaries
+
+**Real-World Impact**:
+
+Scenario: WordPress in New York (UTC-5), server in UTC. It's Oct 4, 2025 1:00 AM NY time.
+
+| Method | Calculates | Result | Issue |
+|--------|------------|--------|-------|
+| `strtotime("-1 days")` | 1 day ago from current UTC time | Oct 3, 1:00 AM NY | Misses first hour of Oct 3! |
+| `Date_Helper::get_n_days_ago_timestamp(1)` | Yesterday at midnight NY time | Oct 3, 00:00 AM NY | Correct - full day ✓ |
+
+This ensures stats like "Yesterday" and "Last 30 days" align with what users see in WordPress admin, not server time.
+
 **Files Modified**:
 - Created: `/inc/class-date-helper.php` (renamed from `class-constants.php`)
 - Updated 6 files to use `Date_Helper` instead of `Constants`:
@@ -190,7 +221,40 @@ echo sprintf(__('Showing: %s', 'simple-history'), 'Posts, pages, comments, and m
 - ✅ Foundation for fixing Priority 3 (Timezone Inconsistencies)
 - ✅ Better code organization and self-documentation
 
-**Next Steps**: Use `Date_Helper` methods throughout codebase to replace direct `strtotime()` calls and fix timezone issues.
+### Fixed Timezone Issues in Stats Helpers and Sidebar (Oct 2024)
+
+**Problem**: Helper functions and sidebar stats were still using `strtotime()` directly, causing timezone and counting inconsistencies:
+1. Used server timezone (UTC) instead of WordPress timezone
+2. "Today" counted grouped occasions while "Week/Month" counted individual events
+3. "Today" didn't respect user permissions properly
+
+**Solution Implemented**:
+
+1. **Updated helper functions to use `Date_Helper`** (`/inc/class-helpers.php`):
+   - `get_num_events_last_n_days()` - Line 1308: Now uses `Date_Helper::get_n_days_ago_timestamp()`
+   - `get_num_events_per_day_last_n_days()` - Lines 1348, 1367: Now uses `Date_Helper::get_n_days_ago_timestamp()` (both MySQL and SQLite)
+   - Added new `get_num_events_today()` method (lines 1320-1347):
+     - Uses `Date_Helper::get_today_start_timestamp()`
+     - Counts individual events (not grouped occasions)
+     - Respects user permissions via `get_loggers_that_user_can_read()`
+
+2. **Updated sidebar stats** (`/dropins/class-sidebar-stats-dropin.php`):
+   - Line 343: Changed from `Events_Stats::get_num_events_today()` to `Helpers::get_num_events_today()`
+   - Lines 178-179: Chart period calculation now uses `Date_Helper` methods
+   - Lines 356-357: Top users date range now uses `Date_Helper` methods
+
+3. **Enhanced function documentation**:
+   - All three helper functions now explicitly document that they respect user permissions
+   - Clear documentation: "only counts events from loggers the current user can view"
+
+**Benefits Achieved**:
+- ✅ WordPress timezone-aware: All calculations respect Settings > General timezone
+- ✅ Consistent counting: All stats count individual events (not grouped occasions)
+- ✅ User permissions respected: All methods filter by `get_loggers_that_user_can_read()`
+- ✅ Single source of truth: All date calculations use `Date_Helper`
+- ✅ Better documentation: Permission filtering is now explicit in PHPDoc
+
+**Testing**: Verified with Europe/Stockholm (UTC+2) timezone - all calculations correctly use WordPress timezone, not server UTC.
 
 ## Expected Outcomes
 - Consistent counts across all statistics displays
