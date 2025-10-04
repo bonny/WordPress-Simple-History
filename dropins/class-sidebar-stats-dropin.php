@@ -202,13 +202,16 @@ class Sidebar_Stats_Dropin extends Dropin {
 			</div>
 			
 			<div class="sh-StatsDashboard-statSubValue">
-				<p class="sh-flex sh-justify-between sh-m-0">
+				<p class="sh-flex sh-justify-between sh-m-0"
+					style="margin-top: calc(-1 * var(--sh-spacing-small));"
+				>
 					<span>
 						<?php
 						// From date, localized.
+						// Example: "September 4, 2025".
 						echo esc_html(
 							wp_date(
-								get_option( 'date_format' ),
+								'M j',
 								$period_start_date->getTimestamp()
 							)
 						);
@@ -217,9 +220,10 @@ class Sidebar_Stats_Dropin extends Dropin {
 					<span>
 						<?php
 						// To date, localized.
+						// Example: "October 4, 2025".
 						echo esc_html(
 							wp_date(
-								get_option( 'date_format' ),
+								'M j',
 								$period_end_date->getTimestamp()
 							)
 						);
@@ -420,14 +424,14 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 					echo $this->get_stat_dashboard_item(
 						// translators: %d is the number of days.
-						sprintf( __( 'Last %d days', 'simple-history' ), Date_Helper::DAYS_PER_WEEK ),
+						sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_WEEK ),
 						number_format_i18n( $stats_data['num_events_week'] ),
 						_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
 					);
 
 					echo $this->get_stat_dashboard_item(
 						// translators: %d is the number of days.
-						sprintf( __( 'Last %d days', 'simple-history' ), Date_Helper::DAYS_PER_MONTH ),
+						sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_MONTH ),
 						number_format_i18n( $stats_data['num_events_month'] ),
 						_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
 					);
