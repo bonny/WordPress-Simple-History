@@ -329,6 +329,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Add new format `slugs` to `get_loggers_that_user_can_read()` method.
 -   Add icon to sticky events label.
+-   Add new `get_num_events_today()` function.
+
+**Fixed**
+
+-   Fix stats not aligning correctly with the new user permissions system.
 
 **Changes**
 
