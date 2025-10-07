@@ -4,16 +4,23 @@ use Simple_History\Simple_History;
 use Simple_History\Helpers;
 use Simple_History\Events_Stats;
 use Simple_History\Date_Helper;
+use Simple_History\Services\Email_Report_Service;
 
 /**
  * Test stats alignment across different components:
  * - Sidebar stats widget
  * - Stats/Insights page
  * - Email reports
- * - REST API
+ * - Chart data
  *
  * This test ensures that stats shown in different parts of the plugin
  * are consistent (or intentionally different and documented).
+ *
+ * Covers:
+ * - Event counting (individual vs grouped)
+ * - Timezone handling (WordPress timezone vs UTC)
+ * - Permission filtering (sidebar filters, insights/email show all for admins)
+ * - Date range consistency
  *
  * @coversDefaultClass Simple_History\Simple_History
  */
@@ -387,7 +394,42 @@ class StatsAlignmentTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test 6: Chart Data Alignment
+	 * Test 6: Email Report Data Alignment
+	 *
+	 * Email reports should use same stats as sidebar for consistency.
+	 */
+	public function test_email_report_data_alignment() {
+		wp_set_current_user( $this->admin_user_id );
+
+		// Create events
+		$this->create_test_events_last_30_days( 15 );
+
+		// Get date range for last 7 days (what email uses)
+		$date_from = Date_Helper::get_n_days_ago_timestamp( Date_Helper::DAYS_PER_WEEK );
+		$date_to = Date_Helper::get_current_timestamp();
+
+		// 1. Get sidebar count for 7 days
+		$sidebar_count = Helpers::get_num_events_last_n_days( Date_Helper::DAYS_PER_WEEK );
+
+		// 2. Get email report data
+		$email_service = new Email_Report_Service( $this->sh );
+		$email_data = $email_service->get_summary_report_data( $date_from, $date_to, true );
+
+		// Email uses Events_Stats::get_total_events() - same as insights page
+		$email_total_events = $email_data['total_events_this_week'];
+
+		// For admin users, sidebar and email should match
+		$this->assertEquals(
+			$sidebar_count,
+			$email_total_events,
+			'Email report total events should match sidebar count for admin users'
+		);
+
+		codecept_debug( "Sidebar (7 days): {$sidebar_count}, Email report: {$email_total_events}" );
+	}
+
+	/**
+	 * Test 7: Chart Data Alignment
 	 *
 	 * Chart data should align with total counts.
 	 */
