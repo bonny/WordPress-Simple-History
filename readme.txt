@@ -340,6 +340,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Fix sidebar stats not calculating day boundaries correctly (did use server timezone instead of WordPress timezone, and using current time instead of start of day).
 -   Fix sidebar stats "users today" and "other sources" counts using server timezone instead of WordPress timezone.
 -   Fix Insights/Stats page using UTC timezone instead of WordPress timezone setting.
+-   Fix Insights/Stats page date range calculation showing 31 days instead of 30 days (now converts months to days: 1m=30d, 3m=90d).
+-   Fix Insights/Stats page chart data using UTC timezone for date labels instead of WordPress timezone.
 -   Fix email reports using server timezone instead of WordPress timezone.
 -   Fix email scheduling to use WordPress timezone (emails now scheduled for 8:00 AM in site's timezone, not server timezone).
 -   Fix REST API stats endpoints using server timezone instead of WordPress timezone.
