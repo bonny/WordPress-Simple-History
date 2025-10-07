@@ -528,7 +528,7 @@ class Sidebar_Stats_Dropin extends Dropin {
                 AND date > \'%2$s\'
             ',
 			$sql_loggers_in,
-			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
+			gmdate( 'Y-m-d H:i:s', Date_Helper::get_today_start_timestamp() ),
 			$this->simple_history->get_events_table_name(),
 			$this->simple_history->get_contexts_table_name()
 		);
@@ -565,7 +565,7 @@ class Sidebar_Stats_Dropin extends Dropin {
                 AND date > \'%2$s\'
             ',
 			$sql_loggers_in,
-			gmdate( 'Y-m-d H:i', strtotime( 'today' ) )
+			gmdate( 'Y-m-d H:i:s', Date_Helper::get_today_start_timestamp() )
 		);
 
 		$sql_other_sources_where = apply_filters( 'simple_history/quick_stats_where', $sql_other_sources_where );
@@ -579,7 +579,7 @@ class Sidebar_Stats_Dropin extends Dropin {
                 %5$s
             ',
 			$sql_loggers_in,
-			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
+			gmdate( 'Y-m-d H:i:s', Date_Helper::get_today_start_timestamp() ),
 			$this->simple_history->get_events_table_name(),
 			$this->simple_history->get_contexts_table_name(),
 			$sql_other_sources_where // 5
