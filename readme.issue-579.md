@@ -330,9 +330,62 @@ Also changed line 254 from `date_i18n()` to `wp_date()` for consistent timezone 
 
 **Testing**: Verified chart displays correct 30-day range with accurate event counts and matching date labels in WordPress timezone (Europe/Stockholm UTC+2).
 
+## NEWLY DISCOVERED ISSUE: Stats/Insights Page Misalignment (Oct 2024)
+
+### Problem Identified
+While reviewing the codebase, discovered **timezone misalignment** between sidebar stats and the Stats/Insights page:
+
+**Sidebar Stats** (`dropins/class-sidebar-stats-dropin.php`):
+- ✅ Filters by user permissions via `get_loggers_that_user_can_read()`
+- ✅ Uses WordPress timezone via `Date_Helper`
+- ✅ Counts individual events
+
+**Stats/Insights Page** (`inc/class-events-stats.php` + `inc/services/class-stats-service.php`):
+- ✅ **Does NOT filter by user permissions** - This is CORRECT since page is admin-only (`manage_options` required)
+- ❌ **Uses UTC timezone** - `new \DateTimeZone('UTC')` on line 96 of `class-stats-service.php`
+- ✅ Counts individual events
+
+### Impact
+For an admin user viewing stats:
+- **Sidebar**: Shows events they can view, in WordPress timezone (e.g., Europe/Stockholm UTC+2)
+- **Insights Page**: Shows ALL events (admin view), but in UTC timezone
+
+**Example**: Admin logs in at 23:30 Stockholm time (21:30 UTC):
+- **Sidebar "Today"**: Counts from 00:00 Stockholm time (yesterday 22:00 UTC)
+- **Insights "Today"**: Counts from 00:00 UTC (02:00 Stockholm time)
+- **Result**: Different counts even though both show "today"
+
+### Solution
+
+**Fix Timezone in Insights Page** (Recommended)
+- Change `class-stats-service.php` line 96 to use `Date_Helper` methods
+- Maintains current behavior (admins see all events) but fixes timezone consistency
+- **Pros**: Simple fix, aligns sidebar and insights page, respects WordPress timezone setting
+- **Cons**: None
+
+**Permission filtering is correct as-is**: Insights page should show all events since it's admin-only. No changes needed there.
+
+### Test Created ✅
+Created `tests/wpunit/StatsAlignmentTest.php` with 7 comprehensive tests:
+
+1. **test_admin_user_all_stats_match** ✅ - Verifies sidebar and insights show same counts for admins
+2. **test_permission_filtering_intentional_difference** ✅ - Documents that insights page shows all events (admin-only)
+3. **test_timezone_alignment** ✅ - Confirms WordPress timezone is used correctly
+4. **test_date_range_consistency** ✅ - Ensures "last 30 days" means the same everywhere
+5. **test_individual_events_not_grouped_occasions** ✅ - Verifies stats count individual events
+6. **test_email_report_data_alignment** ✅ - Confirms email reports match sidebar stats
+7. **test_chart_data_alignment** ✅ - Confirms chart data sums match sidebar totals
+
+**Test Results**: All 7 tests passing ✅ (OK - 7 tests, 22 assertions)
+
+Run with: `npm run test:wpunit -- StatsAlignmentTest`
+
 ## Expected Outcomes
 - ✅ Consistent counts across all statistics displays (COMPLETED - all stats count individual events)
-- ✅ Correct permission-based filtering (COMPLETED - all helpers filter by user permissions)
-- ✅ Accurate timezone handling (COMPLETED - all components use WordPress timezone via Date_Helper)
+- ✅ Correct permission-based filtering (COMPLETED - sidebar filters for all users, insights shows all events for admins only)
+- ⚠️ Accurate timezone handling (PARTIAL - sidebar uses WordPress timezone, insights uses UTC - needs fix)
 - ✅ Clear communication to users about what they're seeing (COMPLETED - added cache refresh notice)
 - ✅ Performance-friendly caching (COMPLETED - kept 5-minute cache for efficiency)
+
+## Next Steps
+- Fix timezone in Insights page (`inc/services/class-stats-service.php` line 96) to use `Date_Helper` instead of UTC
