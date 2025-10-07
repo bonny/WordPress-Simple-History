@@ -380,12 +380,43 @@ Created `tests/wpunit/StatsAlignmentTest.php` with 7 comprehensive tests:
 
 Run with: `npm run test:wpunit -- StatsAlignmentTest`
 
+### Fixed Timezone in Insights Page ✅ (Oct 2024)
+
+**Problem**: Insights page was using UTC timezone instead of WordPress timezone setting.
+
+**Solution Implemented**:
+- **File Modified**: `/inc/services/class-stats-service.php` - Line 96
+- **Change**: Replaced `new \DateTimeZone( 'UTC' )` with `wp_timezone()`
+- **Result**: Insights page now respects WordPress timezone setting
+
+```php
+// Before (incorrect):
+$now = new \DateTimeImmutable( 'now', new \DateTimeZone( 'UTC' ) );
+
+// After (correct):
+$now = new \DateTimeImmutable( 'now', wp_timezone() );
+```
+
+**Benefits Achieved**:
+- ✅ **Complete timezone consistency**: All components now use WordPress timezone
+  - Sidebar stats ✅
+  - Helper functions ✅
+  - Email reports ✅
+  - REST API ✅
+  - Chart data ✅
+  - **Insights page ✅ (FIXED)**
+- ✅ "Last 30 days" means the same period across all features
+- ✅ "Today" aligns with WordPress admin, not server time
+
+**Testing**: All 7 tests in StatsAlignmentTest passing ✅
+
 ## Expected Outcomes
 - ✅ Consistent counts across all statistics displays (COMPLETED - all stats count individual events)
 - ✅ Correct permission-based filtering (COMPLETED - sidebar filters for all users, insights shows all events for admins only)
-- ⚠️ Accurate timezone handling (PARTIAL - sidebar uses WordPress timezone, insights uses UTC - needs fix)
+- ✅ Accurate timezone handling (COMPLETED - all components now use WordPress timezone)
 - ✅ Clear communication to users about what they're seeing (COMPLETED - added cache refresh notice)
 - ✅ Performance-friendly caching (COMPLETED - kept 5-minute cache for efficiency)
 
-## Next Steps
-- Fix timezone in Insights page (`inc/services/class-stats-service.php` line 96) to use `Date_Helper` instead of UTC
+## All Issues Resolved ✅
+
+**Issue #579 is now completely resolved** with all statistics aligned across the plugin.
