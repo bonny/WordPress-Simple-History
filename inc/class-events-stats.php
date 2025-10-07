@@ -357,8 +357,11 @@ class Events_Stats {
 
 		// Create a complete date range with all days.
 		$complete_range = array();
+		// Create DateTime objects in WordPress timezone to ensure correct date boundaries.
 		$current_date = new \DateTime( '@' . $date_from );
+		$current_date->setTimezone( wp_timezone() );
 		$end_date = new \DateTime( '@' . $date_to );
+		$end_date->setTimezone( wp_timezone() );
 
 		while ( $current_date <= $end_date ) {
 			$date_str = $current_date->format( 'Y-m-d' );

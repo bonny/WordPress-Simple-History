@@ -94,7 +94,6 @@ class Stats_Service extends Service {
 
 		// Get current date in WordPress timezone (not UTC).
 		$now = new \DateTimeImmutable( 'now', wp_timezone() );
-		$date_to = $now->getTimestamp();
 
 		// Get the number of the period, i.e. 1, 24, 7, 14, 1, 3, 6, 12.
 		$period_number = substr( $period, 0, -1 );
@@ -120,10 +119,34 @@ class Stats_Service extends Service {
 				break;
 		}
 
-		// Generate string like "-1 hour", "-1 day", "-1 month", "-1 year".
-		$date_time_modifier = "-{$period_number} {$period_string_full_name}";
+		// For day/month/year periods, snap to start/end of day for consistent boundaries.
+		// For month periods, convert to days (1m = 30 days) to ensure exact day counts.
+		if ( in_array( $period_string_suffix, [ 'd', 'm', 'y' ], true ) ) {
+			// Convert months to days for consistent counting (1m = 30d, 3m = 90d, etc).
+			if ( $period_string_suffix === 'm' ) {
+				$days_to_subtract = (int) $period_number * 30;
+			} elseif ( $period_string_suffix === 'y' ) {
+				$days_to_subtract = (int) $period_number * 365;
+			} else {
+				$days_to_subtract = (int) $period_number;
+			}
 
-		$date_from = $now->modify( $date_time_modifier )->getTimestamp();
+			// Calculate date_from: N days ago at start of day.
+			// Subtract (days - 1) because "last 30 days" includes today.
+			$date_from_datetime = new \DateTimeImmutable( '-' . ( $days_to_subtract - 1 ) . ' days midnight', wp_timezone() );
+
+			// Snap date_to to end of today (23:59:59).
+			$date_to_datetime = new \DateTimeImmutable( 'today 23:59:59', wp_timezone() );
+
+			$date_from = $date_from_datetime->getTimestamp();
+			$date_to = $date_to_datetime->getTimestamp();
+		} else {
+			// For hours, use exact timestamps.
+			$date_time_modifier = "-{$period_number} {$period_string_full_name}";
+			$date_from_datetime = $now->modify( $date_time_modifier );
+			$date_from = $date_from_datetime->getTimestamp();
+			$date_to = $now->getTimestamp();
+		}
 
 		return [
 			'date_from' => $date_from,
