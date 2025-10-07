@@ -329,18 +329,27 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Add new format `slugs` to `get_loggers_that_user_can_read()` method.
 -   Add icon to sticky events label.
--   Add new `get_num_events_today()` function.
+-   Add new `get_num_events_today()` helper function.
+-   Add new `Date_Helper` class for centralized, WordPress timezone-aware date/time operations (renamed from Constants class).
+-   Add comprehensive `StatsAlignmentTest` test suite with 7 tests to verify stats consistency across all components.
 -   Add explanation to sidebar stats box about refresh interval and what data is used.
 
 **Fixed**
 
 -   Fix sidebar stats not aligning correctly with the new user permissions system.
 -   Fix sidebar stats not calculating day boundaries correctly (did use server timezone instead of WordPress timezone, and using current time instead of start of day).
+-   Fix sidebar stats "users today" and "other sources" counts using server timezone instead of WordPress timezone.
+-   Fix Insights/Stats page using UTC timezone instead of WordPress timezone setting.
+-   Fix email reports using server timezone instead of WordPress timezone.
+-   Fix email scheduling to use WordPress timezone (emails now scheduled for 8:00 AM in site's timezone, not server timezone).
+-   Fix REST API stats endpoints using server timezone instead of WordPress timezone.
+-   Fix chart date calculations and tooltip display in sidebar stats.
 
 **Changes**
 
 -   Use wp_doing_cron() and wp_doing_ajax() instead of DOING_CRON and DOING_AJAX.
 -   Sidebar stats box now uses the new format `slugs` to get the loggers that the user can read and to make sure the cache key is consistent.
+-   All date/time calculations now use WordPress timezone setting instead of server/UTC timezone for consistency across sidebar, insights page, email reports, and REST API.
 
 **Performance**
 
