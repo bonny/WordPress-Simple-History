@@ -1314,7 +1314,7 @@ class Helpers {
 
 		$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		return $count;
+		return (int) $count;
 	}
 
 	/**
