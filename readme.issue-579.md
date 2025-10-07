@@ -433,6 +433,27 @@ During final code review, discovered and fixed additional timezone issues:
 
 **All fixes verified**: Tests passing ✅, linting passed ✅
 
+**3. Insights Page Date Range Calculation** ✅
+- **File**: `/inc/services/class-stats-service.php` - Lines 122-149
+- **Problem**: Used calendar month calculation (e.g., "1 month ago") resulting in 31 days instead of 30
+- **Fix**: Changed to convert months to exact days (1m=30d, 3m=90d) and snap to day boundaries (midnight to 23:59:59)
+- **Impact**: "Last month" now consistently shows exactly 30 days, matching sidebar stats
+
+**4. Insights Page Chart Data Timezone** ✅
+- **File**: `/inc/class-events-stats.php` - Lines 362, 364
+- **Problem**: Creating DateTime from Unix timestamp (`new \DateTime('@' . $timestamp)`) defaults to UTC, causing chart tooltips to show dates shifted by timezone offset
+- **Fix**: Added `setTimezone(wp_timezone())` after creating DateTime objects from timestamps
+- **Impact**: Chart tooltips now display correct dates matching the chart labels (e.g., Sep 8 instead of Sep 7)
+- **Example**: For Europe/Stockholm (UTC+2), chart now correctly shows Sep 8 - Oct 7 (30 days) in both labels and data
+
+**Files Modified**:
+- `/dropins/class-sidebar-stats-dropin.php` - 3 timezone fixes
+- `/inc/services/class-email-report-service.php` - 1 scheduling fix
+- `/inc/services/class-stats-service.php` - 1 timezone fix + 1 date range calculation fix
+- `/inc/class-events-stats.php` - 1 chart data timezone fix
+
+**All fixes verified**: Tests passing ✅, linting passed ✅
+
 ## Expected Outcomes
 - ✅ Consistent counts across all statistics displays (COMPLETED - all stats count individual events)
 - ✅ Correct permission-based filtering (COMPLETED - sidebar filters for all users, insights shows all events for admins only)
