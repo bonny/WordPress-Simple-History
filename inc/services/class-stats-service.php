@@ -92,8 +92,8 @@ class Stats_Service extends Service {
 			$period = '1m';
 		}
 
-		// Get current date in UTC.
-		$now = new \DateTimeImmutable( 'now', new \DateTimeZone( 'UTC' ) );
+		// Get current date in WordPress timezone (not UTC).
+		$now = new \DateTimeImmutable( 'now', wp_timezone() );
 		$date_to = $now->getTimestamp();
 
 		// Get the number of the period, i.e. 1, 24, 7, 14, 1, 3, 6, 12.
