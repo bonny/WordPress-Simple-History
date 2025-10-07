@@ -284,6 +284,52 @@ This ensures stats like "Yesterday" and "Last 30 days" align with what users see
 
 **Testing**: Verified all components correctly use WordPress timezone setting from Settings > General.
 
+### Fixed Chart Date Display Issues (Oct 2024)
+
+**Problem**: Chart tooltip was showing incorrect dates and wrong event counts:
+1. Tooltip showed "Sep 4" when chart should start at "Sep 5"
+2. Chart displayed 31 days instead of 30 days
+3. Today's events (3) showed as 0 on the chart
+4. Date labels didn't match the actual dates being displayed
+
+**Root Causes**:
+1. **Timezone conversion issue**: Using `DateTimeImmutable::createFromFormat('U', timestamp)->setTimezone()` caused date shifts when converting from UTC to WordPress timezone (e.g., CEST UTC+2)
+2. **Off-by-one in date range**: Using `$num_days` directly for start date instead of `$num_days - 1` for "last N days including today"
+3. **DatePeriod endpoint miscalculation**: Adding 1 day to end time (23:59:59) instead of using next day at 00:00:00
+4. **Mixed timezone functions**: Using `date_i18n()` with timestamps from DateTime objects created issues with timezone interpretation
+
+**Solution Implemented** (`/dropins/class-sidebar-stats-dropin.php` lines 177-190):
+
+```php
+// Before (incorrect):
+$period_start_date = DateTimeImmutable::createFromFormat('U', Date_Helper::get_n_days_ago_timestamp($num_days))->setTimezone(wp_timezone());
+$period_end_date = DateTimeImmutable::createFromFormat('U', Date_Helper::get_current_timestamp())->setTimezone(wp_timezone());
+$period = new DatePeriod($period_start_date, $interval, $period_end_date->add(...));
+
+// After (correct):
+$days_ago = $num_days - 1; // For "last 30 days including today", go back 29 days
+$period_start_date = new DateTimeImmutable("-{$days_ago} days", wp_timezone());
+$period_start_date = new DateTimeImmutable($period_start_date->format('Y-m-d') . ' 00:00:00', wp_timezone());
+$today = new DateTimeImmutable('today', wp_timezone());
+$tomorrow = $today->add(date_interval_create_from_date_string('1 days'));
+$period = new DatePeriod($period_start_date, $interval, $tomorrow);
+```
+
+Also changed line 254 from `date_i18n()` to `wp_date()` for consistent timezone handling.
+
+**Benefits Achieved**:
+- ✅ **Correct date range**: Chart shows exactly 30 days (Sep 8 to Oct 7 on Oct 7)
+- ✅ **Accurate tooltips**: Dates match labels perfectly (no off-by-one errors)
+- ✅ **Today's data visible**: Chart correctly displays current day's events
+- ✅ **Consistent timezone**: All date operations use WordPress timezone throughout
+- ✅ **No timezone conversion bugs**: Creating DateTimeImmutable directly in WordPress timezone avoids UTC conversion issues
+
+**Files Modified**:
+- `/dropins/class-sidebar-stats-dropin.php` - Lines 177-190: Fixed DatePeriod creation with correct timezone
+- `/dropins/class-sidebar-stats-dropin.php` - Line 254: Changed from `date_i18n()` to `wp_date()`
+
+**Testing**: Verified chart displays correct 30-day range with accurate event counts and matching date labels in WordPress timezone (Europe/Stockholm UTC+2).
+
 ## Expected Outcomes
 - ✅ Consistent counts across all statistics displays (COMPLETED - all stats count individual events)
 - ✅ Correct permission-based filtering (COMPLETED - all helpers filter by user permissions)
