@@ -410,6 +410,29 @@ $now = new \DateTimeImmutable( 'now', wp_timezone() );
 
 **Testing**: All 7 tests in StatsAlignmentTest passing ✅
 
+### Additional Timezone Fixes Found During Review ✅ (Oct 2024)
+
+During final code review, discovered and fixed additional timezone issues:
+
+**1. Sidebar Stats "Users Today" and "Other Sources" Queries** ✅
+- **File**: `/dropins/class-sidebar-stats-dropin.php` - Lines 531, 568, 582
+- **Problem**: Used `gmdate('Y-m-d H:i', strtotime('today'))` which calculates "today" in server timezone
+- **Fix**: Changed to `gmdate('Y-m-d H:i:s', Date_Helper::get_today_start_timestamp())`
+- **Impact**: "Today" counts now aligned with WordPress timezone across all sidebar stats
+
+**2. Email Report Scheduling** ✅
+- **File**: `/inc/services/class-email-report-service.php` - Line 481
+- **Problem**: Used `strtotime('next monday 8:00:00')` which schedules in server timezone
+- **Fix**: Changed to `new \DateTimeImmutable('next monday 8:00:00', wp_timezone())`
+- **Impact**: Weekly emails now sent at 8:00 AM in site's configured timezone, not server timezone
+
+**Files Modified**:
+- `/dropins/class-sidebar-stats-dropin.php` - 3 timezone fixes
+- `/inc/services/class-email-report-service.php` - 1 scheduling fix
+- `/inc/services/class-stats-service.php` - 1 timezone fix (already documented above)
+
+**All fixes verified**: Tests passing ✅, linting passed ✅
+
 ## Expected Outcomes
 - ✅ Consistent counts across all statistics displays (COMPLETED - all stats count individual events)
 - ✅ Correct permission-based filtering (COMPLETED - sidebar filters for all users, insights shows all events for admins only)
