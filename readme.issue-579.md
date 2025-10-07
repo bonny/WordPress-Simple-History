@@ -70,10 +70,10 @@ echo sprintf(__('Showing: %s', 'simple-history'), 'Posts, pages, comments, and m
 - ✅ `/dropins/class-sidebar-stats-dropin.php` - Line 326: Cache key includes `$loggers_slugs` based on user capabilities
 - ✅ `/inc/class-helpers.php` - Lines 1298, 1328: Helper functions filter by `get_loggers_that_user_can_read()` (no longer cache)
 
-### Priority 3 - Timezone
-- `/inc/services/class-email-report-service.php` - Lines 198, 243, 503: Use UTC
-- `/inc/class-wp-rest-stats-controller.php` - Lines 231-234: Use UTC
-- `/dropins/class-sidebar-stats-dropin.php` - Lines 171-172, 319-320: Use UTC
+### Priority 3 - Timezone ✅ COMPLETED
+- ✅ `/inc/services/class-email-report-service.php` - Lines 198, 244, 504: Now use `Date_Helper` methods
+- ✅ `/inc/class-wp-rest-stats-controller.php` - Line 235: Now uses `Date_Helper::get_default_date_range()`
+- ✅ `/dropins/class-sidebar-stats-dropin.php` - Lines 178, 179, 356, 357: Now use `Date_Helper` methods
 
 ### Priority 4 - Cache Invalidation (DECISION: NOT IMPLEMENTING)
 - **Original idea**: Clear transients when events are logged
@@ -256,9 +256,37 @@ This ensures stats like "Yesterday" and "Last 30 days" align with what users see
 
 **Testing**: Verified with Europe/Stockholm (UTC+2) timezone - all calculations correctly use WordPress timezone, not server UTC.
 
+### Fixed Timezone Issues in Email Reports and REST API (Oct 2024)
+
+**Problem**: Email Report Service and REST API Controller were using server timezone (UTC) instead of WordPress timezone, causing inconsistencies with sidebar stats.
+
+**Solution Implemented**:
+
+1. **Email Report Service** (`/inc/services/class-email-report-service.php`):
+   - `rest_preview_email()` - Lines 198-199: Now uses `Date_Helper::get_n_days_ago_timestamp()` and `Date_Helper::get_current_timestamp()`
+   - `rest_preview_html()` - Lines 244-245: Now uses `Date_Helper::get_n_days_ago_timestamp()` and `Date_Helper::get_current_timestamp()`
+   - `send_email_report()` - Lines 504-505: Now uses `Date_Helper::get_n_days_ago_timestamp()` and `Date_Helper::get_current_timestamp()`
+
+2. **REST API Controller** (`/inc/class-wp-rest-stats-controller.php`):
+   - `get_default_date_range()` - Line 235: Simplified to use `Date_Helper::get_default_date_range()`
+   - Changed from 9 lines of custom `DateTime` code to 1 line delegating to `Date_Helper`
+   - Removed server timezone dependency (old code used `new \DateTime('today')` which defaulted to UTC)
+
+**Benefits Achieved**:
+- ✅ **Complete timezone consistency**: All components now use WordPress timezone
+  - Sidebar stats ✅
+  - Helper functions ✅
+  - Email reports ✅
+  - REST API ✅
+  - Chart data ✅
+- ✅ **Simpler code**: Delegates to `Date_Helper` instead of duplicating logic
+- ✅ **Priority 3 (Timezone Inconsistencies) - FULLY RESOLVED**
+
+**Testing**: Verified all components correctly use WordPress timezone setting from Settings > General.
+
 ## Expected Outcomes
-- Consistent counts across all statistics displays
-- Correct permission-based filtering
-- Accurate timezone handling
+- ✅ Consistent counts across all statistics displays (COMPLETED - all stats count individual events)
+- ✅ Correct permission-based filtering (COMPLETED - all helpers filter by user permissions)
+- ✅ Accurate timezone handling (COMPLETED - all components use WordPress timezone via Date_Helper)
 - ✅ Clear communication to users about what they're seeing (COMPLETED - added cache refresh notice)
 - ✅ Performance-friendly caching (COMPLETED - kept 5-minute cache for efficiency)
