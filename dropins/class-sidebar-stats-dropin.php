@@ -175,11 +175,19 @@ class Sidebar_Stats_Dropin extends Dropin {
 		ob_start();
 
 		// Period = all dates, so empty ones don't get lost.
-		$period_start_date = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_n_days_ago_timestamp( $num_days ) );
-		$period_end_date = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_current_timestamp() );
+		// For "last N days" including today, we go back N-1 days.
+		// E.g., "last 30 days" on Oct 7 = Sep 8 to Oct 7 (30 days).
+		// Create DateTimeImmutable directly in WordPress timezone to avoid timezone conversion issues.
+		$days_ago = $num_days - 1;
+		$period_start_date = new DateTimeImmutable( "-{$days_ago} days", wp_timezone() );
+		$period_start_date = new DateTimeImmutable( $period_start_date->format( 'Y-m-d' ) . ' 00:00:00', wp_timezone() );
+		$today = new DateTimeImmutable( 'today', wp_timezone() );
 		$interval = DateInterval::createFromDateString( '1 day' );
 
-		$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
+		// DatePeriod excludes end date by default.
+		// To include today, we need to set end to tomorrow 00:00:00.
+		$tomorrow = $today->add( date_interval_create_from_date_string( '1 days' ) );
+		$period = new DatePeriod( $period_start_date, $interval, $tomorrow );
 
 		?>
 
@@ -224,7 +232,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 						echo esc_html(
 							wp_date(
 								'M j',
-								$period_end_date->getTimestamp()
+								$today->getTimestamp()
 							)
 						);
 						?>
@@ -240,8 +248,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		foreach ( $period as $dt ) {
 			$datef = _x( 'M j', 'stats: date in rows per day chart', 'simple-history' );
-			$str_date = date_i18n( $datef, $dt->getTimestamp() );
-			$str_date_ymd = gmdate( 'Y-m-d', $dt->getTimestamp() );
+			$str_date = wp_date( $datef, $dt->getTimestamp() );
+			$str_date_ymd = $dt->format( 'Y-m-d' );
 
 			// Get data for this day, if exist
 			// Day in object is in format '2014-09-07'.
@@ -334,6 +342,10 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$cache_expiration_seconds = self::CACHE_DURATION_MINUTES * MINUTE_IN_SECONDS;
 
 		$results = get_transient( $cache_key );
+
+		// Uncomment below to test without cache = always run the queries = always fresh data.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// $results = false;
 
 		if ( false !== $results ) {
 			return $results;
