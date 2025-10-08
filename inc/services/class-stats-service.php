@@ -134,7 +134,7 @@ class Stats_Service extends Service {
 
 			// Use Date_Helper for consistent date calculation with sidebar stats.
 			// This ensures "last 30 days" means the same across all stats displays.
-			$date_from = Date_Helper::get_n_days_ago_timestamp( $days_to_subtract );
+			$date_from = Date_Helper::get_last_n_days_start_timestamp( $days_to_subtract );
 			$date_to = Date_Helper::get_today_end_timestamp();
 		} else {
 			// For hours, use exact timestamps.

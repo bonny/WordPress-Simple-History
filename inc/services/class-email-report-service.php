@@ -195,7 +195,7 @@ class Email_Report_Service extends Service {
 	 */
 	public function rest_preview_email() {
 		$current_user = wp_get_current_user();
-		$date_from = Date_Helper::get_n_days_ago_timestamp( Date_Helper::DAYS_PER_WEEK );
+		$date_from = Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK );
 		$date_to = Date_Helper::get_current_timestamp();
 
 		ob_start();
@@ -241,7 +241,7 @@ class Email_Report_Service extends Service {
 	 * REST API endpoint for getting HTML preview.
 	 */
 	public function rest_preview_html() {
-		$date_from = Date_Helper::get_n_days_ago_timestamp( Date_Helper::DAYS_PER_WEEK );
+		$date_from = Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK );
 		$date_to = Date_Helper::get_current_timestamp();
 
 		// Set content type to HTML.
@@ -501,7 +501,7 @@ class Email_Report_Service extends Service {
 		$recipients = explode( "\n", $recipients );
 
 		// Get stats for the last 7 days.
-		$date_from = Date_Helper::get_n_days_ago_timestamp( Date_Helper::DAYS_PER_WEEK );
+		$date_from = Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK );
 		$date_to = Date_Helper::get_current_timestamp();
 
 		ob_start();

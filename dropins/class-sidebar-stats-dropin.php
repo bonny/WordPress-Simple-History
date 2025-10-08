@@ -345,7 +345,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		// Uncomment below to test without cache = always run the queries = always fresh data.
 		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
-		// $results = false;
+		// Claude: please keep this, I need it to always get fresh data when testing/developing.
+		$results = false;
 
 		if ( false !== $results ) {
 			return $results;
@@ -365,7 +366,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		// Only fetch top_users for users who can list users.
 		if ( $current_user_can_list_users ) {
-			$month_date_from = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_n_days_ago_timestamp( $num_days_month ) );
+			$month_date_from = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_last_n_days_start_timestamp( $num_days_month ) );
 			$month_date_to = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_current_timestamp() );
 			$events_stats = new Events_Stats();
 			$results['top_users'] = $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 );

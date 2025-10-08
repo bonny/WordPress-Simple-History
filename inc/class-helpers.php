@@ -1308,7 +1308,7 @@ class Helpers {
                 AND logger IN %3$s
             ',
 			$simple_history->get_events_table_name(),
-			Date_Helper::get_n_days_ago_timestamp( $period_days ),
+			Date_Helper::get_last_n_days_start_timestamp( $period_days ),
 			$sqlStringLoggersUserCanRead
 		);
 
@@ -1381,7 +1381,7 @@ class Helpers {
 					ORDER BY yearDate ASC
 				',
 				$simple_history->get_events_table_name(),
-				Date_Helper::get_n_days_ago_timestamp( $period_days ),
+				Date_Helper::get_last_n_days_start_timestamp( $period_days ),
 				$sqlStringLoggersUserCanRead
 			);
 		} elseif ( $db_engine === 'sqlite' ) {
@@ -1400,7 +1400,7 @@ class Helpers {
 					ORDER BY yearDate ASC
 				',
 				$simple_history->get_events_table_name(),
-				Date_Helper::get_n_days_ago_timestamp( $period_days ),
+				Date_Helper::get_last_n_days_start_timestamp( $period_days ),
 				$sqlStringLoggersUserCanRead
 			);
 		}

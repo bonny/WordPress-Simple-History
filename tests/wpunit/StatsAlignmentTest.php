@@ -158,7 +158,7 @@ class StatsAlignmentTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	private function get_date_range_last_n_days( $days = 30 ) {
 		return [
-			'date_from' => Date_Helper::get_n_days_ago_timestamp( $days ),
+			'date_from' => Date_Helper::get_last_n_days_start_timestamp( $days ),
 			'date_to' => Date_Helper::get_current_timestamp(),
 		];
 	}
@@ -312,7 +312,7 @@ class StatsAlignmentTest extends \Codeception\TestCase\WPTestCase {
 		$this->create_test_events_last_30_days( 8 );
 
 		// Get date range using Date_Helper
-		$date_from = Date_Helper::get_n_days_ago_timestamp( 30 );
+		$date_from = Date_Helper::get_last_n_days_start_timestamp( 30 );
 		$date_to = Date_Helper::get_current_timestamp();
 
 		// 1. Sidebar count for last 30 days
@@ -405,7 +405,7 @@ class StatsAlignmentTest extends \Codeception\TestCase\WPTestCase {
 		$this->create_test_events_last_30_days( 15 );
 
 		// Get date range for last 7 days (what email uses)
-		$date_from = Date_Helper::get_n_days_ago_timestamp( Date_Helper::DAYS_PER_WEEK );
+		$date_from = Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK );
 		$date_to = Date_Helper::get_current_timestamp();
 
 		// 1. Get sidebar count for 7 days

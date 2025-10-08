@@ -97,18 +97,22 @@ class Date_Helper {
 	}
 
 	/**
-	 * Get timestamp for N days ago (00:00:00) in WordPress timezone.
+	 * Get start timestamp for "last N days" period including today.
 	 *
-	 * For "last N days" including today, this returns the start of the day
-	 * that is (N-1) days ago. For example, "last 30 days" on Oct 8 returns
-	 * Sept 9 00:00:00, giving you exactly 30 days: Sept 9 through Oct 8.
+	 * Returns the start of the day (00:00:00) that begins a period of N days
+	 * ending today. The count includes today as one of the N days.
+	 *
+	 * Examples (assuming today is October 8, 2025):
+	 * - get_last_n_days_start_timestamp(1) returns Oct 8 00:00:00 (today)
+	 * - get_last_n_days_start_timestamp(7) returns Oct 2 00:00:00 (last 7 days including today)
+	 * - get_last_n_days_start_timestamp(30) returns Sept 9 00:00:00 (last 30 days including today)
 	 *
 	 * Uses WordPress timezone setting from Settings > General.
 	 *
-	 * @param int $days Number of days to include (including today).
-	 * @return int Unix timestamp for start of day (N-1) days ago.
+	 * @param int $days Number of days to include in the period (including today).
+	 * @return int Unix timestamp for start of the period (00:00:00).
 	 */
-	public static function get_n_days_ago_timestamp( $days ) {
+	public static function get_last_n_days_start_timestamp( $days ) {
 		// Subtract (days - 1) because "last N days" includes today.
 		// E.g., "last 30 days" on Oct 8 = Sept 9 to Oct 8 (30 days total).
 		$days_ago = $days - 1;
@@ -126,7 +130,7 @@ class Date_Helper {
 	 */
 	public static function get_default_date_range() {
 		return array(
-			'from' => self::get_n_days_ago_timestamp( self::DAYS_PER_MONTH ),
+			'from' => self::get_last_n_days_start_timestamp( self::DAYS_PER_MONTH ),
 			'to'   => self::get_today_end_timestamp(),
 		);
 	}
@@ -142,7 +146,7 @@ class Date_Helper {
 	 */
 	public static function get_last_n_days_range( $days ) {
 		return array(
-			'from' => self::get_n_days_ago_timestamp( $days ),
+			'from' => self::get_last_n_days_start_timestamp( $days ),
 			'to'   => self::get_today_end_timestamp(),
 		);
 	}
