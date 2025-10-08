@@ -99,13 +99,20 @@ class Date_Helper {
 	/**
 	 * Get timestamp for N days ago (00:00:00) in WordPress timezone.
 	 *
+	 * For "last N days" including today, this returns the start of the day
+	 * that is (N-1) days ago. For example, "last 30 days" on Oct 8 returns
+	 * Sept 9 00:00:00, giving you exactly 30 days: Sept 9 through Oct 8.
+	 *
 	 * Uses WordPress timezone setting from Settings > General.
 	 *
-	 * @param int $days Number of days to go back.
-	 * @return int Unix timestamp for start of day N days ago.
+	 * @param int $days Number of days to include (including today).
+	 * @return int Unix timestamp for start of day (N-1) days ago.
 	 */
 	public static function get_n_days_ago_timestamp( $days ) {
-		$date = new \DateTimeImmutable( "-{$days} days", wp_timezone() );
+		// Subtract (days - 1) because "last N days" includes today.
+		// E.g., "last 30 days" on Oct 8 = Sept 9 to Oct 8 (30 days total).
+		$days_ago = $days - 1;
+		$date = new \DateTimeImmutable( "-{$days_ago} days", wp_timezone() );
 		$date_start = new \DateTimeImmutable( $date->format( 'Y-m-d' ) . ' 00:00:00', wp_timezone() );
 		return $date_start->getTimestamp();
 	}

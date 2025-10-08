@@ -2,6 +2,7 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Date_Helper;
 use Simple_History\Helpers;
 use Simple_History\Menu_Page;
 use Simple_History\Simple_History;
@@ -131,15 +132,10 @@ class Stats_Service extends Service {
 				$days_to_subtract = (int) $period_number;
 			}
 
-			// Calculate date_from: N days ago at start of day.
-			// Subtract (days - 1) because "last 30 days" includes today.
-			$date_from_datetime = new \DateTimeImmutable( '-' . ( $days_to_subtract - 1 ) . ' days midnight', wp_timezone() );
-
-			// Snap date_to to end of today (23:59:59).
-			$date_to_datetime = new \DateTimeImmutable( 'today 23:59:59', wp_timezone() );
-
-			$date_from = $date_from_datetime->getTimestamp();
-			$date_to = $date_to_datetime->getTimestamp();
+			// Use Date_Helper for consistent date calculation with sidebar stats.
+			// This ensures "last 30 days" means the same across all stats displays.
+			$date_from = Date_Helper::get_n_days_ago_timestamp( $days_to_subtract );
+			$date_to = Date_Helper::get_today_end_timestamp();
 		} else {
 			// For hours, use exact timestamps.
 			$date_time_modifier = "-{$period_number} {$period_string_full_name}";
