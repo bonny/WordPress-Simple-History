@@ -516,6 +516,103 @@ $date_to = $date_range['to'];
 
 **Status**: ⚠️ Not yet fixed - requires decision on whether "weekly report" should show 7 or 8 days
 
+### 7. Date Range Calculation Off-by-One Error ✅ FIXED
+
+**Date Discovered**: 2025-10-08
+
+**Problem**:
+- Sidebar "History Insights" showed 188 events for "30 days"
+- Stats page "History Insights" showed 229 events for "30 days"
+- **Root Cause**: `Date_Helper::get_n_days_ago_timestamp(30)` was calculating `-30 days` from today, giving **31 days of data** when including today
+- Example on Oct 8: Sept 8 00:00 to Oct 8 23:59 = 31 days (should be 30 days)
+
+**Impact**:
+- Sidebar stats and Stats page showed different counts for same time period
+- "Last 30 days" was actually showing 31 days of data
+- User reported: "History Insights say that 30 days = 229 events but History Insights says that 30 days = 188 events"
+
+**Solution Implemented**:
+
+**1. Fixed `Date_Helper::get_n_days_ago_timestamp()` calculation** (`/inc/class-date-helper.php` lines 99-122):
+```php
+// Before (incorrect - gave 31 days):
+public static function get_n_days_ago_timestamp( $days ) {
+    $date = new \DateTimeImmutable( "-{$days} days", wp_timezone() );
+    // Returns 30 days ago = 31 days total when combined with today
+}
+
+// After (correct - gives exactly N days):
+public static function get_n_days_ago_timestamp( $days ) {
+    $days_ago = $days - 1;  // Subtract (days - 1) for "last N days including today"
+    $date = new \DateTimeImmutable( "-{$days_ago} days", wp_timezone() );
+    // Returns 29 days ago = 30 days total when combined with today
+}
+```
+
+**2. Enhanced documentation with clear examples**:
+- `get_n_days_ago_timestamp(1)` returns today 00:00:00
+- `get_n_days_ago_timestamp(7)` returns Oct 2 00:00:00 (last 7 days)
+- `get_n_days_ago_timestamp(30)` returns Sept 9 00:00:00 (last 30 days)
+
+**3. Updated Stats Service for consistency** (`/inc/services/class-stats-service.php` lines 134-138):
+- Changed to use `Date_Helper::get_n_days_ago_timestamp()` instead of custom calculation
+- Ensures Stats page uses same logic as sidebar
+
+**Files Modified**:
+- `/inc/class-date-helper.php` - Lines 99-152 (function fix + 2 helper method updates)
+- `/inc/services/class-stats-service.php` - Lines 134-138 (simplified to use Date_Helper)
+
+**Verification**:
+- ✅ "Last 30 days" now shows exactly 30 days (Sept 9 to Oct 8)
+- ✅ All 7 StatsAlignmentTest tests pass
+- ✅ PHP linting passes
+- ✅ Sidebar and Stats page now show same counts for same time periods
+
+### 8. Function Renamed for Clarity ✅ COMPLETED
+
+**Date Completed**: 2025-10-08
+
+**Problem**:
+- Function name `get_n_days_ago_timestamp()` was confusing
+- Didn't clearly convey that it calculates the start of "last N days including today"
+- `get_n_days_ago_timestamp(30)` wasn't obviously returning the start of a 30-day period
+
+**Solution Implemented**:
+Renamed `get_n_days_ago_timestamp()` → `get_last_n_days_start_timestamp()` with improved documentation.
+
+**Updated Files (10 locations)**:
+1. `/inc/class-date-helper.php` - Function definition + 2 internal references
+2. `/inc/class-helpers.php` - 3 occurrences in event counting functions
+3. `/inc/services/class-stats-service.php` - 1 occurrence in date range calculation
+4. `/inc/services/class-email-report-service.php` - 3 occurrences (preview email, preview HTML, send email)
+5. `/dropins/class-sidebar-stats-dropin.php` - 1 occurrence (top users calculation)
+6. `/tests/wpunit/StatsAlignmentTest.php` - 3 occurrences in test helper methods
+
+**Documentation Enhanced**:
+Added clear examples to function docblock showing exact behavior:
+```php
+/**
+ * Get start timestamp for "last N days" period including today.
+ *
+ * Examples (assuming today is October 8, 2025):
+ * - get_last_n_days_start_timestamp(1) returns Oct 8 00:00:00 (today)
+ * - get_last_n_days_start_timestamp(7) returns Oct 2 00:00:00 (last 7 days)
+ * - get_last_n_days_start_timestamp(30) returns Sept 9 00:00:00 (last 30 days)
+ */
+```
+
+**Verification**:
+- ✅ All 7 StatsAlignmentTest tests pass
+- ✅ PHP linting passes
+- ✅ No remaining references to old function name (verified with grep)
+- ✅ Much clearer what the function does from its name alone
+
+**Benefits Achieved**:
+- ✅ **Self-documenting code**: Name clearly states it returns the START of a period
+- ✅ **Reduced confusion**: "last N days start" is unambiguous
+- ✅ **Better examples**: Docblock shows exact output for common cases
+- ✅ **Easier maintenance**: Future developers will understand the function immediately
+
 ## Expected Outcomes
 - ✅ Consistent counts across all statistics displays (COMPLETED - all stats count individual events)
 - ✅ Correct permission-based filtering (COMPLETED - sidebar filters for all users, insights shows all events for admins only)
@@ -527,7 +624,13 @@ $date_to = $date_range['to'];
 
 ## Current Status
 
-**Core Issue #579**: ✅ Resolved - All main statistics aligned across the plugin
+**Core Issue #579**: ✅ **FULLY RESOLVED** - All statistics now aligned across the plugin
+
+**Recent Fixes (2025-10-08)**:
+- ✅ Fixed date range calculation off-by-one error (issue #7)
+- ✅ Renamed `get_n_days_ago_timestamp()` to `get_last_n_days_start_timestamp()` for clarity (issue #8)
+- ✅ Sidebar and Stats page now show identical counts for same time periods
+- ✅ "Last 30 days" now consistently means exactly 30 days across all features
 
 **Follow-up Items**:
 - ⚠️ Email report service showing 8 days instead of 7 (minor issue, needs fix)
