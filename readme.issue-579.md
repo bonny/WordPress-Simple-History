@@ -454,13 +454,80 @@ During final code review, discovered and fixed additional timezone issues:
 
 **All fixes verified**: Tests passing ✅, linting passed ✅
 
+## Additional Issues Found During REST API Testing
+
+### 5. REST API Date Range Showing 31 Days Instead of 30 ✅
+
+**Date Discovered**: 2025-10-08
+
+**Problem**:
+- REST API endpoints returned `duration_days: 31` for "last month" instead of 30
+- Activity overview showed 31 dates (Sep 7-Oct 7) instead of 30 dates
+
+**Root Cause**:
+- `Date_Helper::get_default_date_range()` and `get_last_n_days_range()` used `get_n_days_ago_timestamp($days)` directly
+- This returned N days ago, which when combined with "end of today" gave N+1 days total
+- Example: 30 days ago (Sep 7) + today (Oct 7) = 31 days
+
+**Fix Applied**:
+- Updated `Date_Helper::get_default_date_range()` to use `get_n_days_ago_timestamp( DAYS_PER_MONTH - 1 )`
+- Updated `Date_Helper::get_last_n_days_range()` to use `get_n_days_ago_timestamp( $days - 1 )`
+- Enhanced documentation for `get_n_days_ago_timestamp()` with clear examples
+
+**Files Modified**:
+- `/inc/class-date-helper.php` - Lines 122-142 (date range methods + documentation)
+
+**Verification**:
+- ✅ All 9 REST API endpoints now return `duration_days: 30`
+- ✅ Activity overview shows exactly 30 dates (Sep 8-Oct 7)
+- ✅ All StatsAlignmentTest tests pass (7 tests, 22 assertions)
+- ✅ PHP linting passes
+
+### 6. Email Report Service Date Range Issue ⚠️ IDENTIFIED
+
+**Date Discovered**: 2025-10-08
+
+**Problem**:
+- Email report service uses `Date_Helper::get_n_days_ago_timestamp( DAYS_PER_WEEK )` directly
+- This returns 7 days ago, combined with "now" gives 8 days of data
+- Affects: preview email, preview HTML, and actual weekly email
+
+**Affected Code**:
+- `/inc/services/class-email-report-service.php`:
+  - Line 198: `rest_preview_email()` - Preview email endpoint
+  - Line 244: `rest_preview_html()` - Preview HTML endpoint
+  - Line 504: `send_email_report()` - Actual email sending
+
+**Current Behavior**:
+```php
+$date_from = Date_Helper::get_n_days_ago_timestamp( Date_Helper::DAYS_PER_WEEK );  // 7 days ago
+$date_to = Date_Helper::get_current_timestamp();  // now
+// Results in 8 days: Oct 1 00:00 to Oct 8 23:59
+```
+
+**Recommended Fix**:
+Use `Date_Helper::get_last_n_days_range( DAYS_PER_WEEK )` which will return exactly 7 days:
+```php
+$date_range = Date_Helper::get_last_n_days_range( Date_Helper::DAYS_PER_WEEK );
+$date_from = $date_range['from'];
+$date_to = $date_range['to'];
+// Results in 7 days: Oct 2 00:00 to Oct 8 23:59
+```
+
+**Status**: ⚠️ Not yet fixed - requires decision on whether "weekly report" should show 7 or 8 days
+
 ## Expected Outcomes
 - ✅ Consistent counts across all statistics displays (COMPLETED - all stats count individual events)
 - ✅ Correct permission-based filtering (COMPLETED - sidebar filters for all users, insights shows all events for admins only)
 - ✅ Accurate timezone handling (COMPLETED - all components now use WordPress timezone)
 - ✅ Clear communication to users about what they're seeing (COMPLETED - added cache refresh notice)
 - ✅ Performance-friendly caching (COMPLETED - kept 5-minute cache for efficiency)
+- ✅ REST API date ranges fixed (COMPLETED - all endpoints show 30 days for "last month")
+- ⚠️ Email report date range (PENDING - needs fix to show exactly 7 days)
 
-## All Issues Resolved ✅
+## Current Status
 
-**Issue #579 is now completely resolved** with all statistics aligned across the plugin.
+**Core Issue #579**: ✅ Resolved - All main statistics aligned across the plugin
+
+**Follow-up Items**:
+- ⚠️ Email report service showing 8 days instead of 7 (minor issue, needs fix)
