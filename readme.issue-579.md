@@ -14,7 +14,8 @@ Statistics shown in different parts of Simple History are inconsistent, showing 
 - ✅ "Last 30 days" now consistently means exactly 30 days across all features
 
 **Follow-up Items**:
-- ⚠️ Email report service showing 8 days instead of 7 (minor issue, needs fix)
+- ⚠️ Weekly email date range calculation (preview = include today?)
+- ⚠️ Filter dropdown dates = not correct
 
 ---
 
@@ -36,11 +37,12 @@ Statistics shown in different parts of Simple History are inconsistent, showing 
 - **Sidebar/Email/REST API**: Use server timezone ❌ → **NOW FIXED** ✅
 - **Result**: All components now use WordPress timezone
 
-### 4. Additional Issues ✅ ADDRESSED
+### 4. Additional Issues
 - ✅ Multi-layer cache synchronization fixed
 - ✅ Cache refresh notice added (5-minute interval)
 - ✅ Total events count optimized for non-admin users
-- ⚠️ Email report date range needs fix (8 days instead of 7)
+- ⚠️ Weekly email date range calculation (needs investigation)
+- ⚠️ Filter dropdown dates not correct (needs investigation)
 
 ---
 
@@ -318,31 +320,50 @@ $date = new \DateTimeImmutable("-{$days_ago} days", wp_timezone());
 
 ## Outstanding Issues
 
-### Email Report Date Range ⚠️ PENDING
+### 1. Weekly Email Date Range Calculation ⚠️ NEEDS INVESTIGATION
 
-**Problem**: Email service shows 8 days instead of 7
+**Problem**: Need to clarify expected behavior for weekly email date range
+
+**Questions to Answer**:
+- Should "weekly report" show exactly 7 days or 8 days?
+- Should preview include "today" (current partial day)?
+- Should actual sent email include the day it's sent or only complete days?
 
 **Affected Code** (`/inc/services/class-email-report-service.php`):
-- Line 198: `rest_preview_email()`
-- Line 244: `rest_preview_html()`
-- Line 504: `send_email_report()`
+- Line 198: `rest_preview_email()` - Preview endpoint
+- Line 244: `rest_preview_html()` - HTML preview endpoint
+- Line 504: `send_email_report()` - Actual email sending
 
 **Current Behavior**:
 ```php
 $date_from = Date_Helper::get_last_n_days_start_timestamp( DAYS_PER_WEEK );  // 7 days ago
 $date_to = Date_Helper::get_current_timestamp();  // now
-// Results in 8 days: Oct 1 00:00 to Oct 8 23:59
+// Results in 8 days: Oct 1 00:00 to Oct 8 23:59 (includes partial "today")
 ```
 
-**Recommended Fix**:
-```php
-$date_range = Date_Helper::get_last_n_days_range( DAYS_PER_WEEK );
-$date_from = $date_range['from'];
-$date_to = $date_range['to'];
-// Results in 7 days: Oct 2 00:00 to Oct 8 23:59
-```
+**Possible Solutions**:
+1. **Include today** (current): Shows 8 days of data including partial current day
+2. **Exclude today**: Use `get_last_n_days_range()` for exactly 7 complete days
+3. **Different for preview vs actual**: Preview includes today, sent email only complete days
 
-**Status**: Needs decision on whether "weekly report" should show 7 or 8 days
+**Status**: Needs decision on expected user experience
+
+### 2. Filter Dropdown Dates Not Correct ⚠️ NEEDS INVESTIGATION
+
+**Problem**: Date filter dropdown showing incorrect dates
+
+**Details Needed**:
+- Which filter dropdown specifically? (Main log? Stats page? Sidebar?)
+- What dates are shown vs what's expected?
+- Is this related to timezone handling or date calculation?
+
+**Next Steps**:
+1. Identify which filter dropdown has the issue
+2. Check if it's using `Date_Helper` or legacy date functions
+3. Verify timezone handling
+4. Test date range calculation
+
+**Status**: Needs more information to diagnose
 
 ---
 
@@ -373,7 +394,8 @@ $date_to = $date_range['to'];
 - ✅ Clear communication to users about refresh intervals
 - ✅ Performance-friendly caching (5-minute cache)
 - ✅ REST API date ranges showing correct durations
-- ⚠️ Email report date range (pending fix)
+- ⚠️ Weekly email date range (needs investigation)
+- ⚠️ Filter dropdown dates (needs investigation)
 
 ---
 
@@ -435,14 +457,16 @@ echo sprintf(__('Showing: %s', 'simple-history'), 'Posts, pages, comments, and m
 6. ✅ Date range calculations
 7. ✅ Chart data display
 8. ✅ REST API date ranges
-9. ⚠️ Email report date range
+9. ⚠️ Weekly email date range
+10. ⚠️ Filter dropdown dates
 
 ### Priority Order of Issues Found
 1. 🔥 **FIXED**: Timezone inconsistencies (day-boundary mismatches)
 2. 🔥 **FIXED**: User permission cache (wrong counts for different roles)
 3. 📝 **CLARIFIED**: Occasion grouping (intentional, working as designed)
 4. 📝 **FIXED**: Date range calculations (off-by-one errors)
-5. ⚠️ **PENDING**: Email report date range (minor issue)
+5. ⚠️ **NEEDS INVESTIGATION**: Weekly email date range
+6. ⚠️ **NEEDS INVESTIGATION**: Filter dropdown dates
 
 ---
 
@@ -457,5 +481,6 @@ All major statistics alignment issues have been fixed:
 - ✅ Chart data displays correctly (no timezone conversion bugs)
 - ✅ Counting methods are intentional (GUI groups, stats count individuals)
 
-Only minor outstanding item:
-- ⚠️ Email report shows 8 days instead of 7 (requires decision on expected behavior)
+Outstanding items requiring investigation:
+- ⚠️ Weekly email date range calculation (needs decision on expected behavior)
+- ⚠️ Filter dropdown dates not correct (needs more details to diagnose)
