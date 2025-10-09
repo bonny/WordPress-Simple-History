@@ -166,6 +166,69 @@ class Date_Helper {
 	}
 
 	/**
+	 * Get date range for last N complete days (excludes today).
+	 *
+	 * Returns from N days ago (00:00:00) to yesterday (23:59:59).
+	 * Useful for previews and reports that should exclude partial current day.
+	 * Uses WordPress timezone setting from Settings > General.
+	 *
+	 * Examples (assuming today is October 8, 2025):
+	 * - get_last_n_complete_days_range(7) returns Oct 1 00:00:00 to Oct 7 23:59:59 (7 complete days)
+	 * - get_last_n_complete_days_range(1) returns Oct 7 00:00:00 to Oct 7 23:59:59 (yesterday only)
+	 *
+	 * @param int $days Number of complete days.
+	 * @return array Array with 'from' and 'to' Unix timestamps.
+	 */
+	public static function get_last_n_complete_days_range( $days ) {
+		$yesterday = new \DateTimeImmutable( 'yesterday', wp_timezone() );
+		$yesterday_end = new \DateTimeImmutable( $yesterday->format( 'Y-m-d' ) . ' 23:59:59', wp_timezone() );
+
+		// Go back N days from yesterday.
+		$days_ago = $days - 1;
+		$start_date = $yesterday->modify( "-{$days_ago} days" );
+		$start_date_00 = new \DateTimeImmutable( $start_date->format( 'Y-m-d' ) . ' 00:00:00', wp_timezone() );
+
+		return array(
+			'from' => $start_date_00->getTimestamp(),
+			'to'   => $yesterday_end->getTimestamp(),
+		);
+	}
+
+	/**
+	 * Get date range for last complete week (Monday-Sunday).
+	 *
+	 * Returns the most recent complete week (Monday 00:00:00 to Sunday 23:59:59).
+	 * Useful for weekly reports sent on Monday that should show previous week.
+	 * Uses WordPress timezone setting from Settings > General.
+	 *
+	 * Examples:
+	 * - If today is Monday Oct 8, returns Oct 1 00:00:00 to Oct 7 23:59:59
+	 * - If today is Wednesday Oct 10, returns Oct 1 00:00:00 to Oct 7 23:59:59
+	 *
+	 * @return array Array with 'from' and 'to' Unix timestamps.
+	 */
+	public static function get_last_complete_week_range() {
+		$now = new \DateTimeImmutable( 'now', wp_timezone() );
+
+		// Get last Sunday at 23:59:59.
+		$last_sunday = new \DateTimeImmutable( 'last sunday', wp_timezone() );
+		// If today is Sunday, we need to go back one more week.
+		if ( $now->format( 'w' ) === '0' ) {
+			$last_sunday = $last_sunday->modify( '-7 days' );
+		}
+		$last_sunday_end = new \DateTimeImmutable( $last_sunday->format( 'Y-m-d' ) . ' 23:59:59', wp_timezone() );
+
+		// Get Monday of that week at 00:00:00.
+		$last_monday = $last_sunday->modify( '-6 days' );
+		$last_monday_start = new \DateTimeImmutable( $last_monday->format( 'Y-m-d' ) . ' 00:00:00', wp_timezone() );
+
+		return array(
+			'from' => $last_monday_start->getTimestamp(),
+			'to'   => $last_sunday_end->getTimestamp(),
+		);
+	}
+
+	/**
 	 * Get WordPress timezone object.
 	 *
 	 * Returns DateTimeZone object for the site's timezone as configured

@@ -302,4 +302,105 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 30, Date_Helper::DAYS_PER_MONTH, 'Month should be 30 days' );
 		$this->assertEquals( 90, Date_Helper::DAYS_PER_QUARTER, 'Quarter should be 90 days' );
 	}
+
+	/**
+	 * Test get_last_n_complete_days_range() excludes today.
+	 */
+	public function test_get_last_n_complete_days_range() {
+		update_option( 'timezone_string', 'Europe/Stockholm' );
+
+		// Test 7 complete days (should be yesterday back 7 days)
+		$range_7 = Date_Helper::get_last_n_complete_days_range( 7 );
+
+		// Calculate number of days
+		$days = ( $range_7['to'] - $range_7['from'] ) / ( 60 * 60 * 24 );
+
+		$this->assertEqualsWithDelta(
+			7.0,
+			$days,
+			0.01,
+			'Should return exactly 7 complete days'
+		);
+
+		// Verify end date is yesterday at 23:59:59
+		$end_date = ( new DateTimeImmutable( '@' . $range_7['to'] ) )->setTimezone( wp_timezone() );
+		$yesterday = new DateTimeImmutable( 'yesterday', wp_timezone() );
+
+		$this->assertEquals(
+			$yesterday->format( 'Y-m-d' ),
+			$end_date->format( 'Y-m-d' ),
+			'End date should be yesterday'
+		);
+		$this->assertEquals( '23:59:59', $end_date->format( 'H:i:s' ), 'End should be 23:59:59' );
+
+		// Verify start date is 7 days ago from yesterday at 00:00:00
+		$start_date = ( new DateTimeImmutable( '@' . $range_7['from'] ) )->setTimezone( wp_timezone() );
+		$seven_days_before_yesterday = $yesterday->modify( '-6 days' );
+
+		$this->assertEquals(
+			$seven_days_before_yesterday->format( 'Y-m-d' ),
+			$start_date->format( 'Y-m-d' ),
+			'Start date should be 7 days before yesterday'
+		);
+		$this->assertEquals( '00:00:00', $start_date->format( 'H:i:s' ), 'Start should be 00:00:00' );
+	}
+
+	/**
+	 * Test get_last_complete_week_range() returns Monday-Sunday.
+	 */
+	public function test_get_last_complete_week_range() {
+		update_option( 'timezone_string', 'Europe/Stockholm' );
+
+		$range = Date_Helper::get_last_complete_week_range();
+
+		// Calculate number of days (should be 7)
+		$days = ( $range['to'] - $range['from'] ) / ( 60 * 60 * 24 );
+
+		$this->assertEqualsWithDelta(
+			7.0,
+			$days,
+			0.01,
+			'Complete week should be exactly 7 days'
+		);
+
+		// Verify start is Monday at 00:00:00
+		$start_date = ( new DateTimeImmutable( '@' . $range['from'] ) )->setTimezone( wp_timezone() );
+		$this->assertEquals( '1', $start_date->format( 'N' ), 'Start should be Monday (1)' );
+		$this->assertEquals( '00:00:00', $start_date->format( 'H:i:s' ), 'Start should be midnight' );
+
+		// Verify end is Sunday at 23:59:59
+		$end_date = ( new DateTimeImmutable( '@' . $range['to'] ) )->setTimezone( wp_timezone() );
+		$this->assertEquals( '7', $end_date->format( 'N' ), 'End should be Sunday (7)' );
+		$this->assertEquals( '23:59:59', $end_date->format( 'H:i:s' ), 'End should be 23:59:59' );
+
+		// Verify they are the same week (6 days apart)
+		$diff_days = ( $range['to'] - $range['from'] ) / 86400;
+		$this->assertEqualsWithDelta( 7.0, $diff_days, 0.01, 'Monday to Sunday should be ~7 days' );
+	}
+
+	/**
+	 * Test get_last_complete_week_range() on different days of week.
+	 */
+	public function test_get_last_complete_week_range_different_days() {
+		update_option( 'timezone_string', 'Europe/Stockholm' );
+
+		// Get the range (should always be last complete Mon-Sun)
+		$range = Date_Helper::get_last_complete_week_range();
+
+		// The range should always end on a Sunday
+		$end_date = ( new DateTimeImmutable( '@' . $range['to'] ) )->setTimezone( wp_timezone() );
+		$this->assertEquals( '7', $end_date->format( 'N' ), 'Should always end on Sunday' );
+
+		// The range should always start on a Monday
+		$start_date = ( new DateTimeImmutable( '@' . $range['from'] ) )->setTimezone( wp_timezone() );
+		$this->assertEquals( '1', $start_date->format( 'N' ), 'Should always start on Monday' );
+
+		// The end should be in the past (not including this week if today is Mon-Sat)
+		$now = new DateTimeImmutable( 'now', wp_timezone() );
+		$this->assertLessThan(
+			$now->getTimestamp(),
+			$range['to'],
+			'Complete week should be in the past'
+		);
+	}
 }

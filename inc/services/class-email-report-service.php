@@ -163,6 +163,10 @@ class Email_Report_Service extends Service {
 
 		$stats['most_active_days'] = $this->prepare_top_items( $peak_days, 3, 'day_name', 'count' );
 
+		// Pass date range timestamps for chronological day ordering in template.
+		$stats['date_from_timestamp'] = $date_from;
+		$stats['date_to_timestamp'] = $date_to;
+
 		// Get most active users and format them for the template.
 		$top_users = $events_stats->get_top_users( $date_from, $date_to, 3 );
 		$stats['most_active_users'] = $this->prepare_top_items( $top_users, 3, 'display_name', 'count' );
@@ -213,8 +217,11 @@ class Email_Report_Service extends Service {
 	 */
 	public function rest_preview_email() {
 		$current_user = wp_get_current_user();
-		$date_from = Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK );
-		$date_to = Date_Helper::get_current_timestamp();
+
+		// Preview shows last 7 complete days (excludes partial today).
+		$date_range = Date_Helper::get_last_n_complete_days_range( Date_Helper::DAYS_PER_WEEK );
+		$date_from = $date_range['from'];
+		$date_to = $date_range['to'];
 
 		ob_start();
 		load_template(
@@ -259,8 +266,10 @@ class Email_Report_Service extends Service {
 	 * REST API endpoint for getting HTML preview.
 	 */
 	public function rest_preview_html() {
-		$date_from = Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK );
-		$date_to = Date_Helper::get_current_timestamp();
+		// Preview shows last 7 complete days (excludes partial today).
+		$date_range = Date_Helper::get_last_n_complete_days_range( Date_Helper::DAYS_PER_WEEK );
+		$date_from = $date_range['from'];
+		$date_to = $date_range['to'];
 
 		// Set content type to HTML.
 		header( 'Content-Type: text/html; charset=UTF-8' );
@@ -347,7 +356,7 @@ class Email_Report_Service extends Service {
 	 * Output for the email report settings section.
 	 */
 	public function settings_section_output() {
-		echo '<p>' . esc_html__( 'Configure automatic email reports with website statistics. Reports are sent every Monday morning.', 'simple-history' ) . '</p>';
+		echo '<p>' . esc_html__( 'Reports are sent every Monday morning and includes statistics from the previous week (Monday-Sunday).', 'simple-history' ) . '</p>';
 	}
 
 	/**
@@ -518,9 +527,11 @@ class Email_Report_Service extends Service {
 		// Convert from newline string to array.
 		$recipients = explode( "\n", $recipients );
 
-		// Get stats for the last 7 days.
-		$date_from = Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK );
-		$date_to = Date_Helper::get_current_timestamp();
+		// Get stats for last complete week (Monday-Sunday).
+		// Sent on Mondays, shows previous Mon-Sun, excludes current Monday.
+		$date_range = Date_Helper::get_last_complete_week_range();
+		$date_from = $date_range['from'];
+		$date_to = $date_range['to'];
 
 		ob_start();
 		load_template(
