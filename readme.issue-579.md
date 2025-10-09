@@ -378,6 +378,32 @@ $date = new \DateTimeImmutable("-{$days_ago} days", wp_timezone());
 
 **Result**: Each day column now shows full date on hover for better clarity.
 
+### 14. Fixed Email "Activity by Day" Showing Incomplete Data ✅ (Oct 9, 2025)
+
+**Problem**: Email only showed top 3 days by activity count, missing other days entirely.
+
+**Example Issue**:
+- Wednesday had 5 events but showed as 0
+- Monday had 1 event but showed as 0
+- Only showed top 3 days: Sunday (60), Friday (12), Tuesday (7)
+- Missing data for other 4 days in the week
+
+**Root Cause**:
+- `get_summary_report_data()` called `prepare_top_items($peak_days, 3, ...)`
+- Limited results to top 3 most active days
+- Template expected all 7 days but only received 3
+- Days not in top 3 showed as 0 (default fallback)
+
+**Solution**: Remove the top-3 limit and pass all days to template:
+- Stop using `prepare_top_items()` for days (still used for top users)
+- Convert all `peak_days` results to array format
+- Template builds complete 7-day array, filling missing days with 0
+
+**Files Modified**:
+- `/inc/services/class-email-report-service.php:152-167` - Remove limit, pass all days
+
+**Result**: All 7 days now show correct counts, totals match (0+12+7+60+1+7+5 = 92 ✅)
+
 ---
 
 ## Outstanding Issues
