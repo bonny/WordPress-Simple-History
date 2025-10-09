@@ -364,6 +364,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Email sent on Mondays now shows previous complete Monday-Sunday week (excludes current Monday).
 -   Email "Activity by day" now displays days in chronological order matching the date range instead of fixed calendar week order.
 -   Email report settings description updated to clarify that reports are sent every Monday morning and include statistics from the previous week (Monday-Sunday).
+-   Use "Today" instead of "Last day" because it's to vague.
 
 **Performance**
 
