@@ -149,19 +149,22 @@ class Email_Report_Service extends Service {
 		// Get total events for this week.
 		$stats['total_events_this_week'] = $events_stats->get_total_events( $date_from, $date_to );
 
-		// Get most active days and format them for the template.
+		// Get all days with event counts for the template.
+		// Don't limit or sort - template will use all days in chronological order.
 		$peak_days = $events_stats->get_peak_days( $date_from, $date_to );
+
+		// Convert to array format for template (handle both empty and populated results).
+		$all_days = [];
 		if ( $peak_days && is_array( $peak_days ) ) {
-			// Sort by count descending to get the most active days first.
-			usort(
-				$peak_days,
-				function ( $a, $b ) {
-					return $b->count - $a->count;
-				}
-			);
+			foreach ( $peak_days as $day ) {
+				$all_days[] = [
+					'name' => $day->day_name,
+					'count' => $day->count,
+				];
+			}
 		}
 
-		$stats['most_active_days'] = $this->prepare_top_items( $peak_days, 3, 'day_name', 'count' );
+		$stats['most_active_days'] = $all_days;
 
 		// Pass date range timestamps for chronological day ordering in template.
 		$stats['date_from_timestamp'] = $date_from;

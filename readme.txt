@@ -331,8 +331,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Add icon to sticky events label.
 -   Add new `get_num_events_today()` helper function.
 -   Add new `Date_Helper` class for centralized, WordPress timezone-aware date/time operations (renamed from Constants class).
+-   Add new `Date_Helper` methods: `get_last_n_complete_days_range()` for last N complete days excluding today, and `get_last_complete_week_range()` for most recent complete Monday-Sunday week.
 -   Add comprehensive `StatsAlignmentTest` test suite with 7 tests to verify stats consistency across all components.
+-   Add `DateHelperTest` test suite with 15 tests including validation for new complete day/week range methods.
 -   Add explanation to sidebar stats box about refresh interval and what data is used.
+-   Add tooltips to email "Activity by day" showing full date (e.g., "Thursday 2 October 2025") on hover for each day.
 
 **Fixed**
 
@@ -346,6 +349,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Fix email scheduling to use WordPress timezone (emails now scheduled for 8:00 AM in site's timezone, not server timezone).
 -   Fix REST API stats endpoints using server timezone instead of WordPress timezone.
 -   Fix chart date calculations and tooltip display in sidebar stats.
+-   Fix email preview date range to show last 7 complete days (excludes today) instead of including partial current day.
+-   Fix email sent on Mondays to show previous complete Monday-Sunday week instead of including send day.
+-   Fix email "Activity by day" showing days in calendar week order (Mon-Sun) instead of chronological order matching the actual date range.
+-   Fix email "Activity by day" showing incorrect daily counts due to top-3 limitation (now shows all 7 days with correct event counts).
 
 **Changes**
 
@@ -353,6 +360,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Sidebar stats box now uses the new format `slugs` to get the loggers that the user can read and to make sure the cache key is consistent.
 -   All date/time calculations now use WordPress timezone setting instead of server/UTC timezone for consistency across sidebar, insights page, email reports, and REST API.
 -   Email report date ranges now use wp_date() instead of date_i18n() for better timezone handling and include short day names with a single year at the end for improved readability (e.g., "Fri October 3 – Thu October 9, 2025").
+-   Email preview now shows last 7 complete days (excludes partial today) to avoid confusion from incomplete day counts.
+-   Email sent on Mondays now shows previous complete Monday-Sunday week (excludes current Monday).
+-   Email "Activity by day" now displays days in chronological order matching the date range instead of fixed calendar week order.
+-   Email report settings description updated to clarify that reports are sent every Monday morning and include statistics from the previous week (Monday-Sunday).
 
 **Performance**
 
