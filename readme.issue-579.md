@@ -14,7 +14,7 @@ Statistics shown in different parts of Simple History are inconsistent, showing 
 - ✅ "Last 30 days" now consistently means exactly 30 days across all features
 
 **Follow-up Items**:
-- ⚠️ Weekly email date range calculation (preview = include today?)
+- ✅ Weekly email date range calculation (fixed Oct 9, 2025)
 - ⚠️ Filter dropdown dates = not correct
 
 ---
@@ -41,7 +41,7 @@ Statistics shown in different parts of Simple History are inconsistent, showing 
 - ✅ Multi-layer cache synchronization fixed
 - ✅ Cache refresh notice added (5-minute interval)
 - ✅ Total events count optimized for non-admin users
-- ⚠️ Weekly email date range calculation (needs investigation)
+- ✅ Weekly email date range calculation fixed
 - ⚠️ Filter dropdown dates not correct (needs investigation)
 
 ---
@@ -316,39 +316,73 @@ $date = new \DateTimeImmutable("-{$days_ago} days", wp_timezone());
 
 **Test Results**: All passing ✅ (OK - 7 tests, 22 assertions)
 
+### 11. Fixed Weekly Email Date Range Calculation ✅ (Oct 9, 2025)
+
+**Problem**: Weekly email reports needed clear date range logic for preview vs actual send.
+
+**Requirements Clarified**:
+- **Preview** (any day): Show last 7 complete days (excludes partial today)
+- **Actual email** (sent Mondays): Show previous Monday-Sunday week (excludes current Monday)
+
+**Solution**: Created two new Date_Helper methods:
+
+1. **`get_last_n_complete_days_range($days)`**
+   - Returns last N complete days (excludes today)
+   - Example: On Wednesday, returns 7 days ending Tuesday 23:59:59
+   - Used for email previews
+
+2. **`get_last_complete_week_range()`**
+   - Returns most recent complete Monday-Sunday week
+   - Example: On any day, returns previous Mon 00:00:00 to Sun 23:59:59
+   - Used for actual sent emails
+
+**Files Modified**:
+- `/inc/class-date-helper.php` - Added new methods
+- `/inc/services/class-email-report-service.php` - Updated preview and send functions
+- `/tests/wpunit/DateHelperTest.php` - Added 3 new tests
+
+**Test Results**: All 15 tests passing ✅ (OK - 15 tests, 47 assertions)
+
+### 12. Fixed Email "Activity by Day" Chronological Ordering ✅ (Oct 9, 2025)
+
+**Problem**: Email template showed days in calendar week order (Mon-Sun) regardless of actual date range.
+
+**Example Issue**:
+- Date range: "Thu October 2 – Wed October 8, 2025"
+- Days shown: Mon, Tue, Wed, Thu, Fri, Sat, Sun (❌ wrong order)
+- Expected: Thu, Fri, Sat, Sun, Mon, Tue, Wed (✅ chronological)
+
+**Solution**: Updated email template to dynamically build days array based on actual date range:
+
+1. Pass `date_from_timestamp` and `date_to_timestamp` to template (via `get_summary_report_data()`)
+2. Iterate through each day in the actual date range
+3. Display days in chronological order matching the email date range
+
+**Files Modified**:
+- `/inc/services/class-email-report-service.php:166-168` - Pass date range timestamps
+- `/templates/email-summary-report.php:236-270` - Build ordered days array from date range
+
+**Result**: "Activity by day" now shows days in the same order as the date range heading.
+
+### 13. Added Date Tooltips to Email "Activity by Day" ✅ (Oct 9, 2025)
+
+**Enhancement**: Added tooltips showing full date on hover for each day in the activity breakdown.
+
+**Implementation**:
+- Calculate full date format (e.g., "Thursday 2 October 2025") for each day
+- Add `title` attribute to table cells
+- Tooltips visible on hover in email clients that support it
+
+**Files Modified**:
+- `/templates/email-summary-report.php:261-275,289` - Add full_date to data array and title attribute
+
+**Result**: Each day column now shows full date on hover for better clarity.
+
 ---
 
 ## Outstanding Issues
 
-### 1. Weekly Email Date Range Calculation ⚠️ NEEDS INVESTIGATION
-
-**Problem**: Need to clarify expected behavior for weekly email date range
-
-**Questions to Answer**:
-- Should "weekly report" show exactly 7 days or 8 days?
-- Should preview include "today" (current partial day)?
-- Should actual sent email include the day it's sent or only complete days?
-
-**Affected Code** (`/inc/services/class-email-report-service.php`):
-- Line 198: `rest_preview_email()` - Preview endpoint
-- Line 244: `rest_preview_html()` - HTML preview endpoint
-- Line 504: `send_email_report()` - Actual email sending
-
-**Current Behavior**:
-```php
-$date_from = Date_Helper::get_last_n_days_start_timestamp( DAYS_PER_WEEK );  // 7 days ago
-$date_to = Date_Helper::get_current_timestamp();  // now
-// Results in 8 days: Oct 1 00:00 to Oct 8 23:59 (includes partial "today")
-```
-
-**Possible Solutions**:
-1. **Include today** (current): Shows 8 days of data including partial current day
-2. **Exclude today**: Use `get_last_n_days_range()` for exactly 7 complete days
-3. **Different for preview vs actual**: Preview includes today, sent email only complete days
-
-**Status**: Needs decision on expected user experience
-
-### 2. Filter Dropdown Dates Not Correct ⚠️ NEEDS INVESTIGATION
+### 1. Filter Dropdown Dates Not Correct ⚠️ NEEDS INVESTIGATION
 
 **Problem**: Date filter dropdown showing incorrect dates
 
@@ -394,7 +428,7 @@ $date_to = Date_Helper::get_current_timestamp();  // now
 - ✅ Clear communication to users about refresh intervals
 - ✅ Performance-friendly caching (5-minute cache)
 - ✅ REST API date ranges showing correct durations
-- ⚠️ Weekly email date range (needs investigation)
+- ✅ Weekly email date range (preview = last 7 complete days, sent = last complete week Mon-Sun)
 - ⚠️ Filter dropdown dates (needs investigation)
 
 ---
