@@ -234,26 +234,48 @@ $args = wp_parse_args(
 							</h2>
 							
 							<?php
-							// Create an array of all days of the week.
-							$all_days = [
-								'monday' => __( 'Monday', 'simple-history' ),
-								'tuesday' => __( 'Tuesday', 'simple-history' ),
-								'wednesday' => __( 'Wednesday', 'simple-history' ),
-								'thursday' => __( 'Thursday', 'simple-history' ),
-								'friday' => __( 'Friday', 'simple-history' ),
-								'saturday' => __( 'Saturday', 'simple-history' ),
-								'sunday' => __( 'Sunday', 'simple-history' ),
-							];
-
 							// Create a lookup array from most_active_days for easy access.
 							$day_counts = [];
 							foreach ( $args['most_active_days'] as $day ) {
 								if ( isset( $day['name'] ) && isset( $day['count'] ) ) {
 									// The day name comes from Events_Stats as full day name (e.g., "Monday").
-									// We need to match it against our all_days array values.
 									$day_name_lower = strtolower( $day['name'] );
 									$day_counts[ $day_name_lower ] = $day['count'];
 								}
+							}
+
+							// Build days array in chronological order based on actual date range.
+							$ordered_days = [];
+							$start_timestamp = isset( $args['date_from_timestamp'] ) ? $args['date_from_timestamp'] : strtotime( '-6 days' );
+							$end_timestamp = isset( $args['date_to_timestamp'] ) ? $args['date_to_timestamp'] : time();
+
+							// Create DateTimeImmutable objects for iteration.
+							$current_date = ( new DateTimeImmutable( '@' . $start_timestamp ) )->setTimezone( wp_timezone() );
+							$end_date = ( new DateTimeImmutable( '@' . $end_timestamp ) )->setTimezone( wp_timezone() );
+
+							// Iterate through each day in the range.
+							while ( $current_date <= $end_date ) {
+								$day_name = $current_date->format( 'l' ); // Full day name (e.g., "Monday").
+								$day_key = strtolower( $day_name );
+
+								// Get full formatted date for tooltip.
+								$full_date = wp_date(
+									sprintf(
+										/* translators: Full date format for tooltip: "Thursday 2 October 2025" */
+										__( 'l j F Y', 'simple-history' )
+									),
+									$current_date->getTimestamp()
+								);
+
+								$ordered_days[] = [
+									'name' => $day_name,
+									'key' => $day_key,
+									'count' => isset( $day_counts[ $day_key ] ) ? $day_counts[ $day_key ] : 0,
+									'full_date' => $full_date,
+								];
+
+								// Move to next day.
+								$current_date = $current_date->modify( '+1 day' );
 							}
 							?>
 							
@@ -261,15 +283,15 @@ $args = wp_parse_args(
 								<tr>
 									<?php
 									$day_index = 0;
-									foreach ( $all_days as $day_key => $day_name ) {
-										$count = isset( $day_counts[ $day_key ] ) ? $day_counts[ $day_key ] : 0;
+									$total_days = count( $ordered_days );
+									foreach ( $ordered_days as $day_data ) {
 										?>
-										<td style="width: 14.28%; vertical-align: top; text-align: center;<?php echo $day_index < 6 ? ' padding-right: 8px;' : ''; ?>">
+										<td style="width: 14.28%; vertical-align: top; text-align: center;<?php echo $day_index < ( $total_days - 1 ) ? ' padding-right: 8px;' : ''; ?>" title="<?php echo esc_attr( $day_data['full_date'] ); ?>">
 											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; color: #000000; text-align: center; font-weight: 500;">
-												<?php echo esc_html( substr( $day_name, 0, 3 ) ); ?>
+												<?php echo esc_html( substr( $day_data['name'], 0, 3 ) ); ?>
 											</div>
 											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000; font-weight: 700; text-align: center; margin-top: 2px;">
-												<?php echo esc_html( number_format_i18n( $count ) ); ?>
+												<?php echo esc_html( number_format_i18n( $day_data['count'] ) ); ?>
 											</div>
 										</td>
 										<?php
