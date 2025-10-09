@@ -7,7 +7,7 @@ export const DEFAULT_DATE_OPTIONS = [
 		value: 'customRange',
 	},
 	{
-		label: __( 'Last day', 'simple-history' ),
+		label: __( 'Today', 'simple-history' ),
 		value: 'lastdays:1',
 	},
 	{
