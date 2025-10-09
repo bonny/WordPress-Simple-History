@@ -119,11 +119,29 @@ class Email_Report_Service extends Service {
 			'site_name' => get_bloginfo( 'name' ),
 			'site_url' => get_bloginfo( 'url' ),
 			'site_url_domain' => parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ),
+			// Date range as string, as it's displayed in the email.
 			'date_range' => sprintf(
-				/* translators: 1: start date, 2: end date */
-				__( '%1$s – %2$s', 'simple-history' ),
-				date_i18n( get_option( 'date_format' ), $date_from ),
-				date_i18n( get_option( 'date_format' ), $date_to )
+				/* translators: 1: start date with day name, 2: end date with day name, 3: year */
+				__( '%1$s – %2$s, %3$s', 'simple-history' ),
+				wp_date(
+					sprintf(
+						/* translators: %s is the site's date format setting without year */
+						__( 'D %s', 'simple-history' ),
+						// Remove year from date format.
+						trim( preg_replace( '/[,\s]*[YyoL][,\s]*/', '', get_option( 'date_format' ) ), ', ' )
+					),
+					$date_from
+				),
+				wp_date(
+					sprintf(
+						/* translators: %s is the site's date format setting without year */
+						__( 'D %s', 'simple-history' ),
+						// Remove year from date format.
+						trim( preg_replace( '/[,\s]*[YyoL][,\s]*/', '', get_option( 'date_format' ) ), ', ' )
+					),
+					$date_to
+				),
+				wp_date( 'Y', $date_to )
 			),
 			'email_subject' => $this->get_email_subject( $is_preview ),
 		];
