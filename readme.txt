@@ -352,6 +352,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Use wp_doing_cron() and wp_doing_ajax() instead of DOING_CRON and DOING_AJAX.
 -   Sidebar stats box now uses the new format `slugs` to get the loggers that the user can read and to make sure the cache key is consistent.
 -   All date/time calculations now use WordPress timezone setting instead of server/UTC timezone for consistency across sidebar, insights page, email reports, and REST API.
+-   Email report date ranges now use wp_date() instead of date_i18n() for better timezone handling and include short day names with a single year at the end for improved readability (e.g., "Fri October 3 – Thu October 9, 2025").
 
 **Performance**
 
