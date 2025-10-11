@@ -7,15 +7,21 @@ Statistics shown in different parts of Simple History are inconsistent, showing 
 
 **Core Issue #579**: ✅ **FULLY RESOLVED** - All statistics now aligned across the plugin
 
-**Recent Fixes (2025-10-08)**:
+**Latest Update (2025-10-11)**:
+- ✅ Fixed ALL filter types to use WordPress timezone consistently
+  - ✅ "Today" / "Last N days" filters (replaced database NOW() with Date_Helper)
+  - ✅ Custom date range filters (replaced strtotime() with DateTimeImmutable + wp_timezone())
+  - ✅ Month filters (replaced strtotime() with DateTimeImmutable + wp_timezone())
+- ✅ Changed "Last day" → "Today" for clarity
+- ✅ Added 4 comprehensive tests for all filter types
+- ✅ Complete timezone consistency across entire plugin
+
+**Previous Fixes (2025-10-08 to 2025-10-09)**:
 - ✅ Fixed date range calculation off-by-one error (issue #7)
 - ✅ Renamed `get_n_days_ago_timestamp()` to `get_last_n_days_start_timestamp()` for clarity (issue #8)
 - ✅ Sidebar and Stats page now show identical counts for same time periods
 - ✅ "Last 30 days" now consistently means exactly 30 days across all features
-
-**Follow-up Items**:
-- ✅ Weekly email date range calculation (fixed Oct 9, 2025)
-- ⚠️ Filter dropdown dates = not correct
+- ✅ Weekly email date range calculation fixed
 
 ---
 
@@ -42,7 +48,7 @@ Statistics shown in different parts of Simple History are inconsistent, showing 
 - ✅ Cache refresh notice added (5-minute interval)
 - ✅ Total events count optimized for non-admin users
 - ✅ Weekly email date range calculation fixed
-- ⚠️ Filter dropdown dates not correct (needs investigation)
+- ✅ ALL filter dropdown dates now use WordPress timezone (lastdays, custom range, month filters - fixed Oct 11, 2025)
 
 ---
 
@@ -404,26 +410,88 @@ $date = new \DateTimeImmutable("-{$days_ago} days", wp_timezone());
 
 **Result**: All 7 days now show correct counts, totals match (0+12+7+60+1+7+5 = 92 ✅)
 
----
+### 15. Fixed ALL Filter Date Calculations to Use WordPress Timezone ✅ (Oct 11, 2025)
 
-## Outstanding Issues
+**Problem**: ALL date filters used database/server timezone instead of WordPress timezone.
 
-### 1. Filter Dropdown Dates Not Correct ⚠️ NEEDS INVESTIGATION
+**Root Causes**:
+1. **"lastdays" filters** (Today, Last 7 days, etc.): Used SQL `DATE(NOW() - INTERVAL N DAY)` with database timezone
+2. **Custom date range**: Used `strtotime()` which uses PHP/server timezone
+3. **Month filters** (October 2025, etc.): Used `strtotime()` which uses PHP/server timezone
 
-**Problem**: Date filter dropdown showing incorrect dates
+All three filter types ignored WordPress timezone settings, causing:
+- Different day boundaries than sidebar stats
+- Inconsistent results across different timezone settings
+- Confusion for users in non-UTC timezones
 
-**Details Needed**:
-- Which filter dropdown specifically? (Main log? Stats page? Sidebar?)
-- What dates are shown vs what's expected?
-- Is this related to timezone handling or date calculation?
+**Example Issue** (WordPress timezone: Europe/Stockholm UTC+2):
+- Filtering "Last 7 days" at 14:00 Stockholm time:
+  - **Before**: Oct 4 12:00 UTC → Oct 11 12:00 UTC ❌
+  - **After**: Oct 5 00:00 Stockholm → Oct 11 23:59 Stockholm ✅
+- Filtering "October 2025":
+  - **Before**: Oct 1 00:00 UTC → Nov 1 00:00 UTC (includes 2 hours of Nov in Stockholm) ❌
+  - **After**: Oct 1 00:00 Stockholm → Oct 31 23:59 Stockholm ✅
 
-**Next Steps**:
-1. Identify which filter dropdown has the issue
-2. Check if it's using `Date_Helper` or legacy date functions
-3. Verify timezone handling
-4. Test date range calculation
+**Solutions**:
 
-**Status**: Needs more information to diagnose
+1. **"lastdays" filters** (lines 1262-1267):
+   ```php
+   // BEFORE: Used database NOW()
+   'date >= DATE(NOW() - INTERVAL 7 DAY)'
+
+   // AFTER: Uses Date_Helper with WordPress timezone
+   $timestamp = Date_Helper::get_last_n_days_start_timestamp( 7 );
+   $inner_where[] = sprintf( 'date >= \'%1$s\'', gmdate( 'Y-m-d H:i:s', $timestamp ) );
+   ```
+
+2. **Custom date range** (lines 816-854):
+   ```php
+   // BEFORE: Used strtotime() with server timezone
+   $args['date_from'] = strtotime( $args['date_from'] . ' 00:00:00' );
+
+   // AFTER: Uses DateTimeImmutable with WordPress timezone
+   $date = new \DateTimeImmutable( $args['date_from'] . ' 00:00:00', wp_timezone() );
+   $args['date_from'] = $date->getTimestamp();
+   ```
+
+3. **Month filters** (lines 1291-1315):
+   ```php
+   // BEFORE: Used strtotime() with server timezone
+   $date_month_beginning = strtotime( $one_month );
+   $date_month_end = strtotime( "{$one_month} + 1 month" );
+
+   // AFTER: Uses DateTimeImmutable with WordPress timezone
+   $date_month_beginning_obj = new \DateTimeImmutable( $one_month . '-01 00:00:00', wp_timezone() );
+   $date_month_end_obj = $date_month_beginning_obj->modify( '+1 month' )->modify( '-1 second' );
+   ```
+
+**Files Modified**:
+- `/inc/class-log-query.php:6` - Added Date_Helper import
+- `/inc/class-log-query.php:816-854` - Fixed custom date range to use WordPress timezone
+- `/inc/class-log-query.php:1262-1267` - Fixed "lastdays" filter to use Date_Helper
+- `/inc/class-log-query.php:1291-1315` - Fixed month filters to use WordPress timezone
+- `/src/constants.js:10` - Changed "Last day" to "Today" for clarity
+- `/tests/wpunit/StatsAlignmentTest.php` - Added 4 new comprehensive tests (tests 8-11)
+
+**Tests Added**:
+1. `test_filter_uses_same_date_range_as_sidebar()` - Verifies "lastdays" filter alignment
+2. `test_custom_date_range_uses_wordpress_timezone()` - Verifies custom range uses WP timezone
+3. `test_month_filter_uses_wordpress_timezone()` - Verifies month filter uses WP timezone
+4. `test_all_date_filters_use_wordpress_timezone_consistently()` - Comprehensive test of all filter types
+
+**Important Note**:
+Event **counts** still won't match between filter results and sidebar stats because:
+- **Sidebar**: Counts all individual events (e.g., "116 events")
+- **Main GUI**: Groups similar events by occasions (e.g., 30 failed logins → 1 row)
+- **This is intentional** - GUI groups for readability, stats count for accuracy
+
+**Result**:
+- ✅ ALL filter types now use WordPress timezone consistently
+- ✅ Same time windows as sidebar stats (same day boundaries)
+- ✅ Simpler code (no database-specific logic for "lastdays")
+- ✅ No more strtotime() timezone issues
+- ✅ "Today" label is clearer than "Last day"
+- ✅ Comprehensive test coverage for all filter types
 
 ---
 
@@ -439,6 +507,8 @@ $date = new \DateTimeImmutable("-{$days_ago} days", wp_timezone());
 - ✅ `/inc/services/class-email-report-service.php` - Timezone fixes
 - ✅ `/inc/class-wp-rest-stats-controller.php` - Timezone fix
 - ✅ `/dropins/class-sidebar-stats-dropin.php` - Multiple timezone and cache fixes
+- ✅ `/inc/class-log-query.php` - Filter date calculation uses Date_Helper
+- ✅ `/src/constants.js` - Changed "Last day" to "Today"
 
 ### Tests
 - ✅ `/tests/wpunit/StatsAlignmentTest.php` - Comprehensive alignment tests
@@ -450,12 +520,13 @@ $date = new \DateTimeImmutable("-{$days_ago} days", wp_timezone());
 
 - ✅ Consistent counts across all statistics displays
 - ✅ Correct permission-based filtering
-- ✅ Accurate timezone handling (WordPress timezone)
+- ✅ Accurate timezone handling (WordPress timezone everywhere)
 - ✅ Clear communication to users about refresh intervals
 - ✅ Performance-friendly caching (5-minute cache)
 - ✅ REST API date ranges showing correct durations
 - ✅ Weekly email date range (preview = last 7 complete days, sent = last complete week Mon-Sun)
-- ⚠️ Filter dropdown dates (needs investigation)
+- ✅ ALL filter dropdowns use WordPress timezone (lastdays, custom range, month filters)
+- ✅ Sidebar and filters query same time windows (same day boundaries)
 
 ---
 
@@ -517,16 +588,16 @@ echo sprintf(__('Showing: %s', 'simple-history'), 'Posts, pages, comments, and m
 6. ✅ Date range calculations
 7. ✅ Chart data display
 8. ✅ REST API date ranges
-9. ⚠️ Weekly email date range
-10. ⚠️ Filter dropdown dates
+9. ✅ Weekly email date range
+10. ✅ Filter dropdown dates
 
 ### Priority Order of Issues Found
 1. 🔥 **FIXED**: Timezone inconsistencies (day-boundary mismatches)
 2. 🔥 **FIXED**: User permission cache (wrong counts for different roles)
 3. 📝 **CLARIFIED**: Occasion grouping (intentional, working as designed)
 4. 📝 **FIXED**: Date range calculations (off-by-one errors)
-5. ⚠️ **NEEDS INVESTIGATION**: Weekly email date range
-6. ⚠️ **NEEDS INVESTIGATION**: Filter dropdown dates
+5. ✅ **FIXED**: Weekly email date range
+6. ✅ **FIXED**: Filter dropdown dates
 
 ---
 
@@ -534,13 +605,33 @@ echo sprintf(__('Showing: %s', 'simple-history'), 'Posts, pages, comments, and m
 
 **Issue #579 is FULLY RESOLVED** ✅
 
-All major statistics alignment issues have been fixed:
-- ✅ Timezone handling is consistent (WordPress timezone everywhere)
+All statistics alignment issues have been comprehensively fixed:
+
+### Timezone Consistency ✅
+- ✅ **Sidebar stats**: WordPress timezone
+- ✅ **Stats/Insights page**: WordPress timezone
+- ✅ **Email reports**: WordPress timezone
+- ✅ **REST API**: WordPress timezone
+- ✅ **ALL filter types**: WordPress timezone
+  - ✅ Today / Last N days filters
+  - ✅ Custom date range filters
+  - ✅ Month filters (October 2025, etc.)
+- ✅ **Chart data**: WordPress timezone
+
+### Core Issues Fixed ✅
 - ✅ Permission filtering works correctly (separate cache per capability)
 - ✅ Date ranges are accurate (exactly N days, not N+1)
-- ✅ Chart data displays correctly (no timezone conversion bugs)
-- ✅ Counting methods are intentional (GUI groups, stats count individuals)
+- ✅ No more timezone conversion bugs
+- ✅ Counting methods documented (GUI groups, stats count individuals)
+- ✅ Weekly email date ranges work correctly (preview vs sent behavior)
+- ✅ Multi-layer caching synchronized
+- ✅ Cache refresh communication clear
 
-Outstanding items requiring investigation:
-- ⚠️ Weekly email date range calculation (needs decision on expected behavior)
-- ⚠️ Filter dropdown dates not correct (needs more details to diagnose)
+### Comprehensive Testing ✅
+- ✅ 11 test cases covering all scenarios
+- ✅ Tests for all filter types (lastdays, custom, month)
+- ✅ Tests for timezone consistency across components
+- ✅ Tests for permission filtering
+- ✅ Tests for date range accuracy
+
+**No outstanding issues remain. All date/time calculations now use WordPress timezone consistently across the entire plugin.**
