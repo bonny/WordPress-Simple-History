@@ -3,6 +3,7 @@
 namespace Simple_History;
 
 use Simple_History\Helpers;
+use Simple_History\Date_Helper;
 
 /**
  * Queries the Simple History Log.
@@ -813,30 +814,40 @@ class Log_Query {
 		}
 
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
+		// Uses WordPress timezone for date parsing to ensure correct day boundaries.
 		if ( isset( $args['date_from'] ) && is_numeric( $args['date_from'] ) ) {
 			$args['date_from'] = (int) $args['date_from'];
 		} elseif ( isset( $args['date_from'] ) && is_string( $args['date_from'] ) ) {
-			// If value is "2025-03-29" that means the beginning of the day on 2025-03-29.
+			// If value is "2025-03-29" that means the beginning of the day on 2025-03-29 in WordPress timezone.
 			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_from'], 'Y-m-d' );
 			if ( $is_start_of_day_date_format ) {
-				$args['date_from'] = strtotime( $args['date_from'] . ' 00:00:00' );
+				// Parse date in WordPress timezone and get start of day (00:00:00).
+				$date = new \DateTimeImmutable( $args['date_from'] . ' 00:00:00', wp_timezone() );
+				$args['date_from'] = $date->getTimestamp();
 			} else {
-				$args['date_from'] = strtotime( $args['date_from'] );
+				// Parse datetime string in WordPress timezone.
+				$date = new \DateTimeImmutable( $args['date_from'], wp_timezone() );
+				$args['date_from'] = $date->getTimestamp();
 			}
 		} elseif ( isset( $args['date_from'] ) ) {
 			throw new \InvalidArgumentException( 'Invalid date_from' );
 		}
 
 		// "date_to" must be timestamp or string. If string then convert to timestamp.
+		// Uses WordPress timezone for date parsing to ensure correct day boundaries.
 		if ( isset( $args['date_to'] ) && is_numeric( $args['date_to'] ) ) {
 			$args['date_to'] = (int) $args['date_to'];
 		} elseif ( isset( $args['date_to'] ) && is_string( $args['date_to'] ) ) {
-			// If value is "2025-03-29" that means the end of the day on 2025-03-29.
+			// If value is "2025-03-29" that means the end of the day on 2025-03-29 in WordPress timezone.
 			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_to'], 'Y-m-d' );
 			if ( $is_start_of_day_date_format ) {
-				$args['date_to'] = strtotime( $args['date_to'] . ' 23:59:59' );
+				// Parse date in WordPress timezone and get end of day (23:59:59).
+				$date = new \DateTimeImmutable( $args['date_to'] . ' 23:59:59', wp_timezone() );
+				$args['date_to'] = $date->getTimestamp();
 			} else {
-				$args['date_to'] = strtotime( $args['date_to'] );
+				// Parse datetime string in WordPress timezone.
+				$date = new \DateTimeImmutable( $args['date_to'], wp_timezone() );
+				$args['date_to'] = $date->getTimestamp();
 			}
 		} elseif ( isset( $args['date_to'] ) ) {
 			throw new \InvalidArgumentException( 'Invalid date_to' );
@@ -1259,17 +1270,13 @@ class Log_Query {
 		}
 
 		// Add where clause for "lastdays", as int.
+		// Uses Date_Helper to ensure WordPress timezone is respected.
 		if ( ! empty( $args['lastdays'] ) ) {
-			if ( $db_engine === 'mysql' ) {
-				$inner_where[] = sprintf(
-					'date >= DATE(NOW() - INTERVAL %d DAY)',
-					$args['lastdays']
-				);
-			} elseif ( $db_engine === 'sqlite' ) {
-				$inner_where[] = sprintf(
-					'date >= datetime("now", "-%d days")',
-					$args['lastdays']
-				);
+			// Validate lastdays is a positive integer.
+			$lastdays = (int) $args['lastdays'];
+			if ( $lastdays > 0 ) {
+				$timestamp = Date_Helper::get_last_n_days_start_timestamp( $lastdays );
+				$inner_where[] = sprintf( 'date >= \'%1$s\'', gmdate( 'Y-m-d H:i:s', $timestamp ) );
 			}
 		}
 
@@ -1286,15 +1293,16 @@ class Log_Query {
 			';
 
 			foreach ( $arr_months as $one_month ) {
-				// beginning of month
-				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08") ) . "\n";
-				// >> 2014-08-01 00:00.
-				$date_month_beginning = strtotime( $one_month );
+				// Beginning of month in WordPress timezone.
+				// For "2014-08", this is 2014-08-01 00:00:00 in WordPress timezone.
+				$date_month_beginning_obj = new \DateTimeImmutable( $one_month . '-01 00:00:00', wp_timezone() );
+				$date_month_beginning = $date_month_beginning_obj->getTimestamp();
 
-				// end of month
-				// $ php -r ' echo date("Y-m-d H:i", strtotime("2014-08 + 1 month") ) . "\n";'
-				// >> 2014-09-01 00:00.
-				$date_month_end = strtotime( "{$one_month} + 1 month" );
+				// End of month in WordPress timezone.
+				// Add 1 month to get the start of the next month, then subtract 1 second to get end of current month.
+				// For "2014-08", this is 2014-08-31 23:59:59 in WordPress timezone.
+				$date_month_end_obj = $date_month_beginning_obj->modify( '+1 month' )->modify( '-1 second' );
+				$date_month_end = $date_month_end_obj->getTimestamp();
 
 				$sql_months .= sprintf(
 					'
