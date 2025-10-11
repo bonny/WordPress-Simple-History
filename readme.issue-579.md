@@ -468,10 +468,10 @@ All three filter types ignored WordPress timezone settings, causing:
 **Files Modified**:
 - `/inc/class-log-query.php:6` - Added Date_Helper import
 - `/inc/class-log-query.php:816-854` - Fixed custom date range to use WordPress timezone
-- `/inc/class-log-query.php:1262-1267` - Fixed "lastdays" filter to use Date_Helper
+- `/inc/class-log-query.php:1274-1281` - Fixed "lastdays" filter to use Date_Helper + added validation
 - `/inc/class-log-query.php:1291-1315` - Fixed month filters to use WordPress timezone
 - `/src/constants.js:10` - Changed "Last day" to "Today" for clarity
-- `/tests/wpunit/StatsAlignmentTest.php` - Added 4 new comprehensive tests (tests 8-11)
+- `/tests/wpunit/StatsAlignmentTest.php` - Added 4 new comprehensive tests (tests 8-11) using dynamic dates
 
 **Tests Added**:
 1. `test_filter_uses_same_date_range_as_sidebar()` - Verifies "lastdays" filter alignment
@@ -488,10 +488,11 @@ Event **counts** still won't match between filter results and sidebar stats beca
 **Result**:
 - ✅ ALL filter types now use WordPress timezone consistently
 - ✅ Same time windows as sidebar stats (same day boundaries)
-- ✅ Simpler code (no database-specific logic for "lastdays")
+- ✅ Simpler code (no database-specific logic - works with MySQL and SQLite)
 - ✅ No more strtotime() timezone issues
+- ✅ Added validation for lastdays parameter (positive integer)
 - ✅ "Today" label is clearer than "Last day"
-- ✅ Comprehensive test coverage for all filter types
+- ✅ Comprehensive test coverage for all filter types (using dynamic dates, future-proof)
 
 ---
 
