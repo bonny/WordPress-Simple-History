@@ -34,7 +34,6 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Setup_Pause_Resume_Actions',
 			'WP_CLI_Commands',
 			'Setup_Purge_DB_Cron',
-			'API',
 			'Dashboard_Widget',
 			'Network_Menu_Items',
 			'Plugin_List_Link',
