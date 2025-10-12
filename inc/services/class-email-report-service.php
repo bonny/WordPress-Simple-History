@@ -221,8 +221,8 @@ class Email_Report_Service extends Service {
 	public function rest_preview_email() {
 		$current_user = wp_get_current_user();
 
-		// Preview shows last 7 complete days (excludes partial today).
-		$date_range = Date_Helper::get_last_n_complete_days_range( Date_Helper::DAYS_PER_WEEK );
+		// Preview shows last 7 days including today, matching sidebar "7 days" stat.
+		$date_range = Date_Helper::get_last_n_days_range( Date_Helper::DAYS_PER_WEEK );
 		$date_from = $date_range['from'];
 		$date_to = $date_range['to'];
 
@@ -269,8 +269,8 @@ class Email_Report_Service extends Service {
 	 * REST API endpoint for getting HTML preview.
 	 */
 	public function rest_preview_html() {
-		// Preview shows last 7 complete days (excludes partial today).
-		$date_range = Date_Helper::get_last_n_complete_days_range( Date_Helper::DAYS_PER_WEEK );
+		// Preview shows last 7 days including today, matching sidebar "7 days" stat.
+		$date_range = Date_Helper::get_last_n_days_range( Date_Helper::DAYS_PER_WEEK );
 		$date_from = $date_range['from'];
 		$date_to = $date_range['to'];
 
