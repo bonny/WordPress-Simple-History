@@ -192,6 +192,9 @@ class Email_Report_Service extends Service {
 		// Add history admin URL.
 		$stats['history_admin_url'] = \Simple_History\Helpers::get_history_admin_url();
 
+		// Add settings URL for unsubscribe link.
+		$stats['settings_url'] = admin_url( 'admin.php?page=simple_history_settings_page&selected-tab=general_settings_subtab_general&selected-sub-tab=general_settings_subtab_settings_general' );
+
 		return $stats;
 	}
 

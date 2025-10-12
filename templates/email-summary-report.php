@@ -5,8 +5,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$support_url = 'https://simple-history.com/support/weekly-email-report/';
-
 /**
  * Filter to show the upsell.
  *
@@ -54,6 +52,7 @@ $args = wp_parse_args(
 		'plugin_deactivations' => 0,
 		'wordpress_updates' => 0,
 		'history_admin_url' => '',
+		'settings_url' => '',
 	]
 );
 
@@ -459,16 +458,38 @@ $args = wp_parse_args(
 		<!-- Unsubscribe Text Outside White Container -->
 		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="500" style="padding: 40px 0;" class="email-container">
 			<tr>
-				<td style="padding: 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; text-align: center; color: #000000;" 
+				<td style="padding: 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; text-align: center; color: #000000;"
 					class="mobile-padding">
 					<p style="margin: 15px 0 0; font-size: 12px; color: #000000;">
-						<?php echo esc_html( __( 'You\'re receiving this email because your email address was entered in the WordPress admin settings for Simple History.', 'simple-history' ) ); ?>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: Site name */
+								__( 'You\'re receiving this email because you\'re listed as a recipient in the Simple History email report settings for %s.', 'simple-history' ),
+								$args['site_name']
+							)
+						);
+						?>
 					</p>
 					<p style="margin: 10px 0 0; font-size: 12px; color: #000000;">
-						<?php echo esc_html( __( 'This email was auto-generated and sent from www.simple-history.com.', 'simple-history' ) ); ?>
-						<a href="<?php echo esc_url( $support_url ); ?>" style="color: #000000; text-decoration: underline;">
-							<?php echo esc_html( __( 'Learn how to unsubscribe/stop receiving emails', 'simple-history' ) ); ?>
-						</a>.
+						<?php
+						$allowed_html = array(
+							'a' => array(
+								'href' => array(),
+								'style' => array(),
+							),
+						);
+						$link_style = 'style="color: #000000; text-decoration: underline;"';
+						echo wp_kses(
+							sprintf(
+								/* translators: 1: URL to settings page, 2: link style attribute including style="" */
+								__( 'To stop receiving these emails, go to <a href="%1$s" %2$s>Settings → Simple History → Email Reports</a> in your WordPress admin and remove your email address.', 'simple-history' ),
+								esc_url( $args['settings_url'] ),
+								$link_style
+							),
+							$allowed_html
+						);
+						?>
 					</p>
 				</td>
 			</tr>
