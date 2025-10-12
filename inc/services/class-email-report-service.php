@@ -359,7 +359,7 @@ class Email_Report_Service extends Service {
 	 * Output for the email report settings section.
 	 */
 	public function settings_section_output() {
-		echo '<p>' . esc_html__( 'Reports are sent every Monday morning and includes statistics from the previous week (Monday-Sunday).', 'simple-history' ) . '</p>';
+		echo '<p>' . esc_html__( 'Reports are sent Monday mornings and include statistics from the previous week (Monday-Sunday).', 'simple-history' ) . '</p>';
 	}
 
 	/**
