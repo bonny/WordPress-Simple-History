@@ -14,7 +14,7 @@ class EmailReportServiceCest {
 
     public function test_can_see_email_report_settings_section( FunctionalTester $I ) {
         $I->canSee('Email Reports');
-        $I->canSee('Configure automatic email reports with website statistics. Reports are sent every Monday morning.');
+        $I->canSee('Reports are sent Monday mornings and include statistics from the previous week (Monday-Sunday).');
     }
 
     public function test_can_see_email_report_settings_fields( FunctionalTester $I ) {
@@ -168,14 +168,15 @@ class EmailReportServiceCest {
         
         // Check that we see email preview content
         $I->seeInSource('<!DOCTYPE html');
-        $I->seeInSource('Weekly Activity Summary');
+        $I->seeInSource('Website activity summary');
         
         // Check for main sections in the email template
-        $I->seeInSource('Events this week');
-        $I->seeInSource('Activity by day');
+        $I->seeInSource('Total events');
+        $I->seeInSource('Event count by day');
         $I->seeInSource('Posts and Pages');
         
-        // Verify it's marked as preview
+        // Verify it's marked as preview.
+        // This is shown in the email <title>.
         $I->seeInSource('(preview)');
         
         // Check for site name (wp-tests)
@@ -223,8 +224,8 @@ class EmailReportServiceCest {
         // Verify statistics sections are present even if empty
         $I->seeInSource('Posts created');
         $I->seeInSource('Posts and Pages');
-        $I->seeInSource('Activity by day');
-        $I->seeInSource('Events this week');
+        $I->seeInSource('Event count by day');
+        $I->seeInSource('Total events');
     }
 
     public function test_preview_link_requires_authentication( FunctionalTester $I ) {
@@ -242,7 +243,7 @@ class EmailReportServiceCest {
         
         // Should see error or be redirected
         // The REST API should return a 401 or 403 error for unauthenticated users
-        $I->dontSeeInSource('Weekly Activity Summary');
+        $I->dontSeeInSource('Website activity summary');
         $I->seeResponseCodeIsClientError();
     }
 
