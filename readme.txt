@@ -349,10 +349,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Fix email scheduling to use WordPress timezone (emails now scheduled for 8:00 AM in site's timezone, not server timezone).
 -   Fix REST API stats endpoints using server timezone instead of WordPress timezone.
 -   Fix chart date calculations and tooltip display in sidebar stats.
--   Fix email preview date range to show last 7 complete days (excludes today) instead of including partial current day.
+-   Fix email preview date range to match sidebar "7 days" stat (both now show last 7 days including today) so users can verify preview numbers.
 -   Fix email sent on Mondays to show previous complete Monday-Sunday week instead of including send day.
 -   Fix email "Activity by day" showing days in calendar week order (Mon-Sun) instead of chronological order matching the actual date range.
 -   Fix email "Activity by day" showing incorrect daily counts due to top-3 limitation (now shows all 7 days with correct event counts).
+-   Fix email copy to be date-neutral (removed "weekly" and "last week" references) so it works for previews and historical viewing.
 
 **Changes**
 
@@ -360,10 +361,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Sidebar stats box now uses the new format `slugs` to get the loggers that the user can read and to make sure the cache key is consistent.
 -   All date/time calculations now use WordPress timezone setting instead of server/UTC timezone for consistency across sidebar, insights page, email reports, and REST API.
 -   Email report date ranges now use wp_date() instead of date_i18n() for better timezone handling and include short day names with a single year at the end for improved readability (e.g., "Fri October 3 – Thu October 9, 2025").
--   Email preview now shows last 7 complete days (excludes partial today) to avoid confusion from incomplete day counts.
+-   Email preview now shows last 7 days including today (matching sidebar "7 days" stat) so users can verify preview numbers against sidebar.
 -   Email sent on Mondays now shows previous complete Monday-Sunday week (excludes current Monday).
 -   Email "Activity by day" now displays days in chronological order matching the date range instead of fixed calendar week order.
 -   Email report settings description updated to clarify that reports are sent every Monday morning and include statistics from the previous week (Monday-Sunday).
+-   Email copy is now date-neutral (removed "weekly" and "last week" references, added "Period" section label) so it works for previews and historical viewing.
 -   Use "Today" instead of "Last day" because it's to vague.
 
 **Performance**
