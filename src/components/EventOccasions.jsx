@@ -147,10 +147,10 @@ export function EventOccasions( props ) {
 						_n(
 							'+%1$s similar event',
 							'+%1$s similar events',
-							subsequentOccasionsCount,
+							subsequentOccasionsCount - 1,
 							'simple-history'
 						),
-						subsequentOccasionsCount
+						subsequentOccasionsCount - 1
 					) }
 				</Button>
 

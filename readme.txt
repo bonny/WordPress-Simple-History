@@ -354,6 +354,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Fix email "Activity by day" showing days in calendar week order (Mon-Sun) instead of chronological order matching the actual date range.
 -   Fix email "Activity by day" showing incorrect daily counts due to top-3 limitation (now shows all 7 days with correct event counts).
 -   Fix email copy to be date-neutral (removed "weekly" and "last week" references) so it works for previews and historical viewing.
+-   Fix occasions count displaying incorrect number - button now shows the actual number of similar events that will be loaded when expanded.
 
 **Changes**
 
