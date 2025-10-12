@@ -239,7 +239,7 @@ $args = wp_parse_args(
 						<!-- Weekly Activity Breakdown -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Activity by day', 'simple-history' ) ); ?>
+								<?php echo esc_html( __( 'Event count by day', 'simple-history' ) ); ?>
 							</h2>
 							
 							<?php
@@ -276,11 +276,15 @@ $args = wp_parse_args(
 									$current_date->getTimestamp()
 								);
 
+								// Get date in Y-m-d format for URL parameters.
+								$date_ymd = $current_date->format( 'Y-m-d' );
+
 								$ordered_days[] = [
 									'name' => $day_name,
 									'key' => $day_key,
 									'count' => isset( $day_counts[ $day_key ] ) ? $day_counts[ $day_key ] : 0,
 									'full_date' => $full_date,
+									'date_ymd' => $date_ymd,
 								];
 
 								// Move to next day.
@@ -294,14 +298,25 @@ $args = wp_parse_args(
 									$day_index = 0;
 									$total_days = count( $ordered_days );
 									foreach ( $ordered_days as $day_data ) {
+										// Build URL with date filter for this specific day.
+										$day_url = add_query_arg(
+											[
+												'date' => 'customRange',
+												'from' => $day_data['date_ymd'],
+												'to' => $day_data['date_ymd'],
+											],
+											$args['history_admin_url']
+										);
 										?>
 										<td style="width: 14.28%; vertical-align: top; text-align: center;<?php echo $day_index < ( $total_days - 1 ) ? ' padding-right: 8px;' : ''; ?>" title="<?php echo esc_attr( $day_data['full_date'] ); ?>">
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; color: #000000; text-align: center; font-weight: 500;">
-												<?php echo esc_html( substr( $day_data['name'], 0, 3 ) ); ?>
-											</div>
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000; font-weight: 700; text-align: center; margin-top: 2px;">
-												<?php echo esc_html( number_format_i18n( $day_data['count'] ) ); ?>
-											</div>
+											<a href="<?php echo esc_url( $day_url ); ?>" style="color: #0040FF; text-decoration: none; display: block;">
+												<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; color: #000000; text-align: center; font-weight: 500;">
+													<?php echo esc_html( substr( $day_data['name'], 0, 3 ) ); ?>
+												</div>
+												<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #0040FF; font-weight: 700; text-align: center; margin-top: 2px;">
+													<?php echo esc_html( number_format_i18n( $day_data['count'] ) ); ?>
+												</div>
+											</a>
 										</td>
 										<?php
 										$day_index++;
