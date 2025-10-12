@@ -7,7 +7,16 @@ Statistics shown in different parts of Simple History are inconsistent, showing 
 
 **Core Issue #579**: ✅ **FULLY RESOLVED** - All statistics now aligned across the plugin
 
-**Latest Update (2025-10-11)**:
+**Latest Update (2025-10-12)**:
+- ✅ Fixed email preview date range to match sidebar "7 days" stat
+  - Preview now uses same 7-day period as sidebar (includes today)
+  - Users can verify preview numbers against sidebar
+- ✅ Made email copy date-neutral for better clarity
+  - Removed "weekly" and "last week" references from headline and text
+  - Added "Period" section with date range label for consistency
+  - Copy now works in any context (preview, actual email, historical viewing)
+
+**Previous Update (2025-10-11)**:
 - ✅ Fixed ALL filter types to use WordPress timezone consistently
   - ✅ "Today" / "Last N days" filters (replaced database NOW() with Date_Helper)
   - ✅ Custom date range filters (replaced strtotime() with DateTimeImmutable + wp_timezone())
@@ -410,7 +419,54 @@ $date = new \DateTimeImmutable("-{$days_ago} days", wp_timezone());
 
 **Result**: All 7 days now show correct counts, totals match (0+12+7+60+1+7+5 = 92 ✅)
 
-### 15. Fixed ALL Filter Date Calculations to Use WordPress Timezone ✅ (Oct 11, 2025)
+### 15. Fixed Email Preview Date Range to Match Sidebar Stats ✅ (Oct 12, 2025)
+
+**Problem**: Email preview showed different date range than sidebar "7 days" stat, causing confusion.
+
+**Example Issue**:
+- **Sidebar "7 days"**: Last 7 days including today (e.g., Oct 6-12) = 49 events
+- **Email preview**: Last 7 complete days excluding today (e.g., Oct 5-11) = 103 events
+- Users couldn't verify preview numbers against sidebar
+
+**Root Cause**:
+- Email preview used `Date_Helper::get_last_n_complete_days_range()` (excludes today)
+- Sidebar used `Date_Helper::get_last_n_days_range()` (includes today)
+- Different date ranges = different event counts
+
+**Solution**: Changed email preview to use same date range as sidebar:
+- Preview now uses `Date_Helper::get_last_n_days_range()` (includes today)
+- Actual weekly email continues using `get_last_complete_week_range()` (unchanged)
+
+**Files Modified**:
+- `/inc/services/class-email-report-service.php:225,273` - Changed preview methods to use `get_last_n_days_range()`
+
+**Result**: Email preview now shows same 7-day period as sidebar, making numbers easy to verify.
+
+### 16. Made Email Copy Date-Neutral ✅ (Oct 12, 2025)
+
+**Problem**: Email copy contained time-specific references that didn't work well for previews or when viewing older emails.
+
+**Issues Found**:
+1. **Headline**: "Website weekly activity summary" ❌
+2. **Subtitle**: "Here's a summary of what happened on your website last week." ❌
+3. **Section header**: "Events this week" ❌
+4. **Date label**: No label for the date range (inconsistent with other key-value pairs)
+
+**Solutions**:
+1. **Headline**: "Website weekly activity summary" → "Website activity summary" ✅
+2. **Subtitle**: "Here's a summary of what happened on your website last week." → "Here's a summary of activity on your website." ✅
+3. **Section header**: "Events this week" → "Total events" ✅
+4. **Date section**: Added "Period" as labeled section between "Website" and "Total events" for consistency ✅
+
+**Files Modified**:
+- `/templates/email-summary-report.php:163` - Updated headline
+- `/templates/email-summary-report.php:174` - Updated subtitle
+- `/templates/email-summary-report.php:220-228` - Added "Period" section with date range
+- `/templates/email-summary-report.php:233` - Updated section header to "Total events"
+
+**Result**: Email copy is now date-neutral and works for any context (preview, actual email, historical viewing).
+
+### 17. Fixed ALL Filter Date Calculations to Use WordPress Timezone ✅ (Oct 11, 2025)
 
 **Problem**: ALL date filters used database/server timezone instead of WordPress timezone.
 
