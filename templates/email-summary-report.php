@@ -158,20 +158,20 @@ $args = wp_parse_args(
 								class="mobile-padding email-container" role="main">
 								
 					<!-- Main Headline -->
-					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;" 
+					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;"
 						class="mobile-header">
-						<?php echo esc_html( __( 'Website weekly activity summary', 'simple-history' ) ); ?>
+						<?php echo esc_html( __( 'Website activity summary', 'simple-history' ) ); ?>
 					</h1>
 					
 					<!-- Date Range -->
 					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
-						<?php echo esc_html( $args['date_range'] ); ?> 
+						<?php echo esc_html( $args['date_range'] ); ?>
 					</p>
 					
 					<!-- Subtitle -->
-					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
+					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;"
 						class="mobile-text">
-						<?php echo esc_html( __( 'Here\'s a summary of what happened on your website last week.', 'simple-history' ) ); ?>
+						<?php echo esc_html( __( 'Here\'s a summary of activity on your website.', 'simple-history' ) ); ?>
 					</p>
 
 					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
@@ -199,7 +199,7 @@ $args = wp_parse_args(
 					<?php if ( $show_main_core_stats ) { ?>
 					<!-- Key Metrics Section -->
 					<div style="margin-bottom: 40px;">
-						
+
 						<!-- Website Information -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
@@ -216,11 +216,21 @@ $args = wp_parse_args(
 								</a>
 							</div>
 						</div>
-						
+
+						<!-- Period Information -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
+								<?php echo esc_html( __( 'Period', 'simple-history' ) ); ?>
+							</h2>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000; font-weight: 600; text-align: left;">
+								<?php echo esc_html( $args['date_range'] ); ?>
+							</div>
+						</div>
+
 						<!-- This Week's Activity -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Events this week', 'simple-history' ) ); ?>
+								<?php echo esc_html( __( 'Total events', 'simple-history' ) ); ?>
 							</h2>
 							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">
 								<?php echo esc_html( number_format_i18n( $args['total_events_this_week'] ) ); ?>
