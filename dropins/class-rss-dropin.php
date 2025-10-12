@@ -566,9 +566,9 @@ class RSS_Dropin extends Dropin {
 		$paged = isset( $args['paged'] ) ? (int) $args['paged'] : 1;
 		$date_from = isset( $args['date_from'] ) ? sanitize_text_field( $args['date_from'] ) : null;
 		$date_to = isset( $args['date_to'] ) ? sanitize_text_field( $args['date_to'] ) : null;
-		$loggers = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : [];
-		$messages = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : [];
-		$loglevels = isset( $args['loglevels'] ) ? sanitize_text_field( $args['loglevels'] ) : '';
+		$loggers = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : null;
+		$messages = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : null;
+		$loglevels = isset( $args['loglevels'] ) ? sanitize_text_field( $args['loglevels'] ) : null;
 
 		return [
 			'posts_per_page' => $posts_per_page,
