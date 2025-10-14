@@ -337,6 +337,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 ### Unreleased
 
 This version focuses on timezone handling fixes, email report improvements, and performance optimizations.
+Read more about it in the [release post](https://simple-history.com/2025/simple-history-5-17-0-released/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_17_0).
 
 **Added**
 
