@@ -132,7 +132,7 @@ Simple History begins tracking your WordPress site's activities instantly after 
 
 ### 📧 Weekly Email Reports – Stay Informed Without Logging In
 
-Get a complete overview of your site's activity delivered straight to your inbox every Monday morning with Simple History's [weekly email reports](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports). Get a glance of what happened on your site each week without the need to visit the site.
+Simple History's [weekly email reports](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports) give you a quick look at your site's activity straight in your inbox every Monday morning—know what happened on your site each week without logging in.
 
 Each email report includes:
 
@@ -143,7 +143,7 @@ Each email report includes:
 
 Perfect for site owners who want to stay informed without logging in daily, agencies managing multiple client sites, and teams who need regular activity updates.
 
-Enable email reports in the settings, add your email address, and start receiving weekly updates. You can preview what the email will look like before enabling it, or [see an example](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports) of the actual email format.
+Enable email reports in the settings, add your email address, and start receiving weekly updates. You can [see what the email looks like](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports#example) before enabling it.
 
 ### 📡 RSS feed with changes
 
