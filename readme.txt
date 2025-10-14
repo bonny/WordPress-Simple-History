@@ -336,7 +336,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
-Many small improvements and fixes in this version.
+This version focuses on timezone handling fixes, email report improvements, and performance optimizations.
 
 **Added**
 
@@ -348,7 +348,7 @@ Many small improvements and fixes in this version.
 **Fixed**
 
 -   Sidebar stats was not always using the correct cached data.
--   Fix timezone and date handling handling across all stats features (sidebar, Insights page, REST API, charts) and all filter dropdowns (Today, Last N days, custom date ranges, month filters) to use WordPress timezone instead of server/UTC timezone.
+-   Fix timezone and date handling across all stats features (sidebar, Insights page, REST API, charts) and all filter dropdowns (Today, Last N days, custom date ranges, month filters) to use WordPress timezone instead of server/UTC timezone.
 -   "Today" now correctly shows events from 00:00 until current time (previously showed events from now minus 24 hours).
 -   Email reports: Fix timezone and date handling issues (now consistently use WordPress timezone), improved daily stats accuracy, date range, and updated email copy.
 -   Occasions count in main GUI was displaying incorrect number (always one event to many!) - button now shows the actual number of similar events that will be loaded when expanded.
@@ -362,15 +362,15 @@ Many small improvements and fixes in this version.
 
 **Performance**
 
--   Optimized logger message loading to use on-demand approach instead of loading all messages during initialization. This eliminates ~980 gettext filter calls on every page load, reducing them to zero on pages that don't use Simple History and only calling them when actually needed (when logging events or displaying the history page).
--   Optimized context handling in Logger class by implementing size-based batch inserts. This improves performance when logging events with many context items.
--   Optimized Plugin Logger by implementing conditional hook registration - gettext filters and auto-update detection now only run on the plugins.php page instead of globally, further reducing overhead on all other admin pages.
--   Simplify plugin action list hooks by only hooking into our plugin.
--   Add autoloading of deprecated classes, so they are only loaded if needed.
+-   Improved performance by loading logger messages only when needed, eliminating ~980 gettext filter calls on every page load. This reduces overhead to zero on pages that don't use Simple History.
+-   Optimized context handling when logging events with many context items using batch inserts.
+-   Plugin Logger now only runs gettext filters and auto-update detection on the plugins.php page instead of globally.
+-   Simplified plugin action list hooks by only hooking into our plugin.
+-   Added autoloading of deprecated classes, so they are only loaded if needed.
 
 **Removed**
 
--   Legacy AJAX API endpoint (`action=simple_history_api`) since the plugin now uses the WordPress REST API exclusively for all data fetching operations.
+-   Removed legacy AJAX API endpoint (`action=simple_history_api`). The plugin now uses the WordPress REST API exclusively.
 
 ### 5.16.0 (August 2025)
 
