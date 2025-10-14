@@ -340,42 +340,33 @@ Many small improvements and fixes in this version.
 
 **Added**
 
--   Add new format `slugs` to `get_loggers_that_user_can_read()` method.
 -   Add icon to sticky events label.
--   Add new `get_num_events_today()` helper function.
--   Add new `Date_Helper` class for centralized, WordPress timezone-aware date/time operations (renamed from Constants class).
--   Add new `Date_Helper` methods: `get_last_n_complete_days_range()` for last N complete days excluding today, and `get_last_complete_week_range()` for most recent complete Monday-Sunday week.
--   Update GUI with explanation to sidebar stats box about refresh interval and what data is used.
+-   Add help text to sidebar stats box about refresh interval and what data is used for the statistics (for admin the stats are based on all events, for other users is based on the events they have permission to view).
 -   Email reports: Add tooltips to email "Activity by day" showing full date (e.g., "Thursday 2 October 2025") on hover for each day.
 -   Email reports: Each day is now a link to the full log for that day.
 
 **Fixed**
 
 -   Sidebar stats was not always using the correct cached data.
--   Fix timezone handling across all stats features (sidebar, Insights page, REST API, charts) to use WordPress timezone instead of server/UTC timezone.
--   Fix Insights/Stats page date range calculation showing 31 days instead of 30 days (now converts months to days: 1m=30d, 3m=90d).
+-   Fix timezone and date handling handling across all stats features (sidebar, Insights page, REST API, charts) and all filter dropdowns (Today, Last N days, custom date ranges, month filters) to use WordPress timezone instead of server/UTC timezone.
 -   "Today" now correctly shows events from 00:00 until current time (previously showed events from now minus 24 hours).
--   Email reports: Fix timezone issues (now consistently use WordPress timezone), improved daily stats accuracy, date range, and updated email copy.
+-   Email reports: Fix timezone and date handling issues (now consistently use WordPress timezone), improved daily stats accuracy, date range, and updated email copy.
 -   Occasions count in main GUI was displaying incorrect number (always one event to many!) - button now shows the actual number of similar events that will be loaded when expanded.
 
 **Changed**
 
--   Use `wp_doing_cron()` and `wp_doing_ajax()` instead of `DOING_CRON` and `DOING_AJAX`.
--   Email report date ranges now use wp_date() instead of date_i18n() for better timezone handling and include short day names with a single year at the end for improved readability (e.g., "Fri October 3 – Thu October 9, 2025").
 -   Email preview now shows last 7 days including today (matching sidebar "7 days" stat) so users can verify preview numbers against sidebar.
 -   Email sent on Mondays now shows previous complete Monday-Sunday week (excludes current Monday).
 -   Email "Activity by day" now displays days in chronological order matching the date range instead of fixed calendar week order.
--   Email copy is now date-neutral (removed "weekly" and "last week" references, added "Period" section label) so it works for previews and historical viewing.
--   Use "Today" instead of "Last day" in main GUI filters because it's to vague.
+-   Use "Today" instead of "Last day" in main GUI filters to make it more clear what range is being shown.
 
 **Performance**
 
 -   Optimized logger message loading to use on-demand approach instead of loading all messages during initialization. This eliminates ~980 gettext filter calls on every page load, reducing them to zero on pages that don't use Simple History and only calling them when actually needed (when logging events or displaying the history page).
+-   Optimized context handling in Logger class by implementing size-based batch inserts. This improves performance when logging events with many context items.
 -   Optimized Plugin Logger by implementing conditional hook registration - gettext filters and auto-update detection now only run on the plugins.php page instead of globally, further reducing overhead on all other admin pages.
--   Added new convenience methods to Logger class: `get_translated_message()`, `get_untranslated_message()`, `get_message_by_key()`, and `get_messages()` for cleaner message access.
 -   Simplify plugin action list hooks by only hooking into our plugin.
 -   Add autoloading of deprecated classes, so they are only loaded if needed.
--   Optimized context handling in Logger class by implementing size-based batch inserts. This improves performance when logging events with many context items.
 
 **Removed**
 
