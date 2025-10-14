@@ -130,6 +130,21 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 
 Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. View your activity logs through the convenient dashboard widget or browse the full history on the dedicated 'Simple History' page in your WordPress admin.
 
+### 📧 Weekly Email Reports – Stay Informed Without Logging In
+
+Get a complete overview of your site's activity delivered straight to your inbox every Monday morning. No need to remember to check your dashboard – you'll know exactly what happened on your site each week.
+
+Each email report includes:
+
+-   **Total activity summary** – See at a glance how active your site was
+-   **Daily activity breakdown** – Identify the busiest days of the week
+-   **Key metrics** – Login activity, content updates, plugin changes, and WordPress updates
+-   **Direct links** – Jump straight to the full log for more details
+
+Site owners who want to stay informed without logging in daily, agencies managing multiple client sites, and teams who need regular activity updates.
+
+Enable email reports in the settings, add your email address(es), and you're done. You can preview what the email will look like before enabling it.
+
 ### 📡 RSS feed with changes
 
 Using the optional password protected **RSS feed** you can keep track of the changes made on your website using your favorite RSS reader.
