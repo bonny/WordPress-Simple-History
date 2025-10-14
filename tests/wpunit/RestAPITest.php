@@ -1,9 +1,5 @@
 <?php
 
-use Simple_History\Helpers;
-use Simple_History\Log_Query;
-use Simple_History\Loggers\Logger;
-
 class RestAPITest extends \Codeception\TestCase\WPTestCase {
 	private $events_endpoint = '/simple-history/v1/events';
 
@@ -38,9 +34,10 @@ class RestAPITest extends \Codeception\TestCase\WPTestCase {
         
         // Check the response data.
         $data = $response->get_data();
-		
+
         $this->assertNotEmpty( $data, 'REST API data should not be empty.' );
 
+		// This uses to work because the example db contained more items, but it's cleaned sometimes now in another test.
 		$this->assertCount( 5, $data, 'REST API data should contain 5 items.' );
 
 		$this->assertStringContainsString( 'Created user', $data[0]['message'], 'First message should contain "created user".' );
