@@ -336,9 +336,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
-**Removed**
-
--   Legacy AJAX API endpoint (`simple_history_api`) - the plugin now uses the WordPress REST API exclusively for all data fetching operations.
+Many small improvements and fixes in this version.
 
 **Added**
 
@@ -347,51 +345,41 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Add new `get_num_events_today()` helper function.
 -   Add new `Date_Helper` class for centralized, WordPress timezone-aware date/time operations (renamed from Constants class).
 -   Add new `Date_Helper` methods: `get_last_n_complete_days_range()` for last N complete days excluding today, and `get_last_complete_week_range()` for most recent complete Monday-Sunday week.
--   Add comprehensive `StatsAlignmentTest` test suite with 7 tests to verify stats consistency across all components.
--   Add `DateHelperTest` test suite with 15 tests including validation for new complete day/week range methods.
--   Add explanation to sidebar stats box about refresh interval and what data is used.
--   Add tooltips to email "Activity by day" showing full date (e.g., "Thursday 2 October 2025") on hover for each day.
+-   Update GUI with explanation to sidebar stats box about refresh interval and what data is used.
+-   Email reports: Add tooltips to email "Activity by day" showing full date (e.g., "Thursday 2 October 2025") on hover for each day.
+-   Email reports: Each day is now a link to the full log for that day.
 
 **Fixed**
 
--   Fix sidebar stats not aligning correctly with the new user permissions system.
--   Fix sidebar stats not calculating day boundaries correctly (did use server timezone instead of WordPress timezone, and using current time instead of start of day).
--   Fix sidebar stats "users today" and "other sources" counts using server timezone instead of WordPress timezone.
--   Fix Insights/Stats page using UTC timezone instead of WordPress timezone setting.
+-   Sidebar stats was not always using the correct cached data.
+-   Fix timezone handling across all stats features (sidebar, Insights page, REST API, charts) to use WordPress timezone instead of server/UTC timezone.
 -   Fix Insights/Stats page date range calculation showing 31 days instead of 30 days (now converts months to days: 1m=30d, 3m=90d).
--   Fix Insights/Stats page chart data using UTC timezone for date labels instead of WordPress timezone.
--   Fix email reports using server timezone instead of WordPress timezone.
--   Fix email scheduling to use WordPress timezone (emails now scheduled for 8:00 AM in site's timezone, not server timezone).
--   Fix REST API stats endpoints using server timezone instead of WordPress timezone.
--   Fix chart date calculations and tooltip display in sidebar stats.
--   Fix email preview date range to match sidebar "7 days" stat (both now show last 7 days including today) so users can verify preview numbers.
--   Fix email sent on Mondays to show previous complete Monday-Sunday week instead of including send day.
--   Fix email "Activity by day" showing days in calendar week order (Mon-Sun) instead of chronological order matching the actual date range.
--   Fix email "Activity by day" showing incorrect daily counts due to top-3 limitation (now shows all 7 days with correct event counts).
--   Fix email copy to be date-neutral (removed "weekly" and "last week" references) so it works for previews and historical viewing.
--   Fix occasions count displaying incorrect number - button now shows the actual number of similar events that will be loaded when expanded.
+-   "Today" now correctly shows events from 00:00 until current time (previously showed events from now minus 24 hours).
+-   Email reports: Fix timezone issues (now consistently use WordPress timezone), improved daily stats accuracy, date range, and updated email copy.
+-   Occasions count in main GUI was displaying incorrect number (always one event to many!) - button now shows the actual number of similar events that will be loaded when expanded.
 
-**Changes**
+**Changed**
 
--   Use wp_doing_cron() and wp_doing_ajax() instead of DOING_CRON and DOING_AJAX.
--   Sidebar stats box now uses the new format `slugs` to get the loggers that the user can read and to make sure the cache key is consistent.
--   All date/time calculations now use WordPress timezone setting instead of server/UTC timezone for consistency across sidebar, insights page, email reports, and REST API.
+-   Use `wp_doing_cron()` and `wp_doing_ajax()` instead of `DOING_CRON` and `DOING_AJAX`.
 -   Email report date ranges now use wp_date() instead of date_i18n() for better timezone handling and include short day names with a single year at the end for improved readability (e.g., "Fri October 3 – Thu October 9, 2025").
 -   Email preview now shows last 7 days including today (matching sidebar "7 days" stat) so users can verify preview numbers against sidebar.
 -   Email sent on Mondays now shows previous complete Monday-Sunday week (excludes current Monday).
 -   Email "Activity by day" now displays days in chronological order matching the date range instead of fixed calendar week order.
--   Email report settings description updated to clarify that reports are sent every Monday morning and include statistics from the previous week (Monday-Sunday).
 -   Email copy is now date-neutral (removed "weekly" and "last week" references, added "Period" section label) so it works for previews and historical viewing.
--   Use "Today" instead of "Last day" because it's to vague.
+-   Use "Today" instead of "Last day" in main GUI filters because it's to vague.
 
 **Performance**
 
 -   Optimized logger message loading to use on-demand approach instead of loading all messages during initialization. This eliminates ~980 gettext filter calls on every page load, reducing them to zero on pages that don't use Simple History and only calling them when actually needed (when logging events or displaying the history page).
--   Added new convenience methods to Logger class: `get_translated_message()`, `get_untranslated_message()`, `get_message_by_key()`, and `get_messages()` for cleaner message access.
 -   Optimized Plugin Logger by implementing conditional hook registration - gettext filters and auto-update detection now only run on the plugins.php page instead of globally, further reducing overhead on all other admin pages.
--   Simplify plugin action list hooks by only hooking into our plugin
--   Add autoloading of deprecated classes, so they are only loaded if needed
+-   Added new convenience methods to Logger class: `get_translated_message()`, `get_untranslated_message()`, `get_message_by_key()`, and `get_messages()` for cleaner message access.
+-   Simplify plugin action list hooks by only hooking into our plugin.
+-   Add autoloading of deprecated classes, so they are only loaded if needed.
 -   Optimized context handling in Logger class by implementing size-based batch inserts. This improves performance when logging events with many context items.
+
+**Removed**
+
+-   Legacy AJAX API endpoint (`action=simple_history_api`) since the plugin now uses the WordPress REST API exclusively for all data fetching operations.
 
 ### 5.16.0 (August 2025)
 
