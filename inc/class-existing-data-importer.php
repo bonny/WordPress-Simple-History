@@ -177,17 +177,17 @@ class Existing_Data_Importer {
 
 		foreach ( $users as $user ) {
 			// Log user registration with original registration date.
-			// Note: We need to check if this message key exists in User_Logger.
-			// For now, we'll use a generic info log.
-			$user_logger->info(
-				sprintf(
-					'User "%s" was registered',
-					$user->user_login
-				),
+			// Use the same message key and context format as User_Logger.
+			$user_logger->info_message(
+				'user_created',
 				[
-					'user_id' => $user->ID,
-					'user_login' => $user->user_login,
-					'user_email' => $user->user_email,
+					'created_user_id' => $user->ID,
+					'created_user_email' => $user->user_email,
+					'created_user_login' => $user->user_login,
+					'created_user_first_name' => $user->first_name,
+					'created_user_last_name' => $user->last_name,
+					'created_user_url' => $user->user_url,
+					'created_user_role' => implode( ', ', (array) $user->roles ),
 					'_date' => get_date_from_gmt( $user->user_registered ),
 					'_initiator' => Log_Initiators::OTHER,
 				]
@@ -198,6 +198,7 @@ class Existing_Data_Importer {
 				'login' => $user->user_login,
 				'email' => $user->user_email,
 				'registered_date' => $user->user_registered,
+				'roles' => (array) $user->roles,
 			];
 
 			$imported_count++;
