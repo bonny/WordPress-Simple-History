@@ -115,6 +115,7 @@ class Existing_Data_Importer {
 					'post_title' => $post->post_title,
 					'_date' => $post->post_date_gmt,
 					'_initiator' => Log_Initiators::OTHER,
+					'_imported_event' => true,
 				]
 			);
 
@@ -133,6 +134,7 @@ class Existing_Data_Importer {
 						'post_title' => $post->post_title,
 						'_date' => $post->post_modified_gmt,
 						'_initiator' => Log_Initiators::OTHER,
+						'_imported_event' => true,
 					]
 				);
 
@@ -190,6 +192,7 @@ class Existing_Data_Importer {
 					'created_user_role' => implode( ', ', (array) $user->roles ),
 					'_date' => get_date_from_gmt( $user->user_registered ),
 					'_initiator' => Log_Initiators::OTHER,
+					'_imported_event' => true,
 				]
 			);
 
