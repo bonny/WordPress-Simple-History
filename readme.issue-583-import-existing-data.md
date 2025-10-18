@@ -1,8 +1,24 @@
 # Issue #583: Generate history based on existing WP data
 
-**Status**: In Progress
+**Status**: Testing & Review
 **Branch**: `issue-583-import-existing-data`
 **Issue URL**: https://github.com/bonny/WordPress-Simple-History/issues/583
+**Code Quality**: ✅ phpcs passed, ✅ phpstan passed
+
+## Summary
+
+✅ **Core functionality implemented and working**
+
+This feature provides a way to import existing WordPress data into Simple History, populating the log with historical events from before the plugin was activated. The implementation is accessible through an "Experimental Features" admin page where users can manually trigger imports with configurable options.
+
+**What's Working**:
+- Import posts and pages with creation and modification dates
+- Import users with registration dates
+- Configurable post type selection
+- Adjustable import limits (1-1000 items per type)
+- Proper message formatting matching existing loggers
+- Historical date preservation using `_date` context
+- Debug tracking for troubleshooting
 
 ## Overview
 
@@ -10,13 +26,20 @@ When the plugin is installed it contains no history at all - an empty state that
 
 The information available in WordPress for historical events is limited, but we can pull in:
 - Post and page changes (modification dates, authors)
-- Possibly other historical data available in WordPress core
+- User registration dates
+- Any public post types available in WordPress
 
 ## Goals
 
-- Import existing post/page data into Simple History on first activation
+**Original Goals**:
+- ~~Import existing post/page data into Simple History on first activation~~
 - Provide a better initial experience for new users
 - Show historical context even for events that occurred before plugin installation
+
+**Implemented Approach**:
+- Manual import via Experimental Features admin page (not automatic on activation)
+- User-controlled import with configurable options
+- Transparent process allowing users to test on different sites first
 
 ## Implementation Considerations
 
@@ -37,13 +60,23 @@ Available WordPress data to import:
 - Consider performance impact on large sites
 - Provide UI feedback during import
 
-### Questions to Answer
+### Questions & Answers
 
-- Should this run automatically on activation or require user action?
-- How far back should we import data?
-- Should users be able to configure what gets imported?
-- How to handle large sites with thousands of posts?
-- Should this be a one-time import or repeatable?
+- ✅ **Should this run automatically on activation or require user action?**
+  - **Answer**: Requires user action via Experimental Features page. Avoids performance issues and gives users control.
+
+- ✅ **How far back should we import data?**
+  - **Answer**: Configurable limit (1-1000 items per type). Users control the scope.
+
+- ✅ **Should users be able to configure what gets imported?**
+  - **Answer**: Yes. Users can select specific post types and choose whether to import users.
+
+- ⚠️ **How to handle large sites with thousands of posts?**
+  - **Current**: Import limit prevents immediate timeouts
+  - **Future**: Could add batch processing/AJAX for very large datasets
+
+- ✅ **Should this be a one-time import or repeatable?**
+  - **Answer**: Repeatable. Users can run it multiple times (may create duplicates).
 
 ## Progress
 
@@ -54,11 +87,15 @@ Available WordPress data to import:
 - [x] Implement post/page history import
 - [x] Create admin UI for manual import trigger (Experimental Features page)
 - [x] Create importer class
+- [x] Fix user registration message to match User_Logger format
+- [x] Add detailed debug tracking for imported items
 
 ### In Progress
-- Testing with different WordPress setups
+- Manual testing with different WordPress setups
+- Testing edge cases (large datasets, missing data, etc.)
+- User acceptance testing
 
-### To Do
+### To Do (Future Enhancements)
 - [ ] Add batch processing for large datasets (for very large sites)
 - [ ] Add progress indicator for import process (AJAX/background processing)
 - [ ] Test with large datasets
@@ -107,6 +144,36 @@ The importer:
 3. Logs entries with custom dates using the `_date` context key
 4. Respects post status (publish, draft, pending, private)
 5. Logs both creation and modification events if dates differ
+6. Returns detailed tracking data for debugging purposes
+
+### Logger Integration
+
+The importer correctly uses Simple History's logger infrastructure:
+
+**Post Import** (`inc/class-existing-data-importer.php:110-143`):
+- Uses `Post_Logger->info_message('post_created', $context)`
+- Uses `Post_Logger->info_message('post_updated', $context)` if modification date differs
+- Context includes: `post_id`, `post_type`, `post_title`, `_date`, `_initiator`
+
+**User Import** (`inc/class-existing-data-importer.php:181-194`):
+- Uses `User_Logger->info_message('user_created', $context)`
+- Context matches User_Logger format exactly:
+  - `created_user_id`, `created_user_login`, `created_user_email`
+  - `created_user_first_name`, `created_user_last_name`, `created_user_url`
+  - `created_user_role` (comma-separated if multiple roles)
+  - `_date`, `_initiator`
+- Displays as: "Created user {login} ({email}) with role {role}"
+
+### Debug Tracking
+
+The importer returns detailed results including:
+- `posts_imported`: Total count of posts imported
+- `users_imported`: Total count of users imported
+- `posts_details`: Array with full details of each imported post (ID, title, type, status, dates, events logged)
+- `users_details`: Array with full details of each imported user (ID, login, email, registration date, roles)
+- `errors`: Array of any errors encountered
+
+Debug output is logged via `error_log()` in `inc/services/class-experimental-features-page.php:220-223`
 
 ## Findings
 
@@ -135,11 +202,56 @@ The importer:
 - Menu pages can be placed in different locations based on settings
 - The `Menu_Page` class provides a fluent API for page creation
 
+### Test Results
+
+Initial testing on a development site:
+- ✅ Successfully imported 96 posts/pages
+- ✅ Successfully imported 22 users
+- ✅ Historical dates preserved correctly
+- ✅ Both creation and modification events logged for posts
+- ✅ User registration messages display correctly with proper format
+- ✅ No timeouts or performance issues with dataset size
+- ✅ Debug logging works correctly for troubleshooting
+- ⚠️ Edge cases discovered:
+  - Posts with `0000-00-00 00:00:00` dates handled gracefully
+  - Future scheduled posts imported correctly
+  - Empty date fields don't cause errors
+
+### Known Issues & Fixes
+
+1. **User registration message format** (FIXED)
+   - **Issue**: Initially used generic `info()` method with custom message
+   - **Fix**: Changed to `info_message('user_created', $context)` with proper context parameters
+   - **Location**: `inc/class-existing-data-importer.php:181-194`
+   - **Result**: Messages now display as "Created user {login} ({email}) with role {role}"
+
+2. **Service namespace import** (FIXED)
+   - **Issue**: Incorrect namespace `use Simple_History\Service;`
+   - **Fix**: Changed to `use Simple_History\Services\Service;`
+   - **Location**: `inc/services/class-experimental-features-page.php:8`
+
+3. **Security - Input sanitization** (FIXED)
+   - **Issue**: Missing proper escaping and unslashing for POST/GET data
+   - **Fix**: Added `sanitize_text_field()` and `wp_unslash()` for all user inputs
+   - **Location**: `inc/services/class-experimental-features-page.php:190-202`
+
+### Known Limitations
+
+1. **Date ordering issue** (See Issue #584)
+   - **Issue**: Imported events have high primary key IDs but old dates
+   - **Impact**: When importing old data into a site with existing history, imported events appear at the top (by ID) instead of chronologically
+   - **Example**: Import 2020 events into site with 2024 events → 2020 events show first (wrong order)
+   - **Root Cause**: Simple History orders by `id DESC` not `date DESC` due to occasions grouping requirements
+   - **Status**: Separate issue tracked in #584 to implement date ordering option
+   - **Workaround**: Import historical data before plugin accumulates new events, or wait for #584 implementation
+   - **Related File**: `readme.issue-584-date-ordering.md`
+
 ## Related Code
 
 - **Importer**: `inc/class-existing-data-importer.php:1`
 - **Service**: `inc/services/class-experimental-features-page.php:1`
 - **Post Logger**: `loggers/class-post-logger.php` (used for logging post events)
+- **User Logger**: `loggers/class-user-logger.php:47-50` (user_created message definition)
 - **Logger Base**: `loggers/class-logger.php` (base class with `log()` method)
 - **Menu System**: `inc/class-menu-manager.php`, `inc/class-menu-page.php`
 
@@ -181,3 +293,47 @@ The importer:
 3. Configure import limit
 4. Click "Import Data"
 5. Review results and check history log
+6. Check debug log at: `/data/wp/wordpress-stable-mariadb/wp-content/debug.log` for detailed import results
+
+## Next Steps
+
+### Before Merging to Main
+
+1. **Additional Testing**:
+   - [ ] Test on multisite installation
+   - [ ] Test with very large datasets (5000+ posts)
+   - [ ] Test with custom post types from popular plugins
+   - [ ] Test error handling (database failures, missing loggers, etc.)
+
+2. **User Acceptance**:
+   - [ ] Review UI/UX of experimental features page
+   - [ ] Confirm messaging is clear for end users
+   - [ ] Consider adding warning about duplicate imports
+
+3. **Documentation**:
+   - [ ] Update main plugin readme if needed
+   - [ ] Consider adding inline help text on the experimental page
+   - [ ] Document in changelog
+
+### Future Enhancements (Post-Merge)
+
+1. **Performance Improvements**:
+   - Batch processing with AJAX for large datasets
+   - Progress indicator during import
+   - Background processing option
+
+2. **Additional Data Sources**:
+   - Comments (with dates and authors)
+   - Media library uploads
+   - WordPress options/settings changes
+   - Taxonomy term creation dates
+
+3. **Smart Import**:
+   - Detect and skip duplicate entries
+   - Import only data after plugin installation
+   - Automatic import on first activation (with user consent)
+
+4. **Advanced Options**:
+   - Date range selection
+   - Author filtering
+   - Dry-run mode to preview what would be imported
