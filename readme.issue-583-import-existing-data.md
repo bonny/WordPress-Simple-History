@@ -153,7 +153,7 @@ The importer correctly uses Simple History's logger infrastructure:
 **Post Import** (`inc/class-existing-data-importer.php:110-143`):
 - Uses `Post_Logger->info_message('post_created', $context)`
 - Uses `Post_Logger->info_message('post_updated', $context)` if modification date differs
-- Context includes: `post_id`, `post_type`, `post_title`, `_date`, `_initiator`
+- Context includes: `post_id`, `post_type`, `post_title`, `_date`, `_initiator`, `_imported_event`
 
 **User Import** (`inc/class-existing-data-importer.php:181-194`):
 - Uses `User_Logger->info_message('user_created', $context)`
@@ -161,8 +161,15 @@ The importer correctly uses Simple History's logger infrastructure:
   - `created_user_id`, `created_user_login`, `created_user_email`
   - `created_user_first_name`, `created_user_last_name`, `created_user_url`
   - `created_user_role` (comma-separated if multiple roles)
-  - `_date`, `_initiator`
+  - `_date`, `_initiator`, `_imported_event`
 - Displays as: "Created user {login} ({email}) with role {role}"
+
+**Imported Event Marker**:
+- All imported events include `_imported_event => true` in their context
+- This allows programmatic identification and filtering of imported events
+- Follows existing Simple History pattern (similar to `_xmlrpc_request`, `_rest_api_request`)
+- Enables future features like filtering UI, duplicate detection, and analytics
+- No GUI changes required - stored silently in database context table
 
 ### Debug Tracking
 
@@ -328,8 +335,8 @@ Initial testing on a development site:
    - WordPress options/settings changes
    - Taxonomy term creation dates
 
-3. **Smart Import**:
-   - Detect and skip duplicate entries
+3. **Smart Import** (leveraging `_imported_event` context):
+   - Detect and skip duplicate entries using `context_filters` query
    - Import only data after plugin installation
    - Automatic import on first activation (with user consent)
 
@@ -337,3 +344,10 @@ Initial testing on a development site:
    - Date range selection
    - Author filtering
    - Dry-run mode to preview what would be imported
+
+5. **Enhanced Filtering** (leveraging `_imported_event` context):
+   - Add UI toggle to show/hide imported events
+   - Visual badge/indicator for imported events in timeline
+   - Separate analytics for imported vs real-time events
+   - Option to exclude imported events from exports
+   - Bulk delete imported events only (preserve real-time history)
