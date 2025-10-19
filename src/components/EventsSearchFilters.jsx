@@ -33,6 +33,8 @@ export function EventsSearchFilters( props ) {
 		setSelectedUsersWithId,
 		selectedInitiator,
 		setSelectedInitiator,
+		selectedContextFilters,
+		setSelectedContextFilters,
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
 		setPagerSize,
@@ -51,13 +53,15 @@ export function EventsSearchFilters( props ) {
 			selectedLogLevels.length > 0 ||
 			selectedMessageTypes.length > 0 ||
 			selectedUsersWithId.length > 0 ||
-			selectedInitiator.length > 0
+			selectedInitiator.length > 0 ||
+			selectedContextFilters.trim().length > 0
 		);
 	}, [
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedUsersWithId,
 		selectedInitiator,
+		selectedContextFilters,
 	] );
 
 	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () =>
@@ -176,6 +180,8 @@ export function EventsSearchFilters( props ) {
 						selectedUsersWithId={ selectedUsersWithId }
 						selectedInitiator={ selectedInitiator }
 						setSelectedInitiator={ setSelectedInitiator }
+						selectedContextFilters={ selectedContextFilters }
+						setSelectedContextFilters={ setSelectedContextFilters }
 						searchOptions={ searchOptions }
 					/>
 				) : null }
