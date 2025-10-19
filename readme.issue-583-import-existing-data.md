@@ -21,6 +21,11 @@ This feature provides a way to import existing WordPress data into Simple Histor
 - Duplicate prevention - automatically skips already-imported items
 - Debug tracking for troubleshooting with detailed skip reporting
 
+**Critical Limitation** 🚨:
+- **Cannot import more than 1000 items per type** - no pagination/offset mechanism
+- Re-running import does NOT progress to next batch (always fetches oldest 1000)
+- See "Large Dataset Limitations" section for full details and future solutions
+
 ## Overview
 
 When the plugin is installed it contains no history at all - an empty state that's not very useful. This feature aims to populate the log with historical data from the WordPress installation after the plugin is activated.
@@ -72,9 +77,12 @@ Available WordPress data to import:
 - ✅ **Should users be able to configure what gets imported?**
   - **Answer**: Yes. Users can select specific post types and choose whether to import users.
 
-- ⚠️ **How to handle large sites with thousands of posts?**
-  - **Current**: Import limit prevents immediate timeouts
-  - **Future**: Could add batch processing/AJAX for very large datasets
+- 🚨 **How to handle large sites with thousands of posts?**
+  - **Critical Limitation**: Cannot import more than 1000 items per type (no pagination/offset)
+  - **Current Risks**: Memory issues, timeouts, slow queries on very large imports
+  - **Workaround**: Only first 1000 items (oldest) will be imported
+  - **Future**: Requires batch processing/AJAX with pagination support
+  - **See**: "Large Dataset Limitations" section below for full analysis
 
 - ✅ **Should this be a one-time import or repeatable?**
   - **Answer**: Repeatable. Users can safely run it multiple times - duplicate detection automatically skips already-imported items.
@@ -100,12 +108,14 @@ Available WordPress data to import:
 - User acceptance testing
 
 ### To Do (Future Enhancements)
+- [ ] 🚨 **CRITICAL**: Fix 1000-item limitation - add pagination/offset support
+- [ ] 🚨 **CRITICAL**: Add memory and timeout protection for large imports
 - [ ] Add batch processing for large datasets (for very large sites)
 - [ ] Add progress indicator for import process (AJAX/background processing)
-- [ ] Test with large datasets
+- [ ] Test with large datasets (5000+ posts to verify limitation)
 - [ ] Handle edge cases (missing authors, deleted content, etc.)
 - [ ] Update documentation
-- [ ] Consider adding import for other data types (comments, users, media)
+- [ ] Consider adding import for other data types (comments, media)
 
 ## Implementation Details
 
@@ -291,6 +301,94 @@ Initial testing on a development site:
    - **Workaround**: Import historical data before plugin accumulates new events, or wait for #584 implementation
    - **Related File**: `readme.issue-584-date-ordering.md`
 
+2. **Large Dataset Limitations** 🚨 **CRITICAL**
+
+   ### Cannot Import More Than 1000 Items Total
+
+   **The Problem**:
+
+   The importer has **no offset or pagination mechanism**. It always fetches the oldest posts in the database:
+
+   ```php
+   // inc/class-existing-data-importer.php:90-96
+   $args = [
+       'posts_per_page' => $limit,  // Max 1000
+       'orderby' => 'date',
+       'order' => 'ASC',  // Always oldest first - NO OFFSET!
+   ];
+   ```
+
+   **What Happens on a Site with 10,000 Posts:**
+
+   1. **First Import (limit=1000)**:
+      - Fetches posts 1-1000 (oldest)
+      - Imports all 1000 ✅
+      - Result: "Imported 1000 posts"
+
+   2. **Second Import (trying to get more)**:
+      - Fetches posts 1-1000 **again** (same oldest posts!)
+      - Duplicate detection finds all already imported
+      - Skips all 1000 ❌
+      - Result: "Imported 0 posts (skipped 1000 already imported)"
+
+   3. **Posts 1001-10000 can NEVER be imported** ❌
+
+   ### Risk Analysis for Large Datasets
+
+   **Memory Issues** 🧠:
+   - Loads entire result set into memory: `$posts = get_posts( $args );`
+   - 1000 posts × ~5-10KB each = 5-10MB just for post objects
+   - Accumulates full details for ALL imported items: `$this->results['posts_details'][]`
+   - No limit on detail accumulation - grows unbounded
+   - **Risk**: Exceeds PHP `memory_limit` (typically 128MB-256MB)
+
+   **Timeout Issues** ⏱️:
+   - For 1000 posts with create + update events = 2000 log entries
+   - Each entry requires ~12 database operations (1 history + ~10 context inserts)
+   - **Total: ~24,000 database operations** per import
+   - Plus 2-4 duplicate detection queries
+   - No `set_time_limit()` or timeout handling in code
+   - **Risk**: Exceeds PHP `max_execution_time` (typically 30-60 seconds)
+
+   **Database Performance** 🐌:
+   - Duplicate detection uses 3-way JOIN with large IN clause:
+   ```sql
+   SELECT DISTINCT c1.value as post_id
+   FROM contexts_table c1
+   INNER JOIN contexts_table c2 ON c1.history_id = c2.history_id
+   INNER JOIN contexts_table c3 ON c1.history_id = c3.history_id
+   WHERE c1.key = 'post_id'
+     AND c1.value IN (1,2,3...1000)  -- Large IN clause
+   ```
+   - **Risk**: Slow queries on sites with large Simple History databases (millions of context rows)
+   - Query complexity increases with history size, not just import size
+
+   **No Progress Indication** 😕:
+   - Synchronous processing with no user feedback
+   - User sees blank page during processing
+   - No way to estimate completion time
+   - May appear frozen on large imports
+   - **Risk**: Users force-refresh, creating partial imports
+
+   ### Recommended Solutions (Future Work)
+
+   **Option 1: Add Offset/Pagination**:
+   - Modify query to exclude already-imported post IDs
+   - Use `post__not_in` with imported IDs from duplicate check
+   - Allows progressive import: run multiple times to import all posts
+   - Simple implementation, works with existing duplicate detection
+
+   **Option 2: Background Processing**:
+   - WP-Cron scheduled batches (100 posts per batch)
+   - AJAX chunked processing with progress bar
+   - More complex but better UX for very large sites
+
+   **Option 3: Hybrid Approach**:
+   - Add `wp_raise_memory_limit( 'admin' )` for memory protection
+   - Add `set_time_limit( 300 )` for 5-minute timeout (if hosting allows)
+   - Reduce result detail storage (only keep counts, not full arrays)
+   - Document 1000-item limitation clearly in UI
+
 ## Related Code
 
 - **Importer**: `inc/class-existing-data-importer.php:1`
@@ -315,9 +413,13 @@ Initial testing on a development site:
 
 3. **Large Datasets**
    - [ ] Test with 100+ posts
-   - [ ] Test with 1000+ posts
-   - [ ] Verify no timeouts occur
+   - [ ] Test with 1000 posts (maximum import size)
+   - [ ] Verify no timeouts occur with 1000 posts
    - [ ] Check performance impact
+   - [ ] **Test 1000+ limitation**: Create site with 2000+ posts, import with limit=1000, verify only first 1000 imported
+   - [ ] **Test duplicate on large dataset**: Run import twice on 1000 posts, verify second run skips all 1000
+   - [ ] **Test memory usage**: Monitor PHP memory consumption during 1000-post import
+   - [ ] **Test query performance**: Check slow query log for duplicate detection queries
 
 4. **Edge Cases**
    - [ ] Posts with deleted authors
@@ -354,7 +456,9 @@ Initial testing on a development site:
 
 1. **Additional Testing**:
    - [ ] Test on multisite installation
-   - [ ] Test with very large datasets (5000+ posts)
+   - [ ] **Test 1000-item limitation**: Verify on site with 5000+ posts that only 1000 are imported
+   - [ ] **Test memory limits**: Import 1000 posts and monitor PHP memory usage
+   - [ ] **Test timeout limits**: Import 1000 posts and verify completion within timeout
    - [ ] Test with custom post types from popular plugins
    - [ ] Test error handling (database failures, missing loggers, etc.)
 
@@ -370,10 +474,13 @@ Initial testing on a development site:
 
 ### Future Enhancements (Post-Merge)
 
-1. **Performance Improvements**:
-   - Batch processing with AJAX for large datasets
-   - Progress indicator during import
-   - Background processing option
+1. **Performance Improvements** 🚨 **HIGH PRIORITY** (See "Large Dataset Limitations"):
+   - **Critical**: Add pagination/offset support to import beyond 1000 items
+   - **Critical**: Implement `post__not_in` to exclude already-imported IDs from query
+   - Batch processing with AJAX for large datasets (>1000 items)
+   - Progress indicator during import (especially for 500+ items)
+   - Background processing option (WP-Cron for very large sites)
+   - Add memory and timeout protection (`wp_raise_memory_limit()`, `set_time_limit()`)
 
 2. **Additional Data Sources**:
    - Comments (with dates and authors)
