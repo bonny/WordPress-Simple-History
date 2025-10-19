@@ -48,6 +48,7 @@ The backend is **completely ready** - we only need to add the frontend UI compon
 - ✅ Changed state from array to plain string (newlines preserved)
 - ✅ Moved parsing logic from component to API request builder
 - ✅ Added auto-grow with CSS field-sizing property
+- ✅ **Gated behind experimental features flag**
 
 ## Technical Notes
 
@@ -157,9 +158,10 @@ id IN (
 - Passed to `ExpandedFilters` component (lines 183-184)
 
 #### 3. ExpandedFilters.jsx (src/components/ExpandedFilters.jsx)
-- Added `selectedContextFilters` and `setSelectedContextFilters` to props (lines 31-32)
+- Added `selectedContextFilters`, `setSelectedContextFilters`, and `isExperimentalFeaturesEnabled` to props (lines 32-34)
 - Removed TextareaControl import (uses plain HTML textarea instead)
-- Added new Context filter UI section (lines 432-476)
+- Added new Context filter UI section (lines 433-480)
+- **Wrapped in `isExperimentalFeaturesEnabled` conditional** - only shows when experimental features are enabled
 - Uses **plain native HTML `<textarea>`** element
 - Direct value binding with `event.target.value`
 - Auto-grows with `fieldSizing: 'content'` CSS property
@@ -211,21 +213,37 @@ id IN (
 
 ## Testing Instructions
 
+### Prerequisites
+
+⚠️ **Enable Experimental Features First!**
+
+The context search feature is **only available when experimental features are enabled**.
+
+**To enable experimental features:**
+1. Go to Settings → Simple History
+2. Enable "Experimental Features"
+3. Save settings
+
 ### Manual Testing Steps
 
 1. **Navigate to Simple History admin page**
    - URL: http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_admin_menu_page
 
-2. **Open search options**
-   - Click "Show search options" button
+2. **Verify experimental features are enabled**
+   - If enabled, you should see the Context filter when expanding search options
+   - If not enabled, the Context filter will not appear
 
-3. **Test basic context filter**
+3. **Open search options**
+   - Click "Show search options" button
+   - You should now see a "Context" textarea field (only visible with experimental features enabled)
+
+4. **Test basic context filter**
    - **Important**: Set date filter to "All dates" (context searches often need wider date ranges)
-   - In the "Context" textarea field, type: `_sticky:1`
+   - In the Context textarea, type: `_sticky:1`
    - Click "Search events"
    - Should show only sticky events
 
-4. **Test multiple context filters**
+5. **Test multiple context filters**
    - Clear previous filter
    - Type on separate lines:
      ```
@@ -235,23 +253,23 @@ id IN (
    - Click "Search events"
    - Should show sticky events by user ID 1
 
-5. **Test complex values (JSON)**
+6. **Test complex values (JSON)**
    - Try a filter with JSON value (if such context exists)
    - The newline separator handles commas in values correctly
 
-6. **Test URL persistence**
+7. **Test URL persistence**
    - Apply context filter
    - Copy URL
    - Open in new tab
    - Filter should still be applied
 
-7. **Test auto-expand**
+8. **Test auto-expand**
    - Navigate to page without filters
    - Add `?context=["_sticky:1"]` to URL
    - Page should load with search options auto-expanded
    - Context filter should be visible
 
-8. **Test with other filters**
+9. **Test with other filters**
    - Combine context filter with:
      - Date filter
      - Search text
@@ -259,7 +277,7 @@ id IN (
      - Message types
    - All should work together
 
-9. **Test invalid formats**
+10. **Test invalid formats**
    - Try entering values without colon (should be ignored gracefully)
    - Try empty key or value (should be ignored)
 
@@ -278,10 +296,19 @@ id IN (
 - Invalid format (ignored, no error)
 - Special characters in values (should work)
 
-⚠️ **Common Gotcha**:
+⚠️ **Common Gotchas**:
+- **Experimental features required!** Context search only appears when experimental features are enabled in Settings → Simple History
 - **Date filters still apply!** If searching for `_imported_event:true`, remember to set date to "All dates" since imported events have historical dates
 
 ## Implementation Summary
+
+### Feature Gate
+
+**Experimental Features Only**
+- Context search is **hidden by default**
+- Only appears when user enables "Experimental Features" in Settings
+- Allows testing and gathering feedback before making it a standard feature
+- Prevents confusion for users who don't need advanced filtering
 
 ### Final Design Decisions
 
