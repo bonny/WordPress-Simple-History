@@ -421,6 +421,9 @@ function EventsGUI() {
 				setMapsApiKey={ setMapsApiKey }
 				setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
 				setHasPremiumAddOn={ setHasPremiumAddOn }
+				isExperimentalFeaturesEnabled={
+					isExperimentalFeaturesEnabled
+				}
 				setIsExperimentalFeaturesEnabled={
 					setIsExperimentalFeaturesEnabled
 				}

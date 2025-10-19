@@ -31,6 +31,7 @@ export function ExpandedFilters( props ) {
 		setSelectedInitiator,
 		selectedContextFilters,
 		setSelectedContextFilters,
+		isExperimentalFeaturesEnabled,
 		searchOptions,
 	} = props;
 
@@ -429,50 +430,54 @@ export function ExpandedFilters( props ) {
 				</FlexBlock>
 			</Flex>
 
-			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
-				<FlexItem style={ { margin: '.5em 0' } }>
-					<div className="SimpleHistory__filters__filterLabel">
-						{ __( 'Context', 'simple-history' ) }
-					</div>
-				</FlexItem>
-				<FlexBlock>
-					<div
-						className="SimpleHistory__filters__loglevels__select"
-						style={ {
-							width: '310px',
-						} }
-					>
-						<textarea
-							placeholder={ __(
-								'_user_id:1\n_sticky:1',
+			{ isExperimentalFeaturesEnabled ? (
+				<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
+					<FlexItem style={ { margin: '.5em 0' } }>
+						<div className="SimpleHistory__filters__filterLabel">
+							{ __( 'Context', 'simple-history' ) }
+						</div>
+					</FlexItem>
+					<FlexBlock>
+						<div
+							className="SimpleHistory__filters__loglevels__select"
+							style={ {
+								width: '310px',
+							} }
+						>
+							<textarea
+								placeholder={ __(
+									'_user_id:1\n_sticky:1',
+									'simple-history'
+								) }
+								onChange={ ( event ) => {
+									setSelectedContextFilters(
+										event.target.value
+									);
+								} }
+								value={ selectedContextFilters }
+								rows={ 2 }
+								style={ {
+									width: '100%',
+									fontFamily: 'monospace',
+									fontSize: '13px',
+									padding: '6px 8px',
+									borderRadius: '2px',
+									border: '1px solid #8c8f94',
+									boxSizing: 'border-box',
+									fieldSizing: 'content',
+								} }
+							/>
+						</div>
+						<BaseControl
+							__nextHasNoMarginBottom
+							help={ __(
+								'Enter context key-value pairs in the format "key:value". One filter per line (e.g., "_user_id:1" on first line, "_sticky:1" on second line).',
 								'simple-history'
 							) }
-							onChange={ ( event ) => {
-								setSelectedContextFilters( event.target.value );
-							} }
-							value={ selectedContextFilters }
-							rows={ 2 }
-							style={ {
-								width: '100%',
-								fontFamily: 'monospace',
-								fontSize: '13px',
-								padding: '6px 8px',
-								borderRadius: '2px',
-								border: '1px solid #8c8f94',
-								boxSizing: 'border-box',
-								fieldSizing: 'content',
-							} }
 						/>
-					</div>
-					<BaseControl
-						__nextHasNoMarginBottom
-						help={ __(
-							'Enter context key-value pairs in the format "key:value". One filter per line (e.g., "_user_id:1" on first line, "_sticky:1" on second line).',
-							'simple-history'
-						) }
-					/>
-				</FlexBlock>
-			</Flex>
+					</FlexBlock>
+				</Flex>
+			) : null }
 		</div>
 	);
 }

@@ -41,6 +41,7 @@ export function EventsSearchFilters( props ) {
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
 		setHasPremiumAddOn,
+		isExperimentalFeaturesEnabled,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
@@ -182,6 +183,9 @@ export function EventsSearchFilters( props ) {
 						setSelectedInitiator={ setSelectedInitiator }
 						selectedContextFilters={ selectedContextFilters }
 						setSelectedContextFilters={ setSelectedContextFilters }
+						isExperimentalFeaturesEnabled={
+							isExperimentalFeaturesEnabled
+						}
 						searchOptions={ searchOptions }
 					/>
 				) : null }
