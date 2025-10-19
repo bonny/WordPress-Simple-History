@@ -65,6 +65,8 @@ class Experimental_Features_Page extends Service {
 		$import_completed = isset( $_GET['import_completed'] ) && $_GET['import_completed'] === '1';
 		$posts_imported = isset( $_GET['posts_imported'] ) ? intval( $_GET['posts_imported'] ) : 0;
 		$users_imported = isset( $_GET['users_imported'] ) ? intval( $_GET['users_imported'] ) : 0;
+		$posts_skipped = isset( $_GET['posts_skipped'] ) ? intval( $_GET['posts_skipped'] ) : 0;
+		$users_skipped = isset( $_GET['users_skipped'] ) ? intval( $_GET['users_skipped'] ) : 0;
 
 		?>
 		<div class="wrap">
@@ -79,12 +81,23 @@ class Experimental_Features_Page extends Service {
 					<p>
 						<strong><?php esc_html_e( 'Import completed!', 'simple-history' ); ?></strong><br>
 						<?php
-						printf(
-							/* translators: 1: Number of posts imported, 2: Number of users imported */
-							esc_html__( 'Imported %1$d posts and %2$d users into the history log.', 'simple-history' ),
-							(int) $posts_imported,
-							(int) $users_imported
-						);
+						if ( $posts_skipped > 0 || $users_skipped > 0 ) {
+							printf(
+								/* translators: 1: Number of posts imported, 2: Number of posts skipped, 3: Number of users imported, 4: Number of users skipped */
+								esc_html__( 'Imported %1$d posts (skipped %2$d already imported) and %3$d users (skipped %4$d already imported).', 'simple-history' ),
+								(int) $posts_imported,
+								(int) $posts_skipped,
+								(int) $users_imported,
+								(int) $users_skipped
+							);
+						} else {
+							printf(
+								/* translators: 1: Number of posts imported, 2: Number of users imported */
+								esc_html__( 'Imported %1$d posts and %2$d users into the history log.', 'simple-history' ),
+								(int) $posts_imported,
+								(int) $users_imported
+							);
+						}
 						?>
 					</p>
 				</div>
@@ -103,7 +116,7 @@ class Experimental_Features_Page extends Service {
 				</p>
 
 				<p class="description">
-					<?php esc_html_e( 'Note: This is a one-time import. You can run it multiple times, but it may create duplicate entries.', 'simple-history' ); ?>
+					<?php esc_html_e( 'Note: You can run this import multiple times. Items that have already been imported will be automatically skipped to prevent duplicates.', 'simple-history' ); ?>
 				</p>
 
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -229,6 +242,8 @@ class Experimental_Features_Page extends Service {
 				'import_completed' => '1',
 				'posts_imported' => $results['posts_imported'],
 				'users_imported' => $results['users_imported'],
+				'posts_skipped' => $results['posts_skipped'],
+				'users_skipped' => $results['users_skipped'],
 			],
 			admin_url( 'admin.php' )
 		);
