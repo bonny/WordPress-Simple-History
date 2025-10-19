@@ -18,7 +18,8 @@ This feature provides a way to import existing WordPress data into Simple Histor
 - Adjustable import limits (1-1000 items per type)
 - Proper message formatting matching existing loggers
 - Historical date preservation using `_date` context
-- Debug tracking for troubleshooting
+- Duplicate prevention - automatically skips already-imported items
+- Debug tracking for troubleshooting with detailed skip reporting
 
 ## Overview
 
@@ -76,7 +77,7 @@ Available WordPress data to import:
   - **Future**: Could add batch processing/AJAX for very large datasets
 
 - ✅ **Should this be a one-time import or repeatable?**
-  - **Answer**: Repeatable. Users can run it multiple times (may create duplicates).
+  - **Answer**: Repeatable. Users can safely run it multiple times - duplicate detection automatically skips already-imported items.
 
 ## Progress
 
@@ -89,6 +90,9 @@ Available WordPress data to import:
 - [x] Create importer class
 - [x] Fix user registration message to match User_Logger format
 - [x] Add detailed debug tracking for imported items
+- [x] Add `_imported_event` context marker for programmatic identification
+- [x] Implement duplicate prevention using batch SQL queries
+- [x] Update UI to display skipped counts
 
 ### In Progress
 - Manual testing with different WordPress setups
@@ -135,6 +139,8 @@ The import functionality has been implemented as an **experimental feature** acc
 - **User Import**: Optional import of user registration dates
 - **Historical Dates**: Uses original `post_date_gmt` and `post_modified_gmt` for accurate history
 - **Proper Initiator**: Sets initiator to `OTHER` to distinguish imported events from real-time events
+- **Duplicate Prevention**: Automatically detects and skips already-imported items using batch SQL queries
+- **Import Tracking**: Displays counts of imported and skipped items with detailed debugging
 
 ### Technical Approach
 
@@ -171,13 +177,43 @@ The importer correctly uses Simple History's logger infrastructure:
 - Enables future features like filtering UI, duplicate detection, and analytics
 - No GUI changes required - stored silently in database context table
 
+### Duplicate Prevention
+
+**Implementation** (`inc/class-existing-data-importer.php:287-352`):
+
+The importer uses batch SQL queries to detect already-imported items before processing:
+
+**For Posts**:
+- Queries for all post IDs in the current batch
+- Checks separately for `post_created` and `post_updated` events
+- Smart skip logic: only skips if ALL applicable events exist
+- Example: If a post was never modified, only checks for `post_created` event
+
+**For Users**:
+- Queries for all user IDs in the current batch
+- Checks for existing `user_created` events
+- Skips users that have already been imported
+
+**Performance**:
+- Only 2 SQL queries total per import (one for posts, one for users)
+- Uses batch checking with IN clauses instead of N individual queries
+- Leverages `_imported_event` context marker for reliable detection
+
+**User Experience**:
+- First import: "Imported 100 posts and 20 users into the history log."
+- Subsequent import: "Imported 0 posts (skipped 100 already imported) and 0 users (skipped 20 already imported)."
+- Page description updated to: "You can run this import multiple times. Items that have already been imported will be automatically skipped to prevent duplicates."
+
 ### Debug Tracking
 
 The importer returns detailed results including:
 - `posts_imported`: Total count of posts imported
 - `users_imported`: Total count of users imported
+- `posts_skipped`: Total count of posts skipped (already imported)
+- `users_skipped`: Total count of users skipped (already imported)
 - `posts_details`: Array with full details of each imported post (ID, title, type, status, dates, events logged)
 - `users_details`: Array with full details of each imported user (ID, login, email, registration date, roles)
+- `skipped_details`: Array with details of skipped items (type, ID, title/login, reason)
 - `errors`: Array of any errors encountered
 
 Debug output is logged via `error_log()` in `inc/services/class-experimental-features-page.php:220-223`
@@ -219,6 +255,8 @@ Initial testing on a development site:
 - ✅ User registration messages display correctly with proper format
 - ✅ No timeouts or performance issues with dataset size
 - ✅ Debug logging works correctly for troubleshooting
+- ✅ Duplicate prevention works correctly - re-running import skips all items
+- ✅ Skipped counts display correctly in UI
 - ⚠️ Edge cases discovered:
   - Posts with `0000-00-00 00:00:00` dates handled gracefully
   - Future scheduled posts imported correctly
@@ -293,6 +331,13 @@ Initial testing on a development site:
    - [ ] Verify registration dates are correct
    - [ ] Test with deleted users
 
+6. **Duplicate Prevention**
+   - [x] Run import twice on same dataset
+   - [x] Verify second import skips all items
+   - [x] Verify UI shows skipped counts
+   - [ ] Import partial overlap (some new, some existing)
+   - [ ] Verify only new items are imported
+
 ### How to Test
 
 1. Navigate to **Simple History > Experimental** (or **Tools > Simple History > Experimental** depending on settings)
@@ -301,6 +346,7 @@ Initial testing on a development site:
 4. Click "Import Data"
 5. Review results and check history log
 6. Check debug log at: `/data/wp/wordpress-stable-mariadb/wp-content/debug.log` for detailed import results
+7. **Test Duplicate Prevention**: Run the same import again and verify that all items are skipped
 
 ## Next Steps
 
@@ -315,7 +361,7 @@ Initial testing on a development site:
 2. **User Acceptance**:
    - [ ] Review UI/UX of experimental features page
    - [ ] Confirm messaging is clear for end users
-   - [ ] Consider adding warning about duplicate imports
+   - [x] ~~Consider adding warning about duplicate imports~~ - Duplicate prevention implemented
 
 3. **Documentation**:
    - [ ] Update main plugin readme if needed
@@ -336,8 +382,8 @@ Initial testing on a development site:
    - Taxonomy term creation dates
 
 3. **Smart Import** (leveraging `_imported_event` context):
-   - Detect and skip duplicate entries using `context_filters` query
-   - Import only data after plugin installation
+   - ~~Detect and skip duplicate entries~~ - ✅ **Implemented** (see Duplicate Prevention section)
+   - Import only data after plugin installation (date range filtering)
    - Automatic import on first activation (with user consent)
 
 4. **Advanced Options**:
