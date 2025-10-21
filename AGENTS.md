@@ -14,6 +14,18 @@ This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, e
 - **Documentation**: See readme.txt for detailed plugin information
 - **Philosophy**: Core version must be fully usable for free users with non-intrusive upgrade prompts
 
+### Technical Architecture
+
+- **Backend**: Written in PHP following WordPress plugin conventions
+  - PHP 7.4+ compatibility required
+  - Core functionality in `inc/` directory
+  - Loggers in `loggers/` directory
+  - REST API endpoints for event data
+- **Frontend**: Main event log interface built with React
+  - Located in `src/` directory
+  - Built using @wordpress/scripts tooling
+  - Communicates with backend via WordPress REST API
+
 ## Quick Start
 
 ### Installation & Development
