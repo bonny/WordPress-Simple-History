@@ -8,10 +8,12 @@
 ## Summary
 
 ✅ **Core functionality implemented and working**
+📋 **Auto-import on activation planned** (see "Auto-Import on Activation" section below)
 
 This feature provides a way to import existing WordPress data into Simple History, populating the log with historical events from before the plugin was activated. The implementation is accessible through an "Experimental Features" admin page where users can manually trigger imports with configurable options.
 
 **What's Working**:
+- ✅ Manual import via Experimental Features page (IMPLEMENTED)
 - Import posts and pages with creation and modification dates
 - Import users with registration dates
 - **Accurate initiators**: Uses post_author for posts (WP_USER), OTHER for users
@@ -23,6 +25,13 @@ This feature provides a way to import existing WordPress data into Simple Histor
 - Historical date preservation using `_date` context
 - Duplicate prevention - automatically skips already-imported items
 - Debug tracking for troubleshooting with detailed skip reporting
+- **Preview feature**: Shows approximate counts before import
+- **Visual indicators**: Simple "Imported from existing data" text label for imported events
+
+**Planned Enhancement**:
+- 📋 Auto-import 60 days of data on plugin activation (matches default retention policy)
+- 📋 Admin notice showing import results with link to history log
+- 📋 Manual import available for premium users needing older data (365+ days)
 
 **Important Notes**:
 - Default behavior: Imports ALL data (no limit) for complete historical population
@@ -41,14 +50,20 @@ The information available in WordPress for historical events is limited, but we 
 ## Goals
 
 **Original Goals**:
-- ~~Import existing post/page data into Simple History on first activation~~
+- Import existing post/page data into Simple History on first activation
 - Provide a better initial experience for new users
 - Show historical context even for events that occurred before plugin installation
 
-**Implemented Approach**:
-- Manual import via Experimental Features admin page (not automatic on activation)
+**Current Approach**:
+- ✅ Manual import via Experimental Features admin page (IMPLEMENTED)
 - User-controlled import with configurable options
 - Transparent process allowing users to test on different sites first
+
+**Planned Enhancement - Auto-Import on Activation**:
+- Auto-import 60 days of historical data on plugin activation
+- Aligns with free version's default 60-day retention policy
+- Users with premium (extended retention) can manually import older data
+- Prevents wasted import of data that would be auto-deleted within a week
 
 ## Implementation Considerations
 
@@ -72,11 +87,21 @@ Available WordPress data to import:
 ### Questions & Answers
 
 - ✅ **Should this run automatically on activation or require user action?**
-  - **Answer**: Requires user action via Experimental Features page. Avoids performance issues and gives users control.
-  - **Future Consideration**: Add admin notice after first activation to suggest import (dismissible with "Don't show again")
+  - **Current**: Manual import via Experimental Features page (IMPLEMENTED)
+  - **Planned**: Auto-import on activation (60 days of data) + manual import for older data
+  - **Rationale**:
+    - Auto-import 60 days aligns with free version's default retention policy
+    - Free users: Won't waste resources importing data that gets auto-deleted
+    - Premium users: Can manually import older data to match extended retention
+    - Prevents empty state on fresh installs while respecting performance limits
 
 - ✅ **How far back should we import data?**
-  - **Answer**: Import ALL data by default (no limit). Optional limit checkbox available for users who want to restrict.
+  - **Auto-import (planned)**: 60 days of data on activation (matches default retention)
+  - **Manual import (current)**: Import ALL data by default (no limit)
+  - **Flexibility**: Optional limit checkbox available for users who want to restrict
+  - **Use cases**:
+    - Free users: Auto-import handles their needs (60 days)
+    - Premium users: Manual import for older data (365+ days or unlimited)
 
 - ✅ **Should users be able to configure what gets imported?**
   - **Answer**: Yes. Users can select specific post types and choose whether to import users. Options are in expandable "Import Options" details element.
@@ -95,14 +120,25 @@ Available WordPress data to import:
   - **Users**: Use OTHER initiator without any user ID (we don't know who created user accounts)
   - **Rationale**: Be truthful about what we know (post authors) vs. what we don't know (who created users)
 
-- 📋 **How to show users that an event is imported?**
-  - **Discussion held - Not yet implemented**
-  - **Options considered**:
-    - Visual badge/label ("Imported" or "Historical")
-    - Different icon or muted styling
-    - Info tooltip explaining limitations
-    - Note in event details about incomplete information
-  - **Current Implementation**: `_imported_event: true` context stored (ready for future UI features)
+- ✅ **How to show users that an event is imported?**
+  - **IMPLEMENTED**: Simple meta text indicator
+  - **PHP Implementation** (`loggers/class-logger.php:535-556`):
+    - Method: `get_log_row_header_imported_event_output()`
+    - Shows "Imported from existing data" as plain text in gray meta text (same style as "Using plugin xyz")
+    - No link, no icon - simple and clean
+  - **React Implementation**:
+    - Component: `src/components/EventImportedIndicator.jsx`
+    - Integrated into `src/components/EventHeader.jsx`
+    - Shows "Imported from existing data" as plain text
+    - Reads from `event.imported` field provided by REST API
+  - **REST API** (`inc/class-wp-rest-events-controller.php`):
+    - Added `imported` field to event schema (line 579-582)
+    - Field included in `prepare_item_for_response()` (line 926-929)
+    - Returns boolean: `true` if `_imported_event` context is set, `false` otherwise
+    - Handles both boolean `true` and string `'true'` values from context
+    - Field requested via `_fields` parameter (`src/functions.js:68`)
+  - **Detection**: Checks for `_imported_event: true` (or string 'true') in event context
+  - **UX**: Subtle, informative, doesn't overwhelm when many imported events visible
 
 - ✅ **Should we import post revisions?**
   - **Answer**: No, revisions are NOT imported.
@@ -114,6 +150,77 @@ Available WordPress data to import:
     - Simple History tracks revisions properly going forward with full change tracking
   - **What we DO import**: `post_status` includes `publish`, `draft`, `pending`, `private`
   - **Implementation**: `inc/class-existing-data-importer.php:92` - only queries actual posts, not revisions
+
+### Auto-Import on Activation (Planned Feature)
+
+**Overview**:
+Automatically import 60 days of historical data when the plugin is first activated, providing an immediate populated history log for new users.
+
+**Design Decisions**:
+
+1. **60-Day Import Window**:
+   - Matches Simple History's default retention policy (60 days for free users)
+   - Prevents importing data that would be auto-deleted within a week
+   - Aligns with user expectations for free version
+
+2. **Auto vs. Manual Import**:
+   - **Auto-import**: 60 days on activation (one-time, automatic)
+   - **Manual import**: Unlimited data via Experimental Features page (user-controlled, repeatable)
+   - **Use case split**:
+     - Free users: Auto-import provides complete coverage (60 days = their retention limit)
+     - Premium users: Auto-import gives immediate history + manual import for older data (365+ days)
+
+3. **Activation Hook Implementation**:
+   - Register `register_activation_hook()` in main plugin file
+   - Calculate date threshold: `date('Y-m-d H:i:s', strtotime('-60 days'))`
+   - Call `Existing_Data_Importer->import_all()` with date filter
+   - Store activation flag in options to prevent re-import on reactivation
+   - Show admin notice with import results after activation
+
+4. **Date Filtering**:
+   - Add `date_from` parameter to `import_all()`, `import_posts()`, `import_users()`
+   - Modify queries:
+     - Posts: `WHERE post_date >= %s`
+     - Users: `WHERE user_registered >= %s`
+   - Pass date threshold from activation hook
+
+5. **Performance Considerations**:
+   - **Risk**: Large sites with 60 days of high activity could timeout
+   - **Mitigation strategies**:
+     - Use `wp_raise_memory_limit('admin')` before import
+     - Add `set_time_limit(300)` for 5-minute timeout extension
+     - Consider batch processing if 60-day count exceeds threshold (e.g., 5000 items)
+     - Log errors and show admin notice if import fails
+   - **Future enhancement**: AJAX-based activation import with progress indicator
+
+6. **User Experience**:
+   - **On activation**:
+     - Auto-import runs silently in background
+     - Admin notice on first admin page load: "Simple History imported X posts and Y users from the last 60 days. [View History]"
+     - Notice is dismissible
+     - Link to full history log for verification
+   - **For older data**:
+     - Notice includes: "To import older historical data, visit Experimental Features page."
+     - Premium users can manually import 365+ days of data
+   - **Prevent duplicates**:
+     - Existing duplicate detection handles re-runs
+     - If user manually imports first, activation hook detects and skips
+
+7. **Edge Cases**:
+   - **Reactivation**: Don't re-import (check for option flag)
+   - **Failed import**: Show error notice, allow manual retry via Experimental Features
+   - **Sites with < 60 days of data**: Import all available data
+   - **Sites with no data**: Skip import, no notice needed
+   - **Manual import before activation**: Duplicate detection prevents duplication
+
+**Implementation Tasks** (see Progress > To Do):
+- [ ] Add date filtering to `Existing_Data_Importer` class
+- [ ] Implement activation hook with 60-day auto-import
+- [ ] Add admin notice system for import results
+- [ ] Add option flag to prevent re-import on reactivation
+- [ ] Add memory/timeout protection for activation import
+- [ ] Test on various site sizes (small, medium, large)
+- [ ] Document in plugin readme and changelog
 
 ## Progress
 
@@ -133,6 +240,8 @@ Available WordPress data to import:
 - [x] Simplify UI with expandable "Import Options" details element
 - [x] Change defaults: import all data (no limit), all post types checked, users checked
 - [x] Add optional limit checkbox (unchecked by default, supports up to 10,000 items)
+- [x] Add preview feature showing approximate import counts
+- [x] Implement visual indicator for imported events (meta text with icon and link)
 
 ### In Progress
 - Manual testing with different WordPress setups
@@ -140,15 +249,50 @@ Available WordPress data to import:
 - User acceptance testing
 
 ### To Do (Future Enhancements)
-- [ ] 🚨 **CRITICAL**: Add memory and timeout protection for large imports (`wp_raise_memory_limit()`, `set_time_limit()`)
+
+#### Next Priority: Auto-Import on Activation
+- [ ] **Add date filtering to importer** (`inc/class-existing-data-importer.php`):
+  - [ ] Add `date_from` parameter to `import_all()` method
+  - [ ] Add `date_from` parameter to `import_posts()` method
+  - [ ] Add `date_from` parameter to `import_users()` method
+  - [ ] Modify post query to filter by `post_date >= date_from`
+  - [ ] Modify user query to filter by `user_registered >= date_from`
+  - [ ] Update docblocks to document date filtering
+- [ ] **Implement activation hook** (main plugin file):
+  - [ ] Register `register_activation_hook()` callback
+  - [ ] Calculate 60-day threshold: `date('Y-m-d H:i:s', strtotime('-60 days'))`
+  - [ ] Instantiate `Existing_Data_Importer` and call `import_all()` with date filter
+  - [ ] Add memory/timeout protection (`wp_raise_memory_limit()`, `set_time_limit(300)`)
+  - [ ] Store import results in transient for admin notice
+  - [ ] Set option flag to prevent re-import on reactivation
+  - [ ] Handle errors gracefully with try/catch
+- [ ] **Add admin notice system**:
+  - [ ] Create admin notice for successful import (dismissible)
+  - [ ] Show counts: "Imported X posts and Y users from the last 60 days"
+  - [ ] Include link to history log
+  - [ ] Include link to Experimental Features for older data import
+  - [ ] Create admin notice for failed import with retry instructions
+- [ ] **Testing**:
+  - [ ] Test fresh activation on small site (< 100 posts in 60 days)
+  - [ ] Test fresh activation on medium site (1000+ posts in 60 days)
+  - [ ] Test fresh activation on large site (5000+ posts in 60 days)
+  - [ ] Test reactivation (should not re-import)
+  - [ ] Test manual import before activation (duplicate detection)
+  - [ ] Test sites with < 60 days of data
+  - [ ] Test empty sites (no posts/users)
+  - [ ] Verify timeout protection works
+  - [ ] Verify memory protection works
+
+#### Other Enhancements
+- [ ] 🚨 **CRITICAL**: Add memory and timeout protection for manual imports (`wp_raise_memory_limit()`, `set_time_limit()`)
 - [ ] Add batch processing/AJAX for very large datasets (10,000+ items)
 - [ ] Add progress indicator for import process (especially for large imports)
 - [ ] Test with large datasets (10,000+ posts)
 - [ ] Handle edge cases (missing authors, deleted content, etc.)
 - [ ] Update documentation
 - [ ] Consider adding import for other data types (comments, media)
-- [ ] **Visual indicators for imported events**: Add UI to show which events are imported (badge, icon, or styling)
-- [ ] **First-run experience**: Add dismissible admin notice after activation suggesting to run import
+- [x] ~~**Visual indicators for imported events**: Add UI to show which events are imported~~ - ✅ **IMPLEMENTED** (meta text with icon and link)
+- [ ] ~~**First-run experience**: Add dismissible admin notice after activation suggesting to run import~~ - Covered by auto-import feature
 - [ ] **Empty state CTA**: Show import suggestion in dashboard/log page when empty
 
 ## Implementation Details
