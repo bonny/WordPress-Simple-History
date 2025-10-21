@@ -137,17 +137,28 @@ class Existing_Data_Importer {
 
 			// Log post creation if not already imported.
 			if ( ! $has_created ) {
-				$post_logger->info_message(
-					'post_created',
-					[
-						'post_id' => $post->ID,
-						'post_type' => $post->post_type,
-						'post_title' => $post->post_title,
-						'_date' => $post->post_date_gmt,
-						'_initiator' => Log_Initiators::OTHER,
-						'_imported_event' => true,
-					]
-				);
+				// Get post author for initiator.
+				$post_author = get_user_by( 'id', $post->post_author );
+
+				$context = [
+					'post_id' => $post->ID,
+					'post_type' => $post->post_type,
+					'post_title' => $post->post_title,
+					'_date' => $post->post_date_gmt,
+					'_imported_event' => true,
+				];
+
+				// Set initiator to post author if available.
+				if ( $post_author ) {
+					$context['_initiator'] = Log_Initiators::WP_USER;
+					$context['_user_id'] = $post_author->ID;
+					$context['_user_login'] = $post_author->user_login;
+					$context['_user_email'] = $post_author->user_email;
+				} else {
+					$context['_initiator'] = Log_Initiators::OTHER;
+				}
+
+				$post_logger->info_message( 'post_created', $context );
 
 				$post_detail['events_logged'][] = [
 					'type' => 'created',
@@ -157,17 +168,28 @@ class Existing_Data_Importer {
 
 			// If post has been modified after creation, also log an update (if not already imported).
 			if ( $post_has_updates && ! $has_updated ) {
-				$post_logger->info_message(
-					'post_updated',
-					[
-						'post_id' => $post->ID,
-						'post_type' => $post->post_type,
-						'post_title' => $post->post_title,
-						'_date' => $post->post_modified_gmt,
-						'_initiator' => Log_Initiators::OTHER,
-						'_imported_event' => true,
-					]
-				);
+				// Get post author for initiator.
+				$post_author = get_user_by( 'id', $post->post_author );
+
+				$context = [
+					'post_id' => $post->ID,
+					'post_type' => $post->post_type,
+					'post_title' => $post->post_title,
+					'_date' => $post->post_modified_gmt,
+					'_imported_event' => true,
+				];
+
+				// Set initiator to post author if available.
+				if ( $post_author ) {
+					$context['_initiator'] = Log_Initiators::WP_USER;
+					$context['_user_id'] = $post_author->ID;
+					$context['_user_login'] = $post_author->user_login;
+					$context['_user_email'] = $post_author->user_email;
+				} else {
+					$context['_initiator'] = Log_Initiators::OTHER;
+				}
+
+				$post_logger->info_message( 'post_updated', $context );
 
 				$post_detail['events_logged'][] = [
 					'type' => 'updated',
