@@ -446,7 +446,7 @@ export function ExpandedFilters( props ) {
 						>
 							<textarea
 								placeholder={ __(
-									'_user_id:1\n_sticky:1',
+									'_user_id:1',
 									'simple-history'
 								) }
 								onChange={ ( event ) => {
