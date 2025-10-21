@@ -24,6 +24,11 @@ class Experimental_Features_Page extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
+		// Only add experimental features page if experimental features are enabled.
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			return;
+		}
+
 		add_action( 'admin_menu', [ $this, 'add_experimental_features_page' ], 100 );
 		add_action( 'admin_post_simple_history_import_existing_data', [ $this, 'handle_import_request' ] );
 	}
@@ -191,13 +196,15 @@ class Experimental_Features_Page extends Service {
 								<td>
 									<?php
 									$post_types = get_post_types( [ 'public' => true ], 'objects' );
-									foreach ( $post_types as $post_type ) :
+									foreach ( $post_types as $post_type ) {
 										?>
 										<label style="display: block; margin-bottom: 5px;">
 											<input type="checkbox" name="import_post_types[]" value="<?php echo esc_attr( $post_type->name ); ?>" checked>
 											<?php echo esc_html( $post_type->labels->name ); ?>
 										</label>
-									<?php endforeach; ?>
+										<?php
+									}
+									?>
 									<p class="description">
 										<?php esc_html_e( 'Select which public post types to import into the history.', 'simple-history' ); ?>
 									</p>
