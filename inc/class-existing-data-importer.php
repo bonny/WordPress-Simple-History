@@ -75,7 +75,7 @@ class Existing_Data_Importer {
 	 * Import posts of a specific post type.
 	 *
 	 * @param string $post_type Post type to import.
-	 * @param int    $limit Max number of posts to import.
+	 * @param int    $limit Max number of posts to import. Use -1 for no limit.
 	 * @return int Number of posts imported.
 	 */
 	public function import_posts( $post_type = 'post', $limit = 100 ) {
@@ -213,7 +213,7 @@ class Existing_Data_Importer {
 	/**
 	 * Import users.
 	 *
-	 * @param int $limit Max number of users to import.
+	 * @param int $limit Max number of users to import. Use -1 for no limit.
 	 * @return int Number of users imported.
 	 */
 	public function import_users( $limit = 100 ) {

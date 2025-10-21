@@ -137,55 +137,76 @@ class Experimental_Features_Page extends Service {
 					<?php wp_nonce_field( 'simple_history_import_existing_data', 'simple_history_import_nonce' ); ?>
 					<input type="hidden" name="action" value="simple_history_import_existing_data">
 
-					<table class="form-table">
-						<tr>
-							<th scope="row">
-								<label for="import_post_types"><?php esc_html_e( 'Post Types to Import', 'simple-history' ); ?></label>
-							</th>
-							<td>
-								<?php
-								$post_types = get_post_types( [ 'public' => true ], 'objects' );
-								foreach ( $post_types as $post_type ) :
-									?>
-									<label style="display: block; margin-bottom: 5px;">
-										<input type="checkbox" name="import_post_types[]" value="<?php echo esc_attr( $post_type->name ); ?>" <?php checked( in_array( $post_type->name, [ 'post', 'page' ] ) ); ?>>
-										<?php echo esc_html( $post_type->labels->name ); ?>
+					<details style="margin-bottom: 15px;">
+						<summary style="cursor: pointer; font-weight: 600; margin-bottom: 10px;"><?php esc_html_e( 'Import Options', 'simple-history' ); ?></summary>
+
+						<table class="form-table">
+							<tr>
+								<th scope="row">
+									<label for="import_post_types"><?php esc_html_e( 'Post Types to Import', 'simple-history' ); ?></label>
+								</th>
+								<td>
+									<?php
+									$post_types = get_post_types( [ 'public' => true ], 'objects' );
+									foreach ( $post_types as $post_type ) :
+										?>
+										<label style="display: block; margin-bottom: 5px;">
+											<input type="checkbox" name="import_post_types[]" value="<?php echo esc_attr( $post_type->name ); ?>" checked>
+											<?php echo esc_html( $post_type->labels->name ); ?>
+										</label>
+									<?php endforeach; ?>
+									<p class="description">
+										<?php esc_html_e( 'Select which post types to import into the history.', 'simple-history' ); ?>
+									</p>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row">
+									<label for="import_users"><?php esc_html_e( 'Import Users', 'simple-history' ); ?></label>
+								</th>
+								<td>
+									<label>
+										<input type="checkbox" name="import_users" id="import_users" value="1" checked>
+										<?php esc_html_e( 'Import user registration dates', 'simple-history' ); ?>
 									</label>
-								<?php endforeach; ?>
-								<p class="description">
-									<?php esc_html_e( 'Select which post types to import into the history.', 'simple-history' ); ?>
-								</p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row">
-								<label for="import_users"><?php esc_html_e( 'Import Users', 'simple-history' ); ?></label>
-							</th>
-							<td>
-								<label>
-									<input type="checkbox" name="import_users" id="import_users" value="1">
-									<?php esc_html_e( 'Import user registration dates', 'simple-history' ); ?>
-								</label>
-								<p class="description">
-									<?php esc_html_e( 'Add entries for existing user registrations.', 'simple-history' ); ?>
-								</p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row">
-								<label for="import_limit"><?php esc_html_e( 'Import Limit', 'simple-history' ); ?></label>
-							</th>
-							<td>
-								<input type="number" name="import_limit" id="import_limit" value="100" min="1" max="1000" class="small-text">
-								<p class="description">
-									<?php esc_html_e( 'Maximum number of items to import per type (1-1000).', 'simple-history' ); ?>
-								</p>
-							</td>
-						</tr>
-					</table>
+									<p class="description">
+										<?php esc_html_e( 'Add entries for existing user registrations.', 'simple-history' ); ?>
+									</p>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row">
+									<label for="enable_import_limit"><?php esc_html_e( 'Limit Import', 'simple-history' ); ?></label>
+								</th>
+								<td>
+									<label style="display: block; margin-bottom: 10px;">
+										<input type="checkbox" name="enable_import_limit" id="enable_import_limit" value="1">
+										<?php esc_html_e( 'Enable import limit', 'simple-history' ); ?>
+									</label>
+									<input type="number" name="import_limit" id="import_limit" value="100" min="1" max="10000" class="small-text" disabled>
+									<p class="description">
+										<?php esc_html_e( 'Maximum number of items to import per type. Leave unchecked to import all data.', 'simple-history' ); ?>
+									</p>
+								</td>
+							</tr>
+						</table>
+					</details>
 
 					<?php submit_button( __( 'Import Data', 'simple-history' ), 'primary', 'submit', false ); ?>
 				</form>
+
+				<script>
+					(function() {
+						const enableLimitCheckbox = document.getElementById('enable_import_limit');
+						const limitInput = document.getElementById('import_limit');
+
+						if (enableLimitCheckbox && limitInput) {
+							enableLimitCheckbox.addEventListener('change', function() {
+								limitInput.disabled = !this.checked;
+							});
+						}
+					})();
+				</script>
 			</div>
 		</div>
 		<?php
@@ -208,10 +229,18 @@ class Experimental_Features_Page extends Service {
 		// Get import options from form.
 		$import_post_types = isset( $_POST['import_post_types'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['import_post_types'] ) ) : [];
 		$import_users = isset( $_POST['import_users'] ) && sanitize_text_field( wp_unslash( $_POST['import_users'] ) ) === '1';
-		$import_limit = isset( $_POST['import_limit'] ) ? intval( $_POST['import_limit'] ) : 100;
 
-		// Validate limit.
-		$import_limit = max( 1, min( 1000, $import_limit ) );
+		// Check if import limit is enabled.
+		$enable_limit = isset( $_POST['enable_import_limit'] ) && sanitize_text_field( wp_unslash( $_POST['enable_import_limit'] ) ) === '1';
+
+		if ( $enable_limit ) {
+			$import_limit = isset( $_POST['import_limit'] ) ? intval( $_POST['import_limit'] ) : 100;
+			// Validate limit.
+			$import_limit = max( 1, min( 10000, $import_limit ) );
+		} else {
+			// No limit - import all data.
+			$import_limit = -1;
+		}
 
 		// Create importer instance.
 		$importer = new Existing_Data_Importer( $this->simple_history );
