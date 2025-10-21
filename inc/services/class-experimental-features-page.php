@@ -112,7 +112,6 @@ class Experimental_Features_Page extends Service {
 				</p>
 
 				<p>
-					<strong><?php esc_html_e( 'Warning:', 'simple-history' ); ?></strong>
 					<?php esc_html_e( 'Experimental features should be used with caution on production sites. Always test on a staging environment first.', 'simple-history' ); ?>
 				</p>
 			</div>
@@ -132,6 +131,50 @@ class Experimental_Features_Page extends Service {
 				<p class="description">
 					<?php esc_html_e( 'Note: You can run this import multiple times. Items that have already been imported will be automatically skipped to prevent duplicates.', 'simple-history' ); ?>
 				</p>
+
+				<details style="margin-bottom: 15px;">
+					<summary style="cursor: pointer; font-weight: 600; margin-bottom: 10px;"><?php esc_html_e( 'Preview', 'simple-history' ); ?></summary>
+
+					<?php
+					// Get preview counts.
+					$importer = new Existing_Data_Importer( $this->simple_history );
+					$preview_counts = $importer->get_preview_counts();
+					?>
+
+					<div style="background: #f0f0f1; padding: 15px; border-left: 4px solid #2271b1; margin: 10px 0;">
+						<ul style="margin: 0;">
+							<?php
+							foreach ( $preview_counts['post_types'] as $post_type => $count ) {
+								?>
+								<li>
+									<?php
+									$post_type_object = get_post_type_object( $post_type );
+									printf(
+										/* translators: 1: Post type name, 2: Count */
+										esc_html__( '%1$s: ~%2$s items', 'simple-history' ),
+										esc_html( $post_type_object->labels->name ),
+										esc_html( number_format_i18n( $count ) )
+									);
+									?>
+								</li>
+								<?php
+							}
+							?>
+							<li>
+								<?php
+								printf(
+									/* translators: %s: Count */
+									esc_html__( 'Users: ~%s registrations', 'simple-history' ),
+									esc_html( number_format_i18n( $preview_counts['users'] ) )
+								);
+								?>
+							</li>
+						</ul>
+						<p class="description" style="margin: 10px 0 0 0;">
+							<?php esc_html_e( 'Actual import counts may vary based on duplicate detection.', 'simple-history' ); ?>
+						</p>
+					</div>
+				</details>
 
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 					<?php wp_nonce_field( 'simple_history_import_existing_data', 'simple_history_import_nonce' ); ?>
@@ -156,7 +199,7 @@ class Experimental_Features_Page extends Service {
 										</label>
 									<?php endforeach; ?>
 									<p class="description">
-										<?php esc_html_e( 'Select which post types to import into the history.', 'simple-history' ); ?>
+										<?php esc_html_e( 'Select which public post types to import into the history.', 'simple-history' ); ?>
 									</p>
 								</td>
 							</tr>

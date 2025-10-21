@@ -372,4 +372,42 @@ class Existing_Data_Importer {
 		return $wpdb->get_col( $sql );
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 	}
+
+	/**
+	 * Get preview counts for posts and users.
+	 *
+	 * Uses lightweight COUNT queries for fast performance.
+	 *
+	 * @return array Preview counts with 'post_types' and 'users' keys.
+	 */
+	public function get_preview_counts() {
+		global $wpdb;
+
+		$counts = [
+			'post_types' => [],
+			'users' => 0,
+		];
+
+		// Get all public post types.
+		$post_types = get_post_types( [ 'public' => true ], 'objects' );
+
+		// Count posts for each post type using a single query.
+		foreach ( $post_types as $post_type ) {
+			$count = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->posts}
+					WHERE post_type = %s
+					AND post_status IN ('publish', 'draft', 'pending', 'private')",
+					$post_type->name
+				)
+			);
+
+			$counts['post_types'][ $post_type->name ] = (int) $count;
+		}
+
+		// Count users.
+		$counts['users'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->users}" );
+
+		return $counts;
+	}
 }
