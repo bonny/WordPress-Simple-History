@@ -65,6 +65,7 @@ export function generateAPIQueryParams( props ) {
 			'permalink',
 			'sticky',
 			'sticky_appended',
+			'imported',
 		],
 	};
 

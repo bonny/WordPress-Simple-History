@@ -576,6 +576,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Whether the event is sticky and appended to the result set.', 'simple-history' ),
 					'type'        => 'boolean',
 				),
+				'imported' => array(
+					'description' => __( 'Whether the event was imported from existing WordPress data.', 'simple-history' ),
+					'type'        => 'boolean',
+				),
 			),
 		);
 
@@ -921,6 +925,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( Compat::rest_is_field_included( 'sticky_appended', $fields ) ) {
 			$data['sticky_appended'] = isset( $item->sticky_appended ) ? true : false;
+		}
+
+		if ( Compat::rest_is_field_included( 'imported', $fields ) ) {
+			$data['imported'] = isset( $item->context['_imported_event'] ) &&
+				( $item->context['_imported_event'] === true || $item->context['_imported_event'] === 'true' );
 		}
 
 		if ( Compat::rest_is_field_included( 'context', $fields ) ) {
