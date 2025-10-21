@@ -14,17 +14,20 @@ This feature provides a way to import existing WordPress data into Simple Histor
 **What's Working**:
 - Import posts and pages with creation and modification dates
 - Import users with registration dates
+- **Accurate initiators**: Uses post_author for posts (WP_USER), OTHER for users
+- **Simplified UI**: Clean interface with expandable options
+- **Smart defaults**: All post types + users checked, no limit (imports all data)
 - Configurable post type selection
-- Adjustable import limits (1-1000 items per type)
+- Optional import limits (up to 10,000 items per type when enabled)
 - Proper message formatting matching existing loggers
 - Historical date preservation using `_date` context
 - Duplicate prevention - automatically skips already-imported items
 - Debug tracking for troubleshooting with detailed skip reporting
 
-**Critical Limitation** 🚨:
-- **Cannot import more than 1000 items per type** - no pagination/offset mechanism
-- Re-running import does NOT progress to next batch (always fetches oldest 1000)
-- See "Large Dataset Limitations" section for full details and future solutions
+**Important Notes**:
+- Default behavior: Imports ALL data (no limit) for complete historical population
+- Large sites (10,000+ items): May need batch processing for optimal performance
+- See "Large Dataset Limitations" section for performance considerations
 
 ## Overview
 
@@ -70,22 +73,47 @@ Available WordPress data to import:
 
 - ✅ **Should this run automatically on activation or require user action?**
   - **Answer**: Requires user action via Experimental Features page. Avoids performance issues and gives users control.
+  - **Future Consideration**: Add admin notice after first activation to suggest import (dismissible with "Don't show again")
 
 - ✅ **How far back should we import data?**
-  - **Answer**: Configurable limit (1-1000 items per type). Users control the scope.
+  - **Answer**: Import ALL data by default (no limit). Optional limit checkbox available for users who want to restrict.
 
 - ✅ **Should users be able to configure what gets imported?**
-  - **Answer**: Yes. Users can select specific post types and choose whether to import users.
+  - **Answer**: Yes. Users can select specific post types and choose whether to import users. Options are in expandable "Import Options" details element.
 
 - 🚨 **How to handle large sites with thousands of posts?**
-  - **Critical Limitation**: Cannot import more than 1000 items per type (no pagination/offset)
-  - **Current Risks**: Memory issues, timeouts, slow queries on very large imports
-  - **Workaround**: Only first 1000 items (oldest) will be imported
-  - **Future**: Requires batch processing/AJAX with pagination support
+  - **Current**: No hard limit - imports all data when limit checkbox is unchecked
+  - **Risks**: Memory issues, timeouts, slow queries on very large imports
+  - **Future**: Requires batch processing/AJAX with progress indicator for very large sites
   - **See**: "Large Dataset Limitations" section below for full analysis
 
 - ✅ **Should this be a one-time import or repeatable?**
   - **Answer**: Repeatable. Users can safely run it multiple times - duplicate detection automatically skips already-imported items.
+
+- ✅ **What initiator should imported events have?**
+  - **Posts**: Use `post_author` as initiator (WP_USER with full user context: _user_id, _user_login, _user_email)
+  - **Users**: Use OTHER initiator without any user ID (we don't know who created user accounts)
+  - **Rationale**: Be truthful about what we know (post authors) vs. what we don't know (who created users)
+
+- 📋 **How to show users that an event is imported?**
+  - **Discussion held - Not yet implemented**
+  - **Options considered**:
+    - Visual badge/label ("Imported" or "Historical")
+    - Different icon or muted styling
+    - Info tooltip explaining limitations
+    - Note in event details about incomplete information
+  - **Current Implementation**: `_imported_event: true` context stored (ready for future UI features)
+
+- ✅ **Should we import post revisions?**
+  - **Answer**: No, revisions are NOT imported.
+  - **Reasoning**:
+    - Already importing creation date and last modification date (covers timeline)
+    - Missing critical context: don't know WHAT changed in each revision
+    - Would create low-value noise: "Updated post X" repeatedly without change details
+    - Data bloat: Popular posts can have 50+ revisions
+    - Simple History tracks revisions properly going forward with full change tracking
+  - **What we DO import**: `post_status` includes `publish`, `draft`, `pending`, `private`
+  - **Implementation**: `inc/class-existing-data-importer.php:92` - only queries actual posts, not revisions
 
 ## Progress
 
@@ -101,6 +129,10 @@ Available WordPress data to import:
 - [x] Add `_imported_event` context marker for programmatic identification
 - [x] Implement duplicate prevention using batch SQL queries
 - [x] Update UI to display skipped counts
+- [x] Implement accurate initiator logic (post_author for posts, OTHER for users)
+- [x] Simplify UI with expandable "Import Options" details element
+- [x] Change defaults: import all data (no limit), all post types checked, users checked
+- [x] Add optional limit checkbox (unchecked by default, supports up to 10,000 items)
 
 ### In Progress
 - Manual testing with different WordPress setups
@@ -108,14 +140,16 @@ Available WordPress data to import:
 - User acceptance testing
 
 ### To Do (Future Enhancements)
-- [ ] 🚨 **CRITICAL**: Fix 1000-item limitation - add pagination/offset support
-- [ ] 🚨 **CRITICAL**: Add memory and timeout protection for large imports
-- [ ] Add batch processing for large datasets (for very large sites)
-- [ ] Add progress indicator for import process (AJAX/background processing)
-- [ ] Test with large datasets (5000+ posts to verify limitation)
+- [ ] 🚨 **CRITICAL**: Add memory and timeout protection for large imports (`wp_raise_memory_limit()`, `set_time_limit()`)
+- [ ] Add batch processing/AJAX for very large datasets (10,000+ items)
+- [ ] Add progress indicator for import process (especially for large imports)
+- [ ] Test with large datasets (10,000+ posts)
 - [ ] Handle edge cases (missing authors, deleted content, etc.)
 - [ ] Update documentation
 - [ ] Consider adding import for other data types (comments, media)
+- [ ] **Visual indicators for imported events**: Add UI to show which events are imported (badge, icon, or styling)
+- [ ] **First-run experience**: Add dismissible admin notice after activation suggesting to run import
+- [ ] **Empty state CTA**: Show import suggestion in dashboard/log page when empty
 
 ## Implementation Details
 
@@ -144,11 +178,15 @@ The import functionality has been implemented as an **experimental feature** acc
 
 ### Key Features
 
-- **Post Type Selection**: Users can choose which post types to import
-- **Configurable Limits**: Import limit (1-1000 items per type) to prevent timeouts
-- **User Import**: Optional import of user registration dates
+- **Simplified UI**: Clean interface with just "Import Data" button visible; advanced options in expandable "Import Options" details
+- **Smart Defaults**: All post types and users checked by default; imports all data (no limit) unless limit checkbox enabled
+- **Post Type Selection**: Users can choose which post types to import (all public post types checked by default)
+- **Optional Limits**: Import limit disabled by default; optional checkbox to enable limit (1-10000 items per type)
+- **User Import**: Optional import of user registration dates (enabled by default)
 - **Historical Dates**: Uses original `post_date_gmt` and `post_modified_gmt` for accurate history
-- **Proper Initiator**: Sets initiator to `OTHER` to distinguish imported events from real-time events
+- **Accurate Initiators**:
+  - Posts: Use `post_author` as initiator (WP_USER with full user context)
+  - Users: Use OTHER initiator (we don't know who created user accounts)
 - **Duplicate Prevention**: Automatically detects and skips already-imported items using batch SQL queries
 - **Import Tracking**: Displays counts of imported and skipped items with detailed debugging
 
@@ -166,19 +204,25 @@ The importer:
 
 The importer correctly uses Simple History's logger infrastructure:
 
-**Post Import** (`inc/class-existing-data-importer.php:110-143`):
-- Uses `Post_Logger->info_message('post_created', $context)`
-- Uses `Post_Logger->info_message('post_updated', $context)` if modification date differs
-- Context includes: `post_id`, `post_type`, `post_title`, `_date`, `_initiator`, `_imported_event`
+**Post Import** (`inc/class-existing-data-importer.php:138-198`):
+- Uses `Post_Logger->info_message('post_created', $context)` for creation events
+- Uses `Post_Logger->info_message('post_updated', $context)` for modification events (if dates differ)
+- **Initiator Logic**:
+  - Uses `post_author` from WordPress post object
+  - If author exists: Sets `_initiator` to `WP_USER` with full user context (`_user_id`, `_user_login`, `_user_email`)
+  - If author doesn't exist: Falls back to `OTHER` initiator
+- Context includes: `post_id`, `post_type`, `post_title`, `_date`, `_initiator`, `_imported_event`, plus user context if available
 
-**User Import** (`inc/class-existing-data-importer.php:181-194`):
+**User Import** (`inc/class-existing-data-importer.php:258-274`):
 - Uses `User_Logger->info_message('user_created', $context)`
+- **Initiator Logic**: Always uses `OTHER` (we don't know who created user accounts)
+- No `_user_id`, `_user_login`, or `_user_email` set as initiator context
 - Context matches User_Logger format exactly:
   - `created_user_id`, `created_user_login`, `created_user_email`
   - `created_user_first_name`, `created_user_last_name`, `created_user_url`
   - `created_user_role` (comma-separated if multiple roles)
   - `_date`, `_initiator`, `_imported_event`
-- Displays as: "Created user {login} ({email}) with role {role}"
+- Displays as: "Created user {login} ({email}) with role {role}" by "Other"
 
 **Imported Event Marker**:
 - All imported events include `_imported_event => true` in their context
@@ -301,37 +345,36 @@ Initial testing on a development site:
    - **Workaround**: Import historical data before plugin accumulates new events, or wait for #584 implementation
    - **Related File**: `readme.issue-584-date-ordering.md`
 
-2. **Large Dataset Limitations** 🚨 **CRITICAL**
+2. **Large Dataset Limitations** ⚠️ **PERFORMANCE CONSIDERATIONS**
 
-   ### Cannot Import More Than 1000 Items Total
+   ### Default: Import All Data (No Limit)
 
-   **The Problem**:
+   **Current Behavior**:
 
-   The importer has **no offset or pagination mechanism**. It always fetches the oldest posts in the database:
+   By default, the importer fetches ALL posts/users (no limit). This provides complete historical coverage but may have performance implications on very large sites:
 
    ```php
    // inc/class-existing-data-importer.php:90-96
    $args = [
-       'posts_per_page' => $limit,  // Max 1000
+       'posts_per_page' => $limit,  // -1 (all) by default, or user-specified limit
        'orderby' => 'date',
-       'order' => 'ASC',  // Always oldest first - NO OFFSET!
+       'order' => 'ASC',  // Oldest first
    ];
    ```
 
    **What Happens on a Site with 10,000 Posts:**
 
-   1. **First Import (limit=1000)**:
-      - Fetches posts 1-1000 (oldest)
-      - Imports all 1000 ✅
-      - Result: "Imported 1000 posts"
+   1. **Default Import (no limit)**:
+      - Fetches ALL 10,000 posts
+      - Attempts to import all ⚠️
+      - Risk: May hit memory/timeout limits
+      - Result: Either completes successfully or fails mid-import
 
-   2. **Second Import (trying to get more)**:
-      - Fetches posts 1-1000 **again** (same oldest posts!)
-      - Duplicate detection finds all already imported
-      - Skips all 1000 ❌
-      - Result: "Imported 0 posts (skipped 1000 already imported)"
-
-   3. **Posts 1001-10000 can NEVER be imported** ❌
+   2. **With Optional Limit (e.g., limit=1000)**:
+      - Fetches only oldest 1000 posts
+      - Imports 1000 posts ✅
+      - Remaining 9000 posts not imported ⚠️
+      - No pagination/offset to import the rest
 
    ### Risk Analysis for Large Datasets
 
@@ -372,22 +415,23 @@ Initial testing on a development site:
 
    ### Recommended Solutions (Future Work)
 
-   **Option 1: Add Offset/Pagination**:
-   - Modify query to exclude already-imported post IDs
-   - Use `post__not_in` with imported IDs from duplicate check
-   - Allows progressive import: run multiple times to import all posts
-   - Simple implementation, works with existing duplicate detection
-
-   **Option 2: Background Processing**:
-   - WP-Cron scheduled batches (100 posts per batch)
-   - AJAX chunked processing with progress bar
-   - More complex but better UX for very large sites
-
-   **Option 3: Hybrid Approach**:
-   - Add `wp_raise_memory_limit( 'admin' )` for memory protection
-   - Add `set_time_limit( 300 )` for 5-minute timeout (if hosting allows)
+   **Option 1: Memory & Timeout Protection** (High Priority):
+   - Add `wp_raise_memory_limit( 'admin' )` before import
+   - Add `set_time_limit( 300 )` for extended timeout (if hosting allows)
    - Reduce result detail storage (only keep counts, not full arrays)
-   - Document 1000-item limitation clearly in UI
+   - Show warning in UI for sites with 10,000+ items
+
+   **Option 2: AJAX/Background Processing** (Best for very large sites):
+   - AJAX chunked processing with progress bar (1000 items per batch)
+   - Real-time progress updates in UI
+   - Handles timeouts gracefully
+   - Better UX for large imports
+
+   **Option 3: WP-Cron Scheduled Batches**:
+   - Background processing via WP-Cron
+   - Email notification when complete
+   - No timeout issues
+   - More complex implementation
 
 ## Related Code
 
@@ -412,13 +456,15 @@ Initial testing on a development site:
    - [ ] Import only specific post types
 
 3. **Large Datasets**
-   - [ ] Test with 100+ posts
-   - [ ] Test with 1000 posts (maximum import size)
-   - [ ] Verify no timeouts occur with 1000 posts
-   - [ ] Check performance impact
-   - [ ] **Test 1000+ limitation**: Create site with 2000+ posts, import with limit=1000, verify only first 1000 imported
-   - [ ] **Test duplicate on large dataset**: Run import twice on 1000 posts, verify second run skips all 1000
-   - [ ] **Test memory usage**: Monitor PHP memory consumption during 1000-post import
+   - [ ] Test with 100+ posts (no limit)
+   - [ ] Test with 1,000+ posts (no limit)
+   - [ ] Test with 10,000+ posts (no limit) - verify completion or graceful failure
+   - [ ] Verify no timeouts occur with moderate datasets (1000-2000 posts)
+   - [ ] Check performance impact on various dataset sizes
+   - [ ] **Test optional limit**: Enable limit checkbox with 1000 limit on site with 5000+ posts
+   - [ ] **Test duplicate on large dataset**: Run import twice, verify second run skips all items
+   - [ ] **Test memory usage**: Monitor PHP memory consumption during large imports
+   - [ ] **Test timeout handling**: Monitor execution time on large imports
    - [ ] **Test query performance**: Check slow query log for duplicate detection queries
 
 4. **Edge Cases**
@@ -456,11 +502,13 @@ Initial testing on a development site:
 
 1. **Additional Testing**:
    - [ ] Test on multisite installation
-   - [ ] **Test 1000-item limitation**: Verify on site with 5000+ posts that only 1000 are imported
-   - [ ] **Test memory limits**: Import 1000 posts and monitor PHP memory usage
-   - [ ] **Test timeout limits**: Import 1000 posts and verify completion within timeout
+   - [ ] **Test large datasets**: Import on site with 5000+ posts and monitor performance
+   - [ ] **Test memory limits**: Monitor PHP memory usage during large imports
+   - [ ] **Test timeout limits**: Verify completion or graceful failure on large imports
+   - [ ] **Test optional limit**: Verify limit checkbox works correctly (enable/disable)
    - [ ] Test with custom post types from popular plugins
    - [ ] Test error handling (database failures, missing loggers, etc.)
+   - [ ] Test with sites that have deleted post authors
 
 2. **User Acceptance**:
    - [ ] Review UI/UX of experimental features page
@@ -474,13 +522,13 @@ Initial testing on a development site:
 
 ### Future Enhancements (Post-Merge)
 
-1. **Performance Improvements** 🚨 **HIGH PRIORITY** (See "Large Dataset Limitations"):
-   - **Critical**: Add pagination/offset support to import beyond 1000 items
-   - **Critical**: Implement `post__not_in` to exclude already-imported IDs from query
-   - Batch processing with AJAX for large datasets (>1000 items)
-   - Progress indicator during import (especially for 500+ items)
+1. **Performance Improvements** ⚠️ **HIGH PRIORITY** (See "Large Dataset Limitations"):
+   - **Critical**: Add memory and timeout protection (`wp_raise_memory_limit()`, `set_time_limit()`)
+   - **Important**: Add warning in UI for very large sites (10,000+ items detected)
+   - Batch processing with AJAX for very large datasets (10,000+ items)
+   - Progress indicator during import (especially for 1000+ items)
    - Background processing option (WP-Cron for very large sites)
-   - Add memory and timeout protection (`wp_raise_memory_limit()`, `set_time_limit()`)
+   - Reduce memory footprint by limiting detail array storage
 
 2. **Additional Data Sources**:
    - Comments (with dates and authors)
