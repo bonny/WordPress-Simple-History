@@ -72,10 +72,6 @@ class Experimental_Features_Page extends Service {
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Experimental Features', 'simple-history' ); ?></h1>
 
-			<p class="description">
-				<?php esc_html_e( 'This page contains experimental features and tools for testing purposes. Use with caution on production sites.', 'simple-history' ); ?>
-			</p>
-
 			<?php if ( $import_completed ) : ?>
 				<div class="notice notice-success is-dismissible">
 					<p>
@@ -104,6 +100,24 @@ class Experimental_Features_Page extends Service {
 			<?php endif; ?>
 
 			<div class="card">
+				<h2><?php esc_html_e( 'About Experimental Features', 'simple-history' ); ?></h2>
+
+				<p>
+					<?php
+					esc_html_e(
+						'This page provides access to features that are still under development or testing. These features may change or be removed in future versions.',
+						'simple-history'
+					);
+					?>
+				</p>
+
+				<p>
+					<strong><?php esc_html_e( 'Warning:', 'simple-history' ); ?></strong>
+					<?php esc_html_e( 'Experimental features should be used with caution on production sites. Always test on a staging environment first.', 'simple-history' ); ?>
+				</p>
+			</div>
+
+			<div class="card" style="margin-top: 20px;">
 				<h2><?php esc_html_e( 'Import Existing Data', 'simple-history' ); ?></h2>
 
 				<p>
@@ -172,24 +186,6 @@ class Experimental_Features_Page extends Service {
 
 					<?php submit_button( __( 'Import Data', 'simple-history' ), 'primary', 'submit', false ); ?>
 				</form>
-			</div>
-
-			<div class="card" style="margin-top: 20px;">
-				<h2><?php esc_html_e( 'About Experimental Features', 'simple-history' ); ?></h2>
-
-				<p>
-					<?php
-					esc_html_e(
-						'This page provides access to features that are still under development or testing. These features may change or be removed in future versions.',
-						'simple-history'
-					);
-					?>
-				</p>
-
-				<p>
-					<strong><?php esc_html_e( 'Warning:', 'simple-history' ); ?></strong>
-					<?php esc_html_e( 'Experimental features should be used with caution on production sites. Always test on a staging environment first.', 'simple-history' ); ?>
-				</p>
 			</div>
 		</div>
 		<?php
