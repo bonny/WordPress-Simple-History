@@ -34,6 +34,7 @@ This feature provides a way to import existing WordPress data into Simple Histor
 - 📋 Manual import available for premium users needing older data (365+ days)
 
 **Important Notes**:
+- **Requires "Enable experimental features"**: Import feature only visible when experimental features are enabled in Settings → General
 - Default behavior: Imports ALL data (no limit) for complete historical population
 - Large sites (10,000+ items): May need batch processing for optimal performance
 - See "Large Dataset Limitations" section for performance considerations
@@ -241,7 +242,10 @@ Automatically import 60 days of historical data when the plugin is first activat
 - [x] Change defaults: import all data (no limit), all post types checked, users checked
 - [x] Add optional limit checkbox (unchecked by default, supports up to 10,000 items)
 - [x] Add preview feature showing approximate import counts
-- [x] Implement visual indicator for imported events (meta text with icon and link)
+- [x] Implement visual indicator for imported events (simple meta text label)
+- [x] Add `imported` field to REST API for React frontend
+- [x] Create React component for imported event indicator
+- [x] Gate Experimental Features page behind experimental features setting
 
 ### In Progress
 - Manual testing with different WordPress setups
@@ -291,7 +295,7 @@ Automatically import 60 days of historical data when the plugin is first activat
 - [ ] Handle edge cases (missing authors, deleted content, etc.)
 - [ ] Update documentation
 - [ ] Consider adding import for other data types (comments, media)
-- [x] ~~**Visual indicators for imported events**: Add UI to show which events are imported~~ - ✅ **IMPLEMENTED** (meta text with icon and link)
+- [x] ~~**Visual indicators for imported events**: Add UI to show which events are imported~~ - ✅ **IMPLEMENTED** (simple meta text label)
 - [ ] ~~**First-run experience**: Add dismissible admin notice after activation suggesting to run import~~ - Covered by auto-import feature
 - [ ] **Empty state CTA**: Show import suggestion in dashboard/log page when empty
 
@@ -301,6 +305,7 @@ Automatically import 60 days of historical data when the plugin is first activat
 
 The import functionality has been implemented as an **experimental feature** accessible through an admin page, rather than running automatically on activation. This approach:
 
+- **Gated behind experimental features setting**: Only visible when "Enable experimental features" is checked in Settings → General
 - Allows users to test the functionality on different sites
 - Avoids potential performance issues on large sites during activation
 - Provides transparency about what data is being imported
@@ -317,6 +322,7 @@ The import functionality has been implemented as an **experimental feature** acc
 2. **`inc/services/class-experimental-features-page.php`**
    - Service class that adds an "Experimental Features" admin page
    - Auto-discovered by Simple History (placed in `/inc/services/`)
+   - **Only loads if experimental features are enabled** (`Helpers::experimental_features_is_enabled()`)
    - Provides UI for triggering imports
    - Handles form submission and displays results
 
@@ -579,12 +585,19 @@ Initial testing on a development site:
 
 ## Related Code
 
-- **Importer**: `inc/class-existing-data-importer.php:1`
-- **Service**: `inc/services/class-experimental-features-page.php:1`
+**Backend (PHP)**:
+- **Importer**: `inc/class-existing-data-importer.php` (main import logic, preview counts)
+- **Service**: `inc/services/class-experimental-features-page.php` (Experimental Features admin page)
 - **Post Logger**: `loggers/class-post-logger.php` (used for logging post events)
 - **User Logger**: `loggers/class-user-logger.php:47-50` (user_created message definition)
-- **Logger Base**: `loggers/class-logger.php` (base class with `log()` method)
+- **Logger Base**: `loggers/class-logger.php:535-556` (imported event indicator method)
+- **REST API**: `inc/class-wp-rest-events-controller.php:579-582,926-929` (imported field in schema and response)
 - **Menu System**: `inc/class-menu-manager.php`, `inc/class-menu-page.php`
+
+**Frontend (React)**:
+- **Imported Indicator Component**: `src/components/EventImportedIndicator.jsx`
+- **Event Header**: `src/components/EventHeader.jsx:31` (integrates imported indicator)
+- **API Query Params**: `src/functions.js:68` (includes imported field in _fields parameter)
 
 ## Testing Notes
 
