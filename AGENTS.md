@@ -9,22 +9,22 @@ This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, e
 
 **Simple History** is a WordPress plugin that logs user activity and system events.
 
-- **Core Version**: Free, fully-featured version in this repository
-- **Premium Version**: Additional plugin with extended features (both must be installed together)
-- **Documentation**: See readme.txt for detailed plugin information
-- **Philosophy**: Core version must be fully usable for free users with non-intrusive upgrade prompts
+-   **Core Version**: Free, fully-featured version in this repository
+-   **Premium Version**: Additional plugin with extended features (both must be installed together).
+-   **Documentation**: See readme.txt for detailed plugin information
+-   **Upsell Philosophy**: Core version must be fully usable for free users with non-intrusive upgrade prompts. However, the premium version should be a "must-have" for most users. Convince users to upgrade to the premium version by "nudging" them discreetly in different places throughout the plugin. But don't be too pushy, don't annoy users! Win over users in the long run and make them happy to use the premium version.
 
 ### Technical Architecture
 
-- **Backend**: Written in PHP following WordPress plugin conventions
-  - PHP 7.4+ compatibility required
-  - Core functionality in `inc/` directory
-  - Loggers in `loggers/` directory
-  - REST API endpoints for event data
-- **Frontend**: Main event log interface built with React
-  - Located in `src/` directory
-  - Built using @wordpress/scripts tooling
-  - Communicates with backend via WordPress REST API
+-   **Backend**: Written in PHP following WordPress plugin conventions
+    -   PHP 7.4+ compatibility required
+    -   Core functionality in `inc/` directory
+    -   Loggers in `loggers/` directory
+    -   REST API endpoints for event data
+-   **Frontend**: Main event log interface built with React
+    -   Located in `src/` directory
+    -   Built using @wordpress/scripts tooling
+    -   Communicates with backend via WordPress REST API
 
 ## Quick Start
 
@@ -61,27 +61,29 @@ See @CLAUDE.local.md for local development setup including Docker configuration,
 
 ### General Principles
 
-- **WordPress Way**: Follow WordPress best practices and conventions
-- **Prefixes**: Use `sh`, `simplehistory`, or `simple_history`
-- **Text Domain**: `simple-history`
-- **Escaping**: Always escape output properly
-- **JavaScript**: Follow @wordpress/scripts conventions
+-   **WordPress Way**: Follow WordPress best practices and conventions
+-   **Prefixes**: Use `sh`, `simplehistory`, or `simple_history`
+-   **Text Domain**: `simple-history`
+-   **Escaping**: Always escape output properly
+-   **JavaScript**: Follow @wordpress/scripts conventions
 
 ### PHP Guidelines
 
 #### Requirements
-- PHP 7.4+ compatibility
-- WordPress Coding Standards (see phpcs.xml.dist)
-- No `mb_*` string functions
-- Use short array syntax (`[]` not `array()`)
-- WordPress hooks must use prefixes
+
+-   PHP 7.4+ compatibility
+-   WordPress Coding Standards (see phpcs.xml.dist)
+-   No `mb_*` string functions
+-   Use short array syntax (`[]` not `array()`)
+-   WordPress hooks must use prefixes
 
 #### Code Style
-- **Happy path last**: Handle errors first, success last
-- **Avoid else**: Use early returns
-- **Separate conditions**: Multiple if statements over compound conditions
-- **Always use curly brackets**: Even for single statements
-- **Ternary operators**: Multi-line unless very short
+
+-   **Happy path last**: Handle errors first, success last
+-   **Avoid else**: Use early returns
+-   **Separate conditions**: Multiple if statements over compound conditions
+-   **Always use curly brackets**: Even for single statements
+-   **Ternary operators**: Multi-line unless very short
 
 ```php
 // Happy path last
@@ -111,20 +113,21 @@ $condition
 
 ### CSS Guidelines
 
-- **Naming Convention**: Suit CSS
-- **Prefix**: `sh`
-- **Examples**:
-  - Components: `sh-HelpSection`, `sh-LogEntry`
-  - Subparts: `sh-HelpSection-subpart`, `sh-LogEntry-author`
+-   **Naming Convention**: Suit CSS
+-   **Prefix**: `sh`
+-   **Examples**:
+    -   Components: `sh-HelpSection`, `sh-LogEntry`
+    -   Subparts: `sh-HelpSection-subpart`, `sh-LogEntry-author`
 
 ### Logger Messages
 
 Write messages in **active tone** as if someone is telling you what happened:
-- ✅ "Activated plugin"
-- ✅ "Created menu"
-- ✅ "Detected modifications"
-- ❌ "Plugin was activated"
-- ❌ "Menu has been created"
+
+-   ✅ "Activated plugin"
+-   ✅ "Created menu"
+-   ✅ "Detected modifications"
+-   ❌ "Plugin was activated"
+-   ❌ "Menu has been created"
 
 Messages should be easily understood by regular users, not just developers.
 
@@ -136,10 +139,11 @@ Messages should be easily understood by regular users, not just developers.
 **URL**: https://github.com/users/bonny/projects/4/views/1
 
 #### Board Columns
-- **Backlog**: Items for future consideration
-- **To Do**: Next items to work on
-- **In Progress**: Currently being worked on
-- **Done**: Completed items
+
+-   **Backlog**: Items for future consideration
+-   **To Do**: Next items to work on
+-   **In Progress**: Currently being worked on
+-   **Done**: Completed items
 
 #### GitHub CLI Commands
 
@@ -175,8 +179,8 @@ gh api graphql -f query='
 
 ### Git Workflow
 
-- Create a new branch for each GitHub issue or feature
-- Branch naming: `issue-NUMBER-brief-description`
-- Follow OneFlow model (see code.md for details)
-- Use GitHub CLI to fetch GitHub issues
-- When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos.
+-   Create a new branch for each GitHub issue or feature
+-   Branch naming: `issue-NUMBER-brief-description`
+-   Follow OneFlow model (see code.md for details)
+-   Use GitHub CLI to fetch GitHub issues
+-   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos.
