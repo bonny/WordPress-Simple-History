@@ -60,11 +60,75 @@ The information available in WordPress for historical events is limited, but we 
 - User-controlled import with configurable options
 - Transparent process allowing users to test on different sites first
 
-**Planned Enhancement - Auto-Import on Activation**:
-- Auto-import 60 days of historical data on plugin activation
-- Aligns with free version's default 60-day retention policy
-- Users with premium (extended retention) can manually import older data
-- Prevents wasted import of data that would be auto-deleted within a week
+**Planned Enhancement - Auto-Import on Activation with Freemium Strategy**:
+- Auto-import limited historical data on plugin activation (Core/Free)
+- Premium users can unlock unlimited historical import
+- See "Freemium Strategy" section below for detailed feature split
+
+## Freemium Strategy
+
+**Purpose**: This feature primarily addresses the "empty state problem" - making the plugin look populated and useful from first install. It's a UX polish feature, not a major selling point, but provides a natural upgrade path for users with extensive site history.
+
+### Core (Free) Import
+
+**One-time welcome import**:
+- Import **last 20-50 posts/pages** (just enough to show activity)
+- Import **all users** (typically not that many, and feels complete)
+- Simple message: "We've populated your log with recent activity"
+- No complexity, no settings - just happens on first activation
+
+**Value**: Plugin immediately looks populated and demonstrates functionality without overwhelming the system.
+
+### Premium Import
+
+**"Import More History"** - Simple unlock:
+- Unlocks ability to import **all historical posts/pages**
+- Same simple one-click experience, just no limits
+- Shows count: "Import 2,847 more historical posts"
+- That's it. No fancy features needed - just removes the limit.
+
+**Value**:
+- Sites with extensive history (years of content, thousands of posts) get complete historical record
+- Useful for audits, understanding site evolution, client reporting
+- Small sites won't care much (which is fine - it's a discrete feature)
+
+### UI Design
+
+**Free User (after initial import)**:
+```
+┌─────────────────────────────────────┐
+│ ✓ Imported 50 recent posts          │
+│ ✓ Imported 12 users                 │
+│                                      │
+│ [Premium: Import 2,847 more posts]  │ ← Subtle, not pushy
+└─────────────────────────────────────┘
+```
+
+**Premium User**:
+```
+┌─────────────────────────────────────┐
+│ ✓ Imported 50 recent posts          │
+│ ✓ Imported 12 users                 │
+│                                      │
+│ [Import All Historical Posts]       │ ← Just unlocked
+└─────────────────────────────────────┘
+```
+
+### Key Points
+
+- **Free version does the job**: Log looks populated ✓
+- **Premium is there if they want completeness**: No nagging, just available
+- **Transparent value**: Users can directly see how much more could be imported
+- **No complex feature matrix**: Simple limit vs. unlimited distinction
+- **Scales with site size**: Sites with tons of historical content see bigger numbers and might upgrade; small sites won't care (which is fine!)
+
+### Data Constraints
+
+We can only import what's actually stored in WordPress:
+- **Posts/pages**: `post_date`, `post_modified`, `post_author` from `wp_posts` table
+- **Users**: `user_registered` from `wp_users` table
+- **Events available**: "Published post/page", "Updated post/page", "User registered"
+- **Not available**: Login/logout history, plugin activations, settings changes, etc. (these only exist after plugin installation)
 
 ## Implementation Considerations
 
@@ -155,86 +219,96 @@ Available WordPress data to import:
 ### Auto-Import on Activation (Planned Feature)
 
 **Overview**:
-Automatically import 60 days of historical data when the plugin is first activated, providing an immediate populated history log for new users.
+Automatically import limited historical data when the plugin is first activated, providing an immediate populated history log for new users. This follows the freemium strategy outlined above.
 
 **Design Decisions**:
 
-1. **60-Day Import Window with Safety Limit** ✅ **DECIDED**:
-   - **Time window**: 60 days (matches Simple History's default retention policy)
-   - **Safety limit**: 500 items maximum (prevents timeouts on high-activity sites)
-   - **Strategy**: Import from the last 60 days OR 500 items, whichever comes first
+1. **Core (Free) Import Limits** ✅ **DECIDED**:
+   - **Posts/Pages**: Last 20-50 items (just enough to show activity)
+   - **Users**: All users (typically small number, feels complete)
+   - **Strategy**: Simple count-based limit, newest items first
    - **Rationale**:
-     - 95%+ of WordPress sites have < 500 posts in 60 days (get full 60-day import)
-     - Safety limit ensures predictable performance (500 items = ~2-3 seconds)
-     - Aligns with free version retention policy (60 days)
-     - Prevents timeouts even on very high-activity sites
-     - Users needing more can use manual import in Experimental Features
+     - Solves empty state problem without overwhelming system
+     - Fast and predictable performance on all site sizes
+     - Creates natural upgrade opportunity (show remaining count)
+     - Aligns with "nice to have" UX polish positioning
 
-2. **Auto vs. Manual Import**:
-   - **Auto-import**: 60 days on activation (one-time, automatic)
-   - **Manual import**: Unlimited data via Experimental Features page (user-controlled, repeatable)
+2. **Premium vs. Free Import**:
+   - **Free (auto-import)**: 20-50 posts/pages + all users (one-time, automatic on activation)
+   - **Premium (manual import)**: Unlimited historical data (user-controlled, repeatable)
    - **Use case split**:
-     - Free users: Auto-import provides complete coverage (60 days = their retention limit)
-     - Premium users: Auto-import gives immediate history + manual import for older data (365+ days)
+     - Free users: Auto-import solves empty state, plugin looks good immediately
+     - Premium users: Can import complete site history (thousands of posts, years of data)
+   - **Upgrade path**: Show remaining count after free import ("Import 2,847 more posts with Premium")
 
 3. **Activation Hook Implementation**:
    - Register `register_activation_hook()` in main plugin file
-   - Calculate date threshold: `date('Y-m-d H:i:s', strtotime('-60 days'))`
-   - Call `Existing_Data_Importer->import_all()` with date filter
+   - Call `Existing_Data_Importer->import_all()` with limit parameters
+   - **Free version**: `limit = 50` for posts, `-1` (all) for users
+   - **Premium version**: `limit = -1` (unlimited) for both
    - Store activation flag in options to prevent re-import on reactivation
-   - Show admin notice with import results after activation
+   - Show admin notice with import results and upgrade prompt after activation
 
-4. **Date Filtering and Limiting**:
-   - Add `date_from` parameter to `import_all()`, `import_posts()`, `import_users()`
-   - Add `limit` parameter (default: 500 for auto-import, -1 for manual import)
+4. **Count-Based Limiting**:
+   - Add/update `limit` parameter in `import_all()`, `import_posts()`, `import_users()`
+   - **Free version**: Limit 20-50 posts/pages (configurable constant)
+   - **Premium version**: No limit (-1 = unlimited)
    - Modify queries:
-     - Posts: `WHERE post_date >= %s ORDER BY post_date DESC LIMIT %d`
-     - Users: `WHERE user_registered >= %s ORDER BY user_registered DESC LIMIT %d`
-   - Import newest items first (DESC order) to prioritize recent data
-   - Pass date threshold and limit from activation hook
+     - Posts: `ORDER BY post_date DESC LIMIT %d` (newest first)
+     - Users: `ORDER BY user_registered DESC LIMIT %d` (all users for free, unlimited for premium)
+   - Import newest items first (DESC order) to show recent activity
+   - After free import: Query total count to show upgrade opportunity
 
-5. **Performance Analysis** (Typical WordPress Sites - 60 Days):
-   - **Low activity (personal blog)**: 4-8 posts, 2 users = ~10 events ⚡ Very fast
-   - **Medium activity (small business)**: 20-40 posts, 5 users = ~50 events ⚡ Fast
-   - **High activity (news site)**: 200 posts, 15 users = ~250 events ⚡ Fast
-   - **Very high activity (major site)**: 2000+ posts, 50+ users = ~2000+ events ⚠️ Could timeout
-   - **With 500-item limit**: Even very high-activity sites complete in 2-3 seconds ✅
+5. **Performance Analysis** (Free Import - 50 Posts Max):
+   - **All site sizes**: Max 50 posts + all users = ~60-100 events max ⚡ Very fast
+   - **Import time**: < 1 second on most hosting
+   - **Memory usage**: Minimal (< 5MB for 50 posts)
+   - **Predictable**: Same performance regardless of total site size
+   - **No timeout risk**: Completes quickly even on slow hosting
 
 6. **Performance Safeguards**:
-   - **500-item safety limit**: Prevents timeouts, ensures predictable performance
+   - **Count-based limit**: Prevents timeouts, ensures predictable performance
    - **Memory protection**: `wp_raise_memory_limit('admin')` before import
    - **Timeout extension**: `set_time_limit(300)` for 5-minute max (if hosting allows)
    - **Error handling**: Log errors and show admin notice if import fails
    - **Graceful degradation**: Failed auto-import doesn't break activation
-   - **Manual fallback**: Users can complete import via Experimental Features page
+   - **Manual fallback**: Premium users can use full import via Experimental Features page
 
-6. **User Experience**:
-   - **On activation**:
+7. **User Experience**:
+   - **On activation (Free)**:
      - Auto-import runs silently in background
-     - Admin notice on first admin page load: "Simple History imported X posts and Y users from the last 60 days. [View History]"
+     - Admin notice: "✓ Imported 50 recent posts and 12 users. [View History]"
      - Notice is dismissible
      - Link to full history log for verification
-   - **For older data**:
-     - Notice includes: "To import older historical data, visit Experimental Features page."
-     - Premium users can manually import 365+ days of data
+   - **Upgrade prompt (if more data available)**:
+     - Show count of remaining posts: "Want more? Import 2,847 additional historical posts with Premium."
+     - Link to premium upgrade page
+     - Subtle, not pushy - only shown once after activation
+   - **Premium users**:
+     - Auto-import runs same way (50 posts + users)
+     - Notice includes: "Want complete history? [Import All Historical Data]"
+     - Link to Experimental Features page for full unlimited import
    - **Prevent duplicates**:
      - Existing duplicate detection handles re-runs
      - If user manually imports first, activation hook detects and skips
 
-7. **Edge Cases**:
+8. **Edge Cases**:
    - **Reactivation**: Don't re-import (check for option flag)
    - **Failed import**: Show error notice, allow manual retry via Experimental Features
-   - **Sites with < 60 days of data**: Import all available data
+   - **Sites with < 50 posts**: Import all available data, no upgrade prompt
    - **Sites with no data**: Skip import, no notice needed
    - **Manual import before activation**: Duplicate detection prevents duplication
 
 **Implementation Tasks** (see Progress > To Do):
-- [ ] Add date filtering to `Existing_Data_Importer` class
-- [ ] Implement activation hook with 60-day auto-import
-- [ ] Add admin notice system for import results
+- [ ] Update `Existing_Data_Importer` class to support count-based limiting (already has limit param)
+- [ ] Implement activation hook with 50-post auto-import for free version
+- [ ] Add premium detection to enable unlimited import for premium users
+- [ ] Add admin notice system for import results with upgrade prompt
+- [ ] Query total post count after import to show "X more posts available"
 - [ ] Add option flag to prevent re-import on reactivation
 - [ ] Add memory/timeout protection for activation import
 - [ ] Test on various site sizes (small, medium, large)
+- [ ] Test upgrade prompt display logic
 - [ ] Document in plugin readme and changelog
 
 ## Progress
@@ -268,35 +342,38 @@ Automatically import 60 days of historical data when the plugin is first activat
 
 ### To Do (Future Enhancements)
 
-#### Next Priority: Auto-Import on Activation
-- [ ] **Add date filtering to importer** (`inc/class-existing-data-importer.php`):
-  - [ ] Add `date_from` parameter to `import_all()` method
-  - [ ] Add `date_from` parameter to `import_posts()` method
-  - [ ] Add `date_from` parameter to `import_users()` method
-  - [ ] Modify post query to filter by `post_date >= date_from`
-  - [ ] Modify user query to filter by `user_registered >= date_from`
-  - [ ] Update docblocks to document date filtering
-- [ ] **Implement activation hook** (main plugin file):
+#### Next Priority: Auto-Import on Activation with Freemium Strategy
+- [ ] **Update importer for freemium limits** (`inc/class-existing-data-importer.php`):
+  - [ ] Verify `limit` parameter works correctly (already exists)
+  - [ ] Test with `limit = 50` for posts
+  - [ ] Test with `limit = -1` for users (import all)
+  - [ ] Add method to get total post count (for upgrade prompt)
+  - [ ] Update docblocks to document freemium strategy
+- [ ] **Implement activation hook with freemium logic** (main plugin file):
   - [ ] Register `register_activation_hook()` callback
-  - [ ] Calculate 60-day threshold: `date('Y-m-d H:i:s', strtotime('-60 days'))`
-  - [ ] Instantiate `Existing_Data_Importer` and call `import_all()` with date filter
+  - [ ] Detect if premium version is active
+  - [ ] Free version: Call `import_all()` with `post_limit = 50`, `user_limit = -1`
+  - [ ] Premium version: Call `import_all()` with `post_limit = -1` (unlimited)
   - [ ] Add memory/timeout protection (`wp_raise_memory_limit()`, `set_time_limit(300)`)
-  - [ ] Store import results in transient for admin notice
+  - [ ] Query total post count after import (for upgrade prompt)
+  - [ ] Store import results + total count in transient for admin notice
   - [ ] Set option flag to prevent re-import on reactivation
   - [ ] Handle errors gracefully with try/catch
-- [ ] **Add admin notice system**:
+- [ ] **Add admin notice system with upgrade prompt**:
   - [ ] Create admin notice for successful import (dismissible)
-  - [ ] Show counts: "Imported X posts and Y users from the last 60 days"
+  - [ ] Free: Show "✓ Imported X posts and Y users"
+  - [ ] Free: If more posts available, show "Import Z more posts with Premium" link
+  - [ ] Premium: Show "Want complete history? Import all data" link to Experimental Features
   - [ ] Include link to history log
-  - [ ] Include link to Experimental Features for older data import
   - [ ] Create admin notice for failed import with retry instructions
 - [ ] **Testing**:
-  - [ ] Test fresh activation on small site (< 100 posts in 60 days)
-  - [ ] Test fresh activation on medium site (1000+ posts in 60 days)
-  - [ ] Test fresh activation on large site (5000+ posts in 60 days)
+  - [ ] Test fresh activation on small site (< 50 posts) - should import all, no upgrade prompt
+  - [ ] Test fresh activation on medium site (100-500 posts) - should import 50, show upgrade prompt
+  - [ ] Test fresh activation on large site (5000+ posts) - should import 50, show large count in upgrade prompt
+  - [ ] Test premium activation - verify unlimited import works
+  - [ ] Test upgrade prompt display and link functionality
   - [ ] Test reactivation (should not re-import)
   - [ ] Test manual import before activation (duplicate detection)
-  - [ ] Test sites with < 60 days of data
   - [ ] Test empty sites (no posts/users)
   - [ ] Verify timeout protection works
   - [ ] Verify memory protection works
