@@ -322,6 +322,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'type'        => 'integer',
 		);
 
+		// Date + ID for accurate new event detection with date ordering.
+		$query_params['since_date'] = array(
+			'description' => __( 'Limit result set to events with date > since_date OR (date = since_date AND id > since_id). Use together with since_id for accurate new event detection.', 'simple-history' ),
+			'type'        => 'string',
+			'format'      => 'date-time',
+		);
+
 		// Date to in unix timestamp format.
 		$query_params['date_from'] = array(
 			'description' => __( 'Limit result set to rows with date greater than or equal to this unix timestamp.', 'simple-history' ),
@@ -635,6 +642,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'type'                    => 'type',
 			'max_id_first_page'       => 'max_id_first_page',
 			'since_id'                => 'since_id',
+			'since_date'              => 'since_date',
 			'date_from'               => 'date_from',
 			'date_to'                 => 'date_to',
 			'dates'                   => 'dates',
@@ -710,6 +718,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'type'                    => 'type',
 			'max_id_first_page'       => 'max_id_first_page',
 			'since_id'                => 'since_id',
+			'since_date'              => 'since_date',
 			'date_from'               => 'date_from',
 			'date_to'                 => 'date_to',
 			'dates'                   => 'dates',
@@ -761,6 +770,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 			$response->header( 'X-WP-Total', (int) $total_posts );
 			$response->header( 'X-WP-TotalPages', (int) $max_pages );
+
+			// Add max_id and max_date for has-updates detection.
+			if ( isset( $query_result['max_id'] ) ) {
+				$response->header( 'X-SimpleHistory-MaxId', (int) $query_result['max_id'] );
+			}
+
+			if ( isset( $query_result['max_date'] ) ) {
+				$response->header( 'X-SimpleHistory-MaxDate', $query_result['max_date'] );
+			}
 
 			if ( $page > 1 ) {
 				$prev_page = $page - 1;

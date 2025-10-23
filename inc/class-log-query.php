@@ -194,14 +194,17 @@ class Log_Query {
 		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
 		$page_rows_to = $page_rows_from + $log_rows_count - 1;
 
-		// Get maxId and minId.
+		// Get maxId, minId, and maxDate.
 		// MaxId is the id of the first row in the result (i.e. the latest entry).
 		// MinId is the id of the last row in the result (i.e. the oldest entry).
+		// MaxDate is the date of the first row (for accurate new event detection with date ordering).
 		$min_id = null;
 		$max_id = null;
+		$max_date = null;
 		if ( sizeof( $result_log_rows ) > 0 ) {
 			$max_id = $result_log_rows[0]->id;
 			$min_id = $result_log_rows[ count( $result_log_rows ) - 1 ]->id;
+			$max_date = $result_log_rows[0]->date;
 		}
 
 		// Create array to return.
@@ -214,6 +217,7 @@ class Log_Query {
 			'page_rows_to' => $page_rows_to,
 			'max_id' => (int) $max_id,
 			'min_id' => (int) $min_id,
+			'max_date' => $max_date,
 			'log_rows_count' => $log_rows_count,
 			'log_rows' => $result_log_rows,
 		];
@@ -421,14 +425,17 @@ class Log_Query {
 		// Re-index array.
 		$result_log_rows = array_values( $result_log_rows );
 
-		// Get max id and min id.
+		// Get max id, min id, and max date.
 		// Max id is the id of the first row in the result (i.e. the latest entry).
 		// Min id is the minId value of the last row in the result (i.e. the oldest entry).
+		// Max date is the date of the first row (for accurate new event detection with date ordering).
 		$min_id = null;
 		$max_id = null;
+		$max_date = null;
 		if ( sizeof( $result_log_rows ) > 0 ) {
 			$max_id = $result_log_rows[0]->id;
 			$min_id = $result_log_rows[ count( $result_log_rows ) - 1 ]->minId;
+			$max_date = $result_log_rows[0]->date;
 		}
 
 		// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
@@ -515,6 +522,7 @@ class Log_Query {
 			'page_rows_to' => $page_rows_to,
 			'max_id' => (int) $max_id,
 			'min_id' => (int) $min_id,
+			'max_date' => $max_date,
 			'log_rows_count' => $log_rows_count,
 			// Remove id from keys, because they are cumbersome when working with JSON.
 			'log_rows' => $result_log_rows,
@@ -690,6 +698,9 @@ class Log_Query {
 				// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id.
 				'since_id' => null,
 
+				// if since_date is set, used together with since_id to accurately detect new events with date ordering.
+				// Only returns events with date > since_date OR (date = since_date AND id > since_id).
+				'since_date' => null,
 				/**
 				 * From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
 				 *
@@ -812,6 +823,11 @@ class Log_Query {
 			throw new \InvalidArgumentException( 'Invalid since_id' );
 		} elseif ( isset( $args['since_id'] ) ) {
 			$args['since_id'] = (int) $args['since_id'];
+		}
+
+		// "since_date" must be valid date string in format Y-m-d H:i:s.
+		if ( isset( $args['since_date'] ) && ! is_string( $args['since_date'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid since_date' );
 		}
 
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
@@ -1179,6 +1195,8 @@ class Log_Query {
 	 * @return array<string> Where clauses.
 	 */
 	protected function get_inner_where( $args ) {
+		global $wpdb;
+
 		$simple_history = Simple_History::get_instance();
 		$contexts_table_name = $simple_history->get_contexts_table_name();
 		$db_engine = $this->get_db_engine();
@@ -1204,9 +1222,21 @@ class Log_Query {
 			);
 		}
 
-		// Add where clause for since_id,
-		// to include rows with id greater than since_id, i.e. more recent than since_id.
-		if ( isset( $args['since_id'] ) ) {
+		// Add where clause for since_id and since_date.
+		// When both are provided, we want events that would appear ABOVE the current view.
+		// With ORDER BY date DESC, id DESC, that means:
+		// - Events with date > since_date (newer date).
+		// - OR events with date = since_date AND id > since_id (same date but higher ID).
+		if ( isset( $args['since_date'] ) && isset( $args['since_id'] ) ) {
+			$inner_where[] = sprintf(
+				'(date > %s OR (date = %s AND id > %d))',
+				$wpdb->prepare( '%s', $args['since_date'] ),
+				$wpdb->prepare( '%s', $args['since_date'] ),
+				(int) $args['since_id']
+			);
+		} elseif ( isset( $args['since_id'] ) ) {
+			// Fallback to ID-only for backward compatibility
+			// (though this is less accurate with date ordering).
 			$inner_where[] = sprintf(
 				'id > %1$d',
 				(int) $args['since_id'],
