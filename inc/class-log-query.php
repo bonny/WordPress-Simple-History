@@ -130,7 +130,7 @@ class Log_Query {
 				1 AS subsequentOccasions
 			FROM %1$s AS simple_history_1
 			%2$s
-			ORDER BY simple_history_1.id DESC
+			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 			%3$s
 		';
 
@@ -175,7 +175,7 @@ class Log_Query {
 			SELECT count(*) as count
 			FROM %1$s AS simple_history_1
 			%2$s
-			ORDER BY simple_history_1.id DESC
+			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 		';
 
 		$sql_query_log_rows_count = sprintf(
@@ -280,7 +280,7 @@ class Log_Query {
 			# Where statement.
 			%3$s
 
-			ORDER BY id DESC
+			ORDER BY date DESC, id DESC
 			## END INNER_SQL_QUERY_STATEMENT
 
 		';
@@ -312,7 +312,8 @@ class Log_Query {
 			SELECT 
 				max(h.id) as maxId,
 				min(h.id) as minId,
-				max(historyWithRepeated.repeatCount) as repeatCount
+				max(historyWithRepeated.repeatCount) as repeatCount,
+			max(h.date) as maxDate
 			FROM %1$s AS h
 
 			INNER JOIN (
@@ -323,7 +324,7 @@ class Log_Query {
 			%4$s
 			
 			GROUP BY historyWithRepeated.repeated
-			ORDER by maxId DESC
+			ORDER by maxDate DESC, maxId DESC
 
 			# Limit
 			%5$s
@@ -389,7 +390,7 @@ class Log_Query {
 				%2$s
 			) AS max_ids_and_count ON simple_history_1.id = max_ids_and_count.maxId
 
-			ORDER BY simple_history_1.id DESC
+			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 			## END SQL_STATEMENT_LOG_ROWS
 
 		';
@@ -442,7 +443,7 @@ class Log_Query {
 				%2$s
 			) AS max_ids_and_count ON simple_history_1.id = max_ids_and_count.maxId
 
-			ORDER BY simple_history_1.id DESC
+			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 			## END SQL_STATEMENT_LOG_ROWS
 		';
 
@@ -603,7 +604,7 @@ class Log_Query {
 			# Where
 			%1$s
 			
-			ORDER BY id DESC
+			ORDER BY date DESC, id DESC
 			%2$s
 		';
 
@@ -1069,7 +1070,7 @@ class Log_Query {
 						SELECT id, date, occasionsID
 						FROM %1$s
 						WHERE id <= %2$d
-						ORDER BY id DESC
+						ORDER BY date DESC, id DESC
 						LIMIT %3$d
 					',
 				$events_table_name,
