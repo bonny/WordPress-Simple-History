@@ -145,7 +145,7 @@ class Existing_Data_Importer {
 					'post_type' => $post->post_type,
 					'post_title' => $post->post_title,
 					'_date' => $post->post_date_gmt,
-					'_imported_event' => true,
+					'_imported_event' => '1',
 				];
 
 				// Set initiator to post author if available.
@@ -176,7 +176,7 @@ class Existing_Data_Importer {
 					'post_type' => $post->post_type,
 					'post_title' => $post->post_title,
 					'_date' => $post->post_modified_gmt,
-					'_imported_event' => true,
+					'_imported_event' => '1',
 				];
 
 				// Set initiator to post author if available.
@@ -269,7 +269,7 @@ class Existing_Data_Importer {
 					'created_user_role' => implode( ', ', (array) $user->roles ),
 					'_date' => get_date_from_gmt( $user->user_registered ),
 					'_initiator' => Log_Initiators::OTHER,
-					'_imported_event' => true,
+					'_imported_event' => '1',
 				]
 			);
 
@@ -316,7 +316,7 @@ class Existing_Data_Importer {
 		$contexts_table = $this->simple_history->get_contexts_table_name();
 
 		// Find events with:
-		// - _imported_event = true (imported marker).
+		// - _imported_event = '1' (imported marker).
 		// - post_id in our list.
 		// - _message_key = post_created or post_updated.
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
@@ -328,7 +328,7 @@ class Existing_Data_Importer {
 			WHERE c1.key = 'post_id'
 			  AND c1.value IN (" . implode( ',', array_map( 'intval', $post_ids ) ) . ")
 			  AND c2.key = '_imported_event'
-			  AND c2.value = 'true'
+			  AND c2.value = '1'
 			  AND c3.key = '_message_key'
 			  AND c3.value = %s",
 			$message_key
@@ -354,7 +354,7 @@ class Existing_Data_Importer {
 		$contexts_table = $this->simple_history->get_contexts_table_name();
 
 		// Find events with:
-		// - _imported_event = true (imported marker).
+		// - _imported_event = '1' (imported marker).
 		// - created_user_id in our list.
 		// - _message_key = user_created.
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
@@ -365,7 +365,7 @@ class Existing_Data_Importer {
 			WHERE c1.key = 'created_user_id'
 			  AND c1.value IN (" . implode( ',', array_map( 'intval', $user_ids ) ) . ")
 			  AND c2.key = '_imported_event'
-			  AND c2.value = 'true'
+			  AND c2.value = '1'
 			  AND c3.key = '_message_key'
 			  AND c3.value = 'user_created'";
 
