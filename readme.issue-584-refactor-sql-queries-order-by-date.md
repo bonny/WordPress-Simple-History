@@ -1,9 +1,11 @@
 # Issue #584: Support date-based ordering for imported historical data
 
-**Status**: ✅ **COMPLETED**
+**Status**: ✅ **COMPLETED** (with follow-up issue identified)
 **Branch**: `issue-584-refactor-sql-queries-order-by-date`
 **Issue URL**: https://github.com/bonny/WordPress-Simple-History/issues/584
-**Related**: Issue #583 (Import existing data feature)
+**Related Issues**:
+- Issue #583 (Import existing data feature)
+- **Issue #585** (Follow-up: Fix has-updates API for backdated events) - See `readme.issue-585-fix-has-updates-date-logic.md`
 
 ## ⭐ DECISION: Approach 2 (Global Date Ordering) - APPROVED & IMPLEMENTED
 
@@ -527,3 +529,13 @@ Issue #584 is **fully resolved**. The refactoring from `ORDER BY id DESC` to `OR
 5. Zero data loss - comprehensive integrity tests confirm all events accessible
 
 **Ready for production deployment.** 🎉
+
+### Known Follow-up Issue
+
+During testing, we discovered that the `has-updates` API endpoint (used for "new events" notifications) still uses ID-based logic and needs to be updated to use date-based logic. This causes false "new events" notifications for manually backdated entries.
+
+**Impact**: Low - UI shows incorrect new event count for backdated entries, but no data loss or functionality issues.
+
+**Status**: Documented in **Issue #585** with complete solution plan.
+
+**Can be fixed**: In same branch before merging, or as follow-up PR.
