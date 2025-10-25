@@ -46,7 +46,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		if ( ! $preview_promotion && $now > $end_date ) {
 			return;
 		}
-	
+
 		?>
 		<!--
 		Insert promo:
