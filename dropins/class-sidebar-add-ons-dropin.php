@@ -28,7 +28,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		}
 
 		// If true then always show promotion, regardless of date.
-		$preview_promotion = true;
+		$preview_promotion = isset( $_GET['sh_preview_promotion'] );
 
 		// Get current date/time in the site's timezone.
 		$now = current_datetime();
