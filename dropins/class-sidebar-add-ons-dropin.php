@@ -48,20 +48,20 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		}
 
 		?>
-		<!--
-		Insert promo:
-		Headline: "Export Logs, Keep History Longer & Add Custom Events 🛍️"
-		Body: "Don't lose important history after 60 days. Premium keeps your logs as long as you need, plus adds exports, custom events, and powerful filtering. Save 30% (ends December 1)."
-		Promo code: BLACKWEEK30
-		Link to: https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_content=black-week-sale-sidebar
-		-->
-		<div class="postbox sh-PremiumFeaturesPostbox" style="--box-bg-color: var(--sh-color-pink-light);">
+		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
+				<img style="width: 80px; max-width: 100%; margin: 0 auto; display: block; margin-bottom: 1rem;" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/black-week-2025.svg' ); ?>" alt="Black Week Sale" />
+
 				<p style="margin: 0; font-size: 1rem; font-weight: bold;">
-					<?php esc_html_e( 'Export Logs, Keep History Longer & Add Custom Events 🛍️', 'simple-history' ); ?>
+					<?php esc_html_e( 'Black Week Sale: Premium Features at 30% Off', 'simple-history' ); ?>
 				</p>
 
-				<p>Don't lose important history after 60 days. Premium keeps your logs as long as you need, plus adds exports, custom events, and powerful filtering. Save 30% (ends December 1).</p>
+				<p>Don't lose important history after 60 days. 
+					<strong>Simple History Premium</strong> keeps your logs as long as you need, plus adds exports, custom events, and more. 
+				</p>
+				<p>
+					Save 30% with code <strong>BLACKWEEK30</strong> (ends December 1 2025.)
+				</p>
 
 				<p>
 					<a
@@ -71,10 +71,6 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 						>
 						<?php esc_html_e( 'Get Premium Now', 'simple-history' ); ?>
 					</a>
-				</p>
-
-				<p style="margin: .5rem 0 0 0; text-align: center; font-size: var(--sh-font-size-small); color: var(--sh-color-black-2);">
-					<?php esc_html_e( 'Use code', 'simple-history' ); ?> <strong>BLACKWEEK30</strong> <?php esc_html_e( 'at checkout', 'simple-history' ); ?>
 				</p>
 			</div>
 
