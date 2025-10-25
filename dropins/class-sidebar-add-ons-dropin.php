@@ -27,33 +27,54 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			return;
 		}
 
-		// Hide if date is after January 31 2025.
-		if ( time() > strtotime( '2025-01-31' ) ) {
+		// If true then always show promotion, regardless of date.
+		$preview_promotion = true;
+
+		// Get current date/time in the site's timezone.
+		$now = current_datetime();
+
+		// Define promotion start and end dates in the site's timezone.
+		$start_date = new \DateTimeImmutable( '2025-11-23 00:00:00', wp_timezone() );
+		$end_date = new \DateTimeImmutable( '2025-12-01 23:59:59', wp_timezone() );
+
+		// Hide if before start date.
+		if ( ! $preview_promotion && $now < $start_date ) {
 			return;
 		}
 
+		// Hide if after end date.
+		if ( ! $preview_promotion && $now > $end_date ) {
+			return;
+		}
+	
 		?>
-		<!-- 
+		<!--
 		Insert promo:
-		"Our New Year's Sale is Here - 50% Off All Add-Ons 🙀".
-		Link to: https://simple-history.com/add-ons/?utm_source=wordpress_admin&utm_content=new-year-sale-sidebar
+		Headline: "Export Logs, Keep History Longer & Add Custom Events 🛍️"
+		Body: "Don't lose important history after 60 days. Premium keeps your logs as long as you need, plus adds exports, custom events, and powerful filtering. Save 30% (ends December 1)."
+		Promo code: BLACKWEEK30
+		Link to: https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_content=black-week-sale-sidebar
 		-->
-		<div class="postbox">
-			<div class="inside" style="background-color: var(--sh-color-pink-light); padding: 1rem; margin-top: 0;">
+		<div class="postbox sh-PremiumFeaturesPostbox" style="--box-bg-color: var(--sh-color-pink-light);">
+			<div class="inside">
 				<p style="margin: 0; font-size: 1rem; font-weight: bold;">
-					<?php esc_html_e( 'Our New Year\'s Sale is Here - 50% Off All Add-Ons 🙀', 'simple-history' ); ?>
+					<?php esc_html_e( 'Export Logs, Keep History Longer & Add Custom Events 🛍️', 'simple-history' ); ?>
 				</p>
 
-				<p>Hurry - this sale ends January 31.</p>
-				
+				<p>Don't lose important history after 60 days. Premium keeps your logs as long as you need, plus adds exports, custom events, and powerful filtering. Save 30% (ends December 1).</p>
+
 				<p>
-					<a 
+					<a
 						class="sh-PremiumFeaturesPostbox-button"
-						href="https://simple-history.com/add-ons/?utm_source=wordpress_admin&utm_content=new-year-sale-sidebar" 
+						href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_content=black-week-sale-sidebar"
 						target="_blank"
 						>
-						<?php esc_html_e( 'Get Add-Ons Now', 'simple-history' ); ?>
+						<?php esc_html_e( 'Get Premium Now', 'simple-history' ); ?>
 					</a>
+				</p>
+
+				<p style="margin: .5rem 0 0 0; text-align: center; font-size: var(--sh-font-size-small); color: var(--sh-color-black-2);">
+					<?php esc_html_e( 'Use code', 'simple-history' ); ?> <strong>BLACKWEEK30</strong> <?php esc_html_e( 'at checkout', 'simple-history' ); ?>
 				</p>
 			</div>
 
