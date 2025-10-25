@@ -47,19 +47,37 @@ The `on_sidebar_html_sale_promo()` method currently shows a New Year's sale prom
 
 **File Modified:** `dropins/class-sidebar-add-ons-dropin.php`
 
-1. **Date Range (lines 30-38):** Updated to show promo only between November 24 - December 1, 2025
-2. **Message (line 49):** Changed to "Black Week is Here - 30% Off All Add-Ons 🛍️"
-3. **Urgency Text (line 52):** Updated to "Hurry - this sale ends December 1."
-4. **UTM Parameters (line 57):** Changed to `utm_content=black-week-sale-sidebar`
+1. **Preview Mode (line 26):** Added `$preview_promotion` variable - set to `true` to test promo outside date range
+2. **Date Range (lines 33-50):** Updated to use WordPress timezone-aware functions:
+   - Uses `current_datetime()` and `wp_timezone()` instead of `time()` and `strtotime()`
+   - Respects site's timezone setting from Settings > General
+   - Active November 24, 2025 00:00:00 through December 1, 2025 23:59:59
+3. **Headline (line 54):** Value-focused copy: "Export Logs, Keep History Longer & Add Custom Events 🛍️"
+4. **Body Copy (line 57):** Pain-point driven text addressing the 60-day retention limit
+5. **Promo Code (line 70):** Displays "Use code BLACKWEEK30 at checkout" below the button
+6. **Button & Link (lines 60-66):**
+   - Button text: "Get Premium Now"
+   - Links directly to `/add-ons/premium/` (not general add-ons page)
+   - UTM parameter: `utm_content=black-week-sale-sidebar`
+
+### Final Promotional Copy
+
+**Headline:** Export Logs, Keep History Longer & Add Custom Events 🛍️
+
+**Body:** Don't lose important history after 60 days. Premium keeps your logs as long as you need, plus adds exports, custom events, and powerful filtering. Save 30% (ends December 1).
+
+**Promo Code:** BLACKWEEK30
+
+**Button:** Get Premium Now
 
 ### Expected Result
 
-The pink promotional box will appear in the sidebar of the Simple History admin page during Black Week (Nov 24 - Dec 1, 2025) promoting the 30% discount. It maintains the same visual style as the New Year's promotion.
+The pink promotional box will appear in the sidebar of the Simple History admin page during Black Week (Nov 24 - Dec 1, 2025), using the site's configured timezone. The promotion focuses on Premium add-on value first, discount second.
 
 ## Notes
 
-- The promotion should be visible but not annoying to users
-- Follow the project's upsell philosophy: "discreetly nudge" users to upgrade without being pushy
-- The sidebar promotion is already implemented and just needs content updates
-- Current implementation hides the promo if Premium add-on is active (which is correct)
-- **Next Step:** Create the 30% discount code in Lemon Squeezy before Black Week starts
+- The promotion follows the non-intrusive upsell philosophy
+- Hides automatically if Premium add-on is active
+- Discount code `BLACKWEEK30` has been created in Lemon Squeezy (30% off, Nov 24 - Dec 1, 2025)
+- Uses modern WordPress timezone functions for accurate date handling across all timezones
+- Set `$preview_promotion = true` on line 26 to test the promo before November 24th
