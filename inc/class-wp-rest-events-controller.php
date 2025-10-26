@@ -77,6 +77,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 							'default' => 'info',
 							'description' => 'Log level',
 						),
+						'date' => array(
+							'type' => 'string',
+							'format' => 'date-time',
+							'description' => 'Date and time for the event in MySQL datetime format (Y-m-d H:i:s). If not provided, current time will be used.',
+						),
 					),
 				],
 				'schema'      => [ $this, 'get_public_item_schema' ],
@@ -979,6 +984,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		$message = $request->get_param( 'message' );
 		$note = $request->get_param( 'note' );
 		$level = $request->get_param( 'level' ) ?? 'info';
+		$date = $request->get_param( 'date' );
 
 		if ( ! Log_Levels::is_valid_level( $level ) ) {
 			return new WP_Error(
@@ -986,6 +992,19 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				__( 'Invalid log level specified.', 'simple-history' ),
 				array( 'status' => 400 )
 			);
+		}
+
+		// Validate date format if provided.
+		if ( ! empty( $date ) ) {
+			// Check if date is in valid MySQL datetime format (Y-m-d H:i:s).
+			$parsed_date = \DateTime::createFromFormat( 'Y-m-d H:i:s', $date );
+			if ( ! $parsed_date || $parsed_date->format( 'Y-m-d H:i:s' ) !== $date ) {
+				return new WP_Error(
+					'rest_invalid_date',
+					__( 'Invalid date format. Please use Y-m-d H:i:s format (e.g., 2024-01-15 14:30:00).', 'simple-history' ),
+					array( 'status' => 400 )
+				);
+			}
 		}
 
 		$logger = $this->simple_history->get_instantiated_logger_by_slug( 'CustomEntryLogger' );
@@ -1003,6 +1022,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( ! empty( $note ) ) {
 			$context['note'] = $note;
+		}
+
+		// Add custom date if provided.
+		// The _date context parameter is handled by the logger
+		// and will override the default current timestamp.
+		if ( ! empty( $date ) ) {
+			$context['_date'] = $date;
 		}
 
 		$method = $level . '_message';
