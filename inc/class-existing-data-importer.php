@@ -256,17 +256,13 @@ class Existing_Data_Importer {
 			}
 
 			// Log user registration with original registration date.
-			// Use the same message key and context format as User_Logger.
+			// Only store immutable data (user_id and user_login).
+			// Don't store email, names, URL, or role as these may have changed since registration.
 			$user_logger->info_message(
 				'user_created',
 				[
 					'created_user_id' => $user->ID,
-					'created_user_email' => $user->user_email,
 					'created_user_login' => $user->user_login,
-					'created_user_first_name' => $user->first_name,
-					'created_user_last_name' => $user->last_name,
-					'created_user_url' => $user->user_url,
-					'created_user_role' => implode( ', ', (array) $user->roles ),
 					'_date' => get_date_from_gmt( $user->user_registered ),
 					'_initiator' => Log_Initiators::OTHER,
 					'_imported_event' => '1',
