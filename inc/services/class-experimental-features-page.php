@@ -70,8 +70,10 @@ class Experimental_Features_Page extends Service {
 		$import_completed = isset( $_GET['import_completed'] ) && $_GET['import_completed'] === '1';
 		$posts_imported = isset( $_GET['posts_imported'] ) ? intval( $_GET['posts_imported'] ) : 0;
 		$users_imported = isset( $_GET['users_imported'] ) ? intval( $_GET['users_imported'] ) : 0;
-		$posts_skipped = isset( $_GET['posts_skipped'] ) ? intval( $_GET['posts_skipped'] ) : 0;
-		$users_skipped = isset( $_GET['users_skipped'] ) ? intval( $_GET['users_skipped'] ) : 0;
+		$posts_skipped_imported = isset( $_GET['posts_skipped_imported'] ) ? intval( $_GET['posts_skipped_imported'] ) : 0;
+		$posts_skipped_logged = isset( $_GET['posts_skipped_logged'] ) ? intval( $_GET['posts_skipped_logged'] ) : 0;
+		$users_skipped_imported = isset( $_GET['users_skipped_imported'] ) ? intval( $_GET['users_skipped_imported'] ) : 0;
+		$users_skipped_logged = isset( $_GET['users_skipped_logged'] ) ? intval( $_GET['users_skipped_logged'] ) : 0;
 
 		?>
 		<div class="wrap">
@@ -82,23 +84,57 @@ class Experimental_Features_Page extends Service {
 					<p>
 						<strong><?php esc_html_e( 'Import completed!', 'simple-history' ); ?></strong><br>
 						<?php
-						if ( $posts_skipped > 0 || $users_skipped > 0 ) {
-							printf(
-								/* translators: 1: Number of posts imported, 2: Number of posts skipped, 3: Number of users imported, 4: Number of users skipped */
-								esc_html__( 'Imported %1$d posts (skipped %2$d already imported) and %3$d users (skipped %4$d already imported).', 'simple-history' ),
-								(int) $posts_imported,
-								(int) $posts_skipped,
-								(int) $users_imported,
-								(int) $users_skipped
-							);
-						} else {
-							printf(
-								/* translators: 1: Number of posts imported, 2: Number of users imported */
-								esc_html__( 'Imported %1$d posts and %2$d users into the history log.', 'simple-history' ),
-								(int) $posts_imported,
-								(int) $users_imported
-							);
+						$has_skips = $posts_skipped_imported > 0 || $posts_skipped_logged > 0 || $users_skipped_imported > 0 || $users_skipped_logged > 0;
+
+						// Build message with imported counts.
+						$message = sprintf(
+							/* translators: 1: Number of posts imported, 2: Number of users imported */
+							esc_html__( 'Imported %1$d posts and %2$d users', 'simple-history' ),
+							(int) $posts_imported,
+							(int) $users_imported
+						);
+
+						// Add skip details if any.
+						if ( $has_skips ) {
+							$skip_parts = [];
+
+							if ( $posts_skipped_imported > 0 ) {
+								$skip_parts[] = sprintf(
+									/* translators: %d: Number of posts */
+									esc_html__( '%d posts already imported', 'simple-history' ),
+									(int) $posts_skipped_imported
+								);
+							}
+
+							if ( $posts_skipped_logged > 0 ) {
+								$skip_parts[] = sprintf(
+									/* translators: %d: Number of posts */
+									esc_html__( '%d posts already in history', 'simple-history' ),
+									(int) $posts_skipped_logged
+								);
+							}
+
+							if ( $users_skipped_imported > 0 ) {
+								$skip_parts[] = sprintf(
+									/* translators: %d: Number of users */
+									esc_html__( '%d users already imported', 'simple-history' ),
+									(int) $users_skipped_imported
+								);
+							}
+
+							if ( $users_skipped_logged > 0 ) {
+								$skip_parts[] = sprintf(
+									/* translators: %d: Number of users */
+									esc_html__( '%d users already in history', 'simple-history' ),
+									(int) $users_skipped_logged
+								);
+							}
+
+							$message .= ' (' . esc_html__( 'skipped: ', 'simple-history' ) . implode( ', ', $skip_parts ) . ')';
 						}
+
+						$message .= '.';
+						echo esc_html( $message );
 						?>
 					</p>
 				</div>
@@ -317,8 +353,10 @@ class Experimental_Features_Page extends Service {
 				'import_completed' => '1',
 				'posts_imported' => $results['posts_imported'],
 				'users_imported' => $results['users_imported'],
-				'posts_skipped' => $results['posts_skipped'],
-				'users_skipped' => $results['users_skipped'],
+				'posts_skipped_imported' => $results['posts_skipped_imported'],
+				'posts_skipped_logged' => $results['posts_skipped_logged'],
+				'users_skipped_imported' => $results['users_skipped_imported'],
+				'users_skipped_logged' => $results['users_skipped_logged'],
 			],
 			admin_url( 'admin.php' )
 		);

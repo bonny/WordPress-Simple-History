@@ -50,8 +50,10 @@ class Existing_Data_Importer {
 		$this->results = [
 			'posts_imported' => 0,
 			'users_imported' => 0,
-			'posts_skipped' => 0,
-			'users_skipped' => 0,
+			'posts_skipped_imported' => 0,
+			'posts_skipped_logged' => 0,
+			'users_skipped_imported' => 0,
+			'users_skipped_logged' => 0,
 			'posts_details' => [],
 			'users_details' => [],
 			'skipped_details' => [],
@@ -100,12 +102,13 @@ class Existing_Data_Importer {
 		// Get all post IDs to check for duplicates.
 		$post_ids = wp_list_pluck( $posts, 'ID' );
 
-		// Check which posts have already been imported.
-		$already_imported_created = $this->get_already_imported_post_ids( $post_ids, 'post_created' );
-		$already_imported_updated = $this->get_already_imported_post_ids( $post_ids, 'post_updated' );
+		// Check which posts have already been logged (imported or naturally).
+		$already_logged_created = $this->get_already_logged_post_ids( $post_ids, 'post_created' );
+		$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, 'post_updated' );
 
 		$imported_count = 0;
-		$skipped_count = 0;
+		$skipped_imported_count = 0;
+		$skipped_logged_count = 0;
 
 		foreach ( $posts as $post ) {
 			$post_detail = [
@@ -118,20 +121,30 @@ class Existing_Data_Importer {
 				'events_logged' => [],
 			];
 
-			$has_created = in_array( (string) $post->ID, $already_imported_created, true );
-			$has_updated = in_array( (string) $post->ID, $already_imported_updated, true );
+			$has_created = isset( $already_logged_created[ (string) $post->ID ] );
+			$has_updated = isset( $already_logged_updated[ (string) $post->ID ] );
 			$post_has_updates = $post->post_date_gmt !== $post->post_modified_gmt;
 
 			// Skip if both events already exist (or just created if no updates).
 			if ( $has_created && ( ! $post_has_updates || $has_updated ) ) {
+				// Determine if this was imported or naturally logged.
+				// If created event is imported, count as imported. Otherwise naturally logged.
+				$is_imported = $already_logged_created[ (string) $post->ID ]['is_imported'];
+				$skip_reason = $is_imported ? 'already_imported' : 'already_logged';
+
 				$this->results['skipped_details'][] = [
 					'type' => 'post',
 					'id' => $post->ID,
 					'title' => $post->post_title,
 					'post_type' => $post->post_type,
-					'reason' => 'already_imported',
+					'reason' => $skip_reason,
 				];
-				$skipped_count++;
+
+				if ( $is_imported ) {
+					$skipped_imported_count++;
+				} else {
+					$skipped_logged_count++;
+				}
 				continue;
 			}
 
@@ -205,7 +218,8 @@ class Existing_Data_Importer {
 		}
 
 		$this->results['posts_imported'] += $imported_count;
-		$this->results['posts_skipped'] += $skipped_count;
+		$this->results['posts_skipped_imported'] += $skipped_imported_count;
+		$this->results['posts_skipped_logged'] += $skipped_logged_count;
 
 		return $imported_count;
 	}
@@ -236,22 +250,31 @@ class Existing_Data_Importer {
 		// Get all user IDs to check for duplicates.
 		$user_ids = wp_list_pluck( $users, 'ID' );
 
-		// Check which users have already been imported.
-		$already_imported = $this->get_already_imported_user_ids( $user_ids );
+		// Check which users have already been logged (imported or naturally).
+		$already_logged = $this->get_already_logged_user_ids( $user_ids );
 
 		$imported_count = 0;
-		$skipped_count = 0;
+		$skipped_imported_count = 0;
+		$skipped_logged_count = 0;
 
 		foreach ( $users as $user ) {
-			// Skip if already imported.
-			if ( in_array( (string) $user->ID, $already_imported, true ) ) {
+			// Skip if already logged (imported or naturally).
+			if ( isset( $already_logged[ (string) $user->ID ] ) ) {
+				$is_imported = $already_logged[ (string) $user->ID ]['is_imported'];
+				$skip_reason = $is_imported ? 'already_imported' : 'already_logged';
+
 				$this->results['skipped_details'][] = [
 					'type' => 'user',
 					'id' => $user->ID,
 					'login' => $user->user_login,
-					'reason' => 'already_imported',
+					'reason' => $skip_reason,
 				];
-				$skipped_count++;
+
+				if ( $is_imported ) {
+					$skipped_imported_count++;
+				} else {
+					$skipped_logged_count++;
+				}
 				continue;
 			}
 
@@ -281,7 +304,8 @@ class Existing_Data_Importer {
 		}
 
 		$this->results['users_imported'] += $imported_count;
-		$this->results['users_skipped'] += $skipped_count;
+		$this->results['users_skipped_imported'] += $skipped_imported_count;
+		$this->results['users_skipped_logged'] += $skipped_logged_count;
 
 		return $imported_count;
 	}
@@ -296,13 +320,15 @@ class Existing_Data_Importer {
 	}
 
 	/**
-	 * Get post IDs that have already been imported.
+	 * Get post IDs that have already been logged (imported or naturally).
+	 *
+	 * Returns array with post_id as key and info about whether it was imported.
 	 *
 	 * @param array  $post_ids Post IDs to check.
 	 * @param string $message_key Message key (post_created or post_updated).
-	 * @return array Post IDs that were already imported.
+	 * @return array Array with post_id => ['is_imported' => 0|1].
 	 */
-	private function get_already_imported_post_ids( $post_ids, $message_key ) {
+	private function get_already_logged_post_ids( $post_ids, $message_key ) {
 		global $wpdb;
 
 		if ( empty( $post_ids ) ) {
@@ -311,36 +337,45 @@ class Existing_Data_Importer {
 
 		$contexts_table = $this->simple_history->get_contexts_table_name();
 
-		// Find events with:
-		// - _imported_event = '1' (imported marker).
-		// - post_id in our list.
-		// - _message_key = post_created or post_updated.
+		// Find events with matching post_id and message_key.
+		// Use LEFT JOIN to detect if _imported_event exists (1 = imported, 0 = naturally logged).
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 		$sql = $wpdb->prepare(
-			"SELECT DISTINCT c1.value as post_id
+			"SELECT DISTINCT
+				c1.value as post_id,
+				MAX(CASE WHEN c2.key = '_imported_event' THEN 1 ELSE 0 END) as is_imported
 			FROM {$contexts_table} c1
-			INNER JOIN {$contexts_table} c2 ON c1.history_id = c2.history_id
+			LEFT JOIN {$contexts_table} c2 ON c1.history_id = c2.history_id AND c2.key = '_imported_event'
 			INNER JOIN {$contexts_table} c3 ON c1.history_id = c3.history_id
 			WHERE c1.key = 'post_id'
 			  AND c1.value IN (" . implode( ',', array_map( 'intval', $post_ids ) ) . ")
-			  AND c2.key = '_imported_event'
-			  AND c2.value = '1'
 			  AND c3.key = '_message_key'
-			  AND c3.value = %s",
+			  AND c3.value = %s
+			GROUP BY c1.value",
 			$message_key
 		);
 
-		return $wpdb->get_col( $sql );
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+
+		// Convert to associative array: post_id => ['is_imported' => 0|1].
+		$post_status = [];
+		foreach ( $results as $row ) {
+			$post_status[ $row['post_id'] ] = [ 'is_imported' => (int) $row['is_imported'] ];
+		}
+
+		return $post_status;
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 	}
 
 	/**
-	 * Get user IDs that have already been imported.
+	 * Get user IDs that have already been logged (imported or naturally).
+	 *
+	 * Returns array with user_id as key and info about whether it was imported.
 	 *
 	 * @param array $user_ids User IDs to check.
-	 * @return array User IDs that were already imported.
+	 * @return array Array with user_id => ['is_imported' => 0|1].
 	 */
-	private function get_already_imported_user_ids( $user_ids ) {
+	private function get_already_logged_user_ids( $user_ids ) {
 		global $wpdb;
 
 		if ( empty( $user_ids ) ) {
@@ -349,23 +384,30 @@ class Existing_Data_Importer {
 
 		$contexts_table = $this->simple_history->get_contexts_table_name();
 
-		// Find events with:
-		// - _imported_event = '1' (imported marker).
-		// - created_user_id in our list.
-		// - _message_key = user_created.
+		// Find events with matching created_user_id.
+		// Use LEFT JOIN to detect if _imported_event exists (1 = imported, 0 = naturally logged).
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-		$sql = "SELECT DISTINCT c1.value as user_id
+		$sql = "SELECT DISTINCT
+				c1.value as user_id,
+				MAX(CASE WHEN c2.key = '_imported_event' THEN 1 ELSE 0 END) as is_imported
 			FROM {$contexts_table} c1
-			INNER JOIN {$contexts_table} c2 ON c1.history_id = c2.history_id
+			LEFT JOIN {$contexts_table} c2 ON c1.history_id = c2.history_id AND c2.key = '_imported_event'
 			INNER JOIN {$contexts_table} c3 ON c1.history_id = c3.history_id
 			WHERE c1.key = 'created_user_id'
 			  AND c1.value IN (" . implode( ',', array_map( 'intval', $user_ids ) ) . ")
-			  AND c2.key = '_imported_event'
-			  AND c2.value = '1'
 			  AND c3.key = '_message_key'
-			  AND c3.value = 'user_created'";
+			  AND c3.value = 'user_created'
+			GROUP BY c1.value";
 
-		return $wpdb->get_col( $sql );
+		$results = $wpdb->get_results( $sql, ARRAY_A );
+
+		// Convert to associative array: user_id => ['is_imported' => 0|1].
+		$user_status = [];
+		foreach ( $results as $row ) {
+			$user_status[ $row['user_id'] ] = [ 'is_imported' => (int) $row['is_imported'] ];
+		}
+
+		return $user_status;
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 	}
 
