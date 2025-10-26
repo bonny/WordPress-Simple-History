@@ -85,6 +85,7 @@ The information available in WordPress for historical events is limited, but we 
 - Unlocks ability to import **all historical posts/pages**
 - Same simple one-click experience, just no limits
 - Shows count: "Import 2,847 more historical posts"
+- Optionally importing more means that there is less risk of the log being too long and causing performance issues.
 - That's it. No fancy features needed - just removes the limit.
 
 **Value**:
@@ -198,11 +199,11 @@ Available WordPress data to import:
     - Reads from `event.imported` field provided by REST API
   - **REST API** (`inc/class-wp-rest-events-controller.php`):
     - Added `imported` field to event schema (line 579-582)
-    - Field included in `prepare_item_for_response()` (line 926-929)
-    - Returns boolean: `true` if `_imported_event` context is set, `false` otherwise
-    - Handles both boolean `true` and string `'true'` values from context
+    - Field included in `prepare_item_for_response()` (line 953-955)
+    - Returns boolean: `true` if `_imported_event` context key exists, `false` otherwise
+    - Simply checks for key existence using `isset()` - any truthy value works
     - Field requested via `_fields` parameter (`src/functions.js:68`)
-  - **Detection**: Checks for `_imported_event: true` (or string 'true') in event context
+  - **Detection**: Checks for existence of `_imported_event` context key (set to '1' by importer)
   - **UX**: Subtle, informative, doesn't overwhelm when many imported events visible
 
 - ✅ **Should we import post revisions?**
