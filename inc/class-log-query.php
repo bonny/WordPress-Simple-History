@@ -826,8 +826,16 @@ class Log_Query {
 		}
 
 		// "since_date" must be valid date string in format Y-m-d H:i:s.
-		if ( isset( $args['since_date'] ) && ! is_string( $args['since_date'] ) ) {
-			throw new \InvalidArgumentException( 'Invalid since_date' );
+		if ( isset( $args['since_date'] ) ) {
+			if ( ! is_string( $args['since_date'] ) ) {
+				throw new \InvalidArgumentException( 'Invalid since_date: must be a string' );
+			}
+
+			// Strict format validation to prevent SQL injection.
+			$parsed_date = \DateTime::createFromFormat( 'Y-m-d H:i:s', $args['since_date'] );
+			if ( ! $parsed_date || $parsed_date->format( 'Y-m-d H:i:s' ) !== $args['since_date'] ) {
+				throw new \InvalidArgumentException( 'Invalid since_date format. Use Y-m-d H:i:s (e.g., 2024-01-15 14:30:00)' );
+			}
 		}
 
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
@@ -1228,11 +1236,11 @@ class Log_Query {
 		// - Events with date > since_date (newer date).
 		// - OR events with date = since_date AND id > since_id (same date but higher ID).
 		if ( isset( $args['since_date'] ) && isset( $args['since_id'] ) ) {
-			$inner_where[] = sprintf(
+			$inner_where[] = $wpdb->prepare(
 				'(date > %s OR (date = %s AND id > %d))',
-				$wpdb->prepare( '%s', $args['since_date'] ),
-				$wpdb->prepare( '%s', $args['since_date'] ),
-				(int) $args['since_id']
+				$args['since_date'],
+				$args['since_date'],
+				$args['since_id']
 			);
 		} elseif ( isset( $args['since_id'] ) ) {
 			// Fallback to ID-only for backward compatibility
@@ -1365,50 +1373,42 @@ class Log_Query {
 		// "loglevels", array with loglevels.
 		// e.g. info, debug, and so on.
 		if ( ! empty( $args['loglevels'] ) ) {
-			$sql_loglevels = '';
-
-			foreach ( $args['loglevels'] as $one_loglevel ) {
-				$sql_loglevels .= sprintf( ' \'%s\', ', esc_sql( $one_loglevel ) );
-			}
-
-			// Remove last comma.
-			$sql_loglevels = rtrim( $sql_loglevels, ' ,' );
-
-			// Add to where in clause.
-			$inner_where[] = "level IN ({$sql_loglevels})";
+			// Create placeholders for prepared statement.
+			$placeholders = implode( ', ', array_fill( 0, count( $args['loglevels'] ), '%s' ) );
+			$inner_where[] = $wpdb->prepare(
+				"level IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				...$args['loglevels']
+			);
 		}
 
 		// loggers, comma separated or array.
 		// Example REST API call: /wp-json/simple-history/v1/events?per_page=10&page=1&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger.
 		if ( ! empty( $args['loggers'] ) ) {
-			$sql_loggers = '';
-
-			foreach ( $args['loggers'] as $one_logger ) {
-				$sql_loggers .= sprintf( ' "%s", ', esc_sql( $one_logger ) );
-			}
-
-			// Remove last comma.
-			$sql_loggers = rtrim( $sql_loggers, ' ,' );
-
-			// Add to where in clause.
-			$inner_where[] = "logger IN ({$sql_loggers}) ";
+			// Create placeholders for prepared statement.
+			$placeholders = implode( ', ', array_fill( 0, count( $args['loggers'] ), '%s' ) );
+			$inner_where[] = $wpdb->prepare(
+				"logger IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				...$args['loggers']
+			);
 		}
 
 		// Add where for a single user ID.
 		if ( isset( $args['user'] ) ) {
-			$inner_where[] = sprintf(
-				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'_user_id\' AND c.value = %2$s )',
-				$contexts_table_name, // 1
-				$args['user'], // 2
+			$inner_where[] = $wpdb->prepare(
+				'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'_user_id',
+				$args['user']
 			);
 		}
 
 		// Users, array with user ids.
 		if ( isset( $args['users'] ) ) {
-			$inner_where[] = sprintf(
-				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'_user_id\' AND c.value IN (%2$s) )',
-				$contexts_table_name, // 1
-				implode( ',', $args['users'] ), // 2
+			// Create placeholders for prepared statement.
+			$placeholders = implode( ', ', array_fill( 0, count( $args['users'] ), '%s' ) );
+			$inner_where[] = $wpdb->prepare(
+				'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value IN (' . $placeholders . ') )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'_user_id',
+				...$args['users']
 			);
 		}
 
@@ -1441,11 +1441,10 @@ class Log_Query {
 		// Add where clause for context filters.
 		if ( ! empty( $args['context_filters'] ) && is_array( $args['context_filters'] ) ) {
 			foreach ( $args['context_filters'] as $context_key => $context_value ) {
-				$inner_where[] = sprintf(
-					'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'%2$s\' AND c.value = \'%3$s\' )',
-					$contexts_table_name,
-					esc_sql( $context_key ),
-					esc_sql( $context_value )
+				$inner_where[] = $wpdb->prepare(
+					'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					$context_key,
+					$context_value
 				);
 			}
 		}
@@ -1470,39 +1469,28 @@ class Log_Query {
 	 * @return array<string> Where clauses.
 	 */
 	protected function get_outer_where( $args ) {
+		global $wpdb;
+
 		$outer_where = [];
 
 		// messages.
 		if ( ! empty( $args['messages'] ) ) {
 			// Create sql where based on loggers and messages.
-			$sql_messages_where = '(';
+			$sql_messages_where_parts = [];
 
 			foreach ( $args['messages'] as $logger_slug => $logger_messages ) {
-				$sql_logger_messages_in = '';
+				// Create placeholders for prepared statement.
+				$placeholders = implode( ', ', array_fill( 0, count( $logger_messages ), '%s' ) );
 
-				foreach ( $logger_messages as $one_logger_message ) {
-					$sql_logger_messages_in .= sprintf( '\'%s\',', esc_sql( $one_logger_message ) );
-				}
-
-				$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
-				$sql_logger_messages_in = "\n AND context_message_key IN ({$sql_logger_messages_in}) ";
-
-				$sql_messages_where .= sprintf(
-					'
-					(
-						h.logger = \'%1$s\'
-						%2$s
-					)
-					OR ',
-					esc_sql( $logger_slug ),
-					$sql_logger_messages_in
+				$sql_messages_where_parts[] = $wpdb->prepare(
+					'(h.logger = %s AND context_message_key IN (' . $placeholders . '))', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					$logger_slug,
+					...$logger_messages
 				);
 			}
 
-			// Remove last 'OR '.
-			$sql_messages_where = preg_replace( '/OR $/', '', $sql_messages_where );
-
-			$sql_messages_where .= "\n )";
+			// Join all parts with OR.
+			$sql_messages_where = '(' . implode( ' OR ', $sql_messages_where_parts ) . ')';
 			$outer_where[] = $sql_messages_where;
 		} // End if().
 
