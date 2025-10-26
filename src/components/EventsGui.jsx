@@ -92,6 +92,9 @@ function EventsGUI() {
 	// Store the max id of the events. Used to check for new events.
 	const [ eventsMaxId, setEventsMaxId ] = useState();
 
+	// Store the max date of the events. Used together with maxId to check for new events.
+	const [ eventsMaxDate, setEventsMaxDate ] = useState();
+
 	// Store the previous max id of the events. Used to modify events in the list so user can see what events are new.
 	const [ prevEventsMaxId, setPrevEventsMaxId ] = useState();
 
@@ -310,13 +313,20 @@ function EventsGUI() {
 				link: eventsResponse.headers.get( 'Link' ),
 			} );
 
-			// To keep track of new events we need to store both old max id and new max id.
-			if ( eventsJson && eventsJson.length && page === 1 ) {
-				const firstEventThatIsNotSticky = eventsJson.find(
-					( event ) => ! event.sticky_appended
-				);
-				setEventsMaxId( firstEventThatIsNotSticky.id );
+		// To keep track of new events we need to store both old max id and new max id.
+		// Extract maxId and maxDate from response headers for accurate new event detection.
+		if ( eventsJson && eventsJson.length && page === 1 ) {
+			const maxId = eventsResponse.headers.get( 'X-SimpleHistory-MaxId' );
+			const maxDate = eventsResponse.headers.get( 'X-SimpleHistory-MaxDate' );
+
+			if ( maxId ) {
+				setEventsMaxId( parseInt( maxId, 10 ) );
 			}
+
+			if ( maxDate ) {
+				setEventsMaxDate( maxDate );
+			}
+		}
 
 			setEvents( eventsJson );
 		} catch ( error ) {
@@ -444,6 +454,7 @@ function EventsGUI() {
 			<NewEventsNotifier
 				eventsQueryParams={ eventsQueryParams }
 				eventsMaxId={ eventsMaxId }
+				eventsMaxDate={ eventsMaxDate }
 				onReload={ handleReload }
 			/>
 

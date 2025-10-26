@@ -130,7 +130,7 @@ class Log_Query {
 				1 AS subsequentOccasions
 			FROM %1$s AS simple_history_1
 			%2$s
-			ORDER BY simple_history_1.id DESC
+			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 			%3$s
 		';
 
@@ -175,7 +175,7 @@ class Log_Query {
 			SELECT count(*) as count
 			FROM %1$s AS simple_history_1
 			%2$s
-			ORDER BY simple_history_1.id DESC
+			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 		';
 
 		$sql_query_log_rows_count = sprintf(
@@ -194,14 +194,17 @@ class Log_Query {
 		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
 		$page_rows_to = $page_rows_from + $log_rows_count - 1;
 
-		// Get maxId and minId.
+		// Get maxId, minId, and maxDate.
 		// MaxId is the id of the first row in the result (i.e. the latest entry).
 		// MinId is the id of the last row in the result (i.e. the oldest entry).
+		// MaxDate is the date of the first row (for accurate new event detection with date ordering).
 		$min_id = null;
 		$max_id = null;
+		$max_date = null;
 		if ( sizeof( $result_log_rows ) > 0 ) {
 			$max_id = $result_log_rows[0]->id;
 			$min_id = $result_log_rows[ count( $result_log_rows ) - 1 ]->id;
+			$max_date = $result_log_rows[0]->date;
 		}
 
 		// Create array to return.
@@ -214,6 +217,7 @@ class Log_Query {
 			'page_rows_to' => $page_rows_to,
 			'max_id' => (int) $max_id,
 			'min_id' => (int) $min_id,
+			'max_date' => $max_date,
 			'log_rows_count' => $log_rows_count,
 			'log_rows' => $result_log_rows,
 		];
@@ -280,7 +284,7 @@ class Log_Query {
 			# Where statement.
 			%3$s
 
-			ORDER BY id DESC
+			ORDER BY date DESC, id DESC
 			## END INNER_SQL_QUERY_STATEMENT
 
 		';
@@ -312,7 +316,8 @@ class Log_Query {
 			SELECT 
 				max(h.id) as maxId,
 				min(h.id) as minId,
-				max(historyWithRepeated.repeatCount) as repeatCount
+				max(historyWithRepeated.repeatCount) as repeatCount,
+			max(h.date) as maxDate
 			FROM %1$s AS h
 
 			INNER JOIN (
@@ -323,7 +328,7 @@ class Log_Query {
 			%4$s
 			
 			GROUP BY historyWithRepeated.repeated
-			ORDER by maxId DESC
+			ORDER by maxDate DESC, maxId DESC
 
 			# Limit
 			%5$s
@@ -389,7 +394,7 @@ class Log_Query {
 				%2$s
 			) AS max_ids_and_count ON simple_history_1.id = max_ids_and_count.maxId
 
-			ORDER BY simple_history_1.id DESC
+			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 			## END SQL_STATEMENT_LOG_ROWS
 
 		';
@@ -420,14 +425,17 @@ class Log_Query {
 		// Re-index array.
 		$result_log_rows = array_values( $result_log_rows );
 
-		// Get max id and min id.
+		// Get max id, min id, and max date.
 		// Max id is the id of the first row in the result (i.e. the latest entry).
 		// Min id is the minId value of the last row in the result (i.e. the oldest entry).
+		// Max date is the date of the first row (for accurate new event detection with date ordering).
 		$min_id = null;
 		$max_id = null;
+		$max_date = null;
 		if ( sizeof( $result_log_rows ) > 0 ) {
 			$max_id = $result_log_rows[0]->id;
 			$min_id = $result_log_rows[ count( $result_log_rows ) - 1 ]->minId;
+			$max_date = $result_log_rows[0]->date;
 		}
 
 		// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
@@ -442,7 +450,7 @@ class Log_Query {
 				%2$s
 			) AS max_ids_and_count ON simple_history_1.id = max_ids_and_count.maxId
 
-			ORDER BY simple_history_1.id DESC
+			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 			## END SQL_STATEMENT_LOG_ROWS
 		';
 
@@ -514,6 +522,7 @@ class Log_Query {
 			'page_rows_to' => $page_rows_to,
 			'max_id' => (int) $max_id,
 			'min_id' => (int) $min_id,
+			'max_date' => $max_date,
 			'log_rows_count' => $log_rows_count,
 			// Remove id from keys, because they are cumbersome when working with JSON.
 			'log_rows' => $result_log_rows,
@@ -603,7 +612,7 @@ class Log_Query {
 			# Where
 			%1$s
 			
-			ORDER BY id DESC
+			ORDER BY date DESC, id DESC
 			%2$s
 		';
 
@@ -689,6 +698,9 @@ class Log_Query {
 				// if since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id.
 				'since_id' => null,
 
+				// if since_date is set, used together with since_id to accurately detect new events with date ordering.
+				// Only returns events with date > since_date OR (date = since_date AND id > since_id).
+				'since_date' => null,
 				/**
 				 * From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'.
 				 *
@@ -811,6 +823,19 @@ class Log_Query {
 			throw new \InvalidArgumentException( 'Invalid since_id' );
 		} elseif ( isset( $args['since_id'] ) ) {
 			$args['since_id'] = (int) $args['since_id'];
+		}
+
+		// "since_date" must be valid date string in format Y-m-d H:i:s.
+		if ( isset( $args['since_date'] ) ) {
+			if ( ! is_string( $args['since_date'] ) ) {
+				throw new \InvalidArgumentException( 'Invalid since_date: must be a string' );
+			}
+
+			// Strict format validation to prevent SQL injection.
+			$parsed_date = \DateTime::createFromFormat( 'Y-m-d H:i:s', $args['since_date'] );
+			if ( ! $parsed_date || $parsed_date->format( 'Y-m-d H:i:s' ) !== $args['since_date'] ) {
+				throw new \InvalidArgumentException( 'Invalid since_date format. Use Y-m-d H:i:s (e.g., 2024-01-15 14:30:00)' );
+			}
 		}
 
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
@@ -1069,7 +1094,7 @@ class Log_Query {
 						SELECT id, date, occasionsID
 						FROM %1$s
 						WHERE id <= %2$d
-						ORDER BY id DESC
+						ORDER BY date DESC, id DESC
 						LIMIT %3$d
 					',
 				$events_table_name,
@@ -1178,6 +1203,8 @@ class Log_Query {
 	 * @return array<string> Where clauses.
 	 */
 	protected function get_inner_where( $args ) {
+		global $wpdb;
+
 		$simple_history = Simple_History::get_instance();
 		$contexts_table_name = $simple_history->get_contexts_table_name();
 		$db_engine = $this->get_db_engine();
@@ -1203,9 +1230,21 @@ class Log_Query {
 			);
 		}
 
-		// Add where clause for since_id,
-		// to include rows with id greater than since_id, i.e. more recent than since_id.
-		if ( isset( $args['since_id'] ) ) {
+		// Add where clause for since_id and since_date.
+		// When both are provided, we want events that would appear ABOVE the current view.
+		// With ORDER BY date DESC, id DESC, that means:
+		// - Events with date > since_date (newer date).
+		// - OR events with date = since_date AND id > since_id (same date but higher ID).
+		if ( isset( $args['since_date'] ) && isset( $args['since_id'] ) ) {
+			$inner_where[] = $wpdb->prepare(
+				'(date > %s OR (date = %s AND id > %d))',
+				$args['since_date'],
+				$args['since_date'],
+				$args['since_id']
+			);
+		} elseif ( isset( $args['since_id'] ) ) {
+			// Fallback to ID-only for backward compatibility
+			// (though this is less accurate with date ordering).
 			$inner_where[] = sprintf(
 				'id > %1$d',
 				(int) $args['since_id'],
@@ -1334,50 +1373,42 @@ class Log_Query {
 		// "loglevels", array with loglevels.
 		// e.g. info, debug, and so on.
 		if ( ! empty( $args['loglevels'] ) ) {
-			$sql_loglevels = '';
-
-			foreach ( $args['loglevels'] as $one_loglevel ) {
-				$sql_loglevels .= sprintf( ' \'%s\', ', esc_sql( $one_loglevel ) );
-			}
-
-			// Remove last comma.
-			$sql_loglevels = rtrim( $sql_loglevels, ' ,' );
-
-			// Add to where in clause.
-			$inner_where[] = "level IN ({$sql_loglevels})";
+			// Create placeholders for prepared statement.
+			$placeholders = implode( ', ', array_fill( 0, count( $args['loglevels'] ), '%s' ) );
+			$inner_where[] = $wpdb->prepare(
+				"level IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				...$args['loglevels']
+			);
 		}
 
 		// loggers, comma separated or array.
 		// Example REST API call: /wp-json/simple-history/v1/events?per_page=10&page=1&loggers=SimpleCommentsLogger,SimpleCoreUpdatesLogger.
 		if ( ! empty( $args['loggers'] ) ) {
-			$sql_loggers = '';
-
-			foreach ( $args['loggers'] as $one_logger ) {
-				$sql_loggers .= sprintf( ' "%s", ', esc_sql( $one_logger ) );
-			}
-
-			// Remove last comma.
-			$sql_loggers = rtrim( $sql_loggers, ' ,' );
-
-			// Add to where in clause.
-			$inner_where[] = "logger IN ({$sql_loggers}) ";
+			// Create placeholders for prepared statement.
+			$placeholders = implode( ', ', array_fill( 0, count( $args['loggers'] ), '%s' ) );
+			$inner_where[] = $wpdb->prepare(
+				"logger IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				...$args['loggers']
+			);
 		}
 
 		// Add where for a single user ID.
 		if ( isset( $args['user'] ) ) {
-			$inner_where[] = sprintf(
-				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'_user_id\' AND c.value = %2$s )',
-				$contexts_table_name, // 1
-				$args['user'], // 2
+			$inner_where[] = $wpdb->prepare(
+				'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'_user_id',
+				$args['user']
 			);
 		}
 
 		// Users, array with user ids.
 		if ( isset( $args['users'] ) ) {
-			$inner_where[] = sprintf(
-				'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'_user_id\' AND c.value IN (%2$s) )',
-				$contexts_table_name, // 1
-				implode( ',', $args['users'] ), // 2
+			// Create placeholders for prepared statement.
+			$placeholders = implode( ', ', array_fill( 0, count( $args['users'] ), '%s' ) );
+			$inner_where[] = $wpdb->prepare(
+				'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value IN (' . $placeholders . ') )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'_user_id',
+				...$args['users']
 			);
 		}
 
@@ -1410,11 +1441,10 @@ class Log_Query {
 		// Add where clause for context filters.
 		if ( ! empty( $args['context_filters'] ) && is_array( $args['context_filters'] ) ) {
 			foreach ( $args['context_filters'] as $context_key => $context_value ) {
-				$inner_where[] = sprintf(
-					'id IN ( SELECT history_id FROM %1$s AS c WHERE c.key = \'%2$s\' AND c.value = \'%3$s\' )',
-					$contexts_table_name,
-					esc_sql( $context_key ),
-					esc_sql( $context_value )
+				$inner_where[] = $wpdb->prepare(
+					'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					$context_key,
+					$context_value
 				);
 			}
 		}
@@ -1439,39 +1469,28 @@ class Log_Query {
 	 * @return array<string> Where clauses.
 	 */
 	protected function get_outer_where( $args ) {
+		global $wpdb;
+
 		$outer_where = [];
 
 		// messages.
 		if ( ! empty( $args['messages'] ) ) {
 			// Create sql where based on loggers and messages.
-			$sql_messages_where = '(';
+			$sql_messages_where_parts = [];
 
 			foreach ( $args['messages'] as $logger_slug => $logger_messages ) {
-				$sql_logger_messages_in = '';
+				// Create placeholders for prepared statement.
+				$placeholders = implode( ', ', array_fill( 0, count( $logger_messages ), '%s' ) );
 
-				foreach ( $logger_messages as $one_logger_message ) {
-					$sql_logger_messages_in .= sprintf( '\'%s\',', esc_sql( $one_logger_message ) );
-				}
-
-				$sql_logger_messages_in = rtrim( $sql_logger_messages_in, ' ,' );
-				$sql_logger_messages_in = "\n AND context_message_key IN ({$sql_logger_messages_in}) ";
-
-				$sql_messages_where .= sprintf(
-					'
-					(
-						h.logger = \'%1$s\'
-						%2$s
-					)
-					OR ',
-					esc_sql( $logger_slug ),
-					$sql_logger_messages_in
+				$sql_messages_where_parts[] = $wpdb->prepare(
+					'(h.logger = %s AND context_message_key IN (' . $placeholders . '))', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					$logger_slug,
+					...$logger_messages
 				);
 			}
 
-			// Remove last 'OR '.
-			$sql_messages_where = preg_replace( '/OR $/', '', $sql_messages_where );
-
-			$sql_messages_where .= "\n )";
+			// Join all parts with OR.
+			$sql_messages_where = '(' . implode( ' OR ', $sql_messages_where_parts ) . ')';
 			$outer_where[] = $sql_messages_where;
 		} // End if().
 

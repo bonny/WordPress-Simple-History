@@ -145,6 +145,18 @@ Messages should be easily understood by regular users, not just developers.
 -   **In Progress**: Currently being worked on
 -   **Done**: Completed items
 
+#### Project Configuration
+
+For automation and API access:
+
+- **Project ID**: `PVT_kwHOAANhgs4AidMq`
+- **Project number**: `4`
+- **Owner**: `bonny`
+- **Status field ID**: `PVTSSF_lAHOAANhgs4AidMqzga-LME`
+
+**Status Option IDs:**
+- "In progress": `36813ba3`
+
 #### GitHub CLI Commands
 
 ```bash

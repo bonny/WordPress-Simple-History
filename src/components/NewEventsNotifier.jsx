@@ -34,12 +34,12 @@ function setDocumentTitle( newNum ) {
  * @param {Object} props
  */
 export function NewEventsNotifier( props ) {
-	const { eventsQueryParams, eventsMaxId, onReload } = props;
+	const { eventsQueryParams, eventsMaxId, eventsMaxDate, onReload } = props;
 	const [ newEventsCount, setNewEventsCount ] = useState( 0 );
 
 	useEffect( () => {
-		// Bail if no eventsQueryParams or eventsMaxId
-		if ( ! eventsQueryParams || ! eventsMaxId ) {
+		// Bail if no eventsQueryParams, eventsMaxId, or eventsMaxDate
+		if ( ! eventsQueryParams || ! eventsMaxId || ! eventsMaxDate ) {
 			return;
 		}
 
@@ -47,6 +47,7 @@ export function NewEventsNotifier( props ) {
 			const eventsQueryParamsWithSinceId = {
 				...eventsQueryParams,
 				since_id: eventsMaxId,
+				since_date: eventsMaxDate,
 				// Remove any limitation of fields that have been added by main api request.
 				_fields: null,
 			};
@@ -77,7 +78,7 @@ export function NewEventsNotifier( props ) {
 		return () => {
 			clearInterval( intervalId );
 		};
-	}, [ eventsQueryParams, eventsMaxId, newEventsCount ] );
+	}, [ eventsQueryParams, eventsMaxId, eventsMaxDate, newEventsCount ] );
 
 	const newEventsCountText = sprintf(
 		// translators: %s: number of new events

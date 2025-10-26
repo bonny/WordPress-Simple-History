@@ -120,11 +120,11 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		// Calculate number of days
 		$days = ( $end - $start ) / ( 60 * 60 * 24 );
 
-		// Should be approximately 30 days (accounting for rounding)
+		// Should be approximately 30 days (accounting for DST transitions)
 		$this->assertEqualsWithDelta(
 			30.0,
 			$days,
-			0.01,
+			0.05,
 			'Last 30 days should give exactly 30 days of data'
 		);
 
@@ -135,7 +135,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			7.0,
 			$days_7,
-			0.01,
+			0.05,
 			'Last 7 days should give exactly 7 days of data'
 		);
 	}
@@ -158,7 +158,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			30.0,
 			$days,
-			0.01,
+			0.05,
 			'Default range should be exactly 30 days'
 		);
 	}
@@ -176,7 +176,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			7.0,
 			$days_7,
-			0.01,
+			0.05,
 			'get_last_n_days_range(7) should return exactly 7 days'
 		);
 
@@ -187,7 +187,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			14.0,
 			$days_14,
-			0.01,
+			0.05,
 			'get_last_n_days_range(14) should return exactly 14 days'
 		);
 	}
@@ -205,7 +205,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			7.0,
 			$days_week,
-			0.01,
+			0.05,
 			'Week period should be 7 days'
 		);
 
@@ -216,7 +216,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			14.0,
 			$days_fortnight,
-			0.01,
+			0.05,
 			'Fortnight period should be 14 days'
 		);
 
@@ -227,7 +227,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			30.0,
 			$days_month,
-			0.01,
+			0.05,
 			'Month period should be 30 days'
 		);
 
@@ -238,7 +238,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			90.0,
 			$days_quarter,
-			0.01,
+			0.05,
 			'Quarter period should be 90 days'
 		);
 	}
@@ -318,7 +318,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			7.0,
 			$days,
-			0.01,
+			0.05,
 			'Should return exactly 7 complete days'
 		);
 
@@ -359,7 +359,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEqualsWithDelta(
 			7.0,
 			$days,
-			0.01,
+			0.05,
 			'Complete week should be exactly 7 days'
 		);
 
@@ -375,7 +375,7 @@ class DateHelperTest extends \Codeception\TestCase\WPTestCase {
 
 		// Verify they are the same week (6 days apart)
 		$diff_days = ( $range['to'] - $range['from'] ) / 86400;
-		$this->assertEqualsWithDelta( 7.0, $diff_days, 0.01, 'Monday to Sunday should be ~7 days' );
+		$this->assertEqualsWithDelta( 7.0, $diff_days, 0.05, 'Monday to Sunday should be ~7 days' );
 	}
 
 	/**

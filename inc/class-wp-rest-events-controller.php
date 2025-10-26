@@ -77,6 +77,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 							'default' => 'info',
 							'description' => 'Log level',
 						),
+						'date' => array(
+							'type' => 'string',
+							'format' => 'date-time',
+							'description' => 'Date and time for the event in MySQL datetime format (Y-m-d H:i:s). If not provided, current time will be used.',
+						),
 					),
 				],
 				'schema'      => [ $this, 'get_public_item_schema' ],
@@ -320,6 +325,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		$query_params['since_id'] = array(
 			'description' => __( 'Limit result set to rows with id greater than this, i.e. more recent than since_id.', 'simple-history' ),
 			'type'        => 'integer',
+		);
+
+		// Date + ID for accurate new event detection with date ordering.
+		$query_params['since_date'] = array(
+			'description' => __( 'Limit result set to events with date > since_date OR (date = since_date AND id > since_id). Use together with since_id for accurate new event detection.', 'simple-history' ),
+			'type'        => 'string',
+			'format'      => 'date-time',
 		);
 
 		// Date to in unix timestamp format.
@@ -639,6 +651,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'type'                    => 'type',
 			'max_id_first_page'       => 'max_id_first_page',
 			'since_id'                => 'since_id',
+			'since_date'              => 'since_date',
 			'date_from'               => 'date_from',
 			'date_to'                 => 'date_to',
 			'dates'                   => 'dates',
@@ -714,6 +727,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'type'                    => 'type',
 			'max_id_first_page'       => 'max_id_first_page',
 			'since_id'                => 'since_id',
+			'since_date'              => 'since_date',
 			'date_from'               => 'date_from',
 			'date_to'                 => 'date_to',
 			'dates'                   => 'dates',
@@ -765,6 +779,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 			$response->header( 'X-WP-Total', (int) $total_posts );
 			$response->header( 'X-WP-TotalPages', (int) $max_pages );
+
+			// Add max_id and max_date for has-updates detection.
+			if ( isset( $query_result['max_id'] ) ) {
+				$response->header( 'X-SimpleHistory-MaxId', (int) $query_result['max_id'] );
+			}
+
+			if ( isset( $query_result['max_date'] ) ) {
+				$response->header( 'X-SimpleHistory-MaxDate', $query_result['max_date'] );
+			}
 
 			if ( $page > 1 ) {
 				$prev_page = $page - 1;
@@ -970,6 +993,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		$message = $request->get_param( 'message' );
 		$note = $request->get_param( 'note' );
 		$level = $request->get_param( 'level' ) ?? 'info';
+		$date = $request->get_param( 'date' );
 
 		if ( ! Log_Levels::is_valid_level( $level ) ) {
 			return new WP_Error(
@@ -977,6 +1001,19 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				__( 'Invalid log level specified.', 'simple-history' ),
 				array( 'status' => 400 )
 			);
+		}
+
+		// Validate date format if provided.
+		if ( ! empty( $date ) ) {
+			// Check if date is in valid MySQL datetime format (Y-m-d H:i:s).
+			$parsed_date = \DateTime::createFromFormat( 'Y-m-d H:i:s', $date );
+			if ( ! $parsed_date || $parsed_date->format( 'Y-m-d H:i:s' ) !== $date ) {
+				return new WP_Error(
+					'rest_invalid_date',
+					__( 'Invalid date format. Please use Y-m-d H:i:s format (e.g., 2024-01-15 14:30:00).', 'simple-history' ),
+					array( 'status' => 400 )
+				);
+			}
 		}
 
 		$logger = $this->simple_history->get_instantiated_logger_by_slug( 'CustomEntryLogger' );
@@ -994,6 +1031,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( ! empty( $note ) ) {
 			$context['note'] = $note;
+		}
+
+		// Add custom date if provided.
+		// The _date context parameter is handled by the logger
+		// and will override the default current timestamp.
+		if ( ! empty( $date ) ) {
+			$context['_date'] = $date;
 		}
 
 		$method = $level . '_message';
