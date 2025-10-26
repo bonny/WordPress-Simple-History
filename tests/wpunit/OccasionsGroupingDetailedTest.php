@@ -25,8 +25,10 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $admin_user_id );
 
-		$occasions_id = 'test_same_date_consecutive';
-		$date = '2024-06-15 10:00:00';
+
+		// Use unique ID and RECENT date so events appear on first page of results
+		$occasions_id = 'test_same_date_' . uniqid();
+		$date = gmdate( 'Y-m-d H:i:s', time() + 10 ); // Use recent date (slightly in future to ensure top of list)
 
 		// Create 5 events with same date and occasionsID
 		for ( $i = 0; $i < 5; $i++ ) {
@@ -51,7 +53,11 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 		$found_event = null;
 		$expected_occasions_id = md5( json_encode( array( '_occasionsID' => $occasions_id, '_loggerSlug' => 'SimpleLogger' ) ) );
 
+		$event_count = 0;
 		foreach ( $results['log_rows'] as $event ) {
+			if ( strpos( $event->message, 'Event' ) !== false ) {
+				$event_count++;
+			}
 			if ( $event->occasionsID === $expected_occasions_id ) {
 				$found_event = $event;
 				break;
@@ -81,12 +87,13 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 
 		$occasions_id = 'test_seconds_apart';
 
-		// Create 5 events with dates 1 second apart
+		// Create 5 events with dates 1 second apart - use recent dates
+		$base_time = time() + 10;
 		for ( $i = 0; $i < 5; $i++ ) {
 			SimpleLogger()->notice(
 				"Event $i",
 				array(
-					'_date' => "2024-06-15 10:00:" . str_pad( $i, 2, '0', STR_PAD_LEFT ),
+					'_date' => gmdate( 'Y-m-d H:i:s', $base_time + $i ),
 					'_occasionsID' => $occasions_id,
 				)
 			);
@@ -135,15 +142,16 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 		$occasions_id_a = 'test_separated_a';
 		$occasions_id_b = 'test_separated_b';
 
-		// Create events in this order:
-		// Event A1 (10:00:00)
-		// Event A2 (10:00:01)
-		// Event B  (10:00:02) - Different occasionsID
-		// Event A3 (10:00:03) - Same as A1/A2 but separated
-		SimpleLogger()->notice( 'Event A1', array( '_date' => '2024-06-15 10:00:00', '_occasionsID' => $occasions_id_a ) );
-		SimpleLogger()->notice( 'Event A2', array( '_date' => '2024-06-15 10:00:01', '_occasionsID' => $occasions_id_a ) );
-		SimpleLogger()->notice( 'Event B',  array( '_date' => '2024-06-15 10:00:02', '_occasionsID' => $occasions_id_b ) );
-		SimpleLogger()->notice( 'Event A3', array( '_date' => '2024-06-15 10:00:03', '_occasionsID' => $occasions_id_a ) );
+		// Create events in this order - use recent dates:
+		// Event A1 (T+10)
+		// Event A2 (T+11)
+		// Event B  (T+12) - Different occasionsID
+		// Event A3 (T+13) - Same as A1/A2 but separated
+		$base_time = time() + 10;
+		SimpleLogger()->notice( 'Event A1', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time ), '_occasionsID' => $occasions_id_a ) );
+		SimpleLogger()->notice( 'Event A2', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 1 ), '_occasionsID' => $occasions_id_a ) );
+		SimpleLogger()->notice( 'Event B',  array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 2 ), '_occasionsID' => $occasions_id_b ) );
+		SimpleLogger()->notice( 'Event A3', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 3 ), '_occasionsID' => $occasions_id_a ) );
 
 		// Query with grouping
 		$log_query = new Log_Query();
@@ -163,25 +171,26 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}
 
-		// Should find 2 groups (A1+A2, then A3 separately)
+		// Should find 2 groups (A3 first due to DESC ordering, then A1+A2)
 		$this->assertCount(
 			2,
 			$events_with_id_a,
 			'Should have 2 separate groups because Event B separates them'
 		);
 
-		// First group should have 2 occasions (A1+A2)
-		$this->assertEquals(
-			2,
-			$events_with_id_a[0]->subsequentOccasions,
-			'First group should have A1+A2 (2 occasions)'
-		);
-
-		// Second group should have 1 occasion (A3 alone)
+		// With DESC date ordering, newest comes first
+		// First group (index 0) should be A3 alone (1 occasion)
 		$this->assertEquals(
 			1,
+			$events_with_id_a[0]->subsequentOccasions,
+			'First group (newest) should be A3 alone (1 occasion)'
+		);
+
+		// Second group (index 1) should be A1+A2 (2 occasions)
+		$this->assertEquals(
+			2,
 			$events_with_id_a[1]->subsequentOccasions,
-			'Second group should have A3 alone (1 occasion)'
+			'Second group (oldest) should be A1+A2 (2 occasions)'
 		);
 	}
 
@@ -199,12 +208,13 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 
 		$occasions_id = 'failed_login_attack_123';
 
-		// Simulate 10 failed login attempts within 1 minute
+		// Simulate 10 failed login attempts within 1 minute - use recent dates
+		$base_time = time() + 10;
 		for ( $i = 0; $i < 10; $i++ ) {
 			SimpleLogger()->warning(
 				'Failed login attempt',
 				array(
-					'_date' => "2024-06-15 10:00:" . str_pad( $i * 5, 2, '0', STR_PAD_LEFT ), // Every 5 seconds
+					'_date' => gmdate( 'Y-m-d H:i:s', $base_time + ( $i * 5 ) ), // Every 5 seconds
 					'_occasionsID' => $occasions_id,
 					'username' => 'admin',
 				)
@@ -250,20 +260,21 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_set_current_user( $admin_user_id );
 
-		// Create a complex scenario:
-		// - Group A: 3 events (10:00:00, 10:00:01, 10:00:02)
-		// - Group B: 2 events (10:00:03, 10:00:04)
-		// - Group A: 2 more events (10:00:05, 10:00:06) - Should be separate from first Group A
-		// - Group C: 1 event (10:00:07)
+		// Create a complex scenario - use recent dates:
+		// - Group A: 3 events (T+10, T+11, T+12)
+		// - Group B: 2 events (T+13, T+14)
+		// - Group A: 2 more events (T+15, T+16) - Should be separate from first Group A
+		// - Group C: 1 event (T+17)
+		$base_time = time() + 10;
 
-		SimpleLogger()->notice( 'A1', array( '_date' => '2024-06-15 10:00:00', '_occasionsID' => 'group_a' ) );
-		SimpleLogger()->notice( 'A2', array( '_date' => '2024-06-15 10:00:01', '_occasionsID' => 'group_a' ) );
-		SimpleLogger()->notice( 'A3', array( '_date' => '2024-06-15 10:00:02', '_occasionsID' => 'group_a' ) );
-		SimpleLogger()->notice( 'B1', array( '_date' => '2024-06-15 10:00:03', '_occasionsID' => 'group_b' ) );
-		SimpleLogger()->notice( 'B2', array( '_date' => '2024-06-15 10:00:04', '_occasionsID' => 'group_b' ) );
-		SimpleLogger()->notice( 'A4', array( '_date' => '2024-06-15 10:00:05', '_occasionsID' => 'group_a' ) );
-		SimpleLogger()->notice( 'A5', array( '_date' => '2024-06-15 10:00:06', '_occasionsID' => 'group_a' ) );
-		SimpleLogger()->notice( 'C1', array( '_date' => '2024-06-15 10:00:07', '_occasionsID' => 'group_c' ) );
+		SimpleLogger()->notice( 'A1', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time ), '_occasionsID' => 'group_a' ) );
+		SimpleLogger()->notice( 'A2', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 1 ), '_occasionsID' => 'group_a' ) );
+		SimpleLogger()->notice( 'A3', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 2 ), '_occasionsID' => 'group_a' ) );
+		SimpleLogger()->notice( 'B1', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 3 ), '_occasionsID' => 'group_b' ) );
+		SimpleLogger()->notice( 'B2', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 4 ), '_occasionsID' => 'group_b' ) );
+		SimpleLogger()->notice( 'A4', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 5 ), '_occasionsID' => 'group_a' ) );
+		SimpleLogger()->notice( 'A5', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 6 ), '_occasionsID' => 'group_a' ) );
+		SimpleLogger()->notice( 'C1', array( '_date' => gmdate( 'Y-m-d H:i:s', $base_time + 7 ), '_occasionsID' => 'group_c' ) );
 
 		// Query with grouping
 		$log_query = new Log_Query();
@@ -291,10 +302,10 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}
 
-		// Group A should appear twice: first with 3 occasions, then with 2
+		// Group A should appear twice: with DESC date ordering, newest (A4+A5=2) comes first, then oldest (A1+A2+A3=3)
 		$this->assertCount( 2, $found_groups['a'] ?? array(), 'Group A should appear twice (separated by Group B)' );
-		$this->assertEquals( 3, $found_groups['a'][0], 'First Group A should have 3 occasions' );
-		$this->assertEquals( 2, $found_groups['a'][1], 'Second Group A should have 2 occasions' );
+		$this->assertEquals( 2, $found_groups['a'][0], 'First Group A (newest: A4+A5) should have 2 occasions' );
+		$this->assertEquals( 3, $found_groups['a'][1], 'Second Group A (oldest: A1+A2+A3) should have 3 occasions' );
 
 		// Group B should appear once with 2 occasions
 		$this->assertCount( 1, $found_groups['b'] ?? array(), 'Group B should appear once' );
@@ -319,13 +330,13 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 
 		$occasions_id = 'test_query_occasions';
 
-		// Create 5 events
-		$created_ids = array();
+		// Create 5 events - use recent dates
+		$base_time = time() + 10;
 		for ( $i = 0; $i < 5; $i++ ) {
 			SimpleLogger()->notice(
 				"Occasion event $i",
 				array(
-					'_date' => "2024-06-15 10:00:" . str_pad( $i, 2, '0', STR_PAD_LEFT ),
+					'_date' => gmdate( 'Y-m-d H:i:s', $base_time + $i ),
 					'_occasionsID' => $occasions_id,
 				)
 			);
@@ -351,19 +362,24 @@ class OccasionsGroupingDetailedTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertNotNull( $grouped_event, 'Should find grouped event' );
 
-		// Now query the occasions for this event
+		// Now query the occasions for this event using public API
 		$log_query = new Log_Query();
-		$occasions = $log_query->query_occasions(
+		$occasions_result = $log_query->query(
 			array(
-				'occasions_id' => $grouped_event->occasionsID,
-				'min_id' => $grouped_event->id,
+				'type' => 'occasions',
+				'logRowID' => $grouped_event->id,
+				'occasionsID' => $grouped_event->occasionsID,
+				'occasionsCount' => $grouped_event->subsequentOccasions - 1, // -1 because logRowID is the first one
+				'occasionsCountMaxReturn' => 100,
 			)
 		);
 
+		$occasions = $occasions_result['log_rows'];
+
 		$this->assertCount(
-			5,
+			4,
 			$occasions,
-			'query_occasions should return all 5 events in the group'
+			'query occasions should return 4 events (the 5th is the logRowID itself)'
 		);
 
 		// Verify they're in descending date order
