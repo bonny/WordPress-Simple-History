@@ -951,8 +951,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( Compat::rest_is_field_included( 'imported', $fields ) ) {
-			$data['imported'] = isset( $item->context['_imported_event'] ) &&
-				$item->context['_imported_event'] === '1';
+			$data['imported'] = isset( $item->context['_imported_event'] );
 		}
 
 		if ( Compat::rest_is_field_included( 'context', $fields ) ) {
