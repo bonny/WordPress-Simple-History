@@ -480,44 +480,67 @@ The importer correctly uses Simple History's logger infrastructure:
 
 ### Duplicate Prevention
 
-**Implementation** (`inc/class-existing-data-importer.php:287-352`):
+**Implementation** (`inc/class-existing-data-importer.php:307-388`):
 
-The importer uses batch SQL queries to detect already-imported items before processing:
+The importer uses batch SQL queries to detect ALL already-logged events before processing (both imported and naturally logged):
+
+**Enhanced Detection**:
+- Detects BOTH previously imported events AND naturally logged events
+- Prevents duplicates if plugin was active and logging before import runs
+- Uses LEFT JOIN to determine if event was imported or naturally logged
+- Reports skip counts separately for each type
 
 **For Posts**:
 - Queries for all post IDs in the current batch
 - Checks separately for `post_created` and `post_updated` events
 - Smart skip logic: only skips if ALL applicable events exist
 - Example: If a post was never modified, only checks for `post_created` event
+- Distinguishes between imported vs naturally logged events
 
 **For Users**:
 - Queries for all user IDs in the current batch
-- Checks for existing `user_created` events
-- Skips users that have already been imported
+- Checks for existing `user_created` events (imported OR naturally logged)
+- Distinguishes between imported vs naturally logged events
+
+**SQL Approach**:
+```sql
+-- Returns post_id and whether it was imported (1) or naturally logged (0)
+SELECT DISTINCT
+    c1.value as post_id,
+    MAX(CASE WHEN c2.key = '_imported_event' THEN 1 ELSE 0 END) as is_imported
+FROM contexts c1
+LEFT JOIN contexts c2 ON c1.history_id = c2.history_id AND c2.key = '_imported_event'
+INNER JOIN contexts c3 ON c1.history_id = c3.history_id
+WHERE c1.key = 'post_id' AND c3.key = '_message_key'
+GROUP BY c1.value
+```
 
 **Performance**:
-- Only 2 SQL queries total per import (one for posts, one for users)
+- Only 2-4 SQL queries total per import (posts: 2 queries for created/updated, users: 1 query)
 - Uses batch checking with IN clauses instead of N individual queries
-- Leverages `_imported_event` context marker for reliable detection
+- LEFT JOIN efficiently detects imported vs naturally logged events
 
 **User Experience**:
-- First import: "Imported 100 posts and 20 users into the history log."
-- Subsequent import: "Imported 0 posts (skipped 100 already imported) and 0 users (skipped 20 already imported)."
-- Page description updated to: "You can run this import multiple times. Items that have already been imported will be automatically skipped to prevent duplicates."
+- First import: "Imported 100 posts and 20 users."
+- Already imported: "Imported 0 posts and 0 users (skipped: 80 posts already imported, 20 posts already in history)."
+- Mixed scenario: "Imported 50 posts and 10 users (skipped: 30 posts already imported, 20 posts already in history, 5 users already imported, 5 users already in history)."
+- Page description: "You can run this import multiple times. Items already in the history log (imported or naturally logged) will be automatically skipped to prevent duplicates."
 
 ### Debug Tracking
 
 The importer returns detailed results including:
 - `posts_imported`: Total count of posts imported
 - `users_imported`: Total count of users imported
-- `posts_skipped`: Total count of posts skipped (already imported)
-- `users_skipped`: Total count of users skipped (already imported)
+- `posts_skipped_imported`: Count of posts skipped (already imported)
+- `posts_skipped_logged`: Count of posts skipped (already in history/naturally logged)
+- `users_skipped_imported`: Count of users skipped (already imported)
+- `users_skipped_logged`: Count of users skipped (already in history/naturally logged)
 - `posts_details`: Array with full details of each imported post (ID, title, type, status, dates, events logged)
 - `users_details`: Array with full details of each imported user (ID, login, email, registration date, roles)
-- `skipped_details`: Array with details of skipped items (type, ID, title/login, reason)
+- `skipped_details`: Array with details of skipped items (type, ID, title/login, reason: 'already_imported' or 'already_logged')
 - `errors`: Array of any errors encountered
 
-Debug output is logged via `error_log()` in `inc/services/class-experimental-features-page.php:220-223`
+Debug output is logged via `error_log()` in `inc/services/class-experimental-features-page.php:345-347`
 
 ## Findings
 
