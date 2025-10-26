@@ -10,6 +10,7 @@ import { format } from 'date-fns';
  * @param {Array}  props.selectedMessageTypes
  * @param {Array}  props.selectedUsersWithId
  * @param {Array}  props.selectedInitiator
+ * @param {Array}  props.selectedContextFilters
  * @param {string} props.enteredSearchText
  * @param {string} props.selectedDateOption
  * @param {Date}   props.selectedCustomDateFrom
@@ -24,6 +25,7 @@ export function generateAPIQueryParams( props ) {
 		selectedMessageTypes,
 		selectedUsersWithId,
 		selectedInitiator,
+		selectedContextFilters,
 		enteredSearchText,
 		selectedDateOption,
 		selectedCustomDateFrom,
@@ -145,6 +147,34 @@ export function generateAPIQueryParams( props ) {
 		eventsQueryParams.initiator = selectedInitiatorValues;
 	}
 
+	// Add selected context filters to query params.
+	// selectedContextFilters is a string with newline-separated "key:value" pairs.
+	// Convert to object format: { "key": "value", "key2": "value2" }
+	if ( selectedContextFilters && selectedContextFilters.trim().length > 0 ) {
+		const contextFiltersObject = {};
+		// Split by newline, trim each line, filter empty lines
+		const filterLines = selectedContextFilters
+			.split( '\n' )
+			.map( ( line ) => line.trim() )
+			.filter( ( line ) => line.length > 0 );
+
+		filterLines.forEach( ( contextFilter ) => {
+			// Split on first colon only, in case value contains colons
+			const colonIndex = contextFilter.indexOf( ':' );
+			if ( colonIndex > 0 ) {
+				const key = contextFilter.substring( 0, colonIndex ).trim();
+				const value = contextFilter.substring( colonIndex + 1 ).trim();
+				if ( key && value ) {
+					contextFiltersObject[ key ] = value;
+				}
+			}
+		} );
+
+		if ( Object.keys( contextFiltersObject ).length > 0 ) {
+			eventsQueryParams.context_filters = contextFiltersObject;
+		}
+	}
+
 	// Check if there are any search options, besides date.
 	// Anything selected besides date will disable sticky events.
 	const hasSearchOptions =
@@ -152,7 +182,8 @@ export function generateAPIQueryParams( props ) {
 		selectedLogLevels.length ||
 		selectedMessageTypes.length ||
 		selectedUsersWithId.length ||
-		selectedInitiator.length > 0;
+		selectedInitiator.length > 0 ||
+		( selectedContextFilters && selectedContextFilters.trim().length > 0 );
 
 	// If first page and no search options then include sticky events.
 	if ( page === 1 && ! hasSearchOptions ) {

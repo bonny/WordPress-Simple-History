@@ -71,6 +71,11 @@ const initiatorSchema = z.array(
 	} )
 );
 
+// Schema for the context filters.
+// Context filters are stored as an array of "key:value" strings.
+// Example: ["_user_id:1", "_sticky:1"]
+const contextFiltersSchema = z.array( z.string() );
+
 function EventsGUI() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
 	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
@@ -219,6 +224,14 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
+	// Selected context filters.
+	// Plain string with newline-separated "key:value" pairs, e.g., "_user_id:1\n_sticky:1"
+	const [ selectedContextFilters, setSelectedContextFilters ] =
+		useQueryState(
+			'context',
+			parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
+		);
+
 	/**
 	 * End filter/search options states.
 	 */
@@ -231,6 +244,7 @@ function EventsGUI() {
 			selectedMessageTypes,
 			selectedUsersWithId,
 			selectedInitiator,
+			selectedContextFilters,
 			enteredSearchText,
 			selectedDateOption,
 			selectedCustomDateFrom,
@@ -245,6 +259,7 @@ function EventsGUI() {
 		selectedMessageTypes,
 		selectedUsersWithId,
 		selectedInitiator,
+		selectedContextFilters,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		page,
@@ -260,6 +275,7 @@ function EventsGUI() {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedInitiator,
+		selectedContextFilters,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 	] );
@@ -407,12 +423,17 @@ function EventsGUI() {
 				setSelectedUsersWithId={ setSelectedUsersWithId }
 				selectedInitiator={ selectedInitiator }
 				setSelectedInitiator={ setSelectedInitiator }
+				selectedContextFilters={ selectedContextFilters }
+				setSelectedContextFilters={ setSelectedContextFilters }
 				searchOptionsLoaded={ searchOptionsLoaded }
 				setSearchOptionsLoaded={ setSearchOptionsLoaded }
 				setPagerSize={ setPagerSize }
 				setMapsApiKey={ setMapsApiKey }
 				setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
 				setHasPremiumAddOn={ setHasPremiumAddOn }
+				isExperimentalFeaturesEnabled={
+					isExperimentalFeaturesEnabled
+				}
 				setIsExperimentalFeaturesEnabled={
 					setIsExperimentalFeaturesEnabled
 				}
