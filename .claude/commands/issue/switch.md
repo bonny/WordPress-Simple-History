@@ -62,6 +62,19 @@ Based on the output from `gh issue view $1` in Step 2, check if the issue shows 
   gh project item-edit --id <item-id> --field-id PVTSSF_lAHOAANhgs4AidMqzga-LME --project-id PVT_kwHOAANhgs4AidMq --single-select-option-id 36813ba3
   ```
 
+### Step 6: Note about JavaScript rebuild
+
+After switching branches, remind the user that they may need to rebuild JavaScript if the branches have different React/JS code:
+
+```bash
+npm run build
+```
+
+This is especially important if:
+- Switching between branches with different features that include React components
+- The previous branch had JavaScript changes that were built
+- There are issues with the UI not matching expectations
+
 ### Project Details Reference
 
 See @CLAUDE.local.md for GitHub project configuration including:
