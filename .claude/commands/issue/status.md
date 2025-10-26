@@ -8,6 +8,7 @@ description: Find the status of the issue.
 -   Current git status: !`git status`
 -   Current git diff (staged and unstaged changes): !`git diff HEAD`
 -   Current branch: !`git branch --show-current`
+-   Issue readme files: !`ls readme.issue-*.md 2>/dev/null || echo "No issue readme files found"`
 -   Issue number: $ARGUMENTS
 
 ## Your task

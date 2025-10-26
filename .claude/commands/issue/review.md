@@ -7,6 +7,7 @@ description: Perform a comprehensive code review of the current issue/branch foc
 
 -   Current branch: !`git branch --show-current`
 -   Current git status: !`git status`
+-   Issue readme files: !`ls readme.issue-*.md 2>/dev/null || echo "No issue readme files found"`
 -   Issue number: $ARGUMENTS
 
 ## Your task
