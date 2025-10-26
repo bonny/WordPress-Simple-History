@@ -1,11 +1,14 @@
 # Issue #584: Support date-based ordering for imported historical data
 
-**Status**: ✅ **COMPLETED** (with follow-up issue identified)
+**Status**: ✅ **COMPLETED** (with enhancement added 2025-10-26)
 **Branch**: `issue-584-refactor-sql-queries-order-by-date`
 **Issue URL**: https://github.com/bonny/WordPress-Simple-History/issues/584
 **Related Issues**:
 - Issue #583 (Import existing data feature)
-- **Issue #585** (Follow-up: Fix has-updates API for backdated events) - See `readme.issue-585-fix-has-updates-date-logic.md`
+- **Issue #585** (Follow-up: Fix has-updates API for backdated events) - COMPLETED ✅
+
+**Enhancements**:
+- 2025-10-26: Added `date` parameter to REST API create endpoint for programmatic backdated events
 
 ## ⭐ DECISION: Approach 2 (Global Date Ordering) - APPROVED & IMPLEMENTED
 
@@ -539,3 +542,77 @@ During testing, we discovered that the `has-updates` API endpoint (used for "new
 **Status**: Documented in **Issue #585** with complete solution plan.
 
 **Can be fixed**: In same branch before merging, or as follow-up PR.
+
+## Enhancement: REST API Date Parameter
+
+**Date**: 2025-10-26
+**Status**: ✅ COMPLETED
+
+### Overview
+
+Extended the REST API create events endpoint (`POST /wp-json/simple-history/v1/events`) to accept an optional `date` parameter, enabling programmatic creation of backdated events.
+
+### Motivation
+
+With the date-based ordering system now in place, it makes sense to allow users to create events with custom dates via the REST API. This is useful for:
+- Importing historical data programmatically
+- Creating backdated log entries from external systems
+- Testing date-based ordering functionality
+- Building custom integrations that need to log historical events
+
+### Implementation
+
+**Modified Files:**
+- `inc/class-wp-rest-events-controller.php`
+  - Lines 80-84: Added `date` parameter to endpoint schema
+  - Lines 997-1008: Added date format validation
+  - Lines 1030-1032: Pass `_date` to logger context
+
+**API Changes:**
+- New optional parameter: `date` (format: `Y-m-d H:i:s`)
+- Validates date format and returns 400 error if invalid
+- Backward compatible - events without date use current time
+
+**Example Usage:**
+```bash
+curl -u user:pass \
+  -X POST 'http://example.com/wp-json/simple-history/v1/events' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "message": "Historical event",
+    "level": "info",
+    "date": "2020-06-15 14:30:00"
+  }'
+```
+
+### Testing
+
+**Added Tests** (`tests/wpunit/RestAPITest.php`):
+- `test_create_event_without_date` - Backward compatibility ✅
+- `test_create_event_with_custom_date` - Custom date parameter ✅
+- `test_create_event_with_invalid_date` - Error handling ✅
+- `test_create_event_chronological_ordering` - Multiple dates ✅
+
+**Test Results**: All 11 REST API tests passing, 23 assertions
+
+**Manual Verification**:
+- Created events with custom dates (2019-12-25, 2020-06-15, etc.)
+- Verified events appear in chronological order
+- Confirmed backward compatibility (no date = current time)
+
+### Benefits
+
+1. ✅ **Programmatic backdated events**: API consumers can create events with any date
+2. ✅ **Complements date ordering**: Works perfectly with date-based query ordering
+3. ✅ **Backward compatible**: Existing API calls continue to work unchanged
+4. ✅ **Validated**: Date format validation prevents invalid entries
+5. ✅ **Well tested**: Comprehensive test coverage with manual verification
+
+### Documentation
+
+The REST API endpoint schema automatically includes the new parameter:
+- Type: `string`
+- Format: `date-time`
+- Description: "Date and time for the event in MySQL datetime format (Y-m-d H:i:s). If not provided, current time will be used."
+
+This enhancement makes issue #584's date-based ordering even more powerful by enabling programmatic creation of historical events.
