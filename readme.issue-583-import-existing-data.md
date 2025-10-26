@@ -455,16 +455,21 @@ The importer correctly uses Simple History's logger infrastructure:
   - If author doesn't exist: Falls back to `OTHER` initiator
 - Context includes: `post_id`, `post_type`, `post_title`, `_date`, `_initiator`, `_imported_event`, plus user context if available
 
-**User Import** (`inc/class-existing-data-importer.php:258-274`):
+**User Import** (`inc/class-existing-data-importer.php:258-270`):
 - Uses `User_Logger->info_message('user_created', $context)`
 - **Initiator Logic**: Always uses `OTHER` (we don't know who created user accounts)
 - No `_user_id`, `_user_login`, or `_user_email` set as initiator context
-- Context matches User_Logger format exactly:
-  - `created_user_id`, `created_user_login`, `created_user_email`
-  - `created_user_first_name`, `created_user_last_name`, `created_user_url`
-  - `created_user_role` (comma-separated if multiple roles)
+- **Only stores immutable data** to avoid false historical records:
+  - `created_user_id` - User ID (immutable)
+  - `created_user_login` - Username (immutable in WordPress)
   - `_date`, `_initiator`, `_imported_event`
-- Displays as: "Created user {login} ({email}) with role {role}" by "Other"
+- **Does NOT store** (these can change over time):
+  - `created_user_email` - Can be changed by user/admin
+  - `created_user_first_name`, `created_user_last_name` - Can be changed
+  - `created_user_url` - Can be changed
+  - `created_user_role` - Can be changed (promotions/demotions)
+- **Rationale**: Storing current role/email with a backdated timestamp creates false historical records (e.g., claiming someone was "Administrator" in 2020 when they may have been promoted later)
+- Displays as: "Created user {login}" by "Other" (with current data fetched from DB if fields missing)
 
 **Imported Event Marker**:
 - All imported events include `_imported_event => true` in their context
