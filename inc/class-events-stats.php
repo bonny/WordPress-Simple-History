@@ -329,23 +329,36 @@ class Events_Stats {
 
 		$events_table = $this->get_events_table_name();
 
+		// Get WordPress timezone offset for converting dates from GMT to local timezone.
+		// Database stores dates in GMT, but we need to group by dates in WordPress timezone.
+		$wp_timezone = wp_timezone();
+		$wp_offset_seconds = $wp_timezone->getOffset( new \DateTime( 'now', $wp_timezone ) );
+		$wp_offset_string = sprintf(
+			'%s%02d:%02d',
+			( $wp_offset_seconds >= 0 ) ? '+' : '-',
+			abs( $wp_offset_seconds ) / 3600,
+			( abs( $wp_offset_seconds ) % 3600 ) / 60
+		);
+
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT 
-					DATE(date) as date,
+				'SELECT
+					DATE(CONVERT_TZ(date, "+00:00", %s)) as date,
 					COUNT(*) as count
-				FROM 
+				FROM
 					%i
-				WHERE 
+				WHERE
 					date >= FROM_UNIXTIME(%d)
 					AND date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					DATE(date)
-				ORDER BY 
+				GROUP BY
+					DATE(CONVERT_TZ(date, "+00:00", %s))
+				ORDER BY
 					date ASC',
+				$wp_offset_string,
 				$events_table,
 				$date_from,
-				$date_to
+				$date_to,
+				$wp_offset_string
 			)
 		);
 

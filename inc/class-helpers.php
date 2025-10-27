@@ -1364,13 +1364,24 @@ class Helpers {
 		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 		$db_engine = Log_Query::get_db_engine();
 
+		// Get WordPress timezone offset for converting dates from GMT to local timezone.
+		// Database stores dates in GMT, but we need to group by dates in WordPress timezone.
+		$wp_timezone = wp_timezone();
+		$wp_offset_seconds = $wp_timezone->getOffset( new \DateTime( 'now', $wp_timezone ) );
+		$wp_offset_string = sprintf(
+			'%s%02d:%02d',
+			( $wp_offset_seconds >= 0 ) ? '+' : '-',
+			abs( $wp_offset_seconds ) / 3600,
+			( abs( $wp_offset_seconds ) % 3600 ) / 60
+		);
+
 		$sql = null;
 
 		if ( $db_engine === 'mysql' ) {
 			$sql = sprintf(
 				'
 					SELECT
-						date_format(date, "%%Y-%%m-%%d") AS yearDate,
+						date_format(CONVERT_TZ(date, "+00:00", "%4$s"), "%%Y-%%m-%%d") AS yearDate,
 						count(date) AS count
 					FROM
 						%1$s
@@ -1382,14 +1393,15 @@ class Helpers {
 				',
 				$simple_history->get_events_table_name(),
 				Date_Helper::get_last_n_days_start_timestamp( $period_days ),
-				$sqlStringLoggersUserCanRead
+				$sqlStringLoggersUserCanRead,
+				$wp_offset_string
 			);
 		} elseif ( $db_engine === 'sqlite' ) {
-			// SQLite does not support date_format() or UNIX_TIMESTAMP so we need to use strftime().
+			// SQLite: Convert from GMT to WordPress timezone by adding offset seconds.
 			$sql = sprintf(
 				'
 					SELECT
-						strftime("%%Y-%%m-%%d", date) AS yearDate,
+						strftime("%%Y-%%m-%%d", datetime(date, "%4$s seconds")) AS yearDate,
 						count(date) AS count
 					FROM
 						%1$s
@@ -1401,7 +1413,8 @@ class Helpers {
 				',
 				$simple_history->get_events_table_name(),
 				Date_Helper::get_last_n_days_start_timestamp( $period_days ),
-				$sqlStringLoggersUserCanRead
+				$sqlStringLoggersUserCanRead,
+				$wp_offset_seconds >= 0 ? "+{$wp_offset_seconds}" : $wp_offset_seconds
 			);
 		}
 
