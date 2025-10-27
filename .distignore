@@ -1,7 +1,10 @@
+/.claude
 /.cursor
 /.git
 /.github
 /.idea
+/.playwright-mcp
+/.vscode
 /.wordpress-org
 /assets-wp-repo
 /cursor
@@ -25,6 +28,8 @@
 .prettierrc
 .typos.toml
 .valetrc
+AGENTS.md
+CLAUDE.local.md
 CLAUDE.md
 code.md
 codeception.dist.yml
@@ -39,5 +44,6 @@ phpcs.xml.dist
 phpstan.neon
 phpunit.xml
 README.md
+readme.issue-*.md
 readme.slot-slotfills-filters.md
 rector.php
