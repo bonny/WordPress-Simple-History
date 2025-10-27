@@ -154,11 +154,12 @@ class Email_Report_Service extends Service {
 		$peak_days = $events_stats->get_peak_days( $date_from, $date_to );
 
 		// Convert to array format for template (handle both empty and populated results).
+		// Use day numbers (0-6) instead of translated names to avoid language issues.
 		$all_days = [];
 		if ( $peak_days && is_array( $peak_days ) ) {
 			foreach ( $peak_days as $day ) {
 				$all_days[] = [
-					'name' => $day->day_name,
+					'day_number' => $day->day,  // 0=Sunday, 6=Saturday
 					'count' => $day->count,
 				];
 			}
