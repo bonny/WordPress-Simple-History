@@ -244,12 +244,26 @@ $args = wp_parse_args(
 							
 							<?php
 							// Create a lookup array from most_active_days for easy access.
+							// Use day-of-week numbers (0-6) to avoid language mismatch issues.
 							$day_counts = [];
 							foreach ( $args['most_active_days'] as $day ) {
 								if ( isset( $day['name'] ) && isset( $day['count'] ) ) {
-									// The day name comes from Events_Stats as full day name (e.g., "Monday").
+									// Convert day name to day-of-week number (0=Sunday, 6=Saturday).
+									// Use a mapping to avoid language issues with day names.
+									$day_to_number = [
+										'sunday' => 0, 'söndag' => 0,
+										'monday' => 1, 'måndag' => 1,
+										'tuesday' => 2, 'tisdag' => 2,
+										'wednesday' => 3, 'onsdag' => 3,
+										'thursday' => 4, 'torsdag' => 4,
+										'friday' => 5, 'fredag' => 5,
+										'saturday' => 6, 'lördag' => 6,
+									];
 									$day_name_lower = strtolower( $day['name'] );
-									$day_counts[ $day_name_lower ] = $day['count'];
+									$day_number = isset( $day_to_number[ $day_name_lower ] ) ? $day_to_number[ $day_name_lower ] : null;
+									if ( $day_number !== null ) {
+										$day_counts[ $day_number ] = $day['count'];
+									}
 								}
 							}
 
@@ -265,7 +279,7 @@ $args = wp_parse_args(
 							// Iterate through each day in the range.
 							while ( $current_date <= $end_date ) {
 								$day_name = $current_date->format( 'l' ); // Full day name (e.g., "Monday").
-								$day_key = strtolower( $day_name );
+								$day_number = (int) $current_date->format( 'w' ); // Day of week (0=Sunday, 6=Saturday).
 
 								// Get full formatted date for tooltip.
 								$full_date = wp_date(
@@ -281,8 +295,8 @@ $args = wp_parse_args(
 
 								$ordered_days[] = [
 									'name' => $day_name,
-									'key' => $day_key,
-									'count' => isset( $day_counts[ $day_key ] ) ? $day_counts[ $day_key ] : 0,
+									'key' => $day_number,
+									'count' => isset( $day_counts[ $day_number ] ) ? $day_counts[ $day_number ] : 0,
 									'full_date' => $full_date,
 									'date_ymd' => $date_ymd,
 								];
