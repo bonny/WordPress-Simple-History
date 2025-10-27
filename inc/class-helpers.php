@@ -1368,20 +1368,17 @@ class Helpers {
 		// Database stores dates in GMT, but we need to group by dates in WordPress timezone.
 		$wp_timezone = wp_timezone();
 		$wp_offset_seconds = $wp_timezone->getOffset( new \DateTime( 'now', $wp_timezone ) );
-		$wp_offset_string = sprintf(
-			'%s%02d:%02d',
-			( $wp_offset_seconds >= 0 ) ? '+' : '-',
-			abs( $wp_offset_seconds ) / 3600,
-			( abs( $wp_offset_seconds ) % 3600 ) / 60
-		);
 
 		$sql = null;
 
 		if ( $db_engine === 'mysql' ) {
+			// Use DATE_ADD with INTERVAL to convert from GMT to WordPress timezone.
+			// This is more reliable than CONVERT_TZ which requires timezone tables.
+			// Note: We use seconds because timezone offsets can be fractional hours (e.g., +5:30 for India).
 			$sql = sprintf(
 				'
 					SELECT
-						date_format(CONVERT_TZ(date, "+00:00", "%4$s"), "%%Y-%%m-%%d") AS yearDate,
+						date_format(DATE_ADD(date, INTERVAL %4$d SECOND), "%%Y-%%m-%%d") AS yearDate,
 						count(date) AS count
 					FROM
 						%1$s
@@ -1394,7 +1391,7 @@ class Helpers {
 				$simple_history->get_events_table_name(),
 				Date_Helper::get_last_n_days_start_timestamp( $period_days ),
 				$sqlStringLoggersUserCanRead,
-				$wp_offset_string
+				$wp_offset_seconds
 			);
 		} elseif ( $db_engine === 'sqlite' ) {
 			// SQLite: Convert from GMT to WordPress timezone by adding offset seconds.
