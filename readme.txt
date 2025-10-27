@@ -337,9 +337,6 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 ### Unreleased
 
 - Add context search to the log GUI filters.
-
-### Unreleased
-
 - Add date support to create event REST API endpoint.
 
 ### 5.17.0 (October 2025)
