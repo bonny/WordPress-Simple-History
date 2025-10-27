@@ -29,6 +29,7 @@ This feature provides a way to import existing WordPress data into Simple Histor
 - Debug tracking for troubleshooting with detailed skip reporting
 - **Preview feature**: Shows approximate counts before import
 - **Visual indicators**: Simple "Imported from existing data" text label for imported events
+- **Delete imported data**: Testing utility to clear all imported events and re-import
 
 **Planned Enhancement**:
 - 📋 Auto-import 60 days of data on plugin activation (matches default retention policy)
@@ -716,8 +717,8 @@ Initial testing on a development site:
 ## Related Code
 
 **Backend (PHP)**:
-- **Importer** (Data Layer): `inc/class-existing-data-importer.php` (main import logic, preview counts)
-- **Import Handler** (Business Logic): `inc/services/class-import-handler.php` (form submission processing, transient management)
+- **Importer** (Data Layer): `inc/class-existing-data-importer.php` (main import logic, preview counts, delete imported events)
+- **Import Handler** (Business Logic): `inc/services/class-import-handler.php` (form submission processing, delete handler, UI rendering)
 - **Experimental Features Page** (UI Layer): `inc/services/class-experimental-features-page.php` (form rendering, result display)
 - **Post Logger**: `loggers/class-post-logger.php` (used for logging post events)
 - **User Logger**: `loggers/class-user-logger.php:47-50` (user_created message definition)
@@ -783,6 +784,23 @@ Initial testing on a development site:
 5. Review results and check history log
 6. Check debug log at: `/data/wp/wordpress-stable-mariadb/wp-content/debug.log` for detailed import results
 7. **Test Duplicate Prevention**: Run the same import again and verify that all items are skipped
+8. **Test Delete Function**: Click "Delete All Imported Data" to clear imported events and re-import to verify changes
+
+### Delete Imported Data (Testing Utility)
+
+A "Delete All Imported Data" button is available at the bottom of the Experimental Features page. This utility:
+
+- **Purpose**: Allows developers to clear all imported events and re-import to test changes to the import script
+- **What it does**: Deletes only events marked with the `_imported_event` context key
+- **What it preserves**: All naturally logged events (non-imported) remain untouched
+- **Safety**: Includes confirmation dialog and warning message
+- **Use case**: Development and testing workflow - import → test → delete → modify script → re-import
+
+**Implementation Details**:
+- Backend: `Existing_Data_Importer->delete_all_imported()` method
+- Query: Uses table alias to avoid SQL reserved word issues with `key` column
+- UI: Red danger-styled button with JavaScript confirmation
+- Files: `inc/class-existing-data-importer.php`, `inc/services/class-import-handler.php`
 
 ## Next Steps
 

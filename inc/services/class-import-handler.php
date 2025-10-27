@@ -20,11 +20,19 @@ class Import_Handler extends Service {
 	const ACTION_NAME = 'simple_history_import_existing_data';
 
 	/**
+	 * Action name for deleting imported data.
+	 */
+	const DELETE_ACTION_NAME = 'simple_history_delete_imported_data';
+
+	/**
 	 * Register the service.
 	 */
 	public function loaded() {
 		// Hook into admin-post to handle import form submissions.
 		add_action( 'admin_post_' . self::ACTION_NAME, [ $this, 'handle' ] );
+
+		// Hook into admin-post to handle delete requests.
+		add_action( 'admin_post_' . self::DELETE_ACTION_NAME, [ $this, 'handle_delete' ] );
 
 		// Hook into experimental features page to render the import UI.
 		add_action( 'simple_history/experimental_features/render', [ $this, 'render_feature' ], 10 );
@@ -101,6 +109,49 @@ class Import_Handler extends Service {
 	}
 
 	/**
+	 * Handle the delete imported data request.
+	 *
+	 * Validates the request, deletes all imported events, and redirects back
+	 * to the experimental features page with results as URL parameters.
+	 */
+	public function handle_delete() {
+		// Verify nonce.
+		if ( ! isset( $_POST['simple_history_delete_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['simple_history_delete_nonce'] ) ), self::DELETE_ACTION_NAME ) ) {
+			wp_die( esc_html__( 'Security check failed', 'simple-history' ) );
+		}
+
+		// Check permissions.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to perform this action', 'simple-history' ) );
+		}
+
+		// Create importer instance.
+		$importer = new Existing_Data_Importer( $this->simple_history );
+
+		// Delete all imported events.
+		$results = $importer->delete_all_imported();
+
+		// Log results for debugging.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( '[Simple History Import] Delete completed with results:' );
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		error_log( print_r( $results, true ) );
+
+		// Redirect back to the page with results as URL parameters.
+		$redirect_url = add_query_arg(
+			[
+				'page' => Experimental_Features_Page::PAGE_SLUG,
+				'delete-completed' => '1',
+				'events-deleted' => isset( $results['events_deleted'] ) ? intval( $results['events_deleted'] ) : 0,
+			],
+			admin_url( 'admin.php' )
+		);
+
+		wp_safe_redirect( $redirect_url );
+		exit;
+	}
+
+	/**
 	 * Render the data import feature UI.
 	 *
 	 * Hooked into simple_history/experimental_features/render.
@@ -124,7 +175,28 @@ class Import_Handler extends Service {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$users_skipped_logged = isset( $_GET['users-skipped-logged'] ) ? intval( $_GET['users-skipped-logged'] ) : 0;
 
+		// Check if delete was just completed.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$delete_completed = isset( $_GET['delete-completed'] ) && $_GET['delete-completed'] === '1';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$events_deleted = isset( $_GET['events-deleted'] ) ? intval( $_GET['events-deleted'] ) : 0;
+
 		?>
+		<?php if ( $delete_completed ) : ?>
+			<div class="notice notice-success is-dismissible">
+				<p>
+					<strong><?php esc_html_e( 'Delete completed!', 'simple-history' ); ?></strong><br>
+					<?php
+					printf(
+						/* translators: %d: Number of events deleted */
+						esc_html__( 'Deleted %d imported events.', 'simple-history' ),
+						(int) $events_deleted
+					);
+					?>
+				</p>
+			</div>
+		<?php endif; ?>
+
 		<?php if ( $import_completed ) : ?>
 			<div class="notice notice-success is-dismissible">
 				<p>
@@ -322,6 +394,31 @@ class Import_Handler extends Service {
 					}
 				})();
 			</script>
+		</div>
+
+		<div class="card" style="margin-top: 20px; border-left: 4px solid #d63638;">
+			<h2><?php esc_html_e( 'Delete Imported Data', 'simple-history' ); ?></h2>
+
+			<p>
+				<?php
+				esc_html_e(
+					'Delete all imported events from the history log. This is useful for testing - it allows you to clear imported data and re-run the import to verify any changes to the import script.',
+					'simple-history'
+				);
+				?>
+			</p>
+
+			<p class="description" style="color: #d63638;">
+				<strong><?php esc_html_e( 'Warning:', 'simple-history' ); ?></strong>
+				<?php esc_html_e( 'This action cannot be undone. Only events marked as imported will be deleted. Naturally logged events will not be affected.', 'simple-history' ); ?>
+			</p>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete all imported events? This action cannot be undone.', 'simple-history' ) ); ?>');">
+				<?php wp_nonce_field( self::DELETE_ACTION_NAME, 'simple_history_delete_nonce' ); ?>
+				<input type="hidden" name="action" value="<?php echo esc_attr( self::DELETE_ACTION_NAME ); ?>">
+
+				<?php submit_button( __( 'Delete All Imported Data', 'simple-history' ), 'delete', 'submit', false ); ?>
+			</form>
 		</div>
 		<?php
 	}

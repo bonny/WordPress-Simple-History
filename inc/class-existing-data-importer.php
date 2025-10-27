@@ -460,4 +460,71 @@ class Existing_Data_Importer {
 
 		return $counts;
 	}
+
+	/**
+	 * Delete all imported events.
+	 *
+	 * This is useful for testing - allows you to clear imported data
+	 * and re-run the import to verify changes.
+	 *
+	 * @return array Delete results with 'events_deleted' count.
+	 */
+	public function delete_all_imported() {
+		global $wpdb;
+
+		$table_name = $this->simple_history->get_events_table_name();
+		$context_table_name = $this->simple_history->get_contexts_table_name();
+
+		// First, get all history IDs that have the _imported_event context.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$history_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT c.history_id
+				FROM {$context_table_name} AS c
+				WHERE c.key = %s",
+				'_imported_event'
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// Debug: Log what we found.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( '[Simple History Delete] Found ' . count( $history_ids ) . ' imported events to delete' );
+
+		if ( empty( $history_ids ) ) {
+			return [
+				'events_deleted' => 0,
+				'success' => true,
+			];
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $history_ids ), '%d' ) );
+
+		// Delete from contexts table.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$context_table_name}
+				WHERE history_id IN ({$placeholders})",
+				...$history_ids
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// Delete from history table.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$deleted_count = $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$table_name}
+				WHERE id IN ({$placeholders})",
+				...$history_ids
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return [
+			'events_deleted' => (int) $deleted_count,
+			'success' => true,
+		];
+	}
 }
