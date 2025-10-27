@@ -4,10 +4,12 @@
 **Branch**: `issue-583-import-existing-data`
 **Issue URL**: https://github.com/bonny/WordPress-Simple-History/issues/583
 **Code Quality**: ✅ phpcs passed, ✅ phpstan passed
+**Dependencies**: ✅ Issue #584 (date-based ordering) - MERGED TO MAIN
 
 ## Summary
 
 ✅ **Core functionality implemented and working**
+✅ **Date-based ordering dependency resolved** (Issue #584 merged to main)
 📋 **Auto-import on activation planned** (see "Auto-Import on Activation" section below)
 
 This feature provides a way to import existing WordPress data into Simple History, populating the log with historical events from before the plugin was activated. The implementation is accessible through an "Experimental Features" admin page where users can manually trigger imports with configurable options.
@@ -47,6 +49,8 @@ The information available in WordPress for historical events is limited, but we 
 - Post and page changes (modification dates, authors)
 - User registration dates
 - Any public post types available in WordPress
+
+**Note**: This feature required date-based ordering (Issue #584) to work correctly. That issue has been merged to main, so imported events now display in proper chronological order.
 
 ## Goals
 
@@ -613,41 +617,15 @@ Initial testing on a development site:
 - ✅ Debug logging works correctly for troubleshooting
 - ✅ Duplicate prevention works correctly - re-running import skips all items
 - ✅ Skipped counts display correctly in UI
+- ✅ Date ordering works correctly - imported events display chronologically (Issue #584 merged)
 - ⚠️ Edge cases discovered:
   - Posts with `0000-00-00 00:00:00` dates handled gracefully
   - Future scheduled posts imported correctly
   - Empty date fields don't cause errors
 
-### Known Issues & Fixes
-
-1. **User registration message format** (FIXED)
-   - **Issue**: Initially used generic `info()` method with custom message
-   - **Fix**: Changed to `info_message('user_created', $context)` with proper context parameters
-   - **Location**: `inc/class-existing-data-importer.php:181-194`
-   - **Result**: Messages now display as "Created user {login} ({email}) with role {role}"
-
-2. **Service namespace import** (FIXED)
-   - **Issue**: Incorrect namespace `use Simple_History\Service;`
-   - **Fix**: Changed to `use Simple_History\Services\Service;`
-   - **Location**: `inc/services/class-experimental-features-page.php:8`
-
-3. **Security - Input sanitization** (FIXED)
-   - **Issue**: Missing proper escaping and unslashing for POST/GET data
-   - **Fix**: Added `sanitize_text_field()` and `wp_unslash()` for all user inputs
-   - **Location**: `inc/services/class-experimental-features-page.php:190-202`
-
 ### Known Limitations
 
-1. **Date ordering issue** (See Issue #584)
-   - **Issue**: Imported events have high primary key IDs but old dates
-   - **Impact**: When importing old data into a site with existing history, imported events appear at the top (by ID) instead of chronologically
-   - **Example**: Import 2020 events into site with 2024 events → 2020 events show first (wrong order)
-   - **Root Cause**: Simple History orders by `id DESC` not `date DESC` due to occasions grouping requirements
-   - **Status**: Separate issue tracked in #584 to implement date ordering option
-   - **Workaround**: Import historical data before plugin accumulates new events, or wait for #584 implementation
-   - **Related File**: `readme.issue-584-date-ordering.md`
-
-2. **Large Dataset Limitations** ⚠️ **PERFORMANCE CONSIDERATIONS**
+**Large Dataset Limitations** ⚠️ **PERFORMANCE CONSIDERATIONS**
 
    ### Default: Import All Data (No Limit)
 
