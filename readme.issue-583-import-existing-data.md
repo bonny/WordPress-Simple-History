@@ -403,6 +403,27 @@ The import functionality has been implemented as an **experimental feature** acc
 - Provides transparency about what data is being imported
 - Gives users control over when and what to import
 
+**Separation of Concerns** (following WordPress best practices):
+- **UI Layer**: Experimental Features page renders the form and displays results
+- **Business Logic Layer**: Import Handler processes form submissions via WordPress admin-post.php
+- **Data Layer**: Existing Data Importer handles the actual import operations
+- **Communication**: Results passed via URL parameters (WordPress standard for simple success messages)
+
+**Request Flow**:
+1. User submits form from Experimental Features page
+2. Form posts to `admin-post.php` (WordPress core routing)
+3. WordPress routes to `admin_post_simple_history_import_existing_data` hook
+4. Import Handler validates, runs import
+5. Import Handler redirects back to page with results as URL parameters
+6. Page reads results from `$_GET` and displays message
+
+**Hook-Based Feature Rendering** (WordPress-idiomatic):
+- Experimental Features page fires: `do_action('simple_history/experimental_features/render', $simple_history)`
+- Each feature hooks in to render its UI independently
+- Import_Handler: `add_action('simple_history/experimental_features/render', [$this, 'render_feature'], 10)`
+- Benefits: Features are self-contained, easy to add/remove, third-party extensible
+- Future features simply hook in without modifying the page class
+
 ### Files Created
 
 1. **`inc/class-existing-data-importer.php`**
@@ -410,13 +431,24 @@ The import functionality has been implemented as an **experimental feature** acc
    - Handles posts, pages, and users
    - Uses Simple History's logger infrastructure to create entries with historical dates
    - Supports configurable limits and post types
+   - Pure data layer - no knowledge of HTTP requests or UI
 
-2. **`inc/services/class-experimental-features-page.php`**
-   - Service class that adds an "Experimental Features" admin page
+2. **`inc/services/class-import-handler.php`** ✨ **NEW**
+   - Handles form submissions via WordPress admin-post hook
+   - Validates nonce and permissions
+   - Processes form data and calls the importer
+   - Redirects back to page with results as URL parameters
+   - **Renders import feature UI via hook** (`simple_history/experimental_features/render`)
+   - Co-locates UI and business logic for the import feature
+   - Separates business logic from page container
+
+3. **`inc/services/class-experimental-features-page.php`**
+   - Service class that adds an "Experimental Features" admin page (container only)
    - Auto-discovered by Simple History (placed in `/inc/services/`)
    - **Only loads if experimental features are enabled** (`Helpers::experimental_features_is_enabled()`)
-   - Provides UI for triggering imports
-   - Handles form submission and displays results
+   - Renders page wrapper and "About" section
+   - **Fires hook** `simple_history/experimental_features/render` for features to render themselves
+   - Clean separation: page is just a container (~100 lines)
 
 ### Key Features
 
@@ -706,8 +738,9 @@ Initial testing on a development site:
 ## Related Code
 
 **Backend (PHP)**:
-- **Importer**: `inc/class-existing-data-importer.php` (main import logic, preview counts)
-- **Service**: `inc/services/class-experimental-features-page.php` (Experimental Features admin page)
+- **Importer** (Data Layer): `inc/class-existing-data-importer.php` (main import logic, preview counts)
+- **Import Handler** (Business Logic): `inc/services/class-import-handler.php` (form submission processing, transient management)
+- **Experimental Features Page** (UI Layer): `inc/services/class-experimental-features-page.php` (form rendering, result display)
 - **Post Logger**: `loggers/class-post-logger.php` (used for logging post events)
 - **User Logger**: `loggers/class-user-logger.php:47-50` (user_created message definition)
 - **Logger Base**: `loggers/class-logger.php:535-556` (imported event indicator method)
