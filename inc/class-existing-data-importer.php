@@ -111,19 +111,31 @@ class Existing_Data_Importer {
 		$skipped_logged_count = 0;
 
 		foreach ( $posts as $post ) {
+			// Validate GMT dates. WordPress uses '0000-00-00 00:00:00' for drafts and scheduled posts.
+			// If GMT date is invalid, use the local date converted to GMT.
+			$post_date_gmt = $post->post_date_gmt;
+			if ( $post_date_gmt === '0000-00-00 00:00:00' || empty( $post_date_gmt ) ) {
+				$post_date_gmt = get_gmt_from_date( $post->post_date );
+			}
+
+			$post_modified_gmt = $post->post_modified_gmt;
+			if ( $post_modified_gmt === '0000-00-00 00:00:00' || empty( $post_modified_gmt ) ) {
+				$post_modified_gmt = get_gmt_from_date( $post->post_modified );
+			}
+
 			$post_detail = [
 				'id' => $post->ID,
 				'title' => $post->post_title,
 				'type' => $post->post_type,
 				'status' => $post->post_status,
-				'created_date' => $post->post_date_gmt,
-				'modified_date' => $post->post_modified_gmt,
+				'created_date' => $post_date_gmt,
+				'modified_date' => $post_modified_gmt,
 				'events_logged' => [],
 			];
 
 			$has_created = isset( $already_logged_created[ (string) $post->ID ] );
 			$has_updated = isset( $already_logged_updated[ (string) $post->ID ] );
-			$post_has_updates = $post->post_date_gmt !== $post->post_modified_gmt;
+			$post_has_updates = $post_date_gmt !== $post_modified_gmt;
 
 			// Skip if both events already exist (or just created if no updates).
 			if ( $has_created && ( ! $post_has_updates || $has_updated ) ) {
@@ -157,7 +169,7 @@ class Existing_Data_Importer {
 					'post_id' => $post->ID,
 					'post_type' => $post->post_type,
 					'post_title' => $post->post_title,
-					'_date' => $post->post_date_gmt,
+					'_date' => $post_date_gmt,
 					'_imported_event' => '1',
 				];
 
@@ -175,7 +187,7 @@ class Existing_Data_Importer {
 
 				$post_detail['events_logged'][] = [
 					'type' => 'created',
-					'date' => $post->post_date_gmt,
+					'date' => $post_date_gmt,
 				];
 			}
 
@@ -188,7 +200,7 @@ class Existing_Data_Importer {
 					'post_id' => $post->ID,
 					'post_type' => $post->post_type,
 					'post_title' => $post->post_title,
-					'_date' => $post->post_modified_gmt,
+					'_date' => $post_modified_gmt,
 					'_imported_event' => '1',
 				];
 
@@ -206,7 +218,7 @@ class Existing_Data_Importer {
 
 				$post_detail['events_logged'][] = [
 					'type' => 'updated',
-					'date' => $post->post_modified_gmt,
+					'date' => $post_modified_gmt,
 				];
 			}
 
