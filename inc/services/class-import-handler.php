@@ -259,12 +259,23 @@ class Import_Handler extends Service {
 		<?php endif; ?>
 
 		<div class="card" style="margin-top: 20px;">
-			<h2><?php esc_html_e( 'Import Existing Data', 'simple-history' ); ?></h2>
+			<h2><?php esc_html_e( 'Existing Data', 'simple-history' ); ?></h2>
 
 			<p>
 				<?php
 				esc_html_e(
-					'Import historical data from your WordPress installation to populate the history log. This will add entries for existing posts, pages, and other content based on their creation and modification dates.',
+					'Import historical data from your WordPress installation to populate the history log, or delete previously imported data.',
+					'simple-history'
+				);
+				?>
+			</p>
+
+			<h3 style="margin-top: 25px;"><?php esc_html_e( 'Import', 'simple-history' ); ?></h3>
+
+			<p>
+				<?php
+				esc_html_e(
+					'Import historical data based on creation and modification dates from your WordPress installation.',
 					'simple-history'
 				);
 				?>
@@ -401,10 +412,8 @@ class Import_Handler extends Service {
 					}
 				})();
 			</script>
-		</div>
 
-		<div class="card" style="margin-top: 20px; border-left: 4px solid #d63638;">
-			<h2><?php esc_html_e( 'Delete Imported Data', 'simple-history' ); ?></h2>
+			<h3 style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dcdcde;"><?php esc_html_e( 'Delete', 'simple-history' ); ?></h3>
 
 			<p>
 				<?php
