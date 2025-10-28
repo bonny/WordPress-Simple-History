@@ -426,26 +426,10 @@ class Sidebar_Stats_Dropin extends Dropin {
 				do_action( 'simple_history/dropin/stats/before_content' );
 
 				// Today, 7 days, 30 days.
-				echo wp_kses_post( $this->get_events_per_days_stats( $stats_data ) );
+				echo wp_kses_post( $this->get_events_per_days_stats_html( $stats_data ) );
 
 				// Most active users in last 30 days.
-				if ( $current_user_can_list_users && isset( $stats_data['top_users'] ) ) {
-					?>
-					<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
-						<span class="sh-StatsDashboard-statLabel">
-							<?php
-							printf(
-								// translators: 1 is number of days.
-								esc_html__( 'Most active users in last %d days', 'simple-history' ),
-								esc_html( Date_Helper::DAYS_PER_MONTH )
-							);
-							?>
-							<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
-						</span>
-						<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
-					</div>
-					<?php
-				}
+				echo wp_kses_post( $this->get_most_active_users_html( $current_user_can_list_users, $stats_data ) );
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_chart_data( $num_days_month, $stats_data['chart_data_month'] );
@@ -473,12 +457,49 @@ class Sidebar_Stats_Dropin extends Dropin {
 	}
 
 	/**
+	 * Output HTML for most active users data, i.e. avatars and usernames.
+	 *
+	 * @param bool  $current_user_can_list_users If current user has list users capability.
+	 * @param array $stats_data Stats data.
+	 * @return string Avatars and usernames if user can view, empty string otherwise.
+	 */
+	protected function get_most_active_users_html( $current_user_can_list_users, $stats_data ) {
+		if ( ! $current_user_can_list_users ) {
+			return '';
+		}
+
+		if ( ! isset( $stats_data['top_users'] ) ) {
+			return '';
+		}
+
+		ob_start();
+
+		?>
+		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
+			<span class="sh-StatsDashboard-statLabel">
+				<?php
+				printf(
+					// translators: 1 is number of days.
+					esc_html__( 'Most active users in last %d days', 'simple-history' ),
+					esc_html( Date_Helper::DAYS_PER_MONTH )
+				);
+				?>
+				<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
+			</span>
+			<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
+		</div>
+		<?php
+
+		return ob_get_clean();
+	}
+
+	/**
 	 * Get HTML for number of events per today, 7 days, 30 days.
 	 *
 	 * @param array $stats_data Array with stats data.
 	 * @return string
 	 */
-	protected function get_events_per_days_stats( $stats_data ) {
+	protected function get_events_per_days_stats_html( $stats_data ) {
 		ob_start();
 
 		?>
