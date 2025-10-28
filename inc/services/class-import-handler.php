@@ -83,12 +83,6 @@ class Import_Handler extends Service {
 			]
 		);
 
-		// Log detailed results for debugging.
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( '[Simple History Import] Import completed with results:' );
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.PHP.DevelopmentFunctions.error_log_print_r
-		error_log( print_r( $results, true ) );
-
 		// Redirect back to the page with results as URL parameters.
 		$redirect_url = add_query_arg(
 			[
@@ -130,12 +124,6 @@ class Import_Handler extends Service {
 
 		// Delete all imported events.
 		$results = $importer->delete_all_imported();
-
-		// Log results for debugging.
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( '[Simple History Import] Delete completed with results:' );
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.PHP.DevelopmentFunctions.error_log_print_r
-		error_log( print_r( $results, true ) );
 
 		// Redirect back to the page with results as URL parameters.
 		$redirect_url = add_query_arg(

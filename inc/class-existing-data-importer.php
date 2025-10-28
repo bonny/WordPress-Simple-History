@@ -574,10 +574,6 @@ class Existing_Data_Importer {
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// Debug: Log what we found.
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( '[Simple History Delete] Found ' . count( $history_ids ) . ' imported events to delete' );
-
 		if ( empty( $history_ids ) ) {
 			return [
 				'events_deleted' => 0,
