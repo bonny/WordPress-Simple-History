@@ -424,35 +424,11 @@ class Sidebar_Stats_Dropin extends Dropin {
 				 * Fires inside the stats sidebar box, after the headline but before any content.
 				 */
 				do_action( 'simple_history/dropin/stats/before_content' );
-				?>
 
-				<div class="sh-flex sh-justify-between sh-items-end sh-mb-large sh-mt-large">
-					<?php
-					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $this->get_stat_dashboard_item(
-						__( 'Today', 'simple-history' ),
-						number_format_i18n( $stats_data['num_events_today'] ),
-						_n( 'event', 'events', $stats_data['num_events_today'], 'simple-history' ),
-					);
+				// Today, 7 days, 30 days.
+				echo wp_kses_post( $this->get_events_per_days_stats( $stats_data ) );
 
-					echo $this->get_stat_dashboard_item(
-						// translators: %d is the number of days.
-						sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_WEEK ),
-						number_format_i18n( $stats_data['num_events_week'] ),
-						_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
-					);
-
-					echo $this->get_stat_dashboard_item(
-						// translators: %d is the number of days.
-						sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_MONTH ),
-						number_format_i18n( $stats_data['num_events_month'] ),
-						_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
-					);
-					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-					?>
-				</div>
-
-				<?php
+				// Most active users in last 30 days.
 				if ( $current_user_can_list_users && isset( $stats_data['top_users'] ) ) {
 					?>
 					<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
@@ -494,6 +470,46 @@ class Sidebar_Stats_Dropin extends Dropin {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Get HTML for number of events per today, 7 days, 30 days.
+	 *
+	 * @param array $stats_data Array with stats data.
+	 * @return string
+	 */
+	protected function get_events_per_days_stats( $stats_data ) {
+		ob_start();
+
+		?>
+		<div class="sh-flex sh-justify-between sh-items-end sh-mb-large sh-mt-large">
+			<?php
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $this->get_stat_dashboard_item(
+				__( 'Today', 'simple-history' ),
+				number_format_i18n( $stats_data['num_events_today'] ),
+				_n( 'event', 'events', $stats_data['num_events_today'], 'simple-history' ),
+			);
+
+			echo $this->get_stat_dashboard_item(
+				// translators: %d is the number of days.
+				sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_WEEK ),
+				number_format_i18n( $stats_data['num_events_week'] ),
+				_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
+			);
+
+			echo $this->get_stat_dashboard_item(
+				// translators: %d is the number of days.
+				sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_MONTH ),
+				number_format_i18n( $stats_data['num_events_month'] ),
+				_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
+			);
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
+			</div>
+		<?php
+
+		return ob_get_clean();
 	}
 
 	/**
