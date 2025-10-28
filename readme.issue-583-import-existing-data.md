@@ -16,7 +16,7 @@ This feature provides a way to import existing WordPress data into Simple Histor
 
 **What's Working**:
 - ✅ Manual import via Experimental Features page (IMPLEMENTED)
-- Import posts and pages with creation and modification dates
+- Import posts, pages, and attachments (media) with creation and modification dates
 - Import users with registration dates
 - **Accurate initiators**: Uses post_author for posts (WP_USER), OTHER for users
 - **Simplified UI**: Clean interface with expandable options
@@ -24,8 +24,9 @@ This feature provides a way to import existing WordPress data into Simple Histor
 - Configurable post type selection
 - Optional import limits (up to 10,000 items per type when enabled)
 - **Proper message formatting**: Customized messages for imported users (no empty email/role placeholders)
+- **Attachment import**: Uses Media Logger with proper file sizes, duplicate detection for naturally logged attachments
 - Historical date preservation using `_date` context
-- Duplicate prevention - automatically skips already-imported items
+- Duplicate prevention - automatically skips already-imported items and naturally logged events
 - Debug tracking for troubleshooting with detailed skip reporting
 - **Preview feature**: Shows approximate counts before import
 - **Visual indicators**: Simple "Imported from existing data" text label for imported events
@@ -48,8 +49,9 @@ When the plugin is installed it contains no history at all - an empty state that
 
 The information available in WordPress for historical events is limited, but we can pull in:
 - Post and page changes (modification dates, authors)
+- Media uploads/attachments (upload dates, authors)
 - User registration dates
-- Any public post types available in WordPress
+- Any public post types available in WordPress (plus attachments)
 
 **Note**: This feature required date-based ordering (Issue #584) to work correctly. That issue has been merged to main, so imported events now display in proper chronological order.
 
@@ -486,6 +488,13 @@ The importer correctly uses Simple History's logger infrastructure:
 **Post Import** (`inc/class-existing-data-importer.php:138-198`):
 - Uses `Post_Logger->info_message('post_created', $context)` for creation events
 - Uses `Post_Logger->info_message('post_updated', $context)` for modification events (if dates differ)
+- **Attachment Import** (special handling):
+  - Uses `Media_Logger->info_message('attachment_created', $context)` for attachments
+  - Uses `Media_Logger->info_message('attachment_updated', $context)` for attachment updates
+  - Context keys: `attachment_id`, `attachment_title`, `attachment_filename`, `attachment_filesize`
+  - File size calculated using `filesize(get_attached_file($id))` for proper display
+  - Duplicate detection uses `attachment_id` context key (not `post_id`)
+  - Post status: Handles 'inherit' status (standard for attachments)
 - **Initiator Logic**:
   - Uses `post_author` from WordPress post object
   - If author exists: Sets `_initiator` to `WP_USER` with full user context (`_user_id`, `_user_login`, `_user_email`)
@@ -840,9 +849,8 @@ A "Delete All Imported Data" button is available at the bottom of the Experiment
    - Background processing option (WP-Cron for very large sites)
    - Reduce memory footprint by limiting detail array storage
 
-2. **Additional Data Sources**:
+2. **Additional Data Source**:
    - **Comments** - WordPress stores `comment_date`, `comment_author`, `user_id` in `wp_comments` table
-   - **Media uploads (attachments)** - WordPress stores upload dates, but `attachment` post type is not public so not shown in UI by default
    - Note: WordPress options and taxonomy terms lack historical timestamps and cannot be imported
 
 3. **Smart Import** (leveraging `_imported_event` context):
