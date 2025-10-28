@@ -338,7 +338,9 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 - Add context search to the log GUI filters.
 - Add date support to create event REST API endpoint.
+- New experimental feature: Import existing data from WordPress into Simple History.
 - More fixes for time zones and localization issues.
+- Misc internal code improvements and changes.
 
 ### 5.17.0 (October 2025)
 
