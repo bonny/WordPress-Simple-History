@@ -143,6 +143,7 @@ Messages should be easily understood by regular users, not just developers.
 -   **Backlog**: Items for future consideration
 -   **To Do**: Next items to work on
 -   **In Progress**: Currently being worked on
+-   **Experimental**: Experimental or proof-of-concept work
 -   **Done**: Completed items
 
 #### Project Configuration
@@ -155,7 +156,11 @@ For automation and API access:
 - **Status field ID**: `PVTSSF_lAHOAANhgs4AidMqzga-LME`
 
 **Status Option IDs:**
+- "Backlog": `25e9263f`
+- "To do": `6c3f4438`
 - "In progress": `36813ba3`
+- "Experimental": `52a48e60`
+- "Done": `c40edce0`
 
 #### GitHub CLI Commands
 
