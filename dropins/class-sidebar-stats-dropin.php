@@ -305,7 +305,11 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 *
 	 * @return string HTML.
 	 */
-	protected function get_cta_link_html() {
+	protected function get_cta_link_html( $current_user_can_manage_options ) {
+		if ( ! $current_user_can_manage_options ) {
+			return '';
+		}
+
 		$stats_page_url = Menu_Manager::get_admin_url_by_slug( 'simple_history_stats_page' );
 
 		// Bail if no stats page url (user has no access to stats page).
@@ -387,6 +391,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$stats_data = $this->get_quick_stats_data( $num_days_month, $num_days_week );
 
 		$current_user_can_list_users = current_user_can( 'list_users' );
+		$current_user_can_manage_options = current_user_can( 'manage_options' );
 
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
@@ -398,7 +403,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 				<p class="sh-mt-0">
 					<?php
-					if ( current_user_can( 'manage_options' ) ) {
+					if ( $current_user_can_manage_options ) {
 						printf(
 							/* translators: %d is the number of minutes between cache refreshes */
 							esc_html__( 'Calculated from all events. Updates every %d minutes.', 'simple-history' ),
@@ -434,26 +439,45 @@ class Sidebar_Stats_Dropin extends Dropin {
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_chart_data( $num_days_month, $stats_data['chart_data_month'] );
 
-				// Show total installs and CTA for admins.
-				if ( current_user_can( 'manage_options' ) && isset( $stats_data['total_events'] ) ) {
-					$msg_text = sprintf(
-						// translators: 1 is number of events, 2 is description of when the plugin was installed.
-						__( 'A total of <b>%1$s events</b> have been logged since Simple History was installed.', 'simple-history' ),
-						number_format_i18n( $stats_data['total_events'] ),
-					);
+				// Show total events logged.
+				echo wp_kses_post( $this->get_total_events_logged_html( $current_user_can_manage_options, $stats_data ) );
 
-					// Append tooltip.
-					$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' ) );
-					echo wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
-
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $this->get_cta_link_html();
-				}
+				// Show insights page CTA.
+				echo wp_kses_post( $this->get_cta_link_html( $current_user_can_manage_options ) );
 
 				?>
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Get HTML for total events logged.
+	 *
+	 * @param bool  $current_user_can_manage_options If current user has manage options capability.
+	 * @param array $stats_data Stats data.
+	 * @return string HTML.
+	 */
+	protected function get_total_events_logged_html( $current_user_can_manage_options, $stats_data ) {
+		if ( ! $current_user_can_manage_options ) {
+			return '';
+		}
+
+		if ( ! isset( $stats_data['total_events'] ) ) {
+			return '';
+		}
+
+		$msg_text = sprintf(
+			// translators: 1 is number of events, 2 is description of when the plugin was installed.
+			__( 'A total of <b>%1$s events</b> have been logged since Simple History was installed.', 'simple-history' ),
+			number_format_i18n( $stats_data['total_events'] ),
+		);
+
+		// Append tooltip.
+		$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' ) );
+
+		// Return concatenated result.
+		return wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
 	}
 
 	/**
