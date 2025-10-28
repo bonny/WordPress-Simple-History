@@ -266,23 +266,24 @@ class Events_Stats {
 
 		$users = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT 
+				'SELECT
 					c.value as user_id,
 					COUNT(*) as count,
-					u.display_name
-				FROM 
+					u.display_name,
+					u.user_email
+				FROM
 					%i c
-				JOIN 
+				JOIN
 					%i h ON h.id = c.history_id
-				LEFT JOIN 
+				LEFT JOIN
 					%i u ON u.ID = CAST(c.value AS UNSIGNED)
-				WHERE 
+				WHERE
 					c.key = "_user_id"
 					AND h.date >= FROM_UNIXTIME(%d)
 					AND h.date <= FROM_UNIXTIME(%d)
-				GROUP BY 
+				GROUP BY
 					c.value
-				ORDER BY 
+				ORDER BY
 					count DESC
 				LIMIT %d',
 				$contexts_table,
@@ -304,6 +305,7 @@ class Events_Stats {
 				return [
 					'id'           => $user->user_id,
 					'display_name' => $user->display_name,
+					'user_email'   => $user->user_email,
 					'avatar'       => get_avatar_url( $user->user_id ),
 					'count'        => (int) $user->count,
 				];
