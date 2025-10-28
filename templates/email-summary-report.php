@@ -40,6 +40,7 @@ $args = wp_parse_args(
 		'email_subject' => __( 'Website Activity Summary', 'simple-history' ),
 		'total_events_this_week' => 0,
 		'most_active_days' => [],
+		'busiest_day_name' => __( 'No activity', 'simple-history' ),
 		'date_range' => '',
 		'site_url' => '',
 		'site_name' => '',
@@ -124,15 +125,21 @@ $args = wp_parse_args(
 		<!-- Visually Hidden Preheader Text -->
 		<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
 			<?php
-			$busiest_day = ! empty( $args['most_active_days'][0]['name'] ) ? $args['most_active_days'][0]['name'] : __( 'No activity', 'simple-history' );
-			echo esc_html(
-				sprintf(
-					/* translators: 1: number of events, 2: day of the week */
-					__( '%1$d events last week • %2$s was the busiest day', 'simple-history' ),
-					$args['total_events_this_week'],
-					$busiest_day
-				)
-			);
+			$busiest_day = ! empty( $args['busiest_day_name'] ) ? $args['busiest_day_name'] : __( 'No activity', 'simple-history' );
+
+			// Show different message if there was no activity.
+			if ( $args['total_events_this_week'] === 0 ) {
+				echo esc_html( __( 'No activity last week', 'simple-history' ) );
+			} else {
+				echo esc_html(
+					sprintf(
+						/* translators: 1: number of events, 2: day of the week */
+						__( '%1$d events last week • %2$s was the busiest day', 'simple-history' ),
+						$args['total_events_this_week'],
+						$busiest_day
+					)
+				);
+			}
 			?>
 		</div>
 		

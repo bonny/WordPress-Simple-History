@@ -167,6 +167,35 @@ class Email_Report_Service extends Service {
 
 		$stats['most_active_days'] = $all_days;
 
+		// Find the busiest day (day with the highest count).
+		$busiest_day_name = __( 'No activity', 'simple-history' );
+		if ( ! empty( $all_days ) ) {
+			$max_count = 0;
+			$busiest_day_number = 0;
+			foreach ( $all_days as $day ) {
+				if ( $day['count'] > $max_count ) {
+					$max_count = $day['count'];
+					$busiest_day_number = $day['day_number'];
+				}
+			}
+			// Only set the busiest day if there was actual activity.
+			if ( $max_count > 0 ) {
+				// Convert day number to localized day name.
+				// day_number: 0=Sunday, 1=Monday, etc.
+				$day_names = [
+					0 => __( 'Sunday', 'simple-history' ),
+					1 => __( 'Monday', 'simple-history' ),
+					2 => __( 'Tuesday', 'simple-history' ),
+					3 => __( 'Wednesday', 'simple-history' ),
+					4 => __( 'Thursday', 'simple-history' ),
+					5 => __( 'Friday', 'simple-history' ),
+					6 => __( 'Saturday', 'simple-history' ),
+				];
+				$busiest_day_name = isset( $day_names[ $busiest_day_number ] ) ? $day_names[ $busiest_day_number ] : __( 'No activity', 'simple-history' );
+			}
+		}
+		$stats['busiest_day_name'] = $busiest_day_name;
+
 		// Pass date range timestamps for chronological day ordering in template.
 		$stats['date_from_timestamp'] = $date_from;
 		$stats['date_to_timestamp'] = $date_to;
