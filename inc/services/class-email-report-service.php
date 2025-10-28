@@ -540,8 +540,8 @@ class Email_Report_Service extends Service {
 	 */
 	public function schedule_email_report() {
 		if ( ! wp_next_scheduled( 'simple_history/email_report' ) ) {
-			// Schedule for next Monday at 8:00 AM in WordPress timezone.
-			$next_monday = new \DateTimeImmutable( 'next monday 8:00:00', wp_timezone() );
+			// Schedule for next Monday at 6:00 AM in WordPress timezone.
+			$next_monday = new \DateTimeImmutable( 'next monday 6:00:00', wp_timezone() );
 			wp_schedule_event( $next_monday->getTimestamp(), 'weekly', 'simple_history/email_report' );
 		}
 	}
