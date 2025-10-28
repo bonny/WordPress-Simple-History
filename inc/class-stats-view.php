@@ -392,17 +392,24 @@ class Stats_View {
 			foreach ( $top_users as $user ) {
 				// Set z-index to reverse order, so first user is on top.
 				$style = 'z-index: ' . ( $user_count - $loop_count ) . ';';
+				$user_url = Helpers::get_filtered_events_url(
+					[
+						'users' => $user,
+					]
+				);
 				?>
 				<li class="sh-StatsDashboard-userItem" style="<?php echo esc_attr( $style ); ?>">
-					<img 
-						src="<?php echo esc_url( $user['avatar'] ); ?>" 
-						alt="<?php echo esc_attr( $user['display_name'] ); ?>" 
-						class="sh-StatsDashboard-userAvatar"
-					>
-					<span class="sh-StatsDashboard-userData">
-						<span class="sh-StatsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
-						<span class="sh-StatsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
-					</span>
+					<a href="<?php echo esc_url( $user_url ); ?>" class="sh-StatsDashboard-userLink">
+						<img
+							src="<?php echo esc_url( $user['avatar'] ); ?>"
+							alt="<?php echo esc_attr( $user['display_name'] ); ?>"
+							class="sh-StatsDashboard-userAvatar"
+						>
+						<span class="sh-StatsDashboard-userData">
+							<span class="sh-StatsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
+							<span class="sh-StatsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
+						</span>
+					</a>
 				</li>
 				<?php
 

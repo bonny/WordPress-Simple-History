@@ -141,6 +141,18 @@
 	margin-left: 0;
 }
 
+.sh-StatsDashboard-userLink {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+.sh-StatsDashboard-userLink:hover,
+.sh-StatsDashboard-userLink:focus {
+	outline: none;
+}
+
 /* List of user names below the avatar list. */
 .sh-StatsDashboard-userNamesList {
 	margin-top: var(--sh-spacing-xsmall);
@@ -169,11 +181,11 @@
 	pointer-events: none;
 }
 
-.sh-StatsDashboard-userItem:hover .sh-StatsDashboard-userAvatar {
+.sh-StatsDashboard-userLink:hover .sh-StatsDashboard-userAvatar {
 	transform: scale(1.15);
 }
 
-.sh-StatsDashboard-userItem:hover .sh-StatsDashboard-userData {
+.sh-StatsDashboard-userLink:hover .sh-StatsDashboard-userData {
 	pointer-events: auto;
 	opacity: 1;
 }
