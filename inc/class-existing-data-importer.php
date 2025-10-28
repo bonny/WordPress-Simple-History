@@ -117,8 +117,14 @@ class Existing_Data_Importer {
 		$post_ids = wp_list_pluck( $posts, 'ID' );
 
 		// Check which posts have already been logged (imported or naturally).
-		$already_logged_created = $this->get_already_logged_post_ids( $post_ids, 'post_created' );
-		$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, 'post_updated' );
+		// Attachments use different message keys.
+		if ( 'attachment' === $post_type ) {
+			$already_logged_created = $this->get_already_logged_post_ids( $post_ids, 'attachment_created' );
+			$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, 'attachment_updated' );
+		} else {
+			$already_logged_created = $this->get_already_logged_post_ids( $post_ids, 'post_created' );
+			$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, 'post_updated' );
+		}
 
 		$imported_count = 0;
 		$skipped_imported_count = 0;
@@ -181,10 +187,18 @@ class Existing_Data_Importer {
 
 				// Media Logger uses different context keys and message.
 				if ( 'attachment' === $post_type ) {
+					$file = get_attached_file( $post->ID );
+					$file_size = false;
+
+					if ( $file && file_exists( $file ) ) {
+						$file_size = filesize( $file );
+					}
+
 					$context = [
 						'attachment_id' => $post->ID,
 						'attachment_title' => $post->post_title,
-						'attachment_filename' => basename( get_attached_file( $post->ID ) ),
+						'attachment_filename' => basename( $file ),
+						'attachment_filesize' => $file_size,
 						'_date' => $post_date_gmt,
 						'_imported_event' => '1',
 					];
@@ -389,7 +403,11 @@ class Existing_Data_Importer {
 
 		$contexts_table = $this->simple_history->get_contexts_table_name();
 
-		// Find events with matching post_id and message_key.
+		// Determine context key based on message key.
+		// Attachments use 'attachment_id', regular posts use 'post_id'.
+		$context_key = in_array( $message_key, [ 'attachment_created', 'attachment_updated' ], true ) ? 'attachment_id' : 'post_id';
+
+		// Find events with matching post_id/attachment_id and message_key.
 		// Use LEFT JOIN to detect if _imported_event exists (1 = imported, 0 = naturally logged).
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 		$sql = $wpdb->prepare(
@@ -399,11 +417,12 @@ class Existing_Data_Importer {
 			FROM {$contexts_table} c1
 			LEFT JOIN {$contexts_table} c2 ON c1.history_id = c2.history_id AND c2.key = '_imported_event'
 			INNER JOIN {$contexts_table} c3 ON c1.history_id = c3.history_id
-			WHERE c1.key = 'post_id'
+			WHERE c1.key = %s
 			  AND c1.value IN (" . implode( ',', array_map( 'intval', $post_ids ) ) . ")
 			  AND c3.key = '_message_key'
 			  AND c3.value = %s
 			GROUP BY c1.value",
+			$context_key,
 			$message_key
 		);
 
