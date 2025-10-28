@@ -368,12 +368,13 @@ class Stats_View {
 	 * [
 	 *     'id'           => int    User ID,
 	 *     'display_name' => string User display name,
+	 *     'user_email'   => string User email,
 	 *     'avatar'       => string Avatar URL (absolute, 96x96),
 	 *     'count'        => int    Number of events,
 	 * ]
 	 *
 	 * @param array $top_users Array of top users data.
-	 * @phpstan-param array<int, array{id: int, display_name: string, avatar: string, count: int}> $top_users
+	 * @phpstan-param array<int, array{id: int, display_name: string, user_email: string, avatar: string, count: int}> $top_users
 	 */
 	public static function output_top_users_avatar_list( $top_users ) {
 		$user_count = count( $top_users );
@@ -415,11 +416,33 @@ class Stats_View {
 		?>
 		<p class="sh-StatsDashboard-userNamesList">
 			<?php
-			// Generate array of user names with links to user profiles
+			// Generate array of user names with links to filtered events log
 			// in format that can be used with wp_sprintf.
 			$user_names = array_map(
 				static function ( $user ) {
-					return '<a href="#">' . $user['display_name'] . '</a>';
+					// Create URL to events log filtered by this user.
+					// The users parameter expects a JSON string with an array of objects
+					// containing 'id' and 'value' keys.
+					// Value format: "Display Name (email@example.com)".
+					$user_value = $user['display_name'];
+					if ( ! empty( $user['user_email'] ) ) {
+						$user_value .= ' (' . $user['user_email'] . ')';
+					}
+
+					$user_filter = wp_json_encode(
+						[
+							[
+								'id' => (string) $user['id'],
+								'value' => $user_value,
+							],
+						]
+					);
+
+					// Manually construct URL to avoid add_query_arg() mangling the JSON.
+					$base_url = admin_url( 'admin.php' );
+					$url = $base_url . '?page=simple_history_admin_menu_page&users=' . rawurlencode( $user_filter );
+
+					return '<a href="' . esc_url( $url ) . '">' . esc_html( $user['display_name'] ) . '</a>';
 				},
 				$top_users
 			);
