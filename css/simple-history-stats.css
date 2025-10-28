@@ -144,6 +144,7 @@
 /* List of user names below the avatar list. */
 .sh-StatsDashboard-userNamesList {
 	margin-top: var(--sh-spacing-xsmall);
+	margin-bottom: 0;
 }
 
 /* User data hidden until hover. */
