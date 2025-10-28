@@ -239,10 +239,18 @@ class Existing_Data_Importer {
 
 				// Media Logger uses different context keys and message.
 				if ( 'attachment' === $post_type ) {
+					$file = get_attached_file( $post->ID );
+					$file_size = false;
+
+					if ( $file && file_exists( $file ) ) {
+						$file_size = filesize( $file );
+					}
+
 					$context = [
 						'attachment_id' => $post->ID,
 						'attachment_title' => $post->post_title,
-						'attachment_filename' => basename( get_attached_file( $post->ID ) ),
+						'attachment_filename' => basename( $file ),
+						'attachment_filesize' => $file_size,
 						'_date' => $post_modified_gmt,
 						'_imported_event' => '1',
 					];
