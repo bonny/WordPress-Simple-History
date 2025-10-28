@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git checkout:*), Bash(git merge:*), Bash(git branch:*), Bash(rm:*), Bash(gh project item-list:*), Bash(gh project item-edit:*), Bash(gh project field-list:*), Bash(gh api graphql:*)
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git checkout:*), Bash(git merge:*), Bash(git branch:*), Bash(git push:*), Bash(rm:*), Bash(gh project item-list:*), Bash(gh project item-edit:*), Bash(gh project field-list:*), Bash(gh api graphql:*)
 description: Merge current issue branch into main branch.
 ---
 
@@ -108,10 +108,34 @@ Use the AskUserQuestion tool with:
 **If user chose "Keep in progress":**
 - No action needed, confirm to the user
 
-### Step 8: Summary
+### Step 8: Delete the feature branch
+
+After successfully merging to main, clean up by deleting the feature branch:
+
+1. **Store the branch name** before deletion (you're currently on main after the merge)
+2. **Check if remote branch exists:**
+   ```bash
+   git ls-remote --heads origin <issue-branch-name>
+   ```
+
+3. **Delete the remote branch if it exists:**
+   ```bash
+   git push origin --delete <issue-branch-name>
+   ```
+
+4. **Delete the local branch:**
+   ```bash
+   git branch -d <issue-branch-name>
+   ```
+
+   Note: Use `-d` (not `-D`) to ensure the branch was properly merged. If `-d` fails, warn the user and don't force delete.
+
+### Step 9: Summary
 
 Provide the user with a summary:
 - Branch that was merged
 - Issue number
 - Whether readme file was removed
+- Whether local branch was deleted
+- Whether remote branch was deleted (if it existed)
 - Project board status (updated or kept as-is)
