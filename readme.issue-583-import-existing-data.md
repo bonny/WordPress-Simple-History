@@ -23,7 +23,7 @@ This feature provides a way to import existing WordPress data into Simple Histor
 - **Smart defaults**: All post types + users checked, no limit (imports all data)
 - Configurable post type selection
 - Optional import limits (up to 10,000 items per type when enabled)
-- Proper message formatting matching existing loggers
+- **Proper message formatting**: Customized messages for imported users (no empty email/role placeholders)
 - Historical date preservation using `_date` context
 - Duplicate prevention - automatically skips already-imported items
 - Debug tracking for troubleshooting with detailed skip reporting
@@ -506,7 +506,11 @@ The importer correctly uses Simple History's logger infrastructure:
   - `created_user_url` - Can be changed
   - `created_user_role` - Can be changed (promotions/demotions)
 - **Rationale**: Storing current role/email with a backdated timestamp creates false historical records (e.g., claiming someone was "Administrator" in 2020 when they may have been promoted later)
-- Displays as: "Created user {login}" by "Other" (with current data fetched from DB if fields missing)
+- **Message Customization** (`loggers/class-user-logger.php:739-751`):
+  - Imported users: "Created user {login}" (simple, no email/role placeholders)
+  - Naturally logged users: "Created user {login} ({email}) with role {role}" (full info)
+  - Detection: Checks for `_imported_event` context key in `get_log_row_plain_text_output()`
+  - Result: No empty placeholders like `{created_user_email}` or `{created_user_role}` for imported events
 
 **Imported Event Marker**:
 - All imported events include `_imported_event => true` in their context
@@ -721,7 +725,7 @@ Initial testing on a development site:
 - **Import Handler** (Business Logic): `inc/services/class-import-handler.php` (form submission processing, delete handler, UI rendering)
 - **Experimental Features Page** (UI Layer): `inc/services/class-experimental-features-page.php` (form rendering, result display)
 - **Post Logger**: `loggers/class-post-logger.php` (used for logging post events)
-- **User Logger**: `loggers/class-user-logger.php:47-50` (user_created message definition)
+- **User Logger**: `loggers/class-user-logger.php:47-50,739-751` (user_created message definition and customization for imported users)
 - **Logger Base**: `loggers/class-logger.php:535-556` (imported event indicator method)
 - **REST API**: `inc/class-wp-rest-events-controller.php:579-582,926-929` (imported field in schema and response)
 - **Menu System**: `inc/class-menu-manager.php`, `inc/class-menu-page.php`
@@ -837,10 +841,9 @@ A "Delete All Imported Data" button is available at the bottom of the Experiment
    - Reduce memory footprint by limiting detail array storage
 
 2. **Additional Data Sources**:
-   - Comments (with dates and authors)
-   - Media library uploads
-   - WordPress options/settings changes
-   - Taxonomy term creation dates
+   - **Comments** - WordPress stores `comment_date`, `comment_author`, `user_id` in `wp_comments` table
+   - **Media uploads (attachments)** - WordPress stores upload dates, but `attachment` post type is not public so not shown in UI by default
+   - Note: WordPress options and taxonomy terms lack historical timestamps and cannot be imported
 
 3. **Smart Import** (leveraging `_imported_event` context):
    - ~~Detect and skip duplicate entries~~ - ✅ **Implemented** (see Duplicate Prevention section)
