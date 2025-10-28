@@ -48,3 +48,40 @@ The main issue was that `add_query_arg()` was mangling the JSON structure. By ma
 - ✓ Code passes phpcs linting
 - ✓ Code passes phpstan analysis
 - ✓ User confirmed links are working correctly
+
+## Bonus: Created Reusable Helper Function
+
+Created `Helpers::get_filtered_events_url()` helper function for generating filtered event log URLs throughout the plugin.
+
+### Location
+- File: `inc/class-helpers.php:1844-1963`
+- Documentation: `docs/filtered-events-url-helper.md`
+
+### Purpose
+Centralizes the logic for creating filtered event log URLs. Instead of manually constructing JSON and encoding URLs in multiple places, any code can now use:
+
+```php
+$url = Helpers::get_filtered_events_url([
+    'users' => 14,
+    'date' => 'lastdays:30',
+    'search' => 'login'
+]);
+```
+
+### Supported Filters
+- Users (single ID, user array, or multiple users)
+- Date ranges
+- Search text
+- Log levels
+- Message types
+- Initiators
+- Context
+
+### Benefits
+1. **Consistency** - All filtered URLs use the same encoding logic
+2. **Maintainability** - Changes to URL structure only need to happen in one place
+3. **Simplicity** - Reduces complex URL construction to a simple function call
+4. **Type safety** - Handles type conversions (e.g., user ID to string) automatically
+5. **Future-proof** - Easy to add new filter types as the plugin evolves
+
+See `docs/filtered-events-url-helper.md` for detailed usage examples.
