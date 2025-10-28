@@ -341,6 +341,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 - New experimental feature: Import existing data from WordPress into Simple History.
 - More fixes for time zones and localization issues.
 - Misc internal code improvements and changes.
+- Fix email reports always showing Sunday as the busiest day.
 
 ### 5.17.0 (October 2025)
 
