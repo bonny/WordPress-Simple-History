@@ -420,27 +420,11 @@ class Stats_View {
 			// in format that can be used with wp_sprintf.
 			$user_names = array_map(
 				static function ( $user ) {
-					// Create URL to events log filtered by this user.
-					// The users parameter expects a JSON string with an array of objects
-					// containing 'id' and 'value' keys.
-					// Value format: "Display Name (email@example.com)".
-					$user_value = $user['display_name'];
-					if ( ! empty( $user['user_email'] ) ) {
-						$user_value .= ' (' . $user['user_email'] . ')';
-					}
-
-					$user_filter = wp_json_encode(
+					$url = Helpers::get_filtered_events_url(
 						[
-							[
-								'id' => (string) $user['id'],
-								'value' => $user_value,
-							],
+							'users' => $user,
 						]
 					);
-
-					// Manually construct URL to avoid add_query_arg() mangling the JSON.
-					$base_url = admin_url( 'admin.php' );
-					$url = $base_url . '?page=simple_history_admin_menu_page&users=' . rawurlencode( $user_filter );
 
 					return '<a href="' . esc_url( $url ) . '">' . esc_html( $user['display_name'] ) . '</a>';
 				},
