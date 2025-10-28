@@ -303,6 +303,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 	/**
 	 * Get HTML for stats and summaries link.
 	 *
+	 * @param bool $current_user_can_manage_options If current user has manage options capability.
 	 * @return string HTML.
 	 */
 	protected function get_cta_link_html( $current_user_can_manage_options ) {
@@ -330,11 +331,11 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 	/**
 	 * Get data for the quick stats.
-	 * Data is cached in transient for 10 minutes.
+	 * Data is cached in transient for CACHE_DURATION_MINUTES minutes.
 	 *
 	 * @param int $num_days_month Number of days to consider month, to get data for.
 	 * @param int $num_days_week Number of days to consider week, to get data for.
-	 * @return array<string,mixed>
+	 * @return array<string,mixed> Array with stats data.
 	 */
 	protected function get_quick_stats_data( $num_days_month, $num_days_week ) {
 		$simple_history = Simple_History::get_instance();
@@ -510,7 +511,9 @@ class Sidebar_Stats_Dropin extends Dropin {
 				?>
 				<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
 			</span>
-			<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
+			<span class="sh-StatsDashboard-statSubValue">
+				<?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?>
+			</span>
 		</div>
 		<?php
 

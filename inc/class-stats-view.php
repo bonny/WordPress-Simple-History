@@ -364,14 +364,30 @@ class Stats_View {
 	/**
 	 * Output the avatar list of top users.
 	 *
+	 * Each user array should have the following shape:
+	 * [
+	 *     'id'           => int    User ID,
+	 *     'display_name' => string User display name,
+	 *     'avatar'       => string Avatar URL (absolute, 96x96),
+	 *     'count'        => int    Number of events,
+	 * ]
+	 *
 	 * @param array $top_users Array of top users data.
+	 * @phpstan-param array<int, array{id: int, display_name: string, avatar: string, count: int}> $top_users
 	 */
 	public static function output_top_users_avatar_list( $top_users ) {
+		$user_count = count( $top_users );
+
+		// Bail if no users.
+		if ( $user_count === 0 ) {
+			return;
+		}
+
+		// First output avatars.
 		?>
 		<ul class="sh-StatsDashboard-userList">
 			<?php
 			$loop_count = 0;
-			$user_count = count( $top_users );
 			foreach ( $top_users as $user ) {
 				// Set z-index to reverse order, so first user is on top.
 				$style = 'z-index: ' . ( $user_count - $loop_count ) . ';';
@@ -393,6 +409,31 @@ class Stats_View {
 			}
 			?>
 		</ul>
+		<?php
+
+		// Then oputput user names (if user has no avatar).
+		?>
+		<p class="sh-StatsDashboard-userNamesList">
+			<?php
+			// Generate array of user names with links to user profiles
+			// in format that can be used with wp_sprintf.
+			$user_names = array_map(
+				static function ( $user ) {
+					return '<a href="#">' . $user['display_name'] . '</a>';
+				},
+				$top_users
+			);
+
+			// Creates a comma-separated list of user names with "and" for the last user.
+			// Example: "John Doe, Jane Smith and Mary Johnson".
+			echo wp_kses_post(
+				wp_sprintf(
+					esc_html__( '%l', 'simple-history' ),
+					$user_names,
+				)
+			);
+			?>
+		</p>
 		<?php
 	}
 
