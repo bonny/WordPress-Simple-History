@@ -1840,4 +1840,125 @@ class Helpers {
 
 		return array_map( 'intval', $results );
 	}
+
+	/**
+	 * Generate a URL to the events log with filters applied.
+	 *
+	 * This helper function creates properly formatted and encoded URLs for linking
+	 * to the events log with various filters applied. It can be used anywhere in the
+	 * plugin where you need to link to filtered event results.
+	 *
+	 * @param array $args {
+	 *     Optional. Array of filter arguments.
+	 *
+	 *     @type array|int    $users      Array of user data with 'id', 'display_name', 'user_email' keys,
+	 *                                     or array of such arrays for multiple users,
+	 *                                     or single user ID as integer.
+	 *     @type string       $date       Date filter string (e.g., 'lastdays:30', 'lastdays:7').
+	 *     @type string       $search     Search text to filter containing words.
+	 *     @type array        $loglevels  Array of log level filters.
+	 *     @type array        $messages   Array of message type filters.
+	 *     @type array        $initiators Array of initiator filters.
+	 *     @type string       $context    Context filter string.
+	 * }
+	 * @return string The filtered events log URL.
+	 */
+	public static function get_filtered_events_url( $args = [] ) {
+		$query_args = [
+			'page' => 'simple_history_admin_menu_page',
+		];
+
+		// Handle users filter.
+		if ( ! empty( $args['users'] ) ) {
+			$users_filter = [];
+
+			// If it's a single user ID (integer), convert to array format.
+			if ( is_int( $args['users'] ) ) {
+				$user = get_userdata( $args['users'] );
+				if ( $user ) {
+					$users_filter[] = [
+						'id' => (string) $user->ID,
+						'value' => $user->display_name . ' (' . $user->user_email . ')',
+					];
+				}
+			} elseif ( is_array( $args['users'] ) ) {
+				// Check if it's a single user array (has 'id' key) or array of users.
+				if ( isset( $args['users']['id'] ) ) {
+					// Single user array.
+					$user_value = $args['users']['display_name'];
+					if ( ! empty( $args['users']['user_email'] ) ) {
+						$user_value .= ' (' . $args['users']['user_email'] . ')';
+					}
+
+					$users_filter[] = [
+						'id' => (string) $args['users']['id'],
+						'value' => $user_value,
+					];
+				} else {
+					// Array of users.
+					foreach ( $args['users'] as $user ) {
+						$user_value = $user['display_name'];
+						if ( ! empty( $user['user_email'] ) ) {
+							$user_value .= ' (' . $user['user_email'] . ')';
+						}
+
+						$users_filter[] = [
+							'id' => (string) $user['id'],
+							'value' => $user_value,
+						];
+					}
+				}
+			}
+
+			if ( ! empty( $users_filter ) ) {
+				$users_json = wp_json_encode( $users_filter );
+				$query_args['users'] = $users_json;
+			}
+		}
+
+		// Handle date filter.
+		if ( ! empty( $args['date'] ) ) {
+			$query_args['date'] = $args['date'];
+		}
+
+		// Handle search filter.
+		if ( ! empty( $args['search'] ) ) {
+			$query_args['search'] = $args['search'];
+		}
+
+		// Handle log levels filter.
+		if ( ! empty( $args['loglevels'] ) && is_array( $args['loglevels'] ) ) {
+			$query_args['loglevels'] = wp_json_encode( $args['loglevels'] );
+		}
+
+		// Handle message types filter.
+		if ( ! empty( $args['messages'] ) && is_array( $args['messages'] ) ) {
+			$query_args['messages'] = wp_json_encode( $args['messages'] );
+		}
+
+		// Handle initiators filter.
+		if ( ! empty( $args['initiators'] ) && is_array( $args['initiators'] ) ) {
+			$query_args['initiators'] = wp_json_encode( $args['initiators'] );
+		}
+
+		// Handle context filter.
+		if ( ! empty( $args['context'] ) ) {
+			$query_args['context'] = $args['context'];
+		}
+
+		// Build the URL manually to properly encode JSON parameters.
+		$base_url = admin_url( 'admin.php' );
+		$url_parts = [];
+
+		foreach ( $query_args as $key => $value ) {
+			// For JSON parameters, use rawurlencode to preserve the structure.
+			if ( in_array( $key, [ 'users', 'loglevels', 'messages', 'initiators' ], true ) ) {
+				$url_parts[] = $key . '=' . rawurlencode( $value );
+			} else {
+				$url_parts[] = $key . '=' . urlencode( $value );
+			}
+		}
+
+		return $base_url . '?' . implode( '&', $url_parts );
+	}
 }
