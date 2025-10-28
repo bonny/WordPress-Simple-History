@@ -81,17 +81,31 @@ class Existing_Data_Importer {
 	 * @return int Number of posts imported.
 	 */
 	public function import_posts( $post_type = 'post', $limit = 100 ) {
-		$post_logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePostLogger' );
+		// Use Media Logger for attachments, Post Logger for everything else.
+		if ( 'attachment' === $post_type ) {
+			$logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimpleMediaLogger' );
+			$logger_type = 'media';
+		} else {
+			$logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePostLogger' );
+			$logger_type = 'post';
+		}
 
-		if ( ! $post_logger ) {
-			$this->results['errors'][] = 'Post logger not found';
+		if ( ! $logger ) {
+			$this->results['errors'][] = ucfirst( $logger_type ) . ' logger not found';
 			return 0;
 		}
 
 		// Get posts, ordered by date (oldest first for chronological import).
+		$post_statuses = [ 'publish', 'draft', 'pending', 'private' ];
+
+		// Attachments use 'inherit' status, not 'publish'.
+		if ( 'attachment' === $post_type ) {
+			$post_statuses = [ 'inherit', 'private' ];
+		}
+
 		$args = [
 			'post_type' => $post_type,
-			'post_status' => [ 'publish', 'draft', 'pending', 'private' ],
+			'post_status' => $post_statuses,
 			'posts_per_page' => $limit,
 			'orderby' => 'date',
 			'order' => 'ASC',
@@ -165,13 +179,26 @@ class Existing_Data_Importer {
 				// Get post author for initiator.
 				$post_author = get_user_by( 'id', $post->post_author );
 
-				$context = [
-					'post_id' => $post->ID,
-					'post_type' => $post->post_type,
-					'post_title' => $post->post_title,
-					'_date' => $post_date_gmt,
-					'_imported_event' => '1',
-				];
+				// Media Logger uses different context keys and message.
+				if ( 'attachment' === $post_type ) {
+					$context = [
+						'attachment_id' => $post->ID,
+						'attachment_title' => $post->post_title,
+						'attachment_filename' => basename( get_attached_file( $post->ID ) ),
+						'_date' => $post_date_gmt,
+						'_imported_event' => '1',
+					];
+					$message_key = 'attachment_created';
+				} else {
+					$context = [
+						'post_id' => $post->ID,
+						'post_type' => $post->post_type,
+						'post_title' => $post->post_title,
+						'_date' => $post_date_gmt,
+						'_imported_event' => '1',
+					];
+					$message_key = 'post_created';
+				}
 
 				// Set initiator to post author if available.
 				if ( $post_author ) {
@@ -183,7 +210,7 @@ class Existing_Data_Importer {
 					$context['_initiator'] = Log_Initiators::OTHER;
 				}
 
-				$post_logger->info_message( 'post_created', $context );
+				$logger->info_message( $message_key, $context );
 
 				$post_detail['events_logged'][] = [
 					'type' => 'created',
@@ -196,13 +223,26 @@ class Existing_Data_Importer {
 				// Get post author for initiator.
 				$post_author = get_user_by( 'id', $post->post_author );
 
-				$context = [
-					'post_id' => $post->ID,
-					'post_type' => $post->post_type,
-					'post_title' => $post->post_title,
-					'_date' => $post_modified_gmt,
-					'_imported_event' => '1',
-				];
+				// Media Logger uses different context keys and message.
+				if ( 'attachment' === $post_type ) {
+					$context = [
+						'attachment_id' => $post->ID,
+						'attachment_title' => $post->post_title,
+						'attachment_filename' => basename( get_attached_file( $post->ID ) ),
+						'_date' => $post_modified_gmt,
+						'_imported_event' => '1',
+					];
+					$message_key = 'attachment_updated';
+				} else {
+					$context = [
+						'post_id' => $post->ID,
+						'post_type' => $post->post_type,
+						'post_title' => $post->post_title,
+						'_date' => $post_modified_gmt,
+						'_imported_event' => '1',
+					];
+					$message_key = 'post_updated';
+				}
 
 				// Set initiator to post author if available.
 				if ( $post_author ) {
@@ -214,7 +254,7 @@ class Existing_Data_Importer {
 					$context['_initiator'] = Log_Initiators::OTHER;
 				}
 
-				$post_logger->info_message( 'post_updated', $context );
+				$logger->info_message( $message_key, $context );
 
 				$post_detail['events_logged'][] = [
 					'type' => 'updated',
@@ -441,16 +481,36 @@ class Existing_Data_Importer {
 		// Get all public post types.
 		$post_types = get_post_types( [ 'public' => true ], 'objects' );
 
+		// Add attachment post type (not public by default, but has historical data we can import).
+		$attachment_post_type = get_post_type_object( 'attachment' );
+		if ( $attachment_post_type ) {
+			$post_types['attachment'] = $attachment_post_type;
+		}
+
 		// Count posts for each post type using a single query.
 		foreach ( $post_types as $post_type ) {
-			$count = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$wpdb->posts}
-					WHERE post_type = %s
-					AND post_status IN ('publish', 'draft', 'pending', 'private')",
-					$post_type->name
-				)
-			);
+			// Attachments use 'inherit' status, not 'publish'.
+			if ( 'attachment' === $post_type->name ) {
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$count = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(*) FROM {$wpdb->posts}
+						WHERE post_type = %s
+						AND post_status IN ('inherit', 'private')",
+						$post_type->name
+					)
+				);
+			} else {
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$count = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(*) FROM {$wpdb->posts}
+						WHERE post_type = %s
+						AND post_status IN ('publish', 'draft', 'pending', 'private')",
+						$post_type->name
+					)
+				);
+			}
 
 			$counts['post_types'][ $post_type->name ] = (int) $count;
 		}

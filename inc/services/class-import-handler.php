@@ -333,6 +333,13 @@ class Import_Handler extends Service {
 							<td>
 								<?php
 								$post_types = get_post_types( [ 'public' => true ], 'objects' );
+
+								// Add attachment post type (not public by default, but has historical data we can import).
+								$attachment_post_type = get_post_type_object( 'attachment' );
+								if ( $attachment_post_type ) {
+									$post_types['attachment'] = $attachment_post_type;
+								}
+
 								foreach ( $post_types as $post_type ) {
 									?>
 									<label style="display: block; margin-bottom: 5px;">
