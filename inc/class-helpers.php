@@ -1848,6 +1848,11 @@ class Helpers {
 	 * to the events log with various filters applied. It can be used anywhere in the
 	 * plugin where you need to link to filtered event results.
 	 *
+	 * IMPORTANT: When outputting the returned URL in HTML, you MUST use esc_url()
+	 * for security, per WordPress coding standards:
+	 *
+	 *     echo '<a href="' . esc_url( $url ) . '">Link</a>';
+	 *
 	 * @param array $args {
 	 *     Optional. Array of filter arguments.
 	 *
@@ -1861,7 +1866,7 @@ class Helpers {
 	 *     @type array        $initiators Array of initiator filters.
 	 *     @type string       $context    Context filter string.
 	 * }
-	 * @return string The filtered events log URL.
+	 * @return string The filtered events log URL (must be escaped with esc_url() before output).
 	 */
 	public static function get_filtered_events_url( $args = [] ) {
 		$query_args = [
