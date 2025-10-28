@@ -343,6 +343,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 - Misc internal code improvements and changes.
 - Fix email reports always showing Sunday as the busiest day.
 - Send weekly email reports earlier in the day, so they are ready when the user wakes up (6 in the morning instead of 8 in the morning).
+- Switch place between Most active users in last 30 days and Daily activity over last 30 days. This keeps info that only admins can see grouped together.
 
 ### 5.17.0 (October 2025)
 

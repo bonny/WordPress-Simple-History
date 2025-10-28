@@ -433,16 +433,16 @@ class Sidebar_Stats_Dropin extends Dropin {
 				// Today, 7 days, 30 days.
 				echo wp_kses_post( $this->get_events_per_days_stats_html( $stats_data ) );
 
-				// Most active users in last 30 days.
-				echo wp_kses_post( $this->get_most_active_users_html( $current_user_can_list_users, $stats_data ) );
-
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->get_chart_data( $num_days_month, $stats_data['chart_data_month'] );
 
-				// Show total events logged.
+				// Most active users in last 30 days. Only visible to admins.
+				echo wp_kses_post( $this->get_most_active_users_html( $current_user_can_list_users, $stats_data ) );
+
+				// Show total events logged. Only visible to admins.
 				echo wp_kses_post( $this->get_total_events_logged_html( $current_user_can_manage_options, $stats_data ) );
 
-				// Show insights page CTA.
+				// Show insights page CTA. Only visible to admins.
 				echo wp_kses_post( $this->get_cta_link_html( $current_user_can_manage_options ) );
 
 				?>
@@ -474,7 +474,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		);
 
 		// Append tooltip.
-		$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' ) );
+		$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then. Only administrators can see this number.', 'simple-history' ) );
 
 		// Return concatenated result.
 		return wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
