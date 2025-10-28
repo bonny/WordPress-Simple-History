@@ -27,6 +27,9 @@ class Email_Report_Service extends Service {
 		// Schedule email report.
 		add_action( 'init', [ $this, 'schedule_email_report' ] );
 		add_action( 'simple_history/email_report', [ $this, 'send_email_report' ] );
+
+		// Handle enable/disable of email reports.
+		add_action( 'update_option_simple_history_email_report_enabled', [ $this, 'on_email_report_enabled_updated' ], 10, 2 );
 	}
 
 	/**
@@ -539,10 +542,39 @@ class Email_Report_Service extends Service {
 	 * Schedule the email report.
 	 */
 	public function schedule_email_report() {
-		if ( ! wp_next_scheduled( 'simple_history/email_report' ) ) {
-			// Schedule for next Monday at 6:00 AM in WordPress timezone.
-			$next_monday = new \DateTimeImmutable( 'next monday 6:00:00', wp_timezone() );
-			wp_schedule_event( $next_monday->getTimestamp(), 'weekly', 'simple_history/email_report' );
+		// Bail if email reports are not enabled.
+		if ( ! $this->is_email_reports_enabled() ) {
+			return;
+		}
+
+		// Bail if email report is already scheduled.
+		if ( wp_next_scheduled( 'simple_history/email_report' ) ) {
+			return;
+		}
+
+		// Schedule for next Monday at 6:00 AM in WordPress timezone.
+		$next_monday = new \DateTimeImmutable( 'next monday 6:00:00', wp_timezone() );
+		wp_schedule_event( $next_monday->getTimestamp(), 'weekly', 'simple_history/email_report' );
+	}
+
+	/**
+	 * Unschedule the email report.
+	 */
+	public function unschedule_email_report() {
+		wp_clear_scheduled_hook( 'simple_history/email_report' );
+	}
+
+	/**
+	 * Handle when email report enabled setting is updated.
+	 *
+	 * @param mixed $_old_value Old value (unused).
+	 * @param mixed $new_value New value.
+	 */
+	public function on_email_report_enabled_updated( $_old_value, $new_value ) {
+		if ( $new_value ) {
+			$this->schedule_email_report();
+		} else {
+			$this->unschedule_email_report();
 		}
 	}
 
