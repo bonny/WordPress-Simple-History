@@ -336,14 +336,16 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
-- Add context search to the log GUI filters.
-- Add date support to create event REST API endpoint.
-- New experimental feature: Import existing data from WordPress into Simple History.
-- More fixes for time zones and localization issues.
-- Misc internal code improvements and changes.
-- Fix email reports always showing Sunday as the busiest day.
-- Send weekly email reports earlier in the day, so they are ready when the user wakes up (6 in the morning instead of 8 in the morning).
-- Switch place between Most active users in last 30 days and Daily activity over last 30 days. This keeps info that only admins can see grouped together.
+-   Add context search to the log GUI filters.
+-   Add date support to create event REST API endpoint.
+-   New experimental feature: Import existing data from WordPress into Simple History.
+-   More fixes for time zones and localization issues.
+-   Misc internal code improvements and changes.
+-   Fix email reports always showing Sunday as the busiest day.
+-   Send weekly email reports earlier in the day, so they are ready when the user wakes up (6 in the morning instead of 8 in the morning).
+-   Switch place between Most active users in last 30 days and Daily activity over last 30 days. This keeps info that only admins can see grouped together.
+-   Add user names to Most active users in last 30 days.
+-   Make avatars and user names clickable to filter the event log by user.
 
 ### 5.17.0 (October 2025)
 
