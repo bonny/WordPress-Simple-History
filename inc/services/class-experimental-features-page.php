@@ -100,5 +100,4 @@ class Experimental_Features_Page extends Service {
 		</div>
 		<?php
 	}
-
 }
