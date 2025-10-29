@@ -28,10 +28,18 @@ Fixed the user name links to properly filter the event log by user:
 2. **inc/class-stats-view.php:371**
    - Updated docblock to include `user_email` in the user array shape
 
-3. **inc/class-stats-view.php:427-445**
-   - Updated user filter value format to include email: `"Display Name (email@example.com)"`
-   - Changed from `add_query_arg()` to manual URL construction with `rawurlencode()`
-   - Cast user ID to string for proper JSON encoding
+3. **inc/class-stats-view.php:395-412**
+   - Wrapped avatar images in clickable links to filtered event log
+   - Links use `Helpers::get_filtered_events_url()` helper function
+   - Both avatars and user names now link to same filtered results
+
+4. **inc/class-stats-view.php:423-430**
+   - Updated user name links to use `Helpers::get_filtered_events_url()`
+   - Simplified from ~25 lines of inline URL construction to clean helper call
+
+5. **css/simple-history-stats.css:144-154**
+   - Added styles for `.sh-StatsDashboard-userLink` to remove default link styling
+   - Updated hover states to work with link wrapper
 
 ### Key Fix
 
@@ -48,6 +56,36 @@ The main issue was that `add_query_arg()` was mangling the JSON structure. By ma
 - ✓ Code passes phpcs linting
 - ✓ Code passes phpstan analysis
 - ✓ User confirmed links are working correctly
+- ✓ Chart click functionality tested and working
+
+## Additional Enhancement: Clickable Daily Activity Chart
+
+While working on this issue, also implemented clickable functionality for the "Daily activity over last 30 days" chart in the History Insights sidebar.
+
+### Changes Made
+
+1. **dropins/class-sidebar-stats-dropin.php:116-152**
+   - Updated chart click handler to dispatch custom browser event
+   - Changed click detection from `'nearest'` with `intersect: true` to `'index'` with `intersect: false`
+   - This matches the tooltip behavior - clicking anywhere in the vertical area of a day selects that day
+   - Dispatches `SimpleHistory:chartDateClick` event with selected date
+
+2. **src/components/EventsGui.jsx:407-433**
+   - Added event listener to handle chart date click events
+   - Sets date filter to "customRange"
+   - Sets both from/to dates to the clicked date (showing only that day's events)
+   - Triggers automatic reload of events with new filter
+
+3. **css/styles.css:1684-1687**
+   - Added pointer cursor on chart hover to indicate clickability
+   - Improves discoverability of the interactive feature
+
+### User Experience
+
+- Users can now click any day in the sidebar chart to filter events for that specific date
+- Click detection is forgiving - anywhere in the day's vertical area works (same as tooltip)
+- Pointer cursor indicates the chart is interactive
+- Date filter automatically updates to show only events from the clicked day
 
 ## Bonus: Created Reusable Helper Function
 

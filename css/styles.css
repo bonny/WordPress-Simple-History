@@ -1680,3 +1680,8 @@ Styles for plugin update details. Markup looks like this:
 	margin-top: var(--sh-spacing-small);
 	margin-bottom: var(--sh-spacing-small);
 }
+
+/* Make chart canvas show pointer cursor to indicate it's clickable */
+.SimpleHistory_SidebarChart_ChartCanvas {
+	cursor: pointer;
+}

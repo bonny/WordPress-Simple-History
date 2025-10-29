@@ -113,13 +113,16 @@ class Sidebar_Stats_Dropin extends Dropin {
 						},
 					});
 
-					// when chart is clicked determine what value/day was clicked
+					/**
+					 * When chart is clicked determine what value/day was clicked
+					 * and dispatch a custom event to the React app to handle the date filter.
+					 */
 					function clickChart(e, legendItem, legend) {
-						console.log("clickChart", e, legendItem, legend);
-
 						// Get value of selected bar.
+						// Use 'index' mode with intersect: false to match the tooltip behavior,
+						// so clicking anywhere in the vertical area of a day will select that day.
 						var label;
-						const points = myChart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+						const points = myChart.getElementsAtEventForMode(e, 'index', { intersect: false }, true);
 						if (points.length) {
 							const firstPoint = points[0];
 							// Label e.g. "Jun 25".
@@ -131,7 +134,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 						var labelDate;
 						for (idx in chartLabelsToDates) {
 							if (label == chartLabelsToDates[idx].label) {
-								//console.log(chartLabelsToDates[idx]);
 								labelDate = chartLabelsToDates[idx];
 							}
 						}
@@ -140,19 +142,16 @@ class Sidebar_Stats_Dropin extends Dropin {
 							return;
 						}
 
-						// got a date, now reload the history/post search filter form again
-						var labelDateParts = labelDate.date.split("-"); ["2016", "07", "18"]
+						// Dispatch custom event for React app to handle the date filter.
+						// The React app will listen for this event and update the date filter state.
+						const event = new CustomEvent('SimpleHistory:chartDateClick', {
+							detail: {
+								// Date in Y-m-d format, e.g., "2024-10-05".
+								date: labelDate.date,
+							}
+						});
 
-						// show custom date range
-						$(".SimpleHistory__filters__filter--date").val("customRange").trigger("change");
-
-						// set values, same for both from and to because we only want to show one day
-						SimpleHistoryFilterDropin.$elms.filter_form.find("[name='from_aa'], [name='to_aa']").val(labelDateParts[0]);
-						SimpleHistoryFilterDropin.$elms.filter_form.find("[name='from_jj'], [name='to_jj']").val(labelDateParts[2]);
-						SimpleHistoryFilterDropin.$elms.filter_form.find("[name='from_mm'], [name='to_mm']").val(labelDateParts[1]);
-
-						SimpleHistoryFilterDropin.$elms.filter_form.trigger("submit");
-
+						window.dispatchEvent(event);
 					}
 
 				});
