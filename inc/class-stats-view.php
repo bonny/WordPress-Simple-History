@@ -433,19 +433,14 @@ class Stats_View {
 						]
 					);
 
-					return '<a href="' . esc_url( $url ) . '">' . esc_html( $user['display_name'] ) . '</a>';
+					return '<a href="' . esc_url( $url ) . '">' . esc_html( $user['display_name'] ) . '</a><span class="sh-StatsDashboard-userEventCount"> (' . esc_html( number_format_i18n( $user['count'] ) ) . ')</span>';
 				},
 				$top_users
 			);
 
-			// Creates a comma-separated list of user names with "and" for the last user.
-			// Example: "John Doe, Jane Smith and Mary Johnson".
-			echo wp_kses_post(
-				wp_sprintf(
-					esc_html__( '%l', 'simple-history' ),
-					$user_names,
-				)
-			);
+			// Creates a comma-separated list of user names.
+			// Example: "John Doe, Jane Smith, Mary Johnson".
+			echo wp_kses_post( implode( ', ', $user_names ) );
 			?>
 		</p>
 		<?php

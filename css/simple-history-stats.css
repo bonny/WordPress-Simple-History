@@ -159,6 +159,14 @@
 	margin-bottom: 0;
 }
 
+/* Event count displayed after each username in the list. */
+.sh-StatsDashboard-userEventCount {
+	font-size: 0.9em;
+	color: #666;
+	font-weight: normal;
+	text-decoration: none;
+}
+
 /* User data hidden until hover. */
 .sh-StatsDashboard-userData {
 	position: absolute;
