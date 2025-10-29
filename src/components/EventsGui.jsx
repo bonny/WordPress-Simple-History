@@ -71,11 +71,13 @@ const initiatorSchema = z.array(
 	} )
 );
 
-// Schema for the context filters.
-// Context filters are stored as an array of "key:value" strings.
-// Example: ["_user_id:1", "_sticky:1"]
-const contextFiltersSchema = z.array( z.string() );
-
+/**
+ * Main component for the events GUI.
+ * Contains the filter/search options and the events list.
+ * Also contains the modal for the events modal.
+ *
+ * @return {JSX.Element} The events GUI component.
+ */
 function EventsGUI() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
 	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
