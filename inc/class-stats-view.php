@@ -384,7 +384,7 @@ class Stats_View {
 			return;
 		}
 
-		// First output avatars.
+		// Output avatars.
 		?>
 		<ul class="sh-StatsDashboard-userList">
 			<?php
@@ -419,7 +419,7 @@ class Stats_View {
 		</ul>
 		<?php
 
-		// Then oputput user names (if user has no avatar).
+		// Output user names (if user has no avatar).
 		?>
 		<p class="sh-StatsDashboard-userNamesList">
 			<?php
