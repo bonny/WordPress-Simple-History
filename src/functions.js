@@ -239,3 +239,38 @@ export const useURLFragment = () => {
 export function randomIntFromInterval( min, max ) {
 	return Math.floor( Math.random() * ( max - min + 1 ) + min );
 }
+
+/**
+ * Build tracking URL with standardized UTM parameters for analytics.
+ *
+ * Creates consistent tracking URLs for monitoring which features generate
+ * user interest in premium functionality. UTM parameters follow a structured
+ * naming convention for easy analysis in Google Analytics.
+ *
+ * @param {string} url         Base URL to add tracking parameters to.
+ * @param {string} utmContent  Content identifier in format: {section}_{location}_{action}
+ *                             Examples:
+ *                             - 'dashboard_sidebar_premium' - Sidebar promo on main dashboard
+ *                             - 'stats_daterange_premium' - Date range feature in stats
+ *                             - 'export_banner_premium' - Export page premium promo
+ *                             - 'events_ipaddress_maps' - Google Maps feature for IP addresses
+ * @param {string} utmCampaign Campaign name. Default: 'premium'. Other values: 'documentation', 'support'
+ * @param {string} utmSource   Traffic source. Default: 'wpadmin'. Alternative: 'wordpress_admin'
+ * @param {string} utmMedium   Traffic medium. Default: 'plugin'. Alternative: 'Simple_History'
+ * @return {string} URL with UTM tracking parameters appended.
+ */
+export function getTrackingUrl(
+	url,
+	utmContent,
+	utmCampaign = 'premium',
+	utmSource = 'wpadmin',
+	utmMedium = 'plugin'
+) {
+	const { addQueryArgs } = wp.url;
+	return addQueryArgs( url, {
+		utm_source: utmSource,
+		utm_medium: utmMedium,
+		utm_campaign: utmCampaign,
+		utm_content: utmContent,
+	} );
+}
