@@ -30,10 +30,6 @@
 	grid-row: span 2;
 }
 
-.sh-StatsDashboard-content {
-	/* Empty rule block - can be removed if no other properties needed */
-}
-
 .sh-StatsDashboard-content--sideBySide {
 	flex-direction: row;
 	justify-content: flex-start;
@@ -45,11 +41,6 @@
 /* Smaller sparkline-ish chart container. */
 .sh-StatsDashboard-chartContainer {
 	height: 200px;
-}
-
-.sh-StatsDashboard-chartContainer,
-.sh-StatsDashboard-tableContainer {
-	/* Empty rule block - can be removed if no other properties needed */
 }
 
 /* Loading state */
@@ -554,14 +545,6 @@
 
 .sh-StatsDashboard-dateRangeControls {
 	transition: opacity 0.1s ease-in-out;
-	/* opacity: 0.5; */
-}
-
-.sh-StatsDashboard-dateRangeControls select {
-}
-
-.sh-StatsDashboard-dateRangeControls:hover {
-	/* opacity: 1; */
 }
 
 .sh-StatsDashboard-dateRangeHeading {
