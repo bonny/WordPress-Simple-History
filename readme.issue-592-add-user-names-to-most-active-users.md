@@ -87,6 +87,35 @@ While working on this issue, also implemented clickable functionality for the "D
 - Pointer cursor indicates the chart is interactive
 - Date filter automatically updates to show only events from the clicked day
 
+## Additional Enhancement: Event Counts in Username List
+
+Added inline event counts to the "Most active users" username list for better visibility without requiring hover interaction.
+
+### Changes Made
+
+1. **inc/class-stats-view.php:436**
+   - Added event counts in parentheses after each username
+   - Event counts placed outside `<a>` tags to prevent underline inheritance
+   - Uses `number_format_i18n()` for locale-aware number formatting
+   - Changed from `wp_sprintf()` with `%l` format to simple `implode()` for data list formatting
+
+2. **css/simple-history-stats.css:162-168**
+   - Added `.sh-StatsDashboard-userEventCount` styles
+   - Smaller font size (0.9em) for visual hierarchy
+   - Muted gray color (#666) to de-emphasize counts
+   - Normal font weight to prevent link-like appearance
+
+### User Experience
+
+**Before:** "Pär, Hubert Blaine, erik editor, Sally Admin, and claude"
+**After:** "Pär (225), Hubert Blaine (10), erik editor (4), Sally Admin (3), claude (2)"
+
+- Event counts immediately visible without hover
+- Muted styling maintains focus on usernames
+- Treated as data list (removed "and" before last user) rather than natural language
+- No underlines on counts or spaces before counts
+- Maintains clickability of usernames to filter events
+
 ## Bonus: Created Reusable Helper Function
 
 Created `Helpers::get_filtered_events_url()` helper function for generating filtered event log URLs throughout the plugin.
