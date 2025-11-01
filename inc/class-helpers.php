@@ -1974,29 +1974,40 @@ class Helpers {
 	 * user interest in premium functionality. UTM parameters follow a structured
 	 * naming convention for easy analysis in Google Analytics.
 	 *
+	 * Uses utm_campaign as the primary tracking parameter because it appears in
+	 * standard GA4 Traffic Acquisition reports (unlike utm_content which requires
+	 * Custom Explorations to view).
+	 *
 	 * @since 5.0.0
 	 *
 	 * @param string $url Base URL to add tracking parameters to.
-	 * @param string $utm_content Content identifier in format: {section}_{location}_{action}.
-	 *                            Examples:
-	 *                            - 'dashboard_sidebar_premium' - Sidebar promo on main dashboard
-	 *                            - 'stats_daterange_premium' - Date range feature in stats
-	 *                            - 'export_banner_premium' - Export page premium promo
-	 *                            - 'events_ipaddress_maps' - Google Maps feature for IP addresses.
-	 * @param string $utm_campaign Campaign name. Default: 'premium'. Other values: 'documentation', 'support'.
+	 * @param string $utm_campaign Campaign identifier in format: {category}_{location}_{action}.
+	 *                             Examples:
+	 *                             - 'premium_dashboard_sidebar' - Sidebar promo on main dashboard
+	 *                             - 'premium_stats_daterange' - Date range feature in stats
+	 *                             - 'premium_export_banner' - Export page premium promo
+	 *                             - 'premium_events_ipaddress' - IP address Google Maps feature
+	 *                             - 'docs_filter_help' - Documentation for filter help.
 	 * @param string $utm_source Traffic source. Default: 'wpadmin'. Alternative: 'wordpress_admin'.
 	 * @param string $utm_medium Traffic medium. Default: 'plugin'. Alternative: 'Simple_History'.
+	 * @param string $utm_content Optional content identifier for A/B testing variations.
+	 *                            Only use when testing different versions of the SAME feature.
+	 *                            Examples: 'blue_button', 'variant_a', 'top_link'.
+	 *                            Leave empty for standard tracking.
 	 * @return string URL with UTM tracking parameters appended.
 	 */
-	public static function get_tracking_url( $url, $utm_content, $utm_campaign = 'premium', $utm_source = 'wpadmin', $utm_medium = 'plugin' ) {
-		return add_query_arg(
-			[
-				'utm_source' => $utm_source,
-				'utm_medium' => $utm_medium,
-				'utm_campaign' => $utm_campaign,
-				'utm_content' => $utm_content,
-			],
-			$url
-		);
+	public static function get_tracking_url( $url, $utm_campaign, $utm_source = 'wpadmin', $utm_medium = 'plugin', $utm_content = '' ) {
+		$params = [
+			'utm_source' => $utm_source,
+			'utm_medium' => $utm_medium,
+			'utm_campaign' => $utm_campaign,
+		];
+
+		// Only add utm_content if provided (for A/B testing).
+		if ( ! empty( $utm_content ) ) {
+			$params['utm_content'] = $utm_content;
+		}
+
+		return add_query_arg( $params, $url );
 	}
 }
