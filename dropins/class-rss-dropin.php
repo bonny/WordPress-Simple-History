@@ -19,7 +19,6 @@ class RSS_Dropin extends Dropin {
 	 */
 	public function loaded() {
 		if ( ! function_exists( 'get_editable_roles' ) ) {
-			/** @phpstan-ignore requireOnce.fileNotFound */
 			require_once ABSPATH . '/wp-admin/includes/user.php';
 		}
 

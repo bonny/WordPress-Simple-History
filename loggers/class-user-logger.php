@@ -1069,7 +1069,6 @@ class User_Logger extends Logger {
 				),
 			);
 
-			/** @phpstan-ignore requireOnce.fileNotFound */
 			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 			$translations = wp_get_available_translations();
 

@@ -15,8 +15,6 @@ parameters:
   level: 2
   ignoreErrors:
     # - '#Access to an undefined property object::\$context_message_key.#'
-    # WordPress core file that exists in runtime but not during static analysis
-    - '#Path in require_once\(\) "./wp-admin/includes/update.php" is not a file or it does not exist#'
   WPCompat:
     pluginFile: index.php
     requiresAtLeast: '6.3'
