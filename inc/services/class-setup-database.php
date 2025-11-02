@@ -5,6 +5,7 @@ namespace Simple_History\Services;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
+use Simple_History\Helpers;
 use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Log_Initiators;
 
