@@ -28,6 +28,11 @@ class React_Dropin extends Dropin {
 
 		// Show error if asset file is not found.
 		if ( $asset_file === false ) {
+			// Bail if function does not exist, ie. WordPress < 6.4.
+			if ( ! function_exists( 'wp_admin_notice' ) ) {
+				return;
+			}
+
 			wp_admin_notice(
 				__( 'Simple History failed to load the asset file for the main GUI. Please try reinstalling the plugin or make sure the JavaScript is built.', 'simple-history' ),
 				[ 'type' => 'error' ]
