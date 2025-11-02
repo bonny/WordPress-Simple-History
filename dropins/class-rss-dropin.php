@@ -18,6 +18,10 @@ class RSS_Dropin extends Dropin {
 	 * @inheritdoc
 	 */
 	public function loaded() {
+		// TODO: Investigate if this include is actually needed.
+		// get_editable_roles() is checked but never called in this file.
+		// This might be leftover code copied from class-privacy-logger.php.
+		// If not needed, this include should be removed.
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . '/wp-admin/includes/user.php';
 		}
