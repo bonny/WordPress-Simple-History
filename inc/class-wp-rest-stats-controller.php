@@ -5,7 +5,7 @@ namespace Simple_History;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
-use Simple_History\Constants;
+use Simple_History\Date_Helper;
 
 /**
  * REST API controller for stats.
@@ -195,7 +195,8 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$params = parent::get_collection_params();
 
 		$params['date_from'] = array(
-			'description' => sprintf( __( 'Start date as Unix timestamp. If not provided, defaults to %d days ago.', 'simple-history' ), Constants::DAYS_PER_MONTH ),
+			// translators: %d is the number of days.
+			'description' => sprintf( __( 'Start date as Unix timestamp. If not provided, defaults to %d days ago.', 'simple-history' ), Date_Helper::DAYS_PER_MONTH ),
 			'type'        => 'integer',
 			'required'    => false,
 		);
@@ -226,18 +227,12 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	/**
 	 * Get default date range for last month.
 	 *
+	 * Uses WordPress timezone from Settings > General.
+	 *
 	 * @return array Array with 'from' and 'to' timestamps for last month.
 	 */
 	private function get_default_date_range() {
-		$today = new \DateTime( 'today' );
-		$tomorrow = new \DateTime( 'tomorrow' );
-		$twenty_eight_days_ago = new \DateTime( 'today' );
-		$twenty_eight_days_ago->modify( sprintf( '-%d days', Constants::DAYS_PER_MONTH ) );
-
-		return array(
-			'from' => $twenty_eight_days_ago->getTimestamp(),
-			'to' => $tomorrow->getTimestamp() - 1, // End of today (23:59:59).
-		);
+		return Date_Helper::get_default_date_range();
 	}
 
 	/**

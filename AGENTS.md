@@ -1,51 +1,89 @@
-# WordPress Simple History plugin
+# WordPress Simple History Plugin
 
-This file provides guidance to AI-agents like Claude Code, GitHub Copilot, Cursor, etc. working with code in this repository.
+This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, etc.) working with code in this repository.
 
 @.cursor/rules/
+@code.md
 
-## Project info
+## Project Overview
 
-The code in this folder is for a WordPress plugin called Simple History.
-Read more about the plugin in @readme.txt.
-This folder contains the free "CORE" version of Simple History. There is also a premium version available.
-We want the core version to be fully useable for free users. Users who needs more functions and features are encouraged in a non-intrusive way to upgrade to the Premium version of the plugin. The premium version is an additional plugin, so both plugins must be installed.
+**Simple History** is a WordPress plugin that logs user activity and system events.
 
-## Build and test commands
+-   **Core Version**: Free, fully-featured version in this repository
+-   **Premium Version**: Additional plugin with extended features (both must be installed together).
+-   **Documentation**: See readme.txt for detailed plugin information
+-   **Upsell Philosophy**: Core version must be fully usable for free users with non-intrusive upgrade prompts. However, the premium version should be a "must-have" for most users. Convince users to upgrade to the premium version by "nudging" them discreetly in different places throughout the plugin. But don't be too pushy, don't annoy users! Win over users in the long run and make them happy to use the premium version.
 
--   Install: `composer install` && `npm install`
--   Build: `npm run build`
--   Dev: `npm run start`
--   Lint PHP: `npm run php:lint` (or fix: `npm run php:lint-fix`)
--   Lint JS/CSS: `npm run lint:js` / `npm run lint:css`
--   Static analysis: `npm run php:phpstan`
--   Run tests: `npm run test` (all) or specific:
-    -   Unit: `docker compose run --rm php-cli vendor/bin/codecept run wpunit:TestName`
-    -   Functional: `docker compose run --rm php-cli vendor/bin/codecept run functional:TestName`
-    -   Acceptance: `docker compose run --rm php-cli vendor/bin/codecept run acceptance:TestName`
--   Run "npm run php:phpstan" to check for PHP errors
+### Technical Architecture
 
-## Code Style Guidelines
+-   **Backend**: Written in PHP following WordPress plugin conventions
+    -   PHP 7.4+ compatibility required
+    -   Core functionality in `inc/` directory
+    -   Loggers in `loggers/` directory
+    -   REST API endpoints for event data
+-   **Frontend**: Main event log interface built with React
+    -   Located in `src/` directory
+    -   Built using @wordpress/scripts tooling
+    -   Communicates with backend via WordPress REST API
 
--   Do things "The WordPress way" - if there is a standardized best practice WordPress way to do something do it that way.
--   Prefixes: 'sh', 'simplehistory', 'simple_history'
--   JS: WordPress scripts (@wordpress/scripts) conventions
--   Proper escaping required for all output
--   Text domain: 'simple-history'
--   **Logger messages**: Use active tone that reads like someone telling you what happened. Messages should start with action verbs and be easily understood by regular users, not just developers (e.g., "Activated plugin", "Created menu", "Detected modifications" - as if someone is saying "WordPress/User did this thing")
+## Quick Start
 
-### PHP coding guidelines
+### Installation & Development
 
--   No mb\_\* string functions allowed
--   Use short array syntax (`[]` and NOT `array()`)
+```bash
+# Install dependencies
+composer install && npm install
+
+# Development
+npm run start        # Watch mode for development
+npm run build        # Production build
+
+# Code Quality
+npm run php:lint     # Lint PHP code
+npm run php:lint-fix # Auto-fix PHP issues
+npm run php:phpstan  # Static analysis
+npm run lint:js      # Lint JavaScript
+npm run lint:css     # Lint CSS
+
+# Testing
+npm run test         # Run all tests
+# Or run specific test suites:
+docker compose run --rm php-cli vendor/bin/codecept run wpunit:TestName
+docker compose run --rm php-cli vendor/bin/codecept run functional:TestName
+docker compose run --rm php-cli vendor/bin/codecept run acceptance:TestName
+```
+
+### Local Development Environment
+
+See @CLAUDE.local.md for local development setup including Docker configuration, WP-CLI commands, and REST API access.
+
+## Code Standards
+
+### General Principles
+
+-   **WordPress Way**: Follow WordPress best practices and conventions
+-   **Prefixes**: Use `sh`, `simplehistory`, or `simple_history`
+-   **Text Domain**: `simple-history`
+-   **Escaping**: Always escape output properly
+-   **JavaScript**: Follow @wordpress/scripts conventions
+
+### PHP Guidelines
+
+#### Requirements
+
+-   PHP 7.4+ compatibility
+-   WordPress Coding Standards (see phpcs.xml.dist)
+-   No `mb_*` string functions
+-   Use short array syntax (`[]` not `array()`)
 -   WordPress hooks must use prefixes
--   WordPress Coding Standards with modifications (see phpcs.xml.dist)
--   PHP: 7.4+ compatibility
--   **Happy path last**: Handle error conditions first, success case last
--   **Avoid else**: Use early returns instead of nested conditions
--   **Separate conditions**: Prefer multiple if statements over compound conditions
--   **Always use curly brackets** even for single statements
--   **Ternary operators**: Each part on own line unless very short
+
+#### Code Style
+
+-   **Happy path last**: Handle errors first, success last
+-   **Avoid else**: Use early returns
+-   **Separate conditions**: Multiple if statements over compound conditions
+-   **Always use curly brackets**: Even for single statements
+-   **Ternary operators**: Multi-line unless very short
 
 ```php
 // Happy path last
@@ -73,21 +111,93 @@ $condition
     : $this->doSomethingElse();
 ```
 
-# CSS rules
+### CSS Guidelines
 
--   Use Suit CSS for naming.
--   Prefix is "sh", so example classes are:
-    -   `sh-HelpSection`, `sh-LogEntry` for main components.
-    -   `sh-HelpSection-subpart`, `sh-LogEntry-author` for parts.
+-   **Naming Convention**: Suit CSS
+-   **Prefix**: `sh`
+-   **Examples**:
+    -   Components: `sh-HelpSection`, `sh-LogEntry`
+    -   Subparts: `sh-HelpSection-subpart`, `sh-LogEntry-author`
 
-## Docker/WP-CLI Commands
+### Logger Messages
 
--   Test WP-CLI commands on local website: `cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot && docker compose run --rm wpcli_mariadb help simple-history list`
+Write messages in **active tone** as if someone is telling you what happened:
 
-## Git Workflow
+-   ✅ "Activated plugin"
+-   ✅ "Created menu"
+-   ✅ "Detected modifications"
+-   ❌ "Plugin was activated"
+-   ❌ "Menu has been created"
 
--   Check out a new branch before working on changes for a github issue or any other larger code
+Messages should be easily understood by regular users, not just developers.
 
-## GitHub Commands
+## Project Management
 
--   Use github cli to fetch github issues
+### GitHub Project Board
+
+**Project**: Simple History Kanban
+**URL**: https://github.com/users/bonny/projects/4/views/1
+
+#### Board Columns
+
+-   **Backlog**: Items for future consideration
+-   **To Do**: Next items to work on
+-   **In Progress**: Currently being worked on
+-   **Experimental**: Experimental or proof-of-concept work
+-   **Done**: Completed items
+
+#### Project Configuration
+
+For automation and API access:
+
+- **Project ID**: `PVT_kwHOAANhgs4AidMq`
+- **Project number**: `4`
+- **Owner**: `bonny`
+- **Status field ID**: `PVTSSF_lAHOAANhgs4AidMqzga-LME`
+
+**Status Option IDs:**
+- "Backlog": `25e9263f`
+- "To do": `6c3f4438`
+- "In progress": `36813ba3`
+- "Experimental": `52a48e60`
+- "Done": `c40edce0`
+
+#### GitHub CLI Commands
+
+```bash
+# List open issues
+gh issue list --state open
+
+# View specific issue
+gh issue view NUMBER
+
+# Access project board (requires read:project scope)
+gh api graphql -f query='
+  query {
+    user(login: "bonny") {
+      projectV2(number: 4) {
+        title
+        items(first: 50) {
+          nodes {
+            content {
+              ... on Issue {
+                title
+                number
+                state
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+'
+```
+
+### Git Workflow
+
+-   Create a new branch for each GitHub issue or feature
+-   Branch naming: `issue-NUMBER-brief-description`
+-   Follow OneFlow model (see code.md for details)
+-   Use GitHub CLI to fetch GitHub issues
+-   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos. Never add any sensitive information to this document, like API keys or passwords, since this document will be commited to GIT and can be shown on GitHub.

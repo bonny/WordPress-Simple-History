@@ -266,23 +266,24 @@ class Events_Stats {
 
 		$users = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT 
+				'SELECT
 					c.value as user_id,
 					COUNT(*) as count,
-					u.display_name
-				FROM 
+					u.display_name,
+					u.user_email
+				FROM
 					%i c
-				JOIN 
+				JOIN
 					%i h ON h.id = c.history_id
-				LEFT JOIN 
+				LEFT JOIN
 					%i u ON u.ID = CAST(c.value AS UNSIGNED)
-				WHERE 
+				WHERE
 					c.key = "_user_id"
 					AND h.date >= FROM_UNIXTIME(%d)
 					AND h.date <= FROM_UNIXTIME(%d)
-				GROUP BY 
+				GROUP BY
 					c.value
-				ORDER BY 
+				ORDER BY
 					count DESC
 				LIMIT %d',
 				$contexts_table,
@@ -304,6 +305,7 @@ class Events_Stats {
 				return [
 					'id'           => $user->user_id,
 					'display_name' => $user->display_name,
+					'user_email'   => $user->user_email,
 					'avatar'       => get_avatar_url( $user->user_id ),
 					'count'        => (int) $user->count,
 				];
@@ -329,23 +331,32 @@ class Events_Stats {
 
 		$events_table = $this->get_events_table_name();
 
+		// Get WordPress timezone offset for converting dates from GMT to local timezone.
+		// Database stores dates in GMT, but we need to group by dates in WordPress timezone.
+		$wp_timezone = wp_timezone();
+		$wp_offset_seconds = $wp_timezone->getOffset( new \DateTime( 'now', $wp_timezone ) );
+
+		// Use DATE_ADD with INTERVAL to convert from GMT to WordPress timezone.
+		// This is more reliable than CONVERT_TZ which requires timezone tables.
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT 
-					DATE(date) as date,
+				'SELECT
+					DATE(DATE_ADD(date, INTERVAL %d SECOND)) as date,
 					COUNT(*) as count
-				FROM 
+				FROM
 					%i
-				WHERE 
+				WHERE
 					date >= FROM_UNIXTIME(%d)
 					AND date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					DATE(date)
-				ORDER BY 
+				GROUP BY
+					DATE(DATE_ADD(date, INTERVAL %d SECOND))
+				ORDER BY
 					date ASC',
+				$wp_offset_seconds,
 				$events_table,
 				$date_from,
-				$date_to
+				$date_to,
+				$wp_offset_seconds
 			)
 		);
 
@@ -357,8 +368,11 @@ class Events_Stats {
 
 		// Create a complete date range with all days.
 		$complete_range = array();
+		// Create DateTime objects in WordPress timezone to ensure correct date boundaries.
 		$current_date = new \DateTime( '@' . $date_from );
+		$current_date->setTimezone( wp_timezone() );
 		$end_date = new \DateTime( '@' . $date_to );
+		$end_date->setTimezone( wp_timezone() );
 
 		while ( $current_date <= $end_date ) {
 			$date_str = $current_date->format( 'Y-m-d' );
@@ -395,23 +409,32 @@ class Events_Stats {
 
 		$events_table = $this->get_events_table_name();
 
+		// Get WordPress timezone offset for converting dates from GMT to local timezone.
+		// Database stores dates in GMT, but we need to group by hours in WordPress timezone.
+		$wp_timezone = wp_timezone();
+		$wp_offset_seconds = $wp_timezone->getOffset( new \DateTime( 'now', $wp_timezone ) );
+
+		// Use DATE_ADD with INTERVAL to convert from GMT to WordPress timezone.
+		// This is more reliable than CONVERT_TZ which requires timezone tables.
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT 
-					HOUR(date) as hour,
+				'SELECT
+					HOUR(DATE_ADD(date, INTERVAL %d SECOND)) as hour,
 					COUNT(*) as count
-				FROM 
+				FROM
 					%i
-				WHERE 
+				WHERE
 					date >= FROM_UNIXTIME(%d)
 					AND date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					HOUR(date)
-				ORDER BY 
+				GROUP BY
+					HOUR(DATE_ADD(date, INTERVAL %d SECOND))
+				ORDER BY
 					hour ASC',
+				$wp_offset_seconds,
 				$events_table,
 				$date_from,
-				$date_to
+				$date_to,
+				$wp_offset_seconds
 			)
 		);
 
@@ -440,23 +463,32 @@ class Events_Stats {
 
 		$events_table = $this->get_events_table_name();
 
+		// Get WordPress timezone offset for converting dates from GMT to local timezone.
+		// Database stores dates in GMT, but we need to group by dates in WordPress timezone.
+		$wp_timezone = wp_timezone();
+		$wp_offset_seconds = $wp_timezone->getOffset( new \DateTime( 'now', $wp_timezone ) );
+
+		// Use DATE_ADD with INTERVAL to convert from GMT to WordPress timezone.
+		// This is more reliable than CONVERT_TZ which requires timezone tables.
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT 
-					DAYOFWEEK(date) - 1 as day,
+				'SELECT
+					DAYOFWEEK(DATE_ADD(date, INTERVAL %d SECOND)) - 1 as day,
 					COUNT(*) as count
-				FROM 
+				FROM
 					%i
-				WHERE 
+				WHERE
 					date >= FROM_UNIXTIME(%d)
 					AND date <= FROM_UNIXTIME(%d)
-				GROUP BY 
-					DAYOFWEEK(date)
-				ORDER BY 
+				GROUP BY
+					DAYOFWEEK(DATE_ADD(date, INTERVAL %d SECOND))
+				ORDER BY
 					day ASC',
+				$wp_offset_seconds,
 				$events_table,
 				$date_from,
-				$date_to
+				$date_to,
+				$wp_offset_seconds
 			)
 		);
 
@@ -1773,7 +1805,7 @@ class Events_Stats {
 		$logResults = $logQuery->query(
 			array(
 				'posts_per_page' => 1,
-				'date_from' => strtotime( 'today' ),
+				'date_from' => Date_Helper::get_today_start_timestamp(),
 			)
 		);
 

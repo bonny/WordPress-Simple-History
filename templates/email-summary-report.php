@@ -5,8 +5,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$support_url = 'https://simple-history.com/support/weekly-email-report/';
-
 /**
  * Filter to show the upsell.
  *
@@ -42,6 +40,7 @@ $args = wp_parse_args(
 		'email_subject' => __( 'Website Activity Summary', 'simple-history' ),
 		'total_events_this_week' => 0,
 		'most_active_days' => [],
+		'busiest_day_name' => __( 'No activity', 'simple-history' ),
 		'date_range' => '',
 		'site_url' => '',
 		'site_name' => '',
@@ -54,6 +53,7 @@ $args = wp_parse_args(
 		'plugin_deactivations' => 0,
 		'wordpress_updates' => 0,
 		'history_admin_url' => '',
+		'settings_url' => '',
 	]
 );
 
@@ -125,15 +125,21 @@ $args = wp_parse_args(
 		<!-- Visually Hidden Preheader Text -->
 		<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
 			<?php
-			$busiest_day = ! empty( $args['most_active_days'][0]['name'] ) ? $args['most_active_days'][0]['name'] : __( 'No activity', 'simple-history' );
-			echo esc_html(
-				sprintf(
-					/* translators: 1: number of events, 2: day of the week */
-					__( '%1$d events last week • %2$s was the busiest day', 'simple-history' ),
-					$args['total_events_this_week'],
-					$busiest_day
-				)
-			);
+			$busiest_day = ! empty( $args['busiest_day_name'] ) ? $args['busiest_day_name'] : __( 'No activity', 'simple-history' );
+
+			// Show different message if there was no activity.
+			if ( $args['total_events_this_week'] === 0 ) {
+				echo esc_html( __( 'No activity last week', 'simple-history' ) );
+			} else {
+				echo esc_html(
+					sprintf(
+						/* translators: 1: number of events, 2: day of the week */
+						__( '%1$d events last week • %2$s was the busiest day', 'simple-history' ),
+						$args['total_events_this_week'],
+						$busiest_day
+					)
+				);
+			}
 			?>
 		</div>
 		
@@ -158,20 +164,20 @@ $args = wp_parse_args(
 								class="mobile-padding email-container" role="main">
 								
 					<!-- Main Headline -->
-					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;" 
+					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;"
 						class="mobile-header">
-						<?php echo esc_html( __( 'Website weekly activity summary', 'simple-history' ) ); ?>
+						<?php echo esc_html( __( 'Website activity summary', 'simple-history' ) ); ?>
 					</h1>
 					
 					<!-- Date Range -->
 					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
-						<?php echo esc_html( $args['date_range'] ); ?> 
+						<?php echo esc_html( $args['date_range'] ); ?>
 					</p>
 					
 					<!-- Subtitle -->
-					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
+					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;"
 						class="mobile-text">
-						<?php echo esc_html( __( 'Here\'s a summary of what happened on your website last week.', 'simple-history' ) ); ?>
+						<?php echo esc_html( __( 'Here\'s a summary of activity on your website.', 'simple-history' ) ); ?>
 					</p>
 
 					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
@@ -199,7 +205,7 @@ $args = wp_parse_args(
 					<?php if ( $show_main_core_stats ) { ?>
 					<!-- Key Metrics Section -->
 					<div style="margin-bottom: 40px;">
-						
+
 						<!-- Website Information -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
@@ -216,11 +222,21 @@ $args = wp_parse_args(
 								</a>
 							</div>
 						</div>
-						
+
+						<!-- Period Information -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
+								<?php echo esc_html( __( 'Period', 'simple-history' ) ); ?>
+							</h2>
+							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000; font-weight: 600; text-align: left;">
+								<?php echo esc_html( $args['date_range'] ); ?>
+							</div>
+						</div>
+
 						<!-- This Week's Activity -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Events this week', 'simple-history' ) ); ?>
+								<?php echo esc_html( __( 'Total events', 'simple-history' ) ); ?>
 							</h2>
 							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">
 								<?php echo esc_html( number_format_i18n( $args['total_events_this_week'] ) ); ?>
@@ -230,30 +246,55 @@ $args = wp_parse_args(
 						<!-- Weekly Activity Breakdown -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Activity by day', 'simple-history' ) ); ?>
+								<?php echo esc_html( __( 'Event count by day', 'simple-history' ) ); ?>
 							</h2>
 							
 							<?php
-							// Create an array of all days of the week.
-							$all_days = [
-								'monday' => __( 'Monday', 'simple-history' ),
-								'tuesday' => __( 'Tuesday', 'simple-history' ),
-								'wednesday' => __( 'Wednesday', 'simple-history' ),
-								'thursday' => __( 'Thursday', 'simple-history' ),
-								'friday' => __( 'Friday', 'simple-history' ),
-								'saturday' => __( 'Saturday', 'simple-history' ),
-								'sunday' => __( 'Sunday', 'simple-history' ),
-							];
-
 							// Create a lookup array from most_active_days for easy access.
+							// Data is already keyed by day number (0-6) to avoid language issues.
 							$day_counts = [];
 							foreach ( $args['most_active_days'] as $day ) {
-								if ( isset( $day['name'] ) && isset( $day['count'] ) ) {
-									// The day name comes from Events_Stats as full day name (e.g., "Monday").
-									// We need to match it against our all_days array values.
-									$day_name_lower = strtolower( $day['name'] );
-									$day_counts[ $day_name_lower ] = $day['count'];
+								if ( isset( $day['day_number'] ) && isset( $day['count'] ) ) {
+									$day_counts[ $day['day_number'] ] = $day['count'];
 								}
+							}
+
+							// Build days array in chronological order based on actual date range.
+							$ordered_days = [];
+							$start_timestamp = isset( $args['date_from_timestamp'] ) ? $args['date_from_timestamp'] : strtotime( '-6 days' );
+							$end_timestamp = isset( $args['date_to_timestamp'] ) ? $args['date_to_timestamp'] : time();
+
+							// Create DateTimeImmutable objects for iteration.
+							$current_date = ( new DateTimeImmutable( '@' . $start_timestamp ) )->setTimezone( wp_timezone() );
+							$end_date = ( new DateTimeImmutable( '@' . $end_timestamp ) )->setTimezone( wp_timezone() );
+
+							// Iterate through each day in the range.
+							while ( $current_date <= $end_date ) {
+								$day_name = $current_date->format( 'l' ); // Full day name (e.g., "Monday").
+								$day_number = (int) $current_date->format( 'w' ); // Day of week (0=Sunday, 6=Saturday).
+
+								// Get full formatted date for tooltip.
+								$full_date = wp_date(
+									sprintf(
+										/* translators: Full date format for tooltip: "Thursday 2 October 2025" */
+										__( 'l j F Y', 'simple-history' )
+									),
+									$current_date->getTimestamp()
+								);
+
+								// Get date in Y-m-d format for URL parameters.
+								$date_ymd = $current_date->format( 'Y-m-d' );
+
+								$ordered_days[] = [
+									'name' => $day_name,
+									'key' => $day_number,
+									'count' => isset( $day_counts[ $day_number ] ) ? $day_counts[ $day_number ] : 0,
+									'full_date' => $full_date,
+									'date_ymd' => $date_ymd,
+								];
+
+								// Move to next day.
+								$current_date = $current_date->modify( '+1 day' );
 							}
 							?>
 							
@@ -261,16 +302,27 @@ $args = wp_parse_args(
 								<tr>
 									<?php
 									$day_index = 0;
-									foreach ( $all_days as $day_key => $day_name ) {
-										$count = isset( $day_counts[ $day_key ] ) ? $day_counts[ $day_key ] : 0;
+									$total_days = count( $ordered_days );
+									foreach ( $ordered_days as $day_data ) {
+										// Build URL with date filter for this specific day.
+										$day_url = add_query_arg(
+											[
+												'date' => 'customRange',
+												'from' => $day_data['date_ymd'],
+												'to' => $day_data['date_ymd'],
+											],
+											$args['history_admin_url']
+										);
 										?>
-										<td style="width: 14.28%; vertical-align: top; text-align: center;<?php echo $day_index < 6 ? ' padding-right: 8px;' : ''; ?>">
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; color: #000000; text-align: center; font-weight: 500;">
-												<?php echo esc_html( substr( $day_name, 0, 3 ) ); ?>
-											</div>
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000; font-weight: 700; text-align: center; margin-top: 2px;">
-												<?php echo esc_html( number_format_i18n( $count ) ); ?>
-											</div>
+										<td style="width: 14.28%; vertical-align: top; text-align: center;<?php echo $day_index < ( $total_days - 1 ) ? ' padding-right: 8px;' : ''; ?>" title="<?php echo esc_attr( $day_data['full_date'] ); ?>">
+											<a href="<?php echo esc_url( $day_url ); ?>" style="color: #0040FF; text-decoration: none; display: block;">
+												<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; color: #000000; text-align: center; font-weight: 500;">
+													<?php echo esc_html( substr( $day_data['name'], 0, 3 ) ); ?>
+												</div>
+												<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #0040FF; font-weight: 700; text-align: center; margin-top: 2px;">
+													<?php echo esc_html( number_format_i18n( $day_data['count'] ) ); ?>
+												</div>
+											</a>
 										</td>
 										<?php
 										$day_index++;
@@ -427,16 +479,38 @@ $args = wp_parse_args(
 		<!-- Unsubscribe Text Outside White Container -->
 		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="500" style="padding: 40px 0;" class="email-container">
 			<tr>
-				<td style="padding: 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; text-align: center; color: #000000;" 
+				<td style="padding: 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; text-align: center; color: #000000;"
 					class="mobile-padding">
 					<p style="margin: 15px 0 0; font-size: 12px; color: #000000;">
-						<?php echo esc_html( __( 'You\'re receiving this email because your email address was entered in the WordPress admin settings for Simple History.', 'simple-history' ) ); ?>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: Site name */
+								__( 'You\'re receiving this email because you\'re listed as a recipient in the Simple History email report settings for %s.', 'simple-history' ),
+								$args['site_name']
+							)
+						);
+						?>
 					</p>
 					<p style="margin: 10px 0 0; font-size: 12px; color: #000000;">
-						<?php echo esc_html( __( 'This email was auto-generated and sent from www.simple-history.com.', 'simple-history' ) ); ?>
-						<a href="<?php echo esc_url( $support_url ); ?>" style="color: #000000; text-decoration: underline;">
-							<?php echo esc_html( __( 'Learn how to unsubscribe/stop receiving emails', 'simple-history' ) ); ?>
-						</a>.
+						<?php
+						$allowed_html = array(
+							'a' => array(
+								'href' => array(),
+								'style' => array(),
+							),
+						);
+						$link_style = 'style="color: #000000; text-decoration: underline;"';
+						echo wp_kses(
+							sprintf(
+								/* translators: 1: URL to settings page, 2: link style attribute including style="" */
+								__( 'To stop receiving these emails, go to <a href="%1$s" %2$s>Settings → Simple History → Email Reports</a> in your WordPress admin and remove your email address.', 'simple-history' ),
+								esc_url( $args['settings_url'] ),
+								$link_style
+							),
+							$allowed_html
+						);
+						?>
 					</p>
 				</td>
 			</tr>

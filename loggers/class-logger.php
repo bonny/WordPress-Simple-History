@@ -1775,7 +1775,7 @@ abstract class Logger {
 			}
 
 			// If cron then set WordPress as responsible.
-			if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+			if ( wp_doing_cron() ) {
 				$data['initiator'] = Log_Initiators::WORDPRESS;
 				$context['_wp_cron_running'] = true;
 

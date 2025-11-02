@@ -79,7 +79,7 @@ class Stats_View {
 
 				<div class="sh-StatsDashboard-dateRangeControls-description">
 					<span class="sh-Icon sh-Icon-lock"></span>
-					<span><a target="_blank" rel="noopener noreferrer" href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-date-ranges">Upgrade to Premium</a> to get access to more date ranges.</span>
+					<span><a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_stats_daterange' ) ); ?>">Upgrade to Premium</a> to get access to more date ranges.</span>
 				</div>
 			</div>
 
@@ -364,28 +364,52 @@ class Stats_View {
 	/**
 	 * Output the avatar list of top users.
 	 *
+	 * Each user array should have the following shape:
+	 * [
+	 *     'id'           => int    User ID,
+	 *     'display_name' => string User display name,
+	 *     'user_email'   => string User email,
+	 *     'avatar'       => string Avatar URL (absolute, 96x96),
+	 *     'count'        => int    Number of events,
+	 * ]
+	 *
 	 * @param array $top_users Array of top users data.
+	 * @phpstan-param array<int, array{id: int, display_name: string, user_email: string, avatar: string, count: int}> $top_users
 	 */
 	public static function output_top_users_avatar_list( $top_users ) {
+		$user_count = count( $top_users );
+
+		// Bail if no users.
+		if ( $user_count === 0 ) {
+			return;
+		}
+
+		// Output avatars.
 		?>
 		<ul class="sh-StatsDashboard-userList">
 			<?php
 			$loop_count = 0;
-			$user_count = count( $top_users );
 			foreach ( $top_users as $user ) {
 				// Set z-index to reverse order, so first user is on top.
 				$style = 'z-index: ' . ( $user_count - $loop_count ) . ';';
+				$user_url = Helpers::get_filtered_events_url(
+					[
+						'users' => $user,
+					]
+				);
 				?>
 				<li class="sh-StatsDashboard-userItem" style="<?php echo esc_attr( $style ); ?>">
-					<img 
-						src="<?php echo esc_url( $user['avatar'] ); ?>" 
-						alt="<?php echo esc_attr( $user['display_name'] ); ?>" 
-						class="sh-StatsDashboard-userAvatar"
-					>
-					<span class="sh-StatsDashboard-userData">
-						<span class="sh-StatsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
-						<span class="sh-StatsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
-					</span>
+					<a href="<?php echo esc_url( $user_url ); ?>" class="sh-StatsDashboard-userLink">
+						<img
+							src="<?php echo esc_url( $user['avatar'] ); ?>"
+							alt="<?php echo esc_attr( $user['display_name'] ); ?>"
+							class="sh-StatsDashboard-userAvatar"
+						>
+						<span class="sh-StatsDashboard-userData">
+							<span class="sh-StatsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
+							<span class="sh-StatsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
+						</span>
+					</a>
 				</li>
 				<?php
 
@@ -393,6 +417,32 @@ class Stats_View {
 			}
 			?>
 		</ul>
+		<?php
+
+		// Output user names (if user has no avatar).
+		?>
+		<p class="sh-StatsDashboard-userNamesList">
+			<?php
+			// Generate array of user names with links to filtered events log
+			// in format that can be used with wp_sprintf.
+			$user_names = array_map(
+				static function ( $user ) {
+					$url = Helpers::get_filtered_events_url(
+						[
+							'users' => $user,
+						]
+					);
+
+					return '<a href="' . esc_url( $url ) . '">' . esc_html( $user['display_name'] ) . '</a><span class="sh-StatsDashboard-userEventCount"> (' . esc_html( number_format_i18n( $user['count'] ) ) . ')</span>';
+				},
+				$top_users
+			);
+
+			// Creates a comma-separated list of user names.
+			// Example: "John Doe, Jane Smith, Mary Johnson".
+			echo wp_kses_post( implode( ', ', $user_names ) );
+			?>
+		</p>
 		<?php
 	}
 
@@ -458,7 +508,7 @@ class Stats_View {
 
 			<p class="sh-mt-0">
 				Premium users get access to charts with detailed stats.
-				<a href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-charts#stats-and-summaries" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>.
+				<a href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/#stats-and-summaries', 'premium_stats_charts' ) ); ?>" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>.
 			</p>
 
 			<div class="sh-StatsDashboard-content">
@@ -600,7 +650,7 @@ class Stats_View {
 				?>
 				<p class="sh-mt-0 sh-mb-large">
 					<?php echo esc_html( $description_text ); ?>
-					<a href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-box#stats-and-summaries" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>
+					<a href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/#stats-and-summaries', 'premium_stats_box' ) ); ?>" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>
 				</p>
 				<?php
 			}

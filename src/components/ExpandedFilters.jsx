@@ -11,6 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
+import { getTrackingUrl } from '../functions';
 
 /**
  * More filters that are hidden by default.
@@ -28,6 +29,8 @@ export function ExpandedFilters( props ) {
 		setSelectedUsersWithId,
 		selectedInitiator,
 		setSelectedInitiator,
+		selectedContextFilters,
+		setSelectedContextFilters,
 		searchOptions,
 	} = props;
 
@@ -414,7 +417,10 @@ export function ExpandedFilters( props ) {
 					</div>
 
 					<ExternalLink
-						href="https://simple-history.com/support/what-is-an-initiator/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=initiator-filter-help"
+						href={ getTrackingUrl(
+							'https://simple-history.com/support/what-is-an-initiator/',
+							'docs_filters_initiator'
+						) }
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -423,6 +429,48 @@ export function ExpandedFilters( props ) {
 							'simple-history'
 						) }
 					</ExternalLink>
+				</FlexBlock>
+			</Flex>
+
+			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
+				<FlexItem style={ { margin: '.5em 0' } }>
+					<div className="SimpleHistory__filters__filterLabel">
+						{ __( 'Context', 'simple-history' ) }
+					</div>
+				</FlexItem>
+				<FlexBlock>
+					<div
+						className="SimpleHistory__filters__loglevels__select"
+						style={ {
+							width: '310px',
+						} }
+					>
+						<textarea
+							placeholder={ __( '_user_id:1', 'simple-history' ) }
+							onChange={ ( event ) => {
+								setSelectedContextFilters( event.target.value );
+							} }
+							value={ selectedContextFilters }
+							rows={ 2 }
+							style={ {
+								width: '100%',
+								fontFamily: 'monospace',
+								fontSize: '13px',
+								padding: '6px 8px',
+								borderRadius: '2px',
+								border: '1px solid #8c8f94',
+								boxSizing: 'border-box',
+								fieldSizing: 'content',
+							} }
+						/>
+					</div>
+					<BaseControl
+						__nextHasNoMarginBottom
+						help={ __(
+							'Enter context key-value pairs in the format "key:value". One filter per line (e.g., "_user_id:1" on first line, "_sticky:1" on second line).',
+							'simple-history'
+						) }
+					/>
 				</FlexBlock>
 			</Flex>
 		</div>

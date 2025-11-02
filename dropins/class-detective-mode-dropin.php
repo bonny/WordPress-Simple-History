@@ -85,7 +85,7 @@ class Detective_Mode_Dropin extends Dropin {
 		</p>
 
 		<p class="description">
-			<a href="https://simple-history.com/support/detective-mode/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=detective-mode-help" target="_blank" class="sh-ExternalLink">
+			<a href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/support/detective-mode/', 'docs_detective_help' ) ); ?>" target="_blank" class="sh-ExternalLink">
 			<?php esc_html_e( 'Read more about detective mode', 'simple-history' ); ?>
 			</a>
 		</p>
@@ -150,8 +150,8 @@ class Detective_Mode_Dropin extends Dropin {
 		'current_filter' => implode( ', ', $wp_current_filter ?? [] ),
 		'debug_backtrace' => wp_debug_backtrace_summary( null, 0, true ),
 		'is_admin' => is_admin(),
-		'doing_ajax' => defined( 'DOING_AJAX' ) && DOING_AJAX,
-		'doing_cron' => defined( 'DOING_CRON' ) && DOING_CRON,
+		'doing_ajax' => wp_doing_ajax(),
+		'doing_cron' => wp_doing_cron(),
 		'wp_cli' => defined( 'WP_CLI' ) && WP_CLI,
 		'is_multisite' => is_multisite(),
 		'php_sapi_name' => php_sapi_name(),

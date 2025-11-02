@@ -7,10 +7,10 @@ use DateInterval;
 use DatePeriod;
 use Simple_History\Helpers;
 use Simple_History\Menu_Manager;
-use Simple_History\Log_Query;
 use Simple_History\Events_Stats;
 use Simple_History\Stats_View;
-use Simple_History\Constants;
+use Simple_History\Date_Helper;
+use Simple_History\Simple_History;
 
 /**
  * Dropin Name: Sidebar with eventstats.
@@ -18,6 +18,13 @@ use Simple_History\Constants;
  * Author: Pär Thernström
  */
 class Sidebar_Stats_Dropin extends Dropin {
+	/**
+	 * Cache duration in minutes for sidebar stats.
+	 *
+	 * @var int
+	 */
+	const CACHE_DURATION_MINUTES = 5;
+
 	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'on_sidebar_html' ), 4 );
@@ -106,13 +113,16 @@ class Sidebar_Stats_Dropin extends Dropin {
 						},
 					});
 
-					// when chart is clicked determine what value/day was clicked
+					/**
+					 * When chart is clicked determine what value/day was clicked
+					 * and dispatch a custom event to the React app to handle the date filter.
+					 */
 					function clickChart(e, legendItem, legend) {
-						console.log("clickChart", e, legendItem, legend);
-
 						// Get value of selected bar.
+						// Use 'index' mode with intersect: false to match the tooltip behavior,
+						// so clicking anywhere in the vertical area of a day will select that day.
 						var label;
-						const points = myChart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+						const points = myChart.getElementsAtEventForMode(e, 'index', { intersect: false }, true);
 						if (points.length) {
 							const firstPoint = points[0];
 							// Label e.g. "Jun 25".
@@ -124,7 +134,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 						var labelDate;
 						for (idx in chartLabelsToDates) {
 							if (label == chartLabelsToDates[idx].label) {
-								//console.log(chartLabelsToDates[idx]);
 								labelDate = chartLabelsToDates[idx];
 							}
 						}
@@ -133,19 +142,16 @@ class Sidebar_Stats_Dropin extends Dropin {
 							return;
 						}
 
-						// got a date, now reload the history/post search filter form again
-						var labelDateParts = labelDate.date.split("-"); ["2016", "07", "18"]
+						// Dispatch custom event for React app to handle the date filter.
+						// The React app will listen for this event and update the date filter state.
+						const event = new CustomEvent('SimpleHistory:chartDateClick', {
+							detail: {
+								// Date in Y-m-d format, e.g., "2024-10-05".
+								date: labelDate.date,
+							}
+						});
 
-						// show custom date range
-						$(".SimpleHistory__filters__filter--date").val("customRange").trigger("change");
-
-						// set values, same for both from and to because we only want to show one day
-						SimpleHistoryFilterDropin.$elms.filter_form.find("[name='from_aa'], [name='to_aa']").val(labelDateParts[0]);
-						SimpleHistoryFilterDropin.$elms.filter_form.find("[name='from_jj'], [name='to_jj']").val(labelDateParts[2]);
-						SimpleHistoryFilterDropin.$elms.filter_form.find("[name='from_mm'], [name='to_mm']").val(labelDateParts[1]);
-
-						SimpleHistoryFilterDropin.$elms.filter_form.trigger("submit");
-
+						window.dispatchEvent(event);
 					}
 
 				});
@@ -160,25 +166,40 @@ class Sidebar_Stats_Dropin extends Dropin {
 	/**
 	 * Get data for chart.
 	 *
-	 * @param int $num_days Number of days to get data for.
+	 * @param int   $num_days Number of days to get data for.
+	 * @param array $num_events_per_day_for_period Cached chart data from get_quick_stats_data.
 	 * @return string HTML.
 	 */
-	protected function get_chart_data( $num_days ) {
+	protected function get_chart_data( $num_days, $num_events_per_day_for_period ) {
 		ob_start();
 
-		$num_events_per_day_for_period = Helpers::get_num_events_per_day_last_n_days( $num_days );
-
 		// Period = all dates, so empty ones don't get lost.
-		$period_start_date = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days days" ) );
-		$period_end_date = DateTimeImmutable::createFromFormat( 'U', time() );
+		// For "last N days" including today, we go back N-1 days.
+		// E.g., "last 30 days" on Oct 7 = Sep 8 to Oct 7 (30 days).
+		// Create DateTimeImmutable directly in WordPress timezone to avoid timezone conversion issues.
+		$days_ago = $num_days - 1;
+		$period_start_date = new DateTimeImmutable( "-{$days_ago} days", wp_timezone() );
+		$period_start_date = new DateTimeImmutable( $period_start_date->format( 'Y-m-d' ) . ' 00:00:00', wp_timezone() );
+		$today = new DateTimeImmutable( 'today', wp_timezone() );
 		$interval = DateInterval::createFromDateString( '1 day' );
 
-		$period = new DatePeriod( $period_start_date, $interval, $period_end_date->add( date_interval_create_from_date_string( '1 days' ) ) );
+		// DatePeriod excludes end date by default.
+		// To include today, we need to set end to tomorrow 00:00:00.
+		$tomorrow = $today->add( date_interval_create_from_date_string( '1 days' ) );
+		$period = new DatePeriod( $period_start_date, $interval, $tomorrow );
 
 		?>
 
 		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
-							<div class="sh-StatsDashboard-statLabel"><?php printf( esc_html__( 'Daily activity over last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ); ?></div>
+			<div class="sh-StatsDashboard-statLabel">
+				<?php
+				printf(
+					// translators: 1 is number of days.
+					esc_html__( 'Daily activity over last %d days', 'simple-history' ),
+					esc_html( Date_Helper::DAYS_PER_MONTH )
+				);
+				?>
+			</div>
 
 			<div class="sh-StatsDashboard-statValue">
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
@@ -188,13 +209,16 @@ class Sidebar_Stats_Dropin extends Dropin {
 			</div>
 			
 			<div class="sh-StatsDashboard-statSubValue">
-				<p class="sh-flex sh-justify-between sh-m-0">
+				<p class="sh-flex sh-justify-between sh-m-0"
+					style="margin-top: calc(-1 * var(--sh-spacing-small));"
+				>
 					<span>
 						<?php
 						// From date, localized.
+						// Example: "September 4, 2025".
 						echo esc_html(
 							wp_date(
-								get_option( 'date_format' ),
+								'M j',
 								$period_start_date->getTimestamp()
 							)
 						);
@@ -203,10 +227,11 @@ class Sidebar_Stats_Dropin extends Dropin {
 					<span>
 						<?php
 						// To date, localized.
+						// Example: "October 4, 2025".
 						echo esc_html(
 							wp_date(
-								get_option( 'date_format' ),
-								$period_end_date->getTimestamp()
+								'M j',
+								$today->getTimestamp()
 							)
 						);
 						?>
@@ -222,8 +247,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 		foreach ( $period as $dt ) {
 			$datef = _x( 'M j', 'stats: date in rows per day chart', 'simple-history' );
-			$str_date = date_i18n( $datef, $dt->getTimestamp() );
-			$str_date_ymd = gmdate( 'Y-m-d', $dt->getTimestamp() );
+			$str_date = wp_date( $datef, $dt->getTimestamp() );
+			$str_date_ymd = $dt->format( 'Y-m-d' );
 
 			// Get data for this day, if exist
 			// Day in object is in format '2014-09-07'.
@@ -277,9 +302,14 @@ class Sidebar_Stats_Dropin extends Dropin {
 	/**
 	 * Get HTML for stats and summaries link.
 	 *
+	 * @param bool $current_user_can_manage_options If current user has manage options capability.
 	 * @return string HTML.
 	 */
-	protected function get_cta_link_html() {
+	protected function get_cta_link_html( $current_user_can_manage_options ) {
+		if ( ! $current_user_can_manage_options ) {
+			return '';
+		}
+
 		$stats_page_url = Menu_Manager::get_admin_url_by_slug( 'simple_history_stats_page' );
 
 		// Bail if no stats page url (user has no access to stats page).
@@ -300,35 +330,51 @@ class Sidebar_Stats_Dropin extends Dropin {
 
 	/**
 	 * Get data for the quick stats.
-	 * Data is cached in transient for 10 minutes.
+	 * Data is cached in transient for CACHE_DURATION_MINUTES minutes.
 	 *
 	 * @param int $num_days_month Number of days to consider month, to get data for.
 	 * @param int $num_days_week Number of days to consider week, to get data for.
-	 * @return array<string,mixed>
+	 * @return array<string,mixed> Array with stats data.
 	 */
 	protected function get_quick_stats_data( $num_days_month, $num_days_week ) {
-		$args_serialized = serialize( [ $num_days_month, $num_days_week ] );
+		$simple_history = Simple_History::get_instance();
+		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
+		$current_user_can_manage_options = current_user_can( 'manage_options' );
+		$current_user_can_list_users = current_user_can( 'list_users' );
+		$args_serialized = serialize( [ $num_days_month, $num_days_week, $loggers_slugs, $current_user_can_manage_options, $current_user_can_list_users ] );
 		$cache_key = 'sh_quick_stats_data_' . md5( $args_serialized );
-		$cache_expiration_seconds = 5 * MINUTE_IN_SECONDS;
+		$cache_expiration_seconds = self::CACHE_DURATION_MINUTES * MINUTE_IN_SECONDS;
 
 		$results = get_transient( $cache_key );
+
+		// Uncomment below to test without cache = always run the queries = always fresh data.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// Claude: please keep this, I need it to always get fresh data when testing/developing.
+		$results = false;
 
 		if ( false !== $results ) {
 			return $results;
 		}
 
-		$month_date_from = DateTimeImmutable::createFromFormat( 'U', strtotime( "-$num_days_month days" ) );
-		$month_date_to = DateTimeImmutable::createFromFormat( 'U', time() );
-
-		$events_stats = new Events_Stats();
-
 		$results = [
-			'num_events_today' => Events_Stats::get_num_events_today(),
+			'num_events_today' => Helpers::get_num_events_today(),
 			'num_events_week' => Helpers::get_num_events_last_n_days( $num_days_week ),
 			'num_events_month' => Helpers::get_num_events_last_n_days( $num_days_month ),
-			'total_events' => Helpers::get_total_logged_events_count(),
-			'top_users' => $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 ),
+			'chart_data_month' => Helpers::get_num_events_per_day_last_n_days( $num_days_month ),
 		];
+
+		// Only fetch total_events for admins.
+		if ( $current_user_can_manage_options ) {
+			$results['total_events'] = Helpers::get_total_logged_events_count();
+		}
+
+		// Only fetch top_users for users who can list users.
+		if ( $current_user_can_list_users ) {
+			$month_date_from = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_last_n_days_start_timestamp( $num_days_month ) );
+			$month_date_to = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_current_timestamp() );
+			$events_stats = new Events_Stats();
+			$results['top_users'] = $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 );
+		}
 
 		set_transient( $cache_key, $results, $cache_expiration_seconds );
 
@@ -339,20 +385,39 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 * Output HTML for sidebar.
 	 */
 	public function on_sidebar_html() {
-		$num_days_month = Constants::DAYS_PER_MONTH;
-		$num_days_week = Constants::DAYS_PER_WEEK;
+		$num_days_month = Date_Helper::DAYS_PER_MONTH;
+		$num_days_week = Date_Helper::DAYS_PER_WEEK;
 
 		$stats_data = $this->get_quick_stats_data( $num_days_month, $num_days_week );
 
 		$current_user_can_list_users = current_user_can( 'list_users' );
+		$current_user_can_manage_options = current_user_can( 'manage_options' );
 
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
 
-				<h3 class="sh-PremiumFeaturesPostbox-title">
+				<h3 class="sh-PremiumFeaturesPostbox-title sh-mb-small">
 					<?php esc_html_e( 'History Insights', 'simple-history' ); ?>
 				</h3>
+
+				<p class="sh-mt-0">
+					<?php
+					if ( $current_user_can_manage_options ) {
+						printf(
+							/* translators: %d is the number of minutes between cache refreshes */
+							esc_html__( 'Calculated from all events. Updates every %d minutes.', 'simple-history' ),
+							absint( self::CACHE_DURATION_MINUTES )
+						);
+					} else {
+						printf(
+							/* translators: %d is the number of minutes between cache refreshes */
+							esc_html__( 'Based on events you can view. Updates every %d minutes.', 'simple-history' ),
+							absint( self::CACHE_DURATION_MINUTES )
+						);
+					}
+					?>
+				</p>
 
 				<?php
 				/**
@@ -364,65 +429,134 @@ class Sidebar_Stats_Dropin extends Dropin {
 				 * Fires inside the stats sidebar box, after the headline but before any content.
 				 */
 				do_action( 'simple_history/dropin/stats/before_content' );
+
+				// Today, 7 days, 30 days.
+				echo wp_kses_post( $this->get_events_per_days_stats_html( $stats_data ) );
+
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $this->get_chart_data( $num_days_month, $stats_data['chart_data_month'] );
+
+				// Most active users in last 30 days. Only visible to admins.
+				echo wp_kses_post( $this->get_most_active_users_html( $current_user_can_list_users, $stats_data ) );
+
+				// Show total events logged. Only visible to admins.
+				echo wp_kses_post( $this->get_total_events_logged_html( $current_user_can_manage_options, $stats_data ) );
+
+				// Show insights page CTA. Only visible to admins.
+				echo wp_kses_post( $this->get_cta_link_html( $current_user_can_manage_options ) );
+
 				?>
-
-				<div class="sh-flex sh-justify-between sh-items-end sh-mb-large sh-mt-large">
-					<?php
-					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $this->get_stat_dashboard_item(
-						__( 'Today', 'simple-history' ),
-						number_format_i18n( $stats_data['num_events_today'] ),
-						_n( 'event', 'events', $stats_data['num_events_today'], 'simple-history' ),
-					);
-
-					echo $this->get_stat_dashboard_item(
-						sprintf( __( 'Last %d days', 'simple-history' ), Constants::DAYS_PER_WEEK ),
-						number_format_i18n( $stats_data['num_events_week'] ),
-						_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
-					);
-
-					echo $this->get_stat_dashboard_item(
-						sprintf( __( 'Last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ),
-						number_format_i18n( $stats_data['num_events_month'] ),
-						_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
-					);
-					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-					?>
-				</div>
-
-				<?php
-				if ( $current_user_can_list_users ) {
-					?>
-					<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
-						<span class="sh-StatsDashboard-statLabel">
-							<?php printf( esc_html__( 'Most active users in last %d days', 'simple-history' ), Constants::DAYS_PER_MONTH ); ?>
-							<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
-						</span>
-						<span class="sh-StatsDashboard-statValue"><?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?></span>
-					</div>
-					<?php
-				}
-
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $this->get_chart_data( $num_days_month );
-
-				$msg_text = sprintf(
-					// translators: 1 is number of events, 2 is description of when the plugin was installed.
-					__( 'A total of <b>%1$s events</b> have been logged since Simple History was installed.', 'simple-history' ),
-					number_format_i18n( $stats_data['total_events'] ),
-				);
-
-				// Append tooltip.
-				$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then.', 'simple-history' ) );
-
-				echo wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
-
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo $this->get_cta_link_html();
-		?>
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Get HTML for total events logged.
+	 *
+	 * @param bool  $current_user_can_manage_options If current user has manage options capability.
+	 * @param array $stats_data Stats data.
+	 * @return string HTML.
+	 */
+	protected function get_total_events_logged_html( $current_user_can_manage_options, $stats_data ) {
+		if ( ! $current_user_can_manage_options ) {
+			return '';
+		}
+
+		if ( ! isset( $stats_data['total_events'] ) ) {
+			return '';
+		}
+
+		$msg_text = sprintf(
+			// translators: 1 is number of events, 2 is description of when the plugin was installed.
+			__( 'A total of <b>%1$s events</b> have been logged since Simple History was installed.', 'simple-history' ),
+			number_format_i18n( $stats_data['total_events'] ),
+		);
+
+		// Append tooltip.
+		$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then. Only administrators can see this number.', 'simple-history' ) );
+
+		// Return concatenated result.
+		return wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
+	}
+
+	/**
+	 * Output HTML for most active users data, i.e. avatars and usernames.
+	 *
+	 * @param bool  $current_user_can_list_users If current user has list users capability.
+	 * @param array $stats_data Stats data.
+	 * @return string Avatars and usernames if user can view, empty string otherwise.
+	 */
+	protected function get_most_active_users_html( $current_user_can_list_users, $stats_data ) {
+		if ( ! $current_user_can_list_users ) {
+			return '';
+		}
+
+		if ( ! isset( $stats_data['top_users'] ) ) {
+			return '';
+		}
+
+		ob_start();
+
+		?>
+		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
+			<span class="sh-StatsDashboard-statLabel">
+				<?php
+				printf(
+					// translators: 1 is number of days.
+					esc_html__( 'Most active users in last %d days', 'simple-history' ),
+					esc_html( Date_Helper::DAYS_PER_MONTH )
+				);
+				?>
+				<?php echo wp_kses_post( Helpers::get_tooltip_html( __( 'Only administrators can see user names and avatars.', 'simple-history' ) ) ); ?>
+			</span>
+			<span class="sh-StatsDashboard-statSubValue">
+				<?php Stats_View::output_top_users_avatar_list( $stats_data['top_users'] ); ?>
+			</span>
+		</div>
+		<?php
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Get HTML for number of events per today, 7 days, 30 days.
+	 *
+	 * @param array $stats_data Array with stats data.
+	 * @return string
+	 */
+	protected function get_events_per_days_stats_html( $stats_data ) {
+		ob_start();
+
+		?>
+		<div class="sh-flex sh-justify-between sh-items-end sh-mb-large sh-mt-large">
+			<?php
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $this->get_stat_dashboard_item(
+				__( 'Today', 'simple-history' ),
+				number_format_i18n( $stats_data['num_events_today'] ),
+				_n( 'event', 'events', $stats_data['num_events_today'], 'simple-history' ),
+			);
+
+			echo $this->get_stat_dashboard_item(
+				// translators: %d is the number of days.
+				sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_WEEK ),
+				number_format_i18n( $stats_data['num_events_week'] ),
+				_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
+			);
+
+			echo $this->get_stat_dashboard_item(
+				// translators: %d is the number of days.
+				sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_MONTH ),
+				number_format_i18n( $stats_data['num_events_month'] ),
+				_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
+			);
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
+			</div>
+		<?php
+
+		return ob_get_clean();
 	}
 
 	/**
@@ -458,12 +592,12 @@ class Sidebar_Stats_Dropin extends Dropin {
                 AND date > \'%2$s\'
             ',
 			$sql_loggers_in,
-			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
+			gmdate( 'Y-m-d H:i:s', Date_Helper::get_today_start_timestamp() ),
 			$this->simple_history->get_events_table_name(),
 			$this->simple_history->get_contexts_table_name()
 		);
 
-		$cache_key = 'quick_stats_users_today_' . md5( serialize( $sql_loggers_in ) );
+		$cache_key = 'sh_quick_stats_users_today_' . md5( serialize( $sql_loggers_in ) );
 		$cache_group = Helpers::get_cache_group();
 		$results_users_today = wp_cache_get( $cache_key, $cache_group );
 
@@ -495,7 +629,7 @@ class Sidebar_Stats_Dropin extends Dropin {
                 AND date > \'%2$s\'
             ',
 			$sql_loggers_in,
-			gmdate( 'Y-m-d H:i', strtotime( 'today' ) )
+			gmdate( 'Y-m-d H:i:s', Date_Helper::get_today_start_timestamp() )
 		);
 
 		$sql_other_sources_where = apply_filters( 'simple_history/quick_stats_where', $sql_other_sources_where );
@@ -509,13 +643,13 @@ class Sidebar_Stats_Dropin extends Dropin {
                 %5$s
             ',
 			$sql_loggers_in,
-			gmdate( 'Y-m-d H:i', strtotime( 'today' ) ),
+			gmdate( 'Y-m-d H:i:s', Date_Helper::get_today_start_timestamp() ),
 			$this->simple_history->get_events_table_name(),
 			$this->simple_history->get_contexts_table_name(),
 			$sql_other_sources_where // 5
 		);
 
-		$cache_key = 'quick_stats_results_other_sources_today_' . md5( serialize( $sql_other_sources ) );
+		$cache_key = 'sh_quick_stats_other_sources_today_' . md5( serialize( $sql_other_sources ) );
 		$results_other_sources_today = wp_cache_get( $cache_key, $cache_group );
 
 		if ( false === $results_other_sources_today ) {

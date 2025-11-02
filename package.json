@@ -1,6 +1,6 @@
 {
 	"name": "simple-history",
-	"version": "5.16.0",
+	"version": "5.17.0",
 	"description": "WordPress audit log and history plugin with nice GUI",
 	"author": "Pär Thernström",
 	"license": "GPL",
@@ -55,6 +55,7 @@
 		"test:wpunit-logquery": "docker compose run --rm php-cli vendor/bin/codecept run wpunit:LogQueryTest",
 		"start": "wp-scripts start src/index.js src/index-admin-bar.js",
 		"build": "wp-scripts build src/index.js src/index-admin-bar.js",
+		"build:test-zip": "bash scripts/create-test-zip.sh",
 		"format": "wp-scripts format ./src",
 		"lint:css": "wp-scripts lint-style ./src",
 		"lint:js": "wp-scripts lint-js ./src",

@@ -334,4 +334,290 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals(0, $query_results['log_rows_count'], 'There should be 0 log rows.');
 	}
+
+	/**
+	 * Test filtering by single user ID.
+	 * Tests the 'user' parameter which we fixed for SQL injection.
+	 */
+	function test_filter_by_single_user() {
+		// Create two users.
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		$editor_user_id = $this->factory->user->create( [ 'role' => 'editor' ] );
+
+		// Create events as admin user.
+		wp_set_current_user( $admin_user_id );
+		$unique_admin_marker = 'admin_test_' . uniqid();
+		SimpleLogger()->info( 'Admin event 1 ' . $unique_admin_marker );
+		SimpleLogger()->info( 'Admin event 2 ' . $unique_admin_marker );
+
+		// Create events as editor user.
+		wp_set_current_user( $editor_user_id );
+		$unique_editor_marker = 'editor_test_' . uniqid();
+		SimpleLogger()->info( 'Editor event 1 ' . $unique_editor_marker );
+		SimpleLogger()->info( 'Editor event 2 ' . $unique_editor_marker );
+
+		// Switch back to admin for querying.
+		wp_set_current_user( $admin_user_id );
+
+		// Query for admin user events only.
+		$log_query = new Log_Query();
+		$query_results = $log_query->query( [
+			'user' => $admin_user_id,
+			'posts_per_page' => 100,
+		] );
+
+		// Count admin events with our unique marker.
+		$admin_event_count = 0;
+		$admin_messages = [];
+		foreach ( $query_results['log_rows'] as $log_row ) {
+			// Verify all events belong to admin user.
+			$context = $log_row->context;
+			$this->assertEquals(
+				(string) $admin_user_id,
+				$context['_user_id'],
+				'All events should belong to admin user'
+			);
+
+			if ( strpos( $log_row->message, $unique_admin_marker ) !== false ) {
+				$admin_event_count++;
+				$admin_messages[] = $log_row->message;
+			}
+		}
+
+		$this->assertGreaterThanOrEqual( 2, $admin_event_count, 'Should find at least 2 admin events with unique marker. Found: ' . implode( ', ', $admin_messages ) );
+
+		// Query for editor user events only.
+		$query_results = $log_query->query( [
+			'user' => $editor_user_id,
+			'posts_per_page' => 100,
+		] );
+
+		// Count editor events with our unique marker.
+		$editor_event_count = 0;
+		foreach ( $query_results['log_rows'] as $log_row ) {
+			// Verify all events belong to editor user.
+			$context = $log_row->context;
+			$this->assertEquals(
+				(string) $editor_user_id,
+				$context['_user_id'],
+				'All events should belong to editor user'
+			);
+
+			if ( strpos( $log_row->message, $unique_editor_marker ) !== false ) {
+				$editor_event_count++;
+			}
+		}
+
+		$this->assertGreaterThanOrEqual( 2, $editor_event_count, 'Should find at least 2 editor events with unique marker' );
+	}
+
+	/**
+	 * Test filtering by multiple user IDs.
+	 * Tests the 'users' parameter which we fixed for SQL injection.
+	 */
+	function test_filter_by_multiple_users() {
+		// Create three users.
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		$editor_user_id = $this->factory->user->create( [ 'role' => 'editor' ] );
+		$author_user_id = $this->factory->user->create( [ 'role' => 'author' ] );
+
+		// Create events with unique markers for each user.
+		$unique_marker = 'multi_user_test_' . uniqid();
+
+		wp_set_current_user( $admin_user_id );
+		SimpleLogger()->info( 'Admin ' . $unique_marker );
+
+		wp_set_current_user( $editor_user_id );
+		SimpleLogger()->info( 'Editor ' . $unique_marker );
+
+		wp_set_current_user( $author_user_id );
+		SimpleLogger()->info( 'Author ' . $unique_marker );
+
+		// Switch back to admin for querying.
+		wp_set_current_user( $admin_user_id );
+
+		// Query for admin and editor events only (exclude author).
+		$log_query = new Log_Query();
+		$query_results = $log_query->query( [
+			'users' => [ $admin_user_id, $editor_user_id ],
+			'posts_per_page' => 100,
+		] );
+
+		// Find our specific test events.
+		$found_messages = [];
+		foreach ( $query_results['log_rows'] as $log_row ) {
+			if ( strpos( $log_row->message, $unique_marker ) !== false ) {
+				$found_messages[] = $log_row->message;
+			}
+		}
+
+		// Should have at least 2 events with our marker (admin + editor), might have duplicates from occasions grouping.
+		$this->assertGreaterThanOrEqual( 2, count( $found_messages ), 'Should find at least 2 events with unique marker. Found: ' . implode( ', ', $found_messages ) );
+
+		// Check that we have the events we created.
+		$has_admin = false;
+		$has_editor = false;
+		$has_author = false;
+		foreach ( $found_messages as $message ) {
+			if ( strpos( $message, 'Admin ' ) !== false ) $has_admin = true;
+			if ( strpos( $message, 'Editor ' ) !== false ) $has_editor = true;
+			if ( strpos( $message, 'Author ' ) !== false ) $has_author = true;
+		}
+
+		$this->assertTrue( $has_admin, 'Should include admin event' );
+		$this->assertTrue( $has_editor, 'Should include editor event' );
+		$this->assertFalse( $has_author, 'Should NOT include author event' );
+	}
+
+	/**
+	 * Test filtering by context filters.
+	 * Tests the 'context_filters' parameter which we fixed for SQL injection.
+	 */
+	function test_filter_by_context_filters() {
+		// Create admin user.
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		// Create events with different context values.
+		SimpleLogger()->info( 'Post 123 event', [
+			'post_id' => '123',
+			'action' => 'updated',
+		] );
+		SimpleLogger()->info( 'Post 456 event', [
+			'post_id' => '456',
+			'action' => 'updated',
+		] );
+		SimpleLogger()->info( 'Post 123 created', [
+			'post_id' => '123',
+			'action' => 'created',
+		] );
+
+		// Query for events with post_id = 123.
+		$log_query = new Log_Query();
+		$query_results = $log_query->query( [
+			'context_filters' => [
+				'post_id' => '123',
+			],
+			'posts_per_page' => 100,
+		] );
+
+		// Should have exactly 2 events for post 123.
+		$this->assertEquals( 2, $query_results['log_rows_count'], 'Should have 2 events for post_id 123' );
+
+		// Verify all events have post_id = 123.
+		foreach ( $query_results['log_rows'] as $log_row ) {
+			$context = $log_row->context;
+			$this->assertEquals( '123', $context['post_id'], 'All events should have post_id 123' );
+		}
+
+		// Query for events with post_id = 123 AND action = updated.
+		$query_results = $log_query->query( [
+			'context_filters' => [
+				'post_id' => '123',
+				'action' => 'updated',
+			],
+			'posts_per_page' => 100,
+		] );
+
+		// Should have exactly 1 event matching both filters.
+		$this->assertEquals( 1, $query_results['log_rows_count'], 'Should have 1 event matching both filters' );
+
+		// Verify the event has both context values.
+		$log_row = reset( $query_results['log_rows'] );
+		$context = $log_row->context;
+		$this->assertEquals( '123', $context['post_id'], 'Event should have post_id 123' );
+		$this->assertEquals( 'updated', $context['action'], 'Event should have action updated' );
+	}
+
+	/**
+	 * Test SQL injection protection for user parameter.
+	 * Ensures validation rejects non-numeric user IDs.
+	 */
+	function test_user_filter_sql_injection_protection() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		// Create a legitimate event.
+		SimpleLogger()->info( 'Test event', [ '_user_id' => $admin_user_id ] );
+
+		// Try SQL injection in user parameter - should throw exception.
+		$log_query = new Log_Query();
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Invalid user' );
+
+		$query_results = $log_query->query( [
+			'user' => "1' OR '1'='1",  // SQL injection attempt
+			'posts_per_page' => 100,
+		] );
+	}
+
+	/**
+	 * Test SQL injection protection for users array parameter.
+	 * Ensures validation and $wpdb->prepare() prevent SQL injection.
+	 */
+	function test_users_filter_sql_injection_protection() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		// Create a legitimate event.
+		SimpleLogger()->info( 'Test event', [ '_user_id' => $admin_user_id ] );
+
+		// Try SQL injection in users array parameter.
+		// The validation converts strings to integers, so "1' OR '1'='1" becomes 1.
+		// Then $wpdb->prepare() escapes it properly.
+		$log_query = new Log_Query();
+		$query_results = $log_query->query( [
+			'users' => [ "1' OR '1'='1", "2' OR '2'='2" ],  // SQL injection attempts
+			'posts_per_page' => 100,
+		] );
+
+		// The strings get converted to integers (1 and 2), so they're safe.
+		// Query will only return events for user IDs 1 and 2 (if they exist).
+		// The SQL injection is neutralized by integer conversion.
+		$this->assertIsInt( $query_results['log_rows_count'], 'Query should complete without SQL injection' );
+
+		// Verify no events with malicious content in context.
+		foreach ( $query_results['log_rows'] as $log_row ) {
+			$context = $log_row->context;
+			if ( isset( $context['_user_id'] ) ) {
+				$this->assertIsNumeric( $context['_user_id'], 'User ID should be numeric' );
+			}
+		}
+	}
+
+	/**
+	 * Test SQL injection protection for context_filters parameter.
+	 * Ensures our fix prevents SQL injection attempts in context keys and values.
+	 */
+	function test_context_filters_sql_injection_protection() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		// Create a legitimate event.
+		SimpleLogger()->info( 'Test event', [ 'post_id' => '123' ] );
+
+		// Try SQL injection in context key.
+		$log_query = new Log_Query();
+		$query_results = $log_query->query( [
+			'context_filters' => [
+				"post_id' OR '1'='1" => '123',  // SQL injection in key
+			],
+			'posts_per_page' => 100,
+		] );
+
+		// Should return 0 results (injection should not work).
+		$this->assertEquals( 0, $query_results['log_rows_count'], 'SQL injection in key should return no results' );
+
+		// Try SQL injection in context value.
+		$query_results = $log_query->query( [
+			'context_filters' => [
+				'post_id' => "123' OR '1'='1",  // SQL injection in value
+			],
+			'posts_per_page' => 100,
+		] );
+
+		// Should return 0 results (injection should not work).
+		$this->assertEquals( 0, $query_results['log_rows_count'], 'SQL injection in value should return no results' );
+	}
 }

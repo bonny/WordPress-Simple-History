@@ -736,10 +736,19 @@ class User_Logger extends Logger {
 			if ( $wp_user ) {
 				$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
 
-				$msg = __(
-					'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_role}',
-					'simple-history'
-				);
+				// Use simplified message for imported users (no email/role placeholders).
+				// Imported users don't have email/role stored since those can change over time.
+				if ( isset( $context['_imported_event'] ) ) {
+					$msg = __(
+						'Created user <a href="{edit_profile_link}">{created_user_login}</a>',
+						'simple-history'
+					);
+				} else {
+					$msg = __(
+						'Created user <a href="{edit_profile_link}">{created_user_login} ({created_user_email})</a> with role {created_user_role}',
+						'simple-history'
+					);
+				}
 
 				$output = helpers::interpolate(
 					$msg,
@@ -1060,7 +1069,6 @@ class User_Logger extends Logger {
 				),
 			);
 
-			/** @phpstan-ignore requireOnce.fileNotFound */
 			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 			$translations = wp_get_available_translations();
 

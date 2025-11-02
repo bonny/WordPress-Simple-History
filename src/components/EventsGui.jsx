@@ -71,6 +71,13 @@ const initiatorSchema = z.array(
 	} )
 );
 
+/**
+ * Main component for the events GUI.
+ * Contains the filter/search options and the events list.
+ * Also contains the modal for the events modal.
+ *
+ * @return {JSX.Element} The events GUI component.
+ */
 function EventsGUI() {
 	const [ eventsIsLoading, setEventsIsLoading ] = useState( true );
 	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
@@ -86,6 +93,9 @@ function EventsGUI() {
 
 	// Store the max id of the events. Used to check for new events.
 	const [ eventsMaxId, setEventsMaxId ] = useState();
+
+	// Store the max date of the events. Used together with maxId to check for new events.
+	const [ eventsMaxDate, setEventsMaxDate ] = useState();
 
 	// Store the previous max id of the events. Used to modify events in the list so user can see what events are new.
 	const [ prevEventsMaxId, setPrevEventsMaxId ] = useState();
@@ -216,6 +226,13 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
+	// Selected context filters.
+	// Plain string with newline-separated "key:value" pairs, e.g., "_user_id:1\n_sticky:1"
+	const [ selectedContextFilters, setSelectedContextFilters ] = useQueryState(
+		'context',
+		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
+	);
+
 	/**
 	 * End filter/search options states.
 	 */
@@ -228,6 +245,7 @@ function EventsGUI() {
 			selectedMessageTypes,
 			selectedUsersWithId,
 			selectedInitiator,
+			selectedContextFilters,
 			enteredSearchText,
 			selectedDateOption,
 			selectedCustomDateFrom,
@@ -242,6 +260,7 @@ function EventsGUI() {
 		selectedMessageTypes,
 		selectedUsersWithId,
 		selectedInitiator,
+		selectedContextFilters,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		page,
@@ -257,6 +276,7 @@ function EventsGUI() {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedInitiator,
+		selectedContextFilters,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 	] );
@@ -295,11 +315,22 @@ function EventsGUI() {
 			} );
 
 			// To keep track of new events we need to store both old max id and new max id.
+			// Extract maxId and maxDate from response headers for accurate new event detection.
 			if ( eventsJson && eventsJson.length && page === 1 ) {
-				const firstEventThatIsNotSticky = eventsJson.find(
-					( event ) => ! event.sticky_appended
+				const maxId = eventsResponse.headers.get(
+					'X-SimpleHistory-MaxId'
 				);
-				setEventsMaxId( firstEventThatIsNotSticky.id );
+				const maxDate = eventsResponse.headers.get(
+					'X-SimpleHistory-MaxDate'
+				);
+
+				if ( maxId ) {
+					setEventsMaxId( parseInt( maxId, 10 ) );
+				}
+
+				if ( maxDate ) {
+					setEventsMaxDate( maxDate );
+				}
 			}
 
 			setEvents( eventsJson );
@@ -378,6 +409,41 @@ function EventsGUI() {
 		} );
 	}, [ page ] );
 
+	// Listen for chart date click events from the sidebar chart.
+	// When a date is clicked in the chart, update the date filter to show events for that day.
+	useEffect( () => {
+		const handleChartDateClick = ( event ) => {
+			const { date } = event.detail;
+
+			// Parse the date string (Y-m-d format) to create a Date object.
+			// The date string is in format "2024-10-05".
+			const dateObj = new Date( date + 'T00:00:00Z' );
+
+			// Set the date option to custom range.
+			setSelectedDateOption( 'customRange' );
+
+			// Set both from and to dates to the same date (to show only one day).
+			setSelectedCustomDateFrom( dateObj );
+			setSelectedCustomDateTo( dateObj );
+		};
+
+		window.addEventListener(
+			'SimpleHistory:chartDateClick',
+			handleChartDateClick
+		);
+
+		return () => {
+			window.removeEventListener(
+				'SimpleHistory:chartDateClick',
+				handleChartDateClick
+			);
+		};
+	}, [
+		setSelectedDateOption,
+		setSelectedCustomDateFrom,
+		setSelectedCustomDateTo,
+	] );
+
 	return (
 		<>
 			<EventsSearchFilters
@@ -397,12 +463,15 @@ function EventsGUI() {
 				setSelectedUsersWithId={ setSelectedUsersWithId }
 				selectedInitiator={ selectedInitiator }
 				setSelectedInitiator={ setSelectedInitiator }
+				selectedContextFilters={ selectedContextFilters }
+				setSelectedContextFilters={ setSelectedContextFilters }
 				searchOptionsLoaded={ searchOptionsLoaded }
 				setSearchOptionsLoaded={ setSearchOptionsLoaded }
 				setPagerSize={ setPagerSize }
 				setMapsApiKey={ setMapsApiKey }
 				setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
 				setHasPremiumAddOn={ setHasPremiumAddOn }
+				isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
 				setIsExperimentalFeaturesEnabled={
 					setIsExperimentalFeaturesEnabled
 				}
@@ -423,6 +492,7 @@ function EventsGUI() {
 			<NewEventsNotifier
 				eventsQueryParams={ eventsQueryParams }
 				eventsMaxId={ eventsMaxId }
+				eventsMaxDate={ eventsMaxDate }
 				onReload={ handleReload }
 			/>
 

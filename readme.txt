@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.8
-Stable tag: 5.16.0
+Stable tag: 5.17.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -129,6 +129,21 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 ### 🚀 Zero-Config Activity Tracking
 
 Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. View your activity logs through the convenient dashboard widget or browse the full history on the dedicated 'Simple History' page in your WordPress admin.
+
+### 📧 Weekly Email Reports – Stay Informed Without Logging In
+
+Simple History's [weekly email reports](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports) give you a quick look at your site's activity straight in your inbox every Monday morning—know what happened on your site each week without logging in.
+
+Each email report includes:
+
+-   **Total activity summary** – See at a glance how active your site was
+-   **Daily activity breakdown** – Identify the busiest days of the week
+-   **Key metrics** – Login activity, content updates, plugin changes, and WordPress updates
+-   **Direct links** – Jump straight to the full log for more details
+
+Perfect for site owners who want to stay informed without logging in daily, agencies managing multiple client sites, and teams who need regular activity updates.
+
+Enable email reports in the settings, add your email address, and start receiving weekly updates. You can [see what the email looks like](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports#example) before enabling it.
 
 ### 📡 RSS feed with changes
 
@@ -321,14 +336,56 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+-   Add context search to the log GUI filters.
+-   Add date support to create event REST API endpoint.
+-   New experimental feature: Import existing data from WordPress into Simple History.
+-   More fixes for time zones and localization issues.
+-   Misc internal code improvements and changes.
+-   Fix email reports always showing Sunday as the busiest day.
+-   Send weekly email reports earlier in the day, so they are ready when the user wakes up (6 in the morning instead of 8 in the morning).
+-   Switch place between Most active users in last 30 days and Daily activity over last 30 days. This keeps info that only admins can see grouped together.
+-   Add user names to Most active users in last 30 days.
+-   Make avatars and user names clickable to filter the event log by user.
+
+### 5.17.0 (October 2025)
+
+This version focuses on stats alignment and accuracy, timezone handling fixes, email report improvements, and performance optimizations.
+
+Read more about it in the [release post](https://simple-history.com/2025/simple-history-5-17-0-released/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_17_0).
+
+**Added**
+
+-   Add icon to sticky events label.
+-   Add help text to sidebar stats box about refresh interval and what data is used for the statistics (for admin the stats are based on all events, for other users is based on the events they have permission to view).
+-   Email reports: Add tooltips to email "Activity by day" showing full date (e.g., "Thursday 2 October 2025") on hover for each day.
+-   Email reports: Each day is now a link to the full log for that day.
+
+**Fixed**
+
+-   Sidebar stats was not always using the correct cached data.
+-   Fix timezone and date handling across all stats features (sidebar, Insights page, REST API, charts) and all filter dropdowns (Today, Last N days, custom date ranges, month filters) to use WordPress timezone instead of server/UTC timezone.
+-   "Today" now correctly shows events from 00:00 until current time (previously showed events from now minus 24 hours).
+-   Email reports: Fix timezone and date handling issues (now consistently use WordPress timezone), improved daily stats accuracy, date range, and updated email copy.
+-   Occasions count in main GUI was displaying incorrect number (always one event to many!) - button now shows the actual number of similar events that will be loaded when expanded.
+
+**Changed**
+
+-   Email preview now shows last 7 days including today (matching sidebar "7 days" stat) so users can verify preview numbers against sidebar.
+-   Email sent on Mondays now shows previous complete Monday-Sunday week (excludes current Monday).
+-   Email "Activity by day" now displays days in chronological order matching the date range instead of fixed calendar week order.
+-   Use "Today" instead of "Last day" in main GUI filters to make it more clear what range is being shown.
+
 **Performance**
 
--   Optimized logger message loading to use on-demand approach instead of loading all messages during initialization. This eliminates ~980 gettext filter calls on every page load, reducing them to zero on pages that don't use Simple History and only calling them when actually needed (when logging events or displaying the history page).
--   Added new convenience methods to Logger class: `get_translated_message()`, `get_untranslated_message()`, `get_message_by_key()`, and `get_messages()` for cleaner message access.
--   Optimized Plugin Logger by implementing conditional hook registration - gettext filters and auto-update detection now only run on the plugins.php page instead of globally, further reducing overhead on all other admin pages.
--   Simplify plugin action list hooks by only hooking into our plugin
--   Add autoloading of deprecated classes, so they are only loaded if needed
--   Optimized context handling in Logger class by implementing size-based batch inserts. This improves performance when logging events with many context items.
+-   Improved performance by loading logger messages only when needed, eliminating ~980 gettext filter calls on every page load. This reduces overhead to zero on pages that don't use Simple History.
+-   Optimized context handling when logging events with many context items using batch inserts.
+-   Plugin Logger now only runs gettext filters and auto-update detection on the plugins.php page instead of globally.
+-   Simplified plugin action list hooks by only hooking into our plugin.
+-   Added autoloading of deprecated classes, so they are only loaded if needed.
+
+**Removed**
+
+-   Removed legacy AJAX API endpoint (`action=simple_history_api`). The plugin now uses the WordPress REST API exclusively.
 
 ### 5.16.0 (August 2025)
 

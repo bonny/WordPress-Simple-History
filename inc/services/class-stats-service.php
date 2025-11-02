@@ -2,6 +2,7 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Date_Helper;
 use Simple_History\Helpers;
 use Simple_History\Menu_Page;
 use Simple_History\Simple_History;
@@ -92,9 +93,8 @@ class Stats_Service extends Service {
 			$period = '1m';
 		}
 
-		// Get current date in UTC.
-		$now = new \DateTimeImmutable( 'now', new \DateTimeZone( 'UTC' ) );
-		$date_to = $now->getTimestamp();
+		// Get current date in WordPress timezone (not UTC).
+		$now = new \DateTimeImmutable( 'now', wp_timezone() );
 
 		// Get the number of the period, i.e. 1, 24, 7, 14, 1, 3, 6, 12.
 		$period_number = substr( $period, 0, -1 );
@@ -120,10 +120,29 @@ class Stats_Service extends Service {
 				break;
 		}
 
-		// Generate string like "-1 hour", "-1 day", "-1 month", "-1 year".
-		$date_time_modifier = "-{$period_number} {$period_string_full_name}";
+		// For day/month/year periods, snap to start/end of day for consistent boundaries.
+		// For month periods, convert to days (1m = 30 days) to ensure exact day counts.
+		if ( in_array( $period_string_suffix, [ 'd', 'm', 'y' ], true ) ) {
+			// Convert months to days for consistent counting (1m = 30d, 3m = 90d, etc).
+			if ( $period_string_suffix === 'm' ) {
+				$days_to_subtract = (int) $period_number * 30;
+			} elseif ( $period_string_suffix === 'y' ) {
+				$days_to_subtract = (int) $period_number * 365;
+			} else {
+				$days_to_subtract = (int) $period_number;
+			}
 
-		$date_from = $now->modify( $date_time_modifier )->getTimestamp();
+			// Use Date_Helper for consistent date calculation with sidebar stats.
+			// This ensures "last 30 days" means the same across all stats displays.
+			$date_from = Date_Helper::get_last_n_days_start_timestamp( $days_to_subtract );
+			$date_to = Date_Helper::get_today_end_timestamp();
+		} else {
+			// For hours, use exact timestamps.
+			$date_time_modifier = "-{$period_number} {$period_string_full_name}";
+			$date_from_datetime = $now->modify( $date_time_modifier );
+			$date_from = $date_from_datetime->getTimestamp();
+			$date_to = $now->getTimestamp();
+		}
 
 		return [
 			'date_from' => $date_from,

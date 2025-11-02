@@ -24,7 +24,7 @@
 		"codeception/module-cli": "^1.0",
 		"codeception/util-universalframework": "^1.0",
 		"rector/rector": "^2.0",
-		"wp-cli/wp-cli-bundle": "^2.9",
+		"wp-cli/wp-cli-bundle": "^2.9 <2.12",
 		"php-stubs/wp-cli-stubs": "dev-master",
 		"phpstan/phpstan": "^2.0",
 		"phpstan/phpstan-deprecation-rules": "^2.0",

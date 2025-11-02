@@ -30,10 +30,6 @@
 	grid-row: span 2;
 }
 
-.sh-StatsDashboard-content {
-	/* Empty rule block - can be removed if no other properties needed */
-}
-
 .sh-StatsDashboard-content--sideBySide {
 	flex-direction: row;
 	justify-content: flex-start;
@@ -45,11 +41,6 @@
 /* Smaller sparkline-ish chart container. */
 .sh-StatsDashboard-chartContainer {
 	height: 200px;
-}
-
-.sh-StatsDashboard-chartContainer,
-.sh-StatsDashboard-tableContainer {
-	/* Empty rule block - can be removed if no other properties needed */
 }
 
 /* Loading state */
@@ -141,6 +132,32 @@
 	margin-left: 0;
 }
 
+.sh-StatsDashboard-userLink {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+.sh-StatsDashboard-userLink:hover,
+.sh-StatsDashboard-userLink:focus {
+	outline: none;
+}
+
+/* List of user names below the avatar list. */
+.sh-StatsDashboard-userNamesList {
+	margin-top: var(--sh-spacing-xsmall);
+	margin-bottom: 0;
+}
+
+/* Event count displayed after each username in the list. */
+.sh-StatsDashboard-userEventCount {
+	font-size: 0.9em;
+	color: #666;
+	font-weight: normal;
+	text-decoration: none;
+}
+
 /* User data hidden until hover. */
 .sh-StatsDashboard-userData {
 	position: absolute;
@@ -163,11 +180,11 @@
 	pointer-events: none;
 }
 
-.sh-StatsDashboard-userItem:hover .sh-StatsDashboard-userAvatar {
+.sh-StatsDashboard-userLink:hover .sh-StatsDashboard-userAvatar {
 	transform: scale(1.15);
 }
 
-.sh-StatsDashboard-userItem:hover .sh-StatsDashboard-userData {
+.sh-StatsDashboard-userLink:hover .sh-StatsDashboard-userData {
 	pointer-events: auto;
 	opacity: 1;
 }
@@ -528,14 +545,6 @@
 
 .sh-StatsDashboard-dateRangeControls {
 	transition: opacity 0.1s ease-in-out;
-	/* opacity: 0.5; */
-}
-
-.sh-StatsDashboard-dateRangeControls select {
-}
-
-.sh-StatsDashboard-dateRangeControls:hover {
-	/* opacity: 1; */
 }
 
 .sh-StatsDashboard-dateRangeHeading {

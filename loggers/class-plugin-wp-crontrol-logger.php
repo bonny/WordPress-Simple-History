@@ -339,7 +339,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 		$output = '<table class="SimpleHistoryLogitem__keyValueTable">';
 
 		if ( isset( $context['event_original_hook'] ) && ( $context['event_original_hook'] !== $context['event_hook'] ) ) {
-			$key_text_diff = helpers::Text_Diff(
+			$key_text_diff = Helpers::Text_Diff(
 				$context['event_original_hook'],
 				$context['event_hook']
 			);
@@ -354,7 +354,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 		}
 
 		if ( isset( $context['event_original_args'] ) && ( $context['event_original_args'] !== $context['event_args'] ) ) {
-			$key_text_diff = helpers::Text_Diff(
+			$key_text_diff = Helpers::Text_Diff(
 				$context['event_original_args'],
 				$context['event_args']
 			);
@@ -379,7 +379,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 		}
 
 		if ( isset( $context['event_original_timestamp'] ) && ( $context['event_original_timestamp'] !== $context['event_timestamp'] ) ) {
-			$key_text_diff = helpers::Text_Diff(
+			$key_text_diff = Helpers::Text_Diff(
 				gmdate( 'Y-m-d H:i:s', $context['event_original_timestamp'] ),
 				gmdate( 'Y-m-d H:i:s', $context['event_timestamp'] )
 			);
@@ -399,7 +399,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 		}
 
 		if ( isset( $context['event_original_schedule_name'] ) && ( $context['event_original_schedule_name'] !== $context['event_schedule_name'] ) ) {
-			$key_text_diff = helpers::Text_Diff(
+			$key_text_diff = Helpers::Text_Diff(
 				$context['event_original_schedule_name'],
 				$context['event_schedule_name']
 			);

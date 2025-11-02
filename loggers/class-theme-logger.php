@@ -532,18 +532,20 @@ class Theme_Logger extends Logger {
 
 			if ( $widget && $sidebar ) {
 				// Translate message first.
-				$message = $this->messages[ $message_key ]['translated_text'];
+				$translated_message = $this->get_translated_message( $message_key );
 
-				$message = helpers::interpolate(
-					$message,
-					array(
-						'widget_id_base' => $widget->name,
-						'sidebar_id' => $sidebar['name'],
-					),
-					$row
-				);
+				if ( $translated_message !== null ) {
+					$message = helpers::interpolate(
+						$translated_message,
+						array(
+							'widget_id_base' => $widget->name,
+							'sidebar_id' => $sidebar['name'],
+						),
+						$row
+					);
 
-				$output .= $message;
+					$output .= $message;
+				}
 			}
 		}
 

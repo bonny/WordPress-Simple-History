@@ -10,6 +10,7 @@ import { format } from 'date-fns';
  * @param {Array}  props.selectedMessageTypes
  * @param {Array}  props.selectedUsersWithId
  * @param {Array}  props.selectedInitiator
+ * @param {Array}  props.selectedContextFilters
  * @param {string} props.enteredSearchText
  * @param {string} props.selectedDateOption
  * @param {Date}   props.selectedCustomDateFrom
@@ -24,6 +25,7 @@ export function generateAPIQueryParams( props ) {
 		selectedMessageTypes,
 		selectedUsersWithId,
 		selectedInitiator,
+		selectedContextFilters,
 		enteredSearchText,
 		selectedDateOption,
 		selectedCustomDateFrom,
@@ -63,6 +65,7 @@ export function generateAPIQueryParams( props ) {
 			'permalink',
 			'sticky',
 			'sticky_appended',
+			'imported',
 		],
 	};
 
@@ -145,6 +148,34 @@ export function generateAPIQueryParams( props ) {
 		eventsQueryParams.initiator = selectedInitiatorValues;
 	}
 
+	// Add selected context filters to query params.
+	// selectedContextFilters is a string with newline-separated "key:value" pairs.
+	// Convert to object format: { "key": "value", "key2": "value2" }
+	if ( selectedContextFilters && selectedContextFilters.trim().length > 0 ) {
+		const contextFiltersObject = {};
+		// Split by newline, trim each line, filter empty lines
+		const filterLines = selectedContextFilters
+			.split( '\n' )
+			.map( ( line ) => line.trim() )
+			.filter( ( line ) => line.length > 0 );
+
+		filterLines.forEach( ( contextFilter ) => {
+			// Split on first colon only, in case value contains colons
+			const colonIndex = contextFilter.indexOf( ':' );
+			if ( colonIndex > 0 ) {
+				const key = contextFilter.substring( 0, colonIndex ).trim();
+				const value = contextFilter.substring( colonIndex + 1 ).trim();
+				if ( key && value ) {
+					contextFiltersObject[ key ] = value;
+				}
+			}
+		} );
+
+		if ( Object.keys( contextFiltersObject ).length > 0 ) {
+			eventsQueryParams.context_filters = contextFiltersObject;
+		}
+	}
+
 	// Check if there are any search options, besides date.
 	// Anything selected besides date will disable sticky events.
 	const hasSearchOptions =
@@ -152,7 +183,8 @@ export function generateAPIQueryParams( props ) {
 		selectedLogLevels.length ||
 		selectedMessageTypes.length ||
 		selectedUsersWithId.length ||
-		selectedInitiator.length > 0;
+		selectedInitiator.length > 0 ||
+		( selectedContextFilters && selectedContextFilters.trim().length > 0 );
 
 	// If first page and no search options then include sticky events.
 	if ( page === 1 && ! hasSearchOptions ) {
@@ -206,4 +238,54 @@ export const useURLFragment = () => {
  */
 export function randomIntFromInterval( min, max ) {
 	return Math.floor( Math.random() * ( max - min + 1 ) + min );
+}
+
+/**
+ * Build tracking URL with standardized UTM parameters for analytics.
+ *
+ * Creates consistent tracking URLs for monitoring which features generate
+ * user interest in premium functionality. UTM parameters follow a structured
+ * naming convention for easy analysis in Google Analytics.
+ *
+ * Uses utm_campaign as the primary tracking parameter because it appears in
+ * standard GA4 Traffic Acquisition reports (unlike utm_content which requires
+ * Custom Explorations to view).
+ *
+ * @param {string} url         Base URL to add tracking parameters to.
+ * @param {string} utmCampaign Campaign identifier in format: {category}_{location}_{action}
+ *                             Examples:
+ *                             - 'premium_dashboard_sidebar' - Sidebar promo on main dashboard
+ *                             - 'premium_stats_daterange' - Date range feature in stats
+ *                             - 'premium_export_banner' - Export page premium promo
+ *                             - 'premium_events_ipaddress' - IP address Google Maps feature
+ *                             - 'docs_filter_help' - Documentation for filter help
+ * @param {string} utmSource   Traffic source. Default: 'wpadmin'. Alternative: 'wordpress_admin'
+ * @param {string} utmMedium   Traffic medium. Default: 'plugin'. Alternative: 'Simple_History'
+ * @param {string} utmContent  Optional content identifier for A/B testing variations.
+ *                             Only use when testing different versions of the SAME feature.
+ *                             Examples: 'blue_button', 'variant_a', 'top_link'.
+ *                             Leave empty for standard tracking.
+ * @return {string} URL with UTM tracking parameters appended.
+ */
+export function getTrackingUrl(
+	url,
+	utmCampaign,
+	utmSource = 'wpadmin',
+	utmMedium = 'plugin',
+	utmContent = ''
+) {
+	const { addQueryArgs } = wp.url;
+
+	const params = {
+		utm_source: utmSource,
+		utm_medium: utmMedium,
+		utm_campaign: utmCampaign,
+	};
+
+	// Only add utm_content if provided (for A/B testing).
+	if ( utmContent ) {
+		params.utm_content = utmContent;
+	}
+
+	return addQueryArgs( url, params );
 }

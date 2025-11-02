@@ -200,7 +200,6 @@ class Privacy_Logger extends Logger {
 	public function on_user_request_action_confirmed( $request_id ) {
 		// Load user.php because we use functions from there.
 		if ( ! function_exists( 'get_editable_roles' ) ) {
-			/** @phpstan-ignore requireOnce.fileNotFound */
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 		}
 

@@ -5,6 +5,7 @@ namespace Simple_History\Services;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
+use Simple_History\Helpers;
 use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Log_Initiators;
 
@@ -72,7 +73,6 @@ class Setup_Database extends Service {
 		global $wpdb;
 		$table_name = $this->simple_history->get_events_table_name();
 
-		/** @phpstan-ignore requireOnce.fileNotFound */
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		// Table creation, used to be in register_activation_hook
@@ -153,7 +153,6 @@ class Setup_Database extends Service {
 		$table_name = $this->simple_history->get_events_table_name();
 		$table_name_contexts = $this->simple_history->get_contexts_table_name();
 
-		/** @phpstan-ignore requireOnce.fileNotFound */
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		// Update old table.
@@ -232,7 +231,6 @@ class Setup_Database extends Service {
 
 		$table_name = $this->simple_history->get_events_table_name();
 
-		/** @phpstan-ignore requireOnce.fileNotFound */
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		// If old columns exist = this is an old install, then modify the columns so we still can keep them
@@ -430,7 +428,7 @@ class Setup_Database extends Service {
 					'Extend Simple History with more features using <a href="%1$s" target="_blank">add-ons</a>.',
 					'simple-history'
 				),
-				esc_url( 'https://simple-history.com/add-ons/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=welcome-message' )
+				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/', 'premium_welcome_addons' ) )
 			)
 		);
 

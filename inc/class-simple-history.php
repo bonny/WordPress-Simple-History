@@ -15,7 +15,7 @@ use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Services\Setup_Settings_Page;
 use Simple_History\Services\Email_Report_Service;
-use Simple_History\Constants;
+use Simple_History\Date_Helper;
 
 /**
  * Main class for Simple History.
@@ -1011,7 +1011,7 @@ class Simple_History {
 					// Show link to add-on if extended settings plugin is not active.
 					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
 					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
-					$occasions_html .= '<a href="https://simple-history.com/add-ons/extended-settings/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=login-attempts-limit" class="sh-ExternalLink" target="_blank">';
+					$occasions_html .= '<a href="' . esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/extended-settings/', 'premium_occasions_loginlimit' ) ) . '" class="sh-ExternalLink" target="_blank">';
 					$occasions_html .= __( 'Limit logged login attempts', 'simple-history' );
 					$occasions_html .= '</a>';
 					$occasions_html .= '</p>';
@@ -1388,7 +1388,7 @@ class Simple_History {
 	 * with all loggers they are allowed to read.
 	 *
 	 * @param int|null $user_id Id of user to get loggers for. Defaults to current user id.
-	 * @param string   $format format to return loggers in. Default is array. Can also be "sql".
+	 * @param string   $format format to return loggers in. array|sql|slugs. Default is "array".
 	 * @return array<\Simple_History\Loggers\Simple_Logger>|string Array or SQL string with loggers that user can read.
 	 */
 	public function get_loggers_that_user_can_read( $user_id = null, $format = 'array' ) {
@@ -1448,7 +1448,7 @@ class Simple_History {
 		}
 
 		/**
-		 * Fires before Simple History does it's init stuff
+		 * Filter loggers that user can read.
 		 *
 		 * @since 2.0
 		 *
@@ -1459,6 +1459,14 @@ class Simple_History {
 			'simple_history/loggers_user_can_read',
 			$arr_loggers_user_can_view,
 			$user_id
+		);
+
+		// Sort loggers by slug to ensure consistent ordering for caching.
+		usort(
+			$arr_loggers_user_can_view,
+			function ( $a, $b ) {
+				return strcmp( $a['instance']->get_slug(), $b['instance']->get_slug() );
+			}
 		);
 
 		// just return array with slugs in parenthesis suitable for sql-where.
@@ -1479,8 +1487,18 @@ class Simple_History {
 			$str_return .= ')';
 
 			return $str_return;
+		} elseif ( 'slugs' == $format ) {
+			$logger_slugs = array_map(
+				function ( $logger ) {
+					return $logger['instance']->get_slug();
+				},
+				$arr_loggers_user_can_view
+			);
+
+			return $logger_slugs;
 		}
 
+		// Return array with loggers that user can read.
 		return $arr_loggers_user_can_view;
 	}
 
@@ -1491,7 +1509,7 @@ class Simple_History {
 	 * @param int $period_days Number of days to get events for.
 	 * @return int
 	 */
-	public function get_num_events_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
+	public function get_num_events_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
 		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_num_events_last_n_days()' );
 		return Helpers::get_num_events_last_n_days( $period_days );
 	}
@@ -1503,7 +1521,7 @@ class Simple_History {
 	 * @param int $period_days Number of days to get events for.
 	 * @return array Array with date as key and number of events as value.
 	 */
-	public function get_num_events_per_day_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
+	public function get_num_events_per_day_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
 		_deprecated_function( __METHOD__, '4.8', 'Helpers::get_num_events_per_day_last_n_days()' );
 		return Helpers::get_num_events_per_day_last_n_days( $period_days );
 	}

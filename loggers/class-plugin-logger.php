@@ -226,8 +226,8 @@ class Plugin_Logger extends Logger {
 	public function on_load_plugins_page() {
 		add_filter( 'gettext', array( $this, 'on_gettext_detect_plugin_error_deactivation_reason' ), 10, 3 );
 		add_filter( 'gettext', array( $this, 'on_gettext' ), 10, 3 );
-		
-		// Handle auto-update change detection
+
+		// Handle auto-update change detection.
 		$this->handle_auto_update_change();
 	}
 

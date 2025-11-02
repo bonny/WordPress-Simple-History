@@ -90,12 +90,16 @@ class Post_Logger extends Logger {
 		add_action( '_wp_put_post_revision', array( $this, 'on_wp_put_post_revision' ), 1, 2 );
 	}
 
+	/**
+	 * Fired when a post is saved using save button and does have changes.
+	 * Does not track autosave.
+	 * This is done after simple history has logged the post change.
+	 * So we need to update the context with the revision id.
+	 *
+	 * @param int $revision_id The revision ID.
+	 * @param int $post_id The post ID.
+	 */
 	public function on_wp_put_post_revision( $revision_id, $post_id ) {
-		// Triggered when a post is saved using save button and does have changes.
-		// Does not track autosave.
-		// This is done after simple history has logged the post change.
-		// So we need to update the context with the revision id.
-
 		// Ensure that the last_insert_id is set.
 		if ( ! $this->last_insert_id ) {
 			return;

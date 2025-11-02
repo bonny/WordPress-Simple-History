@@ -241,7 +241,11 @@ class Media_Logger extends Logger {
 			);
 		} // End if().
 
-		$context['attachment_size_format'] = size_format( $row->context['attachment_filesize'] );
+		// Only set attachment_size_format if we have a valid filesize.
+		if ( ! empty( $row->context['attachment_filesize'] ) ) {
+			$context['attachment_size_format'] = size_format( $row->context['attachment_filesize'] );
+		}
+
 		$context['attachment_filetype_extension'] = strtoupper( $filetype['ext'] );
 
 		if ( ! empty( $context['attachment_thumb'] ) ) {
@@ -257,7 +261,12 @@ class Media_Logger extends Logger {
 		}
 
 		$message .= "<p class='SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta'>";
-		$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{attachment_size_format}', 'simple-history' ) . '</span> ';
+
+		// Only show file size if we have one.
+		if ( ! empty( $context['attachment_size_format'] ) ) {
+			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{attachment_size_format}', 'simple-history' ) . '</span> ';
+		}
+
 		$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{attachment_filetype_extension}', 'simple-history' ) . '</span>';
 
 		if ( $full_image_width && $full_image_height ) {

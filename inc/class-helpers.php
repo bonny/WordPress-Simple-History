@@ -4,7 +4,7 @@ namespace Simple_History;
 
 use Simple_History\Simple_History;
 use Simple_History\Services\Setup_Settings_Page;
-use Simple_History\Constants;
+use Simple_History\Date_Helper;
 
 /**
  * Helper functions.
@@ -53,7 +53,6 @@ class Helpers {
 		$args = wp_parse_args( $args, $defaults );
 
 		if ( ! class_exists( 'WP_Text_Diff_Renderer_Table' ) ) {
-			/** @phpstan-ignore require.fileNotFound */
 			require ABSPATH . WPINC . '/wp-diff.php';
 		}
 
@@ -285,12 +284,13 @@ class Helpers {
 	 * Based on code from https://www.tollmanz.com/invalidation-schemes/.
 	 *
 	 * @param bool $refresh Pass true to invalidate the cache.
-	 * @return string
+	 * @return string Incrementor value, example: `68c1c8545881b`.
 	 */
 	public static function get_cache_incrementor( $refresh = false ) {
 		$incrementor_key = 'simple_history_incrementor';
 		$incrementor_value = wp_cache_get( $incrementor_key );
 
+		// Generate a new incrementor if it doesn't exist or if we want to refresh it.
 		if ( false === $incrementor_value || $refresh ) {
 			$incrementor_value = uniqid();
 			wp_cache_set( $incrementor_key, $incrementor_value );
@@ -635,7 +635,6 @@ class Helpers {
 	 */
 	public static function is_plugin_active( $plugin_file_path ) {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
-			/** @phpstan-ignore requireOnce.fileNotFound */
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
@@ -839,7 +838,7 @@ class Helpers {
 
 		?>
 		<div class="sh-PageHeader-rightLink">
-			<a href="https://simple-history.com/add-ons/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=header-addons" target="_blank">
+			<a href="<?php echo esc_url( self::get_tracking_url( 'https://simple-history.com/add-ons/', 'premium_header_addons' ) ); ?>" target="_blank">
 				<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
 				<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
 			</a>
@@ -1288,104 +1287,133 @@ class Helpers {
 	/**
 	 * Get number of events the last n days.
 	 *
+	 * Respects user permissions - only counts events from loggers the current user can view.
+	 * Uses WordPress timezone for date calculations.
+	 *
 	 * @param int $period_days Number of days to get events for.
-	 * @return int Number of days.
+	 * @return int Number of events user can view.
 	 */
-	public static function get_num_events_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
+	public static function get_num_events_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
+		global $wpdb;
 		$simple_history = Simple_History::get_instance();
-		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_2' );
+		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
-		$count = get_transient( $transient_key );
+		$sql = sprintf(
+			'
+                SELECT count(*)
+                FROM %1$s
+                WHERE UNIX_TIMESTAMP(date) >= %2$d
+                AND logger IN %3$s
+            ',
+			$simple_history->get_events_table_name(),
+			Date_Helper::get_last_n_days_start_timestamp( $period_days ),
+			$sqlStringLoggersUserCanRead
+		);
 
-		if ( false === $count ) {
-			global $wpdb;
+		$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-			$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+		return (int) $count;
+	}
 
-			$sql = sprintf(
-				'
-                    SELECT count(*)
-                    FROM %1$s
-                    WHERE UNIX_TIMESTAMP(date) >= %2$d
-                    AND logger IN %3$s
-                ',
-				$simple_history->get_events_table_name(),
-				strtotime( "-$period_days days" ),
-				$sqlStringLoggersUserCanRead
-			);
+	/**
+	 * Get number of events today (WordPress timezone-aware).
+	 *
+	 * Counts individual events from midnight today (00:00:00) in WordPress timezone.
+	 * Respects user permissions - only counts events from loggers the current user can view.
+	 *
+	 * @return int Number of events today that user can view.
+	 */
+	public static function get_num_events_today() {
+		global $wpdb;
+		$simple_history = Simple_History::get_instance();
+		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
-			$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$sql = sprintf(
+			'
+                SELECT count(*)
+                FROM %1$s
+                WHERE UNIX_TIMESTAMP(date) >= %2$d
+                AND logger IN %3$s
+            ',
+			$simple_history->get_events_table_name(),
+			Date_Helper::get_today_start_timestamp(),
+			$sqlStringLoggersUserCanRead
+		);
 
-			set_transient( $transient_key, $count, HOUR_IN_SECONDS );
-		}
+		$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		return $count;
+		return (int) $count;
 	}
 
 	/**
 	 * Get number of events per day the last n days.
 	 *
+	 * Respects user permissions - only counts events from loggers the current user can view.
+	 * Uses WordPress timezone for date calculations.
+	 *
 	 * @param int $period_days Number of days to get events for.
-	 * @return array Array with date as key and number of events as value.
+	 * @return array Array with date as key and number of events user can view as value.
 	 */
-	public static function get_num_events_per_day_last_n_days( $period_days = Constants::DAYS_PER_MONTH ) {
+	public static function get_num_events_per_day_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
+		/** @var \wpdb $wpdb */
+		global $wpdb;
+
 		$simple_history = Simple_History::get_instance();
-		$transient_key = 'sh_' . md5( __METHOD__ . $period_days . '_3' );
-		$dates = get_transient( $transient_key );
+		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+		$db_engine = Log_Query::get_db_engine();
 
-		if ( false === $dates ) {
-			/** @var \wpdb $wpdb */
-			global $wpdb;
+		// Get WordPress timezone offset for converting dates from GMT to local timezone.
+		// Database stores dates in GMT, but we need to group by dates in WordPress timezone.
+		$wp_timezone = wp_timezone();
+		$wp_offset_seconds = $wp_timezone->getOffset( new \DateTime( 'now', $wp_timezone ) );
 
-			$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+		$sql = null;
 
-			$db_engine = Log_Query::get_db_engine();
-
-			$sql = null;
-
-			if ( $db_engine === 'mysql' ) {
-				$sql = sprintf(
-					'
-						SELECT
-							date_format(date, "%%Y-%%m-%%d") AS yearDate,
-							count(date) AS count
-						FROM
-							%1$s
-						WHERE
-							UNIX_TIMESTAMP(date) >= %2$d
-							AND logger IN %3$s
-						GROUP BY yearDate
-						ORDER BY yearDate ASC
-					',
-					$simple_history->get_events_table_name(),
-					strtotime( "-$period_days days" ),
-					$sqlStringLoggersUserCanRead
-				);
-			} elseif ( $db_engine === 'sqlite' ) {
-				// SQLite does not support date_format() or UNIX_TIMESTAMP so we need to use strftime().
-				$sql = sprintf(
-					'
-						SELECT
-							strftime("%%Y-%%m-%%d", date) AS yearDate,
-							count(date) AS count
-						FROM
-							%1$s
-						WHERE
-							unixepoch(date) >= %2$d
-							AND logger IN %3$s
-						GROUP BY yearDate
-						ORDER BY yearDate ASC
-					',
-					$simple_history->get_events_table_name(),
-					strtotime( "-$period_days days" ),
-					$sqlStringLoggersUserCanRead
-				);
-			}
-
-			$dates = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-			set_transient( $transient_key, $dates, HOUR_IN_SECONDS );
+		if ( $db_engine === 'mysql' ) {
+			// Use DATE_ADD with INTERVAL to convert from GMT to WordPress timezone.
+			// This is more reliable than CONVERT_TZ which requires timezone tables.
+			// Note: We use seconds because timezone offsets can be fractional hours (e.g., +5:30 for India).
+			$sql = sprintf(
+				'
+					SELECT
+						date_format(DATE_ADD(date, INTERVAL %4$d SECOND), "%%Y-%%m-%%d") AS yearDate,
+						count(date) AS count
+					FROM
+						%1$s
+					WHERE
+						UNIX_TIMESTAMP(date) >= %2$d
+						AND logger IN %3$s
+					GROUP BY yearDate
+					ORDER BY yearDate ASC
+				',
+				$simple_history->get_events_table_name(),
+				Date_Helper::get_last_n_days_start_timestamp( $period_days ),
+				$sqlStringLoggersUserCanRead,
+				$wp_offset_seconds
+			);
+		} elseif ( $db_engine === 'sqlite' ) {
+			// SQLite: Convert from GMT to WordPress timezone by adding offset seconds.
+			$sql = sprintf(
+				'
+					SELECT
+						strftime("%%Y-%%m-%%d", datetime(date, "%4$s seconds")) AS yearDate,
+						count(date) AS count
+					FROM
+						%1$s
+					WHERE
+						unixepoch(date) >= %2$d
+						AND logger IN %3$s
+					GROUP BY yearDate
+					ORDER BY yearDate ASC
+				',
+				$simple_history->get_events_table_name(),
+				Date_Helper::get_last_n_days_start_timestamp( $period_days ),
+				$sqlStringLoggersUserCanRead,
+				$wp_offset_seconds >= 0 ? "+{$wp_offset_seconds}" : $wp_offset_seconds
+			);
 		}
+
+		$dates = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		return $dates;
 	}
@@ -1453,7 +1481,8 @@ class Helpers {
 		$loggers_user_can_read_sql_in = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
 		// Get unique months.
-		$cache_key = 'sh_filter_unique_months';
+		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
+		$cache_key = 'sh_filter_unique_months_' . md5( implode( ',', $loggers_slugs ) );
 		$result_months = get_transient( $cache_key );
 
 		if ( false === $result_months ) {
@@ -1808,5 +1837,175 @@ class Helpers {
 		);
 
 		return array_map( 'intval', $results );
+	}
+
+	/**
+	 * Generate a URL to the events log with filters applied.
+	 *
+	 * This helper function creates properly formatted and encoded URLs for linking
+	 * to the events log with various filters applied. It can be used anywhere in the
+	 * plugin where you need to link to filtered event results.
+	 *
+	 * IMPORTANT: When outputting the returned URL in HTML, you MUST use esc_url()
+	 * for security, per WordPress coding standards:
+	 *
+	 *     echo '<a href="' . esc_url( $url ) . '">Link</a>';
+	 *
+	 * @param array $args {
+	 *     Optional. Array of filter arguments.
+	 *
+	 *     @type array|int    $users      Array of user data with 'id', 'display_name', 'user_email' keys,
+	 *                                     or array of such arrays for multiple users,
+	 *                                     or single user ID as integer.
+	 *     @type string       $date       Date filter string (e.g., 'lastdays:30', 'lastdays:7').
+	 *     @type string       $search     Search text to filter containing words.
+	 *     @type array        $loglevels  Array of log level filters.
+	 *     @type array        $messages   Array of message type filters.
+	 *     @type array        $initiators Array of initiator filters.
+	 *     @type string       $context    Context filter string.
+	 * }
+	 * @return string The filtered events log URL (must be escaped with esc_url() before output).
+	 */
+	public static function get_filtered_events_url( $args = [] ) {
+		$query_args = [
+			'page' => 'simple_history_admin_menu_page',
+		];
+
+		// Handle users filter.
+		if ( ! empty( $args['users'] ) ) {
+			$users_filter = [];
+
+			// If it's a single user ID (integer), convert to array format.
+			if ( is_int( $args['users'] ) ) {
+				$user = get_userdata( $args['users'] );
+				if ( $user ) {
+					$users_filter[] = [
+						'id' => (string) $user->ID,
+						'value' => $user->display_name . ' (' . $user->user_email . ')',
+					];
+				}
+			} elseif ( is_array( $args['users'] ) ) {
+				// Check if it's a single user array (has 'id' key) or array of users.
+				if ( isset( $args['users']['id'] ) ) {
+					// Single user array.
+					$user_value = $args['users']['display_name'];
+					if ( ! empty( $args['users']['user_email'] ) ) {
+						$user_value .= ' (' . $args['users']['user_email'] . ')';
+					}
+
+					$users_filter[] = [
+						'id' => (string) $args['users']['id'],
+						'value' => $user_value,
+					];
+				} else {
+					// Array of users.
+					foreach ( $args['users'] as $user ) {
+						$user_value = $user['display_name'];
+						if ( ! empty( $user['user_email'] ) ) {
+							$user_value .= ' (' . $user['user_email'] . ')';
+						}
+
+						$users_filter[] = [
+							'id' => (string) $user['id'],
+							'value' => $user_value,
+						];
+					}
+				}
+			}
+
+			if ( ! empty( $users_filter ) ) {
+				$users_json = wp_json_encode( $users_filter );
+				$query_args['users'] = $users_json;
+			}
+		}
+
+		// Handle date filter.
+		if ( ! empty( $args['date'] ) ) {
+			$query_args['date'] = $args['date'];
+		}
+
+		// Handle search filter.
+		if ( ! empty( $args['search'] ) ) {
+			$query_args['search'] = $args['search'];
+		}
+
+		// Handle log levels filter.
+		if ( ! empty( $args['loglevels'] ) && is_array( $args['loglevels'] ) ) {
+			$query_args['loglevels'] = wp_json_encode( $args['loglevels'] );
+		}
+
+		// Handle message types filter.
+		if ( ! empty( $args['messages'] ) && is_array( $args['messages'] ) ) {
+			$query_args['messages'] = wp_json_encode( $args['messages'] );
+		}
+
+		// Handle initiators filter.
+		if ( ! empty( $args['initiators'] ) && is_array( $args['initiators'] ) ) {
+			$query_args['initiators'] = wp_json_encode( $args['initiators'] );
+		}
+
+		// Handle context filter.
+		if ( ! empty( $args['context'] ) ) {
+			$query_args['context'] = $args['context'];
+		}
+
+		// Build the URL manually to properly encode JSON parameters.
+		$base_url = admin_url( 'admin.php' );
+		$url_parts = [];
+
+		foreach ( $query_args as $key => $value ) {
+			// For JSON parameters, use rawurlencode to preserve the structure.
+			if ( in_array( $key, [ 'users', 'loglevels', 'messages', 'initiators' ], true ) ) {
+				$url_parts[] = $key . '=' . rawurlencode( $value );
+			} else {
+				$url_parts[] = $key . '=' . urlencode( $value );
+			}
+		}
+
+		return $base_url . '?' . implode( '&', $url_parts );
+	}
+
+	/**
+	 * Build tracking URL with standardized UTM parameters for analytics.
+	 *
+	 * Creates consistent tracking URLs for monitoring which features generate
+	 * user interest in premium functionality. UTM parameters follow a structured
+	 * naming convention for easy analysis in Google Analytics.
+	 *
+	 * Uses utm_campaign as the primary tracking parameter because it appears in
+	 * standard GA4 Traffic Acquisition reports (unlike utm_content which requires
+	 * Custom Explorations to view).
+	 *
+	 * @since 5.0.0
+	 *
+	 * @param string $url Base URL to add tracking parameters to.
+	 * @param string $utm_campaign Campaign identifier in format: {category}_{location}_{action}.
+	 *                             Examples:
+	 *                             - 'premium_dashboard_sidebar' - Sidebar promo on main dashboard
+	 *                             - 'premium_stats_daterange' - Date range feature in stats
+	 *                             - 'premium_export_banner' - Export page premium promo
+	 *                             - 'premium_events_ipaddress' - IP address Google Maps feature
+	 *                             - 'docs_filter_help' - Documentation for filter help.
+	 * @param string $utm_source Traffic source. Default: 'wpadmin'. Alternative: 'wordpress_admin'.
+	 * @param string $utm_medium Traffic medium. Default: 'plugin'. Alternative: 'Simple_History'.
+	 * @param string $utm_content Optional content identifier for A/B testing variations.
+	 *                            Only use when testing different versions of the SAME feature.
+	 *                            Examples: 'blue_button', 'variant_a', 'top_link'.
+	 *                            Leave empty for standard tracking.
+	 * @return string URL with UTM tracking parameters appended.
+	 */
+	public static function get_tracking_url( $url, $utm_campaign, $utm_source = 'wpadmin', $utm_medium = 'plugin', $utm_content = '' ) {
+		$params = [
+			'utm_source' => $utm_source,
+			'utm_medium' => $utm_medium,
+			'utm_campaign' => $utm_campaign,
+		];
+
+		// Only add utm_content if provided (for A/B testing).
+		if ( ! empty( $utm_content ) ) {
+			$params['utm_content'] = $utm_content;
+		}
+
+		return add_query_arg( $params, $url );
 	}
 }

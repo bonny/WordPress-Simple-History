@@ -41,12 +41,14 @@ tests/plugins/*
 # Local environment files
 db-export-*.sql
 readme.branch.*.md
+simple-history-test.zip
 
 # Ignore the build directory
 # Since 2024-12-30 we build during GitHub deployment.
 build/
 
-# Ignore Claude config files
-.claude
+# Ignore Claude config files (but allow commands for cross-machine use)
+.claude/*
+!.claude/commands/
 scripts/copy-current-to-simple-history-com.sh
 CLAUDE.local.md

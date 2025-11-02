@@ -18,8 +18,11 @@ class RSS_Dropin extends Dropin {
 	 * @inheritdoc
 	 */
 	public function loaded() {
+		// TODO: Investigate if this include is actually needed.
+		// get_editable_roles() is checked but never called in this file.
+		// This might be leftover code copied from class-privacy-logger.php.
+		// If not needed, this include should be removed.
 		if ( ! function_exists( 'get_editable_roles' ) ) {
-			/** @phpstan-ignore requireOnce.fileNotFound */
 			require_once ABSPATH . '/wp-admin/includes/user.php';
 		}
 
@@ -485,7 +488,7 @@ class RSS_Dropin extends Dropin {
 			sprintf(
 				/* translators: %s is a link to the documentation */
 				__( 'Query parameters can be used to control what to include in the feed. <a href="%1$s" class="sh-ExternalLink" target="_blank">View documentation</a>.', 'simple-history' ),
-				'https://simple-history.com/docs/feeds/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=rss-feed-params'
+				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/docs/feeds/', 'docs_rss_help' ) )
 			),
 			[
 				'a' => [
@@ -564,11 +567,11 @@ class RSS_Dropin extends Dropin {
 	public function set_log_query_args_from_query_string( $args ) {
 		$posts_per_page = isset( $args['posts_per_page'] ) ? (int) $args['posts_per_page'] : 10;
 		$paged = isset( $args['paged'] ) ? (int) $args['paged'] : 1;
-		$date_from = isset( $args['date_from'] ) ? sanitize_text_field( $args['date_from'] ) : '';
-		$date_to = isset( $args['date_to'] ) ? sanitize_text_field( $args['date_to'] ) : '';
-		$loggers = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : [];
-		$messages = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : [];
-		$loglevels = isset( $args['loglevels'] ) ? sanitize_text_field( $args['loglevels'] ) : '';
+		$date_from = isset( $args['date_from'] ) ? sanitize_text_field( $args['date_from'] ) : null;
+		$date_to = isset( $args['date_to'] ) ? sanitize_text_field( $args['date_to'] ) : null;
+		$loggers = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : null;
+		$messages = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : null;
+		$loglevels = isset( $args['loglevels'] ) ? sanitize_text_field( $args['loglevels'] ) : null;
 
 		return [
 			'posts_per_page' => $posts_per_page,

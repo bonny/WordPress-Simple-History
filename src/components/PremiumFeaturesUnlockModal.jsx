@@ -9,6 +9,7 @@ import {
 import { SVG } from '@wordpress/primitives';
 import CheckboxImage from '../../css/icons/check_circle_24dp_3F9349_FILL0_wght400_GRAD0_opsz24.svg';
 import { __ } from '@wordpress/i18n';
+import { getTrackingUrl } from '../functions';
 
 // Icon = Workspace Premium
 // https://fonts.google.com/icons?selected=Material+Symbols+Outlined:workspace_premium:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=medal&icon.size=24&icon.color=%235f6368
@@ -43,7 +44,10 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 	const handleOpenPremiumLink = () => {
 		// Open URL in new tab.
 		window.open(
-			'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=premium-feature-modal'
+			getTrackingUrl(
+				'https://simple-history.com/add-ons/premium/',
+				'premium_global_modal'
+			)
 		);
 		handleModalClose();
 	};
