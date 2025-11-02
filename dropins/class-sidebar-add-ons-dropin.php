@@ -66,7 +66,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				<p>
 					<a
 						class="sh-PremiumFeaturesPostbox-button"
-						href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_content=black-week-sale-sidebar"
+						href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_blackweek_sidebar' ) ); ?>"
 						target="_blank"
 						>
 						<?php esc_html_e( 'Get Premium Now', 'simple-history' ); ?>
@@ -143,7 +143,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			return;
 		}
 
-		$debug_and_monitor_url = 'https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=debug-monitor-sidebar';
+		$debug_and_monitor_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/debug-and-monitor/', 'premium_debug_sidebar' );
 
 		ob_start();
 		?>
@@ -189,7 +189,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * @return string HTML
 	 */
 	public static function get_premium_features_postbox_html() {
-		$premium_url = 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=premium-sidebar';
+		$premium_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_dashboard_sidebar' );
 
 		ob_start();
 		?>
@@ -260,7 +260,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * @return string HTML
 	 */
 	public static function get_woocommerce_logger_features_postbox_html() {
-		$woocommerce_logger_url = 'https://simple-history.com/add-ons/woocommerce/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=wc-logger-sidebar';
+		$woocommerce_logger_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/woocommerce/', 'premium_woocommerce_sidebar' );
 
 		ob_start();
 		?>

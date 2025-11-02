@@ -4,6 +4,7 @@ import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { EventOccasionsList } from './EventOccasionsList';
+import { getTrackingUrl } from '../functions';
 
 /**
  * Displays some text for failed login attempts.
@@ -43,7 +44,12 @@ function EventOccasionsAddonsContent( props ) {
 				{ __( 'Configure failed login attempts', 'simple-history' ) }
 			</a>
 		) : (
-			<ExternalLink href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=login-attempts-limit#limit-number-of-failed-login-attempts">
+			<ExternalLink
+				href={ getTrackingUrl(
+					'https://simple-history.com/add-ons/premium/#limit-number-of-failed-login-attempts',
+					'premium_events_loginlimit'
+				) }
+			>
 				{ __(
 					'Limit logged login attempts (Premium)',
 					'simple-history'

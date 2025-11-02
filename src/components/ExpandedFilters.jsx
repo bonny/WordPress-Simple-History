@@ -11,6 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
+import { getTrackingUrl } from '../functions';
 
 /**
  * More filters that are hidden by default.
@@ -416,7 +417,10 @@ export function ExpandedFilters( props ) {
 					</div>
 
 					<ExternalLink
-						href="https://simple-history.com/support/what-is-an-initiator/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=initiator-filter-help"
+						href={ getTrackingUrl(
+							'https://simple-history.com/support/what-is-an-initiator/',
+							'docs_filters_initiator'
+						) }
 						target="_blank"
 						rel="noopener noreferrer"
 					>

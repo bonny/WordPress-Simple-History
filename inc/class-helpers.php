@@ -840,7 +840,7 @@ class Helpers {
 
 		?>
 		<div class="sh-PageHeader-rightLink">
-			<a href="https://simple-history.com/add-ons/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=header-addons" target="_blank">
+			<a href="<?php echo esc_url( self::get_tracking_url( 'https://simple-history.com/add-ons/', 'premium_header_addons' ) ); ?>" target="_blank">
 				<span class="sh-PageHeader-settingsLinkIcon sh-Icon sh-Icon--extension"></span>
 				<span class="sh-PageHeader-settingsLinkText"><?php esc_html_e( 'Add-ons', 'simple-history' ); ?></span>
 			</a>

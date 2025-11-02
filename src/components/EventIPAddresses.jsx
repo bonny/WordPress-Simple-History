@@ -13,6 +13,7 @@ import {
 import { __, _n } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { EventHeaderItem } from './EventHeaderItem';
+import { getTrackingUrl } from '../functions';
 
 const keysAndValues = [
 	{
@@ -170,7 +171,10 @@ function IPAddressLink( ipAddressProps ) {
 						{
 							a: (
 								<ExternalLink
-									href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=ip-maps-feature#GoogleMaps"
+									href={ getTrackingUrl(
+										'https://simple-history.com/add-ons/premium/#GoogleMaps',
+										'premium_events_ipaddress'
+									) }
 									target="_blank"
 									rel="noopener noreferrer"
 								/>

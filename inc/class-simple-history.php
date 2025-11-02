@@ -1008,7 +1008,7 @@ class Simple_History {
 					// Show link to add-on if extended settings plugin is not active.
 					$occasions_html .= '<div class="SimpleHistoryLogitem__occasionsAddOns">';
 					$occasions_html .= '<p class="SimpleHistoryLogitem__occasionsAddOnsText">';
-					$occasions_html .= '<a href="https://simple-history.com/add-ons/extended-settings/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=login-attempts-limit" class="sh-ExternalLink" target="_blank">';
+					$occasions_html .= '<a href="' . esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/extended-settings/', 'premium_occasions_loginlimit' ) ) . '" class="sh-ExternalLink" target="_blank">';
 					$occasions_html .= __( 'Limit logged login attempts', 'simple-history' );
 					$occasions_html .= '</a>';
 					$occasions_html .= '</p>';

@@ -145,7 +145,7 @@ class Licences_Settings_Page extends Service {
 
 			<p>
 				<?php
-				$link_url = 'https://simple-history.com/add-ons?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=licences-settings';
+				$link_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons', 'premium_licences_addons' );
 				$link_text = 'simple-history.com/add-ons';
 
 				echo wp_kses(
@@ -195,7 +195,7 @@ class Licences_Settings_Page extends Service {
 
 			<p>
 				<?php
-				$install_help_url = 'https://simple-history.com/support/add-ons/how-to-install/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=install_help&utm_content=licences-settings';
+				$install_help_url = Helpers::get_tracking_url( 'https://simple-history.com/support/add-ons/how-to-install/', 'docs_licences_install' );
 				$install_help_text = __( 'How to install an add-on', 'simple-history' );
 				echo wp_kses(
 					sprintf(

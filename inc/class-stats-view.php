@@ -79,7 +79,7 @@ class Stats_View {
 
 				<div class="sh-StatsDashboard-dateRangeControls-description">
 					<span class="sh-Icon sh-Icon-lock"></span>
-					<span><a target="_blank" rel="noopener noreferrer" href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-date-ranges">Upgrade to Premium</a> to get access to more date ranges.</span>
+					<span><a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_stats_daterange' ) ); ?>">Upgrade to Premium</a> to get access to more date ranges.</span>
 				</div>
 			</div>
 
@@ -508,7 +508,7 @@ class Stats_View {
 
 			<p class="sh-mt-0">
 				Premium users get access to charts with detailed stats.
-				<a href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-charts#stats-and-summaries" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>.
+				<a href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/#stats-and-summaries', 'premium_stats_charts' ) ); ?>" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>.
 			</p>
 
 			<div class="sh-StatsDashboard-content">
@@ -650,7 +650,7 @@ class Stats_View {
 				?>
 				<p class="sh-mt-0 sh-mb-large">
 					<?php echo esc_html( $description_text ); ?>
-					<a href="https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=stats-box#stats-and-summaries" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>
+					<a href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/#stats-and-summaries', 'premium_stats_box' ) ); ?>" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>
 				</p>
 				<?php
 			}

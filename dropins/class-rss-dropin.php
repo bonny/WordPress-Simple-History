@@ -485,7 +485,7 @@ class RSS_Dropin extends Dropin {
 			sprintf(
 				/* translators: %s is a link to the documentation */
 				__( 'Query parameters can be used to control what to include in the feed. <a href="%1$s" class="sh-ExternalLink" target="_blank">View documentation</a>.', 'simple-history' ),
-				'https://simple-history.com/docs/feeds/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=documentation&utm_content=rss-feed-params'
+				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/docs/feeds/', 'docs_rss_help' ) )
 			),
 			[
 				'a' => [

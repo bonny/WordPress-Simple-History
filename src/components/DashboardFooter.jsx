@@ -4,6 +4,7 @@ import {
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { getTrackingUrl } from '../functions';
 
 function DashboardFooter() {
 	return (
@@ -20,7 +21,10 @@ function DashboardFooter() {
 						'Visit the Simple History blog for new features, tips and tricks',
 						'simple-history'
 					) }
-					href="https://simple-history.com/blog/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=blog_link"
+					href={ getTrackingUrl(
+						'https://simple-history.com/blog/',
+						'blog_dashboard_footer'
+					) }
 				>
 					{ __( 'Blog', 'simple-history' ) }
 				</ExternalLink>
@@ -30,14 +34,20 @@ function DashboardFooter() {
 						'Get help with common issues or ask questions',
 						'simple-history'
 					) }
-					href="https://simple-history.com/support/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=support_link"
+					href={ getTrackingUrl(
+						'https://simple-history.com/support/',
+						'support_dashboard_footer'
+					) }
 				>
 					{ __( 'Support', 'simple-history' ) }
 				</ExternalLink>
 
 				<ExternalLink
 					title="View information about premium features"
-					href="https://simple-history.com/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_link"
+					href={ getTrackingUrl(
+						'https://simple-history.com/premium/',
+						'premium_dashboard_footer'
+					) }
 				>
 					{ __( 'Get Premium', 'simple-history' ) }
 				</ExternalLink>
