@@ -140,13 +140,215 @@ A **complete, production-ready** integrations system has been implemented on thi
 - Consider "Test Connection" buttons for integrations
 
 **Rule/Filter System**:
-- Build rule/query builder UI (potentially using react-querybuilder or jsonlogic)
+- Build rule/query builder UI (see researched libraries below)
 - Allow filtering events by:
   - Logger type and message
   - Keywords
   - Specific users or user exclusions
   - Event severity/level
 
+## Rules/Query Builder Libraries Research
+
+### JavaScript/React UI Libraries
+
+**1. React Query Builder** ⭐ SUPPORTS JSONLOGIC
+- URL: https://react-querybuilder.js.org
+- Pros:
+  - Official React library, well-maintained, flexible
+  - **Built-in JsonLogic export/import** via `formatQuery(query, 'jsonlogic')` and `parseJsonLogic()`
+  - Can export to SQL, MongoDB, CEL, SpEL, JsonLogic, and custom formats
+  - Supports custom operators and rule processors
+  - Lightweight compared to alternatives
+- Cons: UI is more basic, less opinionated design
+- **Best for**: Full control, JsonLogic integration
+
+**2. React Awesome Query Builder** ⭐ ALSO SUPPORTS JSONLOGIC
+- URL: https://github.com/ukrbublik/react-awesome-query-builder
+- Demo: https://ukrbublik.github.io/react-awesome-query-builder/
+- Pros:
+  - Very feature-rich, user-friendly UI, lots of field types
+  - **Built-in JsonLogic export/import** via `Utils.loadFromJsonLogic()` and export utilities
+  - Can export to MongoDB, SQL, JsonLogic, SpEL, ElasticSearch
+  - Core package can be used server-side without React
+  - Beautiful, polished UI out of the box
+- Cons: Larger library, more complex, might be overkill for simple use cases
+- **Best for**: Rich UI, minimal custom styling needed
+
+**3. jQuery QueryBuilder**
+- URL: https://querybuilder.js.org/
+- Pros: Mature, lots of examples
+- Cons: jQuery dependency (not ideal for React-based Simple History)
+
+### Rule Evaluation Engines
+
+**4. JsonLogic** ⭐ RECOMMENDED
+- URL: https://jsonlogic.com/
+- Pros:
+  - Supports both JavaScript AND PHP
+  - Simple JSON format for storing rules
+  - Can share rules between frontend and backend
+  - Lightweight and fast
+- Cons: UI needs to be built separately
+- **Best fit**: Use for rule evaluation, combine with React Query Builder for UI
+
+**5. RulePilot**
+- URL: https://github.com/andrewbrg/rulepilot
+- Pros: Simple JSON rule processing for JavaScript
+- Cons: JavaScript only, less mature
+
+### UX/Pattern References
+
+**6. UI Patterns - Rule Builder**
+- URL: https://ui-patterns.com/patterns/rule-builder/
+- Good resource for UX design patterns
+
+### Recommended Approach
+
+**Option A: React Query Builder + JsonLogic** ⭐ RECOMMENDED
+- Use **React Query Builder** for UI (lightweight, flexible)
+- Export to **JsonLogic format** using built-in `formatQuery(query, 'jsonlogic')`
+- Evaluate rules in PHP using JsonLogic PHP library
+- Store rules as JSON in WordPress options
+- **Benefits**:
+  - Both UI and evaluation use the same format (JsonLogic)
+  - No custom PHP parser needed - use existing JsonLogic PHP library
+  - Lightweight React component
+  - Easy to extend with custom operators
+  - Full round-trip: UI → JsonLogic → PHP → validation
+
+**Option B: React Awesome Query Builder + JsonLogic**
+- Use **React Awesome Query Builder** for UI (beautiful, feature-rich)
+- Export to **JsonLogic** using built-in utilities
+- Evaluate rules in PHP using JsonLogic PHP library
+- **Benefits**:
+  - Polished UI out of the box
+  - Same JsonLogic advantages as Option A
+  - Core package works server-side
+- **Tradeoffs**: Larger bundle size, more complex
+
+**Option C: Simple Dropdown/Checkbox UI**
+- Start with basic "Select logger types" checkboxes
+- Add complexity later if needed
+- Fastest to implement, good for MVP
+- Can migrate to JsonLogic-based rules later
+
+### Implementation Notes
+
+**PHP JsonLogic Library:**
+- Use https://github.com/jwadhams/json-logic-php for PHP evaluation
+- Composer: `composer require jwadhams/json-logic-php`
+- Same logic rules work in both JavaScript and PHP
+
+**Example Flow:**
+1. User builds rule in React Query Builder UI
+2. Export to JsonLogic: `{"and": [{"==": [{"var": "logger"}, "user"]}, {"in": ["login", {"var": "message"}]}]}`
+3. Store JSON in WordPress options
+4. On event: Evaluate rule in PHP using JsonLogic library
+5. If rule matches: Send to integration
+
 ### 📊 Current Status
 
 **Production-ready**: The core system is complete and tested. File Integration is ready to ship as a free feature. The architecture is solid for adding premium integrations in the separate add-on.
+
+## Open Questions & Design Decisions
+
+These are critical questions that need to be answered before implementing premium integrations and the rule/filter system:
+
+### Event Processing Strategy
+**Question:** How and when should we catch and send events? Directly, using cron, or Action Scheduler?
+
+**Considerations:**
+- **Direct/Synchronous**: Simple but could slow down page loads for remote APIs (Slack, webhooks)
+- **WP-Cron**: WordPress built-in, but unreliable on low-traffic sites, batch processing possible
+- **Action Scheduler**: More reliable than WP-Cron, better for batching, adds dependency
+- **Hybrid Approach**: Direct for local (file), async for remote (API calls)
+
+**Current Implementation:** File Integration uses direct writes with buffering for performance
+
+### Rule Complexity & User Choice
+**Question:** How many rules should there be? How much choice should a user have when selecting what events to send to an integration?
+
+**Considerations:**
+- **Simple (few rules)**: Easier for users, less overwhelming, faster to implement
+  - Example: "Send all events" OR "Send only these logger types"
+- **Medium complexity**: Balance of power and usability
+  - Example: Logger types + keywords + user filtering
+- **Advanced (many rules)**: Very powerful but potentially confusing
+  - Example: Full query builder with AND/OR logic, nested conditions
+- **Presets + Custom**: Offer common presets ("Security events", "Admin actions") + custom rules
+
+**Related:** How do we make this intuitive for non-technical users while still powerful for advanced users?
+
+### Multiple Rules Per Integration
+**Question:** Should each integration be able to handle multiple different rules?
+
+**Considerations:**
+- **Single rule per integration**: Simpler architecture, users create multiple "instances" for different rules
+  - Example: "Slack - Security" integration + "Slack - Admin Actions" integration
+- **Multiple rules per integration**: More complex but potentially more user-friendly
+  - Example: One Slack integration with multiple rule sets
+- **Hybrid**: Some integrations support multiple rules (email), others don't (file)
+
+**Impact on UI:** Multiple rules = need for rule management UI within each integration's settings
+
+### Rule Evaluation Timing
+**Question:** Should rules apply directly for each event as it comes in, or should we batch process them?
+
+**Considerations:**
+- **Immediate evaluation**: Lower latency, users get notifications faster
+  - Pros: Real-time alerts, simpler state management
+  - Cons: Performance impact if many events/rules, could slow down requests
+- **Batch processing**: Better performance, more efficient for high-traffic sites
+  - Pros: Reduced overhead, can optimize DB queries, better for rate-limited APIs
+  - Cons: Delayed notifications, need to store events temporarily, more complex
+- **Hybrid**: Immediate for critical events, batched for routine events
+  - Requires event priority/severity system
+
+**Current Implementation:** File Integration evaluates and writes immediately (with buffering for performance)
+
+### Error Handling & Failure Recovery
+**Question:** What to do when a notification fails? For example, Slack gets an error - should we resend and how many times? Fallback? Pause integration and notify user?
+
+**Considerations:**
+- **Retry Strategy**:
+  - **No retry**: Simplest, but events could be lost
+  - **Fixed retries**: Try X times (e.g., 3 attempts) with exponential backoff
+  - **Smart retry**: Retry based on error type (network error = retry, auth error = don't retry)
+  - **Persistent queue**: Store failed events in DB, retry later via cron
+- **Retry Timing**:
+  - Immediate retries (100ms, 500ms, 2s) for transient errors
+  - Scheduled retries (5min, 1hr, 24hr) for persistent issues
+  - Exponential backoff to avoid hammering failing APIs
+- **Failure Thresholds**:
+  - Auto-disable integration after X consecutive failures (e.g., 10)
+  - Require manual re-enable to prevent infinite failed attempts
+  - Track failure rate over time (e.g., 50% failure rate in 1 hour)
+- **User Notification**:
+  - **Admin notice**: Show WordPress admin notice when integration fails
+  - **Email alert**: Send email to admin when integration is auto-disabled
+  - **Simple History event**: Log integration failures as events (meta!)
+  - **Dashboard widget**: Show integration health status
+- **Fallback Options**:
+  - Secondary integration (if Slack fails, try email)
+  - Always log to file as backup
+  - Queue for manual review/resend
+- **Error Visibility**:
+  - Show last error message in integration settings
+  - Log errors to WordPress debug.log
+  - Dedicated "Integration Logs" page showing success/failure history
+  - Status indicator (green/yellow/red) per integration
+
+**Current Implementation:** File Integration has 3-attempt retry with 100ms backoff for transient write failures
+
+**Recommended Approach:**
+- Retry 3-5 times with exponential backoff for API calls
+- Auto-disable after 10 consecutive failures
+- Show admin notice when disabled
+- Log integration errors as Simple History events
+- Display last error + failure count in settings UI
+
+### Additional Considerations
+- **Performance impact**: How many integrations can run simultaneously without degrading site performance?
+- **Rate limiting**: How do we handle APIs with rate limits (Slack: 1 msg/sec)?
+- **Data privacy**: Should we offer PII filtering/masking options?
+- **Testing integrations**: Should we provide "Test Connection" or "Send Test Event" functionality?
