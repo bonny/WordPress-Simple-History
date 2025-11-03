@@ -347,6 +347,97 @@ These are critical questions that need to be answered before implementing premiu
 - Log integration errors as Simple History events
 - Display last error + failure count in settings UI
 
+### Rules vs Destinations Architecture
+**Question:** What's more user-friendly and logical - create a rule that sends to multiple destinations, or create rules per destination?
+
+**Approach 1: Rule → Multiple Destinations** ⭐ RECOMMENDED
+- User creates a rule (e.g., "Failed login attempts")
+- User selects which destinations receive events matching this rule (File + Slack + Email)
+- One rule evaluation → multiple destinations
+
+**Pros:**
+- ✅ Matches how users think: "When X happens, notify me via Y and Z"
+- ✅ No duplication - define rule logic once
+- ✅ Easy to see what events trigger which notifications
+- ✅ More efficient - evaluate rule once, send to multiple places
+- ✅ Less configuration work
+- ✅ Industry standard (Zapier, Sentry, Datadog work this way)
+
+**Cons:**
+- ❌ Different destinations might need different settings (e.g., Slack channel selection)
+- ❌ Harder to do destination-specific formatting
+
+**Solution to cons:**
+- Rule defines WHAT to send
+- Each destination has its own settings for HOW to send (channel, format, etc.)
+- Destination-specific overrides available if needed
+
+**Approach 2: Destination → Rules**
+- Each integration (File, Slack, Email) has its own rule(s)
+- User configures rules separately per destination
+
+**Pros:**
+- ✅ Each destination can have completely unique rules
+- ✅ Destination settings and rules stay together
+- ✅ Clear separation of concerns
+
+**Cons:**
+- ❌ Lots of duplication if same rule for multiple destinations
+- ❌ Hard to see "big picture" of notification setup
+- ❌ More configuration work
+- ❌ Less efficient - same rule evaluated multiple times
+
+**Hybrid Approach: Destinations with Shared Rules**
+- Store rules independently
+- Destinations reference/use rules
+- Rules can be reused across multiple destinations
+
+**Real-world Examples:**
+
+*Use Case 1:* "Send all failed logins to Slack AND Email"
+- **Approach 1**: Create one rule "Failed logins", check Slack + Email ✅ Easy
+- **Approach 2**: Create same rule in Slack settings, then again in Email settings ❌ Duplication
+
+*Use Case 2:* "Send critical errors to Slack #critical, all errors to Slack #errors, all events to File"
+- **Approach 1**: Create 3 rules, each with different destinations ✅ Still works
+- **Approach 2**: Configure File integration with "all events", configure Slack twice with different rules ✅ Also works but requires multiple Slack integrations
+
+*Use Case 3:* "Send user registrations to Slack #marketing, email admin, and log to file"
+- **Approach 1**: One rule "User registered", select all three destinations ✅ Simple
+- **Approach 2**: Configure same rule three times ❌ Tedious
+
+**Recommended Implementation:**
+
+1. **Rules are first-class objects** - stored independently, can be named, managed centrally
+2. **Rules select destinations** - each rule has checkboxes for which integrations to use
+3. **Destinations have their own settings** - Slack channel, Email recipients, File path, etc.
+4. **Optional: Destination-specific overrides** - Rule can override default destination settings if needed
+
+**UI Flow:**
+```
+Integrations & Alerts
+├── Destinations (configured once)
+│   ├── ✅ File Backup (enabled)
+│   ├── ✅ Slack - #general (enabled, webhook configured)
+│   ├── ✅ Email Alerts (enabled, admin@example.com)
+│   └── ❌ Discord (not configured)
+├── Rules (the logic)
+│   ├── Rule: "Failed Logins"
+│   │   ├── Condition: logger = "user" AND message contains "failed"
+│   │   └── Send to: ☑ File, ☑ Slack, ☑ Email
+│   ├── Rule: "Admin Actions"
+│   │   ├── Condition: user role = "administrator"
+│   │   └── Send to: ☑ File, ☑ Slack
+│   └── Rule: "Everything"
+│       ├── Condition: (all events)
+│       └── Send to: ☑ File only
+```
+
+**Alternative: Simpler MVP Approach**
+- Skip standalone "Rules" initially
+- Each destination has built-in filtering options (simple checkboxes for logger types)
+- Add advanced rules later as premium feature
+
 ### Additional Considerations
 - **Performance impact**: How many integrations can run simultaneously without degrading site performance?
 - **Rate limiting**: How do we handle APIs with rate limits (Slack: 1 msg/sec)?
