@@ -526,6 +526,11 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 * @return string
 	 */
 	protected function get_events_per_days_stats_html( $stats_data ) {
+		// Generate URLs for filtering events by time period.
+		$url_today = Helpers::get_filtered_events_url( [ 'date' => 'lastdays:1' ] );
+		$url_week = Helpers::get_filtered_events_url( [ 'date' => 'lastdays:7' ] );
+		$url_month = Helpers::get_filtered_events_url( [ 'date' => 'lastdays:30' ] );
+
 		ob_start();
 
 		?>
@@ -536,6 +541,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 				__( 'Today', 'simple-history' ),
 				number_format_i18n( $stats_data['num_events_today'] ),
 				_n( 'event', 'events', $stats_data['num_events_today'], 'simple-history' ),
+				$url_today
 			);
 
 			echo $this->get_stat_dashboard_item(
@@ -543,13 +549,15 @@ class Sidebar_Stats_Dropin extends Dropin {
 				sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_WEEK ),
 				number_format_i18n( $stats_data['num_events_week'] ),
 				_n( 'event', 'events', $stats_data['num_events_week'], 'simple-history' ),
+				$url_week
 			);
 
 			echo $this->get_stat_dashboard_item(
 				// translators: %d is the number of days.
 				sprintf( __( '%d days', 'simple-history' ), Date_Helper::DAYS_PER_MONTH ),
 				number_format_i18n( $stats_data['num_events_month'] ),
-				_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' )
+				_n( 'event', 'events', $stats_data['num_events_month'], 'simple-history' ),
+				$url_month
 			);
 			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
@@ -668,12 +676,17 @@ class Sidebar_Stats_Dropin extends Dropin {
 	 * @param string $stat_label The label text for the stat.
 	 * @param string $stat_value The main value text to display.
 	 * @param string $stat_subvalue Optional subvalue to display below main value.
+	 * @param string $stat_url Optional URL to make the stat label clickable.
 	 */
-	protected function get_stat_dashboard_item( $stat_label, $stat_value, $stat_subvalue = '' ) {
+	protected function get_stat_dashboard_item( $stat_label, $stat_value, $stat_subvalue = '', $stat_url = '' ) {
 		ob_start();
 
+		$tag = empty( $stat_url ) ? 'div' : 'a';
+		$attrs = empty( $stat_url ) ? '' : sprintf( ' href="%s"', esc_url( $stat_url ) );
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $tag is hardcoded 'a' or 'div', $attrs is escaped.
+		printf( '<%s class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small"%s>', $tag, $attrs );
 		?>
-		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
 			<span class="sh-StatsDashboard-statLabel"><?php echo esc_html( $stat_label ); ?></span>
 			<span class="sh-StatsDashboard-statValue"><?php echo esc_html( $stat_value ); ?></span>
 			<?php
@@ -685,8 +698,9 @@ class Sidebar_Stats_Dropin extends Dropin {
 				<?php
 			}
 			?>
-		</div>
 		<?php
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $tag is hardcoded 'a' or 'div'.
+		printf( '</%s>', $tag );
 
 		return ob_get_clean();
 	}
