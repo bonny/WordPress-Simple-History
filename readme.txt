@@ -334,11 +334,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.18.0 (November 2025)
 
 -   Add context search to the log GUI filters.
 -   Add date support to create event REST API endpoint.
--   New experimental feature: Import existing data from WordPress into Simple History.
 -   More fixes for time zones and localization issues.
 -   Misc internal code improvements and changes.
 -   Fix email reports always showing Sunday as the busiest day.
@@ -346,6 +345,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Switch place between Most active users in last 30 days and Daily activity over last 30 days. This keeps info that only admins can see grouped together.
 -   Add user names to Most active users in last 30 days.
 -   Make avatars and user names clickable to filter the event log by user.
+-   Clickable dates in sidebar chart
+-   "Add dedicated Experimental Features admin page for users with experimental features enabled."
+-   New experimental feature: Import existing data from WordPress into Simple History (posts, pages, users, and
+    attachments)
 
 ### 5.17.0 (October 2025)
 
