@@ -336,6 +336,9 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.18.0 (November 2025)
 
+👆 This release makes sidebar stats interactive - click on avatars, user names, or chart dates to instantly filter your event log. It also fixes email reports always showing Sunday as the busiest day, plus several bug fixes and improvements.
+[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-18-0-released/)
+
 **Added**
 
 -   Context search to the log GUI filters.
