@@ -336,19 +336,26 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.18.0 (November 2025)
 
--   Add context search to the log GUI filters.
--   Add date support to create event REST API endpoint.
--   More fixes for time zones and localization issues.
+**Added**
+
+-   Context search to the log GUI filters.
+-   Date support to create event REST API endpoint.
+-   User names to Most active users in last 30 days.
+-   Dedicated Experimental Features admin page for users with experimental features enabled.
+-   Clickable avatars and user names to filter the event log by user.
+-   Clickable dates in sidebar chart to filter events by day.
+-   New experimental feature: Import existing data from WordPress into Simple History (posts, pages, users, and attachments).
+
+**Fixed**
+
+-   Email reports always showing Sunday as the busiest day.
+-   More timezone and localization issues.
+
+**Changed**
+
+-   Weekly email reports now sent earlier in the day (6 AM instead of 8 AM), so they are ready when the user wakes up.
+-   Switched place between Most active users in last 30 days and Daily activity over last 30 days to keep info that only admins can see grouped together.
 -   Misc internal code improvements and changes.
--   Fix email reports always showing Sunday as the busiest day.
--   Send weekly email reports earlier in the day, so they are ready when the user wakes up (6 in the morning instead of 8 in the morning).
--   Switch place between Most active users in last 30 days and Daily activity over last 30 days. This keeps info that only admins can see grouped together.
--   Add user names to Most active users in last 30 days.
--   Make avatars and user names clickable to filter the event log by user.
--   Clickable dates in sidebar chart
--   "Add dedicated Experimental Features admin page for users with experimental features enabled."
--   New experimental feature: Import existing data from WordPress into Simple History (posts, pages, users, and
-    attachments)
 
 ### 5.17.0 (October 2025)
 
