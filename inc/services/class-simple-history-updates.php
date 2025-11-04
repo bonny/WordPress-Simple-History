@@ -15,6 +15,11 @@ class Simple_History_Updates extends Service {
 		// Hook into the plugin update details filter for Simple History.
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.14.0', [ $this, 'on_plugin_updated_details_5_14_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.15.0', [ $this, 'on_plugin_updated_details_5_15_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.18.0', [ $this, 'on_plugin_updated_details_5_18_0' ] );
+
+		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// add_filter( 'simple_history/pluginlogger/plugin_updated_details/<pluginslug>', [ $this, 'on_plugin_updated_details_5_18_0' ] );
 	}
 
 	/**
@@ -75,7 +80,7 @@ class Simple_History_Updates extends Service {
 	}
 
 	/**
-	 * Handle update details for Simple History version 5.14.0.
+	 * Handle update details for Simple History version 5.15.0.
 	 *
 	 * @param string $extra_details Extra HTML to output after the changelog link.
 	 * @return string Extra HTML to output after the changelog link.
@@ -89,6 +94,26 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2025/simple-history-5-15-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Handle update details for Simple History version 5.18.0.
+	 *
+	 * @param string $extra_details Extra HTML to output after the changelog link.
+	 * @return string Extra HTML to output after the changelog link.
+	 */
+	public function on_plugin_updated_details_5_18_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			'Context search added to log GUI filters for more precise filtering',
+			'Interactive sidebar stats: click on avatars, user names, or chart dates to filter events instantly',
+			'User names now shown in most active users list for better visibility',
+		];
+
+		$release_link = 'https://simple-history.com/2025/simple-history-5-18-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
