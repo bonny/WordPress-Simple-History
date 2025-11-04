@@ -158,7 +158,7 @@ WP-CLI support is perfect for system administrators and agencies managing multip
 Example commands:
 
 -   `wp simple-history event list` – List the latest logged events.
--   `simple-history event get` – Get more information about a specific event.
+-   `wp simple-history event get` – Get more information about a specific event.
 -   `wp simple-history event add` – Add a custom event to the log.
 -   `wp simple-history event search` – Search for events.
 -   `wp simple-history stealth-mode` – See Stealth Mode status.
