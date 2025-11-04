@@ -348,6 +348,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Email reports always showing Sunday as the busiest day.
+-   PHP warning "Trying to access array offset on value of type null" in Theme Logger when displaying widget events.
 -   More timezone and localization issues.
 
 **Changed**
