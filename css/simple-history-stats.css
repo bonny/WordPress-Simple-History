@@ -148,6 +148,15 @@
 .sh-StatsDashboard-userNamesList {
 	margin-top: var(--sh-spacing-xsmall);
 	margin-bottom: 0;
+
+	a {
+		text-decoration: none;
+	}
+
+	a:hover,
+	a:focus {
+		text-decoration: underline;
+	}
 }
 
 /* Event count displayed after each username in the list. */
@@ -405,6 +414,14 @@
 	flex: 1;
 }
 
+.sh-StatsDashboard-statValue {
+	color: var(--sh-color-black);
+	font-size: var(--sh-font-size-xxxlarge);
+	font-weight: normal;
+	line-height: 1;
+	white-space: nowrap;
+}
+
 .sh-StatsDashboard-stat--small {
 	gap: var(--sh-spacing-xsmall);
 
@@ -422,13 +439,6 @@
 .sh-StatsDashboard-statSubValue {
 	font-size: var(--sh-font-size-medium);
 	color: var(--sh-color-black-2);
-}
-
-.sh-StatsDashboard-statValue {
-	color: var(--sh-color-black);
-	font-size: var(--sh-font-size-xxxlarge);
-	font-weight: normal;
-	line-height: 1;
 }
 
 .sh-StatsDashboard-statValue--large {
@@ -553,4 +563,29 @@
 
 .sh-StatsDashboard-dateRangeControls-description {
 	margin-top: var(--sh-spacing-small);
+}
+
+/* Sidebar Stats aka "History Insights" */
+.sh-SidebarStats-eventsPerDays {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	margin-bottom: var(--sh-spacing-large);
+	margin-left: calc(var(--sh-spacing-small) * -1);
+	margin-right: calc(var(--sh-spacing-small) * -1);
+
+	/* div or a wrapper (depending on if the stat has a URL or not) */
+	.sh-StatsDashboard-stat {
+		border-radius: var(--sh-border-radius);
+		padding: var(--sh-spacing-small);
+	}
+
+	a.sh-StatsDashboard-stat {
+		text-decoration: none;
+	}
+
+	a.sh-StatsDashboard-stat:hover {
+		background: var(--sh-color-item-hover);
+		background: var(--sh-color-gray-4);
+	}
 }
