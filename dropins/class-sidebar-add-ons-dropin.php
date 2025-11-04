@@ -50,10 +50,12 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		?>
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
-				<img style="width: 80px; max-width: 100%; margin: 0 auto; display: block; margin-bottom: 1rem;" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/black-week-2025.svg' ); ?>" alt="Black Week Sale" />
+				<img style="width: 80px; max-width: 100%; margin: 0 auto; display: block; margin-bottom: 1rem;" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/black-week-2025.svg' ); ?>" alt="" />
 
 				<p style="margin: 0; font-size: 1rem; font-weight: bold;">
-					<?php esc_html_e( 'Black Week Sale: Premium Features at 30% Off', 'simple-history' ); ?>
+					<?php esc_html_e( 'Black Week Sale:', 'simple-history' ); ?>
+					<br />
+					<?php esc_html_e( 'Premium Features at 30% Off', 'simple-history' ); ?>
 				</p>
 
 				<p>Don't lose important history after 60 days. 
