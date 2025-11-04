@@ -37,26 +37,26 @@ class Notification_Bar extends Service {
 		$notification_bar_messages = [
 			// [
 			// 'message' => __( 'New in premium: Stats and Summaries that gives you insights into your site\'s activity', 'simple-history' ),
-			// 'link' => 'https://simple-history.com/add-ons/premium/stats-and-summaries/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_stats',
+			// 'link' => Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/stats-and-summaries/', 'premium_notificationbar_stats' ),
 			// 'read_more' => __( 'View stats and summaries', 'simple-history' ),
 			// ],
 			// [
 			// 'message' => __( 'Simple History Premium: Extended log storage and thoughtful new features to explore', 'simple-history' ),
-			// 'link' => 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar',
+			// 'link' => Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_notificationbar_general' ),
 			// 'link_is_external' => true,
 			// 'read_more' => __( 'Explore premium features', 'simple-history' ),
 			// 'message_available' => true,
 			// ],
 			// [
 			// 'message' => __( 'Preserve your logs longer and gain helpful new tools with Simple History Premium', 'simple-history' ),
-			// 'link' => 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_retention',
+			// 'link' => Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_notificationbar_retention' ),
 			// 'link_is_external' => true,
 			// 'read_more' => __( 'Learn about log retention', 'simple-history' ),
 			// 'message_available' => true,
 			// ],
 			// [
 			// 'message' => __( 'Did you know? Simple History Premium lets you set custom log retention periods', 'simple-history' ),
-			// 'link' => 'https://simple-history.com/add-ons/premium/?utm_source=wordpress_admin&utm_medium=Simple_History&utm_campaign=premium_upsell&utm_content=notification_bar_retention',
+			// 'link' => Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_notificationbar_retention' ),
 			// 'read_more' => __( 'See retention options', 'simple-history' ),
 			// ],
 			// [
