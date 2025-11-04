@@ -339,11 +339,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Context search to the log GUI filters.
--   Date support to create event REST API endpoint.
--   User names to Most active users in last 30 days.
+-   Date support to create event REST API endpoint (allows creating events for specific dates).
+-   User names to list of most active users in last 30 days (previously only showed avatars).
+-   Clickable elements in sidebar stats box: avatars, user names, and chart dates now filter the event log when clicked.
 -   Dedicated Experimental Features admin page for users with experimental features enabled.
--   Clickable avatars and user names to filter the event log by user.
--   Clickable dates in sidebar chart to filter events by day.
 -   New experimental feature: Import existing data from WordPress into Simple History (posts, pages, users, and attachments).
 
 **Fixed**
@@ -354,7 +353,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   Weekly email reports now sent earlier in the day (6 AM instead of 8 AM), so they are ready when the user wakes up.
--   Switched place between Most active users in last 30 days and Daily activity over last 30 days to keep info that only admins can see grouped together.
+-   Reordered sidebar stats: Most active users now appears before Daily activity to group admin-only information together.
 -   Misc internal code improvements and changes.
 
 ### 5.17.0 (October 2025)
