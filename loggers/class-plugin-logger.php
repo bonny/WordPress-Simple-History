@@ -293,6 +293,25 @@ class Plugin_Logger extends Logger {
 			'hook_extra' => $hook_extra,
 		];
 
+		// Detect if rollback will occur (WordPress 6.3+ feature).
+		// Rollback happens when:
+		// 1. This is an update (temp_backup exists in hook_extra)
+		// 2. The update failed (result is WP_Error)
+		// When both conditions are true, WordPress will automatically restore
+		// the previous version from the temporary backup on shutdown.
+		$is_update = isset( $hook_extra['temp_backup'] );
+		$has_error = is_wp_error( $result );
+
+		if ( $is_update && $has_error ) {
+			$this->package_results[ $plugin_main_file_path ]['rollback_will_occur'] = true;
+			$this->package_results[ $plugin_main_file_path ]['rollback_info'] = [
+				'backup_slug' => $hook_extra['temp_backup']['slug'] ?? '',
+				'backup_dir' => $hook_extra['temp_backup']['dir'] ?? '',
+				'error_code' => $result->get_error_code(),
+				'error_message' => $result->get_error_message(),
+			];
+		}
+
 		return $result;
 	}
 
@@ -853,6 +872,9 @@ class Plugin_Logger extends Logger {
 			$context['error_messages'] = json_encode( $plugin_upgrader_instance->skin->result->errors );
 			$context['error_data']     = json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
+			// Add rollback context if rollback will occur.
+			$context = $this->add_rollback_context( $context, $arr_data['plugin'] );
+
 			$this->info_message(
 				'plugin_update_failed',
 				$context
@@ -955,6 +977,9 @@ class Plugin_Logger extends Logger {
 
 			if ( count( $plugin_errors ) > 0 ) {
 				$context['plugin_errors'] = $plugin_errors;
+
+				// Add rollback context if rollback will occur.
+				$context = $this->add_rollback_context( $context, $plugin_main_file_path );
 
 				$this->warning_message(
 					'plugin_bulk_updated_failed',
@@ -1381,5 +1406,27 @@ class Plugin_Logger extends Logger {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Add rollback context to event if rollback will occur.
+	 *
+	 * @param array  $context Context array.
+	 * @param string $plugin_identifier Plugin main file path.
+	 * @return array Modified context array.
+	 */
+	private function add_rollback_context( $context, $plugin_identifier ) {
+		// Check if rollback will occur (WordPress 6.3+ feature).
+		$package_result = $this->package_results[ $plugin_identifier ] ?? null;
+		if ( $package_result && ! empty( $package_result['rollback_will_occur'] ) ) {
+			$context['rollback_will_occur'] = true;
+			if ( ! empty( $package_result['rollback_info'] ) ) {
+				$context['rollback_backup_slug'] = $package_result['rollback_info']['backup_slug'];
+				$context['rollback_error_code'] = $package_result['rollback_info']['error_code'];
+				$context['rollback_error_message'] = $package_result['rollback_info']['error_message'];
+			}
+		}
+
+		return $context;
 	}
 }
