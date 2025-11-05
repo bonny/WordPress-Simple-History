@@ -216,6 +216,8 @@ class Plugin_Logger extends Logger {
 		add_action( 'delete_plugin', array( $this, 'on_action_delete_plugin' ), 10, 1 );
 		add_action( 'deleted_plugin', array( $this, 'on_action_deleted_plugin' ), 10, 2 );
 
+		// Capture individual plugin install/update errors. These errors are not included in the final
+		// upgrader response during bulk updates, so this is the only way to get them.
 		add_filter( 'upgrader_install_package_result', [ $this, 'on_upgrader_install_package_result' ], 10, 2 );
 	}
 
