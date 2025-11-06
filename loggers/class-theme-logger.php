@@ -20,6 +20,14 @@ class Theme_Logger extends Logger {
 	protected $themes_data = array();
 
 	/**
+	 * Used to store results from upgrader_install_package_result for theme updates.
+	 * Used to detect rollback scenarios (WordPress 6.3+ feature).
+	 *
+	 * @var array<string,array<mixed>> Array with theme slug as key.
+	 */
+	protected $package_results = array();
+
+	/**
 	 * Return logger info
 	 *
 	 * @return array
@@ -34,6 +42,7 @@ class Theme_Logger extends Logger {
 				'theme_installed'           => __( 'Installed theme "{theme_name}" by {theme_author}', 'simple-history' ),
 				'theme_deleted'             => __( 'Deleted theme "{theme_name}"', 'simple-history' ),
 				'theme_updated'             => __( 'Updated theme "{theme_name}"', 'simple-history' ),
+				'theme_update_failed'       => __( 'Failed to update theme "{theme_name}"', 'simple-history' ),
 				'appearance_customized'     => __( 'Customized theme appearance "{setting_id}"', 'simple-history' ),
 				'widget_removed'            => __( 'Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', 'simple-history' ),
 				'widget_added'              => __( 'Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', 'simple-history' ),
@@ -105,6 +114,7 @@ class Theme_Logger extends Logger {
 
 		add_action( 'load-appearance_page_custom-background', array( $this, 'on_page_load_custom_background' ) );
 
+		add_filter( 'upgrader_install_package_result', array( $this, 'on_upgrader_install_package_result' ), 10, 2 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_install' ), 10, 2 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_update' ), 10, 2 );
 
@@ -175,6 +185,47 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
+	 * Fired during theme update process.
+	 * Used to detect rollback scenarios (WordPress 6.3+ feature).
+	 *
+	 * @param array|\WP_Error $result     Result from WP_Upgrader::install_package().
+	 * @param array           $hook_extra Extra arguments passed to hooked filters.
+	 * @return array|\WP_Error
+	 */
+	public function on_upgrader_install_package_result( $result, $hook_extra ) {
+		// Only handle theme updates.
+		if ( ! isset( $hook_extra['theme'] ) ) {
+			return $result;
+		}
+
+		$theme_slug = $hook_extra['theme'];
+
+		// Store result for later use in on_upgrader_process_complete_theme_update().
+		$this->package_results[ $theme_slug ] = array(
+			'result' => $result,
+		);
+
+		// Detect if rollback will occur (WordPress 6.3+ feature).
+		// Rollback happens when:
+		// 1. This is an update (temp_backup exists in hook_extra).
+		// 2. The update failed (result is WP_Error).
+		$is_update = isset( $hook_extra['temp_backup'] );
+		$has_error = is_wp_error( $result );
+
+		if ( $is_update && $has_error ) {
+			$this->package_results[ $theme_slug ]['rollback_will_occur'] = true;
+			$this->package_results[ $theme_slug ]['rollback_info'] = array(
+				'backup_slug' => $hook_extra['temp_backup']['slug'] ?? '',
+				'backup_dir' => $hook_extra['temp_backup']['dir'] ?? '',
+				'error_code' => $result->get_error_code(),
+				'error_message' => $result->get_error_message(),
+			);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Log theme updated.
 	 *
 	 * @param \WP_Upgrader $upgrader_instance WP_Upgrader instance.
@@ -242,17 +293,42 @@ class Theme_Logger extends Logger {
 			$theme_name = $theme_info_object->get( 'Name' );
 			$theme_version = $theme_info_object->get( 'Version' );
 
-			if ( ! $theme_name || ! $theme_version ) {
+			if ( ! $theme_name ) {
 				continue;
 			}
 
-			$this->info_message(
-				'theme_updated',
-				array(
+			// Check if update failed (result is WP_Error).
+			$package_result = $this->package_results[ $one_updated_theme ] ?? null;
+			$has_error = $package_result && is_wp_error( $package_result['result'] );
+
+			if ( $has_error ) {
+				// Theme update failed.
+				$context = array(
+					'theme_slug' => $one_updated_theme,
 					'theme_name' => $theme_name,
-					'theme_version' => $theme_version,
-				)
-			);
+				);
+
+				// Add rollback context if rollback will occur.
+				$context = $this->add_rollback_context( $context, $one_updated_theme );
+
+				$this->warning_message(
+					'theme_update_failed',
+					$context
+				);
+			} else {
+				// Theme update succeeded.
+				if ( ! $theme_version ) {
+					continue;
+				}
+
+				$this->info_message(
+					'theme_updated',
+					array(
+						'theme_name' => $theme_name,
+						'theme_version' => $theme_version,
+					)
+				);
+			}
 		}
 	}
 
@@ -721,5 +797,27 @@ class Theme_Logger extends Logger {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Add rollback context to event if rollback will occur.
+	 *
+	 * @param array  $context Context array.
+	 * @param string $theme_slug Theme slug.
+	 * @return array Modified context array.
+	 */
+	private function add_rollback_context( $context, $theme_slug ) {
+		// Check if rollback will occur (WordPress 6.3+ feature).
+		$package_result = $this->package_results[ $theme_slug ] ?? null;
+		if ( $package_result && ! empty( $package_result['rollback_will_occur'] ) ) {
+			$context['rollback_will_occur'] = true;
+			if ( ! empty( $package_result['rollback_info'] ) ) {
+				$context['rollback_backup_slug'] = $package_result['rollback_info']['backup_slug'];
+				$context['rollback_error_code'] = $package_result['rollback_info']['error_code'];
+				$context['rollback_error_message'] = $package_result['rollback_info']['error_message'];
+			}
+		}
+
+		return $context;
 	}
 }

@@ -216,33 +216,50 @@ WordPress auto-updates Akismet at 3 AM
 
 ## ✅ IMPLEMENTED: Scenario 1 (Installation Failures)
 
-**Status:** Fully implemented as of this research!
+**Status:** Fully implemented for both plugins and themes!
+
+### Plugin Rollback Detection
+
+**Code changes made in Plugin Logger:**
+- Enhanced `on_upgrader_install_package_result()` method (line 296-313)
+- Enhanced single update failure logging (line 876)
+- Enhanced bulk update failure logging (line 982)
+- Added `add_rollback_context()` helper method (line 1418-1431)
 
 **What was added:**
 - ✅ Detects when rollback will occur (checks `temp_backup` + `is_wp_error`)
 - ✅ Stores rollback information in `$package_results`
-- ✅ Adds rollback context to log entries
-- ✅ Visual rollback indicator (yellow box) in log details
-- ✅ Shows "WordPress automatically restored the previous version from backup"
-- ✅ Displays backup slug and error details
+- ✅ Adds rollback context to log entries (backup_slug, error_code, error_message)
 - ✅ Works for both manual and auto updates
 - ✅ Works for both single and bulk updates
 
-**Code changes made:**
-- Enhanced `on_upgrader_install_package_result()` method (line 296-313)
-- Enhanced single update failure logging (line 875-883)
-- Enhanced bulk update failure logging (line 988-997)
-- Added rollback details display method (line 1437-1484)
+### Theme Rollback Detection
+
+**Code changes made in Theme Logger:**
+- Added `$package_results` property (line 28)
+- Added hook for `upgrader_install_package_result` filter (line 117)
+- Added `on_upgrader_install_package_result()` method (line 195-226)
+- Added `add_rollback_context()` helper method (line 784-797)
+- Added `theme_update_failed` message key (line 45)
+- Enhanced `on_upgrader_process_complete_theme_update()` to detect failures (line 300-331)
+
+**What was added:**
+- ✅ Detects when rollback will occur (checks `temp_backup` + `is_wp_error`)
+- ✅ Stores rollback information in `$package_results`
+- ✅ Adds rollback context to log entries (backup_slug, error_code, error_message)
+- ✅ Works for both manual and auto updates
+- ✅ Logs theme update failures with rollback context
 
 **What users see:**
 ```
 Failed to update plugin "Akismet"
+Failed to update theme "Twenty Twenty-Four"
 
-┌─────────────────────────────────────────┐
-│ ✓ Automatic Rollback                    │
-│ WordPress automatically restored the    │
-│ previous version from backup.           │
-└─────────────────────────────────────────┘
+Context includes:
+- rollback_will_occur: true
+- rollback_backup_slug: akismet (or theme slug)
+- rollback_error_code: test_simulated_failure
+- rollback_error_message: Error details
 ```
 
 ## ❌ NOT IMPLEMENTED: Scenario 2 (Fatal Error Rollbacks)
@@ -539,29 +556,42 @@ Similar implementation as Plugin Logger:
 
 Location: `wp-content/plugins/test-update-rollback/`
 
-A test plugin was created to simulate installation failures (Scenario 1). The plugin:
+A test plugin was created to simulate installation failures (Scenario 1) for both plugins and themes. The plugin:
 - Provides admin UI to enable/disable testing
+- Supports testing plugin updates (all or specific)
+- Supports testing theme updates (all or specific)
 - Intercepts `upgrader_install_package_result` hook
 - Forces WP_Error after backup is created
 - Triggers real WordPress rollback mechanism
+- Shows warnings on Plugins and Themes admin pages when active
 
 ### Test Results (Scenario 1 - Installation Failures)
 
-✅ **Confirmed working:**
-- WordPress creates backup in `upgrade-temp-backup/`
+✅ **Confirmed working for plugins:**
+- WordPress creates backup in `upgrade-temp-backup/plugins/`
 - Our filter forces installation failure
 - WordPress automatically rolls back on shutdown
-- Simple History logs the failure (already captures this!)
+- Simple History logs the failure with rollback context
 
-**What we verified:**
+**What we verified for plugins:**
 - `temp_backup` data is present in `$hook_extra`
 - Plugin Logger's `on_upgrader_install_package_result()` captures the error
 - Rollback happens automatically (verified in debug.log)
 - This works for BOTH manual and auto updates
+- Rollback context is stored (backup_slug, error_code, error_message)
 
-**What's missing in logs:**
-- No explicit mention that rollback occurred
-- Users see "update failed" but not "and was rolled back"
+✅ **Confirmed working for themes:**
+- WordPress creates backup in `upgrade-temp-backup/themes/`
+- Our filter forces installation failure
+- WordPress automatically rolls back on shutdown
+- Simple History logs the failure with rollback context
+
+**What we verified for themes:**
+- `temp_backup` data is present in `$hook_extra`
+- Theme Logger's `on_upgrader_install_package_result()` captures the error
+- Rollback happens automatically (verified in debug.log)
+- This works for BOTH manual and auto updates
+- Rollback context is stored (backup_slug, error_code, error_message)
 
 ### Test Scenario for Scenario 2 (Fatal Error Rollbacks)
 

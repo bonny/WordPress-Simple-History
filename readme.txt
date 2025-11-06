@@ -337,6 +337,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 ### Unreleased
 
 -   Add rollback context to plugin update failed events.
+-   Add logging of failed theme updates
 
 ### 5.18.0 (November 2025)
 
