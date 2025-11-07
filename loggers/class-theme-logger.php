@@ -17,7 +17,7 @@ class Theme_Logger extends Logger {
 	 *
 	 * @var array<string,array<mixed>> Array of theme data.
 	 */
-	protected $themes_data = array();
+	protected $themes_data = [];
 
 	/**
 	 * Used to store results from upgrader_install_package_result for theme updates.
@@ -38,7 +38,7 @@ class Theme_Logger extends Logger {
 	 *
 	 * @var array<string,array<string,mixed>> Array with theme slug as key.
 	 */
-	protected $package_results = array();
+	protected $package_results = [];
 
 	/**
 	 * Return logger info
@@ -214,9 +214,9 @@ class Theme_Logger extends Logger {
 		$theme_slug = $hook_extra['theme'];
 
 		// Store result for later use in on_upgrader_process_complete_theme_update().
-		$this->package_results[ $theme_slug ] = array(
+		$this->package_results[ $theme_slug ] = [
 			'result' => $result,
-		);
+		];
 
 		// Detect if rollback will occur (WordPress 6.3+ feature).
 		// Rollback happens when:
@@ -227,12 +227,12 @@ class Theme_Logger extends Logger {
 
 		if ( $is_update && $has_error ) {
 			$this->package_results[ $theme_slug ]['rollback_will_occur'] = true;
-			$this->package_results[ $theme_slug ]['rollback_info'] = array(
+			$this->package_results[ $theme_slug ]['rollback_info'] = [
 				'backup_slug' => $hook_extra['temp_backup']['slug'] ?? '',
 				'backup_dir' => $hook_extra['temp_backup']['dir'] ?? '',
 				'error_code' => $result->get_error_code(),
 				'error_message' => $result->get_error_message(),
-			);
+			];
 		}
 
 		return $result;
@@ -316,10 +316,10 @@ class Theme_Logger extends Logger {
 
 			if ( $has_error ) {
 				// Theme update failed.
-				$context = array(
+				$context = [
 					'theme_slug' => $one_updated_theme,
 					'theme_name' => $theme_name,
-				);
+				];
 
 				// Add rollback context if rollback will occur.
 				$context = $this->add_rollback_context( $context, $one_updated_theme );
