@@ -201,3 +201,4 @@ gh api graphql -f query='
 -   Follow OneFlow model (see code.md for details)
 -   Use GitHub CLI to fetch GitHub issues
 -   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos. Never add any sensitive information to this document, like API keys or passwords, since this document will be commited to GIT and can be shown on GitHub.
+- Don't add to git or commit without user explicitly saying so
