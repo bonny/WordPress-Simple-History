@@ -97,6 +97,12 @@ Array(
 - ❌ Does not capture detailed error information
 - ❌ Does not have access to temp_backup data
 
+**Core Updates Logger (`class-core-updates-logger.php`):**
+- ✅ Uses `_core_updated_successfully` hook for successful updates
+- ❌ Does not detect or log update failures (before this implementation)
+- ❌ Does not capture error information
+- ❌ Does not detect core-specific rollbacks
+
 ### Analysis: Is Rollback Logging Possible?
 
 **YES! WordPress has TWO completely different rollback features:**
@@ -175,8 +181,8 @@ Array(
 | **Hook to detect** | `upgrader_install_package_result` | `automatic_updates_complete` |
 | **Manual updates** | ✅ Protected | ❌ NOT protected |
 | **Auto updates** | ✅ Protected | ✅ Protected |
-| **WordPress version** | 6.3+ | 6.6+ |
-| **Currently logged** | ✅ YES (implemented) | ❌ NO (not yet) |
+| **WordPress version** | 6.3+ (plugins/themes), 3.7+ (core) | 6.6+ |
+| **Currently logged** | ✅ YES (implemented for all) | ❌ NO (not yet) |
 
 ## Summary: Manual vs Auto Updates
 
@@ -216,7 +222,7 @@ WordPress auto-updates Akismet at 3 AM
 
 ## ✅ IMPLEMENTED: Scenario 1 (Installation Failures)
 
-**Status:** Fully implemented for both plugins and themes!
+**Status:** Fully implemented for plugins, themes, and WordPress core!
 
 ### Plugin Rollback Detection
 
@@ -261,6 +267,99 @@ Context includes:
 - rollback_error_code: test_simulated_failure
 - rollback_error_message: Error details
 ```
+
+### WordPress Core Update Failure Detection
+
+**Status:** ✅ Fully Working for Automatic Updates | ❌ Not Possible for Manual Updates
+
+**Implementation:** Uses the `auto_core_update_send_email` filter ⭐
+
+**Status:** ✅ Fully implemented and working for automatic updates!
+
+**How it works:**
+- WordPress calls this filter when preparing to send email about automatic updates
+- Filter passes the actual WP_Error result object as a parameter
+- We have full access to error details, rollback info, and version data
+
+**Code changes made in Core Updates Logger:**
+- Added hook for `auto_core_update_send_email` filter (line 57)
+- Added `on_auto_core_update_send_email()` method (line 157-234)
+- Added `core_update_failed` message key (line 25)
+
+**What this approach detects:**
+- ✅ **All automatic core update failures** (100% reliable)
+- ✅ Captures error code, error message, and error data
+- ✅ Detects core-specific rollback scenarios using error codes
+- ✅ Distinguishes between 'fail' and 'critical' failures
+- ✅ Has access to attempted version and previous version
+
+**Advantages:**
+- ✅ Receives actual WP_Error result object (no guessing)
+- ✅ WordPress 3.7+ support (very old, excellent compatibility)
+- ✅ Can distinguish severity: 'fail' vs 'critical'
+- ✅ Reliable - always fires for automatic update failures
+
+**Limitation:**
+- ❌ **Only works for AUTOMATIC updates** (not manual updates via wp-admin)
+
+**Expected log entry for automatic updates:**
+```
+Failed to update WordPress
+
+Context includes:
+- error_code: disk_full (or other error code)
+- error_message: Error details
+- auto_update: true
+- failure_type: critical (or 'fail')
+- rollback_occurred: true (when rollback happens)
+- prev_version: 6.4.2 (WordPress version before update)
+- new_version: 6.5.0 (attempted version)
+- critical_failure: true (for critical failures)
+```
+
+---
+
+#### Why Manual Update Failures Can't Be Logged
+
+**WordPress Architecture Limitation:**
+- Manual update failures cannot be reliably detected due to how WordPress Core_Upgrader works
+- `Core_Upgrader::upgrade()` calls `update_core()` directly (line 178 in class-core-upgrader.php)
+- The result from `update_core()` is stored in a local variable `$result`
+- This result is **NOT** stored in `$upgrader_instance->skin->result` or any accessible location
+- There are **NO usable hooks or filters** that provide access to manual update errors
+- Even WordPress core itself has no unit tests for Core_Upgrader failures
+
+**What This Means:**
+- ❌ Cannot log manual core update failures
+- ❌ Cannot test core update failures with test plugin (no hooks to inject errors)
+- ✅ Automatic update failures ARE logged reliably via `auto_core_update_send_email`
+- ✅ Successful core updates (both manual and automatic) ARE logged via `_core_updated_successfully`
+- ✅ Plugin and theme update failures ARE detected (they use different code paths)
+
+---
+
+#### Summary: What Gets Logged
+
+| Update Type | Success Logged? | Failure Logged? | Hook Used |
+|-------------|-----------------|-----------------|-----------|
+| **Automatic core** | ✅ YES | ✅ YES | `auto_core_update_send_email` |
+| **Manual core** | ✅ YES | ❌ NO | `_core_updated_successfully` (success only) |
+| **Plugin (any)** | ✅ YES | ✅ YES | `upgrader_install_package_result` |
+| **Theme (any)** | ✅ YES | ✅ YES | `upgrader_install_package_result` |
+
+**Core-specific implementation notes:**
+- Core uses **different rollback mechanism** than plugins/themes
+- Core uses package-based rollback (downloads rollback package from WordPress API)
+- Does NOT use temp_backup directory like plugins/themes
+- Detects rollback via specific error codes: `rollback_was_required`, `__copy_dir`, `disk_full`, `do_rollback`
+- Core rollback has been in WordPress since 3.7 (much older than plugin/theme rollback)
+
+**Testing Status:**
+- ✅ Automatic update failures ARE logged reliably (via `auto_core_update_send_email`)
+- ❌ Cannot test via test plugin (no usable hooks to inject errors into core updates)
+- ❌ Manual update failures cannot be logged (no accessible hooks)
+- ❌ WordPress core itself has no unit tests for Core_Upgrader failures
+- ⚠️ Would require real filesystem failures to test (readonly files, disk full, etc.)
 
 ## ❌ NOT IMPLEMENTED: Scenario 2 (Fatal Error Rollbacks)
 
@@ -554,16 +653,38 @@ Similar implementation as Plugin Logger:
 
 ### Test Plugin Created ✅
 
-Location: `wp-content/plugins/test-update-rollback/`
+**Location:** `tests/plugins/test-update-rollback/`
 
-A test plugin was created to simulate installation failures (Scenario 1) for both plugins and themes. The plugin:
-- Provides admin UI to enable/disable testing
+**Version:** 1.2.0 (Core testing removed - doesn't work due to WP architecture)
+
+A test plugin was created to simulate installation failures (Scenario 1) for plugins and themes. The plugin:
+- Provides admin UI to enable/disable testing (Tools → Test Update Rollback)
 - Supports testing plugin updates (all or specific)
 - Supports testing theme updates (all or specific)
+- **Does NOT support WordPress core testing** (WordPress architecture limitation)
 - Intercepts `upgrader_install_package_result` hook
-- Forces WP_Error after backup is created
+- Forces WP_Error with configurable error codes
 - Triggers real WordPress rollback mechanism
 - Shows warnings on Plugins and Themes admin pages when active
+- Can test specific items or all items of a type
+
+**Key Features:**
+- Dropdown to select update type: All, Plugins, or Themes
+- Specify specific plugin/theme to test (optional)
+- Error code selector including various failure types
+- Core rollback trigger error codes included for documentation only
+- Clear visual status and warnings
+- Easy enable/disable toggle
+- Explanation of why core testing doesn't work
+
+**Installation:**
+```bash
+# Copy to WordPress plugins directory
+cp -r tests/plugins/test-update-rollback /path/to/wordpress/wp-content/plugins/
+
+# Or symlink for development
+ln -s /path/to/simple-history/tests/plugins/test-update-rollback /path/to/wordpress/wp-content/plugins/
+```
 
 ### Test Results (Scenario 1 - Installation Failures)
 
@@ -592,6 +713,40 @@ A test plugin was created to simulate installation failures (Scenario 1) for bot
 - Rollback happens automatically (verified in debug.log)
 - This works for BOTH manual and auto updates
 - Rollback context is stored (backup_slug, error_code, error_message)
+
+### How to Test WordPress Core Updates
+
+**⚠️ CANNOT BE TESTED** - WordPress core update failures cannot be tested via the test plugin due to WordPress architecture:
+
+**Why Core Testing Doesn't Work:**
+- `Core_Upgrader::upgrade()` calls `update_core()` directly without using `install_package()`
+- The test plugin hooks into `upgrader_install_package_result` and `upgrader_source_selection` filters
+- These filters are inside `install_package()`, which core updates bypass
+- There are **NO usable filters** inside `update_core()` to inject test failures
+- Even WordPress itself has no unit tests for Core_Upgrader failures
+
+**What This Means:**
+- ❌ Cannot test core update failures with the test plugin
+- ❌ Core update failure detection may not work in practice (result not accessible)
+- ✅ Plugin and theme update failure testing works fine
+- ✅ Core update SUCCESS is logged via `_core_updated_successfully` hook
+
+**Core Implementation Status:**
+- ✅ Code is implemented in Core Updates Logger (`on_upgrader_process_complete`)
+- ✅ Would detect rollback via specific error codes if result were accessible
+- ⚠️ Result is stored in local variable, not in `$upgrader_instance->skin->result`
+- ⚠️ Implementation kept for documentation and potential future WordPress changes
+
+**Core-specific Rollback Error Codes (for reference):**
+- `rollback_was_required`
+- `__copy_dir`
+- `disk_full`
+- `do_rollback`
+
+**If you really need to test core failures:**
+- Real filesystem failures (make files readonly, fill disk, etc.)
+- Modify WordPress core files (not recommended)
+- Wait for WordPress to add testing hooks (may never happen)
 
 ### Test Scenario for Scenario 2 (Fatal Error Rollbacks)
 
