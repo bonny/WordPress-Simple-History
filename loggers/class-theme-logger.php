@@ -23,7 +23,20 @@ class Theme_Logger extends Logger {
 	 * Used to store results from upgrader_install_package_result for theme updates.
 	 * Used to detect rollback scenarios (WordPress 6.3+ feature).
 	 *
-	 * @var array<string,array<mixed>> Array with theme slug as key.
+	 * Structure: [
+	 *   'theme-slug' => [
+	 *     'result' => array|WP_Error,
+	 *     'rollback_will_occur' => bool,
+	 *     'rollback_info' => [
+	 *       'backup_slug' => string,
+	 *       'backup_dir' => string,
+	 *       'error_code' => string,
+	 *       'error_message' => string,
+	 *     ]
+	 *   ]
+	 * ]
+	 *
+	 * @var array<string,array<string,mixed>> Array with theme slug as key.
 	 */
 	protected $package_results = array();
 

@@ -31,6 +31,21 @@ class Plugin_Logger extends Logger {
 	 * The result can contain errors, like if the old plugin could not be removed.
 	 * These errors are not added in the final upgrader class response when using bulk update.
 	 * So this is the only way to get them.
+	 * Used to detect rollback scenarios (WordPress 6.3+ feature).
+	 *
+	 * Structure: [
+	 *   'plugin-slug/plugin-file.php' => [
+	 *     'result' => array|WP_Error,
+	 *     'hook_extra' => array,
+	 *     'rollback_will_occur' => bool,
+	 *     'rollback_info' => [
+	 *       'backup_slug' => string,
+	 *       'backup_dir' => string,
+	 *       'error_code' => string,
+	 *       'error_message' => string,
+	 *     ]
+	 *   ]
+	 * ]
 	 *
 	 * @var array $package_results
 	 */
