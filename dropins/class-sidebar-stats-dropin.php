@@ -363,9 +363,10 @@ class Sidebar_Stats_Dropin extends Dropin {
 			'chart_data_month' => Helpers::get_num_events_per_day_last_n_days( $num_days_month ),
 		];
 
-		// Only fetch total_events for admins.
+		// Only fetch total_events and current_events_count for admins.
 		if ( $current_user_can_manage_options ) {
 			$results['total_events'] = Helpers::get_total_logged_events_count();
+			$results['current_events_count'] = Helpers::get_current_database_events_count();
 		}
 
 		// Only fetch top_users for users who can list users.
@@ -478,18 +479,39 @@ class Sidebar_Stats_Dropin extends Dropin {
 			return '';
 		}
 
-		if ( ! isset( $stats_data['total_events'] ) ) {
+		if ( ! isset( $stats_data['total_events'] ) || ! isset( $stats_data['current_events_count'] ) ) {
 			return '';
 		}
 
+		// Get retention period and make it a link.
+		$retention_days = Helpers::get_clear_history_interval();
+		$retention_text = $retention_days > 0
+			? sprintf(
+				// translators: %d is the number of days.
+				_n( '%d day', '%d days', $retention_days, 'simple-history' ),
+				$retention_days
+			)
+			: __( 'forever', 'simple-history' );
+
+		// Make retention period a link to settings with anchor to retention section.
+		$settings_url = Helpers::get_settings_page_url() . '#simple_history_clear_log_info';
+		$retention_text_linked = sprintf(
+			'<a href="%s"><b>%s</b></a>',
+			esc_url( $settings_url ),
+			$retention_text
+		);
+
+		// Build main message.
 		$msg_text = sprintf(
-			// translators: 1 is number of events, 2 is description of when the plugin was installed.
-			__( 'A total of <b>%1$s events</b> have been logged since Simple History was installed.', 'simple-history' ),
+			// translators: 1 is current events in database, 2 is total events logged, 3 is retention period as a link (e.g., "60 days").
+			__( '<b>%1$s events</b> in database (%2$s logged in total). Events auto-removed after %3$s.', 'simple-history' ),
+			number_format_i18n( $stats_data['current_events_count'] ),
 			number_format_i18n( $stats_data['total_events'] ),
+			$retention_text_linked
 		);
 
 		// Append tooltip.
-		$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then. Only administrators can see this number.', 'simple-history' ) );
+		$msg_text .= Helpers::get_tooltip_html( __( 'Database count shows browsable events. Total shows all events ever logged, including those auto-removed. Only administrators can see these event counts.', 'simple-history' ) );
 
 		// Return concatenated result.
 		return wp_kses_post( "<p class='sh-my-medium'>" . $msg_text . '</p>' );
