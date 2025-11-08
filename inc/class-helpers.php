@@ -1346,6 +1346,34 @@ class Helpers {
 	}
 
 	/**
+	 * Get current number of events in database.
+	 *
+	 * Counts all events currently stored in the database.
+	 * Respects user permissions - only counts events from loggers the current user can view.
+	 *
+	 * @return int Number of events currently in database that user can view.
+	 */
+	public static function get_current_database_events_count() {
+		global $wpdb;
+		$simple_history = Simple_History::get_instance();
+		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+
+		$sql = sprintf(
+			'
+                SELECT count(*)
+                FROM %1$s
+                WHERE logger IN %2$s
+            ',
+			$simple_history->get_events_table_name(),
+			$sqlStringLoggersUserCanRead
+		);
+
+		$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+		return (int) $count;
+	}
+
+	/**
 	 * Get number of events per day the last n days.
 	 *
 	 * Respects user permissions - only counts events from loggers the current user can view.
