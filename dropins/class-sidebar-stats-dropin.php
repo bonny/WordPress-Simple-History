@@ -401,24 +401,6 @@ class Sidebar_Stats_Dropin extends Dropin {
 					<?php esc_html_e( 'History Insights', 'simple-history' ); ?>
 				</h3>
 
-				<p class="sh-mt-0">
-					<?php
-					if ( $current_user_can_manage_options ) {
-						printf(
-							/* translators: %d is the number of minutes between cache refreshes */
-							esc_html__( 'Calculated from all events. Updates every %d minutes.', 'simple-history' ),
-							absint( self::CACHE_DURATION_MINUTES )
-						);
-					} else {
-						printf(
-							/* translators: %d is the number of minutes between cache refreshes */
-							esc_html__( 'Based on events you can view. Updates every %d minutes.', 'simple-history' ),
-							absint( self::CACHE_DURATION_MINUTES )
-						);
-					}
-					?>
-				</p>
-
 				<?php
 				/**
 				 * Fires inside the stats sidebar box, after the headline but before any content.
@@ -442,13 +424,46 @@ class Sidebar_Stats_Dropin extends Dropin {
 				// Show total events logged. Only visible to admins.
 				echo wp_kses_post( $this->get_total_events_logged_html( $current_user_can_manage_options, $stats_data ) );
 
+				echo wp_kses_post( $this->get_cache_info_html( $current_user_can_manage_options ) );
+
 				// Show insights page CTA. Only visible to admins.
 				echo wp_kses_post( $this->get_cta_link_html( $current_user_can_manage_options ) );
-
 				?>
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Get HTML for cache info.
+	 *
+	 * @param bool $current_user_can_manage_options If current user has manage options capability.
+	 * @return string HTML.
+	 */
+	protected function get_cache_info_html( $current_user_can_manage_options ) {
+		ob_start();
+
+		?>
+		<p class="sh-my-medium">
+			<?php
+			if ( $current_user_can_manage_options ) {
+				printf(
+					/* translators: %d is the number of minutes between cache refreshes */
+					esc_html__( 'Insights are calculated from all events. Updates every %d minutes.', 'simple-history' ),
+					absint( self::CACHE_DURATION_MINUTES )
+				);
+			} else {
+				printf(
+					/* translators: %d is the number of minutes between cache refreshes */
+					esc_html__( 'Insights are based on events you can view. Updates every %d minutes.', 'simple-history' ),
+					absint( self::CACHE_DURATION_MINUTES )
+				);
+			}
+			?>
+		</p>
+
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -477,7 +492,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		$msg_text .= Helpers::get_tooltip_html( __( 'Since install or since the install of version 5.20 if you were already using the plugin before then. Only administrators can see this number.', 'simple-history' ) );
 
 		// Return concatenated result.
-		return wp_kses_post( "<p class='sh-mt-large sh-mb-medium'>" . $msg_text . '</p>' );
+		return wp_kses_post( "<p class='sh-my-medium'>" . $msg_text . '</p>' );
 	}
 
 	/**
@@ -499,7 +514,7 @@ class Sidebar_Stats_Dropin extends Dropin {
 		ob_start();
 
 		?>
-		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-large">
+		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small sh-my-medium">
 			<span class="sh-StatsDashboard-statLabel">
 				<?php
 				printf(
