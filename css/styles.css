@@ -1239,7 +1239,6 @@ so add some extra place then to make it look a bit less ugly.
 	--sh-icon-size: 24px;
 	width: var(--sh-icon-size);
 	height: var(--sh-icon-size);
-	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
 	vertical-align: middle;
@@ -1252,7 +1251,6 @@ so add some extra place then to make it look a bit less ugly.
 	--sh-icon-size: 20px;
 	width: var(--sh-icon-size);
 	height: var(--sh-icon-size);
-	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
 	vertical-align: middle;
@@ -1260,6 +1258,13 @@ so add some extra place then to make it look a bit less ugly.
 	position: relative;
 	top: -1px;
 	left: 2px;
+}
+
+.sh-SettingsPage-settingsSection-wrap td > div:target {
+	background-color: lightyellow;
+	padding: 1rem;
+	/* Push target down when navigated to via #hash. */
+	scroll-margin-top: 2rem;
 }
 
 .sh-PageNav-icon {
