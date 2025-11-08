@@ -338,6 +338,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Add rollback context to plugin update failed events.
 -   Add logging of failed theme updates
+-   Decrease font size on stats sidebar stats box to fit more events.
 
 ### 5.18.0 (November 2025)
 

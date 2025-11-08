@@ -582,6 +582,7 @@
 
 	.sh-StatsDashboard-statValue {
 		white-space: nowrap;
+		font-size: var(--sh-font-size-large);
 	}
 
 	a.sh-StatsDashboard-stat {
