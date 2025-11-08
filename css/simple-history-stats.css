@@ -419,7 +419,6 @@
 	font-size: var(--sh-font-size-xxxlarge);
 	font-weight: normal;
 	line-height: 1;
-	white-space: nowrap;
 }
 
 .sh-StatsDashboard-stat--small {
@@ -570,7 +569,8 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-end;
-	margin-bottom: var(--sh-spacing-large);
+	flex-wrap: wrap;
+	margin-bottom: calc(var(--sh-spacing-large) - var(--sh-spacing-small));
 	margin-left: calc(var(--sh-spacing-small) * -1);
 	margin-right: calc(var(--sh-spacing-small) * -1);
 
@@ -578,6 +578,10 @@
 	.sh-StatsDashboard-stat {
 		border-radius: var(--sh-border-radius);
 		padding: var(--sh-spacing-small);
+	}
+
+	.sh-StatsDashboard-statValue {
+		white-space: nowrap;
 	}
 
 	a.sh-StatsDashboard-stat {
