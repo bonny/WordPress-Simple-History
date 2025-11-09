@@ -21,7 +21,7 @@ class Admin_Page_Premium_Promo extends Service {
 	 */
 	public function add_promo_upsell_page() {
 		// Hide if premium is active.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 

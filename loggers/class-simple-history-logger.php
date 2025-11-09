@@ -172,9 +172,7 @@ class Simple_History_Logger extends Logger {
 			// add a text with a link with information on how to modify this.
 			// If they already have the plugin, show message with link to settings page.
 
-			$is_premium_or_extended_settings_enabled = Helpers::is_extended_settings_add_on_active() || Helpers::is_premium_add_on_active();
-
-			if ( $is_premium_or_extended_settings_enabled ) {
+			if ( ! Helpers::show_promo_boxes() ) {
 				$message = sprintf(
 					/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
 					__( '<a href="%1$s">Set number of days the log is kept.</a>', 'simple-history' ),

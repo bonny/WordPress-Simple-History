@@ -55,7 +55,7 @@ class Review_Reminder_Service extends Service {
 		}
 
 		// Hide if premium add-on-is active.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 

@@ -23,7 +23,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 */
 	public function on_sidebar_html_sale_promo() {
 		// Hide if Premium is installed.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 
@@ -83,7 +83,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 */
 	public function on_sidebar_html_premium_promo() {
 		// Don't show if addon is already installed.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 
@@ -106,7 +106,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		}
 
 		// Hide if Premium is installed, because one feature of premium is hiding promos.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 
@@ -124,7 +124,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		}
 
 		// Hide if Premium is installed, because one feature of premium is hiding promos.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 
@@ -139,7 +139,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 */
 	public static function get_debug_and_monitor_features_postbox_html() {
 		// Hide if Premium is installed, because one feature of premium is hiding promos.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 

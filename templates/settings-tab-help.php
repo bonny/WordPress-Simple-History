@@ -142,7 +142,7 @@ $faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 	<!-- Grid with premium features. -->
 	<div class="sh-grid sh-grid-cols-1/3">
 		<?php
-		if ( ! Helpers::is_premium_add_on_active() ) {
+		if ( Helpers::show_promo_boxes() ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo Sidebar_Add_Ons_Dropin::get_premium_features_postbox_html();
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

@@ -34,7 +34,7 @@ defined( 'ABSPATH' ) || die();
 		Or wait, I solved it by adding an empty settings section to the support settings section.
 		-->
 		<?php
-		if ( ! Helpers::is_premium_add_on_active() ) {
+		if ( Helpers::show_promo_boxes() ) {
 			?>
 			<div style="margin-top: 2rem;">
 				<?php

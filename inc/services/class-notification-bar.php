@@ -28,7 +28,7 @@ class Notification_Bar extends Service {
 	 * @return string HTML for the notification bar.
 	 */
 	private function get_notification_bar_html() {
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return '';
 		}
 
