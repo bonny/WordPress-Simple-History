@@ -342,6 +342,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Insights sidebar: Clicks on users should also filter the log by 30 days
 -   Insights sidebar: Update text to show current events in database and total events logged with links to settings page for retention period.
 -   Insights sidebar: Improve messages for message count.
+-   Misc internal code improvements and changes.
+-   Misc UI improvements and changes.
 
 ### 5.18.0 (November 2025)
 
