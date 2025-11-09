@@ -162,9 +162,9 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 			wp_send_json_error( [ 'message' => 'Invalid nonce' ], 403 );
 		}
 
-		// Store dismissal timestamp in user meta.
+		// Store dismissal timestamp in user meta (ISO8601 format for human readability).
 		$user_id = get_current_user_id();
-		$dismissed = update_user_meta( $user_id, self::DISMISSED_USER_META_KEY, time() );
+		$dismissed = update_user_meta( $user_id, self::DISMISSED_USER_META_KEY, gmdate( 'c' ) );
 
 		if ( $dismissed ) {
 			wp_send_json_success( [ 'message' => 'Promo dismissed successfully' ] );
