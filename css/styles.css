@@ -1282,21 +1282,21 @@ so add some extra place then to make it look a bit less ugly.
 	left: 2px;
 }
 
-.sh-SettingsPage-settingsSection-wrap td > div:target {
+/* Highlight settings sections when navigated to via #hash. */
+.sh-SettingsPage-settingsSection-wrap td > div:target,
+.sh-SettingsPage-settingsSection-wrap:target {
 	background-color: lightyellow;
-	padding: 1rem;
 	/* Push target down when navigated to via #hash. */
 	scroll-margin-top: 2rem;
 }
 
-/* Highlight settings section title when navigated to via #hash. */
-.sh-SettingsPage-settingsSection-title:target {
-	background-color: lightyellow;
+.sh-SettingsPage-settingsSection-wrap td > div:target {
+	padding: 1rem;
+}
+
+.sh-SettingsPage-settingsSection-wrap:target {
 	padding: 0.5rem 1rem;
 	border-radius: 4px;
-	/* Push target down when navigated to via #hash. */
-	scroll-margin-top: 2rem;
-	display: inline-block;
 }
 
 .sh-PageNav-icon {

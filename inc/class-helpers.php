@@ -740,10 +740,9 @@ class Helpers {
 	 *
 	 * @param string  $title Title.
 	 * @param ?string $icon_class_suffix Icon class suffix.
-	 * @param string  $id Optional ID attribute for the section. Default empty string (no ID output).
 	 * @return string
 	 */
-	public static function get_settings_section_title_output( $title, $icon_class_suffix = null, $id = '' ) {
+	public static function get_settings_section_title_output( $title, $icon_class_suffix = null ) {
 		$icon_output = '';
 
 		if ( ! is_null( $icon_class_suffix ) ) {
@@ -753,21 +752,15 @@ class Helpers {
 			);
 		}
 
-		$id_attribute = '';
-		if ( ! empty( $id ) ) {
-			$id_attribute = sprintf( ' id="%s"', esc_attr( $id ) );
-		}
-
 		return sprintf(
 			'
-			<span class="sh-SettingsPage-settingsSection-title"%3$s>
+			<span class="sh-SettingsPage-settingsSection-title">
 				%2$s
 				%1$s
 			</span>
 			',
 			esc_html( $title ),
-			$icon_output,
-			$id_attribute
+			$icon_output
 		);
 	}
 
@@ -817,11 +810,12 @@ class Helpers {
 	 */
 	public static function add_settings_section( $id, $title, $callback, $page, $args = [] ) {
 		// If title is array then it can be [title, icon-slug] or [title, icon-slug, html-id].
+		$html_id = '';
 		if ( is_array( $title ) ) {
 			$title_text = $title[0];
 			$icon_slug = $title[1] ?? null;
 			$html_id = $title[2] ?? '';
-			$title = self::get_settings_section_title_output( $title_text, $icon_slug, $html_id );
+			$title = self::get_settings_section_title_output( $title_text, $icon_slug );
 		} else {
 			$title = self::get_settings_section_title_output( $title );
 		}
@@ -832,8 +826,13 @@ class Helpers {
 		 * https://core.trac.wordpress.org/ticket/62746
 		 * https://core.trac.wordpress.org/changeset/59564
 		 */
+		$id_attribute = '';
+		if ( ! empty( $html_id ) ) {
+			$id_attribute = sprintf( ' id="%s"', esc_attr( $html_id ) );
+		}
+
 		$args = [
-			'before_section' => '<div class="sh-SettingsPage-settingsSection-wrap">',
+			'before_section' => sprintf( '<div class="sh-SettingsPage-settingsSection-wrap"%s>', $id_attribute ),
 			'after_section' => '</div>',
 		];
 
