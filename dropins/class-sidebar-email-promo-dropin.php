@@ -51,7 +51,8 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 	const AJAX_ACTION = 'simple_history_dismiss_email_promo';
 
 	public function loaded() {
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'gui_page_sidebar_html' ], 1 );
+		// Priority 1 to show card first in sidebar, before stats (priority 4) and other boxes.
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html' ], 1 );
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, [ $this, 'ajax_dismiss_promo' ] );
 	}
 
@@ -84,7 +85,7 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 	/**
 	 * Output the promotional card HTML in the sidebar.
 	 */
-	public function gui_page_sidebar_html() {
+	public function on_sidebar_html() {
 		if ( ! $this->should_show_promo() ) {
 			return;
 		}
@@ -108,8 +109,8 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 			]
 		);
 
-		// Settings page URL with anchor to email report settings.
-		$settings_url = admin_url( 'admin.php?page=simple_history_settings_page&selected-tab=general_settings_subtab_general&selected-sub-tab=general_settings_subtab_settings_general#simple_history_email_report_settings' );
+		// Settings page URL with anchor to email report settings section.
+		$settings_url = Helpers::get_settings_page_url() . '#simple_history_email_report_section';
 
 		?>
 		<div class="sh-EmailPromoCard" id="simple-history-email-promo-card">
