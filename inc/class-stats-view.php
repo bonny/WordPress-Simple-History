@@ -395,6 +395,7 @@ class Stats_View {
 				$user_url = Helpers::get_filtered_events_url(
 					[
 						'users' => $user,
+						'date' => 'lastdays:30',
 					]
 				);
 				?>
@@ -430,6 +431,7 @@ class Stats_View {
 					$url = Helpers::get_filtered_events_url(
 						[
 							'users' => $user,
+							'date' => 'lastdays:30',
 						]
 					);
 
