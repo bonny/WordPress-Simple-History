@@ -1698,17 +1698,26 @@ class Helpers {
 	 * @return bool True if promo boxes should be shown, false otherwise.
 	 */
 	public static function show_promo_boxes() {
+		$show_promo_boxes = true;
+
 		// Hide if Premium add-on is active.
 		if ( self::is_premium_add_on_active() ) {
-			return false;
+			$show_promo_boxes = false;
 		}
 
 		// Hide if Extended Settings is active.
 		if ( self::is_extended_settings_add_on_active() ) {
-			return false;
+			$show_promo_boxes = false;
 		}
 
-		return true;
+		/**
+		 * Filter to determine if promo boxes should be shown.
+		 *
+		 * @param bool $show_promo_boxes True if promo boxes should be shown, false otherwise.
+		 */
+		$show_promo_boxes = apply_filters( 'simple_history/show_promo_boxes', $show_promo_boxes );
+
+		return $show_promo_boxes;
 	}
 
 	/**

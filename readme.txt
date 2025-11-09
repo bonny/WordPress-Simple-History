@@ -344,6 +344,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Insights sidebar: Improve messages for message count.
 -   Misc internal code improvements and changes.
 -   Misc UI improvements and changes.
+-   Add filter `simple_history/show_promo_boxes` to determine if promo boxes should be shown.
 
 ### 5.18.0 (November 2025)
 
