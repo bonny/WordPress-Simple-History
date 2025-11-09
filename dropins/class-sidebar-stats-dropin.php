@@ -493,8 +493,8 @@ class Sidebar_Stats_Dropin extends Dropin {
 			)
 			: __( 'forever', 'simple-history' );
 
-		// Make retention period a link to settings with anchor to general section.
-		$settings_url = Helpers::get_settings_page_url() . '#simple_history_general_section';
+		// Make retention period a link to settings with anchor to retention section.
+		$settings_url = Helpers::get_settings_page_url() . '#simple_history_clear_log_info';
 		$retention_text_linked = sprintf(
 			'<a href="%s" class="sh-whitespace-nowrap"><b>%s</b></a>',
 			esc_url( $settings_url ),

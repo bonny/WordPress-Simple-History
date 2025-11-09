@@ -53,7 +53,35 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 	public function loaded() {
 		// Priority 1 to show card first in sidebar, before stats (priority 4) and other boxes.
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html' ], 1 );
+		add_action( 'simple_history/enqueue_admin_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, [ $this, 'ajax_dismiss_promo' ] );
+	}
+
+	/**
+	 * Enqueue scripts for the email promo card.
+	 */
+	public function enqueue_scripts() {
+		if ( ! $this->should_show_promo() ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'simple-history-email-promo',
+			SIMPLE_HISTORY_DIR_URL . 'js/email-promo.js',
+			[ 'jquery' ],
+			SIMPLE_HISTORY_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'simple-history-email-promo',
+			'simpleHistoryEmailPromo',
+			[
+				'nonce' => wp_create_nonce( self::AJAX_ACTION ),
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'action' => self::AJAX_ACTION,
+			]
+		);
 	}
 
 	/**
@@ -89,25 +117,6 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 		if ( ! $this->should_show_promo() ) {
 			return;
 		}
-
-		// Enqueue JavaScript for dismissal functionality.
-		wp_enqueue_script(
-			'simple-history-email-promo',
-			SIMPLE_HISTORY_DIR_URL . 'js/email-promo.js',
-			[ 'jquery' ],
-			SIMPLE_HISTORY_VERSION,
-			true
-		);
-
-		wp_localize_script(
-			'simple-history-email-promo',
-			'simpleHistoryEmailPromo',
-			[
-				'nonce' => wp_create_nonce( self::AJAX_ACTION ),
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'action' => self::AJAX_ACTION,
-			]
-		);
 
 		// Settings page URL with anchor to email report settings section.
 		$settings_url = Helpers::get_settings_page_url() . '#simple_history_email_report_section';

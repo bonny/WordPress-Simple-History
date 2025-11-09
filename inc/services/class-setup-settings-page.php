@@ -204,7 +204,7 @@ class Setup_Settings_Page extends Service {
 
 		Helpers::add_settings_section(
 			$settings_section_general_id,
-			[ __( 'General', 'simple-history' ), 'tune', 'simple_history_general_section' ],
+			[ __( 'General', 'simple-history' ), 'tune' ],
 			[ $this, 'settings_section_output' ],
 			$settings_menu_slug // Same slug as for options menu page.
 		);
@@ -502,6 +502,9 @@ class Setup_Settings_Page extends Service {
 
 		$clear_days = Helpers::get_clear_history_interval();
 
+		// Wrap in a div with id "simple_history_clear_log_info" so we can target it with link and CSS.
+		echo '<div id="simple_history_clear_log_info">';
+
 		echo '<p>';
 
 		if ( $clear_days > 0 ) {
@@ -533,6 +536,8 @@ class Setup_Settings_Page extends Service {
 			esc_html__( 'Clear log now', 'simple-history' ),
 			esc_url( $clear_link )
 		);
+
+		echo '</div>';
 	}
 
 
