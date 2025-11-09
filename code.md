@@ -91,3 +91,4 @@ phpcbf /path/to/code
 
 -   Will try to follow OneFlow:
     https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
+- Run phpstan after making php changes in many files or making a larger change in a single file.
