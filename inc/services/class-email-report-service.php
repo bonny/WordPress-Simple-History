@@ -332,7 +332,7 @@ class Email_Report_Service extends Service {
 		// Add settings section for email reports.
 		Helpers::add_settings_section(
 			'simple_history_email_report_section',
-			[ __( 'Email Reports', 'simple-history' ), 'mark_email_unread' ],
+			[ __( 'Email Reports', 'simple-history' ), 'mark_email_unread', 'simple_history_email_report_section' ],
 			[ $this, 'settings_section_output' ],
 			$settings_menu_slug
 		);

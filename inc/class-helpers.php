@@ -740,9 +740,10 @@ class Helpers {
 	 *
 	 * @param string  $title Title.
 	 * @param ?string $icon_class_suffix Icon class suffix.
+	 * @param string  $id Optional ID attribute for the section. Default empty string (no ID output).
 	 * @return string
 	 */
-	public static function get_settings_section_title_output( $title, $icon_class_suffix = null ) {
+	public static function get_settings_section_title_output( $title, $icon_class_suffix = null, $id = '' ) {
 		$icon_output = '';
 
 		if ( ! is_null( $icon_class_suffix ) ) {
@@ -752,15 +753,21 @@ class Helpers {
 			);
 		}
 
+		$id_attribute = '';
+		if ( ! empty( $id ) ) {
+			$id_attribute = sprintf( ' id="%s"', esc_attr( $id ) );
+		}
+
 		return sprintf(
 			'
-			<span class="sh-SettingsPage-settingsSection-title">
+			<span class="sh-SettingsPage-settingsSection-title"%3$s>
 				%2$s
 				%1$s
 			</span>
 			',
 			esc_html( $title ),
-			$icon_output
+			$icon_output,
+			$id_attribute
 		);
 	}
 
@@ -798,18 +805,23 @@ class Helpers {
 	 * Wrapper for \add_settings_section with added support for:
 	 * - Icon before title.
 	 * - Wrapper div automatically added.
+	 * - Optional HTML ID attribute.
 	 *
 	 * @param string       $id Slug-name to identify the section. Used in the 'id' attribute of tags.
 	 * @param string|array $title Formatted title of the section. Shown as the heading for the section.
 	 *                     Pass in array instead of string to use as ['Section title', 'icon-slug'].
+	 *                     Or pass ['Section title', 'icon-slug', 'html-id'] to include an HTML ID attribute.
 	 * @param callable     $callback Function that echos out any content at the top of the section (between heading and fields).
 	 * @param string       $page The slug-name of the settings page on which to show the section. Built-in pages include 'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using add_options_page().
 	 * @param array        $args Optional. Additional arguments that are passed to the $callback function. Default empty array.
 	 */
 	public static function add_settings_section( $id, $title, $callback, $page, $args = [] ) {
-		// If title is array then it is [title, icon-slug].
+		// If title is array then it can be [title, icon-slug] or [title, icon-slug, html-id].
 		if ( is_array( $title ) ) {
-			$title = self::get_settings_section_title_output( $title[0], $title[1] );
+			$title_text = $title[0];
+			$icon_slug = $title[1] ?? null;
+			$html_id = $title[2] ?? '';
+			$title = self::get_settings_section_title_output( $title_text, $icon_slug, $html_id );
 		} else {
 			$title = self::get_settings_section_title_output( $title );
 		}
