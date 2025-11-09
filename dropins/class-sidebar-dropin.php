@@ -2,6 +2,8 @@
 
 namespace Simple_History\Dropins;
 
+use Simple_History\Helpers;
+
 /**
  * Dropin Name: Sidebar
  * Drop Description: Outputs HTML and filters for a sidebar
@@ -17,9 +19,17 @@ class Sidebar_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output default sidebar contents
+	 * Output default sidebar contents:
+	 * - Donation box
+	 * - Review box
+	 * - Support box
 	 */
 	public function default_sidebar_contents() {
+		// Hide sidebar boxes if promo boxes should not be shown.
+		if ( ! Helpers::show_promo_boxes() ) {
+			return;
+		}
+
 		// Box about donation.
 		$headline = _x( 'Support our work', 'Sidebar box', 'simple-history' );
 
