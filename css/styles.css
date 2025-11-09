@@ -1289,6 +1289,16 @@ so add some extra place then to make it look a bit less ugly.
 	scroll-margin-top: 2rem;
 }
 
+/* Highlight settings section title when navigated to via #hash. */
+.sh-SettingsPage-settingsSection-title:target {
+	background-color: lightyellow;
+	padding: 0.5rem 1rem;
+	border-radius: 4px;
+	/* Push target down when navigated to via #hash. */
+	scroll-margin-top: 2rem;
+	display: inline-block;
+}
+
 .sh-PageNav-icon {
 	--sh-icon-size: 20px;
 	width: var(--sh-icon-size);
