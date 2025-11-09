@@ -361,7 +361,7 @@ This release contains some new filters and some other improvements.
 -   Changed: WP-CLI: ID field is not the first column and in uppercase, to follow the same format as the other wp cli commands use.
 -   Changed: GUI enhancements on settings page.
 -   Changed: Don't log WooCommerce post type `shop_order_placehold`, that is used by WooCommerce new [High-Performance Order Storage (HPOS)](https://developer.woocommerce.com/2022/10/11/hpos-upgrade-faqs/).
--   Fixed: Allow direct access to protected class variable `$logger->slug` but mark access as deprectad and recommend usage of `$logger->get_slug()`. Fixes support thread [PHP fatal error Cannot access protected property $slug](https://wordpress.org/support/topic/php-fatal-error-cannot-access-protected-property-slug/).
+-   Fixed: Allow direct access to protected class variable `$logger->slug` but mark access as deprecated and recommend usage of `$logger->get_slug()`. Fixes support thread [PHP fatal error Cannot access protected property $slug](https://wordpress.org/support/topic/php-fatal-error-cannot-access-protected-property-slug/).
 
 ### 4.5.0 (August 2023)
 
@@ -1576,7 +1576,7 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 = 1.1 =
 
 -   Added the Simple History Extender-module/plugin. With this great addon to Simple History it is very easy for other developers to add their own actions to simple history, including a settings panel to check actions on/off. All work on this module was made by Laurens Offereins (lmoffereins@gmail.com). Super thanks!
--   With the help of Simple History Extender this plugin also tracks changes made in bbPress, Gravity Forms and in Widges. Awesome!
+-   With the help of Simple History Extender this plugin also tracks changes made in bbPress, Gravity Forms and in Widgets. Awesome!
 -   Added user email to RSS feed + some other small changed to make it compatible with IFTTT.com. Thanks to phoenixMagoo for the code changes. Fixes http://wordpress.org/support/topic/suggestions-a-couple-of-tweaks-to-the-rss-feed.
 -   Added two filters for the RSS feed: simple_history_rss_item_title and simple_history_rss_item_description.
 -   Changed the way the plugin directory was determined. Perhaps and hopefully this fixes some problems with multi site and plugin in different locations and stuff like that
@@ -1628,7 +1628,7 @@ I've spend hundreds of hours making this update, so if you use it and like it pl
 
 -   The pagination no longer disappear after clickin "occasions"
 -   Fixed: AJAX loading of new history items didn't work.
--   New filter: simple_history_view_history_capability. Default is "edit_pages". Modify this to change what cabability is required to view the history.
+-   New filter: simple_history_view_history_capability. Default is "edit_pages". Modify this to change what capability is required to view the history.
 -   Modified: styles and scripts are only added on pages that use/show Simple History
 -   Updated: new POT file. So translators my want to update their translations...
 

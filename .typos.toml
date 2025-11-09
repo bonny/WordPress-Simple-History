@@ -4,12 +4,16 @@ extend-exclude = [
     "build/",
     "js/*.min.js",
     "tests/wordpress-tests-stubs.php",
+    ".claude/",
+    "AGENTS.md"
 ]
 ignore-hidden = false
 
 [default]
 extend-ignore-re = [
     '"23 juli"',
+    'shop_order_placehold',
+    'jetpack_migation'
 ]
 extend-ignore-identifiers-re = [
     "^on_setted_update_",

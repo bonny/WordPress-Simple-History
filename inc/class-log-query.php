@@ -57,7 +57,7 @@ class Log_Query {
 	 * Query history using a query that uses full group by,
 	 * making it compatible with both MySQL 5.5, 5.7 and MariaDB.
 	 *
-	 * Subequent occasions query thanks to the answer Stack Overflow thread:
+	 * Subsequent occasions query thanks to the answer Stack Overflow thread:
 	 * http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
 	 *
 	 * @param string|array|object $args Arguments.
@@ -883,7 +883,7 @@ class Log_Query {
 			throw new \InvalidArgumentException( 'Invalid search' );
 		}
 
-		// "loglevels" must be comma separeated string "info,debug"
+		// "loglevels" must be comma separated string "info,debug"
 		// or array of log level strings.
 		if ( isset( $args['loglevels'] ) && ! is_string( $args['loglevels'] ) && ! is_array( $args['loglevels'] ) ) {
 			throw new \InvalidArgumentException( 'Invalid loglevels' );

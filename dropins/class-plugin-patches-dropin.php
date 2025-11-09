@@ -60,7 +60,7 @@ class Plugin_Patches_Dropin extends Dropin {
 	/**
 	 * WooCommerce new High-Performance Order Storage (HPOS) system
 	 * uses a custom post type called "shop_order_placehold" to store
-	 * order placehold posts.
+	 * order placeholder posts.
 	 *
 	 * If post type is not skipped every manually added new WC order is logged as
 	 * 'Updated post ""'.
