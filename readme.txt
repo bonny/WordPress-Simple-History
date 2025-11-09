@@ -341,6 +341,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Decrease font size on stats sidebar stats box to fit more events.
 -   Insights sidebar: Clicks on users should also filter the log by 30 days
 -   Insights sidebar: Update text to show current events in database and total events logged with links to settings page for retention period.
+-   Insights sidebar: Improve messages for message count.
 
 ### 5.18.0 (November 2025)
 
