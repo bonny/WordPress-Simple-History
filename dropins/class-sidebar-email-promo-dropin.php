@@ -126,21 +126,25 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 			<div class="inside">
 				<div style="--sh-badge-text-color: var(--sh-color-blue); --sh-badge-background-color: transparent;" class="sh-EmailPromoCard-badge sh-PremiumFeatureBadge">New feature</div>
 
-				<div class="sh-flex sh-flex-row-reverse sh-gap-small">
+				<div class="sh-flex sh-flex-row-reverse sh-gap-small sh-items-center">
 					<div>
-						<img class="sh-EmailPromoCard-badgeImage" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/email-reports-badge.svg' ); ?>" alt="" class="sh-EmailPromoCard-icon">
+						<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-EmailPromoCard-badgeImageLink">
+							<img class="sh-EmailPromoCard-badgeImage" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/email-reports-badge.svg' ); ?>" alt="">
+						</a>
 					</div>
 					<div>
 						<p class="sh-EmailPromoCard-text">Don't miss out on what's happened on your site.</p>
-						<p class="sh-EmailPromoCard-text">Get Simple History Weekly Summary in your inbox!</p>
 					</div>
 				</div>
+
+				<p class="sh-EmailPromoCard-text">Get Simple History Weekly Summary in your inbox!</p>
 
 				<div class="sh-EmailPromoCard-actions">
 					<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PremiumFeaturesPostbox-button sh-EmailPromoCard-cta" data-dismiss-on-click="true">
 						Subscribe now
 					</a>
-					<button type="button" class="sh-EmailPromoCard-dismiss">
+					
+					<button type="button" class="sh-EmailPromoCard-dismiss button-link">
 						No thanks, not interested
 					</button>
 				</div>

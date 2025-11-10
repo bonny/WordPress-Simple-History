@@ -1732,9 +1732,18 @@ Styles for plugin update details. Markup looks like this:
 	padding: 0;
 }
 
+.sh-EmailPromoCard-badgeImageLink {
+	display: block;
+	transform: scale(1) rotate(5deg);
+	transition: transform 0.2s ease-in-out;
+
+	&:hover {
+		transform: scale(1.05) rotate(10deg);
+	}
+}
+
 .sh-EmailPromoCard-badgeImage {
-	max-width: 80px;
-	margin-top: var(--sh-spacing-xxlarge);
+	max-width: 100%;
 }
 
 .sh-EmailPromoCard-text {
@@ -1742,21 +1751,17 @@ Styles for plugin update details. Markup looks like this:
 	font-family: Crimson, Charter, Baskerville, Georgia, serif;
 	font-weight: 600;
 	margin-block: var(--sh-spacing-medium);
-}
-
-.sh-EmailPromoCard-actions {
+	line-height: 1.3;
 }
 
 .sh-EmailPromoCard-cta {
+	margin-block-start: var(--sh-spacing-large);
+	margin-block-end: var(--sh-spacing-medium);
 }
 
-.sh-EmailPromoCard-cta:hover,
-.sh-EmailPromoCard-cta:focus {
-}
-
-.sh-EmailPromoCard-dismiss {
-}
-
-.sh-EmailPromoCard-dismiss:hover,
-.sh-EmailPromoCard-dismiss:focus {
+/* Increase specificity to override .button-link styles */
+.sh-EmailPromoCard .sh-EmailPromoCard-dismiss {
+	display: block;
+	width: 100%;
+	text-align: center;
 }
