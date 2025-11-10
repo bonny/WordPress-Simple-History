@@ -122,32 +122,28 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 		$settings_url = Helpers::get_settings_page_url() . '#simple_history_email_report_section';
 
 		?>
-		<div class="sh-EmailPromoCard" id="simple-history-email-promo-card">
-			<div class="sh-EmailPromoCard-badge">NEW FEATURE</div>
+		<div class="postbox sh-EmailPromoCard sh-PremiumFeaturesPostbox" id="simple-history-email-promo-card" style="--box-bg-color: var(--sh-color-cream);">
+			<div class="inside">
+				<div style="--sh-badge-text-color: var(--sh-color-blue); --sh-badge-background-color: transparent;" class="sh-EmailPromoCard-badge sh-PremiumFeatureBadge">New feature</div>
 
-			<div class="sh-EmailPromoCard-icon">
-				<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<!-- Email envelope -->
-					<rect x="15" y="25" width="50" height="35" rx="3" fill="#E8F4FF" stroke="#3582C4" stroke-width="2"/>
-					<path d="M15 28 L40 43 L65 28" stroke="#3582C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				<div class="sh-flex sh-flex-row-reverse sh-gap-small">
+					<div>
+						<img class="sh-EmailPromoCard-badgeImage" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/email-reports-badge.svg' ); ?>" alt="" class="sh-EmailPromoCard-icon">
+					</div>
+					<div>
+						<p class="sh-EmailPromoCard-text">Don't miss out on what's happened on your site.</p>
+						<p class="sh-EmailPromoCard-text">Get Simple History Weekly Summary in your inbox!</p>
+					</div>
+				</div>
 
-					<!-- Circular badge with "Weekly" text -->
-					<circle cx="58" cy="22" r="14" fill="#3582C4"/>
-					<text x="58" y="20" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="white" text-anchor="middle">Weekly</text>
-					<text x="58" y="27" font-family="Arial, sans-serif" font-size="6" fill="white" text-anchor="middle">Summary</text>
-				</svg>
-			</div>
-
-			<h3 class="sh-EmailPromoCard-title">Don't miss out on what's happened on your site.</h3>
-			<p class="sh-EmailPromoCard-description">Get Simple History Weekly Summary in your inbox!</p>
-
-			<div class="sh-EmailPromoCard-actions">
-				<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-EmailPromoCard-cta" data-dismiss-on-click="true">
-					Subscribe now
-				</a>
-				<button type="button" class="sh-EmailPromoCard-dismiss">
-					No thanks, not interested
-				</button>
+				<div class="sh-EmailPromoCard-actions">
+					<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PremiumFeaturesPostbox-button sh-EmailPromoCard-cta" data-dismiss-on-click="true">
+						Subscribe now
+					</a>
+					<button type="button" class="sh-EmailPromoCard-dismiss">
+						No thanks, not interested
+					</button>
+				</div>
 			</div>
 		</div>
 		<?php

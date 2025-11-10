@@ -1725,109 +1725,38 @@ Styles for plugin update details. Markup looks like this:
 
 /* Email Promo Card - Promotional card in sidebar for weekly email summary feature */
 .sh-EmailPromoCard {
-	background: #ffffff;
-	border: 1px solid #e0e0e0;
-	border-radius: 8px;
-	padding: 20px;
-	margin-bottom: 20px;
-	text-align: center;
-	position: relative;
+	border: none;
 }
 
 .sh-EmailPromoCard-badge {
-	display: inline-block;
-	background: var(--sh-color-blue, #3582C4);
-	color: #ffffff;
-	font-size: 11px;
+	padding: 0;
+}
+
+.sh-EmailPromoCard-badgeImage {
+	max-width: 80px;
+	margin-top: var(--sh-spacing-xxlarge);
+}
+
+.sh-EmailPromoCard-text {
+	font-size: var(--sh-font-size-xlarge);
+	font-family: Crimson, Charter, Baskerville, Georgia, serif;
 	font-weight: 600;
-	letter-spacing: 0.5px;
-	padding: 4px 10px;
-	border-radius: 3px;
-	margin-bottom: 12px;
-	text-transform: uppercase;
-}
-
-.sh-EmailPromoCard-icon {
-	margin: 16px 0;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.sh-EmailPromoCard-title {
-	font-size: 16px;
-	font-weight: 600;
-	color: #1e1e1e;
-	margin: 12px 0 8px;
-	line-height: 1.4;
-}
-
-.sh-EmailPromoCard-description {
-	font-size: 14px;
-	color: #666666;
-	margin: 0 0 20px;
-	line-height: 1.5;
+	margin-block: var(--sh-spacing-medium);
 }
 
 .sh-EmailPromoCard-actions {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	align-items: center;
 }
 
 .sh-EmailPromoCard-cta {
-	display: inline-block;
-	background: var(--sh-color-blue, #3582C4);
-	color: #ffffff;
-	font-size: 14px;
-	font-weight: 600;
-	padding: 10px 24px;
-	border-radius: 4px;
-	text-decoration: none;
-	transition: background-color 0.2s ease;
-	border: none;
-	cursor: pointer;
 }
 
 .sh-EmailPromoCard-cta:hover,
 .sh-EmailPromoCard-cta:focus {
-	background: #2271b1;
-	color: #ffffff;
 }
 
 .sh-EmailPromoCard-dismiss {
-	background: transparent;
-	border: none;
-	color: #999999;
-	font-size: 13px;
-	cursor: pointer;
-	padding: 5px;
-	text-decoration: underline;
-	transition: color 0.2s ease;
 }
 
 .sh-EmailPromoCard-dismiss:hover,
 .sh-EmailPromoCard-dismiss:focus {
-	color: #666666;
-}
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 782px) {
-	.sh-EmailPromoCard {
-		padding: 16px;
-	}
-
-	.sh-EmailPromoCard-title {
-		font-size: 15px;
-	}
-
-	.sh-EmailPromoCard-description {
-		font-size: 13px;
-	}
-
-	.sh-EmailPromoCard-icon svg {
-		width: 60px;
-		height: 60px;
-	}
 }
