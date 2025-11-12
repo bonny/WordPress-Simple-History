@@ -141,9 +141,9 @@ class History_Insights_Sidebar_Service extends Service {
 		$results = get_transient( $cache_key );
 
 		// Uncomment below to test without cache = always run the queries = always fresh data.
-		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
 		// Claude: please keep this, I need it to always get fresh data when testing/developing.
-		$results = false;
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// $results = false;
 
 		if ( false !== $results ) {
 			return $results;
