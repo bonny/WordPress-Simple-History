@@ -1,0 +1,30 @@
+/* Sidebar Stats aka "History Insights" */
+.sh-SidebarStats-eventsPerDays {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	flex-wrap: wrap;
+	margin-bottom: calc(var(--sh-spacing-large) - var(--sh-spacing-small));
+	margin-left: calc(var(--sh-spacing-small) * -1);
+	margin-right: calc(var(--sh-spacing-small) * -1);
+
+	/* div or a wrapper (depending on if the stat has a URL or not) */
+	.sh-StatsDashboard-stat {
+		border-radius: var(--sh-border-radius);
+		padding: var(--sh-spacing-small);
+	}
+
+	.sh-StatsDashboard-statValue {
+		white-space: nowrap;
+		font-size: var(--sh-font-size-large);
+	}
+
+	a.sh-StatsDashboard-stat {
+		text-decoration: none;
+	}
+
+	a.sh-StatsDashboard-stat:hover {
+		background: var(--sh-color-item-hover);
+		background: var(--sh-color-gray-4);
+	}
+}

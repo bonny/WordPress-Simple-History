@@ -1,5 +1,9 @@
 /* global Chart, simpleHistoryStats */
-
+/**
+ * JavaScript for History Insights page.
+ * This is the core stats page for the plugin,
+ * that only target the "demo" page, with blurred stats.
+ */
 jQuery( function () {
 	'use strict';
 

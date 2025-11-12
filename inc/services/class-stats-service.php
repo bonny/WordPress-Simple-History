@@ -152,6 +152,8 @@ class Stats_Service extends Service {
 
 	/**
 	 * Enqueue required scripts and styles for the insights page.
+	 *
+	 * These styles are overwritten by the premium add-on's styles (needs confirmation).
 	 */
 	public function enqueue_scripts_and_styles() {
 		wp_enqueue_script(
