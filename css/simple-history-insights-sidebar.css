@@ -58,10 +58,6 @@
 	font-size: var(--sh-font-size-normal);
 }
 
-.sh-SidebarStats .sh-StatsDashboard-stat--small .sh-StatsDashboard-statValue {
-	font-size: var(--sh-font-size-xxlarge);
-}
-
 .sh-SidebarStats .sh-StatsDashboard-statLabel,
 .sh-SidebarStats .sh-StatsDashboard-statSubValue {
 	font-size: var(--sh-font-size-medium);
@@ -70,7 +66,6 @@
 
 .sh-SidebarStats .sh-StatsDashboard-statValue {
 	color: var(--sh-color-black);
-	font-size: var(--sh-font-size-xxxlarge);
 	font-weight: normal;
 	line-height: 1;
 }
@@ -92,7 +87,9 @@
 	padding: var(--sh-spacing-small);
 }
 
-.sh-SidebarStats-eventsPerDays .sh-StatsDashboard-statValue {
+.sh-SidebarStats-eventsPerDays
+	.sh-StatsDashboard-stat--small
+	.sh-StatsDashboard-statValue {
 	white-space: nowrap;
 	font-size: var(--sh-font-size-large);
 }
@@ -145,7 +142,9 @@
 	vertical-align: middle;
 }
 
-.sh-SidebarStats .sh-StatsDashboard-userLink:hover .sh-StatsDashboard-userAvatar {
+.sh-SidebarStats
+	.sh-StatsDashboard-userLink:hover
+	.sh-StatsDashboard-userAvatar {
 	transform: scale(1.15);
 }
 
