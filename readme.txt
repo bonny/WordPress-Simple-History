@@ -347,6 +347,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Add filter `simple_history/show_promo_boxes` to determine if promo boxes should be shown.
 -   Also hide sidebar donation box, support box, review box when promo boxes are hidden. This makes the plugin even more clean when using the premium add-on.
 -   Reduce number of HTTP requests by consolidating the small sidebar CSS file (just 4 rules) into the main stylesheet that's already being loaded on the page.
+-   Fix sidebar stats box styling conflict with premium add-on.
 
 ### 5.18.0 (November 2025)
 
