@@ -23,13 +23,12 @@
 
 /* Button styling for "See all History Insights" link */
 .sh-SidebarStats .sh-PremiumFeaturesPostbox-button {
-	display: inline-block;
+	display: block;
 	background-color: var(--sh-color-blue);
 	color: white;
 	text-decoration: none;
 	padding: 0.75em 1.25em;
 	border-radius: 5px;
-	display: block;
 	text-align: center;
 	transition: background-color 0.25s ease-out;
 }

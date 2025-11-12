@@ -50,6 +50,9 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 	/** @var string AJAX action for dismissing the promo card */
 	const AJAX_ACTION = 'simple_history_dismiss_email_promo';
 
+	/**
+	 * Called when dropin is loaded.
+	 */
 	public function loaded() {
 		// Priority 3 to show after Black Week sale (priority 1) but before stats (priority 5).
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html' ], 3 );

@@ -179,11 +179,14 @@ class Stats_Service extends Service {
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Admin_Pages::header_output();
 
+		// Both core and premium add-on can hook into this action to output their own stats page contents.
 		do_action( 'simple_history/stats/output_page_contents' );
 	}
 
 	/**
 	 * Output stats page contents with basic information + information about premium features.
+	 *
+	 * This method is unhooked by the premium add-on to replace it with its own stats page contents.
 	 */
 	public function output_page_contents() {
 		[ 'date_from' => $date_from, 'date_to' => $date_to ] = $this->get_selected_date_range();
