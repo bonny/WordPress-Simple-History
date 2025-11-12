@@ -124,7 +124,9 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 		?>
 		<div class="postbox sh-EmailPromoCard sh-PremiumFeaturesPostbox" id="simple-history-email-promo-card" style="--box-bg-color: var(--sh-color-cream);">
 			<div class="inside">
-				<div style="--sh-badge-text-color: var(--sh-color-blue); --sh-badge-background-color: transparent;" class="sh-EmailPromoCard-badge sh-PremiumFeatureBadge">New feature</div>
+				<div style="--sh-badge-text-color: var(--sh-color-blue); --sh-badge-background-color: transparent;" class="sh-EmailPromoCard-badge sh-PremiumFeatureBadge">
+					<?php esc_html_e( 'New feature: Weekly Email Summary', 'simple-history' ); ?>
+				</div>
 
 				<div class="sh-flex sh-flex-row-reverse sh-gap-small sh-items-center">
 					<div>
@@ -133,19 +135,19 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 						</a>
 					</div>
 					<div>
-						<p class="sh-EmailPromoCard-text">Don't miss out on what's happened on your site.</p>
+						<p class="sh-EmailPromoCard-text"><?php esc_html_e( "Don't miss out on what's happened on your site.", 'simple-history' ); ?></p>
 					</div>
 				</div>
 
-				<p class="sh-EmailPromoCard-text">Get Simple History Weekly Summary in your inbox!</p>
+				<p class="sh-EmailPromoCard-text"><?php esc_html_e( 'Enable email reports to get a weekly summary in your inbox!', 'simple-history' ); ?></p>
 
 				<div class="sh-EmailPromoCard-actions">
 					<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PremiumFeaturesPostbox-button sh-EmailPromoCard-cta" data-dismiss-on-click="true">
-						Subscribe now
+						<?php esc_html_e( 'Enable Weekly Summary', 'simple-history' ); ?>
 					</a>
 					
 					<button type="button" class="sh-EmailPromoCard-dismiss button-link">
-						No thanks, not interested
+						<?php esc_html_e( 'No thanks, not right now', 'simple-history' ); ?>
 					</button>
 				</div>
 			</div>
@@ -159,7 +161,7 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 	public function ajax_dismiss_promo() {
 		// Verify nonce.
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), self::AJAX_ACTION ) ) {
-			wp_send_json_error( [ 'message' => 'Invalid nonce' ], 403 );
+			wp_send_json_error( [ 'message' => __( 'Invalid nonce', 'simple-history' ) ], 403 );
 		}
 
 		// Store dismissal timestamp in user meta (ISO8601 format for human readability).
@@ -167,9 +169,9 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 		$dismissed = update_user_meta( $user_id, self::DISMISSED_USER_META_KEY, gmdate( 'c' ) );
 
 		if ( $dismissed ) {
-			wp_send_json_success( [ 'message' => 'Promo dismissed successfully' ] );
+			wp_send_json_success( [ 'message' => __( 'Promo dismissed successfully', 'simple-history' ) ] );
 		} else {
-			wp_send_json_error( [ 'message' => 'Failed to dismiss promo' ] );
+			wp_send_json_error( [ 'message' => __( 'Failed to dismiss promo', 'simple-history' ) ] );
 		}
 	}
 }
