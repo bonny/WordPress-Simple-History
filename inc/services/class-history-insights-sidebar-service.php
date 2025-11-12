@@ -81,7 +81,7 @@ class History_Insights_Sidebar_Service extends Service {
 		$current_user_can_manage_options = current_user_can( 'manage_options' );
 
 		?>
-		<div class="postbox sh-PremiumFeaturesPostbox">
+		<div class="postbox sh-PremiumFeaturesPostbox sh-SidebarStats">
 			<div class="inside">
 
 				<h3 class="sh-PremiumFeaturesPostbox-title sh-mb-small">
