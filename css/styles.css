@@ -1734,6 +1734,8 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-EmailPromoCard-badgeImageLink {
 	display: block;
+	width: 100px;
+	margin-block-start: var(--sh-spacing-medium);
 	transform: scale(1) rotate(5deg);
 	transition: transform 0.2s ease-in-out;
 
@@ -1743,7 +1745,7 @@ Styles for plugin update details. Markup looks like this:
 }
 
 .sh-EmailPromoCard-badgeImage {
-	max-width: 100%;
+	width: 100%;
 }
 
 .sh-EmailPromoCard-text {
