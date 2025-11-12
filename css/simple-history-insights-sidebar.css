@@ -18,7 +18,7 @@
 .sh-SidebarStats .sh-PremiumFeaturesPostbox-title {
 	color: #1d2327;
 	font-size: 1.5em;
-	margin: 0 0 1em 0;
+	margin: 0 0 var(--sh-spacing-small) 0;
 }
 
 /* Button styling for "See all History Insights" link */

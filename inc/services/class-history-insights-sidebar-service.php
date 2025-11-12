@@ -84,7 +84,7 @@ class History_Insights_Sidebar_Service extends Service {
 		<div class="postbox sh-PremiumFeaturesPostbox sh-SidebarStats">
 			<div class="inside">
 
-				<h3 class="sh-PremiumFeaturesPostbox-title sh-mb-small">
+				<h3 class="sh-PremiumFeaturesPostbox-title">
 					<?php esc_html_e( 'History Insights', 'simple-history' ); ?>
 				</h3>
 
