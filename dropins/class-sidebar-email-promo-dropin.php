@@ -51,8 +51,8 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 	const AJAX_ACTION = 'simple_history_dismiss_email_promo';
 
 	public function loaded() {
-		// Priority 1 to show card first in sidebar, before stats (priority 4) and other boxes.
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html' ], 1 );
+		// Priority 3 to show after Black Week sale (priority 1) but before stats (priority 5).
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html' ], 3 );
 		add_action( 'simple_history/enqueue_admin_scripts', [ $this, 'enqueue_scripts' ] );
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, [ $this, 'ajax_dismiss_promo' ] );
 	}
