@@ -1282,11 +1282,21 @@ so add some extra place then to make it look a bit less ugly.
 	left: 2px;
 }
 
-.sh-SettingsPage-settingsSection-wrap td > div:target {
+/* Highlight settings sections when navigated to via #hash. */
+.sh-SettingsPage-settingsSection-wrap td > div:target,
+.sh-SettingsPage-settingsSection-wrap:target {
 	background-color: lightyellow;
-	padding: 1rem;
 	/* Push target down when navigated to via #hash. */
 	scroll-margin-top: 2rem;
+}
+
+.sh-SettingsPage-settingsSection-wrap td > div:target {
+	padding: 1rem;
+}
+
+.sh-SettingsPage-settingsSection-wrap:target {
+	padding: 0.5rem 1rem;
+	border-radius: 4px;
 }
 
 .sh-PageNav-icon {
@@ -1711,4 +1721,49 @@ Styles for plugin update details. Markup looks like this:
 /* Make chart canvas show pointer cursor to indicate it's clickable */
 .SimpleHistory_SidebarChart_ChartCanvas {
 	cursor: pointer;
+}
+
+/* Email Promo Card - Promotional card in sidebar for weekly email summary feature */
+.sh-EmailPromoCard {
+	border: none;
+}
+
+.sh-EmailPromoCard-badge {
+	padding: 0;
+}
+
+.sh-EmailPromoCard-badgeImageLink {
+	display: block;
+	width: 100px;
+	margin-block-start: var(--sh-spacing-medium);
+	transform: scale(1) rotate(5deg);
+	transition: transform 0.2s ease-in-out;
+
+	&:hover {
+		transform: scale(1.05) rotate(10deg);
+	}
+}
+
+.sh-EmailPromoCard-badgeImage {
+	width: 100%;
+}
+
+.sh-EmailPromoCard-text {
+	font-size: var(--sh-font-size-xlarge);
+	font-family: Crimson, Charter, Baskerville, Georgia, serif;
+	font-weight: 600;
+	margin-block: var(--sh-spacing-medium);
+	line-height: 1.3;
+}
+
+.sh-EmailPromoCard-cta {
+	margin-block-start: var(--sh-spacing-large);
+	margin-block-end: var(--sh-spacing-medium);
+}
+
+/* Increase specificity to override .button-link styles */
+.sh-EmailPromoCard .sh-EmailPromoCard-dismiss {
+	display: block;
+	width: 100%;
+	text-align: center;
 }
