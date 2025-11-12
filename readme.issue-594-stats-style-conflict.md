@@ -106,7 +106,12 @@ A new service class that encapsulates ALL sidebar widget functionality:
 #### 2. Created Dedicated Sidebar CSS
 **File**: `css/simple-history-insights-sidebar.css` ✅ CREATED
 
-Extracted sidebar-specific styles (`.sh-SidebarStats-eventsPerDays`) from main stats CSS into its own file.
+Completely self-contained styling for the sidebar widget:
+- Added `.sh-SidebarStats` class to widget container
+- Includes ALL necessary styles (box, title, button, stats items)
+- No dependencies on `styles.css` or `simple-history-stats.css`
+- Widget will look identical whether premium is active or not
+- Premium cannot accidentally change sidebar appearance by replacing CSS
 
 #### 3. Created Dedicated Sidebar JavaScript
 **File**: `js/simple-history-insights-sidebar.js` ✅ CREATED
