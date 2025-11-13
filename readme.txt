@@ -169,12 +169,12 @@ Example commands:
 
 There are two modes:
 
--   **Full Stealth Mode** – Completely hides Simple History from everyone.
 -   **Partial Stealth Mode** – Hides the plugin but allows selected users to access the logs.
+-   **Full Stealth Mode** – Completely hides Simple History from everyone.
 
-The activity log remains accessible via the REST API, WP-CLI, and RSS feed, ensuring administrators can still retrieve logs when needed.
+When Stealth Mode is enabled, the activity log remains accessible via the REST API, WP-CLI, and RSS feed, ensuring administrators can still retrieve logs when needed.
 
-Stealth Mode is enabled using a constant or filter, allowing you to customize who can access the logs while keeping the plugin hidden in the admin interface.
+Stealth Mode is built into the core/free version and is enabled using constants or filters. The [Simple History Premium](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_stealth_mode) add-on provides a user-friendly GUI for managing Stealth Mode settings without writing code.
 
 ### 📝 Add your own events to the log using the API
 
@@ -196,7 +196,7 @@ Take your activity logging to the next level with add-ons that enhance tracking,
 Unlock advanced features and customization options:
 
 -   **Custom Log Entries** – Add custom log entries using a UI. Document important changes by creating custom log entries for team actions, content updates, or system changes that aren't automatically tracked.
--   **Stealth Mode** – Hide Simple History from the WordPress admin for discreet tracking. Allows only specified users to see Simple History in the WordPress admin.
+-   **Stealth Mode GUI** – User-friendly interface for managing Stealth Mode settings without writing code.
 -   **Log Retention** – Control how long logs are stored, from a few days to forever.
 -   **Export Search Results** – Download logs in CSV or JSON format for deeper analysis.
 -   **Failed User Logins** – Disable or limit logging of failed login attempts to reduce noise.
