@@ -95,13 +95,7 @@ export function NewEventsNotifier( props ) {
 		return () => {
 			clearInterval( intervalId );
 		};
-	}, [
-		eventsQueryParams,
-		eventsMaxId,
-		eventsMaxDate,
-		newEventsCount,
-		shouldPoll,
-	] );
+	}, [ eventsQueryParams, eventsMaxId, eventsMaxDate, shouldPoll ] );
 
 	// When we've stopped polling due to reaching limit, show "10+ new events"
 	const hasReachedLimit =
