@@ -16,7 +16,7 @@ function setDocumentTitle( newNum ) {
 	let title = document.title;
 
 	// Remove any existing number first or !, like (123) Regular title => Regular title
-	title = title.replace( /^\([\d!]+\) /, '' );
+	title = title.replace( /^\([\d!+]+\) /, '' );
 
 	if ( newNum ) {
 		title = '(' + newNum + ') ' + title;
