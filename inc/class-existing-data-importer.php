@@ -360,7 +360,9 @@ class Existing_Data_Importer {
 				[
 					'created_user_id' => $user->ID,
 					'created_user_login' => $user->user_login,
-					'_date' => get_date_from_gmt( $user->user_registered ),
+					// user_registered is stored in GMT by WordPress (using gmdate).
+					// Pass it directly to logger, which expects GMT dates.
+					'_date' => $user->user_registered,
 					'_initiator' => Log_Initiators::OTHER,
 					'_imported_event' => '1',
 				]
