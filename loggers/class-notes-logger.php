@@ -248,10 +248,39 @@ class Notes_Logger extends Logger {
 	}
 
 	/**
+	 * Get the root note ID by walking up the parent chain.
+	 *
+	 * WordPress stores only the root note ID in block metadata.noteId.
+	 * For threaded notes (replies), we need to find the root.
+	 *
+	 * @param int $note_id The note (comment) ID.
+	 * @return int The root note ID.
+	 */
+	private function get_root_note_id( $note_id ) {
+		$comment = get_comment( $note_id );
+		if ( ! $comment ) {
+			return $note_id;
+		}
+
+		// Walk up the parent chain until we find the root.
+		while ( $comment->comment_parent > 0 ) {
+			$parent = get_comment( $comment->comment_parent );
+			if ( ! $parent ) {
+				break;
+			}
+			$comment = $parent;
+		}
+
+		return (int) $comment->comment_ID;
+	}
+
+	/**
 	 * Get block information for a note.
 	 *
 	 * Parses the post content to find the block(s) that reference this note
-	 * via their metadata.noteId attribute.
+	 * via their metadata.noteId attribute. For threaded notes (replies), walks
+	 * up the parent chain to find the root note ID, since only the root note
+	 * ID is stored in the block metadata.
 	 *
 	 * @param int $note_id The note (comment) ID.
 	 * @param int $post_id The post ID.
@@ -263,8 +292,12 @@ class Notes_Logger extends Logger {
 			return null;
 		}
 
+		// Find the root note ID by walking up the parent chain.
+		// Only the root note ID is stored in block metadata.
+		$root_note_id = $this->get_root_note_id( $note_id );
+
 		$blocks = parse_blocks( $post->post_content );
-		$found_blocks = $this->find_blocks_by_note_id( $blocks, $note_id );
+		$found_blocks = $this->find_blocks_by_note_id( $blocks, $root_note_id );
 
 		if ( empty( $found_blocks ) ) {
 			return null; // Block might have been deleted.
