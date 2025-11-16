@@ -74,3 +74,23 @@ Branch created: `issue-599-logger-for-notes-feature`
 - ✅ Added search configuration in `get_info()` with labels for filtering note events
 - ✅ Changed slug from `Notes_Logger` to `NotesLogger`
 - ✅ All code quality checks still passing
+
+### Bug Fixes ✅
+
+**Issue 1: Duplicate Logging on Resolve/Reopen**
+- **Problem**: When marking a note as resolved/reopened, WordPress creates an empty comment with `_wp_note_status` meta, triggering both `on_wp_insert_comment` (logging "Replied to a note" with empty content) and `on_updated_comment_meta` (logging "Marked as resolved")
+- **Root Cause**: WordPress uses empty comments with meta to track resolution status
+- **Solution**: Added check in `on_wp_insert_comment` to skip logging when comment is empty AND has `_wp_note_status` meta set to 'resolved' or 'reopen'
+- **Location**: `loggers/class-notes-logger.php:100-107`
+
+**Issue 2: Delete Not Working**
+- **Problem**: Deleting notes via REST API (POST with `x-http-method-override: DELETE`) wasn't logging deletion
+- **Root Cause**: REST API uses `wp_trash_comment()` by default (not `wp_delete_comment()`), which fires `trash_comment` hook instead of `delete_comment` hook
+- **Solution**: Added `trash_comment` hook alongside existing `delete_comment` hook
+- **Location**: `loggers/class-notes-logger.php:87`
+- **Note**: Both hooks kept because `delete_comment` fires on permanent deletion (force=true or emptying trash)
+
+**Documentation Improvements:**
+- ✅ Updated `on_updated_comment_meta` docblock to clarify it handles resolve/reopen with `_wp_note_status` meta
+- ✅ Updated `on_delete_comment` docblock to clarify it handles both trash and permanent deletion
+- ✅ Removed debug statement from `on_delete_comment`
