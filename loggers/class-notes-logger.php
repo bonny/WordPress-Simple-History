@@ -84,6 +84,7 @@ class Notes_Logger extends Logger {
 		add_action( 'updated_comment_meta', [ $this, 'on_updated_comment_meta' ], 10, 4 );
 		add_action( 'added_comment_meta', [ $this, 'on_updated_comment_meta' ], 10, 4 );
 		add_action( 'delete_comment', [ $this, 'on_delete_comment' ], 10, 2 );
+		add_action( 'trash_comment', [ $this, 'on_delete_comment' ], 10, 2 );
 	}
 
 	/**
@@ -213,7 +214,9 @@ class Notes_Logger extends Logger {
 	}
 
 	/**
-	 * Log when a note is deleted.
+	 * Log when a note is deleted or trashed.
+	 *
+	 * Handles both permanent deletion and trashing (e.g., via REST API).
 	 *
 	 * @param int         $comment_id The comment ID.
 	 * @param \WP_Comment $comment    Comment object.
