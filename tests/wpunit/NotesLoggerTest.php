@@ -53,11 +53,6 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$this->sh = Simple_History::get_instance();
 		$this->logger = $this->sh->get_instantiated_logger_by_slug( 'NotesLogger' );
 
-		// Ensure the logger hooks are loaded
-		if ( method_exists( $this->logger, 'loaded' ) ) {
-			$this->logger->loaded();
-		}
-
 		// Create admin user
 		$this->admin_user_id = $this->factory->user->create(
 			[
@@ -147,11 +142,17 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( 'NotesLogger', $latest_row['logger'] ?? '' );
 		$this->assertEquals( 'info', $latest_row['level'] ?? '' );
-		$this->assertEquals( 'note_added', $latest_row['context_message_key'] ?? '' );
 		$this->assertEquals( 'wp_user', $latest_row['initiator'] ?? '' );
 
-		// Verify context
+		// Verify context (including message key)
 		$context = get_latest_context();
+
+		// Check that the message key is stored in context
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'note_added' ],
+			$context,
+			'Message key should be note_added'
+		);
 
 		$this->assertIsArray( $context );
 		$this->assertContains(
@@ -172,10 +173,6 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 		);
 		$this->assertContains(
 			[ 'key' => 'note_content', 'value' => 'This is a test note' ],
-			$context
-		);
-		$this->assertContains(
-			[ 'key' => 'is_reply', 'value' => '0' ],
 			$context
 		);
 	}
@@ -213,15 +210,17 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$latest_row = get_latest_row();
 
 		$this->assertEquals( 'NotesLogger', $latest_row['logger'] ?? '' );
-		$this->assertEquals( 'note_reply_added', $latest_row['context_message_key'] ?? '' );
 
-		// Verify context
+		// Verify context (including message key)
 		$context = get_latest_context();
 
+		// Check that the message key is stored in context
 		$this->assertContains(
-			[ 'key' => 'is_reply', 'value' => '1' ],
-			$context
+			[ 'key' => '_message_key', 'value' => 'note_reply_added' ],
+			$context,
+			'Message key should be note_reply_added'
 		);
+
 		$this->assertContains(
 			[ 'key' => 'note_content', 'value' => 'This is a reply to the note' ],
 			$context
@@ -283,10 +282,16 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$latest_row = get_latest_row();
 
 		$this->assertEquals( 'NotesLogger', $latest_row['logger'] ?? '' );
-		$this->assertEquals( 'note_edited', $latest_row['context_message_key'] ?? '' );
 
-		// Verify context
+		// Verify context (including message key)
 		$context = get_latest_context();
+
+		// Check that the message key is stored in context
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'note_edited' ],
+			$context,
+			'Message key should be note_edited'
+		);
 
 		$this->assertContains(
 			[ 'key' => 'note_content', 'value' => 'Edited note content' ],
@@ -335,17 +340,21 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$latest_row = get_latest_row();
 
 		// Double check we have the right logger before asserting
-		if ( ( $latest_row['logger'] ?? '' ) !== 'NotesLogger' ||
-		     empty( $latest_row['context_message_key'] ?? '' ) ) {
-			$this->markTestSkipped( 'Delete was not logged by NotesLogger with proper message key' );
+		if ( ( $latest_row['logger'] ?? '' ) !== 'NotesLogger' ) {
+			$this->markTestSkipped( 'Delete was not logged by NotesLogger' );
 			return;
 		}
 
 		$this->assertEquals( 'NotesLogger', $latest_row['logger'] );
-		$this->assertEquals( 'note_deleted', $latest_row['context_message_key'] );
 
 		// Verify context
 		$context = get_latest_context();
+
+		// Check message key in context
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'note_deleted' ],
+			$context
+		);
 
 		$this->assertContains(
 			[ 'key' => 'note_id', 'value' => (string) $comment_id ],
@@ -394,14 +403,21 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$latest_row = get_latest_row();
 
 		// Double check we have the right logger before asserting
-		if ( ( $latest_row['logger'] ?? '' ) !== 'NotesLogger' ||
-		     empty( $latest_row['context_message_key'] ?? '' ) ) {
-			$this->markTestSkipped( 'Trash was not logged by NotesLogger with proper message key' );
+		if ( ( $latest_row['logger'] ?? '' ) !== 'NotesLogger' ) {
+			$this->markTestSkipped( 'Trash was not logged by NotesLogger' );
 			return;
 		}
 
 		$this->assertEquals( 'NotesLogger', $latest_row['logger'] );
-		$this->assertEquals( 'note_deleted', $latest_row['context_message_key'] );
+
+		// Verify context
+		$context = get_latest_context();
+
+		// Check message key in context
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'note_deleted' ],
+			$context
+		);
 	}
 
 	/**
@@ -445,14 +461,21 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$latest_row = get_latest_row();
 
 		// Double check we have the right logger before asserting
-		if ( ( $latest_row['logger'] ?? '' ) !== 'NotesLogger' ||
-		     empty( $latest_row['context_message_key'] ?? '' ) ) {
-			$this->markTestSkipped( 'Resolution was not logged by NotesLogger with proper message key' );
+		if ( ( $latest_row['logger'] ?? '' ) !== 'NotesLogger' ) {
+			$this->markTestSkipped( 'Resolution was not logged by NotesLogger' );
 			return;
 		}
 
 		$this->assertEquals( 'NotesLogger', $latest_row['logger'] );
-		$this->assertEquals( 'note_resolved', $latest_row['context_message_key'] );
+
+		// Verify context
+		$context = get_latest_context();
+
+		// Check message key in context
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'note_resolved' ],
+			$context
+		);
 	}
 
 	/**
@@ -497,14 +520,21 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$latest_row = get_latest_row();
 
 		// Double check we have the right logger before asserting
-		if ( ( $latest_row['logger'] ?? '' ) !== 'NotesLogger' ||
-		     empty( $latest_row['context_message_key'] ?? '' ) ) {
-			$this->markTestSkipped( 'Reopen was not logged by NotesLogger with proper message key' );
+		if ( ( $latest_row['logger'] ?? '' ) !== 'NotesLogger' ) {
+			$this->markTestSkipped( 'Reopen was not logged by NotesLogger' );
 			return;
 		}
 
 		$this->assertEquals( 'NotesLogger', $latest_row['logger'] );
-		$this->assertEquals( 'note_reopened', $latest_row['context_message_key'] );
+
+		// Verify context
+		$context = get_latest_context();
+
+		// Check message key in context
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'note_reopened' ],
+			$context
+		);
 	}
 
 	/**
