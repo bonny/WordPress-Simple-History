@@ -100,13 +100,11 @@ class Notes_Logger extends Logger {
 
 		$comment_content = trim( $comment->comment_content );
 
-		// Skip if this is just a status marker (resolved/reopened) with no content.
-		// These will be logged separately by on_updated_comment_meta.
+		// Skip if this comment has no content.
+		// Empty comments are status markers (resolved/reopened) that will be logged
+		// separately by on_updated_comment_meta when the _wp_note_status meta is added.
 		if ( empty( $comment_content ) ) {
-			$note_status = get_comment_meta( $comment_id, '_wp_note_status', true );
-			if ( in_array( $note_status, [ 'resolved', 'reopen' ], true ) ) {
-				return;
-			}
+			return;
 		}
 
 		$post = get_post( $comment->comment_post_ID );
