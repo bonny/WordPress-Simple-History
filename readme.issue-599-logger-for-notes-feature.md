@@ -94,3 +94,39 @@ Branch created: `issue-599-logger-for-notes-feature`
 - ✅ Updated `on_updated_comment_meta` docblock to clarify it handles resolve/reopen with `_wp_note_status` meta
 - ✅ Updated `on_delete_comment` docblock to clarify it handles both trash and permanent deletion
 - ✅ Removed debug statement from `on_delete_comment`
+
+### Additional Improvements ✅
+
+**Issue 3: Simplified Message Variants**
+- **Change**: Removed `_to_block` message variants (e.g., `note_added_to_block`, `note_reply_added_to_block`, `note_deleted_from_block`)
+- **Reason**: Simplified to single messages while still storing block context data
+- **Result**: Cleaner message configuration with fewer duplicate variants
+- **Block data**: Still captured in context (`block_type`, `block_content_preview`, `block_count`) for future use
+
+**Issue 4: Block Context Not Available**
+- **Problem**: Block information (type, content) not showing up in logs
+- **Investigation**:
+  - `noteId` is only added to block metadata when post is saved, not when note is created via REST API
+  - At time of `wp_insert_comment`, post content hasn't been updated yet
+  - For threaded notes (replies), only root note ID is stored in block metadata
+- **Solution**: Added `get_root_note_id()` helper method to walk up parent chain to find root note ID
+- **Location**: `loggers/class-notes-logger.php:250-275`
+- **Result**: Replies now correctly find their associated block by looking up the root note ID
+
+**Issue 5: Event Details Implementation**
+- **Implementation**: Added `get_log_row_details_output()` using modern Event_Details classes
+- **Uses**:
+  - `Event_Details_Group` for grouping details
+  - `Event_Details_Item` for individual fields
+- **Displays**: Note content in expandable details section
+- **Label**: Uses "Content" (simplified from "Note content")
+- **Location**: `loggers/class-notes-logger.php:93-103`
+- **Verified**: Working correctly in both GUI and WP-CLI JSON output
+
+**Final Issue State:**
+- ✅ All core functionality implemented and tested
+- ✅ All bugs fixed
+- ✅ Event details showing note content
+- ✅ Block context properly captured (when post is saved)
+- ✅ Threaded notes handled correctly
+- ✅ Works with both GUI and WP-CLI
