@@ -55,7 +55,23 @@ docker compose run --rm php-cli vendor/bin/codecept run acceptance:TestName
 
 ### Local Development Environment
 
-See @CLAUDE.local.md for local development setup including Docker configuration, WP-CLI commands, and REST API access.
+See CLAUDE.local.md for local development setup including Docker configuration, WP-CLI commands, and REST API access.
+
+### Viewing the Event Log
+
+**Preferred Method: WP-CLI**
+
+Use WP-CLI commands to view the event log directly from the command line. This is faster than opening a browser and navigating to the admin interface.
+
+```bash
+# View latest events
+docker compose run --rm wpcli_mariadb simple-history list
+
+# View available Simple History commands
+docker compose run --rm wpcli_mariadb simple-history --help
+```
+
+See @CLAUDE.local.md for specific commands for stable and nightly WordPress installations.
 
 ## Code Standards
 
@@ -150,17 +166,18 @@ Messages should be easily understood by regular users, not just developers.
 
 For automation and API access:
 
-- **Project ID**: `PVT_kwHOAANhgs4AidMq`
-- **Project number**: `4`
-- **Owner**: `bonny`
-- **Status field ID**: `PVTSSF_lAHOAANhgs4AidMqzga-LME`
+-   **Project ID**: `PVT_kwHOAANhgs4AidMq`
+-   **Project number**: `4`
+-   **Owner**: `bonny`
+-   **Status field ID**: `PVTSSF_lAHOAANhgs4AidMqzga-LME`
 
 **Status Option IDs:**
-- "Backlog": `25e9263f`
-- "To do": `6c3f4438`
-- "In progress": `36813ba3`
-- "Experimental": `52a48e60`
-- "Done": `c40edce0`
+
+-   "Backlog": `25e9263f`
+-   "To do": `6c3f4438`
+-   "In progress": `36813ba3`
+-   "Experimental": `52a48e60`
+-   "Done": `c40edce0`
 
 #### GitHub CLI Commands
 
@@ -201,5 +218,5 @@ gh api graphql -f query='
 -   Follow OneFlow model (see code.md for details)
 -   Use GitHub CLI to fetch GitHub issues
 -   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos. Never add any sensitive information to this document, like API keys or passwords, since this document will be commited to GIT and can be shown on GitHub.
-- Don't add to git or commit without user explicitly saying so
-- Never add auth tokens or api keys to code or documents in /docs folder
+-   Don't add to git or commit without user explicitly saying so
+-   Never add auth tokens or api keys to code or documents in /docs folder
