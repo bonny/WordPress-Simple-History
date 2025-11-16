@@ -31,33 +31,27 @@ class Notes_Logger extends Logger {
 			'description' => _x( 'Logs WordPress block notes (collaborative comments)', 'Logger: Notes', 'simple-history' ),
 			'capability'  => 'edit_posts',
 			'messages'    => [
-				'note_added_to_block'       => _x( 'Added a note to {block_type} block in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_added'                => _x( 'Added a note to {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_reply_added_to_block' => _x( 'Replied to a note on {block_type} block in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_reply_added'          => _x( 'Replied to a note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_edited'               => _x( 'Edited a note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_deleted_from_block'   => _x( 'Deleted a note from {block_type} block in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_deleted'              => _x( 'Deleted a note from {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_resolved'             => _x( 'Marked a note as resolved in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_reopened'             => _x( 'Reopened a resolved note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_added'         => _x( 'Added a note to {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_reply_added'   => _x( 'Replied to a note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_edited'        => _x( 'Edited a note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_deleted'       => _x( 'Deleted a note from {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_resolved'      => _x( 'Marked a note as resolved in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_reopened'      => _x( 'Reopened a resolved note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
 			],
 			'labels'      => [
 				'search' => [
 					'label'   => _x( 'Notes', 'Notes logger: search', 'simple-history' ),
 					'options' => [
 						_x( 'Added notes', 'Notes logger: search', 'simple-history' ) => [
-							'note_added_to_block',
 							'note_added',
 						],
 						_x( 'Replied to notes', 'Notes logger: search', 'simple-history' ) => [
-							'note_reply_added_to_block',
 							'note_reply_added',
 						],
 						_x( 'Edited notes', 'Notes logger: search', 'simple-history' ) => [
 							'note_edited',
 						],
 						_x( 'Deleted notes', 'Notes logger: search', 'simple-history' ) => [
-							'note_deleted_from_block',
 							'note_deleted',
 						],
 						_x( 'Resolved notes', 'Notes logger: search', 'simple-history' ) => [
@@ -132,11 +126,7 @@ class Notes_Logger extends Logger {
 		}
 
 		// Choose appropriate message key.
-		if ( $is_reply ) {
-			$message = $block_info ? 'note_reply_added_to_block' : 'note_reply_added';
-		} else {
-			$message = $block_info ? 'note_added_to_block' : 'note_added';
-		}
+		$message = $is_reply ? 'note_reply_added' : 'note_added';
 
 		$this->info_message( $message, $context );
 	}
@@ -242,12 +232,9 @@ class Notes_Logger extends Logger {
 		if ( $block_info ) {
 			$context['block_type'] = $block_info['block_type'];
 			$context['block_content_preview'] = $block_info['content_preview'];
-			$message = 'note_deleted_from_block';
-		} else {
-			$message = 'note_deleted';
 		}
 
-		$this->info_message( $message, $context );
+		$this->info_message( 'note_deleted', $context );
 	}
 
 	/**
