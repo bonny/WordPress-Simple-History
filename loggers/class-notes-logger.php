@@ -2,6 +2,9 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
+
 /**
  * Logger for WordPress 6.9+ Notes feature (block comments).
  *
@@ -79,6 +82,24 @@ class Notes_Logger extends Logger {
 		add_action( 'added_comment_meta', [ $this, 'on_updated_comment_meta' ], 10, 4 );
 		add_action( 'delete_comment', [ $this, 'on_delete_comment' ], 10, 2 );
 		add_action( 'trash_comment', [ $this, 'on_delete_comment' ], 10, 2 );
+	}
+
+	/**
+	 * Get output for detailed log section.
+	 *
+	 * @param object $row Log row.
+	 * @return Event_Details_Group
+	 */
+	public function get_log_row_details_output( $row ) {
+		return ( new Event_Details_Group() )
+			->add_items(
+				[
+					new Event_Details_Item(
+						'note_content',
+						_x( 'Content', 'Notes logger - detailed output', 'simple-history' ),
+					),
+				]
+			);
 	}
 
 	/**
