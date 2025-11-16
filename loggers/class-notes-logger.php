@@ -82,6 +82,7 @@ class Notes_Logger extends Logger {
 		add_action( 'wp_insert_comment', [ $this, 'on_wp_insert_comment' ], 10, 2 );
 		add_action( 'edit_comment', [ $this, 'on_edit_comment' ], 10, 1 );
 		add_action( 'updated_comment_meta', [ $this, 'on_updated_comment_meta' ], 10, 4 );
+		add_action( 'added_comment_meta', [ $this, 'on_updated_comment_meta' ], 10, 4 );
 		add_action( 'delete_comment', [ $this, 'on_delete_comment' ], 10, 2 );
 	}
 
@@ -159,12 +160,15 @@ class Notes_Logger extends Logger {
 	}
 
 	/**
-	 * Log when a note's resolution status changes.
+	 * Log when a note is resolved or reopened.
+	 *
+	 * Fires when the _wp_note_status comment meta is added or updated.
+	 * The status can be 'resolved' (note marked as done) or 'reopen' (note reopened).
 	 *
 	 * @param int    $meta_id    ID of updated metadata entry.
 	 * @param int    $comment_id Comment ID.
 	 * @param string $meta_key   Meta key.
-	 * @param mixed  $meta_value Meta value.
+	 * @param mixed  $meta_value Meta value (either 'resolved' or 'reopen').
 	 */
 	public function on_updated_comment_meta( $meta_id, $comment_id, $meta_key, $meta_value ) {
 		if ( $meta_key !== '_wp_note_status' ) {
