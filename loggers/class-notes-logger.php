@@ -97,6 +97,17 @@ class Notes_Logger extends Logger {
 			return;
 		}
 
+		$comment_content = trim( $comment->comment_content );
+
+		// Skip if this is just a status marker (resolved/reopened) with no content.
+		// These will be logged separately by on_updated_comment_meta.
+		if ( empty( $comment_content ) ) {
+			$note_status = get_comment_meta( $comment_id, '_wp_note_status', true );
+			if ( in_array( $note_status, [ 'resolved', 'reopen' ], true ) ) {
+				return;
+			}
+		}
+
 		$post = get_post( $comment->comment_post_ID );
 		if ( ! $post ) {
 			return;
@@ -110,7 +121,7 @@ class Notes_Logger extends Logger {
 			'post_id'      => $comment->comment_post_ID,
 			'post_type'    => get_post_type( $post ),
 			'post_title'   => $post->post_title,
-			'note_content' => $comment->comment_content,
+			'note_content' => $comment_content,
 			'is_reply'     => $is_reply,
 		];
 
