@@ -474,6 +474,60 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'default'     => false,
 		);
 
+		// Exclusion filters - hide events matching these criteria.
+		// Note: When both inclusion and exclusion filters are specified for the same field, exclusion takes precedence.
+		$query_params['exclude_search'] = array(
+			'description' => __( 'Exclude events containing these words. Events matching this search will be hidden.', 'simple-history' ),
+			'type'        => 'string',
+		);
+
+		$query_params['exclude_loglevels'] = array(
+			'description' => __( 'Exclude events with these log levels.', 'simple-history' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'string',
+			),
+		);
+
+		$query_params['exclude_loggers'] = array(
+			'description' => __( 'Exclude events from these loggers.', 'simple-history' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'string',
+			),
+		);
+
+		$query_params['exclude_messages'] = array(
+			'description' => __( 'Exclude events with these messages. Format: LoggerSlug:message.', 'simple-history' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'string',
+			),
+		);
+
+		$query_params['exclude_users'] = array(
+			'description' => __( 'Exclude events from these user IDs.', 'simple-history' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type' => 'integer',
+			),
+		);
+
+		$query_params['exclude_user'] = array(
+			'description' => __( 'Exclude events from this user ID.', 'simple-history' ),
+			'type'        => 'integer',
+		);
+
+		$query_params['exclude_initiator'] = array(
+			'description'       => __( 'Exclude events from specific initiator(s).', 'simple-history' ),
+			'type'              => array( 'string', 'array' ),
+			'items'             => array(
+				'type' => 'string',
+			),
+			'validate_callback' => array( $this, 'validate_initiator_param' ),
+			'sanitize_callback' => array( $this, 'sanitize_initiator_param' ),
+		);
+
 		return $query_params;
 	}
 
@@ -743,6 +797,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'initiator'               => 'initiator',
 			'context_filters'         => 'context_filters',
 			'ungrouped'               => 'ungrouped',
+			// Exclusion filters.
+			'exclude_search'          => 'exclude_search',
+			'exclude_loglevels'       => 'exclude_loglevels',
+			'exclude_loggers'         => 'exclude_loggers',
+			'exclude_messages'        => 'exclude_messages',
+			'exclude_users'           => 'exclude_users',
+			'exclude_user'            => 'exclude_user',
+			'exclude_initiator'       => 'exclude_initiator',
 		);
 
 		/*

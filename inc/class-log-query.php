@@ -14,6 +14,9 @@ class Log_Query {
 	 *
 	 * @param string|array|object $args {
 	 *    Optional. Array or string of arguments for querying the log.
+	 *
+	 *    Pagination and Result Type.
+	 *
 	 *      @type string $type Type of query. Accepts 'overview', 'occasions', or 'single'. Default 'overview'.
 	 *      @type int $posts_per_page Number of posts to show per page. Default is 10.
 	 *      @type int $paged Page to show. 1 = first page. Default 1.
@@ -21,19 +24,41 @@ class Log_Query {
 	 *      @type int $max_id_first_page If max_id_first_page is set then only get rows that have id equal or lower than this, to make
 	 *                                      sure that the first page of results is not too large. Default null.
 	 *      @type int $since_id If since_id is set the rows returned will only be rows with an ID greater than (i.e. more recent than) since_id. Default null.
+	 *
+	 *    Date Filters.
+	 *
 	 *      @type int|string $date_from From date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'. Default null.
 	 *      @type int|string $date_to To date, as unix timestamp integer or as a format compatible with strtotime, for example 'Y-m-d H:i:s'. Default null.
 	 *      @type array|string $months Months in format "Y-m". Default null.
 	 *      @type array|string $dates Dates in format "month:2015-06" for june 2015 or "lastdays:7" for the last 7 days. Default null.
+	 *
+	 *    Inclusion Filters (what to show).
+	 *
 	 *      @type string $search Text to search for. Message, logger and level are searched for in main table. Values are searched for in context table. Default null.
-	 *      @type string $loglevels Log levels to include. Comma separated or as array. Defaults to all. Default null.
-	 *      @type string $loggers Loggers to include. Comma separated or array. Default null = all the user can read.
-	 *      @type string $messages Messages to include. Array or string with commaa separated in format "LoggerSlug:Message", e.g. "SimplePluginLogger:plugin_activated,SimplePluginLogger:plugin_deactivated". Default null = show all messages.
+	 *      @type string|array $loglevels Log levels to include. Comma separated string or array. Defaults to all. Default null.
+	 *      @type string|array $loggers Loggers to include. Comma separated string or array. Default null = all the user can read.
+	 *      @type string|array $messages Messages to include. Array or string with comma separated in format "LoggerSlug:Message", e.g. "SimplePluginLogger:plugin_activated,SimplePluginLogger:plugin_deactivated". Default null = show all messages.
 	 *      @type int $user Single user ID as number. Default null.
-	 *      @type string $users User IDs, comma separated or array. Default null.
-	 *      @type string $initiator Initiator to filter by. Default null.
+	 *      @type string|array $users User IDs, comma separated string or array. Default null.
+	 *      @type string|array $initiator Initiator to filter by. Single string or array of initiators. Default null.
+	 *
+	 *    Exclusion Filters (what to hide).
+	 *      When both inclusion and exclusion filters are specified for the same field, exclusion takes precedence.
+	 *
+	 *      @type string $exclude_search Text to exclude. Events containing these words will be hidden. Default null.
+	 *      @type string|array $exclude_loglevels Log levels to exclude. Comma separated string or array. Default null.
+	 *      @type string|array $exclude_loggers Loggers to exclude. Comma separated string or array. Default null.
+	 *      @type string|array $exclude_messages Messages to exclude. Array or string with comma separated in format "LoggerSlug:Message". Default null.
+	 *      @type int $exclude_user Single user ID to exclude. Default null.
+	 *      @type string|array $exclude_users User IDs to exclude, comma separated string or array. Default null.
+	 *      @type string|array $exclude_initiator Initiator(s) to exclude. Single string or array of initiators. Default null.
+	 *
+	 *    Other Options.
+	 *
 	 *      @type boolean $include_sticky Include sticky events in the result set. Default false.
 	 *      @type boolean $only_sticky Only return sticky events. Default false.
+	 *      @type array $context_filters Context filters as key-value pairs. Default null.
+	 *      @type boolean $ungrouped Return ungrouped events without occasions grouping. Default false.
 	 * }
 	 * @return array
 	 * @throws \InvalidArgumentException If invalid query type.
@@ -762,6 +787,28 @@ class Log_Query {
 				// Return ungrouped events without occasions grouping.
 				'ungrouped' => false,
 
+				// Exclusion filters - hide events matching these criteria.
+				// Text to exclude from search.
+				'exclude_search' => null,
+
+				// Log levels to exclude, comma separated or array.
+				'exclude_loglevels' => null,
+
+				// Loggers to exclude, comma separated or array.
+				'exclude_loggers' => null,
+
+				// Messages to exclude, comma separated or array in format "LoggerSlug:Message".
+				'exclude_messages' => null,
+
+				// Single user ID to exclude.
+				'exclude_user' => null,
+
+				// User IDs to exclude, comma separated or array.
+				'exclude_users' => null,
+
+				// Initiator(s) to exclude.
+				'exclude_initiator' => null,
+
 			// Can also contain:
 			// logRowID
 			// occasionsCount
@@ -989,6 +1036,117 @@ class Log_Query {
 				}
 			} else {
 				throw new \InvalidArgumentException( 'Invalid initiator type' );
+			}
+		}
+
+		// Process exclusion filters using the same validation logic as inclusion filters.
+		// "exclude_search" must be string.
+		if ( isset( $args['exclude_search'] ) && ! is_string( $args['exclude_search'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid exclude_search' );
+		}
+
+		// "exclude_loglevels", comma separated string or array with strings.
+		if ( isset( $args['exclude_loglevels'] ) && ! is_string( $args['exclude_loglevels'] ) && ! is_array( $args['exclude_loglevels'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid exclude_loglevels' );
+		} elseif ( isset( $args['exclude_loglevels'] ) && is_string( $args['exclude_loglevels'] ) ) {
+			$args['exclude_loglevels'] = explode( ',', $args['exclude_loglevels'] );
+		}
+
+		// Make sure exclude_loglevels are trimmed, strings, and empty vals removed.
+		if ( isset( $args['exclude_loglevels'] ) ) {
+			$args['exclude_loglevels'] = array_map( 'trim', $args['exclude_loglevels'] );
+			$args['exclude_loglevels'] = array_map( 'strval', $args['exclude_loglevels'] );
+			$args['exclude_loglevels'] = array_filter( $args['exclude_loglevels'] );
+		}
+
+		// "exclude_loggers", comma separated string or array with strings.
+		if ( isset( $args['exclude_loggers'] ) && ! is_string( $args['exclude_loggers'] ) && ! is_array( $args['exclude_loggers'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid exclude_loggers' );
+		} elseif ( isset( $args['exclude_loggers'] ) && is_string( $args['exclude_loggers'] ) ) {
+			$args['exclude_loggers'] = explode( ',', $args['exclude_loggers'] );
+		}
+
+		// Make sure exclude_loggers are trimmed, strings, and empty vals removed.
+		if ( isset( $args['exclude_loggers'] ) ) {
+			$args['exclude_loggers'] = array_map( 'trim', $args['exclude_loggers'] );
+			$args['exclude_loggers'] = array_map( 'strval', $args['exclude_loggers'] );
+			$args['exclude_loggers'] = array_filter( $args['exclude_loggers'] );
+		}
+
+		// "exclude_messages" is string with comma separated loggers and messages, or array.
+		if ( isset( $args['exclude_messages'] ) && ! is_string( $args['exclude_messages'] ) && ! is_array( $args['exclude_messages'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid exclude_messages' );
+		} elseif ( isset( $args['exclude_messages'] ) && is_string( $args['exclude_messages'] ) ) {
+			$args['exclude_messages'] = explode( ',', $args['exclude_messages'] );
+		} elseif ( isset( $args['exclude_messages'] ) && is_array( $args['exclude_messages'] ) ) {
+			// Turn multi dimensional array into single array with strings.
+			$arr_exclude_messages = [];
+			foreach ( $args['exclude_messages'] as $one_arr_messages_row ) {
+				$arr_exclude_messages = array_merge( $arr_exclude_messages, explode( ',', $one_arr_messages_row ) );
+			}
+
+			$args['exclude_messages'] = $arr_exclude_messages;
+		}
+
+		// Make sure exclude_messages are trimmed, strings, and empty vals removed.
+		// Transform to format where key = logger slug, value = array of logger messages.
+		if ( isset( $args['exclude_messages'] ) ) {
+			$args['exclude_messages'] = array_map( 'trim', $args['exclude_messages'] );
+			$args['exclude_messages'] = array_map( 'strval', $args['exclude_messages'] );
+			$args['exclude_messages'] = array_filter( $args['exclude_messages'] );
+
+			$arr_exclude_loggers_and_messages = [];
+
+			foreach ( $args['exclude_messages'] as $one_row_logger_and_message ) {
+				$arr_one_logger_and_message = explode( ':', $one_row_logger_and_message );
+
+				if ( ! isset( $arr_exclude_loggers_and_messages[ $arr_one_logger_and_message[0] ] ) ) {
+					$arr_exclude_loggers_and_messages[ $arr_one_logger_and_message[0] ] = array();
+				}
+
+				$arr_exclude_loggers_and_messages[ $arr_one_logger_and_message[0] ][] = $arr_one_logger_and_message[1];
+			}
+
+			$args['exclude_messages'] = $arr_exclude_loggers_and_messages;
+		}
+
+		// "exclude_user" must be integer.
+		if ( isset( $args['exclude_user'] ) && ! is_numeric( $args['exclude_user'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid exclude_user' );
+		} elseif ( isset( $args['exclude_user'] ) ) {
+			$args['exclude_user'] = (int) $args['exclude_user'];
+		}
+
+		// "exclude_users" must be comma separated string or array with integers.
+		if ( isset( $args['exclude_users'] ) && ! is_string( $args['exclude_users'] ) && ! is_array( $args['exclude_users'] ) ) {
+			throw new \InvalidArgumentException( 'Invalid exclude_users' );
+		} elseif ( isset( $args['exclude_users'] ) && is_string( $args['exclude_users'] ) ) {
+			$args['exclude_users'] = explode( ',', $args['exclude_users'] );
+		}
+
+		// Make sure exclude_users are integers and remove empty vals.
+		if ( isset( $args['exclude_users'] ) ) {
+			$args['exclude_users'] = array_map( 'intval', $args['exclude_users'] );
+			$args['exclude_users'] = array_filter( $args['exclude_users'] );
+		}
+
+		// "exclude_initiator" must be string or array of strings and contain valid initiator constants.
+		if ( isset( $args['exclude_initiator'] ) ) {
+			if ( is_string( $args['exclude_initiator'] ) ) {
+				// Single initiator - validate it's a valid constant.
+				if ( ! in_array( $args['exclude_initiator'], Log_Initiators::get_valid_initiators(), true ) ) {
+					throw new \InvalidArgumentException( 'Invalid exclude_initiator value' );
+				}
+			} elseif ( is_array( $args['exclude_initiator'] ) ) {
+				// Multiple initiators - validate each one and filter out empty values.
+				$args['exclude_initiator'] = array_filter( $args['exclude_initiator'] );
+				foreach ( $args['exclude_initiator'] as $initiator ) {
+					if ( ! is_string( $initiator ) || ! in_array( $initiator, Log_Initiators::get_valid_initiators(), true ) ) {
+						throw new \InvalidArgumentException( 'Invalid exclude_initiator value: ' . esc_html( $initiator ) );
+					}
+				}
+			} else {
+				throw new \InvalidArgumentException( 'Invalid exclude_initiator type' );
 			}
 		}
 
@@ -1449,6 +1607,89 @@ class Log_Query {
 			}
 		}
 
+		// Exclusion filters - add NOT IN clauses to hide events matching these criteria.
+		// Exclusions are processed after inclusions so they can filter out included items.
+		// When both inclusion and exclusion filters are specified, the SQL AND logic ensures exclusion takes precedence.
+		// "exclude_search" - text to exclude from search results.
+		$inner_where = $this->add_exclude_search_to_inner_where_query( $inner_where, $args );
+
+		// "exclude_loglevels" - array with log levels to exclude.
+		if ( ! empty( $args['exclude_loglevels'] ) ) {
+			// Create placeholders for prepared statement.
+			$placeholders = implode( ', ', array_fill( 0, count( $args['exclude_loglevels'] ), '%s' ) );
+			$inner_where[] = $wpdb->prepare(
+				"level NOT IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				...$args['exclude_loglevels']
+			);
+		}
+
+		// "exclude_loggers" - array with logger slugs to exclude.
+		if ( ! empty( $args['exclude_loggers'] ) ) {
+			// Create placeholders for prepared statement.
+			$placeholders = implode( ', ', array_fill( 0, count( $args['exclude_loggers'] ), '%s' ) );
+			$inner_where[] = $wpdb->prepare(
+				"logger NOT IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				...$args['exclude_loggers']
+			);
+		}
+
+		// "exclude_messages" - array with logger:message pairs to exclude.
+		if ( ! empty( $args['exclude_messages'] ) && is_array( $args['exclude_messages'] ) ) {
+			$sql_exclude_loggers_and_messages = '';
+
+			foreach ( $args['exclude_messages'] as $exclude_logger_slug => $exclude_logger_messages ) {
+				foreach ( $exclude_logger_messages as $one_exclude_message_key ) {
+					$sql_exclude_loggers_and_messages .= $wpdb->prepare(
+						' AND NOT ( logger = %s AND contexts.value = %s ) ',
+						$exclude_logger_slug,
+						$one_exclude_message_key
+					);
+				}
+			}
+
+			if ( ! empty( $sql_exclude_loggers_and_messages ) ) {
+				$inner_where[] = $sql_exclude_loggers_and_messages;
+			}
+		}
+
+		// "exclude_user" - single user ID to exclude.
+		if ( isset( $args['exclude_user'] ) ) {
+			$inner_where[] = $wpdb->prepare(
+				'id NOT IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'_user_id',
+				$args['exclude_user']
+			);
+		}
+
+		// "exclude_users" - array with user IDs to exclude.
+		if ( isset( $args['exclude_users'] ) && ! empty( $args['exclude_users'] ) ) {
+			// Create placeholders for prepared statement.
+			$placeholders = implode( ', ', array_fill( 0, count( $args['exclude_users'] ), '%s' ) );
+			$inner_where[] = $wpdb->prepare(
+				'id NOT IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value IN (' . $placeholders . ') )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				'_user_id',
+				...$args['exclude_users']
+			);
+		}
+
+		// "exclude_initiator" - initiator(s) to exclude.
+		if ( isset( $args['exclude_initiator'] ) ) {
+			if ( is_string( $args['exclude_initiator'] ) ) {
+				// Single initiator.
+				$inner_where[] = sprintf(
+					'initiator != \'%s\'',
+					esc_sql( $args['exclude_initiator'] )
+				);
+			} elseif ( is_array( $args['exclude_initiator'] ) && ! empty( $args['exclude_initiator'] ) ) {
+				// Multiple initiators - use NOT IN clause.
+				$escaped_initiators = array_map( 'esc_sql', $args['exclude_initiator'] );
+				$inner_where[] = sprintf(
+					'initiator NOT IN (\'%s\')',
+					implode( '\',\'', $escaped_initiators )
+				);
+			}
+		}
+
 		/**
 		 * Filter the default boxes to output in the sidebar
 		 *
@@ -1595,6 +1836,99 @@ class Log_Query {
 		}
 
 		$inner_where[] = "\n(\n {$str_search_conditions} \n ) ";
+
+		return $inner_where;
+	}
+
+	/**
+	 * Add exclude search queries to inner where array.
+	 *
+	 * This method builds WHERE conditions to exclude events containing the specified search terms.
+	 * It mirrors the logic of add_search_to_inner_where_query() but uses NOT logic instead.
+	 *
+	 * @param array $inner_where Existing inner where query.
+	 * @param array $args Arguments passed to API.
+	 * @return array $inner_where, possibly modified.
+	 */
+	private function add_exclude_search_to_inner_where_query( $inner_where, $args ) {
+		if ( ! isset( $args['exclude_search'] ) || empty( $args['exclude_search'] ) ) {
+			return $inner_where;
+		}
+
+		global $wpdb;
+
+		$contexts_table_name = Simple_History::get_instance()->get_contexts_table_name();
+
+		/** @var string $str_exclude_conditions
+		 * Example SQL for exclude_search "error warning":
+		 * ```
+		 * NOT (
+		 *   ( message LIKE "%error%" AND message LIKE "%warning%" )
+		 *   OR ( logger LIKE "%error%" AND logger LIKE "%warning%" )
+		 *   OR ( level LIKE "%error%" AND level LIKE "%warning%" )
+		 *   OR (
+		 *     id IN ( SELECT history_id FROM contexts WHERE value LIKE "%error%" ) AND
+		 *     id IN ( SELECT history_id FROM contexts WHERE value LIKE "%warning%" )
+		 *   )
+		 * )
+		 * ```
+		 */
+		$str_exclude_conditions = '';
+
+		$arr_exclude_words = preg_split( '/[\s,]+/', $args['exclude_search'] );
+
+		// Create array of all searched words, split by spaces and commas.
+		$arr_sql_like_cols = [ 'message', 'logger', 'level' ];
+
+		foreach ( $arr_sql_like_cols as $one_col ) {
+			$str_sql_exclude_words = '';
+
+			foreach ( $arr_exclude_words as $one_exclude_word ) {
+				$str_like = esc_sql( $wpdb->esc_like( $one_exclude_word ) );
+
+				$str_sql_exclude_words .= sprintf(
+					' AND %1$s LIKE \'%2$s\' ',
+					$one_col,
+					"%{$str_like}%"
+				);
+			}
+
+			$str_sql_exclude_words = ltrim( $str_sql_exclude_words, ' AND ' );
+
+			$str_exclude_conditions .= "\n" . sprintf(
+				' OR ( %1$s ) ',
+				$str_sql_exclude_words
+			);
+		}
+
+		// Remove first " OR ".
+		$str_exclude_conditions = preg_replace( '/^OR /', ' ', trim( $str_exclude_conditions ) );
+
+		// Also exclude from contexts. Adds a OR for the first context and AND for the rest.
+		$str_exclude_conditions .= "\n   OR ( ";
+		foreach ( $arr_exclude_words as $one_exclude_word ) {
+			$str_like = esc_sql( $wpdb->esc_like( $one_exclude_word ) );
+
+			$str_exclude_conditions .= "\n" . sprintf(
+				' id IN ( SELECT history_id FROM %1$s AS c WHERE c.value LIKE \'%2$s\' ) AND ',
+				$contexts_table_name, // 1
+				'%' . $str_like . '%' // 2
+			);
+		}
+
+		$str_exclude_conditions = preg_replace( '/ AND $/', '', $str_exclude_conditions );
+		$str_exclude_conditions .= "\n   ) "; // end OR for contexts.
+
+		/**
+		 * Exclude events matching translated logger messages.
+		 */
+		$logger_messages_with_exclude_string_matches = $this->match_logger_messages_with_search( $args['exclude_search'] );
+		foreach ( $logger_messages_with_exclude_string_matches as $one_logger_message ) {
+			$str_exclude_conditions .= "\n OR ( logger = '{$one_logger_message['logger_slug']}' AND contexts.value = '{$one_logger_message['message_key']}' ) ";
+		}
+
+		// Wrap everything in NOT to exclude matching events.
+		$inner_where[] = "\nNOT (\n {$str_exclude_conditions} \n ) ";
 
 		return $inner_where;
 	}

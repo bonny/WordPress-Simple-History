@@ -56,18 +56,43 @@ This will require changes to:
 
 ### Negative Filter Design
 
+**Design Principles:**
+1. **Consistent naming:** Prefix all negative filters with `exclude_`
+2. **Mirror positive filters:** Each positive filter has an exact negative counterpart
+3. **Same data types:** Negative filters accept same types as positive (string/array)
+4. **Conflict resolution:** Exclusion takes precedence (SQL AND logic)
+5. **Future-proof:** Easy to extend with new filter types
+6. **REST API ready:** Parameter names work in URLs
+
 **Proposed Parameters:**
-- `exclude_search`: Text to exclude (NOT containing these words)
-- `exclude_loglevels`: Array of log levels to exclude
-- `exclude_loggers`: Array of loggers to exclude
-- `exclude_messages`: Array of logger:message pairs to exclude
-- `exclude_users`: Array of user IDs to exclude
-- `exclude_initiator`: Initiator(s) to exclude
+
+| Positive Filter | Negative Filter | Type | Example |
+|----------------|-----------------|------|---------|
+| `search` | `exclude_search` | string | "plugin activated" |
+| `loglevels` | `exclude_loglevels` | array/string | ['debug','info'] |
+| `loggers` | `exclude_loggers` | array/string | ['SimpleUserLogger'] |
+| `messages` | `exclude_messages` | array/string | ['SimplePluginLogger:plugin_activated'] |
+| `users` | `exclude_users` | array/string | [1,2,3] |
+| `user` | `exclude_user` | int | 5 |
+| `initiator` | `exclude_initiator` | array/string | ['wp_cron','wp_cli'] |
 
 **SQL Implementation:**
 - Positive: `level IN ('info', 'debug')`
 - Negative: `level NOT IN ('error', 'warning')`
 - Combined: `level IN ('info', 'debug') AND level NOT IN ('warning')`
+
+**Conflict Handling (Option 1 - Exclusion Takes Precedence):**
+```php
+// User requests:
+loggers = ['SimplePluginLogger', 'SimpleUserLogger']
+exclude_loggers = ['SimpleUserLogger']
+
+// SQL generated:
+WHERE logger IN ('SimplePluginLogger', 'SimpleUserLogger')
+  AND logger NOT IN ('SimpleUserLogger')
+
+// Result: Only SimplePluginLogger shown (exclusion wins)
+```
 
 ## Current Analysis
 
@@ -114,10 +139,135 @@ $inner_where[] = $wpdb->prepare(
 ## Progress
 
 - [x] Analyze current filter implementation
-- [ ] Design negative filter parameters
-- [ ] Add parameter handling to `prepare_args()` method
-- [ ] Implement negative WHERE clauses in `get_inner_where()`
-- [ ] Add negative search support to `add_search_to_inner_where_query()`
-- [ ] Update REST API parameter schema
-- [ ] Add tests for negative filters
-- [ ] Update documentation/docblocks
+- [x] Design negative filter parameters
+- [x] Add parameter handling to `prepare_args()` method
+- [x] Implement negative WHERE clauses in `get_inner_where()`
+- [x] Add negative search support - created `add_exclude_search_to_inner_where_query()`
+- [x] Update REST API parameter schema
+- [x] Map REST API parameters in `get_items()` method
+- [x] Test with REST API calls
+- [x] PHP linting passes
+- [ ] Write unit tests for negative filters
+- [ ] Update user documentation
+
+## Implementation Summary
+
+### Backend Implementation ✅ Complete
+
+**Files Modified:**
+1. `/Users/bonny/Projects/Personal/WordPress-Simple-History/inc/class-log-query.php`
+2. `/Users/bonny/Projects/Personal/WordPress-Simple-History/inc/class-wp-rest-events-controller.php`
+
+**What Was Implemented:**
+
+1. **Seven New Filter Parameters** - all following `exclude_*` naming convention:
+   - `exclude_search` - Exclude events containing these words
+   - `exclude_loglevels` - Exclude specific log levels
+   - `exclude_loggers` - Exclude specific loggers
+   - `exclude_messages` - Exclude specific logger:message pairs
+   - `exclude_user` - Exclude events from a single user ID
+   - `exclude_users` - Exclude events from multiple user IDs
+   - `exclude_initiator` - Exclude events from specific initiators
+
+2. **Parameter Processing** (lines 1039-1148 in Log_Query):
+   - Full validation and sanitization
+   - Same data type handling as positive filters (string/array)
+   - Converts comma-separated strings to arrays
+   - Validates initiator values against allowed constants
+
+3. **SQL WHERE Clause Generation** (lines 1607-1688):
+   - Uses `NOT IN` for array filters
+   - Uses `!=` for single value filters
+   - `add_exclude_search_to_inner_where_query()` method for text exclusion
+   - Properly escapes all values using `$wpdb->prepare()`
+
+4. **REST API Integration**:
+   - All seven parameters registered in `get_collection_params()`
+   - Proper OpenAPI schema with descriptions
+   - Mapped to Log_Query in `get_items()` method
+   - Reuses existing validation callbacks for initiator
+
+### Testing Results ✅
+
+All manual tests passed:
+
+```bash
+# Test 1: Exclude debug level events
+curl 'http://wordpress-stable-docker-mariadb.test:8282/wp-json/simple-history/v1/events?per_page=5&exclude_loglevels[]=debug'
+✅ Result: No debug events returned
+
+# Test 2: Exclude events containing "cron"
+curl 'http://wordpress-stable-docker-mariadb.test:8282/wp-json/simple-history/v1/events?per_page=5&exclude_search=cron'
+✅ Result: No events with "cron" in message
+
+# Test 3: Combine positive and negative filters
+curl 'http://wordpress-stable-docker-mariadb.test:8282/wp-json/simple-history/v1/events?per_page=10&loglevels[]=info&exclude_search=action_scheduler'
+✅ Result: Only info level, no "action_scheduler" events
+```
+
+### Conflict Resolution
+
+When the same value appears in both inclusion and exclusion filters, **exclusion takes precedence**:
+
+```php
+// Example: User requests both inclusion and exclusion
+loggers = ['SimplePluginLogger', 'SimpleUserLogger']
+exclude_loggers = ['SimpleUserLogger']
+
+// SQL generated:
+WHERE logger IN ('SimplePluginLogger', 'SimpleUserLogger')
+  AND logger NOT IN ('SimpleUserLogger')
+
+// Result: Only 'SimplePluginLogger' events shown
+```
+
+This is handled automatically by SQL's AND logic - no special conflict detection needed.
+
+### REST API Usage Examples
+
+```bash
+# Exclude debug and info levels
+/wp-json/simple-history/v1/events?exclude_loglevels[]=debug&exclude_loglevels[]=info
+
+# Exclude specific logger
+/wp-json/simple-history/v1/events?exclude_loggers[]=SimpleUserLogger
+
+# Exclude events containing specific words
+/wp-json/simple-history/v1/events?exclude_search=error
+
+# Exclude events from user ID 5
+/wp-json/simple-history/v1/events?exclude_user=5
+
+# Exclude multiple users
+/wp-json/simple-history/v1/events?exclude_users[]=1&exclude_users[]=2
+
+# Exclude WP-Cron events
+/wp-json/simple-history/v1/events?exclude_initiator=wp_cron
+
+# Combine multiple exclusions
+/wp-json/simple-history/v1/events?exclude_loglevels[]=debug&exclude_search=cron&exclude_initiator=wp_cli
+```
+
+### Future Work
+
+**Phase 2: Frontend UI** (Separate Issue)
+- Add checkbox UI for negative filters
+- Update React filter state management
+- Wire up to REST API parameters
+- Add "NOT" toggle buttons next to existing filters
+
+### Code Quality
+
+- ✅ All PHP linting passes (`npm run php:lint`)
+- ✅ Follows WordPress coding standards
+- ✅ Consistent with existing code patterns
+- ✅ Properly documented with PHPDoc
+- ✅ Uses prepared statements (SQL injection safe)
+- ✅ Future-proof parameter naming
+
+### Performance Considerations
+
+- Negative filters use indexed columns (logger, level, initiator)
+- Context-based exclusions use existing indexes on history_id
+- NOT IN queries are efficient for small exclusion lists
+- Caching still works (cache key includes all filter args)
