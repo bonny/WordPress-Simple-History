@@ -1997,13 +1997,42 @@ class Helpers {
 			$query_args['context'] = $args['context'];
 		}
 
+		// Handle exclusion/negative filters.
+		if ( ! empty( $args['exclude_search'] ) ) {
+			$query_args['exclude-search'] = $args['exclude_search'];
+		}
+
+		if ( ! empty( $args['exclude_loglevels'] ) && is_array( $args['exclude_loglevels'] ) ) {
+			$query_args['exclude-levels'] = wp_json_encode( $args['exclude_loglevels'] );
+		}
+
+		if ( ! empty( $args['exclude_loggers'] ) && is_array( $args['exclude_loggers'] ) ) {
+			$query_args['exclude-loggers'] = wp_json_encode( $args['exclude_loggers'] );
+		}
+
+		if ( ! empty( $args['exclude_messages'] ) && is_array( $args['exclude_messages'] ) ) {
+			$query_args['exclude-messages'] = wp_json_encode( $args['exclude_messages'] );
+		}
+
+		if ( ! empty( $args['exclude_users'] ) && is_array( $args['exclude_users'] ) ) {
+			$query_args['exclude-users'] = wp_json_encode( $args['exclude_users'] );
+		}
+
+		if ( ! empty( $args['exclude_initiators'] ) && is_array( $args['exclude_initiators'] ) ) {
+			$query_args['exclude-initiator'] = wp_json_encode( $args['exclude_initiators'] );
+		}
+
+		if ( ! empty( $args['exclude_context'] ) ) {
+			$query_args['exclude-context'] = $args['exclude_context'];
+		}
+
 		// Build the URL manually to properly encode JSON parameters.
 		$base_url = admin_url( 'admin.php' );
 		$url_parts = [];
 
 		foreach ( $query_args as $key => $value ) {
 			// For JSON parameters, use rawurlencode to preserve the structure.
-			if ( in_array( $key, [ 'users', 'loglevels', 'messages', 'initiators' ], true ) ) {
+			if ( in_array( $key, [ 'users', 'loglevels', 'messages', 'initiators', 'exclude-levels', 'exclude-loggers', 'exclude-messages', 'exclude-users', 'exclude-initiator' ], true ) ) {
 				$url_parts[] = $key . '=' . rawurlencode( $value );
 			} else {
 				$url_parts[] = $key . '=' . urlencode( $value );

@@ -32,6 +32,13 @@ export function generateAPIQueryParams( props ) {
 		selectedCustomDateTo,
 		page,
 		pagerSize,
+		excludeSearch,
+		excludeLogLevels,
+		excludeLoggers,
+		excludeMessages,
+		excludeUsers,
+		excludeInitiator,
+		excludeContextFilters,
 	} = props;
 
 	// Set pager size depending on if page or dashboard.
@@ -176,6 +183,72 @@ export function generateAPIQueryParams( props ) {
 		}
 	}
 
+	// Add exclusion/negative filters - hide events matching these criteria.
+	if ( excludeSearch && excludeSearch.trim().length > 0 ) {
+		eventsQueryParams.exclude_search = excludeSearch;
+	}
+
+	if ( excludeLogLevels && excludeLogLevels.length > 0 ) {
+		eventsQueryParams.exclude_loglevels = excludeLogLevels;
+	}
+
+	if ( excludeLoggers && excludeLoggers.length > 0 ) {
+		eventsQueryParams.exclude_loggers = excludeLoggers;
+	}
+
+	if ( excludeMessages && excludeMessages.length > 0 ) {
+		// Map message objects to logger:message format
+		const excludeMessageValues = excludeMessages.map( ( message ) => {
+			return `${ message.logger_slug }:${ message.message }`;
+		} );
+		eventsQueryParams.exclude_messages = excludeMessageValues;
+	}
+
+	if ( excludeUsers && excludeUsers.length > 0 ) {
+		// Map user objects to user IDs
+		const excludeUserIds = excludeUsers.map( ( user ) => {
+			return parseInt( user.id, 10 );
+		} );
+		eventsQueryParams.exclude_users = excludeUserIds;
+	}
+
+	if ( excludeInitiator && excludeInitiator.length > 0 ) {
+		const excludeInitiatorValues = excludeInitiator.map(
+			( initiator ) => {
+				return initiator.initiator_key || initiator.value;
+			}
+		);
+		eventsQueryParams.exclude_initiator = excludeInitiatorValues;
+	}
+
+	// Add excluded context filters to query params.
+	// excludeContextFilters is a string with newline-separated "key:value" pairs.
+	// Convert to object format: { "key": "value", "key2": "value2" }
+	if ( excludeContextFilters && excludeContextFilters.trim().length > 0 ) {
+		const excludeContextFiltersObject = {};
+		// Split by newline, trim each line, filter empty lines
+		const filterLines = excludeContextFilters
+			.split( '\n' )
+			.map( ( line ) => line.trim() )
+			.filter( ( line ) => line.length > 0 );
+
+		filterLines.forEach( ( contextFilter ) => {
+			// Split on first colon only, in case value contains colons
+			const colonIndex = contextFilter.indexOf( ':' );
+			if ( colonIndex > 0 ) {
+				const key = contextFilter.substring( 0, colonIndex ).trim();
+				const value = contextFilter.substring( colonIndex + 1 ).trim();
+				if ( key && value ) {
+					excludeContextFiltersObject[ key ] = value;
+				}
+			}
+		} );
+
+		if ( Object.keys( excludeContextFiltersObject ).length > 0 ) {
+			eventsQueryParams.exclude_context_filters = excludeContextFiltersObject;
+		}
+	}
+
 	// Check if there are any search options, besides date.
 	// Anything selected besides date will disable sticky events.
 	const hasSearchOptions =
@@ -184,7 +257,14 @@ export function generateAPIQueryParams( props ) {
 		selectedMessageTypes.length ||
 		selectedUsersWithId.length ||
 		selectedInitiator.length > 0 ||
-		( selectedContextFilters && selectedContextFilters.trim().length > 0 );
+		( selectedContextFilters && selectedContextFilters.trim().length > 0 ) ||
+		( excludeSearch && excludeSearch.trim().length > 0 ) ||
+		( excludeLogLevels && excludeLogLevels.length > 0 ) ||
+		( excludeLoggers && excludeLoggers.length > 0 ) ||
+		( excludeMessages && excludeMessages.length > 0 ) ||
+		( excludeUsers && excludeUsers.length > 0 ) ||
+		( excludeInitiator && excludeInitiator.length > 0 ) ||
+		( excludeContextFilters && excludeContextFilters.trim().length > 0 );
 
 	// If first page and no search options then include sticky events.
 	if ( page === 1 && ! hasSearchOptions ) {
