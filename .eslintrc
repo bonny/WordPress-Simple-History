@@ -5,9 +5,11 @@
 	"extends": [
 		"plugin:@wordpress/eslint-plugin/recommended"
 	],
+	"plugins": ["validate-jsx-nesting"],
 	"rules": {
 		"@wordpress/no-unsafe-wp-apis": "off",
-		"no-alert": "off"
+		"no-alert": "off",
+		"validate-jsx-nesting/no-invalid-jsx-nesting": "error"
 	},
 	"globals": {
 		"jQuery": true,
