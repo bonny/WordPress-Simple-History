@@ -213,11 +213,9 @@ export function generateAPIQueryParams( props ) {
 	}
 
 	if ( excludeInitiator && excludeInitiator.length > 0 ) {
-		const excludeInitiatorValues = excludeInitiator.map(
-			( initiator ) => {
-				return initiator.initiator_key || initiator.value;
-			}
-		);
+		const excludeInitiatorValues = excludeInitiator.map( ( initiator ) => {
+			return initiator.initiator_key || initiator.value;
+		} );
 		eventsQueryParams.exclude_initiator = excludeInitiatorValues;
 	}
 
@@ -245,7 +243,8 @@ export function generateAPIQueryParams( props ) {
 		} );
 
 		if ( Object.keys( excludeContextFiltersObject ).length > 0 ) {
-			eventsQueryParams.exclude_context_filters = excludeContextFiltersObject;
+			eventsQueryParams.exclude_context_filters =
+				excludeContextFiltersObject;
 		}
 	}
 
@@ -257,7 +256,8 @@ export function generateAPIQueryParams( props ) {
 		selectedMessageTypes.length ||
 		selectedUsersWithId.length ||
 		selectedInitiator.length > 0 ||
-		( selectedContextFilters && selectedContextFilters.trim().length > 0 ) ||
+		( selectedContextFilters &&
+			selectedContextFilters.trim().length > 0 ) ||
 		( excludeSearch && excludeSearch.trim().length > 0 ) ||
 		( excludeLogLevels && excludeLogLevels.length > 0 ) ||
 		( excludeLoggers && excludeLoggers.length > 0 ) ||

@@ -23,7 +23,7 @@ export function EventStickMenuItem( {
 	if ( hasPremiumAddOn ) {
 		return null;
 	}
-	console.log( 'stick event component', event );
+
 	// Bail if event is sticky already.
 	if ( event.sticky ) {
 		return null;
