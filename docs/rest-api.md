@@ -53,6 +53,23 @@ Retrieve a list of events from the Simple History log.
 | `offset`                  | integer | Offset the result set by a specific number of items                          | -          |
 | `include_sticky`          | boolean | Include sticky events in the result set                                      | false      |
 | `only_sticky`             | boolean | Only return sticky events                                                    | false      |
+| `initiator`               | string/array | Limit result set to specific initiator(s) (e.g., `wp_user`, `wp_cli`, `wp`) | -     |
+| `context_filters`         | object  | Filter events by context data as key-value pairs                             | -          |
+| `ungrouped`               | boolean | Return ungrouped events without occasions grouping                           | false      |
+
+**Exclusion Filters (Negative Filters):**
+
+These parameters exclude events matching the criteria. When both inclusion and exclusion filters are specified for the same field, exclusion takes precedence.
+
+| Parameter                 | Type    | Description                                                                  | Default    |
+| ------------------------- | ------- | ---------------------------------------------------------------------------- | ---------- |
+| `exclude_search`          | string  | Exclude events containing these words                                        | -          |
+| `exclude_loglevels`       | array   | Exclude events with specific log levels                                      | -          |
+| `exclude_loggers`         | array   | Exclude events from specific loggers                                         | -          |
+| `exclude_messages`        | array   | Exclude events with specific messages (format: LoggerSlug:message)           | -          |
+| `exclude_user`            | integer | Exclude events from a specific user ID                                       | -          |
+| `exclude_users`           | array   | Exclude events from specific user IDs                                        | -          |
+| `exclude_initiator`       | string/array | Exclude events from specific initiator(s)                                | -          |
 
 **Example Response:**
 
@@ -244,6 +261,56 @@ Search for WordPress users. Used to retrieve WordPress users for display in the 
 ]
 ```
 
+## Filter Examples
+
+### Using Exclusion Filters
+
+```bash
+# Exclude debug level events
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?exclude_loglevels[]=debug&per_page=50'
+
+# Exclude events containing "cron"
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?exclude_search=cron&per_page=50'
+
+# Exclude WordPress-initiated events (cron jobs, automatic updates)
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?exclude_initiator=wp&per_page=50'
+
+# Exclude multiple log levels
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?exclude_loglevels[]=debug&exclude_loglevels[]=info&per_page=50'
+```
+
+### Combining Inclusion and Exclusion Filters
+
+```bash
+# Get info events, but exclude those containing "cron"
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?loglevels[]=info&exclude_search=cron&per_page=50'
+
+# Get all events except debug level and WordPress system events
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?exclude_loglevels[]=debug&exclude_initiator=wp&per_page=100'
+
+# Important events only: errors/warnings, no WordPress system, no CLI
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?loglevels[]=error&loglevels[]=warning&exclude_initiator[]=wp&exclude_initiator[]=wp_cli&per_page=50'
+```
+
+### Conflict Resolution
+
+When the same value appears in both inclusion and exclusion filters, exclusion takes precedence:
+
+```bash
+# Request: Include SimplePluginLogger and SimpleUserLogger, but exclude SimpleUserLogger
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?loggers[]=SimplePluginLogger&loggers[]=SimpleUserLogger&exclude_loggers[]=SimpleUserLogger&per_page=50'
+
+# Result: Only SimplePluginLogger events are returned (exclusion wins)
+```
+
 ## Code Examples
 
 ### JavaScript Example
@@ -260,6 +327,49 @@ fetch( '/wp-json/simple-history/v1/events', {
 } )
 	.then( ( response ) => response.json() )
 	.then( ( data ) => console.log( data ) )
+	.catch( ( error ) => console.error( 'Error:', error ) );
+
+// Fetch events with exclusion filters
+const params = new URLSearchParams({
+	per_page: 50,
+	'exclude_loglevels[]': 'debug',
+	'exclude_search': 'cron'
+});
+
+fetch( `/wp-json/simple-history/v1/events?${params}`, {
+	method: 'GET',
+	credentials: 'same-origin',
+	headers: {
+		'Content-Type': 'application/json',
+		'X-WP-Nonce': wpApiSettings.nonce,
+	},
+} )
+	.then( ( response ) => response.json() )
+	.then( ( events ) => {
+		// Process events without debug level or cron mentions
+		events.forEach( event => {
+			console.log( event.message, event.level );
+		});
+	})
+	.catch( ( error ) => console.error( 'Error:', error ) );
+
+// Complex filtering: user events only, no debug, no cron
+const complexParams = new URLSearchParams();
+complexParams.append('per_page', '100');
+complexParams.append('initiator', 'wp_user');
+complexParams.append('exclude_loglevels[]', 'debug');
+complexParams.append('exclude_search', 'cron');
+
+fetch( `/wp-json/simple-history/v1/events?${complexParams}`, {
+	method: 'GET',
+	credentials: 'same-origin',
+	headers: {
+		'Content-Type': 'application/json',
+		'X-WP-Nonce': wpApiSettings.nonce,
+	},
+} )
+	.then( ( response ) => response.json() )
+	.then( ( events ) => console.log( `Found ${events.length} user events` ) )
 	.catch( ( error ) => console.error( 'Error:', error ) );
 
 // Create a new event
@@ -352,5 +462,6 @@ The REST API does not currently implement rate limiting, but excessive requests 
 
 ## Further Reading
 
+-   [Filter Usage Examples](./filters-usage-examples.md) - Comprehensive guide to using positive and negative filters
 -   [WordPress REST API Handbook](https://developer.wordpress.org/rest-api/)
 -   [Simple History Documentation](https://simple-history.com/docs/)

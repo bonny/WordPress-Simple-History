@@ -7,6 +7,67 @@ use Simple_History\Date_Helper;
 
 /**
  * Queries the Simple History Log.
+ *
+ * @example Basic positive filtering (inclusion).
+ * ```php
+ * $log_query = new \Simple_History\Log_Query();
+ *
+ * // Get only info and warning level events
+ * $results = $log_query->query([
+ *     'posts_per_page' => 50,
+ *     'loglevels' => ['info', 'warning'],
+ * ]);
+ *
+ * // Search for events containing "updated"
+ * $results = $log_query->query([
+ *     'search' => 'updated',
+ * ]);
+ * ```
+ *
+ * @example Basic negative filtering (exclusion).
+ * ```php
+ * // Exclude debug level events
+ * $results = $log_query->query([
+ *     'exclude_loglevels' => ['debug'],
+ * ]);
+ *
+ * // Exclude events containing "cron"
+ * $results = $log_query->query([
+ *     'exclude_search' => 'cron',
+ * ]);
+ *
+ * // Exclude WP-Cron events
+ * $results = $log_query->query([
+ *     'exclude_initiator' => 'wp_cron',
+ * ]);
+ * ```
+ *
+ * @example Combining positive and negative filters.
+ * ```php
+ * // Get info events, but exclude those containing "cron"
+ * $results = $log_query->query([
+ *     'loglevels' => ['info'],
+ *     'exclude_search' => 'cron',
+ * ]);
+ *
+ * // Important events only (no debug, no cron jobs)
+ * $results = $log_query->query([
+ *     'exclude_loglevels' => ['debug'],
+ *     'exclude_initiator' => ['wp_cron', 'wp_cli'],
+ * ]);
+ * ```
+ *
+ * @example Conflict resolution: exclusion takes precedence.
+ * ```php
+ * // When same value in both filters, exclusion wins
+ * $results = $log_query->query([
+ *     'loggers' => ['SimplePluginLogger', 'SimpleUserLogger'],
+ *     'exclude_loggers' => ['SimpleUserLogger'],
+ * ]);
+ * // Result: Only SimplePluginLogger events
+ * ```
+ *
+ * @see Documentation: docs/filters-usage-examples.md
  */
 class Log_Query {
 	/**
