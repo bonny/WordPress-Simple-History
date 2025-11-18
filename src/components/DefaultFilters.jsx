@@ -107,7 +107,7 @@ export function DefaultFilters( props ) {
 
 	return (
 		<>
-			<p>
+			<div style={ { margin: '1em 0' } }>
 				<div className="SimpleHistory__filters__filterLabel">
 					{ __( 'Dates', 'simple-history' ) }
 				</div>
@@ -119,13 +119,13 @@ export function DefaultFilters( props ) {
 						onChange={ ( value ) => setSelectedDateOption( value ) }
 					/>
 				</div>
-			</p>
+			</div>
 
 			{ selectedDateOption === 'customRange' ? (
 				<CustomDateRange />
 			) : null }
 
-			<p>
+			<div style={ { margin: '1em 0' } }>
 				<div className="SimpleHistory__filters__filterLabel">
 					{ __( 'Containing words', 'simple-history' ) }
 				</div>
@@ -137,7 +137,7 @@ export function DefaultFilters( props ) {
 						setSearchText( event.target.value )
 					}
 				/>
-			</p>
+			</div>
 		</>
 	);
 }
