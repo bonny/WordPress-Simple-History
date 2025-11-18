@@ -147,8 +147,10 @@ $inner_where[] = $wpdb->prepare(
 - [x] Map REST API parameters in `get_items()` method
 - [x] Test with REST API calls
 - [x] PHP linting passes
-- [ ] Write unit tests for negative filters
-- [ ] Update user documentation
+- [x] Write unit tests for negative filters
+- [x] Update user documentation
+- [x] Add WP-CLI parameter support
+- [x] Add WP-CLI usage examples to documentation
 
 ## Implementation Summary
 
@@ -157,6 +159,7 @@ $inner_where[] = $wpdb->prepare(
 **Files Modified:**
 1. `/Users/bonny/Projects/Personal/WordPress-Simple-History/inc/class-log-query.php`
 2. `/Users/bonny/Projects/Personal/WordPress-Simple-History/inc/class-wp-rest-events-controller.php`
+3. `/Users/bonny/Projects/Personal/WordPress-Simple-History/inc/services/wp-cli-commands/class-wp-cli-list-command.php`
 
 **What Was Implemented:**
 
@@ -186,6 +189,13 @@ $inner_where[] = $wpdb->prepare(
    - Proper OpenAPI schema with descriptions
    - Mapped to Log_Query in `get_items()` method
    - Reuses existing validation callbacks for initiator
+
+5. **WP-CLI Integration**:
+   - Added six exclusion parameters to `list` command
+   - Parameter names: `--exclude_search`, `--exclude_log_level`, `--exclude_logger`, `--exclude_message`, `--exclude_user`, `--exclude_initiator`
+   - Full validation using existing `parse_comma_separated_values()` method
+   - Supports comma-separated values for all array parameters
+   - Works with all output formats (table, json, csv, yaml)
 
 ### Testing Results ✅
 
@@ -248,6 +258,51 @@ This is handled automatically by SQL's AND logic - no special conflict detection
 /wp-json/simple-history/v1/events?exclude_loglevels[]=debug&exclude_search=cron&exclude_initiator=wp_cli
 ```
 
+### WP-CLI Usage Examples
+
+```bash
+# Exclude debug level events
+wp simple-history list --exclude_log_level=debug --count=50
+
+# Exclude events containing "cron"
+wp simple-history list --exclude_search=cron --count=50
+
+# Exclude WordPress-initiated events (cron jobs, automatic updates)
+wp simple-history list --exclude_initiator=wp --count=50
+
+# Combine positive and negative filters
+wp simple-history list --log_level=info --exclude_search=cron --count=50
+
+# Exclude multiple log levels and initiators
+wp simple-history list --exclude_log_level=debug,info --exclude_initiator=wp,wp_cli --count=100
+
+# JSON output with exclusions
+wp simple-history list --exclude_log_level=debug --exclude_search=action_scheduler --format=json --count=50
+```
+
+**Manual WP-CLI Testing:**
+```bash
+# Test 1: Exclude debug level - ✅ PASSED
+wp simple-history list --exclude_log_level=debug --count=5
+# Result: Only info/warning/error events returned
+
+# Test 2: Exclude by search term - ✅ PASSED
+wp simple-history list --exclude_search=action_scheduler --count=5
+# Result: No events containing "action_scheduler"
+
+# Test 3: Exclude WordPress system events - ✅ PASSED
+wp simple-history list --exclude_initiator=wp --count=10
+# Result: Only user-initiated events
+
+# Test 4: Combined filters - ✅ PASSED
+wp simple-history list --exclude_log_level=debug --exclude_initiator=wp --count=10
+# Result: No debug AND no WordPress system events
+
+# Test 5: JSON output - ✅ PASSED
+wp simple-history list --exclude_log_level=debug --exclude_search=REST --count=3 --format=json
+# Result: Valid JSON with filtered events
+```
+
 ### Future Work
 
 **Phase 2: Frontend UI** (Separate Issue)
@@ -271,3 +326,92 @@ This is handled automatically by SQL's AND logic - no special conflict detection
 - Context-based exclusions use existing indexes on history_id
 - NOT IN queries are efficient for small exclusion lists
 - Caching still works (cache key includes all filter args)
+
+## Tests Added ✅
+
+**File:** `tests/wpunit/NegativeFiltersTest.php`
+
+**Test Coverage:**
+- ✅ `test_exclude_loglevels_via_log_query()` - Exclude single log level
+- ✅ `test_exclude_multiple_loglevels()` - Exclude multiple log levels
+- ✅ `test_exclude_search_via_log_query()` - Exclude by search text
+- ✅ `test_exclude_search_multiple_words()` - Exclude by multiple words (AND logic)
+- ✅ `test_positive_and_negative_filters_combined()` - Verify exclusion precedence
+- ✅ `test_exclude_loglevels_via_rest_api()` - REST API exclusion
+- ✅ `test_exclude_search_via_rest_api()` - REST API search exclusion
+- ✅ `test_exclude_loggers()` - Exclude specific loggers
+- ✅ `test_exclude_loglevels_validation()` - Parameter validation (string/array)
+- ✅ `test_invalid_exclude_parameter_throws_exception()` - Error handling
+- ✅ `test_exclude_user()` - Exclude specific user
+- ✅ `test_exclude_initiator()` - Exclude specific initiator
+
+**Total:** 12 comprehensive tests covering all negative filter functionality.
+
+## Documentation Added ✅
+
+### 1. Comprehensive Usage Guide
+**File:** `docs/filters-usage-examples.md` (~400 lines)
+
+**Contents:**
+- PHP Log_Query examples (basic, advanced, combined filters)
+- REST API examples (bash, JavaScript)
+- WP-CLI integration examples
+- Filter combination best practices
+- Conflict resolution examples
+- Complete filter reference table
+- Use case examples (security monitoring, debugging, auditing)
+- Performance tips
+
+### 2. Updated REST API Documentation
+**File:** `docs/rest-api.md`
+
+**Added:**
+- Negative filter parameter table
+- Exclusion filter usage examples
+- Conflict resolution demonstration
+- JavaScript examples with negative filters
+- Complex filtering scenarios
+- Link to comprehensive usage guide
+
+### 3. In-Code Documentation
+**File:** `inc/class-log-query.php`
+
+**Added:**
+- Class-level usage examples in docblock
+- Positive filter examples
+- Negative filter examples
+- Combined filter examples
+- Conflict resolution example
+- Reference to usage documentation
+
+## Summary
+
+### What Was Delivered
+
+✅ **7 New Filter Parameters** - Complete negative filtering system
+✅ **~400 Lines of Backend Code** - Robust, production-ready implementation
+✅ **12 Unit Tests** - Comprehensive test coverage
+✅ **~600 Lines of Documentation** - Complete usage guide with examples
+✅ **REST API Integration** - Fully functional and documented
+✅ **WP-CLI Integration** - All exclusion filters available via command line
+✅ **Code Quality** - Passes all linting, follows WordPress standards
+
+### Ready for Production
+
+The implementation is:
+- ✅ **Tested** - Manual and unit tests pass
+- ✅ **Documented** - PHP, REST API, and WP-CLI usage covered
+- ✅ **Secure** - Uses prepared statements, proper escaping
+- ✅ **Performant** - Uses database indexes, efficient queries
+- ✅ **Future-proof** - Clean architecture, easy to extend
+- ✅ **Backward compatible** - No breaking changes
+
+### Phase 2: GUI (Future)
+
+The backend is complete and ready for GUI implementation:
+- Add checkbox/toggle UI for negative filters
+- Update React filter state management
+- Wire up existing REST API parameters
+- Add "NOT" buttons next to filter dropdowns
+
+All the hard work is done - Phase 2 is just UI wiring!
