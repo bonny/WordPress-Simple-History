@@ -379,6 +379,99 @@ class NegativeFiltersTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test that malformed message filters are handled gracefully.
+	 *
+	 * Verifies that the array bounds check prevents errors when message
+	 * filters don't contain the required colon separator.
+	 */
+	public function test_malformed_message_filters_handled_gracefully() {
+		$log_query = new \Simple_History\Log_Query();
+
+		// Create some test events that we can filter.
+		\SimpleLogger()->info( 'Test event one' );
+		\SimpleLogger()->info( 'Test event two' );
+		\SimpleLogger()->info( 'Test event three' );
+
+		// Test with positive messages filter containing malformed entries.
+		$results = $log_query->query(
+			[
+				'posts_per_page' => 100,
+				'messages'       => [
+					'SimpleLogger:info_message',     // Valid format.
+					'MalformedNoColon',              // Invalid - no colon separator.
+					'SimpleUserLogger:user_login',   // Valid format.
+					'',                              // Invalid - empty string.
+					'AnotherMalformed',              // Invalid - no colon.
+				],
+			]
+		);
+
+		// Should not throw errors and should process query successfully.
+		$this->assertIsArray( $results );
+		$this->assertArrayHasKey( 'log_rows', $results );
+		// The malformed entries should be silently skipped.
+		// We don't expect specific results since loggers may not have those messages,
+		// but the query should complete without errors.
+	}
+
+	/**
+	 * Test that malformed exclude_messages filters are handled gracefully.
+	 *
+	 * Verifies that the array bounds check works for exclusion filters too.
+	 */
+	public function test_malformed_exclude_message_filters_handled_gracefully() {
+		$log_query = new \Simple_History\Log_Query();
+
+		// Create some test events.
+		\SimpleLogger()->info( 'Test event to exclude' );
+		\SimpleLogger()->warning( 'Warning event' );
+		\SimpleLogger()->error( 'Error event' );
+
+		// Test with exclude_messages filter containing malformed entries.
+		$results = $log_query->query(
+			[
+				'posts_per_page'  => 100,
+				'exclude_messages' => [
+					'SimpleLogger:info_message',        // Valid format.
+					'MalformedExcludeNoColon',         // Invalid - no colon.
+					'SimpleUserLogger:user_updated',   // Valid format.
+					'',                                // Invalid - empty string.
+					'AnotherMalformedExclude',         // Invalid - no colon.
+				],
+			]
+		);
+
+		// Should not throw errors and should process query successfully.
+		$this->assertIsArray( $results );
+		$this->assertArrayHasKey( 'log_rows', $results );
+		// The malformed entries should be silently skipped.
+		// The query should complete successfully without PHP warnings/errors.
+	}
+
+	/**
+	 * Test edge case: message filter with only colon.
+	 */
+	public function test_message_filter_with_only_colon() {
+		$log_query = new \Simple_History\Log_Query();
+
+		// Test with edge case of just a colon.
+		$results = $log_query->query(
+			[
+				'posts_per_page' => 100,
+				'messages'       => [
+					':',                            // Edge case - colon only, will split to ['', ''].
+					'SimpleLogger:valid_message',   // Valid.
+				],
+			]
+		);
+
+		// Should handle gracefully - the ':' will create empty logger and message,
+		// which should be filtered out or handled without errors.
+		$this->assertIsArray( $results );
+		$this->assertArrayHasKey( 'log_rows', $results );
+	}
+
+	/**
 	 * Helper method to dispatch REST API requests.
 	 *
 	 * @param string $method HTTP method.
