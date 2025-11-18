@@ -352,6 +352,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Fixed incorrect timezone handling for imported user registration dates
 -   Stop polling for new events after 10+ new events are detected to reduce server resource consumption from inactive browser tabs.
 -   Add support for negative filters in the event log query API, to the REST API, and to WP-CLI. [#86](https://github.com/bonny/WordPress-Simple-History/issues/86).
+-   Fix warning about invalid HTML nesting in the log GUI filters. [#548](https://github.com/bonny/WordPress-Simple-History/issues/548).
 
 ### 5.18.0 (November 2025)
 
