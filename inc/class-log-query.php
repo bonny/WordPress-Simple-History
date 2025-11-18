@@ -1042,11 +1042,19 @@ class Log_Query {
 			foreach ( $args['messages'] as $one_row_logger_and_message ) {
 				$arr_one_logger_and_message = explode( ':', $one_row_logger_and_message );
 
-				if ( ! isset( $arr_loggers_and_messages[ $arr_one_logger_and_message[0] ] ) ) {
-					$arr_loggers_and_messages[ $arr_one_logger_and_message[0] ] = array();
+				// Skip malformed entries without colon (must have at least logger:message format).
+				if ( count( $arr_one_logger_and_message ) < 2 ) {
+					continue;
 				}
 
-				$arr_loggers_and_messages[ $arr_one_logger_and_message[0] ][] = $arr_one_logger_and_message[1];
+				$logger_slug = $arr_one_logger_and_message[0];
+				$message_key = $arr_one_logger_and_message[1];
+
+				if ( ! isset( $arr_loggers_and_messages[ $logger_slug ] ) ) {
+					$arr_loggers_and_messages[ $logger_slug ] = array();
+				}
+
+				$arr_loggers_and_messages[ $logger_slug ][] = $message_key;
 			}
 
 			$args['messages'] = $arr_loggers_and_messages;
@@ -1161,11 +1169,19 @@ class Log_Query {
 			foreach ( $args['exclude_messages'] as $one_row_logger_and_message ) {
 				$arr_one_logger_and_message = explode( ':', $one_row_logger_and_message );
 
-				if ( ! isset( $arr_exclude_loggers_and_messages[ $arr_one_logger_and_message[0] ] ) ) {
-					$arr_exclude_loggers_and_messages[ $arr_one_logger_and_message[0] ] = array();
+				// Skip malformed entries without colon (must have at least logger:message format).
+				if ( count( $arr_one_logger_and_message ) < 2 ) {
+					continue;
 				}
 
-				$arr_exclude_loggers_and_messages[ $arr_one_logger_and_message[0] ][] = $arr_one_logger_and_message[1];
+				$logger_slug = $arr_one_logger_and_message[0];
+				$message_key = $arr_one_logger_and_message[1];
+
+				if ( ! isset( $arr_exclude_loggers_and_messages[ $logger_slug ] ) ) {
+					$arr_exclude_loggers_and_messages[ $logger_slug ] = array();
+				}
+
+				$arr_exclude_loggers_and_messages[ $logger_slug ][] = $message_key;
 			}
 
 			$args['exclude_messages'] = $arr_exclude_loggers_and_messages;
