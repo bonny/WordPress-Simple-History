@@ -233,6 +233,53 @@ function EventsGUI() {
 		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
 	);
 
+	// Negative/exclusion filters - hide events matching these criteria.
+	// Read-only from URL (no setters needed until Phase 2: GUI controls).
+	const [ excludeSearch ] = useQueryState(
+		'exclude-search',
+		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeLogLevels ] = useQueryState(
+		'exclude-levels',
+		parseAsArrayOf( parseAsString )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeLoggers ] = useQueryState(
+		'exclude-loggers',
+		parseAsArrayOf( parseAsString )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeMessages ] = useQueryState(
+		'exclude-messages',
+		parseAsJson( messageTypesSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeUsers ] = useQueryState(
+		'exclude-users',
+		parseAsJson( usersSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeInitiator ] = useQueryState(
+		'exclude-initiator',
+		parseAsJson( initiatorSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeContextFilters ] = useQueryState(
+		'exclude-context',
+		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
+	);
+
 	/**
 	 * End filter/search options states.
 	 */
@@ -252,6 +299,13 @@ function EventsGUI() {
 			selectedCustomDateTo,
 			page,
 			pagerSize,
+			excludeSearch,
+			excludeLogLevels,
+			excludeLoggers,
+			excludeMessages,
+			excludeUsers,
+			excludeInitiator,
+			excludeContextFilters,
 		} );
 	}, [
 		selectedDateOption,
@@ -265,6 +319,13 @@ function EventsGUI() {
 		selectedCustomDateTo,
 		page,
 		pagerSize,
+		excludeSearch,
+		excludeLogLevels,
+		excludeLoggers,
+		excludeMessages,
+		excludeUsers,
+		excludeInitiator,
+		excludeContextFilters,
 	] );
 
 	// Reset page to 1 when filters are modified.
