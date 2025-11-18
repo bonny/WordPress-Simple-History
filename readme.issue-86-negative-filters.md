@@ -303,13 +303,72 @@ wp simple-history list --exclude_log_level=debug --exclude_search=REST --count=3
 # Result: Valid JSON with filtered events
 ```
 
+### URL Query String Support ✅ Complete
+
+Negative filters can now be tested via URL without GUI changes!
+
+**Files Modified:**
+1. `src/components/EventsGui.jsx` - Added 7 new `useQueryState` hooks for exclude-* parameters (read-only, no setters)
+2. `src/functions.js` - Updated `generateAPIQueryParams()` to handle exclude-* URL params (~70 lines)
+3. `inc/class-helpers.php` - Updated `get_filtered_events_url()` PHP helper (~30 lines)
+
+**Implementation Details:**
+- URL parameters are **read-only** (users manually add to URL)
+- No setters defined - keeps code clean until Phase 2 GUI
+- `useQueryState` hooks only destructure the value, not the setter
+- When GUI is added, simply add setters back: `const [ value, setValue ] = useQueryState(...)`
+
+**URL Parameters Added:**
+- `exclude-search` - Exclude by search text
+- `exclude-levels` - Exclude log levels (JSON array)
+- `exclude-loggers` - Exclude loggers (JSON array)
+- `exclude-messages` - Exclude messages (JSON array)
+- `exclude-users` - Exclude user IDs (JSON array)
+- `exclude-initiator` - Exclude initiators (JSON array)
+- `exclude-context` - Exclude context filters (key:value)
+
+**Example Test URLs:**
+```
+# Exclude debug events
+http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_admin_menu_page&exclude-levels=["debug"]
+
+# Exclude events containing "action_scheduler"
+http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_admin_menu_page&exclude-search=action_scheduler
+
+# Exclude WordPress system events (cron jobs)
+http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_admin_menu_page&exclude-initiator=[{"value":"wp"}]
+
+# Exclude PluginUserSwitchingLogger
+http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_admin_menu_page&exclude-loggers=["PluginUserSwitchingLogger"]
+
+# Combined: Info events without cron
+http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_admin_menu_page&levels=["info"]&exclude-search=cron
+
+# Clean log: No debug, no system events, no action_scheduler
+http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_admin_menu_page&exclude-levels=["debug"]&exclude-initiator=[{"value":"wp"}]&exclude-search=action_scheduler
+```
+
+**Documentation:** See `docs/url-negative-filters-testing.md` for complete testing guide with 10+ examples
+
+**PHP Helper Usage:**
+```php
+use Simple_History\Helpers;
+
+$url = Helpers::get_filtered_events_url([
+    'exclude_loglevels' => ['debug'],
+    'exclude_search' => 'cron',
+]);
+echo '<a href="' . esc_url( $url ) . '">View Filtered Events</a>';
+```
+
 ### Future Work
 
 **Phase 2: Frontend UI** (Separate Issue)
 - Add checkbox UI for negative filters
-- Update React filter state management
-- Wire up to REST API parameters
-- Add "NOT" toggle buttons next to existing filters
+- Add toggle buttons next to existing filter dropdowns
+- Add "NOT" mode switcher for each filter type
+- Wire up GUI controls to existing URL state hooks (already implemented)
+- Note: All backend work is complete - Phase 2 is purely UI/UX
 
 ### Code Quality
 
@@ -389,11 +448,13 @@ wp simple-history list --exclude_log_level=debug --exclude_search=REST --count=3
 ### What Was Delivered
 
 ✅ **7 New Filter Parameters** - Complete negative filtering system
-✅ **~400 Lines of Backend Code** - Robust, production-ready implementation
+✅ **~500 Lines of Backend Code** - Robust, production-ready implementation (PHP + JavaScript)
 ✅ **12 Unit Tests** - Comprehensive test coverage
-✅ **~600 Lines of Documentation** - Complete usage guide with examples
+✅ **~800 Lines of Documentation** - Complete usage guide with examples
 ✅ **REST API Integration** - Fully functional and documented
 ✅ **WP-CLI Integration** - All exclusion filters available via command line
+✅ **URL Query String Support** - Test negative filters via URL without GUI
+✅ **PHP Helper Function** - `get_filtered_events_url()` supports all negative filters
 ✅ **Code Quality** - Passes all linting, follows WordPress standards
 
 ### Ready for Production
