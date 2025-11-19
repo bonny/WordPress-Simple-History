@@ -7,7 +7,6 @@ use Simple_History\Log_Initiators;
 use Simple_History\Log_Levels;
 use WP_CLI;
 use WP_CLI_Command;
-use WP_CLI\Utils;
 use Simple_History\Log_Query;
 
 /**
@@ -356,11 +355,11 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 
 		foreach ( $events['log_rows'] as $row ) {
 			$header_output = $this->simple_history->get_log_row_header_output( $row );
-			$header_output = strip_tags( html_entity_decode( $header_output, ENT_QUOTES, 'UTF-8' ) );
+			$header_output = wp_strip_all_tags( html_entity_decode( $header_output, ENT_QUOTES, 'UTF-8' ) );
 			$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
 
 			$text_output = $this->simple_history->get_log_row_plain_text_output( $row );
-			$text_output = strip_tags( html_entity_decode( $text_output, ENT_QUOTES, 'UTF-8' ) );
+			$text_output = wp_strip_all_tags( html_entity_decode( $text_output, ENT_QUOTES, 'UTF-8' ) );
 
 			$row_logger = $this->simple_history->get_instantiated_logger_by_slug( $row->logger );
 
