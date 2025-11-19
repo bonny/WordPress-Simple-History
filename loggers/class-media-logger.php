@@ -326,6 +326,8 @@ class Media_Logger extends Logger {
 		} elseif ( 'attachment_updated' === $message_key ) {
 			return $this->get_details_output_for_updated_attachment( $row );
 		}
+
+		return '';
 	}
 
 	/**
