@@ -132,6 +132,7 @@ class AddOn_Plugin {
 			SIMPLE_HISTORY_LICENCES_API_URL . '/activate'
 		);
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$response = wp_remote_get(
 			$activation_url,
 			array(
@@ -228,6 +229,7 @@ class AddOn_Plugin {
 			SIMPLE_HISTORY_LICENCES_API_URL . '/deactivate'
 		);
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$response = wp_remote_get(
 			$activation_url,
 			array(
