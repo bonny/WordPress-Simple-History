@@ -422,7 +422,7 @@ class Theme_Logger extends Logger {
 
 		if ( ! empty( $valid_post_key_exists ) ) {
 			$context = array();
-			// $context["POST"] = Helpers::json_encode( $_POST );
+
 			$this->info_message(
 				'custom_background_changed',
 				$context
@@ -461,7 +461,7 @@ class Theme_Logger extends Logger {
 		$settings = $customize_manager->settings();
 		$controls = $customize_manager->controls();
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.NonceVerification.Recommended
 		$customized = json_decode( sanitize_text_field( wp_unslash( $_REQUEST['customized'] ) ) );
 
 		foreach ( $customized as $setting_id => $posted_values ) {
@@ -493,10 +493,10 @@ class Theme_Logger extends Logger {
 							'appearance_customized',
 							$context
 						);
-					}// End if().
-				}// End if().
-			}// End foreach().
-		}// End foreach().
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -593,11 +593,11 @@ class Theme_Logger extends Logger {
 						esc_html( $context['setting_old_value'] ),
 						$str_old_value_prepend
 					);
-				}// End if().
+				}
 
 				$output .= '</table>';
-			}// End if().
-		}// End if().
+			}
+		}
 
 		return $output;
 	}

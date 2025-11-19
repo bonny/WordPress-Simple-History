@@ -93,6 +93,7 @@ class File_Edits_Logger extends Logger {
 			}
 
 			// Get contents before save.
+			// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- This is a known local file.
 			$fileContentsBeforeEdit = file_get_contents( $file_full_path );
 
 			$context = array(
@@ -105,7 +106,7 @@ class File_Edits_Logger extends Logger {
 			);
 
 			$this->info_message( 'plugin_file_edited', $context );
-		}// End if().
+		}
 	}
 
 	/**
@@ -126,18 +127,18 @@ class File_Edits_Logger extends Logger {
 		// Only continue if method is post and action is update.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['theme'] ) && isset( $_POST['action'] ) && $_POST['action'] === 'edit-theme-plugin-file' ) {
-			/*
-			POST data is like
-				array(8)
-					'_wpnonce' => string(10) "9b5e46634f"
-					'_wp_http_referer' => string(88) "/wp/wp-admin/theme-editor.php?file=style.css&theme=twentyfifteen&scrollto=0&upda…"
-					'newcontent' => string(104366) "/* Theme Name: Twenty Fifteen Theme URI: https://wordpress.org/themes/twentyfift…"
-					'action' => string(6) "edit-theme-plugin-file"
-					'file' => string(9) "style.css"
-					'theme' => string(13) "twentyfifteen"
-					'scrollto' => string(3) "638"
-					'submit' => string(11) "Update File"
-			*/
+			/**
+			 * POST data is like
+			 *  array(8)
+			 *      '_wpnonce' => string(10) "9b5e46634f"
+			 *      '_wp_http_referer' => string(88) "/wp/wp-admin/theme-editor.php?file=style.css&theme=twentyfifteen&scrollto=0&upda…"
+			 *      'newcontent' => string(104366) "/* Theme Name: Twenty Fifteen Theme URI: https://wordpress.org/themes/twentyfift…"
+			 *      'action' => string(6) "edit-theme-plugin-file"
+			 *      'file' => string(9) "style.css"
+			 *      'theme' => string(13) "twentyfifteen"
+			 *      'scrollto' => string(3) "638"
+			 *      'submit' => string(11) "Update File"
+			 */
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$file = wp_unslash( $_POST['file'] ?? null );
@@ -166,6 +167,7 @@ class File_Edits_Logger extends Logger {
 			$file          = $theme->get_stylesheet_directory() . '/' . $relative_file;
 
 			// Get file contents, so we have something to compare with later.
+			// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- This is a known local file.
 			$fileContentsBeforeEdit = file_get_contents( $file );
 
 			$context = array(

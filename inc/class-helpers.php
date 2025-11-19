@@ -378,6 +378,7 @@ class Helpers {
 		$simple_history = Simple_History::get_instance();
 
 		/** @var array $events_table_size_result */
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$events_table_size_result = $wpdb->get_row(
 			$wpdb->prepare(
 				'
@@ -391,6 +392,7 @@ class Helpers {
 		);
 
 		/** @var array $contexts_table_size_result */
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$contexts_table_size_result = $wpdb->get_row(
 			$wpdb->prepare(
 				'
@@ -430,6 +432,7 @@ class Helpers {
 		$simple_history = Simple_History::get_instance();
 
 		// Get table sizes in mb.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$table_size_result = $wpdb->get_results(
 			$wpdb->prepare(
 				'
@@ -672,7 +675,7 @@ class Helpers {
 					$arr_found_additional_ip_headers[ $context_key ] = $context_val;
 				}
 			}
-		} // End foreach().
+		}
 
 		return $arr_found_additional_ip_headers;
 	}
@@ -727,6 +730,7 @@ class Helpers {
 		);
 
 		foreach ( $tables as $key => $table ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$table_exists                   = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table['table_name'] ) );
 			$tables[ $key ]['table_exists'] = $table_exists;
 		}
@@ -965,16 +969,16 @@ class Helpers {
 
 		// Get number of rows before delete.
 		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$simple_history_table}";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$num_rows = $wpdb->get_var( $sql_num_rows, 0 );
 
 		// Use truncate instead of delete because it's much faster (I think, writing this much later).
 		$sql = "TRUNCATE {$simple_history_table}";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( $sql );
 
 		$sql = "TRUNCATE {$simple_history_contexts_table}";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( $sql );
 
 		self::clear_cache();
@@ -1117,7 +1121,9 @@ class Helpers {
 		// All Simple History admin pages have a ?page=simple_history_... query arg.
 		// where page is the slug of the registered page.
 		$all_menu_pages_slugs = Simple_History::get_instance()->get_menu_manager()->get_all_slugs();
-		$page                 = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
 
 		if ( $page && in_array( $page, $all_menu_pages_slugs, true ) ) {
 			return true;
@@ -1147,7 +1153,7 @@ class Helpers {
 		$table_name = $simple_history->get_events_table_name();
 
 		$sql_data_exists = "SELECT id AS id_exists FROM {$table_name} LIMIT 1";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$data_exists = (bool) $wpdb->get_var( $sql_data_exists, 0 );
 
 		return $data_exists;
@@ -1321,7 +1327,8 @@ class Helpers {
 			$sqlStringLoggersUserCanRead
 		);
 
-		$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var( $sql );
 
 		return (int) $count;
 	}
@@ -1351,7 +1358,8 @@ class Helpers {
 			$sqlStringLoggersUserCanRead
 		);
 
-		$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var( $sql );
 
 		return (int) $count;
 	}
@@ -1379,7 +1387,8 @@ class Helpers {
 			$sqlStringLoggersUserCanRead
 		);
 
-		$count = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var( $sql );
 
 		return (int) $count;
 	}
@@ -1452,7 +1461,8 @@ class Helpers {
 			);
 		}
 
-		$dates = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$dates = $wpdb->get_results( $sql );
 
 		return $dates;
 	}
@@ -1484,7 +1494,8 @@ class Helpers {
 			);
 			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-			$numEvents = $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$numEvents = $wpdb->get_var( $sql );
 
 			set_transient( $cache_key, $numEvents, HOUR_IN_SECONDS );
 		}
@@ -1536,7 +1547,8 @@ class Helpers {
 				$loggers_user_can_read_sql_in // 2
 			);
 
-			$result_months = $wpdb->get_results( $sql_dates ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$result_months = $wpdb->get_results( $sql_dates );
 
 			set_transient( $cache_key, $result_months, HOUR_IN_SECONDS );
 		}
@@ -1602,7 +1614,7 @@ class Helpers {
 					}
 				}
 			}
-		}// End if().
+		}
 
 		return [
 			'arr_days_and_pages' => $arr_days_and_pages,
@@ -1836,6 +1848,7 @@ class Helpers {
 		$simple_history    = Simple_History::get_instance();
 		$events_table_name = $simple_history->get_events_table_name();
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return (bool) $wpdb->get_var(
 			$wpdb->prepare(
 				'SELECT COUNT(*) FROM %i WHERE id = %d',
@@ -1876,6 +1889,7 @@ class Helpers {
 		$simple_history = Simple_History::get_instance();
 		$contexts_table = $simple_history->get_contexts_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
 				'SELECT history_id FROM %i WHERE `key` = %s',

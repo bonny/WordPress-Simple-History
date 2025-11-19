@@ -1231,7 +1231,7 @@ class Simple_History {
 				'<div class="SimpleHistoryLogitem__moreDetails">%1$s</div>',
 				$more_details_html
 			);
-		} // End if().
+		}
 
 		// Classes to add to log item li element.
 		$classes = array(
