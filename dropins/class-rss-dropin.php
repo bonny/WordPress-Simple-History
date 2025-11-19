@@ -131,6 +131,7 @@ class RSS_Dropin extends Dropin {
 			do_action( 'simple_history/rss_feed/secret_updated' );
 
 			$goback = esc_url_raw( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
+			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 			wp_redirect( $goback );
 			exit;
 		}
@@ -184,6 +185,7 @@ class RSS_Dropin extends Dropin {
 	 * Check if current request is a request for the RSS feed.
 	 */
 	public function check_for_rss_feed_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['simple_history_get_rss'] ) ) {
 			$this->output_rss();
 			exit;
@@ -204,7 +206,9 @@ class RSS_Dropin extends Dropin {
 	 */
 	public function output_rss() {
 		$rss_secret_option = get_option( 'simple_history_rss_secret' );
-		$rss_secret_get    = sanitize_text_field( wp_unslash( $_GET['rss_secret'] ?? '' ) );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$rss_secret_get = sanitize_text_field( wp_unslash( $_GET['rss_secret'] ?? '' ) );
 
 		if ( empty( $rss_secret_option ) || empty( $rss_secret_get ) ) {
 			die();
@@ -267,6 +271,7 @@ class RSS_Dropin extends Dropin {
 					add_filter( 'simple_history/header_time_ago_max_time', '__return_zero' );
 
 					// Set args from query string.
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$args = $this->set_log_query_args_from_query_string( $_GET );
 
 					/**
@@ -419,7 +424,7 @@ class RSS_Dropin extends Dropin {
 							<link><![CDATA[<?php echo esc_url( $item_link ); ?>]]></link>
 						</item>
 						<?php
-					} // End foreach().
+					}
 
 					?>
 				</channel>
@@ -450,7 +455,7 @@ class RSS_Dropin extends Dropin {
 				</channel>
 			</rss>
 			<?php
-		}// End if().
+		}
 	}
 
 	/**
