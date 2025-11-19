@@ -3,7 +3,6 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
-use Simple_History\Simple_History;
 
 /**
  * Add a "View history" item/shortcut to the admin bar.
@@ -76,10 +75,10 @@ class Network_Menu_Items extends Service {
 				);
 
 				$wp_admin_bar->add_node( $args );
-			} // End if().
+			}
 
 			restore_current_blog();
-		} // End foreach().
+		}
 	}
 
 	/**
