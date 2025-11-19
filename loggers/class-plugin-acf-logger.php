@@ -207,6 +207,7 @@ class Plugin_ACF_Logger extends Logger {
 		$new_post_meta = get_post_custom( $post_id );
 		array_walk(
 			$new_post_meta,
+			// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			function ( &$value, $key ) {
 				$value = reset( $value );
 			}
@@ -286,24 +287,7 @@ class Plugin_ACF_Logger extends Logger {
 			$acf_context = $this->add_acf_context( $acf_context, 'removed', $post_meta_removed_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
 
 			$post_logger->append_context( $last_insert_id, $acf_context );
-
-			// Prev and new post meta for testing.
-
-			/*
-			$post_logger->append_context(
-				$last_insert_id,
-				array(
-					'prev_post_meta' => $prev_post_meta,
-				)
-			);
-			$post_logger->append_context(
-				$last_insert_id,
-				array(
-					'new_post_meta' => $new_post_meta,
-				)
-			);
-			*/
-		} // End if().
+		}
 	}
 
 	/**
@@ -413,8 +397,8 @@ class Plugin_ACF_Logger extends Logger {
 							$field_parents[] = $parent_field;
 						} elseif ( 'acf-field-group' === $parent_field_post_type ) {
 							$field_field_group = $parent_field;
-						} // End if().
-					} // End while().
+						}
+					}
 
 					$field_parents = array_reverse( $field_parents );
 
@@ -447,21 +431,12 @@ class Plugin_ACF_Logger extends Logger {
 							++$path_loop_num;
 						}
 					}
-
-					// Add value of fields if they are not part of
-					// repeatable or flexible fields or similar.
-					// error_log( "Final parents" . print_r( $field_parents, 1 ) );
-					// error_log( "Final field group" . print_r( $field_field_group['title'], 1 ) );
-					// error_log( "context" . print_r( $context, 1 ) );.
-				} // End if().
-			} // End if().
+				}
+			}
 
 			++$loopnum;
-		} // End foreach().
+		}
 
-		// error_log( "---------------------------" );
-		// error_log( "field_path_string: $field_path_string");
-		// error_log( "context" . print_r( $context, 1 ) );.
 		return $context;
 	}
 
@@ -543,6 +518,7 @@ class Plugin_ACF_Logger extends Logger {
 		// Meta is array of arrays, get first value of each array value.
 		array_walk(
 			$post_meta,
+			// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			function ( &$value, $key ) {
 				$value = reset( $value );
 			}
