@@ -134,9 +134,10 @@ class History_Insights_Sidebar_Service extends Service {
 		$loggers_slugs                   = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
 		$current_user_can_manage_options = current_user_can( 'manage_options' );
 		$current_user_can_list_users     = current_user_can( 'list_users' );
-		$args_serialized                 = serialize( [ $num_days_month, $num_days_week, $loggers_slugs, $current_user_can_manage_options, $current_user_can_list_users ] );
-		$cache_key                       = 'sh_quick_stats_data_' . md5( $args_serialized );
-		$cache_expiration_seconds        = self::CACHE_DURATION_MINUTES * MINUTE_IN_SECONDS;
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+		$args_serialized          = serialize( [ $num_days_month, $num_days_week, $loggers_slugs, $current_user_can_manage_options, $current_user_can_list_users ] );
+		$cache_key                = 'sh_quick_stats_data_' . md5( $args_serialized );
+		$cache_expiration_seconds = self::CACHE_DURATION_MINUTES * MINUTE_IN_SECONDS;
 
 		$results = get_transient( $cache_key );
 
@@ -291,19 +292,19 @@ class History_Insights_Sidebar_Service extends Service {
 		<input
 			type="hidden"
 			class="SimpleHistory_SidebarChart_ChartLabels"
-			value="<?php echo esc_attr( json_encode( $arr_labels ) ); ?>"
+			value="<?php echo esc_attr( wp_json_encode( $arr_labels ) ); ?>"
 			/>
 
 		<input
 			type="hidden"
 			class="SimpleHistory_SidebarChart_ChartLabelsToDates"
-			value="<?php echo esc_attr( json_encode( $arr_labels_to_datetime ) ); ?>"
+			value="<?php echo esc_attr( wp_json_encode( $arr_labels_to_datetime ) ); ?>"
 			/>
 
 		<input
 			type="hidden"
 			class="SimpleHistory_SidebarChart_ChartDatasetData"
-			value="<?php echo esc_attr( json_encode( $arr_dataset_data ) ); ?>"
+			value="<?php echo esc_attr( wp_json_encode( $arr_dataset_data ) ); ?>"
 			/>
 
 		<?php
