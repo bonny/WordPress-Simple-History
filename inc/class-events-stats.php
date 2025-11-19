@@ -271,7 +271,8 @@ class Events_Stats {
 		$events_table   = $this->get_events_table_name();
 		$contexts_table = $this->get_contexts_table_name();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:disable WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Performance-critical stats query, WP user APIs too slow for bulk data
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
 		$users = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT
@@ -296,12 +297,12 @@ class Events_Stats {
 				LIMIT %d',
 				$contexts_table,
 				$events_table,
-				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Performance-critical stats query, WP user APIs too slow for bulk data
-				$wpdb->users, // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Performance-critical stats query, WP user APIs too slow for bulk data
+				$wpdb->users,
 				$date_from,
 				$date_to,
 				$limit
 			)
+			// phpcs:enable WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
 		);
 
 		if ( ! $users ) {
@@ -689,10 +690,9 @@ class Events_Stats {
 		$sql .= " AND c.value IN ($where_in) ORDER BY h.date DESC LIMIT %d";
 
 		// Prepare the complete query with all parameters.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				$sql,
 				array_merge(
 					$message_keys,
