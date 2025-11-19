@@ -1666,6 +1666,13 @@ a.sh-SettingsTabs-link:hover {
 	flex: 1;
 }
 
+.SimpleHistoryReactRoot-loading {
+	display: block;
+	min-height: 400px;
+	padding: var(--sh-spacing-medium);
+	color: var(--sh-color-black-2);
+}
+
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistory-filters {
 	padding: 0 11px;
 }

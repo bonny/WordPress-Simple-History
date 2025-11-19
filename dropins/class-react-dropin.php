@@ -64,7 +64,11 @@ class React_Dropin extends Dropin {
 			id="simple-history-react-root" 
 			class="SimpleHistoryReactRoot is-page"
 			style="<?php echo esc_attr( $this->get_css_style_vars() ); ?>"
-		>Loading</div>
+		>
+			<span class="SimpleHistoryReactRoot-loading">
+				<?php esc_html_e( 'Loading history…', 'simple-history' ); ?>
+			</span>
+		</div>
 		<?php
 	}
 
@@ -78,7 +82,11 @@ class React_Dropin extends Dropin {
 			id="simple-history-react-root" 
 			class="SimpleHistoryReactRoot is-dashboard" 
 			style="<?php echo esc_attr( $this->get_css_style_vars() ); ?>"
-		>Loading</div>
+		>
+			<span class="SimpleHistoryReactRoot-loading">
+				<?php esc_html_e( 'Loading history…', 'simple-history' ); ?>
+			</span>
+		</div>
 		<?php
 	}
 
