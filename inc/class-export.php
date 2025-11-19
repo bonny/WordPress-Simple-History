@@ -69,11 +69,11 @@ class Export {
 	 * Get an export option value.
 	 *
 	 * @param string $key Option key.
-	 * @param mixed  $default Default value if option not set.
+	 * @param mixed  $default_value Default value if option not set.
 	 * @return mixed Option value or default if not set.
 	 */
-	protected function get_option( $key, $default = null ) {
-		return $this->options[ $key ] ?? $default;
+	protected function get_option( $key, $default_value = null ) {
+		return $this->options[ $key ] ?? $default_value;
 	}
 
 	/**
@@ -111,6 +111,7 @@ class Export {
 		$pages_count  = $query_result['pages_count'];
 		$page_current = $query_result['page_current'];
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Does work, see https://github.com/WordPress/WordPress-Coding-Standards/issues/295
 		$fp = fopen( 'php://output', 'w' );
 
 		$attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
@@ -132,6 +133,7 @@ class Export {
 		// Some formats need to output some stuff before the actual loops.
 		if ( 'json' == $export_format ) {
 			$json_row = '[';
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $json_row );
 		} elseif ( 'html' == $export_format ) {
 			$html = sprintf(
@@ -142,6 +144,7 @@ class Export {
 			<ul>
 			'
 			);
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $html );
 		}
 
@@ -174,9 +177,11 @@ class Export {
 
 		if ( 'json' == $export_format ) {
 			$json_row = ']';
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $json_row );
 		} elseif ( 'html' == $export_format ) {
 			$html = sprintf( '</ul>' );
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $html );
 		}
 
@@ -217,10 +222,10 @@ class Export {
 	protected function output_csv_row( $fp, $one_row ) {
 		static $headers_outputted = false;
 
-		$header_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+		$header_output = wp_strip_all_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 		$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
 
-		$message_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+		$message_output = wp_strip_all_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 
 		$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
 		$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
