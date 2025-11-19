@@ -24,7 +24,6 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 			'name_via'    => _x( 'Using plugin Limit Login Attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => array(
-				// 'user_locked_out' => _x( 'User locked out', "Logger: Plugin Limit Login Attempts", "simple-history" ),
 				'failed_login_whitelisted' => _x( 'Failed login attempt from whitelisted IP', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				'failed_login'             => _x( 'Was locked out because too many failed login attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				'cleared_ip_log'           => _x( 'Cleared IP log', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
@@ -107,7 +106,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 					)
 				);
 			}
-		}// End if().
+		}
 	}
 
 	/**
@@ -138,14 +137,12 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 			$count        = limit_login_option( 'allowed_retries' ) * limit_login_option( 'allowed_lockouts' );
 			$lockouts     = limit_login_option( 'allowed_lockouts' );
 			$time         = round( limit_login_option( 'long_duration' ) / 3600 );
-			// $when = sprintf( _n( '%d hour', '%d hours', $time, "Logger: Plugin Limit Login Attempts", 'limit-login-attempts' ), $time );
 		} else {
 			/* normal lockout */
 			$lockout_type = 'normal';
 			$count        = $retries[ $ip ];
 			$lockouts     = floor( $count / limit_login_option( 'allowed_retries' ) );
 			$time         = round( limit_login_option( 'lockout_duration' ) / 60 );
-			// $when = sprintf( _n( '%d minute', '%d minutes', $time, 'limit-login-attempts' ), $time );
 		}
 
 		$message_key = $whitelisted ? 'failed_login_whitelisted' : 'failed_login';
