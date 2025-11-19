@@ -443,34 +443,6 @@ class Menu_Page {
 	}
 
 	/**
-	 * Generate a menu slug from a string.
-	 *
-	 * @param string $string String to generate slug from.
-	 * @return string The generated slug.
-	 */
-	private function generate_menu_slug( $string ) {
-		// Convert to lowercase and replace spaces with dashes.
-		$slug = strtolower( $string );
-		$slug = str_replace( ' ', '-', $slug );
-
-		// Remove any character that isn't a letter, number, or dash.
-		$slug = preg_replace( '/[^a-z0-9\-]/', '', $slug );
-
-		// Remove multiple consecutive dashes.
-		$slug = preg_replace( '/-+/', '-', $slug );
-
-		// Trim dashes from beginning and end.
-		$slug = trim( $slug, '-' );
-
-		// Ensure slug starts with 'simple-history-'.
-		if ( ! str_starts_with( $slug, 'simple-history-' ) ) {
-			$slug = 'simple-history-' . $slug;
-		}
-
-		return $slug;
-	}
-
-	/**
 	 * Sanitize a menu slug.
 	 *
 	 * @param string $slug Slug to sanitize.
