@@ -471,7 +471,7 @@ echo Admin_Pages::header_output();
 		);
 
 		++$loopnum;
-	} // End foreach().
+	}
 
 	echo '</table>';
 
