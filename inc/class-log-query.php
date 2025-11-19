@@ -237,7 +237,7 @@ class Log_Query {
 			$limit_clause // 3
 		);
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K );
 
 		if ( ! empty( $wpdb->last_error ) ) {
@@ -272,7 +272,8 @@ class Log_Query {
 			$inner_where_string, // 2
 		);
 
-		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count );
 
 		// Calc pages.
 		$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
@@ -325,6 +326,7 @@ class Log_Query {
 		$args = $this->prepare_args( $args );
 
 		// Create cache key based on args and current user.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		$cache_key   = md5( __METHOD__ . serialize( $args ) ) . '_userid_' . get_current_user_id();
 		$cache_group = Helpers::get_cache_group();
 
@@ -341,6 +343,7 @@ class Log_Query {
 
 		$Simple_History = Simple_History::get_instance();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0, SQL_BIG_SELECTS=1' );
 
 		/**
@@ -493,7 +496,8 @@ class Log_Query {
 			$max_ids_and_count_sql_statement // 2
 		);
 
-		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K );
 
 		if ( ! empty( $wpdb->last_error ) ) {
 			throw new \Exception(
@@ -559,7 +563,8 @@ class Log_Query {
 			$max_ids_and_count_without_limit_sql_statement // 2
 		);
 
-		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count );
 
 		// Calc pages.
 		$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
@@ -636,6 +641,7 @@ class Log_Query {
 	 */
 	protected function query_occasions( $args ) {
 		// Create cache key based on args and current user.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		$cache_key   = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_userid_' . get_current_user_id();
 		$cache_group = Helpers::get_cache_group();
 
@@ -742,7 +748,8 @@ class Log_Query {
 		global $wpdb;
 
 		/** @var array<string,object> Log rows matching where queries. */
-		$log_rows = $wpdb->get_results( $sql_query, OBJECT_K ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$log_rows = $wpdb->get_results( $sql_query, OBJECT_K );
 
 		$log_rows = $this->add_contexts_to_log_rows( $log_rows );
 
@@ -1008,6 +1015,7 @@ class Log_Query {
 			$args['loglevels'] = array_filter( $args['loglevels'] );
 		}
 
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 		// "messages" is string with comma separated loggers and messages,
 		// or array with comma separated loggers and messages.
 		// Array example:
@@ -1259,7 +1267,8 @@ class Log_Query {
 			$table_contexts
 		);
 
-		$context_results = $wpdb->get_results( $sql_context_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$context_results = $wpdb->get_results( $sql_context_query );
 
 		foreach ( $context_results as $context_row ) {
 			if ( ! isset( $log_rows[ $context_row->history_id ]->context ) ) {
@@ -1339,7 +1348,8 @@ class Log_Query {
 				$last_row_occasions_count + 1
 			);
 
-			$results = $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+			$results = $wpdb->get_results( $sql );
 
 			// the last occasion has the id we consider last in this paged result.
 			$min_id = (int) end( $results )->id;
@@ -1602,7 +1612,7 @@ class Log_Query {
 			';
 
 			$inner_where[] = $sql_months;
-		} // End if().
+		}
 
 		// Search.
 		$inner_where = $this->add_search_to_inner_where_query( $inner_where, $args );
@@ -1613,7 +1623,8 @@ class Log_Query {
 			// Create placeholders for prepared statement.
 			$placeholders  = implode( ', ', array_fill( 0, count( $args['loglevels'] ), '%s' ) );
 			$inner_where[] = $wpdb->prepare(
-				"level IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+				"level IN ({$placeholders})",
 				...$args['loglevels']
 			);
 		}
@@ -1624,7 +1635,8 @@ class Log_Query {
 			// Create placeholders for prepared statement.
 			$placeholders  = implode( ', ', array_fill( 0, count( $args['loggers'] ), '%s' ) );
 			$inner_where[] = $wpdb->prepare(
-				"logger IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"logger IN ({$placeholders})",
 				...$args['loggers']
 			);
 		}
@@ -1641,7 +1653,8 @@ class Log_Query {
 		// Users, array with user ids.
 		if ( isset( $args['users'] ) ) {
 			// Create placeholders for prepared statement.
-			$placeholders  = implode( ', ', array_fill( 0, count( $args['users'] ), '%s' ) );
+			$placeholders = implode( ', ', array_fill( 0, count( $args['users'] ), '%s' ) );
+
 			$inner_where[] = $wpdb->prepare(
 				'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value IN (' . $placeholders . ') )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				'_user_id',
@@ -1812,7 +1825,7 @@ class Log_Query {
 			// Join all parts with OR.
 			$sql_messages_where = '(' . implode( ' OR ', $sql_messages_where_parts ) . ')';
 			$outer_where[]      = $sql_messages_where;
-		} // End if().
+		}
 
 		return $outer_where;
 	}
@@ -2039,6 +2052,7 @@ class Log_Query {
 		$simple_history = Simple_History::get_instance();
 		$contexts_table = $simple_history->get_contexts_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		$results = $wpdb->get_col(
 			$wpdb->prepare(
 				'SELECT history_id, value FROM %i WHERE `key` = %s',
