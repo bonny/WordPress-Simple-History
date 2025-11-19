@@ -69,6 +69,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	public function get_items_for_search_user( $request ) {
 		$data = [];
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$q = trim( sanitize_text_field( wp_unslash( $_GET['q'] ?? '' ) ) );
 
 		if ( empty( $q ) ) {
@@ -240,7 +241,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 						'options' => $option_messages,
 					];
 				}
-			}// End if().
+			}
 
 			$loggers_and_messages[] = [
 				'slug'        => $logger_slug,
