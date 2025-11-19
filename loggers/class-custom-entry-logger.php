@@ -2,13 +2,9 @@
 
 namespace Simple_History\Loggers;
 
-use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
-use Simple_History\Event_Details\Event_Details_Simple_Container;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
-use Simple_History\Event_Details\Event_Details_Group_Inline_Formatter;
-use Simple_History\Log_Levels;
 
 /**
  * Logger for custom entries added manually through WP-CLI or REST API.
@@ -39,7 +35,6 @@ class Custom_Entry_Logger extends Logger {
 			'labels'      => [
 				'search' => [
 					'label'   => _x( 'Custom entries', 'Custom entry logger: search', 'simple-history' ),
-					// 'label_all' => _x( 'All custom entries', 'Custom entry logger: search', 'simple-history' ),
 					'options' => [
 						_x( 'Custom entry added', 'Custom entry logger: search', 'simple-history' ) => [
 							'custom_entry_added',
