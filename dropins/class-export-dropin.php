@@ -93,6 +93,7 @@ class Export_Dropin extends Dropin {
 			[
 				'paged'          => 1,
 				// 3000 is batch size.
+				// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- This is rarely used and only used on demand.
 				'posts_per_page' => 3000,
 			]
 		);
