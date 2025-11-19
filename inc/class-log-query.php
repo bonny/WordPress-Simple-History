@@ -1623,7 +1623,7 @@ class Log_Query {
 			// Create placeholders for prepared statement.
 			$placeholders  = implode( ', ', array_fill( 0, count( $args['loglevels'] ), '%s' ) );
 			$inner_where[] = $wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic placeholders in $placeholders variable matched with spread operator
 				"level IN ({$placeholders})",
 				...$args['loglevels']
 			);
@@ -1635,7 +1635,7 @@ class Log_Query {
 			// Create placeholders for prepared statement.
 			$placeholders  = implode( ', ', array_fill( 0, count( $args['loggers'] ), '%s' ) );
 			$inner_where[] = $wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic placeholders in $placeholders variable matched with spread operator
 				"logger IN ({$placeholders})",
 				...$args['loggers']
 			);
@@ -1655,6 +1655,7 @@ class Log_Query {
 			// Create placeholders for prepared statement.
 			$placeholders = implode( ', ', array_fill( 0, count( $args['users'] ), '%s' ) );
 
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic placeholders in $placeholders variable matched with spread operator
 			$inner_where[] = $wpdb->prepare(
 				'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value IN (' . $placeholders . ') )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				'_user_id',
@@ -1710,7 +1711,8 @@ class Log_Query {
 			// Create placeholders for prepared statement.
 			$placeholders  = implode( ', ', array_fill( 0, count( $args['exclude_loglevels'] ), '%s' ) );
 			$inner_where[] = $wpdb->prepare(
-				"level NOT IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic placeholders in $placeholders variable matched with spread operator
+				"level NOT IN ({$placeholders})",
 				...$args['exclude_loglevels']
 			);
 		}
@@ -1720,7 +1722,8 @@ class Log_Query {
 			// Create placeholders for prepared statement.
 			$placeholders  = implode( ', ', array_fill( 0, count( $args['exclude_loggers'] ), '%s' ) );
 			$inner_where[] = $wpdb->prepare(
-				"logger NOT IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic placeholders in $placeholders variable matched with spread operator
+				"logger NOT IN ({$placeholders})",
 				...$args['exclude_loggers']
 			);
 		}
@@ -1756,7 +1759,8 @@ class Log_Query {
 		// "exclude_users" - array with user IDs to exclude.
 		if ( isset( $args['exclude_users'] ) && ! empty( $args['exclude_users'] ) ) {
 			// Create placeholders for prepared statement.
-			$placeholders  = implode( ', ', array_fill( 0, count( $args['exclude_users'] ), '%s' ) );
+			$placeholders = implode( ', ', array_fill( 0, count( $args['exclude_users'] ), '%s' ) );
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic placeholders in $placeholders variable matched with spread operator
 			$inner_where[] = $wpdb->prepare(
 				'id NOT IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value IN (' . $placeholders . ') )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				'_user_id',
@@ -1815,6 +1819,7 @@ class Log_Query {
 				// Create placeholders for prepared statement.
 				$placeholders = implode( ', ', array_fill( 0, count( $logger_messages ), '%s' ) );
 
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic placeholders in $placeholders variable matched with spread operator
 				$sql_messages_where_parts[] = $wpdb->prepare(
 					'(h.logger = %s AND context_message_key IN (' . $placeholders . '))', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 					$logger_slug,

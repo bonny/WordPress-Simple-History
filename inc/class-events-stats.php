@@ -83,6 +83,7 @@ class Events_Stats {
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return (int) $wpdb->get_var(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic IN clause placeholders in $value_placeholders variable matched with merged $query_args array
 			$wpdb->prepare(
 				'SELECT COUNT(DISTINCT h.id)
 					FROM %i h

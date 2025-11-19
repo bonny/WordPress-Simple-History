@@ -587,26 +587,26 @@ class Existing_Data_Importer {
 		$placeholders = implode( ',', array_fill( 0, count( $history_ids ), '%d' ) );
 
 		// Delete from contexts table.
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$context_table_name}
-				WHERE history_id IN ({$placeholders})",
+				WHERE history_id IN ({$placeholders})", // Dynamic placeholders in $placeholders variable matched with spread operator.
 				...$history_ids
 			)
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		// Delete from history table.
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$deleted_count = $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$table_name}
-				WHERE id IN ({$placeholders})",
+				WHERE id IN ({$placeholders})", // Dynamic placeholders in $placeholders variable matched with spread operator.
 				...$history_ids
 			)
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		return [
 			'events_deleted' => (int) $deleted_count,
