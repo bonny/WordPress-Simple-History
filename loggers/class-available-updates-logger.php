@@ -146,6 +146,7 @@ class Available_Updates_Logger extends Logger {
 				continue;
 			}
 
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 			$fp = fopen( $file, 'r' );
 
 			// Continue with next plugin if plugin file could not be read.
@@ -180,7 +181,7 @@ class Available_Updates_Logger extends Logger {
 					'_initiator'             => Log_Initiators::WORDPRESS,
 				)
 			);
-		} // End foreach().
+		}
 
 		update_option( $option_key, $checked_updates );
 	}
@@ -209,7 +210,6 @@ class Available_Updates_Logger extends Logger {
 		foreach ( $updates->response as $key => $data ) {
 			$theme_info = wp_get_theme( $key );
 
-			// $message .= "\n" . sprintf( __( "Theme: %s is out of date. Please update from version %s to %s", "wp-updates-notifier" ), $theme_info['Name'], $theme_info['Version'], $data['new_version'] ) . "\n";
 			$settings['notified']['theme'][ $key ] = $data['new_version']; // set theme version we are notifying about.
 
 			$theme_new_version = $data['new_version'] ?? '';
@@ -235,13 +235,9 @@ class Available_Updates_Logger extends Logger {
 					'theme_current_version' => $theme_info['Version'] ?? '',
 					'theme_new_version'     => $theme_new_version,
 					'_initiator'            => Log_Initiators::WORDPRESS,
-				// "plugin_info" => $plugin_info,
-				// "remote_plugin_info" => $remote_plugin_info,
-				// "active_plugins" => $active_plugins,
-				// "updates" => $updates,
 				)
 			);
-		} // End foreach().
+		}
 
 		update_option( $option_key, $checked_updates );
 	}
