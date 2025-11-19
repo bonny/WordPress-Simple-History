@@ -37,7 +37,7 @@ class Setup_Purge_DB_Cron extends Service {
 	/**
 	 * Runs the purge_db() method sometimes.
 	 *
-	 * Fired from filter `simple_history/maybe_purge_db``
+	 * Fired from action `simple_history/maybe_purge_db``
 	 * that is scheduled to run once a day.
 	 *
 	 * The db is purged only on Sundays by default,
