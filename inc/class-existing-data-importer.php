@@ -2,9 +2,6 @@
 
 namespace Simple_History;
 
-use Simple_History\Loggers\Post_Logger;
-use Simple_History\Loggers\User_Logger;
-
 /**
  * Imports existing WordPress data into Simple History.
  *
@@ -436,6 +433,7 @@ class Existing_Data_Importer {
 			$message_key
 		);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		$results = $wpdb->get_results( $sql, ARRAY_A );
 
 		// Convert to associative array: post_id => ['is_imported' => 0|1].
@@ -480,6 +478,7 @@ class Existing_Data_Importer {
 			  AND c3.value = 'user_created'
 			GROUP BY c1.value";
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		$results = $wpdb->get_results( $sql, ARRAY_A );
 
 		// Convert to associative array: user_id => ['is_imported' => 0|1].
@@ -521,6 +520,7 @@ class Existing_Data_Importer {
 			// Attachments use 'inherit' status, not 'publish'.
 			if ( 'attachment' === $post_type->name ) {
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 				$count = $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(*) FROM {$wpdb->posts}
@@ -530,7 +530,7 @@ class Existing_Data_Importer {
 					)
 				);
 			} else {
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 				$count = $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(*) FROM {$wpdb->posts}
@@ -545,7 +545,7 @@ class Existing_Data_Importer {
 		}
 
 		// Count users.
-		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Simple count query, get_users() would be inefficient for large user bases
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Simple count query, get_users() would be inefficient for large user bases
 		$counts['users'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->users}" );
 
 		return $counts;
@@ -566,16 +566,16 @@ class Existing_Data_Importer {
 		$context_table_name = $this->simple_history->get_contexts_table_name();
 
 		// First, get all history IDs that have the _imported_event context.
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		$history_ids = $wpdb->get_col(
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$wpdb->prepare(
 				"SELECT DISTINCT c.history_id
 				FROM {$context_table_name} AS c
 				WHERE c.key = %s",
 				'_imported_event'
 			)
-		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		);      
 
 		if ( empty( $history_ids ) ) {
 			return [
@@ -587,7 +587,7 @@ class Existing_Data_Importer {
 		$placeholders = implode( ',', array_fill( 0, count( $history_ids ), '%d' ) );
 
 		// Delete from contexts table.
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$context_table_name}
