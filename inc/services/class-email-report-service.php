@@ -121,7 +121,7 @@ class Email_Report_Service extends Service {
 		$stats = [
 			'site_name'       => get_bloginfo( 'name' ),
 			'site_url'        => get_bloginfo( 'url' ),
-			'site_url_domain' => parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ),
+			'site_url_domain' => wp_parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ),
 			// Date range as string, as it's displayed in the email.
 			'date_range'      => sprintf(
 				/* translators: 1: start date with day name, 2: end date with day name, 3: year */
@@ -162,7 +162,7 @@ class Email_Report_Service extends Service {
 		if ( $peak_days && is_array( $peak_days ) ) {
 			foreach ( $peak_days as $day ) {
 				$all_days[] = [
-					'day_number' => $day->day,  // 0=Sunday, 6=Saturday
+					'day_number' => $day->day,  // 0=Sunday and 6=Saturday.
 					'count'      => $day->count,
 				];
 			}
@@ -274,6 +274,7 @@ class Email_Report_Service extends Service {
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this is a preview email sent to a single recipient.
 		$sent = wp_mail(
 			$current_user->user_email,
 			$subject,
@@ -615,6 +616,7 @@ class Email_Report_Service extends Service {
 
 		// Send to each recipient.
 		foreach ( $recipients as $recipient ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this is the email that is sent to a short list of manually added recipients.
 			wp_mail(
 				$recipient,
 				$subject,
