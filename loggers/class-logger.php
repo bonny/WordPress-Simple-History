@@ -293,7 +293,7 @@ abstract class Logger {
 						esc_html( $context['_user_email'] ?? '' ), // 2
 						esc_html( $context['_user_login'] ?? '' ) // 3
 					);
-				} // End if().
+				}
 
 				break;
 
@@ -333,7 +333,7 @@ abstract class Logger {
 					"<strong class='SimpleHistoryLogitem__inlineDivided'>" .
 					esc_html( $initiator ) .
 					'</strong>';
-		} // End switch().
+		}
 
 		/**
 		 * Filter generated html for the initiator row header html
@@ -508,7 +508,7 @@ abstract class Logger {
 	 * @param object $row Log row.
 	 * @return string HTML
 	 */
-	public function get_log_row_header_using_plugin_output( $row ) {
+	public function get_log_row_header_using_plugin_output( $row ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		// Logger "via" info in header, i.e. output some extra
 		// info next to the time to make it more clear what plugin etc.
 		// that "caused" this event.
@@ -1330,6 +1330,7 @@ abstract class Logger {
 		);
 
 		// Insert data into db.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->insert( $this->db_table, $data );
 
 		// Save context if able to store row.
@@ -1340,7 +1341,7 @@ abstract class Logger {
 
 			// Insert all context values into db.
 			$this->append_context( $history_inserted_id, $context );
-		} // End if().
+		}
 
 		$this->last_insert_id      = $history_inserted_id;
 		$this->last_insert_context = $context;
@@ -1379,29 +1380,6 @@ abstract class Logger {
 	public function append_context( $history_id, $context ) {
 		// Use new batched method.
 		return $this->append_context_batched( $history_id, $context );
-
-		if ( empty( $history_id ) || empty( $context ) ) {
-			return false;
-		}
-
-		global $wpdb;
-
-		foreach ( $context as $key => $value ) {
-			// Everything except strings should be json_encoded, ie. arrays and objects.
-			if ( ! is_string( $value ) ) {
-				$value = Helpers::json_encode( $value );
-			}
-
-			$data = array(
-				'history_id' => $history_id,
-				'key'        => $key,
-				'value'      => $value,
-			);
-
-			$wpdb->insert( $this->db_table_contexts, $data );
-		}
-
-		return true;
 	}
 
 	/**
@@ -1498,7 +1476,7 @@ abstract class Logger {
 			$sql = "INSERT INTO {$this->db_table_contexts} (history_id, `key`, value) VALUES "
 				. implode( ', ', $placeholders );
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is prepared on the next line.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->query( $wpdb->prepare( $sql, $values ) );
 		}
 
@@ -1789,7 +1767,7 @@ abstract class Logger {
 			if ( defined( \WP_CLI::class ) && WP_CLI ) {
 				$data['initiator'] = Log_Initiators::WP_CLI;
 			}
-		} // End if().
+		}
 
 		return array( $data, $context );
 	}
@@ -1806,6 +1784,7 @@ abstract class Logger {
 			$remote_addr = '';
 			// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders -- REMOTE_ADDR is validated with filter_var() below
 			if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
 				$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 				// Validate that it's a proper IP address.
 				$validated_ip = filter_var( $remote_addr, FILTER_VALIDATE_IP );
@@ -1815,6 +1794,7 @@ abstract class Logger {
 
 			$context['_server_remote_addr'] = Helpers::privacy_anonymize_ip( $remote_addr );
 
+			// phpcs:disable Squiz.PHP.CommentedOutCode.Found
 			// Fake some headers to test.
 			// phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar
 			// $_SERVER['HTTP_CLIENT_IP'] = '216.58.209.99';
@@ -1883,7 +1863,8 @@ abstract class Logger {
 				'_occasionsID' => $context['_occasionsID'],
 				'_loggerSlug'  => $this->get_slug(),
 			);
-			$occasions_id   = md5( json_encode( $occasions_data ) );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+			$occasions_id = md5( json_encode( $occasions_data ) );
 			unset( $context['_occasionsID'] );
 		} else {
 			// No occasions id specified, create one based on the data array.
@@ -1892,6 +1873,7 @@ abstract class Logger {
 			// Don't include date in context data.
 			unset( $occasions_data['date'] );
 
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 			$occasions_id = md5( json_encode( $occasions_data ) );
 		}
 
