@@ -66,17 +66,17 @@ class Categories_Logger extends Logger {
 	 * Only way for Simple History to get both old and new term name.
 	 * For example 'edited_term' does not contain enough info to know what the term was called before the update.
 	 *
-	 * @param int    $parent      ID of the parent term.
+	 * @param int    $parent_term      ID of the parent term.
 	 * @param int    $term_id     Term ID.
 	 * @param string $taxonomy    Taxonomy slug.
 	 * @param array  $parsed_args An array of potentially altered update arguments for the given term.
 	 * @param array  $term_update_args        An array of update arguments for the given term.
 	 */
-	public function on_wp_update_term_parent( $parent = null, $term_id = null, $taxonomy = null, $parsed_args = null, $term_update_args = null ) {
+	public function on_wp_update_term_parent( $parent_term = null, $term_id = null, $taxonomy = null, $parsed_args = null, $term_update_args = null ) {
 		$term_before_edited = get_term_by( 'id', $term_id, $taxonomy );
 
 		if ( ! $term_before_edited || empty( $term_update_args ) ) {
-			return $parent;
+			return $parent_term;
 		}
 
 		$term_id = $term_before_edited->term_id;
@@ -94,7 +94,7 @@ class Categories_Logger extends Logger {
 		$do_log_term = $this->ok_to_log_taxonomy( $from_term_taxonomy );
 
 		if ( ! $do_log_term ) {
-			return $parent;
+			return $parent_term;
 		}
 
 		$this->info_message(
@@ -113,7 +113,7 @@ class Categories_Logger extends Logger {
 			)
 		);
 
-		return $parent;
+		return $parent_term;
 	}
 
 	/**
