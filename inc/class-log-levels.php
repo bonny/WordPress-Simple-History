@@ -94,7 +94,7 @@ class Log_Levels {
 
 			default:
 				$str_translated = $loglevel;
-		} // End switch().
+		}
 
 		return $str_translated;
 	}
