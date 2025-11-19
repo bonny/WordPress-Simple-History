@@ -92,7 +92,7 @@ class FiltersTest extends \Codeception\TestCase\WPTestCase {
 			get_latest_row(),
 			'First log message should be logged'
 		);
-		
+
 		// Pause logging.
 		do_action('simple_history/pause');
 		apply_filters( 'simple_history_log', 'My log message 2' );
@@ -107,7 +107,7 @@ class FiltersTest extends \Codeception\TestCase\WPTestCase {
 			get_latest_row(),
 			'Log messages should not be logged while paused'
 		);
-		
+
 		// Unpause logging.
 		do_action('simple_history/resume');
 		apply_filters( 'simple_history_log', 'My log message 4' );
@@ -122,6 +122,115 @@ class FiltersTest extends \Codeception\TestCase\WPTestCase {
 			),
 			get_latest_row(),
 			'Log messages should be logged after unpausing'
+		);
+	}
+
+	/**
+	 * Test that do_action() works correctly with simple_history_log hooks.
+	 * This verifies backwards compatibility - both apply_filters() and do_action() should work.
+	 */
+	function test_do_action_logging() {
+		// Test basic logging with do_action().
+		do_action( 'simple_history_log', 'This is a logged message via do_action' );
+		$latest_row = get_latest_row();
+
+		$this->assertEquals(
+			array(
+				'logger' => 'SimpleLogger',
+				'level' => 'info',
+				'message' => 'This is a logged message via do_action',
+				'initiator' => 'other',
+			),
+			$latest_row
+		);
+
+		// Test with context and log level.
+		do_action(
+			'simple_history_log',
+			'My message via do_action with context',
+			array(
+				'testKey' => 'testValue',
+				'anotherKey' => 'anotherValue',
+			),
+			'warning'
+		);
+
+		$latest_row = get_latest_row();
+
+		$this->assertEquals(
+			array(
+				'logger' => 'SimpleLogger',
+				'level' => 'warning',
+				'message' => 'My message via do_action with context',
+				'initiator' => 'other',
+			),
+			$latest_row
+		);
+
+		$context = get_latest_context();
+		$this->assertEquals(
+			array(
+				array(
+					'key' => 'anotherKey',
+					'value' => 'anotherValue',
+				),
+				array(
+					'key' => 'testKey',
+					'value' => 'testValue',
+				),
+				array(
+					'key' => '_server_remote_addr',
+					'value' => '127.0.0.x',
+				),
+			),
+			$context
+		);
+
+		// Test level-specific hooks with do_action().
+		do_action( 'simple_history_log_debug', 'Debug message via do_action' );
+
+		$latest_row = get_latest_row();
+
+		$this->assertEquals(
+			array(
+				'logger' => 'SimpleLogger',
+				'level' => 'debug',
+				'message' => 'Debug message via do_action',
+				'initiator' => 'other',
+			),
+			$latest_row
+		);
+
+		do_action( 'simple_history_log_error', 'Error message via do_action' );
+
+		$latest_row = get_latest_row();
+
+		$this->assertEquals(
+			array(
+				'logger' => 'SimpleLogger',
+				'level' => 'error',
+				'message' => 'Error message via do_action',
+				'initiator' => 'other',
+			),
+			$latest_row
+		);
+
+		do_action(
+			'simple_history_log_critical',
+			'Critical message via do_action',
+			array( 'criticalData' => 'criticalValue' )
+		);
+
+		$latest_row = get_latest_row();
+
+		$this->assertEquals(
+			array(
+				'logger' => 'SimpleLogger',
+				'level' => 'critical',
+				'message' => 'Critical message via do_action',
+				'initiator' => 'other',
+			),
+			$latest_row
 		);
 	}
 }
