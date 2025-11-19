@@ -50,6 +50,7 @@ class Setup_Settings_Page extends Service {
 		/**
 		 * Fires on admin_init to trigger actions for old add-ons.
 		 */
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		do_action( $action_to_trigger );
 	}
 
@@ -63,7 +64,9 @@ class Setup_Settings_Page extends Service {
 	 * "Sorry, you are not allowed to access this page." is thrown.
 	 */
 	public function on_admin_page_access_denied() {
-		$wp_referer              = wp_get_referer();
+		$wp_referer = wp_get_referer();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page                    = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
 		$settings_menu_page_slug = Simple_History::SETTINGS_MENU_PAGE_SLUG;
 
@@ -89,6 +92,7 @@ class Setup_Settings_Page extends Service {
 		}
 
 		// Pass on ?settings-updated if exists in requested URL.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['settings-updated'] ) ) {
 			$current_settings_url = add_query_arg( 'settings-updated', 'true', $current_settings_url );
 		}
@@ -359,25 +363,12 @@ class Setup_Settings_Page extends Service {
 	public function settings_field_where_to_show() {
 		$show_on_dashboard = Helpers::setting_show_on_dashboard();
 		$show_in_admin_bar = Helpers::setting_show_in_admin_bar();
-		// $show_as_page_below_dashboard = Helpers::setting_show_as_page();
 		?>
 
 		<input <?php checked( $show_on_dashboard ); ?> type="checkbox" value="1" name="simple_history_show_on_dashboard" id="simple_history_show_on_dashboard" class="simple_history_show_on_dashboard" />
 		<label for="simple_history_show_on_dashboard">
 			<?php esc_html_e( 'on the dashboard', 'simple-history' ); ?>
 		</label>
-
-		
-		<?php
-		/**
-		<br />
-		<input <?php checked( $show_as_page_below_dashboard ); ?> type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
-		<label for="simple_history_show_as_page">
-			<?php esc_html_e( 'as a page under the dashboard menu', 'simple-history' ); ?>
-		</label>
-		<?php
-		 */
-		?>
 		
 		<br />
 
@@ -617,7 +608,9 @@ class Setup_Settings_Page extends Service {
 		$arr_settings_tabs_sub = $simple_history->get_settings_tabs( 'sub' );
 
 		// Begin subnav.
-		$sub_tab_found  = false;
+		$sub_tab_found = false;
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$active_sub_tab = sanitize_text_field( wp_unslash( $_GET['selected-sub-tab'] ?? '' ) );
 		$active_tab     = self::get_active_tab_slug();
 
@@ -722,6 +715,7 @@ class Setup_Settings_Page extends Service {
 	 * @return string
 	 */
 	public static function get_active_tab_slug() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return sanitize_text_field( wp_unslash( $_GET['selected-tab'] ?? 'settings' ) );
 	}
 
@@ -759,6 +753,8 @@ class Setup_Settings_Page extends Service {
 			set_transient( 'settings_errors', get_settings_errors(), 30 );
 
 			$goback = esc_url_raw( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
+
+			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 			wp_redirect( $goback );
 			exit();
 		}
