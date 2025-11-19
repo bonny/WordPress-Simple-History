@@ -110,14 +110,17 @@ class Menu_Logger extends Logger {
 	 */
 	public function on_load_nav_menus_page_detect_delete() {
 		// Check that needed vars are set.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_REQUEST['menu'], $_REQUEST['action'] ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( 'delete' !== $_REQUEST['action'] ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$menu_id = sanitize_text_field( wp_unslash( $_REQUEST['menu'] ) );
 		if ( ! is_nav_menu( $menu_id ) ) {
 			return;
@@ -185,16 +188,19 @@ class Menu_Logger extends Logger {
 		*/
 
 		// Check that needed vars are set.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_REQUEST['menu'], $_REQUEST['action'], $_REQUEST['menu-name'] ) ) {
 			return;
 		}
 
 		// Only go on for update action.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( 'update' !== $_REQUEST['action'] ) {
 			return;
 		}
 
 		// Make sure we got the id of a menu.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$menu_id = sanitize_text_field( wp_unslash( $_REQUEST['menu'] ) );
 		if ( ! is_nav_menu( $menu_id ) ) {
 			return;
@@ -267,23 +273,16 @@ class Menu_Logger extends Logger {
 	public function on_load_nav_menus_page_detect_locations_update() {
 
 		// Check that needed vars are set.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_REQUEST['menu'], $_REQUEST['action'] ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( 'locations' !== $_REQUEST['action'] ) {
 			return;
 		}
 
-		/*
-		Array
-		(
-			[menu-locations] => Array
-				(
-					[primary] => 25
-				)
-		)
-		*/
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$menu_locations = (array) wp_unslash( $_POST['menu-locations'] );
 
