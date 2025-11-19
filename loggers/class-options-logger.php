@@ -202,7 +202,6 @@ class Options_Logger extends Logger {
 					'permalink_structure' => [ 'translation' => __( 'Custom Structure', 'simple-history' ) ],
 					'category_base'       => [ 'translation' => __( 'Category base', 'simple-history' ) ],
 					'tag_base'            => [ 'translation' => __( 'Tag base', 'simple-history' ) ],
-				// 'rewrite_rules' => [ 'translation' => __( 'Rewrite rules', 'simple-history' ) ],
 				],
 			],
 		];
@@ -252,6 +251,7 @@ class Options_Logger extends Logger {
 	 * @param mixed  $new_value New value.
 	 */
 	public function on_updated_option( $option, $old_value, $new_value ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$option_page = sanitize_text_field( wp_unslash( $_REQUEST['option_page'] ?? '' ) ); // general | discussion | ...
 
 		if ( ! $this->is_wordpress_built_in_options_page( $option_page ) && ! $this->is_form_submitted_from_permalink_page() ) {
@@ -317,8 +317,6 @@ class Options_Logger extends Logger {
 			$options_page_translation          = $options_page_info['translation_settings_page'] ?? $option_page;
 			$context['option_page_translated'] = $options_page_translation;
 
-			// $option_page_info = $this->get_option_page_info( $option_page );
-
 			$message = sprintf(
 				__( 'Updated setting "{option_translated}" on the <a href="{option_page_link}">{option_page_translated}</a>', 'simple-history' ),
 				$context['option'],
@@ -356,7 +354,6 @@ class Options_Logger extends Logger {
 			</tr>
 		';
 
-		// $message = 'Old value was {old_value} and new value is {new_value}';
 		$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
 		// Output old and new values.
@@ -389,7 +386,7 @@ class Options_Logger extends Logger {
 			} else {
 				$output .= $option_custom_output;
 			}
-		} // End if().
+		}
 
 		$output .= '</table>';
 
@@ -399,15 +396,15 @@ class Options_Logger extends Logger {
 	/**
 	 * Create a possible excerpt of a string, with ... appended.
 	 *
-	 * @param string $string String to create excerpt from.
+	 * @param string $string_value String to create excerpt from.
 	 * @param int    $length Length of excerpt.
 	 * @return string Excerpt with ... added if the string was long.
 	 */
-	protected function excerptify( $string, $length = 250 ) {
+	protected function excerptify( $string_value, $length = 250 ) {
 		$more    = __( '&hellip;', 'simple-history' );
-		$trimmed = substr( $string, 0, $length );
+		$trimmed = substr( $string_value, 0, $length );
 
-		if ( strlen( $string ) > $length ) {
+		if ( strlen( $string_value ) > $length ) {
 			$trimmed .= $more;
 		}
 
