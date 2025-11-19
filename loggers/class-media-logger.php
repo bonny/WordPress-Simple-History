@@ -239,7 +239,7 @@ class Media_Logger extends Logger {
 				'%1$s',
 				wp_get_attachment_image( $attachment_id, array( 350, 500 ), true ) // Placeholder 1.
 			);
-		} // End if().
+		}
 
 		// Only set attachment_size_format if we have a valid filesize.
 		if ( ! empty( $row->context['attachment_filesize'] ) ) {
@@ -326,8 +326,6 @@ class Media_Logger extends Logger {
 		} elseif ( 'attachment_updated' === $message_key ) {
 			return $this->get_details_output_for_updated_attachment( $row );
 		}
-
-		return;
 	}
 
 	/**
