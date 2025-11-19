@@ -47,10 +47,10 @@ Developers can easily log their own things using a simple API:
 
 // This is the easiest and safest way to add messages to the log
 // If the plugin is disabled this way will not generate in any error
-apply_filters('simple_history_log', 'This is a logged message');
+do_action('simple_history_log', 'This is a logged message');
 
 // Or with some context and with log level debug:
-apply_filters(
+do_action(
 	'simple_history_log',
 	'My message about something',
 	[
@@ -61,7 +61,7 @@ apply_filters(
 );
 
 // Or just debug a message quickly
-apply_filters('simple_history_log_debug', 'My debug message');
+do_action('simple_history_log_debug', 'My debug message');
 
 // You can also use functions/methods to add events to the log
 SimpleLogger()->info("This is a message sent to the log");
