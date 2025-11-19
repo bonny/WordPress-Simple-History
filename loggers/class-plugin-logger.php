@@ -1116,7 +1116,7 @@ class Plugin_Logger extends Logger {
 				'plugin_installed',
 				$context
 			);
-		} // End if().
+		}
 	}
 
 	/**

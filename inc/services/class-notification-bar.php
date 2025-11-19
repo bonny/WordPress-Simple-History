@@ -35,6 +35,7 @@ class Notification_Bar extends Service {
 		$stats_page_url = Menu_Manager::get_admin_url_by_slug( 'simple_history_stats_page' );
 
 		$notification_bar_messages = [
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 			// [
 			// 'message' => __( 'New in premium: Stats and Summaries that gives you insights into your site\'s activity', 'simple-history' ),
 			// 'link' => Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/stats-and-summaries/', 'premium_notificationbar_stats' ),
