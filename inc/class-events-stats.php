@@ -688,9 +688,9 @@ class Events_Stats {
 
 		// Add the IN clause and limit safely.
 		$sql .= " AND c.value IN ($where_in) ORDER BY h.date DESC LIMIT %d";
-
+		
 		// Prepare the complete query with all parameters.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				$sql,
@@ -700,6 +700,7 @@ class Events_Stats {
 				)
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 
 		$plugins = array();
 		foreach ( $results as $result ) {
