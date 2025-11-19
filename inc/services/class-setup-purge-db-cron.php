@@ -27,7 +27,7 @@ class Setup_Purge_DB_Cron extends Service {
 	 * Setup a wp-cron job that daily checks if the database should be cleared.
 	 */
 	public function setup_cron() {
-		add_filter( 'simple_history/maybe_purge_db', array( $this, 'maybe_purge_db' ) );
+		add_action( 'simple_history/maybe_purge_db', array( $this, 'maybe_purge_db' ) );
 
 		if ( ! wp_next_scheduled( 'simple_history/maybe_purge_db' ) ) {
 			wp_schedule_event( time(), 'daily', 'simple_history/maybe_purge_db' );
