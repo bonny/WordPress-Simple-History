@@ -37,23 +37,23 @@ if ( ! isset( $args ) ) {
 $args = wp_parse_args(
 	$args,
 	[
-		'email_subject' => __( 'Website Activity Summary', 'simple-history' ),
+		'email_subject'          => __( 'Website Activity Summary', 'simple-history' ),
 		'total_events_this_week' => 0,
-		'most_active_days' => [],
-		'busiest_day_name' => __( 'No activity', 'simple-history' ),
-		'date_range' => '',
-		'site_url' => '',
-		'site_name' => '',
-		'site_url_domain' => '',
-		'successful_logins' => 0,
-		'failed_logins' => 0,
-		'posts_created' => 0,
-		'posts_updated' => 0,
-		'plugin_activations' => 0,
-		'plugin_deactivations' => 0,
-		'wordpress_updates' => 0,
-		'history_admin_url' => '',
-		'settings_url' => '',
+		'most_active_days'       => [],
+		'busiest_day_name'       => __( 'No activity', 'simple-history' ),
+		'date_range'             => '',
+		'site_url'               => '',
+		'site_name'              => '',
+		'site_url_domain'        => '',
+		'successful_logins'      => 0,
+		'failed_logins'          => 0,
+		'posts_created'          => 0,
+		'posts_updated'          => 0,
+		'plugin_activations'     => 0,
+		'plugin_deactivations'   => 0,
+		'wordpress_updates'      => 0,
+		'history_admin_url'      => '',
+		'settings_url'           => '',
 	]
 );
 
@@ -185,11 +185,11 @@ $args = wp_parse_args(
 						<?php
 						$allowed_html = array(
 							'a' => array(
-								'href' => array(),
+								'href'  => array(),
 								'style' => array(),
 							),
 						);
-						$link_style = 'style="color: #0040FF; text-decoration: underline;"';
+						$link_style   = 'style="color: #0040FF; text-decoration: underline;"';
 						echo wp_kses(
 							sprintf(
 								/* translators: 1: URL to history page, 2: link style attribute including style="" */
@@ -260,17 +260,17 @@ $args = wp_parse_args(
 							}
 
 							// Build days array in chronological order based on actual date range.
-							$ordered_days = [];
+							$ordered_days    = [];
 							$start_timestamp = isset( $args['date_from_timestamp'] ) ? $args['date_from_timestamp'] : strtotime( '-6 days' );
-							$end_timestamp = isset( $args['date_to_timestamp'] ) ? $args['date_to_timestamp'] : time();
+							$end_timestamp   = isset( $args['date_to_timestamp'] ) ? $args['date_to_timestamp'] : time();
 
 							// Create DateTimeImmutable objects for iteration.
 							$current_date = ( new DateTimeImmutable( '@' . $start_timestamp ) )->setTimezone( wp_timezone() );
-							$end_date = ( new DateTimeImmutable( '@' . $end_timestamp ) )->setTimezone( wp_timezone() );
+							$end_date     = ( new DateTimeImmutable( '@' . $end_timestamp ) )->setTimezone( wp_timezone() );
 
 							// Iterate through each day in the range.
 							while ( $current_date <= $end_date ) {
-								$day_name = $current_date->format( 'l' ); // Full day name (e.g., "Monday").
+								$day_name   = $current_date->format( 'l' ); // Full day name (e.g., "Monday").
 								$day_number = (int) $current_date->format( 'w' ); // Day of week (0=Sunday, 6=Saturday).
 
 								// Get full formatted date for tooltip.
@@ -286,11 +286,11 @@ $args = wp_parse_args(
 								$date_ymd = $current_date->format( 'Y-m-d' );
 
 								$ordered_days[] = [
-									'name' => $day_name,
-									'key' => $day_number,
-									'count' => isset( $day_counts[ $day_number ] ) ? $day_counts[ $day_number ] : 0,
+									'name'      => $day_name,
+									'key'       => $day_number,
+									'count'     => isset( $day_counts[ $day_number ] ) ? $day_counts[ $day_number ] : 0,
 									'full_date' => $full_date,
-									'date_ymd' => $date_ymd,
+									'date_ymd'  => $date_ymd,
 								];
 
 								// Move to next day.
@@ -301,7 +301,7 @@ $args = wp_parse_args(
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<?php
-									$day_index = 0;
+									$day_index  = 0;
 									$total_days = count( $ordered_days );
 									foreach ( $ordered_days as $day_data ) {
 										// Build URL with date filter for this specific day.
@@ -309,7 +309,7 @@ $args = wp_parse_args(
 											[
 												'date' => 'customRange',
 												'from' => $day_data['date_ymd'],
-												'to' => $day_data['date_ymd'],
+												'to'   => $day_data['date_ymd'],
 											],
 											$args['history_admin_url']
 										);
@@ -325,7 +325,7 @@ $args = wp_parse_args(
 											</a>
 										</td>
 										<?php
-										$day_index++;
+										++$day_index;
 									}
 									?>
 								</tr>
@@ -496,11 +496,11 @@ $args = wp_parse_args(
 						<?php
 						$allowed_html = array(
 							'a' => array(
-								'href' => array(),
+								'href'  => array(),
 								'style' => array(),
 							),
 						);
-						$link_style = 'style="color: #000000; text-decoration: underline;"';
+						$link_style   = 'style="color: #000000; text-decoration: underline;"';
 						echo wp_kses(
 							sprintf(
 								/* translators: 1: URL to settings page, 2: link style attribute including style="" */

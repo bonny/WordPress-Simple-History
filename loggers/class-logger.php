@@ -1851,7 +1851,7 @@ abstract class Logger {
 							$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
 						}
 
-						$ip_loop_num++;
+						++$ip_loop_num;
 					}
 				}
 			}

@@ -108,7 +108,7 @@ class Export {
 
 		$query_result = $query->query( $download_query_args );
 
-		$pages_count = $query_result['pages_count'];
+		$pages_count  = $query_result['pages_count'];
 		$page_current = $query_result['page_current'];
 
 		$fp = fopen( 'php://output', 'w' );
@@ -161,15 +161,15 @@ class Export {
 					$this->output_html_row( $fp, $one_row );
 				}
 
-				$row_loop++;
+				++$row_loop;
 			}
 
 			flush();
 
 			// Fetch next page.
-			$page_current++;
+			++$page_current;
 			$download_query_args['paged'] = $page_current;
-			$query_result = $query->query( $download_query_args );
+			$query_result                 = $query->query( $download_query_args );
 		}
 
 		if ( 'json' == $export_format ) {
@@ -227,7 +227,7 @@ class Export {
 		$user_roles = [];
 
 		if ( $user_email ) {
-			$user = get_user_by( 'email', $user_email );
+			$user       = get_user_by( 'email', $user_email );
 			$user_roles = $user->roles ?? array();
 		}
 
@@ -269,7 +269,7 @@ class Export {
 	 * @param int      $row_loop Row loop counter.
 	 */
 	protected function output_json_row( $fp, $one_row, $row_loop ) {
-		$comma = $row_loop == 0 ? "\n" : ",\n";
+		$comma    = $row_loop == 0 ? "\n" : ",\n";
 		$json_row = $comma . Helpers::json_encode( $one_row );
 		fwrite( $fp, $json_row );
 	}

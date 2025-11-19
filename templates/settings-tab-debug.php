@@ -189,14 +189,14 @@ echo Admin_Pages::header_output();
 			$stealth_mode_allowed_emails = $stealh_mode_service::get_allowed_email_addresses();
 
 			// If number of emails are more than this, only show the first 5.
-			$large_amount_of_emails_threshold = 10;
+			$large_amount_of_emails_threshold           = 10;
 			$large_amount_of_emails_more_than_threshold = 0;
 
 			// If large amount of emails, only show the first 5.
 			if ( count( $stealth_mode_allowed_emails ) > $large_amount_of_emails_threshold ) {
 				$large_amount_of_emails_more_than_threshold = count( $stealth_mode_allowed_emails ) - $large_amount_of_emails_threshold;
-				$stealth_mode_allowed_emails = array_slice( $stealth_mode_allowed_emails, 0, $large_amount_of_emails_threshold );
-				$stealth_mode_allowed_emails[] = sprintf(
+				$stealth_mode_allowed_emails                = array_slice( $stealth_mode_allowed_emails, 0, $large_amount_of_emails_threshold );
+				$stealth_mode_allowed_emails[]              = sprintf(
 					/* translators: %d number of emails. */
 					esc_html_x( 'And %d more.', 'debug dropin', 'simple-history' ),
 					$large_amount_of_emails_more_than_threshold
@@ -343,7 +343,7 @@ echo Admin_Pages::header_output();
 	foreach ( $missing_logger_slugs as $one_missing_logger_slug ) {
 		$logger_rows_count[ $one_missing_logger_slug ] = (object) array(
 			'logger' => $one_missing_logger_slug,
-			'count' => 0,
+			'count'  => 0,
 		);
 	}
 
@@ -397,11 +397,11 @@ echo Admin_Pages::header_output();
 			$one_logger_count = $logger_rows_count[ $one_logger_slug ];
 		} else {
 			// logger was not is sql result, so fake result.
-			$one_logger_count = new \stdClass();
+			$one_logger_count        = new \stdClass();
 			$one_logger_count->count = 0;
 		}
 
-		$logger_info = $logger->get_info();
+		$logger_info     = $logger->get_info();
 		$logger_messages = isset( $logger_info['messages'] ) ? (array) $logger_info['messages'] : array();
 
 		$html_logger_messages = '';
@@ -470,7 +470,7 @@ echo Admin_Pages::header_output();
 			esc_html( $logger_enabled_text )
 		);
 
-		$loopnum++;
+		++$loopnum;
 	} // End foreach().
 
 	echo '</table>';

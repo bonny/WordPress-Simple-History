@@ -114,9 +114,9 @@ class Plugin_ACF_Logger extends Logger {
 	 */
 	public function on_log_inserted( $context, $data_parent_row, $simple_history_instance ) {
 		$message_key = empty( $context['_message_key'] ) ? false : $context['_message_key'];
-		$logger = empty( $data_parent_row['logger'] ) ? false : $data_parent_row['logger'];
-		$post_id = empty( $context['post_id'] ) ? false : $context['post_id'];
-		$post_type = empty( $context['post_type'] ) ? false : $context['post_type'];
+		$logger      = empty( $data_parent_row['logger'] ) ? false : $data_parent_row['logger'];
+		$post_id     = empty( $context['post_id'] ) ? false : $context['post_id'];
+		$post_type   = empty( $context['post_type'] ) ? false : $context['post_type'];
 
 		// Bail if not all required vars are set.
 		if ( ! $message_key || ! $logger || ! $post_id || ! $post_type ) {
@@ -444,7 +444,7 @@ class Plugin_ACF_Logger extends Logger {
 							if ( ! empty( $one_field_path['field_type'] ) ) {
 								$context[ "{$context_key}/path_{$path_loop_num}/field_type" ] = $one_field_path['field_type'];
 							}
-							$path_loop_num++;
+							++$path_loop_num;
 						}
 					}
 
@@ -456,7 +456,7 @@ class Plugin_ACF_Logger extends Logger {
 				} // End if().
 			} // End if().
 
-			$loopnum++;
+			++$loopnum;
 		} // End foreach().
 
 		// error_log( "---------------------------" );
@@ -661,7 +661,7 @@ class Plugin_ACF_Logger extends Logger {
 					esc_html( $context[ "acf_deleted_fields_{$loopnum}_type" ] )
 				);
 
-				$loopnum++;
+				++$loopnum;
 			}
 
 			$strDeletedFields = trim( $strDeletedFields, ', ' );
@@ -690,7 +690,7 @@ class Plugin_ACF_Logger extends Logger {
 					esc_html( $context[ "acf_added_fields_{$loopnum}_type" ] ) // 3
 				);
 
-				$loopnum++;
+				++$loopnum;
 			}
 
 			$strAddedFields = trim( $strAddedFields, ', ' );
@@ -774,7 +774,7 @@ class Plugin_ACF_Logger extends Logger {
 					);
 				}
 
-				$loopnum++;
+				++$loopnum;
 			}
 
 			$diff_table_output .= $strModifiedFields;
@@ -843,8 +843,8 @@ class Plugin_ACF_Logger extends Logger {
 
 		$fieldGroup['new']['hide_on_screen'] = isset( $fieldGroup['new']['hide_on_screen'] ) && is_array( $fieldGroup['new']['hide_on_screen'] ) ? $fieldGroup['new']['hide_on_screen'] : array();
 		$fieldGroup['old']['hide_on_screen'] = isset( $fieldGroup['old']['hide_on_screen'] ) && is_array( $fieldGroup['old']['hide_on_screen'] ) ? $fieldGroup['old']['hide_on_screen'] : array();
-		$arrhHideOnScreenAdded  = array_diff( $fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen'] );
-		$arrHideOnScreenRemoved = array_diff( $fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen'] );
+		$arrhHideOnScreenAdded               = array_diff( $fieldGroup['new']['hide_on_screen'], $fieldGroup['old']['hide_on_screen'] );
+		$arrHideOnScreenRemoved              = array_diff( $fieldGroup['old']['hide_on_screen'], $fieldGroup['new']['hide_on_screen'] );
 
 		if ( $arrhHideOnScreenAdded !== [] ) {
 				$context['acf_hide_on_screen_added'] = implode( ',', $arrhHideOnScreenAdded );
@@ -864,7 +864,7 @@ class Plugin_ACF_Logger extends Logger {
 				$context[ "acf_deleted_fields_{$loopnum}_name" ]  = $oneDeletedField['name'];
 				$context[ "acf_deleted_fields_{$loopnum}_label" ] = $oneDeletedField['label'];
 				$context[ "acf_deleted_fields_{$loopnum}_type" ]  = $oneDeletedField['type'];
-				$loopnum++;
+				++$loopnum;
 			}
 		}
 
@@ -879,7 +879,7 @@ class Plugin_ACF_Logger extends Logger {
 				$context[ "acf_added_fields_{$loopnum}_name" ]  = $oneAddedField['name'];
 				$context[ "acf_added_fields_{$loopnum}_label" ] = $oneAddedField['label'];
 				$context[ "acf_added_fields_{$loopnum}_type" ]  = $oneAddedField['type'];
-				$loopnum++;
+				++$loopnum;
 			}
 		}
 
@@ -924,7 +924,7 @@ class Plugin_ACF_Logger extends Logger {
 					}
 				}
 
-				$loopnum++;
+				++$loopnum;
 			}
 		}
 
