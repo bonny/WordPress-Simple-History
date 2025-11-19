@@ -99,7 +99,7 @@ class Plugin_ACF_Logger extends Logger {
 		add_action( 'admin_action_editpost', array( $this, 'on_admin_action_editpost' ) );
 
 		// Fired when ACF saves a post. Adds ACF context to logged row.
-		add_filter( 'acf/save_post', array( $this, 'on_acf_save_post' ), 50 );
+		add_action( 'acf/save_post', array( $this, 'on_acf_save_post' ), 50 );
 
 		// Fired after a log row is inserted. Add filter so field group save is is not logged again.
 		add_action( 'simple_history/log/inserted', array( $this, 'on_log_inserted' ), 10, 3 );
