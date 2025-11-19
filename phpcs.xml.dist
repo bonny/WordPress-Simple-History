@@ -13,7 +13,7 @@
 	<arg name="colors"/>
 
 	<!-- Don't show warnings -->
-	<arg value="n"/>
+	<!-- <arg value="n"/> -->
 
 	<!-- Only scan PHP files. -->
 	<arg name="extensions" value="php"/>
