@@ -65,6 +65,7 @@ Config is in `phpstan.neon`.
 ## Changelog
 
 -   Try to use format from https://keepachangelog.com.
+-   Also read and try to follow https://developer.wordpress.org/news/2025/11/the-importance-of-a-good-changelog/
 
 ## How to use in Visual Studio Code
 
@@ -91,4 +92,4 @@ phpcbf /path/to/code
 
 -   Will try to follow OneFlow:
     https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
-- Run phpstan after making php changes in many files or making a larger change in a single file.
+-   Run phpstan after making php changes in many files or making a larger change in a single file.
