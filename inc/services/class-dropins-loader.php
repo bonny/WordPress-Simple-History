@@ -116,7 +116,7 @@ class Dropins_Loader extends Service {
 				'name'     => $dropin_short_name,
 				'instance' => $dropin_instance,
 			);
-		} // End foreach().
+		}
 
 		$this->simple_history->set_instantiated_dropins( $instantiated_dropins );
 

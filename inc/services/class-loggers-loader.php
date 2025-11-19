@@ -127,7 +127,7 @@ class Loggers_Loader extends Service {
 				'name'     => $logger_instance->get_info_value_by_key( 'name' ),
 				'instance' => $logger_instance,
 			);
-		} // End foreach().
+		}
 
 		$this->simple_history->set_instantiated_loggers( $instantiated_loggers );
 

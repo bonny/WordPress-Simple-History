@@ -241,6 +241,7 @@ class Admin_Pages extends Service {
 	 * so bookmarks and old links still work.
 	 */
 	public function on_admin_page_access_denied_redirect_prev_menu_location() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page    = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
 		$pagenow = $GLOBALS['pagenow'] ?? '';
 

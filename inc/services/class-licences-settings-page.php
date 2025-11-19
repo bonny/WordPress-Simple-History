@@ -260,8 +260,6 @@ class Licences_Settings_Page extends Service {
 						esc_html( $activation_result['message'] )
 					);
 				}
-
-				// $licence_message = $plus_plugin->get_license_message( $license_key );
 			} elseif ( $action_deactivate ) {
 				$deactivate_result = $plus_plugin->deactivate_license();
 				if ( $deactivate_result === true ) {
@@ -362,7 +360,12 @@ class Licences_Settings_Page extends Service {
 					?>
 					<details style="margin-top: 1em;">
 						<summary>Licence message (debug)</summary>
-						<pre><?php echo esc_html( print_r( $licence_message, true ) ); ?></pre>
+						<pre>
+						<?php 
+							// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+							echo esc_html( print_r( $licence_message, true ) ); 
+						?>
+						</pre>
 						<br />Licence key: <code><?php echo esc_html( $license_key ); ?></code>
 					</details>
 					<?php
