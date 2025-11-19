@@ -29,6 +29,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		}
 
 		// If true then always show promotion, regardless of date.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$preview_promotion = isset( $_GET['sh_preview_promotion'] );
 
 		// Get current date/time in the site's timezone.
