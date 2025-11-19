@@ -242,10 +242,12 @@ class Export {
 
 		// Output headers if this is the first row and headers are enabled.
 		if ( ! $headers_outputted && $this->get_option( 'include_headers', false ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fputcsv
 			fputcsv( $fp, $this->get_csv_headers() );
 			$headers_outputted = true;
 		}
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fputcsv
 		fputcsv(
 			$fp,
 			array(
@@ -276,6 +278,8 @@ class Export {
 	protected function output_json_row( $fp, $one_row, $row_loop ) {
 		$comma    = $row_loop == 0 ? "\n" : ",\n";
 		$json_row = $comma . Helpers::json_encode( $one_row );
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite
 		fwrite( $fp, $json_row );
 	}
 
@@ -299,6 +303,7 @@ class Export {
 			$this->simple_history->get_log_row_details_output( $one_row )
 		);
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite
 		fwrite( $fp, $html );
 	}
 }
