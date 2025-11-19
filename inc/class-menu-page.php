@@ -198,6 +198,7 @@ class Menu_Page {
 				sprintf(
 					'Parent must be a Menu_Page object or a menu slug string. Current page slug: "%s", Invalid parent: "%s".',
 					esc_html( $this->get_menu_slug() ),
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- returning value so it's ok.
 					esc_html( print_r( $parent_instance_or_string, true ) )
 				),
 				'5.19.0'
