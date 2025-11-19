@@ -336,9 +336,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+-   Show an error message when trying to view an event that does not exist.
 -   Admin Bar Quick View: Display count of similar events (occasions) on a new line below the main event message and style it.
-- Tested up to WordPress 6.9.
-- Add logging of new [notes feature in WordPress 6.9](https://make.wordpress.org/core/2025/11/15/notes-feature-in-wordpress-6-9/). [#599](https://github.com/bonny/WordPress-Simple-History/issues/599).
+-   Tested up to WordPress 6.9.
+-   Add logging of new [notes feature in WordPress 6.9](https://make.wordpress.org/core/2025/11/15/notes-feature-in-wordpress-6-9/). [#599](https://github.com/bonny/WordPress-Simple-History/issues/599).
 -   Add rollback context to plugin update failed events.
 -   Add logging of failed theme updates
 -   Decrease font size on stats sidebar stats box to fit more events.
