@@ -16,7 +16,7 @@ class Stats_View {
 	 * @return int Random number between min and max.
 	 */
 	private static function get_random_stat( $min, $max ) {
-		return rand( $min, $max );
+		return wp_rand( $min, $max );
 	}
 
 	/**
