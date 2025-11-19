@@ -67,6 +67,31 @@ class Sidebar_Dropin extends Dropin {
 			</div>
 		';
 
+		// Box about hosting.
+		$headline = _x( 'Website Hosting', 'Sidebar box', 'simple-history' );
+
+		$body = sprintf(
+			// translators: 1 is a link to Oderland.
+			_x( 'The Simple History website is kindly hosted by %1$s, a Swedish web hosting provider.', 'Sidebar box', 'simple-history' ),
+			'<a href="https://www.oderland.se" target="_blank" rel="noopener noreferrer" class="sh-ExternalLink">Oderland</a>'
+		);
+
+		$logo_url = plugins_url( 'assets/images/oderland-logo.svg', __DIR__ );
+
+		$boxHosting = '
+			<div class="postbox sh-PremiumFeaturesPostbox">
+				<h3 class="hndle">' . esc_html( $headline ) . '</h3>
+				<div class="inside">
+					<p style="text-align: center; margin: 1em 0;">
+						<a href="https://www.oderland.se" target="_blank" rel="noopener noreferrer">
+							<img src="' . esc_url( $logo_url ) . '" alt="Oderland" style="max-width: 150px; height: auto;">
+						</a>
+					</p>
+					<p>' . $body . '</p>
+				</div>
+			</div>
+		';
+
 		// Box about support.
 		$boxSupport = sprintf(
 			'
@@ -88,6 +113,7 @@ class Sidebar_Dropin extends Dropin {
 		$arrBoxes = array(
 			'boxReview'  => $boxReview,
 			'boxDonate'  => $boxDonate,
+			'boxHosting' => $boxHosting,
 			'boxSupport' => $boxSupport,
 		);
 
