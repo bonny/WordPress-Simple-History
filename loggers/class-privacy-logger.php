@@ -129,6 +129,7 @@ class Privacy_Logger extends Logger {
 	 * @param string $json_report_pathname Path to JSON report.
 	 */
 	public function on_wp_privacy_personal_data_export_file_created( $archive_pathname, $archive_url, $html_report_pathname, $request_id, $json_report_pathname ) {
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoEmptyLineBefore
 		/*
 		{
 			"ID": 55,
@@ -313,7 +314,7 @@ class Privacy_Logger extends Logger {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
 		if ( $user_request && 'delete' === $action ) {
@@ -355,7 +356,7 @@ class Privacy_Logger extends Logger {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
 		if ( $user_request && 'delete' === $action ) {
@@ -388,6 +389,7 @@ class Privacy_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_admin_action_complete() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$request_ids = isset( $_REQUEST['request_id'] ) ? wp_parse_id_list( wp_unslash( $_REQUEST['request_id'] ) ) : array();
 
 		foreach ( $request_ids as $request_id ) {
