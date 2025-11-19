@@ -193,12 +193,14 @@ class Menu_Page {
 	 */
 	public function set_parent( $parent_instance_or_string ) {
 		if ( ! $parent_instance_or_string instanceof Menu_Page && ! is_string( $parent_instance_or_string ) ) {
-			error_log(
+			_doing_it_wrong(
+				__METHOD__,
 				sprintf(
 					'Parent must be a Menu_Page object or a menu slug string. Current page slug: "%s", Invalid parent: "%s".',
 					esc_html( $this->get_menu_slug() ),
 					esc_html( print_r( $parent_instance_or_string, true ) )
-				)
+				),
+				'5.19.0'
 			);
 
 			return $this;
@@ -214,7 +216,15 @@ class Menu_Page {
 		if ( is_string( $parent_instance_or_string ) ) {
 			// Log error if menu_manager not set.
 			if ( ! $this->menu_manager ) {
-				error_log( 'Parent menu slug requires a menu manager instance. Menu with slug "' . esc_html( $this->menu_slug ) . '" tried to set parent to "' . esc_html( $parent_instance_or_string ) . '".' );
+				_doing_it_wrong(
+					__METHOD__,
+					sprintf(
+						'Parent menu slug requires a menu manager instance. Menu with slug "%s" tried to set parent to "%s".',
+						esc_html( $this->menu_slug ),
+						esc_html( $parent_instance_or_string )
+					),
+					'5.19.0'
+				);
 
 				return $this;
 			}
@@ -222,13 +232,15 @@ class Menu_Page {
 			$parent_page = $this->menu_manager->get_page_by_slug( $parent_instance_or_string );
 
 			if ( ! $parent_page ) {
-				error_log(
+				_doing_it_wrong(
+					__METHOD__,
 					sprintf(
 						'Parent page with slug "%s" not found. Current page slug: %s. All existing page slugs: %s',
 						esc_html( $parent_instance_or_string ),
 						esc_html( $this->menu_slug ),
 						esc_html( implode( ',', $this->menu_manager->get_all_slugs() ) )
-					)
+					),
+					'5.19.0'
 				);
 
 				return $this;
