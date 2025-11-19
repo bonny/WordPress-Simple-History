@@ -84,7 +84,7 @@ class Log_Initiators {
 				break;
 			default:
 				$initiatorText = $initiator;
-		}// End switch().
+		}
 
 		return $initiatorText;
 	}

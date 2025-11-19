@@ -296,6 +296,7 @@ class Events_Stats {
 				LIMIT %d',
 				$contexts_table,
 				$events_table,
+				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Performance-critical stats query, WP user APIs too slow for bulk data
 				$wpdb->users, // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Performance-critical stats query, WP user APIs too slow for bulk data
 				$date_from,
 				$date_to,
