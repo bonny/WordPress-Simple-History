@@ -141,10 +141,10 @@ class Post_Logger extends Logger {
 			add_filter( "rest_pre_insert_{$post_type->name}", array( $this, 'on_rest_pre_insert' ), 10, 2 );
 
 			// Rest insert happens after the post has been updated: "Fires after a single post is completely created or updated via the REST API.".
-			add_filter( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
+			add_action( "rest_after_insert_{$post_type->name}", array( $this, 'on_rest_after_insert' ), 10, 3 );
 
 			// Rest delete is fired "immediately after a single post is deleted or trashed via the REST API".
-			add_filter( "rest_delete_{$post_type->name}", array( $this, 'on_rest_delete' ), 10, 3 );
+			add_action( "rest_delete_{$post_type->name}", array( $this, 'on_rest_delete' ), 10, 3 );
 		}
 	}
 
