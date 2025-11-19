@@ -266,6 +266,7 @@ class Post_Logger extends Logger {
 
 		if ( in_array( $method, $arr_methods_to_act_on ) ) {
 			// Setup common stuff.
+			// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile
 			$raw_post_data                    = file_get_contents( 'php://input' );
 			$context['wp.deletePost.xmldata'] = Helpers::json_encode( $raw_post_data );
 			$message                          = new \IXR_Message( $raw_post_data );
@@ -303,7 +304,7 @@ class Post_Logger extends Logger {
 
 				$this->info_message( 'post_trashed', $context );
 			}
-		} // End if().
+		}
 	}
 
 	/**
@@ -316,7 +317,7 @@ class Post_Logger extends Logger {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$post_ids = array_map( 'intval', (array) ( $_GET['post'] ?? [] ) );
 
 		foreach ( $post_ids as $one_post_id ) {
@@ -628,6 +629,7 @@ class Post_Logger extends Logger {
 		// Except when calls are from/for Jetpack/WordPress apps.
 		// seems to be jetpack/app request when $_GET["for"] == "jetpack.
 		$isXmlRpcRequest = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $isXmlRpcRequest && isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] ) {
 			$ok_to_log = true;
 		}
@@ -653,6 +655,7 @@ class Post_Logger extends Logger {
 		}
 
 		// Don't log Gutenberg saving meta boxes.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['meta-box-loader'] ) && sanitize_text_field( wp_unslash( $_GET['meta-box-loader'] ) ) ) {
 			$ok_to_log = false;
 		}
@@ -731,7 +734,7 @@ class Post_Logger extends Logger {
 			$context = apply_filters( 'simple_history/post_logger/post_updated/context', $context, $post );
 
 			$this->info_message( 'post_updated', $context );
-		} // End if().
+		}
 	}
 
 	/**
@@ -869,7 +872,7 @@ class Post_Logger extends Logger {
 					$context[ "post_new_{$diff_key}/display_name" ] = $new_author_user->display_name;
 				}
 			}
-		} // End if().
+		}
 
 		// Compare custom fields.
 		// Array with custom field keys to ignore because changed every time or very internal.
@@ -941,6 +944,7 @@ class Post_Logger extends Logger {
 
 		// Look for changed custom fields/meta.
 		foreach ( $old_meta as $meta_key => $meta_value ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 			if ( isset( $new_meta[ $meta_key ] ) && json_encode( $old_meta[ $meta_key ] ) !== json_encode( $new_meta[ $meta_key ] ) ) {
 				$meta_changes['changed'][ $meta_key ] = true;
 			}
@@ -1083,6 +1087,7 @@ class Post_Logger extends Logger {
 		$files = (array) $theme->get_files( 'php', 1 );
 
 		foreach ( $files as $file => $full_path ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
 			if ( ! preg_match( '|Template Name:(.*)$|mi', file_get_contents( $full_path ), $header ) ) {
 				continue;
 			}
@@ -1161,7 +1166,7 @@ class Post_Logger extends Logger {
 					'simple-history'
 				);
 			}
-		} // End if().
+		}
 
 		$context['post_type']  = isset( $context['post_type'] ) ? esc_html( $context['post_type'] ) : '';
 		$context['post_title'] = isset( $context['post_title'] ) ? esc_html( $context['post_title'] ) : '';
@@ -1249,7 +1254,6 @@ class Post_Logger extends Logger {
 								$has_diff_values = true;
 								$label           = __( 'Publish date', 'simple-history' );
 
-								// $diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -1263,7 +1267,6 @@ class Post_Logger extends Logger {
 								$has_diff_values = true;
 								$label           = __( 'Permalink', 'simple-history' );
 
-								// $diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -1276,7 +1279,6 @@ class Post_Logger extends Logger {
 								$has_diff_values = true;
 								$label           = __( 'Comment status', 'simple-history' );
 
-								// $diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -1338,8 +1340,6 @@ class Post_Logger extends Logger {
 									$new_page_template_name = $new_page_template;
 								}
 
-								// @TODO: translate template names
-								// $value = translate( $value, $this->get('TextDomain') );
 								$message = __(
 									'Changed from {prev_page_template} to {new_page_template}',
 									'simple-history'
@@ -1376,11 +1376,11 @@ class Post_Logger extends Logger {
 									$post_old_value,
 									$post_new_value
 								);
-							} // End if().
-						} // End if().
-					} // End if().
-				} // End if().
-			} // End foreach().
+							}
+						}
+					}
+				}
+			}
 
 			if (
 				isset( $context['post_meta_added'] ) ||
@@ -1421,19 +1421,6 @@ class Post_Logger extends Logger {
 				);
 			}
 
-			/*
-			$diff_table_output .= "
-				<p>
-					<span class='SimpleHistoryLogitem__inlineDivided'><em>Title</em> Hey there » Yo there</span>
-					<span class='SimpleHistoryLogitem__inlineDivided'><em>Permalink</em> /my-permalink/ » /permalinks-rule/</span>
-				</p>
-				<p>
-					<span class='SimpleHistoryLogitem__inlineDivided'><em>Status</em> draft » publish</span>
-					<span class='SimpleHistoryLogitem__inlineDivided'><em>Publish date</em> 23:31:24 to 2015-04-11 23:31:40</span>
-				</p>
-			";
-			*/
-
 			// Changed terms.
 			$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, 'added' );
 			$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, 'removed' );
@@ -1462,7 +1449,7 @@ class Post_Logger extends Logger {
 			}
 
 			$out .= $diff_table_output;
-		} // End if().
+		}
 
 		return $out;
 	}
@@ -1725,7 +1712,7 @@ class Post_Logger extends Logger {
 				$prev_thumb_html, // 2
 				$new_thumb_html // 3
 			);
-		} // End if().
+		}
 
 		return $out;
 	}
