@@ -273,6 +273,7 @@ class Menu_Manager {
 	 * @return string The current tab. Empty string if not set.
 	 */
 	public static function get_current_tab_slug() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return sanitize_text_field( wp_unslash( $_GET['selected-tab'] ?? '' ) );
 	}
 
@@ -282,6 +283,7 @@ class Menu_Manager {
 	 * @return string The current sub-tab. Empty string if not set.
 	 */
 	public static function get_current_sub_tab_slug() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return sanitize_text_field( wp_unslash( $_GET['selected-sub-tab'] ?? '' ) );
 	}
 
@@ -293,7 +295,8 @@ class Menu_Manager {
 	 */
 	public function get_main_tabs_for_page_with_tabs() {
 		$menu_page_location = Helpers::get_menu_page_location();
-		$page               = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
 
 		$current_menu_page_root = $this->get_page_by_slug( $page );
 
@@ -439,7 +442,8 @@ class Menu_Manager {
 		// Check if current request is for a request to any of our pages.
 		// If so, redirect to the first child page.
 		$all_menu_pages_slugs = $this->get_all_slugs();
-		$page                 = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
 
 		// Bail if page is not among our pages.
 		if ( ! in_array( $page, $all_menu_pages_slugs, true ) ) {
@@ -481,6 +485,7 @@ class Menu_Manager {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page              = sanitize_text_field( wp_unslash( $_GET['page'] ?? null ) );
 		$current_menu_page = $this->get_page_by_slug( $page );
 
