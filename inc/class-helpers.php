@@ -235,6 +235,7 @@ class Helpers {
 	 * @param mixed $value array|object|string|whatever that is json_encode'able.
 	 */
 	public static function json_encode( $value ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- Before switching to wp_json_encode we need to verify that it's safe to use.
 		return json_encode( $value, JSON_PRETTY_PRINT );
 	}
 
@@ -332,19 +333,19 @@ class Helpers {
 	 * Function based on code found on stack overflow:
 	 * https://stackoverflow.com/questions/34324576/print-name-or-definition-of-callable-in-php
 	 *
-	 * @param callable $callable The callable thing to check.
+	 * @param callable $callback The callable thing to check.
 	 * @return string Name of callable.
 	 */
-	public static function get_callable_name( $callable ) {
-		if ( is_string( $callable ) ) {
-			return trim( $callable );
-		} elseif ( is_array( $callable ) ) {
-			if ( is_object( $callable[0] ) ) {
-				return sprintf( '%s::%s', get_class( $callable[0] ), trim( $callable[1] ) );
+	public static function get_callable_name( $callback ) {
+		if ( is_string( $callback ) ) {
+			return trim( $callback );
+		} elseif ( is_array( $callback ) ) {
+			if ( is_object( $callback[0] ) ) {
+				return sprintf( '%s::%s', get_class( $callback[0] ), trim( $callback[1] ) );
 			} else {
-				return sprintf( '%s::%s', trim( $callable[0] ), trim( $callable[1] ) );
+				return sprintf( '%s::%s', trim( $callback[0] ), trim( $callback[1] ) );
 			}
-		} elseif ( $callable instanceof \Closure ) {
+		} elseif ( $callback instanceof \Closure ) {
 			return 'closure';
 		} else {
 			return 'unknown';
@@ -499,12 +500,12 @@ class Helpers {
 	 *
 	 * @param string       $email email address.
 	 * @param string       $size Size of the avatar image.
-	 * @param string       $default URL to a default image to use if no avatar is available.
+	 * @param string       $default_value URL to a default image to use if no avatar is available.
 	 * @param string|false $alt Alternative text to use in image tag. Defaults to blank.
 	 * @param array        $args Avatar arguments.
 	 * @return string The img element for the user's avatar
 	 */
-	public static function get_avatar( $email, $size = '96', $default = '', $alt = false, $args = array() ) {
+	public static function get_avatar( $email, $size = '96', $default_value = '', $alt = false, $args = array() ) {
 		$args = array(
 			'force_display' => false,
 		);
@@ -531,7 +532,7 @@ class Helpers {
 		 */
 		$args['force_display'] = apply_filters( 'simple_history/show_avatars', $args['force_display'] );
 
-		return get_avatar( $email, $size, $default, $alt, $args );
+		return get_avatar( $email, $size, $default_value, $alt, $args );
 	}
 
 	/**
