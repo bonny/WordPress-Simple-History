@@ -336,6 +336,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+-   Add WordPress VIP Go coding standards for enterprise compatibility.
 -   Show an error message when trying to view an event that does not exist.
 -   Admin Bar Quick View: Display count of similar events (occasions) on a new line below the main event message and style it.
 -   Tested up to WordPress 6.9.
