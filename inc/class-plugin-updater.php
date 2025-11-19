@@ -115,6 +115,7 @@ class Plugin_Updater {
 			$this->api_url . '/update',
 		);
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$remote = wp_remote_get(
 			$url,
 			[
@@ -171,8 +172,10 @@ class Plugin_Updater {
 		// Here: Get plugin info from simple-history.com.
 		// URLs for a plugin will be like:
 		// https://simple-history.com/wp-json/simple-history/v1/plugins/simple-history-extended-settings.
-		$api_url_base         = 'https://simple-history.com/wp-json/simple-history/v1/plugins/';
-		$api_for_plugin       = $api_url_base . $this->plugin_slug;
+		$api_url_base   = 'https://simple-history.com/wp-json/simple-history/v1/plugins/';
+		$api_for_plugin = $api_url_base . $this->plugin_slug;
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$plugin_info_response = wp_remote_get( $api_for_plugin );
 
 		// Bail if response was not ok.
