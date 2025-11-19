@@ -218,23 +218,24 @@ class Events_Stats {
 		$events_table = $this->get_events_table_name();
 		$contexts_table = $this->get_contexts_table_name();
 
+		// phpcs:disable WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Performance-critical stats query, WP user APIs too slow for bulk data
 		return $wpdb->get_row(
 			$wpdb->prepare(
-				'SELECT 
+				'SELECT
 					h.*,
 					c.value as user_id,
 					u.display_name
-				FROM 
+				FROM
 					%i h
-				JOIN 
+				JOIN
 					%i c ON h.id = c.history_id
-				LEFT JOIN 
+				LEFT JOIN
 					' . $wpdb->users . ' u ON u.ID = CAST(c.value AS UNSIGNED)
-				WHERE 
+				WHERE
 					c.key = "_user_id"
 					AND h.date >= FROM_UNIXTIME(%d)
 					AND h.date <= FROM_UNIXTIME(%d)
-				ORDER BY 
+				ORDER BY
 					h.date DESC
 				LIMIT 1',
 				$events_table,
@@ -243,6 +244,7 @@ class Events_Stats {
 				$date_to
 			)
 		);
+		// phpcs:enable WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
 	}
 
 	/**
@@ -288,7 +290,7 @@ class Events_Stats {
 				LIMIT %d',
 				$contexts_table,
 				$events_table,
-				$wpdb->users,
+				$wpdb->users, // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Performance-critical stats query, WP user APIs too slow for bulk data
 				$date_from,
 				$date_to,
 				$limit
