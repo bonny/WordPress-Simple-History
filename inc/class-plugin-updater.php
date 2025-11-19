@@ -118,7 +118,7 @@ class Plugin_Updater {
 		$remote = wp_remote_get(
 			$url,
 			[
-				'timeout' => 10,
+				'timeout' => 3,
 			]
 		);
 
