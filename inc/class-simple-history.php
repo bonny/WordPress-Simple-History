@@ -4,7 +4,6 @@ namespace Simple_History;
 
 use Simple_History\Loggers;
 use Simple_History\Loggers\Logger;
-use Simple_History\Dropins;
 use Simple_History\Dropins\Dropin;
 use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Helpers;
@@ -14,7 +13,6 @@ use Simple_History\Event_Details\Event_Details_Simple_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Services\Setup_Settings_Page;
-use Simple_History\Services\Email_Report_Service;
 use Simple_History\Date_Helper;
 
 /**
@@ -1580,11 +1578,11 @@ class Simple_History {
 		// Bail if method name is nothing to act on.
 		if ( ! isset( $methods_mapping[ $name ] ) ) {
 			_doing_it_wrong(
-				__CLASS__ . '::' . $name,
+				__CLASS__ . '::' . esc_html( $name ),
 				sprintf(
 					'Call to undefined or deprecated method %s::%s(). This indicates a bug in the calling code.',
 					__CLASS__,
-					$name
+					esc_html( $name )
 				),
 				'5.19.0'
 			);
