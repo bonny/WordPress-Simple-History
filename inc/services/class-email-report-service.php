@@ -40,8 +40,8 @@ class Email_Report_Service extends Service {
 			'simple-history/v1',
 			'/email-report/preview/email',
 			[
-				'methods' => [ \WP_REST_Server::CREATABLE, \WP_REST_Server::READABLE ],
-				'callback' => [ $this, 'rest_preview_email' ],
+				'methods'             => [ \WP_REST_Server::CREATABLE, \WP_REST_Server::READABLE ],
+				'callback'            => [ $this, 'rest_preview_email' ],
 				'permission_callback' => [ $this, 'rest_permission_callback' ],
 			]
 		);
@@ -50,8 +50,8 @@ class Email_Report_Service extends Service {
 			'simple-history/v1',
 			'/email-report/preview/html',
 			[
-				'methods' => \WP_REST_Server::READABLE,
-				'callback' => [ $this, 'rest_preview_html' ],
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'rest_preview_html' ],
 				'permission_callback' => [ $this, 'rest_permission_callback' ],
 			]
 		);
@@ -81,7 +81,7 @@ class Email_Report_Service extends Service {
 				0,
 				$limit,
 				[
-					'name' => '',
+					'name'  => '',
 					'count' => 0,
 				]
 			);
@@ -89,14 +89,14 @@ class Email_Report_Service extends Service {
 
 		for ( $i = 0; $i < $limit; $i++ ) {
 			if ( isset( $items[ $i ] ) ) {
-				$item = $items[ $i ];
+				$item     = $items[ $i ];
 				$result[] = [
-					'name' => is_object( $item ) ? $item->$name_key : $item[ $name_key ],
+					'name'  => is_object( $item ) ? $item->$name_key : $item[ $name_key ],
 					'count' => is_object( $item ) ? $item->$count_key : $item[ $count_key ],
 				];
 			} else {
 				$result[] = [
-					'name' => '',
+					'name'  => '',
 					'count' => 0,
 				];
 			}
@@ -119,11 +119,11 @@ class Email_Report_Service extends Service {
 
 		// Get basic site info.
 		$stats = [
-			'site_name' => get_bloginfo( 'name' ),
-			'site_url' => get_bloginfo( 'url' ),
+			'site_name'       => get_bloginfo( 'name' ),
+			'site_url'        => get_bloginfo( 'url' ),
 			'site_url_domain' => parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ),
 			// Date range as string, as it's displayed in the email.
-			'date_range' => sprintf(
+			'date_range'      => sprintf(
 				/* translators: 1: start date with day name, 2: end date with day name, 3: year */
 				__( '%1$s – %2$s, %3$s', 'simple-history' ),
 				wp_date(
@@ -146,7 +146,7 @@ class Email_Report_Service extends Service {
 				),
 				wp_date( 'Y', $date_to )
 			),
-			'email_subject' => $this->get_email_subject( $is_preview ),
+			'email_subject'   => $this->get_email_subject( $is_preview ),
 		];
 
 		// Get total events for this week.
@@ -163,7 +163,7 @@ class Email_Report_Service extends Service {
 			foreach ( $peak_days as $day ) {
 				$all_days[] = [
 					'day_number' => $day->day,  // 0=Sunday, 6=Saturday
-					'count' => $day->count,
+					'count'      => $day->count,
 				];
 			}
 		}
@@ -173,11 +173,11 @@ class Email_Report_Service extends Service {
 		// Find the busiest day (day with the highest count).
 		$busiest_day_name = __( 'No activity', 'simple-history' );
 		if ( ! empty( $all_days ) ) {
-			$max_count = 0;
+			$max_count          = 0;
 			$busiest_day_number = 0;
 			foreach ( $all_days as $day ) {
 				if ( $day['count'] > $max_count ) {
-					$max_count = $day['count'];
+					$max_count          = $day['count'];
 					$busiest_day_number = $day['day_number'];
 				}
 			}
@@ -185,7 +185,7 @@ class Email_Report_Service extends Service {
 			if ( $max_count > 0 ) {
 				// Convert day number to localized day name.
 				// day_number: 0=Sunday, 1=Monday, etc.
-				$day_names = [
+				$day_names        = [
 					0 => __( 'Sunday', 'simple-history' ),
 					1 => __( 'Monday', 'simple-history' ),
 					2 => __( 'Tuesday', 'simple-history' ),
@@ -201,22 +201,22 @@ class Email_Report_Service extends Service {
 
 		// Pass date range timestamps for chronological day ordering in template.
 		$stats['date_from_timestamp'] = $date_from;
-		$stats['date_to_timestamp'] = $date_to;
+		$stats['date_to_timestamp']   = $date_to;
 
 		// Get most active users and format them for the template.
-		$top_users = $events_stats->get_top_users( $date_from, $date_to, 3 );
+		$top_users                  = $events_stats->get_top_users( $date_from, $date_to, 3 );
 		$stats['most_active_users'] = $this->prepare_top_items( $top_users, 3, 'display_name', 'count' );
 
 		// Get user login statistics.
 		$stats['successful_logins'] = $events_stats->get_successful_logins_count( $date_from, $date_to );
-		$stats['failed_logins'] = $events_stats->get_failed_logins_count( $date_from, $date_to );
+		$stats['failed_logins']     = $events_stats->get_failed_logins_count( $date_from, $date_to );
 
 		// Get posts statistics.
 		$stats['posts_created'] = $events_stats->get_posts_pages_created( $date_from, $date_to );
 		$stats['posts_updated'] = $events_stats->get_posts_pages_updated( $date_from, $date_to );
 
 		// Get plugins statistics.
-		$stats['plugin_activations'] = $events_stats->get_plugin_activations_count( $date_from, $date_to );
+		$stats['plugin_activations']   = $events_stats->get_plugin_activations_count( $date_from, $date_to );
 		$stats['plugin_deactivations'] = $events_stats->get_plugin_deactivations_count( $date_from, $date_to );
 
 		// Get WordPress core statistics.
@@ -259,8 +259,8 @@ class Email_Report_Service extends Service {
 
 		// Preview shows last 7 days including today, matching sidebar "7 days" stat.
 		$date_range = Date_Helper::get_last_n_days_range( Date_Helper::DAYS_PER_WEEK );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		ob_start();
 		load_template(
@@ -307,8 +307,8 @@ class Email_Report_Service extends Service {
 	public function rest_preview_html() {
 		// Preview shows last 7 days including today, matching sidebar "7 days" stat.
 		$date_range = Date_Helper::get_last_n_days_range( Date_Helper::DAYS_PER_WEEK );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		// Set content type to HTML.
 		header( 'Content-Type: text/html; charset=UTF-8' );
@@ -327,7 +327,7 @@ class Email_Report_Service extends Service {
 	 */
 	public function register_settings() {
 		$settings_general_option_group = Simple_History::SETTINGS_GENERAL_OPTION_GROUP;
-		$settings_menu_slug = Simple_History::SETTINGS_MENU_SLUG;
+		$settings_menu_slug            = Simple_History::SETTINGS_MENU_SLUG;
 
 		// Add settings section for email reports.
 		Helpers::add_settings_section(
@@ -341,8 +341,8 @@ class Email_Report_Service extends Service {
 			$settings_general_option_group,
 			'simple_history_email_report_enabled',
 			[
-				'type' => 'boolean',
-				'default' => false,
+				'type'              => 'boolean',
+				'default'           => false,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			]
 		);
@@ -351,8 +351,8 @@ class Email_Report_Service extends Service {
 			$settings_general_option_group,
 			'simple_history_email_report_recipients',
 			[
-				'type' => 'string',
-				'default' => '',
+				'type'              => 'string',
+				'default'           => '',
 				'sanitize_callback' => [ $this, 'sanitize_email_recipients' ],
 			]
 		);
@@ -403,7 +403,7 @@ class Email_Report_Service extends Service {
 	 */
 	public function settings_field_preview() {
 		$current_user = wp_get_current_user();
-		$preview_url = add_query_arg(
+		$preview_url  = add_query_arg(
 			[
 				'_wpnonce' => wp_create_nonce( 'wp_rest' ),
 			],
@@ -518,7 +518,7 @@ class Email_Report_Service extends Service {
 	 * Output for the email recipients field.
 	 */
 	public function settings_field_recipients() {
-		$recipients = $this->get_email_report_recipients();
+		$recipients         = $this->get_email_report_recipients();
 		$current_user_email = wp_get_current_user()->user_email;
 		?>
 		<textarea 
@@ -598,8 +598,8 @@ class Email_Report_Service extends Service {
 		// Get stats for last complete week (Monday-Sunday).
 		// Sent on Mondays, shows previous Mon-Sun, excludes current Monday.
 		$date_range = Date_Helper::get_last_complete_week_range();
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		ob_start();
 		load_template(

@@ -29,7 +29,7 @@ class Event_Details_Group_Table_Formatter extends Event_Details_Group_Formatter 
 
 		foreach ( $group->items as $item ) {
 			$item_formatter = $item->get_formatter( new Event_Details_Item_Table_Row_Formatter() );
-			$output .= $item_formatter->to_html();
+			$output        .= $item_formatter->to_html();
 		}
 
 		$output .= '</tbody>';

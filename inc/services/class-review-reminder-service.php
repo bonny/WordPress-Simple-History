@@ -105,8 +105,8 @@ class Review_Reminder_Service extends Service {
 			$message
 		);
 
-		$rate_text = esc_html__( "Sure, you're worth it", 'simple-history' );
-		$maybe_later_text = esc_html__( 'Maybe Later', 'simple-history' );
+		$rate_text          = esc_html__( "Sure, you're worth it", 'simple-history' );
+		$maybe_later_text   = esc_html__( 'Maybe Later', 'simple-history' );
 		$already_rated_text = esc_html__( 'I already did!', 'simple-history' );
 
 		$actions = sprintf(
@@ -141,9 +141,9 @@ class Review_Reminder_Service extends Service {
 			wp_kses_post( $message . $actions ),
 			array(
 				'paragraph_wrap' => false,
-				'type' => 'info',
-				'dismissible' => true,
-				'class' => 'simple-history-review-notice',
+				'type'           => 'info',
+				'dismissible'    => true,
+				'class'          => 'simple-history-review-notice',
 			)
 		);
 	}
@@ -199,8 +199,8 @@ class Review_Reminder_Service extends Service {
 			'simpleHistoryReviewNotice',
 			array(
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'action' => self::DISMISS_NOTICE_ACTION,
-				'nonce' => wp_create_nonce( self::DISMISS_NOTICE_NONCE ),
+				'action'  => self::DISMISS_NOTICE_ACTION,
+				'nonce'   => wp_create_nonce( self::DISMISS_NOTICE_NONCE ),
 			)
 		);
 	}

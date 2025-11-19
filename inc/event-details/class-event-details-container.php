@@ -20,7 +20,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	 */
 	public function __construct( $group_or_groups = [], $context = [] ) {
 		$this->context = $context;
-		$this->groups = [];
+		$this->groups  = [];
 
 		if ( is_array( $group_or_groups ) ) {
 			$this->add_groups( $group_or_groups );
@@ -73,7 +73,7 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 
 				if ( is_null( $item->prev_value ) ) {
 					$item->is_added = true;
-				} else if ( is_null( $item->new_value ) ) {
+				} elseif ( is_null( $item->new_value ) ) {
 					$item->is_removed = true;
 				} else {
 					$item->is_changed = true;

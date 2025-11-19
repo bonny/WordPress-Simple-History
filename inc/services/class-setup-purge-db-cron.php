@@ -99,7 +99,7 @@ class Setup_Purge_DB_Cron extends Service {
 			return;
 		}
 
-		$table_name = $this->simple_history->get_events_table_name();
+		$table_name          = $this->simple_history->get_events_table_name();
 		$table_name_contexts = $this->simple_history->get_contexts_table_name();
 
 		global $wpdb;
@@ -124,11 +124,11 @@ class Setup_Purge_DB_Cron extends Service {
 
 			// Add number of deleted rows to total_rows option.
 			$prev_total_rows = (int) get_option( 'simple_history_total_rows', 0 );
-			$total_rows = $prev_total_rows + ( is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0 );
+			$total_rows      = $prev_total_rows + ( is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0 );
 			update_option( 'simple_history_total_rows', $total_rows );
 
 			// Remove rows + contexts.
-			$sql_delete_history = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
+			$sql_delete_history         = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
 			$sql_delete_history_context = "DELETE FROM {$table_name_contexts} WHERE history_id IN ($sql_ids_in)";
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

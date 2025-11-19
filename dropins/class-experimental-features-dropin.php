@@ -38,7 +38,7 @@ class Experimental_Features_Dropin extends Dropin {
 	 */
 	public function on_general_section_output() {
 		$settings_section_general_id = $this->simple_history::SETTINGS_SECTION_GENERAL_ID;
-		$settings_menu_slug = $this->simple_history::SETTINGS_MENU_SLUG;
+		$settings_menu_slug          = $this->simple_history::SETTINGS_MENU_SLUG;
 
 		add_settings_field(
 			'simple_history_experimental_features',

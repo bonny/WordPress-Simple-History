@@ -29,7 +29,7 @@ class Plugin_List_Info extends Service {
 	public function on_action_plugin_row_meta( $links, $file ) {
 		/** @var AddOns_Licences */
 		$licences_service = $this->simple_history->get_service( AddOns_Licences::class );
-		$addon_plugins = $licences_service->get_addon_plugins();
+		$addon_plugins    = $licences_service->get_addon_plugins();
 
 		foreach ( $addon_plugins as $addon_plugin ) {
 			if ( $file !== $addon_plugin->id ) {

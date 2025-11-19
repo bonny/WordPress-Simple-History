@@ -133,8 +133,8 @@ class Donate_Dropin extends Dropin {
 				),
 				array(
 					'a' => array(
-						'href' => array(),
-						'class' => [],
+						'href'   => array(),
+						'class'  => [],
 						'target' => [],
 					),
 				)

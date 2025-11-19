@@ -53,7 +53,7 @@ $faq_items = [
 		'question' => 'My question in not answered in this FAQ',
 	],
 ];
-$faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
+$faq_url   = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 
 ?>
 

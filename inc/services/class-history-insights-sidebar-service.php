@@ -73,11 +73,11 @@ class History_Insights_Sidebar_Service extends Service {
 	 */
 	public function output_sidebar_widget() {
 		$num_days_month = Date_Helper::DAYS_PER_MONTH;
-		$num_days_week = Date_Helper::DAYS_PER_WEEK;
+		$num_days_week  = Date_Helper::DAYS_PER_WEEK;
 
 		$stats_data = $this->get_quick_stats_data( $num_days_month, $num_days_week );
 
-		$current_user_can_list_users = current_user_can( 'list_users' );
+		$current_user_can_list_users     = current_user_can( 'list_users' );
 		$current_user_can_manage_options = current_user_can( 'manage_options' );
 
 		?>
@@ -130,13 +130,13 @@ class History_Insights_Sidebar_Service extends Service {
 	 * @return array<string,mixed> Array with stats data.
 	 */
 	protected function get_quick_stats_data( $num_days_month, $num_days_week ) {
-		$simple_history = Simple_History::get_instance();
-		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
+		$simple_history                  = Simple_History::get_instance();
+		$loggers_slugs                   = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
 		$current_user_can_manage_options = current_user_can( 'manage_options' );
-		$current_user_can_list_users = current_user_can( 'list_users' );
-		$args_serialized = serialize( [ $num_days_month, $num_days_week, $loggers_slugs, $current_user_can_manage_options, $current_user_can_list_users ] );
-		$cache_key = 'sh_quick_stats_data_' . md5( $args_serialized );
-		$cache_expiration_seconds = self::CACHE_DURATION_MINUTES * MINUTE_IN_SECONDS;
+		$current_user_can_list_users     = current_user_can( 'list_users' );
+		$args_serialized                 = serialize( [ $num_days_month, $num_days_week, $loggers_slugs, $current_user_can_manage_options, $current_user_can_list_users ] );
+		$cache_key                       = 'sh_quick_stats_data_' . md5( $args_serialized );
+		$cache_expiration_seconds        = self::CACHE_DURATION_MINUTES * MINUTE_IN_SECONDS;
 
 		$results = get_transient( $cache_key );
 
@@ -151,22 +151,22 @@ class History_Insights_Sidebar_Service extends Service {
 
 		$results = [
 			'num_events_today' => Helpers::get_num_events_today(),
-			'num_events_week' => Helpers::get_num_events_last_n_days( $num_days_week ),
+			'num_events_week'  => Helpers::get_num_events_last_n_days( $num_days_week ),
 			'num_events_month' => Helpers::get_num_events_last_n_days( $num_days_month ),
 			'chart_data_month' => Helpers::get_num_events_per_day_last_n_days( $num_days_month ),
 		];
 
 		// Only fetch total_events and current_events_count for admins.
 		if ( $current_user_can_manage_options ) {
-			$results['total_events'] = Helpers::get_total_logged_events_count();
+			$results['total_events']         = Helpers::get_total_logged_events_count();
 			$results['current_events_count'] = Helpers::get_current_database_events_count();
 		}
 
 		// Only fetch top_users for users who can list users.
 		if ( $current_user_can_list_users ) {
-			$month_date_from = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_last_n_days_start_timestamp( $num_days_month ) );
-			$month_date_to = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_current_timestamp() );
-			$events_stats = new Events_Stats();
+			$month_date_from      = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_last_n_days_start_timestamp( $num_days_month ) );
+			$month_date_to        = DateTimeImmutable::createFromFormat( 'U', Date_Helper::get_current_timestamp() );
+			$events_stats         = new Events_Stats();
 			$results['top_users'] = $events_stats->get_top_users( $month_date_from->getTimestamp(), $month_date_to->getTimestamp(), 5 );
 		}
 
@@ -189,16 +189,16 @@ class History_Insights_Sidebar_Service extends Service {
 		// For "last N days" including today, we go back N-1 days.
 		// E.g., "last 30 days" on Oct 7 = Sep 8 to Oct 7 (30 days).
 		// Create DateTimeImmutable directly in WordPress timezone to avoid timezone conversion issues.
-		$days_ago = $num_days - 1;
+		$days_ago          = $num_days - 1;
 		$period_start_date = new DateTimeImmutable( "-{$days_ago} days", wp_timezone() );
 		$period_start_date = new DateTimeImmutable( $period_start_date->format( 'Y-m-d' ) . ' 00:00:00', wp_timezone() );
-		$today = new DateTimeImmutable( 'today', wp_timezone() );
-		$interval = DateInterval::createFromDateString( '1 day' );
+		$today             = new DateTimeImmutable( 'today', wp_timezone() );
+		$interval          = DateInterval::createFromDateString( '1 day' );
 
 		// DatePeriod excludes end date by default.
 		// To include today, we need to set end to tomorrow 00:00:00.
 		$tomorrow = $today->add( date_interval_create_from_date_string( '1 days' ) );
-		$period = new DatePeriod( $period_start_date, $interval, $tomorrow );
+		$period   = new DatePeriod( $period_start_date, $interval, $tomorrow );
 
 		?>
 
@@ -253,13 +253,13 @@ class History_Insights_Sidebar_Service extends Service {
 			</div>
 		</div>
 		<?php
-		$arr_labels = array();
+		$arr_labels             = array();
 		$arr_labels_to_datetime = array();
-		$arr_dataset_data = array();
+		$arr_dataset_data       = array();
 
 		foreach ( $period as $dt ) {
-			$datef = _x( 'M j', 'stats: date in rows per day chart', 'simple-history' );
-			$str_date = wp_date( $datef, $dt->getTimestamp() );
+			$datef        = _x( 'M j', 'stats: date in rows per day chart', 'simple-history' );
+			$str_date     = wp_date( $datef, $dt->getTimestamp() );
 			$str_date_ymd = $dt->format( 'Y-m-d' );
 
 			// Get data for this day, if exist
@@ -276,11 +276,11 @@ class History_Insights_Sidebar_Service extends Service {
 
 			$arr_labels_to_datetime[] = array(
 				'label' => $str_date,
-				'date' => $str_date_ymd,
+				'date'  => $str_date_ymd,
 			);
 
 			if ( $day_data ) {
-				$day_data = reset( $day_data );
+				$day_data           = reset( $day_data );
 				$arr_dataset_data[] = $day_data->count;
 			} else {
 				$arr_dataset_data[] = 0;
@@ -320,7 +320,7 @@ class History_Insights_Sidebar_Service extends Service {
 	protected function get_events_per_days_stats_html( $stats_data ) {
 		// Generate URLs for filtering events by time period.
 		$url_today = Helpers::get_filtered_events_url( [ 'date' => 'lastdays:1' ] );
-		$url_week = Helpers::get_filtered_events_url( [ 'date' => 'lastdays:7' ] );
+		$url_week  = Helpers::get_filtered_events_url( [ 'date' => 'lastdays:7' ] );
 		$url_month = Helpers::get_filtered_events_url( [ 'date' => 'lastdays:30' ] );
 
 		ob_start();
@@ -370,7 +370,7 @@ class History_Insights_Sidebar_Service extends Service {
 	protected function get_stat_dashboard_item( $stat_label, $stat_value, $stat_subvalue = '', $stat_url = '' ) {
 		ob_start();
 
-		$tag = empty( $stat_url ) ? 'div' : 'a';
+		$tag   = empty( $stat_url ) ? 'div' : 'a';
 		$attrs = empty( $stat_url ) ? '' : sprintf( ' href="%s"', esc_url( $stat_url ) );
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $tag is hardcoded 'a' or 'div', $attrs is escaped.
@@ -460,7 +460,7 @@ class History_Insights_Sidebar_Service extends Service {
 			: __( 'forever', 'simple-history' );
 
 		// Make retention period a link to settings with anchor to retention section.
-		$settings_url = Helpers::get_settings_page_url() . '#simple_history_clear_log_info';
+		$settings_url          = Helpers::get_settings_page_url() . '#simple_history_clear_log_info';
 		$retention_text_linked = sprintf(
 			'<a href="%s" class="sh-whitespace-nowrap"><b>%s</b></a>',
 			esc_url( $settings_url ),

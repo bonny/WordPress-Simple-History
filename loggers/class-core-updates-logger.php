@@ -20,16 +20,16 @@ class Core_Updates_Logger extends Logger {
 			'description' => __( 'Logs the update of WordPress (manual and automatic updates)', 'simple-history' ),
 			'capability'  => 'update_core',
 			'messages'    => array(
-				'core_updated'            => __( 'Updated WordPress to {new_version} from {prev_version}', 'simple-history' ),
-				'core_auto_updated'       => __( 'WordPress auto-updated to {new_version} from {prev_version}', 'simple-history' ),
-				'core_update_failed'      => __( 'Failed to update WordPress', 'simple-history' ),
-				'core_db_version_updated' => __( 'WordPress database version updated to {new_version} from {prev_version}', 'simple-history' ),
-				'core_major_auto_updates_setting_enabled' => __( 'Enabled automatic updates for all new versions of WordPress', 'simple-history' ),
+				'core_updated'                             => __( 'Updated WordPress to {new_version} from {prev_version}', 'simple-history' ),
+				'core_auto_updated'                        => __( 'WordPress auto-updated to {new_version} from {prev_version}', 'simple-history' ),
+				'core_update_failed'                       => __( 'Failed to update WordPress', 'simple-history' ),
+				'core_db_version_updated'                  => __( 'WordPress database version updated to {new_version} from {prev_version}', 'simple-history' ),
+				'core_major_auto_updates_setting_enabled'  => __( 'Enabled automatic updates for all new versions of WordPress', 'simple-history' ),
 				'core_major_auto_updates_setting_disabled' => __( 'Switched to automatic updates for maintenance and security releases of WordPress only', 'simple-history' ),
 			),
 			'labels'      => array(
 				'search' => array(
-					'label' => _x( 'WordPress Core', 'User logger: search', 'simple-history' ),
+					'label'   => _x( 'WordPress Core', 'User logger: search', 'simple-history' ),
 					'options' => array(
 						_x( 'WordPress core updates', 'User logger: search', 'simple-history' ) => array(
 							'core_updated',
@@ -96,18 +96,18 @@ class Core_Updates_Logger extends Logger {
 		}
 	}
 
-	 /**
-	  * Fires after a site is fully upgraded.
-	  * The database, that is.
-	  *
-	  * @param int $wp_db_version         The new $wp_db_version.
-	  * @param int $wp_current_db_version The old (current) $wp_db_version.
-	  */
+	/**
+	 * Fires after a site is fully upgraded.
+	 * The database, that is.
+	 *
+	 * @param int $wp_db_version         The new $wp_db_version.
+	 * @param int $wp_current_db_version The old (current) $wp_db_version.
+	 */
 	public function on_wp_upgrade( $wp_db_version, $wp_current_db_version ) {
 		$this->debug_message(
 			'core_db_version_updated',
 			[
-				'new_version' => $wp_db_version,
+				'new_version'  => $wp_db_version,
 				'prev_version' => $wp_current_db_version,
 			]
 		);
@@ -143,7 +143,7 @@ class Core_Updates_Logger extends Logger {
 			$message,
 			[
 				'prev_version' => $old_wp_version,
-				'new_version' => $new_wp_version,
+				'new_version'  => $new_wp_version,
 			]
 		);
 	}
@@ -180,10 +180,10 @@ class Core_Updates_Logger extends Logger {
 
 		// Build context for logging.
 		$context = [
-			'error_code' => $result->get_error_code(),
+			'error_code'    => $result->get_error_code(),
 			'error_message' => $result->get_error_message(),
-			'auto_update' => true, // This filter only fires for automatic updates.
-			'failure_type' => $type, // 'fail' or 'critical'.
+			'auto_update'   => true, // This filter only fires for automatic updates.
+			'failure_type'  => $type, // 'fail' or 'critical'.
 		];
 
 		// Add error data if available.
@@ -204,7 +204,7 @@ class Core_Updates_Logger extends Logger {
 
 		// Detect if this is a rollback scenario (WordPress core has its own rollback mechanism).
 		// Core rollback is triggered by specific error codes.
-		$error_codes = $result->get_error_codes();
+		$error_codes          = $result->get_error_codes();
 		$rollback_error_codes = [
 			'rollback_was_required',
 			'__copy_dir',

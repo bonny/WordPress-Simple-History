@@ -92,11 +92,11 @@ spl_autoload_register(
 	function ( $class_name ) {
 		// Only handle our deprecated classes, let other autoloaders handle the rest.
 		$deprecated_classes = array(
-			'SimpleHistory' => __DIR__ . '/inc/deprecated/class-simplehistory.php',
-			'SimpleLogger' => __DIR__ . '/inc/deprecated/class-simplelogger.php',
+			'SimpleHistory'             => __DIR__ . '/inc/deprecated/class-simplehistory.php',
+			'SimpleLogger'              => __DIR__ . '/inc/deprecated/class-simplelogger.php',
 			'SimpleLoggerLogInitiators' => __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php',
-			'SimpleLoggerLogLevels' => __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php',
-			'SimpleHistoryLogQuery' => __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php',
+			'SimpleLoggerLogLevels'     => __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php',
+			'SimpleHistoryLogQuery'     => __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php',
 		);
 
 		// Only handle classes we know about.
@@ -106,7 +106,7 @@ spl_autoload_register(
 
 		// Check class doesn't already exist and file exists.
 		if ( ! class_exists( $class_name, false ) && file_exists( $deprecated_classes[ $class_name ] ) ) {
-			  require_once $deprecated_classes[ $class_name ];
+				require_once $deprecated_classes[ $class_name ];
 		}
 	}
 );

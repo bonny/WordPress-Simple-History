@@ -3,7 +3,7 @@
  * Show an admin message if old PHP version.
  */
 function simple_history_old_version_admin_notice() {
-	$ok_wp_version = version_compare( $GLOBALS['wp_version'], '5.4', '>=' );
+	$ok_wp_version  = version_compare( $GLOBALS['wp_version'], '5.4', '>=' );
 	$ok_php_version = version_compare( phpversion(), '7.4', '>=' );
 	?>
 	<div class="updated error">

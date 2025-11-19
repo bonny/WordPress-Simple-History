@@ -160,7 +160,7 @@ class Stealth_Mode extends Service {
 
 		// Get the current user's email.
 		$current_user = wp_get_current_user();
-		$user_email = $current_user->user_email;
+		$user_email   = $current_user->user_email;
 
 		// Delegate the email check to the helper function.
 		return self::is_user_email_allowed_in_stealth_mode( $user_email );

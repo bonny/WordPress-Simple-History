@@ -129,7 +129,7 @@ class Menu_Logger extends Logger {
 			'deleted_menu',
 			array(
 				'menu_term_id' => $menu_id,
-				'menu_name' => $menu->name,
+				'menu_name'    => $menu->name,
 			)
 		);
 	}
@@ -151,7 +151,7 @@ class Menu_Logger extends Logger {
 		$this->info_message(
 			'created_menu',
 			array(
-				'term_id' => $term_id,
+				'term_id'   => $term_id,
 				'menu_name' => $menu->name,
 			)
 		);
@@ -210,7 +210,7 @@ class Menu_Logger extends Logger {
 
 		// Get ids of added and removed post ids.
 		$arr_removed = array_diff( $old_ids, $new_ids );
-		$arr_added = array_diff( $new_ids, $old_ids );
+		$arr_added   = array_diff( $new_ids, $old_ids );
 
 		// Get old version location
 		// $prev_menu = wp_get_nav_menu_object( $menu_id );
@@ -219,10 +219,10 @@ class Menu_Logger extends Logger {
 		$this->info_message(
 			'edited_menu',
 			array(
-				'menu_id' => $menu_id,
+				'menu_id'            => $menu_id,
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-				'menu_name' => sanitize_text_field( wp_unslash( $_POST['menu-name'] ) ),
-				'menu_items_added' => count( $arr_added ),
+				'menu_name'          => sanitize_text_field( wp_unslash( $_POST['menu-name'] ) ),
+				'menu_items_added'   => count( $arr_added ),
 				'menu_items_removed' => count( $arr_removed ),
 			)
 		);
@@ -235,9 +235,9 @@ class Menu_Logger extends Logger {
 	 */
 	public function get_log_row_details_output( $row ) {
 
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'];
-		$output = '';
+		$output      = '';
 
 		if ( 'edited_menu' == $message_key && ( ! empty( $context['menu_items_added'] ) || ! empty( $context['menu_items_removed'] ) ) ) {
 			$output .= '<p>';

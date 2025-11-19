@@ -36,7 +36,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 
 		// Define promotion start and end dates in the site's timezone.
 		$start_date = new \DateTimeImmutable( '2025-11-23 00:00:00', wp_timezone() );
-		$end_date = new \DateTimeImmutable( '2025-12-01 23:59:59', wp_timezone() );
+		$end_date   = new \DateTimeImmutable( '2025-12-01 23:59:59', wp_timezone() );
 
 		// Hide if before start date.
 		if ( ! $preview_promotion && $now < $start_date ) {

@@ -39,7 +39,7 @@ class Simple_History_Updates extends Service {
 		$output = '<div class="sh-PluginUpdateDetails">';
 
 		// Use custom title if provided, otherwise use default.
-		$title = empty( $custom_title ) ? __( "What's new in this version", 'simple-history' ) : $custom_title;
+		$title   = empty( $custom_title ) ? __( "What's new in this version", 'simple-history' ) : $custom_title;
 		$output .= '<h4 class="sh-PluginUpdateDetails-title">' . esc_html( $title ) . '</h4>';
 
 		$output .= '<ul class="sh-PluginUpdateDetails-features">';

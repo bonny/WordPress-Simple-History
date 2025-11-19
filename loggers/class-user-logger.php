@@ -17,7 +17,7 @@ class User_Logger extends Logger {
 
 	/** @var array Detected WP Cli Changes */
 	private $wp_cli_changes = [
-		'user_roles_added' => [],
+		'user_roles_added'   => [],
 		'user_roles_removed' => [],
 	];
 
@@ -29,52 +29,52 @@ class User_Logger extends Logger {
 			'description' => __( 'Logs user logins, logouts, and failed logins', 'simple-history' ),
 			'capability'  => 'edit_users',
 			'messages'    => array(
-				'user_login_failed' => __(
+				'user_login_failed'                        => __(
 					'Failed to login with username "{login}" (incorrect password entered)',
 					'simple-history'
 				),
-				'user_unknown_login_failed' => __(
+				'user_unknown_login_failed'                => __(
 					'Failed to login with username "{failed_username}" (username does not exist)',
 					'simple-history'
 				),
-				'user_logged_in' => __( 'Logged in', 'simple-history' ),
-				'user_unknown_logged_in' => __( 'Unknown user logged in', 'simple-history' ),
-				'user_logged_out' => __( 'Logged out', 'simple-history' ),
-				'user_updated_profile' => __(
+				'user_logged_in'                           => __( 'Logged in', 'simple-history' ),
+				'user_unknown_logged_in'                   => __( 'Unknown user logged in', 'simple-history' ),
+				'user_logged_out'                          => __( 'Logged out', 'simple-history' ),
+				'user_updated_profile'                     => __(
 					'Edited the profile for user "{edited_user_login}" ({edited_user_email})',
 					'simple-history'
 				),
-				'user_created' => __(
+				'user_created'                             => __(
 					'Created user {created_user_login} ({created_user_email}) with role {created_user_role}',
 					'simple-history'
 				),
-				'user_deleted' => __( 'Deleted user {deleted_user_login} ({deleted_user_email})', 'simple-history' ),
-				'user_password_reseted' => __( 'Reset their password', 'simple-history' ),
-				'user_requested_password_reset_link' => __(
+				'user_deleted'                             => __( 'Deleted user {deleted_user_login} ({deleted_user_email})', 'simple-history' ),
+				'user_password_reseted'                    => __( 'Reset their password', 'simple-history' ),
+				'user_requested_password_reset_link'       => __(
 					"Requested a password reset link for user with login '{user_login}' and email '{user_email}'",
 					'simple-history'
 				),
-				'user_session_destroy_others' => _x(
+				'user_session_destroy_others'              => _x(
 					'Logged out from all other sessions',
 					'User destroys other login sessions for themself',
 					'simple-history'
 				),
-				'user_session_destroy_everywhere' => _x(
+				'user_session_destroy_everywhere'          => _x(
 					'Logged out "{user_display_name}" from all sessions',
 					'User destroys all login sessions for a user',
 					'simple-history'
 				),
-				'user_role_updated' => _x(
+				'user_role_updated'                        => _x(
 					'Changed role for user "{edited_user_login}" to "{new_role}" from "{old_role}"',
 					'User updates the role for a user',
 					'simple-history'
 				),
-				'user_role_added' => _x(
+				'user_role_added'                          => _x(
 					'Added role(s) "{roles}" to user "{edited_user_login}"',
 					'A role is added to a user',
 					'simple-history'
 				),
-				'user_role_removed' => _x(
+				'user_role_removed'                        => _x(
 					'Removed role(s) "{roles}" from user "{edited_user_login}"',
 					'A role is removed from a user',
 					'simple-history'
@@ -84,17 +84,17 @@ class User_Logger extends Logger {
 					'User clicks confirm admin email on admin email confirm screen',
 					'simple-history'
 				),
-				'user_application_password_created' => _x(
+				'user_application_password_created'        => _x(
 					'Added application password "{application_password_name}" for user "{edited_user_login}"',
 					'User add new application password',
 					'simple-history'
 				),
-				'user_application_password_revoked' => _x(
+				'user_application_password_revoked'        => _x(
 					'Revoked application password "{application_password_name}" for user "{edited_user_login}"',
 					'User revoke application password',
 					'simple-history'
 				),
-				'user_admin_page_access_denied' => _x(
+				'user_admin_page_access_denied'            => _x(
 					'Was denied access to admin page "{admin_page}"',
 					'User was denied access to an admin page',
 					'simple-history'
@@ -158,7 +158,7 @@ class User_Logger extends Logger {
 		add_action( 'wp_authenticate_user', array( $this, 'onWpAuthenticateUser' ), 10, 2 );
 
 		// Failed to login to user that did not exist (perhaps brute force)
-		// run this later than 10 because wordpress own email login check is done with priority 20
+		// run this later than 10 because WordPress own email login check is done with priority 20
 		// so if we run at 10 we just get null.
 		add_filter( 'authenticate', array( $this, 'onAuthenticate' ), 30, 3 );
 
@@ -232,8 +232,8 @@ class User_Logger extends Logger {
 			$user = get_user_by( 'ID', $user_id );
 
 			$context = [
-				'roles' => implode( ', ', $roles ),
-				'edited_user_id' => $user_id,
+				'roles'             => implode( ', ', $roles ),
+				'edited_user_id'    => $user_id,
 				'edited_user_email' => $user->user_email,
 				'edited_user_login' => $user->user_login,
 			];
@@ -260,8 +260,8 @@ class User_Logger extends Logger {
 			$user = get_user_by( 'ID', $user_id );
 
 			$context = [
-				'roles' => implode( ', ', $roles ),
-				'edited_user_id' => $user_id,
+				'roles'             => implode( ', ', $roles ),
+				'edited_user_id'    => $user_id,
 				'edited_user_email' => $user->user_email,
 				'edited_user_login' => $user->user_login,
 			];
@@ -332,9 +332,9 @@ class User_Logger extends Logger {
 		$this->info_message(
 			'user_application_password_created',
 			array(
-				'edited_user_id' => $user_id,
-				'edited_user_email' => $user->user_email,
-				'edited_user_login' => $user->user_login,
+				'edited_user_id'            => $user_id,
+				'edited_user_email'         => $user->user_email,
+				'edited_user_login'         => $user->user_login,
 				'application_password_name' => $item['name'],
 			)
 		);
@@ -356,9 +356,9 @@ class User_Logger extends Logger {
 		$this->info_message(
 			'user_application_password_revoked',
 			array(
-				'edited_user_id' => $user_id,
-				'edited_user_email' => $user->user_email,
-				'edited_user_login' => $user->user_login,
+				'edited_user_id'            => $user_id,
+				'edited_user_email'         => $user->user_email,
+				'edited_user_login'         => $user->user_login,
 				'application_password_name' => $item['name'],
 			)
 		);
@@ -391,11 +391,11 @@ class User_Logger extends Logger {
 		$this->notice_message(
 			'user_role_updated',
 			array(
-				'edited_user_id' => $user_id,
+				'edited_user_id'    => $user_id,
 				'edited_user_email' => $changed_user->user_email,
 				'edited_user_login' => $changed_user->user_login,
-				'new_role' => $role,
-				'old_role' => $old_role,
+				'new_role'          => $role,
+				'old_role'          => $old_role,
 			)
 		);
 	}
@@ -509,12 +509,12 @@ class User_Logger extends Logger {
 
 		foreach ( $userdata as $option_key => $one_maybe_updated_option_value ) {
 			$prev_option_value = $user_before_update->$option_key;
-			$add_diff = true;
+			$add_diff          = true;
 
 			// Some options need special treatment.
 			if ( $option_key === 'user_pass' ) {
 				$password_changed = $one_maybe_updated_option_value !== $prev_option_value;
-				$add_diff = false;
+				$add_diff         = false;
 			} elseif ( $option_key === 'comment_shortcuts' ) {
 				if ( empty( $one_maybe_updated_option_value ) ) {
 					$one_maybe_updated_option_value = 'false';
@@ -535,7 +535,7 @@ class User_Logger extends Logger {
 
 		// Setup basic context.
 		$context = array(
-			'edited_user_id' => $user_id,
+			'edited_user_id'    => $user_id,
 			'edited_user_email' => $user_before_update->user_email,
 			'edited_user_login' => $user_before_update->user_login,
 		);
@@ -547,7 +547,7 @@ class User_Logger extends Logger {
 		// Add diff to context.
 		foreach ( $user_data_diff as $one_diff_key => $one_diff_vals ) {
 			$context[ "user_prev_{$one_diff_key}" ] = $one_diff_vals['old'];
-			$context[ "user_new_{$one_diff_key}" ] = $one_diff_vals['new'];
+			$context[ "user_new_{$one_diff_key}" ]  = $one_diff_vals['new'];
 		}
 
 		$context['user_prev_roles'] = (array) $user_before_update->roles;
@@ -574,7 +574,7 @@ class User_Logger extends Logger {
 	 */
 	public function onRetrievePasswordMessage( $message, $key, $user_login, $user_data = null ) {
 		$context = array(
-			'message' => $message,
+			'message'    => $message,
 			'user_login' => $user_login,
 			'user_email' => $user_data->user_email,
 		);
@@ -613,8 +613,8 @@ class User_Logger extends Logger {
 		$context = array();
 
 		if ( is_a( $user, 'WP_User' ) ) {
-			$context['_initiator'] = Log_Initiators::WP_USER;
-			$context['_user_id'] = $user->ID;
+			$context['_initiator']  = Log_Initiators::WP_USER;
+			$context['_user_id']    = $user->ID;
 			$context['_user_login'] = $user->user_login;
 			$context['_user_email'] = $user->user_email;
 		}
@@ -655,8 +655,8 @@ class User_Logger extends Logger {
 		if ( $user->ID === get_current_user_id() ) {
 			$this->info_message( 'user_session_destroy_others' );
 		} else {
-			$context['user_id'] = $user->ID;
-			$context['user_login'] = $user->user_login;
+			$context['user_id']           = $user->ID;
+			$context['user_login']        = $user->user_login;
 			$context['user_display_name'] = $user->display_name;
 
 			$this->info_message( 'user_session_destroy_everywhere', $context );
@@ -674,11 +674,11 @@ class User_Logger extends Logger {
 		$wp_user_to_delete = get_userdata( $user_id );
 
 		$context = array(
-			'deleted_user_id' => $wp_user_to_delete->ID,
+			'deleted_user_id'    => $wp_user_to_delete->ID,
 			'deleted_user_email' => $wp_user_to_delete->user_email,
 			'deleted_user_login' => $wp_user_to_delete->user_login,
-			'deleted_user_role' => implode( ', ', $wp_user_to_delete->roles ),
-			'reassign_user_id' => $reassign,
+			'deleted_user_role'  => implode( ', ', $wp_user_to_delete->roles ),
+			'reassign_user_id'   => $reassign,
 		);
 
 		$this->notice_message( 'user_deleted', $context );
@@ -695,7 +695,7 @@ class User_Logger extends Logger {
 	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;
 
-		$output = parent::get_log_row_plain_text_output( $row );
+		$output          = parent::get_log_row_plain_text_output( $row );
 		$current_user_id = get_current_user_id();
 
 		if ( 'user_updated_profile' == $context['_message_key'] ) {
@@ -726,8 +726,8 @@ class User_Logger extends Logger {
 				// User edited another users profile
 				// Edited user still exist, so link to their profile.
 				$context['edit_profile_link'] = get_edit_user_link( $wp_user->ID );
-				$msg = __( 'Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', 'simple-history' );
-				$output = helpers::interpolate( $msg, $context, $row );
+				$msg                          = __( 'Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', 'simple-history' );
+				$output                       = helpers::interpolate( $msg, $context, $row );
 			}
 		} elseif ( 'user_created' == $context['_message_key'] ) {
 			// A user was created. Create link of username that goes to user profile.
@@ -770,7 +770,7 @@ class User_Logger extends Logger {
 	public function on_wp_login( $user_login = null, $user = null ) {
 
 		$user_obj = null;
-		$context = array(
+		$context  = array(
 			'user_login' => $user_login,
 		);
 
@@ -782,15 +782,15 @@ class User_Logger extends Logger {
 
 		if ( is_a( $user_obj, 'WP_User' ) ) {
 			$context = array(
-				'user_id' => $user_obj->ID,
+				'user_id'    => $user_obj->ID,
 				'user_email' => $user_obj->user_email,
 				'user_login' => $user_obj->user_login,
 			);
 
 			// Override some data that is usually set automagically by Simple History
 			// Because wp_get_current_user() does not return any data yet at this point.
-			$context['_initiator'] = Log_Initiators::WP_USER;
-			$context['_user_id'] = $user_obj->ID;
+			$context['_initiator']  = Log_Initiators::WP_USER;
+			$context['_user_id']    = $user_obj->ID;
 			$context['_user_login'] = $user_obj->user_login;
 			$context['_user_email'] = $user_obj->user_email;
 			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
@@ -811,7 +811,7 @@ class User_Logger extends Logger {
 	 */
 	public function onWpLogout( $user_id = null ) {
 		$context = array();
-		$user = get_userdata( $user_id );
+		$user    = get_userdata( $user_id );
 		if ( is_a( $user, 'WP_User' ) ) {
 			$context['_initiator']  = Log_Initiators::WP_USER;
 			$context['_user_id']    = $user->ID;
@@ -836,7 +836,7 @@ class User_Logger extends Logger {
 
 		$wp_user_added = get_userdata( $user_id );
 
-		$role = '';
+		$role  = '';
 		$roles = [];
 
 		// On a subsite of a multisite network,
@@ -845,7 +845,7 @@ class User_Logger extends Logger {
 		// Use value from $_POST instead.
 		if ( is_multisite() ) {
       		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
-			$role = sanitize_title( wp_unslash( $_POST['role'] ?? '' ) );
+			$role  = sanitize_title( wp_unslash( $_POST['role'] ?? '' ) );
 			$roles = array( $role );
 		} elseif ( is_array( $wp_user_added->roles ) && ! empty( $wp_user_added->roles[0] ) ) {
 			// Single site, get role from user object.
@@ -856,14 +856,14 @@ class User_Logger extends Logger {
 		$send_user_notification = (int) ( isset( $_POST['send_user_notification'] ) && sanitize_text_field( wp_unslash( $_POST['send_user_notification'] ) ) );
 
 		$context = array(
-			'created_user_id' => $wp_user_added->ID,
-			'created_user_email' => $wp_user_added->user_email,
-			'created_user_login' => $wp_user_added->user_login,
+			'created_user_id'         => $wp_user_added->ID,
+			'created_user_email'      => $wp_user_added->user_email,
+			'created_user_login'      => $wp_user_added->user_login,
 			'created_user_first_name' => $wp_user_added->first_name,
-			'created_user_last_name' => $wp_user_added->last_name,
-			'created_user_url' => $wp_user_added->user_url,
-			'created_user_role' => implode( ', ', $roles ),
-			'send_user_notification' => $send_user_notification,
+			'created_user_last_name'  => $wp_user_added->last_name,
+			'created_user_url'        => $wp_user_added->user_url,
+			'created_user_role'       => implode( ', ', $roles ),
+			'send_user_notification'  => $send_user_notification,
 		);
 
 		$this->info_message( 'user_created', $context );
@@ -885,13 +885,13 @@ class User_Logger extends Logger {
 		if ( ! wp_check_password( $password, $userOrError->user_pass, $userOrError->ID ) ) {
 			// Overwrite some vars that Simple History set automagically.
 			$context = array(
-				'_initiator' => Log_Initiators::WEB_USER,
-				'login_id' => $userOrError->ID,
-				'login_email' => $userOrError->user_email,
-				'login' => $userOrError->user_login,
+				'_initiator'             => Log_Initiators::WEB_USER,
+				'login_id'               => $userOrError->ID,
+				'login_email'            => $userOrError->user_email,
+				'login'                  => $userOrError->user_login,
 				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
 				'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
-				'_occasionsID' => self::class . '/failed_user_login',
+				'_occasionsID'           => self::class . '/failed_user_login',
 			);
 
 			/**
@@ -946,13 +946,13 @@ class User_Logger extends Logger {
 		// We only act on invalid emails and invalid usernames.
 		if ( is_a( $user, 'WP_Error' ) && ( $user->get_error_code() == 'invalid_username' || $user->get_error_code() == 'invalid_email' ) ) {
 			$context = array(
-				'_initiator' => Log_Initiators::WEB_USER,
-				'failed_username' => $username,
+				'_initiator'             => Log_Initiators::WEB_USER,
+				'failed_username'        => $username,
 				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
 				'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
 				// Count all failed logins to unknown users as the same occasions,
 				// to prevent log being flooded with login/hack attempts.
-				'_occasionsID' => self::class . '/failed_user_login',
+				'_occasionsID'           => self::class . '/failed_user_login',
 			);
 
 			/**
@@ -1007,67 +1007,67 @@ class User_Logger extends Logger {
 	 * @return string
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'];
 
-		$out = '';
+		$out               = '';
 		$diff_table_output = '';
 
 		if ( 'user_updated_profile' == $message_key ) {
 			// Find all user_prev_ and user_new_ values and show them.
 			$arr_user_keys_to_show_diff_for = array(
-				'rich_editing' => array(
-					'title' => _x( 'Visual editor', 'User logger', 'simple-history' ),
-					'type' => 'checkbox',
-					'value_true' => _x( 'Enable', 'User logger', 'simple-history' ),
+				'rich_editing'         => array(
+					'title'       => _x( 'Visual editor', 'User logger', 'simple-history' ),
+					'type'        => 'checkbox',
+					'value_true'  => _x( 'Enable', 'User logger', 'simple-history' ),
 					'value_false' => _x( 'Disable', 'User logger', 'simple-history' ),
 				),
-				'admin_color' => array(
+				'admin_color'          => array(
 					'title' => _x( 'Colour scheme', 'User logger', 'simple-history' ),
 				),
-				'comment_shortcuts' => array(
-					'title' => _x( 'Keyboard shortcuts', 'User logger', 'simple-history' ),
-					'type' => 'checkbox',
-					'value_true' => _x( 'Enable', 'User logger', 'simple-history' ),
+				'comment_shortcuts'    => array(
+					'title'       => _x( 'Keyboard shortcuts', 'User logger', 'simple-history' ),
+					'type'        => 'checkbox',
+					'value_true'  => _x( 'Enable', 'User logger', 'simple-history' ),
 					'value_false' => _x( 'Disable', 'User logger', 'simple-history' ),
 				),
 				'show_admin_bar_front' => array(
-					'title' => _x( 'Toolbar', 'User logger', 'simple-history' ),
-					'type' => 'checkbox',
-					'value_true' => _x( 'Show', 'User logger', 'simple-history' ),
+					'title'       => _x( 'Toolbar', 'User logger', 'simple-history' ),
+					'type'        => 'checkbox',
+					'value_true'  => _x( 'Show', 'User logger', 'simple-history' ),
 					'value_false' => _x( "Don't show", 'User logger', 'simple-history' ),
 				),
-				'locale' => array(
+				'locale'               => array(
 					'title' => _x( 'Language', 'User logger', 'simple-history' ),
 				),
-				'first_name' => array(
+				'first_name'           => array(
 					'title' => _x( 'First name', 'User logger', 'simple-history' ),
 				),
-				'last_name' => array(
+				'last_name'            => array(
 					'title' => _x( 'Last name', 'User logger', 'simple-history' ),
 				),
-				'nickname' => array(
+				'nickname'             => array(
 					'title' => _x( 'Nickname', 'User logger', 'simple-history' ),
 				),
-				'display_name' => array(
+				'display_name'         => array(
 					'title' => _x( 'Display name', 'User logger', 'simple-history' ),
 				),
-				'user_email' => array(
+				'user_email'           => array(
 					'title' => _x( 'Email', 'User logger', 'simple-history' ),
 				),
-				'user_url' => array(
+				'user_url'             => array(
 					'title' => _x( 'Website', 'User logger', 'simple-history' ),
 				),
-				'description' => array(
+				'description'          => array(
 					'title' => _x( 'Description', 'User logger', 'simple-history' ),
 				),
-				'aim' => array(
+				'aim'                  => array(
 					'title' => _x( 'AIM', 'User logger', 'simple-history' ),
 				),
-				'yim' => array(
+				'yim'                  => array(
 					'title' => _x( 'Yahoo IM', 'User logger', 'simple-history' ),
 				),
-				'jabber' => array(
+				'jabber'               => array(
 					'title' => _x( 'Jabber / Google Talk ', 'User logger', 'simple-history' ),
 				),
 			);
@@ -1078,7 +1078,7 @@ class User_Logger extends Logger {
 			// English (United States) is not included in translations_array, add manually.
 			if ( ! isset( $translations['en_US'] ) ) {
 				$translations['en_US'] = array(
-					'language' => 'en_US',
+					'language'     => 'en_US',
 					'english_name' => 'English',
 				);
 			}
@@ -1091,14 +1091,14 @@ class User_Logger extends Logger {
 					if ( $key === 'locale' ) {
 						if ( isset( $translations[ $user_old_value ] ) ) {
 							$language_english_name = $translations[ $user_old_value ]['english_name'];
-							$user_old_value = "{$language_english_name} ({$user_old_value})";
+							$user_old_value        = "{$language_english_name} ({$user_old_value})";
 						} elseif ( $user_old_value === 'SITE_DEFAULT' ) {
 							$user_old_value = __( 'Site Default', 'simple-history' );
 						}
 
 						if ( isset( $translations[ $user_new_value ] ) ) {
 							$language_english_name = $translations[ $user_new_value ]['english_name'];
-							$user_new_value = "{$language_english_name} ({$user_new_value})";
+							$user_new_value        = "{$language_english_name} ({$user_new_value})";
 						} elseif ( $user_new_value === 'SITE_DEFAULT' ) {
 							$user_new_value = __( 'Site Default', 'simple-history' );
 						}
@@ -1140,19 +1140,19 @@ class User_Logger extends Logger {
 		} elseif ( 'user_created' == $message_key ) {
 			// Show fields for created users.
 			$arr_user_keys_to_show_diff_for = array(
-				'created_user_role' => array(
+				'created_user_role'       => array(
 					'title' => _x( 'Role', 'User logger', 'simple-history' ),
 				),
 				'created_user_first_name' => array(
 					'title' => _x( 'First name', 'User logger', 'simple-history' ),
 				),
-				'created_user_last_name' => array(
+				'created_user_last_name'  => array(
 					'title' => _x( 'Last name', 'User logger', 'simple-history' ),
 				),
-				'created_user_url' => array(
+				'created_user_url'        => array(
 					'title' => _x( 'Website', 'User logger', 'simple-history' ),
 				),
-				'send_user_notification' => array(
+				'send_user_notification'  => array(
 					'title' => _x( 'Send notification', 'User logger', 'simple-history' ),
 				),
 			);

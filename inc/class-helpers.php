@@ -43,10 +43,10 @@ class Helpers {
 	 */
 	public static function text_diff( $left_string, $right_string, $args = null ) {
 		$defaults = array(
-			'title' => '',
-			'title_left' => '',
-			'title_right' => '',
-			'leading_context_lines' => 1,
+			'title'                  => '',
+			'title_left'             => '',
+			'title_right'            => '',
+			'leading_context_lines'  => 1,
 			'trailing_context_lines' => 1,
 		);
 
@@ -56,15 +56,15 @@ class Helpers {
 			require ABSPATH . WPINC . '/wp-diff.php';
 		}
 
-		$left_string = normalize_whitespace( $left_string );
+		$left_string  = normalize_whitespace( $left_string );
 		$right_string = normalize_whitespace( $right_string );
 
-		$left_lines = explode( "\n", $left_string );
+		$left_lines  = explode( "\n", $left_string );
 		$right_lines = explode( "\n", $right_string );
-		$text_diff = new \Text_Diff( $left_lines, $right_lines );
+		$text_diff   = new \Text_Diff( $left_lines, $right_lines );
 
-		$renderer = new \WP_Text_Diff_Renderer_Table( $args );
-		$renderer->_leading_context_lines = $args['leading_context_lines'];
+		$renderer                          = new \WP_Text_Diff_Renderer_Table( $args );
+		$renderer->_leading_context_lines  = $args['leading_context_lines'];
 		$renderer->_trailing_context_lines = $args['trailing_context_lines'];
 
 		$diff = $renderer->render( $text_diff );
@@ -201,15 +201,15 @@ class Helpers {
 
 		// No screen found, return object with same properties but with empty values.
 		return (object) array(
-			'action' => null,
-			'base' => null,
-			'id' => null,
-			'is_network' => null,
-			'is_user' => null,
-			'parent_base' => null,
-			'parent_file' => null,
-			'post_type' => null,
-			'taxonomy' => null,
+			'action'          => null,
+			'base'            => null,
+			'id'              => null,
+			'is_network'      => null,
+			'is_user'         => null,
+			'parent_base'     => null,
+			'parent_file'     => null,
+			'post_type'       => null,
+			'taxonomy'        => null,
 			'is_block_editor' => null,
 		);
 	}
@@ -287,7 +287,7 @@ class Helpers {
 	 * @return string Incrementor value, example: `68c1c8545881b`.
 	 */
 	public static function get_cache_incrementor( $refresh = false ) {
-		$incrementor_key = 'simple_history_incrementor';
+		$incrementor_key   = 'simple_history_incrementor';
 		$incrementor_value = wp_cache_get( $incrementor_key );
 
 		// Generate a new incrementor if it doesn't exist or if we want to refresh it.
@@ -409,7 +409,7 @@ class Helpers {
 		}
 
 		$table_size_result = [
-			'simple_history' => $events_table_size_result,
+			'simple_history'          => $events_table_size_result,
 			'simple_history_contexts' => $contexts_table_size_result,
 		];
 
@@ -452,7 +452,7 @@ class Helpers {
 		}
 
 		$table_size_result = [
-			'simple_history' => $table_size_result[0],
+			'simple_history'          => $table_size_result[0],
 			'simple_history_contexts' => $table_size_result[1],
 		];
 
@@ -650,9 +650,9 @@ class Helpers {
 	 * @return array Headers
 	 */
 	public static function get_event_ip_number_headers( $row ) {
-		$ip_header_names_keys = self::get_ip_number_header_names();
+		$ip_header_names_keys            = self::get_ip_number_header_names();
 		$arr_found_additional_ip_headers = array();
-		$context = $row->context;
+		$context                         = $row->context;
 
 		foreach ( $ip_header_names_keys as $one_ip_header_key ) {
 			$one_ip_header_key_lower = strtolower( $one_ip_header_key );
@@ -717,18 +717,18 @@ class Helpers {
 
 		$tables = array(
 			[
-				'table_name' => $simple_history_instance->get_events_table_name(),
+				'table_name'   => $simple_history_instance->get_events_table_name(),
 				'table_exists' => null,
 			],
 			[
-				'table_name' => $simple_history_instance->get_contexts_table_name(),
+				'table_name'   => $simple_history_instance->get_contexts_table_name(),
 				'table_exists' => null,
 			],
 		);
 
 		foreach ( $tables as $key => $table ) {
-			$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table['table_name'] ) );
-			$tables[ $key ]['table_exists']  = $table_exists;
+			$table_exists                   = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table['table_name'] ) );
+			$tables[ $key ]['table_exists'] = $table_exists;
 		}
 
 		return $tables;
@@ -813,9 +813,9 @@ class Helpers {
 		$html_id = '';
 		if ( is_array( $title ) ) {
 			$title_text = $title[0];
-			$icon_slug = $title[1] ?? null;
-			$html_id = $title[2] ?? '';
-			$title = self::get_settings_section_title_output( $title_text, $icon_slug );
+			$icon_slug  = $title[1] ?? null;
+			$html_id    = $title[2] ?? '';
+			$title      = self::get_settings_section_title_output( $title_text, $icon_slug );
 		} else {
 			$title = self::get_settings_section_title_output( $title );
 		}
@@ -833,7 +833,7 @@ class Helpers {
 
 		$args = [
 			'before_section' => sprintf( '<div class="sh-SettingsPage-settingsSection-wrap"%s>', $id_attribute ),
-			'after_section' => '</div>',
+			'after_section'  => '</div>',
 		];
 
 		add_settings_section( $id, $title, $callback, $page, $args );
@@ -960,7 +960,7 @@ class Helpers {
 
 		$simple_history = Simple_History::get_instance();
 
-		$simple_history_table = $simple_history->get_events_table_name();
+		$simple_history_table          = $simple_history->get_events_table_name();
 		$simple_history_contexts_table = $simple_history->get_contexts_table_name();
 
 		// Get number of rows before delete.
@@ -1117,7 +1117,7 @@ class Helpers {
 		// All Simple History admin pages have a ?page=simple_history_... query arg.
 		// where page is the slug of the registered page.
 		$all_menu_pages_slugs = Simple_History::get_instance()->get_menu_manager()->get_all_slugs();
-		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
+		$page                 = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
 
 		if ( $page && in_array( $page, $all_menu_pages_slugs, true ) ) {
 			return true;
@@ -1223,7 +1223,7 @@ class Helpers {
 	 */
 	public static function get_menu_page_location() {
 		$option_slug = 'simple_history_menu_page_location';
-		$setting = get_option( $option_slug );
+		$setting     = get_option( $option_slug );
 
 		// If it does not exist, then default so the option can auto-load.
 		if ( false === $setting ) {
@@ -1306,7 +1306,7 @@ class Helpers {
 	 */
 	public static function get_num_events_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
 		global $wpdb;
-		$simple_history = Simple_History::get_instance();
+		$simple_history              = Simple_History::get_instance();
 		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
 		$sql = sprintf(
@@ -1336,7 +1336,7 @@ class Helpers {
 	 */
 	public static function get_num_events_today() {
 		global $wpdb;
-		$simple_history = Simple_History::get_instance();
+		$simple_history              = Simple_History::get_instance();
 		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
 		$sql = sprintf(
@@ -1366,7 +1366,7 @@ class Helpers {
 	 */
 	public static function get_current_database_events_count() {
 		global $wpdb;
-		$simple_history = Simple_History::get_instance();
+		$simple_history              = Simple_History::get_instance();
 		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
 		$sql = sprintf(
@@ -1397,13 +1397,13 @@ class Helpers {
 		/** @var \wpdb $wpdb */
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
+		$simple_history              = Simple_History::get_instance();
 		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
-		$db_engine = Log_Query::get_db_engine();
+		$db_engine                   = Log_Query::get_db_engine();
 
 		// Get WordPress timezone offset for converting dates from GMT to local timezone.
 		// Database stores dates in GMT, but we need to group by dates in WordPress timezone.
-		$wp_timezone = wp_timezone();
+		$wp_timezone       = wp_timezone();
 		$wp_offset_seconds = $wp_timezone->getOffset( new \DateTime( 'now', $wp_timezone ) );
 
 		$sql = null;
@@ -1467,10 +1467,10 @@ class Helpers {
 		global $wpdb;
 		$simple_history = Simple_History::get_instance();
 
-		$days = (int) $days;
+		$days       = (int) $days;
 		$table_name = $simple_history->get_events_table_name();
-		$cache_key = 'sh_' . md5( __METHOD__ . $days );
-		$numEvents = get_transient( $cache_key );
+		$cache_key  = 'sh_' . md5( __METHOD__ . $days );
+		$numEvents  = get_transient( $cache_key );
 
 		if ( false == $numEvents ) {
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -1516,12 +1516,12 @@ class Helpers {
 		$simple_history = Simple_History::get_instance();
 
 		// Start months filter.
-		$table_name = $simple_history->get_events_table_name();
+		$table_name                   = $simple_history->get_events_table_name();
 		$loggers_user_can_read_sql_in = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
 		// Get unique months.
 		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
-		$cache_key = 'sh_filter_unique_months_' . md5( implode( ',', $loggers_slugs ) );
+		$cache_key     = 'sh_filter_unique_months_' . md5( implode( ',', $loggers_slugs ) );
 		$result_months = get_transient( $cache_key );
 
 		if ( false === $result_months ) {
@@ -1553,11 +1553,11 @@ class Helpers {
 
 		// Start with the latest day.
 		$numEvents = self::get_unique_events_for_days( $daysToShow );
-		$numPages = $numEvents / self::get_pager_size();
+		$numPages  = $numEvents / self::get_pager_size();
 
 		$arr_days_and_pages[] = array(
 			'daysToShow' => $daysToShow,
-			'numPages' => $numPages,
+			'numPages'   => $numPages,
 		);
 
 		// Example on my server with lots of brute force attacks (causing log to not load)
@@ -1566,34 +1566,34 @@ class Helpers {
 		if ( $numPages < 20 ) {
 			// Not that many things the last day. Let's try to expand to 7 days instead.
 			$daysToShow = 7;
-			$numEvents = self::get_unique_events_for_days( $daysToShow );
-			$numPages = $numEvents / self::get_pager_size();
+			$numEvents  = self::get_unique_events_for_days( $daysToShow );
+			$numPages   = $numEvents / self::get_pager_size();
 
 			$arr_days_and_pages[] = array(
 				'daysToShow' => $daysToShow,
-				'numPages' => $numPages,
+				'numPages'   => $numPages,
 			);
 
 			if ( $numPages < 20 ) {
 				// Not that many things the last 7 days. Let's try to expand to 14 days instead.
 				$daysToShow = 14;
-				$numEvents = self::get_unique_events_for_days( $daysToShow );
-				$numPages = $numEvents / self::get_pager_size();
+				$numEvents  = self::get_unique_events_for_days( $daysToShow );
+				$numPages   = $numEvents / self::get_pager_size();
 
 				$arr_days_and_pages[] = array(
 					'daysToShow' => $daysToShow,
-					'numPages' => $numPages,
+					'numPages'   => $numPages,
 				);
 
 				if ( $numPages < 20 ) {
 					// Not many things the last 14 days either. Let try with 30 days.
 					$daysToShow = 30;
-					$numEvents = self::get_unique_events_for_days( $daysToShow );
-					$numPages = $numEvents / self::get_pager_size();
+					$numEvents  = self::get_unique_events_for_days( $daysToShow );
+					$numPages   = $numEvents / self::get_pager_size();
 
 					$arr_days_and_pages[] = array(
 						'daysToShow' => $daysToShow,
-						'numPages' => $numPages,
+						'numPages'   => $numPages,
 					);
 
 					// If 30 days gives a big amount of pages, go back to 14 days.
@@ -1606,8 +1606,8 @@ class Helpers {
 
 		return [
 			'arr_days_and_pages' => $arr_days_and_pages,
-			'daysToShow' => $daysToShow,
-			'result_months' => $result_months,
+			'daysToShow'         => $daysToShow,
+			'result_months'      => $result_months,
 		];
 	}
 
@@ -1817,7 +1817,7 @@ class Helpers {
 	public static function get_settings_page_sub_tab_url( $sub_tab_slug ) {
 		return add_query_arg(
 			[
-				'selected-tab'  => Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG,
+				'selected-tab'     => Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG,
 				'selected-sub-tab' => $sub_tab_slug,
 			],
 			self::get_settings_page_url()
@@ -1833,7 +1833,7 @@ class Helpers {
 	 */
 	public static function event_exists( $event_id ) {
 		global $wpdb;
-		$simple_history = Simple_History::get_instance();
+		$simple_history    = Simple_History::get_instance();
 		$events_table_name = $simple_history->get_events_table_name();
 
 		return (bool) $wpdb->get_var(
@@ -1928,7 +1928,7 @@ class Helpers {
 				$user = get_userdata( $args['users'] );
 				if ( $user ) {
 					$users_filter[] = [
-						'id' => (string) $user->ID,
+						'id'    => (string) $user->ID,
 						'value' => $user->display_name . ' (' . $user->user_email . ')',
 					];
 				}
@@ -1942,7 +1942,7 @@ class Helpers {
 					}
 
 					$users_filter[] = [
-						'id' => (string) $args['users']['id'],
+						'id'    => (string) $args['users']['id'],
 						'value' => $user_value,
 					];
 				} else {
@@ -1954,7 +1954,7 @@ class Helpers {
 						}
 
 						$users_filter[] = [
-							'id' => (string) $user['id'],
+							'id'    => (string) $user['id'],
 							'value' => $user_value,
 						];
 					}
@@ -1962,7 +1962,7 @@ class Helpers {
 			}
 
 			if ( ! empty( $users_filter ) ) {
-				$users_json = wp_json_encode( $users_filter );
+				$users_json          = wp_json_encode( $users_filter );
 				$query_args['users'] = $users_json;
 			}
 		}
@@ -2027,7 +2027,7 @@ class Helpers {
 		}
 
 		// Build the URL manually to properly encode JSON parameters.
-		$base_url = admin_url( 'admin.php' );
+		$base_url  = admin_url( 'admin.php' );
 		$url_parts = [];
 
 		foreach ( $query_args as $key => $value ) {
@@ -2073,8 +2073,8 @@ class Helpers {
 	 */
 	public static function get_tracking_url( $url, $utm_campaign, $utm_source = 'wpadmin', $utm_medium = 'plugin', $utm_content = '' ) {
 		$params = [
-			'utm_source' => $utm_source,
-			'utm_medium' => $utm_medium,
+			'utm_source'   => $utm_source,
+			'utm_medium'   => $utm_medium,
 			'utm_campaign' => $utm_campaign,
 		];
 

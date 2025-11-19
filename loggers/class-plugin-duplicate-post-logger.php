@@ -72,10 +72,10 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 		$new_post = get_post( $new_post_id );
 
 		$context = array(
-			'new_post_title' => $new_post->post_title,
-			'new_post_id' => $new_post->ID,
+			'new_post_title'        => $new_post->post_title,
+			'new_post_id'           => $new_post->ID,
 			'duplicated_post_title' => $post->post_title,
-			'duplicated_post_id' => $post->ID,
+			'duplicated_post_id'    => $post->ID,
 		);
 
 		$this->info_message( 'post_duplicated', $context );
@@ -87,8 +87,8 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 	 * @param object $row Log row.
 	 */
 	public function get_log_row_plain_text_output( $row ) {
-		$context = $row->context;
-		$new_post_id = $context['new_post_id'] ?? null;
+		$context            = $row->context;
+		$new_post_id        = $context['new_post_id'] ?? null;
 		$duplicated_post_id = $context['duplicated_post_id'] ?? null;
 
 		$message = $row->message;
@@ -96,11 +96,11 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 		// Check if post still is available
 		// It will return a WP_Post Object if post still is in system
 		// If post is deleted from trash (not just moved there), then null is returned.
-		$postDuplicated = get_post( $duplicated_post_id );
+		$postDuplicated    = get_post( $duplicated_post_id );
 		$post_is_available = is_a( $postDuplicated, 'WP_Post' );
 
 		// Try to get singular name.
-		$post_type = $postDuplicated->post_type ?? '';
+		$post_type     = $postDuplicated->post_type ?? '';
 		$post_type_obj = get_post_type_object( $post_type );
 
 		if ( ! is_null( $post_type_obj ) && ! empty( $post_type_obj->labels->singular_name ) ) {
@@ -110,7 +110,7 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 		}
 
 		$context['duplicated_post_edit_link'] = get_edit_post_link( $duplicated_post_id );
-		$context['new_post_edit_link'] = get_edit_post_link( $new_post_id );
+		$context['new_post_edit_link']        = get_edit_post_link( $new_post_id );
 
 		// If post is not available any longer then we can't link to it, so keep plain message then
 		// Also keep plain format if user is not allowed to edit post (edit link is empty).

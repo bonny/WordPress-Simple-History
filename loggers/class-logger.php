@@ -127,8 +127,8 @@ abstract class Logger {
 	 * @param Simple_History $simple_history Simple History instance.
 	 */
 	public function __construct( $simple_history = null ) {
-		$this->simple_history = $simple_history;
-		$this->db_table = $this->simple_history->get_events_table_name();
+		$this->simple_history    = $simple_history;
+		$this->db_table          = $this->simple_history->get_events_table_name();
 		$this->db_table_contexts = $this->simple_history->get_contexts_table_name();
 	}
 
@@ -193,8 +193,8 @@ abstract class Logger {
 	 */
 	public function get_log_row_header_initiator_output( $row ) {
 		$initiator_html = '';
-		$initiator = $row->initiator;
-		$context = $row->context;
+		$initiator      = $row->initiator;
+		$context        = $row->context;
 
 		switch ( $initiator ) {
 			case 'wp':
@@ -207,7 +207,7 @@ abstract class Logger {
 					'<strong class="SimpleHistoryLogitem__inlineDivided">WP-CLI</strong> ';
 				break;
 
-			// wp_user = wordpress uses, but user may have been deleted since log entry was added.
+			// wp_user = WordPress uses, but user may have been deleted since log entry was added.
 			case 'wp_user':
 				$user_id = $row->context['_user_id'] ?? null;
 
@@ -217,12 +217,12 @@ abstract class Logger {
 					$is_current_user = get_current_user_id() == $user_id;
 
 					// get user role, as done in user-edit.php.
-					$wp_roles = $GLOBALS['wp_roles'];
+					$wp_roles   = $GLOBALS['wp_roles'];
 					$user_roles = array_intersect(
 						array_values( (array) $user->roles ),
 						array_keys( (array) $wp_roles->roles )
 					);
-					$user_role = array_shift( $user_roles );
+					$user_role  = array_shift( $user_roles );
 
 					$user_display_name = $user->display_name;
 
@@ -363,7 +363,7 @@ abstract class Logger {
 		// Date (should...) always exist
 		// http://developers.whatwg.org/text-level-semantics.html#the-time-element.
 		$date_html = '';
-		$str_when = '';
+		$str_when  = '';
 
 		// $row->date is in GMT
 		$date_datetime = new DateTime( $row->date, new DateTimeZone( 'GMT' ) );
@@ -401,8 +401,8 @@ abstract class Logger {
 			$time_ago_just_now_max_time
 		);
 
-		$date_format = get_option( 'date_format' );
-		$time_format = get_option( 'time_format' );
+		$date_format          = get_option( 'date_format' );
+		$time_format          = get_option( 'time_format' );
 		$date_and_time_format = $date_format . ' - ' . $time_format;
 
 		// Show local time as hours an minutes when event is recent.
@@ -425,7 +425,7 @@ abstract class Logger {
 			$time_current - $date_datetime->getTimestamp() > $time_ago_max_time
 		) {
 			/* translators: Date format for log row header, see http://php.net/date */
-			$datef = __( 'M j, Y \a\t G:i', 'simple-history' );
+			$datef    = __( 'M j, Y \a\t G:i', 'simple-history' );
 			$str_when = date_i18n(
 				$datef,
 				strtotime( get_date_from_gmt( $row->date ) )
@@ -472,7 +472,7 @@ abstract class Logger {
 		);
 
 		// HTML for whole span with date info.
-		$date_html =
+		$date_html  =
 			"<span class='SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when SimpleHistoryLogitem__inlineDivided'>";
 		$date_html .= "<a class='' href='{$item_permalink}'>";
 		$date_html .= sprintf(
@@ -518,7 +518,7 @@ abstract class Logger {
 			return;
 		}
 
-		$via_html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
+		$via_html  = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
 		$via_html .= $logger_name_via;
 		$via_html .= '</span>';
 
@@ -559,7 +559,7 @@ abstract class Logger {
 		}
 
 		$context = $row->context;
-		$html = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__anonUserWithIp'>";
+		$html    = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__anonUserWithIp'>";
 
 		// Look for additional ip addresses.
 		$arr_found_additional_ip_headers = Helpers::get_event_ip_number_headers( $row );
@@ -633,9 +633,9 @@ abstract class Logger {
 	 * @return string HTML
 	 */
 	public function get_log_row_header_output( $row ) {
-		$initiator_html = $this->get_log_row_header_initiator_output( $row );
-		$date_html = $this->get_log_row_header_date_output( $row );
-		$via_html = $this->get_log_row_header_using_plugin_output( $row );
+		$initiator_html  = $this->get_log_row_header_initiator_output( $row );
+		$date_html       = $this->get_log_row_header_date_output( $row );
+		$via_html        = $this->get_log_row_header_using_plugin_output( $row );
 		$ip_address_html = $this->get_log_row_header_ip_address_output( $row );
 
 		// Template to combine header parts.
@@ -702,7 +702,7 @@ abstract class Logger {
 	 * @return string Plain text
 	 */
 	public function get_log_row_plain_text_output( $row ) {
-		$message = $row->message;
+		$message     = $row->message;
 		$message_key = $row->context['_message_key'] ?? null;
 
 		// Message is translated here, but translation must be added in
@@ -753,7 +753,7 @@ abstract class Logger {
 	/**
 	 * Get output for image
 	 * Image can be for example gravatar if sender is user,
-	 * or other images if sender i system, wordpress, and so on
+	 * or other images if sender i system, WordPress, and so on
 	 *
 	 * @param object $row Log row.
 	 */
@@ -765,7 +765,7 @@ abstract class Logger {
 
 		if ( $initiator === 'wp_user' ) {
 			$user_id = $row->context['_user_id'] ?? null;
-			$user = get_user_by( 'id', $user_id );
+			$user    = get_user_by( 'id', $user_id );
 			if ( $user_id > 0 && ( $user ) ) {
 					// Sender was user.
 					$sender_image_html = Helpers::get_avatar(
@@ -1188,7 +1188,7 @@ abstract class Logger {
 		 * @since 2.nn
 		 */
 		$message_key = $context['_message_key'] ?? null;
-		$do_log = apply_filters(
+		$do_log      = apply_filters(
 			"simple_history/log/do_log/{$this->get_slug()}/{$message_key}",
 			true
 		);
@@ -1253,17 +1253,17 @@ abstract class Logger {
 		 * @array $data Data to be inserted into database.
 		 */
 		$data = array(
-			'logger' => $this->get_slug(),
-			'level' => $level,
-			'date' => $date_gmt,
+			'logger'  => $this->get_slug(),
+			'level'   => $level,
+			'date'    => $date_gmt,
 			'message' => $message,
 		);
 
 		[$data, $context] = $this->append_date_to_context( $data, $context );
 		[$data, $context] = $this->append_occasions_id_to_context( $data, $context );
 		[$data, $context] = $this->append_initiator_to_context( $data, $context );
-		$context = $this->append_xmlrpc_request_to_context( $context );
-		$context = $this->append_rest_api_request_to_context( $context );
+		$context          = $this->append_xmlrpc_request_to_context( $context );
+		$context          = $this->append_rest_api_request_to_context( $context );
 
 		/**
 		 * Filter data to be saved to db.
@@ -1342,9 +1342,9 @@ abstract class Logger {
 			$this->append_context( $history_inserted_id, $context );
 		} // End if().
 
-		$this->last_insert_id = $history_inserted_id;
+		$this->last_insert_id      = $history_inserted_id;
 		$this->last_insert_context = $context;
-		$this->last_insert_data = $data;
+		$this->last_insert_data    = $data;
 
 		Helpers::clear_cache();
 
@@ -1394,8 +1394,8 @@ abstract class Logger {
 
 			$data = array(
 				'history_id' => $history_id,
-				'key' => $key,
-				'value' => $value,
+				'key'        => $key,
+				'value'      => $value,
 			);
 
 			$wpdb->insert( $this->db_table_contexts, $data );
@@ -1420,14 +1420,14 @@ abstract class Logger {
 		global $wpdb;
 
 		// Debug tracking variables.
-		$debug_total_size = 0;
+		$debug_total_size  = 0;
 		$debug_total_items = count( $context );
-		$debug_start_time = microtime( true );
+		$debug_start_time  = microtime( true );
 
 		// Conservative batch size: 500KB to ensure compatibility with 4MB max_allowed_packet.
 		$batch_max_size_bytes = 500000;
-		$current_batch_size = 0;
-		$current_batch = array();
+		$current_batch_size   = 0;
+		$current_batch        = array();
 
 		/*
 		 * Array of batches, where each batch is an associative array of key => value pairs.
@@ -1448,15 +1448,15 @@ abstract class Logger {
 
 			// Calculate size of this item: key + value + SQL overhead.
 			// Add 100 bytes for SQL syntax, quotes, escaping overhead.
-			$item_size = strlen( $context_key ) + strlen( $context_value ) + 100;
+			$item_size         = strlen( $context_key ) + strlen( $context_value ) + 100;
 			$debug_total_size += $item_size;
 
 			// If single item is larger than the batch max size, handle it separately.
 			if ( $item_size > $batch_max_size_bytes ) {
 				// Flush current batch first.
 				if ( ! empty( $current_batch ) ) {
-					$batches[] = $current_batch;
-					$current_batch = array();
+					$batches[]          = $current_batch;
+					$current_batch      = array();
 					$current_batch_size = 0;
 				}
 
@@ -1467,13 +1467,13 @@ abstract class Logger {
 
 			// If adding this item would exceed batch size, start new batch.
 			if ( $current_batch_size + $item_size > $batch_max_size_bytes && ! empty( $current_batch ) ) {
-				$batches[] = $current_batch;
-				$current_batch = array();
+				$batches[]          = $current_batch;
+				$current_batch      = array();
 				$current_batch_size = 0;
 			}
 
 			$current_batch[ $context_key ] = $context_value;
-			$current_batch_size += $item_size;
+			$current_batch_size           += $item_size;
 		}
 
 		// Add final batch if not empty.
@@ -1484,13 +1484,13 @@ abstract class Logger {
 		// Execute batches.
 		foreach ( $batches as $batch ) {
 			// Build batch insert query.
-			$values = array();
+			$values       = array();
 			$placeholders = array();
 
 			foreach ( $batch as $context_key => $context_value ) {
-				$values[] = $history_id;
-				$values[] = $context_key;
-				$values[] = $context_value;
+				$values[]       = $history_id;
+				$values[]       = $context_key;
+				$values[]       = $context_value;
 				$placeholders[] = '(%d, %s, %s)';
 			}
 
@@ -1505,8 +1505,8 @@ abstract class Logger {
 		// Log debug summary if debug logging is enabled.
 		$enable_debug = false;
 		if ( $enable_debug ) {
-			$debug_elapsed_time = microtime( true ) - $debug_start_time;
-			$debug_num_batches = count( $batches );
+			$debug_elapsed_time   = microtime( true ) - $debug_start_time;
+			$debug_num_batches    = count( $batches );
 			$debug_avg_batch_size = $debug_num_batches > 0 ? round( $debug_total_size / $debug_num_batches ) : 0;
 
 			sh_error_log(
@@ -1682,9 +1682,9 @@ abstract class Logger {
 	public function filter_gettext( $translated_text, $untranslated_text, $domain ) {
 		$this->messages[] = array(
 			'untranslated_text' => $untranslated_text,
-			'translated_text' => $translated_text,
-			'domain' => $domain,
-			'context' => null,
+			'translated_text'   => $translated_text,
+			'domain'            => $domain,
+			'context'           => null,
 		);
 
 		return $translated_text;
@@ -1703,9 +1703,9 @@ abstract class Logger {
 	public function filter_gettext_with_context( $translated_text, $untranslated_text, $context, $domain ) {
 		$this->messages[] = array(
 			'untranslated_text' => $untranslated_text,
-			'translated_text' => $translated_text,
-			'domain' => $domain,
-			'context' => $context,
+			'translated_text'   => $translated_text,
+			'domain'            => $domain,
+			'context'           => $context,
 		);
 
 		return $translated_text;
@@ -1737,7 +1737,7 @@ abstract class Logger {
 			return $context;
 		}
 
-		$context['_user_id'] = $current_user->ID;
+		$context['_user_id']    = $current_user->ID;
 		$context['_user_login'] = $current_user->user_login;
 		$context['_user_email'] = $current_user->user_email;
 
@@ -1767,8 +1767,8 @@ abstract class Logger {
 				$current_user = wp_get_current_user();
 
 				if ( isset( $current_user->ID ) && $current_user->ID ) {
-					$data['initiator'] = Log_Initiators::WP_USER;
-					$context['_user_id'] = $current_user->ID;
+					$data['initiator']      = Log_Initiators::WP_USER;
+					$context['_user_id']    = $current_user->ID;
 					$context['_user_login'] = $current_user->user_login;
 					$context['_user_email'] = $current_user->user_email;
 				}
@@ -1776,7 +1776,7 @@ abstract class Logger {
 
 			// If cron then set WordPress as responsible.
 			if ( wp_doing_cron() ) {
-				$data['initiator'] = Log_Initiators::WORDPRESS;
+				$data['initiator']           = Log_Initiators::WORDPRESS;
 				$context['_wp_cron_running'] = true;
 
 				// To aid debugging we log the current filter and a list of all filters.
@@ -1809,7 +1809,7 @@ abstract class Logger {
 				$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 				// Validate that it's a proper IP address.
 				$validated_ip = filter_var( $remote_addr, FILTER_VALIDATE_IP );
-				$remote_addr = $validated_ip !== false ? $validated_ip : '';
+				$remote_addr  = $validated_ip !== false ? $validated_ip : '';
 			}
 			// phpcs:enable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders
 
@@ -1846,7 +1846,7 @@ abstract class Logger {
 						if ( Helpers::is_valid_public_ip( $ip ) ) {
 							// valid, add to context, with loop index appended so we can store many IPs.
 							$key_lower = strtolower( $key );
-							$ip = Helpers::privacy_anonymize_ip( $ip );
+							$ip        = Helpers::privacy_anonymize_ip( $ip );
 
 							$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
 						}
@@ -1881,9 +1881,9 @@ abstract class Logger {
 			// by generating a new occasionsID with logger slug appended.
 			$occasions_data = array(
 				'_occasionsID' => $context['_occasionsID'],
-				'_loggerSlug' => $this->get_slug(),
+				'_loggerSlug'  => $this->get_slug(),
 			);
-			$occasions_id = md5( json_encode( $occasions_data ) );
+			$occasions_id   = md5( json_encode( $occasions_data ) );
 			unset( $context['_occasionsID'] );
 		} else {
 			// No occasions id specified, create one based on the data array.
@@ -1925,7 +1925,7 @@ abstract class Logger {
 	private function append_rest_api_request_to_context( $context ) {
 		// Detect REST calls and append to context, if not already there.
 		$is_rest_api_request = defined( 'REST_API_REQUEST' ) && constant( 'REST_API_REQUEST' );
-		$is_rest_request = defined( 'REST_REQUEST' ) && constant( 'REST_REQUEST' );
+		$is_rest_request     = defined( 'REST_REQUEST' ) && constant( 'REST_REQUEST' );
 
 		if ( $is_rest_api_request || $is_rest_request ) {
 			$context['_rest_api_request'] = true;

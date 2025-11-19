@@ -69,12 +69,12 @@ class Plugin_Enable_Media_Replace_Logger extends Logger {
 			$this->info_message(
 				'replaced_file',
 				array(
-					'attachment_id' => $attachment_id,
+					'attachment_id'         => $attachment_id,
 					'prev_attachment_title' => get_the_title( $prev_attachment_post ),
-					'new_attachment_title' => $new_file['name'],
-					'new_attachment_type' => $new_file['type'],
-					'new_attachment_size' => $new_file['size'],
-					'replace_type' => $replace_type,
+					'new_attachment_title'  => $new_file['name'],
+					'new_attachment_type'   => $new_file['type'],
+					'new_attachment_size'   => $new_file['size'],
+					'replace_type'          => $replace_type,
 				)
 			);
 		}// End if().

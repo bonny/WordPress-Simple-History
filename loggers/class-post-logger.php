@@ -168,8 +168,8 @@ class Post_Logger extends Logger {
 		$this->info_message(
 			'post_trashed',
 			[
-				'post_id' => $post->ID,
-				'post_type' => $post->post_type,
+				'post_id'    => $post->ID,
+				'post_type'  => $post->post_type,
 				'post_title' => $post->post_title,
 			]
 		);
@@ -215,20 +215,20 @@ class Post_Logger extends Logger {
 	 */
 	public function on_rest_after_insert( $updated_post, $request, $creating ) {
 		$updated_post = get_post( $updated_post->ID );
-		$post_meta = get_post_custom( $updated_post->ID );
+		$post_meta    = get_post_custom( $updated_post->ID );
 
-		$old_post = $this->old_post_data[ $updated_post->ID ]['post_data'] ?? null;
-		$old_post_meta = $this->old_post_data[ $updated_post->ID ]['post_meta'] ?? null;
+		$old_post       = $this->old_post_data[ $updated_post->ID ]['post_data'] ?? null;
+		$old_post_meta  = $this->old_post_data[ $updated_post->ID ]['post_meta'] ?? null;
 		$old_post_terms = $this->old_post_data[ $updated_post->ID ]['post_terms'] ?? null;
 
 		$args = array(
-			'new_post' => $updated_post,
-			'new_post_meta' => $post_meta,
-			'new_post_terms' => wp_get_object_terms( $updated_post->ID, get_object_taxonomies( $updated_post->post_type ) ),
-			'old_post' => $old_post,
-			'old_post_meta' => $old_post_meta,
-			'old_post_terms' => $old_post_terms,
-			'old_status' => $old_post ? $old_post->post_status : null,
+			'new_post'             => $updated_post,
+			'new_post_meta'        => $post_meta,
+			'new_post_terms'       => wp_get_object_terms( $updated_post->ID, get_object_taxonomies( $updated_post->post_type ) ),
+			'old_post'             => $old_post,
+			'old_post_meta'        => $old_post_meta,
+			'old_post_terms'       => $old_post_terms,
+			'old_status'           => $old_post ? $old_post->post_status : null,
 			'_debug_caller_method' => __METHOD__,
 		);
 
@@ -261,14 +261,14 @@ class Post_Logger extends Logger {
 		$arr_methods_to_act_on = array( 'wp.deletePost' );
 
 		$raw_post_data = null;
-		$message = null;
-		$context = array();
+		$message       = null;
+		$context       = array();
 
 		if ( in_array( $method, $arr_methods_to_act_on ) ) {
 			// Setup common stuff.
-			$raw_post_data = file_get_contents( 'php://input' );
+			$raw_post_data                    = file_get_contents( 'php://input' );
 			$context['wp.deletePost.xmldata'] = Helpers::json_encode( $raw_post_data );
-			$message = new \IXR_Message( $raw_post_data );
+			$message                          = new \IXR_Message( $raw_post_data );
 
 			if ( ! $message->parse() ) {
 				return;
@@ -296,8 +296,8 @@ class Post_Logger extends Logger {
 				$post = get_post( $post_ID );
 
 				$context = array(
-					'post_id' => $post->ID,
-					'post_type' => get_post_type( $post ),
+					'post_id'    => $post->ID,
+					'post_type'  => get_post_type( $post ),
 					'post_title' => get_the_title( $post ),
 				);
 
@@ -338,8 +338,8 @@ class Post_Logger extends Logger {
 		}
 
 		$this->old_post_data[ $post_ID ] = [
-			'post_data' => $prev_post_data,
-			'post_meta' => get_post_custom( $post_ID ),
+			'post_data'  => $prev_post_data,
+			'post_meta'  => get_post_custom( $post_ID ),
 			'post_terms' => wp_get_object_terms( $post_ID, get_object_taxonomies( $prev_post_data->post_type ) ),
 		];
 	}
@@ -382,8 +382,8 @@ class Post_Logger extends Logger {
 		$post = get_post( $post_ID );
 
 		$context = array(
-			'post_id' => $post->ID,
-			'post_type' => get_post_type( $post ),
+			'post_id'    => $post->ID,
+			'post_type'  => get_post_type( $post ),
 			'post_title' => get_the_title( $post ),
 		);
 
@@ -402,8 +402,8 @@ class Post_Logger extends Logger {
 		$post = get_post( $post_ID );
 
 		$context = array(
-			'post_id' => $post->ID,
-			'post_type' => get_post_type( $post ),
+			'post_id'    => $post->ID,
+			'post_type'  => get_post_type( $post ),
 			'post_title' => get_the_title( $post ),
 		);
 
@@ -422,8 +422,8 @@ class Post_Logger extends Logger {
 		$post = get_post( $post_ID );
 
 		$context = array(
-			'post_id' => $post->ID,
-			'post_type' => get_post_type( $post ),
+			'post_id'    => $post->ID,
+			'post_type'  => get_post_type( $post ),
 			'post_title' => get_the_title( $post ),
 		);
 
@@ -444,8 +444,8 @@ class Post_Logger extends Logger {
 		$this->info_message(
 			'post_restored',
 			array(
-				'post_id' => $post_id,
-				'post_type' => get_post_type( $post ),
+				'post_id'    => $post_id,
+				'post_type'  => get_post_type( $post ),
 				'post_title' => get_the_title( $post ),
 			)
 		);
@@ -509,8 +509,8 @@ class Post_Logger extends Logger {
 		$this->info_message(
 			'post_deleted',
 			array(
-				'post_id' => $post_id,
-				'post_type' => get_post_type( $post ),
+				'post_id'    => $post_id,
+				'post_type'  => get_post_type( $post ),
 				'post_title' => get_the_title( $post ),
 			)
 		);
@@ -554,7 +554,7 @@ class Post_Logger extends Logger {
 	 * @return bool
 	 */
 	public function ok_to_log_post_posttype( $post ) {
-		$ok_to_log = true;
+		$ok_to_log      = true;
 		$skip_posttypes = $this->get_skip_posttypes();
 
 		if ( in_array( get_post_type( $post ), $skip_posttypes, true ) ) {
@@ -595,11 +595,11 @@ class Post_Logger extends Logger {
 			return;
 		}
 
-		$new_status = $args['new_post']->post_status ?? null;
-		$post = $args['new_post'];
+		$new_status    = $args['new_post']->post_status ?? null;
+		$post          = $args['new_post'];
 		$new_post_data = array(
-			'post_data' => $post,
-			'post_meta' => $args['new_post_meta'],
+			'post_data'  => $post,
+			'post_meta'  => $args['new_post_meta'],
 			'post_terms' => $args['new_post_terms'],
 		);
 
@@ -607,11 +607,11 @@ class Post_Logger extends Logger {
 		$old_status = $args['old_post']->post_status ?? null;
 		$old_status = ! isset( $old_status ) && isset( $args['old_status'] ) ? $args['old_status'] : $old_status;
 
-		$old_post = $args['old_post'] ?? null;
+		$old_post      = $args['old_post'] ?? null;
 		$old_post_meta = $args['old_post_meta'] ?? null;
 		$old_post_data = array(
-			'post_data' => $old_post,
-			'post_meta' => $old_post_meta,
+			'post_data'  => $old_post,
+			'post_meta'  => $old_post_meta,
 			'post_terms' => $args['old_post_terms'] ?? null,
 		);
 
@@ -698,8 +698,8 @@ class Post_Logger extends Logger {
 		From draft to publish in future: status = "future"
 		*/
 		$context = array(
-			'post_id' => $post->ID,
-			'post_type' => get_post_type( $post ),
+			'post_id'    => $post->ID,
+			'post_type'  => get_post_type( $post ),
 			'post_title' => get_the_title( $post ),
 		);
 
@@ -747,11 +747,11 @@ class Post_Logger extends Logger {
 			$this->info_message(
 				'post_updated',
 				[
-					'post_id' => $post->ID,
-					'post_type' => get_post_type( $post ),
-					'post_title' => get_the_title( $post ),
+					'post_id'          => $post->ID,
+					'post_type'        => get_post_type( $post ),
+					'post_title'       => get_the_title( $post ),
 					'post_prev_status' => $old_status,
-					'post_new_status' => $new_status,
+					'post_new_status'  => $new_status,
 				]
 			);
 		}
@@ -785,18 +785,18 @@ class Post_Logger extends Logger {
 			return;
 		}
 
-		$old_post = $this->old_post_data[ $post->ID ]['post_data'] ?? null;
-		$old_post_meta = $this->old_post_data[ $post->ID ]['post_meta'] ?? null;
+		$old_post       = $this->old_post_data[ $post->ID ]['post_data'] ?? null;
+		$old_post_meta  = $this->old_post_data[ $post->ID ]['post_meta'] ?? null;
 		$old_post_terms = $this->old_post_data[ $post->ID ]['post_terms'] ?? null;
 
 		$args = array(
-			'new_post' => $post,
-			'new_post_meta' => get_post_custom( $post->ID ),
-			'new_post_terms' => wp_get_object_terms( $post->ID, get_object_taxonomies( $post->post_type ) ),
-			'old_post' => $old_post,
-			'old_post_meta' => $old_post_meta,
-			'old_post_terms' => $old_post_terms,
-			'old_status' => $old_status,
+			'new_post'             => $post,
+			'new_post_meta'        => get_post_custom( $post->ID ),
+			'new_post_terms'       => wp_get_object_terms( $post->ID, get_object_taxonomies( $post->post_type ) ),
+			'old_post'             => $old_post,
+			'old_post_meta'        => $old_post_meta,
+			'old_post_terms'       => $old_post_terms,
+			'old_status'           => $old_status,
 			'_debug_caller_method' => __METHOD__,
 		);
 
@@ -851,7 +851,7 @@ class Post_Logger extends Logger {
 		// Save at least 2 values for each detected value change, i.e. the old value and the new value.
 		foreach ( $post_data_diff as $diff_key => $diff_values ) {
 				$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
-				$context[ "post_new_{$diff_key}" ] = $diff_values['new'];
+				$context[ "post_new_{$diff_key}" ]  = $diff_values['new'];
 
 				// If post_author then get more author info,
 				// because just a user ID does not get us far.
@@ -860,12 +860,12 @@ class Post_Logger extends Logger {
 				$new_author_user = get_userdata( (int) $diff_values['new'] );
 
 				if ( is_a( $old_author_user, 'WP_User' ) && is_a( $new_author_user, 'WP_User' ) ) {
-					$context[ "post_prev_{$diff_key}/user_login" ] = $old_author_user->user_login;
-					$context[ "post_prev_{$diff_key}/user_email" ] = $old_author_user->user_email;
+					$context[ "post_prev_{$diff_key}/user_login" ]   = $old_author_user->user_login;
+					$context[ "post_prev_{$diff_key}/user_email" ]   = $old_author_user->user_email;
 					$context[ "post_prev_{$diff_key}/display_name" ] = $old_author_user->display_name;
 
-					$context[ "post_new_{$diff_key}/user_login" ] = $new_author_user->user_login;
-					$context[ "post_new_{$diff_key}/user_email" ] = $new_author_user->user_email;
+					$context[ "post_new_{$diff_key}/user_login" ]   = $new_author_user->user_login;
+					$context[ "post_new_{$diff_key}/user_email" ]   = $new_author_user->user_email;
 					$context[ "post_new_{$diff_key}/display_name" ] = $new_author_user->display_name;
 				}
 			}
@@ -897,7 +897,7 @@ class Post_Logger extends Logger {
 		$arr_meta_keys_to_ignore = apply_filters( 'simple_history/post_logger/meta_keys_to_ignore', $arr_meta_keys_to_ignore, $context );
 
 		$meta_changes = array(
-			'added' => array(),
+			'added'   => array(),
 			'removed' => array(),
 			'changed' => array(),
 		);
@@ -914,8 +914,8 @@ class Post_Logger extends Logger {
 			// Prev page template is different from new page template,
 			// store template php file name.
 			$context['post_prev_page_template'] = $old_meta['_wp_page_template'][0];
-			$context['post_new_page_template'] = $new_meta['_wp_page_template'][0];
-			$theme_templates = (array) $this->get_theme_templates();
+			$context['post_new_page_template']  = $new_meta['_wp_page_template'][0];
+			$theme_templates                    = (array) $this->get_theme_templates();
 
 			if ( isset( $theme_templates[ $context['post_prev_page_template'] ] ) ) {
 					$context['post_prev_page_template_name'] = $theme_templates[ $context['post_prev_page_template'] ];
@@ -963,12 +963,12 @@ class Post_Logger extends Logger {
 		// publish + post_password = password protected
 		// private = post private.
 		$old_post_has_password = ! empty( $old_data->post_password );
-		$old_post_password = $old_post_has_password ? $old_data->post_password : null;
-		$old_post_status = $old_data->post_status ?? null;
+		$old_post_password     = $old_post_has_password ? $old_data->post_password : null;
+		$old_post_status       = $old_data->post_status ?? null;
 
 		$new_post_has_password = ! empty( $new_data->post_password );
-		$new_post_password = $new_post_has_password ? $new_data->post_password : null;
-		$new_post_status = $new_data->post_status ?? null;
+		$new_post_password     = $new_post_has_password ? $new_data->post_password : null;
+		$new_post_status       = $new_data->post_status ?? null;
 
 		if ( false === $old_post_has_password && 'publish' === $new_post_status && $new_post_has_password ) {
 			// If updated post is published and password is set and old post did not have password set
@@ -1031,16 +1031,16 @@ class Post_Logger extends Logger {
 		// Detect added and removed terms.
 		$term_changes = [
 			// Added = exists in new but not in old.
-			'added' => [],
+			'added'   => [],
 			// Removed = exists in old but not in new.
 			'removed' => [],
 		];
 
-		$term_changes['added'] = array_values( array_udiff( $new_post_terms, $old_post_terms, [ $this, 'compare_terms' ] ) );
+		$term_changes['added']   = array_values( array_udiff( $new_post_terms, $old_post_terms, [ $this, 'compare_terms' ] ) );
 		$term_changes['removed'] = array_values( array_udiff( $old_post_terms, $new_post_terms, [ $this, 'compare_terms' ] ) );
 
 		// Add old and new terms to context.
-		$context['post_terms_added'] = $term_changes['added'];
+		$context['post_terms_added']   = $term_changes['added'];
 		$context['post_terms_removed'] = $term_changes['removed'];
 
 		/**
@@ -1077,7 +1077,7 @@ class Post_Logger extends Logger {
 	 * @since 2.0.29
 	 */
 	public function get_theme_templates() {
-		$theme = wp_get_theme();
+		$theme          = wp_get_theme();
 		$page_templates = array();
 
 		$files = (array) $theme->get_files( 'php', 1 );
@@ -1129,13 +1129,13 @@ class Post_Logger extends Logger {
 		// Check if post still is available.
 		// It will return a WP_Post Object if post still is in system.
 		// If post is deleted from trash (not just moved there), then null is returned.
-		$post = get_post( $post_id );
+		$post              = get_post( $post_id );
 		$post_is_available = is_a( $post, 'WP_Post' );
 
 		$message_key = $context['_message_key'] ?? null;
 
 		// Try to get singular name.
-		$post_type = $context['post_type'] ?? '';
+		$post_type     = $context['post_type'] ?? '';
 		$post_type_obj = get_post_type_object( $post_type );
 		if ( ! is_null( $post_type_obj ) && ! empty( $post_type_obj->labels->singular_name ) ) {
 			$context['post_type'] = strtolower( $post_type_obj->labels->singular_name );
@@ -1163,7 +1163,7 @@ class Post_Logger extends Logger {
 			}
 		} // End if().
 
-		$context['post_type'] = isset( $context['post_type'] ) ? esc_html( $context['post_type'] ) : '';
+		$context['post_type']  = isset( $context['post_type'] ) ? esc_html( $context['post_type'] ) : '';
 		$context['post_title'] = isset( $context['post_title'] ) ? esc_html( $context['post_title'] ) : '';
 
 		return helpers::interpolate( $message, $context, $row );
@@ -1175,7 +1175,7 @@ class Post_Logger extends Logger {
 	 * @param object $row Row data.
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'];
 
 		$out = '';
@@ -1183,7 +1183,7 @@ class Post_Logger extends Logger {
 		if ( 'post_updated' == $message_key ) {
 			// Check for keys like "post_prev_post_title" and "post_new_post_title".
 			$diff_table_output = '';
-			$has_diff_values = false;
+			$has_diff_values   = false;
 
 			foreach ( $context as $key => $val ) {
 
@@ -1211,7 +1211,7 @@ class Post_Logger extends Logger {
 							// Different diffs for different keys.
 							if ( 'post_title' == $key_to_diff ) {
 								$has_diff_values = true;
-								$label = __( 'Title', 'simple-history' );
+								$label           = __( 'Title', 'simple-history' );
 
 								$diff_table_output .= sprintf(
 									'<tr><td>%1$s</td><td>%2$s</td></tr>',
@@ -1223,8 +1223,8 @@ class Post_Logger extends Logger {
 								// Risks to fill the visual output.
 								// Maybe solution: use own diff function, that uses none or few context lines.
 								$has_diff_values = true;
-								$label = __( 'Content', 'simple-history' );
-								$key_text_diff = helpers::text_diff( $post_old_value, $post_new_value );
+								$label           = __( 'Content', 'simple-history' );
+								$key_text_diff   = helpers::text_diff( $post_old_value, $post_new_value );
 
 								if ( $key_text_diff ) {
 									$diff_table_output .= sprintf(
@@ -1234,8 +1234,8 @@ class Post_Logger extends Logger {
 									);
 								}
 							} elseif ( 'post_status' == $key_to_diff ) {
-								$has_diff_values = true;
-								$label = __( 'Status', 'simple-history' );
+								$has_diff_values    = true;
+								$label              = __( 'Status', 'simple-history' );
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -1247,7 +1247,7 @@ class Post_Logger extends Logger {
 								);
 							} elseif ( 'post_date' == $key_to_diff ) {
 								$has_diff_values = true;
-								$label = __( 'Publish date', 'simple-history' );
+								$label           = __( 'Publish date', 'simple-history' );
 
 								// $diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
@@ -1261,7 +1261,7 @@ class Post_Logger extends Logger {
 								);
 							} elseif ( 'post_name' == $key_to_diff ) {
 								$has_diff_values = true;
-								$label = __( 'Permalink', 'simple-history' );
+								$label           = __( 'Permalink', 'simple-history' );
 
 								// $diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
@@ -1274,7 +1274,7 @@ class Post_Logger extends Logger {
 								);
 							} elseif ( 'comment_status' == $key_to_diff ) {
 								$has_diff_values = true;
-								$label = __( 'Comment status', 'simple-history' );
+								$label           = __( 'Comment status', 'simple-history' );
 
 								// $diff = new FineDiff($post_old_value, $post_new_value, FineDiff::$wordGranularity);
 								$diff_table_output .= sprintf(
@@ -1295,12 +1295,12 @@ class Post_Logger extends Logger {
 									isset( $context['post_new_post_author/display_name'] )
 								) {
 									$prev_user_display_name = $context['post_prev_post_author/display_name'];
-									$new_user_display_name = $context['post_new_post_author/display_name'];
+									$new_user_display_name  = $context['post_new_post_author/display_name'];
 
 									$prev_user_user_email = $context['post_prev_post_author/user_email'];
-									$new_user_user_email = $context['post_new_post_author/user_email'];
+									$new_user_user_email  = $context['post_new_post_author/user_email'];
 
-									$label = __( 'Author', 'simple-history' );
+									$label              = __( 'Author', 'simple-history' );
 									$diff_table_output .= sprintf(
 										'<tr>
 											<td>%1$s</td>
@@ -1324,12 +1324,12 @@ class Post_Logger extends Logger {
 							} elseif ( 'page_template' == $key_to_diff ) {
 								// page template filename.
 								$prev_page_template = $context['post_prev_page_template'];
-								$new_page_template = $context['post_new_page_template'];
+								$new_page_template  = $context['post_new_page_template'];
 
 								// page template name, should exist, but I guess someone could have deleted a template
 								// and after that change the template for a post.
 								$prev_page_template_name = $context['post_prev_page_template_name'] ?? '';
-								$new_page_template_name = $context['post_new_page_template_name'] ?? '';
+								$new_page_template_name  = $context['post_new_page_template_name'] ?? '';
 
 								// If prev och new template is "default" then use that as name.
 								if ( 'default' == $prev_page_template && ! $prev_page_template_name ) {
@@ -1351,7 +1351,7 @@ class Post_Logger extends Logger {
 									);
 								}
 
-								$label = __( 'Template', 'simple-history' );
+								$label              = __( 'Template', 'simple-history' );
 								$diff_table_output .= sprintf(
 									'<tr>
 										<td>%1$s</td>
@@ -1388,7 +1388,7 @@ class Post_Logger extends Logger {
 				isset( $context['post_meta_changed'] )
 			) {
 				$meta_changed_out = '';
-				$has_diff_values = true;
+				$has_diff_values  = true;
 
 				if ( isset( $context['post_meta_added'] ) ) {
 					$meta_changed_out .=
@@ -1515,7 +1515,7 @@ class Post_Logger extends Logger {
 			$link = add_query_arg(
 				array(
 					'action' => 'edit',
-					'post' => $row->context['post_id'],
+					'post'   => $row->context['post_id'],
 				),
 				admin_url( 'post.php' )
 			);
@@ -1534,13 +1534,13 @@ class Post_Logger extends Logger {
 	 */
 	public function add_post_thumb_diff( $context, $old_meta, $new_meta ) {
 		$prev_post_thumb_id = null;
-		$new_post_thumb_id = null;
+		$new_post_thumb_id  = null;
 
 		// If it was changed from one image to another.
 		if ( isset( $old_meta['_thumbnail_id'][0] ) && isset( $new_meta['_thumbnail_id'][0] ) ) {
 			if ( $old_meta['_thumbnail_id'][0] !== $new_meta['_thumbnail_id'][0] ) {
 				$prev_post_thumb_id = $old_meta['_thumbnail_id'][0];
-				$new_post_thumb_id = $new_meta['_thumbnail_id'][0];
+				$new_post_thumb_id  = $new_meta['_thumbnail_id'][0];
 			}
 		} elseif ( isset( $old_meta['_thumbnail_id'][0] ) ) {
 			// Featured image id did not exist on both new and old data. But on any?
@@ -1550,12 +1550,12 @@ class Post_Logger extends Logger {
 		}
 
 		if ( $prev_post_thumb_id ) {
-			$context['post_prev_thumb_id'] = $prev_post_thumb_id;
+			$context['post_prev_thumb_id']    = $prev_post_thumb_id;
 			$context['post_prev_thumb_title'] = get_the_title( $prev_post_thumb_id );
 		}
 
 		if ( $new_post_thumb_id ) {
-			$context['post_new_thumb_id'] = $new_post_thumb_id;
+			$context['post_new_thumb_id']    = $new_post_thumb_id;
 			$context['post_new_thumb_title'] = get_the_title( $new_post_thumb_id );
 		}
 
@@ -1605,7 +1605,7 @@ class Post_Logger extends Logger {
 				sizeof( $post_terms ),
 				'simple-history'
 			);
-		} else if ( $type === 'removed' ) {
+		} elseif ( $type === 'removed' ) {
 			$label = _n(
 				'Removed term',
 				'Removed terms',
@@ -1616,7 +1616,7 @@ class Post_Logger extends Logger {
 
 		$terms_values = [];
 		foreach ( $post_terms as $term ) {
-			$taxonomy_name = get_taxonomy( $term->taxonomy )->labels->singular_name ?? '';
+			$taxonomy_name  = get_taxonomy( $term->taxonomy )->labels->singular_name ?? '';
 			$terms_values[] = sprintf(
 				'%1$s (%2$s)',
 				$term->name,
@@ -1652,18 +1652,18 @@ class Post_Logger extends Logger {
 
 		if ( ! empty( $context['post_prev_thumb_id'] ) || ! empty( $context['post_new_thumb_id'] ) ) {
 			// Check if images still exists and if so get their thumbnails.
-			$prev_thumb_id = empty( $context['post_prev_thumb_id'] ) ? null : $context['post_prev_thumb_id'];
-			$new_thumb_id = empty( $context['post_new_thumb_id'] ) ? null : $context['post_new_thumb_id'];
-			$post_new_thumb_title = empty( $context['post_new_thumb_title'] ) ? null : $context['post_new_thumb_title'];
+			$prev_thumb_id         = empty( $context['post_prev_thumb_id'] ) ? null : $context['post_prev_thumb_id'];
+			$new_thumb_id          = empty( $context['post_new_thumb_id'] ) ? null : $context['post_new_thumb_id'];
+			$post_new_thumb_title  = empty( $context['post_new_thumb_title'] ) ? null : $context['post_new_thumb_title'];
 			$post_prev_thumb_title = empty( $context['post_prev_thumb_title'] )
 				? null
 				: $context['post_prev_thumb_title'];
 
 			$prev_attached_file = get_attached_file( $prev_thumb_id );
-			$prev_thumb_src = wp_get_attachment_image_src( $prev_thumb_id, 'small' );
+			$prev_thumb_src     = wp_get_attachment_image_src( $prev_thumb_id, 'small' );
 
 			$new_attached_file = get_attached_file( $new_thumb_id );
-			$new_thumb_src = wp_get_attachment_image_src( $new_thumb_id, 'small' );
+			$new_thumb_src     = wp_get_attachment_image_src( $new_thumb_id, 'small' );
 
 			if ( file_exists( $prev_attached_file ) && $prev_thumb_src ) {
 				$prev_thumb_html = sprintf(

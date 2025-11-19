@@ -122,12 +122,12 @@ class React_Dropin extends Dropin {
 
 		$colors = [
 			'default' => [
-				'link' => '#0073aa',
+				'link'       => '#0073aa',
 				'link_focus' => '#135e96',
 			],
 			// "modern" is the only one with a different color scheme.
-			'modern' => [
-				'link' => '#3858e9',
+			'modern'  => [
+				'link'       => '#3858e9',
 				'link_focus' => '#183ad6',
 			],
 		];

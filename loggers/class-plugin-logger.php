@@ -120,7 +120,7 @@ class Plugin_Logger extends Logger {
 					'simple-history'
 				),
 
-				'plugin_bulk_updated_failed' => _x(
+				'plugin_bulk_updated_failed'    => _x(
 					'Failed to update plugin "{plugin_name}"',
 					'Plugin failed to update in bulk',
 					'simple-history'
@@ -133,12 +133,12 @@ class Plugin_Logger extends Logger {
 					'simple-history'
 				),
 
-				'plugin_auto_updates_enabled' => _x(
+				'plugin_auto_updates_enabled'   => _x(
 					'Enabled auto-updates for plugin "{plugin_name}"',
 					'Plugin was enabled for auto-updates',
 					'simple-history'
 				),
-				'plugin_auto_updates_disabled' => _x(
+				'plugin_auto_updates_disabled'  => _x(
 					'Disabled auto-updates for plugin "{plugin_name}"',
 					'Plugin was enabled for auto-updates',
 					'simple-history'
@@ -304,7 +304,7 @@ class Plugin_Logger extends Logger {
 		}
 
 		$this->package_results[ $plugin_main_file_path ] = [
-			'result' => $result,
+			'result'     => $result,
 			'hook_extra' => $hook_extra,
 		];
 
@@ -319,10 +319,10 @@ class Plugin_Logger extends Logger {
 
 		if ( $is_update && $has_error ) {
 			$this->package_results[ $plugin_main_file_path ]['rollback_will_occur'] = true;
-			$this->package_results[ $plugin_main_file_path ]['rollback_info'] = [
-				'backup_slug' => $hook_extra['temp_backup']['slug'] ?? '',
-				'backup_dir' => $hook_extra['temp_backup']['dir'] ?? '',
-				'error_code' => $result->get_error_code(),
+			$this->package_results[ $plugin_main_file_path ]['rollback_info']       = [
+				'backup_slug'   => $hook_extra['temp_backup']['slug'] ?? '',
+				'backup_dir'    => $hook_extra['temp_backup']['dir'] ?? '',
+				'error_code'    => $result->get_error_code(),
 				'error_message' => $result->get_error_message(),
 			];
 		}
@@ -361,13 +361,13 @@ class Plugin_Logger extends Logger {
 		$plugin_data = $this->plugins_data[ $plugin_file ];
 
 		$context = array(
-			'plugin' => $plugin_file,
-			'plugin_name' => $plugin_data['Name'],
-			'plugin_title' => $plugin_data['Title'],
+			'plugin'             => $plugin_file,
+			'plugin_name'        => $plugin_data['Name'],
+			'plugin_title'       => $plugin_data['Title'],
 			'plugin_description' => $plugin_data['Description'],
-			'plugin_author' => $plugin_data['Author'],
-			'plugin_version' => $plugin_data['Version'],
-			'plugin_url' => $plugin_data['PluginURI'],
+			'plugin_author'      => $plugin_data['Author'],
+			'plugin_version'     => $plugin_data['Version'],
+			'plugin_url'         => $plugin_data['PluginURI'],
 		);
 
 		$this->info_message(
@@ -537,9 +537,9 @@ class Plugin_Logger extends Logger {
 		$pluginData = get_plugin_data( $pluginFile, true, false );
 
 		$context = array(
-			'plugin_slug'        => $onePluginSlug,
-			'plugin_name'        => $pluginData['Name'] ?? null,
-			'plugin_version'     => $pluginData['Version'] ?? null,
+			'plugin_slug'    => $onePluginSlug,
+			'plugin_name'    => $pluginData['Name'] ?? null,
+			'plugin_version' => $pluginData['Version'] ?? null,
 		);
 
 		if ( $enableOrDisable === 'enable' ) {
@@ -717,20 +717,20 @@ class Plugin_Logger extends Logger {
 		$escaped_response_body = wp_kses(
 			$response_body,
 			array(
-				'p' => array(),
-				'div' => array(),
-				'h1' => array(),
-				'h2' => array(),
-				'h3' => array(),
+				'p'    => array(),
+				'div'  => array(),
+				'h1'   => array(),
+				'h2'   => array(),
+				'h3'   => array(),
 				'code' => array(),
-				'a' => array(
+				'a'    => array(
 					'href' => array(),
 				),
-				'img' => array(
+				'img'  => array(
 					'src' => array(),
 				),
-				'ul' => array(),
-				'li' => array(),
+				'ul'   => array(),
+				'li'   => array(),
 			)
 		);
 
@@ -842,14 +842,14 @@ class Plugin_Logger extends Logger {
 		$plugin_slug = dirname( $arr_data['plugin'] );
 
 		$context = [
-			'plugin_slug'         => $plugin_slug,
-			'request'             => Helpers::json_encode( $_REQUEST ),
-			'plugin_name'         => $plugin_data['Name'],
-			'plugin_title'        => $plugin_data['Title'],
-			'plugin_description'  => $plugin_data['Description'],
-			'plugin_author'       => $plugin_data['Author'],
-			'plugin_version'      => $plugin_data['Version'],
-			'plugin_url'          => $plugin_data['PluginURI'],
+			'plugin_slug'        => $plugin_slug,
+			'request'            => Helpers::json_encode( $_REQUEST ),
+			'plugin_name'        => $plugin_data['Name'],
+			'plugin_title'       => $plugin_data['Title'],
+			'plugin_description' => $plugin_data['Description'],
+			'plugin_author'      => $plugin_data['Author'],
+			'plugin_version'     => $plugin_data['Version'],
+			'plugin_url'         => $plugin_data['PluginURI'],
 		];
 
 		// Add Update URI if it is set. Available since WP 5.8.
@@ -1315,7 +1315,7 @@ class Plugin_Logger extends Logger {
 	 * @return string HTML output.
 	 */
 	private function get_plugin_info_link( $context ) {
-		$output = '';
+		$output      = '';
 		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 
 		// Slug + web as install source = show link to wordpress.org.
@@ -1354,8 +1354,8 @@ class Plugin_Logger extends Logger {
 	 * @return string HTML output.
 	 */
 	private function get_plugin_action_details_output( $context, $message_key ) {
-		$output = '';
-		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
+		$output         = '';
+		$plugin_slug    = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 		$plugin_version = empty( $context['plugin_version'] ) ? '' : $context['plugin_version'];
 
 		if ( $plugin_slug && empty( $context['plugin_github_url'] ) ) {
@@ -1436,8 +1436,8 @@ class Plugin_Logger extends Logger {
 		if ( $package_result && ! empty( $package_result['rollback_will_occur'] ) ) {
 			$context['rollback_will_occur'] = true;
 			if ( ! empty( $package_result['rollback_info'] ) ) {
-				$context['rollback_backup_slug'] = $package_result['rollback_info']['backup_slug'];
-				$context['rollback_error_code'] = $package_result['rollback_info']['error_code'];
+				$context['rollback_backup_slug']   = $package_result['rollback_info']['backup_slug'];
+				$context['rollback_error_code']    = $package_result['rollback_info']['error_code'];
 				$context['rollback_error_message'] = $package_result['rollback_info']['error_message'];
 			}
 		}

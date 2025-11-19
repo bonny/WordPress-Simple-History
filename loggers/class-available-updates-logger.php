@@ -101,8 +101,8 @@ class Available_Updates_Logger extends Logger {
 				'core_update_available',
 				array(
 					'wp_core_current_version' => $wp_version,
-					'wp_core_new_version' => $new_wp_core_version,
-					'_initiator' => Log_Initiators::WORDPRESS,
+					'wp_core_new_version'     => $new_wp_core_version,
+					'_initiator'              => Log_Initiators::WORDPRESS,
 				)
 			);
 
@@ -124,7 +124,7 @@ class Available_Updates_Logger extends Logger {
 			return;
 		}
 
-		$option_key = "simplehistory_{$this->get_slug()}_plugin_updates_available";
+		$option_key      = "simplehistory_{$this->get_slug()}_plugin_updates_available";
 		$checked_updates = get_option( $option_key );
 
 		if ( ! is_array( $checked_updates ) ) {
@@ -174,10 +174,10 @@ class Available_Updates_Logger extends Logger {
 			$this->notice_message(
 				'plugin_update_available',
 				array(
-					'plugin_name' => $plugin_info['Name'] ?? '',
+					'plugin_name'            => $plugin_info['Name'] ?? '',
 					'plugin_current_version' => $plugin_info['Version'] ?? '',
-					'plugin_new_version' => $plugin_new_version,
-					'_initiator' => Log_Initiators::WORDPRESS,
+					'plugin_new_version'     => $plugin_new_version,
+					'_initiator'             => Log_Initiators::WORDPRESS,
 				)
 			);
 		} // End foreach().
@@ -198,7 +198,7 @@ class Available_Updates_Logger extends Logger {
 			return;
 		}
 
-		$option_key = "simplehistory_{$this->get_slug()}_theme_updates_available";
+		$option_key      = "simplehistory_{$this->get_slug()}_theme_updates_available";
 		$checked_updates = get_option( $option_key );
 
 		if ( ! is_array( $checked_updates ) ) {
@@ -231,10 +231,10 @@ class Available_Updates_Logger extends Logger {
 			$this->notice_message(
 				'theme_update_available',
 				array(
-					'theme_name' => $theme_info['Name'] ?? '',
+					'theme_name'            => $theme_info['Name'] ?? '',
 					'theme_current_version' => $theme_info['Version'] ?? '',
-					'theme_new_version' => $theme_new_version,
-					'_initiator' => Log_Initiators::WORDPRESS,
+					'theme_new_version'     => $theme_new_version,
+					'_initiator'            => Log_Initiators::WORDPRESS,
 				// "plugin_info" => $plugin_info,
 				// "remote_plugin_info" => $remote_plugin_info,
 				// "active_plugins" => $active_plugins,
@@ -255,8 +255,8 @@ class Available_Updates_Logger extends Logger {
 
 		$output = '';
 
-		$current_version = null;
-		$new_version = null;
+		$current_version     = null;
+		$new_version         = null;
 		$context_message_key = $row->context_message_key ?? null;
 
 		$context = $row->context ?? array();
@@ -264,17 +264,17 @@ class Available_Updates_Logger extends Logger {
 		switch ( $context_message_key ) {
 			case 'core_update_available':
 				$current_version = $context['wp_core_current_version'] ?? null;
-				$new_version = $context['wp_core_new_version'] ?? null;
+				$new_version     = $context['wp_core_new_version'] ?? null;
 				break;
 
 			case 'plugin_update_available':
 				$current_version = $context['plugin_current_version'] ?? null;
-				$new_version = $context['plugin_new_version'] ?? null;
+				$new_version     = $context['plugin_new_version'] ?? null;
 				break;
 
 			case 'theme_update_available':
 				$current_version = $context['theme_current_version'] ?? null;
-				$new_version = $context['theme_new_version'] ?? null;
+				$new_version     = $context['theme_new_version'] ?? null;
 				break;
 		}
 

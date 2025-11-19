@@ -12,8 +12,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 /*
 Go on with uninstall actions:
- - Remove our database table
- - Remove options:
+- Remove our database table
+- Remove options:
 */
 
 // Remove options.

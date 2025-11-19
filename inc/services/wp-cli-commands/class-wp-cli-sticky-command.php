@@ -197,7 +197,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 		);
 
 		$is_sticky = $event->is_sticky();
-		$status = $is_sticky ? 'sticky' : 'not sticky';
+		$status    = $is_sticky ? 'sticky' : 'not sticky';
 
 		if ( 'table' === $assoc_args['format'] ) {
 			if ( $is_sticky ) {
@@ -208,9 +208,9 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 		} else {
 			$output = [
 				[
-					'event_id' => $event_id,
+					'event_id'  => $event_id,
 					'is_sticky' => $is_sticky,
-					'status' => $status,
+					'status'    => $status,
 				],
 			];
 

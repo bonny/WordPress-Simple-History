@@ -81,8 +81,8 @@ class File_Edits_Logger extends Logger {
 			// if 'phperror' is set then there was an error and an edit is done and wp tries to activate the plugin again
 			// $phperror = isset($_POST["phperror"]) ? $_POST["phperror"] : null;
 			// Get info about the edited plugin.
-			$pluginInfo = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file );
-			$pluginName = $pluginInfo['Name'] ?? null;
+			$pluginInfo    = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file );
+			$pluginName    = $pluginInfo['Name'] ?? null;
 			$pluginVersion = $pluginInfo['Version'] ?? null;
 
 			$file_full_path = WP_PLUGIN_DIR . '/' . $file;
@@ -96,12 +96,12 @@ class File_Edits_Logger extends Logger {
 			$fileContentsBeforeEdit = file_get_contents( $file_full_path );
 
 			$context = array(
-				'file_name' => $plugin_file,
-				'plugin_name' => $pluginName,
-				'plugin_version' => $pluginVersion,
+				'file_name'         => $plugin_file,
+				'plugin_name'       => $pluginName,
+				'plugin_version'    => $pluginVersion,
 				'old_file_contents' => $fileContentsBeforeEdit,
 				'new_file_contents' => $fileNewContents,
-				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
+				'_occasionsID'      => self::class . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
 			);
 
 			$this->info_message( 'plugin_file_edited', $context );
@@ -163,20 +163,20 @@ class File_Edits_Logger extends Logger {
 
 			// Same code as in theme-editor.php.
 			$relative_file = $file;
-			$file = $theme->get_stylesheet_directory() . '/' . $relative_file;
+			$file          = $theme->get_stylesheet_directory() . '/' . $relative_file;
 
 			// Get file contents, so we have something to compare with later.
 			$fileContentsBeforeEdit = file_get_contents( $file );
 
 			$context = array(
-				'theme_name' => $theme->name,
+				'theme_name'            => $theme->name,
 				'theme_stylesheet_path' => $theme->get_stylesheet(),
-				'theme_stylesheet_dir' => $theme->get_stylesheet_directory(),
-				'file_name' => $relative_file,
-				'file_dir' => $file,
-				'old_file_contents' => $fileContentsBeforeEdit,
-				'new_file_contents' => $fileNewContents,
-				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$file",
+				'theme_stylesheet_dir'  => $theme->get_stylesheet_directory(),
+				'file_name'             => $relative_file,
+				'file_dir'              => $file,
+				'old_file_contents'     => $fileContentsBeforeEdit,
+				'new_file_contents'     => $fileNewContents,
+				'_occasionsID'          => self::class . '/' . __FUNCTION__ . "/file-edit/$file",
 			);
 
 			$this->info_message( 'theme_file_edited', $context );
@@ -190,7 +190,7 @@ class File_Edits_Logger extends Logger {
 	 * @return string HTML
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'] ?? null;
 
 		if ( ! $message_key ) {

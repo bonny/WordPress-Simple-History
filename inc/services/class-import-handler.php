@@ -57,7 +57,7 @@ class Import_Handler extends Service {
 
 		// Get import options from form.
 		$import_post_types = isset( $_POST['import_post_types'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['import_post_types'] ) ) : [];
-		$import_users = isset( $_POST['import_users'] ) && sanitize_text_field( wp_unslash( $_POST['import_users'] ) ) === '1';
+		$import_users      = isset( $_POST['import_users'] ) && sanitize_text_field( wp_unslash( $_POST['import_users'] ) ) === '1';
 
 		// Check if import limit is enabled.
 		$enable_limit = isset( $_POST['enable_import_limit'] ) && sanitize_text_field( wp_unslash( $_POST['enable_import_limit'] ) ) === '1';
@@ -77,23 +77,23 @@ class Import_Handler extends Service {
 		// Run import.
 		$results = $importer->import_all(
 			[
-				'post_types' => $import_post_types,
+				'post_types'   => $import_post_types,
 				'import_users' => $import_users,
-				'limit' => $import_limit,
+				'limit'        => $import_limit,
 			]
 		);
 
 		// Redirect back to the page with results as URL parameters.
 		$redirect_url = add_query_arg(
 			[
-				'page' => Experimental_Features_Page::PAGE_SLUG,
-				'import-completed' => '1',
-				'posts-imported' => isset( $results['posts_imported'] ) ? intval( $results['posts_imported'] ) : 0,
-				'users-imported' => isset( $results['users_imported'] ) ? intval( $results['users_imported'] ) : 0,
+				'page'                   => Experimental_Features_Page::PAGE_SLUG,
+				'import-completed'       => '1',
+				'posts-imported'         => isset( $results['posts_imported'] ) ? intval( $results['posts_imported'] ) : 0,
+				'users-imported'         => isset( $results['users_imported'] ) ? intval( $results['users_imported'] ) : 0,
 				'posts-skipped-imported' => isset( $results['posts_skipped_imported'] ) ? intval( $results['posts_skipped_imported'] ) : 0,
-				'posts-skipped-logged' => isset( $results['posts_skipped_logged'] ) ? intval( $results['posts_skipped_logged'] ) : 0,
+				'posts-skipped-logged'   => isset( $results['posts_skipped_logged'] ) ? intval( $results['posts_skipped_logged'] ) : 0,
 				'users-skipped-imported' => isset( $results['users_skipped_imported'] ) ? intval( $results['users_skipped_imported'] ) : 0,
-				'users-skipped-logged' => isset( $results['users_skipped_logged'] ) ? intval( $results['users_skipped_logged'] ) : 0,
+				'users-skipped-logged'   => isset( $results['users_skipped_logged'] ) ? intval( $results['users_skipped_logged'] ) : 0,
 			],
 			admin_url( 'admin.php' )
 		);
@@ -128,9 +128,9 @@ class Import_Handler extends Service {
 		// Redirect back to the page with results as URL parameters.
 		$redirect_url = add_query_arg(
 			[
-				'page' => Experimental_Features_Page::PAGE_SLUG,
+				'page'             => Experimental_Features_Page::PAGE_SLUG,
 				'delete-completed' => '1',
-				'events-deleted' => isset( $results['events_deleted'] ) ? intval( $results['events_deleted'] ) : 0,
+				'events-deleted'   => isset( $results['events_deleted'] ) ? intval( $results['events_deleted'] ) : 0,
 			],
 			admin_url( 'admin.php' )
 		);
@@ -278,7 +278,7 @@ class Import_Handler extends Service {
 
 				<?php
 				// Get preview counts.
-				$importer = new Existing_Data_Importer( $this->simple_history );
+				$importer       = new Existing_Data_Importer( $this->simple_history );
 				$preview_counts = $importer->get_preview_counts();
 				?>
 

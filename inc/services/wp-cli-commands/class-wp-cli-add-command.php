@@ -54,8 +54,8 @@ class WP_CLI_Add_Command extends WP_CLI_Command {
 		$simple_history = Simple_History::get_instance();
 
 		$message = $args[0];
-		$note = $assoc_args['note'] ?? '';
-		$level = $assoc_args['level'] ?? 'info';
+		$note    = $assoc_args['note'] ?? '';
+		$level   = $assoc_args['level'] ?? 'info';
 
 		// Get the instantiated logger.
 		$custom_entry_logger = $simple_history->get_instantiated_logger_by_slug( 'CustomEntryLogger' );

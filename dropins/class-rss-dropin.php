@@ -114,7 +114,7 @@ class RSS_Dropin extends Dropin {
 
 		// Create new RSS secret.
 		$create_secret_nonce_name = 'simple_history_rss_secret_regenerate_nonce';
-		$create_nonce_ok = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET[ $create_secret_nonce_name ] ) ), 'simple_history_rss_update_secret' );
+		$create_nonce_ok          = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET[ $create_secret_nonce_name ] ) ), 'simple_history_rss_update_secret' );
 
 		if ( $create_nonce_ok ) {
 			$this->update_rss_secret();
@@ -204,7 +204,7 @@ class RSS_Dropin extends Dropin {
 	 */
 	public function output_rss() {
 		$rss_secret_option = get_option( 'simple_history_rss_secret' );
-		$rss_secret_get = sanitize_text_field( wp_unslash( $_GET['rss_secret'] ?? '' ) );
+		$rss_secret_get    = sanitize_text_field( wp_unslash( $_GET['rss_secret'] ?? '' ) );
 
 		if ( empty( $rss_secret_option ) || empty( $rss_secret_get ) ) {
 			die();
@@ -303,14 +303,14 @@ class RSS_Dropin extends Dropin {
 					 */
 					$args = apply_filters( 'simple_history/rss_feed_args', $args );
 
-					$logQuery = new Log_Query();
+					$logQuery     = new Log_Query();
 					$queryResults = $logQuery->query( $args );
 
 					// Remove capability override after query is done
 					// remove_action( $action_tag, '__return_true', 10 );.
 					foreach ( $queryResults['log_rows'] as $row ) {
-						$header_output = $this->simple_history->get_log_row_header_output( $row );
-						$text_output = $this->simple_history->get_log_row_plain_text_output( $row );
+						$header_output  = $this->simple_history->get_log_row_header_output( $row );
+						$text_output    = $this->simple_history->get_log_row_plain_text_output( $row );
 						$details_output = $this->simple_history->get_log_row_details_output( $row );
 
 						// http://cyber.law.harvard.edu/rss/rss.html#ltguidgtSubelementOfLtitemgt
@@ -343,42 +343,42 @@ class RSS_Dropin extends Dropin {
 						);
 
 						$wp_kses_attrs = array(
-							'a' => array(
-								'href' => array(),
-								'class' => array(),
+							'a'      => array(
+								'href'            => array(),
+								'class'           => array(),
 								'data-ip-address' => array(),
-								'target' => array(),
-								'title' => array(),
+								'target'          => array(),
+								'title'           => array(),
 							),
-							'em' => array(),
-							'span' => array(
-								'class' => array(),
-								'title' => array(),
+							'em'     => array(),
+							'span'   => array(
+								'class'       => array(),
+								'title'       => array(),
 								'aria-hidden' => array(),
 							),
-							'time' => array(
+							'time'   => array(
 								'datetime' => array(),
-								'class' => array(),
+								'class'    => array(),
 							),
 							'strong' => array(
 								'class' => array(),
 							),
-							'div' => array(
-								'class' => array(),
+							'div'    => array(
+								'class'    => array(),
 								'tabindex' => array(),
 							),
-							'p' => array(),
-							'del' => array(),
-							'ins' => array(),
-							'table' => array(
+							'p'      => array(),
+							'del'    => array(),
+							'ins'    => array(),
+							'table'  => array(
 								'class' => array(),
 							),
-							'tbody' => array(),
-							'tr' => array(),
-							'td' => array(
+							'tbody'  => array(),
+							'tr'     => array(),
+							'td'     => array(
 								'class' => array(),
 							),
-							'col' => array(
+							'col'    => array(
 								'class' => array(),
 							),
 						);
@@ -492,9 +492,9 @@ class RSS_Dropin extends Dropin {
 			),
 			[
 				'a' => [
-					'href' => [],
+					'href'   => [],
 					'target' => [],
-					'class' => [],
+					'class'  => [],
 				],
 			]
 		);
@@ -540,7 +540,7 @@ class RSS_Dropin extends Dropin {
 		$rss_address = add_query_arg(
 			array(
 				'simple_history_get_rss' => '1',
-				'rss_secret' => $rss_secret,
+				'rss_secret'             => $rss_secret,
 			),
 			get_bloginfo( 'url' ) . '/'
 		);
@@ -566,21 +566,21 @@ class RSS_Dropin extends Dropin {
 	 */
 	public function set_log_query_args_from_query_string( $args ) {
 		$posts_per_page = isset( $args['posts_per_page'] ) ? (int) $args['posts_per_page'] : 10;
-		$paged = isset( $args['paged'] ) ? (int) $args['paged'] : 1;
-		$date_from = isset( $args['date_from'] ) ? sanitize_text_field( $args['date_from'] ) : null;
-		$date_to = isset( $args['date_to'] ) ? sanitize_text_field( $args['date_to'] ) : null;
-		$loggers = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : null;
-		$messages = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : null;
-		$loglevels = isset( $args['loglevels'] ) ? sanitize_text_field( $args['loglevels'] ) : null;
+		$paged          = isset( $args['paged'] ) ? (int) $args['paged'] : 1;
+		$date_from      = isset( $args['date_from'] ) ? sanitize_text_field( $args['date_from'] ) : null;
+		$date_to        = isset( $args['date_to'] ) ? sanitize_text_field( $args['date_to'] ) : null;
+		$loggers        = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : null;
+		$messages       = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : null;
+		$loglevels      = isset( $args['loglevels'] ) ? sanitize_text_field( $args['loglevels'] ) : null;
 
 		return [
 			'posts_per_page' => $posts_per_page,
-			'paged' => $paged,
-			'date_from' => $date_from,
-			'date_to' => $date_to,
-			'loggers' => $loggers,
-			'messages' => $messages,
-			'loglevels' => $loglevels,
+			'paged'          => $paged,
+			'date_from'      => $date_from,
+			'date_to'        => $date_to,
+			'loggers'        => $loggers,
+			'messages'       => $messages,
+			'loglevels'      => $loglevels,
 		];
 	}
 }

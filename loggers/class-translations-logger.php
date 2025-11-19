@@ -82,8 +82,8 @@ class Translations_Logger extends Logger {
 			}
 
 			$context = array(
-				'name' => $name,
-				'language' => $translation['language'],
+				'name'         => $name,
+				'language'     => $translation['language'],
 				'translations' => $translation,
 				'_occasionsID' => self::class . '/translations_updated',
 			);

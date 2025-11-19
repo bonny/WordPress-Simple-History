@@ -15,9 +15,9 @@ use Simple_History\Services\Admin_Pages;
  * Author: Pär Thernström
  */
 class Settings_Debug_Tab_Dropin extends Dropin {
-	public const SUPPORT_PAGE_SLUG = 'simple_history_help_support';
+	public const SUPPORT_PAGE_SLUG             = 'simple_history_help_support';
 	public const SUPPORT_PAGE_GENERAL_TAB_SLUG = 'simple_history_help_support_general';
-	public const SUPPORT_PAGE_DEBUG_TAB_SLUG = 'simple_history_help_support_debug';
+	public const SUPPORT_PAGE_DEBUG_TAB_SLUG   = 'simple_history_help_support_debug';
 
 	/** @inheritdoc */
 	public function loaded() {
@@ -51,7 +51,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			$debug_menu_page
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
-		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+		} elseif ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
 			$debug_menu_page
 				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
@@ -109,7 +109,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 				->set_parent( self::SUPPORT_PAGE_GENERAL_TAB_SLUG )
 				->set_order( 20 )
 				->add();
-		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+		} elseif ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// Add first "Support" sub tab.
 			// User will be redirected to the next, first child tab.
 			( new Menu_Page() )
@@ -162,17 +162,17 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			SIMPLE_HISTORY_PATH . 'templates/settings-tab-debug.php',
 			false,
 			array(
-				'instantiated_loggers' => $this->simple_history->get_instantiated_loggers(),
-				'instantiated_dropins' => $this->simple_history->get_instantiated_dropins(),
-				'instantiated_services' => $this->simple_history->get_instantiated_services(),
-				'events_table_name' => $this->simple_history->get_events_table_name(),
+				'instantiated_loggers'    => $this->simple_history->get_instantiated_loggers(),
+				'instantiated_dropins'    => $this->simple_history->get_instantiated_dropins(),
+				'instantiated_services'   => $this->simple_history->get_instantiated_services(),
+				'events_table_name'       => $this->simple_history->get_events_table_name(),
 				'simple_history_instance' => $this->simple_history,
-				'wpdb' => $GLOBALS['wpdb'],
-				'plugins' => get_plugins(),
-				'dropins' => get_dropins(),
-				'tables_info' => Helpers::required_tables_exist(),
-				'table_size_result' => Helpers::get_db_table_stats(),
-				'db_engine' => Log_Query::get_db_engine(),
+				'wpdb'                    => $GLOBALS['wpdb'],
+				'plugins'                 => get_plugins(),
+				'dropins'                 => get_dropins(),
+				'tables_info'             => Helpers::required_tables_exist(),
+				'table_size_result'       => Helpers::get_db_table_stats(),
+				'db_engine'               => Log_Query::get_db_engine(),
 			)
 		);
 	}

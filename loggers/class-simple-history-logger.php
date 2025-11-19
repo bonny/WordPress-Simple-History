@@ -24,14 +24,14 @@ class Simple_History_Logger extends Logger {
 	public function get_info() {
 		return [
 			'name'        => _x( 'Simple History Logger', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-			'name_via'   => _x( 'Using plugin Simple History', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+			'name_via'    => _x( 'Using plugin Simple History', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			'description' => __( 'Logs changes made on the Simple History settings page.', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => array(
-				'modified_settings' => _x( 'Modified settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'modified_settings'           => _x( 'Modified settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'regenerated_rss_feed_secret' => _x( 'Regenerated RSS feed secret', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'cleared_log' => _x( 'Cleared the log for Simple History ({num_rows_deleted} rows were removed)', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'purged_events' => _x( 'Removed {num_rows} events that were older than {days} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'cleared_log'                 => _x( 'Cleared the log for Simple History ({num_rows_deleted} rows were removed)', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'purged_events'               => _x( 'Removed {num_rows} events that were older than {days} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			),
 		];
 	}
@@ -59,7 +59,7 @@ class Simple_History_Logger extends Logger {
 		$this->info_message(
 			'purged_events',
 			[
-				'days' => $days,
+				'days'     => $days,
 				'num_rows' => $num_rows_deleted,
 			]
 		);
@@ -134,7 +134,7 @@ class Simple_History_Logger extends Logger {
 			$option = preg_replace( '/^simple_history_/', '', $option );
 
 			$context[ "{$option}_prev" ] = $change['old_value'];
-			$context[ "{$option}_new" ] = $change['new_value'];
+			$context[ "{$option}_new" ]  = $change['new_value'];
 		}
 
 		$this->info_message( 'modified_settings', $context );
@@ -190,9 +190,9 @@ class Simple_History_Logger extends Logger {
 				$message,
 				[
 					'a' => [
-						'href' => [],
+						'href'   => [],
 						'target' => [],
-						'class' => [],
+						'class'  => [],
 					],
 				]
 			) . '</p>';

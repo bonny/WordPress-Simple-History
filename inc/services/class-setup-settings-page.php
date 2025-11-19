@@ -33,7 +33,7 @@ class Setup_Settings_Page extends Service {
 	public function trigger_actions_for_old_add_ons() {
 		// Only trigger if selected-sub-tab=message-control.
 		$menu_manager = $this->simple_history->get_menu_manager();
-		$subtab_slug = $menu_manager->get_current_sub_tab_slug();
+		$subtab_slug  = $menu_manager->get_current_sub_tab_slug();
 
 		if ( $subtab_slug !== 'message-control' ) {
 			return;
@@ -63,8 +63,8 @@ class Setup_Settings_Page extends Service {
 	 * "Sorry, you are not allowed to access this page." is thrown.
 	 */
 	public function on_admin_page_access_denied() {
-		$wp_referer = wp_get_referer();
-		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
+		$wp_referer              = wp_get_referer();
+		$page                    = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
 		$settings_menu_page_slug = Simple_History::SETTINGS_MENU_PAGE_SLUG;
 
 		// Get the currently registered settings page URL.
@@ -144,7 +144,7 @@ class Setup_Settings_Page extends Service {
 				->set_menu_title( _x( 'Settings', 'settings menu name', 'simple-history' ) )
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
-		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+		} elseif ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
 			$settings_menu_page
 				->set_menu_title( _x( 'Simple History', 'settings menu name', 'simple-history' ) )
@@ -198,8 +198,8 @@ class Setup_Settings_Page extends Service {
 	public function add_settings() {
 		$this->clear_log_from_url_request();
 
-		$settings_section_general_id = $this->simple_history::SETTINGS_SECTION_GENERAL_ID;
-		$settings_menu_slug = $this->simple_history::SETTINGS_MENU_SLUG;
+		$settings_section_general_id   = $this->simple_history::SETTINGS_SECTION_GENERAL_ID;
+		$settings_menu_slug            = $this->simple_history::SETTINGS_MENU_SLUG;
 		$settings_general_option_group = $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP;
 
 		Helpers::add_settings_section(
@@ -313,7 +313,7 @@ class Setup_Settings_Page extends Service {
 	 * Settings field output for menu page location
 	 */
 	public function settings_field_menu_page_location() {
-		$location = Helpers::get_menu_page_location();
+		$location    = Helpers::get_menu_page_location();
 		$option_slug = 'simple_history_menu_page_location';
 
 		$location_options = [
@@ -370,7 +370,7 @@ class Setup_Settings_Page extends Service {
 		
 		<?php
 		/**
-		 <br />
+		<br />
 		<input <?php checked( $show_as_page_below_dashboard ); ?> type="checkbox" value="1" name="simple_history_show_as_page" id="simple_history_show_as_page" class="simple_history_show_as_page" />
 		<label for="simple_history_show_as_page">
 			<?php esc_html_e( 'as a page under the dashboard menu', 'simple-history' ); ?>
@@ -402,7 +402,7 @@ class Setup_Settings_Page extends Service {
 	 * Settings field for how many rows/items to show in log on the log page
 	 */
 	private function settings_field_number_of_items_on_log_page() {
-		$current_pager_size = Helpers::get_pager_size();
+		$current_pager_size        = Helpers::get_pager_size();
 		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
 
 		echo '<p>' . esc_html__( 'Number of items per page on the log page', 'simple-history' ) . '</p>';
@@ -448,7 +448,7 @@ class Setup_Settings_Page extends Service {
 	 * Settings field for how many rows/items to show in log on the dashboard
 	 */
 	private function settings_field_number_of_items_dashboard() {
-		$current_pager_size = Helpers::get_pager_size_dashboard();
+		$current_pager_size        = Helpers::get_pager_size_dashboard();
 		$pager_size_default_values = array( 5, 10, 15, 20, 25, 30, 40, 50, 75, 100 );
 
 		echo '<p>' . esc_html__( 'Number of items per page on the dashboard', 'simple-history' ) . '</p>';
@@ -613,13 +613,13 @@ class Setup_Settings_Page extends Service {
 
 		$simple_history = Simple_History::get_instance();
 
-		$arr_settings_tabs = $simple_history->get_settings_tabs();
+		$arr_settings_tabs     = $simple_history->get_settings_tabs();
 		$arr_settings_tabs_sub = $simple_history->get_settings_tabs( 'sub' );
 
 		// Begin subnav.
-		$sub_tab_found = false;
+		$sub_tab_found  = false;
 		$active_sub_tab = sanitize_text_field( wp_unslash( $_GET['selected-sub-tab'] ?? '' ) );
-		$active_tab = self::get_active_tab_slug();
+		$active_tab     = self::get_active_tab_slug();
 
 		// Get sub tabs for currently active tab.
 		$subtabs_for_active_tab = wp_filter_object_list(
@@ -648,8 +648,8 @@ class Setup_Settings_Page extends Service {
 					<ul class="sh-SettingsTabs-tabs">
 						<?php
 						foreach ( $subtabs_for_active_tab as $one_sub_tab ) {
-							$is_active = $active_sub_tab === $one_sub_tab['slug'];
-							$is_active_class = $is_active ? 'is-active' : '';
+							$is_active             = $active_sub_tab === $one_sub_tab['slug'];
+							$is_active_class       = $is_active ? 'is-active' : '';
 							$plug_settings_tab_url = Helpers::get_settings_page_sub_tab_url( $one_sub_tab['slug'] );
 							?>
 							<li class="sh-SettingsTabs-tab">
@@ -670,12 +670,12 @@ class Setup_Settings_Page extends Service {
 				$arr_settings_tabs_sub,
 				array(
 					'parent_slug' => $active_tab,
-					'slug' => $active_sub_tab,
+					'slug'        => $active_sub_tab,
 				)
 			);
 
 			$active_sub_tab = reset( $active_sub_tabs );
-			$sub_tab_found = is_array( $active_sub_tab );
+			$sub_tab_found  = is_array( $active_sub_tab );
 
 			if ( $sub_tab_found ) {
 				if ( is_callable( $active_sub_tab['function'] ) ) {

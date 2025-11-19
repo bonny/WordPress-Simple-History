@@ -138,9 +138,9 @@ class Admin_Pages extends Service {
 		ob_start();
 
 		// Wrap link around title if we have somewhere to go.
-		$headline_link_target = null;
+		$headline_link_target    = null;
 		$headline_link_start_elm = '';
-		$headline_link_end_elm = '';
+		$headline_link_end_elm   = '';
 
 		$headline_link_target = Menu_Manager::get_admin_url_by_slug( Simple_History::MENU_PAGE_SLUG );
 
@@ -149,19 +149,19 @@ class Admin_Pages extends Service {
 				'<a href="%1$s" class="sh-PageHeader-titleLink">',
 				esc_url( $headline_link_target )
 			);
-			$headline_link_end_elm = '</a>';
+			$headline_link_end_elm   = '</a>';
 		}
 
 		$allowed_link_html = [
 			'a' => [
-				'href' => 1,
+				'href'  => 1,
 				'class' => 1,
 			],
 		];
 
 		$menu_manager = Simple_History::get_instance()->get_menu_manager();
 
-		$main_subnav_html_output = $menu_manager->get_main_subnav_html_output();
+		$main_subnav_html_output          = $menu_manager->get_main_subnav_html_output();
 		$main_subnav_sub_tabs_html_output = $menu_manager->get_main_main_subnav_sub_tabs_html_output();
 
 		?>
@@ -221,7 +221,7 @@ class Admin_Pages extends Service {
 		}
 
 		// Run callback function for selected tab or sub-tab.
-		$selected_main_tab = $menu_manager->get_page_by_slug( $menu_manager::get_current_tab_slug() );
+		$selected_main_tab     = $menu_manager->get_page_by_slug( $menu_manager::get_current_tab_slug() );
 		$selected_sub_tab_page = $menu_manager->get_page_by_slug( $menu_manager::get_current_sub_tab_slug() );
 
 		if ( $selected_sub_tab_page !== null ) {
@@ -241,7 +241,7 @@ class Admin_Pages extends Service {
 	 * so bookmarks and old links still work.
 	 */
 	public function on_admin_page_access_denied_redirect_prev_menu_location() {
-		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
+		$page    = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
 		$pagenow = $GLOBALS['pagenow'] ?? '';
 
 		// Bail if not correct page.

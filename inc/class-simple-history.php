@@ -55,7 +55,7 @@ class Simple_History {
 	/** @var array<int,mixed>  Registered settings tabs. */
 	private array $arr_settings_tabs = [];
 
-	public const DBTABLE = 'simple_history';
+	public const DBTABLE          = 'simple_history';
 	public const DBTABLE_CONTEXTS = 'simple_history_contexts';
 
 	/** @var string $dbtable Full database name with prefix, i.e. wp_simple_history */
@@ -139,8 +139,8 @@ class Simple_History {
 	 * @return array<string> Array with classnames.
 	 */
 	private function get_services() {
-		$services = [];
-		$services_dir = SIMPLE_HISTORY_PATH . 'inc/services';
+		$services      = [];
+		$services_dir  = SIMPLE_HISTORY_PATH . 'inc/services';
 		$service_files = glob( $services_dir . '/*.php' );
 
 		foreach ( $service_files as $file ) {
@@ -332,7 +332,7 @@ class Simple_History {
 	private function setup_db_variables() {
 		global $wpdb;
 
-		$this::$dbtable = $wpdb->prefix . self::DBTABLE;
+		$this::$dbtable          = $wpdb->prefix . self::DBTABLE;
 		$this::$dbtable_contexts = $wpdb->prefix . self::DBTABLE_CONTEXTS;
 
 		/**
@@ -525,8 +525,8 @@ class Simple_History {
 	 * @return array
 	 */
 	public function get_core_dropins() {
-		$dropins = [];
-		$dropins_dir = SIMPLE_HISTORY_PATH . 'dropins';
+		$dropins      = [];
+		$dropins_dir  = SIMPLE_HISTORY_PATH . 'dropins';
 		$dropin_files = glob( $dropins_dir . '/*.php' );
 
 		foreach ( $dropin_files as $file ) {
@@ -790,7 +790,7 @@ class Simple_History {
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 		$row_logger_slug = $row->logger;
-		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
+		$row->context    = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		if ( ! isset( $row->context['_message_key'] ) ) {
 			$row->context['_message_key'] = null;
@@ -840,7 +840,7 @@ class Simple_History {
 	 * @return string
 	 */
 	public function get_log_row_header_output( $row ) {
-		$row_logger = $row->logger;
+		$row_logger   = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Fallback to SimpleLogger if no logger exists for row.
@@ -861,7 +861,7 @@ class Simple_History {
 	 */
 	public function get_log_row_sender_image_output( $row ) {
 		/** @var Loggers\Logger $row_logger */
-		$row_logger = $row->logger;
+		$row_logger   = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Fallback to SimpleLogger if no logger exists for row.
@@ -881,7 +881,7 @@ class Simple_History {
 	 * @return string|Event_Details_Container_Interface|Event_Details_Group
 	 */
 	public function get_log_row_details_output( $row ) {
-		$row_logger = $row->logger;
+		$row_logger   = $row->logger;
 		$row->context = isset( $row->context ) && is_array( $row->context ) ? $row->context : array();
 
 		// Get logger for row.
@@ -901,7 +901,7 @@ class Simple_History {
 
 		if ( $logger_details_output instanceof Event_Details_Container_Interface ) {
 			return $logger_details_output;
-		} else if ( $logger_details_output instanceof Event_Details_Group ) {
+		} elseif ( $logger_details_output instanceof Event_Details_Group ) {
 			/**
 			 * Filter the event details group output for a logger
 			 * that has returned an Event_Details_Group.
@@ -932,11 +932,11 @@ class Simple_History {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$context = $one_log_row->context ?? [];
+		$context     = $one_log_row->context ?? [];
 		$message_key = $context['_message_key'] ?? null;
 
-		$header_html = $this->get_log_row_header_output( $one_log_row );
-		$plain_text_html = $this->get_log_row_plain_text_output( $one_log_row );
+		$header_html       = $this->get_log_row_header_output( $one_log_row );
+		$plain_text_html   = $this->get_log_row_plain_text_output( $one_log_row );
 		$sender_image_html = $this->get_log_row_sender_image_output( $one_log_row );
 
 		// Details = for example thumbnail of media.
@@ -948,7 +948,7 @@ class Simple_History {
 		// subsequentOccasions = including the current one.
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$occasions_count = $one_log_row->subsequentOccasions - 1;
-		$occasions_html = '';
+		$occasions_html  = '';
 
 		// Add markup for occasions.
 		if ( $occasions_count > 0 ) {
@@ -979,7 +979,7 @@ class Simple_History {
 			$logger = $one_log_row->logger;
 
 			$is_simple_history_extended_settings_active = Helpers::is_extended_settings_add_on_active();
-			$is_simple_history_premium_active = Helpers::is_premium_add_on_active();
+			$is_simple_history_premium_active           = Helpers::is_premium_add_on_active();
 
 			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
 
@@ -1019,7 +1019,7 @@ class Simple_History {
 		}
 
 		// Add data attributes to log row, so plugins can do stuff.
-		$data_attrs = '';
+		$data_attrs  = '';
 		$data_attrs .= sprintf( ' data-row-id="%1$d" ', $one_log_row->id );
 		$data_attrs .= sprintf( ' data-occasions-count="%1$d" ', $occasions_count );
 
@@ -1572,7 +1572,7 @@ class Simple_History {
 
 		$methods_mapping = array(
 			'registerSettingsTab' => 'register_settings_tab',
-			'get_avatar' => 'get_avatar',
+			'get_avatar'          => 'get_avatar',
 		);
 
 		// Bail if method name is nothing to act on.

@@ -200,24 +200,24 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 		$assoc_args = wp_parse_args(
 			$assoc_args,
 			array(
-				'format' => 'table',
-				'count' => 10,
-				'initiator' => '',
-				'log_level' => '',
-				'logger' => '',
-				'message' => '',
-				'user' => '',
-				'search' => '',
-				'date_from' => '',
-				'date_to' => '',
-				'months' => '',
-				'include_sticky' => false,
-				'only_sticky' => false,
-				'exclude_search' => '',
+				'format'            => 'table',
+				'count'             => 10,
+				'initiator'         => '',
+				'log_level'         => '',
+				'logger'            => '',
+				'message'           => '',
+				'user'              => '',
+				'search'            => '',
+				'date_from'         => '',
+				'date_to'           => '',
+				'months'            => '',
+				'include_sticky'    => false,
+				'only_sticky'       => false,
+				'exclude_search'    => '',
 				'exclude_log_level' => '',
-				'exclude_logger' => '',
-				'exclude_message' => '',
-				'exclude_user' => '',
+				'exclude_logger'    => '',
+				'exclude_message'   => '',
+				'exclude_user'      => '',
 				'exclude_initiator' => '',
 			)
 		);
@@ -239,10 +239,10 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			'log_level'
 		);
 
-		$loggers = $this->parse_comma_separated_values( $assoc_args['logger'] );
+		$loggers  = $this->parse_comma_separated_values( $assoc_args['logger'] );
 		$messages = $this->parse_comma_separated_values( $assoc_args['message'] );
-		$users = $this->parse_comma_separated_values( $assoc_args['user'] );
-		$months = $this->parse_comma_separated_values( $assoc_args['months'] );
+		$users    = $this->parse_comma_separated_values( $assoc_args['user'] );
+		$months   = $this->parse_comma_separated_values( $assoc_args['months'] );
 
 		// Validate and parse exclusion filter parameters.
 		$exclude_log_levels = $this->parse_comma_separated_values(
@@ -251,9 +251,9 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			'exclude_log_level'
 		);
 
-		$exclude_loggers = $this->parse_comma_separated_values( $assoc_args['exclude_logger'] );
+		$exclude_loggers  = $this->parse_comma_separated_values( $assoc_args['exclude_logger'] );
 		$exclude_messages = $this->parse_comma_separated_values( $assoc_args['exclude_message'] );
-		$exclude_users = $this->parse_comma_separated_values( $assoc_args['exclude_user'] );
+		$exclude_users    = $this->parse_comma_separated_values( $assoc_args['exclude_user'] );
 
 		$exclude_initiators = $this->parse_comma_separated_values(
 			$assoc_args['exclude_initiator'],
@@ -365,16 +365,16 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			$row_logger = $this->simple_history->get_instantiated_logger_by_slug( $row->logger );
 
 			$eventsCleaned[] = array(
-				'ID' => $row->id,
-				'date' => get_date_from_gmt( $row->date ),
-				'initiator' => Log_Initiators::get_initiator_text_from_row( $row ),
-				'logger' => $row->logger,
-				'level' => $row->level,
-				'who_when' => $header_output,
+				'ID'          => $row->id,
+				'date'        => get_date_from_gmt( $row->date ),
+				'initiator'   => Log_Initiators::get_initiator_text_from_row( $row ),
+				'logger'      => $row->logger,
+				'level'       => $row->level,
+				'who_when'    => $header_output,
 				'description' => $text_output,
-				'via' => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
+				'via'         => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'count' => $row->subsequentOccasions,
+				'count'       => $row->subsequentOccasions,
 			);
 		}
 

@@ -60,17 +60,17 @@ class Network_Menu_Items extends Service {
 
 			// Check if simple History is active on this blog.
 			if ( Helpers::is_plugin_active( SIMPLE_HISTORY_BASENAME ) ) {
-				$menu_id = 'simple-history-blog-' . $blog->userblog_id;
+				$menu_id        = 'simple-history-blog-' . $blog->userblog_id;
 				$parent_menu_id = 'blog-' . $blog->userblog_id;
 
 				// Each network site is added by WP core with id "blog-1", "blog-2" ... "blog-n"
 				// https://codex.wordpress.org/Function_Reference/add_node.
 				$args = array(
-					'id' => $menu_id,
+					'id'     => $menu_id,
 					'parent' => $parent_menu_id,
-					'title' => _x( 'View History', 'Admin bar network name', 'simple-history' ),
-					'href' => Helpers::get_history_admin_url(),
-					'meta' => array(
+					'title'  => _x( 'View History', 'Admin bar network name', 'simple-history' ),
+					'href'   => Helpers::get_history_admin_url(),
+					'meta'   => array(
 						'class' => 'ab-item--simplehistory',
 					),
 				);
@@ -120,11 +120,11 @@ class Network_Menu_Items extends Service {
 		}
 
 		$args = array(
-			'id' => 'simple-history-view-history',
+			'id'     => 'simple-history-view-history',
 			'parent' => 'site-name',
-			'title' => _x( 'View History', 'Admin bar name', 'simple-history' ),
-			'href' => Helpers::get_history_admin_url(),
-			'meta' => array(
+			'title'  => _x( 'View History', 'Admin bar name', 'simple-history' ),
+			'href'   => Helpers::get_history_admin_url(),
+			'meta'   => array(
 				'class' => 'ab-item--simplehistory',
 			),
 		);

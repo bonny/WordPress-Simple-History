@@ -22,10 +22,10 @@ class Date_Helper {
 	/**
 	 * Time period constants in days.
 	 */
-	const DAYS_PER_WEEK = 7;
-	const DAYS_PER_MONTH = 30;
+	const DAYS_PER_WEEK      = 7;
+	const DAYS_PER_MONTH     = 30;
 	const DAYS_PER_FORTNIGHT = 14;
-	const DAYS_PER_QUARTER = 90;
+	const DAYS_PER_QUARTER   = 90;
 
 	/**
 	 * Get the number of days for a specific time period.
@@ -115,8 +115,8 @@ class Date_Helper {
 	public static function get_last_n_days_start_timestamp( $days ) {
 		// Subtract (days - 1) because "last N days" includes today.
 		// E.g., "last 30 days" on Oct 8 = Sept 9 to Oct 8 (30 days total).
-		$days_ago = $days - 1;
-		$date = new \DateTimeImmutable( "-{$days_ago} days", wp_timezone() );
+		$days_ago   = $days - 1;
+		$date       = new \DateTimeImmutable( "-{$days_ago} days", wp_timezone() );
 		$date_start = new \DateTimeImmutable( $date->format( 'Y-m-d' ) . ' 00:00:00', wp_timezone() );
 		return $date_start->getTimestamp();
 	}
@@ -180,12 +180,12 @@ class Date_Helper {
 	 * @return array Array with 'from' and 'to' Unix timestamps.
 	 */
 	public static function get_last_n_complete_days_range( $days ) {
-		$yesterday = new \DateTimeImmutable( 'yesterday', wp_timezone() );
+		$yesterday     = new \DateTimeImmutable( 'yesterday', wp_timezone() );
 		$yesterday_end = new \DateTimeImmutable( $yesterday->format( 'Y-m-d' ) . ' 23:59:59', wp_timezone() );
 
 		// Go back N days from yesterday.
-		$days_ago = $days - 1;
-		$start_date = $yesterday->modify( "-{$days_ago} days" );
+		$days_ago      = $days - 1;
+		$start_date    = $yesterday->modify( "-{$days_ago} days" );
 		$start_date_00 = new \DateTimeImmutable( $start_date->format( 'Y-m-d' ) . ' 00:00:00', wp_timezone() );
 
 		return array(
@@ -219,7 +219,7 @@ class Date_Helper {
 		$last_sunday_end = new \DateTimeImmutable( $last_sunday->format( 'Y-m-d' ) . ' 23:59:59', wp_timezone() );
 
 		// Get Monday of that week at 00:00:00.
-		$last_monday = $last_sunday->modify( '-6 days' );
+		$last_monday       = $last_sunday->modify( '-6 days' );
 		$last_monday_start = new \DateTimeImmutable( $last_monday->format( 'Y-m-d' ) . ' 00:00:00', wp_timezone() );
 
 		return array(

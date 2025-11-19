@@ -49,7 +49,7 @@ class Export_Dropin extends Dropin {
 				->set_menu_title( _x( 'Export', 'settings menu name', 'simple-history' ) )
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
-		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+		} elseif ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then export page is shown as a tab on the settings page.
 			$export_menu_page
 				->set_menu_title( _x( 'Export', 'settings menu name', 'simple-history' ) )
@@ -63,7 +63,7 @@ class Export_Dropin extends Dropin {
 	 * Download export file.
 	 */
 	public function download_export() {
-		$page = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
+		$page   = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
 		$action = sanitize_key( wp_unslash( $_POST['simple-history-action'] ?? '' ) );
 
 		// Bail of not correct page.
@@ -91,7 +91,7 @@ class Export_Dropin extends Dropin {
 		$export = new Export();
 		$export->set_query_args(
 			[
-				'paged' => 1,
+				'paged'          => 1,
 				// 3000 is batch size.
 				'posts_per_page' => 3000,
 			]

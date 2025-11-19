@@ -24,18 +24,18 @@ class WP_CLI_Stealth_Mode_Command extends WP_CLI_Command {
 		/** @var Stealth_Mode */
 		$stealth_mode_service = $simple_history->get_service( Stealth_Mode::class );
 
-		$full_stealth_mode_enabled = $stealth_mode_service->is_full_stealth_mode_enabled();
+		$full_stealth_mode_enabled    = $stealth_mode_service->is_full_stealth_mode_enabled();
 		$partial_stealth_mode_enabled = $stealth_mode_service->is_stealth_mode_enabled();
 
 		WP_CLI\Utils\format_items(
 			'table',
 			[
 				[
-					'mode' => __( 'Full Stealth Mode', 'simple-history' ),
+					'mode'   => __( 'Full Stealth Mode', 'simple-history' ),
 					'status' => $full_stealth_mode_enabled ? __( 'Enabled', 'simple-history' ) : __( 'Disabled', 'simple-history' ),
 				],
 				[
-					'mode' => __( 'Partial Stealth Mode', 'simple-history' ),
+					'mode'   => __( 'Partial Stealth Mode', 'simple-history' ),
 					'status' => $partial_stealth_mode_enabled ? __( 'Enabled', 'simple-history' ) : __( 'Disabled', 'simple-history' ),
 				],
 			],

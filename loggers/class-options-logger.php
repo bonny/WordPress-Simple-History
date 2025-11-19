@@ -5,7 +5,7 @@ namespace Simple_History\Loggers;
 use Simple_History\Helpers;
 
 /**
- * Logs changes to wordpress options
+ * Logs changes to WordPress options
  */
 class Options_Logger extends Logger {
 	/** @var string Logger slug */
@@ -60,148 +60,148 @@ class Options_Logger extends Logger {
 	 */
 	protected function get_wordpress_built_in_options() {
 		return [
-			'general' => [
-				'translation' => __( 'General', 'simple-history' ),
+			'general'    => [
+				'translation'               => __( 'General', 'simple-history' ),
 				'translation_settings_page' => __( 'General Settings Page', 'simple-history' ),
-				'options' => [
-					'siteurl' => [ 'translation' => __( 'WordPress Address (URL)', 'simple-history' ) ],
-					'home' => [ 'translation' => __( 'Site Address (URL)', 'simple-history' ) ],
-					'blogname' => [ 'translation' => __( 'Site Title', 'simple-history' ) ],
-					'blogdescription' => [ 'translation' => __( 'Tagline', 'simple-history' ) ],
-					'site_icon' => [ 'translation' => __( 'Site Icon', 'simple-history' ) ],
-					'admin_email' => [ 'translation' => __( 'Administration Email Address', 'simple-history' ) ],
-					'new_admin_email' => [ 'translation' => __( 'New Email Address', 'simple-history' ) ],
+				'options'                   => [
+					'siteurl'            => [ 'translation' => __( 'WordPress Address (URL)', 'simple-history' ) ],
+					'home'               => [ 'translation' => __( 'Site Address (URL)', 'simple-history' ) ],
+					'blogname'           => [ 'translation' => __( 'Site Title', 'simple-history' ) ],
+					'blogdescription'    => [ 'translation' => __( 'Tagline', 'simple-history' ) ],
+					'site_icon'          => [ 'translation' => __( 'Site Icon', 'simple-history' ) ],
+					'admin_email'        => [ 'translation' => __( 'Administration Email Address', 'simple-history' ) ],
+					'new_admin_email'    => [ 'translation' => __( 'New Email Address', 'simple-history' ) ],
 					'users_can_register' => [
 						'translation' => __( 'Anyone can register', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'default_role' => [ 'translation' => __( 'New User Default Role', 'simple-history' ) ],
-					'timezone_string' => [ 'translation' => __( 'Timezone', 'simple-history' ) ],
-					'date_format' => [ 'translation' => __( 'Date Format', 'simple-history' ) ],
-					'time_format' => [ 'translation' => __( 'Time Format', 'simple-history' ) ],
-					'start_of_week' => [ 'translation' => __( 'Week Starts On', 'simple-history' ) ],
-					'WPLANG' => [ 'translation' => __( 'Site Language', 'simple-history' ) ],
+					'default_role'       => [ 'translation' => __( 'New User Default Role', 'simple-history' ) ],
+					'timezone_string'    => [ 'translation' => __( 'Timezone', 'simple-history' ) ],
+					'date_format'        => [ 'translation' => __( 'Date Format', 'simple-history' ) ],
+					'time_format'        => [ 'translation' => __( 'Time Format', 'simple-history' ) ],
+					'start_of_week'      => [ 'translation' => __( 'Week Starts On', 'simple-history' ) ],
+					'WPLANG'             => [ 'translation' => __( 'Site Language', 'simple-history' ) ],
 				],
 			],
-			'writing' => [
-				'translation' => __( 'Writing', 'simple-history' ),
+			'writing'    => [
+				'translation'               => __( 'Writing', 'simple-history' ),
 				'translation_settings_page' => __( 'Writing Settings Page', 'simple-history' ),
-				'options' => [
-					'default_category' => [ 'translation' => __( 'Default Post Category', 'simple-history' ) ],
-					'default_post_format' => [ 'translation' => __( 'Default Post Format', 'simple-history' ) ],
-					'post_by_email' => [ 'translation' => __( 'Post via Email settings (legacy)', 'simple-history' ) ],
-					'mailserver_url' => [ 'translation' => __( 'Mail Server', 'simple-history' ) ],
-					'mailserver_login' => [ 'translation' => __( 'Login Name', 'simple-history' ) ],
-					'mailserver_pass' => [ 'translation' => __( 'Password', 'simple-history' ) ],
-					'mailserver_port' => [ 'translation' => __( 'Default Mail Server Port', 'simple-history' ) ],
-					'default_pingback_flag' => [
+				'options'                   => [
+					'default_category'       => [ 'translation' => __( 'Default Post Category', 'simple-history' ) ],
+					'default_post_format'    => [ 'translation' => __( 'Default Post Format', 'simple-history' ) ],
+					'post_by_email'          => [ 'translation' => __( 'Post via Email settings (legacy)', 'simple-history' ) ],
+					'mailserver_url'         => [ 'translation' => __( 'Mail Server', 'simple-history' ) ],
+					'mailserver_login'       => [ 'translation' => __( 'Login Name', 'simple-history' ) ],
+					'mailserver_pass'        => [ 'translation' => __( 'Password', 'simple-history' ) ],
+					'mailserver_port'        => [ 'translation' => __( 'Default Mail Server Port', 'simple-history' ) ],
+					'default_pingback_flag'  => [
 						'translation' => __( 'Attempt to notify any blogs linked to from the article', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'default_ping_status' => [ 'translation' => __( 'Allow link notifications from other blogs (pingbacks and trackbacks)', 'simple-history' ) ],
+					'default_ping_status'    => [ 'translation' => __( 'Allow link notifications from other blogs (pingbacks and trackbacks)', 'simple-history' ) ],
 					'default_comment_status' => [ 'translation' => __( 'Allow people to submit comments on new posts', 'simple-history' ) ],
-					'ping_sites' => [ 'translation' => __( 'Update Services', 'simple-history' ) ],
+					'ping_sites'             => [ 'translation' => __( 'Update Services', 'simple-history' ) ],
 				],
 			],
-			'reading' => [
-				'translation' => __( 'Reading', 'simple-history' ),
+			'reading'    => [
+				'translation'               => __( 'Reading', 'simple-history' ),
 				'translation_settings_page' => __( 'Reading Settings Page', 'simple-history' ),
-				'options' => [
-					'posts_per_page' => [ 'translation' => __( 'Blog pages show at most', 'simple-history' ) ],
-					'posts_per_rss' => [ 'translation' => __( 'Syndication feeds show the most recent', 'simple-history' ) ],
+				'options'                   => [
+					'posts_per_page'  => [ 'translation' => __( 'Blog pages show at most', 'simple-history' ) ],
+					'posts_per_rss'   => [ 'translation' => __( 'Syndication feeds show the most recent', 'simple-history' ) ],
 					'rss_use_excerpt' => [ 'translation' => __( 'For each article in a feed, show', 'simple-history' ) ],
-					'show_on_front' => [ 'translation' => __( 'Front page displays', 'simple-history' ) ],
-					'page_on_front' => [ 'translation' => __( 'Front page', 'simple-history' ) ],
-					'page_for_posts' => [ 'translation' => __( 'Posts page', 'simple-history' ) ],
-					'blog_public' => [
+					'show_on_front'   => [ 'translation' => __( 'Front page displays', 'simple-history' ) ],
+					'page_on_front'   => [ 'translation' => __( 'Front page', 'simple-history' ) ],
+					'page_for_posts'  => [ 'translation' => __( 'Posts page', 'simple-history' ) ],
+					'blog_public'     => [
 						'translation' => __( 'Discourage search engines from indexing this site', 'simple-history' ),
-						'type' => 'reversed_onoff',
+						'type'        => 'reversed_onoff',
 					],
 				],
 			],
 			'discussion' => [
-				'translation' => __( 'Discussion', 'simple-history' ),
+				'translation'               => __( 'Discussion', 'simple-history' ),
 				'translation_settings_page' => __( 'Discussion Settings Page', 'simple-history' ),
-				'options' => [
-					'default_article_visibility' => [ 'translation' => __( 'Default article visibility', 'simple-history' ) ],
-					'default_comment_status' => [ 'translation' => __( 'Allow people to submit comments on new posts', 'simple-history' ) ],
-					'require_name_email' => [
+				'options'                   => [
+					'default_article_visibility'   => [ 'translation' => __( 'Default article visibility', 'simple-history' ) ],
+					'default_comment_status'       => [ 'translation' => __( 'Allow people to submit comments on new posts', 'simple-history' ) ],
+					'require_name_email'           => [
 						'translation' => __( 'Comment author must fill out name and email', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'comment_registration' => [
+					'comment_registration'         => [
 						'translation' => __( 'Users must be registered and logged in to comment', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
 					'close_comments_for_old_posts' => [
 						'translation' => __( 'Automatically close comments on posts older than', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'close_comments_days_old' => [ 'translation' => __( 'Days before comments are closed', 'simple-history' ) ],
+					'close_comments_days_old'      => [ 'translation' => __( 'Days before comments are closed', 'simple-history' ) ],
 					'show_comments_cookies_opt_in' => [
 						'translation' => __( 'Show comments cookies opt-in checkbox', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'thread_comments' => [
+					'thread_comments'              => [
 						'translation' => __( 'Enable threaded (nested) comments', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'thread_comments_depth' => [ 'translation' => __( 'Max depth for threaded comments', 'simple-history' ) ],
-					'page_comments' => [
+					'thread_comments_depth'        => [ 'translation' => __( 'Max depth for threaded comments', 'simple-history' ) ],
+					'page_comments'                => [
 						'translation' => __( 'Break comments into pages', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'comments_per_page' => [ 'translation' => __( 'Top level comments per page', 'simple-history' ) ],
-					'default_comments_page' => [ 'translation' => __( 'Comments should be displayed with the', 'simple-history' ) ],
-					'comment_order' => [ 'translation' => __( 'Comments order', 'simple-history' ) ],
-					'comment_previously_approved' => [ 'translation' => __( 'Comment author must have a previously approved comment', 'simple-history' ) ],
-					'comment_max_links' => [ 'translation' => __( 'Hold a comment in the queue if it contains', 'simple-history' ) ],
-					'moderation_keys' => [ 'translation' => __( 'Comment Moderation', 'simple-history' ) ],
-					'blacklist_keys' => [ 'translation' => __( 'Disallowed Comment Keys', 'simple-history' ) ],
-					'disallowed_keys' => [ 'translation' => __( 'Disallowed Comment Keys', 'simple-history' ) ],
-					'comment_moderation' => [ 'translation' => __( 'Comment must be manually approved', 'simple-history' ) ],
-					'comment_whitelist' => [ 'translation' => __( 'Comment author must have a previously approved comment', 'simple-history' ) ],
-					'comments_notify' => [
+					'comments_per_page'            => [ 'translation' => __( 'Top level comments per page', 'simple-history' ) ],
+					'default_comments_page'        => [ 'translation' => __( 'Comments should be displayed with the', 'simple-history' ) ],
+					'comment_order'                => [ 'translation' => __( 'Comments order', 'simple-history' ) ],
+					'comment_previously_approved'  => [ 'translation' => __( 'Comment author must have a previously approved comment', 'simple-history' ) ],
+					'comment_max_links'            => [ 'translation' => __( 'Hold a comment in the queue if it contains', 'simple-history' ) ],
+					'moderation_keys'              => [ 'translation' => __( 'Comment Moderation', 'simple-history' ) ],
+					'blacklist_keys'               => [ 'translation' => __( 'Disallowed Comment Keys', 'simple-history' ) ],
+					'disallowed_keys'              => [ 'translation' => __( 'Disallowed Comment Keys', 'simple-history' ) ],
+					'comment_moderation'           => [ 'translation' => __( 'Comment must be manually approved', 'simple-history' ) ],
+					'comment_whitelist'            => [ 'translation' => __( 'Comment author must have a previously approved comment', 'simple-history' ) ],
+					'comments_notify'              => [
 						'translation' => __( 'Email me whenever anyone posts a comment', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'comment_notify' => [ 'translation' => __( 'Email me whenever anyone posts a comment', 'simple-history' ) ],
-					'moderation_notify' => [
+					'comment_notify'               => [ 'translation' => __( 'Email me whenever anyone posts a comment', 'simple-history' ) ],
+					'moderation_notify'            => [
 						'translation' => __( 'Email me whenever a comment is held for moderation', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'show_avatars' => [
+					'show_avatars'                 => [
 						'translation' => __( 'Show Avatars', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
-					'avatar_rating' => [ 'translation' => __( 'Maximum Rating', 'simple-history' ) ],
-					'avatar_default' => [ 'translation' => __( 'Default Avatar', 'simple-history' ) ],
+					'avatar_rating'                => [ 'translation' => __( 'Maximum Rating', 'simple-history' ) ],
+					'avatar_default'               => [ 'translation' => __( 'Default Avatar', 'simple-history' ) ],
 				],
 			],
-			'media' => [
-				'translation' => __( 'Media', 'simple-history' ),
+			'media'      => [
+				'translation'               => __( 'Media', 'simple-history' ),
 				'translation_settings_page' => __( 'Media Settings Page', 'simple-history' ),
-				'options' => [
-					'thumbnail_size_w' => [ 'translation' => __( 'Thumbnail size width', 'simple-history' ) ],
-					'thumbnail_size_h' => [ 'translation' => __( 'Thumbnail size height', 'simple-history' ) ],
-					'thumbnail_crop' => [ 'translation' => __( 'Crop thumbnail to exact dimensions', 'simple-history' ) ],
-					'medium_size_w' => [ 'translation' => __( 'Medium size width', 'simple-history' ) ],
-					'medium_size_h' => [ 'translation' => __( 'Medium size height', 'simple-history' ) ],
-					'large_size_w' => [ 'translation' => __( 'Large size width', 'simple-history' ) ],
-					'large_size_h' => [ 'translation' => __( 'Large size height', 'simple-history' ) ],
+				'options'                   => [
+					'thumbnail_size_w'              => [ 'translation' => __( 'Thumbnail size width', 'simple-history' ) ],
+					'thumbnail_size_h'              => [ 'translation' => __( 'Thumbnail size height', 'simple-history' ) ],
+					'thumbnail_crop'                => [ 'translation' => __( 'Crop thumbnail to exact dimensions', 'simple-history' ) ],
+					'medium_size_w'                 => [ 'translation' => __( 'Medium size width', 'simple-history' ) ],
+					'medium_size_h'                 => [ 'translation' => __( 'Medium size height', 'simple-history' ) ],
+					'large_size_w'                  => [ 'translation' => __( 'Large size width', 'simple-history' ) ],
+					'large_size_h'                  => [ 'translation' => __( 'Large size height', 'simple-history' ) ],
 					'uploads_use_yearmonth_folders' => [
 						'translation' => __( 'Organize my uploads into month- and year-based folders', 'simple-history' ),
-						'type' => 'onoff',
+						'type'        => 'onoff',
 					],
 				],
 			],
 			'permalinks' => [
-				'translation' => __( 'Permalinks', 'simple-history' ),
+				'translation'               => __( 'Permalinks', 'simple-history' ),
 				'translation_settings_page' => __( 'Permalink Settings Page', 'simple-history' ),
-				'options' => [
+				'options'                   => [
 					'permalink_structure' => [ 'translation' => __( 'Custom Structure', 'simple-history' ) ],
-					'category_base' => [ 'translation' => __( 'Category base', 'simple-history' ) ],
-					'tag_base' => [ 'translation' => __( 'Tag base', 'simple-history' ) ],
+					'category_base'       => [ 'translation' => __( 'Category base', 'simple-history' ) ],
+					'tag_base'            => [ 'translation' => __( 'Tag base', 'simple-history' ) ],
 				// 'rewrite_rules' => [ 'translation' => __( 'Rewrite rules', 'simple-history' ) ],
 				],
 			],
@@ -273,9 +273,9 @@ class Options_Logger extends Logger {
 		}
 
 		$context = [
-			'option' => $option,
-			'old_value' => $old_value,
-			'new_value' => $new_value,
+			'option'      => $option,
+			'old_value'   => $old_value,
+			'new_value'   => $new_value,
 			'option_page' => $option_page,
 		];
 
@@ -296,25 +296,25 @@ class Options_Logger extends Logger {
 	 * @param object $row Row data.
 	 */
 	public function get_log_row_plain_text_output( $row ) {
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'] ?? null;
-		$option = $context['option'] ?? null;
+		$option      = $context['option'] ?? null;
 		$option_page = $context['option_page'] ?? null;
-		$message = $row->message;
+		$message     = $row->message;
 
 		// Update message to include link to option page.
 		if ( $message_key === 'option_updated' && $option_page && $option ) {
 
 			// Show option translated name.
-			$option_info = $this->get_option_info( $option );
+			$option_info        = $this->get_option_info( $option );
 			$option_translation = $option_info['translation'] ?? $option;
 
 			$context['option_translated'] = $option_translation;
-			$context['option_page_link'] = admin_url( "options-{$option_page}.php" );
+			$context['option_page_link']  = admin_url( "options-{$option_page}.php" );
 
 			// Show option page translated name.
-			$options_page_info = $this->get_option_page_info( $option_page );
-			$options_page_translation = $options_page_info['translation_settings_page'] ?? $option_page;
+			$options_page_info                 = $this->get_option_page_info( $option_page );
+			$options_page_translation          = $options_page_info['translation_settings_page'] ?? $option_page;
 			$context['option_page_translated'] = $options_page_translation;
 
 			// $option_page_info = $this->get_option_page_info( $option_page );
@@ -335,19 +335,19 @@ class Options_Logger extends Logger {
 	 * @param object $row Log row object.
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'];
-		$output = '';
+		$output      = '';
 
 		// Bail if not option_updated message.
 		if ( 'option_updated' !== $message_key ) {
 			return $output;
 		}
 
-		$option = $context['option'] ?? null;
+		$option      = $context['option'] ?? null;
 		$option_page = $context['option_page'] ?? null;
-		$new_value = $context['new_value'] ?? null;
-		$old_value = $context['old_value'] ?? null;
+		$new_value   = $context['new_value'] ?? null;
+		$old_value   = $context['old_value'] ?? null;
 
 		$tmpl_row = '
 			<tr>
@@ -362,7 +362,7 @@ class Options_Logger extends Logger {
 		// Output old and new values.
 		if ( $context['new_value'] || $context['old_value'] ) {
 			$option_custom_output = '';
-			$methodname = 'get_details_output_for_option_' . strtolower( $option );
+			$methodname           = 'get_details_output_for_option_' . strtolower( $option );
 
 			if ( method_exists( $this, $methodname ) ) {
 				$option_custom_output = $this->$methodname( $context, $old_value, $new_value, $option, $option_page, $tmpl_row );
@@ -404,7 +404,7 @@ class Options_Logger extends Logger {
 	 * @return string Excerpt with ... added if the string was long.
 	 */
 	protected function excerptify( $string, $length = 250 ) {
-		$more = __( '&hellip;', 'simple-history' );
+		$more    = __( '&hellip;', 'simple-history' );
 		$trimmed = substr( $string, 0, $length );
 
 		if ( strlen( $string ) > $length ) {
@@ -641,7 +641,7 @@ class Options_Logger extends Logger {
 	protected function get_details_output_for_option_default_category( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
 		$old_category_name = $context['old_category_name'] ?? null;
 		$new_category_name = $context['new_category_name'] ?? null;
-		$output = '';
+		$output            = '';
 
 		if ( $old_category_name ) {
 			$output .= sprintf(
@@ -698,7 +698,7 @@ class Options_Logger extends Logger {
 		$output = '';
 
 		$prev_weekday_name = $wp_locale->get_weekday( $old_value );
-		$new_weekday_name = $wp_locale->get_weekday( $new_value );
+		$new_weekday_name  = $wp_locale->get_weekday( $new_value );
 
 		$output .= sprintf(
 			$tmpl_row,
@@ -832,17 +832,17 @@ class Options_Logger extends Logger {
 		switch ( $option_type ) {
 			case 'onoff':
 			case 'reversed_onoff':
-				$true_value = '';
+				$true_value  = '';
 				$false_value = '';
 
 				if ( $option_type === 'onoff' ) {
 					// 1 is on, 0 is off.
-					$true_value = __( 'On', 'simple-history' );
+					$true_value  = __( 'On', 'simple-history' );
 					$false_value = __( 'Off', 'simple-history' );
 				} elseif ( $option_type === 'reversed_onoff' ) {
 					// 1 is off, 0 is on.
 					// Used on for example "blog_public".
-					$true_value = __( 'Off', 'simple-history' );
+					$true_value  = __( 'Off', 'simple-history' );
 					$false_value = __( 'On', 'simple-history' );
 				}
 

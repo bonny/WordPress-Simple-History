@@ -92,7 +92,7 @@ class Menu_Page {
 	 * Constructor that adds menu manager instance.
 	 */
 	public function __construct() {
-		$simple_history = Simple_History::get_instance();
+		$simple_history     = Simple_History::get_instance();
 		$this->menu_manager = $simple_history->get_menu_manager();
 	}
 

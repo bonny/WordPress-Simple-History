@@ -27,8 +27,8 @@ class Plugin_Beaver_Builder_Logger extends Logger {
 				'Logger: Plugin Beaver Builder',
 				'simple-history'
 			),
-			'capability' => 'manage_options',
-			'messages'   => array(
+			'capability'  => 'manage_options',
+			'messages'    => array(
 				'layout_saved'   => __(
 					'Layout "{layout_name}" updated',
 					'simple-history'
@@ -92,7 +92,7 @@ class Plugin_Beaver_Builder_Logger extends Logger {
 	 * @param int $post_id ID of post that was saved.
 	 */
 	public function saveTemplate( $post_id ) {
-		$post = get_post( $post_id );
+		$post    = get_post( $post_id );
 		$context = array(
 			'layout_name' => $post->post_name,
 		);
@@ -121,7 +121,7 @@ class Plugin_Beaver_Builder_Logger extends Logger {
 	 * @param array $settings Settings for the layout.
 	 */
 	public function saveLayout( $post_id, $publish, $data, $settings ) {
-		$post = get_post( $post_id );
+		$post    = get_post( $post_id );
 		$context = array(
 			'layout_name' => $post->post_name,
 		);

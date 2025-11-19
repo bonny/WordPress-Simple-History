@@ -34,12 +34,12 @@ class Notes_Logger extends Logger {
 			'description' => _x( 'Logs WordPress block notes (collaborative comments)', 'Logger: Notes', 'simple-history' ),
 			'capability'  => 'edit_posts',
 			'messages'    => [
-				'note_added'         => _x( 'Added a note to {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_reply_added'   => _x( 'Replied to a note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_edited'        => _x( 'Edited a note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_deleted'       => _x( 'Deleted a note from {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_resolved'      => _x( 'Marked a note as resolved in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
-				'note_reopened'      => _x( 'Reopened a resolved note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_added'       => _x( 'Added a note to {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_reply_added' => _x( 'Replied to a note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_edited'      => _x( 'Edited a note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_deleted'     => _x( 'Deleted a note from {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_resolved'    => _x( 'Marked a note as resolved in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
+				'note_reopened'    => _x( 'Reopened a resolved note in {post_type} "{post_title}"', 'Logger: Notes', 'simple-history' ),
 			],
 			'labels'      => [
 				'search' => [
@@ -127,7 +127,7 @@ class Notes_Logger extends Logger {
 			return;
 		}
 
-		$is_reply = $comment->comment_parent > 0;
+		$is_reply   = $comment->comment_parent > 0;
 		$block_info = $this->get_block_info_for_note( $comment_id, $comment->comment_post_ID );
 
 		$context = [
@@ -141,9 +141,9 @@ class Notes_Logger extends Logger {
 
 		// Add block information if available.
 		if ( $block_info ) {
-			$context['block_type'] = $block_info['block_type'];
+			$context['block_type']            = $block_info['block_type'];
 			$context['block_content_preview'] = $block_info['content_preview'];
-			$context['block_count'] = $block_info['block_count'];
+			$context['block_count']           = $block_info['block_count'];
 		}
 
 		// Choose appropriate message key.
@@ -251,7 +251,7 @@ class Notes_Logger extends Logger {
 
 		// Add block information if available.
 		if ( $block_info ) {
-			$context['block_type'] = $block_info['block_type'];
+			$context['block_type']            = $block_info['block_type'];
 			$context['block_content_preview'] = $block_info['content_preview'];
 		}
 
@@ -317,7 +317,7 @@ class Notes_Logger extends Logger {
 		// Only the root note ID is stored in block metadata.
 		$root_note_id = $this->get_root_note_id( $note_id );
 
-		$blocks = parse_blocks( $post->post_content );
+		$blocks       = parse_blocks( $post->post_content );
 		$found_blocks = $this->find_blocks_by_note_id( $blocks, $root_note_id );
 
 		if ( empty( $found_blocks ) ) {
@@ -333,8 +333,8 @@ class Notes_Logger extends Logger {
 		}
 
 		// Get content preview.
-		$content = wp_strip_all_tags( $block['innerHTML'] );
-		$content = trim( $content );
+		$content         = wp_strip_all_tags( $block['innerHTML'] );
+		$content         = trim( $content );
 		$content_preview = $content;
 
 		// Truncate to 100 characters.
@@ -343,12 +343,12 @@ class Notes_Logger extends Logger {
 		}
 
 		return [
-			'block_type'       => $block_type,
-			'block_name'       => $block['blockName'],
-			'content_preview'  => $content_preview,
-			'full_content'     => $content,
-			'block_count'      => count( $found_blocks ),
-			'attrs'            => $block['attrs'],
+			'block_type'      => $block_type,
+			'block_name'      => $block['blockName'],
+			'content_preview' => $content_preview,
+			'full_content'    => $content,
+			'block_count'     => count( $found_blocks ),
+			'attrs'           => $block['attrs'],
 		];
 	}
 

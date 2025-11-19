@@ -43,11 +43,11 @@ class Privacy_Logger extends Logger {
 				'privacy_data_export_request_confirmed' => _x( 'Confirmed personal data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_completed'         => _x( 'Marked personal data export request as complete for "{request_email}"', 'Logger: Privacy', 'simple-history' ),
 				'privacy_data_export_removed'           => _x( 'Removed data export request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_request_added'             => _x( 'Added personal data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_added'            => _x( 'Added personal data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'data_erasure_request_confirmed'        => _x( 'Confirmed personal data erasure request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_request_completed'          => _x( 'Marked personal data erasure request as complete for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_request_completed'        => _x( 'Marked personal data erasure request as complete for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'data_erasure_request_removed'          => _x( 'Removed personal data removal request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
-				'data_erasure_erasure_erased'          => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
+				'data_erasure_erasure_erased'           => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
 
@@ -102,7 +102,7 @@ class Privacy_Logger extends Logger {
 			'data_erasure_erasure_erased',
 			array(
 				'user_email' => $user_request->email,
-				'user_id' => $user_request->user_id,
+				'user_id'    => $user_request->user_id,
 				'request_id' => $request_id,
 			)
 		);
@@ -157,8 +157,8 @@ class Privacy_Logger extends Logger {
 			$message_key,
 			array(
 				'send_as_email' => $send_as_email,
-				'request_id' => $request_id,
-				'user_email' => $user_request->email,
+				'request_id'    => $request_id,
+				'user_email'    => $user_request->email,
 			)
 		);
 	}
@@ -259,7 +259,7 @@ class Privacy_Logger extends Logger {
 			$this->info_message(
 				'privacy_data_export_requested',
 				array(
-					'user_email' => $user_request->email,
+					'user_email'              => $user_request->email,
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					'send_confirmation_email' => isset( $_POST['send_confirmation_email'] ) ? 1 : 0,
 				)
@@ -269,7 +269,7 @@ class Privacy_Logger extends Logger {
 			$this->info_message(
 				'data_erasure_request_added',
 				array(
-					'user_email' => $user_request->email,
+					'user_email'              => $user_request->email,
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
 					'send_confirmation_email' => isset( $_POST['send_confirmation_email'] ) ? 1 : 0,
 				)
@@ -400,8 +400,8 @@ class Privacy_Logger extends Logger {
 			$this->info_message(
 				'privacy_data_export_completed',
 				array(
-					'request_id' => $request_id,
-					'request_email' => $request->email,
+					'request_id'     => $request_id,
+					'request_email'  => $request->email,
 					'request_status' => $request->status,
 				)
 			);
@@ -423,7 +423,7 @@ class Privacy_Logger extends Logger {
 	 */
 	public function on_load_privacy_page() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$action = wp_unslash( $_POST['action'] ?? '' );
+		$action      = wp_unslash( $_POST['action'] ?? '' );
 		$option_name = 'wp_page_for_privacy_policy';
 
 		if ( 'create-privacy-page' === $action ) {
@@ -441,7 +441,7 @@ class Privacy_Logger extends Logger {
 	 * @param string $option    Option name.
 	 */
 	public function on_update_option_create_privacy_page( $old_value, $value, $option ) {
-		$post = get_post( $value );
+		$post           = get_post( $value );
 		$new_post_title = '';
 
 		if ( is_a( $post, 'WP_Post' ) ) {
@@ -451,8 +451,8 @@ class Privacy_Logger extends Logger {
 		$this->info_message(
 			'privacy_page_created',
 			array(
-				'prev_post_id' => $old_value,
-				'new_post_id' => $value,
+				'prev_post_id'   => $old_value,
+				'new_post_id'    => $value,
 				'new_post_title' => $new_post_title,
 			)
 		);
@@ -467,7 +467,7 @@ class Privacy_Logger extends Logger {
 	 */
 	public function on_update_option_set_privacy_page( $old_value, $value, $option ) {
 
-		$post = get_post( $value );
+		$post           = get_post( $value );
 		$new_post_title = '';
 
 		if ( is_a( $post, 'WP_Post' ) ) {
@@ -477,8 +477,8 @@ class Privacy_Logger extends Logger {
 		$this->info_message(
 			'privacy_page_set',
 			array(
-				'prev_post_id' => $old_value,
-				'new_post_id' => $value,
+				'prev_post_id'   => $old_value,
+				'new_post_id'    => $value,
 				'new_post_title' => $new_post_title,
 			)
 		);

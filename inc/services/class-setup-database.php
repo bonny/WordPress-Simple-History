@@ -114,11 +114,11 @@ class Setup_Database extends Service {
 		// Each option that is missing a value will make a sql call otherwise = unnecessary.
 		$arr_options = array(
 			array(
-				'name' => 'simple_history_show_as_page',
+				'name'          => 'simple_history_show_as_page',
 				'default_value' => 1,
 			),
 			array(
-				'name' => 'simple_history_show_on_dashboard',
+				'name'          => 'simple_history_show_on_dashboard',
 				'default_value' => 1,
 			),
 		);
@@ -150,7 +150,7 @@ class Setup_Database extends Service {
 		}
 
 		global $wpdb;
-		$table_name = $this->simple_history->get_events_table_name();
+		$table_name          = $this->simple_history->get_events_table_name();
 		$table_name_contexts = $this->simple_history->get_contexts_table_name();
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -271,13 +271,13 @@ class Setup_Database extends Service {
 
 		// Set default value for simple_history_detective_mode_enabled and simple_history_experimental_features_enabled.
 		$default_values = [
-			'simple_history_detective_mode_enabled' => 0,
+			'simple_history_detective_mode_enabled'        => 0,
 			'simple_history_experimental_features_enabled' => 0,
 		];
 
 		foreach ( $default_values as $option_name => $default_value ) {
 			$option_existing_value = get_option( $option_name );
-			$option_value_to_set = $default_value;
+			$option_value_to_set   = $default_value;
 
 			if ( $option_existing_value !== false ) {
 				$option_value_to_set = $option_existing_value;
@@ -340,12 +340,12 @@ class Setup_Database extends Service {
 		$plugin_logger->info_message(
 			'plugin_installed',
 			[
-				'plugin_name' => 'Simple History',
+				'plugin_name'        => 'Simple History',
 				'plugin_description' =>
 					'Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.',
-				'plugin_url' => 'https://simple-history.com',
-				'plugin_version' => SIMPLE_HISTORY_VERSION,
-				'plugin_author' => 'Pär Thernström',
+				'plugin_url'         => 'https://simple-history.com',
+				'plugin_version'     => SIMPLE_HISTORY_VERSION,
+				'plugin_author'      => 'Pär Thernström',
 			]
 		);
 
@@ -353,8 +353,8 @@ class Setup_Database extends Service {
 		$plugin_logger->info_message(
 			'plugin_activated',
 			[
-				'plugin_slug' => 'simple-history',
-				'plugin_name' => 'Simple History',
+				'plugin_slug'  => 'simple-history',
+				'plugin_name'  => 'Simple History',
 				'plugin_title' => '<a href="https://simple-history.com/">Simple History</a>',
 			]
 		);
@@ -367,7 +367,7 @@ class Setup_Database extends Service {
 		SimpleLogger()->info(
 			$welcome_message_1,
 			array(
-				'_initiator' => Log_Initiators::WORDPRESS,
+				'_initiator'         => Log_Initiators::WORDPRESS,
 				'is_welcome_message' => true,
 			)
 		);

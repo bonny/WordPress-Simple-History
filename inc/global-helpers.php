@@ -75,7 +75,7 @@ if ( ! function_exists( 'sh_d' ) ) {
 			$loopOutput = '';
 			if ( is_bool( $var ) ) {
 				$bool_string = $var ? 'true' : 'false';
-				$loopOutput = "$bool_string (boolean value)";
+				$loopOutput  = "$bool_string (boolean value)";
 			} elseif ( is_null( $var ) ) {
 				$loopOutput = ( 'null (null value)' );
 			} elseif ( is_int( $var ) ) {

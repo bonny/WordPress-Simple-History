@@ -80,9 +80,9 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 			'simple-history-email-promo',
 			'simpleHistoryEmailPromo',
 			[
-				'nonce' => wp_create_nonce( self::AJAX_ACTION ),
+				'nonce'   => wp_create_nonce( self::AJAX_ACTION ),
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'action' => self::AJAX_ACTION,
+				'action'  => self::AJAX_ACTION,
 			]
 		);
 	}
@@ -168,7 +168,7 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 		}
 
 		// Store dismissal timestamp in user meta (ISO8601 format for human readability).
-		$user_id = get_current_user_id();
+		$user_id   = get_current_user_id();
 		$dismissed = update_user_meta( $user_id, self::DISMISSED_USER_META_KEY, gmdate( 'c' ) );
 
 		if ( $dismissed ) {

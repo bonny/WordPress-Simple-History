@@ -99,7 +99,7 @@ class Quick_View_Dropin extends Dropin {
 			$asset_file['version'],
 			[
 				'in_footer' => true,
-				'strategy' => 'defer',
+				'strategy'  => 'defer',
 			]
 		);
 
@@ -114,8 +114,8 @@ class Quick_View_Dropin extends Dropin {
 			'simple_history_admin_bar_scripts',
 			'simpleHistoryAdminBar',
 			[
-				'adminPageUrl' => Helpers::get_history_admin_url(),
-				'viewSettingsUrl' => Helpers::get_settings_page_url(),
+				'adminPageUrl'              => Helpers::get_history_admin_url(),
+				'viewSettingsUrl'           => Helpers::get_settings_page_url(),
 				'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),
 			],
 		);
