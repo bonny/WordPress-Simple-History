@@ -390,6 +390,7 @@ class Plugin_Logger extends Logger {
 
 		add_action(
 			"update_option_{$option}",
+			// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			function ( $old_value, $value, $option ) {
 				/**
 				 * Option contains array with plugin that are set to be auto updated.
@@ -426,6 +427,7 @@ class Plugin_Logger extends Logger {
 				 *         )
 				 */
 
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$action = sanitize_text_field( wp_unslash( $_GET['action'] ?? '' ) );
 				if ( ! $action ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -461,6 +463,7 @@ class Plugin_Logger extends Logger {
 
 				if ( in_array( $action, array( 'enable-auto-update', 'disable-auto-update' ) ) ) {
 					// Opening single item enable/disable auto update link in plugin list in new window.
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$plugin = sanitize_text_field( wp_unslash( $_GET['plugin'] ?? '' ) );
 
 					if ( $plugin ) {
@@ -675,6 +678,7 @@ class Plugin_Logger extends Logger {
 			wp_die( esc_html__( "You don't have access to this page.", 'simple-history' ) );
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$repo = isset( $_GET['repo'] ) ? (string) sanitize_text_field( wp_unslash( $_GET['repo'] ) ) : '';
 
 		if ( $repo !== '' ) {
@@ -694,6 +698,7 @@ class Plugin_Logger extends Logger {
 		$api_url = sprintf( 'https://api.github.com/repos/%1$s/%2$s/readme', urlencode( $repo_username ), urlencode( $repo_repo ) );
 
 		// Get file. Use accept-header to get file as HTML instead of JSON.
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$response = wp_remote_get(
 			$api_url,
 			array(
@@ -786,17 +791,17 @@ class Plugin_Logger extends Logger {
 	 * When we are done logging then we remove the option.
 	 * Fired from filter `upgrader_pre_install`.
 	 *
-	 * @param bool  $bool   Default null.
-	 * @param array $hook_extra Default null.
+	 * @param bool|\WP_Error $bool_or_error Default null.
+	 * @param array          $hook_extra Default null.
 	 */
-	public function save_versions_before_update( $bool = null, $hook_extra = null ) {
+	public function save_versions_before_update( $bool_or_error = null, $hook_extra = null ) {
 		update_option(
 			$this->get_slug() . '_plugin_info_before_update',
 			Helpers::json_encode( get_plugins() ),
 			false
 		);
 
-		return $bool;
+		return $bool_or_error;
 	}
 
 	/**
@@ -843,7 +848,7 @@ class Plugin_Logger extends Logger {
 
 		$context = [
 			'plugin_slug'        => $plugin_slug,
-			'request'            => Helpers::json_encode( $_REQUEST ),
+			'request'            => Helpers::json_encode( $_REQUEST ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			'plugin_name'        => $plugin_data['Name'],
 			'plugin_title'       => $plugin_data['Title'],
 			'plugin_description' => $plugin_data['Description'],
@@ -884,8 +889,10 @@ class Plugin_Logger extends Logger {
 		if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
 			// Add errors
 			// Errors is in original wp admin language.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 			$context['error_messages'] = json_encode( $plugin_upgrader_instance->skin->result->errors );
-			$context['error_data']     = json_encode( $plugin_upgrader_instance->skin->result->error_data );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+			$context['error_data'] = json_encode( $plugin_upgrader_instance->skin->result->error_data );
 
 			// Add rollback context if rollback will occur.
 			$context = $this->add_rollback_context( $context, $arr_data['plugin'] );
@@ -957,6 +964,7 @@ class Plugin_Logger extends Logger {
 			// Get url and package.
 			$update_plugins = get_site_transient( 'update_plugins' );
 			if ( $update_plugins && isset( $update_plugins->response[ $plugin_main_file_path ] ) ) {
+				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoEmptyLineBefore
 				/*
 				$update_plugins[plugin_path/slug]:
 				{
