@@ -623,7 +623,7 @@ class Comments_Logger extends Logger {
 				);
 
 				break;
-		} // End switch().
+		}
 
 		/**
 		 * Filter the keys to show in the comments details output.
@@ -692,7 +692,7 @@ class Comments_Logger extends Logger {
 					}
 
 					break;
-			}// End switch().
+			}
 
 			// Skip empty rows.
 			if ( empty( $desc_output ) ) {
@@ -709,7 +709,7 @@ class Comments_Logger extends Logger {
 				esc_html( $desc ),
 				$desc_output
 			);
-		}// End foreach().
+		}
 
 		// Add link to edit comment.
 		$comment_ID = isset( $context['comment_ID'] ) && is_numeric( $context['comment_ID'] ) ? (int) $context['comment_ID'] : false;
@@ -737,7 +737,7 @@ class Comments_Logger extends Logger {
 					);
 				}
 			}
-		} // End if().
+		}
 
 		// End table.
 		$output .= '</table>';
