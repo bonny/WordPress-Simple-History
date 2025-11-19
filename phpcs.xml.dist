@@ -64,6 +64,9 @@
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
 	</rule>
 
+	<!-- WordPress VIP Go coding standards for enterprise compatibility -->
+	<rule ref="WordPress-VIP-Go" />
+
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
