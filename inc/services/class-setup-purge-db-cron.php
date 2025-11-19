@@ -112,7 +112,7 @@ class Setup_Purge_DB_Cron extends Service {
 				$days
 			);
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$ids_to_delete = $wpdb->get_col( $sql );
 
 			if ( empty( $ids_to_delete ) ) {
@@ -131,9 +131,10 @@ class Setup_Purge_DB_Cron extends Service {
 			$sql_delete_history         = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
 			$sql_delete_history_context = "DELETE FROM {$table_name_contexts} WHERE history_id IN ($sql_ids_in)";
 
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query( $sql_delete_history );
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query( $sql_delete_history_context );
 
 			$num_rows_purged = is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0;
