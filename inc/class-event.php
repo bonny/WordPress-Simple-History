@@ -144,6 +144,7 @@ class Event {
 		}
 
 		// Create cache key based on event IDs.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		$cache_key   = md5( __METHOD__ . serialize( [ 'event_ids' => $event_ids ] ) );
 		$cache_group = Helpers::get_cache_group();
 
@@ -437,6 +438,7 @@ class Event {
 	 */
 	private function load_data(): bool {
 		// Create cache key based on event ID.
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		$cache_key   = md5( __METHOD__ . serialize( [ 'event_id' => $this->id ] ) );
 		$cache_group = Helpers::get_cache_group();
 
@@ -518,6 +520,7 @@ class Event {
 		}
 
 		// Query for events using IN clause (works for both single and multiple IDs).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT 
@@ -616,6 +619,7 @@ class Event {
 		$contexts_table = $simple_history->get_contexts_table_name();
 
 		// First remove any existing sticky context.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->delete(
 			$contexts_table,
 			[
@@ -626,6 +630,7 @@ class Event {
 		);
 
 		// Add the sticky context.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$result = $wpdb->insert(
 			$contexts_table,
 			[
@@ -658,6 +663,7 @@ class Event {
 		$simple_history = Simple_History::get_instance();
 		$contexts_table = $simple_history->get_contexts_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$result = $wpdb->delete(
 			$contexts_table,
 			[
