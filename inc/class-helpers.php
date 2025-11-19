@@ -701,11 +701,11 @@ class Helpers {
 	 * Solution from:
 	 * https://stackoverflow.com/a/27457689
 	 *
-	 * @param object $class Class to get short name for.
+	 * @param object $instance Object instance to get short name for.
 	 * @return string
 	 */
-	public static function get_class_short_name( $class ) {
-		return substr( strrchr( get_class( $class ), '\\' ), 1 );
+	public static function get_class_short_name( $instance ) {
+		return substr( strrchr( get_class( $instance ), '\\' ), 1 );
 	}
 
 	/**
