@@ -101,7 +101,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'permission_callback' => [ $this, 'get_items_permissions_check' ],
 					'args'                => $this->get_collection_params_for_has_updates(),
 				],
-				// 'schema'      => [ $this, 'get_public_item_schema' ],
 			],
 		);
 
@@ -120,7 +119,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_item' ),
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
-					// 'args'                => $get_item_args,
 				),
 			],
 		);
@@ -754,6 +752,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		$events = [];
 
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 		// Debug: return error.
 		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
 		// return new WP_Error( 'simple_history_error', 'Something went wrong 🤷', array( 'status' => 500 ) );
