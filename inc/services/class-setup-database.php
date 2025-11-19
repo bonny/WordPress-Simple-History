@@ -91,7 +91,8 @@ class Setup_Database extends Service {
 
 		// Make sure table is using UTF-8. Early versions did not.
 		$sql = sprintf( 'alter table %1$s charset=utf8;', $table_name );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( $sql );
 
 		$this->update_db_to_version( 1 );
@@ -185,7 +186,7 @@ class Setup_Database extends Service {
 			) CHARSET=utf8;
 		";
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( $sql );
 
 		// Update possible old items to use SimpleLogger.
@@ -200,7 +201,7 @@ class Setup_Database extends Service {
 			$table_name
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( $sql );
 
 		$this->update_db_to_version( 3 );
@@ -235,10 +236,10 @@ class Setup_Database extends Service {
 
 		// If old columns exist = this is an old install, then modify the columns so we still can keep them
 		// we want to keep them because user may have logged items that they want to keep.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$db_cools = $wpdb->get_col( "DESCRIBE $table_name" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$db_cols = $wpdb->get_col( "DESCRIBE $table_name" );
 
-		if ( in_array( 'action', $db_cools ) ) {
+		if ( in_array( 'action', $db_cols ) ) {
 			$sql = sprintf(
 				'
                         ALTER TABLE %1$s
@@ -251,7 +252,7 @@ class Setup_Database extends Service {
                     ',
 				$table_name
 			);
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query( $sql );
 		}
 
