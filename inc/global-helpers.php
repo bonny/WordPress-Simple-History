@@ -49,7 +49,7 @@ if ( ! function_exists( 'sh_error_log' ) ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'null (null value)' );
 			} else {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				error_log( print_r( $var, true ) );
 			}
 		}
@@ -85,6 +85,7 @@ if ( ! function_exists( 'sh_d' ) ) {
 			} elseif ( is_string( $var ) && $var === '' ) {
 				$loopOutput = "'' (empty string)";
 			} else {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				$loopOutput = print_r( $var, true );
 			}
 
