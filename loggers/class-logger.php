@@ -1842,7 +1842,7 @@ abstract class Logger {
 			! isset( $context['_server_http_referer'] ) &&
 			isset( $_SERVER['HTTP_REFERER'] )
 		) {
-			$context['_server_http_referer'] = sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
+			$context['_server_http_referer'] = esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
 		}
 
 		return $context;
