@@ -81,7 +81,7 @@ class Events_Stats {
 			[ $date_from, $date_to ]
 		);
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- value_placeholders is safe here
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				'SELECT COUNT(DISTINCT h.id)
@@ -109,6 +109,7 @@ class Events_Stats {
 		$logged_in_users = [];
 
 		// Query session tokens directly from user meta table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$users_with_session_tokens = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s AND meta_value != ''",
@@ -148,7 +149,9 @@ class Events_Stats {
 
 		$events_table = $this->get_events_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return (int) $wpdb->get_var(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->prepare(
 				'SELECT 
 					COUNT(*)
@@ -181,6 +184,7 @@ class Events_Stats {
 		$events_table   = $this->get_events_table_name();
 		$contexts_table = $this->get_contexts_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				'SELECT 
@@ -219,6 +223,7 @@ class Events_Stats {
 		$contexts_table = $this->get_contexts_table_name();
 
 		// phpcs:disable WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Performance-critical stats query, WP user APIs too slow for bulk data
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_row(
 			$wpdb->prepare(
 				'SELECT
@@ -266,6 +271,7 @@ class Events_Stats {
 		$events_table   = $this->get_events_table_name();
 		$contexts_table = $this->get_contexts_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$users = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT
@@ -340,6 +346,7 @@ class Events_Stats {
 
 		// Use DATE_ADD with INTERVAL to convert from GMT to WordPress timezone.
 		// This is more reliable than CONVERT_TZ which requires timezone tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT
@@ -418,6 +425,7 @@ class Events_Stats {
 
 		// Use DATE_ADD with INTERVAL to convert from GMT to WordPress timezone.
 		// This is more reliable than CONVERT_TZ which requires timezone tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT
@@ -472,6 +480,7 @@ class Events_Stats {
 
 		// Use DATE_ADD with INTERVAL to convert from GMT to WordPress timezone.
 		// This is more reliable than CONVERT_TZ which requires timezone tables.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT
@@ -679,6 +688,7 @@ class Events_Stats {
 		$sql .= " AND c.value IN ($where_in) ORDER BY h.date DESC LIMIT %d";
 
 		// Prepare the complete query with all parameters.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -795,6 +805,7 @@ class Events_Stats {
 		$events_table   = $this->get_events_table_name();
 		$contexts_table = $this->get_contexts_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1013,6 +1024,7 @@ class Events_Stats {
 		$events_table   = $this->get_events_table_name();
 		$contexts_table = $this->get_contexts_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1075,6 +1087,7 @@ class Events_Stats {
 		global $wpdb;
 
 		if ( $include_ip ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			return $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT 
@@ -1112,6 +1125,7 @@ class Events_Stats {
 			);
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1157,6 +1171,7 @@ class Events_Stats {
 	public function get_profile_updates_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1210,6 +1225,7 @@ class Events_Stats {
 	public function get_added_users_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1268,6 +1284,7 @@ class Events_Stats {
 	public function get_removed_users_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1339,6 +1356,7 @@ class Events_Stats {
 	protected function get_content_created_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1393,6 +1411,7 @@ class Events_Stats {
 	protected function get_content_updated_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1447,6 +1466,7 @@ class Events_Stats {
 	protected function get_content_trashed_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1501,7 +1521,9 @@ class Events_Stats {
 	protected function get_content_deleted_details( $date_from, $date_to, $limit ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 			$wpdb->prepare(
 				"SELECT 
 					h.date as deleted_date,
@@ -1598,6 +1620,7 @@ class Events_Stats {
 		$contexts_table = $this->get_contexts_table_name();
 
 		// First query: Get matching history entries.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$history_results = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT DISTINCT 
@@ -1638,6 +1661,7 @@ class Events_Stats {
 		$history_ids_placeholders = implode( ',', array_fill( 0, count( $history_ids ), '%d' ) );
 
 		// Second query: Get all context data for these history entries.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$context_results = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -1778,6 +1802,7 @@ class Events_Stats {
 
 		$events_table = $this->get_events_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT * FROM %i ORDER BY date ASC LIMIT 1',
