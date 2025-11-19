@@ -1802,7 +1802,16 @@ abstract class Logger {
 	 */
 	private function append_remote_addr_to_context( $context ) {
 		if ( ! isset( $context['_server_remote_addr'] ) ) {
-			$remote_addr = empty( $_SERVER['REMOTE_ADDR'] ) ? '' : sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+			// Validate and sanitize REMOTE_ADDR.
+			$remote_addr = '';
+			// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders -- REMOTE_ADDR is validated with filter_var() below
+			if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+				$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+				// Validate that it's a proper IP address.
+				$validated_ip = filter_var( $remote_addr, FILTER_VALIDATE_IP );
+				$remote_addr = $validated_ip !== false ? $validated_ip : '';
+			}
+			// phpcs:enable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders
 
 			$context['_server_remote_addr'] = Helpers::privacy_anonymize_ip( $remote_addr );
 
