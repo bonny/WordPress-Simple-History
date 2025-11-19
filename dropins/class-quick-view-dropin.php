@@ -19,6 +19,7 @@ class Quick_View_Dropin extends Dropin {
 	 * Fired from the 'init' hook.
 	 */
 	public function initialize() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$divi_frontend_builder_active = isset( $_GET['et_fb'] );
 
 		// Bail if Divi frontend builder is active because it will cause React errors/issues.
