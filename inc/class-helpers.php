@@ -1860,7 +1860,7 @@ class Helpers {
 
 		ob_start();
 		?>
-		<span class="sh-Icon sh-Icon--help sh-TooltipIcon" title="<?php echo esc_html( $tooltip_text ); ?>"></span>
+		<span class="sh-Icon sh-Icon--help sh-TooltipIcon" title="<?php echo esc_attr( $tooltip_text ); ?>"></span>
 		<?php
 		return trim( ob_get_clean() );
 	}

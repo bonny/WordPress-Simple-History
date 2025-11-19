@@ -167,8 +167,8 @@ class Admin_Pages extends Service {
 		?>
 		<header class="sh-PageHeader">
 			<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
-				<?php echo wp_kses( $headline_link_start_elm, $allowed_link_html ); ?>          
-				<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_attr( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
+				<?php echo wp_kses( $headline_link_start_elm, $allowed_link_html ); ?>
+				<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
 				<?php echo wp_kses( $headline_link_end_elm, $allowed_link_html ); ?>
 			</h1>
 			

@@ -136,7 +136,7 @@ class AddOn_Plugin {
 			$activation_url,
 			array(
 				'sslverify' => false,
-				'timeout' => 10,
+				'timeout' => 3,
 			)
 		);
 
@@ -232,7 +232,7 @@ class AddOn_Plugin {
 			$activation_url,
 			array(
 				'sslverify' => false,
-				'timeout' => 10,
+				'timeout' => 3,
 			)
 		);
 

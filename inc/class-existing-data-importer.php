@@ -545,6 +545,7 @@ class Existing_Data_Importer {
 		}
 
 		// Count users.
+		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Simple count query, get_users() would be inefficient for large user bases
 		$counts['users'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->users}" );
 
 		return $counts;
