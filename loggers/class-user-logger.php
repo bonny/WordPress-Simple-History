@@ -756,7 +756,7 @@ class User_Logger extends Logger {
 					$row
 				);
 			}
-		}// End if().
+		}
 
 		return $output;
 	}
@@ -1196,10 +1196,10 @@ class User_Logger extends Logger {
 								esc_html( $context[ $key ] ) // 1
 							)
 						);
-					} // End if().
-				} // End if().
-			} // End foreach().
-		} // End if().
+					}
+				}
+			}
+		}
 
 		// Common for both modified and added users.
 		if ( isset( $context['user_added_roles'] ) ) {
@@ -1241,6 +1241,7 @@ class User_Logger extends Logger {
 	public function on_admin_page_access_denied() {
 		$admin_page = '';
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$admin_page = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
 
 		// Get the current admin page file.
