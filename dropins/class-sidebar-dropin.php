@@ -29,23 +29,6 @@ class Sidebar_Dropin extends Dropin {
 			return;
 		}
 
-		// Box about donation.
-		$headline = _x( 'Support our work', 'Sidebar box', 'simple-history' );
-
-		$donate_first_para  = _x( "We're continually working to improve Simple History, adding new features to make it even more useful for you. If you'd like to support our efforts, consider making a contribution. 🙌", 'Sidebar box', 'simple-history' );
-		$donate_second_para = _x( 'Donate to support development', 'Sidebar box', 'simple-history' );
-		$donate_link        = 'https://simple-history.com/sponsor/';
-
-		$boxDonate = '
-			<div class="postbox sh-PremiumFeaturesPostbox">
-				<h3 class="hndle">' . esc_html( $headline ) . '</h3>
-				<div class="inside">
-					<p>' . esc_html( $donate_first_para ) . '</p>
-					<p><a target="_blank" class="sh-ExternalLink" href="' . esc_url( $donate_link ) . '">' . esc_html( $donate_second_para ) . '</a></p>
-				</div>
-			</div>
-		';
-
 		// Box about review.
 		$headline = _x( 'Review this plugin if you like it', 'Sidebar box', 'simple-history' );
 
@@ -112,7 +95,6 @@ class Sidebar_Dropin extends Dropin {
 
 		$arrBoxes = array(
 			'boxReview'  => $boxReview,
-			'boxDonate'  => $boxDonate,
 			'boxHosting' => $boxHosting,
 			'boxSupport' => $boxSupport,
 		);
