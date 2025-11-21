@@ -2,7 +2,7 @@
 
 <img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars"> <img src="https://img.shields.io/wordpress/plugin/installs/simple-history?style=for-the-badge" alt="Number of active installs: over 100K"> <img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
 
-A WordPress activity log for what matters
+**A WordPress activity log for what matters.**
 
 Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.  
 It's great way to view user activity and keep an eye on what the admin users of a website are doing.
@@ -37,6 +37,22 @@ Simple History uses the log levels specified in the [PHP PSR-3 standard](https:/
 Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
 
 ![Simple History screenshot](.wordpress-org/screenshot-3.png)
+
+## Premium Add-on
+
+[Simple History Premium](https://simple-history.com/add-ons/premium) adds:
+
+- **Log Retention** – Set retention policies (30d to forever)
+- **Export** – CSV/JSON export of filtered results
+- **Stats Dashboard** – Visual summaries of activity trends
+- **Custom Events** – Manually log important changes via GUI
+- **Stealth Mode GUI** – Control visibility per user (code-free)
+- **Sticky Events** – Pin important events to top
+- **Ad-Free** – Remove promotional content
+
+[View details](https://simple-history.com/add-ons/premium)
+
+*The free version is fully functional and will remain free. Premium exists to fund ongoing development and provide pro features for agencies/enterprises.*
 
 ## Plugin API
 
@@ -73,6 +89,8 @@ SimpleLogger()->debug("Ok, cron job is running!");
 ```
 
 You will find more examples in the [examples.php](./examples/examples.php) file.
+
+**Note:** Premium users can also add custom events via the GUI at **WordPress Admin > Simple History > Add Custom Event** without writing code.
 
 ## Development
 
