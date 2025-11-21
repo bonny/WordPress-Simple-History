@@ -108,6 +108,21 @@ class Email_Report_Service extends Service {
 	/**
 	 * Get summary report data for a given date range.
 	 *
+	 * Note: Event counts include ALL logged events, including those from experimental/verbose
+	 * loggers like WPCronLogger, WPRESTAPIRequestsLogger, and WPHTTPRequestsLogger. These loggers
+	 * can generate hundreds of events per day from background system activity.
+	 *
+	 * This can cause a mismatch between email stats and what users see in the log UI, because:
+	 * 1. Experimental loggers may be disabled after events were logged
+	 * 2. The log UI filters events based on user permissions and enabled loggers
+	 * 3. Users clicking through from email may see fewer events than reported
+	 *
+	 * Potential future solutions:
+	 * - Filter stats to only include "standard" loggers (exclude experimental/verbose ones)
+	 * - Show breakdown in email: "X user events + Y system events"
+	 * - Add disclaimer text explaining the mismatch
+	 * - Make day links include all events regardless of current logger settings
+	 *
 	 * @param int  $date_from Start timestamp.
 	 * @param int  $date_to End timestamp.
 	 * @param bool $is_preview Whether this is a preview email.
