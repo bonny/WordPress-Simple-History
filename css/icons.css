@@ -31,6 +31,10 @@
 	background-image: url(./icons/overview_FILL0_wght400_GRAD0_opsz48.svg);
 }
 
+.sh-Icon--grid_view {
+	background-image: url(./icons/grid_view_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
 .sh-Icon--auto-delete {
 	background-image: url(./icons/auto_delete_FILL0_wght400_GRAD0_opsz48.svg);
 }
