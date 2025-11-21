@@ -52,7 +52,7 @@ class Experimental_Features_Page extends Service {
 				->set_location( 'submenu' );
 		} else {
 			$experimental_page
-				->set_menu_title( __( 'Simple History - Experimental', 'simple-history' ) )
+				->set_menu_title( __( 'Experimental features', 'simple-history' ) )
 				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
 		}
