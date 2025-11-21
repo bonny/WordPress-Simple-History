@@ -42,7 +42,7 @@ class Experimental_Features_Page extends Service {
 			->set_menu_slug( self::PAGE_SLUG )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'render_page' ] )
-			->set_icon( 'science' )
+			->set_icon( 'experiment' )
 			->set_order( 5 );
 
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {

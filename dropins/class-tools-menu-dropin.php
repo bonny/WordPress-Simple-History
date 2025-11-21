@@ -47,7 +47,7 @@ class Tools_Menu_Dropin extends Dropin {
 			->set_page_title( _x( 'Simple History Export & Tools', 'tools page title', 'simple-history' ) )
 			->set_menu_slug( self::MENU_SLUG )
 			->set_callback( [ $this, 'output_tools_page' ] )
-			->set_icon( 'dashicons-admin-tools' )
+			->set_icon( 'build' )
 			->set_order( 3 )
 			->set_redirect_to_first_child_on_load();
 
