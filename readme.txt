@@ -354,6 +354,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Reduce number of HTTP requests by consolidating the small sidebar CSS file (just 4 rules) into the main stylesheet that's already being loaded on the page.
 -   Fix sidebar stats box styling conflict with premium add-on.
 -   Fixed incorrect timezone handling for imported user registration dates
+-   Remove donation box from sidebar and move hosting sponsor acknowledgment to Help & Support page for cleaner UI focused on premium offerings.
 -   Stop polling for new events after 10+ new events are detected to reduce server resource consumption from inactive browser tabs.
 -   Add support for negative filters in the event log query API, to the REST API, and to WP-CLI. [#86](https://github.com/bonny/WordPress-Simple-History/issues/86).
 -   Fix warning about invalid HTML nesting in the log GUI filters. [#548](https://github.com/bonny/WordPress-Simple-History/issues/548).
