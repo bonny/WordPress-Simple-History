@@ -82,5 +82,15 @@ See the [README](./tests/readme.md) in `tests` directory.
 
 ## Sponsors
 
+### Hosting Sponsor
+
+<a href="https://www.oderland.se" style="float: right; margin-left: 20px;">
+  <img src="https://www.oderland.se/wp-content/uploads/2021/11/oderland-1024x576.jpg" alt="" width="150">
+</a>
+
+The [Simple History website](https://simple-history.com) is proudly hosted by [Oderland](https://www.oderland.com), a Swedish web hosting provider known for their reliable hosting and excellent support.
+
+### Support Development
+
 Support the free version of Simple History by becoming a sponsor.
 You can sponsor using [PayPal](https://www.paypal.com/paypalme/eskapism) or [becoming a GitHub Sponsor](https://github.com/sponsors/bonny).
