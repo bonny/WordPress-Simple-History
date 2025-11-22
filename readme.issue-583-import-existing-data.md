@@ -87,16 +87,19 @@ Added a new "Backfill" tab under the Tools menu that provides the GUI for genera
      - Preview section showing counts per post type and users
      - Options (post types, users, limit)
      - "Run Backfill" and "Delete Backfilled Data" buttons
-   - Uses `history` icon in the page title
+   - Uses `sync_arrow_down` icon in the page title
 
 2. **Updated `Import_Handler`** (`inc/services/class-import-handler.php`)
    - Removed GUI rendering (moved to dropin)
-   - Updated redirects to point to new Backfill tab instead of Experimental Features page
+   - Updated redirects to use proper Tools menu tab structure (`page=simple_history_tools&selected-tab=...&selected-sub-tab=...`)
 
 3. **Updated `Tools_Menu_Dropin`** (`dropins/class-tools-menu-dropin.php`)
    - Added Backfill to the "Available Tools" list on Overview page
 
-4. **Menu Structure:**
+4. **Updated `EventImportedIndicator.jsx`**
+   - Changed indicator text from "Imported from existing data" to "Backfilled entry"
+
+5. **Menu Structure:**
    ```
    Export & Tools (menu item)
    └── Tools (main tab with redirect)
@@ -105,13 +108,17 @@ Added a new "Backfill" tab under the Tools menu that provides the GUI for genera
        └── Backfill (subtab) ← NEW
    ```
 
-5. **UX Copy Updates:**
+6. **UX Copy Updates:**
    - Used "Backfill" terminology instead of "Import" to clarify that it generates history from existing WordPress data (not external file imports)
    - Clear descriptions explaining the feature scans posts, pages, and users to create log entries
+   - Event indicator shows "Backfilled entry" for backfilled events
 
 **Files Created:**
 - `dropins/class-import-dropin.php`
+- `css/icons/sync_arrow_down_FILL0_wght400_GRAD0_opsz48.svg`
 
 **Files Modified:**
 - `inc/services/class-import-handler.php` (removed GUI, updated redirects)
 - `dropins/class-tools-menu-dropin.php` (added Backfill to tools list)
+- `src/components/EventImportedIndicator.jsx` (updated indicator text)
+- `css/icons.css` (added sync_arrow_down icon class)
