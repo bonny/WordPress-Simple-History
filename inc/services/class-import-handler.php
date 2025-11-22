@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Dropins\Import_Dropin;
+use Simple_History\Dropins\Tools_Menu_Dropin;
 use Simple_History\Existing_Data_Importer;
 use Simple_History\Services\Service;
 
@@ -82,9 +83,12 @@ class Import_Handler extends Service {
 		);
 
 		// Redirect back to the page with results as URL parameters.
+		// Use the proper tab structure for the Tools menu.
 		$redirect_url = add_query_arg(
 			[
-				'page'                   => Import_Dropin::MENU_SLUG,
+				'page'                   => Tools_Menu_Dropin::MENU_SLUG,
+				'selected-tab'           => Tools_Menu_Dropin::TOOLS_TAB_SLUG,
+				'selected-sub-tab'       => Import_Dropin::MENU_SLUG,
 				'import-completed'       => '1',
 				'posts-imported'         => isset( $results['posts_imported'] ) ? intval( $results['posts_imported'] ) : 0,
 				'users-imported'         => isset( $results['users_imported'] ) ? intval( $results['users_imported'] ) : 0,
@@ -124,9 +128,12 @@ class Import_Handler extends Service {
 		$results = $importer->delete_all_imported();
 
 		// Redirect back to the page with results as URL parameters.
+		// Use the proper tab structure for the Tools menu.
 		$redirect_url = add_query_arg(
 			[
-				'page'             => Import_Dropin::MENU_SLUG,
+				'page'             => Tools_Menu_Dropin::MENU_SLUG,
+				'selected-tab'     => Tools_Menu_Dropin::TOOLS_TAB_SLUG,
+				'selected-sub-tab' => Import_Dropin::MENU_SLUG,
 				'delete-completed' => '1',
 				'events-deleted'   => isset( $results['events_deleted'] ) ? intval( $results['events_deleted'] ) : 0,
 			],
