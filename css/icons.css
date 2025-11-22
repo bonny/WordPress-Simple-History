@@ -59,6 +59,10 @@
 	background-image: url(./icons/autorenew_FILL0_wght400_GRAD0_opsz48.svg);
 }
 
+.sh-Icon--sync_arrow_down {
+	background-image: url(./icons/sync_arrow_down_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
 .sh-Icon--format_list_numbered {
 	background-image: url(./icons/format_list_numbered_FILL0_wght400_GRAD0_opsz48.svg);
 }

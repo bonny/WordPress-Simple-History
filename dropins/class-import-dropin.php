@@ -93,7 +93,7 @@ class Import_Dropin extends Dropin {
 			echo wp_kses(
 				Helpers::get_settings_section_title_output(
 					__( 'Backfill history', 'simple-history' ),
-					'history'
+					'sync_arrow_down'
 				),
 				array(
 					'span' => array(
