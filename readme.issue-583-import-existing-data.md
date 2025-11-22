@@ -1,8 +1,8 @@
 # Issue #583: Generate history based on existing WP data
 
-**Status**: Experimental
+**Status**: In Progress
 **Labels**: Experimental feature, Feature
-**Project Board**: Simple History kanban (Experimental)
+**Project Board**: Simple History kanban (In Progress)
 
 ## Overview
 
@@ -16,7 +16,8 @@ The information available in WordPress for historical events are very limited, b
 
 ## Todo
 
-- [x] Add tools page with import information for core users and import functionality for premium users
+- [x] Add tools page with backfill information for core users and backfill functionality for premium users
+- [x] Add "Backfill" tab under Tools menu with GUI for historical data import
 - [ ] Pre-fill log by importing 60 days back when plugin is installed
 
 ## Progress
@@ -72,3 +73,45 @@ Successfully refactored the Export menu into a comprehensive "Export & Tools" me
 
 **Next Steps:**
 The Tools menu infrastructure is now ready to support the Import functionality. Future import tool can be implemented as a separate dropin that registers as a subtab under Tools, following the same pattern as Export.
+
+### Step 2: Backfill Tab Implementation (Completed)
+
+Added a new "Backfill" tab under the Tools menu that provides the GUI for generating history entries from existing WordPress data.
+
+**Implementation Details:**
+
+1. **Created `Import_Dropin`** (`dropins/class-import-dropin.php`)
+   - Registers as subtab under Tools menu (order 3, after Overview and Export)
+   - Contains complete backfill GUI with:
+     - Success notices for backfill/delete operations
+     - Preview section showing counts per post type and users
+     - Options (post types, users, limit)
+     - "Run Backfill" and "Delete Backfilled Data" buttons
+   - Uses `history` icon in the page title
+
+2. **Updated `Import_Handler`** (`inc/services/class-import-handler.php`)
+   - Removed GUI rendering (moved to dropin)
+   - Updated redirects to point to new Backfill tab instead of Experimental Features page
+
+3. **Updated `Tools_Menu_Dropin`** (`dropins/class-tools-menu-dropin.php`)
+   - Added Backfill to the "Available Tools" list on Overview page
+
+4. **Menu Structure:**
+   ```
+   Export & Tools (menu item)
+   └── Tools (main tab with redirect)
+       ├── Overview (subtab)
+       ├── Export (subtab)
+       └── Backfill (subtab) ← NEW
+   ```
+
+5. **UX Copy Updates:**
+   - Used "Backfill" terminology instead of "Import" to clarify that it generates history from existing WordPress data (not external file imports)
+   - Clear descriptions explaining the feature scans posts, pages, and users to create log entries
+
+**Files Created:**
+- `dropins/class-import-dropin.php`
+
+**Files Modified:**
+- `inc/services/class-import-handler.php` (removed GUI, updated redirects)
+- `dropins/class-tools-menu-dropin.php` (added Backfill to tools list)

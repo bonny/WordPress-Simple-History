@@ -153,11 +153,12 @@ class Tools_Menu_Dropin extends Dropin {
 			);
 			?>
 
-			<p><?php echo esc_html_x( 'Welcome to Simple History tools. Here you can access various tools to manage and work with your history data.', 'tools intro', 'simple-history' ); ?></p>
+			<p><?php echo esc_html_x( 'Here you can access various tools to manage and work with your history data.', 'tools intro', 'simple-history' ); ?></p>
 
 			<h3><?php echo esc_html__( 'Available Tools', 'simple-history' ); ?></h3>
 			<ul>
 				<li><strong><?php echo esc_html__( 'Export', 'simple-history' ); ?></strong> - <?php echo esc_html__( 'Export your history data to CSV, JSON, or HTML format.', 'simple-history' ); ?></li>
+				<li><strong><?php echo esc_html__( 'Backfill', 'simple-history' ); ?></strong> - <?php echo esc_html__( 'Generate history entries from existing WordPress data like posts, pages, and users.', 'simple-history' ); ?></li>
 			</ul>
 		</div>
 		<?php
