@@ -421,7 +421,11 @@ class Email_Report_Service extends Service {
 	 * Output for the email report settings section.
 	 */
 	public function settings_section_output() {
-		echo '<p>' . esc_html__( 'Reports are sent Monday mornings and include statistics from the previous week (Monday-Sunday).', 'simple-history' ) . '</p>';
+		?>
+		<p>
+			<strong><?php esc_html_e( 'Stay on top of your site without logging in.', 'simple-history' ); ?></strong>
+		</p>
+		<?php
 	}
 
 	/**
@@ -542,14 +546,26 @@ class Email_Report_Service extends Service {
 		$enabled = $this->is_email_reports_enabled();
 		?>
 		<label>
-			<input 
-				type="checkbox" 
-				name="simple_history_email_report_enabled" 
-				value="1" 
-				<?php checked( $enabled ); ?> 
+			<input
+				type="checkbox"
+				name="simple_history_email_report_enabled"
+				value="1"
+				<?php checked( $enabled ); ?>
 			/>
-			<?php esc_html_e( 'Enable email reports', 'simple-history' ); ?>
+			<?php esc_html_e( 'Enable weekly digest', 'simple-history' ); ?>
 		</label>
+
+		<p style="margin-top: 1em;">
+			<?php esc_html_e( 'Every Monday, get a summary of:', 'simple-history' ); ?>
+		</p>
+
+		<ul style="list-style: none; padding: 0; margin: 0.5em 0 0 0;">
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Total event count and daily breakdown', 'simple-history' ); ?></li>
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Number of posts and pages created or updated', 'simple-history' ); ?></li>
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Login statistics (successful and failed)', 'simple-history' ); ?></li>
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Plugin activation and deactivation counts', 'simple-history' ); ?></li>
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'WordPress core update count', 'simple-history' ); ?></li>
+		</ul>
 		<?php
 	}
 
