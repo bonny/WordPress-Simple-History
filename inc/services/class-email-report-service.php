@@ -350,7 +350,9 @@ class Email_Report_Service extends Service {
 			'simple_history_email_report_section',
 			[ __( 'Email Reports', 'simple-history' ), 'mark_email_unread', 'simple_history_email_report_section' ],
 			[ $this, 'settings_section_output' ],
-			$settings_menu_slug
+			$settings_menu_slug,
+			null,
+			[ $this, 'settings_section_output_last' ]	
 		);
 
 		register_setting(
@@ -372,6 +374,13 @@ class Email_Report_Service extends Service {
 				'sanitize_callback' => [ $this, 'sanitize_email_recipients' ],
 			]
 		);
+	}
+
+	/**
+	 * Output for the last content of the email report settings section.
+	 */
+	public function settings_section_output_last() {
+		echo '<p>' . esc_html__( 'Pro tip: The digest helps you catch unauthorized changes even when you\'re away from your site.', 'simple-history' ) . '</p>';
 	}
 
 	/**
@@ -462,6 +471,19 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
+	 * Output for the pro tip field.
+	 */
+	public function settings_field_pro_tip() {
+		?>
+		<div class="sh-EmailReportProTip">
+			<p>
+				💡 <?php esc_html_e( 'Pro tip: The digest helps you catch unauthorized changes even when you\'re away from your site.', 'simple-history' ); ?>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Sanitize email recipients.
 	 *
 	 * Detects all emails in textarea and sanitizes them.
@@ -537,6 +559,9 @@ class Email_Report_Service extends Service {
 		$recipients         = $this->get_email_report_recipients();
 		$current_user_email = wp_get_current_user()->user_email;
 		?>
+		<p>
+			<?php esc_html_e( 'Add team members to keep everyone informed.', 'simple-history' ); ?>
+		</p>
 		<textarea 
 			data-simple-history-email-report-recipients
 			data-simple-history-current-user-email="<?php echo esc_attr( $current_user_email ); ?>"
