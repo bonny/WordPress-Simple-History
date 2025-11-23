@@ -128,21 +128,20 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 		<div class="postbox sh-EmailPromoCard sh-PremiumFeaturesPostbox" id="simple-history-email-promo-card" style="--box-bg-color: var(--sh-color-cream);">
 			<div class="inside">
 				<div style="--sh-badge-text-color: var(--sh-color-blue); --sh-badge-background-color: transparent;" class="sh-EmailPromoCard-badge sh-PremiumFeatureBadge">
-					<?php esc_html_e( 'New feature: Weekly Email Summary', 'simple-history' ); ?>
+					<?php esc_html_e( 'New!', 'simple-history' ); ?>
 				</div>
 
-				<div class="sh-flex sh-flex-row-reverse sh-gap-small sh-items-center">
-					<div>
-						<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-EmailPromoCard-badgeImageLink">
-							<img class="sh-EmailPromoCard-badgeImage" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/email-reports-badge.svg' ); ?>" alt="">
-						</a>
-					</div>
-					<div>
-						<p class="sh-EmailPromoCard-text"><?php esc_html_e( "Don't miss out on what's happened on your site.", 'simple-history' ); ?></p>
-					</div>
-				</div>
+				<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-EmailPromoCard-badgeImageLink">
+					<img class="sh-EmailPromoCard-badgeImage" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'assets/images/email-reports-badge.svg' ); ?>" alt="">
+				</a>
 
-				<p class="sh-EmailPromoCard-text"><?php esc_html_e( 'Enable email reports to get a weekly summary in your inbox!', 'simple-history' ); ?></p>
+				<p class="sh-EmailPromoCard-text sh-EmailPromoCard-text--intro">
+					<strong><?php esc_html_e( "Don't miss out on what's happened on your site.", 'simple-history' ); ?></strong>
+				</p>
+
+				<p class="sh-EmailPromoCard-text">
+					<?php esc_html_e( 'Enable email reports to get a weekly summary in your inbox!', 'simple-history' ); ?>
+				</p>
 
 				<div class="sh-EmailPromoCard-actions">
 					<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PremiumFeaturesPostbox-button sh-EmailPromoCard-cta" data-dismiss-on-click="true">
