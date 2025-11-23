@@ -1760,7 +1760,7 @@ Styles for plugin update details. Markup looks like this:
 	display: block;
 	width: 100px;
 	float: right;
-	margin-block-start: var(--sh-spacing-medium);
+	margin-block: var(--sh-spacing-medium);
 	margin-inline-start: var(--sh-spacing-medium);
 	transform: scale(1) rotate(5deg);
 	transition: transform 0.2s ease-in-out;
