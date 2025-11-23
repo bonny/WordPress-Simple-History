@@ -136,20 +136,20 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 				</a>
 
 				<p class="sh-EmailPromoCard-text sh-EmailPromoCard-text--intro">
-					<strong><?php esc_html_e( "Don't miss out on what's happened on your site.", 'simple-history' ); ?></strong>
+					<strong><?php esc_html_e( 'Know what\'s happening — without logging in.', 'simple-history' ); ?></strong>
 				</p>
 
 				<p class="sh-EmailPromoCard-text">
-					<?php esc_html_e( 'Enable email reports to get a weekly summary in your inbox!', 'simple-history' ); ?>
+					<?php esc_html_e( 'Get a weekly digest with login stats, content changes, and plugin activity.', 'simple-history' ); ?>
 				</p>
 
 				<div class="sh-EmailPromoCard-actions">
 					<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PremiumFeaturesPostbox-button sh-EmailPromoCard-cta" data-dismiss-on-click="true">
-						<?php esc_html_e( 'Enable Weekly Summary', 'simple-history' ); ?>
+						<?php esc_html_e( 'Get Weekly Digest', 'simple-history' ); ?>
 					</a>
-					
+
 					<button type="button" class="sh-EmailPromoCard-dismiss button-link">
-						<?php esc_html_e( 'No thanks, not right now', 'simple-history' ); ?>
+						<?php esc_html_e( 'Maybe later', 'simple-history' ); ?>
 					</button>
 				</div>
 			</div>
