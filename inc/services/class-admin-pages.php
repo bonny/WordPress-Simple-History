@@ -166,12 +166,23 @@ class Admin_Pages extends Service {
 
 		?>
 		<header class="sh-PageHeader">
-			<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
-				<?php echo wp_kses( $headline_link_start_elm, $allowed_link_html ); ?>
-				<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
-				<?php echo wp_kses( $headline_link_end_elm, $allowed_link_html ); ?>
-			</h1>
-			
+			<div class="sh-PageHeader-titleGroup">
+				<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
+					<?php echo wp_kses( $headline_link_start_elm, $allowed_link_html ); ?>
+					<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
+					<?php echo wp_kses( $headline_link_end_elm, $allowed_link_html ); ?>
+				</h1>
+				
+				<?php
+				// Display note about dev mode when it's enabled.
+				if ( Helpers::dev_mode_is_enabled() ) {
+					?>
+					<span class="sh-PageHeader-devBadge" title="<?php esc_attr_e( 'Developer mode is enabled via SIMPLE_HISTORY_DEV constant', 'simple-history' ); ?>"><?php esc_html_e( 'Dev', 'simple-history' ); ?></span>
+					<?php 
+				}
+				?>
+			</div>
+
 			<?php
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo Helpers::get_header_add_ons_link();

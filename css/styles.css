@@ -1065,8 +1065,14 @@ so add some extra place then to make it look a bit less ugly.
 	margin-top: 25px;
 }
 
-.sh-PageHeader-title {
+.sh-PageHeader-titleGroup {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 	flex: 1;
+}
+
+.sh-PageHeader-title {
 	font-size: 23px;
 	font-weight: 400;
 	margin: 0;
@@ -1093,6 +1099,17 @@ so add some extra place then to make it look a bit less ugly.
 
 .sh-PageHeader-settingsLinkIcon {
 	--sh-icon-size: 25px;
+}
+
+.sh-PageHeader-devBadge {
+	background-color: #2271b1;
+	color: #fff;
+	font-size: 9px;
+	font-weight: 600;
+	padding: 2px 6px;
+	border-radius: 3px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 .sh-NotificationBar {
@@ -1756,7 +1773,7 @@ Styles for plugin update details. Markup looks like this:
 }
 
 .sh-EmailPromoCard-text {
-	font-size: var(--sh-font-size-xlarge);
+	font-size: var(--sh-font-size-large);
 	font-family: Crimson, Charter, Baskerville, Georgia, serif;
 	font-weight: 600;
 	margin-block: var(--sh-spacing-medium);
