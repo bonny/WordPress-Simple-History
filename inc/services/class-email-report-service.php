@@ -351,8 +351,9 @@ class Email_Report_Service extends Service {
 			[ __( 'Email Reports', 'simple-history' ), 'mark_email_unread', 'simple_history_email_report_section' ],
 			[ $this, 'settings_section_output' ],
 			$settings_menu_slug,
-			null,
-			[ $this, 'settings_section_output_last' ]	
+			[
+				'callback_last' => [ $this, 'settings_section_output_last' ],
+			],
 		);
 
 		register_setting(

@@ -811,10 +811,13 @@ class Helpers {
 	 *                     Or pass ['Section title', 'icon-slug', 'html-id'] to include an HTML ID attribute.
 	 * @param callable     $callback_top Function that echos out any content at the top of the section (between heading and fields).
 	 * @param string       $page The slug-name of the settings page on which to show the section. Built-in pages include 'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using add_options_page().
-	 * @param array        $args Optional. Additional arguments that are passed to the $callback_top function. Default empty array.
-	 * @param callable     $callback_last Optional. Function that echos out any content at the end of the section (before closing wrapper div).
+	 * @param array        $args {
+	 *     Optional. Additional arguments.
+	 *
+	 *     @type callable $callback_last Function that echos out any content at the end of the section (before closing wrapper div).
+	 * }
 	 */
-	public static function add_settings_section( $id, $title, $callback_top, $page, $args = [], $callback_last = null ) {
+	public static function add_settings_section( $id, $title, $callback_top, $page, $args = [] ) {
 		// If title is array then it can be [title, icon-slug] or [title, icon-slug, html-id].
 		$html_id = '';
 		if ( is_array( $title ) ) {
@@ -839,6 +842,7 @@ class Helpers {
 
 		// Build after_section content.
 		$after_section_content = '';
+		$callback_last         = $args['callback_last'] ?? null;
 		if ( is_callable( $callback_last ) ) {
 			ob_start();
 			call_user_func( $callback_last );
