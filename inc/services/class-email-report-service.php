@@ -381,7 +381,7 @@ class Email_Report_Service extends Service {
 	 * Output for the last content of the email report settings section.
 	 */
 	public function settings_section_output_last() {
-		echo '<p>' . esc_html__( 'Pro tip: The digest helps you catch unauthorized changes even when you\'re away from your site.', 'simple-history' ) . '</p>';
+		echo '<p>💡 ' . esc_html__( 'Pro tip: The digest helps you catch unauthorized changes even when you\'re away from your site.', 'simple-history' ) . '</p>';
 	}
 
 	/**
