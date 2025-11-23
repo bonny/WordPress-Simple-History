@@ -809,11 +809,12 @@ class Helpers {
 	 * @param string|array $title Formatted title of the section. Shown as the heading for the section.
 	 *                     Pass in array instead of string to use as ['Section title', 'icon-slug'].
 	 *                     Or pass ['Section title', 'icon-slug', 'html-id'] to include an HTML ID attribute.
-	 * @param callable     $callback Function that echos out any content at the top of the section (between heading and fields).
+	 * @param callable     $callback_top Function that echos out any content at the top of the section (between heading and fields).
 	 * @param string       $page The slug-name of the settings page on which to show the section. Built-in pages include 'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using add_options_page().
-	 * @param array        $args Optional. Additional arguments that are passed to the $callback function. Default empty array.
+	 * @param array        $args Optional. Additional arguments that are passed to the $callback_top function. Default empty array.
+	 * @param callable     $callback_last Optional. Function that echos out any content at the end of the section (before closing wrapper div).
 	 */
-	public static function add_settings_section( $id, $title, $callback, $page, $args = [] ) {
+	public static function add_settings_section( $id, $title, $callback_top, $page, $args = [], $callback_last = null ) {
 		// If title is array then it can be [title, icon-slug] or [title, icon-slug, html-id].
 		$html_id = '';
 		if ( is_array( $title ) ) {
@@ -836,12 +837,21 @@ class Helpers {
 			$id_attribute = sprintf( ' id="%s"', esc_attr( $html_id ) );
 		}
 
+		// Build after_section content.
+		$after_section_content = '';
+		if ( is_callable( $callback_last ) ) {
+			ob_start();
+			call_user_func( $callback_last );
+			$after_section_content = ob_get_clean();
+		}
+		$after_section_content .= '</div>';
+
 		$args = [
 			'before_section' => sprintf( '<div class="sh-SettingsPage-settingsSection-wrap"%s>', $id_attribute ),
-			'after_section'  => '</div>',
+			'after_section'  => $after_section_content,
 		];
 
-		add_settings_section( $id, $title, $callback, $page, $args );
+		add_settings_section( $id, $title, $callback_top, $page, $args );
 	}
 
 	/**
