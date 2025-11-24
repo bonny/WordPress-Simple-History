@@ -1257,8 +1257,8 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-SettingsPage-settingsSection-wrap {
-	padding: 1rem 0;
-	margin: 1rem 0;
+	padding: var(--sh-spacing-medium) 0;
+	margin: var(--sh-spacing-medium) 0;
 }
 
 .sh-SettingsPage-settingsSection-wrap h2 {
@@ -1390,10 +1390,11 @@ a.sh-SettingsTabs-link:hover {
 }
 
 .sh-LicencesPage-plugin {
-	background: #fff;
-	border-radius: 0.5rem;
-	margin-bottom: 2rem;
+	background: var(--sh-color-white);
+	border-radius: 8px;
+	margin-bottom: 1.5rem;
 	padding: 1.5rem;
+	border: 1px solid var(--sh-color-gray);
 }
 
 .form-table .sh-LicencesPage-plugin-name {
@@ -1745,6 +1746,58 @@ Styles for plugin update details. Markup looks like this:
 /* Make chart canvas show pointer cursor to indicate it's clickable */
 .SimpleHistory_SidebarChart_ChartCanvas {
 	cursor: pointer;
+}
+
+/**
+ * Settings Page Cards
+ * Modern card-based layout for settings sections.
+ */
+.sh-SettingsCard {
+	background: var(--sh-color-white);
+	border-radius: 8px;
+	padding: var(--sh-spacing-large);
+	margin-bottom: var(--sh-spacing-large);
+	border: 1px solid var(--sh-color-separator);
+}
+
+.sh-SettingsCard .form-table {
+	margin-top: 0;
+}
+
+.sh-SettingsCard .form-table th {
+	padding-top: var(--sh-spacing-medium);
+	padding-bottom: var(--sh-spacing-medium);
+}
+
+.sh-SettingsCard .form-table td {
+	padding-top: var(--sh-spacing-medium);
+	padding-bottom: var(--sh-spacing-medium);
+}
+
+/* Remove default border from form-table rows inside cards */
+/* .sh-SettingsCard .form-table tr {
+	border-bottom: 1px solid var(--sh-color-separator);
+} */
+
+/* .sh-SettingsCard .form-table tr:last-child {
+	border-bottom: none;
+} */
+
+/* Make section title inside card more prominent */
+.sh-SettingsCard h2 {
+	margin-top: 0;
+	margin-bottom: var(--sh-spacing-small);
+}
+
+/* Override default WordPress form-table width in cards */
+.sh-SettingsCard .form-table th {
+	width: 220px;
+}
+
+@media (max-width: 782px) {
+	.sh-SettingsCard .form-table th {
+		width: auto;
+	}
 }
 
 /* Email Promo Card - Promotional card in sidebar for weekly email summary feature */

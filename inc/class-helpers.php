@@ -851,7 +851,7 @@ class Helpers {
 		$after_section_content .= '</div>';
 
 		$args = [
-			'before_section' => sprintf( '<div class="sh-SettingsPage-settingsSection-wrap"%s>', $id_attribute ),
+			'before_section' => sprintf( '<div class="sh-SettingsCard sh-SettingsPage-settingsSection-wrap"%s>', $id_attribute ),
 			'after_section'  => $after_section_content,
 		];
 
