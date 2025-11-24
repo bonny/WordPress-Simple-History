@@ -209,3 +209,15 @@
 .sh-Icon--mark_email_unread {
 	background-image: url(./icons/mark_email_unread_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
 }
+
+.sh-Icon--group_add {
+	background-image: url(./icons/group_add_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--preview {
+	background-image: url(./icons/preview_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--schedule_send {
+	background-image: url(./icons/schedule_send_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}

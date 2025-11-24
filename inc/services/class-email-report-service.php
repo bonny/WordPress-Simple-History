@@ -348,7 +348,7 @@ class Email_Report_Service extends Service {
 		// Add settings section for email reports.
 		Helpers::add_settings_section(
 			'simple_history_email_report_section',
-			[ __( 'Email Reports (Weekly Activity Digest)', 'simple-history' ), 'mark_email_unread', 'simple_history_email_report_section' ],
+			[ __( 'Email Reports (Weekly Activity Digest)', 'simple-history' ), 'schedule_send', 'simple_history_email_report_section' ],
 			[ $this, 'settings_section_output' ],
 			$settings_menu_slug,
 			[
@@ -394,7 +394,7 @@ class Email_Report_Service extends Service {
 
 		add_settings_field(
 			'simple_history_email_report_enabled',
-			Helpers::get_settings_field_title_output( __( 'Enable', 'simple-history' ), 'email' ),
+			Helpers::get_settings_field_title_output( __( 'Enable', 'simple-history' ), 'mark_email_unread' ),
 			[ $this, 'settings_field_enabled' ],
 			$settings_menu_slug,
 			'simple_history_email_report_section'
@@ -402,7 +402,7 @@ class Email_Report_Service extends Service {
 
 		add_settings_field(
 			'simple_history_email_report_recipients',
-			Helpers::get_settings_field_title_output( __( 'Recipients', 'simple-history' ), 'groups' ),
+			Helpers::get_settings_field_title_output( __( 'Recipients', 'simple-history' ), 'group_add' ),
 			[ $this, 'settings_field_recipients' ],
 			$settings_menu_slug,
 			'simple_history_email_report_section'
@@ -410,7 +410,7 @@ class Email_Report_Service extends Service {
 
 		add_settings_field(
 			'simple_history_email_report_preview',
-			Helpers::get_settings_field_title_output( __( 'Preview', 'simple-history' ), '' ),
+			Helpers::get_settings_field_title_output( __( 'Preview', 'simple-history' ), 'preview' ),
 			[ $this, 'settings_field_preview' ],
 			$settings_menu_slug,
 			'simple_history_email_report_section'
