@@ -222,14 +222,13 @@ class Post_Logger extends Logger {
 		$old_post_terms = $this->old_post_data[ $updated_post->ID ]['post_terms'] ?? null;
 
 		$args = array(
-			'new_post'             => $updated_post,
-			'new_post_meta'        => $post_meta,
-			'new_post_terms'       => wp_get_object_terms( $updated_post->ID, get_object_taxonomies( $updated_post->post_type ) ),
-			'old_post'             => $old_post,
-			'old_post_meta'        => $old_post_meta,
-			'old_post_terms'       => $old_post_terms,
-			'old_status'           => $old_post ? $old_post->post_status : null,
-			'_debug_caller_method' => __METHOD__,
+			'new_post'       => $updated_post,
+			'new_post_meta'  => $post_meta,
+			'new_post_terms' => wp_get_object_terms( $updated_post->ID, get_object_taxonomies( $updated_post->post_type ) ),
+			'old_post'       => $old_post,
+			'old_post_meta'  => $old_post_meta,
+			'old_post_terms' => $old_post_terms,
+			'old_status'     => $old_post ? $old_post->post_status : null,
 		);
 
 		$this->maybe_log_post_change( $args );
@@ -793,14 +792,13 @@ class Post_Logger extends Logger {
 		$old_post_terms = $this->old_post_data[ $post->ID ]['post_terms'] ?? null;
 
 		$args = array(
-			'new_post'             => $post,
-			'new_post_meta'        => get_post_custom( $post->ID ),
-			'new_post_terms'       => wp_get_object_terms( $post->ID, get_object_taxonomies( $post->post_type ) ),
-			'old_post'             => $old_post,
-			'old_post_meta'        => $old_post_meta,
-			'old_post_terms'       => $old_post_terms,
-			'old_status'           => $old_status,
-			'_debug_caller_method' => __METHOD__,
+			'new_post'       => $post,
+			'new_post_meta'  => get_post_custom( $post->ID ),
+			'new_post_terms' => wp_get_object_terms( $post->ID, get_object_taxonomies( $post->post_type ) ),
+			'old_post'       => $old_post,
+			'old_post_meta'  => $old_post_meta,
+			'old_post_terms' => $old_post_terms,
+			'old_status'     => $old_status,
 		);
 
 		$this->maybe_log_post_change( $args );
