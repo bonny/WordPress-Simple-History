@@ -10,15 +10,22 @@ You are tasked with adding a changelog entry to the Simple History plugin's read
 ## Instructions
 
 1. Ask the user for the changelog entry text (one line summary of the change)
-2. Read the `readme.txt` file to find the `## Changelog` section
-3. Locate the `### Unreleased` subsection
-4. Add the new entry as the **first item** under `### Unreleased` (most recent entries go on top)
-5. Follow the exact format:
+2. **Determine the category** - Each entry MUST be in one of these categories:
+   - **Added** - New features or functionality
+   - **Changed** - Changes to existing functionality
+   - **Fixed** - Bug fixes
+   - **Deprecated** - Features marked for removal
+   - **Removed** - Features that were removed
+   - **Security** - Security-related fixes or improvements
+3. Read the `readme.txt` file to find the `## Changelog` section
+4. Locate the `### Unreleased` subsection
+5. Add the new entry under the appropriate category within Unreleased, or at the top if no categories exist yet
+6. Follow the exact format:
    - Start with hyphen and 3 spaces: `-   `
-   - Use past tense for completed work: "Fixed...", "Added...", "Changed...", "Removed..."
+   - Begin with the category verb: "Fixed...", "Added...", "Changed...", etc.
    - Be concise and user-focused (explain the user-facing issue/feature, not technical implementation)
    - End with a period
-6. Show the user the added entry and confirm it looks correct
+7. Show the user the added entry and confirm it looks correct
 
 ## Format Examples
 
