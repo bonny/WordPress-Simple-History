@@ -4,6 +4,7 @@ This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, e
 
 @.cursor/rules/
 @code.md
+@docs/wordpress-org-guidelines.md
 
 ## Project Overview
 
