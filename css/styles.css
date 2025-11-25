@@ -1251,6 +1251,19 @@ so add some extra place then to make it look a bit less ugly.
 	margin-bottom: var(--sh-spacing-small);
 }
 
+.sh-PremiumFeatureTeaser .sh-PremiumFeatureBadge {
+	font-size: 0.85em;
+	vertical-align: middle;
+}
+
+.sh-PremiumFeatureTeaser strong {
+	margin-left: var(--sh-spacing-xsmall);
+}
+
+.sh-PremiumFeatureTeaser p:nth-child(2) {
+	color: var(--sh-color-black-2);
+}
+
 .sh-PremiumFeatureTeaser .button {
 	font-size: 0.85em;
 }

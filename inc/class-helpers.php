@@ -1786,10 +1786,10 @@ class Helpers {
 		?>
 		<div class="sh-PremiumFeatureTeaser">
 			<p>
-				<em class="sh-PremiumFeatureBadge" style="font-size: 0.85em; vertical-align: middle;"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em>
-				<strong style="margin-left: 0.25rem;"><?php echo esc_html( $title ); ?></strong>
+				<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em>
+				<strong><?php echo esc_html( $title ); ?></strong>
 			</p>
-			<p style="color: var(--sh-color-black-2);">
+			<p>
 				<?php echo esc_html( $description ); ?>
 			</p>
 			<a href="<?php echo esc_url( $premium_url ); ?>"
