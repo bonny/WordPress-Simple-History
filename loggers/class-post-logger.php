@@ -221,6 +221,14 @@ class Post_Logger extends Logger {
 		$old_post_meta  = $this->old_post_data[ $updated_post->ID ]['post_meta'] ?? null;
 		$old_post_terms = $this->old_post_data[ $updated_post->ID ]['post_terms'] ?? null;
 
+		// If WordPress says this is a new post being created, and we don't have old post data,
+		// assume it was transitioning from auto-draft status.
+		// This ensures post creation is properly detected even when old data wasn't captured.
+		$old_status = $old_post ? $old_post->post_status : null;
+		if ( $creating && ! $old_status ) {
+			$old_status = 'auto-draft';
+		}
+
 		$args = array(
 			'new_post'       => $updated_post,
 			'new_post_meta'  => $post_meta,
@@ -228,7 +236,7 @@ class Post_Logger extends Logger {
 			'old_post'       => $old_post,
 			'old_post_meta'  => $old_post_meta,
 			'old_post_terms' => $old_post_terms,
-			'old_status'     => $old_post ? $old_post->post_status : null,
+			'old_status'     => $old_status,
 		);
 
 		$this->maybe_log_post_change( $args );
@@ -707,11 +715,22 @@ class Post_Logger extends Logger {
 			'post_title' => get_the_title( $post ),
 		);
 
-		if ( 'auto-draft' === $old_status && ( 'auto-draft' !== $new_status && 'inherit' !== $new_status ) ) {
+		// Check if this is a post being created.
+		// This includes both manual creation (auto-draft -> draft/publish)
+		// and auto-save creation (auto-draft -> draft).
+		$is_post_created = 'auto-draft' === $old_status && ( 'auto-draft' !== $new_status && 'inherit' !== $new_status );
+
+		if ( $is_post_created ) {
 			// Post created.
+			// Add context to indicate if this was auto-created by WordPress (auto-save)
+			// vs manually created by user clicking Save/Publish.
+			if ( 'draft' === $new_status && $is_autosave ) {
+				$context['post_auto_created'] = true;
+			}
+
 			$this->info_message( 'post_created', $context );
 		} elseif ( 'auto-draft' === $new_status || ( 'new' === $old_status && 'inherit' === $new_status ) ) {
-			// Post was automagically saved by WordPress.
+			// Post was automagically saved by WordPress but not yet created (still auto-draft).
 			return;
 		} elseif ( 'trash' === $new_status ) {
 			// Post trashed.
@@ -777,10 +796,14 @@ class Post_Logger extends Logger {
 	 * @param \WP_Post $post New updated post.
 	 */
 	public function on_transition_post_status( $new_status, $old_status, $post ) {
-		$isRestApiRequest = defined( 'REST_REQUEST' ) && REST_REQUEST;
+		$isRestApiRequest       = defined( 'REST_REQUEST' ) && REST_REQUEST;
+		$isAutosave             = defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE;
+		$isAutosaveCreatingPost = $isAutosave && 'auto-draft' === $old_status && 'draft' === $new_status;
 
-		// Bail if this is a rest request.
-		if ( $isRestApiRequest ) {
+		// Bail if this is a REST API request, EXCEPT for autosaves that create posts.
+		// Autosaves from Gutenberg use the REST API but we want to log when they
+		// transition from auto-draft to draft (which represents post creation).
+		if ( $isRestApiRequest && ! $isAutosaveCreatingPost ) {
 			return;
 		}
 
