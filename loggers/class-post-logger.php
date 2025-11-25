@@ -2,6 +2,8 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
 
 /**
@@ -1480,6 +1482,28 @@ class Post_Logger extends Logger {
 			}
 
 			$out .= $diff_table_output;
+		} elseif ( 'post_created' == $message_key ) {
+			// Show initial post content for created posts using Event_Details classes.
+			// The Event Details system will automatically read values from context.
+			$event_details_group = new Event_Details_Group();
+			$event_details_group->add_items(
+				[
+					new Event_Details_Item(
+						'post_new_post_content',
+						__( 'Content', 'simple-history' )
+					),
+					new Event_Details_Item(
+						'post_new_post_excerpt',
+						__( 'Excerpt', 'simple-history' )
+					),
+					new Event_Details_Item(
+						'post_new_status',
+						__( 'Status', 'simple-history' )
+					),
+				]
+			);
+
+			return $event_details_group;
 		}
 
 		return $out;
