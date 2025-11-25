@@ -66,13 +66,13 @@ class RSS_Dropin extends Dropin {
 		$settings_section_rss_id = 'simple_history_settings_section_rss';
 
 		/**
-		 * Filters the title for the RSS feed section headline.
+		 * Filters the title for the feeds section headline.
 		 *
 		 * @var string $rss_section_title
 		 */
 		$rss_section_title = apply_filters(
 			'simple_history/feeds/settings_section_title',
-			_x( 'RSS feed', 'rss settings headline', 'simple-history' )
+			_x( 'RSS and JSON feeds', 'feeds settings headline', 'simple-history' )
 		);
 
 		Helpers::add_settings_section(
@@ -172,7 +172,7 @@ class RSS_Dropin extends Dropin {
 		 */
 		$enable_rss_text = apply_filters(
 			'simple_history/feeds/enable_feeds_checkbox_text',
-			__( 'Enable RSS feed', 'simple-history' )
+			__( 'Enable feed', 'simple-history' )
 		);
 
 		?>
@@ -479,15 +479,6 @@ class RSS_Dropin extends Dropin {
 	 * Output for settings field that show current RSS address.
 	 */
 	public function settings_field_rss() {
-		printf(
-			'<p>
-				<code>
-					<a id="simple_history_rss_feed_address" href="%1$s">%1$s</a>
-				</code>
-			</p>',
-			esc_url( $this->get_rss_address() )
-		);
-
 		echo '<p class="simple_history_rss_feed_query_parameters">';
 		echo wp_kses(
 			sprintf(
@@ -504,6 +495,27 @@ class RSS_Dropin extends Dropin {
 			]
 		);
 		echo '</p>';
+		echo '<br />';
+
+		printf(
+			'
+			<p>
+				<strong>
+					%1$s
+				</strong>
+			</p>
+			',
+			esc_html__( 'RSS feed', 'simple-history' ) // 1
+		);
+		
+		printf(
+			'<p>
+				<code>
+					<a id="simple_history_rss_feed_address" href="%1$s">%1$s</a>
+				</code>
+			</p>',
+			esc_url( $this->get_rss_address() )
+		);
 
 		/**
 		 * Fires after the RSS address has been output.
@@ -521,7 +533,7 @@ class RSS_Dropin extends Dropin {
 		$update_link = wp_nonce_url( $update_link, 'simple_history_rss_update_secret', 'simple_history_rss_secret_regenerate_nonce' );
 
 		echo '<p>';
-		esc_html_e( 'You can generate a new address for the RSS feed. This is useful if you think that the address has fallen into the wrong hands.', 'simple-history' );
+		esc_html_e( 'You can generate a new secret for the feeds. This is useful if you think that the address has fallen into the wrong hands.', 'simple-history' );
 		echo '</p>';
 
 		echo '<p>';
@@ -558,9 +570,33 @@ class RSS_Dropin extends Dropin {
 	 * Called from add_sections_setting.
 	 */
 	public function settings_section_output() {
-		echo '<p>';
-		esc_html_e( 'Simple History has a RSS feed which you can subscribe to and receive log updates. Make sure you only share the feed with people you trust, since it can contain sensitive or confidential information.', 'simple-history' );
-		echo '</p>';
+		?>
+		<p>
+			<strong><?php esc_html_e( 'Monitor your site activity in real-time with feeds.', 'simple-history' ); ?></strong>
+		</p>
+		<p>
+			<?php esc_html_e( 'Get updates on logins, content changes, plugin activity and more—delivered to your feed reader or monitoring tools. Perfect for staying informed without constantly checking your dashboard.', 'simple-history' ); ?>
+		</p>
+		<p>
+			<?php esc_html_e( 'Make sure you only share the feeds with people you trust, since they can contain sensitive or confidential information.', 'simple-history' ); ?>
+		</p>
+		<?php
+
+		/**
+		 * Allow premium to add additional feed information.
+		 *
+		 * @since 4.0
+		 */
+		do_action( 'simple_history/feeds/settings_section_description' );
+
+		// Show premium teaser for JSON feed.
+		echo wp_kses_post(
+			Helpers::get_premium_feature_teaser(
+				__( 'JSON Feed Available', 'simple-history' ),
+				__( 'Integrate with modern tools and services using the structured JSON feed format. Perfect for automation, monitoring systems, and custom integrations.', 'simple-history' ),
+				'premium_feeds_settings'
+			)
+		);
 	}
 
 	/**
