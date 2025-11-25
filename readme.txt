@@ -336,30 +336,44 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
--   Fixed post creation via Gutenberg autosave not being logged, causing email reports to show 0 posts created.
+**Added**
+
 -   Add developer mode badge to the page header.
 -   Add WordPress VIP Go coding standards for enterprise compatibility.
--   Show an error message when trying to view an event that does not exist.
--   Admin Bar Quick View: Display count of similar events (occasions) on a new line below the main event message and style it.
--   Tested up to WordPress 6.9.
 -   Add logging of new [notes feature in WordPress 6.9](https://make.wordpress.org/core/2025/11/15/notes-feature-in-wordpress-6-9/). [#599](https://github.com/bonny/WordPress-Simple-History/issues/599).
 -   Add rollback context to plugin update failed events.
--   Add logging of failed theme updates
--   Decrease font size on stats sidebar stats box to fit more events.
--   Insights sidebar: Clicks on users should also filter the log by 30 days
+-   Add logging of failed theme updates.
+-   Add filter `simple_history/show_promo_boxes` to determine if promo boxes should be shown.
+-   Add support for negative filters in the event log query API, to the REST API, and to WP-CLI. [#86](https://github.com/bonny/WordPress-Simple-History/issues/86).
+
+**Changed**
+
+-   Admin Bar Quick View: Display count of similar events (occasions) on a new line below the main event message and style it.
+-   Tested up to WordPress 6.9.
+-   Insights sidebar: Clicks on users should also filter the log by 30 days.
 -   Insights sidebar: Update text to show current events in database and total events logged with links to settings page for retention period.
 -   Insights sidebar: Improve messages for message count.
+-   Decrease font size on stats sidebar stats box to fit more events.
 -   Misc internal code improvements and changes.
 -   Misc UI improvements and changes.
--   Add filter `simple_history/show_promo_boxes` to determine if promo boxes should be shown.
--   Also hide sidebar donation box, support box, review box when promo boxes are hidden. This makes the plugin even more clean when using the premium add-on.
 -   Reduce number of HTTP requests by consolidating the small sidebar CSS file (just 4 rules) into the main stylesheet that's already being loaded on the page.
--   Fix sidebar stats box styling conflict with premium add-on.
--   Fixed incorrect timezone handling for imported user registration dates
--   Remove donation box from sidebar and move hosting sponsor acknowledgment to Help & Support page for cleaner UI focused on premium offerings.
 -   Stop polling for new events after 10+ new events are detected to reduce server resource consumption from inactive browser tabs.
--   Add support for negative filters in the event log query API, to the REST API, and to WP-CLI. [#86](https://github.com/bonny/WordPress-Simple-History/issues/86).
--   Fix warning about invalid HTML nesting in the log GUI filters. [#548](https://github.com/bonny/WordPress-Simple-History/issues/548).
+
+**Fixed**
+
+-   Fixed post creation via Gutenberg autosave not being logged, causing email reports to show 0 posts created.
+-   Fixed incorrect timezone handling for imported user registration dates.
+-   Fixed sidebar stats box styling conflict with premium add-on.
+-   Fixed warning about invalid HTML nesting in the log GUI filters. [#548](https://github.com/bonny/WordPress-Simple-History/issues/548).
+
+**Removed**
+
+-   Remove donation box from sidebar and move hosting sponsor acknowledgment to Help & Support page for cleaner UI focused on premium offerings.
+
+**Other**
+
+-   Show an error message when trying to view an event that does not exist.
+-   Also hide sidebar donation box, support box, review box when promo boxes are hidden. This makes the plugin even more clean when using the premium add-on.
 
 ### 5.18.0 (November 2025)
 
