@@ -625,6 +625,7 @@ class Post_Logger extends Logger {
 			$ok_to_log = false;
 		}
 
+		$is_autosave      = defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE;
 		$isXmlRpcRequest  = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
 		$isRestApiRequest =
 			( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
