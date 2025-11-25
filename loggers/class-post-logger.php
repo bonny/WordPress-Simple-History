@@ -3,6 +3,7 @@
 namespace Simple_History\Loggers;
 
 use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
 
@@ -1485,7 +1486,9 @@ class Post_Logger extends Logger {
 		} elseif ( 'post_created' == $message_key ) {
 			// Show initial post content for created posts using Event_Details classes.
 			// The Event Details system will automatically read values from context.
+			// Using diff table formatter for consistency with post_updated display.
 			$event_details_group = new Event_Details_Group();
+			$event_details_group->set_formatter( new Event_Details_Group_Diff_Table_Formatter() );
 			$event_details_group->add_items(
 				[
 					new Event_Details_Item(
