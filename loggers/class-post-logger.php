@@ -625,9 +625,12 @@ class Post_Logger extends Logger {
 			$ok_to_log = false;
 		}
 
+		$isXmlRpcRequest  = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
+		$isRestApiRequest =
+			( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+
 		// Except when calls are from/for Jetpack/WordPress apps.
 		// seems to be jetpack/app request when $_GET["for"] == "jetpack.
-		$isXmlRpcRequest = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $isXmlRpcRequest && isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] ) {
 			$ok_to_log = true;
@@ -635,8 +638,6 @@ class Post_Logger extends Logger {
 
 		// Also accept calls from REST API.
 		// "REST_API_REQUEST" is used by Jetpack I believe.
-		$isRestApiRequest =
-			( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
 		if ( $isRestApiRequest ) {
 			$ok_to_log = true;
 		}
