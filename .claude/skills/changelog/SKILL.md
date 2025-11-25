@@ -35,7 +35,34 @@ Good examples from existing changelog:
 - **User-focused**: Explain what users will notice, not how it was implemented
 - **Concise**: Keep to one line when possible
 - **Active voice**: "Fixed X" not "X was fixed"
-- Link to GitHub issue or pull request if available.
+- Link to GitHub issue or pull request if available
+
+## WordPress Changelog Best Practices
+
+Based on [WordPress Developer Blog guidance](https://developer.wordpress.org/news/2025/11/the-importance-of-a-good-changelog/):
+
+### Writing Style
+- **Write for end-users, not developers** - Avoid technical jargon
+- **Be specific, not vague** - "Fixed a PHP 8.2 deprecation warning causing admin dashboard errors" NOT "Bug fixes"
+- **Explain the impact** - Include context about why changes matter (performance, security, workflow improvements)
+- **Use accessible language** - Avoid cultural references or overly technical terminology
+
+### Structure
+- Use clear category labels: Added, Changed, Fixed, Deprecated, Removed, Security
+- Maintain consistency across releases
+- Each entry should be actionable and descriptive
+
+### Good vs Bad Examples
+
+❌ **Problematic:**
+- "Bug fixes"
+- "Various improvements"
+- "Updated code"
+
+✅ **Effective:**
+- "Fixed post creation via Gutenberg autosave not being logged, causing email reports to show 0 posts created"
+- "Added developer mode badge to improve debugging workflow"
+- "Fixed timezone handling issues that caused email reports to show incorrect dates"
 
 ## File Location
 
@@ -45,5 +72,5 @@ Good examples from existing changelog:
 ## Notes
 
 - If "Unreleased" section doesn't exist, create it right after "## Changelog"
-- Entries use format from https://keepachangelog.com
+- Entries use format from https://keepachangelog.com and WordPress best practices
 - Most recent entries appear first in the list
