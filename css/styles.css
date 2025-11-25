@@ -1112,6 +1112,33 @@ so add some extra place then to make it look a bit less ugly.
 	letter-spacing: 0.5px;
 }
 
+.sh-PageHeader-premiumBadge {
+	background-color: #949494;
+	color: var(--sh-color-white);
+	font-size: var(--sh-font-size-small);
+	font-weight: 600;
+	padding: var(--sh-spacing-xxsmall) var(--sh-spacing-small);
+	border-radius: var(--sh-border-radius);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-left: var(--sh-spacing-small);
+	border: none;
+	cursor: pointer;
+}
+
+.sh-PageHeader-premiumBadge--active {
+	background-color: #00a32a;
+}
+
+.sh-PageHeader-premiumBadge--inactive {
+	background-color: #d63638;
+}
+
+.sh-PageHeader-premiumBadge:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+
 .sh-NotificationBar {
 	position: relative;
 	text-align: center;

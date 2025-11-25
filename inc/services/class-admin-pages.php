@@ -178,7 +178,23 @@ class Admin_Pages extends Service {
 				if ( Helpers::dev_mode_is_enabled() ) {
 					?>
 					<span class="sh-PageHeader-devBadge" title="<?php esc_attr_e( 'Developer mode is enabled via SIMPLE_HISTORY_DEV constant', 'simple-history' ); ?>"><?php esc_html_e( 'Dev', 'simple-history' ); ?></span>
-					<?php 
+					<?php
+					// Display premium plugin toggle badge when dev mode is enabled.
+					$is_premium_active = Helpers::is_premium_add_on_active();
+					$badge_class       = $is_premium_active ? 'sh-PageHeader-premiumBadge--active' : 'sh-PageHeader-premiumBadge--inactive';
+					$badge_text        = $is_premium_active ? __( 'Premium: ON', 'simple-history' ) : __( 'Premium: OFF', 'simple-history' );
+					$badge_title       = $is_premium_active ? __( 'Click to deactivate premium add-on', 'simple-history' ) : __( 'Click to activate premium add-on', 'simple-history' );
+					?>
+					<button
+						class="sh-PageHeader-premiumBadge <?php echo esc_attr( $badge_class ); ?>"
+						id="sh-premium-toggle"
+						title="<?php echo esc_attr( $badge_title ); ?>"
+						data-plugin="simple-history-premium/simple-history-premium.php"
+						data-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
+					>
+						<?php echo esc_html( $badge_text ); ?>
+					</button>
+					<?php
 				}
 				?>
 			</div>
