@@ -1789,12 +1789,14 @@ class Helpers {
 				<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em>
 				<strong><?php echo esc_html( $title ); ?></strong>
 			</p>
+			
 			<p>
 				<?php echo esc_html( $description ); ?>
 			</p>
+			
 			<a href="<?php echo esc_url( $premium_url ); ?>"
 				target="_blank"
-				class="button button-small">
+				class="sh-PremiumFeatureTeaser-ctaLink">
 				<?php echo esc_html( $button_text ); ?>
 			</a>
 		</div>
