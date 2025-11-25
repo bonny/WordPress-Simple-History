@@ -336,6 +336,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+-   Fixed post creation via Gutenberg autosave not being logged, causing email reports to show 0 posts created.
 -   Add developer mode badge to the page header.
 -   Add WordPress VIP Go coding standards for enterprise compatibility.
 -   Show an error message when trying to view an event that does not exist.
