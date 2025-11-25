@@ -1208,6 +1208,26 @@ so add some extra place then to make it look a bit less ugly.
 	font-style: normal;
 }
 
+.sh-PremiumFeatureTeaser {
+	background: var(--sh-color-cream);
+	padding: var(--sh-spacing-medium);
+	border-radius: 4px;
+	margin-top: var(--sh-spacing-medium);
+	font-size: 0.9em;
+}
+
+.sh-PremiumFeatureTeaser p {
+	margin: 0 0 var(--sh-spacing-small);
+}
+
+.sh-PremiumFeatureTeaser p:last-of-type {
+	margin-bottom: var(--sh-spacing-small);
+}
+
+.sh-PremiumFeatureTeaser .button {
+	font-size: 0.85em;
+}
+
 .sh-PageNav {
 	width: 100%;
 	display: flex;

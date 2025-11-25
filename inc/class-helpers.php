@@ -1759,6 +1759,50 @@ class Helpers {
 	}
 
 	/**
+	 * Get HTML for a premium feature teaser box.
+	 *
+	 * Note: When echoing the output, wrap it in wp_kses_post() to satisfy PHPCS:
+	 * echo wp_kses_post( Helpers::get_premium_feature_teaser( ... ) );
+	 *
+	 * @param string $title The title/heading for the premium feature.
+	 * @param string $description The description of the premium feature.
+	 * @param string $tracking_param The tracking parameter for the "Learn More" link (e.g., 'premium_feeds_settings').
+	 * @param string $button_text Optional. The text for the button. Default: 'Learn More'.
+	 * @return string HTML for the premium teaser box, or empty string if promo boxes should not be shown.
+	 */
+	public static function get_premium_feature_teaser( $title, $description, $tracking_param, $button_text = '' ) {
+		// Only show premium teaser if premium is not installed.
+		if ( ! self::show_promo_boxes() ) {
+			return '';
+		}
+
+		if ( empty( $button_text ) ) {
+			$button_text = __( 'Learn More', 'simple-history' );
+		}
+
+		$premium_url = self::get_tracking_url( 'https://simple-history.com/add-ons/premium/', $tracking_param );
+
+		ob_start();
+		?>
+		<div class="sh-PremiumFeatureTeaser">
+			<p>
+				<em class="sh-PremiumFeatureBadge" style="font-size: 0.85em; vertical-align: middle;"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em>
+				<strong style="margin-left: 0.25rem;"><?php echo esc_html( $title ); ?></strong>
+			</p>
+			<p style="color: var(--sh-color-black-2);">
+				<?php echo esc_html( $description ); ?>
+			</p>
+			<a href="<?php echo esc_url( $premium_url ); ?>"
+				target="_blank"
+				class="button button-small">
+				<?php echo esc_html( $button_text ); ?>
+			</a>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
 	 * Check if premium add-on is active.
 	 *
 	 * @return bool True if premium add-on is active, false otherwise.
