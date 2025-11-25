@@ -1101,40 +1101,50 @@ so add some extra place then to make it look a bit less ugly.
 	--sh-icon-size: 25px;
 }
 
-.sh-PageHeader-devBadge {
-	background-color: #2271b1;
-	color: #fff;
+/* Base badge styles shared by all header badges */
+.sh-PageHeader-badge {
+	color: var(--sh-color-white);
 	font-size: 9px;
 	font-weight: 600;
-	padding: 2px 6px;
-	border-radius: 3px;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-.sh-PageHeader-premiumBadge {
-	background-color: #949494;
-	color: var(--sh-color-white);
-	font-size: var(--sh-font-size-small);
-	font-weight: 600;
-	padding: var(--sh-spacing-xxsmall) var(--sh-spacing-small);
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
 	border-radius: var(--sh-border-radius);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
+	line-height: 1;
 	margin-left: var(--sh-spacing-small);
-	border: none;
-	cursor: pointer;
 }
 
-.sh-PageHeader-premiumBadge--active {
+/* Dev badge variant */
+.sh-PageHeader-badge--dev {
+	background-color: #2271b1;
+}
+
+/* Premium toggle badge variant */
+.sh-PageHeader-badge--premiumToggle {
+	border: none;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	vertical-align: middle;
+}
+
+.sh-PageHeader-badge--premiumToggle .dashicons {
+	font-size: 10px;
+	width: 10px;
+	height: 10px;
+	line-height: 1;
+}
+
+.sh-PageHeader-badge--premiumToggle.is-active {
 	background-color: #00a32a;
 }
 
-.sh-PageHeader-premiumBadge--inactive {
+.sh-PageHeader-badge--premiumToggle.is-inactive {
 	background-color: #d63638;
 }
 
-.sh-PageHeader-premiumBadge:disabled {
+.sh-PageHeader-badge--premiumToggle:disabled {
 	opacity: 0.6;
 	cursor: wait;
 }
