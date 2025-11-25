@@ -348,6 +348,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
+-   Post creation events now capture initial post content, excerpt, and status transitions to provide complete audit trail without information gaps.
 -   Admin Bar Quick View: Display count of similar events (occasions) on a new line below the main event message and style it.
 -   Tested up to WordPress 6.9.
 -   Insights sidebar: Clicks on users should also filter the log by 30 days.
