@@ -18,7 +18,11 @@ The information available in WordPress for historical events are very limited, b
 
 - [x] Add tools page with backfill information for core users and backfill functionality for premium users
 - [x] Add "Backfill" tab under Tools menu with GUI for historical data import
-- [ ] Pre-fill log by importing 60 days back when plugin is installed
+- [ ] Enable backfill functions only for premium users
+  - [ ] Tools » Backfill should only contain upsell info for non-premium users
+  - [ ] Actual backfill functionality should be premium-only
+- [ ] Pre-fill log by importing 60 days back when plugin is installed (automatic backfill on first install)
+- [ ] Check where "60 days" comes from and make that into a variable or function if not already
 
 ## Progress
 
