@@ -1764,10 +1764,10 @@ class Helpers {
 	 * Note: When echoing the output, wrap it in wp_kses_post() to satisfy PHPCS:
 	 * echo wp_kses_post( Helpers::get_premium_feature_teaser( ... ) );
 	 *
-	 * @param string $title The title/heading for the premium feature.
-	 * @param string $description The description of the premium feature.
-	 * @param string $tracking_param The tracking parameter for the "Learn More" link (e.g., 'premium_feeds_settings').
-	 * @param string $button_text Optional. The text for the button. Default: 'Learn More'.
+	 * @param string       $title The title/heading for the premium feature.
+	 * @param string|array $description The description of the premium feature, or an array of feature strings for a bullet list.
+	 * @param string       $tracking_param The tracking parameter for the "Learn More" link (e.g., 'premium_feeds_settings').
+	 * @param string       $button_text Optional. The text for the button. Default: 'Learn More'.
 	 * @return string HTML for the premium teaser box, or empty string if promo boxes should not be shown.
 	 */
 	public static function get_premium_feature_teaser( $title, $description, $tracking_param, $button_text = '' ) {
@@ -1785,20 +1785,33 @@ class Helpers {
 		ob_start();
 		?>
 		<div class="sh-PremiumFeatureTeaser">
-			<p>
+			<p class="sh-PremiumFeatureTeaser-title">
 				<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em>
 				<strong><?php echo esc_html( $title ); ?></strong>
 			</p>
-			
-			<p>
-				<?php echo esc_html( $description ); ?>
+
+			<?php if ( is_array( $description ) ) { ?>
+				<ul class="sh-PremiumFeatureTeaser-features">
+					<?php foreach ( $description as $feature ) { ?>
+						<li>
+							<span class="dashicons dashicons-yes"></span>
+							<?php echo esc_html( $feature ); ?>
+						</li>
+					<?php } ?>
+				</ul>
+			<?php } else { ?>
+				<p>
+					<?php echo esc_html( $description ); ?>
+				</p>
+			<?php } ?>
+
+			<p class="sh-PremiumFeatureTeaser-ctaLinkContainer">
+				<a href="<?php echo esc_url( $premium_url ); ?>"
+					target="_blank"
+					class="sh-PremiumFeatureTeaser-ctaLink">
+					<?php echo esc_html( $button_text ); ?>
+				</a>
 			</p>
-			
-			<a href="<?php echo esc_url( $premium_url ); ?>"
-				target="_blank"
-				class="sh-PremiumFeatureTeaser-ctaLink">
-				<?php echo esc_html( $button_text ); ?>
-			</a>
 		</div>
 		<?php
 		return ob_get_clean();
