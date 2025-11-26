@@ -523,6 +523,15 @@ class RSS_Dropin extends Dropin {
 		 * @param RSS_Dropin $instance
 		 */
 		do_action( 'simple_history/feeds/after_address', $this );
+
+		// Show premium teaser for JSON feed, after the RSS feed address.
+		echo wp_kses_post(
+			Helpers::get_premium_feature_teaser(
+				__( 'JSON Feed Available', 'simple-history' ),
+				__( 'Integrate with modern tools and services using the structured JSON feed format. Perfect for automation, monitoring systems, and custom integrations.', 'simple-history' ),
+				'premium_feeds_settings'
+			)
+		);
 	}
 
 	/**
@@ -588,15 +597,6 @@ class RSS_Dropin extends Dropin {
 		 * @since 4.0
 		 */
 		do_action( 'simple_history/feeds/settings_section_description' );
-
-		// Show premium teaser for JSON feed.
-		echo wp_kses_post(
-			Helpers::get_premium_feature_teaser(
-				__( 'JSON Feed Available', 'simple-history' ),
-				__( 'Integrate with modern tools and services using the structured JSON feed format. Perfect for automation, monitoring systems, and custom integrations.', 'simple-history' ),
-				'premium_feeds_settings'
-			)
-		);
 	}
 
 	/**
