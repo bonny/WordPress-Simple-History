@@ -2,6 +2,7 @@
 namespace Simple_History\Loggers;
 
 use Error;
+use Simple_History\Existing_Data_Importer;
 use Simple_History\Log_Initiators;
 use Simple_History\Helpers;
 
@@ -738,7 +739,7 @@ class User_Logger extends Logger {
 
 				// Use simplified message for imported users (no email/role placeholders).
 				// Imported users don't have email/role stored since those can change over time.
-				if ( isset( $context['_imported_event'] ) ) {
+				if ( isset( $context[ Existing_Data_Importer::BACKFILLED_CONTEXT_KEY ] ) ) {
 					$msg = __(
 						'Created user <a href="{edit_profile_link}">{created_user_login}</a>',
 						'simple-history'

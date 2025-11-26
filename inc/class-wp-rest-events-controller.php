@@ -640,8 +640,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Whether the event is sticky and appended to the result set.', 'simple-history' ),
 					'type'        => 'boolean',
 				),
-				'imported'                   => array(
-					'description' => __( 'Whether the event was imported from existing WordPress data.', 'simple-history' ),
+				'backfilled'                 => array(
+					'description' => __( 'Whether the event was backfilled from existing WordPress data.', 'simple-history' ),
 					'type'        => 'boolean',
 				),
 			),
@@ -1011,8 +1011,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['sticky_appended'] = isset( $item->sticky_appended ) ? true : false;
 		}
 
-		if ( Compat::rest_is_field_included( 'imported', $fields ) ) {
-			$data['imported'] = isset( $item->context['_imported_event'] );
+		if ( Compat::rest_is_field_included( 'backfilled', $fields ) ) {
+			$data['backfilled'] = isset( $item->context[ Existing_Data_Importer::BACKFILLED_CONTEXT_KEY ] );
 		}
 
 		if ( Compat::rest_is_field_included( 'context', $fields ) ) {

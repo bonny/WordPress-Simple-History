@@ -11,11 +11,19 @@ namespace Simple_History;
  * - Users (registration dates)
  */
 class Existing_Data_Importer {
+	/**
+	 * Context key used to identify backfilled events.
+	 */
+	const BACKFILLED_CONTEXT_KEY = '_backfilled_event';
+
 	/** @var Simple_History */
 	private $simple_history;
 
 	/** @var array Import results */
 	private $results = [];
+
+	/** @var int|null Number of days back to import (null = use retention setting) */
+	private $days_back = null;
 
 	/**
 	 * Constructor.
@@ -33,6 +41,7 @@ class Existing_Data_Importer {
 	 *                       - post_types: Array of post types to import.
 	 *                       - import_users: Whether to import users.
 	 *                       - limit: Max number of items to import per type.
+	 *                       - days_back: Number of days back to import (null = use retention setting).
 	 * @return array Import results.
 	 */
 	public function import_all( $options = [] ) {
@@ -40,9 +49,14 @@ class Existing_Data_Importer {
 			'post_types'   => [ 'post', 'page' ],
 			'import_users' => false,
 			'limit'        => 100,
+			'days_back'    => null,
 		];
 
 		$options = wp_parse_args( $options, $defaults );
+
+		// Set days_back for use in import methods.
+		// If not specified, use the retention setting (same as purge interval).
+		$this->days_back = $options['days_back'] ?? Helpers::get_clear_history_interval();
 
 		$this->results = [
 			'posts_imported'         => 0,
@@ -107,6 +121,20 @@ class Existing_Data_Importer {
 			'orderby'        => 'date',
 			'order'          => 'ASC',
 		];
+
+		// Add date filtering if days_back is set.
+		// Only import posts created/modified within the retention period.
+		if ( $this->days_back !== null && $this->days_back > 0 ) {
+			$cutoff_timestamp = Date_Helper::get_last_n_days_start_timestamp( $this->days_back );
+			$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
+
+			$args['date_query'] = [
+				[
+					'after'     => $cutoff_date,
+					'inclusive' => true,
+				],
+			];
+		}
 
 		$posts = get_posts( $args );
 
@@ -192,21 +220,23 @@ class Existing_Data_Importer {
 					}
 
 					$context     = [
-						'attachment_id'       => $post->ID,
-						'attachment_title'    => $post->post_title,
-						'attachment_filename' => basename( $file ),
-						'attachment_filesize' => $file_size,
-						'_date'               => $post_date_gmt,
-						'_imported_event'     => '1',
+						'post_type'                  => get_post_type( $post ),
+						'attachment_id'              => $post->ID,
+						'attachment_title'           => $post->post_title,
+						'attachment_filename'        => basename( $file ),
+						'attachment_mime'            => get_post_mime_type( $post ),
+						'attachment_filesize'        => $file_size,
+						'_date'                      => $post_date_gmt,
+						self::BACKFILLED_CONTEXT_KEY => '1',
 					];
 					$message_key = 'attachment_created';
 				} else {
 					$context     = [
-						'post_id'         => $post->ID,
-						'post_type'       => $post->post_type,
-						'post_title'      => $post->post_title,
-						'_date'           => $post_date_gmt,
-						'_imported_event' => '1',
+						'post_id'                    => $post->ID,
+						'post_type'                  => $post->post_type,
+						'post_title'                 => $post->post_title,
+						'_date'                      => $post_date_gmt,
+						self::BACKFILLED_CONTEXT_KEY => '1',
 					];
 					$message_key = 'post_created';
 				}
@@ -244,21 +274,23 @@ class Existing_Data_Importer {
 					}
 
 					$context     = [
-						'attachment_id'       => $post->ID,
-						'attachment_title'    => $post->post_title,
-						'attachment_filename' => basename( $file ),
-						'attachment_filesize' => $file_size,
-						'_date'               => $post_modified_gmt,
-						'_imported_event'     => '1',
+						'post_type'                  => get_post_type( $post ),
+						'attachment_id'              => $post->ID,
+						'attachment_title'           => $post->post_title,
+						'attachment_filename'        => basename( $file ),
+						'attachment_mime'            => get_post_mime_type( $post ),
+						'attachment_filesize'        => $file_size,
+						'_date'                      => $post_modified_gmt,
+						self::BACKFILLED_CONTEXT_KEY => '1',
 					];
 					$message_key = 'attachment_updated';
 				} else {
 					$context     = [
-						'post_id'         => $post->ID,
-						'post_type'       => $post->post_type,
-						'post_title'      => $post->post_title,
-						'_date'           => $post_modified_gmt,
-						'_imported_event' => '1',
+						'post_id'                    => $post->ID,
+						'post_type'                  => $post->post_type,
+						'post_title'                 => $post->post_title,
+						'_date'                      => $post_modified_gmt,
+						self::BACKFILLED_CONTEXT_KEY => '1',
 					];
 					$message_key = 'post_updated';
 				}
@@ -316,6 +348,21 @@ class Existing_Data_Importer {
 			'order'   => 'ASC',
 		];
 
+		// Add date filtering if days_back is set.
+		// Only import users registered within the retention period.
+		if ( $this->days_back !== null && $this->days_back > 0 ) {
+			$cutoff_timestamp = Date_Helper::get_last_n_days_start_timestamp( $this->days_back );
+			$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
+
+			// Use date_query for users (available since WP 4.1).
+			$args['date_query'] = [
+				[
+					'after'     => $cutoff_date,
+					'inclusive' => true,
+				],
+			];
+		}
+
 		$users = get_users( $args );
 
 		// Get all user IDs to check for duplicates.
@@ -355,13 +402,13 @@ class Existing_Data_Importer {
 			$user_logger->info_message(
 				'user_created',
 				[
-					'created_user_id'    => $user->ID,
-					'created_user_login' => $user->user_login,
+					'created_user_id'            => $user->ID,
+					'created_user_login'         => $user->user_login,
 					// user_registered is stored in GMT by WordPress (using gmdate).
 					// Pass it directly to logger, which expects GMT dates.
-					'_date'              => $user->user_registered,
-					'_initiator'         => Log_Initiators::OTHER,
-					'_imported_event'    => '1',
+					'_date'                      => $user->user_registered,
+					'_initiator'                 => Log_Initiators::OTHER,
+					self::BACKFILLED_CONTEXT_KEY => '1',
 				]
 			);
 
@@ -415,21 +462,26 @@ class Existing_Data_Importer {
 		$context_key = in_array( $message_key, [ 'attachment_created', 'attachment_updated' ], true ) ? 'attachment_id' : 'post_id';
 
 		// Find events with matching post_id/attachment_id and message_key.
-		// Use LEFT JOIN to detect if _imported_event exists (1 = imported, 0 = naturally logged).
+		// Use LEFT JOIN to detect if backfilled event exists (1 = imported, 0 = naturally logged).
+		$backfill_key = self::BACKFILLED_CONTEXT_KEY;
+
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 		$sql = $wpdb->prepare(
 			"SELECT DISTINCT
 				c1.value as post_id,
-				MAX(CASE WHEN c2.key = '_imported_event' THEN 1 ELSE 0 END) as is_imported
+				MAX(CASE WHEN c2.key = %s THEN 1 ELSE 0 END) as is_imported
 			FROM {$contexts_table} c1
-			LEFT JOIN {$contexts_table} c2 ON c1.history_id = c2.history_id AND c2.key = '_imported_event'
+			LEFT JOIN {$contexts_table} c2 ON c1.history_id = c2.history_id AND c2.key = %s
 			INNER JOIN {$contexts_table} c3 ON c1.history_id = c3.history_id
 			WHERE c1.key = %s
-			  AND c1.value IN (" . implode( ',', array_map( 'intval', $post_ids ) ) . ")
-			  AND c3.key = '_message_key'
+			  AND c1.value IN (" . implode( ',', array_map( 'intval', $post_ids ) ) . ')
+			  AND c3.key = %s
 			  AND c3.value = %s
-			GROUP BY c1.value",
+			GROUP BY c1.value',
+			$backfill_key,
+			$backfill_key,
 			$context_key,
+			'_message_key',
 			$message_key
 		);
 
@@ -464,19 +516,28 @@ class Existing_Data_Importer {
 		$contexts_table = $this->simple_history->get_contexts_table_name();
 
 		// Find events with matching created_user_id.
-		// Use LEFT JOIN to detect if _imported_event exists (1 = imported, 0 = naturally logged).
+		// Use LEFT JOIN to detect if backfilled event exists (1 = imported, 0 = naturally logged).
+		$backfill_key = self::BACKFILLED_CONTEXT_KEY;
+
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-		$sql = "SELECT DISTINCT
+		$sql = $wpdb->prepare(
+			"SELECT DISTINCT
 				c1.value as user_id,
-				MAX(CASE WHEN c2.key = '_imported_event' THEN 1 ELSE 0 END) as is_imported
+				MAX(CASE WHEN c2.key = %s THEN 1 ELSE 0 END) as is_imported
 			FROM {$contexts_table} c1
-			LEFT JOIN {$contexts_table} c2 ON c1.history_id = c2.history_id AND c2.key = '_imported_event'
+			LEFT JOIN {$contexts_table} c2 ON c1.history_id = c2.history_id AND c2.key = %s
 			INNER JOIN {$contexts_table} c3 ON c1.history_id = c3.history_id
-			WHERE c1.key = 'created_user_id'
-			  AND c1.value IN (" . implode( ',', array_map( 'intval', $user_ids ) ) . ")
-			  AND c3.key = '_message_key'
-			  AND c3.value = 'user_created'
-			GROUP BY c1.value";
+			WHERE c1.key = %s
+			  AND c1.value IN (" . implode( ',', array_map( 'intval', $user_ids ) ) . ')
+			  AND c3.key = %s
+			  AND c3.value = %s
+			GROUP BY c1.value',
+			$backfill_key,
+			$backfill_key,
+			'created_user_id',
+			'_message_key',
+			'user_created'
+		);
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		$results = $wpdb->get_results( $sql, ARRAY_A );
@@ -552,6 +613,158 @@ class Existing_Data_Importer {
 	}
 
 	/**
+	 * Count all backfilled events.
+	 *
+	 * Counts events that have the _backfilled_event context key,
+	 * which indicates they were created during a backfill operation.
+	 *
+	 * @return int Number of backfilled events.
+	 */
+	public function get_backfilled_events_count() {
+		global $wpdb;
+
+		$context_table_name = $this->simple_history->get_contexts_table_name();
+
+		// Count events with the _backfilled_event context key.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(DISTINCT history_id) FROM {$context_table_name} WHERE `key` = %s",
+				self::BACKFILLED_CONTEXT_KEY
+			)
+		);
+
+		return (int) $count;
+	}
+
+	/**
+	 * Get a preview of what the auto-backfill would import.
+	 *
+	 * Uses the same parameters as the auto-backfill service to provide
+	 * an accurate estimate of what would be imported.
+	 *
+	 * @param array $options Preview options.
+	 *                       - post_types: Array of post types to check.
+	 *                       - include_users: Whether to include users.
+	 *                       - limit: Max number of items per type.
+	 *                       - days_back: Number of days back to check.
+	 * @return array Preview data with counts per type.
+	 */
+	public function get_auto_backfill_preview( $options = [] ) {
+		$defaults = [
+			'post_types'    => [ 'post', 'page' ],
+			'include_users' => true,
+			'limit'         => 100,
+			'days_back'     => Helpers::get_clear_history_interval(),
+		];
+
+		$options = wp_parse_args( $options, $defaults );
+
+		$preview = [
+			'post_types'     => [],
+			'users'          => 0,
+			'total'          => 0,
+			'days_back'      => $options['days_back'],
+			'limit_per_type' => $options['limit'],
+		];
+
+		// Calculate cutoff date.
+		$cutoff_timestamp = Date_Helper::get_last_n_days_start_timestamp( $options['days_back'] );
+		$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
+
+		// Count posts for each post type.
+		foreach ( $options['post_types'] as $post_type ) {
+			$post_type_obj = get_post_type_object( $post_type );
+			if ( ! $post_type_obj ) {
+				continue;
+			}
+
+			// Attachments use 'inherit' status, not 'publish'.
+			if ( 'attachment' === $post_type ) {
+				$post_statuses = [ 'inherit', 'private' ];
+			} else {
+				$post_statuses = [ 'publish', 'draft', 'pending', 'private' ];
+			}
+
+			$args = [
+				'post_type'      => $post_type,
+				'post_status'    => $post_statuses,
+				'posts_per_page' => $options['limit'],
+				'orderby'        => 'date',
+				'order'          => 'ASC',
+				'fields'         => 'ids',
+				'date_query'     => [
+					[
+						'after'     => $cutoff_date,
+						'inclusive' => true,
+					],
+				],
+			];
+
+			$post_ids = get_posts( $args );
+			$count    = count( $post_ids );
+
+			// Check how many are already logged.
+			$already_logged_count = 0;
+			if ( ! empty( $post_ids ) ) {
+				$message_key          = ( 'attachment' === $post_type ) ? 'attachment_created' : 'post_created';
+				$already_logged       = $this->get_already_logged_post_ids( $post_ids, $message_key );
+				$already_logged_count = count( $already_logged );
+			}
+
+			$would_import = max( 0, $count - $already_logged_count );
+
+			$preview['post_types'][ $post_type ] = [
+				'label'          => $post_type_obj->labels->name,
+				'available'      => $count,
+				'already_logged' => $already_logged_count,
+				'would_import'   => $would_import,
+			];
+
+			$preview['total'] += $would_import;
+		}
+
+		// Count users if included.
+		if ( $options['include_users'] ) {
+			$user_args = [
+				'number'     => $options['limit'],
+				'orderby'    => 'registered',
+				'order'      => 'ASC',
+				'fields'     => 'ID',
+				'date_query' => [
+					[
+						'after'     => $cutoff_date,
+						'inclusive' => true,
+					],
+				],
+			];
+
+			$user_ids = get_users( $user_args );
+			$count    = count( $user_ids );
+
+			// Check how many are already logged.
+			$already_logged_count = 0;
+			if ( ! empty( $user_ids ) ) {
+				$already_logged       = $this->get_already_logged_user_ids( $user_ids );
+				$already_logged_count = count( $already_logged );
+			}
+
+			$would_import = max( 0, $count - $already_logged_count );
+
+			$preview['users'] = [
+				'available'      => $count,
+				'already_logged' => $already_logged_count,
+				'would_import'   => $would_import,
+			];
+
+			$preview['total'] += $would_import;
+		}
+
+		return $preview;
+	}
+
+	/**
 	 * Delete all imported events.
 	 *
 	 * This is useful for testing - allows you to clear imported data
@@ -565,7 +778,7 @@ class Existing_Data_Importer {
 		$table_name         = $this->simple_history->get_events_table_name();
 		$context_table_name = $this->simple_history->get_contexts_table_name();
 
-		// First, get all history IDs that have the _imported_event context.
+		// First, get all history IDs that have the _backfilled_event context.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		$history_ids = $wpdb->get_col(
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -573,7 +786,7 @@ class Existing_Data_Importer {
 				"SELECT DISTINCT c.history_id
 				FROM {$context_table_name} AS c
 				WHERE c.key = %s",
-				'_imported_event'
+				self::BACKFILLED_CONTEXT_KEY
 			)
 		);      
 
