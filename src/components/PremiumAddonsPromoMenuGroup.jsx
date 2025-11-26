@@ -38,9 +38,9 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 		onCloseDropdownMenu();
 
 		showModal(
-			__( 'Export is a PREMIUM feature', 'simple-history' ),
+			__( 'Unlock Export', 'simple-history' ),
 			__(
-				'The export function supports CSV and JSON and gives you a downloaded file of the current search result.',
+				'Export your current log selection to CSV or JSON. Your active filters are applied, so you get exactly the events you need.',
 				'simple-history'
 			),
 			download,
@@ -52,9 +52,9 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 		onCloseDropdownMenu();
 
 		showModal(
-			__( 'Create log entry is a PREMIUM feature', 'simple-history' ),
+			__( 'Unlock Manual Entries', 'simple-history' ),
 			__(
-				'This feature allows you to manually add custom events to the activity log, using a simple GUI.',
+				'Add custom events to your activity log with a simple form. Perfect for noting important changes or decisions that happen outside WordPress.',
 				'simple-history'
 			),
 			plusCircle,

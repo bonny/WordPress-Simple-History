@@ -28,9 +28,9 @@ export function EventStickMenuItem( { event, onClose, hasPremiumAddOn } ) {
 
 	const handleStickClick = () => {
 		showModal(
-			__( 'Stick events is a PREMIUM feature', 'simple-history' ),
+			__( 'Unlock Sticky Events', 'simple-history' ),
 			__(
-				'This feature lets you stick any event to the top of the list, making important events always visible.',
+				'Pin important events to the top of your log. Great for keeping critical changes visible, like security incidents or major updates.',
 				'simple-history'
 			),
 			pin,
