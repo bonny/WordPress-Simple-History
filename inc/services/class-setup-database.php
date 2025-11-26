@@ -8,6 +8,7 @@ use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
 use Simple_History\Helpers;
 use Simple_History\Loggers\Plugin_Logger;
 use Simple_History\Log_Initiators;
+use Simple_History\Services\Auto_Backfill_Service;
 
 /**
  * Setup database and upgrade it if needed.
@@ -91,11 +92,16 @@ class Setup_Database extends Service {
 
 		// Make sure table is using UTF-8. Early versions did not.
 		$sql = sprintf( 'alter table %1$s charset=utf8;', $table_name );
-		
+
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( $sql );
 
 		$this->update_db_to_version( 1 );
+
+		// Schedule auto-backfill to run shortly after first install.
+		// This populates the history with existing WordPress data (posts, pages, users)
+		// so users don't start with an empty log.
+		Auto_Backfill_Service::schedule_auto_backfill();
 	}
 
 	/**
@@ -418,6 +424,16 @@ class Setup_Database extends Service {
 			$row_template,
 			'👥',
 			__( "If you have multiple users working on this website, you'll find Simple History especially useful . It logs events from all users, providing a centralized view of what's happening. This makes it easy for you to see and understand the activities of other users on the same website.", 'simple-history' )
+		);
+
+		$message .= sprintf(
+			$row_template,
+			'⏰',
+			sprintf(
+				/* translators: %s is a link to the add-ons page */
+				__( 'Simple History will automatically backfill your history with events from existing content. Posts, pages, and user registrations will be added to your log, giving you a head start. Want more control? <a href="%s" target="_blank">Simple History Premium</a> lets you manually run backfill with custom options.', 'simple-history' ),
+				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/', 'premium_welcome_backfill' ) )
+			)
 		);
 
 		$message .= sprintf(
