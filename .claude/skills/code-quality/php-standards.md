@@ -7,6 +7,37 @@
 - **No `mb_*` string functions** - Use standard string functions only
 - **Short array syntax** - Use `[]` not `array()`
 - **Prefixed hooks** - Always prefix with `sh`, `simplehistory`, or `simple_history`
+- **Multi-line PHP blocks** - Never write single-line PHP blocks in templates
+
+## PHP Block Formatting
+
+**Never write single-line PHP blocks.** Always use multi-line format with opening and closing tags on separate lines.
+
+✅ **Correct:**
+
+```php
+<?php
+$count = $importer->get_count();
+?>
+```
+
+```php
+<?php
+if ( $condition ) {
+    do_something();
+}
+?>
+```
+
+❌ **Incorrect:**
+
+```php
+<?php $count = $importer->get_count(); ?>
+```
+
+```php
+<?php if ( $condition ) { ?>
+```
 
 ## Control Structures
 
