@@ -18,11 +18,10 @@ The information available in WordPress for historical events are very limited, b
 
 - [x] Add tools page with backfill information for core users and backfill functionality for premium users
 - [x] Add "Backfill" tab under Tools menu with GUI for historical data import
-- [ ] Enable backfill functions only for premium users
-  - [ ] Tools » Backfill should only contain upsell info for non-premium users
-  - [ ] Actual backfill functionality should be premium-only
-- [ ] Pre-fill log by importing 60 days back when plugin is installed (automatic backfill on first install)
-- [ ] Check where "60 days" comes from and make that into a variable or function if not already
+- [x] Check where "60 days" comes from - FOUND: `Helpers::get_clear_history_interval()` (line 1010)
+- [ ] Phase 1: Add date filtering to `Existing_Data_Importer` (reuse `get_clear_history_interval()`)
+- [ ] Phase 2: Create automatic backfill service (first install only)
+- [ ] Phase 3: Convert core to info + upsell, create premium GUI
 
 ## Progress
 
@@ -126,3 +125,142 @@ Added a new "Backfill" tab under the Tools menu that provides the GUI for genera
 - `dropins/class-tools-menu-dropin.php` (added Backfill to tools list)
 - `src/components/EventImportedIndicator.jsx` (updated indicator text)
 - `css/icons.css` (added sync_arrow_down icon class)
+
+---
+
+## Implementation Plan (Next Steps)
+
+### Phase 1: Add Date Filtering to Core
+
+**Use existing purge interval - NO new constants!**
+
+**Modify:** `inc/class-existing-data-importer.php`
+
+1. Update `import_all()` signature - add `days_back` parameter (default: null)
+2. Update `import_posts()` - add `date_query` filtering using `days_back`
+3. Update `import_users()` - filter by `user_registered` date
+4. Use `Date_Helper::get_last_n_days_start_timestamp()` for cutoff
+5. Default to `Helpers::get_clear_history_interval()` when `days_back` is null
+
+**Result:** Backfill and purge use SAME 60-day interval via `simple_history/db_purge_days_interval` filter
+
+---
+
+### Phase 2: Automatic Backfill on First Install Only
+
+**Core plugin (free) - automatic for all users**
+
+**Create:** `inc/services/class-auto-backfill-service.php`
+- Hook into `simple_history/auto_backfill` cron event
+- Check `simple_history_auto_backfill_status` option to prevent re-runs
+- Run backfill with conservative limits: 100 posts + 100 pages
+- Use `Helpers::get_clear_history_interval()` for date range
+- Log completion/errors to Simple History
+
+**Modify:** `inc/services/class-setup-database.php`
+- Add scheduling to `setup_new_to_version_1()` method (runs ONLY on first install when db_version === 0)
+- Add after `update_db_to_version(1)`:
+  ```php
+  if (!wp_next_scheduled('simple_history/auto_backfill')) {
+      wp_schedule_single_event(time() + 60, 'simple_history/auto_backfill');
+  }
+  ```
+- **DO NOT create setup_version_7_to_version_8()** - that would run on upgrades!
+
+**Register:** Add `Auto_Backfill_Service` to services array
+
+---
+
+### Phase 3: Premium-Only Manual Backfill GUI
+
+#### A. Core Changes (WordPress.org Compliant)
+
+**Modify:** `dropins/class-import-dropin.php`
+1. Remove all functional GUI (checkboxes, preview, buttons)
+2. Show auto-backfill status from option
+3. Display: when it ran, items imported, retention days used
+4. Add premium upsell using `Helpers::get_premium_feature_teaser()`
+
+**Modify:** `inc/services/class-import-handler.php`
+1. Add filter check: `apply_filters('simple_history/backfill/can_run_manual_import', false)`
+2. Redirect with error if false
+3. Keep ALL processing logic in core
+
+#### B. Premium Changes (Separate Repository)
+
+**Location:** `/Users/bonny/Projects/Personal/simple-history-add-ons/simple-history-premium/`
+
+**Create:** `inc/modules/class-backfill-module.php`
+```php
+class Backfill_Module extends Module {
+    public function loaded() {
+        // Enable manual backfill
+        add_filter('simple_history/backfill/can_run_manual_import', '__return_true');
+
+        // Register premium dropin
+        add_action('simple_history/add_custom_dropin', [$this, 'register_dropin']);
+    }
+
+    public function register_dropin($simple_history) {
+        $simple_history->register_dropin(
+            \Simple_History_Premium\Dropins\Import_Premium_Dropin::class
+        );
+    }
+}
+```
+
+**Create:** `inc/dropins/class-import-premium-dropin.php`
+- Copy full GUI from current core `Import_Dropin`
+- Post type checkboxes, user checkbox, limit dropdown
+- Preview section with counts
+- "Run Backfill" and "Delete Backfilled Data" buttons
+- Uses core `Import_Handler` for processing
+
+**Modify:** `inc/class-extended-settings.php`
+- Add `'Backfill_Module'` to modules array
+
+---
+
+### Filter Hooks
+
+**Reuse existing:**
+- `simple_history/db_purge_days_interval` (int) - Controls BOTH purge AND backfill (default: 60)
+
+**New filters:**
+- `simple_history/backfill/can_run_manual_import` (bool) - Enable manual backfill (default: false)
+- `simple_history/auto_backfill/limit` (int) - Auto-backfill limit per type (default: 100)
+- `simple_history/auto_backfill/post_types` (array) - Post types to backfill (default: ['post', 'page'])
+
+---
+
+### Files Summary
+
+**Core Repository:**
+- ✏️ `inc/class-existing-data-importer.php`
+- ✏️ `dropins/class-import-dropin.php`
+- ✏️ `inc/services/class-import-handler.php`
+- ✏️ `inc/services/class-setup-database.php`
+- ➕ `inc/services/class-auto-backfill-service.php` (NEW)
+- ✏️ Service registration
+
+**Premium Repository:**
+- ➕ `inc/modules/class-backfill-module.php` (NEW)
+- ➕ `inc/dropins/class-import-premium-dropin.php` (NEW)
+- ✏️ `inc/class-extended-settings.php`
+
+---
+
+### Testing Commands
+
+```bash
+# Fresh install test
+docker compose run --rm wpcli_mariadb cron event run simple_history/auto_backfill
+docker compose run --rm wpcli_mariadb simple-history list --count=100
+docker compose run --rm wpcli_mariadb option get simple_history_auto_backfill_status
+
+# Check scheduled events
+docker compose run --rm wpcli_mariadb cron event list
+
+# Verify db version
+docker compose run --rm wpcli_mariadb option get simple_history_db_version
+```
