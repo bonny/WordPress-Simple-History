@@ -8,12 +8,24 @@ export const PremiumFeaturesModalProvider = ( { children } ) => {
 	const [ modalProps, setModalProps ] = useState( {
 		premiumFeatureModalTitle: '',
 		premiumFeatureDescription: '',
+		icon: null,
+		image: '',
 	} );
 
-	const showModal = ( title, description ) => {
+	/**
+	 * Show the premium feature modal.
+	 *
+	 * @param {string} title       - The feature name (e.g., "Export results")
+	 * @param {string} description - Description of the feature
+	 * @param {Object} icon        - Feature-specific icon (JSX/SVG)
+	 * @param {string} image       - Path to feature screenshot image
+	 */
+	const showModal = ( title, description, icon, image ) => {
 		setModalProps( {
 			premiumFeatureModalTitle: title,
 			premiumFeatureDescription: description,
+			icon,
+			image,
 		} );
 		setIsOpen( true );
 	};

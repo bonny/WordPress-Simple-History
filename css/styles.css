@@ -1278,6 +1278,96 @@ so add some extra place then to make it look a bit less ugly.
 	font-size: 0.85em;
 }
 
+/* Premium Feature Modal */
+.sh-PremiumFeatureModal.components-modal__frame,
+.components-modal__frame.sh-PremiumFeatureModal {
+	background-color: var(--sh-color-cream);
+	max-width: 500px;
+}
+
+.sh-PremiumFeatureModal .components-modal__content,
+.components-modal__frame.sh-PremiumFeatureModal .components-modal__content {
+	padding: 2rem;
+	background-color: var(--sh-color-cream);
+}
+
+.sh-PremiumFeatureModal-icon {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 1rem;
+}
+
+.sh-PremiumFeatureModal-icon svg {
+	width: 48px;
+	height: 48px;
+	fill: var(--sh-color-black);
+}
+
+.sh-PremiumFeatureModal-title {
+	text-align: center;
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin: 0 0 0.75rem 0;
+	line-height: 1.3;
+}
+
+.sh-PremiumFeatureModal-description {
+	text-align: center;
+	color: var(--sh-color-black-2);
+	margin: 0 0 1.5rem 0;
+	font-size: 1rem;
+	line-height: 1.5;
+}
+
+.sh-PremiumFeatureModal-imageContainer {
+	background: linear-gradient(135deg, #4ade80, #22c55e);
+	border-radius: 8px;
+	padding: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+.sh-PremiumFeatureModal-image {
+	width: 100%;
+	height: auto;
+	border-radius: 4px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	display: block;
+}
+
+.sh-PremiumFeatureModal-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.sh-PremiumFeatureModal-upgradeButton.components-button.is-primary {
+	background-color: var(--sh-color-blue);
+	color: var(--sh-color-white);
+	padding: 0.75rem 2rem;
+	border-radius: 4px;
+	font-size: 1rem;
+	font-weight: 500;
+	border: none;
+}
+
+.sh-PremiumFeatureModal-upgradeButton.components-button.is-primary:hover {
+	background-color: #0039cc;
+}
+
+.sh-PremiumFeatureModal-later {
+	background: none;
+	border: none;
+	color: var(--sh-color-blue);
+	cursor: pointer;
+	font-size: 0.875rem;
+	padding: 0.5rem;
+}
+
+.sh-PremiumFeatureModal-later:hover {
+	text-decoration: underline;
+}
+
 .sh-PageNav {
 	width: 100%;
 	display: flex;
