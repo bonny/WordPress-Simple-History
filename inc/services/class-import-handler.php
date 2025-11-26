@@ -88,28 +88,30 @@ class Import_Handler extends Service {
 		$import_post_types = isset( $_POST['import_post_types'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['import_post_types'] ) ) : [];
 		$import_users      = isset( $_POST['import_users'] ) && sanitize_text_field( wp_unslash( $_POST['import_users'] ) ) === '1';
 
-		// Check if import limit is enabled.
-		$enable_limit = isset( $_POST['enable_import_limit'] ) && sanitize_text_field( wp_unslash( $_POST['enable_import_limit'] ) ) === '1';
+		// No item limit - import all matching data.
+		$import_limit = -1;
 
-		if ( $enable_limit ) {
-			$import_limit = isset( $_POST['import_limit'] ) ? intval( $_POST['import_limit'] ) : 100;
-			// Validate limit.
-			$import_limit = max( 1, min( 10000, $import_limit ) );
-		} else {
-			// No limit - import all data.
-			$import_limit = -1;
-		}
+		// Get date range from value + unit inputs.
+		$date_range_value = isset( $_POST['date_range_value'] ) ? intval( $_POST['date_range_value'] ) : 0;
+		$date_range_unit  = isset( $_POST['date_range_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['date_range_unit'] ) ) : 'days';
 
-		// Check if custom date range is enabled (premium feature).
-		$enable_custom_days = isset( $_POST['enable_custom_days'] ) && sanitize_text_field( wp_unslash( $_POST['enable_custom_days'] ) ) === '1';
-
-		if ( $enable_custom_days ) {
-			$days_back = isset( $_POST['custom_days_back'] ) ? intval( $_POST['custom_days_back'] ) : null;
-			// Validate days (1 to 10 years).
-			$days_back = max( 1, min( 3650, $days_back ) );
-		} else {
+		// Convert to days.
+		if ( $date_range_value <= 0 ) {
 			// Use default from retention setting.
 			$days_back = null;
+		} else {
+			switch ( $date_range_unit ) {
+				case 'months':
+					$days_back = $date_range_value * 30;
+					break;
+				case 'years':
+					$days_back = $date_range_value * 365;
+					break;
+				case 'days':
+				default:
+					$days_back = $date_range_value;
+					break;
+			}
 		}
 
 		// Create importer instance.
