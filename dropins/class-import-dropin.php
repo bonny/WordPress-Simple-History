@@ -5,6 +5,7 @@ use Simple_History\Existing_Data_Importer;
 use Simple_History\Helpers;
 use Simple_History\Menu_Page;
 use Simple_History\Services\Admin_Pages;
+use Simple_History\Services\Auto_Backfill_Service;
 use Simple_History\Services\Import_Handler;
 
 /**
@@ -58,34 +59,29 @@ class Import_Dropin extends Dropin {
 
 	/**
 	 * Output for the backfill tab on the tools page.
+	 *
+	 * In the free version, this shows:
+	 * - Auto-backfill status information
+	 * - Premium upsell for manual backfill functionality
+	 *
+	 * Premium users get the full backfill GUI via the premium dropin.
 	 */
 	public function output_backfill_page() {
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Admin_Pages::header_output();
 
-		// Check if import was just completed and read results from URL parameters.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$import_completed = isset( $_GET['import-completed'] ) && $_GET['import-completed'] === '1';
-
-		// Read import results from URL parameters (already validated as integers in redirect).
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$posts_imported = isset( $_GET['posts-imported'] ) ? intval( $_GET['posts-imported'] ) : 0;
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$users_imported = isset( $_GET['users-imported'] ) ? intval( $_GET['users-imported'] ) : 0;
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$posts_skipped_imported = isset( $_GET['posts-skipped-imported'] ) ? intval( $_GET['posts-skipped-imported'] ) : 0;
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$posts_skipped_logged = isset( $_GET['posts-skipped-logged'] ) ? intval( $_GET['posts-skipped-logged'] ) : 0;
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$users_skipped_imported = isset( $_GET['users-skipped-imported'] ) ? intval( $_GET['users-skipped-imported'] ) : 0;
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$users_skipped_logged = isset( $_GET['users-skipped-logged'] ) ? intval( $_GET['users-skipped-logged'] ) : 0;
+		$auto_backfill_status = Auto_Backfill_Service::get_status();
+		$retention_days       = Helpers::get_clear_history_interval();
 
 		// Check if delete was just completed.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$delete_completed = isset( $_GET['delete-completed'] ) && $_GET['delete-completed'] === '1';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$events_deleted = isset( $_GET['events-deleted'] ) ? intval( $_GET['events-deleted'] ) : 0;
+
+		// Check if re-run was just scheduled.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$rerun_scheduled = isset( $_GET['rerun-scheduled'] ) && $_GET['rerun-scheduled'] === '1';
 		?>
 
 		<div class="wrap">
@@ -103,224 +99,256 @@ class Import_Dropin extends Dropin {
 			);
 			?>
 
-			<?php if ( $delete_completed ) : ?>
+			<?php
+			if ( $delete_completed ) {
+				?>
 				<div class="notice notice-success is-dismissible">
 					<p>
 						<strong><?php esc_html_e( 'Delete completed!', 'simple-history' ); ?></strong><br>
 						<?php
 						printf(
 							/* translators: %d: Number of events deleted */
-							esc_html__( 'Deleted %d imported events.', 'simple-history' ),
+							esc_html__( 'Deleted %d backfilled events.', 'simple-history' ),
 							(int) $events_deleted
 						);
 						?>
 					</p>
 				</div>
-			<?php endif; ?>
+				<?php
+			}
 
-			<?php if ( $import_completed ) : ?>
+			if ( $rerun_scheduled ) {
+				?>
 				<div class="notice notice-success is-dismissible">
 					<p>
-						<strong><?php esc_html_e( 'Import completed!', 'simple-history' ); ?></strong><br>
-						<?php
-						$has_skips = $posts_skipped_imported > 0 || $posts_skipped_logged > 0 || $users_skipped_imported > 0 || $users_skipped_logged > 0;
-
-						// Build message with imported counts.
-						$message = sprintf(
-							/* translators: 1: Number of posts imported, 2: Number of users imported */
-							esc_html__( 'Imported %1$d posts and %2$d users', 'simple-history' ),
-							(int) $posts_imported,
-							(int) $users_imported
-						);
-
-						// Add skip details if any.
-						if ( $has_skips ) {
-							$skip_parts = [];
-
-							if ( $posts_skipped_imported > 0 ) {
-								$skip_parts[] = sprintf(
-									/* translators: %d: Number of posts */
-									esc_html__( '%d posts already imported', 'simple-history' ),
-									(int) $posts_skipped_imported
-								);
-							}
-
-							if ( $posts_skipped_logged > 0 ) {
-								$skip_parts[] = sprintf(
-									/* translators: %d: Number of posts */
-									esc_html__( '%d posts already in history', 'simple-history' ),
-									(int) $posts_skipped_logged
-								);
-							}
-
-							if ( $users_skipped_imported > 0 ) {
-								$skip_parts[] = sprintf(
-									/* translators: %d: Number of users */
-									esc_html__( '%d users already imported', 'simple-history' ),
-									(int) $users_skipped_imported
-								);
-							}
-
-							if ( $users_skipped_logged > 0 ) {
-								$skip_parts[] = sprintf(
-									/* translators: %d: Number of users */
-									esc_html__( '%d users already in history', 'simple-history' ),
-									(int) $users_skipped_logged
-								);
-							}
-
-							$message .= ' (' . esc_html__( 'skipped: ', 'simple-history' ) . implode( ', ', $skip_parts ) . ')';
-						}
-
-						$message .= '.';
-						echo esc_html( $message );
-						?>
+						<strong><?php esc_html_e( 'Auto-backfill scheduled!', 'simple-history' ); ?></strong><br>
+						<?php esc_html_e( 'The automatic backfill has been scheduled and will run shortly.', 'simple-history' ); ?>
 					</p>
 				</div>
-			<?php endif; ?>
+				<?php
+			}
+			?>
 
 			<p>
 				<?php
 				esc_html_e(
-					'Generate history entries from existing WordPress data. This scans your posts, pages, and users to create log entries based on their creation and modification dates.',
+					'Backfill generates history entries from existing WordPress data. This scans your posts, pages, and users to create log entries based on their creation and modification dates.',
 					'simple-history'
 				);
 				?>
 			</p>
 
-			<p class="description">
-				<?php esc_html_e( 'Note: You can run backfill multiple times. Items that have already been processed will be automatically skipped to prevent duplicates.', 'simple-history' ); ?>
+			<p>
+				<?php
+				esc_html_e(
+					'Note: Backfilled entries contain basic information and are less detailed than events logged in real-time, which capture the full context of each action.',
+					'simple-history'
+				);
+				?>
 			</p>
 
-			<details style="margin-bottom: 15px;">
-				<summary style="cursor: pointer; font-weight: 600; margin-bottom: 10px;"><?php esc_html_e( 'Preview', 'simple-history' ); ?></summary>
+			<div class="sh-SettingsCard">
+				<h3 class="sh-SettingsCard-title"><?php esc_html_e( 'Automatic Backfill', 'simple-history' ); ?></h3>
+
+				<p>
+					<?php
+					printf(
+						/* translators: 1: Number of days, 2: Number of items limit */
+						esc_html__( 'When Simple History is first installed, it automatically backfills history from the last %1$d days of existing content, limited to %2$d items per content type.', 'simple-history' ),
+						(int) $retention_days,
+						Auto_Backfill_Service::DEFAULT_LIMIT
+					);
+					?>
+				</p>
 
 				<?php
-				// Get preview counts.
-				$importer       = new Existing_Data_Importer( $this->simple_history );
-				$preview_counts = $importer->get_preview_counts();
-				?>
-
-				<div style="background: #f0f0f1; padding: 15px; border-left: 4px solid #2271b1; margin: 10px 0;">
-					<ul style="margin: 0;">
+				if ( $auto_backfill_status && ! empty( $auto_backfill_status['completed'] ) ) {
+					// Date is stored in GMT, append UTC so strtotime interprets it correctly.
+					$completed_timestamp = strtotime( $auto_backfill_status['completed_at'] . ' UTC' );
+					$completed_date      = wp_date(
+						get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+						$completed_timestamp
+					);
+					?>
+				<div class="sh-StatusBox sh-StatusBox--success">
+					<p>
+						<strong>
 						<?php
-						foreach ( $preview_counts['post_types'] as $post_type => $count ) {
-							?>
-							<li>
-								<?php
-								$post_type_object = get_post_type_object( $post_type );
-								printf(
-									/* translators: 1: Post type name, 2: Count */
-									esc_html__( '%1$s: ~%2$s items', 'simple-history' ),
-									esc_html( $post_type_object->labels->name ),
-									esc_html( number_format_i18n( $count ) )
-								);
-								?>
-							</li>
-							<?php
-						}
+						printf(
+							/* translators: %s: Date and time */
+							esc_html__( 'Auto-backfill completed on %s', 'simple-history' ),
+							esc_html( $completed_date )
+						);
 						?>
+						</strong>
+					</p>
+					<ul>
 						<li>
 							<?php
 							printf(
-								/* translators: %s: Count */
-								esc_html__( 'Users: ~%s registrations', 'simple-history' ),
-								esc_html( number_format_i18n( $preview_counts['users'] ) )
+								/* translators: %d: Number of posts */
+								esc_html__( 'Posts imported: %d', 'simple-history' ),
+								(int) ( $auto_backfill_status['posts_imported'] ?? 0 )
+							);
+							?>
+						</li>
+						<li>
+							<?php
+							printf(
+								/* translators: %d: Number of users */
+								esc_html__( 'Users imported: %d', 'simple-history' ),
+								(int) ( $auto_backfill_status['users_imported'] ?? 0 )
+							);
+							?>
+						</li>
+						<li>
+							<?php
+							printf(
+								/* translators: %d: Number of days */
+								esc_html__( 'Date range: Last %d days', 'simple-history' ),
+								(int) ( $auto_backfill_status['days_back'] ?? $retention_days )
 							);
 							?>
 						</li>
 					</ul>
-					<p class="description" style="margin: 10px 0 0 0;">
-						<?php esc_html_e( 'Actual counts may vary based on duplicate detection.', 'simple-history' ); ?>
+
+					<p>
+						<?php esc_html_e( 'Need older content? Use Manual Backfill to import beyond these limits.', 'simple-history' ); ?>
+					</p>
+
+					<?php
+					// Show deletion info if backfilled data was deleted.
+					if ( ! empty( $auto_backfill_status['deleted_at'] ) ) {
+						$deleted_timestamp = strtotime( $auto_backfill_status['deleted_at'] . ' UTC' );
+						$deleted_date      = wp_date(
+							get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+							$deleted_timestamp
+						);
+						?>
+						<p class="sh-StatusBox-deletedInfo">
+							<?php
+							printf(
+								/* translators: %s: Date and time */
+								esc_html__( 'Backfilled data was deleted on %s', 'simple-history' ),
+								esc_html( $deleted_date )
+							);
+							?>
+						</p>
+						<?php
+					}
+					?>
+				</div>
+					<?php
+				} elseif ( wp_next_scheduled( Auto_Backfill_Service::CRON_HOOK ) ) {
+					?>
+				<div class="sh-StatusBox sh-StatusBox--warning">
+					<p>
+						<?php esc_html_e( 'Auto-backfill is scheduled and will run shortly.', 'simple-history' ); ?>
 					</p>
 				</div>
-			</details>
+					<?php
+				}
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<?php wp_nonce_field( Import_Handler::ACTION_NAME, 'simple_history_import_nonce' ); ?>
-				<input type="hidden" name="action" value="<?php echo esc_attr( Import_Handler::ACTION_NAME ); ?>">
+				?>
+			</div>
 
-				<details style="margin-bottom: 15px;">
-					<summary style="cursor: pointer; font-weight: 600; margin-bottom: 10px;"><?php esc_html_e( 'Options', 'simple-history' ); ?></summary>
+			<div class="sh-SettingsCard">
+				<h3 class="sh-SettingsCard-title"><?php esc_html_e( 'Manual Backfill', 'simple-history' ); ?></h3>
 
-					<table class="form-table">
-						<tr>
-							<th scope="row">
-								<label for="import_post_types"><?php esc_html_e( 'Post Types', 'simple-history' ); ?></label>
-							</th>
-							<td>
-								<?php
-								$post_types = get_post_types( [ 'public' => true ], 'objects' );
+				<p>
+					<?php
+					esc_html_e(
+						'Manual backfill lets you generate history entries from all public post types (posts, pages, and custom post types), attachments, and users.',
+						'simple-history'
+					);
+					?>
+				</p>
+				
+				<p>
+					<?php
+					esc_html_e(
+						'Unlike the automatic backfill, there are no limits on date range or number of items.',
+						'simple-history'
+					);
+					?>
+				</p>
 
-								// Add attachment post type (not public by default, but has historical data we can backfill).
-								$attachment_post_type = get_post_type_object( 'attachment' );
-								if ( $attachment_post_type ) {
-									$post_types['attachment'] = $attachment_post_type;
-								}
+				<?php
+				/**
+				 * Action hook for adding manual backfill controls.
+				 *
+				 * Premium add-on hooks here to add its backfill GUI.
+				 *
+				 * @param Import_Dropin $dropin The import dropin instance.
+				 * @param int $retention_days The retention days setting.
+				 */
+				do_action( 'simple_history/backfill/manual_backfill_section', $this, $retention_days );
 
-								foreach ( $post_types as $post_type ) {
-									?>
-									<label style="display: block; margin-bottom: 5px;">
-										<input type="checkbox" name="import_post_types[]" value="<?php echo esc_attr( $post_type->name ); ?>" checked>
-										<?php echo esc_html( $post_type->labels->name ); ?>
-									</label>
-									<?php
-								}
-								?>
-								<p class="description">
-									<?php esc_html_e( 'Select which post types to include in the backfill.', 'simple-history' ); ?>
-								</p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row">
-								<label for="import_users"><?php esc_html_e( 'Users', 'simple-history' ); ?></label>
-							</th>
-							<td>
-								<label>
-									<input type="checkbox" name="import_users" id="import_users" value="1" checked>
-									<?php esc_html_e( 'Include user registration dates', 'simple-history' ); ?>
-								</label>
-								<p class="description">
-									<?php esc_html_e( 'Create entries for existing user registrations.', 'simple-history' ); ?>
-								</p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row">
-								<label for="enable_import_limit"><?php esc_html_e( 'Limit', 'simple-history' ); ?></label>
-							</th>
-							<td>
-								<label style="display: block; margin-bottom: 10px;">
-									<input type="checkbox" name="enable_import_limit" id="enable_import_limit" value="1">
-									<?php esc_html_e( 'Limit number of entries', 'simple-history' ); ?>
-								</label>
-								<input type="number" name="import_limit" id="import_limit" value="100" min="1" max="10000" class="small-text" disabled>
-								<p class="description">
-									<?php esc_html_e( 'Maximum number of items to process per type. Leave unchecked to process all data.', 'simple-history' ); ?>
-								</p>
-							</td>
-						</tr>
-					</table>
-				</details>
+				/**
+				 * Filter whether to show the premium teaser for manual backfill.
+				 *
+				 * Premium add-on returns false to hide this teaser since it provides the full GUI.
+				 *
+				 * @param bool $show_teaser Whether to show the premium teaser. Default true.
+				 */
+				$show_premium_teaser = apply_filters( 'simple_history/backfill/show_premium_teaser', true );
 
-				<?php submit_button( __( 'Run Backfill', 'simple-history' ), 'primary', 'submit', false ); ?>
-			</form>
+				if ( $show_premium_teaser ) {
+					echo wp_kses_post(
+						Helpers::get_premium_feature_teaser(
+							__( 'Go beyond 60 days', 'simple-history' ),
+							[
+								__( 'Backfill anytime, not just on first install', 'simple-history' ),
+								__( 'Select exactly which content types to include', 'simple-history' ),
+								__( 'Go beyond 60 days—import your entire history', 'simple-history' ),
+								__( 'Control batch sizes for large sites', 'simple-history' ),
+							],
+							'premium_backfill_tools',
+							__( 'Get Premium', 'simple-history' )
+						)
+					);
+				}
+				?>
+			</div>
 
-			<script>
-				(function() {
-					const enableLimitCheckbox = document.getElementById('enable_import_limit');
-					const limitInput = document.getElementById('import_limit');
+			<?php
+			$this->output_backfill_page_dev_tools( $retention_days );
+			?>
 
-					if (enableLimitCheckbox && limitInput) {
-						enableLimitCheckbox.addEventListener('change', function() {
-							limitInput.disabled = !this.checked;
-						});
-					}
-				})();
-			</script>
+		</div>
+		<?php
+	}
 
-			<h3 style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dcdcde;"><?php esc_html_e( 'Delete backfilled data', 'simple-history' ); ?></h3>
+	/**
+	 * Output developer tools section for the backfill page.
+	 *
+	 * Only visible when dev mode is enabled. Provides tools for:
+	 * - Deleting all backfilled data
+	 * - Re-running the automatic backfill
+	 *
+	 * @param int $retention_days The retention days setting.
+	 */
+	public function output_backfill_page_dev_tools( $retention_days ) {
+		if ( ! Helpers::dev_mode_is_enabled() ) {
+			return;
+		}
+
+		$importer                = new Existing_Data_Importer( $this->simple_history );
+		$backfilled_events_count = $importer->get_backfilled_events_count();
+		?>
+
+		<div class="sh-DevToolsBox">
+			<h3 class="sh-DevToolsBox-heading">
+				<span class="dashicons dashicons-admin-tools"></span>
+				<?php esc_html_e( 'Developer Tools', 'simple-history' ); ?>
+			</h3>
+			<p class="description sh-DevToolsBox-description">
+				<?php esc_html_e( 'These tools are only visible when dev mode is enabled. Use them to test and debug the backfill functionality.', 'simple-history' ); ?>
+			</p>
+
+			<h4 class="sh-DevToolsBox-section">
+				<?php esc_html_e( 'Delete backfilled data', 'simple-history' ); ?>
+			</h4>
 
 			<p>
 				<?php
@@ -331,18 +359,150 @@ class Import_Dropin extends Dropin {
 				?>
 			</p>
 
-			<p class="description" style="color: #d63638;">
-				<strong><?php esc_html_e( 'Warning:', 'simple-history' ); ?></strong>
-				<?php esc_html_e( 'This action cannot be undone. Only backfilled entries will be deleted. Naturally logged events will not be affected.', 'simple-history' ); ?>
+			<p>
+				<?php
+				printf(
+					/* translators: %s: number of backfilled events */
+					esc_html__( 'Currently there are %s backfilled events in the log.', 'simple-history' ),
+					'<strong>' . esc_html( number_format_i18n( $backfilled_events_count ) ) . '</strong>'
+				);
+				?>
 			</p>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete all backfilled entries? This action cannot be undone.', 'simple-history' ) ); ?>');">
-				<?php wp_nonce_field( Import_Handler::DELETE_ACTION_NAME, 'simple_history_delete_nonce' ); ?>
-				<input type="hidden" name="action" value="<?php echo esc_attr( Import_Handler::DELETE_ACTION_NAME ); ?>">
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: context key name */
+					esc_html__( 'Backfilled events are identified by the %s context key that is added when events are created during backfill.', 'simple-history' ),
+					'<code>' . esc_html( Existing_Data_Importer::BACKFILLED_CONTEXT_KEY ) . '</code>'
+				);
+				?>
+			</p>
 
-				<?php submit_button( __( 'Delete Backfilled Data', 'simple-history' ), 'delete', 'submit', false ); ?>
+			<?php
+			if ( $backfilled_events_count > 0 ) {
+				?>
+				<p class="description sh-DevToolsBox-warning">
+					<strong><?php esc_html_e( 'Warning:', 'simple-history' ); ?></strong>
+					<?php esc_html_e( 'This action cannot be undone. Only backfilled entries will be deleted. Naturally logged events will not be affected.', 'simple-history' ); ?>
+				</p>
+
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Are you sure you want to delete all backfilled entries? This action cannot be undone.', 'simple-history' ) ); ?>');">
+					<?php wp_nonce_field( Import_Handler::DELETE_ACTION_NAME, 'simple_history_delete_nonce' ); ?>
+					<input type="hidden" name="action" value="<?php echo esc_attr( Import_Handler::DELETE_ACTION_NAME ); ?>">
+
+					<?php submit_button( __( 'Delete Backfilled Data', 'simple-history' ), 'delete', 'submit', false ); ?>
+				</form>
+				<?php
+			}
+			?>
+
+			<h4 class="sh-DevToolsBox-section sh-DevToolsBox-section--bordered">
+				<?php esc_html_e( 'Re-run automatic backfill', 'simple-history' ); ?>
+			</h4>
+
+			<p>
+				<?php
+				esc_html_e(
+					'Reset the auto-backfill status and schedule it to run again. This is useful for testing or after deleting backfilled data.',
+					'simple-history'
+				);
+				?>
+			</p>
+
+			<?php
+			// Get preview of what would be imported.
+			// Use the same post types as Auto_Backfill_Service.
+			$preview_post_types   = get_post_types( [ 'public' => true ], 'names' );
+			$preview_post_types[] = 'attachment';
+
+			/**
+			 * Filter the post types to preview for auto-backfill.
+			 *
+			 * @param array $preview_post_types Post types to preview.
+			 */
+			$preview_post_types = apply_filters( 'simple_history/auto_backfill/post_types', $preview_post_types );
+
+			$preview = $importer->get_auto_backfill_preview(
+				[
+					'post_types'    => $preview_post_types,
+					'include_users' => true,
+					'limit'         => Auto_Backfill_Service::DEFAULT_LIMIT,
+					'days_back'     => $retention_days,
+				]
+			);
+			?>
+
+			<details class="sh-PreviewDetails">
+				<summary>
+					<?php
+					printf(
+						/* translators: %d: Number of items that would be imported */
+						esc_html__( 'Preview: %d items would be imported', 'simple-history' ),
+						(int) $preview['total']
+					);
+					?>
+				</summary>
+				<p class="description sh-PreviewDetails-description">
+					<?php
+					printf(
+						/* translators: 1: Number of days, 2: Limit per type */
+						esc_html__( 'Date range: last %1$d days. Limit: %2$d per type.', 'simple-history' ),
+						(int) $preview['days_back'],
+						(int) $preview['limit_per_type']
+					);
+					?>
+				</p>
+				<table class="widefat striped">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'Type', 'simple-history' ); ?></th>
+							<th class="sh-textRight"><?php esc_html_e( 'Available', 'simple-history' ); ?></th>
+							<th class="sh-textRight"><?php esc_html_e( 'Already logged', 'simple-history' ); ?></th>
+							<th class="sh-textRight"><?php esc_html_e( 'Would import', 'simple-history' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+						foreach ( $preview['post_types'] as $type_name => $type_data ) {
+							?>
+							<tr>
+								<td><?php echo esc_html( $type_data['label'] ); ?></td>
+								<td class="sh-textRight"><?php echo esc_html( number_format_i18n( $type_data['available'] ) ); ?></td>
+								<td class="sh-textRight"><?php echo esc_html( number_format_i18n( $type_data['already_logged'] ) ); ?></td>
+								<td class="sh-textRight"><strong><?php echo esc_html( number_format_i18n( $type_data['would_import'] ) ); ?></strong></td>
+							</tr>
+							<?php
+						}
+
+						if ( is_array( $preview['users'] ) ) {
+							?>
+							<tr>
+								<td><?php esc_html_e( 'Users', 'simple-history' ); ?></td>
+								<td class="sh-textRight"><?php echo esc_html( number_format_i18n( $preview['users']['available'] ) ); ?></td>
+								<td class="sh-textRight"><?php echo esc_html( number_format_i18n( $preview['users']['already_logged'] ) ); ?></td>
+								<td class="sh-textRight"><strong><?php echo esc_html( number_format_i18n( $preview['users']['would_import'] ) ); ?></strong></td>
+							</tr>
+							<?php
+						}
+						?>
+					</tbody>
+					<tfoot>
+						<tr>
+							<th><?php esc_html_e( 'Total', 'simple-history' ); ?></th>
+							<th colspan="2"></th>
+							<th class="sh-textRight"><strong><?php echo esc_html( number_format_i18n( $preview['total'] ) ); ?></strong></th>
+						</tr>
+					</tfoot>
+				</table>
+			</details>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<?php wp_nonce_field( Import_Handler::RERUN_ACTION_NAME, 'simple_history_rerun_nonce' ); ?>
+				<input type="hidden" name="action" value="<?php echo esc_attr( Import_Handler::RERUN_ACTION_NAME ); ?>">
+
+				<?php submit_button( __( 'Re-run Auto Backfill', 'simple-history' ), 'secondary', 'submit', false ); ?>
 			</form>
-
 		</div>
 		<?php
 	}
