@@ -1409,6 +1409,11 @@ so add some extra place then to make it look a bit less ugly.
 	text-align: right;
 }
 
+/* Utility class for auto-width tables */
+.sh-tableAuto {
+	width: auto;
+}
+
 /* Checkbox label utilities */
 .sh-CheckboxLabel {
 	display: block;
@@ -1418,6 +1423,71 @@ so add some extra place then to make it look a bit less ugly.
 .sh-CheckboxLabel--spaced {
 	display: block;
 	margin-bottom: 10px;
+}
+
+/* Inline checkbox with input field */
+.sh-CheckboxLabel--inline,
+.sh-DateRangeInput {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+/* Grid layout for checkboxes - max 2 columns */
+.sh-CheckboxGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.25em 1.5em;
+	margin-bottom: 0.5em;
+}
+
+.sh-CheckboxGrid .sh-CheckboxLabel {
+	margin-bottom: 0;
+}
+
+/* Select all/none toggle links */
+.sh-SelectToggle {
+	margin-bottom: 0.5em;
+	font-size: 13px;
+}
+
+.sh-SelectToggle a {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.sh-SelectToggle-separator {
+	margin: 0 0.25em;
+	color: #999;
+}
+
+/* Backfill Form */
+.sh-BackfillForm {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 1rem 1.5rem;
+	max-width: 600px;
+}
+
+.sh-BackfillForm-title {
+	margin: 0 0 0.5rem 0;
+	padding: 0;
+	font-size: 14px;
+	font-weight: 400;
+}
+
+.sh-BackfillForm-table {
+	margin: 0;
+}
+
+.sh-BackfillForm-table th {
+	padding: 0.75rem 0.75rem 0.75rem 0;
+	width: 100px;
+}
+
+.sh-BackfillForm-table td {
+	padding: 0.75rem 0;
 }
 
 /* Premium Feature Modal */
