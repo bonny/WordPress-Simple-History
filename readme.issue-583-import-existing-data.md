@@ -427,6 +427,69 @@ class Backfill_Module extends Module {
 
 ---
 
+### Step 6: Premium Backfill Form UX Improvements (Completed)
+
+Simplified and improved the manual backfill form in the premium module for better usability.
+
+#### Form Simplifications
+
+**Removed unnecessary options:**
+- Removed "Limit to X items per type" - users want to import everything
+- Removed "Select all / Deselect all" links - most sites have few post types
+- Removed expandable `<details>` element - form is clean enough to always show
+
+**Improved layout:**
+- Post types displayed in 2-column grid (was auto-fill)
+- Each post type shows count in parentheses
+- Users checkbox shows count
+- Clean card design with white background and subtle border
+
+**Flexible date range:**
+- Changed from fixed dropdown to flexible input: `Last [30] [days/months/years]`
+- Users can enter any number with any unit
+- Default is retention setting (or 90 days if "forever")
+- Handles "keep forever" retention by requiring explicit date range
+
+#### Files Modified
+
+**Core (`WordPress-Simple-History`):**
+- `css/styles.css` - Added CSS classes:
+  - `.sh-CheckboxGrid` - 2-column grid for checkboxes
+  - `.sh-DateRangeInput` - Inline date range input styling
+  - `.sh-BackfillForm` - Card-style form container
+  - `.sh-BackfillForm-title` - Form title styling
+  - `.sh-BackfillForm-table` - Compact table styling
+- `inc/services/class-import-handler.php` - Updated to handle `date_range_value` + `date_range_unit` inputs
+
+**Premium (`simple-history-premium`):**
+- `inc/modules/class-backfill-module.php` - Complete form redesign:
+  - Removed limit options
+  - Removed select all/deselect all
+  - Removed expandable details
+  - Added flexible date range input
+  - Added card-style form layout
+
+#### Form Structure
+
+```
+┌─────────────────────────────────────────────┐
+│ 299 items available to import               │
+│                                             │
+│ Post Types    ☑ Posts (26)    ☑ Pages (110) │
+│               ☑ Media (127)   ☑ Products (7)│
+│                                             │
+│ Users         ☑ Include users (24)          │
+│                                             │
+│ Date range    Last [60] [days ▼]            │
+│               Your retention setting is 60  │
+│               days.                         │
+│                                             │
+│ [Run Backfill]                              │
+└─────────────────────────────────────────────┘
+```
+
+---
+
 ### Testing Commands
 
 ```bash
