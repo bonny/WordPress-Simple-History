@@ -140,7 +140,7 @@ Successfully implemented all three phases of the backfill feature.
 - Added `date_query` filtering to `import_posts()` using `modified_after` date
 - Added `date_query` filtering to `import_users()` using `user_registered` date
 - Uses `Helpers::get_clear_history_interval()` as default (60 days)
-- Added `get_backfilled_events_count()` method to count events with `_imported_event` context key
+- Added `get_backfilled_events_count()` method to count events with `_backfilled_event` context key
 
 #### Phase 2: Automatic Backfill Service
 
@@ -167,7 +167,7 @@ Successfully implemented all three phases of the backfill feature.
 - Displays premium upsell for manual backfill via `Helpers::get_premium_feature_teaser()`
 - Shows "Delete backfilled data" section with:
   - Count of backfilled events in the log
-  - Explanation about `_imported_event` context key
+  - Explanation about `_backfilled_event` context key
   - Delete button (only shown if count > 0)
 
 **Modified:** `inc/services/class-import-handler.php`
@@ -191,6 +191,59 @@ Successfully implemented all three phases of the backfill feature.
 - `simple_history/backfill/can_run_manual_import` (bool) - Enable manual backfill (default: false, premium enables)
 - `simple_history/auto_backfill/limit` (int) - Auto-backfill limit per type (default: 100)
 - `simple_history/auto_backfill/post_types` (array) - Post types to backfill (default: all public + attachment)
+
+---
+
+### Step 4: Dev Mode Features (Completed)
+
+Added developer tools for testing backfill functionality, only visible when dev mode is enabled.
+
+#### Delete Backfilled Data (Dev Mode Only)
+
+- Shows count of backfilled events in the log
+- Explains how events are identified (`_backfilled_event` context key)
+- Delete button with confirmation dialog
+- Handler validates dev mode before processing
+
+#### Re-run Automatic Backfill (Dev Mode Only)
+
+- Resets the auto-backfill status option
+- Schedules cron to run in 60 seconds
+- Shows expandable preview table with:
+  - Items available per post type (within date range)
+  - Items already logged (would be skipped)
+  - Items that would be imported (net new)
+  - Total count in summary line
+- Uses `<details>` element for collapsible preview
+- Table uses WordPress `striped` class
+
+**Modified:** `inc/services/class-import-handler.php`
+- Added `RERUN_ACTION_NAME` constant
+- Added `handle_rerun()` method
+- Validates dev mode for both delete and re-run actions
+
+**Modified:** `inc/class-existing-data-importer.php`
+- Added `get_auto_backfill_preview()` method
+- Returns detailed counts per post type and users
+- Accounts for already logged items
+
+---
+
+### WP-CLI Commands
+
+```bash
+# View auto-backfill status
+wp option get simple_history_auto_backfill_status --format=json
+
+# Check if backfill cron is scheduled
+wp cron event list | grep backfill
+
+# Manually trigger the backfill cron (if scheduled)
+wp cron event run simple_history/auto_backfill
+
+# Delete status to allow re-run
+wp option delete simple_history_auto_backfill_status
+```
 
 ---
 
