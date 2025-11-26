@@ -736,8 +736,8 @@ class Post_Logger extends Logger {
 			// would otherwise be lost (first update would only show diff from autosave state).
 			$context['post_new_post_content'] = $post->post_content;
 			$context['post_new_post_excerpt'] = $post->post_excerpt;
-			$context['post_prev_status'] = $old_status;
-			$context['post_new_status']  = $new_status;
+			$context['post_prev_status']      = $old_status;
+			$context['post_new_status']       = $new_status;
 
 			$this->info_message( 'post_created', $context );
 		} elseif ( 'auto-draft' === $new_status || ( 'new' === $old_status && 'inherit' === $new_status ) ) {

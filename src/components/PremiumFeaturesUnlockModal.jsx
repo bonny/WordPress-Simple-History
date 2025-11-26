@@ -6,10 +6,10 @@ import { getTrackingUrl } from '../functions';
  * Modal that is shown when you click on a premium feature.
  *
  * @param {Object}   props
- * @param {string}   props.premiumFeatureModalTitle - The modal title (e.g., "Export is a PREMIUM feature")
+ * @param {string}   props.premiumFeatureModalTitle  - The modal title (e.g., "Export is a PREMIUM feature")
  * @param {string}   props.premiumFeatureDescription - Description of the feature
- * @param {Object}   props.icon - Feature-specific icon (JSX/SVG)
- * @param {string}   props.image - Path to feature screenshot image
+ * @param {Object}   props.icon                      - Feature-specific icon (JSX/SVG)
+ * @param {string}   props.image                     - Path to feature screenshot image
  * @param {Function} props.handleModalClose
  */
 export const PremiumFeaturesUnlockModal = ( props ) => {

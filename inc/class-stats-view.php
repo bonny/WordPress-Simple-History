@@ -241,9 +241,9 @@ class Stats_View {
 											?>
 										</span>
 
-										<?php if ( ! empty( $user_data['sessions'] ) ) : ?>
+										<?php if ( ! empty( $user_data['sessions'] ) ) { ?>
 											<div class="sh-StatsDashboard-userSessions-details">
-												<?php foreach ( $user_data['sessions'] as $session ) : ?>
+												<?php foreach ( $user_data['sessions'] as $session ) { ?>
 													<div class="sh-StatsDashboard-userSession">
 														<span class="sh-StatsDashboard-userLastLogin">
 															<?php
@@ -255,7 +255,7 @@ class Stats_View {
 															);
 															?>
 														</span>
-														
+
 														<span class="sh-StatsDashboard-userExpiration">
 															<?php
 															$expiration_time = date_i18n( 'F d, Y H:i A', $session['expiration'] );
@@ -266,8 +266,8 @@ class Stats_View {
 															);
 															?>
 														</span>
-														
-														<?php if ( ! empty( $session['ip'] ) ) : ?>
+
+														<?php if ( ! empty( $session['ip'] ) ) { ?>
 															<span class="sh-StatsDashboard-userIP">
 																<?php
 																printf(
@@ -277,11 +277,11 @@ class Stats_View {
 																);
 																?>
 															</span>
-														<?php endif; ?>
+														<?php } ?>
 													</div>
-												<?php endforeach; ?>
+												<?php } ?>
 											</div>
-										<?php endif; ?>
+										<?php } ?>
 									</div>
 								</li>
 								<?php
