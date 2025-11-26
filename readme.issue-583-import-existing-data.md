@@ -229,6 +229,64 @@ Added developer tools for testing backfill functionality, only visible when dev 
 
 ---
 
+### Step 5: Code Cleanup & UI Polish (Completed)
+
+#### Context Key Standardization
+
+- Renamed context key from `_imported_event` to `_backfilled_event`
+- Created constant `Existing_Data_Importer::BACKFILLED_CONTEXT_KEY` for consistency
+- Updated all references across codebase to use the constant
+- REST API field renamed from `imported` to `backfilled`
+- React component renamed from `EventImportedIndicator` to `EventBackfilledIndicator`
+
+#### CSS Classes & Style Cleanup
+
+Replaced all inline styles with CSS classes following SuitCSS naming convention:
+
+**New CSS classes added:**
+- `.sh-StatusBox` - Status messages with colored left border
+- `.sh-StatusBox--success` / `--warning` / `--error` / `--info` - Color variants
+- `.sh-StatusBox-deletedInfo` - Deletion info text
+- `.sh-DevToolsBox` - Developer tools container
+- `.sh-DevToolsBox-heading` / `-description` / `-section` / `-warning`
+- `.sh-PreviewDetails` - Collapsible preview sections
+- `.sh-CheckboxLabel` / `--spaced` - Form checkbox labels
+- `.sh-textRight` - Utility class for right-aligned table cells
+- `.sh-SettingsCard-title` - Card title (shared with `.sh-SettingsPage-settingsSection-title`)
+
+**Updated skill:** `.claude/skills/code-quality/css-standards.md`
+- Added section on CSS classes vs inline styles
+- Documents when inline styles are acceptable
+- Provides conversion process for inline styles
+
+#### UI Improvements
+
+**Backfill page layout:**
+- Wrapped sections in `.sh-SettingsCard` components
+- Added `.sh-SettingsCard-title` to section headings
+- Improved copy: mentions 60-day and 100-item limits in auto-backfill description
+- Added note: "Need older content? Use Manual Backfill to import beyond these limits."
+
+**Premium teaser:**
+- Now uses `Helpers::get_premium_feature_teaser()` helper function
+- Title: "Go beyond 60 days"
+- Feature list highlights key benefits
+- Helper function updated to support array of features (renders as bullet list)
+
+**Premium module:**
+- Added persistent status storage for manual backfill results (`simple_history_manual_backfill_status` option)
+- Shows "Last manual backfill" status box with posts/users imported and date range
+- Removed all inline styles, now uses CSS classes
+
+#### Attachment Backfill Improvements
+
+- Added missing context fields for backfilled attachments:
+  - `post_type` - The post type of the attachment
+  - `attachment_mime` - MIME type of the attachment
+- These fields enable proper thumbnail display and filtering
+
+---
+
 ### WP-CLI Commands
 
 ```bash
