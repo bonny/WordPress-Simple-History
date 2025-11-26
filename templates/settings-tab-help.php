@@ -160,7 +160,7 @@ $faq_url   = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 				<div style="flex: 0 0 auto;">
 					<a href="https://www.oderland.com" target="_blank" rel="noopener noreferrer" style="display: block;">
 						<img
-							src="<?php echo esc_url( plugins_url( 'assets/images/oderland-logo.svg', dirname( __FILE__ ) ) ); ?>"
+							src="<?php echo esc_url( plugins_url( 'assets/images/oderland-logo.svg', __DIR__ ) ); ?>"
 							alt="Oderland"
 							style="height: 40px; width: auto; display: block;"
 						>
