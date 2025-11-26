@@ -218,6 +218,92 @@ Utility classes use lowercase and can be prefixed with `sh-u-`.
 .sh-LogEntry--highlighted { }
 ```
 
+## CSS Classes vs Inline Styles
+
+**ALWAYS prefer CSS classes over inline styles.** Inline styles should be avoided except in rare cases where utility/helper classes cannot be used.
+
+### Why Avoid Inline Styles
+
+- **Maintainability**: CSS classes centralize styles, making updates easier
+- **Reusability**: Classes can be reused across components
+- **Consistency**: Classes ensure consistent styling across the codebase
+- **Specificity**: Inline styles have high specificity, making overrides difficult
+- **Separation of concerns**: Keep styles in CSS files, not mixed with HTML/PHP
+
+### When Inline Styles Are Acceptable
+
+1. **Truly dynamic values** from JavaScript that cannot be known ahead of time
+2. **One-off calculations** (e.g., `width: <?php echo $percentage; ?>%`)
+3. **Testing/debugging** (temporary only, must be converted to classes before commit)
+
+### Anti-Pattern: Inline Styles in PHP Templates
+
+❌ **Don't do this:**
+```php
+<div style="background: #f0f0f1; padding: 15px; border-left: 4px solid #00a32a; margin: 15px 0;">
+    <p style="margin: 0 0 10px 0;">
+        <strong>Status message here</strong>
+    </p>
+</div>
+```
+
+✅ **Do this instead:**
+```php
+<div class="sh-StatusBox sh-StatusBox--success">
+    <p>
+        <strong>Status message here</strong>
+    </p>
+</div>
+```
+
+With corresponding CSS:
+```css
+.sh-StatusBox {
+    background: #f0f0f1;
+    padding: 15px;
+    margin: 15px 0;
+    border-left-width: 4px;
+    border-left-style: solid;
+}
+
+.sh-StatusBox--success {
+    border-left-color: #00a32a;
+}
+
+.sh-StatusBox p:first-child {
+    margin-top: 0;
+}
+```
+
+### Utility Classes for Common Styles
+
+For simple, frequently used styles, create utility classes:
+
+```css
+/* Text alignment */
+.sh-textRight { text-align: right; }
+.sh-textCenter { text-align: center; }
+.sh-textLeft { text-align: left; }
+
+/* Colors */
+.sh-textWarning { color: #dba617; }
+.sh-textError { color: #d63638; }
+.sh-textSuccess { color: #00a32a; }
+```
+
+Usage:
+```php
+<td class="sh-textRight"><?php echo $value; ?></td>
+```
+
+### Process for Converting Inline Styles
+
+1. **Identify repeated patterns** - Look for similar inline styles across files
+2. **Create component class** - Follow SuitCSS naming convention
+3. **Add CSS to styles.css** - Define styles in the stylesheet
+4. **Replace inline styles** - Update PHP templates to use classes
+5. **Test visually** - Verify styling matches original appearance
+
 ## Resources
 
 - [SuitCSS Documentation](https://suitcss.github.io/)
