@@ -182,7 +182,7 @@ class Admin_Pages extends Service {
 					// Display premium plugin toggle badge when dev mode is enabled.
 					$is_premium_active = Helpers::is_premium_add_on_active();
 					$badge_state_class = $is_premium_active ? 'is-active' : 'is-inactive';
-					$badge_text        = $is_premium_active ? __( 'Premium: ON', 'simple-history' ) : __( 'Premium: OFF', 'simple-history' );
+					$badge_text        = $is_premium_active ? __( 'Premium: Active', 'simple-history' ) : __( 'Premium: Inactive', 'simple-history' );
 					$badge_title       = $is_premium_active ? __( 'Click to deactivate premium add-on', 'simple-history' ) : __( 'Click to activate premium add-on', 'simple-history' );
 					?>
 					<button
