@@ -1250,19 +1250,25 @@ so add some extra place then to make it look a bit less ugly.
 	padding: var(--sh-spacing-medium);
 	border-radius: 4px;
 	margin-top: var(--sh-spacing-medium);
-	font-size: 0.9em;
+	font-size: var(--sh-font-size-medium);
 }
 
-.sh-PremiumFeatureTeaser p {
+.sh-PremiumFeatureTeaser-title {
+	font-size: var(--sh-font-size-medium);
+	margin-block-start: 0;
+	margin-block-end: var(--sh-spacing-medium);
+}
+
+.sh-PremiumFeatureTeaser
+	p:not(
+		.sh-PremiumFeatureTeaser-title,
+		.sh-PremiumFeatureTeaser-ctaLinkContainer
+	) {
 	margin: 0 0 var(--sh-spacing-small);
 }
 
-.sh-PremiumFeatureTeaser p:last-of-type {
-	margin-bottom: var(--sh-spacing-small);
-}
-
 .sh-PremiumFeatureTeaser .sh-PremiumFeatureBadge {
-	font-size: 0.85em;
+	font-size: var(--sh-font-size-small);
 	vertical-align: middle;
 }
 
@@ -1270,12 +1276,148 @@ so add some extra place then to make it look a bit less ugly.
 	margin-left: var(--sh-spacing-xsmall);
 }
 
-.sh-PremiumFeatureTeaser p:nth-child(2) {
-	color: var(--sh-color-black-2);
-}
-
 .sh-PremiumFeatureTeaser .button {
 	font-size: 0.85em;
+}
+
+.sh-PremiumFeatureTeaser-features {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 var(--sh-spacing-small) 0;
+}
+
+.sh-PremiumFeatureTeaser-features li {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.25em;
+}
+
+.sh-PremiumFeatureTeaser-features .dashicons {
+	color: #00a32a;
+	margin-inline-end: 0.25em;
+}
+
+.sh-PremiumFeatureTeaser-ctaLinkContainer {
+	font-size: var(--sh-font-size-medium);
+	margin-block-start: var(--sh-spacing-medium);
+	margin-block-end: 0;
+}
+
+/* Status Box - used for status messages with colored left border */
+.sh-StatusBox {
+	background: #f0f0f1;
+	padding: 15px;
+	margin: 15px 0;
+	border-left-width: 4px;
+	border-left-style: solid;
+}
+
+.sh-StatusBox--success {
+	border-left-color: #00a32a;
+}
+
+.sh-StatusBox--warning {
+	border-left-color: #dba617;
+}
+
+.sh-StatusBox--error {
+	border-left-color: #d63638;
+}
+
+.sh-StatusBox--info {
+	border-left-color: #2271b1;
+}
+
+.sh-StatusBox p:first-child {
+	margin-top: 0;
+}
+
+.sh-StatusBox p:last-child {
+	margin-bottom: 0;
+}
+
+.sh-StatusBox ul {
+	margin: 0;
+}
+
+.sh-StatusBox-deletedInfo {
+	margin: 10px 0 0 0;
+	color: #b32d2e;
+}
+
+/* Developer Tools Box */
+.sh-DevToolsBox {
+	margin-top: 30px;
+	padding: 20px;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #d63638;
+	background: #fff;
+}
+
+.sh-DevToolsBox-heading {
+	margin-top: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sh-DevToolsBox-heading .dashicons {
+	color: #d63638;
+}
+
+.sh-DevToolsBox-description {
+	margin-bottom: 20px;
+}
+
+.sh-DevToolsBox-section {
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+.sh-DevToolsBox-section--bordered {
+	margin-top: 25px;
+	padding-top: 15px;
+	border-top: 1px solid #dcdcde;
+}
+
+.sh-DevToolsBox-warning {
+	color: #d63638;
+}
+
+/* Preview Details Box */
+.sh-PreviewDetails {
+	background: #f0f0f1;
+	padding: 15px;
+	margin: 15px 0;
+}
+
+.sh-PreviewDetails summary {
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.sh-PreviewDetails-description {
+	margin: 10px 0;
+}
+
+.sh-PreviewDetails table {
+	margin-top: 10px;
+}
+
+/* Utility class for right-aligned table cells */
+.sh-textRight {
+	text-align: right;
+}
+
+/* Checkbox label utilities */
+.sh-CheckboxLabel {
+	display: block;
+	margin-bottom: 5px;
+}
+
+.sh-CheckboxLabel--spaced {
+	display: block;
+	margin-bottom: 10px;
 }
 
 /* Premium Feature Modal */
@@ -1425,7 +1567,8 @@ so add some extra place then to make it look a bit less ugly.
 	margin: 0;
 }
 
-.sh-SettingsPage-settingsSection-title {
+.sh-SettingsPage-settingsSection-title,
+.sh-SettingsCard-title {
 	display: block;
 	font-size: 23px;
 	font-weight: 400;
@@ -1916,7 +2059,7 @@ Styles for plugin update details. Markup looks like this:
 	background: var(--sh-color-white);
 	border-radius: 8px;
 	padding: var(--sh-spacing-large);
-	margin-bottom: var(--sh-spacing-large);
+	margin: var(--sh-spacing-medium) 0;
 	border: 1px solid var(--sh-color-separator);
 }
 
