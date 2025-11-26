@@ -1,6 +1,6 @@
 # Issue #583: Generate history based on existing WP data
 
-**Status**: In Progress
+**Status**: Complete
 **Labels**: Experimental feature, Feature
 **Project Board**: Simple History kanban (In Progress)
 
@@ -19,9 +19,9 @@ The information available in WordPress for historical events are very limited, b
 - [x] Add tools page with backfill information for core users and backfill functionality for premium users
 - [x] Add "Backfill" tab under Tools menu with GUI for historical data import
 - [x] Check where "60 days" comes from - FOUND: `Helpers::get_clear_history_interval()` (line 1010)
-- [ ] Phase 1: Add date filtering to `Existing_Data_Importer` (reuse `get_clear_history_interval()`)
-- [ ] Phase 2: Create automatic backfill service (first install only)
-- [ ] Phase 3: Convert core to info + upsell, create premium GUI
+- [x] Phase 1: Add date filtering to `Existing_Data_Importer` (reuse `get_clear_history_interval()`)
+- [x] Phase 2: Create automatic backfill service (first install only)
+- [x] Phase 3: Convert core to info + upsell, create premium GUI
 
 ## Progress
 
@@ -128,7 +128,73 @@ Added a new "Backfill" tab under the Tools menu that provides the GUI for genera
 
 ---
 
-## Implementation Plan (Next Steps)
+### Step 3: All Phases Implementation (Completed)
+
+Successfully implemented all three phases of the backfill feature.
+
+#### Phase 1: Date Filtering
+
+**Modified:** `inc/class-existing-data-importer.php`
+- Added `$days_back` property for configurable date range
+- Updated `import_all()` to accept `days_back` option
+- Added `date_query` filtering to `import_posts()` using `modified_after` date
+- Added `date_query` filtering to `import_users()` using `user_registered` date
+- Uses `Helpers::get_clear_history_interval()` as default (60 days)
+- Added `get_backfilled_events_count()` method to count events with `_imported_event` context key
+
+#### Phase 2: Automatic Backfill Service
+
+**Created:** `inc/services/class-auto-backfill-service.php`
+- Schedules cron 60 seconds after first install
+- Stores status in `simple_history_auto_backfill_status` option
+- Backfills ALL public post types + attachments (dynamically via `get_post_types()`)
+- Uses configurable limit (default 100 per type)
+- Logs completion to Simple History
+- Constants:
+  - `CRON_HOOK = 'simple_history/auto_backfill'`
+  - `STATUS_OPTION = 'simple_history_auto_backfill_status'`
+  - `DEFAULT_LIMIT = 100`
+
+**Modified:** `inc/services/class-setup-database.php`
+- Added `Auto_Backfill_Service::schedule_auto_backfill()` call in `setup_new_to_version_1()`
+- Only runs on first install (when db_version === 0)
+
+#### Phase 3: Core Info + Premium GUI
+
+**Modified:** `dropins/class-import-dropin.php` (Core)
+- Shows auto-backfill status (completed date, posts/users imported, days range)
+- Shows "scheduled" message only if cron is actually scheduled
+- Displays premium upsell for manual backfill via `Helpers::get_premium_feature_teaser()`
+- Shows "Delete backfilled data" section with:
+  - Count of backfilled events in the log
+  - Explanation about `_imported_event` context key
+  - Delete button (only shown if count > 0)
+
+**Modified:** `inc/services/class-import-handler.php`
+- Added filter check: `apply_filters('simple_history/backfill/can_run_manual_import', false)`
+- Manual import requires premium (filter returns true)
+- Delete functionality available to all admin users
+
+**Created:** `simple-history-premium/inc/modules/class-backfill-module.php` (Premium)
+- Enables manual import via filter: `add_filter('simple_history/backfill/can_run_manual_import', '__return_true')`
+- Replaces core menu item with full GUI
+- Full backfill options: post type selection, user import, limits
+- Preview counts per post type
+- "Run Backfill" and "Delete Backfilled Data" buttons
+- Shows backfilled events count in delete section
+
+**Modified:** `simple-history-premium/inc/class-extended-settings.php`
+- Added `Modules\Backfill_Module::class` to modules array
+
+#### New Filter Hooks
+
+- `simple_history/backfill/can_run_manual_import` (bool) - Enable manual backfill (default: false, premium enables)
+- `simple_history/auto_backfill/limit` (int) - Auto-backfill limit per type (default: 100)
+- `simple_history/auto_backfill/post_types` (array) - Post types to backfill (default: all public + attachment)
+
+---
+
+## Implementation Plan (Reference)
 
 ### Phase 1: Add Date Filtering to Core
 
