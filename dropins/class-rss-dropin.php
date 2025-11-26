@@ -178,7 +178,16 @@ class RSS_Dropin extends Dropin {
 		?>
 		<input value="1" type="checkbox" id="simple_history_enable_rss_feed" name="simple_history_enable_rss_feed" <?php checked( $this->is_rss_enabled(), 1 ); ?> />
 		<label for="simple_history_enable_rss_feed"><?php echo esc_html( $enable_rss_text ); ?></label>
+
 		<?php
+		// Show premium teaser for JSON feed below the enable checkbox.
+		echo wp_kses_post(
+			Helpers::get_premium_feature_teaser(
+				__( 'JSON Feed Available', 'simple-history' ),
+				__( 'Integrate with modern tools and services using the structured JSON feed format. Perfect for automation, monitoring systems, and custom integrations.', 'simple-history' ),
+				'premium_feeds_settings'
+			)
+		);
 	}
 
 	/**
@@ -523,15 +532,6 @@ class RSS_Dropin extends Dropin {
 		 * @param RSS_Dropin $instance
 		 */
 		do_action( 'simple_history/feeds/after_address', $this );
-
-		// Show premium teaser for JSON feed, after the RSS feed address.
-		echo wp_kses_post(
-			Helpers::get_premium_feature_teaser(
-				__( 'JSON Feed Available', 'simple-history' ),
-				__( 'Integrate with modern tools and services using the structured JSON feed format. Perfect for automation, monitoring systems, and custom integrations.', 'simple-history' ),
-				'premium_feeds_settings'
-			)
-		);
 	}
 
 	/**
