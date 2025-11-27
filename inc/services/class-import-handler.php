@@ -158,8 +158,9 @@ class Import_Handler extends Service {
 		];
 		update_option( self::MANUAL_STATUS_OPTION, $manual_status );
 
-		// Log the manual backfill completion.
-		$this->log_manual_backfill_completion( $manual_status );
+		// Fire action for SimpleHistory_Logger to log completion.
+		$manual_status['type'] = 'manual';
+		do_action( 'simple_history/backfill/completed', $manual_status );
 
 		// Redirect back to the page with results as URL parameters.
 		// Use the proper tab structure for the Tools menu.
@@ -282,60 +283,5 @@ class Import_Handler extends Service {
 
 		wp_safe_redirect( $redirect_url );
 		exit;
-	}
-
-	/**
-	 * Log the manual backfill completion to Simple History.
-	 *
-	 * @param array $status The manual backfill status array.
-	 */
-	private function log_manual_backfill_completion( $status ) {
-		$logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimpleLogger' );
-
-		if ( ! $logger ) {
-			return;
-		}
-
-		$post_events  = $status['post_events_created'] ?? 0;
-		$user_events  = $status['user_events_created'] ?? 0;
-		$total_events = $post_events + $user_events;
-
-		if ( $total_events === 0 ) {
-			return;
-		}
-
-		$date_range_type  = $status['date_range_type'] ?? 'specific';
-		$date_range_value = $status['date_range_value'] ?? 0;
-		$date_range_unit  = $status['date_range_unit'] ?? 'days';
-
-		// Build message with proper singular/plural forms.
-		$post_text = sprintf(
-			/* translators: %d: number of post events */
-			_n( '%d post event', '%d post events', $post_events, 'simple-history' ),
-			$post_events
-		);
-		$user_text = sprintf(
-			/* translators: %d: number of user events */
-			_n( '%d user event', '%d user events', $user_events, 'simple-history' ),
-			$user_events
-		);
-
-		$logger->info(
-			'Manual backfill created {post_text} and {user_text}',
-			[
-				'post_text'           => $post_text,
-				'user_text'           => $user_text,
-				'post_events'         => $post_events,
-				'user_events'         => $user_events,
-				'posts_imported'      => $status['posts_imported'] ?? 0,
-				'users_imported'      => $status['users_imported'] ?? 0,
-				'post_events_created' => $post_events,
-				'user_events_created' => $user_events,
-				'date_range_type'     => $date_range_type,
-				'date_range_value'    => $date_range_value,
-				'date_range_unit'     => $date_range_unit,
-				'_initiator'          => \Simple_History\Log_Initiators::WP_USER,
-			]
-		);
 	}
 }

@@ -105,8 +105,9 @@ class Auto_Backfill_Service extends Service {
 
 		update_option( self::STATUS_OPTION, $status, false );
 
-		// Log completion to Simple History.
-		$this->log_backfill_completion( $status );
+		// Fire action for SimpleHistory_Logger to log completion.
+		$status['type'] = 'auto';
+		do_action( 'simple_history/backfill/completed', $status );
 	}
 
 	/**
@@ -148,52 +149,6 @@ class Auto_Backfill_Service extends Service {
 		 * @param array $post_types Post types to backfill (default: all public + attachment).
 		 */
 		return (array) apply_filters( 'simple_history/auto_backfill/post_types', $post_types );
-	}
-
-	/**
-	 * Log backfill completion to Simple History.
-	 *
-	 * @param array $status Backfill status with results.
-	 */
-	private function log_backfill_completion( $status ) {
-		$logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimpleLogger' );
-
-		if ( ! $logger ) {
-			return;
-		}
-
-		$post_events  = $status['post_events_created'] ?? 0;
-		$user_events  = $status['user_events_created'] ?? 0;
-		$total_events = $post_events + $user_events;
-
-		if ( $total_events > 0 ) {
-			// Build message with proper singular/plural forms.
-			$post_text = sprintf(
-				/* translators: %d: number of post events */
-				_n( '%d post event', '%d post events', $post_events, 'simple-history' ),
-				$post_events
-			);
-			$user_text = sprintf(
-				/* translators: %d: number of user events */
-				_n( '%d user event', '%d user events', $user_events, 'simple-history' ),
-				$user_events
-			);
-
-			$logger->info(
-				'Automatic backfill created {post_text} and {user_text}',
-				[
-					'post_text'           => $post_text,
-					'user_text'           => $user_text,
-					'post_events'         => $post_events,
-					'user_events'         => $user_events,
-					'posts_imported'      => $status['posts_imported'] ?? 0,
-					'users_imported'      => $status['users_imported'] ?? 0,
-					'post_events_created' => $post_events,
-					'user_events_created' => $user_events,
-					'_initiator'          => \Simple_History\Log_Initiators::WORDPRESS,
-				]
-			);
-		}
 	}
 
 	/**

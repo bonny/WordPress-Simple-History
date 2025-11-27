@@ -32,6 +32,8 @@ class Simple_History_Logger extends Logger {
 				'regenerated_rss_feed_secret' => _x( 'Regenerated RSS feed secret', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'cleared_log'                 => _x( 'Cleared the log for Simple History ({num_rows_deleted} rows were removed)', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'purged_events'               => _x( 'Removed {num_rows} events that were older than {days} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'auto_backfill_completed'     => _x( 'Automatic backfill created {post_events} post events and {user_events} user events', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'manual_backfill_completed'   => _x( 'Manual backfill created {post_events} post events and {user_events} user events', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			),
 		];
 	}
@@ -46,6 +48,7 @@ class Simple_History_Logger extends Logger {
 		add_action( 'simple_history/rss_feed/secret_updated', [ $this, 'on_rss_feed_secret_updated' ] );
 		add_action( 'simple_history/settings/log_cleared', [ $this, 'on_log_cleared' ] );
 		add_action( 'simple_history/db/events_purged', [ $this, 'on_events_purged' ], 10, 2 );
+		add_action( 'simple_history/backfill/completed', [ $this, 'on_backfill_completed' ] );
 	}
 
 	/**
@@ -61,6 +64,43 @@ class Simple_History_Logger extends Logger {
 			[
 				'days'     => $days,
 				'num_rows' => $num_rows_deleted,
+			]
+		);
+	}
+
+	/**
+	 * Log when backfill is completed.
+	 *
+	 * @param array $status Backfill status containing type, post_events_created, user_events_created, etc.
+	 * @return void
+	 */
+	public function on_backfill_completed( $status ) {
+		// Bail if no type set.
+		if ( empty( $status['type'] ) ) {
+			return;
+		}
+
+		$post_events  = $status['post_events_created'] ?? 0;
+		$user_events  = $status['user_events_created'] ?? 0;
+		$total_events = $post_events + $user_events;
+
+		// Don't log if no events were created.
+		if ( $total_events === 0 ) {
+			return;
+		}
+
+		// Determine message key based on type.
+		$message_key = $status['type'] === 'auto'
+			? 'auto_backfill_completed'
+			: 'manual_backfill_completed';
+
+		$this->info_message(
+			$message_key,
+			[
+				'post_events'  => $post_events,
+				'user_events'  => $user_events,
+				'posts_imported' => $status['posts_imported'] ?? 0,
+				'users_imported' => $status['users_imported'] ?? 0,
 			]
 		);
 	}
