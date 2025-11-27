@@ -184,8 +184,8 @@ For each feature, ask yourself:
 
 For comprehensive examples and testing procedures:
 
-- See @examples.md for detailed code examples of allowed and forbidden patterns
-- See @testing.md for complete testing procedures, code review checklists, and pre-submission verification
+- See [examples.md](examples.md) for detailed code examples of allowed and forbidden patterns
+- See [testing.md](testing.md) for complete testing procedures, code review checklists, and pre-submission verification
 
 ## Resources
 

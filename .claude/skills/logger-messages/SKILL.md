@@ -144,8 +144,8 @@ Ask yourself:
 
 For comprehensive examples and code integration:
 
-- See @examples.md for extensive examples across all WordPress contexts (plugins, posts, users, menus, system events)
-- See @integration.md for complete logger class implementation examples and best practices
+- See [examples.md](examples.md) for extensive examples across all WordPress contexts (plugins, posts, users, menus, system events)
+- See [integration.md](integration.md) for complete logger class implementation examples and best practices
 
 ## Summary
 

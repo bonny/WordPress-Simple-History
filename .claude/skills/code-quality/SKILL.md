@@ -36,12 +36,13 @@ Invoke this skill:
 ### JavaScript
 - Follow @wordpress/scripts conventions
 - Text domain: `simple-history`
+- Always use braces for if/else/for/while (no single-line statements)
 
 ## Detailed Guidelines
 
 ### PHP Code Style
 
-See @php-standards.md for detailed PHP style guide including:
+See [php-standards.md](php-standards.md) for detailed PHP style guide including:
 - Happy path last pattern
 - Early returns over else
 - Ternary operator formatting
@@ -49,7 +50,7 @@ See @php-standards.md for detailed PHP style guide including:
 
 ### Tooling Commands
 
-See @tooling.md for:
+See [tooling.md](tooling.md) for:
 - phpcs (PHP_CodeSniffer) usage
 - phpstan (static analysis) usage
 - rector (code modernization) usage
@@ -57,7 +58,11 @@ See @tooling.md for:
 
 ### CSS Guidelines
 
-See @css-standards.md for SuitCSS naming conventions and examples.
+See [css-standards.md](css-standards.md) for SuitCSS naming conventions and examples.
+
+### JavaScript Guidelines
+
+See [js-standards.md](js-standards.md) for JavaScript code style.
 
 ## Essential Principles
 
