@@ -1437,16 +1437,32 @@ so add some extra place then to make it look a bit less ugly.
 	gap: 0.5em;
 }
 
-/* Grid layout for checkboxes - max 2 columns */
+/* Grid layout for checkboxes - 2 columns sized to content */
 .sh-CheckboxGrid {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 0.25em 1.5em;
+	grid-template-columns: max-content max-content;
+	gap: 0.5rem 3rem;
 	margin-bottom: 0.5em;
 }
 
 .sh-CheckboxGrid .sh-CheckboxLabel {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 0.4em;
 	margin-bottom: 0;
+	line-height: 1.4;
+	justify-self: start;
+}
+
+.sh-CheckboxGrid .sh-CheckboxLabel input[type="checkbox"] {
+	margin: 0.2em 0 0 0;
+	flex-shrink: 0;
+}
+
+.sh-CheckboxLabel-count {
+	font-size: 0.9em;
+	color: var(--sh-color-gray-3);
 }
 
 /* Select all/none toggle links */
@@ -1471,7 +1487,6 @@ so add some extra place then to make it look a bit less ugly.
 	border: 1px solid #c3c4c7;
 	border-radius: 4px;
 	padding: 1rem 1.5rem;
-	max-width: 600px;
 }
 
 .sh-BackfillForm-title {
