@@ -1,6 +1,6 @@
 ---
 name: changelog
-description: Add an entry to the changelog in readme.txt following the project's changelog format
+description: Add an entry to the changelog in readme.txt following the project's changelog format. Use when updating readme.txt, adding to Unreleased section, or documenting changes for a release.
 ---
 
 # Add Changelog Entry

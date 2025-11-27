@@ -348,6 +348,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
+-   Improved auto-backfill completion message to be more user-friendly and include the number of days imported.
+-   Improved welcome message text for clarity and better Premium feature promotion.
 -   Post creation events now capture initial post content, excerpt, and status transitions to provide complete audit trail without information gaps.
 -   Admin Bar Quick View: Display count of similar events (occasions) on a new line below the main event message and style it.
 -   Tested up to WordPress 6.9.
