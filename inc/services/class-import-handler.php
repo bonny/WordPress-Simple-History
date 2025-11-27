@@ -156,6 +156,9 @@ class Import_Handler extends Service {
 		];
 		update_option( self::MANUAL_STATUS_OPTION, $manual_status );
 
+		// Log the manual backfill completion.
+		$this->log_manual_backfill_completion( $manual_status );
+
 		// Redirect back to the page with results as URL parameters.
 		// Use the proper tab structure for the Tools menu.
 		$redirect_url = add_query_arg(
@@ -277,5 +280,42 @@ class Import_Handler extends Service {
 
 		wp_safe_redirect( $redirect_url );
 		exit;
+	}
+
+	/**
+	 * Log the manual backfill completion to Simple History.
+	 *
+	 * @param array $status The manual backfill status array.
+	 */
+	private function log_manual_backfill_completion( $status ) {
+		$logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimpleLogger' );
+
+		if ( ! $logger ) {
+			return;
+		}
+
+		$posts_imported = $status['posts_imported'] ?? 0;
+		$users_imported = $status['users_imported'] ?? 0;
+		$total_imported = $posts_imported + $users_imported;
+
+		if ( $total_imported === 0 ) {
+			return;
+		}
+
+		$date_range_type  = $status['date_range_type'] ?? 'specific';
+		$date_range_value = $status['date_range_value'] ?? 0;
+		$date_range_unit  = $status['date_range_unit'] ?? 'days';
+
+		$logger->info(
+			'Manual backfill completed: imported {posts_count} posts and {users_count} users',
+			[
+				'posts_count'      => $posts_imported,
+				'users_count'      => $users_imported,
+				'date_range_type'  => $date_range_type,
+				'date_range_value' => $date_range_value,
+				'date_range_unit'  => $date_range_unit,
+				'_initiator'       => \Simple_History\Log_Initiators::WP_USER,
+			]
+		);
 	}
 }
