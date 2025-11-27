@@ -296,9 +296,9 @@ class Import_Handler extends Service {
 			return;
 		}
 
-		$post_events_created = $status['post_events_created'] ?? 0;
-		$user_events_created = $status['user_events_created'] ?? 0;
-		$total_events        = $post_events_created + $user_events_created;
+		$post_events  = $status['post_events_created'] ?? 0;
+		$user_events  = $status['user_events_created'] ?? 0;
+		$total_events = $post_events + $user_events;
 
 		if ( $total_events === 0 ) {
 			return;
@@ -308,15 +308,29 @@ class Import_Handler extends Service {
 		$date_range_value = $status['date_range_value'] ?? 0;
 		$date_range_unit  = $status['date_range_unit'] ?? 'days';
 
+		// Build message with proper singular/plural forms.
+		$post_text = sprintf(
+			/* translators: %d: number of post events */
+			_n( '%d post event', '%d post events', $post_events, 'simple-history' ),
+			$post_events
+		);
+		$user_text = sprintf(
+			/* translators: %d: number of user events */
+			_n( '%d user event', '%d user events', $user_events, 'simple-history' ),
+			$user_events
+		);
+
 		$logger->info(
-			'Manual backfill completed: created {post_events} post events and {user_events} user events',
+			'Manual backfill created {post_text} and {user_text}',
 			[
-				'post_events'         => $post_events_created,
-				'user_events'         => $user_events_created,
+				'post_text'           => $post_text,
+				'user_text'           => $user_text,
+				'post_events'         => $post_events,
+				'user_events'         => $user_events,
 				'posts_imported'      => $status['posts_imported'] ?? 0,
 				'users_imported'      => $status['users_imported'] ?? 0,
-				'post_events_created' => $post_events_created,
-				'user_events_created' => $user_events_created,
+				'post_events_created' => $post_events,
+				'user_events_created' => $user_events,
 				'date_range_type'     => $date_range_type,
 				'date_range_value'    => $date_range_value,
 				'date_range_unit'     => $date_range_unit,

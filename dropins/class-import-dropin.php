@@ -177,18 +177,18 @@ class Import_Dropin extends Dropin {
 				</p>
 
 				<?php
-			$is_cron_scheduled     = wp_next_scheduled( Auto_Backfill_Service::CRON_HOOK );
-			$has_auto_backfill_run = $auto_backfill_status && ! empty( $auto_backfill_status['completed'] );
-			$is_existing_site      = ! $has_auto_backfill_run && ! $is_cron_scheduled;
+				$is_cron_scheduled     = wp_next_scheduled( Auto_Backfill_Service::CRON_HOOK );
+				$has_auto_backfill_run = $auto_backfill_status && ! empty( $auto_backfill_status['completed'] );
+				$is_existing_site      = ! $has_auto_backfill_run && ! $is_cron_scheduled;
 
-			if ( $has_auto_backfill_run ) {
-				// Date is stored in GMT, append UTC so strtotime interprets it correctly.
-				$completed_timestamp = strtotime( $auto_backfill_status['completed_at'] . ' UTC' );
-				$completed_date      = wp_date(
-					get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
-					$completed_timestamp
-				);
-				?>
+				if ( $has_auto_backfill_run ) {
+					// Date is stored in GMT, append UTC so strtotime interprets it correctly.
+					$completed_timestamp = strtotime( $auto_backfill_status['completed_at'] . ' UTC' );
+					$completed_date      = wp_date(
+						get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+						$completed_timestamp
+					);
+					?>
 				<div class="sh-StatusBox sh-StatusBox--success">
 					<p>
 						<strong>
@@ -212,21 +212,21 @@ class Import_Dropin extends Dropin {
 							?>
 						</li>
 						<li>
-							<?php
-							printf(
+								<?php
+								printf(
 								/* translators: %d: Number of events */
-								esc_html__( 'User events created: %d', 'simple-history' ),
-								(int) ( $auto_backfill_status['user_events_created'] ?? 0 )
-							);
-							?>
+									esc_html__( 'User events created: %d', 'simple-history' ),
+									(int) ( $auto_backfill_status['user_events_created'] ?? 0 )
+								);
+								?>
 						</li>
 					</ul>
 
 					<p>
-						<?php esc_html_e( 'Need older content? Use Manual Backfill to import beyond these limits.', 'simple-history' ); ?>
+							<?php esc_html_e( 'Need older content? Use Manual Backfill to import beyond these limits.', 'simple-history' ); ?>
 					</p>
 				</div>
-				<?php
+					<?php
 				} elseif ( $is_cron_scheduled ) {
 					?>
 				<div class="sh-StatusBox sh-StatusBox--warning">

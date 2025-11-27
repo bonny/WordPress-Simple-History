@@ -730,8 +730,8 @@ class Existing_Data_Importer {
 			$count    = count( $posts );
 
 			// Check how many are already logged.
-			$message_key_created  = ( 'attachment' === $post_type ) ? 'attachment_created' : 'post_created';
-			$message_key_updated  = ( 'attachment' === $post_type ) ? 'attachment_updated' : 'post_updated';
+			$message_key_created    = ( 'attachment' === $post_type ) ? 'attachment_created' : 'post_created';
+			$message_key_updated    = ( 'attachment' === $post_type ) ? 'attachment_updated' : 'post_updated';
 			$already_logged_created = [];
 			$already_logged_updated = [];
 
