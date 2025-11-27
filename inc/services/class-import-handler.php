@@ -145,6 +145,8 @@ class Import_Handler extends Service {
 			'completed_at'           => current_time( 'mysql', true ),
 			'posts_imported'         => isset( $results['posts_imported'] ) ? intval( $results['posts_imported'] ) : 0,
 			'users_imported'         => isset( $results['users_imported'] ) ? intval( $results['users_imported'] ) : 0,
+			'post_events_created'    => isset( $results['post_events_created'] ) ? intval( $results['post_events_created'] ) : 0,
+			'user_events_created'    => isset( $results['user_events_created'] ) ? intval( $results['user_events_created'] ) : 0,
 			'posts_skipped_imported' => isset( $results['posts_skipped_imported'] ) ? intval( $results['posts_skipped_imported'] ) : 0,
 			'posts_skipped_logged'   => isset( $results['posts_skipped_logged'] ) ? intval( $results['posts_skipped_logged'] ) : 0,
 			'users_skipped_imported' => isset( $results['users_skipped_imported'] ) ? intval( $results['users_skipped_imported'] ) : 0,
@@ -294,11 +296,11 @@ class Import_Handler extends Service {
 			return;
 		}
 
-		$posts_imported = $status['posts_imported'] ?? 0;
-		$users_imported = $status['users_imported'] ?? 0;
-		$total_imported = $posts_imported + $users_imported;
+		$post_events_created = $status['post_events_created'] ?? 0;
+		$user_events_created = $status['user_events_created'] ?? 0;
+		$total_events        = $post_events_created + $user_events_created;
 
-		if ( $total_imported === 0 ) {
+		if ( $total_events === 0 ) {
 			return;
 		}
 
@@ -307,14 +309,18 @@ class Import_Handler extends Service {
 		$date_range_unit  = $status['date_range_unit'] ?? 'days';
 
 		$logger->info(
-			'Manual backfill completed: imported {posts_count} posts and {users_count} users',
+			'Manual backfill completed: created {post_events} post events and {user_events} user events',
 			[
-				'posts_count'      => $posts_imported,
-				'users_count'      => $users_imported,
-				'date_range_type'  => $date_range_type,
-				'date_range_value' => $date_range_value,
-				'date_range_unit'  => $date_range_unit,
-				'_initiator'       => \Simple_History\Log_Initiators::WP_USER,
+				'post_events'         => $post_events_created,
+				'user_events'         => $user_events_created,
+				'posts_imported'      => $status['posts_imported'] ?? 0,
+				'users_imported'      => $status['users_imported'] ?? 0,
+				'post_events_created' => $post_events_created,
+				'user_events_created' => $user_events_created,
+				'date_range_type'     => $date_range_type,
+				'date_range_value'    => $date_range_value,
+				'date_range_unit'     => $date_range_unit,
+				'_initiator'          => \Simple_History\Log_Initiators::WP_USER,
 			]
 		);
 	}

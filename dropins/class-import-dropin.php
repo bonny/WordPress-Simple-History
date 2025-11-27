@@ -73,6 +73,10 @@ class Import_Dropin extends Dropin {
 		$auto_backfill_status = Auto_Backfill_Service::get_status();
 		$retention_days       = Helpers::get_clear_history_interval();
 
+		// Get total backfilled events count.
+		$importer                = new Existing_Data_Importer( $this->simple_history );
+		$backfilled_events_count = $importer->get_backfilled_events_count();
+
 		// Check if delete was just completed.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$delete_completed = isset( $_GET['delete-completed'] ) && $_GET['delete-completed'] === '1';
@@ -147,6 +151,18 @@ class Import_Dropin extends Dropin {
 				?>
 			</p>
 
+			<p>
+				<strong>
+				<?php
+				printf(
+					/* translators: %s: Number of backfilled events */
+					esc_html__( 'Currently %s backfilled events in the history log.', 'simple-history' ),
+					'<code>' . number_format_i18n( $backfilled_events_count ) . '</code>'
+				);
+				?>
+				</strong>
+			</p>
+
 			<div class="sh-SettingsCard">
 				<h3 class="sh-SettingsCard-title"><?php esc_html_e( 'Automatic Backfill', 'simple-history' ); ?></h3>
 
@@ -161,10 +177,9 @@ class Import_Dropin extends Dropin {
 				</p>
 
 				<?php
-			$is_deleted              = ! empty( $auto_backfill_status['deleted_at'] );
-			$is_cron_scheduled       = wp_next_scheduled( Auto_Backfill_Service::CRON_HOOK );
-			$has_auto_backfill_run   = $auto_backfill_status && ! empty( $auto_backfill_status['completed'] );
-			$is_existing_site        = ! $has_auto_backfill_run && ! $is_cron_scheduled;
+			$is_cron_scheduled     = wp_next_scheduled( Auto_Backfill_Service::CRON_HOOK );
+			$has_auto_backfill_run = $auto_backfill_status && ! empty( $auto_backfill_status['completed'] );
+			$is_existing_site      = ! $has_auto_backfill_run && ! $is_cron_scheduled;
 
 			if ( $has_auto_backfill_run ) {
 				// Date is stored in GMT, append UTC so strtotime interprets it correctly.
@@ -173,29 +188,7 @@ class Import_Dropin extends Dropin {
 					get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
 					$completed_timestamp
 				);
-
-				// Show different status box depending on whether data was deleted.
-				if ( $is_deleted ) {
-					$deleted_timestamp = strtotime( $auto_backfill_status['deleted_at'] . ' UTC' );
-					$deleted_date      = wp_date(
-						get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
-						$deleted_timestamp
-					);
-					?>
-				<div class="sh-StatusBox sh-StatusBox--info">
-					<p>
-						<?php
-						printf(
-							/* translators: %s: Date and time */
-							esc_html__( 'Backfilled data was deleted on %s.', 'simple-history' ),
-							esc_html( $deleted_date )
-						);
-						?>
-					</p>
-				</div>
-					<?php
-				} else {
-					?>
+				?>
 				<div class="sh-StatusBox sh-StatusBox--success">
 					<p>
 						<strong>
@@ -212,18 +205,18 @@ class Import_Dropin extends Dropin {
 						<li>
 							<?php
 							printf(
-								/* translators: %d: Number of posts */
-								esc_html__( 'Posts imported: %d', 'simple-history' ),
-								(int) ( $auto_backfill_status['posts_imported'] ?? 0 )
+								/* translators: %d: Number of events */
+								esc_html__( 'Post events created: %d', 'simple-history' ),
+								(int) ( $auto_backfill_status['post_events_created'] ?? 0 )
 							);
 							?>
 						</li>
 						<li>
 							<?php
 							printf(
-								/* translators: %d: Number of users */
-								esc_html__( 'Users imported: %d', 'simple-history' ),
-								(int) ( $auto_backfill_status['users_imported'] ?? 0 )
+								/* translators: %d: Number of events */
+								esc_html__( 'User events created: %d', 'simple-history' ),
+								(int) ( $auto_backfill_status['user_events_created'] ?? 0 )
 							);
 							?>
 						</li>
@@ -233,10 +226,7 @@ class Import_Dropin extends Dropin {
 						<?php esc_html_e( 'Need older content? Use Manual Backfill to import beyond these limits.', 'simple-history' ); ?>
 					</p>
 				</div>
-					<?php
-				}
-				?>
-					<?php
+				<?php
 				} elseif ( $is_cron_scheduled ) {
 					?>
 				<div class="sh-StatusBox sh-StatusBox--warning">
