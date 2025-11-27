@@ -442,8 +442,8 @@ class Import_Dropin extends Dropin {
 				<summary>
 					<?php
 					printf(
-						/* translators: %d: Number of items that would be imported */
-						esc_html__( 'Preview: %d items would be imported', 'simple-history' ),
+						/* translators: %d: Number of events that would be created */
+						esc_html__( 'Preview: %d events would be created', 'simple-history' ),
 						(int) $preview['total']
 					);
 					?>
@@ -458,13 +458,13 @@ class Import_Dropin extends Dropin {
 					);
 					?>
 				</p>
-				<table class="widefat striped">
+				<table class="widefat striped sh-tableAuto">
 					<thead>
 						<tr>
 							<th><?php esc_html_e( 'Type', 'simple-history' ); ?></th>
 							<th class="sh-textRight"><?php esc_html_e( 'Available', 'simple-history' ); ?></th>
 							<th class="sh-textRight"><?php esc_html_e( 'Already logged', 'simple-history' ); ?></th>
-							<th class="sh-textRight"><?php esc_html_e( 'Would import', 'simple-history' ); ?></th>
+							<th class="sh-textRight"><?php esc_html_e( 'Events to create', 'simple-history' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
