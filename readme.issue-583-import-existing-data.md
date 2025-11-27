@@ -25,6 +25,8 @@ The information available in WordPress for historical events are very limited, b
 - [ ] How do we promote this in the best way to users using the log (perhaps for the first time, so they know there is more data to import)?
 - [x] Should we create a dedicated logger for backfill messages so log messages become translatable?
 - [x] Should use SimpleHistory_Logger?
+- [x] Add tests
+- [ ] Verify that auto-backfill works on an existing WP site when plugin is installed
 
 ## Progress
 
@@ -539,6 +541,27 @@ Improved backfill completion log messages for better grammar and active voice:
 - `dropins/class-import-dropin.php` - Updated labels to show "events"
 - `inc/services/class-auto-backfill-service.php` - Improved log message with proper grammar
 - `inc/services/class-import-handler.php` - Improved log message with proper grammar
+
+---
+
+### Step 8: Unit Tests (Completed)
+
+Added WPUnit tests for the `Existing_Data_Importer` class.
+
+**Created:** `tests/wpunit/ExistingDataImporterTest.php`
+
+**Test Cases:**
+
+1. **`test_import_posts_creates_events`** - Verifies importing posts creates events with `_backfilled_event` context key
+2. **`test_import_posts_skips_already_logged`** - Verifies already-logged posts aren't double-logged
+3. **`test_import_users_creates_events`** - Verifies user import creates events correctly
+4. **`test_delete_all_imported_removes_backfilled_events`** - Verifies delete functionality works
+5. **`test_import_respects_days_back_filter`** - Verifies date filtering works
+
+**Run tests:**
+```bash
+docker compose run --rm php-cli vendor/bin/codecept run wpunit:ExistingDataImporterTest
+```
 
 ---
 
