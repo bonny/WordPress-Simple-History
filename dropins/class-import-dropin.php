@@ -162,13 +162,37 @@ class Import_Dropin extends Dropin {
 				</p>
 
 				<?php
-				if ( $auto_backfill_status && ! empty( $auto_backfill_status['completed'] ) ) {
-					// Date is stored in GMT, append UTC so strtotime interprets it correctly.
-					$completed_timestamp = strtotime( $auto_backfill_status['completed_at'] . ' UTC' );
-					$completed_date      = wp_date(
+			$is_deleted = ! empty( $auto_backfill_status['deleted_at'] );
+
+			if ( $auto_backfill_status && ! empty( $auto_backfill_status['completed'] ) ) {
+				// Date is stored in GMT, append UTC so strtotime interprets it correctly.
+				$completed_timestamp = strtotime( $auto_backfill_status['completed_at'] . ' UTC' );
+				$completed_date      = wp_date(
+					get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+					$completed_timestamp
+				);
+
+				// Show different status box depending on whether data was deleted.
+				if ( $is_deleted ) {
+					$deleted_timestamp = strtotime( $auto_backfill_status['deleted_at'] . ' UTC' );
+					$deleted_date      = wp_date(
 						get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
-						$completed_timestamp
+						$deleted_timestamp
 					);
+					?>
+				<div class="sh-StatusBox sh-StatusBox--info">
+					<p>
+						<?php
+						printf(
+							/* translators: %s: Date and time */
+							esc_html__( 'Backfilled data was deleted on %s.', 'simple-history' ),
+							esc_html( $deleted_date )
+						);
+						?>
+					</p>
+				</div>
+					<?php
+				} else {
 					?>
 				<div class="sh-StatusBox sh-StatusBox--success">
 					<p>
@@ -215,29 +239,10 @@ class Import_Dropin extends Dropin {
 					<p>
 						<?php esc_html_e( 'Need older content? Use Manual Backfill to import beyond these limits.', 'simple-history' ); ?>
 					</p>
-
-					<?php
-					// Show deletion info if backfilled data was deleted.
-					if ( ! empty( $auto_backfill_status['deleted_at'] ) ) {
-						$deleted_timestamp = strtotime( $auto_backfill_status['deleted_at'] . ' UTC' );
-						$deleted_date      = wp_date(
-							get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
-							$deleted_timestamp
-						);
-						?>
-						<p class="sh-StatusBox-deletedInfo">
-							<?php
-							printf(
-								/* translators: %s: Date and time */
-								esc_html__( 'Backfilled data was deleted on %s', 'simple-history' ),
-								esc_html( $deleted_date )
-							);
-							?>
-						</p>
-						<?php
-					}
-					?>
 				</div>
+					<?php
+				}
+				?>
 					<?php
 				} elseif ( wp_next_scheduled( Auto_Backfill_Service::CRON_HOOK ) ) {
 					?>

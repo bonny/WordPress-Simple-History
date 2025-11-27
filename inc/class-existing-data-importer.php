@@ -639,16 +639,16 @@ class Existing_Data_Importer {
 	}
 
 	/**
-	 * Get a preview of what the auto-backfill would import.
+	 * Get a preview of what would be imported.
 	 *
-	 * Uses the same parameters as the auto-backfill service to provide
-	 * an accurate estimate of what would be imported.
+	 * Provides accurate counts by checking what's already logged in Simple History.
+	 * Supports both limited (auto-backfill) and unlimited (manual backfill) modes.
 	 *
 	 * @param array $options Preview options.
 	 *                       - post_types: Array of post types to check.
 	 *                       - include_users: Whether to include users.
-	 *                       - limit: Max number of items per type.
-	 *                       - days_back: Number of days back to check.
+	 *                       - limit: Max number of items per type (-1 for unlimited).
+	 *                       - days_back: Number of days back to check (null for all time).
 	 * @return array Preview data with counts per type.
 	 */
 	public function get_auto_backfill_preview( $options = [] ) {
@@ -669,9 +669,12 @@ class Existing_Data_Importer {
 			'limit_per_type' => $options['limit'],
 		];
 
-		// Calculate cutoff date.
-		$cutoff_timestamp = Date_Helper::get_last_n_days_start_timestamp( $options['days_back'] );
-		$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
+		// Calculate cutoff date if days_back is set (null = all time).
+		$cutoff_date = null;
+		if ( $options['days_back'] !== null ) {
+			$cutoff_timestamp = Date_Helper::get_last_n_days_start_timestamp( $options['days_back'] );
+			$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
+		}
 
 		// Count posts for each post type.
 		foreach ( $options['post_types'] as $post_type ) {
@@ -694,13 +697,17 @@ class Existing_Data_Importer {
 				'orderby'        => 'date',
 				'order'          => 'ASC',
 				'fields'         => 'ids',
-				'date_query'     => [
+			];
+
+			// Only add date query if we have a cutoff date.
+			if ( $cutoff_date !== null ) {
+				$args['date_query'] = [
 					[
 						'after'     => $cutoff_date,
 						'inclusive' => true,
 					],
-				],
-			];
+				];
+			}
 
 			$post_ids = get_posts( $args );
 			$count    = count( $post_ids );
@@ -728,17 +735,21 @@ class Existing_Data_Importer {
 		// Count users if included.
 		if ( $options['include_users'] ) {
 			$user_args = [
-				'number'     => $options['limit'],
-				'orderby'    => 'registered',
-				'order'      => 'ASC',
-				'fields'     => 'ID',
-				'date_query' => [
+				'number'  => $options['limit'],
+				'orderby' => 'registered',
+				'order'   => 'ASC',
+				'fields'  => 'ID',
+			];
+
+			// Only add date query if we have a cutoff date.
+			if ( $cutoff_date !== null ) {
+				$user_args['date_query'] = [
 					[
 						'after'     => $cutoff_date,
 						'inclusive' => true,
 					],
-				],
-			];
+				];
+			}
 
 			$user_ids = get_users( $user_args );
 			$count    = count( $user_ids );

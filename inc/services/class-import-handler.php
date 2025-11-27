@@ -91,26 +91,34 @@ class Import_Handler extends Service {
 		// No item limit - import all matching data.
 		$import_limit = -1;
 
-		// Get date range from value + unit inputs.
-		$date_range_value = isset( $_POST['date_range_value'] ) ? intval( $_POST['date_range_value'] ) : 0;
-		$date_range_unit  = isset( $_POST['date_range_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['date_range_unit'] ) ) : 'days';
+		// Check if "All time" is selected.
+		$date_range_type = isset( $_POST['date_range_type'] ) ? sanitize_text_field( wp_unslash( $_POST['date_range_type'] ) ) : 'specific';
 
-		// Convert to days.
-		if ( $date_range_value <= 0 ) {
-			// Use default from retention setting.
-			$days_back = null;
+		if ( $date_range_type === 'all_time' ) {
+			// All time - no date limit.
+			$days_back = -1;
 		} else {
-			switch ( $date_range_unit ) {
-				case 'months':
-					$days_back = $date_range_value * 30;
-					break;
-				case 'years':
-					$days_back = $date_range_value * 365;
-					break;
-				case 'days':
-				default:
-					$days_back = $date_range_value;
-					break;
+			// Get date range from value + unit inputs.
+			$date_range_value = isset( $_POST['date_range_value'] ) ? intval( $_POST['date_range_value'] ) : 0;
+			$date_range_unit  = isset( $_POST['date_range_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['date_range_unit'] ) ) : 'days';
+
+			// Convert to days.
+			if ( $date_range_value <= 0 ) {
+				// Use default from retention setting.
+				$days_back = null;
+			} else {
+				switch ( $date_range_unit ) {
+					case 'months':
+						$days_back = $date_range_value * 30;
+						break;
+					case 'years':
+						$days_back = $date_range_value * 365;
+						break;
+					case 'days':
+					default:
+						$days_back = $date_range_value;
+						break;
+				}
 			}
 		}
 
