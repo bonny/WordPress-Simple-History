@@ -11,6 +11,10 @@ export const DEFAULT_DATE_OPTIONS = [
 		value: 'lastdays:1',
 	},
 	{
+		label: __( 'Yesterday', 'simple-history' ),
+		value: 'yesterday',
+	},
+	{
 		label: __( 'Last 7 days', 'simple-history' ),
 		value: 'lastdays:7',
 	},

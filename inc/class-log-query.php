@@ -1540,8 +1540,9 @@ class Log_Query {
 				)
 			*/
 
-			$args['months']   = [];
-			$args['lastdays'] = 0;
+			$args['months']    = [];
+			$args['lastdays']  = 0;
+			$args['yesterday'] = false;
 
 			foreach ( $arr_dates as $one_date ) {
 				if ( strpos( $one_date, 'month:' ) === 0 ) {
@@ -1551,6 +1552,8 @@ class Log_Query {
 				} elseif ( strpos( $one_date, 'lastdays:' ) === 0 ) {
 					// Only keep largest lastdays value.
 					$args['lastdays'] = max( $args['lastdays'], substr( $one_date, strlen( 'lastdays:' ) ) );
+				} elseif ( $one_date === 'yesterday' ) {
+					$args['yesterday'] = true;
 				}
 			}
 		}
@@ -1564,6 +1567,17 @@ class Log_Query {
 				$timestamp     = Date_Helper::get_last_n_days_start_timestamp( $lastdays );
 				$inner_where[] = sprintf( 'date >= \'%1$s\'', gmdate( 'Y-m-d H:i:s', $timestamp ) );
 			}
+		}
+
+		// Add where clause for "yesterday".
+		// Uses Date_Helper which respects WordPress timezone.
+		if ( ! empty( $args['yesterday'] ) ) {
+			$range         = Date_Helper::get_last_n_complete_days_range( 1 );
+			$inner_where[] = sprintf(
+				'(date >= \'%1$s\' AND date <= \'%2$s\')',
+				gmdate( 'Y-m-d H:i:s', $range['from'] ),
+				gmdate( 'Y-m-d H:i:s', $range['to'] )
+			);
 		}
 
 		// months, in format "Y-m".
