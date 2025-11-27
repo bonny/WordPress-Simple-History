@@ -136,6 +136,10 @@ class Import_Handler extends Service {
 		);
 
 		// Save manual backfill status for persistent display.
+		// Store the original date range settings for accurate display.
+		$date_range_value = isset( $_POST['date_range_value'] ) ? intval( $_POST['date_range_value'] ) : 0;
+		$date_range_unit  = isset( $_POST['date_range_unit'] ) ? sanitize_text_field( wp_unslash( $_POST['date_range_unit'] ) ) : 'days';
+
 		$manual_status = [
 			'completed'              => true,
 			'completed_at'           => current_time( 'mysql', true ),
@@ -146,6 +150,9 @@ class Import_Handler extends Service {
 			'users_skipped_imported' => isset( $results['users_skipped_imported'] ) ? intval( $results['users_skipped_imported'] ) : 0,
 			'users_skipped_logged'   => isset( $results['users_skipped_logged'] ) ? intval( $results['users_skipped_logged'] ) : 0,
 			'days_back'              => $days_back ?? Helpers::get_clear_history_interval(),
+			'date_range_type'        => $date_range_type,
+			'date_range_value'       => $date_range_value,
+			'date_range_unit'        => $date_range_unit,
 		];
 		update_option( self::MANUAL_STATUS_OPTION, $manual_status );
 
@@ -159,6 +166,8 @@ class Import_Handler extends Service {
 				'import-completed'       => '1',
 				'posts-imported'         => isset( $results['posts_imported'] ) ? intval( $results['posts_imported'] ) : 0,
 				'users-imported'         => isset( $results['users_imported'] ) ? intval( $results['users_imported'] ) : 0,
+				'post-events-created'    => isset( $results['post_events_created'] ) ? intval( $results['post_events_created'] ) : 0,
+				'user-events-created'    => isset( $results['user_events_created'] ) ? intval( $results['user_events_created'] ) : 0,
 				'posts-skipped-imported' => isset( $results['posts_skipped_imported'] ) ? intval( $results['posts_skipped_imported'] ) : 0,
 				'posts-skipped-logged'   => isset( $results['posts_skipped_logged'] ) ? intval( $results['posts_skipped_logged'] ) : 0,
 				'users-skipped-imported' => isset( $results['users_skipped_imported'] ) ? intval( $results['users_skipped_imported'] ) : 0,

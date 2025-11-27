@@ -61,6 +61,8 @@ class Existing_Data_Importer {
 		$this->results = [
 			'posts_imported'         => 0,
 			'users_imported'         => 0,
+			'post_events_created'    => 0,
+			'user_events_created'    => 0,
 			'posts_skipped_imported' => 0,
 			'posts_skipped_logged'   => 0,
 			'users_skipped_imported' => 0,
@@ -252,6 +254,7 @@ class Existing_Data_Importer {
 				}
 
 				$logger->info_message( $message_key, $context );
+				++$this->results['post_events_created'];
 
 				$post_detail['events_logged'][] = [
 					'type' => 'created',
@@ -306,6 +309,7 @@ class Existing_Data_Importer {
 				}
 
 				$logger->info_message( $message_key, $context );
+				++$this->results['post_events_created'];
 
 				$post_detail['events_logged'][] = [
 					'type' => 'updated',
@@ -411,6 +415,7 @@ class Existing_Data_Importer {
 					self::BACKFILLED_CONTEXT_KEY => '1',
 				]
 			);
+			++$this->results['user_events_created'];
 
 			$this->results['users_details'][] = [
 				'id'              => $user->ID,

@@ -299,14 +299,23 @@ class Import_Dropin extends Dropin {
 				$show_premium_teaser = apply_filters( 'simple_history/backfill/show_premium_teaser', true );
 
 				if ( $show_premium_teaser ) {
+					// Get approximate count of items that could be backfilled.
+					$preview_importer  = new Existing_Data_Importer( $this->simple_history );
+					$preview_counts    = $preview_importer->get_preview_counts();
+					$total_items_count = array_sum( $preview_counts['post_types'] ) + $preview_counts['users'];
+
 					echo wp_kses_post(
 						Helpers::get_premium_feature_teaser(
-							__( 'Go beyond 60 days', 'simple-history' ),
+							sprintf(
+								/* translators: %s: Number of items */
+								__( 'Backfill up to %s items', 'simple-history' ),
+								number_format_i18n( $total_items_count )
+							),
 							[
 								__( 'Backfill anytime, not just on first install', 'simple-history' ),
-								__( 'Select exactly which content types to include', 'simple-history' ),
-								__( 'Go beyond 60 days—import your entire history', 'simple-history' ),
-								__( 'Control batch sizes for large sites', 'simple-history' ),
+								__( 'Select which content types to include (posts, pages, users, attachments, and public custom post types)', 'simple-history' ),
+								__( 'Go beyond the limit of the automatic backfill and import your entire history', 'simple-history' ),
+								__( 'For old sites this can be years of content!', 'simple-history' ),
 							],
 							'premium_backfill_tools',
 							__( 'Get Premium', 'simple-history' )
