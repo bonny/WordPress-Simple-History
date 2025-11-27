@@ -306,6 +306,12 @@ wp cron event run simple_history/auto_backfill
 
 # Delete status to allow re-run
 wp option delete simple_history_auto_backfill_status
+
+# Reset Simple History to simulate fresh install (dev mode only)
+# Requires SIMPLE_HISTORY_DEV constant to be true
+wp simple-history dev reset --yes
+wp plugin activate simple-history
+wp cron event run simple_history/auto_backfill
 ```
 
 ---
@@ -522,18 +528,27 @@ Changed terminology from "items" to "events" throughout the UI:
 
 #### Log Message Improvements
 
-Improved backfill completion log messages for better grammar and active voice:
+Improved backfill completion log messages for better UX and clarity:
 
 **Before:**
-- `Automatic backfill completed: created 34 post events and 1 user events`
+- `Automatic backfill created 34 post events and 1 user events`
 
 **After:**
-- `Automatic backfill created 34 post events and 1 user event`
+- `Populated (backfilled) your history with 34 posts and 1 users from the last 60 days`
 
 **Changes:**
-- More active voice ("created" instead of "completed: created")
-- Proper singular/plural using `_n()` for translation support
-- "1 user event" instead of "1 user events"
+- User-friendly language ("Populated" instead of technical "backfill")
+- "(backfilled)" in parentheses for technical users who want to understand
+- Includes number of days for context (uses `Helpers::get_clear_history_interval()`)
+- Shows posts/users imported instead of "events created"
+
+#### Welcome Message Improvements
+
+Updated the welcome message in `class-setup-database.php`:
+
+1. **Feed update text:** "this feed will **update to** contain information..." (clearer that it's dynamic)
+2. **Backfill upsell:** "Want to **import even older WordPress posts?**" (instead of "Want more control?")
+3. **Retention upsell:** New message about 60-day default retention with Premium upsell for longer periods
 
 #### Files Modified
 
@@ -541,6 +556,10 @@ Improved backfill completion log messages for better grammar and active voice:
 - `dropins/class-import-dropin.php` - Updated labels to show "events"
 - `inc/services/class-auto-backfill-service.php` - Improved log message with proper grammar
 - `inc/services/class-import-handler.php` - Improved log message with proper grammar
+- `loggers/class-simple-history-logger.php` - Updated backfill message with days_back context
+- `inc/services/class-setup-database.php` - Improved welcome message text and upsells
+- `inc/services/wp-cli-commands/class-wp-cli-dev-command.php` - New dev reset command
+- `inc/services/class-wp-cli-commands.php` - Register dev command when SIMPLE_HISTORY_DEV is true
 
 ---
 
