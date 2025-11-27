@@ -22,6 +22,8 @@ The information available in WordPress for historical events are very limited, b
 - [x] Phase 1: Add date filtering to `Existing_Data_Importer` (reuse `get_clear_history_interval()`)
 - [x] Phase 2: Create automatic backfill service (first install only)
 - [x] Phase 3: Convert core to info + upsell, create premium GUI
+- [ ] How do we promote this in the best way to users using the log (perhaps for the first time, so they know there is more data to import)?
+- [ ] Should we create a dedicated logger for backfill messages so log messages become translatable?
 
 ## Progress
 
@@ -487,6 +489,55 @@ Simplified and improved the manual backfill form in the premium module for bette
 │ [Run Backfill]                              │
 └─────────────────────────────────────────────┘
 ```
+
+---
+
+### Step 7: Preview Accuracy & Log Message Improvements (Completed)
+
+Fixed the backfill preview count to accurately match the actual import results.
+
+#### Preview Count Fix
+
+**Problem:** Preview showed higher event counts than actual import (e.g., 42 predicted vs 28 actual).
+
+**Root causes identified and fixed:**
+
+1. **GMT date validation** - Actual import handles invalid dates ('0000-00-00 00:00:00') by converting from local date. Preview now does the same.
+
+2. **Update detection logic** - Changed from timestamp with 60-second threshold to simple string comparison (`$post_date_gmt !== $post_modified_gmt`) to match actual import.
+
+3. **Logger availability checks** - Added checks for SimplePostLogger, SimpleMediaLogger, and SimpleUserLogger availability in preview to match actual import behavior.
+
+4. **days_back handling** - Fixed cutoff date check to treat `days_back=0` the same as null (all time).
+
+#### UI Label Updates
+
+Changed terminology from "items" to "events" throughout the UI:
+- "X items would be imported" → "X events would be created"
+- "Would import" column → "Events to create" column
+- "Post events created" instead of "Posts imported"
+
+#### Log Message Improvements
+
+Improved backfill completion log messages for better grammar and active voice:
+
+**Before:**
+- `Automatic backfill completed: created 34 post events and 1 user events`
+
+**After:**
+- `Automatic backfill created 34 post events and 1 user event`
+
+**Changes:**
+- More active voice ("created" instead of "completed: created")
+- Proper singular/plural using `_n()` for translation support
+- "1 user event" instead of "1 user events"
+
+#### Files Modified
+
+- `inc/class-existing-data-importer.php` - Fixed preview logic to match import logic
+- `dropins/class-import-dropin.php` - Updated labels to show "events"
+- `inc/services/class-auto-backfill-service.php` - Improved log message with proper grammar
+- `inc/services/class-import-handler.php` - Improved log message with proper grammar
 
 ---
 
