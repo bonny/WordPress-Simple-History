@@ -1,6 +1,7 @@
 ---
 name: logger-messages
-description: Writes user-friendly logger messages in active voice for Simple History event logs. Fixes passive voice issues. Use when creating/modifying logger classes in loggers/ directory, writing getInfo() messages, fixing passive voice, or reviewing log message clarity.
+description: Writes user-friendly logger messages in active voice for Simple History event logs. Fixes passive voice issues. Use when creating/modifying logger classes in loggers/ directory, writing getInfo() messages, fixing passive voice, reviewing log message clarity, or adding new events to the activity log.
+allowed-tools: Read, Grep, Glob
 ---
 
 # Logger Message Writing Guidelines
@@ -14,6 +15,13 @@ Invoke this skill when:
 - Updating existing logger messages
 - Creating or modifying logger classes in `loggers/` directory
 - Reviewing log message clarity and tone
+- Adding new events to the activity log
+
+## Supporting Files
+
+For comprehensive guidance:
+- **[examples.md](examples.md)**: Extensive examples across all WordPress contexts (plugins, posts, users, menus, system events)
+- **[integration.md](integration.md)**: Complete logger class implementation examples and best practices
 
 ## Core Principle: Active Voice
 
@@ -28,8 +36,6 @@ Write messages in **active tone** as if someone is telling you what happened in 
 
 ## Quick Examples
 
-### Good vs Bad
-
 ```
 ✅ DO                          ❌ DON'T
 ─────────────────────────────────────────────
@@ -41,28 +47,7 @@ Changed password              Password was changed
 Published post                Post has been published
 ```
 
-### Common Patterns
-
-**Simple actions**: `[Action] [Object]`
-```
-"Created post"
-"Deleted user"
-"Updated plugin"
-```
-
-**With details**: `[Action] [Object] [Detail]`
-```
-"Changed site language to French"
-"Updated plugin from version 1.0 to 1.1"
-"Moved post to trash"
-```
-
-**System events**: `[Detected/Found] [What]`
-```
-"Detected file modifications"
-"Found security issue"
-"Completed backup"
-```
+See [examples.md](examples.md) for comprehensive examples across all contexts.
 
 ## Key Characteristics
 
@@ -139,13 +124,6 @@ Ask yourself:
 2. **Is it clear?** Would a non-technical user understand?
 3. **Is it concise?** Can you remove words without losing meaning?
 4. **Is it specific?** Does it tell you exactly what happened?
-
-## Detailed Information
-
-For comprehensive examples and code integration:
-
-- See [examples.md](examples.md) for extensive examples across all WordPress contexts (plugins, posts, users, menus, system events)
-- See [integration.md](integration.md) for complete logger class implementation examples and best practices
 
 ## Summary
 
