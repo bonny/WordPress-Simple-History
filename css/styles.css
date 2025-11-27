@@ -1303,29 +1303,33 @@ so add some extra place then to make it look a bit less ugly.
 	margin-block-end: 0;
 }
 
-/* Status Box - used for status messages with colored left border */
+/* Status Box - info/stats cards (distinct from WP admin notices) */
 .sh-StatusBox {
-	background: #f0f0f1;
-	padding: 15px;
-	margin: 15px 0;
-	border-left-width: 4px;
-	border-left-style: solid;
+	background: #fff;
+	padding: 1rem;
+	margin: 1rem 0;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
 }
 
 .sh-StatusBox--success {
-	border-left-color: #00a32a;
+	background: #f0fdf4;
+	border-color: #86efac;
 }
 
 .sh-StatusBox--warning {
-	border-left-color: #dba617;
+	background: #fffbeb;
+	border-color: #fcd34d;
 }
 
 .sh-StatusBox--error {
-	border-left-color: #d63638;
+	background: #fef2f2;
+	border-color: #fca5a5;
 }
 
 .sh-StatusBox--info {
-	border-left-color: #2271b1;
+	background: #eff6ff;
+	border-color: #93c5fd;
 }
 
 .sh-StatusBox p:first-child {
