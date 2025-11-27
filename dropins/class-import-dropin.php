@@ -227,15 +227,6 @@ class Import_Dropin extends Dropin {
 							);
 							?>
 						</li>
-						<li>
-							<?php
-							printf(
-								/* translators: %d: Number of days */
-								esc_html__( 'Date range: Last %d days', 'simple-history' ),
-								(int) ( $auto_backfill_status['days_back'] ?? $retention_days )
-							);
-							?>
-						</li>
 					</ul>
 
 					<p>
