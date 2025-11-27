@@ -157,7 +157,7 @@ class Import_Dropin extends Dropin {
 				printf(
 					/* translators: %s: Number of backfilled events */
 					esc_html__( 'Currently %s backfilled events in the history log.', 'simple-history' ),
-					'<code>' . number_format_i18n( $backfilled_events_count ) . '</code>'
+					'<code>' . esc_html( number_format_i18n( $backfilled_events_count ) ) . '</code>'
 				);
 				?>
 				</strong>
@@ -171,7 +171,7 @@ class Import_Dropin extends Dropin {
 					printf(
 						/* translators: %d: Number of items limit */
 						esc_html__( 'On fresh installations, Simple History automatically backfills history from existing content, limited to %d items per content type.', 'simple-history' ),
-						Auto_Backfill_Service::DEFAULT_LIMIT
+						(int) Auto_Backfill_Service::DEFAULT_LIMIT
 					);
 					?>
 				</p>
