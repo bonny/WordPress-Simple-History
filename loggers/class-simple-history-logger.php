@@ -32,7 +32,7 @@ class Simple_History_Logger extends Logger {
 				'regenerated_rss_feed_secret' => _x( 'Regenerated RSS feed secret', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'cleared_log'                 => _x( 'Cleared the log for Simple History ({num_rows_deleted} rows were removed)', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'purged_events'               => _x( 'Removed {num_rows} events that were older than {days} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'auto_backfill_completed'     => _x( 'Automatic backfill created {post_events} post events and {user_events} user events', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'auto_backfill_completed'     => _x( 'Populated (backfilled) your history with {posts_imported} posts and {users_imported} users from the last {days_back} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'manual_backfill_completed'   => _x( 'Manual backfill created {post_events} post events and {user_events} user events', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			),
 		];
@@ -97,10 +97,11 @@ class Simple_History_Logger extends Logger {
 		$this->info_message(
 			$message_key,
 			[
-				'post_events'  => $post_events,
-				'user_events'  => $user_events,
+				'post_events'    => $post_events,
+				'user_events'    => $user_events,
 				'posts_imported' => $status['posts_imported'] ?? 0,
 				'users_imported' => $status['users_imported'] ?? 0,
+				'days_back'      => $status['days_back'] ?? 0,
 			]
 		);
 	}

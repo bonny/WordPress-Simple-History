@@ -417,7 +417,7 @@ class Setup_Database extends Service {
 		$message .= sprintf(
 			$row_template,
 			'📝',
-			__( 'As your users work on this site, this feed will contain information about their actions. Page edits, attachment uploads, plugin updates, user logins, site settings changes, and much more will show up in this log.', 'simple-history' )
+			__( 'As your users work on this site, this feed will update to contain information about their actions. Page edits, attachment uploads, plugin updates, user logins, site settings changes, and much more will show up in this log.', 'simple-history' )
 		);
 
 		$message .= sprintf(
@@ -431,7 +431,7 @@ class Setup_Database extends Service {
 			'⏰',
 			sprintf(
 				/* translators: %s is a link to the add-ons page */
-				__( 'Simple History will automatically backfill your history with events from existing content. Posts, pages, and user registrations will be added to your log, giving you a head start. Want more control? <a href="%s" target="_blank">Simple History Premium</a> lets you manually run backfill with custom options.', 'simple-history' ),
+				__( 'Simple History will automatically backfill your history with events from existing content. Posts, pages, and user registrations will be added to your log, giving you a head start. Want to import even older WordPress posts? <a href="%s" target="_blank">Simple History Premium</a> lets you manually run backfill with custom options.', 'simple-history' ),
 				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/', 'premium_welcome_backfill' ) )
 			)
 		);
@@ -440,12 +440,13 @@ class Setup_Database extends Service {
 			$row_template,
 			'🌟',
 			sprintf(
-				/* translators: 1 %s is a link to the add-ons page */
+				/* translators: 1: number of days, 2: link to Premium page */
 				__(
-					'Extend Simple History with more features using <a href="%1$s" target="_blank">add-ons</a>.',
+					'By default, events are automatically cleared after %1$s days to keep your database size in check. Need to keep your history longer? <a href="%2$s" target="_blank">Simple History Premium</a> lets you extend the retention period.',
 					'simple-history'
 				),
-				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/', 'premium_welcome_addons' ) )
+				Helpers::get_clear_history_interval(),
+				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/', 'premium_welcome_retention' ) )
 			)
 		);
 
