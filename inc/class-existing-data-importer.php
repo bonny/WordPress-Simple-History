@@ -674,9 +674,9 @@ class Existing_Data_Importer {
 			'limit_per_type' => $options['limit'],
 		];
 
-		// Calculate cutoff date if days_back is set (null = all time).
+		// Calculate cutoff date if days_back is set and > 0 (null or 0 = all time).
 		$cutoff_date = null;
-		if ( $options['days_back'] !== null ) {
+		if ( $options['days_back'] !== null && $options['days_back'] > 0 ) {
 			$cutoff_timestamp = Date_Helper::get_last_n_days_start_timestamp( $options['days_back'] );
 			$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
 		}
@@ -685,6 +685,18 @@ class Existing_Data_Importer {
 		foreach ( $options['post_types'] as $post_type ) {
 			$post_type_obj = get_post_type_object( $post_type );
 			if ( ! $post_type_obj ) {
+				continue;
+			}
+
+			// Check if the required logger is available (same check as actual import).
+			if ( 'attachment' === $post_type ) {
+				$logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimpleMediaLogger' );
+			} else {
+				$logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePostLogger' );
+			}
+
+			// Skip post type if logger not available.
+			if ( ! $logger ) {
 				continue;
 			}
 
@@ -701,7 +713,6 @@ class Existing_Data_Importer {
 				'posts_per_page' => $options['limit'],
 				'orderby'        => 'date',
 				'order'          => 'ASC',
-				'fields'         => 'ids',
 			];
 
 			// Only add date query if we have a cutoff date.
@@ -714,67 +725,109 @@ class Existing_Data_Importer {
 				];
 			}
 
-			$post_ids = get_posts( $args );
-			$count    = count( $post_ids );
+			$posts    = get_posts( $args );
+			$post_ids = wp_list_pluck( $posts, 'ID' );
+			$count    = count( $posts );
 
 			// Check how many are already logged.
-			$already_logged_count = 0;
+			$message_key_created  = ( 'attachment' === $post_type ) ? 'attachment_created' : 'post_created';
+			$message_key_updated  = ( 'attachment' === $post_type ) ? 'attachment_updated' : 'post_updated';
+			$already_logged_created = [];
+			$already_logged_updated = [];
+
 			if ( ! empty( $post_ids ) ) {
-				$message_key          = ( 'attachment' === $post_type ) ? 'attachment_created' : 'post_created';
-				$already_logged       = $this->get_already_logged_post_ids( $post_ids, $message_key );
-				$already_logged_count = count( $already_logged );
+				$already_logged_created = $this->get_already_logged_post_ids( $post_ids, $message_key_created );
+				$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, $message_key_updated );
 			}
 
-			$would_import = max( 0, $count - $already_logged_count );
+			// Count events that would be created.
+			// Only posts NOT already logged (created) will be processed.
+			// Each processed post gets a created event, plus an updated event if modified.
+			// Note: get_already_logged_post_ids() returns array with post_id as keys.
+			// This logic must match the actual import logic in import_posts().
+			$would_create_events = 0;
+			foreach ( $posts as $post ) {
+				// Skip if already has a created event.
+				if ( isset( $already_logged_created[ $post->ID ] ) ) {
+					continue;
+				}
+
+				// This post would get a created event.
+				++$would_create_events;
+
+				// Validate GMT dates - same logic as import_posts().
+				// WordPress uses '0000-00-00 00:00:00' for drafts and scheduled posts.
+				$post_date_gmt = $post->post_date_gmt;
+				if ( $post_date_gmt === '0000-00-00 00:00:00' || empty( $post_date_gmt ) ) {
+					$post_date_gmt = get_gmt_from_date( $post->post_date );
+				}
+
+				$post_modified_gmt = $post->post_modified_gmt;
+				if ( $post_modified_gmt === '0000-00-00 00:00:00' || empty( $post_modified_gmt ) ) {
+					$post_modified_gmt = get_gmt_from_date( $post->post_modified );
+				}
+
+				// Check if post has updates - uses string comparison like import_posts().
+				$has_updates = $post_date_gmt !== $post_modified_gmt;
+
+				if ( $has_updates && ! isset( $already_logged_updated[ $post->ID ] ) ) {
+					++$would_create_events;
+				}
+			}
 
 			$preview['post_types'][ $post_type ] = [
 				'label'          => $post_type_obj->labels->name,
 				'available'      => $count,
-				'already_logged' => $already_logged_count,
-				'would_import'   => $would_import,
+				'already_logged' => count( $already_logged_created ),
+				'would_import'   => $would_create_events,
 			];
 
-			$preview['total'] += $would_import;
+			$preview['total'] += $would_create_events;
 		}
 
 		// Count users if included.
 		if ( $options['include_users'] ) {
-			$user_args = [
-				'number'  => $options['limit'],
-				'orderby' => 'registered',
-				'order'   => 'ASC',
-				'fields'  => 'ID',
-			];
+			// Check if the user logger is available (same check as actual import).
+			$user_logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimpleUserLogger' );
 
-			// Only add date query if we have a cutoff date.
-			if ( $cutoff_date !== null ) {
-				$user_args['date_query'] = [
-					[
-						'after'     => $cutoff_date,
-						'inclusive' => true,
-					],
+			if ( $user_logger ) {
+				$user_args = [
+					'number'  => $options['limit'],
+					'orderby' => 'registered',
+					'order'   => 'ASC',
+					'fields'  => 'ID',
 				];
+
+				// Only add date query if we have a cutoff date.
+				if ( $cutoff_date !== null ) {
+					$user_args['date_query'] = [
+						[
+							'after'     => $cutoff_date,
+							'inclusive' => true,
+						],
+					];
+				}
+
+				$user_ids = get_users( $user_args );
+				$count    = count( $user_ids );
+
+				// Check how many are already logged.
+				$already_logged_count = 0;
+				if ( ! empty( $user_ids ) ) {
+					$already_logged       = $this->get_already_logged_user_ids( $user_ids );
+					$already_logged_count = count( $already_logged );
+				}
+
+				$would_import = max( 0, $count - $already_logged_count );
+
+				$preview['users'] = [
+					'available'      => $count,
+					'already_logged' => $already_logged_count,
+					'would_import'   => $would_import,
+				];
+
+				$preview['total'] += $would_import;
 			}
-
-			$user_ids = get_users( $user_args );
-			$count    = count( $user_ids );
-
-			// Check how many are already logged.
-			$already_logged_count = 0;
-			if ( ! empty( $user_ids ) ) {
-				$already_logged       = $this->get_already_logged_user_ids( $user_ids );
-				$already_logged_count = count( $already_logged );
-			}
-
-			$would_import = max( 0, $count - $already_logged_count );
-
-			$preview['users'] = [
-				'available'      => $count,
-				'already_logged' => $already_logged_count,
-				'would_import'   => $would_import,
-			];
-
-			$preview['total'] += $would_import;
 		}
 
 		return $preview;
