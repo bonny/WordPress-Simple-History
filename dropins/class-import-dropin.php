@@ -153,18 +153,20 @@ class Import_Dropin extends Dropin {
 				<p>
 					<?php
 					printf(
-						/* translators: 1: Number of days, 2: Number of items limit */
-						esc_html__( 'When Simple History is first installed, it automatically backfills history from the last %1$d days of existing content, limited to %2$d items per content type.', 'simple-history' ),
-						(int) $retention_days,
+						/* translators: %d: Number of items limit */
+						esc_html__( 'On fresh installations, Simple History automatically backfills history from existing content, limited to %d items per content type.', 'simple-history' ),
 						Auto_Backfill_Service::DEFAULT_LIMIT
 					);
 					?>
 				</p>
 
 				<?php
-			$is_deleted = ! empty( $auto_backfill_status['deleted_at'] );
+			$is_deleted              = ! empty( $auto_backfill_status['deleted_at'] );
+			$is_cron_scheduled       = wp_next_scheduled( Auto_Backfill_Service::CRON_HOOK );
+			$has_auto_backfill_run   = $auto_backfill_status && ! empty( $auto_backfill_status['completed'] );
+			$is_existing_site        = ! $has_auto_backfill_run && ! $is_cron_scheduled;
 
-			if ( $auto_backfill_status && ! empty( $auto_backfill_status['completed'] ) ) {
+			if ( $has_auto_backfill_run ) {
 				// Date is stored in GMT, append UTC so strtotime interprets it correctly.
 				$completed_timestamp = strtotime( $auto_backfill_status['completed_at'] . ' UTC' );
 				$completed_date      = wp_date(
@@ -244,11 +246,19 @@ class Import_Dropin extends Dropin {
 				}
 				?>
 					<?php
-				} elseif ( wp_next_scheduled( Auto_Backfill_Service::CRON_HOOK ) ) {
+				} elseif ( $is_cron_scheduled ) {
 					?>
 				<div class="sh-StatusBox sh-StatusBox--warning">
 					<p>
 						<?php esc_html_e( 'Auto-backfill is scheduled and will run shortly.', 'simple-history' ); ?>
+					</p>
+				</div>
+					<?php
+				} elseif ( $is_existing_site ) {
+					?>
+				<div class="sh-StatusBox sh-StatusBox--info">
+					<p>
+						<?php esc_html_e( 'Auto-backfill did not run because Simple History was installed before this feature was added. Use Manual Backfill below to import existing content.', 'simple-history' ); ?>
 					</p>
 				</div>
 					<?php
