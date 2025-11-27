@@ -23,8 +23,8 @@ The information available in WordPress for historical events are very limited, b
 - [x] Phase 2: Create automatic backfill service (first install only)
 - [x] Phase 3: Convert core to info + upsell, create premium GUI
 - [ ] How do we promote this in the best way to users using the log (perhaps for the first time, so they know there is more data to import)?
-- [ ] Should we create a dedicated logger for backfill messages so log messages become translatable?
-- [ ] Should use SimpleHistory_Logger?
+- [x] Should we create a dedicated logger for backfill messages so log messages become translatable?
+- [x] Should use SimpleHistory_Logger?
 
 ## Progress
 
