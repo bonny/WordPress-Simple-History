@@ -63,6 +63,8 @@ Out of the box Simple History has support for:
 
 -   **Privacy page** – when a privacy page is created or set to a new page.
 
+-   **Notes** – track when notes are added, edited, or removed on posts and pages. Notes is a new collaboration feature in WordPress 6.9 that lets editors leave feedback without modifying the content.
+
 -   **Data Export** – see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
 
 -   **User Data Erasure Requests** – see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
@@ -128,7 +130,7 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 
 ### 🚀 Zero-Config Activity Tracking
 
-Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. View your activity logs through the convenient dashboard widget or browse the full history on the dedicated 'Simple History' page in your WordPress admin.
+Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. Even better: your activity log won't be empty on day one. Simple History automatically imports recent activity from your site's history, giving you a useful log from the moment you activate. View your activity logs through the convenient dashboard widget or browse the full history on the dedicated 'Simple History' page in your WordPress admin.
 
 ### 📧 Weekly Email Reports – Stay Informed Without Logging In
 
