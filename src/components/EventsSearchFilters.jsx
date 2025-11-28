@@ -58,7 +58,8 @@ export function EventsSearchFilters( props ) {
 			selectedMessageTypes.length > 0 ||
 			selectedUsersWithId.length > 0 ||
 			selectedInitiator.length > 0 ||
-			selectedContextFilters.trim().length > 0
+			selectedContextFilters.trim().length > 0 ||
+			hideOwnEvents
 		);
 	}, [
 		selectedLogLevels,
@@ -66,6 +67,7 @@ export function EventsSearchFilters( props ) {
 		selectedUsersWithId,
 		selectedInitiator,
 		selectedContextFilters,
+		hideOwnEvents,
 	] );
 
 	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () =>
