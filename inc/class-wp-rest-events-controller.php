@@ -880,7 +880,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		$data    = [];
-		$context = $item->context;
+		$context = $item->context ?? [];
 
 		$fields = $this->get_fields_for_response( $request );
 
