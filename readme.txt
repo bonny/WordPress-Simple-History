@@ -346,6 +346,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Add filter `simple_history/show_promo_boxes` to determine if promo boxes should be shown.
 -   Add support for negative filters in the event log query API, to the REST API, and to WP-CLI. [#86](https://github.com/bonny/WordPress-Simple-History/issues/86).
 -   Add "Hide my own events" checkbox to filters, allowing users to quickly exclude their own activity from the log. [#604](https://github.com/bonny/WordPress-Simple-History/issues/604).
+-   Add "Yesterday" option to the date filter dropdown for quick access to previous day's events.
 
 **Changed**
 
