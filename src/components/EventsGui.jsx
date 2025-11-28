@@ -111,6 +111,8 @@ function EventsGUI() {
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
+	const [ currentUserId, setCurrentUserId ] = useState( null );
+	const [ hideOwnEvents, setHideOwnEvents ] = useState( false );
 
 	/**
 	 * Start filter/search options states.
@@ -284,6 +286,28 @@ function EventsGUI() {
 	 * End filter/search options states.
 	 */
 
+	// Compute effective excludeUsers by combining URL-based excludeUsers with current user if hideOwnEvents is true.
+	const effectiveExcludeUsers = useMemo( () => {
+		if ( ! hideOwnEvents || ! currentUserId ) {
+			return excludeUsers;
+		}
+
+		// Check if current user is already in excludeUsers.
+		const currentUserAlreadyExcluded = excludeUsers.some(
+			( user ) => String( user.id ) === String( currentUserId )
+		);
+
+		if ( currentUserAlreadyExcluded ) {
+			return excludeUsers;
+		}
+
+		// Add current user to excludeUsers.
+		return [
+			...excludeUsers,
+			{ id: String( currentUserId ), value: 'Current user' },
+		];
+	}, [ excludeUsers, hideOwnEvents, currentUserId ] );
+
 	// Generate the events query params.
 	// Memoized to avoid unnecessary re-renders in the child components.
 	const eventsQueryParams = useMemo( () => {
@@ -303,7 +327,7 @@ function EventsGUI() {
 			excludeLogLevels,
 			excludeLoggers,
 			excludeMessages,
-			excludeUsers,
+			excludeUsers: effectiveExcludeUsers,
 			excludeInitiator,
 			excludeContextFilters,
 		} );
@@ -323,7 +347,7 @@ function EventsGUI() {
 		excludeLogLevels,
 		excludeLoggers,
 		excludeMessages,
-		excludeUsers,
+		effectiveExcludeUsers,
 		excludeInitiator,
 		excludeContextFilters,
 	] );
@@ -340,6 +364,7 @@ function EventsGUI() {
 		selectedContextFilters,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
+		hideOwnEvents,
 	] );
 
 	/**
@@ -541,6 +566,9 @@ function EventsGUI() {
 				setEventsSettingsPageURL={ setSettingsPageURL }
 				setPage={ setPage }
 				onReload={ handleReload }
+				setCurrentUserId={ setCurrentUserId }
+				hideOwnEvents={ hideOwnEvents }
+				setHideOwnEvents={ setHideOwnEvents }
 			/>
 
 			<EventsControlBar

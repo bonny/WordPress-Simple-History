@@ -1,6 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import {
 	BaseControl,
+	CheckboxControl,
 	ExternalLink,
 	Flex,
 	FlexBlock,
@@ -32,6 +33,8 @@ export function ExpandedFilters( props ) {
 		selectedContextFilters,
 		setSelectedContextFilters,
 		searchOptions,
+		hideOwnEvents,
+		setHideOwnEvents,
 	} = props;
 
 	// Array with objects that contains message types suggestions, used in the message types select control.
@@ -373,6 +376,20 @@ export function ExpandedFilters( props ) {
 							'Enter 2 or more characters to search for users.',
 							'simple-history'
 						) }
+					/>
+				</FlexBlock>
+			</Flex>
+
+			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
+				<FlexItem style={ { margin: '.5em 0' } }>
+					<div className="SimpleHistory__filters__filterLabel"></div>
+				</FlexItem>
+				<FlexBlock>
+					<CheckboxControl
+						__nextHasNoMarginBottom
+						label={ __( 'Hide my own events', 'simple-history' ) }
+						checked={ hideOwnEvents }
+						onChange={ setHideOwnEvents }
 					/>
 				</FlexBlock>
 			</Flex>
