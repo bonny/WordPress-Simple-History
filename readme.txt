@@ -347,6 +347,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Add support for negative filters in the event log query API, to the REST API, and to WP-CLI. [#86](https://github.com/bonny/WordPress-Simple-History/issues/86).
 -   Add "Hide my own events" checkbox to filters, allowing users to quickly exclude their own activity from the log. [#604](https://github.com/bonny/WordPress-Simple-History/issues/604).
 -   Add "Yesterday" option to the date filter dropdown for quick access to previous day's events.
+-   Add error message when trying to view an event that does not exist.
 
 **Changed**
 
@@ -355,14 +356,14 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Post creation events now capture initial post content, excerpt, and status transitions to provide complete audit trail without information gaps.
 -   Admin Bar Quick View: Display count of similar events (occasions) on a new line below the main event message and style it.
 -   Tested up to WordPress 6.9.
--   Insights sidebar: Clicks on users should also filter the log by 30 days.
+-   Insights sidebar: Clicking on users now also filters the log by the last 30 days.
 -   Insights sidebar: Update text to show current events in database and total events logged with links to settings page for retention period.
 -   Insights sidebar: Improve messages for message count.
 -   Decrease font size on stats sidebar stats box to fit more events.
--   Misc internal code improvements and changes.
--   Misc UI improvements and changes.
+-   Internal code and UI refinements.
 -   Reduce number of HTTP requests by consolidating the small sidebar CSS file (just 4 rules) into the main stylesheet that's already being loaded on the page.
 -   Stop polling for new events after 10+ new events are detected to reduce server resource consumption from inactive browser tabs.
+-   Hide sidebar donation box, support box, and review box when promo boxes are hidden for a cleaner interface with the premium add-on.
 
 **Fixed**
 
@@ -374,11 +375,6 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Removed**
 
 -   Remove donation box from sidebar and move hosting sponsor acknowledgment to Help & Support page for cleaner UI focused on premium offerings.
-
-**Other**
-
--   Show an error message when trying to view an event that does not exist.
--   Also hide sidebar donation box, support box, review box when promo boxes are hidden. This makes the plugin even more clean when using the premium add-on.
 
 ### 5.18.0 (November 2025)
 
