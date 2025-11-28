@@ -354,9 +354,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Add error message when trying to view an event that does not exist.
 -   Add filter `simple_history/show_promo_boxes` to determine if promo boxes should be shown.
 -   Add developer mode badge to the page header.
+-   Add new Tools tab with manual backfill option for importing historical events on demand.
 
 **Changed**
 
+-   Rename "Export" menu to "Export & Tools" and add tabbed interface to support additional tools.
 -   Post creation events now capture initial post content, excerpt, and status transitions to provide complete audit trail without information gaps.
 -   Stop polling for new events after 10+ new events are detected to reduce server resource consumption from inactive browser tabs.
 -   Improved auto-backfill completion message to be more user-friendly and include the number of days imported.
