@@ -112,7 +112,6 @@ function EventsGUI() {
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
-	const [ hideOwnEvents, setHideOwnEvents ] = useState( false );
 
 	/**
 	 * Start filter/search options states.
@@ -263,7 +262,7 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
-	const [ excludeUsers ] = useQueryState(
+	const [ excludeUsers, setExcludeUsers ] = useQueryState(
 		'exclude-users',
 		parseAsJson( usersSchema.parse )
 			.withDefault( emptyArray )
@@ -286,27 +285,46 @@ function EventsGUI() {
 	 * End filter/search options states.
 	 */
 
-	// Compute effective excludeUsers by combining URL-based excludeUsers with current user if hideOwnEvents is true.
-	const effectiveExcludeUsers = useMemo( () => {
-		if ( ! hideOwnEvents || ! currentUserId ) {
-			return excludeUsers;
+	// Derive hideOwnEvents from whether current user is in excludeUsers.
+	const hideOwnEvents = useMemo( () => {
+		if ( ! currentUserId ) {
+			return false;
 		}
-
-		// Check if current user is already in excludeUsers.
-		const currentUserAlreadyExcluded = excludeUsers.some(
+		return excludeUsers.some(
 			( user ) => String( user.id ) === String( currentUserId )
 		);
+	}, [ excludeUsers, currentUserId ] );
 
-		if ( currentUserAlreadyExcluded ) {
-			return excludeUsers;
-		}
+	// Callback to toggle hideOwnEvents by adding/removing current user from excludeUsers URL state.
+	const setHideOwnEvents = useCallback(
+		( shouldHide ) => {
+			if ( ! currentUserId ) {
+				return;
+			}
 
-		// Add current user to excludeUsers.
-		return [
-			...excludeUsers,
-			{ id: String( currentUserId ), value: 'Current user' },
-		];
-	}, [ excludeUsers, hideOwnEvents, currentUserId ] );
+			if ( shouldHide ) {
+				// Add current user to excludeUsers if not already there.
+				const alreadyExcluded = excludeUsers.some(
+					( user ) => String( user.id ) === String( currentUserId )
+				);
+				if ( ! alreadyExcluded ) {
+					setExcludeUsers( [
+						...excludeUsers,
+						{ id: String( currentUserId ), value: 'Me' },
+					] );
+				}
+			} else {
+				// Remove current user from excludeUsers.
+				setExcludeUsers(
+					excludeUsers.filter(
+						( user ) =>
+							String( user.id ) !== String( currentUserId )
+					)
+				);
+			}
+		},
+		[ currentUserId, excludeUsers, setExcludeUsers ]
+	);
 
 	// Generate the events query params.
 	// Memoized to avoid unnecessary re-renders in the child components.
@@ -327,7 +345,7 @@ function EventsGUI() {
 			excludeLogLevels,
 			excludeLoggers,
 			excludeMessages,
-			excludeUsers: effectiveExcludeUsers,
+			excludeUsers,
 			excludeInitiator,
 			excludeContextFilters,
 		} );
@@ -347,7 +365,7 @@ function EventsGUI() {
 		excludeLogLevels,
 		excludeLoggers,
 		excludeMessages,
-		effectiveExcludeUsers,
+		excludeUsers,
 		excludeInitiator,
 		excludeContextFilters,
 	] );
@@ -364,7 +382,7 @@ function EventsGUI() {
 		selectedContextFilters,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
-		hideOwnEvents,
+		excludeUsers,
 	] );
 
 	/**

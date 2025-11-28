@@ -10,7 +10,10 @@ A teacher using Simple History to monitor student activity wants to exclude thei
 
 ## Implementation
 
-Session-only feature (resets on page reload). When checked, adds the current user's ID to the `exclude_users` API parameter.
+When checked, adds the current user's ID to the `exclude-users` URL parameter. This means:
+- The URL is updated and can be bookmarked
+- Refreshing the page preserves the filter state
+- The filter can be shared via URL
 
 ## Files Changed
 
