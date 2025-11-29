@@ -343,7 +343,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Add automatic backfilling of existing events on first install, so the activity log isn't empty when you start using the plugin.
+-   Add automatic backfilling of existing events on first install, so the activity log isn't empty when you start using the plugin for the first time.
 -   Add logging of new [notes feature in WordPress 6.9](https://make.wordpress.org/core/2025/11/15/notes-feature-in-wordpress-6-9/). [#599](https://github.com/bonny/WordPress-Simple-History/issues/599).
 -   Add "Yesterday" option to the date filter dropdown for quick access to previous day's events.
 -   Add "Hide my own events" checkbox to filters, allowing users to quickly exclude their own activity from the log. [#604](https://github.com/bonny/WordPress-Simple-History/issues/604).
@@ -382,7 +382,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Removed**
 
--   Remove donation box from sidebar and move hosting sponsor acknowledgment to Help & Support page for cleaner UI focused on premium offerings.
+-   Remove donation box from sidebar.
 
 ### 5.18.0 (November 2025)
 
