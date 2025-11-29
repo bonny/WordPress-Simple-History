@@ -14,13 +14,13 @@ class EmailReportServiceCest {
 
     public function test_can_see_email_report_settings_section( FunctionalTester $I ) {
         $I->canSee('Email Reports');
-        $I->canSee('Reports are sent Monday mornings and include statistics from the previous week (Monday-Sunday).');
+        $I->canSee('Every Monday, get a summary of:');
     }
 
     public function test_can_see_email_report_settings_fields( FunctionalTester $I ) {
         // Check for Enable field
         $I->canSee('Enable');
-        $I->canSee('Enable email reports');
+        $I->canSee('Enable weekly digest');
         $I->seeElement('input[name="simple_history_email_report_enabled"]');
         
         // Check for Recipients field

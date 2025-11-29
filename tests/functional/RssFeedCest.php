@@ -11,15 +11,15 @@ class RssFeedCest {
     }
 
 	public function test_can_get_see_rss_settings( FunctionalTester $I ) {
-        $I->canSee('Simple History has a RSS feed which');
-        $I->canSee('Enable RSS feed');
+        $I->canSee('Monitor your site activity in real-time with feeds.');
+        $I->canSee('Enable feed');
         
         // Don't see this text yet, because feed is not enabled.
         $I->dontSee('You can generate a new address for the RSS feed.');
     }
 
     public function test_enable_rss_feed( FunctionalTester $I ) {
-        $I->canSee('Enable RSS feed');    
+        $I->canSee('Enable feed');
 
         $I->amGoingTo('Enable RSS feed');
         $I->checkOption('#simple_history_enable_rss_feed');
