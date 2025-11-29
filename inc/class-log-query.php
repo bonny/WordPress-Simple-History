@@ -1744,20 +1744,20 @@ class Log_Query {
 
 		// "exclude_messages" - array with logger:message pairs to exclude.
 		if ( ! empty( $args['exclude_messages'] ) && is_array( $args['exclude_messages'] ) ) {
-			$sql_exclude_loggers_and_messages = '';
+			$sql_exclude_messages_parts = [];
 
 			foreach ( $args['exclude_messages'] as $exclude_logger_slug => $exclude_logger_messages ) {
 				foreach ( $exclude_logger_messages as $one_exclude_message_key ) {
-					$sql_exclude_loggers_and_messages .= $wpdb->prepare(
-						' AND NOT ( logger = %s AND contexts.value = %s ) ',
+					$sql_exclude_messages_parts[] = $wpdb->prepare(
+						'NOT ( logger = %s AND contexts.value = %s )',
 						$exclude_logger_slug,
 						$one_exclude_message_key
 					);
 				}
 			}
 
-			if ( ! empty( $sql_exclude_loggers_and_messages ) ) {
-				$inner_where[] = $sql_exclude_loggers_and_messages;
+			if ( ! empty( $sql_exclude_messages_parts ) ) {
+				$inner_where[] = implode( ' AND ', $sql_exclude_messages_parts );
 			}
 		}
 

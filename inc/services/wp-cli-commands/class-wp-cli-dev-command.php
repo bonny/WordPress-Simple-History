@@ -5,6 +5,7 @@ namespace Simple_History\Services\WP_CLI_Commands;
 use WP_CLI;
 use WP_CLI_Command;
 use Simple_History\Simple_History;
+use Simple_History\Loggers\Plugin_Logger;
 
 /**
  * Development commands for Simple History.
@@ -145,5 +146,71 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 		deactivate_plugins( 'simple-history/index.php' );
 
 		WP_CLI::log( __( 'Plugin deactivated.', 'simple-history' ) );
+	}
+
+	/**
+	 * Add a plugin update message to the log for testing the "What's new" feature.
+	 *
+	 * Creates a log entry as if Simple History was updated to the current version,
+	 * allowing you to test and preview the update details message.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--prev-version=<version>]
+	 * : The previous version to simulate updating from.
+	 * ---
+	 * default: 5.18.0
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Add a plugin update message with default previous version
+	 *     wp simple-history dev add-plugin-update-message
+	 *
+	 *     # Add a plugin update message simulating update from specific version
+	 *     wp simple-history dev add-plugin-update-message --prev-version=5.17.0
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 */
+	public function add_plugin_update_message( $args, $assoc_args ) {
+		$simple_history = Simple_History::get_instance();
+
+		// Get the Plugin Logger instance.
+		$plugin_logger = $simple_history->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
+
+		if ( ! $plugin_logger ) {
+			WP_CLI::error( __( 'Could not find Plugin Logger.', 'simple-history' ) );
+			return;
+		}
+
+		// Get Simple History plugin data.
+		$plugin_file = 'simple-history/index.php';
+		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file, true, false );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WP-CLI command, no nonce needed.
+		$prev_version = $assoc_args['prev-version'] ?? '5.18.0';
+
+		$context = [
+			'plugin_slug'         => 'simple-history',
+			'plugin_name'         => $plugin_data['Name'],
+			'plugin_title'        => $plugin_data['Title'],
+			'plugin_description'  => $plugin_data['Description'],
+			'plugin_author'       => $plugin_data['Author'],
+			'plugin_version'      => $plugin_data['Version'],
+			'plugin_prev_version' => $prev_version,
+			'plugin_url'          => $plugin_data['PluginURI'],
+		];
+
+		$plugin_logger->info_message( 'plugin_updated', $context );
+
+		WP_CLI::success(
+			sprintf(
+				/* translators: 1: previous version, 2: current version */
+				__( 'Added plugin update message: Simple History %1$s → %2$s', 'simple-history' ),
+				$prev_version,
+				$plugin_data['Version']
+			)
+		);
 	}
 }

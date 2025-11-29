@@ -18,7 +18,7 @@ class SimpleHistoryLoggerCest
         $I->canSee('Simple History');
         $I->canSee('Show History');
         $I->canSee('on the dashboard');
-        $I->canSee('RSS feed');
+        $I->canSee('RSS and JSON feeds');
     }
     
     public function it_can_log_show_history(Admin $I) {

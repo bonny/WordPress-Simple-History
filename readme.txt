@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.9
-Stable tag: 5.18.0
+Stable tag: 5.19.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,6 +62,8 @@ Out of the box Simple History has support for:
 -   **Option screens** – view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
 
 -   **Privacy page** – when a privacy page is created or set to a new page.
+
+-   **Notes** – track when notes are added, edited, or removed on posts and pages. Notes is a new collaboration feature in WordPress 6.9 that lets editors leave feedback without modifying the content.
 
 -   **Data Export** – see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
 
@@ -128,7 +130,7 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 
 ### 🚀 Zero-Config Activity Tracking
 
-Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. View your activity logs through the convenient dashboard widget or browse the full history on the dedicated 'Simple History' page in your WordPress admin.
+Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. Even better: your activity log won't be empty on day one. Simple History automatically imports recent activity from your site's history, giving you a useful log from the moment you activate. View your activity logs through the convenient dashboard widget or browse the full history on the dedicated 'Simple History' page in your WordPress admin.
 
 ### 📧 Weekly Email Reports – Stay Informed Without Logging In
 
@@ -334,51 +336,53 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.19.0 (November 2025)
+
+🚀 Ready for WordPress 6.9 — this release logs the new Notes feature so you can track when notes are added or removed. Also new: automatic backfilling on first install so your log isn't empty, a "Hide my own events" checkbox, and a "Yesterday" date filter.
+[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-19-0-released/)
 
 **Added**
 
--   Add developer mode badge to the page header.
--   Add WordPress VIP Go coding standards for enterprise compatibility.
+-   Add automatic backfilling of existing events on first install, so the activity log isn't empty when you start using the plugin for the first time.
 -   Add logging of new [notes feature in WordPress 6.9](https://make.wordpress.org/core/2025/11/15/notes-feature-in-wordpress-6-9/). [#599](https://github.com/bonny/WordPress-Simple-History/issues/599).
+-   Add "Yesterday" option to the date filter dropdown for quick access to previous day's events.
+-   Add "Hide my own events" checkbox to filters, allowing users to quickly exclude their own activity from the log. [#604](https://github.com/bonny/WordPress-Simple-History/issues/604).
+-   Add WordPress VIP Go coding standards for enterprise compatibility.
 -   Add rollback context to plugin update failed events.
 -   Add logging of failed theme updates.
--   Add filter `simple_history/show_promo_boxes` to determine if promo boxes should be shown.
 -   Add support for negative filters in the event log query API, to the REST API, and to WP-CLI. [#86](https://github.com/bonny/WordPress-Simple-History/issues/86).
--   Add "Hide my own events" checkbox to filters, allowing users to quickly exclude their own activity from the log. [#604](https://github.com/bonny/WordPress-Simple-History/issues/604).
--   Add "Yesterday" option to the date filter dropdown for quick access to previous day's events.
+-   Add error message when trying to view an event that does not exist.
+-   Add filter `simple_history/show_promo_boxes` to determine if promo boxes should be shown.
+-   Add developer mode badge to the page header.
+-   Add new Tools tab with manual backfill option for importing historical events on demand.
 
 **Changed**
 
+-   Rename "Export" menu to "Export & Tools" and add tabbed interface to support additional tools.
+-   Post creation events now capture initial post content, excerpt, and status transitions to provide complete audit trail without information gaps.
+-   Stop polling for new events after 10+ new events are detected to reduce server resource consumption from inactive browser tabs.
 -   Improved auto-backfill completion message to be more user-friendly and include the number of days imported.
 -   Improved welcome message text for clarity and better Premium feature promotion.
--   Post creation events now capture initial post content, excerpt, and status transitions to provide complete audit trail without information gaps.
 -   Admin Bar Quick View: Display count of similar events (occasions) on a new line below the main event message and style it.
--   Tested up to WordPress 6.9.
--   Insights sidebar: Clicks on users should also filter the log by 30 days.
+-   Insights sidebar: Clicking on users now also filters the log by the last 30 days.
 -   Insights sidebar: Update text to show current events in database and total events logged with links to settings page for retention period.
 -   Insights sidebar: Improve messages for message count.
 -   Decrease font size on stats sidebar stats box to fit more events.
--   Misc internal code improvements and changes.
--   Misc UI improvements and changes.
 -   Reduce number of HTTP requests by consolidating the small sidebar CSS file (just 4 rules) into the main stylesheet that's already being loaded on the page.
--   Stop polling for new events after 10+ new events are detected to reduce server resource consumption from inactive browser tabs.
+-   Hide sidebar donation box, support box, and review box when promo boxes are hidden for a cleaner interface with the premium add-on.
+-   Internal code and UI refinements.
+-   Tested up to WordPress 6.9.
 
 **Fixed**
 
--   Fixed post creation via Gutenberg autosave not being logged, causing email reports to show 0 posts created.
+-   Fixed post creation via Gutenberg autosave not being logged.
 -   Fixed incorrect timezone handling for imported user registration dates.
 -   Fixed sidebar stats box styling conflict with premium add-on.
 -   Fixed warning about invalid HTML nesting in the log GUI filters. [#548](https://github.com/bonny/WordPress-Simple-History/issues/548).
 
 **Removed**
 
--   Remove donation box from sidebar and move hosting sponsor acknowledgment to Help & Support page for cleaner UI focused on premium offerings.
-
-**Other**
-
--   Show an error message when trying to view an event that does not exist.
--   Also hide sidebar donation box, support box, review box when promo boxes are hidden. This makes the plugin even more clean when using the premium add-on.
+-   Remove donation box from sidebar.
 
 ### 5.18.0 (November 2025)
 

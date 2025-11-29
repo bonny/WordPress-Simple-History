@@ -48,6 +48,8 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Simple_History_Updates',
 			'Experimental_Features_Page',
 			'Import_Handler',
+			'Auto_Backfill_Service',
+			'History_Insights_Sidebar_Service',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);

@@ -5,21 +5,23 @@
  * `$ docker-compose run --rm php-cli vendor/bin/codecept run functional:RssFeedCest`
  */
 class RssFeedCest {
+
+    const RSS_GENERATE_NEW_ADDRESS_TEXT = 'You can generate a new secret for the feeds.';
     public function _before( FunctionalTester $I ) {
         $I->loginAsAdmin();
         $I->amOnAdminPage('admin.php?page=simple_history_settings_page');
     }
 
 	public function test_can_get_see_rss_settings( FunctionalTester $I ) {
-        $I->canSee('Simple History has a RSS feed which');
-        $I->canSee('Enable RSS feed');
+        $I->canSee('Monitor your site activity in real-time with feeds.');
+        $I->canSee('Enable feed');
         
         // Don't see this text yet, because feed is not enabled.
-        $I->dontSee('You can generate a new address for the RSS feed.');
+        $I->dontSee(self::RSS_GENERATE_NEW_ADDRESS_TEXT);
     }
 
     public function test_enable_rss_feed( FunctionalTester $I ) {
-        $I->canSee('Enable RSS feed');    
+        $I->canSee('Enable feed');
 
         $I->amGoingTo('Enable RSS feed');
         $I->checkOption('#simple_history_enable_rss_feed');
@@ -29,7 +31,7 @@ class RssFeedCest {
         $I->canSee('Settings saved.');
         $I->canSee('Address');
         $I->canSee('Regenerate');
-        $I->canSee('You can generate a new address for the RSS feed.');
+        $I->canSee(self::RSS_GENERATE_NEW_ADDRESS_TEXT);
 
         /**
          * @var string $feed_address For example "http://wordpress/?simple_history_get_rss=1&rss_secret=zeiaozijawhqywksoh".
