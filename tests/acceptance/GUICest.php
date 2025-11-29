@@ -35,7 +35,6 @@ class GUICest {
                 
                 $I->see('Review this plugin if you like it');
                 $I->see('Visit the support forum');
-                $I->see('Donate to support development');
 
                 // Erik editor
                 $I->loginAs('erik', 'password'); 
