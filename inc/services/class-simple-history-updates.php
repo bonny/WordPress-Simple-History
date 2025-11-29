@@ -132,6 +132,7 @@ class Simple_History_Updates extends Service {
 			__( 'WordPress 6.9 Notes logging – track when notes are added, edited, or removed', 'simple-history' ),
 			__( '"Hide my own events" checkbox – focus on what others are doing', 'simple-history' ),
 			__( '"Yesterday" date filter – quick access to recent activity', 'simple-history' ),
+			__( 'Premium: Unlimited backfill – import your complete site history, even years back', 'simple-history' ),
 		];
 
 		$release_link = 'https://simple-history.com/2025/simple-history-5-19-0-released/';
