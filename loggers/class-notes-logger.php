@@ -105,10 +105,18 @@ class Notes_Logger extends Logger {
 	/**
 	 * Log when a note is created.
 	 *
-	 * @param int         $comment_id The comment ID.
-	 * @param \WP_Comment $comment    Comment object.
+	 * @param int              $comment_id The comment ID.
+	 * @param \WP_Comment|null $comment    Comment object.
 	 */
-	public function on_wp_insert_comment( $comment_id, $comment ) {
+	public function on_wp_insert_comment( $comment_id, $comment = null ) {
+		if ( empty( $comment_id ) ) {
+			return;
+		}
+
+		if ( ! $comment ) {
+			$comment = get_comment( $comment_id );
+		}
+
 		if ( ! $this->is_note_comment( $comment ) ) {
 			return;
 		}
@@ -158,6 +166,10 @@ class Notes_Logger extends Logger {
 	 * @param int $comment_id The comment ID.
 	 */
 	public function on_edit_comment( $comment_id ) {
+		if ( empty( $comment_id ) ) {
+			return;
+		}
+
 		$comment = get_comment( $comment_id );
 
 		if ( ! $this->is_note_comment( $comment ) ) {
@@ -192,6 +204,10 @@ class Notes_Logger extends Logger {
 	 * @param mixed  $meta_value Meta value (either 'resolved' or 'reopen').
 	 */
 	public function on_updated_comment_meta( $meta_id, $comment_id, $meta_key, $meta_value ) {
+		if ( empty( $comment_id ) ) {
+			return;
+		}
+
 		if ( $meta_key !== '_wp_note_status' ) {
 			return;
 		}
@@ -227,10 +243,20 @@ class Notes_Logger extends Logger {
 	 *
 	 * Handles both permanent deletion and trashing (e.g., via REST API).
 	 *
-	 * @param int         $comment_id The comment ID.
-	 * @param \WP_Comment $comment    Comment object.
+	 * @param int              $comment_id The comment ID.
+	 * @param \WP_Comment|null $comment    Comment object (optional, added in WP 6.2).
 	 */
-	public function on_delete_comment( $comment_id, $comment ) {
+	public function on_delete_comment( $comment_id, $comment = null ) {
+		if ( empty( $comment_id ) ) {
+			return;
+		}
+
+		// The $comment parameter was added in WordPress 6.2.
+		// For backwards compatibility, fetch it if not provided.
+		if ( ! $comment ) {
+			$comment = get_comment( $comment_id );
+		}
+
 		if ( ! $this->is_note_comment( $comment ) ) {
 			return;
 		}
