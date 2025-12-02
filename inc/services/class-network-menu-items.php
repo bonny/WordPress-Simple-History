@@ -56,6 +56,7 @@ class Network_Menu_Items extends Service {
 		}
 
 		foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.switch_to_blog_switch_to_blog -- Only checking DB-level data (plugin active status, admin URL).
 			switch_to_blog( $blog->userblog_id );
 
 			// Check if simple History is active on this blog.
