@@ -218,10 +218,6 @@ class Menu_Logger extends Logger {
 		$arr_removed = array_diff( $old_ids, $new_ids );
 		$arr_added   = array_diff( $new_ids, $old_ids );
 
-		// Get old version location
-		// $prev_menu = wp_get_nav_menu_object( $menu_id );
-		// $locations = get_registered_nav_menus();
-		// $menu_locations = get_nav_menu_locations();.
 		$this->info_message(
 			'edited_menu',
 			array(

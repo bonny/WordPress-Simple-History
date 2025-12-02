@@ -831,7 +831,6 @@ class Plugin_ACF_Logger extends Logger {
 				$context['acf_hide_on_screen_removed'] = implode( ',', $arrHideOnScreenRemoved );
 		}
 
-		// ddd($context, $arrhHideOnScreenAdded, $arrHideOnScreenRemoved);
 		// Add removed fields to context
 		if ( ! empty( $this->old_and_new_field_groups_and_fields['deletedFields'] ) && is_array( $this->old_and_new_field_groups_and_fields['deletedFields'] ) ) {
 			$loopnum = 0;

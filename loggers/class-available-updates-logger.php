@@ -56,12 +56,10 @@ class Available_Updates_Logger extends Logger {
 	 */
 	public function loaded() {
 
-		// When WP is done checking for core updates it sets a site transient called "update_core"
-		// set_site_transient( 'update_core', null ); // Uncomment to test.
+		// When WP is done checking for core updates it sets a site transient called "update_core".
 		add_action( 'set_site_transient_update_core', array( $this, 'on_setted_update_core_transient' ), 10, 1 );
 
-		// Ditto for plugins
-		// set_site_transient( 'update_plugins', null ); // Uncomment to test.
+		// Ditto for plugins.
 		add_action( 'set_site_transient_update_plugins', array( $this, 'on_setted_update_plugins_transient' ), 10, 1 );
 
 		add_action( 'set_site_transient_update_themes', array( $this, 'on_setted_update_update_themes' ), 10, 1 );
