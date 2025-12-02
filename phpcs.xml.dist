@@ -67,6 +67,13 @@
 	<!-- WordPress VIP Go coding standards for enterprise compatibility -->
 	<rule ref="WordPress-VIP-Go" />
 
+	<!-- Override WordPress-Extra's maxPercentage=40 to match VIP's stricter 35% threshold -->
+	<rule ref="Squiz.PHP.CommentedOutCode">
+		<properties>
+			<property name="maxPercentage" value="35"/>
+		</properties>
+	</rule>
+
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
