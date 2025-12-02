@@ -339,7 +339,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 ### 5.20.0 (December 2025)
 
 🚀 Ready for WordPress 6.9 — this release logs the new Notes feature so you can track when notes are added or removed. Also new: automatic backfilling on first install so your log isn't empty, a "Hide my own events" checkbox, and a "Yesterday" date filter.
-[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-19-0-released/)
+[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-20-0-released/)
 
 **Changed**
 
