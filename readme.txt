@@ -347,6 +347,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
+-   Fixed Notes Logger causing error in some cases when deleting comments.
 -   Fixed event context being silently dropped when post content contained emojis, causing incomplete log entries. (This is a long standing issue that has been around for a while, but now it's finally fixed 🤞.) [#607](https://github.com/bonny/WordPress-Simple-History/issues/607).
 
 ### 5.19.0 (November 2025)
