@@ -163,4 +163,38 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 	function test_get_class_short_name() {
 		$this->assertEquals( 'Simple_History', Helpers::get_class_short_name( Simple_History::get_instance() ) );
 	}
+
+	/**
+	 * Test strip_4_byte_chars removes emojis and other 4-byte UTF-8 characters.
+	 *
+	 * @see https://github.com/bonny/WordPress-Simple-History/issues/607
+	 */
+	function test_strip_4_byte_chars() {
+		// Emojis should be stripped.
+		$this->assertEquals( 'Hello ', Helpers::strip_4_byte_chars( 'Hello 👋' ) );
+		$this->assertEquals( 'Test  content', Helpers::strip_4_byte_chars( 'Test 📡 content' ) );
+		$this->assertEquals( 'Multiple  emojis ', Helpers::strip_4_byte_chars( 'Multiple 🎉 emojis 🙂' ) );
+
+		// String without emojis should remain unchanged.
+		$this->assertEquals( 'Normal text', Helpers::strip_4_byte_chars( 'Normal text' ) );
+		$this->assertEquals( 'Special chars: åäö éè', Helpers::strip_4_byte_chars( 'Special chars: åäö éè' ) );
+
+		// Empty string should return empty string.
+		$this->assertEquals( '', Helpers::strip_4_byte_chars( '' ) );
+
+		// Non-string values should be returned unchanged.
+		$this->assertEquals( 123, Helpers::strip_4_byte_chars( 123 ) );
+		$this->assertEquals( null, Helpers::strip_4_byte_chars( null ) );
+		$this->assertEquals( true, Helpers::strip_4_byte_chars( true ) );
+
+		// Array should be returned unchanged.
+		$test_array = [ 'key' => 'value', 'emoji' => '🎉' ];
+		$this->assertEquals( $test_array, Helpers::strip_4_byte_chars( $test_array ) );
+
+		// Object should be returned unchanged.
+		$test_object = new stdClass();
+		$test_object->name = 'Test';
+		$test_object->emoji = '👋';
+		$this->assertEquals( $test_object, Helpers::strip_4_byte_chars( $test_object ) );
+	}
 }
