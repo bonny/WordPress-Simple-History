@@ -695,7 +695,11 @@ class Plugin_Logger extends Logger {
 
 		// https://developer.github.com/v3/repos/contents/.
 		// https://api.github.com/repos/<username>/<repo>/readme.
-		$api_url = sprintf( 'https://api.github.com/repos/%1$s/%2$s/readme', urlencode( $repo_username ), urlencode( $repo_repo ) );
+		$api_url = sprintf(
+			'https://api.github.com/repos/%1$s/%2$s/readme',
+			rawurlencode( $repo_username ),
+			rawurlencode( $repo_repo ) 
+		);
 
 		// Get file. Use accept-header to get file as HTML instead of JSON.
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
