@@ -336,6 +336,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+**Fixed**
+
+-   Fixed IP addresses not showing for expanded similar events (occasions).
+
 ### 5.20.0 (December 2025)
 
 🚀 Ready for WordPress 6.9 — this release logs the new Notes feature so you can track when notes are added or removed. Also new: automatic backfilling on first install so your log isn't empty, a "Hide my own events" checkbox, and a "Yesterday" date filter.
