@@ -12,6 +12,9 @@
 	<!-- Show results with colors -->
 	<arg name="colors"/>
 
+	<!-- Show all warnings regardless of severity (matches VIP behavior) -->
+	<arg name="warning-severity" value="1"/>
+
 	<!-- Don't show warnings -->
 	<!-- <arg value="n"/> -->
 
