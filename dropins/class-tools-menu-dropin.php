@@ -70,7 +70,7 @@ class Tools_Menu_Dropin extends Dropin {
 		// This prevents permission errors when accessing the old slug.
 		// Using empty string instead of null to avoid PHP 8.x deprecation warnings.
 		add_submenu_page(
-			'', // Empty string parent makes it hidden from menus
+			'', // Empty string parent makes it hidden from menus.
 			'Export (Redirect)',
 			'Export (Redirect)',
 			Helpers::get_view_history_capability(),

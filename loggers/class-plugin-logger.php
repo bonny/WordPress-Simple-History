@@ -461,7 +461,7 @@ class Plugin_Logger extends Logger {
 				// Plugin slugs that actions are performed against.
 				$plugins = array();
 
-				if ( in_array( $action, array( 'enable-auto-update', 'disable-auto-update' ) ) ) {
+				if ( in_array( $action, array( 'enable-auto-update', 'disable-auto-update' ), true ) ) {
 					// Opening single item enable/disable auto update link in plugin list in new window.
 					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$plugin = sanitize_text_field( wp_unslash( $_GET['plugin'] ?? '' ) );
@@ -495,7 +495,7 @@ class Plugin_Logger extends Logger {
 					if ( $asset ) {
 						$plugins[] = sanitize_text_field( urldecode( $asset ) );
 					}
-				} elseif ( in_array( $action, array( 'enable-auto-update-selected', 'disable-auto-update-selected' ) ) ) {
+				} elseif ( in_array( $action, array( 'enable-auto-update-selected', 'disable-auto-update-selected' ), true ) ) {
 					// $_POST when checking multiple plugins and choosing Enable auto updates or Disable auto updates.
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					$checked = wp_unslash( $_POST['checked'] ?? null );
@@ -628,7 +628,7 @@ class Plugin_Logger extends Logger {
 			'The plugin %1$s has been <strong>deactivated</strong> due to an error: %2$s',
 		);
 
-		if ( ! in_array( $text, $untranslated_texts ) ) {
+		if ( ! in_array( $text, $untranslated_texts, true ) ) {
 			return $translation;
 		}
 

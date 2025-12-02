@@ -496,7 +496,7 @@ class User_Logger extends Logger {
 		$current_screen = helpers::get_current_screen();
 
 		// Bail if we are not on the user-edit screen (edit other user) or profile screen (edit own user).
-		if ( ! in_array( $current_screen->id, array( 'user-edit', 'profile' ) ) ) {
+		if ( ! in_array( $current_screen->id, array( 'user-edit', 'profile' ), true ) ) {
 			return $data;
 		}
 

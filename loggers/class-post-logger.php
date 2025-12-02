@@ -274,7 +274,7 @@ class Post_Logger extends Logger {
 		$message       = null;
 		$context       = array();
 
-		if ( in_array( $method, $arr_methods_to_act_on ) ) {
+		if ( in_array( $method, $arr_methods_to_act_on, true ) ) {
 			// Setup common stuff.
 			// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile
 			$raw_post_data                    = file_get_contents( 'php://input' );

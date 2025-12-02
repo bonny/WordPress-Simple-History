@@ -64,7 +64,7 @@ class IP_Info_Dropin extends Dropin {
 		);
 
 		// Bail if not correct message key.
-		if ( ! in_array( $row->context_message_key, $arr_keys_to_log ) ) {
+		if ( ! in_array( $row->context_message_key, $arr_keys_to_log, true ) ) {
 			return $bool_value;
 		}
 

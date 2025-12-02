@@ -68,7 +68,7 @@ class Export_Dropin extends Dropin {
 		// Check for the tools page, export tab, and settings page (when tools is shown as a tab).
 		// Examples:
 		// - Main menu: http://example.com/wp-admin/admin.php?page=simple_history_tools&selected-tab=simple_history_tools_export
-		// - Settings tab: http://example.com/wp-admin/options-general.php?page=simple_history_settings_page&selected-tab=simple_history_tools
+		// - Settings tab: http://example.com/wp-admin/options-general.php?page=simple_history_settings_page&selected-tab=simple_history_tools.
 		if ( $page !== Tools_Menu_Dropin::MENU_SLUG && $page !== Simple_History::SETTINGS_MENU_PAGE_SLUG ) {
 			return;
 		}

@@ -222,7 +222,7 @@ class Options_Logger extends Logger {
 			'writing',
 		];
 
-		return in_array( $option_page, $valid_option_pages );
+		return in_array( $option_page, $valid_option_pages, true );
 	}
 
 	/**
@@ -240,7 +240,7 @@ class Options_Logger extends Logger {
 	 * @param string $option_name Option name.
 	 */
 	protected function is_built_in_wordpress_options_name( $option_name ) {
-		return in_array( $option_name, $this->get_wordpress_options_keys() );
+		return in_array( $option_name, $this->get_wordpress_options_keys(), true );
 	}
 
 	/**

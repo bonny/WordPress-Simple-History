@@ -615,7 +615,7 @@ class Theme_Logger extends Logger {
 
 		// Widget changed or added or removed
 		// Simple replace widget_id_base and sidebar_id with widget name and sidebar name.
-		if ( in_array( $message_key, array( 'widget_added', 'widget_edited', 'widget_removed' ) ) ) {
+		if ( in_array( $message_key, array( 'widget_added', 'widget_edited', 'widget_removed' ), true ) ) {
 			$widget  = $this->get_widget_by_id_base( $context['widget_id_base'] );
 			$sidebar = $this->get_sidebar_by_id( $context['sidebar_id'] );
 

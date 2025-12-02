@@ -93,7 +93,7 @@ class Plugin_Redirection_Logger extends Logger {
 		);
 
 		// Bail directly if this is not a Redirection API call.
-		if ( ! in_array( $callable_name, $ok_redirection_api_callable_names ) ) {
+		if ( ! in_array( $callable_name, $ok_redirection_api_callable_names, true ) ) {
 			return $response;
 		}
 

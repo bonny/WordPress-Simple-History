@@ -311,7 +311,7 @@ class Menu_Manager {
 		}
 
 		// If "top" or "bottom" then use "Event Log" sub menu item or we will get too many tabs.
-		if ( in_array( $menu_page_location, [ 'top', 'bottom' ] ) ) {
+		if ( in_array( $menu_page_location, [ 'top', 'bottom' ], true ) ) {
 			if ( $page === Simple_History::MENU_PAGE_SLUG ) {
 				$page = Simple_History::VIEW_EVENTS_PAGE_SLUG;
 			}

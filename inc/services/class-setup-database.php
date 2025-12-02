@@ -245,7 +245,7 @@ class Setup_Database extends Service {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$db_cols = $wpdb->get_col( "DESCRIBE $table_name" );
 
-		if ( in_array( 'action', $db_cols ) ) {
+		if ( in_array( 'action', $db_cols, true ) ) {
 			$sql = sprintf(
 				'
                         ALTER TABLE %1$s
