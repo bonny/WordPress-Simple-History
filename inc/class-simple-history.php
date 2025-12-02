@@ -1399,6 +1399,7 @@ class Simple_History {
 		foreach ( $loggers as $one_logger ) {
 			$logger_capability = $one_logger['instance']->get_capability();
 
+			// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability from logger, filterable, defaults to 'read'.
 			$user_can_read_logger = user_can( $user_id, $logger_capability );
 
 			/**

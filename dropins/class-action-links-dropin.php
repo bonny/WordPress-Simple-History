@@ -40,6 +40,7 @@ class Action_Links_Dropin extends Dropin {
 		}
 
 		// Bail if the current user can't view the history.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'manage_options'.
 		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
 			return $update_actions;
 		}

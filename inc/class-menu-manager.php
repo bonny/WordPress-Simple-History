@@ -133,7 +133,7 @@ class Menu_Manager {
 		$hook_suffix = add_menu_page(
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$page->get_menu_slug(),
 			[ $page, 'render' ],
 			$page->get_icon(),
@@ -152,7 +152,7 @@ class Menu_Manager {
 		$hook_suffix = add_dashboard_page(
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$page->get_menu_slug(),
 			[ $page, 'render' ]
 		);
@@ -169,7 +169,7 @@ class Menu_Manager {
 		$hook_suffix = add_options_page(
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$page->get_menu_slug(),
 			[ $page, 'render' ]
 		);
@@ -186,7 +186,7 @@ class Menu_Manager {
 		$hook_suffix = add_management_page(
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$page->get_menu_slug(),
 			[ $page, 'render' ]
 		);
@@ -218,7 +218,7 @@ class Menu_Manager {
 			$parent->get_menu_slug(),
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$menu_slug,
 			[ $page, 'render' ],
 		);

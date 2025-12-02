@@ -73,7 +73,7 @@ class Tools_Menu_Dropin extends Dropin {
 			'', // Empty string parent makes it hidden from menus.
 			'Export (Redirect)',
 			'Export (Redirect)',
-			Helpers::get_view_history_capability(),
+			Helpers::get_view_history_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable, defaults to 'read'.
 			'simple_history_export_history',
 			[ $this, 'redirect_old_export_url' ]
 		);
