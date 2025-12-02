@@ -1,6 +1,6 @@
 ---
 name: sql
-description: Run SQL queries against the WordPress development database
+description: Run SQL queries against the WordPress development database. Use when querying database tables, inspecting Simple History events, checking WordPress data, or debugging database issues.
 ---
 
 # Run SQL Queries

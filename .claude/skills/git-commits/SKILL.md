@@ -1,6 +1,6 @@
 ---
 name: git-commits
-description: Create well-structured git commits in logical chunks following best practices
+description: Create well-structured git commits in logical chunks following best practices. Use when the user asks to commit, says "commit", or after completing code changes that should be committed.
 ---
 
 # Git Commits in Logical Chunks

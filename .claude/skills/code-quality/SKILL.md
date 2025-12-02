@@ -1,6 +1,6 @@
 ---
 name: code-quality
-description: "IMPORTANT: Invoke this skill BEFORE writing or editing any PHP or CSS code. Provides WordPress coding standards, PHP/CSS style guide, code linting and static analysis (phpcs, phpstan, rector, phpcbf). Also use when fixing lint errors, running code quality tools, or reviewing code style compliance."
+description: Provides WordPress coding standards, PHP/CSS style guide, code linting and static analysis (phpcs, phpstan, rector, phpcbf). Use before writing or editing PHP or CSS code, when fixing lint errors, running code quality tools, or reviewing code style compliance.
 ---
 
 # Code Quality Standards for Simple History
