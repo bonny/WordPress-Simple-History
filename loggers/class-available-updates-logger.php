@@ -208,8 +208,6 @@ class Available_Updates_Logger extends Logger {
 		foreach ( $updates->response as $key => $data ) {
 			$theme_info = wp_get_theme( $key );
 
-			$settings['notified']['theme'][ $key ] = $data['new_version']; // set theme version we are notifying about.
-
 			$theme_new_version = $data['new_version'] ?? '';
 
 			// check if this plugin and this version has been checked/logged already.
