@@ -1424,6 +1424,9 @@ abstract class Logger {
 				$context_value = Helpers::json_encode( $context_value );
 			}
 
+			// Strip 4-byte UTF-8 chars (emojis) that fail with utf8 charset tables.
+			$context_value = Helpers::strip_4_byte_chars( $context_value );
+
 			// Calculate size of this item: key + value + SQL overhead.
 			// Add 100 bytes for SQL syntax, quotes, escaping overhead.
 			$item_size         = strlen( $context_key ) + strlen( $context_value ) + 100;

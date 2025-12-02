@@ -2131,6 +2131,23 @@ class Helpers {
 	}
 
 	/**
+	 * Remove 4-byte UTF-8 characters (emojis and other supplementary plane chars)
+	 * from a string. This is needed because the database tables use utf8 charset
+	 * which only supports 3-byte characters.
+	 *
+	 * @since 5.19.0
+	 * @param mixed $value The value to sanitize.
+	 * @return mixed The value with 4-byte characters removed if string, otherwise unchanged.
+	 */
+	public static function strip_4_byte_chars( $value ) {
+		if ( ! is_string( $value ) ) {
+			return $value;
+		}
+
+		return preg_replace( '/[\x{10000}-\x{10FFFF}]/u', '', $value );
+	}
+
+	/**
 	 * Build tracking URL with standardized UTM parameters for analytics.
 	 *
 	 * Creates consistent tracking URLs for monitoring which features generate
