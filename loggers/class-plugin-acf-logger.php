@@ -897,6 +897,7 @@ class Plugin_ACF_Logger extends Logger {
 					}
 
 					// Only add to context if modified.
+					// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
 					if ( $modifiedFields['new'][ $modifiedFieldId ][ $one_key_to_add ] != $modifiedFields['old'][ $modifiedFieldId ][ $one_key_to_add ] ) {
 						$context[ "acf_modified_fields_{$loopnum}_{$one_key_to_add}_prev" ] = $modifiedFields['old'][ $modifiedFieldId ][ $one_key_to_add ];
 						$context[ "acf_modified_fields_{$loopnum}_{$one_key_to_add}_new" ]  = $modifiedFields['new'][ $modifiedFieldId ][ $one_key_to_add ];
@@ -920,6 +921,7 @@ class Plugin_ACF_Logger extends Logger {
 	 * @return array
 	 */
 	public function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
+		// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
 		if ( $old_value != $new_value ) {
 			$post_data_diff[ $key ] = array(
 				'old' => $old_value,

@@ -1143,6 +1143,7 @@ class Post_Logger extends Logger {
 	 * @return array
 	 */
 	public function add_diff( $post_data_diff, $key, $old_value, $new_value ) {
+		// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
 		if ( $old_value != $new_value ) {
 			$post_data_diff[ $key ] = array(
 				'old' => $old_value,
@@ -1246,6 +1247,7 @@ class Post_Logger extends Logger {
 					if ( isset( $context[ $key_for_new_val ] ) ) {
 						$post_old_value = $context[ $key ];
 						$post_new_value = $context[ $key_for_new_val ];
+						// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
 						if ( $post_old_value != $post_new_value ) {
 							// Different diffs for different keys.
 							if ( 'post_title' === $key_to_diff ) {

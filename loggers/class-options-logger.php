@@ -725,7 +725,8 @@ class Options_Logger extends Logger {
 	protected function get_details_output_for_option_rss_use_excerpt( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
 		$output = '';
 
-		// 0 full text, 1 excerpt
+		// 0 full text, 1 excerpt.
+		// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Value may be string '0' or int 0 from database.
 		if ( $old_value == 0 ) {
 			$old_value = __( 'Full text', 'simple-history' );
 			$new_value = __( 'Excerpt', 'simple-history' );
