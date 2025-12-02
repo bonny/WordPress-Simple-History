@@ -139,12 +139,5 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 		);
 
 		$formatter->display_item( $output_array );
-
-		// phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar
-		// If table format then output another one with the message details?
-		// if ( 'table' === $format ) {
-		// $message_details = $simple_history->get_log_row_details_output( $event_row );
-		// sh_d($message_details->to_json());
-		// }
 	}
 }

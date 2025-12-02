@@ -1104,9 +1104,6 @@ class Plugin_Logger extends Logger {
 				$context['plugin_version']     = $plugin_data['Version'] ?? '';
 				$context['plugin_author']      = $plugin_data['AuthorName'] ?? '';
 
-				// Comment out these to debug plugin installs
-				// $context["debug_plugin_data"] = Helpers::json_encode( $plugin_data );.
-				// $context["debug_plugin_info"] = Helpers::json_encode( $plugin_info );.
 				if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
 					$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
 				}
