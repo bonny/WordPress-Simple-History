@@ -138,6 +138,7 @@ class Existing_Data_Importer {
 			];
 		}
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_posts -- Admin-only import, caching not needed.
 		$posts = get_posts( $args );
 
 		// Get all post IDs to check for duplicates.
@@ -725,6 +726,7 @@ class Existing_Data_Importer {
 				];
 			}
 
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_posts -- Admin-only import, caching not needed.
 			$posts    = get_posts( $args );
 			$post_ids = wp_list_pluck( $posts, 'ID' );
 			$count    = count( $posts );
