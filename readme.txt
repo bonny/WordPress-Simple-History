@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.9
-Stable tag: 5.19.0
+Stable tag: 5.20.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -336,11 +336,19 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.20.0 (December 2025)
+
+🚀 Ready for WordPress 6.9 — this release logs the new Notes feature so you can track when notes are added or removed. Also new: automatic backfilling on first install so your log isn't empty, a "Hide my own events" checkbox, and a "Yesterday" date filter.
+[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-20-0-released/)
+
+**Changed**
+
+-   Improved code quality by resolving phpcs warnings for WordPress VIP Go compatibility.
 
 **Fixed**
 
--   Fixed event context being silently dropped when post content contained emojis, causing incomplete log entries. [#607](https://github.com/bonny/WordPress-Simple-History/issues/607).
+-   Fixed Notes Logger causing error in some cases when deleting comments.
+-   Fixed event context being silently dropped when post content contained emojis, causing incomplete log entries. (This is a long standing issue that has been around for a while, but now it's finally fixed 🤞.) [#607](https://github.com/bonny/WordPress-Simple-History/issues/607).
 
 ### 5.19.0 (November 2025)
 
