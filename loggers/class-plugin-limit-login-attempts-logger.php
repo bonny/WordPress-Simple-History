@@ -85,7 +85,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 					'allowed_lockouts' => sanitize_text_field( wp_unslash( $_POST['allowed_lockouts'] ) ),
 					'long_duration'    => sanitize_text_field( wp_unslash( $_POST['long_duration'] ) ) * 3600, // @phpstan-ignore-line
 					'email_after'      => sanitize_text_field( wp_unslash( $_POST['email_after'] ) ),
-					'cookies'          => ( isset( $_POST['cookies'] ) && sanitize_text_field( wp_unslash( $_POST['cookies'] ) ) == '1' ) ? 'yes' : 'no',
+					'cookies'          => ( isset( $_POST['cookies'] ) && sanitize_text_field( wp_unslash( $_POST['cookies'] ) ) === '1' ) ? 'yes' : 'no',
 					// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				);
 
@@ -178,7 +178,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 
 		$message_key = $row->context_message_key;
 
-		if ( 'failed_login' == $message_key ) {
+		if ( 'failed_login' === $message_key ) {
 			$count        = $context['count'];
 			$lockouts     = $context['lockouts'];
 			$ip           = $context['ip'];
@@ -195,13 +195,13 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 
 			$output .= '<p>' . $message_string . '</p>';
 
-			if ( 'longer' == $lockout_type ) {
+			if ( 'longer' === $lockout_type ) {
 				$when = sprintf(
 					/* translators: %d number of hours. */
 					_nx( '%d hour', '%d hours', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 					$time
 				);
-			} elseif ( 'normal' == $lockout_type ) {
+			} elseif ( 'normal' === $lockout_type ) {
 				$when = sprintf(
 					/* translators: %d number of minutes. */
 					_nx( '%d minute', '%d minutes', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ),

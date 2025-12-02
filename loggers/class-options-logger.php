@@ -503,7 +503,7 @@ class Options_Logger extends Logger {
 				)
 			);
 		}
-		if ( (int) $new_value == 0 ) {
+		if ( (int) $new_value === 0 ) {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'New value', 'simple-history' ),
@@ -529,7 +529,7 @@ class Options_Logger extends Logger {
 			);
 		}
 
-		if ( (int) $old_value == 0 ) {
+		if ( (int) $old_value === 0 ) {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'Old value', 'simple-history' ),

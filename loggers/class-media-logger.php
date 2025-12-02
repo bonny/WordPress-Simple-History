@@ -140,9 +140,9 @@ class Media_Logger extends Logger {
 
 		// Only link to attachment if attachment post is still available.
 		if ( $attachment_is_available ) {
-			if ( 'attachment_updated' == $message_key ) {
+			if ( 'attachment_updated' === $message_key ) {
 				$message = __( 'Edited attachment <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
-			} elseif ( 'attachment_created' == $message_key ) {
+			} elseif ( 'attachment_created' === $message_key ) {
 
 				if ( isset( $context['attachment_parent_id'] ) ) {
 					// Attachment was uploaded to a post. Link to it, if still available.
@@ -321,7 +321,7 @@ class Media_Logger extends Logger {
 	public function get_log_row_details_output( $row ) {
 		$message_key = $row->context['_message_key'];
 
-		if ( 'attachment_created' == $message_key ) {
+		if ( 'attachment_created' === $message_key ) {
 			return $this->get_details_output_for_created_attachment( $row );
 		} elseif ( 'attachment_updated' === $message_key ) {
 			return $this->get_details_output_for_updated_attachment( $row );
@@ -482,7 +482,7 @@ class Media_Logger extends Logger {
 	 * @param object $row Log item.
 	 */
 	public function filter_rss_item_link( $link, $row ) {
-		if ( $row->logger != $this->get_slug() ) {
+		if ( $row->logger !== $this->get_slug() ) {
 			return $link;
 		}
 

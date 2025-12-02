@@ -91,12 +91,12 @@ class Available_Updates_Logger extends Logger {
 		require_once ABSPATH . WPINC . '/version.php';
 
 		// If found version is same version as we have logged about before then don't continue.
-		if ( $last_version_checked == $new_wp_core_version ) {
+		if ( $last_version_checked === $new_wp_core_version ) {
 			return;
 		}
 
 		// is WP core update available?
-		if ( isset( $updates->updates[0]->response ) && 'upgrade' == $updates->updates[0]->response ) {
+		if ( isset( $updates->updates[0]->response ) && 'upgrade' === $updates->updates[0]->response ) {
 			$this->notice_message(
 				'core_update_available',
 				array(
@@ -165,7 +165,7 @@ class Available_Updates_Logger extends Logger {
 				);
 			}
 
-			if ( $checked_updates[ $key ]['checked_version'] == $plugin_new_version ) {
+			if ( $checked_updates[ $key ]['checked_version'] === $plugin_new_version ) {
 				// This version has been checked/logged already.
 				continue;
 			}
@@ -221,7 +221,7 @@ class Available_Updates_Logger extends Logger {
 				);
 			}
 
-			if ( $checked_updates[ $key ]['checked_version'] == $theme_new_version ) {
+			if ( $checked_updates[ $key ]['checked_version'] === $theme_new_version ) {
 				// This version has been checked/logged already.
 				continue;
 			}

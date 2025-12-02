@@ -296,7 +296,7 @@ class Post_Logger extends Logger {
 			$context['wp.deletePost.xmlrpc_message.messageParams'] = Helpers::json_encode( $message->params );
 
 			// Actions for delete post.
-			if ( 'wp.deletePost' == $method ) {
+			if ( 'wp.deletePost' === $method ) {
 				// 4 params, where the last is the post id
 				if ( ! isset( $message->params[3] ) ) {
 					return;
@@ -892,7 +892,7 @@ class Post_Logger extends Logger {
 
 				// If post_author then get more author info,
 				// because just a user ID does not get us far.
-			if ( 'post_author' == $diff_key ) {
+			if ( 'post_author' === $diff_key ) {
 				$old_author_user = get_userdata( (int) $diff_values['old'] );
 				$new_author_user = get_userdata( (int) $diff_values['new'] );
 
@@ -1187,13 +1187,13 @@ class Post_Logger extends Logger {
 		// If post is not available any longer then we can't link to it, so keep plain message then.
 		// Also keep plain format if user is not allowed to edit post (edit link is empty).
 		if ( $post_is_available && $context['edit_link'] ) {
-			if ( 'post_updated' == $message_key ) {
+			if ( 'post_updated' === $message_key ) {
 				$message = __( 'Updated {post_type} <a href="{edit_link}">"{post_title}"</a>', 'simple-history' );
-			} elseif ( 'post_deleted' == $message_key ) {
+			} elseif ( 'post_deleted' === $message_key ) {
 				$message = __( 'Deleted {post_type} "{post_title}"', 'simple-history' );
-			} elseif ( 'post_created' == $message_key ) {
+			} elseif ( 'post_created' === $message_key ) {
 				$message = __( 'Created {post_type} <a href="{edit_link}">"{post_title}"</a>', 'simple-history' );
-			} elseif ( 'post_trashed' == $message_key ) {
+			} elseif ( 'post_trashed' === $message_key ) {
 				// While in trash we can still get actions to delete or restore if we follow the edit link.
 				$message = __(
 					'Moved {post_type} <a href="{edit_link}">"{post_title}"</a> to the trash',
@@ -1219,7 +1219,7 @@ class Post_Logger extends Logger {
 
 		$out = '';
 
-		if ( 'post_updated' == $message_key ) {
+		if ( 'post_updated' === $message_key ) {
 			// Check for keys like "post_prev_post_title" and "post_new_post_title".
 			$diff_table_output = '';
 			$has_diff_values   = false;
@@ -1248,7 +1248,7 @@ class Post_Logger extends Logger {
 						$post_new_value = $context[ $key_for_new_val ];
 						if ( $post_old_value != $post_new_value ) {
 							// Different diffs for different keys.
-							if ( 'post_title' == $key_to_diff ) {
+							if ( 'post_title' === $key_to_diff ) {
 								$has_diff_values = true;
 								$label           = __( 'Title', 'simple-history' );
 
@@ -1257,7 +1257,7 @@ class Post_Logger extends Logger {
 									$this->label_for( $key_to_diff, $label, $context ),
 									helpers::text_diff( $post_old_value, $post_new_value )
 								);
-							} elseif ( 'post_content' == $key_to_diff ) {
+							} elseif ( 'post_content' === $key_to_diff ) {
 								// Problem: to much text/content.
 								// Risks to fill the visual output.
 								// Maybe solution: use own diff function, that uses none or few context lines.
@@ -1272,7 +1272,7 @@ class Post_Logger extends Logger {
 										$key_text_diff
 									);
 								}
-							} elseif ( 'post_status' == $key_to_diff ) {
+							} elseif ( 'post_status' === $key_to_diff ) {
 								$has_diff_values    = true;
 								$label              = __( 'Status', 'simple-history' );
 								$diff_table_output .= sprintf(
@@ -1284,7 +1284,7 @@ class Post_Logger extends Logger {
 									esc_html( $post_old_value ),
 									esc_html( $post_new_value )
 								);
-							} elseif ( 'post_date' == $key_to_diff ) {
+							} elseif ( 'post_date' === $key_to_diff ) {
 								$has_diff_values = true;
 								$label           = __( 'Publish date', 'simple-history' );
 
@@ -1297,7 +1297,7 @@ class Post_Logger extends Logger {
 									esc_html( $post_old_value ),
 									esc_html( $post_new_value )
 								);
-							} elseif ( 'post_name' == $key_to_diff ) {
+							} elseif ( 'post_name' === $key_to_diff ) {
 								$has_diff_values = true;
 								$label           = __( 'Permalink', 'simple-history' );
 
@@ -1309,7 +1309,7 @@ class Post_Logger extends Logger {
 									$this->label_for( $key_to_diff, $label, $context ),
 									helpers::text_diff( $post_old_value, $post_new_value )
 								);
-							} elseif ( 'comment_status' == $key_to_diff ) {
+							} elseif ( 'comment_status' === $key_to_diff ) {
 								$has_diff_values = true;
 								$label           = __( 'Comment status', 'simple-history' );
 
@@ -1322,7 +1322,7 @@ class Post_Logger extends Logger {
 									esc_html( $post_old_value ),
 									esc_html( $post_new_value )
 								);
-							} elseif ( 'post_author' == $key_to_diff ) {
+							} elseif ( 'post_author' === $key_to_diff ) {
 								$has_diff_values = true;
 
 								// wp post edit screen uses display_name so we should use it too.
@@ -1357,7 +1357,7 @@ class Post_Logger extends Logger {
 										)
 									);
 								}
-							} elseif ( 'page_template' == $key_to_diff ) {
+							} elseif ( 'page_template' === $key_to_diff ) {
 								// page template filename.
 								$prev_page_template = $context['post_prev_page_template'];
 								$new_page_template  = $context['post_new_page_template'];
@@ -1368,9 +1368,9 @@ class Post_Logger extends Logger {
 								$new_page_template_name  = $context['post_new_page_template_name'] ?? '';
 
 								// If prev och new template is "default" then use that as name.
-								if ( 'default' == $prev_page_template && ! $prev_page_template_name ) {
+								if ( 'default' === $prev_page_template && ! $prev_page_template_name ) {
 									$prev_page_template_name = $prev_page_template;
-								} elseif ( 'default' == $new_page_template && ! $new_page_template_name ) {
+								} elseif ( 'default' === $new_page_template && ! $new_page_template_name ) {
 									$new_page_template_name = $new_page_template;
 								}
 
@@ -1483,7 +1483,7 @@ class Post_Logger extends Logger {
 			}
 
 			$out .= $diff_table_output;
-		} elseif ( 'post_created' == $message_key ) {
+		} elseif ( 'post_created' === $message_key ) {
 			// Show initial post content for created posts using Event_Details classes.
 			// The Event Details system will automatically read values from context.
 			// Using diff table formatter for consistency with post_updated display.
@@ -1552,7 +1552,7 @@ class Post_Logger extends Logger {
 	 * @param object $row Row.
 	 */
 	public function filter_rss_item_link( $link, $row ) {
-		if ( $row->logger != $this->get_slug() ) {
+		if ( $row->logger !== $this->get_slug() ) {
 			return $link;
 		}
 

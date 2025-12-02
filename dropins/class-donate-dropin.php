@@ -76,7 +76,7 @@ class Donate_Dropin extends Dropin {
 	 * @return array<string,string> $links with added links
 	 */
 	public function action_plugin_row_meta( $links, $file ) {
-		if ( $file == $this->simple_history->plugin_basename ) {
+		if ( $file === $this->simple_history->plugin_basename ) {
 			// Only show premium link if promo boxes should be shown.
 			if ( Helpers::show_promo_boxes() ) {
 				$links[] = sprintf(

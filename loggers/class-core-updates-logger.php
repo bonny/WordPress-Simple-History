@@ -133,7 +133,7 @@ class Core_Updates_Logger extends Logger {
 		$old_wp_version = empty( $GLOBALS[ 'simple_history_' . $this->get_slug() . '_wp_version' ] ) ? $GLOBALS['wp_version'] : $GLOBALS[ 'simple_history_' . $this->get_slug() . '_wp_version' ];
 
 		$auto_update = true;
-		if ( $GLOBALS['pagenow'] == 'update-core.php' ) {
+		if ( $GLOBALS['pagenow'] === 'update-core.php' ) {
 			$auto_update = false;
 		}
 

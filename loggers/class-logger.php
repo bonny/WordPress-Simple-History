@@ -1640,7 +1640,7 @@ abstract class Logger {
 			foreach ( $logger_info['messages'] as $message_key => $message_translated ) {
 				// Find message in array with both translated and non translated strings.
 				foreach ( $this->messages as $one_message_with_translation_info ) {
-					if ( $message_translated == $one_message_with_translation_info['translated_text'] ) {
+					if ( $message_translated === $one_message_with_translation_info['translated_text'] ) {
 						$arr_messages_by_message_key[ $message_key ] = $one_message_with_translation_info;
 						continue;
 					}

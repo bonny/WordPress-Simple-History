@@ -1050,7 +1050,7 @@ class Simple_History {
 		// If type is single then include more details.
 		// This is typically shown in the modal window when clicking the event date and time.
 		$more_details_html = '';
-		if ( $args['type'] == 'single' ) {
+		if ( $args['type'] === 'single' ) {
 			$more_details_html = apply_filters(
 				'simple_history/log_html_output_details_single/html_before_context_table',
 				$more_details_html,
@@ -1466,7 +1466,7 @@ class Simple_History {
 		);
 
 		// just return array with slugs in parenthesis suitable for sql-where.
-		if ( 'sql' == $format ) {
+		if ( 'sql' === $format ) {
 			$str_return = '(';
 
 			if ( count( $arr_loggers_user_can_view ) ) {
@@ -1483,7 +1483,7 @@ class Simple_History {
 			$str_return .= ')';
 
 			return $str_return;
-		} elseif ( 'slugs' == $format ) {
+		} elseif ( 'slugs' === $format ) {
 			$logger_slugs = array_map(
 				function ( $logger ) {
 					return $logger['instance']->get_slug();

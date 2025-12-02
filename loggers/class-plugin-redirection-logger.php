@@ -143,7 +143,7 @@ class Plugin_Redirection_Logger extends Logger {
 			} elseif ( 'delete' === $bulk_action ) {
 				$this->log_group_delete( $request, $bulk_items );
 			}
-		} elseif ( 'Redirection_Api_Settings::route_save_settings' == $callable_name ) {
+		} elseif ( 'Redirection_Api_Settings::route_save_settings' === $callable_name ) {
 			$this->log_options_save( $request );
 		}
 

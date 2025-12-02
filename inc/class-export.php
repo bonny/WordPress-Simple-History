@@ -116,26 +116,26 @@ class Export {
 
 		$attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
 
-		if ( 'csv' == $export_format ) {
+		if ( 'csv' === $export_format ) {
 			$filename = 'simple-history-export-' . time() . '.csv';
 			header( 'Content-Type: text/plain' );
 			header( sprintf( $attachment_header_template, $filename ) );
-		} elseif ( 'json' == $export_format ) {
+		} elseif ( 'json' === $export_format ) {
 			$filename = 'simple-history-export-' . time() . '.json';
 			header( 'Content-Type: application/json' );
 			header( sprintf( $attachment_header_template, $filename ) );
-		} elseif ( 'html' == $export_format ) {
+		} elseif ( 'html' === $export_format ) {
 			$filename = 'simple-history-export-' . time() . '.html';
 			header( 'Content-Type: text/html' );
 			header( sprintf( $attachment_header_template, $filename ) );
 		}
 
 		// Some formats need to output some stuff before the actual loops.
-		if ( 'json' == $export_format ) {
+		if ( 'json' === $export_format ) {
 			$json_row = '[';
 			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $json_row );
-		} elseif ( 'html' == $export_format ) {
+		} elseif ( 'html' === $export_format ) {
 			$html = sprintf(
 				'
 			<!doctype html>
@@ -156,11 +156,11 @@ class Export {
 
 				set_time_limit( 30 );
 
-				if ( 'csv' == $export_format ) {
+				if ( 'csv' === $export_format ) {
 					$this->output_csv_row( $fp, $one_row );
-				} elseif ( 'json' == $export_format ) {
+				} elseif ( 'json' === $export_format ) {
 					$this->output_json_row( $fp, $one_row, $row_loop );
-				} elseif ( 'html' == $export_format ) {
+				} elseif ( 'html' === $export_format ) {
 					$this->output_html_row( $fp, $one_row );
 				}
 
@@ -175,11 +175,11 @@ class Export {
 			$query_result                 = $query->query( $download_query_args );
 		}
 
-		if ( 'json' == $export_format ) {
+		if ( 'json' === $export_format ) {
 			$json_row = ']';
 			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $json_row );
-		} elseif ( 'html' == $export_format ) {
+		} elseif ( 'html' === $export_format ) {
 			$html = sprintf( '</ul>' );
 			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $html );
@@ -276,7 +276,7 @@ class Export {
 	 * @param int      $row_loop Row loop counter.
 	 */
 	protected function output_json_row( $fp, $one_row, $row_loop ) {
-		$comma    = $row_loop == 0 ? "\n" : ",\n";
+		$comma    = $row_loop === 0 ? "\n" : ",\n";
 		$json_row = $comma . Helpers::json_encode( $one_row );
 
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite

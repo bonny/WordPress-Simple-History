@@ -466,7 +466,7 @@ class Theme_Logger extends Logger {
 
 		foreach ( $customized as $setting_id => $posted_values ) {
 			foreach ( $settings as $one_setting ) {
-				if ( $one_setting->id == $setting_id ) {
+				if ( $one_setting->id === $setting_id ) {
 					$old_value = $one_setting->value();
 					$new_value = $one_setting->post_value();
 
@@ -481,7 +481,7 @@ class Theme_Logger extends Logger {
 						// find which control it belongs to.
 						foreach ( $controls as $one_control ) {
 							foreach ( $one_control->settings as $section_control_setting ) {
-								if ( $section_control_setting->id == $setting_id ) {
+								if ( $section_control_setting->id === $setting_id ) {
 									$context['control_id']    = $one_control->id;
 									$context['control_label'] = $one_control->label;
 									$context['control_type']  = $one_control->type;
@@ -530,7 +530,7 @@ class Theme_Logger extends Logger {
 		$output      = '';
 
 		// Theme customizer.
-		if ( 'appearance_customized' == $message_key ) {
+		if ( 'appearance_customized' === $message_key ) {
 			if ( isset( $context['setting_old_value'] ) && isset( $context['setting_new_value'] ) ) {
 				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
@@ -558,7 +558,7 @@ class Theme_Logger extends Logger {
 					$str_old_value_prepend = '';
 					$str_new_value_prepend = '';
 
-					if ( 'color' == $control_type ) {
+					if ( 'color' === $control_type ) {
 						$str_old_value_prepend .= sprintf(
 							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
 							esc_attr( ltrim( $context['setting_old_value'], ' #' ) )
@@ -804,7 +804,7 @@ class Theme_Logger extends Logger {
 		}
 
 		foreach ( $widget_factory->widgets as $one_widget ) {
-			if ( $one_widget->id_base == $widget_id_base ) {
+			if ( $one_widget->id_base === $widget_id_base ) {
 				return $one_widget;
 			}
 		}

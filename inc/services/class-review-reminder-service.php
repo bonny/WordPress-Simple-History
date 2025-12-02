@@ -50,7 +50,7 @@ class Review_Reminder_Service extends Service {
 
 		// Don't show on dashboard.
 		global $pagenow;
-		if ( $pagenow == 'index.php' ) {
+		if ( $pagenow === 'index.php' ) {
 			return;
 		}
 

@@ -581,7 +581,7 @@ class Setup_Settings_Page extends Service {
 					esc_html( $one_tab['name'] ), // 1
 					esc_html( $tab_slug ), // 2
 					esc_url( Helpers::get_settings_page_tab_url( $tab_slug ) ), // 3
-					$active_tab == $tab_slug ? 'is-active' : '', // 4
+					$active_tab === $tab_slug ? 'is-active' : '', // 4
 					wp_kses( $icon_html, $icon_html_allowed_html ) // 5
 				);
 			}

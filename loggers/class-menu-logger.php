@@ -245,7 +245,7 @@ class Menu_Logger extends Logger {
 		$message_key = $context['_message_key'];
 		$output      = '';
 
-		if ( 'edited_menu' == $message_key && ( ! empty( $context['menu_items_added'] ) || ! empty( $context['menu_items_removed'] ) ) ) {
+		if ( 'edited_menu' === $message_key && ( ! empty( $context['menu_items_added'] ) || ! empty( $context['menu_items_removed'] ) ) ) {
 			$output .= '<p>';
 			$output .= '<span class="SimpleHistoryLogitem__inlineDivided">';
 			$output .= sprintf(

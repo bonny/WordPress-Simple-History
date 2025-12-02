@@ -1068,7 +1068,7 @@ class Plugin_Logger extends Logger {
 
 		// If uploaded plugin store name of ZIP.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( 'upload' == $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
+		if ( 'upload' === $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$plugin_upload_name            = sanitize_text_field( $_FILES['pluginzip']['name'] );
 			$context['plugin_upload_name'] = $plugin_upload_name;
@@ -1291,9 +1291,9 @@ class Plugin_Logger extends Logger {
 					return '';
 				}
 
-				if ( 'web' == $context[ $key ] ) {
+				if ( 'web' === $context[ $key ] ) {
 					return esc_html( __( 'WordPress Plugin Repository', 'simple-history' ) );
-				} elseif ( 'upload' == $context[ $key ] ) {
+				} elseif ( 'upload' === $context[ $key ] ) {
 					return esc_html( __( 'Uploaded ZIP archive', 'simple-history' ) );
 				} else {
 					return esc_html( $context[ $key ] );
@@ -1304,7 +1304,7 @@ class Plugin_Logger extends Logger {
 					return '';
 				}
 
-				if ( 'upload' == $context['plugin_install_source'] ) {
+				if ( 'upload' === $context['plugin_install_source'] ) {
 					$plugin_upload_name = $context['plugin_upload_name'];
 					return esc_html( $plugin_upload_name );
 				}
@@ -1327,7 +1327,7 @@ class Plugin_Logger extends Logger {
 		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 
 		// Slug + web as install source = show link to wordpress.org.
-		if ( $plugin_slug && isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'web' ) {
+		if ( $plugin_slug && isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] === 'web' ) {
 			$output .= sprintf(
 				'
 				<tr>
@@ -1338,7 +1338,7 @@ class Plugin_Logger extends Logger {
 				admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" ),
 				esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
 			);
-		} elseif ( isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'upload' && ! empty( $context['plugin_github_url'] ) ) {
+		} elseif ( isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] === 'upload' && ! empty( $context['plugin_github_url'] ) ) {
 			$output .= sprintf(
 				'
 				<tr>

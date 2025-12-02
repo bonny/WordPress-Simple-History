@@ -699,7 +699,7 @@ class User_Logger extends Logger {
 		$output          = parent::get_log_row_plain_text_output( $row );
 		$current_user_id = get_current_user_id();
 
-		if ( 'user_updated_profile' == $context['_message_key'] ) {
+		if ( 'user_updated_profile' === $context['_message_key'] ) {
 			$wp_user = get_user_by( 'id', $context['edited_user_id'] );
 
 			// If edited_user_id and _user_id is the same then a user edited their own profile
@@ -730,7 +730,7 @@ class User_Logger extends Logger {
 				$msg                          = __( 'Edited the profile for user <a href="{edit_profile_link}">{edited_user_login} ({edited_user_email})</a>', 'simple-history' );
 				$output                       = helpers::interpolate( $msg, $context, $row );
 			}
-		} elseif ( 'user_created' == $context['_message_key'] ) {
+		} elseif ( 'user_created' === $context['_message_key'] ) {
 			// A user was created. Create link of username that goes to user profile.
 			$wp_user = get_user_by( 'id', $context['created_user_id'] );
 
@@ -945,7 +945,7 @@ class User_Logger extends Logger {
 		// Error codes can be:
 		// "incorrect_password" | "empty_password" | "invalid_email" | "invalid_username"
 		// We only act on invalid emails and invalid usernames.
-		if ( is_a( $user, 'WP_Error' ) && ( $user->get_error_code() == 'invalid_username' || $user->get_error_code() == 'invalid_email' ) ) {
+		if ( is_a( $user, 'WP_Error' ) && ( $user->get_error_code() === 'invalid_username' || $user->get_error_code() === 'invalid_email' ) ) {
 			$context = array(
 				'_initiator'             => Log_Initiators::WEB_USER,
 				'failed_username'        => $username,
@@ -1014,7 +1014,7 @@ class User_Logger extends Logger {
 		$out               = '';
 		$diff_table_output = '';
 
-		if ( 'user_updated_profile' == $message_key ) {
+		if ( 'user_updated_profile' === $message_key ) {
 			// Find all user_prev_ and user_new_ values and show them.
 			$arr_user_keys_to_show_diff_for = array(
 				'rich_editing'         => array(
@@ -1138,7 +1138,7 @@ class User_Logger extends Logger {
 					_x( 'Changed', 'User logger', 'simple-history' )
 				);
 			}
-		} elseif ( 'user_created' == $message_key ) {
+		} elseif ( 'user_created' === $message_key ) {
 			// Show fields for created users.
 			$arr_user_keys_to_show_diff_for = array(
 				'created_user_role'       => array(
@@ -1160,7 +1160,7 @@ class User_Logger extends Logger {
 
 			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
 				if ( isset( $context[ $key ] ) && trim( $context[ $key ] ) ) {
-					if ( 'send_user_notification' == $key ) {
+					if ( 'send_user_notification' === $key ) {
 						if ( (int) $context[ $key ] == 1 ) {
 							// The checkbox for notification was checked.
 							$sent_status = _x(

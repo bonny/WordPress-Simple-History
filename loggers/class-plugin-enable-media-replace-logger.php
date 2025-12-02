@@ -51,7 +51,7 @@ class Plugin_Enable_Media_Replace_Logger extends Logger {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['action'] ) && $_GET['action'] == 'media_replace_upload' ) {
+		if ( isset( $_GET['action'] ) && $_GET['action'] === 'media_replace_upload' ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$attachment_id = empty( $_POST['ID'] ) ? null : (int) $_POST['ID'];
 

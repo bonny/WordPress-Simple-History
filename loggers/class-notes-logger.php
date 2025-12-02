@@ -365,7 +365,7 @@ class Notes_Logger extends Logger {
 		foreach ( $blocks as $block ) {
 			// Check if this block has the noteId in its metadata.
 			if ( isset( $block['attrs']['metadata']['noteId'] ) &&
-				$block['attrs']['metadata']['noteId'] == $note_id ) {
+				$block['attrs']['metadata']['noteId'] === $note_id ) {
 				$found[] = $block;
 			}
 
