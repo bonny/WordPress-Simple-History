@@ -181,6 +181,7 @@ class Tools_Menu_Dropin extends Dropin {
 	 * Used as both an admin_init hook and a page callback for the hidden redirect page.
 	 */
 	public function redirect_old_export_url() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Safe: nonce not required for this redirect.
 		$page = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
 
 		// Check for old export page slug.
