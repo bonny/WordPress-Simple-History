@@ -104,31 +104,32 @@ class Autoloader {
 	 * failure.
 	 */
 	public function load_class( $class_name ) {
-		// the current namespace prefix.
+		// The current namespace prefix.
 		$prefix = $class_name;
 
-		// work backwards through the namespace names of the fully-qualified
+		// Work backwards through the namespace names of the fully-qualified
 		// class name to find a mapped file name.
-		while ( false !== $pos = strrpos( $prefix, '\\' ) ) {
+		$pos = strrpos( $prefix, '\\' );
 
-			// retain the trailing namespace separator in the prefix.
+		while ( false !== $pos ) {
+			// Retain the trailing namespace separator in the prefix.
 			$prefix = substr( $class_name, 0, $pos + 1 );
 
-			// the rest is the relative class name.
+			// The rest is the relative class name.
 			$relative_class = substr( $class_name, $pos + 1 );
 
-			// try to load a mapped file for the prefix and relative class.
+			// Try to load a mapped file for the prefix and relative class.
 			$mapped_file = $this->load_mapped_file( $prefix, $relative_class );
 			if ( $mapped_file ) {
 				return $mapped_file;
 			}
 
-			// remove the trailing namespace separator for the next iteration
-			// of strrpos().
+			// Remove the trailing namespace separator for the next iteration.
 			$prefix = rtrim( $prefix, '\\' );
+			$pos    = strrpos( $prefix, '\\' );
 		}
 
-		// never found a mapped file.
+		// Never found a mapped file.
 		return false;
 	}
 
