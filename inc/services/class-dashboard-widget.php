@@ -21,6 +21,7 @@ class Dashboard_Widget extends Service {
 	 * and a setting to show dashboard to be set.
 	 */
 	public function add_dashboard_widget() {
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
 		if ( Helpers::setting_show_on_dashboard() && current_user_can( Helpers::get_view_history_capability() ) ) {
 			/**
 			 * Filter to determine if history page should be added to page below dashboard or not
@@ -33,7 +34,8 @@ class Dashboard_Widget extends Service {
 
 			// Show link to settings page in dashboard widget if user can view settings page.
 			$show_dashboard_settings_link_html = '';
-			$show_dashboard_settings_link      = current_user_can( Helpers::get_view_settings_capability() );
+			// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'manage_options'.
+			$show_dashboard_settings_link = current_user_can( Helpers::get_view_settings_capability() );
 			if ( $show_dashboard_settings_link ) {
 				$show_dashboard_settings_link_html = sprintf(
 					'<a href="%1$s" title="%2$s" class="sh-Icon sh-Dashboard-settingsLink"></a>',
