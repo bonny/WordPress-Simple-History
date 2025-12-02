@@ -2119,12 +2119,7 @@ class Helpers {
 		$url_parts = [];
 
 		foreach ( $query_args as $key => $value ) {
-			// For JSON parameters, use rawurlencode to preserve the structure.
-			if ( in_array( $key, [ 'users', 'loglevels', 'messages', 'initiators', 'exclude-levels', 'exclude-loggers', 'exclude-messages', 'exclude-users', 'exclude-initiator' ], true ) ) {
-				$url_parts[] = $key . '=' . rawurlencode( $value );
-			} else {
-				$url_parts[] = $key . '=' . urlencode( $value );
-			}
+			$url_parts[] = $key . '=' . rawurlencode( $value );
 		}
 
 		return $base_url . '?' . implode( '&', $url_parts );
