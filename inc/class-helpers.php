@@ -1497,7 +1497,7 @@ class Helpers {
 		$cache_key  = 'sh_' . md5( __METHOD__ . $days );
 		$numEvents  = get_transient( $cache_key );
 
-		if ( false == $numEvents ) {
+		if ( $numEvents === false ) {
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$sql = $wpdb->prepare(
 				"

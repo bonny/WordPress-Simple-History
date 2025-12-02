@@ -214,7 +214,7 @@ abstract class Logger {
 				$user = get_user_by( 'id', $user_id );
 				if ( $user_id > 0 && ( $user ) ) {
 					// Sender is user and user still exists.
-					$is_current_user = get_current_user_id() == $user_id;
+					$is_current_user = get_current_user_id() === (int) $user_id;
 
 					// get user role, as done in user-edit.php.
 					$wp_roles   = $GLOBALS['wp_roles'];

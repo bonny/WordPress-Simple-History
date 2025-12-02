@@ -88,7 +88,7 @@ class Plugin_User_Switching_Logger extends Logger {
 	public function on_switch_back_user( $user_id, $old_user_id ) {
 		$user_to = get_user_by( 'id', $user_id );
 
-		$user_from = $old_user_id == false ? null : get_user_by( 'id', $old_user_id );
+		$user_from = $old_user_id === false ? null : get_user_by( 'id', $old_user_id );
 
 		if ( ! is_a( $user_to, 'WP_User' ) ) {
 			return;

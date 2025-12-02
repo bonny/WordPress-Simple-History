@@ -658,13 +658,13 @@ class Comments_Logger extends Logger {
 				case 'trackback_status':
 				case 'pingback_status':
 					if ( isset( $context['comment_approved'] ) ) {
-						if ( $context['comment_approved'] === 'spam' ) {
-							$desc_output = __( 'Spam', 'simple-history' );
-						} elseif ( $context['comment_approved'] == 1 ) {
-							$desc_output = __( 'Approved', 'simple-history' );
-						} elseif ( $context['comment_approved'] == 0 ) {
-							$desc_output = __( 'Pending', 'simple-history' );
-						}
+					if ( $context['comment_approved'] === 'spam' ) {
+						$desc_output = __( 'Spam', 'simple-history' );
+					} elseif ( $context['comment_approved'] === '1' ) {
+						$desc_output = __( 'Approved', 'simple-history' );
+					} elseif ( $context['comment_approved'] === '0' ) {
+						$desc_output = __( 'Pending', 'simple-history' );
+					}
 					}
 
 					break;

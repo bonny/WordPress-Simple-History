@@ -1161,7 +1161,7 @@ class User_Logger extends Logger {
 			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
 				if ( isset( $context[ $key ] ) && trim( $context[ $key ] ) ) {
 					if ( 'send_user_notification' === $key ) {
-						if ( (int) $context[ $key ] == 1 ) {
+						if ( (int) $context[ $key ] === 1 ) {
 							// The checkbox for notification was checked.
 							$sent_status = _x(
 								'Checked',
