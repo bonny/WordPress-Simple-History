@@ -459,6 +459,7 @@ abstract class Logger {
 				$date_and_time_format
 			), // 1 local time
 			$date_datetime->format( $date_and_time_format ), // GMT time.
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- This explains sprintf placeholder.
 			PHP_EOL // 3, new line
 		);
 

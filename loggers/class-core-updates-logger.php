@@ -183,6 +183,7 @@ class Core_Updates_Logger extends Logger {
 			'error_code'    => $result->get_error_code(),
 			'error_message' => $result->get_error_message(),
 			'auto_update'   => true, // This filter only fires for automatic updates.
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- This explains possible values.
 			'failure_type'  => $type, // Is 'fail' or 'critical'.
 		];
 

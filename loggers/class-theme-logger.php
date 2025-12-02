@@ -246,8 +246,10 @@ class Theme_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_upgrader_process_complete_theme_update( $upgrader_instance = null, $arr_data = null ) {
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found -- Documentation showing data structure.
+
 		/*
-		For theme updates $arr_data looks like
+		 * For theme updates $arr_data looks like
 
 		// From core update/bulk
 		Array
@@ -270,6 +272,7 @@ class Theme_Logger extends Logger {
 			[type] => theme
 		)
 		*/
+		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
 
 		// Both args must be set.
 		if ( empty( $upgrader_instance ) || empty( $arr_data ) ) {

@@ -184,8 +184,10 @@ class Plugin_ACF_Logger extends Logger {
 			return;
 		}
 
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found -- Documentation showing data structure.
+
 		/*
-		Meta values look like
+		 * Meta values look like
 		[product_images_0_image] => 625
 		[_product_images_0_image] => field_59a091044812e
 		[product_images_0_image_caption] => Image row yes
@@ -202,6 +204,8 @@ class Plugin_ACF_Logger extends Logger {
 		[_product_images_0_image_related] => field_59aaedbc3ae10
 		[product_images_1_image] => 574
 		*/
+		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
+
 		$prev_post_meta = $this->old_post_data['prev_post_meta'] ?? array();
 
 		$new_post_meta = get_post_custom( $post_id );

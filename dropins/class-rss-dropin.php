@@ -327,8 +327,8 @@ class RSS_Dropin extends Dropin {
 						$text_output    = $this->simple_history->get_log_row_plain_text_output( $row );
 						$details_output = $this->simple_history->get_log_row_details_output( $row );
 
-						// http://cyber.law.harvard.edu/rss/rss.html#ltguidgtSubelementOfLtitemgt
-						// $item_guid = home_url() . "?SimpleHistoryGuid=" . $row->id;.
+						// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- URL reference.
+						// See http://cyber.law.harvard.edu/rss/rss.html#ltguidgtSubelementOfLtitemgt.
 						$item_guid = esc_url( add_query_arg( 'SimpleHistoryGuid', $row->id, home_url() ) );
 						$item_link = esc_url( add_query_arg( 'SimpleHistoryGuid', $row->id, home_url() ) );
 

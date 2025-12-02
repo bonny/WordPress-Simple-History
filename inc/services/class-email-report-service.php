@@ -177,6 +177,7 @@ class Email_Report_Service extends Service {
 		if ( $peak_days && is_array( $peak_days ) ) {
 			foreach ( $peak_days as $day ) {
 				$all_days[] = [
+					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- This explains value range.
 					'day_number' => $day->day,  // 0=Sunday and 6=Saturday.
 					'count'      => $day->count,
 				];
