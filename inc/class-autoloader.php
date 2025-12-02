@@ -214,6 +214,7 @@ class Autoloader {
 	 */
 	protected function require_file( $file ) {
 		if ( file_exists( $file ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: path built from registered namespaces, not user input.
 			require $file;
 			return true;
 		}
