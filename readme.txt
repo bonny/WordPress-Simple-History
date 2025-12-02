@@ -338,6 +338,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Changed**
+
+-   Improved code quality by resolving phpcs warnings for WordPress VIP Go compatibility.
+
 **Fixed**
 
 -   Fixed event context being silently dropped when post content contained emojis, causing incomplete log entries. [#607](https://github.com/bonny/WordPress-Simple-History/issues/607).
