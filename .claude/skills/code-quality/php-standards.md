@@ -256,6 +256,56 @@ $condition
     : $this->doSomethingElse();
 ```
 
+### Defensive Programming
+
+WordPress plugins receive data from hooks, filters, and other plugins. Never assume data is valid or complete - other code may have modified variables or hooks may not pass all expected arguments.
+
+**Validate hook arguments - make optional params have defaults:**
+
+```php
+// WordPress hooks may not pass all expected arguments.
+// The delete_comment hook only added the $comment param in WP 6.2.
+public function on_delete_comment( $comment_id, $comment = null ) {
+    if ( empty( $comment_id ) ) {
+        return;
+    }
+
+    // Fetch comment if not provided (backwards compatibility).
+    if ( ! $comment ) {
+        $comment = get_comment( $comment_id );
+    }
+
+    // Now safe to use $comment...
+}
+```
+
+**Always verify data before using:**
+
+```php
+$post = get_post( $post_id );
+if ( ! $post ) {
+    return;
+}
+
+$user = get_userdata( $user_id );
+if ( ! $user ) {
+    return;
+}
+```
+
+**Check types when uncertain:**
+
+```php
+// Data from external sources or filters may have unexpected types.
+if ( ! is_array( $items ) ) {
+    return;
+}
+
+if ( ! is_string( $value ) || empty( $value ) ) {
+    return;
+}
+```
+
 ## WordPress-Specific Standards
 
 ### Always Escape Output
@@ -314,3 +364,5 @@ When writing PHP code, ensure:
 - [ ] All hooks/functions are prefixed
 - [ ] Text domain is `simple-history`
 - [ ] No `mb_*` functions used
+- [ ] Hook callbacks handle missing/optional arguments
+- [ ] Data is validated before use
