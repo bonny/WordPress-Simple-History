@@ -70,6 +70,13 @@ class Setup_Database extends Service {
 
 		if ( $setup_service instanceof self ) {
 			$setup_service->run_setup_steps();
+
+			// Log recovery for debugging purposes.
+			if ( WP_DEBUG && WP_DEBUG_LOG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( 'Simple History: Auto-recreated missing database tables' );
+			}
+
 			return true;
 		}
 
