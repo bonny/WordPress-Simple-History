@@ -104,6 +104,8 @@ class Setup_Purge_DB_Cron extends Service {
 
 		global $wpdb;
 
+		// Process deletions in batches of 100,000 rows to avoid memory exhaustion,
+		// query timeouts, and long table locks. Loop continues until no old events remain.
 		while ( 1 > 0 ) {
 			// Get id of rows to delete.
 			$sql = $wpdb->prepare(
