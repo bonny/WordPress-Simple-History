@@ -1933,6 +1933,56 @@ class Helpers {
 	}
 
 	/**
+	 * Count events in the database.
+	 *
+	 * Returns a raw count of events, without any permission checks.
+	 * Useful for tests and internal statistics.
+	 *
+	 * @since 5.21.0
+	 *
+	 * @param array $args {
+	 *     Optional. Arguments to filter the count.
+	 *
+	 *     @type string $logger Only count events from this logger.
+	 *     @type string $level  Only count events with this level.
+	 * }
+	 * @return int Number of events matching the criteria.
+	 */
+	public static function count_events( $args = [] ) {
+		global $wpdb;
+		$simple_history    = Simple_History::get_instance();
+		$events_table_name = $simple_history->get_events_table_name();
+
+		$where_clauses = [];
+		$where_values  = [];
+
+		if ( ! empty( $args['logger'] ) ) {
+			$where_clauses[] = 'logger = %s';
+			$where_values[]  = $args['logger'];
+		}
+
+		if ( ! empty( $args['level'] ) ) {
+			$where_clauses[] = 'level = %s';
+			$where_values[]  = $args['level'];
+		}
+
+		$where_sql = '';
+		if ( ! empty( $where_clauses ) ) {
+			$where_sql = 'WHERE ' . implode( ' AND ', $where_clauses );
+		}
+
+		$sql = "SELECT COUNT(*) FROM {$events_table_name} {$where_sql}";
+
+		if ( ! empty( $where_values ) ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$sql = $wpdb->prepare( $sql, $where_values );
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (int) $wpdb->get_var( $sql );
+	}
+
+	/**
 	 * Returns markup for a tooltip with help text icon.
 	 *
 	 * @param string $tooltip_text The text to display in the tooltip.
