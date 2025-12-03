@@ -80,7 +80,6 @@ class Setup_Purge_DB_Cron extends Service {
 	 * Removes old entries from the db.
 	 *
 	 * Removes in batches of 100 000 rows.
-	 *
 	 */
 	public function purge_db() {
 		$do_purge_history = true;
@@ -107,15 +106,15 @@ class Setup_Purge_DB_Cron extends Service {
 		// Track total rows deleted across all batches.
 		$total_rows = 0;
 
+		// Build the WHERE clause for selecting events to purge.
+		$where = $this->get_purge_where_clause( $days, $table_name );
+
 		// Process deletions in batches of 100,000 rows to avoid memory exhaustion,
 		// query timeouts, and long table locks. Loop continues until no old events remain.
 		while ( 1 > 0 ) {
 			// Get id of rows to delete.
-			$sql = $wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-				"SELECT id FROM $table_name WHERE DATE_ADD(date, INTERVAL %d DAY) < now() LIMIT 100000",
-				$days
-			);
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+			$sql = "SELECT id FROM {$table_name} WHERE {$where} LIMIT 100000";
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$ids_to_delete = $wpdb->get_col( $sql );
@@ -162,5 +161,110 @@ class Setup_Purge_DB_Cron extends Service {
 		 * @since 5.21.0
 		 */
 		do_action( 'simple_history/db/purge_done', $days, $total_rows );
+	}
+
+	/**
+	 * Build the WHERE clause for the purge query.
+	 *
+	 * @param int    $days       Number of days to keep events.
+	 * @param string $table_name Events table name.
+	 * @return string SQL WHERE clause (without the WHERE keyword).
+	 */
+	private function get_purge_where_clause( $days, $table_name ) {
+		global $wpdb;
+
+		// Default: delete events older than X days.
+		$where = $wpdb->prepare(
+			'DATE_ADD(date, INTERVAL %d DAY) < NOW()',
+			$days
+		);
+
+		/**
+		 * Filter the SQL WHERE clause used when purging old events.
+		 *
+		 * This filter allows advanced customization of which events to delete.
+		 * Use it to implement per-logger retention, keep certain events forever,
+		 * or add any custom deletion criteria.
+		 *
+		 * Available columns in the events table:
+		 * - id (bigint)
+		 * - logger (varchar) - e.g. 'SimpleUserLogger', 'SimplePostLogger'
+		 * - level (varchar) - 'debug', 'info', 'warning', 'error', 'critical'
+		 * - date (datetime)
+		 * - message (varchar)
+		 * - initiator (varchar) - 'wp_user', 'web_user', 'wp_cli', 'wp', 'other'
+		 *
+		 * IMPORTANT: You are responsible for returning valid SQL.
+		 * Always use $wpdb->prepare() for dynamic values.
+		 *
+		 * @since 5.21.0
+		 *
+		 * @param string $where      SQL WHERE clause (without "WHERE" keyword).
+		 * @param int    $days       Default retention days from settings.
+		 * @param string $table_name Events table name (for reference).
+		 *
+		 * @example Keep SimpleOptionsLogger events forever (exclude from purge).
+		 *
+		 * ```php
+		 * add_filter( 'simple_history/purge_db_where', function( $where, $days, $table ) {
+		 *     global $wpdb;
+		 *     return $where . $wpdb->prepare( ' AND logger != %s', 'SimpleOptionsLogger' );
+		 * }, 10, 3 );
+		 * ```
+		 *
+		 * @example Keep events with level "warning" or higher forever.
+		 *
+		 * ```php
+		 * add_filter( 'simple_history/purge_db_where', function( $where, $days, $table ) {
+		 *     return $where . " AND level NOT IN ('warning', 'error', 'critical')";
+		 * }, 10, 3 );
+		 * ```
+		 *
+		 * @example Different retention per logger (replaces default WHERE).
+		 *
+		 * ```php
+		 * add_filter( 'simple_history/purge_db_where', function( $where, $days, $table ) {
+		 *     global $wpdb;
+		 *
+		 *     // Define custom retention per logger (in days, 0 = keep forever).
+		 *     $retention = [
+		 *         'SimpleUserLogger'    => 365, // Login events: 1 year.
+		 *         'SimplePostLogger'    => 180, // Post changes: 6 months.
+		 *         'SimpleOptionsLogger' => 0,   // Settings changes: forever.
+		 *     ];
+		 *
+		 *     $conditions = [];
+		 *
+		 *     foreach ( $retention as $logger => $logger_days ) {
+		 *         // Skip loggers that should be kept forever.
+		 *         if ( $logger_days === 0 ) {
+		 *             continue;
+		 *         }
+		 *         $conditions[] = $wpdb->prepare(
+		 *             '(logger = %s AND DATE_ADD(date, INTERVAL %d DAY) < NOW())',
+		 *             $logger,
+		 *             $logger_days
+		 *         );
+		 *     }
+		 *
+		 *     // All other loggers: use default retention, but exclude "keep forever" loggers.
+		 *     $keep_forever = array_keys( array_filter( $retention, fn( $d ) => $d === 0 ) );
+		 *     if ( ! empty( $keep_forever ) ) {
+		 *         $placeholders = implode( ',', array_fill( 0, count( $keep_forever ), '%s' ) );
+		 *         $conditions[] = $wpdb->prepare(
+		 *             "(logger NOT IN ($placeholders) AND $where)",
+		 *             ...$keep_forever
+		 *         );
+		 *     } else {
+		 *         $conditions[] = "($where)";
+		 *     }
+		 *
+		 *     return '(' . implode( ' OR ', $conditions ) . ')';
+		 * }, 10, 3 );
+		 * ```
+		 */
+		$where = apply_filters( 'simple_history/purge_db_where', $where, $days, $table_name );
+
+		return $where;
 	}
 }
