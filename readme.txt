@@ -347,6 +347,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Fixed IP addresses not showing for expanded similar events (occasions).
+-   Fixed Debug page showing "No tables found" when using SQLite (e.g., wp-playground) due to missing dbstat extension.
 
 ### 5.20.0 (December 2025)
 

@@ -107,8 +107,13 @@ echo Admin_Pages::header_output();
 		echo '</td></tr>';
 	} else {
 		foreach ( $args['table_size_result'] as $one_table ) {
-			/* translators: %s size in mb. */
-			$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table['size_in_mb'] );
+			// Handle N/A for SQLite environments without dbstat extension.
+			if ( $one_table['size_in_mb'] === 'N/A' ) {
+				$size = _x( 'N/A', 'debug dropin', 'simple-history' );
+			} else {
+				/* translators: %s size in mb. */
+				$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table['size_in_mb'] );
+			}
 
 			/* translators: %s number of rows. */
 			$rows = sprintf( _x( '%s rows', 'debug dropin', 'simple-history' ), number_format_i18n( $one_table['num_rows'], 0 ) );

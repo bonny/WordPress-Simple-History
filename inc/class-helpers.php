@@ -371,56 +371,81 @@ class Helpers {
 	/**
 	 * Get number of rows and the size of each Simple History table in the database.
 	 *
-	 * @return array<string, object{table_name: string, size_in_mb: float, num_rows: int}>
+	 * Uses sqlite_master to check if tables exist (always available),
+	 * then tries dbstat for size info (may not be available in wp-playground).
+	 *
+	 * @return array<string, array{table_name: string, size_in_mb: float|string, num_rows: int}>
 	 */
 	public static function get_db_table_stats_sqlite() {
 		/** @var \wpdb $wpdb */
 		global $wpdb;
 		$simple_history = Simple_History::get_instance();
 
-		/** @var array $events_table_size_result */
+		$events_table   = $simple_history->get_events_table_name();
+		$contexts_table = $simple_history->get_contexts_table_name();
+
+		// Check if tables exist using sqlite_master (always available).
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$events_table_size_result = $wpdb->get_row(
+		$events_exists = $wpdb->get_var(
 			$wpdb->prepare(
-				'
-					SELECT dbstat.name as table_name , SUM(dbstat.pgsize) / 1024 as size_in_mb FROM sqlite_master 
-					INNER JOIN dbstat ON dbstat.name = sqlite_master.name 
-					WHERE sqlite_master.tbl_name = "%1$s"
-				',
-				$simple_history->get_events_table_name()
-			),
-			ARRAY_A
+				"SELECT name FROM sqlite_master WHERE type='table' AND name=%s",
+				$events_table
+			)
 		);
 
-		/** @var array $contexts_table_size_result */
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$contexts_table_size_result = $wpdb->get_row(
+		$contexts_exists = $wpdb->get_var(
 			$wpdb->prepare(
-				'
-					SELECT dbstat.name as table_name , SUM(dbstat.pgsize) / 1024 as size_in_mb FROM sqlite_master 
-					INNER JOIN dbstat ON dbstat.name = sqlite_master.name 
-					WHERE sqlite_master.tbl_name = "%1$s"
-				',
-				$simple_history->get_contexts_table_name()
-			),
-			ARRAY_A
+				"SELECT name FROM sqlite_master WHERE type='table' AND name=%s",
+				$contexts_table
+			)
 		);
 
 		// Bail if any of the tables are missing.
-		if ( empty( $events_table_size_result['table_name'] ) || empty( $contexts_table_size_result['table_name'] ) ) {
+		if ( ! $events_exists || ! $contexts_exists ) {
 			return [];
 		}
 
-		$table_size_result = [
-			'simple_history'          => $events_table_size_result,
-			'simple_history_contexts' => $contexts_table_size_result,
+		// Try to get sizes using dbstat (may not be available in wp-playground).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$events_size_result = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT SUM(pgsize) / 1024.0 / 1024.0 FROM dbstat WHERE name = %s',
+				$events_table
+			)
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$contexts_size_result = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT SUM(pgsize) / 1024.0 / 1024.0 FROM dbstat WHERE name = %s',
+				$contexts_table
+			)
+		);
+
+		// Use results if available, otherwise show N/A.
+		$events_size   = $events_size_result !== null ? round( (float) $events_size_result, 2 ) : 'N/A';
+		$contexts_size = $contexts_size_result !== null ? round( (float) $contexts_size_result, 2 ) : 'N/A';
+
+		// Get row counts (always works).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$events_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$events_table}" );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$contexts_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$contexts_table}" );
+
+		return [
+			'simple_history'          => [
+				'table_name' => $events_table,
+				'size_in_mb' => $events_size,
+				'num_rows'   => $events_rows,
+			],
+			'simple_history_contexts' => [
+				'table_name' => $contexts_table,
+				'size_in_mb' => $contexts_size,
+				'num_rows'   => $contexts_rows,
+			],
 		];
-
-		// Get num of rows for each table.
-		$table_size_result['simple_history']['num_rows'] = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_events_table_name()}" ); // phpcs:ignore
-		$table_size_result['simple_history_contexts']['num_rows'] = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_contexts_table_name()}" ); // phpcs:ignore
-
-		return $table_size_result;
 	}
 
 	/**
