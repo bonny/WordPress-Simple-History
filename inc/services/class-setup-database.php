@@ -39,6 +39,56 @@ class Setup_Database extends Service {
 	}
 
 	/**
+	 * Recreate missing database tables.
+	 *
+	 * This is called when a query or insert fails due to missing tables.
+	 * It resets the db_version to 0 and runs all setup steps to recreate tables.
+	 *
+	 * This handles scenarios like:
+	 * - Site duplication where tables weren't copied
+	 * - MU plugin with orphaned db_version option
+	 * - Multisite network activation issues
+	 *
+	 * @return bool True if tables were recreated, false if already attempted.
+	 */
+	public static function recreate_tables_if_missing() {
+		// Prevent infinite recursion - only try once per request.
+		static $already_attempted = false;
+
+		if ( $already_attempted ) {
+			return false;
+		}
+
+		$already_attempted = true;
+
+		// Reset db_version to 0 to trigger fresh table creation.
+		delete_option( 'simple_history_db_version' );
+
+		// Get the Setup_Database service instance and run setup steps.
+		$simple_history = \Simple_History\Simple_History::get_instance();
+		$setup_service  = $simple_history->get_service( self::class );
+
+		if ( $setup_service instanceof self ) {
+			$setup_service->run_setup_steps();
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if a database error indicates missing tables.
+	 *
+	 * @param string $error_message The database error message.
+	 * @return bool True if error indicates table doesn't exist.
+	 */
+	public static function is_table_missing_error( $error_message ) {
+		// MySQL/MariaDB error for missing table.
+		return stripos( $error_message, "doesn't exist" ) !== false
+			|| stripos( $error_message, 'does not exist' ) !== false;
+	}
+
+	/**
 	 * Get the current database version.
 	 *
 	 * @return int The database version. Version 0 = first install or version earlier than 0.4.

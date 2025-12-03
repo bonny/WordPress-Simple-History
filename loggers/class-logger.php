@@ -8,6 +8,7 @@ use Simple_History\Simple_History;
 use Simple_History\Log_Levels;
 use Simple_History\Log_Initiators;
 use Simple_History\Helpers;
+use Simple_History\Services;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
 
@@ -1333,6 +1334,20 @@ abstract class Logger {
 		// Insert data into db.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->insert( $this->db_table, $data );
+
+		// Auto-recover from missing tables.
+		if ( false === $result && ! empty( $wpdb->last_error ) ) {
+			if ( Services\Setup_Database::is_table_missing_error( $wpdb->last_error ) ) {
+				// Try to recreate tables.
+				$recreated = Services\Setup_Database::recreate_tables_if_missing();
+
+				if ( $recreated ) {
+					// Retry the insert after recreating tables.
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+					$result = $wpdb->insert( $this->db_table, $data );
+				}
+			}
+		}
 
 		// Save context if able to store row.
 		if ( false === $result ) {

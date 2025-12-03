@@ -4,6 +4,7 @@ namespace Simple_History;
 
 use Simple_History\Helpers;
 use Simple_History\Date_Helper;
+use Simple_History\Services;
 
 /**
  * Queries the Simple History Log.
@@ -131,12 +132,33 @@ class Log_Query {
 		$type = $args['type'] ?? 'overview';
 
 		if ( $type === 'overview' || $type === 'single' ) {
-			return $this->query_overview( $args );
+			$result = $this->query_overview( $args );
 		} elseif ( $type === 'occasions' ) {
-			return $this->query_occasions( $args );
+			$result = $this->query_occasions( $args );
 		} else {
 			throw new \InvalidArgumentException( 'Invalid query type' );
 		}
+
+		// Auto-recover from missing tables.
+		if ( is_wp_error( $result ) ) {
+			$db_error = $result->get_error_data( 'simple_history_db_error' )['db_error'] ?? '';
+
+			if ( Services\Setup_Database::is_table_missing_error( $db_error ) ) {
+				// Try to recreate tables.
+				$recreated = Services\Setup_Database::recreate_tables_if_missing();
+
+				if ( $recreated ) {
+					// Retry the query after recreating tables.
+					if ( $type === 'overview' || $type === 'single' ) {
+						$result = $this->query_overview( $args );
+					} elseif ( $type === 'occasions' ) {
+						$result = $this->query_occasions( $args );
+					}
+				}
+			}
+		}
+
+		return $result;
 	}
 
 	/**
