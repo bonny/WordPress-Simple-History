@@ -47,23 +47,28 @@ class Simple_History_Logger extends Logger {
 		add_action( 'load-options.php', [ $this, 'on_load_options_page' ] );
 		add_action( 'simple_history/rss_feed/secret_updated', [ $this, 'on_rss_feed_secret_updated' ] );
 		add_action( 'simple_history/settings/log_cleared', [ $this, 'on_log_cleared' ] );
-		add_action( 'simple_history/db/events_purged', [ $this, 'on_events_purged' ], 10, 2 );
+		add_action( 'simple_history/db/purge_done', [ $this, 'on_purge_done' ], 10, 2 );
 		add_action( 'simple_history/backfill/completed', [ $this, 'on_backfill_completed' ] );
 	}
 
 	/**
-	 * Log when events are purged.
+	 * Log when the purge is done.
 	 *
 	 * @param int $days Number of days to keep.
-	 * @param int $num_rows_deleted Number of rows deleted.
+	 * @param int $total_rows Total number of rows deleted across all batches.
 	 * @return void
 	 */
-	public function on_events_purged( $days, $num_rows_deleted ) {
+	public function on_purge_done( $days, $total_rows ) {
+		// Don't log if no events were purged.
+		if ( $total_rows === 0 ) {
+			return;
+		}
+
 		$this->info_message(
 			'purged_events',
 			[
 				'days'     => $days,
-				'num_rows' => $num_rows_deleted,
+				'num_rows' => $total_rows,
 			]
 		);
 	}

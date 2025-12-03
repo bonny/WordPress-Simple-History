@@ -104,6 +104,9 @@ class Setup_Purge_DB_Cron extends Service {
 
 		global $wpdb;
 
+		// Track total rows deleted across all batches.
+		$total_rows = 0;
+
 		// Process deletions in batches of 100,000 rows to avoid memory exhaustion,
 		// query timeouts, and long table locks. Loop continues until no old events remain.
 		while ( 1 > 0 ) {
@@ -118,16 +121,11 @@ class Setup_Purge_DB_Cron extends Service {
 			$ids_to_delete = $wpdb->get_col( $sql );
 
 			if ( empty( $ids_to_delete ) ) {
-				// Nothing to delete.
-				return;
+				// Nothing more to delete.
+				break;
 			}
 
 			$sql_ids_in = implode( ',', $ids_to_delete );
-
-			// Add number of deleted rows to total_rows option.
-			$prev_total_rows = (int) get_option( 'simple_history_total_rows', 0 );
-			$total_rows      = $prev_total_rows + ( is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0 );
-			update_option( 'simple_history_total_rows', $total_rows );
 
 			// Remove rows + contexts.
 			$sql_delete_history         = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
@@ -135,21 +133,34 @@ class Setup_Purge_DB_Cron extends Service {
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query( $sql_delete_history );
-			
+
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query( $sql_delete_history_context );
 
-			$num_rows_purged = is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0;
+			$num_rows_purged_in_batch = is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0;
+			$total_rows              += $num_rows_purged_in_batch;
 
 			/**
-			 * Fires after events have been purged from the database.
+			 * Fires after a batch of events have been purged from the database.
+			 * Note: This fires for each batch of 100,000 rows.
 			 *
 			 * @param int $days Number of days to keep events.
-			 * @param int $num_rows_purged Number of rows deleted.
+			 * @param int $num_rows_purged_in_batch Number of rows deleted in this batch.
 			 */
-			do_action( 'simple_history/db/events_purged', $days, $num_rows_purged );
+			do_action( 'simple_history/db/events_purged', $days, $num_rows_purged_in_batch );
 
 			Helpers::clear_cache();
 		}
+
+		/**
+		 * Fires after all events have been purged from the database.
+		 * This fires once when the entire purge operation is complete.
+		 * Total rows can be 0 if no events were purged.
+		 *
+		 * @param int $days Number of days to keep events.
+		 * @param int $total_rows Total number of rows deleted across all batches.
+		 * @since 5.21.0
+		 */
+		do_action( 'simple_history/db/purge_done', $days, $total_rows );
 	}
 }
