@@ -340,7 +340,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Added `simple_history/purge_db_where` filter for custom event retention rules, allowing per-logger retention periods or keeping certain events forever.
+-   Added `simple_history/purge_db_where` filter for custom event retention rules, allowing per-logger retention periods or keeping certain events forever. [See documentation](https://simple-history.com/docs/hooks/#simplehistorypurgedbwhere).
 -   Added `simple_history/db/purge_done` action that fires once when purge completes, with total deleted count.
 -   Added `Helpers::count_events()` function for counting events in the database.
 
