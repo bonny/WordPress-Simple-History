@@ -346,6 +346,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
+-   Fixed database tables not being created when using the plugin as MU plugin, after site duplication (where options are copied but custom tables are not), or during multisite network activation. The plugin now auto-recovers by recreating missing tables when needed. [#606](https://github.com/bonny/WordPress-Simple-History/issues/606).
 -   Fixed IP addresses not showing for expanded similar events (occasions).
 -   Fixed Debug page showing "No tables found" when using SQLite (e.g., wp-playground) due to missing dbstat extension.
 
