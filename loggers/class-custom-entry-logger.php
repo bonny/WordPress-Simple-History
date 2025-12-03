@@ -2,13 +2,9 @@
 
 namespace Simple_History\Loggers;
 
-use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
-use Simple_History\Event_Details\Event_Details_Simple_Container;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
-use Simple_History\Event_Details\Event_Details_Group_Inline_Formatter;
-use Simple_History\Log_Levels;
 
 /**
  * Logger for custom entries added manually through WP-CLI or REST API.
@@ -36,10 +32,9 @@ class Custom_Entry_Logger extends Logger {
 			'messages'    => array(
 				'custom_entry_added' => _x( 'Added a custom entry: {message}', 'Logger: Custom Entry', 'simple-history' ),
 			),
-			'labels' => [
+			'labels'      => [
 				'search' => [
-					'label' => _x( 'Custom entries', 'Custom entry logger: search', 'simple-history' ),
-					// 'label_all' => _x( 'All custom entries', 'Custom entry logger: search', 'simple-history' ),
+					'label'   => _x( 'Custom entries', 'Custom entry logger: search', 'simple-history' ),
 					'options' => [
 						_x( 'Custom entry added', 'Custom entry logger: search', 'simple-history' ) => [
 							'custom_entry_added',
@@ -60,7 +55,7 @@ class Custom_Entry_Logger extends Logger {
 	 * @return Event_Details_Container_Interface|null
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'] ?? null;
 
 		// Bail if no message key.

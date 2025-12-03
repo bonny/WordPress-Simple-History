@@ -81,6 +81,12 @@ export const CompactEvent = ( props ) => {
 					</div>
 					<div className="SimpleHistory-adminBarEventsList-item-content-message">
 						<p>{ event.message }</p>
+						{ event.subsequent_occasions_count > 1 && (
+							<p className="SimpleHistory-adminBarEventsList-item-content-message-occasions">
+								+{ event.subsequent_occasions_count - 1 }{ ' ' }
+								{ __( 'similar events', 'simple-history' ) }
+							</p>
+						) }
 					</div>
 				</div>
 			</a>

@@ -45,6 +45,9 @@ export function EventsSearchFilters( props ) {
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
+		setCurrentUserId,
+		hideOwnEvents,
+		setHideOwnEvents,
 	} = props;
 
 	// Check if search options should be auto-expanded based on URL parameters.
@@ -55,7 +58,8 @@ export function EventsSearchFilters( props ) {
 			selectedMessageTypes.length > 0 ||
 			selectedUsersWithId.length > 0 ||
 			selectedInitiator.length > 0 ||
-			selectedContextFilters.trim().length > 0
+			selectedContextFilters.trim().length > 0 ||
+			hideOwnEvents
 		);
 	}, [
 		selectedLogLevels,
@@ -63,6 +67,7 @@ export function EventsSearchFilters( props ) {
 		selectedUsersWithId,
 		selectedInitiator,
 		selectedContextFilters,
+		hideOwnEvents,
 	] );
 
 	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () =>
@@ -135,6 +140,11 @@ export function EventsSearchFilters( props ) {
 			);
 			setEventsSettingsPageURL( searchOptionsResponse.settings_page_url );
 
+			// Set current user ID for "Hide my own events" feature.
+			if ( searchOptionsResponse.current_user_id ) {
+				setCurrentUserId( searchOptionsResponse.current_user_id );
+			}
+
 			setSearchOptionsLoaded( true );
 		} );
 	}, [
@@ -147,6 +157,7 @@ export function EventsSearchFilters( props ) {
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
+		setCurrentUserId,
 		selectedDateOption,
 	] );
 
@@ -187,6 +198,8 @@ export function EventsSearchFilters( props ) {
 							isExperimentalFeaturesEnabled
 						}
 						searchOptions={ searchOptions }
+						hideOwnEvents={ hideOwnEvents }
+						setHideOwnEvents={ setHideOwnEvents }
 					/>
 				) : null }
 				<p className="SimpleHistory__filters__filterSubmitWrap">

@@ -12,8 +12,11 @@
 	<!-- Show results with colors -->
 	<arg name="colors"/>
 
+	<!-- Show all warnings regardless of severity (matches VIP behavior) -->
+	<arg name="warning-severity" value="1"/>
+
 	<!-- Don't show warnings -->
-	<arg value="n"/>
+	<!-- <arg value="n"/> -->
 
 	<!-- Only scan PHP files. -->
 	<arg name="extensions" value="php"/>
@@ -62,6 +65,16 @@
 
 		<!-- Can't change the hook names we already have. -->
 		<exclude name="WordPress.NamingConventions.ValidHookName.NotLowercase" />
+	</rule>
+
+	<!-- WordPress VIP Go coding standards for enterprise compatibility -->
+	<rule ref="WordPress-VIP-Go" />
+
+	<!-- Override WordPress-Extra's maxPercentage=40 to match VIP's stricter 35% threshold -->
+	<rule ref="Squiz.PHP.CommentedOutCode">
+		<properties>
+			<property name="maxPercentage" value="35"/>
+		</properties>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">

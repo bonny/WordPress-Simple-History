@@ -42,32 +42,6 @@ class Plugin_Redirection_Logger extends Logger {
 				'redirection_group_disabled'       => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 				'redirection_group_deleted'        => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 			),
-
-			/*
-			"labels" => array(
-				"search" => array(
-					"label" => _x("Plugin Redirection", "Logger: Redirection", "simple-history"),
-					"label_all" => _x("All posts & pages activity", "Logger: Redirection", "simple-history"),
-					"options" => array(
-						_x("Posts created", "Logger: Redirection", "simple-history") => array(
-							"post_created"
-						),
-						_x("Posts updated", "Logger: Redirection", "simple-history") => array(
-							"post_updated"
-						),
-						_x("Posts trashed", "Logger: Redirection", "simple-history") => array(
-							"post_trashed"
-						),
-						_x("Posts deleted", "Logger: Redirection", "simple-history") => array(
-							"post_deleted"
-						),
-						_x("Posts restored", "Logger: Redirection", "simple-history") => array(
-							"post_restored"
-						),
-					)
-				) // end search array
-			) // end labels
-			*/
 		);
 
 		return $arr_info;
@@ -119,7 +93,7 @@ class Plugin_Redirection_Logger extends Logger {
 		);
 
 		// Bail directly if this is not a Redirection API call.
-		if ( ! in_array( $callable_name, $ok_redirection_api_callable_names ) ) {
+		if ( ! in_array( $callable_name, $ok_redirection_api_callable_names, true ) ) {
 			return $response;
 		}
 
@@ -129,7 +103,7 @@ class Plugin_Redirection_Logger extends Logger {
 			$this->log_redirection_edit( $request );
 		} elseif ( 'Redirection_Api_Redirect::route_bulk' === $callable_name ) {
 			$bulk_action = $request->get_param( 'bulk' );
-			$bulk_items = $request->get_param( 'items' );
+			$bulk_items  = $request->get_param( 'items' );
 
 			if ( ! is_array( $bulk_items ) ) {
 				$bulk_items = explode( ',', $bulk_items );
@@ -154,7 +128,7 @@ class Plugin_Redirection_Logger extends Logger {
 			$this->log_group_edit( $request );
 		} elseif ( 'Redirection_Api_Group::route_bulk' === $callable_name ) {
 			$bulk_action = $request->get_param( 'bulk' );
-			$bulk_items = (array) $request->get_param( 'items' );
+			$bulk_items  = (array) $request->get_param( 'items' );
 
 			$bulk_items = array_map( 'intval', $bulk_items );
 
@@ -169,7 +143,7 @@ class Plugin_Redirection_Logger extends Logger {
 			} elseif ( 'delete' === $bulk_action ) {
 				$this->log_group_delete( $request, $bulk_items );
 			}
-		} elseif ( 'Redirection_Api_Settings::route_save_settings' == $callable_name ) {
+		} elseif ( 'Redirection_Api_Settings::route_save_settings' === $callable_name ) {
 			$this->log_options_save( $request );
 		}
 
@@ -184,7 +158,7 @@ class Plugin_Redirection_Logger extends Logger {
 	 */
 	public function log_group_delete( $req, $bulk_items ) {
 		$context = array(
-			'items' => $bulk_items,
+			'items'       => $bulk_items,
 			'items_count' => count( $bulk_items ),
 		);
 
@@ -229,18 +203,18 @@ class Plugin_Redirection_Logger extends Logger {
 		}
 
 		$context = array(
-			'group_id' => $group_id,
-			'new_group_name' => $req->get_param( 'name' ),
+			'group_id'            => $group_id,
+			'new_group_name'      => $req->get_param( 'name' ),
 			'new_group_module_id' => $req->get_param( 'moduleId' ),
 		);
 
 		// Get old values.
 		$redirection_item = \Red_Group::get( $group_id );
 		if ( $redirection_item !== false ) {
-			$prev_group_name = $redirection_item->get_name();
+			$prev_group_name      = $redirection_item->get_name();
 			$prev_group_module_id = $redirection_item->get_module_id();
 
-			$context['prev_group_name'] = $prev_group_name;
+			$context['prev_group_name']      = $prev_group_name;
 			$context['prev_group_module_id'] = $prev_group_module_id;
 		}
 
@@ -262,7 +236,7 @@ class Plugin_Redirection_Logger extends Logger {
 		$message_key = 'enable' === $bulk_action ? 'redirection_group_enabled' : 'redirection_group_disabled';
 
 		$context = array(
-			'items' => $bulk_items,
+			'items'       => $bulk_items,
 			'items_count' => count( $bulk_items ),
 		);
 
@@ -289,7 +263,7 @@ class Plugin_Redirection_Logger extends Logger {
 	 */
 	protected function log_redirection_delete( $req, $bulk_items ) {
 		$context = array(
-			'items' => $bulk_items,
+			'items'       => $bulk_items,
 			'items_count' => count( $bulk_items ),
 		);
 
@@ -313,7 +287,7 @@ class Plugin_Redirection_Logger extends Logger {
 		$message_key = 'enable' === $bulk_action ? 'redirection_redirection_enabled' : 'redirection_redirection_disabled';
 
 		$context = array(
-			'items' => $bulk_items,
+			'items'       => $bulk_items,
 			'items_count' => count( $bulk_items ),
 		);
 
@@ -359,7 +333,7 @@ class Plugin_Redirection_Logger extends Logger {
 
 		$context = array(
 			'new_source_url' => $req->get_param( 'url' ),
-			'new_target' => $action_data['url'],
+			'new_target'     => $action_data['url'],
 			'redirection_id' => $redirection_id,
 		);
 
@@ -368,7 +342,7 @@ class Plugin_Redirection_Logger extends Logger {
 
 		if ( false !== $redirection_item ) {
 			$context['prev_source_url'] = $redirection_item->get_url();
-			$context['prev_target'] = maybe_unserialize( $redirection_item->get_action_data() );
+			$context['prev_target']     = maybe_unserialize( $redirection_item->get_action_data() );
 		}
 
 		$this->info_message(
@@ -383,7 +357,7 @@ class Plugin_Redirection_Logger extends Logger {
 	 * @param object $row Row with info.
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'];
 
 		$out = '';

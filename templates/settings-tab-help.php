@@ -53,7 +53,7 @@ $faq_items = [
 		'question' => 'My question in not answered in this FAQ',
 	],
 ];
-$faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
+$faq_url   = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 
 ?>
 
@@ -142,7 +142,7 @@ $faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 	<!-- Grid with premium features. -->
 	<div class="sh-grid sh-grid-cols-1/3">
 		<?php
-		if ( ! Helpers::is_premium_add_on_active() ) {
+		if ( Helpers::show_promo_boxes() ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo Sidebar_Add_Ons_Dropin::get_premium_features_postbox_html();
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -151,6 +151,35 @@ $faq_url = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 			echo Sidebar_Add_Ons_Dropin::get_debug_and_monitor_features_postbox_html();
 		}
 		?>
+	</div>
+
+	<!-- Hosting sponsor acknowledgment -->
+	<div style="margin-top: 3rem;">
+		<div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 1px solid #e5e7eb; border-radius: 8px; padding: 2rem 2.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);">
+			<div style="display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap; justify-content: center;">
+				<div style="flex: 0 0 auto;">
+					<a href="https://www.oderland.com" target="_blank" rel="noopener noreferrer" style="display: block;">
+						<img
+							src="<?php echo esc_url( plugins_url( 'assets/images/oderland-logo.svg', __DIR__ ) ); ?>"
+							alt="Oderland"
+							style="height: 40px; width: auto; display: block;"
+						>
+					</a>
+				</div>
+				<div style="flex: 1 1 400px; text-align: center;">
+					<p style="font-size: 15px;">
+						<?php
+						printf(
+							/* translators: 1: Link to Simple History website, 2: Link to Oderland. */
+							wp_kses_post( __( 'The <a href="%1$s" target="_blank" rel="noopener noreferrer">Simple History website</a> is proudly hosted by <a href="%2$s" target="_blank" rel="noopener noreferrer">Oderland</a>, a Swedish web hosting provider.', 'simple-history' ) ),
+							'https://simple-history.com',
+							'https://www.oderland.com'
+						);
+						?>
+					</p>
+				</div>
+			</div>
+		</div>
 	</div>
 
 </div>

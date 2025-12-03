@@ -107,8 +107,13 @@ echo Admin_Pages::header_output();
 		echo '</td></tr>';
 	} else {
 		foreach ( $args['table_size_result'] as $one_table ) {
-			/* translators: %s size in mb. */
-			$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table['size_in_mb'] );
+			// Handle N/A for SQLite environments without dbstat extension.
+			if ( $one_table['size_in_mb'] === 'N/A' ) {
+				$size = _x( 'N/A', 'debug dropin', 'simple-history' );
+			} else {
+				/* translators: %s size in mb. */
+				$size = sprintf( _x( '%s MB', 'debug dropin', 'simple-history' ), $one_table['size_in_mb'] );
+			}
 
 			/* translators: %s number of rows. */
 			$rows = sprintf( _x( '%s rows', 'debug dropin', 'simple-history' ), number_format_i18n( $one_table['num_rows'], 0 ) );
@@ -133,16 +138,24 @@ echo Admin_Pages::header_output();
 	 */
 	$rows = ( new Log_Query() )->query( [ 'posts_per_page' => 1 ] );
 
-	// This is the number of rows with occasions taken into consideration.
-	$total_accassions_rows_count = $rows['total_row_count'];
+	// Handle database errors gracefully.
+	if ( is_wp_error( $rows ) ) {
+		echo '<p>';
+		echo '<strong>' . esc_html_x( 'Error:', 'debug dropin', 'simple-history' ) . '</strong> ';
+		echo esc_html( $rows->get_error_message() );
+		echo '</p>';
+	} else {
+		// This is the number of rows with occasions taken into consideration.
+		$total_accassions_rows_count = $rows['total_row_count'];
 
-	echo '<p>';
-	printf(
-		/* translators: %d number of rows. */
-		esc_html_x( 'Total %s rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
-		esc_html( $total_accassions_rows_count )
-	);
-	echo '</p>';
+		echo '<p>';
+		printf(
+			/* translators: %d number of rows. */
+			esc_html_x( 'Total %s rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
+			esc_html( $total_accassions_rows_count )
+		);
+		echo '</p>';
+	}
 
 	// Total number of logged events,
 	// since installing the plugin or since the feature was added.
@@ -189,14 +202,14 @@ echo Admin_Pages::header_output();
 			$stealth_mode_allowed_emails = $stealh_mode_service::get_allowed_email_addresses();
 
 			// If number of emails are more than this, only show the first 5.
-			$large_amount_of_emails_threshold = 10;
+			$large_amount_of_emails_threshold           = 10;
 			$large_amount_of_emails_more_than_threshold = 0;
 
 			// If large amount of emails, only show the first 5.
 			if ( count( $stealth_mode_allowed_emails ) > $large_amount_of_emails_threshold ) {
 				$large_amount_of_emails_more_than_threshold = count( $stealth_mode_allowed_emails ) - $large_amount_of_emails_threshold;
-				$stealth_mode_allowed_emails = array_slice( $stealth_mode_allowed_emails, 0, $large_amount_of_emails_threshold );
-				$stealth_mode_allowed_emails[] = sprintf(
+				$stealth_mode_allowed_emails                = array_slice( $stealth_mode_allowed_emails, 0, $large_amount_of_emails_threshold );
+				$stealth_mode_allowed_emails[]              = sprintf(
 					/* translators: %d number of emails. */
 					esc_html_x( 'And %d more.', 'debug dropin', 'simple-history' ),
 					$large_amount_of_emails_more_than_threshold
@@ -343,7 +356,7 @@ echo Admin_Pages::header_output();
 	foreach ( $missing_logger_slugs as $one_missing_logger_slug ) {
 		$logger_rows_count[ $one_missing_logger_slug ] = (object) array(
 			'logger' => $one_missing_logger_slug,
-			'count' => 0,
+			'count'  => 0,
 		);
 	}
 
@@ -397,11 +410,11 @@ echo Admin_Pages::header_output();
 			$one_logger_count = $logger_rows_count[ $one_logger_slug ];
 		} else {
 			// logger was not is sql result, so fake result.
-			$one_logger_count = new \stdClass();
+			$one_logger_count        = new \stdClass();
 			$one_logger_count->count = 0;
 		}
 
-		$logger_info = $logger->get_info();
+		$logger_info     = $logger->get_info();
 		$logger_messages = isset( $logger_info['messages'] ) ? (array) $logger_info['messages'] : array();
 
 		$html_logger_messages = '';
@@ -470,8 +483,8 @@ echo Admin_Pages::header_output();
 			esc_html( $logger_enabled_text )
 		);
 
-		$loopnum++;
-	} // End foreach().
+		++$loopnum;
+	}
 
 	echo '</table>';
 

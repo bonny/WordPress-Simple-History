@@ -53,7 +53,7 @@ class Plugin_Jetpack_Logger extends Logger {
 			return false;
 		}
 
-		$available_modules = Jetpack::get_available_modules();
+		$available_modules           = Jetpack::get_available_modules();
 		$available_modules_with_info = array();
 
 		foreach ( $available_modules as $module_slug ) {
@@ -106,8 +106,8 @@ class Plugin_Jetpack_Logger extends Logger {
 		}
 
 		if ( $module !== [] ) {
-			$context['module_slug'] = $module_slug;
-			$context['module_name'] = $module['name'];
+			$context['module_slug']        = $module_slug;
+			$context['module_name']        = $module['name'];
 			$context['module_description'] = $module['description'];
 		}
 
@@ -133,8 +133,8 @@ class Plugin_Jetpack_Logger extends Logger {
 		$module = $this->get_jetpack_module( $module_slug );
 
 		if ( $module !== [] ) {
-			$context['module_slug'] = $module_slug;
-			$context['module_name'] = $module['name'];
+			$context['module_slug']        = $module_slug;
+			$context['module_name']        = $module['name'];
 			$context['module_description'] = $module['description'];
 		}
 

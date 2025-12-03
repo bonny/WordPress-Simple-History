@@ -42,13 +42,13 @@ class Event_Details_Item {
 		if ( is_array( $slug_or_slugs ) && count( $slug_or_slugs ) === 2 ) {
 			// Single slug as string = just exactly that context key.
 			// Array as slugs = 0 key = new/updated value, 1 = old/prev value.
-			$this->slug_new = $slug_or_slugs[0];
+			$this->slug_new  = $slug_or_slugs[0];
 			$this->slug_prev = $slug_or_slugs[1];
-		} else if ( is_array( $slug_or_slugs ) && count( $slug_or_slugs ) === 1 ) {
+		} elseif ( is_array( $slug_or_slugs ) && count( $slug_or_slugs ) === 1 ) {
 			// Single item in array = use new format with "_new" and "_prev".
-			$this->slug_new = $slug_or_slugs[0] . '_new';
+			$this->slug_new  = $slug_or_slugs[0] . '_new';
 			$this->slug_prev = $slug_or_slugs[0] . '_prev';
-		} else if ( is_string( $slug_or_slugs ) ) {
+		} elseif ( is_string( $slug_or_slugs ) ) {
 			// Not array, use exactly that single key slug.
 			$this->slug_new = $slug_or_slugs;
 		}
@@ -109,7 +109,7 @@ class Event_Details_Item {
 		if ( $formatter_or_formatter_class instanceof Event_Details_Item_Formatter ) {
 			$this->formatter = $formatter_or_formatter_class;
 			$this->formatter->set_item( $this );
-		} else if ( is_subclass_of( $formatter_or_formatter_class, Event_Details_Item_Formatter::class ) ) {
+		} elseif ( is_subclass_of( $formatter_or_formatter_class, Event_Details_Item_Formatter::class ) ) {
 			$this->formatter = new $formatter_or_formatter_class( $this );
 		}
 

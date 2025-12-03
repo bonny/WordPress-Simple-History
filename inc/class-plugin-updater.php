@@ -54,12 +54,12 @@ class Plugin_Updater {
 	 * @param string $api_url     The API URL to the update server.
 	 */
 	public function __construct( $plugin_id, $plugin_slug, $version, $api_url ) {
-		$this->plugin_id     = $plugin_id;
-		$this->plugin_slug   = $plugin_slug;
-		$this->version       = $version;
-		$this->api_url       = $api_url;
+		$this->plugin_id   = $plugin_id;
+		$this->plugin_slug = $plugin_slug;
+		$this->version     = $version;
+		$this->api_url     = $api_url;
 
-		$this->cache_key      = 'simple_history_updater_cache_' . str_replace( '-', '_', $this->plugin_slug );
+		$this->cache_key             = 'simple_history_updater_cache_' . str_replace( '-', '_', $this->plugin_slug );
 		$this->cache_key_plugin_info = 'simple_history_updater_info_cache_' . str_replace( '-', '_', $this->plugin_slug );
 
 		add_filter( 'plugins_api', array( $this, 'on_plugins_api_handle_plugin_info' ), 20, 3 );
@@ -115,10 +115,11 @@ class Plugin_Updater {
 			$this->api_url . '/update',
 		);
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$remote = wp_remote_get(
 			$url,
 			[
-				'timeout' => 10,
+				'timeout' => 3,
 			]
 		);
 
@@ -171,8 +172,10 @@ class Plugin_Updater {
 		// Here: Get plugin info from simple-history.com.
 		// URLs for a plugin will be like:
 		// https://simple-history.com/wp-json/simple-history/v1/plugins/simple-history-extended-settings.
-		$api_url_base = 'https://simple-history.com/wp-json/simple-history/v1/plugins/';
+		$api_url_base   = 'https://simple-history.com/wp-json/simple-history/v1/plugins/';
 		$api_for_plugin = $api_url_base . $this->plugin_slug;
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$plugin_info_response = wp_remote_get( $api_for_plugin );
 
 		// Bail if response was not ok.
@@ -188,9 +191,9 @@ class Plugin_Updater {
 		}
 
 		// Some things must be arrays, not objects.
-		$remote_json->sections = (array) $remote_json->sections;
-		$remote_json->tags = (array) $remote_json->tags;
-		$remote_json->banners = (array) $remote_json->banners;
+		$remote_json->sections     = (array) $remote_json->sections;
+		$remote_json->tags         = (array) $remote_json->tags;
+		$remote_json->banners      = (array) $remote_json->banners;
 		$remote_json->contributors = (array) $remote_json->contributors;
 
 		// Make all contributors arrays, not objects.

@@ -46,7 +46,7 @@ class Detective_Mode_Dropin extends Dropin {
 	 */
 	public function on_general_section_output() {
 		$settings_section_general_id = $this->simple_history::SETTINGS_SECTION_GENERAL_ID;
-		$settings_menu_slug = $this->simple_history::SETTINGS_MENU_SLUG;
+		$settings_menu_slug          = $this->simple_history::SETTINGS_MENU_SLUG;
 
 		add_settings_field(
 			'simple_history_debug',
@@ -103,7 +103,7 @@ class Detective_Mode_Dropin extends Dropin {
 	public function append_debug_info_to_context( $context, $level, $message, $logger ) {
 		global $wp_current_filter;
 
-		$context_key_prefix = 'detective_mode_';
+		$context_key_prefix  = 'detective_mode_';
 		$detective_mode_data = [];
 
 		// Keys from $_SERVER to add to context.
@@ -130,31 +130,28 @@ class Detective_Mode_Dropin extends Dropin {
 		}
 
 		// Copy of posted data, because we may remove sensitive data.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$get_data = $_GET;
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$post_data = $_POST;
 
-		// $post_raw_data = file_get_contents( 'php://input' );
-
-		$get_data = $this->mask_sensitive_data( $get_data );
+		$get_data  = $this->mask_sensitive_data( $get_data );
 		$post_data = $this->mask_sensitive_data( $post_data );
-		// $post_raw_data = $this->remove_sensitive_data( $post_raw_data );
 
 		$detective_mode_data += [
-			'get' => $get_data,
-			'post' => $post_data,
-			// 'post_raw' => $post_raw_data,
-			'files' => $_FILES, // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		'current_filter' => implode( ', ', $wp_current_filter ?? [] ),
-		'debug_backtrace' => wp_debug_backtrace_summary( null, 0, true ),
-		'is_admin' => is_admin(),
-		'doing_ajax' => wp_doing_ajax(),
-		'doing_cron' => wp_doing_cron(),
-		'wp_cli' => defined( 'WP_CLI' ) && WP_CLI,
-		'is_multisite' => is_multisite(),
-		'php_sapi_name' => php_sapi_name(),
+			'get'             => $get_data,
+			'post'            => $post_data,
+			'files'           => $_FILES, // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			'current_filter'  => implode( ', ', $wp_current_filter ?? [] ),
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary -- This is a function that is used for debugging.
+			'debug_backtrace' => wp_debug_backtrace_summary( null, 0, true ),
+			'is_admin'        => is_admin(),
+			'doing_ajax'      => wp_doing_ajax(),
+			'doing_cron'      => wp_doing_cron(),
+			'wp_cli'          => defined( 'WP_CLI' ) && WP_CLI,
+			'is_multisite'    => is_multisite(),
+			'php_sapi_name'   => php_sapi_name(),
 		];
 
 		// Command line arguments. Used by for example WP-CLI.

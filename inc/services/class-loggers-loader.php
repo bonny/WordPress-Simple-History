@@ -69,7 +69,7 @@ class Loggers_Loader extends Service {
 
 		// Instantiate each logger.
 		foreach ( $arr_loggers_to_instantiate as $one_logger_class ) {
-			$is_valid_logger_subclass = is_subclass_of( $one_logger_class, Logger::class );
+			$is_valid_logger_subclass           = is_subclass_of( $one_logger_class, Logger::class );
 			$is_valid_old_simplelogger_subclass = is_subclass_of( $one_logger_class, \SimpleLogger::class );
 
 			if ( ! $is_valid_logger_subclass && ! $is_valid_old_simplelogger_subclass ) {
@@ -124,10 +124,10 @@ class Loggers_Loader extends Service {
 			}
 
 			$instantiated_loggers[ $logger_instance->get_slug() ] = array(
-				'name' => $logger_instance->get_info_value_by_key( 'name' ),
+				'name'     => $logger_instance->get_info_value_by_key( 'name' ),
 				'instance' => $logger_instance,
 			);
-		} // End foreach().
+		}
 
 		$this->simple_history->set_instantiated_loggers( $instantiated_loggers );
 

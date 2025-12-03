@@ -104,7 +104,7 @@ class Menu_Manager {
 				default:
 					// Handle sub-pages that have parent set but no explicit location.
 					if ( $page->get_parent() ) {
-						$parent_location = $page->get_parent()->get_location();
+						$parent_location                     = $page->get_parent()->get_location();
 						$parents_where_children_becomes_tabs = [ 'tools', 'dashboard', 'options' ];
 
 						// If parent of a page is "tools", "dashboard", or "options"
@@ -133,7 +133,7 @@ class Menu_Manager {
 		$hook_suffix = add_menu_page(
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$page->get_menu_slug(),
 			[ $page, 'render' ],
 			$page->get_icon(),
@@ -152,7 +152,7 @@ class Menu_Manager {
 		$hook_suffix = add_dashboard_page(
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$page->get_menu_slug(),
 			[ $page, 'render' ]
 		);
@@ -169,7 +169,7 @@ class Menu_Manager {
 		$hook_suffix = add_options_page(
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$page->get_menu_slug(),
 			[ $page, 'render' ]
 		);
@@ -186,7 +186,7 @@ class Menu_Manager {
 		$hook_suffix = add_management_page(
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$page->get_menu_slug(),
 			[ $page, 'render' ]
 		);
@@ -218,7 +218,7 @@ class Menu_Manager {
 			$parent->get_menu_slug(),
 			$page->get_page_title(),
 			$page->get_menu_title(),
-			$page->get_capability(),
+			$page->get_capability(), // phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Filterable.
 			$menu_slug,
 			[ $page, 'render' ],
 		);
@@ -273,6 +273,7 @@ class Menu_Manager {
 	 * @return string The current tab. Empty string if not set.
 	 */
 	public static function get_current_tab_slug() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return sanitize_text_field( wp_unslash( $_GET['selected-tab'] ?? '' ) );
 	}
 
@@ -282,6 +283,7 @@ class Menu_Manager {
 	 * @return string The current sub-tab. Empty string if not set.
 	 */
 	public static function get_current_sub_tab_slug() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return sanitize_text_field( wp_unslash( $_GET['selected-sub-tab'] ?? '' ) );
 	}
 
@@ -293,6 +295,7 @@ class Menu_Manager {
 	 */
 	public function get_main_tabs_for_page_with_tabs() {
 		$menu_page_location = Helpers::get_menu_page_location();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
 
 		$current_menu_page_root = $this->get_page_by_slug( $page );
@@ -308,7 +311,7 @@ class Menu_Manager {
 		}
 
 		// If "top" or "bottom" then use "Event Log" sub menu item or we will get too many tabs.
-		if ( in_array( $menu_page_location, [ 'top', 'bottom' ] ) ) {
+		if ( in_array( $menu_page_location, [ 'top', 'bottom' ], true ) ) {
 			if ( $page === Simple_History::MENU_PAGE_SLUG ) {
 				$page = Simple_History::VIEW_EVENTS_PAGE_SLUG;
 			}
@@ -411,8 +414,8 @@ class Menu_Manager {
 				<?php
 				foreach ( $child_pages as $child_page ) {
 					$is_current_sub_tab = $child_page->is_current_sub_tab();
-					$is_active_class = $is_current_sub_tab ? 'is-active' : '';
-					$class_page_prio = $child_page->get_order() ? 'sh-SettingsTabs-tab--prio-' . $child_page->get_order() : '';
+					$is_active_class    = $is_current_sub_tab ? 'is-active' : '';
+					$class_page_prio    = $child_page->get_order() ? 'sh-SettingsTabs-tab--prio-' . $child_page->get_order() : '';
 					?>
 					<li class="sh-SettingsTabs-tab <?php echo esc_attr( $class_page_prio ); ?>">
 						<a href="<?php echo esc_url( $child_page->get_url() ); ?>" class="sh-SettingsTabs-link <?php echo esc_attr( $is_active_class ); ?>">
@@ -439,6 +442,7 @@ class Menu_Manager {
 		// Check if current request is for a request to any of our pages.
 		// If so, redirect to the first child page.
 		$all_menu_pages_slugs = $this->get_all_slugs();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
 
 		// Bail if page is not among our pages.
@@ -473,7 +477,7 @@ class Menu_Manager {
 			return;
 		}
 
-		$selected_tab = $this::get_current_tab_slug();
+		$selected_tab     = $this::get_current_tab_slug();
 		$selected_sub_tab = $this::get_current_sub_tab_slug();
 
 		// Only act on main page, so no sub-tab or tab must be selected.
@@ -481,7 +485,8 @@ class Menu_Manager {
 			return;
 		}
 
-		$page = sanitize_text_field( wp_unslash( $_GET['page'] ?? null ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page              = sanitize_text_field( wp_unslash( $_GET['page'] ?? null ) );
 		$current_menu_page = $this->get_page_by_slug( $page );
 
 		// Bail if page is not a Menu_Page instance.
@@ -503,7 +508,7 @@ class Menu_Manager {
 			return;
 		}
 
-		$first_main_tab = reset( $main_tabs );
+		$first_main_tab     = reset( $main_tabs );
 		$first_main_tab_url = $first_main_tab->get_url();
 
 		// Redirect to first main tab.
@@ -528,7 +533,7 @@ class Menu_Manager {
 		}
 
 		// If we get here we are go for a redirect.
-		$first_child_page = $selected_tab_menu_page->get_children()[0] ?? null;
+		$first_child_page     = $selected_tab_menu_page->get_children()[0] ?? null;
 		$first_child_page_url = $first_child_page ? $first_child_page->get_url() : '';
 
 		if ( ! $first_child_page_url ) {
@@ -562,7 +567,7 @@ class Menu_Manager {
 	 */
 	public static function get_admin_url_by_slug( string $page_slug ): string {
 		$menu_manager = Simple_History::get_instance()->get_menu_manager();
-		$page = $menu_manager->get_page_by_slug( $page_slug );
+		$page         = $menu_manager->get_page_by_slug( $page_slug );
 
 		if ( ! $page instanceof Menu_Page ) {
 			return '';

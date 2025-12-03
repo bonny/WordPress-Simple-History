@@ -110,14 +110,17 @@ class Menu_Logger extends Logger {
 	 */
 	public function on_load_nav_menus_page_detect_delete() {
 		// Check that needed vars are set.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_REQUEST['menu'], $_REQUEST['action'] ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( 'delete' !== $_REQUEST['action'] ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$menu_id = sanitize_text_field( wp_unslash( $_REQUEST['menu'] ) );
 		if ( ! is_nav_menu( $menu_id ) ) {
 			return;
@@ -129,7 +132,7 @@ class Menu_Logger extends Logger {
 			'deleted_menu',
 			array(
 				'menu_term_id' => $menu_id,
-				'menu_name' => $menu->name,
+				'menu_name'    => $menu->name,
 			)
 		);
 	}
@@ -151,7 +154,7 @@ class Menu_Logger extends Logger {
 		$this->info_message(
 			'created_menu',
 			array(
-				'term_id' => $term_id,
+				'term_id'   => $term_id,
 				'menu_name' => $menu->name,
 			)
 		);
@@ -185,16 +188,19 @@ class Menu_Logger extends Logger {
 		*/
 
 		// Check that needed vars are set.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_REQUEST['menu'], $_REQUEST['action'], $_REQUEST['menu-name'] ) ) {
 			return;
 		}
 
 		// Only go on for update action.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( 'update' !== $_REQUEST['action'] ) {
 			return;
 		}
 
 		// Make sure we got the id of a menu.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$menu_id = sanitize_text_field( wp_unslash( $_REQUEST['menu'] ) );
 		if ( ! is_nav_menu( $menu_id ) ) {
 			return;
@@ -210,19 +216,15 @@ class Menu_Logger extends Logger {
 
 		// Get ids of added and removed post ids.
 		$arr_removed = array_diff( $old_ids, $new_ids );
-		$arr_added = array_diff( $new_ids, $old_ids );
+		$arr_added   = array_diff( $new_ids, $old_ids );
 
-		// Get old version location
-		// $prev_menu = wp_get_nav_menu_object( $menu_id );
-		// $locations = get_registered_nav_menus();
-		// $menu_locations = get_nav_menu_locations();.
 		$this->info_message(
 			'edited_menu',
 			array(
-				'menu_id' => $menu_id,
+				'menu_id'            => $menu_id,
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-				'menu_name' => sanitize_text_field( wp_unslash( $_POST['menu-name'] ) ),
-				'menu_items_added' => count( $arr_added ),
+				'menu_name'          => sanitize_text_field( wp_unslash( $_POST['menu-name'] ) ),
+				'menu_items_added'   => count( $arr_added ),
 				'menu_items_removed' => count( $arr_removed ),
 			)
 		);
@@ -235,11 +237,11 @@ class Menu_Logger extends Logger {
 	 */
 	public function get_log_row_details_output( $row ) {
 
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'];
-		$output = '';
+		$output      = '';
 
-		if ( 'edited_menu' == $message_key && ( ! empty( $context['menu_items_added'] ) || ! empty( $context['menu_items_removed'] ) ) ) {
+		if ( 'edited_menu' === $message_key && ( ! empty( $context['menu_items_added'] ) || ! empty( $context['menu_items_removed'] ) ) ) {
 			$output .= '<p>';
 			$output .= '<span class="SimpleHistoryLogitem__inlineDivided">';
 			$output .= sprintf(
@@ -267,23 +269,16 @@ class Menu_Logger extends Logger {
 	public function on_load_nav_menus_page_detect_locations_update() {
 
 		// Check that needed vars are set.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_REQUEST['menu'], $_REQUEST['action'] ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( 'locations' !== $_REQUEST['action'] ) {
 			return;
 		}
 
-		/*
-		Array
-		(
-			[menu-locations] => Array
-				(
-					[primary] => 25
-				)
-		)
-		*/
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$menu_locations = (array) wp_unslash( $_POST['menu-locations'] );
 

@@ -59,7 +59,7 @@ class Export_Logger extends Logger {
 			'created_export',
 			array(
 				'export_content' => $content,
-				'export_args' => Helpers::json_encode( $args ),
+				'export_args'    => Helpers::json_encode( $args ),
 			)
 		);
 	}

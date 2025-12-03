@@ -2,6 +2,8 @@
 
 namespace Simple_History\Dropins;
 
+use Simple_History\Helpers;
+
 /**
  * Dropin Name: Sidebar
  * Drop Description: Outputs HTML and filters for a sidebar
@@ -11,31 +13,20 @@ namespace Simple_History\Dropins;
 class Sidebar_Dropin extends Dropin {
 	/** @inheritdoc */
 	public function loaded() {
-		add_action( 'simple_history/enqueue_admin_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'simple_history/history_page/after_gui', array( $this, 'output_sidebar_html' ) );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'default_sidebar_contents' ) );
 	}
 
 	/**
-	 * Output default sidebar contents
+	 * Output default sidebar contents:
+	 * - Review box
+	 * - Support box
 	 */
 	public function default_sidebar_contents() {
-		// Box about donation.
-		$headline = _x( 'Support our work', 'Sidebar box', 'simple-history' );
-
-		$donate_first_para = _x( "We're continually working to improve Simple History, adding new features to make it even more useful for you. If you'd like to support our efforts, consider making a contribution. 🙌", 'Sidebar box', 'simple-history' );
-		$donate_second_para = _x( 'Donate to support development', 'Sidebar box', 'simple-history' );
-		$donate_link = 'https://simple-history.com/sponsor/';
-
-		$boxDonate = '
-			<div class="postbox sh-PremiumFeaturesPostbox">
-				<h3 class="hndle">' . esc_html( $headline ) . '</h3>
-				<div class="inside">
-					<p>' . esc_html( $donate_first_para ) . '</p>
-					<p><a target="_blank" class="sh-ExternalLink" href="' . esc_url( $donate_link ) . '">' . esc_html( $donate_second_para ) . '</a></p>
-				</div>
-			</div>
-		';
+		// Hide sidebar boxes if promo boxes should not be shown.
+		if ( ! Helpers::show_promo_boxes() ) {
+			return;
+		}
 
 		// Box about review.
 		$headline = _x( 'Review this plugin if you like it', 'Sidebar box', 'simple-history' );
@@ -77,8 +68,7 @@ class Sidebar_Dropin extends Dropin {
 		);
 
 		$arrBoxes = array(
-			'boxReview' => $boxReview,
-			'boxDonate' => $boxDonate,
+			'boxReview'  => $boxReview,
 			'boxSupport' => $boxSupport,
 		);
 
@@ -92,15 +82,6 @@ class Sidebar_Dropin extends Dropin {
 		$arrBoxes = apply_filters( 'simple_history/SidebarDropin/default_sidebar_boxes', $arrBoxes );
 
 		echo implode( '', $arrBoxes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Enqueue CSS.
-	 */
-	public function enqueue_admin_scripts() {
-		$file_url = plugin_dir_url( __FILE__ );
-
-		wp_enqueue_style( 'simple_history_SidebarDropin', $file_url . 'sidebar-dropin.css', null, SIMPLE_HISTORY_VERSION );
 	}
 
 	/**

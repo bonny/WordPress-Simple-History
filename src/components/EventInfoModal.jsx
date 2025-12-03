@@ -9,52 +9,67 @@ export function EventInfoModal( props ) {
 	const { eventId, closeModal = null } = props;
 	const [ loadedEvent, setLoadedEvent ] = useState( null );
 	const [ isLoadingContext, setIsLoadingContext ] = useState( true );
+	const [ error, setError ] = useState( null );
 
 	/**
 	 * Load event from the REST API.
 	 */
 	useEffect( () => {
 		const loadEventContext = async () => {
-			setIsLoadingContext( true );
+			try {
+				setIsLoadingContext( true );
 
-			const eventsQueryParams = {
-				_fields: [
-					'id',
-					'logger',
-					'occasions_id',
-					'subsequent_occasions_count',
-					'initiator_data',
-					'loglevel',
-					'message',
-					'message_html',
-					'message_key',
-					'details_data',
-					'details_html',
-					'message_uninterpolated',
-					'date_local',
-					'date_gmt',
-					'message',
-					'context',
-					'ip_addresses',
-					'details_data',
-					'via',
-					'initiator',
-				],
-			};
+				const eventsQueryParams = {
+					_fields: [
+						'id',
+						'logger',
+						'occasions_id',
+						'subsequent_occasions_count',
+						'initiator_data',
+						'loglevel',
+						'message',
+						'message_html',
+						'message_key',
+						'details_data',
+						'details_html',
+						'message_uninterpolated',
+						'date_local',
+						'date_gmt',
+						'message',
+						'context',
+						'ip_addresses',
+						'details_data',
+						'via',
+						'initiator',
+					],
+				};
 
-			const eventResponse = await apiFetch( {
-				path: addQueryArgs(
-					'/simple-history/v1/events/' + eventId,
-					eventsQueryParams
-				),
-				// Skip parsing to be able to retrieve headers.
-				parse: false,
-			} );
+				const eventResponse = await apiFetch( {
+					path: addQueryArgs(
+						'/simple-history/v1/events/' + eventId,
+						eventsQueryParams
+					),
+					// Skip parsing to be able to retrieve headers.
+					parse: false,
+				} );
 
-			const eventJson = await eventResponse.json();
+				const eventJson = await eventResponse.json();
 
-			setLoadedEvent( eventJson );
-			setIsLoadingContext( false );
+				setLoadedEvent( eventJson );
+			} catch ( error ) {
+				if ( error.status === 404 ) {
+					setError( __( 'Event not found.', 'simple-history' ) );
+				} else {
+					setError(
+						__(
+							'An error occurred while fetching the event.',
+							'simple-history'
+						)
+					);
+				}
+			} finally {
+				setIsLoadingContext( false );
+			}
 		};
 
 		loadEventContext();
@@ -66,9 +81,18 @@ export function EventInfoModal( props ) {
 			onRequestClose={ closeModal }
 		>
 			<div className="SimpleHistory__modal">
-				{ isLoadingContext ? (
-					__( 'Loading detailed events data…', 'simple-history' )
-				) : (
+				{ isLoadingContext && (
+					<p>
+						{ __(
+							'Loading detailed events data…',
+							'simple-history'
+						) }
+					</p>
+				) }
+
+				{ ! isLoadingContext && error && <p>{ error }</p> }
+
+				{ ! isLoadingContext && ! error && loadedEvent && (
 					<>
 						<Event event={ loadedEvent } variant="modal" />
 						<p>

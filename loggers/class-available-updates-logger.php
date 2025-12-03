@@ -56,12 +56,10 @@ class Available_Updates_Logger extends Logger {
 	 */
 	public function loaded() {
 
-		// When WP is done checking for core updates it sets a site transient called "update_core"
-		// set_site_transient( 'update_core', null ); // Uncomment to test.
+		// When WP is done checking for core updates it sets a site transient called "update_core".
 		add_action( 'set_site_transient_update_core', array( $this, 'on_setted_update_core_transient' ), 10, 1 );
 
-		// Ditto for plugins
-		// set_site_transient( 'update_plugins', null ); // Uncomment to test.
+		// Ditto for plugins.
 		add_action( 'set_site_transient_update_plugins', array( $this, 'on_setted_update_plugins_transient' ), 10, 1 );
 
 		add_action( 'set_site_transient_update_themes', array( $this, 'on_setted_update_update_themes' ), 10, 1 );
@@ -91,18 +89,18 @@ class Available_Updates_Logger extends Logger {
 		require_once ABSPATH . WPINC . '/version.php';
 
 		// If found version is same version as we have logged about before then don't continue.
-		if ( $last_version_checked == $new_wp_core_version ) {
+		if ( $last_version_checked === $new_wp_core_version ) {
 			return;
 		}
 
 		// is WP core update available?
-		if ( isset( $updates->updates[0]->response ) && 'upgrade' == $updates->updates[0]->response ) {
+		if ( isset( $updates->updates[0]->response ) && 'upgrade' === $updates->updates[0]->response ) {
 			$this->notice_message(
 				'core_update_available',
 				array(
 					'wp_core_current_version' => $wp_version,
-					'wp_core_new_version' => $new_wp_core_version,
-					'_initiator' => Log_Initiators::WORDPRESS,
+					'wp_core_new_version'     => $new_wp_core_version,
+					'_initiator'              => Log_Initiators::WORDPRESS,
 				)
 			);
 
@@ -124,7 +122,7 @@ class Available_Updates_Logger extends Logger {
 			return;
 		}
 
-		$option_key = "simplehistory_{$this->get_slug()}_plugin_updates_available";
+		$option_key      = "simplehistory_{$this->get_slug()}_plugin_updates_available";
 		$checked_updates = get_option( $option_key );
 
 		if ( ! is_array( $checked_updates ) ) {
@@ -146,6 +144,7 @@ class Available_Updates_Logger extends Logger {
 				continue;
 			}
 
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 			$fp = fopen( $file, 'r' );
 
 			// Continue with next plugin if plugin file could not be read.
@@ -164,7 +163,7 @@ class Available_Updates_Logger extends Logger {
 				);
 			}
 
-			if ( $checked_updates[ $key ]['checked_version'] == $plugin_new_version ) {
+			if ( $checked_updates[ $key ]['checked_version'] === $plugin_new_version ) {
 				// This version has been checked/logged already.
 				continue;
 			}
@@ -174,13 +173,13 @@ class Available_Updates_Logger extends Logger {
 			$this->notice_message(
 				'plugin_update_available',
 				array(
-					'plugin_name' => $plugin_info['Name'] ?? '',
+					'plugin_name'            => $plugin_info['Name'] ?? '',
 					'plugin_current_version' => $plugin_info['Version'] ?? '',
-					'plugin_new_version' => $plugin_new_version,
-					'_initiator' => Log_Initiators::WORDPRESS,
+					'plugin_new_version'     => $plugin_new_version,
+					'_initiator'             => Log_Initiators::WORDPRESS,
 				)
 			);
-		} // End foreach().
+		}
 
 		update_option( $option_key, $checked_updates );
 	}
@@ -198,7 +197,7 @@ class Available_Updates_Logger extends Logger {
 			return;
 		}
 
-		$option_key = "simplehistory_{$this->get_slug()}_theme_updates_available";
+		$option_key      = "simplehistory_{$this->get_slug()}_theme_updates_available";
 		$checked_updates = get_option( $option_key );
 
 		if ( ! is_array( $checked_updates ) ) {
@@ -209,9 +208,6 @@ class Available_Updates_Logger extends Logger {
 		foreach ( $updates->response as $key => $data ) {
 			$theme_info = wp_get_theme( $key );
 
-			// $message .= "\n" . sprintf( __( "Theme: %s is out of date. Please update from version %s to %s", "wp-updates-notifier" ), $theme_info['Name'], $theme_info['Version'], $data['new_version'] ) . "\n";
-			$settings['notified']['theme'][ $key ] = $data['new_version']; // set theme version we are notifying about.
-
 			$theme_new_version = $data['new_version'] ?? '';
 
 			// check if this plugin and this version has been checked/logged already.
@@ -221,7 +217,7 @@ class Available_Updates_Logger extends Logger {
 				);
 			}
 
-			if ( $checked_updates[ $key ]['checked_version'] == $theme_new_version ) {
+			if ( $checked_updates[ $key ]['checked_version'] === $theme_new_version ) {
 				// This version has been checked/logged already.
 				continue;
 			}
@@ -231,17 +227,13 @@ class Available_Updates_Logger extends Logger {
 			$this->notice_message(
 				'theme_update_available',
 				array(
-					'theme_name' => $theme_info['Name'] ?? '',
+					'theme_name'            => $theme_info['Name'] ?? '',
 					'theme_current_version' => $theme_info['Version'] ?? '',
-					'theme_new_version' => $theme_new_version,
-					'_initiator' => Log_Initiators::WORDPRESS,
-				// "plugin_info" => $plugin_info,
-				// "remote_plugin_info" => $remote_plugin_info,
-				// "active_plugins" => $active_plugins,
-				// "updates" => $updates,
+					'theme_new_version'     => $theme_new_version,
+					'_initiator'            => Log_Initiators::WORDPRESS,
 				)
 			);
-		} // End foreach().
+		}
 
 		update_option( $option_key, $checked_updates );
 	}
@@ -255,8 +247,8 @@ class Available_Updates_Logger extends Logger {
 
 		$output = '';
 
-		$current_version = null;
-		$new_version = null;
+		$current_version     = null;
+		$new_version         = null;
 		$context_message_key = $row->context_message_key ?? null;
 
 		$context = $row->context ?? array();
@@ -264,17 +256,17 @@ class Available_Updates_Logger extends Logger {
 		switch ( $context_message_key ) {
 			case 'core_update_available':
 				$current_version = $context['wp_core_current_version'] ?? null;
-				$new_version = $context['wp_core_new_version'] ?? null;
+				$new_version     = $context['wp_core_new_version'] ?? null;
 				break;
 
 			case 'plugin_update_available':
 				$current_version = $context['plugin_current_version'] ?? null;
-				$new_version = $context['plugin_new_version'] ?? null;
+				$new_version     = $context['plugin_new_version'] ?? null;
 				break;
 
 			case 'theme_update_available':
 				$current_version = $context['theme_current_version'] ?? null;
-				$new_version = $context['theme_new_version'] ?? null;
+				$new_version     = $context['theme_new_version'] ?? null;
 				break;
 		}
 

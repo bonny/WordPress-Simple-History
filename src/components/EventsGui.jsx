@@ -111,6 +111,7 @@ function EventsGUI() {
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
+	const [ currentUserId, setCurrentUserId ] = useState( null );
 
 	/**
 	 * Start filter/search options states.
@@ -233,9 +234,97 @@ function EventsGUI() {
 		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
 	);
 
+	// Negative/exclusion filters - hide events matching these criteria.
+	// Read-only from URL (no setters needed until Phase 2: GUI controls).
+	const [ excludeSearch ] = useQueryState(
+		'exclude-search',
+		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeLogLevels ] = useQueryState(
+		'exclude-levels',
+		parseAsArrayOf( parseAsString )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeLoggers ] = useQueryState(
+		'exclude-loggers',
+		parseAsArrayOf( parseAsString )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeMessages ] = useQueryState(
+		'exclude-messages',
+		parseAsJson( messageTypesSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeUsers, setExcludeUsers ] = useQueryState(
+		'exclude-users',
+		parseAsJson( usersSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeInitiator ] = useQueryState(
+		'exclude-initiator',
+		parseAsJson( initiatorSchema.parse )
+			.withDefault( emptyArray )
+			.withOptions( useQueryStateOptions )
+	);
+
+	const [ excludeContextFilters ] = useQueryState(
+		'exclude-context',
+		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
+	);
+
 	/**
 	 * End filter/search options states.
 	 */
+
+	// Derive hideOwnEvents from whether current user is in excludeUsers.
+	const hideOwnEvents = useMemo( () => {
+		if ( ! currentUserId ) {
+			return false;
+		}
+		return excludeUsers.some(
+			( user ) => String( user.id ) === String( currentUserId )
+		);
+	}, [ excludeUsers, currentUserId ] );
+
+	// Callback to toggle hideOwnEvents by adding/removing current user from excludeUsers URL state.
+	const setHideOwnEvents = useCallback(
+		( shouldHide ) => {
+			if ( ! currentUserId ) {
+				return;
+			}
+
+			if ( shouldHide ) {
+				// Add current user to excludeUsers if not already there.
+				const alreadyExcluded = excludeUsers.some(
+					( user ) => String( user.id ) === String( currentUserId )
+				);
+				if ( ! alreadyExcluded ) {
+					setExcludeUsers( [
+						...excludeUsers,
+						{ id: String( currentUserId ), value: 'Me' },
+					] );
+				}
+			} else {
+				// Remove current user from excludeUsers.
+				setExcludeUsers(
+					excludeUsers.filter(
+						( user ) =>
+							String( user.id ) !== String( currentUserId )
+					)
+				);
+			}
+		},
+		[ currentUserId, excludeUsers, setExcludeUsers ]
+	);
 
 	// Generate the events query params.
 	// Memoized to avoid unnecessary re-renders in the child components.
@@ -252,6 +341,13 @@ function EventsGUI() {
 			selectedCustomDateTo,
 			page,
 			pagerSize,
+			excludeSearch,
+			excludeLogLevels,
+			excludeLoggers,
+			excludeMessages,
+			excludeUsers,
+			excludeInitiator,
+			excludeContextFilters,
 		} );
 	}, [
 		selectedDateOption,
@@ -265,6 +361,13 @@ function EventsGUI() {
 		selectedCustomDateTo,
 		page,
 		pagerSize,
+		excludeSearch,
+		excludeLogLevels,
+		excludeLoggers,
+		excludeMessages,
+		excludeUsers,
+		excludeInitiator,
+		excludeContextFilters,
 	] );
 
 	// Reset page to 1 when filters are modified.
@@ -279,6 +382,7 @@ function EventsGUI() {
 		selectedContextFilters,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
+		excludeUsers,
 	] );
 
 	/**
@@ -480,6 +584,9 @@ function EventsGUI() {
 				setEventsSettingsPageURL={ setSettingsPageURL }
 				setPage={ setPage }
 				onReload={ handleReload }
+				setCurrentUserId={ setCurrentUserId }
+				hideOwnEvents={ hideOwnEvents }
+				setHideOwnEvents={ setHideOwnEvents }
 			/>
 
 			<EventsControlBar

@@ -7,13 +7,13 @@ namespace Simple_History;
  */
 class Log_Levels {
 	public const EMERGENCY = 'emergency';
-	public const ALERT = 'alert';
-	public const CRITICAL = 'critical';
-	public const ERROR = 'error';
-	public const WARNING = 'warning';
-	public const NOTICE = 'notice';
-	public const INFO = 'info';
-	public const DEBUG = 'debug';
+	public const ALERT     = 'alert';
+	public const CRITICAL  = 'critical';
+	public const ERROR     = 'error';
+	public const WARNING   = 'warning';
+	public const NOTICE    = 'notice';
+	public const INFO      = 'info';
+	public const DEBUG     = 'debug';
 
 	/**
 	 * Return translated loglevel.
@@ -94,7 +94,7 @@ class Log_Levels {
 
 			default:
 				$str_translated = $loglevel;
-		} // End switch().
+		}
 
 		return $str_translated;
 	}

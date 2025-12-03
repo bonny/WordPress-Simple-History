@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use WP_CLI;
+use Simple_History\Helpers;
 use Simple_History\Services\WP_CLI_Commands\WP_CLI_Add_Command;
 use Simple_History\Services\WP_CLI_Commands\WP_CLI_Sticky_Command;
 /**
@@ -74,5 +75,14 @@ class WP_CLI_Commands extends Service {
 			'simple-history core-files',
 			WP_CLI_Commands\WP_CLI_Core_Files_Command::class,
 		);
+
+		// Add command `wp simple-history dev` commands (reset).
+		// Only available when SIMPLE_HISTORY_DEV constant is true.
+		if ( Helpers::dev_mode_is_enabled() ) {
+			WP_CLI::add_command(
+				'simple-history dev',
+				WP_CLI_Commands\WP_CLI_Dev_Command::class,
+			);
+		}
 	}
 }

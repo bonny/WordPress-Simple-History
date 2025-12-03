@@ -1,6 +1,6 @@
 {
 	"name": "simple-history",
-	"version": "5.17.0",
+	"version": "5.20.0",
 	"description": "WordPress audit log and history plugin with nice GUI",
 	"author": "Pär Thernström",
 	"license": "GPL",
@@ -10,6 +10,7 @@
 		"@wordpress/prettier-config": "^4.4.0",
 		"@wordpress/scripts": "^27.0",
 		"eslint-plugin-prettier": "^5.2.1",
+		"eslint-plugin-validate-jsx-nesting": "^0.1.1",
 		"gitattributes-globs": "^1",
 		"gitignore-globs": "^0.1",
 		"grunt": "^1.5.2",

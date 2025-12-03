@@ -32,13 +32,13 @@ class Core_Files_Logger extends Logger {
 			'description' => __( 'Detects modifications to WordPress core files by checking file integrity against official checksums', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => [
-				'core_files_modified' => __( 'Detected modifications to {file_count} WordPress core files', 'simple-history' ),
-				'core_files_restored' => __( 'Verified integrity restored for {file_count} WordPress core files', 'simple-history' ),
+				'core_files_modified'     => __( 'Detected modifications to {file_count} WordPress core files', 'simple-history' ),
+				'core_files_restored'     => __( 'Verified integrity restored for {file_count} WordPress core files', 'simple-history' ),
 				'core_files_check_failed' => __( 'Could not check WordPress core files integrity: {error_message}', 'simple-history' ),
 			],
 			'labels'      => [
 				'search' => [
-					'label' => _x( 'Core Files Modifications', 'Core Files Logger: search', 'simple-history' ),
+					'label'   => _x( 'Core Files Modifications', 'Core Files Logger: search', 'simple-history' ),
 					'options' => [
 						_x( 'Core file modifications', 'Core Files Logger: search', 'simple-history' ) => [
 							'core_files_modified',
@@ -68,8 +68,8 @@ class Core_Files_Logger extends Logger {
 	public function setup_cron() {
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			// Schedule daily check at 3 AM site time to minimize server impact.
-			$timezone = wp_timezone();
-			$datetime = new \DateTime( 'tomorrow 3:00 AM', $timezone );
+			$timezone  = wp_timezone();
+			$datetime  = new \DateTime( 'tomorrow 3:00 AM', $timezone );
 			$timestamp = $datetime->getTimestamp();
 			wp_schedule_event( $timestamp, 'daily', self::CRON_HOOK );
 		}
@@ -133,7 +133,7 @@ class Core_Files_Logger extends Logger {
 		}
 
 		$modified_files = [];
-		$wp_root = ABSPATH;
+		$wp_root        = ABSPATH;
 
 		// Check each file in the checksums array.
 		foreach ( $checksums as $file => $expected_hash ) {
@@ -147,10 +147,10 @@ class Core_Files_Logger extends Logger {
 			// Check if file doesn't exist (missing core files should be logged).
 			if ( ! file_exists( $file_path ) ) {
 				$modified_files[] = [
-					'file' => $file,
-					'issue' => 'missing',
+					'file'          => $file,
+					'issue'         => 'missing',
 					'expected_hash' => $expected_hash,
-					'actual_hash' => null,
+					'actual_hash'   => null,
 				];
 				continue;
 			}
@@ -161,10 +161,10 @@ class Core_Files_Logger extends Logger {
 			if ( $actual_hash === false ) {
 				// File exists but can't be read.
 				$modified_files[] = [
-					'file' => $file,
-					'issue' => 'unreadable',
+					'file'          => $file,
+					'issue'         => 'unreadable',
 					'expected_hash' => $expected_hash,
-					'actual_hash' => null,
+					'actual_hash'   => null,
 				];
 				continue;
 			}
@@ -172,10 +172,10 @@ class Core_Files_Logger extends Logger {
 			// Compare hashes.
 			if ( $actual_hash !== $expected_hash ) {
 				$modified_files[] = [
-					'file' => $file,
-					'issue' => 'modified',
+					'file'          => $file,
+					'issue'         => 'modified',
 					'expected_hash' => $expected_hash,
-					'actual_hash' => $actual_hash,
+					'actual_hash'   => $actual_hash,
 				];
 			}
 		}
@@ -190,7 +190,7 @@ class Core_Files_Logger extends Logger {
 	 */
 	private function process_check_results( $modified_files ) {
 		$previous_results = get_option( self::OPTION_NAME_FILE_CHECK_RESULTS, [] );
-		$current_results = [];
+		$current_results  = [];
 
 		// Convert modified files to simple array for comparison.
 		foreach ( $modified_files as $file_data ) {
@@ -198,15 +198,15 @@ class Core_Files_Logger extends Logger {
 		}
 
 		// Check if this is a new issue or resolved issue.
-		$new_issues = array_diff_key( $current_results, $previous_results );
+		$new_issues      = array_diff_key( $current_results, $previous_results );
 		$resolved_issues = array_diff_key( $previous_results, $current_results );
 
 		// Log new issues.
 		if ( ! empty( $new_issues ) ) {
 			$context = [
-				'file_count' => count( $new_issues ),
+				'file_count'     => count( $new_issues ),
 				'modified_files' => array_keys( $new_issues ),
-				'file_details' => array_values( $new_issues ),
+				'file_details'   => array_values( $new_issues ),
 			];
 
 			$this->warning_message( 'core_files_modified', $context );
@@ -215,9 +215,9 @@ class Core_Files_Logger extends Logger {
 		// Log resolved issues.
 		if ( ! empty( $resolved_issues ) && ! empty( $previous_results ) ) {
 			$context = [
-				'file_count' => count( $resolved_issues ),
+				'file_count'     => count( $resolved_issues ),
 				'restored_files' => array_keys( $resolved_issues ),
-				'file_details' => array_values( $resolved_issues ),
+				'file_details'   => array_values( $resolved_issues ),
 			];
 
 			$this->info_message( 'core_files_restored', $context );
@@ -234,7 +234,7 @@ class Core_Files_Logger extends Logger {
 	 * @return Event_Details_Group|null
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'] ?? null;
 
 		if ( ! $message_key ) {
@@ -267,11 +267,11 @@ class Core_Files_Logger extends Logger {
 
 		// Limit to first 5 files to keep log events manageable.
 		$limited_file_details = array_slice( $file_details, 0, 5 );
-		$total_files = count( $file_details );
+		$total_files          = count( $file_details );
 
 		foreach ( $limited_file_details as $file_data ) {
 			// Handle stdClass objects.
-			$file = $file_data->file ?? '';
+			$file  = $file_data->file ?? '';
 			$issue = $file_data->issue ?? '';
 
 			if ( empty( $file ) || empty( $issue ) ) {
@@ -291,7 +291,7 @@ class Core_Files_Logger extends Logger {
 					/* translators: %s: issue type */
 					$status_text = sprintf( __( '%s fixed', 'simple-history' ), esc_html( $issue ) );
 				}
-			} else if ( 'core_files_modified' === $message_key ) {
+			} elseif ( 'core_files_modified' === $message_key ) {
 				// For detected issues, show the current problem.
 				if ( 'modified' === $issue ) {
 					$status_text = __( 'Hash mismatch', 'simple-history' );

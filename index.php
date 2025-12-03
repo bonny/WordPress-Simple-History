@@ -4,7 +4,7 @@
  * Plugin URI: https://simple-history.com
  * Text Domain: simple-history
  * Description: Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.
- * Version: 5.17.0
+ * Version: 5.20.0
  * Requires at least: 6.3
  * Requires PHP: 7.4
  * Author: Pär Thernström
@@ -49,7 +49,7 @@ if (
  * @TODO: make activation multi site aware, as in https://github.com/scribu/wp-proper-network-activation
  * register_activation_hook( trailingslashit(WP_PLUGIN_DIR) . trailingslashit( plugin_basename(__DIR__) ) . "index.php" , array("SimpleHistory", "on_plugin_activate" ) );
  */
-define( 'SIMPLE_HISTORY_VERSION', '5.17.0' );
+define( 'SIMPLE_HISTORY_VERSION', '5.20.0' );
 
 /**
  * Filesystem path to plugin directory.
@@ -93,11 +93,11 @@ spl_autoload_register(
 	function ( $class_name ) {
 		// Only handle our deprecated classes, let other autoloaders handle the rest.
 		$deprecated_classes = array(
-			'SimpleHistory' => __DIR__ . '/inc/deprecated/class-simplehistory.php',
-			'SimpleLogger' => __DIR__ . '/inc/deprecated/class-simplelogger.php',
+			'SimpleHistory'             => __DIR__ . '/inc/deprecated/class-simplehistory.php',
+			'SimpleLogger'              => __DIR__ . '/inc/deprecated/class-simplelogger.php',
 			'SimpleLoggerLogInitiators' => __DIR__ . '/inc/deprecated/class-simpleloggerloginitiators.php',
-			'SimpleLoggerLogLevels' => __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php',
-			'SimpleHistoryLogQuery' => __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php',
+			'SimpleLoggerLogLevels'     => __DIR__ . '/inc/deprecated/class-simpleloggerloglevels.php',
+			'SimpleHistoryLogQuery'     => __DIR__ . '/inc/deprecated/class-simplehistorylogquery.php',
 		);
 
 		// Only handle classes we know about.
@@ -107,7 +107,8 @@ spl_autoload_register(
 
 		// Check class doesn't already exist and file exists.
 		if ( ! class_exists( $class_name, false ) && file_exists( $deprecated_classes[ $class_name ] ) ) {
-			  require_once $deprecated_classes[ $class_name ];
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: array is hardcoded above.
+			require_once $deprecated_classes[ $class_name ];
 		}
 	}
 );

@@ -69,11 +69,11 @@ class Export {
 	 * Get an export option value.
 	 *
 	 * @param string $key Option key.
-	 * @param mixed  $default Default value if option not set.
+	 * @param mixed  $default_value Default value if option not set.
 	 * @return mixed Option value or default if not set.
 	 */
-	protected function get_option( $key, $default = null ) {
-		return $this->options[ $key ] ?? $default;
+	protected function get_option( $key, $default_value = null ) {
+		return $this->options[ $key ] ?? $default_value;
 	}
 
 	/**
@@ -108,32 +108,38 @@ class Export {
 
 		$query_result = $query->query( $download_query_args );
 
-		$pages_count = $query_result['pages_count'];
+		if ( is_wp_error( $query_result ) ) {
+			wp_die( esc_html( $query_result->get_error_message() ) );
+		}
+
+		$pages_count  = $query_result['pages_count'];
 		$page_current = $query_result['page_current'];
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Does work, see https://github.com/WordPress/WordPress-Coding-Standards/issues/295
 		$fp = fopen( 'php://output', 'w' );
 
 		$attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
 
-		if ( 'csv' == $export_format ) {
+		if ( 'csv' === $export_format ) {
 			$filename = 'simple-history-export-' . time() . '.csv';
 			header( 'Content-Type: text/plain' );
 			header( sprintf( $attachment_header_template, $filename ) );
-		} elseif ( 'json' == $export_format ) {
+		} elseif ( 'json' === $export_format ) {
 			$filename = 'simple-history-export-' . time() . '.json';
 			header( 'Content-Type: application/json' );
 			header( sprintf( $attachment_header_template, $filename ) );
-		} elseif ( 'html' == $export_format ) {
+		} elseif ( 'html' === $export_format ) {
 			$filename = 'simple-history-export-' . time() . '.html';
 			header( 'Content-Type: text/html' );
 			header( sprintf( $attachment_header_template, $filename ) );
 		}
 
 		// Some formats need to output some stuff before the actual loops.
-		if ( 'json' == $export_format ) {
+		if ( 'json' === $export_format ) {
 			$json_row = '[';
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $json_row );
-		} elseif ( 'html' == $export_format ) {
+		} elseif ( 'html' === $export_format ) {
 			$html = sprintf(
 				'
 			<!doctype html>
@@ -142,6 +148,7 @@ class Export {
 			<ul>
 			'
 			);
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $html );
 		}
 
@@ -153,30 +160,36 @@ class Export {
 
 				set_time_limit( 30 );
 
-				if ( 'csv' == $export_format ) {
+				if ( 'csv' === $export_format ) {
 					$this->output_csv_row( $fp, $one_row );
-				} elseif ( 'json' == $export_format ) {
+				} elseif ( 'json' === $export_format ) {
 					$this->output_json_row( $fp, $one_row, $row_loop );
-				} elseif ( 'html' == $export_format ) {
+				} elseif ( 'html' === $export_format ) {
 					$this->output_html_row( $fp, $one_row );
 				}
 
-				$row_loop++;
+				++$row_loop;
 			}
 
 			flush();
 
 			// Fetch next page.
-			$page_current++;
+			++$page_current;
 			$download_query_args['paged'] = $page_current;
-			$query_result = $query->query( $download_query_args );
+			$query_result                 = $query->query( $download_query_args );
+
+			if ( is_wp_error( $query_result ) ) {
+				break;
+			}
 		}
 
-		if ( 'json' == $export_format ) {
+		if ( 'json' === $export_format ) {
 			$json_row = ']';
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $json_row );
-		} elseif ( 'html' == $export_format ) {
+		} elseif ( 'html' === $export_format ) {
 			$html = sprintf( '</ul>' );
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $html );
 		}
 
@@ -217,17 +230,17 @@ class Export {
 	protected function output_csv_row( $fp, $one_row ) {
 		static $headers_outputted = false;
 
-		$header_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+		$header_output = wp_strip_all_tags( html_entity_decode( $this->simple_history->get_log_row_header_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 		$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
 
-		$message_output = strip_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
+		$message_output = wp_strip_all_tags( html_entity_decode( $this->simple_history->get_log_row_plain_text_output( $one_row ), ENT_QUOTES, 'UTF-8' ) );
 
 		$user_email = empty( $one_row->context['_user_email'] ) ? null : $one_row->context['_user_email'];
 		$user_login = empty( $one_row->context['_user_login'] ) ? null : $one_row->context['_user_login'];
 		$user_roles = [];
 
 		if ( $user_email ) {
-			$user = get_user_by( 'email', $user_email );
+			$user       = get_user_by( 'email', $user_email );
 			$user_roles = $user->roles ?? array();
 		}
 
@@ -237,10 +250,12 @@ class Export {
 
 		// Output headers if this is the first row and headers are enabled.
 		if ( ! $headers_outputted && $this->get_option( 'include_headers', false ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fputcsv
 			fputcsv( $fp, $this->get_csv_headers() );
 			$headers_outputted = true;
 		}
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fputcsv
 		fputcsv(
 			$fp,
 			array(
@@ -269,8 +284,10 @@ class Export {
 	 * @param int      $row_loop Row loop counter.
 	 */
 	protected function output_json_row( $fp, $one_row, $row_loop ) {
-		$comma = $row_loop == 0 ? "\n" : ",\n";
+		$comma    = $row_loop === 0 ? "\n" : ",\n";
 		$json_row = $comma . Helpers::json_encode( $one_row );
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite
 		fwrite( $fp, $json_row );
 	}
 
@@ -294,6 +311,7 @@ class Export {
 			$this->simple_history->get_log_row_details_output( $one_row )
 		);
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite
 		fwrite( $fp, $html );
 	}
 }

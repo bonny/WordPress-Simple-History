@@ -16,7 +16,7 @@ class Stats_View {
 	 * @return int Random number between min and max.
 	 */
 	private static function get_random_stat( $min, $max ) {
-		return rand( $min, $max );
+		return wp_rand( $min, $max );
 	}
 
 	/**
@@ -100,9 +100,9 @@ class Stats_View {
 	 * @param int   $date_to   End date as Unix timestamp.
 	 */
 	public static function output_events_overview( $data, $date_from, $date_to ) {
-		$total_events = $data['overview_total_events'];
-		$user_stats = $data['user_stats'];
-		$top_users = $data['user_rankings'];
+		$total_events     = $data['overview_total_events'];
+		$user_stats       = $data['user_stats'];
+		$top_users        = $data['user_rankings'];
 		$user_total_count = $data['user_total_count'];
 
 		$sitename = get_bloginfo( 'name' );
@@ -241,9 +241,9 @@ class Stats_View {
 											?>
 										</span>
 
-										<?php if ( ! empty( $user_data['sessions'] ) ) : ?>
+										<?php if ( ! empty( $user_data['sessions'] ) ) { ?>
 											<div class="sh-StatsDashboard-userSessions-details">
-												<?php foreach ( $user_data['sessions'] as $session ) : ?>
+												<?php foreach ( $user_data['sessions'] as $session ) { ?>
 													<div class="sh-StatsDashboard-userSession">
 														<span class="sh-StatsDashboard-userLastLogin">
 															<?php
@@ -255,7 +255,7 @@ class Stats_View {
 															);
 															?>
 														</span>
-														
+
 														<span class="sh-StatsDashboard-userExpiration">
 															<?php
 															$expiration_time = date_i18n( 'F d, Y H:i A', $session['expiration'] );
@@ -266,8 +266,8 @@ class Stats_View {
 															);
 															?>
 														</span>
-														
-														<?php if ( ! empty( $session['ip'] ) ) : ?>
+
+														<?php if ( ! empty( $session['ip'] ) ) { ?>
 															<span class="sh-StatsDashboard-userIP">
 																<?php
 																printf(
@@ -277,11 +277,11 @@ class Stats_View {
 																);
 																?>
 															</span>
-														<?php endif; ?>
+														<?php } ?>
 													</div>
-												<?php endforeach; ?>
+												<?php } ?>
 											</div>
-										<?php endif; ?>
+										<?php } ?>
 									</div>
 								</li>
 								<?php
@@ -391,10 +391,11 @@ class Stats_View {
 			$loop_count = 0;
 			foreach ( $top_users as $user ) {
 				// Set z-index to reverse order, so first user is on top.
-				$style = 'z-index: ' . ( $user_count - $loop_count ) . ';';
+				$style    = 'z-index: ' . ( $user_count - $loop_count ) . ';';
 				$user_url = Helpers::get_filtered_events_url(
 					[
 						'users' => $user,
+						'date'  => 'lastdays:30',
 					]
 				);
 				?>
@@ -413,7 +414,7 @@ class Stats_View {
 				</li>
 				<?php
 
-				$loop_count++;
+				++$loop_count;
 			}
 			?>
 		</ul>
@@ -430,6 +431,7 @@ class Stats_View {
 					$url = Helpers::get_filtered_events_url(
 						[
 							'users' => $user,
+							'date'  => 'lastdays:30',
 						]
 					);
 
@@ -531,7 +533,7 @@ class Stats_View {
 			<?php
 			// Get the first and last day of the date range.
 			$start_date = new \DateTime( gmdate( 'Y-m-d', $date_from ) );
-			$end_date = new \DateTime( gmdate( 'Y-m-d', $date_to ) );
+			$end_date   = new \DateTime( gmdate( 'Y-m-d', $date_to ) );
 
 			// Get the first and last day of the month.
 			$first_day_of_month = clone $start_date;
@@ -539,7 +541,7 @@ class Stats_View {
 			$last_day_of_month = clone $start_date;
 			$last_day_of_month->modify( 'last day of this month' );
 
-			$current_date = clone $first_day_of_month;
+			$current_date  = clone $first_day_of_month;
 			$start_weekday = (int) $first_day_of_month->format( 'w' );
 
 			// Create array of dates with their event counts.
@@ -576,8 +578,8 @@ class Stats_View {
 
 					// Output calendar days.
 					while ( $current_date <= $last_day_of_month ) {
-						$date_str = $current_date->format( 'Y-m-d' );
-						$count = isset( $date_counts[ $date_str ] ) ? $date_counts[ $date_str ] : 0;
+						$date_str    = $current_date->format( 'Y-m-d' );
+						$count       = isset( $date_counts[ $date_str ] ) ? $date_counts[ $date_str ] : 0;
 						$is_in_range = $current_date >= $start_date && $current_date <= $end_date;
 
 						$classes = array( 'sh-StatsDashboard-calendarDay' );
@@ -611,7 +613,7 @@ class Stats_View {
 					}
 
 					// Add empty cells for days after the end of the month to complete the grid.
-					$end_weekday = (int) $last_day_of_month->format( 'w' );
+					$end_weekday    = (int) $last_day_of_month->format( 'w' );
 					$remaining_days = 6 - $end_weekday;
 					for ( $i = 0; $i < $remaining_days; $i++ ) {
 						echo '<div class="sh-StatsDashboard-calendarDay sh-StatsDashboard-calendarDay--empty"></div>';

@@ -60,6 +60,7 @@ return static function ( RectorConfig $rectorConfig ): void {
 			IssetOnPropertyObjectToPropertyExistsRector::class,
 			// WordPress uses long arrays.
 			LongArrayToShortArrayRector::class,
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 			// Prefer `foreach $key => $value` over `foreach (array_keys($values) as $key) {`.
 			UnusedForeachValueToArrayKeysRector::class,
 			ReturnTypeFromStrictTypedCallRector::class,

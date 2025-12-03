@@ -6,15 +6,15 @@ use Simple_History\Helpers;
 use Simple_History\Simple_History;
 
 /**
- * Dropin Name: Add donate links
- * Dropin Description: Add donate links to Installed Plugins listing screen and to Simple History settings screen.
+ * Dropin Name: Premium promotion
+ * Dropin Description: Promote premium version on Installed Plugins listing screen and Simple History settings screen.
  * Dropin URI: http://simple-history.com/
  * Author: Pär Thernström
  */
 
 /**
- * Simple History Donate dropin
- * Put some donate messages here and there
+ * Simple History Premium Promotion dropin
+ * Promote premium version in various places
  */
 class Donate_Dropin extends Dropin {
 	/** @inheritDoc */
@@ -67,7 +67,7 @@ class Donate_Dropin extends Dropin {
 	}
 
 	/**
-	 * Add link to the donate page in the Plugins » Installed plugins screen.
+	 * Add link to premium version in the Plugins » Installed plugins screen.
 	 *
 	 * Called from filter 'plugin_row_meta'.
 	 *
@@ -76,16 +76,15 @@ class Donate_Dropin extends Dropin {
 	 * @return array<string,string> $links with added links
 	 */
 	public function action_plugin_row_meta( $links, $file ) {
-		if ( $file == $this->simple_history->plugin_basename ) {
-			$links[] = sprintf(
-				'<a href="https://www.paypal.me/eskapism">%1$s</a>',
-				__( 'Donate using PayPal', 'simple-history' )
-			);
-
-			$links[] = sprintf(
-				'<a href="https://github.com/sponsors/bonny">%1$s</a>',
-				__( 'Become a GitHub sponsor', 'simple-history' )
-			);
+		if ( $file === $this->simple_history->plugin_basename ) {
+			// Only show premium link if promo boxes should be shown.
+			if ( Helpers::show_promo_boxes() ) {
+				$links[] = sprintf(
+					'<a href="%1$s" target="_blank"><strong>%2$s</strong></a>',
+					esc_url( Helpers::get_tracking_url( 'https://simple-history.com/premium/', 'premium_pluginspage_upgrade' ) ),
+					__( '✨ Upgrade to Premium', 'simple-history' )
+				);
+			}
 		}
 
 		return $links;
@@ -95,9 +94,14 @@ class Donate_Dropin extends Dropin {
 	 * Add settings section.
 	 */
 	public function add_settings() {
+		// Only show premium promotion if promo boxes should be shown.
+		if ( ! Helpers::show_promo_boxes() ) {
+			return;
+		}
+
 		Helpers::add_settings_section(
 			'simple_history_settings_section_donate',
-			[ _x( 'Support development', 'donate settings headline', 'simple-history' ), 'volunteer_activism' ],
+			[ _x( 'Unlock more features', 'premium settings headline', 'simple-history' ), 'workspace_premium' ],
 			array( $this, 'settings_section_output' ),
 			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page.
 		);
@@ -126,21 +130,21 @@ class Donate_Dropin extends Dropin {
 		echo '<p>';
 		printf(
 			wp_kses(
-				// translators: 1 is a link to PayPal, 2 is a link to GitHub sponsors.
+				// translators: %s is a link to the premium version.
 				__(
-					'If you find Simple History useful please <a href="%1$s" target="_blank" class="sh-ExternalLink">donate using PayPal</a> or <a href="%2$s" target="_blank" class="sh-ExternalLink">become a GitHub sponsor</a>.',
+					'Love Simple History? ✨ <a href="%s" target="_blank" class="sh-ExternalLink"><strong>Upgrade to Premium</strong></a> and unlock Sticky Events, Custom Manual Entries, Detailed Stats & Summaries, Stealth Mode, Export to CSV/JSON, and more!',
 					'simple-history'
 				),
 				array(
-					'a' => array(
-						'href' => array(),
-						'class' => [],
+					'a'      => array(
+						'href'   => array(),
+						'class'  => [],
 						'target' => [],
 					),
+					'strong' => array(),
 				)
 			),
-			'https://www.paypal.me/eskapism',
-			'https://github.com/sponsors/bonny',
+			esc_url( Helpers::get_tracking_url( 'https://simple-history.com/premium/', 'premium_settings_upgrade' ) )
 		);
 		echo '</p>';
 	}

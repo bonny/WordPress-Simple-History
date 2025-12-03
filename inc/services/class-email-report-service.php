@@ -40,8 +40,8 @@ class Email_Report_Service extends Service {
 			'simple-history/v1',
 			'/email-report/preview/email',
 			[
-				'methods' => [ \WP_REST_Server::CREATABLE, \WP_REST_Server::READABLE ],
-				'callback' => [ $this, 'rest_preview_email' ],
+				'methods'             => [ \WP_REST_Server::CREATABLE, \WP_REST_Server::READABLE ],
+				'callback'            => [ $this, 'rest_preview_email' ],
 				'permission_callback' => [ $this, 'rest_permission_callback' ],
 			]
 		);
@@ -50,8 +50,8 @@ class Email_Report_Service extends Service {
 			'simple-history/v1',
 			'/email-report/preview/html',
 			[
-				'methods' => \WP_REST_Server::READABLE,
-				'callback' => [ $this, 'rest_preview_html' ],
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'rest_preview_html' ],
 				'permission_callback' => [ $this, 'rest_permission_callback' ],
 			]
 		);
@@ -81,7 +81,7 @@ class Email_Report_Service extends Service {
 				0,
 				$limit,
 				[
-					'name' => '',
+					'name'  => '',
 					'count' => 0,
 				]
 			);
@@ -89,14 +89,14 @@ class Email_Report_Service extends Service {
 
 		for ( $i = 0; $i < $limit; $i++ ) {
 			if ( isset( $items[ $i ] ) ) {
-				$item = $items[ $i ];
+				$item     = $items[ $i ];
 				$result[] = [
-					'name' => is_object( $item ) ? $item->$name_key : $item[ $name_key ],
+					'name'  => is_object( $item ) ? $item->$name_key : $item[ $name_key ],
 					'count' => is_object( $item ) ? $item->$count_key : $item[ $count_key ],
 				];
 			} else {
 				$result[] = [
-					'name' => '',
+					'name'  => '',
 					'count' => 0,
 				];
 			}
@@ -107,6 +107,21 @@ class Email_Report_Service extends Service {
 
 	/**
 	 * Get summary report data for a given date range.
+	 *
+	 * Note: Event counts include ALL logged events, including those from experimental/verbose
+	 * loggers like WPCronLogger, WPRESTAPIRequestsLogger, and WPHTTPRequestsLogger. These loggers
+	 * can generate hundreds of events per day from background system activity.
+	 *
+	 * This can cause a mismatch between email stats and what users see in the log UI, because:
+	 * 1. Experimental loggers may be disabled after events were logged
+	 * 2. The log UI filters events based on user permissions and enabled loggers
+	 * 3. Users clicking through from email may see fewer events than reported
+	 *
+	 * Potential future solutions:
+	 * - Filter stats to only include "standard" loggers (exclude experimental/verbose ones)
+	 * - Show breakdown in email: "X user events + Y system events"
+	 * - Add disclaimer text explaining the mismatch
+	 * - Make day links include all events regardless of current logger settings
 	 *
 	 * @param int  $date_from Start timestamp.
 	 * @param int  $date_to End timestamp.
@@ -119,11 +134,11 @@ class Email_Report_Service extends Service {
 
 		// Get basic site info.
 		$stats = [
-			'site_name' => get_bloginfo( 'name' ),
-			'site_url' => get_bloginfo( 'url' ),
-			'site_url_domain' => parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ),
+			'site_name'       => get_bloginfo( 'name' ),
+			'site_url'        => get_bloginfo( 'url' ),
+			'site_url_domain' => wp_parse_url( get_bloginfo( 'url' ), PHP_URL_HOST ),
 			// Date range as string, as it's displayed in the email.
-			'date_range' => sprintf(
+			'date_range'      => sprintf(
 				/* translators: 1: start date with day name, 2: end date with day name, 3: year */
 				__( '%1$s – %2$s, %3$s', 'simple-history' ),
 				wp_date(
@@ -146,7 +161,7 @@ class Email_Report_Service extends Service {
 				),
 				wp_date( 'Y', $date_to )
 			),
-			'email_subject' => $this->get_email_subject( $is_preview ),
+			'email_subject'   => $this->get_email_subject( $is_preview ),
 		];
 
 		// Get total events for this week.
@@ -162,8 +177,9 @@ class Email_Report_Service extends Service {
 		if ( $peak_days && is_array( $peak_days ) ) {
 			foreach ( $peak_days as $day ) {
 				$all_days[] = [
-					'day_number' => $day->day,  // 0=Sunday, 6=Saturday
-					'count' => $day->count,
+					// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- This explains value range.
+					'day_number' => $day->day,  // 0=Sunday and 6=Saturday.
+					'count'      => $day->count,
 				];
 			}
 		}
@@ -173,11 +189,11 @@ class Email_Report_Service extends Service {
 		// Find the busiest day (day with the highest count).
 		$busiest_day_name = __( 'No activity', 'simple-history' );
 		if ( ! empty( $all_days ) ) {
-			$max_count = 0;
+			$max_count          = 0;
 			$busiest_day_number = 0;
 			foreach ( $all_days as $day ) {
 				if ( $day['count'] > $max_count ) {
-					$max_count = $day['count'];
+					$max_count          = $day['count'];
 					$busiest_day_number = $day['day_number'];
 				}
 			}
@@ -185,7 +201,7 @@ class Email_Report_Service extends Service {
 			if ( $max_count > 0 ) {
 				// Convert day number to localized day name.
 				// day_number: 0=Sunday, 1=Monday, etc.
-				$day_names = [
+				$day_names        = [
 					0 => __( 'Sunday', 'simple-history' ),
 					1 => __( 'Monday', 'simple-history' ),
 					2 => __( 'Tuesday', 'simple-history' ),
@@ -201,22 +217,22 @@ class Email_Report_Service extends Service {
 
 		// Pass date range timestamps for chronological day ordering in template.
 		$stats['date_from_timestamp'] = $date_from;
-		$stats['date_to_timestamp'] = $date_to;
+		$stats['date_to_timestamp']   = $date_to;
 
 		// Get most active users and format them for the template.
-		$top_users = $events_stats->get_top_users( $date_from, $date_to, 3 );
+		$top_users                  = $events_stats->get_top_users( $date_from, $date_to, 3 );
 		$stats['most_active_users'] = $this->prepare_top_items( $top_users, 3, 'display_name', 'count' );
 
 		// Get user login statistics.
 		$stats['successful_logins'] = $events_stats->get_successful_logins_count( $date_from, $date_to );
-		$stats['failed_logins'] = $events_stats->get_failed_logins_count( $date_from, $date_to );
+		$stats['failed_logins']     = $events_stats->get_failed_logins_count( $date_from, $date_to );
 
 		// Get posts statistics.
 		$stats['posts_created'] = $events_stats->get_posts_pages_created( $date_from, $date_to );
 		$stats['posts_updated'] = $events_stats->get_posts_pages_updated( $date_from, $date_to );
 
 		// Get plugins statistics.
-		$stats['plugin_activations'] = $events_stats->get_plugin_activations_count( $date_from, $date_to );
+		$stats['plugin_activations']   = $events_stats->get_plugin_activations_count( $date_from, $date_to );
 		$stats['plugin_deactivations'] = $events_stats->get_plugin_deactivations_count( $date_from, $date_to );
 
 		// Get WordPress core statistics.
@@ -259,8 +275,8 @@ class Email_Report_Service extends Service {
 
 		// Preview shows last 7 days including today, matching sidebar "7 days" stat.
 		$date_range = Date_Helper::get_last_n_days_range( Date_Helper::DAYS_PER_WEEK );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		ob_start();
 		load_template(
@@ -274,6 +290,7 @@ class Email_Report_Service extends Service {
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this is a preview email sent to a single recipient.
 		$sent = wp_mail(
 			$current_user->user_email,
 			$subject,
@@ -307,8 +324,8 @@ class Email_Report_Service extends Service {
 	public function rest_preview_html() {
 		// Preview shows last 7 days including today, matching sidebar "7 days" stat.
 		$date_range = Date_Helper::get_last_n_days_range( Date_Helper::DAYS_PER_WEEK );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		// Set content type to HTML.
 		header( 'Content-Type: text/html; charset=UTF-8' );
@@ -327,22 +344,25 @@ class Email_Report_Service extends Service {
 	 */
 	public function register_settings() {
 		$settings_general_option_group = Simple_History::SETTINGS_GENERAL_OPTION_GROUP;
-		$settings_menu_slug = Simple_History::SETTINGS_MENU_SLUG;
+		$settings_menu_slug            = Simple_History::SETTINGS_MENU_SLUG;
 
 		// Add settings section for email reports.
 		Helpers::add_settings_section(
 			'simple_history_email_report_section',
-			[ __( 'Email Reports', 'simple-history' ), 'mark_email_unread' ],
+			[ __( 'Email Reports (Weekly Activity Digest)', 'simple-history' ), 'schedule_send', 'simple_history_email_report_section' ],
 			[ $this, 'settings_section_output' ],
-			$settings_menu_slug
+			$settings_menu_slug,
+			[
+				'callback_last' => [ $this, 'settings_section_output_last' ],
+			],
 		);
 
 		register_setting(
 			$settings_general_option_group,
 			'simple_history_email_report_enabled',
 			[
-				'type' => 'boolean',
-				'default' => false,
+				'type'              => 'boolean',
+				'default'           => false,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			]
 		);
@@ -351,11 +371,18 @@ class Email_Report_Service extends Service {
 			$settings_general_option_group,
 			'simple_history_email_report_recipients',
 			[
-				'type' => 'string',
-				'default' => '',
+				'type'              => 'string',
+				'default'           => '',
 				'sanitize_callback' => [ $this, 'sanitize_email_recipients' ],
 			]
 		);
+	}
+
+	/**
+	 * Output for the last content of the email report settings section.
+	 */
+	public function settings_section_output_last() {
+		echo '<p>💡 ' . esc_html__( 'Pro tip: The digest helps you catch unauthorized changes even when you\'re away from your site.', 'simple-history' ) . '</p>';
 	}
 
 	/**
@@ -368,7 +395,7 @@ class Email_Report_Service extends Service {
 
 		add_settings_field(
 			'simple_history_email_report_enabled',
-			Helpers::get_settings_field_title_output( __( 'Enable', 'simple-history' ), 'email' ),
+			Helpers::get_settings_field_title_output( __( 'Enable', 'simple-history' ), 'mark_email_unread' ),
 			[ $this, 'settings_field_enabled' ],
 			$settings_menu_slug,
 			'simple_history_email_report_section'
@@ -376,7 +403,7 @@ class Email_Report_Service extends Service {
 
 		add_settings_field(
 			'simple_history_email_report_recipients',
-			Helpers::get_settings_field_title_output( __( 'Recipients', 'simple-history' ), 'groups' ),
+			Helpers::get_settings_field_title_output( __( 'Recipients', 'simple-history' ), 'group_add' ),
 			[ $this, 'settings_field_recipients' ],
 			$settings_menu_slug,
 			'simple_history_email_report_section'
@@ -384,7 +411,7 @@ class Email_Report_Service extends Service {
 
 		add_settings_field(
 			'simple_history_email_report_preview',
-			Helpers::get_settings_field_title_output( __( 'Preview', 'simple-history' ), '' ),
+			Helpers::get_settings_field_title_output( __( 'Preview', 'simple-history' ), 'preview' ),
 			[ $this, 'settings_field_preview' ],
 			$settings_menu_slug,
 			'simple_history_email_report_section'
@@ -395,7 +422,11 @@ class Email_Report_Service extends Service {
 	 * Output for the email report settings section.
 	 */
 	public function settings_section_output() {
-		echo '<p>' . esc_html__( 'Reports are sent Monday mornings and include statistics from the previous week (Monday-Sunday).', 'simple-history' ) . '</p>';
+		?>
+		<p>
+			<strong><?php esc_html_e( 'Stay on top of your site without logging in.', 'simple-history' ); ?></strong>
+		</p>
+		<?php
 	}
 
 	/**
@@ -403,7 +434,7 @@ class Email_Report_Service extends Service {
 	 */
 	public function settings_field_preview() {
 		$current_user = wp_get_current_user();
-		$preview_url = add_query_arg(
+		$preview_url  = add_query_arg(
 			[
 				'_wpnonce' => wp_create_nonce( 'wp_rest' ),
 			],
@@ -442,6 +473,19 @@ class Email_Report_Service extends Service {
 				});
 			});
 		</script>
+		<?php
+	}
+
+	/**
+	 * Output for the pro tip field.
+	 */
+	public function settings_field_pro_tip() {
+		?>
+		<div class="sh-EmailReportProTip">
+			<p>
+				💡 <?php esc_html_e( 'Pro tip: The digest helps you catch unauthorized changes even when you\'re away from your site.', 'simple-history' ); ?>
+			</p>
+		</div>
 		<?php
 	}
 
@@ -503,14 +547,26 @@ class Email_Report_Service extends Service {
 		$enabled = $this->is_email_reports_enabled();
 		?>
 		<label>
-			<input 
-				type="checkbox" 
-				name="simple_history_email_report_enabled" 
-				value="1" 
-				<?php checked( $enabled ); ?> 
+			<input
+				type="checkbox"
+				name="simple_history_email_report_enabled"
+				value="1"
+				<?php checked( $enabled ); ?>
 			/>
-			<?php esc_html_e( 'Enable email reports', 'simple-history' ); ?>
+			<?php esc_html_e( 'Enable weekly digest', 'simple-history' ); ?>
 		</label>
+
+		<p style="margin-top: 1em;">
+			<?php esc_html_e( 'Every Monday, get a summary of:', 'simple-history' ); ?>
+		</p>
+
+		<ul style="list-style: none; padding: 0; margin: 0.5em 0 0 0;">
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Total event count and daily breakdown', 'simple-history' ); ?></li>
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Number of posts and pages created or updated', 'simple-history' ); ?></li>
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Login statistics (successful and failed)', 'simple-history' ); ?></li>
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Plugin activation and deactivation counts', 'simple-history' ); ?></li>
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'WordPress core update count', 'simple-history' ); ?></li>
+		</ul>
 		<?php
 	}
 
@@ -518,9 +574,12 @@ class Email_Report_Service extends Service {
 	 * Output for the email recipients field.
 	 */
 	public function settings_field_recipients() {
-		$recipients = $this->get_email_report_recipients();
+		$recipients         = $this->get_email_report_recipients();
 		$current_user_email = wp_get_current_user()->user_email;
 		?>
+		<p>
+			<?php esc_html_e( 'Add team members to keep everyone informed.', 'simple-history' ); ?>
+		</p>
 		<textarea 
 			data-simple-history-email-report-recipients
 			data-simple-history-current-user-email="<?php echo esc_attr( $current_user_email ); ?>"
@@ -598,8 +657,8 @@ class Email_Report_Service extends Service {
 		// Get stats for last complete week (Monday-Sunday).
 		// Sent on Mondays, shows previous Mon-Sun, excludes current Monday.
 		$date_range = Date_Helper::get_last_complete_week_range();
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		ob_start();
 		load_template(
@@ -615,6 +674,7 @@ class Email_Report_Service extends Service {
 
 		// Send to each recipient.
 		foreach ( $recipients as $recipient ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this is the email that is sent to a short list of manually added recipients.
 			wp_mail(
 				$recipient,
 				$subject,

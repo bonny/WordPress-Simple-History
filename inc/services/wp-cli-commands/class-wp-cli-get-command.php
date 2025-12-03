@@ -56,6 +56,11 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 			)
 		);
 
+		// Handle database errors.
+		if ( is_wp_error( $query_result ) ) {
+			WP_CLI::error( $query_result->get_error_message() );
+		}
+
 		// Return early if no found events.
 		if ( $query_result['total_row_count'] === 0 ) {
 			WP_CLI::error(
@@ -139,12 +144,5 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 		);
 
 		$formatter->display_item( $output_array );
-
-		// phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar
-		// If table format then output another one with the message details?
-		// if ( 'table' === $format ) {
-		// $message_details = $simple_history->get_log_row_details_output( $event_row );
-		// sh_d($message_details->to_json());
-		// }
 	}
 }

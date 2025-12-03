@@ -21,7 +21,7 @@ class Admin_Page_Premium_Promo extends Service {
 	 */
 	public function add_promo_upsell_page() {
 		// Hide if premium is active.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 
@@ -40,7 +40,7 @@ class Admin_Page_Premium_Promo extends Service {
 				->set_menu_title( _x( 'Get Premium', 'settings menu name', 'simple-history' ) )
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
-		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+		} elseif ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then export page is shown as a tab on the settings page.
 			$upsell_page
 				->set_menu_title( _x( 'Upgrade to Premium for more features', 'settings menu name', 'simple-history' ) )

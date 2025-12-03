@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <rect width="400" height="200" fill="#f0f0f0"/>
+  <rect x="20" y="20" width="360" height="160" rx="8" fill="#fff" stroke="#ddd"/>
+  <text x="40" y="50" font-family="sans-serif" font-size="14" fill="#333">Stick event to top</text>
+  <rect x="40" y="65" width="320" height="40" rx="4" fill="#fff8e1" stroke="#ffc107"/>
+  <circle cx="60" cy="85" r="10" fill="#ffc107"/>
+  <rect x="80" y="75" width="260" height="8" rx="2" fill="#e0e0e0"/>
+  <rect x="80" y="88" width="200" height="6" rx="2" fill="#f0f0f0"/>
+  <rect x="40" y="115" width="320" height="30" rx="4" fill="#f5f5f5" stroke="#e0e0e0"/>
+  <rect x="40" y="150" width="320" height="25" rx="4" fill="#f5f5f5" stroke="#e0e0e0"/>
+</svg>

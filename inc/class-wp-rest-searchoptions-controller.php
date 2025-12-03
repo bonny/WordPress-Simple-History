@@ -24,8 +24,8 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->namespace = 'simple-history/v1';
-		$this->rest_base = 'search-options';
+		$this->namespace      = 'simple-history/v1';
+		$this->rest_base      = 'search-options';
 		$this->simple_history = Simple_History::get_instance();
 	}
 
@@ -69,6 +69,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	public function get_items_for_search_user( $request ) {
 		$data = [];
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$q = trim( sanitize_text_field( wp_unslash( $_GET['q'] ?? '' ) ) );
 
 		if ( empty( $q ) ) {
@@ -161,23 +162,24 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
 
 		$data = [
-			'dates' => Helpers::get_data_for_date_filter(),
-			'loggers' => $this->get_loggers_and_messages(),
-			'initiators' => $this->get_initiator_options(),
-			'pager_size' => [
-				'page' => (int) Helpers::get_pager_size(),
+			'dates'                         => Helpers::get_data_for_date_filter(),
+			'loggers'                       => $this->get_loggers_and_messages(),
+			'initiators'                    => $this->get_initiator_options(),
+			'pager_size'                    => [
+				'page'      => (int) Helpers::get_pager_size(),
 				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
 			],
-			'new_events_check_interval' => Helpers::get_new_events_check_interval(),
-			'maps_api_key' => apply_filters( 'simple_history/maps_api_key', '' ),
-			'addons' => [
-				'addons' => $addons_service->get_addon_plugins(),
+			'new_events_check_interval'     => Helpers::get_new_events_check_interval(),
+			'maps_api_key'                  => apply_filters( 'simple_history/maps_api_key', '' ),
+			'addons'                        => [
+				'addons'                       => $addons_service->get_addon_plugins(),
 				'has_extended_settings_add_on' => $addons_service->has_add_on( 'simple-history-extended-settings' ),
-				'has_premium_add_on' => $addons_service->has_add_on( 'simple-history-premium' ),
+				'has_premium_add_on'           => $addons_service->has_add_on( 'simple-history-premium' ),
 			],
 			'experimental_features_enabled' => Helpers::experimental_features_is_enabled(),
-			'events_admin_page_url' => Helpers::get_history_admin_url(),
-			'settings_page_url' => Helpers::get_settings_page_url(),
+			'events_admin_page_url'         => Helpers::get_history_admin_url(),
+			'settings_page_url'             => Helpers::get_settings_page_url(),
+			'current_user_id'               => get_current_user_id(),
 		];
 
 		return rest_ensure_response( $data );
@@ -191,20 +193,20 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	protected function get_loggers_and_messages() {
 		$simple_history = Simple_History::get_instance();
 
-		$loggers_and_messages = [];
+		$loggers_and_messages  = [];
 		$loggers_user_can_read = $simple_history->get_loggers_that_user_can_read();
 
 		foreach ( $loggers_user_can_read as $logger ) {
-			$logger_info = $logger['instance']->get_info();
-			$logger_slug = $logger['instance']->get_slug();
-			$logger_name = $logger_info['name'];
+			$logger_info        = $logger['instance']->get_info();
+			$logger_slug        = $logger['instance']->get_slug();
+			$logger_name        = $logger_info['name'];
 			$logger_search_data = [];
 
 			// Get labels for logger.
 			if ( isset( $logger_info['labels']['search'] ) ) {
 
 				// Create array with all search messages for this logger.
-				$arr_all_search_messages  = [];
+				$arr_all_search_messages = [];
 
 				foreach ( $logger_info['labels']['search']['options'] ?? [] as $option_messages ) {
 					$arr_all_search_messages = array_merge( $arr_all_search_messages, $option_messages );
@@ -216,14 +218,14 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 
 				// Label for search options, like "Users" or "Post".
 				$logger_search_data['search'] = [
-					'label' => $logger_info['labels']['search']['label'],
+					'label'   => $logger_info['labels']['search']['label'],
 					'options' => $arr_all_search_messages,
 				];
 
 				// Label all = "All found updates" and so on.
 				if ( ! empty( $logger_info['labels']['search']['label_all'] ) ) {
 					$logger_search_data['search_all'] = [
-						'label' => $logger_info['labels']['search']['label_all'],
+						'label'   => $logger_info['labels']['search']['label_all'],
 						'options' => $arr_all_search_messages,
 					];
 				}
@@ -236,16 +238,16 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 					}
 
 					$logger_search_data['search_options'][] = [
-						'label' => $option_key,
+						'label'   => $option_key,
 						'options' => $option_messages,
 					];
 				}
-			}// End if().
+			}
 
 			$loggers_and_messages[] = [
-				'slug'         => $logger_slug,
-				'name'         => $logger_name,
-				'search_data'  => $logger_search_data,
+				'slug'        => $logger_slug,
+				'name'        => $logger_name,
+				'search_data' => $logger_search_data,
 			];
 		}
 

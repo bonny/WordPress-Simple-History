@@ -90,9 +90,9 @@ class Event {
 	 * @return Event New event instance.
 	 */
 	public static function create( array $event_data = [] ): Event {
-		$event = new Event();
-		$event->is_new = true;
-		$event->data = (object) $event_data;
+		$event          = new Event();
+		$event->is_new  = true;
+		$event->data    = (object) $event_data;
 		$event->context = $event_data['context'] ?? [];
 		return $event;
 	}
@@ -110,8 +110,8 @@ class Event {
 	 * @return Event|null Event instance if exists and is valid, null otherwise.
 	 */
 	public static function get( int $event_id ): ?Event {
-		$event = new Event();
-		$event->id = $event_id;
+		$event        = new Event();
+		$event->id    = $event_id;
 		$event_exists = $event->load_data();
 
 		if ( ! $event_exists ) {
@@ -144,7 +144,8 @@ class Event {
 		}
 
 		// Create cache key based on event IDs.
-		$cache_key = md5( __METHOD__ . serialize( [ 'event_ids' => $event_ids ] ) );
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+		$cache_key   = md5( __METHOD__ . serialize( [ 'event_ids' => $event_ids ] ) );
 		$cache_group = Helpers::get_cache_group();
 
 		// Try to get cached data first.
@@ -190,10 +191,10 @@ class Event {
 	 * @return Event Event instance.
 	 */
 	public static function from_object( object $event_data, string $load_status = 'LOADED_FROM_CACHE' ): Event {
-		$event = new Event();
-		$event->id = $event_data->id ?? null;
-		$event->data = $event_data;
-		$event->context = $event_data->context ?? [];
+		$event              = new Event();
+		$event->id          = $event_data->id ?? null;
+		$event->data        = $event_data;
+		$event->context     = $event_data->context ?? [];
 		$event->load_status = $load_status;
 		return $event;
 	}
@@ -269,8 +270,8 @@ class Event {
 			return '';
 		}
 		$simple_history = Simple_History::get_instance();
-		$message = $simple_history->get_log_row_plain_text_output( $data );
-		$message = html_entity_decode( $message );
+		$message        = $simple_history->get_log_row_plain_text_output( $data );
+		$message        = html_entity_decode( $message );
 		return wp_strip_all_tags( $message );
 	}
 
@@ -410,8 +411,8 @@ class Event {
 	 * Clear cached data and context.
 	 */
 	private function clear_data(): void {
-		$this->data = null;
-		$this->context = null;
+		$this->data        = null;
+		$this->context     = null;
 		$this->load_status = 'NOT_LOADED';
 	}
 
@@ -437,7 +438,8 @@ class Event {
 	 */
 	private function load_data(): bool {
 		// Create cache key based on event ID.
-		$cache_key = md5( __METHOD__ . serialize( [ 'event_id' => $this->id ] ) );
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+		$cache_key   = md5( __METHOD__ . serialize( [ 'event_id' => $this->id ] ) );
 		$cache_group = Helpers::get_cache_group();
 
 		// Try to get cached data first.
@@ -445,8 +447,8 @@ class Event {
 
 		// Use cached data if it exists.
 		if ( false !== $cached_data ) {
-			$this->data = $cached_data['data'];
-			$this->context = $cached_data['context'];
+			$this->data        = $cached_data['data'];
+			$this->context     = $cached_data['context'];
 			$this->load_status = 'LOADED_FROM_CACHE';
 
 			return ( $this->data !== null );
@@ -464,7 +466,7 @@ class Event {
 			wp_cache_set(
 				$cache_key,
 				[
-					'data' => null,
+					'data'    => null,
 					'context' => null,
 				],
 				$cache_group
@@ -475,8 +477,8 @@ class Event {
 		}
 
 		// Get the event data (should only be one since we queried for a single ID).
-		$event_data = reset( $events_data );
-		$this->data = $event_data;
+		$event_data    = reset( $events_data );
+		$this->data    = $event_data;
 		$this->context = $event_data->context;
 
 		// Add context to event data.
@@ -488,7 +490,7 @@ class Event {
 		wp_cache_set(
 			$cache_key,
 			[
-				'data' => $this->data,
+				'data'    => $this->data,
 				'context' => $this->context,
 			],
 			$cache_group
@@ -506,7 +508,7 @@ class Event {
 	private static function query_db_for_events( $event_ids ): array {
 		global $wpdb;
 		$simple_history = Simple_History::get_instance();
-		$table_name = $simple_history->get_events_table_name();
+		$table_name     = $simple_history->get_events_table_name();
 		$contexts_table = $simple_history->get_contexts_table_name();
 
 		// Normalize to array and ensure all are integers.
@@ -518,6 +520,7 @@ class Event {
 		}
 
 		// Query for events using IN clause (works for both single and multiple IDs).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT 
@@ -544,24 +547,24 @@ class Event {
 			// Initialize event data if not exists.
 			if ( ! isset( $events_data[ $event_id ] ) ) {
 				$events_data[ $event_id ] = [
-					'id' => $row->id,
-					'date' => $row->date,
-					'logger' => $row->logger,
-					'level' => $row->level,
-					'message' => $row->message,
+					'id'                  => $row->id,
+					'date'                => $row->date,
+					'logger'              => $row->logger,
+					'level'               => $row->level,
+					'message'             => $row->message,
                     // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					'occasionsID' => $row->occasionsID,
-					'initiator' => $row->initiator,
+					'occasionsID'         => $row->occasionsID,
+					'initiator'           => $row->initiator,
                     // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					'repeatCount' => '1',
+					'repeatCount'         => '1',
                     // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					'subsequentOccasions' => '1',
                     // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					'maxId' => $row->id,
+					'maxId'               => $row->id,
                     // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					'minId' => $row->id,
+					'minId'               => $row->id,
 					'context_message_key' => null,
-					'context' => [],
+					'context'             => [],
 				];
 			}
 
@@ -616,6 +619,7 @@ class Event {
 		$contexts_table = $simple_history->get_contexts_table_name();
 
 		// First remove any existing sticky context.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->delete(
 			$contexts_table,
 			[
@@ -626,6 +630,7 @@ class Event {
 		);
 
 		// Add the sticky context.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$result = $wpdb->insert(
 			$contexts_table,
 			[
@@ -658,6 +663,7 @@ class Event {
 		$simple_history = Simple_History::get_instance();
 		$contexts_table = $simple_history->get_contexts_table_name();
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$result = $wpdb->delete(
 			$contexts_table,
 			[

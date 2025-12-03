@@ -1,3 +1,11 @@
+/* 
+CSS for the stats dashboard page.
+This is the core stats dashboard page, not the sidebar "History Insights" widget.
+Also the CSS is only for the free version of the plugin, the premium add-on has its own CSS,
+that removes this CSS and replaces it with its own.
+So: this CSS is only used when the premium add-on is *not* active!
+*/
+
 .sh-StatsDashboard {
 	--sh-avatar-size: var(--sh-font-size-xxxlarge);
 }
@@ -148,6 +156,15 @@
 .sh-StatsDashboard-userNamesList {
 	margin-top: var(--sh-spacing-xsmall);
 	margin-bottom: 0;
+
+	a {
+		text-decoration: none;
+	}
+
+	a:hover,
+	a:focus {
+		text-decoration: underline;
+	}
 }
 
 /* Event count displayed after each username in the list. */
@@ -405,6 +422,13 @@
 	flex: 1;
 }
 
+.sh-StatsDashboard-statValue {
+	color: var(--sh-color-black);
+	font-size: var(--sh-font-size-xxxlarge);
+	font-weight: normal;
+	line-height: 1;
+}
+
 .sh-StatsDashboard-stat--small {
 	gap: var(--sh-spacing-xsmall);
 
@@ -422,13 +446,6 @@
 .sh-StatsDashboard-statSubValue {
 	font-size: var(--sh-font-size-medium);
 	color: var(--sh-color-black-2);
-}
-
-.sh-StatsDashboard-statValue {
-	color: var(--sh-color-black);
-	font-size: var(--sh-font-size-xxxlarge);
-	font-weight: normal;
-	line-height: 1;
 }
 
 .sh-StatsDashboard-statValue--large {

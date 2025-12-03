@@ -12,7 +12,8 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * Add actions when dropin is loaded.
 	 */
 	public function loaded() {
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_sale_promo' ], 4 );
+		// Black Week sale at priority 1 to show first.
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_sale_promo' ], 1 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_premium_promo' ], 5 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_debug_and_monitor_promo' ], 5 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce_promo' ], 7 );
@@ -23,11 +24,12 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 */
 	public function on_sidebar_html_sale_promo() {
 		// Hide if Premium is installed.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 
 		// If true then always show promotion, regardless of date.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$preview_promotion = isset( $_GET['sh_preview_promotion'] );
 
 		// Get current date/time in the site's timezone.
@@ -35,7 +37,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 
 		// Define promotion start and end dates in the site's timezone.
 		$start_date = new \DateTimeImmutable( '2025-11-23 00:00:00', wp_timezone() );
-		$end_date = new \DateTimeImmutable( '2025-12-01 23:59:59', wp_timezone() );
+		$end_date   = new \DateTimeImmutable( '2025-12-01 23:59:59', wp_timezone() );
 
 		// Hide if before start date.
 		if ( ! $preview_promotion && $now < $start_date ) {
@@ -85,7 +87,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 */
 	public function on_sidebar_html_premium_promo() {
 		// Don't show if addon is already installed.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 
@@ -108,7 +110,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		}
 
 		// Hide if Premium is installed, because one feature of premium is hiding promos.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 
@@ -126,7 +128,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		}
 
 		// Hide if Premium is installed, because one feature of premium is hiding promos.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 
@@ -141,7 +143,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 */
 	public static function get_debug_and_monitor_features_postbox_html() {
 		// Hide if Premium is installed, because one feature of premium is hiding promos.
-		if ( Helpers::is_premium_add_on_active() ) {
+		if ( ! Helpers::show_promo_boxes() ) {
 			return;
 		}
 

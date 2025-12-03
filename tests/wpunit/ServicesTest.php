@@ -46,6 +46,10 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Notification_Bar',
 			'Email_Report_Service',
 			'Simple_History_Updates',
+			'Experimental_Features_Page',
+			'Import_Handler',
+			'Auto_Backfill_Service',
+			'History_Insights_Sidebar_Service',
 			'Integrations_Service',
 			'Integrations_Settings_Page'
 		];

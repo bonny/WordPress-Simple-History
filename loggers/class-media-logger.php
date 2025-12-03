@@ -78,9 +78,9 @@ class Media_Logger extends Logger {
 		}
 
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Missing
-		$post_id = $_POST['post_ID'] ?? null;
+		$post_id   = $_POST['post_ID'] ?? null;
 		$post_type = $_POST['post_type'] ?? null;
-		$action = $_POST['action'] ?? null;
+		$action    = $_POST['action'] ?? null;
 		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Missing
 
 		if ( ! $post_id || 'attachment' !== $post_type || 'editpost' !== $action ) {
@@ -102,10 +102,10 @@ class Media_Logger extends Logger {
 	 */
 	public function on_mw_new_media_object( $attachment_id, $args ) {
 		$attachment_post = get_post( $attachment_id );
-		$filename = esc_html( wp_basename( $attachment_post->guid ) );
-		$mime = get_post_mime_type( $attachment_post );
-		$file  = get_attached_file( $attachment_id );
-		$file_size = false;
+		$filename        = esc_html( wp_basename( $attachment_post->guid ) );
+		$mime            = get_post_mime_type( $attachment_post );
+		$file            = get_attached_file( $attachment_id );
+		$file_size       = false;
 
 		if ( file_exists( $file ) ) {
 			$file_size = filesize( $file );
@@ -114,11 +114,11 @@ class Media_Logger extends Logger {
 		$this->info_message(
 			'attachment_created',
 			array(
-				'post_type' => get_post_type( $attachment_post ),
-				'attachment_id' => $attachment_id,
-				'attachment_title' => get_the_title( $attachment_post ),
+				'post_type'           => get_post_type( $attachment_post ),
+				'attachment_id'       => $attachment_id,
+				'attachment_title'    => get_the_title( $attachment_post ),
 				'attachment_filename' => $filename,
-				'attachment_mime' => $mime,
+				'attachment_mime'     => $mime,
 				'attachment_filesize' => $file_size,
 			)
 		);
@@ -130,32 +130,32 @@ class Media_Logger extends Logger {
 	 * @param object $row Log row.
 	 */
 	public function get_log_row_plain_text_output( $row ) {
-		$message = $row->message;
-		$context = $row->context;
+		$message     = $row->message;
+		$context     = $row->context;
 		$message_key = $context['_message_key'];
 
-		$attachment_id = $context['attachment_id'];
-		$attachment_post = get_post( $attachment_id );
+		$attachment_id           = $context['attachment_id'];
+		$attachment_post         = get_post( $attachment_id );
 		$attachment_is_available = $attachment_post instanceof \WP_Post;
 
 		// Only link to attachment if attachment post is still available.
 		if ( $attachment_is_available ) {
-			if ( 'attachment_updated' == $message_key ) {
+			if ( 'attachment_updated' === $message_key ) {
 				$message = __( 'Edited attachment <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
-			} elseif ( 'attachment_created' == $message_key ) {
+			} elseif ( 'attachment_created' === $message_key ) {
 
 				if ( isset( $context['attachment_parent_id'] ) ) {
 					// Attachment was uploaded to a post. Link to it, if still available.
-					$attachment_parent_post = get_post( $context['attachment_parent_id'] );
+					$attachment_parent_post      = get_post( $context['attachment_parent_id'] );
 					$attachment_parent_available = $attachment_parent_post instanceof \WP_Post;
 
 					$context['attachment_parent_post_type'] = esc_html( $context['attachment_parent_post_type'] ?? '' );
-					$context['attachment_parent_title'] = esc_html( $context['attachment_parent_title'] ?? '' );
+					$context['attachment_parent_title']     = esc_html( $context['attachment_parent_title'] ?? '' );
 
 					if ( $attachment_parent_available ) {
 						// Include link to parent post.
 						$context['attachment_parent_edit_link'] = get_edit_post_link( $context['attachment_parent_id'] );
-						$message = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a> to {attachment_parent_post_type} <a href="{attachment_parent_edit_link}">"{attachment_parent_title}"</a>', 'simple-history' );
+						$message                                = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a> to {attachment_parent_post_type} <a href="{attachment_parent_edit_link}">"{attachment_parent_title}"</a>', 'simple-history' );
 					} else {
 						// Include only title to parent post.
 						$message = __( 'Uploaded {post_type} <a href="{edit_link}">"{attachment_title}"</a> to {attachment_parent_post_type} "{attachment_parent_title}"', 'simple-history' );
@@ -165,9 +165,9 @@ class Media_Logger extends Logger {
 				}
 			}
 
-			$context['post_type'] = esc_html( $context['post_type'] ?? 'attachment' );
+			$context['post_type']           = esc_html( $context['post_type'] ?? 'attachment' );
 			$context['attachment_filename'] = esc_html( $context['attachment_filename'] ?? '' );
-			$context['edit_link'] = get_edit_post_link( $attachment_id );
+			$context['edit_link']           = get_edit_post_link( $attachment_id );
 
 			$message = helpers::interpolate( $message, $context, $row );
 		} else {
@@ -185,19 +185,19 @@ class Media_Logger extends Logger {
 	 * @return string|Event_Details_Container_Interface|Event_Details_Group
 	 */
 	protected function get_details_output_for_created_attachment( $row ) {
-		$context = $row->context;
-		$attachment_id = $context['attachment_id'];
-		$attachment_post = get_post( $attachment_id );
+		$context                 = $row->context;
+		$attachment_id           = $context['attachment_id'];
+		$attachment_post         = get_post( $attachment_id );
 		$attachment_is_available = is_a( $attachment_post, 'WP_Post' );
 
 		// Attachment is created/uploaded = show details with image thumbnail.
 		$attachment_id = $context['attachment_id'];
-		$filetype = wp_check_filetype( $context['attachment_filename'] );
-		$file_url = wp_get_attachment_url( $attachment_id );
-		$edit_link = get_edit_post_link( $attachment_id );
+		$filetype      = wp_check_filetype( $context['attachment_filename'] );
+		$file_url      = wp_get_attachment_url( $attachment_id );
+		$edit_link     = get_edit_post_link( $attachment_id );
 		$attached_file = get_attached_file( $attachment_id );
-		$message = '';
-		$full_src = false;
+		$message       = '';
+		$full_src      = false;
 
 		// Is true if attachment is an image. But for example PDFs can have thumbnail images, but they are not considered to be image.
 		$is_image = wp_attachment_is_image( $attachment_id );
@@ -205,20 +205,20 @@ class Media_Logger extends Logger {
 		$is_video = strpos( $filetype['type'], 'video/' ) !== false;
 		$is_audio = strpos( $filetype['type'], 'audio/' ) !== false;
 
-		$full_image_width = null;
+		$full_image_width  = null;
 		$full_image_height = null;
 
 		if ( $is_image ) {
 			$thumb_src = wp_get_attachment_image_src( $attachment_id, 'medium' );
-			$full_src = wp_get_attachment_image_src( $attachment_id, 'full' );
+			$full_src  = wp_get_attachment_image_src( $attachment_id, 'full' );
 
-			$full_image_width = $full_src[1];
+			$full_image_width  = $full_src[1];
 			$full_image_height = $full_src[2];
 
 			// is_image is also true for mime types that WP can't create thumbs for
 			// so we need to check that wp got an resized version.
 			if ( $full_image_width && $full_image_height ) {
-				$context['full_image_width'] = $full_image_width;
+				$context['full_image_width']  = $full_image_width;
 				$context['full_image_height'] = $full_image_height;
 
 				// Only output thumb if file exists
@@ -228,10 +228,10 @@ class Media_Logger extends Logger {
 				}
 			}
 		} elseif ( $is_audio ) {
-			$content = sprintf( '[audio src="%1$s"]', $file_url );
+			$content                     = sprintf( '[audio src="%1$s"]', $file_url );
 			$context['attachment_thumb'] = do_shortcode( $content );
 		} elseif ( $is_video ) {
-			$content = sprintf( '[video src="%1$s"]', $file_url );
+			$content                     = sprintf( '[video src="%1$s"]', $file_url );
 			$context['attachment_thumb'] = do_shortcode( $content );
 		} elseif ( $attachment_is_available ) {
 			// Use WordPress icon for other media types.
@@ -239,7 +239,7 @@ class Media_Logger extends Logger {
 				'%1$s',
 				wp_get_attachment_image( $attachment_id, array( 350, 500 ), true ) // Placeholder 1.
 			);
-		} // End if().
+		}
 
 		// Only set attachment_size_format if we have a valid filesize.
 		if ( ! empty( $row->context['attachment_filesize'] ) ) {
@@ -321,13 +321,13 @@ class Media_Logger extends Logger {
 	public function get_log_row_details_output( $row ) {
 		$message_key = $row->context['_message_key'];
 
-		if ( 'attachment_created' == $message_key ) {
+		if ( 'attachment_created' === $message_key ) {
 			return $this->get_details_output_for_created_attachment( $row );
-		} else if ( 'attachment_updated' === $message_key ) {
+		} elseif ( 'attachment_updated' === $message_key ) {
 			return $this->get_details_output_for_updated_attachment( $row );
 		}
 
-		return;
+		return '';
 	}
 
 	/**
@@ -360,28 +360,28 @@ class Media_Logger extends Logger {
 		}
 
 		$attachment_post = get_post( $attachment_id );
-		$filename = esc_html( wp_basename( $attachment_post->guid ) );
-		$mime = get_post_mime_type( $attachment_post );
-		$file  = get_attached_file( $attachment_id );
-		$file_size = file_exists( $file ) ? filesize( $file ) : null;
+		$filename        = esc_html( wp_basename( $attachment_post->guid ) );
+		$mime            = get_post_mime_type( $attachment_post );
+		$file            = get_attached_file( $attachment_id );
+		$file_size       = file_exists( $file ) ? filesize( $file ) : null;
 
 		$context = array(
-			'post_type' => get_post_type( $attachment_post ),
-			'attachment_id' => $attachment_id,
-			'attachment_title' => get_the_title( $attachment_post ),
+			'post_type'           => get_post_type( $attachment_post ),
+			'attachment_id'       => $attachment_id,
+			'attachment_title'    => get_the_title( $attachment_post ),
 			'attachment_filename' => $filename,
-			'attachment_mime' => $mime,
+			'attachment_mime'     => $mime,
 			'attachment_filesize' => $file_size,
 		);
 
 		// Add information about possible parent.
-		$attachment_parent_id = wp_get_post_parent_id( $attachment_post );
-		$attachment_parent_title = $attachment_parent_id ? get_the_title( $attachment_parent_id ) : null;
+		$attachment_parent_id        = wp_get_post_parent_id( $attachment_post );
+		$attachment_parent_title     = $attachment_parent_id ? get_the_title( $attachment_parent_id ) : null;
 		$attachment_parent_post_type = $attachment_parent_id ? get_post_type( $attachment_parent_id ) : null;
 
 		if ( $attachment_parent_id ) {
-			$context['attachment_parent_id'] = $attachment_parent_id;
-			$context['attachment_parent_title'] = $attachment_parent_title;
+			$context['attachment_parent_id']        = $attachment_parent_id;
+			$context['attachment_parent_title']     = $attachment_parent_title;
 			$context['attachment_parent_post_type'] = $attachment_parent_post_type;
 		}
 
@@ -404,45 +404,45 @@ class Media_Logger extends Logger {
 		}
 
 		$context = [
-			'attachment_id' => $attachment_id,
+			'attachment_id'    => $attachment_id,
 			'attachment_title' => $post_new->post_title,
-			'attachment_mime' => $post_new->post_mime_type,
-			'post_type' => $post_new->post_type,
+			'attachment_mime'  => $post_new->post_mime_type,
+			'post_type'        => $post_new->post_type,
 		];
 
 		// Post name is the slug.
 		if ( $post_new->post_name !== $post_prev->post_name ) {
-			$context['attachment_name_new'] = $post_new->post_name;
+			$context['attachment_name_new']  = $post_new->post_name;
 			$context['attachment_name_prev'] = $post_prev->post_name;
 		}
 
 		if ( $post_new->post_title !== $post_prev->post_title ) {
-			$context['attachment_title_new'] = $post_new->post_title;
+			$context['attachment_title_new']  = $post_new->post_title;
 			$context['attachment_title_prev'] = $post_prev->post_title;
 		}
 
 		if ( $post_new->post_excerpt !== $post_prev->post_excerpt ) {
-			$context['attachment_excerpt_new'] = $post_new->post_excerpt;
+			$context['attachment_excerpt_new']  = $post_new->post_excerpt;
 			$context['attachment_excerpt_prev'] = $post_prev->post_excerpt;
 		}
 
 		if ( $post_new->post_content !== $post_prev->post_content ) {
-			$context['attachment_content_new'] = $post_new->post_content;
+			$context['attachment_content_new']  = $post_new->post_content;
 			$context['attachment_content_prev'] = $post_prev->post_content;
 		}
 
 		if ( $post_new->post_author !== $post_prev->post_author ) {
-			$context['attachment_author_new'] = $post_new->post_author;
+			$context['attachment_author_new']  = $post_new->post_author;
 			$context['attachment_author_prev'] = $post_prev->post_author;
 		}
 
 		// Alt text is not included in hook. Is set in post meta field '_wp_attachment_image_alt'.
 		if ( isset( $this->prev_attachment_values[ $attachment_id ]['alt_text'] ) ) {
-			$context['attachment_alt_text_new'] = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+			$context['attachment_alt_text_new']  = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 			$context['attachment_alt_text_prev'] = $this->prev_attachment_values[ $attachment_id ]['alt_text'];
 		}
 
-		$context['attachment_new'] = $post_new;
+		$context['attachment_new']  = $post_new;
 		$context['attachment_prev'] = $post_prev;
 
 		$this->info_message( 'attachment_updated', $context );
@@ -459,17 +459,17 @@ class Media_Logger extends Logger {
 		}
 
 		$attachment_post = get_post( $attachment_id );
-		$filename = esc_html( wp_basename( $attachment_post->guid ) );
-		$mime = get_post_mime_type( $attachment_post );
+		$filename        = esc_html( wp_basename( $attachment_post->guid ) );
+		$mime            = get_post_mime_type( $attachment_post );
 
 		$this->info_message(
 			'attachment_deleted',
 			array(
-				'post_type' => get_post_type( $attachment_post ),
-				'attachment_id' => $attachment_id,
-				'attachment_title' => get_the_title( $attachment_post ),
+				'post_type'           => get_post_type( $attachment_post ),
+				'attachment_id'       => $attachment_id,
+				'attachment_title'    => get_the_title( $attachment_post ),
 				'attachment_filename' => $filename,
-				'attachment_mime' => $mime,
+				'attachment_mime'     => $mime,
 			)
 		);
 	}
@@ -482,7 +482,7 @@ class Media_Logger extends Logger {
 	 * @param object $row Log item.
 	 */
 	public function filter_rss_item_link( $link, $row ) {
-		if ( $row->logger != $this->get_slug() ) {
+		if ( $row->logger !== $this->get_slug() ) {
 			return $link;
 		}
 
@@ -490,7 +490,7 @@ class Media_Logger extends Logger {
 			$link = add_query_arg(
 				array(
 					'action' => 'edit',
-					'post' => $row->context['attachment_id'],
+					'post'   => $row->context['attachment_id'],
 				),
 				admin_url( 'post.php' )
 			);

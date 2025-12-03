@@ -20,7 +20,7 @@ class Dropins_Loader extends Service {
 	 */
 	public function load_dropins() {
 		$dropins_to_instantiate = $this->simple_history->get_core_dropins();
-		$instantiated_dropins = $this->simple_history->get_instantiated_dropins();
+		$instantiated_dropins   = $this->simple_history->get_instantiated_dropins();
 
 		/**
 		 * Fires after the list of dropins to load are populated.
@@ -113,10 +113,10 @@ class Dropins_Loader extends Service {
 			}
 
 			$instantiated_dropins[ $dropin_short_name ] = array(
-				'name' => $dropin_short_name,
+				'name'     => $dropin_short_name,
 				'instance' => $dropin_instance,
 			);
-		} // End foreach().
+		}
 
 		$this->simple_history->set_instantiated_dropins( $instantiated_dropins );
 

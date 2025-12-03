@@ -31,6 +31,14 @@
 	background-image: url(./icons/overview_FILL0_wght400_GRAD0_opsz48.svg);
 }
 
+.sh-Icon--grid_view {
+	background-image: url(./icons/grid_view_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--experiment {
+	background-image: url(./icons/experiment_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
 .sh-Icon--auto-delete {
 	background-image: url(./icons/auto_delete_FILL0_wght400_GRAD0_opsz48.svg);
 }
@@ -49,6 +57,10 @@
 
 .sh-Icon--autorenew {
 	background-image: url(./icons/autorenew_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--sync_arrow_down {
+	background-image: url(./icons/sync_arrow_down_FILL0_wght400_GRAD0_opsz48.svg);
 }
 
 .sh-Icon--format_list_numbered {
@@ -196,4 +208,16 @@
 
 .sh-Icon--mark_email_unread {
 	background-image: url(./icons/mark_email_unread_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--group_add {
+	background-image: url(./icons/group_add_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--preview {
+	background-image: url(./icons/preview_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.sh-Icon--schedule_send {
+	background-image: url(./icons/schedule_send_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
 }

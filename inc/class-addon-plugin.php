@@ -51,15 +51,15 @@ class AddOn_Plugin {
 	 * @var array<string,mixed>
 	 */
 	private array $message_defaults = [
-		'key' => null,
-		'key_activated' => false,
+		'key'             => null,
+		'key_activated'   => false,
 		'key_instance_id' => null,
-		'key_created_at' => null,
-		'key_expires_at' => null,
-		'product_id' => null,
-		'product_name' => null,
-		'customer_name' => null,
-		'customer_email' => null,
+		'key_created_at'  => null,
+		'key_expires_at'  => null,
+		'product_id'      => null,
+		'product_name'    => null,
+		'customer_name'   => null,
+		'customer_email'  => null,
 	];
 
 	/**
@@ -70,10 +70,10 @@ class AddOn_Plugin {
 	 * @param int|null $product_id ID of product that this plugin is for.
 	 */
 	public function __construct( $id, $slug, $version, $name = '', $product_id = null ) {
-		$this->id = $id;
-		$this->slug = $slug;
-		$this->version = $version;
-		$this->name = $name;
+		$this->id         = $id;
+		$this->slug       = $slug;
+		$this->version    = $version;
+		$this->name       = $name;
 		$this->product_id = $product_id;
 	}
 
@@ -126,17 +126,18 @@ class AddOn_Plugin {
 	public function activate_license( $license_key ) {
 		$activation_url = add_query_arg(
 			array(
-				'license_key' => $license_key,
+				'license_key'   => $license_key,
 				'instance_name' => home_url(),
 			),
 			SIMPLE_HISTORY_LICENCES_API_URL . '/activate'
 		);
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$response = wp_remote_get(
 			$activation_url,
 			array(
 				'sslverify' => false,
-				'timeout' => 10,
+				'timeout'   => 3,
 			)
 		);
 
@@ -181,15 +182,15 @@ class AddOn_Plugin {
 
 		// Key was activated successfully.
 		$message = [
-			'key_activated' => true,
-			'key' => $remote_body_json['data']['license_key']['key'] ?? null,
+			'key_activated'   => true,
+			'key'             => $remote_body_json['data']['license_key']['key'] ?? null,
 			'key_instance_id' => $remote_body_json['data']['instance']['id'] ?? null,
-			'key_created_at' => $remote_body_json['data']['instance']['created_at'] ?? null,
-			'key_expires_at' => $remote_body_json['data']['license_key']['expires_at'] ?? null,
-			'product_id' => $remote_body_json['data']['meta']['product_id'] ?? null,
-			'product_name' => $remote_body_json['data']['meta']['product_name'] ?? null,
-			'customer_name' => $remote_body_json['data']['meta']['customer_name'] ?? null,
-			'customer_email' => $remote_body_json['data']['meta']['customer_email'] ?? null,
+			'key_created_at'  => $remote_body_json['data']['instance']['created_at'] ?? null,
+			'key_expires_at'  => $remote_body_json['data']['license_key']['expires_at'] ?? null,
+			'product_id'      => $remote_body_json['data']['meta']['product_id'] ?? null,
+			'product_name'    => $remote_body_json['data']['meta']['product_name'] ?? null,
+			'customer_name'   => $remote_body_json['data']['meta']['customer_name'] ?? null,
+			'customer_email'  => $remote_body_json['data']['meta']['customer_email'] ?? null,
 		];
 
 		$this->set_licence_message( $message );
@@ -216,9 +217,9 @@ class AddOn_Plugin {
 	 * @return bool|null True if deactivated, null if error.
 	 */
 	public function deactivate_license() {
-		$license_key = $this->get_license_key();
+		$license_key     = $this->get_license_key();
 		$licence_message = $this->get_license_message();
-		$instance_id = $licence_message['key_instance_id'];
+		$instance_id     = $licence_message['key_instance_id'];
 
 		$activation_url = add_query_arg(
 			array(
@@ -228,26 +229,27 @@ class AddOn_Plugin {
 			SIMPLE_HISTORY_LICENCES_API_URL . '/deactivate'
 		);
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$response = wp_remote_get(
 			$activation_url,
 			array(
 				'sslverify' => false,
-				'timeout' => 10,
+				'timeout'   => 3,
 			)
 		);
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			$this->set_licence_message(
 				[
-					'key' => null,
-					'key_activated' => false,
+					'key'             => null,
+					'key_activated'   => false,
 					'key_instance_id' => null,
-					'key_created_at' => null,
-					'key_expires_at' => null,
-					'product_id' => null,
-					'product_name' => null,
-					'customer_name' => null,
-					'customer_email' => null,
+					'key_created_at'  => null,
+					'key_expires_at'  => null,
+					'product_id'      => null,
+					'product_name'    => null,
+					'customer_name'   => null,
+					'customer_email'  => null,
 				]
 			);
 			return true;

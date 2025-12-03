@@ -66,54 +66,54 @@ class Categories_Logger extends Logger {
 	 * Only way for Simple History to get both old and new term name.
 	 * For example 'edited_term' does not contain enough info to know what the term was called before the update.
 	 *
-	 * @param int    $parent      ID of the parent term.
+	 * @param int    $parent_term      ID of the parent term.
 	 * @param int    $term_id     Term ID.
 	 * @param string $taxonomy    Taxonomy slug.
 	 * @param array  $parsed_args An array of potentially altered update arguments for the given term.
 	 * @param array  $term_update_args        An array of update arguments for the given term.
 	 */
-	public function on_wp_update_term_parent( $parent = null, $term_id = null, $taxonomy = null, $parsed_args = null, $term_update_args = null ) {
+	public function on_wp_update_term_parent( $parent_term = null, $term_id = null, $taxonomy = null, $parsed_args = null, $term_update_args = null ) {
 		$term_before_edited = get_term_by( 'id', $term_id, $taxonomy );
 
 		if ( ! $term_before_edited || empty( $term_update_args ) ) {
-			return $parent;
+			return $parent_term;
 		}
 
 		$term_id = $term_before_edited->term_id;
 
-		$from_term_name = $term_before_edited->name;
-		$from_term_taxonomy = $term_before_edited->taxonomy;
-		$from_term_slug = $term_before_edited->slug;
+		$from_term_name        = $term_before_edited->name;
+		$from_term_taxonomy    = $term_before_edited->taxonomy;
+		$from_term_slug        = $term_before_edited->slug;
 		$from_term_description = $term_before_edited->description;
 
-		$to_term_name = $term_update_args['name'];
-		$to_term_taxonomy = $term_update_args['taxonomy'];
-		$to_term_slug = $term_update_args['slug'];
+		$to_term_name        = $term_update_args['name'];
+		$to_term_taxonomy    = $term_update_args['taxonomy'];
+		$to_term_slug        = $term_update_args['slug'];
 		$to_term_description = $term_update_args['description'];
 
 		$do_log_term = $this->ok_to_log_taxonomy( $from_term_taxonomy );
 
 		if ( ! $do_log_term ) {
-			return $parent;
+			return $parent_term;
 		}
 
 		$this->info_message(
 			'edited_term',
 			array(
-				'_occasionsID' => self::class . '/' . __FUNCTION__ . '/term_edited',
-				'term_id' => $term_id,
-				'from_term_name' => $from_term_name,
-				'from_term_taxonomy' => $from_term_taxonomy,
-				'from_term_slug' => $from_term_slug,
+				'_occasionsID'          => self::class . '/' . __FUNCTION__ . '/term_edited',
+				'term_id'               => $term_id,
+				'from_term_name'        => $from_term_name,
+				'from_term_taxonomy'    => $from_term_taxonomy,
+				'from_term_slug'        => $from_term_slug,
 				'from_term_description' => $from_term_description,
-				'to_term_name' => $to_term_name,
-				'to_term_taxonomy' => $to_term_taxonomy,
-				'to_term_slug' => $to_term_slug,
-				'to_term_description' => $to_term_description,
+				'to_term_name'          => $to_term_name,
+				'to_term_taxonomy'      => $to_term_taxonomy,
+				'to_term_slug'          => $to_term_slug,
+				'to_term_description'   => $to_term_description,
 			)
 		);
 
-		return $parent;
+		return $parent_term;
 	}
 
 	/**
@@ -132,9 +132,9 @@ class Categories_Logger extends Logger {
 			return;
 		}
 
-		$term_name = $term->name;
+		$term_name     = $term->name;
 		$term_taxonomy = $term->taxonomy;
-		$term_id = $term->term_id;
+		$term_id       = $term->term_id;
 
 		$do_log_term = $this->ok_to_log_taxonomy( $term_taxonomy );
 
@@ -145,9 +145,9 @@ class Categories_Logger extends Logger {
 		$this->info_message(
 			'created_term',
 			array(
-				'_occasionsID' => self::class . '/' . __FUNCTION__ . '/term_created',
-				'term_id' => $term_id,
-				'term_name' => $term_name,
+				'_occasionsID'  => self::class . '/' . __FUNCTION__ . '/term_created',
+				'term_id'       => $term_id,
+				'term_name'     => $term_name,
 				'term_taxonomy' => $term_taxonomy,
 			)
 		);
@@ -167,9 +167,9 @@ class Categories_Logger extends Logger {
 			return;
 		}
 
-		$term_name = $deleted_term->name;
+		$term_name     = $deleted_term->name;
 		$term_taxonomy = $deleted_term->taxonomy;
-		$term_id = $deleted_term->term_id;
+		$term_id       = $deleted_term->term_id;
 
 		$do_log_term = $this->ok_to_log_taxonomy( $term_taxonomy );
 
@@ -180,9 +180,9 @@ class Categories_Logger extends Logger {
 		$this->info_message(
 			'deleted_term',
 			array(
-				'_occasionsID' => self::class . '/' . __FUNCTION__ . '/term_deleted',
-				'term_id' => $term_id,
-				'term_name' => $term_name,
+				'_occasionsID'  => self::class . '/' . __FUNCTION__ . '/term_deleted',
+				'term_id'       => $term_id,
+				'term_name'     => $term_name,
 				'term_taxonomy' => $term_taxonomy,
 			)
 		);
@@ -195,8 +195,8 @@ class Categories_Logger extends Logger {
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 		$term_taxonomy = null;
-		$context = $row->context;
-		$message_key = $context['_message_key'] ?? null;
+		$context       = $row->context;
+		$message_key   = $context['_message_key'] ?? null;
 
 		// Default to original log message.
 		$message = $row->message;
@@ -226,18 +226,18 @@ class Categories_Logger extends Logger {
 			return helpers::interpolate( $message, $context, $row );
 		}
 
-		$term_edit_link = isset( $term_object ) ? get_edit_tag_link( $term_id, $term_object->taxonomy ) : null;
+		$term_edit_link            = isset( $term_object ) ? get_edit_tag_link( $term_id, $term_object->taxonomy ) : null;
 		$context['term_edit_link'] = $term_edit_link;
 
 		// Get taxonomy name to use in log but fall back to taxonomy slug if
 		// taxonomy has been deleted.
-		$context['termTaxonomySlugOrName'] = $context['term_taxonomy'] ?? null;
+		$context['termTaxonomySlugOrName']   = $context['term_taxonomy'] ?? null;
 		$context['toTermTaxonomySlugOrName'] = $context['to_term_taxonomy'] ?? null;
 
 		if ( isset( $context['term_taxonomy'] ) && $context['term_taxonomy'] ) {
 			$termTaxonomyObject = get_taxonomy( $context['term_taxonomy'] );
 			if ( is_a( $termTaxonomyObject, 'WP_Taxonomy' ) ) {
-				$termTaxonomyObjectLabels = get_taxonomy_labels( $termTaxonomyObject );
+				$termTaxonomyObjectLabels          = get_taxonomy_labels( $termTaxonomyObject );
 				$context['termTaxonomySlugOrName'] = $termTaxonomyObjectLabels->singular_name;
 			}
 		}
@@ -245,7 +245,7 @@ class Categories_Logger extends Logger {
 		if ( isset( $context['to_term_taxonomy'] ) && $context['to_term_taxonomy'] ) {
 			$termTaxonomyObject = get_taxonomy( $context['to_term_taxonomy'] );
 			if ( is_a( $termTaxonomyObject, 'WP_Taxonomy' ) ) {
-				$termTaxonomyObjectLabels = get_taxonomy_labels( $termTaxonomyObject );
+				$termTaxonomyObjectLabels            = get_taxonomy_labels( $termTaxonomyObject );
 				$context['toTermTaxonomySlugOrName'] = $termTaxonomyObjectLabels->singular_name;
 			}
 		}

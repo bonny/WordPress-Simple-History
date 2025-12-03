@@ -2,7 +2,7 @@
 
 <img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars"> <img src="https://img.shields.io/wordpress/plugin/installs/simple-history?style=for-the-badge" alt="Number of active installs: over 100K"> <img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
 
-A WordPress activity log for what matters
+**A WordPress activity log for what matters.**
 
 Simple History is a WordPress audit log plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.  
 It's great way to view user activity and keep an eye on what the admin users of a website are doing.
@@ -38,6 +38,22 @@ Each logged event can include useful rich formatted extra information. For examp
 
 ![Simple History screenshot](.wordpress-org/screenshot-3.png)
 
+## Premium Add-on
+
+[Simple History Premium](https://simple-history.com/add-ons/premium) adds:
+
+- **Log Retention** – Set retention policies (30d to forever)
+- **Export** – CSV/JSON export of filtered results
+- **Stats Dashboard** – Visual summaries of activity trends
+- **Custom Events** – Manually log important changes via GUI
+- **Stealth Mode GUI** – Control visibility per user (code-free)
+- **Sticky Events** – Pin important events to top
+- **Ad-Free** – Remove promotional content
+
+[View details](https://simple-history.com/add-ons/premium)
+
+*The free version is fully functional and will remain free. Premium exists to fund ongoing development and provide pro features for agencies/enterprises.*
+
 ## Plugin API
 
 Developers can easily log their own things using a simple API:
@@ -47,10 +63,10 @@ Developers can easily log their own things using a simple API:
 
 // This is the easiest and safest way to add messages to the log
 // If the plugin is disabled this way will not generate in any error
-apply_filters('simple_history_log', 'This is a logged message');
+do_action('simple_history_log', 'This is a logged message');
 
 // Or with some context and with log level debug:
-apply_filters(
+do_action(
 	'simple_history_log',
 	'My message about something',
 	[
@@ -61,7 +77,7 @@ apply_filters(
 );
 
 // Or just debug a message quickly
-apply_filters('simple_history_log_debug', 'My debug message');
+do_action('simple_history_log_debug', 'My debug message');
 
 // You can also use functions/methods to add events to the log
 SimpleLogger()->info("This is a message sent to the log");
@@ -74,6 +90,8 @@ SimpleLogger()->debug("Ok, cron job is running!");
 
 You will find more examples in the [examples.php](./examples/examples.php) file.
 
+**Note:** Premium users can also add custom events via the GUI at **WordPress Admin > Simple History > Add Custom Event** without writing code.
+
 ## Development
 
 ### Running tests
@@ -81,6 +99,16 @@ You will find more examples in the [examples.php](./examples/examples.php) file.
 See the [README](./tests/readme.md) in `tests` directory.
 
 ## Sponsors
+
+### Hosting Sponsor
+
+<a href="https://www.oderland.se" style="float: right; margin-left: 20px;">
+  <img src="https://www.oderland.se/wp-content/uploads/2021/11/oderland-1024x576.jpg" alt="" width="150">
+</a>
+
+The [Simple History website](https://simple-history.com) is proudly hosted by [Oderland](https://www.oderland.com), a Swedish web hosting provider known for their reliable hosting and excellent support.
+
+### Support Development
 
 Support the free version of Simple History by becoming a sponsor.
 You can sponsor using [PayPal](https://www.paypal.com/paypalme/eskapism) or [becoming a GitHub Sponsor](https://github.com/sponsors/bonny).

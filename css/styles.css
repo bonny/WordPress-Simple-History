@@ -67,6 +67,28 @@
 	}
 }
 
+/* Page sidebar styles */
+@media only screen and (min-width: 960px) {
+	.SimpleHistory__pageSidebar {
+		flex: 0 0 25%;
+		max-width: 25%;
+		width: 100%;
+		padding-left: 1rem;
+	}
+}
+
+.SimpleHistory__pageSidebar .inside {
+	margin-bottom: 0;
+}
+
+.SimpleHistory__pageSidebar .metabox-holder {
+	padding-top: 0 !important;
+}
+
+.SimpleHistory__pageSidebar .postbox .hndle {
+	cursor: auto;
+}
+
 /*
 .SimpleHistoryGui:after {
 	content: "\f206";
@@ -1043,8 +1065,14 @@ so add some extra place then to make it look a bit less ugly.
 	margin-top: 25px;
 }
 
-.sh-PageHeader-title {
+.sh-PageHeader-titleGroup {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 	flex: 1;
+}
+
+.sh-PageHeader-title {
 	font-size: 23px;
 	font-weight: 400;
 	margin: 0;
@@ -1071,6 +1099,54 @@ so add some extra place then to make it look a bit less ugly.
 
 .sh-PageHeader-settingsLinkIcon {
 	--sh-icon-size: 25px;
+}
+
+/* Base badge styles shared by all header badges */
+.sh-PageHeader-badge {
+	color: var(--sh-color-white);
+	font-size: 9px;
+	font-weight: 600;
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
+	border-radius: var(--sh-border-radius);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	line-height: 1;
+	margin-left: var(--sh-spacing-small);
+}
+
+/* Dev badge variant */
+.sh-PageHeader-badge--dev {
+	background-color: #2271b1;
+}
+
+/* Premium toggle badge variant */
+.sh-PageHeader-badge--premiumToggle {
+	border: none;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	vertical-align: middle;
+}
+
+.sh-PageHeader-badge--premiumToggle .dashicons {
+	font-size: 10px;
+	width: 10px;
+	height: 10px;
+	line-height: 1;
+}
+
+.sh-PageHeader-badge--premiumToggle.is-active {
+	background-color: #00a32a;
+}
+
+.sh-PageHeader-badge--premiumToggle.is-inactive {
+	background-color: #d63638;
+}
+
+.sh-PageHeader-badge--premiumToggle:disabled {
+	opacity: 0.6;
+	cursor: wait;
 }
 
 .sh-NotificationBar {
@@ -1169,6 +1245,360 @@ so add some extra place then to make it look a bit less ugly.
 	font-style: normal;
 }
 
+.sh-PremiumFeatureTeaser {
+	background: var(--sh-color-cream);
+	padding: var(--sh-spacing-medium);
+	border-radius: 4px;
+	margin-top: var(--sh-spacing-medium);
+	font-size: var(--sh-font-size-medium);
+}
+
+.sh-PremiumFeatureTeaser-title {
+	font-size: var(--sh-font-size-medium);
+	margin-block-start: 0;
+	margin-block-end: var(--sh-spacing-medium);
+}
+
+.sh-PremiumFeatureTeaser
+	p:not(
+		.sh-PremiumFeatureTeaser-title,
+		.sh-PremiumFeatureTeaser-ctaLinkContainer
+	) {
+	margin: 0 0 var(--sh-spacing-small);
+}
+
+.sh-PremiumFeatureTeaser .sh-PremiumFeatureBadge {
+	font-size: var(--sh-font-size-small);
+	vertical-align: middle;
+}
+
+.sh-PremiumFeatureTeaser strong {
+	margin-left: var(--sh-spacing-xsmall);
+}
+
+.sh-PremiumFeatureTeaser .button {
+	font-size: 0.85em;
+}
+
+.sh-PremiumFeatureTeaser-features {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 var(--sh-spacing-small) 0;
+}
+
+.sh-PremiumFeatureTeaser-features li {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0.25em;
+}
+
+.sh-PremiumFeatureTeaser-features .dashicons {
+	color: #00a32a;
+	margin-inline-end: 0.25em;
+}
+
+.sh-PremiumFeatureTeaser-ctaLinkContainer {
+	font-size: var(--sh-font-size-medium);
+	margin-block-start: var(--sh-spacing-medium);
+	margin-block-end: 0;
+}
+
+/* Status Box - info/stats cards (distinct from WP admin notices) */
+.sh-StatusBox {
+	background: #fff;
+	padding: 1rem;
+	margin: 1rem 0;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
+
+.sh-StatusBox--success {
+	background: #f0fdf4;
+	border-color: #86efac;
+}
+
+.sh-StatusBox--warning {
+	background: #fffbeb;
+	border-color: #fcd34d;
+}
+
+.sh-StatusBox--error {
+	background: #fef2f2;
+	border-color: #fca5a5;
+}
+
+.sh-StatusBox--info {
+	background: #eff6ff;
+	border-color: #93c5fd;
+}
+
+.sh-StatusBox p:first-child {
+	margin-top: 0;
+}
+
+.sh-StatusBox p:last-child {
+	margin-bottom: 0;
+}
+
+.sh-StatusBox ul {
+	margin: 0;
+}
+
+.sh-StatusBox-deletedInfo {
+	margin: 10px 0 0 0;
+	color: #b32d2e;
+}
+
+/* Developer Tools Box */
+.sh-DevToolsBox {
+	margin-top: 30px;
+	padding: 20px;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #d63638;
+	background: #fff;
+}
+
+.sh-DevToolsBox-heading {
+	margin-top: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sh-DevToolsBox-heading .dashicons {
+	color: #d63638;
+}
+
+.sh-DevToolsBox-description {
+	margin-bottom: 20px;
+}
+
+.sh-DevToolsBox-section {
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+.sh-DevToolsBox-section--bordered {
+	margin-top: 25px;
+	padding-top: 15px;
+	border-top: 1px solid #dcdcde;
+}
+
+.sh-DevToolsBox-warning {
+	color: #d63638;
+}
+
+/* Preview Details Box */
+.sh-PreviewDetails {
+	background: #f0f0f1;
+	padding: 15px;
+	margin: 15px 0;
+}
+
+.sh-PreviewDetails summary {
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.sh-PreviewDetails-description {
+	margin: 10px 0;
+}
+
+.sh-PreviewDetails table {
+	margin-top: 10px;
+}
+
+/* Utility class for right-aligned table cells */
+.sh-textRight {
+	text-align: right;
+}
+
+/* Utility class for auto-width tables */
+.sh-tableAuto {
+	width: auto;
+}
+
+/* Checkbox label utilities */
+.sh-CheckboxLabel {
+	display: block;
+	margin-bottom: 5px;
+}
+
+.sh-CheckboxLabel--spaced {
+	display: block;
+	margin-bottom: 10px;
+}
+
+/* Inline checkbox with input field */
+.sh-CheckboxLabel--inline,
+.sh-DateRangeInput {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+/* Grid layout for checkboxes - 2 columns sized to content */
+.sh-CheckboxGrid {
+	display: grid;
+	grid-template-columns: max-content max-content;
+	gap: 0.5rem 3rem;
+	margin-bottom: 0.5em;
+}
+
+.sh-CheckboxGrid .sh-CheckboxLabel {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 0.4em;
+	margin-bottom: 0;
+	line-height: 1.4;
+	justify-self: start;
+}
+
+.sh-CheckboxGrid .sh-CheckboxLabel input[type="checkbox"] {
+	margin: 0.2em 0 0 0;
+	flex-shrink: 0;
+}
+
+.sh-CheckboxLabel-count {
+	font-size: 0.9em;
+	color: var(--sh-color-gray-3);
+}
+
+/* Select all/none toggle links */
+.sh-SelectToggle {
+	margin-bottom: 0.5em;
+	font-size: 13px;
+}
+
+.sh-SelectToggle a {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.sh-SelectToggle-separator {
+	margin: 0 0.25em;
+	color: #999;
+}
+
+/* Backfill Form */
+.sh-BackfillForm {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 1rem 1.5rem;
+}
+
+.sh-BackfillForm-title {
+	margin: 0 0 0.5rem 0;
+	padding: 0;
+	font-size: 14px;
+	font-weight: 400;
+}
+
+.sh-BackfillForm-table {
+	margin: 0;
+}
+
+.sh-BackfillForm-table th {
+	padding: 0.75rem 0.75rem 0.75rem 0;
+	width: 100px;
+}
+
+.sh-BackfillForm-table td {
+	padding: 0.75rem 0;
+}
+
+/* Premium Feature Modal */
+.sh-PremiumFeatureModal.components-modal__frame,
+.components-modal__frame.sh-PremiumFeatureModal {
+	background-color: var(--sh-color-cream);
+	max-width: 500px;
+}
+
+.sh-PremiumFeatureModal .components-modal__content,
+.components-modal__frame.sh-PremiumFeatureModal .components-modal__content {
+	padding: 2rem;
+	background-color: var(--sh-color-cream);
+}
+
+.sh-PremiumFeatureModal-icon {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 1rem;
+}
+
+.sh-PremiumFeatureModal-icon svg {
+	width: 48px;
+	height: 48px;
+	fill: var(--sh-color-black);
+}
+
+.sh-PremiumFeatureModal-title {
+	text-align: center;
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin: 0 0 0.75rem 0;
+	line-height: 1.3;
+}
+
+.sh-PremiumFeatureModal-description {
+	text-align: center;
+	color: var(--sh-color-black-2);
+	margin: 0 0 1.5rem 0;
+	font-size: 1rem;
+	line-height: 1.5;
+}
+
+.sh-PremiumFeatureModal-imageContainer {
+	background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+	border-radius: 8px;
+	padding: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+.sh-PremiumFeatureModal-image {
+	width: 100%;
+	height: auto;
+	border-radius: 4px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	display: block;
+}
+
+.sh-PremiumFeatureModal-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.sh-PremiumFeatureModal-upgradeButton.components-button.is-primary {
+	background-color: var(--sh-color-blue);
+	color: var(--sh-color-white);
+	padding: 0.75rem 2rem;
+	border-radius: 4px;
+	font-size: 1rem;
+	font-weight: 500;
+	border: none;
+}
+
+.sh-PremiumFeatureModal-upgradeButton.components-button.is-primary:hover {
+	background-color: #0039cc;
+}
+
+.sh-PremiumFeatureModal-later {
+	background: none;
+	border: none;
+	color: var(--sh-color-blue);
+	cursor: pointer;
+	font-size: 0.875rem;
+	padding: 0.5rem;
+}
+
+.sh-PremiumFeatureModal-later:hover {
+	text-decoration: underline;
+}
+
 .sh-PageNav {
 	width: 100%;
 	display: flex;
@@ -1218,15 +1648,16 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-SettingsPage-settingsSection-wrap {
-	padding: 1rem 0;
-	margin: 1rem 0;
+	padding: var(--sh-spacing-medium) 0;
+	margin: var(--sh-spacing-medium) 0;
 }
 
 .sh-SettingsPage-settingsSection-wrap h2 {
 	margin: 0;
 }
 
-.sh-SettingsPage-settingsSection-title {
+.sh-SettingsPage-settingsSection-title,
+.sh-SettingsCard-title {
 	display: block;
 	font-size: 23px;
 	font-weight: 400;
@@ -1239,7 +1670,6 @@ so add some extra place then to make it look a bit less ugly.
 	--sh-icon-size: 24px;
 	width: var(--sh-icon-size);
 	height: var(--sh-icon-size);
-	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
 	vertical-align: middle;
@@ -1252,7 +1682,6 @@ so add some extra place then to make it look a bit less ugly.
 	--sh-icon-size: 20px;
 	width: var(--sh-icon-size);
 	height: var(--sh-icon-size);
-	/* background-image: url(./icons/info_FILL0_wght400_GRAD0_opsz48.svg); */
 	display: inline-block;
 	background-size: 100%;
 	vertical-align: middle;
@@ -1260,6 +1689,23 @@ so add some extra place then to make it look a bit less ugly.
 	position: relative;
 	top: -1px;
 	left: 2px;
+}
+
+/* Highlight settings sections when navigated to via #hash. */
+.sh-SettingsPage-settingsSection-wrap td > div:target,
+.sh-SettingsPage-settingsSection-wrap:target {
+	background-color: lightyellow;
+	/* Push target down when navigated to via #hash. */
+	scroll-margin-top: 2rem;
+}
+
+.sh-SettingsPage-settingsSection-wrap td > div:target {
+	padding: 1rem;
+}
+
+.sh-SettingsPage-settingsSection-wrap:target {
+	padding: 0.5rem 1rem;
+	border-radius: 4px;
 }
 
 .sh-PageNav-icon {
@@ -1336,10 +1782,11 @@ a.sh-SettingsTabs-link:hover {
 }
 
 .sh-LicencesPage-plugin {
-	background: #fff;
-	border-radius: 0.5rem;
-	margin-bottom: 2rem;
+	background: var(--sh-color-white);
+	border-radius: 8px;
+	margin-bottom: 1.5rem;
 	padding: 1.5rem;
+	border: 1px solid var(--sh-color-gray);
 }
 
 .form-table .sh-LicencesPage-plugin-name {
@@ -1629,6 +2076,13 @@ a.sh-SettingsTabs-link:hover {
 	flex: 1;
 }
 
+.SimpleHistoryReactRoot-loading {
+	display: block;
+	min-height: 400px;
+	padding: var(--sh-spacing-medium);
+	color: var(--sh-color-black-2);
+}
+
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistory-filters {
 	padding: 0 11px;
 }
@@ -1684,6 +2138,106 @@ Styles for plugin update details. Markup looks like this:
 /* Make chart canvas show pointer cursor to indicate it's clickable */
 .SimpleHistory_SidebarChart_ChartCanvas {
 	cursor: pointer;
+}
+
+/**
+ * Settings Page Cards
+ * Modern card-based layout for settings sections.
+ */
+.sh-SettingsCard {
+	background: var(--sh-color-white);
+	border-radius: 8px;
+	padding: var(--sh-spacing-large);
+	margin: var(--sh-spacing-medium) 0;
+	border: 1px solid var(--sh-color-separator);
+}
+
+.sh-SettingsCard .form-table {
+	margin-top: 0;
+}
+
+.sh-SettingsCard .form-table th {
+	padding-top: var(--sh-spacing-medium);
+	padding-bottom: var(--sh-spacing-medium);
+}
+
+.sh-SettingsCard .form-table td {
+	padding-top: var(--sh-spacing-medium);
+	padding-bottom: var(--sh-spacing-medium);
+}
+
+/* Remove default border from form-table rows inside cards */
+/* .sh-SettingsCard .form-table tr {
+	border-bottom: 1px solid var(--sh-color-separator);
+} */
+
+/* .sh-SettingsCard .form-table tr:last-child {
+	border-bottom: none;
+} */
+
+/* Make section title inside card more prominent */
+.sh-SettingsCard h2 {
+	margin-top: 0;
+	margin-bottom: var(--sh-spacing-small);
+}
+
+/* Override default WordPress form-table width in cards */
+.sh-SettingsCard .form-table th {
+	width: 220px;
+}
+
+@media (max-width: 782px) {
+	.sh-SettingsCard .form-table th {
+		width: auto;
+	}
+}
+
+/* Email Promo Card - Promotional card in sidebar for weekly email summary feature */
+.sh-EmailPromoCard {
+	border: none;
+}
+
+.sh-EmailPromoCard-badge {
+	padding: 0;
+}
+
+.sh-EmailPromoCard-badgeImageLink {
+	display: block;
+	width: 100px;
+	float: right;
+	margin-block: var(--sh-spacing-medium);
+	margin-inline-start: var(--sh-spacing-medium);
+	transform: scale(1) rotate(5deg);
+	transition: transform 0.2s ease-in-out;
+
+	&:hover {
+		transform: scale(1.05) rotate(10deg);
+	}
+}
+
+.sh-EmailPromoCard-badgeImage {
+	width: 100%;
+}
+
+.sh-EmailPromoCard-text {
+	line-height: 1.3;
+}
+
+.sh-EmailPromoCard-text--intro {
+	font-size: var(--sh-font-size-medium);
+	font-weight: 600;
+}
+
+.sh-EmailPromoCard-cta {
+	margin-block-start: var(--sh-spacing-large);
+	margin-block-end: var(--sh-spacing-medium);
+}
+
+/* Increase specificity to override .button-link styles */
+.sh-EmailPromoCard .sh-EmailPromoCard-dismiss {
+	display: block;
+	width: 100%;
+	text-align: center;
 }
 
 /* Integration Settings Form Styling */

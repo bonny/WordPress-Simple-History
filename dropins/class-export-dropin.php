@@ -9,13 +9,13 @@ use Simple_History\Services\Admin_Pages;
 
 /**
  * Dropin Name: Export
- * Dropin Description: Adds a tab with export options
+ * Dropin Description: Adds a tab with export options under the Tools menu
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
 class Export_Dropin extends Dropin {
-	/** @var string Slug for the export menu. */
-	const MENU_SLUG = 'simple_history_export_history';
+	/** @var string Slug for the export menu tab. */
+	const MENU_SLUG = 'simple_history_tools_export';
 
 	/**
 	 * @inheritdoc
@@ -26,53 +26,50 @@ class Export_Dropin extends Dropin {
 	}
 
 	/**
-	 * Add submenu page for export
+	 * Add export subtab under Tools > Tools tab.
 	 */
 	public function add_menu() {
 		if ( ! Helpers::setting_show_as_menu_page() ) {
 			return;
 		}
 
-		// Add page using new menu manager.
 		$admin_page_location = Helpers::get_menu_page_location();
 
-		$export_menu_page = ( new Menu_Page() )
-			->set_page_title( _x( 'Simple History Export', 'dashboard title name', 'simple-history' ) )
-			->set_menu_slug( self::MENU_SLUG )
-			->set_callback( [ $this, 'output_export_page' ] )
-			->set_icon( 'download' )
-			->set_order( 3 );
-
-		// Set different options depending on location.
+		// Determine parent based on location.
+		// When location is 'top' or 'bottom', use the Tools main tab object.
+		// When inside dashboard/tools, use the Tools menu page slug directly.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
-			$export_menu_page
-				->set_menu_title( _x( 'Export', 'settings menu name', 'simple-history' ) )
-				->set_parent( Simple_History::MENU_PAGE_SLUG )
-				->set_location( 'submenu' );
-		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
-			// If main page is shown as child to tools or dashboard then export page is shown as a tab on the settings page.
-			$export_menu_page
-				->set_menu_title( _x( 'Export', 'settings menu name', 'simple-history' ) )
-				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
+			$tools_parent = Tools_Menu_Dropin::get_tools_main_tab();
+			if ( ! $tools_parent ) {
+				$tools_parent = Tools_Menu_Dropin::TOOLS_TAB_SLUG;
+			}
+		} else {
+			$tools_parent = Tools_Menu_Dropin::MENU_SLUG;
 		}
 
-		$export_menu_page->add();
+		( new Menu_Page() )
+			->set_page_title( _x( 'Export History', 'export subtab title', 'simple-history' ) )
+			->set_menu_title( _x( 'Export', 'export subtab name', 'simple-history' ) )
+			->set_menu_slug( self::MENU_SLUG )
+			->set_callback( [ $this, 'output_export_page' ] )
+			->set_order( 2 )
+			->set_parent( $tools_parent )
+			->add();
 	}
 
 	/**
 	 * Download export file.
 	 */
 	public function download_export() {
-		$page = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
+		$page   = sanitize_key( wp_unslash( $_GET['page'] ?? '' ) );
 		$action = sanitize_key( wp_unslash( $_POST['simple-history-action'] ?? '' ) );
 
-		// Bail of not correct page.
-		// Check for both the export page slug and the settings page slug (when export is shown as a tab).
-		// When using a tab because SH is inside tools or dashboard:
-		// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/options-general.php?page=simple_history_settings_page&selected-tab=simple_history_export_history
-		// When showing in main menu:
-		// http://wordpress-stable-docker-mariadb.test:8282/wp-admin/admin.php?page=simple_history_export_history.
-		if ( $page !== self::MENU_SLUG && $page !== Simple_History::SETTINGS_MENU_PAGE_SLUG ) {
+		// Bail if not correct page.
+		// Check for the tools page, export tab, and settings page (when tools is shown as a tab).
+		// Examples:
+		// - Main menu: http://example.com/wp-admin/admin.php?page=simple_history_tools&selected-tab=simple_history_tools_export
+		// - Settings tab: http://example.com/wp-admin/options-general.php?page=simple_history_settings_page&selected-tab=simple_history_tools.
+		if ( $page !== Tools_Menu_Dropin::MENU_SLUG && $page !== Simple_History::SETTINGS_MENU_PAGE_SLUG ) {
 			return;
 		}
 
@@ -91,8 +88,9 @@ class Export_Dropin extends Dropin {
 		$export = new Export();
 		$export->set_query_args(
 			[
-				'paged' => 1,
+				'paged'          => 1,
 				// 3000 is batch size.
+				// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- This is rarely used and only used on demand.
 				'posts_per_page' => 3000,
 			]
 		);

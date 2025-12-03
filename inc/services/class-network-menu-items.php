@@ -3,7 +3,6 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
-use Simple_History\Simple_History;
 
 /**
  * Add a "View history" item/shortcut to the admin bar.
@@ -51,35 +50,37 @@ class Network_Menu_Items extends Service {
 		}
 
 		// User must have capability to view the history page.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
 		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return;
 		}
 
 		foreach ( (array) $wp_admin_bar->user->blogs as $blog ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.switch_to_blog_switch_to_blog -- Only checking DB-level data (plugin active status, admin URL).
 			switch_to_blog( $blog->userblog_id );
 
 			// Check if simple History is active on this blog.
 			if ( Helpers::is_plugin_active( SIMPLE_HISTORY_BASENAME ) ) {
-				$menu_id = 'simple-history-blog-' . $blog->userblog_id;
+				$menu_id        = 'simple-history-blog-' . $blog->userblog_id;
 				$parent_menu_id = 'blog-' . $blog->userblog_id;
 
 				// Each network site is added by WP core with id "blog-1", "blog-2" ... "blog-n"
 				// https://codex.wordpress.org/Function_Reference/add_node.
 				$args = array(
-					'id' => $menu_id,
+					'id'     => $menu_id,
 					'parent' => $parent_menu_id,
-					'title' => _x( 'View History', 'Admin bar network name', 'simple-history' ),
-					'href' => Helpers::get_history_admin_url(),
-					'meta' => array(
+					'title'  => _x( 'View History', 'Admin bar network name', 'simple-history' ),
+					'href'   => Helpers::get_history_admin_url(),
+					'meta'   => array(
 						'class' => 'ab-item--simplehistory',
 					),
 				);
 
 				$wp_admin_bar->add_node( $args );
-			} // End if().
+			}
 
 			restore_current_blog();
-		} // End foreach().
+		}
 	}
 
 	/**
@@ -115,16 +116,17 @@ class Network_Menu_Items extends Service {
 		// }.
 
 		// User must have capability to view the history page.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
 		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return;
 		}
 
 		$args = array(
-			'id' => 'simple-history-view-history',
+			'id'     => 'simple-history-view-history',
 			'parent' => 'site-name',
-			'title' => _x( 'View History', 'Admin bar name', 'simple-history' ),
-			'href' => Helpers::get_history_admin_url(),
-			'meta' => array(
+			'title'  => _x( 'View History', 'Admin bar name', 'simple-history' ),
+			'href'   => Helpers::get_history_admin_url(),
+			'meta'   => array(
 				'class' => 'ab-item--simplehistory',
 			),
 		);

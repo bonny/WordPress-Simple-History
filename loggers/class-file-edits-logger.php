@@ -81,8 +81,8 @@ class File_Edits_Logger extends Logger {
 			// if 'phperror' is set then there was an error and an edit is done and wp tries to activate the plugin again
 			// $phperror = isset($_POST["phperror"]) ? $_POST["phperror"] : null;
 			// Get info about the edited plugin.
-			$pluginInfo = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file );
-			$pluginName = $pluginInfo['Name'] ?? null;
+			$pluginInfo    = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file );
+			$pluginName    = $pluginInfo['Name'] ?? null;
 			$pluginVersion = $pluginInfo['Version'] ?? null;
 
 			$file_full_path = WP_PLUGIN_DIR . '/' . $file;
@@ -93,19 +93,20 @@ class File_Edits_Logger extends Logger {
 			}
 
 			// Get contents before save.
+			// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- This is a known local file.
 			$fileContentsBeforeEdit = file_get_contents( $file_full_path );
 
 			$context = array(
-				'file_name' => $plugin_file,
-				'plugin_name' => $pluginName,
-				'plugin_version' => $pluginVersion,
+				'file_name'         => $plugin_file,
+				'plugin_name'       => $pluginName,
+				'plugin_version'    => $pluginVersion,
 				'old_file_contents' => $fileContentsBeforeEdit,
 				'new_file_contents' => $fileNewContents,
-				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
+				'_occasionsID'      => self::class . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
 			);
 
 			$this->info_message( 'plugin_file_edited', $context );
-		}// End if().
+		}
 	}
 
 	/**
@@ -126,18 +127,18 @@ class File_Edits_Logger extends Logger {
 		// Only continue if method is post and action is update.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['theme'] ) && isset( $_POST['action'] ) && $_POST['action'] === 'edit-theme-plugin-file' ) {
-			/*
-			POST data is like
-				array(8)
-					'_wpnonce' => string(10) "9b5e46634f"
-					'_wp_http_referer' => string(88) "/wp/wp-admin/theme-editor.php?file=style.css&theme=twentyfifteen&scrollto=0&upda…"
-					'newcontent' => string(104366) "/* Theme Name: Twenty Fifteen Theme URI: https://wordpress.org/themes/twentyfift…"
-					'action' => string(6) "edit-theme-plugin-file"
-					'file' => string(9) "style.css"
-					'theme' => string(13) "twentyfifteen"
-					'scrollto' => string(3) "638"
-					'submit' => string(11) "Update File"
-			*/
+			/**
+			 * POST data is like
+			 *  array(8)
+			 *      '_wpnonce' => string(10) "9b5e46634f"
+			 *      '_wp_http_referer' => string(88) "/wp/wp-admin/theme-editor.php?file=style.css&theme=twentyfifteen&scrollto=0&upda…"
+			 *      'newcontent' => string(104366) "/* Theme Name: Twenty Fifteen Theme URI: https://wordpress.org/themes/twentyfift…"
+			 *      'action' => string(6) "edit-theme-plugin-file"
+			 *      'file' => string(9) "style.css"
+			 *      'theme' => string(13) "twentyfifteen"
+			 *      'scrollto' => string(3) "638"
+			 *      'submit' => string(11) "Update File"
+			 */
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$file = wp_unslash( $_POST['file'] ?? null );
@@ -163,20 +164,21 @@ class File_Edits_Logger extends Logger {
 
 			// Same code as in theme-editor.php.
 			$relative_file = $file;
-			$file = $theme->get_stylesheet_directory() . '/' . $relative_file;
+			$file          = $theme->get_stylesheet_directory() . '/' . $relative_file;
 
 			// Get file contents, so we have something to compare with later.
+			// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- This is a known local file.
 			$fileContentsBeforeEdit = file_get_contents( $file );
 
 			$context = array(
-				'theme_name' => $theme->name,
+				'theme_name'            => $theme->name,
 				'theme_stylesheet_path' => $theme->get_stylesheet(),
-				'theme_stylesheet_dir' => $theme->get_stylesheet_directory(),
-				'file_name' => $relative_file,
-				'file_dir' => $file,
-				'old_file_contents' => $fileContentsBeforeEdit,
-				'new_file_contents' => $fileNewContents,
-				'_occasionsID' => self::class . '/' . __FUNCTION__ . "/file-edit/$file",
+				'theme_stylesheet_dir'  => $theme->get_stylesheet_directory(),
+				'file_name'             => $relative_file,
+				'file_dir'              => $file,
+				'old_file_contents'     => $fileContentsBeforeEdit,
+				'new_file_contents'     => $fileNewContents,
+				'_occasionsID'          => self::class . '/' . __FUNCTION__ . "/file-edit/$file",
 			);
 
 			$this->info_message( 'theme_file_edited', $context );
@@ -190,7 +192,7 @@ class File_Edits_Logger extends Logger {
 	 * @return string HTML
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context;
+		$context     = $row->context;
 		$message_key = $context['_message_key'] ?? null;
 
 		if ( ! $message_key ) {

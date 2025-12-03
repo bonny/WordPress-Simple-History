@@ -29,6 +29,7 @@ if ( ! function_exists( 'sh_error_log' ) ) {
 	/**
 	 * Log variable(s) to error log.
 	 * Any number of variables can be passed and each variable is print_r'ed to the error log.
+	 * This is a debug function.
 	 *
 	 * Example usage:
 	 * sh_error_log(
@@ -42,10 +43,13 @@ if ( ! function_exists( 'sh_error_log' ) ) {
 		foreach ( func_get_args() as $var ) {
 			if ( is_bool( $var ) ) {
 				$bool_string = $var ? 'true' : 'false';
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log 
 				error_log( "$bool_string (boolean value)" );
 			} elseif ( is_null( $var ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'null (null value)' );
 			} else {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log, WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				error_log( print_r( $var, true ) );
 			}
 		}
@@ -71,7 +75,7 @@ if ( ! function_exists( 'sh_d' ) ) {
 			$loopOutput = '';
 			if ( is_bool( $var ) ) {
 				$bool_string = $var ? 'true' : 'false';
-				$loopOutput = "$bool_string (boolean value)";
+				$loopOutput  = "$bool_string (boolean value)";
 			} elseif ( is_null( $var ) ) {
 				$loopOutput = ( 'null (null value)' );
 			} elseif ( is_int( $var ) ) {
@@ -81,6 +85,7 @@ if ( ! function_exists( 'sh_d' ) ) {
 			} elseif ( is_string( $var ) && $var === '' ) {
 				$loopOutput = "'' (empty string)";
 			} else {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 				$loopOutput = print_r( $var, true );
 			}
 

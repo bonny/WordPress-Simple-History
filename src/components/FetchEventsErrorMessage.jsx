@@ -7,6 +7,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { getTrackingUrl } from '../functions';
 
 export function FetchEventsErrorMessage( props ) {
 	const { eventsLoadingHasErrors, eventsLoadingErrorDetails } = props;
@@ -15,16 +16,16 @@ export function FetchEventsErrorMessage( props ) {
 		return null;
 	}
 
-	const supportURL = addQueryArgs(
+	// Build support URL with tracking parameters.
+	const baseUrl = getTrackingUrl(
 		'https://simple-history.com/support/load-events-error/',
-		{
-			utm_source: 'wordpress_admin',
-			utm_medium: 'Simple_History',
-			utm_campaign: 'premium_upsell',
-			utm_content: 'fetch-events-error',
-			error: JSON.stringify( eventsLoadingErrorDetails ),
-		}
+		'support_error_loadevents'
 	);
+
+	// Add error details as additional parameter.
+	const supportURL = addQueryArgs( baseUrl, {
+		error: JSON.stringify( eventsLoadingErrorDetails ),
+	} );
 
 	return (
 		<div

@@ -8,7 +8,6 @@ import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
 import { EventStickMenuItem } from './EventStickMenuItem';
 import { EventUnstickMenuItem } from './EventUnstickMenuItem';
-import { usePremiumFeaturesModal } from './PremiumFeaturesModalContext';
 
 /**
  * The button with three dots that opens a dropdown with actions for the event.
@@ -26,8 +25,6 @@ export function EventActionsButton( {
 	eventsAdminPageURL,
 	hasPremiumAddOn,
 } ) {
-	const { showModal } = usePremiumFeaturesModal();
-
 	// Don't show actions on modal events.
 	if ( eventVariant === 'modal' ) {
 		return null;
@@ -74,7 +71,6 @@ export function EventActionsButton( {
 							<EventStickMenuItem
 								event={ event }
 								onClose={ onClose }
-								showPremiumModal={ showModal }
 								hasPremiumAddOn={ hasPremiumAddOn }
 							/>
 						</MenuGroup>

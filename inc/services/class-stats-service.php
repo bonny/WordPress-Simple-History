@@ -51,6 +51,7 @@ class Stats_Service extends Service {
 			->set_menu_slug( 'simple_history_stats_page' )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'output_page' ] )
+			->set_icon( 'bar_chart' )
 			->set_order( 2 );
 
 		// Set different options depending on location.
@@ -59,7 +60,7 @@ class Stats_Service extends Service {
 			$insights_page
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
-		} else if ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
+		} elseif ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
 			$insights_page
 				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
@@ -135,13 +136,13 @@ class Stats_Service extends Service {
 			// Use Date_Helper for consistent date calculation with sidebar stats.
 			// This ensures "last 30 days" means the same across all stats displays.
 			$date_from = Date_Helper::get_last_n_days_start_timestamp( $days_to_subtract );
-			$date_to = Date_Helper::get_today_end_timestamp();
+			$date_to   = Date_Helper::get_today_end_timestamp();
 		} else {
 			// For hours, use exact timestamps.
 			$date_time_modifier = "-{$period_number} {$period_string_full_name}";
 			$date_from_datetime = $now->modify( $date_time_modifier );
-			$date_from = $date_from_datetime->getTimestamp();
-			$date_to = $now->getTimestamp();
+			$date_from          = $date_from_datetime->getTimestamp();
+			$date_to            = $now->getTimestamp();
 		}
 
 		return [
@@ -152,6 +153,8 @@ class Stats_Service extends Service {
 
 	/**
 	 * Enqueue required scripts and styles for the insights page.
+	 *
+	 * These styles are overwritten by the premium add-on to add it's own styles.
 	 */
 	public function enqueue_scripts_and_styles() {
 		wp_enqueue_script(
@@ -177,11 +180,14 @@ class Stats_Service extends Service {
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Admin_Pages::header_output();
 
+		// Both core and premium add-on can hook into this action to output their own stats page contents.
 		do_action( 'simple_history/stats/output_page_contents' );
 	}
 
 	/**
 	 * Output stats page contents with basic information + information about premium features.
+	 *
+	 * This method is unhooked by the premium add-on to replace it with its own stats page contents.
 	 */
 	public function output_page_contents() {
 		[ 'date_from' => $date_from, 'date_to' => $date_to ] = $this->get_selected_date_range();
@@ -246,16 +252,16 @@ class Stats_Service extends Service {
 		$top_users = $this->stats->get_top_users( $date_from, $date_to );
 
 		return [
-			'stats' => $this->stats,
-			'overview_total_events' => $total_events,
+			'stats'                     => $this->stats,
+			'overview_total_events'     => $total_events,
 			'overview_activity_by_date' => $activity_overview_by_date,
-			'user_stats' => $user_stats,
-			'plugin_stats' => $plugin_stats,
-			'wordpress_stats' => $wordpress_stats,
-			'content_stats' => $posts_pages_stats,
-			'media_stats' => $media_stats,
-			'user_rankings' => $top_users,
-			'user_total_count' => $this->stats->get_total_users( $date_from, $date_to ),
+			'user_stats'                => $user_stats,
+			'plugin_stats'              => $plugin_stats,
+			'wordpress_stats'           => $wordpress_stats,
+			'content_stats'             => $posts_pages_stats,
+			'media_stats'               => $media_stats,
+			'user_rankings'             => $top_users,
+			'user_total_count'          => $this->stats->get_total_users( $date_from, $date_to ),
 		];
 	}
 
@@ -271,9 +277,9 @@ class Stats_Service extends Service {
 			'simple-history-stats',
 			'simpleHistoryStats',
 			[
-				'data' => [
+				'data'    => [
 					'activityOverview' => $data['overview_activity_by_date'] ? $data['overview_activity_by_date'] : [],
-					'topUsers' => $data['user_rankings'] ? $data['user_rankings'] : [],
+					'topUsers'         => $data['user_rankings'] ? $data['user_rankings'] : [],
 				],
 				'strings' => [
 					'weekdays' => [
@@ -285,7 +291,7 @@ class Stats_Service extends Service {
 						__( 'Friday', 'simple-history' ),
 						__( 'Saturday', 'simple-history' ),
 					],
-					'events' => __( 'Events', 'simple-history' ),
+					'events'   => __( 'Events', 'simple-history' ),
 				],
 			]
 		);

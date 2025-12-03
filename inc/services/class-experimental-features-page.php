@@ -42,7 +42,7 @@ class Experimental_Features_Page extends Service {
 			->set_menu_slug( self::PAGE_SLUG )
 			->set_capability( 'manage_options' )
 			->set_callback( [ $this, 'render_page' ] )
-			->set_icon( 'science' )
+			->set_icon( 'experiment' )
 			->set_order( 5 );
 
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
@@ -51,10 +51,11 @@ class Experimental_Features_Page extends Service {
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
 		} else {
+			// When inside dashboard/tools, add as a tab on the settings page.
+			// Don't set location - it will be determined by the parent.
 			$experimental_page
-				->set_menu_title( __( 'Simple History - Experimental', 'simple-history' ) )
-				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG )
-				->set_location( 'submenu' );
+				->set_menu_title( __( 'Experimental features', 'simple-history' ) )
+				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 		}
 
 		$experimental_page->add();

@@ -6,11 +6,11 @@
  */
 class SimpleLoggerLogInitiators {
 
-	// A wordpress user that at the log event created did exist in the wp database
+	// A WordPress user that at the log event created did exist in the wp database
 	// May have been deleted when the log is viewed.
 	public const WP_USER = 'wp_user';
 
-	// Cron job run = wordpress initiated
+	// Cron job run = WordPress initiated
 	// Email sent to customer on webshop = system/wordpress/anonymous web user
 	// Javascript error occurred on website = anonymous web user.
 	public const WEB_USER = 'web_user';

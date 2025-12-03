@@ -25,68 +25,68 @@ class Comments_Logger extends Logger {
 			'capability'  => 'moderate_comments',
 			'messages'    => array(
 				// Comments.
-				'anon_comment_added' => _x(
+				'anon_comment_added'       => _x(
 					'Added a comment to {comment_post_type} "{comment_post_title}"',
 					'A comment was added to the database by a non-logged in internet user',
 					'simple-history'
 				),
 
-				'user_comment_added' => _x(
+				'user_comment_added'       => _x(
 					'Added a comment to {comment_post_type} "{comment_post_title}"',
 					'A comment was added to the database by a logged in user',
 					'simple-history'
 				),
 
-				'comment_status_approve' => _x(
+				'comment_status_approve'   => _x(
 					'Approved a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was approved',
 					'simple-history'
 				),
 
-				'comment_status_hold' => _x(
+				'comment_status_hold'      => _x(
 					'Unapproved a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was was unapproved',
 					'simple-history'
 				),
 
-				'comment_status_spam' => _x(
+				'comment_status_spam'      => _x(
 					'Marked a comment to post "{comment_post_title}" as spam',
 					'A comment was marked as spam',
 					'simple-history'
 				),
 
-				'comment_status_trash' => _x(
+				'comment_status_trash'     => _x(
 					'Trashed a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was marked moved to the trash',
 					'simple-history'
 				),
 
-				'comment_untrashed' => _x(
+				'comment_untrashed'        => _x(
 					'Restored a comment to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash',
 					'A comment was restored from the trash',
 					'simple-history'
 				),
 
-				'comment_deleted' => _x(
+				'comment_deleted'          => _x(
 					'Deleted a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was deleted',
 					'simple-history'
 				),
 
-				'comment_edited' => _x(
+				'comment_edited'           => _x(
 					'Edited a comment to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A comment was edited',
 					'simple-history'
 				),
 
 				// Trackbacks.
-				'anon_trackback_added' => _x(
+				'anon_trackback_added'     => _x(
 					'Added a trackback to {comment_post_type} "{comment_post_title}"',
 					'A trackback was added to the database by a non-logged in internet user',
 					'simple-history'
 				),
 
-				'user_trackback_added' => _x(
+				'user_trackback_added'     => _x(
 					'Added a trackback to {comment_post_type} "{comment_post_title}"',
 					'A trackback was added to the database by a logged in user',
 					'simple-history'
@@ -98,92 +98,92 @@ class Comments_Logger extends Logger {
 					'simple-history'
 				),
 
-				'trackback_status_hold' => _x(
+				'trackback_status_hold'    => _x(
 					'Unapproved a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A trackback was was unapproved',
 					'simple-history'
 				),
 
-				'trackback_status_spam' => _x(
+				'trackback_status_spam'    => _x(
 					'Marked a trackback to post "{comment_post_title}" as spam',
 					'A trackback was marked as spam',
 					'simple-history'
 				),
 
-				'trackback_status_trash' => _x(
+				'trackback_status_trash'   => _x(
 					'Trashed a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A trackback was marked moved to the trash',
 					'simple-history'
 				),
 
-				'trackback_untrashed' => _x(
+				'trackback_untrashed'      => _x(
 					'Restored a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash',
 					'A trackback was restored from the trash',
 					'simple-history'
 				),
 
-				'trackback_deleted' => _x(
+				'trackback_deleted'        => _x(
 					'Deleted a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A trackback was deleted',
 					'simple-history'
 				),
 
-				'trackback_edited' => _x(
+				'trackback_edited'         => _x(
 					'Edited a trackback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A trackback was edited',
 					'simple-history'
 				),
 
 				// Pingbacks.
-				'anon_pingback_added' => _x(
+				'anon_pingback_added'      => _x(
 					'Added a pingback to {comment_post_type} "{comment_post_title}"',
 					'A trackback was added to the database by a non-logged in internet user',
 					'simple-history'
 				),
 
-				'user_pingback_added' => _x(
+				'user_pingback_added'      => _x(
 					'Added a pingback to {comment_post_type} "{comment_post_title}"',
 					'A pingback was added to the database by a logged in user',
 					'simple-history'
 				),
 
-				'pingback_status_approve' => _x(
+				'pingback_status_approve'  => _x(
 					'Approved a pingback to "{comment_post_title}" by "{comment_author}"" ({comment_author_email})',
 					'A pingback was approved',
 					'simple-history'
 				),
 
-				'pingback_status_hold' => _x(
+				'pingback_status_hold'     => _x(
 					'Unapproved a pingback to "{comment_post_title}" by "{comment_author}" ({comment_author_email})',
 					'A pingback was was unapproved',
 					'simple-history'
 				),
 
-				'pingback_status_spam' => _x(
+				'pingback_status_spam'     => _x(
 					'Marked a pingback to post "{comment_post_title}" as spam',
 					'A pingback was marked as spam',
 					'simple-history'
 				),
 
-				'pingback_status_trash' => _x(
+				'pingback_status_trash'    => _x(
 					'Trashed a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A pingback was marked moved to the trash',
 					'simple-history'
 				),
 
-				'pingback_untrashed' => _x(
+				'pingback_untrashed'       => _x(
 					'Restored a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email}) from the trash',
 					'A pingback was restored from the trash',
 					'simple-history'
 				),
 
-				'pingback_deleted' => _x(
+				'pingback_deleted'         => _x(
 					'Deleted a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A pingback was deleted',
 					'simple-history'
 				),
 
-				'pingback_edited' => _x(
+				'pingback_edited'          => _x(
 					'Edited a pingback to "{comment_post_title}" by {comment_author} ({comment_author_email})',
 					'A pingback was edited',
 					'simple-history'
@@ -191,7 +191,7 @@ class Comments_Logger extends Logger {
 
 			), // end messages.
 
-			'labels' => array(
+			'labels'      => array(
 
 				'search' => array(
 					'label'     => _x( 'Comments', 'Comments logger: search', 'simple-history' ),
@@ -337,15 +337,15 @@ class Comments_Logger extends Logger {
 		 */
 		add_action( 'untrashed_comment', array( $this, 'on_untrashed_comment' ), 10, 1 );
 
-		 /**
-		  * Fires immediately before a comment is deleted from the database.
-		  */
+		/**
+		 * Fires immediately before a comment is deleted from the database.
+		 */
 		add_action( 'delete_comment', array( $this, 'on_delete_comment' ), 10, 1 );
 
 		/**
 		 * Fires immediately after a comment is updated in the database.
-		  * The hook also fires immediately before comment status transition hooks are fired.
-		  */
+		 * The hook also fires immediately before comment status transition hooks are fired.
+		 */
 		add_action( 'edit_comment', array( $this, 'on_edit_comment' ), 10, 1 );
 	}
 
@@ -359,7 +359,7 @@ class Comments_Logger extends Logger {
 
 		// get_comment passes comment_ID by reference, so it can be unset by that function.
 		$comment_ID_original = $comment_ID;
-		$comment_data = get_comment( $comment_ID );
+		$comment_data        = get_comment( $comment_ID );
 
 		if ( is_null( $comment_data ) ) {
 			return false;
@@ -368,19 +368,19 @@ class Comments_Logger extends Logger {
 		$comment_parent_post = get_post( $comment_data->comment_post_ID );
 
 		$context = array(
-			'comment_ID' => $comment_ID_original,
-			'comment_author' => $comment_data->comment_author,
+			'comment_ID'           => $comment_ID_original,
+			'comment_author'       => $comment_data->comment_author,
 			'comment_author_email' => $comment_data->comment_author_email,
-			'comment_author_url' => $comment_data->comment_author_url,
-			'comment_author_IP' => $comment_data->comment_author_IP,
-			'comment_content' => $comment_data->comment_content,
-			'comment_approved' => $comment_data->comment_approved,
-			'comment_agent' => $comment_data->comment_agent,
-			'comment_type' => $comment_data->comment_type,
-			'comment_parent' => $comment_data->comment_parent,
-			'comment_post_ID' => $comment_data->comment_post_ID,
-			'comment_post_title' => $comment_parent_post->post_title,
-			'comment_post_type' => $comment_parent_post->post_type,
+			'comment_author_url'   => $comment_data->comment_author_url,
+			'comment_author_IP'    => $comment_data->comment_author_IP,
+			'comment_content'      => $comment_data->comment_content,
+			'comment_approved'     => $comment_data->comment_approved,
+			'comment_agent'        => $comment_data->comment_agent,
+			'comment_type'         => $comment_data->comment_type,
+			'comment_parent'       => $comment_data->comment_parent,
+			'comment_post_ID'      => $comment_data->comment_post_ID,
+			'comment_post_title'   => $comment_parent_post->post_title,
+			'comment_post_type'    => $comment_parent_post->post_type,
 		);
 
 		// Note: comment type is empty for normal comments.
@@ -518,7 +518,7 @@ class Comments_Logger extends Logger {
 			$message = "user_{$context["comment_type"]}_added";
 		} else {
 			// comment was from a non-logged in user.
-			$message = "anon_{$context["comment_type"]}_added";
+			$message               = "anon_{$context["comment_type"]}_added";
 			$context['_initiator'] = Log_Initiators::WEB_USER;
 
 			// add occasions if comment is considered spam
@@ -542,8 +542,8 @@ class Comments_Logger extends Logger {
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 
-		$message = $row->message;
-		$context = $row->context;
+		$message     = $row->message;
+		$context     = $row->context;
 		$message_key = $context['_message_key'];
 
 		// Message is untranslated here, so get translated text
@@ -580,7 +580,7 @@ class Comments_Logger extends Logger {
 	public function get_log_row_details_output( $row ) {
 
 		$context = $row->context;
-		$output = '';
+		$output  = '';
 
 		$comment_text = '';
 		if ( isset( $context['comment_content'] ) && $context['comment_content'] ) {
@@ -591,24 +591,24 @@ class Comments_Logger extends Logger {
 
 		// Keys to show.
 		$arr_plugin_keys = array();
-		$comment_type = $context['comment_type'] ?? '';
+		$comment_type    = $context['comment_type'] ?? '';
 
 		switch ( $comment_type ) {
 			case 'trackback':
 				$arr_plugin_keys = array(
-					'trackback_status' => _x( 'Status', 'comments logger - detailed output comment status', 'simple-history' ),
-					'trackback_author' => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
+					'trackback_status'       => _x( 'Status', 'comments logger - detailed output comment status', 'simple-history' ),
+					'trackback_author'       => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
 					'trackback_author_email' => _x( 'Email', 'comments logger - detailed output email', 'simple-history' ),
-					'trackback_content' => _x( 'Content', 'comments logger - detailed output content', 'simple-history' ),
+					'trackback_content'      => _x( 'Content', 'comments logger - detailed output content', 'simple-history' ),
 				);
 
 				break;
 			case 'pingback':
 				$arr_plugin_keys = array(
-					'pingback_status' => _x( 'Status', 'comments logger - detailed output comment status', 'simple-history' ),
-					'pingback_author' => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
+					'pingback_status'       => _x( 'Status', 'comments logger - detailed output comment status', 'simple-history' ),
+					'pingback_author'       => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
 					'pingback_author_email' => _x( 'Email', 'comments logger - detailed output email', 'simple-history' ),
-					'pingback_content' => _x( 'Content', 'comments logger - detailed output content', 'simple-history' ),
+					'pingback_content'      => _x( 'Content', 'comments logger - detailed output content', 'simple-history' ),
 
 				);
 
@@ -616,14 +616,14 @@ class Comments_Logger extends Logger {
 			case 'comment':
 			default:
 				$arr_plugin_keys = array(
-					'comment_status' => _x( 'Status', 'comments logger - detailed output comment status', 'simple-history' ),
-					'comment_author' => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
+					'comment_status'       => _x( 'Status', 'comments logger - detailed output comment status', 'simple-history' ),
+					'comment_author'       => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
 					'comment_author_email' => _x( 'Email', 'comments logger - detailed output email', 'simple-history' ),
-					'comment_content' => _x( 'Comment', 'comments logger - detailed output content', 'simple-history' ),
+					'comment_content'      => _x( 'Comment', 'comments logger - detailed output content', 'simple-history' ),
 				);
 
 				break;
-		} // End switch().
+		}
 
 		/**
 		 * Filter the keys to show in the comments details output.
@@ -660,9 +660,9 @@ class Comments_Logger extends Logger {
 					if ( isset( $context['comment_approved'] ) ) {
 						if ( $context['comment_approved'] === 'spam' ) {
 							$desc_output = __( 'Spam', 'simple-history' );
-						} elseif ( $context['comment_approved'] == 1 ) {
+						} elseif ( $context['comment_approved'] === '1' ) {
 							$desc_output = __( 'Approved', 'simple-history' );
-						} elseif ( $context['comment_approved'] == 0 ) {
+						} elseif ( $context['comment_approved'] === '0' ) {
 							$desc_output = __( 'Pending', 'simple-history' );
 						}
 					}
@@ -692,7 +692,7 @@ class Comments_Logger extends Logger {
 					}
 
 					break;
-			}// End switch().
+			}
 
 			// Skip empty rows.
 			if ( empty( $desc_output ) ) {
@@ -709,7 +709,7 @@ class Comments_Logger extends Logger {
 				esc_html( $desc ),
 				$desc_output
 			);
-		}// End foreach().
+		}
 
 		// Add link to edit comment.
 		$comment_ID = isset( $context['comment_ID'] ) && is_numeric( $context['comment_ID'] ) ? (int) $context['comment_ID'] : false;
@@ -737,7 +737,7 @@ class Comments_Logger extends Logger {
 					);
 				}
 			}
-		} // End if().
+		}
 
 		// End table.
 		$output .= '</table>';

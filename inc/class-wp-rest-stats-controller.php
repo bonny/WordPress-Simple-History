@@ -22,8 +22,8 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->namespace = 'simple-history/v1';
-		$this->rest_base = 'stats';
+		$this->namespace      = 'simple-history/v1';
+		$this->rest_base      = 'stats';
 		$this->simple_history = Simple_History::get_instance();
 	}
 
@@ -243,7 +243,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 */
 	private function get_date_range_from_request( $request ) {
 		$date_from = $request->get_param( 'date_from' );
-		$date_to = $request->get_param( 'date_to' );
+		$date_to   = $request->get_param( 'date_to' );
 
 		if ( ! $date_from || ! $date_to ) {
 			$default_range = $this->get_default_date_range();
@@ -257,7 +257,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 
 		return array(
 			'from' => $date_from,
-			'to' => $date_to,
+			'to'   => $date_to,
 		);
 	}
 
@@ -269,16 +269,16 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 * @return array Array with timestamps, formatted dates, and duration.
 	 */
 	private function format_date_range( $from, $to ) {
-		$date_format = get_option( 'date_format' );
-		$time_format = get_option( 'time_format' );
+		$date_format     = get_option( 'date_format' );
+		$time_format     = get_option( 'time_format' );
 		$datetime_format = $date_format . ' ' . $time_format;
 
 		return array(
-			'from' => $from,
-			'to' => $to,
+			'from'           => $from,
+			'to'             => $to,
 			'from_formatted' => date_i18n( $datetime_format, $from ),
-			'to_formatted' => date_i18n( $datetime_format, $to ),
-			'duration_days' => ceil( ( $to - $from ) / DAY_IN_SECONDS ),
+			'to_formatted'   => date_i18n( $datetime_format, $to ),
+			'duration_days'  => ceil( ( $to - $from ) / DAY_IN_SECONDS ),
 		);
 	}
 
@@ -290,44 +290,44 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 */
 	public function get_summary( $request ) {
 		$date_range = $this->get_date_range_from_request( $request );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		$events_stats = new Events_Stats();
 
 		$summary = array(
-			'date_range' => $this->format_date_range( $date_from, $date_to ),
-			'total_events' => $events_stats->get_total_events( $date_from, $date_to ),
+			'date_range'                 => $this->format_date_range( $date_from, $date_to ),
+			'total_events'               => $events_stats->get_total_events( $date_from, $date_to ),
 			'total_events_since_install' => Helpers::get_total_logged_events_count(),
-			'totals' => array(
-				'users' => array(
-					'logins' => $events_stats->get_successful_logins_count( $date_from, $date_to ),
-					'failed_logins' => $events_stats->get_failed_logins_count( $date_from, $date_to ),
+			'totals'                     => array(
+				'users'   => array(
+					'logins'          => $events_stats->get_successful_logins_count( $date_from, $date_to ),
+					'failed_logins'   => $events_stats->get_failed_logins_count( $date_from, $date_to ),
 					'profile_updates' => $events_stats->get_user_updated_count( $date_from, $date_to ),
-					'total' => $events_stats->get_user_total_count( $date_from, $date_to ),
+					'total'           => $events_stats->get_user_total_count( $date_from, $date_to ),
 				),
 				'content' => array(
 					'created' => $events_stats->get_posts_pages_created( $date_from, $date_to ),
 					'updated' => $events_stats->get_posts_pages_updated( $date_from, $date_to ),
 					'deleted' => $events_stats->get_posts_pages_deleted( $date_from, $date_to ),
-					'total' => $events_stats->get_content_total_count( $date_from, $date_to ),
+					'total'   => $events_stats->get_content_total_count( $date_from, $date_to ),
 				),
-				'media' => array(
-					'uploads' => $events_stats->get_media_uploads_count( $date_from, $date_to ),
-					'edits' => $events_stats->get_media_edits_count( $date_from, $date_to ),
+				'media'   => array(
+					'uploads'   => $events_stats->get_media_uploads_count( $date_from, $date_to ),
+					'edits'     => $events_stats->get_media_edits_count( $date_from, $date_to ),
 					'deletions' => $events_stats->get_media_deletions_count( $date_from, $date_to ),
-					'total' => $events_stats->get_media_total_count( $date_from, $date_to ),
+					'total'     => $events_stats->get_media_total_count( $date_from, $date_to ),
 				),
 				'plugins' => array(
-					'updates' => $events_stats->get_plugin_updates_count( $date_from, $date_to ),
+					'updates'       => $events_stats->get_plugin_updates_count( $date_from, $date_to ),
 					'installations' => $events_stats->get_plugin_installs_count( $date_from, $date_to ),
-					'activations' => $events_stats->get_plugin_activations_count( $date_from, $date_to ),
-					'total' => $events_stats->get_plugin_total_count( $date_from, $date_to ),
+					'activations'   => $events_stats->get_plugin_activations_count( $date_from, $date_to ),
+					'total'         => $events_stats->get_plugin_total_count( $date_from, $date_to ),
 				),
-				'core' => array(
-					'updates' => $events_stats->get_wordpress_core_updates_count( $date_from, $date_to ),
+				'core'    => array(
+					'updates'           => $events_stats->get_wordpress_core_updates_count( $date_from, $date_to ),
 					'available_updates' => $events_stats->get_wordpress_core_updates_found_count( $date_from, $date_to ),
-					'total' => $events_stats->get_core_total_count( $date_from, $date_to ),
+					'total'             => $events_stats->get_core_total_count( $date_from, $date_to ),
 				),
 			),
 		);
@@ -342,21 +342,21 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_users_stats( $request ) {
-		$date_range = $this->get_date_range_from_request( $request );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
-		$limit = $request->get_param( 'limit' );
+		$date_range      = $this->get_date_range_from_request( $request );
+		$date_from       = $date_range['from'];
+		$date_to         = $date_range['to'];
+		$limit           = $request->get_param( 'limit' );
 		$include_details = $request->get_param( 'include_details' );
 
 		$events_stats = new Events_Stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
-			'summary' => array(
-				'logins' => $events_stats->get_successful_logins_count( $date_from, $date_to ),
-				'failed_logins' => $events_stats->get_failed_logins_count( $date_from, $date_to ),
+			'summary'    => array(
+				'logins'          => $events_stats->get_successful_logins_count( $date_from, $date_to ),
+				'failed_logins'   => $events_stats->get_failed_logins_count( $date_from, $date_to ),
 				'profile_updates' => $events_stats->get_user_updated_count( $date_from, $date_to ),
-				'total' => $events_stats->get_user_total_count( $date_from, $date_to ),
+				'total'           => $events_stats->get_user_total_count( $date_from, $date_to ),
 			),
 		);
 
@@ -374,21 +374,21 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_content_stats( $request ) {
-		$date_range = $this->get_date_range_from_request( $request );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
-		$limit = $request->get_param( 'limit' );
+		$date_range      = $this->get_date_range_from_request( $request );
+		$date_from       = $date_range['from'];
+		$date_to         = $date_range['to'];
+		$limit           = $request->get_param( 'limit' );
 		$include_details = $request->get_param( 'include_details' );
 
 		$events_stats = new Events_Stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
-			'summary' => array(
+			'summary'    => array(
 				'created' => $events_stats->get_posts_pages_created( $date_from, $date_to ),
 				'updated' => $events_stats->get_posts_pages_updated( $date_from, $date_to ),
 				'deleted' => $events_stats->get_posts_pages_deleted( $date_from, $date_to ),
-				'total' => $events_stats->get_content_total_count( $date_from, $date_to ),
+				'total'   => $events_stats->get_content_total_count( $date_from, $date_to ),
 			),
 		);
 
@@ -406,27 +406,27 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_media_stats( $request ) {
-		$date_range = $this->get_date_range_from_request( $request );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_range      = $this->get_date_range_from_request( $request );
+		$date_from       = $date_range['from'];
+		$date_to         = $date_range['to'];
 		$include_details = $request->get_param( 'include_details' );
 
 		$events_stats = new Events_Stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
-			'summary' => array(
-				'uploads' => $events_stats->get_media_uploads_count( $date_from, $date_to ),
-				'edits' => $events_stats->get_media_edits_count( $date_from, $date_to ),
+			'summary'    => array(
+				'uploads'   => $events_stats->get_media_uploads_count( $date_from, $date_to ),
+				'edits'     => $events_stats->get_media_edits_count( $date_from, $date_to ),
 				'deletions' => $events_stats->get_media_deletions_count( $date_from, $date_to ),
-				'total' => $events_stats->get_media_total_count( $date_from, $date_to ),
+				'total'     => $events_stats->get_media_total_count( $date_from, $date_to ),
 			),
 		);
 
 		if ( $include_details ) {
 			$stats['details'] = array(
-				'uploads' => $events_stats->get_media_uploaded_details( $date_from, $date_to ),
-				'edits' => $events_stats->get_media_edited_details( $date_from, $date_to ),
+				'uploads'   => $events_stats->get_media_uploaded_details( $date_from, $date_to ),
+				'edits'     => $events_stats->get_media_edited_details( $date_from, $date_to ),
 				'deletions' => $events_stats->get_media_deleted_details( $date_from, $date_to ),
 			);
 		}
@@ -441,30 +441,30 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_plugins_stats( $request ) {
-		$date_range = $this->get_date_range_from_request( $request );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
-		$limit = $request->get_param( 'limit' );
+		$date_range      = $this->get_date_range_from_request( $request );
+		$date_from       = $date_range['from'];
+		$date_to         = $date_range['to'];
+		$limit           = $request->get_param( 'limit' );
 		$include_details = $request->get_param( 'include_details' );
 
 		$events_stats = new Events_Stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
-			'summary' => array(
-				'updates' => $events_stats->get_plugin_updates_count( $date_from, $date_to ),
-				'installations' => $events_stats->get_plugin_installs_count( $date_from, $date_to ),
-				'activations' => $events_stats->get_plugin_activations_count( $date_from, $date_to ),
+			'summary'    => array(
+				'updates'           => $events_stats->get_plugin_updates_count( $date_from, $date_to ),
+				'installations'     => $events_stats->get_plugin_installs_count( $date_from, $date_to ),
+				'activations'       => $events_stats->get_plugin_activations_count( $date_from, $date_to ),
 				'available_updates' => $events_stats->get_available_plugin_updates(),
-				'total' => $events_stats->get_plugin_total_count( $date_from, $date_to ),
+				'total'             => $events_stats->get_plugin_total_count( $date_from, $date_to ),
 			),
 		);
 
 		if ( $include_details ) {
 			$stats['details'] = array(
-				'updates' => $events_stats->get_plugin_details( 'updated', $date_from, $date_to, $limit ),
-				'installations' => $events_stats->get_plugin_details( 'installed', $date_from, $date_to, $limit ),
-				'activations' => $events_stats->get_plugin_details( 'activated', $date_from, $date_to, $limit ),
+				'updates'           => $events_stats->get_plugin_details( 'updated', $date_from, $date_to, $limit ),
+				'installations'     => $events_stats->get_plugin_details( 'installed', $date_from, $date_to, $limit ),
+				'activations'       => $events_stats->get_plugin_details( 'activated', $date_from, $date_to, $limit ),
 				'available_updates' => $events_stats->get_plugins_with_updates(),
 			);
 		}
@@ -480,17 +480,17 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 */
 	public function get_core_stats( $request ) {
 		$date_range = $this->get_date_range_from_request( $request );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		$events_stats = new Events_Stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
-			'summary' => array(
-				'updates' => $events_stats->get_wordpress_core_updates_count( $date_from, $date_to ),
+			'summary'    => array(
+				'updates'           => $events_stats->get_wordpress_core_updates_count( $date_from, $date_to ),
 				'available_updates' => $events_stats->get_wordpress_core_updates_found_count( $date_from, $date_to ),
-				'total' => $events_stats->get_core_total_count( $date_from, $date_to ),
+				'total'             => $events_stats->get_core_total_count( $date_from, $date_to ),
 			),
 		);
 
@@ -505,14 +505,14 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 */
 	public function get_peak_days( $request ) {
 		$date_range = $this->get_date_range_from_request( $request );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		$events_stats = new Events_Stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
-			'peak_days' => $events_stats->get_peak_days( $date_from, $date_to ),
+			'peak_days'  => $events_stats->get_peak_days( $date_from, $date_to ),
 		);
 
 		return rest_ensure_response( $stats );
@@ -526,8 +526,8 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 */
 	public function get_peak_times( $request ) {
 		$date_range = $this->get_date_range_from_request( $request );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		$events_stats = new Events_Stats();
 
@@ -547,13 +547,13 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	 */
 	public function get_activity_overview( $request ) {
 		$date_range = $this->get_date_range_from_request( $request );
-		$date_from = $date_range['from'];
-		$date_to = $date_range['to'];
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
 
 		$events_stats = new Events_Stats();
 
 		$stats = array(
-			'date_range' => $this->format_date_range( $date_from, $date_to ),
+			'date_range'       => $this->format_date_range( $date_from, $date_to ),
 			'activity_by_date' => $events_stats->get_activity_overview_by_date( $date_from, $date_to ),
 		);
 
@@ -583,17 +583,17 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 							'description' => __( 'Start date as Unix timestamp.', 'simple-history' ),
 							'type'        => 'integer',
 						),
-						'to' => array(
+						'to'   => array(
 							'description' => __( 'End date as Unix timestamp.', 'simple-history' ),
 							'type'        => 'integer',
 						),
 					),
 				),
-				'summary' => array(
+				'summary'    => array(
 					'description' => __( 'Summary of stats.', 'simple-history' ),
 					'type'        => 'object',
 				),
-				'details' => array(
+				'details'    => array(
 					'description' => __( 'Detailed stats.', 'simple-history' ),
 					'type'        => 'object',
 				),

@@ -24,7 +24,7 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 
 		foreach ( $group->items as $item ) {
 			$formatter = $item->get_formatter();
-			$output .= $formatter->to_html();
+			$output   .= $formatter->to_html();
 		}
 
 		return $output;
@@ -42,7 +42,7 @@ class Event_Details_Group_Single_Item_Formatter extends Event_Details_Group_Form
 		// Use same formatter as inline items.
 		foreach ( $group->items as $item ) {
 			$formatter = $item->get_formatter();
-			$output[] = $formatter->to_json();
+			$output[]  = $formatter->to_json();
 		}
 
 		return [

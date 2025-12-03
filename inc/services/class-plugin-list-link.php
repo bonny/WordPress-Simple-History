@@ -26,6 +26,7 @@ class Plugin_List_Link extends Service {
 	 */
 	public function on_plugin_action_links( $actions, $plugin_file, $plugin_data, $context ) {
 		// Only add link if user has the right to view the settings page.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'manage_options'.
 		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
 			return $actions;
 		}

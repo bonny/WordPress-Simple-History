@@ -40,19 +40,19 @@ class IP_Info_Dropin extends Dropin {
 	/**
 	 * Display IP Addresses for login related messages.
 	 *
-	 * @param bool   $bool True if IP Address should be displayed.
+	 * @param bool   $bool_value True if IP Address should be displayed.
 	 * @param object $row Log row.
 	 * @return bool
 	 */
-	public function row_header_display_ip_address_filter( $bool, $row ) {
+	public function row_header_display_ip_address_filter( $bool_value, $row ) {
 		// Bail if log row in not from our logger.
 		if ( 'SimpleUserLogger' !== $row->logger ) {
-			return $bool;
+			return $bool_value;
 		}
 
 		// Bail if no message key.
 		if ( empty( $row->context_message_key ) ) {
-			return $bool;
+			return $bool_value;
 		}
 
 		// Message keys to show IP Addresses for.
@@ -64,8 +64,8 @@ class IP_Info_Dropin extends Dropin {
 		);
 
 		// Bail if not correct message key.
-		if ( ! in_array( $row->context_message_key, $arr_keys_to_log ) ) {
-			return $bool;
+		if ( ! in_array( $row->context_message_key, $arr_keys_to_log, true ) ) {
+			return $bool_value;
 		}
 
 		return true;

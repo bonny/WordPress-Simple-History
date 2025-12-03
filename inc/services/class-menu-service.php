@@ -19,7 +19,7 @@ class Menu_Service extends Service {
 	 */
 	public function __construct( $simple_history ) {
 		$this->simple_history = $simple_history;
-		$this->menu_manager = new Menu_Manager();
+		$this->menu_manager   = new Menu_Manager();
 	}
 
 	/**

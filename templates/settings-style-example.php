@@ -341,13 +341,13 @@ defined( 'ABSPATH' ) || die();
 
 		$arr_messages = array(
 			'emergency' => 'Harddrive on VPS 1 has errors',
-			'alert' => 'The WordPress installation on VPS 2 is running out of memory',
-			'critical' => 'There is 21 security updates available for your site',
-			'error' => 'A JavaScript error was detected on page <code>example.com/about-us/contact/</code>',
-			'warning' => 'A user attempted to login to your site with username "admin"',
-			'notice' => 'User Jessie logged in',
-			'info' => 'Page "about us" was updated',
-			'debug' => "The variable <code>\$heyhey</code> had value <code>'abc123'</code> and the hash of the user values is <code>'1f3870be274f6c49b3e31a0c6728957f'</code>",
+			'alert'     => 'The WordPress installation on VPS 2 is running out of memory',
+			'critical'  => 'There is 21 security updates available for your site',
+			'error'     => 'A JavaScript error was detected on page <code>example.com/about-us/contact/</code>',
+			'warning'   => 'A user attempted to login to your site with username "admin"',
+			'notice'    => 'User Jessie logged in',
+			'info'      => 'Page "about us" was updated',
+			'debug'     => "The variable <code>\$heyhey</code> had value <code>'abc123'</code> and the hash of the user values is <code>'1f3870be274f6c49b3e31a0c6728957f'</code>",
 		);
 
 		$refl = new \ReflectionClass( 'Simple_History\Log_Levels' );

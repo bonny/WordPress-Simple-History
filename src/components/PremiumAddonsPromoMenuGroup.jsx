@@ -1,9 +1,12 @@
 import { MenuGroup, MenuItem } from '@wordpress/components';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { download, plusCircle } from '@wordpress/icons';
 import { PremiumFeatureSuffix } from './PremiumFeatureSuffix';
 import { useUserHasCapability } from '../hooks/useUserHasCapability';
 import { usePremiumFeaturesModal } from './PremiumFeaturesModalContext';
+import exportFeatureImage from '../images/premium-feature-export.svg';
+import createEntryFeatureImage from '../images/premium-feature-create-entry.svg';
 
 /**
  * Menu group with premium features menu items that are promoted.
@@ -35,27 +38,13 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 		onCloseDropdownMenu();
 
 		showModal(
-			'Export results',
-			<>
-				<p
-					style={ {
-						backgroundColor: 'var(--sh-color-yellow)',
-						fontSize: 'var(--sh-font-size-large)',
-						padding: '1rem 2rem',
-					} }
-				>
-					<strong>Export results</strong> is a premium feature.
-				</p>
-
-				<p
-					style={ {
-						fontSize: 'var(--sh-font-size-large)',
-					} }
-				>
-					The export function supports CSV and JSON and gives you a
-					downloaded file of the current search result.
-				</p>
-			</>
+			__( 'Unlock Export', 'simple-history' ),
+			__(
+				'Export your current log selection to CSV or JSON. Your active filters are applied, so you get exactly the events you need.',
+				'simple-history'
+			),
+			download,
+			exportFeatureImage
 		);
 	};
 
@@ -63,35 +52,13 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 		onCloseDropdownMenu();
 
 		showModal(
-			__( 'Create log entry', 'simple-history' ),
-			<>
-				<p
-					style={ {
-						backgroundColor: 'var(--sh-color-yellow)',
-						fontSize: '1.1rem',
-						padding: '1rem 2rem',
-					} }
-				>
-					{ __(
-						'Create log entry manually is a premium feature.',
-						'simple-history'
-					) }
-				</p>
-
-				<p style={ { fontSize: 'var(--sh-font-size-large)' } }>
-					{ __(
-						'This feature allows you to manually add custom events to the activity log, using a simple GUI.',
-						'simple-history'
-					) }
-				</p>
-
-				<p style={ { fontSize: 'var(--sh-font-size-large)' } }>
-					{ __(
-						'Only administrators can add events, but all users who can view the log can see the added entries.',
-						'simple-history'
-					) }
-				</p>
-			</>
+			__( 'Unlock Manual Entries', 'simple-history' ),
+			__(
+				'Add custom events to your activity log with a simple form. Perfect for noting important changes or decisions that happen outside WordPress.',
+				'simple-history'
+			),
+			plusCircle,
+			createEntryFeatureImage
 		);
 	};
 

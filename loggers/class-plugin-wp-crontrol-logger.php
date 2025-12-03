@@ -74,9 +74,9 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 	 */
 	public function added_new_event( $event ) {
 		$context = array(
-			'event_hook' => $event->hook,
+			'event_hook'      => $event->hook,
 			'event_timestamp' => $event->timestamp,
-			'event_args' => $event->args,
+			'event_args'      => $event->args,
 		);
 
 		if ( $event->schedule ) {
@@ -135,9 +135,9 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 	 */
 	public function deleted_event( $event ) {
 		$context = array(
-			'event_hook' => $event->hook,
+			'event_hook'      => $event->hook,
 			'event_timestamp' => $event->timestamp,
-			'event_args' => $event->args,
+			'event_args'      => $event->args,
 		);
 
 		if ( $event->schedule ) {
@@ -164,7 +164,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 	 */
 	public function deleted_all_with_hook( $hook, $deleted ) {
 		$context = array(
-			'event_hook' => $hook,
+			'event_hook'     => $hook,
 			'events_deleted' => $deleted,
 		);
 
@@ -230,12 +230,12 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 	 */
 	public function edited_event( $event, $original ) {
 		$context = array(
-			'event_hook' => $event->hook,
-			'event_timestamp' => $event->timestamp,
-			'event_args' => $event->args,
-			'event_original_hook' => $original->hook,
+			'event_hook'               => $event->hook,
+			'event_timestamp'          => $event->timestamp,
+			'event_args'               => $event->args,
+			'event_original_hook'      => $original->hook,
 			'event_original_timestamp' => $original->timestamp,
-			'event_original_args' => $original->args,
+			'event_original_args'      => $original->args,
 		);
 
 		if ( $event->schedule ) {
@@ -273,9 +273,9 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 	 */
 	public function added_new_schedule( $name, $interval, $display ) {
 		$context = array(
-			'schedule_name' => $name,
+			'schedule_name'     => $name,
 			'schedule_interval' => $interval,
-			'schedule_display' => $display,
+			'schedule_display'  => $display,
 		);
 
 		$this->info_message(
@@ -335,8 +335,8 @@ class Plugin_WP_Crontrol_Logger extends Logger {
                 <td>%2$s</td>
             </tr>
         ';
-		$context = $row->context;
-		$output = '<table class="SimpleHistoryLogitem__keyValueTable">';
+		$context  = $row->context;
+		$output   = '<table class="SimpleHistoryLogitem__keyValueTable">';
 
 		if ( isset( $context['event_original_hook'] ) && ( $context['event_original_hook'] !== $context['event_hook'] ) ) {
 			$key_text_diff = Helpers::Text_Diff(
@@ -436,8 +436,8 @@ class Plugin_WP_Crontrol_Logger extends Logger {
                 <td>%2$s</td>
             </tr>
         ';
-		$context = $row->context;
-		$output = '<table class="SimpleHistoryLogitem__keyValueTable">';
+		$context  = $row->context;
+		$output   = '<table class="SimpleHistoryLogitem__keyValueTable">';
 
 		if ( isset( $context['schedule_name'] ) ) {
 			$output .= sprintf(

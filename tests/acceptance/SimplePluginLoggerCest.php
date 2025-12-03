@@ -19,7 +19,8 @@ class SimplePluginLoggerCest
     public function testPluginActivation(Admin $I) {
         // plugin_activated
         $I->amOnAdminPage('plugins.php');
-        $I->click("#activate-akismet");
+        // $I->click("#activate-akismet");
+        $I->click("#activate-akismet-anti-spam-spam-protection");
         $I->seeLogMessage('Activated plugin "Akismet Anti-spam: Spam Protection"');
         $I->seeLogContext(array(
             'plugin_name' => 'Akismet Anti-spam: Spam Protection',
@@ -46,7 +47,8 @@ class SimplePluginLoggerCest
 
         // plugin_deactivated
         $I->amOnAdminPage('plugins.php');
-        $I->click("#deactivate-akismet");
+        // $I->click("#deactivate-akismet");
+        $I->click("#deactivate-akismet-anti-spam-spam-protection");
         $I->seeLogMessage('Deactivated plugin "Akismet Anti-spam: Spam Protection"');
         $I->seeLogContext(array(
             'plugin_name' => 'Akismet Anti-spam: Spam Protection',

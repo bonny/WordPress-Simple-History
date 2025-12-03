@@ -31,6 +31,21 @@ class Plugin_Logger extends Logger {
 	 * The result can contain errors, like if the old plugin could not be removed.
 	 * These errors are not added in the final upgrader class response when using bulk update.
 	 * So this is the only way to get them.
+	 * Used to detect rollback scenarios (WordPress 6.3+ feature).
+	 *
+	 * Structure: [
+	 *   'plugin-slug/plugin-file.php' => [
+	 *     'result' => array|WP_Error,
+	 *     'hook_extra' => array,
+	 *     'rollback_will_occur' => bool,
+	 *     'rollback_info' => [
+	 *       'backup_slug' => string,
+	 *       'backup_dir' => string,
+	 *       'error_code' => string,
+	 *       'error_message' => string,
+	 *     ]
+	 *   ]
+	 * ]
 	 *
 	 * @var array $package_results
 	 */
@@ -105,7 +120,7 @@ class Plugin_Logger extends Logger {
 					'simple-history'
 				),
 
-				'plugin_bulk_updated_failed' => _x(
+				'plugin_bulk_updated_failed'    => _x(
 					'Failed to update plugin "{plugin_name}"',
 					'Plugin failed to update in bulk',
 					'simple-history'
@@ -118,12 +133,12 @@ class Plugin_Logger extends Logger {
 					'simple-history'
 				),
 
-				'plugin_auto_updates_enabled' => _x(
+				'plugin_auto_updates_enabled'   => _x(
 					'Enabled auto-updates for plugin "{plugin_name}"',
 					'Plugin was enabled for auto-updates',
 					'simple-history'
 				),
-				'plugin_auto_updates_disabled' => _x(
+				'plugin_auto_updates_disabled'  => _x(
 					'Disabled auto-updates for plugin "{plugin_name}"',
 					'Plugin was enabled for auto-updates',
 					'simple-history'
@@ -216,6 +231,8 @@ class Plugin_Logger extends Logger {
 		add_action( 'delete_plugin', array( $this, 'on_action_delete_plugin' ), 10, 1 );
 		add_action( 'deleted_plugin', array( $this, 'on_action_deleted_plugin' ), 10, 2 );
 
+		// Capture individual plugin install/update errors. These errors are not included in the final
+		// upgrader response during bulk updates, so this is the only way to get them.
 		add_filter( 'upgrader_install_package_result', [ $this, 'on_upgrader_install_package_result' ], 10, 2 );
 	}
 
@@ -287,9 +304,28 @@ class Plugin_Logger extends Logger {
 		}
 
 		$this->package_results[ $plugin_main_file_path ] = [
-			'result' => $result,
+			'result'     => $result,
 			'hook_extra' => $hook_extra,
 		];
+
+		// Detect if rollback will occur (WordPress 6.3+ feature).
+		// Rollback happens when:
+		// 1. This is an update (temp_backup exists in hook_extra)
+		// 2. The update failed (result is WP_Error)
+		// When both conditions are true, WordPress will automatically restore
+		// the previous version from the temporary backup on shutdown.
+		$is_update = isset( $hook_extra['temp_backup'] );
+		$has_error = is_wp_error( $result );
+
+		if ( $is_update && $has_error ) {
+			$this->package_results[ $plugin_main_file_path ]['rollback_will_occur'] = true;
+			$this->package_results[ $plugin_main_file_path ]['rollback_info']       = [
+				'backup_slug'   => $hook_extra['temp_backup']['slug'] ?? '',
+				'backup_dir'    => $hook_extra['temp_backup']['dir'] ?? '',
+				'error_code'    => $result->get_error_code(),
+				'error_message' => $result->get_error_message(),
+			];
+		}
 
 		return $result;
 	}
@@ -325,13 +361,13 @@ class Plugin_Logger extends Logger {
 		$plugin_data = $this->plugins_data[ $plugin_file ];
 
 		$context = array(
-			'plugin' => $plugin_file,
-			'plugin_name' => $plugin_data['Name'],
-			'plugin_title' => $plugin_data['Title'],
+			'plugin'             => $plugin_file,
+			'plugin_name'        => $plugin_data['Name'],
+			'plugin_title'       => $plugin_data['Title'],
 			'plugin_description' => $plugin_data['Description'],
-			'plugin_author' => $plugin_data['Author'],
-			'plugin_version' => $plugin_data['Version'],
-			'plugin_url' => $plugin_data['PluginURI'],
+			'plugin_author'      => $plugin_data['Author'],
+			'plugin_version'     => $plugin_data['Version'],
+			'plugin_url'         => $plugin_data['PluginURI'],
 		);
 
 		$this->info_message(
@@ -354,6 +390,7 @@ class Plugin_Logger extends Logger {
 
 		add_action(
 			"update_option_{$option}",
+			// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			function ( $old_value, $value, $option ) {
 				/**
 				 * Option contains array with plugin that are set to be auto updated.
@@ -390,6 +427,7 @@ class Plugin_Logger extends Logger {
 				 *         )
 				 */
 
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$action = sanitize_text_field( wp_unslash( $_GET['action'] ?? '' ) );
 				if ( ! $action ) {
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -423,8 +461,9 @@ class Plugin_Logger extends Logger {
 				// Plugin slugs that actions are performed against.
 				$plugins = array();
 
-				if ( in_array( $action, array( 'enable-auto-update', 'disable-auto-update' ) ) ) {
+				if ( in_array( $action, array( 'enable-auto-update', 'disable-auto-update' ), true ) ) {
 					// Opening single item enable/disable auto update link in plugin list in new window.
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$plugin = sanitize_text_field( wp_unslash( $_GET['plugin'] ?? '' ) );
 
 					if ( $plugin ) {
@@ -456,7 +495,7 @@ class Plugin_Logger extends Logger {
 					if ( $asset ) {
 						$plugins[] = sanitize_text_field( urldecode( $asset ) );
 					}
-				} elseif ( in_array( $action, array( 'enable-auto-update-selected', 'disable-auto-update-selected' ) ) ) {
+				} elseif ( in_array( $action, array( 'enable-auto-update-selected', 'disable-auto-update-selected' ), true ) ) {
 					// $_POST when checking multiple plugins and choosing Enable auto updates or Disable auto updates.
 					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					$checked = wp_unslash( $_POST['checked'] ?? null );
@@ -501,9 +540,9 @@ class Plugin_Logger extends Logger {
 		$pluginData = get_plugin_data( $pluginFile, true, false );
 
 		$context = array(
-			'plugin_slug'        => $onePluginSlug,
-			'plugin_name'        => $pluginData['Name'] ?? null,
-			'plugin_version'     => $pluginData['Version'] ?? null,
+			'plugin_slug'    => $onePluginSlug,
+			'plugin_name'    => $pluginData['Name'] ?? null,
+			'plugin_version' => $pluginData['Version'] ?? null,
 		);
 
 		if ( $enableOrDisable === 'enable' ) {
@@ -589,7 +628,7 @@ class Plugin_Logger extends Logger {
 			'The plugin %1$s has been <strong>deactivated</strong> due to an error: %2$s',
 		);
 
-		if ( ! in_array( $text, $untranslated_texts ) ) {
+		if ( ! in_array( $text, $untranslated_texts, true ) ) {
 			return $translation;
 		}
 
@@ -639,6 +678,7 @@ class Plugin_Logger extends Logger {
 			wp_die( esc_html__( "You don't have access to this page.", 'simple-history' ) );
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$repo = isset( $_GET['repo'] ) ? (string) sanitize_text_field( wp_unslash( $_GET['repo'] ) ) : '';
 
 		if ( $repo !== '' ) {
@@ -655,9 +695,14 @@ class Plugin_Logger extends Logger {
 
 		// https://developer.github.com/v3/repos/contents/.
 		// https://api.github.com/repos/<username>/<repo>/readme.
-		$api_url = sprintf( 'https://api.github.com/repos/%1$s/%2$s/readme', urlencode( $repo_username ), urlencode( $repo_repo ) );
+		$api_url = sprintf(
+			'https://api.github.com/repos/%1$s/%2$s/readme',
+			rawurlencode( $repo_username ),
+			rawurlencode( $repo_repo ) 
+		);
 
 		// Get file. Use accept-header to get file as HTML instead of JSON.
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get
 		$response = wp_remote_get(
 			$api_url,
 			array(
@@ -681,20 +726,20 @@ class Plugin_Logger extends Logger {
 		$escaped_response_body = wp_kses(
 			$response_body,
 			array(
-				'p' => array(),
-				'div' => array(),
-				'h1' => array(),
-				'h2' => array(),
-				'h3' => array(),
+				'p'    => array(),
+				'div'  => array(),
+				'h1'   => array(),
+				'h2'   => array(),
+				'h3'   => array(),
 				'code' => array(),
-				'a' => array(
+				'a'    => array(
 					'href' => array(),
 				),
-				'img' => array(
+				'img'  => array(
 					'src' => array(),
 				),
-				'ul' => array(),
-				'li' => array(),
+				'ul'   => array(),
+				'li'   => array(),
 			)
 		);
 
@@ -750,17 +795,17 @@ class Plugin_Logger extends Logger {
 	 * When we are done logging then we remove the option.
 	 * Fired from filter `upgrader_pre_install`.
 	 *
-	 * @param bool  $bool   Default null.
-	 * @param array $hook_extra Default null.
+	 * @param bool|\WP_Error $bool_or_error Default null.
+	 * @param array          $hook_extra Default null.
 	 */
-	public function save_versions_before_update( $bool = null, $hook_extra = null ) {
+	public function save_versions_before_update( $bool_or_error = null, $hook_extra = null ) {
 		update_option(
 			$this->get_slug() . '_plugin_info_before_update',
 			Helpers::json_encode( get_plugins() ),
 			false
 		);
 
-		return $bool;
+		return $bool_or_error;
 	}
 
 	/**
@@ -806,14 +851,14 @@ class Plugin_Logger extends Logger {
 		$plugin_slug = dirname( $arr_data['plugin'] );
 
 		$context = [
-			'plugin_slug'         => $plugin_slug,
-			'request'             => Helpers::json_encode( $_REQUEST ),
-			'plugin_name'         => $plugin_data['Name'],
-			'plugin_title'        => $plugin_data['Title'],
-			'plugin_description'  => $plugin_data['Description'],
-			'plugin_author'       => $plugin_data['Author'],
-			'plugin_version'      => $plugin_data['Version'],
-			'plugin_url'          => $plugin_data['PluginURI'],
+			'plugin_slug'        => $plugin_slug,
+			'request'            => Helpers::json_encode( $_REQUEST ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			'plugin_name'        => $plugin_data['Name'],
+			'plugin_title'       => $plugin_data['Title'],
+			'plugin_description' => $plugin_data['Description'],
+			'plugin_author'      => $plugin_data['Author'],
+			'plugin_version'     => $plugin_data['Version'],
+			'plugin_url'         => $plugin_data['PluginURI'],
 		];
 
 		// Add Update URI if it is set. Available since WP 5.8.
@@ -848,8 +893,13 @@ class Plugin_Logger extends Logger {
 		if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
 			// Add errors
 			// Errors is in original wp admin language.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 			$context['error_messages'] = json_encode( $plugin_upgrader_instance->skin->result->errors );
-			$context['error_data']     = json_encode( $plugin_upgrader_instance->skin->result->error_data );
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+			$context['error_data'] = json_encode( $plugin_upgrader_instance->skin->result->error_data );
+
+			// Add rollback context if rollback will occur.
+			$context = $this->add_rollback_context( $context, $arr_data['plugin'] );
 
 			$this->info_message(
 				'plugin_update_failed',
@@ -918,6 +968,7 @@ class Plugin_Logger extends Logger {
 			// Get url and package.
 			$update_plugins = get_site_transient( 'update_plugins' );
 			if ( $update_plugins && isset( $update_plugins->response[ $plugin_main_file_path ] ) ) {
+				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoEmptyLineBefore
 				/*
 				$update_plugins[plugin_path/slug]:
 				{
@@ -953,6 +1004,9 @@ class Plugin_Logger extends Logger {
 
 			if ( count( $plugin_errors ) > 0 ) {
 				$context['plugin_errors'] = $plugin_errors;
+
+				// Add rollback context if rollback will occur.
+				$context = $this->add_rollback_context( $context, $plugin_main_file_path );
 
 				$this->warning_message(
 					'plugin_bulk_updated_failed',
@@ -1018,7 +1072,7 @@ class Plugin_Logger extends Logger {
 
 		// If uploaded plugin store name of ZIP.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( 'upload' == $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
+		if ( 'upload' === $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$plugin_upload_name            = sanitize_text_field( $_FILES['pluginzip']['name'] );
 			$context['plugin_upload_name'] = $plugin_upload_name;
@@ -1054,9 +1108,6 @@ class Plugin_Logger extends Logger {
 				$context['plugin_version']     = $plugin_data['Version'] ?? '';
 				$context['plugin_author']      = $plugin_data['AuthorName'] ?? '';
 
-				// Comment out these to debug plugin installs
-				// $context["debug_plugin_data"] = Helpers::json_encode( $plugin_data );.
-				// $context["debug_plugin_info"] = Helpers::json_encode( $plugin_info );.
 				if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
 					$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
 				}
@@ -1066,7 +1117,7 @@ class Plugin_Logger extends Logger {
 				'plugin_installed',
 				$context
 			);
-		} // End if().
+		}
 	}
 
 	/**
@@ -1241,9 +1292,9 @@ class Plugin_Logger extends Logger {
 					return '';
 				}
 
-				if ( 'web' == $context[ $key ] ) {
+				if ( 'web' === $context[ $key ] ) {
 					return esc_html( __( 'WordPress Plugin Repository', 'simple-history' ) );
-				} elseif ( 'upload' == $context[ $key ] ) {
+				} elseif ( 'upload' === $context[ $key ] ) {
 					return esc_html( __( 'Uploaded ZIP archive', 'simple-history' ) );
 				} else {
 					return esc_html( $context[ $key ] );
@@ -1254,7 +1305,7 @@ class Plugin_Logger extends Logger {
 					return '';
 				}
 
-				if ( 'upload' == $context['plugin_install_source'] ) {
+				if ( 'upload' === $context['plugin_install_source'] ) {
 					$plugin_upload_name = $context['plugin_upload_name'];
 					return esc_html( $plugin_upload_name );
 				}
@@ -1273,11 +1324,11 @@ class Plugin_Logger extends Logger {
 	 * @return string HTML output.
 	 */
 	private function get_plugin_info_link( $context ) {
-		$output = '';
+		$output      = '';
 		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 
 		// Slug + web as install source = show link to wordpress.org.
-		if ( $plugin_slug && isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'web' ) {
+		if ( $plugin_slug && isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] === 'web' ) {
 			$output .= sprintf(
 				'
 				<tr>
@@ -1288,7 +1339,7 @@ class Plugin_Logger extends Logger {
 				admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" ),
 				esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
 			);
-		} elseif ( isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] == 'upload' && ! empty( $context['plugin_github_url'] ) ) {
+		} elseif ( isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] === 'upload' && ! empty( $context['plugin_github_url'] ) ) {
 			$output .= sprintf(
 				'
 				<tr>
@@ -1312,8 +1363,8 @@ class Plugin_Logger extends Logger {
 	 * @return string HTML output.
 	 */
 	private function get_plugin_action_details_output( $context, $message_key ) {
-		$output = '';
-		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
+		$output         = '';
+		$plugin_slug    = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 		$plugin_version = empty( $context['plugin_version'] ) ? '' : $context['plugin_version'];
 
 		if ( $plugin_slug && empty( $context['plugin_github_url'] ) ) {
@@ -1379,5 +1430,27 @@ class Plugin_Logger extends Logger {
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Add rollback context to event if rollback will occur.
+	 *
+	 * @param array  $context Context array.
+	 * @param string $plugin_identifier Plugin main file path.
+	 * @return array Modified context array.
+	 */
+	private function add_rollback_context( $context, $plugin_identifier ) {
+		// Check if rollback will occur (WordPress 6.3+ feature).
+		$package_result = $this->package_results[ $plugin_identifier ] ?? null;
+		if ( $package_result && ! empty( $package_result['rollback_will_occur'] ) ) {
+			$context['rollback_will_occur'] = true;
+			if ( ! empty( $package_result['rollback_info'] ) ) {
+				$context['rollback_backup_slug']   = $package_result['rollback_info']['backup_slug'];
+				$context['rollback_error_code']    = $package_result['rollback_info']['error_code'];
+				$context['rollback_error_message'] = $package_result['rollback_info']['error_message'];
+			}
+		}
+
+		return $context;
 	}
 }

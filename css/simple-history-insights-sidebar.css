@@ -1,0 +1,207 @@
+/**
+ * Styles for History Insights Sidebar Widget
+ *
+ * This file contains all styles needed for the sidebar widget to be
+ * completely self-contained and independent of other CSS files.
+ */
+
+/* Main container for the sidebar stats box */
+.sh-SidebarStats {
+	--box-bg-color: var(--sh-color-white);
+	text-wrap-style: pretty;
+	padding: 1rem;
+	background-color: var(--box-bg-color);
+	border-radius: 10px;
+}
+
+/* Title styling */
+.sh-SidebarStats .sh-PremiumFeaturesPostbox-title {
+	color: #1d2327;
+	font-size: 1.5em;
+	margin: 0 0 var(--sh-spacing-small) 0;
+}
+
+/* Button styling for "See all History Insights" link */
+.sh-SidebarStats .sh-PremiumFeaturesPostbox-button {
+	display: block;
+	background-color: var(--sh-color-blue);
+	color: white;
+	text-decoration: none;
+	padding: 0.75em 1.25em;
+	border-radius: 5px;
+	text-align: center;
+	transition: background-color 0.25s ease-out;
+}
+
+.sh-SidebarStats .sh-PremiumFeaturesPostbox-button:active,
+.sh-SidebarStats .sh-PremiumFeaturesPostbox-button:focus,
+.sh-SidebarStats .sh-PremiumFeaturesPostbox-button:hover {
+	color: white;
+}
+
+/* Stats dashboard stat items (used for Today/7 days/30 days) */
+.sh-SidebarStats .sh-StatsDashboard-stat {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-small);
+	flex: 1;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-stat--small {
+	gap: var(--sh-spacing-xsmall);
+}
+
+.sh-SidebarStats .sh-StatsDashboard-stat--small .sh-StatsDashboard-statLabel,
+.sh-SidebarStats
+	.sh-StatsDashboard-stat--small
+	.sh-StatsDashboard-statSubValue {
+	font-size: var(--sh-font-size-normal);
+}
+
+.sh-SidebarStats .sh-StatsDashboard-statLabel,
+.sh-SidebarStats .sh-StatsDashboard-statSubValue {
+	font-size: var(--sh-font-size-medium);
+	color: var(--sh-color-black-2);
+}
+
+.sh-SidebarStats .sh-StatsDashboard-statValue {
+	color: var(--sh-color-black);
+	font-weight: normal;
+	line-height: 1;
+}
+
+/* Container for Today/7 days/30 days stats */
+.sh-SidebarStats-eventsPerDays {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	flex-wrap: wrap;
+	margin-bottom: calc(var(--sh-spacing-large) - var(--sh-spacing-small));
+	margin-left: calc(var(--sh-spacing-small) * -1);
+	margin-right: calc(var(--sh-spacing-small) * -1);
+}
+
+/* div or a wrapper (depending on if the stat has a URL or not) */
+.sh-SidebarStats-eventsPerDays .sh-StatsDashboard-stat {
+	border-radius: var(--sh-border-radius);
+	padding: var(--sh-spacing-small);
+}
+
+.sh-SidebarStats-eventsPerDays
+	.sh-StatsDashboard-stat--small
+	.sh-StatsDashboard-statValue {
+	white-space: nowrap;
+	font-size: var(--sh-font-size-large);
+}
+
+.sh-SidebarStats-eventsPerDays a.sh-StatsDashboard-stat {
+	text-decoration: none;
+}
+
+.sh-SidebarStats-eventsPerDays a.sh-StatsDashboard-stat:hover {
+	background: var(--sh-color-item-hover);
+	background: var(--sh-color-gray-4);
+}
+
+/* User list styling */
+.sh-SidebarStats .sh-StatsDashboard-userList {
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userItem {
+	position: relative;
+	margin-left: -12px;
+	margin-bottom: 0;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userItem:first-child {
+	margin-left: 0;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userLink {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userLink:hover,
+.sh-SidebarStats .sh-StatsDashboard-userLink:focus {
+	outline: none;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userAvatar {
+	border-radius: 50%;
+	border: 2px solid var(--sh-color-white);
+	width: var(--sh-avatar-size, var(--sh-font-size-xxxlarge));
+	height: var(--sh-avatar-size, var(--sh-font-size-xxxlarge));
+	transition: transform 0.1s ease-in-out;
+	vertical-align: middle;
+}
+
+.sh-SidebarStats
+	.sh-StatsDashboard-userLink:hover
+	.sh-StatsDashboard-userAvatar {
+	transform: scale(1.15);
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userData {
+	position: absolute;
+	top: var(--sh-avatar-size, var(--sh-font-size-xxxlarge));
+	opacity: 0;
+	transform: translateX(-50%);
+	left: 50%;
+	white-space: nowrap;
+	z-index: 5;
+	transition: opacity 0.3s ease-in-out;
+	background: var(--sh-color-yellow);
+	border-radius: var(--sh-border-radius);
+	box-shadow: var(--sh-shadow-elevation-high);
+	padding: var(--sh-spacing-medium);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	font-size: var(--sh-font-size-medium);
+	pointer-events: none;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userLink:hover .sh-StatsDashboard-userData {
+	pointer-events: auto;
+	opacity: 1;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userName {
+	font-size: var(--sh-font-size-medium);
+	font-weight: 600;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userActions {
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-black-2);
+}
+
+/* List of user names below the avatar list */
+.sh-SidebarStats .sh-StatsDashboard-userNamesList {
+	margin-top: var(--sh-spacing-xsmall);
+	margin-bottom: 0;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userNamesList a {
+	text-decoration: none;
+}
+
+.sh-SidebarStats .sh-StatsDashboard-userNamesList a:hover,
+.sh-SidebarStats .sh-StatsDashboard-userNamesList a:focus {
+	text-decoration: underline;
+}
+
+/* Event count displayed after each username in the list */
+.sh-SidebarStats .sh-StatsDashboard-userEventCount {
+	font-size: 0.9em;
+	color: #666;
+	font-weight: normal;
+	text-decoration: none;
+}

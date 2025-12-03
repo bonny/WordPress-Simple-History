@@ -7,7 +7,6 @@ use Simple_History\Log_Initiators;
 use Simple_History\Log_Levels;
 use WP_CLI;
 use WP_CLI_Command;
-use WP_CLI\Utils;
 use Simple_History\Log_Query;
 
 /**
@@ -135,6 +134,29 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * [--only_sticky]
 	 * : Show only sticky events.
 	 *
+	 * ## Exclusion Filters
+	 *
+	 * These parameters exclude events matching the criteria. When both inclusion and exclusion
+	 * filters are specified for the same field, exclusion takes precedence.
+	 *
+	 * [--exclude_search=<term>]
+	 * : Exclude events containing this text.
+	 *
+	 * [--exclude_log_level=<levels>]
+	 * : Exclude events with these log levels. Comma-separated list.
+	 *
+	 * [--exclude_logger=<loggers>]
+	 * : Exclude events from these loggers. Comma-separated list.
+	 *
+	 * [--exclude_message=<messages>]
+	 * : Exclude events with these message types in format "LoggerSlug:MessageKey". Comma-separated list.
+	 *
+	 * [--exclude_user=<users>]
+	 * : Exclude events from these user IDs. Comma-separated list.
+	 *
+	 * [--exclude_initiator=<initiators>]
+	 * : Exclude events from these initiators. Comma-separated list.
+	 *
 	 * ## Examples
 	 *
 	 *     # Basic usage
@@ -152,6 +174,21 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *     # Show only sticky events
 	 *     wp simple-history list --only_sticky --format=json
 	 *
+	 *     # Exclude debug level events
+	 *     wp simple-history list --exclude_log_level=debug --count=50
+	 *
+	 *     # Exclude events containing "cron"
+	 *     wp simple-history list --exclude_search=cron --count=50
+	 *
+	 *     # Exclude WordPress-initiated events (cron jobs, automatic updates)
+	 *     wp simple-history list --exclude_initiator=wp --count=50
+	 *
+	 *     # Combine positive and negative filters
+	 *     wp simple-history list --log_level=info --exclude_search=cron --count=50
+	 *
+	 *     # Exclude multiple log levels and initiators
+	 *     wp simple-history list --exclude_log_level=debug,info --exclude_initiator=wp,wp_cli --count=100
+	 *
 	 * @when after_wp_load
 	 *
 	 * @param array $args Positional arguments.
@@ -162,19 +199,25 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 		$assoc_args = wp_parse_args(
 			$assoc_args,
 			array(
-				'format' => 'table',
-				'count' => 10,
-				'initiator' => '',
-				'log_level' => '',
-				'logger' => '',
-				'message' => '',
-				'user' => '',
-				'search' => '',
-				'date_from' => '',
-				'date_to' => '',
-				'months' => '',
-				'include_sticky' => false,
-				'only_sticky' => false,
+				'format'            => 'table',
+				'count'             => 10,
+				'initiator'         => '',
+				'log_level'         => '',
+				'logger'            => '',
+				'message'           => '',
+				'user'              => '',
+				'search'            => '',
+				'date_from'         => '',
+				'date_to'           => '',
+				'months'            => '',
+				'include_sticky'    => false,
+				'only_sticky'       => false,
+				'exclude_search'    => '',
+				'exclude_log_level' => '',
+				'exclude_logger'    => '',
+				'exclude_message'   => '',
+				'exclude_user'      => '',
+				'exclude_initiator' => '',
 			)
 		);
 
@@ -195,10 +238,27 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			'log_level'
 		);
 
-		$loggers = $this->parse_comma_separated_values( $assoc_args['logger'] );
+		$loggers  = $this->parse_comma_separated_values( $assoc_args['logger'] );
 		$messages = $this->parse_comma_separated_values( $assoc_args['message'] );
-		$users = $this->parse_comma_separated_values( $assoc_args['user'] );
-		$months = $this->parse_comma_separated_values( $assoc_args['months'] );
+		$users    = $this->parse_comma_separated_values( $assoc_args['user'] );
+		$months   = $this->parse_comma_separated_values( $assoc_args['months'] );
+
+		// Validate and parse exclusion filter parameters.
+		$exclude_log_levels = $this->parse_comma_separated_values(
+			$assoc_args['exclude_log_level'],
+			Log_Levels::get_valid_log_levels(),
+			'exclude_log_level'
+		);
+
+		$exclude_loggers  = $this->parse_comma_separated_values( $assoc_args['exclude_logger'] );
+		$exclude_messages = $this->parse_comma_separated_values( $assoc_args['exclude_message'] );
+		$exclude_users    = $this->parse_comma_separated_values( $assoc_args['exclude_user'] );
+
+		$exclude_initiators = $this->parse_comma_separated_values(
+			$assoc_args['exclude_initiator'],
+			Log_Initiators::get_valid_initiators(),
+			'exclude_initiator'
+		);
 
 		// Override capability check: if you can run wp cli commands you can read all loggers.
 		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
@@ -259,32 +319,66 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			$query_args['only_sticky'] = true;
 		}
 
+		// Add exclusion filters to query args if provided.
+		if ( ! empty( $assoc_args['exclude_search'] ) ) {
+			$query_args['exclude_search'] = $assoc_args['exclude_search'];
+		}
+
+		if ( ! empty( $exclude_log_levels ) ) {
+			$query_args['exclude_loglevels'] = $exclude_log_levels;
+		}
+
+		if ( ! empty( $exclude_loggers ) ) {
+			$query_args['exclude_loggers'] = $exclude_loggers;
+		}
+
+		if ( ! empty( $exclude_messages ) ) {
+			$query_args['exclude_messages'] = $exclude_messages;
+		}
+
+		if ( ! empty( $exclude_users ) ) {
+			// Convert to integers for user IDs.
+			$exclude_user_ids = array_map( 'intval', array_filter( $exclude_users, 'is_numeric' ) );
+			if ( ! empty( $exclude_user_ids ) ) {
+				$query_args['exclude_users'] = $exclude_user_ids;
+			}
+		}
+
+		if ( ! empty( $exclude_initiators ) ) {
+			$query_args['exclude_initiator'] = $exclude_initiators;
+		}
+
 		$events = $query->query( $query_args );
+
+		// Handle database errors.
+		if ( is_wp_error( $events ) ) {
+			WP_CLI::error( $events->get_error_message() );
+		}
 
 		// A cleaned version of the events, formatted for wp cli table output.
 		$eventsCleaned = array();
 
 		foreach ( $events['log_rows'] as $row ) {
 			$header_output = $this->simple_history->get_log_row_header_output( $row );
-			$header_output = strip_tags( html_entity_decode( $header_output, ENT_QUOTES, 'UTF-8' ) );
+			$header_output = wp_strip_all_tags( html_entity_decode( $header_output, ENT_QUOTES, 'UTF-8' ) );
 			$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
 
 			$text_output = $this->simple_history->get_log_row_plain_text_output( $row );
-			$text_output = strip_tags( html_entity_decode( $text_output, ENT_QUOTES, 'UTF-8' ) );
+			$text_output = wp_strip_all_tags( html_entity_decode( $text_output, ENT_QUOTES, 'UTF-8' ) );
 
 			$row_logger = $this->simple_history->get_instantiated_logger_by_slug( $row->logger );
 
 			$eventsCleaned[] = array(
-				'ID' => $row->id,
-				'date' => get_date_from_gmt( $row->date ),
-				'initiator' => Log_Initiators::get_initiator_text_from_row( $row ),
-				'logger' => $row->logger,
-				'level' => $row->level,
-				'who_when' => $header_output,
+				'ID'          => $row->id,
+				'date'        => get_date_from_gmt( $row->date ),
+				'initiator'   => Log_Initiators::get_initiator_text_from_row( $row ),
+				'logger'      => $row->logger,
+				'level'       => $row->level,
+				'who_when'    => $header_output,
 				'description' => $text_output,
-				'via' => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
+				'via'         => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'count' => $row->subsequentOccasions,
+				'count'       => $row->subsequentOccasions,
 			);
 		}
 

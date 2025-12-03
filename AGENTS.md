@@ -14,6 +14,29 @@ This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, e
 -   **Documentation**: See readme.txt for detailed plugin information
 -   **Upsell Philosophy**: Core version must be fully usable for free users with non-intrusive upgrade prompts. However, the premium version should be a "must-have" for most users. Convince users to upgrade to the premium version by "nudging" them discreetly in different places throughout the plugin. But don't be too pushy, don't annoy users! Win over users in the long run and make them happy to use the premium version.
 
+### Simple History's Freemium Approach
+
+**Free Version** (This Repository):
+- Must be fully functional for all core features
+- No artificial limitations
+- No license key requirements
+- No trial periods or usage limits
+- Can include non-intrusive upgrade prompts
+- Premium feature teasers (clearly marked)
+
+**Premium Version** (Separate Plugin):
+- Extended functionality (more retention, filters)
+- Premium-only integrations
+- Advanced features
+- Priority support
+
+**Philosophy**: "Free is great, Premium is a must-have"
+- Make users **want** to upgrade, not **have** to upgrade
+- Provide real value in premium, not just unlocking free features
+- Be helpful and friendly, not pushy or annoying
+
+See the **wordpress-org-compliance** skill for detailed guidelines on implementing this approach while maintaining WordPress.org compliance.
+
 ### Technical Architecture
 
 -   **Backend**: Written in PHP following WordPress plugin conventions
@@ -55,81 +78,45 @@ docker compose run --rm php-cli vendor/bin/codecept run acceptance:TestName
 
 ### Local Development Environment
 
-See @CLAUDE.local.md for local development setup including Docker configuration, WP-CLI commands, and REST API access.
+See CLAUDE.local.md for local development setup including Docker configuration, WP-CLI commands, and REST API access.
+
+### Viewing the Event Log
+
+**Preferred Method: WP-CLI**
+
+Use WP-CLI commands to view the event log directly from the command line. This is faster than opening a browser and navigating to the admin interface.
+
+```bash
+# View latest events
+docker compose run --rm wpcli_mariadb simple-history list
+
+# View available Simple History commands
+docker compose run --rm wpcli_mariadb simple-history --help
+```
+
+See @CLAUDE.local.md for specific commands for stable and nightly WordPress installations.
+
+## Agent Skills
+
+The following skills are available for domain-specific guidance:
+
+-   **code-quality**: PHP/CSS standards, linting tools (phpcs, phpstan, rector)
+-   **logger-messages**: Writing user-friendly active voice messages for event logs
+-   **wordpress-org-compliance**: WordPress.org guidelines for free vs premium features
+-   **changelog**: Adding entries to readme.txt changelog
+
+These skills are automatically discovered by Claude Code. Invoke them when working in their respective domains.
 
 ## Code Standards
 
-### General Principles
+### Quick Reference
 
 -   **WordPress Way**: Follow WordPress best practices and conventions
 -   **Prefixes**: Use `sh`, `simplehistory`, or `simple_history`
 -   **Text Domain**: `simple-history`
+-   **PHP**: 7.4+ compatibility, WordPress Coding Standards
 -   **Escaping**: Always escape output properly
 -   **JavaScript**: Follow @wordpress/scripts conventions
-
-### PHP Guidelines
-
-#### Requirements
-
--   PHP 7.4+ compatibility
--   WordPress Coding Standards (see phpcs.xml.dist)
--   No `mb_*` string functions
--   Use short array syntax (`[]` not `array()`)
--   WordPress hooks must use prefixes
-
-#### Code Style
-
--   **Happy path last**: Handle errors first, success last
--   **Avoid else**: Use early returns
--   **Separate conditions**: Multiple if statements over compound conditions
--   **Always use curly brackets**: Even for single statements
--   **Ternary operators**: Multi-line unless very short
-
-```php
-// Happy path last
-if (! $user) {
-    return null;
-}
-
-if (! $user->isActive()) {
-    return null;
-}
-
-// Process active user...
-
-// Short ternary
-$name = $isFoo ? 'foo' : 'bar';
-
-// Multi-line ternary
-$result = $object instanceof Model ?
-    $object->name :
-    'A default value';
-
-// Ternary instead of else
-$condition
-    ? $this->doSomething()
-    : $this->doSomethingElse();
-```
-
-### CSS Guidelines
-
--   **Naming Convention**: Suit CSS
--   **Prefix**: `sh`
--   **Examples**:
-    -   Components: `sh-HelpSection`, `sh-LogEntry`
-    -   Subparts: `sh-HelpSection-subpart`, `sh-LogEntry-author`
-
-### Logger Messages
-
-Write messages in **active tone** as if someone is telling you what happened:
-
--   ✅ "Activated plugin"
--   ✅ "Created menu"
--   ✅ "Detected modifications"
--   ❌ "Plugin was activated"
--   ❌ "Menu has been created"
-
-Messages should be easily understood by regular users, not just developers.
 
 ## Project Management
 
@@ -150,17 +137,18 @@ Messages should be easily understood by regular users, not just developers.
 
 For automation and API access:
 
-- **Project ID**: `PVT_kwHOAANhgs4AidMq`
-- **Project number**: `4`
-- **Owner**: `bonny`
-- **Status field ID**: `PVTSSF_lAHOAANhgs4AidMqzga-LME`
+-   **Project ID**: `PVT_kwHOAANhgs4AidMq`
+-   **Project number**: `4`
+-   **Owner**: `bonny`
+-   **Status field ID**: `PVTSSF_lAHOAANhgs4AidMqzga-LME`
 
 **Status Option IDs:**
-- "Backlog": `25e9263f`
-- "To do": `6c3f4438`
-- "In progress": `36813ba3`
-- "Experimental": `52a48e60`
-- "Done": `c40edce0`
+
+-   "Backlog": `25e9263f`
+-   "To do": `6c3f4438`
+-   "In progress": `36813ba3`
+-   "Experimental": `52a48e60`
+-   "Done": `c40edce0`
 
 #### GitHub CLI Commands
 
@@ -201,3 +189,5 @@ gh api graphql -f query='
 -   Follow OneFlow model (see code.md for details)
 -   Use GitHub CLI to fetch GitHub issues
 -   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos. Never add any sensitive information to this document, like API keys or passwords, since this document will be commited to GIT and can be shown on GitHub.
+-   Don't add to git or commit without user explicitly saying so
+-   Never add auth tokens or api keys to code or documents in /docs folder

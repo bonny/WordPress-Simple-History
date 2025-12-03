@@ -118,6 +118,7 @@ export function EventOccasions( props ) {
 				'subsequent_occasions_count',
 				'initiator',
 				'initiator_data',
+				'ip_addresses',
 				'via',
 			],
 		};
