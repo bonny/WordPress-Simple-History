@@ -108,6 +108,10 @@ class Export {
 
 		$query_result = $query->query( $download_query_args );
 
+		if ( is_wp_error( $query_result ) ) {
+			wp_die( esc_html( $query_result->get_error_message() ) );
+		}
+
 		$pages_count  = $query_result['pages_count'];
 		$page_current = $query_result['page_current'];
 
@@ -173,6 +177,10 @@ class Export {
 			++$page_current;
 			$download_query_args['paged'] = $page_current;
 			$query_result                 = $query->query( $download_query_args );
+
+			if ( is_wp_error( $query_result ) ) {
+				break;
+			}
 		}
 
 		if ( 'json' === $export_format ) {

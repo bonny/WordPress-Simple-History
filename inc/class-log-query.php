@@ -121,7 +121,7 @@ class Log_Query {
 	 *      @type array $context_filters Context filters as key-value pairs. Default null.
 	 *      @type boolean $ungrouped Return ungrouped events without occasions grouping. Default false.
 	 * }
-	 * @return array
+	 * @return array|\WP_Error Query results or WP_Error on database error.
 	 * @throws \InvalidArgumentException If invalid query type.
 	 */
 	public function query( $args = [] ) {
@@ -147,7 +147,7 @@ class Log_Query {
 	 * http://stackoverflow.com/questions/13566303/how-to-group-subsequent-rows-based-on-a-criteria-and-then-count-them-mysql/13567320#13567320
 	 *
 	 * @param string|array|object $args Arguments.
-	 * @return array Log rows.
+	 * @return array|\WP_Error Log rows or WP_Error on database error.
 	 * @throws \ErrorException If invalid DB engine.
 	 */
 	public function query_overview( $args ) {
@@ -175,7 +175,7 @@ class Log_Query {
 	 * Originally created for SQLite compatibility but useful for any ungrouped display.
 	 *
 	 * @param string|array|object $args Arguments.
-	 * @return array Log rows.
+	 * @return array|\WP_Error Log rows or WP_Error on database error.
 	 * @throws \Exception If error when performing query.
 	 */
 	protected function query_overview_simple( $args ) {
@@ -241,14 +241,10 @@ class Log_Query {
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K );
 
 		if ( ! empty( $wpdb->last_error ) ) {
-			throw new \Exception(
-				esc_html(
-					sprintf(
-						/* translators: %s: error message */
-						__( 'Error when performing query: %s', 'simple-history' ),
-						$wpdb->last_error
-					)
-				)
+			return new \WP_Error(
+				'simple_history_db_error',
+				__( 'Database query failed.', 'simple-history' ),
+				array( 'db_error' => $wpdb->last_error )
 			);
 		}
 
@@ -318,7 +314,7 @@ class Log_Query {
 
 	/**
 	 * @param string|array|object $args Arguments.
-	 * @return array Log rows.
+	 * @return array|\WP_Error Log rows or WP_Error on database error.
 	 * @throws \Exception If error when performing query.
 	 */
 	protected function query_overview_mysql( $args ) {
@@ -500,14 +496,10 @@ class Log_Query {
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K );
 
 		if ( ! empty( $wpdb->last_error ) ) {
-			throw new \Exception(
-				esc_html(
-					sprintf(
-						/* translators: %s: error message */
-						__( 'Error when performing query: %s', 'simple-history' ),
-						$wpdb->last_error
-					)
-				)
+			return new \WP_Error(
+				'simple_history_db_error',
+				__( 'Database query failed.', 'simple-history' ),
+				array( 'db_error' => $wpdb->last_error )
 			);
 		}
 
@@ -637,7 +629,7 @@ class Log_Query {
 	 * Does not take filters/where into consideration.
 	 *
 	 * @param string|array|object $args Arguments.
-	 * @return array
+	 * @return array|\WP_Error Log rows or WP_Error on database error.
 	 */
 	protected function query_occasions( $args ) {
 		// Create cache key based on args and current user.

@@ -732,6 +732,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		$log_query    = new Log_Query();
 		$query_result = $log_query->query( $args );
 
+		if ( is_wp_error( $query_result ) ) {
+			return $query_result;
+		}
+
 		return rest_ensure_response(
 			[
 				'new_events_count' => $query_result['total_row_count'],
@@ -818,6 +822,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		$log_query    = new Log_Query();
 		$query_result = $log_query->query( $args );
+
+		if ( is_wp_error( $query_result ) ) {
+			return $query_result;
+		}
 
 		foreach ( $query_result['log_rows'] as $event_row ) {
 			$data     = $this->prepare_item_for_response( $event_row, $request );

@@ -56,6 +56,11 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 			)
 		);
 
+		// Handle database errors.
+		if ( is_wp_error( $query_result ) ) {
+			WP_CLI::error( $query_result->get_error_message() );
+		}
+
 		// Return early if no found events.
 		if ( $query_result['total_row_count'] === 0 ) {
 			WP_CLI::error(

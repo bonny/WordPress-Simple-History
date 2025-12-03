@@ -138,16 +138,24 @@ echo Admin_Pages::header_output();
 	 */
 	$rows = ( new Log_Query() )->query( [ 'posts_per_page' => 1 ] );
 
-	// This is the number of rows with occasions taken into consideration.
-	$total_accassions_rows_count = $rows['total_row_count'];
+	// Handle database errors gracefully.
+	if ( is_wp_error( $rows ) ) {
+		echo '<p>';
+		echo '<strong>' . esc_html_x( 'Error:', 'debug dropin', 'simple-history' ) . '</strong> ';
+		echo esc_html( $rows->get_error_message() );
+		echo '</p>';
+	} else {
+		// This is the number of rows with occasions taken into consideration.
+		$total_accassions_rows_count = $rows['total_row_count'];
 
-	echo '<p>';
-	printf(
-		/* translators: %d number of rows. */
-		esc_html_x( 'Total %s rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
-		esc_html( $total_accassions_rows_count )
-	);
-	echo '</p>';
+		echo '<p>';
+		printf(
+			/* translators: %d number of rows. */
+			esc_html_x( 'Total %s rows, when grouped by occasion id.', 'debug dropin', 'simple-history' ),
+			esc_html( $total_accassions_rows_count )
+		);
+		echo '</p>';
+	}
 
 	// Total number of logged events,
 	// since installing the plugin or since the feature was added.

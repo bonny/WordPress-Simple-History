@@ -930,7 +930,8 @@ class Helpers {
 		 */
 		$pager_size = apply_filters( 'simple_history/page_pager_size', $pager_size );
 
-		return $pager_size;
+		// Ensure we return a positive int to prevent type errors and division by zero.
+		return max( 1, (int) $pager_size );
 	}
 
 	/**
@@ -1511,7 +1512,7 @@ class Helpers {
 	 * Get number of unique events the last n days.
 	 *
 	 * @param int $days Number of days to get events for.
-	 * @return int Number of days.
+	 * @return int Number of unique events.
 	 */
 	public static function get_unique_events_for_days( $days = 7 ) {
 		global $wpdb;
@@ -1537,10 +1538,14 @@ class Helpers {
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$numEvents = $wpdb->get_var( $sql );
 
-			set_transient( $cache_key, $numEvents, HOUR_IN_SECONDS );
+			// Don't cache failed queries (null result when table doesn't exist).
+			if ( $numEvents !== null ) {
+				set_transient( $cache_key, $numEvents, HOUR_IN_SECONDS );
+			}
 		}
 
-		return $numEvents;
+		// Always return int to prevent type errors in arithmetic operations.
+		return (int) $numEvents;
 	}
 
 	/**

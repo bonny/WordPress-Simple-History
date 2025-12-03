@@ -322,6 +322,10 @@ class RSS_Dropin extends Dropin {
 
 					// Remove capability override after query is done
 					// remove_action( $action_tag, '__return_true', 10 );.
+					if ( is_wp_error( $queryResults ) ) {
+						$queryResults = array( 'log_rows' => array() );
+					}
+
 					foreach ( $queryResults['log_rows'] as $row ) {
 						$header_output  = $this->simple_history->get_log_row_header_output( $row );
 						$text_output    = $this->simple_history->get_log_row_plain_text_output( $row );

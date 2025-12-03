@@ -13,7 +13,7 @@ class SimpleHistoryLogQuery {
 	 *
 	 * @since 4.0
 	 * @param array $args Query args.
-	 * @return array
+	 * @return array|\WP_Error Query results or WP_Error on database error.
 	 */
 	public function query( $args ) {
 		return ( new Log_Query() )->query( $args );

@@ -350,6 +350,11 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 
 		$events = $query->query( $query_args );
 
+		// Handle database errors.
+		if ( is_wp_error( $events ) ) {
+			WP_CLI::error( $events->get_error_message() );
+		}
+
 		// A cleaned version of the events, formatted for wp cli table output.
 		$eventsCleaned = array();
 

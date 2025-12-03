@@ -1839,6 +1839,10 @@ class Events_Stats {
 			)
 		);
 
+		if ( is_wp_error( $logResults ) ) {
+			return 0;
+		}
+
 		return (int) $logResults['total_row_count'];
 	}
 }
