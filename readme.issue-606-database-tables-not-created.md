@@ -291,6 +291,74 @@ Fixed TypeError in `Helpers::get_data_for_date_filter()` when tables don't exist
 | `get_unique_events_for_days()` | Returns null/string when query fails, causing division error | Always return `(int)`, don't cache null results |
 | `get_pager_size()` | Could return string from option/filter | Return `max(1, (int) $pager_size)` to prevent type errors and division by zero |
 
+## Auto-Recovery Implementation (Completed)
+
+Added automatic table recreation when queries or inserts fail due to missing tables. Zero overhead for normal operation.
+
+### How It Works
+
+1. **Query fails** → Check if error is "table doesn't exist"
+2. **If yes** → Reset `simple_history_db_version` to 0, run setup steps to create tables
+3. **Retry** → Original operation succeeds
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `inc/services/class-setup-database.php` | Added `recreate_tables_if_missing()` and `is_table_missing_error()` static methods |
+| `inc/class-log-query.php` | Auto-recovery in `query()` - recreates tables and retries on table missing error |
+| `loggers/class-logger.php` | Auto-recovery in `log()` - recreates tables and retries on insert failure |
+
+### Test Results
+
+**Test: Drop tables, then query events via REST API:**
+- Tables automatically recreated
+- Query returned empty array (not error)
+
+**Test: Drop tables, then log an event:**
+- Tables automatically recreated
+- Event was logged successfully (not lost)
+
+```bash
+# Before: Tables missing, db_version = 7
+# Action: SimpleLogger()->info("Test event from CLI");
+# After: Tables recreated, event logged with ID 1
+```
+
+### Key Benefits
+
+- **Zero overhead** for normal sites (no extra queries)
+- **Automatic recovery** on first query/insert failure
+- **No events lost** - first event after recovery is saved
+- **Single request recovery** - no need to refresh
+
+## Automated Tests
+
+Two test suites verify the auto-recovery functionality:
+
+### Unit Tests (`tests/wpunit/DatabaseAutoRecoveryTest.php`)
+
+| Test | Description |
+|------|-------------|
+| `test_is_table_missing_error_detects_mysql_errors` | Verifies error detection regex matches MySQL/MariaDB "table doesn't exist" errors |
+| `test_is_table_missing_error_ignores_other_errors` | Ensures other DB errors (duplicate key, connection) don't trigger recovery |
+| `test_recreate_tables_method_exists_and_is_callable` | Confirms the recovery methods exist and are accessible |
+| `test_recreate_tables_only_runs_once` | Verifies static flag prevents infinite recursion |
+| `test_log_query_returns_results_after_tables_exist` | Basic query functionality test |
+| `test_logger_logs_event_successfully` | Basic logging functionality test |
+
+### Functional Tests (`tests/functional/DatabaseAutoRecoveryCest.php`)
+
+These tests actually drop tables and verify recreation:
+
+| Test | Description |
+|------|-------------|
+| `test_auto_recovery_on_logging` | Drops tables, user logs in → tables recreated, login event logged |
+| `test_auto_recovery_on_query` | Drops tables, visits admin page → tables recreated, no crash |
+| `test_events_logged_after_recovery` | Drops tables, logs in twice → both events logged (not lost) |
+
+**Why functional tests?** Unit tests use database transactions which interfere with DDL statements (DROP TABLE). Functional tests run each test in isolation with full database access.
+
 ## Progress
 
 - [x] Investigate current table creation logic
@@ -306,6 +374,9 @@ Fixed TypeError in `Helpers::get_data_for_date_filter()` when tables don't exist
 - [x] Update all callers to handle WP_Error
 - [x] Test WP_Error handling with missing tables
 - [x] Fix type errors in Helpers (division with null/string)
+- [x] Implement auto-recreate missing tables
+- [x] Test auto-recovery for queries (Log_Query)
+- [x] Test auto-recovery for logging (Logger)
+- [x] Add unit tests for auto-recovery methods
+- [x] Add functional tests for table drop/recreate flow
 - [ ] Test multisite network activation
-- [ ] Implement auto-recreate missing tables
-- [ ] Test fix in all scenarios
