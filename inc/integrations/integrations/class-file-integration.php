@@ -32,7 +32,7 @@ class File_Integration extends Integration {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->slug = 'file';
+		$this->slug           = 'file';
 		$this->supports_async = false; // File writing is fast, no need for async.
 
 		parent::__construct();
@@ -114,25 +114,25 @@ class File_Integration extends Integration {
 
 		$file_fields = [
 			[
-				'type' => 'select',
-				'name' => 'rotation_frequency',
-				'title' => __( 'Create new files', 'simple-history' ),
+				'type'    => 'select',
+				'name'    => 'rotation_frequency',
+				'title'   => __( 'Create new files', 'simple-history' ),
 				'options' => [
-					'daily' => __( 'Daily', 'simple-history' ),
-					'weekly' => __( 'Weekly', 'simple-history' ),
+					'daily'   => __( 'Daily', 'simple-history' ),
+					'weekly'  => __( 'Weekly', 'simple-history' ),
 					'monthly' => __( 'Monthly', 'simple-history' ),
-					'never' => __( 'Never (single file)', 'simple-history' ),
+					'never'   => __( 'Never (single file)', 'simple-history' ),
 				],
 				'default' => 'daily',
 			],
 			[
-				'type' => 'number',
-				'name' => 'keep_files',
-				'title' => __( 'Number of files to keep', 'simple-history' ),
+				'type'        => 'number',
+				'name'        => 'keep_files',
+				'title'       => __( 'Number of files to keep', 'simple-history' ),
 				'description' => __( 'Oldest file will be deleted. Set to 0 to keep forever.', 'simple-history' ),
-				'default' => 30,
-				'min' => 0,
-				'max' => 365,
+				'default'     => 30,
+				'min'         => 0,
+				'max'         => 365,
 			],
 		];
 
@@ -270,8 +270,8 @@ class File_Integration extends Integration {
 		$timestamp = current_time( 'Y-m-d H:i:s' );
 
 		// Standard log format: timestamp level logger: message [key=value ...].
-		$level = strtoupper( $event_data['level'] ?? 'info' );
-		$logger = $event_data['logger'] ?? 'Unknown';
+		$level     = strtoupper( $event_data['level'] ?? 'info' );
+		$logger    = $event_data['logger'] ?? 'Unknown';
 		$initiator = $event_data['initiator'] ?? 'unknown';
 
 		// Use $context for easier access.
@@ -286,7 +286,7 @@ class File_Integration extends Integration {
 		if ( ! empty( $context ) ) {
 			foreach ( $essential_fields as $field ) {
 				if ( isset( $context[ $field ] ) && is_scalar( $context[ $field ] ) ) {
-					$clean_key = ltrim( $field, '_' ); // Remove leading underscore for cleaner output.
+					$clean_key         = ltrim( $field, '_' ); // Remove leading underscore for cleaner output.
 					$structured_data[] = $clean_key . '=' . $context[ $field ];
 				}
 			}
@@ -319,7 +319,7 @@ class File_Integration extends Integration {
 			return self::$directory_cache[ $directory ];
 		}
 
-		$result = $this->ensure_directory_exists( $directory );
+		$result                              = $this->ensure_directory_exists( $directory );
 		self::$directory_cache[ $directory ] = $result;
 
 		return $result;
@@ -360,7 +360,7 @@ class File_Integration extends Integration {
 		
 		// Only create if it doesn't exist.
 		if ( ! file_exists( $htaccess_path ) ) {
-			$htaccess_content = "# Simple History log directory protection\n";
+			$htaccess_content  = "# Simple History log directory protection\n";
 			$htaccess_content .= "Order deny,allow\n";
 			$htaccess_content .= "Deny from all\n";
 			
@@ -374,7 +374,7 @@ class File_Integration extends Integration {
 	 */
 	private function schedule_cleanup_if_needed() {
 		$cleanup_interval = 3600; // Run cleanup at most once per hour.
-		$current_time = time();
+		$current_time     = time();
 
 		// Check if enough time has passed since last cleanup.
 		if ( ( $current_time - self::$last_cleanup_time ) < $cleanup_interval ) {
@@ -487,5 +487,4 @@ class File_Integration extends Integration {
 
 		$this->cleanup_old_files();
 	}
-
 }

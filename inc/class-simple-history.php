@@ -58,7 +58,7 @@ class Simple_History {
 	/** @var \Simple_History\Integrations\Integrations_Manager|null The integrations manager instance. */
 	public $integrations_manager = null;
 
-	public const DBTABLE = 'simple_history';
+	public const DBTABLE          = 'simple_history';
 	public const DBTABLE_CONTEXTS = 'simple_history_contexts';
 
 	/** @var string $dbtable Full database name with prefix, i.e. wp_simple_history */

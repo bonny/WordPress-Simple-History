@@ -22,8 +22,8 @@ class Integrations_Settings_Page extends Service {
 	 */
 	private ?Integrations_Manager $integrations_manager = null;
 
-	private const SETTINGS_SECTION_ID = 'simple_history_settings_section_tab_integrations';
-	private const SETTINGS_PAGE_SLUG = 'simple_history_settings_menu_slug_tab_integrations';
+	private const SETTINGS_SECTION_ID   = 'simple_history_settings_section_tab_integrations';
+	private const SETTINGS_PAGE_SLUG    = 'simple_history_settings_menu_slug_tab_integrations';
 	private const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_tab_integrations';
 
 	/**
@@ -103,7 +103,7 @@ class Integrations_Settings_Page extends Service {
 	 */
 	private function add_integration_settings_fields( $integration ) {
 		$integration_slug = $integration->get_slug();
-		$settings_fields = $integration->get_settings_fields();
+		$settings_fields  = $integration->get_settings_fields();
 
 		if ( empty( $settings_fields ) ) {
 			return;
@@ -151,9 +151,9 @@ class Integrations_Settings_Page extends Service {
 	 */
 	public function render_integration_settings( $args ) {
 		/** @var \Simple_History\Integrations\Interfaces\Integration_Interface $integration */
-		$integration = $args['integration'];
+		$integration     = $args['integration'];
 		$settings_fields = $integration->get_settings_fields();
-		$option_name = $integration->get_settings_option_name();
+		$option_name     = $integration->get_settings_option_name();
 
 		?>
 		<div class="sh-Integration-settings">
@@ -201,7 +201,7 @@ class Integrations_Settings_Page extends Service {
 	 */
 	private function render_field( $field, $value, $option_name ) {
 		$field_name = $option_name . '[' . $field['name'] . ']';
-		$field_id = $option_name . '_' . $field['name'];
+		$field_id   = $option_name . '_' . $field['name'];
 
 		switch ( $field['type'] ) {
 			case 'checkbox':

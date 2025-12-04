@@ -173,9 +173,9 @@ abstract class Integration implements Integration_Interface {
 	public function get_settings_fields() {
 		return [
 			[
-				'type' => 'checkbox',
-				'name' => 'enabled',
-				'title' => __( 'Enable Integration', 'simple-history' ),
+				'type'        => 'checkbox',
+				'name'        => 'enabled',
+				'title'       => __( 'Enable Integration', 'simple-history' ),
 				'description' => sprintf(
 					/* translators: %s: Integration name */
 					__( 'Enable', 'simple-history' ),
@@ -218,7 +218,7 @@ abstract class Integration implements Integration_Interface {
 	 * @return bool True on success, false on failure.
 	 */
 	public function set_setting( $setting_name, $value ) {
-		$settings = $this->get_settings();
+		$settings                  = $this->get_settings();
 		$settings[ $setting_name ] = $value;
 		return $this->save_settings( $settings );
 	}
@@ -276,10 +276,10 @@ abstract class Integration implements Integration_Interface {
 	 */
 	protected function validate_settings( $settings ) {
 		$validated = [];
-		$fields = $this->get_settings_fields();
+		$fields    = $this->get_settings_fields();
 
 		foreach ( $fields as $field ) {
-			$name = $field['name'];
+			$name  = $field['name'];
 			$value = $settings[ $name ] ?? null;
 
 			// Apply field-specific validation.

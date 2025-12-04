@@ -141,13 +141,13 @@ class Integrations_Manager extends Service {
 	 */
 	private function prepare_event_data( $context, $data, $logger ) {
 		return [
-			'id' => $data['id'] ?? null,
-			'date' => $data['date'] ?? current_time( 'mysql' ),
-			'logger' => $data['logger'] ?? '',
-			'level' => $data['level'] ?? 'info',
-			'message' => $data['message'] ?? '',
-			'initiator' => $data['initiator'] ?? '',
-			'context' => $context,
+			'id'              => $data['id'] ?? null,
+			'date'            => $data['date'] ?? current_time( 'mysql' ),
+			'logger'          => $data['logger'] ?? '',
+			'level'           => $data['level'] ?? 'info',
+			'message'         => $data['message'] ?? '',
+			'initiator'       => $data['initiator'] ?? '',
+			'context'         => $context,
 			'logger_instance' => $logger,
 		];
 	}

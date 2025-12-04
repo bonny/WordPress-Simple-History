@@ -96,7 +96,7 @@ class Alert_Rules_Engine {
 		$results = [];
 
 		foreach ( $rules as $rule_config ) {
-			$result = $this->evaluate_single_rule( $rule_config, $event_data );
+			$result    = $this->evaluate_single_rule( $rule_config, $event_data );
 			$results[] = $result;
 
 			// Short-circuit evaluation for performance.
@@ -149,7 +149,7 @@ class Alert_Rules_Engine {
 	public function validate_rule( $rule_config ) {
 		if ( empty( $rule_config['type'] ) ) {
 			return [
-				'valid' => false,
+				'valid'  => false,
 				'errors' => [ __( 'Rule type is required.', 'simple-history' ) ],
 			];
 		}
@@ -158,7 +158,7 @@ class Alert_Rules_Engine {
 
 		if ( ! $rule_type ) {
 			return [
-				'valid' => false,
+				'valid'  => false,
 				'errors' => [
 					sprintf(
 						/* translators: %s: Rule type */
@@ -180,7 +180,7 @@ class Alert_Rules_Engine {
 	 */
 	public function validate_rules( $rules ) {
 		$all_errors = [];
-		$all_valid = true;
+		$all_valid  = true;
 
 		foreach ( $rules as $index => $rule_config ) {
 			$validation = $this->validate_rule( $rule_config );
