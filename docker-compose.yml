@@ -56,6 +56,18 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
 
+  # Lightweight PHP service for linting (phpcs, phpstan, rector) - no dependencies
+  php-lint:
+    image: dockette/ci:php${PHP_CLI_VERSION:-74}
+    init: true
+    container_name: simple-history-php-lint
+    profiles:
+      - noautostart
+    working_dir: /srv
+    volumes:
+      - ./:/srv
+
+  # Full PHP CLI for tests - depends on db, wordpress, chrome
   php-cli:
     image: dockette/ci:php${PHP_CLI_VERSION:-74}
     init: true
