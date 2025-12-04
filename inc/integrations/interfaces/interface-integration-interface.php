@@ -13,6 +13,15 @@ namespace Simple_History\Integrations\Interfaces;
  */
 interface Integration_Interface {
 	/**
+	 * Called when the integration is loaded and ready.
+	 *
+	 * This method is called by the Integrations_Manager after registration.
+	 * Use this to register hooks and perform initialization that has side effects.
+	 * Keeping this separate from construction allows for side-effect-free instantiation.
+	 */
+	public function loaded();
+
+	/**
 	 * Get the unique slug for this integration.
 	 *
 	 * @return string The integration slug.

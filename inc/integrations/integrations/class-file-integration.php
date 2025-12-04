@@ -15,6 +15,21 @@ use Simple_History\Integrations\Integration;
  */
 class File_Integration extends Integration {
 	/**
+	 * The unique slug for this integration.
+	 *
+	 * @var ?string
+	 */
+	protected ?string $slug = 'file';
+
+	/**
+	 * Whether this integration supports async processing.
+	 * File writing is fast, no need for async.
+	 *
+	 * @var bool
+	 */
+	protected bool $supports_async = false;
+
+	/**
 	 * Cache for directory existence checks.
 	 *
 	 * @var array<string, bool>
@@ -29,16 +44,24 @@ class File_Integration extends Integration {
 	private static $last_cleanup_time = 0;
 
 	/**
-	 * Constructor.
+	 * Called when the integration is loaded and ready.
+	 *
+	 * Registers hooks for async cleanup processing.
 	 */
-	public function __construct() {
-		$this->slug           = 'file';
-		$this->supports_async = false; // File writing is fast, no need for async.
-
-		parent::__construct();
-
-		// Register cleanup hook for async processing.
+	public function loaded() {
 		add_action( 'simple_history_cleanup_log_files', [ $this, 'handle_async_cleanup' ] );
+	}
+
+	/**
+	 * Flush the write buffer.
+	 *
+	 * Currently a no-op as writes are synchronous.
+	 * This method exists for API compatibility and future buffering implementation.
+	 */
+	public function flush_write_buffer() {
+		// Currently writes are synchronous, so nothing to flush.
+		// This method is here for API compatibility with tests
+		// and for potential future buffering implementation.
 	}
 
 	/**

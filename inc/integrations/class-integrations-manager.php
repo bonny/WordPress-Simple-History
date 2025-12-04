@@ -65,6 +65,10 @@ class Integrations_Manager extends Service {
 
 		$this->integrations[ $slug ] = $integration;
 
+		// Call loaded() to allow integration to register hooks.
+		// This is separate from construction to keep instantiation side-effect free.
+		$integration->loaded();
+
 		/**
 		 * Fired when an integration is registered.
 		 *

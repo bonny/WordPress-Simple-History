@@ -15,10 +15,11 @@ use Simple_History\Integrations\Interfaces\Integration_Interface;
 abstract class Integration implements Integration_Interface {
 	/**
 	 * The unique slug for this integration.
+	 * Must be defined by child classes.
 	 *
-	 * @var string
+	 * @var ?string
 	 */
-	protected string $slug;
+	protected ?string $slug = null;
 
 	/**
 	 * Whether this integration supports async processing.
@@ -28,19 +29,14 @@ abstract class Integration implements Integration_Interface {
 	protected bool $supports_async = false;
 
 	/**
-	 * The settings option name for this integration.
-	 * This is the name of the option where settings are stored in the database.
-	 * The option are automatically saved thanks to the WordPress settings API.
+	 * Called when the integration is loaded and ready.
 	 *
-	 * @var string
+	 * Child classes should override this method to register hooks
+	 * and perform initialization that has side effects.
+	 * This keeps the class instantiation free of side effects for testability.
 	 */
-	protected string $settings_option_name;
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		$this->settings_option_name = 'simple_history_integration_' . $this->get_slug();
+	public function loaded() {
+		// Override in child classes to register hooks, etc.
 	}
 
 	/**
@@ -49,6 +45,18 @@ abstract class Integration implements Integration_Interface {
 	 * @return string The integration slug.
 	 */
 	public function get_slug() {
+		if ( $this->slug === null ) {
+			_doing_it_wrong(
+				__METHOD__,
+				sprintf(
+					/* translators: %s: Class name */
+					esc_html__( 'Integration class %s must define a $slug property.', 'simple-history' ),
+					static::class
+				),
+				'4.4.0'
+			);
+			return '';
+		}
 		return $this->slug;
 	}
 
@@ -193,7 +201,7 @@ abstract class Integration implements Integration_Interface {
 	public function get_settings() {
 		$defaults = $this->get_default_settings();
 		/** @var array<string, mixed> $saved_settings */
-		$saved_settings = get_option( $this->settings_option_name, [] );
+		$saved_settings = get_option( $this->get_settings_option_name(), [] );
 
 		return wp_parse_args( $saved_settings, $defaults );
 	}
@@ -226,10 +234,12 @@ abstract class Integration implements Integration_Interface {
 	/**
 	 * Get the WordPress option name for this integration's settings.
 	 *
+	 * Computed lazily from the integration slug.
+	 *
 	 * @return string The option name used to store settings in the database.
 	 */
 	public function get_settings_option_name() {
-		return $this->settings_option_name;
+		return 'simple_history_integration_' . $this->get_slug();
 	}
 
 	/**
@@ -265,7 +275,7 @@ abstract class Integration implements Integration_Interface {
 			return false;
 		}
 
-		return update_option( $this->settings_option_name, $validated_settings );
+		return update_option( $this->get_settings_option_name(), $validated_settings );
 	}
 
 	/**

@@ -15,14 +15,18 @@ use Simple_History\Integrations\Integration;
  */
 class Example_Integration extends Integration {
 	/**
-	 * Constructor.
+	 * The unique slug for this integration.
+	 *
+	 * @var ?string
 	 */
-	public function __construct() {
-		$this->slug = 'example';
-		$this->supports_async = true;
+	protected ?string $slug = 'example';
 
-		parent::__construct();
-	}
+	/**
+	 * Whether this integration supports async processing.
+	 *
+	 * @var bool
+	 */
+	protected bool $supports_async = true;
 
 	/**
 	 * Get the display name for this integration.

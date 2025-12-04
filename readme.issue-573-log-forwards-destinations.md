@@ -250,6 +250,288 @@ A **complete, production-ready** integrations system has been implemented on thi
 
 **Production-ready**: The core system is complete and tested. File Integration is ready to ship as a free feature. The architecture is solid for adding premium integrations in the separate add-on.
 
+## Architecture Decision: Two Integration Types
+
+**Decision:** Split integrations into two conceptually different types with shared base class but separate UI sections.
+
+### Log_Integration (Log Destinations)
+**Purpose:** "Store/archive everything somewhere"
+**User mindset:** "I need a complete copy of my logs"
+
+**Characteristics:**
+- Comprehensive logging - typically ALL events
+- No filtering/rules needed
+- Focus on backup, compliance, debugging
+- Simple UI: toggle on/off + destination settings
+
+**Destinations:**
+- **Local:** File backup, PHP error_log, Syslog
+- **Remote:** External database, Remote rsyslog, SolarWinds/Papertrail, S3/cloud storage
+
+### Alert_Integration (Alerts & Notifications)
+**Purpose:** "Tell me when specific things happen"
+**User mindset:** "I want to be interrupted/notified about X"
+
+**Characteristics:**
+- Selective, rule-based filtering
+- Actionable notifications
+- May need rate limiting (e.g., Slack: 1 msg/sec)
+- Often async/queued for performance
+- More complex UI: rule builder + destination settings
+
+**Destinations:**
+- Slack, Email, Teams, Discord, SMS, Webhooks
+
+### Implementation
+
+```php
+Integration (base class)
+├── Log_Integration (simpler, no rules)
+│   ├── File
+│   ├── Syslog
+│   ├── Error_Log
+│   └── External_Database
+└── Alert_Integration (has rules, rate limiting)
+    ├── Slack
+    ├── Email
+    ├── Teams
+    └── Webhook
+```
+
+### Admin UI Structure
+
+```
+Simple History Settings
+├── Log Destinations (simple toggles)
+│   ├── Local
+│   │   ├── ✅ File backup - /logs/simple-history.log
+│   │   ├── ☐ PHP error_log
+│   │   └── ☐ Syslog
+│   └── Remote
+│       ├── ☐ External database
+│       └── ☐ SolarWinds/Papertrail
+└── Alerts & Notifications (rule builder)
+    ├── Slack - 2 rules configured
+    ├── Email - 1 rule configured
+    └── Discord - not configured
+```
+
+### Shared vs Separate
+
+| Aspect | Log Destinations | Alerts |
+|--------|-----------------|--------|
+| Purpose | Archive/backup | Notification |
+| Filtering | No (all events) | Yes (rule-based) |
+| Volume | High | Low (selective) |
+| UI complexity | Simple toggle | Rules + channels |
+| Timing | Sync/immediate | Often queued |
+| Rate limiting | No | Yes |
+
+**Shared:** Event receiving, enable/disable, settings storage, validation
+
+### Example Scenarios
+
+**Scenario 1: Security-conscious site owner**
+> "I want a backup of all logs in case a hacker clears the database, plus instant Slack alerts for failed logins."
+
+Configuration:
+- Log Destinations: ✅ File backup (all events)
+- Alerts: Slack rule → "logger = user AND message contains 'failed login'"
+
+**Scenario 2: Agency managing multiple client sites**
+> "We need all events archived for compliance, and email alerts when any admin makes changes."
+
+Configuration:
+- Log Destinations: ✅ External database (all events to central DB)
+- Alerts: Email rule → "user role = administrator"
+
+**Scenario 3: Developer debugging issues**
+> "I want everything in the PHP error_log so I can tail it during development."
+
+Configuration:
+- Log Destinations: ✅ PHP error_log (all events)
+- Alerts: None needed
+
+**Scenario 4: E-commerce site owner**
+> "Alert me on Slack when orders fail, email me daily user registrations, keep file backup of everything."
+
+Configuration:
+- Log Destinations: ✅ File backup (all events)
+- Alerts:
+  - Slack rule → "logger = woocommerce AND message contains 'order failed'"
+  - Email rule → "logger = user AND message = 'registered'" (daily digest)
+
+**Scenario 5: Enterprise compliance requirement**
+> "All logs must go to our SIEM (SolarWinds) and syslog server. No alerts needed."
+
+Configuration:
+- Log Destinations: ✅ SolarWinds/Papertrail, ✅ Remote rsyslog
+- Alerts: None
+
+**Scenario 6: Small blog owner**
+> "Just tell me when someone logs in as admin."
+
+Configuration:
+- Log Destinations: None (just use built-in Simple History log)
+- Alerts: Email rule → "logger = user AND message = 'logged in' AND user role = administrator"
+
+### Possible Destinations (Comprehensive List)
+
+#### Log Destinations (Archive/Backup)
+
+**Local:**
+- File ✅ (already built)
+- PHP error_log
+- Syslog (local)
+
+**Self-Hosted Log Management:**
+- Graylog - Popular open-source, GELF protocol
+- Elasticsearch/ELK Stack - Logstash/Filebeat ingestion
+- Seq - Structured logging for .NET shops
+- Loki (Grafana) - Like Prometheus but for logs
+
+**Cloud Log Services:**
+- SolarWinds/Papertrail - Easy setup, good for small teams
+- Splunk - Enterprise standard
+- Datadog - Popular DevOps platform
+- Loggly - Simple cloud logging
+- New Relic - APM + logs
+- Sumo Logic - Cloud SIEM
+
+**Cloud Provider Native:**
+- AWS CloudWatch Logs
+- Google Cloud Logging
+- Azure Monitor Logs
+
+**Storage/Archive:**
+- S3 / Google Cloud Storage / Azure Blob - Cheap long-term archive
+- Remote database (MySQL/PostgreSQL)
+- Remote rsyslog server
+
+**Error Tracking (hybrid):**
+- Sentry - Error tracking, but accepts log events
+- Rollbar
+- Bugsnag
+
+#### Alert Integrations (Notifications)
+
+**Team Chat:**
+- Slack - Most requested
+- Microsoft Teams - Enterprise
+- Discord - Dev/gaming communities
+- Google Chat
+- Mattermost - Self-hosted Slack alternative
+- Rocket.Chat - Open source
+- Matrix - Decentralized
+
+**Email:**
+- Email (SMTP) - Direct or via wp_mail
+- Email (SendGrid/Mailgun/SES) - Transactional email APIs
+
+**SMS/Push:**
+- SMS via Twilio
+- SMS via Nexmo/Vonage
+- Pushover - Simple push notifications
+- Pushbullet
+- Telegram - Bot API
+
+**Incident Management:**
+- PagerDuty - On-call alerting
+- Opsgenie (Atlassian)
+- VictorOps (Splunk On-Call)
+- xMatters
+
+**Generic/Automation:**
+- Webhooks - Generic HTTP POST (covers anything)
+- Zapier - Connect to 5000+ apps
+- IFTTT
+- Make (Integromat)
+- n8n - Self-hosted automation
+
+### Admin UI Structure Decision
+
+**Approach:** Start with tabs in Settings page (Option B), potentially move to dedicated page later (Option D).
+
+**Settings Page Tabs:**
+```
+Simple History → Settings
+┌─────────┬──────────────────┬────────────────────────┐
+│ General │ Log Destinations │ Alerts & Notifications │
+└─────────┴──────────────────┴────────────────────────┘
+```
+
+**Log Destinations Tab:**
+```
+┌─────────────────────────────────────────────────────┐
+│ Log Destinations                                    │
+├─────────────────────────────────────────────────────┤
+│ ┌─ File Backup ─────────────────────────── ✅ ON ─┐ │
+│ │ Path: /wp-content/simple-history-logs/          │ │
+│ │ Rotation: Daily                    [Configure]  │ │
+│ └─────────────────────────────────────────────────┘ │
+│ ┌─ PHP error_log ───────────────────────── ☐ OFF ─┐ │
+│ │ Writes to WordPress debug.log      [Configure]  │ │
+│ └─────────────────────────────────────────────────┘ │
+│ ┌─ Syslog ──────────────────────────────── ☐ OFF ─┐ │
+│ │ System syslog facility             [Configure]  │ │
+│ └─────────────────────────────────────────────────┘ │
+│                                                     │
+│ 💡 More destinations available in Premium           │
+└─────────────────────────────────────────────────────┘
+```
+
+**Alerts & Notifications Tab:**
+```
+┌─────────────────────────────────────────────────────┐
+│ Alerts & Notifications              [+ New Alert]   │
+├─────────────────────────────────────────────────────┤
+│ ┌─ Failed Logins ──────────────────────── ✅ ON ──┐ │
+│ │ When: User login fails                          │ │
+│ │ Send to: Slack #security, Email admin           │ │
+│ │                            [Edit] [Delete]      │ │
+│ └─────────────────────────────────────────────────┘ │
+│ ┌─ Admin Actions ──────────────────────── ✅ ON ──┐ │
+│ │ When: Administrator makes changes               │ │
+│ │ Send to: Email admin                            │ │
+│ │                            [Edit] [Delete]      │ │
+│ └─────────────────────────────────────────────────┘ │
+│                                                     │
+│ 💡 This feature requires Simple History Premium     │
+│    [Learn More]                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+**Future Option:** If feature grows significantly, move to dedicated "Integrations" menu item with its own sub-tabs.
+
+#### Implementation Priority
+
+**MVP / High Demand:**
+
+| Log Destinations | Alerts |
+|-----------------|--------|
+| File ✅ | Slack |
+| PHP error_log | Email |
+| Syslog | Webhooks (covers everything else) |
+
+**Phase 2 / Premium:**
+
+| Log Destinations | Alerts |
+|-----------------|--------|
+| Graylog | Microsoft Teams |
+| Papertrail/SolarWinds | Discord |
+| External database | Telegram |
+| AWS CloudWatch | PagerDuty |
+
+**Nice to Have:**
+
+| Log Destinations | Alerts |
+|-----------------|--------|
+| Elasticsearch | SMS (Twilio) |
+| Splunk/Datadog | Pushover |
+| S3 archive | Zapier |
+
+---
+
 ## Open Questions & Design Decisions
 
 These are critical questions that need to be answered before implementing premium integrations and the rule/filter system:
