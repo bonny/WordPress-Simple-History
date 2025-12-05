@@ -91,11 +91,19 @@ A **complete, production-ready** integrations system has been implemented on thi
    - High-performance write buffering (batches up to 10 entries or 64KB)
    - 3-attempt retry mechanism with 100ms backoff
    - Async cleanup scheduling using WordPress cron
-   - Rotation options: daily, weekly, monthly, or never
-   - Secure log directory with .htaccess protection
-   - Smart cleanup that only removes old files matching rotation frequency
+   - Rotation options: daily, weekly, monthly
    - Human-readable log format following Syslog RFC 5424 standards
    - **Optimized for high-traffic WordPress sites**
+   - **Security features:**
+     - Secure log directory with .htaccess protection (Apache 2.2 and 2.4+ compatible)
+     - index.php file to prevent directory listing
+     - Smart cleanup that only removes old files matching rotation frequency
+   - **Settings page UX:**
+     - Directory status display (exists/writable check with color indicators)
+     - Auto-creates directory when viewing settings page
+     - "Test folder access" link to verify 403 Forbidden protection
+     - Detects if folder is in public web directory vs outside ABSPATH
+     - Filter `simple_history/file_channel/log_directory` to customize path
 
 3. **Settings System** ✅
    - 7 field types supported: checkbox, text, textarea, url, email, select, number
