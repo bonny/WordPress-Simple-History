@@ -71,7 +71,7 @@ class File_Channel extends Channel {
 	 * @return string The channel display name.
 	 */
 	public function get_name() {
-		return __( 'Log to file', 'simple-history' );
+		return __( 'Log to File', 'simple-history' );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class File_Channel extends Channel {
 	 * @return string The channel description.
 	 */
 	public function get_description() {
-		return __( 'Save all events to a log file', 'simple-history' );
+		return __( 'Automatically log events to files for backup, compliance, or integration with external log analysis tools.', 'simple-history' );
 	}
 
 	/**
