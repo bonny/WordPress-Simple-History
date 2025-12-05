@@ -402,17 +402,17 @@ class File_Channel extends Channel {
 		 * Allows customization of where log files are stored.
 		 * For security, consider placing logs outside the public web directory.
 		 *
+		 * Example: Move logs outside the public web directory:
+		 *
+		 *     add_filter( 'simple_history/file_channel/log_directory', function( $directory ) {
+		 *         return '/var/log/wordpress/simple-history';
+		 *     } );
+		 *
 		 * @since 5.6.0
 		 *
 		 * @param string $directory The log directory path.
 		 */
 		$log_directory = apply_filters( 'simple_history/file_channel/log_directory', $default_directory );
-		
-		// This does not work, so good to test create folder failure.
-		// $log_directory = '/var/www/simple-history-logs';
-		
-		// In wp-content it should work fine.
-		// $log_directory = '/var/www/html/simple-history-logs';
 
 		// Ensure the directory ends with a slash.
 		$log_directory = trailingslashit( $log_directory );
