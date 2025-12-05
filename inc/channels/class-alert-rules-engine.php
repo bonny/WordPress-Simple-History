@@ -1,8 +1,8 @@
 <?php
 
-namespace Simple_History\Integrations;
+namespace Simple_History\Channels;
 
-use Simple_History\Integrations\Interfaces\Alert_Rule_Interface;
+use Simple_History\Channels\Interfaces\Alert_Rule_Interface;
 
 /**
  * Engine for evaluating alert rules.

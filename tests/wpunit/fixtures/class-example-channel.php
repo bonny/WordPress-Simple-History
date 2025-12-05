@@ -1,11 +1,11 @@
 <?php
 
-namespace Simple_History\Integrations\Integrations;
+namespace Simple_History\Channels\Channels;
 
-use Simple_History\Integrations\Integration;
+use Simple_History\Channels\Channel;
 
 /**
- * Example Integration demonstrating all available field types.
+ * Example Channel demonstrating all available field types.
  *
  * This class serves as documentation and example for developers
  * creating new integrations. It shows how to use all supported
@@ -13,41 +13,41 @@ use Simple_History\Integrations\Integration;
  *
  * @since 4.4.0
  */
-class Example_Integration extends Integration {
+class Example_Channel extends Channel {
 	/**
-	 * The unique slug for this integration.
+	 * The unique slug for this channel.
 	 *
 	 * @var ?string
 	 */
 	protected ?string $slug = 'example';
 
 	/**
-	 * Whether this integration supports async processing.
+	 * Whether this channel supports async processing.
 	 *
 	 * @var bool
 	 */
 	protected bool $supports_async = true;
 
 	/**
-	 * Get the display name for this integration.
+	 * Get the display name for this channel.
 	 *
-	 * @return string The integration display name.
+	 * @return string The channel display name.
 	 */
 	public function get_name() {
-		return __( 'Example Integration', 'simple-history' );
+		return __( 'Example Channel', 'simple-history' );
 	}
 
 	/**
-	 * Get the description for this integration.
+	 * Get the description for this channel.
 	 *
-	 * @return string The integration description.
+	 * @return string The channel description.
 	 */
 	public function get_description() {
-		return __( 'This is an example integration showing all available field types.', 'simple-history' );
+		return __( 'This is an example channel showing all available field types.', 'simple-history' );
 	}
 
 	/**
-	 * Send an event to this integration.
+	 * Send an event to this channel.
 	 *
 	 * @param array  $event_data The event data to send.
 	 * @param string $formatted_message The formatted message.
@@ -55,12 +55,12 @@ class Example_Integration extends Integration {
 	 */
 	public function send_event( $event_data, $formatted_message ) {
 		// This is just an example, so we don't actually send anything.
-		$this->log_debug( 'Example integration would send: ' . $formatted_message );
+		$this->log_debug( 'Example channel would send: ' . $formatted_message );
 		return true;
 	}
 
 	/**
-	 * Get the settings fields for this integration.
+	 * Get the settings fields for this channel.
 	 *
 	 * This demonstrates all available field types and their properties.
 	 *
@@ -159,7 +159,7 @@ class Example_Integration extends Integration {
 	}
 
 	/**
-	 * Test the integration connection/configuration.
+	 * Test the channel connection/configuration.
 	 *
 	 * @return array Array with 'success' boolean and 'message' string.
 	 */

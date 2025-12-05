@@ -50,8 +50,8 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Import_Handler',
 			'Auto_Backfill_Service',
 			'History_Insights_Sidebar_Service',
-			'Integrations_Service',
-			'Integrations_Settings_Page'
+			'Channels_Service',
+			'Channels_Settings_Page'
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);

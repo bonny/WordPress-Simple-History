@@ -2,22 +2,22 @@
 
 namespace Simple_History\Tests\WPUnit;
 
-use Simple_History\Integrations\Integration;
-use Simple_History\Integrations\Integrations\File_Integration;
+use Simple_History\Channels\Channel;
+use Simple_History\Channels\Channels\File_Channel;
 
 // Include test fixture
-require_once __DIR__ . '/fixtures/class-example-integration.php';
-use Simple_History\Integrations\Integrations\Example_Integration;
+require_once __DIR__ . '/fixtures/class-example-channel.php';
+use Simple_History\Channels\Channels\Example_Channel;
 
 /**
  * Test the integrations system field types and validation.
  */
-class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
+class ChannelsTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Test that all field types are properly validated.
 	 */
 	public function test_field_type_validation() {
-		$integration = new Example_Integration();
+		$channel = new Example_Channel();
 
 		// Test checkbox field - should convert to boolean
 		$settings = [
@@ -26,7 +26,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			'send_ip_address' => '',
 		];
 
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 
 		// Handle case where validation returns WP_Error for required fields
 		if ( is_wp_error( $validated ) ) {
@@ -45,14 +45,14 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 	 * Test text and textarea field validation.
 	 */
 	public function test_text_field_validation() {
-		$integration = new Example_Integration();
+		$channel = new Example_Channel();
 
 		$settings = [
 			'api_key' => '<script>alert("xss")</script>API_KEY_123',
 			'custom_headers' => "Header1: Value1\n<script>evil</script>",
 		];
 
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 
 		// Handle case where validation returns WP_Error for required fields
 		if ( is_wp_error( $validated ) ) {
@@ -71,14 +71,14 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 	 * Test URL field validation.
 	 */
 	public function test_url_field_validation() {
-		$integration = new Example_Integration();
+		$channel = new Example_Channel();
 
 		// Valid URL with required fields
 		$settings = [ 
 			'webhook_url' => 'https://example.com/webhook',
 			'api_key' => 'test_key' // Required field
 		];
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertIsArray( $validated );
 		$this->assertEquals( 'https://example.com/webhook', $validated['webhook_url'] );
 
@@ -87,7 +87,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			'webhook_url' => 'javascript:alert(1)', // This is an invalid URL that esc_url_raw will sanitize to empty
 			'api_key' => 'test_key' // Required field
 		];
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertInstanceOf( \WP_Error::class, $validated );
 		$this->assertEquals( 'invalid_url', $validated->get_error_code( ) );
 	}
@@ -96,7 +96,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 	 * Test email field validation.
 	 */
 	public function test_email_field_validation() {
-		$integration = new Example_Integration();
+		$channel = new Example_Channel();
 
 		// Valid email with required fields
 		$settings = [ 
@@ -104,7 +104,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			'api_key' => 'test_key', // Required field
 			'webhook_url' => 'https://example.com' // Required field
 		];
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertIsArray( $validated );
 		$this->assertEquals( 'test@example.com', $validated['notification_email'] );
 
@@ -114,7 +114,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			'api_key' => 'test_key', // Required field
 			'webhook_url' => 'https://example.com' // Required field
 		];
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertInstanceOf( \WP_Error::class, $validated );
 		$this->assertEquals( 'invalid_email', $validated->get_error_code() );
 	}
@@ -123,7 +123,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 	 * Test number field validation with min/max.
 	 */
 	public function test_number_field_validation() {
-		$integration = new Example_Integration();
+		$channel = new Example_Channel();
 
 		// Within bounds with required fields
 		$settings = [ 
@@ -131,7 +131,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			'api_key' => 'test_key', // Required field
 			'webhook_url' => 'https://example.com' // Required field
 		];
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertIsArray( $validated );
 		$this->assertEquals( 50, $validated['batch_size'] );
 
@@ -141,7 +141,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			'api_key' => 'test_key', // Required field
 			'webhook_url' => 'https://example.com' // Required field
 		];
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertIsArray( $validated );
 		$this->assertEquals( 1, $validated['batch_size'] ); // min is 1
 
@@ -151,7 +151,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			'api_key' => 'test_key', // Required field
 			'webhook_url' => 'https://example.com' // Required field
 		];
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertIsArray( $validated );
 		$this->assertEquals( 100, $validated['batch_size'] ); // max is 100
 	}
@@ -160,7 +160,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 	 * Test select field validation.
 	 */
 	public function test_select_field_validation() {
-		$integration = new Example_Integration();
+		$channel = new Example_Channel();
 
 		// Valid option with required fields
 		$settings = [ 
@@ -168,7 +168,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			'api_key' => 'test_key', // Required field
 			'webhook_url' => 'https://example.com' // Required field
 		];
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertIsArray( $validated );
 		$this->assertEquals( 'warning', $validated['log_level'] );
 
@@ -178,7 +178,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			'api_key' => 'test_key', // Required field
 			'webhook_url' => 'https://example.com' // Required field
 		];
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertIsArray( $validated );
 		$this->assertEquals( 'info', $validated['log_level'] ); // default is 'info'
 	}
@@ -187,7 +187,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 	 * Test required field validation.
 	 */
 	public function test_required_field_validation() {
-		$integration = new Example_Integration();
+		$channel = new Example_Channel();
 
 		// Missing required field
 		$settings = [
@@ -195,7 +195,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 			// 'api_key' is required but missing
 		];
 
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 		$this->assertInstanceOf( \WP_Error::class, $validated );
 		$this->assertEquals( 'required_field', $validated->get_error_code() );
 	}
@@ -204,8 +204,8 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 	 * Test get_settings_fields returns expected structure.
 	 */
 	public function test_get_settings_fields_structure() {
-		$integration = new Example_Integration();
-		$fields = $integration->get_settings_fields();
+		$channel = new Example_Channel();
+		$fields = $channel->get_settings_fields();
 
 		$this->assertIsArray( $fields );
 		$this->assertNotEmpty( $fields );
@@ -232,7 +232,7 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 	 * Test settings persistence.
 	 */
 	public function test_settings_persistence() {
-		$integration = new File_Integration();
+		$channel = new File_Channel();
 
 		$test_settings = [
 			'enabled' => true,
@@ -241,105 +241,105 @@ class IntegrationsTest extends \Codeception\TestCase\WPTestCase {
 		];
 
 		// Save settings
-		$result = $integration->save_settings( $test_settings );
+		$result = $channel->save_settings( $test_settings );
 		$this->assertTrue( $result );
 
 		// Retrieve settings
-		$saved_settings = $integration->get_settings();
+		$saved_settings = $channel->get_settings();
 		$this->assertEquals( true, $saved_settings['enabled'] );
 		$this->assertEquals( 'weekly', $saved_settings['rotation_frequency'] );
 		$this->assertEquals( 10, $saved_settings['keep_files'] );
 
 		// Clean up
-		delete_option( 'simple_history_integration_file' );
+		delete_option( 'simple_history_channel_file' );
 	}
 
 	/**
 	 * Test default settings.
 	 */
 	public function test_default_settings() {
-		$integration = new File_Integration();
+		$channel = new File_Channel();
 		
 		// Delete any existing settings
-		delete_option( 'simple_history_integration_file' );
+		delete_option( 'simple_history_channel_file' );
 
-		$settings = $integration->get_settings();
+		$settings = $channel->get_settings();
 
 		// Check defaults are applied
 		$this->assertFalse( $settings['enabled'] ); // Default from parent
-		$this->assertEquals( 'daily', $settings['rotation_frequency'] ); // Default from File_Integration
-		$this->assertEquals( 30, $settings['keep_files'] ); // Default from File_Integration
+		$this->assertEquals( 'daily', $settings['rotation_frequency'] ); // Default from File_Channel
+		$this->assertEquals( 30, $settings['keep_files'] ); // Default from File_Channel
 	}
 
 	/**
 	 * Test individual setting getter/setter.
 	 */
 	public function test_individual_setting_methods() {
-		$integration = new File_Integration();
+		$channel = new File_Channel();
 
 		// Set individual setting
-		$result = $integration->set_setting( 'rotation_frequency', 'monthly' );
+		$result = $channel->set_setting( 'rotation_frequency', 'monthly' );
 		$this->assertTrue( $result );
 
 		// Get individual setting
-		$value = $integration->get_setting( 'rotation_frequency' );
+		$value = $channel->get_setting( 'rotation_frequency' );
 		$this->assertEquals( 'monthly', $value );
 
 		// Get non-existent setting with default
-		$value = $integration->get_setting( 'non_existent', 'default_value' );
+		$value = $channel->get_setting( 'non_existent', 'default_value' );
 		$this->assertEquals( 'default_value', $value );
 
 		// Clean up
-		delete_option( 'simple_history_integration_file' );
+		delete_option( 'simple_history_channel_file' );
 	}
 
 	/**
 	 * Test is_enabled method.
 	 */
 	public function test_is_enabled() {
-		$integration = new File_Integration();
+		$channel = new File_Channel();
 
 		// Should be disabled by default
-		$this->assertFalse( $integration->is_enabled() );
+		$this->assertFalse( $channel->is_enabled() );
 
 		// Enable it
-		$integration->set_setting( 'enabled', true );
-		$this->assertTrue( $integration->is_enabled() );
+		$channel->set_setting( 'enabled', true );
+		$this->assertTrue( $channel->is_enabled() );
 
 		// Disable it
-		$integration->set_setting( 'enabled', false );
-		$this->assertFalse( $integration->is_enabled() );
+		$channel->set_setting( 'enabled', false );
+		$this->assertFalse( $channel->is_enabled() );
 
 		// Clean up
-		delete_option( 'simple_history_integration_file' );
+		delete_option( 'simple_history_channel_file' );
 	}
 
 	/**
 	 * Test settings option name method.
 	 */
 	public function test_settings_option_name() {
-		$integration = new File_Integration();
+		$channel = new File_Channel();
 		
-		$option_name = $integration->get_settings_option_name();
-		$this->assertEquals( 'simple_history_integration_file', $option_name );
+		$option_name = $channel->get_settings_option_name();
+		$this->assertEquals( 'simple_history_channel_file', $option_name );
 		
-		$example_integration = new Example_Integration();
-		$example_option_name = $example_integration->get_settings_option_name();
-		$this->assertEquals( 'simple_history_integration_example', $example_option_name );
+		$example_channel = new Example_Channel();
+		$example_option_name = $example_channel->get_settings_option_name();
+		$this->assertEquals( 'simple_history_channel_example', $example_option_name );
 	}
 
 	/**
 	 * Test custom field type passes through validation.
 	 */
 	public function test_custom_field_type() {
-		$integration = new Example_Integration();
+		$channel = new Example_Channel();
 
 		// Add a custom field type in the settings
 		$settings = [
 			'custom_field' => 'custom_value',
 		];
 
-		$validated = $this->invoke_method( $integration, 'validate_settings', [ $settings ] );
+		$validated = $this->invoke_method( $channel, 'validate_settings', [ $settings ] );
 
 		// Handle case where validation returns WP_Error for required fields
 		if ( is_wp_error( $validated ) ) {

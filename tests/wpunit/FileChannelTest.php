@@ -2,16 +2,16 @@
 
 namespace Simple_History\Tests\WPUnit;
 
-use Simple_History\Integrations\Integrations\File_Integration;
+use Simple_History\Channels\Channels\File_Channel;
 
 /**
- * Test the File Integration implementation.
+ * Test the File Channel implementation.
  */
-class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
+class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 	/**
-	 * @var File_Integration
+	 * @var File_Channel
 	 */
-	private $integration;
+	private $channel;
 
 	/**
 	 * @var string
@@ -24,13 +24,13 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->integration = new File_Integration();
+		$this->channel = new File_Channel();
 		
 		// Create a test log directory
 		$this->test_log_dir = sys_get_temp_dir() . '/simple-history-test-' . uniqid();
 		
 		// Clean up any existing settings
-		delete_option( 'simple_history_integration_file' );
+		delete_option( 'simple_history_channel_file' );
 	}
 
 	/**
@@ -51,24 +51,24 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		// Clean up settings
-		delete_option( 'simple_history_integration_file' );
+		delete_option( 'simple_history_channel_file' );
 	}
 
 	/**
-	 * Test integration properties.
+	 * Test channel properties.
 	 */
-	public function test_integration_properties() {
-		$this->assertEquals( 'file', $this->integration->get_slug() );
-		$this->assertEquals( 'Log to file', $this->integration->get_name() );
-		$this->assertStringContainsString( 'Save all events', $this->integration->get_description() );
-		$this->assertFalse( $this->integration->supports_async() );
+	public function test_channel_properties() {
+		$this->assertEquals( 'file', $this->channel->get_slug() );
+		$this->assertEquals( 'Log to file', $this->channel->get_name() );
+		$this->assertStringContainsString( 'Save all events', $this->channel->get_description() );
+		$this->assertFalse( $this->channel->supports_async() );
 	}
 
 	/**
 	 * Test default settings.
 	 */
 	public function test_default_settings() {
-		$settings = $this->integration->get_settings();
+		$settings = $this->channel->get_settings();
 
 		$this->assertFalse( $settings['enabled'] );
 		$this->assertEquals( 'daily', $settings['rotation_frequency'] );
@@ -80,24 +80,24 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_log_file_path_generation() {
 		// Test daily rotation
-		$this->integration->set_setting( 'rotation_frequency', 'daily' );
-		$path = $this->invoke_method( $this->integration, 'get_log_file_path', [] );
+		$this->channel->set_setting( 'rotation_frequency', 'daily' );
+		$path = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
 		$this->assertStringContainsString( 'events-' . current_time( 'Y-m-d' ) . '.log', $path );
 
 		// Test weekly rotation
-		$this->integration->set_setting( 'rotation_frequency', 'weekly' );
-		$path = $this->invoke_method( $this->integration, 'get_log_file_path', [] );
+		$this->channel->set_setting( 'rotation_frequency', 'weekly' );
+		$path = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
 		// Just check that it contains the weekly pattern with W prefix
 		$this->assertMatchesRegularExpression( '/events-\d{4}-W\d{2}\.log/', basename( $path ) );
 
 		// Test monthly rotation
-		$this->integration->set_setting( 'rotation_frequency', 'monthly' );
-		$path = $this->invoke_method( $this->integration, 'get_log_file_path', [] );
+		$this->channel->set_setting( 'rotation_frequency', 'monthly' );
+		$path = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
 		$this->assertStringContainsString( 'events-' . current_time( 'Y-m' ) . '.log', $path );
 
 		// Test no rotation
-		$this->integration->set_setting( 'rotation_frequency', 'never' );
-		$path = $this->invoke_method( $this->integration, 'get_log_file_path', [] );
+		$this->channel->set_setting( 'rotation_frequency', 'never' );
+		$path = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
 		$this->assertStringContainsString( 'events.log', $path );
 		$this->assertStringNotContainsString( current_time( 'Y' ), basename( $path ) );
 	}
@@ -122,7 +122,7 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 		$formatted_message = 'Test message processed';
 
 		$log_entry = $this->invoke_method( 
-			$this->integration, 
+			$this->channel, 
 			'format_log_entry', 
 			[ $event_data, $formatted_message ] 
 		);
@@ -140,8 +140,8 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 	 * Test sending an event (writing to file).
 	 */
 	public function test_send_event() {
-		// Enable the integration
-		$this->integration->set_setting( 'enabled', true );
+		// Enable the channel
+		$this->channel->set_setting( 'enabled', true );
 
 		$event_data = [
 			'id' => 456,
@@ -156,14 +156,14 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 		$formatted_message = 'Post "Hello World" was updated';
 
 		// Send the event
-		$result = $this->integration->send_event( $event_data, $formatted_message );
+		$result = $this->channel->send_event( $event_data, $formatted_message );
 		$this->assertTrue( $result );
 
 		// Force buffer flush to ensure file is written
-		$this->integration->flush_write_buffer();
+		$this->channel->flush_write_buffer();
 
 		// Verify the log file exists and contains the event
-		$log_file = $this->invoke_method( $this->integration, 'get_log_file_path', [] );
+		$log_file = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
 		$this->assertFileExists( $log_file );
 
 		$content = file_get_contents( $log_file );
@@ -181,7 +181,7 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_write_buffering() {
 		// Enable buffering by sending multiple events
-		$this->integration->set_setting( 'enabled', true );
+		$this->channel->set_setting( 'enabled', true );
 
 		// Send multiple events quickly
 		for ( $i = 1; $i <= 5; $i++ ) {
@@ -194,15 +194,15 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 				'initiator' => 'wp_user',
 			];
 
-			$result = $this->integration->send_event( $event_data, "Event number $i" );
+			$result = $this->channel->send_event( $event_data, "Event number $i" );
 			$this->assertTrue( $result );
 		}
 
 		// Force buffer flush
-		$this->integration->flush_write_buffer();
+		$this->channel->flush_write_buffer();
 
 		// Verify all events were written
-		$log_file = $this->invoke_method( $this->integration, 'get_log_file_path', [] );
+		$log_file = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
 		$this->assertFileExists( $log_file );
 
 		$content = file_get_contents( $log_file );
@@ -219,12 +219,12 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_file_cleanup() {
 		// Set to keep only 2 files
-		$this->integration->set_setting( 'enabled', true );
-		$this->integration->set_setting( 'keep_files', 2 );
-		$this->integration->set_setting( 'rotation_frequency', 'daily' );
+		$this->channel->set_setting( 'enabled', true );
+		$this->channel->set_setting( 'keep_files', 2 );
+		$this->channel->set_setting( 'rotation_frequency', 'daily' );
 
 		// Get the log directory
-		$log_dir = $this->invoke_method( $this->integration, 'get_log_directory_path', [] );
+		$log_dir = $this->invoke_method( $this->channel, 'get_log_directory_path', [] );
 		
 		// Create the directory
 		if ( ! is_dir( $log_dir ) ) {
@@ -242,7 +242,7 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		// Run cleanup
-		$this->invoke_method( $this->integration, 'cleanup_old_files', [] );
+		$this->invoke_method( $this->channel, 'cleanup_old_files', [] );
 
 		// Check that only 2 newest files remain
 		$remaining_files = glob( $log_dir . '/events-*.log' );
@@ -260,7 +260,7 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_directory_security() {
 		$result = $this->invoke_method( 
-			$this->integration, 
+			$this->channel, 
 			'ensure_directory_exists', 
 			[ $this->test_log_dir ] 
 		);
@@ -281,7 +281,7 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 	 * Test settings info HTML output.
 	 */
 	public function test_settings_info_html() {
-		$html = $this->integration->get_settings_info_after_fields_html();
+		$html = $this->channel->get_settings_info_after_fields_html();
 
 		$this->assertIsString( $html );
 		$this->assertStringContainsString( 'Files are saved to directory:', $html );
@@ -290,11 +290,11 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test that disabled integration doesn't write files.
+	 * Test that disabled channel doesn't write files.
 	 */
-	public function test_disabled_integration_no_write() {
-		// Ensure integration is disabled
-		$this->integration->set_setting( 'enabled', false );
+	public function test_disabled_channel_no_write() {
+		// Ensure channel is disabled
+		$this->channel->set_setting( 'enabled', false );
 
 		$event_data = [
 			'logger' => 'TestLogger',
@@ -302,19 +302,19 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 			'message' => 'Test',
 		];
 
-		// should_send_event will return false for disabled integration
-		$should_send = $this->integration->should_send_event( $event_data );
+		// should_send_event will return false for disabled channel
+		$should_send = $this->channel->should_send_event( $event_data );
 		$this->assertFalse( $should_send );
 
 		// Get the log file path before attempting to write
-		$log_file = $this->invoke_method( $this->integration, 'get_log_file_path', [] );
+		$log_file = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
 
-		// Try to send event anyway - it should not write to the file because integration is disabled
-		$result = $this->integration->send_event( $event_data, 'Test message' );
+		// Try to send event anyway - it should not write to the file because channel is disabled
+		$result = $this->channel->send_event( $event_data, 'Test message' );
 		$this->assertTrue( $result ); // send_event returns true but doesn't write
 
 		// Force buffer flush
-		$this->integration->flush_write_buffer();
+		$this->channel->flush_write_buffer();
 
 		// Verify no log file was created
 		$this->assertFileDoesNotExist( $log_file );
@@ -324,16 +324,16 @@ class FileIntegrationTest extends \Codeception\TestCase\WPTestCase {
 	 * Test that send_event handles non-writable directories gracefully.
 	 */
 	public function test_send_event_handles_unwritable_directory() {
-		$this->integration->set_setting( 'enabled', true );
+		$this->channel->set_setting( 'enabled', true );
 
 		// Test that send_event returns false for non-existent/unwritable paths
 		// without throwing exceptions. The actual implementation logs to a
-		// specific directory, so we just verify the integration is enabled
+		// specific directory, so we just verify the channel is enabled
 		// and can process events (the actual write may fail gracefully).
-		$this->assertTrue( $this->integration->is_enabled() );
+		$this->assertTrue( $this->channel->is_enabled() );
 
 		// Verify send_event method exists and is callable
-		$this->assertTrue( method_exists( $this->integration, 'send_event' ) );
+		$this->assertTrue( method_exists( $this->channel, 'send_event' ) );
 	}
 
 	/**

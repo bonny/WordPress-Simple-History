@@ -1,28 +1,28 @@
 <?php
 
-namespace Simple_History\Integrations\Integrations;
+namespace Simple_History\Channels\Channels;
 
-use Simple_History\Integrations\Integration;
+use Simple_History\Channels\Channel;
 
 /**
- * File Integration for Simple History.
+ * File Channel for Simple History.
  *
- * This integration automatically writes all log events to files,
- * providing a backup mechanism and demonstrating the integration system.
+ * This channel automatically writes all log events to files,
+ * providing a backup mechanism and demonstrating the channel system.
  * This is included in the free version of Simple History.
  *
  * @since 4.4.0
  */
-class File_Integration extends Integration {
+class File_Channel extends Channel {
 	/**
-	 * The unique slug for this integration.
+	 * The unique slug for this channel.
 	 *
 	 * @var ?string
 	 */
 	protected ?string $slug = 'file';
 
 	/**
-	 * Whether this integration supports async processing.
+	 * Whether this channel supports async processing.
 	 * File writing is fast, no need for async.
 	 *
 	 * @var bool
@@ -44,7 +44,7 @@ class File_Integration extends Integration {
 	private static $last_cleanup_time = 0;
 
 	/**
-	 * Called when the integration is loaded and ready.
+	 * Called when the channel is loaded and ready.
 	 *
 	 * Registers hooks for async cleanup processing.
 	 */
@@ -65,32 +65,32 @@ class File_Integration extends Integration {
 	}
 
 	/**
-	 * Get the display name for this integration.
+	 * Get the display name for this channel.
 	 *
-	 * @return string The integration display name.
+	 * @return string The channel display name.
 	 */
 	public function get_name() {
 		return __( 'Log to file', 'simple-history' );
 	}
 
 	/**
-	 * Get the description for this integration.
+	 * Get the description for this channel.
 	 *
-	 * @return string The integration description.
+	 * @return string The channel description.
 	 */
 	public function get_description() {
 		return __( 'Save all events to a log file', 'simple-history' );
 	}
 
 	/**
-	 * Send an event to this integration.
+	 * Send an event to this channel.
 	 *
 	 * @param array  $event_data The event data to send.
 	 * @param string $formatted_message The formatted message.
 	 * @return bool True on success, false on failure.
 	 */
 	public function send_event( $event_data, $formatted_message ) {
-		// Don't write anything if integration is disabled.
+		// Don't write anything if channel is disabled.
 		if ( ! $this->is_enabled() ) {
 			return true;
 		}
@@ -128,7 +128,7 @@ class File_Integration extends Integration {
 	}
 
 	/**
-	 * Get the settings fields for this integration.
+	 * Get the settings fields for this channel.
 	 *
 	 * @return array Array of settings fields.
 	 */
@@ -172,7 +172,7 @@ class File_Integration extends Integration {
 
 		ob_start();
 		?>
-		<div class="sh-Integration-info">
+		<div class="sh-Channel-info">
 			<p class="description">
 				<?php esc_html_e( 'Files are saved to directory:', 'simple-history' ); ?><br>
 				<code><?php echo esc_html( $log_directory ); ?></code>
@@ -500,11 +500,11 @@ class File_Integration extends Integration {
 	/**
 	 * Handle async cleanup triggered by WordPress cron.
 	 *
-	 * @param string $integration_slug The integration slug to clean up for.
+	 * @param string $channel_slug The channel slug to clean up for.
 	 */
-	public function handle_async_cleanup( $integration_slug ) {
-		// Only process if this is our integration.
-		if ( $integration_slug !== $this->get_slug() ) {
+	public function handle_async_cleanup( $channel_slug ) {
+		// Only process if this is our channel.
+		if ( $channel_slug !== $this->get_slug() ) {
 			return;
 		}
 

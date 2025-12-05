@@ -55,7 +55,7 @@ class Simple_History {
 	/** @var array<int,mixed>  Registered settings tabs. */
 	private array $arr_settings_tabs = [];
 
-	/** @var \Simple_History\Integrations\Integrations_Manager|null The integrations manager instance. */
+	/** @var \Simple_History\Channels\Channels_Manager|null The integrations manager instance. */
 	public $integrations_manager = null;
 
 	public const DBTABLE          = 'simple_history';

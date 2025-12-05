@@ -3,24 +3,24 @@
 namespace Simple_History\Tests\WPUnit;
 
 use Simple_History\Simple_History;
-use Simple_History\Integrations\Integrations_Manager;
-use Simple_History\Integrations\Integrations\File_Integration;
+use Simple_History\Channels\Channels_Manager;
+use Simple_History\Channels\Channels\File_Channel;
 
 // Include test fixture
-require_once __DIR__ . '/fixtures/class-example-integration.php';
-use Simple_History\Integrations\Integrations\Example_Integration;
+require_once __DIR__ . '/fixtures/class-example-channel.php';
+use Simple_History\Channels\Channels\Example_Channel;
 
 /**
  * Test the Integrations Manager functionality.
  */
-class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
+class ChannelsManagerTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * @var Simple_History
 	 */
 	private $simple_history;
 
 	/**
-	 * @var Integrations_Manager
+	 * @var Channels_Manager
 	 */
 	private $manager;
 
@@ -34,70 +34,70 @@ class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
 		$this->simple_history = Simple_History::get_instance();
 
 		// Create a new manager instance for testing
-		$this->manager = new Integrations_Manager( $this->simple_history );
+		$this->manager = new Channels_Manager( $this->simple_history );
 		$this->manager->loaded();
 	}
 
 	/**
 	 * Test that the manager can register integrations.
 	 */
-	public function test_register_integration() {
-		$integration = new Example_Integration();
+	public function test_register_channel() {
+		$channel = new Example_Channel();
 
-		// Register the integration
-		$result = $this->manager->register_integration( $integration );
+		// Register the channel
+		$result = $this->manager->register_channel( $channel );
 		$this->assertTrue( $result );
 
-		// Try to register the same integration again - should fail
-		$result = $this->manager->register_integration( $integration );
+		// Try to register the same channel again - should fail
+		$result = $this->manager->register_channel( $channel );
 		$this->assertFalse( $result );
 
-		// Check that the integration is registered
-		$registered = $this->manager->get_integration( 'example' );
-		$this->assertInstanceOf( Example_Integration::class, $registered );
+		// Check that the channel is registered
+		$registered = $this->manager->get_channel( 'example' );
+		$this->assertInstanceOf( Example_Channel::class, $registered );
 	}
 
 	/**
 	 * Test getting all integrations.
 	 */
-	public function test_get_integrations() {
-		$integrations = $this->manager->get_integrations();
+	public function test_get_channels() {
+		$channels = $this->manager->get_channels();
 
-		$this->assertIsArray( $integrations );
-		// File integration should be registered by default
-		$this->assertArrayHasKey( 'file', $integrations );
-		$this->assertInstanceOf( File_Integration::class, $integrations['file'] );
+		$this->assertIsArray( $channels );
+		// File channel should be registered by default
+		$this->assertArrayHasKey( 'file', $channels );
+		$this->assertInstanceOf( File_Channel::class, $channels['file'] );
 	}
 
 	/**
 	 * Test getting enabled integrations.
 	 */
-	public function test_get_enabled_integrations() {
+	public function test_get_enabled_channels() {
 		// Initially, no integrations should be enabled
-		$enabled = $this->manager->get_enabled_integrations();
+		$enabled = $this->manager->get_enabled_channels();
 		$this->assertIsArray( $enabled );
 		$this->assertEmpty( $enabled );
 
-		// Enable file integration
-		$file_integration = $this->manager->get_integration( 'file' );
-		$file_integration->set_setting( 'enabled', true );
+		// Enable file channel
+		$file_channel = $this->manager->get_channel( 'file' );
+		$file_channel->set_setting( 'enabled', true );
 
 		// Now it should be in the enabled list
-		$enabled = $this->manager->get_enabled_integrations();
+		$enabled = $this->manager->get_enabled_channels();
 		$this->assertCount( 1, $enabled );
 		$this->assertArrayHasKey( 'file', $enabled );
 
 		// Clean up
-		delete_option( 'simple_history_integration_file' );
+		delete_option( 'simple_history_channel_file' );
 	}
 
 	/**
 	 * Test event processing.
 	 */
 	public function test_process_logged_event() {
-		// Enable file integration
-		$file_integration = $this->manager->get_integration( 'file' );
-		$file_integration->set_setting( 'enabled', true );
+		// Enable file channel
+		$file_channel = $this->manager->get_channel( 'file' );
+		$file_channel->set_setting( 'enabled', true );
 
 		// Mock event data
 		$context = [
@@ -122,10 +122,10 @@ class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
 		$this->manager->process_logged_event( $context, $data, $logger );
 
 		// Force buffer flush to ensure file is written
-		$file_integration->flush_write_buffer();
+		$file_channel->flush_write_buffer();
 
 		// Verify the log file was created
-		$log_dir = $this->invoke_method( $file_integration, 'get_log_directory_path', [] );
+		$log_dir = $this->invoke_method( $file_channel, 'get_log_directory_path', [] );
 		$log_file = $log_dir . '/events-' . current_time( 'Y-m-d' ) . '.log';
 
 		$this->assertFileExists( $log_file );
@@ -139,16 +139,16 @@ class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
 		// Clean up
 		@unlink( $log_file );
 		@rmdir( $log_dir );
-		delete_option( 'simple_history_integration_file' );
+		delete_option( 'simple_history_channel_file' );
 	}
 
 	/**
 	 * Test that disabled integrations don't receive events.
 	 */
-	public function test_disabled_integration_no_events() {
-		// Ensure file integration is disabled
-		$file_integration = $this->manager->get_integration( 'file' );
-		$file_integration->set_setting( 'enabled', false );
+	public function test_disabled_channel_no_events() {
+		// Ensure file channel is disabled
+		$file_channel = $this->manager->get_channel( 'file' );
+		$file_channel->set_setting( 'enabled', false );
 
 		// Mock event data
 		$context = [];
@@ -163,24 +163,24 @@ class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
 		$this->manager->process_logged_event( $context, $data, $logger );
 
 		// Force buffer flush
-		$file_integration->flush_write_buffer();
+		$file_channel->flush_write_buffer();
 
 		// Verify no log file was created
-		$log_dir = $this->invoke_method( $file_integration, 'get_log_directory_path', [] );
+		$log_dir = $this->invoke_method( $file_channel, 'get_log_directory_path', [] );
 		$log_file = $log_dir . '/events-' . current_time( 'Y-m-d' ) . '.log';
 
 		$this->assertFileDoesNotExist( $log_file );
 
 		// Clean up
-		delete_option( 'simple_history_integration_file' );
+		delete_option( 'simple_history_channel_file' );
 	}
 
 	/**
 	 * Test message formatting with context interpolation.
 	 */
 	public function test_message_formatting() {
-		// Test the format_message_for_integration method
-		$integration = new File_Integration();
+		// Test the format_message_for_channel method
+		$channel = new File_Channel();
 
 		$event_data = [
 			'message' => 'User {user_name} updated post "{post_title}" with ID {post_id}',
@@ -194,8 +194,8 @@ class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
 
 		$formatted = $this->invoke_method(
 			$this->manager,
-			'format_message_for_integration',
-			[ $integration, $event_data ]
+			'format_message_for_channel',
+			[ $channel, $event_data ]
 		);
 
 		$this->assertEquals( 'User John Doe updated post "My Test Post" with ID 123', $formatted );
@@ -209,58 +209,58 @@ class IntegrationsManagerTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_manager_loaded() {
 		// Test that the manager has been loaded with default integrations
-		$integrations = $this->manager->get_integrations();
-		$this->assertIsArray( $integrations );
-		$this->assertArrayHasKey( 'file', $integrations );
+		$channels = $this->manager->get_channels();
+		$this->assertIsArray( $channels );
+		$this->assertArrayHasKey( 'file', $channels );
 	}
 
 	/**
-	 * Test integration action hook.
+	 * Test channel action hook.
 	 */
-	public function test_integration_registration_hook() {
+	public function test_channel_registration_hook() {
 		$hook_called = false;
-		$received_integration = null;
+		$received_channel = null;
 		$received_manager = null;
 
 		// Add hook listener
-		add_action( 'simple_history/integrations/registered', function( $integration, $manager ) use ( &$hook_called, &$received_integration, &$received_manager ) {
+		add_action( 'simple_history/channels/registered', function( $channel, $manager ) use ( &$hook_called, &$received_channel, &$received_manager ) {
 			$hook_called = true;
-			$received_integration = $integration;
+			$received_channel = $channel;
 			$received_manager = $manager;
 		}, 10, 2 );
 
-		// Register a new integration
-		$integration = new Example_Integration();
-		$this->manager->register_integration( $integration );
+		// Register a new channel
+		$channel = new Example_Channel();
+		$this->manager->register_channel( $channel );
 
 		// Verify hook was called
 		$this->assertTrue( $hook_called );
-		$this->assertSame( $integration, $received_integration );
+		$this->assertSame( $channel, $received_channel );
 		$this->assertSame( $this->manager, $received_manager );
 
 		// Clean up
-		remove_all_actions( 'simple_history/integrations/registered' );
+		remove_all_actions( 'simple_history/channels/registered' );
 	}
 
 	/**
 	 * Test that external integrations can be registered.
 	 */
-	public function test_external_integration_registration() {
+	public function test_external_channel_registration() {
 		$external_registered = false;
 
-		// Simulate external plugin registering an integration
-		add_action( 'simple_history/integrations/register', function( $manager ) use ( &$external_registered ) {
-			$integration = new Example_Integration();
-			$result = $manager->register_integration( $integration );
+		// Simulate external plugin registering a channel
+		add_action( 'simple_history/channels/register', function( $manager ) use ( &$external_registered ) {
+			$channel = new Example_Channel();
+			$result = $manager->register_channel( $channel );
 			$external_registered = $result;
 		} );
 
 		// Trigger the action
-		do_action( 'simple_history/integrations/register', $this->manager );
+		do_action( 'simple_history/channels/register', $this->manager );
 
 		// Verify registration worked
 		$this->assertTrue( $external_registered );
-		$this->assertInstanceOf( Example_Integration::class, $this->manager->get_integration( 'example' ) );
+		$this->assertInstanceOf( Example_Channel::class, $this->manager->get_channel( 'example' ) );
 	}
 
 	/**

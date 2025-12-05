@@ -86,7 +86,7 @@ $sh_loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . 'inc/' );
 $sh_loader->add_namespace( 'Simple_History\Event_Details', SIMPLE_HISTORY_PATH . 'inc/event-details' );
 $sh_loader->add_namespace( 'Simple_History\Services', SIMPLE_HISTORY_PATH . 'inc/services' );
 $sh_loader->add_namespace( 'Simple_History\Services', SIMPLE_HISTORY_PATH . 'inc/services/wp-cli-commands' );
-$sh_loader->add_namespace( 'Simple_History\Integrations', SIMPLE_HISTORY_PATH . 'inc/integrations' );
+$sh_loader->add_namespace( 'Simple_History\Channels', SIMPLE_HISTORY_PATH . 'inc/channels' );
 
 // Register autoloader for deprecated classes - loaded only when actually used.
 spl_autoload_register(

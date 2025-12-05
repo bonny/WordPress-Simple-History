@@ -1,20 +1,20 @@
 <?php
 
-namespace Simple_History\Integrations;
+namespace Simple_History\Channels;
 
-use Simple_History\Integrations\Interfaces\Integration_Interface;
+use Simple_History\Channels\Interfaces\Channel_Interface;
 
 /**
- * Abstract base class for all integrations.
+ * Abstract base class for all channels.
  *
- * Provides common functionality for integrations that forward
+ * Provides common functionality for channels that forward
  * Simple History events to external systems.
  *
  * @since 4.4.0
  */
-abstract class Integration implements Integration_Interface {
+abstract class Channel implements Channel_Interface {
 	/**
-	 * The unique slug for this integration.
+	 * The unique slug for this channel.
 	 * Must be defined by child classes.
 	 *
 	 * @var ?string
@@ -22,14 +22,14 @@ abstract class Integration implements Integration_Interface {
 	protected ?string $slug = null;
 
 	/**
-	 * Whether this integration supports async processing.
+	 * Whether this channel supports async processing.
 	 *
 	 * @var bool
 	 */
 	protected bool $supports_async = false;
 
 	/**
-	 * Called when the integration is loaded and ready.
+	 * Called when the channel is loaded and ready.
 	 *
 	 * Child classes should override this method to register hooks
 	 * and perform initialization that has side effects.
@@ -40,9 +40,9 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Get the unique slug for this integration.
+	 * Get the unique slug for this channel.
 	 *
-	 * @return string The integration slug.
+	 * @return string The channel slug.
 	 */
 	public function get_slug() {
 		if ( $this->slug === null ) {
@@ -50,7 +50,7 @@ abstract class Integration implements Integration_Interface {
 				__METHOD__,
 				sprintf(
 					/* translators: %s: Class name */
-					esc_html__( 'Integration class %s must define a $slug property.', 'simple-history' ),
+					esc_html__( 'Channel class %s must define a $slug property.', 'simple-history' ),
 					static::class
 				),
 				'4.4.0'
@@ -61,25 +61,25 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Get the display name for this integration.
+	 * Get the display name for this channel.
 	 *
 	 * This method must be implemented by child classes.
 	 *
-	 * @return string The integration display name.
+	 * @return string The channel display name.
 	 */
 	abstract public function get_name();
 
 	/**
-	 * Get the description for this integration.
+	 * Get the description for this channel.
 	 *
 	 * This method must be implemented by child classes.
 	 *
-	 * @return string The integration description.
+	 * @return string The channel description.
 	 */
 	abstract public function get_description();
 
 	/**
-	 * Check if this integration is enabled.
+	 * Check if this channel is enabled.
 	 *
 	 * @return bool True if enabled, false otherwise.
 	 */
@@ -88,7 +88,7 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Check if this integration supports async processing.
+	 * Check if this channel supports async processing.
 	 *
 	 * @return bool True if supports async, false for synchronous only.
 	 */
@@ -97,7 +97,7 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Send an event to this integration.
+	 * Send an event to this channel.
 	 *
 	 * This method must be implemented by child classes.
 	 *
@@ -108,7 +108,7 @@ abstract class Integration implements Integration_Interface {
 	abstract public function send_event( $event_data, $formatted_message );
 
 	/**
-	 * Get the settings fields for this integration.
+	 * Get the settings fields for this channel.
 	 *
 	 * This method should be overridden by child classes to provide
 	 * specific configuration fields.
@@ -174,7 +174,7 @@ abstract class Integration implements Integration_Interface {
 	 * ## Custom Field Types:
 	 * If you need a field type not listed above, the value will be passed
 	 * through without validation (see the default case in validate_settings()).
-	 * You should implement custom validation in your integration class.
+	 * You should implement custom validation in your channel class.
 	 *
 	 * @return array Array of settings fields.
 	 */
@@ -183,9 +183,9 @@ abstract class Integration implements Integration_Interface {
 			[
 				'type'        => 'checkbox',
 				'name'        => 'enabled',
-				'title'       => __( 'Enable Integration', 'simple-history' ),
+				'title'       => __( 'Enable Channel', 'simple-history' ),
 				'description' => sprintf(
-					/* translators: %s: Integration name */
+					/* translators: %s: Channel name */
 					__( 'Enable', 'simple-history' ),
 					$this->get_name()
 				),
@@ -194,7 +194,7 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Get the current settings for this integration.
+	 * Get the current settings for this channel.
 	 *
 	 * @return array Array of current settings.
 	 */
@@ -207,7 +207,7 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Get a specific setting value for this integration.
+	 * Get a specific setting value for this channel.
 	 *
 	 * @param string $setting_name The name of the setting to retrieve.
 	 * @param mixed  $default Optional. Default value to return if setting doesn't exist.
@@ -219,7 +219,7 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Set a specific setting value for this integration.
+	 * Set a specific setting value for this channel.
 	 *
 	 * @param string $setting_name The name of the setting to set.
 	 * @param mixed  $value The value to set.
@@ -232,18 +232,18 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Get the WordPress option name for this integration's settings.
+	 * Get the WordPress option name for this channel's settings.
 	 *
-	 * Computed lazily from the integration slug.
+	 * Computed lazily from the channel slug.
 	 *
 	 * @return string The option name used to store settings in the database.
 	 */
 	public function get_settings_option_name() {
-		return 'simple_history_integration_' . $this->get_slug();
+		return 'simple_history_channel_' . $this->get_slug();
 	}
 
 	/**
-	 * Get the default settings for this integration.
+	 * Get the default settings for this channel.
 	 *
 	 * @return array Array of default settings.
 	 */
@@ -262,7 +262,7 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Save settings for this integration.
+	 * Save settings for this channel.
 	 *
 	 * @param array $settings The settings to save.
 	 * @return bool True on success, false on failure.
@@ -333,7 +333,7 @@ abstract class Integration implements Integration_Interface {
 
 				case 'number':
 					$validated[ $name ] = intval( $value );
-					
+
 					// Check min/max bounds if specified.
 					if ( isset( $field['min'] ) && $validated[ $name ] < $field['min'] ) {
 						$validated[ $name ] = $field['min'];
@@ -378,7 +378,7 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Get the alert rules for this integration.
+	 * Get the alert rules for this channel.
 	 *
 	 * @return array Array of alert rules.
 	 */
@@ -387,7 +387,7 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Set the alert rules for this integration.
+	 * Set the alert rules for this channel.
 	 *
 	 * @param array $rules Array of alert rules.
 	 * @return bool True on success, false on failure.
@@ -403,7 +403,7 @@ abstract class Integration implements Integration_Interface {
 	 * @return bool True if event should be sent, false otherwise.
 	 */
 	public function should_send_event( $event_data ) {
-		// If integration is not enabled, don't send.
+		// If channel is not enabled, don't send.
 		if ( ! $this->is_enabled() ) {
 			return false;
 		}
@@ -421,14 +421,14 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Log an error for this integration.
+	 * Log an error for this channel.
 	 *
 	 * @param string $message The error message.
 	 * @param array  $context Additional context data.
 	 */
 	protected function log_error( $message, $context = [] ) {
 		$log_message = sprintf(
-			'Simple History Integration %s: %s',
+			'Simple History Channel %s: %s',
 			$this->get_slug(),
 			$message
 		);
@@ -441,7 +441,7 @@ abstract class Integration implements Integration_Interface {
 	}
 
 	/**
-	 * Log debug information for this integration.
+	 * Log debug information for this channel.
 	 *
 	 * @param string $message The debug message.
 	 * @param array  $context Additional context data.
@@ -452,7 +452,7 @@ abstract class Integration implements Integration_Interface {
 		}
 
 		$log_message = sprintf(
-			'Simple History Integration %s (DEBUG): %s',
+			'Simple History Channel %s (DEBUG): %s',
 			$this->get_slug(),
 			$message
 		);
@@ -468,7 +468,7 @@ abstract class Integration implements Integration_Interface {
 	 * Get additional info HTML to display before the settings fields.
 	 *
 	 * This method can be overridden by child classes to provide
-	 * integration-specific information to users.
+	 * channel-specific information to users.
 	 *
 	 * @return string HTML content to display, or empty string if none.
 	 */
@@ -480,7 +480,7 @@ abstract class Integration implements Integration_Interface {
 	 * Get additional info HTML to display after the settings fields.
 	 *
 	 * This method can be overridden by child classes to provide
-	 * integration-specific information to users.
+	 * channel-specific information to users.
 	 *
 	 * @return string HTML content to display, or empty string if none.
 	 */

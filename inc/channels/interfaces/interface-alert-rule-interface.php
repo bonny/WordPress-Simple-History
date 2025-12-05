@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History\Integrations\Interfaces;
+namespace Simple_History\Channels\Interfaces;
 
 /**
  * Interface for alert rules.
