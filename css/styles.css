@@ -2240,22 +2240,3 @@ Styles for plugin update details. Markup looks like this:
 	text-align: center;
 }
 
-/* Channel Settings within Settings Cards */
-.sh-Channel-description {
-	font-size: var(--sh-font-size-large);
-	margin-bottom: var(--sh-spacing-large);
-	line-height: 1.5;
-}
-
-.sh-Channel-field {
-	margin-bottom: var(--sh-spacing-large);
-}
-
-.sh-Channel-field:last-child {
-	margin-bottom: 0;
-}
-
-.sh-Channel-field label {
-	display: block;
-	margin-bottom: var(--sh-spacing-xsmall);
-}

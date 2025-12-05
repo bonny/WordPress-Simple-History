@@ -66,11 +66,22 @@ interface Channel_Interface {
 	public function send_event( $event_data, $formatted_message );
 
 	/**
-	 * Get the settings fields for this channel.
+	 * Add settings fields for this channel using WordPress Settings API.
 	 *
-	 * @return array Array of settings fields.
+	 * Called during admin_init to register settings fields.
+	 *
+	 * @param string $settings_page_slug The settings page slug.
+	 * @param string $settings_section_id The settings section ID.
 	 */
-	public function get_settings_fields();
+	public function add_settings_fields( $settings_page_slug, $settings_section_id );
+
+	/**
+	 * Sanitize settings for this channel.
+	 *
+	 * @param array $input Raw input data from form submission.
+	 * @return array Sanitized settings.
+	 */
+	public function sanitize_settings( $input );
 
 	/**
 	 * Get the current settings for this channel.
@@ -134,18 +145,4 @@ interface Channel_Interface {
 	 * @return bool True if event should be sent, false otherwise.
 	 */
 	public function should_send_event( $event_data );
-
-	/**
-	 * Get additional info HTML to display before the settings fields.
-	 *
-	 * @return string HTML content to display, or empty string if none.
-	 */
-	public function get_settings_info_before_fields_html();
-
-	/**
-	 * Get additional info HTML to display after the settings fields.
-	 *
-	 * @return string HTML content to display, or empty string if none.
-	 */
-	public function get_settings_info_after_fields_html();
 }

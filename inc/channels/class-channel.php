@@ -3,6 +3,7 @@
 namespace Simple_History\Channels;
 
 use Simple_History\Channels\Interfaces\Channel_Interface;
+use Simple_History\Helpers;
 
 /**
  * Abstract base class for all channels.
@@ -108,89 +109,60 @@ abstract class Channel implements Channel_Interface {
 	abstract public function send_event( $event_data, $formatted_message );
 
 	/**
-	 * Get the settings fields for this channel.
+	 * Add settings fields for this channel using WordPress Settings API.
 	 *
-	 * This method should be overridden by child classes to provide
-	 * specific configuration fields.
+	 * Override this method in child classes to add custom settings fields.
+	 * The base implementation adds the "Enable" checkbox.
 	 *
-	 * ## Supported Field Types:
-	 *
-	 * ### checkbox
-	 * - Renders as a checkbox input
-	 * - Value is stored as boolean (true/false)
-	 * - Example: ['type' => 'checkbox', 'name' => 'enabled', 'title' => 'Enable']
-	 *
-	 * ### text
-	 * - Renders as a single-line text input
-	 * - Value is sanitized with sanitize_text_field()
-	 * - Example: ['type' => 'text', 'name' => 'api_key', 'title' => 'API Key']
-	 *
-	 * ### textarea
-	 * - Renders as a multi-line text area
-	 * - Value is sanitized with sanitize_text_field()
-	 * - Example: ['type' => 'textarea', 'name' => 'message', 'title' => 'Message']
-	 *
-	 * ### url
-	 * - Renders as a URL input field
-	 * - Value is validated and sanitized with esc_url_raw()
-	 * - Validation fails if an invalid URL is provided
-	 * - Example: ['type' => 'url', 'name' => 'webhook_url', 'title' => 'Webhook URL']
-	 *
-	 * ### email
-	 * - Renders as an email input field
-	 * - Value is validated with is_email() and sanitized with sanitize_email()
-	 * - Validation fails if an invalid email is provided
-	 * - Example: ['type' => 'email', 'name' => 'recipient', 'title' => 'Email Address']
-	 *
-	 * ### select
-	 * - Renders as a dropdown select field
-	 * - Requires 'options' array with key => label pairs
-	 * - Example: [
-	 *     'type' => 'select',
-	 *     'name' => 'frequency',
-	 *     'title' => 'Frequency',
-	 *     'options' => ['daily' => 'Daily', 'weekly' => 'Weekly']
-	 * ]
-	 *
-	 * ### number
-	 * - Renders as a number input field
-	 * - Supports 'min' and 'max' attributes
-	 * - Example: [
-	 *     'type' => 'number',
-	 *     'name' => 'retention_days',
-	 *     'title' => 'Days to Keep',
-	 *     'min' => 1,
-	 *     'max' => 365
-	 * ]
-	 *
-	 * ## Common Field Properties:
-	 * - name: (required) The field name/key for storing the value
-	 * - title: (required) The label displayed to users
-	 * - description: (optional) Help text shown below the field
-	 * - default: (optional) Default value if none is set
-	 * - required: (optional) Boolean, marks field as required
-	 * - placeholder: (optional) Placeholder text for input fields
-	 *
-	 * ## Custom Field Types:
-	 * If you need a field type not listed above, the value will be passed
-	 * through without validation (see the default case in validate_settings()).
-	 * You should implement custom validation in your channel class.
-	 *
-	 * @return array Array of settings fields.
+	 * @param string $settings_page_slug The settings page slug.
+	 * @param string $settings_section_id The settings section ID.
 	 */
-	public function get_settings_fields() {
-		return [
-			[
-				'type'        => 'checkbox',
-				'name'        => 'enabled',
-				'title'       => __( 'Enable Channel', 'simple-history' ),
-				'description' => sprintf(
-					/* translators: %s: Channel name */
-					__( 'Enable', 'simple-history' ),
-					$this->get_name()
-				),
-			],
-		];
+	public function add_settings_fields( $settings_page_slug, $settings_section_id ) {
+		// Add the enable checkbox - common to all channels.
+		add_settings_field(
+			$this->get_settings_option_name() . '_enabled',
+			Helpers::get_settings_field_title_output( __( 'Enable', 'simple-history' ) ),
+			[ $this, 'settings_field_enabled' ],
+			$settings_page_slug,
+			$settings_section_id
+		);
+	}
+
+	/**
+	 * Render the "Enable" settings field.
+	 */
+	public function settings_field_enabled() {
+		$enabled     = $this->is_enabled();
+		$option_name = $this->get_settings_option_name();
+		?>
+		<label>
+			<input
+				type="checkbox"
+				name="<?php echo esc_attr( $option_name ); ?>[enabled]"
+				value="1"
+				<?php checked( $enabled ); ?>
+			/>
+			<?php esc_html_e( 'Enable', 'simple-history' ); ?>
+		</label>
+		<?php
+	}
+
+	/**
+	 * Sanitize settings for this channel.
+	 *
+	 * Override this method in child classes for custom sanitization.
+	 * The base implementation handles the "enabled" checkbox.
+	 *
+	 * @param array $input Raw input data from form submission.
+	 * @return array Sanitized settings.
+	 */
+	public function sanitize_settings( $input ) {
+		$sanitized = [];
+
+		// Handle enabled checkbox.
+		$sanitized['enabled'] = ! empty( $input['enabled'] );
+
+		return $sanitized;
 	}
 
 	/**
@@ -245,20 +217,12 @@ abstract class Channel implements Channel_Interface {
 	/**
 	 * Get the default settings for this channel.
 	 *
+	 * Override in child classes to add additional defaults.
+	 *
 	 * @return array Array of default settings.
 	 */
 	protected function get_default_settings() {
-		$defaults = [ 'enabled' => false ];
-
-		// Extract defaults from settings fields.
-		foreach ( $this->get_settings_fields() as $field ) {
-			/** @var array<string, mixed> $field - Individual settings field configuration */
-			if ( isset( $field['default'] ) ) {
-				$defaults[ $field['name'] ] = $field['default'];
-			}
-		}
-
-		return $defaults;
+		return [ 'enabled' => false ];
 	}
 
 	/**
@@ -268,113 +232,7 @@ abstract class Channel implements Channel_Interface {
 	 * @return bool True on success, false on failure.
 	 */
 	public function save_settings( $settings ) {
-		// Validate settings first.
-		$validated_settings = $this->validate_settings( $settings );
-
-		if ( is_wp_error( $validated_settings ) ) {
-			return false;
-		}
-
-		return update_option( $this->get_settings_option_name(), $validated_settings );
-	}
-
-	/**
-	 * Validate settings before saving.
-	 *
-	 * @param array $settings The settings to validate.
-	 * @return array|\WP_Error Validated settings or WP_Error on failure.
-	 */
-	protected function validate_settings( $settings ) {
-		$validated = [];
-		$fields    = $this->get_settings_fields();
-
-		foreach ( $fields as $field ) {
-			$name  = $field['name'];
-			$value = $settings[ $name ] ?? null;
-
-			// Apply field-specific validation.
-			switch ( $field['type'] ) {
-				case 'checkbox':
-					$validated[ $name ] = ! empty( $value );
-					break;
-
-				case 'text':
-				case 'textarea':
-					$validated[ $name ] = sanitize_text_field( $value );
-					break;
-
-				case 'url':
-					$validated[ $name ] = esc_url_raw( $value );
-					if ( ! empty( $value ) && empty( $validated[ $name ] ) ) {
-						return new \WP_Error(
-							'invalid_url',
-							sprintf(
-							/* translators: %s: Field name */
-								__( 'Invalid URL in field: %s', 'simple-history' ),
-								$field['title'] ?? $name
-							)
-						);
-					}
-					break;
-
-				case 'email':
-					$validated[ $name ] = sanitize_email( $value );
-					if ( ! empty( $value ) && ! is_email( $validated[ $name ] ) ) {
-						return new \WP_Error(
-							'invalid_email',
-							sprintf(
-							/* translators: %s: Field name */
-								__( 'Invalid email in field: %s', 'simple-history' ),
-								$field['title'] ?? $name
-							)
-						);
-					}
-					break;
-
-				case 'number':
-					$validated[ $name ] = intval( $value );
-
-					// Check min/max bounds if specified.
-					if ( isset( $field['min'] ) && $validated[ $name ] < $field['min'] ) {
-						$validated[ $name ] = $field['min'];
-					}
-					if ( isset( $field['max'] ) && $validated[ $name ] > $field['max'] ) {
-						$validated[ $name ] = $field['max'];
-					}
-					break;
-
-				case 'select':
-					// Validate that the value is one of the allowed options.
-					if ( isset( $field['options'] ) && is_array( $field['options'] ) ) {
-						if ( array_key_exists( $value, $field['options'] ) ) {
-							$validated[ $name ] = $value;
-						} else {
-							// Use the default or first option if invalid value.
-							$validated[ $name ] = $field['default'] ?? array_key_first( $field['options'] );
-						}
-					} else {
-						$validated[ $name ] = $value;
-					}
-					break;
-
-				default:
-					$validated[ $name ] = $value;
-			}
-
-			// Check required fields.
-			if ( ! empty( $field['required'] ) && empty( $validated[ $name ] ) ) {
-				return new \WP_Error(
-					'required_field',
-					sprintf(
-					/* translators: %s: Field name */
-						__( 'Required field is empty: %s', 'simple-history' ),
-						$field['title'] ?? $name
-					)
-				);
-			}
-		}
-
-		return $validated;
+		return update_option( $this->get_settings_option_name(), $settings );
 	}
 
 	/**
@@ -437,6 +295,7 @@ abstract class Channel implements Channel_Interface {
 			$log_message .= ' Context: ' . wp_json_encode( $context );
 		}
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( $log_message );
 	}
 
@@ -461,30 +320,7 @@ abstract class Channel implements Channel_Interface {
 			$log_message .= ' Context: ' . wp_json_encode( $context );
 		}
 
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log( $log_message );
-	}
-
-	/**
-	 * Get additional info HTML to display before the settings fields.
-	 *
-	 * This method can be overridden by child classes to provide
-	 * channel-specific information to users.
-	 *
-	 * @return string HTML content to display, or empty string if none.
-	 */
-	public function get_settings_info_before_fields_html() {
-		return '';
-	}
-
-	/**
-	 * Get additional info HTML to display after the settings fields.
-	 *
-	 * This method can be overridden by child classes to provide
-	 * channel-specific information to users.
-	 *
-	 * @return string HTML content to display, or empty string if none.
-	 */
-	public function get_settings_info_after_fields_html() {
-		return '';
 	}
 }

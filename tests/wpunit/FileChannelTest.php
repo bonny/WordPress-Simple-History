@@ -278,15 +278,14 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test settings info HTML output.
+	 * Test log directory path output.
 	 */
-	public function test_settings_info_html() {
-		$html = $this->channel->get_settings_info_after_fields_html();
+	public function test_log_directory_path() {
+		$path = $this->channel->get_log_directory_path();
 
-		$this->assertIsString( $html );
-		$this->assertStringContainsString( 'Files are saved to directory:', $html );
-		$this->assertStringContainsString( '<code>', $html );
-		$this->assertStringContainsString( 'simple-history-logs-', $html );
+		$this->assertIsString( $path );
+		$this->assertStringContainsString( 'simple-history-logs-', $path );
+		$this->assertStringContainsString( WP_CONTENT_DIR, $path );
 	}
 
 	/**

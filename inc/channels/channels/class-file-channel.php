@@ -3,6 +3,7 @@
 namespace Simple_History\Channels\Channels;
 
 use Simple_History\Channels\Channel;
+use Simple_History\Helpers;
 
 /**
  * File Channel for Simple History.
@@ -115,72 +116,149 @@ class File_Channel extends Channel {
 
 		// Write to file.
 		$result = file_put_contents( $log_file, $log_entry, FILE_APPEND | LOCK_EX );
-		
+
 		if ( false === $result ) {
 			$this->log_error( 'Failed to write to log file: ' . $log_file );
 			return false;
 		}
-		
+
 		// Schedule cleanup if needed.
 		$this->schedule_cleanup_if_needed();
-		
+
 		return true;
 	}
 
 	/**
-	 * Get the settings fields for this channel.
+	 * Add settings fields for this channel using WordPress Settings API.
 	 *
-	 * @return array Array of settings fields.
+	 * @param string $settings_page_slug The settings page slug.
+	 * @param string $settings_section_id The settings section ID.
 	 */
-	public function get_settings_fields() {
-		$base_fields = parent::get_settings_fields();
+	public function add_settings_fields( $settings_page_slug, $settings_section_id ) {
+		// Add parent's enable checkbox first.
+		parent::add_settings_fields( $settings_page_slug, $settings_section_id );
 
-		$file_fields = [
-			[
-				'type'    => 'select',
-				'name'    => 'rotation_frequency',
-				'title'   => __( 'Create new files', 'simple-history' ),
-				'options' => [
-					'daily'   => __( 'Daily', 'simple-history' ),
-					'weekly'  => __( 'Weekly', 'simple-history' ),
-					'monthly' => __( 'Monthly', 'simple-history' ),
-					'never'   => __( 'Never (single file)', 'simple-history' ),
-				],
-				'default' => 'daily',
-			],
-			[
-				'type'        => 'number',
-				'name'        => 'keep_files',
-				'title'       => __( 'Number of files to keep', 'simple-history' ),
-				'description' => __( 'Oldest file will be deleted. Set to 0 to keep forever.', 'simple-history' ),
-				'default'     => 30,
-				'min'         => 0,
-				'max'         => 365,
-			],
-		];
+		$option_name = $this->get_settings_option_name();
 
-		return array_merge( $base_fields, $file_fields );
+		// Rotation frequency field.
+		add_settings_field(
+			$option_name . '_rotation_frequency',
+			Helpers::get_settings_field_title_output( __( 'Create new files', 'simple-history' ) ),
+			[ $this, 'settings_field_rotation_frequency' ],
+			$settings_page_slug,
+			$settings_section_id
+		);
+
+		// Number of files to keep field.
+		add_settings_field(
+			$option_name . '_keep_files',
+			Helpers::get_settings_field_title_output( __( 'Number of files to keep', 'simple-history' ) ),
+			[ $this, 'settings_field_keep_files' ],
+			$settings_page_slug,
+			$settings_section_id
+		);
+
+		// File path info field.
+		add_settings_field(
+			$option_name . '_file_path',
+			Helpers::get_settings_field_title_output( __( 'File location', 'simple-history' ) ),
+			[ $this, 'settings_field_file_path' ],
+			$settings_page_slug,
+			$settings_section_id
+		);
 	}
 
 	/**
-	 * Get additional info HTML to display after the settings fields.
-	 *
-	 * @return string HTML content to display.
+	 * Render the rotation frequency settings field.
 	 */
-	public function get_settings_info_after_fields_html() {
-		$log_directory = $this->get_log_directory_path();
+	public function settings_field_rotation_frequency() {
+		$option_name = $this->get_settings_option_name();
+		$value       = $this->get_setting( 'rotation_frequency', 'daily' );
 
-		ob_start();
+		$options = [
+			'daily'   => __( 'Daily', 'simple-history' ),
+			'weekly'  => __( 'Weekly', 'simple-history' ),
+			'monthly' => __( 'Monthly', 'simple-history' ),
+			'never'   => __( 'Never (single file)', 'simple-history' ),
+		];
 		?>
-		<div class="sh-Channel-info">
-			<p class="description">
-				<?php esc_html_e( 'Files are saved to directory:', 'simple-history' ); ?><br>
-				<code><?php echo esc_html( $log_directory ); ?></code>
-			</p>
-		</div>
+		<select name="<?php echo esc_attr( $option_name ); ?>[rotation_frequency]">
+			<?php foreach ( $options as $option_value => $option_label ) : ?>
+				<option value="<?php echo esc_attr( $option_value ); ?>" <?php selected( $value, $option_value ); ?>>
+					<?php echo esc_html( $option_label ); ?>
+				</option>
+			<?php endforeach; ?>
+		</select>
 		<?php
+	}
 
-		return ob_get_clean();
+	/**
+	 * Render the keep files settings field.
+	 */
+	public function settings_field_keep_files() {
+		$option_name = $this->get_settings_option_name();
+		$value       = $this->get_setting( 'keep_files', 30 );
+		?>
+		<input
+			type="number"
+			name="<?php echo esc_attr( $option_name ); ?>[keep_files]"
+			value="<?php echo esc_attr( $value ); ?>"
+			min="0"
+			max="365"
+			class="small-text"
+		/>
+		<p class="description">
+			<?php esc_html_e( 'Oldest file will be deleted. Set to 0 to keep forever.', 'simple-history' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render the file path info field.
+	 */
+	public function settings_field_file_path() {
+		$log_directory = $this->get_log_directory_path();
+		?>
+		<code><?php echo esc_html( $log_directory ); ?></code>
+		<?php
+	}
+
+	/**
+	 * Sanitize settings for this channel.
+	 *
+	 * @param array $input Raw input data from form submission.
+	 * @return array Sanitized settings.
+	 */
+	public function sanitize_settings( $input ) {
+		// Get parent sanitization first.
+		$sanitized = parent::sanitize_settings( $input );
+
+		// Sanitize rotation frequency.
+		$valid_frequencies = [ 'daily', 'weekly', 'monthly', 'never' ];
+		$sanitized['rotation_frequency'] = in_array( $input['rotation_frequency'] ?? '', $valid_frequencies, true )
+			? $input['rotation_frequency']
+			: 'daily';
+
+		// Sanitize keep files (integer between 0 and 365).
+		$keep_files = isset( $input['keep_files'] ) ? absint( $input['keep_files'] ) : 30;
+		$sanitized['keep_files'] = min( 365, max( 0, $keep_files ) );
+
+		return $sanitized;
+	}
+
+	/**
+	 * Get the default settings for this channel.
+	 *
+	 * @return array Array of default settings.
+	 */
+	protected function get_default_settings() {
+		return array_merge(
+			parent::get_default_settings(),
+			[
+				'rotation_frequency' => 'daily',
+				'keep_files'         => 30,
+			]
+		);
 	}
 
 	/**
@@ -191,7 +269,6 @@ class File_Channel extends Channel {
 	public function get_log_directory_path() {
 		return $this->get_default_log_directory();
 	}
-
 
 	/**
 	 * Get the log file path based on current settings.
@@ -363,10 +440,10 @@ class File_Channel extends Channel {
 		if ( wp_mkdir_p( $directory ) ) {
 			// Set appropriate permissions.
 			chmod( $directory, 0755 );
-			
+
 			// Create .htaccess file for security.
 			$this->create_htaccess_file( $directory );
-			
+
 			return true;
 		}
 
@@ -380,17 +457,16 @@ class File_Channel extends Channel {
 	 */
 	private function create_htaccess_file( $directory ) {
 		$htaccess_path = trailingslashit( $directory ) . '.htaccess';
-		
+
 		// Only create if it doesn't exist.
 		if ( ! file_exists( $htaccess_path ) ) {
 			$htaccess_content  = "# Simple History log directory protection\n";
 			$htaccess_content .= "Order deny,allow\n";
 			$htaccess_content .= "Deny from all\n";
-			
+
 			file_put_contents( $htaccess_path, $htaccess_content );
 		}
 	}
-
 
 	/**
 	 * Schedule cleanup if needed (throttled to avoid running on every write).
