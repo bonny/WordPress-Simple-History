@@ -224,6 +224,17 @@ class File_Channel extends Channel {
 	}
 
 	/**
+	 * Output HTML after the settings fields.
+	 */
+	public function settings_output_after_fields() {
+		?>
+		<p class="description">
+			<?php esc_html_e( 'The log folder is protected from public access, but avoid sharing its path publicly.', 'simple-history' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
 	 * Sanitize settings for this channel.
 	 *
 	 * @param array $input Raw input data from form submission.

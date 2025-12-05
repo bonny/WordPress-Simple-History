@@ -145,4 +145,12 @@ interface Channel_Interface {
 	 * @return bool True if event should be sent, false otherwise.
 	 */
 	public function should_send_event( $event_data );
+
+	/**
+	 * Output HTML after the settings fields.
+	 *
+	 * Override this method to add custom HTML content at the bottom
+	 * of the channel's settings section, after all fields.
+	 */
+	public function settings_output_after_fields();
 }

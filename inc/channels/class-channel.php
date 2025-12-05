@@ -279,6 +279,17 @@ abstract class Channel implements Channel_Interface {
 	}
 
 	/**
+	 * Output HTML after the settings fields.
+	 *
+	 * Override this method to add custom HTML content at the bottom
+	 * of the channel's settings section, after all fields.
+	 */
+	public function settings_output_after_fields() {
+		// Default implementation does nothing.
+		// Override in child classes to add custom content.
+	}
+
+	/**
 	 * Log an error for this channel.
 	 *
 	 * @param string $message The error message.

@@ -119,7 +119,10 @@ class Channels_Settings_Page extends Service {
 			function () use ( $channel ) {
 				$this->render_channel_section_intro( $channel );
 			},
-			self::SETTINGS_PAGE_SLUG
+			self::SETTINGS_PAGE_SLUG,
+			[
+				'callback_last' => [ $channel, 'settings_output_after_fields' ],
+			]
 		);
 
 		// Let the channel add its own settings fields.
