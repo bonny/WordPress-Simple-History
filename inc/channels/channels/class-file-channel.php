@@ -224,33 +224,61 @@ class File_Channel extends Channel {
 	}
 
 	/**
+	 * Test folder writability and attempt to create if needed.
+	 *
+	 * Returns an array with status information about the folder:
+	 * - exists: bool - Whether the folder exists (after any creation attempt)
+	 * - created: bool - Whether the folder was created during this call
+	 * - creation_failed: bool - Whether creation was attempted but failed
+	 * - is_writable: bool - Whether the folder is writable
+	 *
+	 * @param string $directory The directory path to test.
+	 * @return array{exists: bool, created: bool, creation_failed: bool, is_writable: bool}
+	 */
+	private function test_folder_writability( $directory ) {
+		$result = [
+			'exists'          => false,
+			'created'         => false,
+			'creation_failed' => false,
+			'is_writable'     => false,
+		];
+
+		// Check if directory already exists.
+		$result['exists'] = file_exists( $directory );
+
+		if ( ! $result['exists'] ) {
+			// Attempt to create the directory.
+			$created = wp_mkdir_p( $directory );
+
+			if ( $created ) {
+				$result['exists']  = true;
+				$result['created'] = true;
+
+				// Create protection files.
+				$this->create_htaccess_file( $directory );
+				$this->create_index_file( $directory );
+			} else {
+				$result['creation_failed'] = true;
+			}
+		}
+
+		// Check writability if directory exists.
+		$result['is_writable'] = $result['exists'] && is_writable( $directory );
+
+		return $result;
+	}
+
+	/**
 	 * Render the file path info field.
 	 */
 	public function settings_field_file_path() {
 		$log_directory = $this->get_log_directory_path();
 		$test_url      = $this->get_log_directory_url();
 
-		// Try to create the directory if it doesn't exist.
-		$directory_exists = file_exists( $log_directory );
-		$creation_failed  = false;
-
-		if ( ! $directory_exists ) {
-			// Attempt to create the directory.
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-			$created = wp_mkdir_p( $log_directory );
-
-			if ( $created ) {
-				$directory_exists = true;
-				// Create .htaccess file for protection.
-				$this->create_htaccess_file( $log_directory );
-				// Create index.php file for extra protection.
-				$this->create_index_file( $log_directory );
-			} else {
-				$creation_failed = true;
-			}
-		}
-
-		$is_writable = $directory_exists && is_writable( $log_directory );
+		// Test folder writability and attempt creation if needed.
+		$folder_status   = $this->test_folder_writability( $log_directory );
+		$creation_failed = $folder_status['creation_failed'];
+		$is_writable     = $folder_status['is_writable'];
 		?>
 		<code><?php echo esc_html( $log_directory ); ?></code>
 
