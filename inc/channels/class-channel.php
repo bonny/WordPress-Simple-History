@@ -157,7 +157,8 @@ abstract class Channel implements Channel_Interface {
 	 * @return array Sanitized settings.
 	 */
 	public function sanitize_settings( $input ) {
-		$sanitized = [];
+		// Start with existing settings to preserve non-form values (like folder_token).
+		$sanitized = $this->get_settings();
 
 		// Handle enabled checkbox.
 		$sanitized['enabled'] = ! empty( $input['enabled'] );

@@ -419,10 +419,10 @@ class File_Channel extends Channel {
 	 * @return string Default log directory path.
 	 */
 	private function get_default_log_directory() {
-		// Generate a hard-to-guess directory name based on site specifics.
-		$site_hash = $this->get_site_hash();
+		// Use a random token for directory name (stored in settings for stability).
+		$folder_token = $this->get_folder_token();
 
-		$default_directory = trailingslashit( WP_CONTENT_DIR ) . 'simple-history-logs-' . $site_hash;
+		$default_directory = trailingslashit( WP_CONTENT_DIR ) . 'simple-history-logs-' . $folder_token;
 
 		/**
 		 * Filter the log directory path.
@@ -449,26 +449,35 @@ class File_Channel extends Channel {
 	}
 
 	/**
-	 * Generate a site-specific hash for directory naming.
+	 * Get or create the folder token for log directory naming.
 	 *
-	 * Uses site URL and auth keys to create a unique, hard-to-guess identifier.
+	 * Uses a stored random token instead of deriving from site config,
+	 * ensuring the folder path remains stable even if auth keys change.
 	 *
-	 * @return string 8-character hash based on site specifics.
+	 * Note: Stored in a separate option (not channel settings) to avoid
+	 * conflicts with the WordPress Settings API sanitization flow.
+	 *
+	 * @return string 16-character alphanumeric token.
 	 */
-	private function get_site_hash() {
-		// Combine site-specific data for uniqueness.
-		$site_data = get_site_url() . ABSPATH;
+	private function get_folder_token() {
+		$option_name = 'simple_history_file_channel_folder_token';
+		$token       = get_option( $option_name );
 
-		// Add auth keys/salts if available for additional uniqueness.
-		if ( defined( 'AUTH_KEY' ) ) {
-			$site_data .= AUTH_KEY;
-		}
-		if ( defined( 'SECURE_AUTH_KEY' ) ) {
-			$site_data .= SECURE_AUTH_KEY;
+		if ( ! $token ) {
+			$token = wp_generate_password( 16, false, false );
+			update_option( $option_name, $token, false );
 		}
 
-		// Generate hash and return first 8 characters.
-		return substr( md5( $site_data ), 0, 8 );
+		/**
+		 * Filter the folder token used for log directory naming.
+		 *
+		 * Allows customization of the folder token for multisite or custom deployments.
+		 *
+		 * @since 5.6.0
+		 *
+		 * @param string $token The 16-character folder token.
+		 */
+		return apply_filters( 'simple_history/file_channel/folder_token', $token );
 	}
 
 	/**
