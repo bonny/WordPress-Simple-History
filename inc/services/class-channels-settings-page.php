@@ -147,6 +147,7 @@ class Channels_Settings_Page extends Service {
 		?>
 		<p class="description"><?php echo esc_html( $channel->get_description() ); ?></p>
 		<?php
+		$channel->settings_output_intro();
 	}
 
 	/**

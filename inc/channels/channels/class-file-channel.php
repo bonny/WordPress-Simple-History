@@ -80,7 +80,18 @@ class File_Channel extends Channel {
 	 * @return string The channel description.
 	 */
 	public function get_description() {
-		return __( 'Automatically log events to files for backup, compliance, or integration with external log analysis tools. These files are not affected by the "Clear log" function, providing an independent backup.', 'simple-history' );
+		return __( 'Automatically log events to files for backup, compliance, or integration with external log analysis tools.', 'simple-history' );
+	}
+
+	/**
+	 * Output HTML after the description in the intro section.
+	 */
+	public function settings_output_intro() {
+		?>
+		<p class="description">
+			<?php esc_html_e( 'These files are not affected by the "Clear log" function, providing an independent backup.', 'simple-history' ); ?>
+		</p>
+		<?php
 	}
 
 	/**
@@ -219,14 +230,6 @@ class File_Channel extends Channel {
 		$log_directory = $this->get_log_directory_path();
 		?>
 		<code><?php echo esc_html( $log_directory ); ?></code>
-		<?php
-	}
-
-	/**
-	 * Output HTML after the settings fields.
-	 */
-	public function settings_output_after_fields() {
-		?>
 		<p class="description">
 			<?php esc_html_e( 'The log folder is protected from public access, but avoid sharing its path publicly.', 'simple-history' ); ?>
 		</p>

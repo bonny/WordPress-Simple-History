@@ -279,6 +279,17 @@ abstract class Channel implements Channel_Interface {
 	}
 
 	/**
+	 * Output HTML after the description in the intro section.
+	 *
+	 * Override this method to add custom HTML content after the
+	 * channel description paragraph.
+	 */
+	public function settings_output_intro() {
+		// Default implementation does nothing.
+		// Override in child classes to add custom content.
+	}
+
+	/**
 	 * Output HTML after the settings fields.
 	 *
 	 * Override this method to add custom HTML content at the bottom

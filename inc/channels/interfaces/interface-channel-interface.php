@@ -147,6 +147,14 @@ interface Channel_Interface {
 	public function should_send_event( $event_data );
 
 	/**
+	 * Output HTML after the description in the intro section.
+	 *
+	 * Override this method to add custom HTML content after the
+	 * channel description paragraph.
+	 */
+	public function settings_output_intro();
+
+	/**
 	 * Output HTML after the settings fields.
 	 *
 	 * Override this method to add custom HTML content at the bottom
