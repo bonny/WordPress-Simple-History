@@ -121,7 +121,7 @@ abstract class Channel implements Channel_Interface {
 		// Add the enable checkbox - common to all channels.
 		add_settings_field(
 			$this->get_settings_option_name() . '_enabled',
-			Helpers::get_settings_field_title_output( __( 'Enable', 'simple-history' ) ),
+			Helpers::get_settings_field_title_output( __( 'Status', 'simple-history' ) ),
 			[ $this, 'settings_field_enabled' ],
 			$settings_page_slug,
 			$settings_section_id
@@ -129,7 +129,7 @@ abstract class Channel implements Channel_Interface {
 	}
 
 	/**
-	 * Render the "Enable" settings field.
+	 * Render the "Status" settings field.
 	 */
 	public function settings_field_enabled() {
 		$enabled     = $this->is_enabled();
@@ -142,7 +142,7 @@ abstract class Channel implements Channel_Interface {
 				value="1"
 				<?php checked( $enabled ); ?>
 			/>
-			<?php esc_html_e( 'Enable', 'simple-history' ); ?>
+			<?php esc_html_e( 'Enabled', 'simple-history' ); ?>
 		</label>
 		<?php
 	}
