@@ -101,6 +101,39 @@ class SimpleHistoryPluginLogger extends SimpleLogger {
 'role_changed' => __( 'Changed role from {old_role} to {new_role}', 'simple-history' )
 ```
 
+## Message Key Uniqueness
+
+**IMPORTANT**: Message keys must be **globally unique across ALL loggers**, not just within a single logger.
+
+### Why Uniqueness Matters
+
+Message keys are used as message identifiers in syslog RFC 5424 logging, where unique MSGID values are required for proper log parsing and filtering. Duplicate keys would cause conflicts in external logging systems.
+
+### Best Practices for Unique Keys
+
+```php
+// ✅ Good - Use descriptive prefixes that indicate the logger context
+'plugin_activated'           // Plugin_Logger
+'theme_switched'             // Theme_Logger
+'user_logged_in'             // User_Logger
+'privacy_data_exported'      // Privacy_Logger
+'crontrol_event_added'       // Plugin_WP_Crontrol_Logger
+
+// ❌ Bad - Generic keys that could conflict
+'activated'                  // Too generic
+'updated'                    // Could exist in multiple loggers
+'deleted'                    // Ambiguous
+```
+
+### Verification
+
+Before adding new message keys, verify they don't already exist in other loggers:
+
+```bash
+# Search for existing key usage
+grep -r "'your_proposed_key'" loggers/
+```
+
 ## Common Verbs to Use
 
 - **Creation**: Created, Added, Generated
