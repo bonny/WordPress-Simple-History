@@ -94,12 +94,6 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 		$this->channel->set_setting( 'rotation_frequency', 'monthly' );
 		$path = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
 		$this->assertStringContainsString( 'events-' . current_time( 'Y-m' ) . '.log', $path );
-
-		// Test no rotation
-		$this->channel->set_setting( 'rotation_frequency', 'never' );
-		$path = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
-		$this->assertStringContainsString( 'events.log', $path );
-		$this->assertStringNotContainsString( current_time( 'Y' ), basename( $path ) );
 	}
 
 	/**

@@ -127,6 +127,7 @@ class Alert_Rules_Engine {
 
 		if ( ! $rule_type ) {
 			// Unknown rule type, log warning and return false.
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'Simple History: Unknown alert rule type: ' . $rule_config['type'] );
 			return false;
 		}
@@ -135,6 +136,7 @@ class Alert_Rules_Engine {
 			return $rule_type->evaluate( $event_data, $rule_config );
 		} catch ( \Exception $e ) {
 			// Log the error and return false to be safe.
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'Simple History: Error evaluating alert rule: ' . $e->getMessage() );
 			return false;
 		}

@@ -160,7 +160,7 @@ class Channels_Manager extends Service {
 	 * Send event data to a specific channel.
 	 *
 	 * @param Channel_Interface $channel The channel to send to.
-	 * @param array                 $event_data The event data to send.
+	 * @param array             $event_data The event data to send.
 	 */
 	private function send_to_channel( Channel_Interface $channel, $event_data ) {
 		// Check if the event should be sent based on alert rules.
@@ -183,7 +183,7 @@ class Channels_Manager extends Service {
 	 * Format a message for a specific channel.
 	 *
 	 * @param Channel_Interface $channel The channel.
-	 * @param array                 $event_data The event data.
+	 * @param array             $event_data The event data.
 	 * @return string The formatted message.
 	 */
 	private function format_message_for_channel( Channel_Interface $channel, $event_data ) {
@@ -218,8 +218,8 @@ class Channels_Manager extends Service {
 	 * Queue an event for asynchronous processing.
 	 *
 	 * @param Channel_Interface $channel The channel.
-	 * @param array                 $event_data The event data.
-	 * @param string                $formatted_message The formatted message.
+	 * @param array             $event_data The event data.
+	 * @param string            $formatted_message The formatted message.
 	 */
 	private function queue_for_async_processing( Channel_Interface $channel, $event_data, $formatted_message ) {
 		// TODO: Implement async queue system using WordPress cron.
@@ -231,17 +231,19 @@ class Channels_Manager extends Service {
 	 * Send an event synchronously to an channel.
 	 *
 	 * @param Channel_Interface $channel The channel.
-	 * @param array                 $event_data The event data.
-	 * @param string                $formatted_message The formatted message.
+	 * @param array             $event_data The event data.
+	 * @param string            $formatted_message The formatted message.
 	 */
 	private function send_sync( Channel_Interface $channel, $event_data, $formatted_message ) {
 		try {
 			$result = $channel->send_event( $event_data, $formatted_message );
 
 			if ( ! $result ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'Simple History: Failed to send event to channel: ' . $channel->get_slug() );
 			}
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'Simple History: Exception sending event to channel ' . $channel->get_slug() . ': ' . $e->getMessage() );
 		}
 	}

@@ -179,15 +179,14 @@ class File_Channel extends Channel {
 			'daily'   => __( 'Daily', 'simple-history' ),
 			'weekly'  => __( 'Weekly', 'simple-history' ),
 			'monthly' => __( 'Monthly', 'simple-history' ),
-			'never'   => __( 'Never (single file)', 'simple-history' ),
 		];
 		?>
 		<select name="<?php echo esc_attr( $option_name ); ?>[rotation_frequency]">
-			<?php foreach ( $options as $option_value => $option_label ) : ?>
+			<?php foreach ( $options as $option_value => $option_label ) { ?>
 				<option value="<?php echo esc_attr( $option_value ); ?>" <?php selected( $value, $option_value ); ?>>
 					<?php echo esc_html( $option_label ); ?>
 				</option>
-			<?php endforeach; ?>
+			<?php } ?>
 		</select>
 		<?php
 	}
@@ -245,13 +244,13 @@ class File_Channel extends Channel {
 		$sanitized = parent::sanitize_settings( $input );
 
 		// Sanitize rotation frequency.
-		$valid_frequencies = [ 'daily', 'weekly', 'monthly', 'never' ];
+		$valid_frequencies               = [ 'daily', 'weekly', 'monthly' ];
 		$sanitized['rotation_frequency'] = in_array( $input['rotation_frequency'] ?? '', $valid_frequencies, true )
 			? $input['rotation_frequency']
 			: 'daily';
 
 		// Sanitize keep files (integer between 0 and 365).
-		$keep_files = isset( $input['keep_files'] ) ? absint( $input['keep_files'] ) : 30;
+		$keep_files              = isset( $input['keep_files'] ) ? absint( $input['keep_files'] ) : 30;
 		$sanitized['keep_files'] = min( 365, max( 0, $keep_files ) );
 
 		return $sanitized;
@@ -362,9 +361,6 @@ class File_Channel extends Channel {
 			case 'monthly':
 				return $base_name . '-' . current_time( 'Y-m' ) . $extension;
 
-			case 'never':
-				return $base_name . $extension;
-
 			default:
 				return false;
 		}
@@ -450,6 +446,7 @@ class File_Channel extends Channel {
 		// Try to create the directory.
 		if ( wp_mkdir_p( $directory ) ) {
 			// Set appropriate permissions.
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.chmod_chmod
 			chmod( $directory, 0755 );
 
 			// Create .htaccess file for security.
@@ -519,11 +516,6 @@ class File_Channel extends Channel {
 			return; // Keep all files.
 		}
 
-		// No cleanup needed for "never" rotation - only one file exists.
-		if ( $rotation === 'never' ) {
-			return;
-		}
-
 		$log_dir = $this->get_default_log_directory();
 
 		if ( ! is_dir( $log_dir ) ) {
@@ -557,9 +549,6 @@ class File_Channel extends Channel {
 
 	/**
 	 * Get the glob pattern for cleanup based on rotation frequency.
-	 *
-	 * Note: This method is only called for rotated files (daily, weekly, monthly).
-	 * The "never" case is handled by early exit in cleanup_old_files().
 	 *
 	 * @param string $rotation The rotation frequency.
 	 * @return string The glob pattern to match log files.
