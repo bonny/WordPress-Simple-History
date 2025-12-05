@@ -169,23 +169,29 @@
 - ✅ **CLEAN ARCHITECTURE**: No test fixtures polluting production codebase
 - ✅ **ALL TESTS PASSING**: 221/221 tests successful with proper fixture loading
 
-#### Day 2 - 2025-12-05 (UI Improvements)
+#### Day 2 - 2025-12-05 (Refactoring & UI Improvements)
 
 **Completed:**
+- ✅ **RENAMED INTEGRATIONS TO CHANNELS**: Better terminology for log forwarding destinations
+  - `inc/integrations/` → `inc/channels/`
+  - `Integration` → `Channel` classes
+  - `File_Integration` → `File_Channel`
+  - `Integrations_Manager` → `Channels_Manager`
+  - Updated all tests accordingly
+
 - ✅ **REFACTORED SETTINGS PAGE TO USE SETTINGS CARDS**: Each channel now displays in its own `.sh-SettingsCard`
   - Refactored to use `Helpers::add_settings_section()` for each channel
-  - Main intro section with "Log Forwarding & Integrations" title and description
   - Each channel gets its own settings section wrapped in `.sh-SettingsCard` automatically
   - More consistent with WordPress Settings API patterns
-  - Easier to add new channels - they automatically get their own card
-  - Cleaner separation between intro text and channel settings
 
-**Technical Details:**
-- `add_channel_settings_section()` registers settings and creates a settings section per channel
-- `render_channel_section()` extracts channel from section ID and renders content
-- `Helpers::add_settings_section()` automatically wraps in `.sh-SettingsCard` with proper title styling
-- Removed manual card rendering in favor of WordPress Settings API integration
-- Cleaned up unused CSS (`.sh-Channel-settings` replaced by `.sh-SettingsCard`)
+- ✅ **REFACTORED TO USE WORDPRESS SETTINGS API**: Removed declarative field type system
+  - Channels now implement `add_settings_fields()` and `sanitize_settings()`
+  - Each channel renders its own settings fields with full HTML control
+  - Removed ~200 lines of generic field renderer code
+  - More flexible - channels can add any custom UI they need
+
+- ✅ **ADDED settings_output_after_fields() METHOD**: Allows channels to add HTML after settings
+  - File_Channel uses this for security reminder about log folder path
 
 ---
 
@@ -193,27 +199,26 @@
 
 ### Core Structure
 ```
-inc/integrations/
-├── class-integrations-manager.php          # Central coordinator
-├── class-integration.php                   # Abstract base class  
-├── class-alert-rules-engine.php           # Rule evaluation
+inc/channels/
+├── class-channels-manager.php              # Central coordinator
+├── class-channel.php                       # Abstract base class
+├── class-alert-rules-engine.php            # Rule evaluation
 ├── interfaces/
-│   ├── interface-integration.php           # Integration contract
-│   └── interface-alert-rule.php           # Rule contract
-├── integrations/
-│   └── class-file-integration.php          # Free: automatic file logging
-└── rules/
-    ├── class-alert-rule.php               # Base rule class
-    └── [additional rule classes...]
+│   └── interface-channel-interface.php     # Channel contract
+└── channels/
+    └── class-file-channel.php              # Free: automatic file logging
+
+inc/services/
+├── class-channels-service.php              # Service registration
+└── class-channels-settings-page.php        # Settings UI
 ```
 
 ### Premium Extensions (separate plugin)
 ```
-simple-history-premium/integrations/
-├── integrations/
-│   ├── class-slack-integration.php         # Slack webhooks
-│   ├── class-email-integration.php         # Email alerts
-│   └── class-webhook-integration.php       # HTTP webhooks
+simple-history-premium/channels/
+├── class-slack-channel.php                 # Slack webhooks
+├── class-email-channel.php                 # Email alerts
+└── class-webhook-channel.php               # HTTP webhooks
 ```
 
 ## Testing Notes
