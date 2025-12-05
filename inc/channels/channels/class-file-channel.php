@@ -202,12 +202,12 @@ class File_Channel extends Channel {
 			type="number"
 			name="<?php echo esc_attr( $option_name ); ?>[keep_files]"
 			value="<?php echo esc_attr( $value ); ?>"
-			min="0"
+			min="1"
 			max="365"
 			class="small-text"
 		/>
 		<p class="description">
-			<?php esc_html_e( 'Oldest file will be deleted. Set to 0 to keep forever.', 'simple-history' ); ?>
+			<?php esc_html_e( 'Oldest files will be deleted when this limit is reached.', 'simple-history' ); ?>
 		</p>
 		<?php
 	}
@@ -249,9 +249,9 @@ class File_Channel extends Channel {
 			? $input['rotation_frequency']
 			: 'daily';
 
-		// Sanitize keep files (integer between 0 and 365).
+		// Sanitize keep files (integer between 1 and 365).
 		$keep_files              = isset( $input['keep_files'] ) ? absint( $input['keep_files'] ) : 30;
-		$sanitized['keep_files'] = min( 365, max( 0, $keep_files ) );
+		$sanitized['keep_files'] = min( 365, max( 1, $keep_files ) );
 
 		return $sanitized;
 	}
@@ -511,10 +511,6 @@ class File_Channel extends Channel {
 		$keep_files = $this->get_setting( 'keep_files', 30 );
 		/** @var string $rotation */
 		$rotation = $this->get_setting( 'rotation_frequency', 'daily' );
-
-		if ( $keep_files <= 0 ) {
-			return; // Keep all files.
-		}
 
 		$log_dir = $this->get_default_log_directory();
 
