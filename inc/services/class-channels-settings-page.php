@@ -80,9 +80,10 @@ class Channels_Settings_Page extends Service {
 	 */
 	public function register_and_add_settings() {
 		// Add main integrations settings section with intro text.
-		Helpers::add_settings_section(
+		// Use WordPress core function directly without card wrapper for the intro section.
+		add_settings_section(
 			'simple_history_settings_section_tab_integrations',
-			[ __( 'Log Forwarding & Integrations', 'simple-history' ), 'extension' ],
+			Helpers::get_settings_section_title_output( __( 'Log Forwarding & Integrations', 'simple-history' ), 'extension' ),
 			[ $this, 'settings_section_output' ],
 			self::SETTINGS_PAGE_SLUG
 		);
@@ -134,7 +135,9 @@ class Channels_Settings_Page extends Service {
 	 */
 	public function settings_section_output() {
 		?>
-		<p><?php esc_html_e( 'Enable integrations to automatically forward events to external systems like log files, Slack, email, and more.', 'simple-history' ); ?></p>
+		<div class="sh-SettingsSectionIntroduction">
+			<p><?php esc_html_e( 'Enable integrations to automatically forward events to external systems like log files, Slack, email, and more.', 'simple-history' ); ?></p>
+		</div>
 		<?php
 	}
 

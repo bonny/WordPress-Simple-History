@@ -228,12 +228,93 @@ class File_Channel extends Channel {
 	 */
 	public function settings_field_file_path() {
 		$log_directory = $this->get_log_directory_path();
+		$test_url      = $this->get_log_directory_url();
+
+		// Try to create the directory if it doesn't exist.
+		$directory_exists = file_exists( $log_directory );
+		$creation_failed  = false;
+
+		if ( ! $directory_exists ) {
+			// Attempt to create the directory.
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			$created = wp_mkdir_p( $log_directory );
+
+			if ( $created ) {
+				$directory_exists = true;
+				// Create .htaccess file for protection.
+				$this->create_htaccess_file( $log_directory );
+				// Create index.php file for extra protection.
+				$this->create_index_file( $log_directory );
+			} else {
+				$creation_failed = true;
+			}
+		}
+
+		$is_writable = $directory_exists && is_writable( $log_directory );
 		?>
 		<code><?php echo esc_html( $log_directory ); ?></code>
+
+		<?php // Directory status message. ?>
 		<p class="description">
-			<?php esc_html_e( 'The log folder is protected from public access, but avoid sharing its path publicly.', 'simple-history' ); ?>
+			<?php
+			if ( $creation_failed ) {
+				printf(
+					'<span style="color: #b32d2e;">%s</span>',
+					esc_html__( 'Folder could not be created. Please check that the parent directory is writable.', 'simple-history' )
+				);
+			} elseif ( ! $is_writable ) {
+				printf(
+					'<span style="color: #b32d2e;">%s</span>',
+					esc_html__( 'Folder exists but is not writable. Please check folder permissions.', 'simple-history' )
+				);
+			} else {
+				printf(
+					'<span style="color: #2e7d32;">%s</span>',
+					esc_html__( 'Folder exists and is writable.', 'simple-history' )
+				);
+			}
+			?>
+		</p>
+
+		<?php // Public access message. ?>
+		<p class="description">
+			<?php
+			if ( $test_url ) {
+				esc_html_e( 'The folder appears to be in a public web directory. Ensure the folder and its files are not accessible from the public.', 'simple-history' );
+				echo '<br>';
+				printf(
+					'<a href="%1$s" target="_blank" class="sh-ExternalLink">%2$s</a>%3$s',
+					esc_url( $test_url ),
+					esc_html__( 'Test folder access', 'simple-history' ),
+					esc_html__( ' – should show a 403 Forbidden error.', 'simple-history' )
+				);
+			} else {
+				esc_html_e( 'The folder appears to be outside the public web directory.', 'simple-history' );
+			}
+			?>
 		</p>
 		<?php
+	}
+
+	/**
+	 * Get the URL to the log directory for access testing.
+	 *
+	 * @return string|false The URL to the log directory, or false if not determinable.
+	 */
+	private function get_log_directory_url() {
+		$log_directory = $this->get_log_directory_path();
+
+		// Check if the log directory is inside ABSPATH (WordPress root).
+		// If so, it's potentially publicly accessible.
+		if ( strpos( $log_directory, ABSPATH ) !== 0 ) {
+			return false;
+		}
+
+		// Get the relative path from ABSPATH.
+		$relative_path = substr( $log_directory, strlen( ABSPATH ) );
+
+		// Build the URL.
+		return site_url( $relative_path );
 	}
 
 	/**
@@ -313,7 +394,30 @@ class File_Channel extends Channel {
 		// Generate a hard-to-guess directory name based on site specifics.
 		$site_hash = $this->get_site_hash();
 
-		return trailingslashit( WP_CONTENT_DIR ) . 'simple-history-logs-' . $site_hash;
+		$default_directory = trailingslashit( WP_CONTENT_DIR ) . 'simple-history-logs-' . $site_hash;
+
+		/**
+		 * Filter the log directory path.
+		 *
+		 * Allows customization of where log files are stored.
+		 * For security, consider placing logs outside the public web directory.
+		 *
+		 * @since 5.6.0
+		 *
+		 * @param string $directory The log directory path.
+		 */
+		$log_directory = apply_filters( 'simple_history/file_channel/log_directory', $default_directory );
+		
+		// This does not work, so good to test create folder failure.
+		// $log_directory = '/var/www/simple-history-logs';
+		
+		// In wp-content it should work fine.
+		// $log_directory = '/var/www/html/simple-history-logs';
+
+		// Ensure the directory ends with a slash.
+		$log_directory = trailingslashit( $log_directory );
+
+		return $log_directory;
 	}
 
 	/**
@@ -471,11 +575,32 @@ class File_Channel extends Channel {
 
 		// Only create if it doesn't exist.
 		if ( ! file_exists( $htaccess_path ) ) {
-			$htaccess_content  = "# Simple History log directory protection\n";
-			$htaccess_content .= "Order deny,allow\n";
-			$htaccess_content .= "Deny from all\n";
+			$htaccess_content  = "# Simple History log directory protection\n\n";
+			$htaccess_content .= "# Apache 2.4+\n";
+			$htaccess_content .= "<IfModule mod_authz_core.c>\n";
+			$htaccess_content .= "    Require all denied\n";
+			$htaccess_content .= "</IfModule>\n\n";
+			$htaccess_content .= "# Apache 2.2\n";
+			$htaccess_content .= "<IfModule !mod_authz_core.c>\n";
+			$htaccess_content .= "    Order deny,allow\n";
+			$htaccess_content .= "    Deny from all\n";
+			$htaccess_content .= "</IfModule>\n";
 
 			file_put_contents( $htaccess_path, $htaccess_content );
+		}
+	}
+
+	/**
+	 * Create index.php file to prevent directory listing.
+	 *
+	 * @param string $directory Directory path.
+	 */
+	private function create_index_file( $directory ) {
+		$index_path = trailingslashit( $directory ) . 'index.php';
+
+		// Only create if it doesn't exist.
+		if ( ! file_exists( $index_path ) ) {
+			file_put_contents( $index_path, "<?php\n// Silence is golden.\n" );
 		}
 	}
 
