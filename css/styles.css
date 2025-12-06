@@ -223,7 +223,7 @@ Tag = the pill with the log level.
 	background-color: rgba(238, 238, 238, 1);
 	font-size: 10px;
 	padding: 3px 4px;
-	border-radius: 3px;
+	border-radius: var(--sh-border-radius);
 	vertical-align: 1px;
 	line-height: 1;
 }
@@ -698,7 +698,7 @@ Modal window with detailss
 
 .SimpleHistory-modal__content {
 	background: white;
-	border-radius: 4px;
+	border-radius: var(--sh-border-radius);
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	bottom: 60px;
 	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
@@ -1178,7 +1178,7 @@ so add some extra place then to make it look a bit less ugly.
 	font-size: 0.8em;
 	font-weight: 600;
 	font-style: normal;
-	border-radius: 4px;
+	border-radius: var(--sh-border-radius);
 	padding: 0.25em 0.5em;
 	opacity: 0.75;
 	line-height: 1;
@@ -1209,7 +1209,7 @@ so add some extra place then to make it look a bit less ugly.
 	color: white;
 	text-decoration: none;
 	padding: 0.75em 1.25em;
-	border-radius: 5px;
+	border-radius: var(--sh-border-radius);
 	display: block;
 	text-align: center;
 	transition: background-color 0.25s ease-out;
@@ -1248,12 +1248,18 @@ so add some extra place then to make it look a bit less ugly.
 .sh-PremiumFeatureTeaser {
 	background: var(--sh-color-cream);
 	padding: var(--sh-spacing-medium);
-	border-radius: 4px;
+	border-radius: var(--sh-border-radius);
 	margin-top: var(--sh-spacing-medium);
 	font-size: var(--sh-font-size-medium);
 }
 
-.sh-PremiumFeatureTeaser-title {
+/*
+Can be overruled by .form-table td p
+*/
+.sh-PremiumFeatureTeaser-title,
+.form-table td .sh-PremiumFeatureTeaser-title {
+	display: flex;
+	gap: var(--sh-spacing-small);
 	font-size: var(--sh-font-size-medium);
 	margin-block-start: 0;
 	margin-block-end: var(--sh-spacing-medium);
@@ -1270,10 +1276,7 @@ so add some extra place then to make it look a bit less ugly.
 .sh-PremiumFeatureTeaser .sh-PremiumFeatureBadge {
 	font-size: var(--sh-font-size-small);
 	vertical-align: middle;
-}
-
-.sh-PremiumFeatureTeaser strong {
-	margin-left: var(--sh-spacing-xsmall);
+	order: 1;
 }
 
 .sh-PremiumFeatureTeaser .button {
@@ -1297,7 +1300,8 @@ so add some extra place then to make it look a bit less ugly.
 	margin-inline-end: 0.25em;
 }
 
-.sh-PremiumFeatureTeaser-ctaLinkContainer {
+.sh-PremiumFeatureTeaser-ctaLinkContainer,
+.form-table td .sh-PremiumFeatureTeaser-ctaLinkContainer {
 	font-size: var(--sh-font-size-medium);
 	margin-block-start: var(--sh-spacing-medium);
 	margin-block-end: 0;
@@ -1309,7 +1313,7 @@ so add some extra place then to make it look a bit less ugly.
 	padding: 1rem;
 	margin: 1rem 0;
 	border: 1px solid #c3c4c7;
-	border-radius: 4px;
+	border-radius: var(--sh-border-radius);
 }
 
 .sh-StatusBox--success {
@@ -1485,7 +1489,7 @@ so add some extra place then to make it look a bit less ugly.
 .sh-BackfillForm {
 	background: #fff;
 	border: 1px solid #c3c4c7;
-	border-radius: 4px;
+	border-radius: var(--sh-border-radius);
 	padding: 1rem 1.5rem;
 }
 
@@ -1560,7 +1564,7 @@ so add some extra place then to make it look a bit less ugly.
 .sh-PremiumFeatureModal-image {
 	width: 100%;
 	height: auto;
-	border-radius: 4px;
+	border-radius: var(--sh-border-radius);
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	display: block;
 }
@@ -1576,7 +1580,7 @@ so add some extra place then to make it look a bit less ugly.
 	background-color: var(--sh-color-blue);
 	color: var(--sh-color-white);
 	padding: 0.75rem 2rem;
-	border-radius: 4px;
+	border-radius: var(--sh-border-radius);
 	font-size: 1rem;
 	font-weight: 500;
 	border: none;
@@ -1705,7 +1709,7 @@ so add some extra place then to make it look a bit less ugly.
 
 .sh-SettingsPage-settingsSection-wrap:target {
 	padding: 0.5rem 1rem;
-	border-radius: 4px;
+	border-radius: var(--sh-border-radius);
 }
 
 .sh-PageNav-icon {
@@ -1807,7 +1811,7 @@ a.sh-SettingsTabs-link:hover {
 
 .sh-FeedIntroduction {
 	background: #f6f7f7;
-	border-radius: 5px;
+	border-radius: var(--sh-border-radius);
 	padding: 1em;
 	display: flex;
 	flex-direction: column;
@@ -2239,4 +2243,3 @@ Styles for plugin update details. Markup looks like this:
 	width: 100%;
 	text-align: center;
 }
-
