@@ -68,20 +68,43 @@ class File_Channel extends Channel {
 	}
 
 	/**
+	 * Get the selected formatter slug with fallback.
+	 *
+	 * Returns the saved formatter slug if it exists in available formatters,
+	 * otherwise falls back to 'human_readable'. This handles the case where
+	 * a user had the premium add-on with additional formatters, selected one,
+	 * and then disabled the premium add-on.
+	 *
+	 * @return string The formatter slug.
+	 */
+	private function get_selected_formatter_slug(): string {
+		$formatter_slug = $this->get_setting( 'formatter', 'human_readable' );
+		$formatters     = $this->get_available_formatters();
+
+		// Check if saved formatter exists in available formatters.
+		if ( isset( $formatters[ $formatter_slug ] ) ) {
+			return $formatter_slug;
+		}
+
+		// Fall back to human readable.
+		return 'human_readable';
+	}
+
+	/**
 	 * Get the formatter instance for this channel.
 	 *
 	 * @return Formatter_Interface The formatter instance.
 	 */
 	private function get_formatter(): Formatter_Interface {
-		$formatter_slug = $this->get_setting( 'formatter', 'human_readable' );
+		$formatter_slug = $this->get_selected_formatter_slug();
 		$formatters     = $this->get_available_formatters();
 
-		// Check if requested formatter exists.
+		// Return the formatter instance.
 		if ( isset( $formatters[ $formatter_slug ] ) && $formatters[ $formatter_slug ] instanceof Formatter_Interface ) {
 			return $formatters[ $formatter_slug ];
 		}
 
-		// Fall back to human readable.
+		// Fall back to human readable (should not happen but safety first).
 		return new Human_Readable_Formatter();
 	}
 
@@ -161,8 +184,12 @@ class File_Channel extends Channel {
 			}
 		</style>
 
-		<p class="description">
+		<p>
 			<?php esc_html_e( 'These files are not affected by the "Clear log" function, providing an independent backup.', 'simple-history' ); ?>
+		</p>
+
+		<p>
+			<?php esc_html_e( 'File logging uses its own retention settings below and is not affected by the database log retention period.', 'simple-history' ); ?>
 		</p>
 		<?php
 	}
@@ -294,7 +321,7 @@ class File_Channel extends Channel {
 	 */
 	public function settings_field_formatter() {
 		$option_name             = $this->get_settings_option_name();
-		$selected_formatted_slug = $this->get_setting( 'formatter', 'human_readable' );
+		$selected_formatted_slug = $this->get_selected_formatter_slug();
 		$formatters              = $this->get_available_formatters();
 		?>
 		<fieldset class="sh-FileChannel-formatters">
