@@ -147,9 +147,13 @@ class Channels_Settings_Page extends Service {
 	 * @param \Simple_History\Channels\Interfaces\Channel_Interface $channel The channel.
 	 */
 	private function render_channel_section_intro( $channel ) {
-		?>
-		<p class="description"><?php echo esc_html( $channel->get_description() ); ?></p>
-		<?php
+		if ( ! empty( $channel->get_description() ) ) {
+			?>
+			<div class="sh-SettingsSectionIntroduction">
+				<p><?php echo esc_html( $channel->get_description() ); ?></p>
+			</div>
+			<?php
+		}
 		$channel->settings_output_intro();
 	}
 
