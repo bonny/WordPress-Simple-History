@@ -1,17 +1,17 @@
 ---
 name: sql
-description: Run SQL queries against the WordPress development database. Use when querying database tables, inspecting Simple History events, checking WordPress data, or debugging database issues.
+description: Run SQL queries against the WordPress development database. Use when querying database tables, inspecting Simple History events, checking WordPress data, debugging database issues, or when the user says "run query" or "check database".
 ---
 
 # Run SQL Queries
 
-You are tasked with running SQL queries against the WordPress development database.
+Run SQL queries against the WordPress development database.
 
 ## Prerequisites
 
 - Database credentials are stored in `CLAUDE.local.md` under "Database Access"
 - Docker compose services must be running
-- Commands must be run from the docker-compose project directory
+- Commands run from the docker-compose project directory
 
 ## Command Pattern
 

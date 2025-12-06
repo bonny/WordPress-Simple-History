@@ -1,16 +1,16 @@
 ---
 name: changelog
-description: Add an entry to the changelog in readme.txt following the project's changelog format. Use when updating readme.txt, adding to Unreleased section, or documenting changes for a release.
+description: Add an entry to the changelog in readme.txt following the project's changelog format. Use when updating readme.txt, adding to Unreleased section, documenting changes for a release, or when the user says "add changelog" or "update changelog".
 ---
 
 # Add Changelog Entry
 
-You are tasked with adding a changelog entry to the Simple History plugin's readme.txt file.
+Add a changelog entry to the Simple History plugin's readme.txt file.
 
 ## Instructions
 
 1. Ask the user for the changelog entry text (one line summary of the change)
-2. **Determine the category** - Each entry MUST be in one of these categories:
+2. **Determine the category** - Each entry must be in one of these categories:
    - **Added** - New features or functionality
    - **Changed** - Changes to existing functionality
    - **Fixed** - Bug fixes

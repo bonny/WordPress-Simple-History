@@ -1,16 +1,16 @@
 ---
 name: logger-messages
-description: Writes user-friendly logger messages in active voice for Simple History event logs. Fixes passive voice issues. Use when creating/modifying logger classes in loggers/ directory, writing getInfo() messages, fixing passive voice, reviewing log message clarity, or adding new events to the activity log.
+description: Writes user-friendly logger messages in active voice for Simple History event logs. Fixes passive voice issues. Use when creating or modifying logger classes in loggers/ directory, writing getInfo() messages, fixing passive voice, reviewing log message clarity, or adding new events to the activity log.
 allowed-tools: Read, Grep, Glob
 ---
 
 # Logger Message Writing Guidelines
 
-This skill provides guidelines for writing clear, user-friendly messages for Simple History event logs.
+Guidelines for writing clear, user-friendly messages for Simple History event logs.
 
 ## When to Use This Skill
 
-Invoke this skill when:
+**Trigger scenarios:**
 - Writing new logger messages
 - Updating existing logger messages
 - Creating or modifying logger classes in `loggers/` directory
@@ -103,7 +103,7 @@ class SimpleHistoryPluginLogger extends SimpleLogger {
 
 ## Message Key Uniqueness
 
-**IMPORTANT**: Message keys must be **globally unique across ALL loggers**, not just within a single logger.
+Message keys must be globally unique across all loggers, not just within a single logger.
 
 ### Why Uniqueness Matters
 

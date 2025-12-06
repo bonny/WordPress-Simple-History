@@ -1,15 +1,15 @@
 ---
 name: wordpress-org-compliance
-description: Ensures WordPress.org compliance for freemium plugins (free vs premium features, license keys, trial limits, upselling). Prevents trialware violations. Use when adding premium features, implementing upsells, checking license keys, creating teasers, or reviewing code before WordPress.org submission.
+description: Ensures WordPress.org compliance for freemium plugins (free vs premium features, license keys, trial limits, upselling). Prevents trialware violations. Use when adding premium features, implementing upsells, checking license keys, creating teasers, reviewing code before WordPress.org submission, or when the user mentions "premium", "upsell", or "freemium".
 ---
 
 # WordPress.org Plugin Compliance Guidelines
 
-This skill ensures WordPress.org compliance for plugin directory guidelines, particularly around free vs premium code and upselling practices.
+Ensures WordPress.org compliance for plugin directory guidelines, particularly around free vs premium code and upselling practices.
 
 ## When to Use This Skill
 
-Invoke this skill when:
+**Trigger scenarios:**
 - Adding new features that might have premium versions
 - Implementing upselling or upgrade prompts
 - Creating "teasers" for premium features

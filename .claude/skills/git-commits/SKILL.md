@@ -1,11 +1,11 @@
 ---
 name: git-commits
-description: Create well-structured git commits in logical chunks following best practices. Use when the user asks to commit, says "commit", or after completing code changes that should be committed.
+description: Create well-structured git commits in logical chunks following best practices. Use when the user asks to commit, says "commit", requests to "stage changes", or after completing code changes that should be committed.
 ---
 
 # Git Commits in Logical Chunks
 
-Organize commits into logical, atomic chunks - each representing a single coherent change.
+Organize commits into logical, atomic chunks. Each commit should represent a single coherent change.
 
 ## When to Split vs Combine
 
