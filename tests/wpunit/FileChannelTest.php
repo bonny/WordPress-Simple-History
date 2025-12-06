@@ -59,8 +59,8 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 	 */
 	public function test_channel_properties() {
 		$this->assertEquals( 'file', $this->channel->get_slug() );
-		$this->assertEquals( 'Log to file', $this->channel->get_name() );
-		$this->assertStringContainsString( 'Save all events', $this->channel->get_description() );
+		$this->assertEquals( 'Log to File', $this->channel->get_name() );
+		$this->assertStringContainsString( 'log events to files', $this->channel->get_description() );
 		$this->assertFalse( $this->channel->supports_async() );
 	}
 
@@ -72,6 +72,7 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertFalse( $settings['enabled'] );
 		$this->assertEquals( 'daily', $settings['rotation_frequency'] );
+		$this->assertEquals( 'human_readable', $settings['formatter'] );
 		$this->assertEquals( 30, $settings['keep_files'] );
 	}
 
@@ -97,36 +98,34 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test log entry formatting.
+	 * Test log entry formatting with Human_Readable_Formatter.
 	 */
 	public function test_log_entry_formatting() {
+		$formatter = new \Simple_History\Channels\Formatters\Human_Readable_Formatter();
+
 		$event_data = [
-			'id' => 123,
-			'date' => '2025-01-23 12:00:00',
-			'logger' => 'TestLogger',
-			'level' => 'info',
-			'message' => 'Test message',
+			'id'        => 123,
+			'date'      => '2025-01-23 12:00:00',
+			'logger'    => 'TestLogger',
+			'level'     => 'info',
+			'message'   => 'Test message',
 			'initiator' => 'wp_user',
-			'context' => [
-				'user_id' => 1,
-				'user_login' => 'admin',
+			'context'   => [
+				'_user_id'    => 1,
+				'_user_login' => 'admin',
 			],
 		];
 
 		$formatted_message = 'Test message processed';
+		$log_entry         = $formatter->format( $event_data, $formatted_message );
 
-		$log_entry = $this->invoke_method( 
-			$this->channel, 
-			'format_log_entry', 
-			[ $event_data, $formatted_message ] 
-		);
-
-		// Check the log entry format (timestamp format)
-		$this->assertMatchesRegularExpression( '/^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]/', $log_entry );
+		// Check the log entry format (ISO 8601 timestamp).
+		$this->assertMatchesRegularExpression( '/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $log_entry );
 		$this->assertStringContainsString( 'INFO', $log_entry );
 		$this->assertStringContainsString( 'TestLogger', $log_entry );
 		$this->assertStringContainsString( 'Test message processed', $log_entry );
 		$this->assertStringContainsString( 'initiator=wp_user', $log_entry );
+		$this->assertStringContainsString( '|', $log_entry );
 		$this->assertStringContainsString( "\n", $log_entry );
 	}
 
