@@ -76,12 +76,9 @@ class File_Channel extends Channel {
 		$formatter_slug = $this->get_setting( 'formatter', 'human_readable' );
 		$formatters     = $this->get_available_formatters();
 
-		// Check if requested formatter exists and is available.
-		if ( isset( $formatters[ $formatter_slug ] ) && isset( $formatters[ $formatter_slug ]['instance'] ) ) {
-			$instance = $formatters[ $formatter_slug ]['instance'];
-			if ( $instance instanceof Formatter_Interface ) {
-				return $instance;
-			}
+		// Check if requested formatter exists.
+		if ( isset( $formatters[ $formatter_slug ] ) && $formatters[ $formatter_slug ] instanceof Formatter_Interface ) {
+			return $formatters[ $formatter_slug ];
 		}
 
 		// Fall back to human readable.
@@ -91,44 +88,32 @@ class File_Channel extends Channel {
 	/**
 	 * Get available formatters.
 	 *
-	 * Returns an array of formatter definitions, each containing:
-	 * - name: Display name
-	 * - description: Description text
-	 * - instance: (optional) Formatter instance, if available
+	 * Returns an array of formatter instances keyed by slug.
+	 * Each formatter provides its own name and description via get_name() and get_description().
 	 *
-	 * @return array<string, array{name: string, description: string, instance?: Formatter_Interface}>
+	 * @return array<string, Formatter_Interface>
 	 */
 	private function get_available_formatters(): array {
 		$formatters = [
-			'human_readable' => [
-				'name'        => __( 'Human-readable', 'simple-history' ),
-				'description' => __( 'Easy-to-read format with ISO 8601 timestamps. Best for manual log inspection.', 'simple-history' ),
-				'instance'    => new Human_Readable_Formatter(),
-			],
+			'human_readable' => new Human_Readable_Formatter(),
 		];
 
 		/**
 		 * Filter available formatters for the file channel.
 		 *
-		 * Allows adding custom formatters. Each formatter entry should include:
-		 * - name: (string) Display name for the formatter
-		 * - description: (string) Description shown in settings
-		 * - instance: (Formatter_Interface) The formatter instance
+		 * Allows adding custom formatters. Each formatter must implement Formatter_Interface
+		 * and provide get_name() and get_description() methods.
 		 *
 		 * Example:
 		 *
 		 *     add_filter( 'simple_history/file_channel/formatters', function( $formatters ) {
-		 *         $formatters['my_format'] = [
-		 *             'name'        => 'My Custom Format',
-		 *             'description' => 'A custom log format.',
-		 *             'instance'    => new My_Custom_Formatter(),
-		 *         ];
+		 *         $formatters['my_format'] = new My_Custom_Formatter();
 		 *         return $formatters;
 		 *     } );
 		 *
 		 * @since 5.7.0
 		 *
-		 * @param array $formatters Array of formatter definitions keyed by slug.
+		 * @param array<string, Formatter_Interface> $formatters Array of formatter instances keyed by slug.
 		 */
 		return apply_filters( 'simple_history/file_channel/formatters', $formatters );
 	}
@@ -156,6 +141,26 @@ class File_Channel extends Channel {
 	 */
 	public function settings_output_intro() {
 		?>
+		<style>
+			.sh-FileChannel-formatterOption {
+				display: block;
+				margin-bottom: 0.75em;
+			}
+
+			.sh-FileChannel-formatterDescription {
+				display: block;
+				margin-left: 24px;
+			}
+
+			.sh-FileChannel-folderStatus--error {
+				color: #b32d2e;
+			}
+
+			.sh-FileChannel-folderStatus--success {
+				color: #2e7d32;
+			}
+		</style>
+
 		<p class="description">
 			<?php esc_html_e( 'These files are not affected by the "Clear log" function, providing an independent backup.', 'simple-history' ); ?>
 		</p>
@@ -284,30 +289,30 @@ class File_Channel extends Channel {
 	 * Render the output format settings field.
 	 */
 	public function settings_field_formatter() {
-		$option_name = $this->get_settings_option_name();
-		$value       = $this->get_setting( 'formatter', 'human_readable' );
-		$formatters  = $this->get_available_formatters();
+		$option_name             = $this->get_settings_option_name();
+		$selected_formatted_slug = $this->get_setting( 'formatter', 'human_readable' );
+		$formatters              = $this->get_available_formatters();
 		?>
-		<fieldset>
-			<?php foreach ( $formatters as $formatter_slug => $formatter_info ) { ?>
-				<label style="display: block; margin-bottom: 0.75em;">
+		<fieldset class="sh-FileChannel-formatters">
+			<?php foreach ( $formatters as $formatter_slug => $formatter ) { ?>
+				<label class="sh-FileChannel-formatterOption">
 					<input
 						type="radio"
 						name="<?php echo esc_attr( $option_name ); ?>[formatter]"
 						value="<?php echo esc_attr( $formatter_slug ); ?>"
-						<?php checked( $value, $formatter_slug ); ?>
+						<?php checked( $selected_formatted_slug, $formatter_slug ); ?>
 					/>
-					<?php echo esc_html( $formatter_info['name'] ); ?>
-					<span class="description" style="display: block; margin-left: 24px;">
-						<?php echo esc_html( $formatter_info['description'] ); ?>
+					<?php echo esc_html( $formatter->get_name() ); ?>
+					<span class="sh-FileChannel-formatterDescription description">
+						<?php echo esc_html( $formatter->get_description() ); ?>
 					</span>
 				</label>
 			<?php } ?>
 		</fieldset>
 
 		<?php
-		// Show premium promo if only basic formatter is available.
-		if ( count( $formatters ) === 1 ) {
+		// Show premium promo if premium add-on is not active.
+		if ( ! Helpers::is_premium_add_on_active() ) {
 			echo wp_kses_post(
 				Helpers::get_premium_feature_teaser(
 					__( 'Additional Log Formats', 'simple-history' ),
@@ -406,17 +411,17 @@ class File_Channel extends Channel {
 			<?php
 			if ( $creation_failed ) {
 				printf(
-					'<span style="color: #b32d2e;">%s</span>',
+					'<span class="sh-FileChannel-folderStatus--error">%s</span>',
 					esc_html__( 'Folder could not be created. Please check that the parent directory is writable.', 'simple-history' )
 				);
 			} elseif ( ! $is_writable ) {
 				printf(
-					'<span style="color: #b32d2e;">%s</span>',
+					'<span class="sh-FileChannel-folderStatus--error">%s</span>',
 					esc_html__( 'Folder exists but is not writable. Please check folder permissions.', 'simple-history' )
 				);
 			} else {
 				printf(
-					'<span style="color: #2e7d32;">%s</span>',
+					'<span class="sh-FileChannel-folderStatus--success">%s</span>',
 					esc_html__( 'Folder exists and is writable.', 'simple-history' )
 				);
 			}
