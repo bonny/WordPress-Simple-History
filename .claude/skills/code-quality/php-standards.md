@@ -7,11 +7,8 @@
 - **No `mb_*` string functions** - Use standard string functions only
 - **Short array syntax** - Use `[]` not `array()`
 - **Prefixed hooks** - Always prefix with `sh`, `simplehistory`, or `simple_history`
-- **Multi-line PHP blocks** - Never write single-line PHP blocks in templates
 
 ## PHP Block Formatting
-
-**Never write single-line PHP blocks.** Always use multi-line format with opening and closing tags on separate lines.
 
 ✅ **Correct:**
 
@@ -29,6 +26,32 @@ if ( $condition ) {
 ?>
 ```
 
+```php
+<fieldset class="sh-FileChannel-formatters">
+    <?php 
+    foreach ( $formatters as $formatter_slug => $formatter ) { 
+        ?>
+        <label class="sh-FileChannel-formatterOption">
+            <input
+                type="radio"
+                name="<?php echo esc_attr( $option_name ); ?>[formatter]"
+                value="<?php echo esc_attr( $formatter_slug ); ?>"
+                <?php checked( $selected_formatted_slug, $formatter_slug ); ?>
+            />
+            
+            <?php echo esc_html( $formatter->get_name() ); ?>
+
+            <span class="sh-FileChannel-formatterDescription description">
+                <?php echo esc_html( $formatter->get_description() ); ?>
+            </span>
+        </label>
+        <?php 
+    }
+    ?>
+</fieldset>
+
+```
+
 ❌ **Incorrect:**
 
 ```php
@@ -37,6 +60,25 @@ if ( $condition ) {
 
 ```php
 <?php if ( $condition ) { ?>
+```
+
+```php
+<fieldset class="sh-FileChannel-formatters">
+    <?php foreach ( $formatters as $formatter_slug => $formatter ) { ?>
+        <label class="sh-FileChannel-formatterOption">
+            <input
+                type="radio"
+                name="<?php echo esc_attr( $option_name ); ?>[formatter]"
+                value="<?php echo esc_attr( $formatter_slug ); ?>"
+                <?php checked( $selected_formatted_slug, $formatter_slug ); ?>
+            />
+            <?php echo esc_html( $formatter->get_name() ); ?>
+            <span class="sh-FileChannel-formatterDescription description">
+                <?php echo esc_html( $formatter->get_description() ); ?>
+            </span>
+        </label>
+    <?php } ?>
+</fieldset>
 ```
 
 ## Control Structures
