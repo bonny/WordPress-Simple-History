@@ -276,11 +276,15 @@ class File_Channel extends Channel {
 		];
 		?>
 		<select name="<?php echo esc_attr( $option_name ); ?>[rotation_frequency]">
-			<?php foreach ( $options as $option_value => $option_label ) { ?>
+			<?php
+			foreach ( $options as $option_value => $option_label ) {
+				?>
 				<option value="<?php echo esc_attr( $option_value ); ?>" <?php selected( $value, $option_value ); ?>>
 					<?php echo esc_html( $option_label ); ?>
 				</option>
-			<?php } ?>
+				<?php
+			}
+			?>
 		</select>
 		<?php
 	}
@@ -294,7 +298,9 @@ class File_Channel extends Channel {
 		$formatters              = $this->get_available_formatters();
 		?>
 		<fieldset class="sh-FileChannel-formatters">
-			<?php foreach ( $formatters as $formatter_slug => $formatter ) { ?>
+			<?php
+			foreach ( $formatters as $formatter_slug => $formatter ) {
+				?>
 				<label class="sh-FileChannel-formatterOption">
 					<input
 						type="radio"
@@ -302,12 +308,16 @@ class File_Channel extends Channel {
 						value="<?php echo esc_attr( $formatter_slug ); ?>"
 						<?php checked( $selected_formatted_slug, $formatter_slug ); ?>
 					/>
+
 					<?php echo esc_html( $formatter->get_name() ); ?>
+
 					<span class="sh-FileChannel-formatterDescription description">
 						<?php echo esc_html( $formatter->get_description() ); ?>
 					</span>
 				</label>
-			<?php } ?>
+				<?php
+			}
+			?>
 		</fieldset>
 
 		<?php
