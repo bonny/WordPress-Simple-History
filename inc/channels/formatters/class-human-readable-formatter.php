@@ -58,14 +58,15 @@ class Human_Readable_Formatter extends Formatter {
 
 		// Build structured data from essential fields.
 		$structured_parts = [];
-		$essential        = $this->get_essential_context( $context );
+
+		// Always include initiator.
+		$structured_parts[] = 'initiator=' . $initiator;
+
+		$essential = $this->get_essential_context( $context );
 
 		foreach ( $essential as $key => $value ) {
 			$structured_parts[] = $key . '=' . $value;
 		}
-
-		// Always include initiator.
-		$structured_parts[] = 'initiator=' . $initiator;
 
 		$structured_suffix = '';
 		if ( count( $structured_parts ) > 0 ) {
