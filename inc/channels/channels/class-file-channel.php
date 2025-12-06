@@ -3,6 +3,8 @@
 namespace Simple_History\Channels\Channels;
 
 use Simple_History\Channels\Channel;
+use Simple_History\Channels\Formatters\Formatter_Interface;
+use Simple_History\Channels\Formatters\Human_Readable_Formatter;
 use Simple_History\Helpers;
 
 /**
@@ -66,6 +68,72 @@ class File_Channel extends Channel {
 	}
 
 	/**
+	 * Get the formatter instance for this channel.
+	 *
+	 * @return Formatter_Interface The formatter instance.
+	 */
+	private function get_formatter(): Formatter_Interface {
+		$formatter_slug = $this->get_setting( 'formatter', 'human_readable' );
+		$formatters     = $this->get_available_formatters();
+
+		// Check if requested formatter exists and is available.
+		if ( isset( $formatters[ $formatter_slug ] ) && isset( $formatters[ $formatter_slug ]['instance'] ) ) {
+			$instance = $formatters[ $formatter_slug ]['instance'];
+			if ( $instance instanceof Formatter_Interface ) {
+				return $instance;
+			}
+		}
+
+		// Fall back to human readable.
+		return new Human_Readable_Formatter();
+	}
+
+	/**
+	 * Get available formatters.
+	 *
+	 * Returns an array of formatter definitions, each containing:
+	 * - name: Display name
+	 * - description: Description text
+	 * - instance: (optional) Formatter instance, if available
+	 *
+	 * @return array<string, array{name: string, description: string, instance?: Formatter_Interface}>
+	 */
+	private function get_available_formatters(): array {
+		$formatters = [
+			'human_readable' => [
+				'name'        => __( 'Human-readable', 'simple-history' ),
+				'description' => __( 'Easy-to-read format with ISO 8601 timestamps. Best for manual log inspection.', 'simple-history' ),
+				'instance'    => new Human_Readable_Formatter(),
+			],
+		];
+
+		/**
+		 * Filter available formatters for the file channel.
+		 *
+		 * Allows adding custom formatters. Each formatter entry should include:
+		 * - name: (string) Display name for the formatter
+		 * - description: (string) Description shown in settings
+		 * - instance: (Formatter_Interface) The formatter instance
+		 *
+		 * Example:
+		 *
+		 *     add_filter( 'simple_history/file_channel/formatters', function( $formatters ) {
+		 *         $formatters['my_format'] = [
+		 *             'name'        => 'My Custom Format',
+		 *             'description' => 'A custom log format.',
+		 *             'instance'    => new My_Custom_Formatter(),
+		 *         ];
+		 *         return $formatters;
+		 *     } );
+		 *
+		 * @since 5.7.0
+		 *
+		 * @param array $formatters Array of formatter definitions keyed by slug.
+		 */
+		return apply_filters( 'simple_history/file_channel/formatters', $formatters );
+	}
+
+	/**
 	 * Get the display name for this channel.
 	 *
 	 * @return string The channel display name.
@@ -122,8 +190,9 @@ class File_Channel extends Channel {
 			return false;
 		}
 
-		// Format the log entry.
-		$log_entry = $this->format_log_entry( $event_data, $formatted_message );
+		// Format the log entry using configured formatter.
+		$formatter = $this->get_formatter();
+		$log_entry = $formatter->format( $event_data, $formatted_message );
 
 		// Write to file.
 		$result = file_put_contents( $log_file, $log_entry, FILE_APPEND | LOCK_EX );
@@ -156,6 +225,15 @@ class File_Channel extends Channel {
 			$option_name . '_rotation_frequency',
 			Helpers::get_settings_field_title_output( __( 'Create new files', 'simple-history' ) ),
 			[ $this, 'settings_field_rotation_frequency' ],
+			$settings_page_slug,
+			$settings_section_id
+		);
+
+		// Output format field.
+		add_settings_field(
+			$option_name . '_formatter',
+			Helpers::get_settings_field_title_output( __( 'Output format', 'simple-history' ) ),
+			[ $this, 'settings_field_formatter' ],
 			$settings_page_slug,
 			$settings_section_id
 		);
@@ -200,6 +278,47 @@ class File_Channel extends Channel {
 			<?php } ?>
 		</select>
 		<?php
+	}
+
+	/**
+	 * Render the output format settings field.
+	 */
+	public function settings_field_formatter() {
+		$option_name = $this->get_settings_option_name();
+		$value       = $this->get_setting( 'formatter', 'human_readable' );
+		$formatters  = $this->get_available_formatters();
+		?>
+		<fieldset>
+			<?php foreach ( $formatters as $formatter_slug => $formatter_info ) { ?>
+				<label style="display: block; margin-bottom: 0.75em;">
+					<input
+						type="radio"
+						name="<?php echo esc_attr( $option_name ); ?>[formatter]"
+						value="<?php echo esc_attr( $formatter_slug ); ?>"
+						<?php checked( $value, $formatter_slug ); ?>
+					/>
+					<?php echo esc_html( $formatter_info['name'] ); ?>
+					<span class="description" style="display: block; margin-left: 24px;">
+						<?php echo esc_html( $formatter_info['description'] ); ?>
+					</span>
+				</label>
+			<?php } ?>
+		</fieldset>
+
+		<?php
+		// Show premium promo if only basic formatter is available.
+		if ( count( $formatters ) === 1 ) {
+			echo wp_kses_post(
+				Helpers::get_premium_feature_teaser(
+					__( 'Additional Log Formats', 'simple-history' ),
+					[
+						__( 'JSON Lines (GELF) – Compatible with Graylog, ELK, Splunk', 'simple-history' ),
+						__( 'RFC 5424 Syslog – Standard format for SIEM tools', 'simple-history' ),
+					],
+					'file_channel_formatters'
+				)
+			);
+		}
 	}
 
 	/**
@@ -361,6 +480,12 @@ class File_Channel extends Channel {
 			? $input['rotation_frequency']
 			: 'daily';
 
+		// Sanitize formatter.
+		$valid_formatters       = array_keys( $this->get_available_formatters() );
+		$sanitized['formatter'] = in_array( $input['formatter'] ?? '', $valid_formatters, true )
+			? $input['formatter']
+			: 'human_readable';
+
 		// Sanitize keep files (integer between 1 and 365).
 		$keep_files              = isset( $input['keep_files'] ) ? absint( $input['keep_files'] ) : 30;
 		$sanitized['keep_files'] = min( 365, max( 1, $keep_files ) );
@@ -378,6 +503,7 @@ class File_Channel extends Channel {
 			parent::get_default_settings(),
 			[
 				'rotation_frequency' => 'daily',
+				'formatter'          => 'human_readable',
 				'keep_files'         => 30,
 			]
 		);
@@ -508,54 +634,6 @@ class File_Channel extends Channel {
 			default:
 				return false;
 		}
-	}
-
-	/**
-	 * Format a log entry in simple human-readable format.
-	 *
-	 * @param array  $event_data The event data.
-	 * @param string $formatted_message The formatted message.
-	 * @return string Formatted log entry.
-	 */
-	private function format_log_entry( $event_data, $formatted_message ) {
-		$timestamp = current_time( 'Y-m-d H:i:s' );
-
-		// Standard log format: timestamp level logger: message [key=value ...].
-		$level     = strtoupper( $event_data['level'] ?? 'info' );
-		$logger    = $event_data['logger'] ?? 'Unknown';
-		$initiator = $event_data['initiator'] ?? 'unknown';
-
-		// Use $context for easier access.
-		$context = $event_data['context'] ?? [];
-
-		// Add essential structured data for better parsing.
-		$structured_data = [];
-
-		// Only include most important and commonly available fields.
-		$essential_fields = [ '_message_key', '_server_remote_addr', '_user_id', '_user_login', '_user_email' ];
-
-		if ( ! empty( $context ) ) {
-			foreach ( $essential_fields as $field ) {
-				if ( isset( $context[ $field ] ) && is_scalar( $context[ $field ] ) ) {
-					$clean_key         = ltrim( $field, '_' ); // Remove leading underscore for cleaner output.
-					$structured_data[] = $clean_key . '=' . $context[ $field ];
-				}
-			}
-		}
-
-		// Always include initiator.
-		$structured_data[] = 'initiator=' . $initiator;
-
-		$structured_suffix = count( $structured_data ) > 0 ? ' [' . implode( ' ', $structured_data ) . ']' : '';
-
-		return sprintf(
-			"[%s] %s %s: %s%s\n",
-			$timestamp,
-			$level,
-			$logger,
-			$formatted_message,
-			$structured_suffix
-		);
 	}
 
 	/**
