@@ -1807,7 +1807,7 @@ class Helpers {
 		}
 
 		if ( empty( $button_text ) ) {
-			$button_text = __( 'Learn More', 'simple-history' );
+			$button_text = __( 'Get Premium', 'simple-history' );
 		}
 
 		$premium_url = self::get_tracking_url( 'https://simple-history.com/add-ons/premium/', $tracking_param );
