@@ -461,6 +461,28 @@ class File_Channel extends Channel {
 					'<span class="sh-FileChannel-folderStatus--success">%s</span>',
 					esc_html__( 'Folder exists and is writable.', 'simple-history' )
 				);
+
+				// Show file statistics when folder is accessible.
+				$stats = $this->get_log_files_stats();
+				if ( $stats['count'] > 0 ) {
+					echo '<br>';
+					printf(
+						/* translators: 1: number of log files, 2: total size */
+						esc_html__( 'Contains %1$s log files (%2$s total).', 'simple-history' ),
+						esc_html( number_format_i18n( $stats['count'] ) ),
+						esc_html( size_format( $stats['total_size'] ) )
+					);
+
+					if ( $stats['oldest'] && $stats['newest'] ) {
+						echo '<br>';
+						printf(
+							/* translators: 1: oldest file date, 2: newest file date */
+							esc_html__( 'Date range: %1$s to %2$s.', 'simple-history' ),
+							esc_html( wp_date( get_option( 'date_format' ), $stats['oldest'] ) ),
+							esc_html( wp_date( get_option( 'date_format' ), $stats['newest'] ) )
+						);
+					}
+				}
 			}
 			?>
 		</p>
@@ -866,5 +888,48 @@ class File_Channel extends Channel {
 		}
 
 		$this->cleanup_old_files();
+	}
+
+	/**
+	 * Get statistics about log files in the log directory.
+	 *
+	 * @return array{count: int, oldest: int|null, newest: int|null, total_size: int} File statistics.
+	 */
+	private function get_log_files_stats(): array {
+		$stats = [
+			'count'      => 0,
+			'oldest'     => null,
+			'newest'     => null,
+			'total_size' => 0,
+		];
+
+		$log_dir = $this->get_log_directory_path();
+
+		if ( ! is_dir( $log_dir ) ) {
+			return $stats;
+		}
+
+		// Get all log files (any rotation pattern).
+		$log_files = glob( trailingslashit( $log_dir ) . 'events-*.log*' );
+
+		if ( empty( $log_files ) ) {
+			return $stats;
+		}
+
+		$stats['count'] = count( $log_files );
+
+		// Get modification times for all files.
+		$file_times = [];
+		foreach ( $log_files as $file ) {
+			$mtime                = filemtime( $file );
+			$file_times[ $file ]  = $mtime;
+			$stats['total_size'] += filesize( $file );
+		}
+
+		// Find oldest and newest by modification time.
+		$stats['oldest'] = min( $file_times );
+		$stats['newest'] = max( $file_times );
+
+		return $stats;
 	}
 }
