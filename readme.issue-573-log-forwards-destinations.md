@@ -540,6 +540,97 @@ Simple History → Settings
 
 ---
 
+## Log Format Reference
+
+ASCII diagrams showing the structure of each log output format. Useful for documentation and understanding how to parse the logs.
+
+### Human-Readable Format (Free)
+
+Best for manual log inspection. Easy to read with timestamps.
+
+```
+[2025-12-05T12:34:56Z] INFO SimpleUserLogger: User logged in | message_key=user_logged_in user_id=42 initiator=wp_user
+ │                     │    │                 │                │
+ │                     │    │                 │                └─ Key-value metadata pairs
+ │                     │    │                 └─ Human-readable message
+ │                     │    └─ Logger name (which component logged this)
+ │                     └─ Log level (INFO, WARNING, ERROR, DEBUG)
+ └─ ISO 8601 timestamp in UTC
+```
+
+### RFC 5424 Syslog Format (Premium)
+
+Standard syslog format compatible with SIEM tools, rsyslog, and syslog servers.
+
+```
+<14>1 2025-12-06T12:28:23Z wordpress-stable-docker-mariadb.test SimpleHistory - plugin_activated [simplehistory@0 level="info" ...] Activated plugin "ACF"
+ │  │ │                     │                                    │             │ │                 │                              └─ Human message
+ │  │ │                     │                                    │             │ │                 └─ Structured data (key="value" pairs)
+ │  │ │                     │                                    │             │ └─ Message ID (event type)
+ │  │ │                     │                                    │             └─ Process ID (nil/dash = not applicable)
+ │  │ │                     │                                    └─ App name
+ │  │ │                     └─ Hostname
+ │  │ └─ ISO 8601 timestamp (human-readable!)
+ │  └─ Syslog version (always 1 for RFC 5424)
+ └─ Priority = facility × 8 + severity
+    Examples: <14> = user.info, <12> = user.warning, <11> = user.error
+```
+
+**Priority values:**
+| Priority | Facility | Severity | Meaning |
+|----------|----------|----------|---------|
+| `<14>` | user (1) | info (6) | Informational message |
+| `<12>` | user (1) | warning (4) | Warning condition |
+| `<11>` | user (1) | error (3) | Error condition |
+
+### JSON Lines / GELF Format (Premium)
+
+Machine-readable format compatible with Graylog, Elasticsearch, Splunk, and log aggregation tools.
+
+```json
+{"version":"1.1","host":"example.com","short_message":"User logged in","timestamp":1733487600,"level":6,"_logger":"SimpleUserLogger","_user_id":1}
+```
+
+```
+{
+  "version": "1.1",           ← GELF version (always 1.1)
+  "host": "example.com",      ← WordPress site hostname
+  "short_message": "...",     ← Human-readable event message
+  "timestamp": 1733487600,    ← Unix timestamp (seconds since epoch)
+  "level": 6,                 ← Syslog severity level (6=info, 4=warning, 3=error)
+  "_logger": "...",           ← Custom field: Logger name (underscore prefix = GELF convention)
+  "_initiator": "...",        ← Custom field: Who triggered the event
+  "_message_key": "...",      ← Custom field: Event type identifier
+  "_user_id": 1,              ← Custom field: WordPress user ID (if applicable)
+  "_user_login": "...",       ← Custom field: Username (if applicable)
+  "_user_email": "...",       ← Custom field: User email (if applicable)
+  "_server_remote_addr": ".." ← Custom field: Client IP address
+}
+```
+
+**Syslog severity levels in GELF:**
+| Level | Name | Description |
+|-------|------|-------------|
+| 3 | Error | Error conditions |
+| 4 | Warning | Warning conditions |
+| 6 | Informational | Informational messages |
+| 7 | Debug | Debug-level messages |
+
+### Format Comparison
+
+| Feature | Human-Readable | RFC 5424 Syslog | JSON Lines (GELF) |
+|---------|----------------|-----------------|-------------------|
+| Human readable | ✅ Excellent | ✅ Good | ❌ Requires parsing |
+| Machine parseable | ⚠️ Regex needed | ⚠️ Syslog parser | ✅ Native JSON |
+| Timestamp format | ISO 8601 | ISO 8601 | Unix epoch |
+| Structured data | key=value | key="value" | JSON fields |
+| Graylog compatible | ❌ | ✅ | ✅ (native GELF) |
+| Splunk compatible | ✅ (with config) | ✅ | ✅ |
+| File size | Medium | Larger | Larger |
+| Standard | Custom | RFC 5424 | GELF 1.1 |
+
+---
+
 ## Open Questions & Design Decisions
 
 These are critical questions that need to be answered before implementing premium integrations and the rule/filter system:
