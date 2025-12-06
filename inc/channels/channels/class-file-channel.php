@@ -355,9 +355,11 @@ class File_Channel extends Channel {
 					__( 'Additional Log Formats', 'simple-history' ),
 					[
 						__( 'JSON Lines (GELF) – Compatible with Graylog, ELK, Splunk', 'simple-history' ),
+						__( 'Logfmt – Compatible with Grafana Loki, Prometheus', 'simple-history' ),
 						__( 'RFC 5424 Syslog – Standard format for SIEM tools', 'simple-history' ),
 					],
-					'file_channel_formatters'
+					'file_channel_formatters',
+					__( 'Unlock All Formats', 'simple-history' )
 				)
 			);
 		}

@@ -183,9 +183,14 @@ class RSS_Dropin extends Dropin {
 		// Show premium teaser for JSON feed below the enable checkbox.
 		echo wp_kses_post(
 			Helpers::get_premium_feature_teaser(
-				__( 'JSON Feed Available', 'simple-history' ),
-				__( 'Integrate with modern tools and services using the structured JSON feed format. Perfect for automation, monitoring systems, and custom integrations.', 'simple-history' ),
-				'premium_feeds_settings'
+				__( 'JSON Feed for Automation', 'simple-history' ),
+				[
+					__( 'Structured data format for easy parsing', 'simple-history' ),
+					__( 'Connect to Zapier, Make, n8n, or custom scripts', 'simple-history' ),
+					__( 'Real-time monitoring and alerting', 'simple-history' ),
+				],
+				'premium_feeds_settings',
+				__( 'Enable JSON Feed', 'simple-history' )
 			)
 		);
 	}
