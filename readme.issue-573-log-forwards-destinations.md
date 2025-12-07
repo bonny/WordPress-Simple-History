@@ -136,6 +136,30 @@ A **complete, production-ready** integrations system has been implemented on thi
    - **Note:** Local syslog requires a syslog daemon (works on Linux servers, not in Docker)
    - **Note:** PHP's `syslog()` always returns true (PHP 8.2+), so local syslog delivery cannot be verified
 
+6. **External Database Channel (Premium Feature)** ✅ - Added 2025-12-07
+   - **MySQL/MariaDB support** for off-site audit log storage
+   - **Hybrid schema design:**
+     - Core indexed fields: `event_date`, `logger`, `level`, `user_id`, `initiator`, `message_key`, `site_url`
+     - JSON context column for flexible metadata (MySQL 5.7+ compatible)
+     - Auto-table creation on first use
+   - **Security features:**
+     - Password encryption using WordPress SECURE_AUTH_KEY
+     - Prepared statements for all queries (SQL injection protection)
+     - Optional SSL/TLS connection support
+   - **Settings UI:**
+     - Database host, port, name, user, password
+     - Table name (customizable)
+     - SSL connection toggle
+     - Connection timeout
+   - **Test Connection button** with AJAX feedback
+   - **Error handling:**
+     - Tracks consecutive failures
+     - Auto-disables after 10 consecutive errors
+     - Shows last error message in settings
+     - Re-enables when user saves settings
+   - **Compliance-ready:** Designed for SOC 2, GDPR, HIPAA, PCI DSS requirements
+   - **Future-proof:** Schema includes `site_url` field for future multi-site support
+
 ### 📁 New Files Created
 
 - `inc/integrations/class-integrations-manager.php`
@@ -152,6 +176,12 @@ A **complete, production-ready** integrations system has been implemented on thi
 **Premium Add-on Files (simple-history-premium):**
 - `inc/channels/class-syslog-channel.php` - Syslog channel implementation
 - `inc/modules/class-syslog-channel-module.php` - Module to register the channel
+- `inc/channels/class-external-database-channel.php` - External database channel implementation
+- `inc/modules/class-external-database-channel-module.php` - Module to register the channel
+
+**Core Plugin Files Modified for Premium Teasers:**
+- `inc/services/class-channels-settings-page.php` - Added Syslog and External Database premium teasers
+- `inc/class-helpers.php` - Extended `add_settings_section()` and `get_settings_section_title_output()` to support title suffixes (for Premium badges)
 
 ### 🎯 Next Steps
 
@@ -160,18 +190,21 @@ A **complete, production-ready** integrations system has been implemented on thi
 - Email alerts
 - Discord integration
 - HTTP webhooks
-- Database integrations
+- ~~Database integrations~~ ✅ (Completed as External Database Channel)
 - SolarWinds Observability / Papertrail
 
 **Completed Log Destinations:**
 - ~~File Channel~~ ✅ (Free)
 - ~~Syslog/rsyslog~~ ✅ (Premium)
+- ~~External Database~~ ✅ (Premium)
 
 **UI/UX Enhancements**:
 - ~~Show grayed-out premium integrations in settings to drive upgrades~~ ✅ Implemented
 - ~~Add visual indicators for premium vs free features~~ ✅ Implemented (disabled form pattern)
+- ~~Premium badges in section titles~~ ✅ Added to Syslog and External Database teasers
+- ~~Extended Helpers class to support title suffixes~~ ✅ For premium badges in section headers
 - Create "Create alert" functionality in event actions menu
-- ~~Consider "Test Connection" buttons for integrations~~ ✅ Implemented for Syslog
+- ~~Consider "Test Connection" buttons for integrations~~ ✅ Implemented for Syslog and External Database
 
 **Rule/Filter System**:
 - Build rule/query builder UI (see researched libraries below)
@@ -285,8 +318,9 @@ A **complete, production-ready** integrations system has been implemented on thi
 **Log Forwarding Complete ✅**: All log destination channels are implemented and production-ready:
 - **File Channel** (Free) - Local log files with rotation and security
 - **Syslog Channel** (Premium) - Local syslog and remote rsyslog (UDP/TCP)
+- **External Database Channel** (Premium) - MySQL/MariaDB for off-site compliance storage
 
-The core system is complete and tested. File Integration is ready to ship as a free feature. Syslog Channel is ready to ship as a premium feature. The architecture is solid for adding alert integrations (Slack, Email, etc.) in the next phase.
+The core system is complete and tested. File Integration is ready to ship as a free feature. Syslog and External Database Channels are ready to ship as premium features. The architecture is solid for adding alert integrations (Slack, Email, etc.) in the next phase.
 
 ## Architecture Decision: Two Integration Types
 
@@ -542,7 +576,7 @@ Simple History → Settings
 | Log Destinations | Alerts |
 |-----------------|--------|
 | File ✅ | Slack |
-| Syslog | Email |
+| Syslog ✅ | Email |
 | | Webhooks (covers everything else) |
 
 **Phase 2 / Premium:**
@@ -551,7 +585,7 @@ Simple History → Settings
 |-----------------|--------|
 | Graylog | Microsoft Teams |
 | Papertrail/SolarWinds | Discord |
-| External database | Telegram |
+| ~~External database~~ ✅ | Telegram |
 | AWS CloudWatch | PagerDuty |
 
 **Nice to Have:**
