@@ -170,6 +170,15 @@ class File_Channel extends Channel {
 				margin-bottom: 0.75em;
 			}
 
+			.sh-FileChannel-formatterOption--disabled {
+				opacity: 0.75;
+				cursor: not-allowed;
+			}
+
+			.sh-FileChannel-formatterOption--disabled input {
+				cursor: not-allowed;
+			}
+
 			.sh-FileChannel-formatterDescription {
 				display: block;
 				margin-left: 24px;
@@ -181,6 +190,20 @@ class File_Channel extends Channel {
 
 			.sh-FileChannel-folderStatus--success {
 				color: #2e7d32;
+			}
+
+			.sh-PremiumBadge {
+				display: inline-block;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: #fff;
+				font-size: 10px;
+				font-weight: 600;
+				text-transform: uppercase;
+				padding: 2px 6px;
+				border-radius: 3px;
+				margin-left: 6px;
+				vertical-align: middle;
+				letter-spacing: 0.5px;
 			}
 		</style>
 
@@ -323,6 +346,7 @@ class File_Channel extends Channel {
 		$option_name             = $this->get_settings_option_name();
 		$selected_formatted_slug = $this->get_selected_formatter_slug();
 		$formatters              = $this->get_available_formatters();
+		$is_premium_active       = Helpers::is_premium_add_on_active();
 		?>
 		<fieldset class="sh-FileChannel-formatters">
 			<?php
@@ -344,24 +368,71 @@ class File_Channel extends Channel {
 				</label>
 				<?php
 			}
+
+			// Show disabled premium formatters when premium is not active.
+			if ( ! $is_premium_active ) {
+				$this->render_premium_formatter_teasers();
+			}
 			?>
 		</fieldset>
 
 		<?php
-		// Show premium promo if premium add-on is not active.
-		if ( ! Helpers::is_premium_add_on_active() ) {
+		// Show premium promo box if premium add-on is not active.
+		if ( ! $is_premium_active ) {
 			echo wp_kses_post(
 				Helpers::get_premium_feature_teaser(
-					__( 'Additional Log Formats', 'simple-history' ),
+					__( 'Unlock All Log Formats', 'simple-history' ),
 					[
-						__( 'JSON Lines (GELF) – Compatible with Graylog, ELK, Splunk', 'simple-history' ),
-						__( 'Logfmt – Compatible with Grafana Loki, Prometheus', 'simple-history' ),
-						__( 'RFC 5424 Syslog – Standard format for SIEM tools', 'simple-history' ),
+						__( 'Integration with Graylog, ELK, Splunk, Datadog', 'simple-history' ),
+						__( 'Cloud-native logging with Grafana Loki, Prometheus', 'simple-history' ),
+						__( 'SIEM-compatible RFC 5424 syslog format', 'simple-history' ),
 					],
 					'file_channel_formatters',
 					__( 'Unlock All Formats', 'simple-history' )
 				)
 			);
+		}
+	}
+
+	/**
+	 * Render disabled radio buttons for premium formatters.
+	 *
+	 * Shows what premium formatters look like without being selectable,
+	 * creating FOMO and demonstrating value of the premium add-on.
+	 */
+	private function render_premium_formatter_teasers() {
+		// Define premium formatters with their names and descriptions.
+		// These match the actual premium formatters for consistency.
+		$premium_formatters = [
+			'json_lines' => [
+				'name'        => __( 'JSON Lines (GELF)', 'simple-history' ),
+				'description' => __( 'One JSON object per line. Compatible with Graylog, ELK, Splunk, and other log aggregation tools.', 'simple-history' ),
+			],
+			'logfmt'     => [
+				'name'        => __( 'Logfmt', 'simple-history' ),
+				'description' => __( 'Key=value pairs. Compatible with Grafana Loki, Prometheus, and cloud-native log systems.', 'simple-history' ),
+			],
+			'rfc5424'    => [
+				'name'        => __( 'RFC 5424 Syslog', 'simple-history' ),
+				'description' => __( 'Standard syslog format with structured data. Best for syslog servers and SIEM tools.', 'simple-history' ),
+			],
+		];
+
+		foreach ( $premium_formatters as $formatter_slug => $formatter ) {
+			?>
+			<label class="sh-FileChannel-formatterOption sh-FileChannel-formatterOption--disabled">
+				<input
+					type="radio"
+					disabled
+				/>
+
+				<?php echo esc_html( $formatter['name'] ); ?>
+
+				<span class="sh-FileChannel-formatterDescription description">
+					<?php echo esc_html( $formatter['description'] ); ?>
+				</span>
+			</label>
+			<?php
 		}
 	}
 
