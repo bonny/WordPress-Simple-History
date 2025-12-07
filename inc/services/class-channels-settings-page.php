@@ -128,7 +128,7 @@ class Channels_Settings_Page extends Service {
 		<style>
 			.sh-PremiumTeaser-disabledForm {
 				pointer-events: none;
-				opacity: 0.6;
+				opacity: 0.75;
 			}
 			.sh-PremiumTeaser-disabledForm input,
 			.sh-PremiumTeaser-disabledForm select {
