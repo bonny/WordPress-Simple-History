@@ -1,6 +1,6 @@
 # Issue #573: Log forwards/Destination/Integrations/Alerts
 
-**Status:** In progress
+**Status:** Log Forwarding Complete ✅ (Alerts & Notifications phase pending)
 **Size:** Large
 **Labels:** experimental feature, feature
 **Branch:** issue-573-log-forwards-destinations (renamed from feature/log-forwarding-integrations)
@@ -118,7 +118,7 @@ A **complete, production-ready** integrations system has been implemented on thi
    - Example integration in test fixtures for demonstration
 
 5. **Syslog Channel (Premium Feature)** ✅ - Added 2025-12-07
-   - **Local syslog** via PHP `syslog()` function
+   - **Local syslog** via PHP `syslog()` function (fire-and-forget, delivery cannot be confirmed)
    - **Remote rsyslog** via UDP/TCP sockets
    - **RFC 5424 format** using existing premium formatter
    - **Settings UI:**
@@ -129,11 +129,12 @@ A **complete, production-ready** integrations system has been implemented on thi
      - Connection timeout setting
    - **Test Connection button** with AJAX feedback
    - **Error handling:**
-     - Tracks consecutive failures
-     - Auto-disables after 10 consecutive errors
+     - Tracks consecutive failures (remote only)
+     - Auto-disables after 10 consecutive errors (remote only)
      - Shows last error message in settings
      - Re-enables when user saves settings
    - **Note:** Local syslog requires a syslog daemon (works on Linux servers, not in Docker)
+   - **Note:** PHP's `syslog()` always returns true (PHP 8.2+), so local syslog delivery cannot be verified
 
 ### 📁 New Files Created
 
@@ -154,14 +155,17 @@ A **complete, production-ready** integrations system has been implemented on thi
 
 ### 🎯 Next Steps
 
-**Premium Integrations** (in separate premium plugin):
+**Phase 2: Alerts & Notifications** (in separate premium plugin):
 - Slack integration with webhooks
 - Email alerts
 - Discord integration
 - HTTP webhooks
-- ~~Syslog/rsyslog~~ ✅ Completed
 - Database integrations
 - SolarWinds Observability / Papertrail
+
+**Completed Log Destinations:**
+- ~~File Channel~~ ✅ (Free)
+- ~~Syslog/rsyslog~~ ✅ (Premium)
 
 **UI/UX Enhancements**:
 - ~~Show grayed-out premium integrations in settings to drive upgrades~~ ✅ Implemented
@@ -278,7 +282,11 @@ A **complete, production-ready** integrations system has been implemented on thi
 
 ### 📊 Current Status
 
-**Production-ready**: The core system is complete and tested. File Integration is ready to ship as a free feature. The architecture is solid for adding premium integrations in the separate add-on.
+**Log Forwarding Complete ✅**: All log destination channels are implemented and production-ready:
+- **File Channel** (Free) - Local log files with rotation and security
+- **Syslog Channel** (Premium) - Local syslog and remote rsyslog (UDP/TCP)
+
+The core system is complete and tested. File Integration is ready to ship as a free feature. Syslog Channel is ready to ship as a premium feature. The architecture is solid for adding alert integrations (Slack, Email, etc.) in the next phase.
 
 ## Architecture Decision: Two Integration Types
 
