@@ -770,9 +770,10 @@ class Helpers {
 	 *
 	 * @param string  $title Title.
 	 * @param ?string $icon_class_suffix Icon class suffix.
+	 * @param ?string $title_suffix Optional HTML suffix (e.g., a premium badge). Must be pre-escaped.
 	 * @return string
 	 */
-	public static function get_settings_section_title_output( $title, $icon_class_suffix = null ) {
+	public static function get_settings_section_title_output( $title, $icon_class_suffix = null, $title_suffix = null ) {
 		$icon_output = '';
 
 		if ( ! is_null( $icon_class_suffix ) ) {
@@ -782,15 +783,22 @@ class Helpers {
 			);
 		}
 
+		$suffix_output = '';
+		if ( ! is_null( $title_suffix ) ) {
+			// Suffix is expected to be pre-escaped HTML (e.g., a premium badge).
+			$suffix_output = ' ' . $title_suffix;
+		}
+
 		return sprintf(
 			'
 			<span class="sh-SettingsPage-settingsSection-title">
 				%2$s
-				%1$s
+				%1$s%3$s
 			</span>
 			',
 			esc_html( $title ),
-			$icon_output
+			$icon_output,
+			$suffix_output
 		);
 	}
 
@@ -842,11 +850,13 @@ class Helpers {
 	 * - Icon before title.
 	 * - Wrapper div automatically added.
 	 * - Optional HTML ID attribute.
+	 * - Optional HTML suffix (e.g., a premium badge).
 	 *
 	 * @param string       $id Slug-name to identify the section. Used in the 'id' attribute of tags.
 	 * @param string|array $title Formatted title of the section. Shown as the heading for the section.
 	 *                     Pass in array instead of string to use as ['Section title', 'icon-slug'].
 	 *                     Or pass ['Section title', 'icon-slug', 'html-id'] to include an HTML ID attribute.
+	 *                     Or pass ['Section title', 'icon-slug', 'html-id', 'suffix'] to include a suffix (e.g., premium badge).
 	 * @param callable     $callback_top Function that echos out any content at the top of the section (between heading and fields).
 	 * @param string       $page The slug-name of the settings page on which to show the section. Built-in pages include 'general', 'reading', 'writing', 'discussion', 'media', etc. Create your own using add_options_page().
 	 * @param array        $args {
@@ -856,13 +866,14 @@ class Helpers {
 	 * }
 	 */
 	public static function add_settings_section( $id, $title, $callback_top, $page, $args = [] ) {
-		// If title is array then it can be [title, icon-slug] or [title, icon-slug, html-id].
+		// If title is array then it can be [title, icon-slug, html-id, suffix].
 		$html_id = '';
 		if ( is_array( $title ) ) {
-			$title_text = $title[0];
-			$icon_slug  = $title[1] ?? null;
-			$html_id    = $title[2] ?? '';
-			$title      = self::get_settings_section_title_output( $title_text, $icon_slug );
+			$title_text   = $title[0];
+			$icon_slug    = $title[1] ?? null;
+			$html_id      = $title[2] ?? '';
+			$title_suffix = $title[3] ?? null;
+			$title        = self::get_settings_section_title_output( $title_text, $icon_slug, $title_suffix );
 		} else {
 			$title = self::get_settings_section_title_output( $title );
 		}
