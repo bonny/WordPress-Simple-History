@@ -266,6 +266,27 @@ class File_Channel extends Channel {
 	}
 
 	/**
+	 * Render the "Enabled" settings field with a descriptive label.
+	 *
+	 * Overrides parent to provide a more descriptive checkbox label.
+	 */
+	public function settings_field_enabled() {
+		$enabled     = $this->is_enabled();
+		$option_name = $this->get_settings_option_name();
+		?>
+		<label>
+			<input
+				type="checkbox"
+				name="<?php echo esc_attr( $option_name ); ?>[enabled]"
+				value="1"
+				<?php checked( $enabled ); ?>
+			/>
+			<?php esc_html_e( 'Enable file logging', 'simple-history' ); ?>
+		</label>
+		<?php
+	}
+
+	/**
 	 * Render the rotation frequency settings field.
 	 */
 	public function settings_field_rotation_frequency() {
