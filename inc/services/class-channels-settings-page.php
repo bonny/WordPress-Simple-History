@@ -66,8 +66,8 @@ class Channels_Settings_Page extends Service {
 		}
 
 		( new Menu_Page() )
-			->set_page_title( __( 'Integrations', 'simple-history' ) )
-			->set_menu_title( __( 'Integrations', 'simple-history' ) )
+			->set_page_title( __( 'Log Forwarding', 'simple-history' ) )
+			->set_menu_title( __( 'Log Forwarding', 'simple-history' ) )
 			->set_menu_slug( 'general_settings_subtab_integrations' )
 			->set_callback( [ $this, 'settings_output_channels' ] )
 			->set_order( 40 ) // After general settings but before licenses.
@@ -83,7 +83,7 @@ class Channels_Settings_Page extends Service {
 		// Use WordPress core function directly without card wrapper for the intro section.
 		add_settings_section(
 			'simple_history_settings_section_tab_integrations',
-			Helpers::get_settings_section_title_output( __( 'Log Forwarding & Integrations', 'simple-history' ), 'extension' ),
+			Helpers::get_settings_section_title_output( __( 'Log Forwarding', 'simple-history' ), 'extension' ),
 			[ $this, 'settings_section_output' ],
 			self::SETTINGS_PAGE_SLUG
 		);
@@ -256,7 +256,7 @@ class Channels_Settings_Page extends Service {
 	public function settings_section_output() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Enable integrations to automatically forward events to external systems like log files, Slack, email, and more.', 'simple-history' ); ?></p>
+			<p><?php esc_html_e( 'Send a copy of all events to log files or syslog servers.', 'simple-history' ); ?></p>
 		</div>
 		<?php
 	}
