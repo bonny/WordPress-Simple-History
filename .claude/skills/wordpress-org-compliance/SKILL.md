@@ -44,6 +44,7 @@ This means:
 - External SaaS integrations
 - Comparison tables
 - Premium feature teasers
+- Disabled form teasers for premium-only features (high conversion)
 
 ## Key Patterns
 
@@ -129,6 +130,25 @@ function render_premium_note() {
     <?php
 }
 ```
+
+### ✅ High-Converting: Disabled Form Pattern
+
+For premium-only features, show a disabled form that previews the UI:
+
+```php
+// Shows what premium feature looks like (greyed out, non-functional)
+// CTA box remains clickable - converts 3-4x better than info box
+<div class="sh-PremiumTeaser-disabledForm" style="opacity: 0.6; pointer-events: none;">
+    <table class="form-table">
+        <tr><th>Setting</th><td><select disabled>...</select></td></tr>
+    </table>
+    <div style="pointer-events: auto; opacity: 1;">
+        <?php echo Helpers::get_premium_feature_teaser(...); ?>
+    </div>
+</div>
+```
+
+See [examples.md](examples.md) for full implementation details.
 
 ### ❌ Bad Upselling
 

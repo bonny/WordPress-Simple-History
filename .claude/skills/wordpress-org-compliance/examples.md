@@ -499,6 +499,160 @@ if ( ! $this->is_premium() ) {
 
 ---
 
+## Premium-Only Feature Teasers (Disabled Form Pattern)
+
+For features that exist **only in premium** (not in free version), showing a "disabled form" creates FOMO and converts better than a simple info box.
+
+### Why This Pattern Works
+
+Research shows that visible locked features convert 3-4x better than hidden features:
+
+- **Creates FOMO**: Users see exactly what they're missing
+- **Shows Value**: The UI demonstrates the feature's capabilities
+- **Reduces Uncertainty**: No guessing what the feature does
+- **Contextual**: Appears where they'd use it
+
+**Key Psychology**: Users who see the actual UI become invested in "what if I could use this?"
+
+### ✅ Correct: Disabled Form for Premium-Only Feature
+
+```php
+/**
+ * Show a teaser for a premium-only feature using disabled form pattern.
+ * This is allowed because it doesn't block any free functionality.
+ */
+function render_premium_feature_teaser() {
+    // Skip if premium is active (show real feature instead).
+    if ( Helpers::is_premium_add_on_active() ) {
+        return;
+    }
+    ?>
+    <style>
+        .sh-PremiumTeaser-disabledForm {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .sh-PremiumTeaser-disabledForm input,
+        .sh-PremiumTeaser-disabledForm select {
+            background-color: #f0f0f1 !important;
+            cursor: not-allowed;
+        }
+        /* Keep upsell box clickable */
+        .sh-PremiumTeaser-disabledForm .sh-PremiumFeatureTeaser {
+            pointer-events: auto;
+            opacity: 1;
+        }
+    </style>
+
+    <div class="sh-PremiumTeaser-disabledForm">
+        <table class="form-table">
+            <tr>
+                <th scope="row">Enabled</th>
+                <td>
+                    <label>
+                        <input type="checkbox" disabled />
+                        Enable this feature
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Setting</th>
+                <td>
+                    <select disabled>
+                        <option>Option 1</option>
+                        <option>Option 2</option>
+                    </select>
+                    <p class="description">Description of what this does.</p>
+                </td>
+            </tr>
+        </table>
+
+        <?php
+        // Use built-in teaser function for consistent styling
+        echo wp_kses_post(
+            Helpers::get_premium_feature_teaser(
+                __( 'Unlock This Feature', 'simple-history' ),
+                [
+                    __( 'Benefit one', 'simple-history' ),
+                    __( 'Benefit two', 'simple-history' ),
+                    __( 'Benefit three', 'simple-history' ),
+                ],
+                'feature_teaser_tracking_param',
+                __( 'Get Premium', 'simple-history' )
+            )
+        );
+        ?>
+    </div>
+    <?php
+}
+```
+
+### Implementation Checklist
+
+- [ ] Form is visually disabled (opacity, pointer-events: none)
+- [ ] Inputs have disabled attribute and grey background
+- [ ] CTA/upsell box remains clickable (pointer-events: auto)
+- [ ] Uses `Helpers::get_premium_feature_teaser()` for consistent styling
+- [ ] Only shown when premium is NOT active
+- [ ] Doesn't block any free functionality
+
+### When to Use This Pattern
+
+Use the disabled form pattern when:
+- The feature is **premium-only** (doesn't exist in free version)
+- The feature has a **settings UI** that can be previewed
+- You want to **maximize conversion** for that feature
+
+Use a simple teaser box when:
+- The feature is a small enhancement to existing functionality
+- There's no meaningful UI to preview
+- The teaser appears in a sidebar or secondary location
+
+### Real Example: Syslog Channel
+
+```php
+// In Channels_Settings_Page::render_syslog_teaser()
+public function render_syslog_teaser() {
+    ?>
+    <div class="sh-SyslogTeaser-disabledForm">
+        <table class="form-table">
+            <tr>
+                <th>Enabled</th>
+                <td><input type="checkbox" disabled /> Enable Syslog</td>
+            </tr>
+            <tr>
+                <th>Mode</th>
+                <td>
+                    <select disabled>
+                        <option>Local syslog (PHP syslog function)</option>
+                        <option>Remote syslog via UDP</option>
+                        <option>Remote syslog via TCP</option>
+                    </select>
+                </td>
+            </tr>
+            <!-- More fields... -->
+        </table>
+
+        <?php
+        echo wp_kses_post(
+            Helpers::get_premium_feature_teaser(
+                __( 'Unlock Syslog Integration', 'simple-history' ),
+                [
+                    __( 'Local syslog via PHP syslog() function', 'simple-history' ),
+                    __( 'Remote rsyslog via UDP or TCP', 'simple-history' ),
+                    __( 'RFC 5424 format for SIEM integration', 'simple-history' ),
+                ],
+                'syslog_channel_teaser'
+            )
+        );
+        ?>
+    </div>
+    <?php
+}
+```
+
+---
+
 ## Summary of Patterns
 
 ### ✅ Allowed
@@ -508,6 +662,7 @@ if ( ! $this->is_premium() ) {
 - Hooks and filters for extension
 - Comparison tables showing differences
 - External SaaS integrations (if service provides functionality)
+- **Disabled form teasers for premium-only features**
 
 ### ❌ Forbidden
 - License key validation for local features
