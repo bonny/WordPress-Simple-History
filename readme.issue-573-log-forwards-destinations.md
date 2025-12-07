@@ -117,6 +117,24 @@ A **complete, production-ready** integrations system has been implemented on thi
    - Tests cover field validation, integration management, file operations, buffering, rotation, and more
    - Example integration in test fixtures for demonstration
 
+5. **Syslog Channel (Premium Feature)** ✅ - Added 2025-12-07
+   - **Local syslog** via PHP `syslog()` function
+   - **Remote rsyslog** via UDP/TCP sockets
+   - **RFC 5424 format** using existing premium formatter
+   - **Settings UI:**
+     - Mode selection: Local / Remote UDP / Remote TCP
+     - Facility dropdown (LOG_USER, LOG_LOCAL0-7, LOG_DAEMON)
+     - Identity string (app name in syslog)
+     - Remote host/port configuration
+     - Connection timeout setting
+   - **Test Connection button** with AJAX feedback
+   - **Error handling:**
+     - Tracks consecutive failures
+     - Auto-disables after 10 consecutive errors
+     - Shows last error message in settings
+     - Re-enables when user saves settings
+   - **Note:** Local syslog requires a syslog daemon (works on Linux servers, not in Docker)
+
 ### 📁 New Files Created
 
 - `inc/integrations/class-integrations-manager.php`
@@ -130,6 +148,10 @@ A **complete, production-ready** integrations system has been implemented on thi
 - Multiple test files in `tests/wpunit/`
 - Detailed `issue-progress.md` tracking file
 
+**Premium Add-on Files (simple-history-premium):**
+- `inc/channels/class-syslog-channel.php` - Syslog channel implementation
+- `inc/modules/class-syslog-channel-module.php` - Module to register the channel
+
 ### 🎯 Next Steps
 
 **Premium Integrations** (in separate premium plugin):
@@ -137,7 +159,7 @@ A **complete, production-ready** integrations system has been implemented on thi
 - Email alerts
 - Discord integration
 - HTTP webhooks
-- Syslog/rsyslog
+- ~~Syslog/rsyslog~~ ✅ Completed
 - Database integrations
 - SolarWinds Observability / Papertrail
 
@@ -145,7 +167,7 @@ A **complete, production-ready** integrations system has been implemented on thi
 - Show grayed-out premium integrations in settings to drive upgrades
 - Add visual indicators for premium vs free features
 - Create "Create alert" functionality in event actions menu
-- Consider "Test Connection" buttons for integrations
+- ~~Consider "Test Connection" buttons for integrations~~ ✅ Implemented for Syslog
 
 **Rule/Filter System**:
 - Build rule/query builder UI (see researched libraries below)
@@ -297,7 +319,6 @@ Integration (base class)
 ├── Log_Integration (simpler, no rules)
 │   ├── File
 │   ├── Syslog
-│   ├── Error_Log
 │   └── External_Database
 └── Alert_Integration (has rules, rate limiting)
     ├── Slack
@@ -313,7 +334,6 @@ Simple History Settings
 ├── Log Destinations (simple toggles)
 │   ├── Local
 │   │   ├── ✅ File backup - /logs/simple-history.log
-│   │   ├── ☐ PHP error_log
 │   │   └── ☐ Syslog
 │   └── Remote
 │       ├── ☐ External database
@@ -354,10 +374,10 @@ Configuration:
 - Alerts: Email rule → "user role = administrator"
 
 **Scenario 3: Developer debugging issues**
-> "I want everything in the PHP error_log so I can tail it during development."
+> "I want to tail all events in real-time during development."
 
 Configuration:
-- Log Destinations: ✅ PHP error_log (all events)
+- Log Destinations: ✅ File backup (use `tail -f` on the log file)
 - Alerts: None needed
 
 **Scenario 4: E-commerce site owner**
@@ -389,7 +409,6 @@ Configuration:
 
 **Local:**
 - File ✅ (already built)
-- PHP error_log
 - Syslog (local)
 
 **Self-Hosted Log Management:**
@@ -477,9 +496,6 @@ Simple History → Settings
 │ │ Path: /wp-content/simple-history-logs/          │ │
 │ │ Rotation: Daily                    [Configure]  │ │
 │ └─────────────────────────────────────────────────┘ │
-│ ┌─ PHP error_log ───────────────────────── ☐ OFF ─┐ │
-│ │ Writes to WordPress debug.log      [Configure]  │ │
-│ └─────────────────────────────────────────────────┘ │
 │ ┌─ Syslog ──────────────────────────────── ☐ OFF ─┐ │
 │ │ System syslog facility             [Configure]  │ │
 │ └─────────────────────────────────────────────────┘ │
@@ -518,8 +534,8 @@ Simple History → Settings
 | Log Destinations | Alerts |
 |-----------------|--------|
 | File ✅ | Slack |
-| PHP error_log | Email |
-| Syslog | Webhooks (covers everything else) |
+| Syslog | Email |
+| | Webhooks (covers everything else) |
 
 **Phase 2 / Premium:**
 
@@ -871,3 +887,30 @@ grep "ERROR\|WARNING" simple-history.log
 # Filter by logger
 grep "SimpleUserLogger" simple-history.log
 ```
+
+---
+
+## Rejected Ideas
+
+Ideas that were considered but rejected after research.
+
+### PHP error_log / WP Debug Log Channel
+
+**Rejected:** December 2024
+
+**Reason:** WordPress official documentation states that WP_DEBUG tools are "not recommended for live sites; they are meant for local testing and staging installs."
+
+**Technical issues:**
+- Requires `WP_DEBUG=true` to work (WP_DEBUG_LOG is ignored otherwise)
+- Logs are mixed with all other PHP errors and WordPress debug output
+- No rotation or retention control
+- Destination controlled by server/WordPress config, not Simple History
+
+**Alternative:** The File Channel provides a production-ready solution with:
+- Dedicated log files (only Simple History events)
+- Configurable rotation (daily/weekly/monthly)
+- Retention limits
+- Works regardless of WP_DEBUG setting
+- Full control over log location
+
+**Source:** https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/

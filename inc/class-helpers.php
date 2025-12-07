@@ -800,9 +800,11 @@ class Helpers {
 	 *
 	 * @param string  $title Title.
 	 * @param ?string $icon_class_suffix Icon class suffix.
+	 * @param ?string $for Optional. The id of the input element to associate the label with.
+	 *                     When provided, the title becomes a clickable label.
 	 * @return string
 	 */
-	public static function get_settings_field_title_output( $title, $icon_class_suffix = null ) {
+	public static function get_settings_field_title_output( $title, $icon_class_suffix = null, $for = null ) {
 		$icon_output = '';
 
 		if ( ! is_null( $icon_class_suffix ) ) {
@@ -812,6 +814,17 @@ class Helpers {
 			);
 		}
 
+		// If $for is provided, wrap title in a label element.
+		if ( ! is_null( $for ) ) {
+			$title_output = sprintf(
+				'<label for="%1$s">%2$s</label>',
+				esc_attr( $for ),
+				esc_html( $title )
+			);
+		} else {
+			$title_output = esc_html( $title );
+		}
+
 		return sprintf(
 			'
 			<span class="sh-SettingsPage-settingsField">
@@ -819,7 +832,7 @@ class Helpers {
 				%1$s
 			</span>
 			',
-			esc_html( $title ),
+			$title_output,
 			$icon_output
 		);
 	}
