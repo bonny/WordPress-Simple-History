@@ -165,11 +165,7 @@ class File_Channel extends Channel {
 	public function settings_output_intro() {
 		?>
 		<p>
-			<?php esc_html_e( 'These files are not affected by the "Clear log" function, providing an independent backup.', 'simple-history' ); ?>
-		</p>
-
-		<p>
-			<?php esc_html_e( 'File logging uses its own retention settings below and is not affected by the database log retention period.', 'simple-history' ); ?>
+			<?php esc_html_e( 'Log files are stored independently from the database, unaffected by "Clear log" or database retention settings.', 'simple-history' ); ?>
 		</p>
 		<?php
 	}
