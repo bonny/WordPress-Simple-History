@@ -125,18 +125,6 @@ class Channels_Settings_Page extends Service {
 	 */
 	public function render_syslog_teaser() {
 		?>
-		<style>
-			.sh-PremiumTeaser-disabledForm {
-				pointer-events: none;
-				opacity: 0.75;
-			}
-			.sh-PremiumTeaser-disabledForm input,
-			.sh-PremiumTeaser-disabledForm select {
-				background-color: #f0f0f1 !important;
-				cursor: not-allowed;
-			}
-		</style>
-
 		<div class="sh-SettingsSectionIntroduction">
 			<p><?php esc_html_e( 'Forward events to system syslog or remote rsyslog servers for centralized logging, SIEM integration, or compliance requirements.', 'simple-history' ); ?></p>
 		</div>

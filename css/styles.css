@@ -1307,6 +1307,53 @@ Can be overruled by .form-table td p
 	margin-block-end: 0;
 }
 
+/**
+ * Premium Teaser - Disabled Form Pattern
+ * Used to show a disabled/grayed out form that teases premium features.
+ * Users can see the form fields but cannot interact with them.
+ */
+.sh-PremiumTeaser-disabledForm {
+	pointer-events: none;
+	opacity: 0.75;
+}
+
+.sh-PremiumTeaser-disabledForm input,
+.sh-PremiumTeaser-disabledForm select {
+	background-color: #f0f0f1 !important;
+	cursor: not-allowed;
+}
+
+/**
+ * File Channel - Formatter Options
+ * Styles for the log file format selection radio buttons.
+ */
+.sh-FileChannel-formatterOption {
+	display: block;
+	margin-bottom: 0.75em;
+}
+
+.sh-FileChannel-formatterOption--disabled {
+	opacity: 0.75;
+	cursor: not-allowed;
+}
+
+.sh-FileChannel-formatterOption--disabled input {
+	cursor: not-allowed;
+}
+
+.sh-FileChannel-formatterDescription {
+	display: block;
+	margin-left: 24px;
+}
+
+.sh-FileChannel-folderStatus--error {
+	color: #b32d2e;
+}
+
+.sh-FileChannel-folderStatus--success {
+	color: #2e7d32;
+}
+
 /* Status Box - info/stats cards (distinct from WP admin notices) */
 .sh-StatusBox {
 	background: #fff;

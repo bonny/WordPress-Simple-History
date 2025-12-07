@@ -164,49 +164,6 @@ class File_Channel extends Channel {
 	 */
 	public function settings_output_intro() {
 		?>
-		<style>
-			.sh-FileChannel-formatterOption {
-				display: block;
-				margin-bottom: 0.75em;
-			}
-
-			.sh-FileChannel-formatterOption--disabled {
-				opacity: 0.75;
-				cursor: not-allowed;
-			}
-
-			.sh-FileChannel-formatterOption--disabled input {
-				cursor: not-allowed;
-			}
-
-			.sh-FileChannel-formatterDescription {
-				display: block;
-				margin-left: 24px;
-			}
-
-			.sh-FileChannel-folderStatus--error {
-				color: #b32d2e;
-			}
-
-			.sh-FileChannel-folderStatus--success {
-				color: #2e7d32;
-			}
-
-			.sh-PremiumBadge {
-				display: inline-block;
-				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-				color: #fff;
-				font-size: 10px;
-				font-weight: 600;
-				text-transform: uppercase;
-				padding: 2px 6px;
-				border-radius: 3px;
-				margin-left: 6px;
-				vertical-align: middle;
-				letter-spacing: 0.5px;
-			}
-		</style>
-
 		<p>
 			<?php esc_html_e( 'These files are not affected by the "Clear log" function, providing an independent backup.', 'simple-history' ); ?>
 		</p>
