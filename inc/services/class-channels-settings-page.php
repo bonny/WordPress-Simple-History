@@ -126,19 +126,14 @@ class Channels_Settings_Page extends Service {
 	public function render_syslog_teaser() {
 		?>
 		<style>
-			.sh-SyslogTeaser-disabledForm {
+			.sh-PremiumTeaser-disabledForm {
 				pointer-events: none;
 				opacity: 0.6;
 			}
-			.sh-SyslogTeaser-disabledForm input,
-			.sh-SyslogTeaser-disabledForm select {
+			.sh-PremiumTeaser-disabledForm input,
+			.sh-PremiumTeaser-disabledForm select {
 				background-color: #f0f0f1 !important;
 				cursor: not-allowed;
-			}
-			.sh-SyslogTeaser-disabledForm .sh-PremiumFeatureTeaser {
-				pointer-events: auto;
-				opacity: 1;
-				margin-top: 1.5em;
 			}
 		</style>
 
@@ -146,7 +141,7 @@ class Channels_Settings_Page extends Service {
 			<p><?php esc_html_e( 'Forward events to system syslog or remote rsyslog servers for centralized logging, SIEM integration, or compliance requirements.', 'simple-history' ); ?></p>
 		</div>
 
-		<div class="sh-SyslogTeaser-disabledForm">
+		<div class="sh-PremiumTeaser-disabledForm">
 			<table class="form-table" role="presentation">
 				<tbody>
 					<!-- Enabled checkbox -->
@@ -210,24 +205,24 @@ class Channels_Settings_Page extends Service {
 					</tr>
 				</tbody>
 			</table>
-
-			<?php
-			echo wp_kses_post(
-				Helpers::get_premium_feature_teaser(
-					__( 'Unlock Syslog Integration', 'simple-history' ),
-					[
-						__( 'Local syslog via PHP syslog() function', 'simple-history' ),
-						__( 'Remote rsyslog via UDP or TCP', 'simple-history' ),
-						__( 'RFC 5424 format for SIEM integration', 'simple-history' ),
-						__( 'Test connection button to verify setup', 'simple-history' ),
-						__( 'Auto-disable on repeated failures', 'simple-history' ),
-					],
-					'syslog_channel_teaser',
-					__( 'Get Premium', 'simple-history' )
-				)
-			);
-			?>
 		</div>
+
+		<?php
+		echo wp_kses_post(
+			Helpers::get_premium_feature_teaser(
+				__( 'Unlock Syslog Integration', 'simple-history' ),
+				[
+					__( 'Local syslog via PHP syslog() function', 'simple-history' ),
+					__( 'Remote rsyslog via UDP or TCP', 'simple-history' ),
+					__( 'RFC 5424 format for SIEM integration', 'simple-history' ),
+					__( 'Test connection button to verify setup', 'simple-history' ),
+					__( 'Auto-disable on repeated failures', 'simple-history' ),
+				],
+				'syslog_channel_teaser',
+				__( 'Unlock Syslog with Premium', 'simple-history' )
+			)
+		);
+		?>
 		<?php
 	}
 
