@@ -119,21 +119,116 @@ class Channels_Settings_Page extends Service {
 
 	/**
 	 * Render the Syslog channel teaser content.
+	 *
+	 * Shows a disabled form that mimics the real Syslog channel settings,
+	 * creating FOMO and demonstrating the value of the premium feature.
 	 */
 	public function render_syslog_teaser() {
-		echo wp_kses_post(
-			Helpers::get_premium_feature_teaser(
-				__( 'Forward Events to Syslog', 'simple-history' ),
-				[
-					__( 'Local syslog via PHP syslog() function', 'simple-history' ),
-					__( 'Remote rsyslog via UDP or TCP', 'simple-history' ),
-					__( 'RFC 5424 format for SIEM integration', 'simple-history' ),
-					__( 'Test connection functionality', 'simple-history' ),
-				],
-				'syslog_channel_teaser',
-				__( 'Unlock Syslog Integration', 'simple-history' )
-			)
-		);
+		?>
+		<style>
+			.sh-SyslogTeaser-disabledForm {
+				pointer-events: none;
+				opacity: 0.6;
+			}
+			.sh-SyslogTeaser-disabledForm input,
+			.sh-SyslogTeaser-disabledForm select {
+				background-color: #f0f0f1 !important;
+				cursor: not-allowed;
+			}
+			.sh-SyslogTeaser-disabledForm .sh-PremiumFeatureTeaser {
+				pointer-events: auto;
+				opacity: 1;
+				margin-top: 1.5em;
+			}
+		</style>
+
+		<div class="sh-SettingsSectionIntroduction">
+			<p><?php esc_html_e( 'Forward events to system syslog or remote rsyslog servers for centralized logging, SIEM integration, or compliance requirements.', 'simple-history' ); ?></p>
+		</div>
+
+		<div class="sh-SyslogTeaser-disabledForm">
+			<table class="form-table" role="presentation">
+				<tbody>
+					<!-- Enabled checkbox -->
+					<tr>
+						<th scope="row">
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Enabled', 'simple-history' ) ) ); ?>
+						</th>
+						<td>
+							<label>
+								<input type="checkbox" disabled />
+								<?php esc_html_e( 'Enable Syslog forwarding', 'simple-history' ); ?>
+							</label>
+						</td>
+					</tr>
+
+					<!-- Mode -->
+					<tr>
+						<th scope="row">
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Mode', 'simple-history' ) ) ); ?>
+						</th>
+						<td>
+							<select disabled>
+								<option selected><?php esc_html_e( 'Local syslog (PHP syslog function)', 'simple-history' ); ?></option>
+								<option><?php esc_html_e( 'Remote syslog via UDP', 'simple-history' ); ?></option>
+								<option><?php esc_html_e( 'Remote syslog via TCP', 'simple-history' ); ?></option>
+							</select>
+							<p class="description">
+								<?php esc_html_e( 'Local syslog writes to the system log. Remote syslog sends to a rsyslog server.', 'simple-history' ); ?>
+							</p>
+						</td>
+					</tr>
+
+					<!-- Facility -->
+					<tr>
+						<th scope="row">
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Facility', 'simple-history' ) ) ); ?>
+						</th>
+						<td>
+							<select disabled>
+								<option selected>user - User-level messages</option>
+								<option>local0 - Local use 0</option>
+								<option>daemon - System daemons</option>
+							</select>
+							<p class="description">
+								<?php esc_html_e( 'Syslog facility determines how the system categorizes the log messages.', 'simple-history' ); ?>
+							</p>
+						</td>
+					</tr>
+
+					<!-- Identity -->
+					<tr>
+						<th scope="row">
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Identity', 'simple-history' ) ) ); ?>
+						</th>
+						<td>
+							<input type="text" class="regular-text" value="SimpleHistory" disabled />
+							<p class="description">
+								<?php esc_html_e( 'Application name shown in syslog entries.', 'simple-history' ); ?>
+							</p>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<?php
+			echo wp_kses_post(
+				Helpers::get_premium_feature_teaser(
+					__( 'Unlock Syslog Integration', 'simple-history' ),
+					[
+						__( 'Local syslog via PHP syslog() function', 'simple-history' ),
+						__( 'Remote rsyslog via UDP or TCP', 'simple-history' ),
+						__( 'RFC 5424 format for SIEM integration', 'simple-history' ),
+						__( 'Test connection button to verify setup', 'simple-history' ),
+						__( 'Auto-disable on repeated failures', 'simple-history' ),
+					],
+					'syslog_channel_teaser',
+					__( 'Get Premium', 'simple-history' )
+				)
+			);
+			?>
+		</div>
+		<?php
 	}
 
 	/**
