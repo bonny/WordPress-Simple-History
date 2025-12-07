@@ -126,7 +126,7 @@ class Channels_Settings_Page extends Service {
 	public function render_syslog_teaser() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Forward events to system syslog or remote rsyslog servers for centralized logging, SIEM integration, or compliance requirements.', 'simple-history' ); ?></p>
+			<p><?php esc_html_e( 'Automatically forward all events to system syslog or remote rsyslog servers for centralized logging, SIEM integration, or compliance requirements.', 'simple-history' ); ?></p>
 		</div>
 
 		<div class="sh-PremiumTeaser-disabledForm">

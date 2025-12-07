@@ -156,7 +156,7 @@ class File_Channel extends Channel {
 	 * @return string The channel description.
 	 */
 	public function get_description() {
-		return __( 'Automatically log events to files for backup, compliance, or integration with external log analysis tools.', 'simple-history' );
+		return __( 'Automatically forward all events to log files for backup, compliance, or integration with external log analysis tools.', 'simple-history' );
 	}
 
 	/**
