@@ -258,7 +258,7 @@ class File_Channel extends Channel {
 		// File path info field.
 		add_settings_field(
 			$option_name . '_file_path',
-			Helpers::get_settings_field_title_output( __( 'File location', 'simple-history' ) ),
+			Helpers::get_settings_field_title_output( __( 'Log folder', 'simple-history' ) ),
 			[ $this, 'settings_field_file_path' ],
 			$settings_page_slug,
 			$settings_section_id
