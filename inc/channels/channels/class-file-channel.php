@@ -383,9 +383,9 @@ class File_Channel extends Channel {
 				Helpers::get_premium_feature_teaser(
 					__( 'Unlock All Log Formats', 'simple-history' ),
 					[
-						__( 'Integration with Graylog, ELK, Splunk, Datadog', 'simple-history' ),
-						__( 'Cloud-native logging with Grafana Loki, Prometheus', 'simple-history' ),
-						__( 'SIEM-compatible RFC 5424 syslog format', 'simple-history' ),
+						__( 'Unlock the three formats above', 'simple-history' ),
+						__( 'Send logs to your existing monitoring stack', 'simple-history' ),
+						__( 'Industry-standard formats for automated processing', 'simple-history' ),
 					],
 					'file_channel_formatters',
 					__( 'Unlock All Formats', 'simple-history' )
