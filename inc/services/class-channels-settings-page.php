@@ -92,6 +92,48 @@ class Channels_Settings_Page extends Service {
 		foreach ( $this->channels_manager->get_channels() as $channel ) {
 			$this->add_channel_settings_section( $channel );
 		}
+
+		// Add premium channel teasers when premium is not active.
+		$this->add_premium_channel_teasers();
+	}
+
+	/**
+	 * Add teaser sections for premium-only channels.
+	 *
+	 * Shows promotional cards for premium channels when the premium add-on is not active.
+	 */
+	private function add_premium_channel_teasers() {
+		// Skip if premium is active (the real channels will be shown instead).
+		if ( Helpers::is_premium_add_on_active() ) {
+			return;
+		}
+
+		// Add Syslog channel teaser.
+		Helpers::add_settings_section(
+			'simple_history_channel_syslog_teaser',
+			__( 'Syslog', 'simple-history' ),
+			[ $this, 'render_syslog_teaser' ],
+			self::SETTINGS_PAGE_SLUG
+		);
+	}
+
+	/**
+	 * Render the Syslog channel teaser content.
+	 */
+	public function render_syslog_teaser() {
+		echo wp_kses_post(
+			Helpers::get_premium_feature_teaser(
+				__( 'Forward Events to Syslog', 'simple-history' ),
+				[
+					__( 'Local syslog via PHP syslog() function', 'simple-history' ),
+					__( 'Remote rsyslog via UDP or TCP', 'simple-history' ),
+					__( 'RFC 5424 format for SIEM integration', 'simple-history' ),
+					__( 'Test connection functionality', 'simple-history' ),
+				],
+				'syslog_channel_teaser',
+				__( 'Unlock Syslog Integration', 'simple-history' )
+			)
+		);
 	}
 
 	/**

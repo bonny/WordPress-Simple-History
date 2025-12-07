@@ -800,11 +800,11 @@ class Helpers {
 	 *
 	 * @param string  $title Title.
 	 * @param ?string $icon_class_suffix Icon class suffix.
-	 * @param ?string $for Optional. The id of the input element to associate the label with.
-	 *                     When provided, the title becomes a clickable label.
+	 * @param ?string $label_for Optional. The id of the input element to associate the label with.
+	 *                           When provided, the title becomes a clickable label.
 	 * @return string
 	 */
-	public static function get_settings_field_title_output( $title, $icon_class_suffix = null, $for = null ) {
+	public static function get_settings_field_title_output( $title, $icon_class_suffix = null, $label_for = null ) {
 		$icon_output = '';
 
 		if ( ! is_null( $icon_class_suffix ) ) {
@@ -814,11 +814,11 @@ class Helpers {
 			);
 		}
 
-		// If $for is provided, wrap title in a label element.
-		if ( ! is_null( $for ) ) {
+		// If $label_for is provided, wrap title in a label element.
+		if ( ! is_null( $label_for ) ) {
 			$title_output = sprintf(
 				'<label for="%1$s">%2$s</label>',
-				esc_attr( $for ),
+				esc_attr( $label_for ),
 				esc_html( $title )
 			);
 		} else {
