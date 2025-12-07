@@ -164,8 +164,8 @@ A **complete, production-ready** integrations system has been implemented on thi
 - SolarWinds Observability / Papertrail
 
 **UI/UX Enhancements**:
-- Show grayed-out premium integrations in settings to drive upgrades
-- Add visual indicators for premium vs free features
+- ~~Show grayed-out premium integrations in settings to drive upgrades~~ ✅ Implemented
+- ~~Add visual indicators for premium vs free features~~ ✅ Implemented (disabled form pattern)
 - Create "Create alert" functionality in event actions menu
 - ~~Consider "Test Connection" buttons for integrations~~ ✅ Implemented for Syslog
 
