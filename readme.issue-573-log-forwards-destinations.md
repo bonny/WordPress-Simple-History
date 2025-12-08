@@ -160,18 +160,41 @@ A **complete, production-ready** integrations system has been implemented on thi
    - **Compliance-ready:** Designed for SOC 2, GDPR, HIPAA, PCI DSS requirements
    - **Future-proof:** Schema includes `site_url` field for future multi-site support
 
+7. **Alert Rules System Simplified** ✅ - Added 2025-12-08
+   - **JsonLogic-only approach** for rule evaluation (no custom rule types)
+   - **Added `jwadhams/json-logic-php`** library for cross-platform rule evaluation
+   - **Alert_Evaluator** - Thin wrapper around JsonLogic for rule evaluation
+   - **Alert_Field_Registry** - UI field definitions for React Query Builder
+   - **Simplified Alert_Rules_Engine** - Now a facade delegating to Alert_Evaluator
+   - **Removed Alert_Rule_Interface** - No longer needed with JsonLogic approach
+   - **Architecture:**
+     ```
+     Alert_Rules_Engine (service facade)
+         ├── Alert_Evaluator (JsonLogic evaluation)
+         │       └── JWadhams\JsonLogic (library)
+         └── Alert_Field_Registry (UI field definitions)
+     ```
+   - **Benefits:**
+     - Same rule format works in JavaScript (React Query Builder) and PHP
+     - No custom PHP parser needed
+     - Simpler architecture, less code to maintain
+     - Easy to extend with custom operators if needed
+
 ### 📁 New Files Created
 
 - `inc/integrations/class-integrations-manager.php`
 - `inc/integrations/class-integration.php`
-- `inc/integrations/class-alert-rules-engine.php`
 - `inc/integrations/integrations/class-file-integration.php`
 - `inc/integrations/interfaces/interface-integration-interface.php`
-- `inc/integrations/interfaces/interface-alert-rule-interface.php`
 - `inc/services/class-integrations-service.php`
 - `inc/services/class-integrations-settings-page.php`
+- `inc/libraries/JsonLogic.php` - Third-party JsonLogic library
+- `inc/channels/class-alert-evaluator.php` - JsonLogic wrapper
+- `inc/channels/class-alert-field-registry.php` - UI field definitions
 - Multiple test files in `tests/wpunit/`
 - Detailed `issue-progress.md` tracking file
+- `docs/alerts-feature-research.md` - Competitor analysis and feature research
+- `docs/alerts-async-processing-research.md` - Performance architecture research
 
 **Premium Add-on Files (simple-history-premium):**
 - `inc/channels/class-syslog-channel.php` - Syslog channel implementation
@@ -207,7 +230,8 @@ A **complete, production-ready** integrations system has been implemented on thi
 - ~~Consider "Test Connection" buttons for integrations~~ ✅ Implemented for Syslog and External Database
 
 **Rule/Filter System**:
-- Build rule/query builder UI (see researched libraries below)
+- ~~Backend rule evaluation~~ ✅ Simplified to JsonLogic-only approach
+- Build rule/query builder UI using React Query Builder
 - Allow filtering events by:
   - Logger type and message
   - Keywords
