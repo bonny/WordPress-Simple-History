@@ -208,20 +208,20 @@ class File_Channel extends Channel {
 
 		$option_name = $this->get_settings_option_name();
 
-		// Rotation frequency field.
-		add_settings_field(
-			$option_name . '_rotation_frequency',
-			Helpers::get_settings_field_title_output( __( 'File rotation', 'simple-history' ) ),
-			[ $this, 'settings_field_rotation_frequency' ],
-			$settings_page_slug,
-			$settings_section_id
-		);
-
 		// Output format field.
 		add_settings_field(
 			$option_name . '_formatter',
 			Helpers::get_settings_field_title_output( __( 'Output format', 'simple-history' ) ),
 			[ $this, 'settings_field_formatter' ],
+			$settings_page_slug,
+			$settings_section_id
+		);
+
+		// Rotation frequency field.
+		add_settings_field(
+			$option_name . '_rotation_frequency',
+			Helpers::get_settings_field_title_output( __( 'File rotation', 'simple-history' ) ),
+			[ $this, 'settings_field_rotation_frequency' ],
 			$settings_page_slug,
 			$settings_section_id
 		);
