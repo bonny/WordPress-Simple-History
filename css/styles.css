@@ -1327,6 +1327,11 @@ Can be overruled by .form-table td p
  * File Channel - Formatter Options
  * Styles for the log file format selection radio buttons.
  */
+.sh-FileChannel-formatters {
+	display: flex;
+	flex-direction: column;
+}
+
 .sh-FileChannel-formatterOption {
 	display: block;
 	margin-bottom: 0.75em;
