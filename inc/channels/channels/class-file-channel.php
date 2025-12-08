@@ -845,14 +845,8 @@ class File_Channel extends Channel {
 		// Update last cleanup time to prevent concurrent runs.
 		self::$last_cleanup_time = $current_time;
 
-		// Run cleanup asynchronously if possible.
-		if ( function_exists( 'wp_schedule_single_event' ) ) {
-			// Schedule cleanup to run in background.
-			wp_schedule_single_event( time() + 60, 'simple_history_cleanup_log_files', [ $this->get_slug() ] );
-		} else {
-			// Fallback to immediate cleanup if WP Cron not available.
-			$this->cleanup_old_files();
-		}
+		// Schedule cleanup to run in background.
+		wp_schedule_single_event( time() + 60, 'simple_history_cleanup_log_files', [ $this->get_slug() ] );
 	}
 
 	/**
