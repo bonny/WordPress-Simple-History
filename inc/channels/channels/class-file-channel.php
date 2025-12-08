@@ -337,9 +337,9 @@ class File_Channel extends Channel {
 				Helpers::get_premium_feature_teaser(
 					__( 'Unlock All Log Formats', 'simple-history' ),
 					[
-						__( 'Unlock the three formats above', 'simple-history' ),
-						__( 'Send logs to your existing monitoring stack', 'simple-history' ),
-						__( 'Industry-standard formats for automated processing', 'simple-history' ),
+						__( 'JSON Lines, Logfmt, and Syslog formats', 'simple-history' ),
+						__( 'Compatible with Graylog, Splunk, Grafana Loki, and more', 'simple-history' ),
+						__( 'Machine-readable for easy parsing and analysis', 'simple-history' ),
 					],
 					'file_channel_formatters',
 					__( 'Unlock All Formats', 'simple-history' )
