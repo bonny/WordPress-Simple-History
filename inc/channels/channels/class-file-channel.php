@@ -18,6 +18,12 @@ use Simple_History\Helpers;
  */
 class File_Channel extends Channel {
 	/**
+	 * Delay before running cleanup after a log write (in seconds).
+	 * Daily is sufficient since files only rotate daily/weekly/monthly.
+	 */
+	private const CLEANUP_DELAY_SECONDS = DAY_IN_SECONDS;
+
+	/**
 	 * The unique slug for this channel.
 	 *
 	 * @var ?string
@@ -33,38 +39,12 @@ class File_Channel extends Channel {
 	protected bool $supports_async = false;
 
 	/**
-	 * Cache for directory existence checks.
-	 *
-	 * @var array<string, bool>
-	 */
-	private static $directory_cache = [];
-
-	/**
-	 * Last cleanup time to avoid frequent cleanup operations.
-	 *
-	 * @var int
-	 */
-	private static $last_cleanup_time = 0;
-
-	/**
 	 * Called when the channel is loaded and ready.
 	 *
 	 * Registers hooks for async cleanup processing.
 	 */
 	public function loaded() {
 		add_action( 'simple_history_cleanup_log_files', [ $this, 'handle_async_cleanup' ] );
-	}
-
-	/**
-	 * Flush the write buffer.
-	 *
-	 * Currently a no-op as writes are synchronous.
-	 * This method exists for API compatibility and future buffering implementation.
-	 */
-	public function flush_write_buffer() {
-		// Currently writes are synchronous, so nothing to flush.
-		// This method is here for API compatibility with tests
-		// and for potential future buffering implementation.
 	}
 
 	/**
@@ -191,9 +171,9 @@ class File_Channel extends Channel {
 			return false;
 		}
 
-		// Ensure directory exists (with caching).
+		// Ensure directory exists.
 		$log_dir = dirname( $log_file );
-		if ( ! $this->ensure_directory_exists_cached( $log_dir ) ) {
+		if ( ! $this->ensure_directory_exists( $log_dir ) ) {
 			$this->log_error( 'Could not create log directory: ' . $log_dir );
 			return false;
 		}
@@ -392,7 +372,7 @@ class File_Channel extends Channel {
 			],
 		];
 
-		foreach ( $premium_formatters as $formatter_slug => $formatter ) {
+		foreach ( $premium_formatters as $formatter ) {
 			?>
 			<label class="sh-FileChannel-formatterOption sh-FileChannel-formatterOption--disabled">
 				<input
@@ -435,45 +415,20 @@ class File_Channel extends Channel {
 	 * Test folder writability and attempt to create if needed.
 	 *
 	 * Returns an array with status information about the folder:
-	 * - exists: bool - Whether the folder exists (after any creation attempt)
-	 * - created: bool - Whether the folder was created during this call
+	 * - is_writable: bool - Whether the folder exists and is writable
 	 * - creation_failed: bool - Whether creation was attempted but failed
-	 * - is_writable: bool - Whether the folder is writable
 	 *
 	 * @param string $directory The directory path to test.
-	 * @return array{exists: bool, created: bool, creation_failed: bool, is_writable: bool}
+	 * @return array{is_writable: bool, creation_failed: bool}
 	 */
 	private function test_folder_writability( $directory ) {
-		$result = [
-			'exists'          => false,
-			'created'         => false,
-			'creation_failed' => false,
-			'is_writable'     => false,
+		$existed_before = is_dir( $directory );
+		$is_writable    = $this->ensure_directory_exists( $directory );
+
+		return [
+			'is_writable'     => $is_writable,
+			'creation_failed' => ! $existed_before && ! $is_writable,
 		];
-
-		// Check if directory already exists.
-		$result['exists'] = file_exists( $directory );
-
-		if ( ! $result['exists'] ) {
-			// Attempt to create the directory.
-			$created = wp_mkdir_p( $directory );
-
-			if ( $created ) {
-				$result['exists']  = true;
-				$result['created'] = true;
-
-				// Create protection files.
-				$this->create_htaccess_file( $directory );
-				$this->create_index_file( $directory );
-			} else {
-				$result['creation_failed'] = true;
-			}
-		}
-
-		// Check writability if directory exists.
-		$result['is_writable'] = $result['exists'] && is_writable( $directory );
-
-		return $result;
 	}
 
 	/**
@@ -621,41 +576,31 @@ class File_Channel extends Channel {
 	}
 
 	/**
-	 * Get the current log directory path for display to users.
-	 *
-	 * @return string The log directory path.
-	 */
-	public function get_log_directory_path() {
-		return $this->get_default_log_directory();
-	}
-
-	/**
 	 * Get the log file path based on current settings.
 	 *
 	 * @return string|false Log file path or false on error.
 	 */
 	private function get_log_file_path() {
-		$log_dir = $this->get_default_log_directory();
-		/** @var string $rotation */
+		$log_dir  = $this->get_log_directory_path();
 		$rotation = $this->get_setting( 'rotation_frequency', 'daily' );
-		/** @var string|false $filename */
 		$filename = $this->get_log_filename( $rotation );
 
 		if ( ! $filename ) {
 			return false;
 		}
 
-		return trailingslashit( $log_dir ) . $filename;
+		return $log_dir . $filename;
 	}
 
 	/**
-	 * Get the default log directory.
+	 * Get the log directory path.
 	 *
 	 * Uses a hard-to-guess directory within wp-content for security.
+	 * Returns path with trailing slash.
 	 *
-	 * @return string Default log directory path.
+	 * @return string Log directory path with trailing slash.
 	 */
-	private function get_default_log_directory() {
+	public function get_log_directory_path() {
 		// Use a random token for directory name (stored in settings for stability).
 		$folder_token = $this->get_folder_token();
 
@@ -748,28 +693,12 @@ class File_Channel extends Channel {
 	}
 
 	/**
-	 * Ensure a directory exists with caching to avoid repeated filesystem checks.
-	 *
-	 * @param string $directory Directory path.
-	 * @return bool True if directory exists or was created successfully.
-	 */
-	private function ensure_directory_exists_cached( $directory ) {
-		// Check cache first.
-		if ( isset( self::$directory_cache[ $directory ] ) ) {
-			return self::$directory_cache[ $directory ];
-		}
-
-		$result                              = $this->ensure_directory_exists( $directory );
-		self::$directory_cache[ $directory ] = $result;
-
-		return $result;
-	}
-
-	/**
 	 * Ensure a directory exists and is writable.
 	 *
+	 * Creates security files (.htaccess and index.php) when creating a new directory.
+	 *
 	 * @param string $directory Directory path.
-	 * @return bool True if directory exists or was created successfully.
+	 * @return bool True if directory exists and is writable.
 	 */
 	private function ensure_directory_exists( $directory ) {
 		if ( is_dir( $directory ) ) {
@@ -777,18 +706,19 @@ class File_Channel extends Channel {
 		}
 
 		// Try to create the directory.
-		if ( wp_mkdir_p( $directory ) ) {
-			// Set appropriate permissions.
-			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.chmod_chmod
-			chmod( $directory, 0755 );
-
-			// Create .htaccess file for security.
-			$this->create_htaccess_file( $directory );
-
-			return true;
+		if ( ! wp_mkdir_p( $directory ) ) {
+			return false;
 		}
 
-		return false;
+		// Set appropriate permissions.
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.chmod_chmod
+		chmod( $directory, 0755 );
+
+		// Create security files.
+		$this->create_htaccess_file( $directory );
+		$this->create_index_file( $directory );
+
+		return true;
 	}
 
 	/**
@@ -831,22 +761,17 @@ class File_Channel extends Channel {
 	}
 
 	/**
-	 * Schedule cleanup if needed (throttled to avoid running on every write).
+	 * Schedule cleanup if not already scheduled.
 	 */
 	private function schedule_cleanup_if_needed() {
-		$cleanup_interval = 3600; // Run cleanup at most once per hour.
-		$current_time     = time();
+		$hook = 'simple_history_cleanup_log_files';
+		$args = [ $this->get_slug() ];
 
-		// Check if enough time has passed since last cleanup.
-		if ( ( $current_time - self::$last_cleanup_time ) < $cleanup_interval ) {
+		if ( wp_next_scheduled( $hook, $args ) ) {
 			return;
 		}
 
-		// Update last cleanup time to prevent concurrent runs.
-		self::$last_cleanup_time = $current_time;
-
-		// Schedule cleanup to run in background.
-		wp_schedule_single_event( time() + 60, 'simple_history_cleanup_log_files', [ $this->get_slug() ] );
+		wp_schedule_single_event( time() + self::CLEANUP_DELAY_SECONDS, $hook, $args );
 	}
 
 	/**
@@ -855,24 +780,20 @@ class File_Channel extends Channel {
 	 * Only removes files that match the current rotation pattern.
 	 */
 	private function cleanup_old_files() {
-		/** @var int $keep_files */
 		$keep_files = $this->get_setting( 'keep_files', 30 );
-		/** @var string $rotation */
-		$rotation = $this->get_setting( 'rotation_frequency', 'daily' );
-
-		$log_dir = $this->get_default_log_directory();
+		$rotation   = $this->get_setting( 'rotation_frequency', 'daily' );
+		$log_dir    = $this->get_log_directory_path();
 
 		if ( ! is_dir( $log_dir ) ) {
 			return;
 		}
 
 		// Get files that match the current rotation pattern only.
-		$pattern = $this->get_cleanup_pattern( $rotation );
-		/** @var list<string>|false $log_files */
-		$log_files = glob( trailingslashit( $log_dir ) . $pattern );
+		$pattern   = $this->get_cleanup_pattern( $rotation );
+		$log_files = glob( $log_dir . $pattern );
 
 		if ( empty( $log_files ) || count( $log_files ) <= $keep_files ) {
-			return; // Not enough files to clean up.
+			return;
 		}
 
 		// Sort by filename (which contains date) for consistent ordering.
@@ -882,7 +803,6 @@ class File_Channel extends Channel {
 		$files_to_delete = array_slice( $log_files, 0, count( $log_files ) - $keep_files );
 
 		foreach ( $files_to_delete as $file ) {
-			/** @var string $file */
 			if ( unlink( $file ) ) {
 				$this->log_debug( 'Deleted old log file: ' . basename( $file ) );
 			} else {
@@ -951,7 +871,7 @@ class File_Channel extends Channel {
 		}
 
 		// Get all log files (any rotation pattern).
-		$log_files = glob( trailingslashit( $log_dir ) . 'events-*.log*' );
+		$log_files = glob( $log_dir . 'events-*.log*' );
 
 		if ( empty( $log_files ) ) {
 			return $stats;
