@@ -442,70 +442,84 @@ class File_Channel extends Channel {
 		$folder_status   = $this->test_folder_writability( $log_directory );
 		$creation_failed = $folder_status['creation_failed'];
 		$is_writable     = $folder_status['is_writable'];
+
+		// Get stats for display.
+		$stats = $is_writable ? $this->get_log_files_stats() : null;
 		?>
-		<code><?php echo esc_html( $log_directory ); ?></code>
+		<div class="sh-FileChannel-folderInfo">
+			<?php // Folder path. ?>
+			<code class="sh-FileChannel-folderPath"><?php echo esc_html( $log_directory ); ?></code>
 
-		<?php // Directory status message. ?>
-		<p class="description">
-			<?php
-			if ( $creation_failed ) {
-				printf(
-					'<span class="sh-FileChannel-folderStatus--error">%s</span>',
-					esc_html__( 'Folder could not be created. Please check that the parent directory is writable.', 'simple-history' )
-				);
-			} elseif ( ! $is_writable ) {
-				printf(
-					'<span class="sh-FileChannel-folderStatus--error">%s</span>',
-					esc_html__( 'Folder exists but is not writable. Please check folder permissions.', 'simple-history' )
-				);
-			} else {
-				printf(
-					'<span class="sh-FileChannel-folderStatus--success">%s</span>',
-					esc_html__( 'Folder exists and is writable.', 'simple-history' )
-				);
+			<?php // Status line with icon. ?>
+			<p class="sh-FileChannel-folderStatus">
+				<?php if ( $creation_failed ) : ?>
+					<span class="sh-FileChannel-folderStatus--error">
+						<span class="dashicons dashicons-warning"></span>
+						<?php esc_html_e( 'Folder could not be created. Check that the parent directory is writable.', 'simple-history' ); ?>
+					</span>
+				<?php elseif ( ! $is_writable ) : ?>
+					<span class="sh-FileChannel-folderStatus--error">
+						<span class="dashicons dashicons-warning"></span>
+						<?php esc_html_e( 'Folder exists but is not writable. Check folder permissions.', 'simple-history' ); ?>
+					</span>
+				<?php else : ?>
+					<span class="sh-FileChannel-folderStatus--success">
+						<span class="dashicons dashicons-yes-alt"></span>
+						<?php esc_html_e( 'Writable', 'simple-history' ); ?>
+					</span>
+					<?php if ( $stats && $stats['count'] > 0 ) : ?>
+						<span class="sh-FileChannel-folderStats">
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: 1: number of files, 2: total size */
+									_n( '%1$s file', '%1$s files', $stats['count'], 'simple-history' ),
+									number_format_i18n( $stats['count'] )
+								)
+							);
+							?>
+							&middot;
+							<?php echo esc_html( size_format( $stats['total_size'] ) ); ?>
+							<?php if ( $stats['oldest'] && $stats['newest'] ) : ?>
+								&middot;
+								<?php
+								echo esc_html(
+									sprintf(
+										/* translators: 1: start date, 2: end date */
+										__( '%1$s – %2$s', 'simple-history' ),
+										wp_date( 'M j', $stats['oldest'] ),
+										wp_date( 'M j, Y', $stats['newest'] )
+									)
+								);
+								?>
+							<?php endif; ?>
+						</span>
+					<?php endif; ?>
+				<?php endif; ?>
+			</p>
 
-				// Show file statistics when folder is accessible.
-				$stats = $this->get_log_files_stats();
-				if ( $stats['count'] > 0 ) {
-					echo '<br>';
-					printf(
-						/* translators: 1: number of log files, 2: total size */
-						esc_html__( 'Contains %1$s log files (%2$s total).', 'simple-history' ),
-						esc_html( number_format_i18n( $stats['count'] ) ),
-						esc_html( size_format( $stats['total_size'] ) )
-					);
-
-					if ( $stats['oldest'] && $stats['newest'] ) {
-						echo '<br>';
-						printf(
-							/* translators: 1: oldest file date, 2: newest file date */
-							esc_html__( 'Date range: %1$s to %2$s.', 'simple-history' ),
-							esc_html( wp_date( get_option( 'date_format' ), $stats['oldest'] ) ),
-							esc_html( wp_date( get_option( 'date_format' ), $stats['newest'] ) )
-						);
-					}
-				}
-			}
-			?>
-		</p>
-
-		<?php // Public access message. ?>
-		<p class="description">
-			<?php
-			if ( $test_url ) {
-				esc_html_e( 'The folder appears to be in a public web directory. Ensure the folder and its files are not accessible from the public.', 'simple-history' );
-				echo '<br>';
-				printf(
-					'<a href="%1$s" target="_blank" class="sh-ExternalLink">%2$s</a>%3$s',
-					esc_url( $test_url ),
-					esc_html__( 'Test folder access', 'simple-history' ),
-					esc_html__( ' – should show a 403 Forbidden error.', 'simple-history' )
-				);
-			} else {
-				esc_html_e( 'The folder appears to be outside the public web directory.', 'simple-history' );
-			}
-			?>
-		</p>
+			<?php // Security notice. ?>
+			<?php if ( $test_url ) : ?>
+				<div class="sh-FileChannel-securityNotice">
+					<span class="dashicons dashicons-shield"></span>
+					<div class="sh-FileChannel-securityNotice-content">
+						<strong><?php esc_html_e( 'Security', 'simple-history' ); ?></strong>
+						<?php esc_html_e( 'Folder is in a public directory. Verify access is blocked:', 'simple-history' ); ?>
+						<a href="<?php echo esc_url( $test_url ); ?>" target="_blank" class="sh-ExternalLink">
+							<?php esc_html_e( 'Test access', 'simple-history' ); ?>
+						</a>
+						<span class="sh-FileChannel-securityNotice-hint">
+							<?php esc_html_e( '(expect 403 error)', 'simple-history' ); ?>
+						</span>
+					</div>
+				</div>
+			<?php else : ?>
+				<p class="sh-FileChannel-folderSecure">
+					<span class="dashicons dashicons-shield"></span>
+					<?php esc_html_e( 'Folder is outside the public web directory.', 'simple-history' ); ?>
+				</p>
+			<?php endif; ?>
+		</div>
 		<?php
 	}
 

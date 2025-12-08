@@ -1351,12 +1351,97 @@ Can be overruled by .form-table td p
 	margin-left: 24px;
 }
 
+.sh-FileChannel-folderInfo {
+	max-width: 600px;
+}
+
+.sh-FileChannel-folderPath {
+	display: block;
+	padding: 8px 12px;
+	background: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	word-break: break-all;
+}
+
+.sh-FileChannel-folderStatus {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin: 8px 0;
+}
+
+.sh-FileChannel-folderStatus--error,
+.sh-FileChannel-folderStatus--success {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
 .sh-FileChannel-folderStatus--error {
 	color: #b32d2e;
 }
 
 .sh-FileChannel-folderStatus--success {
 	color: #2e7d32;
+}
+
+.sh-FileChannel-folderStatus--error .dashicons,
+.sh-FileChannel-folderStatus--success .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.sh-FileChannel-folderStats {
+	color: #50575e;
+}
+
+.sh-FileChannel-securityNotice {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 12px;
+	background: #fcf9e8;
+	border: 1px solid #dba617;
+	border-radius: 4px;
+	margin-top: 12px;
+}
+
+.sh-FileChannel-securityNotice > .dashicons {
+	color: #dba617;
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+
+.sh-FileChannel-securityNotice-content {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px;
+}
+
+.sh-FileChannel-securityNotice-content strong {
+	margin-right: 4px;
+}
+
+.sh-FileChannel-securityNotice-hint {
+	color: #646970;
+}
+
+.sh-FileChannel-folderSecure {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: #2e7d32;
+	margin: 8px 0;
+}
+
+.sh-FileChannel-folderSecure .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
 }
 
 /* Status Box - info/stats cards (distinct from WP admin notices) */
