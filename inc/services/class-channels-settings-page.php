@@ -142,7 +142,7 @@ class Channels_Settings_Page extends Service {
 			<p><?php esc_html_e( 'Forward events to system syslog or remote rsyslog servers for centralized logging, SIEM integration, or compliance requirements.', 'simple-history' ); ?></p>
 		</div>
 
-		<div class="sh-PremiumTeaser-disabledForm">
+		<div class="sh-PremiumTeaser-disabledForm" inert>
 			<table class="form-table" role="presentation">
 				<tbody>
 					<!-- Status -->
@@ -152,7 +152,7 @@ class Channels_Settings_Page extends Service {
 						</th>
 						<td>
 							<label>
-								<input type="checkbox" disabled />
+								<input type="checkbox" />
 								<?php esc_html_e( 'Enable Syslog forwarding', 'simple-history' ); ?>
 							</label>
 						</td>
@@ -166,21 +166,21 @@ class Channels_Settings_Page extends Service {
 						<td>
 							<fieldset class="sh-RadioOptions sh-RadioOptions--disabled">
 								<label class="sh-RadioOption">
-									<input type="radio" checked disabled />
+									<input type="radio" checked />
 									<?php esc_html_e( 'Local syslog', 'simple-history' ); ?>
 									<span class="sh-RadioOptionDescription description">
 										<?php esc_html_e( 'Writes to this server\'s system log', 'simple-history' ); ?>
 									</span>
 								</label>
 								<label class="sh-RadioOption">
-									<input type="radio" disabled />
+									<input type="radio" />
 									<?php esc_html_e( 'Remote syslog (UDP)', 'simple-history' ); ?>
 									<span class="sh-RadioOptionDescription description">
 										<?php esc_html_e( 'Send to a central log server – fastest, no delivery confirmation', 'simple-history' ); ?>
 									</span>
 								</label>
 								<label class="sh-RadioOption">
-									<input type="radio" disabled />
+									<input type="radio" />
 									<?php esc_html_e( 'Remote syslog (TCP)', 'simple-history' ); ?>
 									<span class="sh-RadioOptionDescription description">
 										<?php esc_html_e( 'Send to a central log server – reliable, confirms delivery', 'simple-history' ); ?>
@@ -199,16 +199,16 @@ class Channels_Settings_Page extends Service {
 							<div class="sh-InlineFields">
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Address', 'simple-history' ); ?></span>
-									<input type="text" class="regular-text" placeholder="syslog.example.com" disabled />
+									<input type="text" class="regular-text" placeholder="syslog.example.com" />
 								</label>
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Port', 'simple-history' ); ?></span>
-									<input type="number" class="small-text" value="514" disabled />
+									<input type="number" class="small-text" value="514" />
 								</label>
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Timeout', 'simple-history' ); ?></span>
 									<span class="sh-InlineFieldInputWithSuffix">
-										<input type="number" class="small-text" value="5" disabled />
+										<input type="number" class="small-text" value="5" />
 										<span class="sh-InlineFieldSuffix"><?php esc_html_e( 'sec', 'simple-history' ); ?></span>
 									</span>
 								</label>
@@ -228,13 +228,13 @@ class Channels_Settings_Page extends Service {
 							<div class="sh-InlineFields">
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Facility', 'simple-history' ); ?></span>
-									<select disabled>
+									<select>
 										<option selected>user - User-level messages</option>
 									</select>
 								</label>
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Identity', 'simple-history' ); ?></span>
-									<input type="text" class="regular-text" value="SimpleHistory" disabled />
+									<input type="text" class="regular-text" value="SimpleHistory" />
 								</label>
 							</div>
 						</td>
@@ -271,7 +271,7 @@ class Channels_Settings_Page extends Service {
 			<p><?php esc_html_e( 'Forward events to an external MySQL/MariaDB database for compliance, security audits, and off-site backup. Keep your audit logs separate from WordPress for enhanced security.', 'simple-history' ); ?></p>
 		</div>
 
-		<div class="sh-PremiumTeaser-disabledForm">
+		<div class="sh-PremiumTeaser-disabledForm" inert>
 			<table class="form-table" role="presentation">
 				<tbody>
 					<!-- Enabled checkbox -->
@@ -281,7 +281,7 @@ class Channels_Settings_Page extends Service {
 						</th>
 						<td>
 							<label>
-								<input type="checkbox" disabled />
+								<input type="checkbox" />
 								<?php esc_html_e( 'Enable External Database forwarding', 'simple-history' ); ?>
 							</label>
 						</td>
@@ -296,16 +296,16 @@ class Channels_Settings_Page extends Service {
 							<div class="sh-InlineFields">
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Address', 'simple-history' ); ?></span>
-									<input type="text" class="regular-text" placeholder="example.com" disabled />
+									<input type="text" class="regular-text" placeholder="example.com" />
 								</label>
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Port', 'simple-history' ); ?></span>
-									<input type="number" class="small-text" value="3306" disabled />
+									<input type="number" class="small-text" value="3306" />
 								</label>
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Timeout', 'simple-history' ); ?></span>
 									<span class="sh-InlineFieldInputWithSuffix">
-										<input type="number" class="small-text" value="5" disabled />
+										<input type="number" class="small-text" value="5" />
 										<span class="sh-InlineFieldSuffix"><?php esc_html_e( 'sec', 'simple-history' ); ?></span>
 									</span>
 								</label>
@@ -325,11 +325,11 @@ class Channels_Settings_Page extends Service {
 							<div class="sh-InlineFields">
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Username', 'simple-history' ); ?></span>
-									<input type="text" class="regular-text" disabled />
+									<input type="text" class="regular-text" />
 								</label>
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Password', 'simple-history' ); ?></span>
-									<input type="password" class="regular-text" disabled />
+									<input type="password" class="regular-text" />
 								</label>
 							</div>
 							<p class="description">
@@ -347,11 +347,11 @@ class Channels_Settings_Page extends Service {
 							<div class="sh-InlineFields">
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Name', 'simple-history' ); ?></span>
-									<input type="text" class="regular-text" placeholder="audit_logs" disabled />
+									<input type="text" class="regular-text" placeholder="audit_logs" />
 								</label>
 								<label class="sh-InlineField">
 									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Table', 'simple-history' ); ?></span>
-									<input type="text" class="regular-text" value="simple_history_events" disabled />
+									<input type="text" class="regular-text" value="simple_history_events" />
 								</label>
 							</div>
 							<p class="description">

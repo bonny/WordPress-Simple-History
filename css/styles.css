@@ -1311,6 +1311,8 @@ Can be overruled by .form-table td p
  * Premium Teaser - Disabled Form Pattern
  * Used to show a disabled/grayed out form that teases premium features.
  * Users can see the form fields but cannot interact with them.
+ * The `inert` HTML attribute handles non-interactivity and accessibility.
+ * pointer-events: none is a fallback for older browsers.
  */
 .sh-PremiumTeaser-disabledForm {
 	pointer-events: none;
