@@ -206,6 +206,9 @@ class Channels_Settings_Page extends Service {
 									<?php esc_html_e( 'sec', 'simple-history' ); ?>
 								</span>
 							</div>
+							<p class="description">
+								<?php esc_html_e( 'Only used for remote syslog modes.', 'simple-history' ); ?>
+							</p>
 						</td>
 					</tr>
 
@@ -417,7 +420,7 @@ class Channels_Settings_Page extends Service {
 	public function settings_section_output() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Send a copy of all events to log files or syslog servers.', 'simple-history' ); ?></p>
+			<p><?php esc_html_e( 'Automatically forward events to files, syslog, or databases.', 'simple-history' ); ?></p>
 		</div>
 		<?php
 	}
