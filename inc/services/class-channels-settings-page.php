@@ -295,7 +295,7 @@ class Channels_Settings_Page extends Service {
 						<td>
 							<div class="sh-ExtDbTeaser-serverSettings">
 								<label class="sh-ExtDbTeaser-serverField">
-									<span class="sh-ExtDbTeaser-serverLabel"><?php esc_html_e( 'Server', 'simple-history' ); ?></span>
+									<span class="sh-ExtDbTeaser-serverLabel"><?php esc_html_e( 'Address', 'simple-history' ); ?></span>
 									<input type="text" class="regular-text" placeholder="example.com" disabled />
 								</label>
 								<label class="sh-ExtDbTeaser-serverField sh-ExtDbTeaser-serverField--port">
