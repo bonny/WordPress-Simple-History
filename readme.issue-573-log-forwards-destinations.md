@@ -98,12 +98,16 @@ A **complete, production-ready** integrations system has been implemented on thi
      - Secure log directory with .htaccess protection (Apache 2.2 and 2.4+ compatible)
      - index.php file to prevent directory listing
      - Smart cleanup that only removes old files matching rotation frequency
-   - **Settings page UX:**
+   - **Settings page UX:** (refined Dec 6-7, 2025)
      - Directory status display (exists/writable check with color indicators)
      - Auto-creates directory when viewing settings page
      - "Test folder access" link to verify 403 Forbidden protection
      - Detects if folder is in public web directory vs outside ABSPATH
      - Filter `simple_history/file_channel/log_directory` to customize path
+     - Combined rotation frequency and retention into single concise row
+     - Inline security note (non-intrusive)
+     - Premium formatter teasers with disabled radio buttons
+     - Descriptive checkbox label ("Enable automatic log file backups")
 
 3. **Settings System** ✅
    - 7 field types supported: checkbox, text, textarea, url, email, select, number
@@ -205,6 +209,13 @@ A **complete, production-ready** integrations system has been implemented on thi
 **Core Plugin Files Modified for Premium Teasers:**
 - `inc/services/class-channels-settings-page.php` - Added Syslog and External Database premium teasers
 - `inc/class-helpers.php` - Extended `add_settings_section()` and `get_settings_section_title_output()` to support title suffixes (for Premium badges)
+- `css/styles.css` - Reusable CSS patterns for premium teasers and form elements
+
+**CSS Pattern Library Created** (for reuse across channels):
+- `sh-PremiumTeaser-disabledForm` - Disabled form pattern with `inert` attribute for accessibility
+- `sh-RadioOptions` - Generic radio button group styling with descriptions
+- `sh-InlineFields` - Multi-field row layout (Address/Port/Timeout patterns)
+- `sh-InlineField`, `sh-InlineFieldLabel`, `sh-InlineFieldInputWithSuffix` - Field components
 
 ### 🎯 Next Steps
 
@@ -228,6 +239,8 @@ A **complete, production-ready** integrations system has been implemented on thi
 - ~~Extended Helpers class to support title suffixes~~ ✅ For premium badges in section headers
 - Create "Create alert" functionality in event actions menu
 - ~~Consider "Test Connection" buttons for integrations~~ ✅ Implemented for Syslog and External Database
+- ~~Accessibility for premium teasers~~ ✅ Using `inert` attribute (removes from tab order, screen readers)
+- ~~Reusable CSS patterns~~ ✅ sh-RadioOptions, sh-InlineFields for consistent UI across channels
 
 **Rule/Filter System**:
 - ~~Backend rule evaluation~~ ✅ Simplified to JsonLogic-only approach
@@ -337,12 +350,18 @@ A **complete, production-ready** integrations system has been implemented on thi
 4. On event: Evaluate rule in PHP using JsonLogic library
 5. If rule matches: Send to integration
 
-### 📊 Current Status
+### 📊 Current Status (Last updated: 2025-12-08)
 
 **Log Forwarding Complete ✅**: All log destination channels are implemented and production-ready:
 - **File Channel** (Free) - Local log files with rotation and security
 - **Syslog Channel** (Premium) - Local syslog and remote rsyslog (UDP/TCP)
 - **External Database Channel** (Premium) - MySQL/MariaDB for off-site compliance storage
+
+**Recent Improvements (Dec 6-8, 2025):**
+- JsonLogic-based alert rule evaluation system
+- File Channel UX refinements (combined settings, descriptive labels)
+- Premium teaser accessibility with `inert` attribute
+- Reusable CSS patterns: sh-RadioOptions, sh-InlineFields
 
 The core system is complete and tested. File Integration is ready to ship as a free feature. Syslog and External Database Channels are ready to ship as premium features. The architecture is solid for adding alert integrations (Slack, Email, etc.) in the next phase.
 
