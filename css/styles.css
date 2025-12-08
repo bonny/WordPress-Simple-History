@@ -1351,6 +1351,22 @@ Can be overruled by .form-table td p
 	margin-left: 24px;
 }
 
+.sh-FileChannel-fileManagement {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.sh-FileChannel-fileManagement select {
+	margin: 0;
+}
+
+.sh-FileChannel-fileManagement input[type="number"] {
+	width: 70px;
+	margin: 0;
+}
+
 .sh-FileChannel-folderInfo {
 	max-width: 600px;
 }

@@ -217,20 +217,11 @@ class File_Channel extends Channel {
 			$settings_section_id
 		);
 
-		// Rotation frequency field.
+		// File management field (rotation + retention combined).
 		add_settings_field(
-			$option_name . '_rotation_frequency',
-			Helpers::get_settings_field_title_output( __( 'File rotation', 'simple-history' ) ),
-			[ $this, 'settings_field_rotation_frequency' ],
-			$settings_page_slug,
-			$settings_section_id
-		);
-
-		// Number of files to keep field.
-		add_settings_field(
-			$option_name . '_keep_files',
-			Helpers::get_settings_field_title_output( __( 'Number of files to keep', 'simple-history' ) ),
-			[ $this, 'settings_field_keep_files' ],
+			$option_name . '_file_management',
+			Helpers::get_settings_field_title_output( __( 'File management', 'simple-history' ) ),
+			[ $this, 'settings_field_file_management' ],
 			$settings_page_slug,
 			$settings_section_id
 		);
@@ -267,29 +258,44 @@ class File_Channel extends Channel {
 	}
 
 	/**
-	 * Render the rotation frequency settings field.
+	 * Render the combined file management settings field.
+	 * Combines rotation frequency and file retention into a natural sentence.
 	 */
-	public function settings_field_rotation_frequency() {
-		$option_name = $this->get_settings_option_name();
-		$value       = $this->get_setting( 'rotation_frequency', 'daily' );
+	public function settings_field_file_management() {
+		$option_name      = $this->get_settings_option_name();
+		$rotation_value   = $this->get_setting( 'rotation_frequency', 'daily' );
+		$keep_files_value = $this->get_setting( 'keep_files', 30 );
 
-		$options = [
-			'daily'   => __( 'Daily', 'simple-history' ),
-			'weekly'  => __( 'Weekly', 'simple-history' ),
-			'monthly' => __( 'Monthly', 'simple-history' ),
+		$rotation_options = [
+			'daily'   => __( 'daily', 'simple-history' ),
+			'weekly'  => __( 'weekly', 'simple-history' ),
+			'monthly' => __( 'monthly', 'simple-history' ),
 		];
 		?>
-		<select name="<?php echo esc_attr( $option_name ); ?>[rotation_frequency]">
-			<?php
-			foreach ( $options as $option_value => $option_label ) {
-				?>
-				<option value="<?php echo esc_attr( $option_value ); ?>" <?php selected( $value, $option_value ); ?>>
-					<?php echo esc_html( $option_label ); ?>
-				</option>
-				<?php
-			}
-			?>
-		</select>
+		<label class="sh-FileChannel-fileManagement">
+			<?php esc_html_e( 'Create a new file', 'simple-history' ); ?>
+
+			<select name="<?php echo esc_attr( $option_name ); ?>[rotation_frequency]">
+				<?php foreach ( $rotation_options as $value => $label ) : ?>
+					<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $rotation_value, $value ); ?>>
+						<?php echo esc_html( $label ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+
+			<?php esc_html_e( 'and keep the last', 'simple-history' ); ?>
+
+			<input
+				type="number"
+				name="<?php echo esc_attr( $option_name ); ?>[keep_files]"
+				value="<?php echo esc_attr( $keep_files_value ); ?>"
+				min="1"
+				max="365"
+				class="small-text"
+			/>
+
+			<?php esc_html_e( 'files', 'simple-history' ); ?>
+		</label>
 		<?php
 	}
 
@@ -390,26 +396,6 @@ class File_Channel extends Channel {
 		}
 	}
 
-	/**
-	 * Render the keep files settings field.
-	 */
-	public function settings_field_keep_files() {
-		$option_name = $this->get_settings_option_name();
-		$value       = $this->get_setting( 'keep_files', 30 );
-		?>
-		<input
-			type="number"
-			name="<?php echo esc_attr( $option_name ); ?>[keep_files]"
-			value="<?php echo esc_attr( $value ); ?>"
-			min="1"
-			max="365"
-			class="small-text"
-		/>
-		<p class="description">
-			<?php esc_html_e( 'Oldest files will be deleted when this limit is reached.', 'simple-history' ); ?>
-		</p>
-		<?php
-	}
 
 	/**
 	 * Test folder writability and attempt to create if needed.
