@@ -211,7 +211,7 @@ class File_Channel extends Channel {
 		// Rotation frequency field.
 		add_settings_field(
 			$option_name . '_rotation_frequency',
-			Helpers::get_settings_field_title_output( __( 'Create new files', 'simple-history' ) ),
+			Helpers::get_settings_field_title_output( __( 'File rotation', 'simple-history' ) ),
 			[ $this, 'settings_field_rotation_frequency' ],
 			$settings_page_slug,
 			$settings_section_id
@@ -360,11 +360,11 @@ class File_Channel extends Channel {
 		$premium_formatters = [
 			'json_lines' => [
 				'name'        => __( 'JSON Lines (GELF)', 'simple-history' ),
-				'description' => __( 'One JSON object per line. Compatible with Graylog, ELK, Splunk, and other log aggregation tools.', 'simple-history' ),
+				'description' => __( 'One JSON object per line. Best for Graylog, ELK, Splunk, and log aggregation tools.', 'simple-history' ),
 			],
 			'logfmt'     => [
 				'name'        => __( 'Logfmt', 'simple-history' ),
-				'description' => __( 'Key=value pairs. Compatible with Grafana Loki, Prometheus, and cloud-native log systems.', 'simple-history' ),
+				'description' => __( 'Key=value pairs. Best for Grafana Loki, Prometheus, and cloud-native log systems.', 'simple-history' ),
 			],
 			'rfc5424'    => [
 				'name'        => __( 'RFC 5424 Syslog', 'simple-history' ),
