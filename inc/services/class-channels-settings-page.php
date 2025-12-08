@@ -139,16 +139,16 @@ class Channels_Settings_Page extends Service {
 	public function render_syslog_teaser() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Automatically forward all events to system syslog or remote rsyslog servers for centralized logging, SIEM integration, or compliance requirements.', 'simple-history' ); ?></p>
+			<p><?php esc_html_e( 'Forward events to system syslog or remote rsyslog servers for centralized logging, SIEM integration, or compliance requirements.', 'simple-history' ); ?></p>
 		</div>
 
 		<div class="sh-PremiumTeaser-disabledForm">
 			<table class="form-table" role="presentation">
 				<tbody>
-					<!-- Enabled checkbox -->
+					<!-- Status -->
 					<tr>
 						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Enabled', 'simple-history' ) ) ); ?>
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Status', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
 							<label>
@@ -158,90 +158,75 @@ class Channels_Settings_Page extends Service {
 						</td>
 					</tr>
 
-					<!-- Mode -->
+					<!-- Mode (radio buttons) -->
 					<tr>
 						<th scope="row">
 							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Mode', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<select disabled>
-								<option selected><?php esc_html_e( 'Local syslog (PHP syslog function)', 'simple-history' ); ?></option>
-								<option><?php esc_html_e( 'Remote syslog via UDP', 'simple-history' ); ?></option>
-								<option><?php esc_html_e( 'Remote syslog via TCP', 'simple-history' ); ?></option>
-							</select>
-							<p class="description">
-								<?php esc_html_e( 'Local syslog writes to the system log. Remote syslog sends to a rsyslog server.', 'simple-history' ); ?>
-							</p>
+							<fieldset class="sh-RadioOptions sh-RadioOptions--disabled">
+								<label class="sh-RadioOption">
+									<input type="radio" checked disabled />
+									<?php esc_html_e( 'Local syslog', 'simple-history' ); ?>
+									<span class="sh-RadioOptionDescription description">
+										<?php esc_html_e( 'Writes to this server\'s system log', 'simple-history' ); ?>
+									</span>
+								</label>
+								<label class="sh-RadioOption">
+									<input type="radio" disabled />
+									<?php esc_html_e( 'Remote syslog (UDP)', 'simple-history' ); ?>
+									<span class="sh-RadioOptionDescription description">
+										<?php esc_html_e( 'Send to a central log server – fastest, no delivery confirmation', 'simple-history' ); ?>
+									</span>
+								</label>
+								<label class="sh-RadioOption">
+									<input type="radio" disabled />
+									<?php esc_html_e( 'Remote syslog (TCP)', 'simple-history' ); ?>
+									<span class="sh-RadioOptionDescription description">
+										<?php esc_html_e( 'Send to a central log server – reliable, confirms delivery', 'simple-history' ); ?>
+									</span>
+								</label>
+							</fieldset>
 						</td>
 					</tr>
 
-					<!-- Facility -->
+					<!-- Server (combined: host, port, timeout) -->
 					<tr>
 						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Facility', 'simple-history' ) ) ); ?>
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Server', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<select disabled>
-								<option selected>user - User-level messages</option>
-								<option>local0 - Local use 0</option>
-								<option>daemon - System daemons</option>
-							</select>
-							<p class="description">
-								<?php esc_html_e( 'Syslog facility determines how the system categorizes the log messages.', 'simple-history' ); ?>
-							</p>
+							<div class="sh-SyslogTeaser-serverSettings">
+								<input type="text" class="regular-text" placeholder="syslog.example.com" disabled />
+								<span class="sh-SyslogTeaser-serverSeparator">:</span>
+								<input type="number" class="small-text" value="514" disabled />
+								<span class="sh-SyslogTeaser-serverTimeout">
+									<?php esc_html_e( 'timeout', 'simple-history' ); ?>
+									<input type="number" class="small-text" value="5" disabled />
+									<?php esc_html_e( 'sec', 'simple-history' ); ?>
+								</span>
+							</div>
 						</td>
 					</tr>
 
-					<!-- Identity -->
+					<!-- Advanced (combined: facility, identity) -->
 					<tr>
 						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Identity', 'simple-history' ) ) ); ?>
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Advanced', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<input type="text" class="regular-text" value="SimpleHistory" disabled />
-							<p class="description">
-								<?php esc_html_e( 'Application name shown in syslog entries.', 'simple-history' ); ?>
-							</p>
-						</td>
-					</tr>
-
-					<!-- Remote Host -->
-					<tr>
-						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Remote Host', 'simple-history' ) ) ); ?>
-						</th>
-						<td>
-							<input type="text" class="regular-text" placeholder="syslog.example.com" disabled />
-							<p class="description">
-								<?php esc_html_e( 'Hostname or IP address of remote rsyslog server. Only used for remote modes.', 'simple-history' ); ?>
-							</p>
-						</td>
-					</tr>
-
-					<!-- Remote Port -->
-					<tr>
-						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Remote Port', 'simple-history' ) ) ); ?>
-						</th>
-						<td>
-							<input type="number" class="small-text" value="514" disabled />
-							<p class="description">
-								<?php esc_html_e( 'Default: 514', 'simple-history' ); ?>
-							</p>
-						</td>
-					</tr>
-
-					<!-- Connection Timeout -->
-					<tr>
-						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Connection Timeout', 'simple-history' ) ) ); ?>
-						</th>
-						<td>
-							<input type="number" class="small-text" value="5" disabled />
-							<?php esc_html_e( 'seconds', 'simple-history' ); ?>
-							<p class="description">
-								<?php esc_html_e( 'Timeout for remote connections.', 'simple-history' ); ?>
-							</p>
+							<div class="sh-SyslogTeaser-advancedSettings">
+								<label class="sh-SyslogTeaser-advancedField">
+									<span class="sh-SyslogTeaser-advancedLabel"><?php esc_html_e( 'Facility', 'simple-history' ); ?></span>
+									<select disabled>
+										<option selected>user - User-level messages</option>
+									</select>
+								</label>
+								<label class="sh-SyslogTeaser-advancedField">
+									<span class="sh-SyslogTeaser-advancedLabel"><?php esc_html_e( 'Identity', 'simple-history' ); ?></span>
+									<input type="text" class="regular-text" value="SimpleHistory" disabled />
+								</label>
+							</div>
 						</td>
 					</tr>
 				</tbody>
@@ -257,7 +242,6 @@ class Channels_Settings_Page extends Service {
 					__( 'Remote rsyslog via UDP or TCP', 'simple-history' ),
 					__( 'RFC 5424 format for SIEM integration', 'simple-history' ),
 					__( 'Test connection button to verify setup', 'simple-history' ),
-					__( 'Auto-disable on repeated failures', 'simple-history' ),
 				],
 				'syslog_channel_teaser',
 				__( 'Unlock Syslog with Premium', 'simple-history' )

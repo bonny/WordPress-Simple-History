@@ -1351,6 +1351,48 @@ Can be overruled by .form-table td p
 	margin-left: 24px;
 }
 
+.sh-RadioOptions--disabled {
+	opacity: 0.6;
+}
+
+/**
+ * Syslog Teaser - Compact inline styles
+ * Matches the premium Syslog Channel layout.
+ */
+.sh-SyslogTeaser-serverSettings {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.25em;
+}
+
+.sh-SyslogTeaser-serverSeparator {
+	font-weight: 600;
+}
+
+.sh-SyslogTeaser-serverTimeout {
+	margin-left: 1em;
+	display: flex;
+	align-items: center;
+	gap: 0.25em;
+}
+
+.sh-SyslogTeaser-advancedSettings {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5em;
+}
+
+.sh-SyslogTeaser-advancedField {
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.sh-SyslogTeaser-advancedLabel {
+	font-weight: 400;
+}
+
 .sh-FileChannel-fileManagement {
 	display: flex;
 	align-items: center;
