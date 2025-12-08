@@ -196,20 +196,20 @@ class Channels_Settings_Page extends Service {
 							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Server', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<div class="sh-SyslogTeaser-serverSettings">
-								<label class="sh-SyslogTeaser-serverField">
-									<span class="sh-SyslogTeaser-serverLabel"><?php esc_html_e( 'Address', 'simple-history' ); ?></span>
+							<div class="sh-InlineFields">
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Address', 'simple-history' ); ?></span>
 									<input type="text" class="regular-text" placeholder="syslog.example.com" disabled />
 								</label>
-								<label class="sh-SyslogTeaser-serverField sh-SyslogTeaser-serverField--port">
-									<span class="sh-SyslogTeaser-serverLabel"><?php esc_html_e( 'Port', 'simple-history' ); ?></span>
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Port', 'simple-history' ); ?></span>
 									<input type="number" class="small-text" value="514" disabled />
 								</label>
-								<label class="sh-SyslogTeaser-serverField sh-SyslogTeaser-serverField--timeout">
-									<span class="sh-SyslogTeaser-serverLabel"><?php esc_html_e( 'Timeout', 'simple-history' ); ?></span>
-									<span class="sh-SyslogTeaser-timeoutInputWrapper">
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Timeout', 'simple-history' ); ?></span>
+									<span class="sh-InlineFieldInputWithSuffix">
 										<input type="number" class="small-text" value="5" disabled />
-										<span class="sh-SyslogTeaser-timeoutUnit"><?php esc_html_e( 'sec', 'simple-history' ); ?></span>
+										<span class="sh-InlineFieldSuffix"><?php esc_html_e( 'sec', 'simple-history' ); ?></span>
 									</span>
 								</label>
 							</div>
@@ -225,15 +225,15 @@ class Channels_Settings_Page extends Service {
 							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Advanced', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<div class="sh-SyslogTeaser-advancedSettings">
-								<label class="sh-SyslogTeaser-advancedField">
-									<span class="sh-SyslogTeaser-advancedLabel"><?php esc_html_e( 'Facility', 'simple-history' ); ?></span>
+							<div class="sh-InlineFields">
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Facility', 'simple-history' ); ?></span>
 									<select disabled>
 										<option selected>user - User-level messages</option>
 									</select>
 								</label>
-								<label class="sh-SyslogTeaser-advancedField">
-									<span class="sh-SyslogTeaser-advancedLabel"><?php esc_html_e( 'Identity', 'simple-history' ); ?></span>
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Identity', 'simple-history' ); ?></span>
 									<input type="text" class="regular-text" value="SimpleHistory" disabled />
 								</label>
 							</div>
@@ -293,20 +293,20 @@ class Channels_Settings_Page extends Service {
 							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Server', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<div class="sh-ExtDbTeaser-serverSettings">
-								<label class="sh-ExtDbTeaser-serverField">
-									<span class="sh-ExtDbTeaser-serverLabel"><?php esc_html_e( 'Address', 'simple-history' ); ?></span>
+							<div class="sh-InlineFields">
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Address', 'simple-history' ); ?></span>
 									<input type="text" class="regular-text" placeholder="example.com" disabled />
 								</label>
-								<label class="sh-ExtDbTeaser-serverField sh-ExtDbTeaser-serverField--port">
-									<span class="sh-ExtDbTeaser-serverLabel"><?php esc_html_e( 'Port', 'simple-history' ); ?></span>
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Port', 'simple-history' ); ?></span>
 									<input type="number" class="small-text" value="3306" disabled />
 								</label>
-								<label class="sh-ExtDbTeaser-serverField sh-ExtDbTeaser-serverField--timeout">
-									<span class="sh-ExtDbTeaser-serverLabel"><?php esc_html_e( 'Timeout', 'simple-history' ); ?></span>
-									<span class="sh-ExtDbTeaser-timeoutInputWrapper">
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Timeout', 'simple-history' ); ?></span>
+									<span class="sh-InlineFieldInputWithSuffix">
 										<input type="number" class="small-text" value="5" disabled />
-										<span class="sh-ExtDbTeaser-timeoutUnit"><?php esc_html_e( 'sec', 'simple-history' ); ?></span>
+										<span class="sh-InlineFieldSuffix"><?php esc_html_e( 'sec', 'simple-history' ); ?></span>
 									</span>
 								</label>
 							</div>
@@ -322,13 +322,13 @@ class Channels_Settings_Page extends Service {
 							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Auth', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<div class="sh-ExtDbTeaser-inlineFields">
-								<label class="sh-ExtDbTeaser-labeledField">
-									<span class="sh-ExtDbTeaser-fieldLabel"><?php esc_html_e( 'Username', 'simple-history' ); ?></span>
+							<div class="sh-InlineFields">
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Username', 'simple-history' ); ?></span>
 									<input type="text" class="regular-text" disabled />
 								</label>
-								<label class="sh-ExtDbTeaser-labeledField">
-									<span class="sh-ExtDbTeaser-fieldLabel"><?php esc_html_e( 'Password', 'simple-history' ); ?></span>
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Password', 'simple-history' ); ?></span>
 									<input type="password" class="regular-text" disabled />
 								</label>
 							</div>
@@ -344,13 +344,13 @@ class Channels_Settings_Page extends Service {
 							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Database', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<div class="sh-ExtDbTeaser-inlineFields">
-								<label class="sh-ExtDbTeaser-labeledField">
-									<span class="sh-ExtDbTeaser-fieldLabel"><?php esc_html_e( 'Name', 'simple-history' ); ?></span>
+							<div class="sh-InlineFields">
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Name', 'simple-history' ); ?></span>
 									<input type="text" class="regular-text" placeholder="audit_logs" disabled />
 								</label>
-								<label class="sh-ExtDbTeaser-labeledField">
-									<span class="sh-ExtDbTeaser-fieldLabel"><?php esc_html_e( 'Table', 'simple-history' ); ?></span>
+								<label class="sh-InlineField">
+									<span class="sh-InlineFieldLabel"><?php esc_html_e( 'Table', 'simple-history' ); ?></span>
 									<input type="text" class="regular-text" value="simple_history_events" disabled />
 								</label>
 							</div>

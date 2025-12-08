@@ -1356,41 +1356,54 @@ Can be overruled by .form-table td p
 }
 
 /**
- * Syslog Teaser - Compact inline styles
- * Matches the premium Syslog Channel layout.
+ * Inline Fields - Generic reusable pattern
+ *
+ * Use for settings rows with multiple labeled fields side-by-side.
+ * Examples: Server (Address/Port/Timeout), Auth (Username/Password),
+ * Database (Name/Table), Advanced (Facility/Identity).
+ *
+ * Structure:
+ *   <div class="sh-InlineFields">
+ *     <label class="sh-InlineField">
+ *       <span class="sh-InlineFieldLabel">Address</span>
+ *       <input type="text" />
+ *     </label>
+ *     <label class="sh-InlineField">
+ *       <span class="sh-InlineFieldLabel">Timeout</span>
+ *       <span class="sh-InlineFieldInputWithSuffix">
+ *         <input type="number" />
+ *         <span class="sh-InlineFieldSuffix">sec</span>
+ *       </span>
+ *     </label>
+ *   </div>
+ *
+ * @since 5.x.0
  */
-.sh-SyslogTeaser-serverSettings {
+.sh-InlineFields {
 	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 0.25em;
-}
-
-.sh-SyslogTeaser-serverSeparator {
-	font-weight: 600;
-}
-
-.sh-SyslogTeaser-serverTimeout {
-	margin-left: 1em;
-	display: flex;
-	align-items: center;
-	gap: 0.25em;
-}
-
-.sh-SyslogTeaser-advancedSettings {
-	display: flex;
+	align-items: flex-start;
 	flex-wrap: wrap;
 	gap: 1.5em;
 }
 
-.sh-SyslogTeaser-advancedField {
+.sh-InlineField {
 	display: flex;
-	align-items: center;
-	gap: 0.5em;
+	flex-direction: column;
+	gap: 0.25em;
 }
 
-.sh-SyslogTeaser-advancedLabel {
+.sh-InlineFieldLabel {
 	font-weight: 400;
+}
+
+.sh-InlineFieldInputWithSuffix {
+	display: flex;
+	align-items: center;
+	gap: 0.25em;
+}
+
+.sh-InlineFieldSuffix {
+	color: #666;
 }
 
 .sh-FileChannel-fileManagement {
