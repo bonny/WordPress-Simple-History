@@ -232,6 +232,11 @@ A **complete, production-ready** integrations system has been implemented on thi
 - ~~Syslog/rsyslog~~ ✅ (Premium)
 - ~~External Database~~ ✅ (Premium)
 
+**Testing Required** (before release):
+- [ ] File Channel - verify file creation, rotation, retention cleanup
+- [ ] Syslog Channel - test local syslog, remote UDP/TCP, error handling
+- [ ] External Database Channel - test connection, table creation, event insertion
+
 **UI/UX Enhancements**:
 - ~~Show grayed-out premium integrations in settings to drive upgrades~~ ✅ Implemented
 - ~~Add visual indicators for premium vs free features~~ ✅ Implemented (disabled form pattern)
