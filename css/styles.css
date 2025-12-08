@@ -1398,50 +1398,10 @@ Can be overruled by .form-table td p
 	color: #50575e;
 }
 
-.sh-FileChannel-securityNotice {
-	display: flex;
-	align-items: flex-start;
-	gap: 8px;
-	padding: 12px;
-	background: #fcf9e8;
-	border: 1px solid #dba617;
-	border-radius: 4px;
-	margin-top: 12px;
-}
-
-.sh-FileChannel-securityNotice > .dashicons {
-	color: #dba617;
-	flex-shrink: 0;
-	margin-top: 2px;
-}
-
-.sh-FileChannel-securityNotice-content {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: 4px;
-}
-
-.sh-FileChannel-securityNotice-content strong {
-	margin-right: 4px;
-}
-
-.sh-FileChannel-securityNotice-hint {
+.sh-FileChannel-securityNote {
+	margin: 4px 0 0 0;
 	color: #646970;
-}
-
-.sh-FileChannel-folderSecure {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	color: #2e7d32;
-	margin: 8px 0;
-}
-
-.sh-FileChannel-folderSecure .dashicons {
-	font-size: 18px;
-	width: 18px;
-	height: 18px;
+	font-size: 13px;
 }
 
 /* Status Box - info/stats cards (distinct from WP admin notices) */

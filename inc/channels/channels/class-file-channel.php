@@ -498,27 +498,17 @@ class File_Channel extends Channel {
 				<?php endif; ?>
 			</p>
 
-			<?php // Security notice. ?>
-			<?php if ( $test_url ) : ?>
-				<div class="sh-FileChannel-securityNotice">
-					<span class="dashicons dashicons-shield"></span>
-					<div class="sh-FileChannel-securityNotice-content">
-						<strong><?php esc_html_e( 'Security', 'simple-history' ); ?></strong>
-						<?php esc_html_e( 'Folder is in a public directory. Verify access is blocked:', 'simple-history' ); ?>
-						<a href="<?php echo esc_url( $test_url ); ?>" target="_blank" class="sh-ExternalLink">
-							<?php esc_html_e( 'Test access', 'simple-history' ); ?>
-						</a>
-						<span class="sh-FileChannel-securityNotice-hint">
-							<?php esc_html_e( '(expect 403 error)', 'simple-history' ); ?>
-						</span>
-					</div>
-				</div>
-			<?php else : ?>
-				<p class="sh-FileChannel-folderSecure">
-					<span class="dashicons dashicons-shield"></span>
+			<?php // Security note (inline, discrete). ?>
+			<p class="sh-FileChannel-securityNote">
+				<?php if ( $test_url ) : ?>
+					<?php esc_html_e( 'Folder is public.', 'simple-history' ); ?>
+					<a href="<?php echo esc_url( $test_url ); ?>" target="_blank" class="sh-ExternalLink">
+						<?php esc_html_e( 'Verify access is blocked', 'simple-history' ); ?>
+					</a>
+				<?php else : ?>
 					<?php esc_html_e( 'Folder is outside the public web directory.', 'simple-history' ); ?>
-				</p>
-			<?php endif; ?>
+				<?php endif; ?>
+			</p>
 		</div>
 		<?php
 	}
