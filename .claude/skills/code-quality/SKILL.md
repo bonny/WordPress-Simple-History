@@ -72,6 +72,20 @@ See [js-standards.md](js-standards.md) for JavaScript code style.
 3. **Follow WordPress conventions** - The "WordPress Way"
 4. **Run quality tools** - Use phpcs, phpstan after significant changes
 
+## Design Principles
+
+### DRY - Don't Repeat Yourself
+Extract shared logic when you have **actual** duplication (3+ occurrences). But don't preemptively create abstractions.
+
+### YAGNI - You Aren't Gonna Need It
+Don't implement functionality until it's actually needed. Avoid:
+- Creating abstractions for hypothetical future use cases
+- Building helper functions for one-time operations
+- Adding configurability "just in case"
+- Designing for requirements that don't exist yet
+
+**Together**: DRY says extract when you have real duplication. YAGNI says wait until you actually need it. Three similar lines of code is often better than a premature abstraction.
+
 ## Related Files
 
 - `phpcs.xml.dist` - PHP_CodeSniffer configuration
