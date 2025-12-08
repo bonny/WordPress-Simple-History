@@ -39,6 +39,8 @@
 	<exclude-pattern>*/build/</exclude-pattern>
 	<exclude-pattern>*/tests/</exclude-pattern>
 	<exclude-pattern>*/data/</exclude-pattern>
+	<!-- Exclude third-party libraries included manually -->
+	<exclude-pattern>*/inc/libraries/</exclude-pattern>
 
 	<!-- 
 		Info about customizable things:
