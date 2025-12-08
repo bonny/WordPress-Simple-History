@@ -308,11 +308,11 @@ class File_Channel extends Channel {
 		$formatters              = $this->get_available_formatters();
 		$is_premium_active       = Helpers::is_premium_add_on_active();
 		?>
-		<fieldset class="sh-FileChannel-formatters">
+		<fieldset class="sh-RadioOptions">
 			<?php
 			foreach ( $formatters as $formatter_slug => $formatter ) {
 				?>
-				<label class="sh-FileChannel-formatterOption">
+				<label class="sh-RadioOption">
 					<input
 						type="radio"
 						name="<?php echo esc_attr( $option_name ); ?>[formatter]"
@@ -322,7 +322,7 @@ class File_Channel extends Channel {
 
 					<?php echo esc_html( $formatter->get_name() ); ?>
 
-					<span class="sh-FileChannel-formatterDescription description">
+					<span class="sh-RadioOptionDescription description">
 						<?php echo esc_html( $formatter->get_description() ); ?>
 					</span>
 				</label>
@@ -380,7 +380,7 @@ class File_Channel extends Channel {
 
 		foreach ( $premium_formatters as $formatter ) {
 			?>
-			<label class="sh-FileChannel-formatterOption sh-FileChannel-formatterOption--disabled">
+			<label class="sh-RadioOption sh-RadioOption--disabled">
 				<input
 					type="radio"
 					disabled
@@ -388,7 +388,7 @@ class File_Channel extends Channel {
 
 				<?php echo esc_html( $formatter['name'] ); ?>
 
-				<span class="sh-FileChannel-formatterDescription description">
+				<span class="sh-RadioOptionDescription description">
 					<?php echo esc_html( $formatter['description'] ); ?>
 				</span>
 			</label>

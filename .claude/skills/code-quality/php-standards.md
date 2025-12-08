@@ -27,25 +27,25 @@ if ( $condition ) {
 ```
 
 ```php
-<fieldset class="sh-FileChannel-formatters">
-    <?php 
-    foreach ( $formatters as $formatter_slug => $formatter ) { 
+<fieldset class="sh-RadioOptions">
+    <?php
+    foreach ( $formatters as $formatter_slug => $formatter ) {
         ?>
-        <label class="sh-FileChannel-formatterOption">
+        <label class="sh-RadioOption">
             <input
                 type="radio"
                 name="<?php echo esc_attr( $option_name ); ?>[formatter]"
                 value="<?php echo esc_attr( $formatter_slug ); ?>"
                 <?php checked( $selected_formatted_slug, $formatter_slug ); ?>
             />
-            
+
             <?php echo esc_html( $formatter->get_name() ); ?>
 
-            <span class="sh-FileChannel-formatterDescription description">
+            <span class="sh-RadioOptionDescription description">
                 <?php echo esc_html( $formatter->get_description() ); ?>
             </span>
         </label>
-        <?php 
+        <?php
     }
     ?>
 </fieldset>
@@ -63,9 +63,9 @@ if ( $condition ) {
 ```
 
 ```php
-<fieldset class="sh-FileChannel-formatters">
+<fieldset class="sh-RadioOptions">
     <?php foreach ( $formatters as $formatter_slug => $formatter ) { ?>
-        <label class="sh-FileChannel-formatterOption">
+        <label class="sh-RadioOption">
             <input
                 type="radio"
                 name="<?php echo esc_attr( $option_name ); ?>[formatter]"
@@ -73,7 +73,7 @@ if ( $condition ) {
                 <?php checked( $selected_formatted_slug, $formatter_slug ); ?>
             />
             <?php echo esc_html( $formatter->get_name() ); ?>
-            <span class="sh-FileChannel-formatterDescription description">
+            <span class="sh-RadioOptionDescription description">
                 <?php echo esc_html( $formatter->get_description() ); ?>
             </span>
         </label>

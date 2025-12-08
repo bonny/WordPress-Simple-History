@@ -1324,29 +1324,29 @@ Can be overruled by .form-table td p
 }
 
 /**
- * File Channel - Formatter Options
- * Styles for the log file format selection radio buttons.
+ * Radio Options - Generic reusable styles
+ * Used by File Channel formatters, Syslog Channel mode, etc.
  */
-.sh-FileChannel-formatters {
+.sh-RadioOptions {
 	display: flex;
 	flex-direction: column;
 }
 
-.sh-FileChannel-formatterOption {
+.sh-RadioOption {
 	display: block;
 	margin-bottom: 0.75em;
 }
 
-.sh-FileChannel-formatterOption--disabled {
+.sh-RadioOption--disabled {
 	opacity: 0.75;
 	cursor: not-allowed;
 }
 
-.sh-FileChannel-formatterOption--disabled input {
+.sh-RadioOption--disabled input {
 	cursor: not-allowed;
 }
 
-.sh-FileChannel-formatterDescription {
+.sh-RadioOptionDescription {
 	display: block;
 	margin-left: 24px;
 }
