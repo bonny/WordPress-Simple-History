@@ -197,17 +197,24 @@ class Channels_Settings_Page extends Service {
 						</th>
 						<td>
 							<div class="sh-SyslogTeaser-serverSettings">
-								<input type="text" class="regular-text" placeholder="syslog.example.com" disabled />
-								<span class="sh-SyslogTeaser-serverSeparator">:</span>
-								<input type="number" class="small-text" value="514" disabled />
-								<span class="sh-SyslogTeaser-serverTimeout">
-									<?php esc_html_e( 'timeout', 'simple-history' ); ?>
-									<input type="number" class="small-text" value="5" disabled />
-									<?php esc_html_e( 'sec', 'simple-history' ); ?>
-								</span>
+								<label class="sh-SyslogTeaser-serverField">
+									<span class="sh-SyslogTeaser-serverLabel"><?php esc_html_e( 'Address', 'simple-history' ); ?></span>
+									<input type="text" class="regular-text" placeholder="syslog.example.com" disabled />
+								</label>
+								<label class="sh-SyslogTeaser-serverField sh-SyslogTeaser-serverField--port">
+									<span class="sh-SyslogTeaser-serverLabel"><?php esc_html_e( 'Port', 'simple-history' ); ?></span>
+									<input type="number" class="small-text" value="514" disabled />
+								</label>
+								<label class="sh-SyslogTeaser-serverField sh-SyslogTeaser-serverField--timeout">
+									<span class="sh-SyslogTeaser-serverLabel"><?php esc_html_e( 'Timeout', 'simple-history' ); ?></span>
+									<span class="sh-SyslogTeaser-timeoutInputWrapper">
+										<input type="number" class="small-text" value="5" disabled />
+										<span class="sh-SyslogTeaser-timeoutUnit"><?php esc_html_e( 'sec', 'simple-history' ); ?></span>
+									</span>
+								</label>
 							</div>
 							<p class="description">
-								<?php esc_html_e( 'Only used for remote syslog modes.', 'simple-history' ); ?>
+								<?php esc_html_e( 'Required for TCP and UDP transport modes.', 'simple-history' ); ?>
 							</p>
 						</td>
 					</tr>
@@ -270,7 +277,7 @@ class Channels_Settings_Page extends Service {
 					<!-- Enabled checkbox -->
 					<tr>
 						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Enabled', 'simple-history' ) ) ); ?>
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Status', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
 							<label>
@@ -280,78 +287,73 @@ class Channels_Settings_Page extends Service {
 						</td>
 					</tr>
 
-					<!-- Database Host -->
+					<!-- Server (combined: host, port, timeout) -->
 					<tr>
 						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Database Host', 'simple-history' ) ) ); ?>
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Server', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<input type="text" class="regular-text" placeholder="localhost or 192.168.1.100" disabled />
+							<div class="sh-ExtDbTeaser-serverSettings">
+								<label class="sh-ExtDbTeaser-serverField">
+									<span class="sh-ExtDbTeaser-serverLabel"><?php esc_html_e( 'Server', 'simple-history' ); ?></span>
+									<input type="text" class="regular-text" placeholder="example.com" disabled />
+								</label>
+								<label class="sh-ExtDbTeaser-serverField sh-ExtDbTeaser-serverField--port">
+									<span class="sh-ExtDbTeaser-serverLabel"><?php esc_html_e( 'Port', 'simple-history' ); ?></span>
+									<input type="number" class="small-text" value="3306" disabled />
+								</label>
+								<label class="sh-ExtDbTeaser-serverField sh-ExtDbTeaser-serverField--timeout">
+									<span class="sh-ExtDbTeaser-serverLabel"><?php esc_html_e( 'Timeout', 'simple-history' ); ?></span>
+									<span class="sh-ExtDbTeaser-timeoutInputWrapper">
+										<input type="number" class="small-text" value="5" disabled />
+										<span class="sh-ExtDbTeaser-timeoutUnit"><?php esc_html_e( 'sec', 'simple-history' ); ?></span>
+									</span>
+								</label>
+							</div>
 							<p class="description">
-								<?php esc_html_e( 'Hostname or IP address of the external MySQL/MariaDB server.', 'simple-history' ); ?>
+								<?php esc_html_e( 'Host, port, and connection timeout for the external server.', 'simple-history' ); ?>
 							</p>
 						</td>
 					</tr>
 
-					<!-- Database Port -->
+					<!-- Auth (combined: username, password) -->
 					<tr>
 						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Database Port', 'simple-history' ) ) ); ?>
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Auth', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<input type="number" class="small-text" value="3306" disabled />
+							<div class="sh-ExtDbTeaser-inlineFields">
+								<label class="sh-ExtDbTeaser-labeledField">
+									<span class="sh-ExtDbTeaser-fieldLabel"><?php esc_html_e( 'Username', 'simple-history' ); ?></span>
+									<input type="text" class="regular-text" disabled />
+								</label>
+								<label class="sh-ExtDbTeaser-labeledField">
+									<span class="sh-ExtDbTeaser-fieldLabel"><?php esc_html_e( 'Password', 'simple-history' ); ?></span>
+									<input type="password" class="regular-text" disabled />
+								</label>
+							</div>
 							<p class="description">
-								<?php esc_html_e( 'Default: 3306', 'simple-history' ); ?>
+								<?php esc_html_e( 'Requires INSERT and CREATE TABLE privileges.', 'simple-history' ); ?>
 							</p>
 						</td>
 					</tr>
 
-					<!-- Database Name -->
+					<!-- Database (combined: name, table) -->
 					<tr>
 						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Database Name', 'simple-history' ) ) ); ?>
+							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Database', 'simple-history' ) ) ); ?>
 						</th>
 						<td>
-							<input type="text" class="regular-text" placeholder="audit_logs" disabled />
-							<p class="description">
-								<?php esc_html_e( 'Name of the database to store events in.', 'simple-history' ); ?>
-							</p>
-						</td>
-					</tr>
-
-					<!-- Database User -->
-					<tr>
-						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Database User', 'simple-history' ) ) ); ?>
-						</th>
-						<td>
-							<input type="text" class="regular-text" disabled />
-							<p class="description">
-								<?php esc_html_e( 'Database username with INSERT and CREATE TABLE privileges.', 'simple-history' ); ?>
-							</p>
-						</td>
-					</tr>
-
-					<!-- Database Password -->
-					<tr>
-						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Database Password', 'simple-history' ) ) ); ?>
-						</th>
-						<td>
-							<input type="password" class="regular-text" disabled />
-							<p class="description">
-								<?php esc_html_e( 'Database password. Will be encrypted before storage.', 'simple-history' ); ?>
-							</p>
-						</td>
-					</tr>
-
-					<!-- Table Name -->
-					<tr>
-						<th scope="row">
-							<?php echo wp_kses_post( Helpers::get_settings_field_title_output( __( 'Table Name', 'simple-history' ) ) ); ?>
-						</th>
-						<td>
-							<input type="text" class="regular-text" value="simple_history_events" disabled />
+							<div class="sh-ExtDbTeaser-inlineFields">
+								<label class="sh-ExtDbTeaser-labeledField">
+									<span class="sh-ExtDbTeaser-fieldLabel"><?php esc_html_e( 'Name', 'simple-history' ); ?></span>
+									<input type="text" class="regular-text" placeholder="audit_logs" disabled />
+								</label>
+								<label class="sh-ExtDbTeaser-labeledField">
+									<span class="sh-ExtDbTeaser-fieldLabel"><?php esc_html_e( 'Table', 'simple-history' ); ?></span>
+									<input type="text" class="regular-text" value="simple_history_events" disabled />
+								</label>
+							</div>
 							<p class="description">
 								<?php esc_html_e( 'Table will be created automatically if it does not exist.', 'simple-history' ); ?>
 							</p>
