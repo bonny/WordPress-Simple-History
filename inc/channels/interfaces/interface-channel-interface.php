@@ -94,10 +94,10 @@ interface Channel_Interface {
 	 * Get a specific setting value for this channel.
 	 *
 	 * @param string $setting_name The name of the setting to retrieve.
-	 * @param mixed  $default Optional. Default value to return if setting doesn't exist.
+	 * @param mixed  $default_value Optional. Default value to return if setting doesn't exist.
 	 * @return mixed The setting value or default if not found.
 	 */
-	public function get_setting( $setting_name, $default = null );
+	public function get_setting( $setting_name, $default_value = null );
 
 	/**
 	 * Set a specific setting value for this channel.
