@@ -124,7 +124,7 @@ class Channels_Settings_Page extends Service {
 		// Title format: [title, icon-slug, html-id, suffix].
 		Helpers::add_settings_section(
 			'simple_history_channel_external_database_teaser',
-			[ __( 'External Database', 'simple-history' ), null, '', $premium_badge ],
+			[ __( 'Remote Database', 'simple-history' ), null, '', $premium_badge ],
 			[ $this, 'render_external_database_teaser' ],
 			self::SETTINGS_PAGE_SLUG
 		);
@@ -139,7 +139,7 @@ class Channels_Settings_Page extends Service {
 	public function render_syslog_teaser() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Forward events to system syslog or remote rsyslog servers for centralized logging, SIEM integration, or compliance requirements.', 'simple-history' ); ?></p>
+			<p><?php esc_html_e( 'Stream events to syslog for centralized monitoring and SIEM integration.', 'simple-history' ); ?></p>
 		</div>
 
 		<div class="sh-PremiumTeaser-disabledForm" inert>
@@ -268,7 +268,7 @@ class Channels_Settings_Page extends Service {
 	public function render_external_database_teaser() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Forward events to an external MySQL/MariaDB database for compliance, security audits, and off-site backup. Keep your audit logs separate from WordPress for enhanced security.', 'simple-history' ); ?></p>
+			<p><?php esc_html_e( 'Store events in a separate MySQL/MariaDB database for tamper-proof auditing and compliance.', 'simple-history' ); ?></p>
 		</div>
 
 		<div class="sh-PremiumTeaser-disabledForm" inert>
@@ -422,7 +422,7 @@ class Channels_Settings_Page extends Service {
 	public function settings_section_output() {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
-			<p><?php esc_html_e( 'Automatically forward events to files, syslog, or databases.', 'simple-history' ); ?></p>
+			<p><?php esc_html_e( 'Store events outside the WordPress database for backup, monitoring, or compliance.', 'simple-history' ); ?></p>
 		</div>
 		<?php
 	}

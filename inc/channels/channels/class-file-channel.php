@@ -127,7 +127,7 @@ class File_Channel extends Channel {
 	 * @return string The channel display name.
 	 */
 	public function get_name() {
-		return __( 'Log to File', 'simple-history' );
+		return __( 'Local Files', 'simple-history' );
 	}
 
 	/**
@@ -136,7 +136,7 @@ class File_Channel extends Channel {
 	 * @return string The channel description.
 	 */
 	public function get_description() {
-		return __( 'Automatically forward all events to log files for backup, compliance, or integration with external log analysis tools.', 'simple-history' );
+		return __( 'Write events to log files on this server for backup or import into analysis tools.', 'simple-history' );
 	}
 
 	/**
