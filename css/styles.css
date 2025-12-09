@@ -2413,3 +2413,56 @@ Styles for plugin update details. Markup looks like this:
 	width: 100%;
 	text-align: center;
 }
+
+/**
+ * Channel Status - Generic status display for channel settings.
+ *
+ * Usage:
+ *   <div class="sh-ChannelStatus">
+ *     <h4>Connection Status</h4>
+ *     <p class="sh-ChannelStatus--success">Last successful send: ...</p>
+ *     <p class="sh-ChannelStatus--error">Last error: ...</p>
+ *   </div>
+ */
+.sh-ChannelStatus {
+	margin-top: 1.5em;
+	padding: 1em;
+	background: #f6f7f7;
+	border-left: 4px solid #c3c4c7;
+}
+
+.sh-ChannelStatus h4 {
+	margin: 0 0 0.5em 0;
+}
+
+.sh-ChannelStatus--success {
+	color: #2e7d32;
+}
+
+.sh-ChannelStatus--error {
+	color: #b32d2e;
+}
+
+/**
+ * Channel Test Connection - Generic test button for channel settings.
+ */
+.sh-ChannelTestConnection {
+	margin-top: 1em;
+}
+
+.sh-ChannelTestConnection .spinner {
+	float: none;
+	margin-top: 0;
+}
+
+.sh-ChannelTestResult {
+	margin-left: 0.5em;
+}
+
+.sh-ChannelTestResult--success {
+	color: #2e7d32;
+}
+
+.sh-ChannelTestResult--error {
+	color: #b32d2e;
+}
