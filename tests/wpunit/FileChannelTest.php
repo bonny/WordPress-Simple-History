@@ -152,9 +152,6 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 		$result = $this->channel->send_event( $event_data, $formatted_message );
 		$this->assertTrue( $result );
 
-		// Force buffer flush to ensure file is written
-		$this->channel->flush_write_buffer();
-
 		// Verify the log file exists and contains the event
 		$log_file = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
 		$this->assertFileExists( $log_file );
@@ -190,9 +187,6 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 			$result = $this->channel->send_event( $event_data, "Event number $i" );
 			$this->assertTrue( $result );
 		}
-
-		// Force buffer flush
-		$this->channel->flush_write_buffer();
 
 		// Verify all events were written
 		$log_file = $this->invoke_method( $this->channel, 'get_log_file_path', [] );
@@ -304,9 +298,6 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 		// Try to send event anyway - it should not write to the file because channel is disabled
 		$result = $this->channel->send_event( $event_data, 'Test message' );
 		$this->assertTrue( $result ); // send_event returns true but doesn't write
-
-		// Force buffer flush
-		$this->channel->flush_write_buffer();
 
 		// Verify no log file was created
 		$this->assertFileDoesNotExist( $log_file );

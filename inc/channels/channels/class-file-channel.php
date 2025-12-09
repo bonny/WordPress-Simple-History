@@ -276,11 +276,11 @@ class File_Channel extends Channel {
 			<?php esc_html_e( 'Create a new file', 'simple-history' ); ?>
 
 			<select name="<?php echo esc_attr( $option_name ); ?>[rotation_frequency]">
-				<?php foreach ( $rotation_options as $value => $label ) : ?>
+				<?php foreach ( $rotation_options as $value => $label ) { ?>
 					<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $rotation_value, $value ); ?>>
 						<?php echo esc_html( $label ); ?>
 					</option>
-				<?php endforeach; ?>
+				<?php } ?>
 			</select>
 
 			<?php esc_html_e( 'and keep the last', 'simple-history' ); ?>
@@ -438,22 +438,22 @@ class File_Channel extends Channel {
 
 			<?php // Status line with icon. ?>
 			<p class="sh-FileChannel-folderStatus">
-				<?php if ( $creation_failed ) : ?>
+				<?php if ( $creation_failed ) { ?>
 					<span class="sh-FileChannel-folderStatus--error">
 						<span class="dashicons dashicons-warning"></span>
 						<?php esc_html_e( 'Folder could not be created. Check that the parent directory is writable.', 'simple-history' ); ?>
 					</span>
-				<?php elseif ( ! $is_writable ) : ?>
+				<?php } elseif ( ! $is_writable ) { ?>
 					<span class="sh-FileChannel-folderStatus--error">
 						<span class="dashicons dashicons-warning"></span>
 						<?php esc_html_e( 'Folder exists but is not writable. Check folder permissions.', 'simple-history' ); ?>
 					</span>
-				<?php else : ?>
+				<?php } else { ?>
 					<span class="sh-FileChannel-folderStatus--success">
 						<span class="dashicons dashicons-yes-alt"></span>
 						<?php esc_html_e( 'Writable', 'simple-history' ); ?>
 					</span>
-					<?php if ( $stats && $stats['count'] > 0 ) : ?>
+					<?php if ( $stats && $stats['count'] > 0 ) { ?>
 						<span class="sh-FileChannel-folderStats">
 							<?php
 							echo esc_html(
@@ -466,7 +466,7 @@ class File_Channel extends Channel {
 							?>
 							&middot;
 							<?php echo esc_html( size_format( $stats['total_size'] ) ); ?>
-							<?php if ( $stats['oldest'] && $stats['newest'] ) : ?>
+							<?php if ( $stats['oldest'] && $stats['newest'] ) { ?>
 								&middot;
 								<?php
 								echo esc_html(
@@ -478,22 +478,22 @@ class File_Channel extends Channel {
 									)
 								);
 								?>
-							<?php endif; ?>
+							<?php } ?>
 						</span>
-					<?php endif; ?>
-				<?php endif; ?>
+					<?php } ?>
+				<?php } ?>
 			</p>
 
 			<?php // Security note (inline, discrete). ?>
 			<p class="sh-FileChannel-securityNote">
-				<?php if ( $test_url ) : ?>
+				<?php if ( $test_url ) { ?>
 					<?php esc_html_e( 'Folder is public.', 'simple-history' ); ?>
 					<a href="<?php echo esc_url( $test_url ); ?>" target="_blank" class="sh-ExternalLink">
 						<?php esc_html_e( 'Verify access is blocked', 'simple-history' ); ?>
 					</a>
-				<?php else : ?>
+				<?php } else { ?>
 					<?php esc_html_e( 'Folder is outside the public web directory.', 'simple-history' ); ?>
-				<?php endif; ?>
+				<?php } ?>
 			</p>
 		</div>
 		<?php

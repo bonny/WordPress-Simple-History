@@ -313,13 +313,13 @@ class Alert_Field_Registry {
 	 * @return array Level options for select field.
 	 */
 	private static function get_level_values(): array {
-		$log_levels = Log_Levels::get_log_levels();
+		$log_levels = Log_Levels::get_valid_log_levels();
 		$values     = [];
 
-		foreach ( $log_levels as $level => $data ) {
+		foreach ( $log_levels as $level ) {
 			$values[] = [
 				'name'  => $level,
-				'label' => $data['label'] ?? ucfirst( $level ),
+				'label' => ucfirst( Log_Levels::get_log_level_translated( $level ) ),
 			];
 		}
 

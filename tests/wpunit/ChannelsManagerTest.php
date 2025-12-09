@@ -121,9 +121,6 @@ class ChannelsManagerTest extends \Codeception\TestCase\WPTestCase {
 		// Process the event (this should write to a file)
 		$this->manager->process_logged_event( $context, $data, $logger );
 
-		// Force buffer flush to ensure file is written
-		$file_channel->flush_write_buffer();
-
 		// Verify the log file was created
 		$log_dir = $this->invoke_method( $file_channel, 'get_log_directory_path', [] );
 		$log_file = $log_dir . '/events-' . current_time( 'Y-m-d' ) . '.log';
@@ -161,9 +158,6 @@ class ChannelsManagerTest extends \Codeception\TestCase\WPTestCase {
 
 		// Process the event
 		$this->manager->process_logged_event( $context, $data, $logger );
-
-		// Force buffer flush
-		$file_channel->flush_write_buffer();
 
 		// Verify no log file was created
 		$log_dir = $this->invoke_method( $file_channel, 'get_log_directory_path', [] );
