@@ -136,7 +136,7 @@ class Channels_Manager extends Service {
 	}
 
 	/**
-	 * Prepare event data for sending to integrations.
+	 * Prepare event data for sending to channels.
 	 *
 	 * @param array $context Context data for the event.
 	 * @param array $data Event data.
