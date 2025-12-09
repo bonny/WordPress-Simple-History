@@ -2427,7 +2427,6 @@ Styles for plugin update details. Markup looks like this:
  *   </div>
  */
 .sh-ChannelStatus {
-	margin-top: 1.5em;
 	padding: 1em;
 	background: #f6f7f7;
 	border-left: 4px solid #c3c4c7;
@@ -2518,7 +2517,11 @@ Styles for plugin update details. Markup looks like this:
  * Channel Test Connection - Generic test button for channel settings.
  */
 .sh-ChannelTestConnection {
-	margin-top: 1em;
+	margin-top: 0;
+}
+
+.sh-ChannelTestConnection-hint {
+	margin-top: 0.5em;
 }
 
 .sh-ChannelTestConnection .spinner {
