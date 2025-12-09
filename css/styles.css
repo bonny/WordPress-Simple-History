@@ -2443,6 +2443,19 @@ Styles for plugin update details. Markup looks like this:
 	color: #b32d2e;
 }
 
+.sh-ChannelStatus--errorMessage {
+	margin: 0.5em 0 0 0;
+	padding: 0.75em;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+	font-size: 12px;
+	line-height: 1.5;
+	color: #50575e;
+	word-break: break-word;
+}
+
 /**
  * Channel Test Connection - Generic test button for channel settings.
  */
@@ -2456,13 +2469,21 @@ Styles for plugin update details. Markup looks like this:
 }
 
 .sh-ChannelTestResult {
-	margin-left: 0.5em;
+	margin-top: 0.75em;
+	padding: 0.75em 1em;
+	border-radius: 4px;
+	line-height: 1.5;
+	word-break: break-word;
 }
 
-.sh-ChannelTestResult--success {
-	color: #2e7d32;
+.sh-ChannelTestResult.sh-ChannelTestResult--success {
+	background: #edfaef;
+	border-left: 4px solid #00a32a;
+	color: #1e4620;
 }
 
-.sh-ChannelTestResult--error {
-	color: #b32d2e;
+.sh-ChannelTestResult.sh-ChannelTestResult--error {
+	background: #fcf0f1;
+	border-left: 4px solid #d63638;
+	color: #8a2424;
 }
