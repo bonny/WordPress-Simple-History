@@ -175,7 +175,7 @@ class Autoloader {
 				return $file_with_class_prefix;
 			}
 
-			// Check for file with prefixed 'namespace-' and lowercase filename.
+			// Check for file with prefixed 'interface-' and lowercase filename.
 			$path_and_file_lowercased_and_prefixed_with_interface = strtolower( $path_and_file );
 			$path_and_file_lowercased_and_prefixed_with_interface = str_replace( '_', '-', $path_and_file_lowercased_and_prefixed_with_interface );
 			$path_and_file_lowercased_and_prefixed_with_interface = str_replace( '/', '/interface-', $path_and_file_lowercased_and_prefixed_with_interface );
@@ -185,11 +185,28 @@ class Autoloader {
 
 			$file_with_interface_prefix = $base_dir . $path_and_file_lowercased_and_prefixed_with_interface . '.php';
 
-			// if the mapped file with "class-" prefix exists, require it.
+			// if the mapped file with "interface-" prefix exists, require it.
 			// <path>/WordPress-Simple-History/inc/event-details/interface-event-details-container-interface.php.
 			if ( $this->require_file( $file_with_interface_prefix ) ) {
 				// yes, we're done.
 				return $file_with_interface_prefix;
+			}
+
+			// Check for file with prefixed 'trait-' and lowercase filename.
+			$path_and_file_lowercased_and_prefixed_with_trait = strtolower( $path_and_file );
+			$path_and_file_lowercased_and_prefixed_with_trait = str_replace( '_', '-', $path_and_file_lowercased_and_prefixed_with_trait );
+			$path_and_file_lowercased_and_prefixed_with_trait = str_replace( '/', '/trait-', $path_and_file_lowercased_and_prefixed_with_trait );
+			if ( ! str_contains( $path_and_file_lowercased_and_prefixed_with_trait, 'trait-' ) ) {
+				$path_and_file_lowercased_and_prefixed_with_trait = "trait-{$path_and_file_lowercased_and_prefixed_with_trait}";
+			}
+
+			$file_with_trait_prefix = $base_dir . $path_and_file_lowercased_and_prefixed_with_trait . '.php';
+
+			// if the mapped file with "trait-" prefix exists, require it.
+			// <path>/WordPress-Simple-History/inc/channels/trait-channel-error-tracking.php.
+			if ( $this->require_file( $file_with_trait_prefix ) ) {
+				// yes, we're done.
+				return $file_with_trait_prefix;
 			}
 
 			// <path>/WordPress-Simple-History/Dropins/Debug_Dropin.php.
