@@ -164,7 +164,7 @@ A test database has been configured on the `mariadb_10_4` container:
 cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot && \
 docker compose exec mariadb_10_4 mysql -uroot -p'3qGe9TPbMc8o' -e "
 CREATE DATABASE IF NOT EXISTS simple_history_test;
-CREATE USER IF NOT EXISTS 'shtest'@'%' IDENTIFIED BY 'shtestpass';
+CREATE USER IF NOT EXISTS 'shtest'@'%' IDENTIFIED BY 'shtest';
 GRANT ALL PRIVILEGES ON simple_history_test.* TO 'shtest'@'%';
 FLUSH PRIVILEGES;
 "
@@ -178,7 +178,7 @@ FLUSH PRIVILEGES;
 | Port     | `3306`                  |
 | Database | `simple_history_test`   |
 | Username | `shtest`                |
-| Password | `shtestpass`            |
+| Password | `shtest`                |
 | Table    | `simple_history_events` |
 
 ### Testing
@@ -193,7 +193,7 @@ FLUSH PRIVILEGES;
 ```bash
 # View latest events in the external database
 cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot && \
-docker compose exec mariadb_10_4 mysql -ushtest -pshtestpass simple_history_test -e \
+docker compose exec mariadb_10_4 mysql -ushtest -pshtest simple_history_test -e \
 "SELECT id, event_date, logger, level, message FROM simple_history_events ORDER BY id DESC LIMIT 10;"
 ```
 
@@ -203,7 +203,7 @@ To clear all test data and start fresh:
 
 ```bash
 cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot && \
-docker compose exec mariadb_10_4 mysql -ushtest -pshtestpass simple_history_test -e \
+docker compose exec mariadb_10_4 mysql -ushtest -pshtest simple_history_test -e \
 "TRUNCATE TABLE simple_history_events;"
 ```
 
