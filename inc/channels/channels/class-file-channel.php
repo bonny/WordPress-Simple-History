@@ -585,8 +585,8 @@ class File_Channel extends Channel {
 	/**
 	 * Get the log directory path.
 	 *
-	 * Uses a hard-to-guess directory within wp-content for security.
-	 * Returns path with trailing slash.
+	 * Uses a hard-to-guess directory within the uploads folder for security
+	 * and VIP compatibility. Returns path with trailing slash.
 	 *
 	 * @return string Log directory path with trailing slash.
 	 */
@@ -594,7 +594,9 @@ class File_Channel extends Channel {
 		// Use a random token for directory name (stored in settings for stability).
 		$folder_token = $this->get_folder_token();
 
-		$default_directory = trailingslashit( WP_CONTENT_DIR ) . 'simple-history-logs-' . $folder_token;
+		// Use uploads directory for VIP compatibility.
+		$upload_dir        = wp_get_upload_dir();
+		$default_directory = trailingslashit( $upload_dir['basedir'] ) . 'simple-history-logs-' . $folder_token;
 
 		/**
 		 * Filter the log directory path.

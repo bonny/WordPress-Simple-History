@@ -272,7 +272,10 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertIsString( $path );
 		$this->assertStringContainsString( 'simple-history-logs-', $path );
-		$this->assertStringContainsString( WP_CONTENT_DIR, $path );
+
+		// Should be in uploads directory for VIP compatibility.
+		$upload_dir = wp_get_upload_dir();
+		$this->assertStringContainsString( $upload_dir['basedir'], $path );
 	}
 
 	/**
