@@ -298,6 +298,37 @@ $condition
     : $this->doSomethingElse();
 ```
 
+### Readable Code Over Clever Code
+
+Code is read more often than it's written. Optimize for the human reader, not for line count. Break complex expressions into named intermediate variables that explain what's happening.
+
+✅ **Correct (readable):**
+
+```php
+$previous_count = (int) ( $settings['consecutive_errors'] ?? 0 );
+$count          = $previous_count + 1;
+
+$is_over_limit    = $count >= self::MAX_ERRORS;
+$not_yet_disabled = ! $this->is_auto_disabled();
+$should_disable   = $is_over_limit && $not_yet_disabled;
+
+if ( $should_disable ) {
+    $this->disable_channel();
+}
+```
+
+❌ **Incorrect (clever one-liner):**
+
+```php
+$count = ( (int) ( $settings['consecutive_errors'] ?? 0 ) ) + 1;
+
+if ( $count >= self::MAX_ERRORS && ! $this->is_auto_disabled() ) {
+    $this->disable_channel();
+}
+```
+
+This refactoring pattern is called **"Introduce Explaining Variable"** - it doesn't change behavior but makes the code self-documenting.
+
 ### Defensive Programming
 
 WordPress plugins receive data from hooks, filters, and other plugins. Never assume data is valid or complete - other code may have modified variables or hooks may not pass all expected arguments.
@@ -402,6 +433,7 @@ When writing PHP code, ensure:
 - [ ] Using short array syntax `[]`
 - [ ] Happy path comes last
 - [ ] Early returns instead of else
+- [ ] Complex expressions broken into explaining variables
 - [ ] All output is escaped
 - [ ] All hooks/functions are prefixed
 - [ ] Text domain is `simple-history`
