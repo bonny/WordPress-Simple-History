@@ -34,6 +34,7 @@ class Simple_History_Logger extends Logger {
 				'purged_events'               => _x( 'Removed {num_rows} events that were older than {days} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'auto_backfill_completed'     => _x( 'Populated (backfilled) your history with {posts_imported} posts and {users_imported} users from the last {days_back} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'manual_backfill_completed'   => _x( 'Manual backfill created {post_events} post events and {user_events} user events', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'channel_auto_disabled'       => _x( 'Log forwarding channel "{channel_name}" was auto-disabled after {failure_count} consecutive failures', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			),
 		];
 	}
@@ -49,6 +50,7 @@ class Simple_History_Logger extends Logger {
 		add_action( 'simple_history/settings/log_cleared', [ $this, 'on_log_cleared' ] );
 		add_action( 'simple_history/db/purge_done', [ $this, 'on_purge_done' ], 10, 2 );
 		add_action( 'simple_history/backfill/completed', [ $this, 'on_backfill_completed' ] );
+		add_action( 'simple_history/channel/auto_disabled', [ $this, 'on_channel_auto_disabled' ], 10, 2 );
 	}
 
 	/**
@@ -122,6 +124,24 @@ class Simple_History_Logger extends Logger {
 			'cleared_log',
 			[
 				'num_rows_deleted' => $num_rows_deleted,
+			]
+		);
+	}
+
+	/**
+	 * Log when a channel is auto-disabled due to repeated failures.
+	 *
+	 * @param object $channel       The channel instance that was auto-disabled.
+	 * @param int    $failure_count The number of consecutive failures.
+	 * @return void
+	 */
+	public function on_channel_auto_disabled( $channel, $failure_count ) {
+		$this->warning_message(
+			'channel_auto_disabled',
+			[
+				'channel_name'  => $channel->get_name(),
+				'channel_slug'  => $channel->get_slug(),
+				'failure_count' => $failure_count,
 			]
 		);
 	}
