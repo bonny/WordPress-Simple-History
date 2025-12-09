@@ -2417,11 +2417,13 @@ Styles for plugin update details. Markup looks like this:
 /**
  * Channel Status - Generic status display for channel settings.
  *
- * Usage:
+ * Displays connection events as a chronological mini-log:
  *   <div class="sh-ChannelStatus">
  *     <h4>Connection Status</h4>
- *     <p class="sh-ChannelStatus--success">Last successful send: ...</p>
- *     <p class="sh-ChannelStatus--error">Last error: ...</p>
+ *     <ul class="sh-ChannelStatus-log">
+ *       <li class="sh-ChannelStatus-log-item sh-ChannelStatus-log-item--success">...</li>
+ *       <li class="sh-ChannelStatus-log-item sh-ChannelStatus-log-item--error">...</li>
+ *     </ul>
  *   </div>
  */
 .sh-ChannelStatus {
@@ -2435,6 +2437,7 @@ Styles for plugin update details. Markup looks like this:
 	margin: 0 0 0.5em 0;
 }
 
+/* Legacy styles - kept for backward compatibility */
 .sh-ChannelStatus--success {
 	color: #2e7d32;
 }
@@ -2454,6 +2457,61 @@ Styles for plugin update details. Markup looks like this:
 	line-height: 1.5;
 	color: #50575e;
 	word-break: break-word;
+}
+
+/* Mini-log styles */
+.sh-ChannelStatus-log {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-ChannelStatus-log-item {
+	display: flex;
+	gap: 1em;
+	padding: 0.5em 0;
+	border-bottom: 1px solid #dcdcde;
+	line-height: 1.4;
+}
+
+.sh-ChannelStatus-log-item:last-child {
+	border-bottom: none;
+}
+
+.sh-ChannelStatus-log-time {
+	flex-shrink: 0;
+	color: #50575e;
+	font-size: 13px;
+}
+
+.sh-ChannelStatus-log-message {
+	word-break: break-word;
+}
+
+.sh-ChannelStatus-log-item--success .sh-ChannelStatus-log-message {
+	color: #2e7d32;
+}
+
+.sh-ChannelStatus-log-item--error .sh-ChannelStatus-log-message {
+	color: #b32d2e;
+}
+
+.sh-ChannelStatus-log-item--disabled .sh-ChannelStatus-log-message {
+	color: #b32d2e;
+	font-weight: 600;
+}
+
+.sh-ChannelStatus-hint {
+	margin: 1em 0 0 0;
+	padding: 0.5em 0.75em;
+	background: #fff8e5;
+	border-left: 3px solid #dba617;
+	font-size: 13px;
+}
+
+.sh-ChannelStatus--empty {
+	color: #50575e;
+	font-style: italic;
 }
 
 /**
