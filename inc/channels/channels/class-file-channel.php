@@ -784,7 +784,8 @@ class File_Channel extends Channel {
 		$pattern   = $this->get_cleanup_pattern( $rotation );
 		$log_files = glob( $log_dir . $pattern );
 
-		if ( empty( $log_files ) || count( $log_files ) <= $keep_files ) {
+		// glob() returns false on error, not an empty array.
+		if ( ! is_array( $log_files ) || count( $log_files ) <= $keep_files ) {
 			return;
 		}
 
