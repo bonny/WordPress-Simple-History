@@ -29,94 +29,74 @@ Simple History currently only stores events in the local WordPress database and 
 
 Research conducted December 2025.
 
-#### Market Landscape
+#### Reality Check: What's Actually Useful?
 
-**Gartner Magic Quadrant for Observability Platforms (Aug 2024):**
-- **Leaders**: Datadog, Dynatrace, Splunk, New Relic, Elastic, Grafana Labs
-- **Challengers**: AWS, Microsoft
-- **Visionaries**: Honeycomb, IBM, Logz.io, Sumo Logic
+Simple History logs **WordPress audit events** (user logins, post edits, plugin changes) - not infrastructure metrics or APM traces. Most enterprise observability tools are overkill.
 
-**IDC SIEM Market Shares 2024:** Splunk ranked #1 for 5th consecutive year.
+**Who needs log forwarding?**
 
-**Note:** Market share percentages vary widely by source and methodology. Cloud SaaS tools (Datadog, Splunk Cloud) are easier to track than self-hosted solutions (Graylog, ELK), which are likely underrepresented in market data.
+| Use Case | Solution | Status |
+|----------|----------|--------|
+| **Compliance** (HIPAA, SOC2, PCI) | External Database | ✅ Implemented |
+| **Backup against hackers** | File Channel | ✅ Implemented |
+| **Agencies with 10+ sites** | Graylog, ELK, Loki | Future |
+| **Already using Splunk/Datadog** | Add WP logs to existing stack | Future |
+| **Simple cloud backup** | Papertrail, Loggly | Future |
 
-| Category | Key Players |
-|----------|-------------|
-| **Enterprise/Cloud** | Datadog, Splunk, Dynatrace, New Relic |
-| **Open Source/Self-hosted** | Elastic Stack (ELK), Graylog, Grafana Loki |
-| **SMB-friendly SaaS** | Loggly, Papertrail, Logz.io |
-| **Cloud-native** | AWS CloudWatch, Azure Monitor, Google Cloud Logging |
+#### Service Fit Assessment
+
+| Service | Designed For | Fit for WP Audit Logs |
+|---------|--------------|----------------------|
+| **Graylog** | Centralized logging | ✅ Good - agencies, multiple sites |
+| **Grafana Loki** | Lightweight log aggregation | ✅ Good - self-hosters |
+| **Papertrail** | Simple cloud logging | ✅ Good - easy, affordable |
+| **Loggly** | Simple cloud logging | ✅ Good - easy setup |
+| **ELK Stack** | Log aggregation, search | ⚠️ OK if already running it |
+| **Splunk** | Enterprise security, big data | ⚠️ Overkill unless already using |
+| **Datadog** | Infrastructure, APM, DevOps | ❌ Overkill, expensive |
+| **Dynatrace/New Relic** | APM, performance | ❌ Wrong tool entirely |
+| **AWS CloudWatch** | AWS infrastructure | ⚠️ Only if site is on AWS |
 
 #### Prioritized Roadmap
 
-**Phase 1: Quick Wins** (Low effort, extends existing code)
-| Service | Protocol | Implementation |
+Based on actual usefulness for WordPress audit logs:
+
+**Phase 1: Quick Wins** (Best fit, low effort)
+| Service | Use Case | Implementation |
 |---------|----------|----------------|
-| Papertrail | Syslog over TLS | Add `MODE_REMOTE_TLS` to Syslog Channel (~20 lines). Auth = unique port per account. |
-| Loggly | Syslog TLS or HTTP | TLS + token in RFC5424 structured data `[token@41058]`, OR simple HTTP POST |
-| Graylog | GELF over HTTP | New channel, uses `wp_remote_post()` |
+| Papertrail | Simple cloud backup | Add TLS to Syslog Channel. Auth = unique port. |
+| Loggly | Simple cloud backup | HTTP POST with token, or TLS syslog |
+| Graylog | Agency log aggregation | GELF over HTTP, `wp_remote_post()` |
 
-**Phase 2: Market Leaders** (New channels, simple HTTP)
-| Service | Protocol | Implementation |
+**Phase 2: Self-Hosted** (For users who run their own infrastructure)
+| Service | Use Case | Implementation |
 |---------|----------|----------------|
-| Splunk | HTTP Event Collector | Token auth, JSON POST |
-| Datadog | HTTP API | API key auth, JSON POST |
-| Grafana Loki | HTTP API | Basic auth, JSON POST |
+| Grafana Loki | Lightweight aggregation | HTTP API, JSON POST |
+| Elastic/Logstash | Existing ELK users | HTTP API |
 
-**Phase 3: Cloud Providers** (SDK dependencies)
-| Service | Protocol | Implementation |
+**Phase 3: "We Already Use It"** (For enterprises with existing tools)
+| Service | Use Case | Implementation |
 |---------|----------|----------------|
-| AWS CloudWatch | AWS SDK | Requires `aws/aws-sdk-php` |
-| Elastic Stack | HTTP API | More complex JSON formatting |
+| Splunk | Add WP to existing Splunk | HTTP Event Collector |
+| Datadog | Add WP to existing Datadog | HTTP API |
+| AWS CloudWatch | AWS-hosted WordPress | Requires SDK |
 
-**Phase 4: Consider Later**
-- Azure Monitor, Google Cloud Logging, New Relic, Sumo Logic
+**Probably Not Worth Building:**
+- Dynatrace, New Relic (APM tools, not log tools)
+- Azure Monitor, Google Cloud Logging (niche audience)
+- Sumo Logic (enterprise SIEM, overkill)
 
-#### Key Insight
+#### Technical Notes
 
-Most services accept **HTTP POST with JSON** - once one HTTP channel is built, adding others is straightforward.
-
-#### TLS Support for Syslog Channel
-
-Adding TLS mode enables encrypted syslog connections:
-
+**TLS Syslog** (for Papertrail/Loggly):
 ```php
-// Current: fsockopen for TCP
-$socket = fsockopen( 'tcp://' . $host, $port, ... );
-
-// New: stream_socket_client for TLS
 $context = stream_context_create(['ssl' => ['verify_peer' => true]]);
 $socket = stream_socket_client( 'tls://' . $host . ':' . $port, ..., $context );
 ```
 
-**Papertrail**: TLS-only change works directly. Auth is the unique port number.
+**Loggly auth**: Token in RFC5424 structured data: `[token@41058 tag="simple-history"]`
 
-**Loggly**: Also needs token injected into RFC5424 structured data:
-```
-[customer-token@41058 tag="simple-history"]
-```
-
-**Self-Hosted Log Management:**
-- Graylog - GELF protocol (HTTP/UDP), ~1.15% market share
-- Elasticsearch/ELK Stack - HTTP API, open source leader
-- Grafana Loki - HTTP API, rising star in Prometheus ecosystem
-- Seq - Structured logging for .NET shops
-
-**Cloud Log Services:**
-- Datadog - HTTP API, ~72% market share (dominant)
-- Splunk - HTTP Event Collector, enterprise standard
-- Loggly - HTTP/Syslog, SMB favorite
-- SolarWinds/Papertrail - Syslog over TLS, easy setup
-- New Relic - APM + logs
-- Sumo Logic - Cloud SIEM
-
-**Cloud Provider Native:**
-- AWS CloudWatch Logs - requires SDK
-- Google Cloud Logging - SDK or HTTP
-- Azure Monitor Logs - HTTP API
-
-**Storage/Archive:**
-- S3 / Google Cloud Storage / Azure Blob - Cheap long-term archive
+**Papertrail auth**: Unique port per account (no token needed)
 
 ## Implementation
 
