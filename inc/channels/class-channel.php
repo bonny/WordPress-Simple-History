@@ -301,49 +301,4 @@ abstract class Channel implements Channel_Interface {
 		// Override in child classes to add custom content.
 	}
 
-	/**
-	 * Log an error for this channel.
-	 *
-	 * @param string $message The error message.
-	 * @param array  $context Additional context data.
-	 */
-	protected function log_error( $message, $context = [] ) {
-		$log_message = sprintf(
-			'Simple History Channel %s: %s',
-			$this->get_slug(),
-			$message
-		);
-
-		if ( ! empty( $context ) ) {
-			$log_message .= ' Context: ' . wp_json_encode( $context );
-		}
-
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( $log_message );
-	}
-
-	/**
-	 * Log debug information for this channel.
-	 *
-	 * @param string $message The debug message.
-	 * @param array  $context Additional context data.
-	 */
-	protected function log_debug( $message, $context = [] ) {
-		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
-			return;
-		}
-
-		$log_message = sprintf(
-			'Simple History Channel %s (DEBUG): %s',
-			$this->get_slug(),
-			$message
-		);
-
-		if ( ! empty( $context ) ) {
-			$log_message .= ' Context: ' . wp_json_encode( $context );
-		}
-
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( $log_message );
-	}
 }

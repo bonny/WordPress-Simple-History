@@ -167,14 +167,12 @@ class File_Channel extends Channel {
 		$log_file = $this->get_log_file_path();
 
 		if ( ! $log_file ) {
-			$this->log_error( 'Could not determine log file path' );
 			return false;
 		}
 
 		// Ensure directory exists.
 		$log_dir = dirname( $log_file );
 		if ( ! $this->ensure_directory_exists( $log_dir ) ) {
-			$this->log_error( 'Could not create log directory: ' . $log_dir );
 			return false;
 		}
 
@@ -186,7 +184,6 @@ class File_Channel extends Channel {
 		$result = file_put_contents( $log_file, $log_entry, FILE_APPEND | LOCK_EX );
 
 		if ( false === $result ) {
-			$this->log_error( 'Failed to write to log file: ' . $log_file );
 			return false;
 		}
 
@@ -796,11 +793,7 @@ class File_Channel extends Channel {
 		$files_to_delete = array_slice( $log_files, 0, count( $log_files ) - $keep_files );
 
 		foreach ( $files_to_delete as $file ) {
-			if ( unlink( $file ) ) {
-				$this->log_debug( 'Deleted old log file: ' . basename( $file ) );
-			} else {
-				$this->log_error( 'Failed to delete old log file: ' . basename( $file ) );
-			}
+			unlink( $file );
 		}
 	}
 

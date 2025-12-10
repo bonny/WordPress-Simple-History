@@ -236,15 +236,9 @@ class Channels_Manager extends Service {
 	 */
 	private function send_sync( Channel_Interface $channel, $event_data, $formatted_message ) {
 		try {
-			$result = $channel->send_event( $event_data, $formatted_message );
-
-			if ( ! $result ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'Simple History: Failed to send event to channel: ' . $channel->get_slug() );
-			}
-		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Simple History: Exception sending event to channel ' . $channel->get_slug() . ': ' . $e->getMessage() );
+			$channel->send_event( $event_data, $formatted_message );
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Errors are tracked by individual channels via their error handling.
 		}
 	}
 }

@@ -71,8 +71,6 @@ class Alert_Evaluator {
 		// Ensure library is loaded.
 		if ( ! self::load_library() ) {
 			// Library not available - fail open (allow event).
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Simple History: JsonLogic library not available.' );
 			return true;
 		}
 
@@ -90,10 +88,9 @@ class Alert_Evaluator {
 
 			// Ensure boolean return.
 			return (bool) $result;
-		} catch ( \Exception $e ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Simple History: JsonLogic evaluation error: ' . $e->getMessage() );
-			return true; // Fail open on error.
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Fail open on error.
+			return true;
 		}
 	}
 
