@@ -29,15 +29,23 @@ Simple History currently only stores events in the local WordPress database and 
 
 Research conducted December 2025.
 
-#### Market Share (2025)
+#### Market Landscape
 
-| Service | Market Share | Notes |
-|---------|-------------|-------|
-| Datadog | ~72% | Market leader |
-| Splunk | 8-10% | Enterprise standard (Cisco) |
-| Loggly | 3.6% | SMB favorite |
-| Elastic Stack | 2-3% | Open source leader |
-| Graylog | 1.15% | Self-hosted favorite |
+**Gartner Magic Quadrant for Observability Platforms (Aug 2024):**
+- **Leaders**: Datadog, Dynatrace, Splunk, New Relic, Elastic, Grafana Labs
+- **Challengers**: AWS, Microsoft
+- **Visionaries**: Honeycomb, IBM, Logz.io, Sumo Logic
+
+**IDC SIEM Market Shares 2024:** Splunk ranked #1 for 5th consecutive year.
+
+**Note:** Market share percentages vary widely by source and methodology. Cloud SaaS tools (Datadog, Splunk Cloud) are easier to track than self-hosted solutions (Graylog, ELK), which are likely underrepresented in market data.
+
+| Category | Key Players |
+|----------|-------------|
+| **Enterprise/Cloud** | Datadog, Splunk, Dynatrace, New Relic |
+| **Open Source/Self-hosted** | Elastic Stack (ELK), Graylog, Grafana Loki |
+| **SMB-friendly SaaS** | Loggly, Papertrail, Logz.io |
+| **Cloud-native** | AWS CloudWatch, Azure Monitor, Google Cloud Logging |
 
 #### Prioritized Roadmap
 
