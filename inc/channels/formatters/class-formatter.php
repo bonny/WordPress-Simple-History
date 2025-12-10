@@ -43,6 +43,16 @@ abstract class Formatter implements Formatter_Interface {
 	];
 
 	/**
+	 * Get the event ID from event data.
+	 *
+	 * @param array $event_data The event data array.
+	 * @return int|null The event ID or null if not available.
+	 */
+	protected function get_event_id( array $event_data ): ?int {
+		return isset( $event_data['id'] ) ? (int) $event_data['id'] : null;
+	}
+
+	/**
 	 * Get syslog severity from Simple History log level.
 	 *
 	 * @param string $level The Simple History log level.

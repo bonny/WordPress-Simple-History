@@ -15,6 +15,27 @@ namespace Simple_History\Channels\Formatters;
  */
 class Human_Readable_Formatter extends Formatter {
 	/**
+	 * Essential context fields for human-readable output.
+	 * Excludes server_remote_addr as it adds noise to manual log inspection.
+	 *
+	 * @var array<int, string>
+	 */
+	protected const HUMAN_READABLE_FIELDS = [
+		'_message_key',
+		'_user_id',
+		'_user_login',
+		'_user_email',
+	];
+
+	/**
+	 * Map of log level lengths for alignment.
+	 * Longest level is "EMERGENCY" (9 chars).
+	 *
+	 * @var int
+	 */
+	private const LEVEL_WIDTH = 9;
+
+	/**
 	 * Get the unique identifier for this formatter.
 	 *
 	 * @return string The formatter slug.
@@ -56,13 +77,16 @@ class Human_Readable_Formatter extends Formatter {
 		$initiator = $event_data['initiator'] ?? 'unknown';
 		$context   = $event_data['context'] ?? [];
 
-		// Build structured data from essential fields.
+		// Pad level to fixed width for alignment.
+		$level_padded = str_pad( $level, self::LEVEL_WIDTH, ' ', STR_PAD_RIGHT );
+
+		// Build structured data from essential fields (human-readable subset).
 		$structured_parts = [];
 
 		// Always include initiator.
 		$structured_parts[] = 'initiator=' . $initiator;
 
-		$essential = $this->get_essential_context( $context );
+		$essential = $this->get_human_readable_context( $context );
 
 		foreach ( $essential as $key => $value ) {
 			$structured_parts[] = $key . '=' . $value;
@@ -76,10 +100,32 @@ class Human_Readable_Formatter extends Formatter {
 		return sprintf(
 			"[%s] %s %s: %s%s\n",
 			$timestamp,
-			$level,
+			$level_padded,
 			$logger,
 			$formatted_message,
 			$structured_suffix
 		);
+	}
+
+	/**
+	 * Extract essential fields for human-readable output.
+	 *
+	 * Uses a reduced set of fields compared to other formatters,
+	 * excluding server_remote_addr to reduce noise.
+	 *
+	 * @param array $context The event context array.
+	 * @return array<string, mixed> Filtered context with clean keys.
+	 */
+	protected function get_human_readable_context( array $context ): array {
+		$result = [];
+
+		foreach ( self::HUMAN_READABLE_FIELDS as $field ) {
+			if ( isset( $context[ $field ] ) && is_scalar( $context[ $field ] ) ) {
+				$clean_key            = ltrim( $field, '_' );
+				$result[ $clean_key ] = $context[ $field ];
+			}
+		}
+
+		return $result;
 	}
 }
