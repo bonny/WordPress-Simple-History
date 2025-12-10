@@ -2432,10 +2432,6 @@ Styles for plugin update details. Markup looks like this:
 	border-left: 4px solid #c3c4c7;
 }
 
-.sh-ChannelStatus h4 {
-	margin: 0 0 0.5em 0;
-}
-
 /* Legacy styles - kept for backward compatibility */
 .sh-ChannelStatus--success {
 	color: #2e7d32;
@@ -2480,7 +2476,6 @@ Styles for plugin update details. Markup looks like this:
 .sh-ChannelStatus-log-time {
 	flex-shrink: 0;
 	color: #50575e;
-	font-size: 13px;
 }
 
 .sh-ChannelStatus-log-message {
