@@ -30,7 +30,7 @@ export const PremiumFeatureSuffix = function ( props ) {
 	}
 
 	return (
-		<span className="sh-PremiumFeatureBadge">
+		<span className="sh-Badge sh-Badge--premium">
 			{ __( 'Premium', 'simple-history' ) }
 
 			{ icon ? <Icon icon={ icon } size={ 20 } /> : null }

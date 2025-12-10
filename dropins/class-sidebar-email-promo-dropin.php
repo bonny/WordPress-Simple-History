@@ -127,8 +127,8 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 		?>
 		<div class="postbox sh-EmailPromoCard sh-PremiumFeaturesPostbox" id="simple-history-email-promo-card" style="--box-bg-color: var(--sh-color-cream);">
 			<div class="inside">
-				<div style="--sh-badge-text-color: var(--sh-color-blue); --sh-badge-background-color: transparent;" class="sh-EmailPromoCard-badge sh-PremiumFeatureBadge">
-					<?php esc_html_e( 'New!', 'simple-history' ); ?>
+				<div class="sh-EmailPromoCard-badge">
+					<span class="sh-Badge sh-Badge--new" style="background-color: transparent; color: var(--sh-color-blue);"><?php esc_html_e( 'New!', 'simple-history' ); ?></span>
 				</div>
 
 				<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-EmailPromoCard-badgeImageLink">

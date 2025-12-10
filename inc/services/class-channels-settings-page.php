@@ -113,7 +113,7 @@ class Channels_Settings_Page extends Service {
 		}
 
 		// Premium badge HTML for section titles.
-		$premium_badge = '<span class="sh-PremiumFeatureBadge">' . esc_html__( 'Premium', 'simple-history' ) . '</span>';
+		$premium_badge = '<span class="sh-Badge sh-Badge--premium">' . esc_html__( 'Premium', 'simple-history' ) . '</span>';
 
 		// Add Syslog channel teaser.
 		// Title format: [title, icon-slug, html-id, suffix].
@@ -429,6 +429,7 @@ class Channels_Settings_Page extends Service {
 			<p><?php esc_html_e( 'Store events outside the WordPress database for backup, monitoring, or compliance.', 'simple-history' ); ?></p>
 		</div>
 		<?php
+		$this->render_beta_notice();
 	}
 
 	/**
@@ -453,7 +454,6 @@ class Channels_Settings_Page extends Service {
 	public function settings_output_channels() {
 		?>
 		<div class="wrap sh-Page-content">
-			<?php $this->render_beta_notice(); ?>
 			<form method="post" action="options.php">
 				<?php
 				// Prints out all settings sections added to a particular settings page.
@@ -475,7 +475,6 @@ class Channels_Settings_Page extends Service {
 	private function render_beta_notice() {
 		?>
 		<div class="sh-BetaNotice">
-			<span class="sh-Badge sh-Badge--new"><?php esc_html_e( 'New', 'simple-history' ); ?></span>
 			<div>
 				<p>
 					<strong><?php esc_html_e( 'Log Forwarding is a new feature.', 'simple-history' ); ?></strong>
@@ -484,9 +483,9 @@ class Channels_Settings_Page extends Service {
 				<p>
 					<?php
 					printf(
-						/* translators: %s: URL to GitHub issues */
-						esc_html__( 'We\'d love your feedback! Please report any issues or suggestions on %s.', 'simple-history' ),
-						'<a href="https://github.com/bonny/WordPress-Simple-History/issues" target="_blank" rel="noopener noreferrer">GitHub</a>'
+						/* translators: %s: email address link */
+						esc_html__( 'We\'d love your feedback! Please email us at %s.', 'simple-history' ),
+						'<a href="mailto:contact@simple-history.com">contact@simple-history.com</a>'
 					);
 					?>
 				</p>

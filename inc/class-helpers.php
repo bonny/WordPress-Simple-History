@@ -1840,7 +1840,7 @@ class Helpers {
 		?>
 		<div class="sh-PremiumFeatureTeaser">
 			<p class="sh-PremiumFeatureTeaser-title">
-				<em class="sh-PremiumFeatureBadge"><?php esc_html_e( 'Premium', 'simple-history' ); ?></em>
+				<span class="sh-Badge sh-Badge--premium"><?php esc_html_e( 'Premium', 'simple-history' ); ?></span>
 				<strong><?php echo esc_html( $title ); ?></strong>
 			</p>
 

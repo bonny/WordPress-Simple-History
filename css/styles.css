@@ -1187,19 +1187,22 @@ so add some extra place then to make it look a bit less ugly.
 	background-color: var(--sh-color-blue);
 }
 
-.sh-Badge--beta {
+.sh-Badge--premium {
+	font-size: 0.8em;
+	padding: 0.25em 0.5em;
 	color: var(--sh-color-black);
-	background-color: var(--sh-color-yellow);
+	background-color: var(--sh-color-green-mint);
+	opacity: 0.75;
 }
 
-/* Beta notice banner for experimental features */
+/* New feature notice banner */
 .sh-BetaNotice {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--sh-spacing-small);
 	padding: var(--sh-spacing-medium);
-	background-color: #fff8e5;
-	border: 1px solid var(--sh-color-yellow);
+	background-color: #f0f6fc;
+	border: 1px solid var(--sh-color-blue);
 	border-left-width: 4px;
 	border-radius: var(--sh-border-radius);
 	margin-bottom: var(--sh-spacing-large);
@@ -1215,25 +1218,6 @@ so add some extra place then to make it look a bit less ugly.
 
 .sh-BetaNotice a {
 	color: var(--sh-color-blue);
-}
-
-.sh-PremiumFeatureBadge {
-	--sh-badge-text-color: var(--sh-color-black);
-	--sh-badge-background-color: var(--sh-color-green-mint);
-
-	color: var(--sh-badge-text-color);
-	background-color: var(--sh-badge-background-color);
-	display: inline-flex;
-	align-items: center;
-	text-transform: uppercase;
-	font-size: 0.8em;
-	font-weight: 600;
-	font-style: normal;
-	border-radius: var(--sh-border-radius);
-	padding: 0.25em 0.5em;
-	opacity: 0.75;
-	line-height: 1;
-	margin: 0;
 }
 
 .sh-PremiumFeaturesPostbox {
@@ -1324,7 +1308,7 @@ Can be overruled by .form-table td p
 	margin: 0 0 var(--sh-spacing-small);
 }
 
-.sh-PremiumFeatureTeaser .sh-PremiumFeatureBadge {
+.sh-PremiumFeatureTeaser .sh-Badge--premium {
 	font-size: var(--sh-font-size-small);
 	vertical-align: middle;
 	order: 1;
