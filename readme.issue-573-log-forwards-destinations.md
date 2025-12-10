@@ -134,8 +134,9 @@ A **complete, production-ready** integrations system has been implemented on thi
    - **Test Connection button** with AJAX feedback
    - **Error handling:**
      - Tracks consecutive failures (remote only)
-     - Auto-disables after 10 consecutive errors (remote only)
+     - Auto-disables after 5 consecutive errors (remote only)
      - Shows last error message in settings
+     - Logs auto-disable events to Simple History with error details
      - Re-enables when user saves settings
    - **Note:** Local syslog requires a syslog daemon (works on Linux servers, not in Docker)
    - **Note:** PHP's `syslog()` always returns true (PHP 8.2+), so local syslog delivery cannot be verified
@@ -158,8 +159,9 @@ A **complete, production-ready** integrations system has been implemented on thi
    - **Test Connection button** with AJAX feedback
    - **Error handling:**
      - Tracks consecutive failures
-     - Auto-disables after 10 consecutive errors
+     - Auto-disables after 5 consecutive errors
      - Shows last error message in settings
+     - Logs auto-disable events to Simple History with error details
      - Re-enables when user saves settings
    - **Compliance-ready:** Designed for SOC 2, GDPR, HIPAA, PCI DSS requirements
    - **Future-proof:** Schema includes `site_url` field for future multi-site support
@@ -205,6 +207,7 @@ A **complete, production-ready** integrations system has been implemented on thi
 - `inc/modules/class-syslog-channel-module.php` - Module to register the channel
 - `inc/channels/class-external-database-channel.php` - External database channel implementation
 - `inc/modules/class-external-database-channel-module.php` - Module to register the channel
+- `inc/channels/trait-channel-error-tracking-trait.php` - Shared error tracking (success/error timestamps, consecutive failures, auto-disable, mini-log UI)
 
 **Core Plugin Files Modified for Premium Teasers:**
 - `inc/services/class-channels-settings-page.php` - Added Syslog and External Database premium teasers
@@ -355,18 +358,26 @@ A **complete, production-ready** integrations system has been implemented on thi
 4. On event: Evaluate rule in PHP using JsonLogic library
 5. If rule matches: Send to integration
 
-### 📊 Current Status (Last updated: 2025-12-08)
+### 📊 Current Status (Last updated: 2025-12-10)
 
 **Log Forwarding Complete ✅**: All log destination channels are implemented and production-ready:
 - **File Channel** (Free) - Local log files with rotation and security
 - **Syslog Channel** (Premium) - Local syslog and remote rsyslog (UDP/TCP)
 - **External Database Channel** (Premium) - MySQL/MariaDB for off-site compliance storage
 
-**Recent Improvements (Dec 6-8, 2025):**
+**Recent Improvements (Dec 6-10, 2025):**
 - JsonLogic-based alert rule evaluation system
 - File Channel UX refinements (combined settings, descriptive labels)
 - Premium teaser accessibility with `inert` attribute
 - Reusable CSS patterns: sh-RadioOptions, sh-InlineFields
+- **Error Tracking Improvements (Dec 9-10):**
+  - Connection status mini-log showing chronological events (success, error, auto-disabled)
+  - Auto-disable threshold reduced from 10 to 5 consecutive errors
+  - Auto-disable events logged to Simple History main event log
+  - Error message included in auto-disable log context for easier debugging
+  - Test Connection button disabled when form has unsaved changes
+  - Removed error_log() calls - as a logging plugin, we log to ourselves
+  - Test Connection success now updates the connection status display
 
 The core system is complete and tested. File Integration is ready to ship as a free feature. Syslog and External Database Channels are ready to ship as premium features. The architecture is solid for adding alert integrations (Slack, Email, etc.) in the next phase.
 
@@ -807,21 +818,21 @@ These are critical questions that need to be answered before implementing premiu
   - Scheduled retries (5min, 1hr, 24hr) for persistent issues
   - Exponential backoff to avoid hammering failing APIs
 - **Failure Thresholds**:
-  - Auto-disable integration after X consecutive failures (e.g., 10)
-  - Require manual re-enable to prevent infinite failed attempts
+  - Auto-disable integration after 5 consecutive failures ✅ Implemented
+  - Require manual re-enable to prevent infinite failed attempts ✅ Implemented
   - Track failure rate over time (e.g., 50% failure rate in 1 hour)
 - **User Notification**:
   - **Admin notice**: Show WordPress admin notice when integration fails
   - **Email alert**: Send email to admin when integration is auto-disabled
-  - **Simple History event**: Log integration failures as events (meta!)
+  - **Simple History event**: Log integration failures as events (meta!) ✅ Implemented
   - **Dashboard widget**: Show integration health status
 - **Fallback Options**:
   - Secondary integration (if Slack fails, try email)
   - Always log to file as backup
   - Queue for manual review/resend
 - **Error Visibility**:
-  - Show last error message in integration settings
-  - Log errors to WordPress debug.log
+  - Show last error message in integration settings ✅ Implemented (mini-log with timestamps)
+  - ~~Log errors to WordPress debug.log~~ Removed - we log to ourselves
   - Dedicated "Integration Logs" page showing success/failure history
   - Status indicator (green/yellow/red) per integration
 
@@ -829,10 +840,10 @@ These are critical questions that need to be answered before implementing premiu
 
 **Recommended Approach:**
 - Retry 3-5 times with exponential backoff for API calls
-- Auto-disable after 10 consecutive failures
+- Auto-disable after 5 consecutive failures ✅ Implemented
 - Show admin notice when disabled
-- Log integration errors as Simple History events
-- Display last error + failure count in settings UI
+- Log integration errors as Simple History events ✅ Implemented (with error message in context)
+- Display last error + failure count in settings UI ✅ Implemented (mini-log format)
 
 ### Rules vs Destinations Architecture
 **Question:** What's more user-friendly and logical - create a rule that sends to multiple destinations, or create rules per destination?
