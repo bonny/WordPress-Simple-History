@@ -1166,6 +1166,57 @@ so add some extra place then to make it look a bit less ugly.
 	inset: 0;
 }
 
+/* Base badge styles - shared by all badge types */
+.sh-Badge {
+	display: inline-flex;
+	align-items: center;
+	text-transform: uppercase;
+	font-size: 0.7em;
+	font-weight: 600;
+	font-style: normal;
+	border-radius: var(--sh-border-radius);
+	padding: 0.2em 0.5em;
+	line-height: 1;
+	margin: 0;
+	vertical-align: middle;
+}
+
+/* Badge variants */
+.sh-Badge--new {
+	color: var(--sh-color-white);
+	background-color: var(--sh-color-blue);
+}
+
+.sh-Badge--beta {
+	color: var(--sh-color-black);
+	background-color: var(--sh-color-yellow);
+}
+
+/* Beta notice banner for experimental features */
+.sh-BetaNotice {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--sh-spacing-small);
+	padding: var(--sh-spacing-medium);
+	background-color: #fff8e5;
+	border: 1px solid var(--sh-color-yellow);
+	border-left-width: 4px;
+	border-radius: var(--sh-border-radius);
+	margin-bottom: var(--sh-spacing-large);
+}
+
+.sh-BetaNotice p {
+	margin: 0;
+}
+
+.sh-BetaNotice p + p {
+	margin-top: var(--sh-spacing-small);
+}
+
+.sh-BetaNotice a {
+	color: var(--sh-color-blue);
+}
+
 .sh-PremiumFeatureBadge {
 	--sh-badge-text-color: var(--sh-color-black);
 	--sh-badge-background-color: var(--sh-color-green-mint);

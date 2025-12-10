@@ -420,7 +420,14 @@ class Menu_Manager {
 					<li class="sh-SettingsTabs-tab <?php echo esc_attr( $class_page_prio ); ?>">
 						<a href="<?php echo esc_url( $child_page->get_url() ); ?>" class="sh-SettingsTabs-link <?php echo esc_attr( $is_active_class ); ?>">
 						<?php
-						echo esc_html( $child_page->get_menu_title() );
+						echo wp_kses(
+							$child_page->get_menu_title(),
+							[
+								'span' => [
+									'class' => [],
+								],
+							]
+						);
 						?>
 						</a>
 					</li>

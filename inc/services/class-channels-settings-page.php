@@ -65,9 +65,13 @@ class Channels_Settings_Page extends Service {
 			return;
 		}
 
+		// Build menu title with New badge.
+		$menu_title = __( 'Log Forwarding', 'simple-history' )
+			. ' <span class="sh-Badge sh-Badge--new">' . esc_html__( 'New', 'simple-history' ) . '</span>';
+
 		( new Menu_Page() )
 			->set_page_title( __( 'Log Forwarding', 'simple-history' ) )
-			->set_menu_title( __( 'Log Forwarding', 'simple-history' ) )
+			->set_menu_title( $menu_title )
 			->set_menu_slug( 'general_settings_subtab_log_forwarding' )
 			->set_callback( [ $this, 'settings_output_channels' ] )
 			->set_order( 40 ) // After general settings but before licenses.
@@ -449,6 +453,7 @@ class Channels_Settings_Page extends Service {
 	public function settings_output_channels() {
 		?>
 		<div class="wrap sh-Page-content">
+			<?php $this->render_beta_notice(); ?>
 			<form method="post" action="options.php">
 				<?php
 				// Prints out all settings sections added to a particular settings page.
@@ -460,6 +465,32 @@ class Channels_Settings_Page extends Service {
 				submit_button();
 				?>
 			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render new feature notice banner at the top of the settings page.
+	 */
+	private function render_beta_notice() {
+		?>
+		<div class="sh-BetaNotice">
+			<span class="sh-Badge sh-Badge--new"><?php esc_html_e( 'New', 'simple-history' ); ?></span>
+			<div>
+				<p>
+					<strong><?php esc_html_e( 'Log Forwarding is a new feature.', 'simple-history' ); ?></strong>
+					<?php esc_html_e( 'It lets you send events to external services for backup, monitoring, or compliance.', 'simple-history' ); ?>
+				</p>
+				<p>
+					<?php
+					printf(
+						/* translators: %s: URL to GitHub issues */
+						esc_html__( 'We\'d love your feedback! Please report any issues or suggestions on %s.', 'simple-history' ),
+						'<a href="https://github.com/bonny/WordPress-Simple-History/issues" target="_blank" rel="noopener noreferrer">GitHub</a>'
+					);
+					?>
+				</p>
+			</div>
 		</div>
 		<?php
 	}
