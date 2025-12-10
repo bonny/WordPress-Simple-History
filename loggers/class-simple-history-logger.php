@@ -5,6 +5,7 @@ namespace Simple_History\Loggers;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
+use Simple_History\Services\Channels_Settings_Page;
 
 /**
  * Logs changes made on the Simple History settings page.
@@ -28,13 +29,14 @@ class Simple_History_Logger extends Logger {
 			'description' => __( 'Logs changes made on the Simple History settings page.', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => array(
-				'modified_settings'           => _x( 'Modified settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'regenerated_rss_feed_secret' => _x( 'Regenerated RSS feed secret', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'cleared_log'                 => _x( 'Cleared the log for Simple History ({num_rows_deleted} rows were removed)', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'purged_events'               => _x( 'Removed {num_rows} events that were older than {days} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'auto_backfill_completed'     => _x( 'Populated (backfilled) your history with {posts_imported} posts and {users_imported} users from the last {days_back} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'manual_backfill_completed'   => _x( 'Manual backfill created {post_events} post events and {user_events} user events', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'channel_auto_disabled'       => _x( 'Log forwarding channel "{channel_name}" was auto-disabled after {failure_count} consecutive failures', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'modified_settings'               => _x( 'Modified settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'regenerated_rss_feed_secret'     => _x( 'Regenerated RSS feed secret', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'cleared_log'                     => _x( 'Cleared the log for Simple History ({num_rows_deleted} rows were removed)', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'purged_events'                   => _x( 'Removed {num_rows} events that were older than {days} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'auto_backfill_completed'         => _x( 'Populated (backfilled) your history with {posts_imported} posts and {users_imported} users from the last {days_back} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'manual_backfill_completed'       => _x( 'Manual backfill created {post_events} post events and {user_events} user events', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'channel_auto_disabled'           => _x( 'Log forwarding channel "{channel_name}" was auto-disabled after {failure_count} consecutive failures', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'log_forwarding_settings_updated' => _x( 'Updated Log Forwarding settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			),
 		];
 	}
@@ -168,13 +170,32 @@ class Simple_History_Logger extends Logger {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		if ( $_POST['option_page'] === $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP ) {
+		$option_page = sanitize_text_field( wp_unslash( $_POST['option_page'] ) );
+
+		// Log changes to general settings.
+		if ( $option_page === $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP ) {
 			// Save all changes.
 			add_action( 'updated_option', array( $this, 'on_updated_option' ), 10, 3 );
 
 			// Finally, before redirecting back to Simple History options page, log the changes.
 			add_filter( 'wp_redirect', [ $this, 'commit_log_on_wp_redirect' ], 10, 2 );
+		} elseif ( $option_page === Channels_Settings_Page::SETTINGS_OPTION_GROUP ) {
+			// Log changes to Log Forwarding settings.
+			add_filter( 'wp_redirect', [ $this, 'log_forwarding_settings_saved' ], 10, 2 );
 		}
+	}
+
+	/**
+	 * Log when Log Forwarding settings are saved.
+	 *
+	 * @param string $location URL to redirect to.
+	 * @param int    $status HTTP status code.
+	 * @return string
+	 */
+	public function log_forwarding_settings_saved( $location, $status ) {
+		$this->info_message( 'log_forwarding_settings_updated' );
+
+		return $location;
 	}
 
 	/**

@@ -20,8 +20,8 @@ class Channels_Settings_Page extends Service {
 	 */
 	private ?Channels_Manager $channels_manager = null;
 
-	private const SETTINGS_PAGE_SLUG    = 'simple_history_settings_menu_slug_tab_integrations';
-	private const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_tab_integrations';
+	private const SETTINGS_PAGE_SLUG   = 'simple_history_settings_menu_slug_log_forwarding';
+	public const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_log_forwarding';
 
 	/**
 	 * @inheritdoc
@@ -68,7 +68,7 @@ class Channels_Settings_Page extends Service {
 		( new Menu_Page() )
 			->set_page_title( __( 'Log Forwarding', 'simple-history' ) )
 			->set_menu_title( __( 'Log Forwarding', 'simple-history' ) )
-			->set_menu_slug( 'general_settings_subtab_integrations' )
+			->set_menu_slug( 'general_settings_subtab_log_forwarding' )
 			->set_callback( [ $this, 'settings_output_channels' ] )
 			->set_order( 40 ) // After general settings but before licenses.
 			->set_parent( Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG )
