@@ -136,14 +136,21 @@ class Simple_History_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_channel_auto_disabled( $channel, $failure_count ) {
-		$this->warning_message(
-			'channel_auto_disabled',
-			[
-				'channel_name'  => $channel->get_name(),
-				'channel_slug'  => $channel->get_slug(),
-				'failure_count' => $failure_count,
-			]
-		);
+		$context = [
+			'channel_name'  => $channel->get_name(),
+			'channel_slug'  => $channel->get_slug(),
+			'failure_count' => $failure_count,
+		];
+
+		// Get the last error message if available.
+		if ( method_exists( $channel, 'get_setting' ) ) {
+			$last_error = $channel->get_setting( 'last_error', [] );
+			if ( ! empty( $last_error['message'] ) ) {
+				$context['error_message'] = $last_error['message'];
+			}
+		}
+
+		$this->warning_message( 'channel_auto_disabled', $context );
 	}
 
 	/**
