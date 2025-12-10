@@ -475,21 +475,16 @@ class Channels_Settings_Page extends Service {
 	private function render_beta_notice() {
 		?>
 		<div class="sh-BetaNotice">
-			<div>
-				<p>
-					<strong><?php esc_html_e( 'Log Forwarding is a new feature.', 'simple-history' ); ?></strong>
-					<?php esc_html_e( 'It lets you send events to external services for backup, monitoring, or compliance.', 'simple-history' ); ?>
-				</p>
-				<p>
-					<?php
-					printf(
-						/* translators: %s: email address link */
-						esc_html__( 'We\'d love your feedback! Please email us at %s.', 'simple-history' ),
-						'<a href="mailto:contact@simple-history.com">contact@simple-history.com</a>'
-					);
-					?>
-				</p>
-			</div>
+			<p>
+				<strong><?php esc_html_e( 'New feature – your feedback matters!', 'simple-history' ); ?></strong>
+				<?php
+				printf(
+					/* translators: %s: email address link */
+					esc_html__( 'Let us know what\'s working and what could be better at %s.', 'simple-history' ),
+					'<a href="mailto:contact@simple-history.com">contact@simple-history.com</a>'
+				);
+				?>
+			</p>
 		</div>
 		<?php
 	}
