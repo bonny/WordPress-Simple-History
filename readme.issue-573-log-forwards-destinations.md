@@ -148,7 +148,7 @@ A **complete, production-ready** integrations system has been implemented on thi
      - JSON context column for flexible metadata (MySQL 5.7+ compatible)
      - Auto-table creation on first use
    - **Security features:**
-     - Password encryption using WordPress SECURE_AUTH_KEY
+     - Password encryption using AES-256-CBC with salt (see Encryption section below)
      - Prepared statements for all queries (SQL injection protection)
      - Optional SSL/TLS connection support
    - **Settings UI:**
@@ -378,6 +378,12 @@ A **complete, production-ready** integrations system has been implemented on thi
   - Test Connection button disabled when form has unsaved changes
   - Removed error_log() calls - as a logging plugin, we log to ourselves
   - Test Connection success now updates the connection status display
+- **Password Encryption Fix (Dec 10):**
+  - Fixed double-encryption bug caused by WordPress Settings API calling `sanitize_callback` multiple times
+  - Switched from `SECURE_AUTH_KEY` to `LOGGED_IN_KEY` (more stable, less likely to be rotated)
+  - Added salt using `LOGGED_IN_SALT` for additional security
+  - Added `is_encrypted_value()` detection to prevent re-encrypting already-encrypted values
+  - Based on Google Site Kit's `Data_Encryption` class approach
 
 The core system is complete and tested. File Integration is ready to ship as a free feature. Syslog and External Database Channels are ready to ship as premium features. The architecture is solid for adding alert integrations (Slack, Email, etc.) in the next phase.
 
@@ -1015,3 +1021,36 @@ Ideas that were considered but rejected after research.
 - Full control over log location
 
 **Source:** https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/
+
+---
+
+## Password Encryption Approach
+
+The External Database Channel encrypts stored passwords using AES-256-CBC encryption. This section documents the approach and lessons learned.
+
+### Implementation
+
+Based on Google Site Kit's `Data_Encryption` class:
+- **Encryption**: AES-256-CBC via OpenSSL
+- **Key**: Derived from `LOGGED_IN_KEY` via SHA-256 hash
+- **Salt**: `LOGGED_IN_SALT` prepended to password before encryption
+- **IV**: Random 16-byte initialization vector per encryption
+
+### Why LOGGED_IN_KEY instead of SECURE_AUTH_KEY?
+
+`SECURE_AUTH_KEY` is specifically used for HTTPS cookie authentication and is more likely to be rotated after security incidents. `LOGGED_IN_KEY` is slightly more stable. Both Google Site Kit and Felix Arntz's research recommend `LOGGED_IN_KEY` as the default.
+
+**Important**: If these keys change, encrypted passwords become unrecoverable - users must re-enter them.
+
+### Double-Encryption Bug Fix
+
+WordPress Settings API can call `sanitize_callback` multiple times per save. This caused the already-encrypted password to be encrypted again, corrupting it.
+
+**Solution**: Added `is_encrypted_value()` that attempts to decrypt the input - if successful and the salt prefix matches, the value is already encrypted and should not be re-encrypted.
+
+### References
+
+- **Google Site Kit Documentation**: https://sitekit.withgoogle.com/documentation/using-site-kit/configure-site-kit-wp-config-keys/
+- **Felix Arntz: Storing Confidential Data in WordPress**: https://felix-arntz.me/blog/storing-confidential-data-in-wordpress/
+- **Permanent Tourist: Storing credentials securely**: https://permanenttourist.ch/2023/03/storing-credentials-securely-in-wordpress-plugin-settings/
+- **WordPress Trac #61706**: https://core.trac.wordpress.org/ticket/61706 (proposal for core encrypted options API)
