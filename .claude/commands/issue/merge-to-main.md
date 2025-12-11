@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git checkout:*), Bash(git merge:*), Bash(git branch:*), Bash(git push:*), Bash(rm:*), Bash(gh project item-list:*), Bash(gh project item-edit:*), Bash(gh project field-list:*), Bash(gh api graphql:*)
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git checkout:*), Bash(git merge:*), Bash(git branch:*), Bash(git push:*), Bash(rm:*), Bash(ls:*), Bash(gh project item-list:*), Bash(gh project item-edit:*), Bash(gh project field-list:*), Bash(gh api graphql:*)
 description: Merge current issue branch into main branch.
 ---
 
