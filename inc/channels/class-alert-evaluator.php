@@ -38,6 +38,7 @@ class Alert_Evaluator {
 
 		$library_path = __DIR__ . '/../libraries/JsonLogic.php';
 		if ( file_exists( $library_path ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Path is safely constructed from __DIR__.
 			require_once $library_path;
 			self::$library_loaded = true;
 			return true;
