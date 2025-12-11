@@ -340,6 +340,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Added Log Forwarding feature to send events to external destinations for backup, compliance, and security purposes. Includes File Channel for writing events to local log files with automatic rotation. [Premium add-on](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_log_forwarding) adds Syslog and External Database channels. [#573](https://github.com/bonny/WordPress-Simple-History/issues/573).
 -   Added `simple_history/purge_db_where` filter for custom event retention rules, allowing per-logger retention periods or keeping certain events forever. [See documentation](https://simple-history.com/docs/hooks/#simplehistorypurgedbwhere).
 -   Added `simple_history/db/purge_done` action that fires once when purge completes, with total deleted count.
 -   Added `Helpers::count_events()` function for counting events in the database.
