@@ -167,9 +167,9 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test write buffering.
+	 * Test that multiple events are written to file.
 	 */
-	public function test_write_buffering() {
+	public function test_multiple_events_written_to_file() {
 		// Enable buffering by sending multiple events
 		$this->channel->set_setting( 'enabled', true );
 

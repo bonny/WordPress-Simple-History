@@ -300,5 +300,4 @@ abstract class Channel implements Channel_Interface {
 		// Default implementation does nothing.
 		// Override in child classes to add custom content.
 	}
-
 }
