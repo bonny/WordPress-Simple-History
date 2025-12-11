@@ -60,7 +60,7 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 	public function test_channel_properties() {
 		$this->assertEquals( 'file', $this->channel->get_slug() );
 		$this->assertEquals( 'Local Files', $this->channel->get_name() );
-		$this->assertStringContainsString( 'log events to files', $this->channel->get_description() );
+		$this->assertStringContainsString( 'log files', $this->channel->get_description() );
 		$this->assertFalse( $this->channel->supports_async() );
 	}
 

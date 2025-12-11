@@ -238,6 +238,7 @@ class JsonLogic {
 		} elseif ( $op === 'and' ) {
 			// Return the first falsy value, or the last value
 			// we don't even *evaluate* values after the first falsy (short-circuit)
+			$current = null;
 			foreach ( $values as $value ) {
 				$current = static::apply( $value, $data );
 				if ( ! static::truthy( $current ) ) {
@@ -249,6 +250,7 @@ class JsonLogic {
 		} elseif ( $op === 'or' ) {
 			// Return the first truthy value, or the last value
 			// we don't even *evaluate* values after the first truthy (short-circuit)
+			$current = null;
 			foreach ( $values as $value ) {
 				$current = static::apply( $value, $data );
 				if ( static::truthy( $current ) ) {
