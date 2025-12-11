@@ -648,7 +648,13 @@ class File_Channel extends Channel {
 		 *
 		 * @param string $token The 16-character folder token.
 		 */
-		return apply_filters( 'simple_history/file_channel/folder_token', $token );
+		$token = apply_filters( 'simple_history/file_channel/folder_token', $token );
+
+		// Sanitize for safe folder naming in case wp_generate_password() is
+		// overridden or filter returns unexpected characters.
+		$token = sanitize_file_name( $token );
+
+		return $token;
 	}
 
 	/**
