@@ -68,6 +68,18 @@ use Simple_History\Services;
  * // Result: Only SimplePluginLogger events
  * ```
  *
+ * @example Surrounding events (show events before and after a specific event).
+ * ```php
+ * // Get 5 events before and 5 events after event ID 123 (11 total).
+ * // This is useful for debugging to see what happened around a specific event.
+ * // Note: This bypasses logger permissions and shows raw chronological events.
+ * $results = $log_query->query([
+ *     'surrounding_event_id' => 123,
+ *     'surrounding_count' => 5,
+ * ]);
+ * // Result includes 'center_event_id' in the return array to identify the target event.
+ * ```
+ *
  * @see Documentation: docs/filters-usage-examples.md
  */
 class Log_Query {
@@ -121,12 +133,24 @@ class Log_Query {
 	 *      @type boolean $only_sticky Only return sticky events. Default false.
 	 *      @type array $context_filters Context filters as key-value pairs. Default null.
 	 *      @type boolean $ungrouped Return ungrouped events without occasions grouping. Default false.
+	 *
+	 *    Surrounding Events (Admin Only - bypasses logger permissions).
+	 *
+	 *      @type int $surrounding_event_id The center event ID to get surrounding events for. When set, returns events
+	 *                                       chronologically before and after this event, ignoring all other filters.
+	 *      @type int $surrounding_count Number of events to return before AND after the center event. Default 5.
+	 *                                    Total events returned = surrounding_count * 2 + 1 (before + center + after).
 	 * }
 	 * @return array|\WP_Error Query results or WP_Error on database error.
 	 * @throws \InvalidArgumentException If invalid query type.
 	 */
 	public function query( $args = [] ) {
 		$args = wp_parse_args( $args );
+
+		// Check for surrounding events query (special mode that bypasses normal filtering).
+		if ( isset( $args['surrounding_event_id'] ) ) {
+			return $this->query_surrounding_events( $args );
+		}
 
 		// Determine kind of query.
 		$type = $args['type'] ?? 'overview';
@@ -771,6 +795,191 @@ class Log_Query {
 			// Remove id from keys, because they are cumbersome when working with JSON.
 			'log_rows' => array_values( $log_rows ),
 			'sql'      => $sql_query,
+		];
+	}
+
+	/**
+	 * Query for surrounding events around a specific event ID.
+	 *
+	 * This method returns events chronologically before and after a specific event,
+	 * regardless of logger, user, or other filters. It's designed for debugging
+	 * scenarios where users need to see the full context of what happened around
+	 * a specific event.
+	 *
+	 * IMPORTANT: This method bypasses normal logger permission checks and returns
+	 * ALL events chronologically. Permission checking should be done by the caller
+	 * (REST API or WP-CLI) before calling this method.
+	 *
+	 * @param array $args {
+	 *     Query arguments.
+	 *
+	 *     @type int $surrounding_event_id Required. The center event ID.
+	 *     @type int $surrounding_count    Optional. Number of events before AND after. Default 5.
+	 * }
+	 * @return array|\WP_Error {
+	 *     Query results array or WP_Error on failure.
+	 *
+	 *     @type array  $log_rows         Array of event objects (before + center + after, chronologically ordered).
+	 *     @type int    $center_event_id  The ID of the center event.
+	 *     @type int    $total_row_count  Total number of events returned.
+	 *     @type int    $events_before    Count of events before center.
+	 *     @type int    $events_after     Count of events after center.
+	 *     @type int    $max_id           Highest event ID in results.
+	 *     @type int    $min_id           Lowest event ID in results.
+	 *     @type string $max_date         Date of most recent event.
+	 * }
+	 */
+	protected function query_surrounding_events( $args ) {
+		global $wpdb;
+
+		$simple_history    = Simple_History::get_instance();
+		$events_table_name = $simple_history->get_events_table_name();
+
+		// Parse arguments with defaults.
+		$args = wp_parse_args(
+			$args,
+			[
+				'surrounding_event_id' => null,
+				'surrounding_count'    => 5,
+			]
+		);
+
+		// Validate surrounding_event_id.
+		if ( ! isset( $args['surrounding_event_id'] ) || ! is_numeric( $args['surrounding_event_id'] ) ) {
+			return new \WP_Error(
+				'invalid_surrounding_event_id',
+				__( 'Invalid surrounding_event_id parameter.', 'simple-history' ),
+				[ 'status' => 400 ]
+			);
+		}
+
+		$center_event_id = (int) $args['surrounding_event_id'];
+
+		// Validate surrounding_count (must be positive integer, max 50).
+		$surrounding_count = (int) $args['surrounding_count'];
+		if ( $surrounding_count < 1 ) {
+			$surrounding_count = 5;
+		}
+		if ( $surrounding_count > 50 ) {
+			$surrounding_count = 50;
+		}
+
+		// First, verify the center event exists and get its data.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$center_event = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT id, date FROM {$events_table_name} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$center_event_id
+			)
+		);
+
+		if ( ! $center_event ) {
+			return new \WP_Error(
+				'event_not_found',
+				__( 'The specified event was not found.', 'simple-history' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		// Get events BEFORE the center event (older, lower IDs).
+		// Order by id DESC to get the closest ones first, then we'll reverse.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$events_before = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT
+					id, logger, level, date, message, initiator, occasionsID,
+					1 AS repeatCount, 1 AS subsequentOccasions
+				FROM {$events_table_name}
+				WHERE id < %d
+				ORDER BY id DESC
+				LIMIT %d",
+				$center_event_id,
+				$surrounding_count
+			),
+			OBJECT_K
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// Reverse to get chronological order (oldest first).
+		$events_before = array_reverse( $events_before, true );
+
+		// Get the center event with full data.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$center_event_full = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT
+					id, logger, level, date, message, initiator, occasionsID,
+					1 AS repeatCount, 1 AS subsequentOccasions
+				FROM {$events_table_name}
+				WHERE id = %d",
+				$center_event_id
+			),
+			OBJECT_K
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// Get events AFTER the center event (newer, higher IDs).
+		// Order by id ASC to get the closest ones first.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$events_after = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT
+					id, logger, level, date, message, initiator, occasionsID,
+					1 AS repeatCount, 1 AS subsequentOccasions
+				FROM {$events_table_name}
+				WHERE id > %d
+				ORDER BY id ASC
+				LIMIT %d",
+				$center_event_id,
+				$surrounding_count
+			),
+			OBJECT_K
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// Combine all events: before + center + after (chronological order).
+		$all_events = $events_before + $center_event_full + $events_after;
+
+		// Add context data to all events.
+		$all_events = $this->add_contexts_to_log_rows( $all_events );
+
+		// Convert to indexed array.
+		$log_rows = array_values( $all_events );
+
+		// Calculate metadata.
+		$events_before_count = count( $events_before );
+		$events_after_count  = count( $events_after );
+		$total_count         = count( $log_rows );
+
+		// Get max/min IDs and max date.
+		$max_id   = null;
+		$min_id   = null;
+		$max_date = null;
+
+		if ( $total_count > 0 ) {
+			// Events are in chronological order (oldest first), so:
+			// - min_id is the first event (oldest).
+			// - max_id is the last event (newest).
+			$min_id   = (int) $log_rows[0]->id;
+			$max_id   = (int) $log_rows[ $total_count - 1 ]->id;
+			$max_date = $log_rows[ $total_count - 1 ]->date;
+		}
+
+		return [
+			'log_rows'        => $log_rows,
+			'center_event_id' => $center_event_id,
+			'total_row_count' => $total_count,
+			'events_before'   => $events_before_count,
+			'events_after'    => $events_after_count,
+			'max_id'          => $max_id,
+			'min_id'          => $min_id,
+			'max_date'        => $max_date,
+			'log_rows_count'  => $total_count,
+			// Standard pagination fields (not really applicable but included for consistency).
+			'pages_count'     => 1,
+			'page_current'    => 1,
+			'page_rows_from'  => 1,
+			'page_rows_to'    => $total_count,
 		];
 	}
 

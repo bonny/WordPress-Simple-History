@@ -39,7 +39,47 @@ export function generateAPIQueryParams( props ) {
 		excludeUsers,
 		excludeInitiator,
 		excludeContextFilters,
+		surroundingEventId,
+		surroundingCount,
 	} = props;
+
+	// If surrounding event ID is provided, return a minimal query params object.
+	// The surrounding events feature bypasses most filters and shows events
+	// chronologically before and after the specified event.
+	if ( surroundingEventId ) {
+		const params = {
+			surrounding_event_id: surroundingEventId,
+			_fields: [
+				'id',
+				'logger',
+				'date_local',
+				'date_gmt',
+				'message',
+				'message_html',
+				'message_key',
+				'details_data',
+				'details_html',
+				'loglevel',
+				'occasions_id',
+				'subsequent_occasions_count',
+				'initiator',
+				'initiator_data',
+				'ip_addresses',
+				'via',
+				'permalink',
+				'sticky',
+				'sticky_appended',
+				'backfilled',
+			],
+		};
+
+		// Add surrounding_count if specified.
+		if ( surroundingCount ) {
+			params.surrounding_count = surroundingCount;
+		}
+
+		return params;
+	}
 
 	// Set pager size depending on if page or dashboard.
 	// window.pagenow = 'dashboard_page_simple_history_page' | 'dashboard'

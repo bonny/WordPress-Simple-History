@@ -472,6 +472,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'default'     => false,
 		);
 
+		// Surrounding events parameters (admin only).
+		$query_params['surrounding_event_id'] = array(
+			'description' => __( 'Show events surrounding this event ID. Returns events chronologically before and after the specified event, regardless of other filters. Requires administrator privileges.', 'simple-history' ),
+			'type'        => 'integer',
+		);
+
+		$query_params['surrounding_count'] = array(
+			'description' => __( 'Number of events to show before AND after the surrounding_event_id. Default 5, max 50.', 'simple-history' ),
+			'type'        => 'integer',
+			'default'     => 5,
+			'minimum'     => 1,
+			'maximum'     => 50,
+		);
+
 		// Exclusion filters - hide events matching these criteria.
 		// Note: When both inclusion and exclusion filters are specified for the same field, exclusion takes precedence.
 		$query_params['exclude_search'] = array(
@@ -668,6 +682,16 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// Surrounding events feature requires administrator privileges.
+		// This bypasses normal logger permission checks and could expose sensitive events.
+		if ( isset( $request['surrounding_event_id'] ) && ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'You do not have permission to view surrounding events. This feature requires administrator privileges.', 'simple-history' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		return true;
 	}
 
@@ -800,6 +824,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'initiator'               => 'initiator',
 			'context_filters'         => 'context_filters',
 			'ungrouped'               => 'ungrouped',
+			// Surrounding events parameters.
+			'surrounding_event_id'    => 'surrounding_event_id',
+			'surrounding_count'       => 'surrounding_count',
 			// Exclusion filters.
 			'exclude_search'          => 'exclude_search',
 			'exclude_loglevels'       => 'exclude_loglevels',
@@ -840,8 +867,30 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		$query_type = $request['type'] ?? 'overview';
 
-		// Add pagination headers to the response for overview and single queries.
-		if ( in_array( $query_type, [ 'overview', 'single' ], true ) ) {
+		// Check if this is a surrounding events query.
+		$is_surrounding_query = isset( $request['surrounding_event_id'] );
+
+		if ( $is_surrounding_query ) {
+			// Add surrounding events specific headers.
+			$response->header( 'X-WP-Total', (int) $query_result['total_row_count'] );
+			$response->header( 'X-WP-TotalPages', 1 );
+			$response->header( 'X-SimpleHistory-CenterEventId', (int) $query_result['center_event_id'] );
+			$response->header( 'X-SimpleHistory-EventsBefore', (int) $query_result['events_before'] );
+			$response->header( 'X-SimpleHistory-EventsAfter', (int) $query_result['events_after'] );
+
+			if ( isset( $query_result['max_id'] ) ) {
+				$response->header( 'X-SimpleHistory-MaxId', (int) $query_result['max_id'] );
+			}
+
+			if ( isset( $query_result['min_id'] ) ) {
+				$response->header( 'X-SimpleHistory-MinId', (int) $query_result['min_id'] );
+			}
+
+			if ( isset( $query_result['max_date'] ) ) {
+				$response->header( 'X-SimpleHistory-MaxDate', $query_result['max_date'] );
+			}
+		} elseif ( in_array( $query_type, [ 'overview', 'single' ], true ) ) {
+			// Add pagination headers to the response for overview and single queries.
 			$page        = (int) $query_result['page_current'];
 			$total_posts = (int) $query_result['total_row_count'];
 			$max_pages   = (int) $query_result['pages_count'];

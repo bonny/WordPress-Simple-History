@@ -26,6 +26,7 @@ export function EventsList( props ) {
 		eventsAdminPageURL,
 		eventsLoadingHasErrors,
 		eventsLoadingErrorDetails,
+		userCanManageOptions,
 	} = props;
 
 	const totalPages = eventsMeta.totalPages;
@@ -66,6 +67,7 @@ export function EventsList( props ) {
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				eventsSettingsPageURL={ eventsSettingsPageURL }
 				eventsAdminPageURL={ eventsAdminPageURL }
+				userCanManageOptions={ userCanManageOptions }
 			/>
 
 			<Spacer margin={ 4 } />

@@ -22,6 +22,7 @@ export function Event( props ) {
 		isNewAfterFetchNewEvents,
 		eventsSettingsPageURL,
 		eventsAdminPageURL,
+		userCanManageOptions,
 		prevEvent,
 		nextEvent,
 		loopIndex,
@@ -79,6 +80,7 @@ export function Event( props ) {
 					eventVariant={ variant }
 					eventsAdminPageURL={ eventsAdminPageURL }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					userCanManageOptions={ userCanManageOptions }
 				/>
 			</div>
 		</li>

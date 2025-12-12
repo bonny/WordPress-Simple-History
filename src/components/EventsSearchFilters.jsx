@@ -46,6 +46,7 @@ export function EventsSearchFilters( props ) {
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setCurrentUserId,
+		setUserCanManageOptions,
 		hideOwnEvents,
 		setHideOwnEvents,
 	} = props;
@@ -145,6 +146,13 @@ export function EventsSearchFilters( props ) {
 				setCurrentUserId( searchOptionsResponse.current_user_id );
 			}
 
+			// Set whether user can manage options (is administrator).
+			if ( searchOptionsResponse.current_user_can_manage_options ) {
+				setUserCanManageOptions(
+					searchOptionsResponse.current_user_can_manage_options
+				);
+			}
+
 			setSearchOptionsLoaded( true );
 		} );
 	}, [
@@ -158,6 +166,7 @@ export function EventsSearchFilters( props ) {
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setCurrentUserId,
+		setUserCanManageOptions,
 		selectedDateOption,
 	] );
 

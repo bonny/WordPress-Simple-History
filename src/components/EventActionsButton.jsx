@@ -6,6 +6,7 @@ import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
 import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
+import { EventSurroundingEventsMenuItem } from './EventSurroundingEventsMenuItem';
 import { EventStickMenuItem } from './EventStickMenuItem';
 import { EventUnstickMenuItem } from './EventUnstickMenuItem';
 
@@ -13,10 +14,11 @@ import { EventUnstickMenuItem } from './EventUnstickMenuItem';
  * The button with three dots that opens a dropdown with actions for the event.
  *
  * @param {Object}  props
- * @param {Object}  props.event              The event object
- * @param {string}  props.eventVariant       The variant of the event ('normal' or 'modal')
- * @param {string}  props.eventsAdminPageURL URL to the events admin page
- * @param {boolean} props.hasPremiumAddOn    Whether the premium add-on is installed
+ * @param {Object}  props.event                The event object
+ * @param {string}  props.eventVariant         The variant of the event ('normal' or 'modal')
+ * @param {string}  props.eventsAdminPageURL   URL to the events admin page
+ * @param {boolean} props.hasPremiumAddOn      Whether the premium add-on is installed
+ * @param {boolean} props.userCanManageOptions Whether the user can manage options (is admin)
  * @return {Object|null} React element or null if variant is modal
  */
 export function EventActionsButton( {
@@ -24,6 +26,7 @@ export function EventActionsButton( {
 	eventVariant,
 	eventsAdminPageURL,
 	hasPremiumAddOn,
+	userCanManageOptions,
 } ) {
 	// Don't show actions on modal events.
 	if ( eventVariant === 'modal' ) {
@@ -60,6 +63,11 @@ export function EventActionsButton( {
 							<EventViewMoreSimilarEventsMenuItem
 								event={ event }
 								eventsAdminPageURL={ eventsAdminPageURL }
+							/>
+							<EventSurroundingEventsMenuItem
+								event={ event }
+								eventsAdminPageURL={ eventsAdminPageURL }
+								userCanManageOptions={ userCanManageOptions }
 							/>
 						</MenuGroup>
 

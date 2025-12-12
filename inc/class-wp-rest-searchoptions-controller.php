@@ -162,24 +162,25 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
 
 		$data = [
-			'dates'                         => Helpers::get_data_for_date_filter(),
-			'loggers'                       => $this->get_loggers_and_messages(),
-			'initiators'                    => $this->get_initiator_options(),
-			'pager_size'                    => [
+			'dates'                           => Helpers::get_data_for_date_filter(),
+			'loggers'                         => $this->get_loggers_and_messages(),
+			'initiators'                      => $this->get_initiator_options(),
+			'pager_size'                      => [
 				'page'      => (int) Helpers::get_pager_size(),
 				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
 			],
-			'new_events_check_interval'     => Helpers::get_new_events_check_interval(),
-			'maps_api_key'                  => apply_filters( 'simple_history/maps_api_key', '' ),
-			'addons'                        => [
+			'new_events_check_interval'       => Helpers::get_new_events_check_interval(),
+			'maps_api_key'                    => apply_filters( 'simple_history/maps_api_key', '' ),
+			'addons'                          => [
 				'addons'                       => $addons_service->get_addon_plugins(),
 				'has_extended_settings_add_on' => $addons_service->has_add_on( 'simple-history-extended-settings' ),
 				'has_premium_add_on'           => $addons_service->has_add_on( 'simple-history-premium' ),
 			],
-			'experimental_features_enabled' => Helpers::experimental_features_is_enabled(),
-			'events_admin_page_url'         => Helpers::get_history_admin_url(),
-			'settings_page_url'             => Helpers::get_settings_page_url(),
-			'current_user_id'               => get_current_user_id(),
+			'experimental_features_enabled'   => Helpers::experimental_features_is_enabled(),
+			'events_admin_page_url'           => Helpers::get_history_admin_url(),
+			'settings_page_url'               => Helpers::get_settings_page_url(),
+			'current_user_id'                 => get_current_user_id(),
+			'current_user_can_manage_options' => current_user_can( 'manage_options' ),
 		];
 
 		return rest_ensure_response( $data );

@@ -134,6 +134,20 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * [--only_sticky]
 	 * : Show only sticky events.
 	 *
+	 * ## Surrounding Events
+	 *
+	 * Show events chronologically before and after a specific event. Useful for debugging
+	 * to see the full context of what happened around a specific event. Requires administrator
+	 * privileges and bypasses normal logger permission filters.
+	 *
+	 * [--surrounding_event_id=<id>]
+	 * : Show events surrounding this event ID. Returns events before and after the specified event.
+	 *
+	 * [--surrounding_count=<count>]
+	 * : Number of events to show before AND after the center event.
+	 * ---
+	 * default: 5
+	 *
 	 * ## Exclusion Filters
 	 *
 	 * These parameters exclude events matching the criteria. When both inclusion and exclusion
@@ -189,6 +203,12 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *     # Exclude multiple log levels and initiators
 	 *     wp simple-history list --exclude_log_level=debug,info --exclude_initiator=wp,wp_cli --count=100
 	 *
+	 *     # Show surrounding events around event ID 123 (5 before + event + 5 after = 11 total)
+	 *     wp simple-history list --surrounding_event_id=123
+	 *
+	 *     # Show 10 events before and after event ID 456
+	 *     wp simple-history list --surrounding_event_id=456 --surrounding_count=10
+	 *
 	 * @when after_wp_load
 	 *
 	 * @param array $args Positional arguments.
@@ -199,25 +219,27 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 		$assoc_args = wp_parse_args(
 			$assoc_args,
 			array(
-				'format'            => 'table',
-				'count'             => 10,
-				'initiator'         => '',
-				'log_level'         => '',
-				'logger'            => '',
-				'message'           => '',
-				'user'              => '',
-				'search'            => '',
-				'date_from'         => '',
-				'date_to'           => '',
-				'months'            => '',
-				'include_sticky'    => false,
-				'only_sticky'       => false,
-				'exclude_search'    => '',
-				'exclude_log_level' => '',
-				'exclude_logger'    => '',
-				'exclude_message'   => '',
-				'exclude_user'      => '',
-				'exclude_initiator' => '',
+				'format'               => 'table',
+				'count'                => 10,
+				'initiator'            => '',
+				'log_level'            => '',
+				'logger'               => '',
+				'message'              => '',
+				'user'                 => '',
+				'search'               => '',
+				'date_from'            => '',
+				'date_to'              => '',
+				'months'               => '',
+				'include_sticky'       => false,
+				'only_sticky'          => false,
+				'exclude_search'       => '',
+				'exclude_log_level'    => '',
+				'exclude_logger'       => '',
+				'exclude_message'      => '',
+				'exclude_user'         => '',
+				'exclude_initiator'    => '',
+				'surrounding_event_id' => '',
+				'surrounding_count'    => 5,
 			)
 		);
 
@@ -348,11 +370,42 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			$query_args['exclude_initiator'] = $exclude_initiators;
 		}
 
+		// Handle surrounding events query.
+		// This is a special mode that bypasses normal filtering.
+		$is_surrounding_query = false;
+		$center_event_id      = null;
+
+		if ( ! empty( $assoc_args['surrounding_event_id'] ) ) {
+			$is_surrounding_query = true;
+			$center_event_id      = (int) $assoc_args['surrounding_event_id'];
+
+			// Surrounding events query uses its own parameters and ignores most others.
+			$query_args = array(
+				'surrounding_event_id' => $center_event_id,
+				'surrounding_count'    => (int) $assoc_args['surrounding_count'],
+			);
+		}
+
 		$events = $query->query( $query_args );
 
 		// Handle database errors.
 		if ( is_wp_error( $events ) ) {
 			WP_CLI::error( $events->get_error_message() );
+		}
+
+		// Show summary for surrounding events query.
+		if ( $is_surrounding_query ) {
+			WP_CLI::log(
+				sprintf(
+					/* translators: 1: center event ID, 2: events before count, 3: events after count, 4: total events */
+					__( 'Showing events surrounding event #%1$d (%2$d before, %3$d after, %4$d total)', 'simple-history' ),
+					$center_event_id,
+					$events['events_before'],
+					$events['events_after'],
+					$events['total_row_count']
+				)
+			);
+			WP_CLI::log( '' );
 		}
 
 		// A cleaned version of the events, formatted for wp cli table output.
@@ -368,8 +421,14 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 
 			$row_logger = $this->simple_history->get_instantiated_logger_by_slug( $row->logger );
 
+			// Add marker for center event in surrounding events query.
+			$id_display = $row->id;
+			if ( $is_surrounding_query && (int) $row->id === $center_event_id ) {
+				$id_display = '>>> ' . $row->id;
+			}
+
 			$eventsCleaned[] = array(
-				'ID'          => $row->id,
+				'ID'          => $id_display,
 				'date'        => get_date_from_gmt( $row->date ),
 				'initiator'   => Log_Initiators::get_initiator_text_from_row( $row ),
 				'logger'      => $row->logger,

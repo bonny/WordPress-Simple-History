@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import {
 	parseAsArrayOf,
+	parseAsInteger,
 	parseAsIsoDate,
 	parseAsJson,
 	parseAsString,
@@ -112,6 +113,7 @@ function EventsGUI() {
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
+	const [ userCanManageOptions, setUserCanManageOptions ] = useState( false );
 
 	/**
 	 * Start filter/search options states.
@@ -281,6 +283,19 @@ function EventsGUI() {
 		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
 	);
 
+	// Surrounding events - show events before and after a specific event ID.
+	// This is an admin-only feature that bypasses normal filters.
+	const [ surroundingEventId ] = useQueryState(
+		'surrounding_event_id',
+		parseAsInteger.withOptions( useQueryStateOptions )
+	);
+
+	// Number of events to show before and after the center event.
+	const [ surroundingCount ] = useQueryState(
+		'surrounding_count',
+		parseAsInteger.withOptions( useQueryStateOptions )
+	);
+
 	/**
 	 * End filter/search options states.
 	 */
@@ -348,6 +363,8 @@ function EventsGUI() {
 			excludeUsers,
 			excludeInitiator,
 			excludeContextFilters,
+			surroundingEventId,
+			surroundingCount,
 		} );
 	}, [
 		selectedDateOption,
@@ -368,6 +385,8 @@ function EventsGUI() {
 		excludeUsers,
 		excludeInitiator,
 		excludeContextFilters,
+		surroundingEventId,
+		surroundingCount,
 	] );
 
 	// Reset page to 1 when filters are modified.
@@ -585,6 +604,7 @@ function EventsGUI() {
 				setPage={ setPage }
 				onReload={ handleReload }
 				setCurrentUserId={ setCurrentUserId }
+				setUserCanManageOptions={ setUserCanManageOptions }
 				hideOwnEvents={ hideOwnEvents }
 				setHideOwnEvents={ setHideOwnEvents }
 			/>
@@ -619,6 +639,7 @@ function EventsGUI() {
 				eventsAdminPageURL={ eventsAdminPageURL }
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+				userCanManageOptions={ userCanManageOptions }
 			/>
 
 			{ isDashboard ? <DashboardFooter /> : null }

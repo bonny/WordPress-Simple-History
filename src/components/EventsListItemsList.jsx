@@ -11,6 +11,7 @@ export function EventsListItemsList( props ) {
 		eventsIsLoading,
 		eventsSettingsPageURL,
 		eventsAdminPageURL,
+		userCanManageOptions,
 	} = props;
 
 	// Bail if no events.
@@ -38,6 +39,7 @@ export function EventsListItemsList( props ) {
 					hasPremiumAddOn={ hasPremiumAddOn }
 					eventsSettingsPageURL={ eventsSettingsPageURL }
 					eventsAdminPageURL={ eventsAdminPageURL }
+					userCanManageOptions={ userCanManageOptions }
 					isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
 				/>
 			) ) }
