@@ -12,6 +12,7 @@ export function EventsListItemsList( props ) {
 		eventsSettingsPageURL,
 		eventsAdminPageURL,
 		userCanManageOptions,
+		surroundingEventId,
 	} = props;
 
 	// Bail if no events.
@@ -41,6 +42,7 @@ export function EventsListItemsList( props ) {
 					eventsAdminPageURL={ eventsAdminPageURL }
 					userCanManageOptions={ userCanManageOptions }
 					isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
+					isCenterEvent={ event.id === surroundingEventId }
 				/>
 			) ) }
 		</ul>

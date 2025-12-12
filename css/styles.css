@@ -2248,6 +2248,12 @@ a.sh-SettingsTabs-link:hover {
 	background: rgba(254, 255, 0, 0.1);
 }
 
+/* Center event highlight for surrounding events view */
+.SimpleHistoryLogitem--is-center-event {
+	background: rgba(0, 124, 186, 0.1);
+	box-shadow: inset 4px 0 0 0 var(--sh-color-blue);
+}
+
 /* Old styles moved from ip-info-dropin.css */
 
 .SimpleHistoryIpInfoDropin__ipInfoTable {

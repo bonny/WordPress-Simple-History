@@ -505,12 +505,18 @@ function EventsGUI() {
 	useEffect( () => {
 		// Wait for search options to be loaded before loading events,
 		// or the loadEvents will be called twice.
-		if ( ! searchOptionsLoaded ) {
+		// Exception: when viewing surrounding events, we don't need search options.
+		if ( ! searchOptionsLoaded && ! surroundingEventId ) {
 			return;
 		}
 
 		debouncedLoadEvents();
-	}, [ debouncedLoadEvents, searchOptionsLoaded, eventsReloadTime ] );
+	}, [
+		debouncedLoadEvents,
+		searchOptionsLoaded,
+		eventsReloadTime,
+		surroundingEventId,
+	] );
 
 	/**
 	 * Function to set reload time to current time,
@@ -569,59 +575,68 @@ function EventsGUI() {
 
 	return (
 		<>
-			<EventsSearchFilters
-				selectedLogLevels={ selectedLogLevels }
-				setSelectedLogLevels={ setSelectedLogLevels }
-				selectedMessageTypes={ selectedMessageTypes }
-				setSelectedMessageTypes={ setSelectedMessageTypes }
-				selectedDateOption={ selectedDateOption }
-				setSelectedDateOption={ setSelectedDateOption }
-				enteredSearchText={ enteredSearchText }
-				setEnteredSearchText={ setEnteredSearchText }
-				selectedCustomDateFrom={ selectedCustomDateFrom }
-				setSelectedCustomDateFrom={ setSelectedCustomDateFrom }
-				selectedCustomDateTo={ selectedCustomDateTo }
-				setSelectedCustomDateTo={ setSelectedCustomDateTo }
-				selectedUsersWithId={ selectedUsersWithId }
-				setSelectedUsersWithId={ setSelectedUsersWithId }
-				selectedInitiator={ selectedInitiator }
-				setSelectedInitiator={ setSelectedInitiator }
-				selectedContextFilters={ selectedContextFilters }
-				setSelectedContextFilters={ setSelectedContextFilters }
-				searchOptionsLoaded={ searchOptionsLoaded }
-				setSearchOptionsLoaded={ setSearchOptionsLoaded }
-				setPagerSize={ setPagerSize }
-				setMapsApiKey={ setMapsApiKey }
-				setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
-				setHasPremiumAddOn={ setHasPremiumAddOn }
-				isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
-				setIsExperimentalFeaturesEnabled={
-					setIsExperimentalFeaturesEnabled
-				}
-				eventsAdminPageURL={ eventsAdminPageURL }
-				setEventsAdminPageURL={ setEventsAdminPageURL }
-				setEventsSettingsPageURL={ setSettingsPageURL }
-				setPage={ setPage }
-				onReload={ handleReload }
-				setCurrentUserId={ setCurrentUserId }
-				setUserCanManageOptions={ setUserCanManageOptions }
-				hideOwnEvents={ hideOwnEvents }
-				setHideOwnEvents={ setHideOwnEvents }
-			/>
+			{ /* Hide filters when viewing surrounding events */ }
+			{ ! surroundingEventId && (
+				<EventsSearchFilters
+					selectedLogLevels={ selectedLogLevels }
+					setSelectedLogLevels={ setSelectedLogLevels }
+					selectedMessageTypes={ selectedMessageTypes }
+					setSelectedMessageTypes={ setSelectedMessageTypes }
+					selectedDateOption={ selectedDateOption }
+					setSelectedDateOption={ setSelectedDateOption }
+					enteredSearchText={ enteredSearchText }
+					setEnteredSearchText={ setEnteredSearchText }
+					selectedCustomDateFrom={ selectedCustomDateFrom }
+					setSelectedCustomDateFrom={ setSelectedCustomDateFrom }
+					selectedCustomDateTo={ selectedCustomDateTo }
+					setSelectedCustomDateTo={ setSelectedCustomDateTo }
+					selectedUsersWithId={ selectedUsersWithId }
+					setSelectedUsersWithId={ setSelectedUsersWithId }
+					selectedInitiator={ selectedInitiator }
+					setSelectedInitiator={ setSelectedInitiator }
+					selectedContextFilters={ selectedContextFilters }
+					setSelectedContextFilters={ setSelectedContextFilters }
+					searchOptionsLoaded={ searchOptionsLoaded }
+					setSearchOptionsLoaded={ setSearchOptionsLoaded }
+					setPagerSize={ setPagerSize }
+					setMapsApiKey={ setMapsApiKey }
+					setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
+					setHasPremiumAddOn={ setHasPremiumAddOn }
+					isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
+					setIsExperimentalFeaturesEnabled={
+						setIsExperimentalFeaturesEnabled
+					}
+					eventsAdminPageURL={ eventsAdminPageURL }
+					setEventsAdminPageURL={ setEventsAdminPageURL }
+					setEventsSettingsPageURL={ setSettingsPageURL }
+					setPage={ setPage }
+					onReload={ handleReload }
+					setCurrentUserId={ setCurrentUserId }
+					setUserCanManageOptions={ setUserCanManageOptions }
+					hideOwnEvents={ hideOwnEvents }
+					setHideOwnEvents={ setHideOwnEvents }
+				/>
+			) }
 
-			<EventsControlBar
-				isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
-				eventsIsLoading={ eventsIsLoading }
-				eventsTotal={ eventsMeta.total }
-				eventsQueryParams={ eventsQueryParams }
-			/>
+			{ /* Hide control bar when viewing surrounding events */ }
+			{ ! surroundingEventId && (
+				<EventsControlBar
+					isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
+					eventsIsLoading={ eventsIsLoading }
+					eventsTotal={ eventsMeta.total }
+					eventsQueryParams={ eventsQueryParams }
+				/>
+			) }
 
-			<NewEventsNotifier
-				eventsQueryParams={ eventsQueryParams }
-				eventsMaxId={ eventsMaxId }
-				eventsMaxDate={ eventsMaxDate }
-				onReload={ handleReload }
-			/>
+			{ /* Hide new events notifier when viewing surrounding events */ }
+			{ ! surroundingEventId && (
+				<NewEventsNotifier
+					eventsQueryParams={ eventsQueryParams }
+					eventsMaxId={ eventsMaxId }
+					eventsMaxDate={ eventsMaxDate }
+					onReload={ handleReload }
+				/>
+			) }
 
 			<EventsList
 				eventsIsLoading={ eventsIsLoading }
@@ -640,6 +655,8 @@ function EventsGUI() {
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 				userCanManageOptions={ userCanManageOptions }
+				surroundingEventId={ surroundingEventId }
+				surroundingCount={ surroundingCount }
 			/>
 
 			{ isDashboard ? <DashboardFooter /> : null }

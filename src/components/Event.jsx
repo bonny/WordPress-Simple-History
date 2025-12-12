@@ -26,6 +26,7 @@ export function Event( props ) {
 		prevEvent,
 		nextEvent,
 		loopIndex,
+		isCenterEvent,
 	} = props;
 
 	const containerClassNames = clsx(
@@ -37,6 +38,7 @@ export function Event( props ) {
 		{
 			'SimpleHistoryLogitem--is-sticky': event.sticky,
 			'SimpleHistoryLogitem--newRowSinceReload': isNewAfterFetchNewEvents,
+			'SimpleHistoryLogitem--is-center-event': isCenterEvent,
 		}
 	);
 
