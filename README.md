@@ -1,5 +1,8 @@
 # <img height="50"  src="./css/simple-history-logo.png" alt="Simple History logo">
 
+[![Run in Smithery](https://smithery.ai/badge/skills/bonny)](https://smithery.ai/skills?ns=bonny&utm_source=github&utm_medium=badge)
+
+
 <img src="https://img.shields.io/wordpress/plugin/r/simple-history.svg?style=for-the-badge" alt="Plugin rating: 5 stars"> <img src="https://img.shields.io/wordpress/plugin/installs/simple-history?style=for-the-badge" alt="Number of active installs: over 100K"> <img src="https://img.shields.io/wordpress/plugin/dm/simple-history?style=for-the-badge" alt="Number of monthly downloads">
 
 **A WordPress activity log for what matters.**
