@@ -125,7 +125,57 @@ docker compose restart syslog-server
 docker compose ps syslog-server
 ```
 
-#### Option 2: Netcat (Quick & Simple)
+#### Option 2: Graylog (Recommended for Visual Testing)
+
+Graylog provides a web UI to view, search, and analyze incoming syslog messages. It's ideal for verifying message format and content.
+
+**Start Graylog:**
+
+```bash
+cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot
+docker compose -f compose-graylog.yaml up -d
+```
+
+**Setup (first time only):**
+
+1. Open http://localhost:9000
+2. Login with `admin` / `admin`
+3. Go to **System → Inputs**
+4. Select **Syslog UDP** or **Syslog TCP**, click **Launch new input**
+5. Set port to `514`, give it a title, click **Save**
+
+**Configuration in WordPress:**
+
+| Setting | Value (UDP)         | Value (TCP)         |
+| ------- | ------------------- | ------------------- |
+| Mode    | Remote syslog (UDP) | Remote syslog (TCP) |
+| Host    | `graylog`           | `graylog`           |
+| Port    | `514`               | `514`               |
+
+**View incoming messages:**
+
+1. Go to **Search** in Graylog (click the logo or menu)
+2. Set time range to "Last 5 minutes" or similar
+3. Messages appear in real-time
+
+**Manage Graylog:**
+
+```bash
+cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot
+
+# Stop (saves resources when not testing)
+docker compose -f compose-graylog.yaml down
+
+# Start
+docker compose -f compose-graylog.yaml up -d
+
+# View logs
+docker compose -f compose-graylog.yaml logs -f graylog
+```
+
+**Note:** Graylog uses ~1-2GB RAM (includes MongoDB + OpenSearch). Stop it when not testing.
+
+#### Option 3: Netcat (Quick & Simple)
 
 For quick one-off testing without a persistent container:
 
