@@ -49,6 +49,7 @@ build/
 
 # Ignore Claude config files (but allow commands for cross-machine use)
 .claude/*
+!.claude/settings.json
 !.claude/commands/
 !.claude/skills/
 scripts/copy-current-to-simple-history-com.sh

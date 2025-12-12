@@ -1,0 +1,33 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Skill(git-commits)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm run php:lint:*)",
+      "Bash(npm run php:phpstan:*)",
+      "Bash(php -l:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(docker compose ps:*)",
+      "Bash(docker compose exec:*)",
+      "Bash(docker network ls:*)",
+      "Bash(docker compose run:*)",
+      "Bash(find:*)",
+      "WebSearch",
+      "Bash(html2text)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh api:*)",
+      "Bash(gh issue edit:*)",
+      "Bash(npm run lint:css:*)",
+      "Bash(ls:*)",
+      "Skill(changelog)",
+      "Skill(readme)",
+      "Skill(commit-messages)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
