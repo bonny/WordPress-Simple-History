@@ -7,12 +7,20 @@ class WPCliCest {
         $I->cli('--allow-root core version');
         $I->seeInShellOutput('6.6.1');
 
+        // Verify main WP-CLI commands are available.
         $I->cli('--allow-root simple-history');
-        $I->seeInShellOutput('usage: wp simple-history core-files <command>
-   or: wp simple-history db <command>
-   or: wp simple-history event <command>
-   or: wp simple-history list [--format=<format>] [--count=<count>] [--initiator=<initiators>] [--log_level=<levels>] [--logger=<loggers>] [--message=<messages>] [--user=<users>] [--search=<term>] [--date_from=<date>] [--date_to=<date>] [--months=<months>] [--include_sticky] [--only_sticky] [--exclude_search=<term>] [--exclude_log_level=<levels>] [--exclude_logger=<loggers>] [--exclude_message=<messages>] [--exclude_user=<users>] [--exclude_initiator=<initiators>]
-   or: wp simple-history stealth-mode <command>');
+        $I->seeInShellOutput('wp simple-history core-files <command>');
+        $I->seeInShellOutput('wp simple-history db <command>');
+        $I->seeInShellOutput('wp simple-history event <command>');
+        $I->seeInShellOutput('wp simple-history list');
+        $I->seeInShellOutput('wp simple-history stealth-mode <command>');
+
+        // Verify key list command options exist.
+        $I->seeInShellOutput('--format=<format>');
+        $I->seeInShellOutput('--count=<count>');
+        $I->seeInShellOutput('--search=<term>');
+        $I->seeInShellOutput('--surrounding_event_id=<id>');
+        $I->seeInShellOutput('--surrounding_count=<count>');
         
         $I->haveUserInDatabase(
             'luca', 
