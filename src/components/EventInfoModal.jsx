@@ -56,8 +56,8 @@ export function EventInfoModal( props ) {
 				const eventJson = await eventResponse.json();
 
 				setLoadedEvent( eventJson );
-			} catch ( error ) {
-				if ( error.status === 404 ) {
+			} catch ( fetchError ) {
+				if ( fetchError.status === 404 ) {
 					setError( __( 'Event not found.', 'simple-history' ) );
 				} else {
 					setError(
