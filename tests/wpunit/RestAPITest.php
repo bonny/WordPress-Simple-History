@@ -23,21 +23,23 @@ class RestAPITest extends \Codeception\TestCase\WPTestCase {
 		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
-		$this->factory->user->create( [ 'role' => 'editor' ] );
+		// Create 5 users to generate 5 events (user created logs).
+		for ( $i = 0; $i < 5; $i++ ) {
+			$this->factory->user->create( [ 'role' => 'editor' ] );
+		}
 
-		$response = $this->dispatch_request( 
-			'GET', 
+		$response = $this->dispatch_request(
+			'GET',
 			$this->events_endpoint, [
 				'per_page' => 5,
-			] 
+			]
 		);
-        
+
         // Check the response data.
         $data = $response->get_data();
 
         $this->assertNotEmpty( $data, 'REST API data should not be empty.' );
 
-		// This uses to work because the example db contained more items, but it's cleaned sometimes now in another test.
 		$this->assertCount( 5, $data, 'REST API data should contain 5 items.' );
 
 		$this->assertStringContainsString( 'Created user', $data[0]['message'], 'First message should contain "created user".' );
