@@ -23,7 +23,7 @@
 		},
 		{
 			"step": "runPHP",
-			"code": "<?php require_once 'wordpress/wp-load.php'; wp_insert_post(array('import_id' => 5,'post_title' => 'Example Post','post_content' => '<!-- wp:paragraph --><p>a normal paragraph</p><!-- /wp:paragraph -->','post_status' => 'publish','post_author' => 1));"
+			"code": "<?php require_once '/wordpress/wp-load.php'; wp_insert_post(array('import_id' => 5,'post_title' => 'Example Post','post_content' => '<!-- wp:paragraph --><p>a normal paragraph</p><!-- /wp:paragraph -->','post_status' => 'publish','post_author' => 1));"
 		}
 	]
 }
