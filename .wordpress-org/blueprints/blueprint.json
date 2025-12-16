@@ -1,10 +1,10 @@
 {
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
 	"landingPage": "/wp-admin/admin.php?page=simple_history_admin_menu_page",
 	"preferredVersions": {
 		"php": "8.2",
 		"wp": "6.9"
 	},
-	"phpExtensionBundles": [ "kitchen-sink" ],
 	"steps": [
 		{
 			"step": "login",
@@ -13,7 +13,7 @@
 		},
 		{
 			"step": "installPlugin",
-			"pluginZipFile": {
+			"pluginData": {
 				"resource": "wordpress.org/plugins",
 				"slug": "simple-history"
 			},
