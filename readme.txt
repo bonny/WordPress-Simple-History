@@ -338,6 +338,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+### 5.21.0 (December 2025)
+
+🔍 Debug like a pro with the new "Surrounding Events" feature — see what happened before and after any event. Plus: Log Forwarding (Beta) lets you send events to external log files, Syslog servers, or external databases for backup and compliance. Also improved: auto-recovery for missing database tables.
+
 **Added**
 
 -   Added "Show surrounding events" feature to view events chronologically before and after a specific event, useful for debugging to see what happened around a particular event. Available via the event actions menu (administrators only), REST API, and WP-CLI. [#610](https://github.com/bonny/WordPress-Simple-History/issues/610).
