@@ -20,6 +20,8 @@ export function EventsListItemsList( props ) {
 		return null;
 	}
 
+	const isSurroundingEventsMode = Boolean( surroundingEventId );
+
 	const ulClasses = clsx( {
 		SimpleHistoryLogitems: true,
 		'is-loading': eventsIsLoading,
@@ -43,6 +45,7 @@ export function EventsListItemsList( props ) {
 					userCanManageOptions={ userCanManageOptions }
 					isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
 					isCenterEvent={ event.id === surroundingEventId }
+					isSurroundingEventsMode={ isSurroundingEventsMode }
 				/>
 			) ) }
 		</ul>

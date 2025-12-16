@@ -1,6 +1,6 @@
 import { MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { external } from '@wordpress/icons';
+import { positionCenter } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -41,7 +41,7 @@ export function EventSurroundingEventsMenuItem( {
 	};
 
 	return (
-		<MenuItem icon={ external } onClick={ handleClick }>
+		<MenuItem icon={ positionCenter } onClick={ handleClick }>
 			{ __( 'Show surrounding events', 'simple-history' ) }
 		</MenuItem>
 	);

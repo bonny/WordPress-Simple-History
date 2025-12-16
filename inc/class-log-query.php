@@ -801,14 +801,13 @@ class Log_Query {
 	/**
 	 * Query for surrounding events around a specific event ID.
 	 *
-	 * This method returns events chronologically before and after a specific event,
-	 * regardless of logger, user, or other filters. It's designed for debugging
-	 * scenarios where users need to see the full context of what happened around
-	 * a specific event.
+	 * This method returns events before and after a specific event in reverse
+	 * chronological order (newest first), matching the main event log display.
+	 * It bypasses logger, user, and other filters for debugging scenarios.
 	 *
 	 * IMPORTANT: This method bypasses normal logger permission checks and returns
-	 * ALL events chronologically. Permission checking should be done by the caller
-	 * (REST API or WP-CLI) before calling this method.
+	 * ALL events. Permission checking should be done by the caller (REST API or
+	 * WP-CLI) before calling this method.
 	 *
 	 * @param array $args {
 	 *     Query arguments.
@@ -819,7 +818,7 @@ class Log_Query {
 	 * @return array|\WP_Error {
 	 *     Query results array or WP_Error on failure.
 	 *
-	 *     @type array  $log_rows         Array of event objects (before + center + after, chronologically ordered).
+	 *     @type array  $log_rows         Array of event objects (after + center + before, newest first).
 	 *     @type int    $center_event_id  The ID of the center event.
 	 *     @type int    $total_row_count  Total number of events returned.
 	 *     @type int    $events_before    Count of events before center.
@@ -881,8 +880,42 @@ class Log_Query {
 			);
 		}
 
+		// Get events AFTER the center event (newer, higher IDs).
+		// Order by id DESC to get newest first, then reverse to have closest to center first.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$events_after = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT
+					id, logger, level, date, message, initiator, occasionsID,
+					1 AS repeatCount, 1 AS subsequentOccasions
+				FROM {$events_table_name}
+				WHERE id > %d
+				ORDER BY id DESC
+				LIMIT %d",
+				$center_event_id,
+				$surrounding_count
+			),
+			OBJECT_K
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// Get the center event with full data.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$center_event_full = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT
+					id, logger, level, date, message, initiator, occasionsID,
+					1 AS repeatCount, 1 AS subsequentOccasions
+				FROM {$events_table_name}
+				WHERE id = %d",
+				$center_event_id
+			),
+			OBJECT_K
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
 		// Get events BEFORE the center event (older, lower IDs).
-		// Order by id DESC to get the closest ones first, then we'll reverse.
+		// Order by id DESC to get newest (closest to center) first.
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$events_before = $wpdb->get_results(
 			$wpdb->prepare(
@@ -900,45 +933,8 @@ class Log_Query {
 		);
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// Reverse to get chronological order (oldest first).
-		$events_before = array_reverse( $events_before, true );
-
-		// Get the center event with full data.
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$center_event_full = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT
-					id, logger, level, date, message, initiator, occasionsID,
-					1 AS repeatCount, 1 AS subsequentOccasions
-				FROM {$events_table_name}
-				WHERE id = %d",
-				$center_event_id
-			),
-			OBJECT_K
-		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-		// Get events AFTER the center event (newer, higher IDs).
-		// Order by id ASC to get the closest ones first.
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$events_after = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT
-					id, logger, level, date, message, initiator, occasionsID,
-					1 AS repeatCount, 1 AS subsequentOccasions
-				FROM {$events_table_name}
-				WHERE id > %d
-				ORDER BY id ASC
-				LIMIT %d",
-				$center_event_id,
-				$surrounding_count
-			),
-			OBJECT_K
-		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-		// Combine all events: before + center + after (chronological order).
-		$all_events = $events_before + $center_event_full + $events_after;
+		// Combine all events: after + center + before (reverse chronological order, newest first).
+		$all_events = $events_after + $center_event_full + $events_before;
 
 		// Add context data to all events.
 		$all_events = $this->add_contexts_to_log_rows( $all_events );

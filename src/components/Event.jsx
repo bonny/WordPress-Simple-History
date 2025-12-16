@@ -27,6 +27,7 @@ export function Event( props ) {
 		nextEvent,
 		loopIndex,
 		isCenterEvent,
+		isSurroundingEventsMode,
 	} = props;
 
 	const containerClassNames = clsx(
@@ -63,6 +64,7 @@ export function Event( props ) {
 					mapsApiKey={ mapsApiKey }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					isSurroundingEventsMode={ isSurroundingEventsMode }
 				/>
 
 				<EventText event={ event } eventVariant={ variant } />

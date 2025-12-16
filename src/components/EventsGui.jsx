@@ -602,7 +602,9 @@ function EventsGUI() {
 					setMapsApiKey={ setMapsApiKey }
 					setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
 					setHasPremiumAddOn={ setHasPremiumAddOn }
-					isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
+					isExperimentalFeaturesEnabled={
+						isExperimentalFeaturesEnabled
+					}
 					setIsExperimentalFeaturesEnabled={
 						setIsExperimentalFeaturesEnabled
 					}
@@ -621,7 +623,9 @@ function EventsGUI() {
 			{ /* Hide control bar when viewing surrounding events */ }
 			{ ! surroundingEventId && (
 				<EventsControlBar
-					isExperimentalFeaturesEnabled={ isExperimentalFeaturesEnabled }
+					isExperimentalFeaturesEnabled={
+						isExperimentalFeaturesEnabled
+					}
 					eventsIsLoading={ eventsIsLoading }
 					eventsTotal={ eventsMeta.total }
 					eventsQueryParams={ eventsQueryParams }

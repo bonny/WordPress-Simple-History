@@ -10,12 +10,23 @@ import { EventBackfilledIndicator } from './EventBackfilledIndicator';
  * @param {Object} props
  */
 export function EventHeader( props ) {
-	const { event, eventVariant, hasExtendedSettingsAddOn, hasPremiumAddOn } =
-		props;
-	const { mapsApiKey } = props;
+	const {
+		event,
+		eventVariant,
+		hasExtendedSettingsAddOn,
+		hasPremiumAddOn,
+		mapsApiKey,
+		isSurroundingEventsMode,
+	} = props;
 
 	return (
 		<div className="SimpleHistoryLogitem__header">
+			{ isSurroundingEventsMode && (
+				<span className="SimpleHistoryLogitem__eventId">
+					#{ event.id }
+				</span>
+			) }
+
 			<EventInitiatorName event={ event } eventVariant={ eventVariant } />
 
 			<EventDate event={ event } eventVariant={ eventVariant } />

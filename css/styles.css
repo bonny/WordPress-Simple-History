@@ -309,6 +309,20 @@ Tag = the pill with the log level.
 	color: var(--sh-color-gray-3);
 }
 
+/* Event ID shown in surrounding events mode */
+.SimpleHistoryLogitem__eventId {
+	font-family: monospace;
+	font-size: 12px;
+	color: var(--sh-color-gray-3);
+	margin-right: 0.5em;
+}
+
+/* Emphasize event ID on center event */
+.SimpleHistoryLogitem--is-center-event .SimpleHistoryLogitem__eventId {
+	color: var(--sh-color-blue);
+	font-weight: 600;
+}
+
 .SimpleHistoryLogitem__text,
 .SimpleHistoryLogitem__details,
 .SimpleHistoryLogitem__details p {
@@ -2250,8 +2264,12 @@ a.sh-SettingsTabs-link:hover {
 
 /* Center event highlight for surrounding events view */
 .SimpleHistoryLogitem--is-center-event {
-	background: rgba(0, 124, 186, 0.1);
+	background: var(--sh-color-blue-light);
 	box-shadow: inset 4px 0 0 0 var(--sh-color-blue);
+}
+
+.SimpleHistoryLogitem--is-center-event:hover {
+	background: color-mix(in srgb, var(--sh-color-blue-light), var(--sh-color-blue) 10%);
 }
 
 /* Old styles moved from ip-info-dropin.css */
