@@ -17,6 +17,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.15.0', [ $this, 'on_plugin_updated_details_5_15_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.18.0', [ $this, 'on_plugin_updated_details_5_18_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.19.0', [ $this, 'on_plugin_updated_details_5_19_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.21.0', [ $this, 'on_plugin_updated_details_5_21_0' ] );
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
 		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
@@ -136,6 +137,26 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2025/simple-history-5-19-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Handle update details for Simple History version 5.21.0.
+	 *
+	 * @param string $extra_details Extra HTML to output after the changelog link.
+	 * @return string Extra HTML to output after the changelog link.
+	 */
+	public function on_plugin_updated_details_5_21_0( $extra_details ) {
+		$title = __( 'Debug smarter, log everywhere', 'simple-history' );
+
+		$new_features = [
+			__( 'Surrounding Events – See exactly what happened before and after any event. Perfect for debugging!', 'simple-history' ),
+			__( 'Log Forwarding (Beta) – Send events to log files, Syslog servers, or external databases for backup and compliance', 'simple-history' ),
+			__( 'Auto-recovery – Database tables now self-heal if missing', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2025/simple-history-5-21-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
