@@ -57,6 +57,17 @@ Retrieve a list of events from the Simple History log.
 | `context_filters`         | object  | Filter events by context data as key-value pairs                             | -          |
 | `ungrouped`               | boolean | Return ungrouped events without occasions grouping                           | false      |
 
+**Surrounding Events (Admin Only):**
+
+These parameters allow viewing events chronologically before and after a specific event. Useful for debugging to see the full context of what happened around a particular event. Requires administrator privileges (`manage_options` capability).
+
+| Parameter                 | Type    | Description                                                                  | Default    |
+| ------------------------- | ------- | ---------------------------------------------------------------------------- | ---------- |
+| `surrounding_event_id`    | integer | The center event ID. When set, returns events before and after this event, ignoring all other filters. | -          |
+| `surrounding_count`       | integer | Number of events to show before AND after the center event. (min: 1, max: 50) | 5          |
+
+**Note:** When `surrounding_event_id` is provided, all other filters are ignored and events are returned in reverse chronological order (newest first).
+
 **Exclusion Filters (Negative Filters):**
 
 These parameters exclude events matching the criteria. When both inclusion and exclusion filters are specified for the same field, exclusion takes precedence.
@@ -298,6 +309,30 @@ curl -u username:password \
 curl -u username:password \
   '/wp-json/simple-history/v1/events?loglevels[]=error&loglevels[]=warning&exclude_initiator[]=wp&exclude_initiator[]=wp_cli&per_page=50'
 ```
+
+### Surrounding Events
+
+```bash
+# Get events surrounding event ID 123 (5 before + center + 5 after = 11 total)
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?surrounding_event_id=123'
+
+# Get 10 events before and after event ID 456
+curl -u username:password \
+  '/wp-json/simple-history/v1/events?surrounding_event_id=456&surrounding_count=10'
+```
+
+**Response Headers for Surrounding Events:**
+
+When using `surrounding_event_id`, the response includes additional headers:
+
+| Header                          | Description                              |
+| ------------------------------- | ---------------------------------------- |
+| `X-SimpleHistory-CenterEventId` | The ID of the center event               |
+| `X-SimpleHistory-EventsBefore`  | Number of events returned before center  |
+| `X-SimpleHistory-EventsAfter`   | Number of events returned after center   |
+| `X-SimpleHistory-MaxId`         | Highest event ID in results              |
+| `X-SimpleHistory-MinId`         | Lowest event ID in results               |
 
 ### Conflict Resolution
 

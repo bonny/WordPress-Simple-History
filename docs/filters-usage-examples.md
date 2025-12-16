@@ -7,6 +7,7 @@ This document demonstrates how to use both positive (inclusion) and negative (ex
 - [PHP Log_Query Examples](#php-log_query-examples)
 - [REST API Examples](#rest-api-examples)
 - [WP-CLI Examples](#wp-cli-examples)
+- [Surrounding Events](#surrounding-events)
 - [Filter Combinations](#filter-combinations)
 - [Available Filters Reference](#available-filters-reference)
 
@@ -405,6 +406,88 @@ Then use it:
 ```bash
 wp history clean-list
 ```
+
+## Surrounding Events
+
+The surrounding events feature allows you to view events chronologically before and after a specific event. This is useful for debugging to see the full context of what happened around a particular event.
+
+**Important:** This feature requires administrator privileges (`manage_options` capability) and bypasses normal logger permission filters.
+
+### PHP Examples
+
+```php
+// Get 5 events before and 5 events after event ID 123 (11 total)
+$log_query = new \Simple_History\Log_Query();
+$results = $log_query->query([
+    'surrounding_event_id' => 123,
+    'surrounding_count' => 5,
+]);
+
+// The result includes metadata about the surrounding events
+$center_event_id = $results['center_event_id'];  // 123
+$events_before = $results['events_before'];      // Count of events before center
+$events_after = $results['events_after'];        // Count of events after center
+$log_rows = $results['log_rows'];                // Array of event objects
+
+// Loop through events (newest first, center event highlighted)
+foreach ($log_rows as $event) {
+    $is_center = ($event->id == $center_event_id);
+    echo sprintf(
+        "%s [%s] %s: %s\n",
+        $is_center ? '>>>' : '   ',
+        $event->date,
+        $event->level,
+        $event->message
+    );
+}
+
+// Get more surrounding context (10 before + center + 10 after = 21 total)
+$results = $log_query->query([
+    'surrounding_event_id' => 456,
+    'surrounding_count' => 10,
+]);
+```
+
+### REST API Examples
+
+```bash
+# Base endpoint
+BASE_URL="http://your-site.com/wp-json/simple-history/v1/events"
+AUTH="username:application-password"
+
+# Get surrounding events (5 before + center + 5 after = 11 total)
+curl -u "$AUTH" "$BASE_URL?surrounding_event_id=123"
+
+# Get more context (10 before + center + 10 after = 21 total)
+curl -u "$AUTH" "$BASE_URL?surrounding_event_id=123&surrounding_count=10"
+
+# Note: Response headers include additional metadata:
+# X-SimpleHistory-CenterEventId: 123
+# X-SimpleHistory-EventsBefore: 5
+# X-SimpleHistory-EventsAfter: 5
+```
+
+### WP-CLI Examples
+
+```bash
+# Show surrounding events around event ID 123 (5 before + center + 5 after)
+wp simple-history list --surrounding_event_id=123
+
+# Show 10 events before and after event ID 456
+wp simple-history list --surrounding_event_id=456 --surrounding_count=10
+
+# Output in JSON format for scripting
+wp simple-history list --surrounding_event_id=123 --format=json
+```
+
+**WP-CLI Output:** The center event is marked with `>>>` in the ID column for easy identification.
+
+### GUI Usage
+
+In the Simple History admin interface:
+1. Click the three-dot menu (⋮) on any event
+2. Select "Show surrounding events"
+3. Opens in a new tab with the center event highlighted
 
 ## Filter Combinations
 
