@@ -50,7 +50,10 @@ export function EventsList( props ) {
 				<Notice status="info" isDismissible={ false }>
 					{ sprintf(
 						/* translators: 1: event ID, 2: number of surrounding events */
-						__( 'Viewing #%1$d with %2$d surrounding events', 'simple-history' ),
+						__(
+							'Viewing #%1$d with %2$d surrounding events',
+							'simple-history'
+						),
 						surroundingEventId,
 						surroundingCount || 5
 					) }
