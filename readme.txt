@@ -339,6 +339,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 ### 5.21.0 (December 2025)
 
 🔍 Debug like a pro with the new "Surrounding Events" feature — see what happened before and after any event. Plus: Log Forwarding (Beta) lets you send events to external log files, Syslog servers, or external databases for backup and compliance. Also improved: auto-recovery for missing database tables.
+[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-21-0-released/)
 
 **Added**
 
