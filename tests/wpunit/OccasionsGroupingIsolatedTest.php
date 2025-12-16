@@ -1,12 +1,27 @@
 <?php
 
 use Simple_History\Log_Query;
+use Simple_History\Simple_History;
 
 /**
  * Isolated test for occasions grouping with unique timestamps
  * to avoid interference from other test data.
  */
 class OccasionsGroupingIsolatedTest extends \Codeception\TestCase\WPTestCase {
+
+	/**
+	 * Set up before each test.
+	 * Clear event history for clean tests to avoid data pollution from previous runs.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		// Clear event history for clean tests.
+		global $wpdb;
+		$sh = Simple_History::get_instance();
+		$wpdb->query( "TRUNCATE TABLE {$sh->get_events_table_name()}" );
+		$wpdb->query( "TRUNCATE TABLE {$sh->get_contexts_table_name()}" );
+	}
 
 	/**
 	 * Test basic grouping with isolated timestamps.
