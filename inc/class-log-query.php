@@ -882,7 +882,8 @@ class Log_Query {
 		}
 
 		// Get events AFTER the center event (newer, higher IDs).
-		// Order by id DESC to get newest first, then reverse to have closest to center first.
+		// Order by id ASC to get the events closest to center first (lowest IDs above center),
+		// then reverse so newest is first for display (matching the main event log order).
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$events_after = $wpdb->get_results(
 			$wpdb->prepare(
@@ -891,7 +892,7 @@ class Log_Query {
 					1 AS repeatCount, 1 AS subsequentOccasions
 				FROM %i
 				WHERE id > %d
-				ORDER BY id DESC
+				ORDER BY id ASC
 				LIMIT %d',
 				$events_table_name,
 				$center_event_id,
@@ -899,6 +900,10 @@ class Log_Query {
 			),
 			OBJECT_K
 		);
+
+		// Reverse to get newest first (DESC order) for consistent display with main log.
+		// Example: Query returns [2976, 2977, 2978] (ASC), reverse to [2978, 2977, 2976] (DESC).
+		$events_after = array_reverse( $events_after, true );
 
 		// Get the center event with full data.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -954,12 +959,12 @@ class Log_Query {
 		$max_date = null;
 
 		if ( $total_count > 0 ) {
-			// Events are in chronological order (oldest first), so:
-			// - min_id is the first event (oldest).
-			// - max_id is the last event (newest).
-			$min_id   = (int) $log_rows[0]->id;
-			$max_id   = (int) $log_rows[ $total_count - 1 ]->id;
-			$max_date = $log_rows[ $total_count - 1 ]->date;
+			// Events are in reverse chronological order (newest first), so:
+			// - max_id is the first event (newest, highest ID).
+			// - min_id is the last event (oldest, lowest ID).
+			$max_id   = (int) $log_rows[0]->id;
+			$min_id   = (int) $log_rows[ $total_count - 1 ]->id;
+			$max_date = $log_rows[0]->date;
 		}
 
 		return [
