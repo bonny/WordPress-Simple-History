@@ -47,9 +47,13 @@ class Import_Dropin extends Dropin {
 			$tools_parent = Tools_Menu_Dropin::MENU_SLUG;
 		}
 
+		// Build menu title with New badge.
+		$menu_title = _x( 'Backfill', 'backfill subtab name', 'simple-history' )
+			. ' <span class="sh-Badge sh-Badge--new">' . esc_html__( 'New', 'simple-history' ) . '</span>';
+
 		( new Menu_Page() )
 			->set_page_title( _x( 'Backfill History', 'backfill subtab title', 'simple-history' ) )
-			->set_menu_title( _x( 'Backfill', 'backfill subtab name', 'simple-history' ) )
+			->set_menu_title( $menu_title )
 			->set_menu_slug( self::MENU_SLUG )
 			->set_callback( [ $this, 'output_backfill_page' ] )
 			->set_order( 3 )
