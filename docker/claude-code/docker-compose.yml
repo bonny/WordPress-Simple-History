@@ -6,8 +6,9 @@ services:
     container_name: claude-code
     stdin_open: true
     tty: true
-    env_file:
-      - .env
+    environment:
+      # Explicitly set config directory to fix login persistence (see issue #1736)
+      - CLAUDE_CONFIG_DIR=/home/node/.claude
     volumes:
       # Main plugin
       - /Users/bonny/Projects/Personal/WordPress-Simple-History:/workspace/WordPress-Simple-History
@@ -15,8 +16,10 @@ services:
       - /Users/bonny/Projects/Personal/simple-history-add-ons:/workspace/simple-history-add-ons
       # Docker compose folder (read-only for reference)
       - /Users/bonny/Projects/_docker-compose-to-run-on-system-boot:/workspace/docker-compose:ro
-      # Persist Claude config between sessions
-      - claude-config:/home/node/.claude
+      # Share host's Claude config (settings, auth, theme)
+      - ~/.claude:/home/node/.claude
+      # Share claude.json for settings persistence (bypassPermissionsModeAccepted, etc.)
+      - ~/.claude.json:/home/node/.claude.json
     networks:
       - docker-compose-to-run-on-system-boot_default
     working_dir: /workspace/WordPress-Simple-History
@@ -24,6 +27,3 @@ services:
 networks:
   docker-compose-to-run-on-system-boot_default:
     external: true
-
-volumes:
-  claude-config:
