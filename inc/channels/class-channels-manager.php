@@ -4,7 +4,6 @@ namespace Simple_History\Channels;
 
 use Simple_History\Services\Service;
 use Simple_History\Channels\Interfaces\Channel_Interface;
-use Simple_History\Channels\Channels\File_Channel;
 
 /**
  * Manages all log forwarding channels.
