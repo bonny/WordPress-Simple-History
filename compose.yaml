@@ -56,7 +56,9 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
 
-  # Lightweight PHP service for linting (phpcs, phpstan, rector) - no dependencies
+  # Lightweight PHP service for linting (phpcs, phpstan, rector).
+  # Does not depend on any other docker services.
+  # Contains composer.
   php-lint:
     image: dockette/ci:php${PHP_CLI_VERSION:-74}
     init: true

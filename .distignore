@@ -36,7 +36,7 @@ codeception.dist.yml
 composer.json
 composer.lock
 docker-compose
-docker-compose.yml
+compose.yaml
 gruntfile.js
 package-lock.json
 package.json
