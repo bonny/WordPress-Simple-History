@@ -4,7 +4,6 @@ namespace Simple_History;
 
 use Simple_History\Services\Admin_Pages;
 use Simple_History\Services\Stealth_Mode;
-use Simple_History\Compat;
 
 defined( 'ABSPATH' ) || die();
 
@@ -167,7 +166,7 @@ echo Admin_Pages::header_output();
 		echo '</p>';
 	} else {
 		$total_logged_events_count = Helpers::get_total_logged_events_count();
-		$plugin_install_date_local = Compat::wp_date( 'Y-m-d H:i:s', strtotime( $plugin_install_date ) );
+		$plugin_install_date_local = wp_date( 'Y-m-d H:i:s', strtotime( $plugin_install_date ) );
 		echo '<p>';
 		printf(
 			/* translators: %d number of logged events. */
