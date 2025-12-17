@@ -75,6 +75,7 @@ export function EventActionsButton( {
 							<EventUnstickMenuItem
 								event={ event }
 								onClose={ onClose }
+								userCanManageOptions={ userCanManageOptions }
 							/>
 							<EventStickMenuItem
 								event={ event }
@@ -90,6 +91,7 @@ export function EventActionsButton( {
 									onClose,
 									event,
 									eventVariant,
+									userCanManageOptions,
 								} }
 							/>
 						</MenuGroup>

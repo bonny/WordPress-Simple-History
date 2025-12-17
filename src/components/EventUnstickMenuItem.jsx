@@ -6,14 +6,24 @@ import {
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { pin } from '@wordpress/icons';
-import { useUserHasCapability } from '../hooks/useUserHasCapability';
 
-export function EventUnstickMenuItem( { event, onClose } ) {
+/**
+ * Menu item to unstick a sticky event.
+ *
+ * @param {Object}   props
+ * @param {Object}   props.event                The event object
+ * @param {Function} props.onClose              Callback to close the dropdown
+ * @param {boolean}  props.userCanManageOptions Whether the user can manage options (is admin)
+ */
+export function EventUnstickMenuItem( {
+	event,
+	onClose,
+	userCanManageOptions,
+} ) {
 	const [ isConfirmDialogOpen, setIsConfirmDialogOpen ] = useState( false );
-	const canManageOptions = useUserHasCapability( 'manage_options' );
 
 	// Bail if event is not sticky or user is not an admin.
-	if ( ! event.sticky || ! canManageOptions ) {
+	if ( ! event.sticky || ! userCanManageOptions ) {
 		return null;
 	}
 

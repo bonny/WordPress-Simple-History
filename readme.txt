@@ -345,6 +345,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Fixed phpcs warnings in File_Channel.
+-   Fixed slow appearance of "Stick event to top" and "Unstick event" menu items in the event actions dropdown by using pre-resolved user capability props instead of async data fetching.
 
 ### 5.21.0 (December 2025)
 
