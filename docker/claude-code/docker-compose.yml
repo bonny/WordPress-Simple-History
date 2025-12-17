@@ -1,0 +1,29 @@
+services:
+  claude-code:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: claude-code
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env
+    volumes:
+      # Main plugin
+      - /Users/bonny/Projects/Personal/WordPress-Simple-History:/workspace/WordPress-Simple-History
+      # Premium add-ons
+      - /Users/bonny/Projects/Personal/simple-history-add-ons:/workspace/simple-history-add-ons
+      # Docker compose folder (read-only for reference)
+      - /Users/bonny/Projects/_docker-compose-to-run-on-system-boot:/workspace/docker-compose:ro
+      # Persist Claude config between sessions
+      - claude-config:/home/node/.claude
+    networks:
+      - docker-compose-to-run-on-system-boot_default
+    working_dir: /workspace/WordPress-Simple-History
+
+networks:
+  docker-compose-to-run-on-system-boot_default:
+    external: true
+
+volumes:
+  claude-config:

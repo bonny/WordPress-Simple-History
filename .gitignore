@@ -54,3 +54,6 @@ build/
 !.claude/skills/
 scripts/copy-current-to-simple-history-com.sh
 CLAUDE.local.md
+
+# Docker Claude Code environment
+docker/claude-code/.env
