@@ -611,14 +611,26 @@ class RSS_Dropin extends Dropin {
 		$messages       = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : null;
 		$loglevels      = isset( $args['loglevels'] ) ? sanitize_text_field( $args['loglevels'] ) : null;
 
+		// Exclusion filters - useful for subscribing to events excluding your own actions.
+		$exclude_loggers   = isset( $args['exclude_loggers'] ) ? sanitize_text_field( $args['exclude_loggers'] ) : null;
+		$exclude_messages  = isset( $args['exclude_messages'] ) ? sanitize_text_field( $args['exclude_messages'] ) : null;
+		$exclude_loglevels = isset( $args['exclude_loglevels'] ) ? sanitize_text_field( $args['exclude_loglevels'] ) : null;
+		$exclude_user      = isset( $args['exclude_user'] ) ? (int) $args['exclude_user'] : null;
+		$exclude_users     = isset( $args['exclude_users'] ) ? sanitize_text_field( $args['exclude_users'] ) : null;
+
 		return [
-			'posts_per_page' => $posts_per_page,
-			'paged'          => $paged,
-			'date_from'      => $date_from,
-			'date_to'        => $date_to,
-			'loggers'        => $loggers,
-			'messages'       => $messages,
-			'loglevels'      => $loglevels,
+			'posts_per_page'    => $posts_per_page,
+			'paged'             => $paged,
+			'date_from'         => $date_from,
+			'date_to'           => $date_to,
+			'loggers'           => $loggers,
+			'messages'          => $messages,
+			'loglevels'         => $loglevels,
+			'exclude_loggers'   => $exclude_loggers,
+			'exclude_messages'  => $exclude_messages,
+			'exclude_loglevels' => $exclude_loglevels,
+			'exclude_user'      => $exclude_user,
+			'exclude_users'     => $exclude_users,
 		];
 	}
 }
