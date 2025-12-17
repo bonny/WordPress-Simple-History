@@ -181,7 +181,7 @@ class File_Channel extends Channel {
 		$log_entry = $formatter->format( $event_data, $formatted_message );
 
 		// Write to file.
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Direct file operations required for log file channel.
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Direct file operations required for log file channel.
 		$result = file_put_contents( $log_file, $log_entry, FILE_APPEND | LOCK_EX );
 
 		if ( false === $result ) {
@@ -698,6 +698,7 @@ class File_Channel extends Channel {
 	 */
 	private function ensure_directory_exists( $directory ) {
 		if ( is_dir( $directory ) ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_is_writable
 			return is_writable( $directory );
 		}
 
@@ -738,7 +739,7 @@ class File_Channel extends Channel {
 			$htaccess_content .= "    Deny from all\n";
 			$htaccess_content .= "</IfModule>\n";
 
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Direct file operations required for log directory protection.
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Direct file operations required for log directory protection.
 			file_put_contents( $htaccess_path, $htaccess_content );
 		}
 	}
@@ -753,7 +754,7 @@ class File_Channel extends Channel {
 
 		// Only create if it doesn't exist.
 		if ( ! file_exists( $index_path ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Direct file operations required for log directory protection.
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Direct file operations required for log directory protection.
 			file_put_contents( $index_path, "<?php\n// Silence is golden.\n" );
 		}
 	}
@@ -802,7 +803,7 @@ class File_Channel extends Channel {
 		$files_to_delete = array_slice( $log_files, 0, count( $log_files ) - $keep_files );
 
 		foreach ( $files_to_delete as $file ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Direct file operations required for log file rotation cleanup.
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink -- Direct file operations required for log file rotation cleanup.
 			unlink( $file );
 		}
 	}
