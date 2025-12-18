@@ -9,6 +9,7 @@
 /assets-wp-repo
 /cursor
 /data
+/docker
 /docs
 /examples
 /node_modules
@@ -35,7 +36,6 @@ code.md
 codeception.dist.yml
 composer.json
 composer.lock
-docker-compose
 compose.yaml
 gruntfile.js
 package-lock.json
