@@ -2,7 +2,7 @@
 
 namespace Simple_History\Tests\WPUnit;
 
-use Simple_History\Channels\Channels\File_Channel;
+use Simple_History\Channels\File_Channel;
 
 /**
  * Test the File Channel implementation.

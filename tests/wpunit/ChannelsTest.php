@@ -3,11 +3,11 @@
 namespace Simple_History\Tests\WPUnit;
 
 use Simple_History\Channels\Channel;
-use Simple_History\Channels\Channels\File_Channel;
+use Simple_History\Channels\File_Channel;
 
 // Include test fixture.
 require_once __DIR__ . '/fixtures/class-example-channel.php';
-use Simple_History\Channels\Channels\Example_Channel;
+use Simple_History\Channels\Example_Channel;
 
 /**
  * Test the channels system settings and validation.

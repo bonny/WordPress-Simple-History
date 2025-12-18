@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History\Channels\Channels;
+namespace Simple_History\Channels;
 
 use Simple_History\Channels\Channel;
 use Simple_History\Helpers;
