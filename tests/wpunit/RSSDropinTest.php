@@ -225,8 +225,13 @@ class RSSDropinTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( 'loggers', $result, 'Should have loggers key' );
 		$this->assertArrayHasKey( 'messages', $result, 'Should have messages key' );
 		$this->assertArrayHasKey( 'loglevels', $result, 'Should have loglevels key' );
+		$this->assertArrayHasKey( 'exclude_loggers', $result, 'Should have exclude_loggers key' );
+		$this->assertArrayHasKey( 'exclude_messages', $result, 'Should have exclude_messages key' );
+		$this->assertArrayHasKey( 'exclude_loglevels', $result, 'Should have exclude_loglevels key' );
+		$this->assertArrayHasKey( 'exclude_user', $result, 'Should have exclude_user key' );
+		$this->assertArrayHasKey( 'exclude_users', $result, 'Should have exclude_users key' );
 
-		// Should have exactly 7 keys (no extra keys).
-		$this->assertCount( 7, $result, 'Should have exactly 7 keys' );
+		// Should have exactly 12 keys (no extra keys).
+		$this->assertCount( 12, $result, 'Should have exactly 12 keys' );
 	}
 }
