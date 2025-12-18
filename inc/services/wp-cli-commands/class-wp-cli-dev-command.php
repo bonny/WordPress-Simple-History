@@ -283,8 +283,8 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 	/**
 	 * Add a plugin update message to the log for testing the "What's new" feature.
 	 *
-	 * Creates a log entry as if Simple History was updated to the current version,
-	 * allowing you to test and preview the update details message.
+	 * Creates a log entry as if Simple History was updated, allowing you to test
+	 * and preview the update details message.
 	 *
 	 * ## OPTIONS
 	 *
@@ -294,13 +294,22 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 	 * default: 5.18.0
 	 * ---
 	 *
+	 * [--version=<version>]
+	 * : The target version to simulate updating to. Defaults to current installed version.
+	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Add a plugin update message with default previous version
+	 *     # Add a plugin update message with default versions
 	 *     wp simple-history dev add-plugin-update-message
 	 *
 	 *     # Add a plugin update message simulating update from specific version
 	 *     wp simple-history dev add-plugin-update-message --prev-version=5.17.0
+	 *
+	 *     # Add a plugin update message simulating update to specific version
+	 *     wp simple-history dev add-plugin-update-message --version=5.22.0
+	 *
+	 *     # Add a plugin update message with both versions specified
+	 *     wp simple-history dev add-plugin-update-message --prev-version=5.20.0 --version=5.22.0
 	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Associative arguments.
@@ -322,6 +331,7 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WP-CLI command, no nonce needed.
 		$prev_version = $assoc_args['prev-version'] ?? '5.18.0';
+		$version      = $assoc_args['version'] ?? $plugin_data['Version'];
 
 		$context = [
 			'plugin_slug'         => 'simple-history',
@@ -329,7 +339,7 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 			'plugin_title'        => $plugin_data['Title'],
 			'plugin_description'  => $plugin_data['Description'],
 			'plugin_author'       => $plugin_data['Author'],
-			'plugin_version'      => $plugin_data['Version'],
+			'plugin_version'      => $version,
 			'plugin_prev_version' => $prev_version,
 			'plugin_url'          => $plugin_data['PluginURI'],
 		];
@@ -341,7 +351,7 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 				/* translators: 1: previous version, 2: current version */
 				__( 'Added plugin update message: Simple History %1$s → %2$s', 'simple-history' ),
 				$prev_version,
-				$plugin_data['Version']
+				$version
 			)
 		);
 	}
