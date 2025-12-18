@@ -1,58 +1,69 @@
 ---
 name: git-commits
-description: Create well-structured git commits in logical chunks following best practices. Use when the user asks to commit, says "commit", requests to "stage changes", or after completing code changes that should be committed.
+description: Create well-structured git commits. ALWAYS use this skill when committing - even for simple single-file commits. Triggers: "commit", "stage", "add and commit", or after completing any code changes.
 ---
 
-# Git Commits in Logical Chunks
+# Git Commits
 
-Organize commits into logical, atomic chunks. Each commit should represent a single coherent change.
+**Always invoke this skill for every commit.** This ensures consistent, well-structured commits.
+
+## Workflow
+
+1. Run `git status` and `git diff` to see changes
+2. Run `git log --oneline -5` to see recent commit style
+3. Determine if changes should be one or multiple commits
+4. Stage and commit with clear message
 
 ## When to Split vs Combine
 
-**Separate into different commits:**
-- CSS changes vs PHP logic changes
-- Different features (even if in same file)
+**Separate commits:**
+- CSS vs PHP logic
+- Different features (even in same file)
 - Refactoring vs new functionality
 - Multiple bug fixes (one per fix)
 
-**Keep together in one commit:**
-- Related changes across files for one feature
-- A handler + its CSS for the same feature
+**Single commit:**
+- Related changes for one feature
+- A handler + its CSS
 - Tests for the feature being added
 
-## Commit Order
+## Commit Message Format
 
-When you have multiple changes:
-1. Infrastructure/config (build tools, dependencies)
-2. Core functionality (PHP handlers, services)
-3. UI/styling (CSS, templates)
-4. Documentation
+```
+<summary line - what and why, not how>
 
-## Checklist
-
-Before committing, ask:
-1. Does this commit do ONE thing?
-2. Could I write a clear, short summary?
-3. If I revert this, would it make sense on its own?
+<optional body with more context>
+```
 
 ## Examples
 
-### Good: Logical Separation
-
+**Input:** Single file change to update details
+```diff
+-  $title = __( 'Old title', 'simple-history' );
++  $title = __( 'New title', 'simple-history' );
 ```
-Commit 1: "Add CSS classes for checkbox grid layout"
-Commit 2: "Update import handler for flexible date range"
-Commit 3: "Document backfill form UX improvements"
+**Output:**
+```
+Update 5.22.0 update details title
 ```
 
-### Bad: Mixed Concerns
+**Input:** Multiple related changes across files
+```diff
+# file1.php
++ public function new_feature() { ... }
 
+# file2.php
++ add_filter( 'hook', [ $this, 'new_feature' ] );
 ```
-"Various updates to backfill feature"
+**Output:**
+```
+Add new feature for X
+
+Register hook and implement handler.
 ```
 
 ## Multiple Repositories
 
-When changes span core + premium repos:
-1. Commit core changes first, then premium
+When changes span core + premium:
+1. Commit core first, then premium
 2. Use related commit messages
