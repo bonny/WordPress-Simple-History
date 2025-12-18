@@ -17,14 +17,16 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | d
     && apt-get install -y gh \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code CLI globally
-RUN npm install -g @anthropic-ai/claude-code
-
 # Configure node user (already exists in node:20 image with UID 1000)
 # Give node user sudo access and create required directories
 RUN echo "node ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
-    mkdir -p /workspace /home/node/.claude && \
-    chown -R node:node /workspace /home/node/.claude
+    mkdir -p /workspace /home/node/.claude /home/node/.local/bin && \
+    chown -R node:node /workspace /home/node/.claude /home/node/.local
+
+# Switch to node user to install Claude Code natively (installs to ~/.local/bin)
+USER node
+RUN curl -fsSL https://claude.ai/install.sh | bash
+USER root
 
 # Create entrypoint script inline to avoid permission issues
 RUN printf '#!/bin/bash\nsudo chown -R $(id -u):$(id -g) /home/node/.claude 2>/dev/null || true\nexec "$@"\n' > /entrypoint.sh && \
@@ -34,6 +36,7 @@ RUN printf '#!/bin/bash\nsudo chown -R $(id -u):$(id -g) /home/node/.claude 2>/d
 ENV DEVCONTAINER=true
 ENV TERM=xterm-256color
 ENV COLORTERM=truecolor
+ENV PATH="/home/node/.local/bin:${PATH}"
 
 # Switch to non-root user
 USER node
