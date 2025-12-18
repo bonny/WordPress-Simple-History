@@ -170,18 +170,15 @@ class Simple_History_Updates extends Service {
 	 * @return string Extra HTML to output after the changelog link.
 	 */
 	public function on_plugin_updated_details_5_22_0( $extra_details ) {
-		$title = __( 'Filter your feeds, fix your updates', 'simple-history' );
+		$title = __( 'Debug smarter, log everywhere', 'simple-history' );
 
 		$new_features = [
-			__( 'RSS & JSON Feed Filters – Exclude specific users, loggers, or log levels from feeds. Monitor what others do without seeing your own actions!', 'simple-history' ),
-			__( 'Bug Fix – Simplified internal file structure to fix fatal errors some users experienced when updating', 'simple-history' ),
-			// 5.21.0 highlights - important features that users upgrading from older versions should know about.
 			__( 'Surrounding Events – See exactly what happened before and after any event. Perfect for debugging!', 'simple-history' ),
 			__( 'Log Forwarding (Beta) – Send events to log files, Syslog servers, or external databases for backup and compliance', 'simple-history' ),
 			__( 'Auto-recovery – Database tables now self-heal if missing', 'simple-history' ),
 		];
 
-		$release_link = '';
+		$release_link = 'https://simple-history.com/2025/simple-history-5-22-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
