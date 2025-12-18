@@ -342,14 +342,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Added exclusion filter support to RSS and JSON feeds, allowing you to subscribe to events while excluding specific users, loggers, messages, or log levels. Useful for monitoring what others do without seeing your own actions.
 
-**Changed**
-
--   Refactored File_Channel directory structure for cleaner organization.
-
 **Fixed**
 
--   Fixed phpcs warnings in File_Channel.
--   Fixed slow appearance of "Stick event to top" and "Unstick event" menu items in the event actions dropdown by using pre-resolved user capability props instead of async data fetching.
+-   Simplified internal file structure to hopefully fix "Class File_Channel not found" fatal error that some users experienced when updating the plugin.
+-   Fixed slow appearance of "Stick event to top" and "Unstick event" menu items in the event actions dropdown.
 
 ### 5.21.0 (December 2025)
 
