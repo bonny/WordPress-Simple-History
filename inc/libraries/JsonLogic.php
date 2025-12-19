@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile -- Third-party library, not modified.
 
 namespace JWadhams;
 
