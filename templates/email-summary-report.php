@@ -177,7 +177,7 @@ $args = wp_parse_args(
 					<!-- Subtitle -->
 					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;"
 						class="mobile-text">
-						<?php echo esc_html( __( 'Here\'s a summary of activity on your website.', 'simple-history' ) ); ?>
+						<?php echo esc_html( __( "Here's a summary of activity on your website.", 'simple-history' ) ); ?>
 					</p>
 
 					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
