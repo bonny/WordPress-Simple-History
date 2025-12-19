@@ -336,6 +336,14 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+**Added**
+
+-   Added Notes statistics to weekly email reports showing notes added and resolved counts (WordPress 6.9+ only).
+-   Added Notes statistics to History Insights page for tracking collaborative block editor notes activity.
+-   Added Notes REST API endpoint at `/wp-json/simple-history/v1/stats/notes`.
+
 ### 5.22.0 (December 2025)
 
 **Added**

@@ -248,6 +248,11 @@ class Stats_Service extends Service {
 			'total_count' => $this->stats->get_media_total_count( $date_from, $date_to ),
 		];
 
+		// Get notes statistics (WordPress 6.9+).
+		$notes_stats = [
+			'total_count' => $this->stats->get_notes_total_count( $date_from, $date_to ),
+		];
+
 		// Get top users.
 		$top_users = $this->stats->get_top_users( $date_from, $date_to );
 
@@ -260,6 +265,7 @@ class Stats_Service extends Service {
 			'wordpress_stats'           => $wordpress_stats,
 			'content_stats'             => $posts_pages_stats,
 			'media_stats'               => $media_stats,
+			'notes_stats'               => $notes_stats,
 			'user_rankings'             => $top_users,
 			'user_total_count'          => $this->stats->get_total_users( $date_from, $date_to ),
 		];

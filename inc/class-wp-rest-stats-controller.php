@@ -165,6 +165,21 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
+
+		// GET /wp-json/simple-history/v1/stats/notes.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/notes',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_notes_stats' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+					'args'                => $this->get_collection_params(),
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
 	}
 
 	/**
@@ -328,6 +343,11 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 					'updates'           => $events_stats->get_wordpress_core_updates_count( $date_from, $date_to ),
 					'available_updates' => $events_stats->get_wordpress_core_updates_found_count( $date_from, $date_to ),
 					'total'             => $events_stats->get_core_total_count( $date_from, $date_to ),
+				),
+				'notes'   => array(
+					'added'    => $events_stats->get_notes_added_count( $date_from, $date_to ),
+					'resolved' => $events_stats->get_notes_resolved_count( $date_from, $date_to ),
+					'total'    => $events_stats->get_notes_total_count( $date_from, $date_to ),
 				),
 			),
 		);
@@ -555,6 +575,31 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$stats = array(
 			'date_range'       => $this->format_date_range( $date_from, $date_to ),
 			'activity_by_date' => $events_stats->get_activity_overview_by_date( $date_from, $date_to ),
+		);
+
+		return rest_ensure_response( $stats );
+	}
+
+	/**
+	 * Get notes stats (WordPress 6.9+).
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_notes_stats( $request ) {
+		$date_range = $this->get_date_range_from_request( $request );
+		$date_from  = $date_range['from'];
+		$date_to    = $date_range['to'];
+
+		$events_stats = new Events_Stats();
+
+		$stats = array(
+			'date_range' => $this->format_date_range( $date_from, $date_to ),
+			'summary'    => array(
+				'added'    => $events_stats->get_notes_added_count( $date_from, $date_to ),
+				'resolved' => $events_stats->get_notes_resolved_count( $date_from, $date_to ),
+				'total'    => $events_stats->get_notes_total_count( $date_from, $date_to ),
+			),
 		);
 
 		return rest_ensure_response( $stats );

@@ -49,6 +49,8 @@ $args = wp_parse_args(
 		'failed_logins'          => 0,
 		'posts_created'          => 0,
 		'posts_updated'          => 0,
+		'notes_added'            => 0,
+		'notes_resolved'         => 0,
 		'plugin_activations'     => 0,
 		'plugin_deactivations'   => 0,
 		'wordpress_updates'      => 0,
@@ -337,7 +339,7 @@ $args = wp_parse_args(
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
 								<?php echo esc_html( __( 'Posts and Pages', 'simple-history' ) ); ?>
 							</h2>
-							
+
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
@@ -359,6 +361,41 @@ $args = wp_parse_args(
 								</tr>
 							</table>
 						</div>
+						<?php
+						// Notes Section - only show on WordPress 6.9+ where Notes feature exists.
+						global $wp_version;
+						if ( version_compare( $wp_version, '6.9', '>=' ) ) {
+							?>
+							<!-- Notes Section (WordPress 6.9+) -->
+							<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+								<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
+									<?php echo esc_html( __( 'Notes', 'simple-history' ) ); ?>
+								</h2>
+
+								<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+									<tr>
+										<td style="width: 50%; vertical-align: top; padding-right: 15px;">
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
+												<?php echo esc_html( __( 'Notes added', 'simple-history' ) ); ?>
+											</div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
+												<?php echo esc_html( number_format_i18n( $args['notes_added'] ) ); ?>
+											</div>
+										</td>
+										<td style="width: 50%; vertical-align: top; padding-left: 15px;">
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
+												<?php echo esc_html( __( 'Notes resolved', 'simple-history' ) ); ?>
+											</div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
+												<?php echo esc_html( number_format_i18n( $args['notes_resolved'] ) ); ?>
+											</div>
+										</td>
+									</tr>
+								</table>
+							</div>
+							<?php
+						}
+						?>
 						<!-- Users Section -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">

@@ -160,6 +160,10 @@ class Stats_View {
 						'label' => __( 'Media actions', 'simple-history' ),
 						'value' => number_format_i18n( $data['media_stats']['total_count'] ),
 					),
+					array(
+						'label' => __( 'Notes actions', 'simple-history' ),
+						'value' => number_format_i18n( $data['notes_stats']['total_count'] ?? 0 ),
+					),
 				);
 
 				foreach ( $categories as $category ) {
@@ -805,6 +809,30 @@ class Stats_View {
 	}
 
 	/**
+	 * Output the notes statistics section.
+	 * Shows WordPress 6.9+ collaborative Notes activity.
+	 */
+	public static function output_notes_stats_section() {
+		$stats_data = [
+			[
+				'label' => __( 'Notes added', 'simple-history' ),
+				'value' => self::get_random_stat( 5, 20 ),
+			],
+			[
+				'label' => __( 'Notes resolved', 'simple-history' ),
+				'value' => self::get_random_stat( 2, 10 ),
+			],
+		];
+
+		self::output_stats_box_section(
+			_x( 'Notes', 'stats section title', 'simple-history' ),
+			$stats_data,
+			'--sh-color-blue',
+			'Premium users get detailed stats on collaborative notes activity from the block editor.'
+		);
+	}
+
+	/**
 	 * Output the main insights dashboard content.
 	 *
 	 * @param array $data      Insights data array.
@@ -839,6 +867,7 @@ class Stats_View {
 			self::output_user_stats_section();
 			self::output_posts_pages_stats_section();
 			self::output_media_stats_section();
+			self::output_notes_stats_section();
 			?>
 		</div>
 		<?php
