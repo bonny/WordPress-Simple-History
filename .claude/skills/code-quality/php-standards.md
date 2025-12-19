@@ -298,6 +298,28 @@ $condition
     : $this->doSomethingElse();
 ```
 
+### Null Coalescing Operator
+
+Prefer the null coalescing operator `??` over `isset()` ternaries for default values. It's cleaner, more readable, and available since PHP 7.0.
+
+✅ **Correct (null coalescing):**
+
+```php
+$user_id    = $data['user_id'] ?? 0;
+$post_title = $context['post_title'] ?? __( 'Unknown', 'simple-history' );
+$settings   = get_option( 'my_settings' ) ?? [];
+```
+
+❌ **Incorrect (isset ternary):**
+
+```php
+$user_id    = isset( $data['user_id'] ) ? $data['user_id'] : 0;
+$post_title = isset( $context['post_title'] ) ? $context['post_title'] : __( 'Unknown', 'simple-history' );
+$settings   = isset( get_option( 'my_settings' ) ) ? get_option( 'my_settings' ) : [];
+```
+
+**Note:** Use `isset()` when you need to check existence without providing a default, or when checking object properties that may not exist.
+
 ### Readable Code Over Clever Code
 
 Code is read more often than it's written. Optimize for the human reader, not for line count. Break complex expressions into named intermediate variables that explain what's happening.
