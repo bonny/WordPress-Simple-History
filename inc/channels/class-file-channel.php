@@ -30,14 +30,6 @@ class File_Channel extends Channel {
 	protected ?string $slug = 'file';
 
 	/**
-	 * Whether this channel supports async processing.
-	 * File writing is fast, no need for async.
-	 *
-	 * @var bool
-	 */
-	protected bool $supports_async = false;
-
-	/**
 	 * Called when the channel is loaded and ready.
 	 *
 	 * Registers hooks for async cleanup processing.
