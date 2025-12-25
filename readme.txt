@@ -195,17 +195,27 @@ Take your activity logging to the next level with add-ons that enhance tracking,
 
 #### [Simple History Premium](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-Unlock advanced features and customization options:
+Unlock enterprise-grade logging and advanced customization:
 
--   **Custom Log Entries** – Add custom log entries using a UI. Document important changes by creating custom log entries for team actions, content updates, or system changes that aren't automatically tracked.
--   **Stealth Mode GUI** – User-friendly interface for managing Stealth Mode settings without writing code.
--   **Log Retention** – Control how long logs are stored, from a few days to forever.
--   **Export Search Results** – Download logs in CSV or JSON format for deeper analysis.
--   **Failed User Logins** – Disable or limit logging of failed login attempts to reduce noise.
--   **IP Address Anonymization** – Choose whether to store full IPs or anonymize them for privacy compliance (e.g., GDPR).
--   **Login Location Lookup** – View the location of a specific login attempt on Google Maps to identify suspicious activity.
--   **Logger Control** – Enable or disable specific loggers to manage what type of events are recorded.
--   **Ad-Free Experience** – Remove promotional banners for a distraction-free workflow.
+**Log Channels – Stream Events Beyond WordPress**
+
+-   **File Channel** – Write events to local log files in JSON Lines, RFC 5424, or Logfmt format for integration with any log analysis tool.
+-   **Syslog Channels** – Forward events to syslog servers via UDP, TCP, or encrypted TLS. Works with Graylog, Papertrail, and other centralized logging platforms.
+-   **External Database Channel** – Store events in external MySQL/MariaDB databases for long-term retention and multi-site log aggregation.
+-   **Datadog Channel** – Send events directly to Datadog for real-time monitoring, alerting, and dashboards.
+-   **Webhook Channel** – Forward events to any HTTP endpoint with custom JSON payloads. Perfect for Slack notifications, custom integrations, or automation workflows.
+
+**Enhanced Controls & Productivity**
+
+-   **Custom Log Entries** – Document team decisions, manual changes, or system updates that aren't automatically tracked.
+-   **Export Search Results** – Download filtered logs as CSV or JSON for reporting and compliance audits.
+-   **Log Retention** – Store logs for as long as you need—set custom retention periods or keep them forever.
+-   **Backfill** – Import years of historical content created before Simple History was installed.
+-   **Post Activity Panel** – View complete post history directly in the block editor sidebar.
+-   **Stealth Mode GUI** – Manage hidden logging through a user-friendly interface.
+-   **Logger Control** – Fine-tune which events are recorded by enabling or disabling specific loggers.
+-   **IP Address Anonymization** – Full IP logging or anonymization for GDPR compliance.
+-   **Ad-Free Experience** – Clean, distraction-free interface.
 
 #### [WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=addons&utm_content=readme_addon_woocommerce)
 
