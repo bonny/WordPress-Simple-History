@@ -1,0 +1,15 @@
+# WP-CLI configuration for Claude Code DevContainer
+# The container is on the same Docker network as WordPress, so we can reach
+# the database directly via the mariadb hostname.
+
+path: /workspace/docker-compose/data/wp/wordpress-stable-mariadb
+url: http://wordpress-stable-docker-mariadb.test:8282
+
+# Database connection (same network as WordPress containers)
+@stable:
+  path: /workspace/docker-compose/data/wp/wordpress-stable-mariadb
+  url: http://wordpress-stable-docker-mariadb.test:8282
+
+@nightly:
+  path: /workspace/docker-compose/data/wp/wordpress-nightly-mariadb
+  url: http://wordpress-nightly-docker.test:8286

@@ -6,8 +6,14 @@ RUN apt-get update && apt-get install -y \
     curl \
     php-cli \
     php-xml \
+    php-mysql \
     sudo \
     && rm -rf /var/lib/apt/lists/*
+
+# Install WP-CLI
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
 
 # Install GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -20,8 +26,8 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | d
 # Configure node user (already exists in node:20 image with UID 1000)
 # Give node user sudo access and create required directories
 RUN echo "node ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
-    mkdir -p /workspace /home/node/.claude /home/node/.local/bin && \
-    chown -R node:node /workspace /home/node/.claude /home/node/.local
+    mkdir -p /workspace /home/node/.claude /home/node/.local/bin /home/node/.wp-cli && \
+    chown -R node:node /workspace /home/node/.claude /home/node/.local /home/node/.wp-cli
 
 # Switch to node user to install Claude Code natively (installs to ~/.local/bin)
 USER node

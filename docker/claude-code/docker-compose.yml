@@ -9,13 +9,23 @@ services:
     environment:
       # Explicitly set config directory to fix login persistence (see issue #1736)
       - CLAUDE_CONFIG_DIR=/home/node/.claude
+      # WordPress database credentials for WP-CLI
+      - WORDPRESS_DB_HOST=mariadb
+      - WORDPRESS_DB_USER=wp
+      - WORDPRESS_DB_PASSWORD=wppass
+      - WORDPRESS_DB_NAME=wordpress
     volumes:
       # Main plugin
       - /Users/bonny/Projects/Personal/WordPress-Simple-History:/workspace/WordPress-Simple-History
       # Premium add-ons
       - /Users/bonny/Projects/Personal/simple-history-add-ons:/workspace/simple-history-add-ons
-      # Docker compose folder (read-only for reference)
-      - /Users/bonny/Projects/_docker-compose-to-run-on-system-boot:/workspace/docker-compose:ro
+      # Docker compose folder (needs write access for WP-CLI)
+      - /Users/bonny/Projects/_docker-compose-to-run-on-system-boot:/workspace/docker-compose
+      # Mirror WordPress container's plugin mounts so WP-CLI sees them
+      - /Users/bonny/Projects/Personal/WordPress-Simple-History:/workspace/docker-compose/data/wp/wordpress-stable-mariadb/wp-content/plugins/simple-history
+      - /Users/bonny/Projects/Personal/simple-history-add-ons/simple-history-premium:/workspace/docker-compose/data/wp/wordpress-stable-mariadb/wp-content/plugins/simple-history-premium
+      # WP-CLI config
+      - ./wp-cli.yml:/home/node/.wp-cli/config.yml:ro
       # Share host's Claude config (settings, auth, theme)
       - ~/.claude:/home/node/.claude
       # Share claude.json for settings persistence (bypassPermissionsModeAccepted, etc.)
