@@ -100,31 +100,250 @@ Notification-focused channels based on competitor analysis and market gaps:
 **Already Done:**
 - `Webhook_Channel` (premium) - covers Zapier, Make, n8n, custom endpoints
 
-### 2. Rule Builder UI (Premium)
+### 2. Alert Rules UX (Premium)
 
-The backend (`Alert_Rules_Engine`, `Alert_Evaluator`, `Alert_Field_Registry`) exists but there's no UI.
+The backend exists (`Alert_Rules_Engine`, `Alert_Evaluator`) but needs a user-friendly UI.
 
-**Need to build:**
-- React component using React Query Builder
-- Settings UI to create/edit/delete rules
-- JsonLogic export to store rules
-- Integration with channel settings
+**Design Principle:** Progressive disclosure - simple for beginners, powerful for experts.
 
-### 3. Alert Presets
+#### Tier 1: One-Click Presets (80% of users)
 
-Pre-configured rules users can enable with one click:
+```
+┌─────────────────────────────────────────────────────────┐
+│ Quick Alerts                                            │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ ☐ Security Alerts                              [Edit]   │
+│   Failed logins, user role changes, new admin users     │
+│   → Sends to: [Select destination ▾]                    │
+│                                                         │
+│ ☐ Content Changes                              [Edit]   │
+│   Posts published, pages deleted, media uploads         │
+│   → Sends to: [Select destination ▾]                    │
+│                                                         │
+│ ☐ Plugin & Theme Activity                      [Edit]   │
+│   Installs, updates, activations, deletions             │
+│   → Sends to: [Select destination ▾]                    │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
 
-- **Security alerts**: Failed logins, user role changes
-- **Admin actions**: Plugin/theme installs, settings changes
-- **User activity**: New registrations, profile updates
+- Zero learning curve
+- User picks preset + destination
+- Enable in 5 seconds
 
-### 4. "Create Alert from Event" (Nice to have)
+#### Tier 2: Editable Presets (15% of users)
 
-Add action to event dropdown: "Create alert for events like this"
-- Pre-fills rule builder with matching criteria
-- Quick way to set up alerts
+Click "Edit" on a preset to customize:
 
-## Architecture
+```
+┌─────────────────────────────────────────────────────────┐
+│ Edit: Security Alerts                                   │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ Alert me when ANY of these happen:                      │
+│                                                         │
+│   ☑ User login fails                                    │
+│   ☑ User role changes to Administrator                  │
+│   ☑ New user created with Administrator role            │
+│   ☐ Password changed                                    │
+│   ☐ User deleted                                        │
+│                                                         │
+│ Send to: ☑ Slack  ☑ Email  ☐ Discord  ☐ Telegram       │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+- Presets become editable templates
+- Toggle specific events on/off
+- Still uses checkboxes (familiar UI)
+
+#### Tier 3: Custom Rules (5% of power users)
+
+Full control with Zapier-style conditions:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Create Custom Alert                                     │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ Name: [Failed Admin Logins________________]             │
+│                                                         │
+│ Alert me when:                                          │
+│                                                         │
+│   [Logger ▾] [equals ▾] [User ▾]                        │
+│                                                   [+AND]│
+│   [Message ▾] [contains ▾] [failed________]             │
+│                                                   [+AND]│
+│   [User role ▾] [equals ▾] [Administrator ▾]            │
+│                                                         │
+│ ─────────────────────────────────────────────────────── │
+│ Preview: "Alert when User logger message contains       │
+│          'failed' AND user role is Administrator"       │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+- Natural language preview of what rule does
+- Field → Operator → Value pattern (proven by Zapier)
+- Limited operators per field type
+
+#### "Create from Event" (Gmail pattern)
+
+Add to event dropdown menu:
+
+```
+┌─────────────────────────┐
+│ 📋 Copy details         │
+│ 🔗 Link to this event   │
+│ ─────────────────────── │
+│ 🔔 Create alert for     │
+│    events like this     │
+└─────────────────────────┘
+```
+
+Pre-fills rule with event's logger and message key. Power users discover rule-building contextually.
+
+#### Technical Note
+
+**Presets don't need JsonLogic.** Simple event type arrays:
+
+```php
+$security_preset = [
+    'events' => ['user_login_failed', 'user_role_changed'],
+    'destinations' => ['slack', 'email'],
+];
+```
+
+Only Tier 3 custom rules need the full `Alert_Rules_Engine` with JsonLogic.
+
+#### Implementation Order
+
+| Phase | Feature | Effort |
+|-------|---------|--------|
+| MVP | Presets only (Tier 1) | Low |
+| v1.1 | Editable presets (Tier 2) | Low |
+| v1.2 | Custom rules (Tier 3) | Medium |
+| v1.3 | "Create from event" | Low |
+
+## Destinations Architecture
+
+### The Problem
+
+Users need to send alerts to multiple places of the same type:
+- Multiple Slack channels (Security → #security, Dev → #dev-updates)
+- Multiple Slack workspaces (Client A, Client B)
+- Multiple Telegram groups (private admin group, public channel)
+- Multiple email recipients (security-team@, editors@)
+
+### Recommendation: Destinations as First-Class Entities
+
+Separate "where to send" from "what to send":
+
+```
+Settings > Alerts
+├── Destinations (configure once, reuse)
+│   ├── "Security Team Slack" (webhook: xxx, #security)
+│   ├── "Dev Team Slack" (webhook: yyy, #dev-updates)
+│   ├── "Admin Email" (admin@example.com)
+│   ├── "Telegram Alerts" (bot: xxx, chat: -123456)
+│   └── [+ Add Destination]
+│
+└── Alert Rules (reference destinations)
+    ├── Security Alerts → Security Team Slack, Admin Email
+    └── Plugin Changes → Dev Team Slack
+```
+
+**Why this approach:**
+- No duplicate credentials (change webhook once → all alerts updated)
+- Clear separation of "where" vs "what"
+- Can test each destination independently
+- Same pattern as email clients managing "accounts"
+
+### Destinations UI
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Alert Destinations                                      │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ Slack                                                   │
+│ ├── Security Team         #security    [Test] [Edit]   │
+│ └── Dev Updates           #dev         [Test] [Edit]   │
+│                                    [+ Add Slack]        │
+│                                                         │
+│ Email                                                   │
+│ └── Admin                 admin@...    [Test] [Edit]   │
+│                                    [+ Add Email]        │
+│                                                         │
+│ Telegram                                                │
+│ └── Alerts Group          @alerts_bot  [Test] [Edit]   │
+│                                    [+ Add Telegram]     │
+│                                                         │
+│ Discord                                                 │
+│ └── (none configured)     [+ Add Discord]              │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Alerts Reference Destinations
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Security Alerts                               [Enabled] │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│ Send to:                                                │
+│   ☑ Security Team (Slack)                              │
+│   ☑ Admin (Email)                                      │
+│   ☐ Dev Updates (Slack)                                │
+│   ☐ Alerts Group (Telegram)                            │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Per-Channel Credential Requirements
+
+| Channel | What varies per destination | Auth method |
+|---------|----------------------------|-------------|
+| **Slack** | Webhook URL (unique per channel) | In URL |
+| **Discord** | Webhook URL (unique per channel) | In URL |
+| **Telegram** | Bot token + Chat ID | Bot token |
+| **Email** | Recipient address(es) | wp_mail() |
+| **Teams** | Workflow URL | In URL |
+
+**Note:** For Telegram, one bot can send to multiple groups (same token, different chat_ids).
+
+### Technical Storage
+
+```php
+// Destinations stored separately (wp_option: simple_history_alert_destinations)
+$destinations = [
+    'dest_abc123' => [
+        'type' => 'slack',
+        'name' => 'Security Team',
+        'webhook_url' => 'https://hooks.slack.com/...',
+        'channel' => '#security',
+    ],
+    'dest_def456' => [
+        'type' => 'telegram',
+        'name' => 'Alerts Group',
+        'bot_token' => '123:ABC...',  // encrypted
+        'chat_id' => '-100123456789',
+    ],
+];
+
+// Alerts reference destinations by ID (wp_option: simple_history_alerts)
+$alerts = [
+    'security_alerts' => [
+        'preset' => 'security',
+        'enabled' => true,
+        'destinations' => ['dest_abc123', 'dest_def456'],
+    ],
+];
+```
+
+## Class Architecture
 
 Alerts build on the existing Channels infrastructure:
 
@@ -132,10 +351,11 @@ Alerts build on the existing Channels infrastructure:
 Channel (base class) ← already has alert_rules support
 ├── File_Channel (core)
 ├── Webhook_Channel (premium) ← generic, already done
-├── Slack_Channel (premium) ← NEW - dedicated Slack
-├── Email_Channel (premium) ← NEW
-├── Teams_Channel (premium) ← NEW
-└── Discord_Channel (premium) ← NEW
+├── Slack_Channel (premium) ← NEW (MVP)
+├── Email_Channel (premium) ← NEW (MVP)
+├── Discord_Channel (premium) ← NEW (MVP)
+├── Telegram_Channel (premium) ← NEW (MVP)
+└── Teams_Channel (premium) ← NEW (Phase 2)
 ```
 
 The base `Channel` class already has:
