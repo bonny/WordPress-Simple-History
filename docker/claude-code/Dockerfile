@@ -8,7 +8,21 @@ RUN apt-get update && apt-get install -y \
     php-xml \
     php-mysql \
     sudo \
+    jq \
+    html2text \
     && rm -rf /var/lib/apt/lists/*
+
+# Install html2markdown (html2md from suntong/html2md) - multi-arch
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then ARCH_NAME="amd64"; \
+    elif [ "$ARCH" = "arm64" ]; then ARCH_NAME="arm64"; \
+    else echo "Unsupported architecture: $ARCH" && exit 1; fi && \
+    curl -fsSL "https://github.com/suntong/html2md/releases/download/v1.6.0/html2md_1.6.0_linux_${ARCH_NAME}.tar.gz" \
+    | tar -xz --strip-components=1 -C /usr/local/bin \
+    && mv /usr/local/bin/html2md /usr/local/bin/html2markdown
+
+# Note: htmlq is not installed because it requires rustc 1.83+ which isn't available
+# in Debian Bookworm repos. Use grep or pup as alternatives for CSS selector extraction.
 
 # Install WP-CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
