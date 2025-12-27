@@ -1,346 +1,208 @@
 # Issue #608: Alerts & Notifications
 
-**Status:** Planned (Foundation laid)
+**Status:** In Progress
 **Size:** Large
 **Labels:** Feature, Size: Large
-**Branch:** TBD (will create when work starts)
+**Branch:** `issue-608-alerts`
+
+## Scope Clarification
+
+This issue focuses **only on Alerts & Notifications** - selective, rule-based notifications when specific events occur.
+
+**NOT in scope** (already implemented in Channels system):
+- Log Forwarding / Channels infrastructure (done)
+- Syslog channels (done in premium)
+- External Database channel (done in premium)
+- Datadog, Splunk channels (done in premium)
+- Webhook channel (done in premium)
+- File channel (done in core)
 
 ## Problem Description
 
-Simple History collects events using its loggers and stores them in the local WordPress database. Users want to be notified in real-time when specific events happen, such as:
+Users want to be notified in real-time when **specific** events happen:
 
 - Admin logins or failed login attempts
 - Plugin/theme changes
 - User registrations
 - Critical errors
 
-This issue focuses on implementing **rule-based notifications** that alert users via various channels (Slack, Email, Teams, Discord, Webhooks) when events match their configured criteria.
+Unlike Log Forwarding (which streams ALL events), Alerts are **selective** - only events matching configured rules trigger notifications.
 
-## Use Cases
+## Key Difference: Channels vs Alerts
 
-1. **Quick notifications**: Admins can be notified when important events happen (e.g., admin logins, failed logins)
-2. **Security monitoring**: Get alerted when suspicious activity occurs
-3. **Workflow automation**: Connect to other systems via webhooks when specific events occur
+| Aspect | Channels (done) | Alerts (this issue) |
+|--------|-----------------|---------------------|
+| Purpose | Archive/backup/monitoring | Real-time notification |
+| Filtering | None (all events) | Rule-based (selective) |
+| Volume | High | Low |
+| Destinations | Log systems (Syslog, Splunk) | Notification tools (Slack, Email) |
+| User need | "Store my logs externally" | "Tell me when X happens" |
 
-## Feature Ideas
+## What Needs to Be Built
 
-- "Create alert" functionality in event actions menu - "Create alerts for messages like this"
-- These should be premium features to drive conversions from core to premium
-- Show grayed-out sections in core plugin settings to advertise premium features
-- Alert presets: "Security events", "Admin actions", "User activity"
-- Consider a "headless mode" that only logs to external destinations
+### 1. Alert Destinations (Premium)
 
----
+Notification-focused channels based on competitor analysis and market gaps:
 
-## Alert Integrations (Destinations)
+#### Competitor Channel Support
 
-### Team Chat
-- **Slack** - Most requested, webhook-based
-- Microsoft Teams - Enterprise
-- Discord - Dev/gaming communities
-- Google Chat
-- Mattermost - Self-hosted Slack alternative
-- Telegram - Bot API
+| Channel | WP Activity Log | Wordfence | Stream | Logtivity | Simple History |
+|---------|:---------------:|:---------:|:------:|:---------:|:--------------:|
+| Email | ✅ | ✅ | ✅ | ✅ | 🎯 MVP |
+| Slack | ✅ | ✅ | ✅* | ✅ | 🎯 MVP |
+| Discord | ❌ | ✅ | ❌ | ❌ | 🎯 MVP |
+| Telegram | ❌ | ❌ | ❌ | ❌ | 🎯 MVP |
+| Teams | ❌ | ❌ | ❌ | ❌ | Phase 2 |
+| SMS (Twilio) | ✅ | ✅ | ❌ | ❌ | Phase 3 |
+| Webhooks | ❌ | ❌ | ✅ | ✅ | ✅ Done |
 
-### Email
-- Email (SMTP) - Direct or via wp_mail
-- Email via SendGrid/Mailgun/SES
+#### Integration Complexity (Verified Dec 2025)
 
-### SMS/Push
-- SMS via Twilio
-- Pushover - Simple push notifications
-- Pushbullet
+| Channel | Difficulty | Setup | Cost | Rate Limits |
+|---------|:----------:|-------|------|-------------|
+| **Email** | 🟢 Easy | None (wp_mail) | Free | Server limits |
+| **Slack** | 🟢 Easy | User creates webhook URL | Free | 1 msg/sec |
+| **Discord** | 🟢 Easy | User creates webhook URL | Free | 5 req/2 sec |
+| **Telegram** | 🟢 Easy | Create bot via @BotFather | Free | 30 msg/sec |
+| **Teams** | 🟡 Medium | Power Automate Workflows | Free | Varies |
+| **SMS (Twilio)** | 🟡 Medium | API key + phone number | Per-message | Account-based |
+| **WhatsApp** | 🔴 Hard | Business verification, template approval | Per-message | Complex |
 
-### Incident Management
-- PagerDuty - On-call alerting
-- Opsgenie (Atlassian)
-- VictorOps (Splunk On-Call)
+#### Prioritized Channel List
 
-### Generic/Automation
-- **Webhooks** - Generic HTTP POST (covers anything)
-- Zapier - Connect to 5000+ apps
-- IFTTT
-- Make (Integromat)
-- n8n - Self-hosted automation
+**MVP (Must Have + Easy Wins):**
+| Channel | Why | Implementation |
+|---------|-----|----------------|
+| **Email** | Universal, everyone has it | Via wp_mail() |
+| **Slack** | Most requested, industry standard | Webhook + Block Kit |
+| **Discord** | 🟢 Very easy, only Wordfence has it | Simple webhook POST |
+| **Telegram** | 🟢 Very easy, popular in EU/Asia, **no competitor has it** | Bot API (free) |
 
----
+**Phase 2 (Medium Effort - Unique Differentiator):**
+| Channel | Why | Implementation |
+|---------|-----|----------------|
+| **Microsoft Teams** | Enterprise, **no competitor has it** | Power Automate Workflows* |
 
-## Slack Integration Specifics
+*Note: Teams O365 Connectors deprecated Oct 2024, full retirement end of 2025. Must use Workflows (more complex setup for users).
 
-- Support one or multiple webhooks
-- Send:
-  - All messages
-  - OR only events that match:
-    - Contains entered keywords
-    - Is one of selected loggers/messages
-    - Is from a specific list of users
-    - Is NOT from a specific list of users
+**Phase 3 (Enterprise/Niche):**
+| Channel | Why | Implementation |
+|---------|-----|----------------|
+| **SMS (Twilio)** | High-urgency, direct | Twilio API |
+| **Pushover** | Simple push notifications | Pushover API |
+| **PagerDuty** | On-call alerting, enterprise | Events API v2 |
 
----
+**Not Recommended:**
+| Channel | Why Skip |
+|---------|----------|
+| **WhatsApp** | Requires Business API, Meta verification, template approval, per-message fees. Too complex for the value. |
+
+**Already Done:**
+- `Webhook_Channel` (premium) - covers Zapier, Make, n8n, custom endpoints
+
+### 2. Rule Builder UI (Premium)
+
+The backend (`Alert_Rules_Engine`, `Alert_Evaluator`, `Alert_Field_Registry`) exists but there's no UI.
+
+**Need to build:**
+- React component using React Query Builder
+- Settings UI to create/edit/delete rules
+- JsonLogic export to store rules
+- Integration with channel settings
+
+### 3. Alert Presets
+
+Pre-configured rules users can enable with one click:
+
+- **Security alerts**: Failed logins, user role changes
+- **Admin actions**: Plugin/theme installs, settings changes
+- **User activity**: New registrations, profile updates
+
+### 4. "Create Alert from Event" (Nice to have)
+
+Add action to event dropdown: "Create alert for events like this"
+- Pre-fills rule builder with matching criteria
+- Quick way to set up alerts
 
 ## Architecture
 
-Alerts are part of the Integration system (from #573) but with different characteristics:
-
-```php
-Integration (base class)
-└── Alert_Integration (has rules, rate limiting)
-    ├── Slack
-    ├── Email
-    ├── Teams
-    └── Webhook
-```
-
-### Alert_Integration Characteristics
-- Selective, rule-based filtering
-- Actionable notifications
-- May need rate limiting (e.g., Slack: 1 msg/sec)
-- Often async/queued for performance
-- More complex UI: rule builder + destination settings
-
-### Comparison with Log Destinations
-
-| Aspect | Log Destinations | Alerts |
-|--------|-----------------|--------|
-| Purpose | Archive/backup | Notification |
-| Filtering | No (all events) | Yes (rule-based) |
-| Volume | High | Low (selective) |
-| UI complexity | Simple toggle | Rules + channels |
-| Timing | Sync/immediate | Often queued |
-| Rate limiting | No | Yes |
-
----
-
-## Alert Rules System
-
-### Foundation Already Built ✅
-
-The following foundation was laid during #573:
-
-- **JsonLogic-only approach** for rule evaluation (no custom rule types)
-- **`jwadhams/json-logic-php`** library added for cross-platform rule evaluation
-- **Alert_Evaluator** - Thin wrapper around JsonLogic for rule evaluation
-- **Alert_Field_Registry** - UI field definitions for React Query Builder
-- **Simplified Alert_Rules_Engine** - Facade delegating to Alert_Evaluator
+Alerts build on the existing Channels infrastructure:
 
 ```
-Alert_Rules_Engine (service facade)
-    ├── Alert_Evaluator (JsonLogic evaluation)
-    │       └── JWadhams\JsonLogic (library)
-    └── Alert_Field_Registry (UI field definitions)
+Channel (base class) ← already has alert_rules support
+├── File_Channel (core)
+├── Webhook_Channel (premium) ← generic, already done
+├── Slack_Channel (premium) ← NEW - dedicated Slack
+├── Email_Channel (premium) ← NEW
+├── Teams_Channel (premium) ← NEW
+└── Discord_Channel (premium) ← NEW
 ```
 
-### Benefits of JsonLogic
-- Same rule format works in JavaScript (React Query Builder) and PHP
-- No custom PHP parser needed
-- Simpler architecture, less code to maintain
-- Easy to extend with custom operators if needed
+The base `Channel` class already has:
+- `get_alert_rules()` / `set_alert_rules()`
+- `should_send_event($event_data)` - currently returns true if no rules
 
----
+**Need to implement:**
+- Wire up `should_send_event()` to use `Alert_Rules_Engine`
+- Build UI for rule configuration
+- Create notification-specific channels
 
-## Rules/Query Builder Libraries
+## Existing Foundation
 
-### JavaScript/React UI Libraries
+These files exist and can be leveraged:
 
-**1. React Query Builder** (RECOMMENDED)
-- URL: https://react-querybuilder.js.org
-- Built-in JsonLogic export/import via `formatQuery(query, 'jsonlogic')`
-- Lightweight, flexible, full control
+| File | Purpose | Status |
+|------|---------|--------|
+| `inc/channels/class-alert-evaluator.php` | JsonLogic wrapper | ⚠️ Not tested |
+| `inc/channels/class-alert-field-registry.php` | UI field definitions | ⚠️ Not tested |
+| `inc/channels/class-alert-rules-engine.php` | Service facade | ⚠️ Not tested |
+| `inc/libraries/JsonLogic.php` | Third-party library | ✅ (upstream tested) |
+| `docs/alerts-feature-research.md` | Competitor analysis | ✅ |
+| `docs/alerts-async-processing-research.md` | Performance research | ✅ |
 
-**2. React Awesome Query Builder**
-- URL: https://github.com/ukrbublik/react-awesome-query-builder
-- Very feature-rich, polished UI
-- Built-in JsonLogic export/import
-- Larger bundle size
+**Note:** The Alert_Rules_Engine and related classes were created as foundation but have no test coverage yet. Tests should be written before relying on this code.
 
-### Rule Evaluation (PHP)
-- **jwadhams/json-logic-php** - Already installed via Composer
+## Implementation Plan
 
-### Example Rule Flow
-1. User builds rule in React Query Builder UI
-2. Export to JsonLogic: `{"and": [{"==": [{"var": "logger"}, "user"]}, {"in": ["failed", {"var": "message"}]}]}`
-3. Store JSON in WordPress options
-4. On event: Evaluate rule in PHP using JsonLogic library
-5. If rule matches: Send to configured destinations
+### Phase 1: MVP (4 channels - all easy)
+1. **Test Alert_Rules_Engine** - Write tests for existing foundation code
+2. **Wire up filtering** - Connect `should_send_event()` to rules engine
+3. **Email_Channel** - Alerts via wp_mail()
+4. **Slack_Channel** - Webhook + Block Kit formatting
+5. **Discord_Channel** - Simple webhook POST (very easy, same pattern as Slack)
+6. **Telegram_Channel** - Bot API (very easy, unique differentiator)
+7. **Basic Rule UI** - Settings UI for rule creation
 
----
+### Phase 2: Teams + Polish
+1. **Teams_Channel** - Power Automate Workflows (more complex, but no competitor has it)
+2. **Alert presets** - One-click security/admin/user presets
+3. **Rate limiting** - Per-channel throttling
 
-## Admin UI Mockup
+### Phase 3: Enterprise/Niche
+1. **SMS_Channel** - Twilio integration
+2. **Pushover_Channel** - Push notifications
+3. **PagerDuty_Channel** - On-call alerting
+4. **Digest mode** - Batch notifications (hourly/daily summary)
+5. **"Create alert from event"** - Action menu integration
 
-```
-Alerts & Notifications              [+ New Alert]
-├─────────────────────────────────────────────────┤
-│ ┌─ Failed Logins ───────────────────── ✅ ON ──┐│
-│ │ When: User login fails                       ││
-│ │ Send to: Slack #security, Email admin        ││
-│ │                           [Edit] [Delete]    ││
-│ └──────────────────────────────────────────────┘│
-│ ┌─ Admin Actions ───────────────────── ✅ ON ──┐│
-│ │ When: Administrator makes changes            ││
-│ │ Send to: Email admin                         ││
-│ │                           [Edit] [Delete]    ││
-│ └──────────────────────────────────────────────┘│
-│                                                 │
-│ 💡 This feature requires Simple History Premium│
-│    [Learn More]                                │
-└─────────────────────────────────────────────────┘
-```
+## Open Questions
 
----
+### Where should Alerts UI live?
 
-## Open Questions & Design Decisions
+Options:
+1. **New tab**: Settings > Alerts (separate from Log Forwarding)
+2. **Subtab**: Settings > Log Forwarding > Alerts
+3. **Per-channel**: Add rule builder to each notification channel's settings
 
-### Event Processing Strategy
-**Question:** How and when should we catch and send events? Directly, using cron, or Action Scheduler?
+Recommendation: Option 3 - keep rules close to the channel they apply to.
 
-**Considerations:**
-- **Direct/Synchronous**: Simple but could slow down page loads for remote APIs (Slack, webhooks)
-- **WP-Cron**: WordPress built-in, but unreliable on low-traffic sites, batch processing possible
-- **Action Scheduler**: More reliable than WP-Cron, better for batching, adds dependency
-- **Hybrid Approach**: Direct for local (file), async for remote (API calls)
+### Premium vs Free?
 
-### Rule Complexity & User Choice
-**Question:** How many rules should there be? How much choice should a user have when selecting what events to send to an integration?
-
-**Considerations:**
-- **Simple (few rules)**: Easier for users, less overwhelming, faster to implement
-  - Example: "Send all events" OR "Send only these logger types"
-- **Medium complexity**: Balance of power and usability
-  - Example: Logger types + keywords + user filtering
-- **Advanced (many rules)**: Very powerful but potentially confusing
-  - Example: Full query builder with AND/OR logic, nested conditions
-- **Presets + Custom**: Offer common presets ("Security events", "Admin actions") + custom rules
-
-### Multiple Rules Per Integration
-**Question:** Should each integration be able to handle multiple different rules?
-
-**Considerations:**
-- **Single rule per integration**: Simpler architecture, users create multiple "instances" for different rules
-  - Example: "Slack - Security" integration + "Slack - Admin Actions" integration
-- **Multiple rules per integration**: More complex but potentially more user-friendly
-  - Example: One Slack integration with multiple rule sets
-- **Hybrid**: Some integrations support multiple rules (email), others don't (file)
-
-### Rule Evaluation Timing
-**Question:** Should rules apply directly for each event as it comes in, or should we batch process them?
-
-**Considerations:**
-- **Immediate evaluation**: Lower latency, users get notifications faster
-  - Pros: Real-time alerts, simpler state management
-  - Cons: Performance impact if many events/rules, could slow down requests
-- **Batch processing**: Better performance, more efficient for high-traffic sites
-  - Pros: Reduced overhead, can optimize DB queries, better for rate-limited APIs
-  - Cons: Delayed notifications, need to store events temporarily, more complex
-- **Hybrid**: Immediate for critical events, batched for routine events
-
-### Error Handling & Failure Recovery
-**Question:** What to do when a notification fails?
-
-**Recommendations (from #573 experience):**
-- Retry 3-5 times with exponential backoff for API calls
-- Auto-disable after 5 consecutive failures
-- Show admin notice when disabled
-- Log integration errors as Simple History events (with error message in context)
-- Display last error + failure count in settings UI (mini-log format)
-
-### Rules vs Destinations Architecture
-**Question:** What's more user-friendly - create a rule that sends to multiple destinations, or create rules per destination?
-
-**Recommended Approach: Rule → Multiple Destinations**
-- User creates a rule (e.g., "Failed login attempts")
-- User selects which destinations receive events matching this rule
-- One rule evaluation → multiple destinations
-
-**UI Flow:**
-```
-Integrations & Alerts
-├── Destinations (configured once)
-│   ├── ✅ Slack - #general (enabled, webhook configured)
-│   ├── ✅ Email Alerts (enabled, admin@example.com)
-│   └── ❌ Discord (not configured)
-├── Rules (the logic)
-│   ├── Rule: "Failed Logins"
-│   │   ├── Condition: logger = "user" AND message contains "failed"
-│   │   └── Send to: ☑ Slack, ☑ Email
-│   └── Rule: "Admin Actions"
-│       ├── Condition: user role = "administrator"
-│       └── Send to: ☑ Slack
-```
-
-### Additional Considerations
-- **Performance impact**: How many integrations can run simultaneously without degrading site performance?
-- **Rate limiting**: How do we handle APIs with rate limits (Slack: 1 msg/sec)?
-- **Data privacy**: Should we offer PII filtering/masking options?
-- **Testing integrations**: "Test Connection" or "Send Test Event" functionality
-
----
-
-## Files Already Created (Foundation)
-
-These files were created during #573 as foundation for alerts:
-
-- `inc/libraries/JsonLogic.php` - Third-party JsonLogic library
-- `inc/channels/class-alert-evaluator.php` - JsonLogic wrapper
-- `inc/channels/class-alert-field-registry.php` - UI field definitions
-- `docs/alerts-feature-research.md` - Competitor analysis
-- `docs/alerts-async-processing-research.md` - Performance research
-
----
-
-## Implementation Priority
-
-### MVP
-- Slack
-- Email
-- Webhooks (covers everything else)
-
-### Phase 2 / Premium
-- Microsoft Teams
-- Discord
-- Telegram
-- PagerDuty
-
-### Nice to Have
-- SMS (Twilio)
-- Pushover
-- Zapier integration
-
----
-
-## Example Scenarios
-
-**Scenario 1: Security-conscious site owner**
-> "I want instant Slack alerts for failed logins."
-
-Configuration:
-- Alerts: Slack rule → "logger = user AND message contains 'failed login'"
-
-**Scenario 2: Agency managing multiple client sites**
-> "Email me when any admin makes changes."
-
-Configuration:
-- Alerts: Email rule → "user role = administrator"
-
-**Scenario 4: E-commerce site owner**
-> "Alert me on Slack when orders fail, email me daily user registrations."
-
-Configuration:
-- Alerts:
-  - Slack rule → "logger = woocommerce AND message contains 'order failed'"
-  - Email rule → "logger = user AND message = 'registered'" (daily digest)
-
-**Scenario 6: Small blog owner**
-> "Just tell me when someone logs in as admin."
-
-Configuration:
-- Alerts: Email rule → "logger = user AND message = 'logged in' AND user role = administrator"
-
----
+Recommendation:
+- **Free**: Show alert destinations as teasers (like current Syslog/Database)
+- **Premium**: Full functionality - Slack, Email, Teams, Discord, rule builder
 
 ## Related Issues
 
-- #573 (Log Forwarding - original parent issue)
-- #209
-- #114
-- #366
-- Simple-History-Add-Ons #56
+- #573 (Log Forwarding - completed, channels infrastructure)
+- #209, #114, #366 (Original alert requests)
