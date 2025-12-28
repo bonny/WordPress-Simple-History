@@ -25,40 +25,20 @@ class Alerts_Settings_Page_Teaser extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		// Skip if premium is handling alerts.
-		// Premium add-on will add this filter to indicate it's taking over.
-		if ( $this->is_premium_handling_alerts() ) {
-			return;
-		}
-
-		// Add menu page.
+		// Add menu page - the check for premium happens in the callback
+		// because premium module may not have loaded yet at this point.
 		add_action( 'admin_menu', [ $this, 'add_settings_menu_tab' ], 15 );
-	}
-
-	/**
-	 * Check if the premium add-on is handling alerts.
-	 *
-	 * Premium add-on will add a filter to indicate it's taking over the alerts settings page.
-	 *
-	 * @return bool True if premium is handling alerts, false otherwise.
-	 */
-	private function is_premium_handling_alerts() {
-		/**
-		 * Filter to indicate if premium is handling the alerts settings page.
-		 *
-		 * Premium add-on should return true to prevent the teaser from being shown.
-		 *
-		 * @since 5.0.0
-		 *
-		 * @param bool $is_handling Whether premium is handling alerts. Default false.
-		 */
-		return apply_filters( 'simple_history/alerts/is_premium_handling', false );
 	}
 
 	/**
 	 * Add alerts settings tab as a subtab to main settings tab.
 	 */
 	public function add_settings_menu_tab() {
+		// Skip if premium is active (premium has its own alerts settings page).
+		if ( Helpers::is_premium_add_on_active() ) {
+			return;
+		}
+
 		$menu_manager = $this->simple_history->get_menu_manager();
 
 		// Bail if parent settings page does not exist (due to Stealth Mode or similar).
