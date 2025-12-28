@@ -10,33 +10,36 @@
 This issue focuses **only on Alerts & Notifications** - selective, rule-based notifications when specific events occur.
 
 **NOT in scope** (already implemented in Channels system):
-- Log Forwarding / Channels infrastructure (done)
-- Syslog channels (done in premium)
-- External Database channel (done in premium)
-- Datadog, Splunk channels (done in premium)
-- Webhook channel (done in premium)
-- File channel (done in core)
+
+-   Log Forwarding / Channels infrastructure (done)
+-   Syslog channels (done in premium)
+-   External Database channel (done in premium)
+-   Datadog, Splunk channels (done in premium)
+-   Webhook channel (done in premium)
+-   File channel (done in core)
 
 ## Problem Description
 
-Users want to be notified in real-time when **specific** events happen:
+Users want to be notified in real-time when **specific** events happen.
 
-- Admin logins or failed login attempts
-- Plugin/theme changes
-- User registrations
-- Critical errors
+Example events:
+
+-   Admin logins or failed login attempts
+-   Plugin/theme changes
+-   User registrations
+-   Critical errors
 
 Unlike Log Forwarding (which streams ALL events), Alerts are **selective** - only events matching configured rules trigger notifications.
 
 ## Key Difference: Channels vs Alerts
 
-| Aspect | Channels (done) | Alerts (this issue) |
-|--------|-----------------|---------------------|
-| Purpose | Archive/backup/monitoring | Real-time notification |
-| Filtering | None (all events) | Rule-based (selective) |
-| Volume | High | Low |
+| Aspect       | Channels (done)              | Alerts (this issue)               |
+| ------------ | ---------------------------- | --------------------------------- |
+| Purpose      | Archive/backup/monitoring    | Real-time notification            |
+| Filtering    | None (all events)            | Rule-based (selective)            |
+| Volume       | High                         | Low                               |
 | Destinations | Log systems (Syslog, Splunk) | Notification tools (Slack, Email) |
-| User need | "Store my logs externally" | "Tell me when X happens" |
+| User need    | "Store my logs externally"   | "Tell me when X happens"          |
 
 ## What Needs to Be Built
 
@@ -46,27 +49,27 @@ Notification-focused channels based on competitor analysis and market gaps:
 
 #### Competitor Channel Support
 
-| Channel | WP Activity Log | Wordfence | Stream | Logtivity | Simple History |
-|---------|:---------------:|:---------:|:------:|:---------:|:--------------:|
-| Email | ✅ | ✅ | ✅ | ✅ | 🎯 MVP |
-| Slack | ✅ | ✅ | ✅* | ✅ | 🎯 MVP |
-| Discord | ❌ | ✅ | ❌ | ❌ | 🎯 MVP |
-| Telegram | ❌ | ❌ | ❌ | ❌ | 🎯 MVP |
-| Teams | ❌ | ❌ | ❌ | ❌ | Phase 2 |
-| SMS (Twilio) | ✅ | ✅ | ❌ | ❌ | Phase 3 |
-| Webhooks | ❌ | ❌ | ✅ | ✅ | ✅ Done |
+| Channel      | WP Activity Log | Wordfence | Stream | Logtivity | Simple History |
+| ------------ | :-------------: | :-------: | :----: | :-------: | :------------: |
+| Email        |       ✅        |    ✅     |   ✅   |    ✅     |     🎯 MVP     |
+| Slack        |       ✅        |    ✅     |  ✅\*  |    ✅     |     🎯 MVP     |
+| Discord      |       ❌        |    ✅     |   ❌   |    ❌     |     🎯 MVP     |
+| Telegram     |       ❌        |    ❌     |   ❌   |    ❌     |     🎯 MVP     |
+| Teams        |       ❌        |    ❌     |   ❌   |    ❌     |    Phase 2     |
+| SMS (Twilio) |       ✅        |    ✅     |   ❌   |    ❌     |    Phase 3     |
+| Webhooks     |       ❌        |    ❌     |   ✅   |    ✅     |    ✅ Done     |
 
 #### Integration Complexity (Verified Dec 2025)
 
-| Channel | Difficulty | Setup | Cost | Rate Limits |
-|---------|:----------:|-------|------|-------------|
-| **Email** | 🟢 Easy | None (wp_mail) | Free | Server limits |
-| **Slack** | 🟢 Easy | User creates webhook URL | Free | 1 msg/sec |
-| **Discord** | 🟢 Easy | User creates webhook URL | Free | 5 req/2 sec |
-| **Telegram** | 🟢 Easy | Create bot via @BotFather | Free | 30 msg/sec |
-| **Teams** | 🟡 Medium | Power Automate Workflows | Free | Varies |
-| **SMS (Twilio)** | 🟡 Medium | API key + phone number | Per-message | Account-based |
-| **WhatsApp** | 🔴 Hard | Business verification, template approval | Per-message | Complex |
+| Channel          | Difficulty | Setup                                    | Cost        | Rate Limits   |
+| ---------------- | :--------: | ---------------------------------------- | ----------- | ------------- |
+| **Email**        |  🟢 Easy   | None (wp_mail)                           | Free        | Server limits |
+| **Slack**        |  🟢 Easy   | User creates webhook URL                 | Free        | 1 msg/sec     |
+| **Discord**      |  🟢 Easy   | User creates webhook URL                 | Free        | 5 req/2 sec   |
+| **Telegram**     |  🟢 Easy   | Create bot via @BotFather                | Free        | 30 msg/sec    |
+| **Teams**        | 🟡 Medium  | Power Automate Workflows                 | Free        | Varies        |
+| **SMS (Twilio)** | 🟡 Medium  | API key + phone number                   | Per-message | Account-based |
+| **WhatsApp**     |  🔴 Hard   | Business verification, template approval | Per-message | Complex       |
 
 #### Prioritized Channel List
 
@@ -81,9 +84,9 @@ Notification-focused channels based on competitor analysis and market gaps:
 **Phase 2 (Medium Effort - Unique Differentiator):**
 | Channel | Why | Implementation |
 |---------|-----|----------------|
-| **Microsoft Teams** | Enterprise, **no competitor has it** | Power Automate Workflows* |
+| **Microsoft Teams** | Enterprise, **no competitor has it** | Power Automate Workflows\* |
 
-*Note: Teams O365 Connectors deprecated Oct 2024, full retirement end of 2025. Must use Workflows (more complex setup for users).
+\*Note: Teams O365 Connectors deprecated Oct 2024, full retirement end of 2025. Must use Workflows (more complex setup for users).
 
 **Phase 3 (Enterprise/Niche):**
 | Channel | Why | Implementation |
@@ -98,7 +101,8 @@ Notification-focused channels based on competitor analysis and market gaps:
 | **WhatsApp** | Requires Business API, Meta verification, template approval, per-message fees. Too complex for the value. |
 
 **Already Done:**
-- `Webhook_Channel` (premium) - covers Zapier, Make, n8n, custom endpoints
+
+-   `Webhook_Channel` (premium) - covers Zapier, Make, n8n, custom endpoints
 
 ### 2. Alert Rules UX (Premium)
 
@@ -128,9 +132,9 @@ The backend exists (`Alert_Rules_Engine`, `Alert_Evaluator`) but needs a user-fr
 └─────────────────────────────────────────────────────────┘
 ```
 
-- Zero learning curve
-- User picks preset + destination
-- Enable in 5 seconds
+-   Zero learning curve
+-   User picks preset + destination
+-   Enable in 5 seconds
 
 #### Tier 2: Editable Presets (15% of users)
 
@@ -154,9 +158,9 @@ Click "Edit" on a preset to customize:
 └─────────────────────────────────────────────────────────┘
 ```
 
-- Presets become editable templates
-- Toggle specific events on/off
-- Still uses checkboxes (familiar UI)
+-   Presets become editable templates
+-   Toggle specific events on/off
+-   Still uses checkboxes (familiar UI)
 
 #### Tier 3: Custom Rules (5% of power users)
 
@@ -184,9 +188,9 @@ Full control with Zapier-style conditions:
 └─────────────────────────────────────────────────────────┘
 ```
 
-- Natural language preview of what rule does
-- Field → Operator → Value pattern (proven by Zapier)
-- Limited operators per field type
+-   Natural language preview of what rule does
+-   Field → Operator → Value pattern (proven by Zapier)
+-   Limited operators per field type
 
 #### "Create from Event" (Gmail pattern)
 
@@ -219,22 +223,23 @@ Only Tier 3 custom rules need the full `Alert_Rules_Engine` with JsonLogic.
 
 #### Implementation Order
 
-| Phase | Feature | Effort |
-|-------|---------|--------|
-| MVP | Presets only (Tier 1) | Low |
-| v1.1 | Editable presets (Tier 2) | Low |
-| v1.2 | Custom rules (Tier 3) | Medium |
-| v1.3 | "Create from event" | Low |
+| Phase | Feature                   | Effort |
+| ----- | ------------------------- | ------ |
+| MVP   | Presets only (Tier 1)     | Low    |
+| v1.1  | Editable presets (Tier 2) | Low    |
+| v1.2  | Custom rules (Tier 3)     | Medium |
+| v1.3  | "Create from event"       | Low    |
 
 ## Destinations Architecture
 
 ### The Problem
 
 Users need to send alerts to multiple places of the same type:
-- Multiple Slack channels (Security → #security, Dev → #dev-updates)
-- Multiple Slack workspaces (Client A, Client B)
-- Multiple Telegram groups (private admin group, public channel)
-- Multiple email recipients (security-team@, editors@)
+
+-   Multiple Slack channels (Security → #security, Dev → #dev-updates)
+-   Multiple Slack workspaces (Client A, Client B)
+-   Multiple Telegram groups (private admin group, public channel)
+-   Multiple email recipients (security-team@, editors@)
 
 ### Recommendation: Destinations as First-Class Entities
 
@@ -255,10 +260,11 @@ Settings > Alerts
 ```
 
 **Why this approach:**
-- No duplicate credentials (change webhook once → all alerts updated)
-- Clear separation of "where" vs "what"
-- Can test each destination independently
-- Same pattern as email clients managing "accounts"
+
+-   No duplicate credentials (change webhook once → all alerts updated)
+-   Clear separation of "where" vs "what"
+-   Can test each destination independently
+-   Same pattern as email clients managing "accounts"
 
 ### Destinations UI
 
@@ -304,13 +310,13 @@ Settings > Alerts
 
 ### Per-Channel Credential Requirements
 
-| Channel | What varies per destination | Auth method |
-|---------|----------------------------|-------------|
-| **Slack** | Webhook URL (unique per channel) | In URL |
-| **Discord** | Webhook URL (unique per channel) | In URL |
-| **Telegram** | Bot token + Chat ID | Bot token |
-| **Email** | Recipient address(es) | wp_mail() |
-| **Teams** | Workflow URL | In URL |
+| Channel      | What varies per destination      | Auth method |
+| ------------ | -------------------------------- | ----------- |
+| **Slack**    | Webhook URL (unique per channel) | In URL      |
+| **Discord**  | Webhook URL (unique per channel) | In URL      |
+| **Telegram** | Bot token + Chat ID              | Bot token   |
+| **Email**    | Recipient address(es)            | wp_mail()   |
+| **Teams**    | Workflow URL                     | In URL      |
 
 **Note:** For Telegram, one bot can send to multiple groups (same token, different chat_ids).
 
@@ -359,32 +365,35 @@ Channel (base class) ← already has alert_rules support
 ```
 
 The base `Channel` class already has:
-- `get_alert_rules()` / `set_alert_rules()`
-- `should_send_event($event_data)` - currently returns true if no rules
+
+-   `get_alert_rules()` / `set_alert_rules()`
+-   `should_send_event($event_data)` - currently returns true if no rules
 
 **Need to implement:**
-- Wire up `should_send_event()` to use `Alert_Rules_Engine`
-- Build UI for rule configuration
-- Create notification-specific channels
+
+-   Wire up `should_send_event()` to use `Alert_Rules_Engine`
+-   Build UI for rule configuration
+-   Create notification-specific channels
 
 ## Existing Foundation
 
 These files exist and can be leveraged:
 
-| File | Purpose | Status |
-|------|---------|--------|
-| `inc/channels/class-alert-evaluator.php` | JsonLogic wrapper | ⚠️ Not tested |
-| `inc/channels/class-alert-field-registry.php` | UI field definitions | ⚠️ Not tested |
-| `inc/channels/class-alert-rules-engine.php` | Service facade | ⚠️ Not tested |
-| `inc/libraries/JsonLogic.php` | Third-party library | ✅ (upstream tested) |
-| `docs/alerts-feature-research.md` | Competitor analysis | ✅ |
-| `docs/alerts-async-processing-research.md` | Performance research | ✅ |
+| File                                          | Purpose              | Status               |
+| --------------------------------------------- | -------------------- | -------------------- |
+| `inc/channels/class-alert-evaluator.php`      | JsonLogic wrapper    | ⚠️ Not tested        |
+| `inc/channels/class-alert-field-registry.php` | UI field definitions | ⚠️ Not tested        |
+| `inc/channels/class-alert-rules-engine.php`   | Service facade       | ⚠️ Not tested        |
+| `inc/libraries/JsonLogic.php`                 | Third-party library  | ✅ (upstream tested) |
+| `docs/alerts-feature-research.md`             | Competitor analysis  | ✅                   |
+| `docs/alerts-async-processing-research.md`    | Performance research | ✅                   |
 
 **Note:** The Alert_Rules_Engine and related classes were created as foundation but have no test coverage yet. Tests should be written before relying on this code.
 
 ## Implementation Plan
 
 ### Phase 1: MVP (4 channels - all easy)
+
 1. **Test Alert_Rules_Engine** - Write tests for existing foundation code
 2. **Wire up filtering** - Connect `should_send_event()` to rules engine
 3. **Email_Channel** - Alerts via wp_mail()
@@ -394,11 +403,13 @@ These files exist and can be leveraged:
 7. **Basic Rule UI** - Settings UI for rule creation
 
 ### Phase 2: Teams + Polish
+
 1. **Teams_Channel** - Power Automate Workflows (more complex, but no competitor has it)
 2. **Alert presets** - One-click security/admin/user presets
 3. **Rate limiting** - Per-channel throttling
 
 ### Phase 3: Enterprise/Niche
+
 1. **SMS_Channel** - Twilio integration
 2. **Pushover_Channel** - Push notifications
 3. **PagerDuty_Channel** - On-call alerting
@@ -410,6 +421,7 @@ These files exist and can be leveraged:
 ### Where should Alerts UI live?
 
 Options:
+
 1. **New tab**: Settings > Alerts (separate from Log Forwarding)
 2. **Subtab**: Settings > Log Forwarding > Alerts
 3. **Per-channel**: Add rule builder to each notification channel's settings
@@ -419,10 +431,11 @@ Recommendation: Option 3 - keep rules close to the channel they apply to.
 ### Premium vs Free?
 
 Recommendation:
-- **Free**: Show alert destinations as teasers (like current Syslog/Database)
-- **Premium**: Full functionality - Slack, Email, Teams, Discord, rule builder
+
+-   **Free**: Show alert destinations as teasers (like current Syslog/Database)
+-   **Premium**: Full functionality - Slack, Email, Teams, Discord, rule builder
 
 ## Related Issues
 
-- #573 (Log Forwarding - completed, channels infrastructure)
-- #209, #114, #366 (Original alert requests)
+-   #573 (Log Forwarding - completed, channels infrastructure)
+-   #209, #114, #366 (Original alert requests)
