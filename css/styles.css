@@ -2602,3 +2602,241 @@ Styles for plugin update details. Markup looks like this:
 	border-left: 4px solid #d63638;
 	color: #8a2424;
 }
+
+/**
+ * Alerts Settings Page Teaser
+ * Premium feature promotional page for the Alerts feature.
+ */
+.sh-AlertsTeaser {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: var(--sh-spacing-large);
+}
+
+.sh-AlertsTeaser-header {
+	text-align: center;
+	margin-bottom: var(--sh-spacing-xlarge);
+}
+
+.sh-AlertsTeaser-header h2 {
+	font-size: 1.75em;
+	margin: var(--sh-spacing-small) 0;
+}
+
+.sh-AlertsTeaser-subtitle {
+	font-size: 1.1em;
+	color: #50575e;
+	margin: 0;
+}
+
+.sh-AlertsTeaser-comparison {
+	text-align: center;
+	margin-bottom: var(--sh-spacing-large);
+	padding: var(--sh-spacing-medium);
+	background: var(--sh-color-cream);
+	border-radius: var(--sh-border-radius);
+}
+
+.sh-AlertsTeaser-comparison p {
+	margin: 0;
+	font-size: 1em;
+}
+
+.sh-AlertsTeaser-destinations,
+.sh-AlertsTeaser-presets,
+.sh-AlertsTeaser-customRules {
+	margin-bottom: var(--sh-spacing-large);
+}
+
+.sh-AlertsTeaser-destinations h3,
+.sh-AlertsTeaser-presets h3,
+.sh-AlertsTeaser-customRules h3 {
+	font-size: 1.25em;
+	margin-bottom: var(--sh-spacing-medium);
+	padding-bottom: var(--sh-spacing-small);
+	border-bottom: 1px solid #dcdcde;
+}
+
+.sh-AlertsTeaser-destinationGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: var(--sh-spacing-medium);
+}
+
+.sh-AlertsTeaser-destination {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: var(--sh-spacing-medium);
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: var(--sh-border-radius);
+}
+
+.sh-AlertsTeaser-destination .dashicons {
+	font-size: 32px;
+	width: 32px;
+	height: 32px;
+	color: #2271b1;
+	margin-bottom: var(--sh-spacing-small);
+}
+
+.sh-AlertsTeaser-destination strong {
+	display: block;
+	margin-bottom: 0.25em;
+}
+
+.sh-AlertsTeaser-destination span:last-child {
+	font-size: 0.9em;
+	color: #50575e;
+}
+
+.sh-AlertsTeaser-presetList {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-small);
+}
+
+.sh-AlertsTeaser-preset {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--sh-spacing-medium);
+	padding: var(--sh-spacing-medium);
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: var(--sh-border-radius);
+}
+
+.sh-AlertsTeaser-preset .dashicons {
+	font-size: 24px;
+	width: 24px;
+	height: 24px;
+	color: #2271b1;
+	flex-shrink: 0;
+}
+
+.sh-AlertsTeaser-presetContent {
+	flex: 1;
+}
+
+.sh-AlertsTeaser-presetContent strong {
+	display: block;
+	margin-bottom: 0.25em;
+}
+
+.sh-AlertsTeaser-presetContent span {
+	font-size: 0.9em;
+	color: #50575e;
+}
+
+.sh-AlertsTeaser-customRules {
+	padding: var(--sh-spacing-medium);
+	background: var(--sh-color-cream);
+	border-radius: var(--sh-border-radius);
+}
+
+.sh-AlertsTeaser-customRules h3 {
+	border-bottom: none;
+	padding-bottom: 0;
+	margin-bottom: var(--sh-spacing-small);
+}
+
+.sh-AlertsTeaser-customRules p {
+	margin: 0;
+}
+
+/* Mock UI - Disabled preview of the feature */
+.sh-AlertsTeaser-mockUI {
+	margin-bottom: var(--sh-spacing-large);
+	pointer-events: none;
+	opacity: 0.7;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-medium);
+}
+
+.sh-AlertsTeaser-mockCard {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: var(--sh-border-radius);
+	overflow: hidden;
+}
+
+.sh-AlertsTeaser-mockCardHeader {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-small);
+	padding: var(--sh-spacing-medium);
+	background: #f6f7f7;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.sh-AlertsTeaser-mockCardHeader .dashicons {
+	color: #2271b1;
+}
+
+.sh-AlertsTeaser-mockToggle {
+	margin-left: auto;
+	width: 36px;
+	height: 20px;
+	background: #2271b1;
+	border-radius: 10px;
+	position: relative;
+}
+
+.sh-AlertsTeaser-mockToggle::after {
+	content: "";
+	position: absolute;
+	right: 2px;
+	top: 2px;
+	width: 16px;
+	height: 16px;
+	background: #fff;
+	border-radius: 50%;
+}
+
+.sh-AlertsTeaser-mockCardBody {
+	padding: var(--sh-spacing-medium);
+}
+
+.sh-AlertsTeaser-mockCardBody p {
+	margin: 0 0 var(--sh-spacing-small) 0;
+	color: #50575e;
+	font-size: 0.9em;
+}
+
+.sh-AlertsTeaser-mockDestinations {
+	display: flex;
+	gap: var(--sh-spacing-small);
+}
+
+.sh-AlertsTeaser-mockChip {
+	display: inline-block;
+	padding: 0.25em 0.75em;
+	background: #e7f3ff;
+	color: #2271b1;
+	border-radius: 12px;
+	font-size: 0.85em;
+}
+
+/* CTA Section */
+.sh-AlertsTeaser-cta {
+	text-align: center;
+	padding: var(--sh-spacing-xlarge) var(--sh-spacing-medium);
+	background: linear-gradient(180deg, #f6f7f7 0%, #fff 100%);
+	border-radius: var(--sh-border-radius);
+	border: 1px solid #dcdcde;
+}
+
+.sh-AlertsTeaser-cta .button-hero {
+	font-size: 1.1em;
+	padding: 0.75em 2em;
+}
+
+.sh-AlertsTeaser-ctaNote {
+	margin-top: var(--sh-spacing-medium);
+	margin-bottom: 0;
+	color: #50575e;
+	font-size: 0.9em;
+}

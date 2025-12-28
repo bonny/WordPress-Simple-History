@@ -74,35 +74,39 @@ Notification-focused channels based on competitor analysis and market gaps:
 #### Prioritized Channel List
 
 **MVP (Must Have + Easy Wins):**
-| Channel | Why | Implementation |
-|---------|-----|----------------|
-| **Email** | Universal, everyone has it | Via wp_mail() |
-| **Slack** | Most requested, industry standard | Webhook + Block Kit |
-| **Discord** | 🟢 Very easy, only Wordfence has it | Simple webhook POST |
-| **Telegram** | 🟢 Very easy, popular in EU/Asia, **no competitor has it** | Bot API (free) |
+
+| Channel      | Why                                                        | Implementation      |
+| ------------ | ---------------------------------------------------------- | ------------------- |
+| **Email**    | Universal, everyone has it                                 | Via wp_mail()       |
+| **Slack**    | Most requested, industry standard                          | Webhook + Block Kit |
+| **Discord**  | 🟢 Very easy, only Wordfence has it                        | Simple webhook POST |
+| **Telegram** | 🟢 Very easy, popular in EU/Asia, **no competitor has it** | Bot API (free)      |
 
 **Phase 2 (Medium Effort - Unique Differentiator):**
-| Channel | Why | Implementation |
-|---------|-----|----------------|
-| **Microsoft Teams** | Enterprise, **no competitor has it** | Power Automate Workflows\* |
 
-\*Note: Teams O365 Connectors deprecated Oct 2024, full retirement end of 2025. Must use Workflows (more complex setup for users).
+| Channel             | Why                                  | Implementation           |
+| ------------------- | ------------------------------------ | ------------------------ |
+| **Microsoft Teams** | Enterprise, **no competitor has it** | Power Automate Workflows |
+
+Note: Teams O365 Connectors deprecated Oct 2024, full retirement end of 2025. Must use Workflows (more complex setup for users).
 
 **Phase 3 (Enterprise/Niche):**
-| Channel | Why | Implementation |
-|---------|-----|----------------|
-| **SMS (Twilio)** | High-urgency, direct | Twilio API |
-| **Pushover** | Simple push notifications | Pushover API |
-| **PagerDuty** | On-call alerting, enterprise | Events API v2 |
+
+| Channel          | Why                          | Implementation |
+| ---------------- | ---------------------------- | -------------- |
+| **SMS (Twilio)** | High-urgency, direct         | Twilio API     |
+| **Pushover**     | Simple push notifications    | Pushover API   |
+| **PagerDuty**    | On-call alerting, enterprise | Events API v2  |
 
 **Not Recommended:**
-| Channel | Why Skip |
-|---------|----------|
+
+| Channel      | Why Skip                                                                                                  |
+| ------------ | --------------------------------------------------------------------------------------------------------- |
 | **WhatsApp** | Requires Business API, Meta verification, template approval, per-message fees. Too complex for the value. |
 
 **Already Done:**
 
--   `Webhook_Channel` (premium) - covers Zapier, Make, n8n, custom endpoints
+-   `Webhook_Channel` (premium) - covers Zapier, Make, n8n, custom endpoints. No alerts yet however.
 
 ### 2. Alert Rules UX (Premium)
 
@@ -416,24 +420,148 @@ These files exist and can be leveraged:
 4. **Digest mode** - Batch notifications (hourly/daily summary)
 5. **"Create alert from event"** - Action menu integration
 
-## Open Questions
+## Settings Page Structure
 
-### Where should Alerts UI live?
+### UX Research Summary
 
-Options:
+Based on research from [Smashing Magazine](https://www.smashingmagazine.com/2025/07/design-guidelines-better-notifications-ux/), [UI Patterns](https://ui-patterns.com/patterns/rule-builder), and [Nielsen Norman Group](https://www.nngroup.com/articles/progressive-disclosure/).
 
-1. **New tab**: Settings > Alerts (separate from Log Forwarding)
-2. **Subtab**: Settings > Log Forwarding > Alerts
-3. **Per-channel**: Add rule builder to each notification channel's settings
+**Core UX Principle: Separation of Concerns**
 
-Recommendation: Option 3 - keep rules close to the channel they apply to.
+Alert systems work best when they separate:
 
-### Premium vs Free?
+| Concern          | What it answers            | Example                          |
+| ---------------- | -------------------------- | -------------------------------- |
+| **Destinations** | "Where do alerts go?"      | Slack #security, admin@email.com |
+| **Rules**        | "What triggers an alert?"  | Failed logins, plugin changes    |
+| **Behavior**     | "How do alerts behave?"    | Rate limits, digest mode         |
 
-Recommendation:
+### Recommended: Two-Subtab Approach
 
--   **Free**: Show alert destinations as teasers (like current Syslog/Database)
--   **Premium**: Full functionality - Slack, Email, Teams, Discord, rule builder
+```
+Settings (parent)
+├── General (existing)
+├── Log Forwarding (existing - for ALL events)
+├── Alerts (NEW - for SELECTIVE notifications)
+│   ├── Destinations (subtab)
+│   └── Alert Rules (subtab)
+└── Licenses (existing)
+```
+
+**Why separate "Log Forwarding" and "Alerts"?**
+
+| Log Forwarding              | Alerts                             |
+| --------------------------- | ---------------------------------- |
+| All events → destination    | Only matching events → destination |
+| Archive/backup purpose      | Real-time notification purpose     |
+| Technical users             | All users                          |
+| "Store my logs externally"  | "Tell me when X happens"           |
+
+### Destinations Subtab
+
+Configure where alerts can be sent. Do this once, then reference from rules.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Alert Destinations                                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ 📧 Email                                                │ │
+│ │ ├── Admin Team        admin@example.com    [Test][Edit] │ │
+│ │ └── Security Team     security@...         [Test][Edit] │ │
+│ │                                      [+ Add Email]      │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                             │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ 💬 Slack                                                │ │
+│ │ └── #security-alerts  hooks.slack.com/... [Test][Edit]  │ │
+│ │                                      [+ Add Slack]      │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Alert Rules Subtab
+
+Progressive disclosure with three tiers:
+
+**Tier 1: Quick Presets** (80% of users) - Toggle + select destinations, 5-second setup
+
+**Tier 2: Customized Presets** (15%) - Click "Customize" to toggle specific events
+
+**Tier 3: Custom Rules** (5%) - Zapier-style condition builder for power users
+
+## Core/Premium Code Split
+
+### WordPress.org Compliance
+
+Per WordPress.org guidelines: "All hosted code must be free and fully functional. No premium/locked code."
+
+This means:
+- **Core plugin**: Only teaser UI, no alert functional classes
+- **Premium plugin**: All functional alert code
+
+### What Goes Where
+
+| Component                          | Location     | Rationale              |
+| ---------------------------------- | ------------ | ---------------------- |
+| Alerts settings tab (teaser only)  | **Core**     | Shows upgrade path     |
+| Destination classes                | **Premium**  | Functional code        |
+| Alert rule classes                 | **Premium**  | Functional code        |
+| Rule evaluation engine             | **Premium**  | Functional code        |
+| Settings page with real forms      | **Premium**  | Functional code        |
+| Hooks for premium to register      | **Core**     | Extension point        |
+
+### Core Plugin Files
+
+```
+inc/services/class-alerts-settings-page-teaser.php  # Registers teaser tab
+templates/settings-alerts-teaser.php                 # Teaser HTML
+```
+
+The teaser service:
+1. Registers the "Alerts" tab in settings (teaser version)
+2. Shows premium feature preview
+3. Gets **replaced** when premium is active via filter
+
+### Premium Plugin Files
+
+```
+simple-history-premium/
+├── inc/alerts/
+│   ├── class-alerts-service.php           # Main service
+│   ├── class-alerts-settings-page.php     # Real settings (replaces teaser)
+│   ├── class-alerts-manager.php           # Manages destinations + rules
+│   ├── class-alert-rule.php               # Rule data model
+│   ├── class-alert-evaluator.php          # Evaluates rules
+│   │
+│   ├── destinations/
+│   │   ├── class-destination.php          # Base class
+│   │   ├── class-email-destination.php
+│   │   ├── class-slack-destination.php
+│   │   ├── class-discord-destination.php
+│   │   └── class-telegram-destination.php
+│   │
+│   └── presets/
+│       ├── class-preset.php               # Base preset class
+│       ├── class-security-preset.php
+│       ├── class-content-preset.php
+│       └── class-plugins-preset.php
+```
+
+### How Premium Replaces Core Teaser
+
+Premium hooks into core via filter:
+
+```php
+// Premium tells core it's handling alerts
+add_filter( 'simple_history/alerts/settings_page_class', function() {
+    return Alerts_Settings_Page::class;
+});
+```
+
+Core teaser checks this filter and skips registration if premium is active.
 
 ## Related Issues
 
