@@ -563,6 +563,53 @@ add_filter( 'simple_history/alerts/settings_page_class', function() {
 
 Core teaser checks this filter and skips registration if premium is active.
 
+## Progress Log
+
+### 2025-12-30: Code Quality Fixes
+
+Fixed phpcs and phpstan issues in premium plugin:
+- Replaced alternative syntax (`if():...endif;`) with curly braces in email destination sender
+- Replaced short ternary (`?:`) with full ternary in HTTP channel trait
+- Fixed `Destination_Sender` namespace import in alerts module
+- Fixed variable alignment for consistency
+
+**Commits:** `28dbca1`
+
+### 2025-12-29: Destinations UI Polish
+
+Improved the destinations table UX with multiple fixes:
+- Fixed delete confirmation showing empty destination name
+- Removed unused "Save Destinations" button
+- Added destination tracking for alert send success/failure (shows last status in table)
+- Improved test button feedback UX with loading states
+- Prevented multiple modals from opening on double-click
+- Fixed button icon alignment
+- Normalized email recipients format on save
+- Used WordPress table patterns for consistent look
+
+**Commits:** `27cefc0`, `ca0ad79`, `6e1f961`, `aae2878`, `cb4804b`, `6ed3a90`, `a8b0cd6`, `ffd74dd`, `19641c5`, `69ac638`, `1d2f9f3`, `83627d8`, `c0841e8`
+
+### Status Summary
+
+**Completed:**
+- ✅ Destinations architecture and storage
+- ✅ Email destination sender
+- ✅ Slack destination sender
+- ✅ Discord destination sender
+- ✅ Telegram destination sender
+- ✅ Destinations REST API
+- ✅ Destinations settings page UI
+- ✅ Test button for each destination
+- ✅ Send tracking (success/failure status)
+
+**In Progress:**
+- 🔄 Alert Rules UI (needs implementation)
+
+**Not Started:**
+- ⏳ Alert presets (Tier 1 quick setup)
+- ⏳ Custom rules builder (Tier 3)
+- ⏳ "Create alert from event" feature
+
 ## Related Issues
 
 -   #573 (Log Forwarding - completed, channels infrastructure)
