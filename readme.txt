@@ -354,6 +354,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added Notes statistics to History Insights page for tracking collaborative block editor notes activity.
 -   Added Notes REST API endpoint at `/wp-json/simple-history/v1/stats/notes`.
 
+**Fixed**
+
+-   Fixed "Class File_Channel not found" error some users experienced during plugin updates on certain hosting environments.
+
 ### 5.22.0 (December 2025)
 
 **Added**

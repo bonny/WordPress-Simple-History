@@ -46,7 +46,12 @@ class Channels_Manager extends Service {
 	 * Register core channels that come with the free plugin.
 	 */
 	private function register_core_channels() {
-		$this->register_channel( new File_Channel() );
+		// Some users report "Class File_Channel not found" errors during plugin updates.
+		// We haven't been able to reproduce this, but checking class_exists() first
+		// should prevent the fatal error for those affected.
+		if ( class_exists( File_Channel::class ) ) {
+			$this->register_channel( new File_Channel() );
+		}
 	}
 
 	/**
