@@ -105,7 +105,8 @@ class Available_Updates_Logger extends Logger {
 			);
 
 			// Store updated version available, so we don't log that version again.
-			update_option( "simplehistory_{$this->get_slug()}_wp_core_version_available", $new_wp_core_version );
+			// Autoload disabled since this option is only accessed during update checks.
+			update_option( "simplehistory_{$this->get_slug()}_wp_core_version_available", $new_wp_core_version, false );
 		}
 	}
 
@@ -181,7 +182,8 @@ class Available_Updates_Logger extends Logger {
 			);
 		}
 
-		update_option( $option_key, $checked_updates );
+		// Autoload disabled since this option is only accessed during update checks.
+		update_option( $option_key, $checked_updates, false );
 	}
 
 	/**
@@ -235,7 +237,8 @@ class Available_Updates_Logger extends Logger {
 			);
 		}
 
-		update_option( $option_key, $checked_updates );
+		// Autoload disabled since this option is only accessed during update checks.
+		update_option( $option_key, $checked_updates, false );
 	}
 
 	/**
