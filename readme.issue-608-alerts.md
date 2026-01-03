@@ -565,6 +565,59 @@ Core teaser checks this filter and skips registration if premium is active.
 
 ## Progress Log
 
+### 2026-01-02: Alert Rules UX Polish
+
+Further UX improvements to the preset alert rules interface:
+
+**Discoverability improvements:**
+- Show all destination types even when empty (displays "None configured" placeholder)
+- Added "+" quick-add links next to each destination type header
+- "+" links navigate to Destinations tab with `#destination-{type}` anchor
+- CSS `:target` rule highlights destination section in yellow when navigated to
+- Added `scroll-margin-top: 2rem` for better scroll positioning
+
+**Tooltip improvements:**
+- Changed from native `title` attribute to CSS-based tooltips (fixed double-tooltip issue)
+- Tooltips now centered with `white-space: nowrap` for single-line display
+- Success status icons now show "Last successful send" tooltip (was missing before)
+
+**Email recipients display:**
+- Replaced `(5)` count with envelope icon + badge showing recipient count
+- Added tooltip on hover showing actual email addresses
+- Truncates to first 5 emails with "+X more" if many recipients
+
+**Status icon positioning:**
+- Changed from `margin-left: auto` (far right) to `margin-left: 6px` (inline after item name)
+- Cleaner visual association between item and its status
+
+**Commits:** `104b28f`, `8e16ed4`
+
+### 2026-01-01: Alert Rules UI Implementation
+
+Implemented the Quick Setup (Tier 1) preset-based alert rules UI:
+
+**Major changes:**
+- Simplified preset cards to match Destinations card styling
+- Removed header checkbox - enabled state now derived from selected destinations
+- Group destinations by type (Email, Slack, Discord, Telegram) with column headers
+- Show email recipient count in parentheses for clarity
+- Status indicators (✓/!) only shown for selected destinations (errors always visible)
+- Removed visual noise (badge, blue enabled border)
+- Clear tooltips: "Last successful send" and "Last error X ago: message"
+
+**Bug fixes:**
+- Fixed save bug: validate destination IDs without lowercasing (preserves UUID format)
+- Fixed enabled checkbox defaulting to true when unchecked
+- Fixed text domain to `simple-history-add-on` throughout
+
+**Additional UX polish (uncommitted):**
+- Added help cursor to status indicator tooltips
+- Added icons (Email, Slack, Discord, Telegram) before column headers
+- Increased vertical spacing between destination items
+- Removed selected background color (standard WordPress checkbox pattern)
+
+**Commits:** `5336c89`
+
 ### 2025-12-30: Code Quality Fixes
 
 Fixed phpcs and phpstan issues in premium plugin:
@@ -601,12 +654,11 @@ Improved the destinations table UX with multiple fixes:
 - ✅ Destinations settings page UI
 - ✅ Test button for each destination
 - ✅ Send tracking (success/failure status)
-
-**In Progress:**
-- 🔄 Alert Rules UI (needs implementation)
+- ✅ Alert presets UI (Tier 1 quick setup)
+- ✅ Alert rules saving and evaluation
 
 **Not Started:**
-- ⏳ Alert presets (Tier 1 quick setup)
+- ⏳ Editable presets (Tier 2 - toggle specific events)
 - ⏳ Custom rules builder (Tier 3)
 - ⏳ "Create alert from event" feature
 
