@@ -1,6 +1,6 @@
 ---
 name: code-quality
-description: Provides WordPress coding standards, PHP/CSS/JS style guide, code linting and static analysis (phpcs, phpstan, rector, phpcbf). Use before writing or editing PHP, CSS, or JavaScript code, when fixing lint errors, running code quality tools, or reviewing code style compliance.
+description: WordPress coding standards and linting tools (phpcs, phpstan, rector, phpcbf). ALWAYS use after writing significant PHP/CSS/JS code to verify compliance. Triggers: "run phpcs", "run phpstan", "lint", "check code", "fix code style", "coding standards", or when user reports lint/phpcs/phpstan errors.
 ---
 
 # Code Quality Standards for Simple History
@@ -9,14 +9,13 @@ This skill provides code quality guidelines for the Simple History WordPress plu
 
 ## When to Use This Skill
 
-Invoke this skill proactively before writing code to ensure compliance with project standards.
+**ALWAYS invoke this skill:**
+- After writing or editing significant PHP/CSS/JS code (run phpcs/phpstan to verify)
+- When user says: "lint", "phpcs", "phpstan", "check code", "fix style", "coding standards"
+- When user reports lint errors or code style issues
+- Before committing code changes (verify with phpcs)
 
-**Trigger scenarios:**
-- Before writing or editing PHP code
-- Before writing or editing CSS code
-- Before writing or editing JavaScript code
-- When running code quality tools (phpcs, phpstan, rector)
-- When fixing lint errors or reviewing code style
+**Trigger phrases:** "run phpcs", "run phpstan", "lint my code", "check code quality", "fix code style", "coding standards"
 
 ## Quick Reference
 

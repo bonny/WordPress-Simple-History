@@ -1,7 +1,7 @@
 ---
 name: logger-messages
 description: Writes user-friendly logger messages in active voice for Simple History event logs. Fixes passive voice issues. Use when creating or modifying logger classes in loggers/ directory, writing getInfo() messages, fixing passive voice, reviewing log message clarity, or adding new events to the activity log.
-allowed-tools: Read, Grep, Glob
+allowed-tools: Read Grep Glob
 ---
 
 # Logger Message Writing Guidelines
