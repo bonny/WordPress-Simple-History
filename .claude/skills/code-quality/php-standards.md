@@ -462,3 +462,5 @@ When writing PHP code, ensure:
 - [ ] No `mb_*` functions used
 - [ ] Hook callbacks handle missing/optional arguments
 - [ ] Data is validated before use
+- [ ] No duplicated logic (check for existing methods before writing new ones)
+- [ ] Shared logic uses `public static` methods in a central location
