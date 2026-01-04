@@ -51,7 +51,8 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Auto_Backfill_Service',
 			'History_Insights_Sidebar_Service',
 			'Channels_Service',
-			'Channels_Settings_Page'
+			'Channels_Settings_Page',
+			'Alerts_Settings_Page_Teaser',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);
