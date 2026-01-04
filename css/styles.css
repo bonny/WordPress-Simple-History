@@ -1209,6 +1209,15 @@ so add some extra place then to make it look a bit less ugly.
 	opacity: 0.75;
 }
 
+/* Prevent nav-tabs with badges from wrapping */
+.nav-tab .sh-Badge {
+	margin-left: 0.3em;
+}
+
+.nav-tab:has(.sh-Badge) {
+	white-space: nowrap;
+}
+
 /* New feature notice banner */
 .sh-BetaNotice {
 	display: flex;
