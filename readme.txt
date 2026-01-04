@@ -353,10 +353,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added Notes statistics to weekly email reports showing notes added and resolved counts (WordPress 6.9+ only).
 -   Added Notes statistics to History Insights page for tracking collaborative block editor notes activity.
 -   Added Notes REST API endpoint at `/wp-json/simple-history/v1/stats/notes`.
+-   Added Alerts settings page showing premium notification features.
 
 **Changed**
 
--   Disabled autoload for Available Updates Logger options to improve performance. These options are only needed during update checks, not on every page load.
+-   Improved performance by optimizing how update check data is stored.
+-   Improved sub-navigation tabs to scroll horizontally on narrow screens instead of wrapping.
 
 **Fixed**
 
