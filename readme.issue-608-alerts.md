@@ -656,6 +656,8 @@ Improved the destinations table UX with multiple fixes:
 - ✅ Send tracking (success/failure status)
 - ✅ Alert presets UI (Tier 1 quick setup)
 - ✅ Alert rules saving and evaluation
+- ✅ WP CLI commands for destinations and rules
+- ✅ Event logging when destinations/rules are saved
 
 **Not Started:**
 - ⏳ Editable presets (Tier 2 - toggle specific events)
@@ -666,3 +668,79 @@ Improved the destinations table UX with multiple fixes:
 
 -   #573 (Log Forwarding - completed, channels infrastructure)
 -   #209, #114, #366 (Original alert requests)
+
+## Review and comments from human developer
+
+- Should we have WP CLI commands for all/parts of the alerts feature?
+- Destinations: Are header "Email - Send alerts to email addresses" the best description? Does a user understand what "Send alerts to email addresses" means? Should we clearify, like "add email groups and then selected these groups in the the alert rules tab"?
+- how are sucess/fail results stored?
+- Does an event get created when page is saved? Applies to both destinations and alert rules tabs.
+
+### 2026-01-04: Review Questions Addressed
+
+**1. WP CLI Commands: ✅ Implemented**
+
+Created `class-wp-cli-alerts-command.php` with the following commands:
+
+```bash
+# Destinations
+wp simple-history alerts destinations list [--type=<type>] [--format=<format>]
+wp simple-history alerts destinations get <id> [--format=<format>]
+wp simple-history alerts destinations test <id>
+wp simple-history alerts destinations delete <id> [--yes]
+
+# Alert Rules
+wp simple-history alerts rules list [--format=<format>]
+wp simple-history alerts rules enable <preset> [--destinations=<ids>]
+wp simple-history alerts rules disable <preset>
+```
+
+**2. Destination Descriptions: ✅ Updated**
+
+Changed from redundant descriptions to more helpful copy:
+
+| Type     | Before                           | After                                   |
+|----------|----------------------------------|-----------------------------------------|
+| Email    | "Send alerts to email addresses" | "Configure email recipients for alerts" |
+| Slack    | "Post alerts to Slack channels"  | "Configure Slack webhooks for alerts"   |
+| Discord  | "Send alerts to Discord channels"| "Configure Discord webhooks for alerts" |
+| Telegram | "Send alerts via Telegram bot"   | "Configure Telegram bot for alerts"     |
+
+**3. Success/Fail Results Storage: Already documented**
+
+Stored in `tracking` key within each destination in the `simple_history_alert_destinations` wp_option:
+
+```php
+$tracking = [
+    'last_success'  => 0,        // Unix timestamp
+    'last_error'    => [
+        'message' => '...',
+        'code'    => 0,          // HTTP status code
+        'time'    => 0,          // Unix timestamp
+    ],
+    'success_count' => 0,
+    'error_count'   => 0,
+];
+```
+
+**4. Event Logging on Save: ✅ Implemented**
+
+Created `class-alerts-logger.php` that logs:
+
+- **Destinations:**
+  - "Added alert destination "{name}" ({type})"
+  - "Updated alert destination "{name}""
+  - "Deleted alert destination "{name}" ({type})"
+
+- **Alert Rules:**
+  - "Enabled alert rule "{name}""
+  - "Disabled alert rule "{name}""
+  - "Updated alert rule "{name}""
+
+Hooks added in `class-wp-rest-destinations-controller.php` and `class-alerts-module.php`:
+- `simple_history/alerts/destination_created`
+- `simple_history/alerts/destination_updated`
+- `simple_history/alerts/destination_deleted`
+- `simple_history/alerts/rules_saved`
+
+**Commits:** (pending)
