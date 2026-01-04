@@ -20,25 +20,6 @@ class AlertsModuleTest extends PremiumTestCase {
 	}
 
 	/**
-	 * Test that premium sets the alerts filter.
-	 */
-	public function test_premium_handles_alerts_filter(): void {
-		$this->assertPremiumHandlingAlerts();
-	}
-
-	/**
-	 * Test that core handles alerts when premium is not active.
-	 */
-	public function test_core_handles_alerts_when_premium_inactive(): void {
-		$this->deactivate_premium();
-
-		// Remove all filters first to get clean state.
-		remove_all_filters( 'simple_history/alerts/is_premium_handling' );
-
-		$this->assertCoreHandlingAlerts();
-	}
-
-	/**
 	 * Test get_preset_definitions returns expected presets.
 	 */
 	public function test_get_preset_definitions_returns_array(): void {

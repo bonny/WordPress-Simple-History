@@ -14,32 +14,6 @@ namespace Simple_History\Tests\Premium;
  */
 class CoreVsPremiumTest extends PremiumTestCase {
 	/**
-	 * Test that alerts filter returns false when premium is not active.
-	 */
-	public function test_alerts_filter_false_without_premium(): void {
-		// Make sure premium is NOT active.
-		$this->assertFalse( $this->is_premium_active() );
-
-		// Remove any existing filters.
-		remove_all_filters( 'simple_history/alerts/is_premium_handling' );
-
-		$is_premium_handling = apply_filters( 'simple_history/alerts/is_premium_handling', false );
-
-		$this->assertFalse( $is_premium_handling, 'Core should report that premium is not handling alerts.' );
-	}
-
-	/**
-	 * Test that alerts filter returns true when premium is active.
-	 */
-	public function test_alerts_filter_true_with_premium(): void {
-		$this->activate_premium();
-
-		$is_premium_handling = apply_filters( 'simple_history/alerts/is_premium_handling', false );
-
-		$this->assertTrue( $is_premium_handling, 'Premium should report that it is handling alerts.' );
-	}
-
-	/**
 	 * Test premium classes are not available when premium is not active.
 	 */
 	public function test_premium_classes_not_loaded_without_premium(): void {

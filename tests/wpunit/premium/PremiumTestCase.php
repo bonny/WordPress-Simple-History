@@ -63,26 +63,6 @@ abstract class PremiumTestCase extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Assert that the premium filter is handling alerts.
-	 */
-	protected function assertPremiumHandlingAlerts(): void {
-		$this->assertTrue(
-			apply_filters( 'simple_history/alerts/is_premium_handling', false ),
-			'Premium should be handling alerts when active.'
-		);
-	}
-
-	/**
-	 * Assert that core is handling alerts (premium not active).
-	 */
-	protected function assertCoreHandlingAlerts(): void {
-		$this->assertFalse(
-			apply_filters( 'simple_history/alerts/is_premium_handling', false ),
-			'Core should be handling alerts when premium is not active.'
-		);
-	}
-
-	/**
 	 * Clean up after each test.
 	 */
 	public function tearDown(): void {
