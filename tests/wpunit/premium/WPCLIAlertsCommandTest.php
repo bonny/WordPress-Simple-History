@@ -1,7 +1,6 @@
 <?php
 
-namespace Simple_History\Tests\Premium;
-
+use Helper\PremiumTestCase;
 use Simple_History\AddOns\Pro\Modules\Alerts_Module;
 
 /**

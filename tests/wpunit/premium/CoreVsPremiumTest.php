@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History\Tests\Premium;
+use Helper\PremiumTestCase;
 
 /**
  * Tests comparing core vs premium functionality.

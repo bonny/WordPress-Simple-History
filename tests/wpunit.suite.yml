@@ -22,7 +22,7 @@ modules:
       plugins:
         [
           "simple-history/index.php",
-          "simple-history-premium/simple-history-premium.php", # Available but not activated by default
+          # Premium plugin NOT listed here - requires WP 6.7+, loaded by tests when needed
           "jetpack/jetpack.php",
           "wp-crontrol/wp-crontrol.php",
           "duplicate-post/duplicate-post.php",
@@ -31,5 +31,4 @@ modules:
           "user-switching/user-switching.php",
           # "issue-373-disable-core-loggers/issue-373-disable-core-loggers.php",
         ]
-      # Only core is activated by default. Premium tests activate it explicitly.
       activatePlugins: ["simple-history/index.php"]

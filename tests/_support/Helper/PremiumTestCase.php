@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History\Tests\Premium;
+namespace Helper;
 
 /**
  * Base test case for premium plugin tests.
@@ -12,8 +12,29 @@ abstract class PremiumTestCase extends \Codeception\TestCase\WPTestCase {
 	/** @var string Premium plugin file path. */
 	protected const PREMIUM_PLUGIN = 'simple-history-premium/simple-history-premium.php';
 
+	/** @var string Minimum WordPress version required for premium. */
+	protected const MIN_WP_VERSION = '6.7';
+
 	/** @var bool Whether premium was activated by this test. */
 	protected bool $premium_activated = false;
+
+	/**
+	 * Set up test - skip if WordPress version is too old for premium.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		global $wp_version;
+		if ( version_compare( $wp_version, self::MIN_WP_VERSION, '<' ) ) {
+			$this->markTestSkipped(
+				sprintf(
+					'Premium plugin requires WordPress %s+, current version is %s',
+					self::MIN_WP_VERSION,
+					$wp_version
+				)
+			);
+		}
+	}
 
 	/**
 	 * Activate the premium plugin.
