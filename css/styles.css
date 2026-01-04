@@ -1218,6 +1218,20 @@ so add some extra place then to make it look a bit less ugly.
 	white-space: nowrap;
 }
 
+/* Sub-navigation tabs - horizontally scrollable on small screens */
+.sh-Page-content .nav-tab-wrapper {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: thin;
+	padding-bottom: 1px; /* Prevent border clipping during scroll */
+}
+
+.sh-Page-content .nav-tab-wrapper .nav-tab {
+	flex-shrink: 0;
+}
+
 /* New feature notice banner */
 .sh-BetaNotice {
 	display: flex;
@@ -1963,11 +1977,16 @@ Can be overruled by .form-table td p
 
 .sh-SettingsTabs-tabs {
 	display: flex;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: thin;
 	margin: 0;
 	/* border-bottom: 1px solid #dcdcde; */
 }
 
 .sh-SettingsTabs-tab {
+	flex-shrink: 0;
 	margin-bottom: 0;
 }
 
