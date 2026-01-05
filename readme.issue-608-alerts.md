@@ -5,6 +5,12 @@
 **Labels:** Feature, Size: Large
 **Branch:** `issue-608-alerts`
 
+## Review and comments from human developer
+
+- Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!
+- are events sent to email etc. synchronous or asynchronous? performance?
+
+
 ## Scope Clarification
 
 This issue focuses **only on Alerts & Notifications** - selective, rule-based notifications when specific events occur.
@@ -669,12 +675,6 @@ Improved the destinations table UX with multiple fixes:
 -   #573 (Log Forwarding - completed, channels infrastructure)
 -   #209, #114, #366 (Original alert requests)
 
-## Review and comments from human developer
-
-- Should we have WP CLI commands for all/parts of the alerts feature?
-- Destinations: Are header "Email - Send alerts to email addresses" the best description? Does a user understand what "Send alerts to email addresses" means? Should we clearify, like "add email groups and then selected these groups in the the alert rules tab"?
-- how are sucess/fail results stored?
-- Does an event get created when page is saved? Applies to both destinations and alert rules tabs.
 
 ### 2026-01-04: Review Questions Addressed
 
