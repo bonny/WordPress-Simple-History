@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History\Channels\Formatters;
+namespace Simple_History\Channels;
 
 use Simple_History\Log_Levels;
 

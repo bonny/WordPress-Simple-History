@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History\Channels\Formatters;
+namespace Simple_History\Channels;
 
 /**
  * Interface for log entry formatters.
