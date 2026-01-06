@@ -88,6 +88,16 @@ $sh_loader->add_namespace( 'Simple_History\Services', SIMPLE_HISTORY_PATH . 'inc
 $sh_loader->add_namespace( 'Simple_History\Services', SIMPLE_HISTORY_PATH . 'inc/services/wp-cli-commands' );
 $sh_loader->add_namespace( 'Simple_History\Channels', SIMPLE_HISTORY_PATH . 'inc/channels' );
 
+// Backward compatibility aliases for moved channel classes.
+// In version 5.23.0, channel interfaces and formatters were moved from subdirectories
+// to the main channels directory to fix autoloader issues on some hosts (like WPEngine)
+// where directory-level caching caused "class not found" errors for files in new subdirectories.
+// These aliases ensure code using the old namespaces continues to work.
+class_alias( 'Simple_History\Channels\Channel_Interface', 'Simple_History\Channels\Interfaces\Channel_Interface' );
+class_alias( 'Simple_History\Channels\Formatter_Interface', 'Simple_History\Channels\Formatters\Formatter_Interface' );
+class_alias( 'Simple_History\Channels\Formatter', 'Simple_History\Channels\Formatters\Formatter' );
+class_alias( 'Simple_History\Channels\Human_Readable_Formatter', 'Simple_History\Channels\Formatters\Human_Readable_Formatter' );
+
 // Register autoloader for deprecated classes - loaded only when actually used.
 spl_autoload_register(
 	function ( $class_name ) {

@@ -387,7 +387,7 @@ class Channels_Settings_Page extends Service {
 	/**
 	 * Add a settings section for a specific channel.
 	 *
-	 * @param \Simple_History\Channels\Interfaces\Channel_Interface $channel The channel.
+	 * @param \Simple_History\Channels\Channel_Interface $channel The channel.
 	 */
 	private function add_channel_settings_section( $channel ) {
 		$channel_slug = $channel->get_slug();
@@ -435,7 +435,7 @@ class Channels_Settings_Page extends Service {
 	/**
 	 * Render the intro for a channel's settings section.
 	 *
-	 * @param \Simple_History\Channels\Interfaces\Channel_Interface $channel The channel.
+	 * @param \Simple_History\Channels\Channel_Interface $channel The channel.
 	 */
 	private function render_channel_section_intro( $channel ) {
 		if ( ! empty( $channel->get_description() ) ) {

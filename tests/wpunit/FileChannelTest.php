@@ -101,7 +101,7 @@ class FileChannelTest extends \Codeception\TestCase\WPTestCase {
 	 * Test log entry formatting with Human_Readable_Formatter.
 	 */
 	public function test_log_entry_formatting() {
-		$formatter = new \Simple_History\Channels\Formatters\Human_Readable_Formatter();
+		$formatter = new \Simple_History\Channels\Human_Readable_Formatter();
 
 		$event_data = [
 			'id'        => 123,

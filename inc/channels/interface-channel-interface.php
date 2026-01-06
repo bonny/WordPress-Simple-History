@@ -1,6 +1,6 @@
 <?php
 
-namespace Simple_History\Channels\Interfaces;
+namespace Simple_History\Channels;
 
 /**
  * Interface for all channels.

@@ -2,7 +2,6 @@
 
 namespace Simple_History\Channels;
 
-use Simple_History\Channels\Interfaces\Channel_Interface;
 use Simple_History\Helpers;
 
 /**

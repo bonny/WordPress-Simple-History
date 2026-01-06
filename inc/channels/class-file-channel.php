@@ -2,8 +2,6 @@
 
 namespace Simple_History\Channels;
 
-use Simple_History\Channels\Formatters\Formatter_Interface;
-use Simple_History\Channels\Formatters\Human_Readable_Formatter;
 use Simple_History\Helpers;
 
 /**
