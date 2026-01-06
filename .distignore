@@ -25,6 +25,7 @@
 .eslintrc
 .gitattributes
 .gitignore
+.mcp.json
 .nvmrc
 .prettierrc
 .typos.toml
