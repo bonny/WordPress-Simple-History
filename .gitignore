@@ -52,6 +52,7 @@ build/
 !.claude/settings.json
 !.claude/commands/
 !.claude/skills/
+!.claude/agents/
 scripts/copy-current-to-simple-history-com.sh
 CLAUDE.local.md
 
