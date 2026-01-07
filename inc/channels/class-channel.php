@@ -29,6 +29,14 @@ abstract class Channel implements Channel_Interface {
 	protected bool $supports_async = false;
 
 	/**
+	 * Current schema version for channel settings.
+	 * Increment when settings structure changes.
+	 *
+	 * @var int
+	 */
+	protected int $settings_version = 1;
+
+	/**
 	 * Called when the channel is loaded and ready.
 	 *
 	 * Child classes should override this method to register hooks
@@ -162,6 +170,9 @@ abstract class Channel implements Channel_Interface {
 		// Handle enabled checkbox.
 		$sanitized['enabled'] = ! empty( $input['enabled'] );
 
+		// Add version for schema tracking.
+		$sanitized['_version'] = $this->settings_version;
+
 		return $sanitized;
 	}
 
@@ -228,11 +239,17 @@ abstract class Channel implements Channel_Interface {
 	/**
 	 * Save settings for this channel.
 	 *
+	 * Uses autoload=false for performance (channel settings aren't needed on every page load).
+	 * Adds version for future schema migrations.
+	 *
 	 * @param array $settings The settings to save.
 	 * @return bool True on success, false on failure.
 	 */
 	public function save_settings( $settings ) {
-		return update_option( $this->get_settings_option_name(), $settings );
+		// Add version for future schema migrations.
+		$settings['_version'] = $this->settings_version;
+
+		return update_option( $this->get_settings_option_name(), $settings, false );
 	}
 
 	/**
