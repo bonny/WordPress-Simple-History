@@ -12,8 +12,8 @@ abstract class PremiumTestCase extends \Codeception\TestCase\WPTestCase {
 	/** @var string Premium plugin file path. */
 	protected const PREMIUM_PLUGIN = 'simple-history-premium/simple-history-premium.php';
 
-	/** @var string Minimum WordPress version required for premium. */
-	protected const MIN_WP_VERSION = '6.7';
+	/** @var string Minimum WordPress version required for premium (matches simple-history-premium.php). */
+	protected const MIN_WP_VERSION = '6.3';
 
 	/** @var bool Whether premium was activated by this test. */
 	protected bool $premium_activated = false;
