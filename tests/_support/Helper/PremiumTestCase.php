@@ -56,6 +56,81 @@ abstract class PremiumTestCase extends \Codeception\TestCase\WPTestCase {
 
 		// Trigger the plugins_loaded hook for premium to initialize.
 		do_action( 'plugins_loaded' );
+
+		// Ensure the premium plugin is properly initialized.
+		// The plugins_loaded hook registers the initialization, but we may need
+		// to manually trigger it if Simple History was already loaded.
+		$this->ensure_premium_initialized();
+
+		// Since after_setup_theme has already run, we need to manually instantiate
+		// any loggers that were registered by the premium plugin.
+		$this->instantiate_premium_loggers();
+	}
+
+	/**
+	 * Ensure the premium plugin is properly initialized.
+	 *
+	 * This handles the case where plugins_loaded has already fired
+	 * before the premium plugin was activated.
+	 */
+	private function ensure_premium_initialized(): void {
+		// Check if Extended_Settings is already instantiated.
+		if ( class_exists( '\Simple_History\AddOns\Pro\Extended_Settings' ) ) {
+			$simple_history = \Simple_History\Simple_History::get_instance();
+
+			// Try to get the existing instance, or create a new one.
+			try {
+				$reflection = new \ReflectionClass( '\Simple_History\AddOns\Pro\Extended_Settings' );
+				$instance_property = $reflection->getProperty( 'instance' );
+				$instance_property->setAccessible( true );
+				$instance = $instance_property->getValue();
+
+				if ( $instance === null ) {
+					// Initialize Extended_Settings which loads all modules.
+					\Simple_History\AddOns\Pro\Extended_Settings::get_instance( $simple_history );
+				}
+			} catch ( \ReflectionException $e ) {
+				// Fallback: just try to get the instance.
+				\Simple_History\AddOns\Pro\Extended_Settings::get_instance( $simple_history );
+			}
+		}
+	}
+
+	/**
+	 * Manually instantiate premium loggers that were registered after
+	 * the normal logger loading phase (after_setup_theme) has completed.
+	 */
+	private function instantiate_premium_loggers(): void {
+		$simple_history = \Simple_History\Simple_History::get_instance();
+		$external_loggers = $simple_history->get_external_loggers();
+		$instantiated_loggers = $simple_history->get_instantiated_loggers();
+
+		foreach ( $external_loggers as $logger_class ) {
+			if ( ! class_exists( $logger_class ) ) {
+				continue;
+			}
+
+			// Instantiate the logger.
+			$logger_instance = new $logger_class( $simple_history );
+			$slug = $logger_instance->get_slug();
+
+			// Skip if already instantiated.
+			if ( isset( $instantiated_loggers[ $slug ] ) ) {
+				continue;
+			}
+
+			// Call loaded() to register hooks.
+			if ( $logger_instance->is_enabled() ) {
+				$logger_instance->loaded();
+			}
+
+			$instantiated_loggers[ $slug ] = [
+				'name'     => $logger_instance->get_info_value_by_key( 'name' ),
+				'instance' => $logger_instance,
+			];
+		}
+
+		$simple_history->set_instantiated_loggers( $instantiated_loggers );
 	}
 
 	/**
