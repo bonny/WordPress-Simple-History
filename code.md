@@ -28,6 +28,38 @@ npm run php:lint-fix
 npm run php:phpstan
 ```
 
+## Frontend Development
+
+### Prefer Web Standards Over JavaScript
+
+Use native HTML elements and CSS before reaching for JavaScript:
+
+-   **`<details>`/`<summary>`** for expand/collapse instead of JS toggles
+-   **`<dialog>`** for modals instead of custom JS implementations
+-   **CSS `:focus-visible`** for focus states instead of JS focus management
+-   **Form validation attributes** (`required`, `pattern`, `type="email"`) before JS validation
+-   **CSS Grid/Flexbox** for layouts instead of JS-based positioning
+
+**Why?**
+- Works without JavaScript (progressive enhancement)
+- Accessible by default (screen readers, keyboard navigation)
+- Less code to maintain
+- Better performance
+- Browser handles edge cases
+
+**Example:**
+```html
+<!-- Good: Native HTML -->
+<details>
+  <summary>Show more</summary>
+  <p>Hidden content</p>
+</details>
+
+<!-- Avoid: JavaScript-dependent -->
+<button onclick="toggle()">Show more</button>
+<div id="content" hidden>Hidden content</div>
+```
+
 ## Changelog
 
 -   Try to use format from https://keepachangelog.com
