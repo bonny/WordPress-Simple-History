@@ -36,8 +36,9 @@ class AlertsModuleTest extends PremiumTestCase {
 
 		$this->assertArrayHasKey( 'security', $presets );
 		$this->assertArrayHasKey( 'name', $presets['security'] );
-		$this->assertArrayHasKey( 'description', $presets['security'] );
-		$this->assertArrayHasKey( 'message_keys', $presets['security'] );
+		$this->assertArrayHasKey( 'events', $presets['security'] );
+		$this->assertIsArray( $presets['security']['events'] );
+		$this->assertNotEmpty( $presets['security']['events'] );
 	}
 
 	/**
@@ -196,6 +197,160 @@ class AlertsModuleTest extends PremiumTestCase {
 
 		$this->assertIsArray( $sanitized );
 		$this->assertEmpty( $sanitized );
+	}
+
+	/**
+	 * Test sanitize_destination_config handles null input.
+	 */
+	public function test_sanitize_destination_config_null_input(): void {
+		$sanitized = Alerts_Module::sanitize_destination_config( 'email', null );
+
+		$this->assertIsArray( $sanitized );
+		$this->assertEmpty( $sanitized );
+	}
+
+	/**
+	 * Test sanitize_destination_config with empty config array.
+	 */
+	public function test_sanitize_destination_config_empty_array(): void {
+		$sanitized = Alerts_Module::sanitize_destination_config( 'email', [] );
+
+		$this->assertIsArray( $sanitized );
+		$this->assertArrayHasKey( 'recipients', $sanitized );
+		$this->assertEmpty( $sanitized['recipients'] );
+	}
+
+	/**
+	 * Test sanitize_destination_config normalizes multiple email separators.
+	 */
+	public function test_sanitize_destination_config_email_multiple_separators(): void {
+		$config = [
+			'recipients' => "user1@example.com, user2@example.com\nuser3@example.com\r\nuser4@example.com",
+		];
+
+		$sanitized  = Alerts_Module::sanitize_destination_config( 'email', $config );
+		$recipients = explode( "\n", $sanitized['recipients'] );
+
+		$this->assertCount( 4, $recipients );
+		$this->assertContains( 'user1@example.com', $recipients );
+		$this->assertContains( 'user2@example.com', $recipients );
+		$this->assertContains( 'user3@example.com', $recipients );
+		$this->assertContains( 'user4@example.com', $recipients );
+	}
+
+	/**
+	 * Test sanitize_destination_config removes duplicate emails.
+	 */
+	public function test_sanitize_destination_config_email_removes_whitespace(): void {
+		$config = [
+			'recipients' => '   user@example.com   ,   admin@example.com   ',
+		];
+
+		$sanitized  = Alerts_Module::sanitize_destination_config( 'email', $config );
+		$recipients = explode( "\n", $sanitized['recipients'] );
+
+		// Should be trimmed.
+		$this->assertContains( 'user@example.com', $recipients );
+		$this->assertContains( 'admin@example.com', $recipients );
+	}
+
+	/**
+	 * Test sanitize_destination_config filters out all invalid emails.
+	 */
+	public function test_sanitize_destination_config_email_all_invalid(): void {
+		$config = [
+			'recipients' => 'invalid, notanemail, @missing.com',
+		];
+
+		$sanitized = Alerts_Module::sanitize_destination_config( 'email', $config );
+
+		$this->assertEmpty( $sanitized['recipients'] );
+	}
+
+	/**
+	 * Test sanitize_destination_config handles XSS attempts in webhook URL.
+	 */
+	public function test_sanitize_destination_config_webhook_xss_protection(): void {
+		$config = [
+			'webhook_url' => 'javascript:alert("xss")',
+		];
+
+		$sanitized = Alerts_Module::sanitize_destination_config( 'slack', $config );
+
+		// esc_url_raw should strip javascript: protocol.
+		$this->assertStringNotContainsString( 'javascript', $sanitized['webhook_url'] );
+	}
+
+	/**
+	 * Test sanitize_destination_config handles missing webhook_url key.
+	 */
+	public function test_sanitize_destination_config_slack_missing_url(): void {
+		$config = [
+			'some_other_key' => 'value',
+		];
+
+		$sanitized = Alerts_Module::sanitize_destination_config( 'slack', $config );
+
+		$this->assertArrayHasKey( 'webhook_url', $sanitized );
+		$this->assertEmpty( $sanitized['webhook_url'] );
+	}
+
+	/**
+	 * Test sanitize_destination_config handles missing Telegram config keys.
+	 */
+	public function test_sanitize_destination_config_telegram_missing_keys(): void {
+		$config = [];
+
+		$sanitized = Alerts_Module::sanitize_destination_config( 'telegram', $config );
+
+		$this->assertArrayHasKey( 'bot_token', $sanitized );
+		$this->assertArrayHasKey( 'chat_id', $sanitized );
+		$this->assertEmpty( $sanitized['bot_token'] );
+		$this->assertEmpty( $sanitized['chat_id'] );
+	}
+
+	/**
+	 * Test sanitize_destination_config sanitizes Telegram bot token.
+	 */
+	public function test_sanitize_destination_config_telegram_sanitizes_token(): void {
+		$config = [
+			'bot_token' => '<script>alert("xss")</script>123:ABC',
+			'chat_id'   => '-100<b>bold</b>123',
+		];
+
+		$sanitized = Alerts_Module::sanitize_destination_config( 'telegram', $config );
+
+		// HTML tags should be stripped.
+		$this->assertStringNotContainsString( '<script>', $sanitized['bot_token'] );
+		$this->assertStringNotContainsString( '<b>', $sanitized['chat_id'] );
+	}
+
+	/**
+	 * Test sanitize_destination_config returns empty for unknown type.
+	 */
+	public function test_sanitize_destination_config_unknown_type(): void {
+		$config = [
+			'some_field' => 'some_value',
+		];
+
+		$sanitized = Alerts_Module::sanitize_destination_config( 'unknown_type', $config );
+
+		$this->assertIsArray( $sanitized );
+		$this->assertEmpty( $sanitized );
+	}
+
+	/**
+	 * Test sanitize_destination_config handles Teams type (same as Slack/Discord).
+	 */
+	public function test_sanitize_destination_config_teams(): void {
+		$config = [
+			'webhook_url' => 'https://outlook.office.com/webhook/xxx',
+		];
+
+		$sanitized = Alerts_Module::sanitize_destination_config( 'teams', $config );
+
+		$this->assertArrayHasKey( 'webhook_url', $sanitized );
+		$this->assertEquals( 'https://outlook.office.com/webhook/xxx', $sanitized['webhook_url'] );
 	}
 
 	/**
