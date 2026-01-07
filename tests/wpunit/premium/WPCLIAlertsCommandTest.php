@@ -4,7 +4,7 @@ use Helper\PremiumTestCase;
 use Simple_History\AddOns\Pro\Modules\Alerts_Module;
 
 /**
- * Tests for the WP_CLI_Alerts_Command class.
+ * Tests for the Alerts WP-CLI commands (Alerts_Destinations_Command and Alerts_Rules_Command).
  *
  * Note: These tests verify the command logic without actually running WP-CLI.
  * For full CLI integration tests, use the functional test suite.
