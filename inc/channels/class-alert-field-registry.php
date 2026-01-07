@@ -169,24 +169,7 @@ class Alert_Field_Registry {
 			'label'           => __( 'Message Contains', 'simple-history' ),
 			'inputType'       => 'text',
 			'valueEditorType' => 'text',
-			'operators'       => [
-				[
-					'name'  => 'contains',
-					'label' => __( 'contains', 'simple-history' ),
-				],
-				[
-					'name'  => 'doesNotContain',
-					'label' => __( 'does not contain', 'simple-history' ),
-				],
-				[
-					'name'  => 'beginsWith',
-					'label' => __( 'begins with', 'simple-history' ),
-				],
-				[
-					'name'  => 'endsWith',
-					'label' => __( 'ends with', 'simple-history' ),
-				],
-			],
+			'operators'       => self::get_string_match_operators(),
 			'placeholder'     => __( 'Enter keyword...', 'simple-history' ),
 		];
 	}
@@ -210,11 +193,13 @@ class Alert_Field_Registry {
 	}
 
 	/**
-	 * Get operators for text fields.
+	 * Get equality operators (equals / does not equal).
+	 *
+	 * Shared between text and numeric operator sets.
 	 *
 	 * @return array Operator definitions.
 	 */
-	private static function get_text_operators(): array {
+	private static function get_equality_operators(): array {
 		return [
 			[
 				'name'  => '=',
@@ -224,6 +209,18 @@ class Alert_Field_Registry {
 				'name'  => '!=',
 				'label' => __( 'does not equal', 'simple-history' ),
 			],
+		];
+	}
+
+	/**
+	 * Get string match operators (contains, begins with, etc.).
+	 *
+	 * Shared between message field and text operators.
+	 *
+	 * @return array Operator definitions.
+	 */
+	private static function get_string_match_operators(): array {
+		return [
 			[
 				'name'  => 'contains',
 				'label' => __( 'contains', 'simple-history' ),
@@ -244,37 +241,44 @@ class Alert_Field_Registry {
 	}
 
 	/**
+	 * Get operators for text fields.
+	 *
+	 * @return array Operator definitions.
+	 */
+	private static function get_text_operators(): array {
+		return array_merge(
+			self::get_equality_operators(),
+			self::get_string_match_operators()
+		);
+	}
+
+	/**
 	 * Get operators for numeric fields.
 	 *
 	 * @return array Operator definitions.
 	 */
 	private static function get_numeric_operators(): array {
-		return [
+		return array_merge(
+			self::get_equality_operators(),
 			[
-				'name'  => '=',
-				'label' => __( 'equals', 'simple-history' ),
-			],
-			[
-				'name'  => '!=',
-				'label' => __( 'does not equal', 'simple-history' ),
-			],
-			[
-				'name'  => '>',
-				'label' => __( 'greater than', 'simple-history' ),
-			],
-			[
-				'name'  => '>=',
-				'label' => __( 'greater than or equal to', 'simple-history' ),
-			],
-			[
-				'name'  => '<',
-				'label' => __( 'less than', 'simple-history' ),
-			],
-			[
-				'name'  => '<=',
-				'label' => __( 'less than or equal to', 'simple-history' ),
-			],
-		];
+				[
+					'name'  => '>',
+					'label' => __( 'greater than', 'simple-history' ),
+				],
+				[
+					'name'  => '>=',
+					'label' => __( 'greater than or equal to', 'simple-history' ),
+				],
+				[
+					'name'  => '<',
+					'label' => __( 'less than', 'simple-history' ),
+				],
+				[
+					'name'  => '<=',
+					'label' => __( 'less than or equal to', 'simple-history' ),
+				],
+			]
+		);
 	}
 
 	/**
