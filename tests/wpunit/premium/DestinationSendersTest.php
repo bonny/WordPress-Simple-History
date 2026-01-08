@@ -83,6 +83,307 @@ class DestinationSendersTest extends PremiumTestCase {
 		$this->assertNotEmpty( $result['message'] );
 	}
 
+	/**
+	 * Test Email subject includes site name prefix.
+	 */
+	public function test_email_subject_includes_site_prefix(): void {
+		$sender = new Email_Destination_Sender();
+
+		// Use reflection to access private method.
+		$method = new ReflectionMethod( $sender, 'build_subject' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name' => 'My Test Site',
+			'message'   => 'User logged in from new location',
+			'level'     => 'info',
+		];
+
+		$subject = $method->invoke( $sender, $normalized );
+
+		$this->assertStringStartsWith( '[My Test Site]', $subject );
+		$this->assertStringContainsString( 'User logged in', $subject );
+	}
+
+	/**
+	 * Test Email subject truncates long site names.
+	 */
+	public function test_email_subject_truncates_long_site_name(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_subject' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name' => 'ThisIsAVeryLongSiteNameThatShouldBeTruncated',
+			'message'   => 'Test message',
+			'level'     => 'info',
+		];
+
+		$subject = $method->invoke( $sender, $normalized );
+
+		// Site name should be truncated to 20 chars.
+		$this->assertStringStartsWith( '[ThisIsAVeryLongSiteN]', $subject );
+	}
+
+	/**
+	 * Test Email subject adds emoji for critical level.
+	 */
+	public function test_email_subject_adds_emoji_for_critical(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_subject' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name' => 'Site',
+			'message'   => 'Critical error occurred',
+			'level'     => 'critical',
+		];
+
+		$subject = $method->invoke( $sender, $normalized );
+
+		// Should contain emoji for critical level.
+		$this->assertMatchesRegularExpression( '/\[Site\]\s+.+\s+Critical/', $subject );
+	}
+
+	/**
+	 * Test Email subject adds emoji for error level.
+	 */
+	public function test_email_subject_adds_emoji_for_error(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_subject' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name' => 'Site',
+			'message'   => 'Error message here',
+			'level'     => 'error',
+		];
+
+		$subject = $method->invoke( $sender, $normalized );
+
+		// Should contain emoji (❌) for error level.
+		$this->assertStringContainsString( '❌', $subject );
+	}
+
+	/**
+	 * Test Email subject does not add emoji for info level.
+	 */
+	public function test_email_subject_no_emoji_for_info(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_subject' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name' => 'Site',
+			'message'   => 'Info message here',
+			'level'     => 'info',
+		];
+
+		$subject = $method->invoke( $sender, $normalized );
+
+		// Should not contain emojis for info level.
+		$this->assertStringNotContainsString( '🔴', $subject );
+		$this->assertStringNotContainsString( '⚫', $subject );
+	}
+
+	/**
+	 * Test Email From header includes site name.
+	 */
+	public function test_email_from_header_includes_site_name(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_from_header' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name' => 'My WordPress Site',
+		];
+
+		$from_header = $method->invoke( $sender, $normalized );
+
+		$this->assertStringStartsWith( 'From: "My WordPress Site"', $from_header );
+		$this->assertStringContainsString( '<', $from_header );
+		$this->assertStringContainsString( '>', $from_header );
+	}
+
+	/**
+	 * Test Email From header sanitizes special characters.
+	 */
+	public function test_email_from_header_sanitizes_special_chars(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_from_header' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name' => "Site with \"quotes\" and\nnewlines",
+		];
+
+		$from_header = $method->invoke( $sender, $normalized );
+
+		// Should not contain quotes or newlines in site name.
+		$this->assertStringNotContainsString( '"quotes"', $from_header );
+		$this->assertStringNotContainsString( "\n", $from_header );
+	}
+
+	/**
+	 * Test Email body follows Site → User → Time → Action hierarchy.
+	 */
+	public function test_email_body_hierarchy(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_body' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name'   => 'Test Site',
+			'site_url'    => 'https://example.com',
+			'user_id'     => 1,
+			'user_login'  => 'admin',
+			'user_email'  => 'admin@example.com',
+			'initiator'   => 'wp_user',
+			'date_human'  => 'January 8, 2026 15:30',
+			'level'       => 'warning',
+			'message'     => 'User updated their profile',
+		];
+
+		$body = $method->invoke( $sender, $normalized );
+
+		// Check hierarchy: Site should come first.
+		$site_pos = strpos( $body, 'Test Site' );
+		$user_pos = strpos( $body, 'admin' );
+		$date_pos = strpos( $body, 'January 8' );
+		$msg_pos  = strpos( $body, 'User updated' );
+
+		$this->assertLessThan( $user_pos, $site_pos, 'Site should appear before user' );
+		$this->assertLessThan( $date_pos, $user_pos, 'User should appear before date' );
+		$this->assertLessThan( $msg_pos, $date_pos, 'Date should appear before message' );
+	}
+
+	/**
+	 * Test Email body includes site URL.
+	 */
+	public function test_email_body_includes_site_url(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_body' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name'   => 'Test Site',
+			'site_url'    => 'https://example.com',
+			'user_id'     => 0,
+			'user_login'  => '',
+			'user_email'  => '',
+			'initiator'   => 'wp',
+			'date_human'  => 'January 8, 2026',
+			'level'       => 'info',
+			'message'     => 'Test message',
+		];
+
+		$body = $method->invoke( $sender, $normalized );
+
+		$this->assertStringContainsString( 'https://example.com', $body );
+	}
+
+	/**
+	 * Test Email body includes level emoji and label.
+	 */
+	public function test_email_body_includes_level_info(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_body' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name'   => 'Test Site',
+			'site_url'    => 'https://example.com',
+			'user_id'     => 0,
+			'user_login'  => '',
+			'user_email'  => '',
+			'initiator'   => 'wp',
+			'date_human'  => 'January 8, 2026',
+			'level'       => 'warning',
+			'message'     => 'Warning message here',
+		];
+
+		$body = $method->invoke( $sender, $normalized );
+
+		// Should contain warning emoji and label.
+		$this->assertStringContainsString( '⚠️', $body );
+		$this->assertStringContainsString( 'Warning', $body );
+	}
+
+	/**
+	 * Test Email body includes View history link.
+	 */
+	public function test_email_body_includes_view_history_link(): void {
+		$sender = new Email_Destination_Sender();
+
+		$method = new ReflectionMethod( $sender, 'build_body' );
+		$method->setAccessible( true );
+
+		$normalized = [
+			'site_name'   => 'Test Site',
+			'site_url'    => 'https://example.com',
+			'user_id'     => 0,
+			'user_login'  => '',
+			'user_email'  => '',
+			'initiator'   => 'wp',
+			'date_human'  => 'January 8, 2026',
+			'level'       => 'info',
+			'message'     => 'Test message',
+		];
+
+		$body = $method->invoke( $sender, $normalized );
+
+		$this->assertStringContainsString( 'View history:', $body );
+	}
+
+	/**
+	 * Test Email is sent as plain text.
+	 */
+	public function test_email_sent_as_plain_text(): void {
+		$sender        = new Email_Destination_Sender();
+		$captured_args = null;
+
+		// Hook into wp_mail to capture arguments.
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$captured_args ) {
+				$captured_args = $args;
+				// Return empty to prevent actual sending.
+				return $args;
+			}
+		);
+
+		$config = [
+			'config' => [
+				'recipients' => 'test@example.com',
+			],
+		];
+
+		$test_data = $sender->get_test_event_data();
+		$sender->send( $config, $test_data['event_data'], $test_data['context'] );
+
+		$this->assertNotNull( $captured_args );
+		$this->assertIsArray( $captured_args['headers'] );
+
+		// Check for plain text content type.
+		$has_plain_text = false;
+		foreach ( $captured_args['headers'] as $header ) {
+			if ( stripos( $header, 'text/plain' ) !== false ) {
+				$has_plain_text = true;
+				break;
+			}
+		}
+		$this->assertTrue( $has_plain_text, 'Email should be sent as plain text' );
+	}
+
 	// =========================================================================
 	// Slack Destination Sender Tests
 	// =========================================================================
