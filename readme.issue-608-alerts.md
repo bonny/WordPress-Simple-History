@@ -746,3 +746,37 @@ Hooks added in `class-wp-rest-destinations-controller.php` and `class-alerts-mod
 - `simple_history/alerts/rules_saved`
 
 **Commits:** (pending)
+
+### 2026-01-08: DRY Refactoring - Destination Senders
+
+Major code deduplication effort across destination senders and core plugin:
+
+**Core Plugin Changes:**
+
+Added to `Log_Levels` class (`inc/class-log-levels.php`):
+- `get_level_color($level)` - Returns hex color codes for log levels
+- `get_level_emoji($level)` - Returns emoji characters for log levels
+
+**Premium Plugin Changes:**
+
+Refactored `Destination_Sender` base class to use core methods:
+- `get_level_color()` → delegates to `Log_Levels::get_level_color()`
+- `get_level_label()` → delegates to `Log_Levels::get_log_level_translated()`
+- `get_level_emoji()` → delegates to `Log_Levels::get_level_emoji()`
+- Added `get_initiator_text()` helper → delegates to `Log_Initiators::get_initiator_text_from_row()`
+- `format_message()` → now uses `Helpers::interpolate()`
+- Moved `get_webhook_url()` from Slack/Discord to base class
+
+Refactored individual destination senders:
+- Slack, Discord, Telegram now use shared `get_initiator_text()` helper
+- Removed duplicate `Log_Initiators` imports
+- Telegram: Replaced custom `escape_html()` with WordPress `esc_html()`
+
+**Results:**
+- ~117 lines of duplicate code removed
+- Single source of truth for level colors, emojis, and labels
+- Consistent initiator formatting across all destinations
+- Better alignment with WordPress coding standards
+
+**Commits (core):** `c71e1ede`
+**Commits (premium):** `d220df7`, `a53e841`, `75fb4e8`, `14d7902`
