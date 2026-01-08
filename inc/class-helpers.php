@@ -2289,4 +2289,37 @@ class Helpers {
 
 		return add_query_arg( $params, $url );
 	}
+
+	/**
+	 * Sanitize an error message for storage and display.
+	 *
+	 * Strips HTML tags, decodes HTML entities, normalizes whitespace,
+	 * and truncates to a reasonable length. Useful for cleaning up
+	 * error messages that may contain HTML (like WordPress database errors).
+	 *
+	 * @since 5.6.0
+	 * @param string $message    The raw error message.
+	 * @param int    $max_length Maximum length before truncation. Default 500.
+	 * @return string The sanitized error message.
+	 */
+	public static function sanitize_error_message( $message, $max_length = 500 ) {
+		// Strip HTML tags.
+		$clean = wp_strip_all_tags( $message );
+
+		// Decode HTML entities.
+		$clean = html_entity_decode( $clean, ENT_QUOTES, 'UTF-8' );
+
+		// Normalize whitespace (collapse multiple spaces/newlines to single space).
+		$clean = preg_replace( '/\s+/', ' ', $clean );
+
+		// Trim whitespace.
+		$clean = trim( $clean );
+
+		// Truncate to reasonable length.
+		if ( strlen( $clean ) > $max_length ) {
+			$clean = substr( $clean, 0, $max_length - 3 ) . '...';
+		}
+
+		return $clean;
+	}
 }
