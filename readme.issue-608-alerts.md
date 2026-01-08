@@ -9,7 +9,7 @@
 
 - Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!
 - are events sent to email etc. synchronous or asynchronous? performance?
--  Research: How to implement async processing via Action Scheduler or WP Cron for production sites with high event volume.
+- Research: How to implement async processing via Action Scheduler or WP Cron for production sites with high event volume.
 - slack messages: work, but how can we make them look awesome and useful!??
 
 
