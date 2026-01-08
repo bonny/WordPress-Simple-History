@@ -772,11 +772,23 @@ Refactored individual destination senders:
 - Removed duplicate `Log_Initiators` imports
 - Telegram: Replaced custom `escape_html()` with WordPress `esc_html()`
 
+Added to `Helpers` class (`inc/class-helpers.php`):
+- `sanitize_error_message($message, $max_length)` - Strips HTML, decodes entities, normalizes whitespace, truncates
+
+Refactored tracking traits to use core method:
+- `Channel_Error_Tracking_Trait::sanitize_error_message()` → delegates to `Helpers::sanitize_error_message()` with 500 char limit
+- `Destination_Tracking_Trait::sanitize_error_message()` → delegates to `Helpers::sanitize_error_message()` with 300 char limit
+
 **Results:**
-- ~117 lines of duplicate code removed
-- Single source of truth for level colors, emojis, and labels
+- ~150+ lines of duplicate code removed
+- Single source of truth for level colors, emojis, labels, and error sanitization
 - Consistent initiator formatting across all destinations
 - Better alignment with WordPress coding standards
 
-**Commits (core):** `c71e1ede`
-**Commits (premium):** `d220df7`, `a53e841`, `75fb4e8`, `14d7902`
+Removed pure wrapper methods from `Destination_Sender`:
+- `get_level_color()` - callers now use `Log_Levels::get_level_color()` directly
+- `get_level_emoji()` - callers now use `Log_Levels::get_level_emoji()` directly
+- Kept `get_level_label()` - provides case normalization (`ucfirst(strtolower())`)
+
+**Commits (core):** `c71e1ede`, `e8306da5`
+**Commits (premium):** `d220df7`, `a53e841`, `75fb4e8`, `14d7902`, `67bab5a`, `444bd60`
