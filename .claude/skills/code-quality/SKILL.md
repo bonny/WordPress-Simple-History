@@ -119,6 +119,59 @@ Don't implement functionality until it's actually needed. Avoid:
 
 **Together**: DRY says extract when you have real duplication. YAGNI says wait until you actually need it. Three similar lines of code is often better than a premature abstraction.
 
+### Readable Code - Code Should Read Like Well-Written Prose
+
+Good code should be self-documenting. When you read a function, its intent should be clear without needing comments to explain what it does.
+
+**Techniques:**
+
+1. **Extract well-named methods** - Replace inline logic with descriptive method calls:
+   ```php
+   // BEFORE: What does this do?
+   foreach ( $preset_settings as $preset_id => $settings ) {
+       if ( ! empty( $settings['enabled'] ) && ! empty( $settings['destinations'] ) ) {
+           $enabled_rules[] = [ 'preset' => $preset_id, 'destinations' => $settings['destinations'] ];
+       }
+   }
+
+   // AFTER: Intent is clear from method name
+   $enabled_rules = $this->get_enabled_rules( $preset_settings, $custom_rules );
+   ```
+
+2. **Use array destructuring** for multiple return values:
+   ```php
+   // Clean and expressive
+   [ $destinations, $preset_settings, $custom_rules ] = $this->get_alert_options();
+   ```
+
+3. **Structure methods as a story** - Each line should follow logically:
+   ```php
+   public function process_logged_event( $context, $data, $logger ) {
+       [ $destinations, $preset_settings, $custom_rules ] = $this->get_alert_options();
+
+       if ( empty( $destinations ) ) {
+           return;
+       }
+
+       $enabled_rules = $this->get_enabled_rules( $preset_settings, $custom_rules );
+
+       if ( empty( $enabled_rules ) ) {
+           return;
+       }
+
+       foreach ( $enabled_rules as $rule ) {
+           if ( $this->rule_matches_event( $rule, $context, $data ) ) {
+               $this->send_alerts( $rule, $context, $data, $destinations );
+           }
+       }
+   }
+   // Reads like: "Get options. If no destinations, stop. Get enabled rules. If none, stop. For each rule that matches, send alerts."
+   ```
+
+4. **Method names should describe the "what", not the "how"**:
+   - `get_enabled_rules()` not `loop_and_filter_rules()`
+   - `send_alerts()` not `iterate_destinations_and_post()`
+
 ### Proactive DRY Review
 
 When creating new classes (CLI commands, REST controllers, etc.) that work with existing functionality:
