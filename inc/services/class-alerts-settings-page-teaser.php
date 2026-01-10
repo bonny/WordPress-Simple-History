@@ -149,10 +149,16 @@ class Alerts_Settings_Page_Teaser extends Service {
 		$destination_types   = $this->get_destination_type_definitions();
 		$sample_destinations = $this->get_sample_destinations();
 		?>
-		<div class="sh-SettingsSectionIntroduction">
-			<p>
-				<?php esc_html_e( 'Configure where your alerts will be sent. Add multiple destinations and reuse them across different alert rules.', 'simple-history' ); ?>
-			</p>
+		<div class="sh-SettingsCard sh-SettingsCard--intro">
+			<div class="sh-CardHeader">
+				<span class="dashicons dashicons-megaphone" aria-hidden="true"></span>
+				<div class="sh-CardHeader-content">
+					<strong><?php esc_html_e( 'Alert Destinations', 'simple-history' ); ?></strong>
+					<span class="sh-CardHeader-description">
+						<?php esc_html_e( 'Configure where your alerts will be sent. Add multiple destinations and reuse them across different alert rules.', 'simple-history' ); ?>
+					</span>
+				</div>
+			</div>
 		</div>
 
 		<div class="sh-Destinations">
@@ -252,15 +258,20 @@ class Alerts_Settings_Page_Teaser extends Service {
 		$destination_types   = $this->get_destination_type_definitions();
 		$sample_destinations = $this->get_sample_destinations();
 		?>
-		<div class="sh-SettingsSectionIntroduction">
-			<p>
-				<?php esc_html_e( 'Define when to send alerts. Use pre-built presets for quick setup or create custom rules for advanced filtering.', 'simple-history' ); ?>
-			</p>
+		<div class="sh-SettingsCard sh-SettingsCard--intro">
+			<div class="sh-CardHeader">
+				<span class="dashicons dashicons-bell" aria-hidden="true"></span>
+				<div class="sh-CardHeader-content">
+					<strong><?php esc_html_e( 'Alert Rules', 'simple-history' ); ?></strong>
+					<span class="sh-CardHeader-description">
+						<?php esc_html_e( 'Define when to send alerts. Use pre-built presets for quick setup or create custom rules for advanced filtering.', 'simple-history' ); ?>
+					</span>
+				</div>
+			</div>
 		</div>
 
 		<div class="sh-AlertPresets">
 			<h3 class="sh-AlertPresets-title">
-				<span class="dashicons dashicons-controls-volumeon"></span>
 				<?php esc_html_e( 'Quick Setup', 'simple-history' ); ?>
 			</h3>
 			<p class="sh-AlertPresets-description">
