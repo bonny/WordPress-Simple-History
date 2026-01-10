@@ -5,63 +5,6 @@
 **Labels:** Feature, Size: Large
 **Branch:** `issue-608-alerts`
 
-## Table of Contents
-
-- [Issue #608: Alerts \& Notifications](#issue-608-alerts--notifications)
-  - [Table of Contents](#table-of-contents)
-  - [Review and comments from human developer](#review-and-comments-from-human-developer)
-  - [Scope Clarification](#scope-clarification)
-  - [Problem Description](#problem-description)
-  - [Key Difference: Channels vs Alerts](#key-difference-channels-vs-alerts)
-  - [What Needs to Be Built](#what-needs-to-be-built)
-    - [1. Alert Destinations (Premium)](#1-alert-destinations-premium)
-      - [Competitor Channel Support](#competitor-channel-support)
-      - [Integration Complexity (Verified Dec 2025)](#integration-complexity-verified-dec-2025)
-      - [Prioritized Channel List](#prioritized-channel-list)
-    - [2. Alert Rules UX (Premium)](#2-alert-rules-ux-premium)
-      - [Tier 1: One-Click Presets (80% of users)](#tier-1-one-click-presets-80-of-users)
-      - [Tier 2: Editable Presets (15% of users)](#tier-2-editable-presets-15-of-users)
-      - [Tier 3: Custom Rules (5% of power users)](#tier-3-custom-rules-5-of-power-users)
-      - ["Create from Event" (Gmail pattern)](#create-from-event-gmail-pattern)
-      - [Technical Note](#technical-note)
-      - [Implementation Order](#implementation-order)
-  - [Destinations Architecture](#destinations-architecture)
-    - [The Problem](#the-problem)
-    - [Recommendation: Destinations as First-Class Entities](#recommendation-destinations-as-first-class-entities)
-    - [Destinations UI](#destinations-ui)
-    - [Alerts Reference Destinations](#alerts-reference-destinations)
-    - [Per-Channel Credential Requirements](#per-channel-credential-requirements)
-    - [Technical Storage](#technical-storage)
-  - [Class Architecture](#class-architecture)
-  - [Existing Foundation](#existing-foundation)
-  - [Implementation Plan](#implementation-plan)
-    - [Phase 1: MVP (4 channels - all easy)](#phase-1-mvp-4-channels---all-easy)
-    - [Phase 2: Teams + Polish](#phase-2-teams--polish)
-    - [Phase 3: Enterprise/Niche](#phase-3-enterpriseniche)
-  - [Settings Page Structure](#settings-page-structure)
-    - [UX Research Summary](#ux-research-summary)
-    - [Recommended: Two-Subtab Approach](#recommended-two-subtab-approach)
-    - [Destinations Subtab](#destinations-subtab)
-    - [Alert Rules Subtab](#alert-rules-subtab)
-  - [Core/Premium Code Split](#corepremium-code-split)
-    - [WordPress.org Compliance](#wordpressorg-compliance)
-    - [What Goes Where](#what-goes-where)
-    - [Core Plugin Files](#core-plugin-files)
-    - [Premium Plugin Files](#premium-plugin-files)
-    - [How Premium Replaces Core Teaser](#how-premium-replaces-core-teaser)
-  - [Progress Log](#progress-log)
-    - [2026-01-02: Alert Rules UX Polish](#2026-01-02-alert-rules-ux-polish)
-    - [2026-01-01: Alert Rules UI Implementation](#2026-01-01-alert-rules-ui-implementation)
-    - [2025-12-30: Code Quality Fixes](#2025-12-30-code-quality-fixes)
-    - [2025-12-29: Destinations UI Polish](#2025-12-29-destinations-ui-polish)
-    - [Status Summary](#status-summary)
-  - [Phase 2: Future Improvements](#phase-2-future-improvements)
-    - [Enhanced Alert Message Context](#enhanced-alert-message-context)
-  - [Related Issues](#related-issues)
-    - [2026-01-04: Review Questions Addressed](#2026-01-04-review-questions-addressed)
-    - [2026-01-08: DRY Refactoring - Destination Senders](#2026-01-08-dry-refactoring---destination-senders)
-    - [2026-01-10: Alert Performance \& Code Quality](#2026-01-10-alert-performance--code-quality)
-
 ## Review and comments from human developer
 
 - Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!
@@ -631,102 +574,36 @@ Core teaser checks this filter and skips registration if premium is active.
 
 ## Progress Log
 
-### 2026-01-02: Alert Rules UX Polish
+### 2026-01-01/02: Alert Rules UI
 
-Further UX improvements to the preset alert rules interface:
+Implemented Tier 1 preset-based alert rules UI with UX polish:
+- Simplified preset cards matching Destinations styling
+- Destinations grouped by type with icons and status indicators
+- Email recipients shown with envelope icon + count badge (tooltip shows addresses)
+- "+" quick-add links navigate to Destinations tab with anchor highlighting
+- CSS tooltips, proper status positioning, various bug fixes
 
-**Discoverability improvements:**
-- Show all destination types even when empty (displays "None configured" placeholder)
-- Added "+" quick-add links next to each destination type header
-- "+" links navigate to Destinations tab with `#destination-{type}` anchor
-- CSS `:target` rule highlights destination section in yellow when navigated to
-- Added `scroll-margin-top: 2rem` for better scroll positioning
+### 2025-12-29/30: Destinations UI & Code Quality
 
-**Tooltip improvements:**
-- Changed from native `title` attribute to CSS-based tooltips (fixed double-tooltip issue)
-- Tooltips now centered with `white-space: nowrap` for single-line display
-- Success status icons now show "Last successful send" tooltip (was missing before)
-
-**Email recipients display:**
-- Replaced `(5)` count with envelope icon + badge showing recipient count
-- Added tooltip on hover showing actual email addresses
-- Truncates to first 5 emails with "+X more" if many recipients
-
-**Status icon positioning:**
-- Changed from `margin-left: auto` (far right) to `margin-left: 6px` (inline after item name)
-- Cleaner visual association between item and its status
-
-**Commits:** `104b28f`, `8e16ed4`
-
-### 2026-01-01: Alert Rules UI Implementation
-
-Implemented the Quick Setup (Tier 1) preset-based alert rules UI:
-
-**Major changes:**
-- Simplified preset cards to match Destinations card styling
-- Removed header checkbox - enabled state now derived from selected destinations
-- Group destinations by type (Email, Slack, Discord, Telegram) with column headers
-- Show email recipient count in parentheses for clarity
-- Status indicators (✓/!) only shown for selected destinations (errors always visible)
-- Removed visual noise (badge, blue enabled border)
-- Clear tooltips: "Last successful send" and "Last error X ago: message"
-
-**Bug fixes:**
-- Fixed save bug: validate destination IDs without lowercasing (preserves UUID format)
-- Fixed enabled checkbox defaulting to true when unchecked
-- Fixed text domain to `simple-history-add-on` throughout
-
-**Additional UX polish (uncommitted):**
-- Added help cursor to status indicator tooltips
-- Added icons (Email, Slack, Discord, Telegram) before column headers
-- Increased vertical spacing between destination items
-- Removed selected background color (standard WordPress checkbox pattern)
-
-**Commits:** `5336c89`
-
-### 2025-12-30: Code Quality Fixes
-
-Fixed phpcs and phpstan issues in premium plugin:
-- Replaced alternative syntax (`if():...endif;`) with curly braces in email destination sender
-- Replaced short ternary (`?:`) with full ternary in HTTP channel trait
-- Fixed `Destination_Sender` namespace import in alerts module
-- Fixed variable alignment for consistency
-
-**Commits:** `28dbca1`
-
-### 2025-12-29: Destinations UI Polish
-
-Improved the destinations table UX with multiple fixes:
-- Fixed delete confirmation showing empty destination name
-- Removed unused "Save Destinations" button
-- Added destination tracking for alert send success/failure (shows last status in table)
-- Improved test button feedback UX with loading states
-- Prevented multiple modals from opening on double-click
-- Fixed button icon alignment
-- Normalized email recipients format on save
-- Used WordPress table patterns for consistent look
-
-**Commits:** `27cefc0`, `ca0ad79`, `6e1f961`, `aae2878`, `cb4804b`, `6ed3a90`, `a8b0cd6`, `ffd74dd`, `19641c5`, `69ac638`, `1d2f9f3`, `83627d8`, `c0841e8`
+Destinations table UX improvements and phpcs/phpstan fixes:
+- Send tracking (success/failure status per destination)
+- Test button with loading states, delete confirmation fix
+- WordPress table patterns, button icon alignment
+- Code style fixes (curly braces, ternaries, namespaces)
 
 ### Status Summary
 
 **Completed:**
-- ✅ Destinations architecture and storage
-- ✅ Email destination sender
-- ✅ Slack destination sender
-- ✅ Discord destination sender
-- ✅ Telegram destination sender
-- ✅ Destinations REST API
-- ✅ Destinations settings page UI
-- ✅ Test button for each destination
-- ✅ Send tracking (success/failure status)
+- ✅ Destinations (architecture, storage, REST API, settings UI)
+- ✅ All 4 destination senders (Email, Slack, Discord, Telegram)
+- ✅ Send tracking, test buttons, WP CLI commands
 - ✅ Alert presets UI (Tier 1 quick setup)
 - ✅ Alert rules saving and evaluation
-- ✅ WP CLI commands for destinations and rules
 - ✅ Event logging when destinations/rules are saved
+- ✅ `get_details_text()` for enhanced alert context
 
 **Not Started:**
-- ⏳ Editable presets (Tier 2 - toggle specific events)
+- ⏳ Editable presets (Tier 2)
 - ⏳ Custom rules builder (Tier 3)
 - ⏳ "Create alert from event" feature
 
@@ -736,263 +613,50 @@ Features planned for after MVP release.
 
 ### Enhanced Alert Message Context
 
-**Status:** Planned for Phase 2
+**Status:** Foundation complete (`get_details_text()` added), integration pending
 **Priority:** High
-**Effort:** Medium
 
-Current alert messages lack detail about *what* changed. For example, "Edited profile for user abc" doesn't indicate whether it was a critical role change or a simple first name update.
+Alert messages now have access to detailed context via `Event::get_details_text()` which converts HTML event details (diffs, changes) to plain text. Destinations can include this in alert messages.
 
-**Problem:**
-- Recipients cannot assess risk from the alert alone
-- Every alert requires manual investigation
-- Role change vs first name change have very different security implications
-
-**Recommended Enhancement:**
-
-| Change Type | Current Message | Enhanced Message |
-|-------------|-----------------|------------------|
-| Role change | "Edited profile for user abc" | "Role changed from Editor to Administrator for user abc" |
-| Email change | "Edited profile for user abc" | "Email changed from old@site.com → new@site.com for user abc" |
-| Password reset | "Edited profile for user abc" | "Password reset by admin_user for user abc" |
-| Cosmetic changes | "Edited profile for user abc" | "Profile updated for user abc: First name, Display name" |
-
-**Implementation Approach:**
-
-1. **Tiered detail based on security impact:**
-   - **Critical** (role, permissions, email): Show old → new values
-   - **High** (password, username): Show who initiated
-   - **Low** (first name, bio): Group as "cosmetic fields changed"
-
-2. **Technical requirements:**
-   - Store `changed_fields` array in event context
-   - Store `field_changes` with old/new values for security-relevant fields
-   - Add `security_level` classification to event types
-   - Support different message templates for log vs alert
-
-3. **UX principles:**
-   - Front-load critical info (first 5 words should convey severity)
-   - Use directional language: "Editor → Administrator"
-   - Include both username AND email for unambiguous identification
-   - Differentiate self-changes from admin-initiated changes
-
-**Research source:** UX design expert analysis (2026-01-10)
+**Remaining work:**
+- Update destination senders to include `get_details_text()` output in messages
+- Consider per-event-type formatting (critical changes get full detail, cosmetic changes summarized)
 
 ## Related Issues
 
 -   #573 (Log Forwarding - completed, channels infrastructure)
 -   #209, #114, #366 (Original alert requests)
 
+---
+
+## Detailed Progress Log (Chronological)
 
 ### 2026-01-04: Review Questions Addressed
 
-**1. WP CLI Commands: ✅ Implemented**
+- WP CLI commands added (`class-wp-cli-alerts-command.php`)
+- Destination descriptions updated to be more helpful
+- Event logging implemented (`class-alerts-logger.php`) for destination/rule changes
 
-Created `class-wp-cli-alerts-command.php` with the following commands:
+### 2026-01-08: DRY Refactoring
 
-```bash
-# Destinations
-wp simple-history alerts destinations list [--type=<type>] [--format=<format>]
-wp simple-history alerts destinations get <id> [--format=<format>]
-wp simple-history alerts destinations test <id>
-wp simple-history alerts destinations delete <id> [--yes]
+Code deduplication (~150 lines removed):
+- Added `Log_Levels::get_level_color()` and `get_level_emoji()` to core
+- Added `Helpers::sanitize_error_message()` to core
+- Refactored destination senders to use shared methods
+- Single source of truth for level colors, emojis, labels, error sanitization
 
-# Alert Rules
-wp simple-history alerts rules list [--format=<format>]
-wp simple-history alerts rules enable <preset> [--destinations=<ids>]
-wp simple-history alerts rules disable <preset>
-```
+### 2026-01-10: Performance & Code Quality
 
-**2. Destination Descriptions: ✅ Updated**
+- Fixed destination tracking reset bug (sanitize callback was stripping `tracking` key)
+- Batched option reads with `get_options()` (WP 6.4+) - 3 DB queries → 1
+- Removed unused `_version` metadata (~53 lines)
+- Extracted methods from `process_logged_event()` for readability
+- Added 'Readable Code' principle to code quality guidelines
 
-Changed from redundant descriptions to more helpful copy:
+### 2026-01-10: WordPress.org Compliance
 
-| Type     | Before                           | After                                   |
-|----------|----------------------------------|-----------------------------------------|
-| Email    | "Send alerts to email addresses" | "Configure email recipients for alerts" |
-| Slack    | "Post alerts to Slack channels"  | "Configure Slack webhooks for alerts"   |
-| Discord  | "Send alerts to Discord channels"| "Configure Discord webhooks for alerts" |
-| Telegram | "Send alerts via Telegram bot"   | "Configure Telegram bot for alerts"     |
+Moved alert engine classes (JsonLogic, evaluator, field registry) from core to premium.
 
-**3. Success/Fail Results Storage: Already documented**
+### 2026-01-10: Enhanced Alert Context
 
-Stored in `tracking` key within each destination in the `simple_history_alert_destinations` wp_option:
-
-```php
-$tracking = [
-    'last_success'  => 0,        // Unix timestamp
-    'last_error'    => [
-        'message' => '...',
-        'code'    => 0,          // HTTP status code
-        'time'    => 0,          // Unix timestamp
-    ],
-    'success_count' => 0,
-    'error_count'   => 0,
-];
-```
-
-**4. Event Logging on Save: ✅ Implemented**
-
-Created `class-alerts-logger.php` that logs:
-
-- **Destinations:**
-  - "Added alert destination "{name}" ({type})"
-  - "Updated alert destination "{name}""
-  - "Deleted alert destination "{name}" ({type})"
-
-- **Alert Rules:**
-  - "Enabled alert rule "{name}""
-  - "Disabled alert rule "{name}""
-  - "Updated alert rule "{name}""
-
-Hooks added in `class-wp-rest-destinations-controller.php` and `class-alerts-module.php`:
-- `simple_history/alerts/destination_created`
-- `simple_history/alerts/destination_updated`
-- `simple_history/alerts/destination_deleted`
-- `simple_history/alerts/rules_saved`
-
-**Commits:** (pending)
-
-### 2026-01-08: DRY Refactoring - Destination Senders
-
-Major code deduplication effort across destination senders and core plugin:
-
-**Core Plugin Changes:**
-
-Added to `Log_Levels` class (`inc/class-log-levels.php`):
-- `get_level_color($level)` - Returns hex color codes for log levels
-- `get_level_emoji($level)` - Returns emoji characters for log levels
-
-**Premium Plugin Changes:**
-
-Refactored `Destination_Sender` base class to use core methods:
-- `get_level_color()` → delegates to `Log_Levels::get_level_color()`
-- `get_level_label()` → delegates to `Log_Levels::get_log_level_translated()`
-- `get_level_emoji()` → delegates to `Log_Levels::get_level_emoji()`
-- Added `get_initiator_text()` helper → delegates to `Log_Initiators::get_initiator_text_from_row()`
-- `format_message()` → now uses `Helpers::interpolate()`
-- Moved `get_webhook_url()` from Slack/Discord to base class
-
-Refactored individual destination senders:
-- Slack, Discord, Telegram now use shared `get_initiator_text()` helper
-- Removed duplicate `Log_Initiators` imports
-- Telegram: Replaced custom `escape_html()` with WordPress `esc_html()`
-
-Added to `Helpers` class (`inc/class-helpers.php`):
-- `sanitize_error_message($message, $max_length)` - Strips HTML, decodes entities, normalizes whitespace, truncates
-
-Refactored tracking traits to use core method:
-- `Channel_Error_Tracking_Trait::sanitize_error_message()` → delegates to `Helpers::sanitize_error_message()` with 500 char limit
-- `Destination_Tracking_Trait::sanitize_error_message()` → delegates to `Helpers::sanitize_error_message()` with 300 char limit
-
-**Results:**
-- ~150+ lines of duplicate code removed
-- Single source of truth for level colors, emojis, labels, and error sanitization
-- Consistent initiator formatting across all destinations
-- Better alignment with WordPress coding standards
-
-Removed pure wrapper methods from `Destination_Sender`:
-- `get_level_color()` - callers now use `Log_Levels::get_level_color()` directly
-- `get_level_emoji()` - callers now use `Log_Levels::get_level_emoji()` directly
-- Kept `get_level_label()` - provides case normalization (`ucfirst(strtolower())`)
-
-**Commits (core):** `c71e1ede`, `e8306da5`
-**Commits (premium):** `d220df7`, `a53e841`, `75fb4e8`, `14d7902`, `67bab5a`, `444bd60`
-
-### 2026-01-10: Alert Performance & Code Quality
-
-**Bug Fix: Destination tracking reset**
-
-Fixed a bug where destination tracking (last_success, error_count, etc.) was being reset to "Never used" after working correctly. Root cause: `sanitize_destinations()` callback (registered via `register_setting()`) was stripping the `tracking` key when called during `update_option()` in admin context.
-
-**Commits (premium):** `aa2c061`
-
-**Performance: Batched option reads**
-
-Optimized `process_logged_event()` to use `get_options()` (WordPress 6.4+) for loading all alert options in a single DB query instead of three separate queries:
-
-| Before | After |
-|--------|-------|
-| 3 `get_option()` calls | 1 `get_options()` call |
-| 3 DB queries per event | 1 DB query per event |
-
-Falls back to individual calls on WP < 6.4 for backward compatibility.
-
-**Commits (premium):** `e59be49`
-
-**Cleanup: Removed unused `_version` metadata**
-
-Removed schema versioning system that was never used (all versions were 1, no migration code existed):
-- Removed VERSION constants
-- Removed `_version` key handling in save/read/sanitize functions
-- ~53 lines removed with no functional change
-
-**Commits (premium):** `e2ea292`
-
-**Refactoring: Readable code improvements**
-
-Extracted methods from `process_logged_event()` to make it read like documentation:
-
-```php
-// Before: ~50 lines with inline logic
-// After: 18 lines that read like a story
-public function process_logged_event( $context, $data, $logger ) {
-    [ $destinations, $preset_settings, $custom_rules ] = $this->get_alert_options();
-
-    if ( empty( $destinations ) ) {
-        return;
-    }
-
-    $enabled_rules = $this->get_enabled_rules( $preset_settings, $custom_rules );
-
-    if ( empty( $enabled_rules ) ) {
-        return;
-    }
-
-    foreach ( $enabled_rules as $rule ) {
-        if ( $this->rule_matches_event( $rule, $context, $data ) ) {
-            $this->send_alerts( $rule, $context, $data, $destinations );
-        }
-    }
-}
-```
-
-New extracted methods:
-- `get_alert_options()` - Batched option loading with WP 6.4 compatibility
-- `get_enabled_rules()` - Builds list of enabled rules from presets and custom rules
-
-Uses PHP 7.1+ array destructuring for clean multiple return values.
-
-**Commits (premium):** `d347330`, `30c1e38`
-
-**Documentation: Added 'Readable Code' design principle**
-
-Added new section to code quality guidelines (`.claude/skills/code-quality/SKILL.md`) explaining that code should read like well-written prose, with techniques:
-1. Extract well-named methods
-2. Use array destructuring
-3. Structure methods as a story
-4. Name methods for "what" not "how"
-
-**Commits (core):** `7f8199f4`
-
-### 2026-01-10: WordPress.org Compliance - Move Alert Classes to Premium
-
-Moved alert engine classes from core plugin to premium for cleaner WordPress.org compliance. These classes are for the Tier 3 custom rules feature (not yet implemented) and were unused in the free version.
-
-**Files moved to premium (`simple-history-premium/inc/alerts/`):**
-- `class-alert-evaluator.php` - JsonLogic wrapper for rule evaluation
-- `class-alert-field-registry.php` - Field definitions for rule builder UI
-- `class-alert-rules-engine.php` - Service facade for alert rules
-
-**Files moved to premium (`simple-history-premium/inc/libraries/`):**
-- `JsonLogic.php` - Third-party JsonLogic library
-
-**Core plugin changes:**
-- Removed unused `$rules_engine` property from `Channels_Manager`
-- Updated `Channel::should_send_event()` comment to reflect premium handles rule evaluation
-- Removed empty `inc/libraries/` directory
-
-**Namespace changes:**
-- Core: `Simple_History\Channels` → Premium: `Simple_History\AddOns\Pro\Alerts`
-- Text domain updated from `simple-history` to `simple-history-add-on`
-
-**Result:** Core plugin is smaller and matches the documented architecture where all alert functional code lives in premium.
+Added `Event::get_details_text()` for plain text event details in alerts. Hook `simple_history/log/inserted` now passes event ID via `$data['id']`.
