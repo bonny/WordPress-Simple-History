@@ -8,9 +8,9 @@
 ## Review and comments from human developer
 
 - Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!
-- are events sent to email etc. synchronous or asynchronous? performance?
 - Research: How to implement async processing via Action Scheduler or WP Cron for production sites with high event volume.
-- slack messages: work, but how can we make them look awesome and useful!??
+- Destinations could benefit from a column with info about what alert rules are sending to it?
+- Should we also add context to messages sent? Right now it only says "Edited profile for user abc" but it would be useful to also know that was changed, for example role changed? Just a first name change vs role change, it's very different!
 
 
 ## Scope Clarification
