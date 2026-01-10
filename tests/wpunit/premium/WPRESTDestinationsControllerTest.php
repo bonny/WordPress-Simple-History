@@ -666,22 +666,27 @@ class WPRESTDestinationsControllerTest extends PremiumTestCase {
 	public function test_tracking_data_included_in_response(): void {
 		wp_set_current_user( $this->admin_user_id );
 
-		// Create a destination with tracking data.
+		// Create a destination.
 		$destinations = [
 			'dest_tracking_test' => [
-				'type'     => 'email',
-				'name'     => 'Tracking Test',
-				'config'   => [
+				'type'   => 'email',
+				'name'   => 'Tracking Test',
+				'config' => [
 					'recipients' => 'track@example.com',
-				],
-				'tracking' => [
-					'last_success'  => time() - 3600,
-					'success_count' => 5,
-					'error_count'   => 1,
 				],
 			],
 		];
 		Alerts_Module::save_destinations( $destinations );
+
+		// Save tracking data separately (tracking is stored in its own option).
+		Alerts_Module::update_destination_tracking(
+			'dest_tracking_test',
+			[
+				'last_success'  => time() - 3600,
+				'success_count' => 5,
+				'error_count'   => 1,
+			]
+		);
 
 		$request  = new WP_REST_Request( 'GET', '/simple-history/v1/alerts/destinations/dest_tracking_test' );
 		$response = $this->server->dispatch( $request );

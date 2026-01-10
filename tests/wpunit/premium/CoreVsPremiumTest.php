@@ -25,7 +25,7 @@ class CoreVsPremiumTest extends PremiumTestCase {
 		$simple_history = \Simple_History\Simple_History::get_instance();
 		$alerts_logger  = $simple_history->get_instantiated_logger_by_slug( 'AlertsLogger' );
 
-		$this->assertNull( $alerts_logger, 'AlertsLogger should not be registered when premium is inactive.' );
+		$this->assertFalse( $alerts_logger, 'AlertsLogger should not be registered when premium is inactive.' );
 	}
 
 	/**
