@@ -5,6 +5,32 @@
 **Labels:** Feature, Size: Large
 **Branch:** `issue-608-alerts`
 
+## Table of Contents
+
+- [Review and comments from human developer](#review-and-comments-from-human-developer)
+- [Scope Clarification](#scope-clarification)
+- [Problem Description](#problem-description)
+- [Key Difference: Channels vs Alerts](#key-difference-channels-vs-alerts)
+- [What Needs to Be Built](#what-needs-to-be-built)
+  - [1. Alert Destinations (Premium)](#1-alert-destinations-premium)
+  - [2. Alert Rules UX (Premium)](#2-alert-rules-ux-premium)
+- [Destinations Architecture](#destinations-architecture)
+- [Class Architecture](#class-architecture)
+- [Existing Foundation](#existing-foundation)
+- [Implementation Plan](#implementation-plan)
+- [Settings Page Structure](#settings-page-structure)
+- [Core/Premium Code Split](#corepremium-code-split)
+- [Progress Log](#progress-log)
+  - [2026-01-10: Alert Performance & Code Quality](#2026-01-10-alert-performance--code-quality)
+  - [2026-01-08: DRY Refactoring - Destination Senders](#2026-01-08-dry-refactoring---destination-senders)
+  - [2026-01-04: Review Questions Addressed](#2026-01-04-review-questions-addressed)
+  - [2026-01-02: Alert Rules UX Polish](#2026-01-02-alert-rules-ux-polish)
+  - [2026-01-01: Alert Rules UI Implementation](#2026-01-01-alert-rules-ui-implementation)
+  - [2025-12-30: Code Quality Fixes](#2025-12-30-code-quality-fixes)
+  - [2025-12-29: Destinations UI Polish](#2025-12-29-destinations-ui-polish)
+  - [Status Summary](#status-summary)
+- [Related Issues](#related-issues)
+
 ## Review and comments from human developer
 
 - Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!
