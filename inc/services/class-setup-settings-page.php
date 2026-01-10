@@ -340,19 +340,23 @@ class Setup_Settings_Page extends Service {
 		];
 		?>
 		<fieldset>
-			<?php foreach ( $location_options as $option ) { ?>
+			<?php
+			foreach ( $location_options as $option ) {
+				?>
 				<label>
-					<input 
+					<input
 						type="radio"
 						name="<?php echo esc_attr( $option_slug ); ?>"
 						value="<?php echo esc_attr( $option['slug'] ); ?>"
 						<?php checked( $location === $option['slug'] ); ?>
 					/>
-					
+
 					<?php echo esc_html( $option['text'] ); ?>
 				</label>
 				<br />
-			<?php } ?>
+				<?php
+			}
+			?>
 		</fieldset>
 		<?php
 	}

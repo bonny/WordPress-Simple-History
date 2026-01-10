@@ -1844,20 +1844,30 @@ class Helpers {
 				<strong><?php echo esc_html( $title ); ?></strong>
 			</p>
 
-			<?php if ( is_array( $description ) ) { ?>
+			<?php
+			if ( is_array( $description ) ) {
+				?>
 				<ul class="sh-PremiumFeatureTeaser-features">
-					<?php foreach ( $description as $feature ) { ?>
+					<?php
+					foreach ( $description as $feature ) {
+						?>
 						<li>
 							<span class="dashicons dashicons-yes"></span>
 							<?php echo esc_html( $feature ); ?>
 						</li>
-					<?php } ?>
+						<?php
+					}
+					?>
 				</ul>
-			<?php } else { ?>
+				<?php
+			} else {
+				?>
 				<p>
 					<?php echo esc_html( $description ); ?>
 				</p>
-			<?php } ?>
+				<?php
+			}
+			?>
 
 			<p class="sh-PremiumFeatureTeaser-ctaLinkContainer">
 				<a href="<?php echo esc_url( $premium_url ); ?>"

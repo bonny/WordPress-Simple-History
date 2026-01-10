@@ -204,7 +204,9 @@ $args = wp_parse_args(
 						?>
 					</p>
 					
-					<?php if ( $show_main_core_stats ) { ?>
+					<?php
+					if ( $show_main_core_stats ) {
+						?>
 					<!-- Key Metrics Section -->
 					<div style="margin-bottom: 40px;">
 
@@ -466,8 +468,10 @@ $args = wp_parse_args(
 								<?php echo esc_html( number_format_i18n( $args['wordpress_updates'] ) ); ?>
 							</div>
 						</div>
-											
-						<?php } ?>
+
+						<?php
+					}
+					?>
 					</div>
 
 					<?php echo wp_kses_post( $content_after_core_stats ); ?>
