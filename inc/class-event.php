@@ -318,6 +318,99 @@ class Event {
 	}
 
 	/**
+	 * Get event details as plain text.
+	 *
+	 * Converts the HTML details output to readable plain text, suitable for
+	 * plain text emails, log files, Slack messages, and other text-based outputs.
+	 *
+	 * Handles common HTML structures:
+	 * - Tables are converted to "Label: Value" format
+	 * - Diff tables show changes clearly
+	 * - <ins>/<del> tags show changes as "old → new"
+	 * - Screen reader text is removed
+	 * - Multiple whitespace is normalized
+	 *
+	 * @return string Plain text formatted details, empty string if event doesn't exist or has no details.
+	 */
+	public function get_details_text(): string {
+		$html = $this->get_details_html();
+
+		if ( empty( $html ) ) {
+			return '';
+		}
+
+		// Remove screen reader text (used in diff tables).
+		$html = preg_replace( '/<span[^>]*class=[\'"]screen-reader-text[\'"][^>]*>.*?<\/span>/is', '', $html );
+
+		// Remove diff context rows (unchanged lines add noise in plain text).
+		$html = preg_replace( '/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-context[^"\']*[\'"][^>]*>.*?<\/td>\s*<td[^>]*>.*?<\/td>\s*<\/tr>/is', '', $html );
+
+		// Convert diff table rows (deleted/added) to "old → new" format.
+		$html = preg_replace_callback(
+			'/<tr[^>]*>\s*<td[^>]*class=[\'"][^"\']*diff-deletedline[^"\']*[\'"][^>]*>(.*?)<\/td>\s*<td[^>]*class=[\'"][^"\']*diff-addedline[^"\']*[\'"][^>]*>(.*?)<\/td>\s*<\/tr>/is',
+			function ( $matches ) {
+				$deleted = trim( wp_strip_all_tags( html_entity_decode( $matches[1], ENT_QUOTES, 'UTF-8' ) ) );
+				$added   = trim( wp_strip_all_tags( html_entity_decode( $matches[2], ENT_QUOTES, 'UTF-8' ) ) );
+				if ( empty( $deleted ) && empty( $added ) ) {
+					return '';
+				}
+				return $deleted . ' → ' . $added . "\n";
+			},
+			$html
+		);
+
+		// Convert <del>old</del><ins>new</ins> patterns to "old → new".
+		$html = preg_replace_callback(
+			'/<del[^>]*>(.*?)<\/del>\s*<ins[^>]*>(.*?)<\/ins>/is',
+			function ( $matches ) {
+				$deleted = trim( wp_strip_all_tags( $matches[1] ) );
+				$added   = trim( wp_strip_all_tags( $matches[2] ) );
+				return $deleted . ' → ' . $added;
+			},
+			$html
+		);
+
+		// Convert simple table rows to "Label: Value" format.
+		// Match <tr> containing <td>label</td><td>value</td>.
+		$html = preg_replace_callback(
+			'/<tr[^>]*>\s*<td[^>]*>(.*?)<\/td>\s*<td[^>]*>(.*?)<\/td>\s*<\/tr>/is',
+			function ( $matches ) {
+				$label = trim( wp_strip_all_tags( $matches[1] ) );
+				$value = trim( wp_strip_all_tags( $matches[2] ) );
+				if ( empty( $label ) && empty( $value ) ) {
+					return '';
+				}
+				if ( empty( $value ) ) {
+					return $label . "\n";
+				}
+				return $label . ': ' . $value . "\n";
+			},
+			$html
+		);
+
+		// Convert <br> and block elements to newlines.
+		$html = preg_replace( '/<br\s*\/?>/i', "\n", $html );
+		$html = preg_replace( '/<\/(p|div|tr|li)>/i', "\n", $html );
+
+		// Strip remaining HTML tags.
+		$text = wp_strip_all_tags( $html );
+
+		// Decode HTML entities.
+		$text = html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
+
+		// Normalize whitespace: collapse multiple spaces/tabs to single space.
+		$text = preg_replace( '/[ \t]+/', ' ', $text );
+
+		// Trim each line.
+		$lines = array_map( 'trim', explode( "\n", $text ) );
+
+		// Remove empty lines.
+		$lines = array_filter( $lines, fn( $line ) => $line !== '' );
+
+		return implode( "\n", $lines );
+	}
+
+	/**
 	 * Get event context.
 	 *
 	 * @return array Context data as key-value pairs, empty array if no context.

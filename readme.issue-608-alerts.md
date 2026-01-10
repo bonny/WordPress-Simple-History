@@ -7,36 +7,68 @@
 
 ## Table of Contents
 
-- [Review and comments from human developer](#review-and-comments-from-human-developer)
-- [Scope Clarification](#scope-clarification)
-- [Problem Description](#problem-description)
-- [Key Difference: Channels vs Alerts](#key-difference-channels-vs-alerts)
-- [What Needs to Be Built](#what-needs-to-be-built)
-  - [1. Alert Destinations (Premium)](#1-alert-destinations-premium)
-  - [2. Alert Rules UX (Premium)](#2-alert-rules-ux-premium)
-- [Destinations Architecture](#destinations-architecture)
-- [Class Architecture](#class-architecture)
-- [Existing Foundation](#existing-foundation)
-- [Implementation Plan](#implementation-plan)
-- [Settings Page Structure](#settings-page-structure)
-- [Core/Premium Code Split](#corepremium-code-split)
-- [Progress Log](#progress-log)
-  - [2026-01-10: Alert Performance & Code Quality](#2026-01-10-alert-performance--code-quality)
-  - [2026-01-08: DRY Refactoring - Destination Senders](#2026-01-08-dry-refactoring---destination-senders)
-  - [2026-01-04: Review Questions Addressed](#2026-01-04-review-questions-addressed)
-  - [2026-01-02: Alert Rules UX Polish](#2026-01-02-alert-rules-ux-polish)
-  - [2026-01-01: Alert Rules UI Implementation](#2026-01-01-alert-rules-ui-implementation)
-  - [2025-12-30: Code Quality Fixes](#2025-12-30-code-quality-fixes)
-  - [2025-12-29: Destinations UI Polish](#2025-12-29-destinations-ui-polish)
-  - [Status Summary](#status-summary)
-- [Related Issues](#related-issues)
+- [Issue #608: Alerts \& Notifications](#issue-608-alerts--notifications)
+  - [Table of Contents](#table-of-contents)
+  - [Review and comments from human developer](#review-and-comments-from-human-developer)
+  - [Scope Clarification](#scope-clarification)
+  - [Problem Description](#problem-description)
+  - [Key Difference: Channels vs Alerts](#key-difference-channels-vs-alerts)
+  - [What Needs to Be Built](#what-needs-to-be-built)
+    - [1. Alert Destinations (Premium)](#1-alert-destinations-premium)
+      - [Competitor Channel Support](#competitor-channel-support)
+      - [Integration Complexity (Verified Dec 2025)](#integration-complexity-verified-dec-2025)
+      - [Prioritized Channel List](#prioritized-channel-list)
+    - [2. Alert Rules UX (Premium)](#2-alert-rules-ux-premium)
+      - [Tier 1: One-Click Presets (80% of users)](#tier-1-one-click-presets-80-of-users)
+      - [Tier 2: Editable Presets (15% of users)](#tier-2-editable-presets-15-of-users)
+      - [Tier 3: Custom Rules (5% of power users)](#tier-3-custom-rules-5-of-power-users)
+      - ["Create from Event" (Gmail pattern)](#create-from-event-gmail-pattern)
+      - [Technical Note](#technical-note)
+      - [Implementation Order](#implementation-order)
+  - [Destinations Architecture](#destinations-architecture)
+    - [The Problem](#the-problem)
+    - [Recommendation: Destinations as First-Class Entities](#recommendation-destinations-as-first-class-entities)
+    - [Destinations UI](#destinations-ui)
+    - [Alerts Reference Destinations](#alerts-reference-destinations)
+    - [Per-Channel Credential Requirements](#per-channel-credential-requirements)
+    - [Technical Storage](#technical-storage)
+  - [Class Architecture](#class-architecture)
+  - [Existing Foundation](#existing-foundation)
+  - [Implementation Plan](#implementation-plan)
+    - [Phase 1: MVP (4 channels - all easy)](#phase-1-mvp-4-channels---all-easy)
+    - [Phase 2: Teams + Polish](#phase-2-teams--polish)
+    - [Phase 3: Enterprise/Niche](#phase-3-enterpriseniche)
+  - [Settings Page Structure](#settings-page-structure)
+    - [UX Research Summary](#ux-research-summary)
+    - [Recommended: Two-Subtab Approach](#recommended-two-subtab-approach)
+    - [Destinations Subtab](#destinations-subtab)
+    - [Alert Rules Subtab](#alert-rules-subtab)
+  - [Core/Premium Code Split](#corepremium-code-split)
+    - [WordPress.org Compliance](#wordpressorg-compliance)
+    - [What Goes Where](#what-goes-where)
+    - [Core Plugin Files](#core-plugin-files)
+    - [Premium Plugin Files](#premium-plugin-files)
+    - [How Premium Replaces Core Teaser](#how-premium-replaces-core-teaser)
+  - [Progress Log](#progress-log)
+    - [2026-01-02: Alert Rules UX Polish](#2026-01-02-alert-rules-ux-polish)
+    - [2026-01-01: Alert Rules UI Implementation](#2026-01-01-alert-rules-ui-implementation)
+    - [2025-12-30: Code Quality Fixes](#2025-12-30-code-quality-fixes)
+    - [2025-12-29: Destinations UI Polish](#2025-12-29-destinations-ui-polish)
+    - [Status Summary](#status-summary)
+  - [Phase 2: Future Improvements](#phase-2-future-improvements)
+    - [Enhanced Alert Message Context](#enhanced-alert-message-context)
+  - [Related Issues](#related-issues)
+    - [2026-01-04: Review Questions Addressed](#2026-01-04-review-questions-addressed)
+    - [2026-01-08: DRY Refactoring - Destination Senders](#2026-01-08-dry-refactoring---destination-senders)
+    - [2026-01-10: Alert Performance \& Code Quality](#2026-01-10-alert-performance--code-quality)
 
 ## Review and comments from human developer
 
 - Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!
 - Research: How to implement async processing via Action Scheduler or WP Cron for production sites with high event volume.
-- Destinations could benefit from a column with info about what alert rules are sending to it?
-- Should we also add context to messages sent? Right now it only says "Edited profile for user abc" but it would be useful to also know that was changed, for example role changed? Just a first name change vs role change, it's very different!
+- Destinations page, could each table benefit from a column with info about what alert rules are sending to it?
+- ~~Should we also add context to messages sent? Right now it only says "Edited profile for user abc" but it would be useful to also know that was changed, for example role changed? Just a first name change vs role change, it's very different!~~ → Documented in [Phase 2: Enhanced Alert Message Context](#enhanced-alert-message-context)
+- Promo in core uses completely differnt layout, it should preview the premium settings, including 2 tabs and all the fields. But non editable and no functionality of course.
 
 
 ## Scope Clarification
@@ -697,6 +729,53 @@ Improved the destinations table UX with multiple fixes:
 - ⏳ Editable presets (Tier 2 - toggle specific events)
 - ⏳ Custom rules builder (Tier 3)
 - ⏳ "Create alert from event" feature
+
+## Phase 2: Future Improvements
+
+Features planned for after MVP release.
+
+### Enhanced Alert Message Context
+
+**Status:** Planned for Phase 2
+**Priority:** High
+**Effort:** Medium
+
+Current alert messages lack detail about *what* changed. For example, "Edited profile for user abc" doesn't indicate whether it was a critical role change or a simple first name update.
+
+**Problem:**
+- Recipients cannot assess risk from the alert alone
+- Every alert requires manual investigation
+- Role change vs first name change have very different security implications
+
+**Recommended Enhancement:**
+
+| Change Type | Current Message | Enhanced Message |
+|-------------|-----------------|------------------|
+| Role change | "Edited profile for user abc" | "Role changed from Editor to Administrator for user abc" |
+| Email change | "Edited profile for user abc" | "Email changed from old@site.com → new@site.com for user abc" |
+| Password reset | "Edited profile for user abc" | "Password reset by admin_user for user abc" |
+| Cosmetic changes | "Edited profile for user abc" | "Profile updated for user abc: First name, Display name" |
+
+**Implementation Approach:**
+
+1. **Tiered detail based on security impact:**
+   - **Critical** (role, permissions, email): Show old → new values
+   - **High** (password, username): Show who initiated
+   - **Low** (first name, bio): Group as "cosmetic fields changed"
+
+2. **Technical requirements:**
+   - Store `changed_fields` array in event context
+   - Store `field_changes` with old/new values for security-relevant fields
+   - Add `security_level` classification to event types
+   - Support different message templates for log vs alert
+
+3. **UX principles:**
+   - Front-load critical info (first 5 words should convey severity)
+   - Use directional language: "Editor → Administrator"
+   - Include both username AND email for unambiguous identification
+   - Differentiate self-changes from admin-initiated changes
+
+**Research source:** UX design expert analysis (2026-01-10)
 
 ## Related Issues
 

@@ -1357,6 +1357,9 @@ abstract class Logger {
 
 			// Insert all context values into db.
 			$this->append_context( $history_inserted_id, $context );
+
+			// Add event ID to data array for hooks.
+			$data['id'] = $history_inserted_id;
 		}
 
 		$this->last_insert_id      = $history_inserted_id;
@@ -1371,7 +1374,8 @@ abstract class Logger {
 		 * @since 2.5.1
 		 *
 		 * @param array $context Array with all context data that was used to log event.
-		 * @param array $data_parent_row Array with data used for parent/main row.
+		 * @param array $data Array with data used for the event row, including 'id' (the event ID),
+		 *                    'logger', 'level', 'date', 'message', 'initiator', and 'occasionsID'.
 		 * @param Logger $instance Reference to this logger instance.
 		 */
 		do_action(
