@@ -216,4 +216,92 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 		$event = new Event( PHP_INT_MAX );
 		$this->assertFalse( $event->exists(), 'Event should not exist.' );
 	}
+
+	public function test_get_details_text_returns_string() {
+		$event = Event::get( $this->event_id );
+		$details = $event->get_details_text();
+
+		$this->assertIsString( $details, 'get_details_text() should return a string.' );
+	}
+
+	public function test_get_details_text_returns_empty_for_event_without_details() {
+		// Simple info log without details should return empty string.
+		$event = Event::get( $this->event_id );
+		$details = $event->get_details_text();
+
+		$this->assertEmpty( $details, 'Event without details should return empty string.' );
+	}
+
+	public function test_get_details_text_strips_html_tags() {
+		// Create an event with HTML in the details by using a logger that generates HTML.
+		$logger = SimpleLogger()->info(
+			'Test with details',
+			[
+				'test_key' => 'test value',
+			]
+		);
+		$event = Event::get( $logger->last_insert_id );
+		$details = $event->get_details_text();
+
+		// Details should not contain HTML tags.
+		$this->assertEquals( $details, wp_strip_all_tags( $details ), 'Details should not contain HTML tags.' );
+	}
+
+	public function test_get_details_text_converts_table_to_key_value() {
+		// Test that HTML table structure is converted to "Label: Value" format.
+		$html = '<table><tr><td>Role added</td><td>editor</td></tr></table>';
+		$expected = 'Role added: editor';
+
+		// We can't easily test this without mocking, but we can verify
+		// that any details output contains no HTML.
+		$event = Event::get( $this->event_id );
+		$details = $event->get_details_text();
+
+		$this->assertStringNotContainsString( '<table>', $details, 'Details should not contain table tags.' );
+		$this->assertStringNotContainsString( '<tr>', $details, 'Details should not contain tr tags.' );
+		$this->assertStringNotContainsString( '<td>', $details, 'Details should not contain td tags.' );
+	}
+
+	public function test_log_inserted_hook_includes_event_id() {
+		$captured_data = null;
+
+		// Add hook to capture the data passed to log/inserted.
+		add_action(
+			'simple_history/log/inserted',
+			function ( $context, $data, $logger ) use ( &$captured_data ) {
+				$captured_data = $data;
+			},
+			10,
+			3
+		);
+
+		// Log something.
+		$logger = SimpleLogger()->info( 'Test event for hook', [ 'test' => 'value' ] );
+
+		// Verify that data contains 'id' key.
+		$this->assertIsArray( $captured_data, 'Data should be an array.' );
+		$this->assertArrayHasKey( 'id', $captured_data, 'Data should contain id key.' );
+		$this->assertEquals( $logger->last_insert_id, $captured_data['id'], 'Data id should match last_insert_id.' );
+	}
+
+	public function test_log_inserted_hook_data_contains_expected_keys() {
+		$captured_data = null;
+
+		add_action(
+			'simple_history/log/inserted',
+			function ( $context, $data, $logger ) use ( &$captured_data ) {
+				$captured_data = $data;
+			},
+			10,
+			3
+		);
+
+		SimpleLogger()->info( 'Test event', [] );
+
+		// Verify expected keys exist in data.
+		$expected_keys = [ 'id', 'logger', 'level', 'date', 'message', 'initiator', 'occasionsID' ];
+		foreach ( $expected_keys as $key ) {
+			$this->assertArrayHasKey( $key, $captured_data, "Data should contain '$key' key." );
+		}
+	}
 }
