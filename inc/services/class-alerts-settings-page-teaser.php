@@ -76,6 +76,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 		?>
 		<div class="wrap sh-Page-content sh-AlertsTeaser-wrap">
 			<?php $this->render_tabs( $current_tab ); ?>
+			<?php $this->render_section_intro( $current_tab ); ?>
 			<?php $this->render_preview_banner(); ?>
 
 			<div class="sh-AlertsTeaser" inert aria-label="<?php esc_attr_e( 'Premium feature preview - not interactive', 'simple-history' ); ?>">
@@ -89,6 +90,39 @@ class Alerts_Settings_Page_Teaser extends Service {
 			</div>
 
 			<?php $this->render_upgrade_cta(); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the section intro card.
+	 *
+	 * Shows outside the inert wrapper so it remains fully visible.
+	 * Uses the same structure as Helpers::add_settings_section() for consistency.
+	 *
+	 * @param string $current_tab The currently active tab.
+	 */
+	private function render_section_intro( string $current_tab ) {
+		if ( 'destinations' === $current_tab ) {
+			$icon        = 'schedule_send';
+			$title       = __( 'Alert Destinations', 'simple-history' );
+			$description = __( 'Configure where your alerts will be sent. Add multiple destinations and reuse them across different alert rules.', 'simple-history' );
+		} else {
+			$icon        = 'filter_list';
+			$title       = __( 'Alert Rules', 'simple-history' );
+			$description = __( 'Define when to send alerts. Use pre-built presets for quick setup or create custom rules for advanced filtering.', 'simple-history' );
+		}
+		?>
+		<div class="sh-SettingsCard sh-SettingsPage-settingsSection-wrap">
+			<h2>
+				<span class="sh-SettingsPage-settingsSection-title">
+					<span class="sh-SettingsPage-settingsSection-icon sh-Icon--<?php echo esc_attr( $icon ); ?>"></span>
+					<?php echo esc_html( $title ); ?>
+				</span>
+			</h2>
+			<div class="sh-SettingsSectionIntroduction">
+				<p><?php echo esc_html( $description ); ?></p>
+			</div>
 		</div>
 		<?php
 	}
@@ -149,18 +183,6 @@ class Alerts_Settings_Page_Teaser extends Service {
 		$destination_types   = $this->get_destination_type_definitions();
 		$sample_destinations = $this->get_sample_destinations();
 		?>
-		<div class="sh-SettingsCard sh-SettingsCard--intro">
-			<div class="sh-CardHeader">
-				<span class="dashicons dashicons-megaphone" aria-hidden="true"></span>
-				<div class="sh-CardHeader-content">
-					<strong><?php esc_html_e( 'Alert Destinations', 'simple-history' ); ?></strong>
-					<span class="sh-CardHeader-description">
-						<?php esc_html_e( 'Configure where your alerts will be sent. Add multiple destinations and reuse them across different alert rules.', 'simple-history' ); ?>
-					</span>
-				</div>
-			</div>
-		</div>
-
 		<div class="sh-Destinations">
 			<?php foreach ( $destination_types as $type => $type_info ) { ?>
 				<div class="sh-SettingsCard sh-DestinationType">
@@ -258,18 +280,6 @@ class Alerts_Settings_Page_Teaser extends Service {
 		$destination_types   = $this->get_destination_type_definitions();
 		$sample_destinations = $this->get_sample_destinations();
 		?>
-		<div class="sh-SettingsCard sh-SettingsCard--intro">
-			<div class="sh-CardHeader">
-				<span class="dashicons dashicons-bell" aria-hidden="true"></span>
-				<div class="sh-CardHeader-content">
-					<strong><?php esc_html_e( 'Alert Rules', 'simple-history' ); ?></strong>
-					<span class="sh-CardHeader-description">
-						<?php esc_html_e( 'Define when to send alerts. Use pre-built presets for quick setup or create custom rules for advanced filtering.', 'simple-history' ); ?>
-					</span>
-				</div>
-			</div>
-		</div>
-
 		<div class="sh-AlertPresets">
 			<h3 class="sh-AlertPresets-title">
 				<?php esc_html_e( 'Quick Setup', 'simple-history' ); ?>
