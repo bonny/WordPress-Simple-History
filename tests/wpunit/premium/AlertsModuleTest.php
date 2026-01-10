@@ -383,4 +383,217 @@ class AlertsModuleTest extends PremiumTestCase {
 
 		$this->assertNull( $sender );
 	}
+
+	/**
+	 * Test get_all_tracking returns empty array by default.
+	 */
+	public function test_get_all_tracking_returns_empty_by_default(): void {
+		delete_option( Alerts_Module::OPTION_TRACKING );
+
+		$tracking = Alerts_Module::get_all_tracking();
+
+		$this->assertIsArray( $tracking );
+		$this->assertEmpty( $tracking );
+	}
+
+	/**
+	 * Test get_all_tracking returns stored tracking data.
+	 */
+	public function test_get_all_tracking_returns_stored_data(): void {
+		$test_tracking = [
+			'dest_123' => [
+				'last_success'  => time(),
+				'success_count' => 5,
+			],
+		];
+		update_option( Alerts_Module::OPTION_TRACKING, $test_tracking, false );
+
+		$tracking = Alerts_Module::get_all_tracking();
+
+		$this->assertEquals( $test_tracking, $tracking );
+
+		// Cleanup.
+		delete_option( Alerts_Module::OPTION_TRACKING );
+	}
+
+	/**
+	 * Test get_destination_tracking returns defaults for missing destination.
+	 */
+	public function test_get_destination_tracking_returns_defaults(): void {
+		delete_option( Alerts_Module::OPTION_TRACKING );
+
+		$tracking = Alerts_Module::get_destination_tracking( 'nonexistent_id' );
+
+		$this->assertIsArray( $tracking );
+		$this->assertEquals( 0, $tracking['last_success'] );
+		$this->assertEquals( [], $tracking['last_error'] );
+		$this->assertEquals( 0, $tracking['success_count'] );
+		$this->assertEquals( 0, $tracking['error_count'] );
+	}
+
+	/**
+	 * Test get_destination_tracking returns stored data with defaults merged.
+	 */
+	public function test_get_destination_tracking_returns_stored_with_defaults(): void {
+		$test_tracking = [
+			'dest_123' => [
+				'success_count' => 10,
+				// Missing other fields - should be filled with defaults.
+			],
+		];
+		update_option( Alerts_Module::OPTION_TRACKING, $test_tracking, false );
+
+		$tracking = Alerts_Module::get_destination_tracking( 'dest_123' );
+
+		$this->assertEquals( 10, $tracking['success_count'] );
+		$this->assertEquals( 0, $tracking['last_success'] ); // Default applied.
+		$this->assertEquals( [], $tracking['last_error'] );  // Default applied.
+		$this->assertEquals( 0, $tracking['error_count'] );  // Default applied.
+
+		// Cleanup.
+		delete_option( Alerts_Module::OPTION_TRACKING );
+	}
+
+	/**
+	 * Test save_all_tracking saves data correctly.
+	 */
+	public function test_save_all_tracking_saves_data(): void {
+		$test_tracking = [
+			'dest_a' => [ 'success_count' => 5 ],
+			'dest_b' => [ 'error_count' => 2 ],
+		];
+
+		$result = Alerts_Module::save_all_tracking( $test_tracking );
+
+		$this->assertTrue( $result );
+
+		$stored = get_option( Alerts_Module::OPTION_TRACKING );
+		$this->assertEquals( $test_tracking, $stored );
+
+		// Cleanup.
+		delete_option( Alerts_Module::OPTION_TRACKING );
+	}
+
+	/**
+	 * Test update_destination_tracking updates single destination.
+	 */
+	public function test_update_destination_tracking_updates_single(): void {
+		$initial_tracking = [
+			'dest_a' => [ 'success_count' => 5 ],
+			'dest_b' => [ 'success_count' => 3 ],
+		];
+		update_option( Alerts_Module::OPTION_TRACKING, $initial_tracking, false );
+
+		$new_tracking = [ 'success_count' => 10, 'last_success' => time() ];
+		$result       = Alerts_Module::update_destination_tracking( 'dest_a', $new_tracking );
+
+		$this->assertTrue( $result );
+
+		$stored = get_option( Alerts_Module::OPTION_TRACKING );
+		$this->assertEquals( 10, $stored['dest_a']['success_count'] );
+		$this->assertEquals( 3, $stored['dest_b']['success_count'] ); // Unchanged.
+
+		// Cleanup.
+		delete_option( Alerts_Module::OPTION_TRACKING );
+	}
+
+	/**
+	 * Test update_destination_tracking adds new destination.
+	 */
+	public function test_update_destination_tracking_adds_new(): void {
+		$initial_tracking = [
+			'dest_existing' => [ 'success_count' => 5 ],
+		];
+		update_option( Alerts_Module::OPTION_TRACKING, $initial_tracking, false );
+
+		$new_tracking = [ 'success_count' => 1 ];
+		$result       = Alerts_Module::update_destination_tracking( 'dest_new', $new_tracking );
+
+		$this->assertTrue( $result );
+
+		$stored = get_option( Alerts_Module::OPTION_TRACKING );
+		$this->assertArrayHasKey( 'dest_existing', $stored );
+		$this->assertArrayHasKey( 'dest_new', $stored );
+		$this->assertEquals( 1, $stored['dest_new']['success_count'] );
+
+		// Cleanup.
+		delete_option( Alerts_Module::OPTION_TRACKING );
+	}
+
+	/**
+	 * Test delete_destination_tracking removes destination.
+	 */
+	public function test_delete_destination_tracking_removes(): void {
+		$initial_tracking = [
+			'dest_a' => [ 'success_count' => 5 ],
+			'dest_b' => [ 'success_count' => 3 ],
+		];
+		update_option( Alerts_Module::OPTION_TRACKING, $initial_tracking, false );
+
+		$result = Alerts_Module::delete_destination_tracking( 'dest_a' );
+
+		$this->assertTrue( $result );
+
+		$stored = get_option( Alerts_Module::OPTION_TRACKING );
+		$this->assertArrayNotHasKey( 'dest_a', $stored );
+		$this->assertArrayHasKey( 'dest_b', $stored );
+
+		// Cleanup.
+		delete_option( Alerts_Module::OPTION_TRACKING );
+	}
+
+	/**
+	 * Test delete_destination_tracking returns true for nonexistent destination.
+	 */
+	public function test_delete_destination_tracking_nonexistent(): void {
+		$initial_tracking = [
+			'dest_existing' => [ 'success_count' => 5 ],
+		];
+		update_option( Alerts_Module::OPTION_TRACKING, $initial_tracking, false );
+
+		$result = Alerts_Module::delete_destination_tracking( 'dest_nonexistent' );
+
+		$this->assertTrue( $result ); // Nothing to delete is not an error.
+
+		$stored = get_option( Alerts_Module::OPTION_TRACKING );
+		$this->assertArrayHasKey( 'dest_existing', $stored ); // Unchanged.
+
+		// Cleanup.
+		delete_option( Alerts_Module::OPTION_TRACKING );
+	}
+
+	/**
+	 * Test tracking is separate from destinations option.
+	 */
+	public function test_tracking_separate_from_destinations(): void {
+		// Set up destinations without tracking.
+		$destinations = [
+			'dest_123' => [
+				'type'   => 'email',
+				'name'   => 'Test Email',
+				'config' => [ 'recipients' => 'test@example.com' ],
+			],
+		];
+		update_option( Alerts_Module::OPTION_DESTINATIONS, $destinations, false );
+
+		// Set up tracking separately.
+		$tracking = [
+			'dest_123' => [
+				'success_count' => 10,
+				'last_success'  => time(),
+			],
+		];
+		update_option( Alerts_Module::OPTION_TRACKING, $tracking, false );
+
+		// Verify they are separate.
+		$stored_destinations = get_option( Alerts_Module::OPTION_DESTINATIONS );
+		$stored_tracking     = get_option( Alerts_Module::OPTION_TRACKING );
+
+		$this->assertArrayNotHasKey( 'tracking', $stored_destinations['dest_123'] );
+		$this->assertArrayHasKey( 'dest_123', $stored_tracking );
+
+		// Cleanup.
+		delete_option( Alerts_Module::OPTION_DESTINATIONS );
+		delete_option( Alerts_Module::OPTION_TRACKING );
+	}
 }
