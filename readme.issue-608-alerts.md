@@ -11,7 +11,7 @@
 - Research: How to implement async processing via Action Scheduler or WP Cron for production sites with high event volume.
 - Destinations page, could each table benefit from a column with info about what alert rules are sending to it?
 - ~~Should we also add context to messages sent? Right now it only says "Edited profile for user abc" but it would be useful to also know that was changed, for example role changed? Just a first name change vs role change, it's very different!~~ → Documented in [Phase 2: Enhanced Alert Message Context](#enhanced-alert-message-context)
-- Promo in core uses completely differnt layout, it should preview the premium settings, including 2 tabs and all the fields. But non editable and no functionality of course.
+- ~~Promo for alert features in core uses completely differnt layout, it should preview the premium settings, including 2 tabs and all the fields. But non editable and no functionality of course.~~ → Done (2026-01-10)
 
 
 ## Scope Clarification
@@ -660,3 +660,17 @@ Moved alert engine classes (JsonLogic, evaluator, field registry) from core to p
 ### 2026-01-10: Enhanced Alert Context
 
 Added `Event::get_details_text()` for plain text event details in alerts. Hook `simple_history/log/inserted` now passes event ID via `$data['id']`.
+
+### 2026-01-10: Teaser Redesign
+
+Redesigned the core plugin's alert settings teaser to preview the actual premium UI:
+- **Two functional tabs**: Destinations and Alert Rules (tabs work, content is disabled)
+- **Destinations preview**: Shows all 4 types (Email, Slack with sample data; Discord, Telegram empty)
+- **Alert Rules preview**: 3 preset cards with expandable event lists, destination checkboxes, Custom Rules section
+- **HTML `inert` attribute**: Native browser support for disabling all content interaction
+- **Shared CSS components**: Reuses styles matching premium UI (`.sh-CardHeader`, `.sh-StatusIcon`, `.sh-PresetCard-*`)
+- **Upgrade CTA**: Sticky at bottom with Premium badge
+
+Files modified:
+- `inc/services/class-alerts-settings-page-teaser.php` - Complete rewrite
+- `css/styles.css` - Replaced old teaser styles with premium-matching components

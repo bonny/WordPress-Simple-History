@@ -2633,238 +2633,457 @@ Styles for plugin update details. Markup looks like this:
 
 /**
  * Alerts Settings Page Teaser
- * Premium feature promotional page for the Alerts feature.
+ * Premium feature promotional page that previews the Alerts settings.
+ * Mirrors the premium UI with functional tabs but disabled content (inert).
  */
-.sh-AlertsTeaser {
-	max-width: 800px;
-	margin: 0 auto;
-	padding: var(--sh-spacing-large);
-}
 
-.sh-AlertsTeaser-header {
-	text-align: center;
-	margin-bottom: var(--sh-spacing-xlarge);
-}
-
-.sh-AlertsTeaser-header h2 {
-	font-size: 1.75em;
-	margin: var(--sh-spacing-small) 0;
-}
-
-.sh-AlertsTeaser-subtitle {
-	font-size: 1.1em;
-	color: #50575e;
-	margin: 0;
-}
-
-.sh-AlertsTeaser-comparison {
-	text-align: center;
+/* Alerts internal tabs */
+.sh-AlertsTabs {
 	margin-bottom: var(--sh-spacing-large);
-	padding: var(--sh-spacing-medium);
+}
+
+.sh-AlertsTabs--teaser {
+	display: flex;
+	align-items: center;
+	margin-bottom: 0;
+}
+
+.sh-AlertsTabs-badge {
+	margin-left: auto;
+}
+
+/* Preview Mode Banner - explains this is a non-functional preview */
+.sh-AlertsTeaser-banner {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-medium);
+	padding: var(--sh-spacing-medium) var(--sh-spacing-large);
+	margin-top: var(--sh-spacing-large);
+	margin-bottom: var(--sh-spacing-large);
 	background: var(--sh-color-cream);
 	border-radius: var(--sh-border-radius);
 }
 
-.sh-AlertsTeaser-comparison p {
-	margin: 0;
-	font-size: 1em;
-}
-
-.sh-AlertsTeaser-destinations,
-.sh-AlertsTeaser-presets,
-.sh-AlertsTeaser-customRules {
-	margin-bottom: var(--sh-spacing-large);
-}
-
-.sh-AlertsTeaser-destinations h3,
-.sh-AlertsTeaser-presets h3,
-.sh-AlertsTeaser-customRules h3 {
-	font-size: 1.25em;
-	margin-bottom: var(--sh-spacing-medium);
-	padding-bottom: var(--sh-spacing-small);
-	border-bottom: 1px solid #dcdcde;
-}
-
-.sh-AlertsTeaser-destinationGrid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-	gap: var(--sh-spacing-medium);
-}
-
-.sh-AlertsTeaser-destination {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	text-align: center;
-	padding: var(--sh-spacing-medium);
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: var(--sh-border-radius);
-}
-
-.sh-AlertsTeaser-destination .dashicons {
-	font-size: 32px;
-	width: 32px;
-	height: 32px;
-	color: #2271b1;
-	margin-bottom: var(--sh-spacing-small);
-}
-
-.sh-AlertsTeaser-destination strong {
-	display: block;
-	margin-bottom: 0.25em;
-}
-
-.sh-AlertsTeaser-destination span:last-child {
-	font-size: 0.9em;
-	color: #50575e;
-}
-
-.sh-AlertsTeaser-presetList {
-	display: flex;
-	flex-direction: column;
-	gap: var(--sh-spacing-small);
-}
-
-.sh-AlertsTeaser-preset {
-	display: flex;
-	align-items: flex-start;
-	gap: var(--sh-spacing-medium);
-	padding: var(--sh-spacing-medium);
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: var(--sh-border-radius);
-}
-
-.sh-AlertsTeaser-preset .dashicons {
+.sh-AlertsTeaser-banner-icon {
 	font-size: 24px;
 	width: 24px;
 	height: 24px;
-	color: #2271b1;
-	flex-shrink: 0;
+	line-height: 1;
+	color: #00a32a;
 }
 
-.sh-AlertsTeaser-presetContent {
+.sh-AlertsTeaser-banner-content {
 	flex: 1;
-}
-
-.sh-AlertsTeaser-presetContent strong {
-	display: block;
-	margin-bottom: 0.25em;
-}
-
-.sh-AlertsTeaser-presetContent span {
-	font-size: 0.9em;
-	color: #50575e;
-}
-
-.sh-AlertsTeaser-customRules {
-	padding: var(--sh-spacing-medium);
-	background: var(--sh-color-cream);
-	border-radius: var(--sh-border-radius);
-}
-
-.sh-AlertsTeaser-customRules h3 {
-	border-bottom: none;
-	padding-bottom: 0;
-	margin-bottom: var(--sh-spacing-small);
-}
-
-.sh-AlertsTeaser-customRules p {
-	margin: 0;
-}
-
-/* Mock UI - Disabled preview of the feature */
-.sh-AlertsTeaser-mockUI {
-	margin-bottom: var(--sh-spacing-large);
-	pointer-events: none;
-	opacity: 0.7;
 	display: flex;
 	flex-direction: column;
-	gap: var(--sh-spacing-medium);
+	gap: 2px;
 }
 
-.sh-AlertsTeaser-mockCard {
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: var(--sh-border-radius);
-	overflow: hidden;
-}
-
-.sh-AlertsTeaser-mockCardHeader {
+.sh-AlertsTeaser-banner-title {
 	display: flex;
 	align-items: center;
 	gap: var(--sh-spacing-small);
-	padding: var(--sh-spacing-medium);
-	background: #f6f7f7;
-	border-bottom: 1px solid #dcdcde;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
 }
 
-.sh-AlertsTeaser-mockCardHeader .dashicons {
-	color: #2271b1;
+.sh-AlertsTeaser-banner-content > span {
+	font-size: 13px;
+	color: #3c434a;
 }
 
-.sh-AlertsTeaser-mockToggle {
-	margin-left: auto;
-	width: 36px;
-	height: 20px;
-	background: #2271b1;
-	border-radius: 10px;
+.sh-AlertsTeaser-banner-content a {
+	font-size: 13px;
+	margin-top: var(--sh-spacing-xsmall);
+}
+
+/* Main teaser container - disabled state */
+.sh-AlertsTeaser {
+	max-width: 900px;
+}
+
+.sh-AlertsTeaser[inert] {
+	opacity: 0.55;
+	filter: grayscale(30%);
+	cursor: not-allowed;
 	position: relative;
 }
 
-.sh-AlertsTeaser-mockToggle::after {
-	content: "";
-	position: absolute;
-	right: 2px;
-	top: 2px;
+.sh-AlertsTeaser[inert] button,
+.sh-AlertsTeaser[inert] input,
+.sh-AlertsTeaser[inert] a {
+	pointer-events: none;
+}
+
+/* Wrapper for sticky CTA positioning */
+.sh-AlertsTeaser-wrap {
+	position: relative;
+	padding-bottom: 180px;
+}
+
+/* Shared Card Header - used in destinations and alert rules */
+.sh-CardHeader {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--sh-spacing-small);
+	margin-bottom: var(--sh-spacing-medium);
+}
+
+.sh-CardHeader .dashicons {
+	color: var(--sh-color-blue);
+	margin-top: 2px;
+}
+
+.sh-CardHeader-content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-xxsmall);
+}
+
+.sh-CardHeader-description {
+	color: #50575e;
+	font-size: 13px;
+}
+
+/* Shared Status Icon - used in alert rules and destinations */
+.sh-StatusIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	width: 16px;
 	height: 16px;
-	background: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 16px;
+	text-align: center;
 	border-radius: 50%;
+	flex-shrink: 0;
 }
 
-.sh-AlertsTeaser-mockCardBody {
-	padding: var(--sh-spacing-medium);
+.sh-StatusIcon--ok {
+	color: #1e4620;
+	background: #d4edda;
 }
 
-.sh-AlertsTeaser-mockCardBody p {
-	margin: 0 0 var(--sh-spacing-small) 0;
-	color: #50575e;
-	font-size: 0.9em;
+.sh-StatusIcon--error {
+	color: #721c24;
+	background: #f8d7da;
 }
 
-.sh-AlertsTeaser-mockDestinations {
+.sh-StatusIcon--unused {
+	color: #646970;
+	background: #f0f0f1;
+}
+
+/* Destinations */
+.sh-Destinations {
 	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-large);
+}
+
+.sh-DestinationType-list {
+	margin-bottom: var(--sh-spacing-medium);
+}
+
+.sh-DestinationType-empty {
+	color: #646970;
+	font-style: italic;
+	margin: 0;
+}
+
+/* Destination table styles */
+.sh-DestinationTable {
+	border: none;
+	box-shadow: none;
+}
+
+.sh-DestinationTable-colName {
+	width: 200px;
+}
+
+.sh-DestinationTable-colStatus {
+	width: 150px;
+}
+
+.sh-DestinationTable-colUsedBy {
+	width: 100px;
+}
+
+.sh-DestinationItem-usedBy {
+	font-size: 13px;
+}
+
+.sh-DestinationItem-usedByCount {
+	color: #2271b1;
+}
+
+.sh-DestinationItem-details {
+	color: #50575e;
+	word-break: break-word;
+}
+
+.sh-DestinationItem-status {
+	font-size: 12px;
+}
+
+/* Destination status indicators */
+.sh-DestinationStatus {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.sh-DestinationStatus--ok {
+	color: #1e4620;
+}
+
+/* Button with icon - reusable component */
+.sh-Button--withIcon {
+	display: inline-flex !important;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+}
+
+.sh-Button--withIcon .dashicons {
+	width: 20px;
+	height: 20px;
+	font-size: 20px;
+	line-height: 1;
+}
+
+/* Alert Presets */
+.sh-AlertPresets {
+	margin-bottom: var(--sh-spacing-xlarge);
+}
+
+.sh-AlertPresets-title {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-small);
+	font-size: 1.25em;
+	margin-bottom: var(--sh-spacing-small);
+}
+
+.sh-AlertPresets-title .dashicons {
+	color: var(--sh-color-blue);
+}
+
+.sh-AlertPresets-description {
+	margin-bottom: var(--sh-spacing-large);
+	color: #50575e;
+}
+
+/* Preset Cards */
+.sh-PresetCards {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-xlarge);
+}
+
+.sh-PresetCard-destinations {
+	display: flex;
+	flex-direction: column;
 	gap: var(--sh-spacing-small);
 }
 
-.sh-AlertsTeaser-mockChip {
-	display: inline-block;
-	padding: 0.25em 0.75em;
-	background: #e7f3ff;
+.sh-PresetCard-destinationsLabel {
+	font-weight: 500;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.sh-PresetCard-destinationGroups {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sh-spacing-medium);
+}
+
+.sh-PresetCard-destinationGroup {
+	min-width: 180px;
+}
+
+.sh-PresetCard-destinationGroupLabel {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	text-transform: uppercase;
+	font-size: 11px;
+	margin-bottom: 6px;
+	padding-bottom: 4px;
+	border-bottom: 1px solid var(--sh-color-gray);
+}
+
+.sh-PresetCard-destinationGroupLabel .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.sh-PresetCard-destinationEmpty,
+.sh-PresetCard-destinationManage {
+	margin: 0;
+	font-size: 12px;
+}
+
+.sh-PresetCard-destinationManage {
+	margin-top: 12px;
+}
+
+.sh-PresetCard-destinationEmpty a,
+.sh-PresetCard-destinationManage a {
+	text-decoration: none;
+}
+
+.sh-PresetCard-destinationGroupItems {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.sh-PresetCard-destinationItem {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	cursor: pointer;
+	padding: 4px 8px;
+	margin: -4px -8px;
+	border-radius: 4px;
+}
+
+.sh-PresetCard-destinationName {
+	font-size: 13px;
+}
+
+.sh-PresetCard-emailRecipients {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	color: #646970;
+	font-size: 12px;
+	margin-left: 4px;
+	padding: 1px 5px 1px 3px;
+	background: #f0f0f1;
+	border-radius: 10px;
+}
+
+.sh-PresetCard-emailRecipients .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.sh-PresetCard-destinationStatus {
+	margin-left: 6px;
+}
+
+/* Preset Events - Expandable event list using native <details>/<summary> */
+.sh-PresetEvents {
+	margin-top: var(--sh-spacing-xsmall);
+}
+
+.sh-PresetEvents-toggle {
+	font-size: 13px;
 	color: #2271b1;
-	border-radius: 12px;
-	font-size: 0.85em;
+	cursor: pointer;
+	list-style: none;
 }
 
-/* CTA Section */
-.sh-AlertsTeaser-cta {
-	text-align: center;
-	padding: var(--sh-spacing-xlarge) var(--sh-spacing-medium);
-	background: linear-gradient(180deg, #f6f7f7 0%, #fff 100%);
-	border-radius: var(--sh-border-radius);
-	border: 1px solid #dcdcde;
+.sh-PresetEvents-toggle::-webkit-details-marker {
+	display: none;
 }
 
-.sh-AlertsTeaser-cta .button-hero {
-	font-size: 1.1em;
-	padding: 0.75em 2em;
+.sh-PresetEvents-toggle::after {
+	content: " ▶";
+	font-size: 9px;
+	margin-left: 4px;
+	display: inline-block;
+	vertical-align: middle;
 }
 
-.sh-AlertsTeaser-ctaNote {
+.sh-PresetEvents[open] > .sh-PresetEvents-toggle::after {
+	content: " ▼";
+}
+
+.sh-PresetEvents-list {
+	margin: var(--sh-spacing-xsmall) 0 0 var(--sh-spacing-medium);
+	columns: 2;
+	list-style-type: disc;
+}
+
+.sh-PresetEvents-list li {
+	break-inside: avoid;
+}
+
+/* Custom Rules */
+.sh-CustomRules {
+	margin-top: var(--sh-spacing-xlarge);
+	padding-top: var(--sh-spacing-large);
+	border-top: 1px solid var(--sh-color-gray);
+}
+
+.sh-CustomRules-empty {
+	color: #646970;
+	font-style: italic;
+}
+
+.sh-CustomRules-actions {
 	margin-top: var(--sh-spacing-medium);
-	margin-bottom: 0;
+}
+
+/* CTA Section - Sticky at bottom */
+.sh-AlertsTeaser-cta {
+	position: fixed;
+	bottom: 0;
+	left: 160px;
+	right: 0;
+	padding: var(--sh-spacing-medium) var(--sh-spacing-large);
+	background: var(--sh-color-cream);
+	border-top: 1px solid #e0d9c8;
+	box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+	z-index: 100;
+}
+
+/* Adjust for collapsed admin menu */
+.folded .sh-AlertsTeaser-cta {
+	left: 36px;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 782px) {
+	.sh-AlertsTeaser-cta {
+		left: 0;
+	}
+}
+
+.sh-AlertsTeaser-cta-content {
+	max-width: 800px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-large);
+	flex-wrap: wrap;
+}
+
+.sh-AlertsTeaser-cta-content h3 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-small);
+}
+
+.sh-AlertsTeaser-cta-content p {
+	margin: 0;
 	color: #50575e;
-	font-size: 0.9em;
+	font-size: 13px;
+	flex: 1;
+	min-width: 200px;
+}
+
+.sh-AlertsTeaser-cta-content a:not(.button) {
+	font-size: 13px;
+	white-space: nowrap;
 }
