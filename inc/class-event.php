@@ -370,6 +370,18 @@ class Event {
 			$html
 		);
 
+		// Convert <ins>new</ins> <del>old</del> patterns to "old → new".
+		// User profile changes use this order.
+		$html = preg_replace_callback(
+			'/<ins[^>]*>(.*?)<\/ins>\s*<del[^>]*>(.*?)<\/del>/is',
+			function ( $matches ) {
+				$added   = trim( wp_strip_all_tags( $matches[1] ) );
+				$deleted = trim( wp_strip_all_tags( $matches[2] ) );
+				return $deleted . ' → ' . $added;
+			},
+			$html
+		);
+
 		// Convert simple table rows to "Label: Value" format.
 		// Match <tr> containing <td>label</td><td>value</td>.
 		$html = preg_replace_callback(
