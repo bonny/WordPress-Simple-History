@@ -792,3 +792,79 @@ Removed pure wrapper methods from `Destination_Sender`:
 
 **Commits (core):** `c71e1ede`, `e8306da5`
 **Commits (premium):** `d220df7`, `a53e841`, `75fb4e8`, `14d7902`, `67bab5a`, `444bd60`
+
+### 2026-01-10: Alert Performance & Code Quality
+
+**Bug Fix: Destination tracking reset**
+
+Fixed a bug where destination tracking (last_success, error_count, etc.) was being reset to "Never used" after working correctly. Root cause: `sanitize_destinations()` callback (registered via `register_setting()`) was stripping the `tracking` key when called during `update_option()` in admin context.
+
+**Commits (premium):** `aa2c061`
+
+**Performance: Batched option reads**
+
+Optimized `process_logged_event()` to use `get_options()` (WordPress 6.4+) for loading all alert options in a single DB query instead of three separate queries:
+
+| Before | After |
+|--------|-------|
+| 3 `get_option()` calls | 1 `get_options()` call |
+| 3 DB queries per event | 1 DB query per event |
+
+Falls back to individual calls on WP < 6.4 for backward compatibility.
+
+**Commits (premium):** `e59be49`
+
+**Cleanup: Removed unused `_version` metadata**
+
+Removed schema versioning system that was never used (all versions were 1, no migration code existed):
+- Removed VERSION constants
+- Removed `_version` key handling in save/read/sanitize functions
+- ~53 lines removed with no functional change
+
+**Commits (premium):** `e2ea292`
+
+**Refactoring: Readable code improvements**
+
+Extracted methods from `process_logged_event()` to make it read like documentation:
+
+```php
+// Before: ~50 lines with inline logic
+// After: 18 lines that read like a story
+public function process_logged_event( $context, $data, $logger ) {
+    [ $destinations, $preset_settings, $custom_rules ] = $this->get_alert_options();
+
+    if ( empty( $destinations ) ) {
+        return;
+    }
+
+    $enabled_rules = $this->get_enabled_rules( $preset_settings, $custom_rules );
+
+    if ( empty( $enabled_rules ) ) {
+        return;
+    }
+
+    foreach ( $enabled_rules as $rule ) {
+        if ( $this->rule_matches_event( $rule, $context, $data ) ) {
+            $this->send_alerts( $rule, $context, $data, $destinations );
+        }
+    }
+}
+```
+
+New extracted methods:
+- `get_alert_options()` - Batched option loading with WP 6.4 compatibility
+- `get_enabled_rules()` - Builds list of enabled rules from presets and custom rules
+
+Uses PHP 7.1+ array destructuring for clean multiple return values.
+
+**Commits (premium):** `d347330`, `30c1e38`
+
+**Documentation: Added 'Readable Code' design principle**
+
+Added new section to code quality guidelines (`.claude/skills/code-quality/SKILL.md`) explaining that code should read like well-written prose, with techniques:
+1. Extract well-named methods
+2. Use array destructuring
+3. Structure methods as a story
+4. Name methods for "what" not "how"
+
+**Commits (core):** `7f8199f4`
