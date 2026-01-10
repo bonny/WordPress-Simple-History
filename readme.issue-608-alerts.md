@@ -449,16 +449,16 @@ The base `Channel` class already has:
 
 These files exist and can be leveraged:
 
-| File                                          | Purpose              | Status               |
-| --------------------------------------------- | -------------------- | -------------------- |
-| `inc/channels/class-alert-evaluator.php`      | JsonLogic wrapper    | ⚠️ Not tested        |
-| `inc/channels/class-alert-field-registry.php` | UI field definitions | ⚠️ Not tested        |
-| `inc/channels/class-alert-rules-engine.php`   | Service facade       | ⚠️ Not tested        |
-| `inc/libraries/JsonLogic.php`                 | Third-party library  | ✅ (upstream tested) |
-| `docs/alerts-feature-research.md`             | Competitor analysis  | ✅                   |
-| `docs/alerts-async-processing-research.md`    | Performance research | ✅                   |
+| File                                                            | Purpose              | Status               |
+| --------------------------------------------------------------- | -------------------- | -------------------- |
+| `simple-history-premium/inc/alerts/class-alert-evaluator.php`   | JsonLogic wrapper    | ⚠️ Not tested        |
+| `simple-history-premium/inc/alerts/class-alert-field-registry.php` | UI field definitions | ⚠️ Not tested     |
+| `simple-history-premium/inc/alerts/class-alert-rules-engine.php`| Service facade       | ⚠️ Not tested        |
+| `simple-history-premium/inc/libraries/JsonLogic.php`            | Third-party library  | ✅ (upstream tested) |
+| `docs/alerts-feature-research.md`                               | Competitor analysis  | ✅                   |
+| `docs/alerts-async-processing-research.md`                      | Performance research | ✅                   |
 
-**Note:** The Alert_Rules_Engine and related classes were created as foundation but have no test coverage yet. Tests should be written before relying on this code.
+**Note:** The Alert_Rules_Engine and related classes have been moved from core to premium for WordPress.org compliance. They have no test coverage yet - tests should be written before relying on this code.
 
 ## Implementation Plan
 
@@ -973,3 +973,26 @@ Added new section to code quality guidelines (`.claude/skills/code-quality/SKILL
 4. Name methods for "what" not "how"
 
 **Commits (core):** `7f8199f4`
+
+### 2026-01-10: WordPress.org Compliance - Move Alert Classes to Premium
+
+Moved alert engine classes from core plugin to premium for cleaner WordPress.org compliance. These classes are for the Tier 3 custom rules feature (not yet implemented) and were unused in the free version.
+
+**Files moved to premium (`simple-history-premium/inc/alerts/`):**
+- `class-alert-evaluator.php` - JsonLogic wrapper for rule evaluation
+- `class-alert-field-registry.php` - Field definitions for rule builder UI
+- `class-alert-rules-engine.php` - Service facade for alert rules
+
+**Files moved to premium (`simple-history-premium/inc/libraries/`):**
+- `JsonLogic.php` - Third-party JsonLogic library
+
+**Core plugin changes:**
+- Removed unused `$rules_engine` property from `Channels_Manager`
+- Updated `Channel::should_send_event()` comment to reflect premium handles rule evaluation
+- Removed empty `inc/libraries/` directory
+
+**Namespace changes:**
+- Core: `Simple_History\Channels` → Premium: `Simple_History\AddOns\Pro\Alerts`
+- Text domain updated from `simple-history` to `simple-history-add-on`
+
+**Result:** Core plugin is smaller and matches the documented architecture where all alert functional code lives in premium.

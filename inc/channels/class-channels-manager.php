@@ -21,13 +21,6 @@ class Channels_Manager extends Service {
 	private array $channels = [];
 
 	/**
-	 * Alert rules engine instance.
-	 *
-	 * @var Alert_Rules_Engine|null
-	 */
-	private ?Alert_Rules_Engine $rules_engine = null;
-
-	/**
 	 * Called when service is loaded.
 	 */
 	public function loaded() {

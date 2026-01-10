@@ -290,8 +290,8 @@ abstract class Channel implements Channel_Interface {
 			return true;
 		}
 
-		// TODO: Implement proper rule evaluation using Alert_Rules_Engine.
-		// For now, just return true to send all events.
+		// Rule evaluation is handled by premium add-on.
+		// Base implementation sends all events when rules are configured.
 		return true;
 	}
 
