@@ -155,7 +155,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 	 * @param string $current_tab The currently active tab.
 	 */
 	private function render_tabs( string $current_tab ) {
-		$base_url = add_query_arg( 'page', self::MENU_SLUG, admin_url( 'admin.php' ) );
+		$base_url = Helpers::get_settings_page_sub_tab_url( self::MENU_SLUG );
 		?>
 		<nav class="nav-tab-wrapper sh-AlertsTabs sh-AlertsTabs--teaser">
 			<a href="<?php echo esc_url( add_query_arg( 'alerts_tab', 'destinations', $base_url ) ); ?>"
