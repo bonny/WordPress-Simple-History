@@ -1242,6 +1242,7 @@ so add some extra place then to make it look a bit less ugly.
 	border: 1px solid var(--sh-color-blue);
 	border-left-width: 4px;
 	border-radius: var(--sh-border-radius);
+	margin-top: var(--sh-spacing-large);
 	margin-bottom: var(--sh-spacing-large);
 }
 

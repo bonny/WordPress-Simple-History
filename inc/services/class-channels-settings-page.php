@@ -65,9 +65,9 @@ class Channels_Settings_Page extends Service {
 			return;
 		}
 
-		// Build menu title with Beta badge.
+		// Build menu title with New badge.
 		$menu_title = __( 'Log Forwarding', 'simple-history' )
-			. ' <span class="sh-Badge sh-Badge--new">' . esc_html__( 'Beta', 'simple-history' ) . '</span>';
+			. ' <span class="sh-Badge sh-Badge--new">' . esc_html__( 'New', 'simple-history' ) . '</span>';
 
 		( new Menu_Page() )
 			->set_page_title( __( 'Log Forwarding', 'simple-history' ) )
@@ -476,12 +476,11 @@ class Channels_Settings_Page extends Service {
 		?>
 		<div class="sh-BetaNotice">
 			<p>
-				<strong><?php esc_html_e( 'Beta feature – your feedback matters!', 'simple-history' ); ?></strong>
 				<?php
 				printf(
 					/* translators: %s: email address link */
-					esc_html__( 'Let us know what\'s working and what could be better at %s.', 'simple-history' ),
-					'<a href="mailto:contact@simple-history.com">contact@simple-history.com</a>'
+					esc_html__( 'Beta feature – Send feedback on bugs or improvements to %s.', 'simple-history' ),
+					'<a href="mailto:contact@simple-history.com?subject=Beta%20Feedback%3A%20Log%20Forwarding">contact@simple-history.com</a>'
 				);
 				?>
 			</p>

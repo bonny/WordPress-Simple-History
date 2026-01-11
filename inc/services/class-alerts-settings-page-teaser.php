@@ -49,9 +49,9 @@ class Alerts_Settings_Page_Teaser extends Service {
 			return;
 		}
 
-		// Build menu title with Premium badge.
+		// Build menu title with New badge to encourage exploration.
 		$menu_title = __( 'Alerts', 'simple-history' )
-			. ' <span class="sh-Badge sh-Badge--premium">' . esc_html__( 'Premium', 'simple-history' ) . '</span>';
+			. ' <span class="sh-Badge sh-Badge--new">' . esc_html__( 'New', 'simple-history' ) . '</span>';
 
 		( new Menu_Page() )
 			->set_page_title( __( 'Alerts', 'simple-history' ) )
@@ -76,6 +76,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 		?>
 		<div class="wrap sh-Page-content sh-AlertsTeaser-wrap">
 			<?php $this->render_tabs( $current_tab ); ?>
+			<?php $this->render_beta_notice(); ?>
 			<?php $this->render_section_intro( $current_tab ); ?>
 			<?php $this->render_preview_banner(); ?>
 
@@ -617,5 +618,24 @@ class Alerts_Settings_Page_Teaser extends Service {
 			'theme_updated'                      => __( 'Theme updated', 'simple-history' ),
 			'theme_update_failed'                => __( 'Theme update failed', 'simple-history' ),
 		];
+	}
+
+	/**
+	 * Render beta feature notice banner.
+	 */
+	private function render_beta_notice() {
+		?>
+		<div class="sh-BetaNotice">
+			<p>
+				<?php
+				printf(
+					/* translators: %s: email address link */
+					esc_html__( 'Beta feature – Send feedback on bugs or improvements to %s.', 'simple-history' ),
+					'<a href="mailto:contact@simple-history.com?subject=Beta%20Feedback%3A%20Alerts">contact@simple-history.com</a>'
+				);
+				?>
+			</p>
+		</div>
+		<?php
 	}
 }
