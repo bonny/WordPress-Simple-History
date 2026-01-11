@@ -7,9 +7,9 @@
 
 ## Review and comments from human developer
 
-- Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!
-- Research: How to implement async processing via Action Scheduler or WP Cron for production sites with high event volume.
-- Destinations page, could each table benefit from a column with info about what alert rules are sending to it?
+- ~~Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!~~
+- ~~Research: How to implement async processing via Action Scheduler or WP Cron for production sites with high event volume.~~
+- ~~Destinations page, could each table benefit from a column with info about what alert rules are sending to it?~~
 - ~~Should we also add context to messages sent? Right now it only says "Edited profile for user abc" but it would be useful to also know that was changed, for example role changed? Just a first name change vs role change, it's very different!~~ → Documented in [Phase 2: Enhanced Alert Message Context](#enhanced-alert-message-context)
 - ~~Promo for alert features in core uses completely differnt layout, it should preview the premium settings, including 2 tabs and all the fields. But non editable and no functionality of course.~~ → Done (2026-01-10)
 
