@@ -600,7 +600,7 @@ Destinations table UX improvements and phpcs/phpstan fixes:
 - ✅ Alert presets UI (Tier 1 quick setup)
 - ✅ Alert rules saving and evaluation
 - ✅ Event logging when destinations/rules are saved
-- ✅ `get_details_text()` for enhanced alert context
+- ✅ Enhanced alert message context (all senders include `get_details_text()` output)
 
 **Not Started:**
 - ⏳ Editable presets (Tier 2)
@@ -613,14 +613,13 @@ Features planned for after MVP release.
 
 ### Enhanced Alert Message Context
 
-**Status:** Foundation complete (`get_details_text()` added), integration pending
+**Status:** ✅ Complete
 **Priority:** High
 
-Alert messages now have access to detailed context via `Event::get_details_text()` which converts HTML event details (diffs, changes) to plain text. Destinations can include this in alert messages.
+Alert messages include detailed context via `Event::get_details_text()` which converts HTML event details (diffs, changes) to plain text. All 4 destination senders (Email, Slack, Discord, Telegram) include this in their alert messages.
 
-**Remaining work:**
-- Update destination senders to include `get_details_text()` output in messages
-- Consider per-event-type formatting (critical changes get full detail, cosmetic changes summarized)
+**Future consideration:**
+- Per-event-type formatting (critical changes get full detail, cosmetic changes summarized)
 
 ## Related Issues
 
