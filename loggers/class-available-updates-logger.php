@@ -19,7 +19,7 @@ class Available_Updates_Logger extends Logger {
 	 * @return array
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			'name'        => _x( 'Available Updates Logger', 'AvailableUpdatesLogger', 'simple-history' ),
 			'type'        => 'core',
 			'description' => __( 'Logs found updates to WordPress, plugins, and themes', 'simple-history' ),
@@ -47,8 +47,6 @@ class Available_Updates_Logger extends Logger {
 				), // search array.
 			), // labels.
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -94,20 +92,22 @@ class Available_Updates_Logger extends Logger {
 		}
 
 		// is WP core update available?
-		if ( isset( $updates->updates[0]->response ) && 'upgrade' === $updates->updates[0]->response ) {
-			$this->notice_message(
-				'core_update_available',
-				array(
-					'wp_core_current_version' => $wp_version,
-					'wp_core_new_version'     => $new_wp_core_version,
-					'_initiator'              => Log_Initiators::WORDPRESS,
-				)
-			);
-
-			// Store updated version available, so we don't log that version again.
-			// Autoload disabled since this option is only accessed during update checks.
-			update_option( "simplehistory_{$this->get_slug()}_wp_core_version_available", $new_wp_core_version, false );
+		if ( ! isset( $updates->updates[0]->response ) || $updates->updates[0]->response !== 'upgrade' ) {
+			return;
 		}
+
+		$this->notice_message(
+			'core_update_available',
+			array(
+				'wp_core_current_version' => $wp_version,
+				'wp_core_new_version'     => $new_wp_core_version,
+				'_initiator'              => Log_Initiators::WORDPRESS,
+			)
+		);
+
+		// Store updated version available, so we don't log that version again.
+		// Autoload disabled since this option is only accessed during update checks.
+		update_option( "simplehistory_{$this->get_slug()}_wp_core_version_available", $new_wp_core_version, false );
 	}
 
 	/**
@@ -149,7 +149,7 @@ class Available_Updates_Logger extends Logger {
 			$fp = fopen( $file, 'r' );
 
 			// Continue with next plugin if plugin file could not be read.
-			if ( false === $fp ) {
+			if ( $fp === false ) {
 				continue;
 			}
 

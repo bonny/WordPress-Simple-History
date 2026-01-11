@@ -106,9 +106,11 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 					continue;
 				}
 
-				if ( empty( $item->new_value ) && empty( $item->prev_value ) ) {
-					unset( $this->groups[ $group_key ]->items[ $item_key ] );
+				if ( ! empty( $item->new_value ) || ! empty( $item->prev_value ) ) {
+					continue;
 				}
+
+				unset( $this->groups[ $group_key ]->items[ $item_key ] );
 			}
 		}
 

@@ -117,14 +117,16 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 			}
 
 			// Compare hashes.
-			if ( $actual_hash !== $expected_hash ) {
-				$modified_files[] = [
-					'file'          => $file,
-					'issue'         => 'modified',
-					'expected_hash' => $expected_hash,
-					'actual_hash'   => $actual_hash,
-				];
+			if ( $actual_hash === $expected_hash ) {
+				continue;
 			}
+
+			$modified_files[] = [
+				'file'          => $file,
+				'issue'         => 'modified',
+				'expected_hash' => $expected_hash,
+				'actual_hash'   => $actual_hash,
+			];
 		}
 
 		// End timing.
@@ -143,7 +145,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		// Format output.
 		$format = $assoc_args['format'] ?? 'table';
 
-		if ( 'count' === $format ) {
+		if ( $format === 'count' ) {
 			WP_CLI::log( count( $modified_files ) );
 			return;
 		}
@@ -207,7 +209,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 
 		$format = $assoc_args['format'] ?? 'table';
 
-		if ( 'count' === $format ) {
+		if ( $format === 'count' ) {
 			WP_CLI::log( count( $stored_results ) );
 			return;
 		}
@@ -328,12 +330,12 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 
 		// Check if the logger is loaded.
 		$core_logger = $this->simple_history->get_instantiated_logger_by_slug( 'CoreFilesLogger' );
-		if ( $core_logger instanceof Core_Files_Logger ) {
-			WP_CLI::success( 'Core Files Integrity Logger is loaded' );
-		} else {
+		if ( ! ( $core_logger instanceof Core_Files_Logger ) ) {
 			WP_CLI::error( 'Core Files Integrity Logger is NOT loaded!' );
 			return;
 		}
+
+		WP_CLI::success( 'Core Files Integrity Logger is loaded' );
 		WP_CLI::log( '' );
 
 		// Check if the cron event is scheduled.
@@ -358,21 +360,25 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 
 		foreach ( $crons as $timestamp => $cron ) {
 			foreach ( $cron as $hook => $dings ) {
-				if ( strpos( $hook, 'simple_history' ) !== false ) {
-					$found_sh_crons = true;
-					foreach ( $dings as $sig => $data ) {
-						WP_CLI::log(
-							sprintf(
-								'- %s: %s (%s from now)',
-								$hook,
-								gmdate( 'Y-m-d H:i:s', $timestamp ),
-								human_time_diff( time(), $timestamp )
-							)
-						);
-						if ( ! empty( $data['schedule'] ) ) {
-							WP_CLI::log( '  Schedule: ' . $data['schedule'] );
-						}
+				if ( strpos( $hook, 'simple_history' ) === false ) {
+					continue;
+				}
+
+				$found_sh_crons = true;
+				foreach ( $dings as $sig => $data ) {
+					WP_CLI::log(
+						sprintf(
+							'- %s: %s (%s from now)',
+							$hook,
+							gmdate( 'Y-m-d H:i:s', $timestamp ),
+							human_time_diff( time(), $timestamp )
+						)
+					);
+					if ( empty( $data['schedule'] ) ) {
+						continue;
 					}
+
+					WP_CLI::log( '  Schedule: ' . $data['schedule'] );
 				}
 			}
 		}

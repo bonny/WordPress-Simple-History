@@ -18,7 +18,7 @@ class Menu_Logger extends Logger {
 	 */
 	public function get_info() {
 
-		$arr_info = array(
+		return array(
 			'name'        => __( 'Menu Logger', 'simple-history' ),
 			'description' => __( 'Logs menu edits', 'simple-history' ),
 			'capability'  => 'edit_theme_options',
@@ -49,8 +49,6 @@ class Menu_Logger extends Logger {
 				),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -116,7 +114,7 @@ class Menu_Logger extends Logger {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( 'delete' !== $_REQUEST['action'] ) {
+		if ( $_REQUEST['action'] !== 'delete' ) {
 			return;
 		}
 
@@ -195,7 +193,7 @@ class Menu_Logger extends Logger {
 
 		// Only go on for update action.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( 'update' !== $_REQUEST['action'] ) {
+		if ( $_REQUEST['action'] !== 'update' ) {
 			return;
 		}
 
@@ -241,7 +239,7 @@ class Menu_Logger extends Logger {
 		$message_key = $context['_message_key'];
 		$output      = '';
 
-		if ( 'edited_menu' === $message_key && ( ! empty( $context['menu_items_added'] ) || ! empty( $context['menu_items_removed'] ) ) ) {
+		if ( $message_key === 'edited_menu' && ( ! empty( $context['menu_items_added'] ) || ! empty( $context['menu_items_removed'] ) ) ) {
 			$output .= '<p>';
 			$output .= '<span class="SimpleHistoryLogitem__inlineDivided">';
 			$output .= sprintf(
@@ -275,7 +273,7 @@ class Menu_Logger extends Logger {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( 'locations' !== $_REQUEST['action'] ) {
+		if ( $_REQUEST['action'] !== 'locations' ) {
 			return;
 		}
 

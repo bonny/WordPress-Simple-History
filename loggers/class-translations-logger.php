@@ -20,7 +20,7 @@ class Translations_Logger extends Logger {
 	 * @return array Array with plugin info.
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			'name'        => _x( 'Translation Logger', 'Logger: Translations', 'simple-history' ),
 			'description' => _x( 'Log WordPress translation related things', 'Logger: Translations', 'simple-history' ),
 			'capability'  => 'manage_options',
@@ -28,8 +28,6 @@ class Translations_Logger extends Logger {
 				'translations_updated' => _x( 'Updated translations for "{name}" ({language})', 'Logger: Translations', 'simple-history' ),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -53,11 +51,11 @@ class Translations_Logger extends Logger {
 			return;
 		}
 
-		if ( 'translation' !== $options['type'] ) {
+		if ( $options['type'] !== 'translation' ) {
 			return;
 		}
 
-		if ( 'update' !== $options['action'] ) {
+		if ( $options['action'] !== 'update' ) {
 			return;
 		}
 

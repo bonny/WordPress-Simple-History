@@ -189,10 +189,12 @@ class Setup_Database extends Service {
 
 		foreach ( $arr_options as $one_option ) {
 			$option_value = get_option( $one_option['name'] );
-			if ( false === ( $option_value ) ) {
-				// Value is not set in db, so set it to a default.
-				update_option( $one_option['name'], $one_option['default_value'], true );
+			if ( ( $option_value ) !== false ) {
+				continue;
 			}
+
+			// Value is not set in db, so set it to a default.
+			update_option( $one_option['name'], $one_option['default_value'], true );
 		}
 
 		$this->update_db_to_version( 2 );

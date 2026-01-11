@@ -291,15 +291,17 @@ class Setup_Settings_Page extends Service {
 		register_setting( $settings_general_option_group, 'simple_history_pager_size_dashboard' );
 
 		// Link/button to clear log.
-		if ( Helpers::user_can_clear_log() ) {
-			add_settings_field(
-				'simple_history_clear_log',
-				Helpers::get_settings_field_title_output( __( 'Clear log', 'simple-history' ), 'auto-delete' ),
-				[ $this, 'settings_field_clear_log' ],
-				$settings_menu_slug,
-				$settings_section_general_id
-			);
+		if ( ! Helpers::user_can_clear_log() ) {
+			return;
 		}
+
+		add_settings_field(
+			'simple_history_clear_log',
+			Helpers::get_settings_field_title_output( __( 'Clear log', 'simple-history' ), 'auto-delete' ),
+			[ $this, 'settings_field_clear_log' ],
+			$settings_menu_slug,
+			$settings_section_general_id
+		);
 	}
 
 	/**
@@ -730,37 +732,39 @@ class Setup_Settings_Page extends Service {
 		// Clear the log if clear button was clicked in settings
 		// and redirect user to show message.
 		if (
-			isset( $_GET['simple_history_clear_log_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['simple_history_clear_log_nonce'] ) ), 'simple_history_clear_log' )
+			! isset( $_GET['simple_history_clear_log_nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['simple_history_clear_log_nonce'] ) ), 'simple_history_clear_log' )
 		) {
-			if ( Helpers::user_can_clear_log() ) {
-				$num_rows_deleted = Helpers::clear_log();
-
-				/**
-				 * Fires after the log has been cleared using
-				 * the "Clear log now" button on the settings page.
-				 *
-				 * @param int $num_rows_deleted Number of rows deleted.
-				 */
-				do_action( 'simple_history/settings/log_cleared', $num_rows_deleted );
-			}
-
-			$msg = __( 'Cleared database', 'simple-history' );
-
-			add_settings_error(
-				'simple_history_settings_clear_log',
-				'simple_history_settings_clear_log',
-				$msg,
-				'updated'
-			);
-
-			set_transient( 'settings_errors', get_settings_errors(), 30 );
-
-			$goback = esc_url_raw( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
-
-			// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-			wp_redirect( $goback );
-			exit();
+			return;
 		}
+
+		if ( Helpers::user_can_clear_log() ) {
+			$num_rows_deleted = Helpers::clear_log();
+
+			/**
+			 * Fires after the log has been cleared using
+			 * the "Clear log now" button on the settings page.
+			 *
+			 * @param int $num_rows_deleted Number of rows deleted.
+			 */
+			do_action( 'simple_history/settings/log_cleared', $num_rows_deleted );
+		}
+
+		$msg = __( 'Cleared database', 'simple-history' );
+
+		add_settings_error(
+			'simple_history_settings_clear_log',
+			'simple_history_settings_clear_log',
+			$msg,
+			'updated'
+		);
+
+		set_transient( 'settings_errors', get_settings_errors(), 30 );
+
+		$goback = esc_url_raw( add_query_arg( 'settings-updated', 'true', wp_get_referer() ) );
+
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+		wp_redirect( $goback );
+		exit();
 	}
 }

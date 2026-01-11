@@ -30,7 +30,7 @@ class Privacy_Logger extends Logger {
 	 * @return array Array with plugin info.
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			'name'        => _x( 'Privacy Logger', 'Logger: privacy', 'simple-history' ),
 			'description' => _x( 'Log WordPress privacy related things', 'Logger: Privacy', 'simple-history' ),
 			'capability'  => 'manage_options',
@@ -50,8 +50,6 @@ class Privacy_Logger extends Logger {
 				'data_erasure_erasure_erased'           => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -210,14 +208,14 @@ class Privacy_Logger extends Logger {
 		}
 
 		// User approved data export.
-		if ( 'export_personal_data' === $user_request->action_name && 'request-confirmed' === $user_request->status ) {
+		if ( $user_request->action_name === 'export_personal_data' && $user_request->status === 'request-confirmed' ) {
 			$this->info_message(
 				'privacy_data_export_request_confirmed',
 				array(
 					'user_email' => $user_request->email,
 				)
 			);
-		} elseif ( 'remove_personal_data' === $user_request->action_name && 'request-confirmed' === $user_request->status ) {
+		} elseif ( $user_request->action_name === 'remove_personal_data' && $user_request->status === 'request-confirmed' ) {
 			$this->info_message(
 				'data_erasure_request_confirmed',
 				array(
@@ -253,7 +251,7 @@ class Privacy_Logger extends Logger {
 			return;
 		}
 
-		if ( ! $update && 'export_personal_data' === $user_request->action_name && 'request-pending' && $user_request->status ) {
+		if ( ! $update && $user_request->action_name === 'export_personal_data' && 'request-pending' && $user_request->status ) {
 			// Add Data Export Request.
 			// An email will be sent to the user at this email address asking them to verify the request.
 			// Notice message in admin is "Confirmation request initiated successfully.".
@@ -265,7 +263,7 @@ class Privacy_Logger extends Logger {
 					'send_confirmation_email' => isset( $_POST['send_confirmation_email'] ) ? 1 : 0,
 				)
 			);
-		} elseif ( ! $update && 'remove_personal_data' === $user_request->action_name && 'request-pending' === $user_request->status ) {
+		} elseif ( ! $update && $user_request->action_name === 'remove_personal_data' && $user_request->status === 'request-pending' ) {
 			// Send request to user to remove user data.
 			$this->info_message(
 				'data_erasure_request_added',
@@ -275,7 +273,7 @@ class Privacy_Logger extends Logger {
 					'send_confirmation_email' => isset( $_POST['send_confirmation_email'] ) ? 1 : 0,
 				)
 			);
-		} elseif ( $update && 'remove_personal_data' === $user_request->action_name && 'request-completed' === $user_request->status ) {
+		} elseif ( $update && $user_request->action_name === 'remove_personal_data' && $user_request->status === 'request-completed' ) {
 			// Admin clicked "Complete request" in admin.
 			$this->info_message(
 				'data_erasure_request_completed',
@@ -317,15 +315,17 @@ class Privacy_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
-		if ( $user_request && 'delete' === $action ) {
-			// Looks like "Remove request" action.
-			$this->info_message(
-				'data_erasure_request_removed',
-				array(
-					'user_email' => $user_request->email,
-				)
-			);
+		if ( ! $user_request || $action !== 'delete' ) {
+			return;
 		}
+
+		// Looks like "Remove request" action.
+		$this->info_message(
+			'data_erasure_request_removed',
+			array(
+				'user_email' => $user_request->email,
+			)
+		);
 	}
 
 	/**
@@ -359,15 +359,17 @@ class Privacy_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
-		if ( $user_request && 'delete' === $action ) {
-			// Looks like "Remove request" action.
-			$this->info_message(
-				'privacy_data_export_removed',
-				array(
-					'user_email' => $user_request->email,
-				)
-			);
+		if ( ! $user_request || $action !== 'delete' ) {
+			return;
 		}
+
+		// Looks like "Remove request" action.
+		$this->info_message(
+			'privacy_data_export_removed',
+			array(
+				'user_email' => $user_request->email,
+			)
+		);
 	}
 
 	/**
@@ -395,7 +397,7 @@ class Privacy_Logger extends Logger {
 		foreach ( $request_ids as $request_id ) {
 			$request = wp_get_user_request( $request_id );
 
-			if ( false === $request ) {
+			if ( $request === false ) {
 				continue;
 			}
 
@@ -428,9 +430,9 @@ class Privacy_Logger extends Logger {
 		$action      = wp_unslash( $_POST['action'] ?? '' );
 		$option_name = 'wp_page_for_privacy_policy';
 
-		if ( 'create-privacy-page' === $action ) {
+		if ( $action === 'create-privacy-page' ) {
 			add_action( "update_option_{$option_name}", array( $this, 'on_update_option_create_privacy_page' ), 10, 3 );
-		} elseif ( 'set-privacy-page' === $action ) {
+		} elseif ( $action === 'set-privacy-page' ) {
 			add_action( "update_option_{$option_name}", array( $this, 'on_update_option_set_privacy_page' ), 10, 3 );
 		}
 	}

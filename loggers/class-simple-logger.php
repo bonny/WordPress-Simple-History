@@ -20,7 +20,7 @@ class Simple_Logger extends Logger {
 	 * @return array
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			// Shown on the info-tab in settings, use these fields to tell
 			// an admin what your logger is used for.
 			'name'        => 'SimpleLogger',
@@ -33,7 +33,5 @@ class Simple_Logger extends Logger {
 				// when adding messages __() or _x() must be used.
 			),
 		);
-
-		return $arr_info;
 	}
 }

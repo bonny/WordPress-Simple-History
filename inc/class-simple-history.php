@@ -301,15 +301,17 @@ class Simple_History {
 	 * @return void
 	 */
 	public function on_admin_head() {
-		if ( Helpers::is_on_our_own_pages() ) {
-			/**
-			 * Similar to action WordPress action `admin_head`,
-			 * but only fired from pages with Simple History.
-			 *
-			 * @param Simple_History $instance This class.
-			 */
-			do_action( 'simple_history/admin_head', $this );
+		if ( ! Helpers::is_on_our_own_pages() ) {
+			return;
 		}
+
+		/**
+		 * Similar to action WordPress action `admin_head`,
+		 * but only fired from pages with Simple History.
+		 *
+		 * @param Simple_History $instance This class.
+		 */
+		do_action( 'simple_history/admin_head', $this );
 	}
 
 	/**
@@ -318,15 +320,17 @@ class Simple_History {
 	 * @return void
 	 */
 	public function on_admin_footer() {
-		if ( Helpers::is_on_our_own_pages() ) {
-			/**
-			 * Similar to action WordPress action `admin_footer`,
-			 * but only fired from pages with Simple History.
-			 *
-			 * @param Simple_History $instance This class.
-			 */
-			do_action( 'simple_history/admin_footer', $this );
+		if ( ! Helpers::is_on_our_own_pages() ) {
+			return;
 		}
+
+		/**
+		 * Similar to action WordPress action `admin_footer`,
+		 * but only fired from pages with Simple History.
+		 *
+		 * @param Simple_History $instance This class.
+		 */
+		do_action( 'simple_history/admin_footer', $this );
 	}
 
 	/**
@@ -713,7 +717,9 @@ class Simple_History {
 			function ( $tab ) use ( $type ) {
 				if ( $type === 'top' ) {
 					return empty( $tab['parent_slug'] );
-				} elseif ( $type === 'sub' ) {
+				}
+
+				if ( $type === 'sub' ) {
 					return ! empty( $tab['parent_slug'] );
 				}
 				return false;
@@ -820,14 +826,12 @@ class Simple_History {
 		 * @param object $row Log row object.
 		 * @param Logger $logger Logger instance.
 		 */
-		$output = apply_filters(
+		return apply_filters(
 			'simple_history/get_log_row_plain_text_output/output',
 			$logger->get_log_row_plain_text_output( $row ),
 			$row,
 			$logger
 		);
-
-		return $output;
 	}
 
 	/**
@@ -904,7 +908,9 @@ class Simple_History {
 
 		if ( $logger_details_output instanceof Event_Details_Container_Interface ) {
 			return $logger_details_output;
-		} elseif ( $logger_details_output instanceof Event_Details_Group ) {
+		}
+
+		if ( $logger_details_output instanceof Event_Details_Group ) {
 			/**
 			 * Filter the event details group output for a logger
 			 * that has returned an Event_Details_Group.
@@ -915,9 +921,9 @@ class Simple_History {
 			 */
 			$logger_details_output = apply_filters( 'simple_history/log_row_details_output-' . $logger->get_slug(), $logger_details_output, $row );
 			return new Event_Details_Container( $logger_details_output, $row->context );
-		} else {
-			return new Event_Details_Simple_Container( $logger_details_output );
 		}
+
+		return new Event_Details_Simple_Container( $logger_details_output );
 	}
 
 	/**
@@ -1442,9 +1448,11 @@ class Simple_History {
 				$user_id
 			);
 
-			if ( $user_can_read_logger ) {
-				$arr_loggers_user_can_view[] = $one_logger;
+			if ( ! $user_can_read_logger ) {
+				continue;
 			}
+
+			$arr_loggers_user_can_view[] = $one_logger;
 		}
 
 		/**
@@ -1470,7 +1478,7 @@ class Simple_History {
 		);
 
 		// just return array with slugs in parenthesis suitable for sql-where.
-		if ( 'sql' === $format ) {
+		if ( $format === 'sql' ) {
 			$str_return = '(';
 
 			if ( count( $arr_loggers_user_can_view ) ) {
@@ -1487,15 +1495,13 @@ class Simple_History {
 			$str_return .= ')';
 
 			return $str_return;
-		} elseif ( 'slugs' === $format ) {
-			$logger_slugs = array_map(
+		} elseif ( $format === 'slugs' ) {
+			return array_map(
 				function ( $logger ) {
 					return $logger['instance']->get_slug();
 				},
 				$arr_loggers_user_can_view
 			);
-
-			return $logger_slugs;
 		}
 
 		// Return array with loggers that user can read.

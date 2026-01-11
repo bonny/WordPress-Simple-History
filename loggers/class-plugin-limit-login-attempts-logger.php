@@ -18,7 +18,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	 */
 	public function get_info() {
 
-		$arr_info = array(
+		return array(
 			'name'        => _x( 'Plugin: Limit Login Attempts Logger', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 			'description' => _x( 'Logs failed login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 			'name_via'    => _x( 'Using plugin Limit Login Attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
@@ -32,8 +32,6 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 				'updated_options'          => _x( 'Updated options', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -61,52 +59,56 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 	 */
 	public function on_load_settings_page( $a ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		if ( $_POST && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'limit-login-attempts-options' ) ) {
-			// Settings saved..
-			if ( isset( $_POST['clear_log'] ) ) {
-				$this->notice_message( 'cleared_ip_log' );
-			}
-
-			if ( isset( $_POST['reset_total'] ) ) {
-				$this->notice_message( 'reseted_lockout_count' );
-			}
-
-			if ( isset( $_POST['reset_current'] ) ) {
-				$this->notice_message( 'cleared_current_lockouts' );
-			}
-
-			if ( isset( $_POST['update_options'] ) ) {
-				$options = array(
-					// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-					'client_type'      => sanitize_text_field( wp_unslash( $_POST['client_type'] ) ),
-					'allowed_retries'  => sanitize_text_field( wp_unslash( $_POST['allowed_retries'] ) ),
-					'lockout_duration' => sanitize_text_field( wp_unslash( $_POST['lockout_duration'] ) ) * 60, // @phpstan-ignore-line
-					'valid_duration'   => sanitize_text_field( wp_unslash( $_POST['valid_duration'] ) ) * 3600, // @phpstan-ignore-line
-					'allowed_lockouts' => sanitize_text_field( wp_unslash( $_POST['allowed_lockouts'] ) ),
-					'long_duration'    => sanitize_text_field( wp_unslash( $_POST['long_duration'] ) ) * 3600, // @phpstan-ignore-line
-					'email_after'      => sanitize_text_field( wp_unslash( $_POST['email_after'] ) ),
-					'cookies'          => ( isset( $_POST['cookies'] ) && sanitize_text_field( wp_unslash( $_POST['cookies'] ) ) === '1' ) ? 'yes' : 'no',
-					// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-				);
-
-				$v = array();
-				if ( isset( $_POST['lockout_notify_log'] ) ) {
-					$v[] = 'log';
-				}
-				if ( isset( $_POST['lockout_notify_email'] ) ) {
-					$v[] = 'email';
-				}
-				$lockout_notify            = implode( ',', $v );
-				$options['lockout_notify'] = $lockout_notify;
-
-				$this->notice_message(
-					'updated_options',
-					array(
-						'options' => $options,
-					)
-				);
-			}
+		if ( ! $_POST || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'limit-login-attempts-options' ) ) {
+			return;
 		}
+
+		// Settings saved..
+		if ( isset( $_POST['clear_log'] ) ) {
+			$this->notice_message( 'cleared_ip_log' );
+		}
+
+		if ( isset( $_POST['reset_total'] ) ) {
+			$this->notice_message( 'reseted_lockout_count' );
+		}
+
+		if ( isset( $_POST['reset_current'] ) ) {
+			$this->notice_message( 'cleared_current_lockouts' );
+		}
+
+		if ( ! isset( $_POST['update_options'] ) ) {
+			return;
+		}
+
+		$options = array(
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			'client_type'      => sanitize_text_field( wp_unslash( $_POST['client_type'] ) ),
+			'allowed_retries'  => sanitize_text_field( wp_unslash( $_POST['allowed_retries'] ) ),
+			'lockout_duration' => sanitize_text_field( wp_unslash( $_POST['lockout_duration'] ) ) * 60, // @phpstan-ignore-line
+			'valid_duration'   => sanitize_text_field( wp_unslash( $_POST['valid_duration'] ) ) * 3600, // @phpstan-ignore-line
+			'allowed_lockouts' => sanitize_text_field( wp_unslash( $_POST['allowed_lockouts'] ) ),
+			'long_duration'    => sanitize_text_field( wp_unslash( $_POST['long_duration'] ) ) * 3600, // @phpstan-ignore-line
+			'email_after'      => sanitize_text_field( wp_unslash( $_POST['email_after'] ) ),
+			'cookies'          => ( isset( $_POST['cookies'] ) && sanitize_text_field( wp_unslash( $_POST['cookies'] ) ) === '1' ) ? 'yes' : 'no',
+			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		);
+
+		$v = array();
+		if ( isset( $_POST['lockout_notify_log'] ) ) {
+			$v[] = 'log';
+		}
+		if ( isset( $_POST['lockout_notify_email'] ) ) {
+			$v[] = 'email';
+		}
+		$lockout_notify            = implode( ',', $v );
+		$options['lockout_notify'] = $lockout_notify;
+
+		$this->notice_message(
+			'updated_options',
+			array(
+				'options' => $options,
+			)
+		);
 	}
 
 	/**
@@ -178,7 +180,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 
 		$message_key = $row->context_message_key;
 
-		if ( 'failed_login' === $message_key ) {
+		if ( $message_key === 'failed_login' ) {
 			$count        = $context['count'];
 			$lockouts     = $context['lockouts'];
 			$ip           = $context['ip'];
@@ -195,13 +197,13 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 
 			$output .= '<p>' . $message_string . '</p>';
 
-			if ( 'longer' === $lockout_type ) {
+			if ( $lockout_type === 'longer' ) {
 				$when = sprintf(
 					/* translators: %d number of hours. */
 					_nx( '%d hour', '%d hours', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 					$time
 				);
-			} elseif ( 'normal' === $lockout_type ) {
+			} elseif ( $lockout_type === 'normal' ) {
 				$when = sprintf(
 					/* translators: %d number of minutes. */
 					_nx( '%d minute', '%d minutes', $time, 'Logger: Plugin Limit Login Attempts', 'simple-history' ),

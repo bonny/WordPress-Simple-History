@@ -173,7 +173,7 @@ class File_Channel extends Channel {
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Direct file operations required for log file channel.
 		$result = file_put_contents( $log_file, $log_entry, FILE_APPEND | LOCK_EX );
 
-		if ( false === $result ) {
+		if ( $result === false ) {
 			return false;
 		}
 
@@ -329,20 +329,22 @@ class File_Channel extends Channel {
 
 		<?php
 		// Show premium promo box if premium add-on is not active.
-		if ( ! $is_premium_active ) {
-			echo wp_kses_post(
-				Helpers::get_premium_feature_teaser(
-					__( 'Unlock All Log Formats', 'simple-history' ),
-					[
-						__( 'JSON Lines, Logfmt, and Syslog formats', 'simple-history' ),
-						__( 'Compatible with Graylog, Splunk, Grafana Loki, and more', 'simple-history' ),
-						__( 'Machine-readable for easy parsing and analysis', 'simple-history' ),
-					],
-					'file_channel_formatters',
-					__( 'Unlock All Formats', 'simple-history' )
-				)
-			);
+		if ( $is_premium_active ) {
+			return;
 		}
+
+		echo wp_kses_post(
+			Helpers::get_premium_feature_teaser(
+				__( 'Unlock All Log Formats', 'simple-history' ),
+				[
+					__( 'JSON Lines, Logfmt, and Syslog formats', 'simple-history' ),
+					__( 'Compatible with Graylog, Splunk, Grafana Loki, and more', 'simple-history' ),
+					__( 'Machine-readable for easy parsing and analysis', 'simple-history' ),
+				],
+				'file_channel_formatters',
+				__( 'Unlock All Formats', 'simple-history' )
+			)
+		);
 	}
 
 	/**
@@ -740,21 +742,23 @@ class File_Channel extends Channel {
 		$htaccess_path = trailingslashit( $directory ) . '.htaccess';
 
 		// Only create if it doesn't exist.
-		if ( ! file_exists( $htaccess_path ) ) {
-			$htaccess_content  = "# Simple History log directory protection\n\n";
-			$htaccess_content .= "# Apache 2.4+\n";
-			$htaccess_content .= "<IfModule mod_authz_core.c>\n";
-			$htaccess_content .= "    Require all denied\n";
-			$htaccess_content .= "</IfModule>\n\n";
-			$htaccess_content .= "# Apache 2.2\n";
-			$htaccess_content .= "<IfModule !mod_authz_core.c>\n";
-			$htaccess_content .= "    Order deny,allow\n";
-			$htaccess_content .= "    Deny from all\n";
-			$htaccess_content .= "</IfModule>\n";
-
-			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Direct file operations required for log directory protection.
-			file_put_contents( $htaccess_path, $htaccess_content );
+		if ( file_exists( $htaccess_path ) ) {
+			return;
 		}
+
+		$htaccess_content  = "# Simple History log directory protection\n\n";
+		$htaccess_content .= "# Apache 2.4+\n";
+		$htaccess_content .= "<IfModule mod_authz_core.c>\n";
+		$htaccess_content .= "    Require all denied\n";
+		$htaccess_content .= "</IfModule>\n\n";
+		$htaccess_content .= "# Apache 2.2\n";
+		$htaccess_content .= "<IfModule !mod_authz_core.c>\n";
+		$htaccess_content .= "    Order deny,allow\n";
+		$htaccess_content .= "    Deny from all\n";
+		$htaccess_content .= "</IfModule>\n";
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Direct file operations required for log directory protection.
+		file_put_contents( $htaccess_path, $htaccess_content );
 	}
 
 	/**
@@ -766,10 +770,12 @@ class File_Channel extends Channel {
 		$index_path = trailingslashit( $directory ) . 'index.php';
 
 		// Only create if it doesn't exist.
-		if ( ! file_exists( $index_path ) ) {
-			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Direct file operations required for log directory protection.
-			file_put_contents( $index_path, "<?php\n// Silence is golden.\n" );
+		if ( file_exists( $index_path ) ) {
+			return;
 		}
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents -- Direct file operations required for log directory protection.
+		file_put_contents( $index_path, "<?php\n// Silence is golden.\n" );
 	}
 
 	/**

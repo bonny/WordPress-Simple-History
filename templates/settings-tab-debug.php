@@ -22,6 +22,7 @@ defined( 'ABSPATH' ) || die();
  *      db_engine:string
  * } $args
  */
+// phpcs:ignore SlevomatCodingStandard.ControlStructures.RequireNullCoalesceEqualOperator.RequiredNullCoalesceEqualOperator -- Intentional defensive fallback for template.
 $args = $args ?? [];
 
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -39,17 +40,19 @@ echo Admin_Pages::header_output();
 	 * confuses Simple History.
 	 */
 	foreach ( $args['tables_info'] as $table_info ) {
-		if ( ! $table_info['table_exists'] ) {
-			echo '<div class="notice notice-error">';
-			echo '<p>';
-			printf(
-				/* translators: %s table name. */
-				esc_html_x( 'Required table "%s" does not exist.', 'debug dropin', 'simple-history' ),
-				esc_html( $table_info['table_name'] )
-			);
-			echo '</p>';
-			echo '</div>';
+		if ( $table_info['table_exists'] ) {
+			continue;
 		}
+
+		echo '<div class="notice notice-error">';
+		echo '<p>';
+		printf(
+			/* translators: %s table name. */
+			esc_html_x( 'Required table "%s" does not exist.', 'debug dropin', 'simple-history' ),
+			esc_html( $table_info['table_name'] )
+		);
+		echo '</p>';
+		echo '</div>';
 	}
 
 	echo wp_kses(

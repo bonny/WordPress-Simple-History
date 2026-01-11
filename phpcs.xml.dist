@@ -176,4 +176,34 @@
 		</properties>
 	</rule>
 
+	<!--
+		Slevomat Coding Standard rules
+		These enforce patterns from our code quality skill:
+		- Early returns over else statements
+		- Null coalescing operator over isset() ternaries
+		- Clean, readable code patterns
+		https://github.com/slevomat/coding-standard
+	-->
+
+	<!-- Enforce early returns instead of nested if/else (matches "Happy path last" guideline) -->
+	<rule ref="SlevomatCodingStandard.ControlStructures.EarlyExit"/>
+
+	<!-- Remove useless if conditions that just wrap return statements -->
+	<rule ref="SlevomatCodingStandard.ControlStructures.UselessIfConditionWithReturn"/>
+
+	<!-- Require ?? over isset() ternaries (matches "Null Coalescing Operator" guideline) -->
+	<rule ref="SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator"/>
+
+	<!-- Require ??= for null coalescing assignment (PHP 7.4+) -->
+	<rule ref="SlevomatCodingStandard.ControlStructures.RequireNullCoalesceEqualOperator"/>
+
+	<!-- Disallow Yoda comparisons (already excluded in WordPress rule, this enforces it) -->
+	<rule ref="SlevomatCodingStandard.ControlStructures.DisallowYodaComparison"/>
+
+	<!-- Require trailing commas in multi-line arrays (cleaner git diffs) -->
+	<rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma"/>
+
+	<!-- Flag useless variables that just pass through values -->
+	<rule ref="SlevomatCodingStandard.Variables.UselessVariable"/>
+
 </ruleset>

@@ -46,7 +46,7 @@ class Theme_Logger extends Logger {
 	 * @return array
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			'name'        => __( 'Theme Logger', 'simple-history' ),
 			'description' => __( 'Logs theme edits', 'simple-history' ),
 			'capability'  => 'edit_theme_options',
@@ -102,8 +102,6 @@ class Theme_Logger extends Logger {
 				),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -423,14 +421,16 @@ class Theme_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$valid_post_key_exists = array_intersect_key( $arr_valid_post_keys, $_POST );
 
-		if ( ! empty( $valid_post_key_exists ) ) {
-			$context = array();
-
-			$this->info_message(
-				'custom_background_changed',
-				$context
-			);
+		if ( empty( $valid_post_key_exists ) ) {
+			return;
 		}
+
+		$context = array();
+
+		$this->info_message(
+			'custom_background_changed',
+			$context
+		);
 	}
 
 	/**
@@ -469,36 +469,42 @@ class Theme_Logger extends Logger {
 
 		foreach ( $customized as $setting_id => $posted_values ) {
 			foreach ( $settings as $one_setting ) {
-				if ( $one_setting->id === $setting_id ) {
-					$old_value = $one_setting->value();
-					$new_value = $one_setting->post_value();
+				if ( $one_setting->id !== $setting_id ) {
+					continue;
+				}
 
-					// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
-					if ( $old_value != $new_value ) {
-						$context = array(
-							'setting_id'        => $one_setting->id,
-							'setting_old_value' => $old_value,
-							'setting_new_value' => $new_value,
-						);
+				$old_value = $one_setting->value();
+				$new_value = $one_setting->post_value();
 
-						// value is changed
-						// find which control it belongs to.
-						foreach ( $controls as $one_control ) {
-							foreach ( $one_control->settings as $section_control_setting ) {
-								if ( $section_control_setting->id === $setting_id ) {
-									$context['control_id']    = $one_control->id;
-									$context['control_label'] = $one_control->label;
-									$context['control_type']  = $one_control->type;
-								}
-							}
+				// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
+				if ( $old_value == $new_value ) {
+					continue;
+				}
+
+				$context = array(
+					'setting_id'        => $one_setting->id,
+					'setting_old_value' => $old_value,
+					'setting_new_value' => $new_value,
+				);
+
+				// value is changed
+				// find which control it belongs to.
+				foreach ( $controls as $one_control ) {
+					foreach ( $one_control->settings as $section_control_setting ) {
+						if ( $section_control_setting->id !== $setting_id ) {
+							continue;
 						}
 
-						$this->info_message(
-							'appearance_customized',
-							$context
-						);
+						$context['control_id']    = $one_control->id;
+						$context['control_label'] = $one_control->label;
+						$context['control_type']  = $one_control->type;
 					}
 				}
+
+				$this->info_message(
+					'appearance_customized',
+					$context
+				);
 			}
 		}
 	}
@@ -534,7 +540,7 @@ class Theme_Logger extends Logger {
 		$output      = '';
 
 		// Theme customizer.
-		if ( 'appearance_customized' === $message_key ) {
+		if ( $message_key === 'appearance_customized' ) {
 			if ( isset( $context['setting_old_value'] ) && isset( $context['setting_new_value'] ) ) {
 				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
 
@@ -562,7 +568,7 @@ class Theme_Logger extends Logger {
 					$str_old_value_prepend = '';
 					$str_new_value_prepend = '';
 
-					if ( 'color' === $control_type ) {
+					if ( $control_type === 'color' ) {
 						$str_old_value_prepend .= sprintf(
 							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
 							esc_attr( ltrim( $context['setting_old_value'], ' #' ) )
@@ -708,31 +714,33 @@ class Theme_Logger extends Logger {
 		$context = array();
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( isset( $_POST['add_new'] ) && ! empty( $_POST['add_new'] ) && isset( $_POST['sidebar'] ) && isset( $_POST['id_base'] ) ) {
-			// Add widget info.
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$widget_id_base            = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
-			$context['widget_id_base'] = $widget_id_base;
-			$widget                    = $this->get_widget_by_id_base( $widget_id_base );
-			if ( $widget ) {
-				$context['widget_name_translated'] = $widget->name;
-			}
-
-			// Add sidebar info.
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$sidebar_id            = sanitize_text_field( wp_unslash( $_POST['sidebar'] ) );
-			$context['sidebar_id'] = $sidebar_id;
-			$sidebar               = $this->get_sidebar_by_id( $sidebar_id );
-
-			if ( is_array( $sidebar ) ) {
-				$context['sidebar_name_translated'] = $sidebar['name'];
-			}
-
-			$this->info_message(
-				'widget_added',
-				$context
-			);
+		if ( ! isset( $_POST['add_new'] ) || empty( $_POST['add_new'] ) || ! isset( $_POST['sidebar'] ) || ! isset( $_POST['id_base'] ) ) {
+			return;
 		}
+
+		// Add widget info.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$widget_id_base            = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
+		$context['widget_id_base'] = $widget_id_base;
+		$widget                    = $this->get_widget_by_id_base( $widget_id_base );
+		if ( $widget ) {
+			$context['widget_name_translated'] = $widget->name;
+		}
+
+		// Add sidebar info.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$sidebar_id            = sanitize_text_field( wp_unslash( $_POST['sidebar'] ) );
+		$context['sidebar_id'] = $sidebar_id;
+		$sidebar               = $this->get_sidebar_by_id( $sidebar_id );
+
+		if ( is_array( $sidebar ) ) {
+			$context['sidebar_name_translated'] = $sidebar['name'];
+		}
+
+		$this->info_message(
+			'widget_added',
+			$context
+		);
 	}
 
 	/**
@@ -743,33 +751,35 @@ class Theme_Logger extends Logger {
 	public function on_action_sidebar_admin_setup__detect_widget_delete() {
 		// Widget was deleted.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( isset( $_POST['delete_widget'] ) ) {
-			$context = array();
-
-			// Add widget info.
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			$widget_id_base            = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
-			$context['widget_id_base'] = $widget_id_base;
-			$widget                    = $this->get_widget_by_id_base( $widget_id_base );
-			if ( $widget ) {
-				$context['widget_name_translated'] = $widget->name;
-			}
-
-			// Add sidebar info.
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			$sidebar_id            = sanitize_text_field( wp_unslash( $_POST['sidebar'] ) );
-			$context['sidebar_id'] = $sidebar_id;
-
-			$sidebar = $this->get_sidebar_by_id( $sidebar_id );
-			if ( is_array( $sidebar ) ) {
-				$context['sidebar_name_translated'] = $sidebar['name'];
-			}
-
-			$this->info_message(
-				'widget_removed',
-				$context
-			);
+		if ( ! isset( $_POST['delete_widget'] ) ) {
+			return;
 		}
+
+		$context = array();
+
+		// Add widget info.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$widget_id_base            = sanitize_text_field( wp_unslash( $_POST['id_base'] ) );
+		$context['widget_id_base'] = $widget_id_base;
+		$widget                    = $this->get_widget_by_id_base( $widget_id_base );
+		if ( $widget ) {
+			$context['widget_name_translated'] = $widget->name;
+		}
+
+		// Add sidebar info.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$sidebar_id            = sanitize_text_field( wp_unslash( $_POST['sidebar'] ) );
+		$context['sidebar_id'] = $sidebar_id;
+
+		$sidebar = $this->get_sidebar_by_id( $sidebar_id );
+		if ( is_array( $sidebar ) ) {
+			$context['sidebar_name_translated'] = $sidebar['name'];
+		}
+
+		$this->info_message(
+			'widget_removed',
+			$context
+		);
 	}
 
 	/**

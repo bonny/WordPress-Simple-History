@@ -65,7 +65,7 @@ class Plugin_Logger extends Logger {
 	 * @return array
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			'name'        => __( 'Plugin Logger', 'simple-history' ),
 			'description' => __( 'Logs plugin installs, uninstalls and updates', 'simple-history' ),
 			'capability'  => 'activate_plugins',
@@ -178,8 +178,6 @@ class Plugin_Logger extends Logger {
 				), // search array.
 			), // labels.
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -563,7 +561,7 @@ class Plugin_Logger extends Logger {
 		global $pagenow;
 
 		// We only act on page plugins.php.
-		if ( ! isset( $pagenow ) || 'plugins.php' !== $pagenow ) {
+		if ( ! isset( $pagenow ) || $pagenow !== 'plugins.php' ) {
 			return $translation;
 		}
 
@@ -617,7 +615,7 @@ class Plugin_Logger extends Logger {
 		global $pagenow;
 
 		// We only act on page plugins.php.
-		if ( ! isset( $pagenow ) || 'plugins.php' !== $pagenow ) {
+		if ( ! isset( $pagenow ) || $pagenow !== 'plugins.php' ) {
 			return $translation;
 		}
 
@@ -643,7 +641,7 @@ class Plugin_Logger extends Logger {
 			function ( $safe_text, $text ) use ( $logger_instance ) {
 				static $is_called = false;
 
-				if ( false === $is_called ) {
+				if ( $is_called === false ) {
 					$is_called = true;
 
 					$deactivation_reason = array_shift( $logger_instance->latest_plugin_deactivation_because_of_error_reason );
@@ -1072,7 +1070,7 @@ class Plugin_Logger extends Logger {
 
 		// If uploaded plugin store name of ZIP.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( 'upload' === $install_source && isset( $_FILES['pluginzip']['name'] ) ) {
+		if ( $install_source === 'upload' && isset( $_FILES['pluginzip']['name'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$plugin_upload_name            = sanitize_text_field( $_FILES['pluginzip']['name'] );
 			$context['plugin_upload_name'] = $plugin_upload_name;
@@ -1292,20 +1290,22 @@ class Plugin_Logger extends Logger {
 					return '';
 				}
 
-				if ( 'web' === $context[ $key ] ) {
+				if ( $context[ $key ] === 'web' ) {
 					return esc_html( __( 'WordPress Plugin Repository', 'simple-history' ) );
-				} elseif ( 'upload' === $context[ $key ] ) {
-					return esc_html( __( 'Uploaded ZIP archive', 'simple-history' ) );
-				} else {
-					return esc_html( $context[ $key ] );
 				}
+
+				if ( $context[ $key ] === 'upload' ) {
+					return esc_html( __( 'Uploaded ZIP archive', 'simple-history' ) );
+				}
+
+				return esc_html( $context[ $key ] );
 
 			case 'plugin_install_source_file':
 				if ( ! isset( $context['plugin_upload_name'] ) || ! isset( $context['plugin_install_source'] ) ) {
 					return '';
 				}
 
-				if ( 'upload' === $context['plugin_install_source'] ) {
+				if ( $context['plugin_install_source'] === 'upload' ) {
 					$plugin_upload_name = $context['plugin_upload_name'];
 					return esc_html( $plugin_upload_name );
 				}

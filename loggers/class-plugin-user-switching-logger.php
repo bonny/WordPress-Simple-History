@@ -20,7 +20,7 @@ class Plugin_User_Switching_Logger extends Logger {
 	 * @return array
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			'name'        => _x( 'Plugin: User Switching Logger', 'PluginUserSwitchingLogger', 'simple-history' ),
 			'description' => _x( 'Logs user switches', 'PluginUserSwitchingLogger', 'simple-history' ),
 			'name_via'    => _x( 'Using plugin User Switching', 'PluginUserSwitchingLogger', 'simple-history' ),
@@ -32,8 +32,6 @@ class Plugin_User_Switching_Logger extends Logger {
 				'switched_off_user'      => _x( 'Switched off user "{user_login}"', 'PluginUserSwitchingLogger', 'simple-history' ),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**

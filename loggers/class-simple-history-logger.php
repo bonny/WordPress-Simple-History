@@ -292,7 +292,7 @@ class Simple_History_Logger extends Logger {
 			) . '</p>';
 		}
 
-		$event_details_group = ( new Event_Details_Group() )
+		return ( new Event_Details_Group() )
 			->add_items(
 				[
 					new Event_Details_Item(
@@ -322,7 +322,5 @@ class Simple_History_Logger extends Logger {
 				]
 			)
 			->set_title( __( 'Changed items', 'simple-history' ) );
-
-		return $event_details_group;
 	}
 }

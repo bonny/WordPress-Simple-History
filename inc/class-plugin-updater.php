@@ -98,8 +98,8 @@ class Plugin_Updater {
 
 		$remote = get_transient( $this->cache_key );
 
-		if ( false !== $remote && $this->cache_allowed ) {
-			if ( 'error' === $remote ) {
+		if ( $remote !== false && $this->cache_allowed ) {
+			if ( $remote === 'error' ) {
 				return false;
 			}
 
@@ -125,7 +125,7 @@ class Plugin_Updater {
 
 		if (
 			is_wp_error( $remote )
-			|| 200 !== wp_remote_retrieve_response_code( $remote )
+			|| wp_remote_retrieve_response_code( $remote ) !== 200
 			|| empty( wp_remote_retrieve_body( $remote ) )
 		) {
 			// Cache errors for 10 minutes.
@@ -154,7 +154,7 @@ class Plugin_Updater {
 	 */
 	public function on_plugins_api_handle_plugin_info( $result, $action, $args ) {
 		// Bail if this is not about getting plugin information.
-		if ( 'plugin_information' !== $action ) {
+		if ( $action !== 'plugin_information' ) {
 			return $result;
 		}
 
@@ -268,16 +268,20 @@ class Plugin_Updater {
 	 */
 	public function purge( $upgrader, $options ) {
 		if (
-			$this->cache_allowed
-			&& 'update' === $options['action']
-			&& 'plugin' === $options['type']
-			&& ! empty( $options['plugins'] )
+			! $this->cache_allowed
+			|| $options['action'] !== 'update'
+			|| $options['type'] !== 'plugin'
+			|| empty( $options['plugins'] )
 		) {
-			foreach ( $options['plugins'] as $plugin ) {
-				if ( $plugin === $this->plugin_id ) {
-					delete_transient( $this->cache_key );
-				}
+			return;
+		}
+
+		foreach ( $options['plugins'] as $plugin ) {
+			if ( $plugin !== $this->plugin_id ) {
+				continue;
 			}
+
+			delete_transient( $this->cache_key );
 		}
 	}
 }

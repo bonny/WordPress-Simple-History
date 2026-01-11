@@ -122,13 +122,15 @@ class Events_Stats {
 			$sessions = WP_Session_Tokens::get_instance( $one_user_id );
 
 			$all_user_sessions = $sessions->get_all();
-			if ( $all_user_sessions ) {
-				$logged_in_users[] = [
-					'user'           => get_userdata( $one_user_id ),
-					'sessions_count' => count( $all_user_sessions ),
-					'sessions'       => $all_user_sessions,
-				];
+			if ( ! $all_user_sessions ) {
+				continue;
 			}
+
+			$logged_in_users[] = [
+				'user'           => get_userdata( $one_user_id ),
+				'sessions_count' => count( $all_user_sessions ),
+				'sessions'       => $all_user_sessions,
+			];
 		}
 
 		return array_slice( $logged_in_users, 0, $limit );
@@ -1692,9 +1694,7 @@ class Events_Stats {
 
 		// Add context data to history entries.
 		foreach ( $history_results as $history ) {
-			$history->context = isset( $context_by_history_id[ $history->id ] )
-				? $context_by_history_id[ $history->id ]
-				: array();
+			$history->context = $context_by_history_id[ $history->id ] ?? array();
 		}
 
 		return $history_results;
@@ -1875,7 +1875,7 @@ class Events_Stats {
 		$note_reply = $this->get_detailed_stats_for_logger_and_value( 'NotesLogger', '_message_key', 'note_reply_added', $date_from, $date_to );
 
 		// Merge both arrays if they're valid.
-		if ( false === $note_added && false === $note_reply ) {
+		if ( $note_added === false && $note_reply === false ) {
 			return false;
 		}
 

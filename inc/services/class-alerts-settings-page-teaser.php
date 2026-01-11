@@ -82,7 +82,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 
 			<div class="sh-AlertsTeaser" inert aria-label="<?php esc_attr_e( 'Premium feature preview - not interactive', 'simple-history' ); ?>">
 				<?php
-				if ( 'destinations' === $current_tab ) {
+				if ( $current_tab === 'destinations' ) {
 					$this->render_destinations_preview();
 				} else {
 					$this->render_rules_preview();
@@ -104,7 +104,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 	 * @param string $current_tab The currently active tab.
 	 */
 	private function render_section_intro( string $current_tab ) {
-		if ( 'destinations' === $current_tab ) {
+		if ( $current_tab === 'destinations' ) {
 			$icon        = 'schedule_send';
 			$title       = __( 'Alert Destinations', 'simple-history' );
 			$description = __( 'Configure where your alerts will be sent. Add multiple destinations and reuse them across different alert rules.', 'simple-history' );
@@ -296,7 +296,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 					$preset_events = $preset['events'] ?? [];
 					$event_count   = count( $preset_events );
 					// Only show destinations selected for Security preset.
-					$is_security = 'security' === $preset_id;
+					$is_security = $preset_id === 'security';
 					?>
 					<div class="sh-SettingsCard sh-PresetCard">
 						<div class="sh-CardHeader">
@@ -350,7 +350,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 														<input type="checkbox" <?php checked( $is_checked ); ?> disabled />
 														<span class="sh-PresetCard-destinationName">
 															<?php echo esc_html( $sample['name'] ); ?>
-															<?php if ( 'email' === $type && isset( $sample['recipient_count'] ) ) { ?>
+															<?php if ( $type === 'email' && isset( $sample['recipient_count'] ) ) { ?>
 																<span class="sh-PresetCard-emailRecipients">
 																	<span class="dashicons dashicons-email-alt"></span><?php echo absint( $sample['recipient_count'] ); ?>
 																</span>

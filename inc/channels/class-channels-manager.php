@@ -41,9 +41,11 @@ class Channels_Manager extends Service {
 		// Some users report "Class File_Channel not found" errors during plugin updates.
 		// We haven't been able to reproduce this, but checking class_exists() first
 		// should prevent the fatal error for those affected.
-		if ( class_exists( File_Channel::class ) ) {
-			$this->register_channel( new File_Channel() );
+		if ( ! class_exists( File_Channel::class ) ) {
+			return;
 		}
+
+		$this->register_channel( new File_Channel() );
 	}
 
 	/**
@@ -189,9 +191,11 @@ class Channels_Manager extends Service {
 		// Interpolate context variables into the message.
 		if ( ! empty( $event_data['context'] ) ) {
 			foreach ( $event_data['context'] as $key => $value ) {
-				if ( is_string( $value ) || is_numeric( $value ) ) {
-					$message = str_replace( '{' . $key . '}', $value, $message );
+				if ( ! is_string( $value ) && ! is_numeric( $value ) ) {
+					continue;
 				}
+
+				$message = str_replace( '{' . $key . '}', $value, $message );
 			}
 		}
 

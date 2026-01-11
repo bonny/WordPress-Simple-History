@@ -146,7 +146,7 @@ class History_Insights_Sidebar_Service extends Service {
 		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
 		// $results = false;
 
-		if ( false !== $results ) {
+		if ( $results !== false ) {
 			return $results;
 		}
 

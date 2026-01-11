@@ -23,7 +23,7 @@ class Plugin_Redirection_Logger extends Logger {
 	 */
 	public function get_info() {
 
-		$arr_info = array(
+		return array(
 			'name'        => _x( 'Plugin: Redirection Logger', 'Logger: Redirection', 'simple-history' ),
 			'description' => _x( 'Logs edits in the Redirection plugin', 'Logger: Redirection', 'simple-history' ),
 			'name_via'    => _x( 'In plugin Redirection', 'Logger: Redirection', 'simple-history' ),
@@ -43,8 +43,6 @@ class Plugin_Redirection_Logger extends Logger {
 				'redirection_group_deleted'        => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -97,11 +95,11 @@ class Plugin_Redirection_Logger extends Logger {
 			return $response;
 		}
 
-		if ( 'Redirection_Api_Redirect::route_create' === $callable_name ) {
+		if ( $callable_name === 'Redirection_Api_Redirect::route_create' ) {
 			$this->log_redirection_add( $request );
-		} elseif ( 'Redirection_Api_Redirect::route_update' === $callable_name ) {
+		} elseif ( $callable_name === 'Redirection_Api_Redirect::route_update' ) {
 			$this->log_redirection_edit( $request );
-		} elseif ( 'Redirection_Api_Redirect::route_bulk' === $callable_name ) {
+		} elseif ( $callable_name === 'Redirection_Api_Redirect::route_bulk' ) {
 			$bulk_action = $request->get_param( 'bulk' );
 			$bulk_items  = $request->get_param( 'items' );
 
@@ -115,18 +113,18 @@ class Plugin_Redirection_Logger extends Logger {
 				return $response;
 			}
 
-			if ( 'enable' === $bulk_action ) {
+			if ( $bulk_action === 'enable' ) {
 				$this->log_redirection_enable_or_disable( $request, $bulk_items );
-			} elseif ( 'disable' === $bulk_action ) {
+			} elseif ( $bulk_action === 'disable' ) {
 				$this->log_redirection_enable_or_disable( $request, $bulk_items );
-			} elseif ( 'delete' === $bulk_action ) {
+			} elseif ( $bulk_action === 'delete' ) {
 				$this->log_redirection_delete( $request, $bulk_items );
 			}
-		} elseif ( 'Redirection_Api_Group::route_create' === $callable_name ) {
+		} elseif ( $callable_name === 'Redirection_Api_Group::route_create' ) {
 			$this->log_group_add( $request );
-		} elseif ( 'Redirection_Api_Group::route_update' === $callable_name ) {
+		} elseif ( $callable_name === 'Redirection_Api_Group::route_update' ) {
 			$this->log_group_edit( $request );
-		} elseif ( 'Redirection_Api_Group::route_bulk' === $callable_name ) {
+		} elseif ( $callable_name === 'Redirection_Api_Group::route_bulk' ) {
 			$bulk_action = $request->get_param( 'bulk' );
 			$bulk_items  = (array) $request->get_param( 'items' );
 
@@ -136,14 +134,14 @@ class Plugin_Redirection_Logger extends Logger {
 				return $response;
 			}
 
-			if ( 'enable' === $bulk_action ) {
+			if ( $bulk_action === 'enable' ) {
 				$this->log_group_enable_or_disable( $request, $bulk_items );
-			} elseif ( 'disable' === $bulk_action ) {
+			} elseif ( $bulk_action === 'disable' ) {
 				$this->log_group_enable_or_disable( $request, $bulk_items );
-			} elseif ( 'delete' === $bulk_action ) {
+			} elseif ( $bulk_action === 'delete' ) {
 				$this->log_group_delete( $request, $bulk_items );
 			}
-		} elseif ( 'Redirection_Api_Settings::route_save_settings' === $callable_name ) {
+		} elseif ( $callable_name === 'Redirection_Api_Settings::route_save_settings' ) {
 			$this->log_options_save( $request );
 		}
 
@@ -233,7 +231,7 @@ class Plugin_Redirection_Logger extends Logger {
 	public function log_group_enable_or_disable( $req, $bulk_items ) {
 		$bulk_action = $req->get_param( 'bulk' );
 
-		$message_key = 'enable' === $bulk_action ? 'redirection_group_enabled' : 'redirection_group_disabled';
+		$message_key = $bulk_action === 'enable' ? 'redirection_group_enabled' : 'redirection_group_disabled';
 
 		$context = array(
 			'items'       => $bulk_items,
@@ -284,7 +282,7 @@ class Plugin_Redirection_Logger extends Logger {
 	protected function log_redirection_enable_or_disable( $req, $bulk_items ) {
 		$bulk_action = $req->get_param( 'bulk' );
 
-		$message_key = 'enable' === $bulk_action ? 'redirection_redirection_enabled' : 'redirection_redirection_disabled';
+		$message_key = $bulk_action === 'enable' ? 'redirection_redirection_enabled' : 'redirection_redirection_disabled';
 
 		$context = array(
 			'items'       => $bulk_items,
@@ -340,7 +338,7 @@ class Plugin_Redirection_Logger extends Logger {
 		// Get old values.
 		$redirection_item = \Red_Item::get_by_id( $redirection_id );
 
-		if ( false !== $redirection_item ) {
+		if ( $redirection_item !== false ) {
 			$context['prev_source_url'] = $redirection_item->get_url();
 			$context['prev_target']     = maybe_unserialize( $redirection_item->get_action_data() );
 		}
@@ -362,7 +360,7 @@ class Plugin_Redirection_Logger extends Logger {
 
 		$out = '';
 
-		if ( 'redirection_redirection_edited' === $message_key ) {
+		if ( $message_key === 'redirection_redirection_edited' ) {
 			if ( $context['new_source_url'] !== $context['prev_source_url'] ) {
 				$diff_table_output = sprintf(
 					'<tr>

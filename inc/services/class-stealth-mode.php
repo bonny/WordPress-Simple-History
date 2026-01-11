@@ -129,12 +129,14 @@ class Stealth_Mode extends Service {
 
 		// Check for wildcard domain match.
 		foreach ( $allowed_emails as $allowed_email ) {
-			if ( strpos( $allowed_email, '@' ) === 0 ) {
-				// Extract domain part.
-				$domain = substr( $allowed_email, 1 );
-				if ( str_ends_with( $user_email, "@{$domain}" ) ) {
-					return true;
-				}
+			if ( strpos( $allowed_email, '@' ) !== 0 ) {
+				continue;
+			}
+
+			// Extract domain part.
+			$domain = substr( $allowed_email, 1 );
+			if ( str_ends_with( $user_email, "@{$domain}" ) ) {
+				return true;
 			}
 		}
 
@@ -236,9 +238,11 @@ class Stealth_Mode extends Service {
 			$slug = apply_filters( 'wp_plugin_dependencies_slug', $slug ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 
 			// Match to WordPress.org slug format.
-			if ( preg_match( '/^[a-z0-9]+(-[a-z0-9]+)*$/mu', $slug ) ) {
-				$sanitized_slugs[] = $slug;
+			if ( ! preg_match( '/^[a-z0-9]+(-[a-z0-9]+)*$/mu', $slug ) ) {
+				continue;
 			}
+
+			$sanitized_slugs[] = $slug;
 		}
 		$sanitized_slugs = array_unique( $sanitized_slugs );
 		sort( $sanitized_slugs );

@@ -118,26 +118,26 @@ class Export {
 
 		$attachment_header_template = 'Content-Disposition: attachment; filename="%1$s"';
 
-		if ( 'csv' === $export_format ) {
+		if ( $export_format === 'csv' ) {
 			$filename = 'simple-history-export-' . time() . '.csv';
 			header( 'Content-Type: text/plain' );
 			header( sprintf( $attachment_header_template, $filename ) );
-		} elseif ( 'json' === $export_format ) {
+		} elseif ( $export_format === 'json' ) {
 			$filename = 'simple-history-export-' . time() . '.json';
 			header( 'Content-Type: application/json' );
 			header( sprintf( $attachment_header_template, $filename ) );
-		} elseif ( 'html' === $export_format ) {
+		} elseif ( $export_format === 'html' ) {
 			$filename = 'simple-history-export-' . time() . '.html';
 			header( 'Content-Type: text/html' );
 			header( sprintf( $attachment_header_template, $filename ) );
 		}
 
 		// Some formats need to output some stuff before the actual loops.
-		if ( 'json' === $export_format ) {
+		if ( $export_format === 'json' ) {
 			$json_row = '[';
 			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $json_row );
-		} elseif ( 'html' === $export_format ) {
+		} elseif ( $export_format === 'html' ) {
 			$html = sprintf(
 				'
 			<!doctype html>
@@ -158,11 +158,11 @@ class Export {
 
 				set_time_limit( 30 );
 
-				if ( 'csv' === $export_format ) {
+				if ( $export_format === 'csv' ) {
 					$this->output_csv_row( $fp, $one_row );
-				} elseif ( 'json' === $export_format ) {
+				} elseif ( $export_format === 'json' ) {
 					$this->output_json_row( $fp, $one_row, $row_loop );
-				} elseif ( 'html' === $export_format ) {
+				} elseif ( $export_format === 'html' ) {
 					$this->output_html_row( $fp, $one_row );
 				}
 
@@ -181,11 +181,11 @@ class Export {
 			}
 		}
 
-		if ( 'json' === $export_format ) {
+		if ( $export_format === 'json' ) {
 			$json_row = ']';
 			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $json_row );
-		} elseif ( 'html' === $export_format ) {
+		} elseif ( $export_format === 'html' ) {
 			$html = sprintf( '</ul>' );
 			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite -- This is a known file pointer and it's not writing to a physical file.
 			fwrite( $fp, $html );

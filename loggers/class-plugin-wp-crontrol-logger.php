@@ -21,7 +21,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 	 */
 	public function get_info() {
 
-		$arr_info = array(
+		return array(
 			'name'        => _x( 'Plugin: WP Crontrol Logger', 'PluginWPCrontrolLogger', 'simple-history' ),
 			'description' => _x( 'Logs management of cron events', 'PluginWPCrontrolLogger', 'simple-history' ),
 			'name_via'    => _x( 'Using plugin WP Crontrol', 'PluginWPCrontrolLogger', 'simple-history' ),
@@ -38,8 +38,6 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 				'deleted_schedule'      => _x( 'Deleted cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history' ),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -366,7 +364,7 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 				);
 			}
 		} elseif ( isset( $context['event_args'] ) ) {
-			if ( '[]' !== $context['event_args'] ) {
+			if ( $context['event_args'] !== '[]' ) {
 				$args = $context['event_args'];
 			} else {
 				$args = _x( 'None', 'PluginWPCrontrolLogger', 'simple-history' );

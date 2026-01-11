@@ -170,10 +170,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	public function get_item( $request ) {
 		$event = $this->get_single_event( $request['id'] );
 
-		$data     = $this->prepare_item_for_response( $event, $request );
-		$response = rest_ensure_response( $data );
-
-		return $response;
+		$data = $this->prepare_item_for_response( $event, $request );
+		return rest_ensure_response( $data );
 	}
 
 
@@ -747,9 +745,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		 * set the parameter's value on the query $args.
 		 */
 		foreach ( $parameter_mappings as $api_param => $wp_param ) {
-			if ( isset( $registered[ $api_param ], $request[ $api_param ] ) ) {
-				$args[ $wp_param ] = $request[ $api_param ];
+			if ( ! isset( $registered[ $api_param ], $request[ $api_param ] ) ) {
+				continue;
 			}
+
+			$args[ $wp_param ] = $request[ $api_param ];
 		}
 
 		$log_query    = new Log_Query();
@@ -841,9 +841,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		 * set the parameter's value on the query $args.
 		 */
 		foreach ( $parameter_mappings as $api_param => $wp_param ) {
-			if ( isset( $registered[ $api_param ], $request[ $api_param ] ) ) {
-				$args[ $wp_param ] = $request[ $api_param ];
+			if ( ! isset( $registered[ $api_param ], $request[ $api_param ] ) ) {
+				continue;
 			}
+
+			$args[ $wp_param ] = $request[ $api_param ];
 		}
 
 		$log_query    = new Log_Query();
@@ -1082,9 +1084,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		// Wrap the data in a response object.
-		$response = rest_ensure_response( $data );
-
-		return $response;
+		return rest_ensure_response( $data );
 	}
 
 	/**
@@ -1310,7 +1310,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	public function sanitize_initiator_param( $value, $request, $param ) {
 		if ( is_string( $value ) ) {
 			return sanitize_text_field( $value );
-		} elseif ( is_array( $value ) ) {
+		}
+
+		if ( is_array( $value ) ) {
 			return array_map( 'sanitize_text_field', $value );
 		}
 

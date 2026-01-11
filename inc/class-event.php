@@ -152,7 +152,7 @@ class Event {
 		$cached_data = wp_cache_get( $cache_key, $cache_group );
 
 		// Use cached data if it exists.
-		if ( false !== $cached_data ) {
+		if ( $cached_data !== false ) {
 			$events = [];
 			foreach ( $cached_data as $event_id => $event_data ) {
 				$events[ $event_id ] = self::from_object( $event_data );
@@ -551,7 +551,7 @@ class Event {
 		$cached_data = wp_cache_get( $cache_key, $cache_group );
 
 		// Use cached data if it exists.
-		if ( false !== $cached_data ) {
+		if ( $cached_data !== false ) {
 			$this->data        = $cached_data['data'];
 			$this->context     = $cached_data['context'];
 			$this->load_status = 'LOADED_FROM_CACHE';
@@ -674,14 +674,18 @@ class Event {
 			}
 
 			// Add context data if exists.
-			if ( $row->key !== null ) {
-				$events_data[ $event_id ]['context'][ $row->key ] = $row->value;
-
-				// Move up _message_key from context to main data.
-				if ( $row->key === '_message_key' ) {
-					$events_data[ $event_id ]['context_message_key'] = $row->value;
-				}
+			if ( $row->key === null ) {
+				continue;
 			}
+
+			$events_data[ $event_id ]['context'][ $row->key ] = $row->value;
+
+			// Move up _message_key from context to main data.
+			if ( $row->key !== '_message_key' ) {
+				continue;
+			}
+
+			$events_data[ $event_id ]['context_message_key'] = $row->value;
 		}
 
 		// Convert to object.

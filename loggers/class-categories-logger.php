@@ -17,7 +17,7 @@ class Categories_Logger extends Logger {
 	 * @return array
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			'name'        => __( 'Categories Logger', 'simple-history' ),
 			'description' => __( 'Logs changes to categories, tags, and taxonomies', 'simple-history' ),
 			'messages'    => array(
@@ -43,8 +43,6 @@ class Categories_Logger extends Logger {
 				),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -205,9 +203,9 @@ class Categories_Logger extends Logger {
 		$term_id = isset( $context['term_id'] ) ? (int) $context['term_id'] : null;
 
 		// Get taxonomy for term.
-		if ( 'created_term' === $message_key || 'deleted_term' === $message_key ) {
+		if ( $message_key === 'created_term' || $message_key === 'deleted_term' ) {
 			$term_taxonomy = isset( $context['term_taxonomy'] ) ? (string) $context['term_taxonomy'] : null;
-		} elseif ( 'edited_term' === $message_key ) {
+		} elseif ( $message_key === 'edited_term' ) {
 			$term_taxonomy = isset( $context['from_term_taxonomy'] ) ? (string) $context['from_term_taxonomy'] : null;
 		}
 
@@ -250,19 +248,19 @@ class Categories_Logger extends Logger {
 			}
 		}
 
-		if ( 'created_term' === $message_key && ! empty( $term_edit_link ) && ! empty( $tax_edit_link ) ) {
+		if ( $message_key === 'created_term' && ! empty( $term_edit_link ) && ! empty( $tax_edit_link ) ) {
 			$message = _x(
 				'Added term <a href="{term_edit_link}">"{term_name}"</a> in taxonomy <a href="{tax_edit_link}">"{termTaxonomySlugOrName}"</a>',
 				'Categories logger: detailed plain text output for created term',
 				'simple-history'
 			);
-		} elseif ( 'deleted_term' === $message_key && ! empty( $tax_edit_link ) ) {
+		} elseif ( $message_key === 'deleted_term' && ! empty( $tax_edit_link ) ) {
 			$message = _x(
 				'Deleted term "{term_name}" from taxonomy <a href="{tax_edit_link}">"{termTaxonomySlugOrName}"</a>',
 				'Categories logger: detailed plain text output for deleted term',
 				'simple-history'
 			);
-		} elseif ( 'edited_term' === $message_key && ! empty( $term_edit_link ) && ! empty( $tax_edit_link ) ) {
+		} elseif ( $message_key === 'edited_term' && ! empty( $term_edit_link ) && ! empty( $tax_edit_link ) ) {
 			$message = _x(
 				'Edited term <a href="{term_edit_link}">"{to_term_name}"</a> in taxonomy <a href="{tax_edit_link}">"{toTermTaxonomySlugOrName}"</a>',
 				'Categories logger: detailed plain text output for edited term',
@@ -289,9 +287,7 @@ class Categories_Logger extends Logger {
 
 		$skip_taxonomies = $this->get_skip_taxonomies();
 
-		$do_log = ! in_array( $from_term_taxonomy, $skip_taxonomies, true );
-
-		return $do_log;
+		return ! in_array( $from_term_taxonomy, $skip_taxonomies, true );
 	}
 
 	/**

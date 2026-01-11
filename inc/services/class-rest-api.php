@@ -31,9 +31,11 @@ class REST_API extends Service {
 		$stats_controller->register_routes();
 
 		// Only register dev tools routes when dev mode is enabled.
-		if ( Helpers::dev_mode_is_enabled() ) {
-			$dev_tools_controller = new WP_REST_Devtools_Controller();
-			$dev_tools_controller->register_routes();
+		if ( ! Helpers::dev_mode_is_enabled() ) {
+			return;
 		}
+
+		$dev_tools_controller = new WP_REST_Devtools_Controller();
+		$dev_tools_controller->register_routes();
 	}
 }

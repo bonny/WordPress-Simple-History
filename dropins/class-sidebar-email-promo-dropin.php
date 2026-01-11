@@ -106,11 +106,8 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 
 		// Don't show if user has dismissed the promo.
 		$dismissed = get_user_meta( get_current_user_id(), self::DISMISSED_USER_META_KEY, true );
-		if ( $dismissed ) {
-			return false;
-		}
 
-		return true;
+		return ! $dismissed;
 	}
 
 	/**

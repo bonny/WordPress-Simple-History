@@ -236,9 +236,11 @@ class Menu_Manager {
 		$children = [];
 
 		foreach ( $this->pages as $page ) {
-			if ( $page->get_parent() === $parent_page ) {
-				$children[] = $page;
+			if ( $page->get_parent() !== $parent_page ) {
+				continue;
 			}
+
+			$children[] = $page;
 		}
 
 		// Sort children by order.
@@ -325,9 +327,7 @@ class Menu_Manager {
 			return [];
 		}
 
-		$current_menu_page_root_children = $current_menu_page_root->get_children();
-
-		return $current_menu_page_root_children;
+		return $current_menu_page_root->get_children();
 	}
 
 	/**

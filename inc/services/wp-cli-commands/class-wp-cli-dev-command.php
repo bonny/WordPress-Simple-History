@@ -108,9 +108,11 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 		$deleted_count = 0;
 
 		foreach ( $options_to_delete as $option ) {
-			if ( delete_option( $option ) ) {
-				++$deleted_count;
+			if ( ! delete_option( $option ) ) {
+				continue;
 			}
+
+			++$deleted_count;
 		}
 
 		WP_CLI::log(

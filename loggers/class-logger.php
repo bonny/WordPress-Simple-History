@@ -903,9 +903,11 @@ abstract class Logger {
 		$context['_message_key'] = $messageKey;
 
 		$message = $this->get_untranslated_message( $messageKey );
-		if ( $message !== null ) {
-			$this->log( $SimpleLoggerLogLevelsLevel, $message, $context );
+		if ( $message === null ) {
+			return;
 		}
+
+		$this->log( $SimpleLoggerLogLevelsLevel, $message, $context );
 	}
 
 	/**
@@ -1154,7 +1156,7 @@ abstract class Logger {
 			$this
 		);
 
-		if ( false === $do_log ) {
+		if ( $do_log === false ) {
 			return $this;
 		}
 
@@ -1175,7 +1177,7 @@ abstract class Logger {
 			"simple_history/log/do_log/{$this->get_slug()}",
 			true
 		);
-		if ( false === $do_log ) {
+		if ( $do_log === false ) {
 			return $this;
 		}
 
@@ -1195,7 +1197,7 @@ abstract class Logger {
 			true
 		);
 
-		if ( false === $do_log ) {
+		if ( $do_log === false ) {
 			return $this;
 		}
 
@@ -1336,7 +1338,7 @@ abstract class Logger {
 		$result = $wpdb->insert( $this->db_table, $data );
 
 		// Auto-recover from missing tables.
-		if ( false === $result && ! empty( $wpdb->last_error ) ) {
+		if ( $result === false && ! empty( $wpdb->last_error ) ) {
 			if ( Services\Setup_Database::is_table_missing_error( $wpdb->last_error ) ) {
 				// Try to recreate tables.
 				$recreated = Services\Setup_Database::recreate_tables_if_missing();
@@ -1350,7 +1352,7 @@ abstract class Logger {
 		}
 
 		// Save context if able to store row.
-		if ( false === $result ) {
+		if ( $result === false ) {
 			$history_inserted_id = null;
 		} else {
 			$history_inserted_id = $wpdb->insert_id;
@@ -1838,24 +1840,26 @@ abstract class Logger {
 			$ip_keys = Helpers::get_ip_number_header_names();
 
 			foreach ( $ip_keys as $key ) {
-				if ( array_key_exists( $key, $_SERVER ) ) {
-					// Loop through all IPs.
-					$ip_loop_num = 0;
-					foreach ( explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) ) ) as $ip ) {
-						// trim for safety measures.
-						$ip = trim( $ip );
+				if ( ! array_key_exists( $key, $_SERVER ) ) {
+					continue;
+				}
 
-						// attempt to validate IP.
-						if ( Helpers::is_valid_public_ip( $ip ) ) {
-							// valid, add to context, with loop index appended so we can store many IPs.
-							$key_lower = strtolower( $key );
-							$ip        = Helpers::privacy_anonymize_ip( $ip );
+				// Loop through all IPs.
+				$ip_loop_num = 0;
+				foreach ( explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) ) ) as $ip ) {
+					// trim for safety measures.
+					$ip = trim( $ip );
 
-							$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
-						}
+					// attempt to validate IP.
+					if ( Helpers::is_valid_public_ip( $ip ) ) {
+						// valid, add to context, with loop index appended so we can store many IPs.
+						$key_lower = strtolower( $key );
+						$ip        = Helpers::privacy_anonymize_ip( $ip );
 
-						++$ip_loop_num;
+						$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
 					}
+
+					++$ip_loop_num;
 				}
 			}
 		} // End if().
@@ -1966,7 +1970,7 @@ abstract class Logger {
 	 * @param string $name Name of property to get.
 	 */
 	public function __get( $name ) {
-		if ( 'slug' === $name ) {
+		if ( $name === 'slug' ) {
 			_deprecated_function( __METHOD__, '4.5.1', 'get_slug()' );
 			return $this->get_slug();
 		}
@@ -1989,12 +1993,10 @@ abstract class Logger {
 		 * @param string $slug
 		 * @return bool
 		 */
-		$is_enabled = apply_filters(
+		return apply_filters(
 			'simple_history/logger/enabled',
 			$is_enabled_by_default,
 			$this->get_slug()
 		);
-
-		return $is_enabled;
 	}
 }

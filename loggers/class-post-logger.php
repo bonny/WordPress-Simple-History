@@ -274,47 +274,51 @@ class Post_Logger extends Logger {
 		$message       = null;
 		$context       = array();
 
-		if ( in_array( $method, $arr_methods_to_act_on, true ) ) {
-			// Setup common stuff.
-			// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile
-			$raw_post_data                    = file_get_contents( 'php://input' );
-			$context['wp.deletePost.xmldata'] = Helpers::json_encode( $raw_post_data );
-			$message                          = new \IXR_Message( $raw_post_data );
-
-			if ( ! $message->parse() ) {
-				return;
-			}
-
-			$context['wp.deletePost.xmlrpc_message'] = Helpers::json_encode( $message );
-
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$context['wp.deletePost.xmlrpc_message.messageType'] = Helpers::json_encode( $message->messageType );
-
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$context['wp.deletePost.xmlrpc_message.methodName'] = Helpers::json_encode( $message->methodName );
-
-			$context['wp.deletePost.xmlrpc_message.messageParams'] = Helpers::json_encode( $message->params );
-
-			// Actions for delete post.
-			if ( 'wp.deletePost' === $method ) {
-				// 4 params, where the last is the post id
-				if ( ! isset( $message->params[3] ) ) {
-					return;
-				}
-
-				$post_ID = $message->params[3];
-
-				$post = get_post( $post_ID );
-
-				$context = array(
-					'post_id'    => $post->ID,
-					'post_type'  => get_post_type( $post ),
-					'post_title' => get_the_title( $post ),
-				);
-
-				$this->info_message( 'post_trashed', $context );
-			}
+		if ( ! in_array( $method, $arr_methods_to_act_on, true ) ) {
+			return;
 		}
+
+		// Setup common stuff.
+		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsRemoteFile
+		$raw_post_data                    = file_get_contents( 'php://input' );
+		$context['wp.deletePost.xmldata'] = Helpers::json_encode( $raw_post_data );
+		$message                          = new \IXR_Message( $raw_post_data );
+
+		if ( ! $message->parse() ) {
+			return;
+		}
+
+		$context['wp.deletePost.xmlrpc_message'] = Helpers::json_encode( $message );
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$context['wp.deletePost.xmlrpc_message.messageType'] = Helpers::json_encode( $message->messageType );
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$context['wp.deletePost.xmlrpc_message.methodName'] = Helpers::json_encode( $message->methodName );
+
+		$context['wp.deletePost.xmlrpc_message.messageParams'] = Helpers::json_encode( $message->params );
+
+		// Actions for delete post.
+		if ( $method !== 'wp.deletePost' ) {
+			return;
+		}
+
+		// 4 params, where the last is the post id
+		if ( ! isset( $message->params[3] ) ) {
+			return;
+		}
+
+		$post_ID = $message->params[3];
+
+		$post = get_post( $post_ID );
+
+		$context = array(
+			'post_id'    => $post->ID,
+			'post_type'  => get_post_type( $post ),
+			'post_title' => get_the_title( $post ),
+		);
+
+		$this->info_message( 'post_trashed', $context );
 	}
 
 	/**
@@ -644,7 +648,7 @@ class Post_Logger extends Logger {
 		// Except when calls are from/for Jetpack/WordPress apps.
 		// seems to be jetpack/app request when $_GET["for"] == "jetpack.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $isXmlRpcRequest && isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] ) {
+		if ( $isXmlRpcRequest && isset( $_GET['for'] ) && $_GET['for'] === 'jetpack' ) {
 			$ok_to_log = true;
 		}
 
@@ -721,13 +725,13 @@ class Post_Logger extends Logger {
 		// Check if this is a post being created.
 		// This includes both manual creation (auto-draft -> draft/publish)
 		// and auto-save creation (auto-draft -> draft).
-		$is_post_created = 'auto-draft' === $old_status && ( 'auto-draft' !== $new_status && 'inherit' !== $new_status );
+		$is_post_created = $old_status === 'auto-draft' && ( $new_status !== 'auto-draft' && $new_status !== 'inherit' );
 
 		if ( $is_post_created ) {
 			// Post created.
 			// Add context to indicate if this was auto-created by WordPress (auto-save)
 			// vs manually created by user clicking Save/Publish.
-			if ( 'draft' === $new_status && $is_autosave ) {
+			if ( $new_status === 'draft' && $is_autosave ) {
 				$context['post_auto_created'] = true;
 			}
 
@@ -740,10 +744,10 @@ class Post_Logger extends Logger {
 			$context['post_new_status']       = $new_status;
 
 			$this->info_message( 'post_created', $context );
-		} elseif ( 'auto-draft' === $new_status || ( 'new' === $old_status && 'inherit' === $new_status ) ) {
+		} elseif ( $new_status === 'auto-draft' || ( $old_status === 'new' && $new_status === 'inherit' ) ) {
 			// Post was automagically saved by WordPress but not yet created (still auto-draft).
 			return;
-		} elseif ( 'trash' === $new_status ) {
+		} elseif ( $new_status === 'trash' ) {
 			// Post trashed.
 			$this->info_message( 'post_trashed', $context );
 		} else {
@@ -777,18 +781,20 @@ class Post_Logger extends Logger {
 	 * @param \WP_Post $post Post object.
 	 */
 	public function on_transition_post_status_future( $new_status, $old_status, $post ) {
-		if ( did_action( 'publish_future_post' ) ) {
-			$this->info_message(
-				'post_updated',
-				[
-					'post_id'          => $post->ID,
-					'post_type'        => get_post_type( $post ),
-					'post_title'       => get_the_title( $post ),
-					'post_prev_status' => $old_status,
-					'post_new_status'  => $new_status,
-				]
-			);
+		if ( ! did_action( 'publish_future_post' ) ) {
+			return;
 		}
+
+		$this->info_message(
+			'post_updated',
+			[
+				'post_id'          => $post->ID,
+				'post_type'        => get_post_type( $post ),
+				'post_title'       => get_the_title( $post ),
+				'post_prev_status' => $old_status,
+				'post_new_status'  => $new_status,
+			]
+		);
 	}
 
 	/**
@@ -809,7 +815,7 @@ class Post_Logger extends Logger {
 	public function on_transition_post_status( $new_status, $old_status, $post ) {
 		$isRestApiRequest       = defined( 'REST_REQUEST' ) && REST_REQUEST;
 		$isAutosave             = defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE;
-		$isAutosaveCreatingPost = $isAutosave && 'auto-draft' === $old_status && 'draft' === $new_status;
+		$isAutosaveCreatingPost = $isAutosave && $old_status === 'auto-draft' && $new_status === 'draft';
 
 		// Bail if this is a REST API request, EXCEPT for autosaves that create posts.
 		// Autosaves from Gutenberg use the REST API but we want to log when they
@@ -879,9 +885,11 @@ class Post_Logger extends Logger {
 		$arr_keys_to_diff = $this->add_keys_to_diff( $arr_keys_to_diff );
 
 		foreach ( $arr_keys_to_diff as $key ) {
-			if ( isset( $old_data->$key ) && isset( $new_data->$key ) ) {
-				$post_data_diff = $this->add_diff( $post_data_diff, $key, $old_data->$key, $new_data->$key );
+			if ( ! isset( $old_data->$key ) || ! isset( $new_data->$key ) ) {
+				continue;
 			}
+
+			$post_data_diff = $this->add_diff( $post_data_diff, $key, $old_data->$key, $new_data->$key );
 		}
 
 		// If changes where detected.
@@ -892,20 +900,24 @@ class Post_Logger extends Logger {
 
 				// If post_author then get more author info,
 				// because just a user ID does not get us far.
-			if ( 'post_author' === $diff_key ) {
-				$old_author_user = get_userdata( (int) $diff_values['old'] );
-				$new_author_user = get_userdata( (int) $diff_values['new'] );
-
-				if ( is_a( $old_author_user, 'WP_User' ) && is_a( $new_author_user, 'WP_User' ) ) {
-					$context[ "post_prev_{$diff_key}/user_login" ]   = $old_author_user->user_login;
-					$context[ "post_prev_{$diff_key}/user_email" ]   = $old_author_user->user_email;
-					$context[ "post_prev_{$diff_key}/display_name" ] = $old_author_user->display_name;
-
-					$context[ "post_new_{$diff_key}/user_login" ]   = $new_author_user->user_login;
-					$context[ "post_new_{$diff_key}/user_email" ]   = $new_author_user->user_email;
-					$context[ "post_new_{$diff_key}/display_name" ] = $new_author_user->display_name;
-				}
+			if ( $diff_key !== 'post_author' ) {
+				continue;
 			}
+
+			$old_author_user = get_userdata( (int) $diff_values['old'] );
+			$new_author_user = get_userdata( (int) $diff_values['new'] );
+
+			if ( ! is_a( $old_author_user, 'WP_User' ) || ! is_a( $new_author_user, 'WP_User' ) ) {
+				continue;
+			}
+
+			$context[ "post_prev_{$diff_key}/user_login" ]   = $old_author_user->user_login;
+			$context[ "post_prev_{$diff_key}/user_email" ]   = $old_author_user->user_email;
+			$context[ "post_prev_{$diff_key}/display_name" ] = $old_author_user->display_name;
+
+			$context[ "post_new_{$diff_key}/user_login" ]   = $new_author_user->user_login;
+			$context[ "post_new_{$diff_key}/user_email" ]   = $new_author_user->user_email;
+			$context[ "post_new_{$diff_key}/display_name" ] = $new_author_user->display_name;
 		}
 
 		// Compare custom fields.
@@ -971,17 +983,21 @@ class Post_Logger extends Logger {
 
 		// Look for added custom fields/meta.
 		foreach ( $new_meta as $meta_key => $meta_value ) {
-			if ( ! isset( $old_meta[ $meta_key ] ) ) {
-				$meta_changes['added'][ $meta_key ] = true;
+			if ( isset( $old_meta[ $meta_key ] ) ) {
+				continue;
 			}
+
+			$meta_changes['added'][ $meta_key ] = true;
 		}
 
 		// Look for changed custom fields/meta.
 		foreach ( $old_meta as $meta_key => $meta_value ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-			if ( isset( $new_meta[ $meta_key ] ) && json_encode( $old_meta[ $meta_key ] ) !== json_encode( $new_meta[ $meta_key ] ) ) {
-				$meta_changes['changed'][ $meta_key ] = true;
+			if ( ! isset( $new_meta[ $meta_key ] ) || json_encode( $old_meta[ $meta_key ] ) === json_encode( $new_meta[ $meta_key ] ) ) {
+				continue;
 			}
+
+			$meta_changes['changed'][ $meta_key ] = true;
 		}
 
 		if ( $meta_changes['added'] ) {
@@ -1008,15 +1024,15 @@ class Post_Logger extends Logger {
 		$new_post_password     = $new_post_has_password ? $new_data->post_password : null;
 		$new_post_status       = $new_data->post_status ?? null;
 
-		if ( false === $old_post_has_password && 'publish' === $new_post_status && $new_post_has_password ) {
+		if ( $old_post_has_password === false && $new_post_status === 'publish' && $new_post_has_password ) {
 			// If updated post is published and password is set and old post did not have password set
 			// = post changed to be password protected.
 			$context['post_password_protected'] = true;
 		} elseif (
 			$old_post_has_password &&
-			'publish' === $old_post_status &&
-			false === $new_post_has_password &&
-			'publish' === $new_post_status
+			$old_post_status === 'publish' &&
+			$new_post_has_password === false &&
+			$new_post_status === 'publish'
 		) {
 			// Old post is publish and had password protection and new post is publish but no password
 			// = post changed to be un-password protected.
@@ -1025,7 +1041,7 @@ class Post_Logger extends Logger {
 			// If old post had password and new post has password, but passwords are note same
 			// = post has changed password.
 			$context['post_password_changed'] = true;
-		} elseif ( 'private' === $new_post_status && 'private' !== $old_post_status ) {
+		} elseif ( $new_post_status === 'private' && $old_post_status !== 'private' ) {
 			// If new status is private and old is not
 			// = post is changed to be private.
 			$context['post_private'] = true;
@@ -1188,13 +1204,13 @@ class Post_Logger extends Logger {
 		// If post is not available any longer then we can't link to it, so keep plain message then.
 		// Also keep plain format if user is not allowed to edit post (edit link is empty).
 		if ( $post_is_available && $context['edit_link'] ) {
-			if ( 'post_updated' === $message_key ) {
+			if ( $message_key === 'post_updated' ) {
 				$message = __( 'Updated {post_type} <a href="{edit_link}">"{post_title}"</a>', 'simple-history' );
-			} elseif ( 'post_deleted' === $message_key ) {
+			} elseif ( $message_key === 'post_deleted' ) {
 				$message = __( 'Deleted {post_type} "{post_title}"', 'simple-history' );
-			} elseif ( 'post_created' === $message_key ) {
+			} elseif ( $message_key === 'post_created' ) {
 				$message = __( 'Created {post_type} <a href="{edit_link}">"{post_title}"</a>', 'simple-history' );
-			} elseif ( 'post_trashed' === $message_key ) {
+			} elseif ( $message_key === 'post_trashed' ) {
 				// While in trash we can still get actions to delete or restore if we follow the edit link.
 				$message = __(
 					'Moved {post_type} <a href="{edit_link}">"{post_title}"</a> to the trash',
@@ -1220,7 +1236,7 @@ class Post_Logger extends Logger {
 
 		$out = '';
 
-		if ( 'post_updated' === $message_key ) {
+		if ( $message_key === 'post_updated' ) {
 			// Check for keys like "post_prev_post_title" and "post_new_post_title".
 			$diff_table_output = '';
 			$has_diff_values   = false;
@@ -1233,188 +1249,194 @@ class Post_Logger extends Logger {
 				// Skip post author because we manually output the change already.
 				$keys_to_skip = [ 'post_author/user_login', 'post_author/user_email', 'post_author/display_name' ];
 
-				if ( strpos( $key, 'post_prev_' ) !== false ) {
-					// Old value exists, new value must also exist for diff to be calculates.
-					$key_to_diff = substr( $key, strlen( 'post_prev_' ) );
+				if ( strpos( $key, 'post_prev_' ) === false ) {
+					continue;
+				}
 
-					$key_for_new_val = "post_new_{$key_to_diff}";
+				// Old value exists, new value must also exist for diff to be calculates.
+				$key_to_diff = substr( $key, strlen( 'post_prev_' ) );
 
-					// Skip some keys.
-					if ( in_array( $key_to_diff, $keys_to_skip, true ) ) {
-						continue;
+				$key_for_new_val = "post_new_{$key_to_diff}";
+
+				// Skip some keys.
+				if ( in_array( $key_to_diff, $keys_to_skip, true ) ) {
+					continue;
+				}
+
+				if ( ! isset( $context[ $key_for_new_val ] ) ) {
+					continue;
+				}
+
+				$post_old_value = $context[ $key ];
+				$post_new_value = $context[ $key_for_new_val ];
+				// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
+				if ( $post_old_value == $post_new_value ) {
+					continue;
+				}
+
+				// Different diffs for different keys.
+				if ( $key_to_diff === 'post_title' ) {
+					$has_diff_values = true;
+					$label           = __( 'Title', 'simple-history' );
+
+					$diff_table_output .= sprintf(
+						'<tr><td>%1$s</td><td>%2$s</td></tr>',
+						$this->label_for( $key_to_diff, $label, $context ),
+						helpers::text_diff( $post_old_value, $post_new_value )
+					);
+				} elseif ( $key_to_diff === 'post_content' ) {
+					// Problem: to much text/content.
+					// Risks to fill the visual output.
+					// Maybe solution: use own diff function, that uses none or few context lines.
+					$has_diff_values = true;
+					$label           = __( 'Content', 'simple-history' );
+					$key_text_diff   = helpers::text_diff( $post_old_value, $post_new_value );
+
+					if ( $key_text_diff ) {
+						$diff_table_output .= sprintf(
+							'<tr><td>%1$s</td><td>%2$s</td></tr>',
+							$this->label_for( $key_to_diff, $label, $context ),
+							$key_text_diff
+						);
 					}
+				} elseif ( $key_to_diff === 'post_status' ) {
+					$has_diff_values    = true;
+					$label              = __( 'Status', 'simple-history' );
+					$diff_table_output .= sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>Changed from %2$s to %3$s</td>
+						</tr>',
+						$this->label_for( $key_to_diff, $label, $context ),
+						esc_html( $post_old_value ),
+						esc_html( $post_new_value )
+					);
+				} elseif ( $key_to_diff === 'post_date' ) {
+					$has_diff_values = true;
+					$label           = __( 'Publish date', 'simple-history' );
 
-					if ( isset( $context[ $key_for_new_val ] ) ) {
-						$post_old_value = $context[ $key ];
-						$post_new_value = $context[ $key_for_new_val ];
-						// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
-						if ( $post_old_value != $post_new_value ) {
-							// Different diffs for different keys.
-							if ( 'post_title' === $key_to_diff ) {
-								$has_diff_values = true;
-								$label           = __( 'Title', 'simple-history' );
+					$diff_table_output .= sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>Changed from %2$s to %3$s</td>
+						</tr>',
+						$this->label_for( $key_to_diff, $label, $context ),
+						esc_html( $post_old_value ),
+						esc_html( $post_new_value )
+					);
+				} elseif ( $key_to_diff === 'post_name' ) {
+					$has_diff_values = true;
+					$label           = __( 'Permalink', 'simple-history' );
 
-								$diff_table_output .= sprintf(
-									'<tr><td>%1$s</td><td>%2$s</td></tr>',
-									$this->label_for( $key_to_diff, $label, $context ),
-									helpers::text_diff( $post_old_value, $post_new_value )
-								);
-							} elseif ( 'post_content' === $key_to_diff ) {
-								// Problem: to much text/content.
-								// Risks to fill the visual output.
-								// Maybe solution: use own diff function, that uses none or few context lines.
-								$has_diff_values = true;
-								$label           = __( 'Content', 'simple-history' );
-								$key_text_diff   = helpers::text_diff( $post_old_value, $post_new_value );
+					$diff_table_output .= sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>%2$s</td>
+						</tr>',
+						$this->label_for( $key_to_diff, $label, $context ),
+						helpers::text_diff( $post_old_value, $post_new_value )
+					);
+				} elseif ( $key_to_diff === 'comment_status' ) {
+					$has_diff_values = true;
+					$label           = __( 'Comment status', 'simple-history' );
 
-								if ( $key_text_diff ) {
-									$diff_table_output .= sprintf(
-										'<tr><td>%1$s</td><td>%2$s</td></tr>',
-										$this->label_for( $key_to_diff, $label, $context ),
-										$key_text_diff
-									);
-								}
-							} elseif ( 'post_status' === $key_to_diff ) {
-								$has_diff_values    = true;
-								$label              = __( 'Status', 'simple-history' );
-								$diff_table_output .= sprintf(
-									'<tr>
-										<td>%1$s</td>
-										<td>Changed from %2$s to %3$s</td>
-									</tr>',
-									$this->label_for( $key_to_diff, $label, $context ),
-									esc_html( $post_old_value ),
-									esc_html( $post_new_value )
-								);
-							} elseif ( 'post_date' === $key_to_diff ) {
-								$has_diff_values = true;
-								$label           = __( 'Publish date', 'simple-history' );
+					$diff_table_output .= sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>Changed from %2$s to %3$s</td>
+						</tr>',
+						$this->label_for( $key_to_diff, $label, $context ),
+						esc_html( $post_old_value ),
+						esc_html( $post_new_value )
+					);
+				} elseif ( $key_to_diff === 'post_author' ) {
+					$has_diff_values = true;
 
-								$diff_table_output .= sprintf(
-									'<tr>
-										<td>%1$s</td>
-										<td>Changed from %2$s to %3$s</td>
-									</tr>',
-									$this->label_for( $key_to_diff, $label, $context ),
-									esc_html( $post_old_value ),
-									esc_html( $post_new_value )
-								);
-							} elseif ( 'post_name' === $key_to_diff ) {
-								$has_diff_values = true;
-								$label           = __( 'Permalink', 'simple-history' );
+					// wp post edit screen uses display_name so we should use it too.
+					if (
+						isset( $context['post_prev_post_author/display_name'] ) &&
+						isset( $context['post_new_post_author/display_name'] )
+					) {
+						$prev_user_display_name = $context['post_prev_post_author/display_name'];
+						$new_user_display_name  = $context['post_new_post_author/display_name'];
 
-								$diff_table_output .= sprintf(
-									'<tr>
-										<td>%1$s</td>
-										<td>%2$s</td>
-									</tr>',
-									$this->label_for( $key_to_diff, $label, $context ),
-									helpers::text_diff( $post_old_value, $post_new_value )
-								);
-							} elseif ( 'comment_status' === $key_to_diff ) {
-								$has_diff_values = true;
-								$label           = __( 'Comment status', 'simple-history' );
+						$prev_user_user_email = $context['post_prev_post_author/user_email'];
+						$new_user_user_email  = $context['post_new_post_author/user_email'];
 
-								$diff_table_output .= sprintf(
-									'<tr>
-										<td>%1$s</td>
-										<td>Changed from %2$s to %3$s</td>
-									</tr>',
-									$this->label_for( $key_to_diff, $label, $context ),
-									esc_html( $post_old_value ),
-									esc_html( $post_new_value )
-								);
-							} elseif ( 'post_author' === $key_to_diff ) {
-								$has_diff_values = true;
-
-								// wp post edit screen uses display_name so we should use it too.
-								if (
-									isset( $context['post_prev_post_author/display_name'] ) &&
-									isset( $context['post_new_post_author/display_name'] )
-								) {
-									$prev_user_display_name = $context['post_prev_post_author/display_name'];
-									$new_user_display_name  = $context['post_new_post_author/display_name'];
-
-									$prev_user_user_email = $context['post_prev_post_author/user_email'];
-									$new_user_user_email  = $context['post_new_post_author/user_email'];
-
-									$label              = __( 'Author', 'simple-history' );
-									$diff_table_output .= sprintf(
-										'<tr>
-											<td>%1$s</td>
-											<td>%2$s</td>
-										</tr>',
-										$this->label_for( $key_to_diff, $label, $context ),
-										helpers::interpolate(
-											__(
-												'Changed from {prev_user_display_name} ({prev_user_email}) to {new_user_display_name} ({new_user_email})',
-												'simple-history'
-											),
-											array(
-												'prev_user_display_name' => esc_html( $prev_user_display_name ),
-												'prev_user_email' => esc_html( $prev_user_user_email ),
-												'new_user_display_name' => esc_html( $new_user_display_name ),
-												'new_user_email' => esc_html( $new_user_user_email ),
-											)
-										)
-									);
-								}
-							} elseif ( 'page_template' === $key_to_diff ) {
-								// page template filename.
-								$prev_page_template = $context['post_prev_page_template'];
-								$new_page_template  = $context['post_new_page_template'];
-
-								// page template name, should exist, but I guess someone could have deleted a template
-								// and after that change the template for a post.
-								$prev_page_template_name = $context['post_prev_page_template_name'] ?? '';
-								$new_page_template_name  = $context['post_new_page_template_name'] ?? '';
-
-								// If prev och new template is "default" then use that as name.
-								if ( 'default' === $prev_page_template && ! $prev_page_template_name ) {
-									$prev_page_template_name = $prev_page_template;
-								} elseif ( 'default' === $new_page_template && ! $new_page_template_name ) {
-									$new_page_template_name = $new_page_template;
-								}
-
-								$message = __(
-									'Changed from {prev_page_template} to {new_page_template}',
+						$label              = __( 'Author', 'simple-history' );
+						$diff_table_output .= sprintf(
+							'<tr>
+								<td>%1$s</td>
+								<td>%2$s</td>
+							</tr>',
+							$this->label_for( $key_to_diff, $label, $context ),
+							helpers::interpolate(
+								__(
+									'Changed from {prev_user_display_name} ({prev_user_email}) to {new_user_display_name} ({new_user_email})',
 									'simple-history'
-								);
-								if ( $prev_page_template_name && $new_page_template_name ) {
-									$message = __(
-										'Changed from "{prev_page_template_name}" to "{new_page_template_name}"',
-										'simple-history'
-									);
-								}
-
-								$label              = __( 'Template', 'simple-history' );
-								$diff_table_output .= sprintf(
-									'<tr>
-										<td>%1$s</td>
-										<td>%2$s</td>
-									</tr>',
-									$this->label_for( $key_to_diff, $label, $context ),
-									helpers::interpolate(
-										$message,
-										array(
-											'prev_page_template' => '<code>' . esc_html( $prev_page_template ) . '</code>',
-											'new_page_template' => '<code>' . esc_html( $new_page_template ) . '</code>',
-											'prev_page_template_name' => esc_html( $prev_page_template_name ),
-											'new_page_template_name' => esc_html( $new_page_template_name ),
-										)
-									)
-								);
-							} else {
-								$has_diff_values = true;
-
-								$diff_table_output .= $this->extra_diff_record(
-									$this->label_for( $key_to_diff, $key_to_diff, $context ),
-									$post_old_value,
-									$post_new_value
-								);
-							}
-						}
+								),
+								array(
+									'prev_user_display_name' => esc_html( $prev_user_display_name ),
+									'prev_user_email' => esc_html( $prev_user_user_email ),
+									'new_user_display_name' => esc_html( $new_user_display_name ),
+									'new_user_email'  => esc_html( $new_user_user_email ),
+								)
+							)
+						);
 					}
+				} elseif ( $key_to_diff === 'page_template' ) {
+					// page template filename.
+					$prev_page_template = $context['post_prev_page_template'];
+					$new_page_template  = $context['post_new_page_template'];
+
+					// page template name, should exist, but I guess someone could have deleted a template
+					// and after that change the template for a post.
+					$prev_page_template_name = $context['post_prev_page_template_name'] ?? '';
+					$new_page_template_name  = $context['post_new_page_template_name'] ?? '';
+
+					// If prev och new template is "default" then use that as name.
+					if ( $prev_page_template === 'default' && ! $prev_page_template_name ) {
+						$prev_page_template_name = $prev_page_template;
+					} elseif ( $new_page_template === 'default' && ! $new_page_template_name ) {
+						$new_page_template_name = $new_page_template;
+					}
+
+					$message = __(
+						'Changed from {prev_page_template} to {new_page_template}',
+						'simple-history'
+					);
+					if ( $prev_page_template_name && $new_page_template_name ) {
+						$message = __(
+							'Changed from "{prev_page_template_name}" to "{new_page_template_name}"',
+							'simple-history'
+						);
+					}
+
+					$label              = __( 'Template', 'simple-history' );
+					$diff_table_output .= sprintf(
+						'<tr>
+							<td>%1$s</td>
+							<td>%2$s</td>
+						</tr>',
+						$this->label_for( $key_to_diff, $label, $context ),
+						helpers::interpolate(
+							$message,
+							array(
+								'prev_page_template'      => '<code>' . esc_html( $prev_page_template ) . '</code>',
+								'new_page_template'       => '<code>' . esc_html( $new_page_template ) . '</code>',
+								'prev_page_template_name' => esc_html( $prev_page_template_name ),
+								'new_page_template_name'  => esc_html( $new_page_template_name ),
+							)
+						)
+					);
+				} else {
+					$has_diff_values = true;
+
+					$diff_table_output .= $this->extra_diff_record(
+						$this->label_for( $key_to_diff, $key_to_diff, $context ),
+						$post_old_value,
+						$post_new_value
+					);
 				}
 			}
 
@@ -1485,7 +1507,7 @@ class Post_Logger extends Logger {
 			}
 
 			$out .= $diff_table_output;
-		} elseif ( 'post_created' === $message_key ) {
+		} elseif ( $message_key === 'post_created' ) {
 			// Show initial post content for created posts using Event_Details classes.
 			// The Event Details system will automatically read values from context.
 			// Using diff table formatter for consistency with post_updated display.
@@ -1676,7 +1698,7 @@ class Post_Logger extends Logger {
 			$terms_values
 		);
 
-		$diff_table_output = sprintf(
+		return sprintf(
 			'<tr>
 				<td>%1$s</td>
 				<td>%2$s</td>
@@ -1684,8 +1706,6 @@ class Post_Logger extends Logger {
 			esc_html( $label ),
 			esc_html( $term_added_values_as_comma_separated_list ),
 		);
-
-		return $diff_table_output;
 	}
 
 	/**

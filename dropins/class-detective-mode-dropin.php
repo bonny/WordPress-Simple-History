@@ -123,10 +123,12 @@ class Detective_Mode_Dropin extends Dropin {
 		];
 
 		foreach ( $arr_server_keys_to_add as $key ) {
-			if ( isset( $_SERVER[ $key ] ) ) {
-				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$detective_mode_data[ 'server_' . strtolower( $key ) ] = wp_unslash( $_SERVER[ $key ] );
+			if ( ! isset( $_SERVER[ $key ] ) ) {
+				continue;
 			}
+
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$detective_mode_data[ 'server_' . strtolower( $key ) ] = wp_unslash( $_SERVER[ $key ] );
 		}
 
 		// Copy of posted data, because we may remove sensitive data.
@@ -205,9 +207,11 @@ class Detective_Mode_Dropin extends Dropin {
 	protected function mask_field_that_begin_with( $data, $field_name_to_mask ) {
 		foreach ( $data as $key => $value ) {
 			$data_key_lowercase = strtolower( $key );
-			if ( str_starts_with( $data_key_lowercase, $field_name_to_mask ) ) {
-				$data[ $key ] = '<removed by Simple History>';
+			if ( ! str_starts_with( $data_key_lowercase, $field_name_to_mask ) ) {
+				continue;
 			}
+
+			$data[ $key ] = '<removed by Simple History>';
 		}
 
 		return $data;

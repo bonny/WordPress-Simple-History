@@ -14,9 +14,11 @@ class WP_CLI_Commands extends Service {
 	 * Called when module is loaded.
 	 */
 	public function loaded() {
-		if ( defined( WP_CLI::class ) && WP_CLI ) {
-			$this->register_commands();
+		if ( ! defined( WP_CLI::class ) || ! WP_CLI ) {
+			return;
 		}
+
+		$this->register_commands();
 	}
 
 	/**
@@ -78,11 +80,13 @@ class WP_CLI_Commands extends Service {
 
 		// Add command `wp simple-history dev` commands (reset).
 		// Only available when SIMPLE_HISTORY_DEV constant is true.
-		if ( Helpers::dev_mode_is_enabled() ) {
-			WP_CLI::add_command(
-				'simple-history dev',
-				WP_CLI_Commands\WP_CLI_Dev_Command::class,
-			);
+		if ( ! Helpers::dev_mode_is_enabled() ) {
+			return;
 		}
+
+		WP_CLI::add_command(
+			'simple-history dev',
+			WP_CLI_Commands\WP_CLI_Dev_Command::class,
+		);
 	}
 }

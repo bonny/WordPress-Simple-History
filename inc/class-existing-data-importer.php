@@ -95,7 +95,7 @@ class Existing_Data_Importer {
 	 */
 	public function import_posts( $post_type = 'post', $limit = 100 ) {
 		// Use Media Logger for attachments, Post Logger for everything else.
-		if ( 'attachment' === $post_type ) {
+		if ( $post_type === 'attachment' ) {
 			$logger      = $this->simple_history->get_instantiated_logger_by_slug( 'SimpleMediaLogger' );
 			$logger_type = 'media';
 		} else {
@@ -112,7 +112,7 @@ class Existing_Data_Importer {
 		$post_statuses = [ 'publish', 'draft', 'pending', 'private' ];
 
 		// Attachments use 'inherit' status, not 'publish'.
-		if ( 'attachment' === $post_type ) {
+		if ( $post_type === 'attachment' ) {
 			$post_statuses = [ 'inherit', 'private' ];
 		}
 
@@ -146,7 +146,7 @@ class Existing_Data_Importer {
 
 		// Check which posts have already been logged (imported or naturally).
 		// Attachments use different message keys.
-		if ( 'attachment' === $post_type ) {
+		if ( $post_type === 'attachment' ) {
 			$already_logged_created = $this->get_already_logged_post_ids( $post_ids, 'attachment_created' );
 			$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, 'attachment_updated' );
 		} else {
@@ -214,7 +214,7 @@ class Existing_Data_Importer {
 				$post_author = get_user_by( 'id', $post->post_author );
 
 				// Media Logger uses different context keys and message.
-				if ( 'attachment' === $post_type ) {
+				if ( $post_type === 'attachment' ) {
 					$file      = get_attached_file( $post->ID );
 					$file_size = false;
 
@@ -269,7 +269,7 @@ class Existing_Data_Importer {
 				$post_author = get_user_by( 'id', $post->post_author );
 
 				// Media Logger uses different context keys and message.
-				if ( 'attachment' === $post_type ) {
+				if ( $post_type === 'attachment' ) {
 					$file      = get_attached_file( $post->ID );
 					$file_size = false;
 
@@ -319,10 +319,12 @@ class Existing_Data_Importer {
 			}
 
 			// Only add to imported if we logged at least one event.
-			if ( ! empty( $post_detail['events_logged'] ) ) {
-				$this->results['posts_details'][] = $post_detail;
-				++$imported_count;
+			if ( empty( $post_detail['events_logged'] ) ) {
+				continue;
 			}
+
+			$this->results['posts_details'][] = $post_detail;
+			++$imported_count;
 		}
 
 		$this->results['posts_imported']         += $imported_count;
@@ -585,7 +587,7 @@ class Existing_Data_Importer {
 		// Count posts for each post type using a single query.
 		foreach ( $post_types as $post_type ) {
 			// Attachments use 'inherit' status, not 'publish'.
-			if ( 'attachment' === $post_type->name ) {
+			if ( $post_type->name === 'attachment' ) {
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 				$count = $wpdb->get_var(
@@ -690,7 +692,7 @@ class Existing_Data_Importer {
 			}
 
 			// Check if the required logger is available (same check as actual import).
-			if ( 'attachment' === $post_type ) {
+			if ( $post_type === 'attachment' ) {
 				$logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimpleMediaLogger' );
 			} else {
 				$logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePostLogger' );
@@ -702,7 +704,7 @@ class Existing_Data_Importer {
 			}
 
 			// Attachments use 'inherit' status, not 'publish'.
-			if ( 'attachment' === $post_type ) {
+			if ( $post_type === 'attachment' ) {
 				$post_statuses = [ 'inherit', 'private' ];
 			} else {
 				$post_statuses = [ 'publish', 'draft', 'pending', 'private' ];
@@ -732,8 +734,8 @@ class Existing_Data_Importer {
 			$count    = count( $posts );
 
 			// Check how many are already logged.
-			$message_key_created    = ( 'attachment' === $post_type ) ? 'attachment_created' : 'post_created';
-			$message_key_updated    = ( 'attachment' === $post_type ) ? 'attachment_updated' : 'post_updated';
+			$message_key_created    = ( $post_type === 'attachment' ) ? 'attachment_created' : 'post_created';
+			$message_key_updated    = ( $post_type === 'attachment' ) ? 'attachment_updated' : 'post_updated';
 			$already_logged_created = [];
 			$already_logged_updated = [];
 
@@ -772,9 +774,11 @@ class Existing_Data_Importer {
 				// Check if post has updates - uses string comparison like import_posts().
 				$has_updates = $post_date_gmt !== $post_modified_gmt;
 
-				if ( $has_updates && ! isset( $already_logged_updated[ $post->ID ] ) ) {
-					++$would_create_events;
+				if ( ! $has_updates || isset( $already_logged_updated[ $post->ID ] ) ) {
+					continue;
 				}
+
+				++$would_create_events;
 			}
 
 			$preview['post_types'][ $post_type ] = [

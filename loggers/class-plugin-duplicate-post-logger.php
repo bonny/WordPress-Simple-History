@@ -21,7 +21,7 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 	 * @return array
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			'name'        => _x( 'Plugin: Duplicate Posts Logger', 'Logger: Plugin Duplicate Post', 'simple-history' ),
 			'description' => _x(
 				'Logs posts and pages cloned using plugin Duplicate Post',
@@ -38,8 +38,6 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 				),
 			),
 		);
-
-		return $arr_info;
 	}
 
 	/**

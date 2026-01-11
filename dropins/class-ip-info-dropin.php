@@ -46,7 +46,7 @@ class IP_Info_Dropin extends Dropin {
 	 */
 	public function row_header_display_ip_address_filter( $bool_value, $row ) {
 		// Bail if log row in not from our logger.
-		if ( 'SimpleUserLogger' !== $row->logger ) {
+		if ( $row->logger !== 'SimpleUserLogger' ) {
 			return $bool_value;
 		}
 

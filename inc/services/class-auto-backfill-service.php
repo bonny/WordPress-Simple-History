@@ -54,9 +54,11 @@ class Auto_Backfill_Service extends Service {
 	 * Schedules a one-time event to run 60 seconds after install.
 	 */
 	public static function schedule_auto_backfill() {
-		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			wp_schedule_single_event( time() + 60, self::CRON_HOOK );
+		if ( wp_next_scheduled( self::CRON_HOOK ) ) {
+			return;
 		}
+
+		wp_schedule_single_event( time() + 60, self::CRON_HOOK );
 	}
 
 	/**

@@ -599,7 +599,7 @@ class Stats_View {
 					// Output calendar days.
 					while ( $current_date <= $last_day_of_month ) {
 						$date_str    = $current_date->format( 'Y-m-d' );
-						$count       = isset( $date_counts[ $date_str ] ) ? $date_counts[ $date_str ] : 0;
+						$count       = $date_counts[ $date_str ] ?? 0;
 						$is_in_range = $current_date >= $start_date && $current_date <= $end_date;
 
 						$classes = array( 'sh-StatsDashboard-calendarDay' );

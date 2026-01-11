@@ -116,10 +116,12 @@ spl_autoload_register(
 		}
 
 		// Check class doesn't already exist and file exists.
-		if ( ! class_exists( $class_name, false ) && file_exists( $deprecated_classes[ $class_name ] ) ) {
-			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: array is hardcoded above.
-			require_once $deprecated_classes[ $class_name ];
+		if ( class_exists( $class_name, false ) || ! file_exists( $deprecated_classes[ $class_name ] ) ) {
+			return;
 		}
+
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: array is hardcoded above.
+		require_once $deprecated_classes[ $class_name ];
 	}
 );
 

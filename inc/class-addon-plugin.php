@@ -143,7 +143,7 @@ class AddOn_Plugin {
 
 		if (
 			is_wp_error( $response )
-			|| ( 200 !== wp_remote_retrieve_response_code( $response ) && 400 !== wp_remote_retrieve_response_code( $response ) )
+			|| ( wp_remote_retrieve_response_code( $response ) !== 200 && wp_remote_retrieve_response_code( $response ) !== 400 )
 			|| empty( wp_remote_retrieve_body( $response ) )
 		) {
 			return [
@@ -162,7 +162,7 @@ class AddOn_Plugin {
 		}
 
 		// Bail when bad request.
-		if ( 400 === wp_remote_retrieve_response_code( $response ) ) {
+		if ( wp_remote_retrieve_response_code( $response ) === 400 ) {
 			$this->set_licence_message( $this->message_defaults );
 			$message = null;
 
@@ -238,7 +238,7 @@ class AddOn_Plugin {
 			)
 		);
 
-		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
+		if ( wp_remote_retrieve_response_code( $response ) === 200 ) {
 			$this->set_licence_message(
 				[
 					'key'             => null,
@@ -253,8 +253,8 @@ class AddOn_Plugin {
 				]
 			);
 			return true;
-		} else {
-			return null;
 		}
+
+		return null;
 	}
 }

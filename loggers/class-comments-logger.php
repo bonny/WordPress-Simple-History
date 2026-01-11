@@ -19,7 +19,7 @@ class Comments_Logger extends Logger {
 	 */
 	public function get_info() {
 
-		$arr_info = array(
+		return array(
 			'name'        => __( 'Comments Logger', 'simple-history' ),
 			'description' => __( 'Logs comments, and modifications to them', 'simple-history' ),
 			'capability'  => 'moderate_comments',
@@ -246,8 +246,6 @@ class Comments_Logger extends Logger {
 			), // labels.
 
 		);
-
-		return $arr_info;
 	}
 
 	/**
@@ -426,7 +424,7 @@ class Comments_Logger extends Logger {
 		// add occasions if comment was considered spam
 		// if not added, spam comments can easily flood the log
 		// Deletions of spam easily flood log.
-		if ( isset( $comment_data->comment_approved ) && 'spam' === $comment_data->comment_approved ) {
+		if ( isset( $comment_data->comment_approved ) && $comment_data->comment_approved === 'spam' ) {
 			// Since 2.5.5 we don't log deletion of spam comments.
 			return;
 		}
@@ -507,7 +505,7 @@ class Comments_Logger extends Logger {
 		}
 
 		// since 2.5.5: no more logging of spam comments.
-		if ( 'spam' === $comment_approved ) {
+		if ( $comment_approved === 'spam' ) {
 			return;
 		}
 
@@ -523,7 +521,7 @@ class Comments_Logger extends Logger {
 
 			// add occasions if comment is considered spam
 			// if not added, spam comments can easily flood the log.
-			if ( isset( $comment_data->comment_approved ) && 'spam' === $comment_data->comment_approved ) {
+			if ( isset( $comment_data->comment_approved ) && $comment_data->comment_approved === 'spam' ) {
 				$context['_occasionsID'] = self::class . '/' . __FUNCTION__ . "/anon_{$context["comment_type"]}_added/type:spam";
 			}
 		}
@@ -740,9 +738,7 @@ class Comments_Logger extends Logger {
 		}
 
 		// End table.
-		$output .= '</table>';
-
-		return $output;
+		return $output . '</table>';
 	}
 
 	/**

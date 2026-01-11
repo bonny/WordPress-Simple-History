@@ -338,7 +338,7 @@ class Options_Logger extends Logger {
 		$output      = '';
 
 		// Bail if not option_updated message.
-		if ( 'option_updated' !== $message_key ) {
+		if ( $message_key !== 'option_updated' ) {
 			return $output;
 		}
 
@@ -388,9 +388,7 @@ class Options_Logger extends Logger {
 			}
 		}
 
-		$output .= '</table>';
-
-		return $output;
+		return $output . '</table>';
 	}
 
 	/**

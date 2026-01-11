@@ -25,7 +25,7 @@ class Custom_Entry_Logger extends Logger {
 	 * @return array Array with logger info.
 	 */
 	public function get_info() {
-		$arr_info = array(
+		return array(
 			'name'        => _x( 'Custom Entry Logger', 'Logger: Custom Entry', 'simple-history' ),
 			'description' => _x( 'Logs custom entries added through WP-CLI or REST API', 'Logger: Custom Entry', 'simple-history' ),
 			'capability'  => 'edit_pages',
@@ -43,8 +43,6 @@ class Custom_Entry_Logger extends Logger {
 				],
 			],
 		);
-
-		return $arr_info;
 	}
 
 	/**

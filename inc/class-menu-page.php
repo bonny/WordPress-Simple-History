@@ -302,17 +302,17 @@ class Menu_Page {
 		// Normalize location.
 		if ( in_array( $location, $this->wordpress_locations, true ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 			// Use WordPress location names as-is.
-		} elseif ( 'top' === $location ) {
+		} elseif ( $location === 'top' ) {
 			$location = 'menu_top';
-		} elseif ( 'bottom' === $location ) {
+		} elseif ( $location === 'bottom' ) {
 			$location = 'menu_bottom';
-		} elseif ( 'inside_dashboard' === $location ) {
+		} elseif ( $location === 'inside_dashboard' ) {
 			$location = 'dashboard';
-		} elseif ( 'inside_tools' === $location ) {
+		} elseif ( $location === 'inside_tools' ) {
 			$location = 'tools';
-		} elseif ( 'management' === $location ) {
+		} elseif ( $location === 'management' ) {
 			$location = 'tools';
-		} elseif ( 'settings' === $location ) {
+		} elseif ( $location === 'settings' ) {
 			$location = 'options';
 		} else {
 			// Default to 'menu_top' if location is not recognized.
@@ -479,7 +479,7 @@ class Menu_Page {
 	 */
 	public function get_url() {
 		// If settings page.
-		if ( 'options' === $this->location ) {
+		if ( $this->location === 'options' ) {
 			return admin_url( 'options-general.php?page=' . $this->menu_slug );
 		}
 
@@ -536,9 +536,11 @@ class Menu_Page {
 		$child_pages = [];
 
 		foreach ( $this->menu_manager->get_pages() as $page ) {
-			if ( $page->get_parent() === $this ) {
-				$child_pages[] = $page;
+			if ( $page->get_parent() !== $this ) {
+				continue;
 			}
+
+			$child_pages[] = $page;
 		}
 
 		// Sort child pages by order, small to large.

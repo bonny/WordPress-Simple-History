@@ -121,13 +121,13 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 
 		// Append context. For table format = prepend each key with "context_"
 		// and for JSON just add it all to a "context" key.
-		if ( 'table' === $format ) {
+		if ( $format === 'table' ) {
 			foreach ( $event_row->context as $key => $value ) {
 				$prefixed_key                  = 'context_' . $key;
 				$output_array[ $prefixed_key ] = $value;
 				$fields[]                      = $prefixed_key;
 			}
-		} elseif ( 'json' === $format ) {
+		} elseif ( $format === 'json' ) {
 			$message_details      = $simple_history->get_log_row_details_output( $event_row );
 			$message_details_json = $message_details->to_json();
 

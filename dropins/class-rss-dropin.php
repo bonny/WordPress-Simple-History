@@ -560,15 +560,13 @@ class RSS_Dropin extends Dropin {
 	public function get_rss_address() {
 		$rss_secret = get_option( 'simple_history_rss_secret' );
 
-		$rss_address = add_query_arg(
+		return add_query_arg(
 			array(
 				'simple_history_get_rss' => '1',
 				'rss_secret'             => $rss_secret,
 			),
 			get_bloginfo( 'url' ) . '/'
 		);
-
-		return $rss_address;
 	}
 
 	/**

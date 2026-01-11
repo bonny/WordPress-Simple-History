@@ -142,10 +142,12 @@ abstract class Formatter implements Formatter_Interface {
 		$result = [];
 
 		foreach ( self::ESSENTIAL_FIELDS as $field ) {
-			if ( isset( $context[ $field ] ) && is_scalar( $context[ $field ] ) ) {
-				$clean_key            = ltrim( $field, '_' );
-				$result[ $clean_key ] = $context[ $field ];
+			if ( ! isset( $context[ $field ] ) || ! is_scalar( $context[ $field ] ) ) {
+				continue;
 			}
+
+			$clean_key            = ltrim( $field, '_' );
+			$result[ $clean_key ] = $context[ $field ];
 		}
 
 		return $result;

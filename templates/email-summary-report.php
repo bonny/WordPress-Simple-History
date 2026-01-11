@@ -258,15 +258,17 @@ $args = wp_parse_args(
 							// Data is already keyed by day number (0-6) to avoid language issues.
 							$day_counts = [];
 							foreach ( $args['most_active_days'] as $day ) {
-								if ( isset( $day['day_number'] ) && isset( $day['count'] ) ) {
-									$day_counts[ $day['day_number'] ] = $day['count'];
+								if ( ! isset( $day['day_number'] ) || ! isset( $day['count'] ) ) {
+									continue;
 								}
+
+								$day_counts[ $day['day_number'] ] = $day['count'];
 							}
 
 							// Build days array in chronological order based on actual date range.
 							$ordered_days    = [];
-							$start_timestamp = isset( $args['date_from_timestamp'] ) ? $args['date_from_timestamp'] : strtotime( '-6 days' );
-							$end_timestamp   = isset( $args['date_to_timestamp'] ) ? $args['date_to_timestamp'] : time();
+							$start_timestamp = $args['date_from_timestamp'] ?? strtotime( '-6 days' );
+							$end_timestamp   = $args['date_to_timestamp'] ?? time();
 
 							// Create DateTimeImmutable objects for iteration.
 							$current_date = ( new DateTimeImmutable( '@' . $start_timestamp ) )->setTimezone( wp_timezone() );
@@ -292,7 +294,7 @@ $args = wp_parse_args(
 								$ordered_days[] = [
 									'name'      => $day_name,
 									'key'       => $day_number,
-									'count'     => isset( $day_counts[ $day_number ] ) ? $day_counts[ $day_number ] : 0,
+									'count'     => $day_counts[ $day_number ] ?? 0,
 									'full_date' => $full_date,
 									'date_ymd'  => $date_ymd,
 								];

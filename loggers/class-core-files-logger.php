@@ -66,13 +66,15 @@ class Core_Files_Logger extends Logger {
 	 * Setup WordPress cron job for daily core files integrity checks.
 	 */
 	public function setup_cron() {
-		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			// Schedule daily check at 3 AM site time to minimize server impact.
-			$timezone  = wp_timezone();
-			$datetime  = new \DateTime( 'tomorrow 3:00 AM', $timezone );
-			$timestamp = $datetime->getTimestamp();
-			wp_schedule_event( $timestamp, 'daily', self::CRON_HOOK );
+		if ( wp_next_scheduled( self::CRON_HOOK ) ) {
+			return;
 		}
+
+		// Schedule daily check at 3 AM site time to minimize server impact.
+		$timezone  = wp_timezone();
+		$datetime  = new \DateTime( 'tomorrow 3:00 AM', $timezone );
+		$timestamp = $datetime->getTimestamp();
+		wp_schedule_event( $timestamp, 'daily', self::CRON_HOOK );
 	}
 
 	/**
@@ -170,14 +172,16 @@ class Core_Files_Logger extends Logger {
 			}
 
 			// Compare hashes.
-			if ( $actual_hash !== $expected_hash ) {
-				$modified_files[] = [
-					'file'          => $file,
-					'issue'         => 'modified',
-					'expected_hash' => $expected_hash,
-					'actual_hash'   => $actual_hash,
-				];
+			if ( $actual_hash === $expected_hash ) {
+				continue;
 			}
+
+			$modified_files[] = [
+				'file'          => $file,
+				'issue'         => 'modified',
+				'expected_hash' => $expected_hash,
+				'actual_hash'   => $actual_hash,
+			];
 		}
 
 		return $modified_files;
@@ -259,7 +263,7 @@ class Core_Files_Logger extends Logger {
 		$event_details_group = new Event_Details_Group();
 
 		// Set appropriate title based on the event type.
-		if ( 'core_files_restored' === $message_key ) {
+		if ( $message_key === 'core_files_restored' ) {
 			$event_details_group->set_title( __( 'Restored Core Files', 'simple-history' ) );
 		} else {
 			$event_details_group->set_title( __( 'Modified Core Files', 'simple-history' ) );
@@ -279,25 +283,25 @@ class Core_Files_Logger extends Logger {
 			}
 
 			// Determine the status text.
-			if ( 'core_files_restored' === $message_key ) {
+			if ( $message_key === 'core_files_restored' ) {
 				// For restored files, show what was fixed.
-				if ( 'modified' === $issue ) {
+				if ( $issue === 'modified' ) {
 					$status_text = __( 'Hash mismatch fixed', 'simple-history' );
-				} elseif ( 'unreadable' === $issue ) {
+				} elseif ( $issue === 'unreadable' ) {
 					$status_text = __( 'File readability restored', 'simple-history' );
-				} elseif ( 'missing' === $issue ) {
+				} elseif ( $issue === 'missing' ) {
 					$status_text = __( 'Missing file restored', 'simple-history' );
 				} else {
 					/* translators: %s: issue type */
 					$status_text = sprintf( __( '%s fixed', 'simple-history' ), esc_html( $issue ) );
 				}
-			} elseif ( 'core_files_modified' === $message_key ) {
+			} elseif ( $message_key === 'core_files_modified' ) {
 				// For detected issues, show the current problem.
-				if ( 'modified' === $issue ) {
+				if ( $issue === 'modified' ) {
 					$status_text = __( 'Hash mismatch', 'simple-history' );
-				} elseif ( 'unreadable' === $issue ) {
+				} elseif ( $issue === 'unreadable' ) {
 					$status_text = __( 'File unreadable', 'simple-history' );
-				} elseif ( 'missing' === $issue ) {
+				} elseif ( $issue === 'missing' ) {
 					$status_text = __( 'File missing', 'simple-history' );
 				} else {
 					$status_text = esc_html( $issue );

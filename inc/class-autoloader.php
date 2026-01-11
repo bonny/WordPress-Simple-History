@@ -111,7 +111,7 @@ class Autoloader {
 		// class name to find a mapped file name.
 		$pos = strrpos( $prefix, '\\' );
 
-		while ( false !== $pos ) {
+		while ( $pos !== false ) {
 			// Retain the trailing namespace separator in the prefix.
 			$prefix = substr( $class_name, 0, $pos + 1 );
 

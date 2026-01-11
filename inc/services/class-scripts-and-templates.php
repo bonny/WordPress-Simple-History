@@ -21,11 +21,13 @@ class Scripts_And_Templates extends Service {
 	 * Output logger JavaScript into admin footer.
 	 */
 	public function add_logger_javascript_in_admin_footer() {
-		if ( Helpers::is_on_our_own_pages() ) {
-			// Call plugins so they can add their js.
-			foreach ( $this->simple_history->get_instantiated_loggers() as $one_logger ) {
-				$one_logger['instance']->admin_js();
-			}
+		if ( ! Helpers::is_on_our_own_pages() ) {
+			return;
+		}
+
+		// Call plugins so they can add their js.
+		foreach ( $this->simple_history->get_instantiated_loggers() as $one_logger ) {
+			$one_logger['instance']->admin_js();
 		}
 	}
 

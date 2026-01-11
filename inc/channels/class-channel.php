@@ -278,21 +278,9 @@ abstract class Channel implements Channel_Interface {
 	 * @return bool True if event should be sent, false otherwise.
 	 */
 	public function should_send_event( $event_data ) {
-		// If channel is not enabled, don't send.
-		if ( ! $this->is_enabled() ) {
-			return false;
-		}
-
-		$rules = $this->get_alert_rules();
-
-		// If no rules are configured, send all events.
-		if ( empty( $rules ) ) {
-			return true;
-		}
-
-		// Rule evaluation is handled by premium add-on.
-		// Base implementation sends all events when rules are configured.
-		return true;
+		// Base implementation sends all events if channel is enabled.
+		// Rule evaluation is handled by premium add-on which overrides this method.
+		return $this->is_enabled();
 	}
 
 	/**

@@ -29,7 +29,7 @@ class Notes_Logger extends Logger {
 	 * @return array Array with logger info.
 	 */
 	public function get_info() {
-		$arr_info = [
+		return [
 			'name'        => _x( 'Notes Logger', 'Logger: Notes', 'simple-history' ),
 			'description' => _x( 'Logs WordPress block notes (collaborative comments)', 'Logger: Notes', 'simple-history' ),
 			'capability'  => 'edit_posts',
@@ -67,8 +67,6 @@ class Notes_Logger extends Logger {
 				],
 			],
 		];
-
-		return $arr_info;
 	}
 
 	/**
@@ -291,7 +289,7 @@ class Notes_Logger extends Logger {
 	 * @return bool True if this is a note, false otherwise.
 	 */
 	private function is_note_comment( $comment ) {
-		return $comment && 'note' === $comment->comment_type;
+		return $comment && $comment->comment_type === 'note';
 	}
 
 	/**
@@ -396,12 +394,14 @@ class Notes_Logger extends Logger {
 			}
 
 			// Recursively search inner blocks.
-			if ( ! empty( $block['innerBlocks'] ) ) {
-				$found = array_merge(
-					$found,
-					$this->find_blocks_by_note_id( $block['innerBlocks'], $note_id )
-				);
+			if ( empty( $block['innerBlocks'] ) ) {
+				continue;
 			}
+
+			$found = array_merge(
+				$found,
+				$this->find_blocks_by_note_id( $block['innerBlocks'], $note_id )
+			);
 		}
 
 		return $found;
