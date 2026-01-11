@@ -83,7 +83,7 @@ class Export_Dropin extends Dropin {
 
 		$export_format = sanitize_text_field( wp_unslash( $_POST['format'] ?? 'json' ) );
 
-		$csv_include_headers = isset( $_POST['csv_include_headers'] ) ? true : false;
+		$csv_include_headers = isset( $_POST['csv_include_headers'] );
 
 		$export = new Export();
 		$export->set_query_args(

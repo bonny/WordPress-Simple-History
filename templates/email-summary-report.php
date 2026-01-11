@@ -320,7 +320,7 @@ $args = wp_parse_args(
 											$args['history_admin_url']
 										);
 										?>
-										<td style="width: 14.28%; vertical-align: top; text-align: center;<?php echo $day_index < ( $total_days - 1 ) ? ' padding-right: 8px;' : ''; ?>" title="<?php echo esc_attr( $day_data['full_date'] ); ?>">
+										<td style="width: 14.28%; vertical-align: top; text-align: center;<?php echo $day_index < $total_days - 1 ? ' padding-right: 8px;' : ''; ?>" title="<?php echo esc_attr( $day_data['full_date'] ); ?>">
 											<a href="<?php echo esc_url( $day_url ); ?>" style="color: #0040FF; text-decoration: none; display: block;">
 												<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; color: #000000; text-align: center; font-weight: 500;">
 													<?php echo esc_html( substr( $day_data['name'], 0, 3 ) ); ?>

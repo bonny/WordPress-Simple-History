@@ -471,14 +471,6 @@ class Log_Query {
 			## END SQL_STATEMENT_MAX_IDS_AND_COUNT_TEMPLATE
 		';
 
-		/** @var string Inner where clause, including "where" if has values. */
-		$inner_where_string = '';
-
-		$inner_where_array = $this->get_inner_where( $args );
-		if ( ! empty( $inner_where_array ) ) {
-			$inner_where_string = "\nWHERE\n" . implode( "\nAND ", $inner_where_array );
-		}
-
 		/** @var string Outer where clause, including "where" if has values. */
 		$outer_where_string = '';
 
@@ -1719,7 +1711,6 @@ class Log_Query {
 
 		$simple_history      = Simple_History::get_instance();
 		$contexts_table_name = $simple_history->get_contexts_table_name();
-		$db_engine           = $this->get_db_engine();
 
 		$inner_where = [];
 

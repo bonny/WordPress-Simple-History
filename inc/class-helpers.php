@@ -721,7 +721,7 @@ class Helpers {
 	 * @return string "1" if enabled, "0" if disabled.
 	 */
 	public static function sanitize_checkbox_input( $field ) {
-		return ( $field === '1' ) ? '1' : '0';
+		return $field === '1' ? '1' : '0';
 	}
 
 	/**

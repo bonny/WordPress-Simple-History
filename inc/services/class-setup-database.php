@@ -189,7 +189,7 @@ class Setup_Database extends Service {
 
 		foreach ( $arr_options as $one_option ) {
 			$option_value = get_option( $one_option['name'] );
-			if ( ( $option_value ) !== false ) {
+			if ( $option_value !== false ) {
 				continue;
 			}
 

@@ -3,7 +3,6 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
-use Simple_History\Simple_History;
 
 /**
  * Add link to Simple History to the list of action links available following bulk plugin updates, single plugin installation, and single plugin updates.

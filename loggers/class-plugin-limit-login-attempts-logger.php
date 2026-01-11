@@ -89,7 +89,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 			'allowed_lockouts' => sanitize_text_field( wp_unslash( $_POST['allowed_lockouts'] ) ),
 			'long_duration'    => sanitize_text_field( wp_unslash( $_POST['long_duration'] ) ) * 3600, // @phpstan-ignore-line
 			'email_after'      => sanitize_text_field( wp_unslash( $_POST['email_after'] ) ),
-			'cookies'          => ( isset( $_POST['cookies'] ) && sanitize_text_field( wp_unslash( $_POST['cookies'] ) ) === '1' ) ? 'yes' : 'no',
+			'cookies'          => isset( $_POST['cookies'] ) && sanitize_text_field( wp_unslash( $_POST['cookies'] ) ) === '1' ? 'yes' : 'no',
 			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		);
 

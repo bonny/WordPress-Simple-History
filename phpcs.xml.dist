@@ -206,4 +206,42 @@
 	<!-- Flag useless variables that just pass through values -->
 	<rule ref="SlevomatCodingStandard.Variables.UselessVariable"/>
 
+	<!-- Detect unused variables -->
+	<rule ref="SlevomatCodingStandard.Variables.UnusedVariable">
+		<properties>
+			<property name="ignoreUnusedValuesWhenOnlyKeysAreUsedInForeach" value="true"/>
+		</properties>
+	</rule>
+
+	<!-- Detect variables assigned twice without being used -->
+	<rule ref="SlevomatCodingStandard.Variables.DuplicateAssignmentToVariable"/>
+
+	<!-- Remove useless ternary like $x ? true : false -->
+	<rule ref="SlevomatCodingStandard.ControlStructures.UselessTernaryOperator"/>
+
+	<!-- Detect assignments in conditions (likely bugs) -->
+	<rule ref="SlevomatCodingStandard.ControlStructures.AssignmentInCondition"/>
+
+	<!-- Remove unused use statements -->
+	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
+		<properties>
+			<property name="searchAnnotations" value="true"/>
+		</properties>
+	</rule>
+
+	<!-- Remove useless aliases like "use Foo as Foo" -->
+	<rule ref="SlevomatCodingStandard.Namespaces.UselessAlias"/>
+
+	<!-- Detect unreachable catch blocks -->
+	<rule ref="SlevomatCodingStandard.Exceptions.DeadCatch"/>
+
+	<!-- Remove unnecessary parentheses -->
+	<rule ref="SlevomatCodingStandard.PHP.UselessParentheses"/>
+
+	<!-- Remove double semicolons -->
+	<rule ref="SlevomatCodingStandard.PHP.UselessSemicolon"/>
+
+	<!-- Remove unused inherited variables in closures -->
+	<rule ref="SlevomatCodingStandard.Functions.UnusedInheritedVariablePassedToClosure"/>
+
 </ruleset>

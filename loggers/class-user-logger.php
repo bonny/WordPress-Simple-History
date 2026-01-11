@@ -621,7 +621,7 @@ class User_Logger extends Logger {
 		}
 
 		// PHPCS:ignore WordPress.Security.NonceVerification.Missing
-		if ( ( $errors->get_error_code() ) || ! isset( $_POST['pass1'] ) || empty( $_POST['pass1'] ) ) {
+		if ( $errors->get_error_code() || ! isset( $_POST['pass1'] ) || empty( $_POST['pass1'] ) ) {
 			return;
 		}
 
@@ -1114,8 +1114,8 @@ class User_Logger extends Logger {
 				// Change naming for checkbox items from "true" or "false" to
 				// something more user friendly "Checked" and "Unchecked".
 				if ( isset( $val['type'] ) && $val['type'] === 'checkbox' ) {
-					$user_old_value = ( $user_old_value === 'true' ) ? $val['value_true'] : $val['value_false'];
-					$user_new_value = ( $user_new_value === 'true' ) ? $val['value_true'] : $val['value_false'];
+					$user_old_value = $user_old_value === 'true' ? $val['value_true'] : $val['value_false'];
+					$user_new_value = $user_new_value === 'true' ? $val['value_true'] : $val['value_false'];
 				}
 
 				$diff_table_output .= sprintf(

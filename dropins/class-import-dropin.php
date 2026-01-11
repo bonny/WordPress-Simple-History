@@ -472,7 +472,7 @@ class Import_Dropin extends Dropin {
 					</thead>
 					<tbody>
 						<?php
-						foreach ( $preview['post_types'] as $type_name => $type_data ) {
+						foreach ( $preview['post_types'] as $type_data ) {
 							?>
 							<tr>
 								<td><?php echo esc_html( $type_data['label'] ); ?></td>

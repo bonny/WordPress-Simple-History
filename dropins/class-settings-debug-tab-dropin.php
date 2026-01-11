@@ -79,7 +79,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			// Add first "Support" tab.
 			// This tab is not needed when inside tools or dashboard.
 			// User will be redirected to the next, first child tab.
-			$help_main_tab = ( new Menu_Page() )
+			( new Menu_Page() )
 				->set_menu_title( _x( 'Support', 'settings menu name', 'simple-history' ) )
 				->set_page_title( _x( 'Support', 'dashboard title name', 'simple-history' ) )
 				->set_menu_slug( self::SUPPORT_PAGE_GENERAL_TAB_SLUG )

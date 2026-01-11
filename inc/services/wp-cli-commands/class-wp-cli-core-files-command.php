@@ -3,7 +3,6 @@
 namespace Simple_History\Services\WP_CLI_Commands;
 
 use Simple_History\Simple_History;
-use Simple_History\Helpers;
 use WP_CLI;
 use WP_CLI_Command;
 use WP_CLI\Utils;
@@ -279,7 +278,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 
 			// Show a summary of what was found.
 			$issues_by_type = [];
-			foreach ( $stored_results as $file => $file_data ) {
+			foreach ( $stored_results as $file_data ) {
 				$issue = $file_data['issue'] ?? 'unknown';
 				if ( ! isset( $issues_by_type[ $issue ] ) ) {
 					$issues_by_type[ $issue ] = 0;
@@ -365,7 +364,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 				}
 
 				$found_sh_crons = true;
-				foreach ( $dings as $sig => $data ) {
+				foreach ( $dings as $data ) {
 					WP_CLI::log(
 						sprintf(
 							'- %s: %s (%s from now)',

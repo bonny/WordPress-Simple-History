@@ -2,7 +2,6 @@
 
 namespace Simple_History\Services;
 
-use Simple_History\Dropins\Sidebar_Add_Ons_Dropin;
 use Simple_History\Helpers;
 use Simple_History\Menu_Manager;
 use Simple_History\Simple_History;

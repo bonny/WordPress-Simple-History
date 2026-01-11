@@ -3,7 +3,6 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
-use Simple_History\Menu_Manager;
 
 /**
  * Handles the notification bar in the admin interface.
@@ -31,8 +30,6 @@ class Notification_Bar extends Service {
 		if ( ! Helpers::show_promo_boxes() ) {
 			return '';
 		}
-
-		$stats_page_url = Menu_Manager::get_admin_url_by_slug( 'simple_history_stats_page' );
 
 		$notification_bar_messages = [
 			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found

@@ -1060,11 +1060,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'sticky', $fields ) ) {
-			$data['sticky'] = isset( $item->context['_sticky'] ) ? true : false;
+			$data['sticky'] = isset( $item->context['_sticky'] );
 		}
 
 		if ( rest_is_field_included( 'sticky_appended', $fields ) ) {
-			$data['sticky_appended'] = isset( $item->sticky_appended ) ? true : false;
+			$data['sticky_appended'] = isset( $item->sticky_appended );
 		}
 
 		if ( rest_is_field_included( 'backfilled', $fields ) ) {

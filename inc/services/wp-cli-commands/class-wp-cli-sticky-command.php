@@ -4,7 +4,6 @@ namespace Simple_History\Services\WP_CLI_Commands;
 
 use Simple_History\Event;
 use Simple_History\Helpers;
-use Simple_History\Simple_History;
 use WP_CLI;
 use WP_CLI_Command;
 
