@@ -282,6 +282,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 		?>
 		<div class="sh-AlertPresets">
 			<h3 class="sh-AlertPresets-title">
+				<span class="dashicons dashicons-performance"></span>
 				<?php esc_html_e( 'Quick Setup', 'simple-history' ); ?>
 			</h3>
 			<p class="sh-AlertPresets-description">
