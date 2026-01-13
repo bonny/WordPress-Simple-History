@@ -362,10 +362,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
+-   Fixed infinite loop when Debug & Monitor plugin logs HTTP requests made by channels (Webhook, Datadog, Splunk).
 -   Fixed "Class File_Channel not found" error some users experienced during plugin updates on certain hosting environments.
-
-**Fixed**
-
 -   Fixed "Interface not found" and "Class not found" errors on WPEngine and other hosts with aggressive directory caching during plugin updates.
 
 ### 5.22.0 (December 2025)

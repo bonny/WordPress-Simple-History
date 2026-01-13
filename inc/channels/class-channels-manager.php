@@ -235,10 +235,17 @@ class Channels_Manager extends Service {
 	 * @param string            $formatted_message The formatted message.
 	 */
 	private function send_sync( Channel_Interface $channel, $event_data, $formatted_message ) {
+		// Set filter to indicate we're forwarding to a channel.
+		// This allows other plugins (like Debug & Monitor) to skip logging
+		// HTTP requests made by channels, preventing infinite loops.
+		add_filter( 'simple_history/is_forwarding_to_channel', '__return_true' );
+
 		try {
 			$channel->send_event( $event_data, $formatted_message );
 		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Errors are tracked by individual channels via their error handling.
 		}
+
+		remove_filter( 'simple_history/is_forwarding_to_channel', '__return_true' );
 	}
 }
