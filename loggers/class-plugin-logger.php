@@ -107,6 +107,12 @@ class Plugin_Logger extends Logger {
 					'simple-history'
 				),
 
+				'plugin_update_rolled_back'     => _x(
+					'Plugin "{plugin_name}" was rolled back to version {plugin_prev_version} after update to {plugin_version} failed',
+					'Plugin update was rolled back',
+					'simple-history'
+				),
+
 				'plugin_deleted'                => _x(
 					'Deleted plugin "{plugin_name}"',
 					'Plugin files was deleted',
@@ -200,9 +206,15 @@ class Plugin_Logger extends Logger {
 		// this hook does not fire.
 		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ), 10, 1 );
 
-		// Fires after the upgrades has done it's thing.
-		// Check hook extra for upgrader initiator.
+		// Fires after plugin install/update completes (but BEFORE health check for auto-updates).
+		// Logs: plugin_installed, plugin_updated, plugin_bulk_updated, etc.
+		// Also adds plugin_update_type context: forced_security, user_enabled, or manual.
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete' ), 10, 2 );
+
+		// Fires after automatic updates complete, including any rollbacks (WP 6.3+).
+		// This hook fires AFTER health check, so we can detect rollbacks here.
+		// Logs: plugin_update_rolled_back when fatal error caused rollback.
+		add_action( 'automatic_updates_complete', array( $this, 'on_automatic_updates_complete' ), 10, 1 );
 
 		// Ajax function to get info from GitHub repo. Used by "View plugin info"-link for plugin installs.
 		add_action( 'wp_ajax_SimplePluginLogger_GetGitHubPluginInfo', array( $this, 'ajax_GetGitHubPluginInfo' ) );
@@ -880,6 +892,11 @@ class Plugin_Logger extends Logger {
 			if ( isset( $plugin_update_info->package ) ) {
 				$context['plugin_update_info_package'] = $plugin_update_info->package;
 			}
+
+			// Upgrade notice from WordPress.org, e.g. "Version X contains security fixes...".
+			if ( ! empty( $plugin_update_info->upgrade_notice ) ) {
+				$context['plugin_upgrade_notice'] = $plugin_update_info->upgrade_notice;
+			}
 		}
 
 		// To get old version we use our option.
@@ -887,6 +904,9 @@ class Plugin_Logger extends Logger {
 		if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $arr_data['plugin'] ] ) ) {
 			$context['plugin_prev_version'] = $plugins_before_update[ $arr_data['plugin'] ]['Version'];
 		}
+
+		// Add update type context (forced_security, user_enabled, manual).
+		$context = $this->add_update_type_context( $context, $arr_data['plugin'], $update_plugins );
 
 		if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
 			// Add errors
@@ -901,6 +921,12 @@ class Plugin_Logger extends Logger {
 
 			$this->info_message(
 				'plugin_update_failed',
+				$context
+			);
+		} elseif ( ( $context['plugin_update_type'] ?? '' ) === 'forced_security' ) {
+			// Use notice level for forced security updates (WordPress.org override).
+			$this->notice_message(
+				'plugin_updated',
 				$context
 			);
 		} else {
@@ -990,6 +1016,11 @@ class Plugin_Logger extends Logger {
 				if ( isset( $plugin_update_info->package ) ) {
 					$context['plugin_update_info_package'] = $plugin_update_info->package;
 				}
+
+				// Upgrade notice from WordPress.org, e.g. "Version X contains security fixes...".
+				if ( ! empty( $plugin_update_info->upgrade_notice ) ) {
+					$context['plugin_upgrade_notice'] = $plugin_update_info->upgrade_notice;
+				}
 			}
 
 			// To get old version we use our option.
@@ -997,6 +1028,9 @@ class Plugin_Logger extends Logger {
 			if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_main_file_path ] ) ) {
 				$context['plugin_prev_version'] = $plugins_before_update[ $plugin_main_file_path ]['Version'];
 			}
+
+			// Add update type context (forced_security, user_enabled, manual).
+			$context = $this->add_update_type_context( $context, $plugin_main_file_path, $update_plugins );
 
 			$plugin_errors = $this->package_results[ $plugin_main_file_path ]['result']->errors ?? [];
 
@@ -1008,6 +1042,12 @@ class Plugin_Logger extends Logger {
 
 				$this->warning_message(
 					'plugin_bulk_updated_failed',
+					$context
+				);
+			} elseif ( ( $context['plugin_update_type'] ?? '' ) === 'forced_security' ) {
+				// Use notice level for forced security updates (WordPress.org override).
+				$this->notice_message(
+					'plugin_bulk_updated',
 					$context
 				);
 			} else {
@@ -1115,6 +1155,72 @@ class Plugin_Logger extends Logger {
 				'plugin_installed',
 				$context
 			);
+		}
+	}
+
+	/**
+	 * Log plugin updates that were rolled back.
+	 *
+	 * WordPress 6.3+ has automatic rollback for plugin updates that cause fatal errors.
+	 * The upgrader_process_complete hook fires BEFORE the health check, so we need
+	 * to hook into automatic_updates_complete to detect rollbacks that happen AFTER.
+	 *
+	 * Timeline of a failed update with rollback:
+	 * 1. Plugin files updated to new version
+	 * 2. upgrader_process_complete fires → Simple History logs "Updated to X.X.X"
+	 * 3. WordPress performs loopback health check
+	 * 4. Health check fails (fatal error detected)
+	 * 5. WordPress restores from temp backup (rollback)
+	 * 6. automatic_updates_complete fires → This method logs the rollback
+	 *
+	 * WordPress uses these error codes for rollbacks (defined in class-wp-automatic-updater.php):
+	 * - plugin_update_fatal_error_rollback_successful: Update caused fatal, rollback succeeded
+	 * - plugin_update_fatal_error_rollback_failed: Update caused fatal, rollback also failed
+	 *
+	 * @see readme.issue-608-alerts.md for investigation details and testing instructions.
+	 * @see wp-admin/includes/class-wp-automatic-updater.php lines 566-619 for rollback code.
+	 *
+	 * @param array $update_results Results of all update attempts.
+	 */
+	public function on_automatic_updates_complete( $update_results ) {
+		if ( empty( $update_results['plugin'] ) ) {
+			return;
+		}
+
+		$rollback_error_codes = [
+			'plugin_update_fatal_error_rollback_successful',
+			'plugin_update_fatal_error_rollback_failed',
+		];
+
+		foreach ( $update_results['plugin'] as $update ) {
+			if ( ! is_wp_error( $update->result ) ) {
+				continue;
+			}
+
+			$error_code = $update->result->get_error_code();
+
+			if ( ! in_array( $error_code, $rollback_error_codes, true ) ) {
+				continue;
+			}
+
+			$plugin_file = $update->item->plugin ?? '';
+			$plugin_data = [];
+			if ( $plugin_file && file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) ) {
+				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file, true, false );
+			}
+
+			$rollback_successful = ( $error_code === 'plugin_update_fatal_error_rollback_successful' );
+
+			$context = [
+				'plugin_slug'         => dirname( $plugin_file ),
+				'plugin_name'         => $plugin_data['Name'] ?? $plugin_file,
+				'plugin_prev_version' => $plugin_data['Version'] ?? '',
+				'plugin_version'      => $update->item->new_version ?? '',
+				'rollback_successful' => $rollback_successful ? '1' : '0',
+				'error_message'       => $update->result->get_error_message(),
+			];
+
+			$this->warning_message( 'plugin_update_rolled_back', $context );
 		}
 	}
 
@@ -1409,6 +1515,44 @@ class Plugin_Logger extends Logger {
 				if ( ! empty( $extra_details ) ) {
 					$output .= $extra_details;
 				}
+
+				// Display update method and upgrade notice in a key-value table.
+				$update_info_rows = [];
+
+				// Add update method row only for forced security updates (unexpected).
+				// Skip for user-enabled auto-updates (expected) and manual updates (obvious).
+				$plugin_update_type = $context['plugin_update_type'] ?? '';
+				if ( $plugin_update_type === 'forced_security' ) {
+					$update_info_rows[] = [
+						'label' => _x( 'Update method', 'plugin logger: update method label', 'simple-history' ),
+						'value' => _x( 'Security auto-update', 'plugin logger: forced security update method', 'simple-history' ),
+					];
+				}
+
+				// Add upgrade notice from WordPress.org if available.
+				// Limit length to prevent UI flooding from malicious/broken sources.
+				if ( ! empty( $context['plugin_upgrade_notice'] ) ) {
+					$upgrade_notice = wp_strip_all_tags( $context['plugin_upgrade_notice'] );
+					$upgrade_notice = wp_trim_words( $upgrade_notice, 30, '…' );
+
+					$update_info_rows[] = [
+						'label' => _x( 'Update notice', 'plugin logger: update notice label', 'simple-history' ),
+						'value' => $upgrade_notice,
+					];
+				}
+
+				// Output table if there are any rows.
+				if ( ! empty( $update_info_rows ) ) {
+					$output .= '<table class="SimpleHistoryLogitem__keyValueTable">';
+					foreach ( $update_info_rows as $row ) {
+						$output .= sprintf(
+							'<tr><td>%1$s</td><td>%2$s</td></tr>',
+							esc_html( $row['label'] ),
+							esc_html( $row['value'] )
+						);
+					}
+					$output .= '</table>';
+				}
 			}
 
 			$output .= sprintf(
@@ -1450,6 +1594,81 @@ class Plugin_Logger extends Logger {
 				$context['rollback_error_message'] = $package_result['rollback_info']['error_message'];
 			}
 		}
+
+		return $context;
+	}
+
+	/**
+	 * Get the update type for a plugin (forced_security, user_enabled, or manual).
+	 *
+	 * WordPress.org can force security updates via the `autoupdate` flag in the API response,
+	 * even when users have NOT enabled auto-updates for that plugin. This is used for critical
+	 * security vulnerabilities where the WordPress.org security team decides all sites should
+	 * be updated regardless of user preferences.
+	 *
+	 * How it works:
+	 * - WordPress.org API returns `autoupdate => 1` for plugins needing forced security updates
+	 * - This flag is checked against `auto_update_plugins` option (user preferences)
+	 * - If API says force but user didn't enable → forced_security
+	 * - If user enabled auto-updates → user_enabled
+	 * - Otherwise → manual
+	 *
+	 * To test forced security updates:
+	 * 1. Find a plugin with known forced update (e.g., WooCommerce 10.4.2 → 10.4.3)
+	 * 2. Downgrade: wp plugin install woocommerce --version=10.4.2 --force
+	 * 3. Clear cache: wp transient delete update_plugins --network
+	 * 4. Trigger: wp eval 'wp_maybe_auto_update();'
+	 * 5. Check log for "Security Update" badge
+	 *
+	 * @see readme.issue-608-alerts.md for detailed testing instructions.
+	 * @see https://gist.github.com/bonny/dceab0c8582f08075919e9f760380f50 Real API response with autoupdate=1.
+	 * @see https://make.wordpress.org/plugins/2015/03/14/plugin-automatic-security-updates/
+	 *
+	 * @param string  $plugin_file Plugin main file path (e.g., 'woocommerce/woocommerce.php').
+	 * @param ?object $update_plugins Optional update_plugins transient. Will be fetched if not provided.
+	 * @return string Update type: 'forced_security', 'user_enabled', or 'manual'.
+	 */
+	private function get_plugin_update_type( $plugin_file, $update_plugins = null ) {
+		if ( $update_plugins === null ) {
+			$update_plugins = get_site_transient( 'update_plugins' );
+		}
+
+		// Check if WordPress.org API flagged this as a forced security update.
+		$api_forced = false;
+		if ( $update_plugins && isset( $update_plugins->response[ $plugin_file ] ) ) {
+			$plugin_update_info = $update_plugins->response[ $plugin_file ];
+			$api_forced         = ! empty( $plugin_update_info->autoupdate );
+		}
+
+		// Check if user has enabled auto-updates for this plugin.
+		$auto_update_plugins = (array) get_site_option( 'auto_update_plugins', [] );
+		$user_enabled        = in_array( $plugin_file, $auto_update_plugins, true );
+
+		if ( $api_forced && ! $user_enabled ) {
+			// WordPress.org forced this update, user did NOT enable auto-updates.
+			return 'forced_security';
+		}
+
+		if ( $user_enabled ) {
+			// User explicitly enabled auto-updates for this plugin.
+			return 'user_enabled';
+		}
+
+		// Manual update (user clicked update button).
+		return 'manual';
+	}
+
+	/**
+	 * Add update type context to event.
+	 *
+	 * @param array   $context Context array.
+	 * @param string  $plugin_file Plugin main file path.
+	 * @param ?object $update_plugins Optional update_plugins transient.
+	 * @return array Modified context array.
+	 */
+	private function add_update_type_context( $context, $plugin_file, $update_plugins = null ) {
+		$plugin_update_type            = $this->get_plugin_update_type( $plugin_file, $update_plugins );
+		$context['plugin_update_type'] = $plugin_update_type;
 
 		return $context;
 	}

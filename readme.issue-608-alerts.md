@@ -673,3 +673,349 @@ Redesigned the core plugin's alert settings teaser to preview the actual premium
 Files modified:
 - `inc/services/class-alerts-settings-page-teaser.php` - Complete rewrite
 - `css/styles.css` - Replaced old teaser styles with premium-matching components
+
+---
+
+## Plugin Update Rollback Investigation (2026-01-13)
+
+### Problem
+
+Simple History logs plugin updates as successful even when WordPress rolls them back due to fatal errors. Users see "Updated WooCommerce to 10.4.3" but the plugin remains at 10.4.2.
+
+### WordPress.org API Request/Response
+
+**Request URL:**
+```
+POST https://api.wordpress.org/plugins/update-check/1.1/
+```
+
+**Request Body (truncated):**
+```json
+{
+  "plugins": {
+    "woocommerce/woocommerce.php": {
+      "Name": "WooCommerce",
+      "Version": "10.4.2",
+      ...
+    },
+    ...
+  }
+}
+```
+
+**Response for WooCommerce:**
+```php
+stdClass Object (
+    [id] => w.org/plugins/woocommerce
+    [slug] => woocommerce
+    [plugin] => woocommerce/woocommerce.php
+    [new_version] => 10.4.3
+    [url] => https://wordpress.org/plugins/woocommerce/
+    [package] => https://downloads.w.org/plugin/woocommerce.10.4.3.zip
+    [icons] => stdClass Object (
+        [1x] => https://ps.w.org/woocommerce/assets/icon.svg?rev=3234504
+        [svg] => https://ps.w.org/woocommerce/assets/icon.svg?rev=3234504
+    )
+    [banners] => stdClass Object (
+        [2x] => https://ps.w.org/woocommerce/assets/banner-1544x500.png?rev=3234504
+        [1x] => https://ps.w.org/woocommerce/assets/banner-772x250.png?rev=3234504
+    )
+    [banners_rtl] => Array ()
+    [requires] =>
+    [tested] => 6.9
+    [requires_php] =>
+    [requires_plugins] => Array ()
+    [compatibility] => Array ()
+    [autoupdate] => 1
+    [upgrade_notice] => Version 10.4.3 contains security fixes and is highly recommended for all users.
+)
+```
+
+### Key Findings
+
+1. **Forced Update Mechanism**: WordPress uses `autoupdate => 1` flag (not `autoupdate_forced`) to force security updates even when per-plugin auto-updates are disabled.
+
+2. **Rollback Detection**: WordPress uses these error codes in the `automatic_updates_complete` hook when rollback occurs:
+   - `plugin_update_fatal_error_rollback_successful` - Update caused fatal error, rollback succeeded
+   - `plugin_update_fatal_error_rollback_failed` - Update caused fatal error, rollback also failed
+
+3. **Update Transient Storage**: WordPress caches update info in `update_plugins` site transient with properties: `last_checked`, `response`, `translations`, `no_update`, `checked`. No `autoupdate_forced` property.
+
+### Update Flow (observed)
+
+1. `wp_maybe_auto_update()` called
+2. WordPress checks `update_plugins` transient for available updates
+3. Plugin downloaded from `downloads.w.org`
+4. Files extracted and installed (version becomes 10.4.3)
+5. `upgrader_process_complete` hook fires → Simple History logs "Updated to 10.4.3"
+6. WordPress performs loopback health check
+7. Health check fails (fatal error in WooCommerce 10.4.3)
+8. WordPress restores from temp backup (rollback)
+9. `automatic_updates_complete` hook fires with WP_Error containing `plugin_update_fatal_error_rollback_successful`
+10. Email sent: "Some plugins have failed to update"
+
+### WordPress Rollback Code (class-wp-automatic-updater.php lines 566-619)
+
+```php
+if ( $this->has_fatal_error() ) {
+    $upgrade_result = new WP_Error();
+    $temp_backup = array(
+        array(
+            'dir'  => 'plugins',
+            'slug' => $item->slug,
+            'src'  => WP_PLUGIN_DIR,
+        ),
+    );
+
+    $backup_restored = $upgrader->restore_temp_backup( $temp_backup );
+    if ( is_wp_error( $backup_restored ) ) {
+        $upgrade_result->add(
+            'plugin_update_fatal_error_rollback_failed',
+            sprintf( __( "The update for '%s' contained a fatal error. The previously installed version could not be restored." ), $item->slug )
+        );
+    } else {
+        $upgrade_result->add(
+            'plugin_update_fatal_error_rollback_successful',
+            sprintf( __( "The update for '%s' contained a fatal error. The previously installed version has been restored." ), $item->slug )
+        );
+    }
+}
+```
+
+### Implementation (Complete)
+
+**Files Modified:**
+
+`loggers/class-plugin-logger.php`:
+- Line ~108-114: Added `plugin_update_rolled_back` message type
+- Line ~213: Added `automatic_updates_complete` hook
+- Line ~1146-1183: Added `on_automatic_updates_complete()` method checking for rollback error codes
+
+### WordPress Forced Update Mechanism (Deep Dive)
+
+#### Does `upgrade_notice` force anything?
+
+**No.** The `upgrade_notice` field is **display-only** - it shows in the plugins list table to inform users about the update, but has no effect on forcing updates.
+
+#### The `autoupdate` Field
+
+The `autoupdate` field in the WordPress.org API response is the key to forced updates:
+
+- When `autoupdate => 1`, WordPress updates the plugin **regardless of user settings**
+- This flag is **manually set by the WordPress.org security team** for critical security updates
+- Normal plugins do NOT have this flag - it's only for security emergencies
+- The WordPress.org team can target specific version ranges (e.g., update 7.4.x users to 7.4.3, not to 7.6.1)
+
+#### WordPress Core Logic
+
+From `wp-admin/includes/class-wp-automatic-updater.php` (lines 223-228):
+
+```php
+// First check: API-forced update (security team override)
+$update = ! empty( $item->autoupdate );
+
+// Second check: User-enabled auto-update (only if not already forced)
+if ( ! $update && wp_is_auto_update_enabled_for_type( $type ) ) {
+    $auto_updates = (array) get_site_option( "auto_update_{$type}s", array() );
+    $update = in_array( $item->{$type}, $auto_updates, true );
+}
+
+// Third: disable_autoupdate flag can override (but filters still apply)
+if ( ! empty( $item->disable_autoupdate ) ) {
+    $update = false;
+}
+
+// Fourth: Filters can override everything
+$update = apply_filters( "auto_update_{$type}", $update, $item );
+```
+
+#### Detection Logic for Simple History
+
+To detect if an update was forced vs user-enabled:
+
+```php
+$update_plugins = get_site_transient( 'update_plugins' );
+$auto_updates = get_site_option( 'auto_update_plugins', array() );
+
+foreach ( $update_plugins->response as $plugin => $data ) {
+    $api_forced = ! empty( $data->autoupdate );
+    $user_enabled = in_array( $plugin, $auto_updates, true );
+
+    if ( $api_forced && ! $user_enabled ) {
+        // FORCED UPDATE: API override, user did NOT enable auto-updates
+    } elseif ( $user_enabled ) {
+        // USER-ENABLED: User explicitly enabled auto-updates for this plugin
+    }
+}
+```
+
+#### Test Site Configuration
+
+The test site has **no plugins enabled for auto-update**:
+```
+auto_update_plugins = []  (empty array)
+```
+
+Yet WooCommerce updated because the API returned `autoupdate => 1`. This confirms the forced update mechanism is working.
+
+#### Can Users Disable Forced Updates?
+
+**Yes**, but only via code:
+
+```php
+// Disable all plugin auto-updates (including forced)
+add_filter( 'auto_update_plugin', '__return_false' );
+
+// Disable for specific plugin
+add_filter( 'auto_update_plugin', function( $update, $item ) {
+    if ( 'woocommerce/woocommerce.php' === $item->plugin ) {
+        return false;
+    }
+    return $update;
+}, 10, 2 );
+```
+
+#### Sources
+
+- [Automatic Plugin Security Updates – Make WordPress Plugins](https://make.wordpress.org/plugins/2015/03/14/plugin-automatic-security-updates/)
+- [auto_update_{$type} Hook – Developer.WordPress.org](https://developer.wordpress.org/reference/hooks/auto_plugin_update_type/)
+- [The plugin was updated automatically. Why? | WordPress.org](https://wordpress.org/support/topic/the-plugin-was-updated-automatically-why/)
+- [#57280 Security automatic updates for plugins and themes – WordPress Trac](https://core.trac.wordpress.org/ticket/57280)
+- [Store API Vulnerability Patched in WooCommerce 8.1+](https://developer.woocommerce.com/2025/12/22/store-api-vulnerability-patched-in-woocommerce-8-1/)
+
+### Status: ✅ Implemented (2026-01-14)
+
+**Rollback Detection:**
+- ✅ Found correct error codes (`plugin_update_fatal_error_rollback_successful/failed`)
+- ✅ Updated `on_automatic_updates_complete()` to detect these error codes
+- ✅ Logs rollback events with `plugin_update_rolled_back` message
+
+**Forced Security Update Detection:**
+- ✅ Added `plugin_update_type` context to all plugin updates (`forced_security`, `user_enabled`, `manual`)
+- ✅ Added `plugin_upgrade_notice` context field (from WordPress.org API)
+- ✅ Elevated log level to `notice` for forced security updates (vs `info` for normal updates)
+- ✅ Clean key-value table in details view showing "Update method" and "Update notice"
+- ✅ UX reviewed: Only show "Update method" for unexpected updates (forced security), hide for user-enabled auto-updates
+
+**How it works:**
+When a plugin is updated, Simple History checks:
+1. Does the `update_plugins` transient have `autoupdate => 1` for this plugin? (API forced)
+2. Is this plugin in the `auto_update_plugins` option? (User enabled)
+3. If API forced but user didn't enable → `forced_security` (shows "Update method: Security auto-update")
+4. If user enabled → `user_enabled` (no extra indicator - expected behavior)
+5. Otherwise → `manual` (no indicator)
+
+**Details View Output:**
+For forced security updates:
+```
+| Update method | Security auto-update |
+| Update notice | Version 10.4.3 contains security fixes... |
+View changelog
+```
+
+For user-enabled or manual updates (only if upgrade_notice exists):
+```
+| Update notice | Version X.Y.Z contains... |
+View changelog
+```
+
+**Context Fields Saved:**
+- `plugin_update_type` - `forced_security`, `user_enabled`, or `manual`
+- `plugin_upgrade_notice` - Human-readable message from WordPress.org (if present)
+
+**Files Modified:**
+- `loggers/class-plugin-logger.php`:
+  - `get_plugin_update_type()` - Determines update type from transients
+  - `add_update_type_context()` - Adds `plugin_update_type` and `plugin_upgrade_notice` to event context
+  - `get_plugin_action_details_output()` - Renders key-value table in details view
+  - Uses `notice` log level for forced security updates, `info` for others
+
+**Security:**
+- Upgrade notice is escaped with `esc_html()` before output
+- Length limited to 30 words via `wp_trim_words()` to prevent UI flooding
+- HTML stripped with `wp_strip_all_tags()` before display
+
+**GitHub Gist:**
+Example WordPress.org API response with `autoupdate => 1` documented at:
+https://gist.github.com/bonny/dceab0c8582f08075919e9f760380f50
+
+### Testing & Debugging Forced Security Updates
+
+To test or debug the forced security update detection:
+
+**1. Find a plugin with a known forced security update**
+
+WooCommerce has had several forced updates (e.g., 10.4.2 → 10.4.3). Check WordPress.org announcements or plugin changelogs for security releases.
+
+**2. Downgrade the plugin to the vulnerable version**
+
+```bash
+# Using WP-CLI (adjust for your setup)
+docker compose run --rm wpcli_mariadb plugin install woocommerce --version=10.4.2 --force
+```
+
+**3. Clear the update transient**
+
+WordPress caches update info. Clear it to force a fresh check:
+
+```bash
+docker compose run --rm wpcli_mariadb transient delete update_plugins --network
+docker compose run --rm wpcli_mariadb eval 'wp_clean_plugins_cache(true);'
+```
+
+**4. Trigger the auto-update process**
+
+```bash
+docker compose run --rm wpcli_mariadb eval 'wp_maybe_auto_update();'
+```
+
+This simulates what WordPress cron does automatically (usually twice daily). WordPress will:
+- Check WordPress.org API for updates
+- Find the plugin with `autoupdate => 1` flag (security team override)
+- Apply the update even if auto-updates are disabled for that plugin
+
+**5. Check Simple History log**
+
+```bash
+docker compose run --rm wpcli_mariadb simple-history list --count=5
+```
+
+Look for the "Security Update" badge in the output.
+
+**6. Verify the context data**
+
+```sql
+SELECT c.key, c.value
+FROM wp_simple_history_contexts c
+WHERE c.history_id = [EVENT_ID]
+ORDER BY c.key;
+```
+
+The `plugin_update_type` field should be `forced_security`.
+
+**Example output (2026-01-14):**
+
+```
+ID    date                initiator  description                                                    level
+9214  2026-01-14 11:01:21 WP-CLI     Updated plugin "WooCommerce" to version 10.4.3 from 10.4.2    notice
+
+Context:
+plugin_update_type = forced_security
+plugin_upgrade_notice = Version 10.4.3 contains security fixes and is highly recommended for all users.
+plugin_prev_version = 10.4.2
+plugin_version = 10.4.3
+
+Details HTML:
+<table class="SimpleHistoryLogitem__keyValueTable">
+  <tr><td>Update method</td><td>Security auto-update</td></tr>
+  <tr><td>Update notice</td><td>Version 10.4.3 contains security fixes and is highly recommended for all users.</td></tr>
+</table>
+<p><a title="View changelog" ...>View changelog</a></p>
+```
+
+**Future improvements** (nice-to-have):
+- Differentiate message when rollback fails vs succeeds
+
+### Related Files
+
+- `readme.search-performance.md` - Separate issue about slow search queries
