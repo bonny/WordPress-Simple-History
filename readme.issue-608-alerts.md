@@ -883,6 +883,58 @@ add_filter( 'auto_update_plugin', function( $update, $item ) {
 - [#57280 Security automatic updates for plugins and themes – WordPress Trac](https://core.trac.wordpress.org/ticket/57280)
 - [Store API Vulnerability Patched in WooCommerce 8.1+](https://developer.woocommerce.com/2025/12/22/store-api-vulnerability-patched-in-woocommerce-8-1/)
 
+### UX Design Decisions
+
+The UI was designed with input from UX review. Key decisions:
+
+**1. Label choice: "Update method" instead of "Update type"**
+- "Update type" is ambiguous (could mean major vs minor, security vs feature)
+- "Update method" clearly indicates *how* the update happened
+- Users reviewing logs think: "Wait, I didn't update this—how did it happen?"
+
+**2. Value: "Security auto-update" instead of "Forced security update"**
+- Front-loads the critical word "security"
+- "Forced" has negative connotations
+- Concise and scannable in a table
+
+**3. Hide update method for user-enabled auto-updates**
+- Users who enabled auto-updates made an explicit choice
+- The update happening automatically is *expected* behavior
+- Only show information when it *prevents confusion*
+- Keeps logs clean and signal-rich
+
+**4. No badge in list view**
+- Initially implemented a green "Security Update" badge
+- Removed after user feedback - added visual noise
+- The `notice` log level already provides differentiation
+- Details are available on expansion
+
+### Historical Context
+
+**WordPress Forced Updates Timeline:**
+- **WordPress 3.7 (2013)**: Auto-updates introduced for minor/security core releases
+- **WordPress 5.5 (2020)**: Per-plugin auto-update toggles added to admin UI
+- **WordPress 5.6 (2020)**: Per-theme auto-update toggles added
+- **WordPress 6.3 (2023)**: Rollback mechanism added for failed updates
+
+The `autoupdate` API flag has been available since WordPress 3.7 but is rarely used. It's reserved for critical security emergencies where the WordPress.org security team needs to push updates to all sites regardless of user preferences.
+
+**Known uses of forced updates:**
+- Various plugin security vulnerabilities over the years
+- WooCommerce security patches (e.g., 10.4.2 → 10.4.3 in January 2026)
+
+### Why This Matters
+
+**For site owners:**
+- Understand why a plugin updated without their action
+- Audit trail for compliance (who/what changed the site)
+- Awareness of security incidents affecting their plugins
+
+**For agencies/developers:**
+- Client sites updated unexpectedly? Now you know why
+- Security incident response: quickly identify affected sites
+- Peace of mind: forced updates are for protection, not malice
+
 ### Status: ✅ Implemented (2026-01-14)
 
 **Rollback Detection:**
