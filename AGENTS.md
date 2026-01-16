@@ -104,6 +104,7 @@ The following skills are available for domain-specific guidance:
 -   **logger-messages**: Writing user-friendly active voice messages for event logs
 -   **wordpress-org-compliance**: WordPress.org guidelines for free vs premium features
 -   **changelog**: Adding entries to readme.txt changelog
+-   **writing-blog-posts**: Write blog posts for simple-history.com matching the author's voice
 
 These skills are automatically discovered by Claude Code. Invoke them when working in their respective domains.
 
