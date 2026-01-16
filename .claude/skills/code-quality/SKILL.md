@@ -39,6 +39,7 @@ npm run lint:css        # CSS
 - [css-standards.md](css-standards.md) - SuitCSS naming conventions
 - [js-standards.md](js-standards.md) - JavaScript conventions
 - [tooling.md](tooling.md) - phpcs, phpstan, rector usage
+- [design-principles.md](design-principles.md) - DRY, YAGNI, refactoring patterns
 
 ## Related Files
 
