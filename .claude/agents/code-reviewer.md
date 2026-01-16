@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Expert WordPress code reviewer. PROACTIVELY reviews code after writing or modifying PHP, JavaScript, or CSS. Use immediately after implementing features, fixing bugs, refactoring, or before commits. Triggers: "review code", "check my changes", "code review".
+description: Expert WordPress code reviewer that PROACTIVELY reviews code after writing or modifying PHP, JavaScript, or CSS. Reviews implementations, bug fixes, refactoring, and pre-commit changes. Triggers: "review code", "check my changes", "code review".
 model: sonnet
 ---
 

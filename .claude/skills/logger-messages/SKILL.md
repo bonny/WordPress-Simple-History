@@ -1,6 +1,6 @@
 ---
 name: logger-messages
-description: Write user-friendly logger messages in active voice for Simple History event logs. Fixes passive voice. Use when creating/modifying logger classes in loggers/, writing getInfo() messages, or adding events to activity log. Triggers: "logger message", "active voice", "event log text".
+description: Writes user-friendly logger messages in active voice for Simple History event logs. Fixes passive voice issues. Triggered when creating/modifying logger classes in loggers/, writing getInfo() messages, or adding events to activity log. Triggers: "logger message", "active voice", "event log text".
 allowed-tools: Read, Grep, Glob
 ---
 

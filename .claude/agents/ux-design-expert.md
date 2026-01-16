@@ -1,6 +1,6 @@
 ---
 name: ux-design-expert
-description: UX design guidance for interface layout, interaction patterns, copy/microcopy writing, usability improvements, and visual hierarchy decisions. Use when reviewing UI implementations, improving user flows, crafting interface text, or making design decisions. Triggers: "UX review", "button text", "error message copy", "layout feedback", "user flow".
+description: Provides UX design guidance for interface layout, interaction patterns, copy/microcopy writing, usability improvements, and visual hierarchy decisions. Reviews UI implementations, improves user flows, crafts interface text, and advises on design decisions. Triggers: "UX review", "button text", "error message copy", "layout feedback", "user flow".
 model: sonnet
 ---
 

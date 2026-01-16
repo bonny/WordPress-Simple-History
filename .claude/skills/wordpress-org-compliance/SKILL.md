@@ -1,6 +1,6 @@
 ---
 name: wordpress-org-compliance
-description: WordPress.org compliance for freemium plugins. Prevents trialware violations. Use when adding premium features, implementing upsells, checking license keys, creating teasers, reviewing before WordPress.org submission. Triggers: "premium", "upsell", "freemium", "license key", "wp.org guidelines", "trialware".
+description: Ensures WordPress.org compliance for freemium plugins and prevents trialware violations. Reviews premium features, upsells, license keys, and teasers before WordPress.org submission. Triggers: "premium", "upsell", "freemium", "license key", "wp.org guidelines", "trialware".
 allowed-tools: Read, Grep, Glob
 ---
 

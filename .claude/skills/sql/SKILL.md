@@ -1,6 +1,6 @@
 ---
 name: sql
-description: Run SQL queries against the WordPress development database. Use when querying tables, inspecting Simple History events, checking WordPress data, debugging. Triggers: "run query", "check database", "SQL", "show tables".
+description: Runs SQL queries against the WordPress development database. Queries tables, inspects Simple History events, checks WordPress data, and helps with debugging. Triggers: "run query", "check database", "SQL", "show tables".
 allowed-tools: Read, Bash
 ---
 

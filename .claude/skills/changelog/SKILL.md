@@ -1,6 +1,6 @@
 ---
 name: changelog
-description: Add changelog entries to readme.txt. Use when updating Unreleased section, documenting changes for release, or when user says "add changelog", "update changelog", "log this change".
+description: Adds changelog entries to readme.txt following keepachangelog format. Triggered when updating Unreleased section, documenting changes for release, or when user says "add changelog", "update changelog", "log this change".
 allowed-tools: Read, Edit
 ---
 

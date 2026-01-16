@@ -1,6 +1,6 @@
 ---
 name: writing-blog-posts
-description: Write blog posts for simple-history.com matching the author's voice. Use when writing posts, drafting content, creating announcements, writing marketing copy, or reviewing blog tone. Triggers: "write blog post", "draft post", "blog content", "announcement".
+description: Writes blog posts for simple-history.com matching the author's established voice and style. Drafts content, creates announcements, writes marketing copy, and reviews blog tone. Triggers: "write blog post", "draft post", "blog content", "announcement".
 allowed-tools: Read, WebFetch
 ---
 

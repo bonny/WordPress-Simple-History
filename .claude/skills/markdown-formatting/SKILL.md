@@ -1,20 +1,12 @@
 ---
 name: markdown-formatting
-description: Format markdown files using Prettier for consistent style. Use after creating or updating markdown (.md) files. Triggers: "format markdown", "prettier", "fix md formatting".
+description: Formats markdown files using Prettier for consistent style. Runs after creating or updating markdown (.md) files. Triggers: "format markdown", "prettier", "fix md formatting".
 allowed-tools: Bash
 ---
 
 # Markdown Formatting
 
 Format markdown files using Prettier for consistent style.
-
-## When to Use This Skill
-
-**Trigger scenarios:**
-
-- After creating a new markdown file
-- After making significant edits to a markdown file
-- Before committing markdown changes
 
 ## Commands
 

@@ -1,6 +1,6 @@
 ---
 name: premium-upsell-design
-description: Design premium feature teasers, upsell prompts, and upgrade CTAs with consistent visual styling. Use when creating premium UI components, adding upsell banners, implementing freemium patterns, or styling premium badges. Triggers: "premium teaser", "upsell", "premium badge", "CTA design", "upgrade prompt".
+description: Designs premium feature teasers, upsell prompts, and upgrade CTAs with consistent visual styling. Creates premium UI components, upsell banners, freemium patterns, and premium badges. Triggers: "premium teaser", "upsell", "premium badge", "CTA design", "upgrade prompt".
 allowed-tools: Read, Grep, Glob, Edit, Write
 ---
 

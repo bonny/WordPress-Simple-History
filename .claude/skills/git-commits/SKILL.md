@@ -1,6 +1,6 @@
 ---
 name: git-commits
-description: Project-specific git commit guidance for Simple History. Use when committing changes that span core and premium plugins. Triggers: "commit", "multi-repo commit".
+description: Provides project-specific git commit guidance for Simple History, especially for changes spanning core and premium plugins. Triggers: "commit", "multi-repo commit".
 allowed-tools: Bash
 ---
 

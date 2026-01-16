@@ -1,6 +1,6 @@
 ---
 name: code-quality
-description: WordPress coding standards and linting tools (phpcs, phpstan, rector). ALWAYS use after writing PHP/CSS/JS code. Triggers: "run phpcs", "run phpstan", "lint", "check code", "fix code style", "coding standards", or when lint errors occur.
+description: Enforces WordPress coding standards using phpcs, phpstan, and rector. Runs linting and static analysis on PHP/CSS/JS code. Triggers: "run phpcs", "run phpstan", "lint", "check code", "fix code style", "coding standards", or when lint errors occur.
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
