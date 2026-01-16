@@ -1,191 +1,46 @@
 ---
 name: code-quality
-description: WordPress coding standards and linting tools (phpcs, phpstan, rector, phpcbf). ALWAYS use after writing significant PHP/CSS/JS code to verify compliance. Triggers: "run phpcs", "run phpstan", "lint", "check code", "fix code style", "coding standards", or when user reports lint/phpcs/phpstan errors.
+description: WordPress coding standards and linting tools (phpcs, phpstan, rector). ALWAYS use after writing PHP/CSS/JS code. Triggers: "run phpcs", "run phpstan", "lint", "check code", "fix code style", "coding standards", or when lint errors occur.
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
-# Code Quality Standards for Simple History
+# Code Quality Standards
 
-This skill provides code quality guidelines for the Simple History WordPress plugin, including PHP, CSS, and JavaScript standards, tooling commands, and best practices.
+## Quick Commands
 
-## When to Use This Skill
+```bash
+npm run php:lint        # Check PHP style
+npm run php:lint-fix    # Auto-fix PHP issues
+npm run php:phpstan     # Static analysis
+npm run lint:js         # JavaScript
+npm run lint:css        # CSS
+```
 
-**ALWAYS invoke this skill:**
-- After writing or editing significant PHP/CSS/JS code (run phpcs/phpstan to verify)
-- When user says: "lint", "phpcs", "phpstan", "check code", "fix style", "coding standards"
-- When user reports lint errors or code style issues
-- Before committing code changes (verify with phpcs)
+## Project-Specific Rules
 
-**Trigger phrases:** "run phpcs", "run phpstan", "lint my code", "check code quality", "fix code style", "coding standards"
-
-## Quick Reference
-
-### PHP Standards
-- **PHP Version**: 7.4+ compatibility required
-- **WordPress Coding Standards**: Official WordPress standards (see phpcs.xml.dist)
-- **No mb_* functions**: Use standard string functions
-- **Array syntax**: Short syntax `[]` not `array()`
-- **Control structures**: Always use curly braces `{}`, never colon syntax
-- **Hook prefixes**: Always use `sh`, `simplehistory`, or `simple_history`
-
-### CSS Standards
-- **Naming Convention**: SuitCSS
-- **Prefix**: `sh`
-- **Components**: `sh-ComponentName` (e.g., `sh-HelpSection`, `sh-LogEntry`)
-- **Subparts**: `sh-ComponentName-subpart` (e.g., `sh-LogEntry-author`)
-
-### JavaScript
-- Follow @wordpress/scripts conventions
-- Text domain: `simple-history`
-- Always use braces for if/else/for/while (no single-line statements)
-
-## Detailed Guidelines
-
-### PHP Code Style
-
-See [php-standards.md](php-standards.md) for detailed PHP style guide including:
-- Happy path last pattern
-- Early returns over else
-- Ternary operator formatting
-- Control structure syntax
-
-### Tooling Commands
-
-See [tooling.md](tooling.md) for:
-- phpcs (PHP_CodeSniffer) usage
-- phpstan (static analysis) usage
-- rector (code modernization) usage
-- npm scripts for code quality
-
-### CSS Guidelines
-
-See [css-standards.md](css-standards.md) for SuitCSS naming conventions and examples.
-
-### JavaScript Guidelines
-
-See [js-standards.md](js-standards.md) for JavaScript code style.
+| Area | Standard |
+|------|----------|
+| PHP | 7.4+, WordPress Coding Standards |
+| Prefixes | `sh`, `simplehistory`, `simple_history` |
+| Text domain | `simple-history` |
+| CSS naming | SuitCSS: `sh-ComponentName-subpart` |
+| Array syntax | Short `[]` not `array()` |
+| Control structures | Always use braces `{}`, never colon syntax |
 
 ## Essential Principles
 
 1. **Always escape output** - Use WordPress escaping functions
-2. **Prefix everything** - Use `sh`, `simplehistory`, or `simple_history`
-3. **Follow WordPress conventions** - The "WordPress Way"
-4. **Run quality tools** - Use phpcs, phpstan after significant changes
+2. **Prefix everything** - All hooks, functions, classes
+3. **Run tools after changes** - phpcs/phpstan before committing
 
-## Design Principles
+## Detailed Guidelines
 
-### DRY - Don't Repeat Yourself
-
-Extract shared logic when you have **actual** duplication (3+ occurrences). But don't preemptively create abstractions.
-
-**When to refactor for DRY:**
-
-1. **Same logic in 3+ places** - Time to extract
-2. **Factory methods** (e.g., `get_sender()`) - Should be in one place
-3. **Configuration data** (e.g., presets, type definitions) - Single source of truth
-4. **Type labels/mappings** - Centralize to avoid sync issues
-
-**How to refactor:**
-
-```php
-// BEFORE: Duplicated in REST controller, CLI command, and module
-private function get_sender( string $type ) {
-    switch ( $type ) {
-        case 'email': return new Email_Sender();
-        case 'slack': return new Slack_Sender();
-    }
-}
-
-// AFTER: Single public static method in the main module
-public static function get_sender( string $type ): ?Sender {
-    // ... implementation
-}
-
-// Other classes call:
-$sender = Main_Module::get_sender( $type );
-```
-
-**Checklist when adding new code:**
-- [ ] Does similar logic exist elsewhere? Search before writing.
-- [ ] Will multiple classes need this? Make it `public static` in a central location.
-- [ ] Is this configuration/mapping data? Put it in one place.
-
-### YAGNI - You Aren't Gonna Need It
-
-Don't implement functionality until it's actually needed. Avoid:
-- Creating abstractions for hypothetical future use cases
-- Building helper functions for one-time operations
-- Adding configurability "just in case"
-- Designing for requirements that don't exist yet
-
-**Together**: DRY says extract when you have real duplication. YAGNI says wait until you actually need it. Three similar lines of code is often better than a premature abstraction.
-
-### Readable Code - Code Should Read Like Well-Written Prose
-
-Good code should be self-documenting. When you read a function, its intent should be clear without needing comments to explain what it does.
-
-**Techniques:**
-
-1. **Extract well-named methods** - Replace inline logic with descriptive method calls:
-   ```php
-   // BEFORE: What does this do?
-   foreach ( $preset_settings as $preset_id => $settings ) {
-       if ( ! empty( $settings['enabled'] ) && ! empty( $settings['destinations'] ) ) {
-           $enabled_rules[] = [ 'preset' => $preset_id, 'destinations' => $settings['destinations'] ];
-       }
-   }
-
-   // AFTER: Intent is clear from method name
-   $enabled_rules = $this->get_enabled_rules( $preset_settings, $custom_rules );
-   ```
-
-2. **Use array destructuring** for multiple return values:
-   ```php
-   // Clean and expressive
-   [ $destinations, $preset_settings, $custom_rules ] = $this->get_alert_options();
-   ```
-
-3. **Structure methods as a story** - Each line should follow logically:
-   ```php
-   public function process_logged_event( $context, $data, $logger ) {
-       [ $destinations, $preset_settings, $custom_rules ] = $this->get_alert_options();
-
-       if ( empty( $destinations ) ) {
-           return;
-       }
-
-       $enabled_rules = $this->get_enabled_rules( $preset_settings, $custom_rules );
-
-       if ( empty( $enabled_rules ) ) {
-           return;
-       }
-
-       foreach ( $enabled_rules as $rule ) {
-           if ( $this->rule_matches_event( $rule, $context, $data ) ) {
-               $this->send_alerts( $rule, $context, $data, $destinations );
-           }
-       }
-   }
-   // Reads like: "Get options. If no destinations, stop. Get enabled rules. If none, stop. For each rule that matches, send alerts."
-   ```
-
-4. **Method names should describe the "what", not the "how"**:
-   - `get_enabled_rules()` not `loop_and_filter_rules()`
-   - `send_alerts()` not `iterate_destinations_and_post()`
-
-### Proactive DRY Review
-
-When creating new classes (CLI commands, REST controllers, etc.) that work with existing functionality:
-
-1. **Check existing classes** for methods that could be shared
-2. **Look for these patterns** that indicate duplication:
-   - Factory methods (`get_sender()`, `get_formatter()`)
-   - Configuration getters (`get_presets()`, `get_types()`)
-   - Label/mapping functions (`get_type_label()`, `get_status_text()`)
-3. **Refactor existing code** if needed - make private methods public static
-4. **Use the shared method** instead of copying code
+- [php-standards.md](php-standards.md) - PHP style, happy path, early returns
+- [css-standards.md](css-standards.md) - SuitCSS naming conventions
+- [js-standards.md](js-standards.md) - JavaScript conventions
+- [tooling.md](tooling.md) - phpcs, phpstan, rector usage
 
 ## Related Files
 
-- `phpcs.xml.dist` - PHP_CodeSniffer configuration
-- `phpstan.neon` - PHPStan configuration
-- `package.json` - npm scripts for code quality
+- `phpcs.xml.dist` - PHP_CodeSniffer config
+- `phpstan.neon` - PHPStan config

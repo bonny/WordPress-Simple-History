@@ -100,11 +100,15 @@ See @CLAUDE.local.md for specific commands for stable and nightly WordPress inst
 
 The following skills are available for domain-specific guidance:
 
--   **code-quality**: PHP/CSS standards, linting tools (phpcs, phpstan, rector)
--   **logger-messages**: Writing user-friendly active voice messages for event logs
--   **wordpress-org-compliance**: WordPress.org guidelines for free vs premium features
--   **changelog**: Adding entries to readme.txt changelog
--   **writing-blog-posts**: Write blog posts for simple-history.com matching the author's voice
+-   **changelog**: Add entries to readme.txt changelog
+-   **code-quality**: PHP/CSS/JS standards, linting tools (phpcs, phpstan, rector)
+-   **git-commits**: Project-specific commit guidance for multi-repo workflow
+-   **logger-messages**: Write user-friendly active voice messages for event logs
+-   **markdown-formatting**: Format markdown files with Prettier
+-   **premium-upsell-design**: Design premium teasers, badges, and CTAs
+-   **sql**: Run SQL queries against WordPress dev database
+-   **wordpress-org-compliance**: WordPress.org guidelines for freemium plugins
+-   **writing-blog-posts**: Write blog posts for simple-history.com
 
 These skills are automatically discovered by Claude Code. Invoke them when working in their respective domains.
 
