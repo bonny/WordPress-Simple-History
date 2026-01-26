@@ -5,50 +5,61 @@ Simple History is a WordPress plugin that logs various things that occur in Word
 ## Quick Start
 
 Simple History automatically logs various actions in WordPress and displays them in:
-- WordPress admin area (as a page under the "Tools" menu)
-- Dashboard widget
-- Through the REST API
-- Via WP-CLI commands
+
+-   WordPress admin area (as a page under the "Tools" menu)
+-   Dashboard widget
+-   Through the REST API
+-   Via WP-CLI commands
 
 ## Documentation Sections
 
 ### Architecture
-- [Overview](architecture/overview.md) - High-level architecture of the plugin
-- [Core Components](architecture/core-components.md) - Details about the main plugin components
-- [Event System](architecture/event-system.md) - How events are logged and processed
-- [Event Details](architecture/event-details.md) - Event details formatting and display system
-- [Services](architecture/services.md) - Service-based architecture details
+
+-   [Overview](architecture/overview.md) - High-level architecture of the plugin
+-   [Core Components](architecture/core-components.md) - Details about the main plugin components
+-   [Event System](architecture/event-system.md) - How events are logged and processed
+-   [Event Details](architecture/event-details.md) - Event details formatting and display system
+-   [Services](architecture/services.md) - Service-based architecture details
 
 ### Folder Structure
-- [Overview](folder-structure/overview.md) - General folder organization
-- [Key Directories](folder-structure/key-directories.md) - Important directories and their purposes
+
+-   [Overview](folder-structure/overview.md) - General folder organization
+-   [Key Directories](folder-structure/key-directories.md) - Important directories and their purposes
 
 ### Database
-- [Schema](database/schema.md) - Database tables and fields
-- [Versioning](database/versioning.md) - Database version management
-- [Relationships](database/relationships.md) - How data is related
+
+-   [Schema](database/schema.md) - Database tables and fields
+-   [Versioning](database/versioning.md) - Database version management
+-   [Relationships](database/relationships.md) - How data is related
 
 ### Development Guide
-- [Extending](development/extending.md) - How to extend the plugin
-- [Custom Loggers](development/custom-loggers.md) - Creating your own loggers
-- [Hooks Reference](development/hooks-reference.md) - Available filters and actions
-- [Best Practices](development/best-practices.md) - Development guidelines
+
+-   [Extending](development/extending.md) - How to extend the plugin
+-   [Custom Loggers](development/custom-loggers.md) - Creating your own loggers
+-   [Hooks Reference](development/hooks-reference.md) - Available filters and actions
+-   [Best Practices](development/best-practices.md) - Development guidelines
 
 ### API Reference
-- [REST API](rest-api.md) - REST API endpoints and usage
-- [Logging API](development/logging-api.md) - How to log custom events
-- [Query API](development/query-api.md) - How to query the log
+
+-   [REST API](rest-api.md) - REST API endpoints and usage
+-   [Logging API](development/logging-api.md) - How to log custom events
+-   [Query API](development/query-api.md) - How to query the log
+
+### Issue Archive
+
+-   [Issue Archive](issues/) - Historical documentation from completed issues and investigations
 
 ## Requirements
 
-- WordPress 6.3 or newer
-- PHP 7.4 or newer
+-   WordPress 6.3 or newer
+-   PHP 7.4 or newer
 
 ## Support
 
 For support:
-- [GitHub Issues](https://github.com/bonny/WordPress-Simple-History/issues)
-- [WordPress.org Support Forum](https://wordpress.org/support/plugin/simple-history/)
+
+-   [GitHub Issues](https://github.com/bonny/WordPress-Simple-History/issues)
+-   [WordPress.org Support Forum](https://wordpress.org/support/plugin/simple-history/)
 
 ## Contributing
 
@@ -56,4 +67,4 @@ Contributions are welcome! Please read our [Contributing Guidelines](../CONTRIBU
 
 ## License
 
-Simple History is licensed under the GPL v2 or later. 
+Simple History is licensed under the GPL v2 or later.

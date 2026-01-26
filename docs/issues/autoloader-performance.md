@@ -19,9 +19,9 @@ After extensive testing, we implemented targeted optimizations that simplify cod
 
 The classmap autoloader was implemented and tested but ultimately **removed** because:
 
-- Apache Bench testing showed <1% improvement with OPcache enabled
-- Added complexity (regeneration after code changes, case-insensitive lookup)
-- Extra build step and npm script not justified for marginal gains
+-   Apache Bench testing showed <1% improvement with OPcache enabled
+-   Added complexity (regeneration after code changes, case-insensitive lookup)
+-   Extra build step and npm script not justified for marginal gains
 
 **Key insight**: OPcache makes the classmap's benefit negligible. The filesystem overhead that PHP-SPX measured (~1.75ms) gets absorbed into overall latency when OPcache is warm.
 
@@ -43,11 +43,11 @@ after optimization: inc: 0%, 248 ms - 397 ns (nano seconds!)
 
 ### Apache Bench Results Summary
 
-| Configuration | Requests/sec | Mean Time | Notes |
-|--------------|--------------|-----------|-------|
-| Main branch (baseline) | 10.57 | 94.6ms | 1000 requests |
-| Without classmap | 10.71 | 93.4ms | ~1.3% faster |
-| With classmap | 10.78 | 92.8ms | ~2% faster |
+| Configuration          | Requests/sec | Mean Time | Notes         |
+| ---------------------- | ------------ | --------- | ------------- |
+| Main branch (baseline) | 10.57        | 94.6ms    | 1000 requests |
+| Without classmap       | 10.71        | 93.4ms    | ~1.3% faster  |
+| With classmap          | 10.78        | 92.8ms    | ~2% faster    |
 
 **Conclusion**: The difference is within measurement noise. OPcache dominates performance.
 
@@ -99,12 +99,14 @@ Processing:   110  135  15.1    134     204
 ### With 1000 requests (more stable results):
 
 **Main branch:**
+
 ```
 Requests per second:    10.57 [#/sec] (mean)
 Time per request:       94.638 [ms] (mean)
 ```
 
 **Performance branch (final):**
+
 ```
 Requests per second:    10.71 [#/sec] (mean)
 Time per request:       93.412 [ms] (mean)
@@ -116,12 +118,12 @@ Time per request:       93.412 [ms] (mean)
 
 The plugin accounts for approximately **3.5-4% of total page load time** (before optimizations):
 
-| Function | Exclusive Time | Duration | Calls |
-|----------|----------------|----------|-------|
-| `Autoloader::require_file` | 2.47% | 1.75ms | 110 |
-| `get_services` | 1.08% | 761µs | 1 |
-| `get_core_dropins` | 0.54% | 385µs | 1 |
-| Plugin index.php | 0.49% | 346µs | 1 |
+| Function                   | Exclusive Time | Duration | Calls |
+| -------------------------- | -------------- | -------- | ----- |
+| `Autoloader::require_file` | 2.47%          | 1.75ms   | 110   |
+| `get_services`             | 1.08%          | 761µs    | 1     |
+| `get_core_dropins`         | 0.54%          | 385µs    | 1     |
+| Plugin index.php           | 0.49%          | 346µs    | 1     |
 
 ---
 
@@ -144,6 +146,7 @@ This ensures other plugins' classes (VaultPress, ActionScheduler, etc.) don't tr
 ### 2. Hardcoded Class Arrays (Replacing glob())
 
 **Before:**
+
 ```php
 $service_files = glob( $services_dir . '/*.php' );
 foreach ( $service_files as $file ) {
@@ -153,6 +156,7 @@ foreach ( $service_files as $file ) {
 ```
 
 **After:**
+
 ```php
 private function get_services() {
     $services = array(
@@ -166,10 +170,11 @@ private function get_services() {
 ```
 
 **Benefits:**
-- Zero filesystem I/O (was 2 directory scans)
-- Zero string manipulation (was ~40 operations)
-- Correct class names (no more ucwords case issues)
-- Opcache friendly (pre-compiled)
+
+-   Zero filesystem I/O (was 2 directory scans)
+-   Zero string manipulation (was ~40 operations)
+-   Correct class names (no more ucwords case issues)
+-   Opcache friendly (pre-compiled)
 
 ### 3. Efficient String Replacement in Autoloader
 
@@ -192,23 +197,26 @@ Changed from loop with `str_replace()` to single `strtr()` call via existing hel
 A static classmap was generated mapping class names to file paths. While PHP-SPX showed micro-level improvement (~1.75ms → ~0.1ms), Apache Bench showed <1% real-world improvement.
 
 **Why it didn't help as expected:**
+
 1. OPcache already caches file lookups
 2. The classmap added complexity (regeneration, case-insensitive lookup)
 3. Build step overhead wasn't justified
 
 **Files removed:**
-- `inc/class-classmap-generator.php`
-- `inc/classmap-generated.php`
-- `scripts/generate-classmap.php`
-- `npm run classmap:generate` script
+
+-   `inc/class-classmap-generator.php`
+-   `inc/classmap-generated.php`
+-   `scripts/generate-classmap.php`
+-   `npm run classmap:generate` script
 
 ---
 
 ## Maintenance Notes
 
 When adding new services or dropins, update the hardcoded arrays in:
-- `get_services()` for new services
-- `get_core_dropins()` for new dropins
+
+-   `get_services()` for new services
+-   `get_core_dropins()` for new dropins
 
 This is a minor trade-off for eliminating filesystem operations.
 
