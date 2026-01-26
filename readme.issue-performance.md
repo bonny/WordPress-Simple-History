@@ -25,7 +25,7 @@ Only some basic plugins installed.
 ab -n100 -c3 http://wordpress-stable-docker-mariadb.test:8282/
 ```
 
-Before all optimizations:
+Before all optimizations (main branch):
 
 ```
 Document Path:          /
@@ -61,7 +61,7 @@ Percentage of the requests served within a certain time (ms)
  100%    183 (longest request)
 ```
 
-After all optimizations:
+After all optimizations (issue-performance branch):
 
 ```
 Document Path:          /
@@ -95,7 +95,237 @@ Percentage of the requests served within a certain time (ms)
   98%    241
   99%    241
  100%    241 (longest request)
+
+Document Path:          /
+Document Length:        75439 bytes
+
+Concurrency Level:      3
+Time taken for tests:   6.945 seconds
+Complete requests:      100
+Failed requests:        0
+Total transferred:      7594000 bytes
+HTML transferred:       7543900 bytes
+Requests per second:    14.40 [#/sec] (mean)
+Time per request:       208.362 [ms] (mean)
+Time per request:       69.454 [ms] (mean, across all concurrent requests)
+Transfer rate:          1067.76 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.3      0       2
+Processing:   143  205  33.3    190     289
+Waiting:      142  204  33.3    189     289
+Total:        143  205  33.4    191     290
+
+Percentage of the requests served within a certain time (ms)
+  50%    191
+  66%    202
+  75%    237
+  80%    241
+  90%    255
+  95%    275
+  98%    290
+  99%    290
+ 100%    290 (longest request)
+
+More tests after removing sh_error_log() debug calls:
+
+Document Path:          /
+Document Length:        75439 bytes
+
+Concurrency Level:      3
+Time taken for tests:   4.624 seconds
+Complete requests:      100
+Failed requests:        0
+Total transferred:      7594000 bytes
+HTML transferred:       7543900 bytes
+Requests per second:    21.63 [#/sec] (mean)
+Time per request:       138.708 [ms] (mean)
+Time per request:       46.236 [ms] (mean, across all concurrent requests)
+Transfer rate:          1603.94 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.2      0       2
+Processing:   110  135  15.1    134     204
+Waiting:      108  133  15.2    133     202
+Total:        110  135  15.1    134     204
+
+Percentage of the requests served within a certain time (ms)
+  50%    134
+  66%    138
+  75%    141
+  80%    144
+  90%    150
+  95%    166
+  98%    178
+  99%    204
+ 100%    204 (longest request)
+
+ Document Path:          /
+Document Length:        75439 bytes
+
+Concurrency Level:      3
+Time taken for tests:   4.952 seconds
+Complete requests:      100
+Failed requests:        0
+Total transferred:      7594000 bytes
+HTML transferred:       7543900 bytes
+Requests per second:    20.20 [#/sec] (mean)
+Time per request:       148.551 [ms] (mean)
+Time per request:       49.517 [ms] (mean, across all concurrent requests)
+Transfer rate:          1497.68 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.4      0       4
+Processing:   132  145  11.7    143     205
+Waiting:      130  144  11.8    142     204
+Total:        132  145  11.7    143     205
+
+Percentage of the requests served within a certain time (ms)
+  50%    143
+  66%    145
+  75%    148
+  80%    149
+  90%    151
+  95%    153
+  98%    205
+  99%    205
+ 100%    205 (longest request)
 ```
+
+Results with SIMPLE_HISTORY_USE_CLASSMAP set to false:
+```
+
+Test 1:
+
+Time taken for tests:   4.444 seconds
+Complete requests:      100
+Failed requests:        0
+Total transferred:      7594000 bytes
+HTML transferred:       7543900 bytes
+Requests per second:    22.50 [#/sec] (mean)
+Time per request:       133.319 [ms] (mean)
+Time per request:       44.440 [ms] (mean, across all concurrent requests)
+Transfer rate:          1668.79 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.3      0       3
+Processing:   115  129   9.8    127     169
+Waiting:      112  128   9.8    126     167
+Total:        115  130   9.8    128     170
+
+Percentage of the requests served within a certain time (ms)
+  50%    128
+  66%    131
+  75%    134
+  80%    134
+  90%    144
+  95%    150
+  98%    169
+  99%    170
+ 100%    170 (longest request)
+
+Test 2:
+
+Time taken for tests:   5.252 seconds
+Complete requests:      100
+Failed requests:        0
+Total transferred:      7594000 bytes
+HTML transferred:       7543900 bytes
+Requests per second:    19.04 [#/sec] (mean)
+Time per request:       157.553 [ms] (mean)
+Time per request:       52.518 [ms] (mean, across all concurrent requests)
+Transfer rate:          1412.10 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.5      0       3
+Processing:   125  153  16.7    151     219
+Waiting:      125  151  16.1    149     214
+Total:        126  153  16.7    151     220
+
+Percentage of the requests served within a certain time (ms)
+  50%    151
+  66%    158
+  75%    160
+  80%    162
+  90%    180
+  95%    185
+  98%    219
+  99%    220
+ 100%    220 (longest request)
+```
+
+**With 1000 ab requests:**
+
+SIMPLE_HISTORY_USE_CLASSMAP false
+```
+Time taken for tests:   93.412 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      75940000 bytes
+HTML transferred:       75439000 bytes
+Requests per second:    10.71 [#/sec] (mean)
+Time per request:       93.412 [ms] (mean)
+Time per request:       93.412 [ms] (mean, across all concurrent requests)
+Transfer rate:          793.90 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.4      0       5
+Processing:    76   93   6.0     92     190
+Waiting:       76   92   6.0     91     189
+Total:         76   93   6.0     92     190
+
+Percentage of the requests served within a certain time (ms)
+  50%     92
+  66%     93
+  75%     93
+  80%     94
+  90%     97
+  95%    100
+  98%    106
+  99%    114
+ 100%    190 (longest request)
+```
+
+SIMPLE_HISTORY_USE_CLASSMAP true
+```
+Time taken for tests:   92.776 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      75940000 bytes
+HTML transferred:       75439000 bytes
+Requests per second:    10.78 [#/sec] (mean)
+Time per request:       92.776 [ms] (mean)
+Time per request:       92.776 [ms] (mean, across all concurrent requests)
+Transfer rate:          799.35 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.3      0       5
+Processing:    75   92   8.1     90     200
+Waiting:       75   92   8.0     90     199
+Total:         75   93   8.1     91     200
+
+Percentage of the requests served within a certain time (ms)
+  50%     91
+  66%     92
+  75%     93
+  80%     94
+  90%     98
+  95%    103
+  98%    116
+  99%    130
+ 100%    200 (longest request)
+```
+
+**With 1000 ab requests on main:**
+
+
 
 ## Simple History Performance Impact
 
