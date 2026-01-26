@@ -354,6 +354,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added Notes statistics to History Insights page for tracking collaborative block editor notes activity.
 -   Added Notes REST API endpoint at `/wp-json/simple-history/v1/stats/notes`.
 
+**Changed**
+
+-   Improved plugin loading performance by replacing dynamic file discovery with static class lists, eliminating filesystem scans during initialization.
+
 **Fixed**
 
 -   Fixed "Interface not found" and "Class not found" errors on WPEngine and other hosts with aggressive directory caching during plugin updates.
