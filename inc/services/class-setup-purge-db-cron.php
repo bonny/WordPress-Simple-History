@@ -178,8 +178,9 @@ class Setup_Purge_DB_Cron extends Service {
 		global $wpdb;
 
 		// Default: delete events older than X days.
+		// Compare date column directly to allow index usage.
 		$where = $wpdb->prepare(
-			'DATE_ADD(date, INTERVAL %d DAY) < NOW()',
+			'date < DATE_SUB(NOW(), INTERVAL %d DAY)',
 			$days
 		);
 
@@ -245,7 +246,7 @@ class Setup_Purge_DB_Cron extends Service {
 		 *             continue;
 		 *         }
 		 *         $conditions[] = $wpdb->prepare(
-		 *             '(logger = %s AND DATE_ADD(date, INTERVAL %d DAY) < NOW())',
+		 *             '(logger = %s AND date < DATE_SUB(NOW(), INTERVAL %d DAY))',
 		 *             $logger,
 		 *             $logger_days
 		 *         );

@@ -1384,7 +1384,7 @@ class Helpers {
 			'
                 SELECT count(*)
                 FROM %1$s
-                WHERE UNIX_TIMESTAMP(date) >= %2$d
+                WHERE date >= FROM_UNIXTIME(%2$d)
                 AND logger IN %3$s
             ',
 			$simple_history->get_events_table_name(),
@@ -1415,7 +1415,7 @@ class Helpers {
 			'
                 SELECT count(*)
                 FROM %1$s
-                WHERE UNIX_TIMESTAMP(date) >= %2$d
+                WHERE date >= FROM_UNIXTIME(%2$d)
                 AND logger IN %3$s
             ',
 			$simple_history->get_events_table_name(),
@@ -1494,7 +1494,7 @@ class Helpers {
 					FROM
 						%1$s
 					WHERE
-						UNIX_TIMESTAMP(date) >= %2$d
+						date >= FROM_UNIXTIME(%2$d)
 						AND logger IN %3$s
 					GROUP BY yearDate
 					ORDER BY yearDate ASC

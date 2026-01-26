@@ -7,12 +7,11 @@
 
 ## Review and comments from human developer
 
-- ~~Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!~~
-- ~~Research: How to implement async processing via Action Scheduler or WP Cron for production sites with high event volume.~~
-- ~~Destinations page, could each table benefit from a column with info about what alert rules are sending to it?~~
-- ~~Should we also add context to messages sent? Right now it only says "Edited profile for user abc" but it would be useful to also know that was changed, for example role changed? Just a first name change vs role change, it's very different!~~ → Documented in [Phase 2: Enhanced Alert Message Context](#enhanced-alert-message-context)
-- ~~Promo for alert features in core uses completely differnt layout, it should preview the premium settings, including 2 tabs and all the fields. But non editable and no functionality of course.~~ → Done (2026-01-10)
-
+-   ~~Intro section for Destinations (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) and alert rules (`sh-SettingsCard sh-SettingsPage-settingsSection-wrap`) looks different from Log forwarding intro section and also different than Failed login attempts intro section. I think we need a common layout for this that works in all scenarios!~~
+-   ~~Research: How to implement async processing via Action Scheduler or WP Cron for production sites with high event volume.~~
+-   ~~Destinations page, could each table benefit from a column with info about what alert rules are sending to it?~~
+-   ~~Should we also add context to messages sent? Right now it only says "Edited profile for user abc" but it would be useful to also know that was changed, for example role changed? Just a first name change vs role change, it's very different!~~ → Documented in [Phase 2: Enhanced Alert Message Context](#enhanced-alert-message-context)
+-   ~~Promo for alert features in core uses completely differnt layout, it should preview the premium settings, including 2 tabs and all the fields. But non editable and no functionality of course.~~ → Done (2026-01-10)
 
 ## Scope Clarification
 
@@ -392,14 +391,14 @@ The base `Channel` class already has:
 
 These files exist and can be leveraged:
 
-| File                                                            | Purpose              | Status               |
-| --------------------------------------------------------------- | -------------------- | -------------------- |
-| `simple-history-premium/inc/alerts/class-alert-evaluator.php`   | JsonLogic wrapper    | ⚠️ Not tested        |
-| `simple-history-premium/inc/alerts/class-alert-field-registry.php` | UI field definitions | ⚠️ Not tested     |
-| `simple-history-premium/inc/alerts/class-alert-rules-engine.php`| Service facade       | ⚠️ Not tested        |
-| `simple-history-premium/inc/libraries/JsonLogic.php`            | Third-party library  | ✅ (upstream tested) |
-| `docs/alerts-feature-research.md`                               | Competitor analysis  | ✅                   |
-| `docs/alerts-async-processing-research.md`                      | Performance research | ✅                   |
+| File                                                               | Purpose              | Status               |
+| ------------------------------------------------------------------ | -------------------- | -------------------- |
+| `simple-history-premium/inc/alerts/class-alert-evaluator.php`      | JsonLogic wrapper    | ⚠️ Not tested        |
+| `simple-history-premium/inc/alerts/class-alert-field-registry.php` | UI field definitions | ⚠️ Not tested        |
+| `simple-history-premium/inc/alerts/class-alert-rules-engine.php`   | Service facade       | ⚠️ Not tested        |
+| `simple-history-premium/inc/libraries/JsonLogic.php`               | Third-party library  | ✅ (upstream tested) |
+| `docs/alerts-feature-research.md`                                  | Competitor analysis  | ✅                   |
+| `docs/alerts-async-processing-research.md`                         | Performance research | ✅                   |
 
 **Note:** The Alert_Rules_Engine and related classes have been moved from core to premium for WordPress.org compliance. They have no test coverage yet - tests should be written before relying on this code.
 
@@ -439,11 +438,11 @@ Based on research from [Smashing Magazine](https://www.smashingmagazine.com/2025
 
 Alert systems work best when they separate:
 
-| Concern          | What it answers            | Example                          |
-| ---------------- | -------------------------- | -------------------------------- |
-| **Destinations** | "Where do alerts go?"      | Slack #security, admin@email.com |
-| **Rules**        | "What triggers an alert?"  | Failed logins, plugin changes    |
-| **Behavior**     | "How do alerts behave?"    | Rate limits, digest mode         |
+| Concern          | What it answers           | Example                          |
+| ---------------- | ------------------------- | -------------------------------- |
+| **Destinations** | "Where do alerts go?"     | Slack #security, admin@email.com |
+| **Rules**        | "What triggers an alert?" | Failed logins, plugin changes    |
+| **Behavior**     | "How do alerts behave?"   | Rate limits, digest mode         |
 
 ### Recommended: Two-Subtab Approach
 
@@ -459,12 +458,12 @@ Settings (parent)
 
 **Why separate "Log Forwarding" and "Alerts"?**
 
-| Log Forwarding              | Alerts                             |
-| --------------------------- | ---------------------------------- |
-| All events → destination    | Only matching events → destination |
-| Archive/backup purpose      | Real-time notification purpose     |
-| Technical users             | All users                          |
-| "Store my logs externally"  | "Tell me when X happens"           |
+| Log Forwarding             | Alerts                             |
+| -------------------------- | ---------------------------------- |
+| All events → destination   | Only matching events → destination |
+| Archive/backup purpose     | Real-time notification purpose     |
+| Technical users            | All users                          |
+| "Store my logs externally" | "Tell me when X happens"           |
 
 ### Destinations Subtab
 
@@ -508,19 +507,20 @@ Progressive disclosure with three tiers:
 Per WordPress.org guidelines: "All hosted code must be free and fully functional. No premium/locked code."
 
 This means:
-- **Core plugin**: Only teaser UI, no alert functional classes
-- **Premium plugin**: All functional alert code
+
+-   **Core plugin**: Only teaser UI, no alert functional classes
+-   **Premium plugin**: All functional alert code
 
 ### What Goes Where
 
-| Component                          | Location     | Rationale              |
-| ---------------------------------- | ------------ | ---------------------- |
-| Alerts settings tab (teaser only)  | **Core**     | Shows upgrade path     |
-| Destination classes                | **Premium**  | Functional code        |
-| Alert rule classes                 | **Premium**  | Functional code        |
-| Rule evaluation engine             | **Premium**  | Functional code        |
-| Settings page with real forms      | **Premium**  | Functional code        |
-| Hooks for premium to register      | **Core**     | Extension point        |
+| Component                         | Location    | Rationale          |
+| --------------------------------- | ----------- | ------------------ |
+| Alerts settings tab (teaser only) | **Core**    | Shows upgrade path |
+| Destination classes               | **Premium** | Functional code    |
+| Alert rule classes                | **Premium** | Functional code    |
+| Rule evaluation engine            | **Premium** | Functional code    |
+| Settings page with real forms     | **Premium** | Functional code    |
+| Hooks for premium to register     | **Core**    | Extension point    |
 
 ### Core Plugin Files
 
@@ -530,6 +530,7 @@ templates/settings-alerts-teaser.php                 # Teaser HTML
 ```
 
 The teaser service:
+
 1. Registers the "Alerts" tab in settings (teaser version)
 2. Shows premium feature preview
 3. Gets **replaced** when premium is active via filter
@@ -577,35 +578,39 @@ Core teaser checks this filter and skips registration if premium is active.
 ### 2026-01-01/02: Alert Rules UI
 
 Implemented Tier 1 preset-based alert rules UI with UX polish:
-- Simplified preset cards matching Destinations styling
-- Destinations grouped by type with icons and status indicators
-- Email recipients shown with envelope icon + count badge (tooltip shows addresses)
-- "+" quick-add links navigate to Destinations tab with anchor highlighting
-- CSS tooltips, proper status positioning, various bug fixes
+
+-   Simplified preset cards matching Destinations styling
+-   Destinations grouped by type with icons and status indicators
+-   Email recipients shown with envelope icon + count badge (tooltip shows addresses)
+-   "+" quick-add links navigate to Destinations tab with anchor highlighting
+-   CSS tooltips, proper status positioning, various bug fixes
 
 ### 2025-12-29/30: Destinations UI & Code Quality
 
 Destinations table UX improvements and phpcs/phpstan fixes:
-- Send tracking (success/failure status per destination)
-- Test button with loading states, delete confirmation fix
-- WordPress table patterns, button icon alignment
-- Code style fixes (curly braces, ternaries, namespaces)
+
+-   Send tracking (success/failure status per destination)
+-   Test button with loading states, delete confirmation fix
+-   WordPress table patterns, button icon alignment
+-   Code style fixes (curly braces, ternaries, namespaces)
 
 ### Status Summary
 
 **Completed:**
-- ✅ Destinations (architecture, storage, REST API, settings UI)
-- ✅ All 4 destination senders (Email, Slack, Discord, Telegram)
-- ✅ Send tracking, test buttons, WP CLI commands
-- ✅ Alert presets UI (Tier 1 quick setup)
-- ✅ Alert rules saving and evaluation
-- ✅ Event logging when destinations/rules are saved
-- ✅ Enhanced alert message context (all senders include `get_details_text()` output)
+
+-   ✅ Destinations (architecture, storage, REST API, settings UI)
+-   ✅ All 4 destination senders (Email, Slack, Discord, Telegram)
+-   ✅ Send tracking, test buttons, WP CLI commands
+-   ✅ Alert presets UI (Tier 1 quick setup)
+-   ✅ Alert rules saving and evaluation
+-   ✅ Event logging when destinations/rules are saved
+-   ✅ Enhanced alert message context (all senders include `get_details_text()` output)
 
 **Not Started:**
-- ⏳ Editable presets (Tier 2)
-- ⏳ Custom rules builder (Tier 3)
-- ⏳ "Create alert from event" feature
+
+-   ⏳ Editable presets (Tier 2)
+-   ⏳ Custom rules builder (Tier 3)
+-   ⏳ "Create alert from event" feature
 
 ## Phase 2: Future Improvements
 
@@ -619,7 +624,8 @@ Features planned for after MVP release.
 Alert messages include detailed context via `Event::get_details_text()` which converts HTML event details (diffs, changes) to plain text. All 4 destination senders (Email, Slack, Discord, Telegram) include this in their alert messages.
 
 **Future consideration:**
-- Per-event-type formatting (critical changes get full detail, cosmetic changes summarized)
+
+-   Per-event-type formatting (critical changes get full detail, cosmetic changes summarized)
 
 ## Related Issues
 
@@ -632,25 +638,26 @@ Alert messages include detailed context via `Event::get_details_text()` which co
 
 ### 2026-01-04: Review Questions Addressed
 
-- WP CLI commands added (`class-wp-cli-alerts-command.php`)
-- Destination descriptions updated to be more helpful
-- Event logging implemented (`class-alerts-logger.php`) for destination/rule changes
+-   WP CLI commands added (`class-wp-cli-alerts-command.php`)
+-   Destination descriptions updated to be more helpful
+-   Event logging implemented (`class-alerts-logger.php`) for destination/rule changes
 
 ### 2026-01-08: DRY Refactoring
 
 Code deduplication (~150 lines removed):
-- Added `Log_Levels::get_level_color()` and `get_level_emoji()` to core
-- Added `Helpers::sanitize_error_message()` to core
-- Refactored destination senders to use shared methods
-- Single source of truth for level colors, emojis, labels, error sanitization
+
+-   Added `Log_Levels::get_level_color()` and `get_level_emoji()` to core
+-   Added `Helpers::sanitize_error_message()` to core
+-   Refactored destination senders to use shared methods
+-   Single source of truth for level colors, emojis, labels, error sanitization
 
 ### 2026-01-10: Performance & Code Quality
 
-- Fixed destination tracking reset bug (sanitize callback was stripping `tracking` key)
-- Batched option reads with `get_options()` (WP 6.4+) - 3 DB queries → 1
-- Removed unused `_version` metadata (~53 lines)
-- Extracted methods from `process_logged_event()` for readability
-- Added 'Readable Code' principle to code quality guidelines
+-   Fixed destination tracking reset bug (sanitize callback was stripping `tracking` key)
+-   Batched option reads with `get_options()` (WP 6.4+) - 3 DB queries → 1
+-   Removed unused `_version` metadata (~53 lines)
+-   Extracted methods from `process_logged_event()` for readability
+-   Added 'Readable Code' principle to code quality guidelines
 
 ### 2026-01-10: WordPress.org Compliance
 
@@ -663,16 +670,18 @@ Added `Event::get_details_text()` for plain text event details in alerts. Hook `
 ### 2026-01-10: Teaser Redesign
 
 Redesigned the core plugin's alert settings teaser to preview the actual premium UI:
-- **Two functional tabs**: Destinations and Alert Rules (tabs work, content is disabled)
-- **Destinations preview**: Shows all 4 types (Email, Slack with sample data; Discord, Telegram empty)
-- **Alert Rules preview**: 3 preset cards with expandable event lists, destination checkboxes, Custom Rules section
-- **HTML `inert` attribute**: Native browser support for disabling all content interaction
-- **Shared CSS components**: Reuses styles matching premium UI (`.sh-CardHeader`, `.sh-StatusIcon`, `.sh-PresetCard-*`)
-- **Upgrade CTA**: Sticky at bottom with Premium badge
+
+-   **Two functional tabs**: Destinations and Alert Rules (tabs work, content is disabled)
+-   **Destinations preview**: Shows all 4 types (Email, Slack with sample data; Discord, Telegram empty)
+-   **Alert Rules preview**: 3 preset cards with expandable event lists, destination checkboxes, Custom Rules section
+-   **HTML `inert` attribute**: Native browser support for disabling all content interaction
+-   **Shared CSS components**: Reuses styles matching premium UI (`.sh-CardHeader`, `.sh-StatusIcon`, `.sh-PresetCard-*`)
+-   **Upgrade CTA**: Sticky at bottom with Premium badge
 
 Files modified:
-- `inc/services/class-alerts-settings-page-teaser.php` - Complete rewrite
-- `css/styles.css` - Replaced old teaser styles with premium-matching components
+
+-   `inc/services/class-alerts-settings-page-teaser.php` - Complete rewrite
+-   `css/styles.css` - Replaced old teaser styles with premium-matching components
 
 ---
 
@@ -685,11 +694,13 @@ Simple History logs plugin updates as successful even when WordPress rolls them 
 ### WordPress.org API Request/Response
 
 **Request URL:**
+
 ```
 POST https://api.wordpress.org/plugins/update-check/1.1/
 ```
 
 **Request Body (truncated):**
+
 ```json
 {
   "plugins": {
@@ -704,6 +715,7 @@ POST https://api.wordpress.org/plugins/update-check/1.1/
 ```
 
 **Response for WooCommerce:**
+
 ```php
 stdClass Object (
     [id] => w.org/plugins/woocommerce
@@ -736,8 +748,9 @@ stdClass Object (
 1. **Forced Update Mechanism**: WordPress uses `autoupdate => 1` flag (not `autoupdate_forced`) to force security updates even when per-plugin auto-updates are disabled.
 
 2. **Rollback Detection**: WordPress uses these error codes in the `automatic_updates_complete` hook when rollback occurs:
-   - `plugin_update_fatal_error_rollback_successful` - Update caused fatal error, rollback succeeded
-   - `plugin_update_fatal_error_rollback_failed` - Update caused fatal error, rollback also failed
+
+    - `plugin_update_fatal_error_rollback_successful` - Update caused fatal error, rollback succeeded
+    - `plugin_update_fatal_error_rollback_failed` - Update caused fatal error, rollback also failed
 
 3. **Update Transient Storage**: WordPress caches update info in `update_plugins` site transient with properties: `last_checked`, `response`, `translations`, `no_update`, `checked`. No `autoupdate_forced` property.
 
@@ -787,9 +800,10 @@ if ( $this->has_fatal_error() ) {
 **Files Modified:**
 
 `loggers/class-plugin-logger.php`:
-- Line ~108-114: Added `plugin_update_rolled_back` message type
-- Line ~213: Added `automatic_updates_complete` hook
-- Line ~1146-1183: Added `on_automatic_updates_complete()` method checking for rollback error codes
+
+-   Line ~108-114: Added `plugin_update_rolled_back` message type
+-   Line ~213: Added `automatic_updates_complete` hook
+-   Line ~1146-1183: Added `on_automatic_updates_complete()` method checking for rollback error codes
 
 ### WordPress Forced Update Mechanism (Deep Dive)
 
@@ -801,10 +815,10 @@ if ( $this->has_fatal_error() ) {
 
 The `autoupdate` field in the WordPress.org API response is the key to forced updates:
 
-- When `autoupdate => 1`, WordPress updates the plugin **regardless of user settings**
-- This flag is **manually set by the WordPress.org security team** for critical security updates
-- Normal plugins do NOT have this flag - it's only for security emergencies
-- The WordPress.org team can target specific version ranges (e.g., update 7.4.x users to 7.4.3, not to 7.6.1)
+-   When `autoupdate => 1`, WordPress updates the plugin **regardless of user settings**
+-   This flag is **manually set by the WordPress.org security team** for critical security updates
+-   Normal plugins do NOT have this flag - it's only for security emergencies
+-   The WordPress.org team can target specific version ranges (e.g., update 7.4.x users to 7.4.3, not to 7.6.1)
 
 #### WordPress Core Logic
 
@@ -852,6 +866,7 @@ foreach ( $update_plugins->response as $plugin => $data ) {
 #### Test Site Configuration
 
 The test site has **no plugins enabled for auto-update**:
+
 ```
 auto_update_plugins = []  (empty array)
 ```
@@ -877,80 +892,91 @@ add_filter( 'auto_update_plugin', function( $update, $item ) {
 
 #### Sources
 
-- [Automatic Plugin Security Updates – Make WordPress Plugins](https://make.wordpress.org/plugins/2015/03/14/plugin-automatic-security-updates/)
-- [auto_update_{$type} Hook – Developer.WordPress.org](https://developer.wordpress.org/reference/hooks/auto_plugin_update_type/)
-- [The plugin was updated automatically. Why? | WordPress.org](https://wordpress.org/support/topic/the-plugin-was-updated-automatically-why/)
-- [#57280 Security automatic updates for plugins and themes – WordPress Trac](https://core.trac.wordpress.org/ticket/57280)
-- [Store API Vulnerability Patched in WooCommerce 8.1+](https://developer.woocommerce.com/2025/12/22/store-api-vulnerability-patched-in-woocommerce-8-1/)
+-   [Automatic Plugin Security Updates – Make WordPress Plugins](https://make.wordpress.org/plugins/2015/03/14/plugin-automatic-security-updates/)
+-   [auto*update*{$type} Hook – Developer.WordPress.org](https://developer.wordpress.org/reference/hooks/auto_plugin_update_type/)
+-   [The plugin was updated automatically. Why? | WordPress.org](https://wordpress.org/support/topic/the-plugin-was-updated-automatically-why/)
+-   [#57280 Security automatic updates for plugins and themes – WordPress Trac](https://core.trac.wordpress.org/ticket/57280)
+-   [Store API Vulnerability Patched in WooCommerce 8.1+](https://developer.woocommerce.com/2025/12/22/store-api-vulnerability-patched-in-woocommerce-8-1/)
 
 ### UX Design Decisions
 
 The UI was designed with input from UX review. Key decisions:
 
 **1. Label choice: "Update method" instead of "Update type"**
-- "Update type" is ambiguous (could mean major vs minor, security vs feature)
-- "Update method" clearly indicates *how* the update happened
-- Users reviewing logs think: "Wait, I didn't update this—how did it happen?"
+
+-   "Update type" is ambiguous (could mean major vs minor, security vs feature)
+-   "Update method" clearly indicates _how_ the update happened
+-   Users reviewing logs think: "Wait, I didn't update this—how did it happen?"
 
 **2. Value: "Security auto-update" instead of "Forced security update"**
-- Front-loads the critical word "security"
-- "Forced" has negative connotations
-- Concise and scannable in a table
+
+-   Front-loads the critical word "security"
+-   "Forced" has negative connotations
+-   Concise and scannable in a table
 
 **3. Hide update method for user-enabled auto-updates**
-- Users who enabled auto-updates made an explicit choice
-- The update happening automatically is *expected* behavior
-- Only show information when it *prevents confusion*
-- Keeps logs clean and signal-rich
+
+-   Users who enabled auto-updates made an explicit choice
+-   The update happening automatically is _expected_ behavior
+-   Only show information when it _prevents confusion_
+-   Keeps logs clean and signal-rich
 
 **4. No badge in list view**
-- Initially implemented a green "Security Update" badge
-- Removed after user feedback - added visual noise
-- The `notice` log level already provides differentiation
-- Details are available on expansion
+
+-   Initially implemented a green "Security Update" badge
+-   Removed after user feedback - added visual noise
+-   The `notice` log level already provides differentiation
+-   Details are available on expansion
 
 ### Historical Context
 
 **WordPress Forced Updates Timeline:**
-- **WordPress 3.7 (2013)**: Auto-updates introduced for minor/security core releases
-- **WordPress 5.5 (2020)**: Per-plugin auto-update toggles added to admin UI
-- **WordPress 5.6 (2020)**: Per-theme auto-update toggles added
-- **WordPress 6.3 (2023)**: Rollback mechanism added for failed updates
+
+-   **WordPress 3.7 (2013)**: Auto-updates introduced for minor/security core releases
+-   **WordPress 5.5 (2020)**: Per-plugin auto-update toggles added to admin UI
+-   **WordPress 5.6 (2020)**: Per-theme auto-update toggles added
+-   **WordPress 6.3 (2023)**: Rollback mechanism added for failed updates
 
 The `autoupdate` API flag has been available since WordPress 3.7 but is rarely used. It's reserved for critical security emergencies where the WordPress.org security team needs to push updates to all sites regardless of user preferences.
 
 **Known uses of forced updates:**
-- Various plugin security vulnerabilities over the years
-- WooCommerce security patches (e.g., 10.4.2 → 10.4.3 in January 2026)
+
+-   Various plugin security vulnerabilities over the years
+-   WooCommerce security patches (e.g., 10.4.2 → 10.4.3 in January 2026)
 
 ### Why This Matters
 
 **For site owners:**
-- Understand why a plugin updated without their action
-- Audit trail for compliance (who/what changed the site)
-- Awareness of security incidents affecting their plugins
+
+-   Understand why a plugin updated without their action
+-   Audit trail for compliance (who/what changed the site)
+-   Awareness of security incidents affecting their plugins
 
 **For agencies/developers:**
-- Client sites updated unexpectedly? Now you know why
-- Security incident response: quickly identify affected sites
-- Peace of mind: forced updates are for protection, not malice
+
+-   Client sites updated unexpectedly? Now you know why
+-   Security incident response: quickly identify affected sites
+-   Peace of mind: forced updates are for protection, not malice
 
 ### Status: ✅ Implemented (2026-01-14)
 
 **Rollback Detection:**
-- ✅ Found correct error codes (`plugin_update_fatal_error_rollback_successful/failed`)
-- ✅ Updated `on_automatic_updates_complete()` to detect these error codes
-- ✅ Logs rollback events with `plugin_update_rolled_back` message
+
+-   ✅ Found correct error codes (`plugin_update_fatal_error_rollback_successful/failed`)
+-   ✅ Updated `on_automatic_updates_complete()` to detect these error codes
+-   ✅ Logs rollback events with `plugin_update_rolled_back` message
 
 **Forced Security Update Detection:**
-- ✅ Added `plugin_update_type` context to all plugin updates (`forced_security`, `user_enabled`, `manual`)
-- ✅ Added `plugin_upgrade_notice` context field (from WordPress.org API)
-- ✅ Elevated log level to `notice` for forced security updates (vs `info` for normal updates)
-- ✅ Clean key-value table in details view showing "Update method" and "Update notice"
-- ✅ UX reviewed: Only show "Update method" for unexpected updates (forced security), hide for user-enabled auto-updates
+
+-   ✅ Added `plugin_update_type` context to all plugin updates (`forced_security`, `user_enabled`, `manual`)
+-   ✅ Added `plugin_upgrade_notice` context field (from WordPress.org API)
+-   ✅ Elevated log level to `notice` for forced security updates (vs `info` for normal updates)
+-   ✅ Clean key-value table in details view showing "Update method" and "Update notice"
+-   ✅ UX reviewed: Only show "Update method" for unexpected updates (forced security), hide for user-enabled auto-updates
 
 **How it works:**
 When a plugin is updated, Simple History checks:
+
 1. Does the `update_plugins` transient have `autoupdate => 1` for this plugin? (API forced)
 2. Is this plugin in the `auto_update_plugins` option? (User enabled)
 3. If API forced but user didn't enable → `forced_security` (shows "Update method: Security auto-update")
@@ -959,6 +985,7 @@ When a plugin is updated, Simple History checks:
 
 **Details View Output:**
 For forced security updates:
+
 ```
 | Update method | Security auto-update |
 | Update notice | Version 10.4.3 contains security fixes... |
@@ -966,40 +993,46 @@ View changelog
 ```
 
 For user-enabled or manual updates (only if upgrade_notice exists):
+
 ```
 | Update notice | Version X.Y.Z contains... |
 View changelog
 ```
 
 **Context Fields Saved:**
-- `plugin_update_type` - `forced_security`, `user_enabled`, or `manual`
-- `plugin_upgrade_notice` - Human-readable message from WordPress.org (if present)
+
+-   `plugin_update_type` - `forced_security`, `user_enabled`, or `manual`
+-   `plugin_upgrade_notice` - Human-readable message from WordPress.org (if present)
 
 **Forced Update Detection on Update Available (2026-01-17):**
 
 The Available Updates Logger now also captures `autoupdate` and `upgrade_notice` when plugin updates are **detected** (before installation). This gives users advance warning that a forced security update is pending.
 
 When a plugin update is found with `autoupdate => 1`:
-- Shows **"Security auto-update"** label with "This update will be installed automatically by WordPress."
-- Shows the **Update notice** from WordPress.org in a key-value table
 
-This helps users understand *before* the update happens that WordPress will install it automatically, preventing confusion when they see a plugin updated despite having auto-updates disabled.
+-   Shows **"Security auto-update"** label with "This update will be installed automatically by WordPress."
+-   Shows the **Update notice** from WordPress.org in a key-value table
+
+This helps users understand _before_ the update happens that WordPress will install it automatically, preventing confusion when they see a plugin updated despite having auto-updates disabled.
 
 **Files Modified:**
-- `loggers/class-available-updates-logger.php`:
-  - `on_setted_update_plugins_transient()` - Captures `plugin_autoupdate` and `plugin_upgrade_notice` context
-  - `get_log_row_details_output()` - Displays forced update indicator and upgrade notice
 
-- `loggers/class-plugin-logger.php`:
-  - `get_plugin_update_type()` - Determines update type from transients
-  - `add_update_type_context()` - Adds `plugin_update_type` and `plugin_upgrade_notice` to event context
-  - `get_plugin_action_details_output()` - Renders key-value table in details view
-  - Uses `notice` log level for forced security updates, `info` for others
+-   `loggers/class-available-updates-logger.php`:
+
+    -   `on_setted_update_plugins_transient()` - Captures `plugin_autoupdate` and `plugin_upgrade_notice` context
+    -   `get_log_row_details_output()` - Displays forced update indicator and upgrade notice
+
+-   `loggers/class-plugin-logger.php`:
+    -   `get_plugin_update_type()` - Determines update type from transients
+    -   `add_update_type_context()` - Adds `plugin_update_type` and `plugin_upgrade_notice` to event context
+    -   `get_plugin_action_details_output()` - Renders key-value table in details view
+    -   Uses `notice` log level for forced security updates, `info` for others
 
 **Security:**
-- Upgrade notice is escaped with `esc_html()` before output
-- Length limited to 30 words via `wp_trim_words()` to prevent UI flooding
-- HTML stripped with `wp_strip_all_tags()` before display
+
+-   Upgrade notice is escaped with `esc_html()` before output
+-   Length limited to 30 words via `wp_trim_words()` to prevent UI flooding
+-   HTML stripped with `wp_strip_all_tags()` before display
 
 **GitHub Gist:**
 Example WordPress.org API response with `autoupdate => 1` documented at:
@@ -1036,9 +1069,10 @@ docker compose run --rm wpcli_mariadb eval 'wp_maybe_auto_update();'
 ```
 
 This simulates what WordPress cron does automatically (usually twice daily). WordPress will:
-- Check WordPress.org API for updates
-- Find the plugin with `autoupdate => 1` flag (security team override)
-- Apply the update even if auto-updates are disabled for that plugin
+
+-   Check WordPress.org API for updates
+-   Find the plugin with `autoupdate => 1` flag (security team override)
+-   Apply the update even if auto-updates are disabled for that plugin
 
 **5. Check Simple History log**
 
@@ -1080,8 +1114,70 @@ Details HTML:
 ```
 
 **Future improvements** (nice-to-have):
-- Differentiate message when rollback fails vs succeeds
+
+-   Differentiate message when rollback fails vs succeeds
 
 ### Related Files
 
-- `readme.search-performance.md` - Separate issue about slow search queries
+-   `readme.search-performance.md` - Separate issue about slow search queries
+
+---
+
+## SQL Performance Optimizations (2026-01-26)
+
+### Problem
+
+SPX profiling revealed that sidebar stats queries were taking ~12-22ms on cache miss due to SQL that prevented index usage.
+
+### Root Cause
+
+Queries wrapped the `date` column in functions, preventing MySQL from using the `KEY date (date)` index:
+
+```sql
+-- Bad: Function on column = full table scan
+WHERE UNIX_TIMESTAMP(date) >= 1737849600
+WHERE DATE_ADD(date, INTERVAL 60 DAY) < NOW()
+```
+
+### Solution
+
+Rewrite queries to compare the `date` column directly:
+
+```sql
+-- Good: Column compared directly = index range scan
+WHERE date >= FROM_UNIXTIME(1737849600)
+WHERE date < DATE_SUB(NOW(), INTERVAL 60 DAY)
+```
+
+Both are algebraically equivalent but the second form allows MySQL to use the index.
+
+### Files Modified
+
+| File                                             | Function                               | Change                                                |
+| ------------------------------------------------ | -------------------------------------- | ----------------------------------------------------- |
+| `inc/class-helpers.php:1387`                     | `get_num_events_last_n_days()`         | `UNIX_TIMESTAMP(date) >=` → `date >= FROM_UNIXTIME()` |
+| `inc/class-helpers.php:1418`                     | `get_num_events_today()`               | `UNIX_TIMESTAMP(date) >=` → `date >= FROM_UNIXTIME()` |
+| `inc/class-helpers.php:1497`                     | `get_num_events_per_day_last_n_days()` | `UNIX_TIMESTAMP(date) >=` → `date >= FROM_UNIXTIME()` |
+| `inc/services/class-setup-purge-db-cron.php:182` | `get_purge_where_clause()`             | `DATE_ADD(date, ...) <` → `date < DATE_SUB(...)`      |
+| `tests/wpunit/PurgeDBTest.php`                   | Test expectations                      | Updated to match new SQL pattern                      |
+
+### Performance Impact
+
+For large tables (50k+ events), these changes can improve query performance significantly:
+
+-   **Before**: Full table scan - reads all rows
+-   **After**: Index range scan - reads only matching rows
+
+On a 1M row table querying last 7 days (~50k rows), this is potentially ~20x fewer rows read.
+
+### Verification
+
+```sql
+EXPLAIN SELECT count(*) FROM wp_simple_history
+WHERE date >= FROM_UNIXTIME(1737849600);
+-- Should show type: "range" and "Using index" in Extra
+```
+
+### Not Changed
+
+-   `class-events-stats.php` - Already uses correct pattern in WHERE clauses. The `DATE_ADD` there is only in SELECT/GROUP BY for timezone conversion, which doesn't affect index usage.

@@ -215,8 +215,8 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 			function ( $where, $days ) {
 				global $wpdb;
 				return $wpdb->prepare(
-					'(logger = %s AND DATE_ADD(date, INTERVAL 90 DAY) < NOW())
-					 OR (logger != %s AND DATE_ADD(date, INTERVAL %d DAY) < NOW())',
+					'(logger = %s AND date < DATE_SUB(NOW(), INTERVAL 90 DAY))
+					 OR (logger != %s AND date < DATE_SUB(NOW(), INTERVAL %d DAY))',
 					'SimpleUserLogger',
 					'SimpleUserLogger',
 					$days
