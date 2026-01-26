@@ -6,6 +6,17 @@ Profiling was done using PHP-SPX on a WordPress installation with the Simple His
 
 This is a summary imported from Claude Desktop, which does not have access to the plugin source code. Be critical of the findings!
 
+## Developer testing and results
+
+get_core_dropins()
+before optimization: inc: 0.55% - 0.85%, 389 ms - 446 ms
+after optimization: inc: 0 % , 1 ms
+
+get_services()
+before optimization: inc: 1.08% - 1.02%, 761 ms - 537 ms
+after optimization: inc: 0 %, 248 ms - 397 ns (nano seconds, not milliseconds!)
+
+
 ## Simple History Performance Impact
 
 The plugin currently accounts for approximately **3.5-4% of total page load time**:
@@ -192,9 +203,86 @@ External plugin classes (VaultPress, ActionScheduler, etc.) no longer appear in 
 - Early return for non-Simple_History classes
 - Filesystem fallback for add-on plugin classes
 
-### Next Steps
+---
+
+## Phase 2: Eliminating glob() Calls (January 2026)
+
+### Problem
+
+`get_services()` and `get_core_dropins()` used `glob()` to discover class files at runtime:
+
+```php
+// Old approach - filesystem scan on every request
+$service_files = glob( $services_dir . '/*.php' );
+foreach ( $service_files as $file ) {
+    $class_name = str_replace( 'class-', '', basename( $file, '.php' ) );
+    $class_name = ucwords( $class_name, '_' );  // REST_API → Rest_Api (wrong!)
+    // ...
+}
+```
+
+Issues:
+1. **Filesystem I/O**: `glob()` requires directory reads on every request
+2. **String manipulation overhead**: Multiple `str_replace()`, `basename()`, `ucwords()` per file
+3. **Case mismatch**: `ucwords()` creates incorrect class names (`REST_API` → `Rest_Api`)
+
+### Solution
+
+Replaced `glob()` with hardcoded static arrays using `::class` syntax, matching the existing `get_core_loggers()` pattern:
+
+```php
+// New approach - compiled into opcache, zero I/O
+private function get_services() {
+    $services = array(
+        Services\AddOns_Licences::class,
+        Services\REST_API::class,           // Exact class name
+        Services\Setup_Purge_DB_Cron::class, // Exact class name
+        Services\WP_CLI_Commands::class,     // Exact class name
+        // ...
+    );
+    return apply_filters( 'simple_history/core_services', $services );
+}
+```
+
+### Benefits
+
+| Aspect | `glob()` approach | Hardcoded `::class` |
+|--------|-------------------|---------------------|
+| Filesystem I/O | 2 directory scans | 0 |
+| String operations | ~40 per request | 0 |
+| Case-correct names | No (6 mismatches) | Yes (exact) |
+| Opcache friendly | No | Yes (pre-compiled) |
+| Estimated time | ~50-200μs | <1μs |
+
+### Verification
+
+After this change, debug log shows **zero case-insensitive lookups**:
+
+```
+# Before: 6 case-insensitive lookups per request
+Loading class from classmap (case-insensitive): Simple_History\Services\Rest_Api
+Loading class from classmap (case-insensitive): Simple_History\Services\Setup_Purge_Db_Cron
+Loading class from classmap (case-insensitive): Simple_History\Dropins\Ip_Info_Dropin
+
+# After: All direct lookups
+Loading class from classmap: Simple_History\Services\REST_API
+Loading class from classmap: Simple_History\Services\Setup_Purge_DB_Cron
+Loading class from classmap: Simple_History\Dropins\IP_Info_Dropin
+```
+
+### Note on Maintenance
+
+When adding new services or dropins, remember to update the hardcoded arrays in:
+- `get_services()` for new services
+- `get_core_dropins()` for new dropins
+
+This is a minor trade-off for eliminating filesystem operations on every request.
+
+---
+
+## Next Steps
 
 1. Profile with PHP-SPX to measure actual improvement
 2. Consider making classmap the default for production releases (remove feature flag)
-3. Investigate `get_services()` and `get_core_dropins()` glob() calls (items 3 & 4 in original recommendations)
+3. Consider removing the case-insensitive lookup code from autoloader (no longer needed for core classes)
 

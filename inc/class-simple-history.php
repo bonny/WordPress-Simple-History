@@ -137,37 +137,44 @@ class Simple_History {
 	}
 
 	/**
-	 * Return array with classnames core services classnames.
+	 * Get array with classnames of all core (built-in) services.
 	 *
 	 * @return array<string> Array with classnames.
 	 */
 	private function get_services() {
-		$services      = [];
-		$services_dir  = SIMPLE_HISTORY_PATH . 'inc/services';
-		$service_files = glob( $services_dir . '/*.php' );
-
-		foreach ( $service_files as $file ) {
-			// Skip service main class that other classes depend on.
-			if ( basename( $file ) === 'class-service.php' ) {
-				continue;
-			}
-
-			// Skip non-class files.
-			if ( strpos( basename( $file ), 'class-' ) !== 0 ) {
-				continue;
-			}
-
-			// Convert filename to class name.
-			// e.g. class-admin-pages.php -> Admin_Pages.
-			$class_name = str_replace( 'class-', '', basename( $file, '.php' ) );
-			$class_name = str_replace( '-', '_', $class_name );
-			$class_name = ucwords( $class_name, '_' );
-
-			// Add full namespace.
-			$class_name = "Simple_History\\Services\\{$class_name}";
-
-			$services[] = $class_name;
-		}
+		$services = array(
+			Services\AddOns_Licences::class,
+			Services\Admin_Page_Premium_Promo::class,
+			Services\Admin_Pages::class,
+			Services\Auto_Backfill_Service::class,
+			Services\Channels_Service::class,
+			Services\Channels_Settings_Page::class,
+			Services\Dashboard_Widget::class,
+			Services\Dropins_Loader::class,
+			Services\Email_Report_Service::class,
+			Services\Experimental_Features_Page::class,
+			Services\History_Insights_Sidebar_Service::class,
+			Services\Import_Handler::class,
+			Services\Licences_Settings_Page::class,
+			Services\Loggers_Loader::class,
+			Services\Menu_Service::class,
+			Services\Network_Menu_Items::class,
+			Services\Notification_Bar::class,
+			Services\Plugin_List_Info::class,
+			Services\Plugin_List_Link::class,
+			Services\REST_API::class,
+			Services\Review_Reminder_Service::class,
+			Services\Scripts_And_Templates::class,
+			Services\Setup_Database::class,
+			Services\Setup_Log_Filters::class,
+			Services\Setup_Pause_Resume_Actions::class,
+			Services\Setup_Purge_DB_Cron::class,
+			Services\Setup_Settings_Page::class,
+			Services\Simple_History_Updates::class,
+			Services\Stats_Service::class,
+			Services\Stealth_Mode::class,
+			Services\WP_CLI_Commands::class,
+		);
 
 		/**
 		 * Filter the array with class names of core services.
@@ -528,40 +535,32 @@ class Simple_History {
 	 * @return array
 	 */
 	public function get_core_dropins() {
-		$dropins      = [];
-		$dropins_dir  = SIMPLE_HISTORY_PATH . 'dropins';
-		$dropin_files = glob( $dropins_dir . '/*.php' );
-
-		foreach ( $dropin_files as $file ) {
-			// Skip dropin main class that other classes depend on.
-			if ( basename( $file ) === 'class-dropin.php' ) {
-				continue;
-			}
-
-			// Skip non-class files.
-			if ( strpos( basename( $file ), 'class-' ) !== 0 ) {
-				continue;
-			}
-
-			// Convert filename to class name.
-			// e.g. class-quick-stats.php -> Quick_Stats.
-			$class_name = str_replace( 'class-', '', basename( $file, '.php' ) );
-			$class_name = str_replace( '-', '_', $class_name );
-			$class_name = str_replace( 'dropin', 'Dropin', $class_name );
-			$class_name = ucwords( $class_name, '_' );
-
-			// Add full namespace.
-			$class_name = "Simple_History\\Dropins\\{$class_name}";
-
-			$dropins[] = $class_name;
-		}
+		$dropins = array(
+			Dropins\Action_Links_Dropin::class,
+			Dropins\Detective_Mode_Dropin::class,
+			Dropins\Donate_Dropin::class,
+			Dropins\Experimental_Features_Dropin::class,
+			Dropins\Export_Dropin::class,
+			Dropins\Import_Dropin::class,
+			Dropins\IP_Info_Dropin::class,
+			Dropins\Plugin_Patches_Dropin::class,
+			Dropins\Quick_View_Dropin::class,
+			Dropins\React_Dropin::class,
+			Dropins\RSS_Dropin::class,
+			Dropins\Settings_Debug_Tab_Dropin::class,
+			Dropins\Sidebar_Add_Ons_Dropin::class,
+			Dropins\Sidebar_Dropin::class,
+			Dropins\Sidebar_Email_Promo_Dropin::class,
+			Dropins\Sidebar_Stats_Dropin::class,
+			Dropins\Tools_Menu_Dropin::class,
+		);
 
 		/**
 		 * Filter the array with class names of core dropins.
 		 *
 		 * @since 4.0
 		 *
-		 * @param array $logger Array with class names.
+		 * @param array $dropins Array with class names.
 		 */
 		$dropins = apply_filters( 'simple_history/core_dropins', $dropins );
 
