@@ -16,6 +16,86 @@ get_services()
 before optimization: inc: 1.08% - 1.02%, 761 ms - 537 ms
 after optimization: inc: 0 %, 248 ms - 397 ns (nano seconds, not milliseconds!)
 
+**Apache Bench test results**
+
+Running this command before and after fixes. It will run 100 requests with 3 concurrent connections.
+Only some basic plugins installed.
+
+```sh
+ab -n100 -c3 http://wordpress-stable-docker-mariadb.test:8282/
+```
+
+Before all optimizations:
+
+```
+Document Path:          /
+Document Length:        75439 bytes
+
+Concurrency Level:      3
+Time taken for tests:   4.529 seconds
+Complete requests:      100
+Failed requests:        0
+Total transferred:      7594000 bytes
+HTML transferred:       7543900 bytes
+Requests per second:    22.08 [#/sec] (mean)
+Time per request:       135.876 [ms] (mean)
+Time per request:       45.292 [ms] (mean, across all concurrent requests)
+Transfer rate:          1637.38 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.3      0       3
+Processing:   113  132  12.5    129     183
+Waiting:      111  131  12.5    128     182
+Total:        113  132  12.5    130     183
+
+Percentage of the requests served within a certain time (ms)
+  50%    130
+  66%    134
+  75%    138
+  80%    140
+  90%    143
+  95%    162
+  98%    181
+  99%    183
+ 100%    183 (longest request)
+```
+
+After all optimizations:
+
+```
+Document Path:          /
+Document Length:        75439 bytes
+
+Concurrency Level:      3
+Time taken for tests:   6.407 seconds
+Complete requests:      100
+Failed requests:        0
+Total transferred:      7594000 bytes
+HTML transferred:       7543900 bytes
+Requests per second:    15.61 [#/sec] (mean)
+Time per request:       192.214 [ms] (mean)
+Time per request:       64.071 [ms] (mean, across all concurrent requests)
+Transfer rate:          1157.46 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.4      0       3
+Processing:   146  189  20.3    181     241
+Waiting:      145  188  20.4    180     240
+Total:        147  189  20.4    182     241
+
+Percentage of the requests served within a certain time (ms)
+  50%    182
+  66%    186
+  75%    190
+  80%    191
+  90%    231
+  95%    237
+  98%    241
+  99%    241
+ 100%    241 (longest request)
+```
 
 ## Simple History Performance Impact
 
@@ -165,6 +245,7 @@ $this->classmap_lowercase = array_combine(
 ```
 
 The autoloader now does:
+
 1. Direct lookup (exact case match) - fastest path
 2. Case-insensitive lookup - handles dynamically generated names
 3. Filesystem fallback - for classes not in classmap (e.g., add-on plugins)
@@ -198,10 +279,11 @@ External plugin classes (VaultPress, ActionScheduler, etc.) no longer appear in 
 ### Status
 
 ✅ **Implementation complete** - The classmap autoloader is working correctly with:
-- Direct classmap lookup for exact case matches
-- Case-insensitive lookup for dynamically generated class names
-- Early return for non-Simple_History classes
-- Filesystem fallback for add-on plugin classes
+
+-   Direct classmap lookup for exact case matches
+-   Case-insensitive lookup for dynamically generated class names
+-   Early return for non-Simple_History classes
+-   Filesystem fallback for add-on plugin classes
 
 ---
 
@@ -222,6 +304,7 @@ foreach ( $service_files as $file ) {
 ```
 
 Issues:
+
 1. **Filesystem I/O**: `glob()` requires directory reads on every request
 2. **String manipulation overhead**: Multiple `str_replace()`, `basename()`, `ucwords()` per file
 3. **Case mismatch**: `ucwords()` creates incorrect class names (`REST_API` → `Rest_Api`)
@@ -246,13 +329,13 @@ private function get_services() {
 
 ### Benefits
 
-| Aspect | `glob()` approach | Hardcoded `::class` |
-|--------|-------------------|---------------------|
-| Filesystem I/O | 2 directory scans | 0 |
-| String operations | ~40 per request | 0 |
-| Case-correct names | No (6 mismatches) | Yes (exact) |
-| Opcache friendly | No | Yes (pre-compiled) |
-| Estimated time | ~50-200μs | <1μs |
+| Aspect             | `glob()` approach | Hardcoded `::class` |
+| ------------------ | ----------------- | ------------------- |
+| Filesystem I/O     | 2 directory scans | 0                   |
+| String operations  | ~40 per request   | 0                   |
+| Case-correct names | No (6 mismatches) | Yes (exact)         |
+| Opcache friendly   | No                | Yes (pre-compiled)  |
+| Estimated time     | ~50-200μs         | <1μs                |
 
 ### Verification
 
@@ -273,8 +356,9 @@ Loading class from classmap: Simple_History\Dropins\IP_Info_Dropin
 ### Note on Maintenance
 
 When adding new services or dropins, remember to update the hardcoded arrays in:
-- `get_services()` for new services
-- `get_core_dropins()` for new dropins
+
+-   `get_services()` for new services
+-   `get_core_dropins()` for new dropins
 
 This is a minor trade-off for eliminating filesystem operations on every request.
 
@@ -285,4 +369,3 @@ This is a minor trade-off for eliminating filesystem operations on every request
 1. Profile with PHP-SPX to measure actual improvement
 2. Consider making classmap the default for production releases (remove feature flag)
 3. Consider removing the case-insensitive lookup code from autoloader (no longer needed for core classes)
-
