@@ -57,7 +57,3 @@ CLAUDE.local.md
 
 # Docker Claude Code environment
 docker/claude-code/.env
-
-# Generated classmap for optimized autoloader
-# Regenerate with: npm run classmap:generate
-inc/classmap-generated.php

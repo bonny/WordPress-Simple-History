@@ -88,7 +88,7 @@ Implemented an optional classmap-based autoloader that eliminates filesystem che
 | File                               | Purpose                                                   |
 | ---------------------------------- | --------------------------------------------------------- |
 | `inc/class-classmap-generator.php` | Scans codebase using PHP tokenizer and generates classmap |
-| `inc/classmap-generated.php`       | Generated class→file mapping (142 classes, gitignored)    |
+| `inc/classmap-generated.php`       | Generated class→file mapping (committed to repo)          |
 | `scripts/generate-classmap.php`    | Standalone build script                                   |
 
 ### Files Modified
@@ -98,7 +98,6 @@ Implemented an optional classmap-based autoloader that eliminates filesystem che
 | `inc/class-autoloader.php` | Added classmap lookup before filesystem checks         |
 | `index.php`                | Enable classmap based on `SIMPLE_HISTORY_USE_CLASSMAP` |
 | `package.json`             | Added `npm run classmap:generate` script               |
-| `.gitignore`               | Added `inc/classmap-generated.php`                     |
 
 ### Usage
 
