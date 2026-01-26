@@ -368,6 +368,64 @@ Simple History accounts for ~3-4% of total page load when OPcache is warm.
 3. **Compare profiles** - Save baseline profiles before making changes
 4. **Focus on exclusive time** - High inclusive time might be due to children
 
+## Benchmark Script
+
+For tracking performance over time (detecting regressions), use the benchmark script instead of SPX.
+
+**SPX** = _where_ is time spent (profiling)
+**Benchmark script** = _how fast_ is it (load testing)
+
+### Installation
+
+```bash
+brew install hey
+```
+
+### Usage
+
+```bash
+# Run benchmark with current environment
+./scripts/benchmark.sh
+
+# Clean environment first (only Simple History active)
+./scripts/benchmark.sh --setup
+
+# List recent results
+./scripts/benchmark.sh --compare
+```
+
+### What It Tests
+
+-   Frontend homepage
+-   WP Login page
+-   REST API: WP Posts (baseline)
+-   REST API: Simple History Events
+
+### Sample Output
+
+```
+--- Frontend (homepage) ---
+  Total:  3.19s | Requests/sec: 62.7
+  p50:    60ms
+  p90:    72ms
+  p99:   133ms
+
+--- REST API: Simple History Events ---
+  Total:  1.48s | Requests/sec: 134.7
+  p50:    29ms
+  p90:    32ms
+  p99:    37ms
+```
+
+### Understanding the Metrics
+
+-   **Requests/sec** - Throughput (higher is better)
+-   **p50** - Median latency (half of requests were faster)
+-   **p90** - 90% of requests were faster than this
+-   **p99** - 99% of requests were faster (catches outliers)
+
+Results are saved to `benchmarks/` with git branch and commit in the filename.
+
 ## See Also
 
 -   [Performance Analysis](../readme.issue-performance.md) - Detailed optimization findings
