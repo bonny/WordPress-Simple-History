@@ -171,15 +171,24 @@ class Available_Updates_Logger extends Logger {
 
 			$checked_updates[ $key ]['checked_version'] = $plugin_new_version;
 
-			$this->notice_message(
-				'plugin_update_available',
-				array(
-					'plugin_name'            => $plugin_info['Name'] ?? '',
-					'plugin_current_version' => $plugin_info['Version'] ?? '',
-					'plugin_new_version'     => $plugin_new_version,
-					'_initiator'             => Log_Initiators::WORDPRESS,
-				)
+			$context = array(
+				'plugin_name'            => $plugin_info['Name'] ?? '',
+				'plugin_current_version' => $plugin_info['Version'] ?? '',
+				'plugin_new_version'     => $plugin_new_version,
+				'_initiator'             => Log_Initiators::WORDPRESS,
 			);
+
+			// Add autoupdate flag if present (indicates forced security update).
+			if ( ! empty( $data->autoupdate ) ) {
+				$context['plugin_autoupdate'] = '1';
+			}
+
+			// Add upgrade notice if present.
+			if ( ! empty( $data->upgrade_notice ) ) {
+				$context['plugin_upgrade_notice'] = $data->upgrade_notice;
+			}
+
+			$this->notice_message( 'plugin_update_available', $context );
 		}
 
 		// Autoload disabled since this option is only accessed during update checks.
@@ -265,6 +274,28 @@ class Available_Updates_Logger extends Logger {
 			case 'plugin_update_available':
 				$current_version = $context['plugin_current_version'] ?? null;
 				$new_version     = $context['plugin_new_version'] ?? null;
+
+				// Check for forced security update.
+				if ( ! empty( $context['plugin_autoupdate'] ) ) {
+					$output .= '<p>';
+					$output .= '<strong>' . esc_html_x( 'Security auto-update', 'Available updates logger: forced update indicator', 'simple-history' ) . '</strong>';
+					$output .= ' – ';
+					$output .= esc_html__( 'This update will be installed automatically by WordPress.', 'simple-history' );
+					$output .= '</p>';
+				}
+
+				// Show upgrade notice if available.
+				if ( ! empty( $context['plugin_upgrade_notice'] ) ) {
+					$upgrade_notice = wp_strip_all_tags( $context['plugin_upgrade_notice'] );
+					$upgrade_notice = wp_trim_words( $upgrade_notice, 30, '…' );
+
+					$output .= '<table class="SimpleHistoryLogitem__keyValueTable">';
+					$output .= '<tr>';
+					$output .= '<td>' . esc_html_x( 'Update notice', 'Available updates logger: update notice label', 'simple-history' ) . '</td>';
+					$output .= '<td>' . esc_html( $upgrade_notice ) . '</td>';
+					$output .= '</tr>';
+					$output .= '</table>';
+				}
 				break;
 
 			case 'theme_update_available':

@@ -352,6 +352,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Added detection of forced security updates from WordPress.org, shown as "Update method: Security auto-update" in plugin update details.
 -   Added display of upgrade notices from WordPress.org API in plugin update details.
+-   Added advance warning when forced security updates are detected, showing "Security auto-update" indicator before installation occurs.
 -   Added Notes statistics to weekly email reports showing notes added and resolved counts (WordPress 6.9+ only).
 -   Added Notes statistics to History Insights page for tracking collaborative block editor notes activity.
 -   Added Notes REST API endpoint at `/wp-json/simple-history/v1/stats/notes`.

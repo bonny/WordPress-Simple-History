@@ -975,7 +975,21 @@ View changelog
 - `plugin_update_type` - `forced_security`, `user_enabled`, or `manual`
 - `plugin_upgrade_notice` - Human-readable message from WordPress.org (if present)
 
+**Forced Update Detection on Update Available (2026-01-17):**
+
+The Available Updates Logger now also captures `autoupdate` and `upgrade_notice` when plugin updates are **detected** (before installation). This gives users advance warning that a forced security update is pending.
+
+When a plugin update is found with `autoupdate => 1`:
+- Shows **"Security auto-update"** label with "This update will be installed automatically by WordPress."
+- Shows the **Update notice** from WordPress.org in a key-value table
+
+This helps users understand *before* the update happens that WordPress will install it automatically, preventing confusion when they see a plugin updated despite having auto-updates disabled.
+
 **Files Modified:**
+- `loggers/class-available-updates-logger.php`:
+  - `on_setted_update_plugins_transient()` - Captures `plugin_autoupdate` and `plugin_upgrade_notice` context
+  - `get_log_row_details_output()` - Displays forced update indicator and upgrade notice
+
 - `loggers/class-plugin-logger.php`:
   - `get_plugin_update_type()` - Determines update type from transients
   - `add_update_type_context()` - Adds `plugin_update_type` and `plugin_upgrade_notice` to event context
