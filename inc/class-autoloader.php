@@ -57,12 +57,89 @@ class Autoloader {
 	protected $prefixes = array();
 
 	/**
+	 * Static classmap for optimized loading.
+	 * Maps fully qualified class names to relative file paths.
+	 *
+	 * @since 5.23.0
+	 * @var array<string, string>|null
+	 */
+	private ?array $classmap = null;
+
+	/**
+	 * Whether to use classmap-based loading.
+	 *
+	 * @since 5.23.0
+	 * @var bool
+	 */
+	private bool $use_classmap = false;
+
+	/**
+	 * Plugin base path for classmap file resolution.
+	 *
+	 * @since 5.23.0
+	 * @var string
+	 */
+	private string $base_path = '';
+
+	/**
 	 * Register loader with SPL autoloader stack.
 	 *
 	 * @return void
 	 */
 	public function register() {
 		spl_autoload_register( array( $this, 'load_class' ) );
+	}
+
+	/**
+	 * Enable classmap-based loading for improved performance.
+	 *
+	 * When enabled, the autoloader checks a static classmap before
+	 * falling back to filesystem-based resolution. This eliminates
+	 * multiple file_exists() calls per class lookup.
+	 *
+	 * @since 5.23.0
+	 * @param string $base_path Plugin base path for resolving relative paths in classmap.
+	 * @return bool True if classmap was loaded successfully, false otherwise.
+	 */
+	public function enable_classmap( string $base_path ): bool {
+		$this->base_path = rtrim( $base_path, '/' ) . '/';
+		$classmap_file   = $this->base_path . 'inc/classmap-generated.php';
+
+		if ( ! file_exists( $classmap_file ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: path is constructed from plugin constant.
+		$classmap = require $classmap_file;
+
+		if ( ! is_array( $classmap ) ) {
+			return false;
+		}
+
+		$this->classmap     = $classmap;
+		$this->use_classmap = true;
+
+		return true;
+	}
+
+	/**
+	 * Check if classmap-based loading is enabled and active.
+	 *
+	 * @since 5.23.0
+	 * @return bool True if classmap is enabled and loaded.
+	 */
+	public function is_classmap_enabled(): bool {
+		return $this->use_classmap && $this->classmap !== null;
+	}
+
+	/**
+	 * Get the number of classes in the loaded classmap.
+	 *
+	 * @since 5.23.0
+	 * @return int Number of classes, or 0 if classmap not loaded.
+	 */
+	public function get_classmap_count(): int {
+		return $this->classmap !== null ? count( $this->classmap ) : 0;
 	}
 
 	/**
@@ -104,6 +181,15 @@ class Autoloader {
 	 * failure.
 	 */
 	public function load_class( $class_name ) {
+		// Fast path: check classmap first (no file_exists calls needed).
+		if ( $this->use_classmap && $this->classmap !== null && isset( $this->classmap[ $class_name ] ) ) {
+			$file = $this->base_path . $this->classmap[ $class_name ];
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: path from generated classmap.
+			require $file;
+			return $file;
+		}
+
+		// Standard path: filesystem-based resolution.
 		// The current namespace prefix.
 		$prefix = $class_name;
 
