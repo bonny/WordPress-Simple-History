@@ -58,3 +58,4 @@ CLAUDE.local.md
 
 # Docker Claude Code environment
 docker/claude-code/.env
+benchmarks/
