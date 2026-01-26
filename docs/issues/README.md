@@ -3,6 +3,8 @@
 Historical documentation from completed GitHub issues and investigations.
 These files capture research, decisions, and implementation details.
 
+**Note:** These documents are snapshots from when they were written. The code and implementation may have changed since then. Each document reflects the understanding at the time and should not be considered the authoritative source of truth for current functionality.
+
 ## Contents
 
 ### Performance
