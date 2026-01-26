@@ -356,7 +356,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
--   Improved plugin loading performance with optional classmap-based autoloader, reducing filesystem calls during class loading. Enable with `define( 'SIMPLE_HISTORY_USE_CLASSMAP', true );` in wp-config.php.
+-   Improved plugin loading performance by replacing dynamic file discovery with static class lists, eliminating filesystem scans during initialization.
 
 **Fixed**
 
