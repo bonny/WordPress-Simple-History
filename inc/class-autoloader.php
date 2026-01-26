@@ -202,7 +202,6 @@ class Autoloader {
 		// Early return for classes not in the Simple_History namespace.
 		// This autoloader only handles Simple_History classes - let other autoloaders handle the rest.
 		if ( ! str_starts_with( $class_name, 'Simple_History\\' ) && ! str_starts_with( $class_name, 'SimpleHistory' ) && ! str_starts_with( $class_name, 'SimpleLogger' ) ) {
-			sh_error_log( 'Early return: Class not in Simple_History namespace: ' . $class_name );
 			return false;
 		}
 
@@ -211,7 +210,6 @@ class Autoloader {
 			// Direct lookup (exact case match).
 			if ( isset( $this->classmap[ $class_name ] ) ) {
 				$file = $this->base_path . $this->classmap[ $class_name ];
-				sh_error_log( 'Loading class from classmap: ' . $class_name . ' -> ' . $file );
 				// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: path from generated classmap.
 				require $file;
 				return $file;
@@ -223,14 +221,11 @@ class Autoloader {
 			if ( isset( $this->classmap_lowercase[ $class_name_lower ] ) ) {
 				$actual_class_name = $this->classmap_lowercase[ $class_name_lower ];
 				$file              = $this->base_path . $this->classmap[ $actual_class_name ];
-				sh_error_log( 'Loading class from classmap (case-insensitive): ' . $class_name . ' -> ' . $file );
 				// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: path from generated classmap.
 				require $file;
 				return $file;
 			}
 		}
-
-		sh_error_log( 'Performance warning: Loading class from filesystem: ' . $class_name );
 
 		// Standard path: filesystem-based resolution.
 		// The current namespace prefix.
