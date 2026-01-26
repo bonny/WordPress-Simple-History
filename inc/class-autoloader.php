@@ -66,6 +66,15 @@ class Autoloader {
 	private ?array $classmap = null;
 
 	/**
+	 * Lowercase class name lookup map for case-insensitive matching.
+	 * Maps lowercase class names to actual class names in $classmap.
+	 *
+	 * @since 5.23.0
+	 * @var array<string, string>|null
+	 */
+	private ?array $classmap_lowercase = null;
+
+	/**
 	 * Whether to use classmap-based loading.
 	 *
 	 * @since 5.23.0
@@ -118,6 +127,15 @@ class Autoloader {
 
 		$this->classmap     = $classmap;
 		$this->use_classmap = true;
+
+		// Build lowercase lookup map for case-insensitive matching.
+		// PHP class names are case-insensitive, but array keys are not.
+		// This handles cases where class names are dynamically generated
+		// with different casing (e.g., ucwords converts 'REST_API' to 'Rest_Api').
+		$this->classmap_lowercase = array_combine(
+			array_map( 'strtolower', array_keys( $classmap ) ),
+			array_keys( $classmap )
+		);
 
 		return true;
 	}
@@ -181,12 +199,32 @@ class Autoloader {
 	 * failure.
 	 */
 	public function load_class( $class_name ) {
+		// Early return for classes not in the Simple_History namespace.
+		// This autoloader only handles Simple_History classes - let other autoloaders handle the rest.
+		if ( ! str_starts_with( $class_name, 'Simple_History\\' ) && ! str_starts_with( $class_name, 'SimpleHistory' ) && ! str_starts_with( $class_name, 'SimpleLogger' ) ) {
+			return false;
+		}
+
 		// Fast path: check classmap first (no file_exists calls needed).
-		if ( $this->use_classmap && $this->classmap !== null && isset( $this->classmap[ $class_name ] ) ) {
-			$file = $this->base_path . $this->classmap[ $class_name ];
-			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: path from generated classmap.
-			require $file;
-			return $file;
+		if ( $this->use_classmap && $this->classmap !== null ) {
+			// Direct lookup (exact case match).
+			if ( isset( $this->classmap[ $class_name ] ) ) {
+				$file = $this->base_path . $this->classmap[ $class_name ];
+				// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: path from generated classmap.
+				require $file;
+				return $file;
+			}
+
+			// Case-insensitive lookup for dynamically generated class names.
+			// PHP class names are case-insensitive, so 'REST_API' and 'Rest_Api' are the same class.
+			$class_name_lower = strtolower( $class_name );
+			if ( isset( $this->classmap_lowercase[ $class_name_lower ] ) ) {
+				$actual_class_name = $this->classmap_lowercase[ $class_name_lower ];
+				$file              = $this->base_path . $this->classmap[ $actual_class_name ];
+				// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable -- Safe: path from generated classmap.
+				require $file;
+				return $file;
+			}
 		}
 
 		// Standard path: filesystem-based resolution.
