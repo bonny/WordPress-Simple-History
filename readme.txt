@@ -363,10 +363,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Changed log level for forced security plugin updates from "info" to "notice" to highlight unexpected automatic updates.
 -   Improved performance by optimizing how update check data is stored.
 -   Improved sub-navigation tabs to scroll horizontally on narrow screens instead of wrapping.
-
-**Changed**
-
 -   Improved plugin loading performance by replacing dynamic file discovery with static class lists, eliminating filesystem scans during initialization.
+-   Improved SQL query performance for sidebar stats and database purge by rewriting queries to use the date index, significantly faster on large tables.
 
 **Fixed**
 
