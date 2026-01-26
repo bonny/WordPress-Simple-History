@@ -18,7 +18,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "f=$(jq -r '.tool_input.file_path'); [[ $f == *.md ]] && npx prettier --write \"$f\""
+						"command": "f=$(jq -r '.tool_input.file_path'); [[ $f =~ \\.(md|css|js|jsx)$ ]] && npx prettier --write \"$f\""
 					}
 				]
 			}
