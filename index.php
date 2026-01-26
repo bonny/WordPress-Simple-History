@@ -81,15 +81,6 @@ require_once __DIR__ . '/inc/global-helpers.php';
 /** Boot up. */
 $sh_loader = new Simple_History\Autoloader();
 $sh_loader->register();
-
-// Enable optimized classmap autoloader if constant is defined.
-// Define SIMPLE_HISTORY_USE_CLASSMAP as true in wp-config.php to enable.
-// The classmap eliminates file_exists() calls for each class lookup.
-define( 'SIMPLE_HISTORY_USE_CLASSMAP', true ); // TODO: Remove before release.
-if ( defined( 'SIMPLE_HISTORY_USE_CLASSMAP' ) && SIMPLE_HISTORY_USE_CLASSMAP ) {
-	$sh_loader->enable_classmap( SIMPLE_HISTORY_PATH );
-}
-
 $sh_loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH );
 $sh_loader->add_namespace( 'Simple_History', SIMPLE_HISTORY_PATH . 'inc/' );
 $sh_loader->add_namespace( 'Simple_History\Event_Details', SIMPLE_HISTORY_PATH . 'inc/event-details' );
