@@ -364,6 +364,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Improved performance by optimizing how update check data is stored.
 -   Improved sub-navigation tabs to scroll horizontally on narrow screens instead of wrapping.
 
+**Changed**
+
+-   Improved plugin loading performance by replacing dynamic file discovery with static class lists, eliminating filesystem scans during initialization.
+
 **Fixed**
 
 -   Fixed infinite loop when Debug & Monitor plugin logs HTTP requests made by channels (Webhook, Datadog, Splunk).

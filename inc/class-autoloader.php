@@ -3,48 +3,9 @@
 namespace Simple_History;
 
 /**
- * An example of a general-purpose implementation that includes the optional
- * functionality of allowing multiple base directories for a single namespace
- * prefix.
+ * PSR-4 autoloader for Simple History classes.
  *
- * Given a foo-bar package of classes in the file system at the following
- * paths ...
- *
- *     /path/to/packages/foo-bar/
- *         src/
- *             Baz.php             # Foo\Bar\Baz
- *             Qux/
- *                 Quux.php        # Foo\Bar\Qux\Quux
- *         tests/
- *             BazTest.php         # Foo\Bar\BazTest
- *             Qux/
- *                 QuuxTest.php    # Foo\Bar\Qux\QuuxTest
- *
- * ... add the path to the class files for the \Foo\Bar\ namespace prefix
- * as follows:
- *
- *      <?php
- *      // instantiate the loader
- *      $loader = new \Example\Psr4AutoloaderClass;
- *
- *      // register the autoloader
- *      $loader->register();
- *
- *      // register the base directories for the namespace prefix
- *      $loader->addNamespace('Foo\Bar', '/path/to/packages/foo-bar/src');
- *      $loader->addNamespace('Foo\Bar', '/path/to/packages/foo-bar/tests');
- *
- * The following line would cause the autoloader to attempt to load the
- * \Foo\Bar\Qux\Quux class from /path/to/packages/foo-bar/src/Qux/Quux.php:
- *
- *      <?php
- *      new \Foo\Bar\Qux\Quux;
- *
- * The following line would cause the autoloader to attempt to load the
- * \Foo\Bar\Qux\QuuxTest class from /path/to/packages/foo-bar/tests/Qux/QuuxTest.php:
- *
- *      <?php
- *      new \Foo\Bar\Qux\QuuxTest;
+ * Supports multiple base directories for a single namespace prefix.
  */
 class Autoloader {
 
@@ -104,6 +65,12 @@ class Autoloader {
 	 * failure.
 	 */
 	public function load_class( $class_name ) {
+		// Early return for classes not in the Simple_History namespace.
+		// This autoloader only handles Simple_History classes - let other autoloaders handle the rest.
+		if ( ! str_starts_with( $class_name, 'Simple_History\\' ) && ! str_starts_with( $class_name, 'SimpleHistory' ) && ! str_starts_with( $class_name, 'SimpleLogger' ) ) {
+			return false;
+		}
+
 		// The current namespace prefix.
 		$prefix = $class_name;
 
@@ -142,84 +109,40 @@ class Autoloader {
 	 * name of the mapped file that was loaded.
 	 */
 	protected function load_mapped_file( $prefix, $relative_class ) {
-		// are there any base directories for this namespace prefix?
 		if ( ! isset( $this->prefixes[ $prefix ] ) ) {
 			return false;
 		}
 
-		// look through base directories for this namespace prefix.
 		foreach ( $this->prefixes[ $prefix ] as $base_dir ) {
-			// replace the namespace prefix with the base directory,
-			// replace namespace separators with directory separators
-			// in the relative class name, append with .php.
-
-			// "Dropins/Debug_Dropin"
+			// "Dropins/Debug_Dropin" -> "dropins/debug-dropin"
+			// Single strtr() call replaces both \ and _ in one pass.
 			$path_and_file = str_replace( '\\', '/', $relative_class );
+			$path_lowercased = strtolower( strtr( $path_and_file, '_', '-' ) );
 
-			// Check for file with prefixed 'class-' and lowercase filename.
-			$path_and_file_lowercased_and_prefixed = strtolower( $path_and_file );
-			$path_and_file_lowercased_and_prefixed = str_replace( '_', '-', $path_and_file_lowercased_and_prefixed );
-			$path_and_file_lowercased_and_prefixed = str_replace( '/', '/class-', $path_and_file_lowercased_and_prefixed );
+			// Check class-, interface-, trait- prefixed files.
+			foreach ( [ 'class', 'interface', 'trait' ] as $type_prefix ) {
+				// Add prefix after directory separator, or at start if no separator.
+				if ( str_contains( $path_lowercased, '/' ) ) {
+					$prefixed_path = str_replace( '/', "/{$type_prefix}-", $path_lowercased );
+				} else {
+					$prefixed_path = "{$type_prefix}-{$path_lowercased}";
+				}
 
-			// Prepend "class" if it was not added above, because file was not in a subfolder.
-			if ( ! str_contains( $path_and_file_lowercased_and_prefixed, 'class-' ) ) {
-				$path_and_file_lowercased_and_prefixed = "class-{$path_and_file_lowercased_and_prefixed}";
+				$file = $base_dir . $prefixed_path . '.php';
+
+				if ( $this->require_file( $file ) ) {
+					return $file;
+				}
 			}
 
-			$file_with_class_prefix = $base_dir . $path_and_file_lowercased_and_prefixed . '.php';
-
-			// if the mapped file with "class-" prefix exists, require it.
-			// <path>/WordPress-Simple-History/inc/services/class-admin-pages.php.
-			if ( $this->require_file( $file_with_class_prefix ) ) {
-				// yes, we're done.
-				return $file_with_class_prefix;
-			}
-
-			// Check for file with prefixed 'interface-' and lowercase filename.
-			$path_and_file_lowercased_and_prefixed_with_interface = strtolower( $path_and_file );
-			$path_and_file_lowercased_and_prefixed_with_interface = str_replace( '_', '-', $path_and_file_lowercased_and_prefixed_with_interface );
-			$path_and_file_lowercased_and_prefixed_with_interface = str_replace( '/', '/interface-', $path_and_file_lowercased_and_prefixed_with_interface );
-			if ( ! str_contains( $path_and_file_lowercased_and_prefixed_with_interface, 'interface-' ) ) {
-				$path_and_file_lowercased_and_prefixed_with_interface = "interface-{$path_and_file_lowercased_and_prefixed_with_interface}";
-			}
-
-			$file_with_interface_prefix = $base_dir . $path_and_file_lowercased_and_prefixed_with_interface . '.php';
-
-			// if the mapped file with "interface-" prefix exists, require it.
-			// <path>/WordPress-Simple-History/inc/event-details/interface-event-details-container-interface.php.
-			if ( $this->require_file( $file_with_interface_prefix ) ) {
-				// yes, we're done.
-				return $file_with_interface_prefix;
-			}
-
-			// Check for file with prefixed 'trait-' and lowercase filename.
-			$path_and_file_lowercased_and_prefixed_with_trait = strtolower( $path_and_file );
-			$path_and_file_lowercased_and_prefixed_with_trait = str_replace( '_', '-', $path_and_file_lowercased_and_prefixed_with_trait );
-			$path_and_file_lowercased_and_prefixed_with_trait = str_replace( '/', '/trait-', $path_and_file_lowercased_and_prefixed_with_trait );
-			if ( ! str_contains( $path_and_file_lowercased_and_prefixed_with_trait, 'trait-' ) ) {
-				$path_and_file_lowercased_and_prefixed_with_trait = "trait-{$path_and_file_lowercased_and_prefixed_with_trait}";
-			}
-
-			$file_with_trait_prefix = $base_dir . $path_and_file_lowercased_and_prefixed_with_trait . '.php';
-
-			// if the mapped file with "trait-" prefix exists, require it.
-			// <path>/WordPress-Simple-History/inc/channels/trait-channel-error-tracking.php.
-			if ( $this->require_file( $file_with_trait_prefix ) ) {
-				// yes, we're done.
-				return $file_with_trait_prefix;
-			}
-
-			// <path>/WordPress-Simple-History/Dropins/Debug_Dropin.php.
+			// Fallback: direct path without prefix (e.g., Dropins/Debug_Dropin.php).
 			$file = $base_dir . $path_and_file . '.php';
 
-			// if the mapped file exists, require it.
 			if ( $this->require_file( $file ) ) {
-				// yes, we're done.
 				return $file;
 			}
 		}
 
-		// never found it.
 		return false;
 	}
 
