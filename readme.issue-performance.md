@@ -122,6 +122,60 @@ define( 'SIMPLE_HISTORY_USE_CLASSMAP', false );
 -   Classmap is checked first; falls back to standard autoloader for unknown classes
 -   Feature flag allows A/B testing performance impact
 
+### Additional Optimizations
+
+#### Early Return for Non-Simple_History Classes
+
+**Problem discovered**: Every plugin's classes (VaultPress, ActionScheduler, etc.) were hitting the Simple History autoloader, causing unnecessary processing even when the classmap was enabled.
+
+**Solution**: Added early return at the start of `load_class()` to immediately skip classes that aren't in the Simple_History namespace:
+
+```php
+if ( ! str_starts_with( $class_name, 'Simple_History\\' )
+     && ! str_starts_with( $class_name, 'SimpleHistory' )
+     && ! str_starts_with( $class_name, 'SimpleLogger' ) ) {
+    return false;
+}
+```
+
+This ensures other autoloaders handle their own classes without any overhead from Simple History.
+
+#### Case-Insensitive Class Name Lookup
+
+**Problem discovered**: PHP class names are case-insensitive, but array keys are not. The `get_services()` method dynamically generates class names from filenames using `ucwords()`, which converts `REST_API` to `Rest_Api`. The classmap lookup failed because the actual class name is `REST_API`.
+
+**Solution**: Added a lowercase lookup map that maps `strtolower(class_name)` to actual class names:
+
+```php
+$this->classmap_lowercase = array_combine(
+    array_map( 'strtolower', array_keys( $classmap ) ),
+    array_keys( $classmap )
+);
+```
+
+The autoloader now does:
+1. Direct lookup (exact case match) - fastest path
+2. Case-insensitive lookup - handles dynamically generated names
+3. Filesystem fallback - for classes not in classmap (e.g., add-on plugins)
+
+### Verification
+
+Debug logging confirms the optimization is working correctly:
+
+```
+# Core plugin classes load from classmap (direct match)
+Loading class from classmap: Simple_History\Autoloader -> .../inc/class-autoloader.php
+Loading class from classmap: Simple_History\Simple_History -> .../inc/class-simple-history.php
+
+# Dynamic class names load via case-insensitive lookup
+Loading class from classmap (case-insensitive): Simple_History\Services\Rest_Api -> .../inc/services/class-rest-api.php
+
+# Add-on classes fall through to filesystem (expected - separate plugins)
+Performance warning: Loading class from filesystem: Simple_History\Debug_And_Monitor
+```
+
+External plugin classes (VaultPress, ActionScheduler, etc.) no longer appear in the logs because the early return prevents them from being processed.
+
 ### Expected Improvement
 
 | Metric                | Before           | After (classmap enabled)  |
@@ -130,9 +184,17 @@ define( 'SIMPLE_HISTORY_USE_CLASSMAP', false );
 | Autoloader time       | 1.75ms           | ~0.1ms (estimated)        |
 | Page load impact      | 2.47%            | ~0.15% (estimated)        |
 
+### Status
+
+✅ **Implementation complete** - The classmap autoloader is working correctly with:
+- Direct classmap lookup for exact case matches
+- Case-insensitive lookup for dynamically generated class names
+- Early return for non-Simple_History classes
+- Filesystem fallback for add-on plugin classes
+
 ### Next Steps
 
 1. Profile with PHP-SPX to measure actual improvement
-2. Consider making classmap the default for production releases
+2. Consider making classmap the default for production releases (remove feature flag)
 3. Investigate `get_services()` and `get_core_dropins()` glob() calls (items 3 & 4 in original recommendations)
 
