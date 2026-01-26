@@ -185,16 +185,10 @@ class Channels_Manager extends Service {
 	 * @return string The formatted message.
 	 */
 	private function format_message_for_channel( Channel_Interface $channel, $event_data ) {
-		// For now, use a simple format. This will be enhanced later.
 		$message = $event_data['message'];
 
-		// Interpolate context variables into the message.
 		if ( ! empty( $event_data['context'] ) ) {
-			foreach ( $event_data['context'] as $key => $value ) {
-				if ( is_string( $value ) || is_numeric( $value ) ) {
-					$message = str_replace( '{' . $key . '}', $value, $message );
-				}
-			}
+			$message = \Simple_History\Helpers::interpolate( $message, $event_data['context'] );
 		}
 
 		return $message;
