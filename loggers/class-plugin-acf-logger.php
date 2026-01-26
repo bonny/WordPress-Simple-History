@@ -905,7 +905,7 @@ class Plugin_ACF_Logger extends Logger {
 					}
 
 					// Only add to context if modified.
-					// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
+					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Loose comparison intentional to avoid false diffs when types differ.
 					if ( $modifiedFields['new'][ $modifiedFieldId ][ $one_key_to_add ] == $modifiedFields['old'][ $modifiedFieldId ][ $one_key_to_add ] ) {
 						continue;
 					}

@@ -476,7 +476,7 @@ class Theme_Logger extends Logger {
 				$old_value = $one_setting->value();
 				$new_value = $one_setting->post_value();
 
-				// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
+				// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Loose comparison intentional to avoid false diffs when types differ.
 				if ( $old_value == $new_value ) {
 					continue;
 				}

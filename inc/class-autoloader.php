@@ -116,7 +116,7 @@ class Autoloader {
 		foreach ( $this->prefixes[ $prefix ] as $base_dir ) {
 			// "Dropins/Debug_Dropin" -> "dropins/debug-dropin"
 			// Single strtr() call replaces both \ and _ in one pass.
-			$path_and_file = str_replace( '\\', '/', $relative_class );
+			$path_and_file   = str_replace( '\\', '/', $relative_class );
 			$path_lowercased = strtolower( strtr( $path_and_file, '_', '-' ) );
 
 			// Check class-, interface-, trait- prefixed files.

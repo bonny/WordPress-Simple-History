@@ -1269,7 +1269,7 @@ class Post_Logger extends Logger {
 
 				$post_old_value = $context[ $key ];
 				$post_new_value = $context[ $key_for_new_val ];
-				// phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- Loose comparison intentional to avoid false diffs when types differ.
+				// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Loose comparison intentional to avoid false diffs when types differ.
 				if ( $post_old_value == $post_new_value ) {
 					continue;
 				}

@@ -70,7 +70,7 @@ class Media_Logger extends Logger {
 	 * Fired when loading admin page post.php.
 	 */
 	public function on_load_post_store_attachment_alt_text() {
-		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ?? '' ) {
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
 			return;
 		}
 
