@@ -1743,6 +1743,7 @@ abstract class Logger {
 		$context['_user_id']    = $current_user->ID;
 		$context['_user_login'] = $current_user->user_login;
 		$context['_user_email'] = $current_user->user_email;
+		$context['_user_role']  = Helpers::get_user_primary_role( $current_user );
 
 		return $context;
 	}

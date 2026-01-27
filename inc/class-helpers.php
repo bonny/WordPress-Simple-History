@@ -2336,4 +2336,36 @@ class Helpers {
 
 		return $clean;
 	}
+
+	/**
+	 * Get the primary role of a user.
+	 *
+	 * WordPress allows multiple roles per user. This function returns
+	 * the first valid role, following the pattern used in user-edit.php.
+	 *
+	 * @since 5.6.0
+	 * @param int|\WP_User|null $user User ID, WP_User object, or null for current user.
+	 * @return string The primary role slug, or empty string if no valid role found.
+	 */
+	public static function get_user_primary_role( $user = null ) {
+		if ( $user === null ) {
+			$user = wp_get_current_user();
+		} elseif ( is_numeric( $user ) ) {
+			$user = get_user_by( 'id', $user );
+		}
+
+		if ( ! $user instanceof \WP_User || empty( $user->roles ) ) {
+			return '';
+		}
+
+		// Validate roles against registered roles (as done in user-edit.php).
+		$wp_roles    = wp_roles();
+		$valid_roles = array_intersect(
+			array_values( (array) $user->roles ),
+			array_keys( (array) $wp_roles->roles )
+		);
+
+		$primary_role = array_shift( $valid_roles );
+		return $primary_role !== null ? (string) $primary_role : '';
+	}
 }
