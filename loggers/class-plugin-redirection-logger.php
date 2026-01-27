@@ -42,6 +42,36 @@ class Plugin_Redirection_Logger extends Logger {
 				'redirection_group_disabled'       => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 				'redirection_group_deleted'        => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
 			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'Redirection', 'Redirection logger: search', 'simple-history' ),
+					'label_all' => _x( 'All Redirection activity', 'Redirection logger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Redirections added', 'Redirection logger: search', 'simple-history' ) => array(
+							'redirection_redirection_added',
+						),
+						_x( 'Redirections modified', 'Redirection logger: search', 'simple-history' ) => array(
+							'redirection_redirection_edited',
+							'redirection_redirection_enabled',
+							'redirection_redirection_disabled',
+						),
+						_x( 'Redirections deleted', 'Redirection logger: search', 'simple-history' ) => array(
+							'redirection_redirection_deleted',
+						),
+						_x( 'Redirection groups', 'Redirection logger: search', 'simple-history' ) => array(
+							'redirection_group_added',
+							'redirection_group_edited',
+							'redirection_group_enabled',
+							'redirection_group_disabled',
+							'redirection_group_deleted',
+						),
+						_x( 'Redirection options', 'Redirection logger: search', 'simple-history' ) => array(
+							'redirection_options_saved',
+							'redirection_options_removed_all',
+						),
+					),
+				),
+			),
 		);
 	}
 

@@ -37,6 +37,17 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 					'simple-history'
 				),
 			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'Duplicate Post', 'Duplicate Post logger: search', 'simple-history' ),
+					'label_all' => _x( 'All duplicated posts', 'Duplicate Post logger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Posts duplicated', 'Duplicate Post logger: search', 'simple-history' ) => array(
+							'post_duplicated',
+						),
+					),
+				),
+			),
 		);
 	}
 

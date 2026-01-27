@@ -38,6 +38,30 @@ class Simple_History_Logger extends Logger {
 				'channel_auto_disabled'           => _x( 'Log forwarding channel "{channel_name}" was auto-disabled after {failure_count} consecutive failures', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'log_forwarding_settings_updated' => _x( 'Updated Log Forwarding settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'Simple History', 'Simple History logger: search', 'simple-history' ),
+					'label_all' => _x( 'All Simple History activity', 'Simple History logger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Settings changes', 'Simple History logger: search', 'simple-history' ) => array(
+							'modified_settings',
+							'regenerated_rss_feed_secret',
+							'log_forwarding_settings_updated',
+						),
+						_x( 'Log maintenance', 'Simple History logger: search', 'simple-history' ) => array(
+							'cleared_log',
+							'purged_events',
+						),
+						_x( 'Backfill operations', 'Simple History logger: search', 'simple-history' ) => array(
+							'auto_backfill_completed',
+							'manual_backfill_completed',
+						),
+						_x( 'Channel events', 'Simple History logger: search', 'simple-history' ) => array(
+							'channel_auto_disabled',
+						),
+					),
+				),
+			),
 		];
 	}
 

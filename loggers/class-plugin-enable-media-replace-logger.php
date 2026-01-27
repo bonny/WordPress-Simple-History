@@ -27,6 +27,17 @@ class Plugin_Enable_Media_Replace_Logger extends Logger {
 			'messages'    => array(
 				'replaced_file' => _x( 'Replaced attachment "{prev_attachment_title}" with new attachment "{new_attachment_title}"', 'PluginEnableMediaReplaceLogger', 'simple-history' ),
 			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'Enable Media Replace', 'Enable Media Replace logger: search', 'simple-history' ),
+					'label_all' => _x( 'All media replacements', 'Enable Media Replace logger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Media replaced', 'Enable Media Replace logger: search', 'simple-history' ) => array(
+							'replaced_file',
+						),
+					),
+				),
+			),
 		);
 	}
 

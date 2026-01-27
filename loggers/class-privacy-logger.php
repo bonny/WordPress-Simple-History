@@ -49,6 +49,33 @@ class Privacy_Logger extends Logger {
 				'data_erasure_request_removed'          => _x( 'Removed personal data removal request for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 				'data_erasure_erasure_erased'           => _x( 'Erased personal data for "{user_email}"', 'Logger: Privacy', 'simple-history' ),
 			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'Privacy', 'Privacy logger: search', 'simple-history' ),
+					'label_all' => _x( 'All privacy activity', 'Privacy logger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Privacy page changes', 'Privacy logger: search', 'simple-history' ) => array(
+							'privacy_page_created',
+							'privacy_page_set',
+						),
+						_x( 'Data export requests', 'Privacy logger: search', 'simple-history' ) => array(
+							'privacy_data_export_requested',
+							'privacy_data_export_admin_downloaded',
+							'privacy_data_export_emailed',
+							'privacy_data_export_request_confirmed',
+							'privacy_data_export_completed',
+							'privacy_data_export_removed',
+						),
+						_x( 'Data erasure requests', 'Privacy logger: search', 'simple-history' ) => array(
+							'data_erasure_request_added',
+							'data_erasure_request_confirmed',
+							'data_erasure_request_completed',
+							'data_erasure_request_removed',
+							'data_erasure_erasure_erased',
+						),
+					),
+				),
+			),
 		);
 	}
 

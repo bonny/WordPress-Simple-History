@@ -31,6 +31,24 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 				'cleared_current_lockouts' => _x( 'Cleared current lockouts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				'updated_options'          => _x( 'Updated options', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'Limit Login Attempts', 'Limit Login Attempts logger: search', 'simple-history' ),
+					'label_all' => _x( 'All Limit Login Attempts activity', 'Limit Login Attempts logger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Failed logins and lockouts', 'Limit Login Attempts logger: search', 'simple-history' ) => array(
+							'failed_login_whitelisted',
+							'failed_login',
+						),
+						_x( 'Settings changes', 'Limit Login Attempts logger: search', 'simple-history' ) => array(
+							'cleared_ip_log',
+							'reseted_lockout_count',
+							'cleared_current_lockouts',
+							'updated_options',
+						),
+					),
+				),
+			),
 		);
 	}
 

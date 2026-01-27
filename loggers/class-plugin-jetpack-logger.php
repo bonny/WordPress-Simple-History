@@ -29,6 +29,20 @@ class Plugin_Jetpack_Logger extends Logger {
 				'module_activated'   => _x( 'Activated Jetpack module "{module_name}"', 'Logger: Jetpack', 'simple-history' ),
 				'module_deactivated' => _x( 'Deactivated Jetpack module "{module_name}"', 'Logger: Jetpack', 'simple-history' ),
 			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'Jetpack', 'Jetpack logger: search', 'simple-history' ),
+					'label_all' => _x( 'All Jetpack activity', 'Jetpack logger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Modules activated', 'Jetpack logger: search', 'simple-history' ) => array(
+							'module_activated',
+						),
+						_x( 'Modules deactivated', 'Jetpack logger: search', 'simple-history' ) => array(
+							'module_deactivated',
+						),
+					),
+				),
+			),
 		);
 	}
 

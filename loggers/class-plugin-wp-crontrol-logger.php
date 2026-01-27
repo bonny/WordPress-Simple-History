@@ -37,6 +37,33 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 				'added_new_schedule'    => _x( 'Added cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history' ),
 				'deleted_schedule'      => _x( 'Deleted cron schedule "{schedule_name}"', 'PluginWPCrontrolLogger', 'simple-history' ),
 			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'WP Crontrol', 'PluginWPCrontrolLogger: search', 'simple-history' ),
+					'label_all' => _x( 'All WP Crontrol activity', 'PluginWPCrontrolLogger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Cron events added', 'PluginWPCrontrolLogger: search', 'simple-history' ) => array(
+							'added_new_event',
+						),
+						_x( 'Cron events ran manually', 'PluginWPCrontrolLogger: search', 'simple-history' ) => array(
+							'ran_event',
+						),
+						_x( 'Cron events modified', 'PluginWPCrontrolLogger: search', 'simple-history' ) => array(
+							'edited_event',
+							'paused_hook',
+							'resumed_hook',
+						),
+						_x( 'Cron events deleted', 'PluginWPCrontrolLogger: search', 'simple-history' ) => array(
+							'deleted_event',
+							'deleted_all_with_hook',
+						),
+						_x( 'Cron schedules', 'PluginWPCrontrolLogger: search', 'simple-history' ) => array(
+							'added_new_schedule',
+							'deleted_schedule',
+						),
+					),
+				),
+			),
 		);
 	}
 

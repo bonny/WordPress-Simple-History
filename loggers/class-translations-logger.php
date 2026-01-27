@@ -27,6 +27,17 @@ class Translations_Logger extends Logger {
 			'messages'    => array(
 				'translations_updated' => _x( 'Updated translations for "{name}" ({language})', 'Logger: Translations', 'simple-history' ),
 			),
+			'labels'      => array(
+				'search' => array(
+					'label'     => _x( 'Translations', 'Translations logger: search', 'simple-history' ),
+					'label_all' => _x( 'All translation updates', 'Translations logger: search', 'simple-history' ),
+					'options'   => array(
+						_x( 'Translation updates', 'Translations logger: search', 'simple-history' ) => array(
+							'translations_updated',
+						),
+					),
+				),
+			),
 		);
 	}
 
