@@ -296,4 +296,39 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 
 		return ob_get_clean();
 	}
+
+	/**
+	 * Get HTML for hosting sponsor acknowledgment.
+	 *
+	 * @return string HTML
+	 */
+	public static function get_hosting_sponsor_postbox_html() {
+		ob_start();
+		?>
+		<div class="postbox sh-PremiumFeaturesPostbox sh-HelpPage-sponsor">
+			<div class="inside" style="margin-bottom: 0;">
+				<div class="sh-HelpPage-sponsor-content">
+					<a href="https://www.oderland.com" target="_blank" rel="noopener noreferrer" class="sh-HelpPage-sponsor-logo">
+						<img
+							src="<?php echo esc_url( plugins_url( 'assets/images/oderland-logo.svg', SIMPLE_HISTORY_BASENAME ) ); ?>"
+							alt="Oderland"
+						>
+					</a>
+					<p class="sh-HelpPage-sponsor-text">
+						<?php
+						printf(
+							/* translators: 1: Link to Simple History website, 2: Link to Oderland. */
+							wp_kses_post( __( 'The <a href="%1$s" target="_blank" rel="noopener noreferrer">Simple History website</a> is proudly hosted by <a href="%2$s" target="_blank" rel="noopener noreferrer">Oderland</a>, a Swedish web hosting provider.', 'simple-history' ) ),
+							'https://simple-history.com',
+							'https://www.oderland.com'
+						);
+						?>
+					</p>
+				</div>
+			</div>
+		</div>
+		<?php
+
+		return ob_get_clean();
+	}
 }

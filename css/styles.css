@@ -3225,6 +3225,31 @@ Styles for plugin update details. Markup looks like this:
 	}
 }
 
+/* Help page sponsor section */
+.sh-HelpPage-sponsor {
+	margin-top: var(--sh-spacing-large);
+}
+
+.sh-HelpPage-sponsor-content {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-large);
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.sh-HelpPage-sponsor-logo img {
+	height: 40px;
+	width: auto;
+	display: block;
+}
+
+.sh-HelpPage-sponsor-text {
+	flex: 1 1 400px;
+	text-align: center;
+	margin: 0;
+}
+
 /* Help page section title adjustment */
 .sh-HelpAndSupportPage > .sh-SettingsPage-settingsSection-title {
 	margin-bottom: 1rem;
