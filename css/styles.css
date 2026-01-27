@@ -2298,7 +2298,11 @@ a.sh-SettingsTabs-link:hover {
 }
 
 .SimpleHistoryLogitem--is-center-event:hover {
-	background: color-mix(in srgb, var(--sh-color-blue-light), var(--sh-color-blue) 10%);
+	background: color-mix(
+		in srgb,
+		var(--sh-color-blue-light),
+		var(--sh-color-blue) 10%
+	);
 }
 
 /* Old styles moved from ip-info-dropin.css */
@@ -2535,7 +2539,13 @@ Styles for plugin update details. Markup looks like this:
 	background: #fff;
 	border: 1px solid #dcdcde;
 	border-radius: 4px;
-	font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+	font-family:
+		Menlo,
+		Consolas,
+		Monaco,
+		Liberation Mono,
+		Lucida Console,
+		monospace;
 	font-size: 12px;
 	line-height: 1.5;
 	color: #50575e;
@@ -3087,4 +3097,135 @@ Styles for plugin update details. Markup looks like this:
 .sh-AlertsTeaser-cta-content a:not(.button) {
 	font-size: 13px;
 	white-space: nowrap;
+}
+
+/**
+ * Debug Page Styles
+ * Styles for the Help & Support > Debug page.
+ */
+.sh-DebugPage-section {
+	margin-bottom: var(--sh-spacing-large);
+}
+
+.sh-DebugPage-section h3 {
+	margin-top: 0;
+}
+
+/* REST API Status indicator */
+.sh-DebugPage-restApiStatus {
+	padding: var(--sh-spacing-medium);
+	background: #f6f7f7;
+	border-radius: var(--sh-border-radius);
+	display: inline-block;
+}
+
+.sh-DebugPage-restApiStatus-checking {
+	color: #50575e;
+}
+
+.sh-DebugPage-restApiStatus-success {
+	color: #00a32a;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.sh-DebugPage-restApiStatus-success .dashicons {
+	color: #00a32a;
+}
+
+.sh-DebugPage-restApiStatus-error {
+	color: #d63638;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.sh-DebugPage-restApiStatus-error .dashicons {
+	color: #d63638;
+}
+
+/* Support info textarea */
+.sh-DebugPage-supportInfoTextarea {
+	width: 100%;
+	max-width: 800px;
+	font-family:
+		Menlo,
+		Consolas,
+		Monaco,
+		Liberation Mono,
+		Lucida Console,
+		monospace;
+	font-size: 12px;
+	line-height: 1.5;
+	background: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	border-radius: var(--sh-border-radius);
+	padding: var(--sh-spacing-medium);
+	resize: vertical;
+}
+
+/* Copy status message */
+.sh-DebugPage-copyStatus {
+	margin-left: var(--sh-spacing-small);
+	font-size: 13px;
+}
+
+.sh-DebugPage-copyStatus--success {
+	color: #00a32a;
+}
+
+.sh-DebugPage-copyStatus--error {
+	color: #d63638;
+}
+
+/* Collapsible sections using details/summary */
+.sh-DebugPage-details {
+	margin-bottom: var(--sh-spacing-medium);
+	border: 1px solid #c3c4c7;
+	border-radius: var(--sh-border-radius);
+	background: #fff;
+}
+
+.sh-DebugPage-summary {
+	cursor: pointer;
+	padding: var(--sh-spacing-medium);
+	background: #f6f7f7;
+	border-radius: var(--sh-border-radius);
+	list-style: none;
+}
+
+.sh-DebugPage-summary::-webkit-details-marker {
+	display: none;
+}
+
+.sh-DebugPage-summary::before {
+	content: "\25B6";
+	display: inline-block;
+	margin-right: var(--sh-spacing-small);
+	font-size: 10px;
+	transition: transform 0.2s ease-out;
+}
+
+.sh-DebugPage-details[open] > .sh-DebugPage-summary::before {
+	transform: rotate(90deg);
+}
+
+.sh-DebugPage-summary h3 {
+	display: inline;
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.sh-DebugPage-detailsContent {
+	padding: var(--sh-spacing-medium);
+}
+
+.sh-DebugPage-detailsContent > p:first-child {
+	margin-top: 0;
+}
+
+.sh-DebugPage-detailsContent > table:last-child {
+	margin-bottom: 0;
 }

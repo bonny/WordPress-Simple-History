@@ -4,7 +4,6 @@ namespace Simple_History\Dropins;
 
 use Simple_History\Simple_History;
 use Simple_History\Helpers;
-use Simple_History\Log_Query;
 use Simple_History\Menu_Page;
 use Simple_History\Services\Admin_Pages;
 
@@ -23,6 +22,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 	public function loaded() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ), 10 );
 		add_action( 'admin_menu', array( $this, 'add_tabs' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_debug_page_scripts' ) );
 	}
 
 	/**
@@ -136,6 +136,55 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 	}
 
 	/**
+	 * Enqueue scripts for the debug page.
+	 *
+	 * @param string $hook_suffix The current admin page hook suffix.
+	 */
+	public function enqueue_debug_page_scripts( $hook_suffix ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking current page.
+		$current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking current tab.
+		$selected_sub_tab = isset( $_GET['selected-sub-tab'] ) ? sanitize_text_field( wp_unslash( $_GET['selected-sub-tab'] ) ) : '';
+
+		// Load on the debug tab - either via direct page access or via tab navigation.
+		$is_debug_page = $current_page === self::SUPPORT_PAGE_DEBUG_TAB_SLUG;
+		$is_debug_tab  = $selected_sub_tab === self::SUPPORT_PAGE_DEBUG_TAB_SLUG;
+
+		if ( ! $is_debug_page && ! $is_debug_tab ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'simple-history-debug-page',
+			SIMPLE_HISTORY_DIR_URL . 'js/debug-page.js',
+			array(),
+			SIMPLE_HISTORY_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'simple-history-debug-page',
+			'simpleHistoryDebugPage',
+			array(
+				'restUrl'   => rest_url( 'simple-history/v1/support-info' ),
+				'healthUrl' => rest_url( 'simple-history/v1/support-info/health-check' ),
+				'nonce'     => wp_create_nonce( 'wp_rest' ),
+				'i18n'      => array(
+					'checking'    => _x( 'Checking...', 'debug dropin', 'simple-history' ),
+					'apiOk'       => _x( 'REST API is working correctly.', 'debug dropin', 'simple-history' ),
+					'apiError'    => _x( 'REST API error:', 'debug dropin', 'simple-history' ),
+					'gathering'   => _x( 'Gathering data...', 'debug dropin', 'simple-history' ),
+					'gatherError' => _x( 'Error gathering data:', 'debug dropin', 'simple-history' ),
+					'copied'      => _x( 'Copied!', 'debug dropin', 'simple-history' ),
+					'copyError'   => _x( 'Failed to copy.', 'debug dropin', 'simple-history' ),
+					'reloadData'  => _x( 'Reload Data', 'debug dropin', 'simple-history' ),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Output the help and support page.
 	 */
 	public function output_help_and_support_page() {
@@ -162,17 +211,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 			SIMPLE_HISTORY_PATH . 'templates/settings-tab-debug.php',
 			false,
 			array(
-				'instantiated_loggers'    => $this->simple_history->get_instantiated_loggers(),
-				'instantiated_dropins'    => $this->simple_history->get_instantiated_dropins(),
-				'instantiated_services'   => $this->simple_history->get_instantiated_services(),
-				'events_table_name'       => $this->simple_history->get_events_table_name(),
-				'simple_history_instance' => $this->simple_history,
-				'wpdb'                    => $GLOBALS['wpdb'],
-				'plugins'                 => get_plugins(),
-				'dropins'                 => get_dropins(),
-				'tables_info'             => Helpers::required_tables_exist(),
-				'table_size_result'       => Helpers::get_db_table_stats(),
-				'db_engine'               => Log_Query::get_db_engine(),
+				'tables_info' => Helpers::required_tables_exist(),
 			)
 		);
 	}
