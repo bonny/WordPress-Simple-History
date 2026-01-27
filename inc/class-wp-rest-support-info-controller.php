@@ -160,7 +160,6 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 			'table_stats'    => $table_stats,
 			'oldest_event'   => $oldest_event,
 			'db_engine'      => $db_engine,
-			'is_playground'  => $db_engine === 'sqlite' ? __( 'Yes (SQLite)', 'simple-history' ) : __( 'No', 'simple-history' ),
 			'retention_days' => $this->get_retention_days(),
 			'items_per_page' => $this->simple_history->get_pager_size(),
 		];
@@ -595,12 +594,6 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		$lines[] = '=== Simple History ===';
 		$lines[] = sprintf( 'Version: %s', $info['simple_history']['version'] );
 		$lines[] = sprintf( 'Premium Add-on: %s', $info['simple_history']['premium'] );
-
-		// Only show WP Playground if it is one (SQLite).
-		if ( $info['simple_history']['db_engine'] === 'sqlite' ) {
-			$lines[] = 'WP Playground: Yes (SQLite)';
-		}
-
 		$lines[] = sprintf( 'Log Retention: %s', $info['simple_history']['retention_days'] );
 		$lines[] = sprintf( 'Items Per Page: %s', $info['simple_history']['items_per_page'] );
 		$lines[] = sprintf( 'Total Events Logged: %s (cumulative, not current DB count)', number_format_i18n( $info['simple_history']['total_events'] ) );
