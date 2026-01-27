@@ -535,6 +535,15 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		$lines[] = sprintf( 'Generated: %s', current_time( 'Y-m-d H:i:s' ) );
 		$lines[] = '';
 
+		// Warnings at top so users and support staff see issues immediately.
+		if ( ! empty( $info['warnings'] ) ) {
+			$lines[] = '=== ⚠ Warnings ===';
+			foreach ( $info['warnings'] as $warning ) {
+				$lines[] = sprintf( '⚠ %s', $warning );
+			}
+			$lines[] = '';
+		}
+
 		// WordPress.
 		$lines[] = '=== WordPress ===';
 		$lines[] = sprintf( 'Version: %s', $info['wordpress']['version'] );
@@ -602,15 +611,6 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 			);
 		}
 		$lines[] = '';
-
-		// Warnings.
-		if ( ! empty( $info['warnings'] ) ) {
-			$lines[] = '=== Warnings ===';
-			foreach ( $info['warnings'] as $warning ) {
-				$lines[] = sprintf( '⚠ %s', $warning );
-			}
-			$lines[] = '';
-		}
 
 		// Active plugins.
 		$plugin_count = count( $info['plugins'] );
