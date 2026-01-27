@@ -143,9 +143,9 @@
 	 */
 	function copyToClipboard() {
 		const textarea = document.getElementById( 'sh-support-info-textarea' );
-		const copyButton = document.getElementById( 'sh-copy-support-info' );
+		const statusEl = document.getElementById( 'sh-copy-status' );
 
-		if ( ! textarea || ! copyButton ) {
+		if ( ! textarea || ! statusEl ) {
 			return;
 		}
 
@@ -154,33 +154,33 @@
 			navigator.clipboard
 				.writeText( textarea.value )
 				.then( function () {
-					showCopyFeedback( copyButton, true );
+					showCopyFeedback( statusEl, true );
 				} )
 				.catch( function () {
 					// Fallback to legacy method.
-					legacyCopy( textarea, copyButton );
+					legacyCopy( textarea, statusEl );
 				} );
 		} else {
 			// Fallback for older browsers.
-			legacyCopy( textarea, copyButton );
+			legacyCopy( textarea, statusEl );
 		}
 	}
 
 	/**
 	 * Legacy copy method using selection and execCommand.
 	 *
-	 * @param {HTMLTextAreaElement} textarea   The textarea element.
-	 * @param {HTMLButtonElement}   copyButton The copy button element.
+	 * @param {HTMLTextAreaElement} textarea The textarea element.
+	 * @param {HTMLElement}         statusEl The status element.
 	 */
-	function legacyCopy( textarea, copyButton ) {
+	function legacyCopy( textarea, statusEl ) {
 		textarea.select();
 		textarea.setSelectionRange( 0, 99999 );
 
 		try {
 			const success = document.execCommand( 'copy' );
-			showCopyFeedback( copyButton, success );
+			showCopyFeedback( statusEl, success );
 		} catch ( err ) {
-			showCopyFeedback( copyButton, false );
+			showCopyFeedback( statusEl, false );
 		}
 
 		// Clear selection using ownerDocument to avoid global getSelection.
@@ -191,25 +191,28 @@
 	}
 
 	/**
-	 * Show copy feedback by temporarily changing button text.
+	 * Show copy feedback with checkmark icon next to button.
 	 *
-	 * @param {HTMLButtonElement} copyButton The copy button element.
-	 * @param {boolean}           success    Whether copy was successful.
+	 * @param {HTMLElement} statusEl The status element.
+	 * @param {boolean}     success  Whether copy was successful.
 	 */
-	function showCopyFeedback( copyButton, success ) {
-		const originalText = copyButton.textContent;
-
+	function showCopyFeedback( statusEl, success ) {
 		if ( success ) {
-			copyButton.textContent = window.simpleHistoryDebugPage.i18n.copied;
+			statusEl.innerHTML =
+				'<span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span> ' +
+				escapeHtml( window.simpleHistoryDebugPage.i18n.copied );
+			statusEl.style.color = '#00a32a';
 		} else {
-			copyButton.textContent =
-				window.simpleHistoryDebugPage.i18n.copyError;
+			statusEl.innerHTML =
+				'<span class="dashicons dashicons-warning" style="color: #d63638;"></span> ' +
+				escapeHtml( window.simpleHistoryDebugPage.i18n.copyError );
+			statusEl.style.color = '#d63638';
 		}
 
-		// Restore original text after a short delay.
+		// Clear status after a short delay.
 		setTimeout( function () {
-			copyButton.textContent = originalText;
-		}, 2000 );
+			statusEl.innerHTML = '';
+		}, 3000 );
 	}
 
 	/**

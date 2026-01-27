@@ -90,6 +90,7 @@ echo Admin_Pages::header_output();
 				<button type="button" class="button button-primary" id="sh-copy-support-info">
 					<?php echo esc_html_x( 'Copy to Clipboard', 'debug dropin', 'simple-history' ); ?>
 				</button>
+				<span class="sh-DebugPage-copyStatus" id="sh-copy-status"></span>
 				<button type="button" class="button" id="sh-gather-support-info">
 					<?php echo esc_html_x( 'Reload Data', 'debug dropin', 'simple-history' ); ?>
 				</button>

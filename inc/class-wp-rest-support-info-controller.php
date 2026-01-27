@@ -145,6 +145,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 			'upload_max_size'    => ini_get( 'upload_max_filesize' ),
 			'php_extensions'     => $this->get_php_extensions(),
 			'server_software'    => isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : __( 'Unknown', 'simple-history' ),
+			'hosting_provider'   => $this->get_hosting_provider(),
 		];
 
 		// Simple History info.
@@ -345,6 +346,105 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Detect the hosting provider based on environment constants and paths.
+	 *
+	 * @return string Hosting provider name or 'Unknown'.
+	 */
+	private function get_hosting_provider() {
+		// WP Engine.
+		if ( defined( 'WPE_APIKEY' ) || defined( 'IS_WPE' ) || function_exists( 'is_wpe' ) ) {
+			return 'WP Engine';
+		}
+
+		// Pantheon.
+		if ( defined( 'PANTHEON_ENVIRONMENT' ) ) {
+			return 'Pantheon';
+		}
+
+		// Kinsta.
+		if ( defined( 'KINSTA_DEV_ENV' ) || defined( 'KINSTAMU_VERSION' ) ) {
+			return 'Kinsta';
+		}
+
+		// Flywheel.
+		if ( defined( 'FLYWHEEL_CONFIG_DIR' ) || defined( 'FLYWHEEL_HOST' ) ) {
+			return 'Flywheel';
+		}
+
+		// WordPress VIP.
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) || defined( 'VIP_GO_ENV' ) ) {
+			return 'WordPress VIP';
+		}
+
+		// WordPress.com (Atomic).
+		if ( defined( 'IS_WPCOM' ) || defined( 'ATOMIC_SITE_ID' ) ) {
+			return 'WordPress.com';
+		}
+
+		// GoDaddy Managed WordPress.
+		if ( defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( 'WPaaS\Plugin' ) ) {
+			return 'GoDaddy';
+		}
+
+		// SiteGround (detected via SG Optimizer plugin).
+		if ( defined( 'SG_OPTIMIZER_VERSION' ) || class_exists( 'SiteGround_Optimizer\Loader\Loader' ) ) {
+			return 'SiteGround';
+		}
+
+		// Cloudways (check document root path).
+		if ( isset( $_SERVER['DOCUMENT_ROOT'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ), '/home/master/applications/' ) !== false ) {
+			return 'Cloudways';
+		}
+
+		// Pressable.
+		if ( defined( 'IS_STARTER_KIT' ) ) {
+			return 'Pressable';
+		}
+
+		// Bluehost.
+		if ( defined( 'STARTER_THEME' ) || defined( 'STARTER_THEME_PREFIX' ) ) {
+			return 'Bluehost';
+		}
+
+		// Pagely.
+		if ( defined( 'STARTER_KIT' ) || class_exists( 'PagelyCachePurge' ) ) {
+			return 'Pagely';
+		}
+
+		// Convesio.
+		if ( defined( 'STARTER_PLATFORM' ) && STARTER_PLATFORM === 'convesio' ) {
+			return 'Convesio';
+		}
+
+		// SpinupWP.
+		if ( defined( 'STARTER_ENVIRONMENT_ID' ) || defined( 'SPINUP_ENV' ) ) {
+			return 'SpinupWP';
+		}
+
+		// GridPane.
+		if ( defined( 'STARTER_GRIDPANE' ) ) {
+			return 'GridPane';
+		}
+
+		// RunCloud.
+		if ( isset( $_SERVER['STARTER_RUNCLOUD'] ) ) {
+			return 'RunCloud';
+		}
+
+		// Rocket.net.
+		if ( defined( 'STARTER_ROCKETNET' ) ) {
+			return 'Rocket.net';
+		}
+
+		// Servebolt.
+		if ( defined( 'STARTER_SERVEBOLT' ) || class_exists( 'Starter_Servebolt' ) ) {
+			return 'Servebolt';
+		}
+
+		return __( 'Unknown', 'simple-history' );
+	}
+
+	/**
 	 * Get WordPress drop-ins.
 	 *
 	 * @return array List of WordPress drop-ins.
@@ -453,6 +553,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		$lines[] = sprintf( 'PHP Version: %s', $info['server']['php_version'] );
 		$lines[] = sprintf( 'Database: %s', $info['server']['database'] );
 		$lines[] = sprintf( 'Server Software: %s', $info['server']['server_software'] );
+		$lines[] = sprintf( 'Hosting Provider: %s', $info['server']['hosting_provider'] );
 		$lines[] = sprintf( 'Memory Limit: %s', $info['server']['memory_limit'] );
 		$lines[] = sprintf( 'Max Execution Time: %s', $info['server']['max_execution_time'] );
 		$lines[] = sprintf( 'Post Max Size: %s', $info['server']['post_max_size'] );

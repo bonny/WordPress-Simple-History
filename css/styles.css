@@ -3167,16 +3167,19 @@ Styles for plugin update details. Markup looks like this:
 
 /* Copy status message */
 .sh-DebugPage-copyStatus {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 	margin-left: var(--sh-spacing-small);
+	margin-right: var(--sh-spacing-small);
 	font-size: 13px;
+	vertical-align: middle;
 }
 
-.sh-DebugPage-copyStatus--success {
-	color: #00a32a;
-}
-
-.sh-DebugPage-copyStatus--error {
-	color: #d63638;
+.sh-DebugPage-copyStatus .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
 }
 
 /* Collapsible sections using details/summary */
