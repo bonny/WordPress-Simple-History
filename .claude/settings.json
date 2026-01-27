@@ -18,11 +18,15 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "f=$(jq -r '.tool_input.file_path'); [[ $f =~ \\.(md|css|js|jsx)$ ]] && npx prettier --write \"$f\""
+						"command": "f=$(jq -r '.tool_input.file_path'); [[ $f =~ \\.(md|css|js|jsx)$ ]] && npx prettier --write \"$f\" || true"
 					},
 					{
 						"type": "command",
-						"command": "f=$(jq -r '.tool_input.file_path'); [[ $f =~ \\.(js|jsx)$ ]] && npx wp-scripts lint-js --fix \"$f\""
+						"command": "f=$(jq -r '.tool_input.file_path'); [[ $f =~ \\.(js|jsx)$ ]] && npx wp-scripts lint-js --fix \"$f\" || true"
+					},
+					{
+						"type": "command",
+						"command": "f=$(jq -r '.tool_input.file_path'); [[ $f =~ \\.php$ ]] && npm run php:lint-fix -- \"$f\" || true"
 					}
 				]
 			}
