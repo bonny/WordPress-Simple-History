@@ -163,7 +163,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 			'oldest_event'   => $oldest_event,
 			'db_engine'      => $db_engine,
 			'retention_days' => $this->get_retention_days(),
-			'items_per_page' => $this->simple_history->get_pager_size(),
+			'items_per_page' => Helpers::get_pager_size(),
 		];
 
 		// Warnings section.
@@ -273,7 +273,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 	 * @return string Retention days or 'Forever'.
 	 */
 	private function get_retention_days() {
-		$days = (int) $this->simple_history->get_clear_history_interval_days_option_value();
+		$days = Helpers::get_clear_history_interval();
 
 		if ( $days === 0 ) {
 			return __( 'Forever (no auto-cleanup)', 'simple-history' );
@@ -489,25 +489,30 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		// Get all logger slugs.
 		$arr_logger_slugs = [];
 		foreach ( $instantiated_loggers as $one_logger ) {
-			$arr_logger_slugs[] = esc_sql( $one_logger['instance']->get_slug() );
+			$arr_logger_slugs[] = $one_logger['instance']->get_slug();
 		}
 
 		if ( empty( $arr_logger_slugs ) ) {
 			return [];
 		}
 
-		// Query for logger row counts.
-		$sql = sprintf(
-			'SELECT logger, count(id) as count
-			FROM %1$s
-			WHERE logger IN ("%2$s")
-			GROUP BY logger
-			ORDER BY count DESC',
-			$events_table_name,
-			implode( '","', $arr_logger_slugs )
-		);
+		// Build placeholders for prepared statement.
+		$placeholders = implode( ', ', array_fill( 0, count( $arr_logger_slugs ), '%s' ) );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// Query for logger row counts.
+		// Table name and placeholders are from trusted internal sources.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		$sql = $wpdb->prepare(
+			"SELECT logger, count(id) as count
+			FROM {$events_table_name}
+			WHERE logger IN ({$placeholders})
+			GROUP BY logger
+			ORDER BY count DESC",
+			$arr_logger_slugs
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $sql is prepared above.
 		$logger_rows = $wpdb->get_results( $sql, OBJECT_K );
 
 		// Build result with all loggers, including those with 0 rows.

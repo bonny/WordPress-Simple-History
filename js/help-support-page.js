@@ -5,6 +5,9 @@
 ( function () {
 	'use strict';
 
+	/** Delay in milliseconds before clearing copy feedback message. */
+	const COPY_FEEDBACK_DELAY_MS = 3000;
+
 	/**
 	 * Update status bar with connection status and stats.
 	 *
@@ -230,7 +233,7 @@
 		// Clear status after a short delay.
 		setTimeout( function () {
 			statusEl.innerHTML = '';
-		}, 3000 );
+		}, COPY_FEEDBACK_DELAY_MS );
 	}
 
 	/**
