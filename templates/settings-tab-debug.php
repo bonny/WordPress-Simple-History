@@ -69,7 +69,7 @@ echo Admin_Pages::header_output();
 
 	<div class="sh-DebugPage-section">
 		<h3><?php echo esc_html_x( 'Support Information', 'debug dropin', 'simple-history' ); ?></h3>
-		<p class="description">
+		<p>
 			<?php
 			printf(
 				/* translators: %s: link to support forum */
