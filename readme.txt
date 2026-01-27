@@ -350,6 +350,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Added search labels to 11 loggers (Beaver Builder, Duplicate Post, Enable Media Replace, Jetpack, Limit Login Attempts, Redirection, User Switching, WP Crontrol, Privacy, Simple History, Translations) for improved filtering in alert rules.
 -   Added detection of forced security updates from WordPress.org, shown as "Update method: Security auto-update" in plugin update details.
 -   Added display of upgrade notices from WordPress.org API in plugin update details.
 -   Added advance warning when forced security updates are detected, showing "Security auto-update" indicator before installation occurs.
@@ -361,6 +362,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
+-   Changed logger messages from passive to active voice for clarity: "Was denied access" → "Attempted to access restricted", "was auto-disabled" → "Auto-disabled", "Was locked out because" → "Locked out after".
 -   Merged Debug tab into Help & Support page, placing System Information directly below support links for a streamlined troubleshooting workflow.
 -   Added status bar to Help & Support page showing plugin version, event count, and retention settings at a glance.
 -   Improved System Information with additional fields: PHP Max Input Vars, WP Memory Limit, Child Theme detection, Theme Author, and User Agent for better support debugging.
