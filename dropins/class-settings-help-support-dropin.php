@@ -13,7 +13,7 @@ use Simple_History\Services\Admin_Pages;
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
-class Settings_Debug_Tab_Dropin extends Dropin {
+class Settings_Help_Support_Dropin extends Dropin {
 	public const SUPPORT_PAGE_SLUG             = 'simple_history_help_support';
 	public const SUPPORT_PAGE_GENERAL_TAB_SLUG = 'simple_history_help_support_general';
 
@@ -25,7 +25,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 	}
 
 	/**
-	 * Add submenu page for debug.
+	 * Add submenu page for Help & Support.
 	 */
 	public function add_menu() {
 		if ( ! Helpers::setting_show_as_menu_page() ) {
@@ -36,7 +36,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 		$admin_page_location = Helpers::get_menu_page_location();
 
 		// Main "Help & Support" page.
-		$debug_menu_page = ( new Menu_Page() )
+		$help_menu_page = ( new Menu_Page() )
 			->set_page_title( _x( 'Simple History Help & Support', 'dashboard title name', 'simple-history' ) )
 			->set_menu_slug( self::SUPPORT_PAGE_SLUG )
 			->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
@@ -47,16 +47,16 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 
 		// Set different options depending on location.
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
-			$debug_menu_page
+			$help_menu_page
 				->set_parent( Simple_History::MENU_PAGE_SLUG )
 				->set_location( 'submenu' );
 		} elseif ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
 			// If main page is shown as child to tools or dashboard then settings page is shown as child to settings main menu.
-			$debug_menu_page
+			$help_menu_page
 				->set_parent( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 		}
 
-		$debug_menu_page->add();
+		$help_menu_page->add();
 	}
 
 	/**

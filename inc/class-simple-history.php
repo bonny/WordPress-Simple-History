@@ -551,7 +551,7 @@ class Simple_History {
 			Dropins\Quick_View_Dropin::class,
 			Dropins\React_Dropin::class,
 			Dropins\RSS_Dropin::class,
-			Dropins\Settings_Debug_Tab_Dropin::class,
+			Dropins\Settings_Help_Support_Dropin::class,
 			Dropins\Sidebar_Add_Ons_Dropin::class,
 			Dropins\Sidebar_Dropin::class,
 			Dropins\Sidebar_Email_Promo_Dropin::class,
