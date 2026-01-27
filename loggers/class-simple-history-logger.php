@@ -35,7 +35,7 @@ class Simple_History_Logger extends Logger {
 				'purged_events'                   => _x( 'Removed {num_rows} events that were older than {days} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'auto_backfill_completed'         => _x( 'Populated (backfilled) your history with {posts_imported} posts and {users_imported} users from the last {days_back} days', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'manual_backfill_completed'       => _x( 'Manual backfill created {post_events} post events and {user_events} user events', 'Logger: SimpleHistoryLogger', 'simple-history' ),
-				'channel_auto_disabled'           => _x( 'Log forwarding channel "{channel_name}" was auto-disabled after {failure_count} consecutive failures', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				'channel_auto_disabled'           => _x( 'Auto-disabled log forwarding channel "{channel_name}" after {failure_count} consecutive failures', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'log_forwarding_settings_updated' => _x( 'Updated Log Forwarding settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 			),
 			'labels'      => array(

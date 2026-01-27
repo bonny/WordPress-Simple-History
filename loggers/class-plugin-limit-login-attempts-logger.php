@@ -25,7 +25,7 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 			'capability'  => 'manage_options',
 			'messages'    => array(
 				'failed_login_whitelisted' => _x( 'Failed login attempt from whitelisted IP', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
-				'failed_login'             => _x( 'Was locked out because too many failed login attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
+				'failed_login'             => _x( 'Locked out after too many failed login attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				'cleared_ip_log'           => _x( 'Cleared IP log', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				'reseted_lockout_count'    => _x( 'Reset lockout count', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),
 				'cleared_current_lockouts' => _x( 'Cleared current lockouts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ),

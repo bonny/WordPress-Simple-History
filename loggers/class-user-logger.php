@@ -96,7 +96,7 @@ class User_Logger extends Logger {
 					'simple-history'
 				),
 				'user_admin_page_access_denied'            => _x(
-					'Was denied access to admin page "{admin_page}"',
+					'Attempted to access restricted admin page "{admin_page}"',
 					'User was denied access to an admin page',
 					'simple-history'
 				),
