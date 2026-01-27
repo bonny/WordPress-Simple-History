@@ -51,6 +51,35 @@
 	}
 
 	/**
+	 * Display warnings as WordPress admin notices.
+	 *
+	 * @param {Array} warnings Array of warning messages.
+	 */
+	function displayWarnings( warnings ) {
+		const container = document.getElementById( 'sh-warnings-container' );
+		if ( ! container ) {
+			return;
+		}
+
+		// Clear existing warnings.
+		container.innerHTML = '';
+
+		if ( ! warnings || warnings.length === 0 ) {
+			return;
+		}
+
+		warnings.forEach( function ( warning ) {
+			const notice = document.createElement( 'div' );
+			notice.className = 'notice notice-warning';
+			notice.innerHTML =
+				'<p><span class="dashicons dashicons-warning" style="color: #dba617; margin-right: 5px;"></span>' +
+				escapeHtml( warning ) +
+				'</p>';
+			container.appendChild( notice );
+		} );
+	}
+
+	/**
 	 * Gather support information when button is clicked or on page load.
 	 */
 	function gatherSupportInfo() {
@@ -91,6 +120,11 @@
 				textarea.value = data.plain_text;
 				button.textContent =
 					window.simpleHistoryDebugPage.i18n.reloadData;
+
+				// Display warnings as admin notices.
+				if ( data.warnings ) {
+					displayWarnings( data.warnings );
+				}
 			} )
 			.catch( function ( error ) {
 				textarea.value =
@@ -109,9 +143,9 @@
 	 */
 	function copyToClipboard() {
 		const textarea = document.getElementById( 'sh-support-info-textarea' );
-		const statusEl = document.getElementById( 'sh-copy-status' );
+		const copyButton = document.getElementById( 'sh-copy-support-info' );
 
-		if ( ! textarea || ! statusEl ) {
+		if ( ! textarea || ! copyButton ) {
 			return;
 		}
 
@@ -120,60 +154,61 @@
 			navigator.clipboard
 				.writeText( textarea.value )
 				.then( function () {
-					showCopyStatus( statusEl, true );
+					showCopyFeedback( copyButton, true );
 				} )
 				.catch( function () {
 					// Fallback to legacy method.
-					legacyCopy( textarea, statusEl );
+					legacyCopy( textarea, copyButton );
 				} );
 		} else {
 			// Fallback for older browsers.
-			legacyCopy( textarea, statusEl );
+			legacyCopy( textarea, copyButton );
 		}
 	}
 
 	/**
 	 * Legacy copy method using selection and execCommand.
 	 *
-	 * @param {HTMLTextAreaElement} textarea The textarea element.
-	 * @param {HTMLElement}         statusEl The status element.
+	 * @param {HTMLTextAreaElement} textarea   The textarea element.
+	 * @param {HTMLButtonElement}   copyButton The copy button element.
 	 */
-	function legacyCopy( textarea, statusEl ) {
+	function legacyCopy( textarea, copyButton ) {
 		textarea.select();
 		textarea.setSelectionRange( 0, 99999 );
 
 		try {
 			const success = document.execCommand( 'copy' );
-			showCopyStatus( statusEl, success );
+			showCopyFeedback( copyButton, success );
 		} catch ( err ) {
-			showCopyStatus( statusEl, false );
+			showCopyFeedback( copyButton, false );
 		}
 
-		// Clear selection.
-		window.getSelection().removeAllRanges();
+		// Clear selection using ownerDocument to avoid global getSelection.
+		const selection = textarea.ownerDocument.defaultView.getSelection();
+		if ( selection ) {
+			selection.removeAllRanges();
+		}
 	}
 
 	/**
-	 * Show copy status message.
+	 * Show copy feedback by temporarily changing button text.
 	 *
-	 * @param {HTMLElement} statusEl The status element.
-	 * @param {boolean}     success  Whether copy was successful.
+	 * @param {HTMLButtonElement} copyButton The copy button element.
+	 * @param {boolean}           success    Whether copy was successful.
 	 */
-	function showCopyStatus( statusEl, success ) {
+	function showCopyFeedback( copyButton, success ) {
+		const originalText = copyButton.textContent;
+
 		if ( success ) {
-			statusEl.textContent = window.simpleHistoryDebugPage.i18n.copied;
-			statusEl.className =
-				'sh-DebugPage-copyStatus sh-DebugPage-copyStatus--success';
+			copyButton.textContent = window.simpleHistoryDebugPage.i18n.copied;
 		} else {
-			statusEl.textContent = window.simpleHistoryDebugPage.i18n.copyError;
-			statusEl.className =
-				'sh-DebugPage-copyStatus sh-DebugPage-copyStatus--error';
+			copyButton.textContent =
+				window.simpleHistoryDebugPage.i18n.copyError;
 		}
 
-		// Clear status after a short delay.
+		// Restore original text after a short delay.
 		setTimeout( function () {
-			statusEl.textContent = '';
-			statusEl.className = 'sh-DebugPage-copyStatus';
+			copyButton.textContent = originalText;
 		}, 2000 );
 	}
 

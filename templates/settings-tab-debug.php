@@ -70,8 +70,15 @@ echo Admin_Pages::header_output();
 	<div class="sh-DebugPage-section">
 		<h3><?php echo esc_html_x( 'Support Information', 'debug dropin', 'simple-history' ); ?></h3>
 		<p class="description">
-			<?php echo esc_html_x( 'Gather system information to share when requesting support.', 'debug dropin', 'simple-history' ); ?>
+			<?php
+			printf(
+				/* translators: %s: link to support forum */
+				esc_html_x( 'Copy this information and include it when posting in the %s.', 'debug dropin', 'simple-history' ),
+				'<a href="https://wordpress.org/support/plugin/simple-history/" target="_blank">' . esc_html_x( 'support forum', 'debug dropin', 'simple-history' ) . '</a>'
+			);
+			?>
 		</p>
+		<div id="sh-warnings-container"></div>
 		<div id="sh-support-info-container" style="display: none;">
 			<textarea
 				id="sh-support-info-textarea"
@@ -79,15 +86,14 @@ echo Admin_Pages::header_output();
 				readonly
 				rows="25"
 			></textarea>
-			<p>
-				<button type="button" class="button" id="sh-copy-support-info">
+			<p class="sh-DebugPage-buttons">
+				<button type="button" class="button button-primary" id="sh-copy-support-info">
 					<?php echo esc_html_x( 'Copy to Clipboard', 'debug dropin', 'simple-history' ); ?>
 				</button>
 				<button type="button" class="button" id="sh-gather-support-info">
 					<?php echo esc_html_x( 'Reload Data', 'debug dropin', 'simple-history' ); ?>
 				</button>
 				<span class="spinner" id="sh-gather-support-info-spinner" style="float: none; margin-top: 0;"></span>
-				<span id="sh-copy-status" class="sh-DebugPage-copyStatus"></span>
 			</p>
 		</div>
 	</div>

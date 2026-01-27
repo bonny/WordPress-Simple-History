@@ -171,14 +171,15 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 				'healthUrl' => rest_url( 'simple-history/v1/support-info/health-check' ),
 				'nonce'     => wp_create_nonce( 'wp_rest' ),
 				'i18n'      => array(
-					'checking'    => _x( 'Checking...', 'debug dropin', 'simple-history' ),
-					'apiOk'       => _x( 'REST API is working correctly.', 'debug dropin', 'simple-history' ),
-					'apiError'    => _x( 'REST API error:', 'debug dropin', 'simple-history' ),
-					'gathering'   => _x( 'Gathering data...', 'debug dropin', 'simple-history' ),
-					'gatherError' => _x( 'Error gathering data:', 'debug dropin', 'simple-history' ),
-					'copied'      => _x( 'Copied!', 'debug dropin', 'simple-history' ),
-					'copyError'   => _x( 'Failed to copy.', 'debug dropin', 'simple-history' ),
-					'reloadData'  => _x( 'Reload Data', 'debug dropin', 'simple-history' ),
+					'checking'        => _x( 'Checking...', 'debug dropin', 'simple-history' ),
+					'apiOk'           => _x( 'REST API is working correctly.', 'debug dropin', 'simple-history' ),
+					'apiError'        => _x( 'REST API error:', 'debug dropin', 'simple-history' ),
+					'gathering'       => _x( 'Gathering data...', 'debug dropin', 'simple-history' ),
+					'gatherError'     => _x( 'Error gathering data:', 'debug dropin', 'simple-history' ),
+					'copied'          => _x( 'Copied!', 'debug dropin', 'simple-history' ),
+					'copyError'       => _x( 'Failed to copy.', 'debug dropin', 'simple-history' ),
+					'reloadData'      => _x( 'Reload Data', 'debug dropin', 'simple-history' ),
+					'copyToClipboard' => _x( 'Copy to Clipboard', 'debug dropin', 'simple-history' ),
 				),
 			)
 		);
