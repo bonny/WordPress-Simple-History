@@ -357,6 +357,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added Notes statistics to History Insights page for tracking collaborative block editor notes activity.
 -   Added Notes REST API endpoint at `/wp-json/simple-history/v1/stats/notes`.
 -   Added Alerts settings page showing premium notification features.
+-   Added user role (`_user_role`) to event context, enabling filtering and alerts based on the role of the user who performed an action.
 
 **Changed**
 
