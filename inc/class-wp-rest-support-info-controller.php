@@ -551,10 +551,18 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		$lines[] = sprintf( 'Locale: %s', $info['wordpress']['locale'] );
 		$lines[] = sprintf( 'Timezone: %s', $info['wordpress']['timezone'] );
 		$lines[] = sprintf( 'Permalinks: %s', $info['wordpress']['permalink_structure'] );
-		$lines[] = sprintf( 'HTTPS: %s', $info['wordpress']['https'] );
+
+		// HTTPS with inline warning if not enabled.
+		$https_warning = $info['wordpress']['https'] === __( 'No', 'simple-history' ) ? ' ⚠' : '';
+		$lines[]       = sprintf( 'HTTPS: %s%s', $info['wordpress']['https'], $https_warning );
+
 		$lines[] = sprintf( 'WP_DEBUG: %s', $info['wordpress']['wp_debug'] );
 		$lines[] = sprintf( 'WP_DEBUG_LOG: %s', $info['wordpress']['wp_debug_log'] );
-		$lines[] = sprintf( 'WP_CRON Disabled: %s', $info['wordpress']['wp_cron_disabled'] );
+
+		// WP_CRON with clearer wording and inline warning.
+		$cron_disabled = defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON;
+		$lines[]       = sprintf( 'WP_CRON: %s', $cron_disabled ? __( 'Disabled', 'simple-history' ) . ' ⚠' : __( 'Enabled', 'simple-history' ) );
+
 		$lines[] = sprintf( 'Table Prefix: %s', $info['wordpress']['table_prefix'] );
 		$lines[] = sprintf( 'Object Cache: %s', $info['wordpress']['object_cache'] );
 		$lines[] = sprintf( 'Active Theme: %s (%s)', $info['theme']['name'], $info['theme']['version'] );
@@ -565,8 +573,18 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		$lines[] = sprintf( 'PHP Version: %s', $info['server']['php_version'] );
 		$lines[] = sprintf( 'Database: %s', $info['server']['database'] );
 		$lines[] = sprintf( 'Server Software: %s', $info['server']['server_software'] );
-		$lines[] = sprintf( 'Hosting Provider: %s', $info['server']['hosting_provider'] );
-		$lines[] = sprintf( 'Memory Limit: %s', $info['server']['memory_limit'] );
+
+		// Only show hosting provider if detected.
+		if ( $info['server']['hosting_provider'] !== __( 'Unknown', 'simple-history' ) ) {
+			$lines[] = sprintf( 'Hosting Provider: %s', $info['server']['hosting_provider'] );
+		}
+
+		// Memory limit with inline warning if below 256M.
+		$memory_limit  = $info['server']['memory_limit'];
+		$memory_bytes  = wp_convert_hr_to_bytes( $memory_limit );
+		$memory_warning = ( $memory_bytes > 0 && $memory_bytes < 256 * MB_IN_BYTES ) ? ' ⚠' : '';
+		$lines[]       = sprintf( 'Memory Limit: %s%s', $memory_limit, $memory_warning );
+
 		$lines[] = sprintf( 'Max Execution Time: %s', $info['server']['max_execution_time'] );
 		$lines[] = sprintf( 'Post Max Size: %s', $info['server']['post_max_size'] );
 		$lines[] = sprintf( 'Upload Max Size: %s', $info['server']['upload_max_size'] );
@@ -577,8 +595,12 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		$lines[] = '=== Simple History ===';
 		$lines[] = sprintf( 'Version: %s', $info['simple_history']['version'] );
 		$lines[] = sprintf( 'Premium Add-on: %s', $info['simple_history']['premium'] );
-		$lines[] = sprintf( 'Database Engine: %s', $info['simple_history']['db_engine'] );
-		$lines[] = sprintf( 'WP Playground: %s', $info['simple_history']['is_playground'] );
+
+		// Only show WP Playground if it is one (SQLite).
+		if ( $info['simple_history']['db_engine'] === 'sqlite' ) {
+			$lines[] = 'WP Playground: Yes (SQLite)';
+		}
+
 		$lines[] = sprintf( 'Log Retention: %s', $info['simple_history']['retention_days'] );
 		$lines[] = sprintf( 'Items Per Page: %s', $info['simple_history']['items_per_page'] );
 		$lines[] = sprintf( 'Total Events Logged: %s (cumulative, not current DB count)', number_format_i18n( $info['simple_history']['total_events'] ) );
@@ -641,7 +663,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 			$lines[] = '';
 		}
 
-		// Loggers by row count (only those with rows).
+		// Loggers by row count (only those with rows, show top 5).
 		$loggers_with_rows = array_filter(
 			$info['loggers'],
 			function ( $logger ) {
@@ -650,10 +672,23 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		);
 
 		if ( ! empty( $loggers_with_rows ) ) {
-			$lines[] = '=== Loggers by Row Count ===';
-			foreach ( $loggers_with_rows as $logger ) {
+			$lines[]      = '=== Top Loggers by Row Count ===';
+			$total_count  = count( $loggers_with_rows );
+			$top_loggers  = array_slice( $loggers_with_rows, 0, 5 );
+
+			foreach ( $top_loggers as $logger ) {
 				$row_label = $logger['count'] === 1 ? __( 'row', 'simple-history' ) : __( 'rows', 'simple-history' );
 				$lines[]   = sprintf( '- %s (%s %s)', $logger['slug'], number_format_i18n( $logger['count'] ), $row_label );
+			}
+
+			// Show count of remaining loggers.
+			$remaining = $total_count - 5;
+			if ( $remaining > 0 ) {
+				$lines[] = sprintf(
+					/* translators: %d: number of additional loggers */
+					__( '(%d more loggers with rows)', 'simple-history' ),
+					$remaining
+				);
 			}
 		}
 
