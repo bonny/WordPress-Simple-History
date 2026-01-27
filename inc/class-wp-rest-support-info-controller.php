@@ -362,54 +362,54 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		// WP Engine - is_wpe() function or WPE_APIKEY constant.
 		// Note: is_wpe() returns string "1", not boolean true.
 		if ( function_exists( 'is_wpe' ) || defined( 'WPE_APIKEY' ) ) {
-			return 'WP Engine';
+			return 'WP Engine (probable)';
 		}
 
 		// Flywheel (owned by WP Engine) - check for Flywheel-specific constant.
 		if ( defined( 'FLYWHEEL_CONFIG_DIR' ) ) {
-			return 'Flywheel';
+			return 'Flywheel (probable)';
 		}
 
 		// Pantheon - PANTHEON_ENVIRONMENT constant.
 		if ( defined( 'PANTHEON_ENVIRONMENT' ) ) {
-			return 'Pantheon';
+			return 'Pantheon (probable)';
 		}
 
 		// Kinsta - KINSTAMU_VERSION from their mu-plugin, or KINSTA_DEV_ENV for staging.
 		if ( defined( 'KINSTAMU_VERSION' ) || defined( 'KINSTA_DEV_ENV' ) ) {
-			return 'Kinsta';
+			return 'Kinsta (probable)';
 		}
 
 		// WordPress VIP - multiple constants available.
 		if ( defined( 'WPCOM_IS_VIP_ENV' ) || defined( 'VIP_GO_ENV' ) || defined( 'VIP_GO_APP_ENVIRONMENT' ) ) {
-			return 'WordPress VIP';
+			return 'WordPress VIP (probable)';
 		}
 
 		// WordPress.com (Atomic/Simple) - ATOMIC_SITE_ID or IS_WPCOM.
 		if ( defined( 'ATOMIC_SITE_ID' ) || defined( 'IS_WPCOM' ) ) {
-			return 'WordPress.com';
+			return 'WordPress.com (probable)';
 		}
 
 		// GoDaddy Managed WordPress - WPaaS\Plugin class from their mu-plugin.
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		if ( class_exists( 'WPaaS\Plugin' ) || defined( 'GD_SYSTEM_PLUGIN_DIR' ) ) {
-			return 'GoDaddy';
+			return 'GoDaddy (probable)';
 		}
 
 		// Pagely - PagelyCachePurge class from their management plugin.
 		if ( class_exists( 'PagelyCachePurge' ) ) {
-			return 'Pagely';
+			return 'Pagely (probable)';
 		}
 
 		// Cloudways - check server variable or document root path.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		if ( isset( $_SERVER['cw_allowed_ip'] ) ) {
-			return 'Cloudways';
+			return 'Cloudways (probable)';
 		}
 		if ( isset( $_SERVER['DOCUMENT_ROOT'] ) ) {
 			$doc_root = sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) );
 			if ( strpos( $doc_root, '.cloudwaysapps.com' ) !== false || strpos( $doc_root, '/home/master/applications/' ) !== false ) {
-				return 'Cloudways';
+				return 'Cloudways (probable)';
 			}
 		}
 
@@ -421,27 +421,27 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 
 		// Servebolt - detected via Servebolt Optimizer plugin.
 		if ( defined( 'DEVELOPER_SERVEBOLT' ) || class_exists( 'Developer\\Servebolt\\Plugin' ) ) {
-			return 'Servebolt';
+			return 'Servebolt (probable)';
 		}
 
 		// Starter mu-plugin detection - commonly used by EIG brands (Bluehost, HostGator, etc.).
 		if ( defined( 'MM_BASE_DIR' ) ) {
-			return 'Bluehost/EIG';
+			return 'Bluehost/EIG (probable)';
 		}
 
 		// SpinupWP - check for their plugin class.
 		if ( class_exists( 'SpinupWp\Plugin' ) || defined( 'DEVELOPER_SPINUPWP' ) ) {
-			return 'SpinupWP';
+			return 'SpinupWP (probable)';
 		}
 
 		// RunCloud - check for RunCloud Hub plugin.
 		if ( class_exists( 'Developer\\RunCloud\\Hub' ) || defined( 'DEVELOPER_RUNCLOUD_HUB_VERSION' ) ) {
-			return 'RunCloud';
+			return 'RunCloud (probable)';
 		}
 
 		// GridPane - check for their plugin.
 		if ( class_exists( 'Developer\\GridPane\\Plugin' ) || defined( 'DEVELOPER_DEVELOPER_GRIDPANE' ) ) {
-			return 'GridPane';
+			return 'GridPane (probable)';
 		}
 
 		return __( 'Unknown', 'simple-history' );
