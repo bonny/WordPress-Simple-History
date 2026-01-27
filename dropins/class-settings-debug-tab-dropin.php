@@ -8,21 +8,20 @@ use Simple_History\Menu_Page;
 use Simple_History\Services\Admin_Pages;
 
 /**
- * Dropin Name: Settings debug
- * Dropin Description: Adds a tab with Help & Support and Debug information.
+ * Dropin Name: Settings Help & Support
+ * Dropin Description: Adds a Help & Support page with system information.
  * Dropin URI: https://simple-history.com/
  * Author: Pär Thernström
  */
 class Settings_Debug_Tab_Dropin extends Dropin {
 	public const SUPPORT_PAGE_SLUG             = 'simple_history_help_support';
 	public const SUPPORT_PAGE_GENERAL_TAB_SLUG = 'simple_history_help_support_general';
-	public const SUPPORT_PAGE_DEBUG_TAB_SLUG   = 'simple_history_help_support_debug';
 
 	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ), 10 );
 		add_action( 'admin_menu', array( $this, 'add_tabs' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_debug_page_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_help_page_scripts' ) );
 	}
 
 	/**
@@ -62,6 +61,9 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 
 	/**
 	 * Add tabs to the settings page.
+	 *
+	 * Note: This page no longer has tabs since the Debug tab was merged into
+	 * the Help & Support page. The structure is kept for menu system compatibility.
 	 */
 	public function add_tabs() {
 		$menu_manager = $this->simple_history->get_menu_manager();
@@ -74,11 +76,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 		$admin_page_location = Helpers::get_menu_page_location();
 
 		if ( in_array( $admin_page_location, [ 'top', 'bottom' ], true ) ) {
-			// THIS WORKS.
-
-			// Add first "Support" tab.
-			// This tab is not needed when inside tools or dashboard.
-			// User will be redirected to the next, first child tab.
+			// Add "Support" tab that redirects to Help & Support.
 			( new Menu_Page() )
 				->set_menu_title( _x( 'Support', 'settings menu name', 'simple-history' ) )
 				->set_page_title( _x( 'Support', 'dashboard title name', 'simple-history' ) )
@@ -90,8 +88,7 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 				->set_redirect_to_first_child_on_load()
 				->add();
 
-			// Add first tab, this is the tab that will be shown first
-			// and the tab that user will be redirected to from the main tab above.
+			// Help & Support tab content.
 			( new Menu_Page() )
 				->set_menu_title( _x( 'Help & Support', 'settings menu name', 'simple-history' ) )
 				->set_page_title( _x( 'Help & Support', 'dashboard title name', 'simple-history' ) )
@@ -99,19 +96,8 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 				->set_parent( self::SUPPORT_PAGE_GENERAL_TAB_SLUG )
 				->set_callback( [ $this, 'output_help_page' ] )
 				->add();
-
-			// Add second "Debug" tab.
-			( new Menu_Page() )
-				->set_menu_title( _x( 'Debug', 'settings menu name', 'simple-history' ) )
-				->set_page_title( _x( 'Debug', 'dashboard title name', 'simple-history' ) )
-				->set_menu_slug( self::SUPPORT_PAGE_DEBUG_TAB_SLUG )
-				->set_callback( [ $this, 'output_debug_page' ] )
-				->set_parent( self::SUPPORT_PAGE_GENERAL_TAB_SLUG )
-				->set_order( 20 )
-				->add();
 		} elseif ( in_array( $admin_page_location, [ 'inside_dashboard', 'inside_tools' ], true ) ) {
-			// Add first "Support" sub tab.
-			// User will be redirected to the next, first child tab.
+			// Add "Support" sub tab.
 			( new Menu_Page() )
 				->set_menu_title( _x( 'Support', 'settings menu name', 'simple-history' ) )
 				->set_page_title( _x( 'Support', 'dashboard title name', 'simple-history' ) )
@@ -120,66 +106,56 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 				->set_parent( self::SUPPORT_PAGE_SLUG )
 				->set_callback( [ $this, 'output_help_page' ] )
 				->set_order( 10 )
-				->set_redirect_to_first_child_on_load()
-				->add();
-
-			// Add second "Debug" tab.
-			( new Menu_Page() )
-				->set_menu_title( _x( 'Debug', 'settings menu name', 'simple-history' ) )
-				->set_page_title( _x( 'Debug', 'dashboard title name', 'simple-history' ) )
-				->set_menu_slug( self::SUPPORT_PAGE_DEBUG_TAB_SLUG )
-				->set_callback( [ $this, 'output_debug_page' ] )
-				->set_parent( self::SUPPORT_PAGE_SLUG )
-				->set_order( 20 )
 				->add();
 		}
 	}
 
 	/**
-	 * Enqueue scripts for the debug page.
+	 * Enqueue scripts for the Help & Support page.
 	 *
 	 * @param string $hook_suffix The current admin page hook suffix.
 	 */
-	public function enqueue_debug_page_scripts( $hook_suffix ) {
+	public function enqueue_help_page_scripts( $hook_suffix ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking current page.
 		$current_page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checking current tab.
 		$selected_sub_tab = isset( $_GET['selected-sub-tab'] ) ? sanitize_text_field( wp_unslash( $_GET['selected-sub-tab'] ) ) : '';
 
-		// Load on the debug tab - either via direct page access or via tab navigation.
-		$is_debug_page = $current_page === self::SUPPORT_PAGE_DEBUG_TAB_SLUG;
-		$is_debug_tab  = $selected_sub_tab === self::SUPPORT_PAGE_DEBUG_TAB_SLUG;
+		// Load on Help & Support page - either via direct page access or via tab navigation.
+		$is_help_page = $current_page === self::SUPPORT_PAGE_GENERAL_TAB_SLUG;
+		$is_help_tab  = $selected_sub_tab === self::SUPPORT_PAGE_GENERAL_TAB_SLUG;
+		$is_main_page = $current_page === self::SUPPORT_PAGE_SLUG;
 
-		if ( ! $is_debug_page && ! $is_debug_tab ) {
+		if ( ! $is_help_page && ! $is_help_tab && ! $is_main_page ) {
 			return;
 		}
 
 		wp_enqueue_script(
-			'simple-history-debug-page',
-			SIMPLE_HISTORY_DIR_URL . 'js/debug-page.js',
+			'simple-history-help-support-page',
+			SIMPLE_HISTORY_DIR_URL . 'js/help-support-page.js',
 			array(),
 			SIMPLE_HISTORY_VERSION,
 			true
 		);
 
 		wp_localize_script(
-			'simple-history-debug-page',
-			'simpleHistoryDebugPage',
+			'simple-history-help-support-page',
+			'simpleHistoryHelpPage',
 			array(
 				'restUrl'   => rest_url( 'simple-history/v1/support-info' ),
 				'healthUrl' => rest_url( 'simple-history/v1/support-info/health-check' ),
 				'nonce'     => wp_create_nonce( 'wp_rest' ),
 				'i18n'      => array(
-					'checking'        => _x( 'Checking...', 'debug dropin', 'simple-history' ),
-					'apiOk'           => _x( 'REST API is working correctly.', 'debug dropin', 'simple-history' ),
-					'apiError'        => _x( 'REST API error:', 'debug dropin', 'simple-history' ),
-					'gathering'       => _x( 'Gathering data...', 'debug dropin', 'simple-history' ),
-					'gatherError'     => _x( 'Error gathering data:', 'debug dropin', 'simple-history' ),
-					'copied'          => _x( 'Copied!', 'debug dropin', 'simple-history' ),
-					'copyError'       => _x( 'Failed to copy.', 'debug dropin', 'simple-history' ),
-					'reloadData'      => _x( 'Reload Data', 'debug dropin', 'simple-history' ),
-					'copyToClipboard' => _x( 'Copy to Clipboard', 'debug dropin', 'simple-history' ),
+					'checking'    => _x( 'Checking...', 'help page', 'simple-history' ),
+					'apiOk'       => _x( 'Simple History is connected and working', 'help page', 'simple-history' ),
+					'apiError'    => _x( 'Connection error:', 'help page', 'simple-history' ),
+					'gathering'   => _x( 'Gathering data...', 'help page', 'simple-history' ),
+					'gatherError' => _x( 'Error gathering data:', 'help page', 'simple-history' ),
+					'copied'      => _x( 'Copied!', 'help page', 'simple-history' ),
+					'copyError'   => _x( 'Failed to copy.', 'help page', 'simple-history' ),
+					'refresh'     => _x( 'Refresh', 'help page', 'simple-history' ),
+					'copyButton'  => _x( 'Copy to Clipboard', 'help page', 'simple-history' ),
 				),
 			)
 		);
@@ -194,22 +170,11 @@ class Settings_Debug_Tab_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output the help tab content.
+	 * Output the help page content.
 	 */
 	public function output_help_page() {
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/settings-tab-help.php',
-			false,
-			array()
-		);
-	}
-
-	/**
-	 * Output the debug tab content.
-	 */
-	public function output_debug_page() {
-		load_template(
-			SIMPLE_HISTORY_PATH . 'templates/settings-tab-debug.php',
 			false,
 			array(
 				'tables_info' => Helpers::required_tables_exist(),

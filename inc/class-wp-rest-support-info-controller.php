@@ -131,6 +131,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 			'wp_debug'            => defined( 'WP_DEBUG' ) && WP_DEBUG ? __( 'Enabled', 'simple-history' ) : __( 'Disabled', 'simple-history' ),
 			'wp_debug_log'        => defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ? __( 'Enabled', 'simple-history' ) : __( 'Disabled', 'simple-history' ),
 			'wp_cron_disabled'    => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ? __( 'Yes', 'simple-history' ) : __( 'No', 'simple-history' ),
+			'wp_memory_limit'     => defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : __( 'Not set', 'simple-history' ),
 			'table_prefix'        => $wpdb->prefix,
 			'object_cache'        => wp_using_ext_object_cache() ? __( 'Yes', 'simple-history' ) : __( 'No', 'simple-history' ),
 		];
@@ -140,6 +141,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 			'php_version'        => phpversion(),
 			'database'           => $this->get_database_info(),
 			'memory_limit'       => ini_get( 'memory_limit' ),
+			'max_input_vars'     => ini_get( 'max_input_vars' ),
 			'max_execution_time' => ini_get( 'max_execution_time' ),
 			'post_max_size'      => ini_get( 'post_max_size' ),
 			'upload_max_size'    => ini_get( 'upload_max_filesize' ),
@@ -170,8 +172,10 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		// Active theme.
 		$theme         = wp_get_theme();
 		$info['theme'] = [
-			'name'    => $theme->get( 'Name' ),
-			'version' => $theme->get( 'Version' ),
+			'name'        => $theme->get( 'Name' ),
+			'version'     => $theme->get( 'Version' ),
+			'author'      => $theme->get( 'Author' ),
+			'child_theme' => is_child_theme() ? __( 'Yes', 'simple-history' ) : __( 'No', 'simple-history' ),
 		];
 
 		// Active plugins.
@@ -185,6 +189,12 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 
 		// Loggers by row count.
 		$info['loggers'] = $this->get_loggers_by_row_count();
+
+		// Browser/client info - user agent is useful for debugging display issues.
+		$info['browser'] = [
+			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- Needed for support debugging.
+			'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : __( 'Unknown', 'simple-history' ),
+		];
 
 		return $info;
 	}
@@ -562,9 +572,9 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		$cron_disabled = defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON;
 		$lines[]       = sprintf( 'WP_CRON: %s', $cron_disabled ? __( 'Disabled', 'simple-history' ) . ' ⚠' : __( 'Enabled', 'simple-history' ) );
 
+		$lines[] = sprintf( 'WP Memory Limit: %s', $info['wordpress']['wp_memory_limit'] );
 		$lines[] = sprintf( 'Table Prefix: %s', $info['wordpress']['table_prefix'] );
 		$lines[] = sprintf( 'Object Cache: %s', $info['wordpress']['object_cache'] );
-		$lines[] = sprintf( 'Active Theme: %s (%s)', $info['theme']['name'], $info['theme']['version'] );
 		$lines[] = '';
 
 		// Server.
@@ -579,16 +589,25 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		}
 
 		// Memory limit with inline warning if below 256M.
-		$memory_limit  = $info['server']['memory_limit'];
-		$memory_bytes  = wp_convert_hr_to_bytes( $memory_limit );
-		$memory_warning = ( $memory_bytes > 0 && $memory_bytes < 256 * MB_IN_BYTES ) ? ' ⚠' : '';
-		$lines[]       = sprintf( 'Memory Limit: %s%s', $memory_limit, $memory_warning );
+		$memory_limit   = $info['server']['memory_limit'];
+		$memory_bytes   = wp_convert_hr_to_bytes( $memory_limit );
+		$memory_warning = $memory_bytes > 0 && $memory_bytes < 256 * MB_IN_BYTES ? ' ⚠' : '';
+		$lines[]        = sprintf( 'PHP Memory Limit: %s%s', $memory_limit, $memory_warning );
 
+		$lines[] = sprintf( 'PHP Max Input Vars: %s', $info['server']['max_input_vars'] );
 		$lines[] = sprintf( 'Max Execution Time: %s', $info['server']['max_execution_time'] );
 		$lines[] = sprintf( 'Post Max Size: %s', $info['server']['post_max_size'] );
 		$lines[] = sprintf( 'Upload Max Size: %s', $info['server']['upload_max_size'] );
 		$lines[] = sprintf( 'PHP Extensions: %s', $info['server']['php_extensions'] );
 		$lines[] = '';
+
+		// Theme.
+		$lines[]      = '=== Theme ===';
+		$child_status = $info['theme']['child_theme'] === __( 'Yes', 'simple-history' ) ? ' (Child Theme)' : '';
+		$lines[]      = sprintf( 'Name: %s%s', $info['theme']['name'], $child_status );
+		$lines[]      = sprintf( 'Version: %s', $info['theme']['version'] );
+		$lines[]      = sprintf( 'Author: %s', wp_strip_all_tags( $info['theme']['author'] ) );
+		$lines[]      = '';
 
 		// Simple History.
 		$lines[] = '=== Simple History ===';
@@ -665,9 +684,9 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		);
 
 		if ( ! empty( $loggers_with_rows ) ) {
-			$lines[]      = '=== Top Loggers by Row Count ===';
-			$total_count  = count( $loggers_with_rows );
-			$top_loggers  = array_slice( $loggers_with_rows, 0, 5 );
+			$lines[]     = '=== Top Loggers by Row Count ===';
+			$total_count = count( $loggers_with_rows );
+			$top_loggers = array_slice( $loggers_with_rows, 0, 5 );
 
 			foreach ( $top_loggers as $logger ) {
 				$row_label = $logger['count'] === 1 ? __( 'row', 'simple-history' ) : __( 'rows', 'simple-history' );
@@ -683,7 +702,12 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 					$remaining
 				);
 			}
+			$lines[] = '';
 		}
+
+		// Browser info.
+		$lines[] = '=== Browser ===';
+		$lines[] = sprintf( 'User Agent: %s', $info['browser']['user_agent'] );
 
 		return implode( "\n", $lines );
 	}

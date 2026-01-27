@@ -1,53 +1,67 @@
 /**
- * JavaScript for the Simple History Debug page.
+ * JavaScript for the Simple History Help & Support page.
  * Handles REST API health check, support info gathering, and clipboard copy.
  */
 ( function () {
 	'use strict';
 
 	/**
-	 * Check REST API health on page load.
+	 * Update status bar with connection status and stats.
+	 *
+	 * @param {Object} data Data from support-info endpoint.
 	 */
-	function checkRestApiHealth() {
-		const statusContainer = document.getElementById( 'sh-rest-api-status' );
-		if ( ! statusContainer ) {
+	function updateStatusBar( data ) {
+		const statusBar = document.getElementById( 'sh-status-bar-status' );
+		if ( ! statusBar ) {
 			return;
 		}
 
-		fetch( window.simpleHistoryDebugPage.healthUrl, {
-			method: 'GET',
-			headers: {
-				'X-WP-Nonce': window.simpleHistoryDebugPage.nonce,
-			},
-		} )
-			.then( function ( response ) {
-				if ( ! response.ok ) {
-					throw new Error(
-						response.status + ' ' + response.statusText
-					);
-				}
-				return response.json();
-			} )
-			.then( function ( data ) {
-				if ( data.status === 'ok' ) {
-					statusContainer.innerHTML =
-						'<span class="sh-DebugPage-restApiStatus-success">' +
-						'<span class="dashicons dashicons-yes-alt"></span> ' +
-						escapeHtml( window.simpleHistoryDebugPage.i18n.apiOk ) +
-						'</span>';
-				} else {
-					throw new Error( 'Unexpected response' );
-				}
-			} )
-			.catch( function ( error ) {
-				statusContainer.innerHTML =
-					'<span class="sh-DebugPage-restApiStatus-error">' +
-					'<span class="dashicons dashicons-warning"></span> ' +
-					escapeHtml( window.simpleHistoryDebugPage.i18n.apiError ) +
-					' ' +
-					escapeHtml( error.message ) +
-					'</span>';
-			} );
+		const info = data.info;
+		const version = info.simple_history.version;
+		const totalEvents = info.simple_history.total_events;
+		const retention = info.simple_history.retention_days;
+
+		// Build status bar content.
+		let html =
+			'<span class="sh-StatusBar-version">' +
+			'<span class="dashicons dashicons-yes-alt"></span> ' +
+			'Simple History ' +
+			escapeHtml( version ) +
+			'</span>';
+
+		html +=
+			'<span class="sh-StatusBar-stats">' +
+			escapeHtml(
+				formatNumber( totalEvents ) +
+					' events logged \u2022 ' +
+					retention +
+					' retention'
+			) +
+			'</span>';
+
+		statusBar.innerHTML = html;
+		statusBar.classList.add( 'sh-StatusBar-connected' );
+	}
+
+	/**
+	 * Show connection error in status bar.
+	 *
+	 * @param {string} errorMessage Error message to display.
+	 */
+	function showStatusBarError( errorMessage ) {
+		const statusBar = document.getElementById( 'sh-status-bar-status' );
+		if ( ! statusBar ) {
+			return;
+		}
+
+		statusBar.innerHTML =
+			'<span class="sh-StatusBar-error">' +
+			'<span class="dashicons dashicons-warning"></span> ' +
+			escapeHtml( window.simpleHistoryHelpPage.i18n.apiError ) +
+			' ' +
+			escapeHtml( errorMessage ) +
+			'</span>';
+		statusBar.classList.add( 'sh-StatusBar-hasError' );
 	}
 
 	/**
@@ -96,16 +110,15 @@
 			return;
 		}
 
-		// Show container immediately with loading state.
-		container.style.display = 'block';
-		textarea.value = window.simpleHistoryDebugPage.i18n.gathering;
+		// Set loading state.
+		textarea.value = window.simpleHistoryHelpPage.i18n.gathering;
 		button.disabled = true;
 		spinner.classList.add( 'is-active' );
 
-		fetch( window.simpleHistoryDebugPage.restUrl, {
+		fetch( window.simpleHistoryHelpPage.restUrl, {
 			method: 'GET',
 			headers: {
-				'X-WP-Nonce': window.simpleHistoryDebugPage.nonce,
+				'X-WP-Nonce': window.simpleHistoryHelpPage.nonce,
 			},
 		} )
 			.then( function ( response ) {
@@ -118,19 +131,24 @@
 			} )
 			.then( function ( data ) {
 				textarea.value = data.plain_text;
-				button.textContent =
-					window.simpleHistoryDebugPage.i18n.reloadData;
+				button.textContent = window.simpleHistoryHelpPage.i18n.refresh;
 
 				// Display warnings as admin notices.
 				if ( data.warnings ) {
 					displayWarnings( data.warnings );
 				}
+
+				// Update status bar with stats.
+				updateStatusBar( data );
 			} )
 			.catch( function ( error ) {
 				textarea.value =
-					window.simpleHistoryDebugPage.i18n.gatherError +
+					window.simpleHistoryHelpPage.i18n.gatherError +
 					' ' +
 					error.message;
+
+				// Show error in status bar.
+				showStatusBarError( error.message );
 			} )
 			.finally( function () {
 				button.disabled = false;
@@ -200,12 +218,12 @@
 		if ( success ) {
 			statusEl.innerHTML =
 				'<span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span> ' +
-				escapeHtml( window.simpleHistoryDebugPage.i18n.copied );
+				escapeHtml( window.simpleHistoryHelpPage.i18n.copied );
 			statusEl.style.color = '#00a32a';
 		} else {
 			statusEl.innerHTML =
 				'<span class="dashicons dashicons-warning" style="color: #d63638;"></span> ' +
-				escapeHtml( window.simpleHistoryDebugPage.i18n.copyError );
+				escapeHtml( window.simpleHistoryHelpPage.i18n.copyError );
 			statusEl.style.color = '#d63638';
 		}
 
@@ -228,13 +246,20 @@
 	}
 
 	/**
+	 * Format number with locale-aware thousands separator.
+	 *
+	 * @param {number} num The number to format.
+	 * @return {string} Formatted number string.
+	 */
+	function formatNumber( num ) {
+		return new Intl.NumberFormat().format( num );
+	}
+
+	/**
 	 * Initialize event listeners.
 	 */
 	function init() {
-		// Check REST API health on page load.
-		checkRestApiHealth();
-
-		// Automatically gather support info on page load.
+		// Automatically gather support info on page load (which also updates status bar).
 		gatherSupportInfo();
 
 		// Gather support info button (for refresh).

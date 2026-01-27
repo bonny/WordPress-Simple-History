@@ -1,6 +1,6 @@
 <?php
 /**
- * Template for the Help & Support tab.
+ * Template for the Help & Support page.
  *
  * @package SimpleHistory
  */
@@ -10,6 +10,14 @@ namespace Simple_History;
 use Simple_History\Dropins\Sidebar_Add_Ons_Dropin;
 
 defined( 'ABSPATH' ) || die();
+
+/**
+ * @var array{
+ *      tables_info:array
+ * } $args
+ */
+// phpcs:ignore SlevomatCodingStandard.ControlStructures.RequireNullCoalesceEqualOperator.RequiredNullCoalesceEqualOperator -- Intentional defensive fallback for template.
+$args = $args ?? [];
 
 // FAQ items from https://simple-history.com/docs/faq-frequently-asked-questions/.
 $faq_items = [
@@ -57,28 +65,51 @@ $faq_url   = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 
 ?>
 
-<style>
-	.sh-HelpAndSupportPage > .sh-SettingsPage-settingsSection-title {
-		margin-bottom: 1rem;
-	}
-</style>
-
 <div class="wrap sh-HelpAndSupportPage">
+
 	<?php
 	echo wp_kses(
-		Helpers::get_settings_section_title_output( __( 'Get help and support', 'simple-history' ), 'help' ),
+		Helpers::get_settings_section_title_output( __( 'Help & Support', 'simple-history' ), 'help' ),
 		[
 			'span' => [
 				'class' => [],
 			],
 		]
 	);
+
+	// Check that required tables exist and show warnings if not.
+	foreach ( $args['tables_info'] as $table_info ) {
+		if ( $table_info['table_exists'] ) {
+			continue;
+		}
+
+		echo '<div class="notice notice-error">';
+		echo '<p>';
+		printf(
+			/* translators: %s table name. */
+			esc_html_x( 'Required table "%s" does not exist.', 'help page', 'simple-history' ),
+			esc_html( $table_info['table_name'] )
+		);
+		echo '</p>';
+		echo '</div>';
+	}
 	?>
-	<div class="sh-grid sh-grid-cols-1/2">
-		
-		<div class="postbox sh-PremiumFeaturesPostbox">
+
+	<!-- Status Bar -->
+	<div class="sh-StatusBar" id="sh-status-bar">
+		<div class="sh-StatusBar-item sh-StatusBar-status" id="sh-status-bar-status">
+			<span class="spinner is-active" style="float: none; margin: 0 5px 0 0;"></span>
+			<?php echo esc_html_x( 'Checking...', 'help page', 'simple-history' ); ?>
+		</div>
+	</div>
+
+	<div class="sh-HelpPage-grid">
+
+		<!-- Get Help card with system information (spans 2 rows) -->
+		<div class="postbox sh-PremiumFeaturesPostbox sh-HelpPage-getHelp">
 			<div class="inside">
-				<h3 class="sh-PremiumFeaturesPostbox-title"><?php echo esc_html_x( 'Support', 'help page section title', 'simple-history' ); ?></h3>
+				<h3 class="sh-PremiumFeaturesPostbox-title"><?php echo esc_html_x( 'Get Help', 'help page section title', 'simple-history' ); ?></h3>
+
 				<p>
 					<?php
 					printf(
@@ -97,9 +128,37 @@ $faq_url   = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 					);
 					?>
 				</p>
+
+				<!-- Warnings container -->
+				<div id="sh-warnings-container"></div>
+
+				<!-- System Information -->
+				<h4><?php echo esc_html_x( 'System Information', 'help page section title', 'simple-history' ); ?></h4>
+				<p class="description">
+					<?php echo esc_html_x( 'Include this when requesting support:', 'help page', 'simple-history' ); ?>
+				</p>
+				<div id="sh-support-info-container">
+					<textarea
+						id="sh-support-info-textarea"
+						class="sh-HelpPage-supportInfoTextarea"
+						readonly
+						rows="12"
+					><?php echo esc_textarea( _x( 'Gathering data...', 'help page', 'simple-history' ) ); ?></textarea>
+					<p class="sh-HelpPage-buttons">
+						<button type="button" class="button button-primary" id="sh-copy-support-info">
+							<?php echo esc_html_x( 'Copy to Clipboard', 'help page', 'simple-history' ); ?>
+						</button>
+						<button type="button" class="button" id="sh-gather-support-info">
+							<?php echo esc_html_x( 'Refresh', 'help page', 'simple-history' ); ?>
+						</button>
+						<span class="spinner" id="sh-gather-support-info-spinner" style="float: none; margin-top: 0;"></span>
+					</p>
+					<p class="sh-HelpPage-copyStatus" id="sh-copy-status"></p>
+				</div>
 			</div>
 		</div>
-	
+
+		<!-- Documentation card -->
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
 				<h3 class="sh-PremiumFeaturesPostbox-title"><?php echo esc_html_x( 'Documentation', 'help page section title', 'simple-history' ); ?></h3>
@@ -115,10 +174,11 @@ $faq_url   = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 			</div>
 		</div>
 
+		<!-- FAQ card -->
 		<div class="postbox sh-PremiumFeaturesPostbox">
 			<div class="inside">
 				<h3 class="sh-PremiumFeaturesPostbox-title"><?php echo esc_html_x( 'Frequently Asked Questions', 'help page section title', 'simple-history' ); ?></h3>
-				
+
 				<ul>
 					<?php
 					$faq_num_items_to_show = 5;
@@ -134,7 +194,7 @@ $faq_url   = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 					?>
 				</ul>
 
-				<p><a href="<?php echo esc_url( $faq_url ); ?>">» View all Frequently Asked Questions</a>.</p>
+				<p><a href="<?php echo esc_url( $faq_url ); ?>">&raquo; <?php esc_html_e( 'View all Frequently Asked Questions', 'simple-history' ); ?></a>.</p>
 			</div>
 		</div>
 	</div>
@@ -154,7 +214,7 @@ $faq_url   = 'https://simple-history.com/docs/faq-frequently-asked-questions/';
 	</div>
 
 	<!-- Hosting sponsor acknowledgment -->
-	<div style="margin-top: 3rem;">
+	<div>
 		<div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 1px solid #e5e7eb; border-radius: 8px; padding: 2rem 2.5rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);">
 			<div style="display: flex; align-items: center; gap: 2.5rem; flex-wrap: wrap; justify-content: center;">
 				<div style="flex: 0 0 auto;">

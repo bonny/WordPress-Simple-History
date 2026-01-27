@@ -360,6 +360,9 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
+-   Merged Debug tab into Help & Support page, placing System Information directly below support links for a streamlined troubleshooting workflow.
+-   Added status bar to Help & Support page showing plugin version, event count, and retention settings at a glance.
+-   Improved System Information with additional fields: PHP Max Input Vars, WP Memory Limit, Child Theme detection, Theme Author, and User Agent for better support debugging.
 -   Changed log level for forced security plugin updates from "info" to "notice" to highlight unexpected automatic updates.
 -   Improved performance by optimizing how update check data is stored.
 -   Improved sub-navigation tabs to scroll horizontally on narrow screens instead of wrapping.
