@@ -604,8 +604,13 @@ Destinations table UX improvements and phpcs/phpstan fixes:
 -   ✅ Alert presets UI (Tier 1 quick setup)
 -   ✅ Alert rules saving and evaluation
 -   ✅ Event logging when destinations/rules are saved
--   ✅ Enhanced alert message context (all senders include `get_details_text()` output)
 -   ✅ Custom rules builder (Tier 3) - React UI with react-select, REST API, WP-CLI commands, human-readable labels
+-   ✅ Direct event links in alert notifications (View Event links to specific event)
+
+**TODO:**
+
+-   ⏳ Larger text in destinations intros
+-   ⏳ Remove event details/context from alerts (drive users to the log to see details)
 
 **Deferred:**
 
@@ -614,13 +619,6 @@ Destinations table UX improvements and phpcs/phpstan fixes:
 ## Phase 2: Future Improvements
 
 Features planned for after MVP release.
-
-### Enhanced Alert Message Context
-
-**Status:** ✅ Complete
-**Priority:** High
-
-Alert messages include detailed context via `Event::get_details_text()` which converts HTML event details (diffs, changes) to plain text. All 4 destination senders (Email, Slack, Discord, Telegram) include this in their alert messages.
 
 **Future consideration:**
 
