@@ -607,10 +607,9 @@ Destinations table UX improvements and phpcs/phpstan fixes:
 -   ✅ Enhanced alert message context (all senders include `get_details_text()` output)
 -   ✅ Custom rules builder (Tier 3) - React UI with react-select, REST API, WP-CLI commands, human-readable labels
 
-**Not Started:**
+**Deferred:**
 
--   ⏳ Editable presets (Tier 2)
--   ⏳ "Create alert from event" feature
+-   ⏳ "Create alert from event" feature (revisit after more testing)
 
 ## Phase 2: Future Improvements
 
