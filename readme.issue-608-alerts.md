@@ -43,6 +43,7 @@
 
 -   Larger text in destinations intros
 -   Remove event details/context from alerts (drive users to the log)
+-   Custom rules for context values: Need a way to match on event context (e.g., "post published" = post_status changed to "publish"). Research how to expose context fields in rule builder UI and evaluate in rules engine.
 
 ### 📋 Deferred
 
