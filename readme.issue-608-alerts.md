@@ -95,3 +95,84 @@ simple-history-premium/inc/alerts/
 
 -   #573 (Log Forwarding - channels infrastructure)
 -   #209, #114, #366 (Original alert requests)
+
+---
+
+## Research: Context-Based Alert Rules
+
+### Key Finding
+
+**The infrastructure already supports context-based rules!** Alert_Evaluator flattens context data and makes it available for JsonLogic evaluation. The gap is the **UI field registry** doesn't expose context fields.
+
+### Use Case Scenarios
+
+| Scenario                     | Context Fields Needed                 | Rule Example                         |
+| ---------------------------- | ------------------------------------- | ------------------------------------ |
+| Post published               | `post_new_status`                     | `post_new_status = 'publish'`        |
+| Draft → Published transition | `post_prev_status`, `post_new_status` | `prev = 'draft' AND new = 'publish'` |
+| User becomes administrator   | `new_role`                            | `new_role = 'administrator'`         |
+| Login from unexpected IP     | `_server_remote_addr`                 | `IP not in [allowed list]`           |
+| Post edited by non-author    | `post_new_author`, `_user_id`         | `author != current_user`             |
+| Security plugin update only  | `plugin_update_type`                  | `update_type = 'security'`           |
+| Specific post type changes   | `post_type`                           | `post_type = 'page'`                 |
+
+### Available Context by Logger
+
+**Post Logger:** `post_id`, `post_type`, `post_title`, `post_prev_status`, `post_new_status`, `post_prev_author`, `post_new_author`
+
+**User Logger:** `edited_user_id`, `new_role`, `old_role`, `edited_user_email`
+
+**Plugin Logger:** `plugin_name`, `plugin_version`, `plugin_update_type`
+
+### Implementation Approach
+
+**Phase 1 - Whitelist (Quick Win):**
+
+1. Add known useful context fields to `Alert_Field_Registry::get_fields()`
+2. Hardcode ~15 most valuable fields per logger
+3. No DB queries needed - static definitions
+
+**Phase 2 - Smart Discovery:**
+
+1. Query `wp_simple_history_contexts` for unique keys from recent events
+2. Cache results in transient (24h)
+3. Infer field types from sample values
+4. Add filter hook for customization
+
+### Files to Modify
+
+| File                             | Change                                                         |
+| -------------------------------- | -------------------------------------------------------------- |
+| `class-alert-field-registry.php` | Add `get_context_fields()` method, whitelist fields per logger |
+| `class-alert-evaluator.php`      | Already works - just add documentation                         |
+| React UI                         | No changes needed - fields auto-populate from registry         |
+
+### Example Field Definition
+
+```php
+[
+    'name'       => 'post_new_status',
+    'label'      => __( 'Post Status (New)', 'simple-history' ),
+    'inputType'  => 'select',
+    'operators'  => [ '=', '!=' ],
+    'values'     => [
+        [ 'name' => 'publish', 'label' => 'Published' ],
+        [ 'name' => 'draft', 'label' => 'Draft' ],
+        [ 'name' => 'pending', 'label' => 'Pending' ],
+        [ 'name' => 'trash', 'label' => 'Trash' ],
+    ],
+]
+```
+
+### Example JsonLogic Rule
+
+```json
+{
+	"and": [
+		{ "==": [ { "var": "post_prev_status" }, "draft" ] },
+		{ "==": [ { "var": "post_new_status" }, "publish" ] }
+	]
+}
+```
+
+This matches posts transitioning specifically from draft → published.
