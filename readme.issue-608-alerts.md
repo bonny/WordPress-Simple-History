@@ -30,6 +30,7 @@
 -   Preset-based alerts UI (Tier 1 quick setup)
 -   Custom rules builder (Tier 3) - React UI with react-select, REST API, WP-CLI
 -   Rule evaluation engine
+-   Context-based rules with grouped fields (Post Events, User Events, Plugin Events)
 
 **Other:**
 
@@ -42,12 +43,19 @@
 ### ⏳ TODO
 
 -   Larger text in destinations intros
--   Remove event details/context from alerts (drive users to the log)
--   Custom rules for context values: Need a way to match on event context (e.g., "post published" = post_status changed to "publish"). Research how to expose context fields in rule builder UI and evaluate in rules engine.
+-   Remove event details/context from alerts (so users are driven to the log, where they can see the full event details and also see promo boxes)
+-   Research if it's ok to send event non async.
+-   Add text warning that user should not add to "broad" rules that match too many events.
+-   Add preview-filed to directly see what messages that match the rule.
+-   In quick rules it's called "Forward events to:" but in custom rules table we say "Send to". We must use same wording at all places.
+-   When saving custom rules there is no "Saved" message. Quick setup has it.
+-   Save button is at bottom of page and applies only to the quick setup rules. Kinda confusing that it is below custom rules. How can we solve or improve this usability issue?
+-   ~~In custom rules modal, text "Conditions" and "Forward events to:" should match formatting of "Rule Name" (currently bold).~~ ✅
 
 ### 📋 Deferred
 
 -   "Create alert from event" feature (revisit after more testing)
+-   Even nicer GUI, perhaps cards at top with quick stats and info.
 -   Teams channel (Phase 2)
 -   SMS/Twilio, Pushover, PagerDuty (Phase 3)
 
@@ -91,88 +99,34 @@ simple-history-premium/inc/alerts/
 -   **Tier 2 (15%):** Editable presets - customize which events (deferred)
 -   **Tier 3 (5%):** Custom rules - Zapier-style condition builder ✅
 
-## Related Issues
+## Research: Async sending
 
--   #573 (Log Forwarding - channels infrastructure)
--   #209, #114, #366 (Original alert requests)
+Alerts are currently sent **synchronously** when an event is logged: `process_logged_event` runs on the `simple_history/log/inserted` hook and sends to destinations in the same request.
+
+**Pros of sync:** Immediate delivery; no dependency on WP-Cron; simpler code and debugging; no risk of cron being disabled or delayed.
+
+**Pros of async (e.g. `wp_schedule_single_event`):** The request that logged the event is not blocked by HTTP calls to Slack/Email/etc.; less risk of timeouts or slow admin; high-volume sites could batch or throttle.
+
+**Recommendation:** Keep sync for now. Alert volume is typically low (rule-based, selective). If we see timeouts or performance issues, we can add an option to send asynchronously or move to async by default with a filter to force sync for testing.
 
 ---
 
-## Research: Context-Based Alert Rules
+## Context-Based Alert Rules (Implemented)
 
-### Key Finding
+Fields are grouped in the rule builder dropdown:
 
-**The infrastructure already supports context-based rules!** Alert_Evaluator flattens context data and makes it available for JsonLogic evaluation. The gap is the **UI field registry** doesn't expose context fields.
+| Group          | Fields                                       |
+| -------------- | -------------------------------------------- |
+| General        | Message Type, Logger, Level, Initiator, etc. |
+| Post Changes   | New Status, Old Status, Post Type            |
+| User Changes   | New Role, Old Role                           |
+| Plugin Changes | Plugin Name                                  |
 
-### Use Case Scenarios
+**Example rules now possible:**
 
-| Scenario                     | Context Fields Needed                 | Rule Example                         |
-| ---------------------------- | ------------------------------------- | ------------------------------------ |
-| Post published               | `post_new_status`                     | `post_new_status = 'publish'`        |
-| Draft → Published transition | `post_prev_status`, `post_new_status` | `prev = 'draft' AND new = 'publish'` |
-| User becomes administrator   | `new_role`                            | `new_role = 'administrator'`         |
-| Login from unexpected IP     | `_server_remote_addr`                 | `IP not in [allowed list]`           |
-| Post edited by non-author    | `post_new_author`, `_user_id`         | `author != current_user`             |
-| Security plugin update only  | `plugin_update_type`                  | `update_type = 'security'`           |
-| Specific post type changes   | `post_type`                           | `post_type = 'page'`                 |
+-   Post published: `New Status is Published`
+-   Draft → Published: `Old Status is Draft` AND `New Status is Published`
+-   User becomes admin: `New Role is Administrator`
+-   Specific post type: `Post Type is Page`
 
-### Available Context by Logger
-
-**Post Logger:** `post_id`, `post_type`, `post_title`, `post_prev_status`, `post_new_status`, `post_prev_author`, `post_new_author`
-
-**User Logger:** `edited_user_id`, `new_role`, `old_role`, `edited_user_email`
-
-**Plugin Logger:** `plugin_name`, `plugin_version`, `plugin_update_type`
-
-### Implementation Approach
-
-**Phase 1 - Whitelist (Quick Win):**
-
-1. Add known useful context fields to `Alert_Field_Registry::get_fields()`
-2. Hardcode ~15 most valuable fields per logger
-3. No DB queries needed - static definitions
-
-**Phase 2 - Smart Discovery:**
-
-1. Query `wp_simple_history_contexts` for unique keys from recent events
-2. Cache results in transient (24h)
-3. Infer field types from sample values
-4. Add filter hook for customization
-
-### Files to Modify
-
-| File                             | Change                                                         |
-| -------------------------------- | -------------------------------------------------------------- |
-| `class-alert-field-registry.php` | Add `get_context_fields()` method, whitelist fields per logger |
-| `class-alert-evaluator.php`      | Already works - just add documentation                         |
-| React UI                         | No changes needed - fields auto-populate from registry         |
-
-### Example Field Definition
-
-```php
-[
-    'name'       => 'post_new_status',
-    'label'      => __( 'Post Status (New)', 'simple-history' ),
-    'inputType'  => 'select',
-    'operators'  => [ '=', '!=' ],
-    'values'     => [
-        [ 'name' => 'publish', 'label' => 'Published' ],
-        [ 'name' => 'draft', 'label' => 'Draft' ],
-        [ 'name' => 'pending', 'label' => 'Pending' ],
-        [ 'name' => 'trash', 'label' => 'Trash' ],
-    ],
-]
-```
-
-### Example JsonLogic Rule
-
-```json
-{
-	"and": [
-		{ "==": [ { "var": "post_prev_status" }, "draft" ] },
-		{ "==": [ { "var": "post_new_status" }, "publish" ] }
-	]
-}
-```
-
-This matches posts transitioning specifically from draft → published.
+**Technical note:** Context fields use `context.` prefix internally (e.g., `context.post_new_status`) for collision safety. JsonLogic's dot notation accesses nested data.
