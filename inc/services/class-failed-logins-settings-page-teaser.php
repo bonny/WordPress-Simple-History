@@ -46,10 +46,10 @@ class Failed_Logins_Settings_Page_Teaser extends Service {
 			return;
 		}
 
-		$menu_title = __( 'Failed Logins', 'simple-history' );
+		$menu_title = __( 'Failed login attempts', 'simple-history' );
 
 		( new Menu_Page() )
-			->set_page_title( __( 'Failed Login Attempts', 'simple-history' ) )
+			->set_page_title( __( 'Failed login attempts', 'simple-history' ) )
 			->set_menu_title( $menu_title )
 			->set_menu_slug( self::MENU_SLUG )
 			->set_callback( [ $this, 'render_settings_page' ] )
