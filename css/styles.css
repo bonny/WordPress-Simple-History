@@ -2817,7 +2817,13 @@ Styles for plugin update details. Markup looks like this:
 .sh-Destinations {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: var(--sh-spacing-large);
+}
+
+/* Remove card margins inside flex containers - gap handles spacing */
+.sh-Destinations .sh-SettingsCard,
+.sh-PresetCards .sh-SettingsCard {
+	margin: 0;
 }
 
 .sh-DestinationType-list {
@@ -2898,7 +2904,7 @@ Styles for plugin update details. Markup looks like this:
 .sh-PresetCards {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: var(--sh-spacing-large);
 }
 
 .sh-PresetCard-destinations {
@@ -3106,6 +3112,164 @@ Styles for plugin update details. Markup looks like this:
 }
 
 /**
+ * Message Control Settings Page Teaser
+ * Premium feature promotional page that previews the Message Control settings.
+ * Reuses many styles from Alerts teaser.
+ */
+
+/* Wrapper for sticky CTA positioning */
+.sh-MessageControlTeaser-wrap {
+	position: relative;
+	padding-bottom: 180px;
+}
+
+/* Main teaser container - disabled state */
+.sh-MessageControlTeaser {
+	max-width: 900px;
+}
+
+.sh-MessageControlTeaser[inert] {
+	opacity: 0.55;
+	filter: grayscale(30%);
+	cursor: not-allowed;
+	position: relative;
+}
+
+.sh-MessageControlTeaser[inert] button,
+.sh-MessageControlTeaser[inert] input,
+.sh-MessageControlTeaser[inert] a {
+	pointer-events: none;
+}
+
+/* Loggers list styling */
+.sh-MessageControlTeaser-loggers {
+	margin-top: var(--sh-spacing-medium);
+}
+
+.sh-MessageControlTeaser-stats {
+	margin-bottom: var(--sh-spacing-medium);
+	color: #50575e;
+}
+
+.sh-MessageControlTeaser-stats strong {
+	color: #1d2327;
+}
+
+/* Loggers table - similar to premium Message Control */
+.sh-MessageControlTeaser .loggers {
+	--sh-border-width: 4px;
+}
+
+.sh-MessageControlTeaser .loggers .enabled .column-name {
+	border-left: var(--sh-border-width) solid #72aee6;
+}
+
+.sh-MessageControlTeaser .loggers .disabled .column-name {
+	padding-left: calc(3em + var(--sh-border-width));
+}
+
+.sh-MessageControlTeaser .loggers .column-name {
+	position: relative;
+}
+
+.sh-MessageControlTeaser .loggers .column-name strong {
+	display: block;
+	margin-bottom: 0.2em;
+	font-size: 14px;
+}
+
+.sh-MessageControlTeaser .loggers .disabled strong {
+	font-weight: 400;
+}
+
+.sh-MessageControlTeaser .loggers th,
+.sh-MessageControlTeaser .loggers td {
+	padding: 1.25em 2em 1.25em 3em;
+}
+
+.sh-MessageControlTeaser .loggers .enabled th,
+.sh-MessageControlTeaser .loggers .enabled td {
+	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+	background-color: #f0f6fc;
+}
+
+.sh-MessageControlTeaser .loggers span[class^="sh-Icon--"] {
+	--icon-size: 20px;
+	width: var(--icon-size);
+	height: var(--icon-size);
+	position: absolute;
+	background-size: 100%;
+	left: 0.8em;
+	top: 1.2em;
+}
+
+.sh-MessageControlTeaser .loggers .disabled span[class^="sh-Icon--"] {
+	left: calc(0.8em + var(--sh-border-width));
+}
+
+.sh-MessageControlTeaser .loggers .column-status {
+	width: 120px;
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+}
+
+.sh-MessageControlTeaser .loggers .description {
+	color: #646970;
+	margin: 0;
+}
+
+/**
+ * Failed Logins Settings Page Teaser
+ * Premium feature promotional page that previews the Failed Login settings.
+ * Reuses many styles from Alerts teaser.
+ */
+
+/* Wrapper for sticky CTA positioning */
+.sh-FailedLoginsTeaser-wrap {
+	position: relative;
+	padding-bottom: 180px;
+}
+
+/* Main teaser container - disabled state */
+.sh-FailedLoginsTeaser {
+	max-width: 900px;
+}
+
+.sh-FailedLoginsTeaser[inert] {
+	opacity: 0.55;
+	filter: grayscale(30%);
+	cursor: not-allowed;
+	position: relative;
+}
+
+.sh-FailedLoginsTeaser[inert] button,
+.sh-FailedLoginsTeaser[inert] input,
+.sh-FailedLoginsTeaser[inert] a {
+	pointer-events: none;
+}
+
+/* Settings form styling */
+.sh-FailedLoginsTeaser-settings {
+	margin-top: var(--sh-spacing-medium);
+}
+
+.sh-FailedLoginsTeaser .form-table th {
+	padding-left: 0;
+}
+
+.sh-FailedLoginsTeaser .form-table td p {
+	margin-top: 0;
+}
+
+.sh-FailedLoginsTeaser .form-table td label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+/**
  * Help & Support Page Styles
  * Styles for the Help & Support page including status bar and system info.
  */
@@ -3218,7 +3382,7 @@ Styles for plugin update details. Markup looks like this:
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	grid-template-rows: auto auto;
-	gap: var(--sh-spacing-medium);
+	gap: var(--sh-spacing-large);
 }
 
 .sh-HelpPage-getHelp {
