@@ -53,7 +53,7 @@ class Message_Control_Settings_Page_Teaser extends Service {
 			->set_menu_title( $menu_title )
 			->set_menu_slug( self::MENU_SLUG )
 			->set_callback( [ $this, 'render_settings_page' ] )
-			->set_order( 45 ) // After log forwarding (40).
+			->set_order( 20 ) // Before Alerts (35), matches premium order.
 			->set_parent( Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG )
 			->add();
 	}

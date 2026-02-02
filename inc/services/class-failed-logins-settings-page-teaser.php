@@ -53,7 +53,7 @@ class Failed_Logins_Settings_Page_Teaser extends Service {
 			->set_menu_title( $menu_title )
 			->set_menu_slug( self::MENU_SLUG )
 			->set_callback( [ $this, 'render_settings_page' ] )
-			->set_order( 50 ) // After message control (45).
+			->set_order( 25 ) // After Message Control (20), matches premium order.
 			->set_parent( Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG )
 			->add();
 	}
