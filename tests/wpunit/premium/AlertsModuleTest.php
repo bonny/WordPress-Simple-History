@@ -93,7 +93,7 @@ class AlertsModuleTest extends PremiumTestCase {
 		$tracking = [];
 		$label    = Alerts_Module::get_tracking_status_label( $tracking );
 
-		$this->assertStringContainsString( 'Never used', $label );
+		$this->assertStringContainsString( 'Not used yet', $label );
 	}
 
 	/**

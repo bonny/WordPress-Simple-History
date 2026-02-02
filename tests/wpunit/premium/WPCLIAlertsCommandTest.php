@@ -104,9 +104,9 @@ class WPCLIAlertsCommandTest extends PremiumTestCase {
 	 * Test tracking status label for CLI display.
 	 */
 	public function test_tracking_status_label_for_cli(): void {
-		// Never used.
+		// Not used yet.
 		$label = Alerts_Module::get_tracking_status_label( [] );
-		$this->assertStringContainsString( 'Never used', $label );
+		$this->assertStringContainsString( 'Not used yet', $label );
 
 		// Success.
 		$label = Alerts_Module::get_tracking_status_label( [

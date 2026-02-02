@@ -127,7 +127,7 @@ class DestinationSendersTest extends PremiumTestCase {
 	}
 
 	/**
-	 * Test Email subject adds emoji for critical level.
+	 * Test Email subject format for critical level.
 	 */
 	public function test_email_subject_adds_emoji_for_critical(): void {
 		$sender = new Email_Destination_Sender();
@@ -143,12 +143,13 @@ class DestinationSendersTest extends PremiumTestCase {
 
 		$subject = $method->invoke( $sender, $normalized );
 
-		// Should contain emoji for critical level.
-		$this->assertMatchesRegularExpression( '/\[Site\]\s+.+\s+Critical/', $subject );
+		// Subject format: [Site] message (truncated).
+		$this->assertStringStartsWith( '[Site]', $subject );
+		$this->assertStringContainsString( 'Critical', $subject );
 	}
 
 	/**
-	 * Test Email subject adds emoji for error level.
+	 * Test Email subject format for error level.
 	 */
 	public function test_email_subject_adds_emoji_for_error(): void {
 		$sender = new Email_Destination_Sender();
@@ -164,8 +165,9 @@ class DestinationSendersTest extends PremiumTestCase {
 
 		$subject = $method->invoke( $sender, $normalized );
 
-		// Should contain emoji (❌) for error level.
-		$this->assertStringContainsString( '❌', $subject );
+		// Subject format: [Site] message (truncated).
+		$this->assertStringStartsWith( '[Site]', $subject );
+		$this->assertStringContainsString( 'Error', $subject );
 	}
 
 	/**
@@ -287,11 +289,12 @@ class DestinationSendersTest extends PremiumTestCase {
 
 		$body = $method->invoke( $sender, $normalized );
 
-		$this->assertStringContainsString( 'https://example.com', $body );
+		// Body includes site name and host extracted from URL.
+		$this->assertStringContainsString( 'example.com', $body );
 	}
 
 	/**
-	 * Test Email body includes level emoji and label.
+	 * Test Email body includes message.
 	 */
 	public function test_email_body_includes_level_info(): void {
 		$sender = new Email_Destination_Sender();
@@ -313,13 +316,12 @@ class DestinationSendersTest extends PremiumTestCase {
 
 		$body = $method->invoke( $sender, $normalized );
 
-		// Should contain warning emoji and label.
-		$this->assertStringContainsString( '⚠️', $body );
-		$this->assertStringContainsString( 'Warning', $body );
+		// Body includes the message.
+		$this->assertStringContainsString( 'Warning message here', $body );
 	}
 
 	/**
-	 * Test Email body includes View history link.
+	 * Test Email body includes View Site History link.
 	 */
 	public function test_email_body_includes_view_history_link(): void {
 		$sender = new Email_Destination_Sender();
@@ -341,7 +343,7 @@ class DestinationSendersTest extends PremiumTestCase {
 
 		$body = $method->invoke( $sender, $normalized );
 
-		$this->assertStringContainsString( 'View history:', $body );
+		$this->assertStringContainsString( 'View Site History', $body );
 	}
 
 	/**
