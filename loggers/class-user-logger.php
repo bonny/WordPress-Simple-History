@@ -114,6 +114,12 @@ class User_Logger extends Logger {
 							'user_login_failed',
 							'user_unknown_login_failed',
 						),
+						_x( 'Failed login (known user)', 'User logger: search', 'simple-history' ) => array(
+							'user_login_failed',
+						),
+						_x( 'Failed login (unknown user)', 'User logger: search', 'simple-history' ) => array(
+							'user_unknown_login_failed',
+						),
 						_x( 'User logouts', 'User logger: search', 'simple-history' ) => array(
 							'user_logged_out',
 						),
