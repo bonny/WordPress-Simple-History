@@ -359,6 +359,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added Notes REST API endpoint at `/wp-json/simple-history/v1/stats/notes`.
 -   Added Alerts settings page showing premium notification features (presets and custom rules builder available in [Premium](https://simple-history.com/add-ons/premium/?utm_source=worg)).
 -   Added user role (`_user_role`) to event context, enabling filtering and alerts based on the role of the user who performed an action.
+-   Added granular failed login filter options: "Failed login (wrong password)" for known users and "Failed login (unknown user)" for non-existent usernames, in addition to the existing grouped "Failed user logins" option.
 
 **Changed**
 
