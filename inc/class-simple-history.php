@@ -145,6 +145,7 @@ class Simple_History {
 		$services = array(
 			Services\AddOns_Licences::class,
 			Services\Admin_Page_Premium_Promo::class,
+			Services\Alerts_Settings_Page_Teaser::class,
 			Services\Admin_Pages::class,
 			Services\Auto_Backfill_Service::class,
 			Services\Channels_Service::class,

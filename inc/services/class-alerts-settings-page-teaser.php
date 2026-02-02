@@ -76,7 +76,6 @@ class Alerts_Settings_Page_Teaser extends Service {
 		?>
 		<div class="wrap sh-Page-content sh-AlertsTeaser-wrap">
 			<?php $this->render_tabs( $current_tab ); ?>
-			<?php $this->render_beta_notice(); ?>
 			<?php $this->render_section_intro( $current_tab ); ?>
 			<?php $this->render_preview_banner(); ?>
 
@@ -84,8 +83,13 @@ class Alerts_Settings_Page_Teaser extends Service {
 				<?php
 				if ( $current_tab === 'destinations' ) {
 					$this->render_destinations_preview();
+				} elseif ( $current_tab === 'presets' ) {
+					$this->render_presets_preview();
+				} elseif ( $current_tab === 'custom-rules' ) {
+					$this->render_custom_rules_preview();
 				} else {
-					$this->render_rules_preview();
+					// Default to destinations for unknown tabs.
+					$this->render_destinations_preview();
 				}
 				?>
 			</div>
@@ -106,12 +110,16 @@ class Alerts_Settings_Page_Teaser extends Service {
 	private function render_section_intro( string $current_tab ) {
 		if ( $current_tab === 'destinations' ) {
 			$icon        = 'schedule_send';
-			$title       = __( 'Alert Destinations', 'simple-history' );
+			$title       = __( 'Destinations', 'simple-history' );
 			$description = __( 'Configure where your alerts will be sent. Add multiple destinations and reuse them across different alert rules.', 'simple-history' );
+		} elseif ( $current_tab === 'presets' ) {
+			$icon        = 'bolt';
+			$title       = __( 'Presets', 'simple-history' );
+			$description = __( 'Get started quickly with pre-configured alert rules for common scenarios. Select destinations to enable each preset.', 'simple-history' );
 		} else {
 			$icon        = 'filter_list';
-			$title       = __( 'Alert Rules', 'simple-history' );
-			$description = __( 'Define when to send alerts. Use pre-built presets for quick setup or create custom rules for advanced filtering.', 'simple-history' );
+			$title       = __( 'Custom Rules', 'simple-history' );
+			$description = __( 'Create custom alert rules with specific conditions for advanced filtering.', 'simple-history' );
 		}
 		?>
 		<div class="sh-SettingsCard sh-SettingsPage-settingsSection-wrap">
@@ -161,11 +169,21 @@ class Alerts_Settings_Page_Teaser extends Service {
 		<nav class="nav-tab-wrapper sh-AlertsTabs sh-AlertsTabs--teaser">
 			<a href="<?php echo esc_url( add_query_arg( 'alerts_tab', 'destinations', $base_url ) ); ?>"
 				class="nav-tab <?php echo 'destinations' === $current_tab ? 'nav-tab-active' : ''; ?>">
+				<span class="sh-Icon sh-Icon--schedule_send sh-AlertsTabs-icon" aria-hidden="true"></span>
 				<?php esc_html_e( 'Destinations', 'simple-history' ); ?>
+				<span class="sh-AlertsTabs-count">(2)</span>
 			</a>
-			<a href="<?php echo esc_url( add_query_arg( 'alerts_tab', 'rules', $base_url ) ); ?>"
-				class="nav-tab <?php echo 'rules' === $current_tab ? 'nav-tab-active' : ''; ?>">
-				<?php esc_html_e( 'Alert Rules', 'simple-history' ); ?>
+			<a href="<?php echo esc_url( add_query_arg( 'alerts_tab', 'presets', $base_url ) ); ?>"
+				class="nav-tab <?php echo 'presets' === $current_tab ? 'nav-tab-active' : ''; ?>">
+				<span class="sh-Icon sh-Icon--bolt sh-AlertsTabs-icon" aria-hidden="true"></span>
+				<?php esc_html_e( 'Presets', 'simple-history' ); ?>
+				<span class="sh-AlertsTabs-count">(1)</span>
+			</a>
+			<a href="<?php echo esc_url( add_query_arg( 'alerts_tab', 'custom-rules', $base_url ) ); ?>"
+				class="nav-tab <?php echo 'custom-rules' === $current_tab ? 'nav-tab-active' : ''; ?>">
+				<span class="sh-Icon sh-Icon--filter_list sh-AlertsTabs-icon" aria-hidden="true"></span>
+				<?php esc_html_e( 'Custom Rules', 'simple-history' ); ?>
+				<span class="sh-AlertsTabs-count">(3)</span>
 			</a>
 			<span class="sh-Badge sh-Badge--premium sh-AlertsTabs-badge">
 				<?php esc_html_e( 'Premium', 'simple-history' ); ?>
@@ -197,20 +215,20 @@ class Alerts_Settings_Page_Teaser extends Service {
 
 					<div class="sh-DestinationType-list">
 						<?php if ( isset( $sample_destinations[ $type ] ) && ! empty( $sample_destinations[ $type ] ) ) { ?>
-							<table class="sh-DestinationTable widefat striped">
+							<table class="wp-list-table widefat fixed striped">
 								<thead>
 									<tr>
-										<th class="sh-DestinationTable-colName"><?php esc_html_e( 'Name', 'simple-history' ); ?></th>
-										<th class="sh-DestinationTable-colDetails"><?php echo esc_html( $type_info['details_label'] ); ?></th>
-										<th class="sh-DestinationTable-colUsedBy"><?php esc_html_e( 'Used by', 'simple-history' ); ?></th>
-										<th class="sh-DestinationTable-colStatus"><?php esc_html_e( 'Status', 'simple-history' ); ?></th>
+										<th scope="col" class="manage-column column-name column-primary"><?php esc_html_e( 'Name', 'simple-history' ); ?></th>
+										<th scope="col" class="manage-column column-details"><?php echo esc_html( $type_info['details_label'] ); ?></th>
+										<th scope="col" class="manage-column column-usedby"><?php esc_html_e( 'Used by', 'simple-history' ); ?></th>
+										<th scope="col" class="manage-column column-status"><?php esc_html_e( 'Status', 'simple-history' ); ?></th>
 									</tr>
 								</thead>
-								<tbody>
+								<tbody id="the-list">
 									<?php foreach ( $sample_destinations[ $type ] as $sample ) { ?>
-										<tr class="sh-DestinationItem">
-											<td class="sh-DestinationItem-name">
-												<span class="row-title"><?php echo esc_html( $sample['name'] ); ?></span>
+										<tr>
+											<td class="name column-name has-row-actions column-primary" data-colname="<?php esc_attr_e( 'Name', 'simple-history' ); ?>">
+												<strong><a class="row-title" href="#"><?php echo esc_html( $sample['name'] ); ?></a></strong>
 												<div class="row-actions">
 													<span class="test">
 														<a href="#"><?php esc_html_e( 'Test', 'simple-history' ); ?></a> |
@@ -222,20 +240,19 @@ class Alerts_Settings_Page_Teaser extends Service {
 														<a href="#" class="submitdelete"><?php esc_html_e( 'Delete', 'simple-history' ); ?></a>
 													</span>
 												</div>
+												<button type="button" class="toggle-row"><span class="screen-reader-text"><?php esc_html_e( 'Show more details', 'simple-history' ); ?></span></button>
 											</td>
-											<td class="sh-DestinationItem-details"><?php echo esc_html( $sample['details'] ); ?></td>
-											<td class="sh-DestinationItem-usedBy">
-												<span class="sh-DestinationItem-usedByCount">
-													<?php
-													printf(
-														/* translators: %d: number of alert rules */
-														esc_html( _n( '%d rule', '%d rules', $sample['rules_count'], 'simple-history' ) ),
-														absint( $sample['rules_count'] )
-													);
-													?>
-												</span>
+											<td class="details column-details" data-colname="<?php echo esc_attr( $type_info['details_label'] ); ?>"><?php echo esc_html( $sample['details'] ); ?></td>
+											<td class="usedby column-usedby" data-colname="<?php esc_attr_e( 'Used by', 'simple-history' ); ?>">
+												<?php
+												printf(
+													/* translators: %d: number of alert rules */
+													esc_html( _n( '%d rule', '%d rules', $sample['rules_count'], 'simple-history' ) ),
+													absint( $sample['rules_count'] )
+												);
+												?>
 											</td>
-											<td class="sh-DestinationItem-status">
+											<td class="status column-status" data-colname="<?php esc_attr_e( 'Status', 'simple-history' ); ?>">
 												<span class="sh-DestinationStatus sh-DestinationStatus--ok">
 													<span class="sh-StatusIcon sh-StatusIcon--ok">✓</span>
 													<?php echo esc_html( $sample['status'] ); ?>
@@ -271,25 +288,17 @@ class Alerts_Settings_Page_Teaser extends Service {
 	}
 
 	/**
-	 * Render the alert rules tab preview.
+	 * Render the presets tab preview.
 	 *
-	 * Shows preset cards with sample destination selections and a custom rules section.
+	 * Shows preset cards with sample destination selections.
 	 */
-	private function render_rules_preview() {
+	private function render_presets_preview() {
 		$presets             = $this->get_preset_definitions();
 		$event_labels        = $this->get_event_labels();
 		$destination_types   = $this->get_destination_type_definitions();
 		$sample_destinations = $this->get_sample_destinations();
 		?>
 		<div class="sh-AlertPresets">
-			<h3 class="sh-AlertPresets-title">
-				<span class="dashicons dashicons-performance"></span>
-				<?php esc_html_e( 'Quick Setup', 'simple-history' ); ?>
-			</h3>
-			<p class="sh-AlertPresets-description">
-				<?php esc_html_e( 'Select destinations to enable alerts. Events matching the preset will be sent to the selected destinations.', 'simple-history' ); ?>
-			</p>
-
 			<div class="sh-PresetCards">
 				<?php foreach ( $presets as $preset_id => $preset ) { ?>
 					<?php
@@ -374,16 +383,82 @@ class Alerts_Settings_Page_Teaser extends Service {
 				<?php } ?>
 			</div>
 		</div>
+		<?php
+	}
 
+	/**
+	 * Render the custom rules tab preview.
+	 *
+	 * Shows sample custom rules in a table.
+	 */
+	private function render_custom_rules_preview() {
+		$sample_custom_rules = $this->get_sample_custom_rules();
+		?>
 		<div class="sh-CustomRules">
-			<h3><?php esc_html_e( 'Custom Rules', 'simple-history' ); ?></h3>
-			<p><?php esc_html_e( 'Create custom alert rules with specific conditions for advanced filtering.', 'simple-history' ); ?></p>
-			<p class="sh-CustomRules-empty">
-				<?php esc_html_e( 'No custom rules configured yet.', 'simple-history' ); ?>
-			</p>
+			<?php if ( ! empty( $sample_custom_rules ) ) { ?>
+				<table class="wp-list-table widefat fixed striped">
+					<thead>
+						<tr>
+							<th scope="col" class="manage-column column-name column-primary"><?php esc_html_e( 'Name', 'simple-history' ); ?></th>
+							<th scope="col" class="manage-column column-when"><?php esc_html_e( 'When', 'simple-history' ); ?></th>
+							<th scope="col" class="manage-column column-destinations"><?php esc_html_e( 'Destinations', 'simple-history' ); ?></th>
+						</tr>
+					</thead>
+					<tbody id="the-list">
+						<?php foreach ( $sample_custom_rules as $rule ) { ?>
+							<tr>
+								<td class="name column-name has-row-actions column-primary" data-colname="<?php esc_attr_e( 'Name', 'simple-history' ); ?>">
+									<strong>
+										<a class="row-title" href="#"><?php echo esc_html( $rule['name'] ); ?></a>
+										<?php if ( empty( $rule['enabled'] ) ) { ?>
+											<span class="post-state"> — <?php esc_html_e( 'Disabled', 'simple-history' ); ?></span>
+										<?php } ?>
+									</strong>
+									<div class="row-actions">
+										<span class="edit">
+											<a href="#"><?php esc_html_e( 'Edit', 'simple-history' ); ?></a> |
+										</span>
+										<span class="delete">
+											<a href="#" class="submitdelete"><?php esc_html_e( 'Delete', 'simple-history' ); ?></a>
+										</span>
+									</div>
+									<button type="button" class="toggle-row"><span class="screen-reader-text"><?php esc_html_e( 'Show more details', 'simple-history' ); ?></span></button>
+								</td>
+								<td class="when column-when" data-colname="<?php esc_attr_e( 'When', 'simple-history' ); ?>">
+									<?php if ( ! empty( $rule['conditions'] ) ) { ?>
+										<?php foreach ( $rule['conditions'] as $condition ) { ?>
+											<div>
+												<strong><?php echo esc_html( $condition['field'] ); ?></strong> <?php echo esc_html( $condition['operator'] ); ?> <?php echo esc_html( $condition['value'] ); ?>
+											</div>
+										<?php } ?>
+									<?php } else { ?>
+										<em><?php esc_html_e( 'No conditions', 'simple-history' ); ?></em>
+									<?php } ?>
+								</td>
+								<td class="destinations column-destinations" data-colname="<?php esc_attr_e( 'Destinations', 'simple-history' ); ?>">
+									<?php if ( ! empty( $rule['destinations'] ) ) { ?>
+										<?php foreach ( $rule['destinations'] as $dest_group ) { ?>
+											<div>
+												<strong><?php echo esc_html( $dest_group['type'] ); ?>:</strong> <?php echo esc_html( $dest_group['names'] ); ?>
+											</div>
+										<?php } ?>
+									<?php } else { ?>
+										<em><?php esc_html_e( 'None', 'simple-history' ); ?></em>
+									<?php } ?>
+								</td>
+							</tr>
+						<?php } ?>
+					</tbody>
+				</table>
+			<?php } else { ?>
+				<p class="sh-CustomRules-empty">
+					<?php esc_html_e( 'No custom rules configured yet.', 'simple-history' ); ?>
+				</p>
+			<?php } ?>
+
 			<div class="sh-CustomRules-actions">
 				<button type="button" class="button button-secondary" disabled>
-					<?php esc_html_e( '+ Create Custom Rule', 'simple-history' ); ?>
+					<?php esc_html_e( '+ Add Custom Rule', 'simple-history' ); ?>
 				</button>
 			</div>
 		</div>
@@ -621,21 +696,65 @@ class Alerts_Settings_Page_Teaser extends Service {
 	}
 
 	/**
-	 * Render beta feature notice banner.
+	 * Get sample custom rules for preview.
+	 *
+	 * Shows example custom rules to demonstrate the feature.
+	 * Uses realistic field names and operators that match Alert_Field_Registry.
+	 *
+	 * @return array<array{name: string, enabled: bool, conditions: array<array{field: string, operator: string, value: string}>, destinations: array<array{type: string, names: string}>}>
 	 */
-	private function render_beta_notice() {
-		?>
-		<div class="sh-BetaNotice">
-			<p>
-				<?php
-				printf(
-					/* translators: %s: email address link */
-					esc_html__( 'Beta feature – Send feedback on bugs or improvements to %s.', 'simple-history' ),
-					'<a href="mailto:contact@simple-history.com?subject=Beta%20Feedback%3A%20Alerts">contact@simple-history.com</a>'
-				);
-				?>
-			</p>
-		</div>
-		<?php
+	private function get_sample_custom_rules(): array {
+		return [
+			[
+				'name'         => __( 'Failed Login Attempts', 'simple-history' ),
+				'enabled'      => true,
+				'conditions'   => [
+					[
+						'field'    => __( 'Message Type', 'simple-history' ),
+						'operator' => __( 'is', 'simple-history' ),
+						'value'    => __( 'Failed login', 'simple-history' ),
+					],
+				],
+				'destinations' => [
+					[
+						'type'  => __( 'Email', 'simple-history' ),
+						'names' => __( 'Admin Team', 'simple-history' ),
+					],
+					[
+						'type'  => __( 'Slack', 'simple-history' ),
+						'names' => __( '#security-alerts', 'simple-history' ),
+					],
+				],
+			],
+			[
+				'name'         => __( 'Plugin Installs', 'simple-history' ),
+				'enabled'      => true,
+				'conditions'   => [
+					[
+						'field'    => __( 'Message Type', 'simple-history' ),
+						'operator' => __( 'is', 'simple-history' ),
+						'value'    => __( 'Plugin installed', 'simple-history' ),
+					],
+				],
+				'destinations' => [
+					[
+						'type'  => __( 'Email', 'simple-history' ),
+						'names' => __( 'Admin Team', 'simple-history' ),
+					],
+				],
+			],
+			[
+				'name'         => __( 'User Role Changes', 'simple-history' ),
+				'enabled'      => false,
+				'conditions'   => [
+					[
+						'field'    => __( 'New Role', 'simple-history' ),
+						'operator' => __( 'is', 'simple-history' ),
+						'value'    => __( 'Administrator', 'simple-history' ),
+					],
+				],
+				'destinations' => [],
+			],
+		];
 	}
 }

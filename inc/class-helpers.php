@@ -869,6 +869,7 @@ class Helpers {
 	 *     Optional. Additional arguments.
 	 *
 	 *     @type callable $callback_last Function that echos out any content at the end of the section (before closing wrapper div).
+	 *     @type bool     $no_card       If true, removes the card styling (sh-SettingsCard class). Default false.
 	 * }
 	 */
 	public static function add_settings_section( $id, $title, $callback_top, $page, $args = [] ) {
@@ -905,12 +906,16 @@ class Helpers {
 		}
 		$after_section_content .= '</div>';
 
-		$args = [
-			'before_section' => sprintf( '<div class="sh-SettingsCard sh-SettingsPage-settingsSection-wrap"%s>', $id_attribute ),
+		// Build wrapper class - optionally exclude card styling.
+		$no_card       = $args['no_card'] ?? false;
+		$wrapper_class = $no_card ? 'sh-SettingsPage-settingsSection-wrap' : 'sh-SettingsCard sh-SettingsPage-settingsSection-wrap';
+
+		$section_args = [
+			'before_section' => sprintf( '<div class="%s"%s>', esc_attr( $wrapper_class ), $id_attribute ),
 			'after_section'  => $after_section_content,
 		];
 
-		add_settings_section( $id, $title, $callback_top, $page, $args );
+		add_settings_section( $id, $title, $callback_top, $page, $section_args );
 	}
 
 	/**

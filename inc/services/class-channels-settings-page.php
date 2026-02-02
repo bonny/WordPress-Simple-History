@@ -470,20 +470,23 @@ class Channels_Settings_Page extends Service {
 	}
 
 	/**
-	 * Render new feature notice banner at the top of the settings page.
+	 * Render beta feature notice.
 	 */
 	private function render_beta_notice() {
 		?>
-		<div class="sh-BetaNotice">
-			<p>
+		<div class="sh-StatusBar sh-StatusBar--beta">
+			<span class="sh-StatusBar-item">
+				<?php esc_html_e( 'Log Forwarding is a beta feature', 'simple-history' ); ?>
+			</span>
+			<span class="sh-StatusBar-stats">
 				<?php
 				printf(
 					/* translators: %s: email address link */
-					esc_html__( 'Beta feature – Send feedback on bugs or improvements to %s.', 'simple-history' ),
-					'<a href="mailto:contact@simple-history.com?subject=Beta%20Feedback%3A%20Log%20Forwarding">contact@simple-history.com</a>'
+					esc_html__( 'Share feedback at %s', 'simple-history' ),
+					'<a href="mailto:contact@simple-history.com?subject=Log%20Forwarding%20Feedback">contact@simple-history.com</a>'
 				);
 				?>
-			</p>
+			</span>
 		</div>
 		<?php
 	}

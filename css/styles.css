@@ -1232,30 +1232,15 @@ so add some extra place then to make it look a bit less ugly.
 	flex-shrink: 0;
 }
 
-/* New feature notice banner */
+/* Beta feature notice - subtle helper text style */
 .sh-BetaNotice {
-	display: flex;
-	align-items: flex-start;
-	gap: var(--sh-spacing-small);
-	padding: var(--sh-spacing-medium);
-	background-color: #f0f6fc;
-	border: 1px solid var(--sh-color-blue);
-	border-left-width: 4px;
-	border-radius: var(--sh-border-radius);
-	margin-top: var(--sh-spacing-large);
-	margin-bottom: var(--sh-spacing-large);
-}
-
-.sh-BetaNotice p {
-	margin: 0;
-}
-
-.sh-BetaNotice p + p {
-	margin-top: var(--sh-spacing-small);
+	margin: var(--sh-spacing-large) 0;
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-text-muted, #646970);
 }
 
 .sh-BetaNotice a {
-	color: var(--sh-color-blue);
+	color: inherit;
 }
 
 .sh-PremiumFeaturesPostbox {
@@ -2648,9 +2633,40 @@ Styles for plugin update details. Markup looks like this:
  * Mirrors the premium UI with functional tabs but disabled content (inert).
  */
 
-/* Alerts internal tabs */
+/* Alerts internal sub-navigation - styled as subtle links, not tabs */
 .sh-AlertsTabs {
 	margin-bottom: var(--sh-spacing-large);
+	border-bottom: none;
+}
+
+.sh-AlertsTabs .nav-tab {
+	background: none;
+	border: none;
+	padding: 0.5em 0;
+	margin-right: 1.5em;
+	color: var(--sh-color-text-muted, #50575e);
+	font-weight: 400;
+}
+
+.sh-AlertsTabs .nav-tab:hover,
+.sh-AlertsTabs .nav-tab:focus {
+	background: none;
+	color: var(--sh-color-text, #1d2327);
+}
+
+.sh-AlertsTabs .nav-tab-active,
+.sh-AlertsTabs .nav-tab-active:hover,
+.sh-AlertsTabs .nav-tab-active:focus {
+	background: none;
+	border: none;
+	border-bottom: 2px solid var(--sh-color-blue, #2271b1);
+	color: var(--sh-color-text, #1d2327);
+	font-weight: 400;
+}
+
+.sh-AlertsTabs-count {
+	font-weight: 400;
+	color: var(--sh-color-text-muted, #50575e);
 }
 
 .sh-AlertsTabs--teaser {
@@ -2661,6 +2677,16 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-AlertsTabs-badge {
 	margin-left: auto;
+}
+
+.sh-AlertsTabs-icon {
+	margin-right: 0.35em;
+	opacity: 0.7;
+}
+
+.sh-AlertsTabs-errorIndicator {
+	color: #dba617;
+	margin-left: 0.25em;
 }
 
 /* Preview Mode Banner - explains this is a non-functional preview */
@@ -2804,39 +2830,21 @@ Styles for plugin update details. Markup looks like this:
 	margin: 0;
 }
 
-/* Destination table styles */
-.sh-DestinationTable {
-	border: none;
-	box-shadow: none;
+/* Destination table - column widths */
+.sh-DestinationType .wp-list-table .column-name {
+	width: 25%;
 }
 
-.sh-DestinationTable-colName {
-	width: 200px;
-}
-
-.sh-DestinationTable-colStatus {
+.sh-DestinationType .wp-list-table .column-status {
 	width: 150px;
 }
 
-.sh-DestinationTable-colUsedBy {
+.sh-DestinationType .wp-list-table .column-usedby {
 	width: 100px;
 }
 
-.sh-DestinationItem-usedBy {
-	font-size: 13px;
-}
-
-.sh-DestinationItem-usedByCount {
-	color: #2271b1;
-}
-
-.sh-DestinationItem-details {
-	color: #50575e;
+.sh-DestinationType .wp-list-table .column-details {
 	word-break: break-word;
-}
-
-.sh-DestinationItem-status {
-	font-size: 12px;
 }
 
 /* Destination status indicators */
@@ -3142,6 +3150,10 @@ Styles for plugin update details. Markup looks like this:
 	color: #50575e;
 	padding-left: var(--sh-spacing-medium);
 	border-left: 1px solid #e5e7eb;
+}
+
+.sh-StatusBar-stats a {
+	color: inherit;
 }
 
 .sh-StatusBar-error {

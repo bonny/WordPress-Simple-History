@@ -221,3 +221,7 @@
 .sh-Icon--schedule_send {
 	background-image: url(./icons/schedule_send_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
 }
+
+.sh-Icon--bolt {
+	background-image: url(./icons/bolt_FILL0_wght400_GRAD0_opsz48.svg);
+}
