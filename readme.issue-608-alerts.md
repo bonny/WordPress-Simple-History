@@ -39,17 +39,21 @@
 -   Plugin update rollback detection (`plugin_update_rolled_back` message)
 -   Forced security update detection (`plugin_update_type` context field)
 -   SQL performance optimizations for sidebar stats queries
+-   UI/UX improvements: wording consistency, styling, success messages
+-   Alert content optimization: removed event details to drive users to log
+-   Rules section improvements: warnings, save button placement, pre-filled defaults
+-   Rule preview feature: preview matching events before saving
 
 ### ⏳ TODO
 
--   Larger text in destinations intros
--   Remove event details/context from alerts (so users are driven to the log, where they can see the full event details and also see promo boxes)
--   Research if it's ok to send event non async.
--   Add text warning that user should not add to "broad" rules that match too many events.
--   Add preview-filed to directly see what messages that match the rule.
--   In quick rules it's called "Forward events to:" but in custom rules table we say "Send to". We must use same wording at all places.
--   When saving custom rules there is no "Saved" message. Quick setup has it.
--   Save button is at bottom of page and applies only to the quick setup rules. Kinda confusing that it is below custom rules. How can we solve or improve this usability issue?
+-   ~~Larger text in destinations intros~~ ✅
+-   ~~Remove event details/context from alerts (so users are driven to the log, where they can see the full event details and also see promo boxes)~~ ✅
+-   ~~Research if it's ok to send event non async.~~ ✅
+-   ~~Add text warning that user should not add to "broad" rules that match too many events.~~ ✅
+-   ~~Add preview-filed to directly see what messages that match the rule.~~ ✅
+-   ~~In quick rules it's called "Forward events to:" but in custom rules table we say "Send to". We must use same wording at all places.~~ ✅
+-   ~~When saving custom rules there is no "Saved" message. Quick setup has it.~~ ✅
+-   ~~Save button is at bottom of page and applies only to the quick setup rules. Kinda confusing that it is below custom rules. How can we solve or improve this usability issue?~~ ✅
 -   ~~In custom rules modal, text "Conditions" and "Forward events to:" should match formatting of "Rule Name" (currently bold).~~ ✅
 
 ### 📋 Deferred
