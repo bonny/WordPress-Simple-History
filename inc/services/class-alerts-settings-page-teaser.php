@@ -122,7 +122,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 			$description = __( 'Create custom alert rules with specific conditions for advanced filtering.', 'simple-history' );
 		}
 		?>
-		<div class="sh-SettingsCard sh-SettingsPage-settingsSection-wrap">
+		<div class="sh-SettingsPage-settingsSection-wrap">
 			<h2>
 				<span class="sh-SettingsPage-settingsSection-title">
 					<span class="sh-SettingsPage-settingsSection-icon sh-Icon--<?php echo esc_attr( $icon ); ?>"></span>
@@ -169,19 +169,16 @@ class Alerts_Settings_Page_Teaser extends Service {
 		<nav class="nav-tab-wrapper sh-AlertsTabs sh-AlertsTabs--teaser">
 			<a href="<?php echo esc_url( add_query_arg( 'alerts_tab', 'destinations', $base_url ) ); ?>"
 				class="nav-tab <?php echo 'destinations' === $current_tab ? 'nav-tab-active' : ''; ?>">
-				<span class="sh-Icon sh-Icon--schedule_send sh-AlertsTabs-icon" aria-hidden="true"></span>
 				<?php esc_html_e( 'Destinations', 'simple-history' ); ?>
 				<span class="sh-AlertsTabs-count">(2)</span>
 			</a>
 			<a href="<?php echo esc_url( add_query_arg( 'alerts_tab', 'presets', $base_url ) ); ?>"
 				class="nav-tab <?php echo 'presets' === $current_tab ? 'nav-tab-active' : ''; ?>">
-				<span class="sh-Icon sh-Icon--bolt sh-AlertsTabs-icon" aria-hidden="true"></span>
 				<?php esc_html_e( 'Presets', 'simple-history' ); ?>
 				<span class="sh-AlertsTabs-count">(1)</span>
 			</a>
 			<a href="<?php echo esc_url( add_query_arg( 'alerts_tab', 'custom-rules', $base_url ) ); ?>"
 				class="nav-tab <?php echo 'custom-rules' === $current_tab ? 'nav-tab-active' : ''; ?>">
-				<span class="sh-Icon sh-Icon--filter_list sh-AlertsTabs-icon" aria-hidden="true"></span>
 				<?php esc_html_e( 'Custom Rules', 'simple-history' ); ?>
 				<span class="sh-AlertsTabs-count">(3)</span>
 			</a>
