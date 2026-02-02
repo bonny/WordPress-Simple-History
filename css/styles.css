@@ -2817,7 +2817,7 @@ Styles for plugin update details. Markup looks like this:
 .sh-Destinations {
 	display: flex;
 	flex-direction: column;
-	gap: var(--sh-spacing-large);
+	gap: 12px;
 }
 
 .sh-DestinationType-list {
@@ -2898,7 +2898,7 @@ Styles for plugin update details. Markup looks like this:
 .sh-PresetCards {
 	display: flex;
 	flex-direction: column;
-	gap: var(--sh-spacing-xlarge);
+	gap: 12px;
 }
 
 .sh-PresetCard-destinations {
@@ -3037,9 +3037,7 @@ Styles for plugin update details. Markup looks like this:
 
 /* Custom Rules */
 .sh-CustomRules {
-	margin-top: var(--sh-spacing-xlarge);
-	padding-top: var(--sh-spacing-large);
-	border-top: 1px solid var(--sh-color-gray);
+	margin-top: var(--sh-spacing-medium);
 }
 
 .sh-CustomRules-empty {

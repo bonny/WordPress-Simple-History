@@ -139,20 +139,20 @@ class Alerts_Settings_Page_Teaser extends Service {
 	/**
 	 * Render the preview mode banner.
 	 *
-	 * Clearly communicates that this is a non-functional preview of the premium feature.
+	 * Uses benefit-focused copy to encourage upgrades while indicating this is a preview.
 	 */
 	private function render_preview_banner() {
 		$premium_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'alerts_preview_banner' );
 		?>
 		<div class="sh-AlertsTeaser-banner">
-			<span class="sh-AlertsTeaser-banner-icon dashicons dashicons-visibility" aria-hidden="true"></span>
+			<span class="sh-AlertsTeaser-banner-icon dashicons dashicons-bell" aria-hidden="true"></span>
 			<div class="sh-AlertsTeaser-banner-content">
 				<span class="sh-AlertsTeaser-banner-title">
-					<?php esc_html_e( 'Preview Mode', 'simple-history' ); ?>
+					<?php esc_html_e( 'Get notified when it matters', 'simple-history' ); ?>
 					<span class="sh-Badge sh-Badge--premium"><?php esc_html_e( 'Premium', 'simple-history' ); ?></span>
 				</span>
-				<span><?php esc_html_e( 'Explore this preview of Premium Alerts. Upgrade to send real-time notifications.', 'simple-history' ); ?></span>
-				<a href="<?php echo esc_url( $premium_url ); ?>"><?php esc_html_e( 'Unlock Alerts', 'simple-history' ); ?> →</a>
+				<span><?php esc_html_e( 'Receive instant alerts via Email, Slack, Discord, or Telegram when critical events happen on your site.', 'simple-history' ); ?></span>
+				<a href="<?php echo esc_url( $premium_url ); ?>"><?php esc_html_e( 'Upgrade to Premium', 'simple-history' ); ?> →</a>
 			</div>
 		</div>
 		<?php
