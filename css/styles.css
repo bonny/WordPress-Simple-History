@@ -3382,7 +3382,7 @@ Styles for plugin update details. Markup looks like this:
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	grid-template-rows: auto auto;
-	gap: var(--sh-spacing-large);
+	gap: var(--sh-spacing-medium);
 }
 
 .sh-HelpPage-getHelp {
