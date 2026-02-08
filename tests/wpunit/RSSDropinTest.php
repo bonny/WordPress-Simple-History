@@ -209,6 +209,154 @@ class RSSDropinTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Call the private clean_broken_links method via Reflection.
+	 *
+	 * @param string $html Input HTML.
+	 * @return string Cleaned HTML.
+	 */
+	private function call_clean_broken_links( $html ) {
+		$method = new \ReflectionMethod( RSS_Dropin::class, 'clean_broken_links' );
+		$method->setAccessible( true );
+
+		return $method->invoke( $this->rss_dropin, $html );
+	}
+
+	/**
+	 * Test that unresolved {edit_link} placeholder in href is removed.
+	 */
+	public function test_clean_broken_links_removes_placeholder_href() {
+		$html   = '<a href="{edit_link}">Spring Anthology</a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertStringNotContainsString( '{edit_link}', $result, 'Placeholder should be removed' );
+		$this->assertStringNotContainsString( 'href', $result, 'href attribute should be removed' );
+		$this->assertStringContainsString( 'Spring Anthology', $result, 'Link text should be preserved' );
+	}
+
+	/**
+	 * Test that unresolved {attachment_parent_edit_link} placeholder is removed.
+	 */
+	public function test_clean_broken_links_removes_attachment_parent_placeholder() {
+		$html   = '<a href="{attachment_parent_edit_link}">Call for entries</a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertStringNotContainsString( '{attachment_parent_edit_link}', $result );
+		$this->assertStringContainsString( 'Call for entries', $result );
+	}
+
+	/**
+	 * Test that empty href is removed.
+	 */
+	public function test_clean_broken_links_removes_empty_href() {
+		$html   = '<a href="">some text</a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertStringNotContainsString( 'href', $result, 'Empty href should be removed' );
+		$this->assertStringContainsString( 'some text', $result, 'Link text should be preserved' );
+	}
+
+	/**
+	 * Test that valid links are left unchanged.
+	 */
+	public function test_clean_broken_links_preserves_valid_links() {
+		$html   = '<a href="https://example.com/wp-admin/post.php?action=edit&amp;post=42">Edit Post</a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertStringContainsString( 'href', $result, 'Valid href should be preserved' );
+		$this->assertStringContainsString( 'example.com', $result, 'URL should be preserved' );
+		$this->assertStringContainsString( 'Edit Post', $result, 'Link text should be preserved' );
+	}
+
+	/**
+	 * Test that anchor tags without href are left unchanged.
+	 */
+	public function test_clean_broken_links_preserves_anchor_without_href() {
+		$html   = '<a>plain text</a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertSame( '<a>plain text</a>', $result );
+	}
+
+	/**
+	 * Test mixed content: valid and broken links together.
+	 */
+	public function test_clean_broken_links_handles_mixed_links() {
+		$html = 'Uploaded <a href="{edit_link}">photo.jpg</a> to <a href="https://example.com">My Post</a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertStringNotContainsString( '{edit_link}', $result, 'Placeholder should be removed' );
+		$this->assertStringContainsString( 'photo.jpg', $result, 'Broken link text preserved' );
+		$this->assertStringContainsString( 'href="https://example.com"', $result, 'Valid link preserved' );
+		$this->assertStringContainsString( 'My Post', $result, 'Valid link text preserved' );
+	}
+
+	/**
+	 * Test that nested HTML inside a broken link is preserved.
+	 */
+	public function test_clean_broken_links_preserves_nested_html() {
+		$html   = '<a href="{edit_link}"><strong>Bold Title</strong></a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertStringContainsString( '<strong>Bold Title</strong>', $result );
+		$this->assertStringNotContainsString( '{edit_link}', $result );
+	}
+
+	/**
+	 * Test that other attributes on a broken link are preserved.
+	 */
+	public function test_clean_broken_links_preserves_other_attributes() {
+		$html   = '<a href="{edit_link}" class="post-link" title="Edit">text</a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertStringContainsString( 'class="post-link"', $result, 'Class attribute should be preserved' );
+		$this->assertStringContainsString( 'title="Edit"', $result, 'Title attribute should be preserved' );
+		$this->assertStringNotContainsString( 'href', $result, 'href should be removed' );
+	}
+
+	/**
+	 * Test with no links at all.
+	 */
+	public function test_clean_broken_links_with_no_links() {
+		$html   = '<p>Just some text with <strong>formatting</strong>.</p>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertSame( $html, $result );
+	}
+
+	/**
+	 * Test with empty string input.
+	 */
+	public function test_clean_broken_links_with_empty_string() {
+		$result = $this->call_clean_broken_links( '' );
+
+		$this->assertSame( '', $result );
+	}
+
+	/**
+	 * Test the full media logger pattern from the bug report.
+	 */
+	public function test_clean_broken_links_with_media_logger_pattern() {
+		$html   = 'Uploaded attachment <a href="{edit_link}">"Spring-Anthology-Poster"</a> to blog <a href="{attachment_parent_edit_link}">"Call for entries"</a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertStringNotContainsString( '{edit_link}', $result );
+		$this->assertStringNotContainsString( '{attachment_parent_edit_link}', $result );
+		$this->assertStringContainsString( '"Spring-Anthology-Poster"', $result );
+		$this->assertStringContainsString( '"Call for entries"', $result );
+	}
+
+	/**
+	 * Test that {edit_profile_link} placeholder from user logger is cleaned.
+	 */
+	public function test_clean_broken_links_with_user_logger_pattern() {
+		$html   = 'Edited <a href="{edit_profile_link}">your profile</a>';
+		$result = $this->call_clean_broken_links( $html );
+
+		$this->assertStringNotContainsString( '{edit_profile_link}', $result );
+		$this->assertStringContainsString( 'your profile', $result );
+	}
+
+	/**
 	 * Test return value structure.
 	 */
 	public function test_return_value_structure() {

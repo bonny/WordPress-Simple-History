@@ -329,9 +329,9 @@ class RSS_Dropin extends Dropin {
 					}
 
 					foreach ( $queryResults['log_rows'] as $row ) {
-						$header_output  = $this->simple_history->get_log_row_header_output( $row );
-						$text_output    = $this->simple_history->get_log_row_plain_text_output( $row );
-						$details_output = $this->simple_history->get_log_row_details_output( $row );
+						$header_output  = $this->clean_broken_links( $this->simple_history->get_log_row_header_output( $row ) );
+						$text_output    = $this->clean_broken_links( $this->simple_history->get_log_row_plain_text_output( $row ) );
+						$details_output = $this->clean_broken_links( $this->simple_history->get_log_row_details_output( $row ) );
 
 						// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- URL reference.
 						// See http://cyber.law.harvard.edu/rss/rss.html#ltguidgtSubelementOfLtitemgt.
@@ -462,6 +462,36 @@ class RSS_Dropin extends Dropin {
 			</rss>
 			<?php
 		}
+	}
+
+	/**
+	 * Clean broken links from HTML output.
+	 *
+	 * Finds <a> tags with unresolved {placeholder} hrefs or empty hrefs
+	 * and removes the href attribute. An <a> without href is valid HTML
+	 * and renders as plain text with no link behavior.
+	 *
+	 * @since 5.x
+	 * @param string $html HTML output from a logger.
+	 * @return string Cleaned HTML with broken links neutralized.
+	 */
+	private function clean_broken_links( $html ) {
+		$processor = new \WP_HTML_Tag_Processor( $html );
+
+		while ( $processor->next_tag( array( 'tag_name' => 'a' ) ) ) {
+			$href = $processor->get_attribute( 'href' );
+
+			$is_empty       = $href === '' || $href === null;
+			$is_placeholder = is_string( $href ) && str_contains( $href, '{' );
+
+			if ( ! $is_empty && ! $is_placeholder ) {
+				continue;
+			}
+
+			$processor->remove_attribute( 'href' );
+		}
+
+		return $processor->get_updated_html();
 	}
 
 	/**
