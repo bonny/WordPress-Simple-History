@@ -372,6 +372,9 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Improved sub-navigation tabs to scroll horizontally on narrow screens instead of wrapping.
 -   Improved plugin loading performance by replacing dynamic file discovery with static class lists, eliminating filesystem scans during initialization.
 -   Improved SQL query performance for sidebar stats and database purge by rewriting queries to use the date index, significantly faster on large tables.
+-   Added `skip_count_query` option to Log_Query, allowing callers to skip the expensive total row count query when pagination metadata is not needed.
+-   Improved RSS feed performance by defaulting to last 7 days and skipping the count query.
+-   Added `dates` parameter support to RSS feed URL for flexible date filtering (e.g. `&dates=lastdays:30`).
 
 **Fixed**
 

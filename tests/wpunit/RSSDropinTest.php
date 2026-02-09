@@ -44,6 +44,7 @@ class RSSDropinTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNull( $result['loggers'], 'Default loggers should be null' );
 		$this->assertNull( $result['messages'], 'Default messages should be null' );
 		$this->assertNull( $result['loglevels'], 'Default loglevels should be null' );
+		$this->assertNull( $result['dates'], 'Default dates should be null' );
 	}
 
 	/**
@@ -74,6 +75,27 @@ class RSSDropinTest extends \Codeception\TestCase\WPTestCase {
 		// Test actual integer.
 		$result = $this->rss_dropin->set_log_query_args_from_query_string( [ 'paged' => 5 ] );
 		$this->assertSame( 5, $result['paged'], 'Integer 5 should remain int 5' );
+	}
+
+	/**
+	 * Test dates parameter parsing.
+	 */
+	public function test_dates_parameter() {
+		// Test lastdays format.
+		$result = $this->rss_dropin->set_log_query_args_from_query_string( [ 'dates' => 'lastdays:7' ] );
+		$this->assertSame( 'lastdays:7', $result['dates'], 'dates should be parsed from query string' );
+
+		// Test month format.
+		$result = $this->rss_dropin->set_log_query_args_from_query_string( [ 'dates' => 'month:2025-06' ] );
+		$this->assertSame( 'month:2025-06', $result['dates'], 'month format should be parsed' );
+
+		// Test null when not provided.
+		$result = $this->rss_dropin->set_log_query_args_from_query_string( [] );
+		$this->assertNull( $result['dates'], 'dates should default to null when not provided' );
+
+		// Test sanitization.
+		$result = $this->rss_dropin->set_log_query_args_from_query_string( [ 'dates' => 'lastdays:7<script>' ] );
+		$this->assertStringNotContainsString( '<script>', $result['dates'], 'dates should be sanitized' );
 	}
 
 	/**
@@ -378,8 +400,9 @@ class RSSDropinTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( 'exclude_loglevels', $result, 'Should have exclude_loglevels key' );
 		$this->assertArrayHasKey( 'exclude_user', $result, 'Should have exclude_user key' );
 		$this->assertArrayHasKey( 'exclude_users', $result, 'Should have exclude_users key' );
+		$this->assertArrayHasKey( 'dates', $result, 'Should have dates key' );
 
-		// Should have exactly 12 keys (no extra keys).
-		$this->assertCount( 12, $result, 'Should have exactly 12 keys' );
+		// Should have exactly 13 keys (no extra keys).
+		$this->assertCount( 13, $result, 'Should have exactly 13 keys' );
 	}
 }

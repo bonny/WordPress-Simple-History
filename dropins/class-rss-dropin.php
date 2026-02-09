@@ -285,6 +285,16 @@ class RSS_Dropin extends Dropin {
 					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$args = $this->set_log_query_args_from_query_string( $_GET );
 
+					// Default to last 7 days when no date filter is provided,
+					// to avoid scanning the entire events table.
+					$has_date_filter = ! empty( $args['date_from'] ) || ! empty( $args['date_to'] ) || ! empty( $args['dates'] );
+					if ( ! $has_date_filter ) {
+						$args['dates'] = 'lastdays:7';
+					}
+
+					// RSS feeds don't need pagination metadata.
+					$args['skip_count_query'] = true;
+
 					/**
 					 * Filters the arguments passed to `SimpleHistoryLogQuery()` when fetching the RSS feed
 					 *
@@ -638,6 +648,7 @@ class RSS_Dropin extends Dropin {
 		$loggers        = isset( $args['loggers'] ) ? sanitize_text_field( $args['loggers'] ) : null;
 		$messages       = isset( $args['messages'] ) ? sanitize_text_field( $args['messages'] ) : null;
 		$loglevels      = isset( $args['loglevels'] ) ? sanitize_text_field( $args['loglevels'] ) : null;
+		$dates          = isset( $args['dates'] ) ? sanitize_text_field( $args['dates'] ) : null;
 
 		// Exclusion filters - useful for subscribing to events excluding your own actions.
 		$exclude_loggers   = isset( $args['exclude_loggers'] ) ? sanitize_text_field( $args['exclude_loggers'] ) : null;
@@ -654,6 +665,7 @@ class RSS_Dropin extends Dropin {
 			'loggers'           => $loggers,
 			'messages'          => $messages,
 			'loglevels'         => $loglevels,
+			'dates'             => $dates,
 			'exclude_loggers'   => $exclude_loggers,
 			'exclude_messages'  => $exclude_messages,
 			'exclude_loglevels' => $exclude_loglevels,
