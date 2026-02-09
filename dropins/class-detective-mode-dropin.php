@@ -85,6 +85,10 @@ class Detective_Mode_Dropin extends Dropin {
 		</p>
 
 		<p class="description">
+			<?php esc_html_e( 'Heads up: Since request data is captured, sensitive information like API keys or tokens could end up in the log. Common password fields are automatically masked, but we recommend keeping Detective Mode enabled only while actively troubleshooting.', 'simple-history' ); ?>
+		</p>
+
+		<p class="description">
 			<a href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/support/detective-mode/', 'docs_detective_help' ) ); ?>" target="_blank" class="sh-ExternalLink">
 			<?php esc_html_e( 'Read more about detective mode', 'simple-history' ); ?>
 			</a>
