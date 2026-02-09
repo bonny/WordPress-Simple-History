@@ -178,40 +178,59 @@ class Admin_Pages extends Service {
 					?>
 					<span class="sh-PageHeader-badge sh-PageHeader-badge--dev" title="<?php esc_attr_e( 'Developer mode is enabled via SIMPLE_HISTORY_DEV constant', 'simple-history' ); ?>"><?php esc_html_e( 'Dev', 'simple-history' ); ?></span>
 					<?php
-					// Display premium plugin toggle badge when dev mode is enabled.
-					$is_premium_active = Helpers::is_premium_add_on_active();
-					$badge_state_class = $is_premium_active ? 'is-active' : 'is-inactive';
-					$badge_text        = $is_premium_active ? __( 'Premium: Active', 'simple-history' ) : __( 'Premium: Inactive', 'simple-history' );
-					$badge_title       = $is_premium_active ? __( 'Click to deactivate premium add-on', 'simple-history' ) : __( 'Click to activate premium add-on', 'simple-history' );
-					?>
-					<button
-						class="sh-PageHeader-badge sh-PageHeader-badge--premiumToggle <?php echo esc_attr( $badge_state_class ); ?>"
-						id="sh-premium-toggle"
-						title="<?php echo esc_attr( $badge_title ); ?>"
-						data-plugin="simple-history-premium/simple-history-premium.php"
-						data-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
-					>
-						<span class="dashicons dashicons-admin-plugins"></span>
-						<?php echo esc_html( $badge_text ); ?>
-					</button>
-					<?php
+					// Display dev mode toggle badges.
+					$rest_nonce = wp_create_nonce( 'wp_rest' );
 
-					// Display experimental features toggle badge.
-					$is_experimental_active   = Helpers::experimental_features_is_enabled();
-					$experimental_state_class = $is_experimental_active ? 'is-active' : 'is-inactive';
-					$experimental_text        = $is_experimental_active ? __( 'Experimental: On', 'simple-history' ) : __( 'Experimental: Off', 'simple-history' );
-					$experimental_title       = $is_experimental_active ? __( 'Click to disable experimental features', 'simple-history' ) : __( 'Click to enable experimental features', 'simple-history' );
-					?>
-					<button
-						class="sh-PageHeader-badge sh-PageHeader-badge--experimentalToggle <?php echo esc_attr( $experimental_state_class ); ?>"
-						id="sh-experimental-toggle"
-						title="<?php echo esc_attr( $experimental_title ); ?>"
-						data-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
-					>
-						<span class="dashicons dashicons-admin-tools"></span>
-						<?php echo esc_html( $experimental_text ); ?>
-					</button>
-					<?php
+					$toggle_badges = [
+						[
+							'variant'  => 'premium',
+							'active'   => Helpers::is_premium_add_on_active(),
+							'on_text'  => __( 'Premium: Active', 'simple-history' ),
+							'off_text' => __( 'Premium: Inactive', 'simple-history' ),
+							'on_tip'   => __( 'Click to deactivate premium add-on', 'simple-history' ),
+							'off_tip'  => __( 'Click to activate premium add-on', 'simple-history' ),
+							'icon'     => 'dashicons-admin-plugins',
+							'endpoint' => 'toggle-plugin',
+							'data'     => [ 'plugin' => 'simple-history-premium/simple-history-premium.php' ],
+						],
+						[
+							'variant'  => 'experimental',
+							'active'   => Helpers::experimental_features_is_enabled(),
+							'on_text'  => __( 'Experimental: On', 'simple-history' ),
+							'off_text' => __( 'Experimental: Off', 'simple-history' ),
+							'on_tip'   => __( 'Click to disable experimental features', 'simple-history' ),
+							'off_tip'  => __( 'Click to enable experimental features', 'simple-history' ),
+							'icon'     => 'dashicons-admin-tools',
+							'endpoint' => 'toggle-experimental-features',
+							'data'     => [],
+						],
+					];
+
+					foreach ( $toggle_badges as $badge ) {
+						$state_class = $badge['active'] ? 'is-active' : 'is-inactive';
+						$text        = $badge['active'] ? $badge['on_text'] : $badge['off_text'];
+						$title       = $badge['active'] ? $badge['on_tip'] : $badge['off_tip'];
+						$data_attrs  = '';
+
+						foreach ( $badge['data'] as $key => $value ) {
+							$data_attrs .= sprintf( ' data-%s="%s"', esc_attr( $key ), esc_attr( $value ) );
+						}
+						?>
+						<button
+							class="sh-PageHeader-badge sh-PageHeader-badge--toggle sh-PageHeader-badge--<?php echo esc_attr( $badge['variant'] ); ?> <?php echo esc_attr( $state_class ); ?>"
+							title="<?php echo esc_attr( $title ); ?>"
+							data-nonce="<?php echo esc_attr( $rest_nonce ); ?>"
+							data-endpoint="<?php echo esc_attr( $badge['endpoint'] ); ?>"
+							<?php
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							echo $data_attrs;
+							?>
+						>
+							<span class="dashicons <?php echo esc_attr( $badge['icon'] ); ?>"></span>
+							<?php echo esc_html( $text ); ?>
+						</button>
+						<?php
+					}
 				}
 				?>
 			</div>

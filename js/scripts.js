@@ -8,14 +8,15 @@ jQuery( '.js-SimpleHistory-Settings-ClearLog' ).on( 'click', function ( e ) {
 } );
 
 /**
- * Handle premium plugin toggle button click (dev mode only)
+ * Handle dev mode toggle badge clicks (premium, experimental, etc.)
  */
 jQuery( document ).ready( function ( $ ) {
-	$( '#sh-experimental-toggle' ).on( 'click', function ( e ) {
+	$( '.sh-PageHeader-badge--toggle' ).on( 'click', function ( e ) {
 		e.preventDefault();
 
 		const $button = $( this );
 		const nonce = $button.data( 'nonce' );
+		const endpoint = $button.data( 'endpoint' );
 
 		// Disable button during request.
 		$button.prop( 'disabled', true );
@@ -26,62 +27,26 @@ jQuery( document ).ready( function ( $ ) {
 			apiRoot = wpApiSettings.root;
 		}
 
+		// Collect any extra data- attributes (e.g. data-plugin).
+		const data = {};
+		$.each( $button.data(), function ( key, value ) {
+			if ( key !== 'nonce' && key !== 'endpoint' ) {
+				data[ key ] = value;
+			}
+		} );
+
 		$.ajax( {
-			url:
-				apiRoot +
-				'simple-history/v1/dev-tools/toggle-experimental-features',
+			url: apiRoot + 'simple-history/v1/dev-tools/' + endpoint,
 			method: 'POST',
 			beforeSend: function ( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', nonce );
 			},
+			data: data,
 			success: function () {
 				window.location.reload();
 			},
 			error: function ( xhr ) {
-				let errorMessage = 'Failed to toggle experimental features.';
-
-				if ( xhr.responseJSON && xhr.responseJSON.message ) {
-					errorMessage = xhr.responseJSON.message;
-				}
-
-				alert( errorMessage );
-				$button.prop( 'disabled', false );
-			},
-		} );
-	} );
-
-	$( '#sh-premium-toggle' ).on( 'click', function ( e ) {
-		e.preventDefault();
-
-		const $button = $( this );
-		const plugin = $button.data( 'plugin' );
-		const nonce = $button.data( 'nonce' );
-
-		// Disable button during request
-		$button.prop( 'disabled', true );
-
-		// Get REST API root URL - try wpApiSettings first, fallback to relative path
-		let apiRoot = '/wp-json/';
-		if ( typeof wpApiSettings !== 'undefined' && wpApiSettings.root ) {
-			apiRoot = wpApiSettings.root;
-		}
-
-		// Make API request to toggle plugin
-		$.ajax( {
-			url: apiRoot + 'simple-history/v1/dev-tools/toggle-plugin',
-			method: 'POST',
-			beforeSend: function ( xhr ) {
-				xhr.setRequestHeader( 'X-WP-Nonce', nonce );
-			},
-			data: {
-				plugin: plugin,
-			},
-			success: function ( response ) {
-				// Reload the page to reflect the new plugin state
-				window.location.reload();
-			},
-			error: function ( xhr, status, error ) {
-				let errorMessage = 'Failed to toggle plugin.';
+				let errorMessage = 'Toggle failed.';
 
 				if ( xhr.responseJSON && xhr.responseJSON.message ) {
 					errorMessage = xhr.responseJSON.message;

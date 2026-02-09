@@ -1133,8 +1133,8 @@ so add some extra place then to make it look a bit less ugly.
 	background-color: #2271b1;
 }
 
-/* Premium toggle badge variant */
-.sh-PageHeader-badge--premiumToggle {
+/* Shared toggle badge styles */
+.sh-PageHeader-badge--toggle {
 	border: none;
 	cursor: pointer;
 	display: inline-flex;
@@ -1143,54 +1143,34 @@ so add some extra place then to make it look a bit less ugly.
 	vertical-align: middle;
 }
 
-.sh-PageHeader-badge--premiumToggle .dashicons {
+.sh-PageHeader-badge--toggle .dashicons {
 	font-size: 10px;
 	width: 10px;
 	height: 10px;
 	line-height: 1;
 }
 
-.sh-PageHeader-badge--premiumToggle.is-active {
+.sh-PageHeader-badge--toggle:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+
+/* Premium toggle colors */
+.sh-PageHeader-badge--premium.is-active {
 	background-color: #00a32a;
 }
 
-.sh-PageHeader-badge--premiumToggle.is-inactive {
+.sh-PageHeader-badge--premium.is-inactive {
 	background-color: #d63638;
 }
 
-.sh-PageHeader-badge--premiumToggle:disabled {
-	opacity: 0.6;
-	cursor: wait;
-}
-
-/* Experimental features toggle badge variant */
-.sh-PageHeader-badge--experimentalToggle {
-	border: none;
-	cursor: pointer;
-	display: inline-flex;
-	align-items: center;
-	gap: var(--sh-spacing-xsmall);
-	vertical-align: middle;
-}
-
-.sh-PageHeader-badge--experimentalToggle .dashicons {
-	font-size: 10px;
-	width: 10px;
-	height: 10px;
-	line-height: 1;
-}
-
-.sh-PageHeader-badge--experimentalToggle.is-active {
+/* Experimental toggle colors */
+.sh-PageHeader-badge--experimental.is-active {
 	background-color: #9b59b6;
 }
 
-.sh-PageHeader-badge--experimentalToggle.is-inactive {
+.sh-PageHeader-badge--experimental.is-inactive {
 	background-color: #888;
-}
-
-.sh-PageHeader-badge--experimentalToggle:disabled {
-	opacity: 0.6;
-	cursor: wait;
 }
 
 .sh-NotificationBar {
