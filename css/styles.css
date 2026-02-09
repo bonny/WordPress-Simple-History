@@ -1163,6 +1163,36 @@ so add some extra place then to make it look a bit less ugly.
 	cursor: wait;
 }
 
+/* Experimental features toggle badge variant */
+.sh-PageHeader-badge--experimentalToggle {
+	border: none;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	vertical-align: middle;
+}
+
+.sh-PageHeader-badge--experimentalToggle .dashicons {
+	font-size: 10px;
+	width: 10px;
+	height: 10px;
+	line-height: 1;
+}
+
+.sh-PageHeader-badge--experimentalToggle.is-active {
+	background-color: #9b59b6;
+}
+
+.sh-PageHeader-badge--experimentalToggle.is-inactive {
+	background-color: #888;
+}
+
+.sh-PageHeader-badge--experimentalToggle:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+
 .sh-NotificationBar {
 	position: relative;
 	text-align: center;

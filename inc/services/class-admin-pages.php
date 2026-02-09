@@ -195,6 +195,23 @@ class Admin_Pages extends Service {
 						<?php echo esc_html( $badge_text ); ?>
 					</button>
 					<?php
+
+					// Display experimental features toggle badge.
+					$is_experimental_active   = Helpers::experimental_features_is_enabled();
+					$experimental_state_class = $is_experimental_active ? 'is-active' : 'is-inactive';
+					$experimental_text        = $is_experimental_active ? __( 'Experimental: On', 'simple-history' ) : __( 'Experimental: Off', 'simple-history' );
+					$experimental_title       = $is_experimental_active ? __( 'Click to disable experimental features', 'simple-history' ) : __( 'Click to enable experimental features', 'simple-history' );
+					?>
+					<button
+						class="sh-PageHeader-badge sh-PageHeader-badge--experimentalToggle <?php echo esc_attr( $experimental_state_class ); ?>"
+						id="sh-experimental-toggle"
+						title="<?php echo esc_attr( $experimental_title ); ?>"
+						data-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
+					>
+						<span class="dashicons dashicons-admin-tools"></span>
+						<?php echo esc_html( $experimental_text ); ?>
+					</button>
+					<?php
 				}
 				?>
 			</div>

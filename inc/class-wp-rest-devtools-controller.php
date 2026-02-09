@@ -54,6 +54,19 @@ class WP_REST_Devtools_Controller extends WP_REST_Controller {
 			],
 		);
 
+		// POST /wp-json/simple-history/v1/dev-tools/toggle-experimental-features.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/toggle-experimental-features',
+			[
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'toggle_experimental_features' ],
+					'permission_callback' => [ $this, 'toggle_plugin_permissions_check' ],
+				],
+			],
+		);
+
 		// GET /wp-json/simple-history/v1/dev-tools/plugin-status.
 		register_rest_route(
 			$this->namespace,
@@ -189,6 +202,26 @@ class WP_REST_Devtools_Controller extends WP_REST_Controller {
 				'plugin'     => $plugin,
 				'is_active'  => $new_status,
 				'was_active' => $is_active,
+			]
+		);
+	}
+
+	/**
+	 * Toggle experimental features on or off.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function toggle_experimental_features( $request ) {
+		$is_enabled = Helpers::experimental_features_is_enabled();
+		$new_value  = $is_enabled ? '0' : '1';
+
+		update_option( 'simple_history_experimental_features_enabled', $new_value );
+
+		return rest_ensure_response(
+			[
+				'success'    => true,
+				'is_enabled' => (bool) $new_value,
 			]
 		);
 	}
