@@ -1,0 +1,273 @@
+---
+name: release
+description: Release checklist for core and premium plugins. Covers version bumping, changelog finalization, tagging, and deployment. Triggers when user says "release", "publish", "deploy", "bump version", "prepare release".
+disable-model-invocation: true
+allowed-tools: Bash, Read, Edit
+hooks:
+    PreToolUse:
+        - matcher: Bash
+          hooks:
+              - type: command
+                command: '$CLAUDE_PROJECT_DIR/.claude/hooks/block-git-push.sh'
+---
+
+# Release Process
+
+Release checklist for Simple History core plugin and add-ons.
+
+Uses [OneFlow](https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow) branching model and [semver](https://semver.org/) versioning.
+
+## Release Order
+
+**Always release core first, then premium/add-ons.**
+
+Premium declares a minimum core version. While reversing the order won't crash (premium shows a graceful admin notice), releasing core first ensures compatibility.
+
+## Core Plugin Release
+
+### 1. Create Release Branch
+
+```bash
+git checkout main
+git pull
+git checkout -b release-X.Y.Z
+```
+
+### 2. Bump Version
+
+```bash
+npm run bump:patch   # or bump:minor / bump:major
+```
+
+This updates version in all three locations:
+
+-   `index.php` (plugin header `Version:` and `SIMPLE_HISTORY_VERSION` constant)
+-   `readme.txt` (`Stable tag:`)
+-   `package.json` (`version`)
+
+### 3. Update Changelog
+
+In `readme.txt`, move items from `### Unreleased` to a new versioned section:
+
+```
+### X.Y.Z (Month Year)
+```
+
+Keep an empty `### Unreleased` section above it.
+
+Update `CHANGELOG.md` with the same versioned section (this file does not use an Unreleased section).
+
+### 4. Add Update Details
+
+If the release has significant changes, add update details to `class-simple-history-updates.php`. This is shown to users in the WordPress update screen.
+
+### 5. Run QA
+
+```bash
+npm run php:lint
+npm run php:phpstan
+npm run build
+```
+
+Run each test suite individually to avoid timeouts. Run PHP 8.1 first (faster), then PHP 7.4:
+
+```bash
+# PHP 8.1
+npm run test:php81
+
+# PHP 7.4
+npm run test:php74
+```
+
+### 6. Write Blog Post
+
+Write a blog post on simple-history.com with:
+
+-   Detailed changelog
+-   Screenshots where relevant
+-   Links to updated documentation
+-   Tagged with _releases_ and _changelog_
+
+Link to this blog post from the `readme.txt` changelog entry.
+
+### 7. Tag
+
+```bash
+git tag X.Y.Z
+```
+
+### 8. Merge to Main
+
+```bash
+git checkout main
+git merge release-X.Y.Z
+git branch -d release-X.Y.Z
+```
+
+### 9. Push (MANUAL — do not run automatically)
+
+**STOP: Do not execute git push.** Pushing the tag triggers deployment to WordPress.org and is irreversible. Remind the user to run these commands themselves:
+
+```bash
+git push origin main
+git push origin X.Y.Z
+```
+
+Pushing the tag triggers the GitHub Actions workflow (`.github/workflows/deploy.yml`) which builds and deploys to WordPress.org via SVN.
+
+### 10. Post-Release
+
+-   Wait for [GitHub Actions](https://github.com/bonny/WordPress-Simple-History/actions) to finish deploying
+-   Verify the new version appears on https://wordpress.org/plugins/simple-history/
+-   Test updating the plugin on:
+    -   [Local test site with non-symlinked plugins](http://wordpress-add-ons-testing-docker.test:8288/wp-admin/update-core.php)
+    -   https://eskapism.se/wp-admin/
+    -   https://simple-history.com
+-   Follow up [issues](https://github.com/bonny/WordPress-Simple-History/issues) and [support threads](https://wordpress.org/support/plugin/simple-history/active/) — answer and close resolved ones
+
+## Add-on Release (Premium and Others)
+
+Add-ons live in a separate monorepo. See `CLAUDE.local.md` for the local path.
+
+### Branch and Tag Naming
+
+Each add-on uses its own prefix:
+
+| Add-on             | Branch example                     | Tag example                |
+| ------------------ | ---------------------------------- | -------------------------- |
+| Premium            | `premium/release-1.8.0`            | `premium/1.8.0`            |
+| Debug and Monitor  | `debug-and-monitor/release-1.0.1`  | `debug-and-monitor/1.0.1`  |
+| WooCommerce Logger | `woocommerce-logger/release-1.0.4` | `woocommerce-logger/1.0.4` |
+
+### 1. Test
+
+Run tests and manual smoke testing. Verify features work with the latest core version.
+
+### 2. Create Release Branch
+
+```bash
+git checkout main
+git pull
+git checkout -b <prefix>/release-X.Y.Z
+```
+
+### 3. Update Changelog
+
+Update changelog in the add-on's `readme.txt`. Move items from `### Unreleased` to a versioned section.
+
+### 4. Update Translations
+
+If texts have been added or modified, update translations using Claude's translate command.
+
+### 5. Update Version
+
+**For Premium:** Run Claude command `version-update`, which updates:
+
+-   `simple-history-premium.php` — plugin header (`Version: X.Y.Z`)
+-   `simple-history-premium.php` — `Config::init()` array (`'version' => 'X.Y.Z'`)
+-   `readme.txt` — `Stable tag: X.Y.Z`
+
+**For other add-ons:** Manually update:
+
+-   `readme.txt`
+-   `index.php` (or similar main file, 2 places — header and constant)
+
+### 6. Update Minimum Core Version (Premium Only)
+
+**Both of these must be updated together — keep them in sync!**
+
+In `inc/functions.php`:
+
+-   The `version_compare()` check (the actual version gate)
+-   The admin notice message string (the user-facing text)
+
+### 7. Build (Premium Only)
+
+```bash
+npm run build
+```
+
+Build artifacts are committed for the premium plugin.
+
+### 8. Tag
+
+```bash
+git tag <prefix>/X.Y.Z
+```
+
+### 9. Merge to Main
+
+```bash
+git checkout main
+git merge <prefix>/release-X.Y.Z
+git branch -d <prefix>/release-X.Y.Z
+```
+
+### 10. Push (MANUAL — do not run automatically)
+
+**STOP: Do not execute git push.** Remind the user to run these commands themselves:
+
+```bash
+git push origin main
+git push origin <prefix>/X.Y.Z
+```
+
+### 11. Create Distribution Zip
+
+**Premium:**
+
+```bash
+npm run plugin-zip
+```
+
+**Other add-ons:** Use Keka to zip the plugin folder and add to releases folder.
+
+Rename zip to include version: `simple-history-premium-1.8.0.zip`
+
+### 12. Upload to Lemon Squeezy
+
+-   Go to https://app.lemonsqueezy.com/products/
+-   Upload zip to each variant
+-   Add new version number to each file uploaded
+
+### 13. Update simple-history.com
+
+-   Update [plugin info releases](https://simple-history.com/wp/wp-admin/edit.php?post_type=plugin_releases):
+    -   Update version
+    -   Update changelog
+    -   Update date on add-on product page at `https://simple-history.com/add-ons/<plugin-slug>`
+
+### 14. Verify Update Delivery
+
+Test that the plugin update is detected on:
+
+-   [eskapism.se](https://eskapism.se/wp-admin/network/update-core.php) (has premium with license)
+-   [Local test site](http://wordpress-add-ons-testing-docker.test:8288/wp-admin/) (non-symlinked plugins, with license entered)
+-   [simple-history.com](https://simple-history.com/) (has the plugin but needs manual zip upload to update)
+
+If no update is found, check Lemon Squeezy API errors and debug.
+
+### 15. Blog Post
+
+Write a [blog post on simple-history.com](https://simple-history.com/wp/wp-admin/edit.php) describing the release. Add categories like _premium_ and _releases_.
+
+## Version Locations Reference
+
+### Core Plugin
+
+| File           | Location                          | Example                                        |
+| -------------- | --------------------------------- | ---------------------------------------------- |
+| `index.php`    | Plugin header `Version:`          | `Version: 5.22.0`                              |
+| `index.php`    | `SIMPLE_HISTORY_VERSION` constant | `define( 'SIMPLE_HISTORY_VERSION', '5.22.0' )` |
+| `readme.txt`   | `Stable tag:`                     | `Stable tag: 5.22.0`                           |
+| `package.json` | `version` field                   | `"version": "5.22.0"`                          |
+
+### Premium Plugin
+
+| File                         | Location                  | Example                    |
+| ---------------------------- | ------------------------- | -------------------------- |
+| `simple-history-premium.php` | Plugin header `Version:`  | `Version: 1.8.0`           |
+| `simple-history-premium.php` | `Config::init()` version  | `'version' => '1.8.0'`     |
+| `readme.txt`                 | `Stable tag:`             | `Stable tag: 1.8.0`        |
+| `inc/functions.php`          | `version_compare()` check | Minimum core version gate  |
+| `inc/functions.php`          | Admin notice message      | User-facing version string |

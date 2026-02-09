@@ -17,23 +17,26 @@ This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, e
 ### Simple History's Freemium Approach
 
 **Free Version** (This Repository):
-- Must be fully functional for all core features
-- No artificial limitations
-- No license key requirements
-- No trial periods or usage limits
-- Can include non-intrusive upgrade prompts
-- Premium feature teasers (clearly marked)
+
+-   Must be fully functional for all core features
+-   No artificial limitations
+-   No license key requirements
+-   No trial periods or usage limits
+-   Can include non-intrusive upgrade prompts
+-   Premium feature teasers (clearly marked)
 
 **Premium Version** (Separate Plugin):
-- Extended functionality (more retention, filters)
-- Premium-only integrations
-- Advanced features
-- Priority support
+
+-   Extended functionality (more retention, filters)
+-   Premium-only integrations
+-   Advanced features
+-   Priority support
 
 **Philosophy**: "Free is great, Premium is a must-have"
-- Make users **want** to upgrade, not **have** to upgrade
-- Provide real value in premium, not just unlocking free features
-- Be helpful and friendly, not pushy or annoying
+
+-   Make users **want** to upgrade, not **have** to upgrade
+-   Provide real value in premium, not just unlocking free features
+-   Be helpful and friendly, not pushy or annoying
 
 See the **wordpress-org-compliance** skill for detailed guidelines on implementing this approach while maintaining WordPress.org compliance.
 
@@ -95,22 +98,6 @@ docker compose run --rm wpcli_mariadb simple-history --help
 ```
 
 See @CLAUDE.local.md for specific commands for stable and nightly WordPress installations.
-
-## Agent Skills
-
-The following skills are available for domain-specific guidance:
-
--   **changelog**: Add entries to readme.txt changelog
--   **code-quality**: PHP/CSS/JS standards, linting tools (phpcs, phpstan, rector)
--   **git-commits**: Project-specific commit guidance for multi-repo workflow
--   **logger-messages**: Write user-friendly active voice messages for event logs
--   **markdown-formatting**: Format markdown files with Prettier
--   **premium-upsell-design**: Design premium teasers, badges, and CTAs
--   **sql**: Run SQL queries against WordPress dev database
--   **wordpress-org-compliance**: WordPress.org guidelines for freemium plugins
--   **writing-blog-posts**: Write blog posts for simple-history.com
-
-These skills are automatically discovered by Claude Code. Invoke them when working in their respective domains.
 
 ## Code Standards
 
