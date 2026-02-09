@@ -302,30 +302,33 @@ class Log_Query {
 		// Re-index array.
 		$result_log_rows = array_values( $result_log_rows );
 
-		// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
-		$sql_statement_log_rows_count = '
-			SELECT count(*) as count
-			FROM %1$s AS simple_history_1
-			%2$s
-			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
-		';
+		$total_found_rows = null;
+		$pages_count      = null;
+		$log_rows_count   = count( $result_log_rows );
+		$page_rows_from   = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
+		$page_rows_to     = $page_rows_from + $log_rows_count - 1;
 
-		$sql_query_log_rows_count = sprintf(
-			$sql_statement_log_rows_count,
-			$Simple_History->get_events_table_name(), // 1
-			$inner_where_string, // 2
-		);
+		if ( ! $args['skip_count_query'] ) {
+			// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
+			$sql_statement_log_rows_count = '
+				SELECT count(*) as count
+				FROM %1$s AS simple_history_1
+				%2$s
+				ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
+			';
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count );
+			$sql_query_log_rows_count = sprintf(
+				$sql_statement_log_rows_count,
+				$Simple_History->get_events_table_name(), // 1
+				$inner_where_string, // 2
+			);
 
-		// Calc pages.
-		$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count );
 
-		// Calc pagination info.
-		$log_rows_count = count( $result_log_rows );
-		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
-		$page_rows_to   = $page_rows_from + $log_rows_count - 1;
+			// Calc pages.
+			$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
+		}
 
 		// Get maxId, minId, and maxDate.
 		// MaxId is the id of the first row in the result (i.e. the latest entry).
@@ -343,7 +346,7 @@ class Log_Query {
 		// Create array to return.
 		// Add log rows to sub key 'log_rows' because meta info is also added.
 		$arr_return = [
-			'total_row_count' => (int) $total_found_rows,
+			'total_row_count' => $total_found_rows !== null ? (int) $total_found_rows : null,
 			'pages_count'     => $pages_count,
 			'page_current'    => $args['paged'],
 			'page_rows_from'  => $page_rows_from,
@@ -562,49 +565,52 @@ class Log_Query {
 			$max_date = $result_log_rows[0]->date;
 		}
 
-		// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
-		$sql_statement_log_rows_count = '
-			## START SQL_STATEMENT_LOG_ROWS
-			SELECT
-				count(*) as count
+		$total_found_rows = null;
+		$pages_count      = null;
+		$log_rows_count   = count( $result_log_rows );
+		$page_rows_from   = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
+		$page_rows_to     = $page_rows_from + $log_rows_count - 1;
 
-			FROM %1$s AS simple_history_1
+		if ( ! $args['skip_count_query'] ) {
+			// Like $sql_statement_log_rows but all columns is replaced by a single COUNT(*).
+			$sql_statement_log_rows_count = '
+				## START SQL_STATEMENT_LOG_ROWS
+				SELECT
+					count(*) as count
 
-			INNER JOIN (
-				%2$s
-			) AS max_ids_and_count ON simple_history_1.id = max_ids_and_count.maxId
+				FROM %1$s AS simple_history_1
 
-			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
-			## END SQL_STATEMENT_LOG_ROWS
-		';
+				INNER JOIN (
+					%2$s
+				) AS max_ids_and_count ON simple_history_1.id = max_ids_and_count.maxId
 
-		// Create $max_ids_and_count_sql_statement without limit,
-		// to get count(*).
-		$max_ids_and_count_without_limit_sql_statement = sprintf(
-			$sql_statement_max_ids_and_count_template,
-			$Simple_History->get_events_table_name(), // 1
-			$Simple_History->get_contexts_table_name(), // 2
-			$inner_sql_query_statement, // 3
-			$outer_where_string, // 4
-			'', // 5 Limit clause.
-		);
+				ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
+				## END SQL_STATEMENT_LOG_ROWS
+			';
 
-		$sql_query_log_rows_count = sprintf(
-			$sql_statement_log_rows_count,
-			$Simple_History->get_events_table_name(), // 1
-			$max_ids_and_count_without_limit_sql_statement // 2
-		);
+			// Create $max_ids_and_count_sql_statement without limit,
+			// to get count(*).
+			$max_ids_and_count_without_limit_sql_statement = sprintf(
+				$sql_statement_max_ids_and_count_template,
+				$Simple_History->get_events_table_name(), // 1
+				$Simple_History->get_contexts_table_name(), // 2
+				$inner_sql_query_statement, // 3
+				$outer_where_string, // 4
+				'', // 5 Limit clause.
+			);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count );
+			$sql_query_log_rows_count = sprintf(
+				$sql_statement_log_rows_count,
+				$Simple_History->get_events_table_name(), // 1
+				$max_ids_and_count_without_limit_sql_statement // 2
+			);
 
-		// Calc pages.
-		$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$total_found_rows = $wpdb->get_var( $sql_query_log_rows_count );
 
-		// Calc pagination info.
-		$log_rows_count = count( $result_log_rows );
-		$page_rows_from = ( $args['paged'] * $args['posts_per_page'] ) - $args['posts_per_page'] + 1;
-		$page_rows_to   = $page_rows_from + $log_rows_count - 1;
+			// Calc pages.
+			$pages_count = Ceil( $total_found_rows / $args['posts_per_page'] );
+		}
 
 		// Prepend sticky events to the result.
 		// Sticky events are added first in the result set and does not
@@ -640,7 +646,7 @@ class Log_Query {
 		// Create array to return.
 		// Add log rows to sub key 'log_rows' because meta info is also added.
 		$arr_return = [
-			'total_row_count' => (int) $total_found_rows,
+			'total_row_count' => $total_found_rows !== null ? (int) $total_found_rows : null,
 			'pages_count'     => $pages_count,
 			'page_current'    => $args['paged'],
 			'page_rows_from'  => $page_rows_from,
@@ -1075,6 +1081,10 @@ class Log_Query {
 
 				// Return ungrouped events without occasions grouping.
 				'ungrouped'         => false,
+
+				// Skip the count query for total rows. Useful for feeds
+				// and other consumers that don't need pagination metadata.
+				'skip_count_query'  => false,
 
 				// Exclusion filters - hide events matching these criteria.
 				// Text to exclude from search.
