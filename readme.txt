@@ -350,38 +350,35 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Search labels on 11 loggers (Beaver Builder, Duplicate Post, Enable Media Replace, Jetpack, Limit Login Attempts, Redirection, User Switching, WP Crontrol, Privacy, Simple History, Translations) for better filtering in alert rules.
 -   Detection of forced security updates from WordPress.org; shown as "Update method: Security auto-update" in plugin update details.
 -   Upgrade notices from WordPress.org API in plugin update details.
+-   Search labels on 11 loggers (Beaver Builder, Duplicate Post, Enable Media Replace, Jetpack, Limit Login Attempts, Redirection, User Switching, WP Crontrol, Privacy, Simple History, Translations) for better filtering in alert rules.
+-   Granular failed-login filters: "Failed login (wrong password)" for known users and "Failed login (unknown user)" for non-existent usernames, alongside the existing "Failed user logins" option.
 -   Advance warning when forced security updates are detected ("Security auto-update" before installation).
+-   User role (`_user_role`) in event context for debugging and used by alerts to be able to add rules for specific user roles.
 -   Notes feature stats (WordPress 6.9+):
     -   Statistics in weekly email reports (notes added and resolved).
     -   Statistics on History Insights for block editor notes activity.
     -   REST API at `/wp-json/simple-history/v1/stats/notes`.
 -   Alerts settings page with premium notification teasers (presets and custom rules in [Premium](https://simple-history.com/add-ons/premium/?utm_source=worg)).
--   User role (`_user_role`) in event context for filtering and alerts by who performed the action.
--   Granular failed-login filters: "Failed login (wrong password)" for known users and "Failed login (unknown user)" for non-existent usernames, alongside the existing "Failed user logins" option.
 
 **Changed**
 
--   Logger messages in active voice: e.g. "Was denied access" → "Attempted to access restricted", "was auto-disabled" → "Auto-disabled", "Was locked out because" → "Locked out after".
+-   Updated some logger messages to use active voice: e.g. "Was denied access" → "Attempted to access restricted", "was auto-disabled" → "Auto-disabled", "Was locked out because" → "Locked out after", "was updated" → "Updated".
 -   Debug tab merged into Help & Support; System Information sits directly under support links.
 -   Status bar on Help & Support showing plugin version, event count, and retention at a glance.
 -   System Information extended with PHP Max Input Vars, WP Memory Limit, Child Theme, Theme Author, and User Agent for support debugging.
--   Log level for forced security plugin updates from "info" to "notice" so auto-updates stand out.
--   Update check data storage optimized for better performance.
+-   Log level for forced security plugin updates is changed from "info" to "notice", so auto-updates stand out.
+-   Disable autoload for Available Updates Logger options, so they are only loaded when needed.
 -   Sub-navigation tabs scroll horizontally on narrow screens instead of wrapping.
--   Plugin loading: static class lists replace file discovery, no filesystem scans on init.
+-   Plugin loading no longer scans the filesystem at startup; loggers and extensions are registered via static class lists for faster, more reliable init.
 -   Sidebar stats and database purge queries rewritten to use the date index (faster on large tables).
--   `skip_count_query` option on Log_Query to omit the total row count when pagination metadata is not needed.
--   RSS feed: default to last 7 days and skip the count query for better performance.
--   RSS feed `dates` parameter for date filtering (e.g. `&dates=lastdays:30`).
+-   Log_Query now has a `skip_count_query` option to omit the total row count when pagination metadata is not needed.
+-   RSS feed now defaults to last 7 days and skips the count query for better performance. It also has a `dates` parameter for date filtering (e.g. `&dates=lastdays:30`).
 
 **Fixed**
 
--   Infinite loop when Debug & Monitor logged HTTP requests from channels (Webhook, Datadog, Splunk).
--   "Class File_Channel not found" during plugin updates on some hosting environments.
--   "Interface not found" and "Class not found" on WPEngine and other hosts with aggressive directory caching during updates.
+-   Infinite loop when the [Debug & Monitor add-on](https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_debug_monitor) logged HTTP requests from channels (Webhook, Datadog, Splunk).
 
 ### 5.22.0 (December 2025)
 
