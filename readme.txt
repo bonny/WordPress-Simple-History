@@ -354,9 +354,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Detection of forced security updates from WordPress.org; shown as "Update method: Security auto-update" in plugin update details.
 -   Upgrade notices from WordPress.org API in plugin update details.
 -   Advance warning when forced security updates are detected ("Security auto-update" before installation).
--   Notes statistics in weekly email reports: notes added and resolved (WordPress 6.9+ only).
--   Notes statistics on History Insights for block editor notes activity.
--   Notes REST API at `/wp-json/simple-history/v1/stats/notes`.
+-   Notes feature stats (WordPress 6.9+):
+    -   Statistics in weekly email reports (notes added and resolved).
+    -   Statistics on History Insights for block editor notes activity.
+    -   REST API at `/wp-json/simple-history/v1/stats/notes`.
 -   Alerts settings page with premium notification teasers (presets and custom rules in [Premium](https://simple-history.com/add-ons/premium/?utm_source=worg)).
 -   User role (`_user_role`) in event context for filtering and alerts by who performed the action.
 -   Granular failed-login filters: "Failed login (wrong password)" for known users and "Failed login (unknown user)" for non-existent usernames, alongside the existing "Failed user logins" option.
