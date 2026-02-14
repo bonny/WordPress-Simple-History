@@ -71,14 +71,10 @@ npm run php:phpstan
 npm run build
 ```
 
-Run each test suite individually to avoid timeouts. Run PHP 8.1 first (faster), then PHP 7.4:
+Run tests on PHP 8.1:
 
 ```bash
-# PHP 8.1
 npm run test:php81
-
-# PHP 7.4
-npm run test:php74
 ```
 
 ### 6. Write Blog Post
