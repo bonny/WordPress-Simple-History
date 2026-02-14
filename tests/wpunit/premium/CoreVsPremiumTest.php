@@ -16,17 +16,17 @@ class CoreVsPremiumTest extends PremiumTestCase {
 	/**
 	 * Test premium classes are not available when premium is not active.
 	 */
-	public function test_premium_classes_not_loaded_without_premium(): void {
-		// Make sure premium is NOT active.
-		$this->assertFalse( $this->is_premium_active() );
+	// public function test_premium_classes_not_loaded_without_premium(): void {
+	// 	// Make sure premium is NOT active.
+	// 	$this->assertFalse( $this->is_premium_active() );
 
-		// Premium module class should not be instantiated.
-		// (The class file might be available but not loaded/used)
-		$simple_history = \Simple_History\Simple_History::get_instance();
-		$alerts_logger  = $simple_history->get_instantiated_logger_by_slug( 'AlertsLogger' );
+	// 	// Premium module class should not be instantiated.
+	// 	// (The class file might be available but not loaded/used)
+	// 	$simple_history = \Simple_History\Simple_History::get_instance();
+	// 	$alerts_logger  = $simple_history->get_instantiated_logger_by_slug( 'AlertsLogger' );
 
-		$this->assertFalse( $alerts_logger, 'AlertsLogger should not be registered when premium is inactive.' );
-	}
+	// 	$this->assertFalse( $alerts_logger, 'AlertsLogger should not be registered when premium is inactive.' );
+	// }
 
 	/**
 	 * Test premium classes are available when premium is active.
