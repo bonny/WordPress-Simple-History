@@ -53,13 +53,15 @@ In `readme.txt`, move items from `### Unreleased` to a new versioned section:
 ### X.Y.Z (Month Year)
 ```
 
-Keep an empty `### Unreleased` section above it.
+Remove the `### Unreleased` heading entirely so the readme is clean. Do **not** keep an empty Unreleased section.
 
-Update `CHANGELOG.md` with the same versioned section (this file does not use an Unreleased section).
+**Do not update `CHANGELOG.md`** during this step — it is maintained separately.
 
 ### 4. Add Update Details
 
 If the release has significant changes, add update details to `class-simple-history-updates.php`. This is shown to users in the WordPress update screen.
+
+**Important:** After making changes to this file, show the user the updated code and ask for confirmation that it looks good before committing.
 
 ### 5. Run QA
 
@@ -153,7 +155,7 @@ git checkout -b <prefix>/release-X.Y.Z
 
 ### 3. Update Changelog
 
-Update changelog in the add-on's `readme.txt`. Move items from `### Unreleased` to a versioned section.
+Update changelog in the add-on's `readme.txt`. Move items from `### Unreleased` to a versioned section. Remove the `### Unreleased` heading entirely so the readme is clean.
 
 ### 4. Update Translations
 
