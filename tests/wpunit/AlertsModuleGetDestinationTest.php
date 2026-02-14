@@ -1,15 +1,16 @@
 <?php
 
+use Helper\PremiumTestCase;
+
 /**
  * Tests for Alerts_Module::get_destination() method.
  *
  * Requires Simple History Premium plugin to be available.
- * Tests skip gracefully if premium plugin is not loaded.
  *
  * Run tests with:
  * `docker compose run --rm php-cli vendor/bin/codecept run wpunit AlertsModuleGetDestinationTest`
  */
-class AlertsModuleGetDestinationTest extends \Codeception\TestCase\WPTestCase {
+class AlertsModuleGetDestinationTest extends PremiumTestCase {
 
 	/**
 	 * @var array Test destinations to use across tests.
@@ -19,14 +20,7 @@ class AlertsModuleGetDestinationTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		// Skip all tests if premium plugin is not available.
-		if ( ! class_exists( 'Simple_History\AddOns\Pro\Modules\Alerts_Module' ) ) {
-			$this->markTestSkipped( 'Simple History Premium plugin is not available.' );
-		}
-
-		// Set current user to administrator.
-		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $user_id );
+		$this->activate_premium();
 
 		// Set up test destinations.
 		$this->test_destinations = [
@@ -58,10 +52,7 @@ class AlertsModuleGetDestinationTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
-		// Clean up test destinations if premium plugin is available.
-		if ( class_exists( 'Simple_History\AddOns\Pro\Modules\Alerts_Module' ) ) {
-			\Simple_History\AddOns\Pro\Modules\Alerts_Module::save_destinations( [] );
-		}
+		\Simple_History\AddOns\Pro\Modules\Alerts_Module::save_destinations( [] );
 		parent::tearDown();
 	}
 

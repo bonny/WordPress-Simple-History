@@ -121,7 +121,7 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertIsString( $received_where, 'WHERE clause should be a string' );
 		$this->assertIsInt( $received_days, 'Days should be an integer' );
 		$this->assertStringContainsString( 'simple_history', $received_table, 'Table name should contain simple_history' );
-		$this->assertStringContainsString( 'DATE_ADD', $received_where, 'Default WHERE should contain DATE_ADD' );
+		$this->assertStringContainsString( 'DATE_SUB', $received_where, 'Default WHERE should contain DATE_SUB' );
 	}
 
 	/**
