@@ -43,6 +43,10 @@ class RssFeedCest {
         $I->amOnUrl($feed_address);
         $I->seeInSource('<title>History for wp-tests</title>');
         $I->seeInSource('<title>Logged in</title>');
+        $I->seeInSource('</channel>');
+        $I->seeInSource('</rss>');
+        $I->seeInSource('<description><![CDATA[');
+        $I->seeInSource('Severity level:');
         $I->canSeeInCurrentUrl('simple_history_get_rss=1');
         $I->canSeeInCurrentUrl('rss_secret=');
 

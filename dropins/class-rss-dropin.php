@@ -341,7 +341,7 @@ class RSS_Dropin extends Dropin {
 					foreach ( $queryResults['log_rows'] as $row ) {
 						$header_output  = $this->clean_broken_links( $this->simple_history->get_log_row_header_output( $row ) );
 						$text_output    = $this->clean_broken_links( $this->simple_history->get_log_row_plain_text_output( $row ) );
-						$details_output = $this->clean_broken_links( $this->simple_history->get_log_row_details_output( $row ) );
+						$details_output = $this->clean_broken_links( (string) $this->simple_history->get_log_row_details_output( $row ) );
 
 						// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- URL reference.
 						// See http://cyber.law.harvard.edu/rss/rss.html#ltguidgtSubelementOfLtitemgt.
