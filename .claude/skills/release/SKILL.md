@@ -92,6 +92,8 @@ Link to this blog post from the `readme.txt` changelog entry.
 
 ### 7. Tag
 
+**Before tagging:** Ask the user to confirm the blog post is written and the `readme.txt` changelog links to it. Do not proceed until confirmed.
+
 ```bash
 git tag X.Y.Z
 ```
