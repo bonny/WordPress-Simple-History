@@ -354,7 +354,6 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Upgrade notices from WordPress.org API in plugin update details.
 -   Search labels on 11 loggers (Beaver Builder, Duplicate Post, Enable Media Replace, Jetpack, Limit Login Attempts, Redirection, User Switching, WP Crontrol, Privacy, Simple History, Translations) for better filtering in alert rules.
 -   Granular failed-login filters: "Failed login (wrong password)" for known users and "Failed login (unknown user)" for non-existent usernames, alongside the existing "Failed user logins" option.
--   Advance warning when forced security updates are detected ("Security auto-update" before installation).
 -   User role (`_user_role`) in event context for debugging and used by alerts to be able to add rules for specific user roles.
 -   Notes feature stats (WordPress 6.9+):
     -   Statistics in weekly email reports (notes added and resolved).
