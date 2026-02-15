@@ -71,11 +71,13 @@ npm run php:phpstan
 npm run build
 ```
 
-Run tests on PHP 8.1:
+Run the three test suites in parallel using three separate Bash tool calls (with `run_in_background: true`) in a single message:
 
-```bash
-npm run test:php81
-```
+-   `PHP_CLI_VERSION=81 PHP_VERSION=8.1 npm run test:wpunit`
+-   `PHP_CLI_VERSION=81 PHP_VERSION=8.1 npm run test:functional`
+-   `PHP_CLI_VERSION=81 PHP_VERSION=8.1 npm run test:acceptance`
+
+Wait for all three to finish, then check results. Each suite is independent — they share the database container but don't conflict.
 
 ### 6. Write Blog Post
 
