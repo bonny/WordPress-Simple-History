@@ -59,9 +59,7 @@ Remove the `### Unreleased` heading entirely so the readme is clean. Do **not** 
 
 ### 4. Add Update Details
 
-If the release has significant changes, add update details to `class-simple-history-updates.php`. This is shown to users in the WordPress update screen.
-
-**Important:** After making changes to this file, show the user the updated code and ask for confirmation that it looks good before committing.
+If the release has significant changes, add update details to `class-simple-history-updates.php`. This is shown to users in the WordPress update screen. Show the user the changes for review (confirmed in the pre-tag checklist).
 
 ### 5. Run QA
 
@@ -92,7 +90,12 @@ Link to this blog post from the `readme.txt` changelog entry.
 
 ### 7. Tag
 
-**Before tagging:** Ask the user to confirm the blog post is written and the `readme.txt` changelog links to it. Do not proceed until confirmed.
+**Before tagging, ask the user to confirm ALL of these.** Do not proceed until confirmed:
+
+-   [ ] Changelog in `readme.txt` looks correct
+-   [ ] Update details in `class-simple-history-updates.php` look good
+-   [ ] All tests pass (wpunit, functional, acceptance)
+-   [ ] Blog post is written on simple-history.com and linked from `readme.txt`
 
 ```bash
 git tag X.Y.Z
