@@ -86,7 +86,20 @@ Write a blog post on simple-history.com with:
 -   Links to updated documentation
 -   Tagged with _releases_ and _changelog_
 
-Link to this blog post from the `readme.txt` changelog entry.
+### 6b. Link Blog Post from readme.txt
+
+Add a link to the blog post in the `readme.txt` changelog entry for this version. Place it right after the version heading, before the first changelog category. Use this format:
+
+```
+### X.Y.Z (Month Year)
+
+Brief summary of the release highlights.
+[Read more about it in the release post](https://simple-history.com/YYYY/simple-history-X-Y-Z-released/)
+
+**Added**
+```
+
+The URL pattern is `https://simple-history.com/YYYY/simple-history-X-Y-Z-released/` where dots in the version are replaced with hyphens.
 
 ### 7. Tag
 
@@ -95,7 +108,7 @@ Link to this blog post from the `readme.txt` changelog entry.
 -   [ ] Changelog in `readme.txt` looks correct
 -   [ ] Update details in `class-simple-history-updates.php` look good
 -   [ ] All tests pass (wpunit, functional, acceptance)
--   [ ] Blog post is written on simple-history.com and linked from `readme.txt`
+-   [ ] Blog post is written on simple-history.com and linked from `readme.txt` changelog entry (with "Read more" link after version heading)
 
 ```bash
 git tag X.Y.Z
