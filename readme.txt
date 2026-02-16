@@ -346,6 +346,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+**Fixed**
+
+-   Fixed fatal "Class not found" error that could occur during plugin updates when log file channel classes were moved between versions.
+
 ### 5.23.0 (February 2026)
 
 **Added**

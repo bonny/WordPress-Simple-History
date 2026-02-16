@@ -234,8 +234,11 @@ class Channels_Manager extends Service {
 
 		try {
 			$channel->send_event( $event_data, $formatted_message );
-		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-			// Errors are tracked by individual channels via their error handling.
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Catch \Throwable (not just \Exception) to handle \Error too.
+			// During plugin updates, old code in memory may reference classes
+			// that were moved/renamed in the new version on disk, causing
+			// "Class not found" errors (which are \Error, not \Exception).
 		}
 
 		remove_filter( 'simple_history/is_forwarding_to_channel', '__return_true' );
