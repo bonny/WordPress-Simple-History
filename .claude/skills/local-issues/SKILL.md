@@ -15,6 +15,10 @@ All commands require:
 -   `vault=nvALT` — the vault containing Simple History issues
 -   `2>/dev/null` — suppress the startup log line
 
+**JSON output:** Most commands support `format=json` for structured output. The `jq` CLI tool is installed locally and can be used to filter/transform JSON results.
+
+**Stdout noise after in-app updates:** Obsidian may emit a `"Loading updated app package ..."` line to stdout (happens after in-app updates, not installer updates). `2>/dev/null` won't catch it. For JSON/TSV output that needs parsing, append `| grep -v "Loading updated app package"` to get clean output.
+
 Issue files live at: `/Users/bonny/Documents/nvALT/Simple History/issues/`
 
 ## Querying Issues
@@ -26,14 +30,18 @@ The issues base is `Simple History issues.base`. Always use `path=` (not `file=`
 obsidian base:views vault=nvALT path="Simple History issues.base" 2>/dev/null
 # Views: Alla, Todo, Needs investigation, Needs decision, Idea, In progress, Done
 
-# Query a filtered view (JSON — includes path, name, and all frontmatter properties)
-obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=json 2>/dev/null
+# Query a filtered view (JSON array — includes path, name, and all frontmatter properties)
+# Pipe through grep -v to strip any Obsidian startup noise before parsing
+obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=json 2>/dev/null | grep -v "Loading updated app package"
 
 # Compact table output
-obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=tsv 2>/dev/null
+obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=tsv 2>/dev/null | grep -v "Loading updated app package"
 
 # Query all issues (no view filter)
-obsidian base:query vault=nvALT path="Simple History issues.base" format=json 2>/dev/null
+obsidian base:query vault=nvALT path="Simple History issues.base" format=json 2>/dev/null | grep -v "Loading updated app package"
+
+# Use jq (installed locally) to filter/transform JSON output
+obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=json 2>/dev/null | grep -v "Loading updated app package" | jq '[.[] | {name, status, prio}]'
 ```
 
 **Prefer `base:query` over grep** for listing/filtering issues — one call returns structured data for all matching issues.
