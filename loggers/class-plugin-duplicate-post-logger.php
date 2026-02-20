@@ -140,17 +140,13 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 			: '';
 
 		$context['duplicated_post_title'] = isset( $context['duplicated_post_title'] )
-			? esc_html( $context['duplicated_post_title'] )
-			: '';
-
-		$context['duplicated_post_title'] = isset( $context['duplicated_post_title'] )
-			? esc_html( $context['duplicated_post_title'] )
+			? esc_html( html_entity_decode( $context['duplicated_post_title'], ENT_QUOTES, 'UTF-8' ) )
 			: '';
 
 		$context['duplicated_post_post_type_singular_name'] = isset(
 			$context['duplicated_post_post_type_singular_name']
 		)
-			? esc_html( $context['duplicated_post_post_type_singular_name'] )
+			? esc_html( html_entity_decode( $context['duplicated_post_post_type_singular_name'], ENT_QUOTES, 'UTF-8' ) )
 			: '';
 
 		return helpers::interpolate( $message, $context, $row );

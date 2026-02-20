@@ -195,6 +195,7 @@ export function EventOccasions( props ) {
 						isLoadingOccasions={ isLoadingOccasions }
 						isShowingOccasions={ isShowingOccasions }
 						occasions={ occasions }
+						parentEvent={ event }
 						subsequent_occasions_count={ subsequentOccasionsCount }
 						occasionsCountMaxReturn={ occasionsCountMaxReturn }
 					/>

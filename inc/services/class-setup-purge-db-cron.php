@@ -155,6 +155,23 @@ class Setup_Purge_DB_Cron extends Service {
 			Helpers::clear_cache();
 		}
 
+		// Reclaim disk space after deleting rows.
+		// DELETE does not free space on InnoDB with innodb_file_per_table off.
+		// Skip OPTIMIZE on large tables (>100K rows) to avoid long table locks —
+		// sites under brute-force attacks can have millions of login-attempt rows.
+		if ( $total_rows > 0 ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$table_status = $wpdb->get_row( $wpdb->prepare( 'SHOW TABLE STATUS LIKE %s', $wpdb->esc_like( $table_name ) ) );
+			$approx_rows  = isset( $table_status->Rows ) ? (int) $table_status->Rows : 0;
+
+			if ( $approx_rows <= 100000 ) {
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->query( "OPTIMIZE TABLE {$table_name}" );
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->query( "OPTIMIZE TABLE {$table_name_contexts}" );
+			}
+		}
+
 		/**
 		 * Fires after all events have been purged from the database.
 		 * This fires once when the entire purge operation is complete.

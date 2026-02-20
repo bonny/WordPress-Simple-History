@@ -857,18 +857,25 @@ class Plugin_Logger extends Logger {
 			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $arr_data['plugin'], true, false );
 		}
 
+		// Fall back to pre-update stored data when get_plugin_data() returns empty Name.
+		// Custom updaters (like Code Profiler Pro) may not have the file in place yet.
+		$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
+		if ( empty( $plugin_data['Name'] ) && is_array( $plugins_before_update ) && isset( $plugins_before_update[ $arr_data['plugin'] ] ) ) {
+			$plugin_data = $plugins_before_update[ $arr_data['plugin'] ];
+		}
+
 		// autoptimize/autoptimize.php.
 		$plugin_slug = dirname( $arr_data['plugin'] );
 
 		$context = [
 			'plugin_slug'        => $plugin_slug,
 			'request'            => Helpers::json_encode( $_REQUEST ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			'plugin_name'        => $plugin_data['Name'],
-			'plugin_title'       => $plugin_data['Title'],
-			'plugin_description' => $plugin_data['Description'],
-			'plugin_author'      => $plugin_data['Author'],
-			'plugin_version'     => $plugin_data['Version'],
-			'plugin_url'         => $plugin_data['PluginURI'],
+			'plugin_name'        => $plugin_data['Name'] ?? '',
+			'plugin_title'       => $plugin_data['Title'] ?? '',
+			'plugin_description' => $plugin_data['Description'] ?? '',
+			'plugin_author'      => $plugin_data['Author'] ?? '',
+			'plugin_version'     => $plugin_data['Version'] ?? '',
+			'plugin_url'         => $plugin_data['PluginURI'] ?? '',
 		];
 
 		// Add Update URI if it is set. Available since WP 5.8.
@@ -899,8 +906,7 @@ class Plugin_Logger extends Logger {
 			}
 		}
 
-		// To get old version we use our option.
-		$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
+		// To get old version we use the pre-update data (already fetched above for name fallback).
 		if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $arr_data['plugin'] ] ) ) {
 			$context['plugin_prev_version'] = $plugins_before_update[ $arr_data['plugin'] ]['Version'];
 		}
@@ -970,18 +976,29 @@ class Plugin_Logger extends Logger {
 
 		/** @var string $plugin_main_file_path Plugin folder and main file, i.e. classic-widgets/classic-widgets.php */
 		foreach ( $plugins_updated as $plugin_main_file_path ) {
-			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_main_file_path, true, false );
+			$plugin_data = [];
+			if ( file_exists( WP_PLUGIN_DIR . '/' . $plugin_main_file_path ) ) {
+				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_main_file_path, true, false );
+			}
+
+			// Fall back to pre-update stored data when get_plugin_data() returns empty Name.
+			// Custom updaters (like Code Profiler Pro) may not have the file in place yet.
+			$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
+			if ( empty( $plugin_data['Name'] ) && is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_main_file_path ] ) ) {
+				$plugin_data = $plugins_before_update[ $plugin_main_file_path ];
+			}
+
 			$plugin_slug = dirname( $plugin_main_file_path );
 
 			$context = [
 				'plugin_main_file_path' => $plugin_main_file_path,
 				'plugin_slug'           => $plugin_slug,
-				'plugin_name'           => $plugin_data['Name'],
-				'plugin_title'          => $plugin_data['Title'],
-				'plugin_description'    => $plugin_data['Description'],
-				'plugin_author'         => $plugin_data['Author'],
-				'plugin_version'        => $plugin_data['Version'],
-				'plugin_url'            => $plugin_data['PluginURI'],
+				'plugin_name'           => $plugin_data['Name'] ?? '',
+				'plugin_title'          => $plugin_data['Title'] ?? '',
+				'plugin_description'    => $plugin_data['Description'] ?? '',
+				'plugin_author'         => $plugin_data['Author'] ?? '',
+				'plugin_version'        => $plugin_data['Version'] ?? '',
+				'plugin_url'            => $plugin_data['PluginURI'] ?? '',
 			];
 
 			// Add Update URI if it is set. Available since WP 5.8.
@@ -1023,8 +1040,7 @@ class Plugin_Logger extends Logger {
 				}
 			}
 
-			// To get old version we use our option.
-			$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
+			// To get old version we use the pre-update data (already fetched above for name fallback).
 			if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_main_file_path ] ) ) {
 				$context['plugin_prev_version'] = $plugins_before_update[ $plugin_main_file_path ]['Version'];
 			}

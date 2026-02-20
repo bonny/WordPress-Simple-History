@@ -128,7 +128,8 @@ class Core_Files_Logger extends Logger {
 		}
 
 		// Get official WordPress checksums for current version.
-		$checksums = get_core_checksums( $wp_version, 'en_US' );
+		global $wp_local_package;
+		$checksums = get_core_checksums( $wp_version, isset( $wp_local_package ) ? $wp_local_package : 'en_US' );
 
 		if ( ! is_array( $checksums ) || empty( $checksums ) ) {
 			return new \WP_Error( 'core_files_check_failed', 'Unable to retrieve WordPress core checksums for version ' . esc_html( $wp_version ) );

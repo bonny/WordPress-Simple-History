@@ -23,6 +23,7 @@ $arr_options = array(
 	'simple_history_rss_secret',
 	'simple_history_show_on_dashboard',
 	'simple_history_show_as_page',
+	'simple_history_welcome_message_seen',
 );
 
 foreach ( $arr_options as $one_option ) {

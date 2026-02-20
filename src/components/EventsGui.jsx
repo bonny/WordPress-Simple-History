@@ -229,6 +229,12 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
+	// IP address filter.
+	const [ enteredIPAddress, setEnteredIPAddress ] = useQueryState(
+		'ip',
+		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
+	);
+
 	// Selected context filters.
 	// Plain string with newline-separated "key:value" pairs, e.g., "_user_id:1\n_sticky:1"
 	const [ selectedContextFilters, setSelectedContextFilters ] = useQueryState(
@@ -349,6 +355,7 @@ function EventsGUI() {
 			selectedMessageTypes,
 			selectedUsersWithId,
 			selectedInitiator,
+			enteredIPAddress,
 			selectedContextFilters,
 			enteredSearchText,
 			selectedDateOption,
@@ -373,6 +380,7 @@ function EventsGUI() {
 		selectedMessageTypes,
 		selectedUsersWithId,
 		selectedInitiator,
+		enteredIPAddress,
 		selectedContextFilters,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
@@ -398,6 +406,7 @@ function EventsGUI() {
 		selectedLogLevels,
 		selectedMessageTypes,
 		selectedInitiator,
+		enteredIPAddress,
 		selectedContextFilters,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
@@ -573,6 +582,28 @@ function EventsGUI() {
 		setSelectedCustomDateTo,
 	] );
 
+	// Listen for IP address filter events from the IP address popover.
+	// When a user clicks "Show all events from this IP address" in the popover,
+	// update the IP address filter.
+	useEffect( () => {
+		const handleFilterByIPAddress = ( event ) => {
+			const { ipAddress } = event.detail;
+			setEnteredIPAddress( ipAddress );
+		};
+
+		window.addEventListener(
+			'SimpleHistory:filterByIPAddress',
+			handleFilterByIPAddress
+		);
+
+		return () => {
+			window.removeEventListener(
+				'SimpleHistory:filterByIPAddress',
+				handleFilterByIPAddress
+			);
+		};
+	}, [ setEnteredIPAddress ] );
+
 	return (
 		<>
 			{ /* Hide filters when viewing surrounding events */ }
@@ -594,6 +625,8 @@ function EventsGUI() {
 					setSelectedUsersWithId={ setSelectedUsersWithId }
 					selectedInitiator={ selectedInitiator }
 					setSelectedInitiator={ setSelectedInitiator }
+					enteredIPAddress={ enteredIPAddress }
+					setEnteredIPAddress={ setEnteredIPAddress }
 					selectedContextFilters={ selectedContextFilters }
 					setSelectedContextFilters={ setSelectedContextFilters }
 					searchOptionsLoaded={ searchOptionsLoaded }

@@ -200,7 +200,7 @@
 
 /* Sticky events style */
 .SimpleHistoryLogitem--is-sticky {
-	/* background-color: var(--sh-color-cream); */
+	background-color: var(--sh-color-cream);
 }
 
 /* Text inside event, contains tooltip and SVG icon component */
@@ -597,6 +597,9 @@ i.e. the log is inside a .postbox element.
 	.SimpleHistoryLogitem__senderImage:before,
 .postbox
 	.SimpleHistoryLogitem--initiator-web_user
+	.SimpleHistoryLogitem__senderImage:before,
+.postbox
+	.SimpleHistoryLogitem--initiator-other
 	.SimpleHistoryLogitem__senderImage:before {
 	font-size: 24px;
 }
@@ -892,19 +895,19 @@ Modal window with detailss
 
 .SimpleHistory-modal
 	.SimpleHistoryLogitem--initiator-web_user
-	.SimpleHistoryLogitem__secondcol,
-.SimpleHistory-modal
-	.SimpleHistoryLogitem--initiator-other
 	.SimpleHistoryLogitem__secondcol {
 	margin-left: 0;
 }
 
 /* wordpress as initiator = add wordpress icon */
 /* anonymous user as initiator = plain user image */
+/* other as initiator = admin-generic gear icon */
 .SimpleHistoryLogitem--initiator-wp .SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-wp_cli
 	.SimpleHistoryLogitem__senderImage:before,
 .SimpleHistoryLogitem--initiator-web_user
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--initiator-other
 	.SimpleHistoryLogitem__senderImage:before {
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
@@ -937,6 +940,11 @@ Modal window with detailss
 .SimpleHistoryLogitem--initiator-web_user
 	.SimpleHistoryLogitem__senderImage:before {
 	content: "\f110";
+}
+
+.SimpleHistoryLogitem--initiator-other
+	.SimpleHistoryLogitem__senderImage:before {
+	content: "\f107";
 }
 
 .SimpleHistoryQuickStats {
@@ -2182,6 +2190,10 @@ a.sh-SettingsTabs-link:hover {
 
 .SimpleHistory__filters__userfilter__gravatar {
 	margin-right: 10px;
+}
+
+.SimpleHistoryFilterDropin-clearFilters {
+	margin-left: 1rem;
 }
 
 .SimpleHistoryFilterDropin-showMoreFilters {

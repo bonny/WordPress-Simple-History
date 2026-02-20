@@ -1057,6 +1057,12 @@ class Helpers {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( $sql );
 
+		// Reclaim disk space on older InnoDB configs where TRUNCATE may not free space.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query( "OPTIMIZE TABLE {$simple_history_table}" );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query( "OPTIMIZE TABLE {$simple_history_contexts_table}" );
+
 		self::clear_cache();
 
 		return $num_rows;

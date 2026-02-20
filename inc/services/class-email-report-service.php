@@ -237,6 +237,10 @@ class Email_Report_Service extends Service {
 		$stats['plugin_activations']   = $events_stats->get_plugin_activations_count( $date_from, $date_to );
 		$stats['plugin_deactivations'] = $events_stats->get_plugin_deactivations_count( $date_from, $date_to );
 
+		// Get user creation and modification statistics.
+		$stats['users_created'] = $events_stats->get_user_added_count( $date_from, $date_to );
+		$stats['users_updated'] = $events_stats->get_user_updated_count( $date_from, $date_to );
+
 		// Get WordPress core statistics.
 		$stats['wordpress_updates'] = $events_stats->get_wordpress_core_updates_count( $date_from, $date_to );
 
@@ -570,6 +574,7 @@ class Email_Report_Service extends Service {
 			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Total event count and daily breakdown', 'simple-history' ); ?></li>
 			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Number of posts and pages created or updated', 'simple-history' ); ?></li>
 			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Login statistics (successful and failed)', 'simple-history' ); ?></li>
+			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'User creation and profile update counts', 'simple-history' ); ?></li>
 			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'Plugin activation and deactivation counts', 'simple-history' ); ?></li>
 			<li><span class="dashicons dashicons-yes" style="color: #00a32a; margin-inline-end: 0.25em;"></span><?php esc_html_e( 'WordPress core update count', 'simple-history' ); ?></li>
 		</ul>

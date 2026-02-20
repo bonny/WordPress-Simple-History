@@ -159,6 +159,12 @@ class Setup_Database extends Service {
 		// This populates the history with existing WordPress data (posts, pages, users)
 		// so users don't start with an empty log.
 		Auto_Backfill_Service::schedule_auto_backfill();
+
+		// Show a welcome admin notice on the next admin page load.
+		// Only set pending if the option doesn't exist yet (true first install, not table recovery).
+		if ( get_option( Welcome_Message_Service::OPTION_NAME ) === false ) {
+			Welcome_Message_Service::set_pending();
+		}
 	}
 
 	/**

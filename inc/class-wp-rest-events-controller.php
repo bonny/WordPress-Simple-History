@@ -455,6 +455,16 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'sanitize_callback' => array( $this, 'sanitize_initiator_param' ),
 		);
 
+		$query_params['ip_address'] = array(
+			'description'          => __( 'Limit result set to events from a specific IP address. Supports anonymized IPs with ".x" suffix.', 'simple-history' ),
+			'type'                 => 'string',
+			'validate_callback'    => static function ( $value ) {
+				// Allow IPv4 addresses, optionally with ".x" for anonymized octets.
+				return (bool) preg_match( '/^[\d.x:a-fA-F]+$/', $value );
+			},
+			'sanitize_callback'    => 'sanitize_text_field',
+		);
+
 		$query_params['context_filters'] = array(
 			'description'          => __( 'Context filters as key-value pairs to filter events by context data.', 'simple-history' ),
 			'type'                 => 'object',
@@ -736,6 +746,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'users'                   => 'users',
 			'user'                    => 'user',
 			'initiator'               => 'initiator',
+			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
 			'ungrouped'               => 'ungrouped',
 		);
@@ -821,6 +832,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'include_sticky'          => 'include_sticky',
 			'only_sticky'             => 'only_sticky',
 			'initiator'               => 'initiator',
+			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
 			'ungrouped'               => 'ungrouped',
 			// Surrounding events parameters.

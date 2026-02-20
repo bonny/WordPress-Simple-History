@@ -1,5 +1,11 @@
-import { __experimentalSpacer as Spacer, Notice } from '@wordpress/components';
+import {
+	ExternalLink,
+	__experimentalSpacer as Spacer,
+	Notice,
+} from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getTrackingUrl } from '../functions';
 import { EventsListItemsList } from './EventsListItemsList';
 import { EventsListSkeletonList } from './EventsListSkeletonList.jsx';
 import { EventsPagination } from './EventsPagination';
@@ -34,6 +40,18 @@ export function EventsList( props ) {
 
 	const totalPages = eventsMeta.totalPages;
 	const isSurroundingEventsMode = Boolean( surroundingEventId );
+
+	// Check if we should show the "oldest backfilled event" notice.
+	// Show when on the last page and the last event is a backfilled entry.
+	const lastEvent = events?.length ? events[ events.length - 1 ] : null;
+	const isOnLastPage = page === totalPages && totalPages > 0;
+	const showBackfilledNotice =
+		! eventsIsLoading &&
+		! hasPremiumAddOn &&
+		! isSurroundingEventsMode &&
+		isOnLastPage &&
+		lastEvent?.backfilled;
+
 	const styles = {
 		backgroundColor: 'white',
 		minHeight: '300px',
@@ -88,6 +106,37 @@ export function EventsList( props ) {
 				userCanManageOptions={ userCanManageOptions }
 				surroundingEventId={ surroundingEventId }
 			/>
+
+			{ showBackfilledNotice && (
+				<Notice status="info" isDismissible={ false }>
+					<p>
+						<strong>
+							{ __(
+								'You have reached the oldest backfilled event.',
+								'simple-history'
+							) }
+						</strong>
+					</p>
+					<p>
+						{ createInterpolateElement(
+							__(
+								'The free version backfills up to 100 items per content type. <PremiumLink>Upgrade to Premium</PremiumLink> to backfill more history.',
+								'simple-history'
+							),
+							{
+								PremiumLink: (
+									<ExternalLink
+										href={ getTrackingUrl(
+											'https://simple-history.com/add-ons/premium/',
+											'premium_events_backfill'
+										) }
+									/>
+								),
+							}
+						) }
+					</p>
+				</Notice>
+			) }
 
 			<Spacer margin={ 4 } />
 

@@ -5,6 +5,7 @@ import { Event } from './Event';
 export function EventOccasionsList( props ) {
 	const {
 		occasions,
+		parentEvent,
 		isLoadingOccasions,
 		subsequent_occasions_count: subsequentOccasionsCount,
 		occasionsCountMaxReturn,
@@ -26,8 +27,15 @@ export function EventOccasionsList( props ) {
 			} }
 		>
 			<ul className={ ulClassNames }>
-				{ occasions.map( ( event ) => (
-					<Event key={ event.id } event={ event } />
+				{ occasions.map( ( event, index ) => (
+					<Event
+						key={ event.id }
+						event={ event }
+						loopIndex={ index }
+						prevEvent={
+							index === 0 ? parentEvent : occasions[ index - 1 ]
+						}
+					/>
 				) ) }
 
 				{ /* // If occasionsCount is more than occasionsCountMaxReturn then show a message */ }

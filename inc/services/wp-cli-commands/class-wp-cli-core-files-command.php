@@ -66,10 +66,10 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		// Start timing.
 		$start_time = microtime( true );
 
-		global $wp_version;
+		global $wp_version, $wp_local_package;
 
 		// Get official WordPress checksums for current version.
-		$checksums = get_core_checksums( $wp_version, 'en_US' );
+		$checksums = get_core_checksums( $wp_version, isset( $wp_local_package ) ? $wp_local_package : 'en_US' );
 
 		if ( ! is_array( $checksums ) || empty( $checksums ) ) {
 			WP_CLI::error( 'Unable to retrieve WordPress core checksums for version ' . $wp_version );
@@ -407,12 +407,14 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		WP_CLI::log( '=== WordPress Information ===' );
 		WP_CLI::log( 'WordPress version: ' . $wp_version );
 		WP_CLI::log( 'Site locale: ' . get_locale() );
-		WP_CLI::log( 'Checksum locale used: en_US (hardcoded)' );
+		global $wp_local_package;
+		$checksum_locale = isset( $wp_local_package ) ? $wp_local_package : 'en_US';
+		WP_CLI::log( 'Checksum locale used: ' . $checksum_locale );
 
 		// Test if checksums can be retrieved.
 		WP_CLI::log( '' );
 		WP_CLI::log( 'Testing checksum retrieval...' );
-		$checksums = get_core_checksums( $wp_version, 'en_US' );
+		$checksums = get_core_checksums( $wp_version, $checksum_locale );
 		if ( is_array( $checksums ) && ! empty( $checksums ) ) {
 			WP_CLI::success( sprintf( 'Successfully retrieved checksums for %d core files', count( $checksums ) ) );
 		} else {

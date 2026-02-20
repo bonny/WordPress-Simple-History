@@ -259,6 +259,24 @@ function IPAddressLink( ipAddressProps ) {
 					}
 				) }
 			</Text>
+			<Button
+				variant="secondary"
+				size="small"
+				style={ { marginTop: 10, width: '100%' } }
+				onClick={ () => {
+					window.dispatchEvent(
+						new CustomEvent( 'SimpleHistory:filterByIPAddress', {
+							detail: { ipAddress },
+						} )
+					);
+					setShowPopover( false );
+				} }
+			>
+				{ __(
+					'Show all events from this IP address',
+					'simple-history'
+				) }
+			</Button>
 		</>
 	) : null;
 

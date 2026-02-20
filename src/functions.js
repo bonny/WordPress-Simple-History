@@ -10,6 +10,7 @@ import { format } from 'date-fns';
  * @param {Array}  props.selectedMessageTypes
  * @param {Array}  props.selectedUsersWithId
  * @param {Array}  props.selectedInitiator
+ * @param {string} props.enteredIPAddress
  * @param {Array}  props.selectedContextFilters
  * @param {string} props.enteredSearchText
  * @param {string} props.selectedDateOption
@@ -25,6 +26,7 @@ export function generateAPIQueryParams( props ) {
 		selectedMessageTypes,
 		selectedUsersWithId,
 		selectedInitiator,
+		enteredIPAddress,
 		selectedContextFilters,
 		enteredSearchText,
 		selectedDateOption,
@@ -195,6 +197,11 @@ export function generateAPIQueryParams( props ) {
 		eventsQueryParams.initiator = selectedInitiatorValues;
 	}
 
+	// Add IP address filter to query params.
+	if ( enteredIPAddress && enteredIPAddress.trim().length > 0 ) {
+		eventsQueryParams.ip_address = enteredIPAddress.trim();
+	}
+
 	// Add selected context filters to query params.
 	// selectedContextFilters is a string with newline-separated "key:value" pairs.
 	// Convert to object format: { "key": "value", "key2": "value2" }
@@ -296,6 +303,7 @@ export function generateAPIQueryParams( props ) {
 		selectedMessageTypes.length ||
 		selectedUsersWithId.length ||
 		selectedInitiator.length > 0 ||
+		( enteredIPAddress && enteredIPAddress.trim().length > 0 ) ||
 		( selectedContextFilters &&
 			selectedContextFilters.trim().length > 0 ) ||
 		( excludeSearch && excludeSearch.trim().length > 0 ) ||

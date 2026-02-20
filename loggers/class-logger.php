@@ -730,6 +730,11 @@ abstract class Logger {
 
 		$html = helpers::interpolate( $message, $row->context, $row );
 
+		// Decode any pre-existing HTML entities before escaping, to prevent
+		// double-escaping. Context values may contain entities from functions
+		// like get_the_title() which applies wptexturize() (e.g. &#8217; for ').
+		$html = html_entity_decode( $html, ENT_QUOTES, 'UTF-8' );
+
 		// All messages are escaped by default.
 		// If you need unescaped output override this method
 		// in your own logger.
