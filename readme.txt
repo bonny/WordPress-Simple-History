@@ -348,6 +348,9 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.23.1 (February 2026)
 
+Bug fix release addressing crashes during plugin updates and RSS feed rendering.
+[Read more about it in the release post](https://simple-history.com/2026/simple-history-5-23-1-released/)
+
 **Fixed**
 
 -   Fixed fatal "Class not found" error that could occur during plugin updates when log file channel classes were moved between versions.
