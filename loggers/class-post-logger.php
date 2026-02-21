@@ -753,6 +753,12 @@ class Post_Logger extends Logger {
 			$context['post_prev_status']      = $old_status;
 			$context['post_new_status']       = $new_status;
 
+			$referer_post = $this->get_referer_post();
+			if ( $referer_post ) {
+				$context['post_created_from_post_id']    = $referer_post->ID;
+				$context['post_created_from_post_title'] = get_the_title( $referer_post );
+			}
+
 			$this->info_message( 'post_created', $context );
 		} elseif ( $new_status === 'auto-draft' || ( $old_status === 'new' && $new_status === 'inherit' ) ) {
 			// Post was automagically saved by WordPress but not yet created (still auto-draft).
@@ -1807,5 +1813,39 @@ class Post_Logger extends Logger {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Get the post from the HTTP referer if it points to a post editor.
+	 *
+	 * Useful for detecting when a post is created from within another post's
+	 * editor, e.g. via the Gutenberg link component.
+	 *
+	 * @return \WP_Post|null Post object or null if referer doesn't point to a valid post editor.
+	 */
+	private function get_referer_post() {
+		$http_referer = wp_get_referer();
+		if ( ! $http_referer ) {
+			return null;
+		}
+
+		$referer_query = wp_parse_url( $http_referer, PHP_URL_QUERY );
+		if ( ! $referer_query ) {
+			return null;
+		}
+
+		wp_parse_str( $referer_query, $referer_args );
+
+		if (
+			empty( $referer_args['post'] )
+			|| empty( $referer_args['action'] )
+			|| $referer_args['action'] !== 'edit'
+		) {
+			return null;
+		}
+
+		$post = get_post( (int) $referer_args['post'] );
+
+		return $post instanceof \WP_Post ? $post : null;
 	}
 }
