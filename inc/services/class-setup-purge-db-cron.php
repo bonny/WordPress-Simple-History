@@ -3,7 +3,6 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
-use Simple_History\Log_Query;
 
 /**
  * Setup a wp-cron job that daily checks if the database should be cleared.
@@ -154,26 +153,6 @@ class Setup_Purge_DB_Cron extends Service {
 			do_action( 'simple_history/db/events_purged', $days, $num_rows_purged_in_batch );
 
 			Helpers::clear_cache();
-		}
-
-		// Reclaim disk space after deleting rows (MySQL/MariaDB only).
-		// OPTIMIZE TABLE rebuilds the tablespace file to free disk space
-		// that DELETE does not release on InnoDB.
-		// Skip on large tables (>500 MB data) to avoid long table locks.
-		if ( $total_rows > 0 && Log_Query::get_db_engine() === 'mysql' ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$table_status = $wpdb->get_row( $wpdb->prepare( 'SHOW TABLE STATUS LIKE %s', $wpdb->esc_like( $table_name ) ) );
-			
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$data_length = isset( $table_status->Data_length ) ? (int) $table_status->Data_length : 0;
-			$max_bytes   = 500 * MB_IN_BYTES;
-
-			if ( $data_length <= $max_bytes ) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- OPTIMIZE TABLE has no WP API.
-				$wpdb->query( $wpdb->prepare( 'OPTIMIZE TABLE %i', $table_name ) );
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- OPTIMIZE TABLE has no WP API.
-				$wpdb->query( $wpdb->prepare( 'OPTIMIZE TABLE %i', $table_name_contexts ) );
-			}
 		}
 
 		/**
