@@ -625,17 +625,22 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		// Table stats.
 		if ( ! empty( $info['simple_history']['table_stats'] ) ) {
 			$lines[] = '';
-			$lines[] = 'Database Tables:';
+			$lines[] = '=== Database Tables ===';
 			foreach ( $info['simple_history']['table_stats'] as $table ) {
 				// Format size - handle N/A for SQLite without dbstat.
 				$size = $table['size_in_mb'] === 'N/A'
 					? 'N/A'
 					: $table['size_in_mb'] . ' MB';
 
+				$data_size = isset( $table['data_length'] )
+					? round( $table['data_length'] / 1024 / 1024, 2 ) . ' MB'
+					: 'N/A';
+
 				$lines[] = sprintf(
-					'%s: %s, %s rows',
+					'%s: %s (data: %s), %s rows',
 					$table['table_name'],
 					$size,
+					$data_size,
 					number_format_i18n( $table['num_rows'] )
 				);
 			}

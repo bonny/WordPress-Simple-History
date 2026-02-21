@@ -467,7 +467,8 @@ class Helpers {
 			$wpdb->prepare(
 				'
 					SELECT table_name AS "table_name",
-					round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
+					round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb",
+					data_length AS "data_length"
 					FROM information_schema.TABLES
 					WHERE table_schema = %s
 					AND table_name IN (%s, %s);
@@ -1056,12 +1057,6 @@ class Helpers {
 		$sql = "TRUNCATE {$simple_history_contexts_table}";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( $sql );
-
-		// Reclaim disk space on older InnoDB configs where TRUNCATE may not free space.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->query( "OPTIMIZE TABLE {$simple_history_table}" );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->query( "OPTIMIZE TABLE {$simple_history_contexts_table}" );
 
 		self::clear_cache();
 

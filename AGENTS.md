@@ -44,6 +44,9 @@ See the **wordpress-org-compliance** skill for detailed guidelines on implementi
 
 -   **Backend**: Written in PHP following WordPress plugin conventions
     -   PHP 7.4+ compatibility required
+    -   Supports both MySQL/MariaDB and SQLite databases
+    -   Use `Log_Query::get_db_engine()` to check database type (`'mysql'` or `'sqlite'`)
+    -   Avoid MySQL-specific SQL (e.g., `OPTIMIZE TABLE`, `SHOW TABLE STATUS`) without a database type guard
     -   Core functionality in `inc/` directory
     -   Loggers in `loggers/` directory
     -   REST API endpoints for event data
