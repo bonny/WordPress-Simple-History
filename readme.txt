@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.9
-Stable tag: 5.23.0
+Stable tag: 5.23.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -346,12 +346,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.23.1 (February 2026)
 
 **Fixed**
 
--   Fixed fatal "Class not found" error that could occur during plugin updates when log file channel classes were moved between versions.
--   Added backward-compatibility stubs for channel classes moved in 5.21–5.23, preventing crashes when updating from those versions.
+-   Added backward-compatibility stubs for PHP classes 5.21–5.23, hopefully preventing crashes when updating from those versions. 🤞
 
 ### 5.23.0 (February 2026)
 
