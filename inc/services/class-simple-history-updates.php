@@ -20,7 +20,6 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.21.0', [ $this, 'on_plugin_updated_details_5_21_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.22.0', [ $this, 'on_plugin_updated_details_5_22_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.23.0', [ $this, 'on_plugin_updated_details_5_23_0' ] );
-		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.23.1', [ $this, 'on_plugin_updated_details_5_23_1' ] );
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
 		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
@@ -202,24 +201,5 @@ class Simple_History_Updates extends Service {
 		];
 
 		return $this->format_new_features_list( $title, $new_features );
-	}
-
-	/**
-	 * Get extra details for version 5.23.1.
-	 *
-	 * @param string $extra_details Extra HTML to output after the changelog link.
-	 * @return string Extra HTML to output after the changelog link.
-	 */
-	public function on_plugin_updated_details_5_23_1( $extra_details ) {
-		$title = __( 'Highlights in this version', 'simple-history' );
-
-		$new_features = [
-			__( 'Fixed fatal "Class not found" error during plugin updates when channel classes were moved between versions', 'simple-history' ),
-			__( 'Fixed RSS feed crash when event details returned an object instead of a string', 'simple-history' ),
-		];
-
-		$release_link = 'https://simple-history.com/2026/simple-history-5-23-1-released/';
-
-		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
 }

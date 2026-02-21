@@ -79,12 +79,14 @@ Wait for all three to finish, then check results. Each suite is independent — 
 
 ### 6. Write Blog Post
 
-Write a blog post on simple-history.com with:
+Write a blog post on simple-history.com as a **draft** (do not publish):
 
 -   Detailed changelog
 -   Screenshots where relevant
 -   Links to updated documentation
 -   Tagged with _releases_ and _changelog_
+
+The user will review and publish the blog post manually.
 
 ### 6b. Link Blog Post from readme.txt
 

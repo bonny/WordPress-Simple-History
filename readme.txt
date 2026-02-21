@@ -348,14 +348,9 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.23.1 (February 2026)
 
-Bug fix release addressing crashes during plugin updates and RSS feed rendering.
-[Read more about it in the release post](https://simple-history.com/2026/simple-history-5-23-1-released/)
-
 **Fixed**
 
--   Fixed fatal "Class not found" error that could occur during plugin updates when log file channel classes were moved between versions.
--   Added backward-compatibility stubs for channel classes moved in 5.21–5.23, preventing crashes when updating from those versions.
--   Fixed RSS feed crash when event details returned an object instead of a string.
+-   Added backward-compatibility stubs for PHP classes 5.21–5.23, hopefully preventing crashes when updating from those versions. 🤞
 
 ### 5.23.0 (February 2026)
 
