@@ -351,6 +351,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Added "Clear filters" button to reset all search filters to their default values.
+-   Added command palette command to view event history for the current post or page.
 
 **Changed**
 

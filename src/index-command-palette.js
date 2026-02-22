@@ -43,16 +43,16 @@ function SimpleHistoryCommandPalette() {
 		name: 'simple-history/view-post-history',
 		label: sprintf(
 			// translators: %s: post title or post type label.
-			__( 'Simple History for "%s"', 'simple-history' ),
+			__( 'Go to: Simple History > History for %s', 'simple-history' ),
 			safeTitle
 		),
 		icon: backup,
 		callback: ( { close } ) => {
 			if ( historyUrl && postId ) {
 				const contextFilter = encodeURIComponent(
-					`_post_id:${ postId }`
+					`post_id:${ postId }`
 				);
-				document.location.href = `${ historyUrl }&context=${ contextFilter }`;
+				document.location.href = `${ historyUrl }&context=${ contextFilter }&date=allDates`;
 			}
 			close();
 		},
