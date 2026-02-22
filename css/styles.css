@@ -2323,8 +2323,8 @@ a.sh-SettingsTabs-link:hover {
 .SimpleHistoryIpInfoDropin__ipInfoTable td {
 	vertical-align: top;
 	text-align: left;
-	padding: 5px 5px;
-	border-top: 1px solid #eee;
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-medium);
+	border-top: 1px solid var(--sh-color-separator);
 }
 
 .SimpleHistoryIpInfoDropin__ipInfoTable tr:first-of-type th,

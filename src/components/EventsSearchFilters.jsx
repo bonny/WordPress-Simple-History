@@ -254,8 +254,6 @@ export function EventsSearchFilters( props ) {
 						selectedUsersWithId={ selectedUsersWithId }
 						selectedInitiator={ selectedInitiator }
 						setSelectedInitiator={ setSelectedInitiator }
-						enteredIPAddress={ enteredIPAddress }
-						setEnteredIPAddress={ setEnteredIPAddress }
 						selectedContextFilters={ selectedContextFilters }
 						setSelectedContextFilters={ setSelectedContextFilters }
 						isExperimentalFeaturesEnabled={
