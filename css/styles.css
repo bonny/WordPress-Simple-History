@@ -944,7 +944,7 @@ Modal window with detailss
 
 .SimpleHistoryLogitem--initiator-other
 	.SimpleHistoryLogitem__senderImage:before {
-	content: "\f107";
+	content: "\f223";
 }
 
 .SimpleHistoryQuickStats {
