@@ -348,6 +348,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Changed**
+
+-   Improved IP address popover with prominent IP display, AS number links, map service links (Google Maps and OpenStreetMap), subnet filtering, and single-popover behavior.
+
 **Fixed**
 
 -   Fixed term names showing backslash before apostrophes when editing categories and tags.

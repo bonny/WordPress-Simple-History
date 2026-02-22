@@ -82,6 +82,10 @@ const keysAndValues = [
 	},
 ];
 
+// Module-level callback to close the currently open popover.
+// Only one IP popover should be visible at a time.
+let closeActivePopover = null;
+
 /**
  * Renders a link to an IP address.
  *
@@ -146,6 +150,12 @@ function IPAddressLink( ipAddressProps ) {
 			setShowPopover( false );
 			return;
 		}
+
+		// Close any other open popover before opening this one.
+		if ( closeActivePopover ) {
+			closeActivePopover();
+		}
+		closeActivePopover = () => setShowPopover( false );
 
 		// Show the popover and start loading ip info.
 		setShowPopover( true );
