@@ -36,6 +36,7 @@ class Setup_Database extends Service {
 		$this->setup_version_4_to_version_5();
 		$this->setup_version_5_to_version_6();
 		$this->setup_version_6_to_version_7();
+		$this->setup_version_7_to_version_8();
 	}
 
 	/**
@@ -162,9 +163,11 @@ class Setup_Database extends Service {
 
 		// Show a welcome admin notice on the next admin page load.
 		// Only set pending if the option doesn't exist yet (true first install, not table recovery).
-		if ( get_option( Welcome_Message_Service::OPTION_NAME ) === false ) {
-			Welcome_Message_Service::set_pending();
+		if ( get_option( Welcome_Message_Service::OPTION_NAME ) !== false ) {
+			return;
 		}
+
+		Welcome_Message_Service::set_pending();
 	}
 
 	/**
@@ -393,6 +396,23 @@ class Setup_Database extends Service {
 		$this->update_db_to_version( 7 );
 	}
 
+	/**
+	 * Update from db version 7 to version 8.
+	 *
+	 * Ensures the welcome message option exists for upgrading users,
+	 * preventing a DB query for a non-existent option on every page load.
+	 */
+	private function setup_version_7_to_version_8() {
+		if ( $this->get_db_version() !== 7 ) {
+			return;
+		}
+
+		if ( get_option( Welcome_Message_Service::OPTION_NAME ) === false ) {
+			update_option( Welcome_Message_Service::OPTION_NAME, 'seen', true );
+		}
+
+		$this->update_db_to_version( 8 );
+	}
 
 	/**
 	 * Add welcome messages to the log.

@@ -26,39 +26,23 @@ class Welcome_Message_Service extends Service {
 	 * Initialize the service after WordPress is fully loaded.
 	 */
 	public function init() {
-		// Only proceed if wp_admin_notice function exists (WordPress 6.4+).
-		if ( ! function_exists( 'wp_admin_notice' ) ) {
-			return;
-		}
-
-		// Only show for users who can view the history page.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability from filterable helper.
-		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
-			return;
-		}
-
 		$welcome_state = get_option( self::OPTION_NAME );
 
-		// No state set means first install hasn't happened via our hook,
-		// or user upgraded from an older version. Either way, nothing to show.
-		if ( $welcome_state === false ) {
-			return;
-		}
-
-		// State 'seen' means the notice was already shown and dismissed.
-		if ( $welcome_state === 'seen' ) {
-			return;
-		}
-
-		// Only show when state is 'pending'.
+		// Nothing to do if option doesn't exist or is already seen.
 		if ( $welcome_state !== 'pending' ) {
 			return;
 		}
 
-		add_action( 'admin_notices', array( $this, 'show_welcome_notice' ) );
+		// Mark as seen so the notice only appears once.
+		update_option( self::OPTION_NAME, 'seen', true );
 
-		// Mark as seen so the notice disappears after navigating away.
-		update_option( self::OPTION_NAME, 'seen' );
+		// Only show the notice if the user can view history and WP supports it.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability from filterable helper.
+		if ( ! function_exists( 'wp_admin_notice' ) || ! current_user_can( Helpers::get_view_history_capability() ) ) {
+			return;
+		}
+
+		add_action( 'admin_notices', array( $this, 'show_welcome_notice' ) );
 	}
 
 	/**

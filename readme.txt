@@ -355,6 +355,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Fixed term names showing backslash before apostrophes when editing categories and tags.
+-   Fixed welcome message option staying in pending state on WordPress 6.3.
 
 ### 5.23.1 (February 2026)
 
