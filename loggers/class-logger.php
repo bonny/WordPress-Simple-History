@@ -1804,10 +1804,10 @@ abstract class Logger {
 	}
 
 	/**
-	 * Append remote addr and other related headers to to context.
+	 * Append remote addr, referer and other related headers to to context.
 	 *
 	 * @param array $context Context.
-	 * @return array $context
+	 * @return array $context Context with remote addr, referer and other related headers appended.
 	 */
 	private function append_remote_addr_to_context( $context ) {
 		if ( ! isset( $context['_server_remote_addr'] ) ) {
