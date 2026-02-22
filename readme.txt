@@ -348,6 +348,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Added**
+
+-   Added "Clear filters" button to reset all search filters to their default values.
+
 **Changed**
 
 -   Improved IP address popover with prominent IP display, AS number links, map service links (Google Maps and OpenStreetMap), subnet filtering, and single-popover behavior.
