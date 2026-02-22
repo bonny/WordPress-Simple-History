@@ -486,9 +486,9 @@ class Options_Logger extends Logger {
 
 		if ( $new_value && ! empty( $context['new_post_title'] ) ) {
 			if ( get_post_status( $new_value ) ) {
-				$post_title_with_link = sprintf( '<a href="%1$s">%2$s</a>', get_edit_post_link( $new_value ), esc_html( html_entity_decode( $context['new_post_title'], ENT_QUOTES, 'UTF-8' ) ) );
+				$post_title_with_link = sprintf( '<a href="%1$s">%2$s</a>', get_edit_post_link( $new_value ), esc_html( $context['new_post_title'] ) );
 			} else {
-				$post_title_with_link = esc_html( html_entity_decode( $context['new_post_title'], ENT_QUOTES, 'UTF-8' ) );
+				$post_title_with_link = esc_html( $context['new_post_title'] );
 			}
 
 			$output .= sprintf(
@@ -511,9 +511,9 @@ class Options_Logger extends Logger {
 
 		if ( $old_value && ! empty( $context['old_post_title'] ) ) {
 			if ( get_post_status( $old_value ) ) {
-				$post_title_with_link = sprintf( '<a href="%1$s">%2$s</a>', get_edit_post_link( $old_value ), esc_html( html_entity_decode( $context['old_post_title'], ENT_QUOTES, 'UTF-8' ) ) );
+				$post_title_with_link = sprintf( '<a href="%1$s">%2$s</a>', get_edit_post_link( $old_value ), esc_html( $context['old_post_title'] ) );
 			} else {
-				$post_title_with_link = esc_html( html_entity_decode( $context['old_post_title'], ENT_QUOTES, 'UTF-8' ) );
+				$post_title_with_link = esc_html( $context['old_post_title'] );
 			}
 
 			$output .= sprintf(
@@ -642,7 +642,7 @@ class Options_Logger extends Logger {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'Old value', 'simple-history' ),
-				esc_html( html_entity_decode( $old_category_name, ENT_QUOTES, 'UTF-8' ) )
+				esc_html( $old_category_name )
 			);
 		}
 
@@ -650,7 +650,7 @@ class Options_Logger extends Logger {
 			$output .= sprintf(
 				$tmpl_row,
 				__( 'New value', 'simple-history' ),
-				esc_html( html_entity_decode( $new_category_name, ENT_QUOTES, 'UTF-8' ) )
+				esc_html( $new_category_name )
 			);
 		}
 

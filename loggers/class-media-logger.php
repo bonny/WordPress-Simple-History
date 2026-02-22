@@ -216,8 +216,8 @@ class Media_Logger extends Logger {
 					$attachment_parent_post      = get_post( $context['attachment_parent_id'] );
 					$attachment_parent_available = $attachment_parent_post instanceof \WP_Post;
 
-					$context['attachment_parent_post_type'] = esc_html( html_entity_decode( $context['attachment_parent_post_type'] ?? '', ENT_QUOTES, 'UTF-8' ) );
-					$context['attachment_parent_title']     = esc_html( html_entity_decode( $context['attachment_parent_title'] ?? '', ENT_QUOTES, 'UTF-8' ) );
+					$context['attachment_parent_post_type'] = esc_html( $context['attachment_parent_post_type'] ?? '' );
+					$context['attachment_parent_title']     = esc_html( $context['attachment_parent_title'] ?? '' );
 
 					if ( $attachment_parent_available ) {
 						// Include link to parent post.
@@ -232,8 +232,8 @@ class Media_Logger extends Logger {
 				}
 			}
 
-			$context['post_type']           = esc_html( html_entity_decode( $context['post_type'] ?? 'attachment', ENT_QUOTES, 'UTF-8' ) );
-			$context['attachment_filename'] = esc_html( html_entity_decode( $context['attachment_filename'] ?? '', ENT_QUOTES, 'UTF-8' ) );
+			$context['post_type']           = esc_html( $context['post_type'] ?? 'attachment' );
+			$context['attachment_filename'] = esc_html( $context['attachment_filename'] ?? '' );
 			$context['edit_link']           = get_edit_post_link( $attachment_id );
 
 			$message = helpers::interpolate( $message, $context, $row );

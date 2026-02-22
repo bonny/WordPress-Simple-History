@@ -1237,8 +1237,8 @@ class Post_Logger extends Logger {
 			}
 		}
 
-		$context['post_type']  = isset( $context['post_type'] ) ? esc_html( html_entity_decode( $context['post_type'], ENT_QUOTES, 'UTF-8' ) ) : '';
-		$context['post_title'] = isset( $context['post_title'] ) ? esc_html( html_entity_decode( $context['post_title'], ENT_QUOTES, 'UTF-8' ) ) : '';
+		$context['post_type']  = isset( $context['post_type'] ) ? esc_html( $context['post_type'] ) : '';
+		$context['post_title'] = isset( $context['post_title'] ) ? esc_html( $context['post_title'] ) : '';
 
 		return helpers::interpolate( $message, $context, $row );
 	}
