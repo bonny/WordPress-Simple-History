@@ -346,6 +346,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+**Fixed**
+
+-   Fixed term names showing backslash before apostrophes when editing categories and tags.
+
 ### 5.23.1 (February 2026)
 
 **Fixed**
