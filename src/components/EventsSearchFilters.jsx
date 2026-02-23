@@ -140,74 +140,92 @@ export function EventsSearchFilters( props ) {
 
 	// Load search options when component mounts.
 	useEffect( () => {
-		apiFetch( {
-			path: addQueryArgs( '/simple-history/v1/search-options', {} ),
-		} ).then( ( searchOptionsResponse ) => {
-			setSearchOptions( searchOptionsResponse );
+		const fetchSearchOptions = async () => {
+			try {
+				const searchOptionsResponse = await apiFetch( {
+					path: addQueryArgs(
+						'/simple-history/v1/search-options',
+						{}
+					),
+				} );
 
-			// Append result_months and all dates to dateOptions.
-			const monthsOptions = searchOptionsResponse.dates.result_months.map(
-				( row ) => ( {
-					label: dateI18n( 'F Y', row.yearMonth ),
-					value: `month:${ row.yearMonth }`,
-				} )
-			);
+				setSearchOptions( searchOptionsResponse );
 
-			const allDatesOption = {
-				label: __( 'All dates', 'simple-history' ),
-				value: 'allDates',
-			};
+				// Append result_months and all dates to dateOptions.
+				const monthsOptions =
+					searchOptionsResponse.dates.result_months.map(
+						( row ) => ( {
+							label: dateI18n( 'F Y', row.yearMonth ),
+							value: `month:${ row.yearMonth }`,
+						} )
+					);
 
-			setDateOptions( [
-				...DEFAULT_DATE_OPTIONS,
-				...monthsOptions,
-				allDatesOption,
-			] );
+				const allDatesOption = {
+					label: __( 'All dates', 'simple-history' ),
+					value: 'allDates',
+				};
 
-			// Store the default date option for use when clearing filters.
-			const apiDefaultDateOption = `lastdays:${ searchOptionsResponse.dates.daysToShow }`;
-			defaultDateOptionRef.current = apiDefaultDateOption;
+				setDateOptions( [
+					...DEFAULT_DATE_OPTIONS,
+					...monthsOptions,
+					allDatesOption,
+				] );
 
-			// Set selected date option to "recommended" option from API.
-			// Only set if not already set, because it can be set in the URL.
-			if ( ! selectedDateOption ) {
-				setSelectedDateOption( apiDefaultDateOption );
-			}
+				// Store the default date option for use when clearing filters.
+				const apiDefaultDateOption = `lastdays:${ searchOptionsResponse.dates.daysToShow }`;
+				defaultDateOptionRef.current = apiDefaultDateOption;
 
-			setPagerSize( searchOptionsResponse.pager_size );
-			setMapsApiKey( searchOptionsResponse.maps_api_key );
+				// Set selected date option to "recommended" option from API.
+				// Only set if not already set, because it can be set in the URL.
+				if ( ! selectedDateOption ) {
+					setSelectedDateOption( apiDefaultDateOption );
+				}
 
-			setHasExtendedSettingsAddOn(
-				searchOptionsResponse.addons.has_extended_settings_add_on
-			);
+				setPagerSize( searchOptionsResponse.pager_size );
+				setMapsApiKey( searchOptionsResponse.maps_api_key );
 
-			setHasPremiumAddOn(
-				searchOptionsResponse.addons.has_premium_add_on
-			);
-
-			setIsExperimentalFeaturesEnabled(
-				searchOptionsResponse.experimental_features_enabled
-			);
-
-			setEventsAdminPageURL(
-				searchOptionsResponse.events_admin_page_url
-			);
-			setEventsSettingsPageURL( searchOptionsResponse.settings_page_url );
-
-			// Set current user ID for "Hide my own events" feature.
-			if ( searchOptionsResponse.current_user_id ) {
-				setCurrentUserId( searchOptionsResponse.current_user_id );
-			}
-
-			// Set whether user can manage options (is administrator).
-			if ( searchOptionsResponse.current_user_can_manage_options ) {
-				setUserCanManageOptions(
-					searchOptionsResponse.current_user_can_manage_options
+				setHasExtendedSettingsAddOn(
+					searchOptionsResponse.addons.has_extended_settings_add_on
 				);
-			}
 
-			setSearchOptionsLoaded( true );
-		} );
+				setHasPremiumAddOn(
+					searchOptionsResponse.addons.has_premium_add_on
+				);
+
+				setIsExperimentalFeaturesEnabled(
+					searchOptionsResponse.experimental_features_enabled
+				);
+
+				setEventsAdminPageURL(
+					searchOptionsResponse.events_admin_page_url
+				);
+				setEventsSettingsPageURL(
+					searchOptionsResponse.settings_page_url
+				);
+
+				// Set current user ID for "Hide my own events" feature.
+				if ( searchOptionsResponse.current_user_id ) {
+					setCurrentUserId( searchOptionsResponse.current_user_id );
+				}
+
+				// Set whether user can manage options (is administrator).
+				if ( searchOptionsResponse.current_user_can_manage_options ) {
+					setUserCanManageOptions(
+						searchOptionsResponse.current_user_can_manage_options
+					);
+				}
+			} catch ( error ) {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Simple History: Failed to load search options',
+					error
+				);
+			} finally {
+				setSearchOptionsLoaded( true );
+			}
+		};
+
+		fetchSearchOptions();
 	}, [
 		setPagerSize,
 		setSearchOptionsLoaded,

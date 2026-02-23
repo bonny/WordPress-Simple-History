@@ -123,20 +123,26 @@ export function EventOccasions( props ) {
 			],
 		};
 
-		const eventsResponse = await apiFetch( {
-			path: addQueryArgs(
-				'/simple-history/v1/events',
-				eventsQueryParams
-			),
-			// Skip parsing to be able to retrieve headers.
-			parse: false,
-		} );
+		try {
+			const eventsResponse = await apiFetch( {
+				path: addQueryArgs(
+					'/simple-history/v1/events',
+					eventsQueryParams
+				),
+				// Skip parsing to be able to retrieve headers.
+				parse: false,
+			} );
 
-		const responseJson = await eventsResponse.json();
+			const responseJson = await eventsResponse.json();
 
-		setOccasions( responseJson );
-		setIsLoadingOccasions( false );
-		setIsShowingOccasions( true );
+			setOccasions( responseJson );
+			setIsShowingOccasions( true );
+		} catch ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Simple History: Failed to load occasions', error );
+		} finally {
+			setIsLoadingOccasions( false );
+		}
 	};
 
 	const showOccasionsEventsContent = (
