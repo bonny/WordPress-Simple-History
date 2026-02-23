@@ -1237,18 +1237,36 @@ class Post_Logger extends Logger {
 					'simple-history'
 				);
 			} elseif ( $message_key === 'page_set_as_homepage' ) {
-				$message = __( 'Set {post_type} <a href="{edit_link}">"{post_title}"</a> as the homepage', 'simple-history' );
+				if ( ! empty( $context['old_post_title'] ) ) {
+					$message = __( 'Set {post_type} <a href="{edit_link}">"{post_title}"</a> as the homepage, replacing "{old_post_title}"', 'simple-history' );
+				} else {
+					$message = __( 'Set {post_type} <a href="{edit_link}">"{post_title}"</a> as the homepage', 'simple-history' );
+				}
 			} elseif ( $message_key === 'page_removed_as_homepage' ) {
 				$message = __( 'Removed {post_type} <a href="{edit_link}">"{post_title}"</a> as the homepage', 'simple-history' );
 			} elseif ( $message_key === 'page_set_as_posts_page' ) {
-				$message = __( 'Set {post_type} <a href="{edit_link}">"{post_title}"</a> as the posts page', 'simple-history' );
+				if ( ! empty( $context['old_post_title'] ) ) {
+					$message = __( 'Set {post_type} <a href="{edit_link}">"{post_title}"</a> as the posts page, replacing "{old_post_title}"', 'simple-history' );
+				} else {
+					$message = __( 'Set {post_type} <a href="{edit_link}">"{post_title}"</a> as the posts page', 'simple-history' );
+				}
 			} elseif ( $message_key === 'page_removed_as_posts_page' ) {
 				$message = __( 'Removed {post_type} <a href="{edit_link}">"{post_title}"</a> as the posts page', 'simple-history' );
 			}
 		}
 
-		$context['post_type']  = isset( $context['post_type'] ) ? esc_html( $context['post_type'] ) : '';
-		$context['post_title'] = isset( $context['post_title'] ) ? esc_html( $context['post_title'] ) : '';
+		// For page role messages without edit link, add "replacing" info to the plain message.
+		if ( ! empty( $context['old_post_title'] ) ) {
+			if ( $message_key === 'page_set_as_homepage' && strpos( $message, 'old_post_title' ) === false ) {
+				$message = __( 'Set {post_type} "{post_title}" as the homepage, replacing "{old_post_title}"', 'simple-history' );
+			} elseif ( $message_key === 'page_set_as_posts_page' && strpos( $message, 'old_post_title' ) === false ) {
+				$message = __( 'Set {post_type} "{post_title}" as the posts page, replacing "{old_post_title}"', 'simple-history' );
+			}
+		}
+
+		$context['post_type']      = isset( $context['post_type'] ) ? esc_html( $context['post_type'] ) : '';
+		$context['post_title']     = isset( $context['post_title'] ) ? esc_html( $context['post_title'] ) : '';
+		$context['old_post_title'] = isset( $context['old_post_title'] ) ? esc_html( $context['old_post_title'] ) : '';
 
 		return helpers::interpolate( $message, $context, $row );
 	}
