@@ -36,11 +36,16 @@ class Post_Logger extends Logger {
 			'description' => __( 'Logs the creation and modification of posts and pages', 'simple-history' ),
 			'capability'  => 'edit_pages',
 			'messages'    => array(
-				'post_created'  => __( 'Created {post_type} "{post_title}"', 'simple-history' ),
-				'post_updated'  => __( 'Updated {post_type} "{post_title}"', 'simple-history' ),
-				'post_restored' => __( 'Restored {post_type} "{post_title}" from trash', 'simple-history' ),
-				'post_deleted'  => __( 'Deleted {post_type} "{post_title}"', 'simple-history' ),
-				'post_trashed'  => __( 'Moved {post_type} "{post_title}" to the trash', 'simple-history' ),
+				'post_created'               => __( 'Created {post_type} "{post_title}"', 'simple-history' ),
+				'post_updated'               => __( 'Updated {post_type} "{post_title}"', 'simple-history' ),
+				'post_restored'              => __( 'Restored {post_type} "{post_title}" from trash', 'simple-history' ),
+				'post_deleted'               => __( 'Deleted {post_type} "{post_title}"', 'simple-history' ),
+				'post_trashed'               => __( 'Moved {post_type} "{post_title}" to the trash', 'simple-history' ),
+
+				'page_set_as_homepage'       => __( 'Set {post_type} "{post_title}" as the homepage', 'simple-history' ),
+				'page_removed_as_homepage'   => __( 'Removed {post_type} "{post_title}" as the homepage', 'simple-history' ),
+				'page_set_as_posts_page'     => __( 'Set {post_type} "{post_title}" as the posts page', 'simple-history' ),
+				'page_removed_as_posts_page' => __( 'Removed {post_type} "{post_title}" as the posts page', 'simple-history' ),
 			),
 			'labels'      => array(
 				'search' => array(
@@ -52,6 +57,12 @@ class Post_Logger extends Logger {
 						_x( 'Posts trashed', 'Post logger: search', 'simple-history' ) => array( 'post_trashed' ),
 						_x( 'Posts deleted', 'Post logger: search', 'simple-history' ) => array( 'post_deleted' ),
 						_x( 'Posts restored', 'Post logger: search', 'simple-history' ) => array( 'post_restored' ),
+						_x( 'Pages set as homepage or posts page', 'Post logger: search', 'simple-history' ) => array(
+							'page_set_as_homepage',
+							'page_removed_as_homepage',
+							'page_set_as_posts_page',
+							'page_removed_as_posts_page',
+						),
 					),
 				),
 			),
@@ -86,6 +97,9 @@ class Post_Logger extends Logger {
 
 		// Add rest hooks late to increase chance of getting all registered post types.
 		add_action( 'init', array( $this, 'add_rest_hooks' ), 99 );
+
+		add_action( 'update_option_page_on_front', array( $this, 'on_update_option_page_on_front' ), 10, 2 );
+		add_action( 'update_option_page_for_posts', array( $this, 'on_update_option_page_for_posts' ), 10, 2 );
 
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
 
@@ -1222,6 +1236,14 @@ class Post_Logger extends Logger {
 					'Moved {post_type} <a href="{edit_link}">"{post_title}"</a> to the trash',
 					'simple-history'
 				);
+			} elseif ( $message_key === 'page_set_as_homepage' ) {
+				$message = __( 'Set {post_type} <a href="{edit_link}">"{post_title}"</a> as the homepage', 'simple-history' );
+			} elseif ( $message_key === 'page_removed_as_homepage' ) {
+				$message = __( 'Removed {post_type} <a href="{edit_link}">"{post_title}"</a> as the homepage', 'simple-history' );
+			} elseif ( $message_key === 'page_set_as_posts_page' ) {
+				$message = __( 'Set {post_type} <a href="{edit_link}">"{post_title}"</a> as the posts page', 'simple-history' );
+			} elseif ( $message_key === 'page_removed_as_posts_page' ) {
+				$message = __( 'Removed {post_type} <a href="{edit_link}">"{post_title}"</a> as the posts page', 'simple-history' );
 			}
 		}
 
@@ -1801,6 +1823,100 @@ class Post_Logger extends Logger {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Fired when the "page_on_front" option is updated.
+	 *
+	 * Only logs during REST API requests (block editor).
+	 * Traditional admin changes are handled by the Options Logger,
+	 * and Customizer changes by the Theme Logger.
+	 *
+	 * @param mixed $old_value Previous value.
+	 * @param mixed $new_value New value.
+	 */
+	public function on_update_option_page_on_front( $old_value, $new_value ) {
+		$this->log_page_role_change( $old_value, $new_value, 'homepage' );
+	}
+
+	/**
+	 * Fired when the "page_for_posts" option is updated.
+	 *
+	 * Only logs during REST API requests (block editor).
+	 * Traditional admin changes are handled by the Options Logger,
+	 * and Customizer changes by the Theme Logger.
+	 *
+	 * @param mixed $old_value Previous value.
+	 * @param mixed $new_value New value.
+	 */
+	public function on_update_option_page_for_posts( $old_value, $new_value ) {
+		$this->log_page_role_change( $old_value, $new_value, 'posts_page' );
+	}
+
+	/**
+	 * Log when a page is set as or removed as the homepage or posts page.
+	 *
+	 * @param mixed  $old_value Previous option value (page ID or 0).
+	 * @param mixed  $new_value New option value (page ID or 0).
+	 * @param string $role Either 'homepage' or 'posts_page'.
+	 */
+	private function log_page_role_change( $old_value, $new_value, $role ) {
+		// Only log during REST API requests (block editor).
+		if ( ! defined( 'REST_REQUEST' ) || ! REST_REQUEST ) {
+			return;
+		}
+
+		$old_value = (int) $old_value;
+		$new_value = (int) $new_value;
+
+		// No change.
+		if ( $old_value === $new_value ) {
+			return;
+		}
+
+		$set_message_key     = $role === 'homepage' ? 'page_set_as_homepage' : 'page_set_as_posts_page';
+		$removed_message_key = $role === 'homepage' ? 'page_removed_as_homepage' : 'page_removed_as_posts_page';
+
+		// A page was set.
+		if ( ! empty( $new_value ) ) {
+			$new_post = get_post( $new_value );
+
+			if ( ! $new_post instanceof \WP_Post ) {
+				return;
+			}
+
+			$context = array(
+				'post_id'    => $new_post->ID,
+				'post_type'  => get_post_type( $new_post ),
+				'post_title' => get_the_title( $new_post ),
+			);
+
+			// If changing from one page to another, include the old page info.
+			if ( ! empty( $old_value ) ) {
+				$old_post = get_post( $old_value );
+				if ( $old_post instanceof \WP_Post ) {
+					$context['old_post_id']    = $old_post->ID;
+					$context['old_post_title'] = get_the_title( $old_post );
+				}
+			}
+
+			$this->info_message( $set_message_key, $context );
+		} elseif ( ! empty( $old_value ) ) {
+			// Page was removed (set to 0).
+			$old_post = get_post( $old_value );
+
+			if ( ! $old_post instanceof \WP_Post ) {
+				return;
+			}
+
+			$context = array(
+				'post_id'    => $old_post->ID,
+				'post_type'  => get_post_type( $old_post ),
+				'post_title' => get_the_title( $old_post ),
+			);
+
+			$this->info_message( $removed_message_key, $context );
+		}
 	}
 
 	/**
