@@ -18,12 +18,25 @@ Go on with uninstall actions:
 
 // Remove options.
 $arr_options = array(
-	'simple_history_pager_size',
 	'simple_history_db_version',
+	'simple_history_pager_size',
+	'simple_history_pager_size_dashboard',
 	'simple_history_rss_secret',
+	'simple_history_enable_rss_feed',
 	'simple_history_show_on_dashboard',
 	'simple_history_show_as_page',
+	'simple_history_show_in_admin_bar',
+	'simple_history_detective_mode_enabled',
+	'simple_history_experimental_features_enabled',
+	'simple_history_install_date_gmt',
 	'simple_history_welcome_message_seen',
+	'simple_history_auto_backfill_pending',
+	'simple_history_auto_backfill_status',
+	'simple_history_manual_backfill_status',
+	'simple_history_core_files_integrity_results',
+	'simple_history_total_logged_events_count',
+	'simple_history_email_report_enabled',
+	'simple_history_email_report_recipients',
 );
 
 foreach ( $arr_options as $one_option ) {

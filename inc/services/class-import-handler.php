@@ -156,7 +156,7 @@ class Import_Handler extends Service {
 			'date_range_value'       => $date_range_value,
 			'date_range_unit'        => $date_range_unit,
 		];
-		update_option( self::MANUAL_STATUS_OPTION, $manual_status );
+		update_option( self::MANUAL_STATUS_OPTION, $manual_status, false );
 
 		// Fire action for SimpleHistory_Logger to log completion.
 		$manual_status['type'] = 'manual';

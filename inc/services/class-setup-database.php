@@ -417,18 +417,23 @@ class Setup_Database extends Service {
 	/**
 	 * Add welcome messages to the log.
 	 *
-	 * Fired from filter simple_history/loggers_loaded.
+	 * Fired from action simple_history/loggers_loaded.
 	 * Is only called after database has been upgraded, so only on first install (or upgrade).
 	 */
 	public function add_welcome_log_messages() {
+		// Prevent duplicate entries if table recovery re-registers this callback.
+		static $already_run = false;
+		if ( $already_run ) {
+			return;
+		}
+		$already_run = true;
+
 		$plugin_logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
 
 		if ( ! $plugin_logger instanceof Plugin_Logger ) {
 			return;
 		}
 
-		// Add plugin installed message.
-		// This code is fired twice for some reason.
 		$plugin_logger->info_message(
 			'plugin_installed',
 			[

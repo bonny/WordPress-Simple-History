@@ -229,8 +229,8 @@ class Core_Files_Logger extends Logger {
 			$this->info_message( 'core_files_restored', $context );
 		}
 
-		// Update stored results.
-		update_option( self::OPTION_NAME_FILE_CHECK_RESULTS, $current_results );
+		// Update stored results (no autoload — only used during cron checks).
+		update_option( self::OPTION_NAME_FILE_CHECK_RESULTS, $current_results, false );
 	}
 
 	/**
