@@ -973,6 +973,7 @@ class Plugin_Logger extends Logger {
 		}
 
 		$plugins_updated = isset( $arr_data['plugins'] ) ? (array) $arr_data['plugins'] : [];
+		$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
 
 		/** @var string $plugin_main_file_path Plugin folder and main file, i.e. classic-widgets/classic-widgets.php */
 		foreach ( $plugins_updated as $plugin_main_file_path ) {
@@ -983,7 +984,6 @@ class Plugin_Logger extends Logger {
 
 			// Fall back to pre-update stored data when get_plugin_data() returns empty Name.
 			// Custom updaters (like Code Profiler Pro) may not have the file in place yet.
-			$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
 			if ( empty( $plugin_data['Name'] ) && is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_main_file_path ] ) ) {
 				$plugin_data = $plugins_before_update[ $plugin_main_file_path ];
 			}
