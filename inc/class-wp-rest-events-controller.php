@@ -1363,7 +1363,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		$type_stats = $status['type_stats'] ?? [];
 
-		// Add pre-formatted localized labels (e.g. "247 posts", "1 page")
+		// Add pre-formatted localized labels (e.g. "247 more posts", "1 more page")
 		// so the frontend can display them without manual pluralization.
 		foreach ( $type_stats as $type => &$stats ) {
 			$missed = $stats['available'] - $stats['imported'];
@@ -1371,7 +1371,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			if ( $type === 'user' ) {
 				$stats['missed_label'] = sprintf(
 					/* translators: %s: Number of users */
-					_n( '%s user', '%s users', $missed, 'simple-history' ),
+					_n( '%s more user', '%s more users', $missed, 'simple-history' ),
 					number_format_i18n( $missed )
 				);
 			} else {
@@ -1380,12 +1380,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				if ( $post_type_obj ) {
 					$stats['missed_label'] = sprintf(
 						/* translators: 1: Number of items, 2: Post type label (singular or plural) */
-						__( '%1$s %2$s', 'simple-history' ),
+						__( '%1$s more %2$s', 'simple-history' ),
 						number_format_i18n( $missed ),
 						$missed === 1 ? $post_type_obj->labels->singular_name : $post_type_obj->labels->name
 					);
 				} else {
-					$stats['missed_label'] = number_format_i18n( $missed ) . ' ' . $type;
+					$stats['missed_label'] = number_format_i18n( $missed ) . ' more ' . $type;
 				}
 			}
 		}

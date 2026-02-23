@@ -63,8 +63,8 @@ function BackfilledNotice() {
 		} ).format( parts );
 
 		heading = sprintf(
-			// translators: %s: list of content types with counts, e.g. "247 posts and 12 pages".
-			__( '%s more can be added to your history.', 'simple-history' ),
+			// translators: %s: list of content types with counts, e.g. "147 more posts and 12 more pages".
+			__( 'Backfill %s into your history.', 'simple-history' ),
 			list
 		);
 	}
