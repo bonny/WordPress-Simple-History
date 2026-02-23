@@ -473,8 +473,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'description'       => __( 'Limit result set to events from a specific IP address. Supports anonymized IPs with ".x" suffix.', 'simple-history' ),
 			'type'              => 'string',
 			'validate_callback' => static function ( $value ) {
-				// Allow IPv4 addresses, optionally with ".x" for anonymized octets.
-				return (bool) preg_match( '/^[\d.x:a-fA-F]+$/', $value );
+				return Helpers::is_valid_ip_address_filter( $value );
 			},
 			'sanitize_callback' => 'sanitize_text_field',
 		);

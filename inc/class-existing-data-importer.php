@@ -387,11 +387,15 @@ class Existing_Data_Importer {
 
 		$users = get_users( $args );
 
-		// Count total available users with same filters but no limit.
-		$count_args           = $args;
-		$count_args['number'] = -1;
-		$count_args['fields'] = 'ID';
-		$total_available      = count( get_users( $count_args ) );
+		// Count total available users using SQL_CALC_FOUND_ROWS.
+		// Set number to 1 so the main query fetches minimal data,
+		// while get_total() returns the full count via FOUND_ROWS().
+		$count_args                    = $args;
+		$count_args['number']          = 1;
+		$count_args['fields']          = 'ID';
+		$count_args['count_total']     = true;
+		$count_query                   = new \WP_User_Query( $count_args );
+		$total_available               = $count_query->get_total();
 
 		$this->results['type_stats']['user'] = [
 			'available' => $total_available,
