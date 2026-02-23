@@ -20,6 +20,7 @@ All commands require:
 **Stdout noise after in-app updates:** Obsidian may emit a `"Loading updated app package ..."` line to stdout (happens after in-app updates, not installer updates). `2>/dev/null` won't catch it. For JSON/TSV output that needs parsing, append `| grep -v "Loading updated app package"` to get clean output.
 
 Issue files live at: `/Users/bonny/Documents/nvALT/Simple History/issues/`
+Archived issues: `/Users/bonny/Documents/nvALT/Simple History/issues/archive/`
 
 ## Querying Issues
 
@@ -142,7 +143,26 @@ When the user asks to look at an issue for review, always provide:
 2. **Files changed** — list each file with the relevant line numbers and a short description of the change
 3. **What to verify** — concrete, actionable steps for a human reviewer to confirm the change works correctly
 
-Then ask the user to confirm or mark it done.
+Then ask the user to confirm or mark it done. Once review is approved, archive the issue (see "Archiving Done Issues" below).
+
+## Archiving Done Issues
+
+When an issue has `status: done` and `review: done`, move it to the archive folder:
+
+```bash
+mv "/Users/bonny/Documents/nvALT/Simple History/issues/Issue Name.md" \
+   "/Users/bonny/Documents/nvALT/Simple History/issues/archive/"
+```
+
+Archived issues stay searchable in Obsidian but don't appear in active base views. To find archived issues:
+
+```bash
+# Search archived issues
+obsidian search vault=nvALT query="search term" path="Simple History/issues/archive" format=json 2>/dev/null
+
+# Or use Grep directly
+# Grep pattern="search term" path="/Users/bonny/Documents/nvALT/Simple History/issues/archive"
+```
 
 ## Inbox
 
