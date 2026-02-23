@@ -352,6 +352,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Added "Clear filters" button to reset all search filters to their default values.
 -   Added command palette command to view event history for the current post or page.
+-   Added logging when a page is set as the homepage or posts page from the block editor, including the name of the previously assigned page.
 -   Added upsell notice at the end of backfilled history showing specific counts of content not imported per type (pages, attachments, users, etc.) and explaining the free version's 100-items-per-type import limit.
 -   Added logging of image edits (crop, rotate, flip, scale) in the media logger, including a thumbnail preview sized smaller than upload thumbnails.
 -   Added user creation and profile update counts to the email digest report, displayed alongside login statistics in the Users section.
