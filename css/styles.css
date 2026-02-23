@@ -460,6 +460,11 @@ Images/thumbs can be styles nicely
 	height: auto;
 }
 
+.SimpleHistoryLogitemThumbnail--small img {
+	max-width: 100px;
+	max-height: 63px;
+}
+
 /* remove border below */
 .SimpleHistoryLogitem--occasionsOpened::before {
 	opacity: 0;

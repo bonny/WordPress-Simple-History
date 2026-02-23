@@ -386,10 +386,27 @@ class Media_Logger extends Logger {
 	 * @return string
 	 */
 	protected function get_details_output_for_image_edited( $row ) {
-		$context = $row->context;
+		$context       = $row->context;
+		$attachment_id = (int) ( $context['attachment_id'] ?? 0 );
+		$output        = '';
+
+		// Show thumbnail if the image attachment is still available.
+		if ( $attachment_id && wp_attachment_is_image( $attachment_id ) ) {
+			$attached_file = get_attached_file( $attachment_id );
+			$thumb_src     = wp_get_attachment_image_src( $attachment_id, 'medium' );
+			$edit_link     = get_edit_post_link( $attachment_id );
+
+			if ( $attached_file && file_exists( $attached_file ) && $thumb_src ) {
+				$output .= sprintf(
+					'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s"><div class="SimpleHistoryLogitemThumbnail SimpleHistoryLogitemThumbnail--small"><img src="%2$s" alt=""></div></a>',
+					esc_url( (string) $edit_link ),
+					esc_url( $thumb_src[0] )
+				);
+			}
+		}
 
 		if ( empty( $context['edit_operations'] ) ) {
-			return '';
+			return $output;
 		}
 
 		$operations_raw = $context['edit_operations'];
@@ -412,15 +429,15 @@ class Media_Logger extends Logger {
 			$labels[] = $operation_labels[ $operation ];
 		}
 
-		if ( empty( $labels ) ) {
-			return '';
+		if ( ! empty( $labels ) ) {
+			$output .= sprintf(
+				'<p>%1$s: %2$s</p>',
+				esc_html__( 'Operations', 'simple-history' ),
+				esc_html( implode( ', ', $labels ) )
+			);
 		}
 
-		return sprintf(
-			'<p>%1$s: %2$s</p>',
-			esc_html__( 'Operations', 'simple-history' ),
-			esc_html( implode( ', ', $labels ) )
-		);
+		return $output;
 	}
 
 	/**
