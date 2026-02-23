@@ -369,6 +369,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Fixed term names showing backslash before apostrophes when editing categories and tags.
 -   Fixed welcome message option staying in pending state on WordPress 6.3.
 -   Fixed missing icon for "Other" initiator type; now shows a question mark icon.
+-   Fixed retention setting link jumping to "Clear log" section instead of the Premium Settings section where the setting actually lives (when Premium is active).
+-   Fixed "Configure failed login attempts" link opening settings page without tab UI due to missing tab query parameter.
 
 ### 5.23.1 (February 2026)
 
