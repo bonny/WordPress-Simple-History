@@ -58,10 +58,10 @@ class Welcome_Message_Service extends Service {
 
 		$message = sprintf(
 			'<p><strong>%1$s</strong></p><p>%2$s</p>',
-			esc_html__( 'Thank you for installing Simple History!', 'simple-history' ),
+			esc_html__( 'Simple History is now tracking everything that happens on your site.', 'simple-history' ),
 			sprintf(
 				/* translators: %1$s: opening link tag, %2$s: closing link tag */
-				esc_html__( 'Your site activity is now being logged. %1$sView your activity log%2$s to see what\'s happening on your site.', 'simple-history' ),
+				esc_html__( 'Who logged in, what was changed, and when — it\'s all in your activity log. %1$sTake a look →%2$s', 'simple-history' ),
 				'<a href="' . esc_url( $history_url ) . '">',
 				'</a>'
 			)
