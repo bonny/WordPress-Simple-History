@@ -156,7 +156,7 @@ class Import_Handler extends Service {
 			'date_range_value'       => $date_range_value,
 			'date_range_unit'        => $date_range_unit,
 		];
-		update_option( self::MANUAL_STATUS_OPTION, $manual_status );
+		update_option( self::MANUAL_STATUS_OPTION, $manual_status, false );
 
 		// Fire action for SimpleHistory_Logger to log completion.
 		$manual_status['type'] = 'manual';
@@ -244,7 +244,7 @@ class Import_Handler extends Service {
 	/**
 	 * Handle the re-run auto backfill request.
 	 *
-	 * Resets the auto-backfill status and schedules the cron event to run again.
+	 * Resets the auto-backfill status and flags it to run on the next admin page load.
 	 *
 	 * Note: Re-run is only available when dev mode is enabled.
 	 */
@@ -267,8 +267,8 @@ class Import_Handler extends Service {
 		// Reset the auto-backfill status.
 		Auto_Backfill_Service::reset_status();
 
-		// Schedule the auto-backfill to run.
-		Auto_Backfill_Service::schedule_auto_backfill();
+		// Flag the auto-backfill to run on next admin page load.
+		Auto_Backfill_Service::set_backfill_pending();
 
 		// Redirect back to the page with success message.
 		$redirect_url = add_query_arg(

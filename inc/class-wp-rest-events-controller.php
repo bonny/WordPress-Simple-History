@@ -1361,10 +1361,40 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
+		$type_stats = $status['type_stats'] ?? [];
+
+		// Add pre-formatted localized labels (e.g. "247 more posts", "1 more page")
+		// so the frontend can display them without manual pluralization.
+		foreach ( $type_stats as $type => &$stats ) {
+			$missed = $stats['available'] - $stats['imported'];
+
+			if ( $type === 'user' ) {
+				$stats['missed_label'] = sprintf(
+					/* translators: %s: Number of users */
+					_n( '%s more user', '%s more users', $missed, 'simple-history' ),
+					number_format_i18n( $missed )
+				);
+			} else {
+				$post_type_obj = get_post_type_object( $type );
+
+				if ( $post_type_obj ) {
+					$stats['missed_label'] = sprintf(
+						/* translators: 1: Number of items, 2: Post type label (singular or plural) */
+						__( '%1$s more %2$s', 'simple-history' ),
+						number_format_i18n( $missed ),
+						$missed === 1 ? $post_type_obj->labels->singular_name : $post_type_obj->labels->name
+					);
+				} else {
+					$stats['missed_label'] = number_format_i18n( $missed ) . ' more ' . $type;
+				}
+			}
+		}
+		unset( $stats );
+
 		return rest_ensure_response(
 			[
 				'completed'  => (bool) ( $status['completed'] ?? false ),
-				'type_stats' => $status['type_stats'] ?? [],
+				'type_stats' => $type_stats,
 			]
 		);
 	}

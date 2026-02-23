@@ -13,14 +13,15 @@ use Simple_History\Helpers;
  * posts and pages that existed before Simple History was installed,
  * helping users see their site's history from day one.
  *
- * The backfill runs via a scheduled cron event to avoid impacting
- * the initial plugin activation experience.
+ * The backfill runs on the first admin page load after install
+ * via the admin_init hook, so it works reliably in all environments
+ * including those where WP-Cron is disabled or unreliable.
  */
 class Auto_Backfill_Service extends Service {
 	/**
-	 * Cron hook name for auto backfill.
+	 * Option name for flagging that backfill should run.
 	 */
-	const CRON_HOOK = 'simple_history/auto_backfill';
+	const PENDING_OPTION = 'simple_history_auto_backfill_pending';
 
 	/**
 	 * Option name for storing backfill status.
@@ -43,30 +44,42 @@ class Auto_Backfill_Service extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		// Register cron hook for auto backfill.
-		add_action( self::CRON_HOOK, [ $this, 'run_auto_backfill' ] );
+		add_action( 'admin_init', [ $this, 'maybe_run_auto_backfill' ] );
 	}
 
 	/**
-	 * Schedule the auto backfill cron event.
+	 * Run auto backfill if it's pending.
 	 *
-	 * Called from Setup_Database when plugin is first installed.
-	 * Schedules a one-time event to run 60 seconds after install.
+	 * Called on admin_init. Checks if the pending flag is set,
+	 * clears it immediately to prevent re-runs, then runs the backfill.
 	 */
-	public static function schedule_auto_backfill() {
-		if ( wp_next_scheduled( self::CRON_HOOK ) ) {
+	public function maybe_run_auto_backfill() {
+		if ( ! get_option( self::PENDING_OPTION ) ) {
 			return;
 		}
 
-		wp_schedule_single_event( time() + 60, self::CRON_HOOK );
+		// Clear the pending flag first to prevent re-runs.
+		delete_option( self::PENDING_OPTION );
+
+		$this->run_auto_backfill();
+	}
+
+	/**
+	 * Flag the auto backfill as pending.
+	 *
+	 * Called from Setup_Database when plugin is first installed.
+	 * The backfill will run on the next admin_init.
+	 */
+	public static function set_backfill_pending() {
+		update_option( self::PENDING_OPTION, true, false );
 	}
 
 	/**
 	 * Run the automatic backfill process.
 	 *
-	 * This is called by the cron event. It checks if backfill has
-	 * already been completed, runs the backfill if not, and stores
-	 * the results in an option for display in the admin.
+	 * Checks if backfill has already been completed, runs
+	 * the backfill if not, and stores the results in an option
+	 * for display in the admin.
 	 */
 	public function run_auto_backfill() {
 		// Check if already completed.

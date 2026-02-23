@@ -363,6 +363,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Updated welcome message copy to clearly attribute the notice to Simple History and better communicate value: now highlights what gets tracked (logins, changes, timestamps) and invites users to explore their activity log.
 -   Updated feed introduction event with clearer, more concise copy that names the plugin upfront, removes redundant items, and links directly to the Simple History Premium page.
 -   Updated core file integrity restored log entry to show how many files are still modified, so users know when further action is needed.
+-   Changed auto backfill to run on the first admin page load instead of relying on WP-Cron, ensuring it works in all environments including those where WP-Cron is disabled or unreliable.
+-   Changed backfill upsell notice to only appear when content was genuinely missed due to the per-type limit, hiding it entirely when all available content was imported successfully.
 
 **Fixed**
 

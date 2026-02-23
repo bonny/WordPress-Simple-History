@@ -26,6 +26,12 @@ class Welcome_Message_Service extends Service {
 	 * Initialize the service after WordPress is fully loaded.
 	 */
 	public function init() {
+		// Skip AJAX requests — admin_notices never fires during AJAX,
+		// so processing here would consume the pending state without showing anything.
+		if ( wp_doing_ajax() ) {
+			return;
+		}
+
 		$welcome_state = get_option( self::OPTION_NAME );
 
 		// Nothing to do if option doesn't exist or is already seen.
@@ -33,14 +39,14 @@ class Welcome_Message_Service extends Service {
 			return;
 		}
 
-		// Mark as seen so the notice only appears once.
-		update_option( self::OPTION_NAME, 'seen', true );
-
 		// Only show the notice if the user can view history and WP supports it.
 		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability from filterable helper.
 		if ( ! function_exists( 'wp_admin_notice' ) || ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return;
 		}
+
+		// Mark as seen so the notice only appears once.
+		update_option( self::OPTION_NAME, 'seen', true );
 
 		add_action( 'admin_notices', array( $this, 'show_welcome_notice' ) );
 	}

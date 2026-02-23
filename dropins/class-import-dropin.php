@@ -129,8 +129,8 @@ class Import_Dropin extends Dropin {
 				?>
 				<div class="notice notice-success is-dismissible">
 					<p>
-						<strong><?php esc_html_e( 'Auto-backfill scheduled!', 'simple-history' ); ?></strong><br>
-						<?php esc_html_e( 'The automatic backfill has been scheduled and will run shortly.', 'simple-history' ); ?>
+						<strong><?php esc_html_e( 'Auto-backfill pending!', 'simple-history' ); ?></strong><br>
+						<?php esc_html_e( 'The automatic backfill will run on the next admin page load.', 'simple-history' ); ?>
 					</p>
 				</div>
 				<?php
@@ -181,9 +181,9 @@ class Import_Dropin extends Dropin {
 				</p>
 
 				<?php
-				$is_cron_scheduled     = wp_next_scheduled( Auto_Backfill_Service::CRON_HOOK );
+				$is_backfill_pending   = get_option( Auto_Backfill_Service::PENDING_OPTION );
 				$has_auto_backfill_run = $auto_backfill_status && ! empty( $auto_backfill_status['completed'] );
-				$is_existing_site      = ! $has_auto_backfill_run && ! $is_cron_scheduled;
+				$is_existing_site      = ! $has_auto_backfill_run && ! $is_backfill_pending;
 
 				if ( $has_auto_backfill_run ) {
 					// Date is stored in GMT, append UTC so strtotime interprets it correctly.
@@ -231,11 +231,11 @@ class Import_Dropin extends Dropin {
 					</p>
 				</div>
 					<?php
-				} elseif ( $is_cron_scheduled ) {
+				} elseif ( $is_backfill_pending ) {
 					?>
 				<div class="sh-StatusBox sh-StatusBox--warning">
 					<p>
-						<?php esc_html_e( 'Auto-backfill is scheduled and will run shortly.', 'simple-history' ); ?>
+						<?php esc_html_e( 'Auto-backfill is pending and will run on the next admin page load.', 'simple-history' ); ?>
 					</p>
 				</div>
 					<?php
@@ -412,7 +412,7 @@ class Import_Dropin extends Dropin {
 			<p>
 				<?php
 				esc_html_e(
-					'Reset the auto-backfill status and schedule it to run again. This is useful for testing or after deleting backfilled data.',
+					'Reset the auto-backfill status and flag it to run again on the next admin page load. This is useful for testing or after deleting backfilled data.',
 					'simple-history'
 				);
 				?>

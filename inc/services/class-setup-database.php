@@ -156,10 +156,10 @@ class Setup_Database extends Service {
 
 		$this->update_db_to_version( 1 );
 
-		// Schedule auto-backfill to run shortly after first install.
+		// Flag auto-backfill to run on next admin page load.
 		// This populates the history with existing WordPress data (posts, pages, users)
 		// so users don't start with an empty log.
-		Auto_Backfill_Service::schedule_auto_backfill();
+		Auto_Backfill_Service::set_backfill_pending();
 
 		// Show a welcome admin notice on the next admin page load.
 		// Only set pending if the option doesn't exist yet (true first install, not table recovery).
@@ -417,18 +417,23 @@ class Setup_Database extends Service {
 	/**
 	 * Add welcome messages to the log.
 	 *
-	 * Fired from filter simple_history/loggers_loaded.
+	 * Fired from action simple_history/loggers_loaded.
 	 * Is only called after database has been upgraded, so only on first install (or upgrade).
 	 */
 	public function add_welcome_log_messages() {
+		// Prevent duplicate entries if table recovery re-registers this callback.
+		static $already_run = false;
+		if ( $already_run ) {
+			return;
+		}
+		$already_run = true;
+
 		$plugin_logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
 
 		if ( ! $plugin_logger instanceof Plugin_Logger ) {
 			return;
 		}
 
-		// Add plugin installed message.
-		// This code is fired twice for some reason.
 		$plugin_logger->info_message(
 			'plugin_installed',
 			[

@@ -1731,6 +1731,11 @@ Can be overruled by .form-table td p
 	color: #999;
 }
 
+/* Notice in events log. */
+.sh-BackfilledNotice {
+	margin: var(--sh-spacing-medium);
+}
+
 /* Backfill Form */
 .sh-BackfillForm {
 	background: #fff;
