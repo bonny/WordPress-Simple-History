@@ -134,6 +134,16 @@ obsidian property:set vault=nvALT name=status value=done path="Simple History/is
 obsidian property:set vault=nvALT name=review value=pending path="Simple History/issues/Issue Name.md" 2>/dev/null
 ```
 
+**Present a `review: pending` issue for human review:**
+
+When the user asks to look at an issue for review, always provide:
+
+1. **Summary** — what was the original request and what was done
+2. **Files changed** — list each file with the relevant line numbers and a short description of the change
+3. **What to verify** — concrete, actionable steps for a human reviewer to confirm the change works correctly
+
+Then ask the user to confirm or mark it done.
+
 ## Inbox
 
 The quick-capture inbox is a single file, not part of the base:
