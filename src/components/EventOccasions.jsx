@@ -39,7 +39,7 @@ function EventOccasionsAddonsContent( props ) {
 	const configureLoginAttemptsLinkDependingOnAddOns =
 		hasExtendedSettingsAddOn || hasPremiumAddOn ? (
 			<a
-				href={ `${ eventsSettingsPageURL }&selected-sub-tab=failed-login-attempts` }
+				href={ `${ eventsSettingsPageURL }&selected-tab=general_settings_subtab_general&selected-sub-tab=failed-login-attempts` }
 			>
 				{ __( 'Configure failed login attempts', 'simple-history' ) }
 			</a>
