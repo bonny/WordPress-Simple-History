@@ -70,7 +70,7 @@ class Scripts_And_Templates extends Service {
 		wp_enqueue_script(
 			'simple_history_script',
 			SIMPLE_HISTORY_DIR_URL . 'js/scripts.js',
-			array( 'jquery', 'backbone', 'wp-util' ),
+			array( 'jquery', 'backbone', 'wp-util', 'wp-api-fetch' ),
 			SIMPLE_HISTORY_VERSION,
 			true
 		);

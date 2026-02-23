@@ -198,11 +198,6 @@
 	box-shadow: 0px 3px 3px 0px #f7f7f7;
 }
 
-/* Sticky events style */
-.SimpleHistoryLogitem--is-sticky {
-	background-color: var(--sh-color-cream);
-}
-
 /* Text inside event, contains tooltip and SVG icon component */
 .SimpleHistoryLogitem--sticky {
 	display: inline-block;

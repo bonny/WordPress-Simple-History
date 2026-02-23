@@ -118,20 +118,9 @@
 		button.disabled = true;
 		spinner.classList.add( 'is-active' );
 
-		fetch( window.simpleHistoryHelpPage.restUrl, {
-			method: 'GET',
-			headers: {
-				'X-WP-Nonce': window.simpleHistoryHelpPage.nonce,
-			},
+		wp.apiFetch( {
+			path: '/simple-history/v1/support-info',
 		} )
-			.then( function ( response ) {
-				if ( ! response.ok ) {
-					throw new Error(
-						response.status + ' ' + response.statusText
-					);
-				}
-				return response.json();
-			} )
 			.then( function ( data ) {
 				textarea.value = data.plain_text;
 				button.textContent = window.simpleHistoryHelpPage.i18n.refresh;
