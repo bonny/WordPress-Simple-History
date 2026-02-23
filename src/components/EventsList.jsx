@@ -1,9 +1,14 @@
+import apiFetch from '@wordpress/api-fetch';
 import {
 	ExternalLink,
 	__experimentalSpacer as Spacer,
 	Notice,
 } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useEffect,
+	useState,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getTrackingUrl } from '../functions';
 import { EventsListItemsList } from './EventsListItemsList';
@@ -51,6 +56,18 @@ export function EventsList( props ) {
 		! isSurroundingEventsMode &&
 		isOnLastPage &&
 		lastEvent?.backfilled;
+
+	// Fetch backfill status when the notice becomes visible.
+	const [ backfillTypeStats, setBackfillTypeStats ] = useState( null );
+	useEffect( () => {
+		if ( ! showBackfilledNotice ) {
+			return;
+		}
+
+		apiFetch( { path: '/simple-history/v1/backfill-status' } )
+			.then( ( data ) => setBackfillTypeStats( data.type_stats ?? null ) )
+			.catch( () => {} );
+	}, [ showBackfilledNotice ] );
 
 	const styles = {
 		backgroundColor: 'white',
@@ -111,16 +128,59 @@ export function EventsList( props ) {
 				<Notice status="info" isDismissible={ false }>
 					<p>
 						<strong>
-							{ __(
-								'You have reached the oldest backfilled event.',
-								'simple-history'
-							) }
+							{ ( () => {
+								if ( ! backfillTypeStats ) {
+									return __(
+										"Some of your existing content wasn't imported into history.",
+										'simple-history'
+									);
+								}
+
+								// Find types where available > imported (i.e. limit was hit).
+								const missed = Object.entries(
+									backfillTypeStats
+								).filter(
+									( [ , s ] ) => s.available > s.imported
+								);
+
+								if ( missed.length === 0 ) {
+									return __(
+										"You're seeing all of your imported history.",
+										'simple-history'
+									);
+								}
+
+								const parts = missed.map(
+									( [ type, s ] ) =>
+										`${
+											s.available - s.imported
+										} ${ type }s`
+								);
+
+								const list =
+									parts.length === 1
+										? parts[ 0 ]
+										: parts.slice( 0, -1 ).join( ', ' ) +
+										  ' ' +
+										  __( 'and', 'simple-history' ) +
+										  ' ' +
+										  parts[ parts.length - 1 ];
+
+								return sprintf(
+									// translators: %s: list of content types with counts, e.g. "247 posts and 12 pages".
+									__(
+										'%s are missing from your history.',
+										'simple-history'
+									),
+									list
+								);
+							} )() }
 						</strong>
 					</p>
 					<p>
 						{ createInterpolateElement(
 							__(
-								'The free version backfills up to 100 items per content type. <PremiumLink>Upgrade to Premium</PremiumLink> to backfill more history.',
+								'When Simple History was installed, it automatically imported your existing WordPress content. The free version imports up to 100 items per type — <PremiumLink>Upgrade to Premium</PremiumLink> to import everything.',
 								'simple-history'
 							),
 							{

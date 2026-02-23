@@ -9,6 +9,7 @@ use WP_REST_Server;
 use Simple_History\Event;
 use Simple_History\Helpers;
 use Simple_History\Log_Initiators;
+use Simple_History\Services;
 
 /**
  * REST API controller for events.
@@ -137,6 +138,19 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => [ $this, 'stick_event' ],
 					'permission_callback' => [ $this, 'update_item_permissions_check' ],
+				],
+			],
+		);
+
+		// GET /wp-json/simple-history/v1/backfill-status.
+		register_rest_route(
+			$this->namespace,
+			'/backfill-status',
+			[
+				[
+					'methods'             => \WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_backfill_status' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
 				],
 			],
 		);
@@ -456,13 +470,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['ip_address'] = array(
-			'description'          => __( 'Limit result set to events from a specific IP address. Supports anonymized IPs with ".x" suffix.', 'simple-history' ),
-			'type'                 => 'string',
-			'validate_callback'    => static function ( $value ) {
+			'description'       => __( 'Limit result set to events from a specific IP address. Supports anonymized IPs with ".x" suffix.', 'simple-history' ),
+			'type'              => 'string',
+			'validate_callback' => static function ( $value ) {
 				// Allow IPv4 addresses, optionally with ".x" for anonymized octets.
 				return (bool) preg_match( '/^[\d.x:a-fA-F]+$/', $value );
 			},
-			'sanitize_callback'    => 'sanitize_text_field',
+			'sanitize_callback' => 'sanitize_text_field',
 		);
 
 		$query_params['context_filters'] = array(
@@ -1329,5 +1343,30 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Returns the auto-backfill status including per-type available and imported counts.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function get_backfill_status() {
+		$status = Services\Auto_Backfill_Service::get_status();
+
+		if ( ! $status ) {
+			return rest_ensure_response(
+				[
+					'completed'  => false,
+					'type_stats' => [],
+				]
+			);
+		}
+
+		return rest_ensure_response(
+			[
+				'completed'  => (bool) ( $status['completed'] ?? false ),
+				'type_stats' => $status['type_stats'] ?? [],
+			]
+		);
 	}
 }

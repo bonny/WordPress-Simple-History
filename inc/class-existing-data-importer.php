@@ -71,6 +71,7 @@ class Existing_Data_Importer {
 			'users_details'          => [],
 			'skipped_details'        => [],
 			'errors'                 => [],
+			'type_stats'             => [],
 		];
 
 		// Import posts and pages.
@@ -140,6 +141,19 @@ class Existing_Data_Importer {
 
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_posts -- Admin-only import, caching not needed.
 		$posts = get_posts( $args );
+
+		// Count total available posts with same filters but no limit.
+		$count_args                   = $args;
+		$count_args['posts_per_page'] = -1;
+		$count_args['fields']         = 'ids';
+		$count_args['no_found_rows']  = false;
+		$count_query                  = new \WP_Query( $count_args );
+		$total_available              = $count_query->found_posts;
+
+		$this->results['type_stats'][ $post_type ] = [
+			'available' => $total_available,
+			'imported'  => 0,
+		];
 
 		// Get all post IDs to check for duplicates.
 		$post_ids = wp_list_pluck( $posts, 'ID' );
@@ -327,9 +341,10 @@ class Existing_Data_Importer {
 			++$imported_count;
 		}
 
-		$this->results['posts_imported']         += $imported_count;
-		$this->results['posts_skipped_imported'] += $skipped_imported_count;
-		$this->results['posts_skipped_logged']   += $skipped_logged_count;
+		$this->results['posts_imported']                      += $imported_count;
+		$this->results['posts_skipped_imported']              += $skipped_imported_count;
+		$this->results['posts_skipped_logged']                += $skipped_logged_count;
+		$this->results['type_stats'][ $post_type ]['imported'] = $imported_count;
 
 		return $imported_count;
 	}
@@ -371,6 +386,17 @@ class Existing_Data_Importer {
 		}
 
 		$users = get_users( $args );
+
+		// Count total available users with same filters but no limit.
+		$count_args           = $args;
+		$count_args['number'] = -1;
+		$count_args['fields'] = 'ID';
+		$total_available      = count( get_users( $count_args ) );
+
+		$this->results['type_stats']['user'] = [
+			'available' => $total_available,
+			'imported'  => 0,
+		];
 
 		// Get all user IDs to check for duplicates.
 		$user_ids = wp_list_pluck( $users, 'ID' );
@@ -431,9 +457,10 @@ class Existing_Data_Importer {
 			++$imported_count;
 		}
 
-		$this->results['users_imported']         += $imported_count;
-		$this->results['users_skipped_imported'] += $skipped_imported_count;
-		$this->results['users_skipped_logged']   += $skipped_logged_count;
+		$this->results['users_imported']                += $imported_count;
+		$this->results['users_skipped_imported']        += $skipped_imported_count;
+		$this->results['users_skipped_logged']          += $skipped_logged_count;
+		$this->results['type_stats']['user']['imported'] = $imported_count;
 
 		return $imported_count;
 	}

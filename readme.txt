@@ -352,6 +352,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Added "Clear filters" button to reset all search filters to their default values.
 -   Added command palette command to view event history for the current post or page.
+-   Added upsell notice at the end of backfilled history showing specific counts of content not imported per type (pages, attachments, users, etc.) and explaining the free version's 100-items-per-type import limit.
 
 **Changed**
 
