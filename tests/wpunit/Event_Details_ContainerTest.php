@@ -233,6 +233,39 @@ class Event_Details_ContainerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertContains( 'Only Prev', $remaining_names, 'Item with only prev value should remain (change from something to nothing)' );
 	}
 
+	public function test_unchanged_items_removal() {
+		$context = [
+			'name_new' => 'My Category',
+			'name_prev' => 'My Category', // Same as new — should be removed.
+			'slug_new' => 'new-slug',
+			'slug_prev' => 'old-slug', // Different — should remain.
+			'desc_new' => '',
+			'desc_prev' => '', // Both empty — should be removed.
+			'parent_new' => 'Parent A',
+			'parent_prev' => 'None', // Different — should remain.
+		];
+
+		$container = new Event_Details_Container( [], $context );
+
+		$items = [
+			new Event_Details_Item( ['name_new', 'name_prev'], 'Name' ),
+			new Event_Details_Item( ['slug_new', 'slug_prev'], 'Slug' ),
+			new Event_Details_Item( ['desc_new', 'desc_prev'], 'Description' ),
+			new Event_Details_Item( ['parent_new', 'parent_prev'], 'Parent' ),
+		];
+
+		$container->add_items( $items );
+
+		$remaining_names = array_map( function( $item ) {
+			return $item->name;
+		}, $container->groups[0]->items );
+
+		$this->assertNotContains( 'Name', $remaining_names, 'Item with identical new and prev values should be removed' );
+		$this->assertContains( 'Slug', $remaining_names, 'Item with different values should remain' );
+		$this->assertNotContains( 'Description', $remaining_names, 'Item with both empty values should be removed' );
+		$this->assertContains( 'Parent', $remaining_names, 'Item with different values should remain' );
+	}
+
 	public function test_to_html_method() {
 		$container = new Event_Details_Container();
 		$group = new Event_Details_Group();
