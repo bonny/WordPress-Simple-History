@@ -128,7 +128,8 @@ class Core_Files_Logger extends Logger {
 		}
 
 		// Get official WordPress checksums for current version.
-		$checksums = get_core_checksums( $wp_version, 'en_US' );
+		global $wp_local_package;
+		$checksums = get_core_checksums( $wp_version, isset( $wp_local_package ) ? $wp_local_package : 'en_US' );
 
 		if ( ! is_array( $checksums ) || empty( $checksums ) ) {
 			return new \WP_Error( 'core_files_check_failed', 'Unable to retrieve WordPress core checksums for version ' . esc_html( $wp_version ) );
@@ -219,9 +220,10 @@ class Core_Files_Logger extends Logger {
 		// Log resolved issues.
 		if ( ! empty( $resolved_issues ) && ! empty( $previous_results ) ) {
 			$context = [
-				'file_count'     => count( $resolved_issues ),
-				'restored_files' => array_keys( $resolved_issues ),
-				'file_details'   => array_values( $resolved_issues ),
+				'file_count'           => count( $resolved_issues ),
+				'restored_files'       => array_keys( $resolved_issues ),
+				'file_details'         => array_values( $resolved_issues ),
+				'still_modified_count' => count( $current_results ),
 			];
 
 			$this->info_message( 'core_files_restored', $context );
@@ -337,6 +339,30 @@ class Core_Files_Logger extends Logger {
 					)
 				)
 			);
+		}
+
+		// For restored events, show how many files are still modified.
+		if ( $message_key === 'core_files_restored' ) {
+			$still_modified_count = isset( $context['still_modified_count'] ) ? (int) $context['still_modified_count'] : 0;
+			if ( $still_modified_count > 0 ) {
+				$event_details_group->add_item(
+					( new Event_Details_Item(
+						null,
+						__( 'Still modified', 'simple-history' )
+					) )->set_new_value(
+						sprintf(
+							/* translators: %d: number of core files still with integrity issues */
+							_n(
+								'%d file still has issues',
+								'%d files still have issues',
+								$still_modified_count,
+								'simple-history'
+							),
+							$still_modified_count
+						)
+					)
+				);
+			}
 		}
 
 		return $event_details_group;

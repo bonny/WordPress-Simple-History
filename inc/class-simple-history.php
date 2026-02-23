@@ -150,6 +150,7 @@ class Simple_History {
 			Services\Auto_Backfill_Service::class,
 			Services\Channels_Service::class,
 			Services\Channels_Settings_Page::class,
+			Services\Command_Palette::class,
 			Services\Dashboard_Widget::class,
 			Services\Dropins_Loader::class,
 			Services\Email_Report_Service::class,
@@ -176,6 +177,7 @@ class Simple_History {
 			Services\Simple_History_Updates::class,
 			Services\Stats_Service::class,
 			Services\Stealth_Mode::class,
+			Services\Welcome_Message_Service::class,
 			Services\WP_CLI_Commands::class,
 		);
 

@@ -290,16 +290,16 @@ class Simple_History_Logger extends Logger {
 			// add a text with a link with information on how to modify this.
 			// If they already have the plugin, show message with link to settings page.
 
-			if ( ! Helpers::show_promo_boxes() ) {
+			if ( Helpers::is_premium_add_on_active() ) {
 				$message = sprintf(
-					/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
+					/* translators: 1 is a link to the settings page retention setting */
 					__( '<a href="%1$s">Set number of days the log is kept.</a>', 'simple-history' ),
-					esc_url( Helpers::get_settings_page_url() )
+					esc_url( Helpers::get_settings_page_url() . '#simple-history-premium-settings' )
 				);
 			} else {
 				$message = sprintf(
 				/* translators: 1 is a link to webpage with info about how to modify number of days to keep the log */
-					__( '<a href="%1$s" target="_blank" class="sh-ExternalLink">Get Premium to set number of days the log is kept.</a>', 'simple-history' ),
+					__( '<a href="%1$s" target="_blank" class="sh-ExternalLink">Set number of days the log is kept (Premium).</a>', 'simple-history' ),
 					esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_logger_purged' ) )
 				);
 			}
@@ -342,6 +342,14 @@ class Simple_History_Logger extends Logger {
 					new Event_Details_Item(
 						[ 'detective_mode_enabled' ],
 						__( 'Detective Mode enabled', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'menu_page_location' ],
+						__( 'Menu page location', 'simple-history' ),
+					),
+					new Event_Details_Item(
+						[ 'show_in_admin_bar' ],
+						__( 'Show in admin bar', 'simple-history' ),
 					),
 				]
 			)

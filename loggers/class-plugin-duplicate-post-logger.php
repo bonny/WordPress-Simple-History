@@ -143,10 +143,6 @@ class Plugin_Duplicate_Post_Logger extends Logger {
 			? esc_html( $context['duplicated_post_title'] )
 			: '';
 
-		$context['duplicated_post_title'] = isset( $context['duplicated_post_title'] )
-			? esc_html( $context['duplicated_post_title'] )
-			: '';
-
 		$context['duplicated_post_post_type_singular_name'] = isset(
 			$context['duplicated_post_post_type_singular_name']
 		)

@@ -36,6 +36,7 @@ class Setup_Database extends Service {
 		$this->setup_version_4_to_version_5();
 		$this->setup_version_5_to_version_6();
 		$this->setup_version_6_to_version_7();
+		$this->setup_version_7_to_version_8();
 	}
 
 	/**
@@ -159,6 +160,14 @@ class Setup_Database extends Service {
 		// This populates the history with existing WordPress data (posts, pages, users)
 		// so users don't start with an empty log.
 		Auto_Backfill_Service::schedule_auto_backfill();
+
+		// Show a welcome admin notice on the next admin page load.
+		// Only set pending if the option doesn't exist yet (true first install, not table recovery).
+		if ( get_option( Welcome_Message_Service::OPTION_NAME ) !== false ) {
+			return;
+		}
+
+		Welcome_Message_Service::set_pending();
 	}
 
 	/**
@@ -387,6 +396,23 @@ class Setup_Database extends Service {
 		$this->update_db_to_version( 7 );
 	}
 
+	/**
+	 * Update from db version 7 to version 8.
+	 *
+	 * Ensures the welcome message option exists for upgrading users,
+	 * preventing a DB query for a non-existent option on every page load.
+	 */
+	private function setup_version_7_to_version_8() {
+		if ( $this->get_db_version() !== 7 ) {
+			return;
+		}
+
+		if ( get_option( Welcome_Message_Service::OPTION_NAME ) === false ) {
+			update_option( Welcome_Message_Service::OPTION_NAME, 'seen', true );
+		}
+
+		$this->update_db_to_version( 8 );
+	}
 
 	/**
 	 * Add welcome messages to the log.
@@ -426,7 +452,7 @@ class Setup_Database extends Service {
 		);
 
 		$welcome_message_1 = __(
-			'Welcome to Simple History! This is the event history feed. It will contain events that this plugin has logged.',
+			'Simple History is live. Here\'s what to expect.',
 			'simple-history'
 		);
 
@@ -469,43 +495,37 @@ class Setup_Database extends Service {
 
 		$message .= sprintf(
 			$row_template,
-			'🚀',
-			__( 'Simple History has been successfully installed on your WordPress site and is active and ready to log important changes on your website', 'simple-history' )
-		);
-
-		$message .= sprintf(
-			$row_template,
-			'📝',
-			__( 'As your users work on this site, this feed will update to contain information about their actions. Page edits, attachment uploads, plugin updates, user logins, site settings changes, and much more will show up in this log.', 'simple-history' )
+			'📋',
+			__( 'Logins, content edits, plugin updates, settings changes, user registrations — every significant action on your site is recorded here automatically.', 'simple-history' )
 		);
 
 		$message .= sprintf(
 			$row_template,
 			'👥',
-			__( "If you have multiple users working on this website, you'll find Simple History especially useful . It logs events from all users, providing a centralized view of what's happening. This makes it easy for you to see and understand the activities of other users on the same website.", 'simple-history' )
+			__( "Running a team site? Each user's actions are tracked individually, so you always know who changed what and when.", 'simple-history' )
 		);
 
 		$message .= sprintf(
 			$row_template,
-			'⏰',
+			'⏳',
 			sprintf(
 				/* translators: %s is a link to the add-ons page */
-				__( 'Simple History will automatically backfill your history with events from existing content. Posts, pages, and user registrations will be added to your log, giving you a head start. Want to import even older WordPress posts? <a href="%s" target="_blank">Simple History Premium</a> lets you manually run backfill with custom options.', 'simple-history' ),
-				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/', 'premium_welcome_backfill' ) )
+				__( 'Your existing posts, pages, and users have already been added to give you a head start. Need your full history? <a href="%s" target="_blank">Simple History Premium</a> lets you backfill with custom options.', 'simple-history' ),
+				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_welcome_backfill' ) )
 			)
 		);
 
 		$message .= sprintf(
 			$row_template,
-			'🌟',
+			'🗓️',
 			sprintf(
 				/* translators: 1: number of days, 2: link to Premium page */
 				__(
-					'By default, events are automatically cleared after %1$s days to keep your database size in check. Need to keep your history longer? <a href="%2$s" target="_blank">Simple History Premium</a> lets you extend the retention period.',
+					'Events are kept for %1$s days by default. <a href="%2$s" target="_blank">Simple History Premium</a> extends your retention period so you never lose important history.',
 					'simple-history'
 				),
 				Helpers::get_clear_history_interval(),
-				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/', 'premium_welcome_retention' ) )
+				esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_welcome_retention' ) )
 			)
 		);
 

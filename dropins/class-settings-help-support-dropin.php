@@ -134,7 +134,7 @@ class Settings_Help_Support_Dropin extends Dropin {
 		wp_enqueue_script(
 			'simple-history-help-support-page',
 			SIMPLE_HISTORY_DIR_URL . 'js/help-support-page.js',
-			array(),
+			array( 'wp-api-fetch' ),
 			SIMPLE_HISTORY_VERSION,
 			true
 		);
@@ -143,9 +143,7 @@ class Settings_Help_Support_Dropin extends Dropin {
 			'simple-history-help-support-page',
 			'simpleHistoryHelpPage',
 			array(
-				'restUrl'   => rest_url( 'simple-history/v1/support-info' ),
 				'healthUrl' => rest_url( 'simple-history/v1/support-info/health-check' ),
-				'nonce'     => wp_create_nonce( 'wp_rest' ),
 				'i18n'      => array(
 					'checking'    => _x( 'Checking...', 'help page', 'simple-history' ),
 					'apiOk'       => _x( 'Simple History is connected and working', 'help page', 'simple-history' ),

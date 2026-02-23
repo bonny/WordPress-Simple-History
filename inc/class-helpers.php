@@ -467,7 +467,8 @@ class Helpers {
 			$wpdb->prepare(
 				'
 					SELECT table_name AS "table_name",
-					round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb"
+					round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb",
+					data_length AS "data_length"
 					FROM information_schema.TABLES
 					WHERE table_schema = %s
 					AND table_name IN (%s, %s);
@@ -637,6 +638,24 @@ class Helpers {
 	public static function get_valid_ip_address_from_anonymized( $ip_address ) {
 		$ip_address = preg_replace( '/\.x$/', '.0', $ip_address );
 		return $ip_address;
+	}
+
+	/**
+	 * Validate an IP address string for use in event queries.
+	 *
+	 * Accepts IPv4 addresses (with optional ".x" anonymized octets)
+	 * and IPv6 addresses.
+	 *
+	 * @param string $value IP address to validate.
+	 * @return bool True if the value is a valid IP address format.
+	 */
+	public static function is_valid_ip_address_filter( $value ) {
+		// IPv4: 1-3 digits per octet, last two octets may be "x" for anonymized IPs.
+		$ipv4_pattern = '/^\d{1,3}\.\d{1,3}\.[\dx]{1,3}\.[\dx]{1,3}$/';
+		// IPv6: standard hex:colon notation.
+		$ipv6_pattern = '/^[0-9a-fA-F:]+$/';
+
+		return (bool) preg_match( $ipv4_pattern, $value ) || (bool) preg_match( $ipv6_pattern, $value );
 	}
 
 	/**

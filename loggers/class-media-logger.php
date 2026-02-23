@@ -29,9 +29,10 @@ class Media_Logger extends Logger {
 			'description' => __( 'Logs media uploads and edits', 'simple-history' ),
 			'capability'  => 'edit_pages',
 			'messages'    => array(
-				'attachment_created' => __( 'Created {post_type} "{attachment_title}"', 'simple-history' ),
-				'attachment_updated' => __( 'Edited attachment "{attachment_title}"', 'simple-history' ),
-				'attachment_deleted' => __( 'Deleted {post_type} "{attachment_title}" ("{attachment_filename}")', 'simple-history' ),
+				'attachment_created'      => __( 'Created {post_type} "{attachment_title}"', 'simple-history' ),
+				'attachment_updated'      => __( 'Edited attachment "{attachment_title}"', 'simple-history' ),
+				'attachment_image_edited' => __( 'Edited image "{attachment_title}"', 'simple-history' ),
+				'attachment_deleted'      => __( 'Deleted {post_type} "{attachment_title}" ("{attachment_filename}")', 'simple-history' ),
 			),
 			'labels'      => array(
 				'search' => array(
@@ -43,6 +44,7 @@ class Media_Logger extends Logger {
 						),
 						_x( 'Updated media', 'Media logger: search', 'simple-history' ) => array(
 							'attachment_updated',
+							'attachment_image_edited',
 						),
 						_x( 'Deleted media', 'Media logger: search', 'simple-history' ) => array(
 							'attachment_deleted',
@@ -62,6 +64,7 @@ class Media_Logger extends Logger {
 		add_action( 'delete_attachment', array( $this, 'on_delete_attachment' ) );
 		add_action( 'xmlrpc_call_success_mw_newMediaObject', array( $this, 'on_mw_new_media_object' ), 10, 2 );
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
+		add_filter( 'wp_save_image_editor_file', array( $this, 'on_save_image_editor_file' ), 10, 5 );
 		add_action( 'load-post.php', [ $this, 'on_load_post_store_attachment_alt_text' ] );
 	}
 
@@ -122,6 +125,71 @@ class Media_Logger extends Logger {
 	}
 
 	/**
+	 * Log when an image is edited using the WordPress image editor
+	 * (crop, rotate, flip, scale).
+	 *
+	 * Fired from filter 'wp_save_image_editor_file'.
+	 *
+	 * @param bool|null        $override  Value to return instead of saving. Default null.
+	 * @param string           $filename  Name of the file to be saved.
+	 * @param \WP_Image_Editor $image     The image editor instance.
+	 * @param string           $mime_type The mime type of the image.
+	 * @param int              $post_id   Attachment post ID.
+	 * @return bool|null The unmodified $override value so normal saving proceeds.
+	 */
+	public function on_save_image_editor_file( $override, $filename, $image, $mime_type, $post_id ) {
+		$attachment_post = get_post( $post_id );
+
+		if ( ! $attachment_post instanceof \WP_Post ) {
+			return $override;
+		}
+
+		$context = array(
+			'attachment_id'       => $post_id,
+			'attachment_title'    => get_the_title( $attachment_post ),
+			'attachment_mime'     => $mime_type,
+			'attachment_filename' => wp_basename( $filename ),
+			'post_type'           => get_post_type( $attachment_post ),
+		);
+
+		// Detect which edit operations were performed from the request history.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$history = ! empty( $_REQUEST['history'] ) ? $_REQUEST['history'] : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$do_action = ! empty( $_REQUEST['do'] ) ? $_REQUEST['do'] : '';
+
+		$operations = [];
+
+		if ( $do_action === 'scale' ) {
+			$operations[] = 'scale';
+		} elseif ( ! empty( $history ) ) {
+			$changes = json_decode( wp_unslash( $history ) );
+
+			if ( is_array( $changes ) ) {
+				foreach ( $changes as $change ) {
+					if ( isset( $change->r ) ) {
+						$operations[] = 'rotate';
+					} elseif ( isset( $change->f ) ) {
+						$operations[] = 'flip';
+					} elseif ( isset( $change->c ) ) {
+						$operations[] = 'crop';
+					}
+				}
+
+				$operations = array_unique( $operations );
+			}
+		}
+
+		if ( ! empty( $operations ) ) {
+			$context['edit_operations'] = implode( ', ', $operations );
+		}
+
+		$this->info_message( 'attachment_image_edited', $context );
+
+		return $override;
+	}
+
+	/**
 	 * Modify plain output to include link to post
 	 *
 	 * @param object $row Log row.
@@ -139,6 +207,8 @@ class Media_Logger extends Logger {
 		if ( $attachment_is_available ) {
 			if ( $message_key === 'attachment_updated' ) {
 				$message = __( 'Edited attachment <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
+			} elseif ( $message_key === 'attachment_image_edited' ) {
+				$message = __( 'Edited image <a href="{edit_link}">"{attachment_title}"</a>', 'simple-history' );
 			} elseif ( $message_key === 'attachment_created' ) {
 
 				if ( isset( $context['attachment_parent_id'] ) ) {
@@ -310,6 +380,67 @@ class Media_Logger extends Logger {
 	}
 
 	/**
+	 * Get details output for image editing events.
+	 *
+	 * @param object $row Log row.
+	 * @return string
+	 */
+	protected function get_details_output_for_image_edited( $row ) {
+		$context       = $row->context;
+		$attachment_id = (int) ( $context['attachment_id'] ?? 0 );
+		$output        = '';
+
+		// Show thumbnail if the image attachment is still available.
+		if ( $attachment_id && wp_attachment_is_image( $attachment_id ) ) {
+			$attached_file = get_attached_file( $attachment_id );
+			$thumb_src     = wp_get_attachment_image_src( $attachment_id, 'medium' );
+			$edit_link     = get_edit_post_link( $attachment_id );
+
+			if ( $attached_file && file_exists( $attached_file ) && $thumb_src ) {
+				$output .= sprintf(
+					'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s"><div class="SimpleHistoryLogitemThumbnail SimpleHistoryLogitemThumbnail--small"><img src="%2$s" alt=""></div></a>',
+					esc_url( (string) $edit_link ),
+					esc_url( $thumb_src[0] )
+				);
+			}
+		}
+
+		if ( empty( $context['edit_operations'] ) ) {
+			return $output;
+		}
+
+		$operations_raw = $context['edit_operations'];
+
+		$operation_labels = [
+			'crop'   => __( 'Cropped', 'simple-history' ),
+			'rotate' => __( 'Rotated', 'simple-history' ),
+			'flip'   => __( 'Flipped', 'simple-history' ),
+			'scale'  => __( 'Scaled', 'simple-history' ),
+		];
+
+		$operations = array_map( 'trim', explode( ',', $operations_raw ) );
+
+		$labels = [];
+		foreach ( $operations as $operation ) {
+			if ( ! isset( $operation_labels[ $operation ] ) ) {
+				continue;
+			}
+
+			$labels[] = $operation_labels[ $operation ];
+		}
+
+		if ( ! empty( $labels ) ) {
+			$output .= sprintf(
+				'<p>%1$s: %2$s</p>',
+				esc_html__( 'Operations', 'simple-history' ),
+				esc_html( implode( ', ', $labels ) )
+			);
+		}
+
+		return $output;
+	}
+
+	/**
 	 * Get output for detailed log section
 	 *
 	 * @param object $row Row.
@@ -324,6 +455,10 @@ class Media_Logger extends Logger {
 
 		if ( $message_key === 'attachment_updated' ) {
 			return $this->get_details_output_for_updated_attachment( $row );
+		}
+
+		if ( $message_key === 'attachment_image_edited' ) {
+			return $this->get_details_output_for_image_edited( $row );
 		}
 
 		return '';

@@ -103,6 +103,7 @@ class Auto_Backfill_Service extends Service {
 			'posts_skipped'       => ( $results['posts_skipped_imported'] ?? 0 ) + ( $results['posts_skipped_logged'] ?? 0 ),
 			'users_skipped'       => ( $results['users_skipped_imported'] ?? 0 ) + ( $results['users_skipped_logged'] ?? 0 ),
 			'errors'              => $results['errors'] ?? [],
+			'type_stats'          => $results['type_stats'] ?? [],
 		];
 
 		update_option( self::STATUS_OPTION, $status, false );

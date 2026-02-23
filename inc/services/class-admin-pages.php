@@ -179,8 +179,6 @@ class Admin_Pages extends Service {
 					<span class="sh-PageHeader-badge sh-PageHeader-badge--dev" title="<?php esc_attr_e( 'Developer mode is enabled via SIMPLE_HISTORY_DEV constant', 'simple-history' ); ?>"><?php esc_html_e( 'Dev', 'simple-history' ); ?></span>
 					<?php
 					// Display dev mode toggle badges.
-					$rest_nonce = wp_create_nonce( 'wp_rest' );
-
 					$toggle_badges = [
 						[
 							'variant'  => 'premium',
@@ -219,7 +217,6 @@ class Admin_Pages extends Service {
 						<button
 							class="sh-PageHeader-badge sh-PageHeader-badge--toggle sh-PageHeader-badge--<?php echo esc_attr( $badge['variant'] ); ?> <?php echo esc_attr( $state_class ); ?>"
 							title="<?php echo esc_attr( $title ); ?>"
-							data-nonce="<?php echo esc_attr( $rest_nonce ); ?>"
 							data-endpoint="<?php echo esc_attr( $badge['endpoint'] ); ?>"
 							<?php
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

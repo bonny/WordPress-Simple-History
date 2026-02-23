@@ -55,6 +55,8 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Alerts_Settings_Page_Teaser',
 			'Failed_Logins_Settings_Page_Teaser',
 			'Message_Control_Settings_Page_Teaser',
+			'Command_Palette',
+			'Welcome_Message_Service',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);

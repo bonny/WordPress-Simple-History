@@ -151,18 +151,26 @@ export function ExpandedFilters( props ) {
 			path: addQueryArgs( '/simple-history/v1/search-user', {
 				q: searchText,
 			} ),
-		} ).then( ( searchUsersResponse ) => {
-			const userSuggestionsLocal = [];
+		} )
+			.then( ( searchUsersResponse ) => {
+				const userSuggestionsLocal = [];
 
-			searchUsersResponse.forEach( ( user ) => {
-				userSuggestionsLocal.push( {
-					id: user.id,
-					value: user.display_name + ' (' + user.user_email + ')',
+				searchUsersResponse.forEach( ( user ) => {
+					userSuggestionsLocal.push( {
+						id: user.id,
+						value: user.display_name + ' (' + user.user_email + ')',
+					} );
 				} );
-			} );
 
-			setUserSuggestions( userSuggestionsLocal );
-		} );
+				setUserSuggestions( userSuggestionsLocal );
+			} )
+			.catch( ( error ) => {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Simple History: Failed to search users',
+					error
+				);
+			} );
 	};
 
 	/**

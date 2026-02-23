@@ -84,10 +84,10 @@ class Categories_Logger extends Logger {
 		$from_term_slug        = $term_before_edited->slug;
 		$from_term_description = $term_before_edited->description;
 
-		$to_term_name        = $term_update_args['name'];
+		$to_term_name        = wp_unslash( $term_update_args['name'] );
 		$to_term_taxonomy    = $term_update_args['taxonomy'];
 		$to_term_slug        = $term_update_args['slug'];
-		$to_term_description = $term_update_args['description'];
+		$to_term_description = wp_unslash( $term_update_args['description'] );
 
 		$do_log_term = $this->ok_to_log_taxonomy( $from_term_taxonomy );
 

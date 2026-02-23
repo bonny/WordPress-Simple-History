@@ -39,7 +39,7 @@ function EventOccasionsAddonsContent( props ) {
 	const configureLoginAttemptsLinkDependingOnAddOns =
 		hasExtendedSettingsAddOn || hasPremiumAddOn ? (
 			<a
-				href={ `${ eventsSettingsPageURL }&selected-sub-tab=failed-login-attempts` }
+				href={ `${ eventsSettingsPageURL }&selected-tab=general_settings_subtab_general&selected-sub-tab=failed-login-attempts` }
 			>
 				{ __( 'Configure failed login attempts', 'simple-history' ) }
 			</a>
@@ -123,20 +123,26 @@ export function EventOccasions( props ) {
 			],
 		};
 
-		const eventsResponse = await apiFetch( {
-			path: addQueryArgs(
-				'/simple-history/v1/events',
-				eventsQueryParams
-			),
-			// Skip parsing to be able to retrieve headers.
-			parse: false,
-		} );
+		try {
+			const eventsResponse = await apiFetch( {
+				path: addQueryArgs(
+					'/simple-history/v1/events',
+					eventsQueryParams
+				),
+				// Skip parsing to be able to retrieve headers.
+				parse: false,
+			} );
 
-		const responseJson = await eventsResponse.json();
+			const responseJson = await eventsResponse.json();
 
-		setOccasions( responseJson );
-		setIsLoadingOccasions( false );
-		setIsShowingOccasions( true );
+			setOccasions( responseJson );
+			setIsShowingOccasions( true );
+		} catch ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Simple History: Failed to load occasions', error );
+		} finally {
+			setIsLoadingOccasions( false );
+		}
 	};
 
 	const showOccasionsEventsContent = (
@@ -195,6 +201,7 @@ export function EventOccasions( props ) {
 						isLoadingOccasions={ isLoadingOccasions }
 						isShowingOccasions={ isShowingOccasions }
 						occasions={ occasions }
+						parentEvent={ event }
 						subsequent_occasions_count={ subsequentOccasionsCount }
 						occasionsCountMaxReturn={ occasionsCountMaxReturn }
 					/>

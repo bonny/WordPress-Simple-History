@@ -346,6 +346,32 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+**Added**
+
+-   Added "Clear filters" button to reset all search filters to their default values.
+-   Added command palette command to view event history for the current post or page.
+-   Added upsell notice at the end of backfilled history showing specific counts of content not imported per type (pages, attachments, users, etc.) and explaining the free version's 100-items-per-type import limit.
+-   Added logging of image edits (crop, rotate, flip, scale) in the media logger, including a thumbnail preview sized smaller than upload thumbnails.
+-   Added user creation and profile update counts to the email digest report, displayed alongside login statistics in the Users section.
+
+**Changed**
+
+-   Improved IP address popover with prominent IP display, AS number links, map service links (Google Maps and OpenStreetMap), subnet filtering, and single-popover behavior.
+-   Updated welcome message copy to clearly attribute the notice to Simple History and better communicate value: now highlights what gets tracked (logins, changes, timestamps) and invites users to explore their activity log.
+-   Updated feed introduction event with clearer, more concise copy that names the plugin upfront, removes redundant items, and links directly to the Simple History Premium page.
+-   Updated core file integrity restored log entry to show how many files are still modified, so users know when further action is needed.
+
+**Fixed**
+
+-   Fixed false-positive core file integrity warnings on localized WordPress installs (e.g. sv_SE) caused by hardcoded en_US checksums.
+-   Fixed term names showing backslash before apostrophes when editing categories and tags.
+-   Fixed welcome message option staying in pending state on WordPress 6.3.
+-   Fixed missing icon for "Other" initiator type; now shows a question mark icon.
+-   Fixed retention setting link jumping to "Clear log" section instead of the Premium Settings section where the setting actually lives (when Premium is active).
+-   Fixed "Configure failed login attempts" link opening settings page without tab UI due to missing tab query parameter.
+
 ### 5.23.1 (February 2026)
 
 **Fixed**

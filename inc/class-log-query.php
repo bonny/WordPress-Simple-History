@@ -115,6 +115,7 @@ class Log_Query {
 	 *      @type int $user Single user ID as number. Default null.
 	 *      @type string|array $users User IDs, comma separated string or array. Default null.
 	 *      @type string|array $initiator Initiator to filter by. Single string or array of initiators. Default null.
+	 *      @type string $ip_address IP address to filter by. Supports anonymized IPs with ".x" suffix. Default null.
 	 *
 	 *    Exclusion Filters (what to hide).
 	 *      When both inclusion and exclusion filters are specified for the same field, exclusion takes precedence.
@@ -1070,6 +1071,9 @@ class Log_Query {
 				// Initiator to filter by.
 				'initiator'         => null,
 
+				// IP address to filter by. Supports partial matching for anonymized IPs.
+				'ip_address'      => null,
+
 				// Should sticky events be included in the result set.
 				'include_sticky'    => false,
 
@@ -1965,6 +1969,31 @@ class Log_Query {
 				$inner_where[]      = sprintf(
 					'initiator IN (\'%s\')',
 					implode( '\',\'', $escaped_initiators )
+				);
+			}
+		}
+
+		// Add where clause for IP address filtering.
+		// Uses LIKE to support anonymized IPs where the last octet is replaced with "x".
+		// For example, "192.168.1.x" will match by searching for "192.168.1.%".
+		if ( ! empty( $args['ip_address'] ) ) {
+			$ip_address = $args['ip_address'];
+
+			// Replace ".x" octets (anonymized IP) with ".%" for LIKE matching.
+			$ip_like = preg_replace( '/\.x\b/', '.%', $ip_address );
+
+			// If the IP doesn't end with a wildcard, use exact match.
+			if ( str_contains( $ip_like, '%' ) ) {
+				$inner_where[] = $wpdb->prepare(
+					'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value LIKE %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					'_server_remote_addr',
+					$ip_like
+				);
+			} else {
+				$inner_where[] = $wpdb->prepare(
+					'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					'_server_remote_addr',
+					$ip_address
 				);
 			}
 		}

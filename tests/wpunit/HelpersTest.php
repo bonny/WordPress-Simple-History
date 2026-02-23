@@ -164,6 +164,36 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Simple_History', Helpers::get_class_short_name( Simple_History::get_instance() ) );
 	}
 
+	function test_is_valid_ip_address_filter_accepts_valid_ipv4() {
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '192.168.1.1' ) );
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '127.0.0.1' ) );
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '10.0.0.1' ) );
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '255.255.255.255' ) );
+	}
+
+	function test_is_valid_ip_address_filter_accepts_anonymized_ipv4() {
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '192.168.1.x' ) );
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '10.0.x.x' ) );
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '127.0.0.x' ) );
+	}
+
+	function test_is_valid_ip_address_filter_accepts_valid_ipv6() {
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '2a03:2880:f12f:83:face:b00c::25de' ) );
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '::1' ) );
+		$this->assertTrue( Helpers::is_valid_ip_address_filter( '2001:db8:3c4d:15::' ) );
+	}
+
+	function test_is_valid_ip_address_filter_rejects_invalid_values() {
+		$this->assertFalse( Helpers::is_valid_ip_address_filter( '' ) );
+		$this->assertFalse( Helpers::is_valid_ip_address_filter( '....' ) );
+		$this->assertFalse( Helpers::is_valid_ip_address_filter( 'xxxx' ) );
+		$this->assertFalse( Helpers::is_valid_ip_address_filter( 'not-an-ip' ) );
+		$this->assertFalse( Helpers::is_valid_ip_address_filter( '192.168.1' ) );
+		$this->assertFalse( Helpers::is_valid_ip_address_filter( '<script>alert(1)</script>' ) );
+		$this->assertFalse( Helpers::is_valid_ip_address_filter( '1 OR 1=1' ) );
+		$this->assertFalse( Helpers::is_valid_ip_address_filter( '192.168.1.1; DROP TABLE' ) );
+	}
+
 	/**
 	 * Test strip_4_byte_chars removes emojis and other 4-byte UTF-8 characters.
 	 *
