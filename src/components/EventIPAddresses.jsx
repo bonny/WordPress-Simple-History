@@ -368,7 +368,6 @@ function IPAddressLink( ipAddressProps ) {
 			</div>
 
 			<Text
-				align="right"
 				isBlock
 				variant="muted"
 				style={ {
