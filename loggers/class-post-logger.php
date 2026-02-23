@@ -41,7 +41,6 @@ class Post_Logger extends Logger {
 				'post_restored' => __( 'Restored {post_type} "{post_title}" from trash', 'simple-history' ),
 				'post_deleted'  => __( 'Deleted {post_type} "{post_title}"', 'simple-history' ),
 				'post_trashed'  => __( 'Moved {post_type} "{post_title}" to the trash', 'simple-history' ),
-				'post_pending'  => __( 'Submitted {post_type} "{post_title}" for review', 'simple-history' ),
 			),
 			'labels'      => array(
 				'search' => array(
@@ -53,7 +52,6 @@ class Post_Logger extends Logger {
 						_x( 'Posts trashed', 'Post logger: search', 'simple-history' ) => array( 'post_trashed' ),
 						_x( 'Posts deleted', 'Post logger: search', 'simple-history' ) => array( 'post_deleted' ),
 						_x( 'Posts restored', 'Post logger: search', 'simple-history' ) => array( 'post_restored' ),
-						_x( 'Posts submitted for review', 'Post logger: search', 'simple-history' ) => array( 'post_pending' ),
 					),
 				),
 			),
@@ -729,15 +727,7 @@ class Post_Logger extends Logger {
 		// and auto-save creation (auto-draft -> draft).
 		$is_post_created = $old_status === 'auto-draft' && ( $new_status !== 'auto-draft' && $new_status !== 'inherit' );
 
-		// Check if this is a post being submitted for review (draft/auto-draft -> pending).
-		$is_submitted_for_review = $new_status === 'pending' && in_array( $old_status, array( 'draft', 'auto-draft' ), true );
-
-		if ( $is_submitted_for_review ) {
-			$context['post_prev_status'] = $old_status;
-			$context['post_new_status']  = $new_status;
-
-			$this->info_message( 'post_pending', $context );
-		} elseif ( $is_post_created ) {
+		if ( $is_post_created ) {
 			// Post created.
 			// Add context to indicate if this was auto-created by WordPress (auto-save)
 			// vs manually created by user clicking Save/Publish.
@@ -1232,8 +1222,6 @@ class Post_Logger extends Logger {
 					'Moved {post_type} <a href="{edit_link}">"{post_title}"</a> to the trash',
 					'simple-history'
 				);
-			} elseif ( $message_key === 'post_pending' ) {
-				$message = __( 'Submitted {post_type} <a href="{edit_link}">"{post_title}"</a> for review', 'simple-history' );
 			}
 		}
 
