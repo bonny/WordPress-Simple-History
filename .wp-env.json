@@ -1,0 +1,10 @@
+{
+  "core": null,
+  "plugins": ["."],
+  "testsEnvironment": false,
+  "config": {
+    "WP_DEBUG": true,
+    "WP_DEBUG_LOG": true,
+    "SIMPLE_HISTORY_DEV": true
+  }
+}
