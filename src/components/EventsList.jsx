@@ -18,6 +18,89 @@ import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 
 /**
+ * Notice shown at the end of the event list when backfilled entries
+ * exist and some content was not imported due to the per-type limit.
+ *
+ * Hidden entirely when all available content was imported successfully.
+ */
+function BackfilledNotice() {
+	const [ typeStats, setTypeStats ] = useState( null );
+
+	useEffect( () => {
+		apiFetch( { path: '/simple-history/v1/backfill-status' } )
+			.then( ( data ) => setTypeStats( data.type_stats ?? null ) )
+			.catch( () => {} );
+	}, [] );
+
+	// Find types where available > imported (i.e. limit was hit).
+	const missed = typeStats
+		? Object.entries( typeStats ).filter(
+				( [ , s ] ) => s.available > s.imported
+		  )
+		: [];
+
+	// Don't show notice if everything was imported successfully.
+	if ( typeStats && missed.length === 0 ) {
+		return null;
+	}
+
+	let heading;
+
+	if ( ! typeStats || missed.length === 0 ) {
+		heading = __(
+			'Your site has even more history to explore.',
+			'simple-history'
+		);
+	} else {
+		// Use pre-formatted labels from the REST API (e.g. "247 posts", "12 pages").
+		const parts = missed.map( ( [ , s ] ) => s.missed_label );
+
+		// Use Intl.ListFormat for locale-aware list joining (commas, "and", etc.).
+		const locale = document.documentElement.lang || 'en';
+		const list = new Intl.ListFormat( locale, {
+			style: 'long',
+			type: 'conjunction',
+		} ).format( parts );
+
+		heading = sprintf(
+			// translators: %s: list of content types with counts, e.g. "247 posts and 12 pages".
+			__( '%s more can be added to your history.', 'simple-history' ),
+			list
+		);
+	}
+
+	return (
+		<Notice
+			status="info"
+			isDismissible={ false }
+			className={ 'sh-BackfilledNotice' }
+		>
+			<p>
+				<strong>{ heading }</strong>
+			</p>
+			<p>
+				{ createInterpolateElement(
+					__(
+						'When first installed, Simple History backfilled up to 100 existing items per content type to give you a head start. All new activity is logged automatically — this only affects older content created before the plugin was active. <PremiumLink>Upgrade to Premium</PremiumLink> to backfill your complete history with no limits.',
+						'simple-history'
+					),
+					{
+						PremiumLink: (
+							<ExternalLink
+								href={ getTrackingUrl(
+									'https://simple-history.com/add-ons/premium/',
+									'premium_events_backfill'
+								) }
+							/>
+						),
+					}
+				) }
+			</p>
+		</Notice>
+	);
+}
+
+/**
  * Renders the main list of events.
  *
  * @param {Object} props
@@ -46,8 +129,7 @@ export function EventsList( props ) {
 	const totalPages = eventsMeta.totalPages;
 	const isSurroundingEventsMode = Boolean( surroundingEventId );
 
-	// Check if we should show the "oldest backfilled event" notice.
-	// Show when on the last page and the last event is a backfilled entry.
+	// Show backfilled notice on the last page when the last event is backfilled.
 	const lastEvent = events?.length ? events[ events.length - 1 ] : null;
 	const isOnLastPage = page === totalPages && totalPages > 0;
 	const showBackfilledNotice =
@@ -56,18 +138,6 @@ export function EventsList( props ) {
 		! isSurroundingEventsMode &&
 		isOnLastPage &&
 		lastEvent?.backfilled;
-
-	// Fetch backfill status when the notice becomes visible.
-	const [ backfillTypeStats, setBackfillTypeStats ] = useState( null );
-	useEffect( () => {
-		if ( ! showBackfilledNotice ) {
-			return;
-		}
-
-		apiFetch( { path: '/simple-history/v1/backfill-status' } )
-			.then( ( data ) => setBackfillTypeStats( data.type_stats ?? null ) )
-			.catch( () => {} );
-	}, [ showBackfilledNotice ] );
 
 	const styles = {
 		backgroundColor: 'white',
@@ -124,79 +194,7 @@ export function EventsList( props ) {
 				surroundingEventId={ surroundingEventId }
 			/>
 
-			{ showBackfilledNotice && (
-				<Notice status="info" isDismissible={ false }>
-					<p>
-						<strong>
-							{ ( () => {
-								if ( ! backfillTypeStats ) {
-									return __(
-										"Some of your existing content wasn't imported into history.",
-										'simple-history'
-									);
-								}
-
-								// Find types where available > imported (i.e. limit was hit).
-								const missed = Object.entries(
-									backfillTypeStats
-								).filter(
-									( [ , s ] ) => s.available > s.imported
-								);
-
-								if ( missed.length === 0 ) {
-									return __(
-										"You're seeing all of your imported history.",
-										'simple-history'
-									);
-								}
-
-								const parts = missed.map(
-									( [ type, s ] ) =>
-										`${
-											s.available - s.imported
-										} ${ type }s`
-								);
-
-								const list =
-									parts.length === 1
-										? parts[ 0 ]
-										: parts.slice( 0, -1 ).join( ', ' ) +
-										  ' ' +
-										  __( 'and', 'simple-history' ) +
-										  ' ' +
-										  parts[ parts.length - 1 ];
-
-								return sprintf(
-									// translators: %s: list of content types with counts, e.g. "247 posts and 12 pages".
-									__(
-										'%s are missing from your history.',
-										'simple-history'
-									),
-									list
-								);
-							} )() }
-						</strong>
-					</p>
-					<p>
-						{ createInterpolateElement(
-							__(
-								'When Simple History was installed, it automatically imported your existing WordPress content. The free version imports up to 100 items per type — <PremiumLink>Upgrade to Premium</PremiumLink> to import everything.',
-								'simple-history'
-							),
-							{
-								PremiumLink: (
-									<ExternalLink
-										href={ getTrackingUrl(
-											'https://simple-history.com/add-ons/premium/',
-											'premium_events_backfill'
-										) }
-									/>
-								),
-							}
-						) }
-					</p>
-				</Notice>
-			) }
+			{ showBackfilledNotice && <BackfilledNotice /> }
 
 			<Spacer margin={ 4 } />
 

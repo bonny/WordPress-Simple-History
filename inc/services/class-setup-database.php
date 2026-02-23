@@ -156,10 +156,10 @@ class Setup_Database extends Service {
 
 		$this->update_db_to_version( 1 );
 
-		// Schedule auto-backfill to run shortly after first install.
+		// Flag auto-backfill to run on next admin page load.
 		// This populates the history with existing WordPress data (posts, pages, users)
 		// so users don't start with an empty log.
-		Auto_Backfill_Service::schedule_auto_backfill();
+		Auto_Backfill_Service::set_backfill_pending();
 
 		// Show a welcome admin notice on the next admin page load.
 		// Only set pending if the option doesn't exist yet (true first install, not table recovery).
