@@ -6,6 +6,7 @@ import {
 	__experimentalText as Text,
 } from '@wordpress/components';
 import {
+	Fragment,
 	createInterpolateElement,
 	useEffect,
 	useRef,
@@ -474,9 +475,8 @@ export function EventIPAddresses( props ) {
 	let loopCount = 0;
 	for ( const [ header, ipAddress ] of Object.entries( ipAddresses ) ) {
 		IPAddressesText.push(
-			<>
+			<Fragment key={ header }>
 				<IPAddressLink
-					key={ header }
 					header={ header }
 					ipAddress={ ipAddress }
 					mapsApiKey={ mapsApiKey }
@@ -484,7 +484,7 @@ export function EventIPAddresses( props ) {
 				/>{ ' ' }
 				{ /* Add comma to separate IP addresses, but not after the last one */ }
 				{ loopCount < ipAddressesCount - 1 ? ', ' : '' }
-			</>
+			</Fragment>
 		);
 
 		loopCount++;
