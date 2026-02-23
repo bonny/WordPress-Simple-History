@@ -290,11 +290,11 @@ class Simple_History_Logger extends Logger {
 			// add a text with a link with information on how to modify this.
 			// If they already have the plugin, show message with link to settings page.
 
-			if ( ! Helpers::show_promo_boxes() ) {
+			if ( Helpers::is_premium_add_on_active() ) {
 				$message = sprintf(
 					/* translators: 1 is a link to the settings page retention setting */
 					__( '<a href="%1$s">Set number of days the log is kept.</a>', 'simple-history' ),
-					esc_url( Helpers::get_settings_page_url() . '#simple_history_clear_log_info' )
+					esc_url( Helpers::get_settings_page_url() . '#simple-history-premium-settings' )
 				);
 			} else {
 				$message = sprintf(
