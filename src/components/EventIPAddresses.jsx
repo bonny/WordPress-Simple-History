@@ -1,7 +1,6 @@
 import {
 	Button,
 	ExternalLink,
-	Flex,
 	Popover,
 	__experimentalText as Text,
 } from '@wordpress/components';
@@ -14,8 +13,8 @@ import {
 } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { EventHeaderItem } from './EventHeaderItem';
 import { getTrackingUrl } from '../functions';
+import { EventHeaderItem } from './EventHeaderItem';
 
 const keysAndValues = [
 	{
