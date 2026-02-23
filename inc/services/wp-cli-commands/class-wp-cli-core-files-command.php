@@ -68,11 +68,14 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 
 		global $wp_version, $wp_local_package;
 
-		// Get official WordPress checksums for current version.
-		$checksums = get_core_checksums( $wp_version, isset( $wp_local_package ) ? $wp_local_package : 'en_US' );
+		// Get locale to use for checksums, fall back to 'en_US' if not set.
+		$locale = isset( $wp_local_package ) ? $wp_local_package : 'en_US';
+
+		// Get official WordPress checksums for current version and locale.
+		$checksums = get_core_checksums( $wp_version, $locale );
 
 		if ( ! is_array( $checksums ) || empty( $checksums ) ) {
-			WP_CLI::error( 'Unable to retrieve WordPress core checksums for version ' . $wp_version );
+			WP_CLI::error( 'Unable to retrieve WordPress core checksums for version ' . $wp_version . ' (locale: ' . $locale . ')' );
 			return;
 		}
 
