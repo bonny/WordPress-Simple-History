@@ -2,6 +2,8 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Helpers;
+
 /**
  * Service that displays a rotating tip in the sidebar.
  *
@@ -22,19 +24,27 @@ class Sidebar_Tips_Service extends Service {
 	 * @return string[] Array of tip strings.
 	 */
 	private function get_tips() {
+		$is_premium_active = Helpers::is_premium_add_on_active();
+
 		$tips = [
 			__( 'Subscribe to your activity log via RSS. Enable it in Settings > Simple History.', 'simple-history' ),
 			__( 'Get a weekly email summary of your site\'s activity. Enable it in Settings > Simple History.', 'simple-history' ),
 			__( 'Use "wp simple-history list" to view your activity log from the terminal.', 'simple-history' ),
 			__( 'Export your event log as CSV, JSON, or HTML from Export & Tools.', 'simple-history' ),
-			__( 'Pin important events with "Sticky" so they don\'t scroll away.', 'simple-history' ),
 			__( 'Use "Show surrounding events" to see what happened right before and after any event.', 'simple-history' ),
 			__( 'Press Cmd+K in the block editor and type "history" to jump to a post\'s activity log.', 'simple-history' ),
 			__( 'Use the Quick View dropdown in the admin bar to see recent events without leaving your page.', 'simple-history' ),
 			__( 'Click a user\'s avatar in the sidebar to filter the log to just their activity.', 'simple-history' ),
 			__( 'Use "Hide my own events" in search filters to focus on what others did.', 'simple-history' ),
-			__( 'Get instant alerts when important events happen. Available with Simple History Premium.', 'simple-history' ),
-			__( 'Control exactly which events get logged with Premium\'s Message Control.', 'simple-history' ),
+			$is_premium_active
+				? __( 'Pin important events with "Sticky" so they don\'t scroll away.', 'simple-history' )
+				: __( 'Pin important events so they don\'t scroll away. Available with Simple History Premium.', 'simple-history' ),
+			$is_premium_active
+				? __( 'Set up alerts in Settings to get notified when important events happen.', 'simple-history' )
+				: __( 'Get instant alerts when important events happen. Available with Simple History Premium.', 'simple-history' ),
+			$is_premium_active
+				? __( 'Use Message Control in Settings to choose exactly which events get logged.', 'simple-history' )
+				: __( 'Control exactly which events get logged. Available with Simple History Premium.', 'simple-history' ),
 		];
 
 		/**
