@@ -942,7 +942,7 @@ class Simple_History {
 	 */
 	public function get_action_links( $row ) {
 		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return array();
+			return [];
 		}
 
 		$row_logger = $row->logger;
@@ -950,7 +950,7 @@ class Simple_History {
 		$logger = $this->get_instantiated_logger_by_slug( $row_logger );
 
 		if ( $logger === false ) {
-			return array();
+			return [];
 		}
 
 		$action_links = $logger->get_action_links( $row );

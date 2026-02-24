@@ -1332,33 +1332,33 @@ class Post_Logger extends Logger {
 		$post = get_post( $post_id );
 
 		if ( ! $post instanceof \WP_Post ) {
-			return array();
+			return [];
 		}
 
 		// Post was permanently deleted; no links to show.
 		if ( $message_key === 'post_deleted' ) {
-			return array();
+			return [];
 		}
 
 		$post_type_obj = get_post_type_object( $post->post_type );
 		$type_label    = $post_type_obj ? strtolower( $post_type_obj->labels->singular_name ) : $post->post_type;
 		$post_status   = get_post_status( $post );
-		$action_links  = array();
+		$action_links  = [];
 
 		$is_published = $post_status === 'publish';
-		$is_viewable  = in_array( $post_status, array( 'draft', 'pending', 'future' ), true );
+		$is_viewable  = in_array( $post_status, [ 'draft', 'pending', 'future' ], true );
 		$has_edit_cap = current_user_can( 'edit_post', $post_id );
 
 		// Edit link — if user has capability.
 		if ( $has_edit_cap ) {
 			$edit_link = get_edit_post_link( $post_id, 'raw' );
 			if ( $edit_link ) {
-				$action_links[] = array(
+				$action_links[] = [
 					'url'    => $edit_link,
 					/* translators: %s: post type label, e.g. "page" or "post". */
 					'label'  => sprintf( __( 'Edit %s', 'simple-history' ), $type_label ),
 					'action' => 'edit',
-				);
+				];
 			}
 		}
 
@@ -1366,12 +1366,12 @@ class Post_Logger extends Logger {
 		if ( $is_published ) {
 			$permalink = get_permalink( $post_id );
 			if ( $permalink ) {
-				$action_links[] = array(
+				$action_links[] = [
 					'url'    => $permalink,
 					/* translators: %s: post type label, e.g. "page" or "post". */
 					'label'  => sprintf( __( 'View %s', 'simple-history' ), $type_label ),
 					'action' => 'view',
-				);
+				];
 			}
 		}
 
@@ -1379,25 +1379,25 @@ class Post_Logger extends Logger {
 		if ( $is_viewable && $has_edit_cap ) {
 			$preview_link = get_preview_post_link( $post_id );
 			if ( $preview_link ) {
-				$action_links[] = array(
+				$action_links[] = [
 					'url'    => $preview_link,
 					/* translators: %s: post type label, e.g. "page" or "post". */
 					'label'  => sprintf( __( 'Preview %s', 'simple-history' ), $type_label ),
 					'action' => 'preview',
-				);
+				];
 			}
 		}
 
 		// Revisions link — only for post_updated when revisions exist.
 		if ( $message_key === 'post_updated' && post_type_supports( $post->post_type, 'revisions' ) ) {
-			$revisions = wp_get_post_revisions( $post_id, array( 'numberposts' => 1 ) );
+			$revisions = wp_get_post_revisions( $post_id, [ 'numberposts' => 1 ] );
 			if ( ! empty( $revisions ) ) {
 				$latest_revision = reset( $revisions );
-				$action_links[]  = array(
+				$action_links[]  = [
 					'url'    => admin_url( 'revision.php?revision=' . $latest_revision->ID ),
 					'label'  => __( 'View revisions', 'simple-history' ),
 					'action' => 'revisions',
-				);
+				];
 			}
 		}
 

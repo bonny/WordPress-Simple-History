@@ -841,7 +841,7 @@ abstract class Logger {
 	 * @return array Array of action link arrays.
 	 */
 	public function get_action_links( $row ) {
-		return array();
+		return [];
 	}
 
 	/**
