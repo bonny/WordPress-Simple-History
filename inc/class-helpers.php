@@ -1424,6 +1424,9 @@ class Helpers {
 				return '';
 			}
 
+			// Sanitize renderer output as defense-in-depth against tampered stored data.
+			$html = wp_kses_post( $html );
+
 			return '<div class="SimpleHistory__diff__contents" tabindex="0">'
 				. '<div class="SimpleHistory__diff__contentsInner">'
 				. $html
