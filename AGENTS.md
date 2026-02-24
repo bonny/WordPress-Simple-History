@@ -40,49 +40,14 @@ This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, e
 
 See the **wordpress-org-compliance** skill for detailed guidelines on implementing this approach while maintaining WordPress.org compliance.
 
-### Technical Architecture
+### Non-Obvious Technical Constraints
 
--   **Backend**: Written in PHP following WordPress plugin conventions
-    -   PHP 7.4+ compatibility required
-    -   Supports both MySQL/MariaDB and SQLite databases
-    -   Use `Log_Query::get_db_engine()` to check database type (`'mysql'` or `'sqlite'`)
-    -   Avoid MySQL-specific SQL (e.g., `OPTIMIZE TABLE`, `SHOW TABLE STATUS`) without a database type guard
-    -   Core functionality in `inc/` directory
-    -   Loggers in `loggers/` directory
-    -   REST API endpoints for event data
--   **Frontend**: Main event log interface built with React
-    -   Located in `src/` directory
-    -   Built using @wordpress/scripts tooling
-    -   Communicates with backend via WordPress REST API
+-   PHP 7.4+ compatibility required
+-   Supports both MySQL/MariaDB and SQLite databases
+-   Use `Log_Query::get_db_engine()` to check database type (`'mysql'` or `'sqlite'`)
+-   Avoid MySQL-specific SQL (e.g., `OPTIMIZE TABLE`, `SHOW TABLE STATUS`) without a database type guard
 
 ## Quick Start
-
-### Installation & Development
-
-```bash
-# Install dependencies
-composer install && npm install
-
-# Development
-npm run start        # Watch mode for development
-npm run build        # Production build
-
-# Code Quality
-npm run php:lint     # Lint PHP code
-npm run php:lint-fix # Auto-fix PHP issues
-npm run php:phpstan  # Static analysis
-npm run lint:js      # Lint JavaScript
-npm run lint:css     # Lint CSS
-
-# Testing
-npm run test         # Run all tests
-# Or run specific test suites:
-docker compose run --rm php-cli vendor/bin/codecept run wpunit:TestName
-docker compose run --rm php-cli vendor/bin/codecept run functional:TestName
-docker compose run --rm php-cli vendor/bin/codecept run acceptance:TestName
-```
-
-### Local Development Environment
 
 See CLAUDE.local.md for local development setup including Docker configuration, WP-CLI commands, and REST API access.
 
@@ -117,65 +82,7 @@ See @CLAUDE.local.md for specific commands for stable and nightly WordPress inst
 
 ### GitHub Project Board
 
-**Project**: Simple History Kanban
-**URL**: https://github.com/users/bonny/projects/4/views/1
-
-#### Board Columns
-
--   **Backlog**: Items for future consideration
--   **To Do**: Next items to work on
--   **In Progress**: Currently being worked on
--   **Experimental**: Experimental or proof-of-concept work
--   **Done**: Completed items
-
-#### Project Configuration
-
-For automation and API access:
-
--   **Project ID**: `PVT_kwHOAANhgs4AidMq`
--   **Project number**: `4`
--   **Owner**: `bonny`
--   **Status field ID**: `PVTSSF_lAHOAANhgs4AidMqzga-LME`
-
-**Status Option IDs:**
-
--   "Backlog": `25e9263f`
--   "To do": `6c3f4438`
--   "In progress": `36813ba3`
--   "Experimental": `52a48e60`
--   "Done": `c40edce0`
-
-#### GitHub CLI Commands
-
-```bash
-# List open issues
-gh issue list --state open
-
-# View specific issue
-gh issue view NUMBER
-
-# Access project board (requires read:project scope)
-gh api graphql -f query='
-  query {
-    user(login: "bonny") {
-      projectV2(number: 4) {
-        title
-        items(first: 50) {
-          nodes {
-            content {
-              ... on Issue {
-                title
-                number
-                state
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-'
-```
+Use the **github-project** skill for project board automation, IDs, and GraphQL queries.
 
 ### Git Workflow
 

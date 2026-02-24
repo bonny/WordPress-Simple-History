@@ -2,6 +2,10 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
+use Simple_History\Event_Details\Event_Details_Group_Table_Formatter;
+use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
 
 /**
@@ -95,21 +99,35 @@ class Categories_Logger extends Logger {
 			return $parent_term;
 		}
 
-		$this->info_message(
-			'edited_term',
-			array(
-				'_occasionsID'          => self::class . '/' . __FUNCTION__ . '/term_edited',
-				'term_id'               => $term_id,
-				'from_term_name'        => $from_term_name,
-				'from_term_taxonomy'    => $from_term_taxonomy,
-				'from_term_slug'        => $from_term_slug,
-				'from_term_description' => $from_term_description,
-				'to_term_name'          => $to_term_name,
-				'to_term_taxonomy'      => $to_term_taxonomy,
-				'to_term_slug'          => $to_term_slug,
-				'to_term_description'   => $to_term_description,
-			)
+		$context = array(
+			'_occasionsID'          => self::class . '/' . __FUNCTION__ . '/term_edited',
+			'term_id'               => $term_id,
+			'from_term_name'        => $from_term_name,
+			'from_term_taxonomy'    => $from_term_taxonomy,
+			'from_term_slug'        => $from_term_slug,
+			'from_term_description' => $from_term_description,
+			'to_term_name'          => $to_term_name,
+			'to_term_taxonomy'      => $to_term_taxonomy,
+			'to_term_slug'          => $to_term_slug,
+			'to_term_description'   => $to_term_description,
 		);
+
+		// Only store parent data for hierarchical taxonomies (e.g. categories).
+		if ( is_taxonomy_hierarchical( $from_term_taxonomy ) ) {
+			$none_label            = __( 'None', 'simple-history' );
+			$old_parent            = $term_before_edited->parent;
+			$from_parent_term      = $old_parent ? get_term( $old_parent, $from_term_taxonomy ) : null;
+			$from_term_parent_name = $from_parent_term instanceof \WP_Term ? $from_parent_term->name : $none_label;
+			$to_parent_term        = $parent_term ? get_term( $parent_term, $to_term_taxonomy ) : null;
+			$to_term_parent_name   = $to_parent_term instanceof \WP_Term ? $to_parent_term->name : $none_label;
+
+			$context['from_term_parent']      = $old_parent;
+			$context['from_term_parent_name'] = $from_term_parent_name;
+			$context['to_term_parent']        = $parent_term;
+			$context['to_term_parent_name']   = $to_term_parent_name;
+		}
+
+		$this->info_message( 'edited_term', $context );
 
 		return $parent_term;
 	}
@@ -130,9 +148,12 @@ class Categories_Logger extends Logger {
 			return;
 		}
 
-		$term_name     = $term->name;
-		$term_taxonomy = $term->taxonomy;
-		$term_id       = $term->term_id;
+		$term_name        = $term->name;
+		$term_taxonomy    = $term->taxonomy;
+		$term_id          = $term->term_id;
+		$term_slug        = $term->slug;
+		$term_description = $term->description;
+		$term_parent      = $term->parent;
 
 		$do_log_term = $this->ok_to_log_taxonomy( $term_taxonomy );
 
@@ -140,15 +161,28 @@ class Categories_Logger extends Logger {
 			return;
 		}
 
-		$this->info_message(
-			'created_term',
-			array(
-				'_occasionsID'  => self::class . '/' . __FUNCTION__ . '/term_created',
-				'term_id'       => $term_id,
-				'term_name'     => $term_name,
-				'term_taxonomy' => $term_taxonomy,
-			)
+		$context = array(
+			'_occasionsID'  => self::class . '/' . __FUNCTION__ . '/term_created',
+			'term_id'       => $term_id,
+			'term_name'     => $term_name,
+			'term_taxonomy' => $term_taxonomy,
+			'term_slug'     => $term_slug,
 		);
+
+		// Only store description and parent when they have non-default values.
+		if ( ! empty( $term_description ) ) {
+			$context['term_description'] = $term_description;
+		}
+
+		if ( $term_parent ) {
+			$parent_term_obj = get_term( $term_parent, $term_taxonomy );
+			if ( $parent_term_obj instanceof \WP_Term ) {
+				$context['term_parent']      = $term_parent;
+				$context['term_parent_name'] = $parent_term_obj->name;
+			}
+		}
+
+		$this->info_message( 'created_term', $context );
 	}
 
 	/**
@@ -184,6 +218,47 @@ class Categories_Logger extends Logger {
 				'term_taxonomy' => $term_taxonomy,
 			)
 		);
+	}
+
+	/**
+	 * Return details output for edited terms showing diff of changed fields.
+	 *
+	 * @param object $row Row data.
+	 * @return Event_Details_Group|string
+	 */
+	public function get_log_row_details_output( $row ) {
+		$context     = $row->context;
+		$message_key = $context['_message_key'] ?? null;
+
+		if ( $message_key === 'edited_term' ) {
+			$group = new Event_Details_Group();
+			$group->set_formatter( new Event_Details_Group_Diff_Table_Formatter() );
+			$group->add_items(
+				array(
+					new Event_Details_Item( array( 'to_term_name', 'from_term_name' ), __( 'Name', 'simple-history' ) ),
+					new Event_Details_Item( array( 'to_term_slug', 'from_term_slug' ), __( 'Slug', 'simple-history' ) ),
+					new Event_Details_Item( array( 'to_term_description', 'from_term_description' ), __( 'Description', 'simple-history' ) ),
+					new Event_Details_Item( array( 'to_term_parent_name', 'from_term_parent_name' ), __( 'Parent', 'simple-history' ) ),
+				)
+			);
+
+			return $group;
+		}
+
+		if ( $message_key === 'created_term' ) {
+			$group = new Event_Details_Group();
+			$group->set_formatter( new Event_Details_Group_Table_Formatter() );
+			$group->add_items(
+				array(
+					new Event_Details_Item( 'term_description', __( 'Description', 'simple-history' ) ),
+					new Event_Details_Item( 'term_parent_name', __( 'Parent', 'simple-history' ) ),
+				)
+			);
+
+			return $group;
+		}
+
+		return '';
 	}
 
 	/**

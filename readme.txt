@@ -356,6 +356,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added upsell notice at the end of backfilled history showing specific counts of content not imported per type (pages, attachments, users, etc.) and explaining the free version's 100-items-per-type import limit.
 -   Added logging of image edits (crop, rotate, flip, scale) in the media logger, including a thumbnail preview sized smaller than upload thumbnails.
 -   Added user creation and profile update counts to the email digest report, displayed alongside login statistics in the Users section.
+-   Added logging of parent category changes when editing terms.
+-   Added diff details (name, slug, description, parent) when viewing edited category and tag events.
+-   Added description and parent details when viewing created term events with non-default values.
+-   Added detailed menu change logging showing item names, types, renames, moves, order changes, display location updates, and auto-add pages setting instead of just item counts.
 
 **Changed**
 
@@ -365,15 +369,22 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Updated core file integrity restored log entry to show how many files are still modified, so users know when further action is needed.
 -   Changed auto backfill to run on the first admin page load instead of relying on WP-Cron, ensuring it works in all environments including those where WP-Cron is disabled or unreliable.
 -   Changed backfill upsell notice to only appear when content was genuinely missed due to the per-type limit, hiding it entirely when all available content was imported successfully.
+-   Changed backfill notice copy to be more inviting, reworded from "missing from your history" to "Backfill into your history" with clearer explanation that only older pre-install content is affected.
+-   Reduced frontend JavaScript for logged-in users by removing the wp-components dependency from the admin bar bundle, saving ~919 KB of scripts on every page load.
 
 **Fixed**
 
 -   Fixed false-positive core file integrity warnings on localized WordPress installs (e.g. sv_SE) caused by hardcoded en_US checksums.
 -   Fixed term names showing backslash before apostrophes when editing categories and tags.
 -   Fixed welcome message option staying in pending state on WordPress 6.3.
+-   Fixed welcome notice not showing when an AJAX request (e.g. heartbeat) consumed the pending state before the first full admin page load.
+-   Fixed duplicate welcome log entries that could occur during database table recovery.
+-   Fixed incomplete option cleanup on plugin uninstall, leaving orphaned options in the database.
 -   Fixed missing icon for "Other" initiator type; now shows a question mark icon.
+-   Fixed event details diff table showing empty rows for unchanged fields.
 -   Fixed retention setting link jumping to "Clear log" section instead of the Premium Settings section where the setting actually lives (when Premium is active).
 -   Fixed "Configure failed login attempts" link opening settings page without tab UI due to missing tab query parameter.
+-   Fixed manual backfill memory error on sites with many users by processing posts and users in batches instead of loading all at once.
 
 ### 5.23.1 (February 2026)
 

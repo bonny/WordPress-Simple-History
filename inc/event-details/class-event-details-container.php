@@ -89,10 +89,14 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	}
 
 	/**
-	 * Remove items with empty values.
-	 * Empty = no new_value set.
-	 * But if item has an old_value it's still interesting, because
-	 * then a change has been made from "something" to "nothing".
+	 * Remove items with empty or unchanged values.
+	 *
+	 * Removes items where:
+	 * - Both new and prev values are empty (nothing to show).
+	 * - Both values are set and identical (no change occurred).
+	 *
+	 * Items with only a prev value (removed) or only a new value (added)
+	 * are kept, as they represent meaningful changes.
 	 *
 	 * @return Event_Details_Container $this
 	 */
@@ -106,7 +110,11 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 					continue;
 				}
 
-				if ( ! empty( $item->new_value ) || ! empty( $item->prev_value ) ) {
+				// Keep items that have at least one non-empty value and differ.
+				$is_empty     = empty( $item->new_value ) && empty( $item->prev_value );
+				$is_unchanged = isset( $item->prev_value ) && $item->new_value === $item->prev_value;
+
+				if ( ! $is_empty && ! $is_unchanged ) {
 					continue;
 				}
 

@@ -117,12 +117,11 @@ class Existing_Data_Importer {
 			$post_statuses = [ 'inherit', 'private' ];
 		}
 
-		$args = [
-			'post_type'      => $post_type,
-			'post_status'    => $post_statuses,
-			'posts_per_page' => $limit,
-			'orderby'        => 'date',
-			'order'          => 'ASC',
+		$base_args = [
+			'post_type'   => $post_type,
+			'post_status' => $post_statuses,
+			'orderby'     => 'date',
+			'order'       => 'ASC',
 		];
 
 		// Add date filtering if days_back is set.
@@ -131,7 +130,7 @@ class Existing_Data_Importer {
 			$cutoff_timestamp = Date_Helper::get_last_n_days_start_timestamp( $this->days_back );
 			$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
 
-			$args['date_query'] = [
+			$base_args['date_query'] = [
 				[
 					'after'     => $cutoff_date,
 					'inclusive' => true,
@@ -139,11 +138,8 @@ class Existing_Data_Importer {
 			];
 		}
 
-		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_posts -- Admin-only import, caching not needed.
-		$posts = get_posts( $args );
-
 		// Count total available posts with same filters but no limit.
-		$count_args                   = $args;
+		$count_args                   = $base_args;
 		$count_args['posts_per_page'] = -1;
 		$count_args['fields']         = 'ids';
 		$count_args['no_found_rows']  = false;
@@ -155,190 +151,218 @@ class Existing_Data_Importer {
 			'imported'  => 0,
 		];
 
-		// Get all post IDs to check for duplicates.
-		$post_ids = wp_list_pluck( $posts, 'ID' );
-
-		// Check which posts have already been logged (imported or naturally).
-		// Attachments use different message keys.
-		if ( $post_type === 'attachment' ) {
-			$already_logged_created = $this->get_already_logged_post_ids( $post_ids, 'attachment_created' );
-			$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, 'attachment_updated' );
-		} else {
-			$already_logged_created = $this->get_already_logged_post_ids( $post_ids, 'post_created' );
-			$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, 'post_updated' );
-		}
-
 		$imported_count         = 0;
 		$skipped_imported_count = 0;
 		$skipped_logged_count   = 0;
 
-		foreach ( $posts as $post ) {
-			// Validate GMT dates. WordPress uses '0000-00-00 00:00:00' for drafts and scheduled posts.
-			// If GMT date is invalid, use the local date converted to GMT.
-			$post_date_gmt = $post->post_date_gmt;
-			if ( $post_date_gmt === '0000-00-00 00:00:00' || empty( $post_date_gmt ) ) {
-				$post_date_gmt = get_gmt_from_date( $post->post_date );
+		// Process in batches to avoid memory exhaustion on large datasets.
+		$batch_size = 200;
+		$offset     = 0;
+		$remaining  = $limit === -1 ? PHP_INT_MAX : $limit;
+
+		while ( $remaining > 0 ) {
+			$current_batch_size = min( $batch_size, $remaining );
+
+			$args                   = $base_args;
+			$args['posts_per_page'] = $current_batch_size;
+			$args['offset']         = $offset;
+
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_posts -- Admin-only import, caching not needed.
+			$posts = get_posts( $args );
+
+			if ( empty( $posts ) ) {
+				break;
 			}
 
-			$post_modified_gmt = $post->post_modified_gmt;
-			if ( $post_modified_gmt === '0000-00-00 00:00:00' || empty( $post_modified_gmt ) ) {
-				$post_modified_gmt = get_gmt_from_date( $post->post_modified );
+			// Get post IDs to check for duplicates in this batch.
+			$post_ids = wp_list_pluck( $posts, 'ID' );
+
+			// Check which posts have already been logged (imported or naturally).
+			// Attachments use different message keys.
+			if ( $post_type === 'attachment' ) {
+				$already_logged_created = $this->get_already_logged_post_ids( $post_ids, 'attachment_created' );
+				$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, 'attachment_updated' );
+			} else {
+				$already_logged_created = $this->get_already_logged_post_ids( $post_ids, 'post_created' );
+				$already_logged_updated = $this->get_already_logged_post_ids( $post_ids, 'post_updated' );
 			}
 
-			$post_detail = [
-				'id'            => $post->ID,
-				'title'         => $post->post_title,
-				'type'          => $post->post_type,
-				'status'        => $post->post_status,
-				'created_date'  => $post_date_gmt,
-				'modified_date' => $post_modified_gmt,
-				'events_logged' => [],
-			];
+			foreach ( $posts as $post ) {
+				// Validate GMT dates. WordPress uses '0000-00-00 00:00:00' for drafts and scheduled posts.
+				// If GMT date is invalid, use the local date converted to GMT.
+				$post_date_gmt = $post->post_date_gmt;
+				if ( $post_date_gmt === '0000-00-00 00:00:00' || empty( $post_date_gmt ) ) {
+					$post_date_gmt = get_gmt_from_date( $post->post_date );
+				}
 
-			$has_created      = isset( $already_logged_created[ (string) $post->ID ] );
-			$has_updated      = isset( $already_logged_updated[ (string) $post->ID ] );
-			$post_has_updates = $post_date_gmt !== $post_modified_gmt;
+				$post_modified_gmt = $post->post_modified_gmt;
+				if ( $post_modified_gmt === '0000-00-00 00:00:00' || empty( $post_modified_gmt ) ) {
+					$post_modified_gmt = get_gmt_from_date( $post->post_modified );
+				}
 
-			// Skip if both events already exist (or just created if no updates).
-			if ( $has_created && ( ! $post_has_updates || $has_updated ) ) {
-				// Determine if this was imported or naturally logged.
-				// If created event is imported, count as imported. Otherwise naturally logged.
-				$is_imported = $already_logged_created[ (string) $post->ID ]['is_imported'];
-				$skip_reason = $is_imported ? 'already_imported' : 'already_logged';
-
-				$this->results['skipped_details'][] = [
-					'type'      => 'post',
-					'id'        => $post->ID,
-					'title'     => $post->post_title,
-					'post_type' => $post->post_type,
-					'reason'    => $skip_reason,
+				$post_detail = [
+					'id'            => $post->ID,
+					'title'         => $post->post_title,
+					'type'          => $post->post_type,
+					'status'        => $post->post_status,
+					'created_date'  => $post_date_gmt,
+					'modified_date' => $post_modified_gmt,
+					'events_logged' => [],
 				];
 
-				if ( $is_imported ) {
-					++$skipped_imported_count;
-				} else {
-					++$skipped_logged_count;
+				$has_created      = isset( $already_logged_created[ (string) $post->ID ] );
+				$has_updated      = isset( $already_logged_updated[ (string) $post->ID ] );
+				$post_has_updates = $post_date_gmt !== $post_modified_gmt;
+
+				// Skip if both events already exist (or just created if no updates).
+				if ( $has_created && ( ! $post_has_updates || $has_updated ) ) {
+					// Determine if this was imported or naturally logged.
+					// If created event is imported, count as imported. Otherwise naturally logged.
+					$is_imported = $already_logged_created[ (string) $post->ID ]['is_imported'];
+					$skip_reason = $is_imported ? 'already_imported' : 'already_logged';
+
+					$this->results['skipped_details'][] = [
+						'type'      => 'post',
+						'id'        => $post->ID,
+						'title'     => $post->post_title,
+						'post_type' => $post->post_type,
+						'reason'    => $skip_reason,
+					];
+
+					if ( $is_imported ) {
+						++$skipped_imported_count;
+					} else {
+						++$skipped_logged_count;
+					}
+					continue;
 				}
-				continue;
-			}
 
-			// Log post creation if not already imported.
-			if ( ! $has_created ) {
-				// Get post author for initiator.
-				$post_author = get_user_by( 'id', $post->post_author );
+				// Log post creation if not already imported.
+				if ( ! $has_created ) {
+					// Get post author for initiator.
+					$post_author = get_user_by( 'id', $post->post_author );
 
-				// Media Logger uses different context keys and message.
-				if ( $post_type === 'attachment' ) {
-					$file      = get_attached_file( $post->ID );
-					$file_size = false;
+					// Media Logger uses different context keys and message.
+					if ( $post_type === 'attachment' ) {
+						$file      = get_attached_file( $post->ID );
+						$file_size = false;
 
-					if ( $file && file_exists( $file ) ) {
-						$file_size = filesize( $file );
+						if ( $file && file_exists( $file ) ) {
+							$file_size = filesize( $file );
+						}
+
+						$context     = [
+							'post_type'                  => get_post_type( $post ),
+							'attachment_id'              => $post->ID,
+							'attachment_title'           => $post->post_title,
+							'attachment_filename'        => basename( $file ),
+							'attachment_mime'            => get_post_mime_type( $post ),
+							'attachment_filesize'        => $file_size,
+							'_date'                      => $post_date_gmt,
+							self::BACKFILLED_CONTEXT_KEY => '1',
+						];
+						$message_key = 'attachment_created';
+					} else {
+						$context     = [
+							'post_id'                    => $post->ID,
+							'post_type'                  => $post->post_type,
+							'post_title'                 => $post->post_title,
+							'_date'                      => $post_date_gmt,
+							self::BACKFILLED_CONTEXT_KEY => '1',
+						];
+						$message_key = 'post_created';
 					}
 
-					$context     = [
-						'post_type'                  => get_post_type( $post ),
-						'attachment_id'              => $post->ID,
-						'attachment_title'           => $post->post_title,
-						'attachment_filename'        => basename( $file ),
-						'attachment_mime'            => get_post_mime_type( $post ),
-						'attachment_filesize'        => $file_size,
-						'_date'                      => $post_date_gmt,
-						self::BACKFILLED_CONTEXT_KEY => '1',
-					];
-					$message_key = 'attachment_created';
-				} else {
-					$context     = [
-						'post_id'                    => $post->ID,
-						'post_type'                  => $post->post_type,
-						'post_title'                 => $post->post_title,
-						'_date'                      => $post_date_gmt,
-						self::BACKFILLED_CONTEXT_KEY => '1',
-					];
-					$message_key = 'post_created';
-				}
-
-				// Set initiator to post author if available.
-				if ( $post_author ) {
-					$context['_initiator']  = Log_Initiators::WP_USER;
-					$context['_user_id']    = $post_author->ID;
-					$context['_user_login'] = $post_author->user_login;
-					$context['_user_email'] = $post_author->user_email;
-				} else {
-					$context['_initiator'] = Log_Initiators::OTHER;
-				}
-
-				$logger->info_message( $message_key, $context );
-				++$this->results['post_events_created'];
-
-				$post_detail['events_logged'][] = [
-					'type' => 'created',
-					'date' => $post_date_gmt,
-				];
-			}
-
-			// If post has been modified after creation, also log an update (if not already imported).
-			if ( $post_has_updates && ! $has_updated ) {
-				// Get post author for initiator.
-				$post_author = get_user_by( 'id', $post->post_author );
-
-				// Media Logger uses different context keys and message.
-				if ( $post_type === 'attachment' ) {
-					$file      = get_attached_file( $post->ID );
-					$file_size = false;
-
-					if ( $file && file_exists( $file ) ) {
-						$file_size = filesize( $file );
+					// Set initiator to post author if available.
+					if ( $post_author ) {
+						$context['_initiator']  = Log_Initiators::WP_USER;
+						$context['_user_id']    = $post_author->ID;
+						$context['_user_login'] = $post_author->user_login;
+						$context['_user_email'] = $post_author->user_email;
+					} else {
+						$context['_initiator'] = Log_Initiators::OTHER;
 					}
 
-					$context     = [
-						'post_type'                  => get_post_type( $post ),
-						'attachment_id'              => $post->ID,
-						'attachment_title'           => $post->post_title,
-						'attachment_filename'        => basename( $file ),
-						'attachment_mime'            => get_post_mime_type( $post ),
-						'attachment_filesize'        => $file_size,
-						'_date'                      => $post_modified_gmt,
-						self::BACKFILLED_CONTEXT_KEY => '1',
+					$logger->info_message( $message_key, $context );
+					++$this->results['post_events_created'];
+
+					$post_detail['events_logged'][] = [
+						'type' => 'created',
+						'date' => $post_date_gmt,
 					];
-					$message_key = 'attachment_updated';
-				} else {
-					$context     = [
-						'post_id'                    => $post->ID,
-						'post_type'                  => $post->post_type,
-						'post_title'                 => $post->post_title,
-						'_date'                      => $post_modified_gmt,
-						self::BACKFILLED_CONTEXT_KEY => '1',
-					];
-					$message_key = 'post_updated';
 				}
 
-				// Set initiator to post author if available.
-				if ( $post_author ) {
-					$context['_initiator']  = Log_Initiators::WP_USER;
-					$context['_user_id']    = $post_author->ID;
-					$context['_user_login'] = $post_author->user_login;
-					$context['_user_email'] = $post_author->user_email;
-				} else {
-					$context['_initiator'] = Log_Initiators::OTHER;
+				// If post has been modified after creation, also log an update (if not already imported).
+				if ( $post_has_updates && ! $has_updated ) {
+					// Get post author for initiator.
+					$post_author = get_user_by( 'id', $post->post_author );
+
+					// Media Logger uses different context keys and message.
+					if ( $post_type === 'attachment' ) {
+						$file      = get_attached_file( $post->ID );
+						$file_size = false;
+
+						if ( $file && file_exists( $file ) ) {
+							$file_size = filesize( $file );
+						}
+
+						$context     = [
+							'post_type'                  => get_post_type( $post ),
+							'attachment_id'              => $post->ID,
+							'attachment_title'           => $post->post_title,
+							'attachment_filename'        => basename( $file ),
+							'attachment_mime'            => get_post_mime_type( $post ),
+							'attachment_filesize'        => $file_size,
+							'_date'                      => $post_modified_gmt,
+							self::BACKFILLED_CONTEXT_KEY => '1',
+						];
+						$message_key = 'attachment_updated';
+					} else {
+						$context     = [
+							'post_id'                    => $post->ID,
+							'post_type'                  => $post->post_type,
+							'post_title'                 => $post->post_title,
+							'_date'                      => $post_modified_gmt,
+							self::BACKFILLED_CONTEXT_KEY => '1',
+						];
+						$message_key = 'post_updated';
+					}
+
+					// Set initiator to post author if available.
+					if ( $post_author ) {
+						$context['_initiator']  = Log_Initiators::WP_USER;
+						$context['_user_id']    = $post_author->ID;
+						$context['_user_login'] = $post_author->user_login;
+						$context['_user_email'] = $post_author->user_email;
+					} else {
+						$context['_initiator'] = Log_Initiators::OTHER;
+					}
+
+					$logger->info_message( $message_key, $context );
+					++$this->results['post_events_created'];
+
+					$post_detail['events_logged'][] = [
+						'type' => 'updated',
+						'date' => $post_modified_gmt,
+					];
 				}
 
-				$logger->info_message( $message_key, $context );
-				++$this->results['post_events_created'];
+				// Only add to imported if we logged at least one event.
+				if ( empty( $post_detail['events_logged'] ) ) {
+					continue;
+				}
 
-				$post_detail['events_logged'][] = [
-					'type' => 'updated',
-					'date' => $post_modified_gmt,
-				];
+				$this->results['posts_details'][] = $post_detail;
+				++$imported_count;
 			}
 
-			// Only add to imported if we logged at least one event.
-			if ( empty( $post_detail['events_logged'] ) ) {
-				continue;
-			}
+			$offset    += count( $posts );
+			$remaining -= count( $posts );
 
-			$this->results['posts_details'][] = $post_detail;
-			++$imported_count;
+			// If we got fewer posts than requested, there are no more.
+			if ( count( $posts ) < $current_batch_size ) {
+				break;
+			}
 		}
 
 		$this->results['posts_imported']                      += $imported_count;
@@ -364,8 +388,7 @@ class Existing_Data_Importer {
 		}
 
 		// Get users, ordered by registration date.
-		$args = [
-			'number'  => $limit,
+		$base_args = [
 			'orderby' => 'registered',
 			'order'   => 'ASC',
 		];
@@ -377,7 +400,7 @@ class Existing_Data_Importer {
 			$cutoff_date      = gmdate( 'Y-m-d H:i:s', $cutoff_timestamp );
 
 			// Use date_query for users (available since WP 4.1).
-			$args['date_query'] = [
+			$base_args['date_query'] = [
 				[
 					'after'     => $cutoff_date,
 					'inclusive' => true,
@@ -385,80 +408,103 @@ class Existing_Data_Importer {
 			];
 		}
 
-		$users = get_users( $args );
-
-		// Count total available users using SQL_CALC_FOUND_ROWS.
-		// Set number to 1 so the main query fetches minimal data,
-		// while get_total() returns the full count via FOUND_ROWS().
-		$count_args                    = $args;
-		$count_args['number']          = 1;
-		$count_args['fields']          = 'ID';
-		$count_args['count_total']     = true;
-		$count_query                   = new \WP_User_Query( $count_args );
-		$total_available               = $count_query->get_total();
+		// Count total available users.
+		$count_args                = $base_args;
+		$count_args['number']      = 1;
+		$count_args['fields']      = 'ID';
+		$count_args['count_total'] = true;
+		$count_query               = new \WP_User_Query( $count_args );
+		$total_available           = $count_query->get_total();
 
 		$this->results['type_stats']['user'] = [
 			'available' => $total_available,
 			'imported'  => 0,
 		];
 
-		// Get all user IDs to check for duplicates.
-		$user_ids = wp_list_pluck( $users, 'ID' );
-
-		// Check which users have already been logged (imported or naturally).
-		$already_logged = $this->get_already_logged_user_ids( $user_ids );
-
 		$imported_count         = 0;
 		$skipped_imported_count = 0;
 		$skipped_logged_count   = 0;
 
-		foreach ( $users as $user ) {
-			// Skip if already logged (imported or naturally).
-			if ( isset( $already_logged[ (string) $user->ID ] ) ) {
-				$is_imported = $already_logged[ (string) $user->ID ]['is_imported'];
-				$skip_reason = $is_imported ? 'already_imported' : 'already_logged';
+		// Process in batches to avoid memory exhaustion on large datasets.
+		$batch_size = 200;
+		$offset     = 0;
+		$remaining  = $limit === -1 ? PHP_INT_MAX : $limit;
 
-				$this->results['skipped_details'][] = [
-					'type'   => 'user',
-					'id'     => $user->ID,
-					'login'  => $user->user_login,
-					'reason' => $skip_reason,
-				];
+		while ( $remaining > 0 ) {
+			$current_batch_size = min( $batch_size, $remaining );
 
-				if ( $is_imported ) {
-					++$skipped_imported_count;
-				} else {
-					++$skipped_logged_count;
-				}
-				continue;
+			$args           = $base_args;
+			$args['number'] = $current_batch_size;
+			$args['offset'] = $offset;
+
+			$users = get_users( $args );
+
+			if ( empty( $users ) ) {
+				break;
 			}
 
-			// Log user registration with original registration date.
-			// Only store immutable data (user_id and user_login).
-			// Don't store email, names, URL, or role as these may have changed since registration.
-			$user_logger->info_message(
-				'user_created',
-				[
-					'created_user_id'            => $user->ID,
-					'created_user_login'         => $user->user_login,
-					// user_registered is stored in GMT by WordPress (using gmdate).
-					// Pass it directly to logger, which expects GMT dates.
-					'_date'                      => $user->user_registered,
-					'_initiator'                 => Log_Initiators::OTHER,
-					self::BACKFILLED_CONTEXT_KEY => '1',
-				]
-			);
-			++$this->results['user_events_created'];
+			// Get user IDs to check for duplicates in this batch.
+			$user_ids = wp_list_pluck( $users, 'ID' );
 
-			$this->results['users_details'][] = [
-				'id'              => $user->ID,
-				'login'           => $user->user_login,
-				'email'           => $user->user_email,
-				'registered_date' => $user->user_registered,
-				'roles'           => (array) $user->roles,
-			];
+			// Check which users have already been logged (imported or naturally).
+			$already_logged = $this->get_already_logged_user_ids( $user_ids );
 
-			++$imported_count;
+			foreach ( $users as $user ) {
+				// Skip if already logged (imported or naturally).
+				if ( isset( $already_logged[ (string) $user->ID ] ) ) {
+					$is_imported = $already_logged[ (string) $user->ID ]['is_imported'];
+					$skip_reason = $is_imported ? 'already_imported' : 'already_logged';
+
+					$this->results['skipped_details'][] = [
+						'type'   => 'user',
+						'id'     => $user->ID,
+						'login'  => $user->user_login,
+						'reason' => $skip_reason,
+					];
+
+					if ( $is_imported ) {
+						++$skipped_imported_count;
+					} else {
+						++$skipped_logged_count;
+					}
+					continue;
+				}
+
+				// Log user registration with original registration date.
+				// Only store immutable data (user_id and user_login).
+				// Don't store email, names, URL, or role as these may have changed since registration.
+				$user_logger->info_message(
+					'user_created',
+					[
+						'created_user_id'            => $user->ID,
+						'created_user_login'         => $user->user_login,
+						// user_registered is stored in GMT by WordPress (using gmdate).
+						// Pass it directly to logger, which expects GMT dates.
+						'_date'                      => $user->user_registered,
+						'_initiator'                 => Log_Initiators::OTHER,
+						self::BACKFILLED_CONTEXT_KEY => '1',
+					]
+				);
+				++$this->results['user_events_created'];
+
+				$this->results['users_details'][] = [
+					'id'              => $user->ID,
+					'login'           => $user->user_login,
+					'email'           => $user->user_email,
+					'registered_date' => $user->user_registered,
+					'roles'           => (array) $user->roles,
+				];
+
+				++$imported_count;
+			}
+
+			$offset    += count( $users );
+			$remaining -= count( $users );
+
+			// If we got fewer users than requested, there are no more.
+			if ( count( $users ) < $current_batch_size ) {
+				break;
+			}
 		}
 
 		$this->results['users_imported']                += $imported_count;
