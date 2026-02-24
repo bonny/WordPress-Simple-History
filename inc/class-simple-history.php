@@ -935,7 +935,7 @@ class Simple_History {
 	 * Returns an array of action links (each with url, label, action)
 	 * for the given log row. Only active when experimental features are enabled.
 	 *
-	 * @since 5.7.0
+	 * @since 5.24.0
 	 *
 	 * @param object $row Log row object.
 	 * @return array Array of action link arrays.
@@ -958,7 +958,7 @@ class Simple_History {
 		/**
 		 * Filter the action links for a log row.
 		 *
-		 * @since 5.7.0
+		 * @since 5.24.0
 		 *
 		 * @param array  $action_links Array of action link arrays.
 		 * @param object $row          Log row object.

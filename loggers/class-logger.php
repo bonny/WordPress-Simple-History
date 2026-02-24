@@ -835,7 +835,7 @@ abstract class Logger {
 	 * Override in subclass to return links like View, Edit, Preview.
 	 * Each link is an array with 'url', 'label', and 'action' keys.
 	 *
-	 * @since 5.7.0
+	 * @since 5.24.0
 	 *
 	 * @param object $row Log row object.
 	 * @return array Array of action link arrays.

@@ -1319,7 +1319,7 @@ class Post_Logger extends Logger {
 	 * Returns View, Edit, Preview, and Revisions links based on
 	 * message key, post availability, status, and user capabilities.
 	 *
-	 * @since 5.7.0
+	 * @since 5.24.0
 	 *
 	 * @param object $row Log row object.
 	 * @return array Array of action link arrays.
