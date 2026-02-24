@@ -13,11 +13,8 @@ Manage local issue files in Obsidian using the `obsidian` CLI. This is faster an
 All commands require:
 
 -   `vault=nvALT` — the vault containing Simple History issues
--   `2>/dev/null` — suppress the startup log line
 
 **JSON output:** Most commands support `format=json` for structured output. The `jq` CLI tool is installed locally and can be used to filter/transform JSON results.
-
-**Stdout noise after in-app updates:** Obsidian may emit a `"Loading updated app package ..."` line to stdout (happens after in-app updates, not installer updates). `2>/dev/null` won't catch it. For JSON/TSV output that needs parsing, append `| grep -v "Loading updated app package"` to get clean output.
 
 Issue files live at: `/Users/bonny/Documents/nvALT/Simple History/issues/`
 Archived issues: `/Users/bonny/Documents/nvALT/Simple History/issues/archive/`
@@ -28,21 +25,20 @@ The issues base is `Simple History issues.base`. Always use `path=` (not `file=`
 
 ```bash
 # List available views
-obsidian base:views vault=nvALT path="Simple History issues.base" 2>/dev/null
+obsidian base:views vault=nvALT path="Simple History issues.base"
 # Views: Alla, Todo, Needs investigation, Needs decision, Idea, In progress, Done
 
 # Query a filtered view (JSON array — includes path, name, and all frontmatter properties)
-# Pipe through grep -v to strip any Obsidian startup noise before parsing
-obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=json 2>/dev/null | grep -v "Loading updated app package"
+obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=json
 
 # Compact table output
-obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=tsv 2>/dev/null | grep -v "Loading updated app package"
+obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=tsv
 
 # Query all issues (no view filter)
-obsidian base:query vault=nvALT path="Simple History issues.base" format=json 2>/dev/null | grep -v "Loading updated app package"
+obsidian base:query vault=nvALT path="Simple History issues.base" format=json
 
 # Use jq (installed locally) to filter/transform JSON output
-obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=json 2>/dev/null | grep -v "Loading updated app package" | jq '[.[] | {name, status, prio}]'
+obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=json | jq '[.[] | {name, status, prio}]'
 ```
 
 **Prefer `base:query` over grep** for listing/filtering issues — one call returns structured data for all matching issues.
@@ -51,16 +47,16 @@ obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" fo
 
 ```bash
 # Read a specific property value
-obsidian property:read vault=nvALT name=status path="Simple History/issues/Some Issue.md" 2>/dev/null
+obsidian property:read vault=nvALT name=status path="Simple History/issues/Some Issue.md"
 
 # Read all properties as JSON
-obsidian properties vault=nvALT path="Simple History/issues/Some Issue.md" format=json 2>/dev/null
+obsidian properties vault=nvALT path="Simple History/issues/Some Issue.md" format=json
 
 # Set a property (updates frontmatter in-place, creates if missing)
-obsidian property:set vault=nvALT name=status value=in-progress path="Simple History/issues/Some Issue.md" 2>/dev/null
+obsidian property:set vault=nvALT name=status value=in-progress path="Simple History/issues/Some Issue.md"
 
 # Remove a property
-obsidian property:remove vault=nvALT name=review path="Simple History/issues/Some Issue.md" 2>/dev/null
+obsidian property:remove vault=nvALT name=review path="Simple History/issues/Some Issue.md"
 ```
 
 ### Frontmatter Schema
@@ -80,35 +76,35 @@ All fields are optional. Number-prefixed values sort correctly in Obsidian.
 
 ```bash
 # Read full file (frontmatter + body)
-obsidian read vault=nvALT path="Simple History/issues/Some Issue.md" 2>/dev/null
+obsidian read vault=nvALT path="Simple History/issues/Some Issue.md"
 
 # Append content (e.g., agent notes)
-obsidian append vault=nvALT path="Simple History/issues/Some Issue.md" content="\n> [!agent]\n> **Finding:** Details here..." 2>/dev/null
+obsidian append vault=nvALT path="Simple History/issues/Some Issue.md" content="\n> [!agent]\n> **Finding:** Details here..."
 
 # Prepend content
-obsidian prepend vault=nvALT path="Simple History/issues/Some Issue.md" content="Updated priority based on user feedback.\n" 2>/dev/null
+obsidian prepend vault=nvALT path="Simple History/issues/Some Issue.md" content="Updated priority based on user feedback.\n"
 ```
 
 ## Creating Issues
 
 ```bash
 # Create via the base (uses base's configured folder)
-obsidian base:create vault=nvALT path="Simple History issues.base" name="New Issue Title" 2>/dev/null
+obsidian base:create vault=nvALT path="Simple History issues.base" name="New Issue Title"
 
 # Create directly, then set properties
-obsidian create vault=nvALT path="Simple History/issues/New Issue Title.md" content="Description here" 2>/dev/null
-obsidian property:set vault=nvALT name=type value=bug path="Simple History/issues/New Issue Title.md" 2>/dev/null
-obsidian property:set vault=nvALT name=status value=todo path="Simple History/issues/New Issue Title.md" 2>/dev/null
+obsidian create vault=nvALT path="Simple History/issues/New Issue Title.md" content="Description here"
+obsidian property:set vault=nvALT name=type value=bug path="Simple History/issues/New Issue Title.md"
+obsidian property:set vault=nvALT name=status value=todo path="Simple History/issues/New Issue Title.md"
 ```
 
 ## Searching Issues
 
 ```bash
 # Search issue files for text (returns file paths)
-obsidian search vault=nvALT query="REST API" path="Simple History/issues" format=json 2>/dev/null
+obsidian search vault=nvALT query="REST API" path="Simple History/issues" format=json
 
 # Search with context (shows matching lines)
-obsidian search:context vault=nvALT query="REST API" path="Simple History/issues" format=json 2>/dev/null
+obsidian search:context vault=nvALT query="REST API" path="Simple History/issues" format=json
 ```
 
 For regex or line-number-precise searches within issue bodies, fall back to Grep on `/Users/bonny/Documents/nvALT/Simple History/issues/`.
@@ -118,21 +114,21 @@ For regex or line-number-precise searches within issue bodies, fall back to Grep
 **Pick up next issue to work on:**
 
 ```bash
-obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=tsv 2>/dev/null
+obsidian base:query vault=nvALT path="Simple History issues.base" view="Todo" format=tsv
 ```
 
 **Start working on an issue:**
 
 ```bash
-obsidian property:set vault=nvALT name=status value=in-progress path="Simple History/issues/Issue Name.md" 2>/dev/null
+obsidian property:set vault=nvALT name=status value=in-progress path="Simple History/issues/Issue Name.md"
 ```
 
 **Mark issue done with agent notes:**
 
 ```bash
-obsidian append vault=nvALT path="Simple History/issues/Issue Name.md" content="\n> [!agent]\n> **Completed:** Summary of what was done..." 2>/dev/null
-obsidian property:set vault=nvALT name=status value=done path="Simple History/issues/Issue Name.md" 2>/dev/null
-obsidian property:set vault=nvALT name=review value=pending path="Simple History/issues/Issue Name.md" 2>/dev/null
+obsidian append vault=nvALT path="Simple History/issues/Issue Name.md" content="\n> [!agent]\n> **Completed:** Summary of what was done..."
+obsidian property:set vault=nvALT name=status value=done path="Simple History/issues/Issue Name.md"
+obsidian property:set vault=nvALT name=review value=pending path="Simple History/issues/Issue Name.md"
 ```
 
 **Present a `review: pending` issue for human review:**
@@ -158,7 +154,7 @@ Archived issues stay searchable in Obsidian but don't appear in active base view
 
 ```bash
 # Search archived issues
-obsidian search vault=nvALT query="search term" path="Simple History/issues/archive" format=json 2>/dev/null
+obsidian search vault=nvALT query="search term" path="Simple History/issues/archive" format=json
 
 # Or use Grep directly
 # Grep pattern="search term" path="/Users/bonny/Documents/nvALT/Simple History/issues/archive"
