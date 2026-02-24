@@ -369,6 +369,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Changed auto backfill to run on the first admin page load instead of relying on WP-Cron, ensuring it works in all environments including those where WP-Cron is disabled or unreliable.
 -   Changed backfill upsell notice to only appear when content was genuinely missed due to the per-type limit, hiding it entirely when all available content was imported successfully.
 -   Changed backfill notice copy to be more inviting, reworded from "missing from your history" to "Backfill into your history" with clearer explanation that only older pre-install content is affected.
+-   Reduced frontend JavaScript for logged-in users by removing the wp-components dependency from the admin bar bundle, saving ~919 KB of scripts on every page load.
 
 **Fixed**
 

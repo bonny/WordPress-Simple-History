@@ -1,4 +1,11 @@
-// Entrypoint used by wp-scripts start and build.
+// Entrypoint for the admin bar dropdown. Loaded on EVERY frontend page
+// for logged-in users, so keep this bundle as small as possible.
+//
+// IMPORTANT: Do NOT import from @wordpress/components or other heavy
+// packages here or in any component this file imports. A single import
+// like HStack or Button pulls in wp-components (~787 KB) plus 14
+// transitive dependencies (~920 KB total). Use plain HTML/CSS instead.
+// See EventDateCompact and EventInitiatorNameCompact for examples.
 
 import domReady from '@wordpress/dom-ready';
 import { createRoot } from '@wordpress/element';
