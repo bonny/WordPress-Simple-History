@@ -72,6 +72,7 @@ export function generateAPIQueryParams( props ) {
 				'sticky',
 				'sticky_appended',
 				'backfilled',
+				'action_links',
 			],
 		};
 
@@ -115,6 +116,7 @@ export function generateAPIQueryParams( props ) {
 			'sticky',
 			'sticky_appended',
 			'backfilled',
+			'action_links',
 		],
 	};
 

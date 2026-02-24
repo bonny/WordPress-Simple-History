@@ -6,6 +6,7 @@ use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
+use Simple_History\Vendor\Jfcherng\Diff\DiffHelper;
 
 /**
  * Logs changes to posts and pages, including custom post types.
@@ -915,6 +916,47 @@ class Post_Logger extends Logger {
 		// If changes where detected.
 		// Save at least 2 values for each detected value change, i.e. the old value and the new value.
 		foreach ( $post_data_diff as $diff_key => $diff_values ) {
+			// For post_content, try compact JSON diff storage when experimental features are enabled.
+			if (
+				$diff_key === 'post_content'
+				&& Helpers::experimental_features_is_enabled()
+				&& class_exists( DiffHelper::class )
+			) {
+				try {
+					// Normalize whitespace to match WP's text_diff behavior.
+					$old_normalized = normalize_whitespace( $diff_values['old'] );
+					$new_normalized = normalize_whitespace( $diff_values['new'] );
+
+					$json_diff = DiffHelper::calculate(
+						$old_normalized,
+						$new_normalized,
+						'JsonHtml',
+						[ 
+							'context'           => 1,
+							'ignoreLineEndings' => true,
+							'ignoreWhitespace'  => true,
+						],
+						[
+							'detailLevel'       => 'word',
+							'outputTagAsString' => true,
+						]
+					);
+
+					$context['post_content_diff']        = $json_diff;
+					$context['post_content_diff_format'] = 'jfcherng_json_html_v1';
+
+					// Also store full content during testing phase for comparison.
+					$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
+					$context[ "post_new_{$diff_key}" ]  = $diff_values['new'];
+				} catch ( \Exception $e ) {
+					// Fallback to full content storage on any error.
+					$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
+					$context[ "post_new_{$diff_key}" ]  = $diff_values['new'];
+				}
+
+				continue;
+			}
+
 				$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
 				$context[ "post_new_{$diff_key}" ]  = $diff_values['new'];
 
@@ -1272,6 +1314,97 @@ class Post_Logger extends Logger {
 	}
 
 	/**
+	 * Get structured action links for a post event.
+	 *
+	 * Returns View, Edit, Preview, and Revisions links based on
+	 * message key, post availability, status, and user capabilities.
+	 *
+	 * @since 5.24.0
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		$context     = $row->context;
+		$post_id     = $context['post_id'] ?? 0;
+		$message_key = $context['_message_key'] ?? null;
+
+		$post = get_post( $post_id );
+
+		if ( ! $post instanceof \WP_Post ) {
+			return [];
+		}
+
+		// Post was permanently deleted; no links to show.
+		if ( $message_key === 'post_deleted' ) {
+			return [];
+		}
+
+		$post_type_obj = get_post_type_object( $post->post_type );
+		$type_label    = $post_type_obj ? strtolower( $post_type_obj->labels->singular_name ) : $post->post_type;
+		$post_status   = get_post_status( $post );
+		$action_links  = [];
+
+		$is_published = $post_status === 'publish';
+		$is_viewable  = in_array( $post_status, [ 'draft', 'pending', 'future' ], true );
+		$has_edit_cap = current_user_can( 'edit_post', $post_id );
+
+		// Edit link — if user has capability.
+		if ( $has_edit_cap ) {
+			$edit_link = get_edit_post_link( $post_id, 'raw' );
+			if ( $edit_link ) {
+				$action_links[] = [
+					'url'    => $edit_link,
+					/* translators: %s: post type label, e.g. "page" or "post". */
+					'label'  => sprintf( __( 'Edit %s', 'simple-history' ), $type_label ),
+					'action' => 'edit',
+				];
+			}
+		}
+
+		// View link — only for published posts.
+		if ( $is_published ) {
+			$permalink = get_permalink( $post_id );
+			if ( $permalink ) {
+				$action_links[] = [
+					'url'    => $permalink,
+					/* translators: %s: post type label, e.g. "page" or "post". */
+					'label'  => sprintf( __( 'View %s', 'simple-history' ), $type_label ),
+					'action' => 'view',
+				];
+			}
+		}
+
+		// Preview link — for drafts, pending, and future posts.
+		if ( $is_viewable && $has_edit_cap ) {
+			$preview_link = get_preview_post_link( $post_id );
+			if ( $preview_link ) {
+				$action_links[] = [
+					'url'    => $preview_link,
+					/* translators: %s: post type label, e.g. "page" or "post". */
+					'label'  => sprintf( __( 'Preview %s', 'simple-history' ), $type_label ),
+					'action' => 'preview',
+				];
+			}
+		}
+
+		// Revisions link — only for post_updated when revisions exist.
+		if ( $message_key === 'post_updated' && post_type_supports( $post->post_type, 'revisions' ) ) {
+			$revisions = wp_get_post_revisions( $post_id, [ 'numberposts' => 1 ] );
+			if ( ! empty( $revisions ) ) {
+				$latest_revision = reset( $revisions );
+				$action_links[]  = [
+					'url'    => admin_url( 'revision.php?revision=' . $latest_revision->ID ),
+					'label'  => __( 'View revisions', 'simple-history' ),
+					'action' => 'revisions',
+				];
+			}
+		}
+
+		return $action_links;
+	}
+
+	/**
 	 * Get details output for row.
 	 *
 	 * @param object $row Row data.
@@ -1331,9 +1464,6 @@ class Post_Logger extends Logger {
 						helpers::text_diff( $post_old_value, $post_new_value )
 					);
 				} elseif ( $key_to_diff === 'post_content' ) {
-					// Problem: to much text/content.
-					// Risks to fill the visual output.
-					// Maybe solution: use own diff function, that uses none or few context lines.
 					$has_diff_values = true;
 					$label           = __( 'Content', 'simple-history' );
 					$key_text_diff   = helpers::text_diff( $post_old_value, $post_new_value );
@@ -1533,6 +1663,20 @@ class Post_Logger extends Logger {
 			// post_prev_thumb, int of prev thumb, empty if not prev thumb.
 			// post_new_thumb, int of new thumb, empty if no new thumb.
 			$diff_table_output .= $this->get_log_row_details_output_for_post_thumb( $context );
+
+			// Render compact JSON diff for post_content if available and experimental features enabled.
+			if ( isset( $context['post_content_diff'] ) && Helpers::experimental_features_is_enabled() ) {
+				$json_diff_html = Helpers::render_json_diff_to_html( $context['post_content_diff'] );
+
+				if ( $json_diff_html !== '' ) {
+					$has_diff_values    = true;
+					$diff_table_output .= sprintf(
+						'<tr><td>%1$s</td><td>%2$s</td></tr>',
+						esc_html( __( 'Content (compact diff)', 'simple-history' ) ),
+						$json_diff_html
+					);
+				}
+			}
 
 			/**
 			 * Modify the formatted diff output of a saved/modified post

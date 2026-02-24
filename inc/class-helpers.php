@@ -1391,6 +1391,53 @@ class Helpers {
 	}
 
 	/**
+	 * Render a stored JSON diff (from jfcherng/php-diff JsonHtml renderer) to side-by-side HTML.
+	 *
+	 * @param string $json_diff_string JSON-encoded diff array.
+	 * @return string HTML output, or empty string on failure.
+	 */
+	public static function render_json_diff_to_html( $json_diff_string ) {
+		$renderer_class = 'Simple_History\Vendor\Jfcherng\Diff\Renderer\Html\SideBySide';
+
+		if ( ! class_exists( $renderer_class ) ) {
+			return '';
+		}
+
+		try {
+			$diff_array = json_decode( $json_diff_string, true );
+
+			if ( ! is_array( $diff_array ) || empty( $diff_array ) ) {
+				return '';
+			}
+
+			$renderer = new $renderer_class(
+				[
+					'showHeader'    => false,
+					'lineNumbers'   => false,
+					'separateBlock' => true,
+				]
+			);
+
+			$html = $renderer->renderArray( $diff_array );
+
+			if ( empty( $html ) ) {
+				return '';
+			}
+
+			// Sanitize renderer output as defense-in-depth against tampered stored data.
+			$html = wp_kses_post( $html );
+
+			return '<div class="SimpleHistory__diff__contents" tabindex="0">'
+				. '<div class="SimpleHistory__diff__contentsInner">'
+				. $html
+				. '</div>'
+				. '</div>';
+		} catch ( \Exception $e ) {
+			return '';
+		}
+	}
+
+	/**
 	 * Get number of events the last n days.
 	 *
 	 * Respects user permissions - only counts events from loggers the current user can view.

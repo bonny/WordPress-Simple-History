@@ -70,7 +70,7 @@ type: bug # bug, feature, ux, idea, website, perf, docs
 prio: 1-high # 1-high, 2-normal, 3-low
 size: 1-small # 1-small, 2-medium, 3-large
 complexity: patch # patch (single commit), branch (needs own branch)
-status: todo # todo, ready, in-progress, done, needs-investigation, needs-decision, idea, blocked
+status: todo # todo, in-progress, done, needs-investigation, needs-decision, idea, blocked
 review: pending # pending, done — set to pending when agent marks status as done
 ```
 

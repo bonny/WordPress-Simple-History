@@ -930,6 +930,45 @@ class Simple_History {
 	}
 
 	/**
+	 * Get structured action links for a log row.
+	 *
+	 * Returns an array of action links (each with url, label, action)
+	 * for the given log row. Only active when experimental features are enabled.
+	 *
+	 * @since 5.24.0
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			return [];
+		}
+
+		$row_logger = $row->logger;
+
+		$logger = $this->get_instantiated_logger_by_slug( $row_logger );
+
+		if ( $logger === false ) {
+			return [];
+		}
+
+		$action_links = $logger->get_action_links( $row );
+
+		/**
+		 * Filter the action links for a log row.
+		 *
+		 * @since 5.24.0
+		 *
+		 * @param array  $action_links Array of action link arrays.
+		 * @param object $row          Log row object.
+		 */
+		$action_links = apply_filters( 'simple_history/get_action_links', $action_links, $row );
+
+		return $action_links;
+	}
+
+	/**
 	 * Returns the HTML output for a log row, to be used in the GUI/Activity Feed.
 	 * This includes HTML for the header, the sender image, and the details.
 	 *

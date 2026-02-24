@@ -262,12 +262,18 @@ Tag = the pill with the log level.
 	color: #eee;
 }
 
-.SimpleHistoryLogitem a {
+.SimpleHistoryLogitem a,
+.SimpleHistoryLogitem .components-external-link,
+.SimpleHistoryLogitem .components-button.is-link {
+	color: #2271b1;
 	text-decoration: none;
 }
 
-.SimpleHistoryLogitem a:hover {
-	text-decoration: underline;
+.SimpleHistoryLogitem a:hover,
+.SimpleHistoryLogitem .components-external-link:hover,
+.SimpleHistoryLogitem .components-button.is-link:hover {
+	color: #135e96;
+	text-decoration: none;
 }
 
 .SimpleHistoryLogitem__firstcol {
@@ -371,6 +377,62 @@ Tag = the pill with the log level.
 /* make video embeds responsive */
 .SimpleHistoryLogitem__details .wp-video {
 	max-width: 100%;
+}
+
+/* Structured action links below event details */
+.SimpleHistoryLogitem__actionLinks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sh-spacing-small) var(--sh-spacing-xsmall);
+	margin-top: var(--sh-spacing-small);
+	margin-bottom: var(--sh-spacing-xsmall);
+	margin-left: calc(var(--sh-spacing-small) * -1);
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.SimpleHistoryLogitem__actionLinks__link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.SimpleHistoryLogitem__actionLinks__link:hover {
+	color: #135e96;
+	background-color: var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius);
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon {
+	--sh-icon-size: 1em;
+	top: 1px;
+	/* Use mask so icon color inherits from link via currentColor. */
+	mask-size: 100%;
+	-webkit-mask-size: 100%;
+	background: currentColor;
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon--visibility {
+	mask-image: url(./icons/visibility_FILL0_wght400_GRAD0_opsz48.svg);
+	-webkit-mask-image: url(./icons/visibility_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon--edit {
+	mask-image: url(./icons/edit_FILL0_wght400_GRAD0_opsz48.svg);
+	-webkit-mask-image: url(./icons/edit_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon--preview {
+	mask-image: url(./icons/preview_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+	-webkit-mask-image: url(./icons/preview_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon--history {
+	mask-image: url(./icons/history_FILL0_wght400_GRAD0_opsz48.svg);
+	-webkit-mask-image: url(./icons/history_FILL0_wght400_GRAD0_opsz48.svg);
 }
 
 /* Actions button, dropdown with three dots ⋮ */
@@ -1055,6 +1117,68 @@ Modal window with detailss
 
 .SimpleHistory__diff.SimpleHistory__diff tbody tr td:nth-child(2) {
 	width: auto;
+}
+
+/* jfcherng/php-diff side-by-side renderer styles */
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side {
+	border-collapse: collapse;
+	border-spacing: 1px;
+	width: 100%;
+	font-family: "Open Sans", sans-serif;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side td {
+	text-align: left;
+	white-space: normal;
+	font-size: 13px;
+	line-height: 1.3;
+	padding: 0.5em 0.5em 0.5em 2em;
+	color: rgb(75, 75, 75);
+	font-family: "Open Sans", sans-serif;
+	width: 50%;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-eq td {
+	background: transparent;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-ins td.new {
+	background: #dfd;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-del td.old {
+	background: #fdd;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.old {
+	background: #fdd;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.new {
+	background: #dfd;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side td.none {
+	background: #f9f9f9;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side ins {
+	background: #9e9;
+	text-decoration: none;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side del {
+	background: #e99;
+	text-decoration: line-through;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .skipped td {
+	background: #f7f7f7;
+	text-align: center;
+	color: #999;
+	font-style: italic;
 }
 
 .sh-ExternalLink::after {

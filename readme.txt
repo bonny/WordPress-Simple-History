@@ -360,6 +360,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added diff details (name, slug, description, parent) when viewing edited category and tag events.
 -   Added description and parent details when viewing created term events with non-default values.
 -   Added detailed menu change logging showing item names, types, renames, moves, order changes, display location updates, and auto-add pages setting instead of just item counts.
+-   Added compact JSON diff storage for post content changes (experimental). When enabled, stores a compact diff instead of full old/new content, reducing database size for large posts.
+-   Added structured action links (Edit, View, Preview, Revisions) below post events with icons and capability checks (experimental). Links are shown as contextual actions based on post status and user permissions.
 
 **Changed**
 
