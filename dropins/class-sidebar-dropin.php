@@ -14,7 +14,7 @@ class Sidebar_Dropin extends Dropin {
 	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'simple_history/history_page/after_gui', array( $this, 'output_sidebar_html' ) );
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'default_sidebar_contents' ) );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', array( $this, 'default_sidebar_contents' ), 100 );
 	}
 
 	/**

@@ -362,6 +362,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added detailed menu change logging showing item names, types, renames, moves, order changes, display location updates, and auto-add pages setting instead of just item counts.
 -   Added compact JSON diff storage for post content changes (experimental). When enabled, stores a compact diff instead of full old/new content, reducing database size for large posts.
 -   Added structured action links (Edit, View, Preview, Revisions) below post events with icons and capability checks (experimental). Links are shown as contextual actions based on post status and user permissions.
+-   Added rotating tips in the sidebar to help users discover features like RSS feeds, WP-CLI, export, sticky events, and more. Tips rotate randomly on each page load. Filterable via `simple_history/sidebar_tips` and `simple_history/sidebar_tips/show`.
 
 **Changed**
 
