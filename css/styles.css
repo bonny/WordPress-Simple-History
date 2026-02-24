@@ -390,13 +390,12 @@ Tag = the pill with the log level.
 	align-items: center;
 	gap: var(--sh-spacing-xsmall);
 	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
-	color: var(--sh-color-gray-3);
+	color: #2271b1;
 	text-decoration: none;
 }
 
 .SimpleHistoryLogitem__actionLinks__link:hover {
-	color: #2271b1;
-	text-decoration: underline;
+	color: #135e96;
 }
 
 .SimpleHistoryLogitem__actionLinks__link .sh-Icon {
