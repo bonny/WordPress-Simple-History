@@ -120,6 +120,8 @@ class Quick_View_Dropin extends Dropin {
 				'viewSettingsUrl'           => Helpers::get_settings_page_url(),
 				// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
 				'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),
+				'currentPostId'             => is_singular() ? get_queried_object_id() : 0,
+				'currentPostTitle'          => is_singular() ? get_the_title() : '',
 			],
 		);
 	}

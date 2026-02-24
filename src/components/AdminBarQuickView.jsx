@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
 import { useInView } from 'react-intersection-observer';
@@ -61,6 +61,7 @@ const AdminBarQuickView = () => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ events, setEvents ] = useState( [] );
 	const [ reloadTime, setReloadTime ] = useState( null );
+	const [ filterMode, setFilterMode ] = useState( 'all' );
 
 	const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
 	const settingsURL = window.simpleHistoryAdminBar.viewSettingsUrl;
@@ -69,12 +70,28 @@ const AdminBarQuickView = () => {
 		Number( window.simpleHistoryAdminBar.currentUserCanViewHistory )
 	);
 
+	const currentPostId = Number(
+		window.simpleHistoryAdminBar.currentPostId || 0
+	);
+	const currentPostTitle =
+		window.simpleHistoryAdminBar.currentPostTitle || '';
+
+	const viewFullHistoryHref = ( () => {
+		if ( filterMode === 'this-page' && currentPostId > 0 ) {
+			const contextFilter = encodeURIComponent(
+				`post_id:${ currentPostId }`
+			);
+			return `${ viewHistoryURL }&context=${ contextFilter }&date=allDates`;
+		}
+		return viewHistoryURL;
+	} )();
+
 	const viewFullHistoryLink = userCanViewHistory ? (
 		<a
-			href={ viewHistoryURL }
+			href={ viewFullHistoryHref }
 			className="SimpleHistory-adminBarEventsList-actions-settings"
 		>
-			View full history
+			{ __( 'View full history', 'simple-history' ) }
 		</a>
 	) : null;
 
@@ -94,6 +111,14 @@ const AdminBarQuickView = () => {
 		setReloadTime( Date.now() );
 	}, [ inView, reloadTime ] );
 
+	// Re-fetch when filterMode changes.
+	useEffect( () => {
+		if ( reloadTime !== null ) {
+			setReloadTime( Date.now() );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ filterMode ] );
+
 	// Load events when the reloadTime is set or updated.
 	// For example when submenu becomes visible or when reload button is pressed.
 	useEffect( () => {
@@ -106,8 +131,15 @@ const AdminBarQuickView = () => {
 
 			const eventsQueryParams = {
 				per_page: 5,
-				dates: 'lastdays:7',
 			};
+
+			if ( filterMode === 'this-page' && currentPostId > 0 ) {
+				eventsQueryParams[ 'context_filters[post_id]' ] =
+					String( currentPostId );
+				eventsQueryParams.ungrouped = true;
+			} else {
+				eventsQueryParams.dates = 'lastdays:7';
+			}
 
 			try {
 				const eventsResponse = await apiFetch( {
@@ -130,7 +162,7 @@ const AdminBarQuickView = () => {
 		}
 
 		fetchEntries();
-	}, [ reloadTime ] );
+	}, [ reloadTime, currentPostId, filterMode ] );
 
 	const handleReloadButtonClick = () => {
 		setReloadTime( Date.now() );
@@ -151,33 +183,84 @@ const AdminBarQuickView = () => {
 		<a href={ settingsURL }>{ __( 'Settings', 'simple-history' ) }</a>
 	);
 
+	const filterToggle =
+		currentPostId > 0 ? (
+			<div className="SimpleHistory-adminBarQuickView-filterToggle">
+				<button
+					className={ clsx(
+						'SimpleHistory-adminBarQuickView-filterToggle-button',
+						{ 'is-active': filterMode === 'all' }
+					) }
+					onClick={ () => setFilterMode( 'all' ) }
+				>
+					{ __( 'All history', 'simple-history' ) }
+				</button>
+				<button
+					className={ clsx(
+						'SimpleHistory-adminBarQuickView-filterToggle-button',
+						{ 'is-active': filterMode === 'this-page' }
+					) }
+					onClick={ () => setFilterMode( 'this-page' ) }
+				>
+					{ __( 'This page', 'simple-history' ) }
+				</button>
+			</div>
+		) : null;
+
+	const isThisPageMode = filterMode === 'this-page' && currentPostId > 0;
+
+	const infoText = isThisPageMode
+		? /* translators: %s: post title */
+		  sprintf( __( 'Events for "%s"', 'simple-history' ), currentPostTitle )
+		: null;
+
+	const showEmptyState = ! isLoading && events.length === 0;
+
 	return (
 		<li ref={ ref }>
 			<ul>
-				<div className="SimpleHistory-adminBarEventsList-actions">
-					{ reloadButton }
-				</div>
+				{ currentPostId > 0 ? (
+					<div className="SimpleHistory-adminBarQuickView-tabs">
+						{ filterToggle }
+					</div>
+				) : null }
 
-				<div
-					style={ {
-						margin: '1em 1em 0 1em',
-					} }
-				>
-					{ __( 'Events from the last 7 days', 'simple-history' ) }
-				</div>
+				{ infoText ? (
+					<div className="SimpleHistory-adminBarQuickView-infoText">
+						{ infoText }
+					</div>
+				) : null }
 
 				{ isLoading ? (
 					<EventsCompactListLoadingSkeleton />
 				) : (
-					<EventsCompactList
-						events={ events }
-						isLoading={ isLoading }
-					/>
+					<>
+						<EventsCompactList
+							events={ events }
+							isLoading={ isLoading }
+						/>
+						{ showEmptyState && (
+							<div className="SimpleHistory-adminBarQuickView-emptyState">
+								{ isThisPageMode
+									? __(
+											'No events found for this page.',
+											'simple-history'
+									  )
+									: __(
+											'No events found.',
+											'simple-history'
+									  ) }
+							</div>
+						) }
+					</>
 				) }
 
 				<div className="SimpleHistory-adminBarEventsList-actions">
 					{ viewFullHistoryLink }
-					{ settingsLink }
+					<div className="SimpleHistory-adminBarEventsList-actions-right">
+						{ reloadButton }
+						{ settingsLink }
+					</div>
 				</div>
 			</ul>
 		</li>
