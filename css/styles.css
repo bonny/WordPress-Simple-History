@@ -262,12 +262,18 @@ Tag = the pill with the log level.
 	color: #eee;
 }
 
-.SimpleHistoryLogitem a {
+.SimpleHistoryLogitem a,
+.SimpleHistoryLogitem .components-external-link,
+.SimpleHistoryLogitem .components-button.is-link {
+	color: #2271b1;
 	text-decoration: none;
 }
 
-.SimpleHistoryLogitem a:hover {
-	text-decoration: underline;
+.SimpleHistoryLogitem a:hover,
+.SimpleHistoryLogitem .components-external-link:hover,
+.SimpleHistoryLogitem .components-button.is-link:hover {
+	color: #135e96;
+	text-decoration: none;
 }
 
 .SimpleHistoryLogitem__firstcol {
