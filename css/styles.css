@@ -377,10 +377,10 @@ Tag = the pill with the log level.
 .SimpleHistoryLogitem__actionLinks {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--sh-spacing-small) var(--sh-spacing-medium);
-	margin: var(--sh-spacing-small) 0;
-	padding-top: var(--sh-spacing-small);
-	border-top: 1px solid var(--sh-color-separator);
+	gap: var(--sh-spacing-small) var(--sh-spacing-xsmall);
+	margin-top: var(--sh-spacing-small);
+	margin-bottom: var(--sh-spacing-xsmall);
+	margin-left: calc(var(--sh-spacing-small) * -1);
 	font-size: 13px;
 	line-height: 1.4;
 }
@@ -389,10 +389,13 @@ Tag = the pill with the log level.
 	display: inline-flex;
 	align-items: center;
 	gap: var(--sh-spacing-xsmall);
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
+	color: var(--sh-color-gray-3);
 	text-decoration: none;
 }
 
 .SimpleHistoryLogitem__actionLinks__link:hover {
+	color: #2271b1;
 	text-decoration: underline;
 }
 
