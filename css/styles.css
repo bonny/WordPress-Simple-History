@@ -406,7 +406,30 @@ Tag = the pill with the log level.
 
 .SimpleHistoryLogitem__actionLinks__link .sh-Icon {
 	--sh-icon-size: 1em;
-	opacity: 0.6;
+	/* Use mask so icon color inherits from link via currentColor. */
+	mask-size: 100%;
+	-webkit-mask-size: 100%;
+	background: currentColor;
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon--visibility {
+	mask-image: url(./icons/visibility_FILL0_wght400_GRAD0_opsz48.svg);
+	-webkit-mask-image: url(./icons/visibility_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon--edit {
+	mask-image: url(./icons/edit_FILL0_wght400_GRAD0_opsz48.svg);
+	-webkit-mask-image: url(./icons/edit_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon--preview {
+	mask-image: url(./icons/preview_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+	-webkit-mask-image: url(./icons/preview_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48.svg);
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon--history {
+	mask-image: url(./icons/history_FILL0_wght400_GRAD0_opsz48.svg);
+	-webkit-mask-image: url(./icons/history_FILL0_wght400_GRAD0_opsz48.svg);
 }
 
 /* Actions button, dropdown with three dots ⋮ */
