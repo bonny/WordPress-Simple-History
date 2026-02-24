@@ -1,0 +1,2 @@
+# Mark vendored dependencies as such for GitHub language statistics.
+vendor-prefixed/ linguist-vendored

@@ -1057,6 +1057,68 @@ Modal window with detailss
 	width: auto;
 }
 
+/* jfcherng/php-diff side-by-side renderer styles */
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side {
+	border-collapse: collapse;
+	border-spacing: 1px;
+	width: 100%;
+	font-family: "Open Sans", sans-serif;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side td {
+	text-align: left;
+	white-space: normal;
+	font-size: 13px;
+	line-height: 1.3;
+	padding: 0.5em 0.5em 0.5em 2em;
+	color: rgb(75, 75, 75);
+	font-family: "Open Sans", sans-serif;
+	width: 50%;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-eq td {
+	background: transparent;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-ins td.new {
+	background: #dfd;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-del td.old {
+	background: #fdd;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.old {
+	background: #fdd;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.new {
+	background: #dfd;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side td.none {
+	background: #f9f9f9;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side ins {
+	background: #9e9;
+	text-decoration: none;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side del {
+	background: #e99;
+	text-decoration: line-through;
+}
+
+.SimpleHistory__diff__contents .diff-html.diff-side-by-side .skipped td {
+	background: #f7f7f7;
+	text-align: center;
+	color: #999;
+	font-style: italic;
+}
+
 .sh-ExternalLink::after {
 	/* External icon on link */
 	content: "\f504";

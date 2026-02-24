@@ -78,6 +78,12 @@ define( 'SIMPLE_HISTORY_LICENCES_API_URL', 'https://simple-history.com/wp-json/l
 require_once __DIR__ . '/inc/class-autoloader.php';
 require_once __DIR__ . '/inc/global-helpers.php';
 
+// Load Strauss autoloader for namespaced vendor dependencies.
+$sh_strauss_autoloader = __DIR__ . '/vendor-prefixed/autoload.php';
+if ( file_exists( $sh_strauss_autoloader ) ) {
+	require_once $sh_strauss_autoloader;
+}
+
 /** Boot up. */
 $sh_loader = new Simple_History\Autoloader();
 $sh_loader->register();

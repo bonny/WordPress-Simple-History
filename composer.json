@@ -32,10 +32,12 @@
 		"szepeviktor/phpstan-wordpress": "^2.0",
 		"johnbillion/wp-compat": "^1.1",
 		"automattic/vipwpcs": "^3.0",
-		"slevomat/coding-standard": "^8.22"
+		"slevomat/coding-standard": "^8.22",
+		"brianhenryie/strauss": "^0.19"
 	},
 	"require": {
-		"php": "^7.4|^8.0"
+		"php": "^7.4|^8.0",
+		"jfcherng/php-diff": "^6.16"
 	},
 	"authors": [
 		{
@@ -56,7 +58,21 @@
 	"scripts": {
 		"lint": "./vendor/bin/phpcs .",
 		"lint-fix": "./vendor/bin/phpcbf .",
-		"test": "./vendor/bin/phpunit"
+		"test": "./vendor/bin/phpunit",
+		"strauss": "./vendor/bin/strauss"
+	},
+	"extra": {
+		"strauss": {
+			"target_directory": "vendor-prefixed",
+			"namespace_prefix": "Simple_History\\Vendor\\",
+			"classmap_prefix": "Simple_History_Vendor_",
+			"packages": [
+				"jfcherng/php-diff",
+				"jfcherng/php-color-output",
+				"jfcherng/php-mb-string",
+				"jfcherng/php-sequence-matcher"
+			]
+		}
 	},
 	"config": {
 		"allow-plugins": {

@@ -6,6 +6,7 @@ use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
+use Simple_History\Vendor\Jfcherng\Diff\DiffHelper;
 
 /**
  * Logs changes to posts and pages, including custom post types.
@@ -915,6 +916,47 @@ class Post_Logger extends Logger {
 		// If changes where detected.
 		// Save at least 2 values for each detected value change, i.e. the old value and the new value.
 		foreach ( $post_data_diff as $diff_key => $diff_values ) {
+			// For post_content, try compact JSON diff storage when experimental features are enabled.
+			if (
+				$diff_key === 'post_content'
+				&& Helpers::experimental_features_is_enabled()
+				&& class_exists( DiffHelper::class )
+			) {
+				try {
+					// Normalize whitespace to match WP's text_diff behavior.
+					$old_normalized = normalize_whitespace( $diff_values['old'] );
+					$new_normalized = normalize_whitespace( $diff_values['new'] );
+
+					$json_diff = DiffHelper::calculate(
+						$old_normalized,
+						$new_normalized,
+						'JsonHtml',
+						[ 
+							'context'           => 1,
+							'ignoreLineEndings' => true,
+							'ignoreWhitespace'  => true,
+						],
+						[
+							'detailLevel'       => 'word',
+							'outputTagAsString' => true,
+						]
+					);
+
+					$context['post_content_diff']        = $json_diff;
+					$context['post_content_diff_format'] = 'jfcherng_json_html_v1';
+
+					// Also store full content during testing phase for comparison.
+					$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
+					$context[ "post_new_{$diff_key}" ]  = $diff_values['new'];
+				} catch ( \Exception $e ) {
+					// Fallback to full content storage on any error.
+					$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
+					$context[ "post_new_{$diff_key}" ]  = $diff_values['new'];
+				}
+
+				continue;
+			}
+
 				$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
 				$context[ "post_new_{$diff_key}" ]  = $diff_values['new'];
 
@@ -1331,9 +1373,6 @@ class Post_Logger extends Logger {
 						helpers::text_diff( $post_old_value, $post_new_value )
 					);
 				} elseif ( $key_to_diff === 'post_content' ) {
-					// Problem: to much text/content.
-					// Risks to fill the visual output.
-					// Maybe solution: use own diff function, that uses none or few context lines.
 					$has_diff_values = true;
 					$label           = __( 'Content', 'simple-history' );
 					$key_text_diff   = helpers::text_diff( $post_old_value, $post_new_value );
@@ -1533,6 +1572,20 @@ class Post_Logger extends Logger {
 			// post_prev_thumb, int of prev thumb, empty if not prev thumb.
 			// post_new_thumb, int of new thumb, empty if no new thumb.
 			$diff_table_output .= $this->get_log_row_details_output_for_post_thumb( $context );
+
+			// Render compact JSON diff for post_content if available and experimental features enabled.
+			if ( isset( $context['post_content_diff'] ) && Helpers::experimental_features_is_enabled() ) {
+				$json_diff_html = Helpers::render_json_diff_to_html( $context['post_content_diff'] );
+
+				if ( $json_diff_html !== '' ) {
+					$has_diff_values    = true;
+					$diff_table_output .= sprintf(
+						'<tr><td>%1$s</td><td>%2$s</td></tr>',
+						esc_html( __( 'Content (compact diff)', 'simple-history' ) ),
+						$json_diff_html
+					);
+				}
+			}
 
 			/**
 			 * Modify the formatted diff output of a saved/modified post
