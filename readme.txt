@@ -359,6 +359,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added logging of parent category changes when editing terms.
 -   Added diff details (name, slug, description, parent) when viewing edited category and tag events.
 -   Added description and parent details when viewing created term events with non-default values.
+-   Added detailed menu change logging showing item names, types, renames, moves, order changes, display location updates, and auto-add pages setting instead of just item counts.
 
 **Changed**
 
