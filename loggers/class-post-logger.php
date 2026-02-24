@@ -1349,19 +1349,6 @@ class Post_Logger extends Logger {
 		$is_viewable  = in_array( $post_status, array( 'draft', 'pending', 'future' ), true );
 		$has_edit_cap = current_user_can( 'edit_post', $post_id );
 
-		// View link — only for published posts.
-		if ( $is_published ) {
-			$permalink = get_permalink( $post_id );
-			if ( $permalink ) {
-				$action_links[] = array(
-					'url'    => $permalink,
-					/* translators: %s: post type label, e.g. "page" or "post". */
-					'label'  => sprintf( __( 'View %s', 'simple-history' ), $type_label ),
-					'action' => 'view',
-				);
-			}
-		}
-
 		// Edit link — if user has capability.
 		if ( $has_edit_cap ) {
 			$edit_link = get_edit_post_link( $post_id, 'raw' );
@@ -1371,6 +1358,19 @@ class Post_Logger extends Logger {
 					/* translators: %s: post type label, e.g. "page" or "post". */
 					'label'  => sprintf( __( 'Edit %s', 'simple-history' ), $type_label ),
 					'action' => 'edit',
+				);
+			}
+		}
+
+		// View link — only for published posts.
+		if ( $is_published ) {
+			$permalink = get_permalink( $post_id );
+			if ( $permalink ) {
+				$action_links[] = array(
+					'url'    => $permalink,
+					/* translators: %s: post type label, e.g. "page" or "post". */
+					'label'  => sprintf( __( 'View %s', 'simple-history' ), $type_label ),
+					'action' => 'view',
 				);
 			}
 		}
