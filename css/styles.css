@@ -402,10 +402,13 @@ Tag = the pill with the log level.
 
 .SimpleHistoryLogitem__actionLinks__link:hover {
 	color: #135e96;
+	background-color: var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius);
 }
 
 .SimpleHistoryLogitem__actionLinks__link .sh-Icon {
 	--sh-icon-size: 1em;
+	top: 1px;
 	/* Use mask so icon color inherits from link via currentColor. */
 	mask-size: 100%;
 	-webkit-mask-size: 100%;
