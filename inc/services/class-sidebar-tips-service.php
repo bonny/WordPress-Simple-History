@@ -32,10 +32,11 @@ class Sidebar_Tips_Service extends Service {
 			__( 'Use "wp simple-history list" to view your activity log from the terminal.', 'simple-history' ),
 			__( 'Export your event log as CSV, JSON, or HTML from Export & Tools.', 'simple-history' ),
 			__( 'Use "Show surrounding events" to see what happened right before and after any event.', 'simple-history' ),
-			__( 'Press Cmd+K in the block editor and type "history" to jump to a post\'s activity log.', 'simple-history' ),
+			__( 'Press Cmd+K (or Ctrl+K) in the block editor and type "history" to jump to a post\'s activity log.', 'simple-history' ),
 			__( 'Use the Quick View dropdown in the admin bar to see recent events without leaving your page.', 'simple-history' ),
 			__( 'Click a user\'s avatar in the sidebar to filter the log to just their activity.', 'simple-history' ),
 			__( 'Use "Hide my own events" in search filters to focus on what others did.', 'simple-history' ),
+			__( 'Developers: Log your own events from themes and plugins using the simple_history_log filter.', 'simple-history' ),
 			$is_premium_active
 				? __( 'Pin important events with "Sticky" so they don\'t scroll away.', 'simple-history' )
 				: __( 'Pin important events so they don\'t scroll away. Available with Simple History Premium.', 'simple-history' ),
