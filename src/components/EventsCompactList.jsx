@@ -1,10 +1,6 @@
-import {
-	__experimentalHStack as HStack,
-	__experimentalVStack as VStack,
-} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { EventDate } from './EventDate';
-import { EventInitiatorName } from './EventInitiatorName';
+import { EventDateCompact } from './EventDateCompact';
+import { EventInitiatorNameCompact } from './EventInitiatorNameCompact';
 
 /**
  * One compact event for the compact event list.
@@ -35,13 +31,23 @@ export const CompactEvent = ( props ) => {
 
 		return (
 			<li className="sh-GutenbergPanel-event">
-				<VStack spacing={ 1 }>
-					<HStack justify="flex-start" spacing={ 1 } wrap>
-						<EventInitiatorName
-							event={ event }
-							eventVariant="compact"
-						/>
-						<span className="">•</span>
+				<div
+					style={ {
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '4px',
+					} }
+				>
+					<div
+						style={ {
+							display: 'flex',
+							flexWrap: 'wrap',
+							alignItems: 'center',
+							gap: '4px',
+						} }
+					>
+						<EventInitiatorNameCompact event={ event } />
+						<span>•</span>
 						<a
 							href={ event.link }
 							title={ __(
@@ -49,14 +55,14 @@ export const CompactEvent = ( props ) => {
 								'simple-history'
 							) }
 						>
-							<EventDate event={ event } eventVariant="compact" />
+							<EventDateCompact event={ event } />
 						</a>
-					</HStack>
+					</div>
 
 					{ /* No event message since all the events are shown for the current post. */ }
 
 					{ revisionLink }
-				</VStack>
+				</div>
 			</li>
 		);
 	}
@@ -73,11 +79,8 @@ export const CompactEvent = ( props ) => {
 				<div className="SimpleHistory-adminBarEventsList-item-dot"></div>
 				<div className="SimpleHistory-adminBarEventsList-item-content">
 					<div className="SimpleHistory-adminBarEventsList-item-content-meta">
-						<EventInitiatorName
-							event={ event }
-							eventVariant="compact"
-						/>
-						<EventDate event={ event } eventVariant="compact" />
+						<EventInitiatorNameCompact event={ event } />
+						<EventDateCompact event={ event } />
 					</div>
 					<div className="SimpleHistory-adminBarEventsList-item-content-message">
 						<p>{ event.message }</p>
