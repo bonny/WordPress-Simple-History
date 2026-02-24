@@ -1,5 +1,6 @@
 import { clsx } from 'clsx';
 import { EventActionsButton } from './EventActionsButton';
+import { EventActionLinks } from './EventActionLinks';
 import { EventDetails } from './EventDetails';
 import { EventHeader } from './EventHeader';
 import { EventInitiatorImage } from './EventInitiator';
@@ -70,6 +71,8 @@ export function Event( props ) {
 				<EventText event={ event } eventVariant={ variant } />
 
 				<EventDetails event={ event } eventVariant={ variant } />
+
+				<EventActionLinks event={ event } />
 
 				<EventOccasions
 					event={ event }

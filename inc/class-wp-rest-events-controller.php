@@ -678,6 +678,25 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Whether the event was backfilled from existing WordPress data.', 'simple-history' ),
 					'type'        => 'boolean',
 				),
+				'action_links'               => array(
+					'description' => __( 'Structured action links for the event.', 'simple-history' ),
+					'type'        => 'array',
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'url'    => array(
+								'type'   => 'string',
+								'format' => 'uri',
+							),
+							'label'  => array(
+								'type' => 'string',
+							),
+							'action' => array(
+								'type' => 'string',
+							),
+						),
+					),
+				),
 			),
 		);
 
@@ -1106,6 +1125,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				Helpers::get_history_admin_url(),
 				$item->id
 			);
+		}
+
+		if ( rest_is_field_included( 'action_links', $fields ) ) {
+			$data['action_links'] = $this->simple_history->get_action_links( $item );
 		}
 
 		// Wrap the data in a response object.

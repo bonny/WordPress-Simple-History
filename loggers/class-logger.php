@@ -830,6 +830,21 @@ abstract class Logger {
 	}
 
 	/**
+	 * Get structured action links for a log row.
+	 *
+	 * Override in subclass to return links like View, Edit, Preview.
+	 * Each link is an array with 'url', 'label', and 'action' keys.
+	 *
+	 * @since 5.7.0
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		return array();
+	}
+
+	/**
 	 * System is unusable.
 	 *
 	 * @param string $message Message to log.

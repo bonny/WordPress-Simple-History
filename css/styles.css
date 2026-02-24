@@ -373,6 +373,34 @@ Tag = the pill with the log level.
 	max-width: 100%;
 }
 
+/* Structured action links below event details */
+.SimpleHistoryLogitem__actionLinks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sh-spacing-small) var(--sh-spacing-medium);
+	margin: var(--sh-spacing-small) 0;
+	padding-top: var(--sh-spacing-small);
+	border-top: 1px solid var(--sh-color-separator);
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.SimpleHistoryLogitem__actionLinks__link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	text-decoration: none;
+}
+
+.SimpleHistoryLogitem__actionLinks__link:hover {
+	text-decoration: underline;
+}
+
+.SimpleHistoryLogitem__actionLinks__link .sh-Icon {
+	--sh-icon-size: 1em;
+	opacity: 0.6;
+}
+
 /* Actions button, dropdown with three dots ⋮ */
 .SimpleHistoryLogitem__actions {
 	position: absolute;
