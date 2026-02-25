@@ -3598,5 +3598,5 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-SidebarTip-label {
 	font-weight: 600;
-	color: #1d2327;
+	color: var(--sh-color-black);
 }

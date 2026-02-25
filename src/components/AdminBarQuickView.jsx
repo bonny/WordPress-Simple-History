@@ -212,7 +212,7 @@ const AdminBarQuickView = () => {
 	const infoText = isThisPageMode
 		? /* translators: %s: post title */
 		  sprintf( __( 'Events for "%s"', 'simple-history' ), currentPostTitle )
-		: null;
+		: __( 'Events from the last 7 days', 'simple-history' );
 
 	const showEmptyState = ! isLoading && events.length === 0;
 
@@ -220,16 +220,18 @@ const AdminBarQuickView = () => {
 		<li ref={ ref }>
 			<ul>
 				{ currentPostId > 0 ? (
-					<div className="SimpleHistory-adminBarQuickView-tabs">
-						{ filterToggle }
-					</div>
+					<li>
+						<div className="SimpleHistory-adminBarQuickView-tabs">
+							{ filterToggle }
+						</div>
+					</li>
 				) : null }
 
-				{ infoText ? (
+				<li>
 					<div className="SimpleHistory-adminBarQuickView-infoText">
 						{ infoText }
 					</div>
-				) : null }
+				</li>
 
 				{ isLoading ? (
 					<EventsCompactListLoadingSkeleton />
@@ -240,51 +242,35 @@ const AdminBarQuickView = () => {
 							isLoading={ isLoading }
 						/>
 						{ showEmptyState && (
-							<div className="SimpleHistory-adminBarQuickView-emptyState">
-								{ isThisPageMode
-									? __(
-											'No events found for this page.',
-											'simple-history'
-									  )
-									: __(
-											'No events found.',
-											'simple-history'
-									  ) }
-							</div>
+							<li>
+								<div className="SimpleHistory-adminBarQuickView-emptyState">
+									{ isThisPageMode
+										? __(
+												'No events found for this page.',
+												'simple-history'
+										  )
+										: __(
+												'No events found.',
+												'simple-history'
+										  ) }
+								</div>
+							</li>
 						) }
 					</>
 				) }
 
-				<div className="SimpleHistory-adminBarEventsList-actions">
-					{ viewFullHistoryLink }
-					<div className="SimpleHistory-adminBarEventsList-actions-right">
-						{ reloadButton }
-						{ settingsLink }
+				<li>
+					<div className="SimpleHistory-adminBarEventsList-actions">
+						{ viewFullHistoryLink }
+						<div className="SimpleHistory-adminBarEventsList-actions-right">
+							{ reloadButton }
+							{ settingsLink }
+						</div>
 					</div>
-				</div>
+				</li>
 			</ul>
 		</li>
 	);
-	/* 
-	// Admin bar can't handle multiple lines of text, so we need to use a submenu.
-	// We render the react app to the ul items and then we can add li items in the React render.
-	<ul
-		role="menu"
-		id="wp-admin-bar-simple-history-react-root-group"
-		class="ab-submenu"
-		>
-		<li role="group" id="wp-admin-bar-simple-history-subnode-3">
-			<div class="ab-item ab-empty-item" role="menuitem">
-			This is a subnode to the group
-			</div>
-		</li>
-		<li role="group" id="wp-admin-bar-simple-history-subnode-4">
-			<div class="ab-item ab-empty-item" role="menuitem">
-			This is another subnode to the group
-			</div>
-		</li>
-		</ul>
-	*/
 };
 
 export default AdminBarQuickView;
