@@ -28,8 +28,8 @@ export function EventActionsButton( {
 	hasPremiumAddOn,
 	userCanManageOptions,
 } ) {
-	// Don't show actions on modal events.
-	if ( eventVariant === 'modal' ) {
+	// Don't show actions on modal or dashboard events.
+	if ( eventVariant === 'modal' || eventVariant === 'dashboard' ) {
 		return null;
 	}
 

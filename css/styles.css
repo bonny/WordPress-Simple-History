@@ -695,6 +695,72 @@ i.e. the log is inside a .postbox element.
 	}
 	*/
 
+/* Dashboard widget: even vertical padding and subtle divider between events. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem {
+	padding-top: var(--sh-spacing-medium);
+	padding-bottom: var(--sh-spacing-medium);
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem:last-child {
+	border-bottom: none;
+}
+
+/* Dashboard widget: no extra padding before date separators. */
+.SimpleHistoryReactRoot.is-dashboard
+	.SimpleHistoryLogitem:has(
+		+ .SimpleHistoryLogitem .SimpleHistoryEventSeparator--hasLabel
+	) {
+	padding-bottom: var(--sh-spacing-medium);
+}
+
+/* Dashboard widget: date headings as clean inline labels. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryEventSeparator {
+	border-top: none;
+	margin-top: 0;
+	min-height: auto;
+	width: auto;
+	margin-left: 0;
+	justify-content: flex-start;
+}
+
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryEventSeparator__label {
+	transform: none;
+	border: none;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	padding: 0;
+	margin-bottom: var(--sh-spacing-medium);
+	font-size: inherit;
+	font-weight: 600;
+	max-height: none;
+	color: var(--sh-color-gray-3);
+}
+
+/* Dashboard widget: tighter action links. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks {
+	margin-top: var(--sh-spacing-xsmall);
+	margin-bottom: 0;
+}
+
+/* Dashboard widget: "View all activity" link — full-width click target. */
+.sh-DashboardWidget-viewAll a {
+	display: block;
+	padding: var(--sh-spacing-medium);
+	text-decoration: none;
+	font-size: 13px;
+}
+
+.sh-DashboardWidget-viewAll a:hover {
+	background-color: var(--sh-color-item-hover);
+	text-decoration: underline;
+}
+
+.sh-DashboardWidget-viewAll a:hover {
+	text-decoration: underline;
+}
+
 /* // end dashboard */
 
 /*

@@ -70,7 +70,9 @@ export function Event( props ) {
 
 				<EventText event={ event } eventVariant={ variant } />
 
-				<EventDetails event={ event } eventVariant={ variant } />
+				{ variant !== 'dashboard' && (
+					<EventDetails event={ event } eventVariant={ variant } />
+				) }
 
 				<EventActionLinks event={ event } />
 

@@ -135,7 +135,13 @@ export function EventDate( props ) {
 
 	let output;
 	if ( eventVariant === 'compact' ) {
-		output = <div>{ formattedDateLiveUpdated }</div>;
+		output = <span>{ formattedDateLiveUpdated }</span>;
+	} else if ( eventVariant === 'dashboard' ) {
+		output = (
+			<span title={ formattedDateFormatAbbreviated }>
+				{ formattedDateLiveUpdated }
+			</span>
+		);
 	} else {
 		output = (
 			<Tooltip text={ tooltipText } delay={ 500 }>

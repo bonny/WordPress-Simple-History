@@ -20,6 +20,24 @@ export function EventInitiatorName( props ) {
 
 			if ( eventVariant === 'compact' ) {
 				userDisplay = <strong>{ nameToDisplay }</strong>;
+			} else if ( eventVariant === 'dashboard' ) {
+				const titleParts = [ nameToDisplay ];
+				if ( initiatorData.user_email ) {
+					titleParts.push( initiatorData.user_email );
+				}
+				if (
+					initiatorData.user_login &&
+					initiatorData.user_login !== nameToDisplay
+				) {
+					titleParts.push(
+						`username: ${ initiatorData.user_login }`
+					);
+				}
+				userDisplay = (
+					<strong title={ titleParts.join( ' · ' ) }>
+						{ nameToDisplay }
+					</strong>
+				);
 			} else if ( eventVariant === 'modal' ) {
 				userDisplay = <strong>{ nameToDisplay }</strong>;
 			} else {

@@ -121,6 +121,14 @@ Collection of small bug fixes, improvements, and features (patch-level changes).
 -   **Files:** `inc/services/class-email-report-service.php`, `templates/email-summary-report.php`
 -   **Fix:** Added "Users created" and "Profile updates" counts to the email summary report, following existing layout pattern.
 
+### 20. Simplified Dashboard Widget
+
+-   **Issue:** [[Simplify event log on dashboard]]
+-   **Files:** `src/components/DashboardEventsWidget.jsx` (new), `src/components/DashboardEventsItemsList.jsx` (new), `src/index.js`, `src/components/Event.jsx`, `src/components/EventActionsButton.jsx`, `src/components/EventDate.jsx`, `src/components/EventInitiatorName.jsx`, `css/styles.css`
+-   **Fix:** Created a separate `DashboardEventsWidget` component that replaces `EventsGUI` on the dashboard. Removes filters, control bar, event actions menu (⋯), event details/diffs, action links, and full pagination. Shows display name only (no email), relative time only, and a "View all activity →" link to the full admin page. Date separators restyled as plain text labels.
+
+**Note on Site Health events:** WordPress runs Site Health checks automatically once per week via the `wp_site_health_scheduled_check` cron event. Visiting the Site Health admin page (`Tools → Site Health`) triggers an immediate check. So users may see bursts of Site Health events after visiting that page, but otherwise they appear weekly. See [WordPress Site Health documentation](https://developer.wordpress.org/apis/site-health/).
+
 ## TODO: Verify All Fixes
 
 All fixes above need manual verification/testing before merging. Go through each fix and confirm it works as expected in the local dev environment.
