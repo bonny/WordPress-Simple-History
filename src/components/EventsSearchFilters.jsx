@@ -86,9 +86,10 @@ export function EventsSearchFilters( props ) {
 		hideOwnEvents,
 	] );
 
-	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () =>
-		hasActiveFilters()
-	);
+	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () => {
+		const urlParams = new URLSearchParams( window.location.search );
+		return hasActiveFilters() || urlParams.get( 'show-filters' ) === '1';
+	} );
 	const [ isManuallyExpanded, setIsManuallyExpanded ] = useState( null );
 	const moreOptionsIsExpanded =
 		isManuallyExpanded !== null ? isManuallyExpanded : isAutoExpanded;

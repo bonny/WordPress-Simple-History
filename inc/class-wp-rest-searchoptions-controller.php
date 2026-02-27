@@ -181,6 +181,10 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 			'settings_page_url'               => Helpers::get_settings_page_url(),
 			'current_user_id'                 => get_current_user_id(),
 			'current_user_can_manage_options' => current_user_can( 'manage_options' ),
+			'stats'                          => [
+				'num_events_today'       => Helpers::get_num_events_today(),
+				'num_events_last_7_days' => Helpers::get_num_events_last_n_days( 7 ),
+			],
 		];
 
 		return rest_ensure_response( $data );

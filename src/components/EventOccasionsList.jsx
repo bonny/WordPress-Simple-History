@@ -6,6 +6,7 @@ export function EventOccasionsList( props ) {
 	const {
 		occasions,
 		parentEvent,
+		eventVariant,
 		isLoadingOccasions,
 		subsequent_occasions_count: subsequentOccasionsCount,
 		occasionsCountMaxReturn,
@@ -31,6 +32,7 @@ export function EventOccasionsList( props ) {
 					<Event
 						key={ event.id }
 						event={ event }
+						variant={ eventVariant }
 						loopIndex={ index }
 						prevEvent={
 							index === 0 ? parentEvent : occasions[ index - 1 ]

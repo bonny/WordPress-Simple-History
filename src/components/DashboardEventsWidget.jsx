@@ -1,11 +1,34 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, __experimentalText as Text } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { Icon, chartBar } from '@wordpress/icons';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 import { DashboardEventsItemsList } from './DashboardEventsItemsList';
+
+/**
+ * Skeleton placeholder rows shown while events are loading.
+ *
+ * @param {Object} props
+ * @param {number} props.count Number of skeleton rows.
+ */
+function SkeletonEvents( { count = 5 } ) {
+	return (
+		<ul className="sh-DashboardWidget-skeleton">
+			{ Array.from( { length: count } ).map( ( _, i ) => (
+				<li key={ i } className="sh-DashboardWidget-skeleton__row">
+					<div className="sh-DashboardWidget-skeleton__avatar" />
+					<div className="sh-DashboardWidget-skeleton__content">
+						<div className="sh-DashboardWidget-skeleton__line sh-DashboardWidget-skeleton__line--short" />
+						<div className="sh-DashboardWidget-skeleton__line sh-DashboardWidget-skeleton__line--long" />
+					</div>
+				</li>
+			) ) }
+		</ul>
+	);
+}
 
 /**
  * Simplified events widget for the WordPress dashboard.
@@ -22,6 +45,7 @@ export function DashboardEventsWidget() {
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState( '' );
 	const [ pagerSize, setPagerSize ] = useState( null );
 	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
+	const [ stats, setStats ] = useState( null );
 
 	// Fetch search options on mount to get pager size and admin page URL.
 	useEffect( () => {
@@ -32,6 +56,9 @@ export function DashboardEventsWidget() {
 				setHasPremiumAddOn(
 					response.addons?.has_premium_add_on || false
 				);
+				if ( response.stats ) {
+					setStats( response.stats );
+				}
 			} )
 			.catch( () => {} );
 	}, [] );
@@ -114,50 +141,129 @@ export function DashboardEventsWidget() {
 		loadEvents();
 	}, [ loadEvents ] );
 
+	const handleSearchSubmit = ( evt ) => {
+		evt.preventDefault();
+		const searchValue =
+			evt.target.elements[ 'sh-dashboard-search' ].value.trim();
+		if ( searchValue && eventsAdminPageURL ) {
+			window.location.href = addQueryArgs( eventsAdminPageURL, {
+				q: searchValue,
+			} );
+		} else if ( eventsAdminPageURL ) {
+			window.location.href = eventsAdminPageURL;
+		}
+	};
+
 	return (
-		<div
-			style={ {
-				backgroundColor: 'white',
-				minHeight: '100px',
-			} }
-		>
-			{ eventsIsLoading && (
-				<div style={ { padding: '12px', textAlign: 'center' } }>
-					<Text>
-						<Spinner />
-						{ _x(
-							'Loading…',
-							'Message visible while waiting for log to load from server the first time',
-							'simple-history'
-						) }
-					</Text>
+		<div className="sh-DashboardWidget">
+			{ /* Stats row: skeleton placeholder while loading, real data when ready. */ }
+			<div className="sh-DashboardWidget-stats">
+				{ stats ? (
+					<>
+						<Icon icon={ chartBar } size={ 16 } />
+						<span>
+							{ sprintf(
+								/* translators: 1: number of events today */
+								_n(
+									'%s event today',
+									'%s events today',
+									stats.num_events_today,
+									'simple-history'
+								),
+								stats.num_events_today
+							) }
+						</span>
+						<span className="sh-DashboardWidget-stats__separator">
+							&middot;
+						</span>
+						<span>
+							{ sprintf(
+								/* translators: 1: number of events last 7 days */
+								_n(
+									'%s this week',
+									'%s this week',
+									stats.num_events_last_7_days,
+									'simple-history'
+								),
+								stats.num_events_last_7_days
+							) }
+						</span>
+					</>
+				) : (
+					<div className="sh-DashboardWidget-skeleton__line sh-DashboardWidget-skeleton__line--stats" />
+				) }
+			</div>
+
+			{ /* Search row: always visible, form works even before admin URL loads. */ }
+			<div className="sh-DashboardWidget-searchRow">
+				<div className="sh-DashboardWidget-searchRow__row">
+					<form
+						className="sh-DashboardWidget-search"
+						onSubmit={ handleSearchSubmit }
+					>
+						<input
+							type="search"
+							name="sh-dashboard-search"
+							placeholder={ __(
+								'Search users, plugins, posts…',
+								'simple-history'
+							) }
+							className="sh-DashboardWidget-search__input"
+						/>
+						<button type="submit" className="button">
+							{ __( 'Search all events', 'simple-history' ) }
+						</button>
+					</form>
+					{ eventsAdminPageURL ? (
+						<a
+							href={ addQueryArgs( eventsAdminPageURL, {
+								'show-filters': 1,
+							} ) }
+							className="sh-DashboardWidget-searchRow__filtersLink"
+						>
+							{ __( 'Show search options', 'simple-history' ) }
+						</a>
+					) : (
+						<span className="sh-DashboardWidget-searchRow__filtersLink is-placeholder">
+							{ __( 'Show search options', 'simple-history' ) }
+						</span>
+					) }
 				</div>
-			) }
+			</div>
 
-			<FetchEventsNoResultsMessage
-				eventsIsLoading={ eventsIsLoading }
-				events={ events }
-			/>
+			{ /* Event list area with animated height. */ }
+			<div className="sh-DashboardWidget-content">
+				<FetchEventsNoResultsMessage
+					eventsIsLoading={ eventsIsLoading }
+					events={ events }
+				/>
 
-			<FetchEventsErrorMessage
-				eventsLoadingHasErrors={ eventsLoadingHasErrors }
-				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
-			/>
+				<FetchEventsErrorMessage
+					eventsLoadingHasErrors={ eventsLoadingHasErrors }
+					eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+				/>
 
-			<DashboardEventsItemsList
-				eventsIsLoading={ eventsIsLoading }
-				events={ events }
-				hasPremiumAddOn={ hasPremiumAddOn }
-			/>
+				{ eventsIsLoading && (
+					<SkeletonEvents count={ pagerSize?.dashboard || 5 } />
+				) }
 
-			{ /* "View all activity" link replaces full pagination */ }
-			{ ! eventsIsLoading && events.length > 0 && eventsAdminPageURL && (
-				<div className="sh-DashboardWidget-viewAll">
+				<DashboardEventsItemsList
+					eventsIsLoading={ eventsIsLoading }
+					events={ events }
+					hasPremiumAddOn={ hasPremiumAddOn }
+				/>
+			</div>
+
+			{ /* Footer: always visible. */ }
+			<div className="sh-DashboardWidget-viewAll">
+				{ eventsAdminPageURL ? (
 					<a href={ eventsAdminPageURL }>
 						{ __( 'View all activity →', 'simple-history' ) }
 					</a>
-				</div>
-			) }
+				) : (
+					<span className="sh-DashboardWidget-skeleton__line sh-DashboardWidget-skeleton__line--footer" />
+				) }
+			</div>
 		</div>
 	);
 }

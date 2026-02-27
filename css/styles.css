@@ -744,6 +744,84 @@ i.e. the log is inside a .postbox element.
 	margin-bottom: 0;
 }
 
+/* Dashboard widget: stats summary row. */
+.sh-DashboardWidget-stats {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: var(--sh-spacing-medium);
+	font-size: 13px;
+	color: #50575e;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sh-DashboardWidget-stats > svg {
+	fill: #787c82;
+	flex-shrink: 0;
+}
+
+.sh-DashboardWidget-stats__separator {
+	margin: 0 0.4em;
+	color: #c3c4c7;
+}
+
+/* Dashboard widget: search row wrapper. */
+.sh-DashboardWidget-searchRow {
+	padding: var(--sh-spacing-medium);
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sh-DashboardWidget-searchRow__row {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-small);
+}
+
+.sh-DashboardWidget-search {
+	display: flex;
+	align-items: stretch;
+	gap: 6px;
+	flex: 1;
+}
+
+.sh-DashboardWidget-search__input {
+	flex: 1;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	padding: 4px 8px;
+	font-size: 13px;
+	line-height: 1.6;
+	background: #fff;
+	color: #2c3338;
+	outline: none;
+}
+
+.sh-DashboardWidget-search__input:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	position: relative;
+	z-index: 1;
+}
+
+.sh-DashboardWidget-search__input::placeholder {
+	color: #a7aaad;
+}
+
+.sh-DashboardWidget-searchRow__filtersLink {
+	font-size: 12px;
+	text-decoration: none;
+	margin-left: auto;
+}
+
+.sh-DashboardWidget-searchRow__filtersLink:hover {
+	text-decoration: underline;
+}
+
+.sh-DashboardWidget-searchRow__filtersLink.is-placeholder {
+	color: #c3c4c7;
+	cursor: default;
+}
+
 /* Dashboard widget: "View all activity" link — full-width click target. */
 .sh-DashboardWidget-viewAll a {
 	display: block;
@@ -757,8 +835,95 @@ i.e. the log is inside a .postbox element.
 	text-decoration: underline;
 }
 
-.sh-DashboardWidget-viewAll a:hover {
-	text-decoration: underline;
+.sh-DashboardWidget-viewAll {
+	border-top: 1px solid #f0f0f1;
+}
+
+/* Dashboard widget: main container with animated height. */
+.sh-DashboardWidget {
+	interpolate-size: allow-keywords;
+	background-color: white;
+}
+
+/* Dashboard widget: content area animates height on load. */
+.sh-DashboardWidget-content {
+	overflow: hidden;
+	height: auto;
+	transition: height 0.3s ease;
+}
+
+/* Dashboard widget: skeleton shimmer animation. */
+@keyframes sh-skeleton-shimmer {
+	0% {
+		background-position: -200px 0;
+	}
+	100% {
+		background-position: 400px 0;
+	}
+}
+
+/* Dashboard widget: skeleton event rows. */
+.sh-DashboardWidget-skeleton {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-DashboardWidget-skeleton__row {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: var(--sh-spacing-medium);
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sh-DashboardWidget-skeleton__row:last-child {
+	border-bottom: none;
+}
+
+.sh-DashboardWidget-skeleton__avatar {
+	width: 38px;
+	height: 38px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	background: linear-gradient(90deg, #f0f0f1 25%, #e8e8e9 50%, #f0f0f1 75%);
+	background-size: 400px 100%;
+	animation: sh-skeleton-shimmer 1.5s infinite linear;
+}
+
+.sh-DashboardWidget-skeleton__content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding-top: 4px;
+}
+
+.sh-DashboardWidget-skeleton__line {
+	height: 12px;
+	border-radius: 3px;
+	background: linear-gradient(90deg, #f0f0f1 25%, #e8e8e9 50%, #f0f0f1 75%);
+	background-size: 400px 100%;
+	animation: sh-skeleton-shimmer 1.5s infinite linear;
+}
+
+.sh-DashboardWidget-skeleton__line--short {
+	width: 55%;
+}
+
+.sh-DashboardWidget-skeleton__line--long {
+	width: 80%;
+}
+
+.sh-DashboardWidget-skeleton__line--stats {
+	width: 180px;
+	height: 14px;
+}
+
+.sh-DashboardWidget-skeleton__line--footer {
+	width: 120px;
+	height: 14px;
+	margin: var(--sh-spacing-medium);
 }
 
 /* // end dashboard */

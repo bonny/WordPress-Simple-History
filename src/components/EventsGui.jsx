@@ -17,7 +17,6 @@ import {
 	SEARCH_FILTER_DEFAULT_START_DATE,
 } from '../constants';
 import { generateAPIQueryParams } from '../functions';
-import { DashboardFooter } from './DashboardFooter';
 import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
@@ -119,11 +118,8 @@ function EventsGUI() {
 	 * Start filter/search options states.
 	 */
 
-	const isDashboard = window.pagenow === 'dashboard';
 	const useQueryStateOptions = {
-		// On dashboard we set throttle to +Infinity to avoid setting the URL at all
-		// (since it's a "shared" page and we don't want to change the URL.)
-		throttleMs: isDashboard ? +Infinity : 50,
+		throttleMs: 50,
 	};
 
 	// Value selected in dates dropdown.
@@ -695,8 +691,6 @@ function EventsGUI() {
 				surroundingEventId={ surroundingEventId }
 				surroundingCount={ surroundingCount }
 			/>
-
-			{ isDashboard ? <DashboardFooter /> : null }
 
 			<EventsModalIfFragment />
 		</>
