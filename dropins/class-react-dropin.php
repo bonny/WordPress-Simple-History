@@ -78,9 +78,9 @@ class React_Dropin extends Dropin {
 	public function output_element_dashboard() {
 		$this->get_current_theme_colors();
 		?>
-		<div 
-			id="simple-history-react-root" 
-			class="SimpleHistoryReactRoot is-dashboard" 
+		<div
+			id="simple-history-react-root"
+			class="SimpleHistoryReactRoot is-dashboard"
 			style="<?php echo esc_attr( $this->get_css_style_vars() ); ?>"
 		>
 			<span class="SimpleHistoryReactRoot-loading">

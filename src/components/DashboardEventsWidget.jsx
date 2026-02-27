@@ -55,24 +55,25 @@ export function DashboardEventsWidget() {
 	const contentRef = useRef( null );
 	const prevHeightRef = useRef( 0 );
 
-	// Animate content height when loading state changes.
-	// Declared BEFORE the tracking effect so it reads the old height first.
+	// Animate any content height change (skeleton resize, events loading, etc.).
 	useLayoutEffect( () => {
 		const el = contentRef.current;
-		if ( ! el || ! prevHeightRef.current ) {
+		if ( ! el ) {
 			return;
 		}
 
-		const startHeight = prevHeightRef.current;
-		const endHeight = el.scrollHeight;
+		const toHeight = el.scrollHeight;
+		const fromHeight = prevHeightRef.current;
+		prevHeightRef.current = toHeight;
 
-		if ( startHeight === endHeight ) {
+		// Skip first render or no meaningful change.
+		if ( ! fromHeight || Math.abs( fromHeight - toHeight ) < 1 ) {
 			return;
 		}
 
-		// Pin to old height without transition.
+		// Pin to previous height.
 		el.style.transition = 'none';
-		el.style.height = startHeight + 'px';
+		el.style.height = fromHeight + 'px';
 		el.style.overflow = 'hidden';
 
 		// Force reflow.
@@ -81,7 +82,7 @@ export function DashboardEventsWidget() {
 
 		// Animate to new height.
 		el.style.transition = 'height 0.3s ease';
-		el.style.height = endHeight + 'px';
+		el.style.height = toHeight + 'px';
 
 		const handleEnd = () => {
 			el.style.height = '';
@@ -90,13 +91,6 @@ export function DashboardEventsWidget() {
 			el.removeEventListener( 'transitionend', handleEnd );
 		};
 		el.addEventListener( 'transitionend', handleEnd );
-	}, [ eventsIsLoading ] );
-
-	// Track content height after every render for the animation above.
-	useLayoutEffect( () => {
-		if ( contentRef.current ) {
-			prevHeightRef.current = contentRef.current.scrollHeight;
-		}
 	} );
 
 	// Fetch search options on mount to get pager size and admin page URL.
