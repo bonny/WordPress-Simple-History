@@ -250,6 +250,10 @@ export function DashboardEventsWidget() {
 						<input
 							type="search"
 							name="sh-dashboard-search"
+							aria-label={ __(
+								'Search events',
+								'simple-history'
+							) }
 							placeholder={ __(
 								'Search users, plugins, posts…',
 								'simple-history'
