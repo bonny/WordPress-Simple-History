@@ -94,14 +94,9 @@ class Site_Health_Logger extends Logger {
 		// Autoload disabled since this option is only accessed during Site Health checks.
 		update_option( $option_key, $stored_results, false );
 
-		// No previous result — first run for this test.
+		// First run for this test — store as baseline, don't log.
+		// Pre-existing issues shouldn't appear as new events.
 		if ( $previous_status === null ) {
-			// Only log issues on first run; "good" is the expected default.
-			if ( $new_status === 'good' ) {
-				return $result;
-			}
-
-			$this->log_status_change( 'site_health_issue_detected', $result, $new_status, 'new' );
 			return $result;
 		}
 
@@ -123,7 +118,7 @@ class Site_Health_Logger extends Logger {
 	 * @param string $message_key Message key to log.
 	 * @param array  $result      Test result array.
 	 * @param string $new_status  New status (good, recommended, critical).
-	 * @param string $old_status  Previous status or 'new' for first run.
+	 * @param string $old_status  Previous status.
 	 */
 	private function log_status_change( $message_key, $result, $new_status, $old_status ) {
 		$context = array(
@@ -153,8 +148,6 @@ class Site_Health_Logger extends Logger {
 	public function get_log_row_details_output( $row ) {
 		$context = $row->context ?? array();
 
-		$previous_status = $context['site_health_previous_status'] ?? '';
-
 		$group = new Event_Details_Group();
 		$group->set_formatter( new Event_Details_Group_Table_Formatter() );
 
@@ -162,12 +155,9 @@ class Site_Health_Logger extends Logger {
 			new Event_Details_Item( 'site_health_status', __( 'Current status', 'simple-history' ) )
 		);
 
-		// Only add previous status if is not 'new'.
-		if ( $previous_status && $previous_status !== 'new' ) {
-			$group->add_item(
-				new Event_Details_Item( 'site_health_previous_status', __( 'Previous status', 'simple-history' ) )
-			);
-		}
+		$group->add_item(
+			new Event_Details_Item( 'site_health_previous_status', __( 'Previous status', 'simple-history' ) )
+		);
 
 		$group->add_item(
 			new Event_Details_Item( 'site_health_badge_label', __( 'Category', 'simple-history' ) )
