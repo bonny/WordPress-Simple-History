@@ -261,7 +261,9 @@ export function DashboardEventsWidget() {
 						{ __( 'View all activity →', 'simple-history' ) }
 					</a>
 				) : (
-					<span className="sh-DashboardWidget-skeleton__line sh-DashboardWidget-skeleton__line--footer" />
+					<span className="sh-DashboardWidget-viewAll__placeholder">
+						{ __( 'View all activity →', 'simple-history' ) }
+					</span>
 				) }
 			</div>
 		</div>

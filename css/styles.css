@@ -706,6 +706,10 @@ i.e. the log is inside a .postbox element.
 	border-bottom: none;
 }
 
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitems {
+	border-bottom: none;
+}
+
 /* Dashboard widget: no extra padding before date separators. */
 .SimpleHistoryReactRoot.is-dashboard
 	.SimpleHistoryLogitem:has(
@@ -744,12 +748,13 @@ i.e. the log is inside a .postbox element.
 	margin-bottom: 0;
 }
 
-/* Dashboard widget: stats summary row. */
+/* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
 .sh-DashboardWidget-stats {
 	display: flex;
 	align-items: center;
 	gap: 4px;
 	padding: var(--sh-spacing-medium);
+	min-height: 21px;
 	font-size: 13px;
 	color: #50575e;
 	border-bottom: 1px solid #f0f0f1;
@@ -837,6 +842,14 @@ i.e. the log is inside a .postbox element.
 
 .sh-DashboardWidget-viewAll {
 	border-top: 1px solid #f0f0f1;
+}
+
+.sh-DashboardWidget-viewAll__placeholder {
+	display: block;
+	padding: var(--sh-spacing-medium);
+	font-size: 13px;
+	color: #c3c4c7;
+	cursor: default;
 }
 
 /* Dashboard widget: main container with animated height. */
