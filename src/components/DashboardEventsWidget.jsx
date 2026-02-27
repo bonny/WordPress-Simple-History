@@ -1,6 +1,12 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, __experimentalText as Text } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { __, _x, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Icon, chartBar } from '@wordpress/icons';
@@ -46,6 +52,52 @@ export function DashboardEventsWidget() {
 	const [ pagerSize, setPagerSize ] = useState( null );
 	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
 	const [ stats, setStats ] = useState( null );
+	const contentRef = useRef( null );
+	const prevHeightRef = useRef( 0 );
+
+	// Animate content height when loading state changes.
+	// Declared BEFORE the tracking effect so it reads the old height first.
+	useLayoutEffect( () => {
+		const el = contentRef.current;
+		if ( ! el || ! prevHeightRef.current ) {
+			return;
+		}
+
+		const startHeight = prevHeightRef.current;
+		const endHeight = el.scrollHeight;
+
+		if ( startHeight === endHeight ) {
+			return;
+		}
+
+		// Pin to old height without transition.
+		el.style.transition = 'none';
+		el.style.height = startHeight + 'px';
+		el.style.overflow = 'hidden';
+
+		// Force reflow.
+		// eslint-disable-next-line no-unused-expressions
+		el.offsetHeight;
+
+		// Animate to new height.
+		el.style.transition = 'height 0.3s ease';
+		el.style.height = endHeight + 'px';
+
+		const handleEnd = () => {
+			el.style.height = '';
+			el.style.overflow = '';
+			el.style.transition = '';
+			el.removeEventListener( 'transitionend', handleEnd );
+		};
+		el.addEventListener( 'transitionend', handleEnd );
+	}, [ eventsIsLoading ] );
+
+	// Track content height after every render for the animation above.
+	useLayoutEffect( () => {
+		if ( contentRef.current ) {
+			prevHeightRef.current = contentRef.current.scrollHeight;
+		}
+	} );
 
 	// Fetch search options on mount to get pager size and admin page URL.
 	useEffect( () => {
@@ -232,7 +284,7 @@ export function DashboardEventsWidget() {
 			</div>
 
 			{ /* Event list area with animated height. */ }
-			<div className="sh-DashboardWidget-content">
+			<div className="sh-DashboardWidget-content" ref={ contentRef }>
 				<FetchEventsNoResultsMessage
 					eventsIsLoading={ eventsIsLoading }
 					events={ events }
@@ -258,11 +310,11 @@ export function DashboardEventsWidget() {
 			<div className="sh-DashboardWidget-viewAll">
 				{ eventsAdminPageURL ? (
 					<a href={ eventsAdminPageURL }>
-						{ __( 'View all activity →', 'simple-history' ) }
+						{ __( 'View detailed activity →', 'simple-history' ) }
 					</a>
 				) : (
 					<span className="sh-DashboardWidget-viewAll__placeholder">
-						{ __( 'View all activity →', 'simple-history' ) }
+						{ __( 'View detailed activity →', 'simple-history' ) }
 					</span>
 				) }
 			</div>

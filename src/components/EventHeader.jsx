@@ -31,12 +31,14 @@ export function EventHeader( props ) {
 
 			<EventDate event={ event } eventVariant={ eventVariant } />
 
-			<EventIPAddresses
-				event={ event }
-				mapsApiKey={ mapsApiKey }
-				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-				hasPremiumAddOn={ hasPremiumAddOn }
-			/>
+			{ eventVariant !== 'dashboard' && (
+				<EventIPAddresses
+					event={ event }
+					mapsApiKey={ mapsApiKey }
+					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+					hasPremiumAddOn={ hasPremiumAddOn }
+				/>
+			) }
 
 			<EventVia event={ event } />
 			<EventBackfilledIndicator event={ event } />
