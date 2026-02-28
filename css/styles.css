@@ -710,6 +710,19 @@ i.e. the log is inside a .postbox element.
 	border-bottom: none;
 }
 
+/* Dashboard widget: truncate long header and event text to prevent overflow. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__header {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__text {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 /* Dashboard widget: no extra padding before date separators. */
 .SimpleHistoryReactRoot.is-dashboard
 	.SimpleHistoryLogitem:has(
@@ -728,17 +741,19 @@ i.e. the log is inside a .postbox element.
 	justify-content: flex-start;
 }
 
-.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryEventSeparator__label {
+#dashboard-widgets
+	.SimpleHistoryReactRoot.is-dashboard
+	.SimpleHistoryEventSeparator__label {
 	transform: none;
 	border: none;
 	border-radius: 0;
 	background: none;
 	box-shadow: none;
 	padding: 0;
-	margin-top: 4px;
-	margin-bottom: var(--sh-dashboard-padding-y);
-	font-size: inherit;
+	margin: 4px 0 var(--sh-dashboard-padding-y);
+	font-size: 13px;
 	font-weight: 600;
+	line-height: 1.4;
 	max-height: none;
 	color: var(--sh-color-gray-3);
 }

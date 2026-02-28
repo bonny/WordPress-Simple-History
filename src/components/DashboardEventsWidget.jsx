@@ -73,6 +73,18 @@ export function DashboardEventsWidget() {
 						'Use Message Control in Settings to choose exactly which events get logged.',
 						'simple-history'
 					),
+					__(
+						'Use the Quick View dropdown in the admin bar to see recent events without leaving your page.',
+						'simple-history'
+					),
+					__(
+						'Export your event log as CSV, JSON, or HTML from Export & Tools.',
+						'simple-history'
+					),
+					__(
+						'Use "Show surrounding events" to see what happened right before and after any event.',
+						'simple-history'
+					),
 			  ]
 			: [
 					__(
@@ -85,6 +97,18 @@ export function DashboardEventsWidget() {
 					),
 					__(
 						'Keep a full year of event history. Available with Simple History Premium.',
+						'simple-history'
+					),
+					__(
+						'Use the Quick View dropdown in the admin bar to see recent events without leaving your page.',
+						'simple-history'
+					),
+					__(
+						'Export your event log as CSV, JSON, or HTML from Export & Tools.',
+						'simple-history'
+					),
+					__(
+						'Use "Show surrounding events" to see what happened right before and after any event.',
 						'simple-history'
 					),
 			  ];

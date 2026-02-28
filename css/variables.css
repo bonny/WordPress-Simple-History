@@ -2,8 +2,8 @@
 	--sh-color-gray: #c3c4c7;
 	/* For dividers and similar, like "Item 1 | Item 2". */
 	--sh-color-gray-2: #a7aaad;
-	/* For smaller meta header text */
-	--sh-color-gray-3: rgb(137, 143, 156);
+	/* For smaller meta header text. #646970 = 5.74:1 contrast on white (WCAG AA). */
+	--sh-color-gray-3: #646970;
 	/* For discrete elements like skeleton loading background */
 	--sh-color-gray-4: #ededed;
 	--sh-color-green: #3f9349;
