@@ -111,6 +111,13 @@ Use native HTML elements and CSS before reaching for JavaScript:
 <div id="content" hidden>Hidden content</div>
 ```
 
+### Accessibility
+
+-   Follow WCAG AA: minimum 4.5:1 contrast ratio for text, 3:1 for large text and UI components
+-   Always provide accessible names for interactive elements (`aria-label` on inputs without visible labels, `alt` on images)
+-   Don't rely on color alone to convey meaning (add text labels, icons, or patterns)
+-   Use semantic HTML (`<button>` for actions, `<a>` for navigation, `<nav>`, `<main>`, etc.)
+
 ## Changelog
 
 -   Try to use format from https://keepachangelog.com

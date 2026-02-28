@@ -4,6 +4,7 @@ import {
 	useCallback,
 	useEffect,
 	useLayoutEffect,
+	useMemo,
 	useRef,
 	useState,
 } from '@wordpress/element';
@@ -54,6 +55,41 @@ export function DashboardEventsWidget() {
 	const [ stats, setStats ] = useState( null );
 	const contentRef = useRef( null );
 	const prevHeightRef = useRef( 0 );
+
+	// Pick a random tip once on mount.
+	const tip = useMemo( () => {
+		const tips = hasPremiumAddOn
+			? [
+					__(
+						'Pin important events with "Sticky" so they stay visible at the top.',
+						'simple-history'
+					),
+					__(
+						'Set up alerts in Settings to get notified when important events happen.',
+						'simple-history'
+					),
+					__(
+						'Use Message Control in Settings to choose exactly which events get logged.',
+						'simple-history'
+					),
+			  ]
+			: [
+					__(
+						'Get email alerts when important events happen. Available with Simple History Premium.',
+						'simple-history'
+					),
+					__(
+						'Pin important events so they stay visible at the top. Available with Simple History Premium.',
+						'simple-history'
+					),
+					__(
+						'Keep a full year of event history. Available with Simple History Premium.',
+						'simple-history'
+					),
+			  ];
+
+		return tips[ Math.floor( Math.random() * tips.length ) ];
+	}, [ hasPremiumAddOn ] );
 
 	// Animate any content height change (skeleton resize, events loading, etc.).
 	useLayoutEffect( () => {
@@ -303,6 +339,11 @@ export function DashboardEventsWidget() {
 					hasPremiumAddOn={ hasPremiumAddOn }
 				/>
 			</div>
+
+			{ /* Tip: shown after events load. */ }
+			{ ! eventsIsLoading && events.length > 0 && (
+				<p className="sh-DashboardWidget-tip">{ tip }</p>
+			) }
 
 			{ /* Footer: always visible. */ }
 			<div className="sh-DashboardWidget-viewAll">
