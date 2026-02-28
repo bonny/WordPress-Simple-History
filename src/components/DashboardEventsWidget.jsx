@@ -1,5 +1,4 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Spinner, __experimentalText as Text } from '@wordpress/components';
 import {
 	useCallback,
 	useEffect,
@@ -8,7 +7,7 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
-import { __, _x, sprintf, _n } from '@wordpress/i18n';
+import { __, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Icon, chartBar } from '@wordpress/icons';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
@@ -55,8 +54,10 @@ export function DashboardEventsWidget() {
 	const [ stats, setStats ] = useState( null );
 	const contentRef = useRef( null );
 	const prevHeightRef = useRef( 0 );
+	const transitionHandlerRef = useRef( null );
+	const tipSeedRef = useRef( Math.random() );
 
-	// Pick a random tip once on mount.
+	// Pick a tip using a stable seed so it doesn't change when hasPremiumAddOn flips.
 	const tip = useMemo( () => {
 		const tips = hasPremiumAddOn
 			? [
@@ -88,14 +89,24 @@ export function DashboardEventsWidget() {
 					),
 			  ];
 
-		return tips[ Math.floor( Math.random() * tips.length ) ];
+		return tips[ Math.floor( tipSeedRef.current * tips.length ) ];
 	}, [ hasPremiumAddOn ] );
 
 	// Animate any content height change (skeleton resize, events loading, etc.).
+	// Runs every render (no deps) — the early-exit guard makes it cheap when height is unchanged.
 	useLayoutEffect( () => {
 		const el = contentRef.current;
 		if ( ! el ) {
 			return;
+		}
+
+		// Clean up any interrupted animation.
+		if ( transitionHandlerRef.current ) {
+			el.removeEventListener(
+				'transitionend',
+				transitionHandlerRef.current
+			);
+			transitionHandlerRef.current = null;
 		}
 
 		const toHeight = el.scrollHeight;
@@ -124,8 +135,9 @@ export function DashboardEventsWidget() {
 			el.style.height = '';
 			el.style.overflow = '';
 			el.style.transition = '';
-			el.removeEventListener( 'transitionend', handleEnd );
+			transitionHandlerRef.current = null;
 		};
+		transitionHandlerRef.current = handleEnd;
 		el.addEventListener( 'transitionend', handleEnd );
 	} );
 

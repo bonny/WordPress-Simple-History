@@ -942,12 +942,6 @@ i.e. the log is inside a .postbox element.
 	height: 14px;
 }
 
-.sh-DashboardWidget-skeleton__line--footer {
-	width: 120px;
-	height: 14px;
-	margin: var(--sh-spacing-medium);
-}
-
 /* // end dashboard */
 
 /*
