@@ -12,20 +12,30 @@ export function EventOccasionsList( props ) {
 		occasionsCountMaxReturn,
 	} = props;
 
+	const isDashboard = eventVariant === 'dashboard';
+
 	const ulClassNames = clsx( {
 		SimpleHistoryLogitems: true,
 		SimpleHistoryLogitem__occasionsItems: true,
 		haveOccasionsAdded: isLoadingOccasions === false,
 	} );
 
+	const wrapClassNames = clsx( 'SimpleHistoryLogitem__occasionsItemsWrap', {
+		'is-dashboard': isDashboard,
+	} );
+
 	return (
 		<div
-			className="SimpleHistoryLogitem__occasionsItemsWrap"
-			style={ {
-				marginTop: '1rem',
-				marginLeft: '-4.5rem',
-				marginRight: '-1.5rem',
-			} }
+			className={ wrapClassNames }
+			style={
+				isDashboard
+					? { marginTop: '0.5rem' }
+					: {
+							marginTop: '1rem',
+							marginLeft: '-4.5rem',
+							marginRight: '-1.5rem',
+					  }
+			}
 		>
 			<ul className={ ulClassNames }>
 				{ occasions.map( ( event, index ) => (

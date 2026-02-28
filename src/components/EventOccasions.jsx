@@ -150,6 +150,7 @@ export function EventOccasions( props ) {
 			<div className="SimpleHistoryLogitem__occasions">
 				<Button
 					variant="link"
+					aria-expanded={ false }
 					onClick={ ( evt ) => {
 						loadOccasions();
 						evt.preventDefault();
@@ -189,13 +190,17 @@ export function EventOccasions( props ) {
 
 			{ isShowingOccasions ? (
 				<>
-					<span>
+					<Button
+						variant="link"
+						aria-expanded={ true }
+						onClick={ () => setIsShowingOccasions( false ) }
+					>
 						{ sprintf(
 							/* translators: %s: number of similar events */
 							__( 'Showing %1$s more', 'simple-history' ),
 							subsequentOccasionsCount - 1
 						) }
-					</span>
+					</Button>
 
 					<EventOccasionsList
 						isLoadingOccasions={ isLoadingOccasions }
