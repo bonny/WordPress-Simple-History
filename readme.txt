@@ -107,6 +107,14 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 -   [Ad Inserter](https://wordpress.org/plugins/ad-inserter/)
 -   [FV Player Pro](https://foliovision.com/player/features/sharing/video-downloading-with-simple-history#integration-with-simple-history)
 -   [Login Me Now](https://wordpress.org/plugins/login-me-now/)
+-   [WP ADA Compliance Check Basic](https://wordpress.org/plugins/wp-ada-compliance-check-basic/)
+-   [Mobbex Subscriptions for WooCommerce](https://github.com/mobbexco/woocommerce-subscriptions)
+-   [Air Helper](https://github.com/digitoimistodude/air-helper)
+-   [BB Draft Utility](https://github.com/zackpyle/BBDraftUtility)
+-   [WP Missed Schedule Publisher](https://github.com/thefrosty/wp-missed-schedule-publisher)
+-   [Wonolog Simple History Bridge](https://github.com/Joeri-Abbo/wordpress-plugin-wonolog-simpliy-history)
+-   [File Version Manager](https://github.com/sandporg/file-version-manager)
+-   [RTV Disable Plugin Updates](https://github.com/rubicon/rtv-disable-plugin-updates)
 
 ### 💬 What users say
 
