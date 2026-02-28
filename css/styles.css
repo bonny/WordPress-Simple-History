@@ -695,10 +695,10 @@ i.e. the log is inside a .postbox element.
 	}
 	*/
 
-/* Dashboard widget: even vertical padding and subtle divider between events. */
+/* Dashboard widget: match WP core dashboard padding. */
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem {
-	padding-top: var(--sh-spacing-medium);
-	padding-bottom: var(--sh-spacing-medium);
+	padding-top: var(--sh-dashboard-padding-y);
+	padding-bottom: var(--sh-dashboard-padding-y);
 	border-bottom: 1px solid #f0f0f1;
 }
 
@@ -715,7 +715,7 @@ i.e. the log is inside a .postbox element.
 	.SimpleHistoryLogitem:has(
 		+ .SimpleHistoryLogitem .SimpleHistoryEventSeparator--hasLabel
 	) {
-	padding-bottom: var(--sh-spacing-medium);
+	padding-bottom: var(--sh-dashboard-padding-y);
 }
 
 /* Dashboard widget: date headings as clean inline labels. */
@@ -735,7 +735,7 @@ i.e. the log is inside a .postbox element.
 	background: none;
 	box-shadow: none;
 	padding: 0;
-	margin-bottom: var(--sh-spacing-medium);
+	margin-bottom: var(--sh-dashboard-padding-y);
 	font-size: inherit;
 	font-weight: 600;
 	max-height: none;
@@ -753,7 +753,7 @@ i.e. the log is inside a .postbox element.
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	padding: var(--sh-spacing-medium);
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
 	min-height: 21px;
 	font-size: 13px;
 	color: #50575e;
@@ -772,7 +772,7 @@ i.e. the log is inside a .postbox element.
 
 /* Dashboard widget: search row wrapper. */
 .sh-DashboardWidget-searchRow {
-	padding: var(--sh-spacing-medium);
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
 	border-bottom: 1px solid #f0f0f1;
 }
 
@@ -830,7 +830,7 @@ i.e. the log is inside a .postbox element.
 /* Dashboard widget: "View all activity" link — full-width click target. */
 .sh-DashboardWidget-viewAll a {
 	display: block;
-	padding: var(--sh-spacing-medium);
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
 	text-decoration: none;
 	font-size: 13px;
 }
@@ -846,7 +846,7 @@ i.e. the log is inside a .postbox element.
 
 .sh-DashboardWidget-viewAll__placeholder {
 	display: block;
-	padding: var(--sh-spacing-medium);
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
 	font-size: 13px;
 	color: #c3c4c7;
 	cursor: default;
@@ -855,15 +855,16 @@ i.e. the log is inside a .postbox element.
 /* Dashboard widget: rotating tip line. */
 .sh-DashboardWidget-tip {
 	margin: 0;
-	padding: 8px var(--sh-spacing-medium);
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
 	font-size: 12px;
 	color: #646970;
 	border-top: 1px solid #f0f0f1;
 }
 
-/* Dashboard widget: main container with animated height. */
+/* Dashboard widget: main container. Spacing matches WP core dashboard widgets (12px/8px). */
 .sh-DashboardWidget {
-	interpolate-size: allow-keywords;
+	--sh-dashboard-padding-x: 12px;
+	--sh-dashboard-padding-y: 8px;
 	background-color: white;
 }
 
@@ -895,7 +896,7 @@ i.e. the log is inside a .postbox element.
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
-	padding: var(--sh-spacing-medium);
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
 	border-bottom: 1px solid #f0f0f1;
 }
 
