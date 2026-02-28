@@ -185,22 +185,26 @@ export function EventOccasions( props ) {
 				: null }
 
 			{ isLoadingOccasions ? (
-				<span>{ __( 'Loading…', 'simple-history' ) }</span>
+				<div className="SimpleHistoryLogitem__occasions">
+					{ __( 'Loading…', 'simple-history' ) }
+				</div>
 			) : null }
 
 			{ isShowingOccasions ? (
 				<>
-					<Button
-						variant="link"
-						aria-expanded={ true }
-						onClick={ () => setIsShowingOccasions( false ) }
-					>
-						{ sprintf(
-							/* translators: %s: number of similar events */
-							__( 'Showing %1$s more', 'simple-history' ),
-							subsequentOccasionsCount - 1
-						) }
-					</Button>
+					<div className="SimpleHistoryLogitem__occasions">
+						<Button
+							variant="link"
+							aria-expanded={ true }
+							onClick={ () => setIsShowingOccasions( false ) }
+						>
+							{ sprintf(
+								/* translators: %s: number of similar events */
+								__( 'Showing %1$s more', 'simple-history' ),
+								subsequentOccasionsCount - 1
+							) }
+						</Button>
+					</div>
 
 					<EventOccasionsList
 						isLoadingOccasions={ isLoadingOccasions }

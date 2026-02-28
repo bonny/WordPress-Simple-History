@@ -966,8 +966,6 @@ i.e. the log is inside a .postbox element.
 	background: #f6f7f7;
 	margin-left: calc(-40px - var(--sh-spacing-medium));
 	margin-right: calc(-1 * var(--sh-spacing-medium));
-	padding-left: calc(40px + var(--sh-spacing-medium));
-	padding-right: var(--sh-spacing-medium);
 }
 
 .SimpleHistoryLogitem__occasionsItemsWrap.is-dashboard
