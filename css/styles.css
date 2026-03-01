@@ -3880,3 +3880,159 @@ Styles for plugin update details. Markup looks like this:
 	font-weight: 600;
 	color: var(--sh-color-black);
 }
+
+/* UserCard popover — shown on avatar/name click */
+.sh-UserCard__trigger.components-button.is-link {
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+.sh-UserCard__trigger.components-button.is-link:hover {
+	text-decoration: underline;
+}
+
+.sh-UserCard__trigger.components-button.is-link:focus {
+	box-shadow: none;
+	outline: 1px dotted;
+	outline-offset: 1px;
+}
+
+.SimpleHistoryLogitem__firstcol
+	.sh-UserCard__trigger.components-button.is-link {
+	display: block;
+	padding: 0;
+	height: auto;
+}
+
+.sh-UserCard__popover .components-popover__content {
+	min-width: 320px;
+	overflow: visible;
+	max-height: none;
+}
+
+.sh-UserCard {
+	position: relative;
+	padding: var(--sh-spacing-medium);
+	padding-right: calc(var(--sh-spacing-medium) + 20px);
+}
+
+.sh-UserCard__close.components-button {
+	position: absolute;
+	top: var(--sh-spacing-xsmall);
+	right: var(--sh-spacing-xsmall);
+	z-index: 1;
+	min-width: 24px;
+	min-height: 24px;
+	padding: 2px;
+}
+
+.sh-UserCard__identity {
+	display: flex;
+	gap: var(--sh-spacing-medium);
+	align-items: flex-start;
+}
+
+.sh-UserCard__avatar {
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.sh-UserCard__avatar--placeholder {
+	background: var(--sh-color-gray-4);
+}
+
+.sh-UserCard__info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.sh-UserCard__name {
+	font-size: 16px;
+	line-height: 1.3;
+	word-break: break-word;
+}
+
+.sh-UserCard__username,
+.sh-UserCard__userId,
+.sh-UserCard__role,
+.sh-UserCard__lastLogin,
+.sh-UserCard__description {
+	font-size: 13px;
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+}
+
+.sh-UserCard__email {
+	font-size: 13px;
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+	text-decoration: underline;
+	text-decoration-style: dotted;
+	text-underline-offset: 2px;
+}
+
+.sh-UserCard__email:hover {
+	color: #135e96;
+	text-decoration-style: solid;
+}
+
+.sh-UserCard__email:focus {
+	color: #135e96;
+	outline: 1px dotted;
+	outline-offset: 1px;
+}
+
+.sh-UserCard__loading {
+	display: inline-flex;
+	align-items: center;
+}
+
+.sh-UserCard__loading .components-spinner {
+	margin: 0;
+}
+
+.sh-UserCard__actions {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-xsmall);
+	margin-top: var(--sh-spacing-small);
+	padding-top: var(--sh-spacing-small);
+	border-top: 1px solid var(--sh-color-gray-4);
+}
+
+.sh-UserCard__actionLink {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	font-size: 13px;
+	text-decoration: none;
+}
+
+.sh-UserCard__actionLink:hover {
+	text-decoration: underline;
+}
+
+.sh-UserCard__actionLink svg {
+	fill: currentColor;
+	flex-shrink: 0;
+}
+
+.sh-UserCard__detail {
+	font-size: 13px;
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+}
+
+.sh-UserCard__premiumTeaser {
+	margin-top: var(--sh-spacing-small);
+	padding-top: var(--sh-spacing-small);
+	border-top: 1px solid var(--sh-color-gray-4);
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+}
