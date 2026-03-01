@@ -3972,8 +3972,12 @@ Styles for plugin update details. Markup looks like this:
 	padding: 0;
 }
 
-.sh-UserCard__meta li.sh-UserCard__detail:first-of-type {
+.sh-UserCard__meta .sh-UserCard__detail {
 	margin-top: 4px;
+}
+
+.sh-UserCard__meta .sh-UserCard__detail + .sh-UserCard__detail {
+	margin-top: 0;
 }
 
 .sh-UserCard__description {
@@ -4012,7 +4016,7 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-UserCard__actions {
 	margin-top: var(--sh-spacing-small);
-	padding: var(--sh-spacing-small) 0;
+	padding-top: var(--sh-spacing-small);
 	border-top: 1px solid var(--sh-color-gray-4);
 }
 
