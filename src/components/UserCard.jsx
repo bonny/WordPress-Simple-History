@@ -106,8 +106,6 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 		cardData?.display_name ||
 		initiatorData.user_display_name ||
 		initiatorData.user_login;
-	const userId = cardData?.user_id || initiatorData.user_id;
-	const username = cardData?.user_login || initiatorData.user_login;
 	const email = cardData?.user_email || initiatorData.user_email;
 	const avatarUrl = cardData?.avatar_url || initiatorData.user_avatar_url;
 	const roles = cardData?.roles;
@@ -115,9 +113,6 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 
 	const details = cardData?.details || [];
 	const actions = cardData?.actions || [];
-
-	// Show username only when it differs from the display name.
-	const showUsername = username && username !== displayName;
 
 	return (
 		<div className="sh-UserCard__content">
@@ -130,70 +125,75 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 					/>
 				) }
 				<div className="sh-UserCard__info">
-					<strong className="sh-UserCard__name">
+					<h4 className="sh-UserCard__name">
 						{ displayName }
-					</strong>
-					{ roles && roles.length > 0 && (
-						<span className="sh-UserCard__role">
-							{ roles.map( formatRole ).join( ', ' ) }
-						</span>
-					) }
-					{ email && (
-						<a
-							href={ `mailto:${ email }` }
-							className="sh-UserCard__email"
-						>
-							{ email }
-						</a>
-					) }
-					{ showUsername && (
-						<span className="sh-UserCard__username">
-							@{ username }
-						</span>
-					) }
-					{ isLoading && (
-						<span className="sh-UserCard__loading">
-							<Spinner />
-						</span>
-					) }
-					{ ! isLoading &&
-						details.map( ( detail ) => (
-							<span
-								key={ detail.key }
-								className="sh-UserCard__detail"
-							>
-								{ detail.label
-									? sprintf(
-											'%s %s',
-											detail.label,
-											renderDetailValue( detail )
-									  )
-									: renderDetailValue( detail ) }
-							</span>
-						) ) }
+					</h4>
+					<ul className="sh-UserCard__meta">
+						{ roles && roles.length > 0 && (
+							<li className="sh-UserCard__role">
+								{ roles.map( formatRole ).join( ', ' ) }
+							</li>
+						) }
+						{ email && (
+							<li>
+								<a
+									href={ `mailto:${ email }` }
+									className="sh-UserCard__email"
+								>
+									{ email }
+								</a>
+							</li>
+						) }
+						{ isLoading && (
+							<li className="sh-UserCard__loading">
+								<Spinner />
+							</li>
+						) }
+						{ ! isLoading &&
+							details.map( ( detail ) => (
+								<li
+									key={ detail.key }
+									className="sh-UserCard__detail"
+								>
+									{ detail.label
+										? sprintf(
+												'%s %s',
+												detail.label,
+												renderDetailValue( detail )
+										  )
+										: renderDetailValue( detail ) }
+								</li>
+							) ) }
+					</ul>
 				</div>
 			</div>
 
 			{ actions.length > 0 && (
-				<div className="sh-UserCard__actions">
-					{ actions.map( ( action ) => (
-						<a
-							key={ action.key }
-							href={ action.url }
-							className="sh-UserCard__actionLink"
-						>
-							<Icon
-								icon={
-									action.key === 'view_profile'
-										? people
-										: external
-								}
-								size={ 16 }
-							/>
-							{ action.label }
-						</a>
-					) ) }
-				</div>
+				<nav
+					className="sh-UserCard__actions"
+					aria-label={ __( 'User actions', 'simple-history' ) }
+				>
+					<ul>
+						{ actions.map( ( action ) => (
+							<li key={ action.key }>
+								<a
+									href={ action.url }
+									className="sh-UserCard__actionLink"
+								>
+									<Icon
+										icon={
+											action.key === 'view_profile'
+												? people
+												: external
+										}
+										size={ 16 }
+									/>
+									{ action.label }
+								</a>
+							</li>
+						) ) }
+					</ul>
+				</nav>
 			) }
 
 			{ ! isLoading && cardData && ! hasPremium && <PremiumTeaser /> }
@@ -204,10 +204,12 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 /**
  * Card content for non-WP-user initiators (web_user, wp_cli, wp, other).
  *
- * @param {Object} props
- * @param {Object} props.event The event object.
+ * @param {Object}  props
+ * @param {Object}  props.event     The event object.
+ * @param {boolean} props.isLoading Whether last activity is loading.
+ * @param {string}  props.lastActivityDate Last activity date string, or null.
  */
-function NonUserCardContent( { event } ) {
+function NonUserCardContent( { event, isLoading, lastActivityDate } ) {
 	const { initiator, initiator_data: initiatorData } = event;
 
 	let label;
@@ -277,20 +279,44 @@ function NonUserCardContent( { event } ) {
 					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder" />
 				) }
 				<div className="sh-UserCard__info">
-					<strong className="sh-UserCard__name">{ label }</strong>
+					<h4 className="sh-UserCard__name">{ label }</h4>
 					{ description && (
-						<span className="sh-UserCard__description">
+						<p className="sh-UserCard__description">
 							{ description }
+						</p>
+					) }
+					{ isLoading && (
+						<span className="sh-UserCard__loading">
+							<Spinner />
+						</span>
+					) }
+					{ ! isLoading && lastActivityDate && (
+						<span className="sh-UserCard__detail">
+							{ sprintf(
+								'%s %s',
+								__( 'Last activity', 'simple-history' ),
+								humanTimeDiff( lastActivityDate )
+							) }
 						</span>
 					) }
 				</div>
 			</div>
 			{ activityLabel && (
-				<div className="sh-UserCard__actions">
-					<a href={ activityURL } className="sh-UserCard__actionLink">
-						{ activityLabel }
-					</a>
-				</div>
+				<nav
+					className="sh-UserCard__actions"
+					aria-label={ __( 'User actions', 'simple-history' ) }
+				>
+					<ul>
+						<li>
+							<a
+								href={ activityURL }
+								className="sh-UserCard__actionLink"
+							>
+								{ activityLabel }
+							</a>
+						</li>
+					</ul>
+				</nav>
 			) }
 		</div>
 	);
@@ -348,9 +374,14 @@ export function UserCard( { event, children } ) {
 
 		setShowPopover( true );
 
-		// Fetch enhanced data from REST API for WP users.
-		if ( isWPUser && userId && ! cardData ) {
-			setIsLoading( true );
+		if ( cardData ) {
+			return;
+		}
+
+		setIsLoading( true );
+
+		if ( isWPUser && userId ) {
+			// Fetch enhanced user card data from REST API.
 			apiFetch( {
 				path: `/simple-history/v1/users/${ userId }/card`,
 			} )
@@ -359,7 +390,24 @@ export function UserCard( { event, children } ) {
 					setIsLoading( false );
 				} )
 				.catch( () => {
-					// API may not be available (experimental features off).
+					setIsLoading( false );
+				} );
+		} else {
+			// Fetch last activity for non-user initiators.
+			apiFetch( {
+				path: addQueryArgs( '/simple-history/v1/events', {
+					initiator: [ event.initiator ],
+					per_page: 1,
+				} ),
+			} )
+				.then( ( events ) => {
+					setCardData( {
+						lastActivityDate:
+							events?.[ 0 ]?.date_local || null,
+					} );
+					setIsLoading( false );
+				} )
+				.catch( () => {
 					setIsLoading( false );
 				} );
 		}
@@ -403,7 +451,13 @@ export function UserCard( { event, children } ) {
 								isLoading={ isLoading }
 							/>
 						) : (
-							<NonUserCardContent event={ event } />
+							<NonUserCardContent
+								event={ event }
+								isLoading={ isLoading }
+								lastActivityDate={
+									cardData?.lastActivityDate
+								}
+							/>
 						) }
 					</div>
 				</Popover>
