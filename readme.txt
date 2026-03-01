@@ -358,6 +358,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Added user card popover on avatar and name click, showing identity info (name, role, email) with a link to the user profile. Premium add-on can extend the card with login history, activity details, and more via `simple_history/user_card/details` and `simple_history/user_card/actions` filters.
 -   Added "Clear filters" button to reset all search filters to their default values.
 -   Added command palette command to view event history for the current post or page.
 -   Added logging when a page is set as the homepage or posts page from the block editor, including the name of the previously assigned page.
