@@ -70,7 +70,7 @@ function PremiumTeaser() {
 		<div className="sh-UserCard__premiumTeaser">
 			{ createInterpolateElement(
 				__(
-					'Get login history and activity insights with <a>Simple History Premium</a>.',
+					'Get login stats, IP details, and more with <a>Simple History Premium</a>.',
 					'simple-history'
 				),
 				{
@@ -204,12 +204,10 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 /**
  * Card content for non-WP-user initiators (web_user, wp_cli, wp, other).
  *
- * @param {Object}  props
- * @param {Object}  props.event     The event object.
- * @param {boolean} props.isLoading Whether last activity is loading.
- * @param {string}  props.lastActivityDate Last activity date string, or null.
+ * @param {Object} props
+ * @param {Object} props.event The event object.
  */
-function NonUserCardContent( { event, isLoading, lastActivityDate } ) {
+function NonUserCardContent( { event } ) {
 	const { initiator, initiator_data: initiatorData } = event;
 
 	let label;
@@ -284,20 +282,6 @@ function NonUserCardContent( { event, isLoading, lastActivityDate } ) {
 						<p className="sh-UserCard__description">
 							{ description }
 						</p>
-					) }
-					{ isLoading && (
-						<span className="sh-UserCard__loading">
-							<Spinner />
-						</span>
-					) }
-					{ ! isLoading && lastActivityDate && (
-						<span className="sh-UserCard__detail">
-							{ sprintf(
-								'%s %s',
-								__( 'Last activity', 'simple-history' ),
-								humanTimeDiff( lastActivityDate )
-							) }
-						</span>
 					) }
 				</div>
 			</div>
@@ -374,43 +358,23 @@ export function UserCard( { event, children } ) {
 
 		setShowPopover( true );
 
-		if ( cardData ) {
+		// Only fetch card data for WP users (non-user cards are static).
+		if ( ! isWPUser || ! userId || cardData ) {
 			return;
 		}
 
 		setIsLoading( true );
 
-		if ( isWPUser && userId ) {
-			// Fetch enhanced user card data from REST API.
-			apiFetch( {
-				path: `/simple-history/v1/users/${ userId }/card`,
+		apiFetch( {
+			path: `/simple-history/v1/users/${ userId }/card`,
+		} )
+			.then( ( data ) => {
+				setCardData( data );
+				setIsLoading( false );
 			} )
-				.then( ( data ) => {
-					setCardData( data );
-					setIsLoading( false );
-				} )
-				.catch( () => {
-					setIsLoading( false );
-				} );
-		} else {
-			// Fetch last activity for non-user initiators.
-			apiFetch( {
-				path: addQueryArgs( '/simple-history/v1/events', {
-					initiator: [ event.initiator ],
-					per_page: 1,
-				} ),
-			} )
-				.then( ( events ) => {
-					setCardData( {
-						lastActivityDate:
-							events?.[ 0 ]?.date_local || null,
-					} );
-					setIsLoading( false );
-				} )
-				.catch( () => {
-					setIsLoading( false );
-				} );
-		}
+			.catch( () => {
+				setIsLoading( false );
+			} );
 	};
 
 	return (
@@ -453,10 +417,6 @@ export function UserCard( { event, children } ) {
 						) : (
 							<NonUserCardContent
 								event={ event }
-								isLoading={ isLoading }
-								lastActivityDate={
-									cardData?.lastActivityDate
-								}
 							/>
 						) }
 					</div>

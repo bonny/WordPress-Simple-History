@@ -93,9 +93,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			);
 		}
 
-		$avatar_data  = get_avatar_data( $user_id, [ 'size' => 96 ] );
-		$last_login   = $this->get_last_login( $user_id );
-		$last_event   = $this->get_last_event( $user_id );
+		$avatar_data = get_avatar_data( $user_id, [ 'size' => 96 ] );
 
 		/** @var AddOns_Licences|null */
 		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
@@ -114,33 +112,25 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		];
 
 		// Details: key-value items shown below identity info.
-		// Each item: [ 'key' => string, 'label' => string, 'value' => string ].
+		// Each item: [ 'key' => string, 'label' => string, 'value' => string, 'type' => string ].
+		// Core provides no details; add-ons use the filter to add items like
+		// last login time, last activity, login count, IP address, etc.
+		// Supported types: 'text' (default), 'date' (rendered as relative time on the frontend).
 		$details = [];
-
-		if ( $last_login ) {
-			$details[] = [
-				'key'   => 'last_login',
-				'label' => __( 'Logged in', 'simple-history' ),
-				'value' => $last_login,
-				'type'  => 'date',
-			];
-		}
-
-		if ( $last_event ) {
-			$details[] = [
-				'key'   => 'last_event',
-				'label' => __( 'Last activity', 'simple-history' ),
-				'value' => $last_event,
-				'type'  => 'date',
-			];
-		}
 
 		/**
 		 * Filters the user card detail items.
 		 *
-		 * Add-ons can add, remove, or modify detail items shown in the user card popover.
+		 * Add-ons can add detail items shown in the user card popover.
 		 * Each item should have: key (string), label (string), value (string), and optionally type (string).
-		 * Supported types: 'text' (default), 'date' (rendered as relative time).
+		 *
+		 * Example — adding last login time:
+		 *     $details[] = [
+		 *         'key'   => 'last_login',
+		 *         'label' => __( 'Logged in', 'simple-history' ),
+		 *         'value' => '2026-03-01 14:30:00', // Local time.
+		 *         'type'  => 'date',
+		 *     ];
 		 *
 		 * @since 5.24.0
 		 *
@@ -151,33 +141,28 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		// Actions: links shown in the actions section of the card.
 		// Each item: [ 'key' => string, 'label' => string, 'url' => string ].
+		// Core provides "View user profile". Add-ons use the filter to add
+		// links like "View all user activity".
 		$actions = [
 			[
 				'key'   => 'view_profile',
 				'label' => __( 'View user profile', 'simple-history' ),
 				'url'   => get_edit_user_link( $user->ID ),
 			],
-			[
-				'key'   => 'view_activity',
-				'label' => __( 'View all user activity', 'simple-history' ),
-				'url'   => Helpers::get_history_admin_url() . '&users=' . rawurlencode(
-					wp_json_encode(
-						[
-							[
-								'id'    => $user->ID,
-								'value' => $user->user_email,
-							],
-						]
-					)
-				),
-			],
 		];
 
 		/**
 		 * Filters the user card action links.
 		 *
-		 * Add-ons can add, remove, or modify action links shown in the user card popover.
+		 * Add-ons can add action links shown in the user card popover.
 		 * Each item should have: key (string), label (string), url (string).
+		 *
+		 * Example — adding an activity filter link:
+		 *     $actions[] = [
+		 *         'key'   => 'view_activity',
+		 *         'label' => __( 'View all user activity', 'my-plugin' ),
+		 *         'url'   => admin_url( '...' ),
+		 *     ];
 		 *
 		 * @since 5.24.0
 		 *
@@ -192,10 +177,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	/**
 	 * Get the last login date for a user from Simple History logs.
 	 *
+	 * Useful for add-ons that want to show login time in the user card
+	 * via the 'simple_history/user_card/details' filter.
+	 *
 	 * @param int $user_id WordPress user ID.
 	 * @return string|null Date string in site local timezone, or null if no login found.
 	 */
-	private function get_last_login( $user_id ) {
+	public static function get_last_login( $user_id ) {
 		$log_query = new Log_Query();
 
 		// Cannot use 'ungrouped' here because the simple query path
@@ -223,10 +211,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	/**
 	 * Get the most recent event date for a user from Simple History logs.
 	 *
+	 * Useful for add-ons that want to show last activity in the user card
+	 * via the 'simple_history/user_card/details' filter.
+	 *
 	 * @param int $user_id WordPress user ID.
 	 * @return string|null Date string in site local timezone, or null if no events found.
 	 */
-	private function get_last_event( $user_id ) {
+	public static function get_last_event( $user_id ) {
 		$log_query = new Log_Query();
 
 		$query_result = $log_query->query(
