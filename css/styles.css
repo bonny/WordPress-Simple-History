@@ -3980,7 +3980,7 @@ Styles for plugin update details. Markup looks like this:
 	font-size: 13px;
 	color: var(--sh-color-gray-3);
 	line-height: 1.4;
-	margin: 0;
+	margin: 0 0 4px 0;
 }
 
 .sh-UserCard__email {
