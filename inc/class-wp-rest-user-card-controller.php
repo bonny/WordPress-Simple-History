@@ -126,9 +126,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			];
 		}
 
-		// Only show "Last activity" when it differs from "Logged in",
-		// to avoid showing the same timestamp twice.
-		if ( $last_event && $last_event !== $last_login ) {
+		if ( $last_event ) {
 			$details[] = [
 				'key'   => 'last_event',
 				'label' => __( 'Last activity', 'simple-history' ),
@@ -200,13 +198,14 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	private function get_last_login( $user_id ) {
 		$log_query = new Log_Query();
 
+		// Cannot use 'ungrouped' here because the simple query path
+		// does not apply the 'messages' filter (it only uses inner_where).
 		$query_result = $log_query->query(
 			[
 				'messages'         => 'SimpleUserLogger:user_logged_in',
 				'user'             => $user_id,
 				'posts_per_page'   => 1,
 				'skip_count_query' => true,
-				'ungrouped'        => true,
 			]
 		);
 
@@ -216,8 +215,8 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			return null;
 		}
 
-		// Convert from GMT to the site's local timezone,
-		// matching how event dates are returned in the events REST API.
+		// Return local time to match how humanTimeDiff is used
+		// elsewhere in the frontend (e.g. EventDate uses date_local).
 		return get_date_from_gmt( $events[0]->date );
 	}
 
