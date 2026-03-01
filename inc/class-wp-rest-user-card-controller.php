@@ -93,8 +93,9 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			);
 		}
 
-		$avatar_data = get_avatar_data( $user_id, [ 'size' => 96 ] );
-		$last_login  = $this->get_last_login( $user_id );
+		$avatar_data  = get_avatar_data( $user_id, [ 'size' => 96 ] );
+		$last_login   = $this->get_last_login( $user_id );
+		$last_event   = $this->get_last_event( $user_id );
 
 		/** @var AddOns_Licences|null */
 		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
@@ -121,6 +122,17 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 				'key'   => 'last_login',
 				'label' => __( 'Logged in', 'simple-history' ),
 				'value' => $last_login,
+				'type'  => 'date',
+			];
+		}
+
+		// Only show "Last activity" when it differs from "Logged in",
+		// to avoid showing the same timestamp twice.
+		if ( $last_event && $last_event !== $last_login ) {
+			$details[] = [
+				'key'   => 'last_event',
+				'label' => __( 'Last activity', 'simple-history' ),
+				'value' => $last_event,
 				'type'  => 'date',
 			];
 		}
@@ -190,9 +202,11 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		$query_result = $log_query->query(
 			[
-				'messages'       => 'SimpleUserLogger:user_logged_in',
-				'user'           => $user_id,
-				'posts_per_page' => 1,
+				'messages'         => 'SimpleUserLogger:user_logged_in',
+				'user'             => $user_id,
+				'posts_per_page'   => 1,
+				'skip_count_query' => true,
+				'ungrouped'        => true,
 			]
 		);
 
@@ -204,6 +218,33 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		// Convert from GMT to the site's local timezone,
 		// matching how event dates are returned in the events REST API.
+		return get_date_from_gmt( $events[0]->date );
+	}
+
+	/**
+	 * Get the most recent event date for a user from Simple History logs.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return string|null Date string in site local timezone, or null if no events found.
+	 */
+	private function get_last_event( $user_id ) {
+		$log_query = new Log_Query();
+
+		$query_result = $log_query->query(
+			[
+				'user'             => $user_id,
+				'posts_per_page'   => 1,
+				'skip_count_query' => true,
+				'ungrouped'        => true,
+			]
+		);
+
+		$events = $query_result['log_rows'] ?? [];
+
+		if ( empty( $events ) ) {
+			return null;
+		}
+
 		return get_date_from_gmt( $events[0]->date );
 	}
 }

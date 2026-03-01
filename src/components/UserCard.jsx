@@ -151,11 +151,6 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 							@{ username }
 						</span>
 					) }
-					{ userId && (
-						<span className="sh-UserCard__userId">
-							{ sprintf( 'ID: %s', userId ) }
-						</span>
-					) }
 					{ isLoading && (
 						<span className="sh-UserCard__loading">
 							<Spinner />
