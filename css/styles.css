@@ -3944,6 +3944,14 @@ Styles for plugin update details. Markup looks like this:
 	background: var(--sh-color-gray-4);
 }
 
+.sh-UserCard__avatar--wp {
+	background: #0073aa;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+}
+
 .sh-UserCard__info {
 	display: flex;
 	flex-direction: column;
@@ -3987,23 +3995,6 @@ Styles for plugin update details. Markup looks like this:
 	margin: 0 0 4px 0;
 }
 
-.sh-UserCard__email {
-	color: var(--sh-color-gray-3);
-	text-decoration: underline;
-	text-decoration-style: dotted;
-	text-underline-offset: 2px;
-}
-
-.sh-UserCard__email:hover {
-	color: #135e96;
-	text-decoration-style: solid;
-}
-
-.sh-UserCard__email:focus {
-	color: #135e96;
-	outline: 1px dotted;
-	outline-offset: 1px;
-}
 
 .sh-UserCard__loading {
 	display: inline-flex;
@@ -4095,7 +4086,7 @@ Styles for plugin update details. Markup looks like this:
 	align-items: center;
 	gap: 4px;
 	margin-top: 8px;
-	color: var(--sh-color-blue, #2271b1);
+	color: #2271b1;
 }
 
 .sh-UserCard__premiumBadge {

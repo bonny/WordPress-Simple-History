@@ -1,7 +1,7 @@
 import { Button, Icon, Popover, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { close, external, people } from '@wordpress/icons';
+import { close, external, people, wordpress } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import apiFetch from '@wordpress/api-fetch';
 import { humanTimeDiff } from '@wordpress/date';
@@ -307,7 +307,11 @@ function NonUserCardContent( { event } ) {
 						alt=""
 					/>
 				) : (
-					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder" />
+					<div className={ `sh-UserCard__avatar sh-UserCard__avatar--placeholder${ initiator === 'wp' ? ' sh-UserCard__avatar--wp' : '' }` }>
+						{ initiator === 'wp' && (
+							<Icon icon={ wordpress } size={ 36 } />
+						) }
+					</div>
 				) }
 				<div className="sh-UserCard__info">
 					<h4 className="sh-UserCard__name">{ label }</h4>
@@ -319,21 +323,22 @@ function NonUserCardContent( { event } ) {
 				</div>
 			</div>
 			{ activityLabel && (
-				<nav
-					className="sh-UserCard__actions"
-					aria-label={ __( 'User actions', 'simple-history' ) }
-				>
-					<ul>
-						<li>
-							<a
-								href={ activityURL }
-								className="sh-UserCard__actionLink"
-							>
-								{ activityLabel }
-							</a>
-						</li>
-					</ul>
-				</nav>
+				<div className="sh-UserCard__premiumTeaser sh-UserCard__premiumTeaser--blurred">
+					<a
+						href={ getPremiumUrl() }
+						className="sh-UserCard__blurredPreview"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<span className="sh-UserCard__blurredAction">
+							<Icon icon={ external } size={ 16 } />
+							{ activityLabel }
+						</span>
+						<span className="sh-UserCard__premiumBadge">
+							{ __( 'Available with Premium', 'simple-history' ) }
+						</span>
+					</a>
+				</div>
 			) }
 		</div>
 	);
