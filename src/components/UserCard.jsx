@@ -279,18 +279,18 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 	return (
 		<div className="sh-UserCard__content">
 			<div className="sh-UserCard__identity">
-				{ initiatorData?.user_avatar_url ? (
+				{ initiator === 'wp' ? (
+					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--wp">
+						<Icon icon={ wordpress } size={ 36 } />
+					</div>
+				) : initiatorData?.user_avatar_url ? (
 					<img
 						className="sh-UserCard__avatar"
 						src={ initiatorData.user_avatar_url }
 						alt=""
 					/>
 				) : (
-					<div className={ `sh-UserCard__avatar sh-UserCard__avatar--placeholder${ initiator === 'wp' ? ' sh-UserCard__avatar--wp' : '' }` }>
-						{ initiator === 'wp' && (
-							<Icon icon={ wordpress } size={ 36 } />
-						) }
-					</div>
+					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder" />
 				) }
 				<div className="sh-UserCard__info">
 					<h4 className="sh-UserCard__name">{ label }</h4>
