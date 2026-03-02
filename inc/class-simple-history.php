@@ -943,10 +943,6 @@ class Simple_History {
 	 * @return array Array of action link arrays.
 	 */
 	public function get_action_links( $row ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return [];
-		}
-
 		$row_logger = $row->logger;
 
 		$logger = $this->get_instantiated_logger_by_slug( $row_logger );

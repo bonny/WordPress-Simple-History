@@ -35,11 +35,8 @@ class REST_API extends Service {
 		$support_info_controller = new WP_REST_Support_Info_Controller();
 		$support_info_controller->register_routes();
 
-		// User card endpoint provides enhanced data (last login) for avatar/name popovers.
-		if ( Helpers::experimental_features_is_enabled() ) {
-			$user_card_controller = new WP_REST_User_Card_Controller();
-			$user_card_controller->register_routes();
-		}
+		$user_card_controller = new WP_REST_User_Card_Controller();
+		$user_card_controller->register_routes();
 
 		// Only register dev tools routes when dev mode is enabled.
 		if ( ! Helpers::dev_mode_is_enabled() ) {
