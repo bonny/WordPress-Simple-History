@@ -1482,42 +1482,14 @@ class Helpers {
 	/**
 	 * Get number of events today (WordPress timezone-aware).
 	 *
+	 * Convenience wrapper for get_num_events_last_n_days(1).
 	 * Counts individual events from midnight today (00:00:00) in WordPress timezone.
 	 * Respects user permissions - only counts events from loggers the current user can view.
 	 *
 	 * @return int Number of events today that user can view.
 	 */
 	public static function get_num_events_today() {
-		$cache_key   = 'num_events_today_user_' . get_current_user_id();
-		$cache_group = self::get_cache_group();
-		$cached      = wp_cache_get( $cache_key, $cache_group );
-
-		if ( $cached !== false ) {
-			return (int) $cached;
-		}
-
-		global $wpdb;
-		$simple_history              = Simple_History::get_instance();
-		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
-
-		$sql = sprintf(
-			'
-                SELECT count(*)
-                FROM %1$s
-                WHERE date >= FROM_UNIXTIME(%2$d)
-                AND logger IN %3$s
-            ',
-			$simple_history->get_events_table_name(),
-			Date_Helper::get_today_start_timestamp(),
-			$sqlStringLoggersUserCanRead
-		);
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$count = (int) $wpdb->get_var( $sql );
-
-		wp_cache_set( $cache_key, $count, $cache_group );
-
-		return $count;
+		return self::get_num_events_last_n_days( 1 );
 	}
 
 	/**

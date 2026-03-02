@@ -236,27 +236,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @return string|null Date string in site local timezone, or null if no login found.
 	 */
 	public static function get_last_login( $user_id ) {
-		$log_query = new Log_Query();
-
-		$query_result = $log_query->query(
-			[
-				'messages'         => 'SimpleUserLogger:user_logged_in',
-				'user'             => $user_id,
-				'posts_per_page'   => 1,
-				'skip_count_query' => true,
-				'ungrouped'        => true,
-			]
-		);
-
-		$events = $query_result['log_rows'] ?? [];
-
-		if ( empty( $events ) ) {
-			return null;
-		}
-
-		// Return local time to match how humanTimeDiff is used
-		// elsewhere in the frontend (e.g. EventDate uses date_local).
-		return get_date_from_gmt( $events[0]->date );
+		return self::get_most_recent_event_date( $user_id, 'SimpleUserLogger:user_logged_in' );
 	}
 
 	/**
@@ -296,18 +276,32 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @return string|null Date string in site local timezone, or null if no events found.
 	 */
 	public static function get_last_event( $user_id ) {
+		return self::get_most_recent_event_date( $user_id );
+	}
+
+	/**
+	 * Get the most recent event date for a user, optionally filtered by message type.
+	 *
+	 * @param int         $user_id  WordPress user ID.
+	 * @param string|null $messages Optional message filter (e.g. 'SimpleUserLogger:user_logged_in').
+	 * @return string|null Date string in site local timezone, or null if no events found.
+	 */
+	private static function get_most_recent_event_date( $user_id, $messages = null ) {
 		$log_query = new Log_Query();
 
-		$query_result = $log_query->query(
-			[
-				'user'             => $user_id,
-				'posts_per_page'   => 1,
-				'skip_count_query' => true,
-				'ungrouped'        => true,
-			]
-		);
+		$args = [
+			'user'             => $user_id,
+			'posts_per_page'   => 1,
+			'skip_count_query' => true,
+			'ungrouped'        => true,
+		];
 
-		$events = $query_result['log_rows'] ?? [];
+		if ( $messages !== null ) {
+			$args['messages'] = $messages;
+		}
+
+		$query_result = $log_query->query( $args );
+		$events       = $query_result['log_rows'] ?? [];
 
 		if ( empty( $events ) ) {
 			return null;

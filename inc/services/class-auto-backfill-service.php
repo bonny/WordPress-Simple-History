@@ -71,7 +71,8 @@ class Auto_Backfill_Service extends Service {
 	 * The backfill will run on the next admin_init.
 	 */
 	public static function set_backfill_pending() {
-		update_option( self::PENDING_OPTION, true, false );
+		// Autoload enabled because this flag is checked on every admin_init.
+		update_option( self::PENDING_OPTION, true, true );
 	}
 
 	/**

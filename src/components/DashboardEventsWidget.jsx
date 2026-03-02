@@ -10,6 +10,7 @@ import {
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Icon, chartBar } from '@wordpress/icons';
+import { EVENT_FIELDS, parseApiFetchError } from '../functions';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 import { DashboardEventsItemsList } from './DashboardEventsItemsList';
@@ -207,29 +208,7 @@ export function DashboardEventsWidget() {
 			const eventsResponse = await apiFetch( {
 				path: addQueryArgs( '/simple-history/v1/events', {
 					per_page: pagerSize.dashboard,
-					_fields: [
-						'id',
-						'logger',
-						'date_local',
-						'date_gmt',
-						'message',
-						'message_html',
-						'message_key',
-						'details_data',
-						'details_html',
-						'loglevel',
-						'occasions_id',
-						'subsequent_occasions_count',
-						'initiator',
-						'initiator_data',
-						'ip_addresses',
-						'via',
-						'permalink',
-						'sticky',
-						'sticky_appended',
-						'backfilled',
-						'action_links',
-					],
+					_fields: EVENT_FIELDS,
 				} ),
 				parse: false,
 			} );
@@ -238,32 +217,7 @@ export function DashboardEventsWidget() {
 			setEvents( eventsJson );
 		} catch ( error ) {
 			setEventsLoadingHasErrors( true );
-
-			const errorDetails = {
-				code: null,
-				statusText: null,
-				bodyJson: null,
-				bodyText: null,
-			};
-
-			if ( error.headers && error.status && error.statusText ) {
-				const contentType = error.headers.get( 'Content-Type' );
-				errorDetails.code = error.status;
-				errorDetails.statusText = error.statusText;
-
-				if (
-					contentType &&
-					contentType.includes( 'application/json' )
-				) {
-					errorDetails.bodyJson = await error.json();
-				} else {
-					errorDetails.bodyText = await error.text();
-				}
-			} else {
-				errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
-			}
-
-			setEventsLoadingErrorDetails( errorDetails );
+			setEventsLoadingErrorDetails( await parseApiFetchError( error ) );
 		} finally {
 			setEventsIsLoading( false );
 		}
