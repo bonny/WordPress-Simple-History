@@ -238,14 +238,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	public static function get_last_login( $user_id ) {
 		$log_query = new Log_Query();
 
-		// Cannot use 'ungrouped' here because the simple query path
-		// does not apply the 'messages' filter (it only uses inner_where).
 		$query_result = $log_query->query(
 			[
 				'messages'         => 'SimpleUserLogger:user_logged_in',
 				'user'             => $user_id,
 				'posts_per_page'   => 1,
 				'skip_count_query' => true,
+				'ungrouped'        => true,
 			]
 		);
 

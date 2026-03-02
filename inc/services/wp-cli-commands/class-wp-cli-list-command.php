@@ -288,8 +288,10 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 		$query = new Log_Query();
 
 		// Build query args with filters.
+		// Use ungrouped for simpler/faster SQL — CLI output is always a flat list.
 		$query_args = array(
 			'posts_per_page' => $assoc_args['count'],
+			'ungrouped'      => true,
 		);
 
 		// Add filters to query args if provided.

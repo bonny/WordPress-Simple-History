@@ -622,7 +622,8 @@ class Log_Query {
 			if ( ! empty( $sticky_events ) ) {
 				$query_sticky_events = $this->query(
 					[
-						'post__in' => $sticky_events,
+						'post__in'  => $sticky_events,
+						'ungrouped' => true,
 					]
 				);
 

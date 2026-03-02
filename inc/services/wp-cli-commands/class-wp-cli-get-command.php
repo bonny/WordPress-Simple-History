@@ -52,7 +52,8 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 		$query        = new Log_Query();
 		$query_result = $query->query(
 			array(
-				'post__in' => [ $event_id ],
+				'post__in'  => [ $event_id ],
+				'ungrouped' => true,
 			)
 		);
 
