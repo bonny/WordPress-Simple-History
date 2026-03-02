@@ -4024,7 +4024,8 @@ Styles for plugin update details. Markup looks like this:
 	align-items: center;
 	gap: var(--sh-spacing-xsmall, 6px);
 	margin-top: var(--sh-spacing-small);
-	font-size: var(--sh-font-size-small, 12px);
+	padding-top: var(--sh-spacing-small);
+	border-top: 1px solid var(--sh-color-gray-4);
 	color: var(--sh-color-gray-3, #757575);
 }
 

@@ -61,14 +61,18 @@ function getPremiumUrl() {
  */
 function PremiumTeaserBlurred() {
 	return (
-		<div className="sh-UserCard__premiumTeaser sh-UserCard__premiumTeaser--blurred">
+		<div
+			className="sh-UserCard__premiumTeaser sh-UserCard__premiumTeaser--blurred"
+			role="group"
+			aria-label={ __( 'Premium features', 'simple-history' ) }
+		>
 			<a
 				href={ getPremiumUrl() }
 				className="sh-UserCard__blurredPreview"
 				target="_blank"
 				rel="noopener noreferrer"
 			>
-				<ul className="sh-UserCard__meta">
+				<ul className="sh-UserCard__meta" aria-hidden="true">
 					<li className="sh-UserCard__detail sh-UserCard__detail--blurred">
 						{ __( 'Logged in', 'simple-history' ) }
 						{ ' ' }
@@ -88,7 +92,7 @@ function PremiumTeaserBlurred() {
 						{ __( 'minutes ago', 'simple-history' ) }
 					</li>
 				</ul>
-				<div className="sh-UserCard__stats">
+				<div className="sh-UserCard__stats" aria-hidden="true">
 					<span>
 						<span className="sh-UserCard__statValue sh-UserCard__blurredValue">
 							{ '8' }
@@ -107,7 +111,7 @@ function PremiumTeaserBlurred() {
 						{ __( 'events last 7 days', 'simple-history' ) }
 					</span>
 				</div>
-				<span className="sh-UserCard__blurredAction">
+				<span className="sh-UserCard__blurredAction" aria-hidden="true">
 					<Icon icon={ external } size={ 16 } />
 					{ __( 'View all user activity', 'simple-history' ) }
 				</span>
