@@ -358,7 +358,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Action links (Edit, View, Preview, Revisions) below post events with icons and capability checks (experimental).
+-   Action links (Edit, View, Preview, Revisions) below post events with icons and capability checks.
 -   User card popover on avatar and name click, showing identity info (name, role, email) with a link to the user profile. Premium add-on extends the card with login history and activity details.
 -   Site Health Logger that tracks WordPress Site Health test status changes, logging when issues are detected, resolved, or change severity.
 -   "This page" filter toggle in the admin bar Quick View, letting you see events for the currently viewed post or page without leaving the frontend.
