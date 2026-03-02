@@ -1,5 +1,5 @@
-import { Button, ExternalLink, Icon, Popover, Spinner } from '@wordpress/components';
-import { createInterpolateElement, useEffect, useRef, useState } from '@wordpress/element';
+import { Button, Icon, Popover, Spinner } from '@wordpress/components';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { close, external, people } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
@@ -63,27 +63,58 @@ function renderDetailValue( detail ) {
 }
 
 /**
- * Premium upsell teaser shown when premium add-on is not active.
+ * Premium link helper.
+ *
+ * @return {string} Premium URL with tracking.
  */
-function PremiumTeaser() {
+function getPremiumUrl() {
+	return getTrackingUrl(
+		'https://simple-history.com/add-ons/premium/',
+		'premium_user_card'
+	);
+}
+
+/**
+ * Option A: Blurred placeholder values.
+ * Shows premium items with blurred fake values to hint at what you'd get.
+ */
+function PremiumTeaserBlurred() {
 	return (
-		<div className="sh-UserCard__premiumTeaser">
-			{ createInterpolateElement(
-				__(
-					'Get login stats, IP details, and more with <a>Simple History Premium</a>.',
-					'simple-history'
-				),
-				{
-					a: (
-						<ExternalLink
-							href={ getTrackingUrl(
-								'https://simple-history.com/add-ons/premium/',
-								'premium_user_card'
-							) }
-						/>
-					),
-				}
-			) }
+		<div className="sh-UserCard__premiumTeaser sh-UserCard__premiumTeaser--blurred">
+			<a
+				href={ getPremiumUrl() }
+				className="sh-UserCard__blurredPreview"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				<ul className="sh-UserCard__meta">
+					<li className="sh-UserCard__detail sh-UserCard__detail--blurred">
+						{ __( 'Logged in', 'simple-history' ) }
+						{ ' ' }
+						<span className="sh-UserCard__blurredValue">
+							{ '3' }
+						</span>
+						{ ' ' }
+						{ __( 'hours ago', 'simple-history' ) }
+					</li>
+					<li className="sh-UserCard__detail sh-UserCard__detail--blurred">
+						{ __( 'Last activity', 'simple-history' ) }
+						{ ' ' }
+						<span className="sh-UserCard__blurredValue">
+							{ '12' }
+						</span>
+						{ ' ' }
+						{ __( 'minutes ago', 'simple-history' ) }
+					</li>
+				</ul>
+				<span className="sh-UserCard__blurredAction">
+					<Icon icon={ external } size={ 16 } />
+					{ __( 'View all user activity', 'simple-history' ) }
+				</span>
+				<span className="sh-UserCard__premiumBadge">
+					{ __( 'Available with Premium', 'simple-history' ) }
+				</span>
+			</a>
 		</div>
 	);
 }
@@ -168,6 +199,10 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 				</div>
 			</div>
 
+			{ ! isLoading && cardData && ! hasPremium && (
+				<PremiumTeaserBlurred />
+			) }
+
 			{ actions.length > 0 && (
 				<nav
 					className="sh-UserCard__actions"
@@ -195,8 +230,6 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 					</ul>
 				</nav>
 			) }
-
-			{ ! isLoading && cardData && ! hasPremium && <PremiumTeaser /> }
 		</div>
 	);
 }

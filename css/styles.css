@@ -4051,9 +4051,86 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-UserCard__premiumTeaser {
 	margin-top: var(--sh-spacing-small);
-	padding-top: var(--sh-spacing-small);
-	border-top: 1px solid var(--sh-color-gray-4);
 	font-size: var(--sh-font-size-small);
 	color: var(--sh-color-gray-3);
 	line-height: 1.4;
+}
+
+.sh-UserCard__premiumTeaser--blurred {
+	background: var(--sh-color-cream);
+	border-radius: var(--sh-border-radius, 4px);
+	padding: var(--sh-spacing-small);
+}
+
+/* Option A: Blurred preview. */
+.sh-UserCard__blurredPreview {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	position: relative;
+}
+
+.sh-UserCard__blurredPreview:hover {
+	text-decoration: none;
+}
+
+.sh-UserCard__blurredPreview .sh-UserCard__meta {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-UserCard__detail--blurred {
+	color: var(--sh-color-gray-3);
+}
+
+.sh-UserCard__blurredValue {
+	filter: blur(4px);
+	user-select: none;
+	margin-left: 4px;
+}
+
+.sh-UserCard__blurredAction {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 8px;
+	color: var(--sh-color-blue, #2271b1);
+}
+
+.sh-UserCard__premiumBadge {
+	display: inline-block;
+	margin-top: 8px;
+	padding: 2px 7px;
+	background: var(--sh-color-gray-5, #f0f0f0);
+	color: #595959;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 400;
+}
+
+.sh-UserCard__blurredPreview:hover .sh-UserCard__premiumBadge {
+	color: var(--sh-color-blue, #2271b1);
+}
+
+/* Option C: Feature list. */
+.sh-UserCard__premiumTeaserHeading {
+	margin: 0 0 4px;
+}
+
+.sh-UserCard__premiumFeatures {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.sh-UserCard__premiumFeatures li {
+	margin: 0;
+	padding: 0;
+	line-height: 1.5;
+}
+
+.sh-UserCard__premiumFeatures li::before {
+	content: "\2713\0020";
+	color: var(--sh-color-gray-3);
 }
