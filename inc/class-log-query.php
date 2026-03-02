@@ -1925,6 +1925,24 @@ class Log_Query {
 			);
 		}
 
+		// "messages" - filter by logger slug + message key pairs.
+		if ( ! empty( $args['messages'] ) ) {
+			$sql_messages_where_parts = [];
+
+			foreach ( $args['messages'] as $logger_slug => $logger_messages ) {
+				$placeholders = implode( ', ', array_fill( 0, count( $logger_messages ), '%s' ) );
+
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic placeholders in $placeholders variable matched with spread operator
+				$sql_messages_where_parts[] = $wpdb->prepare(
+					'(logger = %s AND id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = \'_message_key\' AND c.value IN (' . $placeholders . ') ))', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					$logger_slug,
+					...$logger_messages
+				);
+			}
+
+			$inner_where[] = '(' . implode( ' OR ', $sql_messages_where_parts ) . ')';
+		}
+
 		// Add where for a single user ID.
 		if ( isset( $args['user'] ) ) {
 			$inner_where[] = $wpdb->prepare(
@@ -2044,7 +2062,7 @@ class Log_Query {
 			foreach ( $args['exclude_messages'] as $exclude_logger_slug => $exclude_logger_messages ) {
 				foreach ( $exclude_logger_messages as $one_exclude_message_key ) {
 					$sql_exclude_messages_parts[] = $wpdb->prepare(
-						'NOT ( logger = %s AND contexts.value = %s )',
+						'NOT ( logger = %s AND id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = \'_message_key\' AND c.value = %s ) )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 						$exclude_logger_slug,
 						$one_exclude_message_key
 					);
@@ -2115,31 +2133,10 @@ class Log_Query {
 	 * @return array<string> Where clauses.
 	 */
 	protected function get_outer_where( $args ) {
-		global $wpdb;
-
 		$outer_where = [];
 
-		// messages.
-		if ( ! empty( $args['messages'] ) ) {
-			// Create sql where based on loggers and messages.
-			$sql_messages_where_parts = [];
-
-			foreach ( $args['messages'] as $logger_slug => $logger_messages ) {
-				// Create placeholders for prepared statement.
-				$placeholders = implode( ', ', array_fill( 0, count( $logger_messages ), '%s' ) );
-
-				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic placeholders in $placeholders variable matched with spread operator
-				$sql_messages_where_parts[] = $wpdb->prepare(
-					'(h.logger = %s AND context_message_key IN (' . $placeholders . '))', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-					$logger_slug,
-					...$logger_messages
-				);
-			}
-
-			// Join all parts with OR.
-			$sql_messages_where = '(' . implode( ' OR ', $sql_messages_where_parts ) . ')';
-			$outer_where[]      = $sql_messages_where;
-		}
+		// "messages" filter moved to get_inner_where() so it works in both
+		// grouped (MySQL) and ungrouped (simple/SQLite) query paths.
 
 		return $outer_where;
 	}
@@ -2238,7 +2235,11 @@ class Log_Query {
 		 */
 		$logger_messages_with_search_string_matches = $this->match_logger_messages_with_search( $args['search'] );
 		foreach ( $logger_messages_with_search_string_matches as $one_logger_message ) {
-			$str_search_conditions .= "\n OR ( logger = '{$one_logger_message['logger_slug']}' AND contexts.value = '{$one_logger_message['message_key']}' ) ";
+			$str_search_conditions .= $wpdb->prepare(
+				"\n OR ( logger = %s AND id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.key = '_message_key' AND c.value = %s ) ) ", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$one_logger_message['logger_slug'],
+				$one_logger_message['message_key']
+			);
 		}
 
 		$inner_where[] = "\n(\n {$str_search_conditions} \n ) ";
@@ -2330,7 +2331,11 @@ class Log_Query {
 		 */
 		$logger_messages_with_exclude_string_matches = $this->match_logger_messages_with_search( $args['exclude_search'] );
 		foreach ( $logger_messages_with_exclude_string_matches as $one_logger_message ) {
-			$str_exclude_conditions .= "\n OR ( logger = '{$one_logger_message['logger_slug']}' AND contexts.value = '{$one_logger_message['message_key']}' ) ";
+			$str_exclude_conditions .= $wpdb->prepare(
+				"\n OR ( logger = %s AND id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.key = '_message_key' AND c.value = %s ) ) ", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$one_logger_message['logger_slug'],
+				$one_logger_message['message_key']
+			);
 		}
 
 		// Wrap everything in NOT to exclude matching events.
