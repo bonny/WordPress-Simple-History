@@ -2,7 +2,6 @@
 
 namespace Simple_History;
 
-use Simple_History\Services\AddOns_Licences;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
@@ -16,19 +15,11 @@ use WP_REST_Server;
  */
 class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	/**
-	 * Simple History instance.
-	 *
-	 * @var Simple_History
-	 */
-	protected Simple_History $simple_history;
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->namespace      = 'simple-history/v1';
-		$this->rest_base      = 'users';
-		$this->simple_history = Simple_History::get_instance();
+		$this->namespace = 'simple-history/v1';
+		$this->rest_base = 'users';
 	}
 
 	/**
@@ -124,10 +115,6 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		$avatar_data = get_avatar_data( $user_id, [ 'size' => 96 ] );
 
-		/** @var AddOns_Licences|null */
-		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
-		$has_premium    = $addons_service instanceof AddOns_Licences && $addons_service->has_add_on( 'simple-history-premium' );
-
 		// Core identity fields.
 		$data = [
 			'user_id'            => $user->ID,
@@ -137,7 +124,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			'avatar_url'         => $avatar_data['url'] ?? '',
 			'profile_url'        => get_edit_user_link( $user->ID ),
 			'roles'              => array_values( $user->roles ),
-			'has_premium_add_on' => $has_premium,
+			'has_premium_add_on' => Helpers::is_premium_add_on_active(),
 		];
 
 		// Details: key-value items shown below identity info.
@@ -215,10 +202,6 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	public function get_initiator_card( $request ) {
 		$type = $request->get_param( 'type' );
 
-		/** @var AddOns_Licences|null */
-		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
-		$has_premium    = $addons_service instanceof AddOns_Licences && $addons_service->has_add_on( 'simple-history-premium' );
-
 		$actions = [];
 
 		/**
@@ -236,7 +219,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		$data = [
 			'initiator'          => $type,
-			'has_premium_add_on' => $has_premium,
+			'has_premium_add_on' => Helpers::is_premium_add_on_active(),
 			'actions'            => $actions,
 		];
 
@@ -275,6 +258,33 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		// Return local time to match how humanTimeDiff is used
 		// elsewhere in the frontend (e.g. EventDate uses date_local).
 		return get_date_from_gmt( $events[0]->date );
+	}
+
+	/**
+	 * Get the number of events for a user within a given number of days.
+	 *
+	 * Useful for add-ons that want to show activity counts in the user card
+	 * via the 'simple_history/user_card/details' filter.
+	 *
+	 * @param int $user_id    WordPress user ID.
+	 * @param int $period_days Number of days to look back (including today).
+	 * @return int Number of events found.
+	 */
+	public static function get_user_event_count( $user_id, $period_days ) {
+		$log_query = new Log_Query();
+
+		$date_from = Date_Helper::get_last_n_days_start_timestamp( $period_days );
+
+		$query_result = $log_query->query(
+			[
+				'user'           => $user_id,
+				'posts_per_page' => 1,
+				'date_from'      => $date_from,
+				'ungrouped'      => true,
+			]
+		);
+
+		return $query_result['total_row_count'] ?? 0;
 	}
 
 	/**

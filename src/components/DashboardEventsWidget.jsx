@@ -298,8 +298,8 @@ export function DashboardEventsWidget() {
 							{ sprintf(
 								/* translators: 1: number of events last 7 days */
 								_n(
-									'%s this week',
-									'%s this week',
+									'%s event last 7 days',
+									'%s events last 7 days',
 									stats.num_events_last_7_days,
 									'simple-history'
 								),
