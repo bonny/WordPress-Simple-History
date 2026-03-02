@@ -6,7 +6,7 @@ import { Event } from './Event';
  * Renders events with variant="dashboard" to hide the actions menu.
  */
 export function DashboardEventsItemsList( props ) {
-	const { events, eventsIsLoading, hasPremiumAddOn } = props;
+	const { events, eventsIsLoading, hasPremiumAddOn, eventsSettingsPageURL, mapsApiKey } = props;
 
 	if ( ! events || events.length === 0 ) {
 		return null;
@@ -29,6 +29,8 @@ export function DashboardEventsItemsList( props ) {
 					prevEvent={ events[ index - 1 ] }
 					nextEvent={ events[ index + 1 ] }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					eventsSettingsPageURL={ eventsSettingsPageURL }
+					mapsApiKey={ mapsApiKey }
 				/>
 			) ) }
 		</ul>

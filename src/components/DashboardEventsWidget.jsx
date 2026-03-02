@@ -49,6 +49,8 @@ export function DashboardEventsWidget() {
 	const [ eventsLoadingErrorDetails, setEventsLoadingErrorDetails ] =
 		useState( null );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState( '' );
+	const [ settingsPageURL, setSettingsPageURL ] = useState( '' );
+	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
 	const [ pagerSize, setPagerSize ] = useState( null );
 	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
 	const [ stats, setStats ] = useState( null );
@@ -181,6 +183,8 @@ export function DashboardEventsWidget() {
 			.then( ( response ) => {
 				setPagerSize( response.pager_size );
 				setEventsAdminPageURL( response.events_admin_page_url || '' );
+				setSettingsPageURL( response.settings_page_url || '' );
+				setMapsApiKey( response.maps_api_key || '' );
 				setHasPremiumAddOn(
 					response.addons?.has_premium_add_on || false
 				);
@@ -383,6 +387,8 @@ export function DashboardEventsWidget() {
 					eventsIsLoading={ eventsIsLoading }
 					events={ events }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					eventsSettingsPageURL={ settingsPageURL }
+					mapsApiKey={ mapsApiKey }
 				/>
 			</div>
 

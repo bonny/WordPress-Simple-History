@@ -501,7 +501,7 @@ function IPAddressLink( ipAddressProps ) {
  * @param {Object} props
  */
 export function EventIPAddresses( props ) {
-	const { event, mapsApiKey, hasPremiumAddOn, eventsSettingsPageURL } = props;
+	const { event, eventVariant, mapsApiKey, hasPremiumAddOn, eventsSettingsPageURL } = props;
 	const { ip_addresses: ipAddresses } = event;
 
 	if ( ! ipAddresses ) {
@@ -514,12 +514,9 @@ export function EventIPAddresses( props ) {
 		return null;
 	}
 
-	const ipAddressesLabel = _n(
-		'IP address:',
-		'IP addresses:',
-		ipAddressesCount,
-		'simple-history'
-	);
+	const ipAddressesLabel = eventVariant === 'dashboard'
+		? ''
+		: _n( 'IP address:', 'IP addresses:', ipAddressesCount, 'simple-history' );
 
 	const IPAddressesText = [];
 	let loopCount = 0;
