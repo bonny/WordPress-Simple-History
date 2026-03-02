@@ -710,14 +710,8 @@ i.e. the log is inside a .postbox element.
 	border-bottom: none;
 }
 
-/* Dashboard widget: truncate long header and event text to prevent overflow. */
+/* Dashboard widget: truncate long header to keep single-line. */
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__header {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__text {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
