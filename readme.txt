@@ -365,6 +365,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Added upsell notice at the end of backfilled history showing specific counts of content not imported per type (pages, attachments, users, etc.) and explaining the free version's 100-items-per-type import limit.
 -   Added logging of image edits (crop, rotate, flip, scale) in the media logger, including a thumbnail preview sized smaller than upload thumbnails.
 -   Added user creation and profile update counts to the email digest report, displayed alongside login statistics in the Users section.
+-   Added help message in IP address popover when Premium is active but no Google Maps API key is configured, with a link to settings.
+-   Added Escape key and click-outside dismiss to IP address popover.
 -   Added logging of parent category changes when editing terms.
 -   Added diff details (name, slug, description, parent) when viewing edited category and tag events.
 -   Added description and parent details when viewing created term events with non-default values.

@@ -17,6 +17,7 @@ export function EventHeader( props ) {
 		hasPremiumAddOn,
 		mapsApiKey,
 		isSurroundingEventsMode,
+		eventsSettingsPageURL,
 	} = props;
 
 	return (
@@ -37,6 +38,7 @@ export function EventHeader( props ) {
 					mapsApiKey={ mapsApiKey }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					eventsSettingsPageURL={ eventsSettingsPageURL }
 				/>
 			) }
 
