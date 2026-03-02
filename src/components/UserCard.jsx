@@ -1,6 +1,6 @@
 import { Button, Icon, Popover, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { close, external, people, wordpress } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { humanTimeDiff } from '@wordpress/date';
@@ -88,6 +88,25 @@ function PremiumTeaserBlurred() {
 						{ __( 'minutes ago', 'simple-history' ) }
 					</li>
 				</ul>
+				<div className="sh-UserCard__stats">
+					<span>
+						<span className="sh-UserCard__statValue sh-UserCard__blurredValue">
+							{ '8' }
+						</span>
+						{ ' ' }
+						{ __( 'events today', 'simple-history' ) }
+					</span>
+					<span className="sh-UserCard__statSeparator">
+						{ ' · ' }
+					</span>
+					<span>
+						<span className="sh-UserCard__statValue sh-UserCard__blurredValue">
+							{ '34' }
+						</span>
+						{ ' ' }
+						{ __( 'events last 7 days', 'simple-history' ) }
+					</span>
+				</div>
 				<span className="sh-UserCard__blurredAction">
 					<Icon icon={ external } size={ 16 } />
 					{ __( 'View all user activity', 'simple-history' ) }
@@ -123,7 +142,9 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 	const roles = cardData?.roles;
 	const hasPremium = cardData?.has_premium_add_on;
 
-	const details = cardData?.details || [];
+	const allDetails = cardData?.details || [];
+	const textDetails = allDetails.filter( ( d ) => d.type !== 'stat' );
+	const statDetails = allDetails.filter( ( d ) => d.type === 'stat' );
 	const actions = cardData?.actions || [];
 
 	return (
@@ -162,7 +183,7 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 							</li>
 						) }
 						{ ! isLoading &&
-							details.map( ( detail ) => (
+							textDetails.map( ( detail ) => (
 								<li
 									key={ detail.key }
 									className="sh-UserCard__detail"
@@ -179,6 +200,33 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 					</ul>
 				</div>
 			</div>
+
+			{ ! isLoading && statDetails.length > 0 && (
+				<div className="sh-UserCard__stats">
+					{ statDetails.map( ( stat, index ) => (
+						<span key={ stat.key }>
+							{ index > 0 && (
+								<span className="sh-UserCard__statSeparator">
+									{ ' · ' }
+								</span>
+							) }
+							<span className="sh-UserCard__statValue">
+								{ stat.value }
+							</span>
+							{ ' ' }
+							{ sprintf(
+								_n(
+									'event %s',
+									'events %s',
+									Number( stat.value ),
+									'simple-history'
+								),
+								stat.label.toLowerCase()
+							) }
+						</span>
+					) ) }
+				</div>
+			) }
 
 			{ ! isLoading && cardData && ! hasPremium && (
 				<PremiumTeaserBlurred />

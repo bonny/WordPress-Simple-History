@@ -4019,6 +4019,24 @@ Styles for plugin update details. Markup looks like this:
 	border-top: 1px solid var(--sh-color-gray-4);
 }
 
+.sh-UserCard__stats {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall, 6px);
+	margin-top: var(--sh-spacing-small);
+	font-size: var(--sh-font-size-small, 12px);
+	color: var(--sh-color-gray-3, #757575);
+}
+
+.sh-UserCard__statValue {
+	font-weight: 600;
+	color: var(--sh-color-gray-1, #1e1e1e);
+}
+
+.sh-UserCard__statSeparator {
+	color: var(--sh-color-gray-4, #c3c4c7);
+}
+
 .sh-UserCard__actions ul {
 	list-style: none;
 	margin: 0;
