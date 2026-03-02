@@ -386,6 +386,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Changed backfill notice copy to be more inviting, reworded from "missing from your history" to "Backfill into your history" with clearer explanation that only older pre-install content is affected.
 -   Reduced frontend JavaScript for logged-in users by removing the wp-components dependency from the admin bar bundle, saving ~919 KB of scripts on every page load.
 -   Redesigned dashboard widget for clarity: new activity stats summary showing events today and this week, cleaner event list with skeleton loading, and streamlined search that opens the full activity log for detailed filtering.
+-   Improved performance by adding object caching to stats queries (events today, events last N days, events per day, total event count), preventing duplicate database queries within the same request and benefiting sites with persistent object caches.
 
 **Fixed**
 

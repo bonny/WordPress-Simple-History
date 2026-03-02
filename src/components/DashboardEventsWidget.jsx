@@ -47,7 +47,7 @@ export function DashboardEventsWidget() {
 	const [ eventsLoadingHasErrors, setEventsLoadingHasErrors ] =
 		useState( false );
 	const [ eventsLoadingErrorDetails, setEventsLoadingErrorDetails ] =
-		useState( { errorCode: undefined, errorMessage: undefined } );
+		useState( null );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState( '' );
 	const [ pagerSize, setPagerSize ] = useState( null );
 	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
@@ -163,6 +163,16 @@ export function DashboardEventsWidget() {
 		};
 		transitionHandlerRef.current = handleEnd;
 		el.addEventListener( 'transitionend', handleEnd );
+
+		return () => {
+			if ( transitionHandlerRef.current ) {
+				el.removeEventListener(
+					'transitionend',
+					transitionHandlerRef.current
+				);
+				transitionHandlerRef.current = null;
+			}
+		};
 	} );
 
 	// Fetch search options on mount to get pager size and admin page URL.

@@ -9,7 +9,8 @@ import { getTrackingUrl } from '../functions';
 // Only one user card open at a time.
 let closeActiveUserCard = null;
 
-// Cache initiator card API responses keyed by type.
+// Cache API responses to avoid duplicate fetches.
+const userCardCache = {};
 const initiatorCardCache = {};
 
 // Terminal prompt icon for WP-CLI (no suitable icon in @wordpress/icons).
@@ -426,6 +427,8 @@ export function UserCard( { event, children } ) {
 	const isWPUser = event.initiator === 'wp_user';
 	const userId = event.initiator_data?.user_id;
 
+	const closeThis = () => setShowPopover( false );
+
 	// Close on Escape key.
 	useEffect( () => {
 		if ( ! showPopover ) {
@@ -443,6 +446,15 @@ export function UserCard( { event, children } ) {
 		return () => document.removeEventListener( 'keydown', handleKeyDown );
 	}, [ showPopover ] );
 
+	// Clear module-level closer on unmount to avoid stale references.
+	useEffect( () => {
+		return () => {
+			if ( closeActiveUserCard === closeThis ) {
+				closeActiveUserCard = null;
+			}
+		};
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+
 	const handleClick = ( clickEvt ) => {
 		// Ignore clicks inside the popover.
 		if ( clickEvt.target.closest( '.sh-UserCard__popover' ) ) {
@@ -458,7 +470,7 @@ export function UserCard( { event, children } ) {
 		if ( closeActiveUserCard ) {
 			closeActiveUserCard();
 		}
-		closeActiveUserCard = () => setShowPopover( false );
+		closeActiveUserCard = closeThis;
 
 		setShowPopover( true );
 
@@ -467,15 +479,18 @@ export function UserCard( { event, children } ) {
 			return;
 		}
 
-		// Determine the API path based on initiator type.
+		// Determine the API path and check cache based on initiator type.
 		let apiPath;
 		if ( isWPUser ) {
 			if ( ! userId ) {
 				return;
 			}
+			if ( userCardCache[ userId ] ) {
+				setCardData( userCardCache[ userId ] );
+				return;
+			}
 			apiPath = `/simple-history/v1/users/${ userId }/card`;
 		} else {
-			// Use cached response for non-user initiators.
 			if ( initiatorCardCache[ event.initiator ] ) {
 				setCardData( initiatorCardCache[ event.initiator ] );
 				return;
@@ -487,7 +502,9 @@ export function UserCard( { event, children } ) {
 
 		apiFetch( { path: apiPath } )
 			.then( ( data ) => {
-				if ( ! isWPUser ) {
+				if ( isWPUser ) {
+					userCardCache[ userId ] = data;
+				} else {
 					initiatorCardCache[ event.initiator ] = data;
 				}
 				setCardData( data );

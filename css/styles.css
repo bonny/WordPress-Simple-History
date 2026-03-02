@@ -4120,7 +4120,7 @@ Styles for plugin update details. Markup looks like this:
 	display: inline-block;
 	margin-top: 8px;
 	padding: 2px 7px;
-	background: var(--sh-color-gray-5, #f0f0f0);
+	background: #f0f0f0;
 	color: #595959;
 	border-radius: 3px;
 	font-size: 11px;

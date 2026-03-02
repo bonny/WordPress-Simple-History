@@ -84,17 +84,10 @@ export function generateAPIQueryParams( props ) {
 		return params;
 	}
 
-	// Set pager size depending on if page or dashboard.
-	// window.pagenow = 'dashboard_page_simple_history_page' | 'dashboard'
-	let perPage = pagerSize.page;
-	if ( window.pagenow === 'dashboard' ) {
-		perPage = pagerSize.dashboard;
-	}
-
 	// Create query params based on selected filters.
 	const eventsQueryParams = {
 		page,
-		per_page: perPage,
+		per_page: pagerSize.page,
 		_fields: [
 			'id',
 			'logger',
