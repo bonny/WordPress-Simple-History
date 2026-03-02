@@ -28,24 +28,67 @@ Add entries to the Simple History plugin's `readme.txt` changelog.
 
 ## Writing Guidelines
 
-**Do:**
-- Be specific: "Fixed timezone handling in email reports"
-- User-focused: explain what users notice
+Changelogs are for **humans, not machines**. Write for both technical and non-technical WordPress users.
+
+**Write for the user:**
+- Explain what changed from the user's perspective, not what you did in the code
+- Provide context and scope: instead of "Optimized query" write "Improved performance on sites with large activity logs"
+- Replace jargon with clarity: avoid acronyms, internal class names, or hook names unless the audience is developers
+- Be specific: "Fixed timezone handling in email reports" not "Bug fixes"
 - Active voice: "Fixed X" not "X was fixed"
 
-**Don't:**
-- "Bug fixes" (too vague)
-- "Various improvements" (meaningless)
-- Technical jargon users won't understand
+**Be honest and complete:**
+- Never hide breaking changes, deprecations, or security fixes
+- Be upfront about what changed and why — users trust changelogs that are transparent
+- Include all notable user-facing changes; selective entries undermine credibility
+- Mark experimental features clearly
+
+**Keep it concise:**
+- One bullet per change, one or two sentences max
+- Don't duplicate commit messages — curate and translate them into user-facing language
+- Group related small changes into a single entry rather than listing each separately
+- Omit internal refactors, code cleanup, and dev tooling changes unless they affect users
+
+**Don't write:**
+- "Bug fixes" or "Various improvements" (too vague, tells users nothing)
+- "Updated code" or "Minor changes" (meaningless)
+- Raw commit messages or git log dumps
+- Internal hook/filter names in user-facing entries (put in developer docs instead)
+
+## Categories
+
+Use these standard categories from [Keep a Changelog](https://keepachangelog.com):
+
+- **Added** — New features and capabilities
+- **Changed** — Modifications to existing functionality
+- **Deprecated** — Features that will be removed in a future release
+- **Removed** — Features that have been eliminated
+- **Fixed** — Bug fixes
+- **Security** — Vulnerability patches (always include these, never hide them)
+
+## Unreleased Section
+
+Always maintain an `### Unreleased` section at the top of the changelog. This lets users see what's coming and makes it easy to promote entries into a versioned release.
+
+When releasing, move Unreleased entries into a new versioned section with the release date.
 
 ## Examples
 
 ```
 ✅ Fixed post creation via Gutenberg autosave not being logged, causing email reports to show 0 posts created.
 ✅ Added developer mode badge to improve debugging workflow.
+✅ Improved performance on sites with large activity logs by optimizing database queries.
+✅ Deprecated `simple_history_log()` function — use `SimpleHistory\log()` instead. Will be removed in 6.0.
 ❌ Bug fixes
 ❌ Updated code
+❌ Refactored SimpleHistoryLogQuery class
+❌ Various improvements and optimizations
 ```
+
+## References
+
+-   WordPress Developer Blog: [The Importance of a Good Changelog](https://developer.wordpress.org/news/2025/11/the-importance-of-a-good-changelog/)
+-   Keep a Changelog: [https://keepachangelog.com](https://keepachangelog.com)
 
 ## Location
 
