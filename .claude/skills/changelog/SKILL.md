@@ -22,7 +22,7 @@ Add entries to the Simple History plugin's `readme.txt` changelog.
 ```
 
 - Start with `-   ` (hyphen + 3 spaces)
-- Begin with category verb: "Fixed...", "Added...", "Changed..."
+- Do NOT repeat the category verb — the heading already says Added/Changed/Fixed, so don't start entries with "Added...", "Fixed...", etc.
 - Link GitHub issue/PR if available
 - End with period
 
@@ -41,7 +41,7 @@ Changelogs are for **humans, not machines**. Write for both technical and non-te
 - Never hide breaking changes, deprecations, or security fixes
 - Be upfront about what changed and why — users trust changelogs that are transparent
 - Include all notable user-facing changes; selective entries undermine credibility
-- Mark experimental features clearly
+- Mark experimental features with a trailing "(experimental)" tag, not as a prefix
 
 **Keep it concise:**
 - One bullet per change, one or two sentences max
@@ -75,10 +75,12 @@ When releasing, move Unreleased entries into a new versioned section with the re
 ## Examples
 
 ```
-✅ Fixed post creation via Gutenberg autosave not being logged, causing email reports to show 0 posts created.
-✅ Added developer mode badge to improve debugging workflow.
-✅ Improved performance on sites with large activity logs by optimizing database queries.
-✅ Deprecated `simple_history_log()` function — use `SimpleHistory\log()` instead. Will be removed in 6.0.
+✅ Post creation via Gutenberg autosave not being logged, causing email reports to show 0 posts created.
+✅ Developer mode badge to improve debugging workflow.
+✅ Performance on sites with large activity logs improved by optimizing database queries.
+✅ `simple_history_log()` function — use `SimpleHistory\log()` instead. Will be removed in 6.0.
+❌ Added developer mode badge (redundant — heading already says "Added")
+❌ Fixed post creation (redundant — heading already says "Fixed")
 ❌ Bug fixes
 ❌ Updated code
 ❌ Refactored SimpleHistoryLogQuery class
