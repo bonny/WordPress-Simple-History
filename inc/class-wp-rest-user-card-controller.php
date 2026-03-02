@@ -32,6 +32,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Valid non-user initiator types for the initiator card endpoint.
+	 *
+	 * @var array<string>
+	 */
+	const INITIATOR_TYPES = [ 'wp', 'wp_cli', 'web_user', 'other' ];
+
+	/**
 	 * Register the routes for user card data.
 	 */
 	public function register_routes() {
@@ -50,6 +57,28 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 							'type'              => 'integer',
 							'required'          => true,
 							'sanitize_callback' => 'absint',
+						],
+					],
+				],
+			]
+		);
+
+		// GET /wp-json/simple-history/v1/initiators/<type>/card.
+		register_rest_route(
+			$this->namespace,
+			'/initiators/(?P<type>[a-z_]+)/card',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_initiator_card' ],
+					'permission_callback' => [ $this, 'get_user_card_permissions_check' ],
+					'args'                => [
+						'type' => [
+							'description'       => __( 'Initiator type (wp, wp_cli, web_user, other).', 'simple-history' ),
+							'type'              => 'string',
+							'required'          => true,
+							'enum'              => self::INITIATOR_TYPES,
+							'sanitize_callback' => 'sanitize_key',
 						],
 					],
 				],
@@ -170,6 +199,46 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 * @param \WP_User $user    The WordPress user object.
 		 */
 		$data['actions'] = apply_filters( 'simple_history/user_card/actions', $actions, $user );
+
+		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Get card data for a non-user initiator type.
+	 *
+	 * Returns a filterable response so add-ons can extend it
+	 * (e.g., adding "View all activity" action links).
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response Response object.
+	 */
+	public function get_initiator_card( $request ) {
+		$type = $request->get_param( 'type' );
+
+		/** @var AddOns_Licences|null */
+		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
+		$has_premium    = $addons_service instanceof AddOns_Licences && $addons_service->has_add_on( 'simple-history-premium' );
+
+		$actions = [];
+
+		/**
+		 * Filters the initiator card action links.
+		 *
+		 * Add-ons can add action links shown in the non-user initiator card popover.
+		 * Each item should have: key (string), label (string), url (string).
+		 *
+		 * @since 5.24.0
+		 *
+		 * @param array  $actions Array of action link items.
+		 * @param string $type    The initiator type (wp, wp_cli, web_user, other).
+		 */
+		$actions = apply_filters( 'simple_history/initiator_card/actions', $actions, $type );
+
+		$data = [
+			'initiator'          => $type,
+			'has_premium_add_on' => $has_premium,
+			'actions'            => $actions,
+		];
 
 		return rest_ensure_response( $data );
 	}

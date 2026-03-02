@@ -4104,24 +4104,3 @@ Styles for plugin update details. Markup looks like this:
 	color: var(--sh-color-blue, #2271b1);
 }
 
-/* Option C: Feature list. */
-.sh-UserCard__premiumTeaserHeading {
-	margin: 0 0 4px;
-}
-
-.sh-UserCard__premiumFeatures {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.sh-UserCard__premiumFeatures li {
-	margin: 0;
-	padding: 0;
-	line-height: 1.5;
-}
-
-.sh-UserCard__premiumFeatures li::before {
-	content: "\2713\0020";
-	color: var(--sh-color-gray-3);
-}

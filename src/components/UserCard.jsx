@@ -2,7 +2,6 @@ import { Button, Icon, Popover, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { close, external, people, wordpress } from '@wordpress/icons';
-import { addQueryArgs } from '@wordpress/url';
 import apiFetch from '@wordpress/api-fetch';
 import { humanTimeDiff } from '@wordpress/date';
 import { getTrackingUrl } from '../functions';
@@ -10,34 +9,8 @@ import { getTrackingUrl } from '../functions';
 // Only one user card open at a time.
 let closeActiveUserCard = null;
 
-/**
- * Get the admin page base URL for Simple History.
- *
- * @return {string} Admin page URL.
- */
-function getAdminPageURL() {
-	return (
-		window.location.origin +
-		window.location.pathname.replace( /\/[^/]*$/, '/admin.php' )
-	);
-}
-
-/**
- * Get the "view all activity" URL for a non-user initiator type.
- *
- * @param {string} initiator The initiator type (wp_cli, wp, web_user, other).
- * @return {string} URL to filter events by this initiator type.
- */
-function getViewInitiatorActivityURL( initiator ) {
-	const initiatorJsonString = JSON.stringify( [
-		{ value: initiator, initiator_key: initiator },
-	] );
-
-	return addQueryArgs( getAdminPageURL(), {
-		page: 'simple_history_admin_menu_page',
-		initiator: initiatorJsonString,
-	} );
-}
+// Cache initiator card API responses keyed by type.
+const initiatorCardCache = {};
 
 /**
  * Get a display label for a role.
@@ -237,11 +210,19 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 /**
  * Card content for non-WP-user initiators (web_user, wp_cli, wp, other).
  *
- * @param {Object} props
- * @param {Object} props.event The event object.
+ * Uses the data-driven `actions` array from the REST API,
+ * so add-ons can extend the card via server-side filters.
+ *
+ * @param {Object}  props
+ * @param {Object}  props.event    The event object.
+ * @param {Object}  props.cardData Data from the REST API (or null).
+ * @param {boolean} props.isLoading Whether API data is loading.
  */
-function NonUserCardContent( { event } ) {
+function NonUserCardContent( { event, cardData, isLoading } ) {
 	const { initiator, initiator_data: initiatorData } = event;
+
+	const hasPremium = cardData?.has_premium_add_on;
+	const actions = cardData?.actions || [];
 
 	let label;
 	let description;
@@ -295,8 +276,6 @@ function NonUserCardContent( { event } ) {
 			activityLabel = null;
 	}
 
-	const activityURL = getViewInitiatorActivityURL( initiator );
-
 	return (
 		<div className="sh-UserCard__content">
 			<div className="sh-UserCard__identity">
@@ -320,9 +299,32 @@ function NonUserCardContent( { event } ) {
 							{ description }
 						</p>
 					) }
+					{ isLoading && (
+						<Spinner />
+					) }
 				</div>
 			</div>
-			{ activityLabel && (
+			{ actions.length > 0 && (
+				<nav
+					className="sh-UserCard__actions"
+					aria-label={ __( 'User actions', 'simple-history' ) }
+				>
+					<ul>
+						{ actions.map( ( action ) => (
+							<li key={ action.key }>
+								<a
+									href={ action.url }
+									className="sh-UserCard__actionLink"
+								>
+									<Icon icon={ external } size={ 16 } />
+									{ action.label }
+								</a>
+							</li>
+						) ) }
+					</ul>
+				</nav>
+			) }
+			{ ! isLoading && cardData && activityLabel && ! hasPremium && (
 				<div className="sh-UserCard__premiumTeaser sh-UserCard__premiumTeaser--blurred">
 					<a
 						href={ getPremiumUrl() }
@@ -396,17 +398,34 @@ export function UserCard( { event, children } ) {
 
 		setShowPopover( true );
 
-		// Only fetch card data for WP users (non-user cards are static).
-		if ( ! isWPUser || ! userId || cardData ) {
+		// Don't refetch if we already have data.
+		if ( cardData ) {
 			return;
+		}
+
+		// Determine the API path based on initiator type.
+		let apiPath;
+		if ( isWPUser ) {
+			if ( ! userId ) {
+				return;
+			}
+			apiPath = `/simple-history/v1/users/${ userId }/card`;
+		} else {
+			// Use cached response for non-user initiators.
+			if ( initiatorCardCache[ event.initiator ] ) {
+				setCardData( initiatorCardCache[ event.initiator ] );
+				return;
+			}
+			apiPath = `/simple-history/v1/initiators/${ event.initiator }/card`;
 		}
 
 		setIsLoading( true );
 
-		apiFetch( {
-			path: `/simple-history/v1/users/${ userId }/card`,
-		} )
+		apiFetch( { path: apiPath } )
 			.then( ( data ) => {
+				if ( ! isWPUser ) {
+					initiatorCardCache[ event.initiator ] = data;
+				}
 				setCardData( data );
 				setIsLoading( false );
 			} )
@@ -455,6 +474,8 @@ export function UserCard( { event, children } ) {
 						) : (
 							<NonUserCardContent
 								event={ event }
+								cardData={ cardData }
+								isLoading={ isLoading }
 							/>
 						) }
 					</div>
