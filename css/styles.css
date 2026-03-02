@@ -3952,6 +3952,14 @@ Styles for plugin update details. Markup looks like this:
 	color: #fff;
 }
 
+.sh-UserCard__avatar--cli {
+	background: #23282d;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+}
+
 .sh-UserCard__info {
 	display: flex;
 	flex-direction: column;

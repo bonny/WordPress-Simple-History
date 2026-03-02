@@ -12,6 +12,14 @@ let closeActiveUserCard = null;
 // Cache initiator card API responses keyed by type.
 const initiatorCardCache = {};
 
+// Terminal prompt icon for WP-CLI (no suitable icon in @wordpress/icons).
+const terminalPrompt = (
+	<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true">
+		<path d="M6 7l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+		<path d="M13 17h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+	</svg>
+);
+
 /**
  * Get a display label for a role.
  *
@@ -282,6 +290,10 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 				{ initiator === 'wp' ? (
 					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--wp">
 						<Icon icon={ wordpress } size={ 36 } />
+					</div>
+				) : initiator === 'wp_cli' ? (
+					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--cli">
+						{ terminalPrompt }
 					</div>
 				) : initiatorData?.user_avatar_url ? (
 					<img
