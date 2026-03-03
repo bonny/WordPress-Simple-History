@@ -36,6 +36,7 @@ function simple_history_cleanup_site() {
 		'simple_history_total_logged_events_count',
 		'simple_history_email_report_enabled',
 		'simple_history_email_report_recipients',
+		'simple_history_channel_file',
 	);
 
 	foreach ( $arr_options as $one_option ) {
