@@ -1,3 +1,5 @@
+import { UserCard } from './UserCard';
+
 export function EventInitiatorImageWPUser( props ) {
 	const { event } = props;
 	const { initiator_data: initiatorData } = event;
@@ -36,16 +38,23 @@ export function EventInitiatorImage( props ) {
 	const { event } = props;
 	const { initiator } = event;
 
+	let image;
+
 	switch ( initiator ) {
 		case 'wp_user':
-			return <EventInitiatorImageWPUser event={ event } />;
+			image = <EventInitiatorImageWPUser event={ event } />;
+			break;
 		case 'web_user':
-			return <EventInitiatorImageWebUser event={ event } />;
+			image = <EventInitiatorImageWebUser event={ event } />;
+			break;
 		case 'wp_cli':
 		case 'wp':
 		case 'other':
-			return <EventInitiatorImageFromCSS event={ event } />;
+			image = <EventInitiatorImageFromCSS event={ event } />;
+			break;
 		default:
 			return <p>Add image for initiator &quot;{ initiator }&quot;</p>;
 	}
+
+	return <UserCard event={ event }>{ image }</UserCard>;
 }

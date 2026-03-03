@@ -12,230 +12,133 @@ Track changes and user activities on your WordPress site. See who created a page
 
 ## Description
 
-> _"So far the best and most comprehensive logging plugin"_ - [@herrschuessler](https://wordpress.org/support/topic/so-far-the-best-and-most-comprehensive-logging-plugin/)
+Trusted by 300,000+ WordPress sites, rated 4.9 stars with [430+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5), actively developed for 10+ years, and translated into 15+ languages.
 
-Simple History shows recent changes made within WordPress, directly on your dashboard, on a separate page, or in the admin bar.
-
-The plugin acts as an audit log of the most important events that occur in WordPress.
-
-It's a plugin that is good to have on websites where several people are involved in editing the content.
-
-No coding is required to use the plugin. Just install it and it will start logging events.
+Simple History is the complete audit log for WordPress. It tracks every meaningful change — content edits, user logins, plugin updates, security events, and more — so site owners, teams, agencies, and developers always know who did what and when. Just install and activate; no configuration required.
 
 ### 🔍 How Simple History Helps in Real Situations
 
-**Track what's happening on your site**  
-_"Has someone done anything today? Ah, Sarah uploaded the new press release and created an article for it. Great! Now I don't have to do that."_
+**Track what's happening on your site**
+_"Has anyone done anything today? Ah, Sarah uploaded the new press release and created an article for it. Great — now I don't have to do that."_
 
-**Identify issues and debug faster**  
+**Identify issues and debug faster**
 _"The site feels slow since yesterday. Has anyone done anything special? ... Ah, Steven activated 'naughty-plugin-x', that must be it."_
 
-**Keep Freelancers & Agencies Accountable**
-_"I hired a developer to optimize my site. But did they actually do anything? A quick glance at Simple History shows me exactly what they worked on, so I know I'm getting my money's worth!"_
+**Keep freelancers & agencies accountable**
+_"I hired a developer to optimize my site. But did they actually do anything? A quick glance at Simple History shows me exactly what they worked on."_
 
-### ✨ Simple History Features
+**Spot suspicious activity early**
+_"I see three failed logins from an unfamiliar IP address overnight. Let me click the IP to check all activity from that address — just those attempts, nothing else. Good to know."_
 
-Out of the box Simple History has support for:
+### ✨ What Simple History Tracks
 
--   **Posts and pages** – see who added, updated or deleted a post or page
+#### Security & Monitoring
 
--   **Attachments** – see who added, updated or deleted an attachment
+-   Failed user logins with IP tracking and filtering by type (wrong password vs. non-existent username)
+-   Core file integrity checks against official checksums
+-   Forced security auto-updates from WordPress.org
+-   Site Health status changes
+-   Admin page access denied events
 
--   **Taxonomies (Custom taxonomies, categories, tags)** – see who added, updated or deleted an taxonomy
+#### Content & Users
 
--   **Comments** – see who edited, approved or removed a comment
+-   Posts, pages, and custom post types — create, edit, delete, and homepage assignment
+-   Attachments with image edit details (crop, rotate, flip, scale) and thumbnail previews
+-   Taxonomies with detailed diffs of name, slug, description, and parent
+-   Comments, menus (with item-level detail), and widgets
+-   User profiles, logins, logouts, and role changes
+-   Notes — the collaboration feature in WordPress 6.9
 
--   **Widgets** – get info when someone adds, updates or removes a widget in a sidebar
+#### System & Updates
 
--   **Plugins** – activation and deactivation
+-   Plugin lifecycle: install, update, activate, deactivate, delete, and auto-update toggle
+-   Theme install, update, activate, switch, and delete
+-   WordPress core updates (manual and automatic)
+-   Translation and language pack updates
+-   Available update notifications
+-   Settings and option screen changes
 
--   **User profiles** – info about added, updated or removed users
+#### Privacy & Compliance
 
--   **User logins** – see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
+-   Privacy data export and user data erasure requests
+-   Privacy page changes
+-   IP addresses anonymized by default — no cookies, no external fonts
 
--   **User edits** – see when a user is added, updated or removed, and get detailed information about the changes made to the user.
+### 🔌 Built-in Third-Party Plugin Support
 
--   **Failed user logins** – see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
+Simple History includes built-in logging for:
 
--   **Menu edits**
+-   **Jetpack** – Module activations and deactivations
+-   **Advanced Custom Fields (ACF)** – Field group and field changes
+-   **User Switching** – User switch events
+-   **WP Crontrol** – Cron event and schedule changes
+-   **Enable Media Replace** – File replacement details
+-   **Limit Login Attempts** – Login attempts, lockouts, and config changes
+-   **Redirection** – Redirect and group changes, global settings
+-   **Duplicate Post** – Post and page cloning
+-   **Beaver Builder** – Layout, template, and settings saves
 
--   **Option screens** – view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
+Is your plugin missing? Plugin authors can add support using the [logging API](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_logging_api).
 
--   **Privacy page** – when a privacy page is created or set to a new page.
+### 💬 What Users Say
 
--   **Notes** – track when notes are added, edited, or removed on posts and pages. Notes is a new collaboration feature in WordPress 6.9 that lets editors leave feedback without modifying the content.
+[430+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) on WordPress.org:
 
--   **Data Export** – see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
-
--   **User Data Erasure Requests** – see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
-
--   **admin page access denied** – see when a user tries to access an admin page they don't have permission to access.
-
-#### Built-in logging for third-party plugins
-
-Simple History comes with built in support for many plugins:
-
--   **Jetpack** – See which Jetpack modules are activated and deactivated.
-
--   **Advanced Custom Fields (ACF)** – See when field groups and fields are created and modified.
-
--   **User Switching** – See each user switch being made.
-
--   **WP Crontrol** – See when cron events are added, edited, deleted, paused, resumed, and manually ran, and when cron schedules are added and deleted.
-
--   **Enable Media Replace** – See details about the file being replaced and details about the new file.
-
--   **Limit Login Attempts** – See login attempts, lockouts, and configuration changes made in the plugin Limit Login Attempts.
-
--   **Redirection** – See redirects and groups that are created, changed, enabled or disabled and also when the global plugin settings have been modified.
-
--   **Duplicate Post** –See when a clone of a post or page is done.
-
--   **Beaver Builder** – See when a Beaver Builder layout or template is saved or when the settings for the plugins are saved.
-
-Is your plugin missing? No problem – plugin authors can add support for Simple History in their plugins using the [logging API](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_logging_api).
-
-#### Plugins that have support for Simple History includes:
-
--   [Simple History Beaver Builder Add-On](https://wordpress.org/plugins/extended-simple-history-for-beaver-builder/)
--   [WP-Optimize – Cache, Clean, Compress.](https://wordpress.org/plugins/wp-optimize/)
--   [Add Customer for WooCommerce](https://wordpress.org/plugins/add-customer-for-woocommerce/)
--   [Better WishList API](https://wordpress.org/plugins/better-wlm-api/)
--   [AJAX Login and Registration modal popup + inline form](https://wordpress.org/plugins/ajax-login-and-registration-modal-popup/)
--   [Loginpetze](https://wordpress.org/plugins/loginpetze/)
--   [Authorizer](https://wordpress.org/plugins/authorizer/)
--   [Ad Inserter](https://wordpress.org/plugins/ad-inserter/)
--   [FV Player Pro](https://foliovision.com/player/features/sharing/video-downloading-with-simple-history#integration-with-simple-history)
--   [Login Me Now](https://wordpress.org/plugins/login-me-now/)
-
-### 💬 What users say
-
-🌟 [300+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) speak to the reliability of this plugin. 🌟
-
+-   _"So far the best and most comprehensive logging plugin"_ – [@herrschuessler](https://wordpress.org/support/topic/so-far-the-best-and-most-comprehensive-logging-plugin/)
 -   _"The best history plugin I've found"_ – [Rich Mehta](https://wordpress.org/support/topic/the-best-history-plugin-ive-found/)
+-   _"Fantastic plugin I use on all sites"_ – [Duncan Michael-MacGregor](https://wordpress.org/support/topic/fantastic-plugin-i-use-on-all-sites/)
+-   _"It is a standard plugin for all of our sites"_ – [Mr Tibbs](https://wordpress.org/support/topic/it-is-a-standard-plugin-for-all-of-our-sites/)
 
--   _"Custom Logs Are Crazy Awesome!"_ - [Ahmad Awais](https://wordpress.org/support/topic/awesome-4654/)
+### 🚀 View Your Log Everywhere
 
--   _"Amazing activity logging plugin"_ - [digidestination](https://wordpress.org/support/topic/amazing-activity-logging-plugin/)
+Simple History starts tracking instantly after activation — no setup needed. It even imports recent activity so your log isn't empty on day one. Access your log from:
 
--   _"Fantastic plugin I use on all sites"_ - [Duncan Michael-MacGregor](https://wordpress.org/support/topic/fantastic-plugin-i-use-on-all-sites/)
-
--   _"Useful Quick View of Activity"_ - [Dan O](https://wordpress.org/support/topic/useful-quick-view-of-activity/)
-
--   _"The best Activity Plugin"_ - [Rahim](https://wordpress.org/support/topic/the-best-activity-plugin/)
-
--   _"The best free history plugin ever"_ - [abazeed](https://wordpress.org/support/topic/the-best-free-history-plugin-ever/)
-
--   _"It is a standard plugin for all of our sites"_ - [Mr Tibbs](https://wordpress.org/support/topic/it-is-a-standard-plugin-for-all-of-our-sites/)
-
-### 🚀 Zero-Config Activity Tracking
-
-Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. Even better: your activity log won't be empty on day one. Simple History automatically imports recent activity from your site's history, giving you a useful log from the moment you activate. View your activity logs through the convenient dashboard widget or browse the full history on the dedicated 'Simple History' page in your WordPress admin.
+-   **Dashboard widget** – Activity stats summary and recent events
+-   **Admin bar quick view** – Dropdown with latest events on any admin page
+-   **"This page" frontend filter** – See only events related to the page you're viewing
+-   **Command palette** – Type "Simple History" to jump to the log for the current post
+-   **Dedicated admin page** – Full log with search, filters, and insights sidebar
+-   **Email reports** – Weekly summary delivered to your inbox
+-   **RSS feed** – Password-protected feed for your favorite reader
+-   **WP-CLI** – Command-line access for automation and scripting
+-   **REST API** – Programmatic access for custom integrations
 
 ### 📧 Weekly Email Reports – Stay Informed Without Logging In
 
-Simple History's [weekly email reports](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports) give you a quick look at your site's activity straight in your inbox every Monday morning—know what happened on your site each week without logging in.
+[Weekly email reports](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports) deliver a summary of your site's activity every Monday morning — total activity, daily breakdown, key metrics (logins, content updates, plugin changes), and direct links to the full log.
 
-Each email report includes:
+Perfect for site owners, agencies managing client sites, and teams who need regular updates without logging in. Enable it in settings and [see what the email looks like](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports#example) before turning it on.
 
--   **Total activity summary** – See at a glance how active your site was
--   **Daily activity breakdown** – Identify the busiest days of the week
--   **Key metrics** – Login activity, content updates, plugin changes, and WordPress updates
--   **Direct links** – Jump straight to the full log for more details
+### 🛠️ For Developers & Power Users
 
-Perfect for site owners who want to stay informed without logging in daily, agencies managing multiple client sites, and teams who need regular activity updates.
-
-Enable email reports in the settings, add your email address, and start receiving weekly updates. You can [see what the email looks like](https://simple-history.com/features/email-reports-weekly/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_email_reports#example) before enabling it.
-
-### 📡 RSS feed with changes
-
-Using the optional password protected **RSS feed** you can keep track of the changes made on your website using your favorite RSS reader.
-
-### 🤖 WP-CLI commands for automation
-
-[Multiple WP-CLI commands exist](https://simple-history.com/features/wp-cli-commands/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_wp_cli_commands), to view and search the log, and to view more information about a specific event.
-
-WP-CLI support is perfect for system administrators and agencies managing multiple WordPress sites. Using WP-CLI commands they can automate log monitoring, create reports, or integrate with existing DevOps tools.
-
-Example commands:
-
--   `wp simple-history event list` – List the latest logged events.
--   `wp simple-history event get` – Get more information about a specific event.
--   `wp simple-history event add` – Add a custom event to the log.
--   `wp simple-history event search` – Search for events.
--   `wp simple-history stealth-mode` – See Stealth Mode status.
-
-### 🥷 Stealth Mode – Hide Simple History from the WordPress Admin
-
-[Stealth Mode](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_stealth_mode) allows Simple History to run completely in the background, hidden from the WordPress admin interface. This is ideal for agencies, developers, and administrators who want to track user activity discreetly without exposing the logs to other users.
-
-There are two modes:
-
--   **Partial Stealth Mode** – Hides the plugin but allows selected users to access the logs.
--   **Full Stealth Mode** – Completely hides Simple History from everyone.
-
-When Stealth Mode is enabled, the activity log remains accessible via the REST API, WP-CLI, and RSS feed, ensuring administrators can still retrieve logs when needed.
-
-Stealth Mode is built into the core/free version and is enabled using constants or filters. The [Simple History Premium](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_stealth_mode) add-on provides a user-friendly GUI for managing Stealth Mode settings without writing code.
-
-### 📝 Add your own events to the log using the API
-
-Theme and plugin developers can log custom events in Simple History using the `simple_history_log` filter:
-
-`apply_filters(
-  'simple_history_log',
-  'This is a logged message'
-);`
-
-See the [documentation](https://simple-history.com/docs/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_overview) for examples on how to [log your own events](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_logging_api), [query the log](https://simple-history.com/docs/query-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_query_api), and more.
+-   **WP-CLI** – [List, search, and export events](https://simple-history.com/features/wp-cli-commands/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_wp_cli_commands) from the command line — perfect for automation and managing multiple sites
+-   **REST API** – Full programmatic access to query the log and add custom events. See the [documentation](https://simple-history.com/docs/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_overview)
+-   **Logging API** – [Log your own events](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_logging_api) from themes and plugins with a single line of code
+-   **RSS feed** – Subscribe to changes using any feed reader
+-   **AI & agent-friendly** – The REST API and RSS feed make Simple History accessible to AI agents and automated workflows like Claude Code
+-   **Stealth Mode** – Run Simple History completely hidden from the admin interface via code; [Premium](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_stealth_mode) adds a GUI. Ideal for agencies and client sites
 
 ### 🔆 Extend with Add-ons
 
-Take your activity logging to the next level with add-ons that enhance tracking, security, and customization.
-
 #### [Simple History Premium](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-Unlock enterprise-grade logging and advanced customization:
+**Alerts & Notifications** – Get notified instantly via Email, Slack, Discord, or Telegram when important events occur. Start quickly with preset rules for common scenarios or build custom rules filtered by event type, user, role, and log level.
 
-**Log Channels – Stream Events Beyond WordPress**
+**Log Forwarding** – Stream events to external destinations: local log files, syslog servers (UDP/TCP/TLS), Datadog, Splunk, webhooks, or external MySQL/MariaDB databases. Perfect for centralized logging, compliance, and backup.
 
--   **File Channel** – Write events to local log files in JSON Lines, RFC 5424, or Logfmt format for integration with any log analysis tool.
--   **Syslog Channels** – Forward events to syslog servers via UDP, TCP, or encrypted TLS. Works with Graylog, Papertrail, and other centralized logging platforms.
--   **External Database Channel** – Store events in external MySQL/MariaDB databases for long-term retention and multi-site log aggregation.
--   **Datadog Channel** – Send events directly to Datadog for real-time monitoring, alerting, and dashboards.
--   **Webhook Channel** – Forward events to any HTTP endpoint with custom JSON payloads. Perfect for Slack notifications, custom integrations, or automation workflows.
-
-**Enhanced Controls & Productivity**
-
--   **Custom Log Entries** – Document team decisions, manual changes, or system updates that aren't automatically tracked.
--   **Export Search Results** – Download filtered logs as CSV or JSON for reporting and compliance audits.
--   **Log Retention** – Store logs for as long as you need—set custom retention periods or keep them forever.
--   **Backfill** – Import years of historical content created before Simple History was installed.
--   **Post Activity Panel** – View complete post history directly in the block editor sidebar.
--   **Stealth Mode GUI** – Manage hidden logging through a user-friendly interface.
--   **Logger Control** – Fine-tune which events are recorded by enabling or disabling specific loggers.
--   **IP Address Anonymization** – Full IP logging or anonymization for GDPR compliance.
--   **Ad-Free Experience** – Clean, distraction-free interface.
+**Enhanced Controls** – Custom retention periods (or keep logs forever), CSV/JSON export of filtered search results, post activity panel in the block editor, custom log entries for team decisions, stealth mode GUI, logger control to fine-tune which events are recorded, and an ad-free experience.
 
 #### [WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=addons&utm_content=readme_addon_woocommerce)
 
-Track WooCommerce activity with detailed logs for:
-
-✔️ Orders, refunds, and stock changes  
-✔️ Product updates and pricing adjustments  
-✔️ Settings modifications and coupon usage
+Track WooCommerce activity: orders, refunds, stock changes, product updates, pricing adjustments, settings modifications, and coupon usage.
 
 #### [Debug and Monitor](https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=addons&utm_content=readme_addon_debug_monitor)
 
-Gain deeper insights into your site's background activity:
-
-🛠️ Monitor outgoing requests and emails  
-🔍 Debug HTTP API calls and server communication  
-👨‍💻 Essential for developers, support teams, and anyone curious about what's happening under the hood
+Monitor outgoing HTTP requests and emails, debug API calls, and see what's happening under the hood. Essential for developers and support teams.
 
 ### 💚 Sponsor this project
 
-If you like this plugin please consider [sponsoring the development of the free plugin](https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_sponsor_footer). The plugin has been free for the last 10 years and will continue to be free.
+If you like this plugin please consider [sponsoring the development of the free plugin](https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_sponsor_footer). The plugin has been free for over 10 years and will continue to be free.
 
 ## Frequently Asked Questions
 
@@ -247,8 +150,9 @@ Yes! Simple History has been free for over 10 years and will remain free. To sup
 
 You can access the log in multiple ways:
 
--   The **dashboard** widget
--   The **admin bar menu**
+-   The **dashboard** widget with activity stats summary
+-   The **admin bar** quick view dropdown – on the frontend, use the "This page" toggle to see events for the current page
+-   The **WordPress command palette** – type "Simple History" to jump to the log for the current post
 -   A **dedicated log page** in the WordPress admin area
 
 ### Can I change where the History menu appears in WordPress admin?
@@ -350,46 +254,36 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Added "Clear filters" button to reset all search filters to their default values.
--   Added command palette command to view event history for the current post or page.
--   Added logging when a page is set as the homepage or posts page from the block editor, including the name of the previously assigned page.
--   Added upsell notice at the end of backfilled history showing specific counts of content not imported per type (pages, attachments, users, etc.) and explaining the free version's 100-items-per-type import limit.
--   Added logging of image edits (crop, rotate, flip, scale) in the media logger, including a thumbnail preview sized smaller than upload thumbnails.
--   Added user creation and profile update counts to the email digest report, displayed alongside login statistics in the Users section.
--   Added logging of parent category changes when editing terms.
--   Added diff details (name, slug, description, parent) when viewing edited category and tag events.
--   Added description and parent details when viewing created term events with non-default values.
--   Added detailed menu change logging showing item names, types, renames, moves, order changes, display location updates, and auto-add pages setting instead of just item counts.
--   Added compact JSON diff storage for post content changes (experimental). When enabled, stores a compact diff instead of full old/new content, reducing database size for large posts.
--   Added structured action links (Edit, View, Preview, Revisions) below post events with icons and capability checks (experimental). Links are shown as contextual actions based on post status and user permissions.
--   Added rotating tips in the sidebar to help users discover features like RSS feeds, WP-CLI, export, sticky events, and more. Tips rotate randomly on each page load. Filterable via `simple_history/sidebar_tips` and `simple_history/sidebar_tips/show`.
--   Added "This page" filter toggle to the admin bar Quick View, letting you see events for the currently viewed post or page without leaving the frontend.
--   Added Site Health Logger that tracks WordPress Site Health test status changes, logging when issues are detected, resolved, or change severity.
+-   Action links (Edit, View, Preview, Revisions) below post events with icons and capability checks.
+-   User card popover on avatar and name click, showing identity info (name, role, email) with a link to the user profile. Premium add-on extends the card with login history and activity details.
+-   Site Health Logger that tracks WordPress Site Health test status changes, logging when issues are detected, resolved, or change severity.
+-   "This page" filter toggle in the admin bar Quick View, letting you see events for the currently viewed post or page without leaving the frontend.
+-   Command palette command to view event history for the current post or page.
+-   Detailed menu change logging showing item names, types, renames, moves, order changes, and display location updates instead of just item counts.
+-   Logging of parent category changes and diff details (name, slug, description, parent) when viewing edited category and tag events.
+-   Logging when a page is set as the homepage or posts page from the block editor, including the name of the previously assigned page.
+-   Logging of image edits (crop, rotate, flip, scale) in the media logger, including a thumbnail preview.
+-   User creation and profile update counts in the email digest report, displayed alongside login statistics in the Users section.
+-   "Clear filters" button to reset all search filters to their default values.
+-   Rotating tips in the sidebar to help users discover features like RSS feeds, WP-CLI, export, and sticky events.
+-   Compact storage for post content changes, reducing database size for large posts (experimental).
 
 **Changed**
 
--   Improved IP address popover with prominent IP display, AS number links, map service links (Google Maps and OpenStreetMap), subnet filtering, and single-popover behavior.
--   Updated welcome message copy to clearly attribute the notice to Simple History and better communicate value: now highlights what gets tracked (logins, changes, timestamps) and invites users to explore their activity log.
--   Updated feed introduction event with clearer, more concise copy that names the plugin upfront, removes redundant items, and links directly to the Simple History Premium page.
--   Updated core file integrity restored log entry to show how many files are still modified, so users know when further action is needed.
--   Changed auto backfill to run on the first admin page load instead of relying on WP-Cron, ensuring it works in all environments including those where WP-Cron is disabled or unreliable.
--   Changed backfill upsell notice to only appear when content was genuinely missed due to the per-type limit, hiding it entirely when all available content was imported successfully.
--   Changed backfill notice copy to be more inviting, reworded from "missing from your history" to "Backfill into your history" with clearer explanation that only older pre-install content is affected.
--   Reduced frontend JavaScript for logged-in users by removing the wp-components dependency from the admin bar bundle, saving ~919 KB of scripts on every page load.
+-   Dashboard widget redesigned with activity stats summary, cleaner event list with skeleton loading, and streamlined search.
+-   IP address popover redesigned with prominent IP display, AS number links, map service links (Google Maps and OpenStreetMap), and subnet filtering.
+-   Core file integrity restored log entry now shows how many files are still modified.
+-   Auto backfill runs on the first admin page load instead of WP-Cron, ensuring it works in more environments.
+-   Admin bar JavaScript reduced by removing the wp-components dependency, saving ~919 KB on every page load.
+-   Object caching added to stats queries, preventing duplicate database queries within the same request.
 
 **Fixed**
 
--   Fixed false-positive core file integrity warnings on localized WordPress installs (e.g. sv_SE) caused by hardcoded en_US checksums.
--   Fixed term names showing backslash before apostrophes when editing categories and tags.
--   Fixed welcome message option staying in pending state on WordPress 6.3.
--   Fixed welcome notice not showing when an AJAX request (e.g. heartbeat) consumed the pending state before the first full admin page load.
--   Fixed duplicate welcome log entries that could occur during database table recovery.
--   Fixed incomplete option cleanup on plugin uninstall, leaving orphaned options in the database.
--   Fixed missing icon for "Other" initiator type; now shows a question mark icon.
--   Fixed event details diff table showing empty rows for unchanged fields.
--   Fixed retention setting link jumping to "Clear log" section instead of the Premium Settings section where the setting actually lives (when Premium is active).
--   Fixed "Configure failed login attempts" link opening settings page without tab UI due to missing tab query parameter.
--   Fixed manual backfill memory error on sites with many users by processing posts and users in batches instead of loading all at once.
+-   False-positive core file integrity warnings on localized WordPress installs (e.g. sv_SE) caused by hardcoded en_US checksums.
+-   Term names showing backslash before apostrophes when editing categories and tags.
+-   Incomplete option cleanup on plugin uninstall, leaving orphaned options in the database.
+-   Missing icon for "Other" initiator type.
+-   Manual backfill memory error on sites with many users, now processed in batches.
 
 ### 5.23.1 (February 2026)
 

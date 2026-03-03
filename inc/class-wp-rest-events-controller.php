@@ -236,7 +236,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	protected function get_single_event( $event_id ) {
 		$query_result = ( new Log_Query() )->query(
 			[
-				'post__in' => [ $event_id ],
+				'post__in'  => [ $event_id ],
+				'ungrouped' => true,
 			]
 		);
 
@@ -794,6 +795,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 			$args[ $wp_param ] = $request[ $api_param ];
 		}
+
+		// Force ungrouped for accurate count — grouping is irrelevant for "has updates" check.
+		$args['ungrouped'] = true;
 
 		$log_query    = new Log_Query();
 		$query_result = $log_query->query( $args );

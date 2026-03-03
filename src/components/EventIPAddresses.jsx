@@ -92,11 +92,28 @@ let closeActivePopover = null;
  * @param {Object} ipAddressProps
  */
 function IPAddressLink( ipAddressProps ) {
-	const { header, ipAddress, mapsApiKey, hasPremiumAddOn } = ipAddressProps;
+	const { header, ipAddress, mapsApiKey, hasPremiumAddOn, eventsSettingsPageURL } = ipAddressProps;
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ isLoadingIpInfo, setIsLoadingIpInfo ] = useState( false );
 	const [ ipInfoResult, setIpInfoResult ] = useState();
 	const buttonRef = useRef( null );
+
+	// Close on Escape key.
+	useEffect( () => {
+		if ( ! showPopover ) {
+			return;
+		}
+
+		const handleKeyDown = ( evt ) => {
+			if ( evt.key === 'Escape' ) {
+				setShowPopover( false );
+				buttonRef.current?.focus();
+			}
+		};
+
+		document.addEventListener( 'keydown', handleKeyDown );
+		return () => document.removeEventListener( 'keydown', handleKeyDown );
+	}, [ showPopover ] );
 
 	// The ip address may be anonymized. In that case we need to change the last ".x" to ".0".
 	// This is because the IP address is anonymized by setting the last octet to "x".
@@ -194,6 +211,39 @@ function IPAddressLink( ipAddressProps ) {
 			</a>
 		) : null;
 
+	const mapsApiKeyMissing =
+		hasPremiumAddOn && ! mapsApiKey ? (
+			<div
+				style={ {
+					display: 'grid',
+					placeItems: 'center',
+					width: '100%',
+					paddingRight: '40px',
+					paddingLeft: '20px',
+					height: 100,
+					backgroundImage:
+						'url("/wp-content/plugins/simple-history/assets/images/map-img-blur.jpg")',
+					backgroundSize: 'cover',
+				} }
+			>
+				<Text>
+					{ createInterpolateElement(
+						__(
+							'Add a Google Maps API key in <a>Settings</a> to show a map of this location.',
+							'simple-history'
+						),
+						{
+							a: eventsSettingsPageURL ? (
+								<a href={ `${ eventsSettingsPageURL }#simple-history-premium-settings` } />
+							) : (
+								<span />
+							),
+						}
+					) }
+				</Text>
+			</div>
+		) : null;
+
 	const upsellText = hasPremiumAddOn ? null : (
 		<>
 			<div
@@ -264,6 +314,7 @@ function IPAddressLink( ipAddressProps ) {
 		<>
 			{ upsellText }
 			{ map }
+			{ mapsApiKeyMissing }
 
 			<div
 				style={ {
@@ -411,6 +462,7 @@ function IPAddressLink( ipAddressProps ) {
 					placement="top"
 					animate={ false }
 					shift={ true }
+					onFocusOutside={ () => setShowPopover( false ) }
 				>
 					<div
 						style={ {
@@ -449,7 +501,7 @@ function IPAddressLink( ipAddressProps ) {
  * @param {Object} props
  */
 export function EventIPAddresses( props ) {
-	const { event, mapsApiKey, hasPremiumAddOn } = props;
+	const { event, eventVariant, mapsApiKey, hasPremiumAddOn, eventsSettingsPageURL } = props;
 	const { ip_addresses: ipAddresses } = event;
 
 	if ( ! ipAddresses ) {
@@ -462,12 +514,9 @@ export function EventIPAddresses( props ) {
 		return null;
 	}
 
-	const ipAddressesLabel = _n(
-		'IP address:',
-		'IP addresses:',
-		ipAddressesCount,
-		'simple-history'
-	);
+	const ipAddressesLabel = eventVariant === 'dashboard'
+		? ''
+		: _n( 'IP address:', 'IP addresses:', ipAddressesCount, 'simple-history' );
 
 	const IPAddressesText = [];
 	let loopCount = 0;
@@ -479,6 +528,7 @@ export function EventIPAddresses( props ) {
 					ipAddress={ ipAddress }
 					mapsApiKey={ mapsApiKey }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					eventsSettingsPageURL={ eventsSettingsPageURL }
 				/>{ ' ' }
 				{ /* Add comma to separate IP addresses, but not after the last one */ }
 				{ loopCount < ipAddressesCount - 1 ? ', ' : '' }

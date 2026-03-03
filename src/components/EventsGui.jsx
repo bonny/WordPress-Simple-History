@@ -1,7 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import {
 	parseAsArrayOf,
@@ -16,8 +15,7 @@ import {
 	SEARCH_FILTER_DEFAULT_END_DATE,
 	SEARCH_FILTER_DEFAULT_START_DATE,
 } from '../constants';
-import { generateAPIQueryParams } from '../functions';
-import { DashboardFooter } from './DashboardFooter';
+import { generateAPIQueryParams, parseApiFetchError } from '../functions';
 import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
@@ -119,11 +117,8 @@ function EventsGUI() {
 	 * Start filter/search options states.
 	 */
 
-	const isDashboard = window.pagenow === 'dashboard';
 	const useQueryStateOptions = {
-		// On dashboard we set throttle to +Infinity to avoid setting the URL at all
-		// (since it's a "shared" page and we don't want to change the URL.)
-		throttleMs: isDashboard ? +Infinity : 50,
+		throttleMs: 50,
 	};
 
 	// Value selected in dates dropdown.
@@ -468,36 +463,7 @@ function EventsGUI() {
 			setEvents( eventsJson );
 		} catch ( error ) {
 			setEventsLoadingHasErrors( true );
-
-			// Base error details that we fill with data from the error.
-			const errorDetails = {
-				code: null, // Example number "500".
-				statusText: null, // Example "Internal Server Error".
-				bodyJson: null,
-				bodyText: null,
-			};
-
-			// Fetch error response.
-			if ( error.headers && error.status && error.statusText ) {
-				const contentType = error.headers.get( 'Content-Type' );
-
-				errorDetails.code = error.status;
-				errorDetails.statusText = error.statusText;
-
-				if (
-					contentType &&
-					contentType.includes( 'application/json' )
-				) {
-					errorDetails.bodyJson = await error.json();
-				} else {
-					errorDetails.bodyText = await error.text();
-				}
-			} else {
-				// Unknown error.
-				errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
-			}
-
-			setEventsLoadingErrorDetails( errorDetails );
+			setEventsLoadingErrorDetails( await parseApiFetchError( error ) );
 		} finally {
 			setEventsIsLoading( false );
 		}
@@ -695,8 +661,6 @@ function EventsGUI() {
 				surroundingEventId={ surroundingEventId }
 				surroundingCount={ surroundingCount }
 			/>
-
-			{ isDashboard ? <DashboardFooter /> : null }
 
 			<EventsModalIfFragment />
 		</>

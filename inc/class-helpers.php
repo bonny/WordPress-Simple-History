@@ -1447,6 +1447,14 @@ class Helpers {
 	 * @return int Number of events user can view.
 	 */
 	public static function get_num_events_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
+		$cache_key   = 'num_events_last_n_days_' . $period_days . '_user_' . get_current_user_id();
+		$cache_group = self::get_cache_group();
+		$cached      = wp_cache_get( $cache_key, $cache_group );
+
+		if ( $cached !== false ) {
+			return (int) $cached;
+		}
+
 		global $wpdb;
 		$simple_history              = Simple_History::get_instance();
 		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
@@ -1464,40 +1472,24 @@ class Helpers {
 		);
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$count = $wpdb->get_var( $sql );
+		$count = (int) $wpdb->get_var( $sql );
 
-		return (int) $count;
+		wp_cache_set( $cache_key, $count, $cache_group );
+
+		return $count;
 	}
 
 	/**
 	 * Get number of events today (WordPress timezone-aware).
 	 *
+	 * Convenience wrapper for get_num_events_last_n_days(1).
 	 * Counts individual events from midnight today (00:00:00) in WordPress timezone.
 	 * Respects user permissions - only counts events from loggers the current user can view.
 	 *
 	 * @return int Number of events today that user can view.
 	 */
 	public static function get_num_events_today() {
-		global $wpdb;
-		$simple_history              = Simple_History::get_instance();
-		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
-
-		$sql = sprintf(
-			'
-                SELECT count(*)
-                FROM %1$s
-                WHERE date >= FROM_UNIXTIME(%2$d)
-                AND logger IN %3$s
-            ',
-			$simple_history->get_events_table_name(),
-			Date_Helper::get_today_start_timestamp(),
-			$sqlStringLoggersUserCanRead
-		);
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$count = $wpdb->get_var( $sql );
-
-		return (int) $count;
+		return self::get_num_events_last_n_days( 1 );
 	}
 
 	/**
@@ -1509,6 +1501,14 @@ class Helpers {
 	 * @return int Number of events currently in database that user can view.
 	 */
 	public static function get_current_database_events_count() {
+		$cache_key   = 'db_events_count_user_' . get_current_user_id();
+		$cache_group = self::get_cache_group();
+		$cached      = wp_cache_get( $cache_key, $cache_group );
+
+		if ( $cached !== false ) {
+			return (int) $cached;
+		}
+
 		global $wpdb;
 		$simple_history              = Simple_History::get_instance();
 		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
@@ -1524,9 +1524,11 @@ class Helpers {
 		);
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$count = $wpdb->get_var( $sql );
+		$count = (int) $wpdb->get_var( $sql );
 
-		return (int) $count;
+		wp_cache_set( $cache_key, $count, $cache_group );
+
+		return $count;
 	}
 
 	/**
@@ -1539,6 +1541,14 @@ class Helpers {
 	 * @return array Array with date as key and number of events user can view as value.
 	 */
 	public static function get_num_events_per_day_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
+		$cache_key   = 'events_per_day_last_n_days_' . $period_days . '_user_' . get_current_user_id();
+		$cache_group = self::get_cache_group();
+		$cached      = wp_cache_get( $cache_key, $cache_group );
+
+		if ( $cached !== false ) {
+			return $cached;
+		}
+
 		/** @var \wpdb $wpdb */
 		global $wpdb;
 
@@ -1598,7 +1608,14 @@ class Helpers {
 		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		return $wpdb->get_results( $sql );
+		$results = $wpdb->get_results( $sql );
+
+		// Don't cache failed queries (null result on DB error).
+		if ( $results !== null ) {
+			wp_cache_set( $cache_key, $results, $cache_group );
+		}
+
+		return $results;
 	}
 
 	/**

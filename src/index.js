@@ -3,6 +3,7 @@ import { SlotFillProvider, withFilters } from '@wordpress/components';
 import domReady from '@wordpress/dom-ready';
 import { createRoot } from '@wordpress/element';
 import EventsGUI from './components/EventsGui';
+import { DashboardEventsWidget } from './components/DashboardEventsWidget';
 import { EmptyFilteredComponent } from './EmptyFilteredComponent';
 import { NuqsAdapter } from 'nuqs/adapters/react';
 import { PremiumFeaturesModalProvider } from './components/PremiumFeaturesModalContext';
@@ -17,6 +18,8 @@ const EventsControlBarSlotfillsFilter = withFilters(
 	'SimpleHistory.FilteredComponent'
 )( EmptyFilteredComponent );
 
+const isDashboard = window.pagenow === 'dashboard';
+
 domReady( () => {
 	const target = document.getElementById( 'simple-history-react-root' );
 
@@ -28,14 +31,20 @@ domReady( () => {
 		return;
 	}
 
-	createRoot( target ).render(
-		<NuqsAdapter>
-			<PremiumFeaturesModalProvider>
-				<SlotFillProvider>
-					<EventsControlBarSlotfillsFilter />
-					<EventsGUI />
-				</SlotFillProvider>
-			</PremiumFeaturesModalProvider>
-		</NuqsAdapter>
-	);
+	// On the dashboard, render the simplified widget.
+	// On the full admin page, render the full GUI with filters and controls.
+	if ( isDashboard ) {
+		createRoot( target ).render( <DashboardEventsWidget /> );
+	} else {
+		createRoot( target ).render(
+			<NuqsAdapter>
+				<PremiumFeaturesModalProvider>
+					<SlotFillProvider>
+						<EventsControlBarSlotfillsFilter />
+						<EventsGUI />
+					</SlotFillProvider>
+				</PremiumFeaturesModalProvider>
+			</NuqsAdapter>
+		);
+	}
 } );
