@@ -528,6 +528,11 @@ class Simple_History {
 			Loggers\Custom_Entry_Logger::class,
 		);
 
+		// Experimental loggers, only loaded when experimental features are enabled.
+		if ( Helpers::experimental_features_is_enabled() ) {
+			$loggers[] = Loggers\Role_Capability_Logger::class;
+		}
+
 		/**
 		 * Filter the array with class names of core loggers.
 		 *
