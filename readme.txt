@@ -37,27 +37,31 @@ _"I hired a developer to optimize my site. But did they actually do anything? A 
 
 Out of the box Simple History has support for:
 
--   **Posts and pages** – see who added, updated or deleted a post or page
+-   **Posts and pages** – see who added, updated or deleted a post or page, including when a page is set as the homepage or posts page.
 
--   **Attachments** – see who added, updated or deleted an attachment
+-   **Attachments** – see who added, updated or deleted an attachment. Image edits like crop, rotate, flip, and scale are also logged with a thumbnail preview.
 
--   **Taxonomies (Custom taxonomies, categories, tags)** – see who added, updated or deleted an taxonomy
+-   **Taxonomies (Custom taxonomies, categories, tags)** – see who added, updated or deleted a taxonomy, including parent category changes and detailed diffs of name, slug, and description.
 
--   **Comments** – see who edited, approved or removed a comment
+-   **Comments** – see who edited, approved or removed a comment.
 
--   **Widgets** – get info when someone adds, updates or removes a widget in a sidebar
+-   **Widgets** – get info when someone adds, updates or removes a widget in a sidebar.
 
--   **Plugins** – activation and deactivation
+-   **Plugins** – installs, updates, activations, deactivations, and deletions. Also detects forced security auto-updates from WordPress.org and logs when auto-updates are enabled or disabled for a plugin.
 
--   **User profiles** – info about added, updated or removed users
+-   **Themes** – see when themes are installed, updated, activated, switched, or deleted.
 
--   **User logins** – see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts).
+-   **WordPress core updates** – see when WordPress itself is updated, including both manual and automatic updates.
+
+-   **User profiles** – info about added, updated or removed users.
+
+-   **User logins** – see when a user login & logout. Also see when a user fails to login (good way to catch brute-force login attempts). Filter by failed login type: wrong password for known users or attempts with non-existent usernames.
 
 -   **User edits** – see when a user is added, updated or removed, and get detailed information about the changes made to the user.
 
--   **Failed user logins** – see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker.
+-   **Failed user logins** – see when someone has tried to log in, but failed. The log will then include ip address of the possible hacker. Click on any IP address to see all events from that IP.
 
--   **Menu edits**
+-   **Menu edits** – see detailed changes including item names, types, renames, moves, order changes, and display location updates.
 
 -   **Option screens** – view details about changes made in the different settings sections of WordPress. Things like changes to the site title and the permalink structure will be logged.
 
@@ -65,11 +69,19 @@ Out of the box Simple History has support for:
 
 -   **Notes** – track when notes are added, edited, or removed on posts and pages. Notes is a new collaboration feature in WordPress 6.9 that lets editors leave feedback without modifying the content.
 
+-   **Translations** – see when language packs are updated for plugins, themes, and WordPress core.
+
+-   **Site Health** – track when WordPress Site Health test results change status between good, recommended, and critical.
+
+-   **Core file integrity** – detect when WordPress core files have been modified, added, or removed compared to the official checksums.
+
+-   **Available updates** – see when new updates become available for plugins, themes, and WordPress core.
+
 -   **Data Export** – see when a privacy data export request is added and when this request is approved by the user, downloaded by an admin, or emailed to the user.
 
 -   **User Data Erasure Requests** – see when a user privacy data export request is added and when this request is approved by the user and when the user data is removed.
 
--   **admin page access denied** – see when a user tries to access an admin page they don't have permission to access.
+-   **Admin page access denied** – see when a user tries to access an admin page they don't have permission to access.
 
 #### Built-in logging for third-party plugins
 
@@ -138,7 +150,7 @@ Is your plugin missing? No problem – plugin authors can add support for Simple
 
 ### 🚀 Zero-Config Activity Tracking
 
-Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. Even better: your activity log won't be empty on day one. Simple History automatically imports recent activity from your site's history, giving you a useful log from the moment you activate. View your activity logs through the convenient dashboard widget or browse the full history on the dedicated 'Simple History' page in your WordPress admin.
+Simple History begins tracking your WordPress site's activities instantly after installation - no setup required. Even better: your activity log won't be empty on day one. Simple History automatically imports recent activity from your site's history, giving you a useful log from the moment you activate. View your activity logs through the convenient dashboard widget, the admin bar quick view dropdown, the WordPress command palette, or the dedicated 'Simple History' page in your WordPress admin. When browsing your site's frontend, use the "This page" filter in the admin bar to see only events related to the page you're currently viewing.
 
 ### 📧 Weekly Email Reports – Stay Informed Without Logging In
 
@@ -211,7 +223,17 @@ Unlock enterprise-grade logging and advanced customization:
 -   **Syslog Channels** – Forward events to syslog servers via UDP, TCP, or encrypted TLS. Works with Graylog, Papertrail, and other centralized logging platforms.
 -   **External Database Channel** – Store events in external MySQL/MariaDB databases for long-term retention and multi-site log aggregation.
 -   **Datadog Channel** – Send events directly to Datadog for real-time monitoring, alerting, and dashboards.
--   **Webhook Channel** – Forward events to any HTTP endpoint with custom JSON payloads. Perfect for Slack notifications, custom integrations, or automation workflows.
+-   **Webhook Channel** – Forward events to any HTTP endpoint with custom JSON payloads. Perfect for custom integrations or automation workflows.
+-   **Splunk Channel** – Forward events to Splunk for enterprise search, monitoring, and SIEM integration.
+
+**Alerts & Notifications – Know When It Matters**
+
+-   **Email Alerts** – Get notified by email when specific events occur on your site.
+-   **Slack Alerts** – Send real-time alerts to Slack channels.
+-   **Discord Alerts** – Post alerts to Discord servers.
+-   **Telegram Alerts** – Receive alerts via Telegram.
+-   **Preset Rules** – Get started quickly with pre-configured alert rules for common scenarios like failed logins, plugin changes, and user modifications.
+-   **Custom Rules** – Build your own alert rules with flexible conditions: filter by event type, user, user role, log level, and more.
 
 **Enhanced Controls & Productivity**
 
@@ -255,8 +277,9 @@ Yes! Simple History has been free for over 10 years and will remain free. To sup
 
 You can access the log in multiple ways:
 
--   The **dashboard** widget
--   The **admin bar menu**
+-   The **dashboard** widget with activity stats summary
+-   The **admin bar** quick view dropdown – on the frontend, use the "This page" toggle to see events for the current page
+-   The **WordPress command palette** – type "Simple History" to jump to the log for the current post
 -   A **dedicated log page** in the WordPress admin area
 
 ### Can I change where the History menu appears in WordPress admin?
