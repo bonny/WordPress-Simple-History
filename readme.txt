@@ -12,7 +12,7 @@ Track changes and user activities on your WordPress site. See who created a page
 
 ## Description
 
-Trusted by 300,000+ WordPress sites, rated 4.9 stars with [430+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5), actively developed for 10+ years, and translated into 18 languages.
+Trusted by 300,000+ WordPress sites, rated 4.9 stars with [430+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5), actively developed for 10+ years, and translated into 15+ languages.
 
 Simple History is the complete audit log for WordPress. It tracks every meaningful change — content edits, user logins, plugin updates, security events, and more — so site owners, teams, agencies, and developers always know who did what and when. Just install and activate; no configuration required.
 
@@ -34,33 +34,49 @@ _"I see three failed logins from an unfamiliar IP address overnight. Let me clic
 
 #### Security & Monitoring
 
-Failed user logins with IP tracking and filtering by type (wrong password vs. non-existent username). Core file integrity checks against official checksums. Forced security auto-updates from WordPress.org. Site Health status changes. Admin page access denied events.
+-   Failed user logins with IP tracking and filtering by type (wrong password vs. non-existent username)
+-   Core file integrity checks against official checksums
+-   Forced security auto-updates from WordPress.org
+-   Site Health status changes
+-   Admin page access denied events
 
 #### Content & Users
 
-Posts, pages, and custom post types — create, edit, delete, and homepage assignment. Attachments with image edit details (crop, rotate, flip, scale) and thumbnail previews. Taxonomies with detailed diffs of name, slug, description, and parent. Comments, menus (with item-level detail), widgets. User profiles, logins, logouts, and role changes. Notes — the collaboration feature in WordPress 6.9.
+-   Posts, pages, and custom post types — create, edit, delete, and homepage assignment
+-   Attachments with image edit details (crop, rotate, flip, scale) and thumbnail previews
+-   Taxonomies with detailed diffs of name, slug, description, and parent
+-   Comments, menus (with item-level detail), and widgets
+-   User profiles, logins, logouts, and role changes
+-   Notes — the collaboration feature in WordPress 6.9
 
 #### System & Updates
 
-Plugin lifecycle: install, update, activate, deactivate, delete, and auto-update toggle. Theme install, update, activate, switch, and delete. WordPress core updates (manual and automatic). Translation and language pack updates. Available update notifications. Settings and option screen changes.
+-   Plugin lifecycle: install, update, activate, deactivate, delete, and auto-update toggle
+-   Theme install, update, activate, switch, and delete
+-   WordPress core updates (manual and automatic)
+-   Translation and language pack updates
+-   Available update notifications
+-   Settings and option screen changes
 
 #### Privacy & Compliance
 
-Privacy data export and user data erasure requests. Privacy page changes. IP addresses anonymized by default. No cookies, no external fonts.
+-   Privacy data export and user data erasure requests
+-   Privacy page changes
+-   IP addresses anonymized by default — no cookies, no external fonts
 
 ### 🔌 Built-in Third-Party Plugin Support
 
 Simple History includes built-in logging for:
 
--   **Jetpack** – Module activations and deactivations.
--   **Advanced Custom Fields (ACF)** – Field group and field changes.
--   **User Switching** – User switch events.
--   **WP Crontrol** – Cron event and schedule changes.
--   **Enable Media Replace** – File replacement details.
--   **Limit Login Attempts** – Login attempts, lockouts, and config changes.
--   **Redirection** – Redirect and group changes, global settings.
--   **Duplicate Post** – Post and page cloning.
--   **Beaver Builder** – Layout, template, and settings saves.
+-   **Jetpack** – Module activations and deactivations
+-   **Advanced Custom Fields (ACF)** – Field group and field changes
+-   **User Switching** – User switch events
+-   **WP Crontrol** – Cron event and schedule changes
+-   **Enable Media Replace** – File replacement details
+-   **Limit Login Attempts** – Login attempts, lockouts, and config changes
+-   **Redirection** – Redirect and group changes, global settings
+-   **Duplicate Post** – Post and page cloning
+-   **Beaver Builder** – Layout, template, and settings saves
 
 Is your plugin missing? Plugin authors can add support using the [logging API](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_logging_api).
 
@@ -95,12 +111,12 @@ Perfect for site owners, agencies managing client sites, and teams who need regu
 
 ### 🛠️ For Developers & Power Users
 
--   **WP-CLI** – [List, search, and export events](https://simple-history.com/features/wp-cli-commands/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_wp_cli_commands) from the command line. Perfect for automation and managing multiple sites.
--   **REST API** – Full programmatic access to query the log and add custom events. See the [documentation](https://simple-history.com/docs/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_overview).
--   **Logging API** – [Log your own events](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_logging_api) from themes and plugins with a single line of code.
--   **RSS feed** – Subscribe to changes using any feed reader.
--   **AI & agent-friendly** – The REST API, JSON feeds, and RSS feed make Simple History accessible to AI agents and automated workflows like Claude Code.
--   **Stealth Mode** – Run Simple History completely hidden from the admin interface — ideal for agencies and client sites. [Learn more](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_stealth_mode).
+-   **WP-CLI** – [List, search, and export events](https://simple-history.com/features/wp-cli-commands/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_wp_cli_commands) from the command line — perfect for automation and managing multiple sites
+-   **REST API** – Full programmatic access to query the log and add custom events. See the [documentation](https://simple-history.com/docs/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_overview)
+-   **Logging API** – [Log your own events](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_logging_api) from themes and plugins with a single line of code
+-   **RSS feed** – Subscribe to changes using any feed reader
+-   **AI & agent-friendly** – The REST API and RSS feed make Simple History accessible to AI agents and automated workflows like Claude Code
+-   **Stealth Mode** – Run Simple History completely hidden from the admin interface via code; [Premium](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_stealth_mode) adds a GUI. Ideal for agencies and client sites
 
 ### 🔆 Extend with Add-ons
 
@@ -110,7 +126,7 @@ Perfect for site owners, agencies managing client sites, and teams who need regu
 
 **Log Forwarding** – Stream events to external destinations: local log files, syslog servers (UDP/TCP/TLS), Datadog, Splunk, webhooks, or external MySQL/MariaDB databases. Perfect for centralized logging, compliance, and backup.
 
-**Enhanced Controls** – Custom retention periods (or keep logs forever), CSV/JSON export, post activity panel in the block editor, custom log entries for team decisions, stealth mode GUI, logger control to fine-tune which events are recorded, and an ad-free experience.
+**Enhanced Controls** – Custom retention periods (or keep logs forever), CSV/JSON export of filtered search results, post activity panel in the block editor, custom log entries for team decisions, stealth mode GUI, logger control to fine-tune which events are recorded, and an ad-free experience.
 
 #### [WooCommerce Logger](https://simple-history.com/add-ons/woocommerce/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=addons&utm_content=readme_addon_woocommerce)
 
