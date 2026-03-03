@@ -840,7 +840,7 @@ i.e. the log is inside a .postbox element.
 /* Dashboard widget: "View all activity" link — full-width click target. */
 .sh-DashboardWidget-viewAll a {
 	display: block;
-	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	padding: 12px var(--sh-dashboard-padding-x);
 	text-decoration: none;
 	font-size: 13px;
 }
@@ -856,7 +856,7 @@ i.e. the log is inside a .postbox element.
 
 .sh-DashboardWidget-viewAll__placeholder {
 	display: block;
-	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	padding: 12px var(--sh-dashboard-padding-x);
 	font-size: 13px;
 	color: #c3c4c7;
 	cursor: default;
