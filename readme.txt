@@ -267,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Clear filters" button to reset all search filters to their default values.
 -   Rotating tips in the sidebar to help users discover features like RSS feeds, WP-CLI, export, and sticky events.
 -   Compact storage for post content changes, reducing database size for large posts (experimental).
+-   "Copy as image" action in the event menu that captures an event as a branded PNG card and copies it to the clipboard, ready to paste into Slack, social media, or bug reports.
 -   Multisite uninstall support, removing tables, options, and cron events across all subsites in the network.
 
 **Changed**

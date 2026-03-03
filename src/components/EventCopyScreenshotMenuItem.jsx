@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { capturePhoto } from '@wordpress/icons';
 import { snapdom } from '@zumer/snapdom';
 
-const CARD_MAX_WIDTH = 560;
+const CARD_MAX_WIDTH = 460;
 
 /**
  * Get the Simple History logo URL from the existing page header image.
@@ -99,7 +99,7 @@ function prepareForCapture( logItem, event ) {
 		fontFamily:
 			"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif",
 	} );
-	taglineEl.textContent = 'WordPress Activity Log';
+	taglineEl.textContent = 'WordPress Activity Log \u00b7 simple-history.com';
 	footer.appendChild( taglineEl );
 
 	wrapper.appendChild( footer );
@@ -118,6 +118,41 @@ function prepareForCapture( logItem, event ) {
 			restoreFns.push( () => {
 				el.style.display = prev;
 			} );
+		} );
+	} );
+
+	// Hide user email to avoid leaking PII in shared screenshots.
+	// The email is in a <span>(email)</span> next to <strong>Name</strong>
+	// inside the header button.
+	const headerBtn = logItem.querySelector(
+		'.SimpleHistoryLogitem__header .components-button.is-link'
+	);
+	if ( headerBtn ) {
+		const emailSpan = headerBtn.querySelector( 'strong + span' );
+		if ( emailSpan ) {
+			const prev = emailSpan.style.display;
+			emailSpan.style.display = 'none';
+			restoreFns.push( () => {
+				emailSpan.style.display = prev;
+			} );
+		}
+	}
+
+	// Neutralize link styling so elements don't look clickable.
+	const linkEls = logItem.querySelectorAll(
+		'.components-button.is-link, a'
+	);
+	linkEls.forEach( ( el ) => {
+		const prevColor = el.style.color;
+		const prevDecoration = el.style.textDecoration;
+		const prevCursor = el.style.cursor;
+		el.style.color = 'inherit';
+		el.style.textDecoration = 'none';
+		el.style.cursor = 'default';
+		restoreFns.push( () => {
+			el.style.color = prevColor;
+			el.style.textDecoration = prevDecoration;
+			el.style.cursor = prevCursor;
 		} );
 	} );
 
