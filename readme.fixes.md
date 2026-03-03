@@ -133,6 +133,14 @@ Collection of small bug fixes, improvements, and features (patch-level changes).
 
 All fixes above need manual verification/testing before merging. Go through each fix and confirm it works as expected in the local dev environment.
 
+### 21. Weekly Email Logo Loaded from External Server
+
+-   **Issue:** [[check logo in log files]]
+-   **Files:** `templates/email-summary-report.php`
+-   **Problem:** The weekly email report included an `<img>` tag loading the Simple History logo from `simple-history.com`. Every email open triggered a request to the external server, effectively tracking users (IP address, email client, open time). This likely violates WordPress.org plugin guidelines which prohibit phoning home without consent.
+-   **Investigation:** Analyzed server access logs (Feb–Mar 2026). After filtering out requests from the simple-history.com website itself, found ~1,580 unique IPs loading the logo from email clients (Outlook, Gmail, Thunderbird, Apple Mail, Mailbird, Yahoo, Spark, eM Client, Proton Mail, plus Brevo pre-fetching). The real number of users with weekly email enabled is likely higher since many email clients block images by default.
+-   **Fix:** Changed image source from the external `simple-history.com` URL to the local `css/simple-history-logo.png` bundled with the plugin, served from the user's own WordPress site via `SIMPLE_HISTORY_DIR_URL`. Wrapped the logo in a link to `simple-history.com` with UTM parameters for click tracking.
+
 ## Deferred (needs own branch)
 
 -   Different Premium Icons Teaser vs Active — reclassified as `branch` complexity (13+ locations across PHP and JSX)
