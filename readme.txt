@@ -267,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Clear filters" button to reset all search filters to their default values.
 -   Rotating tips in the sidebar to help users discover features like RSS feeds, WP-CLI, export, and sticky events.
 -   Compact storage for post content changes, reducing database size for large posts (experimental).
+-   Multisite uninstall support, removing tables, options, and cron events across all subsites in the network.
 
 **Changed**
 
@@ -282,6 +283,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   False-positive core file integrity warnings on localized WordPress installs (e.g. sv_SE) caused by hardcoded en_US checksums.
 -   Term names showing backslash before apostrophes when editing categories and tags.
 -   Incomplete option cleanup on plugin uninstall, leaving orphaned options in the database.
+-   Three scheduled cron events not cleared during uninstall (database purge, core file integrity check, log file cleanup).
 -   Missing icon for "Other" initiator type.
 -   Manual backfill memory error on sites with many users, now processed in batches.
 
