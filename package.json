@@ -70,6 +70,7 @@
 	},
 	"dependencies": {
 		"@wordpress/icons": "^10.6.0",
+		"@zumer/snapdom": "^2.0.2",
 		"clsx": "^2.1.1",
 		"date-fns": "^4.1.0",
 		"nuqs": "^2.4.3",

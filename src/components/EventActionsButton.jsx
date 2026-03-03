@@ -1,9 +1,10 @@
 import { DropdownMenu, MenuGroup, Slot } from '@wordpress/components';
-
+import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
 import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
+import { EventCopyScreenshotMenuItem } from './EventCopyScreenshotMenuItem';
 import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
 import { EventSurroundingEventsMenuItem } from './EventSurroundingEventsMenuItem';
@@ -28,13 +29,15 @@ export function EventActionsButton( {
 	hasPremiumAddOn,
 	userCanManageOptions,
 } ) {
+	const actionsRef = useRef( null );
+
 	// Don't show actions on modal or dashboard events.
 	if ( eventVariant === 'modal' || eventVariant === 'dashboard' ) {
 		return null;
 	}
 
 	return (
-		<div className="SimpleHistoryLogitem__actions">
+		<div ref={ actionsRef } className="SimpleHistoryLogitem__actions">
 			<DropdownMenu
 				label={ __( 'Actions…', 'simple-history' ) }
 				icon={ moreHorizontalMobile }
@@ -57,6 +60,10 @@ export function EventActionsButton( {
 						<MenuGroup>
 							<EventCopyDetails event={ event } />
 							<EventCopyDetailsDetailed event={ event } />
+							<EventCopyScreenshotMenuItem
+								event={ event }
+								actionsRef={ actionsRef }
+							/>
 						</MenuGroup>
 
 						<MenuGroup>
