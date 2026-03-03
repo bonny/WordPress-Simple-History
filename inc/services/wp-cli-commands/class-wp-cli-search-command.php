@@ -60,6 +60,7 @@ class WP_CLI_Search_Command extends WP_CLI_Command {
 			'search'         => $search,
 			'date_from'      => $assoc_args['newer_than'],
 			'date_to'        => $assoc_args['older_than'],
+			'ungrouped'      => true,
 		);
 
 		// Override capability check: if you can run wp cli commands you can read all loggers.

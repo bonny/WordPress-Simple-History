@@ -138,9 +138,9 @@ class Existing_Data_Importer {
 			];
 		}
 
-		// Count total available posts with same filters but no limit.
+		// Count total available posts with same filters but minimal fetch.
 		$count_args                   = $base_args;
-		$count_args['posts_per_page'] = -1;
+		$count_args['posts_per_page'] = 1;
 		$count_args['fields']         = 'ids';
 		$count_args['no_found_rows']  = false;
 		$count_query                  = new \WP_Query( $count_args );

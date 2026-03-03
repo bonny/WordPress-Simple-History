@@ -1,6 +1,6 @@
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { EventHeaderItem } from './EventHeaderItem';
+import { UserCard } from './UserCard';
 
 /**
  * Outputs "WordPress" or "John Doe - erik@example.com".
@@ -20,19 +20,22 @@ export function EventInitiatorName( props ) {
 
 			if ( eventVariant === 'compact' ) {
 				userDisplay = <strong>{ nameToDisplay }</strong>;
+			} else if ( eventVariant === 'dashboard' ) {
+				userDisplay = (
+					<UserCard event={ event }>
+						<strong>{ nameToDisplay }</strong>
+					</UserCard>
+				);
 			} else if ( eventVariant === 'modal' ) {
 				userDisplay = <strong>{ nameToDisplay }</strong>;
 			} else {
 				userDisplay = (
-					<Button
-						href={ initiatorData.user_profile_url }
-						variant="link"
-					>
+					<UserCard event={ event }>
 						<>
 							<strong>{ nameToDisplay }</strong>&nbsp;
 							<span>({ initiatorData.user_email })</span>
 						</>
-					</Button>
+					</UserCard>
 				);
 			}
 
@@ -41,27 +44,35 @@ export function EventInitiatorName( props ) {
 		case 'web_user':
 			return (
 				<EventHeaderItem>
-					<strong>
-						{ __( 'Anonymous web user', 'simple-history' ) }
-					</strong>
+					<UserCard event={ event }>
+						<strong>
+							{ __( 'Anonymous web user', 'simple-history' ) }
+						</strong>
+					</UserCard>
 				</EventHeaderItem>
 			);
 		case 'wp_cli':
 			return (
 				<EventHeaderItem>
-					<strong>{ __( 'WP-CLI', 'simple-history' ) }</strong>
+					<UserCard event={ event }>
+						<strong>{ __( 'WP-CLI', 'simple-history' ) }</strong>
+					</UserCard>
 				</EventHeaderItem>
 			);
 		case 'wp':
 			return (
 				<EventHeaderItem>
-					<strong>{ __( 'WordPress', 'simple-history' ) }</strong>
+					<UserCard event={ event }>
+						<strong>{ __( 'WordPress', 'simple-history' ) }</strong>
+					</UserCard>
 				</EventHeaderItem>
 			);
 		case 'other':
 			return (
 				<EventHeaderItem>
-					<strong>{ __( 'Other', 'simple-history' ) }</strong>
+					<UserCard event={ event }>
+						<strong>{ __( 'Other', 'simple-history' ) }</strong>
+					</UserCard>
 				</EventHeaderItem>
 			);
 		default:

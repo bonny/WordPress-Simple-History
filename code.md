@@ -3,6 +3,7 @@
 ## Code Quality
 
 For comprehensive code quality guidelines, see the **code-quality** skill which covers:
+
 -   PHP standards and style guide
 -   CSS naming conventions (SuitCSS)
 -   Tooling (phpcs, phpstan, rector)
@@ -18,6 +19,12 @@ For comprehensive code quality guidelines, see the **code-quality** skill which 
 ### Common Commands
 
 ```bash
+# Build JavaScript/CSS assets
+# IMPORTANT: Always use `npm run build`, not `npx wp-scripts build`.
+# npm run build compiles all entry points (index, admin-bar, command-palette).
+# npx wp-scripts build only compiles index.js, causing missing asset errors.
+npm run build
+
 # Lint PHP
 npm run php:lint
 
@@ -44,10 +51,11 @@ return $result; // Return because user is not authorized
 ```
 
 **Why comments above are preferred:**
-- More visible and easier to scan
-- Avoids pushing lines beyond character limits
-- Easier to maintain consistent formatting
-- Git diffs show comment changes separately from code changes
+
+-   More visible and easier to scan
+-   Avoids pushing lines beyond character limits
+-   Easier to maintain consistent formatting
+-   Git diffs show comment changes separately from code changes
 
 ### Minimize Comments (Clean Code)
 
@@ -63,10 +71,11 @@ if ( $user->can_edit_posts() ) { ... }
 ```
 
 **When comments are appropriate:**
-- Explaining intent or "why" (not "what")
-- Warning of consequences
-- Clarifying complex algorithms
-- TODO markers for future work
+
+-   Explaining intent or "why" (not "what")
+-   Warning of consequences
+-   Clarifying complex algorithms
+-   TODO markers for future work
 
 ## Frontend Development
 
@@ -81,24 +90,33 @@ Use native HTML elements and CSS before reaching for JavaScript:
 -   **CSS Grid/Flexbox** for layouts instead of JS-based positioning
 
 **Why?**
-- Works without JavaScript (progressive enhancement)
-- Accessible by default (screen readers, keyboard navigation)
-- Less code to maintain
-- Better performance
-- Browser handles edge cases
+
+-   Works without JavaScript (progressive enhancement)
+-   Accessible by default (screen readers, keyboard navigation)
+-   Less code to maintain
+-   Better performance
+-   Browser handles edge cases
 
 **Example:**
+
 ```html
 <!-- Good: Native HTML -->
 <details>
-  <summary>Show more</summary>
-  <p>Hidden content</p>
+	<summary>Show more</summary>
+	<p>Hidden content</p>
 </details>
 
 <!-- Avoid: JavaScript-dependent -->
 <button onclick="toggle()">Show more</button>
 <div id="content" hidden>Hidden content</div>
 ```
+
+### Accessibility
+
+-   Follow WCAG AA: minimum 4.5:1 contrast ratio for text, 3:1 for large text and UI components
+-   Always provide accessible names for interactive elements (`aria-label` on inputs without visible labels, `alt` on images)
+-   Don't rely on color alone to convey meaning (add text labels, icons, or patterns)
+-   Use semantic HTML (`<button>` for actions, `<a>` for navigation, `<nav>`, `<main>`, etc.)
 
 ## Changelog
 

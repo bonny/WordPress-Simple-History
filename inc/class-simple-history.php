@@ -174,6 +174,7 @@ class Simple_History {
 			Services\Setup_Pause_Resume_Actions::class,
 			Services\Setup_Purge_DB_Cron::class,
 			Services\Setup_Settings_Page::class,
+			Services\Sidebar_Tips_Service::class,
 			Services\Simple_History_Updates::class,
 			Services\Stats_Service::class,
 			Services\Stealth_Mode::class,
@@ -496,6 +497,7 @@ class Simple_History {
 	public function get_core_loggers() {
 		$loggers = array(
 			Loggers\Available_Updates_Logger::class,
+			Loggers\Site_Health_Logger::class,
 			Loggers\File_Edits_Logger::class,
 			Loggers\Plugin_ACF_Logger::class,
 			Loggers\Plugin_Beaver_Builder_Logger::class,
@@ -941,10 +943,6 @@ class Simple_History {
 	 * @return array Array of action link arrays.
 	 */
 	public function get_action_links( $row ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return [];
-		}
-
 		$row_logger = $row->logger;
 
 		$logger = $this->get_instantiated_logger_by_slug( $row_logger );

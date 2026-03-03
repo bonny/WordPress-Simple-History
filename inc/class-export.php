@@ -104,6 +104,9 @@ class Export {
 
 		$download_query_args = $this->query_args;
 
+		// Exports are flat lists, no grouping needed.
+		$download_query_args['ungrouped'] = true;
+
 		$query_result = $query->query( $download_query_args );
 
 		if ( is_wp_error( $query_result ) ) {

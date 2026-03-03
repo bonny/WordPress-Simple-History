@@ -316,16 +316,30 @@ class Available_Updates_Logger extends Logger {
 
 			$output .= '</p>';
 
-			// Add link to update-page, if user is allowed  to that page.
-			$is_allowed_to_update_page = current_user_can( 'update_core' ) || current_user_can( 'update_themes' ) || current_user_can( 'update_plugins' );
-
-			if ( $is_allowed_to_update_page ) {
-				$output .= sprintf( '<p><a href="%1$s">', admin_url( 'update-core.php' ) );
-				$output .= __( 'View all updates', 'simple-history' );
-				$output .= '</a></p>';
-			}
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Get action links for a log row.
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		$is_allowed_to_update_page = current_user_can( 'update_core' ) || current_user_can( 'update_themes' ) || current_user_can( 'update_plugins' );
+
+		if ( ! $is_allowed_to_update_page ) {
+			return [];
+		}
+
+		return [
+			[
+				'url'    => admin_url( 'update-core.php' ),
+				'label'  => __( 'View all updates', 'simple-history' ),
+				'action' => 'view',
+			],
+		];
 	}
 }

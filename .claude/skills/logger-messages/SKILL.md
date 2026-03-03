@@ -1,6 +1,6 @@
 ---
 name: logger-messages
-description: Writes user-friendly logger messages in active voice for Simple History event logs. Fixes passive voice issues. Triggered when creating/modifying logger classes in loggers/, writing getInfo() messages, or adding events to activity log. Triggers: "logger message", "active voice", "event log text".
+description: "Enforces active voice (verb-first) for all Simple History logger messages and the Event Details API for details output. Triggers: creating a new logger class, writing or modifying a 'messages' array in get_info()/getInfo(), calling notice_message/warning_message/info_message, or implementing get_log_row_details_output()."
 allowed-tools: Read, Grep, Glob
 ---
 
@@ -51,18 +51,70 @@ Verify uniqueness: `grep -r "'your_key'" loggers/`
 
 ## Common Verbs
 
-- **Create:** Created, Added, Generated
-- **Modify:** Updated, Changed, Edited
-- **Delete:** Deleted, Removed, Trashed
-- **Toggle:** Activated, Deactivated, Enabled, Disabled
+-   **Create:** Created, Added, Generated
+-   **Modify:** Updated, Changed, Edited
+-   **Delete:** Deleted, Removed, Trashed
+-   **Toggle:** Activated, Deactivated, Enabled, Disabled
 
 ## Avoid
 
-- ❌ "was [verb]" - passive
-- ❌ "has been [verb]" - passive
-- ❌ Technical jargon users won't understand
+-   ❌ "was [verb]" - passive
+-   ❌ "has been [verb]" - passive
+-   ❌ Technical jargon users won't understand
+
+## Context Key Naming
+
+Prefix all context keys with the entity name to avoid collisions and keep keys self-documenting.
+
+```php
+// ✅ Good - prefixed with entity
+'plugin_name', 'plugin_current_version', 'theme_new_version'
+'site_health_status', 'site_health_label', 'site_health_badge_label'
+
+// ❌ Bad - too generic
+'test', 'label', 'status', 'name', 'version'
+```
+
+## Event Details Output
+
+Use the Event Details API for `get_log_row_details_output()`. Never build raw HTML with `SimpleHistoryLogitem__keyValueTable`.
+
+```php
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Table_Formatter;
+use Simple_History\Event_Details\Event_Details_Item;
+
+public function get_log_row_details_output( $row ) {
+    $group = new Event_Details_Group();
+    $group->set_formatter( new Event_Details_Group_Table_Formatter() );
+    $group->add_items(
+        array(
+            // Read value directly from context key.
+            new Event_Details_Item( 'status', __( 'Status', 'simple-history' ) ),
+            // Read new/prev pair from context (looks for key_new and key_prev).
+            new Event_Details_Item( array( 'setting_name' ), __( 'Setting', 'simple-history' ) ),
+        )
+    );
+    return $group;
+}
+```
+
+**Formatters:**
+
+-   `Event_Details_Group_Table_Formatter` — key-value table (default)
+-   `Event_Details_Group_Diff_Table_Formatter` — before/after with diffs
+-   `Event_Details_Group_Inline_Formatter` — compact inline text
+
+**Manual values** (when context keys don't match conventions):
+
+```php
+( new Event_Details_Item( null, __( 'Label', 'simple-history' ) ) )
+    ->set_new_value( $value )
+```
+
+See `docs/architecture/event-details.md` for full API reference.
 
 ## Detailed Resources
 
-- [examples.md](examples.md) - Extensive examples across all WordPress contexts
-- [integration.md](integration.md) - Complete logger class implementation
+-   [examples.md](examples.md) - Extensive examples across all WordPress contexts
+-   [integration.md](integration.md) - Complete logger class implementation

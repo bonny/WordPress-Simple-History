@@ -115,11 +115,12 @@ export function EventSeparator( {
 	} );
 
 	const labelClasses = 'SimpleHistoryEventSeparator__label';
+	const LabelTag = eventVariant === 'dashboard' ? 'h3' : 'span';
 
 	return (
 		<div className={ separatorClassNames }>
 			{ outputLabel ? (
-				<span className={ labelClasses }>{ label }</span>
+				<LabelTag className={ labelClasses }>{ label }</LabelTag>
 			) : null }
 		</div>
 	);

@@ -32,8 +32,8 @@ class History_Insights_Sidebar_Service extends Service {
 	 * Called when service is loaded.
 	 */
 	public function loaded() {
-		// Priority 5 to show after sale promo (priority 4) but before other boxes.
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'output_sidebar_widget' ], 5 );
+		// Priority 30 to show after sale/email promos but before tip and other boxes.
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'output_sidebar_widget' ], 30 );
 		add_action( 'simple_history/enqueue_admin_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 	}
 

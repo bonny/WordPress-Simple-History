@@ -1,6 +1,35 @@
 import { LOGLEVELS_OPTIONS } from './constants';
 import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { format } from 'date-fns';
+
+/**
+ * Fields to request from the events REST API endpoint.
+ * Shared across all event fetchers to keep field lists in sync.
+ */
+export const EVENT_FIELDS = [
+	'id',
+	'logger',
+	'date_local',
+	'date_gmt',
+	'message',
+	'message_html',
+	'message_key',
+	'details_data',
+	'details_html',
+	'loglevel',
+	'occasions_id',
+	'subsequent_occasions_count',
+	'initiator',
+	'initiator_data',
+	'ip_addresses',
+	'via',
+	'permalink',
+	'sticky',
+	'sticky_appended',
+	'backfilled',
+	'action_links',
+];
 
 /**
  * Generate API query object based on selected filters.
@@ -51,29 +80,7 @@ export function generateAPIQueryParams( props ) {
 	if ( surroundingEventId ) {
 		const params = {
 			surrounding_event_id: surroundingEventId,
-			_fields: [
-				'id',
-				'logger',
-				'date_local',
-				'date_gmt',
-				'message',
-				'message_html',
-				'message_key',
-				'details_data',
-				'details_html',
-				'loglevel',
-				'occasions_id',
-				'subsequent_occasions_count',
-				'initiator',
-				'initiator_data',
-				'ip_addresses',
-				'via',
-				'permalink',
-				'sticky',
-				'sticky_appended',
-				'backfilled',
-				'action_links',
-			],
+			_fields: EVENT_FIELDS,
 		};
 
 		// Add surrounding_count if specified.
@@ -84,40 +91,11 @@ export function generateAPIQueryParams( props ) {
 		return params;
 	}
 
-	// Set pager size depending on if page or dashboard.
-	// window.pagenow = 'dashboard_page_simple_history_page' | 'dashboard'
-	let perPage = pagerSize.page;
-	if ( window.pagenow === 'dashboard' ) {
-		perPage = pagerSize.dashboard;
-	}
-
 	// Create query params based on selected filters.
 	const eventsQueryParams = {
 		page,
-		per_page: perPage,
-		_fields: [
-			'id',
-			'logger',
-			'date_local',
-			'date_gmt',
-			'message',
-			'message_html',
-			'message_key',
-			'details_data',
-			'details_html',
-			'loglevel',
-			'occasions_id',
-			'subsequent_occasions_count',
-			'initiator',
-			'initiator_data',
-			'ip_addresses',
-			'via',
-			'permalink',
-			'sticky',
-			'sticky_appended',
-			'backfilled',
-			'action_links',
-		],
+		per_page: pagerSize.page,
+		_fields: EVENT_FIELDS,
 	};
 
 	if ( enteredSearchText ) {
@@ -418,4 +396,35 @@ export function getTrackingUrl(
 	}
 
 	return addQueryArgs( url, params );
+}
+
+/**
+ * Parse an error from wp.apiFetch into a structured details object.
+ *
+ * @param {Error|Response} error The caught error from apiFetch.
+ * @return {Promise<Object>} Error details with code, statusText, bodyJson, bodyText.
+ */
+export async function parseApiFetchError( error ) {
+	const errorDetails = {
+		code: null,
+		statusText: null,
+		bodyJson: null,
+		bodyText: null,
+	};
+
+	if ( error.headers && error.status && error.statusText ) {
+		const contentType = error.headers.get( 'Content-Type' );
+		errorDetails.code = error.status;
+		errorDetails.statusText = error.statusText;
+
+		if ( contentType && contentType.includes( 'application/json' ) ) {
+			errorDetails.bodyJson = await error.json();
+		} else {
+			errorDetails.bodyText = await error.text();
+		}
+	} else {
+		errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
+	}
+
+	return errorDetails;
 }

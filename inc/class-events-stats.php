@@ -1921,6 +1921,7 @@ class Events_Stats {
 			array(
 				'posts_per_page' => 1,
 				'date_from'      => Date_Helper::get_today_start_timestamp(),
+				'ungrouped'      => true,
 			)
 		);
 

@@ -17,6 +17,7 @@ export function EventHeader( props ) {
 		hasPremiumAddOn,
 		mapsApiKey,
 		isSurroundingEventsMode,
+		eventsSettingsPageURL,
 	} = props;
 
 	return (
@@ -33,9 +34,11 @@ export function EventHeader( props ) {
 
 			<EventIPAddresses
 				event={ event }
+				eventVariant={ eventVariant }
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				hasPremiumAddOn={ hasPremiumAddOn }
+				eventsSettingsPageURL={ eventsSettingsPageURL }
 			/>
 
 			<EventVia event={ event } />

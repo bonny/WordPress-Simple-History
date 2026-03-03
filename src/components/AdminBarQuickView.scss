@@ -201,12 +201,33 @@
 		// color: pink !important;
 	}
 
+	.SimpleHistory-adminBarQuickView-tabs {
+		background-color: #3c434a;
+		display: flex;
+		justify-content: center;
+		padding: 0.5rem;
+	}
+
+	.SimpleHistory-adminBarQuickView-infoText {
+		padding: 0.75em 1em 0;
+		color: var(--sh-text-color);
+		font-size: 12px;
+	}
+
+	.SimpleHistory-adminBarQuickView-emptyState {
+		padding: 2em 1em;
+		text-align: center;
+		color: rgba(240, 246, 252, 0.5);
+		font-size: 13px;
+	}
+
 	.SimpleHistory-adminBarEventsList-actions {
 		background-color: #3c434a;
 		display: flex;
 		gap: 1rem;
 		padding: 0.5rem;
 		justify-content: space-between;
+		align-items: center;
 
 		.button {
 			display: flex !important;
@@ -219,20 +240,50 @@
 
 		.SimpleHistory-adminBarEventsList-actions-reload img {
 			line-height: 1;
-			width: 20px;
-			height: 20px;
+			width: 16px;
+			height: 16px;
 		}
 
-		// .dashicons {
-		// 	line-height: 1;
-		// }
-
-		// .dashicons::before {
-		// 	font-family: dashicons;
-		// 	line-height: 1;
-		// }
+		.SimpleHistory-adminBarEventsList-actions-right {
+			display: flex;
+			gap: 0.5rem;
+			align-items: center;
+		}
 	}
 	.SimpleHistory-adminBarEventsList-actions-settings {
 		flex: 1;
+	}
+
+	.SimpleHistory-adminBarQuickView-filterToggle {
+		display: flex;
+		gap: 0;
+		border: 1px solid #666;
+		border-radius: 3px;
+		overflow: hidden;
+
+		.SimpleHistory-adminBarQuickView-filterToggle-button {
+			border: none !important;
+			border-radius: 0 !important;
+			min-height: 26px !important;
+			padding: 0 12px !important;
+			font-size: 12px !important;
+			line-height: 26px !important;
+			color: var(--sh-text-color) !important;
+			background-color: transparent !important;
+			cursor: pointer;
+
+			&:not(:last-child) {
+				border-right: 1px solid #666 !important;
+			}
+
+			&.is-active {
+				background-color: rgba(240, 246, 252, 0.15) !important;
+				color: #fff !important;
+			}
+
+			&:hover:not(.is-active) {
+				background-color: rgba(240, 246, 252, 0.07) !important;
+			}
+		}
 	}
 }

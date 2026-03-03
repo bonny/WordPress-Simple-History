@@ -295,6 +295,9 @@ class RSS_Dropin extends Dropin {
 					// RSS feeds don't need pagination metadata.
 					$args['skip_count_query'] = true;
 
+					// RSS feeds are flat lists, no grouping needed.
+					$args['ungrouped'] = true;
+
 					/**
 					 * Filters the arguments passed to `SimpleHistoryLogQuery()` when fetching the RSS feed
 					 *

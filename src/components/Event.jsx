@@ -66,11 +66,14 @@ export function Event( props ) {
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
 					isSurroundingEventsMode={ isSurroundingEventsMode }
+					eventsSettingsPageURL={ eventsSettingsPageURL }
 				/>
 
 				<EventText event={ event } eventVariant={ variant } />
 
-				<EventDetails event={ event } eventVariant={ variant } />
+				{ variant !== 'dashboard' && (
+					<EventDetails event={ event } eventVariant={ variant } />
+				) }
 
 				<EventActionLinks event={ event } />
 

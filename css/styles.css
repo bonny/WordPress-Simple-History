@@ -695,6 +695,280 @@ i.e. the log is inside a .postbox element.
 	}
 	*/
 
+/* Dashboard widget: match WP core dashboard padding. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem {
+	padding-top: var(--sh-dashboard-padding-y);
+	padding-bottom: var(--sh-dashboard-padding-y);
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem:last-child {
+	border-bottom: none;
+}
+
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitems {
+	border-bottom: none;
+}
+
+/* Dashboard widget: truncate long header to keep single-line. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__header {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Dashboard widget: no extra padding before date separators. */
+.SimpleHistoryReactRoot.is-dashboard
+	.SimpleHistoryLogitem:has(
+		+ .SimpleHistoryLogitem .SimpleHistoryEventSeparator--hasLabel
+	) {
+	padding-bottom: var(--sh-dashboard-padding-y);
+}
+
+/* Dashboard widget: date headings as clean inline labels. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryEventSeparator {
+	border-top: none;
+	margin-top: 0;
+	min-height: auto;
+	width: auto;
+	margin-left: 0;
+	justify-content: flex-start;
+}
+
+#dashboard-widgets
+	.SimpleHistoryReactRoot.is-dashboard
+	.SimpleHistoryEventSeparator__label {
+	transform: none;
+	border: none;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	padding: 0;
+	margin: 4px 0 var(--sh-dashboard-padding-y);
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	max-height: none;
+	color: var(--sh-color-gray-3);
+}
+
+/* Dashboard widget: tighter action links. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks {
+	margin-top: var(--sh-spacing-xsmall);
+	margin-bottom: 0;
+}
+
+/* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
+.sh-DashboardWidget-stats {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	min-height: 21px;
+	font-size: 13px;
+	color: #50575e;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sh-DashboardWidget-stats > svg {
+	fill: #787c82;
+	flex-shrink: 0;
+}
+
+.sh-DashboardWidget-stats__separator {
+	margin: 0 0.4em;
+	color: #c3c4c7;
+}
+
+/* Dashboard widget: search row wrapper. */
+.sh-DashboardWidget-searchRow {
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sh-DashboardWidget-searchRow__row {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-small);
+}
+
+.sh-DashboardWidget-search {
+	display: flex;
+	align-items: stretch;
+	gap: 6px;
+	flex: 1;
+}
+
+.sh-DashboardWidget-search__input {
+	flex: 1;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	padding: 4px 8px;
+	font-size: 13px;
+	line-height: 1.6;
+	background: #fff;
+	color: #2c3338;
+	outline: none;
+}
+
+.sh-DashboardWidget-search__input:focus {
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+	position: relative;
+	z-index: 1;
+}
+
+.sh-DashboardWidget-search__input::placeholder {
+	color: #a7aaad;
+}
+
+.sh-DashboardWidget-searchRow__filtersLink {
+	font-size: 12px;
+	text-decoration: none;
+	margin-left: auto;
+}
+
+.sh-DashboardWidget-searchRow__filtersLink:hover {
+	text-decoration: underline;
+}
+
+.sh-DashboardWidget-searchRow__filtersLink.is-placeholder {
+	color: #c3c4c7;
+	cursor: default;
+}
+
+/* Dashboard widget: "View all activity" link — full-width click target. */
+.sh-DashboardWidget-viewAll a {
+	display: block;
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	text-decoration: none;
+	font-size: 13px;
+}
+
+.sh-DashboardWidget-viewAll a:hover {
+	background-color: var(--sh-color-item-hover);
+	text-decoration: underline;
+}
+
+.sh-DashboardWidget-viewAll {
+	border-top: 1px solid #f0f0f1;
+}
+
+.sh-DashboardWidget-viewAll__placeholder {
+	display: block;
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	font-size: 13px;
+	color: #c3c4c7;
+	cursor: default;
+}
+
+/* Dashboard widget: rotating tip line. */
+.sh-DashboardWidget-tip {
+	margin: 0;
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	font-size: 12px;
+	color: #646970;
+	border-top: 1px solid #f0f0f1;
+}
+
+/* Dashboard widget: main container. Spacing matches WP core dashboard widgets (12px/8px). */
+.sh-DashboardWidget {
+	--sh-dashboard-padding-x: 12px;
+	--sh-dashboard-padding-y: 8px;
+	background-color: white;
+}
+
+/* Dashboard widget: content area. Overflow is managed by JS during height animation only. */
+.sh-DashboardWidget-content {
+	height: auto;
+}
+
+/* Dashboard widget: skeleton shimmer animation. */
+@keyframes sh-skeleton-shimmer {
+	0% {
+		background-position: -200px 0;
+	}
+	100% {
+		background-position: 400px 0;
+	}
+}
+
+/* Dashboard widget: skeleton event rows. */
+.sh-DashboardWidget-skeleton {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-DashboardWidget-skeleton__row {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sh-DashboardWidget-skeleton__row:last-child {
+	border-bottom: none;
+}
+
+.sh-DashboardWidget-skeleton__avatar {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	background: linear-gradient(90deg, #f0f0f1 25%, #e8e8e9 50%, #f0f0f1 75%);
+	background-size: 400px 100%;
+	animation: sh-skeleton-shimmer 1.5s infinite linear;
+}
+
+.sh-DashboardWidget-skeleton__content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding-top: 4px;
+}
+
+.sh-DashboardWidget-skeleton__line {
+	height: 12px;
+	border-radius: 3px;
+	background: linear-gradient(90deg, #f0f0f1 25%, #e8e8e9 50%, #f0f0f1 75%);
+	background-size: 400px 100%;
+	animation: sh-skeleton-shimmer 1.5s infinite linear;
+}
+
+.sh-DashboardWidget-skeleton__line--short {
+	width: 55%;
+}
+
+.sh-DashboardWidget-skeleton__line--long {
+	width: 80%;
+}
+
+.sh-DashboardWidget-skeleton__line--stats {
+	width: 180px;
+	height: 14px;
+}
+
+/* Dashboard widget: occasions full-width with subtle background.
+   The wrapper lives inside secondcol (margin-left: 40px) inside the event li (padding: 16px).
+   Pull the background out by 56px left and 16px right to reach the widget edges. */
+.SimpleHistoryLogitem__occasionsItemsWrap.is-dashboard
+	.SimpleHistoryLogitem__occasionsItems {
+	box-shadow: none;
+	background: #f6f7f7;
+	margin-left: calc(-40px - var(--sh-spacing-medium));
+	margin-right: calc(-1 * var(--sh-spacing-medium));
+}
+
+.SimpleHistoryLogitem__occasionsItemsWrap.is-dashboard
+	.SimpleHistoryLogitem__occasionsItems
+	.SimpleHistoryLogitem {
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
 /* // end dashboard */
 
 /*
@@ -3579,3 +3853,275 @@ Styles for plugin update details. Markup looks like this:
 .sh-HelpAndSupportPage > .sh-SettingsPage-settingsSection-title {
 	margin-bottom: 1rem;
 }
+
+/* Sidebar tip */
+.sh-SidebarTip {
+	padding: 0.75rem 1rem;
+}
+
+.sh-SidebarTip-text {
+	margin: 0;
+	font-size: var(--sh-font-size-medium);
+	line-height: 1.5;
+	color: var(--sh-color-black-2);
+}
+
+.sh-SidebarTip-icon {
+	margin-right: 0.25rem;
+}
+
+.sh-SidebarTip-label {
+	font-weight: 600;
+	color: var(--sh-color-black);
+}
+
+/* UserCard popover — shown on avatar/name click */
+.sh-UserCard__trigger.components-button.is-link {
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+.sh-UserCard__trigger.components-button.is-link:hover {
+	text-decoration: underline;
+}
+
+.sh-UserCard__trigger.components-button.is-link:focus {
+	box-shadow: none;
+	outline: 1px dotted;
+	outline-offset: 1px;
+}
+
+.SimpleHistoryLogitem__firstcol
+	.sh-UserCard__trigger.components-button.is-link {
+	display: block;
+	padding: 0;
+	height: auto;
+}
+
+.sh-UserCard__popover .components-popover__content {
+	min-width: 320px;
+	overflow: visible;
+	max-height: none;
+}
+
+.sh-UserCard {
+	position: relative;
+	padding: var(--sh-spacing-medium);
+	padding-right: calc(var(--sh-spacing-medium) + 20px);
+}
+
+.sh-UserCard__close.components-button {
+	position: absolute;
+	top: var(--sh-spacing-xsmall);
+	right: var(--sh-spacing-xsmall);
+	z-index: 1;
+	min-width: 24px;
+	min-height: 24px;
+	padding: 2px;
+}
+
+.sh-UserCard__identity {
+	display: flex;
+	gap: var(--sh-spacing-medium);
+	align-items: flex-start;
+}
+
+.sh-UserCard__avatar {
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.sh-UserCard__avatar--placeholder {
+	background: var(--sh-color-gray-4);
+}
+
+.sh-UserCard__avatar--wp {
+	background: #0073aa;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+}
+
+.sh-UserCard__avatar--cli {
+	background: #23282d;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+}
+
+.sh-UserCard__info {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.sh-UserCard__name {
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.3;
+	word-break: break-word;
+	margin: 0 0 2px 0;
+}
+
+.sh-UserCard__meta {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-UserCard__meta li {
+	font-size: 13px;
+	color: var(--sh-color-gray-3);
+	line-height: 1.5;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-UserCard__meta .sh-UserCard__detail {
+	margin-top: 4px;
+}
+
+.sh-UserCard__meta .sh-UserCard__detail + .sh-UserCard__detail {
+	margin-top: 0;
+}
+
+.sh-UserCard__description {
+	font-size: 13px;
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+	margin: 0 0 4px 0;
+}
+
+
+.sh-UserCard__loading {
+	display: inline-flex;
+	align-items: center;
+}
+
+.sh-UserCard__loading .components-spinner {
+	margin: 0;
+}
+
+.sh-UserCard__actions {
+	margin-top: var(--sh-spacing-small);
+	padding-top: var(--sh-spacing-small);
+	border-top: 1px solid var(--sh-color-gray-4);
+}
+
+.sh-UserCard__stats {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall, 6px);
+	margin-top: var(--sh-spacing-small);
+	padding-top: var(--sh-spacing-small);
+	border-top: 1px solid var(--sh-color-gray-4);
+	color: var(--sh-color-gray-3, #757575);
+}
+
+.sh-UserCard__statValue {
+	font-weight: 600;
+	color: var(--sh-color-gray-1, #1e1e1e);
+}
+
+.sh-UserCard__statSeparator {
+	color: var(--sh-color-gray-4, #c3c4c7);
+}
+
+.sh-UserCard__actions ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-UserCard__actions li {
+	margin: 0;
+	padding: 0;
+}
+
+.sh-UserCard__actionLink {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	font-size: 13px;
+	line-height: 1.6;
+	text-decoration: none;
+}
+
+.sh-UserCard__actionLink:hover {
+	text-decoration: underline;
+}
+
+.sh-UserCard__actionLink svg {
+	fill: currentColor;
+	flex-shrink: 0;
+}
+
+.sh-UserCard__premiumTeaser {
+	margin-top: var(--sh-spacing-small);
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+}
+
+.sh-UserCard__premiumTeaser--blurred {
+	background: var(--sh-color-cream);
+	border-radius: var(--sh-border-radius, 4px);
+	padding: var(--sh-spacing-small);
+}
+
+/* Option A: Blurred preview. */
+.sh-UserCard__blurredPreview {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	position: relative;
+}
+
+.sh-UserCard__blurredPreview:hover {
+	text-decoration: none;
+}
+
+.sh-UserCard__blurredPreview .sh-UserCard__meta {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sh-UserCard__detail--blurred {
+	color: var(--sh-color-gray-3);
+}
+
+.sh-UserCard__blurredValue {
+	filter: blur(4px);
+	user-select: none;
+	margin-left: 4px;
+}
+
+.sh-UserCard__blurredAction {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 8px;
+	color: #2271b1;
+}
+
+.sh-UserCard__premiumBadge {
+	display: inline-block;
+	margin-top: 8px;
+	padding: 2px 7px;
+	background: #f0f0f0;
+	color: #595959;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 400;
+}
+
+.sh-UserCard__blurredPreview:hover .sh-UserCard__premiumBadge {
+	color: var(--sh-color-blue, #2271b1);
+}
+
