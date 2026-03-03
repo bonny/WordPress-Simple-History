@@ -62,6 +62,7 @@ obsidian property:remove vault=nvALT name=review path="Simple History/issues/Som
 ### Frontmatter Schema
 
 ```yaml
+project: core # core, premium — which plugin the issue belongs to
 type: bug # bug, feature, ux, idea, website, perf, docs
 prio: 1-high # 1-high, 2-normal, 3-low
 size: 1-small # 1-small, 2-medium, 3-large
