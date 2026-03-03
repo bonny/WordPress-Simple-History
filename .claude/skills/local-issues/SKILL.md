@@ -6,6 +6,8 @@ allowed-tools: Bash, Read, Edit
 
 # Local Issues via Obsidian CLI
 
+**Local issues are the only issue tracker for this project.** When the user refers to "issues", always use local issues — do not check GitHub issues. GitHub auth is retained for other operations (PRs, project board, etc.).
+
 Manage local issue files in Obsidian using the `obsidian` CLI. This is faster and more reliable than manually reading/editing files for structured issue operations.
 
 ## Setup
