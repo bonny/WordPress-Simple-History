@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import {
+	createInterpolateElement,
 	useCallback,
 	useEffect,
 	useLayoutEffect,
@@ -248,30 +249,36 @@ export function DashboardEventsWidget() {
 					<>
 						<Icon icon={ chartBar } size={ 16 } />
 						<span>
-							{ sprintf(
-								/* translators: 1: number of events today */
-								_n(
-									'%s event today',
-									'%s events today',
-									stats.num_events_today,
-									'simple-history'
+							{ createInterpolateElement(
+								sprintf(
+									/* translators: 1: number of events today */
+									_n(
+										'<strong>%s</strong> event today',
+										'<strong>%s</strong> events today',
+										stats.num_events_today,
+										'simple-history'
+									),
+									stats.num_events_today
 								),
-								stats.num_events_today
+								{ strong: <strong /> }
 							) }
 						</span>
 						<span className="sh-DashboardWidget-stats__separator">
 							&middot;
 						</span>
 						<span>
-							{ sprintf(
-								/* translators: 1: number of events last 7 days */
-								_n(
-									'%s event last 7 days',
-									'%s events last 7 days',
-									stats.num_events_last_7_days,
-									'simple-history'
+							{ createInterpolateElement(
+								sprintf(
+									/* translators: 1: number of events last 7 days */
+									_n(
+										'<strong>%s</strong> event last 7 days',
+										'<strong>%s</strong> events last 7 days',
+										stats.num_events_last_7_days,
+										'simple-history'
+									),
+									stats.num_events_last_7_days
 								),
-								stats.num_events_last_7_days
+								{ strong: <strong /> }
 							) }
 						</span>
 					</>
