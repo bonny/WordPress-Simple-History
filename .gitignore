@@ -52,6 +52,10 @@ build/
 !.claude/settings.json
 !.claude/commands/
 !.claude/skills/
+# Skills with sensitive/business content (kept local only)
+.claude/skills/release/
+.claude/skills/local-issues/
+.claude/skills/premium-upsell-design/
 !.claude/hooks/
 !.claude/agents/
 scripts/copy-current-to-simple-history-com.sh
@@ -60,3 +64,9 @@ CLAUDE.local.md
 # Docker Claude Code environment
 docker/claude-code/.env
 benchmarks/
+scripts/check-server-logs.sh
+
+# Docs with credentials or business-sensitive content
+docs/channels-local-testing.md
+docs/alerts-feature-research.md
+docs/utm-tracking-guide.md

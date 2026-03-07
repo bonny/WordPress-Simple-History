@@ -150,12 +150,14 @@ $args = wp_parse_args(
 		<!-- Email Container -->
 		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="500" style="margin: auto;" class="email-container">
 			
-			<!-- Logo on Background -->
+			<!-- Logo -->
 			<tr>
 				<td style="padding: 40px 0 20px; text-align: left;">
-					<img src="https://simple-history.com/wp/wp-content/uploads/2023/09/SH_logo_NEW-768x156.png" 
-						width="200" height="41" alt="<?php echo esc_attr( __( 'Simple History', 'simple-history' ) ); ?>" 
-						border="0" style="height: auto; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #333333; display: block;">
+					<a href="https://simple-history.com/?utm_source=wpadmin&amp;utm_medium=email&amp;utm_campaign=weekly-report" style="text-decoration: none;">
+						<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/simple-history-logo.png' ); ?>"
+							width="200" height="41" alt="<?php echo esc_attr( __( 'Simple History', 'simple-history' ) ); ?>"
+							border="0" style="height: auto; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #333333; display: block;">
+					</a>
 				</td>
 			</tr>
 			
