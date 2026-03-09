@@ -276,7 +276,7 @@ export function EventsSearchFilters( props ) {
 						{ __( 'Search events', 'simple-history' ) }
 					</Button>
 
-					{ hasAnyActiveFilters() && (
+					{ hasAnyActiveFilters && (
 						<Button
 							variant="tertiary"
 							onClick={ handleClearFiltersWithUI }

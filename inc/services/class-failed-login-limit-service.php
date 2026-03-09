@@ -36,24 +36,7 @@ class Failed_Login_Limit_Service extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		// Only active when experimental features are enabled (Phase 1).
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return;
-		}
-
-		// Yield to premium's own failed login module if active.
-		if ( Helpers::is_premium_add_on_active() ) {
-			return;
-		}
-
-		/**
-		 * Filter to enable or disable the core failed login limit.
-		 *
-		 * @since 5.24.0
-		 *
-		 * @param bool $enabled Whether the limit is enabled. Default true.
-		 */
-		if ( ! apply_filters( 'simple_history/failed_login_limit/enabled', true ) ) {
+		if ( ! self::is_active() ) {
 			return;
 		}
 
@@ -139,11 +122,20 @@ class Failed_Login_Limit_Service extends Service {
 	}
 
 	/**
-	 * Get the number of suppressed attempts from the most recent burst.
+	 * Get the number of suppressed attempts.
+	 *
+	 * If an attack is ongoing (counter > threshold), returns the live count.
+	 * Otherwise returns the saved count from the most recent completed burst.
 	 *
 	 * @return int
 	 */
 	public static function get_last_suppressed_count() {
+		// Check live counter first for ongoing attacks.
+		$current_count = (int) get_option( self::OPTION_COUNTER, 0 );
+		if ( $current_count > self::THRESHOLD ) {
+			return $current_count - self::THRESHOLD;
+		}
+
 		return (int) get_option( self::OPTION_LAST_SUPPRESSED, 0 );
 	}
 
@@ -153,15 +145,23 @@ class Failed_Login_Limit_Service extends Service {
 	 * @return bool
 	 */
 	public static function is_active() {
+		// Only active when experimental features are enabled (Phase 1).
 		if ( ! Helpers::experimental_features_is_enabled() ) {
 			return false;
 		}
 
+		// Yield to premium's own failed login module if active.
 		if ( Helpers::is_premium_add_on_active() ) {
 			return false;
 		}
 
-		/** This filter is documented in this file's loaded() method. */
+		/**
+		 * Filter to enable or disable the core failed login limit.
+		 *
+		 * @since 5.24.0
+		 *
+		 * @param bool $enabled Whether the limit is enabled. Default true.
+		 */
 		return (bool) apply_filters( 'simple_history/failed_login_limit/enabled', true );
 	}
 }

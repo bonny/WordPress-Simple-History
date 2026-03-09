@@ -162,6 +162,8 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		/** @var AddOns_Licences */
 		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
 
+		$has_failed_login_limit = Failed_Login_Limit_Service::is_active();
+
 		$data = [
 			'dates'                           => Helpers::get_data_for_date_filter(),
 			'loggers'                         => $this->get_loggers_and_messages(),
@@ -177,8 +179,10 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				'has_extended_settings_add_on' => $addons_service->has_add_on( 'simple-history-extended-settings' ),
 				'has_premium_add_on'           => $addons_service->has_add_on( 'simple-history-premium' ),
 			],
-			'has_failed_login_limit'          => Failed_Login_Limit_Service::is_active(),
-			'failed_login_suppressed_count'   => Failed_Login_Limit_Service::get_last_suppressed_count(),
+			'has_failed_login_limit'          => $has_failed_login_limit,
+			'failed_login_suppressed_count'   => $has_failed_login_limit
+				? Failed_Login_Limit_Service::get_last_suppressed_count()
+				: 0,
 			'experimental_features_enabled'   => Helpers::experimental_features_is_enabled(),
 			'events_admin_page_url'           => Helpers::get_history_admin_url(),
 			'settings_page_url'               => Helpers::get_settings_page_url(),

@@ -21,8 +21,8 @@ function EventOccasionsAddonsContent( props ) {
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
 		hasFailedLoginLimit,
+		failedLoginSuppressedCount,
 		eventsSettingsPageURL,
-		occasionsCount,
 	} = props;
 
 	// Bail if the event is not from the SimpleUserLogger.
@@ -38,10 +38,8 @@ function EventOccasionsAddonsContent( props ) {
 		return null;
 	}
 
-	// Core limit threshold is 5. If occasions count >= 5,
-	// the limit likely suppressed additional attempts.
-	const limitThreshold = 5;
-	const limitLikelyHit = hasFailedLoginLimit && occasionsCount >= limitThreshold;
+	// Show suppression message only when we know attempts were actually suppressed.
+	const limitLikelyHit = hasFailedLoginLimit && failedLoginSuppressedCount > 0;
 
 	let content;
 
@@ -187,38 +185,38 @@ export function EventOccasions( props ) {
 	};
 
 	const showOccasionsEventsContent = (
-		<>
-			<div className="SimpleHistoryLogitem__occasions">
-				<Button
-					variant="link"
-					aria-expanded={ false }
-					onClick={ ( evt ) => {
-						loadOccasions();
-						evt.preventDefault();
-					} }
-				>
-					{ sprintf(
-						/* translators: %s: number of similar events */
-						_n(
-							'+%1$s similar event',
-							'+%1$s similar events',
-							subsequentOccasionsCount - 1,
-							'simple-history'
-						),
-						subsequentOccasionsCount - 1
-					) }
-				</Button>
+		<div className="SimpleHistoryLogitem__occasions">
+			<Button
+				variant="link"
+				aria-expanded={ false }
+				onClick={ ( evt ) => {
+					loadOccasions();
+					evt.preventDefault();
+				} }
+			>
+				{ sprintf(
+					/* translators: %s: number of similar events */
+					_n(
+						'+%1$s similar event',
+						'+%1$s similar events',
+						subsequentOccasionsCount - 1,
+						'simple-history'
+					),
+					subsequentOccasionsCount - 1
+				) }
+			</Button>
 
-				<EventOccasionsAddonsContent
-					event={ event }
-					eventsSettingsPageURL={ eventsSettingsPageURL }
-					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-					hasPremiumAddOn={ hasPremiumAddOn }
-					hasFailedLoginLimit={ hasFailedLoginLimit }
-					occasionsCount={ subsequentOccasionsCount }
-				/>
-			</div>
-		</>
+			<EventOccasionsAddonsContent
+				event={ event }
+				eventsSettingsPageURL={ eventsSettingsPageURL }
+				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+				hasPremiumAddOn={ hasPremiumAddOn }
+				hasFailedLoginLimit={ hasFailedLoginLimit }
+				failedLoginSuppressedCount={
+					failedLoginSuppressedCount
+				}
+			/>
+		</div>
 	);
 
 	return (

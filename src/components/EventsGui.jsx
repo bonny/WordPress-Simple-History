@@ -361,7 +361,7 @@ function EventsGUI() {
 	const defaultDateOptionRef = useRef( '' );
 
 	// Check if any filter has a non-default value.
-	const hasAnyActiveFilters = useCallback( () => {
+	const hasAnyActiveFilters = useMemo( () => {
 		const hasExpandedFilters =
 			selectedLogLevels.length > 0 ||
 			selectedMessageTypes.length > 0 ||
@@ -755,7 +755,7 @@ function EventsGUI() {
 				userCanManageOptions={ userCanManageOptions }
 				surroundingEventId={ surroundingEventId }
 				surroundingCount={ surroundingCount }
-				hasActiveFilters={ hasAnyActiveFilters() }
+				hasActiveFilters={ hasAnyActiveFilters }
 				onClearFilters={ handleClearFilters }
 			/>
 
