@@ -2185,7 +2185,7 @@ class Log_Query {
 	 * @return array $inner_where, possibly modified.
 	 */
 	private function add_search_to_inner_where_query( $inner_where, $args ) {
-		if ( ! isset( $args['search'] ) || empty( $args['search'] ) ) {
+		if ( ! isset( $args['search'] ) || ! is_string( $args['search'] ) || $args['search'] === '' ) {
 			return $inner_where;
 		}
 
@@ -2241,7 +2241,7 @@ class Log_Query {
 	 * @return array $inner_where, possibly modified.
 	 */
 	private function add_exclude_search_to_inner_where_query( $inner_where, $args ) {
-		if ( ! isset( $args['exclude_search'] ) || empty( $args['exclude_search'] ) ) {
+		if ( ! isset( $args['exclude_search'] ) || ! is_string( $args['exclude_search'] ) || $args['exclude_search'] === '' ) {
 			return $inner_where;
 		}
 
@@ -2405,10 +2405,14 @@ class Log_Query {
 	 * @return array<string> Unique array of context key names.
 	 */
 	private function get_searchable_context_keys() {
-		static $cached_keys = null;
+		// Cache keyed on user ID because get_loggers_that_user_can_read()
+		// is user-specific. Prevents stale results in tests and WP-CLI.
+		static $cache = [];
 
-		if ( $cached_keys !== null ) {
-			return $cached_keys;
+		$user_id = get_current_user_id();
+
+		if ( isset( $cache[ $user_id ] ) ) {
+			return $cache[ $user_id ];
 		}
 
 		$simple_history        = Simple_History::get_instance();
@@ -2431,9 +2435,9 @@ class Log_Query {
 			}
 		}
 
-		$cached_keys = array_unique( $keys );
+		$cache[ $user_id ] = array_unique( $keys );
 
-		return $cached_keys;
+		return $cache[ $user_id ];
 	}
 
 	/**
@@ -2508,10 +2512,14 @@ class Log_Query {
 	 * @return array<string> Array of logger slugs.
 	 */
 	private function get_loggers_without_messages() {
-		static $cached_loggers = null;
+		// Cache keyed on user ID because get_loggers_that_user_can_read()
+		// is user-specific. Prevents stale results in tests and WP-CLI.
+		static $cache = [];
 
-		if ( $cached_loggers !== null ) {
-			return $cached_loggers;
+		$user_id = get_current_user_id();
+
+		if ( isset( $cache[ $user_id ] ) ) {
+			return $cache[ $user_id ];
 		}
 
 		$simple_history        = Simple_History::get_instance();
@@ -2530,9 +2538,9 @@ class Log_Query {
 			$slugs[] = $logger_instance->get_slug();
 		}
 
-		$cached_loggers = $slugs;
+		$cache[ $user_id ] = $slugs;
 
-		return $cached_loggers;
+		return $cache[ $user_id ];
 	}
 
 	/**

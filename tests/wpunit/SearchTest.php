@@ -537,6 +537,22 @@ class SearchTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test search for "0" works correctly (PHP's empty("0") is true).
+	 */
+	public function test_search_for_zero_string() {
+		$this->create_event( 'SimpleLogger', 'info', 'Set value to 0 items' );
+		$this->create_event( 'SimpleLogger', 'info', 'Set value to 5 items' );
+
+		$results = ( new Log_Query() )->query( [
+			'posts_per_page' => 100,
+			'search'         => '0',
+		] );
+
+		// "0" should be treated as a valid search term, not as empty.
+		$this->assertGreaterThanOrEqual( 1, (int) $results['total_row_count'], 'Search for "0" should not return all events' );
+	}
+
+	/**
 	 * Test search is case-insensitive.
 	 */
 	public function test_search_case_insensitive() {
