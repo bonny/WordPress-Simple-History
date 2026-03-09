@@ -205,7 +205,8 @@ class Log_Query {
 		// Skip occasion grouping when searching — individual results are more
 		// useful and the grouped query is orders of magnitude slower because
 		// the session-variable inner query must scan all matching rows sequentially.
-		if ( ! empty( $args['search'] ) && Helpers::experimental_features_is_enabled() ) {
+		$has_search = ! empty( $args['search'] ) || ! empty( $args['metadata_search'] );
+		if ( $has_search && Helpers::experimental_features_is_enabled() ) {
 			return $this->query_overview_simple( $args );
 		}
 
@@ -1664,16 +1665,17 @@ class Log_Query {
 
 		$loggers_user_can_read = $Simple_History->get_loggers_that_user_can_read();
 
-		$searchstring = strtolower( trim( $searchstring ) );
-
 		/** @var array<int,array<int,array>> Array with found logger, message key, translated message, and untranslated message. */
 		$found_matches = [];
 
-		if ( empty( $searchstring ) ) {
+		$words = $this->get_sanitized_search_words( $searchstring );
+
+		if ( empty( $words ) ) {
 			return [];
 		}
 
-		$words = preg_split( '/[\s,]+/', $searchstring );
+		// Lowercase for case-insensitive comparison against translated templates.
+		$words = array_map( 'strtolower', $words );
 
 		foreach ( $loggers_user_can_read as $one_logger ) {
 			/** @var \Simple_History\Loggers\Logger $logger_instance */
@@ -2045,11 +2047,10 @@ class Log_Query {
 			$metadata_words = $this->get_sanitized_search_words( $args['metadata_search'] );
 
 			foreach ( $metadata_words as $word ) {
-				$str_like      = esc_sql( $wpdb->esc_like( $word ) );
-				$inner_where[] = sprintf(
-					"id IN ( SELECT history_id FROM %s AS c WHERE c.value LIKE '%%%s%%' )",
-					$contexts_table_name,
-					$str_like
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$inner_where[] = $wpdb->prepare(
+					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s )",
+					'%' . $wpdb->esc_like( $word ) . '%'
 				);
 			}
 		}
@@ -2314,11 +2315,12 @@ class Log_Query {
 
 		foreach ( $search_words as $word ) {
 			$word_sources = [];
-			$str_like     = esc_sql( $wpdb->esc_like( $word ) );
 
 			// Column matches: message, logger, level.
 			foreach ( $search_columns as $column ) {
-				$word_sources[] = sprintf( "%s LIKE '%%%s%%'", $column, $str_like );
+				// Column name is from the hardcoded $search_columns array, safe to interpolate.
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$word_sources[] = $wpdb->prepare( "{$column} LIKE %s", '%' . $wpdb->esc_like( $word ) . '%' );
 			}
 
 			if ( $use_scoped_search ) {
@@ -2354,10 +2356,10 @@ class Log_Query {
 				}
 			} else {
 				// Unscoped: search all context values (original behavior).
-				$word_sources[] = sprintf(
-					"id IN ( SELECT history_id FROM %s AS c WHERE c.value LIKE '%%%s%%' )",
-					$contexts_table_name,
-					$str_like
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$word_sources[] = $wpdb->prepare(
+					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s )",
+					'%' . $wpdb->esc_like( $word ) . '%'
 				);
 			}
 
@@ -2448,15 +2450,20 @@ class Log_Query {
 	 * @return array<string> Unique array of context key names.
 	 */
 	private function get_fallback_logger_context_keys( $logger_slugs ) {
-		static $cached_keys = null;
+		// Cache keyed on the sorted slug set. Both search and exclude_search
+		// callers pass the same get_loggers_without_messages() result, so this
+		// typically caches on the first call and returns the same result.
+		static $cache = [];
 
-		if ( $cached_keys !== null ) {
-			return $cached_keys;
+		$cache_key = implode( ',', $logger_slugs );
+
+		if ( isset( $cache[ $cache_key ] ) ) {
+			return $cache[ $cache_key ];
 		}
 
 		if ( empty( $logger_slugs ) ) {
-			$cached_keys = [];
-			return $cached_keys;
+			$cache[ $cache_key ] = [];
+			return $cache[ $cache_key ];
 		}
 
 		global $wpdb;
@@ -2483,9 +2490,9 @@ class Log_Query {
 			$keys = array_merge( $keys, $matches[1] );
 		}
 
-		$cached_keys = array_unique( $keys );
+		$cache[ $cache_key ] = array_unique( $keys );
 
-		return $cached_keys;
+		return $cache[ $cache_key ];
 	}
 
 	/**

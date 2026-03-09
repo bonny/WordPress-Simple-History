@@ -401,6 +401,7 @@ function EventsGUI() {
 		setSelectedInitiator( [] );
 		setEnteredIPAddress( '' );
 		setSelectedContextFilters( '' );
+		setEnteredMetadataSearch( '' );
 		setHideOwnEvents( false );
 	}, [
 		setSelectedDateOption,
@@ -413,6 +414,7 @@ function EventsGUI() {
 		setSelectedInitiator,
 		setEnteredIPAddress,
 		setSelectedContextFilters,
+		setEnteredMetadataSearch,
 		setHideOwnEvents,
 	] );
 

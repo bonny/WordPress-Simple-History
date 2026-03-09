@@ -167,11 +167,10 @@ class SearchTest extends \Codeception\TestCase\WPTestCase {
 			'search'         => 'api 192',
 		] );
 
-		// With unscoped search (experimental OFF), both words should match.
-		// With scoped search (experimental ON), "192" is in a non-placeholder key
-		// so it may not match unless _server_remote_addr is a placeholder.
-		// Either way, should not crash and should return valid results.
+		// Without experimental features, search is unscoped and checks all context values,
+		// so "api" matches in message and "192" matches in context — cross-source match works.
 		$this->assertIsArray( $results['log_rows'] );
+		$this->assertEquals( 1, (int) $results['total_row_count'], 'Cross-source matching: "api" in message + "192" in context should match exactly one event' );
 	}
 
 	/**
@@ -223,21 +222,32 @@ class SearchTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Test that search words are capped at 10.
+	 *
+	 * Words beyond the 10th should be silently ignored. To verify this,
+	 * we create an event matching word11 and confirm it's NOT filtered out
+	 * (because word11 is beyond the cap and thus not used as a filter).
 	 */
 	public function test_search_word_count_cap() {
-		$this->create_event( 'SimpleLogger', 'info', 'Test event' );
+		$unique = 'capmatch_' . uniqid();
 
-		// 15-word search should not cause errors.
-		$long_search = implode( ' ', array_map( fn( $i ) => "word{$i}", range( 1, 15 ) ) );
+		// Event contains words 1-10 AND word11.
+		$this->create_event( 'SimpleLogger', 'info', "{$unique} word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11" );
+
+		// Event contains words 1-10 but NOT word11.
+		$this->create_event( 'SimpleLogger', 'info', "{$unique} word1 word2 word3 word4 word5 word6 word7 word8 word9 word10" );
+
+		// Search with 11 words — word11 exceeds the 10-word cap.
+		$search = "{$unique} word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11";
 
 		$results = ( new Log_Query() )->query( [
 			'posts_per_page' => 100,
-			'search'         => $long_search,
+			'search'         => $search,
 		] );
 
-		// Should not crash — the cap handles this gracefully.
+		// Both events should match because word11 is ignored (capped at 10).
 		$this->assertIsArray( $results );
 		$this->assertArrayHasKey( 'log_rows', $results );
+		$this->assertEquals( 2, (int) $results['total_row_count'], 'Word cap: the 11th word should be ignored, so both events match' );
 	}
 
 	/**
@@ -458,6 +468,58 @@ class SearchTest extends \Codeception\TestCase\WPTestCase {
 		$data = $response->get_data();
 
 		$this->assertGreaterThanOrEqual( 1, count( $data ), 'REST API metadata_search should return matching events' );
+	}
+
+	/**
+	 * Test skip_count_query returns null for total_row_count.
+	 */
+	public function test_skip_count_query_returns_null_total() {
+		$this->create_event( 'SimpleLogger', 'info', 'Event for skip count test' );
+
+		$results = ( new Log_Query() )->query( [
+			'posts_per_page'   => 100,
+			'skip_count_query' => true,
+		] );
+
+		$this->assertNull( $results['total_row_count'], 'skip_count_query should make total_row_count null' );
+		$this->assertGreaterThanOrEqual( 1, count( $results['log_rows'] ), 'Should still return log rows' );
+	}
+
+	/**
+	 * Test skip_count_query via REST API returns no pagination headers.
+	 */
+	public function test_skip_count_query_via_rest_api() {
+		$this->create_event( 'SimpleLogger', 'info', 'Event for REST skip count test' );
+
+		$request = new \WP_REST_Request( 'GET', '/simple-history/v1/events' );
+		$request->set_param( 'skip_count_query', true );
+		$request->set_param( 'per_page', 100 );
+
+		$response = rest_do_request( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertGreaterThanOrEqual( 1, count( $response->get_data() ) );
+	}
+
+	/**
+	 * Test exclude_search works against context values (not just message columns).
+	 */
+	public function test_exclude_search_against_context_values() {
+		$this->create_event( 'SimpleLogger', 'info', 'User logged in', [
+			'_server_remote_addr' => '192.168.1.1',
+		] );
+		$this->create_event( 'SimpleLogger', 'info', 'User logged in', [
+			'_server_remote_addr' => '10.0.0.1',
+		] );
+
+		// Exclude events that have "192.168" in any searchable source.
+		$results = ( new Log_Query() )->query( [
+			'posts_per_page' => 100,
+			'exclude_search' => '192.168',
+		] );
+
+		// The event with 192.168.1.1 in context should be excluded.
+		$this->assertEquals( 1, (int) $results['total_row_count'], 'exclude_search should also exclude based on context values' );
 	}
 
 	/**
