@@ -60,6 +60,9 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 	public function benchmark_search( $args, $assoc_args ) {
 		global $wpdb;
 
+		// Set admin user so get_loggers_that_user_can_read() works.
+		wp_set_current_user( 1 );
+
 		$search_term = $args[0] ?? 'updated plugin';
 		$runs        = (int) ( $assoc_args['runs'] ?? 3 );
 		$per_page    = (int) ( $assoc_args['per-page'] ?? 20 );
@@ -215,6 +218,9 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 	 */
 	public function benchmark_query( $args, $assoc_args ) {
 		global $wpdb;
+
+		// Set admin user so get_loggers_that_user_can_read() works.
+		wp_set_current_user( 1 );
 
 		$runs = (int) ( $assoc_args['runs'] ?? 3 );
 
