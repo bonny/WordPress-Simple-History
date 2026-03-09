@@ -172,11 +172,6 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 				<div className="sh-UserCard__info">
 					<h4 className="sh-UserCard__name">
 						{ displayName }
-						{ isLoading && (
-							<span className="sh-UserCard__loading">
-								<Spinner />
-							</span>
-						) }
 					</h4>
 					<ul className="sh-UserCard__meta">
 						{ roles && roles.length > 0 && (
@@ -212,6 +207,12 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 					</ul>
 				</div>
 			</div>
+
+			{ isLoading && (
+				<div className="sh-UserCard__loading">
+					<Spinner />
+				</div>
+			) }
 
 			{ ! isLoading && statDetails.length > 0 && (
 				<div className="sh-UserCard__stats">
@@ -362,11 +363,13 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 							{ description }
 						</p>
 					) }
-					{ isLoading && (
-						<Spinner />
-					) }
 				</div>
 			</div>
+			{ isLoading && (
+				<div className="sh-UserCard__loading">
+					<Spinner />
+				</div>
+			) }
 			{ actions.length > 0 && (
 				<nav
 					className="sh-UserCard__actions"
