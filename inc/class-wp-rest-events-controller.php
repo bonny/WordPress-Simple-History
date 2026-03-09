@@ -493,6 +493,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			),
 		);
 
+		$query_params['metadata_search'] = array(
+			'description'       => __( 'Plain text search across all event metadata (context values). Slower than the main search but covers IP addresses, emails, and other internal data.', 'simple-history' ),
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+		);
+
 		$query_params['ungrouped'] = array(
 			'description' => __( 'Return ungrouped events without occasions grouping.', 'simple-history' ),
 			'type'        => 'boolean',
@@ -787,6 +793,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'initiator'               => 'initiator',
 			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
+			'metadata_search'         => 'metadata_search',
 			'ungrouped'               => 'ungrouped',
 			'skip_count_query'        => 'skip_count_query',
 		);
@@ -877,6 +884,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'initiator'               => 'initiator',
 			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
+			'metadata_search'         => 'metadata_search',
 			'ungrouped'               => 'ungrouped',
 			'skip_count_query'        => 'skip_count_query',
 			// Surrounding events parameters.

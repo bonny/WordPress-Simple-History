@@ -36,9 +36,9 @@ This is slow because:
 
 On a test DB with 17K events and 421K context rows:
 
-- **Events-only search: 2.4ms**
-- **Context search: 11,764ms** (~5,000x slower)
-- 96.5% of context data by size is `detective_mode_*` keys (backtrace data, avg 86K chars per row)
+-   **Events-only search: 2.4ms**
+-   **Context search: 11,764ms** (~5,000x slower)
+-   96.5% of context data by size is `detective_mode_*` keys (backtrace data, avg 86K chars per row)
 
 ### Table Statistics
 
@@ -70,18 +70,18 @@ What users see in the UI is an **interpolated message**: a translated message te
 
 Example:
 
-- Message template (`_message_key` = `plugin_activated`): `Activated plugin "{plugin_name}"`
-- Context value: `plugin_name` = `Simple History Premium`
-- Displayed text: `Activated plugin "Simple History Premium"`
+-   Message template (`_message_key` = `plugin_activated`): `Activated plugin "{plugin_name}"`
+-   Context value: `plugin_name` = `Simple History Premium`
+-   Displayed text: `Activated plugin "Simple History Premium"`
 
 Each event has ~19-24 context rows, but only a few (the placeholder keys) contribute to the visible message. The rest are internal metadata (`_user_id`, `_user_login`, `_server_remote_addr`, etc.).
 
 ### i18n / Translation Support
 
-- **Template matching works in any language** - `match_logger_messages_with_search()` compares search terms against the current locale's translated message templates, then looks up events by `_message_key`
-- **Context values are language-neutral** - Stored as-is (plugin names, post titles, etc.)
-- Searching "Aktiverade" (Swedish) matches the Swedish translation of the template, which is fast
-- Searching "Simple History Premium" (a context value) requires the slow context scan
+-   **Template matching works in any language** - `match_logger_messages_with_search()` compares search terms against the current locale's translated message templates, then looks up events by `_message_key`
+-   **Context values are language-neutral** - Stored as-is (plugin names, post titles, etc.)
+-   Searching "Aktiverade" (Swedish) matches the Swedish translation of the template, which is fast
+-   Searching "Simple History Premium" (a context value) requires the slow context scan
 
 ## Chosen Solution: Placeholder-Scoped Context Search
 
@@ -95,40 +95,86 @@ For **built-in loggers** (and any logger with registered messages):
 2. Extract `{placeholder}` names from each template (e.g. `plugin_name`, `theme_name`, `post_title`)
 3. Build a set of searchable context keys
 4. Change context search from:
-   ```sql
-   WHERE c.value LIKE '%term%'
-   ```
-   to:
-   ```sql
-   WHERE c.key IN ('plugin_name', 'theme_name', 'post_title', ...) AND c.value LIKE '%term%'
-   ```
+    ```sql
+    WHERE c.value LIKE '%term%'
+    ```
+    to:
+    ```sql
+    WHERE c.key IN ('plugin_name', 'theme_name', 'post_title', ...) AND c.value LIKE '%term%'
+    ```
 5. The `key` column already has an index, so this dramatically reduces rows scanned
 
 For **SimpleLogger** (catch-all for `do_action('simple_history_log', ...)`):
 
-- SimpleLogger has no registered message templates
-- Developers can use ad-hoc placeholders: `do_action('simple_history_log', 'Updated: {setting_name}', ['setting_name' => 'My Setting'])`
-- We cannot know these placeholder keys in advance
-- **Fallback**: Keep the full context `LIKE` scan but only for events where `logger = 'SimpleLogger'`
-- SimpleLogger events are typically a small fraction of total events, so this is acceptable
+-   SimpleLogger has no registered message templates
+-   Developers can use ad-hoc placeholders: `do_action('simple_history_log', 'Updated: {setting_name}', ['setting_name' => 'My Setting'])`
+-   We cannot know these placeholder keys in advance
+-   **Fallback**: Keep the full context `LIKE` scan but only for events where `logger = 'SimpleLogger'`
+-   SimpleLogger events are typically a small fraction of total events, so this is acceptable
 
 ### Why This Approach
 
-- **No schema changes** - Works with existing tables and indexes
-- **Uses existing `key` index** - Adding `WHERE key IN (...)` leverages the index on the `key` column
-- **Covers 95%+ of events** - Built-in loggers produce the vast majority of events
-- **Preserves full search for SimpleLogger** - No loss of functionality for custom logging
-- **Works with both MySQL and SQLite** - No database-specific features needed
+-   **No schema changes** - Works with existing tables and indexes
+-   **Uses existing `key` index** - Adding `WHERE key IN (...)` leverages the index on the `key` column
+-   **Covers 95%+ of events** - Built-in loggers produce the vast majority of events
+-   **Preserves full search for SimpleLogger** - No loss of functionality for custom logging
+-   **Works with both MySQL and SQLite** - No database-specific features needed
 
 ### Not 100% Guaranteed Faster
 
 Edge cases where performance may not improve:
 
-- Sites with many SimpleLogger events (heavy `do_action('simple_history_log')` usage)
-- Very small datasets where the current brute-force scan is already fast
-- Searches matching many logger templates, generating many OR clauses
+-   Sites with many SimpleLogger events (heavy `do_action('simple_history_log')` usage)
+-   Very small datasets where the current brute-force scan is already fast
+-   Searches matching many logger templates, generating many OR clauses
 
 Should benchmark before/after with `EXPLAIN` to verify.
+
+## Benchmark Results
+
+Test environment: 103,444 events, 3,079,234 context rows, MariaDB, Docker (local).
+All times are median of 3 runs via REST API (includes PHP + JSON serialization overhead).
+
+### Get Events (no search)
+
+No difference between experimental ON/OFF — search optimizations don't affect non-search queries.
+
+| Query                        | Time  |
+| ---------------------------- | ----- |
+| Default (14 days, 15 events) | 1.8s  |
+| Default + `skip_count_query` | 1.0s  |
+| Last 30 days                 | 3.9s  |
+| All dates                    | 11.3s |
+
+### Search Queries
+
+| Query                            | Experimental OFF | Experimental ON | Speedup  |
+| -------------------------------- | ---------------- | --------------- | -------- |
+| "api request" (14 days)          | 12.5s            | 1.3s            | **~10x** |
+| "api request" (14d) + skip_count | 6.3s             | 0.4s            | **~17x** |
+| "api request" (30 days)          | 23.7s            | 4.6s            | **~5x**  |
+| "api request 400" (14 days)      | 12.4s            | 1.7s            | **~7x**  |
+| "updated plugin" (30 days)       | 24.0s            | 4.8s            | **~5x**  |
+| "updated plugin" (all dates)     | 54.3s            | 4.7s            | **~12x** |
+| "login" (14 days)                | 17.7s            | 5.9s            | **~3x**  |
+| "api" single word (14 days)      | 1.9s             | 0.8s            | **~2x**  |
+
+### Metadata Search (always unscoped, same ON/OFF)
+
+| Query               | Time  |
+| ------------------- | ----- |
+| "192.168" (14 days) | 11.5s |
+| "admin@" (14 days)  | 12.1s |
+
+### Key Takeaways
+
+-   **Search is 3x–17x faster** with experimental features enabled, depending on query complexity and date range.
+-   **Best case**: "api request" with `skip_count_query` went from 6.3s → 0.4s (17x faster).
+-   **Worst case**: Single common word "login" still improved from 17.7s → 5.9s (3x faster).
+-   **Wider date ranges benefit more**: "updated plugin" all dates went from 54.3s → 4.7s (12x).
+-   **No regression** for non-search queries — identical performance with feature ON or OFF.
+-   **Metadata search** (unscoped context scan) is consistently ~12s regardless of experimental flag, confirming that the old search behavior was bottlenecked by context scanning.
+-   **`skip_count_query`** provides an additional ~2-3x speedup on top of scoped search (0.4s vs 1.3s for "api request" 14d).
 
 ## Review Findings
 
@@ -171,9 +217,11 @@ Currently "john updated" could match "john" in `_user_email` context and "update
 ### 5. Pre-existing `ltrim` Bug
 
 At lines 2207 and 2304:
+
 ```php
 $str_sql_search_words = ltrim( $str_sql_search_words, ' AND ' );
 ```
+
 `ltrim` with a character mask strips individual characters from the set `{' ','A','N','D'}`, not the substring `" AND "`. Works by accident because column names (`message`, `logger`, `level`) don't start with those characters. A latent correctness bomb — if a column starting with A/N/D were added, it would silently mangle the SQL.
 
 **Fix**: Since we're rewriting the search methods anyway, replace the `ltrim` + string-concatenation assembly with `implode`-based construction. Same applies to the trailing `preg_replace('/ AND $/', ...)` at line 2230.
@@ -192,10 +240,10 @@ The `add_exclude_search_to_inner_where_query()` method wraps everything in `NOT 
 
 ### 9. Pre-existing Edge Cases to Fix
 
-- **Empty search string**: `add_search_to_inner_where_query()` checks `isset($args['search'])` but not `empty()`. An empty string proceeds into the loop, `preg_split` returns `['']`, generating `LIKE '%%'` (matches everything). The exclude method correctly checks both. Fix the search method to match.
-- **Empty words in multi-word search**: `preg_split` can produce empty strings. Add per-word empty check inside the loop.
-- **Word count cap**: No limit on search words — a 20-word search generates 20 subqueries. Add a defensive cap (e.g. 10 words).
-- **Third-party loggers without messages**: Any logger where `get_messages()` returns `[]` that also logs its own events (not just adding context to other loggers' events) would lose context search coverage unless included in the fallback set. The dynamic fallback list handles this correctly.
+-   **Empty search string**: `add_search_to_inner_where_query()` checks `isset($args['search'])` but not `empty()`. An empty string proceeds into the loop, `preg_split` returns `['']`, generating `LIKE '%%'` (matches everything). The exclude method correctly checks both. Fix the search method to match.
+-   **Empty words in multi-word search**: `preg_split` can produce empty strings. Add per-word empty check inside the loop.
+-   **Word count cap**: No limit on search words — a 20-word search generates 20 subqueries. Add a defensive cap (e.g. 10 words).
+-   **Third-party loggers without messages**: Any logger where `get_messages()` returns `[]` that also logs its own events (not just adding context to other loggers' events) would lose context search coverage unless included in the fallback set. The dynamic fallback list handles this correctly.
 
 ## UX: Search Label and Advanced Context Search
 
@@ -203,11 +251,11 @@ The `add_exclude_search_to_inner_where_query()` method wraps everything in `NOT 
 
 Rename **"Containing words"** → **"Event text"**.
 
-- "Event" matches the plugin's own terminology ("Search events" button, "568 events" count, event log)
-- Noun-form label consistent with WordPress admin conventions ("Post title", "Excerpt")
-- Avoids "Message" which is overloaded in WordPress (post type, notifications, contact forms)
-- Translates cleanly — two words, no verb, no metaphor
-- Alternative "Messages containing" is grammatically incomplete; "Search messages" conflicts with the "Search events" button
+-   "Event" matches the plugin's own terminology ("Search events" button, "568 events" count, event log)
+-   Noun-form label consistent with WordPress admin conventions ("Post title", "Excerpt")
+-   Avoids "Message" which is overloaded in WordPress (post type, notifications, contact forms)
+-   Translates cleanly — two words, no verb, no metaphor
+-   Alternative "Messages containing" is grammatically incomplete; "Search messages" conflicts with the "Search events" button
 
 ### Help Text
 
@@ -227,9 +275,9 @@ Add placeholder to the search input:
 plugin name, post title, username
 ```
 
-- No quotes (quoted phrases look like exact-match syntax)
-- No `e.g.` prefix (WordPress admin convention uses just the example value)
-- Three realistic examples that demonstrate the scope: things users actually see in events
+-   No quotes (quoted phrases look like exact-match syntax)
+-   No `e.g.` prefix (WordPress admin convention uses just the example value)
+-   Three realistic examples that demonstrate the scope: things users actually see in events
 
 ### Zero-Results Nudge
 
@@ -246,21 +294,22 @@ This prevents the silent-result-drop confusion and provides a recovery path. Wit
 
 The expanded filters already have a "Context" field (`ExpandedFilters.jsx`) with key:value syntax. Rename and improve it:
 
-| Current | Recommended |
-|---------|-------------|
-| Label: "Context" | Label: **"Event metadata"** |
+| Current                                         | Recommended                                                                                                                     |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Label: "Context"                                | Label: **"Event metadata"**                                                                                                     |
 | Long prose help text with `_user_id`, `_sticky` | Short: "Search internal event data using key:value pairs, one per line. Example: `post_type:page` or `plugin_name:woocommerce`" |
-| No context-setting text | Add: "For advanced searches not covered by the fields above." |
+| No context-setting text                         | Add: "For advanced searches not covered by the fields above."                                                                   |
 
 "Event metadata" pairs naturally with "Event text" and creates a coherent mental model: visible text vs. underlying data. "Context" is a developer term most admins won't recognize.
 
 ### Hiding Context Search Behind "Show search options"
 
 This is a valid trade-off:
-- The field already exists in the expanded section
-- Auto-expand logic already fires when context filters are active (URL params preserved)
-- Users who need `_user_id:1` are in a diagnostic mindset and expect advanced fields behind a click
-- The 95% of users searching "user deleted post" shouldn't see a monospace key:value textarea
+
+-   The field already exists in the expanded section
+-   Auto-expand logic already fires when context filters are active (URL params preserved)
+-   Users who need `_user_id:1` are in a diagnostic mindset and expect advanced fields behind a click
+-   The 95% of users searching "user deleted post" shouldn't see a monospace key:value textarea
 
 Consider renaming "Show search options" → **"Show filters"** / **"Hide filters"** — "search options" sounds like preferences, not additional filter inputs. Parallels the existing "Clear filters" button.
 
@@ -276,53 +325,53 @@ The behavioral change (narrower default search scope) must be documented in the 
 
 ### PHP / SQL
 
-- [x] Dashboard widget: add `lastdays:30` date filter — previously queried all events with no date restriction, causing full table scan
-- [x] Dashboard widget: skip total count — exposed `skip_count_query` via REST API, dashboard now uses it
-- [x] Dashboard widget: add "View stats" link in stats bar (replaced 30-day stat to keep widget compact)
-- [ ] Benchmark current search query performance (EXPLAIN)
-- [ ] Extract placeholder keys from all registered logger messages
-- [ ] Build dynamic list of "loggers without messages" for fallback
-- [ ] Extract shared helper for placeholder keys + fallback logger list (used by both search and exclude_search)
-- [ ] Modify `add_search_to_inner_where_query()` to scope context search by key
-- [ ] Use two separate subqueries (scoped + fallback), not combined
-- [ ] Update `add_exclude_search_to_inner_where_query()` with identical scoping logic
-- [ ] Use static variable for placeholder keys if both search and exclude_search are used
-- [ ] Replace `ltrim`/`preg_replace` string assembly with `implode`-based construction
-- [ ] Add `empty()` check for search string (match existing exclude_search guard)
-- [ ] Add per-word empty string check inside the loop
-- [ ] Add word count cap (e.g. 10 words) as defensive measure
-- [ ] Benchmark new query performance (EXPLAIN both branches)
-- [x] Add WP-CLI benchmark command for default event retrieval (no search, matching dashboard/events page requests)
-- [ ] Test with translated site (non-English)
-- [ ] Test with SimpleLogger events containing placeholders
-- [ ] Test with third-party/external loggers
+-   [x] Dashboard widget: add `lastdays:30` date filter — previously queried all events with no date restriction, causing full table scan
+-   [x] Dashboard widget: skip total count — exposed `skip_count_query` via REST API, dashboard now uses it
+-   [x] Dashboard widget: add "View stats" link in stats bar (replaced 30-day stat to keep widget compact)
+-   [x] Benchmark current search query performance (EXPLAIN)
+-   [x] Extract placeholder keys from all registered logger messages (`get_searchable_context_keys()`)
+-   [x] Build dynamic list of "loggers without messages" for fallback (`get_loggers_without_messages()`)
+-   [x] Extract shared helper for placeholder keys + fallback logger list (used by both search and exclude_search)
+-   [x] Modify `add_search_to_inner_where_query()` to scope context search by key
+-   [x] Use two separate subqueries (scoped + fallback), not combined
+-   [x] Update `add_exclude_search_to_inner_where_query()` with identical scoping logic
+-   [x] Use static variable for placeholder keys if both search and exclude_search are used
+-   [x] Replace `ltrim`/`preg_replace` string assembly with `implode`-based construction
+-   [x] Add `empty()` check for search string (match existing exclude_search guard)
+-   [x] Add per-word empty string check inside the loop (`get_sanitized_search_words()`)
+-   [x] Add word count cap (e.g. 10 words) as defensive measure (`get_sanitized_search_words()`)
+-   [x] Benchmark new query performance (EXPLAIN both branches)
+-   [x] Add WP-CLI benchmark command for default event retrieval (no search, matching dashboard/events page requests)
+-   [ ] Test with translated site (non-English)
+-   [ ] Test with SimpleLogger events containing placeholders
+-   [ ] Test with third-party/external loggers
 
 ### UX / Frontend
 
-- [ ] Rename "Containing words" → "Event text"
-- [ ] Add help text: "Searches the text visible in each event."
-- [ ] Add placeholder: `plugin name, post title, username`
-- [ ] Add zero-results nudge pointing to Event metadata in advanced filters
-- [ ] Rename "Context" → "Event metadata" in expanded filters
-- [ ] Update context help text with shorter, example-based version
-- [ ] Consider renaming "Show search options" → "Show filters"
-- [ ] Fix `<div>` labels → `<label htmlFor>` (a11y, WCAG 1.3.1 / 4.1.2)
-- [ ] Add changelog entry noting the behavioral change
+-   [ ] Rename "Containing words" → "Event text"
+-   [ ] Add help text: "Searches the text visible in each event."
+-   [ ] Add placeholder: `plugin name, post title, username`
+-   [ ] Add zero-results nudge pointing to Event metadata in advanced filters
+-   [ ] Rename "Context" → "Event metadata" in expanded filters
+-   [ ] Update context help text with shorter, example-based version
+-   [x] Rename "Show search options" → "Show filters" / "Hide filters"
+-   [ ] Fix `<div>` labels → `<label htmlFor>` (a11y, WCAG 1.3.1 / 4.1.2)
+-   [x] Add changelog entry noting the behavioral change
 
 ## Files Involved
 
-- `inc/class-log-query.php` - `add_search_to_inner_where_query()`, `add_exclude_search_to_inner_where_query()`, and `match_logger_messages_with_search()`
-- `inc/class-helpers.php` - `interpolate()` method (line 122)
-- `inc/class-wp-rest-events-controller.php` - REST API endpoint
-- `loggers/class-logger.php` - `get_messages()` method
-- `loggers/class-simple-logger.php` - Catch-all logger without message templates
-- `loggers/class-plugin-acf-logger.php` - Example of non-SimpleLogger with no messages
-- `inc/services/class-loggers-loader.php` - Logger registration and instantiation
-- Database table: `wp_simple_history_contexts`
+-   `inc/class-log-query.php` - `add_search_to_inner_where_query()`, `add_exclude_search_to_inner_where_query()`, and `match_logger_messages_with_search()`
+-   `inc/class-helpers.php` - `interpolate()` method (line 122)
+-   `inc/class-wp-rest-events-controller.php` - REST API endpoint
+-   `loggers/class-logger.php` - `get_messages()` method
+-   `loggers/class-simple-logger.php` - Catch-all logger without message templates
+-   `loggers/class-plugin-acf-logger.php` - Example of non-SimpleLogger with no messages
+-   `inc/services/class-loggers-loader.php` - Logger registration and instantiation
+-   Database table: `wp_simple_history_contexts`
 
 ## Related
 
-- Search is also used by WP-CLI commands in `inc/services/wp-cli-commands/`
-- Consolidated from local issue "Text Search Slow on Context Data" (archived)
-- Feature request origin: nathan@nerdrush.com wanted to search WooCommerce context data like `regular_price_new`
-- Related local issues: "Saved Searches Premium Feature", "Post Diff Use Patches Instead of Full Content"
+-   Search is also used by WP-CLI commands in `inc/services/wp-cli-commands/`
+-   Consolidated from local issue "Text Search Slow on Context Data" (archived)
+-   Feature request origin: nathan@nerdrush.com wanted to search WooCommerce context data like `regular_price_new`
+-   Related local issues: "Saved Searches Premium Feature", "Post Diff Use Patches Instead of Full Content"

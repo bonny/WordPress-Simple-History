@@ -202,6 +202,13 @@ class Log_Query {
 			return $this->query_overview_simple( $args );
 		}
 
+		// Skip occasion grouping when searching — individual results are more
+		// useful and the grouped query is orders of magnitude slower because
+		// the session-variable inner query must scan all matching rows sequentially.
+		if ( ! empty( $args['search'] ) && Helpers::experimental_features_is_enabled() ) {
+			return $this->query_overview_simple( $args );
+		}
+
 		$db_engine = $this->get_db_engine();
 
 		if ( $db_engine === 'mysql' ) {
@@ -1072,7 +1079,7 @@ class Log_Query {
 				'initiator'         => null,
 
 				// IP address to filter by. Supports partial matching for anonymized IPs.
-				'ip_address'      => null,
+				'ip_address'        => null,
 
 				// Should sticky events be included in the result set.
 				'include_sticky'    => false,
@@ -1082,6 +1089,9 @@ class Log_Query {
 
 				// Context filters as key-value pairs.
 				'context_filters'   => null,
+
+				// Metadata search: plain text search across all context values.
+				'metadata_search'   => null,
 
 				// Return ungrouped events without occasions grouping.
 				'ungrouped'         => false,
@@ -2027,6 +2037,23 @@ class Log_Query {
 			}
 		}
 
+		// Metadata search: plain text search across all context values.
+		// Unlike the main search which only searches visible message text,
+		// this searches ALL context values (for advanced users who need to
+		// find events by IP address, email, etc.).
+		if ( ! empty( $args['metadata_search'] ) ) {
+			$metadata_words = $this->get_sanitized_search_words( $args['metadata_search'] );
+
+			foreach ( $metadata_words as $word ) {
+				$str_like      = esc_sql( $wpdb->esc_like( $word ) );
+				$inner_where[] = sprintf(
+					"id IN ( SELECT history_id FROM %s AS c WHERE c.value LIKE '%%%s%%' )",
+					$contexts_table_name,
+					$str_like
+				);
+			}
+		}
+
 		// Exclusion filters - add NOT IN clauses to hide events matching these criteria.
 		// Exclusions are processed after inclusions so they can filter out included items.
 		// When both inclusion and exclusion filters are specified, the SQL AND logic ensures exclusion takes precedence.
@@ -2133,12 +2160,7 @@ class Log_Query {
 	 * @return array<string> Where clauses.
 	 */
 	protected function get_outer_where( $args ) {
-		$outer_where = [];
-
-		// "messages" filter moved to get_inner_where() so it works in both
-		// grouped (MySQL) and ungrouped (simple/SQLite) query paths.
-
-		return $outer_where;
+		return [];
 	}
 
 	/**
@@ -2176,32 +2198,32 @@ class Log_Query {
 			return $inner_where;
 		}
 
-		$conditions = [];
+		// Build per-word conditions: each word must match in at least one source
+		// (column, context, or translated template). Words are AND'd so all must match,
+		// but each word can match in a different source — e.g. "api" in the message
+		// column and "400" in a context value.
+		$per_word_conditions = $this->build_per_word_search_conditions( $arr_search_words, $contexts_table_name );
 
-		// Search main table columns: message, logger, level.
-		$conditions = array_merge(
-			$conditions,
-			$this->build_column_like_conditions( $arr_search_words )
-		);
+		$top_conditions = [];
 
-		// Search context values.
-		$context_conditions = $this->build_context_search_conditions( $arr_search_words, $contexts_table_name );
-		if ( ! empty( $context_conditions ) ) {
-			$conditions[] = $context_conditions;
+		if ( ! empty( $per_word_conditions ) ) {
+			$top_conditions[] = '( ' . implode( "\n AND ", $per_word_conditions ) . ' )';
 		}
 
-		// Search translated logger messages.
+		// Translated logger messages: match the full search string against translated
+		// message templates, then look up by _message_key. This is a separate OR path
+		// because the match is on the whole template, not per-word.
 		$logger_messages_with_search_string_matches = $this->match_logger_messages_with_search( $args['search'] );
 		foreach ( $logger_messages_with_search_string_matches as $one_logger_message ) {
-			$conditions[] = $wpdb->prepare(
+			$top_conditions[] = $wpdb->prepare(
 				"( logger = %s AND id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.key = '_message_key' AND c.value = %s ) )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$one_logger_message['logger_slug'],
 				$one_logger_message['message_key']
 			);
 		}
 
-		if ( ! empty( $conditions ) ) {
-			$inner_where[] = "\n(\n " . implode( "\n OR ", $conditions ) . " \n)";
+		if ( ! empty( $top_conditions ) ) {
+			$inner_where[] = "\n(\n " . implode( "\n OR ", $top_conditions ) . " \n)";
 		}
 
 		return $inner_where;
@@ -2232,36 +2254,117 @@ class Log_Query {
 			return $inner_where;
 		}
 
-		$conditions = [];
+		// Same per-word structure as search, but wrapped in NOT.
+		$per_word_conditions = $this->build_per_word_search_conditions( $arr_exclude_words, $contexts_table_name );
 
-		// Exclude from main table columns: message, logger, level.
-		$conditions = array_merge(
-			$conditions,
-			$this->build_column_like_conditions( $arr_exclude_words )
-		);
+		$top_conditions = [];
 
-		// Exclude from context values.
-		$context_conditions = $this->build_context_search_conditions( $arr_exclude_words, $contexts_table_name );
-		if ( ! empty( $context_conditions ) ) {
-			$conditions[] = $context_conditions;
+		if ( ! empty( $per_word_conditions ) ) {
+			$top_conditions[] = '( ' . implode( "\n AND ", $per_word_conditions ) . ' )';
 		}
 
 		// Exclude translated logger messages.
 		$logger_messages_with_exclude_string_matches = $this->match_logger_messages_with_search( $args['exclude_search'] );
 		foreach ( $logger_messages_with_exclude_string_matches as $one_logger_message ) {
-			$conditions[] = $wpdb->prepare(
+			$top_conditions[] = $wpdb->prepare(
 				"( logger = %s AND id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.key = '_message_key' AND c.value = %s ) )", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$one_logger_message['logger_slug'],
 				$one_logger_message['message_key']
 			);
 		}
 
-		if ( ! empty( $conditions ) ) {
+		if ( ! empty( $top_conditions ) ) {
 			// Wrap everything in NOT to exclude matching events.
-			$inner_where[] = "\nNOT (\n " . implode( "\n OR ", $conditions ) . " \n)";
+			$inner_where[] = "\nNOT (\n " . implode( "\n OR ", $top_conditions ) . " \n)";
 		}
 
 		return $inner_where;
+	}
+
+	/**
+	 * Build per-word search conditions.
+	 *
+	 * Each word gets its own OR group of all possible match sources
+	 * (columns, context values, etc.). Words are meant to be AND'd
+	 * together so all must match, but each can match in a different source.
+	 *
+	 * Example for "api request 400":
+	 *   (message LIKE '%api%' OR context_has_api)
+	 *   AND (message LIKE '%request%' OR context_has_request)
+	 *   AND (message LIKE '%400%' OR context_has_400)
+	 *
+	 * @param array<string> $search_words Array of search words.
+	 * @param string        $contexts_table_name Full table name for contexts.
+	 * @return array<string> Array of per-word SQL condition strings.
+	 */
+	private function build_per_word_search_conditions( $search_words, $contexts_table_name ) {
+		global $wpdb;
+
+		$use_scoped_search = Helpers::experimental_features_is_enabled();
+		$search_columns    = [ 'message', 'logger', 'level' ];
+
+		// Pre-compute context search keys when using scoped search.
+		$placeholder_keys = $use_scoped_search ? $this->get_searchable_context_keys() : [];
+		$fallback_loggers = $use_scoped_search ? $this->get_loggers_without_messages() : [];
+		$fallback_keys    = $use_scoped_search && ! empty( $fallback_loggers )
+			? $this->get_fallback_logger_context_keys( $fallback_loggers )
+			: [];
+
+		$per_word_conditions = [];
+
+		foreach ( $search_words as $word ) {
+			$word_sources = [];
+			$str_like     = esc_sql( $wpdb->esc_like( $word ) );
+
+			// Column matches: message, logger, level.
+			foreach ( $search_columns as $column ) {
+				$word_sources[] = sprintf( "%s LIKE '%%%s%%'", $column, $str_like );
+			}
+
+			if ( $use_scoped_search ) {
+				// Scoped context: only search placeholder keys from registered loggers.
+				if ( ! empty( $placeholder_keys ) ) {
+					$key_ph = implode( ', ', array_fill( 0, count( $placeholder_keys ), '%s' ) );
+
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+					$word_sources[] = $wpdb->prepare(
+						"id IN ( SELECT c.history_id FROM {$contexts_table_name} AS c WHERE c.key IN ( {$key_ph} ) AND c.value LIKE %s )",
+						...array_merge( $placeholder_keys, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
+					);
+				}
+
+				// Fallback context: placeholder keys from fallback loggers' DB templates.
+				if ( ! empty( $fallback_loggers ) && ! empty( $fallback_keys ) ) {
+					$key_ph    = implode( ', ', array_fill( 0, count( $fallback_keys ), '%s' ) );
+					$logger_ph = implode( ', ', array_fill( 0, count( $fallback_loggers ), '%s' ) );
+
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+					$context_subquery = $wpdb->prepare(
+						"id IN ( SELECT c.history_id FROM {$contexts_table_name} AS c WHERE c.key IN ( {$key_ph} ) AND c.value LIKE %s )",
+						...array_merge( $fallback_keys, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
+					);
+
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+					$logger_condition = $wpdb->prepare(
+						"logger IN ( {$logger_ph} )",
+						...$fallback_loggers
+					);
+
+					$word_sources[] = "( {$logger_condition} AND {$context_subquery} )";
+				}
+			} else {
+				// Unscoped: search all context values (original behavior).
+				$word_sources[] = sprintf(
+					"id IN ( SELECT history_id FROM %s AS c WHERE c.value LIKE '%%%s%%' )",
+					$contexts_table_name,
+					$str_like
+				);
+			}
+
+			$per_word_conditions[] = "(\n   " . implode( "\n   OR ", $word_sources ) . "\n  )";
+		}
+
+		return $per_word_conditions;
 	}
 
 	/**
@@ -2289,127 +2392,6 @@ class Log_Query {
 	}
 
 	/**
-	 * Build LIKE conditions for searching main table columns.
-	 *
-	 * Returns an array of SQL condition strings, one per column,
-	 * where each condition requires ALL search words to match.
-	 *
-	 * @param array<string> $search_words Array of search words.
-	 * @return array<string> Array of SQL condition strings.
-	 */
-	private function build_column_like_conditions( $search_words ) {
-		global $wpdb;
-
-		$conditions     = [];
-		$search_columns = [ 'message', 'logger', 'level' ];
-
-		foreach ( $search_columns as $column ) {
-			$word_conditions = [];
-
-			foreach ( $search_words as $word ) {
-				$str_like          = esc_sql( $wpdb->esc_like( $word ) );
-				$word_conditions[] = sprintf( "%s LIKE '%%%s%%'", $column, $str_like );
-			}
-
-			$conditions[] = '( ' . implode( ' AND ', $word_conditions ) . ' )';
-		}
-
-		return $conditions;
-	}
-
-	/**
-	 * Build context search SQL conditions.
-	 *
-	 * When experimental features are enabled, scopes the search to only
-	 * context keys used as {placeholders} in logger message templates,
-	 * with a fallback full scan for loggers without registered messages.
-	 *
-	 * When experimental features are disabled, searches all context values
-	 * (original behavior).
-	 *
-	 * @param array<string> $search_words Array of search words.
-	 * @param string        $contexts_table_name Full table name for contexts.
-	 * @return string SQL condition string, or empty string if no conditions.
-	 */
-	private function build_context_search_conditions( $search_words, $contexts_table_name ) {
-		global $wpdb;
-
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return $this->build_unscoped_context_search( $search_words, $contexts_table_name );
-		}
-
-		$conditions = [];
-
-		// Scoped search — only search placeholder context keys.
-		$placeholder_keys = $this->get_searchable_context_keys();
-
-		if ( ! empty( $placeholder_keys ) ) {
-			$key_placeholders = implode( ', ', array_fill( 0, count( $placeholder_keys ), '%s' ) );
-
-			$word_subqueries = [];
-			foreach ( $search_words as $word ) {
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-				$word_subqueries[] = $wpdb->prepare(
-					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.key IN ( {$key_placeholders} ) AND c.value LIKE %s )",
-					...array_merge( $placeholder_keys, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
-				);
-			}
-
-			$conditions[] = '( ' . implode( ' AND ', $word_subqueries ) . ' )';
-		}
-
-		// Fallback — full context scan for loggers without registered messages.
-		$fallback_loggers = $this->get_loggers_without_messages();
-
-		if ( ! empty( $fallback_loggers ) ) {
-			$events_table_name   = Simple_History::get_instance()->get_events_table_name();
-			$logger_placeholders = implode( ', ', array_fill( 0, count( $fallback_loggers ), '%s' ) );
-
-			$word_subqueries = [];
-			foreach ( $search_words as $word ) {
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-				$word_subqueries[] = $wpdb->prepare(
-					"id IN ( SELECT c.history_id FROM {$contexts_table_name} AS c INNER JOIN {$events_table_name} AS h ON c.history_id = h.id WHERE h.logger IN ( {$logger_placeholders} ) AND c.value LIKE %s )",
-					...array_merge( $fallback_loggers, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
-				);
-			}
-
-			$conditions[] = '( ' . implode( ' AND ', $word_subqueries ) . ' )';
-		}
-
-		if ( empty( $conditions ) ) {
-			return '';
-		}
-
-		return implode( "\n   OR ", $conditions );
-	}
-
-	/**
-	 * Build unscoped context search conditions (original behavior).
-	 *
-	 * Searches all context values without any key filtering.
-	 *
-	 * @param array<string> $search_words Array of search words.
-	 * @param string        $contexts_table_name Full table name for contexts.
-	 * @return string SQL condition string.
-	 */
-	private function build_unscoped_context_search( $search_words, $contexts_table_name ) {
-		global $wpdb;
-
-		$word_subqueries = [];
-		foreach ( $search_words as $word ) {
-			$str_like          = esc_sql( $wpdb->esc_like( $word ) );
-			$word_subqueries[] = sprintf(
-				"id IN ( SELECT history_id FROM %s AS c WHERE c.value LIKE '%%%s%%' )",
-				$contexts_table_name,
-				$str_like
-			);
-		}
-
-		return '( ' . implode( ' AND ', $word_subqueries ) . ' )';
-	}
-
-	/**
 	 * Get the set of context keys that are used as {placeholders} in logger message templates.
 	 *
 	 * Extracts placeholder names from all registered logger messages.
@@ -2427,9 +2409,9 @@ class Log_Query {
 			return $cached_keys;
 		}
 
-		$simple_history         = Simple_History::get_instance();
-		$loggers_user_can_read  = $simple_history->get_loggers_that_user_can_read();
-		$keys                   = [];
+		$simple_history        = Simple_History::get_instance();
+		$loggers_user_can_read = $simple_history->get_loggers_that_user_can_read();
+		$keys                  = [];
 
 		foreach ( $loggers_user_can_read as $one_logger ) {
 			/** @var \Simple_History\Loggers\Logger $logger_instance */
@@ -2439,10 +2421,66 @@ class Log_Query {
 			foreach ( $messages as $message_data ) {
 				$template = $message_data['untranslated_text'] ?? '';
 
-				if ( preg_match_all( '/\{(\w+)\}/', $template, $matches ) ) {
-					$keys = array_merge( $keys, $matches[1] );
+				if ( ! preg_match_all( '/\{(\w+)\}/', $template, $matches ) ) {
+					continue;
 				}
+
+				$keys = array_merge( $keys, $matches[1] );
 			}
+		}
+
+		$cached_keys = array_unique( $keys );
+
+		return $cached_keys;
+	}
+
+	/**
+	 * Get searchable context keys for fallback loggers by inspecting
+	 * actual message templates stored in the database.
+	 *
+	 * Fallback loggers (SimpleLogger, etc.) don't register their messages
+	 * in PHP, so we query their distinct message templates from the events
+	 * table and extract {placeholder} names.
+	 *
+	 * Uses a static variable to cache the result within a single request.
+	 *
+	 * @param array<string> $logger_slugs Array of fallback logger slugs.
+	 * @return array<string> Unique array of context key names.
+	 */
+	private function get_fallback_logger_context_keys( $logger_slugs ) {
+		static $cached_keys = null;
+
+		if ( $cached_keys !== null ) {
+			return $cached_keys;
+		}
+
+		if ( empty( $logger_slugs ) ) {
+			$cached_keys = [];
+			return $cached_keys;
+		}
+
+		global $wpdb;
+
+		$events_table_name   = Simple_History::get_instance()->get_events_table_name();
+		$logger_placeholders = implode( ', ', array_fill( 0, count( $logger_slugs ), '%s' ) );
+
+		// Get distinct message templates for fallback loggers.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$templates = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT message FROM {$events_table_name} WHERE logger IN ( {$logger_placeholders} )",
+				...$logger_slugs
+			)
+		);
+
+		$keys = [];
+
+		foreach ( $templates as $template ) {
+			if ( ! preg_match_all( '/\{(\w+)\}/', $template, $matches ) ) {
+				continue;
+			}
+
+			$keys = array_merge( $keys, $matches[1] );
 		}
 
 		$cached_keys = array_unique( $keys );
@@ -2453,8 +2491,8 @@ class Log_Query {
 	/**
 	 * Get logger slugs that have no registered messages.
 	 *
-	 * These loggers need a full context scan fallback because we cannot
-	 * determine which context keys are used in their message templates.
+	 * These loggers need a context scan fallback scoped to their actual
+	 * message template placeholders (extracted from the database).
 	 *
 	 * Uses a static variable to cache the result within a single request.
 	 *
@@ -2467,18 +2505,20 @@ class Log_Query {
 			return $cached_loggers;
 		}
 
-		$simple_history         = Simple_History::get_instance();
-		$loggers_user_can_read  = $simple_history->get_loggers_that_user_can_read();
-		$slugs                  = [];
+		$simple_history        = Simple_History::get_instance();
+		$loggers_user_can_read = $simple_history->get_loggers_that_user_can_read();
+		$slugs                 = [];
 
 		foreach ( $loggers_user_can_read as $one_logger ) {
 			/** @var \Simple_History\Loggers\Logger $logger_instance */
 			$logger_instance = $one_logger['instance'];
 			$messages        = $logger_instance->get_messages();
 
-			if ( empty( $messages ) ) {
-				$slugs[] = $logger_instance->get_slug();
+			if ( ! empty( $messages ) ) {
+				continue;
 			}
+
+			$slugs[] = $logger_instance->get_slug();
 		}
 
 		$cached_loggers = $slugs;
