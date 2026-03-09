@@ -99,6 +99,7 @@ export function DashboardEventsWidget() {
 		useState( null );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState( '' );
 	const [ settingsPageURL, setSettingsPageURL ] = useState( '' );
+	const [ statsPageURL, setStatsPageURL ] = useState( '' );
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
 	const [ pagerSize, setPagerSize ] = useState( null );
 	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
@@ -233,6 +234,7 @@ export function DashboardEventsWidget() {
 				setPagerSize( response.pager_size );
 				setEventsAdminPageURL( response.events_admin_page_url || '' );
 				setSettingsPageURL( response.settings_page_url || '' );
+				setStatsPageURL( response.stats_page_url || '' );
 				setMapsApiKey( response.maps_api_key || '' );
 				setHasPremiumAddOn(
 					response.addons?.has_premium_add_on || false
@@ -294,9 +296,9 @@ export function DashboardEventsWidget() {
 		<div className="sh-DashboardWidget">
 			{ /* Stats row: whole row is clickable when URL is available, with a subtle arrow. */ }
 			{ stats ? (
-				eventsAdminPageURL ? (
+				statsPageURL ? (
 					<a
-						href={ eventsAdminPageURL }
+						href={ statsPageURL }
 						className="sh-DashboardWidget-stats sh-DashboardWidget-stats--link"
 					>
 						<StatsContent stats={ stats } />
