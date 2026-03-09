@@ -124,6 +124,8 @@ export function EventsList( props ) {
 		userCanManageOptions,
 		surroundingEventId,
 		surroundingCount,
+		hasActiveFilters,
+		onClearFilters,
 	} = props;
 
 	const totalPages = eventsMeta.totalPages;
@@ -174,6 +176,8 @@ export function EventsList( props ) {
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
 				events={ events }
+				hasActiveFilters={ hasActiveFilters }
+				onClearFilters={ onClearFilters }
 			/>
 
 			<FetchEventsErrorMessage

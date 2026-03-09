@@ -1,6 +1,12 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import {
 	parseAsArrayOf,
@@ -237,6 +243,12 @@ function EventsGUI() {
 		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
 	);
 
+	// Metadata search: plain text search across all context values.
+	const [ enteredMetadataSearch, setEnteredMetadataSearch ] = useQueryState(
+		'metadata',
+		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
+	);
+
 	// Negative/exclusion filters - hide events matching these criteria.
 	// Read-only from URL (no setters needed until Phase 2: GUI controls).
 	const [ excludeSearch ] = useQueryState(
@@ -342,6 +354,68 @@ function EventsGUI() {
 		[ currentUserId, excludeUsers, setExcludeUsers ]
 	);
 
+	// Store the default date option from the API so we can restore it when clearing filters.
+	const defaultDateOptionRef = useRef( '' );
+
+	// Check if any filter has a non-default value.
+	const hasAnyActiveFilters = useCallback( () => {
+		const hasExpandedFilters =
+			selectedLogLevels.length > 0 ||
+			selectedMessageTypes.length > 0 ||
+			selectedUsersWithId.length > 0 ||
+			selectedInitiator.length > 0 ||
+			enteredIPAddress.trim().length > 0 ||
+			selectedContextFilters.trim().length > 0 ||
+			enteredMetadataSearch.trim().length > 0 ||
+			hideOwnEvents;
+
+		const hasSearchText = enteredSearchText.trim().length > 0;
+
+		const hasNonDefaultDate =
+			defaultDateOptionRef.current &&
+			selectedDateOption !== defaultDateOptionRef.current;
+
+		return hasExpandedFilters || hasSearchText || hasNonDefaultDate;
+	}, [
+		selectedLogLevels,
+		selectedMessageTypes,
+		selectedUsersWithId,
+		selectedInitiator,
+		enteredIPAddress,
+		selectedContextFilters,
+		enteredMetadataSearch,
+		hideOwnEvents,
+		enteredSearchText,
+		selectedDateOption,
+	] );
+
+	// Reset all filter values to defaults.
+	const handleClearFilters = useCallback( () => {
+		setSelectedDateOption( defaultDateOptionRef.current );
+		setEnteredSearchText( '' );
+		setSelectedCustomDateFrom( SEARCH_FILTER_DEFAULT_START_DATE );
+		setSelectedCustomDateTo( SEARCH_FILTER_DEFAULT_END_DATE );
+		setSelectedLogLevels( [] );
+		setSelectedMessageTypes( [] );
+		setSelectedUsersWithId( [] );
+		setSelectedInitiator( [] );
+		setEnteredIPAddress( '' );
+		setSelectedContextFilters( '' );
+		setHideOwnEvents( false );
+	}, [
+		setSelectedDateOption,
+		setEnteredSearchText,
+		setSelectedCustomDateFrom,
+		setSelectedCustomDateTo,
+		setSelectedLogLevels,
+		setSelectedMessageTypes,
+		setSelectedUsersWithId,
+		setSelectedInitiator,
+		setEnteredIPAddress,
+		setSelectedContextFilters,
+		setHideOwnEvents,
+	] );
+
 	// Generate the events query params.
 	// Memoized to avoid unnecessary re-renders in the child components.
 	const eventsQueryParams = useMemo( () => {
@@ -352,6 +426,7 @@ function EventsGUI() {
 			selectedInitiator,
 			enteredIPAddress,
 			selectedContextFilters,
+			enteredMetadataSearch,
 			enteredSearchText,
 			selectedDateOption,
 			selectedCustomDateFrom,
@@ -377,6 +452,7 @@ function EventsGUI() {
 		selectedInitiator,
 		enteredIPAddress,
 		selectedContextFilters,
+		enteredMetadataSearch,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		page,
@@ -403,6 +479,7 @@ function EventsGUI() {
 		selectedInitiator,
 		enteredIPAddress,
 		selectedContextFilters,
+		enteredMetadataSearch,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		excludeUsers,
@@ -595,6 +672,8 @@ function EventsGUI() {
 					setEnteredIPAddress={ setEnteredIPAddress }
 					selectedContextFilters={ selectedContextFilters }
 					setSelectedContextFilters={ setSelectedContextFilters }
+					enteredMetadataSearch={ enteredMetadataSearch }
+					setEnteredMetadataSearch={ setEnteredMetadataSearch }
 					searchOptionsLoaded={ searchOptionsLoaded }
 					setSearchOptionsLoaded={ setSearchOptionsLoaded }
 					setPagerSize={ setPagerSize }
@@ -616,6 +695,9 @@ function EventsGUI() {
 					setUserCanManageOptions={ setUserCanManageOptions }
 					hideOwnEvents={ hideOwnEvents }
 					setHideOwnEvents={ setHideOwnEvents }
+					defaultDateOptionRef={ defaultDateOptionRef }
+					handleClearFilters={ handleClearFilters }
+					hasAnyActiveFilters={ hasAnyActiveFilters }
 				/>
 			) }
 
@@ -660,6 +742,8 @@ function EventsGUI() {
 				userCanManageOptions={ userCanManageOptions }
 				surroundingEventId={ surroundingEventId }
 				surroundingCount={ surroundingCount }
+				hasActiveFilters={ hasAnyActiveFilters() }
+				onClearFilters={ handleClearFilters }
 			/>
 
 			<EventsModalIfFragment />
