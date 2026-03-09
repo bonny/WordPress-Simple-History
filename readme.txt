@@ -254,6 +254,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   REST API `skip_count_query` parameter to skip the total count query when pagination info is not needed, improving response time for clients that don't require total counts.
+-   "View stats" link in the dashboard widget stats bar, linking to the full activity log with insights sidebar.
+
+**Changed**
+
+-   Dashboard widget now loads significantly faster by limiting the event query to the last 30 days and skipping the total count query. Previously, the widget scanned all events in the database regardless of age.
 -   Action links (Edit, View, Preview, Revisions) below post events with icons and capability checks.
 -   User card popover on avatar and name click, showing identity info (name, role, email) with a link to the user profile. Premium add-on extends the card with login history and activity details.
 -   Site Health Logger that tracks WordPress Site Health test status changes, logging when issues are detected, resolved, or change severity.
@@ -272,6 +278,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
+-   Dashboard widget now skips the total count query, improving load time on sites with large activity logs.
 -   Dashboard widget redesigned with activity stats summary, cleaner event list with skeleton loading, and streamlined search.
 -   IP address popover redesigned with prominent IP display, AS number links, map service links (Google Maps and OpenStreetMap), and subnet filtering.
 -   Core file integrity restored log entry now shows how many files are still modified.

@@ -387,6 +387,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			),
 		);
 
+		$query_params['skip_count_query'] = array(
+			'description' => __( 'Skip the total count query for faster results when pagination info is not needed.', 'simple-history' ),
+			'type'        => 'boolean',
+			'default'     => false,
+		);
+
 		// lastdays = int with number of days back to show the history.
 		$query_params['lastdays'] = array(
 			'description' => __( 'Limit result set to rows with date within this range.', 'simple-history' ),
@@ -782,6 +788,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
 			'ungrouped'               => 'ungrouped',
+			'skip_count_query'        => 'skip_count_query',
 		);
 
 		/*
@@ -871,6 +878,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
 			'ungrouped'               => 'ungrouped',
+			'skip_count_query'        => 'skip_count_query',
 			// Surrounding events parameters.
 			'surrounding_event_id'    => 'surrounding_event_id',
 			'surrounding_count'       => 'surrounding_count',

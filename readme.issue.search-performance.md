@@ -276,6 +276,9 @@ The behavioral change (narrower default search scope) must be documented in the 
 
 ### PHP / SQL
 
+- [x] Dashboard widget: add `lastdays:30` date filter — previously queried all events with no date restriction, causing full table scan
+- [x] Dashboard widget: skip total count — exposed `skip_count_query` via REST API, dashboard now uses it
+- [x] Dashboard widget: add "View stats" link in stats bar (replaced 30-day stat to keep widget compact)
 - [ ] Benchmark current search query performance (EXPLAIN)
 - [ ] Extract placeholder keys from all registered logger messages
 - [ ] Build dynamic list of "loggers without messages" for fallback
@@ -289,6 +292,7 @@ The behavioral change (narrower default search scope) must be documented in the 
 - [ ] Add per-word empty string check inside the loop
 - [ ] Add word count cap (e.g. 10 words) as defensive measure
 - [ ] Benchmark new query performance (EXPLAIN both branches)
+- [x] Add WP-CLI benchmark command for default event retrieval (no search, matching dashboard/events page requests)
 - [ ] Test with translated site (non-English)
 - [ ] Test with SimpleLogger events containing placeholders
 - [ ] Test with third-party/external loggers

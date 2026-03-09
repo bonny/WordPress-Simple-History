@@ -780,6 +780,17 @@ i.e. the log is inside a .postbox element.
 	color: #c3c4c7;
 }
 
+/* Dashboard widget: clickable stats row — whole row links to activity log. */
+a.sh-DashboardWidget-stats--link {
+	text-decoration: none;
+	color: #50575e;
+	cursor: pointer;
+}
+
+a.sh-DashboardWidget-stats--link:hover {
+	background: #f6f7f7;
+}
+
 /* Dashboard widget: search row wrapper. */
 .sh-DashboardWidget-searchRow {
 	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);

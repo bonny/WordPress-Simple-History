@@ -88,5 +88,15 @@ class WP_CLI_Commands extends Service {
 			'simple-history dev',
 			WP_CLI_Commands\WP_CLI_Dev_Command::class,
 		);
+
+		WP_CLI::add_command(
+			'simple-history dev',
+			WP_CLI_Commands\WP_CLI_Populate_Command::class,
+		);
+
+		WP_CLI::add_command(
+			'simple-history dev',
+			WP_CLI_Commands\WP_CLI_Benchmark_Search_Command::class,
+		);
 	}
 }
