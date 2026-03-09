@@ -4001,6 +4001,8 @@ Styles for plugin update details. Markup looks like this:
 .sh-UserCard__loading {
 	display: inline-flex;
 	align-items: center;
+	vertical-align: middle;
+	margin-left: 4px;
 }
 
 .sh-UserCard__loading .components-spinner {
@@ -4015,21 +4017,38 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-UserCard__stats {
 	display: flex;
-	align-items: center;
-	gap: var(--sh-spacing-xsmall, 6px);
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: var(--sh-spacing-small, 12px);
 	margin-top: var(--sh-spacing-small);
 	padding-top: var(--sh-spacing-small);
 	border-top: 1px solid var(--sh-color-gray-4);
 	color: var(--sh-color-gray-3, #757575);
 }
 
+.sh-UserCard__statsHeading {
+	width: 100%;
+	margin: 0 0 2px 0;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--sh-color-gray-3, #757575);
+}
+
+.sh-UserCard__stat {
+	display: flex;
+	flex-direction: column;
+}
+
 .sh-UserCard__statValue {
 	font-weight: 600;
+	font-size: 15px;
 	color: var(--sh-color-gray-1, #1e1e1e);
 }
 
-.sh-UserCard__statSeparator {
-	color: var(--sh-color-gray-4, #c3c4c7);
+.sh-UserCard__statLabel {
+	font-size: 12px;
 }
 
 .sh-UserCard__actions ul {

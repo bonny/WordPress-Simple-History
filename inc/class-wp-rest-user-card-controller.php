@@ -267,6 +267,26 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Get the total number of logged events for a user (all time).
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return int Number of events found.
+	 */
+	public static function get_user_total_event_count( $user_id ) {
+		$log_query = new Log_Query();
+
+		$query_result = $log_query->query(
+			[
+				'user'           => $user_id,
+				'posts_per_page' => 1,
+				'ungrouped'      => true,
+			]
+		);
+
+		return $query_result['total_row_count'] ?? 0;
+	}
+
+	/**
 	 * Get the most recent event date for a user from Simple History logs.
 	 *
 	 * Useful for add-ons that want to show last activity in the user card
