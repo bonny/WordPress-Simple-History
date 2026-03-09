@@ -4053,12 +4053,12 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-UserCard__statValue {
 	font-weight: 600;
-	font-size: 15px;
+	font-size: var(--sh-font-size-medium);
 	color: var(--sh-color-gray-1, #1e1e1e);
 }
 
 .sh-UserCard__statLabel {
-	font-size: 12px;
+	font-size: var(--sh-font-size-small);
 }
 
 .sh-UserCard__actions ul {

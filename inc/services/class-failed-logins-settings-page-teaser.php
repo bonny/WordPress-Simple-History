@@ -4,6 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Helpers;
 use Simple_History\Menu_Page;
+use Simple_History\Services\Failed_Login_Limit_Service;
 
 /**
  * Settings page teaser for Failed Login Attempts feature.
@@ -65,7 +66,14 @@ class Failed_Logins_Settings_Page_Teaser extends Service {
 		?>
 		<div class="wrap sh-Page-content sh-FailedLoginsTeaser-wrap">
 			<?php $this->render_section_intro(); ?>
-			<?php $this->render_preview_banner(); ?>
+
+			<?php
+			if ( Failed_Login_Limit_Service::is_active() ) {
+				$this->render_core_limit_active_banner();
+			} else {
+				$this->render_preview_banner();
+			}
+			?>
 
 			<div class="sh-FailedLoginsTeaser" inert aria-label="<?php esc_attr_e( 'Premium feature preview - not interactive', 'simple-history' ); ?>">
 				<?php $this->render_settings_preview(); ?>
@@ -110,6 +118,30 @@ class Failed_Logins_Settings_Page_Teaser extends Service {
 				</span>
 				<span><?php esc_html_e( 'Stop your log from being flooded by brute force attacks. Configure intelligent limits for failed login logging.', 'simple-history' ); ?></span>
 				<a href="<?php echo esc_url( $premium_url ); ?>"><?php esc_html_e( 'Upgrade to Premium', 'simple-history' ); ?> →</a>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render banner when core login limit is active.
+	 */
+	private function render_core_limit_active_banner() {
+		$premium_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'failed_logins_core_limit_banner' );
+		?>
+		<div class="sh-AlertsTeaser-banner">
+			<span class="sh-AlertsTeaser-banner-icon dashicons dashicons-shield" aria-hidden="true"></span>
+			<div class="sh-AlertsTeaser-banner-content">
+				<span class="sh-AlertsTeaser-banner-title">
+					<?php esc_html_e( 'Login attempt limiting is active', 'simple-history' ); ?>
+				</span>
+				<span><?php esc_html_e( 'Simple History automatically stops logging after 5 consecutive failed login attempts to prevent database bloat.', 'simple-history' ); ?></span>
+				<span>
+					<?php esc_html_e( 'Want configurable thresholds, per-user controls, and brute force analytics?', 'simple-history' ); ?>
+					<a href="<?php echo esc_url( $premium_url ); ?>">
+						<?php esc_html_e( 'Upgrade to Premium', 'simple-history' ); ?> →
+					</a>
+				</span>
 			</div>
 		</div>
 		<?php

@@ -2455,7 +2455,9 @@ class Log_Query {
 		// typically caches on the first call and returns the same result.
 		static $cache = [];
 
-		$cache_key = implode( ',', $logger_slugs );
+		$sorted_slugs = $logger_slugs;
+		sort( $sorted_slugs );
+		$cache_key = implode( ',', $sorted_slugs );
 
 		if ( isset( $cache[ $cache_key ] ) ) {
 			return $cache[ $cache_key ];

@@ -50,6 +50,8 @@ export function EventsSearchFilters( props ) {
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
 		setHasPremiumAddOn,
+		setHasFailedLoginLimit,
+		setFailedLoginSuppressedCount,
 		isExperimentalFeaturesEnabled,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
@@ -171,6 +173,14 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.experimental_features_enabled
 				);
 
+				setHasFailedLoginLimit(
+					searchOptionsResponse.has_failed_login_limit
+				);
+
+				setFailedLoginSuppressedCount(
+					searchOptionsResponse.failed_login_suppressed_count || 0
+				);
+
 				setEventsAdminPageURL(
 					searchOptionsResponse.events_admin_page_url
 				);
@@ -208,6 +218,8 @@ export function EventsSearchFilters( props ) {
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
 		setHasPremiumAddOn,
+		setHasFailedLoginLimit,
+		setFailedLoginSuppressedCount,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,

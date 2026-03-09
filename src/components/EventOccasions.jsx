@@ -20,7 +20,9 @@ function EventOccasionsAddonsContent( props ) {
 		event,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
+		hasFailedLoginLimit,
 		eventsSettingsPageURL,
+		occasionsCount,
 	} = props;
 
 	// Bail if the event is not from the SimpleUserLogger.
@@ -36,14 +38,46 @@ function EventOccasionsAddonsContent( props ) {
 		return null;
 	}
 
-	const configureLoginAttemptsLinkDependingOnAddOns =
-		hasExtendedSettingsAddOn || hasPremiumAddOn ? (
+	// Core limit threshold is 5. If occasions count >= 5,
+	// the limit likely suppressed additional attempts.
+	const limitThreshold = 5;
+	const limitLikelyHit = hasFailedLoginLimit && occasionsCount >= limitThreshold;
+
+	let content;
+
+	if ( hasExtendedSettingsAddOn || hasPremiumAddOn ) {
+		// Premium/Extended Settings: link to configure.
+		content = (
 			<a
 				href={ `${ eventsSettingsPageURL }&selected-tab=general_settings_subtab_general&selected-sub-tab=failed-login-attempts` }
 			>
 				{ __( 'Configure failed login attempts', 'simple-history' ) }
 			</a>
-		) : (
+		);
+	} else if ( limitLikelyHit ) {
+		// Core limit hit: inform user and upsell control.
+		content = (
+			<>
+				{ __(
+					'Additional failed login attempts were not logged.',
+					'simple-history'
+				) }{ ' ' }
+				<ExternalLink
+					href={ getTrackingUrl(
+						'https://simple-history.com/add-ons/premium/#limit-number-of-failed-login-attempts',
+						'premium_events_loginlimit'
+					) }
+				>
+					{ __(
+						'Get full control (Premium)',
+						'simple-history'
+					) }
+				</ExternalLink>
+			</>
+		);
+	} else if ( ! hasFailedLoginLimit ) {
+		// No limiting active: upsell the feature.
+		content = (
 			<ExternalLink
 				href={ getTrackingUrl(
 					'https://simple-history.com/add-ons/premium/#limit-number-of-failed-login-attempts',
@@ -56,11 +90,16 @@ function EventOccasionsAddonsContent( props ) {
 				) }
 			</ExternalLink>
 		);
+	}
+
+	if ( ! content ) {
+		return null;
+	}
 
 	return (
 		<div className="SimpleHistoryLogitem__occasionsAddOns">
 			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
-				{ configureLoginAttemptsLinkDependingOnAddOns }
+				{ content }
 			</p>
 		</div>
 	);
@@ -77,6 +116,8 @@ export function EventOccasions( props ) {
 		eventVariant,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
+		hasFailedLoginLimit,
+		failedLoginSuppressedCount,
 		eventsSettingsPageURL,
 	} = props;
 	const { subsequent_occasions_count: subsequentOccasionsCount } = event;
@@ -173,6 +214,8 @@ export function EventOccasions( props ) {
 					eventsSettingsPageURL={ eventsSettingsPageURL }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					hasFailedLoginLimit={ hasFailedLoginLimit }
+					occasionsCount={ subsequentOccasionsCount }
 				/>
 			</div>
 		</>

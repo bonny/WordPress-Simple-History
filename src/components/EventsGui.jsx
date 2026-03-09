@@ -112,6 +112,9 @@ function EventsGUI() {
 	const [ hasExtendedSettingsAddOn, setHasExtendedSettingsAddOn ] =
 		useState( false );
 	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
+	const [ hasFailedLoginLimit, setHasFailedLoginLimit ] = useState( false );
+	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
+		useState( 0 );
 	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
@@ -682,6 +685,10 @@ function EventsGUI() {
 					setMapsApiKey={ setMapsApiKey }
 					setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
 					setHasPremiumAddOn={ setHasPremiumAddOn }
+					setHasFailedLoginLimit={ setHasFailedLoginLimit }
+					setFailedLoginSuppressedCount={
+						setFailedLoginSuppressedCount
+					}
 					isExperimentalFeaturesEnabled={
 						isExperimentalFeaturesEnabled
 					}
@@ -737,6 +744,10 @@ function EventsGUI() {
 				mapsApiKey={ mapsApiKey }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				hasPremiumAddOn={ hasPremiumAddOn }
+				hasFailedLoginLimit={ hasFailedLoginLimit }
+				failedLoginSuppressedCount={
+					failedLoginSuppressedCount
+				}
 				eventsSettingsPageURL={ settingsPageURL }
 				eventsAdminPageURL={ eventsAdminPageURL }
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
