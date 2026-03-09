@@ -4029,7 +4029,7 @@ Styles for plugin update details. Markup looks like this:
 	display: flex;
 	flex-wrap: wrap;
 	align-items: baseline;
-	gap: var(--sh-spacing-small, 12px);
+	gap: 2px var(--sh-spacing-medium);
 	margin-top: var(--sh-spacing-small);
 	padding-top: var(--sh-spacing-small);
 	border-top: 1px solid var(--sh-color-gray-4);
@@ -4038,7 +4038,7 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-UserCard__statsHeading {
 	width: 100%;
-	margin: 0 0 2px 0;
+	margin: 0;
 	font-size: 11px;
 	font-weight: 500;
 	text-transform: uppercase;
