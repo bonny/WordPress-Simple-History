@@ -217,9 +217,46 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 */
 		$actions = apply_filters( 'simple_history/initiator_card/actions', $actions, $type );
 
+		// Build stats details for this initiator type.
+		$details = [
+			[
+				'key'   => 'events_today',
+				'label' => __( 'Today', 'simple-history' ),
+				'value' => self::get_initiator_event_count( $type, 1 ),
+				'type'  => 'stat',
+			],
+			[
+				'key'   => 'events_7_days',
+				'label' => __( 'Last 7 days', 'simple-history' ),
+				'value' => self::get_initiator_event_count( $type, 7 ),
+				'type'  => 'stat',
+			],
+			[
+				'key'   => 'events_total',
+				'label' => __( 'Total', 'simple-history' ),
+				'value' => self::get_initiator_total_event_count( $type ),
+				'type'  => 'stat',
+			],
+		];
+
+		/**
+		 * Filters the initiator card detail items.
+		 *
+		 * Add-ons can add detail items shown in the non-user initiator card popover.
+		 * Each item should have: key (string), label (string), value (string|int),
+		 * and optionally type (string: 'text', 'date', or 'stat').
+		 *
+		 * @since 5.25.0
+		 *
+		 * @param array  $details Array of detail items.
+		 * @param string $type    The initiator type (wp, wp_cli, web_user, other).
+		 */
+		$details = apply_filters( 'simple_history/initiator_card/details', $details, $type );
+
 		$data = [
 			'initiator'          => $type,
 			'has_premium_add_on' => Helpers::is_premium_add_on_active(),
+			'details'            => $details,
 			'actions'            => $actions,
 		];
 
@@ -297,6 +334,50 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 */
 	public static function get_last_event( $user_id ) {
 		return self::get_most_recent_event_date( $user_id );
+	}
+
+	/**
+	 * Get the number of events for a non-user initiator within a given number of days.
+	 *
+	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
+	 * @param int    $period_days    Number of days to look back (including today).
+	 * @return int Number of events found.
+	 */
+	public static function get_initiator_event_count( $initiator_type, $period_days ) {
+		$log_query = new Log_Query();
+
+		$date_from = Date_Helper::get_last_n_days_start_timestamp( $period_days );
+
+		$query_result = $log_query->query(
+			[
+				'initiator'      => $initiator_type,
+				'posts_per_page' => 1,
+				'date_from'      => $date_from,
+				'ungrouped'      => true,
+			]
+		);
+
+		return $query_result['total_row_count'] ?? 0;
+	}
+
+	/**
+	 * Get the total number of logged events for a non-user initiator (all time).
+	 *
+	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
+	 * @return int Number of events found.
+	 */
+	public static function get_initiator_total_event_count( $initiator_type ) {
+		$log_query = new Log_Query();
+
+		$query_result = $log_query->query(
+			[
+				'initiator'      => $initiator_type,
+				'posts_per_page' => 1,
+				'ungrouped'      => true,
+			]
+		);
+
+		return $query_result['total_row_count'] ?? 0;
 	}
 
 	/**

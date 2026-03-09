@@ -103,10 +103,16 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		$progress = \WP_CLI\Utils\make_progress_bar( 'Creating events', $count );
 
 		for ( $i = 0; $i < $count; $i++ ) {
-			// Set a random user as the current user so the logger
-			// records realistic user context for each event.
-			$random_user_id = $user_ids[ wp_rand( 0, count( $user_ids ) - 1 ) ];
-			wp_set_current_user( $random_user_id );
+			// Pick a random initiator for this event.
+			$initiator = $this->get_random_initiator();
+
+			// Set user context based on initiator type.
+			if ( $initiator === Log_Initiators::WP_USER ) {
+				$random_user_id = $user_ids[ wp_rand( 0, count( $user_ids ) - 1 ) ];
+				wp_set_current_user( $random_user_id );
+			} else {
+				wp_set_current_user( 0 );
+			}
 
 			// Get max ID before insert so we can find the newly created event.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -114,23 +120,23 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 			switch ( $type ) {
 				case 'plugins':
-					$this->create_plugin_event( $simple_history );
+					$this->create_plugin_event( $simple_history, $initiator );
 					break;
 				case 'posts':
-					$this->create_post_event( $simple_history );
+					$this->create_post_event( $simple_history, $initiator );
 					break;
 				case 'users':
-					$this->create_user_event( $simple_history );
+					$this->create_user_event( $simple_history, $initiator );
 					break;
 				case 'simple':
-					$this->create_simple_event( $simple_history );
+					$this->create_simple_event( $simple_history, $initiator );
 					break;
 				case 'large':
-					$this->create_large_event( $simple_history );
+					$this->create_large_event( $simple_history, $initiator );
 					break;
 				case 'mixed':
 				default:
-					$this->create_mixed_event( $simple_history, $i );
+					$this->create_mixed_event( $simple_history, $i, $initiator );
 					break;
 			}
 
@@ -242,20 +248,21 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
 	 * @param int            $index Current event index.
+	 * @param string         $initiator Log initiator constant.
 	 */
-	private function create_mixed_event( $simple_history, $index ) {
+	private function create_mixed_event( $simple_history, $index, $initiator ) {
 		$rand = $index % 20;
 
 		if ( $rand < 8 ) {
-			$this->create_post_event( $simple_history );
+			$this->create_post_event( $simple_history, $initiator );
 		} elseif ( $rand < 13 ) {
-			$this->create_plugin_event( $simple_history );
+			$this->create_plugin_event( $simple_history, $initiator );
 		} elseif ( $rand < 16 ) {
-			$this->create_user_event( $simple_history );
+			$this->create_user_event( $simple_history, $initiator );
 		} elseif ( $rand < 18 ) {
-			$this->create_option_event( $simple_history );
+			$this->create_option_event( $simple_history, $initiator );
 		} else {
-			$this->create_simple_event( $simple_history );
+			$this->create_simple_event( $simple_history, $initiator );
 		}
 	}
 
@@ -263,8 +270,9 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * Create a plugin event.
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
 	 */
-	private function create_plugin_event( $simple_history ) {
+	private function create_plugin_event( $simple_history, $initiator ) {
 		$logger = $simple_history->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
 
 		if ( ! $logger ) {
@@ -295,7 +303,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		$action = $actions[ wp_rand( 0, count( $actions ) - 1 ) ];
 
 		$context = [
-			'_initiator'          => Log_Initiators::WP_USER,
+			'_initiator'          => $initiator,
 			'plugin_name'         => $plugin['name'],
 			'plugin_slug'         => $plugin['slug'],
 			'plugin_version'      => wp_rand( 1, 9 ) . '.' . wp_rand( 0, 20 ) . '.' . wp_rand( 0, 10 ),
@@ -303,6 +311,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			'plugin_author'       => 'Test Author',
 		];
 
+		$context = $this->maybe_add_ip_address( $context );
 		$logger->info_message( $action, $context );
 	}
 
@@ -310,8 +319,9 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * Create a post event.
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
 	 */
-	private function create_post_event( $simple_history ) {
+	private function create_post_event( $simple_history, $initiator ) {
 		$logger = $simple_history->get_instantiated_logger_by_slug( 'SimplePostLogger' );
 
 		if ( ! $logger ) {
@@ -350,7 +360,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		$post_type = $post_types[ wp_rand( 0, count( $post_types ) - 1 ) ];
 
 		$context = [
-			'_initiator' => Log_Initiators::WP_USER,
+			'_initiator' => $initiator,
 			'post_id'    => wp_rand( 1, 9999 ),
 			'post_type'  => $post_type,
 			'post_title' => $title,
@@ -368,6 +378,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			$context['post_prev_status'] = 'auto-draft';
 		}
 
+		$context = $this->maybe_add_ip_address( $context );
 		$logger->info_message( $action, $context );
 	}
 
@@ -375,8 +386,9 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * Create a user event.
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
 	 */
-	private function create_user_event( $simple_history ) {
+	private function create_user_event( $simple_history, $initiator ) {
 		$logger = $simple_history->get_instantiated_logger_by_slug( 'SimpleUserLogger' );
 
 		if ( ! $logger ) {
@@ -408,7 +420,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		// "Edited the profile for user "{edited_user_login}" ({edited_user_email})".
 		// "Created user {created_user_login} ({created_user_email}) with role {created_user_role}".
 		$context = [
-			'_initiator' => Log_Initiators::WP_USER,
+			'_initiator' => $initiator,
 		];
 
 		if ( $action === 'user_updated_profile' ) {
@@ -422,6 +434,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			$context['created_user_role']  = $role;
 		}
 
+		$context = $this->maybe_add_ip_address( $context );
 		$logger->info_message( $action, $context );
 	}
 
@@ -429,8 +442,9 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * Create an options event.
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
 	 */
-	private function create_option_event( $simple_history ) {
+	private function create_option_event( $simple_history, $initiator ) {
 		$logger = $simple_history->get_instantiated_logger_by_slug( 'SimpleOptionsLogger' );
 
 		if ( ! $logger ) {
@@ -452,13 +466,14 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		$entry = $options[ wp_rand( 0, count( $options ) - 1 ) ];
 
 		$context = [
-			'_initiator'  => Log_Initiators::WP_USER,
+			'_initiator'  => $initiator,
 			'option'      => $entry['option'],
 			'option_page' => $entry['page'],
 			'old_value'   => 'old_value_' . wp_rand( 1, 100 ),
 			'new_value'   => 'new_value_' . wp_rand( 1, 100 ),
 		];
 
+		$context = $this->maybe_add_ip_address( $context );
 		$logger->info_message( 'option_updated', $context );
 	}
 
@@ -469,8 +484,9 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * third-party code using do_action('simple_history_log', ...).
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
 	 */
-	private function create_simple_event( $simple_history ) {
+	private function create_simple_event( $simple_history, $initiator ) {
 		$logger = $simple_history->get_instantiated_logger_by_slug( 'SimpleLogger' );
 
 		if ( ! $logger ) {
@@ -517,7 +533,8 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 		$entry = $messages[ wp_rand( 0, count( $messages ) - 1 ) ];
 
-		$entry['context']['_initiator'] = Log_Initiators::WP_USER;
+		$entry['context']['_initiator'] = $initiator;
+		$entry['context'] = $this->maybe_add_ip_address( $entry['context'] );
 
 		$logger->info( $entry['message'], $entry['context'] );
 	}
@@ -529,8 +546,9 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * where plugins log full API responses.
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
 	 */
-	private function create_large_event( $simple_history ) {
+	private function create_large_event( $simple_history, $initiator ) {
 		$logger = $simple_history->get_instantiated_logger_by_slug( 'SimpleLogger' );
 
 		if ( ! $logger ) {
@@ -569,15 +587,88 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 		$response_body = wp_json_encode( $items );
 
-		$logger->info(
-			'REST API response from {endpoint} (HTTP {status_code})',
-			[
-				'_initiator'    => Log_Initiators::WP_USER,
-				'endpoint'      => $endpoint,
-				'status_code'   => (string) $status_code,
-				'response_body' => $response_body,
-				'response_size' => strlen( $response_body ),
-			]
-		);
+		$context = [
+			'_initiator'    => $initiator,
+			'endpoint'      => $endpoint,
+			'status_code'   => (string) $status_code,
+			'response_body' => $response_body,
+			'response_size' => strlen( $response_body ),
+		];
+
+		$context = $this->maybe_add_ip_address( $context );
+		$logger->info( 'REST API response from {endpoint} (HTTP {status_code})', $context );
+	}
+
+	/**
+	 * Get a random initiator with weighted distribution.
+	 *
+	 * Distribution:
+	 * ~60% WP_USER, ~15% WP_CLI, ~15% WORDPRESS, ~5% WEB_USER, ~5% OTHER.
+	 *
+	 * @return string Log initiator constant.
+	 */
+	private function get_random_initiator() {
+		$rand = wp_rand( 1, 100 );
+
+		if ( $rand <= 60 ) {
+			return Log_Initiators::WP_USER;
+		} elseif ( $rand <= 75 ) {
+			return Log_Initiators::WP_CLI;
+		} elseif ( $rand <= 90 ) {
+			return Log_Initiators::WORDPRESS;
+		} elseif ( $rand <= 95 ) {
+			return Log_Initiators::WEB_USER;
+		}
+
+		return Log_Initiators::OTHER;
+	}
+
+	/**
+	 * Maybe add a public IP address to the event context.
+	 *
+	 * ~40% of events get an IP address from a pool of known public IPs
+	 * representing different geolocations and providers.
+	 *
+	 * @param array $context Event context array.
+	 * @return array Modified context with optional IP address.
+	 */
+	private function maybe_add_ip_address( $context ) {
+		// ~40% of events get an IP.
+		if ( wp_rand( 1, 100 ) > 40 ) {
+			return $context;
+		}
+
+		$ip_addresses = [
+			// Google DNS (US).
+			'8.8.8.8',
+			'8.8.4.4',
+			// Cloudflare DNS (US).
+			'1.1.1.1',
+			'1.0.0.1',
+			// European IPs.
+			'81.2.69.142',    // London, UK.
+			'77.111.247.18',  // Stockholm, Sweden.
+			'185.86.151.11',  // Amsterdam, Netherlands.
+			'91.198.174.192', // Wikimedia, Netherlands.
+			// Asian IPs.
+			'203.0.113.50',   // APNIC test range.
+			'1.34.56.78',     // Taiwan.
+			// South American IPs.
+			'200.160.2.3',    // Brazil.
+			// Common bot/crawler IPs.
+			'66.249.81.222',  // Googlebot.
+			'40.77.167.23',   // Bingbot.
+			'17.58.98.180',   // Apple.
+		];
+
+		$context['_server_remote_addr'] = $ip_addresses[ wp_rand( 0, count( $ip_addresses ) - 1 ) ];
+
+		// ~20% of IP events also get an X-Forwarded-For header.
+		if ( wp_rand( 1, 5 ) === 1 ) {
+			$proxy_ip = $ip_addresses[ wp_rand( 0, count( $ip_addresses ) - 1 ) ];
+			$context['_server_http_x_forwarded_for_0'] = $proxy_ip;
+		}
+
+		return $context;
 	}
 }

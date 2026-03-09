@@ -283,6 +283,8 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 
 	const hasPremium = cardData?.has_premium_add_on;
 	const actions = cardData?.actions || [];
+	const allDetails = cardData?.details || [];
+	const statDetails = allDetails.filter( ( d ) => d.type === 'stat' );
 
 	let label;
 	let description;
@@ -370,6 +372,25 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 					<Spinner />
 				</div>
 			) }
+
+			{ ! isLoading && statDetails.length > 0 && (
+				<div className="sh-UserCard__stats">
+					<h5 className="sh-UserCard__statsHeading">
+						{ __( 'Events', 'simple-history' ) }
+					</h5>
+					{ statDetails.map( ( stat ) => (
+						<div key={ stat.key } className="sh-UserCard__stat">
+							<span className="sh-UserCard__statValue">
+								{ stat.value }
+							</span>
+							<span className="sh-UserCard__statLabel">
+								{ stat.label }
+							</span>
+						</div>
+					) ) }
+				</div>
+			) }
+
 			{ actions.length > 0 && (
 				<nav
 					className="sh-UserCard__actions"
