@@ -259,7 +259,7 @@ export function DashboardEventsWidget() {
 				path: addQueryArgs( '/simple-history/v1/events', {
 					per_page: pagerSize.dashboard,
 					skip_count_query: true,
-					dates: 'lastdays:30',
+					dates: 'lastdays:7',
 					_fields: EVENT_FIELDS,
 				} ),
 				parse: false,
@@ -379,6 +379,27 @@ export function DashboardEventsWidget() {
 					mapsApiKey={ mapsApiKey }
 				/>
 			</div>
+
+			{ /* Sparse-state message: few events in the 7-day window. */ }
+			{ ! eventsIsLoading &&
+				events.length > 0 &&
+				events.length < 3 &&
+				eventsAdminPageURL && (
+					<p className="sh-DashboardWidget-sparseNotice">
+						{ createInterpolateElement(
+							__(
+								'Only a few events in the past 7 days. Visit the <a>activity log</a> to search your full history.',
+								'simple-history'
+							),
+							{
+								a: (
+									// eslint-disable-next-line jsx-a11y/anchor-has-content
+									<a href={ eventsAdminPageURL } />
+								),
+							}
+						) }
+					</p>
+				) }
 
 			{ /* Tip: shown after events load. */ }
 			{ ! eventsIsLoading && events.length > 0 && (

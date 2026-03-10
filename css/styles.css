@@ -873,6 +873,15 @@ a.sh-DashboardWidget-stats--link:hover {
 	cursor: default;
 }
 
+/* Dashboard widget: sparse-state notice when few events in the 7-day window. */
+.sh-DashboardWidget-sparseNotice {
+	margin: 0;
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	font-size: 12px;
+	color: #646970;
+	border-top: 1px solid #f0f0f1;
+}
+
 /* Dashboard widget: rotating tip line. */
 .sh-DashboardWidget-tip {
 	margin: 0;
@@ -2165,6 +2174,7 @@ Can be overruled by .form-table td p
 .sh-FailedLoginLimitNotice-content {
 	flex: 1;
 	min-width: 0;
+	max-width: 65ch;
 }
 
 .sh-FailedLoginLimitNotice-heading {
