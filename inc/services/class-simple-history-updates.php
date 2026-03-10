@@ -214,11 +214,11 @@ class Simple_History_Updates extends Service {
 		$title = __( 'Highlights in this version', 'simple-history' );
 
 		$new_features = [
-			__( 'User card popover – click any avatar or name to see identity info, role, and profile link', 'simple-history' ),
-			__( 'Dashboard redesign – activity stats summary with event counts, cleaner layout, faster loading', 'simple-history' ),
-			__( 'Detailed menu logging – see item names, renames, moves, and display location changes', 'simple-history' ),
-			__( 'Site Health Logger – tracks when Site Health issues are detected, resolved, or change severity', 'simple-history' ),
-			__( 'Copy as image – capture any event as a branded PNG card for Slack, social media, or bug reports', 'simple-history' ),
+			__( 'User details on click – click any avatar or name to instantly see their role, email, and profile', 'simple-history' ),
+			__( 'Redesigned dashboard widget – more compact and simplified for a faster overview of recent activity', 'simple-history' ),
+			__( 'Menu change logging – track item renames, moves, and location changes in your navigation menus', 'simple-history' ),
+			__( 'Site Health monitoring – get a record of when WordPress flags new issues, marks them resolved, or changes their severity', 'simple-history' ),
+			__( 'Copy as image – save any event as a shareable image, useful for bug reports, Slack messages, or sharing with clients', 'simple-history' ),
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-24-0-released/';

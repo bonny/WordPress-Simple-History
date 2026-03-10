@@ -252,38 +252,37 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.24.0 (March 2026)
 
-User cards, dashboard redesign, detailed menu logging, copy as image, Site Health Logger, and more.
+A redesigned dashboard widget, user details on click, and much better logging of menus, categories, and image edits.
 [Read more about it in the release post](https://simple-history.com/2026/simple-history-5-24-0-released/)
 
 **Added**
 
--   REST API `skip_count_query` parameter to skip the total count query when pagination info is not needed, improving response time for clients that don't require total counts.
--   "View stats" link in the dashboard widget stats bar, linking to the full activity log with insights sidebar.
--   "Event metadata" search field in the advanced filters for searching all event data including IP addresses, emails, and other hidden metadata.
+-   User card on avatar and name click, showing name, role, and email with a link to the user profile. The Premium add-on extends the card with login history and recent activity.
+-   "Copy as image" action in the event menu that captures an event as a shareable image, ready to paste into Slack, social media, or bug reports.
 -   Site Health Logger that tracks WordPress Site Health test status changes, logging when issues are detected, resolved, or change severity.
--   "This page" filter toggle in the admin bar Quick View, letting you see events for the currently viewed post or page without leaving the frontend.
--   Command palette command to view event history for the current post or page.
--   Detailed menu change logging showing item names, types, renames, moves, order changes, and display location updates instead of just item counts.
--   Logging of parent category changes and diff details (name, slug, description, parent) when viewing edited category and tag events.
+-   Menu change logging now shows item names, types, renames, moves, order changes, and display location updates instead of just item counts.
+-   Parent category changes and diff details (name, slug, description, parent) when viewing edited category and tag events.
 -   Logging when a page is set as the homepage or posts page from the block editor, including the name of the previously assigned page.
--   Logging of image edits (crop, rotate, flip, scale) in the media logger, including a thumbnail preview.
--   User creation and profile update counts in the email digest report, displayed alongside login statistics in the Users section.
+-   Image edit logging (crop, rotate, flip, scale) in the media logger, including a thumbnail preview.
+-   Command palette command to view event history for the current post or page.
+-   "Event metadata" search field in the advanced filters for searching all event data including IP addresses and emails.
 -   "Clear filters" button to reset all search filters to their default values.
+-   "View stats" link in the dashboard widget stats bar, linking to the full activity log with insights sidebar.
 -   Rotating tips in the sidebar to help users discover features like RSS feeds, WP-CLI, export, and sticky events.
--   "Copy as image" action in the event menu that captures an event as a branded PNG card and copies it to the clipboard, ready to paste into Slack, social media, or bug reports.
--   User card popover on avatar and name click, showing identity info (name, role, email) with a link to the user profile. Premium add-on extends the card with login history and activity details.
+-   User creation and profile update counts in the email digest report, displayed alongside login statistics in the Users section.
+-   REST API `skip_count_query` parameter to skip the total count query when pagination info is not needed, improving response time for clients that don't require total counts.
 -   Multisite uninstall support, removing tables, options, and cron events across all subsites in the network.
--   Compact storage for post content changes (uses for creating a diff between the old and new content), reducing database size for large posts (experimental).
+-   Compact storage for post content changes (used for creating a diff between the old and new content), reducing database size for large posts (experimental).
 -   Failed login throttling to protect the database from brute-force attacks — logs the first 100 failed attempts, then automatically skips the rest. Includes an informational notice on both the main event log and the dashboard widget (experimental).
 
 **Changed**
 
 -   WP-CLI `--user` argument renamed to `--userid` and `--exclude_user` to `--exclude_userid` to avoid conflict with WP-CLI's global `--user` argument, which caused warnings on newer WP-CLI versions. [#629](https://github.com/bonny/WordPress-Simple-History/issues/629)
--   Dashboard widget redesigned with an activity stats summary showing event counts for today and last 7 days, a cleaner more compact event list. Also loads significantly faster by limiting queries to the last 7 days and skipping the total count query.
+-   Dashboard widget redesigned with an activity stats summary showing event counts for today and last 7 days, and a more compact event list. Loads significantly faster by limiting queries to the last 7 days and skipping the total count query.
 -   Search now only searches the visible event message text by default, making results more relevant and dramatically faster on sites with large activity logs. Previously, search also scanned all hidden metadata which was slow and returned unexpected matches (experimental).
 -   Multi-word search now matches each word independently across all searchable fields. For example, "api request 400" now finds events where "api" and "request" appear in the message text and "400" appears in event metadata, instead of requiring all words to exist in the same field (experimental).
 -   "Show filters" / "Hide filters" toggle replaces "Show search options" / "Collapse search options".
--   Action links (Edit, View, Preview, Revisions) below post events with icons and capability checks.
+-   Action links (Edit, View, Preview, Revisions) now appear below post events.
 -   IP address popover redesigned with prominent IP display, AS number links, map service links (Google Maps and OpenStreetMap), and subnet filtering.
 -   Core file integrity restored log entry now shows how many files are still modified.
 -   Auto backfill runs on the first admin page load instead of WP-Cron, ensuring it works in more environments.
