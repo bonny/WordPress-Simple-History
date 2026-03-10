@@ -270,7 +270,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Copy as image" action in the event menu that captures an event as a branded PNG card and copies it to the clipboard, ready to paste into Slack, social media, or bug reports.
 -   User card popover on avatar and name click, showing identity info (name, role, email) with a link to the user profile. Premium add-on extends the card with login history and activity details.
 -   Multisite uninstall support, removing tables, options, and cron events across all subsites in the network.
--   Compact storage for post content changes, reducing database size for large posts (experimental).
+-   Compact storage for post content changes (uses for creating a diff between the old and new content), reducing database size for large posts (experimental).
 -   Failed login throttling to protect the database from brute-force attacks — logs the first 100 failed attempts, then automatically skips the rest. Includes an informational notice on both the main event log and the dashboard widget (experimental).
 
 **Changed**
