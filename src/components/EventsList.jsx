@@ -14,6 +14,7 @@ import { getTrackingUrl } from '../functions';
 import { EventsListItemsList } from './EventsListItemsList';
 import { EventsListSkeletonList } from './EventsListSkeletonList.jsx';
 import { EventsPagination } from './EventsPagination';
+import { FailedLoginLimitNotice } from './FailedLoginLimitNotice';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 
@@ -118,6 +119,7 @@ export function EventsList( props ) {
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
 		hasFailedLoginLimit,
+		failedLoginLimitThreshold,
 		failedLoginSuppressedCount,
 		eventsSettingsPageURL,
 		eventsAdminPageURL,
@@ -185,6 +187,14 @@ export function EventsList( props ) {
 			<FetchEventsErrorMessage
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+			/>
+
+			<FailedLoginLimitNotice
+				hasFailedLoginLimit={ hasFailedLoginLimit }
+				failedLoginLimitThreshold={ failedLoginLimitThreshold }
+				failedLoginSuppressedCount={ failedLoginSuppressedCount }
+				hasPremiumAddOn={ hasPremiumAddOn }
+				eventsIsLoading={ eventsIsLoading }
 			/>
 
 			<EventsListItemsList

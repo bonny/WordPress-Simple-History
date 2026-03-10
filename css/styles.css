@@ -2140,6 +2140,61 @@ Can be overruled by .form-table td p
 	color: #999;
 }
 
+/* Failed login limit notice in events log. */
+.sh-FailedLoginLimitNotice {
+	display: flex;
+	gap: var(--sh-spacing-small);
+	margin: var(--sh-spacing-medium);
+	padding: var(--sh-spacing-medium);
+	background: #f0f6fc;
+	border: 1px solid #72aee6;
+	border-radius: var(--sh-border-radius);
+}
+
+.sh-FailedLoginLimitNotice-icon {
+	flex-shrink: 0;
+	color: #2271b1;
+}
+
+.sh-FailedLoginLimitNotice-icon .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+.sh-FailedLoginLimitNotice-content {
+	flex: 1;
+	min-width: 0;
+}
+
+.sh-FailedLoginLimitNotice-heading {
+	margin: 0;
+	font-weight: normal;
+	font-size: var(--sh-font-size-normal);
+	color: #1d2327;
+}
+
+.sh-FailedLoginLimitNotice-details {
+	margin-top: var(--sh-spacing-small);
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3, #646970);
+}
+
+.sh-FailedLoginLimitNotice-details summary {
+	cursor: pointer;
+	color: var(--sh-color-gray-3, #646970);
+	font-size: var(--sh-font-size-small);
+}
+
+.sh-FailedLoginLimitNotice-details summary:hover {
+	color: #1d2327;
+}
+
+.sh-FailedLoginLimitNotice-details p {
+	margin: var(--sh-spacing-small) 0 0;
+	line-height: 1.5;
+}
+
 /* Notice in events log. */
 .sh-BackfilledNotice {
 	margin: var(--sh-spacing-medium);

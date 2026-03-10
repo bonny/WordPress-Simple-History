@@ -113,6 +113,8 @@ function EventsGUI() {
 		useState( false );
 	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
 	const [ hasFailedLoginLimit, setHasFailedLoginLimit ] = useState( false );
+	const [ failedLoginLimitThreshold, setFailedLoginLimitThreshold ] =
+		useState( 0 );
 	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
 		useState( 0 );
 	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
@@ -686,6 +688,9 @@ function EventsGUI() {
 					setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
 					setHasPremiumAddOn={ setHasPremiumAddOn }
 					setHasFailedLoginLimit={ setHasFailedLoginLimit }
+					setFailedLoginLimitThreshold={
+						setFailedLoginLimitThreshold
+					}
 					setFailedLoginSuppressedCount={
 						setFailedLoginSuppressedCount
 					}
@@ -745,6 +750,9 @@ function EventsGUI() {
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				hasPremiumAddOn={ hasPremiumAddOn }
 				hasFailedLoginLimit={ hasFailedLoginLimit }
+				failedLoginLimitThreshold={
+					failedLoginLimitThreshold
+				}
 				failedLoginSuppressedCount={
 					failedLoginSuppressedCount
 				}

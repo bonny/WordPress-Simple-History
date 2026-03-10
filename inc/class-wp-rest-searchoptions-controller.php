@@ -180,6 +180,9 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				'has_premium_add_on'           => $addons_service->has_add_on( 'simple-history-premium' ),
 			],
 			'has_failed_login_limit'          => $has_failed_login_limit,
+			'failed_login_limit_threshold'    => $has_failed_login_limit
+				? Failed_Login_Limit_Service::get_threshold()
+				: 0,
 			'failed_login_suppressed_count'   => $has_failed_login_limit
 				? Failed_Login_Limit_Service::get_last_suppressed_count()
 				: 0,

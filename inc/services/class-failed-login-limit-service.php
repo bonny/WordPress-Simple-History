@@ -8,8 +8,12 @@ use Simple_History\Loggers\Logger;
 /**
  * Limits logging of consecutive failed login attempts to prevent database bloat.
  *
- * Stops logging after 5 consecutive failed login attempts (known or unknown users).
+ * Stops logging after 100 consecutive failed login attempts (known or unknown users).
  * Counter resets when any non-failed-login event is logged.
+ *
+ * At 100, normal users never hit the limit (even with bad memory), while brute force
+ * attacks with thousands of attempts are effectively capped. The admin still gets
+ * 100 logged entries — plenty to see IP, username, and timing patterns.
  *
  * Premium overrides this with configurable per-user-type thresholds.
  *
@@ -17,14 +21,17 @@ use Simple_History\Loggers\Logger;
  */
 class Failed_Login_Limit_Service extends Service {
 
-	/** @var int Maximum consecutive failed login attempts to log. */
-	private const THRESHOLD = 5;
+	/** @var int Default maximum consecutive failed login attempts to log. */
+	private const DEFAULT_THRESHOLD = 100;
 
 	/** @var string Option name for the consecutive failed attempts counter. */
 	private const OPTION_COUNTER = 'sh_core_failed_login_count';
 
 	/** @var string Option name for the number of suppressed attempts from the last burst. */
 	private const OPTION_LAST_SUPPRESSED = 'sh_core_failed_login_last_suppressed';
+
+	/** @var string Option name for the all-time total of suppressed attempts. */
+	private const OPTION_TOTAL_SUPPRESSED = 'sh_core_failed_login_total_suppressed';
 
 	/** @var string[] Message keys for failed login events. */
 	private const FAILED_LOGIN_MESSAGE_KEYS = [
@@ -46,6 +53,24 @@ class Failed_Login_Limit_Service extends Service {
 	}
 
 	/**
+	 * Get the threshold for consecutive failed login attempts.
+	 *
+	 * @since 5.24.0
+	 *
+	 * @return int
+	 */
+	public static function get_threshold() {
+		/**
+		 * Filter the maximum number of consecutive failed login attempts to log.
+		 *
+		 * @since 5.24.0
+		 *
+		 * @param int $threshold Default 100.
+		 */
+		return (int) apply_filters( 'simple_history/failed_login_limit/threshold', self::DEFAULT_THRESHOLD );
+	}
+
+	/**
 	 * Check if a failed login should be logged based on the consecutive attempt counter.
 	 *
 	 * @param bool   $do_log Whether to log the event.
@@ -64,11 +89,16 @@ class Failed_Login_Limit_Service extends Service {
 			return $do_log;
 		}
 
-		$count = (int) get_option( self::OPTION_COUNTER, 0 );
+		$threshold = self::get_threshold();
+		$count     = (int) get_option( self::OPTION_COUNTER, 0 );
 		++$count;
 		update_option( self::OPTION_COUNTER, $count, false );
 
-		if ( $count > self::THRESHOLD ) {
+		if ( $count > $threshold ) {
+			// Increment the all-time suppressed total.
+			$total = (int) get_option( self::OPTION_TOTAL_SUPPRESSED, 0 );
+			update_option( self::OPTION_TOTAL_SUPPRESSED, $total + 1, false );
+
 			return false;
 		}
 
@@ -95,7 +125,7 @@ class Failed_Login_Limit_Service extends Service {
 		// Only write to DB if counter is not already 0.
 		if ( $count !== 0 ) {
 			// Save how many were suppressed before resetting.
-			$suppressed = max( 0, $count - self::THRESHOLD );
+			$suppressed = max( 0, $count - self::get_threshold() );
 			update_option( self::OPTION_LAST_SUPPRESSED, $suppressed, false );
 
 			update_option( self::OPTION_COUNTER, 0, false );
@@ -130,13 +160,24 @@ class Failed_Login_Limit_Service extends Service {
 	 * @return int
 	 */
 	public static function get_last_suppressed_count() {
+		$threshold = self::get_threshold();
+
 		// Check live counter first for ongoing attacks.
 		$current_count = (int) get_option( self::OPTION_COUNTER, 0 );
-		if ( $current_count > self::THRESHOLD ) {
-			return $current_count - self::THRESHOLD;
+		if ( $current_count > $threshold ) {
+			return $current_count - $threshold;
 		}
 
 		return (int) get_option( self::OPTION_LAST_SUPPRESSED, 0 );
+	}
+
+	/**
+	 * Get the all-time total number of suppressed failed login attempts.
+	 *
+	 * @return int
+	 */
+	public static function get_total_suppressed_count() {
+		return (int) get_option( self::OPTION_TOTAL_SUPPRESSED, 0 );
 	}
 
 	/**

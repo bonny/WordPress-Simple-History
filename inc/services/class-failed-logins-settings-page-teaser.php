@@ -127,7 +127,9 @@ class Failed_Logins_Settings_Page_Teaser extends Service {
 	 * Render banner when core login limit is active.
 	 */
 	private function render_core_limit_active_banner() {
-		$premium_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'failed_logins_core_limit_banner' );
+		$premium_url      = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'failed_logins_core_limit_banner' );
+		$threshold         = Failed_Login_Limit_Service::get_threshold();
+		$total_suppressed = Failed_Login_Limit_Service::get_total_suppressed_count();
 		?>
 		<div class="sh-AlertsTeaser-banner">
 			<span class="sh-AlertsTeaser-banner-icon dashicons dashicons-shield" aria-hidden="true"></span>
@@ -135,7 +137,30 @@ class Failed_Logins_Settings_Page_Teaser extends Service {
 				<span class="sh-AlertsTeaser-banner-title">
 					<?php esc_html_e( 'Login attempt limiting is active', 'simple-history' ); ?>
 				</span>
-				<span><?php esc_html_e( 'Simple History automatically stops logging after 5 consecutive failed login attempts to prevent database bloat.', 'simple-history' ); ?></span>
+				<span>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: %s: number of consecutive failed login attempts allowed */
+							__( 'Simple History automatically stops logging after %s consecutive failed login attempts to prevent database bloat.', 'simple-history' ),
+							number_format_i18n( $threshold )
+						)
+					);
+					?>
+				</span>
+				<?php if ( $total_suppressed > 0 ) { ?>
+					<span>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: total number of suppressed login attempts */
+								__( 'So far, %s failed login attempts have been prevented from filling your database.', 'simple-history' ),
+								number_format_i18n( $total_suppressed )
+							)
+						);
+						?>
+					</span>
+				<?php } ?>
 				<span>
 					<?php esc_html_e( 'Want configurable thresholds, per-user controls, and brute force analytics?', 'simple-history' ); ?>
 					<a href="<?php echo esc_url( $premium_url ); ?>">
