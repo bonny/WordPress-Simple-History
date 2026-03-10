@@ -62,6 +62,41 @@ class WPCliCest {
         $I->seeInShellOutput('WP-CLI');
     }
 
+    public function test_list_userid_filter( FunctionalTester $I ) {
+        // Create two users and log them in to generate events.
+        $I->haveUserInDatabase(
+            'alice',
+            'editor',
+            [
+                'user_email' => 'alice@example.org',
+                'user_pass' => 'passw0rd',
+            ]
+        );
+        $I->haveUserInDatabase(
+            'bob',
+            'author',
+            [
+                'user_email' => 'bob@example.org',
+                'user_pass' => 'passw0rd',
+            ]
+        );
+
+        $I->loginAs('alice', 'passw0rd');
+        $I->loginAs('bob', 'passw0rd');
+
+        // Get alice's user ID from the database.
+        $alice_id = $I->grabUserIdFromDatabase('alice');
+
+        // Filter events by alice's user ID — should see alice but not bob.
+        $I->cli("--allow-root simple-history list --userid={$alice_id} --format=table");
+        $I->seeInShellOutput('alice');
+        $I->dontSeeInShellOutput('bob');
+
+        // Verify --exclude_userid excludes alice.
+        $I->cli("--allow-root simple-history list --exclude_userid={$alice_id} --format=table");
+        $I->dontSeeInShellOutput('alice (alice@example.org)	Logged in');
+    }
+
     public function test_stealth_mode( FunctionalTester $I ) {
         $I->cli('--allow-root simple-history stealth-mode status');
 
