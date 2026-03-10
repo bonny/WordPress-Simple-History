@@ -949,6 +949,7 @@ class Post_Logger extends Logger {
 					$context['post_content_diff_size_prev_kb'] = round( strlen( $diff_values['old'] ) / 1024, 2 );
 					$context['post_content_diff_size_new_kb']  = round( strlen( $diff_values['new'] ) / 1024, 2 );
 					$context['post_content_diff_size_diff_kb'] = round( strlen( $json_diff ) / 1024, 2 );
+					$context['post_content_diff_size_prev_and_new_kb'] = round( ( strlen( $diff_values['old'] ) + strlen( $diff_values['new'] ) ) / 1024, 2 );
 
 					// Also store full content during testing phase for comparison.
 					$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
