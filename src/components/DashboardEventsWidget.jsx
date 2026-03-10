@@ -103,6 +103,9 @@ export function DashboardEventsWidget() {
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
 	const [ pagerSize, setPagerSize ] = useState( null );
 	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
+	const [ hasFailedLoginLimit, setHasFailedLoginLimit ] = useState( false );
+	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
+		useState( 0 );
 	const [ stats, setStats ] = useState( null );
 	const contentRef = useRef( null );
 	const prevHeightRef = useRef( 0 );
@@ -239,6 +242,12 @@ export function DashboardEventsWidget() {
 				setHasPremiumAddOn(
 					response.addons?.has_premium_add_on || false
 				);
+				setHasFailedLoginLimit(
+					response.has_failed_login_limit || false
+				);
+				setFailedLoginSuppressedCount(
+					response.failed_login_suppressed_count || 0
+				);
 				if ( response.stats ) {
 					setStats( response.stats );
 				}
@@ -355,6 +364,32 @@ export function DashboardEventsWidget() {
 				</div>
 			</div>
 
+			{ /* Compact failed login throttling notice for dashboard. */ }
+			{ ! eventsIsLoading &&
+				failedLoginSuppressedCount > 0 &&
+				! hasPremiumAddOn && (
+					<div className="sh-DashboardWidget-throttleNotice">
+						<span className="dashicons dashicons-info" aria-hidden="true"></span>
+						<p>
+							<strong>
+								{ __( 'Failed login throttling active', 'simple-history' ) }
+							</strong>
+							{ ' — ' }
+							{ sprintf(
+								/* translators: %s: number of skipped attempts */
+								__( '%s attempts skipped to reduce database bloat.', 'simple-history' ),
+								failedLoginSuppressedCount.toLocaleString()
+							) }
+							{ ' ' }
+							{ eventsAdminPageURL && (
+								<a href={ eventsAdminPageURL }>
+									{ __( 'View details →', 'simple-history' ) }
+								</a>
+							) }
+						</p>
+					</div>
+				) }
+
 			{ /* Event list area with animated height. */ }
 			<div className="sh-DashboardWidget-content" ref={ contentRef }>
 				<FetchEventsNoResultsMessage
@@ -375,6 +410,7 @@ export function DashboardEventsWidget() {
 					eventsIsLoading={ eventsIsLoading }
 					events={ events }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					hasFailedLoginLimit={ hasFailedLoginLimit }
 					eventsSettingsPageURL={ settingsPageURL }
 					mapsApiKey={ mapsApiKey }
 				/>

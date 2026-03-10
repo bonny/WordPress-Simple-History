@@ -9,7 +9,6 @@ export function EventsListItemsList( props ) {
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
 		hasFailedLoginLimit,
-		failedLoginSuppressedCount,
 		eventsIsLoading,
 		eventsSettingsPageURL,
 		eventsAdminPageURL,
@@ -43,9 +42,6 @@ export function EventsListItemsList( props ) {
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
 					hasFailedLoginLimit={ hasFailedLoginLimit }
-					failedLoginSuppressedCount={
-						failedLoginSuppressedCount
-					}
 					eventsSettingsPageURL={ eventsSettingsPageURL }
 					eventsAdminPageURL={ eventsAdminPageURL }
 					userCanManageOptions={ userCanManageOptions }

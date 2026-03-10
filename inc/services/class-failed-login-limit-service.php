@@ -152,23 +152,23 @@ class Failed_Login_Limit_Service extends Service {
 	}
 
 	/**
-	 * Get the number of suppressed attempts.
+	 * Get the number of currently suppressed attempts.
 	 *
-	 * If an attack is ongoing (counter > threshold), returns the live count.
-	 * Otherwise returns the saved count from the most recent completed burst.
+	 * Only returns a count when an attack is actively ongoing
+	 * (counter > threshold). Returns 0 once the burst ends and
+	 * the counter resets, so the event list banner disappears.
 	 *
 	 * @return int
 	 */
 	public static function get_last_suppressed_count() {
 		$threshold = self::get_threshold();
 
-		// Check live counter first for ongoing attacks.
 		$current_count = (int) get_option( self::OPTION_COUNTER, 0 );
 		if ( $current_count > $threshold ) {
 			return $current_count - $threshold;
 		}
 
-		return (int) get_option( self::OPTION_LAST_SUPPRESSED, 0 );
+		return 0;
 	}
 
 	/**

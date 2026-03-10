@@ -2205,6 +2205,31 @@ Can be overruled by .form-table td p
 	line-height: 1.5;
 }
 
+/* Compact failed login throttle notice for dashboard widget. */
+.sh-DashboardWidget-throttleNotice {
+	display: flex;
+	align-items: baseline;
+	gap: var(--sh-spacing-xsmall);
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	background: #f0f6fc;
+	border-bottom: 1px solid #c5d9ed;
+	font-size: var(--sh-font-size-normal);
+	line-height: 1.5;
+}
+
+.sh-DashboardWidget-throttleNotice .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: #72aee6;
+	position: relative;
+	top: 2px;
+}
+
+.sh-DashboardWidget-throttleNotice p {
+	margin: 0;
+}
+
 /* Notice in events log. */
 .sh-BackfilledNotice {
 	margin: var(--sh-spacing-medium);

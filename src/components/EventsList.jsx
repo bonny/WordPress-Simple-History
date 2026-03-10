@@ -205,9 +205,6 @@ export function EventsList( props ) {
 				hasPremiumAddOn={ hasPremiumAddOn }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				hasFailedLoginLimit={ hasFailedLoginLimit }
-				failedLoginSuppressedCount={
-					failedLoginSuppressedCount
-				}
 				eventsSettingsPageURL={ eventsSettingsPageURL }
 				eventsAdminPageURL={ eventsAdminPageURL }
 				userCanManageOptions={ userCanManageOptions }

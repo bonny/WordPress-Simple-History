@@ -21,7 +21,6 @@ function EventOccasionsAddonsContent( props ) {
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
 		hasFailedLoginLimit,
-		failedLoginSuppressedCount,
 		eventsSettingsPageURL,
 	} = props;
 
@@ -38,9 +37,6 @@ function EventOccasionsAddonsContent( props ) {
 		return null;
 	}
 
-	// Show suppression message only when we know attempts were actually suppressed.
-	const limitLikelyHit = hasFailedLoginLimit && failedLoginSuppressedCount > 0;
-
 	let content;
 
 	if ( hasExtendedSettingsAddOn || hasPremiumAddOn ) {
@@ -51,27 +47,6 @@ function EventOccasionsAddonsContent( props ) {
 			>
 				{ __( 'Configure failed login attempts', 'simple-history' ) }
 			</a>
-		);
-	} else if ( limitLikelyHit ) {
-		// Core limit hit: inform user and upsell control.
-		content = (
-			<>
-				{ __(
-					'Additional failed login attempts were not logged.',
-					'simple-history'
-				) }{ ' ' }
-				<ExternalLink
-					href={ getTrackingUrl(
-						'https://simple-history.com/add-ons/premium/#limit-number-of-failed-login-attempts',
-						'premium_events_loginlimit'
-					) }
-				>
-					{ __(
-						'Get full control (Premium)',
-						'simple-history'
-					) }
-				</ExternalLink>
-			</>
 		);
 	} else if ( ! hasFailedLoginLimit ) {
 		// No limiting active: upsell the feature.
@@ -89,6 +64,7 @@ function EventOccasionsAddonsContent( props ) {
 			</ExternalLink>
 		);
 	}
+	// When hasFailedLoginLimit is active, the banner handles the messaging.
 
 	if ( ! content ) {
 		return null;
@@ -115,7 +91,6 @@ export function EventOccasions( props ) {
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
 		hasFailedLoginLimit,
-		failedLoginSuppressedCount,
 		eventsSettingsPageURL,
 	} = props;
 	const { subsequent_occasions_count: subsequentOccasionsCount } = event;
@@ -212,9 +187,6 @@ export function EventOccasions( props ) {
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 				hasPremiumAddOn={ hasPremiumAddOn }
 				hasFailedLoginLimit={ hasFailedLoginLimit }
-				failedLoginSuppressedCount={
-					failedLoginSuppressedCount
-				}
 			/>
 		</div>
 	);
