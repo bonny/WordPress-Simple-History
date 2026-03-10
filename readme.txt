@@ -252,7 +252,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.24.0 (March 2026)
 
-A redesigned dashboard widget, user details on click, and much better logging of menus, categories, and image edits.
+A redesigned dashboard widget that takes up less space, user details card on click, and much better logging of menus, categories, and image edits.
 [Read more about it in the release post](https://simple-history.com/2026/simple-history-5-24-0-released/)
 
 **Added**
@@ -267,7 +267,6 @@ A redesigned dashboard widget, user details on click, and much better logging of
 -   Command palette command to view event history for the current post or page.
 -   "Event metadata" search field in the advanced filters for searching all event data including IP addresses and emails.
 -   "Clear filters" button to reset all search filters to their default values.
--   "View stats" link in the dashboard widget stats bar, linking to the full activity log with insights sidebar.
 -   Rotating tips in the sidebar to help users discover features like RSS feeds, WP-CLI, export, and sticky events.
 -   User creation and profile update counts in the email digest report, displayed alongside login statistics in the Users section.
 -   REST API `skip_count_query` parameter to skip the total count query when pagination info is not needed, improving response time for clients that don't require total counts.
