@@ -221,6 +221,8 @@ class Simple_History_Updates extends Service {
 			__( 'Copy as image – capture any event as a branded PNG card for Slack, social media, or bug reports', 'simple-history' ),
 		];
 
-		return $this->format_new_features_list( $title, $new_features );
+		$release_link = 'https://simple-history.com/2026/simple-history-5-24-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
 }
