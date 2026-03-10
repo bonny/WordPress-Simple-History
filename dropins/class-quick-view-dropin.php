@@ -122,6 +122,7 @@ class Quick_View_Dropin extends Dropin {
 				'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),
 				'currentPostId'             => is_singular() ? get_queried_object_id() : 0,
 				'currentPostTitle'          => is_singular() ? get_the_title() : '',
+				'experimentalFeaturesEnabled' => Helpers::experimental_features_is_enabled(),
 			],
 		);
 	}
