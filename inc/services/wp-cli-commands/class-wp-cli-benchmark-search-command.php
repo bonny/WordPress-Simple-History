@@ -63,9 +63,9 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 		// Set admin user so get_loggers_that_user_can_read() works.
 		wp_set_current_user( 1 );
 
-		$search_term = $args[0] ?? 'updated plugin';
-		$runs        = (int) ( $assoc_args['runs'] ?? 3 );
-		$per_page    = (int) ( $assoc_args['per-page'] ?? 20 );
+		$search_term  = $args[0] ?? 'updated plugin';
+		$runs         = (int) ( $assoc_args['runs'] ?? 3 );
+		$per_page     = (int) ( $assoc_args['per-page'] ?? 20 );
 		$show_explain = isset( $assoc_args['explain'] );
 
 		$simple_history = Simple_History::get_instance();
@@ -297,7 +297,7 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 		for ( $i = 0; $i < $runs; $i++ ) {
 			wp_cache_flush();
 
-			$start   = microtime( true );
+			$start = microtime( true );
 			$this->run_query( $per_page, $page, $lastdays );
 			$elapsed = ( microtime( true ) - $start ) * 1000;
 			$times[] = $elapsed;

@@ -88,10 +88,12 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		);
 
 		// Get all user IDs to randomly assign as event initiators.
-		$user_ids = get_users( [
-			'fields' => 'ID',
-			'number' => 50,
-		] );
+		$user_ids = get_users(
+			[
+				'fields' => 'ID',
+				'number' => 50,
+			] 
+		);
 
 		if ( empty( $user_ids ) ) {
 			$user_ids = [ 1 ];
@@ -210,7 +212,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		$timestamps   = [];
 
 		foreach ( $day_weights as $d => $weight ) {
-			$day_count = (int) round( ( $weight / $total_weight ) * $count );
+			$day_count = (int) round( $weight / $total_weight * $count );
 			$day_start = $now - ( ( $d + 1 ) * DAY_IN_SECONDS );
 
 			for ( $e = 0; $e < $day_count; $e++ ) {
@@ -280,16 +282,46 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		}
 
 		$plugins = [
-			[ 'name' => 'WooCommerce', 'slug' => 'woocommerce' ],
-			[ 'name' => 'Yoast SEO', 'slug' => 'wordpress-seo' ],
-			[ 'name' => 'Contact Form 7', 'slug' => 'contact-form-7' ],
-			[ 'name' => 'Akismet Anti-spam', 'slug' => 'akismet' ],
-			[ 'name' => 'Elementor', 'slug' => 'elementor' ],
-			[ 'name' => 'Wordfence Security', 'slug' => 'wordfence' ],
-			[ 'name' => 'Jetpack', 'slug' => 'jetpack' ],
-			[ 'name' => 'Simple History Premium', 'slug' => 'simple-history-premium' ],
-			[ 'name' => 'Advanced Custom Fields', 'slug' => 'advanced-custom-fields' ],
-			[ 'name' => 'WP Super Cache', 'slug' => 'wp-super-cache' ],
+			[
+				'name' => 'WooCommerce',
+				'slug' => 'woocommerce',
+			],
+			[
+				'name' => 'Yoast SEO',
+				'slug' => 'wordpress-seo',
+			],
+			[
+				'name' => 'Contact Form 7',
+				'slug' => 'contact-form-7',
+			],
+			[
+				'name' => 'Akismet Anti-spam',
+				'slug' => 'akismet',
+			],
+			[
+				'name' => 'Elementor',
+				'slug' => 'elementor',
+			],
+			[
+				'name' => 'Wordfence Security',
+				'slug' => 'wordfence',
+			],
+			[
+				'name' => 'Jetpack',
+				'slug' => 'jetpack',
+			],
+			[
+				'name' => 'Simple History Premium',
+				'slug' => 'simple-history-premium',
+			],
+			[
+				'name' => 'Advanced Custom Fields',
+				'slug' => 'advanced-custom-fields',
+			],
+			[
+				'name' => 'WP Super Cache',
+				'slug' => 'wp-super-cache',
+			],
 		];
 
 		$actions = [
@@ -396,12 +428,36 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		}
 
 		$users = [
-			[ 'login' => 'johndoe', 'email' => 'john@example.com', 'name' => 'John Doe' ],
-			[ 'login' => 'janedoe', 'email' => 'jane@example.com', 'name' => 'Jane Doe' ],
-			[ 'login' => 'admin', 'email' => 'admin@example.com', 'name' => 'Admin User' ],
-			[ 'login' => 'editor1', 'email' => 'editor@example.com', 'name' => 'Sarah Editor' ],
-			[ 'login' => 'author1', 'email' => 'author@example.com', 'name' => 'Mike Author' ],
-			[ 'login' => 'subscriber1', 'email' => 'subscriber@example.com', 'name' => 'Tom Subscriber' ],
+			[
+				'login' => 'johndoe',
+				'email' => 'john@example.com',
+				'name'  => 'John Doe',
+			],
+			[
+				'login' => 'janedoe',
+				'email' => 'jane@example.com',
+				'name'  => 'Jane Doe',
+			],
+			[
+				'login' => 'admin',
+				'email' => 'admin@example.com',
+				'name'  => 'Admin User',
+			],
+			[
+				'login' => 'editor1',
+				'email' => 'editor@example.com',
+				'name'  => 'Sarah Editor',
+			],
+			[
+				'login' => 'author1',
+				'email' => 'author@example.com',
+				'name'  => 'Mike Author',
+			],
+			[
+				'login' => 'subscriber1',
+				'email' => 'subscriber@example.com',
+				'name'  => 'Tom Subscriber',
+			],
 		];
 
 		$actions = [
@@ -453,14 +509,38 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 		// Template: 'Updated setting "{option}" on the "{option_page}" settings page'.
 		$options = [
-			[ 'option' => 'blogname', 'page' => 'general' ],
-			[ 'option' => 'blogdescription', 'page' => 'general' ],
-			[ 'option' => 'admin_email', 'page' => 'general' ],
-			[ 'option' => 'default_role', 'page' => 'general' ],
-			[ 'option' => 'posts_per_page', 'page' => 'reading' ],
-			[ 'option' => 'timezone_string', 'page' => 'general' ],
-			[ 'option' => 'date_format', 'page' => 'general' ],
-			[ 'option' => 'permalink_structure', 'page' => 'permalink' ],
+			[
+				'option' => 'blogname',
+				'page'   => 'general',
+			],
+			[
+				'option' => 'blogdescription',
+				'page'   => 'general',
+			],
+			[
+				'option' => 'admin_email',
+				'page'   => 'general',
+			],
+			[
+				'option' => 'default_role',
+				'page'   => 'general',
+			],
+			[
+				'option' => 'posts_per_page',
+				'page'   => 'reading',
+			],
+			[
+				'option' => 'timezone_string',
+				'page'   => 'general',
+			],
+			[
+				'option' => 'date_format',
+				'page'   => 'general',
+			],
+			[
+				'option' => 'permalink_structure',
+				'page'   => 'permalink',
+			],
 		];
 
 		$entry = $options[ wp_rand( 0, count( $options ) - 1 ) ];
@@ -505,8 +585,8 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			[
 				'message' => 'Cron job "{job_name}" executed successfully',
 				'context' => [
-					'job_name'  => [ 'daily_cleanup', 'email_digest', 'cache_purge', 'sync_inventory' ][ wp_rand( 0, 3 ) ],
-					'runtime'   => wp_rand( 1, 60 ) . 's',
+					'job_name' => [ 'daily_cleanup', 'email_digest', 'cache_purge', 'sync_inventory' ][ wp_rand( 0, 3 ) ],
+					'runtime'  => wp_rand( 1, 60 ) . 's',
 				],
 			],
 			[
@@ -534,7 +614,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		$entry = $messages[ wp_rand( 0, count( $messages ) - 1 ) ];
 
 		$entry['context']['_initiator'] = $initiator;
-		$entry['context'] = $this->maybe_add_ip_address( $entry['context'] );
+		$entry['context']               = $this->maybe_add_ip_address( $entry['context'] );
 
 		$logger->info( $entry['message'], $entry['context'] );
 	}
@@ -577,10 +657,22 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 				'categories'  => [ 'Category ' . wp_rand( 1, 20 ), 'Category ' . wp_rand( 1, 20 ) ],
 				'tags'        => [ 'tag-' . wp_rand( 1, 50 ), 'tag-' . wp_rand( 1, 50 ), 'tag-' . wp_rand( 1, 50 ) ],
 				'meta_data'   => [
-					[ 'key' => '_stock_status', 'value' => [ 'instock', 'outofstock', 'onbackorder' ][ wp_rand( 0, 2 ) ] ],
-					[ 'key' => '_weight', 'value' => (string) wp_rand( 1, 500 ) ],
-					[ 'key' => '_dimensions', 'value' => wp_rand( 10, 100 ) . 'x' . wp_rand( 10, 100 ) . 'x' . wp_rand( 10, 100 ) ],
-					[ 'key' => '_custom_field_' . wp_rand( 1, 10 ), 'value' => str_repeat( 'data', wp_rand( 50, 200 ) ) ],
+					[
+						'key'   => '_stock_status',
+						'value' => [ 'instock', 'outofstock', 'onbackorder' ][ wp_rand( 0, 2 ) ],
+					],
+					[
+						'key'   => '_weight',
+						'value' => (string) wp_rand( 1, 500 ),
+					],
+					[
+						'key'   => '_dimensions',
+						'value' => wp_rand( 10, 100 ) . 'x' . wp_rand( 10, 100 ) . 'x' . wp_rand( 10, 100 ),
+					],
+					[
+						'key'   => '_custom_field_' . wp_rand( 1, 10 ),
+						'value' => str_repeat( 'data', wp_rand( 50, 200 ) ),
+					],
 				],
 			];
 		}
@@ -603,7 +695,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * Get a random initiator with weighted distribution.
 	 *
 	 * Distribution:
-	 * ~60% WP_USER, ~15% WP_CLI, ~15% WORDPRESS, ~5% WEB_USER, ~5% OTHER.
+	 * ~60% WP_USER, ~15% WP_CLI, ~15% WordPress, ~5% WEB_USER, ~5% OTHER.
 	 *
 	 * @return string Log initiator constant.
 	 */
@@ -612,11 +704,17 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 		if ( $rand <= 60 ) {
 			return Log_Initiators::WP_USER;
-		} elseif ( $rand <= 75 ) {
+		}
+
+		if ( $rand <= 75 ) {
 			return Log_Initiators::WP_CLI;
-		} elseif ( $rand <= 90 ) {
+		}
+
+		if ( $rand <= 90 ) {
 			return Log_Initiators::WORDPRESS;
-		} elseif ( $rand <= 95 ) {
+		}
+
+		if ( $rand <= 95 ) {
 			return Log_Initiators::WEB_USER;
 		}
 
@@ -665,7 +763,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 		// ~20% of IP events also get an X-Forwarded-For header.
 		if ( wp_rand( 1, 5 ) === 1 ) {
-			$proxy_ip = $ip_addresses[ wp_rand( 0, count( $ip_addresses ) - 1 ) ];
+			$proxy_ip                                  = $ip_addresses[ wp_rand( 0, count( $ip_addresses ) - 1 ) ];
 			$context['_server_http_x_forwarded_for_0'] = $proxy_ip;
 		}
 

@@ -128,7 +128,7 @@ class Failed_Logins_Settings_Page_Teaser extends Service {
 	 */
 	private function render_core_limit_active_banner() {
 		$premium_url      = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'failed_logins_core_limit_banner' );
-		$threshold         = Failed_Login_Limit_Service::get_threshold();
+		$threshold        = Failed_Login_Limit_Service::get_threshold();
 		$total_suppressed = Failed_Login_Limit_Service::get_total_suppressed_count();
 		?>
 		<div class="sh-AlertsTeaser-banner">

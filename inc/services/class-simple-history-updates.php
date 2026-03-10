@@ -20,6 +20,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.21.0', [ $this, 'on_plugin_updated_details_5_21_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.22.0', [ $this, 'on_plugin_updated_details_5_22_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.23.0', [ $this, 'on_plugin_updated_details_5_23_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.24.0', [ $this, 'on_plugin_updated_details_5_24_0' ] );
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
 		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
@@ -198,6 +199,26 @@ class Simple_History_Updates extends Service {
 			__( 'Notes stats – see notes activity in weekly email reports and History Insights (WordPress 6.9+)', 'simple-history' ),
 			__( 'Security update detection – forced security updates from WordPress.org are now logged with details', 'simple-history' ),
 			__( 'Performance – faster loading, optimized database queries, and improved RSS feeds', 'simple-history' ),
+		];
+
+		return $this->format_new_features_list( $title, $new_features );
+	}
+
+	/**
+	 * Handle update details for Simple History version 5.24.0.
+	 *
+	 * @param string $extra_details Extra HTML to output after the changelog link.
+	 * @return string Extra HTML to output after the changelog link.
+	 */
+	public function on_plugin_updated_details_5_24_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'User card popover – click any avatar or name to see identity info, role, and profile link', 'simple-history' ),
+			__( 'Dashboard redesign – activity stats summary with event counts, cleaner layout, faster loading', 'simple-history' ),
+			__( 'Detailed menu logging – see item names, renames, moves, and display location changes', 'simple-history' ),
+			__( 'Site Health Logger – tracks when Site Health issues are detected, resolved, or change severity', 'simple-history' ),
+			__( 'Copy as image – capture any event as a branded PNG card for Slack, social media, or bug reports', 'simple-history' ),
 		];
 
 		return $this->format_new_features_list( $title, $new_features );

@@ -972,7 +972,7 @@ class Plugin_Logger extends Logger {
 			return;
 		}
 
-		$plugins_updated = isset( $arr_data['plugins'] ) ? (array) $arr_data['plugins'] : [];
+		$plugins_updated       = isset( $arr_data['plugins'] ) ? (array) $arr_data['plugins'] : [];
 		$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
 
 		/** @var string $plugin_main_file_path Plugin folder and main file, i.e. classic-widgets/classic-widgets.php */
