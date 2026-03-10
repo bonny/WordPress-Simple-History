@@ -27,9 +27,6 @@ class Failed_Login_Limit_Service extends Service {
 	/** @var string Option name for the consecutive failed attempts counter. */
 	private const OPTION_COUNTER = 'sh_core_failed_login_count';
 
-	/** @var string Option name for the number of suppressed attempts from the last burst. */
-	private const OPTION_LAST_SUPPRESSED = 'sh_core_failed_login_last_suppressed';
-
 	/** @var string Option name for the all-time total of suppressed attempts. */
 	private const OPTION_TOTAL_SUPPRESSED = 'sh_core_failed_login_total_suppressed';
 
@@ -124,10 +121,6 @@ class Failed_Login_Limit_Service extends Service {
 
 		// Only write to DB if counter is not already 0.
 		if ( $count !== 0 ) {
-			// Save how many were suppressed before resetting.
-			$suppressed = max( 0, $count - self::get_threshold() );
-			update_option( self::OPTION_LAST_SUPPRESSED, $suppressed, false );
-
 			update_option( self::OPTION_COUNTER, 0, false );
 		}
 
@@ -161,14 +154,17 @@ class Failed_Login_Limit_Service extends Service {
 	 * @return int
 	 */
 	public static function get_last_suppressed_count() {
-		$threshold = self::get_threshold();
-
 		$current_count = (int) get_option( self::OPTION_COUNTER, 0 );
-		if ( $current_count > $threshold ) {
-			return $current_count - $threshold;
+
+		if ( $current_count === 0 ) {
+			return 0;
 		}
 
-		return 0;
+		$threshold = self::get_threshold();
+
+		return $current_count > $threshold
+			? $current_count - $threshold
+			: 0;
 	}
 
 	/**

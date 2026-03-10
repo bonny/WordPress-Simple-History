@@ -366,6 +366,7 @@ export function DashboardEventsWidget() {
 
 			{ /* Compact failed login throttling notice for dashboard. */ }
 			{ ! eventsIsLoading &&
+				hasFailedLoginLimit &&
 				failedLoginSuppressedCount > 0 &&
 				! hasPremiumAddOn && (
 					<div className="sh-DashboardWidget-throttleNotice">
