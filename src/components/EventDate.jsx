@@ -15,7 +15,7 @@ import { navigateToEventPermalink } from '../functions';
 import { EventHeaderItem } from './EventHeaderItem';
 
 export function EventDate( props ) {
-	const { event, eventVariant } = props;
+	const { event, eventVariant, eventsAdminPageURL } = props;
 	const dateSettings = getDateSettings();
 	const wpDateFormatAbbreviated = dateSettings.formats.datetimeAbbreviated;
 	const wpDateFormatTime = dateSettings.formats.time;
@@ -137,7 +137,14 @@ export function EventDate( props ) {
 	if ( eventVariant === 'compact' ) {
 		output = <span>{ formattedDateLiveUpdated }</span>;
 	} else if ( eventVariant === 'dashboard' ) {
-		output = (
+		const eventPermalink = eventsAdminPageURL
+			? `${ eventsAdminPageURL }#simple-history/event/${ event.id }`
+			: undefined;
+		output = eventPermalink ? (
+			<a href={ eventPermalink } title={ formattedDateFormatAbbreviated }>
+				{ formattedDateLiveUpdated }
+			</a>
+		) : (
 			<span title={ formattedDateFormatAbbreviated }>
 				{ formattedDateLiveUpdated }
 			</span>

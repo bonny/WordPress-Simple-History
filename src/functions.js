@@ -57,6 +57,7 @@ export function generateAPIQueryParams( props ) {
 		selectedInitiator,
 		enteredIPAddress,
 		selectedContextFilters,
+		enteredMetadataSearch,
 		enteredSearchText,
 		selectedDateOption,
 		selectedCustomDateFrom,
@@ -208,6 +209,11 @@ export function generateAPIQueryParams( props ) {
 		if ( Object.keys( contextFiltersObject ).length > 0 ) {
 			eventsQueryParams.context_filters = contextFiltersObject;
 		}
+	}
+
+	// Add metadata search (plain text search across all context values).
+	if ( enteredMetadataSearch && enteredMetadataSearch.trim().length > 0 ) {
+		eventsQueryParams.metadata_search = enteredMetadataSearch.trim();
 	}
 
 	// Add exclusion/negative filters - hide events matching these criteria.

@@ -3,6 +3,7 @@
 namespace Simple_History;
 
 use Simple_History\Services\AddOns_Licences;
+use Simple_History\Services\Failed_Login_Limit_Service;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
@@ -161,6 +162,8 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		/** @var AddOns_Licences */
 		$addons_service = $this->simple_history->get_service( AddOns_Licences::class );
 
+		$has_failed_login_limit = Failed_Login_Limit_Service::is_active();
+
 		$data = [
 			'dates'                           => Helpers::get_data_for_date_filter(),
 			'loggers'                         => $this->get_loggers_and_messages(),
@@ -176,12 +179,20 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				'has_extended_settings_add_on' => $addons_service->has_add_on( 'simple-history-extended-settings' ),
 				'has_premium_add_on'           => $addons_service->has_add_on( 'simple-history-premium' ),
 			],
+			'has_failed_login_limit'          => $has_failed_login_limit,
+			'failed_login_limit_threshold'    => $has_failed_login_limit
+				? Failed_Login_Limit_Service::get_threshold()
+				: 0,
+			'failed_login_suppressed_count'   => $has_failed_login_limit
+				? Failed_Login_Limit_Service::get_last_suppressed_count()
+				: 0,
 			'experimental_features_enabled'   => Helpers::experimental_features_is_enabled(),
 			'events_admin_page_url'           => Helpers::get_history_admin_url(),
 			'settings_page_url'               => Helpers::get_settings_page_url(),
+			'stats_page_url'                  => admin_url( 'admin.php?page=simple_history_stats_page' ),
 			'current_user_id'                 => get_current_user_id(),
 			'current_user_can_manage_options' => current_user_can( 'manage_options' ),
-			'stats'                          => [
+			'stats'                           => [
 				'num_events_today'       => Helpers::get_num_events_today(),
 				'num_events_last_7_days' => Helpers::get_num_events_last_n_days( 7 ),
 			],

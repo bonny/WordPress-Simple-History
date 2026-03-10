@@ -4,18 +4,12 @@ import { dateI18n } from '@wordpress/date';
 import {
 	useEffect,
 	useState,
-	useRef,
 	Fragment,
 	useCallback,
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import {
-	DEFAULT_DATE_OPTIONS,
-	OPTIONS_LOADING,
-	SEARCH_FILTER_DEFAULT_START_DATE,
-	SEARCH_FILTER_DEFAULT_END_DATE,
-} from '../constants';
+import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
 
@@ -48,12 +42,17 @@ export function EventsSearchFilters( props ) {
 		setEnteredIPAddress,
 		selectedContextFilters,
 		setSelectedContextFilters,
+		enteredMetadataSearch,
+		setEnteredMetadataSearch,
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
 		setPagerSize,
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
 		setHasPremiumAddOn,
+		setHasFailedLoginLimit,
+		setFailedLoginLimitThreshold,
+		setFailedLoginSuppressedCount,
 		isExperimentalFeaturesEnabled,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
@@ -62,11 +61,13 @@ export function EventsSearchFilters( props ) {
 		setUserCanManageOptions,
 		hideOwnEvents,
 		setHideOwnEvents,
+		defaultDateOptionRef,
+		handleClearFilters,
+		hasAnyActiveFilters,
 	} = props;
 
-	// Check if search options should be auto-expanded based on URL parameters.
-	// Only check filters that are hidden behind the "Show search options" button.
-	const hasActiveFilters = useCallback( () => {
+	// Check if expanded filters are active (used for auto-expand logic).
+	const hasActiveExpandedFilters = useCallback( () => {
 		return (
 			selectedLogLevels.length > 0 ||
 			selectedMessageTypes.length > 0 ||
@@ -74,6 +75,7 @@ export function EventsSearchFilters( props ) {
 			selectedInitiator.length > 0 ||
 			enteredIPAddress.trim().length > 0 ||
 			selectedContextFilters.trim().length > 0 ||
+			enteredMetadataSearch.trim().length > 0 ||
 			hideOwnEvents
 		);
 	}, [
@@ -83,12 +85,16 @@ export function EventsSearchFilters( props ) {
 		selectedInitiator,
 		enteredIPAddress,
 		selectedContextFilters,
+		enteredMetadataSearch,
 		hideOwnEvents,
 	] );
 
 	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () => {
 		const urlParams = new URLSearchParams( window.location.search );
-		return hasActiveFilters() || urlParams.get( 'show-filters' ) === '1';
+		return (
+			hasActiveExpandedFilters() ||
+			urlParams.get( 'show-filters' ) === '1'
+		);
 	} );
 	const [ isManuallyExpanded, setIsManuallyExpanded ] = useState( null );
 	const moreOptionsIsExpanded =
@@ -96,48 +102,19 @@ export function EventsSearchFilters( props ) {
 	const [ dateOptions, setDateOptions ] = useState( OPTIONS_LOADING );
 	const [ searchOptions, setSearchOptions ] = useState( null );
 
-	// Store the default date option from the API so we can restore it when clearing filters.
-	const defaultDateOptionRef = useRef( '' );
-
-	// Check if any filter (including default filters) has a non-default value.
-	const hasAnyActiveFilters = useCallback( () => {
-		const hasExpandedFilters = hasActiveFilters();
-
-		const hasSearchText = enteredSearchText.trim().length > 0;
-
-		// Date is non-default if it differs from the API-recommended value.
-		const hasNonDefaultDate =
-			defaultDateOptionRef.current &&
-			selectedDateOption !== defaultDateOptionRef.current;
-
-		return hasExpandedFilters || hasSearchText || hasNonDefaultDate;
-	}, [ hasActiveFilters, enteredSearchText, selectedDateOption ] );
-
-	// Reset all filters to their default values.
-	const handleClearFilters = () => {
-		setSelectedDateOption( defaultDateOptionRef.current );
-		setEnteredSearchText( '' );
-		setSelectedCustomDateFrom( SEARCH_FILTER_DEFAULT_START_DATE );
-		setSelectedCustomDateTo( SEARCH_FILTER_DEFAULT_END_DATE );
-		setSelectedLogLevels( [] );
-		setSelectedMessageTypes( [] );
-		setSelectedUsersWithId( [] );
-		setSelectedInitiator( [] );
-		setEnteredIPAddress( '' );
-		setSelectedContextFilters( '' );
-		setHideOwnEvents( false );
-
-		// Collapse expanded filters and reset auto-expand state.
+	// Wrap parent's clear handler to also reset local UI state.
+	const handleClearFiltersWithUI = () => {
+		handleClearFilters();
 		setIsManuallyExpanded( null );
 		setIsAutoExpanded( false );
 	};
 
-	// Auto-expand search options when filters are applied via URL parameters
+	// Auto-expand search options when filters are applied via URL parameters.
 	useEffect( () => {
-		if ( hasActiveFilters() && ! isAutoExpanded ) {
+		if ( hasActiveExpandedFilters() && ! isAutoExpanded ) {
 			setIsAutoExpanded( true );
 		}
-	}, [ hasActiveFilters, isAutoExpanded ] );
+	}, [ hasActiveExpandedFilters, isAutoExpanded ] );
 
 	// Load search options when component mounts.
 	useEffect( () => {
@@ -197,6 +174,18 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.experimental_features_enabled
 				);
 
+				setHasFailedLoginLimit(
+					searchOptionsResponse.has_failed_login_limit
+				);
+
+				setFailedLoginLimitThreshold(
+					searchOptionsResponse.failed_login_limit_threshold || 0
+				);
+
+				setFailedLoginSuppressedCount(
+					searchOptionsResponse.failed_login_suppressed_count || 0
+				);
+
 				setEventsAdminPageURL(
 					searchOptionsResponse.events_admin_page_url
 				);
@@ -234,6 +223,9 @@ export function EventsSearchFilters( props ) {
 		setMapsApiKey,
 		setHasExtendedSettingsAddOn,
 		setHasPremiumAddOn,
+		setHasFailedLoginLimit,
+		setFailedLoginLimitThreshold,
+		setFailedLoginSuppressedCount,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
@@ -243,8 +235,8 @@ export function EventsSearchFilters( props ) {
 	] );
 
 	const showMoreOrLessText = moreOptionsIsExpanded
-		? __( 'Collapse search options', 'simple-history' )
-		: __( 'Show search options', 'simple-history' );
+		? __( 'Hide filters', 'simple-history' )
+		: __( 'Show filters', 'simple-history' );
 
 	// Dynamic created <Disabled> elements. Used to disable the whole search component while loading.
 	const MaybeDisabledTag = searchOptionsLoaded ? Fragment : Disabled;
@@ -275,6 +267,8 @@ export function EventsSearchFilters( props ) {
 						setSelectedInitiator={ setSelectedInitiator }
 						selectedContextFilters={ selectedContextFilters }
 						setSelectedContextFilters={ setSelectedContextFilters }
+						enteredMetadataSearch={ enteredMetadataSearch }
+						setEnteredMetadataSearch={ setEnteredMetadataSearch }
 						isExperimentalFeaturesEnabled={
 							isExperimentalFeaturesEnabled
 						}
@@ -288,10 +282,10 @@ export function EventsSearchFilters( props ) {
 						{ __( 'Search events', 'simple-history' ) }
 					</Button>
 
-					{ hasAnyActiveFilters() && (
+					{ hasAnyActiveFilters && (
 						<Button
 							variant="tertiary"
-							onClick={ handleClearFilters }
+							onClick={ handleClearFiltersWithUI }
 							className="SimpleHistoryFilterDropin-clearFilters"
 						>
 							{ __( 'Clear filters', 'simple-history' ) }

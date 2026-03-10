@@ -39,6 +39,53 @@ function SkeletonEvents( { count = 5 } ) {
 }
 
 /**
+ * Stats content shared by both the link and static variants.
+ *
+ * @param {Object} props
+ * @param {Object} props.stats Stats object with num_events_today and num_events_last_7_days.
+ */
+function StatsContent( { stats } ) {
+	return (
+		<>
+			<Icon icon={ chartBar } size={ 16 } />
+			<span>
+				{ createInterpolateElement(
+					sprintf(
+						/* translators: 1: number of events today */
+						_n(
+							'<strong>%s</strong> event today',
+							'<strong>%s</strong> events today',
+							stats.num_events_today,
+							'simple-history'
+						),
+						stats.num_events_today
+					),
+					{ strong: <strong /> }
+				) }
+			</span>
+			<span className="sh-DashboardWidget-stats__separator">
+				&middot;
+			</span>
+			<span>
+				{ createInterpolateElement(
+					sprintf(
+						/* translators: 1: number of events last 7 days */
+						_n(
+							'<strong>%s</strong> event last 7 days',
+							'<strong>%s</strong> events last 7 days',
+							stats.num_events_last_7_days,
+							'simple-history'
+						),
+						stats.num_events_last_7_days
+					),
+					{ strong: <strong /> }
+				) }
+			</span>
+		</>
+	);
+}
+
+/**
  * Simplified events widget for the WordPress dashboard.
  * Replaces the full EventsGUI to keep the dashboard compact:
  * no filters, no control bar, no event action menus, no pagination.
@@ -52,9 +99,13 @@ export function DashboardEventsWidget() {
 		useState( null );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState( '' );
 	const [ settingsPageURL, setSettingsPageURL ] = useState( '' );
+	const [ statsPageURL, setStatsPageURL ] = useState( '' );
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
 	const [ pagerSize, setPagerSize ] = useState( null );
 	const [ hasPremiumAddOn, setHasPremiumAddOn ] = useState( false );
+	const [ hasFailedLoginLimit, setHasFailedLoginLimit ] = useState( false );
+	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
+		useState( 0 );
 	const [ stats, setStats ] = useState( null );
 	const contentRef = useRef( null );
 	const prevHeightRef = useRef( 0 );
@@ -66,7 +117,7 @@ export function DashboardEventsWidget() {
 		const tips = hasPremiumAddOn
 			? [
 					__(
-						'Pin important events with "Sticky" so they stay visible at the top.',
+						'Keep important events visible by marking them as Sticky.',
 						'simple-history'
 					),
 					__(
@@ -74,11 +125,11 @@ export function DashboardEventsWidget() {
 						'simple-history'
 					),
 					__(
-						'Use Message Control in Settings to choose exactly which events get logged.',
+						'Control exactly which events get logged in Message Control under Settings.',
 						'simple-history'
 					),
 					__(
-						'Use the Quick View dropdown in the admin bar to see recent events without leaving your page.',
+						'Check recent events from any page using the Quick View in the admin bar.',
 						'simple-history'
 					),
 					__(
@@ -92,19 +143,19 @@ export function DashboardEventsWidget() {
 			  ]
 			: [
 					__(
-						'Get email alerts when important events happen. Available with Simple History Premium.',
+						'Simple History Premium sends email alerts when important events happen.',
 						'simple-history'
 					),
 					__(
-						'Pin important events so they stay visible at the top. Available with Simple History Premium.',
+						'Simple History Premium lets you pin important events so they stay at the top.',
 						'simple-history'
 					),
 					__(
-						'Keep a full year of event history. Available with Simple History Premium.',
+						'Simple History Premium stores up to a full year of event history.',
 						'simple-history'
 					),
 					__(
-						'Use the Quick View dropdown in the admin bar to see recent events without leaving your page.',
+						'Check recent events from any page using the Quick View in the admin bar.',
 						'simple-history'
 					),
 					__(
@@ -186,9 +237,16 @@ export function DashboardEventsWidget() {
 				setPagerSize( response.pager_size );
 				setEventsAdminPageURL( response.events_admin_page_url || '' );
 				setSettingsPageURL( response.settings_page_url || '' );
+				setStatsPageURL( response.stats_page_url || '' );
 				setMapsApiKey( response.maps_api_key || '' );
 				setHasPremiumAddOn(
 					response.addons?.has_premium_add_on || false
+				);
+				setHasFailedLoginLimit(
+					response.has_failed_login_limit || false
+				);
+				setFailedLoginSuppressedCount(
+					response.failed_login_suppressed_count || 0
 				);
 				if ( response.stats ) {
 					setStats( response.stats );
@@ -209,6 +267,8 @@ export function DashboardEventsWidget() {
 			const eventsResponse = await apiFetch( {
 				path: addQueryArgs( '/simple-history/v1/events', {
 					per_page: pagerSize.dashboard,
+					skip_count_query: true,
+					dates: 'lastdays:7',
 					_fields: EVENT_FIELDS,
 				} ),
 				parse: false,
@@ -243,49 +303,25 @@ export function DashboardEventsWidget() {
 
 	return (
 		<div className="sh-DashboardWidget">
-			{ /* Stats row: skeleton placeholder while loading, real data when ready. */ }
-			<div className="sh-DashboardWidget-stats">
-				{ stats ? (
-					<>
-						<Icon icon={ chartBar } size={ 16 } />
-						<span>
-							{ createInterpolateElement(
-								sprintf(
-									/* translators: 1: number of events today */
-									_n(
-										'<strong>%s</strong> event today',
-										'<strong>%s</strong> events today',
-										stats.num_events_today,
-										'simple-history'
-									),
-									stats.num_events_today
-								),
-								{ strong: <strong /> }
-							) }
-						</span>
-						<span className="sh-DashboardWidget-stats__separator">
-							&middot;
-						</span>
-						<span>
-							{ createInterpolateElement(
-								sprintf(
-									/* translators: 1: number of events last 7 days */
-									_n(
-										'<strong>%s</strong> event last 7 days',
-										'<strong>%s</strong> events last 7 days',
-										stats.num_events_last_7_days,
-										'simple-history'
-									),
-									stats.num_events_last_7_days
-								),
-								{ strong: <strong /> }
-							) }
-						</span>
-					</>
+			{ /* Stats row: whole row is clickable when URL is available, with a subtle arrow. */ }
+			{ stats ? (
+				statsPageURL ? (
+					<a
+						href={ statsPageURL }
+						className="sh-DashboardWidget-stats sh-DashboardWidget-stats--link"
+					>
+						<StatsContent stats={ stats } />
+					</a>
 				) : (
+					<div className="sh-DashboardWidget-stats">
+						<StatsContent stats={ stats } />
+					</div>
+				)
+			) : (
+				<div className="sh-DashboardWidget-stats">
 					<div className="sh-DashboardWidget-skeleton__line sh-DashboardWidget-skeleton__line--stats" />
-				) }
-			</div>
+				</div>
+			) }
 
 			{ /* Search row: always visible, form works even before admin URL loads. */ }
 			<div className="sh-DashboardWidget-searchRow">
@@ -318,15 +354,42 @@ export function DashboardEventsWidget() {
 							} ) }
 							className="sh-DashboardWidget-searchRow__filtersLink"
 						>
-							{ __( 'Show search options', 'simple-history' ) }
+							{ __( 'More filters', 'simple-history' ) }
 						</a>
 					) : (
 						<span className="sh-DashboardWidget-searchRow__filtersLink is-placeholder">
-							{ __( 'Show search options', 'simple-history' ) }
+							{ __( 'More filters', 'simple-history' ) }
 						</span>
 					) }
 				</div>
 			</div>
+
+			{ /* Compact failed login throttling notice for dashboard. */ }
+			{ ! eventsIsLoading &&
+				hasFailedLoginLimit &&
+				failedLoginSuppressedCount > 0 &&
+				! hasPremiumAddOn && (
+					<div className="sh-DashboardWidget-throttleNotice">
+						<span className="dashicons dashicons-info" aria-hidden="true"></span>
+						<p>
+							<strong>
+								{ __( 'Failed login throttling active', 'simple-history' ) }
+							</strong>
+							{ ' — ' }
+							{ sprintf(
+								/* translators: %s: number of skipped attempts */
+								__( '%s attempts skipped to reduce database bloat.', 'simple-history' ),
+								failedLoginSuppressedCount.toLocaleString()
+							) }
+							{ ' ' }
+							{ eventsAdminPageURL && (
+								<a href={ eventsAdminPageURL }>
+									{ __( 'View details →', 'simple-history' ) }
+								</a>
+							) }
+						</p>
+					</div>
+				) }
 
 			{ /* Event list area with animated height. */ }
 			<div className="sh-DashboardWidget-content" ref={ contentRef }>
@@ -348,14 +411,39 @@ export function DashboardEventsWidget() {
 					eventsIsLoading={ eventsIsLoading }
 					events={ events }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					hasFailedLoginLimit={ hasFailedLoginLimit }
+					eventsAdminPageURL={ eventsAdminPageURL }
 					eventsSettingsPageURL={ settingsPageURL }
 					mapsApiKey={ mapsApiKey }
 				/>
 			</div>
 
+			{ /* Sparse-state message: few events in the 7-day window. */ }
+			{ ! eventsIsLoading &&
+				events.length > 0 &&
+				events.length < 3 &&
+				eventsAdminPageURL && (
+					<p className="sh-DashboardWidget-sparseNotice">
+						{ createInterpolateElement(
+							__(
+								'Only a few events in the past 7 days. Visit the <a>activity log</a> to search your full history.',
+								'simple-history'
+							),
+							{
+								a: (
+									// eslint-disable-next-line jsx-a11y/anchor-has-content
+									<a href={ eventsAdminPageURL } />
+								),
+							}
+						) }
+					</p>
+				) }
+
 			{ /* Tip: shown after events load. */ }
 			{ ! eventsIsLoading && events.length > 0 && (
-				<p className="sh-DashboardWidget-tip">{ tip }</p>
+				<p className="sh-DashboardWidget-tip">
+					<strong>{ __( 'Tip:', 'simple-history' ) }</strong> { tip }
+				</p>
 			) }
 
 			{ /* Footer: always visible. */ }

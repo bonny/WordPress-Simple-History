@@ -1,71 +1,85 @@
-import { Icon, __experimentalText as Text } from '@wordpress/components';
+import { Button, Icon, __experimentalText as Text } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 export function FetchEventsNoResultsMessage( props ) {
-	const { eventsIsLoading, events } = props;
+	const { eventsIsLoading, events, hasActiveFilters, onClearFilters } = props;
 
-	// Bail if loading.
 	if ( eventsIsLoading ) {
 		return null;
 	}
 
-	// Bail if there are events.
 	if ( events.length && events.length > 0 ) {
 		return null;
 	}
 
-	// Icon = "Search Off".
-	// https://fonts.google.com/icons?selected=Material+Symbols+Outlined:search_off:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=search&icon.size=24&icon.color=%23000000&icon.platform=web
+	// "Search" icon (plain magnifying glass).
+	// https://fonts.google.com/icons?selected=Material+Symbols+Outlined:search
 	const icon = (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			height="24px"
 			viewBox="0 -960 960 960"
 			width="24px"
-			fill="#000000"
 		>
-			<path d="M280-80q-83 0-141.5-58.5T80-280q0-83 58.5-141.5T280-480q83 0 141.5 58.5T480-280q0 83-58.5 141.5T280-80Zm544-40L568-376q-12-13-25.5-26.5T516-428q38-24 61-64t23-88q0-75-52.5-127.5T420-760q-75 0-127.5 52.5T240-580q0 6 .5 11.5T242-557q-18 2-39.5 8T164-535q-2-11-3-22t-1-23q0-109 75.5-184.5T420-840q109 0 184.5 75.5T680-580q0 43-13.5 81.5T629-428l251 252-56 56Zm-615-61 71-71 70 71 29-28-71-71 71-71-28-28-71 71-71-71-28 28 71 71-71 71 28 28Z" />
+			<path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
 		</svg>
 	);
 
 	const containerStyles = {
-		marginBlock: '2rem',
+		margin: '1.5rem 0 2rem 1.5rem',
 		display: 'flex',
-		flexDirection: 'column',
-		alignItems: 'center',
-	};
-
-	const pStyles = {
-		fontSize: '1rem',
-		fontWeight: '500',
-		marginBlock: '.25rem',
-		color: 'var(--sh-color-gray-2)',
+		flexDirection: 'row',
+		alignItems: 'flex-start',
+		gap: '0.75rem',
 	};
 
 	return (
-		<div style={ containerStyles }>
+		<div style={ containerStyles } role="status" aria-live="polite">
 			<Icon
 				icon={ icon }
 				fill="var(--sh-color-gray-2)"
-				size={ 50 }
-				style={ {
-					marginBottom: '2rem',
-				} }
+				size={ 32 }
+				style={ { flexShrink: 0, marginTop: '2px' } }
 			/>
 
-			<Text as="p" style={ pStyles }>
-				{ __(
-					'Your search did not match any history events.',
-					'simple-history'
-				) }
-			</Text>
+			<div>
+				<Text
+					as="p"
+					style={ {
+						fontSize: '1rem',
+						fontWeight: '600',
+						marginBlock: '0 .25rem',
+						color: 'var(--sh-color-gray-2)',
+					} }
+				>
+					{ __( 'No matching events', 'simple-history' ) }
+				</Text>
 
-			<Text as="p" style={ pStyles }>
-				{ __(
-					'Try different search options or clear the search.',
-					'simple-history'
+				<Text
+					as="p"
+					style={ {
+						fontSize: '0.9rem',
+						fontWeight: '400',
+						marginBlock: '.25rem',
+						color: 'var(--sh-color-gray-2)',
+					} }
+				>
+					{ __(
+						'Adjust the date range or search terms, or clear all filters to see everything.',
+						'simple-history'
+					) }
+				</Text>
+
+				{ hasActiveFilters && onClearFilters && (
+					<Button
+						variant="secondary"
+						onClick={ onClearFilters }
+						style={ { marginTop: '0.5rem' } }
+					>
+						{ __( 'Clear filters', 'simple-history' ) }
+					</Button>
 				) }
-			</Text>
+			</div>
 		</div>
 	);
 }

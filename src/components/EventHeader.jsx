@@ -18,6 +18,7 @@ export function EventHeader( props ) {
 		mapsApiKey,
 		isSurroundingEventsMode,
 		eventsSettingsPageURL,
+		eventsAdminPageURL,
 	} = props;
 
 	return (
@@ -30,7 +31,7 @@ export function EventHeader( props ) {
 
 			<EventInitiatorName event={ event } eventVariant={ eventVariant } />
 
-			<EventDate event={ event } eventVariant={ eventVariant } />
+			<EventDate event={ event } eventVariant={ eventVariant } eventsAdminPageURL={ eventsAdminPageURL } />
 
 			<EventIPAddresses
 				event={ event }

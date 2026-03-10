@@ -155,6 +155,7 @@ class Simple_History {
 			Services\Dropins_Loader::class,
 			Services\Email_Report_Service::class,
 			Services\Experimental_Features_Page::class,
+			Services\Failed_Login_Limit_Service::class,
 			Services\Failed_Logins_Settings_Page_Teaser::class,
 			Services\History_Insights_Sidebar_Service::class,
 			Services\Import_Handler::class,

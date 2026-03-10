@@ -94,23 +94,30 @@ function PremiumTeaserBlurred() {
 					</li>
 				</ul>
 				<div className="sh-UserCard__stats" aria-hidden="true">
-					<span>
+					<div className="sh-UserCard__stat">
 						<span className="sh-UserCard__statValue sh-UserCard__blurredValue">
 							{ '8' }
 						</span>
-						{ ' ' }
-						{ __( 'events today', 'simple-history' ) }
-					</span>
-					<span className="sh-UserCard__statSeparator">
-						{ ' · ' }
-					</span>
-					<span>
+						<span className="sh-UserCard__statLabel">
+							{ __( 'Today', 'simple-history' ) }
+						</span>
+					</div>
+					<div className="sh-UserCard__stat">
 						<span className="sh-UserCard__statValue sh-UserCard__blurredValue">
 							{ '34' }
 						</span>
-						{ ' ' }
-						{ __( 'events last 7 days', 'simple-history' ) }
-					</span>
+						<span className="sh-UserCard__statLabel">
+							{ __( 'Last 7 days', 'simple-history' ) }
+						</span>
+					</div>
+					<div className="sh-UserCard__stat">
+						<span className="sh-UserCard__statValue sh-UserCard__blurredValue">
+							{ '847' }
+						</span>
+						<span className="sh-UserCard__statLabel">
+							{ __( 'Total', 'simple-history' ) }
+						</span>
+					</div>
 				</div>
 				<span className="sh-UserCard__blurredAction" aria-hidden="true">
 					<Icon icon={ external } size={ 16 } />
@@ -182,11 +189,6 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 								</a>
 							</li>
 						) }
-						{ isLoading && (
-							<li className="sh-UserCard__loading">
-								<Spinner />
-							</li>
-						) }
 						{ ! isLoading &&
 							textDetails.map( ( detail ) => (
 								<li
@@ -206,29 +208,26 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 				</div>
 			</div>
 
+			{ isLoading && (
+				<div className="sh-UserCard__loading">
+					<Spinner />
+				</div>
+			) }
+
 			{ ! isLoading && statDetails.length > 0 && (
 				<div className="sh-UserCard__stats">
-					{ statDetails.map( ( stat, index ) => (
-						<span key={ stat.key }>
-							{ index > 0 && (
-								<span className="sh-UserCard__statSeparator">
-									{ ' · ' }
-								</span>
-							) }
+					<h5 className="sh-UserCard__statsHeading">
+						{ __( 'Events', 'simple-history' ) }
+					</h5>
+					{ statDetails.map( ( stat ) => (
+						<div key={ stat.key } className="sh-UserCard__stat">
 							<span className="sh-UserCard__statValue">
 								{ stat.value }
 							</span>
-							{ ' ' }
-							{ sprintf(
-								_n(
-									'event %s',
-									'events %s',
-									Number( stat.value ),
-									'simple-history'
-								),
-								stat.label.toLowerCase()
-							) }
-						</span>
+							<span className="sh-UserCard__statLabel">
+								{ stat.label }
+							</span>
+						</div>
 					) ) }
 				</div>
 			) }
@@ -284,6 +283,8 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 
 	const hasPremium = cardData?.has_premium_add_on;
 	const actions = cardData?.actions || [];
+	const allDetails = cardData?.details || [];
+	const statDetails = allDetails.filter( ( d ) => d.type === 'stat' );
 
 	let label;
 	let description;
@@ -364,11 +365,32 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 							{ description }
 						</p>
 					) }
-					{ isLoading && (
-						<Spinner />
-					) }
 				</div>
 			</div>
+			{ isLoading && (
+				<div className="sh-UserCard__loading">
+					<Spinner />
+				</div>
+			) }
+
+			{ ! isLoading && statDetails.length > 0 && (
+				<div className="sh-UserCard__stats">
+					<h5 className="sh-UserCard__statsHeading">
+						{ __( 'Events', 'simple-history' ) }
+					</h5>
+					{ statDetails.map( ( stat ) => (
+						<div key={ stat.key } className="sh-UserCard__stat">
+							<span className="sh-UserCard__statValue">
+								{ stat.value }
+							</span>
+							<span className="sh-UserCard__statLabel">
+								{ stat.label }
+							</span>
+						</div>
+					) ) }
+				</div>
+			) }
+
 			{ actions.length > 0 && (
 				<nav
 					className="sh-UserCard__actions"

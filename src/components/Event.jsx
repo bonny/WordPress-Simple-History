@@ -20,6 +20,7 @@ export function Event( props ) {
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
+		hasFailedLoginLimit,
 		isNewAfterFetchNewEvents,
 		eventsSettingsPageURL,
 		eventsAdminPageURL,
@@ -67,6 +68,7 @@ export function Event( props ) {
 					hasPremiumAddOn={ hasPremiumAddOn }
 					isSurroundingEventsMode={ isSurroundingEventsMode }
 					eventsSettingsPageURL={ eventsSettingsPageURL }
+					eventsAdminPageURL={ eventsAdminPageURL }
 				/>
 
 				<EventText event={ event } eventVariant={ variant } />
@@ -82,6 +84,7 @@ export function Event( props ) {
 					eventVariant={ variant }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					hasFailedLoginLimit={ hasFailedLoginLimit }
 					eventsSettingsPageURL={ eventsSettingsPageURL }
 				/>
 
