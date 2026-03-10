@@ -275,7 +275,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
--   Dashboard widget redesigned with an activity stats summary showing event counts by category, a cleaner event list with skeleton loading placeholders, and a streamlined search interface. Also loads significantly faster by limiting queries to the last 30 days and skipping the total count query.
+-   Dashboard widget redesigned with an activity stats summary showing event counts for today and last 7 days, a cleaner more compact event list. Also loads significantly faster by limiting queries to the last 7 days and skipping the total count query.
 -   Search now only searches the visible event message text by default, making results more relevant and dramatically faster on sites with large activity logs. Previously, search also scanned all hidden metadata which was slow and returned unexpected matches (experimental).
 -   Multi-word search now matches each word independently across all searchable fields. For example, "api request 400" now finds events where "api" and "request" appear in the message text and "400" appears in event metadata, instead of requiring all words to exist in the same field (experimental).
 -   "Show filters" / "Hide filters" toggle replaces "Show search options" / "Collapse search options".
