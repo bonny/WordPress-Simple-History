@@ -3979,12 +3979,13 @@ Styles for plugin update details. Markup looks like this:
 /* UserCard popover — shown on avatar/name click */
 .sh-UserCard__trigger.components-button.is-link {
 	text-decoration: none;
-	color: inherit;
+	color: #2271b1;
 	cursor: pointer;
 }
 
 .sh-UserCard__trigger.components-button.is-link:hover {
 	text-decoration: underline;
+	color: #135e96;
 }
 
 .sh-UserCard__trigger.components-button.is-link:focus {

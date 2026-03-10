@@ -412,6 +412,7 @@ export function DashboardEventsWidget() {
 					events={ events }
 					hasPremiumAddOn={ hasPremiumAddOn }
 					hasFailedLoginLimit={ hasFailedLoginLimit }
+					eventsAdminPageURL={ eventsAdminPageURL }
 					eventsSettingsPageURL={ settingsPageURL }
 					mapsApiKey={ mapsApiKey }
 				/>

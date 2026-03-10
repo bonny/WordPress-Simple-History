@@ -68,6 +68,7 @@ export function Event( props ) {
 					hasPremiumAddOn={ hasPremiumAddOn }
 					isSurroundingEventsMode={ isSurroundingEventsMode }
 					eventsSettingsPageURL={ eventsSettingsPageURL }
+					eventsAdminPageURL={ eventsAdminPageURL }
 				/>
 
 				<EventText event={ event } eventVariant={ variant } />

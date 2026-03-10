@@ -11,6 +11,7 @@ export function DashboardEventsItemsList( props ) {
 		eventsIsLoading,
 		hasPremiumAddOn,
 		hasFailedLoginLimit,
+		eventsAdminPageURL,
 		eventsSettingsPageURL,
 		mapsApiKey,
 	} = props;
@@ -37,6 +38,7 @@ export function DashboardEventsItemsList( props ) {
 					nextEvent={ events[ index + 1 ] }
 					hasPremiumAddOn={ hasPremiumAddOn }
 					hasFailedLoginLimit={ hasFailedLoginLimit }
+					eventsAdminPageURL={ eventsAdminPageURL }
 					eventsSettingsPageURL={ eventsSettingsPageURL }
 					mapsApiKey={ mapsApiKey }
 				/>
