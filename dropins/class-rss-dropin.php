@@ -44,7 +44,7 @@ class RSS_Dropin extends Dropin {
 
 	/**
 	 * Show admin notice if RSS secret was rotated due to security update.
-	 * Only shown to admins when RSS is enabled and the secret was rotated.
+	 * Only shown to admins when the secret was rotated.
 	 */
 	public function maybe_show_rss_secret_rotated_notice() {
 		// Only show to users who can manage options.
@@ -53,12 +53,8 @@ class RSS_Dropin extends Dropin {
 		}
 
 		// Only show if the secret was rotated.
+		// This option is autoloaded so it's read from the alloptions cache (no extra DB query).
 		if ( get_option( 'simple_history_rss_secret_rotated' ) !== '1' ) {
-			return;
-		}
-
-		// Only show if RSS feed is enabled.
-		if ( ! $this->is_rss_enabled() ) {
 			return;
 		}
 

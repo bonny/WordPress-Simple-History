@@ -446,7 +446,8 @@ class Setup_Database extends Service {
 			update_option( 'simple_history_rss_secret', $new_secret );
 
 			// Flag to show admin notice about the rotated secret.
-			update_option( 'simple_history_rss_secret_rotated', '1', false );
+			// Autoloaded because it's checked on every admin page load.
+			update_option( 'simple_history_rss_secret_rotated', '1', true );
 		}
 
 		$this->update_db_to_version( 9 );
