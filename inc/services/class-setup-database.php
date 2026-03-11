@@ -37,6 +37,7 @@ class Setup_Database extends Service {
 		$this->setup_version_5_to_version_6();
 		$this->setup_version_6_to_version_7();
 		$this->setup_version_7_to_version_8();
+		$this->setup_version_8_to_version_9();
 	}
 
 	/**
@@ -412,6 +413,43 @@ class Setup_Database extends Service {
 		}
 
 		$this->update_db_to_version( 8 );
+	}
+
+	/**
+	 * Update from db version 8 to version 9.
+	 *
+	 * Security fix: rotate the RSS feed secret to invalidate any
+	 * previously leaked secrets (the old error response included the
+	 * real secret in the atom:link href).
+	 *
+	 * Stores the old secret temporarily so the RSS feed can serve
+	 * a helpful transition message to existing feed readers.
+	 */
+	private function setup_version_8_to_version_9() {
+		if ( $this->get_db_version() !== 8 ) {
+			return;
+		}
+
+		$rss_enabled = get_option( 'simple_history_enable_rss_feed' ) === '1';
+		$old_secret  = get_option( 'simple_history_rss_secret' );
+
+		if ( $rss_enabled && ! empty( $old_secret ) ) {
+			// Store the old secret so RSS feed can show a transition message
+			// to readers still using the old URL.
+			update_option( 'simple_history_rss_secret_old', $old_secret, false );
+
+			// Generate a new secret.
+			$new_secret = '';
+			for ( $i = 0; $i < 20; $i++ ) {
+				$new_secret .= chr( random_int( 97, 122 ) );
+			}
+			update_option( 'simple_history_rss_secret', $new_secret );
+
+			// Flag to show admin notice about the rotated secret.
+			update_option( 'simple_history_rss_secret_rotated', '1', false );
+		}
+
+		$this->update_db_to_version( 9 );
 	}
 
 	/**
