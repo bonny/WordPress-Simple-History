@@ -95,7 +95,6 @@ Simple History starts tracking instantly after activation — no setup needed. I
 
 -   **Dashboard widget** – Activity stats summary and recent events
 -   **Admin bar quick view** – Dropdown with latest events on any admin page
--   **"This page" frontend filter** – See only events related to the page you're viewing
 -   **Command palette** – Type "Simple History" to jump to the log for the current post
 -   **Dedicated admin page** – Full log with search, filters, and insights sidebar
 -   **Email reports** – Weekly summary delivered to your inbox
@@ -151,9 +150,9 @@ Yes! Simple History has been free for over 10 years and will remain free. To sup
 You can access the log in multiple ways:
 
 -   The **dashboard** widget with activity stats summary
--   The **admin bar** quick view dropdown – on the frontend, use the "This page" toggle to see events for the current page
--   The **WordPress command palette** – type "Simple History" to jump to the log for the current post
 -   A **dedicated log page** in the WordPress admin area
+-   The **admin bar** quick view dropdown on
+-   The **WordPress command palette** – type "Simple History" to jump to the log for the current post
 
 ### Can I change where the History menu appears in WordPress admin?
 
