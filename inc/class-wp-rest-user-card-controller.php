@@ -84,6 +84,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @return true|\WP_Error True if the request has read access, WP_Error object otherwise.
 	 */
 	public function get_user_card_permissions_check( $request ) {
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
 		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return new WP_Error(
 				'rest_forbidden_context',

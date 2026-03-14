@@ -2047,11 +2047,12 @@ class Log_Query {
 			$metadata_words = $this->get_sanitized_search_words( $args['metadata_search'] );
 
 			foreach ( $metadata_words as $word ) {
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$inner_where[] = $wpdb->prepare(
 					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s )",
 					'%' . $wpdb->esc_like( $word ) . '%'
 				);
+				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			}
 		}
 
@@ -2160,7 +2161,7 @@ class Log_Query {
 	 * @param array $args Arguments.
 	 * @return array<string> Where clauses.
 	 */
-	protected function get_outer_where( $args ) {
+	protected function get_outer_where( $args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		return [];
 	}
 
@@ -2328,11 +2329,12 @@ class Log_Query {
 				if ( ! empty( $placeholder_keys ) ) {
 					$key_ph = implode( ', ', array_fill( 0, count( $placeholder_keys ), '%s' ) );
 
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+					// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 					$word_sources[] = $wpdb->prepare(
 						"id IN ( SELECT c.history_id FROM {$contexts_table_name} AS c WHERE c.key IN ( {$key_ph} ) AND c.value LIKE %s )",
 						...array_merge( $placeholder_keys, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
 					);
+					// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 				}
 
 				// Fallback context: placeholder keys from fallback loggers' DB templates.
@@ -2340,27 +2342,30 @@ class Log_Query {
 					$key_ph    = implode( ', ', array_fill( 0, count( $fallback_keys ), '%s' ) );
 					$logger_ph = implode( ', ', array_fill( 0, count( $fallback_loggers ), '%s' ) );
 
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+					// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 					$context_subquery = $wpdb->prepare(
 						"id IN ( SELECT c.history_id FROM {$contexts_table_name} AS c WHERE c.key IN ( {$key_ph} ) AND c.value LIKE %s )",
 						...array_merge( $fallback_keys, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
 					);
+					// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+					// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 					$logger_condition = $wpdb->prepare(
 						"logger IN ( {$logger_ph} )",
 						...$fallback_loggers
 					);
+					// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 					$word_sources[] = "( {$logger_condition} AND {$context_subquery} )";
 				}
 			} else {
 				// Unscoped: search all context values (original behavior).
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$word_sources[] = $wpdb->prepare(
 					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s )",
 					'%' . $wpdb->esc_like( $word ) . '%'
 				);
+				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			}
 
 			$per_word_conditions[] = "(\n   " . implode( "\n   OR ", $word_sources ) . "\n  )";
@@ -2478,13 +2483,14 @@ class Log_Query {
 		$logger_placeholders = implode( ', ', array_fill( 0, count( $logger_slugs ), '%s' ) );
 
 		// Get distinct message templates for fallback loggers.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$templates = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT DISTINCT message FROM {$events_table_name} WHERE logger IN ( {$logger_placeholders} )",
 				...$logger_slugs
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		$keys = [];
 

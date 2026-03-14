@@ -2106,6 +2106,7 @@ class Post_Logger extends Logger {
 			return null;
 		}
 
+		$referer_args = [];
 		wp_parse_str( $referer_query, $referer_args );
 
 		if (

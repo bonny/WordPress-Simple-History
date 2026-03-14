@@ -1,0 +1,18 @@
+[files]
+extend-exclude = ["vendor-prefixed/", "js/chart.4.3.0.min.js", "js/chart.4.4.8.min.js", "tests/"]
+
+[default.extend-words]
+# WooCommerce post type name
+placehold = "placehold"
+# Jetpack post type name
+migation = "migation"
+# Company name (Automattic is correct)
+Automattic = "Automattic"
+# Existing message keys - can't rename without breaking stored logs
+reseted = "reseted"
+setted = "setted"
+# Swedish month name in comment
+juli = "juli"
+
+[default.extend-identifiers]
+commited = "commited"

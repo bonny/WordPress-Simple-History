@@ -81,7 +81,7 @@ require_once __DIR__ . '/inc/global-helpers.php';
 // Load Strauss autoloader for namespaced vendor dependencies.
 $sh_strauss_autoloader = __DIR__ . '/vendor-prefixed/autoload.php';
 if ( file_exists( $sh_strauss_autoloader ) ) {
-	require_once $sh_strauss_autoloader;
+	require_once $sh_strauss_autoloader; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
 }
 
 /** Boot up. */

@@ -226,5 +226,4 @@ class Simple_History_Updates extends Service {
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
-
 }

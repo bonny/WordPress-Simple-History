@@ -231,8 +231,10 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		}
 
 		// Adjust count if rounding caused a mismatch.
-		while ( count( $timestamps ) < $count ) {
+		$timestamp_count = count( $timestamps );
+		while ( $timestamp_count < $count ) {
 			$timestamps[] = $now - wp_rand( 0, $days * DAY_IN_SECONDS );
+			++$timestamp_count;
 		}
 
 		// Sort newest first so event $i=0 gets the most recent timestamp.
