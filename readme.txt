@@ -251,6 +251,14 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+#### Changed
+
+-   Capabilities added to roles are now logged at "notice" level instead of "warning" to reduce unnecessary alarm during routine plugin activations.
+
+#### Fixed
+
+-   Role Capability Logger no longer spams the log when plugins (e.g. Astra/Spectra) toggle capabilities on every page load. Changes are now batched per request and only net differences are logged.
+
 #### Added
 
 -   User ID displayed as an inline suffix on the name in the user card popover, making it easier to identify users when debugging.
