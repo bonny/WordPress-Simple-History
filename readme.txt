@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.9
-Stable tag: 5.24.0
+Stable tag: 5.24.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -249,21 +249,21 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-### Unreleased
+### 5.24.1 (March 2026)
 
-#### Security
+**Security**
 
 -   RSS feed error response no longer exposes the feed secret token in the self-referencing link.
 
-#### Changed
+**Changed**
 
 -   Capabilities added to roles are now logged at "notice" level instead of "warning" to reduce unnecessary alarm during routine plugin activations.
 
-#### Fixed
+**Fixed**
 
 -   Role Capability Logger no longer spams the log when plugins (e.g. Astra/Spectra) toggle capabilities on every page load. Changes are now batched per request and only net differences are logged.
 
-#### Added
+**Added**
 
 -   User ID displayed as an inline suffix on the name in the user card popover, making it easier to identify users when debugging.
 

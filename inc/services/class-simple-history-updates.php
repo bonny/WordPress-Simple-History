@@ -22,6 +22,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.23.0', [ $this, 'on_plugin_updated_details_5_23_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.24.0', [ $this, 'on_plugin_updated_details_5_24_0' ] );
 
+
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
 		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
 		// add_filter( 'simple_history/pluginlogger/plugin_updated_details/<pluginslug>', [ $this, 'on_plugin_updated_details_5_18_0' ] );
@@ -225,4 +226,5 @@ class Simple_History_Updates extends Service {
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
+
 }
