@@ -75,9 +75,12 @@ const AdminBarQuickView = () => {
 	);
 	const currentPostTitle =
 		window.simpleHistoryAdminBar.currentPostTitle || '';
+	const isExperimentalFeaturesEnabled = Boolean(
+		Number( window.simpleHistoryAdminBar.experimentalFeaturesEnabled )
+	);
 
 	const viewFullHistoryHref = ( () => {
-		if ( filterMode === 'this-page' && currentPostId > 0 ) {
+		if ( filterMode === 'this-page' && currentPostId > 0 && isExperimentalFeaturesEnabled ) {
 			const contextFilter = encodeURIComponent(
 				`post_id:${ currentPostId }`
 			);
@@ -133,7 +136,7 @@ const AdminBarQuickView = () => {
 				per_page: 5,
 			};
 
-			if ( filterMode === 'this-page' && currentPostId > 0 ) {
+			if ( filterMode === 'this-page' && currentPostId > 0 && isExperimentalFeaturesEnabled ) {
 				eventsQueryParams[ 'context_filters[post_id]' ] =
 					String( currentPostId );
 				eventsQueryParams.ungrouped = true;
@@ -184,7 +187,7 @@ const AdminBarQuickView = () => {
 	);
 
 	const filterToggle =
-		currentPostId > 0 ? (
+		currentPostId > 0 && isExperimentalFeaturesEnabled ? (
 			<div className="SimpleHistory-adminBarQuickView-filterToggle">
 				<button
 					className={ clsx(
@@ -219,7 +222,7 @@ const AdminBarQuickView = () => {
 	return (
 		<li ref={ ref }>
 			<ul>
-				{ currentPostId > 0 ? (
+				{ currentPostId > 0 && isExperimentalFeaturesEnabled ? (
 					<li>
 						<div className="SimpleHistory-adminBarQuickView-tabs">
 							{ filterToggle }

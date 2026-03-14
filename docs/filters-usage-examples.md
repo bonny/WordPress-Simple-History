@@ -298,7 +298,7 @@ wp simple-history list --logger=SimpleUserLogger,SimplePluginLogger --count=50
 wp simple-history list --search=updated --count=50
 
 # Show events from user ID 5
-wp simple-history list --user=5 --count=50
+wp simple-history list --userid=5 --count=50
 
 # Show only WP user events
 wp simple-history list --initiator=wp_user --count=50
@@ -323,7 +323,7 @@ wp simple-history list --exclude_logger=SimpleUserLogger --count=50
 wp simple-history list --exclude_search=cron --count=50
 
 # Exclude events from user ID 1 (admin)
-wp simple-history list --exclude_user=1 --count=50
+wp simple-history list --exclude_userid=1 --count=50
 
 # Exclude WordPress-initiated events (cron jobs, automatic updates)
 wp simple-history list --exclude_initiator=wp --count=50

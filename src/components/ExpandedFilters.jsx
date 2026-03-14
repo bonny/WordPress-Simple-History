@@ -32,6 +32,8 @@ export function ExpandedFilters( props ) {
 		setSelectedInitiator,
 		selectedContextFilters,
 		setSelectedContextFilters,
+		enteredMetadataSearch,
+		setEnteredMetadataSearch,
 		searchOptions,
 		hideOwnEvents,
 		setHideOwnEvents,
@@ -454,6 +456,49 @@ export function ExpandedFilters( props ) {
 							'simple-history'
 						) }
 					</ExternalLink>
+				</FlexBlock>
+			</Flex>
+
+			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
+				<FlexItem style={ { margin: '.5em 0' } }>
+					<div className="SimpleHistory__filters__filterLabel">
+						{ __( 'Event metadata', 'simple-history' ) }
+					</div>
+				</FlexItem>
+				<FlexBlock>
+					<div
+						className="SimpleHistory__filters__loglevels__select"
+						style={ { width: '310px' } }
+					>
+						<input
+							type="text"
+							placeholder={ __(
+								'IP address, email, username…',
+								'simple-history'
+							) }
+							onChange={ ( event ) => {
+								setEnteredMetadataSearch(
+									event.target.value
+								);
+							} }
+							value={ enteredMetadataSearch }
+							style={ {
+								width: '100%',
+								fontSize: '13px',
+								padding: '6px 8px',
+								borderRadius: '2px',
+								border: '1px solid #8c8f94',
+								boxSizing: 'border-box',
+							} }
+						/>
+					</div>
+					<BaseControl
+						__nextHasNoMarginBottom
+						help={ __(
+							'Search all event data including IP addresses, emails, and other hidden metadata. May be slower on large sites.',
+							'simple-history'
+						) }
+					/>
 				</FlexBlock>
 			</Flex>
 

@@ -210,7 +210,7 @@ $inner_where[] = $wpdb->prepare(
 
 5. **WP-CLI Integration**:
     - Added six exclusion parameters to `list` command
-    - Parameter names: `--exclude_search`, `--exclude_log_level`, `--exclude_logger`, `--exclude_message`, `--exclude_user`, `--exclude_initiator`
+    - Parameter names: `--exclude_search`, `--exclude_log_level`, `--exclude_logger`, `--exclude_message`, `--exclude_userid`, `--exclude_initiator`
     - Full validation using existing `parse_comma_separated_values()` method
     - Supports comma-separated values for all array parameters
     - Works with all output formats (table, json, csv, yaml)

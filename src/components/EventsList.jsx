@@ -14,6 +14,7 @@ import { getTrackingUrl } from '../functions';
 import { EventsListItemsList } from './EventsListItemsList';
 import { EventsListSkeletonList } from './EventsListSkeletonList.jsx';
 import { EventsPagination } from './EventsPagination';
+import { FailedLoginLimitNotice } from './FailedLoginLimitNotice';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 
@@ -117,6 +118,9 @@ export function EventsList( props ) {
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
+		hasFailedLoginLimit,
+		failedLoginLimitThreshold,
+		failedLoginSuppressedCount,
 		eventsSettingsPageURL,
 		eventsAdminPageURL,
 		eventsLoadingHasErrors,
@@ -124,6 +128,8 @@ export function EventsList( props ) {
 		userCanManageOptions,
 		surroundingEventId,
 		surroundingCount,
+		hasActiveFilters,
+		onClearFilters,
 	} = props;
 
 	const totalPages = eventsMeta.totalPages;
@@ -174,11 +180,21 @@ export function EventsList( props ) {
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
 				events={ events }
+				hasActiveFilters={ hasActiveFilters }
+				onClearFilters={ onClearFilters }
 			/>
 
 			<FetchEventsErrorMessage
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+			/>
+
+			<FailedLoginLimitNotice
+				hasFailedLoginLimit={ hasFailedLoginLimit }
+				failedLoginLimitThreshold={ failedLoginLimitThreshold }
+				failedLoginSuppressedCount={ failedLoginSuppressedCount }
+				hasPremiumAddOn={ hasPremiumAddOn }
+				eventsIsLoading={ eventsIsLoading }
 			/>
 
 			<EventsListItemsList
@@ -188,6 +204,7 @@ export function EventsList( props ) {
 				mapsApiKey={ mapsApiKey }
 				hasPremiumAddOn={ hasPremiumAddOn }
 				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+				hasFailedLoginLimit={ hasFailedLoginLimit }
 				eventsSettingsPageURL={ eventsSettingsPageURL }
 				eventsAdminPageURL={ eventsAdminPageURL }
 				userCanManageOptions={ userCanManageOptions }

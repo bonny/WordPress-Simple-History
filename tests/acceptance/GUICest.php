@@ -23,7 +23,7 @@ class GUICest {
                 $I->dontSee('Message types');
                 $I->dontSee('Enter 2 or more characters to search for users.');
 
-                $I->click('Show search options');
+                $I->click('Show filters');
                 $I->see('Log levels');
                 $I->see('Message types');
                 $I->see('Users');

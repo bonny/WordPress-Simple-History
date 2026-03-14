@@ -69,7 +69,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		global $wp_version, $wp_local_package;
 
 		// Get locale to use for checksums, fall back to 'en_US' if not set.
-		$locale = isset( $wp_local_package ) ? $wp_local_package : 'en_US';
+		$locale = $wp_local_package ?? 'en_US';
 
 		// Get official WordPress checksums for current version and locale.
 		$checksums = get_core_checksums( $wp_version, $locale );
@@ -411,7 +411,7 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		WP_CLI::log( 'WordPress version: ' . $wp_version );
 		WP_CLI::log( 'Site locale: ' . get_locale() );
 		global $wp_local_package;
-		$checksum_locale = isset( $wp_local_package ) ? $wp_local_package : 'en_US';
+		$checksum_locale = $wp_local_package ?? 'en_US';
 		WP_CLI::log( 'Checksum locale used: ' . $checksum_locale );
 
 		// Test if checksums can be retrieved.

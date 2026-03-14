@@ -38,6 +38,13 @@ Create blog posts for simple-history.com that match the author's established voi
 [Summary + call-to-action]
 ```
 
+## Author
+
+**Never set Claude as the post author.** The author must be Pär (user ID 1).
+
+- **Creating new posts:** Always include `"author": 1` in the request.
+- **Updating existing posts:** Check the current author first. If the author is Claude, set it to `"author": 1`. If the author is anyone other than Claude or Pär, leave it unchanged.
+
 ## Context
 
 - **Product:** Simple History - WordPress activity log plugin

@@ -8,6 +8,7 @@ export function EventsListItemsList( props ) {
 		mapsApiKey,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
+		hasFailedLoginLimit,
 		eventsIsLoading,
 		eventsSettingsPageURL,
 		eventsAdminPageURL,
@@ -40,6 +41,7 @@ export function EventsListItemsList( props ) {
 					mapsApiKey={ mapsApiKey }
 					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
 					hasPremiumAddOn={ hasPremiumAddOn }
+					hasFailedLoginLimit={ hasFailedLoginLimit }
 					eventsSettingsPageURL={ eventsSettingsPageURL }
 					eventsAdminPageURL={ eventsAdminPageURL }
 					userCanManageOptions={ userCanManageOptions }

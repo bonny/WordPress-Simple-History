@@ -464,7 +464,6 @@ class RSS_Dropin extends Dropin {
 					<title><?php echo esc_xml( $title ); ?></title>
 					<description><?php echo esc_xml( $description ); ?></description>
 					<link><?php echo esc_url( home_url() ); ?></link>
-					<atom:link href="<?php echo esc_url( $self_link ); ?>" rel="self" type="application/atom+xml" />
 					<item>
 						<title><?php echo esc_xml( __( 'Wrong RSS secret', 'simple-history' ) ); ?></title>
 						<description><?php echo esc_xml( __( 'Your RSS secret for Simple History RSS feed is wrong. Please see WordPress settings for current link to the RSS feed.', 'simple-history' ) ); ?></description>

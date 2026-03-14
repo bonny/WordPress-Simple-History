@@ -113,7 +113,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * [--message=<messages>]
 	 * : Filter by specific message types in format "LoggerSlug:MessageKey". Comma-separated list.
 	 *
-	 * [--user=<users>]
+	 * [--userid=<users>]
 	 * : Filter by user IDs. Comma-separated list.
 	 *
 	 * [--search=<term>]
@@ -165,7 +165,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * [--exclude_message=<messages>]
 	 * : Exclude events with these message types in format "LoggerSlug:MessageKey". Comma-separated list.
 	 *
-	 * [--exclude_user=<users>]
+	 * [--exclude_userid=<users>]
 	 * : Exclude events from these user IDs. Comma-separated list.
 	 *
 	 * [--exclude_initiator=<initiators>]
@@ -183,7 +183,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *     wp simple-history list --search="login failed" --date_from="2024-01-01"
 	 *
 	 *     # Filter by specific users and loggers
-	 *     wp simple-history list --user=1,2,3 --logger=SimpleUserLogger,SimplePluginLogger
+	 *     wp simple-history list --userid=1,2,3 --logger=SimpleUserLogger,SimplePluginLogger
 	 *
 	 *     # Show only sticky events
 	 *     wp simple-history list --only_sticky --format=json
@@ -225,7 +225,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'log_level'            => '',
 				'logger'               => '',
 				'message'              => '',
-				'user'                 => '',
+				'userid'               => '',
 				'search'               => '',
 				'date_from'            => '',
 				'date_to'              => '',
@@ -236,7 +236,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'exclude_log_level'    => '',
 				'exclude_logger'       => '',
 				'exclude_message'      => '',
-				'exclude_user'         => '',
+				'exclude_userid'       => '',
 				'exclude_initiator'    => '',
 				'surrounding_event_id' => '',
 				'surrounding_count'    => 5,
@@ -262,7 +262,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 
 		$loggers  = $this->parse_comma_separated_values( $assoc_args['logger'] );
 		$messages = $this->parse_comma_separated_values( $assoc_args['message'] );
-		$users    = $this->parse_comma_separated_values( $assoc_args['user'] );
+		$users    = $this->parse_comma_separated_values( $assoc_args['userid'] );
 		$months   = $this->parse_comma_separated_values( $assoc_args['months'] );
 
 		// Validate and parse exclusion filter parameters.
@@ -274,7 +274,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 
 		$exclude_loggers  = $this->parse_comma_separated_values( $assoc_args['exclude_logger'] );
 		$exclude_messages = $this->parse_comma_separated_values( $assoc_args['exclude_message'] );
-		$exclude_users    = $this->parse_comma_separated_values( $assoc_args['exclude_user'] );
+		$exclude_users    = $this->parse_comma_separated_values( $assoc_args['exclude_userid'] );
 
 		$exclude_initiators = $this->parse_comma_separated_values(
 			$assoc_args['exclude_initiator'],

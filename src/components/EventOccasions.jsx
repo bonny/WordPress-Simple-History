@@ -20,6 +20,7 @@ function EventOccasionsAddonsContent( props ) {
 		event,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
+		hasFailedLoginLimit,
 		eventsSettingsPageURL,
 	} = props;
 
@@ -36,14 +37,20 @@ function EventOccasionsAddonsContent( props ) {
 		return null;
 	}
 
-	const configureLoginAttemptsLinkDependingOnAddOns =
-		hasExtendedSettingsAddOn || hasPremiumAddOn ? (
+	let content;
+
+	if ( hasExtendedSettingsAddOn || hasPremiumAddOn ) {
+		// Premium/Extended Settings: link to configure.
+		content = (
 			<a
 				href={ `${ eventsSettingsPageURL }&selected-tab=general_settings_subtab_general&selected-sub-tab=failed-login-attempts` }
 			>
 				{ __( 'Configure failed login attempts', 'simple-history' ) }
 			</a>
-		) : (
+		);
+	} else if ( ! hasFailedLoginLimit ) {
+		// No limiting active: upsell the feature.
+		content = (
 			<ExternalLink
 				href={ getTrackingUrl(
 					'https://simple-history.com/add-ons/premium/#limit-number-of-failed-login-attempts',
@@ -56,11 +63,17 @@ function EventOccasionsAddonsContent( props ) {
 				) }
 			</ExternalLink>
 		);
+	}
+	// When hasFailedLoginLimit is active, the banner handles the messaging.
+
+	if ( ! content ) {
+		return null;
+	}
 
 	return (
 		<div className="SimpleHistoryLogitem__occasionsAddOns">
 			<p className="SimpleHistoryLogitem__occasionsAddOnsText">
-				{ configureLoginAttemptsLinkDependingOnAddOns }
+				{ content }
 			</p>
 		</div>
 	);
@@ -77,6 +90,7 @@ export function EventOccasions( props ) {
 		eventVariant,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
+		hasFailedLoginLimit,
 		eventsSettingsPageURL,
 	} = props;
 	const { subsequent_occasions_count: subsequentOccasionsCount } = event;
@@ -146,36 +160,35 @@ export function EventOccasions( props ) {
 	};
 
 	const showOccasionsEventsContent = (
-		<>
-			<div className="SimpleHistoryLogitem__occasions">
-				<Button
-					variant="link"
-					aria-expanded={ false }
-					onClick={ ( evt ) => {
-						loadOccasions();
-						evt.preventDefault();
-					} }
-				>
-					{ sprintf(
-						/* translators: %s: number of similar events */
-						_n(
-							'+%1$s similar event',
-							'+%1$s similar events',
-							subsequentOccasionsCount - 1,
-							'simple-history'
-						),
-						subsequentOccasionsCount - 1
-					) }
-				</Button>
+		<div className="SimpleHistoryLogitem__occasions">
+			<Button
+				variant="link"
+				aria-expanded={ false }
+				onClick={ ( evt ) => {
+					loadOccasions();
+					evt.preventDefault();
+				} }
+			>
+				{ sprintf(
+					/* translators: %s: number of similar events */
+					_n(
+						'+%1$s similar event',
+						'+%1$s similar events',
+						subsequentOccasionsCount - 1,
+						'simple-history'
+					),
+					subsequentOccasionsCount - 1
+				) }
+			</Button>
 
-				<EventOccasionsAddonsContent
-					event={ event }
-					eventsSettingsPageURL={ eventsSettingsPageURL }
-					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-					hasPremiumAddOn={ hasPremiumAddOn }
-				/>
-			</div>
-		</>
+			<EventOccasionsAddonsContent
+				event={ event }
+				eventsSettingsPageURL={ eventsSettingsPageURL }
+				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
+				hasPremiumAddOn={ hasPremiumAddOn }
+				hasFailedLoginLimit={ hasFailedLoginLimit }
+			/>
+		</div>
 	);
 
 	return (

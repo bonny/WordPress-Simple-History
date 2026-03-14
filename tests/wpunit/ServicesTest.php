@@ -58,6 +58,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Command_Palette',
 			'Welcome_Message_Service',
 			'Sidebar_Tips_Service',
+			'Failed_Login_Limit_Service',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);

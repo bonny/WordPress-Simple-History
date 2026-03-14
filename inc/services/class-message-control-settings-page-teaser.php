@@ -138,7 +138,7 @@ class Message_Control_Settings_Page_Teaser extends Service {
 				</thead>
 				<tbody id="the-list">
 					<?php foreach ( $sample_loggers as $logger ) { ?>
-						<tr class="<?php echo $logger['enabled'] ? 'enabled' : 'disabled'; ?>">
+						<tr class="<?php echo esc_attr( $logger['enabled'] ? 'enabled' : 'disabled' ); ?>">
 							<td class="name column-name has-row-actions column-primary" data-colname="<?php esc_attr_e( 'Logger', 'simple-history' ); ?>">
 								<span class="sh-Icon--<?php echo esc_attr( $logger['icon'] ); ?>"></span>
 								<strong><?php echo esc_html( $logger['name'] ); ?></strong>

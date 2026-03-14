@@ -780,6 +780,17 @@ i.e. the log is inside a .postbox element.
 	color: #c3c4c7;
 }
 
+/* Dashboard widget: clickable stats row — whole row links to activity log. */
+a.sh-DashboardWidget-stats--link {
+	text-decoration: none;
+	color: #50575e;
+	cursor: pointer;
+}
+
+a.sh-DashboardWidget-stats--link:hover {
+	background: #f6f7f7;
+}
+
 /* Dashboard widget: search row wrapper. */
 .sh-DashboardWidget-searchRow {
 	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
@@ -860,6 +871,15 @@ i.e. the log is inside a .postbox element.
 	font-size: 13px;
 	color: #c3c4c7;
 	cursor: default;
+}
+
+/* Dashboard widget: sparse-state notice when few events in the 7-day window. */
+.sh-DashboardWidget-sparseNotice {
+	margin: 0;
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	font-size: 12px;
+	color: #646970;
+	border-top: 1px solid #f0f0f1;
 }
 
 /* Dashboard widget: rotating tip line. */
@@ -2127,6 +2147,87 @@ Can be overruled by .form-table td p
 .sh-SelectToggle-separator {
 	margin: 0 0.25em;
 	color: #999;
+}
+
+/* Failed login limit notice in events log. */
+.sh-FailedLoginLimitNotice {
+	display: flex;
+	gap: var(--sh-spacing-small);
+	margin: var(--sh-spacing-medium);
+	padding: var(--sh-spacing-medium);
+	background: #f0f6fc;
+	border: 1px solid #72aee6;
+	border-radius: var(--sh-border-radius);
+}
+
+.sh-FailedLoginLimitNotice-icon {
+	flex-shrink: 0;
+	color: #2271b1;
+}
+
+.sh-FailedLoginLimitNotice-icon .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+.sh-FailedLoginLimitNotice-content {
+	flex: 1;
+	min-width: 0;
+	max-width: 65ch;
+}
+
+.sh-FailedLoginLimitNotice-heading {
+	margin: 0;
+	font-weight: normal;
+	font-size: var(--sh-font-size-normal);
+	color: #1d2327;
+}
+
+.sh-FailedLoginLimitNotice-details {
+	margin-top: var(--sh-spacing-small);
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3, #646970);
+}
+
+.sh-FailedLoginLimitNotice-details summary {
+	cursor: pointer;
+	color: var(--sh-color-gray-3, #646970);
+	font-size: var(--sh-font-size-small);
+}
+
+.sh-FailedLoginLimitNotice-details summary:hover {
+	color: #1d2327;
+}
+
+.sh-FailedLoginLimitNotice-details p {
+	margin: var(--sh-spacing-small) 0 0;
+	line-height: 1.5;
+}
+
+/* Compact failed login throttle notice for dashboard widget. */
+.sh-DashboardWidget-throttleNotice {
+	display: flex;
+	align-items: baseline;
+	gap: var(--sh-spacing-xsmall);
+	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
+	background: #f0f6fc;
+	border-bottom: 1px solid #c5d9ed;
+	font-size: var(--sh-font-size-normal);
+	line-height: 1.5;
+}
+
+.sh-DashboardWidget-throttleNotice .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: #72aee6;
+	position: relative;
+	top: 2px;
+}
+
+.sh-DashboardWidget-throttleNotice p {
+	margin: 0;
 }
 
 /* Notice in events log. */
@@ -3878,12 +3979,13 @@ Styles for plugin update details. Markup looks like this:
 /* UserCard popover — shown on avatar/name click */
 .sh-UserCard__trigger.components-button.is-link {
 	text-decoration: none;
-	color: inherit;
+	color: #2271b1;
 	cursor: pointer;
 }
 
 .sh-UserCard__trigger.components-button.is-link:hover {
 	text-decoration: underline;
+	color: #135e96;
 }
 
 .sh-UserCard__trigger.components-button.is-link:focus {
@@ -3982,6 +4084,13 @@ Styles for plugin update details. Markup looks like this:
 	padding: 0;
 }
 
+.sh-UserCard__userId {
+	font-size: 12px;
+	font-weight: 400;
+	color: var(--sh-color-gray-3, #757575);
+	margin-left: 6px;
+}
+
 .sh-UserCard__meta .sh-UserCard__detail {
 	margin-top: 4px;
 }
@@ -3999,8 +4108,9 @@ Styles for plugin update details. Markup looks like this:
 
 
 .sh-UserCard__loading {
-	display: inline-flex;
-	align-items: center;
+	display: flex;
+	padding: 8px 0;
+	margin-left: calc(64px + var(--sh-spacing-medium));
 }
 
 .sh-UserCard__loading .components-spinner {
@@ -4015,21 +4125,38 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-UserCard__stats {
 	display: flex;
-	align-items: center;
-	gap: var(--sh-spacing-xsmall, 6px);
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 2px var(--sh-spacing-medium);
 	margin-top: var(--sh-spacing-small);
 	padding-top: var(--sh-spacing-small);
 	border-top: 1px solid var(--sh-color-gray-4);
 	color: var(--sh-color-gray-3, #757575);
 }
 
+.sh-UserCard__statsHeading {
+	width: 100%;
+	margin: 0;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--sh-color-gray-3, #757575);
+}
+
+.sh-UserCard__stat {
+	display: flex;
+	flex-direction: column;
+}
+
 .sh-UserCard__statValue {
 	font-weight: 600;
+	font-size: var(--sh-font-size-medium);
 	color: var(--sh-color-gray-1, #1e1e1e);
 }
 
-.sh-UserCard__statSeparator {
-	color: var(--sh-color-gray-4, #c3c4c7);
+.sh-UserCard__statLabel {
+	font-size: var(--sh-font-size-small);
 }
 
 .sh-UserCard__actions ul {

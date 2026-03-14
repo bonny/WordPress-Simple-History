@@ -18,20 +18,31 @@ class Role_Capability_Logger extends Logger {
 	public $slug = 'SimpleRoleCapabilityLogger';
 
 	/**
-	 * Plugin basename currently being activated or deactivated.
-	 *
-	 * @var string
-	 */
-	private $current_plugin_basename = '';
-
-	/**
-	 * Plugin context array for the current update cycle.
-	 *
-	 * Set at the start of on_roles_updated() and cleared at the end.
+	 * Plugin context array for the current activation/deactivation cycle.
 	 *
 	 * @var array
 	 */
 	private $plugin_context = array();
+
+	/**
+	 * Initial roles snapshot captured on first update_option call.
+	 *
+	 * Used to compare against final state at shutdown so that transient
+	 * add/remove cycles within a single request cancel out.
+	 *
+	 * @var array|null
+	 */
+	private $initial_roles = null;
+
+	/**
+	 * Plugin context captured at the time roles were updated.
+	 *
+	 * Since plugin_context is cleared after activation/deactivation completes,
+	 * we need to preserve it for the shutdown handler.
+	 *
+	 * @var array
+	 */
+	private $captured_plugin_context = array();
 
 	/**
 	 * Get array with information about this logger.
@@ -111,8 +122,7 @@ class Role_Capability_Logger extends Logger {
 	 * @param string $plugin Plugin basename.
 	 */
 	public function on_plugin_activation_start( $plugin ) {
-		$this->current_plugin_basename = $plugin;
-		$this->plugin_context          = $this->build_plugin_context( $plugin, 'activation' );
+		$this->plugin_context = $this->build_plugin_context( $plugin, 'activation' );
 	}
 
 	/**
@@ -121,8 +131,7 @@ class Role_Capability_Logger extends Logger {
 	 * @param string $plugin Plugin basename.
 	 */
 	public function on_plugin_deactivation_start( $plugin ) {
-		$this->current_plugin_basename = $plugin;
-		$this->plugin_context          = $this->build_plugin_context( $plugin, 'deactivation' );
+		$this->plugin_context = $this->build_plugin_context( $plugin, 'deactivation' );
 	}
 
 	/**
@@ -131,8 +140,7 @@ class Role_Capability_Logger extends Logger {
 	 * @param string $plugin Plugin basename.
 	 */
 	public function on_plugin_activation_end( $plugin ) {
-		$this->current_plugin_basename = '';
-		$this->plugin_context          = array();
+		$this->plugin_context = array();
 	}
 
 	/**
@@ -170,7 +178,10 @@ class Role_Capability_Logger extends Logger {
 	/**
 	 * Called when the wp_user_roles option is updated.
 	 *
-	 * Diffs old and new values to detect role/capability changes.
+	 * Instead of logging immediately, captures the initial state on the first
+	 * call and defers logging to shutdown. This prevents log spam from plugins
+	 * that repeatedly add/remove capabilities during a single request
+	 * (e.g., Astra/Spectra toggling caps on every admin_init).
 	 *
 	 * @param array $old_value Previous roles array.
 	 * @param array $new_value Updated roles array.
@@ -180,9 +191,49 @@ class Role_Capability_Logger extends Logger {
 			return;
 		}
 
-		$this->log_created_roles( $old_value, $new_value );
-		$this->log_deleted_roles( $old_value, $new_value );
-		$this->log_modified_roles( $old_value, $new_value );
+		// Capture the initial state only on the first update in this request.
+		// Later updates within the same request will be compared against this
+		// baseline at shutdown, so transient add/remove cycles cancel out.
+		if ( $this->initial_roles === null ) {
+			$this->initial_roles = $old_value;
+			add_action( 'shutdown', array( $this, 'on_shutdown_log_role_changes' ) );
+		}
+
+		// Capture plugin context if available (it gets cleared after activation completes).
+		// No other work needed here — the actual logging happens in the shutdown handler.
+		if ( empty( $this->plugin_context ) ) {
+			return;
+		}
+
+		$this->captured_plugin_context = $this->plugin_context;
+	}
+
+	/**
+	 * Log role changes at end of request by comparing initial vs final state.
+	 *
+	 * This batching approach prevents log spam from plugins that repeatedly
+	 * add/remove capabilities during a single request (e.g., on every admin_init).
+	 * Only net changes that actually persisted are logged.
+	 */
+	public function on_shutdown_log_role_changes() {
+		if ( $this->initial_roles === null ) {
+			return;
+		}
+
+		global $wpdb;
+		$role_key    = $wpdb->prefix . 'user_roles';
+		$final_roles = get_option( $role_key );
+
+		if ( ! is_array( $final_roles ) ) {
+			return;
+		}
+
+		// Set captured plugin context for logging (cleared after activation completes).
+		$this->plugin_context = $this->captured_plugin_context;
+
+		$this->log_created_roles( $this->initial_roles, $final_roles );
+		$this->log_deleted_roles( $this->initial_roles, $final_roles );
+		$this->log_modified_roles( $this->initial_roles, $final_roles );
 	}
 
 	/**
@@ -196,6 +247,7 @@ class Role_Capability_Logger extends Logger {
 
 		foreach ( $added_roles as $role_slug => $role_data ) {
 			$caps = isset( $role_data['capabilities'] ) ? array_keys( array_filter( $role_data['capabilities'] ) ) : array();
+			sort( $caps );
 
 			$this->notice_message(
 				'role_created',
@@ -205,6 +257,7 @@ class Role_Capability_Logger extends Logger {
 						'role_name'    => $role_data['name'] ?? $role_slug,
 						'cap_count'    => count( $caps ),
 						'capabilities' => implode( ', ', $caps ),
+						'_occasionsID' => self::class . '/role_created/' . $role_slug,
 					),
 					$this->plugin_context
 				)
@@ -226,8 +279,9 @@ class Role_Capability_Logger extends Logger {
 				'role_deleted',
 				array_merge(
 					array(
-						'role_slug' => $role_slug,
-						'role_name' => $role_data['name'] ?? $role_slug,
+						'role_slug'    => $role_slug,
+						'role_name'    => $role_data['name'] ?? $role_slug,
+						'_occasionsID' => self::class . '/role_deleted/' . $role_slug,
 					),
 					$this->plugin_context
 				)
@@ -271,9 +325,10 @@ class Role_Capability_Logger extends Logger {
 			'role_display_name_changed',
 			array_merge(
 				array(
-					'role_slug' => $role_slug,
-					'old_name'  => $old_name,
-					'new_name'  => $new_name,
+					'role_slug'    => $role_slug,
+					'old_name'     => $old_name,
+					'new_name'     => $new_name,
+					'_occasionsID' => self::class . '/role_display_name_changed/' . $role_slug,
 				),
 				$this->plugin_context
 			)
@@ -302,7 +357,7 @@ class Role_Capability_Logger extends Logger {
 
 		if ( ! empty( $added_caps ) ) {
 			sort( $added_caps );
-			$this->warning_message(
+			$this->notice_message(
 				'role_caps_added',
 				array_merge(
 					array(
@@ -310,6 +365,7 @@ class Role_Capability_Logger extends Logger {
 						'role_name'    => $role_name,
 						'cap_count'    => count( $added_caps ),
 						'capabilities' => implode( ', ', $added_caps ),
+						'_occasionsID' => self::class . '/role_caps_added/' . $role_slug . '/' . implode( ',', $added_caps ),
 					),
 					$this->plugin_context
 				)
@@ -329,6 +385,7 @@ class Role_Capability_Logger extends Logger {
 					'role_name'    => $role_name,
 					'cap_count'    => count( $removed_caps ),
 					'capabilities' => implode( ', ', $removed_caps ),
+					'_occasionsID' => self::class . '/role_caps_removed/' . $role_slug . '/' . implode( ',', $removed_caps ),
 				),
 				$this->plugin_context
 			)
