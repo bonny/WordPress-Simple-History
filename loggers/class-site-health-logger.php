@@ -146,7 +146,6 @@ class Site_Health_Logger extends Logger {
 	 * @return Event_Details_Group
 	 */
 	public function get_log_row_details_output( $row ) {
-		$context = $row->context ?? array();
 
 		$group = new Event_Details_Group();
 		$group->set_formatter( new Event_Details_Group_Table_Formatter() );
