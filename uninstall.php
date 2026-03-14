@@ -21,8 +21,6 @@ function simple_history_cleanup_site() {
 		'simple_history_pager_size',
 		'simple_history_pager_size_dashboard',
 		'simple_history_rss_secret',
-		'simple_history_rss_secret_old',
-		'simple_history_rss_secret_rotated',
 		'simple_history_enable_rss_feed',
 		'simple_history_show_on_dashboard',
 		'simple_history_show_as_page',

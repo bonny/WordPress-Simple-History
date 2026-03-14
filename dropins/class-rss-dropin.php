@@ -37,49 +37,6 @@ class RSS_Dropin extends Dropin {
 
 		// Add settings with priority 15 so it' added after the main Simple History settings.
 		add_action( 'admin_menu', array( $this, 'add_settings' ), 15 );
-
-		// Show admin notice if RSS secret was rotated due to security update.
-		add_action( 'admin_notices', array( $this, 'maybe_show_rss_secret_rotated_notice' ) );
-	}
-
-	/**
-	 * Show admin notice if RSS secret was rotated due to security update.
-	 * Only shown to admins when RSS is enabled and the secret was rotated.
-	 */
-	public function maybe_show_rss_secret_rotated_notice() {
-		// Only show to users who can manage options.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		// Only show if the secret was rotated.
-		if ( get_option( 'simple_history_rss_secret_rotated' ) !== '1' ) {
-			return;
-		}
-
-		// Only show if RSS feed is enabled.
-		if ( ! $this->is_rss_enabled() ) {
-			return;
-		}
-
-		// Handle dismissal.
-		if ( isset( $_GET['sh-dismiss-rss-notice'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['sh-dismiss-rss-notice'] ) ), 'sh_dismiss_rss_rotated_notice' ) ) {
-			delete_option( 'simple_history_rss_secret_rotated' );
-			delete_option( 'simple_history_rss_secret_old' );
-			return;
-		}
-
-		$settings_url = Helpers::get_settings_page_url();
-		$dismiss_url  = wp_nonce_url( add_query_arg( 'sh-dismiss-rss-notice', '' ), 'sh_dismiss_rss_rotated_notice', 'sh-dismiss-rss-notice' );
-
-		printf(
-			'<div class="notice notice-warning"><p>%s</p><p><a href="%s">%s</a> | <a href="%s">%s</a></p></div>',
-			esc_html__( 'Simple History: Your RSS feed address has changed due to a security update. Please update your feed reader with the new address from the settings page.', 'simple-history' ),
-			esc_url( $settings_url ),
-			esc_html__( 'Go to settings', 'simple-history' ),
-			esc_url( $dismiss_url ),
-			esc_html__( 'Dismiss', 'simple-history' )
-		);
 	}
 
 	/**
@@ -498,25 +455,6 @@ class RSS_Dropin extends Dropin {
 				</channel>
 			</rss>
 			<?php
-		} elseif ( $this->is_old_rotated_secret( $rss_secret_get ) ) {
-			// The user is using a secret that was rotated due to a security fix.
-			// Show a helpful message so feed reader users know to update their URL.
-			echo PHP_EOL;
-			?>
-			<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-				<channel>
-					<title><?php echo esc_xml( $title ); ?></title>
-					<description><?php echo esc_xml( $description ); ?></description>
-					<link><?php echo esc_url( home_url() ); ?></link>
-					<item>
-						<title><?php echo esc_xml( __( 'Action required: RSS feed address has changed', 'simple-history' ) ); ?></title>
-						<description><?php echo esc_xml( __( 'The RSS feed secret was automatically changed due to a security update. Please visit the Simple History settings page in your WordPress admin to get the new feed address.', 'simple-history' ) ); ?></description>
-						<pubDate><?php echo esc_xml( gmdate( 'D, d M Y H:i:s', time() ) ); ?> GMT</pubDate>
-						<guid><?php echo esc_url( add_query_arg( 'SimpleHistoryGuid', 'secret-rotated', home_url() ) ); ?></guid>
-					</item>
-				</channel>
-			</rss>
-			<?php
 		} else {
 			// RSS secret was not ok.
 			echo PHP_EOL;
@@ -583,22 +521,6 @@ class RSS_Dropin extends Dropin {
 		update_option( 'simple_history_rss_secret', $rss_secret );
 
 		return $rss_secret;
-	}
-
-	/**
-	 * Check if the provided secret matches the old rotated secret.
-	 *
-	 * After the security fix that rotated the RSS secret, we keep
-	 * the old secret temporarily so we can show a helpful message
-	 * to feed readers still using the old URL.
-	 *
-	 * @param string $secret The secret to check.
-	 * @return bool True if it matches the old rotated secret.
-	 */
-	private function is_old_rotated_secret( $secret ) {
-		$old_secret = get_option( 'simple_history_rss_secret_old' );
-
-		return ! empty( $old_secret ) && hash_equals( $old_secret, $secret );
 	}
 
 	/**
