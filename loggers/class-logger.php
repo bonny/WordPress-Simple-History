@@ -840,7 +840,7 @@ abstract class Logger {
 	 * @param object $row Log row object.
 	 * @return array Array of action link arrays.
 	 */
-	public function get_action_links( $row ) {
+	public function get_action_links( $row ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		return [];
 	}
 

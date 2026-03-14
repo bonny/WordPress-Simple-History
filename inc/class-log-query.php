@@ -2161,7 +2161,7 @@ class Log_Query {
 	 * @param array $args Arguments.
 	 * @return array<string> Where clauses.
 	 */
-	protected function get_outer_where( $args ) {
+	protected function get_outer_where( $args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		return [];
 	}
 
@@ -2483,14 +2483,14 @@ class Log_Query {
 		$logger_placeholders = implode( ', ', array_fill( 0, count( $logger_slugs ), '%s' ) );
 
 		// Get distinct message templates for fallback loggers.
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$templates = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT DISTINCT message FROM {$events_table_name} WHERE logger IN ( {$logger_placeholders} )",
 				...$logger_slugs
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		$keys = [];
 
