@@ -251,6 +251,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+#### Security
+
+-   RSS feed error response no longer exposes the feed secret token in the self-referencing link.
+
 #### Changed
 
 -   Capabilities added to roles are now logged at "notice" level instead of "warning" to reduce unnecessary alarm during routine plugin activations.
