@@ -475,7 +475,7 @@ class Setup_Database extends Service {
 	 *
 	 * @param string $html The HTML output.
 	 * @param object $row The row object.
-	 * @return string New HTML output.
+	 * @return string|\Simple_History\Event_Details\Event_Details_Group HTML output or Event_Details_Group with welcome message.
 	 */
 	public function add_row_details_output( $html, $row ) {
 		$is_welcome_message = $row->context['is_welcome_message'] ?? false;

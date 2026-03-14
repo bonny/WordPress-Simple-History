@@ -198,7 +198,7 @@ class File_Edits_Logger extends Logger {
 		$message_key = $context['_message_key'] ?? null;
 
 		if ( ! $message_key ) {
-			return;
+			return '';
 		}
 
 		$out = '';

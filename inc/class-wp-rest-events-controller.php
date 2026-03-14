@@ -753,7 +753,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * Takes the same args as get_items() but `since_id` param is required.
 	 *
 	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response Response object.
+	 * @return \WP_REST_Response|\WP_Error Response object or error.
 	 */
 	public function get_has_updates( $request ) {
 		// Retrieve the list of registered collection query parameters.
@@ -831,7 +831,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * Get items.
 	 *
 	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response Response object.
+	 * @return \WP_REST_Response|\WP_Error Response object or error.
 	 */
 	public function get_items( $request ) {
 		// Tmp slow requests to test slow response.
@@ -1384,7 +1384,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			return array_map( 'sanitize_text_field', $value );
 		}
 
-		return $value;
+		return (string) $value;
 	}
 
 	/**

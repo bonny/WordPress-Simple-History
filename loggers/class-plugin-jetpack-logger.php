@@ -57,7 +57,7 @@ class Plugin_Jetpack_Logger extends Logger {
 	/**
 	 * Get array with all Jetpack modules and info about them.
 	 *
-	 * @return array Array with info.
+	 * @return array|false Array with info, or false if Jetpack methods are not available.
 	 */
 	private function get_jetpack_modules() {
 		// Check that Jetpack has the needed methods.

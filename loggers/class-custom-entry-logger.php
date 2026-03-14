@@ -50,7 +50,7 @@ class Custom_Entry_Logger extends Logger {
 	 * display the message note in the details area, if it exists.
 	 *
 	 * @param object $row Log row.
-	 * @return Event_Details_Container_Interface|null
+	 * @return Event_Details_Group|null
 	 */
 	public function get_log_row_details_output( $row ) {
 		$context     = $row->context;

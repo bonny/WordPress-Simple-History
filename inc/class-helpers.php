@@ -359,7 +359,7 @@ class Helpers {
 	/**
 	 * Get number of rows and the size of each Simple History table in the database.
 	 *
-	 * @return array<string, object{table_name: string, size_in_mb: float, num_rows: int}>
+	 * @return array<string, array{table_name: string, size_in_mb: float|string, num_rows: int}>
 	 */
 	public static function get_db_table_stats() {
 		switch ( Log_Query::get_db_engine() ) {
@@ -455,7 +455,7 @@ class Helpers {
 	/**
 	 * Get number of rows and the size of each Simple History table in the database.
 	 *
-	 * @return array<string, object{table_name: string, size_in_mb: float, num_rows: int}>
+	 * @return array<string, array{table_name: string, size_in_mb: float|string, num_rows: int}>
 	 */
 	public static function get_db_table_stats_mysql() {
 		global $wpdb;

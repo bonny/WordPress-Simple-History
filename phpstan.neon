@@ -12,7 +12,7 @@ parameters:
     - tests/plugins/
   bootstrapFiles:
     - tests/phpstan/bootstrap.php
-  level: 2
+  level: 3
   ignoreErrors:
     # - '#Access to an undefined property object::\$context_message_key.#'
   WPCompat:

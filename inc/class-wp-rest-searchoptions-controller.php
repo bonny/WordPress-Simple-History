@@ -65,7 +65,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	 * Get items for search user.
 	 *
 	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response Response object.
+	 * @return \WP_REST_Response|\WP_Error Response object or error.
 	 */
 	public function get_items_for_search_user( $request ) {
 		$data = [];

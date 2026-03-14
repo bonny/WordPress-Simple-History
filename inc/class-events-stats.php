@@ -999,7 +999,7 @@ class Events_Stats {
 	 * @param int  $date_to End date timestamp.
 	 * @param int  $limit Optional. Number of entries per section. Default 50.
 	 * @param bool $include_ip Optional. Whether to include IP addresses. Default false.
-	 * @return array Array of detailed user activity stats.
+	 * @return array|false Array of detailed user activity stats, or false if dates are missing.
 	 */
 	public function get_detailed_user_stats( $date_from, $date_to, $limit = 50, $include_ip = false ) {
 		if ( ! $date_from || ! $date_to ) {
@@ -1335,7 +1335,7 @@ class Events_Stats {
 	 * @param int $date_from Start date timestamp.
 	 * @param int $date_to End date timestamp.
 	 * @param int $limit Optional. Number of entries per section. Default 50.
-	 * @return array Array of detailed content item stats.
+	 * @return array|false Array of detailed content item stats, or false if dates are missing.
 	 */
 	public function get_detailed_content_stats( $date_from, $date_to, $limit = 50 ) {
 		if ( ! $date_from || ! $date_to ) {
@@ -1612,7 +1612,7 @@ class Events_Stats {
 	 * @param string $message_value The value to match against.
 	 * @param int    $date_from    Start timestamp.
 	 * @param int    $date_to      End timestamp.
-	 * @return array Array of detailed stats.
+	 * @return array|false Array of detailed stats, or false if dates are missing.
 	 */
 	protected function get_detailed_stats_for_logger_and_value( $logger_slug, $message_key, $message_value, $date_from, $date_to ) {
 		global $wpdb;

@@ -1163,7 +1163,7 @@ class Plugin_Logger extends Logger {
 				$context['plugin_author']      = $plugin_data['AuthorName'] ?? '';
 
 				if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
-					$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
+					$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI']; // @phpstan-ignore-line offsetAccess.notFound
 				}
 			}
 
@@ -1263,7 +1263,7 @@ class Plugin_Logger extends Logger {
 		);
 
 		if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
-			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
+			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI']; // @phpstan-ignore-line offsetAccess.notFound
 		}
 
 		$this->info_message( 'plugin_activated', $context );
@@ -1291,7 +1291,7 @@ class Plugin_Logger extends Logger {
 		);
 
 		if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
-			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI'];
+			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI']; // @phpstan-ignore-line offsetAccess.notFound
 		}
 
 		$this->info_message( 'plugin_deactivated', $context );

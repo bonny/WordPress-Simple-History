@@ -517,7 +517,7 @@ abstract class Logger {
 		$logger_name_via = $this->get_info_value_by_key( 'name_via' );
 
 		if ( ! $logger_name_via ) {
-			return;
+			return '';
 		}
 
 		$via_html  = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
@@ -930,7 +930,7 @@ abstract class Logger {
 	 *
 	 * @param string $message Message to log.
 	 * @param array  $context Context to log.
-	 * @return null
+	 * @return static
 	 */
 	public function alert( $message, array $context = array() ) {
 		return $this->log( Log_Levels::ALERT, $message, $context );
@@ -958,7 +958,7 @@ abstract class Logger {
 	 *
 	 * @param string $message Message to log.
 	 * @param array  $context Context to log.
-	 * @return null
+	 * @return static
 	 */
 	public function critical( $message, array $context = array() ) {
 		return $this->log( Log_Levels::CRITICAL, $message, $context );
@@ -1017,7 +1017,7 @@ abstract class Logger {
 	 *
 	 * @param string $message Message to log.
 	 * @param array  $context Context to log.
-	 * @return null
+	 * @return static
 	 */
 	public function warning( $message, array $context = array() ) {
 		return $this->log( Log_Levels::WARNING, $message, $context );
@@ -1043,7 +1043,7 @@ abstract class Logger {
 	 *
 	 * @param string $message Message to log.
 	 * @param array  $context Context to log.
-	 * @return null
+	 * @return static
 	 */
 	public function notice( $message, array $context = array() ) {
 		return $this->log( Log_Levels::NOTICE, $message, $context );
@@ -1099,7 +1099,7 @@ abstract class Logger {
 	 *
 	 * @param string $message Message to log.
 	 * @param array  $context Context to log.
-	 * @return null
+	 * @return static
 	 */
 	public function debug( $message, array $context = array() ) {
 		return $this->log( Log_Levels::DEBUG, $message, $context );
@@ -1128,7 +1128,7 @@ abstract class Logger {
 	 * @param mixed  $level The log level. Default "info".
 	 * @param string $message The log message. Default "".
 	 * @param array  $context The log context. Default empty array.
-	 * @return Logger SimpleLogger instance
+	 * @return static
 	 */
 	public function log( $level = 'info', $message = '', $context = array() ) {
 		global $wpdb;

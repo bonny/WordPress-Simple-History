@@ -280,7 +280,7 @@ class Simple_History_Logger extends Logger {
 	 * Get the log row details for this logger.
 	 *
 	 * @param object $row Log row.
-	 * @return Event_Details_Group
+	 * @return Event_Details_Group|string
 	 */
 	public function get_log_row_details_output( $row ) {
 		$message_key = $row->context_message_key;

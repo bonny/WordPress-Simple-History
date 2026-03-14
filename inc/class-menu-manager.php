@@ -41,7 +41,7 @@ class Menu_Manager {
 	/**
 	 * Get all registered pages.
 	 *
-	 * @return array<string,Menu_Page>
+	 * @return array<int,Menu_Page>
 	 */
 	public function get_pages() {
 		$pages = $this->pages;

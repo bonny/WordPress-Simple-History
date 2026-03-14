@@ -13,7 +13,7 @@ class SimpleLogger extends Logger {
 	/**
 	 * Methods that used to exist and needs to be remapped.
 	 *
-	 * @var string[] Array of key/value pairs where keys represent old method name and value is name of new method
+	 * @var array<string, string|null> Array of key/value pairs where keys represent old method name and value is name of new method (or null if removed)
 	 */
 	private array $methods_mapping = array(
 		'getInfoValueByKey'                => 'get_info_value_by_key',

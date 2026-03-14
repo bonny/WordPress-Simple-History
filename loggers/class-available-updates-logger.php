@@ -254,6 +254,7 @@ class Available_Updates_Logger extends Logger {
 	 * Append prev and current version of update object as details in the output
 	 *
 	 * @param object $row Log row.
+	 * @return string HTML output with version details.
 	 */
 	public function get_log_row_details_output( $row ) {
 

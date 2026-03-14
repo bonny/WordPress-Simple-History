@@ -32,7 +32,7 @@ class Log_Initiators {
 	 * "other" becomes "Other".
 	 *
 	 * @param object $row Initiator value.
-	 * @return string Human readable initiator string.
+	 * @return string|false Human readable initiator string, or false if initiator is not set.
 	 */
 	public static function get_initiator_text_from_row( $row ) {
 		$context = array();

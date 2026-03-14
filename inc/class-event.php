@@ -306,7 +306,7 @@ class Event {
 	/**
 	 * Get event details as JSON.
 	 *
-	 * @return object|false JSON object with event details on success, false if event doesn't exist.
+	 * @return array|false Array with event details on success, false if event doesn't exist.
 	 */
 	public function get_details_json() {
 		$data = $this->get_data();
