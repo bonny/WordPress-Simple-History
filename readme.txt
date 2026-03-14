@@ -249,6 +249,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+#### Added
+
+-   User ID displayed as an inline suffix on the name in the user card popover, making it easier to identify users when debugging.
+
 ### 5.24.0 (March 2026)
 
 A redesigned dashboard widget that takes up less space, user details card on click, and much better logging of menus, categories, and image edits.

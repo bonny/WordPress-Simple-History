@@ -4084,6 +4084,13 @@ Styles for plugin update details. Markup looks like this:
 	padding: 0;
 }
 
+.sh-UserCard__userId {
+	font-size: 12px;
+	font-weight: 400;
+	color: var(--sh-color-gray-3, #757575);
+	margin-left: 6px;
+}
+
 .sh-UserCard__meta .sh-UserCard__detail {
 	margin-top: 4px;
 }

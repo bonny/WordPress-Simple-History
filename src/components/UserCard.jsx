@@ -144,6 +144,7 @@ function PremiumTeaserBlurred() {
  */
 function WPUserCardContent( { event, cardData, isLoading } ) {
 	const { initiator_data: initiatorData } = event;
+	const userId = initiatorData?.user_id;
 
 	const displayName =
 		cardData?.display_name ||
@@ -172,6 +173,18 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 				<div className="sh-UserCard__info">
 					<h4 className="sh-UserCard__name">
 						{ displayName }
+						{ userId && (
+							<span
+								className="sh-UserCard__userId"
+								aria-label={ sprintf(
+									/* translators: %s: user ID number */
+									__( 'User ID %s', 'simple-history' ),
+									userId
+								) }
+							>
+								{ `#${ userId }` }
+							</span>
+						) }
 					</h4>
 					<ul className="sh-UserCard__meta">
 						{ roles && roles.length > 0 && (
