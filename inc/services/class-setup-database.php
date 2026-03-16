@@ -457,7 +457,7 @@ class Setup_Database extends Service {
 		);
 
 		$welcome_message_1 = __(
-			'Simple History is live. Here\'s what to expect.',
+			'Simple History is now active and logging events on your site.',
 			'simple-history'
 		);
 
