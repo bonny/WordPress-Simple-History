@@ -284,10 +284,14 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 	/**
 	 * Add a plugin update message to the log for testing the "What's new" feature.
 	 *
-	 * Creates a log entry as if Simple History was updated, allowing you to test
+	 * Creates a log entry as if a plugin was updated, allowing you to test
 	 * and preview the update details message.
 	 *
 	 * ## OPTIONS
+	 *
+	 * [--plugin=<plugin>]
+	 * : Plugin file path relative to plugins directory (e.g. "simple-history-premium/simple-history-premium.php").
+	 * Defaults to Simple History core ("simple-history/index.php").
 	 *
 	 * [--prev-version=<version>]
 	 * : The previous version to simulate updating from.
@@ -312,6 +316,9 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 	 *     # Add a plugin update message with both versions specified
 	 *     wp simple-history dev add-plugin-update-message --prev-version=5.20.0 --version=5.22.0
 	 *
+	 *     # Add a plugin update message for Simple History Premium
+	 *     wp simple-history dev add-plugin-update-message --plugin=simple-history-premium/simple-history-premium.php --prev-version=1.9.0 --version=1.10.0
+	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Associative arguments.
 	 */
@@ -326,16 +333,29 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 			return;
 		}
 
-		// Get Simple History plugin data.
-		$plugin_file = 'simple-history/index.php';
-		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file, true, false );
+		$plugin_file = $assoc_args['plugin'] ?? 'simple-history/index.php';
+		$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_file;
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WP-CLI command, no nonce needed.
+		if ( ! file_exists( $plugin_path ) ) {
+			WP_CLI::error(
+				sprintf(
+					/* translators: %s: plugin file path */
+					__( 'Plugin file not found: %s', 'simple-history' ),
+					$plugin_file
+				)
+			);
+			return;
+		}
+
+		$plugin_data = get_plugin_data( $plugin_path, true, false );
+
 		$prev_version = $assoc_args['prev-version'] ?? '5.18.0';
 		$version      = $assoc_args['version'] ?? $plugin_data['Version'];
 
+		$plugin_slug = dirname( $plugin_file );
+
 		$context = [
-			'plugin_slug'         => 'simple-history',
+			'plugin_slug'         => $plugin_slug,
 			'plugin_name'         => $plugin_data['Name'],
 			'plugin_title'        => $plugin_data['Title'],
 			'plugin_description'  => $plugin_data['Description'],
@@ -349,8 +369,9 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 
 		WP_CLI::success(
 			sprintf(
-				/* translators: 1: previous version, 2: current version */
-				__( 'Added plugin update message: Simple History %1$s → %2$s', 'simple-history' ),
+				/* translators: 1: plugin name, 2: previous version, 3: current version */
+				__( 'Added plugin update message: %1$s %2$s → %3$s', 'simple-history' ),
+				$plugin_data['Name'],
 				$prev_version,
 				$version
 			)
