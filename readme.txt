@@ -255,6 +255,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Welcome message on dashboard widget is now self-contained instead of referencing details only visible on the dedicated events page.
 
+**Fixed**
+
+-   PHP notice on the widget editor screen (widgets.php) caused by the command palette script loading `wp-editor` on non-post-editor screens.
+
 ### 5.24.1 (March 2026)
 
 **Security**

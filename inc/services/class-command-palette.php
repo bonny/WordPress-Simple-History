@@ -23,6 +23,15 @@ class Command_Palette extends Service {
 	 * Enqueue the command palette script in the block editor.
 	 */
 	public function enqueue_block_editor_assets() {
+		// Only load on post editing screens.
+		// The command reads the current post from the editor store,
+		// and the wp-editor dependency must not be enqueued on widget
+		// or site editor screens (conflicts with wp-edit-widgets, WP 5.8+).
+		$current_screen = Helpers::get_current_screen();
+		if ( $current_screen->base !== 'post' ) {
+			return;
+		}
+
 		// Only for users who can view history.
 		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
 		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
