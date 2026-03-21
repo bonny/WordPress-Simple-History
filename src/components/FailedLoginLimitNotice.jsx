@@ -2,6 +2,7 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getTrackingUrl } from '../functions';
+import { useEventsSettings } from './EventsSettingsContext';
 
 /**
  * Friendly info notice shown once at the top of the event list
@@ -11,12 +12,11 @@ import { getTrackingUrl } from '../functions';
  */
 export function FailedLoginLimitNotice( props ) {
 	const {
-		hasFailedLoginLimit,
 		failedLoginLimitThreshold,
 		failedLoginSuppressedCount,
-		hasPremiumAddOn,
 		eventsIsLoading,
 	} = props;
+	const { hasFailedLoginLimit, hasPremiumAddOn } = useEventsSettings();
 
 	if (
 		! hasFailedLoginLimit ||

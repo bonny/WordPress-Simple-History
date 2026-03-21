@@ -11,6 +11,7 @@ import {
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getTrackingUrl } from '../functions';
+import { useEventsSettings } from './EventsSettingsContext';
 import { EventsListItemsList } from './EventsListItemsList';
 import { EventsListSkeletonList } from './EventsListSkeletonList.jsx';
 import { EventsPagination } from './EventsPagination';
@@ -115,22 +116,17 @@ export function EventsList( props ) {
 		eventsIsLoading,
 		eventsMeta,
 		prevEventsMaxId,
-		mapsApiKey,
-		hasExtendedSettingsAddOn,
-		hasPremiumAddOn,
-		hasFailedLoginLimit,
 		failedLoginLimitThreshold,
 		failedLoginSuppressedCount,
-		eventsSettingsPageURL,
-		eventsAdminPageURL,
 		eventsLoadingHasErrors,
 		eventsLoadingErrorDetails,
-		userCanManageOptions,
 		surroundingEventId,
 		surroundingCount,
 		hasActiveFilters,
 		onClearFilters,
 	} = props;
+
+	const { hasPremiumAddOn, hasFailedLoginLimit } = useEventsSettings();
 
 	const totalPages = eventsMeta.totalPages;
 	const isSurroundingEventsMode = Boolean( surroundingEventId );
@@ -190,10 +186,8 @@ export function EventsList( props ) {
 			/>
 
 			<FailedLoginLimitNotice
-				hasFailedLoginLimit={ hasFailedLoginLimit }
 				failedLoginLimitThreshold={ failedLoginLimitThreshold }
 				failedLoginSuppressedCount={ failedLoginSuppressedCount }
-				hasPremiumAddOn={ hasPremiumAddOn }
 				eventsIsLoading={ eventsIsLoading }
 			/>
 
@@ -201,13 +195,6 @@ export function EventsList( props ) {
 				eventsIsLoading={ eventsIsLoading }
 				events={ events }
 				prevEventsMaxId={ prevEventsMaxId }
-				mapsApiKey={ mapsApiKey }
-				hasPremiumAddOn={ hasPremiumAddOn }
-				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-				hasFailedLoginLimit={ hasFailedLoginLimit }
-				eventsSettingsPageURL={ eventsSettingsPageURL }
-				eventsAdminPageURL={ eventsAdminPageURL }
-				userCanManageOptions={ userCanManageOptions }
 				surroundingEventId={ surroundingEventId }
 			/>
 

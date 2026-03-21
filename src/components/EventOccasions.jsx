@@ -5,6 +5,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { EventOccasionsList } from './EventOccasionsList';
 import { getTrackingUrl } from '../functions';
+import { useEventsSettings } from './EventsSettingsContext';
 
 /**
  * Displays some text for failed login attempts.
@@ -16,13 +17,13 @@ import { getTrackingUrl } from '../functions';
  * @param {Object} props
  */
 function EventOccasionsAddonsContent( props ) {
+	const { event } = props;
 	const {
-		event,
 		hasExtendedSettingsAddOn,
 		hasPremiumAddOn,
 		hasFailedLoginLimit,
 		eventsSettingsPageURL,
-	} = props;
+	} = useEventsSettings();
 
 	// Bail if the event is not from the SimpleUserLogger.
 	if ( event.logger !== 'SimpleUserLogger' ) {
@@ -88,10 +89,6 @@ export function EventOccasions( props ) {
 	const {
 		event,
 		eventVariant,
-		hasExtendedSettingsAddOn,
-		hasPremiumAddOn,
-		hasFailedLoginLimit,
-		eventsSettingsPageURL,
 	} = props;
 	const { subsequent_occasions_count: subsequentOccasionsCount } = event;
 	const [ isLoadingOccasions, setIsLoadingOccasions ] = useState( false );
@@ -183,10 +180,6 @@ export function EventOccasions( props ) {
 
 			<EventOccasionsAddonsContent
 				event={ event }
-				eventsSettingsPageURL={ eventsSettingsPageURL }
-				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-				hasPremiumAddOn={ hasPremiumAddOn }
-				hasFailedLoginLimit={ hasFailedLoginLimit }
 			/>
 		</div>
 	);

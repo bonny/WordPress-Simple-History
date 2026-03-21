@@ -17,14 +17,7 @@ export function Event( props ) {
 	const {
 		event,
 		variant = 'normal',
-		mapsApiKey,
-		hasExtendedSettingsAddOn,
-		hasPremiumAddOn,
-		hasFailedLoginLimit,
 		isNewAfterFetchNewEvents,
-		eventsSettingsPageURL,
-		eventsAdminPageURL,
-		userCanManageOptions,
 		prevEvent,
 		nextEvent,
 		loopIndex,
@@ -63,12 +56,7 @@ export function Event( props ) {
 				<EventHeader
 					event={ event }
 					eventVariant={ variant }
-					mapsApiKey={ mapsApiKey }
-					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-					hasPremiumAddOn={ hasPremiumAddOn }
 					isSurroundingEventsMode={ isSurroundingEventsMode }
-					eventsSettingsPageURL={ eventsSettingsPageURL }
-					eventsAdminPageURL={ eventsAdminPageURL }
 				/>
 
 				<EventText event={ event } eventVariant={ variant } />
@@ -82,18 +70,11 @@ export function Event( props ) {
 				<EventOccasions
 					event={ event }
 					eventVariant={ variant }
-					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-					hasPremiumAddOn={ hasPremiumAddOn }
-					hasFailedLoginLimit={ hasFailedLoginLimit }
-					eventsSettingsPageURL={ eventsSettingsPageURL }
 				/>
 
 				<EventActionsButton
 					event={ event }
 					eventVariant={ variant }
-					eventsAdminPageURL={ eventsAdminPageURL }
-					hasPremiumAddOn={ hasPremiumAddOn }
-					userCanManageOptions={ userCanManageOptions }
 				/>
 			</div>
 		</li>

@@ -14,6 +14,7 @@ import {
 import { __, _n } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { getTrackingUrl } from '../functions';
+import { useEventsSettings } from './EventsSettingsContext';
 import { EventHeaderItem } from './EventHeaderItem';
 
 const keysAndValues = [
@@ -92,7 +93,8 @@ let closeActivePopover = null;
  * @param {Object} ipAddressProps
  */
 function IPAddressLink( ipAddressProps ) {
-	const { header, ipAddress, mapsApiKey, hasPremiumAddOn, eventsSettingsPageURL } = ipAddressProps;
+	const { header, ipAddress } = ipAddressProps;
+	const { mapsApiKey, hasPremiumAddOn, eventsSettingsPageURL } = useEventsSettings();
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ isLoadingIpInfo, setIsLoadingIpInfo ] = useState( false );
 	const [ ipInfoResult, setIpInfoResult ] = useState();
@@ -501,7 +503,7 @@ function IPAddressLink( ipAddressProps ) {
  * @param {Object} props
  */
 export function EventIPAddresses( props ) {
-	const { event, eventVariant, mapsApiKey, hasPremiumAddOn, eventsSettingsPageURL } = props;
+	const { event, eventVariant } = props;
 	const { ip_addresses: ipAddresses } = event;
 
 	if ( ! ipAddresses ) {
@@ -526,9 +528,6 @@ export function EventIPAddresses( props ) {
 				<IPAddressLink
 					header={ header }
 					ipAddress={ ipAddress }
-					mapsApiKey={ mapsApiKey }
-					hasPremiumAddOn={ hasPremiumAddOn }
-					eventsSettingsPageURL={ eventsSettingsPageURL }
 				/>{ ' ' }
 				{ /* Add comma to separate IP addresses, but not after the last one */ }
 				{ loopCount < ipAddressesCount - 1 ? ', ' : '' }

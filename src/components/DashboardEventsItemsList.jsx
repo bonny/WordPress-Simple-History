@@ -9,11 +9,6 @@ export function DashboardEventsItemsList( props ) {
 	const {
 		events,
 		eventsIsLoading,
-		hasPremiumAddOn,
-		hasFailedLoginLimit,
-		eventsAdminPageURL,
-		eventsSettingsPageURL,
-		mapsApiKey,
 	} = props;
 
 	if ( ! events || events.length === 0 ) {
@@ -36,11 +31,6 @@ export function DashboardEventsItemsList( props ) {
 					loopIndex={ index }
 					prevEvent={ events[ index - 1 ] }
 					nextEvent={ events[ index + 1 ] }
-					hasPremiumAddOn={ hasPremiumAddOn }
-					hasFailedLoginLimit={ hasFailedLoginLimit }
-					eventsAdminPageURL={ eventsAdminPageURL }
-					eventsSettingsPageURL={ eventsSettingsPageURL }
-					mapsApiKey={ mapsApiKey }
 				/>
 			) ) }
 		</ul>

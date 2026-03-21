@@ -13,12 +13,7 @@ export function EventHeader( props ) {
 	const {
 		event,
 		eventVariant,
-		hasExtendedSettingsAddOn,
-		hasPremiumAddOn,
-		mapsApiKey,
 		isSurroundingEventsMode,
-		eventsSettingsPageURL,
-		eventsAdminPageURL,
 	} = props;
 
 	return (
@@ -31,15 +26,11 @@ export function EventHeader( props ) {
 
 			<EventInitiatorName event={ event } eventVariant={ eventVariant } />
 
-			<EventDate event={ event } eventVariant={ eventVariant } eventsAdminPageURL={ eventsAdminPageURL } />
+			<EventDate event={ event } eventVariant={ eventVariant } />
 
 			<EventIPAddresses
 				event={ event }
 				eventVariant={ eventVariant }
-				mapsApiKey={ mapsApiKey }
-				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-				hasPremiumAddOn={ hasPremiumAddOn }
-				eventsSettingsPageURL={ eventsSettingsPageURL }
 			/>
 
 			<EventVia event={ event } />

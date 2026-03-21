@@ -12,10 +12,12 @@ import {
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { navigateToEventPermalink } from '../functions';
+import { useEventsSettings } from './EventsSettingsContext';
 import { EventHeaderItem } from './EventHeaderItem';
 
 export function EventDate( props ) {
-	const { event, eventVariant, eventsAdminPageURL } = props;
+	const { event, eventVariant } = props;
+	const { eventsAdminPageURL } = useEventsSettings();
 	const dateSettings = getDateSettings();
 	const wpDateFormatAbbreviated = dateSettings.formats.datetimeAbbreviated;
 	const wpDateFormatTime = dateSettings.formats.time;

@@ -12,6 +12,7 @@ import { __, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Icon, chartBar } from '@wordpress/icons';
 import { EVENT_FIELDS, parseApiFetchError } from '../functions';
+import { EventsSettingsProvider } from './EventsSettingsContext';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 import { DashboardEventsItemsList } from './DashboardEventsItemsList';
@@ -301,163 +302,179 @@ export function DashboardEventsWidget() {
 		}
 	};
 
-	return (
-		<div className="sh-DashboardWidget">
-			{ /* Stats row: whole row is clickable when URL is available, with a subtle arrow. */ }
-			{ stats ? (
-				statsPageURL ? (
-					<a
-						href={ statsPageURL }
-						className="sh-DashboardWidget-stats sh-DashboardWidget-stats--link"
-					>
-						<StatsContent stats={ stats } />
-					</a>
-				) : (
-					<div className="sh-DashboardWidget-stats">
-						<StatsContent stats={ stats } />
-					</div>
-				)
-			) : (
-				<div className="sh-DashboardWidget-stats">
-					<div className="sh-DashboardWidget-skeleton__line sh-DashboardWidget-skeleton__line--stats" />
-				</div>
-			) }
+	const eventsSettingsValue = useMemo(
+		() => ( {
+			mapsApiKey,
+			hasExtendedSettingsAddOn: false,
+			hasPremiumAddOn,
+			hasFailedLoginLimit,
+			eventsSettingsPageURL: settingsPageURL,
+			eventsAdminPageURL,
+			userCanManageOptions: false,
+		} ),
+		[
+			mapsApiKey,
+			hasPremiumAddOn,
+			hasFailedLoginLimit,
+			settingsPageURL,
+			eventsAdminPageURL,
+		]
+	);
 
-			{ /* Search row: always visible, form works even before admin URL loads. */ }
-			<div className="sh-DashboardWidget-searchRow">
-				<div className="sh-DashboardWidget-searchRow__row">
-					<form
-						className="sh-DashboardWidget-search"
-						onSubmit={ handleSearchSubmit }
-					>
-						<input
-							type="search"
-							name="sh-dashboard-search"
-							aria-label={ __(
-								'Search events',
-								'simple-history'
-							) }
-							placeholder={ __(
-								'Search users, plugins, posts…',
-								'simple-history'
-							) }
-							className="sh-DashboardWidget-search__input"
-						/>
-						<button type="submit" className="button">
-							{ __( 'Search all events', 'simple-history' ) }
-						</button>
-					</form>
-					{ eventsAdminPageURL ? (
+	return (
+		<EventsSettingsProvider value={ eventsSettingsValue }>
+			<div className="sh-DashboardWidget">
+				{ /* Stats row: whole row is clickable when URL is available, with a subtle arrow. */ }
+				{ stats ? (
+					statsPageURL ? (
 						<a
-							href={ addQueryArgs( eventsAdminPageURL, {
-								'show-filters': 1,
-							} ) }
-							className="sh-DashboardWidget-searchRow__filtersLink"
+							href={ statsPageURL }
+							className="sh-DashboardWidget-stats sh-DashboardWidget-stats--link"
 						>
-							{ __( 'More filters', 'simple-history' ) }
+							<StatsContent stats={ stats } />
 						</a>
 					) : (
-						<span className="sh-DashboardWidget-searchRow__filtersLink is-placeholder">
-							{ __( 'More filters', 'simple-history' ) }
+						<div className="sh-DashboardWidget-stats">
+							<StatsContent stats={ stats } />
+						</div>
+					)
+				) : (
+					<div className="sh-DashboardWidget-stats">
+						<div className="sh-DashboardWidget-skeleton__line sh-DashboardWidget-skeleton__line--stats" />
+					</div>
+				) }
+
+				{ /* Search row: always visible, form works even before admin URL loads. */ }
+				<div className="sh-DashboardWidget-searchRow">
+					<div className="sh-DashboardWidget-searchRow__row">
+						<form
+							className="sh-DashboardWidget-search"
+							onSubmit={ handleSearchSubmit }
+						>
+							<input
+								type="search"
+								name="sh-dashboard-search"
+								aria-label={ __(
+									'Search events',
+									'simple-history'
+								) }
+								placeholder={ __(
+									'Search users, plugins, posts…',
+									'simple-history'
+								) }
+								className="sh-DashboardWidget-search__input"
+							/>
+							<button type="submit" className="button">
+								{ __( 'Search all events', 'simple-history' ) }
+							</button>
+						</form>
+						{ eventsAdminPageURL ? (
+							<a
+								href={ addQueryArgs( eventsAdminPageURL, {
+									'show-filters': 1,
+								} ) }
+								className="sh-DashboardWidget-searchRow__filtersLink"
+							>
+								{ __( 'More filters', 'simple-history' ) }
+							</a>
+						) : (
+							<span className="sh-DashboardWidget-searchRow__filtersLink is-placeholder">
+								{ __( 'More filters', 'simple-history' ) }
+							</span>
+						) }
+					</div>
+				</div>
+
+				{ /* Compact failed login throttling notice for dashboard. */ }
+				{ ! eventsIsLoading &&
+					hasFailedLoginLimit &&
+					failedLoginSuppressedCount > 0 &&
+					! hasPremiumAddOn && (
+						<div className="sh-DashboardWidget-throttleNotice">
+							<span className="dashicons dashicons-info" aria-hidden="true"></span>
+							<p>
+								<strong>
+									{ __( 'Failed login throttling active', 'simple-history' ) }
+								</strong>
+								{ ' — ' }
+								{ sprintf(
+									/* translators: %s: number of skipped attempts */
+									__( '%s attempts skipped to reduce database bloat.', 'simple-history' ),
+									failedLoginSuppressedCount.toLocaleString()
+								) }
+								{ ' ' }
+								{ eventsAdminPageURL && (
+									<a href={ eventsAdminPageURL }>
+										{ __( 'View details →', 'simple-history' ) }
+									</a>
+								) }
+							</p>
+						</div>
+					) }
+
+				{ /* Event list area with animated height. */ }
+				<div className="sh-DashboardWidget-content" ref={ contentRef }>
+					<FetchEventsNoResultsMessage
+						eventsIsLoading={ eventsIsLoading }
+						events={ events }
+					/>
+
+					<FetchEventsErrorMessage
+						eventsLoadingHasErrors={ eventsLoadingHasErrors }
+						eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+					/>
+
+					{ eventsIsLoading && (
+						<SkeletonEvents count={ pagerSize?.dashboard || 5 } />
+					) }
+
+					<DashboardEventsItemsList
+						eventsIsLoading={ eventsIsLoading }
+						events={ events }
+					/>
+				</div>
+
+				{ /* Sparse-state message: few events in the 7-day window. */ }
+				{ ! eventsIsLoading &&
+					events.length > 0 &&
+					events.length < 3 &&
+					eventsAdminPageURL && (
+						<p className="sh-DashboardWidget-sparseNotice">
+							{ createInterpolateElement(
+								__(
+									'Only a few events in the past 7 days. Visit the <a>activity log</a> to search your full history.',
+									'simple-history'
+								),
+								{
+									a: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a href={ eventsAdminPageURL } />
+									),
+								}
+							) }
+						</p>
+					) }
+
+				{ /* Footer: always visible. */ }
+				<div className="sh-DashboardWidget-viewAll">
+					{ eventsAdminPageURL ? (
+						<a href={ eventsAdminPageURL }>
+							{ __( 'View full activity log →', 'simple-history' ) }
+						</a>
+					) : (
+						<span className="sh-DashboardWidget-viewAll__placeholder">
+							{ __( 'View full activity log →', 'simple-history' ) }
 						</span>
 					) }
 				</div>
-			</div>
 
-			{ /* Compact failed login throttling notice for dashboard. */ }
-			{ ! eventsIsLoading &&
-				hasFailedLoginLimit &&
-				failedLoginSuppressedCount > 0 &&
-				! hasPremiumAddOn && (
-					<div className="sh-DashboardWidget-throttleNotice">
-						<span className="dashicons dashicons-info" aria-hidden="true"></span>
-						<p>
-							<strong>
-								{ __( 'Failed login throttling active', 'simple-history' ) }
-							</strong>
-							{ ' — ' }
-							{ sprintf(
-								/* translators: %s: number of skipped attempts */
-								__( '%s attempts skipped to reduce database bloat.', 'simple-history' ),
-								failedLoginSuppressedCount.toLocaleString()
-							) }
-							{ ' ' }
-							{ eventsAdminPageURL && (
-								<a href={ eventsAdminPageURL }>
-									{ __( 'View details →', 'simple-history' ) }
-								</a>
-							) }
-						</p>
-					</div>
-				) }
-
-			{ /* Event list area with animated height. */ }
-			<div className="sh-DashboardWidget-content" ref={ contentRef }>
-				<FetchEventsNoResultsMessage
-					eventsIsLoading={ eventsIsLoading }
-					events={ events }
-				/>
-
-				<FetchEventsErrorMessage
-					eventsLoadingHasErrors={ eventsLoadingHasErrors }
-					eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
-				/>
-
-				{ eventsIsLoading && (
-					<SkeletonEvents count={ pagerSize?.dashboard || 5 } />
-				) }
-
-				<DashboardEventsItemsList
-					eventsIsLoading={ eventsIsLoading }
-					events={ events }
-					hasPremiumAddOn={ hasPremiumAddOn }
-					hasFailedLoginLimit={ hasFailedLoginLimit }
-					eventsAdminPageURL={ eventsAdminPageURL }
-					eventsSettingsPageURL={ settingsPageURL }
-					mapsApiKey={ mapsApiKey }
-				/>
-			</div>
-
-			{ /* Sparse-state message: few events in the 7-day window. */ }
-			{ ! eventsIsLoading &&
-				events.length > 0 &&
-				events.length < 3 &&
-				eventsAdminPageURL && (
-					<p className="sh-DashboardWidget-sparseNotice">
-						{ createInterpolateElement(
-							__(
-								'Only a few events in the past 7 days. Visit the <a>activity log</a> to search your full history.',
-								'simple-history'
-							),
-							{
-								a: (
-									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									<a href={ eventsAdminPageURL } />
-								),
-							}
-						) }
+				{ /* Tip: shown after events load. */ }
+				{ ! eventsIsLoading && events.length > 0 && (
+					<p className="sh-DashboardWidget-tip">
+						<strong>{ __( 'Tip:', 'simple-history' ) }</strong> { tip }
 					</p>
 				) }
-
-			{ /* Footer: always visible. */ }
-			<div className="sh-DashboardWidget-viewAll">
-				{ eventsAdminPageURL ? (
-					<a href={ eventsAdminPageURL }>
-						{ __( 'View full activity log →', 'simple-history' ) }
-					</a>
-				) : (
-					<span className="sh-DashboardWidget-viewAll__placeholder">
-						{ __( 'View full activity log →', 'simple-history' ) }
-					</span>
-				) }
 			</div>
-
-			{ /* Tip: shown after events load. */ }
-			{ ! eventsIsLoading && events.length > 0 && (
-				<p className="sh-DashboardWidget-tip">
-					<strong>{ __( 'Tip:', 'simple-history' ) }</strong> { tip }
-				</p>
-			) }
-		</div>
+		</EventsSettingsProvider>
 	);
 }

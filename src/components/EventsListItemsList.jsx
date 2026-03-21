@@ -5,18 +5,10 @@ export function EventsListItemsList( props ) {
 	const {
 		events,
 		prevEventsMaxId,
-		mapsApiKey,
-		hasExtendedSettingsAddOn,
-		hasPremiumAddOn,
-		hasFailedLoginLimit,
 		eventsIsLoading,
-		eventsSettingsPageURL,
-		eventsAdminPageURL,
-		userCanManageOptions,
 		surroundingEventId,
 	} = props;
 
-	// Bail if no events.
 	if ( ! events || events.length === 0 ) {
 		return null;
 	}
@@ -38,13 +30,6 @@ export function EventsListItemsList( props ) {
 					loopIndex={ index }
 					prevEvent={ events[ index - 1 ] }
 					nextEvent={ events[ index + 1 ] }
-					mapsApiKey={ mapsApiKey }
-					hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-					hasPremiumAddOn={ hasPremiumAddOn }
-					hasFailedLoginLimit={ hasFailedLoginLimit }
-					eventsSettingsPageURL={ eventsSettingsPageURL }
-					eventsAdminPageURL={ eventsAdminPageURL }
-					userCanManageOptions={ userCanManageOptions }
 					isNewAfterFetchNewEvents={ event.id > prevEventsMaxId }
 					isCenterEvent={ event.id === surroundingEventId }
 					isSurroundingEventsMode={ isSurroundingEventsMode }

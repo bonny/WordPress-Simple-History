@@ -7,6 +7,7 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
+import { EventsSettingsProvider } from './EventsSettingsContext';
 import { addQueryArgs } from '@wordpress/url';
 import {
 	parseAsArrayOf,
@@ -654,8 +655,29 @@ function EventsGUI() {
 		};
 	}, [ setEnteredIPAddress ] );
 
+	const eventsSettingsValue = useMemo(
+		() => ( {
+			mapsApiKey,
+			hasExtendedSettingsAddOn,
+			hasPremiumAddOn,
+			hasFailedLoginLimit,
+			eventsSettingsPageURL: settingsPageURL,
+			eventsAdminPageURL,
+			userCanManageOptions,
+		} ),
+		[
+			mapsApiKey,
+			hasExtendedSettingsAddOn,
+			hasPremiumAddOn,
+			hasFailedLoginLimit,
+			settingsPageURL,
+			eventsAdminPageURL,
+			userCanManageOptions,
+		]
+	);
+
 	return (
-		<>
+		<EventsSettingsProvider value={ eventsSettingsValue }>
 			{ /* Hide filters when viewing surrounding events */ }
 			{ ! surroundingEventId && (
 				<EventsSearchFilters
@@ -744,23 +766,15 @@ function EventsGUI() {
 				page={ page }
 				pagerSize={ pagerSize }
 				setPage={ setPage }
-				eventsMaxId={ eventsMaxId }
 				prevEventsMaxId={ prevEventsMaxId }
-				mapsApiKey={ mapsApiKey }
-				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-				hasPremiumAddOn={ hasPremiumAddOn }
-				hasFailedLoginLimit={ hasFailedLoginLimit }
 				failedLoginLimitThreshold={
 					failedLoginLimitThreshold
 				}
 				failedLoginSuppressedCount={
 					failedLoginSuppressedCount
 				}
-				eventsSettingsPageURL={ settingsPageURL }
-				eventsAdminPageURL={ eventsAdminPageURL }
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
-				userCanManageOptions={ userCanManageOptions }
 				surroundingEventId={ surroundingEventId }
 				surroundingCount={ surroundingCount }
 				hasActiveFilters={ hasAnyActiveFilters }
@@ -768,7 +782,7 @@ function EventsGUI() {
 			/>
 
 			<EventsModalIfFragment />
-		</>
+		</EventsSettingsProvider>
 	);
 }
 
