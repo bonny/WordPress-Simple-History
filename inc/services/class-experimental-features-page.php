@@ -35,6 +35,11 @@ class Experimental_Features_Page extends Service {
 	 * Add experimental features admin page.
 	 */
 	public function add_experimental_features_page() {
+		// Only show the page if something hooks into it.
+		if ( ! has_action( 'simple_history/experimental_features/render' ) ) {
+			return;
+		}
+
 		$admin_page_location = Helpers::get_menu_page_location();
 
 		$experimental_page = ( new Menu_Page() )
