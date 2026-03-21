@@ -251,6 +251,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Added**
+
+-   Hover-reveal quick action button on event rows for faster access to event details.
+
 **Changed**
 
 -   Welcome message on dashboard widget is now self-contained instead of referencing details only visible on the dedicated events page.

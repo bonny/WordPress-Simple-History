@@ -1,7 +1,7 @@
-import { DropdownMenu, MenuGroup, Slot } from '@wordpress/components';
+import { Button, DropdownMenu, MenuGroup, Slot } from '@wordpress/components';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { moreHorizontalMobile } from '@wordpress/icons';
+import { fullscreen, moreHorizontalMobile } from '@wordpress/icons';
 import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
 import { EventCopyScreenshotMenuItem } from './EventCopyScreenshotMenuItem';
@@ -10,9 +10,11 @@ import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEvents
 import { EventSurroundingEventsMenuItem } from './EventSurroundingEventsMenuItem';
 import { EventStickMenuItem } from './EventStickMenuItem';
 import { EventUnstickMenuItem } from './EventUnstickMenuItem';
+import { navigateToEventPermalink } from '../functions';
 
 /**
- * The button with three dots that opens a dropdown with actions for the event.
+ * Event actions area: quick action buttons (shown on hover) and the
+ * three-dot dropdown menu.
  *
  * @param {Object}  props
  * @param {Object}  props.event                The event object
@@ -38,6 +40,15 @@ export function EventActionsButton( {
 
 	return (
 		<div ref={ actionsRef } className="SimpleHistoryLogitem__actions">
+			<div className="SimpleHistoryLogitem__quickActions">
+				<Button
+					icon={ fullscreen }
+					label={ __( 'Event details', 'simple-history' ) }
+					size="small"
+					onClick={ () => navigateToEventPermalink( { event } ) }
+				/>
+			</div>
+
 			<DropdownMenu
 				label={ __( 'Actions…', 'simple-history' ) }
 				icon={ moreHorizontalMobile }
