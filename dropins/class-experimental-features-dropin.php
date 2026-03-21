@@ -72,6 +72,19 @@ class Experimental_Features_Dropin extends Dropin {
 			esc_html_e( 'Please note that these features may not work as expected and could change or be removed in future updates.', 'simple-history' );
 			?>
 		</p>
+
+		<details style="margin-top: 0.5em;">
+			<summary class="description" style="cursor: pointer;">
+				<?php esc_html_e( 'View current experimental features', 'simple-history' ); ?>
+			</summary>
+			<ul class="description" style="margin-top: 0.5em; list-style: disc; padding-left: 1.5em;">
+				<li><?php esc_html_e( 'Compact JSON diff storage for post content changes', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Faster search queries (skips occasion grouping)', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Scoped search targeting specific context keys', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Role & Capability change logging', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Failed login rate limiting', 'simple-history' ); ?></li>
+			</ul>
+		</details>
 		<?php
 	}
 }
