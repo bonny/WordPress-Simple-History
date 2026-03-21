@@ -53,8 +53,8 @@ function StatsContent( { stats } ) {
 					sprintf(
 						/* translators: 1: number of events today */
 						_n(
-							'<strong>%s</strong> event today',
-							'<strong>%s</strong> events today',
+							'<strong>%s</strong> event logged today',
+							'<strong>%s</strong> events logged today',
 							stats.num_events_today,
 							'simple-history'
 						),
@@ -439,25 +439,25 @@ export function DashboardEventsWidget() {
 					</p>
 				) }
 
+			{ /* Footer: always visible. */ }
+			<div className="sh-DashboardWidget-viewAll">
+				{ eventsAdminPageURL ? (
+					<a href={ eventsAdminPageURL }>
+						{ __( 'View full activity log →', 'simple-history' ) }
+					</a>
+				) : (
+					<span className="sh-DashboardWidget-viewAll__placeholder">
+						{ __( 'View full activity log →', 'simple-history' ) }
+					</span>
+				) }
+			</div>
+
 			{ /* Tip: shown after events load. */ }
 			{ ! eventsIsLoading && events.length > 0 && (
 				<p className="sh-DashboardWidget-tip">
 					<strong>{ __( 'Tip:', 'simple-history' ) }</strong> { tip }
 				</p>
 			) }
-
-			{ /* Footer: always visible. */ }
-			<div className="sh-DashboardWidget-viewAll">
-				{ eventsAdminPageURL ? (
-					<a href={ eventsAdminPageURL }>
-						{ __( 'View detailed activity →', 'simple-history' ) }
-					</a>
-				) : (
-					<span className="sh-DashboardWidget-viewAll__placeholder">
-						{ __( 'View detailed activity →', 'simple-history' ) }
-					</span>
-				) }
-			</div>
 		</div>
 	);
 }
