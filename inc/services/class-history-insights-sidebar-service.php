@@ -203,6 +203,8 @@ class History_Insights_Sidebar_Service extends Service {
 
 		?>
 
+		<?php $chart_summary = $this->get_chart_summary_data( $num_events_per_day_for_period ); ?>
+
 		<div class="sh-StatsDashboard-stat sh-StatsDashboard-stat--small">
 			<div class="sh-StatsDashboard-statLabel">
 				<?php
@@ -217,7 +219,27 @@ class History_Insights_Sidebar_Service extends Service {
 			<div class="sh-StatsDashboard-statValue">
 				<!-- wrapper div so sidebar does not "jump" when loading. so annoying. -->
 				<div style="position: relative; height: 0; overflow: hidden; padding-bottom: 40%;">
-					<canvas style="position: absolute; left: 0; right: 0;" class="SimpleHistory_SidebarChart_ChartCanvas" width="100" height="40"></canvas>
+					<?php
+					$aria_label = sprintf(
+						// translators: %d is the number of days shown in the chart.
+						__( 'Daily activity chart for the last %d days', 'simple-history' ),
+						Date_Helper::DAYS_PER_MONTH
+					);
+
+					if ( $chart_summary ) {
+						$aria_label .= '. ' . sprintf(
+							// translators: 1: average events per day, 2: peak event count, 3: peak date.
+							__( 'Average %1$s per day. Peak %2$s on %3$s.', 'simple-history' ),
+							number_format_i18n( $chart_summary['average'] ),
+							number_format_i18n( $chart_summary['max'] ),
+							$chart_summary['peak_date']
+						);
+					}
+					?>
+					<canvas style="position: absolute; left: 0; right: 0;" class="SimpleHistory_SidebarChart_ChartCanvas" width="100" height="40"
+						role="img"
+						aria-label="<?php echo esc_attr( $aria_label ); ?>"
+					></canvas>
 				</div>
 			</div>
 
@@ -227,8 +249,6 @@ class History_Insights_Sidebar_Service extends Service {
 				>
 					<span>
 						<?php
-						// From date, localized.
-						// Example: "September 4, 2025".
 						echo esc_html(
 							wp_date(
 								'M j',
@@ -239,18 +259,16 @@ class History_Insights_Sidebar_Service extends Service {
 					</span>
 					<span>
 						<?php
-						// To date, localized.
-						// Example: "October 4, 2025".
 						echo esc_html(
-							wp_date(
-								'M j',
-								$today->getTimestamp()
+							sprintf(
+								// translators: %s is a date like "Mar 22".
+								__( '%s (today)', 'simple-history' ),
+								wp_date( 'M j', $today->getTimestamp() )
 							)
 						);
 						?>
 					</span>
 				</p>
-
 			</div>
 		</div>
 		<?php
@@ -479,11 +497,16 @@ class History_Insights_Sidebar_Service extends Service {
 			$retention_text_linked
 		);
 
-		// Append tooltip.
-		$msg_text .= Helpers::get_tooltip_html( __( 'Database count shows browsable events. Total shows all events ever logged, including those auto-removed. Only administrators can see these event counts.', 'simple-history' ) );
+		// Append tooltip with cache freshness info included.
+		$tooltip_text = sprintf(
+			// translators: %d is the number of minutes between cache refreshes.
+			__( 'Database count shows browsable events. Total shows all events ever logged, including those auto-removed. Only administrators can see these event counts. Insights are calculated from all events and update every %d minutes.', 'simple-history' ),
+			absint( self::CACHE_DURATION_MINUTES )
+		);
+		$msg_text .= Helpers::get_tooltip_html( $tooltip_text );
 
-		// Return concatenated result.
-		return wp_kses_post( "<p class='sh-my-medium'>" . $msg_text . '</p>' );
+		// Return concatenated result wrapped in a footer-style container.
+		return wp_kses_post( '<div class="sh-SidebarStats-footer"><p class="sh-m-0">' . $msg_text . '</p></div>' );
 	}
 
 	/**
@@ -493,29 +516,58 @@ class History_Insights_Sidebar_Service extends Service {
 	 * @return string HTML.
 	 */
 	protected function get_cache_info_html( $current_user_can_manage_options ) {
+		// For admins, cache info is in the database stats tooltip.
+		if ( $current_user_can_manage_options ) {
+			return '';
+		}
+
 		ob_start();
 
 		?>
 		<p class="sh-my-medium">
 			<?php
-			if ( $current_user_can_manage_options ) {
-				printf(
-					/* translators: %d is the number of minutes between cache refreshes */
-					esc_html__( 'Insights are calculated from all events. Updates every %d minutes.', 'simple-history' ),
-					absint( self::CACHE_DURATION_MINUTES )
-				);
-			} else {
-				printf(
-					/* translators: %d is the number of minutes between cache refreshes */
-					esc_html__( 'Insights are based on events you can view. Updates every %d minutes.', 'simple-history' ),
-					absint( self::CACHE_DURATION_MINUTES )
-				);
-			}
+			printf(
+				/* translators: %d is the number of minutes between cache refreshes */
+				esc_html__( 'Insights are based on events you can view. Updates every %d minutes.', 'simple-history' ),
+				absint( self::CACHE_DURATION_MINUTES )
+			);
 			?>
 		</p>
 
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Get summary data for the chart (average, peak, peak date).
+	 *
+	 * @param array $num_events_per_day Array of day data objects with 'count' and 'yearDate'.
+	 * @return array{average: int, max: int, peak_date: string}|null Null if no data.
+	 */
+	protected function get_chart_summary_data( $num_events_per_day ) {
+		$counts = array_map( 'intval', wp_list_pluck( $num_events_per_day, 'count' ) );
+
+		if ( empty( $counts ) ) {
+			return null;
+		}
+
+		$max     = max( $counts );
+		$average = (int) round( array_sum( $counts ) / count( $counts ) );
+
+		// Find the date of the peak day.
+		$peak_date = '';
+		foreach ( $num_events_per_day as $day ) {
+			if ( (int) $day->count === $max ) {
+				$peak_date = wp_date( 'M j', strtotime( $day->yearDate ) );
+				break;
+			}
+		}
+
+		return [
+			'average'   => $average,
+			'max'       => $max,
+			'peak_date' => $peak_date,
+		];
 	}
 
 	/**

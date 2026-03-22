@@ -28,6 +28,15 @@
 			document.documentElement
 		).getPropertyValue( '--sh-color-blue' );
 
+		// Highlight today (last data point) with a visible dot.
+		const lastIndex = chartDatasetData.length - 1;
+		const pointRadii = chartDatasetData.map( ( _, i ) =>
+			i === lastIndex ? 4 : 0
+		);
+		const pointHoverRadii = chartDatasetData.map( ( _, i ) =>
+			i === lastIndex ? 6 : 3
+		);
+
 		// Create chart.
 		const myChart = new window.Chart( ctx, {
 			type: 'line',
@@ -40,7 +49,9 @@
 						borderColor: color,
 						backgroundColor: color,
 						borderWidth: 2,
-						pointRadius: 0,
+						pointRadius: pointRadii,
+						pointHoverRadius: pointHoverRadii,
+						pointBackgroundColor: color,
 					},
 				],
 			},
@@ -51,8 +62,16 @@
 				},
 				scales: {
 					y: {
+						beginAtZero: true,
 						ticks: {
-							beginAtZero: true,
+							maxTicksLimit: 4,
+							autoSkipPadding: 20,
+						},
+						grid: {
+							drawTicks: false,
+						},
+						border: {
+							display: false,
 						},
 					},
 					x: {

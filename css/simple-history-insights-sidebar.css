@@ -198,6 +198,15 @@
 	text-decoration: underline;
 }
 
+/* Footer meta section (database stats, retention info) */
+.sh-SidebarStats .sh-SidebarStats-footer {
+	border-top: 1px solid var(--sh-color-gray-4, #e0e0e0);
+	margin-top: var(--sh-spacing-medium);
+	padding-top: var(--sh-spacing-medium);
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-black-2);
+}
+
 /* Event count displayed after each username in the list */
 .sh-SidebarStats .sh-StatsDashboard-userEventCount {
 	font-size: 0.9em;
