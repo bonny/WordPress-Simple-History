@@ -61,9 +61,20 @@ npx @wp-playground/cli@latest server \
 ```
 
 The blueprint (`/.claude/worktree-blueprint.json`) automatically:
+- Sets `SIMPLE_HISTORY_DEV` constant (enables dev mode badges and tools)
 - Logs in as admin (sets WP auth cookies on first visit)
 - Activates the Simple History plugin
+- Enables experimental features
 - Sets the site title to the worktree name (visible in browser tab and wp-admin header)
+
+### Multisite
+
+If the issue involves network/multisite functionality, ask the user if they want a multisite install. If yes, add an `enableMultisite` step to the generated blueprint before starting:
+
+```bash
+# Add enableMultisite as the first step in the blueprint
+jq '.steps = [{"step": "enableMultisite"}] + .steps' /tmp/wp-blueprint-$WORKTREE_NAME.json > /tmp/wp-blueprint-$WORKTREE_NAME-tmp.json && mv /tmp/wp-blueprint-$WORKTREE_NAME-tmp.json /tmp/wp-blueprint-$WORKTREE_NAME.json
+```
 
 **Port assignment:** Find the next available port automatically:
 
