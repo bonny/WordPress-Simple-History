@@ -1,0 +1,24 @@
+{
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"SIMPLE_HISTORY_DEV": true
+			}
+		},
+		{
+			"step": "login"
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "simple-history/index.php"
+		},
+		{
+			"step": "setSiteOptions",
+			"options": {
+				"blogname": "WORKTREE_NAME",
+				"simple_history_experimental_features_enabled": "1"
+			}
+		}
+	]
+}
