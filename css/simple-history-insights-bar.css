@@ -1,0 +1,157 @@
+/**
+ * Styles for the compact Insights Bar (experimental feature).
+ * Single-line layout: counts · bar sparkline · users
+ */
+
+.sh-InsightsBar {
+	background-color: var(--sh-color-white);
+	border-radius: 10px;
+	padding: var(--sh-spacing-medium);
+	margin-bottom: var(--sh-spacing-medium);
+}
+
+/* Loading */
+.sh-InsightsBar--loading {
+	min-height: 40px;
+}
+
+.sh-InsightsBar-skeleton {
+	background: var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius);
+	height: 20px;
+	animation: sh-insightsBarPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes sh-insightsBarPulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+/* Main row — everything inline */
+.sh-InsightsBar-row {
+	display: flex;
+	align-items: flex-end;
+	gap: var(--sh-spacing-small);
+	flex-wrap: wrap;
+	font-size: var(--sh-font-size-normal);
+	color: var(--sh-color-gray-3);
+}
+
+.sh-InsightsBar-stat {
+	white-space: nowrap;
+}
+
+.sh-InsightsBar-stat strong {
+	color: var(--sh-color-black);
+	font-weight: 600;
+}
+
+.sh-InsightsBar-dot {
+	color: var(--sh-color-gray);
+}
+
+.sh-InsightsBar-sep {
+	color: var(--sh-color-gray);
+}
+
+/* Bar sparkline — inline, compact */
+.sh-InsightsBar-bars {
+	display: inline-flex;
+	align-items: flex-end;
+	gap: 1px;
+	height: 28px;
+	flex-shrink: 0;
+}
+
+.sh-InsightsBar-bar {
+	width: 4px;
+	min-height: 1px;
+	background-color: var(--sh-color-gray);
+	border: none;
+	border-radius: 1px;
+	padding: 0;
+	cursor: pointer;
+	transition: background-color 0.1s;
+}
+
+.sh-InsightsBar-bar:hover {
+	background-color: var(--sh-color-blue);
+}
+
+.sh-InsightsBar-bar--today {
+	background-color: var(--sh-color-blue);
+}
+
+/* Users row */
+.sh-InsightsBar-usersRow {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	flex-wrap: wrap;
+	margin-top: var(--sh-spacing-small);
+	font-size: var(--sh-font-size-normal);
+}
+
+.sh-InsightsBar-usersLabel {
+	color: var(--sh-color-gray-3);
+	margin-right: var(--sh-spacing-xsmall);
+	white-space: nowrap;
+}
+
+/* Users inline */
+.sh-InsightsBar-userInline {
+	display: inline-flex;
+	align-items: center;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+
+.sh-InsightsBar-userAvatar {
+	border-radius: 50%;
+	vertical-align: middle;
+	margin-right: 2px;
+}
+
+.sh-InsightsBar-userCount {
+	color: var(--sh-color-gray-3);
+}
+
+/* Footer */
+.sh-InsightsBar-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: var(--sh-spacing-small);
+	padding-top: var(--sh-spacing-small);
+	border-top: 1px solid var(--sh-color-separator);
+}
+
+.sh-InsightsBar-footerInfo {
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+}
+
+.sh-InsightsBar-footerLink {
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-blue);
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.sh-InsightsBar-footerLink:hover {
+	text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+	.sh-InsightsBar-footer {
+		flex-direction: column;
+		gap: var(--sh-spacing-xsmall);
+		align-items: flex-start;
+	}
+}

@@ -67,6 +67,15 @@ class Scripts_And_Templates extends Service {
 			SIMPLE_HISTORY_VERSION
 		);
 
+		if ( Helpers::experimental_features_is_enabled() ) {
+			wp_enqueue_style(
+				'simple_history_insights_bar',
+				SIMPLE_HISTORY_DIR_URL . 'css/simple-history-insights-bar.css',
+				false,
+				SIMPLE_HISTORY_VERSION
+			);
+		}
+
 		wp_enqueue_script(
 			'simple_history_script',
 			SIMPLE_HISTORY_DIR_URL . 'js/scripts.js',

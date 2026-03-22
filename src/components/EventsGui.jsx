@@ -7,6 +7,7 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
+import { EventsSettingsProvider } from './EventsSettingsContext';
 import { addQueryArgs } from '@wordpress/url';
 import {
 	parseAsArrayOf,
@@ -26,6 +27,7 @@ import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
+import EventsInsightsBar from './EventsInsightsBar';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
 // Schema for the users object.
@@ -654,8 +656,34 @@ function EventsGUI() {
 		};
 	}, [ setEnteredIPAddress ] );
 
+	const eventsSettingsValue = useMemo(
+		() => ( {
+			mapsApiKey,
+			hasExtendedSettingsAddOn,
+			hasPremiumAddOn,
+			hasFailedLoginLimit,
+			eventsSettingsPageURL: settingsPageURL,
+			eventsAdminPageURL,
+			userCanManageOptions,
+		} ),
+		[
+			mapsApiKey,
+			hasExtendedSettingsAddOn,
+			hasPremiumAddOn,
+			hasFailedLoginLimit,
+			settingsPageURL,
+			eventsAdminPageURL,
+			userCanManageOptions,
+		]
+	);
+
 	return (
-		<>
+		<EventsSettingsProvider value={ eventsSettingsValue }>
+			{ /* Experimental insights bar above filters */ }
+			{ isExperimentalFeaturesEnabled && ! surroundingEventId && (
+				<EventsInsightsBar />
+			) }
+
 			{ /* Hide filters when viewing surrounding events */ }
 			{ ! surroundingEventId && (
 				<EventsSearchFilters
@@ -744,23 +772,15 @@ function EventsGUI() {
 				page={ page }
 				pagerSize={ pagerSize }
 				setPage={ setPage }
-				eventsMaxId={ eventsMaxId }
 				prevEventsMaxId={ prevEventsMaxId }
-				mapsApiKey={ mapsApiKey }
-				hasExtendedSettingsAddOn={ hasExtendedSettingsAddOn }
-				hasPremiumAddOn={ hasPremiumAddOn }
-				hasFailedLoginLimit={ hasFailedLoginLimit }
 				failedLoginLimitThreshold={
 					failedLoginLimitThreshold
 				}
 				failedLoginSuppressedCount={
 					failedLoginSuppressedCount
 				}
-				eventsSettingsPageURL={ settingsPageURL }
-				eventsAdminPageURL={ eventsAdminPageURL }
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
-				userCanManageOptions={ userCanManageOptions }
 				surroundingEventId={ surroundingEventId }
 				surroundingCount={ surroundingCount }
 				hasActiveFilters={ hasAnyActiveFilters }
@@ -768,7 +788,7 @@ function EventsGUI() {
 			/>
 
 			<EventsModalIfFragment />
-		</>
+		</EventsSettingsProvider>
 	);
 }
 

@@ -180,6 +180,20 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
+
+		// GET /wp-json/simple-history/v1/stats/insights.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/insights',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_insights' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
 	}
 
 	/**
@@ -603,6 +617,45 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		);
 
 		return rest_ensure_response( $stats );
+	}
+
+	/**
+	 * Get insights data for the compact insights bar.
+	 *
+	 * Returns all data needed for the three-column insights bar:
+	 * event counts (today/7 days/30 days), daily activity chart,
+	 * top users, and database totals.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response Response object.
+	 */
+	public function get_insights( $request ) {
+		$events_stats = new Events_Stats();
+		$now          = Date_Helper::get_current_timestamp();
+
+		$today_from = Date_Helper::get_today_start_timestamp();
+		$week_from  = Date_Helper::get_last_n_days_start_timestamp( 7 );
+		$month_from = Date_Helper::get_last_n_days_start_timestamp( 30 );
+
+		$data = array(
+			'event_counts'         => array(
+				'today'   => Helpers::get_num_events_today(),
+				'week'    => Helpers::get_num_events_last_n_days( 7 ),
+				'month'   => Helpers::get_num_events_last_n_days( 30 ),
+			),
+			'activity_by_date'     => $events_stats->get_activity_overview_by_date( $month_from, $now ),
+			'top_users'            => current_user_can( 'list_users' )
+				? $events_stats->get_top_users( $month_from, $now, 5 )
+				: array(),
+			'database'             => array(
+				'events_in_db'    => Helpers::get_current_database_events_count(),
+				'total_logged'    => Helpers::get_total_logged_events_count(),
+				'retention_days'  => Helpers::get_clear_history_interval(),
+			),
+			'stats_page_url'       => admin_url( 'admin.php?page=simple_history_stats_page' ),
+		);
+
+		return rest_ensure_response( $data );
 	}
 
 	/**
