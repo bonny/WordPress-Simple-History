@@ -23,19 +23,20 @@ export function EventsControlBar( props ) {
 	} = props;
 
 	const loadingIndicator = eventsIsLoading ? (
-		<Text>
-			<Spinner />
-
-			{ _x(
-				'Loading…',
-				'Message visible while waiting for log to load from server the first time',
-				'simple-history'
-			) }
-		</Text>
+		<>
+			<Spinner style={ { margin: 0 } } />
+			<Text as="span">
+				{ _x(
+					'Loading…',
+					'Message visible while waiting for log to load from server the first time',
+					'simple-history'
+				) }
+			</Text>
+		</>
 	) : null;
 
 	const eventsCount = eventsTotal ? (
-		<Text>
+		<Text as="span">
 			{ hasAnyActiveFilters
 				? sprintf(
 						/* translators: %s: number of matching events */
@@ -64,7 +65,7 @@ export function EventsControlBar( props ) {
 		<div className="sh-EventsControlBar-actions">
 			<Flex gap={ 2 }>
 				<FlexItem>
-					<HStack spacing={ 2 }>
+					<HStack spacing={ 2 } wrap={ false }>
 						{ eventsCount }
 						{ loadingIndicator }
 					</HStack>

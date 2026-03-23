@@ -3003,6 +3003,7 @@ a.sh-EventsStatsBar--link:hover {
 .sh-EventsControlBar-actions {
 	padding: 6px 12px;
 	background-color: #f9f9f9;
+	white-space: nowrap;
 }
 
 .SimpleHistoryReactRoot {
