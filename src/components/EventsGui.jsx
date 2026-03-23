@@ -751,7 +751,6 @@ function EventsGUI() {
 					eventsTotal={ eventsMeta.total }
 					eventsQueryParams={ eventsQueryParams }
 					hasAnyActiveFilters={ hasAnyActiveFilters }
-					handleClearFilters={ handleClearFilters }
 				/>
 			) }
 

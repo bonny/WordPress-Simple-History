@@ -2671,7 +2671,7 @@ a.sh-SettingsTabs-link:hover {
 	padding: 8px 12px;
 	border-bottom: 1px solid #f0f0f1;
 	flex-wrap: wrap;
-	background-color: #f6f7f7;
+	background-color: #f9f9f9;
 }
 
 .SimpleHistory-filters__defaultRow {
@@ -2699,7 +2699,7 @@ a.sh-SettingsTabs-link:hover {
 .SimpleHistory-filters__expandedFilters {
 	padding: 12px;
 	border-bottom: 1px solid #f0f0f1;
-	background-color: #f6f7f7;
+	background-color: #f9f9f9;
 }
 
 .SimpleHistory__filters__form select {

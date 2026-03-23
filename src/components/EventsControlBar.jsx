@@ -1,12 +1,11 @@
 import {
-	Button,
 	Flex,
 	FlexItem,
 	__experimentalHStack as HStack,
 	Spinner,
 	__experimentalText as Text,
 } from '@wordpress/components';
-import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { _n, _x, sprintf } from '@wordpress/i18n';
 import { EventsControlBarActionsDropdownMenu } from './EventsControlBarActionsDropdownMenu';
 
 /**
@@ -21,7 +20,6 @@ export function EventsControlBar( props ) {
 		eventsTotal,
 		eventsQueryParams,
 		hasAnyActiveFilters,
-		handleClearFilters,
 	} = props;
 
 	const loadingIndicator = eventsIsLoading ? (
@@ -38,11 +36,27 @@ export function EventsControlBar( props ) {
 
 	const eventsCount = eventsTotal ? (
 		<Text>
-			{ sprintf(
-				/* translators: %s: number of events */
-				_n( '%s event', '%s events', eventsTotal, 'simple-history' ),
-				eventsTotal
-			) }
+			{ hasAnyActiveFilters
+				? sprintf(
+						/* translators: %s: number of matching events */
+						_n(
+							'%s matching event',
+							'%s matching events',
+							eventsTotal,
+							'simple-history'
+						),
+						eventsTotal
+				  )
+				: sprintf(
+						/* translators: %s: number of events. Events are grouped so similar events are counted as one. */
+						_n(
+							'%s event',
+							'%s events',
+							eventsTotal,
+							'simple-history'
+						),
+						eventsTotal
+				  ) }
 		</Text>
 	) : null;
 
@@ -53,17 +67,6 @@ export function EventsControlBar( props ) {
 					<HStack spacing={ 2 }>
 						{ eventsCount }
 						{ loadingIndicator }
-
-						{ hasAnyActiveFilters && (
-							<Button
-								variant="tertiary"
-								onClick={ handleClearFilters }
-								className="SimpleHistoryFilterDropin-clearFilters"
-								size="small"
-							>
-								{ __( 'Clear filters', 'simple-history' ) }
-							</Button>
-						) }
 					</HStack>
 				</FlexItem>
 
