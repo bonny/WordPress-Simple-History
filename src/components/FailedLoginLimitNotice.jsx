@@ -18,11 +18,17 @@ export function FailedLoginLimitNotice( props ) {
 	} = props;
 	const { hasFailedLoginLimit, hasPremiumAddOn } = useEventsSettings();
 
+	// Add ?sh_preview_failed_login_notice to the URL to force-show this notice for testing.
+	const forceShow = new URLSearchParams( window.location.search ).has(
+		'sh_preview_failed_login_notice'
+	);
+
 	if (
-		! hasFailedLoginLimit ||
+		! forceShow &&
+		( ! hasFailedLoginLimit ||
 		failedLoginSuppressedCount <= 0 ||
 		hasPremiumAddOn ||
-		eventsIsLoading
+		eventsIsLoading )
 	) {
 		return null;
 	}

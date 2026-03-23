@@ -359,7 +359,7 @@ export function DashboardEventsWidget() {
 									'simple-history'
 								) }
 								placeholder={ __(
-									'Search users, plugins, posts…',
+									'Search events and messages',
 									'simple-history'
 								) }
 								className="sh-DashboardWidget-search__input"

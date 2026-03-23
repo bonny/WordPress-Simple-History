@@ -7,6 +7,8 @@ import {
 	FlexBlock,
 	FlexItem,
 	FormTokenField,
+	TextareaControl,
+	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -242,10 +244,14 @@ export function ExpandedFilters( props ) {
 		setSelectedMessageTypes( nextValues );
 	};
 
+	const filterFieldStyle = { width: '310px', backgroundColor: 'white' };
+	const filterRowStyle = { margin: '0.5em 0' };
+	const labelMarginStyle = { margin: '.5em 0' };
+
 	return (
 		<div>
-			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
-				<FlexItem style={ { margin: '.5em 0' } }>
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Log levels', 'simple-history' ) }
 					</div>
@@ -253,10 +259,7 @@ export function ExpandedFilters( props ) {
 				<FlexBlock>
 					<div
 						className="SimpleHistory__filters__loglevels__select"
-						style={ {
-							width: '310px',
-							backgroundColor: 'white',
-						} }
+						style={ filterFieldStyle }
 					>
 						<FormTokenField
 							__experimentalAutoSelectFirstMatch
@@ -276,8 +279,8 @@ export function ExpandedFilters( props ) {
 				</FlexBlock>
 			</Flex>
 
-			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
-				<FlexItem style={ { margin: '.5em 0' } }>
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Message types', 'simple-history' ) }
 					</div>
@@ -285,10 +288,7 @@ export function ExpandedFilters( props ) {
 				<FlexBlock>
 					<div
 						className="SimpleHistory__filters__loglevels__select"
-						style={ {
-							width: '310px',
-							backgroundColor: 'white',
-						} }
+						style={ filterFieldStyle }
 					>
 						<FormTokenField
 							__experimentalAutoSelectFirstMatch
@@ -344,8 +344,8 @@ export function ExpandedFilters( props ) {
 				</FlexBlock>
 			</Flex>
 
-			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
-				<FlexItem style={ { margin: '.5em 0' } }>
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Users', 'simple-history' ) }
 					</div>
@@ -353,10 +353,7 @@ export function ExpandedFilters( props ) {
 				<FlexBlock>
 					<div
 						className="SimpleHistory__filters__loglevels__select"
-						style={ {
-							width: '310px',
-							backgroundColor: 'white',
-						} }
+						style={ filterFieldStyle }
 					>
 						<FormTokenField
 							__experimentalAutoSelectFirstMatch
@@ -390,8 +387,8 @@ export function ExpandedFilters( props ) {
 				</FlexBlock>
 			</Flex>
 
-			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
-				<FlexItem style={ { margin: '.5em 0' } }>
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel"></div>
 				</FlexItem>
 				<FlexBlock>
@@ -404,8 +401,8 @@ export function ExpandedFilters( props ) {
 				</FlexBlock>
 			</Flex>
 
-			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
-				<FlexItem style={ { margin: '.5em 0' } }>
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Initiators', 'simple-history' ) }
 					</div>
@@ -413,10 +410,7 @@ export function ExpandedFilters( props ) {
 				<FlexBlock>
 					<div
 						className="SimpleHistory__filters__loglevels__select"
-						style={ {
-							width: '310px',
-							backgroundColor: 'white',
-						} }
+						style={ filterFieldStyle }
 					>
 						<FormTokenField
 							__experimentalAutoSelectFirstMatch
@@ -459,88 +453,58 @@ export function ExpandedFilters( props ) {
 				</FlexBlock>
 			</Flex>
 
-			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
-				<FlexItem style={ { margin: '.5em 0' } }>
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Event metadata', 'simple-history' ) }
 					</div>
 				</FlexItem>
 				<FlexBlock>
-					<div
-						className="SimpleHistory__filters__loglevels__select"
-						style={ { width: '310px' } }
-					>
-						<input
-							type="text"
+					<div style={ { width: '310px' } }>
+						<InputControl
+							value={ enteredMetadataSearch }
+							onChange={ ( value ) =>
+								setEnteredMetadataSearch( value || '' )
+							}
 							placeholder={ __(
 								'IP address, email, username…',
 								'simple-history'
 							) }
-							onChange={ ( event ) => {
-								setEnteredMetadataSearch(
-									event.target.value
-								);
-							} }
-							value={ enteredMetadataSearch }
-							style={ {
-								width: '100%',
-								fontSize: '13px',
-								padding: '6px 8px',
-								borderRadius: '2px',
-								border: '1px solid #8c8f94',
-								boxSizing: 'border-box',
-							} }
+							help={ __(
+								'Search all event data including IP addresses, emails, and other hidden metadata. May be slower on large sites.',
+								'simple-history'
+							) }
 						/>
 					</div>
-					<BaseControl
-						__nextHasNoMarginBottom
-						help={ __(
-							'Search all event data including IP addresses, emails, and other hidden metadata. May be slower on large sites.',
-							'simple-history'
-						) }
-					/>
 				</FlexBlock>
 			</Flex>
 
-			<Flex align="top" gap="0" style={ { margin: '0.5em 0' } }>
-				<FlexItem style={ { margin: '.5em 0' } }>
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel">
 						{ __( 'Context', 'simple-history' ) }
 					</div>
 				</FlexItem>
 				<FlexBlock>
-					<div
-						className="SimpleHistory__filters__loglevels__select"
-						style={ {
-							width: '310px',
-						} }
-					>
-						<textarea
-							placeholder={ __( '_user_id:1', 'simple-history' ) }
-							onChange={ ( event ) => {
-								setSelectedContextFilters( event.target.value );
-							} }
+					<div style={ { width: '310px' } }>
+						<TextareaControl
+							__nextHasNoMarginBottom
 							value={ selectedContextFilters }
+							onChange={ ( value ) =>
+								setSelectedContextFilters( value )
+							}
+							placeholder={ __( '_user_id:1', 'simple-history' ) }
 							rows={ 2 }
+							help={ __(
+								'Enter context key-value pairs in the format "key:value". One filter per line.',
+								'simple-history'
+							) }
 							style={ {
-								width: '100%',
 								fontFamily: 'monospace',
-								fontSize: '13px',
-								padding: '6px 8px',
-								borderRadius: '2px',
-								border: '1px solid #8c8f94',
-								boxSizing: 'border-box',
 								fieldSizing: 'content',
 							} }
 						/>
 					</div>
-					<BaseControl
-						__nextHasNoMarginBottom
-						help={ __(
-							'Enter context key-value pairs in the format "key:value". One filter per line (e.g., "_user_id:1" on first line, "_sticky:1" on second line).',
-							'simple-history'
-						) }
-					/>
 				</FlexBlock>
 			</Flex>
 		</div>

@@ -1,14 +1,16 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Disabled } from '@wordpress/components';
+import { Button, Disabled, Icon } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import {
 	useEffect,
+	useMemo,
 	useState,
 	Fragment,
 	useCallback,
 } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { settings } from '@wordpress/icons';
 import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
@@ -64,6 +66,8 @@ export function EventsSearchFilters( props ) {
 		defaultDateOptionRef,
 		handleClearFilters,
 		hasAnyActiveFilters,
+		setStats,
+		setStatsPageURL,
 	} = props;
 
 	// Check if expanded filters are active (used for auto-expand logic).
@@ -204,6 +208,17 @@ export function EventsSearchFilters( props ) {
 						searchOptionsResponse.current_user_can_manage_options
 					);
 				}
+
+				// Set stats for control bar.
+				if ( searchOptionsResponse.stats ) {
+					setStats( searchOptionsResponse.stats );
+				}
+
+				if ( searchOptionsResponse.stats_page_url ) {
+					setStatsPageURL(
+						searchOptionsResponse.stats_page_url
+					);
+				}
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
 				console.error(
@@ -231,12 +246,57 @@ export function EventsSearchFilters( props ) {
 		setEventsSettingsPageURL,
 		setCurrentUserId,
 		setUserCanManageOptions,
+		setStats,
+		setStatsPageURL,
 		selectedDateOption,
 	] );
 
-	const showMoreOrLessText = moreOptionsIsExpanded
-		? __( 'Hide filters', 'simple-history' )
-		: __( 'Show filters', 'simple-history' );
+	// Count active expanded filters for the badge.
+	const activeExpandedFilterCount = useMemo( () => {
+		let count = 0;
+		if ( selectedLogLevels.length > 0 ) {
+			count++;
+		}
+		if ( selectedMessageTypes.length > 0 ) {
+			count++;
+		}
+		if ( selectedUsersWithId.length > 0 ) {
+			count++;
+		}
+		if ( selectedInitiator.length > 0 ) {
+			count++;
+		}
+		if ( enteredIPAddress.trim().length > 0 ) {
+			count++;
+		}
+		if ( selectedContextFilters.trim().length > 0 ) {
+			count++;
+		}
+		if ( enteredMetadataSearch.trim().length > 0 ) {
+			count++;
+		}
+		if ( hideOwnEvents ) {
+			count++;
+		}
+		return count;
+	}, [
+		selectedLogLevels,
+		selectedMessageTypes,
+		selectedUsersWithId,
+		selectedInitiator,
+		enteredIPAddress,
+		selectedContextFilters,
+		enteredMetadataSearch,
+		hideOwnEvents,
+	] );
+
+	const filtersButtonLabel = activeExpandedFilterCount > 0
+		? sprintf(
+				/* translators: %d: number of active filters */
+				__( 'Filters (%d)', 'simple-history' ),
+				activeExpandedFilterCount
+		  )
+		: __( 'Filters', 'simple-history' );
 
 	// Dynamic created <Disabled> elements. Used to disable the whole search component while loading.
 	const MaybeDisabledTag = searchOptionsLoaded ? Fragment : Disabled;
@@ -244,56 +304,23 @@ export function EventsSearchFilters( props ) {
 	return (
 		<MaybeDisabledTag>
 			<div className="SimpleHistory-filters">
-				<DefaultFilters
-					dateOptions={ dateOptions }
-					selectedDateOption={ selectedDateOption }
-					setSelectedDateOption={ setSelectedDateOption }
-					searchText={ enteredSearchText }
-					setSearchText={ setEnteredSearchText }
-					selectedCustomDateFrom={ selectedCustomDateFrom }
-					setSelectedCustomDateFrom={ setSelectedCustomDateFrom }
-					selectedCustomDateTo={ selectedCustomDateTo }
-					setSelectedCustomDateTo={ setSelectedCustomDateTo }
-				/>
-				{ moreOptionsIsExpanded ? (
-					<ExpandedFilters
-						selectedLogLevels={ selectedLogLevels }
-						setSelectedLogLevels={ setSelectedLogLevels }
-						selectedMessageTypes={ selectedMessageTypes }
-						setSelectedMessageTypes={ setSelectedMessageTypes }
-						setSelectedUsersWithId={ setSelectedUsersWithId }
-						selectedUsersWithId={ selectedUsersWithId }
-						selectedInitiator={ selectedInitiator }
-						setSelectedInitiator={ setSelectedInitiator }
-						selectedContextFilters={ selectedContextFilters }
-						setSelectedContextFilters={ setSelectedContextFilters }
-						enteredMetadataSearch={ enteredMetadataSearch }
-						setEnteredMetadataSearch={ setEnteredMetadataSearch }
-						isExperimentalFeaturesEnabled={
-							isExperimentalFeaturesEnabled
-						}
-						searchOptions={ searchOptions }
-						hideOwnEvents={ hideOwnEvents }
-						setHideOwnEvents={ setHideOwnEvents }
+				<div className="SimpleHistory-filters__searchRow">
+					<DefaultFilters
+						dateOptions={ dateOptions }
+						selectedDateOption={ selectedDateOption }
+						setSelectedDateOption={ setSelectedDateOption }
+						searchText={ enteredSearchText }
+						setSearchText={ setEnteredSearchText }
+						selectedCustomDateFrom={ selectedCustomDateFrom }
+						setSelectedCustomDateFrom={ setSelectedCustomDateFrom }
+						selectedCustomDateTo={ selectedCustomDateTo }
+						setSelectedCustomDateTo={ setSelectedCustomDateTo }
+						onReload={ onReload }
 					/>
-				) : null }
-				<p className="SimpleHistory__filters__filterSubmitWrap">
-					<Button variant="secondary" onClick={ onReload }>
-						{ __( 'Search events', 'simple-history' ) }
-					</Button>
-
-					{ hasAnyActiveFilters && (
-						<Button
-							variant="tertiary"
-							onClick={ handleClearFiltersWithUI }
-							className="SimpleHistoryFilterDropin-clearFilters"
-						>
-							{ __( 'Clear filters', 'simple-history' ) }
-						</Button>
-					) }
 
 					<Button
-						variant="tertiary"
+						variant="secondary"
+						__next40pxDefaultSize
 						onClick={ () => {
 							const currentExpanded =
 								isManuallyExpanded !== null
@@ -301,11 +328,52 @@ export function EventsSearchFilters( props ) {
 									: isAutoExpanded;
 							setIsManuallyExpanded( ! currentExpanded );
 						} }
-						className="SimpleHistoryFilterDropin-showMoreFilters SimpleHistoryFilterDropin-showMoreFilters--first js-SimpleHistoryFilterDropin-showMoreFilters"
+						className={ `SimpleHistory-filters__filtersToggle${
+							activeExpandedFilterCount > 0
+								? ' has-active-filters'
+								: ''
+						}` }
+						aria-expanded={ moreOptionsIsExpanded }
 					>
-						{ showMoreOrLessText }
+						<Icon icon={ settings } size={ 16 } />
+						{ filtersButtonLabel }
 					</Button>
-				</p>
+
+					{ hasAnyActiveFilters && (
+						<Button
+							variant="tertiary"
+							__next40pxDefaultSize
+							onClick={ handleClearFiltersWithUI }
+							className="SimpleHistoryFilterDropin-clearFilters"
+						>
+							{ __( 'Clear filters', 'simple-history' ) }
+						</Button>
+					) }
+				</div>
+				{ moreOptionsIsExpanded ? (
+					<div className="SimpleHistory-filters__expandedFilters">
+						<ExpandedFilters
+							selectedLogLevels={ selectedLogLevels }
+							setSelectedLogLevels={ setSelectedLogLevels }
+							selectedMessageTypes={ selectedMessageTypes }
+							setSelectedMessageTypes={ setSelectedMessageTypes }
+							setSelectedUsersWithId={ setSelectedUsersWithId }
+							selectedUsersWithId={ selectedUsersWithId }
+							selectedInitiator={ selectedInitiator }
+							setSelectedInitiator={ setSelectedInitiator }
+							selectedContextFilters={ selectedContextFilters }
+							setSelectedContextFilters={ setSelectedContextFilters }
+							enteredMetadataSearch={ enteredMetadataSearch }
+							setEnteredMetadataSearch={ setEnteredMetadataSearch }
+							isExperimentalFeaturesEnabled={
+								isExperimentalFeaturesEnabled
+							}
+							searchOptions={ searchOptions }
+							hideOwnEvents={ hideOwnEvents }
+							setHideOwnEvents={ setHideOwnEvents }
+						/>
+					</div>
+				) : null }
 			</div>
 		</MaybeDisabledTag>
 	);

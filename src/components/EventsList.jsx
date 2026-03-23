@@ -142,12 +142,9 @@ export function EventsList( props ) {
 		lastEvent?.backfilled;
 
 	const styles = {
-		backgroundColor: 'white',
 		minHeight: '300px',
 		display: 'flex',
 		flexDirection: 'column',
-		// Make room for divider label that will overlap otherwise.
-		paddingTop: '30px',
 	};
 
 	return (
@@ -173,6 +170,12 @@ export function EventsList( props ) {
 				events={ events }
 			/>
 
+			<FailedLoginLimitNotice
+				failedLoginLimitThreshold={ failedLoginLimitThreshold }
+				failedLoginSuppressedCount={ failedLoginSuppressedCount }
+				eventsIsLoading={ eventsIsLoading }
+			/>
+
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
 				events={ events }
@@ -183,12 +186,6 @@ export function EventsList( props ) {
 			<FetchEventsErrorMessage
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
-			/>
-
-			<FailedLoginLimitNotice
-				failedLoginLimitThreshold={ failedLoginLimitThreshold }
-				failedLoginSuppressedCount={ failedLoginSuppressedCount }
-				eventsIsLoading={ eventsIsLoading }
 			/>
 
 			<EventsListItemsList

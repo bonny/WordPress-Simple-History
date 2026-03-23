@@ -27,6 +27,7 @@ import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
+import { EventsStatsBar } from './EventsStatsBar';
 import { NewEventsNotifier } from './NewEventsNotifier';
 
 // Schema for the users object.
@@ -124,6 +125,8 @@ function EventsGUI() {
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
 	const [ userCanManageOptions, setUserCanManageOptions ] = useState( false );
+	const [ stats, setStats ] = useState( null );
+	const [ statsPageURL, setStatsPageURL ] = useState( '' );
 
 	/**
 	 * Start filter/search options states.
@@ -678,6 +681,8 @@ function EventsGUI() {
 
 	return (
 		<EventsSettingsProvider value={ eventsSettingsValue }>
+			{ /* Stats bar (EventsStatsBar) was here — removed for now, component still exists if needed. */ }
+
 			{ /* Hide filters when viewing surrounding events */ }
 			{ ! surroundingEventId && (
 				<EventsSearchFilters
@@ -734,18 +739,19 @@ function EventsGUI() {
 					defaultDateOptionRef={ defaultDateOptionRef }
 					handleClearFilters={ handleClearFilters }
 					hasAnyActiveFilters={ hasAnyActiveFilters }
+					setStats={ setStats }
+					setStatsPageURL={ setStatsPageURL }
 				/>
 			) }
 
 			{ /* Hide control bar when viewing surrounding events */ }
 			{ ! surroundingEventId && (
 				<EventsControlBar
-					isExperimentalFeaturesEnabled={
-						isExperimentalFeaturesEnabled
-					}
 					eventsIsLoading={ eventsIsLoading }
 					eventsTotal={ eventsMeta.total }
 					eventsQueryParams={ eventsQueryParams }
+					hasAnyActiveFilters={ hasAnyActiveFilters }
+					handleClearFilters={ handleClearFilters }
 				/>
 			) }
 

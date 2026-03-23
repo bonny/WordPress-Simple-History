@@ -2207,51 +2207,52 @@ Can be overruled by .form-table td p
 	color: #999;
 }
 
-/* Failed login limit notice in events log. */
+/* Failed login limit notice — compact flush bar matching dashboard style. */
 .sh-FailedLoginLimitNotice {
 	display: flex;
-	gap: var(--sh-spacing-small);
-	margin: var(--sh-spacing-medium);
-	padding: var(--sh-spacing-medium);
+	align-items: baseline;
+	gap: var(--sh-spacing-xsmall);
+	padding: 8px 12px 20px;
 	background: #f0f6fc;
-	border: 1px solid #72aee6;
-	border-radius: var(--sh-border-radius);
+	border-bottom: 1px solid #c5d9ed;
+	font-size: 13px;
+	line-height: 1.5;
 }
 
 .sh-FailedLoginLimitNotice-icon {
 	flex-shrink: 0;
-	color: #2271b1;
+	color: #72aee6;
 }
 
 .sh-FailedLoginLimitNotice-icon .dashicons {
-	font-size: 20px;
-	width: 20px;
-	height: 20px;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	position: relative;
+	top: 2px;
 }
 
 .sh-FailedLoginLimitNotice-content {
 	flex: 1;
 	min-width: 0;
-	max-width: 65ch;
 }
 
 .sh-FailedLoginLimitNotice-heading {
 	margin: 0;
-	font-weight: normal;
-	font-size: var(--sh-font-size-normal);
+	font-size: 13px;
 	color: #1d2327;
 }
 
 .sh-FailedLoginLimitNotice-details {
-	margin-top: var(--sh-spacing-small);
-	font-size: var(--sh-font-size-small);
-	color: var(--sh-color-gray-3, #646970);
+	margin-top: var(--sh-spacing-xsmall);
+	font-size: 12px;
+	color: #646970;
 }
 
 .sh-FailedLoginLimitNotice-details summary {
 	cursor: pointer;
-	color: var(--sh-color-gray-3, #646970);
-	font-size: var(--sh-font-size-small);
+	color: #646970;
+	font-size: 12px;
 }
 
 .sh-FailedLoginLimitNotice-details summary:hover {
@@ -2259,7 +2260,7 @@ Can be overruled by .form-table td p
 }
 
 .sh-FailedLoginLimitNotice-details p {
-	margin: var(--sh-spacing-small) 0 0;
+	margin: var(--sh-spacing-xsmall) 0 0;
 	line-height: 1.5;
 }
 
@@ -2659,14 +2660,45 @@ a.sh-SettingsTabs-link:hover {
 } */
 
 /* Filters, moved from old filter-dropin.css */
-.SimpleHistory__filters {
-	/* hide by default while log is loading */
-	opacity: 0.5;
-	transition: all 0.25s ease-out;
+/* Filters container. */
+.SimpleHistory-filters {
 }
 
-.SimpleHistory--isLoaded .SimpleHistory__filters {
-	opacity: 1;
+/* Compact search row: date dropdown, search input, button, links all inline. */
+.SimpleHistory-filters__searchRow {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f1;
+	flex-wrap: wrap;
+}
+
+.SimpleHistory-filters__defaultRow {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+}
+
+.SimpleHistory-filters__dateSelect {
+	width: auto;
+	min-width: 140px;
+	max-width: 180px;
+}
+
+/* Search InputControl. */
+.SimpleHistory-filters__searchControl {
+	min-width: 140px;
+	max-width: 300px;
+	line-height: 1;
+}
+
+
+/* Expanded filters area. */
+.SimpleHistory-filters__expandedFilters {
+	padding: 12px;
+	border-bottom: 1px solid #f0f0f1;
 }
 
 .SimpleHistory__filters__form select {
@@ -2708,6 +2740,22 @@ a.sh-SettingsTabs-link:hover {
 
 	.SimpleHistory__filters__filterSubmitWrap {
 		margin-left: 0;
+	}
+
+	.SimpleHistory-filters__searchRow {
+		flex-wrap: wrap;
+	}
+
+	.SimpleHistory-filters__defaultRow {
+		flex-wrap: wrap;
+	}
+
+	.SimpleHistory-filters__dateSelect {
+		min-width: 100%;
+	}
+
+	.SimpleHistory-filters__searchInput {
+		min-width: 100%;
 	}
 }
 
@@ -2754,12 +2802,26 @@ a.sh-SettingsTabs-link:hover {
 	margin-right: 10px;
 }
 
-.SimpleHistoryFilterDropin-clearFilters {
-	margin-left: 1rem;
+/* Filters toggle button with funnel icon. */
+.SimpleHistory-filters__filtersToggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	white-space: nowrap;
 }
 
-.SimpleHistoryFilterDropin-showMoreFilters {
-	margin-left: 1rem;
+.SimpleHistory-filters__filtersToggle svg {
+	fill: currentColor;
+}
+
+.SimpleHistory-filters__filtersToggle.has-active-filters {
+	background: #f0f6fc;
+	border-color: #2271b1;
+	color: #2271b1;
+}
+
+.SimpleHistoryFilterDropin-clearFilters {
+	margin-left: 0;
 }
 
 /* more filters are hidden by default */
@@ -2832,17 +2894,14 @@ a.sh-SettingsTabs-link:hover {
 	width: 200px;
 }
 
-/* Old styles moved from new-rows-notifier-dropin.css */
+/* New events notifier bar — compact flush strip, clickable. */
 .SimpleHistoryDropin__NewRowsNotifier {
 	max-height: 0;
 	overflow: hidden;
 	text-align: center;
-	background: rgba(0, 255, 30, 0.15);
-	/* Make room for divider label that will overlap otherwise. */
-	border-bottom: 30px;
-	transition:
-		max-height 0.5s ease-out,
-		background 0s;
+	background: #dceefb;
+	border-bottom: 1px solid #c5d9ed;
+	transition: max-height 0.5s ease-out;
 }
 
 .SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
@@ -2850,10 +2909,15 @@ a.sh-SettingsTabs-link:hover {
 	cursor: pointer;
 }
 
+.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:hover {
+	background: #cde3f7;
+}
+
 /* when there is a remote error or server down etc */
 .SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck {
 	max-height: 50px;
-	background: rgb(254, 247, 241);
+	background: #fef7f1;
+	border-bottom-color: #e0c6ad;
 }
 
 .SimpleHistoryLogitem--newRowSinceReload {
@@ -2907,8 +2971,50 @@ a.sh-SettingsTabs-link:hover {
 }
 
 /* New styles for React */
+/* Stats bar: events today and last 7 days. */
+.sh-EventsStatsBar {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 8px 12px;
+	font-size: 13px;
+	color: #50575e;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.sh-EventsStatsBar > svg {
+	fill: #787c82;
+	flex-shrink: 0;
+}
+
+.sh-EventsStatsBar__separator {
+	margin: 0 0.4em;
+	color: #c3c4c7;
+}
+
+a.sh-EventsStatsBar--link {
+	text-decoration: none;
+	color: #50575e;
+	cursor: pointer;
+}
+
+a.sh-EventsStatsBar--link:hover {
+	background: #f6f7f7;
+}
+
+/* Events control bar: event count + actions. */
+.sh-EventsControlBar-actions {
+	padding: 6px 12px;
+}
+
 .SimpleHistoryReactRoot {
 	flex: 1;
+}
+
+.SimpleHistoryReactRoot.is-page {
+	background: white;
+	border-radius: 8px;
+	overflow: hidden;
 }
 
 .SimpleHistoryReactRoot-loading {

@@ -1,13 +1,17 @@
 import {
 	BaseControl,
+	Button,
 	DatePicker,
 	Flex,
 	FlexItem,
 	SelectControl,
+	__experimentalInputControl as InputControl,
+	__experimentalInputControlPrefixWrapper as InputControlPrefixWrapper,
 } from '@wordpress/components';
 import { getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Icon, search } from '@wordpress/icons';
 
 export function DefaultFilters( props ) {
 	const {
@@ -20,6 +24,7 @@ export function DefaultFilters( props ) {
 		setSelectedCustomDateFrom,
 		selectedCustomDateTo,
 		setSelectedCustomDateTo,
+		onReload,
 	} = props;
 
 	// Future dates are invalid.
@@ -107,37 +112,49 @@ export function DefaultFilters( props ) {
 
 	return (
 		<>
-			<div style={ { margin: '1em 0' } }>
-				<div className="SimpleHistory__filters__filterLabel">
-					{ __( 'Dates', 'simple-history' ) }
-				</div>
-				<div style={ { display: 'inline-block', width: '310px' } }>
-					<SelectControl
-						__nextHasNoMarginBottom
-						options={ dateOptions }
-						value={ selectedDateOption }
-						onChange={ ( value ) => setSelectedDateOption( value ) }
-					/>
-				</div>
+			<div className="SimpleHistory-filters__defaultRow">
+				<InputControl
+					type="search"
+					value={ searchText }
+					onChange={ ( value ) => setSearchText( value || '' ) }
+					placeholder={ __(
+						'Search events',
+						'simple-history'
+					) }
+					aria-label={ __(
+						'Search events',
+						'simple-history'
+					) }
+					prefix={
+						<InputControlPrefixWrapper>
+							<Icon
+								icon={ search }
+								size={ 20 }
+								style={ { color: '#646970' } }
+							/>
+						</InputControlPrefixWrapper>
+					}
+					__next40pxDefaultSize
+					className="SimpleHistory-filters__searchControl"
+				/>
+
+				<SelectControl
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+					options={ dateOptions }
+					value={ selectedDateOption }
+					onChange={ ( value ) => setSelectedDateOption( value ) }
+					className="SimpleHistory-filters__dateSelect"
+				/>
+
+				<Button variant="secondary" onClick={ onReload } __next40pxDefaultSize>
+					{ __( 'Search events', 'simple-history' ) }
+				</Button>
 			</div>
 
 			{ selectedDateOption === 'customRange' ? (
 				<CustomDateRange />
 			) : null }
-
-			<div style={ { margin: '1em 0' } }>
-				<div className="SimpleHistory__filters__filterLabel">
-					{ __( 'Containing words', 'simple-history' ) }
-				</div>
-				<input
-					type="search"
-					className="SimpleHistoryFilterDropin-searchInput"
-					value={ searchText }
-					onChange={ ( event ) =>
-						setSearchText( event.target.value )
-					}
-				/>
-			</div>
 		</>
 	);
 }
