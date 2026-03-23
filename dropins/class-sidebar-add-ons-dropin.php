@@ -98,8 +98,22 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	/**
 	 * Output compact premium promo above History Insights.
 	 */
+	/**
+	 * Minimum number of logged events before showing the compact premium promo.
+	 *
+	 * @var int
+	 */
+	const MINIMUM_EVENTS_BEFORE_PREMIUM_PROMO = 500;
+
 	public function on_sidebar_html_premium_promo_compact() {
-		if ( ! Helpers::show_promo_boxes() ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$show_premium_card = Helpers::show_promo_boxes()
+			&& (
+				isset( $_GET['sh_preview_premium_promo'] )
+				|| Helpers::get_total_logged_events_count() >= self::MINIMUM_EVENTS_BEFORE_PREMIUM_PROMO
+			);
+
+		if ( ! $show_premium_card ) {
 			return;
 		}
 
