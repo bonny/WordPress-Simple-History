@@ -4,6 +4,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getTrackingUrl } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
 
+// Add ?sh_preview_failed_login_notice to the URL to force-show this notice for testing.
+const FORCE_SHOW = new URLSearchParams( window.location.search ).has(
+	'sh_preview_failed_login_notice'
+);
+
 /**
  * Friendly info notice shown once at the top of the event list
  * when the failed login limit has suppressed attempts.
@@ -18,13 +23,8 @@ export function FailedLoginLimitNotice( props ) {
 	} = props;
 	const { hasFailedLoginLimit, hasPremiumAddOn } = useEventsSettings();
 
-	// Add ?sh_preview_failed_login_notice to the URL to force-show this notice for testing.
-	const forceShow = new URLSearchParams( window.location.search ).has(
-		'sh_preview_failed_login_notice'
-	);
-
 	if (
-		! forceShow &&
+		! FORCE_SHOW &&
 		( ! hasFailedLoginLimit ||
 		failedLoginSuppressedCount <= 0 ||
 		hasPremiumAddOn ||

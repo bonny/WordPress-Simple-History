@@ -2659,10 +2659,6 @@ a.sh-SettingsTabs-link:hover {
 } */
 
 /* Filters, moved from old filter-dropin.css */
-/* Filters container. */
-.SimpleHistory-filters {
-}
-
 /* Compact search row: date dropdown, search input, button, links all inline. */
 .SimpleHistory-filters__searchRow {
 	display: flex;
@@ -2755,7 +2751,7 @@ a.sh-SettingsTabs-link:hover {
 		min-width: 100%;
 	}
 
-	.SimpleHistory-filters__searchInput {
+	.SimpleHistory-filters__searchControl {
 		min-width: 100%;
 	}
 }

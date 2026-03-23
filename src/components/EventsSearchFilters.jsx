@@ -6,7 +6,6 @@ import {
 	useMemo,
 	useState,
 	Fragment,
-	useCallback,
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -66,22 +65,36 @@ export function EventsSearchFilters( props ) {
 		defaultDateOptionRef,
 		handleClearFilters,
 		hasAnyActiveFilters,
-		setStats,
-		setStatsPageURL,
 	} = props;
 
-	// Check if expanded filters are active (used for auto-expand logic).
-	const hasActiveExpandedFilters = useCallback( () => {
-		return (
-			selectedLogLevels.length > 0 ||
-			selectedMessageTypes.length > 0 ||
-			selectedUsersWithId.length > 0 ||
-			selectedInitiator.length > 0 ||
-			enteredIPAddress.trim().length > 0 ||
-			selectedContextFilters.trim().length > 0 ||
-			enteredMetadataSearch.trim().length > 0 ||
-			hideOwnEvents
-		);
+	// Count active expanded filters — used for badge and auto-expand logic.
+	const activeExpandedFilterCount = useMemo( () => {
+		let count = 0;
+		if ( selectedLogLevels.length > 0 ) {
+			count++;
+		}
+		if ( selectedMessageTypes.length > 0 ) {
+			count++;
+		}
+		if ( selectedUsersWithId.length > 0 ) {
+			count++;
+		}
+		if ( selectedInitiator.length > 0 ) {
+			count++;
+		}
+		if ( enteredIPAddress.trim().length > 0 ) {
+			count++;
+		}
+		if ( selectedContextFilters.trim().length > 0 ) {
+			count++;
+		}
+		if ( enteredMetadataSearch.trim().length > 0 ) {
+			count++;
+		}
+		if ( hideOwnEvents ) {
+			count++;
+		}
+		return count;
 	}, [
 		selectedLogLevels,
 		selectedMessageTypes,
@@ -96,7 +109,7 @@ export function EventsSearchFilters( props ) {
 	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () => {
 		const urlParams = new URLSearchParams( window.location.search );
 		return (
-			hasActiveExpandedFilters() ||
+			activeExpandedFilterCount > 0 ||
 			urlParams.get( 'show-filters' ) === '1'
 		);
 	} );
@@ -113,12 +126,12 @@ export function EventsSearchFilters( props ) {
 		setIsAutoExpanded( false );
 	};
 
-	// Auto-expand search options when filters are applied via URL parameters.
+	// Auto-expand when filters are applied via URL parameters.
 	useEffect( () => {
-		if ( hasActiveExpandedFilters() && ! isAutoExpanded ) {
+		if ( activeExpandedFilterCount > 0 && ! isAutoExpanded ) {
 			setIsAutoExpanded( true );
 		}
-	}, [ hasActiveExpandedFilters, isAutoExpanded ] );
+	}, [ activeExpandedFilterCount, isAutoExpanded ] );
 
 	// Load search options when component mounts.
 	useEffect( () => {
@@ -209,16 +222,6 @@ export function EventsSearchFilters( props ) {
 					);
 				}
 
-				// Set stats for control bar.
-				if ( searchOptionsResponse.stats ) {
-					setStats( searchOptionsResponse.stats );
-				}
-
-				if ( searchOptionsResponse.stats_page_url ) {
-					setStatsPageURL(
-						searchOptionsResponse.stats_page_url
-					);
-				}
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
 				console.error(
@@ -246,48 +249,7 @@ export function EventsSearchFilters( props ) {
 		setEventsSettingsPageURL,
 		setCurrentUserId,
 		setUserCanManageOptions,
-		setStats,
-		setStatsPageURL,
 		selectedDateOption,
-	] );
-
-	// Count active expanded filters for the badge.
-	const activeExpandedFilterCount = useMemo( () => {
-		let count = 0;
-		if ( selectedLogLevels.length > 0 ) {
-			count++;
-		}
-		if ( selectedMessageTypes.length > 0 ) {
-			count++;
-		}
-		if ( selectedUsersWithId.length > 0 ) {
-			count++;
-		}
-		if ( selectedInitiator.length > 0 ) {
-			count++;
-		}
-		if ( enteredIPAddress.trim().length > 0 ) {
-			count++;
-		}
-		if ( selectedContextFilters.trim().length > 0 ) {
-			count++;
-		}
-		if ( enteredMetadataSearch.trim().length > 0 ) {
-			count++;
-		}
-		if ( hideOwnEvents ) {
-			count++;
-		}
-		return count;
-	}, [
-		selectedLogLevels,
-		selectedMessageTypes,
-		selectedUsersWithId,
-		selectedInitiator,
-		enteredIPAddress,
-		selectedContextFilters,
-		enteredMetadataSearch,
-		hideOwnEvents,
 	] );
 
 	const filtersButtonLabel = activeExpandedFilterCount > 0
