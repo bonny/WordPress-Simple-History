@@ -179,7 +179,6 @@
 	margin-top: calc(var(--sh-spacing-medium) * -1);
 	min-height: 30px;
 	font-weight: 600;
-	/* outline: 1px dotted pink; */
 }
 
 /* Divider line, at middle of divider. */
@@ -2672,6 +2671,7 @@ a.sh-SettingsTabs-link:hover {
 	padding: 8px 12px;
 	border-bottom: 1px solid #f0f0f1;
 	flex-wrap: wrap;
+	background-color: #f6f7f7;
 }
 
 .SimpleHistory-filters__defaultRow {
@@ -2699,6 +2699,7 @@ a.sh-SettingsTabs-link:hover {
 .SimpleHistory-filters__expandedFilters {
 	padding: 12px;
 	border-bottom: 1px solid #f0f0f1;
+	background-color: #f6f7f7;
 }
 
 .SimpleHistory__filters__form select {
@@ -2900,13 +2901,13 @@ a.sh-SettingsTabs-link:hover {
 	overflow: hidden;
 	text-align: center;
 	background: #dceefb;
-	border-bottom: 1px solid #c5d9ed;
 	transition: max-height 0.5s ease-out;
 }
 
 .SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
 	max-height: 50px;
 	cursor: pointer;
+	border-bottom: 1px solid #c5d9ed;
 }
 
 .SimpleHistoryDropin__NewRowsNotifier--haveNewRows:hover {
@@ -3005,6 +3006,7 @@ a.sh-EventsStatsBar--link:hover {
 /* Events control bar: event count + actions. */
 .sh-EventsControlBar-actions {
 	padding: 6px 12px;
+	background-color: #f9f9f9;
 }
 
 .SimpleHistoryReactRoot {
