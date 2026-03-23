@@ -2685,8 +2685,7 @@ a.sh-SettingsTabs-link:hover {
 
 /* Search InputControl. */
 .SimpleHistory-filters__searchControl {
-	min-width: 140px;
-	max-width: 300px;
+	width: 400px;
 	line-height: 1;
 }
 
