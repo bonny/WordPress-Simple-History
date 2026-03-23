@@ -1785,6 +1785,17 @@ so add some extra place then to make it look a bit less ugly.
 	font-style: normal;
 }
 
+.sh-PremiumFeaturesPostbox-featuresList-item--more {
+	background-image: none;
+	color: var(--sh-color-black-2);
+}
+
+.sh-PremiumFeaturesPostbox-guarantee {
+	margin: 0.5rem 0 0;
+	text-align: center;
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-black-2);
+}
 
 .sh-PremiumFeatureTeaser {
 	background: var(--sh-color-cream);

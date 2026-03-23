@@ -9,6 +9,13 @@ use Simple_History\Helpers;
  */
 class Sidebar_Add_Ons_Dropin extends Dropin {
 	/**
+	 * Minimum number of logged events before showing the compact premium promo.
+	 *
+	 * @var int
+	 */
+	const MINIMUM_EVENTS_BEFORE_PREMIUM_PROMO = 500;
+
+	/**
 	 * Add actions when dropin is loaded.
 	 */
 	public function loaded() {
@@ -97,13 +104,6 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	/**
 	 * Output compact premium promo above History Insights.
 	 */
-	/**
-	 * Minimum number of logged events before showing the compact premium promo.
-	 *
-	 * @var int
-	 */
-	const MINIMUM_EVENTS_BEFORE_PREMIUM_PROMO = 500;
-
 	public function on_sidebar_html_premium_promo_compact() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$show_premium_card = Helpers::show_promo_boxes()
@@ -132,11 +132,8 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Export your log as CSV or JSON — ready for any audit', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Choose exactly which events to log — skip the noise', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Forward your log to Datadog, Splunk, Syslog, or any webhook', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item sh-PremiumFeaturesPostbox-featuresList-item--more"><?php esc_html_e( '20+ more features included.', 'simple-history' ); ?></li>
 				</ul>
-
-				<p style="margin: 0 0 1rem; padding-left: 30px; font-size: var(--sh-font-size-small); color: var(--sh-color-black-2);">
-					<?php esc_html_e( 'And 20+ more features included.', 'simple-history' ); ?>
-				</p>
 
 				<p>
 					<a href="<?php echo esc_url( $premium_url ); ?>" target="_blank" class="sh-PremiumFeaturesPostbox-button">
@@ -144,9 +141,9 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 					</a>
 				</p>
 
-				<p style="margin: 0.5rem 0 0; text-align: center; font-size: var(--sh-font-size-small); color: var(--sh-color-black-2);">
+				<p class="sh-PremiumFeaturesPostbox-guarantee">
 					<?php esc_html_e( '30-day money-back guarantee.', 'simple-history' ); ?>
-					<br>
+					<br />
 					<?php esc_html_e( 'No questions asked.', 'simple-history' ); ?>
 				</p>
 			</div>
