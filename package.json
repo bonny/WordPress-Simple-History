@@ -66,7 +66,9 @@
 		"wp-env:start": "npx wp-env start",
 		"wp-env:stop": "npx wp-env stop",
 		"wp-env:reset": "npx wp-env reset && npx wp-env start",
-		"wp-now": "npx @wp-now/wp-now start"
+		"wp-now": "npx @wp-now/wp-now start",
+		"playground:start": "npx @wp-playground/cli start",
+		"playground:server": "npx @wp-playground/cli server"
 	},
 	"dependencies": {
 		"@wordpress/icons": "^10.6.0",
