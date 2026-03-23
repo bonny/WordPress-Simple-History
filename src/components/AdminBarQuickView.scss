@@ -254,6 +254,37 @@
 		flex: 1;
 	}
 
+	.SimpleHistory-adminBarQuickView-premiumTeaser {
+		padding: 1.5em 1em;
+		text-align: center;
+
+		.SimpleHistory-adminBarQuickView-premiumTeaser-heading {
+			color: #fff;
+			font-size: 13px;
+			font-weight: 600;
+			margin-bottom: 0.5em;
+		}
+
+		.SimpleHistory-adminBarQuickView-premiumTeaser-description {
+			color: rgba(240, 246, 252, 0.6);
+			font-size: 12px;
+			line-height: 1.4;
+			margin-bottom: 1em;
+		}
+
+		.SimpleHistory-adminBarQuickView-premiumTeaser-link {
+			display: inline-block;
+			font-size: 12px;
+			color: #72aee6 !important;
+			text-decoration: none;
+
+			&:hover {
+				color: #a0d2ff !important;
+				text-decoration: underline;
+			}
+		}
+	}
+
 	.SimpleHistory-adminBarQuickView-filterToggle {
 		display: flex;
 		gap: 0;

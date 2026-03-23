@@ -115,15 +115,24 @@ class Quick_View_Dropin extends Dropin {
 		wp_localize_script(
 			'simple_history_admin_bar_scripts',
 			'simpleHistoryAdminBar',
-			[
-				'adminPageUrl'                => Helpers::get_history_admin_url(),
-				'viewSettingsUrl'             => Helpers::get_settings_page_url(),
-				// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
-				'currentUserCanViewHistory'   => current_user_can( Helpers::get_view_history_capability() ),
-				'currentPostId'               => is_singular() ? get_queried_object_id() : 0,
-				'currentPostTitle'            => is_singular() ? get_the_title() : '',
-				'experimentalFeaturesEnabled' => Helpers::experimental_features_is_enabled(),
-			],
+			/**
+			 * Filters the data passed to the admin bar Quick View JavaScript.
+			 *
+			 * @since 5.25.0
+			 *
+			 * @param array $data Data to pass to JavaScript.
+			 */
+			apply_filters(
+				'simple_history/admin_bar/localize_data',
+				[
+					'adminPageUrl'              => Helpers::get_history_admin_url(),
+					'viewSettingsUrl'           => Helpers::get_settings_page_url(),
+					// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
+					'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),
+					'currentPostId'             => is_singular() ? get_queried_object_id() : 0,
+					'currentPostTitle'          => is_singular() ? get_the_title() : '',
+				]
+			),
 		);
 	}
 }

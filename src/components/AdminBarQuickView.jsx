@@ -1,6 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { applyFilters } from '@wordpress/hooks';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
 import { useInView } from 'react-intersection-observer';
@@ -75,19 +76,34 @@ const AdminBarQuickView = () => {
 	);
 	const currentPostTitle =
 		window.simpleHistoryAdminBar.currentPostTitle || '';
-	const isExperimentalFeaturesEnabled = Boolean(
-		Number( window.simpleHistoryAdminBar.experimentalFeaturesEnabled )
+
+	const isThisPageMode = filterMode === 'this-page' && currentPostId > 0;
+
+	/**
+	 * Filter whether to show the premium teaser for "This page" mode.
+	 * Premium add-on returns false to show filtered events instead.
+	 *
+	 * @param {boolean} showTeaser Whether to show the teaser. Default true when in this-page mode.
+	 * @param {Object}  context    Context object with currentPostId and currentPostTitle.
+	 */
+	const showThisPageTeaser = applyFilters(
+		'simpleHistory.adminBar.showThisPageTeaser',
+		isThisPageMode,
+		{ currentPostId, currentPostTitle }
 	);
 
-	const viewFullHistoryHref = ( () => {
-		if ( filterMode === 'this-page' && currentPostId > 0 && isExperimentalFeaturesEnabled ) {
-			const contextFilter = encodeURIComponent(
-				`post_id:${ currentPostId }`
-			);
-			return `${ viewHistoryURL }&context=${ contextFilter }&date=allDates`;
-		}
-		return viewHistoryURL;
-	} )();
+	/**
+	 * Filter the "View full history" URL.
+	 * Premium add-on can add context filter parameters.
+	 *
+	 * @param {string} url     The default history page URL.
+	 * @param {Object} context Context object with filterMode, currentPostId, and currentPostTitle.
+	 */
+	const viewFullHistoryHref = applyFilters(
+		'simpleHistory.adminBar.viewFullHistoryUrl',
+		viewHistoryURL,
+		{ filterMode, currentPostId, currentPostTitle }
+	);
 
 	const viewFullHistoryLink = userCanViewHistory ? (
 		<a
@@ -114,16 +130,15 @@ const AdminBarQuickView = () => {
 		setReloadTime( Date.now() );
 	}, [ inView, reloadTime ] );
 
-	// Re-fetch when filterMode changes.
+	// Re-fetch when filterMode changes (only when not showing teaser).
 	useEffect( () => {
-		if ( reloadTime !== null ) {
+		if ( reloadTime !== null && ! showThisPageTeaser ) {
 			setReloadTime( Date.now() );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ filterMode ] );
 
 	// Load events when the reloadTime is set or updated.
-	// For example when submenu becomes visible or when reload button is pressed.
 	useEffect( () => {
 		if ( reloadTime === null ) {
 			return;
@@ -132,17 +147,23 @@ const AdminBarQuickView = () => {
 		async function fetchEntries() {
 			setIsLoading( true );
 
-			const eventsQueryParams = {
+			const defaultParams = {
 				per_page: 5,
+				dates: 'lastdays:7',
 			};
 
-			if ( filterMode === 'this-page' && currentPostId > 0 && isExperimentalFeaturesEnabled ) {
-				eventsQueryParams[ 'context_filters[post_id]' ] =
-					String( currentPostId );
-				eventsQueryParams.ungrouped = true;
-			} else {
-				eventsQueryParams.dates = 'lastdays:7';
-			}
+			/**
+			 * Filter the events query parameters.
+			 * Premium add-on can modify these to add context filtering.
+			 *
+			 * @param {Object} params  Default query parameters.
+			 * @param {Object} context Context object with filterMode and currentPostId.
+			 */
+			const eventsQueryParams = applyFilters(
+				'simpleHistory.adminBar.eventsQueryParams',
+				defaultParams,
+				{ filterMode, currentPostId }
+			);
 
 			try {
 				const eventsResponse = await apiFetch( {
@@ -187,7 +208,7 @@ const AdminBarQuickView = () => {
 	);
 
 	const filterToggle =
-		currentPostId > 0 && isExperimentalFeaturesEnabled ? (
+		currentPostId > 0 ? (
 			<div className="SimpleHistory-adminBarQuickView-filterToggle">
 				<button
 					className={ clsx(
@@ -210,19 +231,50 @@ const AdminBarQuickView = () => {
 			</div>
 		) : null;
 
-	const isThisPageMode = filterMode === 'this-page' && currentPostId > 0;
-
-	const infoText = isThisPageMode
-		? /* translators: %s: post title */
-		  sprintf( __( 'Events for "%s"', 'simple-history' ), currentPostTitle )
-		: __( 'Events from the last 7 days', 'simple-history' );
+	/**
+	 * Filter the info text shown above the events list.
+	 * Premium add-on can change this for "this page" mode.
+	 *
+	 * @param {string} text    Default info text.
+	 * @param {Object} context Context object with filterMode, currentPostId, and currentPostTitle.
+	 */
+	const infoText = applyFilters(
+		'simpleHistory.adminBar.infoText',
+		__( 'Events from the last 7 days', 'simple-history' ),
+		{ filterMode, currentPostId, currentPostTitle }
+	);
 
 	const showEmptyState = ! isLoading && events.length === 0;
+
+	const thisPageTeaser = (
+		<li>
+			<div className="SimpleHistory-adminBarQuickView-premiumTeaser">
+				<p className="SimpleHistory-adminBarQuickView-premiumTeaser-heading">
+					{ __( 'History for this page', 'simple-history' ) }
+				</p>
+				<p className="SimpleHistory-adminBarQuickView-premiumTeaser-description">
+					{ __(
+						'Filter the log to show only events for the page you\'re viewing.',
+						'simple-history'
+					) }
+				</p>
+				<a
+					href="https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=adminbar&utm_campaign=this-page-filter"
+					className="SimpleHistory-adminBarQuickView-premiumTeaser-link"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					{ __( 'Available with Premium', 'simple-history' ) }
+					<span aria-hidden="true"> &rarr;</span>
+				</a>
+			</div>
+		</li>
+	);
 
 	return (
 		<li ref={ ref }>
 			<ul>
-				{ currentPostId > 0 && isExperimentalFeaturesEnabled ? (
+				{ currentPostId > 0 ? (
 					<li>
 						<div className="SimpleHistory-adminBarQuickView-tabs">
 							{ filterToggle }
@@ -230,34 +282,35 @@ const AdminBarQuickView = () => {
 					</li>
 				) : null }
 
-				<li>
-					<div className="SimpleHistory-adminBarQuickView-infoText">
-						{ infoText }
-					</div>
-				</li>
-
-				{ isLoading ? (
-					<EventsCompactListLoadingSkeleton />
+				{ showThisPageTeaser ? (
+					thisPageTeaser
 				) : (
 					<>
-						<EventsCompactList
-							events={ events }
-							isLoading={ isLoading }
-						/>
-						{ showEmptyState && (
-							<li>
-								<div className="SimpleHistory-adminBarQuickView-emptyState">
-									{ isThisPageMode
-										? __(
-												'No events found for this page.',
-												'simple-history'
-										  )
-										: __(
+						<li>
+							<div className="SimpleHistory-adminBarQuickView-infoText">
+								{ infoText }
+							</div>
+						</li>
+
+						{ isLoading ? (
+							<EventsCompactListLoadingSkeleton />
+						) : (
+							<>
+								<EventsCompactList
+									events={ events }
+									isLoading={ isLoading }
+								/>
+								{ showEmptyState && (
+									<li>
+										<div className="SimpleHistory-adminBarQuickView-emptyState">
+											{ __(
 												'No events found.',
 												'simple-history'
-										  ) }
-								</div>
-							</li>
+											) }
+										</div>
+									</li>
+								) }
+							</>
 						) }
 					</>
 				) }
