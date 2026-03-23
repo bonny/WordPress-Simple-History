@@ -2456,4 +2456,13 @@ class Helpers {
 		$primary_role = array_shift( $valid_roles );
 		return $primary_role !== null ? (string) $primary_role : '';
 	}
+
+	/**
+	 * Check if the current server is running Windows.
+	 *
+	 * @return bool True if running on Windows.
+	 */
+	public static function is_windows() {
+		return 'WIN' === strtoupper( substr( PHP_OS, 0, 3 ) );
+	}
 }
