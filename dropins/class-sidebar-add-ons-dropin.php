@@ -14,6 +14,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	public function loaded() {
 		// Black Week sale at priority 10 to show first.
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_sale_promo' ], 10 );
+		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_premium_promo_compact' ], 25 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_premium_promo' ], 50 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_debug_and_monitor_promo' ], 60 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce_promo' ], 70 );
@@ -90,6 +91,52 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 				</p>
 			</div>
 
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output compact premium promo above History Insights.
+	 */
+	public function on_sidebar_html_premium_promo_compact() {
+		if ( ! Helpers::show_promo_boxes() ) {
+			return;
+		}
+
+		$premium_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_sidebar_compact' );
+		?>
+		<div class="postbox sh-PremiumFeaturesPostbox" style="--box-bg-color: var(--sh-color-cream);">
+			<div class="inside">
+				<p class="sh-PremiumFeaturesPostbox-preTitleFeaturesBadge"><span class="sh-Badge sh-Badge--premium"><?php esc_html_e( 'Premium', 'simple-history' ); ?></span></p>
+
+				<h3 class="sh-PremiumFeaturesPostbox-title">
+					<?php esc_html_e( 'Your activity log, supercharged.', 'simple-history' ); ?>
+				</h3>
+
+				<ul class="sh-PremiumFeaturesPostbox-featuresList">
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Keep your history as long as you need — 90 days, a year, or forever', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Get Slack, Email, or Discord alerts when something important happens on your site', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Export your log as CSV or JSON — ready for any audit', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Choose exactly which events to log — skip the noise', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php esc_html_e( 'Forward your log to Datadog, Splunk, Syslog, or any webhook', 'simple-history' ); ?></li>
+				</ul>
+
+				<p style="margin: 0 0 1rem; padding-left: 30px; font-size: var(--sh-font-size-small); color: var(--sh-color-black-2);">
+					<?php esc_html_e( 'And 20+ more features included.', 'simple-history' ); ?>
+				</p>
+
+				<p>
+					<a href="<?php echo esc_url( $premium_url ); ?>" target="_blank" class="sh-PremiumFeaturesPostbox-button">
+						<?php esc_html_e( 'Get Premium', 'simple-history' ); ?>
+					</a>
+				</p>
+
+				<p style="margin: 0.5rem 0 0; text-align: center; font-size: var(--sh-font-size-small); color: var(--sh-color-black-2);">
+					<?php esc_html_e( '30-day money-back guarantee.', 'simple-history' ); ?>
+					<br>
+					<?php esc_html_e( 'No questions asked.', 'simple-history' ); ?>
+				</p>
+			</div>
 		</div>
 		<?php
 	}
