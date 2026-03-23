@@ -1,12 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Disabled, Icon } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import {
-	useEffect,
-	useMemo,
-	useState,
-	Fragment,
-} from '@wordpress/element';
+import { useEffect, useMemo, useState, Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { settings } from '@wordpress/icons';
@@ -221,7 +216,6 @@ export function EventsSearchFilters( props ) {
 						searchOptionsResponse.current_user_can_manage_options
 					);
 				}
-
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
 				console.error(
@@ -252,13 +246,14 @@ export function EventsSearchFilters( props ) {
 		selectedDateOption,
 	] );
 
-	const filtersButtonLabel = activeExpandedFilterCount > 0
-		? sprintf(
-				/* translators: %d: number of active filters */
-				__( 'Filters (%d)', 'simple-history' ),
-				activeExpandedFilterCount
-		  )
-		: __( 'Filters', 'simple-history' );
+	const filtersButtonLabel =
+		activeExpandedFilterCount > 0
+			? sprintf(
+					/* translators: %d: number of active filters */
+					__( 'Filters (%d)', 'simple-history' ),
+					activeExpandedFilterCount
+			  )
+			: __( 'Filters', 'simple-history' );
 
 	// Dynamic created <Disabled> elements. Used to disable the whole search component while loading.
 	const MaybeDisabledTag = searchOptionsLoaded ? Fragment : Disabled;
@@ -278,39 +273,39 @@ export function EventsSearchFilters( props ) {
 						selectedCustomDateTo={ selectedCustomDateTo }
 						setSelectedCustomDateTo={ setSelectedCustomDateTo }
 						onReload={ onReload }
-					/>
-
-					<Button
-						variant="secondary"
-						__next40pxDefaultSize
-						onClick={ () => {
-							const currentExpanded =
-								isManuallyExpanded !== null
-									? isManuallyExpanded
-									: isAutoExpanded;
-							setIsManuallyExpanded( ! currentExpanded );
-						} }
-						className={ `SimpleHistory-filters__filtersToggle${
-							activeExpandedFilterCount > 0
-								? ' has-active-filters'
-								: ''
-						}` }
-						aria-expanded={ moreOptionsIsExpanded }
 					>
-						<Icon icon={ settings } size={ 16 } />
-						{ filtersButtonLabel }
-					</Button>
-
-					{ hasAnyActiveFilters && (
 						<Button
-							variant="tertiary"
+							variant="secondary"
 							__next40pxDefaultSize
-							onClick={ handleClearFiltersWithUI }
-							className="SimpleHistoryFilterDropin-clearFilters"
+							onClick={ () => {
+								const currentExpanded =
+									isManuallyExpanded !== null
+										? isManuallyExpanded
+										: isAutoExpanded;
+								setIsManuallyExpanded( ! currentExpanded );
+							} }
+							className={ `SimpleHistory-filters__filtersToggle${
+								activeExpandedFilterCount > 0
+									? ' has-active-filters'
+									: ''
+							}` }
+							aria-expanded={ moreOptionsIsExpanded }
 						>
-							{ __( 'Clear filters', 'simple-history' ) }
+							<Icon icon={ settings } size={ 16 } />
+							{ filtersButtonLabel }
 						</Button>
-					) }
+
+						{ hasAnyActiveFilters && (
+							<Button
+								variant="tertiary"
+								__next40pxDefaultSize
+								onClick={ handleClearFiltersWithUI }
+								className="SimpleHistoryFilterDropin-clearFilters"
+							>
+								{ __( 'Clear filters', 'simple-history' ) }
+							</Button>
+						) }
+					</DefaultFilters>
 				</div>
 				{ moreOptionsIsExpanded ? (
 					<div className="SimpleHistory-filters__expandedFilters">
@@ -324,9 +319,13 @@ export function EventsSearchFilters( props ) {
 							selectedInitiator={ selectedInitiator }
 							setSelectedInitiator={ setSelectedInitiator }
 							selectedContextFilters={ selectedContextFilters }
-							setSelectedContextFilters={ setSelectedContextFilters }
+							setSelectedContextFilters={
+								setSelectedContextFilters
+							}
 							enteredMetadataSearch={ enteredMetadataSearch }
-							setEnteredMetadataSearch={ setEnteredMetadataSearch }
+							setEnteredMetadataSearch={
+								setEnteredMetadataSearch
+							}
 							isExperimentalFeaturesEnabled={
 								isExperimentalFeaturesEnabled
 							}

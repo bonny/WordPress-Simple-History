@@ -2664,7 +2664,7 @@ a.sh-SettingsTabs-link:hover {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	padding: 8px 12px;
+	padding: 12px;
 	border-bottom: 1px solid #f0f0f1;
 	flex-wrap: wrap;
 	background-color: #f9f9f9;
@@ -3001,7 +3001,7 @@ a.sh-EventsStatsBar--link:hover {
 /* Events control bar: event count + actions. */
 .sh-EventsControlBar-actions {
 	padding: 6px 12px;
-	background-color: #f9f9f9;
+	background-color: white;
 	white-space: nowrap;
 }
 
@@ -3013,6 +3013,8 @@ a.sh-EventsStatsBar--link:hover {
 	background: white;
 	border-radius: 8px;
 	overflow: hidden;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	border: 1px solid #e0e0e0;
 }
 
 .SimpleHistoryReactRoot-loading {

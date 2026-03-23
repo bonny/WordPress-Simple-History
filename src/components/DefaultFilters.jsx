@@ -25,6 +25,7 @@ export function DefaultFilters( props ) {
 		selectedCustomDateTo,
 		setSelectedCustomDateTo,
 		onReload,
+		children,
 	} = props;
 
 	// Future dates are invalid.
@@ -117,14 +118,8 @@ export function DefaultFilters( props ) {
 					type="search"
 					value={ searchText }
 					onChange={ ( value ) => setSearchText( value || '' ) }
-					placeholder={ __(
-						'Search events',
-						'simple-history'
-					) }
-					aria-label={ __(
-						'Search events',
-						'simple-history'
-					) }
+					placeholder={ __( 'Search events', 'simple-history' ) }
+					aria-label={ __( 'Search events', 'simple-history' ) }
 					prefix={
 						<InputControlPrefixWrapper>
 							<Icon
@@ -147,9 +142,15 @@ export function DefaultFilters( props ) {
 					className="SimpleHistory-filters__dateSelect"
 				/>
 
-				<Button variant="secondary" onClick={ onReload } __next40pxDefaultSize>
+				<Button
+					variant="secondary"
+					onClick={ onReload }
+					__next40pxDefaultSize
+				>
 					{ __( 'Search events', 'simple-history' ) }
 				</Button>
+
+				{ children }
 			</div>
 
 			{ selectedDateOption === 'customRange' ? (
