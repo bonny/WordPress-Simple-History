@@ -507,7 +507,7 @@ class Setup_Settings_Page extends Service {
 		if ( $clear_days > 0 ) {
 			printf(
 				// translators: %1$s is number of days.
-				esc_html__( 'Items in the database are automatically removed after %1$s days.', 'simple-history' ),
+				esc_html__( 'Items in the database are automatically removed after %1$s days to keep the database size manageable.', 'simple-history' ),
 				esc_html( $clear_days )
 			);
 			echo '<br>';
