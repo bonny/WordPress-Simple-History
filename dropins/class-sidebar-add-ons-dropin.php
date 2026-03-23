@@ -15,7 +15,6 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		// Black Week sale at priority 10 to show first.
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_sale_promo' ], 10 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_premium_promo_compact' ], 25 );
-		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_premium_promo' ], 50 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_debug_and_monitor_promo' ], 60 );
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'on_sidebar_html_woocommerce_promo' ], 70 );
 	}
@@ -153,19 +152,6 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 			</div>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Output HTML if premium add-on is not installed.
-	 */
-	public function on_sidebar_html_premium_promo() {
-		// Don't show if addon is already installed.
-		if ( ! Helpers::show_promo_boxes() ) {
-			return;
-		}
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo self::get_premium_features_postbox_html();
 	}
 
 	/**
