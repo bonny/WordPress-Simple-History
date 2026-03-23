@@ -244,7 +244,7 @@ export function ExpandedFilters( props ) {
 		setSelectedMessageTypes( nextValues );
 	};
 
-	const filterFieldStyle = { width: '310px', backgroundColor: 'white' };
+	const filterFieldStyle = { maxWidth: '310px', backgroundColor: 'white' };
 	const filterRowStyle = { margin: '0.5em 0' };
 	const labelMarginStyle = { margin: '.5em 0' };
 
@@ -460,7 +460,7 @@ export function ExpandedFilters( props ) {
 					</div>
 				</FlexItem>
 				<FlexBlock>
-					<div style={ { width: '310px' } }>
+					<div style={ { maxWidth: '310px' } }>
 						<InputControl
 							value={ enteredMetadataSearch }
 							onChange={ ( value ) =>
@@ -486,7 +486,7 @@ export function ExpandedFilters( props ) {
 					</div>
 				</FlexItem>
 				<FlexBlock>
-					<div style={ { width: '310px' } }>
+					<div style={ { maxWidth: '310px' } }>
 						<TextareaControl
 							__nextHasNoMarginBottom
 							value={ selectedContextFilters }

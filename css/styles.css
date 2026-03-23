@@ -1644,18 +1644,23 @@ so add some extra place then to make it look a bit less ugly.
 	background-color: #888;
 }
 
-/* Status Box — compact status strip on main log page */
+/* Status Box — compact status strip inside header area on main log page */
 .sh-StatusBox {
 	display: flex;
 	align-items: center;
 	gap: var(--sh-spacing-medium);
-	padding: var(--sh-spacing-small) var(--sh-spacing-medium);
-	margin: 0 0 var(--sh-spacing-medium) 0;
-	background: #f9f9f9;
-	border: 1px solid var(--sh-color-separator);
-	border-radius: var(--sh-border-radius);
+	padding: var(--sh-spacing-small) var(--sh-spacing-large);
+	margin: 0 0 0 -20px;
+	background: #fff;
+	border-bottom: 1px solid var(--sh-color-gray);
 	font-size: var(--sh-font-size-small);
 	color: var(--sh-color-gray-3);
+}
+
+/* Remove header bottom border when status box follows it */
+.sh-PageHeader:has(+ .sh-StatusBox) {
+	border-bottom: none;
+	padding-bottom: 0;
 }
 
 .sh-StatusBox-items {
@@ -2796,7 +2801,7 @@ a.sh-SettingsTabs-link:hover {
 	display: none;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 782px) {
 	.SimpleHistory__filters__filterLabel {
 		display: block;
 		width: auto;
@@ -2804,6 +2809,11 @@ a.sh-SettingsTabs-link:hover {
 
 	.SimpleHistory__filters__filterSubmitWrap {
 		margin-left: 0;
+	}
+
+	.SimpleHistory-filters__expandedFilters .components-flex {
+		flex-direction: column;
+		align-items: stretch;
 	}
 
 	.SimpleHistory-filters__searchRow {

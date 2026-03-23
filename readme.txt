@@ -259,6 +259,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
+-   Expanded filters panel now stacks labels above inputs on smaller screens for better usability.
 -   History Insights sidebar: today's data point is now highlighted with a visible dot and the end date shows "(today)" for clarity.
 -   History Insights sidebar: reduced y-axis clutter on the activity chart for a cleaner look.
 -   History Insights sidebar: database stats section is now visually separated as footer content with cache freshness info moved into the tooltip.
