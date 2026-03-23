@@ -509,7 +509,7 @@ class History_Insights_Sidebar_Service extends Service {
 		$retention_upsell = $this->get_retention_upsell_html( $retention_days );
 
 		// Return concatenated result wrapped in a footer-style container.
-		return wp_kses_post( '<div class="sh-SidebarStats-footer"><p class="sh-m-0">' . $msg_text . '</p>' . $retention_upsell . '</div>' );
+		return wp_kses_post( '<div class="sh-SidebarStats-footer"><p class="sh-m-0">' . $msg_text . '</p></div>' . $retention_upsell );
 	}
 
 	/**

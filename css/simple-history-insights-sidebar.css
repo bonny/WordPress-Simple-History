@@ -208,8 +208,8 @@
 }
 
 .sh-SidebarStats-retentionUpsell {
-	margin-top: var(--sh-spacing-small);
-	padding: var(--sh-spacing-small);
+	margin: var(--sh-spacing-medium) 0 0;
+	padding: var(--sh-spacing-small) var(--sh-spacing-medium);
 	background-color: var(--sh-color-cream, #fcf9ec);
 	border-radius: var(--sh-border-radius, 4px);
 	font-size: var(--sh-font-size-small);
