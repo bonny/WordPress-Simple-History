@@ -1644,6 +1644,73 @@ so add some extra place then to make it look a bit less ugly.
 	background-color: #888;
 }
 
+/* Status Box — compact status strip on main log page */
+.sh-StatusBox {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-medium);
+	padding: var(--sh-spacing-small) var(--sh-spacing-medium);
+	margin: 0 0 var(--sh-spacing-medium) 0;
+	background: #f9f9f9;
+	border: 1px solid var(--sh-color-separator);
+	border-radius: var(--sh-border-radius);
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+}
+
+.sh-StatusBox-items {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall) var(--sh-spacing-medium);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	flex: 1;
+}
+
+.sh-StatusBox-item {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	white-space: nowrap;
+}
+
+.sh-StatusBox-item--warning {
+	color: #b26200;
+}
+
+.sh-StatusBox-itemLink {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	text-decoration: none;
+	color: inherit;
+}
+
+.sh-StatusBox-itemLink:hover {
+	color: var(--sh-color-blue);
+}
+
+.sh-StatusBox-itemLabel {
+	font-weight: 600;
+}
+
+.sh-StatusBox-itemLabel::after {
+	content: ":";
+}
+
+.sh-StatusBox-settingsLink {
+	font-size: var(--sh-font-size-small);
+	text-decoration: none;
+	white-space: nowrap;
+	color: var(--sh-color-gray-3);
+}
+
+.sh-StatusBox-settingsLink:hover {
+	color: var(--sh-color-blue);
+}
+
 .sh-NotificationBar {
 	position: relative;
 	text-align: center;
@@ -2686,6 +2753,7 @@ a.sh-SettingsTabs-link:hover {
 /* Search InputControl. */
 .SimpleHistory-filters__searchControl {
 	width: 400px;
+	max-width: 100%;
 	line-height: 1;
 }
 
