@@ -207,6 +207,14 @@
 	color: var(--sh-color-black-2);
 }
 
+.sh-SidebarStats-retentionUpsell {
+	margin-top: var(--sh-spacing-small);
+	padding: var(--sh-spacing-small);
+	background-color: var(--sh-color-cream, #fcf9ec);
+	border-radius: var(--sh-border-radius, 4px);
+	font-size: var(--sh-font-size-small);
+}
+
 /* Event count displayed after each username in the list */
 .sh-SidebarStats .sh-StatsDashboard-userEventCount {
 	font-size: 0.9em;

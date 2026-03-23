@@ -505,8 +505,70 @@ class History_Insights_Sidebar_Service extends Service {
 		);
 		$msg_text .= Helpers::get_tooltip_html( $tooltip_text );
 
+		// Add retention upsell nudge for free users when oldest events are close to deletion.
+		$retention_upsell = $this->get_retention_upsell_html( $retention_days );
+
 		// Return concatenated result wrapped in a footer-style container.
-		return wp_kses_post( '<div class="sh-SidebarStats-footer"><p class="sh-m-0">' . $msg_text . '</p></div>' );
+		return wp_kses_post( '<div class="sh-SidebarStats-footer"><p class="sh-m-0">' . $msg_text . '</p>' . $retention_upsell . '</div>' );
+	}
+
+	/**
+	 * Get HTML for retention upsell nudge.
+	 *
+	 * Shows a contextual premium upsell when the oldest events are within
+	 * 15 days of being auto-deleted.
+	 *
+	 * @param int $retention_days The configured retention period in days.
+	 * @return string HTML or empty string.
+	 */
+	protected function get_retention_upsell_html( $retention_days ) {
+		// Only show for free users.
+		if ( ! Helpers::show_promo_boxes() ) {
+			return '';
+		}
+
+		// Don't show if retention is set to forever (0).
+		if ( $retention_days <= 0 ) {
+			return '';
+		}
+
+		// Get the oldest event to calculate days until deletion.
+		$oldest_event = ( new \Simple_History\Events_Stats() )->get_oldest_event();
+
+		if ( ! $oldest_event || empty( $oldest_event['date'] ) ) {
+			return '';
+		}
+
+		$oldest_date     = new \DateTimeImmutable( $oldest_event['date'], wp_timezone() );
+		$deletion_date   = $oldest_date->modify( '+' . $retention_days . ' days' );
+		$now             = current_datetime();
+		$days_until_gone = (int) $now->diff( $deletion_date )->format( '%r%a' );
+
+		// Only show when oldest events are within 15 days of deletion.
+		if ( $days_until_gone > 15 || $days_until_gone < 0 ) {
+			return '';
+		}
+
+		$premium_url = Helpers::get_tracking_url(
+			'https://simple-history.com/add-ons/premium/',
+			'premium_retention_nudge'
+		);
+
+		$days_text = sprintf(
+			// translators: %d is number of days until deletion.
+			_n( '%d day', '%d days', $days_until_gone, 'simple-history' ),
+			$days_until_gone
+		);
+
+		$nudge_text = sprintf(
+			// translators: 1 is number of days (e.g. "15 days"), 2 is opening link tag, 3 is closing link tag.
+			__( 'Your oldest events will be deleted in %1$s. Want to keep them longer? %2$sGet Premium%3$s', 'simple-history' ),
+			$days_text,
+			'<a href="' . esc_url( $premium_url ) . '" target="_blank">',
+			'</a>'
+		);
+
+		return '<p class="sh-m-0 sh-SidebarStats-retentionUpsell">' . $nudge_text . '</p>';
 	}
 
 	/**
