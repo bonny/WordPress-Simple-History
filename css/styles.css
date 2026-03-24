@@ -1643,11 +1643,18 @@ so add some extra place then to make it look a bit less ugly.
 	outline-offset: 2px;
 }
 
-/* Premium active — green confirmed badge */
+/* Premium active — subtle status, same size as Get Premium but no border */
 .sh-PageHeader-headerBtn--premiumActive {
-	background-color: #00a32a;
-	color: var(--sh-color-white);
-	border: 1px solid #00a32a;
+	background: none;
+	color: #996800;
+	border: 1px solid transparent;
+}
+
+.sh-PageHeader-headerBtn--premiumActive .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
 }
 
 /* Base badge styles shared by all header badges */
