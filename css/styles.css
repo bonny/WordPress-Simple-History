@@ -1579,7 +1579,7 @@ so add some extra place then to make it look a bit less ugly.
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	gap: 0.5rem;
+	gap: var(--sh-spacing-medium);
 }
 
 .sh-PageHeader-settingsLinkIcon {

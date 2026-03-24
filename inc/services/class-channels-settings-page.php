@@ -65,9 +65,7 @@ class Channels_Settings_Page extends Service {
 			return;
 		}
 
-		// Build menu title with New badge.
-		$menu_title = __( 'Log Forwarding', 'simple-history' )
-			. ' <span class="sh-Badge sh-Badge--new">' . esc_html__( 'New', 'simple-history' ) . '</span>';
+		$menu_title = __( 'Log Forwarding', 'simple-history' );
 
 		( new Menu_Page() )
 			->set_page_title( __( 'Log Forwarding', 'simple-history' ) )

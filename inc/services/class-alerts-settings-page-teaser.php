@@ -49,9 +49,7 @@ class Alerts_Settings_Page_Teaser extends Service {
 			return;
 		}
 
-		// Build menu title with New badge to encourage exploration.
-		$menu_title = __( 'Alerts', 'simple-history' )
-			. ' <span class="sh-Badge sh-Badge--new">' . esc_html__( 'New', 'simple-history' ) . '</span>';
+		$menu_title = __( 'Alerts', 'simple-history' );
 
 		( new Menu_Page() )
 			->set_page_title( __( 'Alerts', 'simple-history' ) )

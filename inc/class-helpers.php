@@ -964,6 +964,12 @@ class Helpers {
 	 */
 	public static function get_header_premium_link() {
 		$settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
+		$log_url      = Menu_Manager::get_admin_url_by_slug( Simple_History::MENU_PAGE_SLUG );
+
+		// Determine if current page is a settings page.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$current_page    = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
+		$is_settings_page = str_contains( $current_page, 'settings' );
 
 		ob_start();
 
@@ -981,10 +987,17 @@ class Helpers {
 				</a>
 			<?php } ?>
 
-			<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--settings">
-				<span class="dashicons dashicons-admin-generic"></span>
-				<?php esc_html_e( 'Settings', 'simple-history' ); ?>
-			</a>
+			<?php if ( $is_settings_page ) { ?>
+				<a href="<?php echo esc_url( $log_url ); ?>" class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--settings">
+					<span class="dashicons dashicons-list-view"></span>
+					<?php esc_html_e( 'View Log', 'simple-history' ); ?>
+				</a>
+			<?php } else { ?>
+				<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--settings">
+					<span class="dashicons dashicons-admin-generic"></span>
+					<?php esc_html_e( 'Settings', 'simple-history' ); ?>
+				</a>
+			<?php } ?>
 		</div>
 		<?php
 
