@@ -1716,39 +1716,117 @@ so add some extra place then to make it look a bit less ugly.
 	background-color: #888;
 }
 
-/* Status bar — plain text strip inside the page header */
+/* Feature discovery bar — sits inside title group, next to logo */
 .sh-HeaderStatus {
 	display: flex;
-	align-items: center;
-	gap: var(--sh-spacing-medium);
-	width: 100%;
+	flex-direction: column;
+	justify-content: center;
+	gap: 3px;
 	font-size: var(--sh-font-size-small);
 	color: var(--sh-color-gray-3);
+	margin-left: var(--sh-spacing-large);
+	border-left: 1px solid var(--sh-color-gray);
+	padding-left: var(--sh-spacing-medium);
 }
+
+/* On narrow screens, drop below the logo as full-width block */
+@media (max-width: 960px) {
+	.sh-HeaderStatus {
+		margin-left: 0;
+		margin-top: var(--sh-spacing-small);
+		border-left: none;
+		padding-left: 0;
+		width: 100%;
+	}
+
+}
+
+
+/* Secondary items — smaller, lighter. #767676 = 4.54:1 on white, WCAG AA. */
+.sh-HeaderStatus-item--secondary {
+	font-size: 11px;
+}
+
+.sh-HeaderStatus-item--secondary .sh-HeaderStatus-dot {
+	width: 6px;
+	height: 6px;
+}
+
+.sh-HeaderStatus-item--secondary .sh-HeaderStatus-itemLink,
+.sh-HeaderStatus-item--secondary .sh-HeaderStatus-itemText {
+	color: #767676;
+}
+
+.sh-HeaderStatus-item--secondary .sh-HeaderStatus-itemLink:hover {
+	color: #2271b1;
+}
+
 
 .sh-HeaderStatus-zone {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0;
+	column-gap: var(--sh-spacing-medium);
+	row-gap: 3px;
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
 .sh-HeaderStatus-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 	white-space: nowrap;
 }
 
-/* Dot separator between items */
-.sh-HeaderStatus-item + .sh-HeaderStatus-item::before {
-	content: "\00b7";
-	margin: 0 var(--sh-spacing-small);
-	color: var(--sh-color-gray-2);
+/* Status dot indicator */
+.sh-HeaderStatus-dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	flex-shrink: 0;
 }
 
+.sh-HeaderStatus-dot--active {
+	background-color: #00a32a;
+}
+
+.sh-HeaderStatus-dot--inactive {
+	background-color: #c3c4c7;
+}
+
+/* Active feature — plain muted text */
 .sh-HeaderStatus-itemText {
 	color: var(--sh-color-gray-3);
+}
+
+/* All links — look like plain text by default */
+.sh-HeaderStatus-itemLink {
+	color: var(--sh-color-gray-3);
+	text-decoration: none;
+}
+
+.sh-HeaderStatus-itemLink:hover {
+	color: #2271b1;
+	text-decoration: underline;
+}
+
+/* Inactive feature — same gray, distinguished only by dot color */
+.sh-HeaderStatus-itemLink--inactive {
+	color: var(--sh-color-gray-3);
+}
+
+/* Focus outline on the whole item (dot + text) via :has */
+.sh-HeaderStatus-item:has(.sh-HeaderStatus-itemLink:focus-visible) {
+	outline: 1px solid #2271b1;
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+.sh-HeaderStatus-item .sh-HeaderStatus-itemLink:focus-visible {
+	outline: none;
+	box-shadow: none;
 }
 
 

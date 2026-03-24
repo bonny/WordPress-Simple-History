@@ -76,7 +76,7 @@ class RSS_Dropin extends Dropin {
 
 		Helpers::add_settings_section(
 			$settings_section_rss_id,
-			[ $rss_section_title, 'rss_feed' ],
+			[ $rss_section_title, 'rss_feed', 'simple_history_rss_section' ],
 			array( $this, 'settings_section_output' ),
 			Simple_History::SETTINGS_MENU_SLUG // same slug as for options menu page.
 		);

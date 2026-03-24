@@ -3,17 +3,20 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
+use Simple_History\Menu_Manager;
+use Simple_History\Simple_History;
 
 /**
- * Renders a compact status bar inside the page header.
- * Shows active configuration as non-interactive text with a Settings link.
+ * Renders a feature discovery bar inside the page header.
+ * Shows both active and inactive features to help users
+ * discover settings and premium capabilities.
  */
 class Status_Box_Service extends Service {
 	/**
 	 * @inheritdoc
 	 */
 	public function loaded() {
-		add_action( 'simple_history/admin_page/header_end', [ $this, 'output_status_box' ] );
+		add_action( 'simple_history/admin_page/title_group_end', [ $this, 'output_status_box' ] );
 	}
 
 	/**
@@ -24,93 +27,211 @@ class Status_Box_Service extends Service {
 			return;
 		}
 
+		// Only show when experimental features are enabled (testing phase).
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			return;
+		}
+
 		$items = $this->get_status_items();
+
+		/**
+		 * Filter the feature discovery bar items.
+		 *
+		 * Each item is an array with keys:
+		 * - 'text'     (string) Display text.
+		 * - 'url'      (string, optional) Link URL. Omit for non-interactive items.
+		 * - 'inactive' (bool, optional) True if the feature is off/discoverable.
+		 *
+		 * @since 5.16
+		 *
+		 * @param array $items Array of status items.
+		 */
+		$items = apply_filters( 'simple_history/header_status/items', $items );
 
 		if ( empty( $items ) ) {
 			return;
 		}
 		?>
+		<?php
+		// Split items: first 4 are primary, rest are secondary.
+		$primary_items   = array_slice( $items, 0, 4 );
+		$secondary_items = array_slice( $items, 4 );
+		?>
+
 		<div class="sh-HeaderStatus">
 			<ul class="sh-HeaderStatus-zone">
-				<?php foreach ( $items as $item ) { ?>
+				<?php foreach ( $primary_items as $item ) { ?>
 					<li class="sh-HeaderStatus-item">
-						<span class="sh-HeaderStatus-itemText"><?php echo esc_html( $item['text'] ); ?></span>
+						<?php $this->render_item( $item ); ?>
 					</li>
 				<?php } ?>
+
 			</ul>
+			<?php if ( ! empty( $secondary_items ) ) { ?>
+				<ul class="sh-HeaderStatus-zone sh-HeaderStatus-zone--secondary">
+					<?php foreach ( $secondary_items as $item ) { ?>
+						<li class="sh-HeaderStatus-item sh-HeaderStatus-item--secondary">
+							<?php $this->render_item( $item ); ?>
+						</li>
+					<?php } ?>
+				</ul>
+			<?php } ?>
 		</div>
+
+		<?php
+	}
+
+	/**
+	 * Render a single status item (dot + link or text).
+	 *
+	 * @param array $item Item with text, url, inactive, title keys.
+	 */
+	private function render_item( $item ) {
+		$is_inactive = ! empty( $item['inactive'] );
+		$dot_class   = $is_inactive ? 'sh-HeaderStatus-dot--inactive' : 'sh-HeaderStatus-dot--active';
+		?>
+		<span aria-hidden="true" class="sh-HeaderStatus-dot <?php echo esc_attr( $dot_class ); ?>"></span>
+		<?php if ( ! empty( $item['url'] ) ) { ?>
+			<a href="<?php echo esc_url( $item['url'] ); ?>" class="sh-HeaderStatus-itemLink <?php echo $is_inactive ? 'sh-HeaderStatus-itemLink--inactive' : ''; ?>"<?php echo ! empty( $item['title'] ) ? ' title="' . esc_attr( $item['title'] ) . '"' : ''; ?>>
+				<?php echo esc_html( $item['text'] ); ?>
+			</a>
+		<?php } else { ?>
+			<span class="sh-HeaderStatus-itemText"><?php echo esc_html( $item['text'] ); ?></span>
+		<?php } ?>
 		<?php
 	}
 
 	/**
 	 * Get the status items to display.
 	 *
-	 * @return array<array{text: string}>
+	 * @return array<array{text: string, url?: string, inactive?: bool}>
 	 */
 	private function get_status_items() {
-		$items = [];
+		$items      = [];
+		$is_premium = Helpers::is_premium_add_on_active();
 
-		// Retention period — always shown.
+		$settings_url       = Helpers::get_settings_page_url();
+		$general_section    = $settings_url . '#simple_history_general_section';
+		$email_section      = $settings_url . '#simple_history_email_report_section';
+		$rss_section        = $settings_url . '#simple_history_rss_section';
+		$alerts_tab_url     = add_query_arg( 'selected-tab', 'general_settings_subtab_alerts', $settings_url );
+		$forwarding_tab_url = add_query_arg( 'selected-tab', 'general_settings_subtab_log_forwarding', $settings_url );
+		$upsell_url         = Menu_Manager::get_admin_url_by_slug( 'simple_history_promo_upsell' );
+
+		// Retention period — always first.
 		$days    = Helpers::get_clear_history_interval();
 		$items[] = [
-			'text' => sprintf(
+			'text'  => sprintf(
 				/* translators: %d: number of days events are kept */
 				_n(
-					'Logs kept %d day',
-					'Logs kept %d days',
+					'History kept: %d day',
+					'History kept: %d days',
 					$days,
 					'simple-history'
 				),
 				$days
 			),
+			'url'   => $general_section,
+			'title' => __( 'Go to retention settings', 'simple-history' ),
 		];
 
-		// Alerts — show count of enabled alert rules.
+		// Email reports.
+		$email_title = __( 'Go to Email reports settings', 'simple-history' );
+		if ( get_option( 'simple_history_email_report_enabled' ) ) {
+			$items[] = [
+				'text'  => __( 'Email reports: on', 'simple-history' ),
+				'url'   => $email_section,
+				'title' => $email_title,
+			];
+		} else {
+			$items[] = [
+				'text'     => __( 'Email reports: off', 'simple-history' ),
+				'url'      => $email_section,
+				'title'    => $email_title,
+				'inactive' => true,
+			];
+		}
+
+		// Alerts.
+		$alerts_title   = __( 'Go to Alerts settings', 'simple-history' );
 		$alert_rules    = get_option( 'simple_history_alert_rules', [] );
 		$enabled_alerts = is_array( $alert_rules ) ? count( array_filter( $alert_rules, fn( $rule ) => ! empty( $rule['enabled'] ) ) ) : 0;
 		if ( $enabled_alerts > 0 ) {
 			$items[] = [
-				'text' => sprintf(
+				'text'  => sprintf(
 					/* translators: %d: number of active alert rules */
-					_n( '%d alert active', '%d alerts active', $enabled_alerts, 'simple-history' ),
+					_n( 'Alerts: %d active', 'Alerts: %d active', $enabled_alerts, 'simple-history' ),
 					$enabled_alerts
 				),
+				'url'   => $alerts_tab_url,
+				'title' => $alerts_title,
 			];
-		}
-
-		// Detective mode — only when active.
-		if ( Helpers::detective_mode_is_enabled() ) {
+		} elseif ( $is_premium ) {
 			$items[] = [
-				'text' => __( 'Detective mode', 'simple-history' ),
+				'text'     => __( 'Alerts: not set up', 'simple-history' ),
+				'url'      => $alerts_tab_url,
+				'title'    => $alerts_title,
+				'inactive' => true,
+			];
+		} else {
+			$items[] = [
+				'text'     => __( 'Alerts: Premium only', 'simple-history' ),
+				'url'      => $upsell_url,
+				'title'    => __( 'Learn about Alerts in Premium', 'simple-history' ),
+				'inactive' => true,
 			];
 		}
 
-		// RSS/JSON feeds — only when active.
+		// Log forwarding.
+		$forwarding_title     = __( 'Go to Log Forwarding settings', 'simple-history' );
+		$file_channel         = get_option( 'simple_history_channel_file', [] );
+		$is_forwarding_active = is_array( $file_channel ) && ! empty( $file_channel['enabled'] );
+		if ( $is_forwarding_active ) {
+			$items[] = [
+				'text'  => __( 'Log forwarding: on', 'simple-history' ),
+				'url'   => $forwarding_tab_url,
+				'title' => $forwarding_title,
+			];
+		} elseif ( $is_premium ) {
+			$items[] = [
+				'text'     => __( 'Log forwarding: off', 'simple-history' ),
+				'url'      => $forwarding_tab_url,
+				'title'    => $forwarding_title,
+				'inactive' => true,
+			];
+		} else {
+			$items[] = [
+				'text'     => __( 'Log forwarding: Premium only', 'simple-history' ),
+				'url'      => $upsell_url,
+				'title'    => __( 'Learn about Log Forwarding in Premium', 'simple-history' ),
+				'inactive' => true,
+			];
+		}
+
+		// RSS feed — only show when active.
 		if ( get_option( 'simple_history_enable_rss_feed' ) ) {
 			$items[] = [
-				'text' => __( 'RSS feed', 'simple-history' ),
+				'text'  => __( 'RSS feed: on', 'simple-history' ),
+				'url'   => $rss_section,
+				'title' => __( 'Go to RSS feed settings', 'simple-history' ),
 			];
 		}
 
-		// Log forwarding (file channel) — only when active.
-		$file_channel = get_option( 'simple_history_channel_file', [] );
-		if ( is_array( $file_channel ) && ! empty( $file_channel['enabled'] ) ) {
+		// Detective mode — only show when active.
+		if ( Helpers::detective_mode_is_enabled() ) {
 			$items[] = [
-				'text' => __( 'Log forwarding', 'simple-history' ),
+				'text'  => __( 'Detective mode: on', 'simple-history' ),
+				'url'   => $general_section,
+				'title' => __( 'Go to Detective mode settings', 'simple-history' ),
 			];
 		}
 
-		// Stealth mode — only when active.
-		if ( Stealth_Mode::is_stealth_mode_enabled() ) {
+		// Experimental features — only show when enabled.
+		if ( Helpers::experimental_features_is_enabled() ) {
 			$items[] = [
-				'text' => __( 'Stealth mode', 'simple-history' ),
-			];
-		}
-
-		// Email digests — only when active.
-		if ( get_option( 'simple_history_email_report_enabled' ) ) {
-			$items[] = [
-				'text' => __( 'Email digests', 'simple-history' ),
+				'text'  => __( 'Experimental features: on', 'simple-history' ),
+				'url'   => $general_section,
+				'title' => __( 'Go to Experimental features settings', 'simple-history' ),
 			];
 		}
 

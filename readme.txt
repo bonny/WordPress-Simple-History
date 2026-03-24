@@ -257,9 +257,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   List of current experimental features shown near the enable toggle in settings.
 -   Added `Helpers::is_windows()` utility method for platform detection.
 -   "/" keyboard shortcut to focus the search input, with a visual hint badge. Pressing Escape returns focus to the previously focused element.
+-   Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access. (experimental)
+-   Settings and Premium/Get Premium buttons in the top-right header, replacing the Add-ons link. On settings pages, the button swaps to "View Log" for contextual navigation.
 
 **Changed**
 
+-   Search is now faster and more accurate for all users: queries skip occasion grouping for speed and only search relevant context keys from registered loggers instead of scanning all metadata. Previously this was an experimental opt-in feature. Use the "Event metadata" search field in the advanced filters to search all metadata (similar to the old behavior).
 -   Expanded filters panel now stacks labels above inputs on smaller screens for better usability.
 -   History Insights sidebar: today's data point is now highlighted with a visible dot and the end date shows "(today)" for clarity.
 -   History Insights sidebar: reduced y-axis clutter on the activity chart for a cleaner look.

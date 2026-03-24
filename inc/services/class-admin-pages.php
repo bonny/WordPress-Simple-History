@@ -230,6 +230,15 @@ class Admin_Pages extends Service {
 					}
 				}
 				?>
+
+				<?php
+				/**
+				 * Fires inside the title group, after badges.
+				 *
+				 * @since 5.16
+				 */
+				do_action( 'simple_history/admin_page/title_group_end' );
+				?>
 			</div>
 
 			<?php
