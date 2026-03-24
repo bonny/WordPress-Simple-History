@@ -37,7 +37,11 @@ export function DefaultFilters( props ) {
 		function handleKeyDown( event ) {
 			if ( event.key === 'Escape' ) {
 				if ( document.activeElement === searchInputRef.current ) {
-					if ( focusedViaShortcutRef.current && previousFocusRef.current ) {
+					if (
+						focusedViaShortcutRef.current &&
+						previousFocusRef.current &&
+						previousFocusRef.current !== document.body
+					) {
 						previousFocusRef.current.focus();
 					} else {
 						searchInputRef.current.blur();
