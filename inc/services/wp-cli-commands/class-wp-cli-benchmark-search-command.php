@@ -6,7 +6,6 @@ use WP_CLI;
 use WP_CLI_Command;
 use Simple_History\Simple_History;
 use Simple_History\Log_Query;
-use Simple_History\Helpers;
 
 /**
  * Benchmark search performance for Simple History.
@@ -17,8 +16,8 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 	/**
 	 * Benchmark search performance.
 	 *
-	 * Runs search queries and reports timing, comparing performance
-	 * with and without the experimental optimized search.
+	 * Runs search queries and reports timing to measure
+	 * search performance.
 	 *
 	 * ## OPTIONS
 	 *
@@ -85,9 +84,6 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 		WP_CLI::log( sprintf( '  Contexts table: %s rows', number_format( (int) $context_count ) ) );
 		WP_CLI::log( sprintf( '  Search term: "%s"', $search_term ) );
 		WP_CLI::log( sprintf( '  Runs per test: %d', $runs ) );
-
-		$experimental_enabled = Helpers::experimental_features_is_enabled();
-		WP_CLI::log( sprintf( '  Experimental features: %s', $experimental_enabled ? 'ENABLED' : 'DISABLED' ) );
 
 		// Benchmark: no search (baseline).
 		WP_CLI::log( '' );

@@ -206,7 +206,7 @@ class Log_Query {
 		// useful and the grouped query is orders of magnitude slower because
 		// the session-variable inner query must scan all matching rows sequentially.
 		$has_search = ! empty( $args['search'] ) || ! empty( $args['metadata_search'] );
-		if ( $has_search && Helpers::experimental_features_is_enabled() ) {
+		if ( $has_search ) {
 			return $this->query_overview_simple( $args );
 		}
 
@@ -2302,13 +2302,12 @@ class Log_Query {
 	private function build_per_word_search_conditions( $search_words, $contexts_table_name ) {
 		global $wpdb;
 
-		$use_scoped_search = Helpers::experimental_features_is_enabled();
-		$search_columns    = [ 'message', 'logger', 'level' ];
+		$search_columns = [ 'message', 'logger', 'level' ];
 
-		// Pre-compute context search keys when using scoped search.
-		$placeholder_keys = $use_scoped_search ? $this->get_searchable_context_keys() : [];
-		$fallback_loggers = $use_scoped_search ? $this->get_loggers_without_messages() : [];
-		$fallback_keys    = $use_scoped_search && ! empty( $fallback_loggers )
+		// Pre-compute context search keys for scoped search.
+		$placeholder_keys = $this->get_searchable_context_keys();
+		$fallback_loggers = $this->get_loggers_without_messages();
+		$fallback_keys    = ! empty( $fallback_loggers )
 			? $this->get_fallback_logger_context_keys( $fallback_loggers )
 			: [];
 
@@ -2324,48 +2323,38 @@ class Log_Query {
 				$word_sources[] = $wpdb->prepare( "{$column} LIKE %s", '%' . $wpdb->esc_like( $word ) . '%' );
 			}
 
-			if ( $use_scoped_search ) {
-				// Scoped context: only search placeholder keys from registered loggers.
-				if ( ! empty( $placeholder_keys ) ) {
-					$key_ph = implode( ', ', array_fill( 0, count( $placeholder_keys ), '%s' ) );
+			// Scoped context: only search placeholder keys from registered loggers.
+			if ( ! empty( $placeholder_keys ) ) {
+				$key_ph = implode( ', ', array_fill( 0, count( $placeholder_keys ), '%s' ) );
 
-					// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-					$word_sources[] = $wpdb->prepare(
-						"id IN ( SELECT c.history_id FROM {$contexts_table_name} AS c WHERE c.key IN ( {$key_ph} ) AND c.value LIKE %s )",
-						...array_merge( $placeholder_keys, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
-					);
-					// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-				}
-
-				// Fallback context: placeholder keys from fallback loggers' DB templates.
-				if ( ! empty( $fallback_loggers ) && ! empty( $fallback_keys ) ) {
-					$key_ph    = implode( ', ', array_fill( 0, count( $fallback_keys ), '%s' ) );
-					$logger_ph = implode( ', ', array_fill( 0, count( $fallback_loggers ), '%s' ) );
-
-					// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-					$context_subquery = $wpdb->prepare(
-						"id IN ( SELECT c.history_id FROM {$contexts_table_name} AS c WHERE c.key IN ( {$key_ph} ) AND c.value LIKE %s )",
-						...array_merge( $fallback_keys, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
-					);
-					// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-
-					// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-					$logger_condition = $wpdb->prepare(
-						"logger IN ( {$logger_ph} )",
-						...$fallback_loggers
-					);
-					// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-
-					$word_sources[] = "( {$logger_condition} AND {$context_subquery} )";
-				}
-			} else {
-				// Unscoped: search all context values (original behavior).
-				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 				$word_sources[] = $wpdb->prepare(
-					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s )",
-					'%' . $wpdb->esc_like( $word ) . '%'
+					"id IN ( SELECT c.history_id FROM {$contexts_table_name} AS c WHERE c.key IN ( {$key_ph} ) AND c.value LIKE %s )",
+					...array_merge( $placeholder_keys, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
 				);
-				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			}
+
+			// Fallback context: placeholder keys from fallback loggers' DB templates.
+			if ( ! empty( $fallback_loggers ) && ! empty( $fallback_keys ) ) {
+				$key_ph    = implode( ', ', array_fill( 0, count( $fallback_keys ), '%s' ) );
+				$logger_ph = implode( ', ', array_fill( 0, count( $fallback_loggers ), '%s' ) );
+
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+				$context_subquery = $wpdb->prepare(
+					"id IN ( SELECT c.history_id FROM {$contexts_table_name} AS c WHERE c.key IN ( {$key_ph} ) AND c.value LIKE %s )",
+					...array_merge( $fallback_keys, [ '%' . $wpdb->esc_like( $word ) . '%' ] )
+				);
+				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+
+				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				$logger_condition = $wpdb->prepare(
+					"logger IN ( {$logger_ph} )",
+					...$fallback_loggers
+				);
+				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+
+				$word_sources[] = "( {$logger_condition} AND {$context_subquery} )";
 			}
 
 			$per_word_conditions[] = "(\n   " . implode( "\n   OR ", $word_sources ) . "\n  )";
