@@ -234,7 +234,7 @@ class Admin_Pages extends Service {
 
 			<?php
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo Helpers::get_header_add_ons_link();
+			echo Helpers::get_header_premium_link();
 
 			// Output main nav and subnav.
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -242,6 +242,12 @@ class Admin_Pages extends Service {
 
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $main_subnav_html_output;
+			/**
+			 * Fires inside the page header, just before the closing tag.
+			 *
+			 * @since 5.9
+			 */
+			do_action( 'simple_history/admin_page/header_end' );
 			?>
 		</header>
 		

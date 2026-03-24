@@ -958,6 +958,40 @@ class Helpers {
 	}
 
 	/**
+	 * Output the top-right header area with Premium status or CTA.
+	 *
+	 * @return string HTML for the premium/settings header link.
+	 */
+	public static function get_header_premium_link() {
+		$settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
+
+		ob_start();
+
+		?>
+		<div class="sh-PageHeader-rightLink">
+			<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--settings">
+				<span class="dashicons dashicons-admin-generic"></span>
+				<?php esc_html_e( 'Settings', 'simple-history' ); ?>
+			</a>
+
+			<?php if ( self::is_premium_add_on_active() ) { ?>
+				<span class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--premiumActive">
+					<span class="dashicons dashicons-yes"></span>
+					<?php esc_html_e( 'Premium', 'simple-history' ); ?>
+				</span>
+			<?php } else { ?>
+				<a href="<?php echo esc_url( self::get_tracking_url( 'https://simple-history.com/premium/', 'premium_header_cta' ) ); ?>" class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--getPremium" target="_blank">
+					<span class="dashicons dashicons-star-filled"></span>
+					<?php esc_html_e( 'Get Premium', 'simple-history' ); ?>
+				</a>
+			<?php } ?>
+		</div>
+		<?php
+
+		return ob_get_clean();
+	}
+
+	/**
 	 * Gets the pager size,
 	 * i.e. the number of items to show on each page in the history
 	 *

@@ -1579,69 +1579,75 @@ so add some extra place then to make it look a bit less ugly.
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	gap: 0.25rem;
+	gap: 0.5rem;
 }
 
 .sh-PageHeader-settingsLinkIcon {
 	--sh-icon-size: 25px;
 }
 
-/* Top-right Premium area — two states */
-.sh-PageHeader-rightLink--premium {
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 2px;
-}
-
-/* Premium active status indicator */
-.sh-PageHeader-premiumStatus {
-	display: flex;
+/* Shared header button style for Settings / Premium */
+.sh-PageHeader-headerBtn {
+	display: inline-flex;
 	align-items: center;
-	gap: 2px;
-	color: #00a32a;
-	font-size: var(--sh-font-size-small);
+	gap: 4px;
+	font-size: 13px;
 	font-weight: 500;
-}
-
-.sh-PageHeader-premiumStatus .dashicons {
-	font-size: 14px;
-	width: 14px;
-	height: 14px;
-	line-height: 14px;
-}
-
-/* Settings link below premium status */
-.sh-PageHeader-settingsLink {
-	font-size: var(--sh-font-size-small);
-	text-decoration: none;
-	color: #2271b1;
-}
-
-.sh-PageHeader-settingsLink:hover {
-	color: #135e96;
-}
-
-/* Get Premium CTA link — amber button */
-.sh-PageHeader-getPremiumLink {
-	display: inline-block;
-	background-color: #996800;
-	color: var(--sh-color-white);
-	font-size: 12px;
-	font-weight: 600;
 	padding: 6px 14px;
 	border-radius: var(--sh-border-radius);
 	text-decoration: none;
-	transition: background-color 0.15s ease;
+	line-height: 1;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.sh-PageHeader-getPremiumLink:hover {
-	background-color: #7a4a00;
-	color: var(--sh-color-white);
+.sh-PageHeader-headerBtn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
 }
 
-.sh-PageHeader-getPremiumLink:focus-visible {
+/* Settings — outlined style */
+.sh-PageHeader-headerBtn--settings {
+	color: #50575e;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+}
+
+.sh-PageHeader-headerBtn--settings:hover {
+	background: #f0f0f1;
+	border-color: #8c8f94;
+	color: #1d2327;
+}
+
+.sh-PageHeader-headerBtn--settings:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+/* Get Premium — outlined style matching Settings */
+.sh-PageHeader-headerBtn--getPremium {
+	color: #996800;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+}
+
+.sh-PageHeader-headerBtn--getPremium:hover {
+	background: #fef8ee;
+	border-color: #996800;
+	color: #7a4a00;
+}
+
+.sh-PageHeader-headerBtn--getPremium:focus-visible {
 	outline: 2px solid #996800;
 	outline-offset: 2px;
+}
+
+/* Premium active — green confirmed badge */
+.sh-PageHeader-headerBtn--premiumActive {
+	background-color: #00a32a;
+	color: var(--sh-color-white);
+	border: 1px solid #00a32a;
 }
 
 /* Base badge styles shared by all header badges */
