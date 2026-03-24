@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * @param bool $show_upsell Whether to show the upsell.
  * @return bool Whether to show the upsell.
  */
-$show_upsell = apply_filters( 'simple_history/email_summary_report/show_upsell', false );
+$show_upsell = apply_filters( 'simple_history/email_summary_report/show_upsell', \Simple_History\Helpers::show_promo_boxes() );
 
 /**
  * Filter to show the main core stats.
@@ -514,17 +514,17 @@ $args = wp_parse_args(
 					<?php
 					if ( $show_upsell ) {
 						?>
-						<div style="text-align: center; margin: 60px 0 25px; padding: 25px; background: linear-gradient(135deg, #FFE4EC 0%, #B4EDE2 100%); border-radius: 8px; border: 1px solid #B4EDE2;">
-							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600;">
-								<?php echo esc_html( __( 'Want More Insights?', 'simple-history' ) ); ?>
+						<div style="margin: 40px 0 25px; padding: 25px; background: linear-gradient(135deg, #FFE4EC 0%, #B4EDE2 100%); border-radius: 8px; border: 1px solid #B4EDE2;">
+							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
+								<?php echo esc_html( __( 'Get more from your activity log', 'simple-history' ) ); ?>
 							</h2>
-							<p style="margin: 0 0 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000;">
-								<?php echo esc_html( __( 'Simple History Premium includes detailed activity breakdowns, user insights, security monitoring, and weekly trends.', 'simple-history' ) ); ?>
+							<p style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; color: #000000; text-align: left;">
+								<?php echo esc_html( __( 'Free logs expire after 60 days. Premium lets you keep them longer — and adds real-time alerts, Slack notifications, CSV export, and log forwarding to syslog or external databases.', 'simple-history' ) ); ?>
 							</p>
-							
-							<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 22px; color: #000000;">
-								<a href="https://simple-history.com/add-ons/premium/" style="color: #0040FF; text-decoration: underline; font-weight: 500;">
-									<?php echo esc_html( __( 'Learn More About Premium', 'simple-history' ) ); ?>
+
+							<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; text-align: left;">
+								<a href="https://simple-history.com/add-ons/premium/?utm_source=wpadmin&amp;utm_medium=email&amp;utm_campaign=weekly-report&amp;utm_content=upsell-block" style="color: #0040FF; text-decoration: underline; font-weight: 600;">
+									<?php echo esc_html( __( 'See what Premium includes', 'simple-history' ) ); ?>
 								</a>
 							</p>
 						</div>
