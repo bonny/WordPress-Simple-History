@@ -61,6 +61,62 @@ $args = wp_parse_args(
 	]
 );
 
+// Determine which inline teaser to show (first match wins, only for free users).
+$inline_teaser_section = '';
+$inline_teaser_text    = '';
+$premium_url           = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=email&utm_campaign=weekly-report&utm_content=inline-teaser';
+
+if ( $show_upsell ) {
+	if ( $args['failed_logins'] > 0 ) {
+		$inline_teaser_section = 'users';
+		$inline_teaser_text    = __( 'With Premium, this email shows the IP addresses and usernames behind every failed attempt.', 'simple-history' );
+	} elseif ( $args['plugin_activations'] > 0 ) {
+		$inline_teaser_section = 'plugins';
+		$inline_teaser_text    = __( 'With Premium, this email names each plugin and the person who changed it.', 'simple-history' );
+	} elseif ( ( $args['posts_created'] + $args['posts_updated'] ) > 3 ) {
+		$inline_teaser_section = 'posts';
+		$inline_teaser_text    = __( 'With Premium, this email shows who edited which posts and when.', 'simple-history' );
+	} elseif ( $args['users_created'] > 0 ) {
+		$inline_teaser_section = 'users';
+		$inline_teaser_text    = __( 'With Premium, this email includes the username and role of every new account.', 'simple-history' );
+	} else {
+		$inline_teaser_section = 'fallback';
+		$inline_teaser_text    = __( 'Premium also adds real-time alerts for critical events — so you don\'t have to wait for the weekly digest.', 'simple-history' );
+	}
+
+	/**
+	 * Filter the inline teaser section and text.
+	 * Premium can set section to empty string to disable inline teasers.
+	 *
+	 * @param string $inline_teaser_section The section to show the teaser in (users, plugins, posts, fallback).
+	 * @param string $inline_teaser_text The teaser text.
+	 * @param array  $args The email template args.
+	 */
+	$inline_teaser_section = apply_filters( 'simple_history/email_summary_report/inline_teaser_section', $inline_teaser_section, $inline_teaser_text, $args );
+	$inline_teaser_text    = apply_filters( 'simple_history/email_summary_report/inline_teaser_text', $inline_teaser_text, $inline_teaser_section, $args );
+}
+
+/**
+ * Render an inline teaser if the current section matches.
+ *
+ * @param string $section The current section name.
+ * @param string $active_section The section that should show the teaser.
+ * @param string $text The teaser text.
+ * @param string $url The premium URL.
+ */
+$render_inline_teaser = function ( $section, $active_section, $text, $url ) {
+	if ( $section !== $active_section || empty( $text ) ) {
+		return;
+	}
+	$learn_more = __( 'See what\'s included', 'simple-history' );
+	?>
+	<p style="margin: 15px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 13px; line-height: 20px; color: #666666; text-align: left;">
+		<?php echo esc_html( $text ); ?>
+		<a href="<?php echo esc_url( $url ); ?>" style="color: #0040FF; text-decoration: underline;"><?php echo esc_html( $learn_more ); ?></a>
+	</p>
+	<?php
+};
+
 ?>
 
 <!DOCTYPE html>
@@ -368,6 +424,11 @@ $args = wp_parse_args(
 									</td>
 								</tr>
 							</table>
+							<?php
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
+							echo apply_filters( 'simple_history/email_summary_report/section_content/posts', '', $args );
+							$render_inline_teaser( 'posts', $inline_teaser_section, $inline_teaser_text, $premium_url );
+							?>
 						</div>
 						<?php
 						// Notes Section - only show on WordPress 6.9+ where Notes feature exists.
@@ -448,6 +509,11 @@ $args = wp_parse_args(
 									</td>
 								</tr>
 							</table>
+							<?php
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
+							echo apply_filters( 'simple_history/email_summary_report/section_content/users', '', $args );
+							$render_inline_teaser( 'users', $inline_teaser_section, $inline_teaser_text, $premium_url );
+							?>
 						</div>
 
 						<!-- Plugins Section -->
@@ -476,8 +542,13 @@ $args = wp_parse_args(
 									</td>
 								</tr>
 							</table>
+							<?php
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
+							echo apply_filters( 'simple_history/email_summary_report/section_content/plugins', '', $args );
+							$render_inline_teaser( 'plugins', $inline_teaser_section, $inline_teaser_text, $premium_url );
+							?>
 						</div>
-						
+
 						<!-- WordPress Section -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
@@ -489,9 +560,14 @@ $args = wp_parse_args(
 							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">
 								<?php echo esc_html( number_format_i18n( $args['wordpress_updates'] ) ); ?>
 							</div>
+							<?php
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
+							echo apply_filters( 'simple_history/email_summary_report/section_content/wordpress', '', $args );
+							?>
 						</div>
 
 						<?php
+						$render_inline_teaser( 'fallback', $inline_teaser_section, $inline_teaser_text, $premium_url );
 					}
 					?>
 					</div>
