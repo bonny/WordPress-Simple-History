@@ -1586,6 +1586,64 @@ so add some extra place then to make it look a bit less ugly.
 	--sh-icon-size: 25px;
 }
 
+/* Top-right Premium area — two states */
+.sh-PageHeader-rightLink--premium {
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 2px;
+}
+
+/* Premium active status indicator */
+.sh-PageHeader-premiumStatus {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	color: #00a32a;
+	font-size: var(--sh-font-size-small);
+	font-weight: 500;
+}
+
+.sh-PageHeader-premiumStatus .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	line-height: 14px;
+}
+
+/* Settings link below premium status */
+.sh-PageHeader-settingsLink {
+	font-size: var(--sh-font-size-small);
+	text-decoration: none;
+	color: #2271b1;
+}
+
+.sh-PageHeader-settingsLink:hover {
+	color: #135e96;
+}
+
+/* Get Premium CTA link — amber button */
+.sh-PageHeader-getPremiumLink {
+	display: inline-block;
+	background-color: #996800;
+	color: var(--sh-color-white);
+	font-size: 12px;
+	font-weight: 600;
+	padding: 6px 14px;
+	border-radius: var(--sh-border-radius);
+	text-decoration: none;
+	transition: background-color 0.15s ease;
+}
+
+.sh-PageHeader-getPremiumLink:hover {
+	background-color: #7a4a00;
+	color: var(--sh-color-white);
+}
+
+.sh-PageHeader-getPremiumLink:focus-visible {
+	outline: 2px solid #996800;
+	outline-offset: 2px;
+}
+
 /* Base badge styles shared by all header badges */
 .sh-PageHeader-badge {
 	color: var(--sh-color-white);
@@ -1599,42 +1657,6 @@ so add some extra place then to make it look a bit less ugly.
 	margin-left: var(--sh-spacing-small);
 }
 
-/* Premium active badge — subtle confirmed state with checkmark */
-.sh-PageHeader-badge--premiumActive {
-	background: none;
-	color: #00a32a;
-	font-size: var(--sh-font-size-small);
-	font-weight: 500;
-	text-transform: none;
-	letter-spacing: normal;
-	display: inline-flex;
-	align-items: center;
-	gap: 2px;
-}
-
-.sh-PageHeader-badge--premiumActive .dashicons {
-	font-size: 16px;
-	width: 16px;
-	height: 16px;
-	line-height: 16px;
-}
-
-/* Get Premium badge — amber CTA for non-premium users */
-.sh-PageHeader-badge--getPremium {
-	background-color: #996800;
-	text-decoration: none;
-	transition: background-color 0.15s ease;
-}
-
-.sh-PageHeader-badge--getPremium:hover {
-	background-color: #7a4a00;
-	color: var(--sh-color-white);
-}
-
-.sh-PageHeader-badge--getPremium:focus-visible {
-	outline: 2px solid #996800;
-	outline-offset: 2px;
-}
 
 /* Dev badge variant */
 .sh-PageHeader-badge--dev {
@@ -1681,19 +1703,17 @@ so add some extra place then to make it look a bit less ugly.
 	background-color: #888;
 }
 
-/* Status Box — two-zone strip inside the page header */
-.sh-StatusBox {
+/* Status bar — plain text strip inside the page header */
+.sh-HeaderStatus {
 	display: flex;
 	align-items: center;
 	gap: var(--sh-spacing-medium);
 	width: 100%;
-	padding-top: var(--sh-spacing-small);
-	margin-top: var(--sh-spacing-xsmall);
 	font-size: var(--sh-font-size-small);
 	color: var(--sh-color-gray-3);
 }
 
-.sh-StatusBox-zone {
+.sh-HeaderStatus-zone {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -1703,44 +1723,21 @@ so add some extra place then to make it look a bit less ugly.
 	padding: 0;
 }
 
-.sh-StatusBox-item {
+.sh-HeaderStatus-item {
 	white-space: nowrap;
 }
 
 /* Dot separator between items */
-.sh-StatusBox-item + .sh-StatusBox-item::before {
+.sh-HeaderStatus-item + .sh-HeaderStatus-item::before {
 	content: "\00b7";
 	margin: 0 var(--sh-spacing-small);
 	color: var(--sh-color-gray-2);
 }
 
-.sh-StatusBox-itemText {
+.sh-HeaderStatus-itemText {
 	color: var(--sh-color-gray-3);
 }
 
-/* Settings button — bordered link pushed to far right */
-.sh-StatusBox-settingsBtn {
-	margin-left: auto;
-	padding: 2px 10px;
-	border: 1px solid var(--sh-color-gray);
-	border-radius: var(--sh-border-radius);
-	font-size: var(--sh-font-size-small);
-	font-weight: 600;
-	text-decoration: none;
-	white-space: nowrap;
-	color: #2271b1;
-	transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.sh-StatusBox-settingsBtn:hover {
-	background: #f0f0f1;
-	border-color: var(--sh-color-gray-2);
-}
-
-.sh-StatusBox-settingsBtn:focus-visible {
-	outline: 2px solid #2271b1;
-	outline-offset: 2px;
-}
 
 .sh-NotificationBar {
 	position: relative;
@@ -2798,11 +2795,14 @@ a.sh-SettingsTabs-link:hover {
 	color: #787c82;
 	background: #f6f7f7;
 	margin-right: 8px;
+	opacity: 1;
+	transition: opacity 0.15s ease;
 }
 
-/* Hide shortcut hint when the input is focused. */
+/* Fade out shortcut hint when the input is focused. */
 .SimpleHistory-filters__searchControl:focus-within .SimpleHistory-filters__searchShortcut {
-	display: none;
+	opacity: 0;
+	pointer-events: none;
 }
 
 /* Expanded filters area. */

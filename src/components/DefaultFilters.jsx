@@ -192,7 +192,11 @@ export function DefaultFilters( props ) {
 						</InputControlPrefixWrapper>
 					}
 					suffix={
-						<kbd className="SimpleHistory-filters__searchShortcut">
+						<kbd
+							className="SimpleHistory-filters__searchShortcut"
+							title={ __( 'Press / to search', 'simple-history' ) }
+							aria-hidden="true"
+						>
 							/
 						</kbd>
 					}
