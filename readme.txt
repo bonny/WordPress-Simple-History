@@ -259,6 +259,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "/" keyboard shortcut to focus the search input, with a visual hint badge. Pressing Escape returns focus to the previously focused element.
 -   Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access. (experimental)
 -   Settings and Premium/Get Premium buttons in the top-right header, replacing the Add-ons link. On settings pages, the button swaps to "View Log" for contextual navigation.
+-   Weekly email report: show premium upsell block for free users with honest feature descriptions and contextual CTA.
+-   Weekly email report: add data-driven inline teaser that appears in the most relevant stat section based on that week's activity.
+-   Weekly email report: add per-section content filters (`section_content/posts`, `section_content/users`, `section_content/plugins`, `section_content/wordpress`) for premium to inject detailed breakdowns.
+-   Weekly email report: add `logo_after` filter for premium badge in email header.
 
 **Changed**
 
