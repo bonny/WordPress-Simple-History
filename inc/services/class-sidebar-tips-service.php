@@ -35,6 +35,7 @@ class Sidebar_Tips_Service extends Service {
 			__( 'Press Cmd+K (or Ctrl+K) in the block editor and type "history" to jump to a post\'s activity log.', 'simple-history' ),
 			__( 'Use the Quick View dropdown in the admin bar to see recent events without leaving your page.', 'simple-history' ),
 			__( 'Click a user\'s avatar in the sidebar to filter the log to just their activity.', 'simple-history' ),
+			__( 'Press "/" on the event log page to quickly jump to the search field. Press Escape to return to where you were.', 'simple-history' ),
 			__( 'Use "Hide my own events" in search filters to focus on what others did.', 'simple-history' ),
 			__( 'Developers: Log your own events from themes and plugins using the simple_history_log filter.', 'simple-history' ),
 			$is_premium_active

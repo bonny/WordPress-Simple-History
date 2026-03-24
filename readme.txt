@@ -256,6 +256,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Hover-reveal quick action button on event rows for faster access to event details.
 -   List of current experimental features shown near the enable toggle in settings.
 -   Added `Helpers::is_windows()` utility method for platform detection.
+-   "/" keyboard shortcut to focus the search input, with a visual hint badge. Pressing Escape returns focus to the previously focused element.
 
 **Changed**
 
