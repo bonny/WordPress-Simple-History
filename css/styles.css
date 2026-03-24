@@ -1599,6 +1599,43 @@ so add some extra place then to make it look a bit less ugly.
 	margin-left: var(--sh-spacing-small);
 }
 
+/* Premium active badge — subtle confirmed state with checkmark */
+.sh-PageHeader-badge--premiumActive {
+	background: none;
+	color: #00a32a;
+	font-size: var(--sh-font-size-small);
+	font-weight: 500;
+	text-transform: none;
+	letter-spacing: normal;
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.sh-PageHeader-badge--premiumActive .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
+}
+
+/* Get Premium badge — amber CTA for non-premium users */
+.sh-PageHeader-badge--getPremium {
+	background-color: #996800;
+	text-decoration: none;
+	transition: background-color 0.15s ease;
+}
+
+.sh-PageHeader-badge--getPremium:hover {
+	background-color: #7a4a00;
+	color: var(--sh-color-white);
+}
+
+.sh-PageHeader-badge--getPremium:focus-visible {
+	outline: 2px solid #996800;
+	outline-offset: 2px;
+}
+
 /* Dev badge variant */
 .sh-PageHeader-badge--dev {
 	background-color: #2271b1;
@@ -1644,76 +1681,65 @@ so add some extra place then to make it look a bit less ugly.
 	background-color: #888;
 }
 
-/* Status Box — compact status strip inside header area on main log page */
+/* Status Box — two-zone strip inside the page header */
 .sh-StatusBox {
 	display: flex;
 	align-items: center;
 	gap: var(--sh-spacing-medium);
-	padding: var(--sh-spacing-small) var(--sh-spacing-large);
-	margin: 0 0 0 -20px;
-	background: #fff;
-	border-bottom: 1px solid var(--sh-color-gray);
+	width: 100%;
+	padding-top: var(--sh-spacing-small);
+	margin-top: var(--sh-spacing-xsmall);
 	font-size: var(--sh-font-size-small);
 	color: var(--sh-color-gray-3);
 }
 
-/* Remove header bottom border when status box follows it */
-.sh-PageHeader:has(+ .sh-StatusBox) {
-	border-bottom: none;
-	padding-bottom: 0;
-}
-
-.sh-StatusBox-items {
+.sh-StatusBox-zone {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: var(--sh-spacing-xsmall) var(--sh-spacing-medium);
+	gap: 0;
 	list-style: none;
 	margin: 0;
 	padding: 0;
-	flex: 1;
 }
 
 .sh-StatusBox-item {
-	display: flex;
-	align-items: center;
-	gap: var(--sh-spacing-xsmall);
 	white-space: nowrap;
 }
 
-.sh-StatusBox-item--warning {
-	color: #b26200;
+/* Dot separator between items */
+.sh-StatusBox-item + .sh-StatusBox-item::before {
+	content: "\00b7";
+	margin: 0 var(--sh-spacing-small);
+	color: var(--sh-color-gray-2);
 }
 
-.sh-StatusBox-itemLink {
-	display: flex;
-	align-items: center;
-	gap: var(--sh-spacing-xsmall);
-	text-decoration: none;
-	color: inherit;
-}
-
-.sh-StatusBox-itemLink:hover {
-	color: var(--sh-color-blue);
-}
-
-.sh-StatusBox-itemLabel {
-	font-weight: 600;
-}
-
-.sh-StatusBox-itemLabel::after {
-	content: ":";
-}
-
-.sh-StatusBox-settingsLink {
-	font-size: var(--sh-font-size-small);
-	text-decoration: none;
-	white-space: nowrap;
+.sh-StatusBox-itemText {
 	color: var(--sh-color-gray-3);
 }
 
-.sh-StatusBox-settingsLink:hover {
-	color: var(--sh-color-blue);
+/* Settings button — bordered link pushed to far right */
+.sh-StatusBox-settingsBtn {
+	margin-left: auto;
+	padding: 2px 10px;
+	border: 1px solid var(--sh-color-gray);
+	border-radius: var(--sh-border-radius);
+	font-size: var(--sh-font-size-small);
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+	color: #2271b1;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.sh-StatusBox-settingsBtn:hover {
+	background: #f0f0f1;
+	border-color: var(--sh-color-gray-2);
+}
+
+.sh-StatusBox-settingsBtn:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
 }
 
 .sh-NotificationBar {
@@ -2762,6 +2788,22 @@ a.sh-SettingsTabs-link:hover {
 	line-height: 1;
 }
 
+.SimpleHistory-filters__searchShortcut {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 12px;
+	line-height: 1;
+	padding: 2px 6px;
+	border: 1px solid #c3c4c7;
+	border-radius: 3px;
+	color: #787c82;
+	background: #f6f7f7;
+	margin-right: 8px;
+}
+
+/* Hide shortcut hint when the input is focused. */
+.SimpleHistory-filters__searchControl:focus-within .SimpleHistory-filters__searchShortcut {
+	display: none;
+}
 
 /* Expanded filters area. */
 .SimpleHistory-filters__expandedFilters {

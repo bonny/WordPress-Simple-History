@@ -12,6 +12,7 @@ Miscellaneous fixes and improvements collected from local issues.
 - Improve dashboard widget UX: clarify stats copy ("events logged today"), update footer link ("View full activity log"), and reorder footer (action link before tip)
 - Improve History Insights sidebar chart UX: mark today with visible dot, add "(today)" to end date label, reduce y-axis clutter, add accessible aria-label with avg/peak summary
 - Improve History Insights sidebar footer: separate database stats with top border, move cache freshness info into tooltip
+- Add "/" keyboard shortcut to focus search input, Escape to exit, with visual kbd hint
 
 ## Files changed
 
@@ -24,3 +25,5 @@ Miscellaneous fixes and improvements collected from local issues.
 - `js/simple-history-insights-sidebar.js` — Chart today marker, reduced y-axis ticks
 - `inc/services/class-history-insights-sidebar-service.php` — Accessible chart summary, "(today)" label, footer refactor
 - `css/simple-history-insights-sidebar.css` — Footer separator styles
+- `src/components/DefaultFilters.jsx` — "/" shortcut to focus search, Escape to restore previous focus
+- `css/styles.css` — Keyboard shortcut badge styling
