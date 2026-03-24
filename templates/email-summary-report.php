@@ -209,11 +209,35 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 			<!-- Logo -->
 			<tr>
 				<td style="padding: 40px 0 20px; text-align: left;">
-					<a href="https://simple-history.com/?utm_source=wpadmin&amp;utm_medium=email&amp;utm_campaign=weekly-report" style="text-decoration: none;">
-						<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/simple-history-logo.png' ); ?>"
-							width="200" height="41" alt="<?php echo esc_attr( __( 'Simple History', 'simple-history' ) ); ?>"
-							border="0" style="height: auto; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #333333; display: block;">
-					</a>
+					<table role="presentation" cellspacing="0" cellpadding="0" border="0">
+						<tr>
+							<td style="vertical-align: middle;">
+								<a href="https://simple-history.com/?utm_source=wpadmin&amp;utm_medium=email&amp;utm_campaign=weekly-report" style="text-decoration: none;">
+									<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/simple-history-logo.png' ); ?>"
+										width="200" height="41" alt="<?php echo esc_attr( __( 'Simple History', 'simple-history' ) ); ?>"
+										border="0" style="height: auto; font-family: sans-serif; font-size: 15px; line-height: 15px; color: #333333; display: block;">
+								</a>
+							</td>
+							<?php
+							/**
+							 * Filter to add content after the logo, e.g. a "Premium" badge.
+							 *
+							 * @param string $content HTML content to display after the logo.
+							 */
+							$logo_after_content = apply_filters( 'simple_history/email_summary_report/logo_after', '' );
+							if ( ! empty( $logo_after_content ) ) {
+								?>
+								<td style="vertical-align: middle; padding-left: 10px;">
+									<?php
+									// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
+									echo $logo_after_content;
+									?>
+								</td>
+								<?php
+							}
+							?>
+						</tr>
+					</table>
 				</td>
 			</tr>
 			
