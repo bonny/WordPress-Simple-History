@@ -790,7 +790,7 @@ i.e. the log is inside a .postbox element.
 	box-shadow: none;
 	padding: 0;
 	margin: 4px 0 var(--sh-dashboard-padding-y);
-	font-size: 13px;
+	font-size: var(--sh-font-size-normal);
 	font-weight: 600;
 	line-height: 1.4;
 	max-height: none;
@@ -811,7 +811,7 @@ i.e. the log is inside a .postbox element.
 	gap: 4px;
 	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
 	min-height: 21px;
-	font-size: 13px;
+	font-size: var(--sh-font-size-normal);
 	color: #50575e;
 	border-bottom: 1px solid #f0f0f1;
 }
@@ -861,7 +861,7 @@ a.sh-DashboardWidget-stats--link:hover {
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
 	padding: 4px 8px;
-	font-size: 13px;
+	font-size: var(--sh-font-size-normal);
 	line-height: 1.6;
 	background: #fff;
 	color: #2c3338;
@@ -880,7 +880,7 @@ a.sh-DashboardWidget-stats--link:hover {
 }
 
 .sh-DashboardWidget-searchRow__filtersLink {
-	font-size: 12px;
+	font-size: var(--sh-font-size-small);
 	text-decoration: none;
 	margin-left: auto;
 }
@@ -899,7 +899,7 @@ a.sh-DashboardWidget-stats--link:hover {
 	display: block;
 	padding: 12px var(--sh-dashboard-padding-x);
 	text-decoration: none;
-	font-size: 13px;
+	font-size: var(--sh-font-size-normal);
 }
 
 .sh-DashboardWidget-viewAll a:hover {
@@ -914,7 +914,7 @@ a.sh-DashboardWidget-stats--link:hover {
 .sh-DashboardWidget-viewAll__placeholder {
 	display: block;
 	padding: 12px var(--sh-dashboard-padding-x);
-	font-size: 13px;
+	font-size: var(--sh-font-size-normal);
 	color: #c3c4c7;
 	cursor: default;
 }
@@ -923,7 +923,7 @@ a.sh-DashboardWidget-stats--link:hover {
 .sh-DashboardWidget-sparseNotice {
 	margin: 0;
 	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
-	font-size: 12px;
+	font-size: var(--sh-font-size-small);
 	color: #646970;
 	border-top: 1px solid #f0f0f1;
 }
