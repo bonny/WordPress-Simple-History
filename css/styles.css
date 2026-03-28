@@ -940,7 +940,6 @@ a.sh-DashboardWidget-stats--link:hover {
 .sh-DashboardWidget {
 	--sh-dashboard-padding-x: 12px;
 	--sh-dashboard-padding-y: 8px;
-	background-color: white;
 }
 
 /* Dashboard widget: content area. Overflow is managed by JS during height animation only. */
