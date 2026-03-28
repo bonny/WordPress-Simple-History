@@ -37,7 +37,7 @@ export function FetchEventsNoResultsMessage( props ) {
 		<div style={ containerStyles } role="status" aria-live="polite">
 			<Icon
 				icon={ icon }
-				fill="var(--sh-color-gray-2)"
+				fill="var(--sh-color-gray-3)"
 				size={ 32 }
 				style={ { flexShrink: 0, marginTop: '2px' } }
 			/>
@@ -49,7 +49,7 @@ export function FetchEventsNoResultsMessage( props ) {
 						fontSize: '1rem',
 						fontWeight: '600',
 						marginBlock: '0 .25rem',
-						color: 'var(--sh-color-gray-2)',
+						color: 'var(--sh-color-gray-3)',
 					} }
 				>
 					{ __( 'No matching events', 'simple-history' ) }
@@ -61,7 +61,7 @@ export function FetchEventsNoResultsMessage( props ) {
 						fontSize: '0.9rem',
 						fontWeight: '400',
 						marginBlock: '.25rem',
-						color: 'var(--sh-color-gray-2)',
+						color: 'var(--sh-color-gray-3)',
 					} }
 				>
 					{ __(
