@@ -17,10 +17,23 @@ Create blog posts for simple-history.com that match the author's established voi
 
 ## Quick Reference
 
-**Voice:** Conversational, knowledgeable, friendly expert
+**Voice:** Conversational, knowledgeable, friendly expert — must sound human, not AI-generated
 **Structure:** Short paragraphs (2-4 sentences), clear headings, bullets for lists
 **Pronouns:** Address readers as "you"
 **Avoid:** "dive into", "let's explore", "in today's digital landscape", excessive exclamation marks
+
+### Sound Human, Not AI
+
+Blog posts must read like a real person wrote them. Watch for these AI tells:
+
+- **Mechanical summary patterns** — "The article highlights X, mentions Y, and notes Z" chains
+- **Overly polished/balanced structure** — every paragraph perfectly formed, no rough edges
+- **Flattering self-references** — "the description is flattering", "we're pleased to share"
+- **Corporate filler** — "covers the core use case", "key takeaways", "it's worth noting"
+- **No personality or opinion** — real posts push back, joke, or admit things honestly
+- **Formulaic closings** — "Thanks for the mention, [Name]"
+
+Instead: have an opinion, acknowledge criticism honestly, use casual phrasing, and let some sentences be short or incomplete. Read it back and ask "would a person actually write this?"
 
 ## Post Template
 
