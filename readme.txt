@@ -270,6 +270,7 @@ This release focuses on keeping your database lean. Three features that reduce l
 
 **Changed**
 
+-   Premium sidebar promo now appears after 21 days since install instead of after a fixed event count, better aligned with the 30-day retention cycle.
 -   Failed login rate limiting is now active for all users, capping logging at 100 consecutive failed attempts to prevent database bloat from brute force attacks.
 -   Compact diff storage for post content changes is now active for all users, storing only a compact diff instead of full old+new content (up to 99% smaller for typical edits) with automatic fallback when the diff would be larger.
 -   Search is now faster and more accurate for all users: queries skip occasion grouping for speed and only search relevant context keys from registered loggers instead of scanning all metadata. Previously this was an experimental opt-in feature. Use the "Event metadata" search field in the advanced filters to search all metadata (similar to the old behavior).
