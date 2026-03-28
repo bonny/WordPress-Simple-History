@@ -463,7 +463,8 @@ Tag = the pill with the log level.
 	color: #1d2327;
 }
 
-.SimpleHistoryLogitem:is(:hover, :focus-within) .SimpleHistoryLogitem__quickActions {
+.SimpleHistoryLogitem:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__quickActions {
 	opacity: 1;
 	pointer-events: auto;
 }
@@ -474,7 +475,9 @@ Tag = the pill with the log level.
 	transition: opacity 0.15s ease;
 }
 
-.SimpleHistoryLogitem:is(:hover, :focus-within) .SimpleHistoryLogitem__actions > .components-dropdown-menu {
+.SimpleHistoryLogitem:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__actions
+	> .components-dropdown-menu {
 	opacity: 1;
 }
 
@@ -1597,7 +1600,9 @@ so add some extra place then to make it look a bit less ugly.
 	border-radius: var(--sh-border-radius);
 	text-decoration: none;
 	line-height: 1;
-	transition: background-color 0.15s ease, border-color 0.15s ease;
+	transition:
+		background-color 0.15s ease,
+		border-color 0.15s ease;
 }
 
 .sh-PageHeader-headerBtn .dashicons {
@@ -1607,35 +1612,51 @@ so add some extra place then to make it look a bit less ugly.
 	line-height: 16px;
 }
 
-/* Settings — outlined style */
-.sh-PageHeader-headerBtn--settings {
+/* Settings — icon-only gear link */
+.sh-PageHeader-settingsIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	color: #50575e;
-	border: 1px solid #c3c4c7;
-	background: #fff;
+	text-decoration: none;
+	padding: 4px;
+	border-radius: var(--sh-border-radius);
+	transition: color 0.15s ease;
 }
 
-.sh-PageHeader-headerBtn--settings:hover {
-	background: #f0f0f1;
-	border-color: #8c8f94;
+.sh-PageHeader-settingsIcon .dashicons {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	line-height: 20px;
+}
+
+.sh-PageHeader-settingsIcon:hover {
 	color: #1d2327;
 }
 
-.sh-PageHeader-headerBtn--settings:focus-visible {
+.sh-PageHeader-settingsIcon:focus-visible {
 	outline: 2px solid #2271b1;
 	outline-offset: 2px;
 }
 
-/* Get Premium — outlined style matching Settings */
+/* Get Premium — text link style */
 .sh-PageHeader-headerBtn--getPremium {
 	color: #996800;
-	border: 1px solid #c3c4c7;
-	background: #fff;
+	border: none;
+	background: none;
+	padding: 6px 4px;
+	text-decoration: none;
+	text-underline-offset: 2px;
+	transition: color 0.15s ease;
 }
 
 .sh-PageHeader-headerBtn--getPremium:hover {
-	background: #fef8ee;
-	border-color: #996800;
 	color: #7a4a00;
+	background: none;
+	border: none;
+	text-decoration: underline;
+	text-decoration-color: #996800;
 }
 
 .sh-PageHeader-headerBtn--getPremium:focus-visible {
@@ -1643,7 +1664,7 @@ so add some extra place then to make it look a bit less ugly.
 	outline-offset: 2px;
 }
 
-/* Premium active — subtle status, same size as Get Premium but no border */
+/* Premium active — subtle status badge */
 .sh-PageHeader-headerBtn--premiumActive {
 	background: none;
 	color: #996800;
@@ -1651,10 +1672,11 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-PageHeader-headerBtn--premiumActive .dashicons {
-	font-size: 18px;
-	width: 18px;
-	height: 18px;
-	line-height: 18px;
+	color: #996800;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
 }
 
 /* Dev badges container — absolute positioned above log content */
@@ -1663,10 +1685,10 @@ so add some extra place then to make it look a bit less ugly.
 }
 
 .sh-DevBadges {
-	position: absolute;
-	top: 0;
-	right: 0;
+	position: fixed;
 	z-index: 10;
+	bottom: var(--sh-spacing-small);
+	right: var(--sh-spacing-small);
 	display: flex;
 	gap: 6px;
 	padding: 4px 8px;
@@ -1683,7 +1705,6 @@ so add some extra place then to make it look a bit less ugly.
 	letter-spacing: 0.5px;
 	line-height: 1;
 }
-
 
 /* Dev badge variant */
 .sh-PageHeader-badge--dev {
@@ -1752,9 +1773,7 @@ so add some extra place then to make it look a bit less ugly.
 		padding-left: 0;
 		width: 100%;
 	}
-
 }
-
 
 /* Secondary items — smaller, lighter. #767676 = 4.54:1 on white, WCAG AA. */
 .sh-HeaderStatus-item--secondary {
@@ -1774,7 +1793,6 @@ so add some extra place then to make it look a bit less ugly.
 .sh-HeaderStatus-item--secondary .sh-HeaderStatus-itemLink:hover {
 	color: #2271b1;
 }
-
 
 .sh-HeaderStatus-zone {
 	display: flex;
@@ -1842,7 +1860,6 @@ so add some extra place then to make it look a bit less ugly.
 	outline: none;
 	box-shadow: none;
 }
-
 
 .sh-NotificationBar {
 	position: relative;
@@ -2891,7 +2908,8 @@ a.sh-SettingsTabs-link:hover {
 }
 
 .SimpleHistory-filters__searchShortcut {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	font-size: 12px;
 	line-height: 1;
 	padding: 2px 6px;
@@ -2905,7 +2923,8 @@ a.sh-SettingsTabs-link:hover {
 }
 
 /* Fade out shortcut hint when the input is focused. */
-.SimpleHistory-filters__searchControl:focus-within .SimpleHistory-filters__searchShortcut {
+.SimpleHistory-filters__searchControl:focus-within
+	.SimpleHistory-filters__searchShortcut {
 	opacity: 0;
 	pointer-events: none;
 }
@@ -4495,7 +4514,6 @@ Styles for plugin update details. Markup looks like this:
 	margin: 0 0 4px 0;
 }
 
-
 .sh-UserCard__loading {
 	display: flex;
 	padding: 8px 0;
@@ -4640,4 +4658,3 @@ Styles for plugin update details. Markup looks like this:
 .sh-UserCard__blurredPreview:hover .sh-UserCard__premiumBadge {
 	color: var(--sh-color-blue, #2271b1);
 }
-

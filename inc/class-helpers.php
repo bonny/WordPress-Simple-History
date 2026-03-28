@@ -964,12 +964,6 @@ class Helpers {
 	 */
 	public static function get_header_premium_link() {
 		$settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
-		$log_url      = Menu_Manager::get_admin_url_by_slug( Simple_History::MENU_PAGE_SLUG );
-
-		// Determine if current page is a settings page.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$current_page    = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
-		$is_settings_page = str_contains( $current_page, 'settings' );
 
 		ob_start();
 
@@ -977,8 +971,8 @@ class Helpers {
 		<div class="sh-PageHeader-rightLink">
 			<?php if ( self::is_premium_add_on_active() ) { ?>
 				<span class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--premiumActive">
-					<span class="dashicons dashicons-yes-alt"></span>
-					<?php esc_html_e( 'Premium', 'simple-history' ); ?>
+					<span class="dashicons dashicons-star-filled"></span>
+					<?php esc_html_e( 'Premium active', 'simple-history' ); ?>
 				</span>
 			<?php } else { ?>
 				<a href="<?php echo esc_url( self::get_tracking_url( 'https://simple-history.com/premium/', 'premium_header_cta' ) ); ?>" class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--getPremium" target="_blank">
@@ -987,17 +981,9 @@ class Helpers {
 				</a>
 			<?php } ?>
 
-			<?php if ( $is_settings_page ) { ?>
-				<a href="<?php echo esc_url( $log_url ); ?>" class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--settings">
-					<span class="dashicons dashicons-list-view"></span>
-					<?php esc_html_e( 'View Log', 'simple-history' ); ?>
-				</a>
-			<?php } else { ?>
-				<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--settings">
-					<span class="dashicons dashicons-admin-generic"></span>
-					<?php esc_html_e( 'Settings', 'simple-history' ); ?>
-				</a>
-			<?php } ?>
+			<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-settingsIcon" aria-label="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>" title="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>">
+				<span class="dashicons dashicons-admin-generic"></span>
+			</a>
 		</div>
 		<?php
 
