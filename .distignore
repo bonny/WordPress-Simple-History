@@ -27,6 +27,7 @@
 .gitignore
 .mcp.json
 .nvmrc
+.phpactor.json
 .prettierrc
 .typos.toml
 .valetrc
