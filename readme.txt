@@ -275,6 +275,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
+-   Dashboard widget corners not matching the new rounded style in WordPress 7.0.
 -   PHP notice on the widget editor screen (widgets.php) caused by the command palette script loading `wp-editor` on non-post-editor screens.
 -   Occasion counts in the RSS feed were always zero and never rendered.
 -   Inverted condition in the GitHub plugin info handler that caused it to always fail.

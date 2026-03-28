@@ -801,6 +801,7 @@ i.e. the log is inside a .postbox element.
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks {
 	margin-top: var(--sh-spacing-xsmall);
 	margin-bottom: 0;
+	font-size: var(--sh-font-size-small);
 }
 
 /* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
@@ -931,7 +932,7 @@ a.sh-DashboardWidget-stats--link:hover {
 .sh-DashboardWidget-tip {
 	margin: 0;
 	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
-	font-size: 12px;
+	font-size: var(--sh-font-size-small);
 	color: #646970;
 	border-top: 1px solid #f0f0f1;
 }
