@@ -486,6 +486,11 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 										</td>
 									</tr>
 								</table>
+							<?php
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
+							echo apply_filters( 'simple_history/email_summary_report/section_content/notes', '', $args );
+							$render_inline_teaser( 'notes', $inline_teaser_section, $inline_teaser_text, $premium_url );
+							?>
 							</div>
 							<?php
 						}
