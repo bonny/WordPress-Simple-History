@@ -118,8 +118,14 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 			return;
 		}
 
-		// Settings page URL with anchor to email report settings section.
-		$settings_url = Helpers::get_settings_page_url() . '#simple_history_email_report_section';
+		// Settings page URL pointing to the Email Reports tab.
+		$settings_url = add_query_arg(
+			[
+				'selected-tab'     => 'general_settings_subtab_general',
+				'selected-sub-tab' => 'general_settings_subtab_email_reports',
+			],
+			Helpers::get_settings_page_url()
+		);
 
 		?>
 		<div class="postbox sh-EmailPromoCard sh-PremiumFeaturesPostbox" id="simple-history-email-promo-card" style="--box-bg-color: var(--sh-color-cream);">

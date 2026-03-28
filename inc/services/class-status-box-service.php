@@ -4,7 +4,6 @@ namespace Simple_History\Services;
 
 use Simple_History\Helpers;
 use Simple_History\Menu_Manager;
-use Simple_History\Simple_History;
 
 /**
  * Renders a feature discovery bar inside the page header.
@@ -112,7 +111,13 @@ class Status_Box_Service extends Service {
 
 		$settings_url       = Helpers::get_settings_page_url();
 		$general_section    = $settings_url . '#simple_history_general_section';
-		$email_section      = $settings_url . '#simple_history_email_report_section';
+		$email_section      = add_query_arg(
+			[
+				'selected-tab'     => 'general_settings_subtab_general',
+				'selected-sub-tab' => 'general_settings_subtab_email_reports',
+			],
+			$settings_url
+		);
 		$rss_section        = $settings_url . '#simple_history_rss_section';
 		$alerts_tab_url     = add_query_arg( 'selected-tab', 'general_settings_subtab_alerts', $settings_url );
 		$forwarding_tab_url = add_query_arg( 'selected-tab', 'general_settings_subtab_log_forwarding', $settings_url );

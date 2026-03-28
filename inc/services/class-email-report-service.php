@@ -2,7 +2,6 @@
 
 namespace Simple_History\Services;
 
-use Simple_History\Simple_History;
 use Simple_History\Helpers;
 use Simple_History\Events_Stats;
 use Simple_History\Date_Helper;
@@ -12,7 +11,7 @@ use Simple_History\Menu_Page;
  * Service that handles email reports.
  */
 class Email_Report_Service extends Service {
-	private const SETTINGS_PAGE_SLUG   = 'simple_history_settings_menu_slug_email_reports';
+	private const SETTINGS_PAGE_SLUG    = 'simple_history_settings_menu_slug_email_reports';
 	private const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_email_reports';
 
 	/**

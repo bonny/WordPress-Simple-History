@@ -9,7 +9,7 @@
 class EmailReportServiceCest {
     public function _before( FunctionalTester $I ) {
         $I->loginAsAdmin();
-        $I->amOnAdminPage('admin.php?page=simple_history_settings_page');
+        $I->amOnAdminPage('admin.php?page=simple_history_settings_page&selected-tab=general_settings_subtab_general&selected-sub-tab=general_settings_subtab_email_reports');
     }
 
     public function test_can_see_email_report_settings_section( FunctionalTester $I ) {
