@@ -1541,6 +1541,7 @@ Modal window with detailss
 	border-bottom: 1px solid var(--sh-color-gray);
 	display: flex;
 	flex-wrap: wrap;
+	align-items: center;
 	justify-content: space-between;
 	column-gap: 1rem;
 }
@@ -1686,7 +1687,7 @@ so add some extra place then to make it look a bit less ugly.
 
 .sh-DevBadges {
 	position: fixed;
-	z-index: 10;
+	z-index: 1000;
 	bottom: var(--sh-spacing-small);
 	right: var(--sh-spacing-small);
 	display: flex;
@@ -1754,12 +1755,10 @@ so add some extra place then to make it look a bit less ugly.
 /* Feature discovery bar — sits inside title group, next to logo */
 .sh-HeaderStatus {
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	gap: 3px;
+	align-items: center;
 	font-size: var(--sh-font-size-small);
 	color: var(--sh-color-gray-3);
-	margin-left: var(--sh-spacing-large);
+	margin-left: var(--sh-spacing-medium);
 	border-left: 1px solid var(--sh-color-gray);
 	padding-left: var(--sh-spacing-medium);
 }
@@ -1773,25 +1772,6 @@ so add some extra place then to make it look a bit less ugly.
 		padding-left: 0;
 		width: 100%;
 	}
-}
-
-/* Secondary items — smaller, lighter. #767676 = 4.54:1 on white, WCAG AA. */
-.sh-HeaderStatus-item--secondary {
-	font-size: 11px;
-}
-
-.sh-HeaderStatus-item--secondary .sh-HeaderStatus-dot {
-	width: 6px;
-	height: 6px;
-}
-
-.sh-HeaderStatus-item--secondary .sh-HeaderStatus-itemLink,
-.sh-HeaderStatus-item--secondary .sh-HeaderStatus-itemText {
-	color: #767676;
-}
-
-.sh-HeaderStatus-item--secondary .sh-HeaderStatus-itemLink:hover {
-	color: #2271b1;
 }
 
 .sh-HeaderStatus-zone {
@@ -1808,55 +1788,53 @@ so add some extra place then to make it look a bit less ugly.
 .sh-HeaderStatus-item {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
 	white-space: nowrap;
+	margin-bottom: 0;
 }
 
-/* Status dot indicator */
-.sh-HeaderStatus-dot {
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-	flex-shrink: 0;
-}
-
-.sh-HeaderStatus-dot--active {
-	background-color: #00a32a;
-}
-
-.sh-HeaderStatus-dot--inactive {
-	background-color: #c3c4c7;
-}
-
-/* Active feature — plain muted text */
-.sh-HeaderStatus-itemText {
-	color: var(--sh-color-gray-3);
-}
-
-/* All links — look like plain text by default */
-.sh-HeaderStatus-itemLink {
+/* Shared inner style for icon + text */
+.sh-HeaderStatus-item-inner {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 	color: var(--sh-color-gray-3);
 	text-decoration: none;
 }
 
-.sh-HeaderStatus-itemLink:hover {
+.sh-HeaderStatus-item-inner .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	line-height: 14px;
+	color: #50575e;
+}
+
+/* Active link hover */
+a.sh-HeaderStatus-item-inner:hover {
 	color: #2271b1;
-	text-decoration: underline;
 }
 
-/* Inactive feature — same gray, distinguished only by dot color */
-.sh-HeaderStatus-itemLink--inactive {
-	color: var(--sh-color-gray-3);
+a.sh-HeaderStatus-item-inner:hover .dashicons {
+	color: #2271b1;
 }
 
-/* Focus outline on the whole item (dot + text) via :has */
-.sh-HeaderStatus-item:has(.sh-HeaderStatus-itemLink:focus-visible) {
+/* Inactive state — #767676 = 4.54:1 on white, WCAG AA compliant */
+.sh-HeaderStatus-item-inner--inactive {
+	color: #767676;
+}
+
+.sh-HeaderStatus-item-inner--inactive .dashicons {
+	color: #767676;
+}
+
+/* Focus outline on the whole item via :has */
+.sh-HeaderStatus-item:has(a.sh-HeaderStatus-item-inner:focus-visible) {
 	outline: 1px solid #2271b1;
 	outline-offset: 2px;
 	border-radius: 2px;
 }
 
-.sh-HeaderStatus-item .sh-HeaderStatus-itemLink:focus-visible {
+.sh-HeaderStatus-item a.sh-HeaderStatus-item-inner:focus-visible {
 	outline: none;
 	box-shadow: none;
 }

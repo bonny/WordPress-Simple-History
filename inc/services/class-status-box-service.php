@@ -38,6 +38,7 @@ class Status_Box_Service extends Service {
 		 *
 		 * Each item is an array with keys:
 		 * - 'text'     (string) Display text.
+		 * - 'icon'     (string) Dashicon class name (e.g. 'dashicons-clock').
 		 * - 'url'      (string, optional) Link URL. Omit for non-interactive items.
 		 * - 'inactive' (bool, optional) True if the feature is off/discoverable.
 		 *
@@ -51,30 +52,15 @@ class Status_Box_Service extends Service {
 			return;
 		}
 		?>
-		<?php
-		// Split items: first 4 are primary, rest are secondary.
-		$primary_items   = array_slice( $items, 0, 4 );
-		$secondary_items = array_slice( $items, 4 );
-		?>
 
 		<div class="sh-HeaderStatus">
 			<ul class="sh-HeaderStatus-zone">
-				<?php foreach ( $primary_items as $item ) { ?>
+				<?php foreach ( $items as $item ) { ?>
 					<li class="sh-HeaderStatus-item">
 						<?php $this->render_item( $item ); ?>
 					</li>
 				<?php } ?>
-
 			</ul>
-			<?php if ( ! empty( $secondary_items ) ) { ?>
-				<ul class="sh-HeaderStatus-zone sh-HeaderStatus-zone--secondary">
-					<?php foreach ( $secondary_items as $item ) { ?>
-						<li class="sh-HeaderStatus-item sh-HeaderStatus-item--secondary">
-							<?php $this->render_item( $item ); ?>
-						</li>
-					<?php } ?>
-				</ul>
-			<?php } ?>
 		</div>
 
 		<?php
@@ -87,15 +73,19 @@ class Status_Box_Service extends Service {
 	 */
 	private function render_item( $item ) {
 		$is_inactive = ! empty( $item['inactive'] );
-		$dot_class   = $is_inactive ? 'sh-HeaderStatus-dot--inactive' : 'sh-HeaderStatus-dot--active';
+		$item_class  = 'sh-HeaderStatus-item-inner' . ( $is_inactive ? ' sh-HeaderStatus-item-inner--inactive' : '' );
+		$icon_class  = ! empty( $item['icon'] ) ? $item['icon'] : 'dashicons-marker';
 		?>
-		<span aria-hidden="true" class="sh-HeaderStatus-dot <?php echo esc_attr( $dot_class ); ?>"></span>
 		<?php if ( ! empty( $item['url'] ) ) { ?>
-			<a href="<?php echo esc_url( $item['url'] ); ?>" class="sh-HeaderStatus-itemLink <?php echo $is_inactive ? 'sh-HeaderStatus-itemLink--inactive' : ''; ?>"<?php echo ! empty( $item['title'] ) ? ' title="' . esc_attr( $item['title'] ) . '"' : ''; ?>>
+			<a href="<?php echo esc_url( $item['url'] ); ?>" class="<?php echo esc_attr( $item_class ); ?>"<?php echo ! empty( $item['title'] ) ? ' title="' . esc_attr( $item['title'] ) . '"' : ''; ?>>
+				<span class="dashicons <?php echo esc_attr( $icon_class ); ?>" aria-hidden="true"></span>
 				<?php echo esc_html( $item['text'] ); ?>
 			</a>
 		<?php } else { ?>
-			<span class="sh-HeaderStatus-itemText"><?php echo esc_html( $item['text'] ); ?></span>
+			<span class="<?php echo esc_attr( $item_class ); ?>">
+				<span class="dashicons <?php echo esc_attr( $icon_class ); ?>" aria-hidden="true"></span>
+				<?php echo esc_html( $item['text'] ); ?>
+			</span>
 		<?php } ?>
 		<?php
 	}
@@ -118,7 +108,6 @@ class Status_Box_Service extends Service {
 			],
 			$settings_url
 		);
-		$rss_section        = $settings_url . '#simple_history_rss_section';
 		$alerts_tab_url     = add_query_arg( 'selected-tab', 'general_settings_subtab_alerts', $settings_url );
 		$forwarding_tab_url = add_query_arg( 'selected-tab', 'general_settings_subtab_log_forwarding', $settings_url );
 		$upsell_url         = Menu_Manager::get_admin_url_by_slug( 'simple_history_promo_upsell' );
@@ -136,6 +125,7 @@ class Status_Box_Service extends Service {
 				),
 				$days
 			),
+			'icon'  => 'dashicons-clock',
 			'url'   => $general_section,
 			'title' => __( 'Go to retention settings', 'simple-history' ),
 		];
@@ -145,12 +135,14 @@ class Status_Box_Service extends Service {
 		if ( get_option( 'simple_history_email_report_enabled' ) ) {
 			$items[] = [
 				'text'  => __( 'Email reports: on', 'simple-history' ),
+				'icon'  => 'dashicons-email-alt',
 				'url'   => $email_section,
 				'title' => $email_title,
 			];
 		} else {
 			$items[] = [
 				'text'     => __( 'Email reports: off', 'simple-history' ),
+				'icon'     => 'dashicons-email-alt',
 				'url'      => $email_section,
 				'title'    => $email_title,
 				'inactive' => true,
@@ -158,29 +150,35 @@ class Status_Box_Service extends Service {
 		}
 
 		// Alerts.
-		$alerts_title   = __( 'Go to Alerts settings', 'simple-history' );
-		$alert_rules    = get_option( 'simple_history_alert_rules', [] );
-		$enabled_alerts = is_array( $alert_rules ) ? count( array_filter( $alert_rules, fn( $rule ) => ! empty( $rule['enabled'] ) ) ) : 0;
-		if ( $enabled_alerts > 0 ) {
-			$items[] = [
-				'text'  => sprintf(
-					/* translators: %d: number of active alert rules */
-					_n( 'Alerts: %d active', 'Alerts: %d active', $enabled_alerts, 'simple-history' ),
-					$enabled_alerts
-				),
-				'url'   => $alerts_tab_url,
-				'title' => $alerts_title,
-			];
-		} elseif ( $is_premium ) {
-			$items[] = [
-				'text'     => __( 'Alerts: not set up', 'simple-history' ),
-				'url'      => $alerts_tab_url,
-				'title'    => $alerts_title,
-				'inactive' => true,
-			];
+		// Alerts require premium to function — ignore saved rules when premium is inactive.
+		$alerts_title = __( 'Go to Alerts settings', 'simple-history' );
+		if ( $is_premium ) {
+			$alert_rules    = get_option( 'simple_history_alert_rules', [] );
+			$enabled_alerts = is_array( $alert_rules ) ? count( array_filter( $alert_rules, fn( $rule ) => ! empty( $rule['enabled'] ) ) ) : 0;
+			if ( $enabled_alerts > 0 ) {
+				$items[] = [
+					'text'  => sprintf(
+						/* translators: %d: number of active alert rules */
+						_n( 'Alerts: %d active', 'Alerts: %d active', $enabled_alerts, 'simple-history' ),
+						$enabled_alerts
+					),
+					'icon'  => 'dashicons-bell',
+					'url'   => $alerts_tab_url,
+					'title' => $alerts_title,
+				];
+			} else {
+				$items[] = [
+					'text'     => __( 'Alerts: not set up', 'simple-history' ),
+					'icon'     => 'dashicons-bell',
+					'url'      => $alerts_tab_url,
+					'title'    => $alerts_title,
+					'inactive' => true,
+				];
+			}
 		} else {
 			$items[] = [
 				'text'     => __( 'Alerts: Premium only', 'simple-history' ),
+				'icon'     => 'dashicons-bell',
 				'url'      => $upsell_url,
 				'title'    => __( 'Learn about Alerts in Premium', 'simple-history' ),
 				'inactive' => true,
@@ -194,12 +192,14 @@ class Status_Box_Service extends Service {
 		if ( $is_forwarding_active ) {
 			$items[] = [
 				'text'  => __( 'Log forwarding: on', 'simple-history' ),
+				'icon'  => 'dashicons-migrate',
 				'url'   => $forwarding_tab_url,
 				'title' => $forwarding_title,
 			];
 		} elseif ( $is_premium ) {
 			$items[] = [
 				'text'     => __( 'Log forwarding: off', 'simple-history' ),
+				'icon'     => 'dashicons-migrate',
 				'url'      => $forwarding_tab_url,
 				'title'    => $forwarding_title,
 				'inactive' => true,
@@ -207,36 +207,10 @@ class Status_Box_Service extends Service {
 		} else {
 			$items[] = [
 				'text'     => __( 'Log forwarding: Premium only', 'simple-history' ),
+				'icon'     => 'dashicons-migrate',
 				'url'      => $upsell_url,
 				'title'    => __( 'Learn about Log Forwarding in Premium', 'simple-history' ),
 				'inactive' => true,
-			];
-		}
-
-		// RSS feed — only show when active.
-		if ( get_option( 'simple_history_enable_rss_feed' ) ) {
-			$items[] = [
-				'text'  => __( 'RSS feed: on', 'simple-history' ),
-				'url'   => $rss_section,
-				'title' => __( 'Go to RSS feed settings', 'simple-history' ),
-			];
-		}
-
-		// Detective mode — only show when active.
-		if ( Helpers::detective_mode_is_enabled() ) {
-			$items[] = [
-				'text'  => __( 'Detective mode: on', 'simple-history' ),
-				'url'   => $general_section,
-				'title' => __( 'Go to Detective mode settings', 'simple-history' ),
-			];
-		}
-
-		// Experimental features — only show when enabled.
-		if ( Helpers::experimental_features_is_enabled() ) {
-			$items[] = [
-				'text'  => __( 'Experimental features: on', 'simple-history' ),
-				'url'   => $general_section,
-				'title' => __( 'Go to Experimental features settings', 'simple-history' ),
 			];
 		}
 

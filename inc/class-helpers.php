@@ -969,6 +969,10 @@ class Helpers {
 
 		?>
 		<div class="sh-PageHeader-rightLink">
+			<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-settingsIcon" aria-label="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>" title="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>">
+				<span class="dashicons dashicons-admin-generic"></span>
+			</a>
+
 			<?php if ( self::is_premium_add_on_active() ) { ?>
 				<span class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--premiumActive">
 					<span class="dashicons dashicons-star-filled"></span>
@@ -980,10 +984,6 @@ class Helpers {
 					<?php esc_html_e( 'Get Premium', 'simple-history' ); ?>
 				</a>
 			<?php } ?>
-
-			<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-settingsIcon" aria-label="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>" title="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>">
-				<span class="dashicons dashicons-admin-generic"></span>
-			</a>
 		</div>
 		<?php
 
