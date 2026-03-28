@@ -12,7 +12,8 @@ parameters:
     - tests/plugins/
   bootstrapFiles:
     - tests/phpstan/bootstrap.php
-  phpVersion: 80500
+  # phpVersion: 80500 — disabled due to phpstan 2.1.44 bug with enum case resolution in PHP 8 signature maps.
+  # Re-enable when fixed upstream: https://github.com/phpstan/phpstan/issues
   level: 3
   ignoreErrors:
     # - '#Access to an undefined property object::\$context_message_key.#'
