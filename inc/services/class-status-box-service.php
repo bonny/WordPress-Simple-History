@@ -185,7 +185,7 @@ class Status_Box_Service extends Service {
 			];
 		}
 
-		// Log forwarding.
+		// Log forwarding — file channel is a core feature, always available.
 		$forwarding_title     = __( 'Go to Log Forwarding settings', 'simple-history' );
 		$file_channel         = get_option( 'simple_history_channel_file', [] );
 		$is_forwarding_active = is_array( $file_channel ) && ! empty( $file_channel['enabled'] );
@@ -196,20 +196,12 @@ class Status_Box_Service extends Service {
 				'url'   => $forwarding_tab_url,
 				'title' => $forwarding_title,
 			];
-		} elseif ( $is_premium ) {
+		} else {
 			$items[] = [
 				'text'     => __( 'Log forwarding: off', 'simple-history' ),
 				'icon'     => 'dashicons-migrate',
 				'url'      => $forwarding_tab_url,
 				'title'    => $forwarding_title,
-				'inactive' => true,
-			];
-		} else {
-			$items[] = [
-				'text'     => __( 'Log forwarding: Premium only', 'simple-history' ),
-				'icon'     => 'dashicons-migrate',
-				'url'      => $upsell_url,
-				'title'    => __( 'Learn about Log Forwarding in Premium', 'simple-history' ),
 				'inactive' => true,
 			];
 		}
