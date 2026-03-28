@@ -14,6 +14,9 @@ use Simple_History\Services\Auto_Backfill_Service;
  * Setup database and upgrade it if needed.
  */
 class Setup_Database extends Service {
+	/** @var bool Whether this is a fresh install (set in step 1, read in later steps). */
+	private $is_fresh_install = false;
+
 	/**
 	 * @inheritdoc
 	 */
@@ -163,7 +166,7 @@ class Setup_Database extends Service {
 		Auto_Backfill_Service::set_backfill_pending();
 
 		// Flag this as a fresh install so later migration steps can detect it.
-		update_option( 'simple_history_is_fresh_install', true, true );
+		$this->is_fresh_install = true;
 
 		// Show a welcome admin notice on the next admin page load.
 		// Only set pending if the option doesn't exist yet (true first install, not table recovery).
@@ -429,9 +432,8 @@ class Setup_Database extends Service {
 			return;
 		}
 
-		// Fresh installs have this flag set in setup_new_to_version_1().
-		// Existing installs upgrading from version 8 won't have it.
-		if ( get_option( 'simple_history_is_fresh_install' ) ) {
+		// Fresh installs set this flag in setup_new_to_version_1().
+		if ( $this->is_fresh_install ) {
 			update_option( 'simple_history_retention_days', 30, true );
 		}
 

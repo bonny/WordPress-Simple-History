@@ -9,11 +9,14 @@ use Simple_History\Helpers;
  */
 class Sidebar_Add_Ons_Dropin extends Dropin {
 	/**
-	 * Minimum number of logged events before showing the compact premium promo.
+	 * Minimum number of days since install before showing the compact premium promo.
+	 *
+	 * 21 days gives users time to build a habit with the plugin while
+	 * surfacing the promo ~9 days before the first 30-day retention purge.
 	 *
 	 * @var int
 	 */
-	const MINIMUM_EVENTS_BEFORE_PREMIUM_PROMO = 500;
+	const MINIMUM_DAYS_BEFORE_PREMIUM_PROMO = 21;
 
 	/**
 	 * Add actions when dropin is loaded.
@@ -105,11 +108,14 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * Output compact premium promo above History Insights.
 	 */
 	public function on_sidebar_html_premium_promo_compact() {
+		$install_date      = Helpers::get_plugin_install_date();
+		$days_since_install = $install_date ? ( time() - strtotime( $install_date ) ) / DAY_IN_SECONDS : 0;
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$show_premium_card = Helpers::show_promo_boxes()
 			&& (
 				isset( $_GET['sh_preview_premium_promo'] )
-				|| Helpers::get_total_logged_events_count() >= self::MINIMUM_EVENTS_BEFORE_PREMIUM_PROMO
+				|| $days_since_install >= self::MINIMUM_DAYS_BEFORE_PREMIUM_PROMO
 			);
 
 		if ( ! $show_premium_card ) {

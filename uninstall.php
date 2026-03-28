@@ -37,6 +37,9 @@ function simple_history_cleanup_site() {
 		'simple_history_email_report_enabled',
 		'simple_history_email_report_recipients',
 		'simple_history_channel_file',
+		'simple_history_retention_days',
+		'sh_core_failed_login_count',
+		'sh_core_failed_login_total_suppressed',
 	);
 
 	foreach ( $arr_options as $one_option ) {
