@@ -12,6 +12,7 @@ parameters:
     - tests/plugins/
   bootstrapFiles:
     - tests/phpstan/bootstrap.php
+  phpVersion: 80500
   level: 3
   ignoreErrors:
     # - '#Access to an undefined property object::\$context_message_key.#'
