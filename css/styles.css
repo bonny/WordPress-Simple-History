@@ -386,7 +386,7 @@ Tag = the pill with the log level.
 	margin-top: var(--sh-spacing-small);
 	margin-bottom: var(--sh-spacing-xsmall);
 	margin-left: calc(var(--sh-spacing-small) * -1);
-	font-size: 13px;
+	font-size: var(--sh-font-size-small);
 	line-height: 1.4;
 }
 
@@ -804,7 +804,6 @@ i.e. the log is inside a .postbox element.
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks {
 	margin-top: var(--sh-spacing-xsmall);
 	margin-bottom: 0;
-	font-size: var(--sh-font-size-small);
 }
 
 /* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
