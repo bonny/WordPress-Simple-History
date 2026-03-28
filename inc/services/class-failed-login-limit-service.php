@@ -182,11 +182,6 @@ class Failed_Login_Limit_Service extends Service {
 	 * @return bool
 	 */
 	public static function is_active() {
-		// Only active when experimental features are enabled (Phase 1).
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return false;
-		}
-
 		// Yield to premium's own failed login module if active.
 		if ( Helpers::is_premium_add_on_active() ) {
 			return false;

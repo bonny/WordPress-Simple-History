@@ -916,10 +916,9 @@ class Post_Logger extends Logger {
 		// If changes where detected.
 		// Save at least 2 values for each detected value change, i.e. the old value and the new value.
 		foreach ( $post_data_diff as $diff_key => $diff_values ) {
-			// For post_content, try compact JSON diff storage when experimental features are enabled.
+			// For post_content, try compact JSON diff storage if the library is available.
 			if (
 				$diff_key === 'post_content'
-				&& Helpers::experimental_features_is_enabled()
 				&& class_exists( DiffHelper::class )
 			) {
 				try {
@@ -931,7 +930,7 @@ class Post_Logger extends Logger {
 						$old_normalized,
 						$new_normalized,
 						'JsonHtml',
-						[ 
+						[
 							'context'           => 1,
 							'ignoreLineEndings' => true,
 							'ignoreWhitespace'  => true,
@@ -942,22 +941,23 @@ class Post_Logger extends Logger {
 						]
 					);
 
-					$context['post_content_diff']        = $json_diff;
-					$context['post_content_diff_format'] = 'jfcherng_json_html_v1';
+					$full_size = strlen( $diff_values['old'] ) + strlen( $diff_values['new'] );
+					$diff_size = strlen( $json_diff );
 
-					// Store sizes in KB for comparing old vs new storage approach on real sites.
-					$context['post_content_diff_size_prev_kb']         = round( strlen( $diff_values['old'] ) / 1024, 2 );
-					$context['post_content_diff_size_new_kb']          = round( strlen( $diff_values['new'] ) / 1024, 2 );
-					$context['post_content_diff_size_diff_kb']         = round( strlen( $json_diff ) / 1024, 2 );
-					$context['post_content_diff_size_prev_and_new_kb'] = round( ( strlen( $diff_values['old'] ) + strlen( $diff_values['new'] ) ) / 1024, 2 );
-
-					// Also store full content during testing phase for comparison.
-					$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
-					$context[ "post_new_{$diff_key}" ]  = $diff_values['new'];
+					// Use compact diff only if it's actually smaller than storing full content.
+					if ( $diff_size < $full_size ) {
+						$context['post_content_diff']        = $json_diff;
+						$context['post_content_diff_format'] = 'jfcherng_json_html_v1';
+					} else {
+						$context[ "post_prev_{$diff_key}" ]  = $diff_values['old'];
+						$context[ "post_new_{$diff_key}" ]   = $diff_values['new'];
+						$context['post_content_diff_format'] = 'full_content_v1';
+					}
 				} catch ( \Exception $e ) {
 					// Fallback to full content storage on any error.
-					$context[ "post_prev_{$diff_key}" ] = $diff_values['old'];
-					$context[ "post_new_{$diff_key}" ]  = $diff_values['new'];
+					$context[ "post_prev_{$diff_key}" ]  = $diff_values['old'];
+					$context[ "post_new_{$diff_key}" ]   = $diff_values['new'];
+					$context['post_content_diff_format'] = 'full_content_v1';
 				}
 
 				continue;
@@ -1670,15 +1670,15 @@ class Post_Logger extends Logger {
 			// post_new_thumb, int of new thumb, empty if no new thumb.
 			$diff_table_output .= $this->get_log_row_details_output_for_post_thumb( $context );
 
-			// Render compact JSON diff for post_content if available and experimental features enabled.
-			if ( isset( $context['post_content_diff'] ) && Helpers::experimental_features_is_enabled() ) {
+			// Render compact JSON diff for post_content if available.
+			if ( isset( $context['post_content_diff'] ) ) {
 				$json_diff_html = Helpers::render_json_diff_to_html( $context['post_content_diff'] );
 
 				if ( $json_diff_html !== '' ) {
 					$has_diff_values    = true;
 					$diff_table_output .= sprintf(
 						'<tr><td>%1$s</td><td>%2$s</td></tr>',
-						esc_html( __( 'Content (compact diff)', 'simple-history' ) ),
+						esc_html( __( 'Content', 'simple-history' ) ),
 						$json_diff_html
 					);
 				}
