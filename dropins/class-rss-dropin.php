@@ -295,8 +295,8 @@ class RSS_Dropin extends Dropin {
 					// RSS feeds don't need pagination metadata.
 					$args['skip_count_query'] = true;
 
-					// RSS feeds are flat lists, no grouping needed.
-					$args['ungrouped'] = true;
+					// Occasion grouping is enabled so subsequentOccasions
+					// values are accurate in the RSS output.
 
 					/**
 					 * Filters the arguments passed to `SimpleHistoryLogQuery()` when fetching the RSS feed
@@ -429,7 +429,7 @@ class RSS_Dropin extends Dropin {
 
 								if ( $occasions ) {
 									echo '<p>';
-									esc_html(
+									echo esc_html(
 										sprintf(
 											// translators: %1$s is the number of times this log has been repeated.
 											_n( '+%1$s occasion', '+%1$s occasions', $occasions, 'simple-history' ),

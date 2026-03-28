@@ -276,6 +276,13 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   PHP notice on the widget editor screen (widgets.php) caused by the command palette script loading `wp-editor` on non-post-editor screens.
+-   Occasion count in the RSS feed was always zero because the query skipped occasion grouping.
+-   Occasion count text in the RSS feed was never rendered due to a missing `echo`.
+-   Inverted condition in the GitHub plugin info handler that caused it to always fail.
+
+**Security**
+
+-   Nonce verification added to the GitHub plugin info AJAX handler to prevent CSRF.
 
 ### 5.24.1 (March 2026)
 
