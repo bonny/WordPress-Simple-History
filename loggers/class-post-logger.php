@@ -941,7 +941,7 @@ class Post_Logger extends Logger {
 						]
 					);
 
-					$full_size = strlen( $diff_values['old'] ) + strlen( $diff_values['new'] );
+					$full_size = strlen( $old_normalized ) + strlen( $new_normalized );
 					$diff_size = strlen( $json_diff );
 
 					// Use compact diff only if it's actually smaller than storing full content.
@@ -1470,6 +1470,11 @@ class Post_Logger extends Logger {
 						helpers::text_diff( $post_old_value, $post_new_value )
 					);
 				} elseif ( $key_to_diff === 'post_content' ) {
+					// Skip if compact JSON diff exists — it's rendered separately below.
+					if ( isset( $context['post_content_diff'] ) ) {
+						continue;
+					}
+
 					$has_diff_values = true;
 					$label           = __( 'Content', 'simple-history' );
 					$key_text_diff   = helpers::text_diff( $post_old_value, $post_new_value );
