@@ -255,31 +255,23 @@ This release focuses on keeping your database lean. Three features that reduce l
 
 **Added**
 
+-   Failed login rate limiting is now active for all users, capping logging at 100 consecutive failed attempts to prevent database bloat from brute force attacks.
+-   Compact diff storage for post content changes is now active for all users, storing only a compact diff instead of full old+new content (up to 99% smaller for typical edits) with automatic fallback when the diff would be larger.
+-   Search is now faster and more accurate for all users: queries skip occasion grouping for speed and only search relevant context keys from registered loggers instead of scanning all metadata. Previously this was an experimental opt-in feature. Use the "Event metadata" search field in the advanced filters to search all metadata (similar to the old behavior).
 -   Hover-reveal quick action button on event rows for faster access to event details.
 -   List of current experimental features shown near the enable toggle in settings.
--   Added `Helpers::is_windows()` utility method for platform detection.
 -   "/" keyboard shortcut to focus the search input, with a visual hint badge. Pressing Escape returns focus to the previously focused element.
--   Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access. (experimental)
--   Settings and Premium/Get Premium buttons in the top-right header, replacing the Add-ons link. On settings pages, the button swaps to "View Log" for contextual navigation.
--   Weekly email report: show premium upsell block for free users with honest feature descriptions and contextual CTA.
--   Weekly email report: add data-driven inline teaser that appears in the most relevant stat section based on that week's activity.
--   Weekly email report: add per-section content filters (`section_content/posts`, `section_content/users`, `section_content/plugins`, `section_content/wordpress`) for premium to inject detailed breakdowns.
--   Weekly email report: add `logo_after` filter for premium badge in email header.
+-   Settings and Premium/Get Premium buttons in the top-right header, replacing the Add-ons link.
 -   Email Reports settings moved to their own sub-tab under Settings for better discoverability.
+-   Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access. (experimental)
 -   New installs default to 30-day retention (existing installs keep 60 days), keeping your database lean from day one.
 
 **Changed**
 
--   Premium sidebar promo now appears after 21 days since install instead of after a fixed event count, better aligned with the 30-day retention cycle.
--   Failed login rate limiting is now active for all users, capping logging at 100 consecutive failed attempts to prevent database bloat from brute force attacks.
--   Compact diff storage for post content changes is now active for all users, storing only a compact diff instead of full old+new content (up to 99% smaller for typical edits) with automatic fallback when the diff would be larger.
--   Search is now faster and more accurate for all users: queries skip occasion grouping for speed and only search relevant context keys from registered loggers instead of scanning all metadata. Previously this was an experimental opt-in feature. Use the "Event metadata" search field in the advanced filters to search all metadata (similar to the old behavior).
 -   Expanded filters panel now stacks labels above inputs on smaller screens for better usability.
 -   History Insights sidebar: today's data point is now highlighted with a visible dot and the end date shows "(today)" for clarity.
 -   History Insights sidebar: reduced y-axis clutter on the activity chart for a cleaner look.
 -   History Insights sidebar: database stats section is now visually separated as footer content with cache freshness info moved into the tooltip.
--   Welcome message on dashboard widget is now self-contained instead of referencing details only visible on the dedicated events page.
--   Action links below events now use the `--sh-font-size-small` CSS variable instead of a hardcoded pixel value.
 
 **Fixed**
 
