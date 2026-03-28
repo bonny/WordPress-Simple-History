@@ -288,6 +288,7 @@ This release focuses on keeping your database lean. Three features that reduce l
 -   Occasion counts in the RSS feed were always zero and never rendered.
 -   Inverted condition in the GitHub plugin info handler that caused it to always fail.
 -   "No matching events" empty state text and icon too light to meet WCAG AA contrast requirements.
+-   Deprecation notice when using Yoast Duplicate Post 4.6, which replaced the `dp_duplicate_post` and `dp_duplicate_page` hooks with `duplicate_post_after_duplicated`.
 
 **Security**
 
