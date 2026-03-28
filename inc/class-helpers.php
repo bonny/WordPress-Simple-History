@@ -1121,7 +1121,10 @@ class Helpers {
 	 * @return int Number of days.
 	 */
 	public static function get_clear_history_interval() {
-		$days = 60;
+		// Use stored retention if set (30 days for fresh installs),
+		// otherwise fall back to 60 days (existing installs).
+		$stored_days = get_option( 'simple_history_retention_days' );
+		$days        = $stored_days !== false ? (int) $stored_days : 60;
 
 		/**
 		 * Deprecated filter name, use `simple_history/db_purge_days_interval` instead.
@@ -1131,7 +1134,7 @@ class Helpers {
 
 		/**
 		 * Filter to modify number of days of history to keep.
-		 * Default is 60 days.
+		 * Default is 30 days for new installs, 60 days for existing installs.
 		 *
 		 * @example Keep only the most recent 7 days in the log.
 		 *

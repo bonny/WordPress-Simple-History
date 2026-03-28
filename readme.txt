@@ -267,8 +267,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
--   Failed login rate limiting is now active for all users (previously required enabling experimental features). Caps logging at 100 consecutive failed attempts to prevent database bloat from brute force attacks.
--   Compact JSON diff storage for post content changes is now active for all users. Only stores the compact diff when it's smaller than full content, with automatic fallback for large reformats.
+-   Smaller database footprint: three features that reduce log storage size are now active for all users:
+    -   New installs default to 30-day retention (existing installs keep 60 days). Keeps your database lean from day one.
+    -   Failed login rate limiting caps logging at 100 consecutive failed attempts, preventing database bloat from brute force attacks.
+    -   Compact diff storage for post content changes stores only a compact diff instead of full old+new content (up to 99% smaller for typical edits), with automatic fallback when the diff would be larger.
 -   Search is now faster and more accurate for all users: queries skip occasion grouping for speed and only search relevant context keys from registered loggers instead of scanning all metadata. Previously this was an experimental opt-in feature. Use the "Event metadata" search field in the advanced filters to search all metadata (similar to the old behavior).
 -   Expanded filters panel now stacks labels above inputs on smaller screens for better usability.
 -   History Insights sidebar: today's data point is now highlighted with a visible dot and the end date shows "(today)" for clarity.

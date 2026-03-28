@@ -37,6 +37,7 @@ class Setup_Database extends Service {
 		$this->setup_version_5_to_version_6();
 		$this->setup_version_6_to_version_7();
 		$this->setup_version_7_to_version_8();
+		$this->setup_version_8_to_version_9();
 	}
 
 	/**
@@ -160,6 +161,9 @@ class Setup_Database extends Service {
 		// This populates the history with existing WordPress data (posts, pages, users)
 		// so users don't start with an empty log.
 		Auto_Backfill_Service::set_backfill_pending();
+
+		// Flag this as a fresh install so later migration steps can detect it.
+		update_option( 'simple_history_is_fresh_install', true, true );
 
 		// Show a welcome admin notice on the next admin page load.
 		// Only set pending if the option doesn't exist yet (true first install, not table recovery).
@@ -412,6 +416,26 @@ class Setup_Database extends Service {
 		}
 
 		$this->update_db_to_version( 8 );
+	}
+
+	/**
+	 * Update from db version 8 to version 9.
+	 *
+	 * Sets 30-day default retention for fresh installs.
+	 * Existing installs keep the previous 60-day hardcoded default.
+	 */
+	private function setup_version_8_to_version_9() {
+		if ( $this->get_db_version() !== 8 ) {
+			return;
+		}
+
+		// Fresh installs have this flag set in setup_new_to_version_1().
+		// Existing installs upgrading from version 8 won't have it.
+		if ( get_option( 'simple_history_is_fresh_install' ) ) {
+			update_option( 'simple_history_retention_days', 30, true );
+		}
+
+		$this->update_db_to_version( 9 );
 	}
 
 	/**
