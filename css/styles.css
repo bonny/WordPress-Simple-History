@@ -808,7 +808,7 @@ i.e. the log is inside a .postbox element.
 .sh-DashboardWidget-stats {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: var(--sh-spacing-xsmall);
 	padding: var(--sh-dashboard-padding-y) var(--sh-dashboard-padding-x);
 	min-height: 21px;
 	font-size: var(--sh-font-size-normal);
@@ -860,7 +860,7 @@ a.sh-DashboardWidget-stats--link:hover {
 	flex: 1;
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
-	padding: 4px 8px;
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
 	font-size: var(--sh-font-size-normal);
 	line-height: 1.6;
 	background: #fff;
@@ -1657,6 +1657,21 @@ so add some extra place then to make it look a bit less ugly.
 	line-height: 18px;
 }
 
+/* Dev badges container — absolute positioned above log content */
+.SimpleHistoryWrap {
+	position: relative;
+}
+
+.sh-DevBadges {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 10;
+	display: flex;
+	gap: 6px;
+	padding: 4px 8px;
+}
+
 /* Base badge styles shared by all header badges */
 .sh-PageHeader-badge {
 	color: var(--sh-color-white);
@@ -1667,7 +1682,6 @@ so add some extra place then to make it look a bit less ugly.
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	line-height: 1;
-	margin-left: var(--sh-spacing-small);
 }
 
 

@@ -173,65 +173,6 @@ class Admin_Pages extends Service {
 				</h1>
 				
 				<?php
-				// Display note about dev mode when it's enabled.
-				if ( Helpers::dev_mode_is_enabled() ) {
-					?>
-					<span class="sh-PageHeader-badge sh-PageHeader-badge--dev" title="<?php esc_attr_e( 'Developer mode is enabled via SIMPLE_HISTORY_DEV constant', 'simple-history' ); ?>"><?php esc_html_e( 'Dev', 'simple-history' ); ?></span>
-					<?php
-					// Display dev mode toggle badges.
-					$toggle_badges = [
-						[
-							'variant'  => 'premium',
-							'active'   => Helpers::is_premium_add_on_active(),
-							'on_text'  => __( 'Premium: Active', 'simple-history' ),
-							'off_text' => __( 'Premium: Inactive', 'simple-history' ),
-							'on_tip'   => __( 'Click to deactivate premium add-on', 'simple-history' ),
-							'off_tip'  => __( 'Click to activate premium add-on', 'simple-history' ),
-							'icon'     => 'dashicons-admin-plugins',
-							'endpoint' => 'toggle-plugin',
-							'data'     => [ 'plugin' => 'simple-history-premium/simple-history-premium.php' ],
-						],
-						[
-							'variant'  => 'experimental',
-							'active'   => Helpers::experimental_features_is_enabled(),
-							'on_text'  => __( 'Experimental: On', 'simple-history' ),
-							'off_text' => __( 'Experimental: Off', 'simple-history' ),
-							'on_tip'   => __( 'Click to disable experimental features', 'simple-history' ),
-							'off_tip'  => __( 'Click to enable experimental features', 'simple-history' ),
-							'icon'     => 'dashicons-admin-tools',
-							'endpoint' => 'toggle-experimental-features',
-							'data'     => [],
-						],
-					];
-
-					foreach ( $toggle_badges as $badge ) {
-						$state_class = $badge['active'] ? 'is-active' : 'is-inactive';
-						$text        = $badge['active'] ? $badge['on_text'] : $badge['off_text'];
-						$title       = $badge['active'] ? $badge['on_tip'] : $badge['off_tip'];
-						$data_attrs  = '';
-
-						foreach ( $badge['data'] as $key => $value ) {
-							$data_attrs .= sprintf( ' data-%s="%s"', esc_attr( $key ), esc_attr( $value ) );
-						}
-						?>
-						<button
-							class="sh-PageHeader-badge sh-PageHeader-badge--toggle sh-PageHeader-badge--<?php echo esc_attr( $badge['variant'] ); ?> <?php echo esc_attr( $state_class ); ?>"
-							title="<?php echo esc_attr( $title ); ?>"
-							data-endpoint="<?php echo esc_attr( $badge['endpoint'] ); ?>"
-							<?php
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo $data_attrs;
-							?>
-						>
-							<span class="dashicons <?php echo esc_attr( $badge['icon'] ); ?>"></span>
-							<?php echo esc_html( $text ); ?>
-						</button>
-						<?php
-					}
-				}
-				?>
-
-				<?php
 				/**
 				 * Fires inside the title group, after badges.
 				 *
@@ -259,7 +200,68 @@ class Admin_Pages extends Service {
 			do_action( 'simple_history/admin_page/header_end' );
 			?>
 		</header>
-		
+
+		<?php
+		// Display dev mode badges above log content, absolutely positioned.
+		if ( Helpers::dev_mode_is_enabled() ) {
+			$toggle_badges = [
+				[
+					'variant'  => 'premium',
+					'active'   => Helpers::is_premium_add_on_active(),
+					'on_text'  => __( 'Premium: Active', 'simple-history' ),
+					'off_text' => __( 'Premium: Inactive', 'simple-history' ),
+					'on_tip'   => __( 'Click to deactivate premium add-on', 'simple-history' ),
+					'off_tip'  => __( 'Click to activate premium add-on', 'simple-history' ),
+					'icon'     => 'dashicons-admin-plugins',
+					'endpoint' => 'toggle-plugin',
+					'data'     => [ 'plugin' => 'simple-history-premium/simple-history-premium.php' ],
+				],
+				[
+					'variant'  => 'experimental',
+					'active'   => Helpers::experimental_features_is_enabled(),
+					'on_text'  => __( 'Experimental: On', 'simple-history' ),
+					'off_text' => __( 'Experimental: Off', 'simple-history' ),
+					'on_tip'   => __( 'Click to disable experimental features', 'simple-history' ),
+					'off_tip'  => __( 'Click to enable experimental features', 'simple-history' ),
+					'icon'     => 'dashicons-admin-tools',
+					'endpoint' => 'toggle-experimental-features',
+					'data'     => [],
+				],
+			];
+			?>
+			<div class="sh-DevBadges">
+				<span class="sh-PageHeader-badge sh-PageHeader-badge--dev" title="<?php esc_attr_e( 'Developer mode is enabled via SIMPLE_HISTORY_DEV constant', 'simple-history' ); ?>"><?php esc_html_e( 'Dev', 'simple-history' ); ?></span>
+				<?php
+				foreach ( $toggle_badges as $badge ) {
+					$state_class = $badge['active'] ? 'is-active' : 'is-inactive';
+					$text        = $badge['active'] ? $badge['on_text'] : $badge['off_text'];
+					$title       = $badge['active'] ? $badge['on_tip'] : $badge['off_tip'];
+					$data_attrs  = '';
+
+					foreach ( $badge['data'] as $key => $value ) {
+						$data_attrs .= sprintf( ' data-%s="%s"', esc_attr( $key ), esc_attr( $value ) );
+					}
+					?>
+					<button
+						class="sh-PageHeader-badge sh-PageHeader-badge--toggle sh-PageHeader-badge--<?php echo esc_attr( $badge['variant'] ); ?> <?php echo esc_attr( $state_class ); ?>"
+						title="<?php echo esc_attr( $title ); ?>"
+						data-endpoint="<?php echo esc_attr( $badge['endpoint'] ); ?>"
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo $data_attrs;
+						?>
+					>
+						<span class="dashicons <?php echo esc_attr( $badge['icon'] ); ?>"></span>
+						<?php echo esc_html( $text ); ?>
+					</button>
+					<?php
+				}
+				?>
+			</div>
+			<?php
+		}
+		?>
+
 		<?php
 		/**
 		 * Fires after the page header in Simple History admin pages.
