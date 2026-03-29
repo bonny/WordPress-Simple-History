@@ -5,7 +5,7 @@ class WPCliCest {
 	public function test_wp_cli_commands( FunctionalTester $I ) {
         // Test WP Version so we are not surprised by WP version changes.
         $I->cli('--allow-root core version');
-        $I->seeInShellOutput('6.6.1');
+        $I->seeInShellOutput('6.8');
 
         // Verify main WP-CLI commands are available.
         $I->cli('--allow-root simple-history');

@@ -1,6 +1,6 @@
 services:
   wordpress:
-    image: wordpress:${WORDPRESS_VERSION:-6.3}-php${PHP_VERSION:-8.1}
+    image: wordpress:${WORDPRESS_VERSION:-6.8}-php${PHP_VERSION:-8.1}
     container_name: simple-history-wordpress
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     user: "33:33"
@@ -61,7 +61,7 @@ services:
   # Does not depend on any other docker services.
   # Contains composer.
   php-lint:
-    image: dockette/ci:php${PHP_CLI_VERSION:-74}
+    image: dockette/ci:php${PHP_CLI_VERSION:-81}
     init: true
     container_name: simple-history-php-lint
     profiles:
@@ -72,7 +72,7 @@ services:
 
   # Full PHP CLI for tests - depends on db, wordpress, chrome
   php-cli:
-    image: dockette/ci:php${PHP_CLI_VERSION:-74}
+    image: dockette/ci:php${PHP_CLI_VERSION:-81}
     init: true
     container_name: simple-history-php-cli
     environment:

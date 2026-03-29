@@ -8,49 +8,51 @@ class SimpleCategoriesLoggerCest
         $I->loginAsAdmin();
     }
 
-    public function addTerms(Admin $I) {
-        // Add category.
+    public function addTerm(Admin $I) {
         $I->amOnAdminPage('edit-tags.php?taxonomy=category');
         $I->fillField("#tag-name", 'My new category');
         $I->fillField("#tag-description", 'Category description');
-        $I->click("Add New Category");
-        // Wait for "Category added."-notification message.
+        $I->click("Add Category");
         $I->waitForElement('.notice.notice-success');
         $I->seeLogMessage('Added term "My new category" in taxonomy "category"');
         $I->seeLogContext([
             'term_name' => 'My new category',
             'term_taxonomy' => 'category'
         ]);
+    }
 
-        // Edit category.
-        $I->amOnAdminPage('edit-tags.php?taxonomy=category');
-        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
-        $I->click("Edit");
-        $I->fillField("#name", 'My new category changed');
+    public function editTerm(Admin $I) {
+        $term_ids = $I->haveTermInDatabase('My edit category', 'category', ['description' => 'Original description']);
+        $term_id = $term_ids[0];
+
+        $I->amOnAdminPage("term.php?taxonomy=category&tag_ID={$term_id}");
+        $I->fillField("#name", 'My edit category changed');
         $I->fillField("#description", 'Changed description');
         $I->click("Update");
-        $I->seeLogMessage('Edited term "My new category changed" in taxonomy "category"');
+        $I->seeLogMessage('Edited term "My edit category changed" in taxonomy "category"');
         $I->seeLogContext([
-            'from_term_name' => 'My new category',
+            'from_term_name' => 'My edit category',
             'from_term_taxonomy' => 'category',
-            'from_term_slug' => 'my-new-category',
-            'from_term_description' => 'Category description',
-            'to_term_name' => 'My new category changed',
+            'from_term_slug' => 'my-edit-category',
+            'from_term_description' => 'Original description',
+            'to_term_name' => 'My edit category changed',
             'to_term_taxonomy' => 'category',
-            'to_term_slug' => 'my-new-category',
+            'to_term_slug' => 'my-edit-category',
             'to_term_description' => 'Changed description',
         ]);
+    }
 
-        // Delete category.
-        $I->amOnAdminPage('edit-tags.php?taxonomy=category');
-        $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
-        $I->click("Edit");
+    public function deleteTerm(Admin $I) {
+        $term_ids = $I->haveTermInDatabase('My delete category', 'category');
+        $term_id = $term_ids[0];
+
+        $I->amOnAdminPage("term.php?taxonomy=category&tag_ID={$term_id}");
         $I->click("Delete");
         $I->acceptPopup();
-        $I->wait(1);
-        $I->seeLogMessage('Deleted term "My new category changed" from taxonomy "category"');
+        $I->waitForElement('.wp-list-table');
+        $I->seeLogMessage('Deleted term "My delete category" from taxonomy "category"');
         $I->seeLogContext([
-            'term_name' => 'My new category changed',
+            'term_name' => 'My delete category',
             'term_taxonomy' => 'category',
         ]);
     }
