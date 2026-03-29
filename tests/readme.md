@@ -67,16 +67,19 @@ docker compose run --rm wp-cli wp site empty --yes --uploads
 docker compose run --rm wp-cli wp plugin deactivate --all
 docker compose run --rm wp-cli wp plugin activate simple-history
 
-# 5. Fix uploads directory permissions
+# 5. Fix uploads directory permissions (wp site empty may recreate it as root)
 docker compose exec -u root wordpress chown -R www-data:www-data /var/www/html/wp-content/uploads
 
-# 6. Trigger the auto-backfill by visiting an admin page, then clear the events it created
-#    (The backfill runs on first admin_init and sets status to "completed" so it won't run again)
-docker compose run --rm wp-cli wp eval "do_action('admin_init');"
+# 6. Trigger the auto-backfill so it won't run during tests.
+#    The backfill hooks into admin_init, so visit any admin page to trigger it.
+#    Open http://localhost:9191/wp-admin/ in a browser, or use curl:
+curl -s -o /dev/null -u admin:admin http://localhost:9191/wp-admin/
+
+# 7. Clear all Simple History events created during setup (backfill, login, etc.)
 docker compose run --rm wp-cli wp db query \
     "TRUNCATE TABLE wp_simple_history; TRUNCATE TABLE wp_simple_history_contexts;"
 
-# 7. Export
+# 8. Export
 docker compose run --rm wp-cli wp db export - > tests/_data/dump.sql
 ```
 
