@@ -244,6 +244,22 @@ class Admin extends \AcceptanceTester
     }
 
     /**
+     * Assert that a log event with the given message template exists,
+     * regardless of its index. Use this instead of seeLogMessage() when
+     * system events (404s, wp_global_styles, etc.) may shift the index.
+     *
+     * @param string $messageTemplate The raw message with {placeholders}, e.g. 'Deleted {post_type} "{attachment_title}"'.
+     */
+    public function seeLogEventExists(string $messageTemplate)
+    {
+        $history_table = $this->grabPrefixedTableNameFor('simple_history');
+        $row_id = $this->grabFromDatabase($history_table, 'id', [
+            'message' => $messageTemplate,
+        ]);
+        $this->assertNotEmpty($row_id, "Log event with message '$messageTemplate' should exist");
+    }
+
+    /**
      * Debug function to output log context.
      * The function simply checks if the context is an empty array and
      * it's probably not and the function will fail and the contexts is

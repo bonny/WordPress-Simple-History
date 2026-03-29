@@ -9,8 +9,13 @@ class SimpleMenuLoggerCest
         // Activate a classic theme that supports nav menus.
         // Default WP 6.8 theme (Twenty Twenty-Five) is a block theme.
         $I->amOnAdminPage('/themes.php?theme=twentysixteen');
-        $I->waitForElementVisible('.theme-wrap .button.activate');
-        $I->click('.theme-wrap .button.activate');
+        // Only activate if not already the active theme.
+        $hasActivateButton = $I->executeJS(
+            "return !!document.querySelector('.theme-wrap .button.activate')"
+        );
+        if ($hasActivateButton) {
+            $I->click('.theme-wrap .button.activate');
+        }
     }
 
 
@@ -20,7 +25,9 @@ class SimpleMenuLoggerCest
         $I->fillField('#menu-name', 'My new menu');
         $I->checkOption('#auto-add-pages');
         $I->checkOption('#locations-primary');
-        $I->click('#save_menu_footer');
+        $I->scrollTo('#save_menu_footer');
+        $I->executeJS('document.getElementById("save_menu_footer").click()');
+        $I->waitForElementVisible('#nav-menu-header');
         $I->seeLogMessage('Created menu "My new menu"');
         $I->seeLogContext([
             'menu_name' => 'My new menu'
@@ -46,7 +53,9 @@ class SimpleMenuLoggerCest
         $I->fillField('#menu-name', 'My new menu changed');
         
         // Save the menu.
-        $I->click('Save Menu', '#nav-menu-footer');
+        $I->scrollTo('#save_menu_footer');
+        $I->executeJS('document.getElementById("save_menu_footer").click()');
+        $I->waitForElementVisible('#nav-menu-header');
 
         $I->seeLogMessage('Edited menu "My new menu changed"');
         $I->seeLogContext([
@@ -63,7 +72,9 @@ class SimpleMenuLoggerCest
         $I->scrollTo('#menu-to-edit .item-delete');
         $I->click('Remove', '#menu-to-edit');
         $I->wait('1');
-        $I->click('Save Menu', '#nav-menu-footer');
+        $I->scrollTo('#save_menu_footer');
+        $I->executeJS('document.getElementById("save_menu_footer").click()');
+        $I->waitForElementVisible('#nav-menu-header');
 
         $I->seeLogMessage('Edited menu "My new menu changed"');
         $I->seeLogContext([

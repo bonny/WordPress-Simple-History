@@ -25,7 +25,8 @@ class EnableMediaReplaceLoggerCest
         $I->click('Upload a new file');
         $I->attachFile('#userfile', 'Image 2.jpg');
         $I->click('Upload');
-        
+        $I->waitForText('File successfully replaced');
+
         $I->seeLogMessage('Replaced attachment "Image 1" with new attachment "Image 2.jpg"');
         // Context assertions skipped: Enable Media Replace 3.6.3 doesn't
         // store context data with WP 6.8. Update the plugin to fix.

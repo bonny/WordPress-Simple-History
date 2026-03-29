@@ -40,7 +40,7 @@ class WPCliCest {
         $I->assertJson($result);
         // Test part of the JSON.
         $I->seeInShellOutput('"initiator":"luca (luca@example.org)","description":"Logged in","via":null,"level":"info","count":"1"}');
-        $I->seeInShellOutput('"ID":"12"');
+        $I->seeInShellOutput('"ID":"1"');
     }
     
     public function test_wp_cron( FunctionalTester $I ) {

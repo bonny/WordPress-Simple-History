@@ -19,6 +19,7 @@ class SimpleUserLoggerCest
         $I->fillField('#user_login', 'erik');
         $I->fillField('#user_pass', 'password');
         $I->click('#wp-submit');
+        $I->waitForElement('#login_error');
 
         $I->seeLogInitiator('web_user');
         $I->seeLogMessage('Failed to login with username "erik" (username does not exist)');
@@ -33,6 +34,7 @@ class SimpleUserLoggerCest
         $I->fillField('#user_login', 'erik');
         $I->fillField('#user_pass', 'password');
         $I->click('#wp-submit');
+        $I->waitForElement('#wpadminbar');
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Logged in');
@@ -53,6 +55,7 @@ class SimpleUserLoggerCest
         $I->fillField('#user_login', 'anna');
         $I->fillField('#user_pass', 'wrongpassword');
         $I->click('#wp-submit');
+        $I->waitForElement('#login_error');
 
         $I->seeLogInitiator('web_user');
         $I->seeLogMessage('Failed to login with username "anna" (incorrect password entered)');
@@ -74,7 +77,10 @@ class SimpleUserLoggerCest
         $I->fillField("#url", 'https://texttv.nu');
         $I->fillField("#description", 'Hello there, this is my description text.');
 
-        $I->click('#submit');
+        // JS click to avoid scroll/overlay issues on the long profile page.
+        $I->scrollTo('#submit');
+        $I->executeJS('document.getElementById("submit").click()');
+        $I->waitForElement('#wpbody-content .notice');
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Edited the profile for user "admin" (test@example.com)');
@@ -118,7 +124,9 @@ class SimpleUserLoggerCest
         $I->fillField("#url", 'https://brottsplatskartan.se');
         $I->fillField("#description", 'Hello there, this is my description text.');
 
-        $I->click('#submit');
+        $I->scrollTo('#submit');
+        $I->executeJS('document.getElementById("submit").click()');
+        $I->waitForElement('#wpbody-content .notice');
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Edited the profile for user "annaauthor" (annaauthor@example.com)');
@@ -148,6 +156,7 @@ class SimpleUserLoggerCest
 
         $I->scrollTo('#createusersub');
         $I->click("#createusersub");
+        $I->waitForText('New user created');
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Created user NewUserLogin (newuser@example.com) with role subscriber');
@@ -190,6 +199,7 @@ class SimpleUserLoggerCest
         $I->click('#doaction');
 
         $I->click("Confirm Deletion");
+        $I->waitForElementVisible('#bulk-action-selector-top');
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Deleted user anna (anna@example.com)');
@@ -231,6 +241,7 @@ class SimpleUserLoggerCest
         $I->selectOption('#new_role', 'editor');
 
         $I->click('#changeit');
+        $I->waitForElementVisible('#bulk-action-selector-top');
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Changed role for user "anna" to "editor" from "author"');

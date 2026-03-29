@@ -24,6 +24,7 @@ class SimpleHistoryLoggerCest
     public function it_can_log_show_history(Admin $I) {
         $I->uncheckOption('#simple_history_show_on_dashboard');
         $I->click('Save Changes');
+        $I->waitForElement('#wpbody-content .notice');
 
         $I->seeLogMessage('Modified settings');
         $I->seeLogContext([
@@ -36,8 +37,8 @@ class SimpleHistoryLoggerCest
 
     public function it_can_clear_log_now(Admin $I) {
         $I->click('Clear log now');
-        $I->acceptPopup();       
-        $I->wait(0.5);
+        $I->acceptPopup();
+        $I->waitForElement('#wpbody-content .notice');
         $I->seeLogMessageStartsWith('Cleared the log for Simple History (');
 
         // Check that db is empty.
@@ -51,6 +52,7 @@ class SimpleHistoryLoggerCest
     public function it_can_enable_rss_feed(Admin $I) {
         $I->checkOption('#simple_history_enable_rss_feed');
         $I->click('Save Changes');
+        $I->waitForElement('#wpbody-content .notice');
 
         $I->seeLogMessage('Modified settings');
         $I->seeLogContext([
@@ -62,6 +64,7 @@ class SimpleHistoryLoggerCest
     public function it_can_regenerate_rss_address(Admin $I) {
         $I->checkOption('#simple_history_enable_rss_feed');
         $I->click('Save Changes');
+        $I->waitForElement('#wpbody-content .notice');
 
         $I->click('Generate new address');
         $I->seeLogMessage('Regenerated RSS feed secret');

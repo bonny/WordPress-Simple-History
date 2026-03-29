@@ -20,12 +20,14 @@ class PluginWPCrontrolLoggerCest
         $I->fillField("#crontrol_schedule_interval", 123);
         $I->fillField("#crontrol_schedule_display_name", "Every 123 seconds");
         $I->click('Add Cron Schedule');
+        $I->waitForText('Added the cron schedule');
         $I->seeLogMessage('Added cron schedule "my_123_seconds_interval"');
 
         // Delete a schedule. Message key "deleted_schedule".
         $I->executeJS("jQuery('div.row-actions').addClass('visible');");
         // <a href="http://wordpress-stable.test/wp-admin/options-general.php?page=crontrol_admin_options_page&amp;crontrol_action=delete-schedule&amp;crontrol_id=my_123_seconds_interval&amp;_wpnonce=07b671650d">Delete</a>
         $I->click('a[href*="crontrol_action=delete-schedule"][href*="crontrol_id=my_123_seconds_interval"]');
+        $I->waitForText('Deleted the cron schedule');
         $I->seeLogMessage('Deleted cron schedule "my_123_seconds_interval"');
     }
 
@@ -41,6 +43,7 @@ class PluginWPCrontrolLoggerCest
         $I->executeJS("jQuery('div.row-actions').addClass('visible');");
         // Click "Run now" link.
         $I->click('a[href*="crontrol_action=run-cron"][href*=version]');
+        $I->waitForText('Scheduled the cron event');
         $I->seeLogMessage('Manually ran cron event "wp_version_check"');
     }
 
@@ -52,6 +55,7 @@ class PluginWPCrontrolLoggerCest
         $I->fillField('#crontrol_args', '["i","want",25,"cakes"]');
         $I->selectOption('input[name=crontrol_next_run_date_local]', 'Tomorrow');
         $I->click('Add Event');
+        $I->waitForText('Created the cron event');
         $I->seeLogMessage('Added cron event "A Manually Added Cron Event"');
 
         // Edit cron event. Message key 'edited_event'.
@@ -61,6 +65,7 @@ class PluginWPCrontrolLoggerCest
         // Click "Edit now" link.
         $I->click('a[href*="crontrol_action=edit-cron"][href*=Manually]');
         $I->click('Update Event');
+        $I->waitForText('Saved the cron event');
         $I->seeLogMessage('Edited cron event "A Manually Added Cron Event"');
     }
 }

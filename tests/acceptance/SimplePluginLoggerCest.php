@@ -62,26 +62,15 @@ class SimplePluginLoggerCest
 
     }
     
-    public function testPluginInstallFail(Admin $I) {          
-        // plugin_installed_failed,
-        // because folder already exists.
-        $I->amOnAdminPage('plugin-install.php');
-        $I->click("Upload Plugin");
-        $I->attachFile('#pluginzip', 'classic-editor.1.6.2.zip');
-        $I->click('Install Now');
-        $I->seeLogMessage('Failed to install plugin "Classic Editor"');
-        $I->seeLogContext(array(
-            'plugin_slug' => '',
-            'plugin_name' => 'Classic Editor',
-            'plugin_version' => '1.6.2',
-            'plugin_author' => 'WordPress Contributors',
-            'plugin_requires_wp' => '4.9',
-            'plugin_requires_php' => '5.2.4',
-            'plugin_install_source' => 'upload',
-            'plugin_upload_name' => 'classic-editor.1.6.2.zip',
-            // 'error_messages' => ... hard to test string...
-            // 'error_data' => ... hard to test string...
-        ));
+    /**
+     * WP 6.8 shows "Replace current with uploaded" option instead
+     * of failing when uploading a plugin that's already installed.
+     * The plugin_installed_failed event is no longer triggered.
+     */
+    public function testPluginInstallFail(Admin $I) {
+        \PHPUnit\Framework\Assert::markTestSkipped(
+            'WP 6.8 no longer triggers plugin_installed_failed — shows "Replace" option instead.'
+        );
     }
     
     // Can't get to work because there is always a left over folder or something.
@@ -103,6 +92,7 @@ class SimplePluginLoggerCest
 
         $I->attachFile('#pluginzip', 'limit-login-attempts-reloaded.2.25.5.zip');
         $I->click('Install Now');
+        $I->waitForText('Plugin installed successfully');
         $I->seeLogMessage('Installed plugin "Limit Login Attempts Reloaded"');
         $I->seeLogContext(array(
             'plugin_slug' => 'limit-login-attempts-reloaded',
@@ -123,19 +113,21 @@ class SimplePluginLoggerCest
         // - plugin_bulk_updated
     }
 
-    public function testPluginDeleted(Admin $I) {      
+    public function testPluginDeleted(Admin $I) {
+        $I->deleteDir('/wordpress/wp-content/plugins/classic-widgets');
         $I->amOnAdminPage('plugin-install.php');
         $I->click("Upload Plugin");
         $I->attachFile('#pluginzip', 'classic-widgets.0.3.zip');
         $I->click('Install Now');
-        
+        $I->waitForText('Plugin installed successfully');
+
         // plugin_deleted
         $I->amOnAdminPage('plugins.php');
         $I->checkOption('[value="classic-widgets/classic-widgets.php"]');                
         $I->selectOption("#bulk-action-selector-top", 'Delete');
         $I->click("#doaction");
         $I->acceptPopup();
-        $I->waitForJqueryAjax();
+        $I->waitForText('was successfully deleted');
         $I->seeLogMessage('Deleted plugin "Classic Widgets"');
         $I->seeLogContext(array(
             'plugin' => 'classic-widgets/classic-widgets.php',

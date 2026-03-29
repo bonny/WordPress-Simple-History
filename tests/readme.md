@@ -121,10 +121,49 @@ docker compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H_%M
 # I.e. rename the new one to dump.sql and remove the old one.
 ```
 
+## Filesystem requirements
+
+Some tests depend on themes/plugins being present on the Docker volume filesystem (not just in the database):
+
+-   **Twenty Sixteen theme** — Required by `SimpleMenuLoggerCest` (classic nav menus) and `SimpleThemeLoggerCest` (install/delete cycle). The `Acceptance` helper's `_beforeSuite` hook auto-installs it from `tests/_data/twentysixteen.2.6.zip` if missing. `SimpleThemeLoggerCest` re-installs it after its delete test so other tests can use it.
+
+## Upgrading WordPress version
+
+When upgrading the test environment to a new WordPress version, watch for these patterns:
+
+### 1. Post ID offsets in dump.sql
+
+Fresh WP installs create different default content across versions. The `AUTO_INCREMENT` for `wp_posts` affects hardcoded IDs in tests (e.g., `attachment_id`, `new_post_id`, `page_on_front`). After regenerating the dump, check which IDs are already taken and update test assertions accordingly.
+
+### 2. Default option values
+
+WordPress may change default option values between versions (e.g., WP 6.8 changed `blogdescription` from `"Just another WordPress site"` to `""`). Search tests for `old_value` / `new_value` assertions and verify they match the new defaults in the dump.
+
+### 3. Form submissions need explicit waits
+
+Acceptance tests that submit forms and immediately query the database often fail because the page hasn't finished loading. Always add a `waitForText`, `waitForElement`, or `waitForElementVisible` after form submissions and before `seeLogMessage`/`seeLogContext` assertions. Without this, `getHistory(0)` may return stale data.
+
+### 4. Admin UI text/button changes
+
+WordPress often changes button text, notice text, and form element IDs between versions. Check screenshots in `tests/_output/` when tests fail at `click()` or `waitForText()` steps.
+
+### 5. Gutenberg modals and overlays
+
+New Gutenberg features may introduce modal overlays (e.g., the WP 6.8 "Choose a pattern" modal for new pages) that block element clicks. The mu-plugin `tests/_data/mu-plugins/inc/disable-starter-patterns.php` disables the pattern modal. Future WP versions may introduce similar modals that need similar treatment.
+
+### 6. System events polluting assertions
+
+WP may log additional system events (404s for missing thumbnails, `wp_global_styles` updates, theme taxonomy terms) that shift the expected event index. When `getHistory(0)` returns an unexpected event, use `grabFromDatabase()` to search for the event by message instead of relying on a fixed index.
+
+### 7. Plugin install/update behavior changes
+
+WP 6.8 changed plugin upload behavior — uploading an already-installed plugin now shows a "Replace" option instead of failing. Test scenarios that depend on specific WP admin behaviors should be verified against the new version.
+
 ## Update log / Changelog
 
 Changes made to the test site and SQL-file.
 
+-   29 mar 2026: Fix acceptance tests for WP 6.8. Added `waitForText`/`waitForElement` after form submissions (timing issue with Chrome 145). Updated hardcoded IDs and option values for WP 6.8 defaults. Added mu-plugin to disable starter patterns modal. Fixed button text changes. Skipped `testPluginInstallFail` (WP 6.8 shows "Replace" instead of failing). Enabled implicit wait (`wait: 2`). See "Upgrading WordPress version" section.
 -   29 mar 2026: Update WP from 6.3 to 6.8. Update Yoast Duplicate Post to 4.6. DB version upgraded from 57155 to 60421.
 -   15 aug 2025: Add Akismet to docker compose config and add plugin folder to tests/plugins. It stopped working and I can't see how it was loaded before. Also update tests to use updated Akismet plugin names
 -   18 jul 2025: Update WP to 6.3.2.

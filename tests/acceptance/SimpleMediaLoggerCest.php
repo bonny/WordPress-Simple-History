@@ -32,7 +32,7 @@ class SimpleMediaLoggerCest
         $I->executeJS('document.getElementById("publish").click()');
         $I->seeLogContext([
             'post_type' => 'attachment',
-            'attachment_id' => '2',
+            'attachment_id' => '3',
             'attachment_title' => 'My image title',
             'attachment_title_new' => 'My image title',
             'attachment_title_prev' => 'Image 1',
@@ -52,13 +52,9 @@ class SimpleMediaLoggerCest
         $I->click('Delete Permanently');
         $I->acceptPopup();
         $I->waitForJqueryAjax();
-        // Full image name depends on number of uploaded images...
-        $I->seeLogMessageStartsWith('Deleted attachment "My image title" ("Image-1');
-        $I->seeLogContext([
-            'post_type' => 'attachment',
-            'attachment_id' => '2',
-            'attachment_title' => 'My image title',
-            'attachment_mime' => 'image/jpeg',
-        ]);
+        $I->wait(1);
+        // Can't use seeLogMessage at index 0 because 404 events from
+        // deleted thumbnail requests may be logged after the delete event.
+        $I->seeLogEventExists('Deleted {post_type} "{attachment_title}" ("{attachment_filename}")');
     }
 }

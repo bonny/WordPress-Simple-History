@@ -23,6 +23,7 @@ add_action(
 );
 
 require_once __DIR__ . '/inc/disable-updates.php';
+require_once __DIR__ . '/inc/disable-starter-patterns.php';
 require_once __DIR__ . '/inc/test-dropin.php';
 require_once __DIR__ . '/inc/test-logger.php';
 require_once __DIR__ . '/inc/test-cron.php';

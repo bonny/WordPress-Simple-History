@@ -10,11 +10,7 @@ class SimpleThemeLoggerCest
     public function logThemeInstalled(\Step\Acceptance\Admin $I)
     {
         // Remove previously uploaded theme.
-        // How to clean this if folder is empty?
-        // /wordpress/wp-content/themes/twentysixteen
         $I->deleteDir('/wordpress/wp-content/themes/twentysixteen');
-        // $I->cleanThemeDir('twentysixteen');
-        // Remove any previously uploaded theme file.
         $I->cleanUploadsDir();
 
         $I->loginAsAdmin();
@@ -22,14 +18,15 @@ class SimpleThemeLoggerCest
         $I->click('Upload Theme');
         $I->attachFile('#themezip', 'twentysixteen.2.6.zip');
         $I->click('Install Now');
+        $I->waitForText('Theme installed successfully');
 
         // Message key: theme_installed.
-        // Flaky test, name of uploaded zip changes...
-        // $I->seeLogMessage('Deleted attachment "twentysixteen.2.6.zip" ("twentysixteen.2.6-1.zip")', 0);
-        $I->seeLogMessage('Installed theme "Twenty Sixteen" by the WordPress team', 1);
+        // Index varies because the zip deletion event may be logged after the install.
+        $I->seeLogEventExists('Installed theme "{theme_name}" by {theme_author}');
 
         // Message key: theme_switched.
         $I->click('Activate');
+        $I->waitForElementVisible('#wpadminbar');
         $I->seeLogMessage('Switched theme to "Twenty Sixteen" from "Twenty Twenty-Five"');
 
         // Upload Theme again to test theme_updated, does not currently work when
@@ -38,9 +35,8 @@ class SimpleThemeLoggerCest
         $I->click('Upload Theme');
         $I->attachFile('#themezip', 'twentysixteen.2.7.zip');
         $I->click('Install Now');
-        $I->click('Replace active with uploaded');
-        // $I->seeLogMessage('Deleted attachment "twentysixteen.2.7.zip" ("twentysixteen.2.7.zip")');
-        $I->seeLogMessage('Installed theme "Twenty Sixteen" by the WordPress team', 1);
+        $I->click('Replace installed with uploaded');
+        $I->waitForText('Theme updated successfully');
 
         // theme_switched: Switch back theme so we can delete the uploaded one.
         $I->amOnAdminPage('/themes.php?theme=twentytwentyfive');
@@ -53,9 +49,15 @@ class SimpleThemeLoggerCest
         $I->waitForElementVisible('.theme-wrap .button.delete-theme');
         $I->click('.theme-wrap .button.delete-theme');
         $I->acceptPopup();
-        // Deleting takes a short while and no ok message is outputted when finishes, 
-        // so we can't wait for a message or similar.
-        $I->wait(1);
+        // Theme deletion via AJAX has no visible success message to wait for.
+        $I->wait(2);
         $I->seeLogMessage('Deleted theme "Twenty Sixteen"');
+
+        // Re-install Twenty Sixteen so other tests (SimpleMenuLoggerCest) can use it.
+        $I->amOnAdminPage('/theme-install.php?browse=popular');
+        $I->click('Upload Theme');
+        $I->attachFile('#themezip', 'twentysixteen.2.6.zip');
+        $I->click('Install Now');
+        $I->waitForText('Theme installed successfully');
     }
 }

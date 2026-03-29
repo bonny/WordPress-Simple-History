@@ -29,6 +29,7 @@ class SimpleCategoriesLoggerCest
         $I->fillField("#name", 'My edit category changed');
         $I->fillField("#description", 'Changed description');
         $I->click("Update");
+        $I->waitForElement('#wpbody-content .notice');
         $I->seeLogMessage('Edited term "My edit category changed" in taxonomy "category"');
         $I->seeLogContext([
             'from_term_name' => 'My edit category',

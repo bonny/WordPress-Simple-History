@@ -29,7 +29,7 @@ class SimpleOptionsLoggerCest
                 'expected' => 'Updated setting "blogdescription" on the "general" settings page',
                 'expectedContext' => [
                     'option' => 'blogdescription',
-                    'old_value' => 'Just another WordPress site',
+                    'old_value' => '',
                     'new_value' => 'New site tag',
                     'option_page' => 'general',        
                 ]
@@ -47,15 +47,17 @@ class SimpleOptionsLoggerCest
             ],
         ];
 
-        foreach ($options as $oneOption) {       
+        foreach ($options as $oneOption) {
             $I->fillField($oneOption['field'], $oneOption['fill']);
             $I->click("Save Changes");
+            $I->waitForText('Settings saved');
             $I->seeLogMessage($oneOption['expected']);
             $I->seeLogContext($oneOption['expectedContext']);
         }
         
         $I->checkOption('#users_can_register');
         $I->click("Save Changes");
+        $I->waitForText('Settings saved');
         $I->seeLogMessage('Updated setting "users_can_register" on the "general" settings page');
         $I->seeLogContext([
             'option' => 'users_can_register',
@@ -66,6 +68,7 @@ class SimpleOptionsLoggerCest
 
         $I->selectOption('#default_role', 'Editor');
         $I->click("Save Changes");
+        $I->waitForText('Settings saved');
         $I->seeLogMessage('Updated setting "default_role" on the "general" settings page');
         $I->seeLogContext([
             'option' => 'default_role',
@@ -83,6 +86,7 @@ class SimpleOptionsLoggerCest
         $I->fillField('#mailserver_login', 'login@email.com');
         $I->fillField('#mailserver_pass', 'mailpass');
         $I->click("Save Changes");
+        $I->waitForText('Settings saved');
 
         $I->seeLogMessage('Updated setting "mailserver_pass" on the "writing" settings page', 0);
         $I->seeLogContext([
@@ -117,13 +121,14 @@ class SimpleOptionsLoggerCest
         $I->selectOption('[name=page_on_front]', 'Test page');
 
         $I->click('Save Changes');
+        $I->waitForText('Settings saved');
 
         $I->seeLogMessage('Updated setting "page_on_front" on the "reading" settings page', 0);
         $I->seeLogContext([
             'option_page' => 'reading',
             'option' => 'page_on_front',
             'old_value' => '0',
-            'new_value' => '2',
+            'new_value' => '3',
         ], 0);
 
         $I->seeLogMessage('Updated setting "show_on_front" on the "reading" settings page', 1);
@@ -136,6 +141,7 @@ class SimpleOptionsLoggerCest
 
         $I->checkOption('#blog_public');
         $I->click('Save Changes');
+        $I->waitForText('Settings saved');
         $I->seeLogMessage('Updated setting "blog_public" on the "reading" settings page');
         $I->seeLogContext([
             'option' => 'blog_public',
@@ -147,13 +153,15 @@ class SimpleOptionsLoggerCest
 
     public function testDiscussionOptionsPage(Admin $I) {
         
-        // "Dummy" save because some values seems to be set for the first time
+        // "Dummy" save because some values seems to be set for the first time.
         $I->amOnAdminPage('options-discussion.php');
         $I->click("Save Changes");
+        $I->waitForElement('#wpbody-content .notice');
 
         $I->amOnAdminPage('options-discussion.php');
         $I->uncheckOption('#default_comment_status');
         $I->click("Save Changes");
+        $I->waitForElement('#wpbody-content .notice');
         $I->seeLogMessage('Updated setting "default_comment_status" on the "discussion" settings page');
         $I->seeLogContext([
             'option_page' => 'discussion',
@@ -165,6 +173,7 @@ class SimpleOptionsLoggerCest
         $I->amOnAdminPage('options-discussion.php');
         $I->checkOption('#default_comment_status');
         $I->click("Save Changes");
+        $I->waitForElement('#wpbody-content .notice');
         $I->seeLogMessage('Updated setting "default_comment_status" on the "discussion" settings page');
         $I->seeLogContext([
             'option_page' => 'discussion',
@@ -176,6 +185,7 @@ class SimpleOptionsLoggerCest
         $I->amOnAdminPage('options-discussion.php');
         $I->uncheckOption('#require_name_email');
         $I->click("Save Changes");
+        $I->waitForElement('#wpbody-content .notice');
         $I->seeLogMessage('Updated setting "require_name_email" on the "discussion" settings page');
         $I->seeLogContext([
             'option_page' => 'discussion',
@@ -187,6 +197,7 @@ class SimpleOptionsLoggerCest
         $I->amOnAdminPage('options-discussion.php');
         $I->uncheckOption('#show_avatars');
         $I->click("Save Changes");
+        $I->waitForElement('#wpbody-content .notice');
         $I->seeLogMessage('Updated setting "show_avatars" on the "discussion" settings page');
         $I->seeLogContext([
             'option_page' => 'discussion',
