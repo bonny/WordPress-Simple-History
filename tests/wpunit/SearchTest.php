@@ -152,25 +152,24 @@ class SearchTest extends \Codeception\TestCase\WPTestCase {
 	 * Both words must match but can match in different sources.
 	 */
 	public function test_multi_word_search_cross_source_matching() {
-		// Event where "api" is in message and "192" is in context.
-		$this->create_event( 'SimpleLogger', 'info', 'API request completed', [
-			'_server_remote_addr' => '192.168.1.1',
-		] );
+		// Cross-source matching: each word can match in a different column.
+		// "api" matches in message, "SimpleLogger" matches in logger column.
+		// Both words must match but can match in different sources.
 
-		// Event where only "api" is in message (no matching context).
-		$this->create_event( 'SimpleLogger', 'info', 'API request completed', [
-			'_server_remote_addr' => '10.0.0.1',
-		] );
+		// Event where "api" is in message and logger is "SimpleLogger".
+		$this->create_event( 'SimpleLogger', 'info', 'API request completed' );
+
+		// Event where message doesn't contain "api" — should not match.
+		$this->create_event( 'SimpleLogger', 'info', 'User logged in' );
 
 		$results = ( new Log_Query() )->query( [
 			'posts_per_page' => 100,
-			'search'         => 'api 192',
+			'search'         => 'api SimpleLogger',
 		] );
 
-		// Without experimental features, search is unscoped and checks all context values,
-		// so "api" matches in message and "192" matches in context — cross-source match works.
+		// "api" matches in message column, "SimpleLogger" matches in logger column.
 		$this->assertIsArray( $results['log_rows'] );
-		$this->assertEquals( 1, (int) $results['total_row_count'], 'Cross-source matching: "api" in message + "192" in context should match exactly one event' );
+		$this->assertEquals( 1, (int) $results['total_row_count'], 'Cross-source matching: "api" in message + "SimpleLogger" in logger should match exactly one event' );
 	}
 
 	/**
@@ -502,24 +501,20 @@ class SearchTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test exclude_search works against context values (not just message columns).
+	 * Test exclude_search works against multiple searchable columns (not just message).
 	 */
-	public function test_exclude_search_against_context_values() {
-		$this->create_event( 'SimpleLogger', 'info', 'User logged in', [
-			'_server_remote_addr' => '192.168.1.1',
-		] );
-		$this->create_event( 'SimpleLogger', 'info', 'User logged in', [
-			'_server_remote_addr' => '10.0.0.1',
-		] );
+	public function test_exclude_search_against_columns() {
+		$this->create_event( 'SimpleLogger', 'info', 'User logged in' );
+		$this->create_event( 'SimpleLogger', 'warning', 'User logged in' );
 
-		// Exclude events that have "192.168" in any searchable source.
+		// Exclude events that have "warning" in any searchable column (level column).
 		$results = ( new Log_Query() )->query( [
 			'posts_per_page' => 100,
-			'exclude_search' => '192.168',
+			'exclude_search' => 'warning',
 		] );
 
-		// The event with 192.168.1.1 in context should be excluded.
-		$this->assertEquals( 1, (int) $results['total_row_count'], 'exclude_search should also exclude based on context values' );
+		// The event with level "warning" should be excluded.
+		$this->assertEquals( 1, (int) $results['total_row_count'], 'exclude_search should also exclude based on level column' );
 	}
 
 	/**
