@@ -424,18 +424,17 @@ class Setup_Database extends Service {
 	/**
 	 * Update from db version 8 to version 9.
 	 *
-	 * Sets 30-day default retention for fresh installs.
-	 * Existing installs keep the previous 60-day hardcoded default.
+	 * Stores retention days in the database so it autoloads
+	 * and avoids an extra DB query on every page load.
+	 * Fresh installs: 30 days. Existing installs: 60 days.
 	 */
 	private function setup_version_8_to_version_9() {
 		if ( $this->get_db_version() !== 8 ) {
 			return;
 		}
 
-		// Fresh installs set this flag in setup_new_to_version_1().
-		if ( $this->is_fresh_install ) {
-			update_option( 'simple_history_retention_days', 30, true );
-		}
+		$retention_days = $this->is_fresh_install ? 30 : 60;
+		update_option( 'simple_history_retention_days', $retention_days, true );
 
 		$this->update_db_to_version( 9 );
 	}
