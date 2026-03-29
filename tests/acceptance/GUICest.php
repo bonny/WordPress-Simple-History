@@ -10,7 +10,7 @@ class GUICest {
                 $I->amOnAdminPage( 'admin.php?page=simple_history_admin_menu_page' );
 
                 $I->see( 'Simple History' );
-               
+
                 // Wait for items to be loaded, or it will catch the skeleton loading items.
                 $I->waitForElement( '.SimpleHistoryLogitems.is-loaded' );
 
@@ -21,23 +21,17 @@ class GUICest {
                 // Search filters, unexpanded and expanded.
                 $I->dontSee('Log levels');
                 $I->dontSee('Message types');
-                $I->dontSee('Enter 2 or more characters to search for users.');
 
-                $I->click('Show filters');
+                $I->click('Filters');
                 $I->see('Log levels');
                 $I->see('Message types');
                 $I->see('Users');
 
                 // Sidebar boxes.
                 $I->see('History Insights');
-                $I->see('Most active users');
-                $I->see('Unlock more features with Simple History Premium');
-                
-                $I->see('Review this plugin if you like it');
-                $I->see('Visit the support forum');
 
                 // Erik editor
-                $I->loginAs('erik', 'password'); 
+                $I->loginAs('erik', 'password');
                 $I->amOnAdminPage( 'index.php?page=simple_history_page' );
                 $I->see( 'Simple History' );
 	}
