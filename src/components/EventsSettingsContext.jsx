@@ -13,9 +13,13 @@ export function EventsSettingsProvider( { children, value } ) {
 export function useEventsSettings() {
 	const context = useContext( EventsSettingsContext );
 	if ( ! context ) {
-		throw new Error(
-			'useEventsSettings must be used within an EventsSettingsProvider'
-		);
+		// Return safe defaults when used outside a provider (e.g. tests, Storybook).
+		return {
+			hasExtendedSettingsAddOn: false,
+			hasPremiumAddOn: false,
+			hasFailedLoginLimit: false,
+			experimentalFeaturesEnabled: false,
+		};
 	}
 	return context;
 }

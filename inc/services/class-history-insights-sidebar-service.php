@@ -509,7 +509,10 @@ class History_Insights_Sidebar_Service extends Service {
 		$retention_upsell = $this->get_retention_upsell_html( $retention_days );
 
 		// Return concatenated result wrapped in a footer-style container.
-		return wp_kses_post( '<div class="sh-SidebarStats-footer"><p class="sh-m-0">' . $msg_text . '</p></div>' . $retention_upsell );
+		// Use wp_kses instead of wp_kses_post to allow target="_blank" on links.
+		$allowed_html = wp_kses_allowed_html( 'post' );
+		$allowed_html['a']['target'] = true;
+		return wp_kses( '<div class="sh-SidebarStats-footer"><p class="sh-m-0">' . $msg_text . '</p></div>' . $retention_upsell, $allowed_html );
 	}
 
 	/**
@@ -532,8 +535,15 @@ class History_Insights_Sidebar_Service extends Service {
 			return '';
 		}
 
-		// Get the oldest event to calculate days until deletion.
-		$oldest_event = ( new \Simple_History\Events_Stats() )->get_oldest_event();
+		// Get the oldest event to calculate days until deletion. Use transient cache.
+		$cache_key    = 'sh_oldest_event';
+		$oldest_event = get_transient( $cache_key );
+		if ( $oldest_event === false ) {
+			$oldest_event = ( new \Simple_History\Events_Stats() )->get_oldest_event();
+			if ( $oldest_event ) {
+				set_transient( $cache_key, $oldest_event, self::CACHE_DURATION_MINUTES * MINUTE_IN_SECONDS );
+			}
+		}
 
 		if ( ! $oldest_event || empty( $oldest_event['date'] ) ) {
 			return '';

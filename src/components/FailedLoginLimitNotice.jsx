@@ -5,9 +5,11 @@ import { getTrackingUrl } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
 
 // Add ?sh_preview_failed_login_notice to the URL to force-show this notice for testing.
-const FORCE_SHOW = new URLSearchParams( window.location.search ).has(
-	'sh_preview_failed_login_notice'
-);
+function isForceShow() {
+	return new URLSearchParams( window.location.search ).has(
+		'sh_preview_failed_login_notice'
+	);
+}
 
 /**
  * Friendly info notice shown once at the top of the event list
@@ -24,7 +26,7 @@ export function FailedLoginLimitNotice( props ) {
 	const { hasFailedLoginLimit, hasPremiumAddOn } = useEventsSettings();
 
 	if (
-		! FORCE_SHOW &&
+		! isForceShow() &&
 		( ! hasFailedLoginLimit ||
 		failedLoginSuppressedCount <= 0 ||
 		hasPremiumAddOn ||

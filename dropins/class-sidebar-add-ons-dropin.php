@@ -108,8 +108,9 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	 * Output compact premium promo above History Insights.
 	 */
 	public function on_sidebar_html_premium_promo_compact() {
-		$install_date      = Helpers::get_plugin_install_date();
-		$days_since_install = $install_date ? ( time() - strtotime( $install_date ) ) / DAY_IN_SECONDS : 0;
+		$install_date       = Helpers::get_plugin_install_date();
+		$install_timestamp  = $install_date ? strtotime( $install_date ) : false;
+		$days_since_install = $install_timestamp ? ( time() - $install_timestamp ) / DAY_IN_SECONDS : 0;
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$show_premium_card = Helpers::show_promo_boxes()
