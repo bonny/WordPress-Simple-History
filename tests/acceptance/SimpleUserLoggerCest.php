@@ -16,8 +16,9 @@ class SimpleUserLoggerCest
     public function logLoginAttemptFromUserThatDoesNotExist(\Step\Acceptance\Admin $I)
     {
         $I->amOnPage('/wp-login.php');
-        $I->fillField('#user_login', 'erik');
-        $I->fillField('#user_pass', 'password');
+        $I->waitForElement('#user_login');
+        $I->executeJS("document.getElementById('user_login').value = 'erik'");
+        $I->executeJS("document.getElementById('user_pass').value = 'password'");
         $I->click('#wp-submit');
         $I->waitForElement('#login_error');
 
@@ -31,8 +32,9 @@ class SimpleUserLoggerCest
         $I->haveUserInDatabase('erik', 'editor', ['user_pass' => 'password']);
 
         $I->amOnPage('/wp-login.php');
-        $I->fillField('#user_login', 'erik');
-        $I->fillField('#user_pass', 'password');
+        $I->waitForElement('#user_login');
+        $I->executeJS("document.getElementById('user_login').value = 'erik'");
+        $I->executeJS("document.getElementById('user_pass').value = 'password'");
         $I->click('#wp-submit');
         $I->waitForElement('#wpadminbar');
 
@@ -52,8 +54,9 @@ class SimpleUserLoggerCest
         $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'password']);
 
         $I->amOnPage('/wp-login.php');
-        $I->fillField('#user_login', 'anna');
-        $I->fillField('#user_pass', 'wrongpassword');
+        $I->waitForElement('#user_login');
+        $I->executeJS("document.getElementById('user_login').value = 'anna'");
+        $I->executeJS("document.getElementById('user_pass').value = 'wrongpassword'");
         $I->click('#wp-submit');
         $I->waitForElement('#login_error');
 
