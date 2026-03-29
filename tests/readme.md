@@ -30,20 +30,70 @@ To run for example `UserCest:logUserProfileUpdated`:
 
 ## Setting up the starting database fixture
 
-The `dump.sql` file is generating something like this:
+The `dump.sql` file must match a specific state for tests to pass. Here's what the test WordPress install should look like:
+
+### Required state
+
+-   **WordPress version:** Must match the version in `compose.yaml` (currently 6.8)
+-   **Site URL:** `http://wordpress` (the Docker service name)
+-   **Site title:** `wp-tests`
+-   **Admin user:** `admin` / `admin` / `test@example.com`
+-   **Active plugins:** Only `simple-history` — all other plugins must be inactive (tests activate them as needed in `_before()`)
+-   **Active theme:** The default theme shipped with the WP version (e.g., Twenty Twenty-Five for WP 6.8). Must be a theme that exists in the Docker image.
+-   **Content:** Empty — no posts, pages, or uploads
+-   **Simple History tables:** Empty (truncated) — no pre-existing events. Tests expect event IDs to start from 1.
+-   **Auto-backfill:** Must have already run (option `simple_history_auto_backfill_status` = completed). This prevents the backfill from creating unexpected events during tests.
+
+### Generating the dump
 
 ```sh
-# Install WordPress
-docker-compose run --rm wp-cli wp core install --version=6.1 --url=localhost:8080 --title=wp-tests --admin_user=admin --admin_email=test@example.com --admin_password=admin --skip-email
+# 1. Start containers
+docker compose up -d
 
-# Empty site (removes post etc.)
-docker-compose run --rm wp-cli wp site empty --yes --uploads
+# 2. Reset and install WordPress fresh
+docker compose run --rm wp-cli wp db reset --yes
+docker compose run --rm wp-cli wp core install \
+    --url=http://wordpress \
+    --title=wp-tests \
+    --admin_user=admin \
+    --admin_email=test@example.com \
+    --admin_password=admin \
+    --skip-email
 
-# Activate plugin
-docker-compose run --rm wp-cli plugin activate simple-history
+# 3. Empty site (removes default post, page, etc.)
+docker compose run --rm wp-cli wp site empty --yes --uploads
 
-# Export database to local file
-docker-compose run --rm wp-cli wp db export - > db-export-`date +"%Y-%m-%d_%H:%M"`.sql
+# 4. Activate only Simple History
+docker compose run --rm wp-cli wp plugin deactivate --all
+docker compose run --rm wp-cli wp plugin activate simple-history
+
+# 5. Fix uploads directory permissions
+docker compose exec -u root wordpress chown -R www-data:www-data /var/www/html/wp-content/uploads
+
+# 6. Trigger the auto-backfill by visiting an admin page, then clear the events it created
+#    (The backfill runs on first admin_init and sets status to "completed" so it won't run again)
+docker compose run --rm wp-cli wp eval "do_action('admin_init');"
+docker compose run --rm wp-cli wp db query \
+    "TRUNCATE TABLE wp_simple_history; TRUNCATE TABLE wp_simple_history_contexts;"
+
+# 7. Export
+docker compose run --rm wp-cli wp db export - > tests/_data/dump.sql
+```
+
+### Verifying the dump state
+
+```sh
+# Should show only simple-history as active
+docker compose run --rm wp-cli wp plugin list --status=active
+
+# Should show the default theme (e.g., twentytwentyfive)
+docker compose run --rm wp-cli wp theme list --status=active
+
+# Should show the correct WP version
+docker compose run --rm wp-cli wp core version
+
+# Should show "completed"
+docker compose run --rm wp-cli wp option get simple_history_auto_backfill_status
 ```
 
 ## Modify installation using browser
