@@ -48,7 +48,7 @@ services:
       - "${DB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
 
   chrome:
-    image: selenium/standalone-chromium:126.0
+    image: selenium/standalone-chromium:145.0
     shm_size: "2gb"
     container_name: simple-history-chrome
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"

@@ -17,10 +17,11 @@ class SimplePostLoggerCest
 
     public function testPostCreated(Admin $I) {
         $I->amOnAdminPage('edit.php?post_type=page');
-        $I->click('Add New', '.wrap');
+        $I->click('Add Page', '.wrap');
 
-        // Close Welcome guide.
-        $I->click('.edit-post-welcome-guide button.components-button');
+        // Dismiss Welcome guide and any other modals via JS.
+        $I->executeJS("wp.data.dispatch('core/preferences').set('core/edit-post', 'welcomeGuide', false)");
+        $I->wait(0.5);
 
         // Go down in editor frame.
         $I->switchToIFrame('editor-canvas');

@@ -30,7 +30,7 @@ class SimpleThemeLoggerCest
 
         // Message key: theme_switched.
         $I->click('Activate');
-        $I->seeLogMessage('Switched theme to "Twenty Sixteen" from "Twenty Twenty-One"');
+        $I->seeLogMessage('Switched theme to "Twenty Sixteen" from "Twenty Twenty-Five"');
 
         // Upload Theme again to test theme_updated, does not currently work when
         // uploading zip however?
@@ -43,10 +43,10 @@ class SimpleThemeLoggerCest
         $I->seeLogMessage('Installed theme "Twenty Sixteen" by the WordPress team', 1);
 
         // theme_switched: Switch back theme so we can delete the uploaded one.
-        $I->amOnAdminPage('/themes.php?theme=twentytwentyone');
+        $I->amOnAdminPage('/themes.php?theme=twentytwentyfive');
         $I->waitForElementVisible('.theme-wrap .button.activate');
         $I->click('.theme-wrap .button.activate');
-        $I->seeLogMessage('Switched theme to "Twenty Twenty-One" from "Twenty Sixteen"');
+        $I->seeLogMessage('Switched theme to "Twenty Twenty-Five" from "Twenty Sixteen"');
 
         // theme_deleted: Theme deleted.
         $I->amOnAdminPage('/themes.php?theme=twentysixteen');

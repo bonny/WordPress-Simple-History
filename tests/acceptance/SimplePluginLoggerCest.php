@@ -89,7 +89,7 @@ class SimplePluginLoggerCest
     public function testPluginInstallSuccess(Admin $I) {
         // - plugin_installed
         $I->cleanUploadsDir();
-        $I->cleanPluginDir('limit-login-attempts-reloaded');
+        $I->deleteDir('/wordpress/wp-content/plugins/limit-login-attempts-reloaded');
 
         $I->amOnAdminPage('plugin-install.php');
         

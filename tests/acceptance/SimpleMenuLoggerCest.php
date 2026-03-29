@@ -6,7 +6,13 @@ class SimpleMenuLoggerCest
 {
     public function _before(Admin $I) {
         $I->loginAsAdmin();
+        // Activate a classic theme that supports nav menus.
+        // Default WP 6.8 theme (Twenty Twenty-Five) is a block theme.
+        $I->amOnAdminPage('/themes.php?theme=twentysixteen');
+        $I->waitForElementVisible('.theme-wrap .button.activate');
+        $I->click('.theme-wrap .button.activate');
     }
+
 
     public function editMenus(Admin $I) {
         // Create menu

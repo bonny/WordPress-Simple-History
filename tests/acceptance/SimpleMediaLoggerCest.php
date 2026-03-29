@@ -9,9 +9,8 @@ class SimpleMediaLoggerCest
     }
 
     public function addMedia(Admin $I) {
-        // Add image.
-        $I->amOnAdminPage('media-new.php');
-        $I->click("browser uploader");
+        // Add image using browser uploader.
+        $I->amOnAdminPage('media-new.php?browser-uploader');
         $I->attachFile('#async-upload', 'Image 1.jpg');
         $I->click("Upload");
         $I->seeLogMessage('Created attachment "Image 1"');
@@ -30,7 +29,7 @@ class SimpleMediaLoggerCest
         $I->fillField('#attachment_alt', 'My image alt text');
         $I->fillField('#attachment_caption', 'My image excerpt and caption');
         $I->fillField('#attachment_content', 'My image description and content');
-        $I->click('Update');
+        $I->executeJS('document.getElementById("publish").click()');
         $I->seeLogContext([
             'post_type' => 'attachment',
             'attachment_id' => '2',

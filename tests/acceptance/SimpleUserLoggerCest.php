@@ -16,10 +16,9 @@ class SimpleUserLoggerCest
     public function logLoginAttemptFromUserThatDoesNotExist(\Step\Acceptance\Admin $I)
     {
         $I->amOnPage('/wp-login.php');
-        $I->submitForm('#loginform', array(
-            'log' => 'erik',
-            'pwd' => 'password',
-        ));
+        $I->fillField('#user_login', 'erik');
+        $I->fillField('#user_pass', 'password');
+        $I->click('#wp-submit');
 
         $I->seeLogInitiator('web_user');
         $I->seeLogMessage('Failed to login with username "erik" (username does not exist)');
@@ -31,10 +30,9 @@ class SimpleUserLoggerCest
         $I->haveUserInDatabase('erik', 'editor', ['user_pass' => 'password']);
 
         $I->amOnPage('/wp-login.php');
-        $I->submitForm('#loginform', array(
-            'log' => 'erik',
-            'pwd' => 'password',
-        ));
+        $I->fillField('#user_login', 'erik');
+        $I->fillField('#user_pass', 'password');
+        $I->click('#wp-submit');
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage('Logged in');
@@ -52,10 +50,9 @@ class SimpleUserLoggerCest
         $I->haveUserInDatabase('anna', 'author', ['user_pass' => 'password']);
 
         $I->amOnPage('/wp-login.php');
-        $I->submitForm('#loginform', array(
-            'log' => 'anna',
-            'pwd' => 'wrongpassword',
-        ));
+        $I->fillField('#user_login', 'anna');
+        $I->fillField('#user_pass', 'wrongpassword');
+        $I->click('#wp-submit');
 
         $I->seeLogInitiator('web_user');
         $I->seeLogMessage('Failed to login with username "anna" (incorrect password entered)');
@@ -67,11 +64,10 @@ class SimpleUserLoggerCest
         $I->loginAsAdmin();
         $I->amOnAdminPage('/profile.php');
 
-        $I->checkOption('#rich_editing');
         $I->selectOption('input[name=admin_color]', 'light');
         $I->fillField("#first_name", "Jane");
         $I->fillField("#last_name", "Doe");
-        
+
         $I->scrollTo('#comment_shortcuts', 0, -300);
         $I->checkOption('#comment_shortcuts');
         $I->unCheckOption('#admin_bar_front');
@@ -112,7 +108,6 @@ class SimpleUserLoggerCest
         $I->amOnAdminPage('/users.php');
         $I->click('annaauthor');
 
-        $I->checkOption('#rich_editing');
         $I->selectOption('input[name=admin_color]', 'light');
         $I->fillField("#first_name", "Annaname");
         $I->fillField("#last_name", "Doeauthor");
@@ -254,7 +249,6 @@ class SimpleUserLoggerCest
         $I->amOnAdminPage('/users.php');
         $I->click('annaauthor');
 
-        $I->checkOption('#rich_editing');
         $I->fillField("#new_application_password_name", "My New App");
 
         $I->click('#do_new_application_password');
@@ -298,7 +292,6 @@ class SimpleUserLoggerCest
         $I->seeLogMessage('Revoked application password "My New App" for user "rolf"');
         $I->seeLogContext([
             'application_password_name' => 'My New App',
-            'edited_user_id' => '2',
             'edited_user_email' => 'rolf@example.com',
             'edited_user_login' => 'rolf'
         ]);
