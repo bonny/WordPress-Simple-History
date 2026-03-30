@@ -94,50 +94,66 @@ class Admin extends \AcceptanceTester
      */
     public function getHistory(int $index = 0): array
     {
-        // I can't find any "grabRow"-method so I will get the columns one by one.        
         $history_table = $this->grabPrefixedTableNameFor('simple_history');
         $contexts_table = $this->grabPrefixedTableNameFor('simple_history_contexts');
-        $ids = array_reverse($this->grabColumnFromDatabase($history_table, 'id', []));
-        $latest_id = $ids[$index];
-        $where = ['id' => $latest_id];
-        $contexts_where = ['history_id' => $latest_id];
 
-        $columns = [
-            'id',
-            'date',
-            'logger',
-            'message',
-            'initiator'
-        ];
+        // Retry loop: the event row and context rows are written in separate
+        // DB operations. Under load (full suite), context may lag behind.
+        // Every real event has at least a _user_id context row.
+        $max_attempts = 5;
+        for ($attempt = 1; $attempt <= $max_attempts; $attempt++) {
+            $ids = array_reverse($this->grabColumnFromDatabase($history_table, 'id', []));
+            $latest_id = $ids[$index];
+            $where = ['id' => $latest_id];
+            $contexts_where = ['history_id' => $latest_id];
 
-        $context_columns = [
-            'history_id',
-            '`key`',
-            'value',
-        ];
+            $columns = [
+                'id',
+                'date',
+                'logger',
+                'message',
+                'initiator'
+            ];
 
-        $column_values = [];
-        $context_values = [];
+            $context_columns = [
+                'history_id',
+                '`key`',
+                'value',
+            ];
 
-        foreach ($columns as $column_name) {
-            $column_values[$column_name] = $this->grabColumnFromDatabase($history_table, $column_name, $where)[0];
-        }
+            $column_values = [];
+            $context_values = [];
 
-        foreach ($context_columns as $column_name) {
-            $column_name_key = str_replace('`key`', 'key', $column_name);
-
-            if (!isset($context_values[$column_name_key])) {
-                $context_values[$column_name_key] = [];
+            foreach ($columns as $column_name) {
+                $column_values[$column_name] = $this->grabColumnFromDatabase($history_table, $column_name, $where)[0];
             }
 
-            $context_values[$column_name_key][] = $this->grabColumnFromDatabase($contexts_table, $column_name, $contexts_where);
-        }
+            foreach ($context_columns as $column_name) {
+                $column_name_key = str_replace('`key`', 'key', $column_name);
 
-        $context_keys_values = [];
-        for ($i = 0; $i < count($context_values['key'][0]); $i++) {
-            $context_key = $context_values['key'][0][$i];
-            $context_value = $context_values['value'][0][$i];
-            $context_keys_values[$context_key] = $context_value;
+                if (!isset($context_values[$column_name_key])) {
+                    $context_values[$column_name_key] = [];
+                }
+
+                $context_values[$column_name_key][] = $this->grabColumnFromDatabase($contexts_table, $column_name, $contexts_where);
+            }
+
+            $context_keys_values = [];
+            for ($i = 0; $i < count($context_values['key'][0]); $i++) {
+                $context_key = $context_values['key'][0][$i];
+                $context_value = $context_values['value'][0][$i];
+                $context_keys_values[$context_key] = $context_value;
+            }
+
+            // If context rows exist, we're done.
+            if (!empty($context_keys_values)) {
+                break;
+            }
+
+            // Context not yet written — wait briefly and retry.
+            if ($attempt < $max_attempts) {
+                usleep(200000); // 200ms
+            }
         }
 
         return [
