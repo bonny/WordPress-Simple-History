@@ -2498,6 +2498,6 @@ class Helpers {
 	 * @return bool True if running on Windows.
 	 */
 	public static function is_windows() {
-		return 'WIN' === strtoupper( substr( PHP_OS, 0, 3 ) );
+		return strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN';
 	}
 }

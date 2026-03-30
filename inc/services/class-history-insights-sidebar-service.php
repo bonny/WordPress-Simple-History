@@ -510,7 +510,7 @@ class History_Insights_Sidebar_Service extends Service {
 
 		// Return concatenated result wrapped in a footer-style container.
 		// Use wp_kses instead of wp_kses_post to allow target="_blank" on links.
-		$allowed_html = wp_kses_allowed_html( 'post' );
+		$allowed_html                = wp_kses_allowed_html( 'post' );
 		$allowed_html['a']['target'] = true;
 		return wp_kses( '<div class="sh-SidebarStats-footer"><p class="sh-m-0">' . $msg_text . '</p></div>' . $retention_upsell, $allowed_html );
 	}

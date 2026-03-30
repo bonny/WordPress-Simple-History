@@ -2,7 +2,6 @@
 
 namespace Simple_History\Loggers;
 
-use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
 
