@@ -73,8 +73,8 @@ if ( $show_upsell ) {
 	} elseif ( $args['plugin_activations'] > 0 ) {
 		$inline_teaser_section = 'plugins';
 		$inline_teaser_text    = __( 'With Premium, this email names each plugin and the person who changed it.', 'simple-history' );
-	// Only show posts teaser when activity is notable — low counts don't create curiosity.
-	} elseif ( ( $args['posts_created'] + $args['posts_updated'] ) > 3 ) {
+		// Only show posts teaser when activity is notable — low counts don't create curiosity.
+	} elseif ( $args['posts_created'] + $args['posts_updated'] > 3 ) {
 		$inline_teaser_section = 'posts';
 		$inline_teaser_text    = __( 'With Premium, this email shows who edited which posts and when.', 'simple-history' );
 	} elseif ( $args['users_created'] > 0 ) {
