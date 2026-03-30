@@ -7,8 +7,12 @@ class PluginWPCrontrolLoggerCest
     public function _before(Admin $I) {
         $I->loginAsAdmin();
         $I->amOnPluginsPage();
-        $I->activatePlugin('wp-crontrol');
-        $I->canSeePluginActivated('wp-crontrol');        
+        // Only activate if not already active (plugin may persist from previous test method).
+        $isActive = $I->executeJS("return !!document.getElementById('deactivate-wp-crontrol')");
+        if (!$isActive) {
+            $I->activatePlugin('wp-crontrol');
+        }
+        $I->canSeePluginActivated('wp-crontrol');
     }
     
     public function addScheduleAndDeleteSchedule(Admin $I) {

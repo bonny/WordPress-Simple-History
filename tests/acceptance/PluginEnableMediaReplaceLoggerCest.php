@@ -8,7 +8,10 @@ class EnableMediaReplaceLoggerCest
         $plugin_slug = 'enable-media-replace';
         $I->loginAsAdmin();
         $I->amOnPluginsPage();
-        $I->activatePlugin($plugin_slug);
+        $isActive = $I->executeJS("return !!document.getElementById('deactivate-{$plugin_slug}')");
+        if (!$isActive) {
+            $I->activatePlugin($plugin_slug);
+        }
         $I->canSeePluginActivated($plugin_slug);
     }
 
