@@ -52,7 +52,6 @@ class SimpleMediaLoggerCest
         $I->click('Delete Permanently');
         $I->acceptPopup();
         $I->waitForJqueryAjax();
-        $I->wait(1);
         // Can't use seeLogMessage at index 0 because 404 events from
         // deleted thumbnail requests may be logged after the delete event.
         $I->seeLogEventExists('Deleted {post_type} "{attachment_title}" ("{attachment_filename}")');

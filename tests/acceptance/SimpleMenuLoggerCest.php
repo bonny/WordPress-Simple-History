@@ -45,7 +45,6 @@ class SimpleMenuLoggerCest
 
         $I->fillField("#custom-menu-item-url", 'https://texttv.nu/');
         $I->fillField("#custom-menu-item-name", 'SVT Text TV');
-        $I->wait(1);
         // Click Add to Menu
         $I->click('#submit-customlinkdiv');
         
@@ -71,7 +70,8 @@ class SimpleMenuLoggerCest
         $I->waitForElementVisible('#menu-to-edit .item-delete');
         $I->scrollTo('#menu-to-edit .item-delete');
         $I->click('Remove', '#menu-to-edit');
-        $I->wait('1');
+        // Wait for the animated removal to complete before saving.
+        $I->wait(1);
         $I->scrollTo('#save_menu_footer');
         $I->executeJS('document.getElementById("save_menu_footer").click()');
         $I->waitForElementVisible('#nav-menu-header');
@@ -88,7 +88,8 @@ class SimpleMenuLoggerCest
         $I->amOnAdminPage('nav-menus.php');
         $I->click('Delete Menu');
         $I->acceptPopup();
-        $I->wait(1);
+        // Menu deletion redirects via JS — wait for the page to load.
+        $I->waitForElement('#menu-name');
         $I->seeLogMessage('Deleted menu "My new menu changed"');
         $I->seeLogContext([
             'menu_term_id' => '2',

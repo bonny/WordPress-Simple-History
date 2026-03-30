@@ -150,8 +150,8 @@ class SimpleUserLoggerCest
         $I->loginAsAdmin();
         $I->amOnAdminPage('/user-new.php');
 
-        // Needed for the admin JS to have time to generate a password and duplicate it to the hidden password field.
-        $I->wait(0.1);
+        // Wait for the admin JS to generate a password.
+        $I->waitForElementVisible('#pass1');
 
         $I->fillField("#user_login", "NewUserLogin");
         $I->fillField("#email", "newuser@example.com");
@@ -293,10 +293,9 @@ class SimpleUserLoggerCest
         $I->waitForElementVisible('#new-application-password-value');
         $I->see('Your new password for My New App is:');
         
-        // Are you sure you want to revoke this password? This action cannot be undone.
-        $I->wait(5);
-        $I->scrollTo('table.application-passwords-user', 0, -1000);
-        $I->scrollTo('#the-list', 0, 500);
+        // Wait for the application passwords table to be ready.
+        $I->waitForElementVisible('table.application-passwords-user .delete');
+        $I->scrollTo('table.application-passwords-user');
         $I->click("Revoke");
         
         $I->acceptPopup();

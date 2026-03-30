@@ -21,7 +21,6 @@ class SimplePostLoggerCest
 
         // Dismiss Welcome guide and any other modals via JS.
         $I->executeJS("wp.data.dispatch('core/preferences').set('core/edit-post', 'welcomeGuide', false)");
-        $I->wait(0.5);
 
         // Go down in editor frame.
         $I->switchToIFrame('editor-canvas');
