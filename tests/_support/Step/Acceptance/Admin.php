@@ -100,7 +100,7 @@ class Admin extends \AcceptanceTester
         // Retry loop: the event row and context rows are written in separate
         // DB operations. Under load (full suite), context may lag behind.
         // Every real event has at least a _user_id context row.
-        $max_attempts = 5;
+        $max_attempts = 10;
         for ($attempt = 1; $attempt <= $max_attempts; $attempt++) {
             // 1 query: get the event ID at the requested index (newest first).
             $ids = array_reverse($this->grabColumnFromDatabase($history_table, 'id', []));
