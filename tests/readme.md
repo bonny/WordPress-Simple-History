@@ -159,6 +159,44 @@ WP may log additional system events (404s for missing thumbnails, `wp_global_sty
 
 WP 6.8 changed plugin upload behavior — uploading an already-installed plugin now shows a "Replace" option instead of failing. Test scenarios that depend on specific WP admin behaviors should be verified against the new version.
 
+## Troubleshooting
+
+### Full red terminal / every test fails with timeouts
+
+The Chrome or WordPress container is in a bad state. Restart and rerun:
+
+```sh
+docker compose restart
+```
+
+Only do this when the **first test** fails with a connection/timeout error — not for assertion failures.
+
+### "Passes alone, fails in suite"
+
+Two known causes:
+
+1.  **Event row not yet written** — Gutenberg's `savePost()` returns before Simple History writes to the DB. The `getHistory()` method retries for missing context rows, but not for missing event rows. If you see `getHistory(0)` returning the previous event, add `$I->wait(1)` after the save.
+
+2.  **Plugin already active** — The DB resets between tests but the browser session may retain state. Plugin `_before()` hooks must check if the plugin is already active before calling `activatePlugin()`. Use:
+    ```php
+    $isActive = $I->executeJS("return !!document.getElementById('deactivate-<slug>')");
+    if (!$isActive) {
+        $I->activatePlugin('<slug>');
+    }
+    ```
+
+### React/fetch plugins don't work with waitForJqueryAjax()
+
+Redirection and Jetpack use React/fetch for AJAX, not jQuery. `waitForJqueryAjax()` returns immediately. Use `$I->wait(1)` instead (documented in class docblock).
+
+### Gutenberg saves: "Draft saved" text persists
+
+The snackbar text "Draft saved" stays on screen between saves. Don't use `waitForText('Draft saved')` to detect the second save — it matches the first. Use `wp.data.dispatch('core/editor').savePost()` + `waitForElementVisible('.editor-post-saved-state.is-saved')` + `wait(1)`.
+
+### seeLogContext returns empty array
+
+The event row and context rows are separate DB writes. Under load, context lags behind. `getHistory()` retries up to 10 times (200ms each) for missing context. If still failing, increase `$max_attempts` in `Admin.php`.
+
 ## Update log / Changelog
 
 Changes made to the test site and SQL-file.
