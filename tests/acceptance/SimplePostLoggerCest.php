@@ -43,16 +43,20 @@ class SimplePostLoggerCest
             '_message_key' => 'post_created',
         ]);
 
-        // Continue editing the same post.
+        // Continue editing the same post — append to title.
         $I->switchToIFrame('editor-canvas');
-        $I->pressKey('.wp-block-post-title', [' ', 'w', 'o', 'r', 'l', 'd']);
+        $I->click('.wp-block-post-title');
+        $I->pressKey('.wp-block-post-title', [\Facebook\WebDriver\WebDriverKeys::END]);
+        $I->type(' world');
 
         // Go up to parent page from editor frame.
         $I->switchToIFrame();
 
-        $I->waitForText('Save draft');
-        $I->click('Save draft');
-        $I->waitForText('Draft saved');
+        // Save and wait for completion via Gutenberg data store.
+        // Can't rely on "Draft saved" text — it persists from the previous save.
+        $I->executeJS("wp.data.dispatch('core/editor').savePost()");
+        $I->waitForElementVisible('.editor-post-saved-state.is-saved');
+        $I->wait(1);
         $I->seeLogMessage('Updated page "Hello world"');
         $I->seeLogContext([
             'post_type' => 'page',
@@ -75,9 +79,11 @@ class SimplePostLoggerCest
 
         // Go up to parent page from editor frame.
         $I->switchToIFrame();
-        $I->waitForText('Save draft');
-        $I->click('Save draft');
-        $I->waitForText('Draft saved');
+
+        // Save and wait for completion via Gutenberg data store.
+        $I->executeJS("wp.data.dispatch('core/editor').savePost()");
+        $I->waitForElementVisible('.editor-post-saved-state.is-saved');
+        $I->wait(1);
         $I->seeLogMessage('Updated page "Hello world"');
         $I->seeLogContext([
             'post_prev_post_content' => '',
