@@ -102,47 +102,24 @@ class Admin extends \AcceptanceTester
         // Every real event has at least a _user_id context row.
         $max_attempts = 5;
         for ($attempt = 1; $attempt <= $max_attempts; $attempt++) {
+            // 1 query: get the event ID at the requested index (newest first).
             $ids = array_reverse($this->grabColumnFromDatabase($history_table, 'id', []));
             $latest_id = $ids[$index];
-            $where = ['id' => $latest_id];
-            $contexts_where = ['history_id' => $latest_id];
 
-            $columns = [
-                'id',
-                'date',
-                'logger',
-                'message',
-                'initiator'
-            ];
-
-            $context_columns = [
-                'history_id',
-                '`key`',
-                'value',
-            ];
-
+            // 1 query per column for the event row (5 total).
+            // Codeception has no grabRow(), so this is the minimum.
             $column_values = [];
-            $context_values = [];
-
-            foreach ($columns as $column_name) {
-                $column_values[$column_name] = $this->grabColumnFromDatabase($history_table, $column_name, $where)[0];
+            foreach (['id', 'date', 'logger', 'message', 'initiator'] as $col) {
+                $column_values[$col] = $this->grabColumnFromDatabase($history_table, $col, ['id' => $latest_id])[0];
             }
 
-            foreach ($context_columns as $column_name) {
-                $column_name_key = str_replace('`key`', 'key', $column_name);
-
-                if (!isset($context_values[$column_name_key])) {
-                    $context_values[$column_name_key] = [];
-                }
-
-                $context_values[$column_name_key][] = $this->grabColumnFromDatabase($contexts_table, $column_name, $contexts_where);
-            }
+            // 2 queries: get context keys and values.
+            $context_keys = $this->grabColumnFromDatabase($contexts_table, '`key`', ['history_id' => $latest_id]);
+            $context_vals = $this->grabColumnFromDatabase($contexts_table, 'value', ['history_id' => $latest_id]);
 
             $context_keys_values = [];
-            for ($i = 0; $i < count($context_values['key'][0]); $i++) {
-                $context_key = $context_values['key'][0][$i];
-                $context_value = $context_values['value'][0][$i];
-                $context_keys_values[$context_key] = $context_value;
+            for ($i = 0; $i < count($context_keys); $i++) {
+                $context_keys_values[$context_keys[$i]] = $context_vals[$i];
             }
 
             // If context rows exist, we're done.

@@ -177,8 +177,8 @@ class SimpleUserLoggerCest
         $I->loginAsAdmin();
         $I->amOnAdminPage('users.php');
 
-        $I->moveMouseOver('.table-view-list tbody tr:nth-child(2)');
-        $I->click('.table-view-list tbody tr:nth-child(2) .submitdelete');
+        $I->moveMouseOver('//td[contains(.,"anna")]/parent::tr');
+        $I->click('//td[contains(.,"anna")]/parent::tr//a[contains(@class,"submitdelete")]');
         $I->click("Confirm Deletion");
 
         $I->seeLogInitiator('wp_user');
@@ -218,8 +218,8 @@ class SimpleUserLoggerCest
         $I->loginAsAdmin();
         $I->amOnAdminPage('users.php');
 
-        $I->moveMouseOver('.table-view-list tbody tr:nth-child(2)');
-        $I->click('.table-view-list tbody tr:nth-child(2) a.resetpassword');
+        $I->moveMouseOver('//td[contains(.,"anna")]/parent::tr');
+        $I->click('//td[contains(.,"anna")]/parent::tr//a[contains(@class,"resetpassword")]');
 
         $I->seeLogInitiator('wp_user');
         $I->seeLogMessage("Requested a password reset link for user with login 'anna' and email 'anna@example.com'");
