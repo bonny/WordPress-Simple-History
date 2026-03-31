@@ -1,11 +1,11 @@
 import { Button, Tooltip } from '@wordpress/components';
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { share } from '@wordpress/icons';
+import { link, check } from '@wordpress/icons';
 
 /**
- * Button that copies the current filtered view URL to clipboard.
- * Only rendered when filters are active (parent controls visibility).
+ * Button that copies the current view URL to clipboard.
+ * Always visible — works with or without active filters.
  * Enables team collaboration: "look at these failed logins."
  */
 export function ShareFilteredViewButton() {
@@ -21,49 +21,48 @@ export function ShareFilteredViewButton() {
 		};
 	}, [] );
 
+	const copyToClipboard = ( text ) => {
+		// Clipboard API requires secure context (HTTPS).
+		// Fall back to execCommand for HTTP environments.
+		if ( navigator.clipboard?.writeText ) {
+			return navigator.clipboard.writeText( text );
+		}
+
+		const input = document.createElement( 'input' );
+		input.value = text;
+		document.body.appendChild( input );
+		input.select();
+		document.execCommand( 'copy' );
+		document.body.removeChild( input );
+		return Promise.resolve();
+	};
+
 	const handleClick = () => {
-		navigator.clipboard
-			.writeText( window.location.href )
-			.then( () => {
-				setCopied( true );
-				timerRef.current = setTimeout( () => {
-					setCopied( false );
-				}, 2000 );
-			} )
-			.catch( () => {
-				// Fallback: select text in a temporary input.
-				const input = document.createElement( 'input' );
-				input.value = window.location.href;
-				document.body.appendChild( input );
-				input.select();
-				document.execCommand( 'copy' );
-				document.body.removeChild( input );
-				setCopied( true );
-				timerRef.current = setTimeout( () => {
-					setCopied( false );
-				}, 2000 );
-			} );
+		copyToClipboard( window.location.href ).then( () => {
+			setCopied( true );
+			timerRef.current = setTimeout( () => {
+				setCopied( false );
+			}, 2000 );
+		} );
 	};
 
 	const tooltipText = copied
 		? __( 'Link copied!', 'simple-history' )
-		: __( 'Copy link to this filtered view', 'simple-history' );
+		: __( 'Copy link to this view', 'simple-history' );
 
 	return (
 		<Tooltip text={ tooltipText } delay={ 400 }>
 			<Button
-				icon={ share }
+				icon={ copied ? check : link }
 				variant="tertiary"
 				size="compact"
 				onClick={ handleClick }
 				className={ `sh-ControlBarButton sh-ControlBarButton--share${
 					copied ? ' is-copied' : ''
 				}` }
-				label={ __( 'Share filtered view', 'simple-history' ) }
+				label={ __( 'Copy link', 'simple-history' ) }
 			>
-				{ copied
-					? __( 'Copied!', 'simple-history' )
-					: __( 'Share view', 'simple-history' ) }
+				{ __( 'Copy link', 'simple-history' ) }
 			</Button>
 		</Tooltip>
 	);
