@@ -3219,11 +3219,60 @@ a.sh-EventsStatsBar--link:hover {
 	background: #f6f7f7;
 }
 
-/* Events control bar: event count + actions. */
+/* Events control bar: event count + action buttons. */
 .sh-EventsControlBar-actions {
 	padding: 6px 12px;
 	background-color: white;
+}
+
+/* Inline action buttons group in control bar. */
+.sh-ControlBarButtons {
+	gap: 2px;
+}
+
+/* Individual control bar button — compact tertiary style. */
+.sh-ControlBarButton.components-button {
+	display: inline-flex;
+	align-items: center;
+	font-size: 13px;
+	color: var(--sh-color-black-2, #50575e);
+	gap: 2px;
 	white-space: nowrap;
+	padding: 4px 8px;
+}
+
+.sh-ControlBarButton.components-button:hover {
+	color: var(--sh-color-black, #1d2327);
+	background: #f0f0f1;
+}
+
+.sh-ControlBarButton.components-button svg {
+	width: 20px;
+	height: 20px;
+	fill: currentColor;
+	flex-shrink: 0;
+}
+
+/* "Copied!" feedback state on share button. */
+.sh-ControlBarButton--share.is-copied {
+	color: var(--sh-color-green, #3f9349);
+}
+
+/* Premium star indicator — muted, aspirational, not a badge. */
+.sh-PremiumIndicator {
+	opacity: 0.5;
+	font-size: 0.75em;
+	margin-left: 2px;
+	line-height: 1;
+}
+
+.sh-ControlBarButton.components-button:hover .sh-PremiumIndicator {
+	opacity: 0.75;
+}
+
+/* Overflow menu for backwards compat with old premium. */
+.sh-ControlBarOverflowMenu .components-button {
+	color: var(--sh-color-black-2, #50575e);
 }
 
 .SimpleHistoryReactRoot {
