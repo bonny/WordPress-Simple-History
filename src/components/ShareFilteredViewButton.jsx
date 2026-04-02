@@ -6,7 +6,7 @@ import {
 	__experimentalVStack as VStack,
 	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
-import { useState, useRef } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { share, check, closeSmall } from '@wordpress/icons';
 
@@ -22,6 +22,21 @@ export function ShareFilteredViewButton() {
 	const [ copied, setCopied ] = useState( false );
 	const [ copyFailed, setCopyFailed ] = useState( false );
 	const buttonRef = useRef( null );
+	const timerRef = useRef( null );
+
+	// Auto-dismiss after 5s when copy succeeded (no interactive content).
+	useEffect( () => {
+		if ( showPopover && ! copyFailed ) {
+			timerRef.current = setTimeout( () => {
+				handleClose();
+			}, 5000 );
+		}
+		return () => {
+			if ( timerRef.current ) {
+				clearTimeout( timerRef.current );
+			}
+		};
+	}, [ showPopover, copyFailed ] );
 
 	const copyToClipboard = ( text ) => {
 		if ( navigator.clipboard?.writeText ) {
