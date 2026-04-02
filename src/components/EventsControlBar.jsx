@@ -1,6 +1,7 @@
 import {
 	Flex,
 	FlexItem,
+	Slot,
 	__experimentalHStack as HStack,
 	Spinner,
 	__experimentalText as Text,
@@ -124,6 +125,18 @@ export function EventsControlBar( props ) {
 						) }
 
 						{ shouldShowPromoButtons && <CreateLogEntryButton /> }
+
+						{ /* Extension point for premium inline buttons.
+							     Premium fills this with real Export, Create Alert,
+							     and Create Log Entry buttons. */ }
+						<Slot
+							name="SimpleHistorySlotControlBarButtons"
+							fillProps={ {
+								eventsQueryParams,
+								eventsTotal,
+								hasAnyActiveFilters,
+							} }
+						/>
 					</HStack>
 				</FlexItem>
 
