@@ -122,6 +122,7 @@ function EventsGUI() {
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
+	const [ alertsPageURL, setAlertsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
 	const [ userCanManageOptions, setUserCanManageOptions ] = useState( false );
 
@@ -662,6 +663,7 @@ function EventsGUI() {
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
 			eventsSettingsPageURL: settingsPageURL,
+			alertsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions,
 		} ),
@@ -671,6 +673,7 @@ function EventsGUI() {
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
 			settingsPageURL,
+			alertsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions,
 		]
@@ -727,6 +730,7 @@ function EventsGUI() {
 					eventsAdminPageURL={ eventsAdminPageURL }
 					setEventsAdminPageURL={ setEventsAdminPageURL }
 					setEventsSettingsPageURL={ setSettingsPageURL }
+					setAlertsPageURL={ setAlertsPageURL }
 					setPage={ setPage }
 					onReload={ handleReload }
 					setCurrentUserId={ setCurrentUserId }
@@ -767,12 +771,8 @@ function EventsGUI() {
 				pagerSize={ pagerSize }
 				setPage={ setPage }
 				prevEventsMaxId={ prevEventsMaxId }
-				failedLoginLimitThreshold={
-					failedLoginLimitThreshold
-				}
-				failedLoginSuppressedCount={
-					failedLoginSuppressedCount
-				}
+				failedLoginLimitThreshold={ failedLoginLimitThreshold }
+				failedLoginSuppressedCount={ failedLoginSuppressedCount }
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 				surroundingEventId={ surroundingEventId }

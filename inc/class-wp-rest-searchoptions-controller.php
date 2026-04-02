@@ -198,6 +198,18 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 			],
 		];
 
+		/**
+		 * Filters the search options data before returning it.
+		 *
+		 * Allows add-ons to extend the search options response
+		 * with additional data (e.g. page URLs, feature flags).
+		 *
+		 * @since 5.7.0
+		 *
+		 * @param array $data Search options data.
+		 */
+		$data = apply_filters( 'simple_history/search_options_data', $data );
+
 		return rest_ensure_response( $data );
 	}
 

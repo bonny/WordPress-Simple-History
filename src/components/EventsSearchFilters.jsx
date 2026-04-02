@@ -53,6 +53,7 @@ export function EventsSearchFilters( props ) {
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
+		setAlertsPageURL,
 		setCurrentUserId,
 		setUserCanManageOptions,
 		hideOwnEvents,
@@ -205,6 +206,11 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.settings_page_url
 				);
 
+				// Set alerts page URL if provided by premium add-on.
+				if ( searchOptionsResponse.alerts_page_url ) {
+					setAlertsPageURL( searchOptionsResponse.alerts_page_url );
+				}
+
 				// Set current user ID for "Hide my own events" feature.
 				if ( searchOptionsResponse.current_user_id ) {
 					setCurrentUserId( searchOptionsResponse.current_user_id );
@@ -241,6 +247,7 @@ export function EventsSearchFilters( props ) {
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
+		setAlertsPageURL,
 		setCurrentUserId,
 		setUserCanManageOptions,
 		selectedDateOption,

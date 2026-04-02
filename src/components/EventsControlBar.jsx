@@ -116,8 +116,6 @@ export function EventsControlBar( props ) {
 					>
 						{ shouldShowPromoButtons && <ExportButton /> }
 
-						<ShareFilteredViewButton />
-
 						{ shouldShowPromoButtons && (
 							<CreateAlertButton
 								hasActiveFilters={ hasAnyActiveFilters }
@@ -137,6 +135,8 @@ export function EventsControlBar( props ) {
 								hasAnyActiveFilters,
 							} }
 						/>
+
+						<ShareFilteredViewButton />
 					</HStack>
 				</FlexItem>
 

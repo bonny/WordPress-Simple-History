@@ -43,12 +43,13 @@ export function EventsControlBarOverflowMenu( props ) {
 		true
 	);
 
-	// Old premium active: showPremiumAddonsMenuGroup === false, showOverflowMenu === true (default).
-	const isOldPremiumActive =
+	// Old premium (pre-inline-buttons) uses the overflow Slot but doesn't
+	// know about showOverflowMenu. Detect it: showPremiumAddonsMenuGroup
+	// is false (premium active) but showOverflowMenu is still true (default).
+	const isLegacyPremiumUsingOverflowSlot =
 		showPremiumAddonsMenuGroup === false && showOverflowMenu === true;
 
-	// Only show the overflow menu when old premium has filled the Slot.
-	if ( ! isOldPremiumActive ) {
+	if ( ! isLegacyPremiumUsingOverflowSlot ) {
 		return null;
 	}
 
