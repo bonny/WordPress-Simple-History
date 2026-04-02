@@ -20,25 +20,34 @@ import { share, check, closeSmall } from '@wordpress/icons';
 export function ShareFilteredViewButton() {
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ copied, setCopied ] = useState( false );
+	const [ copyFailed, setCopyFailed ] = useState( false );
 	const buttonRef = useRef( null );
 
 	const copyToClipboard = ( text ) => {
 		if ( navigator.clipboard?.writeText ) {
-			return navigator.clipboard.writeText( text );
+			return navigator.clipboard.writeText( text ).then(
+				() => true,
+				() => false
+			);
 		}
 
-		const input = document.createElement( 'input' );
-		input.value = text;
-		document.body.appendChild( input );
-		input.select();
-		document.execCommand( 'copy' );
-		document.body.removeChild( input );
-		return Promise.resolve();
+		try {
+			const input = document.createElement( 'input' );
+			input.value = text;
+			document.body.appendChild( input );
+			input.select();
+			const success = document.execCommand( 'copy' );
+			document.body.removeChild( input );
+			return Promise.resolve( success );
+		} catch {
+			return Promise.resolve( false );
+		}
 	};
 
 	const handleClick = () => {
-		copyToClipboard( window.location.href ).then( () => {
-			setCopied( true );
+		copyToClipboard( window.location.href ).then( ( success ) => {
+			setCopied( success );
+			setCopyFailed( ! success );
 			setShowPopover( true );
 		} );
 	};
@@ -46,6 +55,7 @@ export function ShareFilteredViewButton() {
 	const handleClose = () => {
 		setShowPopover( false );
 		setCopied( false );
+		setCopyFailed( false );
 	};
 
 	return (
@@ -98,27 +108,43 @@ export function ShareFilteredViewButton() {
 						/>
 						<VStack spacing={ 2 }>
 							<Text weight={ 600 } size={ 13 }>
-								{ __(
-									'Link copied to clipboard!',
-									'simple-history'
-								) }
+								{ copyFailed
+									? __(
+											'Could not copy automatically',
+											'simple-history'
+									  )
+									: __(
+											'Link copied to clipboard!',
+											'simple-history'
+									  ) }
 							</Text>
 							<Text
 								size={ 12 }
 								color="var(--sh-color-black-2, #50575e)"
 							>
-								{ __(
-									'Share this URL to apply the same filters for another user.',
-									'simple-history'
-								) }
+								{ copyFailed
+									? __(
+											'Copy the link below and share it to show your current log view.',
+											'simple-history'
+									  )
+									: __(
+											'Paste it in an email or chat to share your current log view.',
+											'simple-history'
+									  ) }
 							</Text>
-							<InputControl
-								value={ window.location.href }
-								readOnly
-								size="small"
-								className="sh-SharePopover-url"
-								onClick={ ( e ) => e.target.select() }
-							/>
+							{ copyFailed && (
+								<InputControl
+									value={ window.location.href }
+									readOnly
+									size="small"
+									className="sh-SharePopover-url"
+									aria-label={ __(
+										'Shareable link',
+										'simple-history'
+									) }
+									onClick={ ( e ) => e.target.select() }
+								/>
+							) }
 						</VStack>
 					</div>
 				</Popover>

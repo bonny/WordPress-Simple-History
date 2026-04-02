@@ -2859,7 +2859,7 @@ a.sh-SettingsTabs-link:hover {
 	align-items: center;
 	gap: 6px;
 	padding: 12px;
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--sh-color-separator);
 	flex-wrap: wrap;
 	background-color: #f9f9f9;
 }
@@ -3221,8 +3221,7 @@ a.sh-EventsStatsBar--link:hover {
 
 /* Events control bar: event count + action buttons. */
 .sh-EventsControlBar-actions {
-	padding: 6px 12px;
-	background-color: white;
+	padding: var(--sh-spacing-medium) var(--sh-spacing-medium);
 }
 
 /* Inline action buttons group in control bar. */
@@ -3262,8 +3261,8 @@ a.sh-EventsStatsBar--link:hover {
 .sh-SharePopover-content {
 	position: relative;
 	padding: 12px 14px;
-	min-width: 300px;
-	max-width: 340px;
+	min-width: 250px;
+	max-width: 290px;
 }
 
 .sh-SharePopover-close.components-button {

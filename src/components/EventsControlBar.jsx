@@ -94,7 +94,12 @@ export function EventsControlBar( props ) {
 
 	return (
 		<div className="sh-EventsControlBar-actions">
-			<Flex gap={ 2 } justify="space-between" align="center" wrap={ false }>
+			<Flex
+				gap={ 2 }
+				justify="space-between"
+				align="center"
+				wrap={ false }
+			>
 				<FlexItem>
 					<HStack spacing={ 2 } wrap={ false }>
 						{ eventsCount }
@@ -118,9 +123,7 @@ export function EventsControlBar( props ) {
 							/>
 						) }
 
-						{ shouldShowPromoButtons && (
-							<CreateLogEntryButton />
-						) }
+						{ shouldShowPromoButtons && <CreateLogEntryButton /> }
 					</HStack>
 				</FlexItem>
 
