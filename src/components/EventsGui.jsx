@@ -667,6 +667,7 @@ function EventsGUI() {
 			alertsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions,
+			searchOptionsLoaded,
 		} ),
 		[
 			mapsApiKey,
@@ -678,6 +679,7 @@ function EventsGUI() {
 			alertsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions,
+			searchOptionsLoaded,
 		]
 	);
 

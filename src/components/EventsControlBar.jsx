@@ -29,7 +29,8 @@ export function EventsControlBar( props ) {
 		hasAnyActiveFilters,
 	} = props;
 
-	const { alertsPageURL, userCanManageOptions } = useEventsSettings();
+	const { alertsPageURL, userCanManageOptions, searchOptionsLoaded } =
+		useEventsSettings();
 
 	/**
 	 * Filter to show/hide the premium promo buttons (Export, Create Alert, Create Log Entry).
@@ -116,6 +117,10 @@ export function EventsControlBar( props ) {
 						spacing={ 1 }
 						wrap={ false }
 						className="sh-ControlBarButtons"
+						style={ {
+							opacity: searchOptionsLoaded ? 1 : 0,
+							transition: 'opacity 0.15s ease-in',
+						} }
 					>
 						{ shouldShowPromoButtons && <ExportButton /> }
 
