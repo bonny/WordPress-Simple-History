@@ -44,10 +44,7 @@ export function CreateAlertButton( { hasActiveFilters } ) {
 
 	const tooltipText = hasActiveFilters
 		? __( 'Get alerts when events like these happen', 'simple-history' )
-		: __(
-				'Get alerts via email, Slack, and more',
-				'simple-history'
-		  );
+		: __( 'Get alerts via email, Slack, and more', 'simple-history' );
 
 	return (
 		<Tooltip text={ tooltipText } delay={ 400 }>
@@ -57,7 +54,6 @@ export function CreateAlertButton( { hasActiveFilters } ) {
 				size="compact"
 				onClick={ handleClick }
 				className="sh-ControlBarButton sh-ControlBarButton--alert"
-				label={ __( 'Create alert', 'simple-history' ) }
 			>
 				{ __( 'Create alert', 'simple-history' ) }
 				<PremiumIndicator />

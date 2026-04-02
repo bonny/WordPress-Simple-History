@@ -27,10 +27,7 @@ export function ExportButton() {
 
 	return (
 		<Tooltip
-			text={ __(
-				'Export events to CSV or JSON',
-				'simple-history'
-			) }
+			text={ __( 'Export events to CSV or JSON', 'simple-history' ) }
 			delay={ 400 }
 		>
 			<Button
@@ -39,7 +36,6 @@ export function ExportButton() {
 				size="compact"
 				onClick={ handleClick }
 				className="sh-ControlBarButton sh-ControlBarButton--export"
-				label={ __( 'Export', 'simple-history' ) }
 			>
 				{ __( 'Export', 'simple-history' ) }
 				<PremiumIndicator />

@@ -6,7 +6,7 @@ import {
 	__experimentalVStack as VStack,
 	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
-import { useState, useEffect, useRef } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { share, check, closeSmall } from '@wordpress/icons';
 
@@ -24,19 +24,23 @@ export function ShareFilteredViewButton() {
 	const buttonRef = useRef( null );
 	const timerRef = useRef( null );
 
+	const handleClose = useCallback( () => {
+		setShowPopover( false );
+		setCopied( false );
+		setCopyFailed( false );
+	}, [] );
+
 	// Auto-dismiss after 5s when copy succeeded (no interactive content).
 	useEffect( () => {
 		if ( showPopover && ! copyFailed ) {
-			timerRef.current = setTimeout( () => {
-				handleClose();
-			}, 5000 );
+			timerRef.current = setTimeout( handleClose, 5000 );
 		}
 		return () => {
 			if ( timerRef.current ) {
 				clearTimeout( timerRef.current );
 			}
 		};
-	}, [ showPopover, copyFailed ] );
+	}, [ showPopover, copyFailed, handleClose ] );
 
 	const copyToClipboard = ( text ) => {
 		if ( navigator.clipboard?.writeText ) {
@@ -67,12 +71,6 @@ export function ShareFilteredViewButton() {
 		} );
 	};
 
-	const handleClose = () => {
-		setShowPopover( false );
-		setCopied( false );
-		setCopyFailed( false );
-	};
-
 	return (
 		<>
 			<Tooltip
@@ -91,7 +89,6 @@ export function ShareFilteredViewButton() {
 					className={ `sh-ControlBarButton sh-ControlBarButton--share${
 						copied ? ' is-copied' : ''
 					}` }
-					label={ __( 'Share view', 'simple-history' ) }
 				>
 					{ __( 'Share view', 'simple-history' ) }
 				</Button>
@@ -99,7 +96,7 @@ export function ShareFilteredViewButton() {
 
 			{ showPopover && (
 				<Popover
-					anchorRef={ buttonRef }
+					anchor={ buttonRef.current }
 					noArrow={ false }
 					offset={ 8 }
 					placement="bottom"

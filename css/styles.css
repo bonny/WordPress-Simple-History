@@ -2605,6 +2605,12 @@ Can be overruled by .form-table td p
 	text-decoration: underline;
 }
 
+.sh-PremiumFeatureModal-later:focus-visible {
+	outline: 2px solid var(--sh-color-blue, #2271b1);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
 .sh-PageNav {
 	width: 100%;
 	display: flex;

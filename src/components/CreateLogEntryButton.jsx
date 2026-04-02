@@ -51,7 +51,6 @@ export function CreateLogEntryButton() {
 				size="compact"
 				onClick={ handleClick }
 				className="sh-ControlBarButton sh-ControlBarButton--createEntry"
-				label={ __( 'Create log entry', 'simple-history' ) }
 			>
 				{ __( 'Log entry', 'simple-history' ) }
 				<PremiumIndicator />
