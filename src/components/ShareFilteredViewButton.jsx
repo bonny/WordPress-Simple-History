@@ -6,9 +6,9 @@ import {
 	__experimentalVStack as VStack,
 	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
-import { useState, useEffect, useRef } from '@wordpress/element';
+import { useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { share, check } from '@wordpress/icons';
+import { share, check, closeSmall } from '@wordpress/icons';
 
 /**
  * Button that copies the current view URL to clipboard and shows
@@ -21,24 +21,6 @@ export function ShareFilteredViewButton() {
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ copied, setCopied ] = useState( false );
 	const buttonRef = useRef( null );
-	const timerRef = useRef( null );
-	const inputRef = useRef( null );
-
-	// Clean up timer on unmount.
-	useEffect( () => {
-		return () => {
-			if ( timerRef.current ) {
-				clearTimeout( timerRef.current );
-			}
-		};
-	}, [] );
-
-	// Select the URL text when popover opens.
-	useEffect( () => {
-		if ( showPopover && inputRef.current ) {
-			inputRef.current.select();
-		}
-	}, [ showPopover ] );
 
 	const copyToClipboard = ( text ) => {
 		if ( navigator.clipboard?.writeText ) {
@@ -58,21 +40,12 @@ export function ShareFilteredViewButton() {
 		copyToClipboard( window.location.href ).then( () => {
 			setCopied( true );
 			setShowPopover( true );
-
-			// Auto-dismiss after 5 seconds.
-			timerRef.current = setTimeout( () => {
-				setShowPopover( false );
-				setCopied( false );
-			}, 5000 );
 		} );
 	};
 
 	const handleClose = () => {
 		setShowPopover( false );
 		setCopied( false );
-		if ( timerRef.current ) {
-			clearTimeout( timerRef.current );
-		}
 	};
 
 	return (
@@ -109,12 +82,20 @@ export function ShareFilteredViewButton() {
 					animate={ true }
 					className="sh-SharePopover"
 					onFocusOutside={ handleClose }
+					onClose={ handleClose }
 				>
 					<div
 						className="sh-SharePopover-content"
 						role="status"
 						aria-live="polite"
 					>
+						<Button
+							icon={ closeSmall }
+							label={ __( 'Close', 'simple-history' ) }
+							onClick={ handleClose }
+							size="small"
+							className="sh-SharePopover-close"
+						/>
 						<VStack spacing={ 2 }>
 							<Text weight={ 600 } size={ 13 }>
 								{ __(
@@ -127,12 +108,11 @@ export function ShareFilteredViewButton() {
 								color="var(--sh-color-black-2, #50575e)"
 							>
 								{ __(
-									'Share this URL to show others this exact view.',
+									'Share this URL to apply the same filters for another user.',
 									'simple-history'
 								) }
 							</Text>
 							<InputControl
-								ref={ inputRef }
 								value={ window.location.href }
 								readOnly
 								size="small"

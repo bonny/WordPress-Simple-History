@@ -3260,9 +3260,16 @@ a.sh-EventsStatsBar--link:hover {
 
 /* Share view popover. */
 .sh-SharePopover-content {
+	position: relative;
 	padding: 12px 14px;
 	min-width: 300px;
 	max-width: 340px;
+}
+
+.sh-SharePopover-close.components-button {
+	position: absolute;
+	top: 4px;
+	right: 4px;
 }
 
 .sh-SharePopover-url input[readonly] {
