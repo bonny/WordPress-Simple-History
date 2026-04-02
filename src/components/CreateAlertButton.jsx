@@ -35,7 +35,7 @@ export function CreateAlertButton( { hasActiveFilters } ) {
 			  );
 
 		showModal(
-			__( 'Unlock Alerts', 'simple-history' ),
+			__( 'Get Instant Alerts', 'simple-history' ),
 			description,
 			bell,
 			alertsFeatureImage
@@ -43,18 +43,14 @@ export function CreateAlertButton( { hasActiveFilters } ) {
 	};
 
 	const tooltipText = hasActiveFilters
-		? __( 'Get notified about events like these', 'simple-history' )
-		: __( 'Set up alerts for important events', 'simple-history' );
+		? __( 'Get alerts when events like these happen', 'simple-history' )
+		: __(
+				'Get alerts via email, Slack, and more',
+				'simple-history'
+		  );
 
 	return (
-		<Tooltip
-			text={
-				tooltipText +
-				'\n' +
-				__( 'Available with Simple History Premium', 'simple-history' )
-			}
-			delay={ 400 }
-		>
+		<Tooltip text={ tooltipText } delay={ 400 }>
 			<Button
 				icon={ bell }
 				variant="tertiary"

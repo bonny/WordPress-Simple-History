@@ -1,16 +1,28 @@
-import { Button, Tooltip } from '@wordpress/components';
+import {
+	Button,
+	Popover,
+	Tooltip,
+	__experimentalText as Text,
+	__experimentalVStack as VStack,
+	__experimentalInputControl as InputControl,
+} from '@wordpress/components';
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { link, check } from '@wordpress/icons';
+import { share, check } from '@wordpress/icons';
 
 /**
- * Button that copies the current view URL to clipboard.
+ * Button that copies the current view URL to clipboard and shows
+ * a transient popover confirming the action.
+ *
  * Always visible — works with or without active filters.
  * Enables team collaboration: "look at these failed logins."
  */
 export function ShareFilteredViewButton() {
+	const [ showPopover, setShowPopover ] = useState( false );
 	const [ copied, setCopied ] = useState( false );
+	const buttonRef = useRef( null );
 	const timerRef = useRef( null );
+	const inputRef = useRef( null );
 
 	// Clean up timer on unmount.
 	useEffect( () => {
@@ -21,9 +33,14 @@ export function ShareFilteredViewButton() {
 		};
 	}, [] );
 
+	// Select the URL text when popover opens.
+	useEffect( () => {
+		if ( showPopover && inputRef.current ) {
+			inputRef.current.select();
+		}
+	}, [ showPopover ] );
+
 	const copyToClipboard = ( text ) => {
-		// Clipboard API requires secure context (HTTPS).
-		// Fall back to execCommand for HTTP environments.
 		if ( navigator.clipboard?.writeText ) {
 			return navigator.clipboard.writeText( text );
 		}
@@ -40,30 +57,92 @@ export function ShareFilteredViewButton() {
 	const handleClick = () => {
 		copyToClipboard( window.location.href ).then( () => {
 			setCopied( true );
+			setShowPopover( true );
+
+			// Auto-dismiss after 5 seconds.
 			timerRef.current = setTimeout( () => {
+				setShowPopover( false );
 				setCopied( false );
-			}, 2000 );
+			}, 5000 );
 		} );
 	};
 
-	const tooltipText = copied
-		? __( 'Link copied!', 'simple-history' )
-		: __( 'Copy link to this view', 'simple-history' );
+	const handleClose = () => {
+		setShowPopover( false );
+		setCopied( false );
+		if ( timerRef.current ) {
+			clearTimeout( timerRef.current );
+		}
+	};
 
 	return (
-		<Tooltip text={ tooltipText } delay={ 400 }>
-			<Button
-				icon={ copied ? check : link }
-				variant="tertiary"
-				size="compact"
-				onClick={ handleClick }
-				className={ `sh-ControlBarButton sh-ControlBarButton--share${
-					copied ? ' is-copied' : ''
-				}` }
-				label={ __( 'Copy link', 'simple-history' ) }
+		<>
+			<Tooltip
+				text={ __(
+					'Copy a link to this filtered view',
+					'simple-history'
+				) }
+				delay={ 400 }
 			>
-				{ __( 'Copy link', 'simple-history' ) }
-			</Button>
-		</Tooltip>
+				<Button
+					ref={ buttonRef }
+					icon={ copied ? check : share }
+					variant="tertiary"
+					size="compact"
+					onClick={ handleClick }
+					className={ `sh-ControlBarButton sh-ControlBarButton--share${
+						copied ? ' is-copied' : ''
+					}` }
+					label={ __( 'Share view', 'simple-history' ) }
+				>
+					{ __( 'Share view', 'simple-history' ) }
+				</Button>
+			</Tooltip>
+
+			{ showPopover && (
+				<Popover
+					anchorRef={ buttonRef }
+					noArrow={ false }
+					offset={ 8 }
+					placement="bottom"
+					shift={ true }
+					animate={ true }
+					className="sh-SharePopover"
+					onFocusOutside={ handleClose }
+				>
+					<div
+						className="sh-SharePopover-content"
+						role="status"
+						aria-live="polite"
+					>
+						<VStack spacing={ 2 }>
+							<Text weight={ 600 } size={ 13 }>
+								{ __(
+									'Link copied to clipboard!',
+									'simple-history'
+								) }
+							</Text>
+							<Text
+								size={ 12 }
+								color="var(--sh-color-black-2, #50575e)"
+							>
+								{ __(
+									'Share this URL to show others this exact view.',
+									'simple-history'
+								) }
+							</Text>
+							<InputControl
+								ref={ inputRef }
+								value={ window.location.href }
+								readOnly
+								size="small"
+								className="sh-SharePopover-url"
+								onClick={ ( e ) => e.target.select() }
+							/>
+						</VStack>
+					</div>
+				</Popover>
+			) }
+		</>
 	);
 }

@@ -27,7 +27,7 @@ export function CreateLogEntryButton() {
 
 	const handleClick = () => {
 		showModal(
-			__( 'Unlock Manual Entries', 'simple-history' ),
+			__( 'Add Custom Log Entries', 'simple-history' ),
 			__(
 				'Add custom events to your activity log with a simple form. Perfect for noting important changes or decisions that happen outside WordPress.',
 				'simple-history'
@@ -39,11 +39,10 @@ export function CreateLogEntryButton() {
 
 	return (
 		<Tooltip
-			text={
-				__( 'Add a manual entry to the activity log', 'simple-history' ) +
-				'\n' +
-				__( 'Available with Simple History Premium', 'simple-history' )
-			}
+			text={ __(
+				'Add a custom note to the activity log',
+				'simple-history'
+			) }
 			delay={ 400 }
 		>
 			<Button

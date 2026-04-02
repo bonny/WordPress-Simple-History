@@ -15,7 +15,7 @@ export function ExportButton() {
 
 	const handleClick = () => {
 		showModal(
-			__( 'Unlock Export', 'simple-history' ),
+			__( 'Export to CSV or JSON', 'simple-history' ),
 			__(
 				'Export your current log selection to CSV or JSON. Your active filters are applied, so you get exactly the events you need.',
 				'simple-history'
@@ -27,11 +27,10 @@ export function ExportButton() {
 
 	return (
 		<Tooltip
-			text={
-				__( 'Export event log', 'simple-history' ) +
-				'\n' +
-				__( 'Available with Simple History Premium', 'simple-history' )
-			}
+			text={ __(
+				'Export events to CSV or JSON',
+				'simple-history'
+			) }
 			delay={ 400 }
 		>
 			<Button

@@ -3258,6 +3258,20 @@ a.sh-EventsStatsBar--link:hover {
 	color: var(--sh-color-green, #3f9349);
 }
 
+/* Share view popover. */
+.sh-SharePopover-content {
+	padding: 12px 14px;
+	min-width: 300px;
+	max-width: 340px;
+}
+
+.sh-SharePopover-url input[readonly] {
+	font-size: 11px;
+	color: var(--sh-color-black-2, #50575e);
+	background: #f6f7f7;
+	cursor: text;
+}
+
 /* Premium star indicator — muted, aspirational, not a badge. */
 .sh-PremiumIndicator {
 	opacity: 0.5;
