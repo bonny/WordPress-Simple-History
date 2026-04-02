@@ -9,6 +9,7 @@ import {
 import { _n, _x, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
 import { EventsControlBarOverflowMenu } from './EventsControlBarOverflowMenu';
+import { useEventsSettings } from './EventsSettingsContext';
 import { ExportButton } from './ExportButton';
 import { ShareFilteredViewButton } from './ShareFilteredViewButton';
 import { CreateAlertButton } from './CreateAlertButton';
@@ -27,6 +28,8 @@ export function EventsControlBar( props ) {
 		eventsQueryParams,
 		hasAnyActiveFilters,
 	} = props;
+
+	const { alertsPageURL } = useEventsSettings();
 
 	/**
 	 * Filter to show/hide the premium promo buttons (Export, Create Alert, Create Log Entry).
@@ -133,6 +136,7 @@ export function EventsControlBar( props ) {
 								eventsQueryParams,
 								eventsTotal,
 								hasAnyActiveFilters,
+								alertsPageURL,
 							} }
 						/>
 
