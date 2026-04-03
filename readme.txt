@@ -251,9 +251,14 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Changed**
+
+-   Control bar actions are now inline buttons instead of a dropdown menu, making Export, Create Alert, Create Log Entry, and Share View more visible and accessible.
+
 **Fixed**
 
 -   Memory exhaustion when exporting large event logs by reducing batch size and eliminating redundant database queries.
+-   Layout shift in control bar action buttons while search options are loading.
 
 ### 5.25.0 (March 2026)
 
