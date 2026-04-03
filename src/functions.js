@@ -29,6 +29,7 @@ export const EVENT_FIELDS = [
 	'sticky_appended',
 	'backfilled',
 	'action_links',
+	'reactions',
 ];
 
 /**

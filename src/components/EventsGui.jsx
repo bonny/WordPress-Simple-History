@@ -668,6 +668,7 @@ function EventsGUI() {
 			eventsAdminPageURL,
 			userCanManageOptions,
 			searchOptionsLoaded,
+			currentUserId,
 		} ),
 		[
 			mapsApiKey,
@@ -680,6 +681,7 @@ function EventsGUI() {
 			eventsAdminPageURL,
 			userCanManageOptions,
 			searchOptionsLoaded,
+			currentUserId,
 		]
 	);
 

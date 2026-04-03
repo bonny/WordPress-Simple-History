@@ -5,6 +5,7 @@ import { EventDetails } from './EventDetails';
 import { EventHeader } from './EventHeader';
 import { EventInitiatorImage } from './EventInitiator';
 import { EventOccasions } from './EventOccasions';
+import { EventReactions, useEventReactions } from './EventReactions';
 import { EventText } from './EventText';
 import { EventSeparator } from './EventSeparator';
 
@@ -24,6 +25,8 @@ export function Event( props ) {
 		isCenterEvent,
 		isSurroundingEventsMode,
 	} = props;
+
+	const reactionState = useEventReactions( event );
 
 	const containerClassNames = clsx(
 		'SimpleHistoryLogitem',
@@ -67,14 +70,14 @@ export function Event( props ) {
 
 				<EventActionLinks event={ event } />
 
-				<EventOccasions
-					event={ event }
-					eventVariant={ variant }
-				/>
+				<EventReactions { ...reactionState } />
+
+				<EventOccasions event={ event } eventVariant={ variant } />
 
 				<EventActionsButton
 					event={ event }
 					eventVariant={ variant }
+					reactionState={ reactionState }
 				/>
 			</div>
 		</li>
