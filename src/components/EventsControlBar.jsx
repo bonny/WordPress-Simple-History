@@ -27,6 +27,7 @@ export function EventsControlBar( props ) {
 		eventsTotal,
 		eventsQueryParams,
 		hasAnyActiveFilters,
+		newEventsNotifier,
 	} = props;
 
 	const { alertsPageURL, userCanManageOptions, searchOptionsLoaded } =
@@ -109,6 +110,7 @@ export function EventsControlBar( props ) {
 					<HStack spacing={ 2 } wrap={ false }>
 						{ eventsCount }
 						{ loadingIndicator }
+						{ newEventsNotifier }
 					</HStack>
 				</FlexItem>
 

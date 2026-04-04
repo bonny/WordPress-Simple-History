@@ -756,16 +756,14 @@ function EventsGUI() {
 					eventsTotal={ eventsMeta.total }
 					eventsQueryParams={ eventsQueryParams }
 					hasAnyActiveFilters={ hasAnyActiveFilters }
-				/>
-			) }
-
-			{ /* Hide new events notifier when viewing surrounding events */ }
-			{ ! surroundingEventId && (
-				<NewEventsNotifier
-					eventsQueryParams={ eventsQueryParams }
-					eventsMaxId={ eventsMaxId }
-					eventsMaxDate={ eventsMaxDate }
-					onReload={ handleReload }
+					newEventsNotifier={
+						<NewEventsNotifier
+							eventsQueryParams={ eventsQueryParams }
+							eventsMaxId={ eventsMaxId }
+							eventsMaxDate={ eventsMaxDate }
+							onReload={ handleReload }
+						/>
+					}
 				/>
 			) }
 

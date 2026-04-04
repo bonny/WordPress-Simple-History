@@ -146,7 +146,6 @@ export function NewEventsNotifier( props ) {
 				label={ __( 'Click to load new events', 'simple-history' ) }
 				showTooltip={ true }
 				variant="tertiary"
-				style={ { width: '100%', justifyContent: 'center' } }
 			>
 				{ newEventsCountText }
 			</Button>
