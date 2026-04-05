@@ -254,6 +254,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Event reactions — react to log events with a thumbs up emoji, with a Slack-style emoji picker in the actions bar. (experimental)
+-   `--fields` support for `wp simple-history list` WP-CLI command, including a `reactions` field showing reaction counts.
 
 **Changed**
 
