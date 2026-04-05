@@ -1187,8 +1187,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::experimental_features_is_enabled() ) {
-			$event          = new Event( $item->id );
-			$reactions_data = $event->get_reactions();
+			$raw            = $item->context['_reactions'] ?? null;
+			$reactions_data = $raw ? (array) json_decode( $raw, true ) : [];
 			$current_user   = get_current_user_id();
 			$formatted      = [];
 

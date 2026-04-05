@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Button, Popover, Tooltip } from '@wordpress/components';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { SVG, Path } from '@wordpress/primitives';
 import { useEventsSettings } from './EventsSettingsContext';
 import { getTrackingUrl } from '../functions';
@@ -45,6 +45,17 @@ function triggerPopAnimation( ref, className ) {
 	el.classList.add( className );
 }
 
+// Build filtered reactions list and emoji lookup at module level.
+const FILTERED_REACTIONS = applyFilters(
+	'SimpleHistory.reactions.types',
+	REACTIONS
+);
+const FREE_REACTIONS = FILTERED_REACTIONS.filter( ( r ) => ! r.premium );
+const PREMIUM_REACTIONS = FILTERED_REACTIONS.filter( ( r ) => r.premium );
+const EMOJI_MAP = Object.fromEntries(
+	FILTERED_REACTIONS.map( ( r ) => [ r.type, r.emoji ] )
+);
+
 /**
  * Hook to manage reaction state and API calls for an event.
  *
@@ -52,11 +63,9 @@ function triggerPopAnimation( ref, className ) {
  * @return {Object} Reaction state and toggle handler.
  */
 export function useEventReactions( event ) {
-	const initialReactions = event.reactions || {};
-	const [ reactions, setReactions ] = useState( initialReactions );
+	const [ reactions, setReactions ] = useState( event.reactions || {} );
 	const [ isUpdating, setIsUpdating ] = useState( false );
-
-	const thumbsup = reactions.thumbsup || { count: 0, reacted: false };
+	const initialReactionsRef = useRef( event.reactions || {} );
 
 	const toggleReaction = useCallback(
 		async ( type = 'thumbsup' ) => {
@@ -66,27 +75,28 @@ export function useEventReactions( event ) {
 
 			setIsUpdating( true );
 
-			const current = reactions[ type ] || {
-				count: 0,
-				reacted: false,
-			};
-			const newReacted = ! current.reacted;
-			const newCount = current.reacted
-				? current.count - 1
-				: current.count + 1;
+			// Determine endpoint before optimistic update.
+			const hasReacted = reactions[ type ]?.reacted ?? false;
+			const endpoint = hasReacted ? 'unreact' : 'react';
 
-			// Optimistic update.
-			setReactions( ( prev ) => ( {
-				...prev,
-				[ type ]: {
-					...( prev[ type ] || { count: 0, reacted: false } ),
-					count: newCount,
-					reacted: newReacted,
-				},
-			} ) );
+			setReactions( ( prev ) => {
+				const current = prev[ type ] || {
+					count: 0,
+					reacted: false,
+				};
+				return {
+					...prev,
+					[ type ]: {
+						...current,
+						count: current.reacted
+							? current.count - 1
+							: current.count + 1,
+						reacted: ! current.reacted,
+					},
+				};
+			} );
 
 			try {
-				const endpoint = newReacted ? 'react' : 'unreact';
 				const response = await apiFetch( {
 					path: `/simple-history/v1/events/${ event.id }/${ endpoint }`,
 					method: 'POST',
@@ -97,28 +107,20 @@ export function useEventReactions( event ) {
 					setReactions( response.reactions );
 				}
 			} catch ( error ) {
-				setReactions( initialReactions );
+				setReactions( initialReactionsRef.current );
 			} finally {
 				setIsUpdating( false );
 			}
 		},
-		[ event.id, isUpdating, reactions, initialReactions ]
+		[ event.id, isUpdating, reactions ]
 	);
 
 	return {
 		reactions,
-		thumbsup,
 		isUpdating,
 		toggleReaction,
 	};
 }
-
-/**
- * Build a lookup map from reaction type to emoji character.
- */
-const EMOJI_MAP = Object.fromEntries(
-	REACTIONS.map( ( r ) => [ r.type, r.emoji ] )
-);
 
 /**
  * Single reaction pill button with tooltip.
@@ -148,18 +150,15 @@ function ReactionPill( {
 		toggleReaction( type );
 	};
 
+	const youLabel = __( 'You', 'simple-history' );
 	const userIds = data.user_ids || [];
 	const userNames = ( data.user_names || [] ).map( ( name, i ) =>
-		userIds[ i ] === currentUserId ? __( 'You', 'simple-history' ) : name
+		userIds[ i ] === currentUserId ? youLabel : name
 	);
-	userNames.sort( ( a, b ) =>
-		a === __( 'You', 'simple-history' )
-			? -1
-			: b === __( 'You', 'simple-history' )
-			? 1
-			: 0
+	const sortedNames = [ ...userNames ].sort( ( a, b ) =>
+		a === youLabel ? -1 : b === youLabel ? 1 : 0
 	);
-	const tooltipText = userNames.length > 0 ? userNames.join( ', ' ) : '';
+	const tooltipText = sortedNames.length > 0 ? sortedNames.join( ', ' ) : '';
 
 	return (
 		<Tooltip text={ tooltipText } placement="top">
@@ -231,15 +230,10 @@ export function EventReactions( { reactions, isUpdating, toggleReaction } ) {
  * Shows in the hover actions bar alongside the fullscreen button.
  *
  * @param {Object}   props
- * @param {Object}   props.thumbsup        Thumbsup reaction data { count, reacted }.
  * @param {boolean}  props.isUpdating       Whether a reaction API call is in progress.
  * @param {Function} props.toggleReaction   Callback to toggle the reaction.
  */
-export function EventReactionQuickButton( {
-	thumbsup,
-	isUpdating,
-	toggleReaction,
-} ) {
+export function EventReactionQuickButton( { isUpdating, toggleReaction } ) {
 	const { experimentalFeaturesEnabled, currentUserId, hasPremiumAddOn } =
 		useEventsSettings();
 	const [ isOpen, setIsOpen ] = useState( false );
@@ -263,15 +257,7 @@ export function EventReactionQuickButton( {
 		'premium_reactions'
 	);
 
-	// Allow premium to modify the reactions list via JS filter.
-	const reactions = applyFilters(
-		'SimpleHistory.reactions.types',
-		REACTIONS
-	);
-
-	const freeReactions = reactions.filter( ( r ) => ! r.premium );
-	const premiumReactions = reactions.filter( ( r ) => r.premium );
-	const showPremiumTeaser = ! hasPremiumAddOn && premiumReactions.length > 0;
+	const showPremiumTeaser = ! hasPremiumAddOn && PREMIUM_REACTIONS.length > 0;
 
 	return (
 		<>
@@ -300,7 +286,7 @@ export function EventReactionQuickButton( {
 				>
 					<div className="sh-ReactionPicker__content">
 						<div className="sh-ReactionPicker__freeSection">
-							{ freeReactions.map( ( reaction ) => (
+							{ FREE_REACTIONS.map( ( reaction ) => (
 								<button
 									key={ reaction.type }
 									className="sh-ReactionPicker__emoji"
@@ -323,7 +309,7 @@ export function EventReactionQuickButton( {
 								rel="noopener noreferrer"
 							>
 								<span className="sh-ReactionPicker__premiumEmojis">
-									{ premiumReactions.map( ( reaction ) => (
+									{ PREMIUM_REACTIONS.map( ( reaction ) => (
 										<span
 											key={ reaction.type }
 											className="sh-ReactionPicker__premiumEmoji"

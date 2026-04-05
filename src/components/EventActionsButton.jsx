@@ -38,7 +38,6 @@ export function EventActionsButton( { event, eventVariant, reactionState } ) {
 		<div ref={ actionsRef } className="SimpleHistoryLogitem__actions">
 			{ reactionState && (
 				<EventReactionQuickButton
-					thumbsup={ reactionState.thumbsup }
 					isUpdating={ reactionState.isUpdating }
 					toggleReaction={ reactionState.toggleReaction }
 				/>
