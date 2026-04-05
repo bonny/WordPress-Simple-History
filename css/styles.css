@@ -3300,8 +3300,9 @@ a.sh-SettingsTabs-link:hover {
 }
 
 .SimpleHistoryDropin__NewRowsNotifier .components-button {
-	background: #2271b1;
-	color: #fff;
+	background: #dce9f7;
+	color: #135e96;
+	border: 1px solid #b8d4ee;
 	border-radius: 100px;
 	padding: 2px 12px;
 	font-size: 12px;
@@ -3311,12 +3312,18 @@ a.sh-SettingsTabs-link:hover {
 }
 
 .SimpleHistoryDropin__NewRowsNotifier .components-button:hover {
-	background: #135e96;
-	color: #fff;
+	background: #c8ddf0;
+	color: #104e80;
 }
 
 .SimpleHistoryDropin__NewRowsNotifier .components-button:focus {
-	color: #fff;
+	color: #135e96;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
+		animation: none;
+	}
 }
 
 /* when there is a remote error or server down etc */
