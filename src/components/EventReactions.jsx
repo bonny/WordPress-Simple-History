@@ -1,21 +1,21 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Popover, Tooltip } from '@wordpress/components';
 import { useCallback, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { SVG, Path } from '@wordpress/primitives';
 import { useEventsSettings } from './EventsSettingsContext';
+import { getTrackingUrl } from '../functions';
 
 /**
  * All supported reaction types. Only thumbsup is free in core.
- * Premium types are shown as teasers.
+ * A couple of premium types are shown as teasers.
  */
 const REACTIONS = [
 	{ type: 'thumbsup', emoji: '👍', label: 'Thumbs up', premium: false },
 	{ type: 'heart', emoji: '❤️', label: 'Heart', premium: true },
+	{ type: 'surprised', emoji: '😮', label: 'Surprised', premium: true },
 	{ type: 'tada', emoji: '🎉', label: 'Celebrate', premium: true },
-	{ type: 'rocket', emoji: '🚀', label: 'Rocket', premium: true },
-	{ type: 'eyes', emoji: '👀', label: 'Eyes', premium: true },
-	{ type: 'fire', emoji: '🔥', label: 'Fire', premium: true },
+	{ type: 'eyes', emoji: '👀', label: 'Looking into this', premium: true },
 ];
 
 /**
@@ -226,6 +226,11 @@ export function EventReactionQuickButton( {
 		setIsOpen( false );
 	};
 
+	const premiumUrl = getTrackingUrl(
+		'https://simple-history.com/add-ons/premium/',
+		'premium_reactions'
+	);
+
 	return (
 		<>
 			<Button
@@ -252,52 +257,53 @@ export function EventReactionQuickButton( {
 					onClose={ () => setIsOpen( false ) }
 				>
 					<div className="sh-ReactionPicker__content">
-						<div className="sh-ReactionPicker__grid">
-							{ REACTIONS.map( ( reaction ) => {
-								const isLocked =
-									reaction.premium && ! hasPremiumAddOn;
-								return (
+						<div className="sh-ReactionPicker__freeSection">
+							{ REACTIONS.filter( ( r ) => ! r.premium ).map(
+								( reaction ) => (
 									<button
 										key={ reaction.type }
-										className={ `sh-ReactionPicker__emoji ${
-											isLocked
-												? 'sh-ReactionPicker__emoji--locked'
-												: ''
-										}` }
+										className="sh-ReactionPicker__emoji"
 										onClick={ () =>
 											handleEmojiClick(
 												reaction.type,
-												isLocked
+												false
 											)
 										}
-										disabled={ isUpdating || isLocked }
-										title={
-											isLocked
-												? __(
-														'Premium',
-														'simple-history'
-												  )
-												: reaction.label
-										}
+										disabled={ isUpdating }
+										title={ reaction.label }
 										type="button"
 									>
 										<span>{ reaction.emoji }</span>
-										{ isLocked && (
-											<span className="sh-ReactionPicker__lock">
-												🔒
-											</span>
-										) }
 									</button>
-								);
-							} ) }
+								)
+							) }
 						</div>
 						{ ! hasPremiumAddOn && (
-							<p className="sh-ReactionPicker__premiumHint">
-								{ __(
-									'More reactions with Premium',
-									'simple-history'
-								) }
-							</p>
+							<a
+								href={ premiumUrl }
+								className="sh-ReactionPicker__premiumSection"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<span className="sh-ReactionPicker__premiumEmojis">
+									{ REACTIONS.filter(
+										( r ) => r.premium
+									).map( ( reaction ) => (
+										<span
+											key={ reaction.type }
+											className="sh-ReactionPicker__premiumEmoji"
+										>
+											{ reaction.emoji }
+										</span>
+									) ) }
+								</span>
+								<span className="sh-ReactionPicker__premiumText">
+									{ __(
+										'More with Premium →',
+										'simple-history'
+									) }
+								</span>
+							</a>
 						) }
 					</div>
 				</Popover>
