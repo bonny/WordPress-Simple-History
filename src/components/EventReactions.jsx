@@ -1,6 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Popover, Tooltip } from '@wordpress/components';
 import { useCallback, useRef, useState } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import { SVG, Path } from '@wordpress/primitives';
 import { useEventsSettings } from './EventsSettingsContext';
@@ -113,46 +114,44 @@ export function useEventReactions( event ) {
 }
 
 /**
- * Display reaction counts below an event. Only shows when reactions exist.
- * Clicking a reaction pill toggles the current user's reaction.
+ * Build a lookup map from reaction type to emoji character.
+ */
+const EMOJI_MAP = Object.fromEntries(
+	REACTIONS.map( ( r ) => [ r.type, r.emoji ] )
+);
+
+/**
+ * Single reaction pill button with tooltip.
  *
  * @param {Object}   props
- * @param {Object}   props.reactions       Full reactions state object.
- * @param {Object}   props.thumbsup        Thumbsup reaction data { count, reacted }.
+ * @param {string}   props.type            Reaction type key.
+ * @param {Object}   props.data            Reaction data { count, reacted, user_ids, user_names }.
  * @param {boolean}  props.isUpdating      Whether a reaction API call is in progress.
  * @param {Function} props.toggleReaction  Callback to toggle the reaction.
+ * @param {number}   props.currentUserId   Current user's ID.
  */
-export function EventReactions( {
-	reactions,
-	thumbsup,
+function ReactionPill( {
+	type,
+	data,
 	isUpdating,
 	toggleReaction,
+	currentUserId,
 } ) {
-	const { experimentalFeaturesEnabled, currentUserId } = useEventsSettings();
 	const buttonRef = useRef( null );
-
-	if ( ! experimentalFeaturesEnabled ) {
-		return null;
-	}
-
-	// Only render when there are reactions to show.
-	if ( thumbsup.count === 0 ) {
-		return null;
-	}
+	const emoji = EMOJI_MAP[ type ] || type;
 
 	const handleClick = () => {
 		triggerPopAnimation(
 			buttonRef,
 			'SimpleHistoryLogitem__reactionButton--animating'
 		);
-		toggleReaction( 'thumbsup' );
+		toggleReaction( type );
 	};
 
-	const userIds = thumbsup.user_ids || [];
-	const userNames = ( thumbsup.user_names || [] ).map( ( name, i ) =>
+	const userIds = data.user_ids || [];
+	const userNames = ( data.user_names || [] ).map( ( name, i ) =>
 		userIds[ i ] === currentUserId ? __( 'You', 'simple-history' ) : name
 	);
-	// Put "You" first.
 	userNames.sort( ( a, b ) =>
 		a === __( 'You', 'simple-history' )
 			? -1
@@ -163,33 +162,66 @@ export function EventReactions( {
 	const tooltipText = userNames.length > 0 ? userNames.join( ', ' ) : '';
 
 	return (
+		<Tooltip text={ tooltipText } placement="top">
+			<Button
+				ref={ buttonRef }
+				className={ `SimpleHistoryLogitem__reactionButton ${
+					data.reacted
+						? 'SimpleHistoryLogitem__reactionButton--active'
+						: ''
+				}` }
+				onClick={ handleClick }
+				disabled={ isUpdating || ! currentUserId }
+				aria-pressed={ data.reacted }
+				size="small"
+			>
+				<span className="SimpleHistoryLogitem__reactionEmoji">
+					{ emoji }
+				</span>
+				<span className="SimpleHistoryLogitem__reactionCount">
+					{ data.count }
+				</span>
+			</Button>
+		</Tooltip>
+	);
+}
+
+/**
+ * Display reaction counts below an event. Only shows when reactions exist.
+ *
+ * @param {Object}   props
+ * @param {Object}   props.reactions       Full reactions state object.
+ * @param {boolean}  props.isUpdating      Whether a reaction API call is in progress.
+ * @param {Function} props.toggleReaction  Callback to toggle the reaction.
+ */
+export function EventReactions( { reactions, isUpdating, toggleReaction } ) {
+	const { experimentalFeaturesEnabled, currentUserId } = useEventsSettings();
+
+	if ( ! experimentalFeaturesEnabled ) {
+		return null;
+	}
+
+	// Get reaction types that have at least one reaction.
+	const activeTypes = Object.entries( reactions ).filter(
+		( [ , data ] ) => data.count > 0
+	);
+
+	if ( activeTypes.length === 0 ) {
+		return null;
+	}
+
+	return (
 		<div className="SimpleHistoryLogitem__reactions">
-			<Tooltip text={ tooltipText } placement="top">
-				<Button
-					ref={ buttonRef }
-					className={ `SimpleHistoryLogitem__reactionButton ${
-						thumbsup.reacted
-							? 'SimpleHistoryLogitem__reactionButton--active'
-							: ''
-					}` }
-					onClick={ handleClick }
-					disabled={ isUpdating || ! currentUserId }
-					aria-label={
-						thumbsup.reacted
-							? __( 'Remove reaction', 'simple-history' )
-							: __( 'React with thumbs up', 'simple-history' )
-					}
-					aria-pressed={ thumbsup.reacted }
-					size="small"
-				>
-					<span className="SimpleHistoryLogitem__reactionEmoji">
-						👍
-					</span>
-					<span className="SimpleHistoryLogitem__reactionCount">
-						{ thumbsup.count }
-					</span>
-				</Button>
-			</Tooltip>
+			{ activeTypes.map( ( [ type, data ] ) => (
+				<ReactionPill
+					key={ type }
+					type={ type }
+					data={ data }
+					isUpdating={ isUpdating }
+					toggleReaction={ toggleReaction }
+					currentUserId={ currentUserId }
+				/>
+			) ) }
 		</div>
 	);
 }
@@ -231,6 +263,16 @@ export function EventReactionQuickButton( {
 		'premium_reactions'
 	);
 
+	// Allow premium to modify the reactions list via JS filter.
+	const reactions = applyFilters(
+		'SimpleHistory.reactions.types',
+		REACTIONS
+	);
+
+	const freeReactions = reactions.filter( ( r ) => ! r.premium );
+	const premiumReactions = reactions.filter( ( r ) => r.premium );
+	const showPremiumTeaser = ! hasPremiumAddOn && premiumReactions.length > 0;
+
 	return (
 		<>
 			<Button
@@ -258,27 +300,22 @@ export function EventReactionQuickButton( {
 				>
 					<div className="sh-ReactionPicker__content">
 						<div className="sh-ReactionPicker__freeSection">
-							{ REACTIONS.filter( ( r ) => ! r.premium ).map(
-								( reaction ) => (
-									<button
-										key={ reaction.type }
-										className="sh-ReactionPicker__emoji"
-										onClick={ () =>
-											handleEmojiClick(
-												reaction.type,
-												false
-											)
-										}
-										disabled={ isUpdating }
-										title={ reaction.label }
-										type="button"
-									>
-										<span>{ reaction.emoji }</span>
-									</button>
-								)
-							) }
+							{ freeReactions.map( ( reaction ) => (
+								<button
+									key={ reaction.type }
+									className="sh-ReactionPicker__emoji"
+									onClick={ () =>
+										handleEmojiClick( reaction.type, false )
+									}
+									disabled={ isUpdating }
+									title={ reaction.label }
+									type="button"
+								>
+									<span>{ reaction.emoji }</span>
+								</button>
+							) ) }
 						</div>
-						{ ! hasPremiumAddOn && (
+						{ showPremiumTeaser && (
 							<a
 								href={ premiumUrl }
 								className="sh-ReactionPicker__premiumSection"
@@ -286,9 +323,7 @@ export function EventReactionQuickButton( {
 								rel="noopener noreferrer"
 							>
 								<span className="sh-ReactionPicker__premiumEmojis">
-									{ REACTIONS.filter(
-										( r ) => r.premium
-									).map( ( reaction ) => (
+									{ premiumReactions.map( ( reaction ) => (
 										<span
 											key={ reaction.type }
 											className="sh-ReactionPicker__premiumEmoji"

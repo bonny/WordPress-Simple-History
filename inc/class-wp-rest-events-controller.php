@@ -174,6 +174,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			],
 		);
 
+		$reaction_type_arg = [
+			'description' => __( 'Reaction type, e.g. "thumbsup".', 'simple-history' ),
+			'type'        => 'string',
+			'required'    => true,
+			'enum'        => $this->get_allowed_reaction_types(),
+		];
+
 		// POST /wp-json/simple-history/v1/events/<event-id>/react.
 		register_rest_route(
 			$this->namespace,
@@ -184,12 +191,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 						'description' => __( 'Unique identifier for the event.', 'simple-history' ),
 						'type'        => 'integer',
 					],
-					'type' => [
-						'description' => __( 'Reaction type, e.g. "thumbsup".', 'simple-history' ),
-						'type'        => 'string',
-						'required'    => true,
-						'enum'        => [ 'thumbsup' ],
-					],
+					'type' => $reaction_type_arg,
 				],
 				[
 					'methods'             => WP_REST_Server::CREATABLE,
@@ -209,12 +211,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 						'description' => __( 'Unique identifier for the event.', 'simple-history' ),
 						'type'        => 'integer',
 					],
-					'type' => [
-						'description' => __( 'Reaction type, e.g. "thumbsup".', 'simple-history' ),
-						'type'        => 'string',
-						'required'    => true,
-						'enum'        => [ 'thumbsup' ],
-					],
+					'type' => $reaction_type_arg,
 				],
 				[
 					'methods'             => WP_REST_Server::CREATABLE,
@@ -1400,6 +1397,18 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		$data = $this->prepare_item_for_response( $event->get_data(), $request );
 		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Get allowed reaction types. Filterable so premium can add more.
+	 *
+	 * @return array List of allowed reaction type strings.
+	 */
+	private function get_allowed_reaction_types(): array {
+		return apply_filters(
+			'simple_history/reactions/allowed_types',
+			[ 'thumbsup' ]
+		);
 	}
 
 	/**
