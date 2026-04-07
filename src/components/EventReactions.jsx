@@ -186,6 +186,130 @@ function ReactionPill( {
 }
 
 /**
+ * Shared emoji picker popover used by both the hover action bar
+ * button and the inline "+" button next to reaction pills.
+ *
+ * @param {Object}   props
+ * @param {Object}   props.anchor          DOM element to anchor the popover to.
+ * @param {string}   props.placement       Popover placement (e.g. 'bottom-start').
+ * @param {boolean}  props.isUpdating      Whether a reaction API call is in progress.
+ * @param {Function} props.onEmojiClick    Called with reaction type when an emoji is clicked.
+ * @param {Function} props.onClose         Called when the popover should close.
+ */
+function ReactionPickerPopover( {
+	anchor,
+	placement,
+	isUpdating,
+	onEmojiClick,
+	onClose,
+} ) {
+	const { hasPremiumAddOn } = useEventsSettings();
+	const showPremiumTeaser = ! hasPremiumAddOn && PREMIUM_REACTIONS.length > 0;
+
+	return (
+		<Popover
+			anchor={ anchor }
+			noArrow={ false }
+			offset={ 8 }
+			placement={ placement }
+			shift={ true }
+			animate={ true }
+			className="sh-ReactionPicker"
+			onFocusOutside={ onClose }
+			onClose={ onClose }
+		>
+			<div className="sh-ReactionPicker__content">
+				<div className="sh-ReactionPicker__freeSection">
+					{ FREE_REACTIONS.map( ( reaction ) => (
+						<button
+							key={ reaction.type }
+							className="sh-ReactionPicker__emoji"
+							onClick={ () => onEmojiClick( reaction.type ) }
+							disabled={ isUpdating }
+							title={ reaction.label }
+							type="button"
+						>
+							<span>{ reaction.emoji }</span>
+						</button>
+					) ) }
+				</div>
+				{ showPremiumTeaser && (
+					<a
+						href={ getTrackingUrl(
+							'https://simple-history.com/add-ons/premium/',
+							'premium_reactions'
+						) }
+						className="sh-ReactionPicker__premiumSection"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<span className="sh-ReactionPicker__premiumEmojis">
+							{ PREMIUM_REACTIONS.map( ( reaction ) => (
+								<span
+									key={ reaction.type }
+									className="sh-ReactionPicker__premiumEmoji"
+								>
+									{ reaction.emoji }
+								</span>
+							) ) }
+						</span>
+						<span className="sh-ReactionPicker__premiumText">
+							{ __( 'More with Premium →', 'simple-history' ) }
+						</span>
+					</a>
+				) }
+			</div>
+		</Popover>
+	);
+}
+
+/**
+ * Small inline "+" button shown after existing reaction pills.
+ * Opens the emoji picker so users can add reactions without
+ * discovering the hover action bar first.
+ *
+ * @param {Object}   props
+ * @param {boolean}  props.isUpdating      Whether a reaction API call is in progress.
+ * @param {Function} props.toggleReaction  Callback to toggle the reaction.
+ */
+function InlineAddReactionButton( { isUpdating, toggleReaction } ) {
+	const { currentUserId } = useEventsSettings();
+	const [ isOpen, setIsOpen ] = useState( false );
+	const buttonRef = useRef( null );
+
+	const handleEmojiClick = ( type ) => {
+		toggleReaction( type );
+		setIsOpen( false );
+	};
+
+	return (
+		<>
+			<button
+				ref={ buttonRef }
+				className="SimpleHistoryLogitem__reactionAddInline"
+				onClick={ () => setIsOpen( ! isOpen ) }
+				disabled={ ! currentUserId }
+				aria-expanded={ isOpen ? 'true' : 'false' }
+				aria-label={ __( 'Add reaction…', 'simple-history' ) }
+				type="button"
+			>
+				<span aria-hidden="true">+</span>
+			</button>
+
+			{ isOpen && (
+				<ReactionPickerPopover
+					anchor={ buttonRef.current }
+					placement="bottom-start"
+					isUpdating={ isUpdating }
+					onEmojiClick={ handleEmojiClick }
+					onClose={ () => setIsOpen( false ) }
+				/>
+			) }
+		</>
+	);
+}
+
+/**
  * Display reaction counts below an event. Only shows when reactions exist.
  *
  * @param {Object}   props
@@ -221,6 +345,10 @@ export function EventReactions( { reactions, isUpdating, toggleReaction } ) {
 					currentUserId={ currentUserId }
 				/>
 			) ) }
+			<InlineAddReactionButton
+				isUpdating={ isUpdating }
+				toggleReaction={ toggleReaction }
+			/>
 		</div>
 	);
 }
@@ -234,8 +362,7 @@ export function EventReactions( { reactions, isUpdating, toggleReaction } ) {
  * @param {Function} props.toggleReaction   Callback to toggle the reaction.
  */
 export function EventReactionQuickButton( { isUpdating, toggleReaction } ) {
-	const { experimentalFeaturesEnabled, currentUserId, hasPremiumAddOn } =
-		useEventsSettings();
+	const { experimentalFeaturesEnabled, currentUserId } = useEventsSettings();
 	const [ isOpen, setIsOpen ] = useState( false );
 	const buttonRef = useRef( null );
 
@@ -243,21 +370,10 @@ export function EventReactionQuickButton( { isUpdating, toggleReaction } ) {
 		return null;
 	}
 
-	const handleEmojiClick = ( type, isPremium ) => {
-		if ( isPremium ) {
-			return;
-		}
-
+	const handleEmojiClick = ( type ) => {
 		toggleReaction( type );
 		setIsOpen( false );
 	};
-
-	const premiumUrl = getTrackingUrl(
-		'https://simple-history.com/add-ons/premium/',
-		'premium_reactions'
-	);
-
-	const showPremiumTeaser = ! hasPremiumAddOn && PREMIUM_REACTIONS.length > 0;
 
 	return (
 		<>
@@ -269,65 +385,17 @@ export function EventReactionQuickButton( { isUpdating, toggleReaction } ) {
 				size="small"
 				onClick={ () => setIsOpen( ! isOpen ) }
 				disabled={ ! currentUserId }
-				aria-expanded={ isOpen }
+				aria-expanded={ isOpen ? 'true' : 'false' }
 			/>
 
 			{ isOpen && (
-				<Popover
+				<ReactionPickerPopover
 					anchor={ buttonRef.current }
-					noArrow={ false }
-					offset={ 8 }
 					placement="bottom-end"
-					shift={ true }
-					animate={ true }
-					className="sh-ReactionPicker"
-					onFocusOutside={ () => setIsOpen( false ) }
+					isUpdating={ isUpdating }
+					onEmojiClick={ handleEmojiClick }
 					onClose={ () => setIsOpen( false ) }
-				>
-					<div className="sh-ReactionPicker__content">
-						<div className="sh-ReactionPicker__freeSection">
-							{ FREE_REACTIONS.map( ( reaction ) => (
-								<button
-									key={ reaction.type }
-									className="sh-ReactionPicker__emoji"
-									onClick={ () =>
-										handleEmojiClick( reaction.type, false )
-									}
-									disabled={ isUpdating }
-									title={ reaction.label }
-									type="button"
-								>
-									<span>{ reaction.emoji }</span>
-								</button>
-							) ) }
-						</div>
-						{ showPremiumTeaser && (
-							<a
-								href={ premiumUrl }
-								className="sh-ReactionPicker__premiumSection"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<span className="sh-ReactionPicker__premiumEmojis">
-									{ PREMIUM_REACTIONS.map( ( reaction ) => (
-										<span
-											key={ reaction.type }
-											className="sh-ReactionPicker__premiumEmoji"
-										>
-											{ reaction.emoji }
-										</span>
-									) ) }
-								</span>
-								<span className="sh-ReactionPicker__premiumText">
-									{ __(
-										'More with Premium →',
-										'simple-history'
-									) }
-								</span>
-							</a>
-						) }
-					</div>
-				</Popover>
+				/>
 			) }
 		</>
 	);
