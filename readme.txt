@@ -259,6 +259,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   Control bar actions are now inline buttons instead of a dropdown menu, making Export, Create Alert, Create Log Entry, and Share View more visible and accessible.
+-   Expanded filters panel: reordered filters with Users first, moved "Hide my own events" into the Users row, replaced initiators help link with an icon, and trimmed helper text for a cleaner layout.
 
 **Fixed**
 

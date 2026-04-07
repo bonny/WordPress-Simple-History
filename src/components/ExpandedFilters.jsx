@@ -1,17 +1,17 @@
 import apiFetch from '@wordpress/api-fetch';
 import {
-	BaseControl,
 	CheckboxControl,
-	ExternalLink,
 	Flex,
 	FlexBlock,
 	FlexItem,
 	FormTokenField,
+	Icon,
 	TextareaControl,
 	__experimentalInputControl as InputControl,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { help } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { LOGLEVELS_OPTIONS, SUBITEM_PREFIX } from '../constants';
 import { getTrackingUrl } from '../functions';
@@ -244,12 +244,120 @@ export function ExpandedFilters( props ) {
 		setSelectedMessageTypes( nextValues );
 	};
 
+	const gridUnit = 'var(--grid-unit, 8px)';
 	const filterFieldStyle = { maxWidth: '310px', backgroundColor: 'white' };
-	const filterRowStyle = { margin: '0.5em 0' };
-	const labelMarginStyle = { margin: '.5em 0' };
+	const filterRowStyle = {
+		margin: `${ gridUnit } 0`,
+	};
+	const labelMarginStyle = {
+		margin: `calc(${ gridUnit }) 0`,
+	};
 
 	return (
 		<div>
+			{ /* Group: Who & What */ }
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
+					<div className="SimpleHistory__filters__filterLabel">
+						{ __( 'Users', 'simple-history' ) }
+					</div>
+				</FlexItem>
+				<FlexBlock>
+					<div
+						className="SimpleHistory__filters__loglevels__select"
+						style={ filterFieldStyle }
+					>
+						<FormTokenField
+							__experimentalAutoSelectFirstMatch
+							__experimentalExpandOnFocus
+							__experimentalShowHowTo={ false }
+							label={ __( 'Users', 'simple-history' ) }
+							placeholder={ __( 'All users', 'simple-history' ) }
+							onChange={ ( nextValues ) => {
+								handleUserChange( nextValues );
+							} }
+							onInputChange={ ( value ) => {
+								searchUsers( value );
+							} }
+							suggestions={ userSuggestions.map(
+								( suggestion ) => {
+									return suggestion.value;
+								}
+							) }
+							value={ selectedUsersWithId }
+						/>
+					</div>
+					<div
+						style={ {
+							marginTop: `calc(${ gridUnit } / 2)`,
+							marginBottom: `calc(${ gridUnit } / 2 + 4px)`,
+							paddingLeft: '1px',
+						} }
+					>
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							label={ __(
+								'Hide my own events',
+								'simple-history'
+							) }
+							checked={ hideOwnEvents }
+							onChange={ setHideOwnEvents }
+						/>
+					</div>
+				</FlexBlock>
+			</Flex>
+
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
+					<div className="SimpleHistory__filters__filterLabel">
+						{ __( 'Message types', 'simple-history' ) }
+					</div>
+				</FlexItem>
+				<FlexBlock>
+					<div
+						className="SimpleHistory__filters__loglevels__select"
+						style={ filterFieldStyle }
+					>
+						<FormTokenField
+							__experimentalAutoSelectFirstMatch
+							__experimentalExpandOnFocus
+							__experimentalShowHowTo={ false }
+							label={ __( 'Message types', 'simple-history' ) }
+							placeholder={ __(
+								'All message types',
+								'simple-history'
+							) }
+							onChange={ ( nextValues ) => {
+								handleMessageTypesChange( nextValues );
+							} }
+							value={ selectedMessageTypes.map( ( value ) => {
+								value.value = value.value.replace(
+									SUBITEM_PREFIX,
+									''
+								);
+								return value;
+							} ) }
+							suggestions={ messageTypesSuggestions.map(
+								( suggestion ) => {
+									return suggestion.value;
+								}
+							) }
+							__experimentalRenderItem={ ( localProps ) => {
+								if (
+									! localProps.item.startsWith(
+										SUBITEM_PREFIX
+									)
+								) {
+									return <strong>{ localProps.item }</strong>;
+								}
+
+								return localProps.item;
+							} }
+						/>
+					</div>
+				</FlexBlock>
+			</Flex>
+
 			<Flex align="top" gap="0" style={ filterRowStyle }>
 				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel">
@@ -282,72 +390,25 @@ export function ExpandedFilters( props ) {
 			<Flex align="top" gap="0" style={ filterRowStyle }>
 				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel">
-						{ __( 'Message types', 'simple-history' ) }
-					</div>
-				</FlexItem>
-				<FlexBlock>
-					<div
-						className="SimpleHistory__filters__loglevels__select"
-						style={ filterFieldStyle }
-					>
-						<FormTokenField
-							__experimentalAutoSelectFirstMatch
-							__experimentalExpandOnFocus
-							__experimentalShowHowTo={ false }
-							label=""
-							placeholder={ __(
-								'All message types',
+						{ __( 'Initiators', 'simple-history' ) }{ ' ' }
+						<a
+							href={ getTrackingUrl(
+								'https://simple-history.com/support/what-is-an-initiator/',
+								'docs_filters_initiator'
+							) }
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-label={ __(
+								'About initiators and how they work (opens in new tab)',
 								'simple-history'
 							) }
-							onChange={ ( nextValues ) => {
-								handleMessageTypesChange( nextValues );
+							style={ {
+								color: '#1e1e1e',
+								verticalAlign: 'middle',
 							} }
-							// An array of strings or objects to display as tokens in the field. If objects are present in the array, they must have a property of value.
-							// Transform to remove the prefix, if any.
-							value={ selectedMessageTypes.map( ( value ) => {
-								value.value = value.value.replace(
-									SUBITEM_PREFIX,
-									''
-								);
-								return value;
-							} ) }
-							suggestions={ messageTypesSuggestions.map(
-								( suggestion ) => {
-									return suggestion.value;
-								}
-							) }
-							/**
-							 * Custom renderer for suggestions.
-							 * props.item is string. Examples:
-							 * item: 'Tillägg'}
-							 * item: ' - All tilläggsaktivitet'
-							 * item: ' - Aktiverade tillägg'
-							 *
-							 * @param {*} localProps
-							 */
-							__experimentalRenderItem={ ( localProps ) => {
-								// Items that does not begin with prefix should be modified to use bold text.
-								// Items that begin with prefix should not be modified.
-								if (
-									! localProps.item.startsWith(
-										SUBITEM_PREFIX
-									)
-								) {
-									return <strong>{ localProps.item }</strong>;
-								}
-
-								// Unmodified item.
-								return localProps.item;
-							} }
-						/>
-					</div>
-				</FlexBlock>
-			</Flex>
-
-			<Flex align="top" gap="0" style={ filterRowStyle }>
-				<FlexItem style={ labelMarginStyle }>
-					<div className="SimpleHistory__filters__filterLabel">
-						{ __( 'Users', 'simple-history' ) }
+						>
+							<Icon icon={ help } size={ 16 } />
+						</a>
 					</div>
 				</FlexItem>
 				<FlexBlock>
@@ -359,64 +420,7 @@ export function ExpandedFilters( props ) {
 							__experimentalAutoSelectFirstMatch
 							__experimentalExpandOnFocus
 							__experimentalShowHowTo={ false }
-							label=""
-							placeholder={ __( 'All users', 'simple-history' ) }
-							onChange={ ( nextValues ) => {
-								handleUserChange( nextValues );
-							} }
-							onInputChange={ ( value ) => {
-								searchUsers( value );
-							} }
-							// Suggestions:
-							// An array of strings to present to the user as suggested tokens.
-							suggestions={ userSuggestions.map(
-								( suggestion ) => {
-									return suggestion.value;
-								}
-							) }
-							value={ selectedUsersWithId }
-						/>
-					</div>
-					<BaseControl
-						__nextHasNoMarginBottom
-						help={ __(
-							'Enter 2 or more characters to search for users.',
-							'simple-history'
-						) }
-					/>
-				</FlexBlock>
-			</Flex>
-
-			<Flex align="top" gap="0" style={ filterRowStyle }>
-				<FlexItem style={ labelMarginStyle }>
-					<div className="SimpleHistory__filters__filterLabel"></div>
-				</FlexItem>
-				<FlexBlock>
-					<CheckboxControl
-						__nextHasNoMarginBottom
-						label={ __( 'Hide my own events', 'simple-history' ) }
-						checked={ hideOwnEvents }
-						onChange={ setHideOwnEvents }
-					/>
-				</FlexBlock>
-			</Flex>
-
-			<Flex align="top" gap="0" style={ filterRowStyle }>
-				<FlexItem style={ labelMarginStyle }>
-					<div className="SimpleHistory__filters__filterLabel">
-						{ __( 'Initiators', 'simple-history' ) }
-					</div>
-				</FlexItem>
-				<FlexBlock>
-					<div
-						className="SimpleHistory__filters__loglevels__select"
-						style={ filterFieldStyle }
-					>
-						<FormTokenField
-							__experimentalAutoSelectFirstMatch
-							__experimentalExpandOnFocus
-							__experimentalShowHowTo={ false }
-							label=""
+							label={ __( 'Initiators', 'simple-history' ) }
 							placeholder={ __(
 								'All initiators',
 								'simple-history'
@@ -430,26 +434,8 @@ export function ExpandedFilters( props ) {
 									return suggestion.value;
 								}
 							) }
-							help={ __(
-								'Learn more about <a>what an initiator is</a>.',
-								'simple-history'
-							) }
 						/>
 					</div>
-
-					<ExternalLink
-						href={ getTrackingUrl(
-							'https://simple-history.com/support/what-is-an-initiator/',
-							'docs_filters_initiator'
-						) }
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						{ __(
-							'About initiators and how they work',
-							'simple-history'
-						) }
-					</ExternalLink>
 				</FlexBlock>
 			</Flex>
 
@@ -471,7 +457,7 @@ export function ExpandedFilters( props ) {
 								'simple-history'
 							) }
 							help={ __(
-								'Search all event data including IP addresses, emails, and other hidden metadata. May be slower on large sites.',
+								'Searches IP addresses, emails, and hidden metadata. May be slower on large sites.',
 								'simple-history'
 							) }
 						/>
@@ -496,7 +482,7 @@ export function ExpandedFilters( props ) {
 							placeholder={ __( '_user_id:1', 'simple-history' ) }
 							rows={ 2 }
 							help={ __(
-								'Enter context key-value pairs in the format "key:value". One filter per line.',
+								'Advanced: filter by raw event context. One key:value pair per line.',
 								'simple-history'
 							) }
 							style={ {
