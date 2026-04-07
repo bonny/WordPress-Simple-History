@@ -406,8 +406,8 @@ Tag = the pill with the log level.
 }
 
 .SimpleHistoryLogitem__actionLinks__link .sh-Icon {
-	--sh-icon-size: 1em;
-	top: 1px;
+	--sh-icon-size: 1.25em;
+	top: 0;
 	/* Use mask so icon color inherits from link via currentColor. */
 	mask-size: 100%;
 	-webkit-mask-size: 100%;
@@ -3492,8 +3492,8 @@ a.sh-EventsStatsBar--link:hover {
 }
 
 .sh-ControlBarButton.components-button svg {
-	width: 1em;
-	height: 1em;
+	width: 1.25em;
+	height: 1.25em;
 	fill: currentColor;
 	flex-shrink: 0;
 }
