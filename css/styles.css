@@ -3472,28 +3472,28 @@ a.sh-EventsStatsBar--link:hover {
 
 /* Inline action buttons group in control bar. */
 .sh-ControlBarButtons {
-	gap: 2px;
+	gap: var(--sh-spacing-xsmall);
 }
 
-/* Individual control bar button — compact tertiary style. */
+/* Individual control bar button — compact tertiary style, matching action link sizing. */
 .sh-ControlBarButton.components-button {
 	display: inline-flex;
 	align-items: center;
-	font-size: 13px;
-	color: var(--sh-color-black-2, #50575e);
-	gap: 2px;
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+	gap: var(--sh-spacing-xsmall);
 	white-space: nowrap;
-	padding: 4px 8px;
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
 }
 
 .sh-ControlBarButton.components-button:hover {
-	color: var(--sh-color-black, #1d2327);
-	background: #f0f0f1;
+	color: var(--sh-color-black);
+	background: var(--sh-color-gray-4);
 }
 
 .sh-ControlBarButton.components-button svg {
-	width: 20px;
-	height: 20px;
+	width: 1em;
+	height: 1em;
 	fill: currentColor;
 	flex-shrink: 0;
 }
