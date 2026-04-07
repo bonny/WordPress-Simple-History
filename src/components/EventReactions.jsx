@@ -170,7 +170,7 @@ function ReactionPill( {
 						: ''
 				}` }
 				onClick={ handleClick }
-				disabled={ isUpdating || ! currentUserId }
+				disabled={ ! currentUserId }
 				aria-pressed={ data.reacted }
 				size="small"
 			>
