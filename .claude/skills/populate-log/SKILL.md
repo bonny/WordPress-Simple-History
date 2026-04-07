@@ -21,11 +21,12 @@ cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot && docker compose
 
 ## Options
 
-| Option          | Default | Description                       |
-| --------------- | ------- | --------------------------------- |
-| `--count=<n>`   | 1000    | Number of events to create        |
-| `--type=<type>` | mixed   | Type of events (see below)        |
-| `--days=<n>`    | 90      | Spread events over this many days |
+| Option          | Default | Description                             |
+| --------------- | ------- | --------------------------------------- |
+| `--count=<n>`   | 1000    | Number of events to create              |
+| `--type=<type>` | mixed   | Type of events (see below)              |
+| `--days=<n>`    | 90      | Spread events over this many days       |
+| `--reactions`   | off     | Add 1-10 random reactions to each event |
 
 ## Event Types (`--type`)
 
