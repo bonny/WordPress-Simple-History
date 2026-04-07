@@ -244,18 +244,17 @@ export function ExpandedFilters( props ) {
 		setSelectedMessageTypes( nextValues );
 	};
 
-	const gridUnit = 'var(--grid-unit, 8px)';
+	const GRID_UNIT = '8px';
 	const filterFieldStyle = { maxWidth: '310px', backgroundColor: 'white' };
 	const filterRowStyle = {
-		margin: `${ gridUnit } 0`,
+		margin: `${ GRID_UNIT } 0`,
 	};
 	const labelMarginStyle = {
-		margin: `${ gridUnit } 0`,
+		margin: `${ GRID_UNIT } 0`,
 	};
 
 	return (
 		<div>
-			{ /* Group: Who & What */ }
 			<Flex align="top" gap="0" style={ filterRowStyle }>
 				<FlexItem style={ labelMarginStyle }>
 					<div className="SimpleHistory__filters__filterLabel">
@@ -273,12 +272,8 @@ export function ExpandedFilters( props ) {
 							__experimentalShowHowTo={ false }
 							label={ __( 'Users', 'simple-history' ) }
 							placeholder={ __( 'All users', 'simple-history' ) }
-							onChange={ ( nextValues ) => {
-								handleUserChange( nextValues );
-							} }
-							onInputChange={ ( value ) => {
-								searchUsers( value );
-							} }
+							onChange={ handleUserChange }
+							onInputChange={ searchUsers }
 							suggestions={ userSuggestions.map(
 								( suggestion ) => {
 									return suggestion.value;
@@ -291,8 +286,8 @@ export function ExpandedFilters( props ) {
 					{ /* paddingLeft aligns checkbox edge with the input border above. */ }
 					<div
 						style={ {
-							marginTop: `calc(${ gridUnit } / 2)`,
-							marginBottom: `calc(${ gridUnit } / 2 + 4px)`,
+							marginTop: `calc(${ GRID_UNIT } / 2)`,
+							marginBottom: `calc(${ GRID_UNIT } / 2 + 4px)`,
 							paddingLeft: '1px',
 						} }
 					>
@@ -329,16 +324,11 @@ export function ExpandedFilters( props ) {
 								'All message types',
 								'simple-history'
 							) }
-							onChange={ ( nextValues ) => {
-								handleMessageTypesChange( nextValues );
-							} }
-							value={ selectedMessageTypes.map( ( value ) => {
-								value.value = value.value.replace(
-									SUBITEM_PREFIX,
-									''
-								);
-								return value;
-							} ) }
+							onChange={ handleMessageTypesChange }
+							value={ selectedMessageTypes.map( ( item ) => ( {
+								...item,
+								value: item.value.replace( SUBITEM_PREFIX, '' ),
+							} ) ) }
 							suggestions={ messageTypesSuggestions.map(
 								( suggestion ) => {
 									return suggestion.value;
@@ -379,9 +369,7 @@ export function ExpandedFilters( props ) {
 								'All log levels',
 								'simple-history'
 							) }
-							onChange={ ( nextValue ) => {
-								setSelectedLogLevels( nextValue );
-							} }
+							onChange={ setSelectedLogLevels }
 							suggestions={ LOGLEVELS_SUGGESTIONS }
 							value={ selectedLogLevels }
 						/>
@@ -427,9 +415,7 @@ export function ExpandedFilters( props ) {
 								'All initiators',
 								'simple-history'
 							) }
-							onChange={ ( nextValues ) => {
-								handleInitiatorsChange( nextValues );
-							} }
+							onChange={ handleInitiatorsChange }
 							value={ selectedInitiator }
 							suggestions={ initiatorSuggestions.map(
 								( suggestion ) => {
