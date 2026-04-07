@@ -18,7 +18,7 @@ import { getTrackingUrl } from '../functions';
 
 /**
  * More filters that are hidden by default.
- * Includes log levels, message types and users.
+ * Includes users, message types, log levels, initiators, metadata, and context.
  *
  * @param {Object} props
  */
@@ -250,7 +250,7 @@ export function ExpandedFilters( props ) {
 		margin: `${ gridUnit } 0`,
 	};
 	const labelMarginStyle = {
-		margin: `calc(${ gridUnit }) 0`,
+		margin: `${ gridUnit } 0`,
 	};
 
 	return (
@@ -287,6 +287,8 @@ export function ExpandedFilters( props ) {
 							value={ selectedUsersWithId }
 						/>
 					</div>
+					{ /* Extra bottom margin compensates for checkbox's compact height to match row spacing. */ }
+					{ /* paddingLeft aligns checkbox edge with the input border above. */ }
 					<div
 						style={ {
 							marginTop: `calc(${ gridUnit } / 2)`,
@@ -403,7 +405,7 @@ export function ExpandedFilters( props ) {
 								'simple-history'
 							) }
 							style={ {
-								color: '#1e1e1e',
+								color: 'currentColor',
 								verticalAlign: 'middle',
 							} }
 						>
