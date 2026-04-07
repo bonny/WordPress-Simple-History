@@ -1,6 +1,6 @@
 ---
 name: wp-admin-urls
-description: 'Patterns for building WordPress admin page URLs in Simple History. Covers menu location awareness, settings tabs/sub-tabs, and avoiding hardcoded URLs. Triggers: building admin links, menu URLs, settings page links, navigating between pages.'
+description: Patterns for building WordPress admin page URLs in Simple History. Use when constructing admin links, settings tabs, or menu URLs dynamically.
 allowed-tools: Read, Grep, Glob
 ---
 

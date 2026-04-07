@@ -1,6 +1,6 @@
 ---
 name: populate-log
-description: Populate the Simple History event log with test data. Use when the user wants to add test events, generate sample data, fill the log, or benchmark with realistic activity. Triggers when user says "populate log", "add test events", "generate events", "fill log", "test data".
+description: Populates the event log with test data via WP-CLI. Use when adding sample events, generating test data, or benchmarking with realistic activity.
 allowed-tools: Bash, Read
 ---
 

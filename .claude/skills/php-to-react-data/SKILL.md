@@ -1,6 +1,6 @@
 ---
 name: php-to-react-data
-description: 'Patterns for passing data from PHP to React in Simple History. Covers wp_localize_script, search-options REST API, and when to use which. Triggers: passing PHP data to JS, localizing scripts, adding data to React components, sharing config between PHP and React.'
+description: Patterns for passing data from PHP to React via wp_localize_script and REST API. Use when sharing config or data between PHP and React components.
 allowed-tools: Read, Grep, Glob
 ---
 

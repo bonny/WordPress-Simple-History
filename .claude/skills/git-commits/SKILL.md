@@ -1,6 +1,6 @@
 ---
 name: git-commits
-description: Provides project-specific git commit guidance for Simple History, especially for changes spanning core and premium plugins. Triggers: "commit", "multi-repo commit".
+description: Project-specific git commit guidance for Simple History. Use when committing changes, especially across core and premium plugins.
 allowed-tools: Bash
 ---
 
@@ -19,15 +19,17 @@ When changes span core (this repo) and premium (simple-history-premium):
 ## When to Split Commits
 
 **Separate commits:**
-- CSS vs PHP logic changes
-- Different features (even in same file)
-- Refactoring vs new functionality
-- Multiple independent bug fixes
+
+-   CSS vs PHP logic changes
+-   Different features (even in same file)
+-   Refactoring vs new functionality
+-   Multiple independent bug fixes
 
 **Single commit:**
-- Related changes for one feature
-- A handler + its CSS
-- Tests for the feature being added
+
+-   Related changes for one feature
+-   A handler + its CSS
+-   Tests for the feature being added
 
 ## Commit Message Style
 
