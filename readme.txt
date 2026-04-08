@@ -253,6 +253,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Media, Comments, and Themes sections to the weekly email summary report. Comments section only appears when comments are enabled on the site.
 -   Event reactions — react to log events with a thumbs up emoji, with a Slack-style emoji picker in the actions bar. (experimental)
 -   `--fields` support for `wp simple-history list` WP-CLI command, including a `reactions` field showing reaction counts.
 
@@ -265,6 +266,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Memory exhaustion when exporting large event logs by reducing batch size and eliminating redundant database queries.
 -   Layout shift in control bar action buttons while search options are loading.
+-   Oversized file type icon for non-image attachments (e.g. DOCX, PDF) in the event log.
 
 ### 5.25.0 (March 2026)
 
