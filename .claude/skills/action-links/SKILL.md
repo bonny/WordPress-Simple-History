@@ -1,6 +1,6 @@
 ---
 name: action-links
-description: 'Guides implementation of structured action links on log events. Triggers: adding get_action_links() to a logger, creating navigational links on events, or when migrating inline links from get_log_row_details_output() to the action links system.'
+description: Guides implementation of structured action links on log events. Use when adding get_action_links() to a logger or migrating from get_log_row_details_output().
 allowed-tools: Read, Grep, Glob
 ---
 

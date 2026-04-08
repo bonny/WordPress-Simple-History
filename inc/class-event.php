@@ -792,4 +792,138 @@ class Event {
 
 		return (bool) $result;
 	}
+
+	/**
+	 * Get reactions for this event.
+	 *
+	 * @return array Associative array of reaction types to user ID arrays, e.g. {"thumbsup": [1, 2]}.
+	 */
+	public function get_reactions(): array {
+		if ( ! isset( $this->context['_reactions'] ) ) {
+			return [];
+		}
+
+		$reactions = json_decode( $this->context['_reactions'], true );
+
+		return is_array( $reactions ) ? $reactions : [];
+	}
+
+	/**
+	 * Check if a user has reacted with a specific type.
+	 *
+	 * @param string $type    Reaction type, e.g. "thumbsup".
+	 * @param int    $user_id User ID.
+	 * @return bool True if user has reacted.
+	 */
+	public function has_user_reacted( string $type, int $user_id ): bool {
+		$reactions = $this->get_reactions();
+
+		return isset( $reactions[ $type ] ) && in_array( $user_id, $reactions[ $type ], true );
+	}
+
+	/**
+	 * Add a reaction from a user.
+	 *
+	 * @param string $type    Reaction type, e.g. "thumbsup".
+	 * @param int    $user_id User ID.
+	 * @return bool True on success.
+	 */
+	public function add_reaction( string $type, int $user_id ): bool {
+		$reactions = $this->get_reactions();
+
+		if ( ! isset( $reactions[ $type ] ) ) {
+			$reactions[ $type ] = [];
+		}
+
+		// Already reacted.
+		if ( in_array( $user_id, $reactions[ $type ], true ) ) {
+			return true;
+		}
+
+		$reactions[ $type ][] = $user_id;
+
+		return $this->save_reactions( $reactions );
+	}
+
+	/**
+	 * Remove a reaction from a user.
+	 *
+	 * @param string $type    Reaction type, e.g. "thumbsup".
+	 * @param int    $user_id User ID.
+	 * @return bool True on success.
+	 */
+	public function remove_reaction( string $type, int $user_id ): bool {
+		$reactions = $this->get_reactions();
+
+		if ( ! isset( $reactions[ $type ] ) ) {
+			return true;
+		}
+
+		$reactions[ $type ] = array_values(
+			array_filter(
+				$reactions[ $type ],
+				function ( $id ) use ( $user_id ) {
+					return $id !== $user_id;
+				}
+			)
+		);
+
+		// Remove empty reaction types.
+		if ( empty( $reactions[ $type ] ) ) {
+			unset( $reactions[ $type ] );
+		}
+
+		return $this->save_reactions( $reactions );
+	}
+
+	/**
+	 * Save reactions to the context table.
+	 *
+	 * @param array $reactions Reactions array to persist.
+	 * @return bool True on success.
+	 */
+	private function save_reactions( array $reactions ): bool {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+		$contexts_table = $simple_history->get_contexts_table_name();
+
+		// Remove existing reactions context row.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$contexts_table,
+			[
+				'history_id' => $this->id,
+				'key'        => '_reactions',
+			],
+			[ '%d', '%s' ]
+		);
+
+		// Clear cache so reloads get fresh data.
+		Helpers::clear_cache();
+
+		// If no reactions left, we're done.
+		if ( empty( $reactions ) ) {
+			$this->reload_data();
+			return true;
+		}
+
+		// Insert updated reactions.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->insert(
+			$contexts_table,
+			[
+				'history_id' => $this->id,
+				'key'        => '_reactions',
+				'value'      => wp_json_encode( $reactions ),
+			],
+			[ '%d', '%s', '%s' ]
+		);
+
+		if ( $result ) {
+			$this->reload_data();
+		}
+
+		return (bool) $result;
+	}
 }

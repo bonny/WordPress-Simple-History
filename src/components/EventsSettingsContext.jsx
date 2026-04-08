@@ -19,6 +19,7 @@ export function useEventsSettings() {
 			hasPremiumAddOn: false,
 			hasFailedLoginLimit: false,
 			experimentalFeaturesEnabled: false,
+			currentUserId: null,
 		};
 	}
 	return context;

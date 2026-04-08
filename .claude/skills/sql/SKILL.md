@@ -1,6 +1,7 @@
 ---
 name: sql
-description: Runs SQL queries against the WordPress development database. Queries tables, inspects Simple History events, checks WordPress data, and helps with debugging. Triggers: "run query", "check database", "SQL", "show tables".
+description: Runs SQL queries against the WordPress development database. Use when inspecting tables, checking event data, or debugging database issues.
+disable-model-invocation: true
 allowed-tools: Read, Bash
 ---
 
@@ -33,16 +34,16 @@ docker compose exec mariadb mysql -u<USER> -p<PASSWORD> <DATABASE> -e "DESCRIBE 
 
 ## Table Prefixes
 
-| Prefix | Installation |
-|--------|--------------|
-| `wp_` | Main install |
-| `wp_nightly_` | Nightly build |
-| `wp_multisite_` | Multisite |
+| Prefix          | Installation  |
+| --------------- | ------------- |
+| `wp_`           | Main install  |
+| `wp_nightly_`   | Nightly build |
+| `wp_multisite_` | Multisite     |
 
 ## Simple History Tables
 
-- `wp_simple_history` - Main events table
-- `wp_simple_history_contexts` - Event context/metadata
+-   `wp_simple_history` - Main events table
+-   `wp_simple_history_contexts` - Event context/metadata
 
 ## Workflow
 

@@ -1,6 +1,6 @@
 ---
 name: logger-messages
-description: "Enforces active voice (verb-first) for all Simple History logger messages and the Event Details API for details output. Triggers: creating a new logger class, writing or modifying a 'messages' array in get_info()/getInfo(), calling notice_message/warning_message/info_message, or implementing get_log_row_details_output()."
+description: Enforces active voice for logger messages and the Event Details API. Use when writing a new logger class or modifying message arrays in getInfo().
 allowed-tools: Read, Grep, Glob
 ---
 

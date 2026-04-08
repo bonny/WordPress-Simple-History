@@ -49,12 +49,21 @@ $args = wp_parse_args(
 		'failed_logins'          => 0,
 		'posts_created'          => 0,
 		'posts_updated'          => 0,
+		'notes_enabled'          => false,
 		'notes_added'            => 0,
 		'notes_resolved'         => 0,
 		'users_created'          => 0,
 		'users_updated'          => 0,
+		'media_uploads'          => 0,
+		'media_edits'            => 0,
+		'comments_enabled'       => false,
+		'comments_added'         => 0,
+		'comments_approved'      => 0,
+		'comments_spam'          => 0,
 		'plugin_activations'     => 0,
 		'plugin_deactivations'   => 0,
+		'theme_switches'         => 0,
+		'theme_updates'          => 0,
 		'wordpress_updates'      => 0,
 		'history_admin_url'      => '',
 		'settings_url'           => '',
@@ -455,10 +464,92 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 							$render_inline_teaser( 'posts', $inline_teaser_section, $inline_teaser_text, $premium_url );
 							?>
 						</div>
+						<!-- Media Section -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
+								<?php echo esc_html( __( 'Media', 'simple-history' ) ); ?>
+							</h2>
+
+							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+								<tr>
+									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
+											<?php echo esc_html( __( 'Uploads', 'simple-history' ) ); ?>
+										</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
+											<?php echo esc_html( number_format_i18n( $args['media_uploads'] ) ); ?>
+										</div>
+									</td>
+									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
+											<?php echo esc_html( __( 'Edits', 'simple-history' ) ); ?>
+										</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
+											<?php echo esc_html( number_format_i18n( $args['media_edits'] ) ); ?>
+										</div>
+									</td>
+								</tr>
+							</table>
+							<?php
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
+							echo apply_filters( 'simple_history/email_summary_report/section_content/media', '', $args );
+							$render_inline_teaser( 'media', $inline_teaser_section, $inline_teaser_text, $premium_url );
+							?>
+						</div>
 						<?php
+						// Comments Section - only show when comments are enabled on the site.
+						if ( $args['comments_enabled'] ) {
+							?>
+							<!-- Comments Section -->
+							<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+								<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
+									<?php echo esc_html( __( 'Comments', 'simple-history' ) ); ?>
+								</h2>
+
+								<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+									<tr>
+										<td style="width: 50%; vertical-align: top; padding-right: 15px;">
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
+												<?php echo esc_html( __( 'New comments', 'simple-history' ) ); ?>
+											</div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
+												<?php echo esc_html( number_format_i18n( $args['comments_added'] ) ); ?>
+											</div>
+										</td>
+										<td style="width: 50%; vertical-align: top; padding-left: 15px;">
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
+												<?php echo esc_html( __( 'Approved', 'simple-history' ) ); ?>
+											</div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
+												<?php echo esc_html( number_format_i18n( $args['comments_approved'] ) ); ?>
+											</div>
+										</td>
+									</tr>
+									<?php if ( $args['comments_spam'] > 0 ) { ?>
+									<tr>
+										<td style="width: 50%; vertical-align: top; padding-right: 15px; padding-top: 15px;">
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
+												<?php echo esc_html( __( 'Spam', 'simple-history' ) ); ?>
+											</div>
+											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
+												<?php echo esc_html( number_format_i18n( $args['comments_spam'] ) ); ?>
+											</div>
+										</td>
+										<td style="width: 50%; vertical-align: top; padding-left: 15px; padding-top: 15px;"></td>
+									</tr>
+									<?php } ?>
+								</table>
+								<?php
+								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
+								echo apply_filters( 'simple_history/email_summary_report/section_content/comments', '', $args );
+								$render_inline_teaser( 'comments', $inline_teaser_section, $inline_teaser_text, $premium_url );
+								?>
+							</div>
+							<?php
+						}
+
 						// Notes Section - only show on WordPress 6.9+ where Notes feature exists.
-						global $wp_version;
-						if ( version_compare( $wp_version, '6.9', '>=' ) ) {
+						if ( $args['notes_enabled'] ) {
 							?>
 							<!-- Notes Section (WordPress 6.9+) -->
 							<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
@@ -576,6 +667,39 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
 							echo apply_filters( 'simple_history/email_summary_report/section_content/plugins', '', $args );
 							$render_inline_teaser( 'plugins', $inline_teaser_section, $inline_teaser_text, $premium_url );
+							?>
+						</div>
+
+						<!-- Themes Section -->
+						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
+							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
+								<?php echo esc_html( __( 'Themes', 'simple-history' ) ); ?>
+							</h2>
+
+							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+								<tr>
+									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
+											<?php echo esc_html( __( 'Switches', 'simple-history' ) ); ?>
+										</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
+											<?php echo esc_html( number_format_i18n( $args['theme_switches'] ) ); ?>
+										</div>
+									</td>
+									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
+											<?php echo esc_html( __( 'Updates', 'simple-history' ) ); ?>
+										</div>
+										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
+											<?php echo esc_html( number_format_i18n( $args['theme_updates'] ) ); ?>
+										</div>
+									</td>
+								</tr>
+							</table>
+							<?php
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
+							echo apply_filters( 'simple_history/email_summary_report/section_content/themes', '', $args );
+							$render_inline_teaser( 'themes', $inline_teaser_section, $inline_teaser_text, $premium_url );
 							?>
 						</div>
 

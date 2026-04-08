@@ -64,7 +64,7 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 					onClick={ handleOpenPremiumLink }
 					className="sh-PremiumFeatureModal-upgradeButton"
 				>
-					{ __( 'Upgrade to Premium now', 'simple-history' ) }
+					{ __( 'Get Premium', 'simple-history' ) }
 				</Button>
 
 				<button

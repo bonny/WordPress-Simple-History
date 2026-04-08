@@ -98,6 +98,8 @@ class Export {
 	public function download() {
 		$this->add_hooks();
 
+		wp_raise_memory_limit( 'admin' );
+
 		$export_format = $this->format;
 
 		$query = new Log_Query();
@@ -107,6 +109,10 @@ class Export {
 		// Exports are flat lists, no grouping needed.
 		$download_query_args['ungrouped'] = true;
 
+		// Cap batch size to avoid memory exhaustion.
+		$max_batch_size = 250;
+		$download_query_args['posts_per_page'] = min( $max_batch_size, max( 1, (int) ( $download_query_args['posts_per_page'] ?? $max_batch_size ) ) );
+
 		$query_result = $query->query( $download_query_args );
 
 		if ( is_wp_error( $query_result ) ) {
@@ -115,6 +121,9 @@ class Export {
 
 		$pages_count  = $query_result['pages_count'];
 		$page_current = $query_result['page_current'];
+
+		// Count is established; skip redundant COUNT(*) on subsequent pages.
+		$download_query_args['skip_count_query'] = true;
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Does work, see https://github.com/WordPress/WordPress-Coding-Standards/issues/295
 		$fp = fopen( 'php://output', 'w' );
@@ -173,6 +182,9 @@ class Export {
 			}
 
 			flush();
+
+			// Free memory from processed batch before fetching next page.
+			$query_result['log_rows'] = null;
 
 			// Fetch next page.
 			++$page_current;

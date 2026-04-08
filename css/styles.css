@@ -406,8 +406,8 @@ Tag = the pill with the log level.
 }
 
 .SimpleHistoryLogitem__actionLinks__link .sh-Icon {
-	--sh-icon-size: 1em;
-	top: 1px;
+	--sh-icon-size: 1.25em;
+	top: 0;
 	/* Use mask so icon color inherits from link via currentColor. */
 	mask-size: 100%;
 	-webkit-mask-size: 100%;
@@ -434,56 +434,262 @@ Tag = the pill with the log level.
 	-webkit-mask-image: url(./icons/history_FILL0_wght400_GRAD0_opsz48.svg);
 }
 
-/* Actions area: quick action buttons + three-dot dropdown menu. */
+/* Reactions area: inline reaction buttons. */
+.SimpleHistoryLogitem__reactions {
+	display: flex;
+	gap: var(--sh-spacing-xsmall);
+	margin-top: var(--sh-spacing-xsmall);
+}
+
+.SimpleHistoryLogitem__reactionButton.components-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	border: 1px solid #e0e0e0;
+	border-radius: 100px;
+	font-size: 13px;
+	line-height: 1.4;
+	background: #f5f5f5;
+	cursor: pointer;
+	min-height: 0;
+	height: auto;
+}
+
+.SimpleHistoryLogitem__reactionButton.components-button:hover {
+	border-color: #c4c4c4;
+	background: #ebebeb;
+}
+
+.SimpleHistoryLogitem__reactionButton--active.components-button,
+.SimpleHistoryLogitem__reactionButton--active.components-button.is-pressed,
+.SimpleHistoryLogitem__reactionButton--active.components-button.is-pressed:hover:not(
+		:disabled
+	) {
+	border-color: #b3cce8;
+	background: #e0efff;
+	color: inherit;
+}
+
+.SimpleHistoryLogitem__reactionButton--active.components-button:hover {
+	border-color: #99bde0;
+	background: #d1e5fa;
+}
+
+.SimpleHistoryLogitem__reactionEmoji {
+	font-size: 14px;
+	line-height: 1;
+}
+
+.SimpleHistoryLogitem__reactionCount {
+	font-size: 12px;
+	font-variant-numeric: tabular-nums;
+	color: var(--sh-color-text-secondary, #50575e);
+}
+
+.SimpleHistoryLogitem__reactionButton--active
+	.SimpleHistoryLogitem__reactionCount {
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+/* Inline "+" button shown after reaction pills. */
+.SimpleHistoryLogitem__reactionAddInline {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: 1px dashed #ddd;
+	border-radius: 100px;
+	background: transparent;
+	color: #a0a0a0;
+	font-size: 14px;
+	line-height: 1;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+
+.SimpleHistoryLogitem__reactions:hover .SimpleHistoryLogitem__reactionAddInline,
+.SimpleHistoryLogitem__reactionAddInline:focus-visible,
+.SimpleHistoryLogitem__reactionAddInline[aria-expanded="true"] {
+	opacity: 1;
+}
+
+.SimpleHistoryLogitem__reactionAddInline:hover {
+	border-color: #c4c4c4;
+	color: #50575e;
+	background: #f5f5f5;
+}
+
+/* Quick action reaction button — inherits size from .quickActions .components-button. */
+
+/* Reaction emoji picker popover. */
+.sh-ReactionPicker .sh-ReactionPicker__content {
+	padding: 8px;
+	min-width: 180px;
+}
+
+/* Free emoji section — prominent, full size. */
+.sh-ReactionPicker__freeSection {
+	display: flex;
+	gap: 2px;
+	justify-content: center;
+}
+
+.sh-ReactionPicker__emoji {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	font-size: 22px;
+	cursor: pointer;
+	transition:
+		transform 0.1s ease,
+		background 0.1s ease;
+}
+
+.sh-ReactionPicker__emoji:hover:not(:disabled) {
+	background: var(--sh-color-surface-hover, #f0f0f1);
+	transform: scale(1.2);
+}
+
+/* Premium teaser section — compact row of dimmed emojis with link. */
+.sh-ReactionPicker__premiumSection {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	margin-top: 6px;
+	padding-top: 6px;
+	border-top: 1px solid var(--sh-color-border, #dcdcde);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.sh-ReactionPicker__premiumSection:hover .sh-ReactionPicker__premiumText {
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.sh-ReactionPicker__premiumSection:hover .sh-ReactionPicker__premiumEmoji {
+	opacity: 0.7;
+}
+
+.sh-ReactionPicker__premiumEmojis {
+	display: flex;
+	gap: 4px;
+}
+
+.sh-ReactionPicker__premiumEmoji {
+	font-size: 14px;
+	opacity: 0.45;
+	transition: opacity 0.15s ease;
+}
+
+.sh-ReactionPicker__premiumText {
+	font-size: 11px;
+	color: var(--sh-color-text-secondary, #757575);
+	white-space: nowrap;
+	transition: color 0.15s ease;
+}
+
+/* Reaction pop animation on click. */
+@keyframes sh-reaction-pop {
+	0% {
+		transform: scale(1);
+	}
+	40% {
+		transform: scale(1.5);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+.SimpleHistoryLogitem__reactionButton--animating
+	.SimpleHistoryLogitem__reactionEmoji {
+	animation: sh-reaction-pop 0.3s ease-out;
+}
+
+/* Actions area: all action buttons in a single flex row. */
 .SimpleHistoryLogitem__actions {
 	position: absolute;
 	top: 12px;
 	right: 12px;
 	display: flex;
 	align-items: center;
-	gap: var(--sh-spacing-xsmall);
+	gap: 2px;
 }
 
-/* Quick actions hidden by default, shown on hover/focus. */
-.SimpleHistoryLogitem__quickActions {
-	display: flex;
+/* Shared sizing for all action items (buttons and dropdown wrapper). */
+.SimpleHistoryLogitem__actions > .components-button,
+.SimpleHistoryLogitem__actions > .components-dropdown-menu {
+	width: 36px;
+	height: 36px;
+	flex-shrink: 0;
+}
+
+.SimpleHistoryLogitem__actions > .components-button {
+	padding: 6px;
+	color: #757575;
 	opacity: 0;
 	pointer-events: none;
 	transition: opacity 0.15s ease;
 }
 
-.SimpleHistoryLogitem__quickActions .components-button {
-	min-width: 36px;
-	height: 36px;
-	padding: 6px;
-	color: #757575;
-}
-
-.SimpleHistoryLogitem__quickActions .components-button:hover {
+.SimpleHistoryLogitem__actions > .components-button:hover {
 	color: #1d2327;
 }
 
-.SimpleHistoryLogitem:is(:hover, :focus-within)
-	.SimpleHistoryLogitem__quickActions {
-	opacity: 1;
-	pointer-events: auto;
+/* Reaction icon is visually heavier than the outlined icons — size down slightly. */
+.SimpleHistoryLogitem__reactionQuickButton.components-button svg {
+	width: 21px;
+	height: 21px;
 }
 
-/* Three-dot button: dimmed by default, full opacity on hover. */
+/* Three-dot dropdown: dimmed by default, button fills wrapper. */
 .SimpleHistoryLogitem__actions > .components-dropdown-menu {
 	opacity: 0.3;
 	transition: opacity 0.15s ease;
 }
 
+.SimpleHistoryLogitem__actions
+	> .components-dropdown-menu
+	> .components-button {
+	width: 36px;
+	height: 36px;
+	padding: 6px;
+	color: #757575;
+}
+
+.SimpleHistoryLogitem__actions
+	> .components-dropdown-menu
+	> .components-button:hover {
+	color: #1d2327;
+}
+
+/* Show all buttons on hover/focus or when a popover is open. */
 .SimpleHistoryLogitem:is(:hover, :focus-within)
 	.SimpleHistoryLogitem__actions
+	> .components-button,
+.SimpleHistoryLogitem:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__actions
+	> .components-dropdown-menu,
+.SimpleHistoryLogitem__actions:has([aria-expanded="true"]) > .components-button,
+.SimpleHistoryLogitem__actions:has([aria-expanded="true"])
 	> .components-dropdown-menu {
 	opacity: 1;
+	pointer-events: auto;
 }
 
 /* Always show everything on touch devices (no hover). */
 @media (hover: none) {
-	.SimpleHistoryLogitem__quickActions,
+	.SimpleHistoryLogitem__actions > .components-button,
 	.SimpleHistoryLogitem__actions > .components-dropdown-menu {
 		opacity: 1;
 		pointer-events: auto;
@@ -2605,6 +2811,12 @@ Can be overruled by .form-table td p
 	text-decoration: underline;
 }
 
+.sh-PremiumFeatureModal-later:focus-visible {
+	outline: 2px solid var(--sh-color-blue, #2271b1);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
 .sh-PageNav {
 	width: 100%;
 	display: flex;
@@ -2859,7 +3071,7 @@ a.sh-SettingsTabs-link:hover {
 	align-items: center;
 	gap: 6px;
 	padding: 12px;
-	border-bottom: 1px solid #f0f0f1;
+	border-bottom: 1px solid var(--sh-color-separator);
 	flex-wrap: wrap;
 	background-color: #f9f9f9;
 }
@@ -3037,6 +3249,16 @@ a.sh-SettingsTabs-link:hover {
 	color: #2271b1;
 }
 
+/* Chevron rotates 180° when the filters panel is expanded. */
+.SimpleHistory-filters__filtersToggleChevron {
+	transition: transform 0.2s ease;
+}
+
+.SimpleHistory-filters__filtersToggle[aria-expanded="true"]
+	.SimpleHistory-filters__filtersToggleChevron {
+	transform: rotate(180deg);
+}
+
 .SimpleHistoryFilterDropin-clearFilters {
 	margin-left: 0;
 }
@@ -3111,30 +3333,64 @@ a.sh-SettingsTabs-link:hover {
 	width: 200px;
 }
 
-/* New events notifier bar — compact flush strip, clickable. */
+/* New events notifier — inline pill in the control bar. */
 .SimpleHistoryDropin__NewRowsNotifier {
-	max-height: 0;
-	overflow: hidden;
-	text-align: center;
-	background: #dceefb;
-	transition: max-height 0.5s ease-out;
+	display: none;
 }
 
 .SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
-	max-height: 50px;
-	cursor: pointer;
-	border-bottom: 1px solid #c5d9ed;
+	display: inline-flex;
+	animation: sh-fade-in 0.3s ease-out;
 }
 
-.SimpleHistoryDropin__NewRowsNotifier--haveNewRows:hover {
-	background: #cde3f7;
+@keyframes sh-fade-in {
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.SimpleHistoryDropin__NewRowsNotifier .components-button {
+	background: #dce9f7;
+	color: #135e96;
+	border: 1px solid #b8d4ee;
+	border-radius: 100px;
+	padding: 2px 12px;
+	font-size: 12px;
+	min-height: 0;
+	height: auto;
+	line-height: 1.5;
+}
+
+.SimpleHistoryDropin__NewRowsNotifier .components-button:hover {
+	background: #c8ddf0;
+	color: #104e80;
+}
+
+.SimpleHistoryDropin__NewRowsNotifier .components-button:focus {
+	color: #135e96;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.SimpleHistoryDropin__NewRowsNotifier--haveNewRows {
+		animation: none;
+	}
 }
 
 /* when there is a remote error or server down etc */
 .SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck {
-	max-height: 50px;
+	display: inline-flex;
+}
+
+.SimpleHistoryDropin__NewRowsNotifier--haveErrorCheck .components-button {
 	background: #fef7f1;
-	border-bottom-color: #e0c6ad;
+	color: #8a6d3b;
+	border: 1px solid #e0c6ad;
 }
 
 .SimpleHistoryLogitem--newRowSinceReload {
@@ -3219,11 +3475,79 @@ a.sh-EventsStatsBar--link:hover {
 	background: #f6f7f7;
 }
 
-/* Events control bar: event count + actions. */
+/* Events control bar: event count + action buttons. */
 .sh-EventsControlBar-actions {
-	padding: 6px 12px;
-	background-color: white;
+	padding: var(--sh-spacing-medium) var(--sh-spacing-medium);
+}
+
+/* Inline action buttons group in control bar. */
+.sh-ControlBarButtons {
+	gap: var(--sh-spacing-xsmall);
+}
+
+/* Individual control bar button — compact tertiary style, matching action link sizing. */
+.sh-ControlBarButton.components-button {
+	display: inline-flex;
+	align-items: center;
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+	gap: var(--sh-spacing-xsmall);
 	white-space: nowrap;
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
+}
+
+.sh-ControlBarButton.components-button:hover {
+	color: var(--sh-color-black);
+	background: var(--sh-color-gray-4);
+}
+
+.sh-ControlBarButton.components-button svg {
+	width: 1.25em;
+	height: 1.25em;
+	fill: currentColor;
+	flex-shrink: 0;
+}
+
+/* "Copied!" feedback state on share button. */
+.sh-ControlBarButton--share.is-copied {
+	color: var(--sh-color-green, #3f9349);
+}
+
+/* Share view popover. */
+.sh-SharePopover-content {
+	position: relative;
+	padding: 12px 14px;
+	width: 250px;
+}
+
+.sh-SharePopover-close.components-button {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+}
+
+.sh-SharePopover-url input[readonly] {
+	font-size: 11px;
+	color: var(--sh-color-black-2, #50575e);
+	background: #f6f7f7;
+	cursor: text;
+}
+
+/* Premium star indicator — muted, aspirational, not a badge. */
+.sh-PremiumIndicator {
+	opacity: 0.5;
+	font-size: 0.75em;
+	margin-left: 2px;
+	line-height: 1;
+}
+
+.sh-ControlBarButton.components-button:hover .sh-PremiumIndicator {
+	opacity: 0.75;
+}
+
+/* Overflow menu for backwards compat with old premium. */
+.sh-ControlBarOverflowMenu .components-button {
+	color: var(--sh-color-black-2, #50575e);
 }
 
 .SimpleHistoryReactRoot {

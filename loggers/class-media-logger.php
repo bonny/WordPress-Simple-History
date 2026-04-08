@@ -303,8 +303,8 @@ class Media_Logger extends Logger {
 		} elseif ( $attachment_is_available ) {
 			// Use WordPress icon for other media types.
 			$context['attachment_thumb'] = sprintf(
-				'%1$s',
-				wp_get_attachment_image( $attachment_id, array( 350, 500 ), true ) // Placeholder 1.
+				'<div class="SimpleHistoryLogitemThumbnail">%1$s</div>',
+				wp_get_attachment_image( $attachment_id, array( 350, 500 ), true )
 			);
 		}
 

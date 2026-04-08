@@ -1,6 +1,6 @@
 ---
 name: changelog
-description: Adds changelog entries to readme.txt following keepachangelog format. Triggered when updating Unreleased section, documenting changes for release, or when user says "add changelog", "update changelog", "log this change".
+description: Adds changelog entries to readme.txt following keepachangelog format. Use when updating the Unreleased section or documenting changes for a release.
 allowed-tools: Read, Edit
 ---
 
@@ -21,50 +21,54 @@ Add entries to the Simple History plugin's `readme.txt` changelog.
 -   Fixed post creation via Gutenberg autosave not being logged. [#599](https://github.com/bonny/WordPress-Simple-History/issues/599)
 ```
 
-- Start with `-   ` (hyphen + 3 spaces)
-- Do NOT repeat the category verb — the heading already says Added/Changed/Fixed, so don't start entries with "Added...", "Fixed...", etc.
-- Link GitHub issue/PR if available
-- End with period
+-   Start with `-   ` (hyphen + 3 spaces)
+-   Do NOT repeat the category verb — the heading already says Added/Changed/Fixed, so don't start entries with "Added...", "Fixed...", etc.
+-   Link GitHub issue/PR if available
+-   End with period
 
 ## Writing Guidelines
 
 Changelogs are for **humans, not machines**. Write for both technical and non-technical WordPress users.
 
 **Write for the user:**
-- Explain what changed from the user's perspective, not what you did in the code
-- Provide context and scope: instead of "Optimized query" write "Improved performance on sites with large activity logs"
-- Replace jargon with clarity: avoid acronyms, internal class names, or hook names unless the audience is developers
-- Be specific: "Fixed timezone handling in email reports" not "Bug fixes"
-- Active voice: "Fixed X" not "X was fixed"
+
+-   Explain what changed from the user's perspective, not what you did in the code
+-   Provide context and scope: instead of "Optimized query" write "Improved performance on sites with large activity logs"
+-   Replace jargon with clarity: avoid acronyms, internal class names, or hook names unless the audience is developers
+-   Be specific: "Fixed timezone handling in email reports" not "Bug fixes"
+-   Active voice: "Fixed X" not "X was fixed"
 
 **Be honest and complete:**
-- Never hide breaking changes, deprecations, or security fixes
-- Be upfront about what changed and why — users trust changelogs that are transparent
-- Include all notable user-facing changes; selective entries undermine credibility
-- Mark experimental features with a trailing "(experimental)" tag, not as a prefix
+
+-   Never hide breaking changes, deprecations, or security fixes
+-   Be upfront about what changed and why — users trust changelogs that are transparent
+-   Include all notable user-facing changes; selective entries undermine credibility
+-   Mark experimental features with a trailing "(experimental)" tag, not as a prefix
 
 **Keep it concise:**
-- One bullet per change, one or two sentences max
-- Don't duplicate commit messages — curate and translate them into user-facing language
-- Group related small changes into a single entry rather than listing each separately
-- Omit internal refactors, code cleanup, and dev tooling changes unless they affect users
+
+-   One bullet per change, one or two sentences max
+-   Don't duplicate commit messages — curate and translate them into user-facing language
+-   Group related small changes into a single entry rather than listing each separately
+-   Omit internal refactors, code cleanup, and dev tooling changes unless they affect users
 
 **Don't write:**
-- "Bug fixes" or "Various improvements" (too vague, tells users nothing)
-- "Updated code" or "Minor changes" (meaningless)
-- Raw commit messages or git log dumps
-- Internal hook/filter names in user-facing entries (put in developer docs instead)
+
+-   "Bug fixes" or "Various improvements" (too vague, tells users nothing)
+-   "Updated code" or "Minor changes" (meaningless)
+-   Raw commit messages or git log dumps
+-   Internal hook/filter names in user-facing entries (put in developer docs instead)
 
 ## Categories
 
 Use these standard categories from [Keep a Changelog](https://keepachangelog.com):
 
-- **Added** — New features and capabilities
-- **Changed** — Modifications to existing functionality
-- **Deprecated** — Features that will be removed in a future release
-- **Removed** — Features that have been eliminated
-- **Fixed** — Bug fixes
-- **Security** — Vulnerability patches (always include these, never hide them)
+-   **Added** — New features and capabilities
+-   **Changed** — Modifications to existing functionality
+-   **Deprecated** — Features that will be removed in a future release
+-   **Removed** — Features that have been eliminated
+-   **Fixed** — Bug fixes
+-   **Security** — Vulnerability patches (always include these, never hide them)
 
 ## Unreleased Section
 
@@ -94,6 +98,6 @@ When releasing, move Unreleased entries into a new versioned section with the re
 
 ## Location
 
-- File: `readme.txt` (project root)
-- Section: `## Changelog` → `### Unreleased`
-- If Unreleased doesn't exist, create it after `## Changelog`
+-   File: `readme.txt` (project root)
+-   Section: `## Changelog` → `### Unreleased`
+-   If Unreleased doesn't exist, create it after `## Changelog`
