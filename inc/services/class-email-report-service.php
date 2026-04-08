@@ -280,10 +280,29 @@ class Email_Report_Service extends Service {
 		$stats['users_created'] = $events_stats->get_user_added_count( $date_from, $date_to );
 		$stats['users_updated'] = $events_stats->get_user_updated_count( $date_from, $date_to );
 
+		// Get media statistics.
+		$stats['media_uploads'] = $events_stats->get_media_uploads_count( $date_from, $date_to );
+		$stats['media_edits']   = $events_stats->get_media_edits_count( $date_from, $date_to );
+
+		// Get comments statistics (only query when comments are enabled).
+		$stats['comments_enabled'] = get_option( 'default_comment_status' ) === 'open';
+
+		if ( $stats['comments_enabled'] ) {
+			$stats['comments_added']    = $events_stats->get_comments_added_count( $date_from, $date_to );
+			$stats['comments_approved'] = $events_stats->get_comments_approved_count( $date_from, $date_to );
+			$stats['comments_spam']     = $events_stats->get_comments_spam_count( $date_from, $date_to );
+		}
+
+		// Get theme statistics.
+		$stats['theme_switches'] = $events_stats->get_theme_switches_count( $date_from, $date_to );
+		$stats['theme_updates']  = $events_stats->get_theme_updates_count( $date_from, $date_to );
+
 		// Get WordPress core statistics.
 		$stats['wordpress_updates'] = $events_stats->get_wordpress_core_updates_count( $date_from, $date_to );
 
 		// Get Notes statistics (WordPress 6.9+).
+		global $wp_version;
+		$stats['notes_enabled']  = version_compare( $wp_version, '6.9', '>=' );
 		$stats['notes_added']    = $events_stats->get_notes_added_count( $date_from, $date_to );
 		$stats['notes_resolved'] = $events_stats->get_notes_resolved_count( $date_from, $date_to );
 
