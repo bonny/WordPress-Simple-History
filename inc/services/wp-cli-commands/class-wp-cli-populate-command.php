@@ -808,7 +808,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * @param array $user_ids Available user IDs.
 	 */
 	private function add_random_reactions( $event_id, $user_ids ) {
-		$reaction_types = [ 'thumbsup', 'heart', 'surprised', 'tada', 'eyes' ];
+		$reaction_types = [ 'thumbsup', 'heart', 'smile', 'tada', 'eyes', 'rocket', 'clap', 'fire' ];
 		$reaction_count = wp_rand( 1, 10 );
 
 		$event = new Event( $event_id );

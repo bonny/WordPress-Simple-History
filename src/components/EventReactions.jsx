@@ -14,9 +14,12 @@ import { getTrackingUrl } from '../functions';
 const REACTIONS = [
 	{ type: 'thumbsup', emoji: '👍', label: 'Thumbs up', premium: false },
 	{ type: 'heart', emoji: '❤️', label: 'Heart', premium: true },
-	{ type: 'surprised', emoji: '😮', label: 'Surprised', premium: true },
+	{ type: 'smile', emoji: '😄', label: 'Funny', premium: true },
 	{ type: 'tada', emoji: '🎉', label: 'Celebrate', premium: true },
 	{ type: 'eyes', emoji: '👀', label: 'Looking into this', premium: true },
+	{ type: 'rocket', emoji: '🚀', label: 'Rocket', premium: true },
+	{ type: 'clap', emoji: '👏', label: 'Well done', premium: true },
+	{ type: 'fire', emoji: '🔥', label: 'Fire', premium: true },
 ];
 
 /**
