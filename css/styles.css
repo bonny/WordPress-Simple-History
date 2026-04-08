@@ -3249,6 +3249,16 @@ a.sh-SettingsTabs-link:hover {
 	color: #2271b1;
 }
 
+/* Chevron rotates 180° when the filters panel is expanded. */
+.SimpleHistory-filters__filtersToggleChevron {
+	transition: transform 0.2s ease;
+}
+
+.SimpleHistory-filters__filtersToggle[aria-expanded="true"]
+	.SimpleHistory-filters__filtersToggleChevron {
+	transform: rotate(180deg);
+}
+
 .SimpleHistoryFilterDropin-clearFilters {
 	margin-left: 0;
 }
