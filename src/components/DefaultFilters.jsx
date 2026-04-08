@@ -194,7 +194,10 @@ export function DefaultFilters( props ) {
 					suffix={
 						<kbd
 							className="SimpleHistory-filters__searchShortcut"
-							title={ __( 'Press / to search', 'simple-history' ) }
+							title={ __(
+								'Press / to search',
+								'simple-history'
+							) }
 							aria-hidden="true"
 						>
 							/
