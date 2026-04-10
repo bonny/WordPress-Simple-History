@@ -11,6 +11,7 @@ This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, e
 
 -   **Core Version**: Free, fully-featured version in this repository
 -   **Premium Version**: Additional plugin with extended features (both must be installed together).
+-   **Payment Processor**: Simple History Premium is sold through **Lemon Squeezy**, which acts as the merchant of record. Lemon Squeezy collects and remits all sales tax/VAT — the seller does not handle tax directly. Customer billing lives at `app.lemonsqueezy.com/my-orders/` and `simple-history.lemonsqueezy.com/billing`. Tax exemptions, refunds of tax, and similar billing concerns must be handled by Lemon Squeezy support (help@lemonsqueezy.com), not from the seller dashboard.
 -   **Documentation**: See readme.txt for detailed plugin information
 -   **Upsell Philosophy**: Core version must be fully usable for free users with non-intrusive upgrade prompts. However, the premium version should be a "must-have" for most users. Convince users to upgrade to the premium version by "nudging" them discreetly in different places throughout the plugin. But don't be too pushy, don't annoy users! Win over users in the long run and make them happy to use the premium version.
 
