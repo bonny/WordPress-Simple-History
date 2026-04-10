@@ -35,6 +35,7 @@ class SimpleThemeLoggerCest
         $I->click('Upload Theme');
         $I->attachFile('#themezip', 'twentysixteen.2.7.zip');
         $I->click('Install Now');
+        $I->waitForText('This theme is already installed.');
         $I->click('Replace installed with uploaded');
         $I->waitForText('Theme updated successfully');
 
