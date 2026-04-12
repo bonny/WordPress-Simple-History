@@ -60,9 +60,9 @@
 		"lint:js": "wp-scripts lint-js ./src",
 		"lint:js:fix": "wp-scripts lint-js --fix ./src",
 		"lint:claude": "~/.claude/local/claude -p 'you are a linter. please look at the changes vs. main and report any issues related to typos. report the filename and line number on one line, and a description of the issue on the second line. do not return any other text.'",
-		"wp-env:start": "npx wp-env start",
-		"wp-env:stop": "npx wp-env stop",
-		"wp-env:reset": "npx wp-env reset && npx wp-env start",
+		"wp-env:start": "npx @wordpress/env start",
+		"wp-env:stop": "npx @wordpress/env stop",
+		"wp-env:reset": "npx @wordpress/env reset && npx @wordpress/env start",
 		"wp-now": "npx @wp-now/wp-now start",
 		"playground:start": "npx @wp-playground/cli start",
 		"playground:server": "npx @wp-playground/cli server"
