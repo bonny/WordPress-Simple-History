@@ -1907,6 +1907,61 @@ class Events_Stats {
 	}
 
 	/**
+	 * Get number of comments added for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of comments added, or false if invalid dates.
+	 */
+	public function get_comments_added_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimpleCommentsLogger', [ 'anon_comment_added', 'user_comment_added' ], $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of comments approved for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of comments approved, or false if invalid dates.
+	 */
+	public function get_comments_approved_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimpleCommentsLogger', 'comment_status_approve', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of comments marked as spam for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of spam comments, or false if invalid dates.
+	 */
+	public function get_comments_spam_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimpleCommentsLogger', 'comment_status_spam', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of theme switches for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of theme switches, or false if invalid dates.
+	 */
+	public function get_theme_switches_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimpleThemeLogger', 'theme_switched', $date_from, $date_to );
+	}
+
+	/**
+	 * Get number of theme updates for a given period.
+	 *
+	 * @param int $date_from Required. Start date as Unix timestamp.
+	 * @param int $date_to   Required. End date as Unix timestamp.
+	 * @return int|false Number of theme updates, or false if invalid dates.
+	 */
+	public function get_theme_updates_count( $date_from, $date_to ) {
+		return $this->get_event_count( 'SimpleThemeLogger', 'theme_updated', $date_from, $date_to );
+	}
+
+	/**
 	 * Get the number of events today.
 	 * Uses log_query so it respects the user's permissions,
 	 * meaning that the number of events is the number

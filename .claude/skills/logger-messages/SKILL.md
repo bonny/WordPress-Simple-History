@@ -1,6 +1,6 @@
 ---
 name: logger-messages
-description: "Enforces active voice (verb-first) for all Simple History logger messages and the Event Details API for details output. Triggers: creating a new logger class, writing or modifying a 'messages' array in get_info()/getInfo(), calling notice_message/warning_message/info_message, or implementing get_log_row_details_output()."
+description: Enforces active voice for logger messages and the Event Details API. Use when writing a new logger class or modifying message arrays in getInfo().
 allowed-tools: Read, Grep, Glob
 ---
 
@@ -113,6 +113,54 @@ public function get_log_row_details_output( $row ) {
 ```
 
 See `docs/architecture/event-details.md` for full API reference.
+
+### RAW Formatters (Escape Hatch)
+
+When the structured API can't express your output (images, HTML content, color swatches):
+
+-   `Item_RAW_Formatter` — Full custom HTML/JSON for an item (no name column)
+-   `Item_Table_Row_RAW_Formatter` — Table row with escaped name + raw HTML value
+
+```php
+use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
+
+$raw_formatter = ( new Event_Details_Item_Table_Row_RAW_Formatter() )
+    ->set_html_output( sprintf( '<a href="%1$s">%2$s</a>', esc_url( $url ), esc_html( $url ) ) )
+    ->set_json_output( [ 'url' => $url ] );
+
+$item = ( new Event_Details_Item( null, __( 'URL', 'simple-history' ) ) )
+    ->set_formatter( $raw_formatter );
+```
+
+Use RAW formatters sparingly — only when no structured formatter fits.
+
+### Links Below Events: Use Action Links, Not Details
+
+Navigational links (Edit, View, Preview) belong in `get_action_links()`, **not** inside `get_log_row_details_output()`. See the **action-links** skill.
+
+Old loggers often embed `<a>` tags in the details table (e.g., "View/Edit" comment link, "View plugin info" thickbox). When migrating these loggers:
+
+1. Move navigational links to `get_action_links()`
+2. Keep only informational data in Event Details
+
+The only case for a link inside details is when the value itself _is_ a URL (e.g., a plugin's homepage URL displayed as data). Use `Item_Table_Row_RAW_Formatter` for that.
+
+### Migrating from Old HTML to Event Details
+
+Many older loggers build HTML manually with `SimpleHistoryLogitem__keyValueTable` tables. When migrating:
+
+| Old pattern                                                            | New approach                                                      |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `<table class='SimpleHistoryLogitem__keyValueTable'>` with `<tr>/<td>` | `Event_Details_Group` + `Group_Table_Formatter`                   |
+| `<ins>` / `<del>` for changed values                                   | `Event_Details_Item` with `set_values()` (auto-generates ins/del) |
+| `<span class='SimpleHistoryLogitem__inlineDivided'>`                   | `Event_Details_Group` + `Group_Inline_Formatter`                  |
+| Inline `<a href>` links to edit/view                                   | Move to `get_action_links()`                                      |
+| Images, color swatches, shortcode output                               | `Item_RAW_Formatter` or `Item_Table_Row_RAW_Formatter`            |
+| Standalone `<p>` text blocks (not key-value)                           | `Group_Inline_Formatter` with a single item, or RAW formatter     |
+
+**Value transforms** (e.g., `true` → "Enabled", locale → display name): Transform in PHP, then pass to `set_new_value()` / `set_prev_value()`.
+
+**Conditional rows**: Don't set values for items you want hidden — the container auto-removes empty items.
 
 ## Detailed Resources
 

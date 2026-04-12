@@ -1,10 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
-  <rect width="400" height="200" fill="#f0f0f0"/>
-  <rect x="20" y="20" width="360" height="160" rx="8" fill="#fff" stroke="#ddd"/>
-  <rect x="40" y="40" width="120" height="16" rx="4" fill="#ddd"/>
-  <rect x="40" y="70" width="320" height="12" rx="3" fill="#e0e0e0"/>
-  <rect x="40" y="92" width="280" height="12" rx="3" fill="#e0e0e0"/>
-  <rect x="40" y="114" width="300" height="12" rx="3" fill="#e0e0e0"/>
-  <rect x="40" y="140" width="100" height="30" rx="4" fill="#3f9349"/>
-  <text x="90" y="160" font-family="sans-serif" font-size="12" fill="#fff" text-anchor="middle">Export</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 200">
+  <!-- Table panel -->
+  <rect x="30" y="10" width="340" height="145" rx="6" fill="#fff" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.08))"/>
+  <!-- Green header bar -->
+  <rect x="30" y="10" width="340" height="8" rx="6" fill="#3f9349"/>
+  <rect x="30" y="14" width="340" height="4" fill="#3f9349"/>
+  <!-- Row 1 -->
+  <rect x="44" y="28" width="55" height="6" rx="3" fill="#6b7280"/>
+  <rect x="110" y="28" width="40" height="6" rx="3" fill="#6b7280"/>
+  <rect x="162" y="28" width="100" height="6" rx="3" fill="#6b7280"/>
+  <rect x="275" y="28" width="35" height="6" rx="3" fill="#6b7280"/>
+  <line x1="44" y1="42" x2="355" y2="42" stroke="#e5e7eb" stroke-width="1"/>
+  <!-- Row 2 -->
+  <rect x="44" y="50" width="55" height="6" rx="3" fill="#d1d5db"/>
+  <rect x="110" y="50" width="35" height="6" rx="3" fill="#d1d5db"/>
+  <rect x="162" y="50" width="80" height="6" rx="3" fill="#d1d5db"/>
+  <rect x="275" y="50" width="30" height="6" rx="3" fill="#d1d5db"/>
+  <!-- Row 2 stripe -->
+  <rect x="30" y="63" width="340" height="22" fill="#f0fdf4"/>
+  <!-- Row 3 -->
+  <rect x="44" y="70" width="55" height="6" rx="3" fill="#d1d5db"/>
+  <rect x="110" y="70" width="45" height="6" rx="3" fill="#d1d5db"/>
+  <rect x="162" y="70" width="110" height="6" rx="3" fill="#d1d5db"/>
+  <rect x="275" y="70" width="25" height="6" rx="3" fill="#d1d5db"/>
+  <line x1="44" y1="85" x2="355" y2="85" stroke="#e5e7eb" stroke-width="1"/>
+  <!-- Row 4 -->
+  <rect x="44" y="93" width="55" height="6" rx="3" fill="#d1d5db"/>
+  <rect x="110" y="93" width="30" height="6" rx="3" fill="#d1d5db"/>
+  <rect x="162" y="93" width="90" height="6" rx="3" fill="#d1d5db"/>
+  <rect x="275" y="93" width="40" height="6" rx="3" fill="#d1d5db"/>
+  <!-- Row 4 stripe -->
+  <rect x="30" y="106" width="340" height="22" fill="#f0fdf4"/>
+  <!-- Row 5 (faded) -->
+  <rect x="44" y="113" width="55" height="6" rx="3" fill="#e5e7eb"/>
+  <rect x="110" y="113" width="38" height="6" rx="3" fill="#e5e7eb"/>
+  <rect x="162" y="113" width="70" height="6" rx="3" fill="#e5e7eb"/>
+  <rect x="275" y="113" width="30" height="6" rx="3" fill="#e5e7eb"/>
+  <!-- Export arrow -->
+  <line x1="350" y1="140" x2="350" y2="165" stroke="#3f9349" stroke-width="2"/>
+  <polyline points="343,158 350,168 357,158" fill="none" stroke="#3f9349" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Format chips -->
+  <rect x="320" y="175" width="40" height="20" rx="10" fill="none" stroke="#3f9349" stroke-width="1.5"/>
+  <text x="340" y="189" font-family="system-ui, sans-serif" font-size="11" fill="#3f9349" text-anchor="middle" font-weight="600">CSV</text>
+  <rect x="368" y="175" width="48" height="20" rx="10" fill="none" stroke="#2271b1" stroke-width="1.5"/>
+  <text x="392" y="189" font-family="system-ui, sans-serif" font-size="11" fill="#2271b1" text-anchor="middle" font-weight="600">JSON</text>
 </svg>

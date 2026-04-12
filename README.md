@@ -17,10 +17,10 @@ Download from [WordPress.org](https://wordpress.org/plugins/simple-history/) and
 
 This screenshot show the user activity feed:
 
-- It has an active **filter/search in use**:
-  - only show changes performed by a specific user
-  - it only shows event that are of type post and pages and media (i.e. images & other uploads)
-- A thumbnail is shown for the image that is uploaded
+-   It has an active **filter/search in use**:
+    -   only show changes performed by a specific user
+    -   it only shows event that are of type post and pages and media (i.e. images & other uploads)
+-   A thumbnail is shown for the image that is uploaded
 
 ![Simple History screenshot](.wordpress-org/screenshot-1.png)
 
@@ -42,17 +42,17 @@ Each logged event can include useful rich formatted extra information. For examp
 
 [Simple History Premium](https://simple-history.com/add-ons/premium) adds:
 
-- **Log Retention** – Set retention policies (30d to forever)
-- **Export** – CSV/JSON export of filtered results
-- **Stats Dashboard** – Visual summaries of activity trends
-- **Custom Events** – Manually log important changes via GUI
-- **Stealth Mode GUI** – Control visibility per user (code-free)
-- **Sticky Events** – Pin important events to top
-- **Ad-Free** – Remove promotional content
+-   **Log Retention** – Set retention policies (30d to forever)
+-   **Export** – CSV/JSON export of filtered results
+-   **Stats Dashboard** – Visual summaries of activity trends
+-   **Custom Events** – Manually log important changes via GUI
+-   **Stealth Mode GUI** – Control visibility per user (code-free)
+-   **Sticky Events** – Pin important events to top
+-   **Ad-Free** – Remove promotional content
 
 [View details](https://simple-history.com/add-ons/premium)
 
-*The free version is fully functional and will remain free. Premium exists to fund ongoing development and provide pro features for agencies/enterprises.*
+_The free version is fully functional and will remain free. Premium exists to fund ongoing development and provide pro features for agencies/enterprises._
 
 ## Plugin API
 

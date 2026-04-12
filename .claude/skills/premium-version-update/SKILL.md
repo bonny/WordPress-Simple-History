@@ -1,6 +1,6 @@
 ---
 name: premium-version-update
-description: Update Simple History Premium plugin version number in all required locations. Triggers when user says "bump premium version", "update premium version", "premium version-update".
+description: Updates the Simple History Premium plugin version in all required locations. Use when bumping or updating the premium version number.
 argument-hint: <new-version>
 allowed-tools: Read, Edit, Glob
 ---
@@ -36,5 +36,5 @@ Show a summary of all changes made with before/after values.
 
 ## Examples
 
-- `/premium-version-update 1.10.0` — Update version to 1.10.0
-- `/premium-version-update 2.0.0` — Update version to 2.0.0
+-   `/premium-version-update 1.10.0` — Update version to 1.10.0
+-   `/premium-version-update 2.0.0` — Update version to 2.0.0

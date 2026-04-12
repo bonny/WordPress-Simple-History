@@ -4,7 +4,7 @@ import { dateI18n } from '@wordpress/date';
 import { useEffect, useMemo, useState, Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { settings } from '@wordpress/icons';
+import { settings, chevronDown } from '@wordpress/icons';
 import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
@@ -53,6 +53,7 @@ export function EventsSearchFilters( props ) {
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
+		setAlertsPageURL,
 		setCurrentUserId,
 		setUserCanManageOptions,
 		hideOwnEvents,
@@ -205,6 +206,11 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.settings_page_url
 				);
 
+				// Set alerts page URL if provided by premium add-on.
+				if ( searchOptionsResponse.alerts_page_url ) {
+					setAlertsPageURL( searchOptionsResponse.alerts_page_url );
+				}
+
 				// Set current user ID for "Hide my own events" feature.
 				if ( searchOptionsResponse.current_user_id ) {
 					setCurrentUserId( searchOptionsResponse.current_user_id );
@@ -241,6 +247,7 @@ export function EventsSearchFilters( props ) {
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
+		setAlertsPageURL,
 		setCurrentUserId,
 		setUserCanManageOptions,
 		selectedDateOption,
@@ -290,9 +297,16 @@ export function EventsSearchFilters( props ) {
 									: ''
 							}` }
 							aria-expanded={ moreOptionsIsExpanded }
+							aria-controls="SimpleHistory-expandedFilters"
 						>
 							<Icon icon={ settings } size={ 16 } />
 							{ filtersButtonLabel }
+							<Icon
+								icon={ chevronDown }
+								size={ 20 }
+								className="SimpleHistory-filters__filtersToggleChevron"
+								aria-hidden="true"
+							/>
 						</Button>
 
 						{ hasAnyActiveFilters && (
@@ -308,7 +322,10 @@ export function EventsSearchFilters( props ) {
 					</DefaultFilters>
 				</div>
 				{ moreOptionsIsExpanded ? (
-					<div className="SimpleHistory-filters__expandedFilters">
+					<div
+						className="SimpleHistory-filters__expandedFilters"
+						id="SimpleHistory-expandedFilters"
+					>
 						<ExpandedFilters
 							selectedLogLevels={ selectedLogLevels }
 							setSelectedLogLevels={ setSelectedLogLevels }

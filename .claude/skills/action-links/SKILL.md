@@ -1,6 +1,6 @@
 ---
 name: action-links
-description: 'Guides implementation of structured action links on log events. Triggers: adding get_action_links() to a logger, creating navigational links on events, or when migrating inline links from get_log_row_details_output() to the action links system.'
+description: Guides implementation of structured action links on log events. Use when adding get_action_links() to a logger or migrating from get_log_row_details_output().
 allowed-tools: Read, Grep, Glob
 ---
 
@@ -85,7 +85,10 @@ When moving a link from `get_log_row_details_output()` to action links:
 
 1. Add `get_action_links()` with the link
 2. Remove the inline `<a>` HTML from `get_log_row_details_output()`
-3. Keep capability checks in the new method
+3. Migrate the remaining details HTML to the Event Details API (see **logger-messages** skill)
+4. Keep capability checks in the new method
+
+**Common inline links to migrate:** "View/Edit" comment links, "View plugin info" thickbox links, post edit links embedded in detail tables. These are all navigational — they belong here, not in Event Details.
 
 ### Constraints
 

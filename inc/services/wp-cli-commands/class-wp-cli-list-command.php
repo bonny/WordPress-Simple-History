@@ -209,6 +209,26 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *     # Show 10 events before and after event ID 456
 	 *     wp simple-history list --surrounding_event_id=456 --surrounding_count=10
 	 *
+	 *     # Show events with reactions
+	 *     wp simple-history list --fields=ID,date,description,reactions
+	 *
+	 * [--fields=<fields>]
+	 * : Limit output to specific fields. Comma-separated list.
+	 * ---
+	 * default: ID,date,initiator,description,via,level,count
+	 * options:
+	 *   - ID
+	 *   - date
+	 *   - initiator
+	 *   - logger
+	 *   - level
+	 *   - who_when
+	 *   - description
+	 *   - via
+	 *   - count
+	 *   - reactions
+	 * ---
+	 *
 	 * @when after_wp_load
 	 *
 	 * @param array $args Positional arguments.
@@ -429,6 +449,19 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				$id_display = '>>> ' . $row->id;
 			}
 
+			// Format reactions as "thumbsup:2,heart:1" for CLI output.
+			$reactions_display = '';
+			if ( isset( $row->context['_reactions'] ) ) {
+				$reactions_data = json_decode( $row->context['_reactions'], true );
+				if ( is_array( $reactions_data ) ) {
+					$parts = array();
+					foreach ( $reactions_data as $type => $user_ids ) {
+						$parts[] = $type . ':' . count( $user_ids );
+					}
+					$reactions_display = implode( ',', $parts );
+				}
+			}
+
 			$eventsCleaned[] = array(
 				'ID'          => $id_display,
 				'date'        => get_date_from_gmt( $row->date ),
@@ -440,18 +473,11 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'via'         => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'count'       => $row->subsequentOccasions,
+				'reactions'   => $reactions_display,
 			);
 		}
 
-		$fields = array(
-			'ID',
-			'date',
-			'initiator',
-			'description',
-			'via',
-			'level',
-			'count',
-		);
+		$fields = explode( ',', $assoc_args['fields'] );
 
 		WP_CLI\Utils\format_items( $assoc_args['format'], $eventsCleaned, $fields );
 	}

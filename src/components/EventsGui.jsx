@@ -122,6 +122,7 @@ function EventsGUI() {
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
+	const [ alertsPageURL, setAlertsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
 	const [ userCanManageOptions, setUserCanManageOptions ] = useState( false );
 
@@ -661,18 +662,26 @@ function EventsGUI() {
 			hasExtendedSettingsAddOn,
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
+			experimentalFeaturesEnabled: isExperimentalFeaturesEnabled,
 			eventsSettingsPageURL: settingsPageURL,
+			alertsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions,
+			searchOptionsLoaded,
+			currentUserId,
 		} ),
 		[
 			mapsApiKey,
 			hasExtendedSettingsAddOn,
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
+			isExperimentalFeaturesEnabled,
 			settingsPageURL,
+			alertsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions,
+			searchOptionsLoaded,
+			currentUserId,
 		]
 	);
 
@@ -727,6 +736,7 @@ function EventsGUI() {
 					eventsAdminPageURL={ eventsAdminPageURL }
 					setEventsAdminPageURL={ setEventsAdminPageURL }
 					setEventsSettingsPageURL={ setSettingsPageURL }
+					setAlertsPageURL={ setAlertsPageURL }
 					setPage={ setPage }
 					onReload={ handleReload }
 					setCurrentUserId={ setCurrentUserId }
@@ -746,16 +756,14 @@ function EventsGUI() {
 					eventsTotal={ eventsMeta.total }
 					eventsQueryParams={ eventsQueryParams }
 					hasAnyActiveFilters={ hasAnyActiveFilters }
-				/>
-			) }
-
-			{ /* Hide new events notifier when viewing surrounding events */ }
-			{ ! surroundingEventId && (
-				<NewEventsNotifier
-					eventsQueryParams={ eventsQueryParams }
-					eventsMaxId={ eventsMaxId }
-					eventsMaxDate={ eventsMaxDate }
-					onReload={ handleReload }
+					newEventsNotifier={
+						<NewEventsNotifier
+							eventsQueryParams={ eventsQueryParams }
+							eventsMaxId={ eventsMaxId }
+							eventsMaxDate={ eventsMaxDate }
+							onReload={ handleReload }
+						/>
+					}
 				/>
 			) }
 
@@ -767,12 +775,8 @@ function EventsGUI() {
 				pagerSize={ pagerSize }
 				setPage={ setPage }
 				prevEventsMaxId={ prevEventsMaxId }
-				failedLoginLimitThreshold={
-					failedLoginLimitThreshold
-				}
-				failedLoginSuppressedCount={
-					failedLoginSuppressedCount
-				}
+				failedLoginLimitThreshold={ failedLoginLimitThreshold }
+				failedLoginSuppressedCount={ failedLoginSuppressedCount }
 				eventsLoadingHasErrors={ eventsLoadingHasErrors }
 				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
 				surroundingEventId={ surroundingEventId }

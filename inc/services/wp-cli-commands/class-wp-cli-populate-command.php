@@ -6,6 +6,7 @@ use WP_CLI;
 use WP_CLI_Command;
 use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
+use Simple_History\Event;
 
 /**
  * Populate the log with test events for benchmarking and development.
@@ -38,6 +39,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 *   - users
 	 *   - simple
 	 *   - large
+	 *   - showcase
 	 * ---
 	 *
 	 * [--days=<number>]
@@ -45,6 +47,9 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * ---
 	 * default: 90
 	 * ---
+	 *
+	 * [--reactions]
+	 * : Add 1-10 random reactions to each event.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -66,15 +71,19 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 *     # Generate large events (2MB context, one per hour for 60 days)
 	 *     wp simple-history dev populate --count=1440 --type=large --days=60
 	 *
+	 *     # Generate a curated set of specific events for UI testing
+	 *     wp simple-history dev populate --type=showcase
+	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function populate( $args, $assoc_args ) {
 		global $wpdb;
 
-		$count = (int) ( $assoc_args['count'] ?? 1000 );
-		$type  = $assoc_args['type'] ?? 'mixed';
-		$days  = (int) ( $assoc_args['days'] ?? 90 );
+		$count         = (int) ( $assoc_args['count'] ?? 1000 );
+		$type          = $assoc_args['type'] ?? 'mixed';
+		$days          = (int) ( $assoc_args['days'] ?? 90 );
+		$add_reactions = \WP_CLI\Utils\get_flag_value( $assoc_args, 'reactions', false );
 
 		if ( $count < 1 ) {
 			WP_CLI::error( 'Count must be at least 1.' );
@@ -82,6 +91,12 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 		$simple_history    = Simple_History::get_instance();
 		$events_table_name = $simple_history->get_events_table_name();
+
+		// Showcase creates a curated set of specific events, ignoring --count.
+		if ( $type === 'showcase' ) {
+			$this->create_showcase_events( $simple_history, $add_reactions );
+			return;
+		}
 
 		WP_CLI::log(
 			sprintf( 'Generating %d %s events spread over %d days...', $count, $type, $days )
@@ -136,6 +151,9 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 				case 'large':
 					$this->create_large_event( $simple_history, $initiator );
 					break;
+				case 'showcase':
+					// Showcase creates its own curated set, handled before the loop.
+					break;
 				case 'mixed':
 				default:
 					$this->create_mixed_event( $simple_history, $i, $initiator );
@@ -154,6 +172,15 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 						$max_id_before
 					)
 				);
+			}
+
+			// Add random reactions to the newly created event.
+			if ( $add_reactions ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$new_event_id = (int) $wpdb->get_var( "SELECT COALESCE(MAX(id), 0) FROM {$events_table_name}" );
+				if ( $new_event_id > $max_id_before ) {
+					$this->add_random_reactions( $new_event_id, $user_ids );
+				}
 			}
 
 			$progress->tick();
@@ -770,5 +797,248 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		}
 
 		return $context;
+	}
+
+	/**
+	 * Add random reactions to an event.
+	 *
+	 * Adds 1-10 reactions from random users using random reaction types.
+	 *
+	 * @param int   $event_id Event ID.
+	 * @param array $user_ids Available user IDs.
+	 */
+	private function add_random_reactions( $event_id, $user_ids ) {
+		$reaction_types = [ 'thumbsup', 'heart', 'smile', 'tada', 'eyes', 'rocket', 'clap', 'fire' ];
+		$reaction_count = wp_rand( 1, 10 );
+
+		$event = new Event( $event_id );
+
+		for ( $r = 0; $r < $reaction_count; $r++ ) {
+			$type    = $reaction_types[ wp_rand( 0, count( $reaction_types ) - 1 ) ];
+			$user_id = (int) $user_ids[ wp_rand( 0, count( $user_ids ) - 1 ) ];
+			$event->add_reaction( $type, $user_id );
+		}
+	}
+
+	/**
+	 * Create a curated set of specific events for UI testing.
+	 *
+	 * Unlike other types, showcase ignores --count and creates
+	 * a fixed set of hand-picked events that cover common scenarios.
+	 *
+	 * @param Simple_History $simple_history Simple History instance.
+	 * @param bool          $add_reactions  Whether to add random reactions.
+	 */
+	private function create_showcase_events( $simple_history, $add_reactions = false ) {
+		global $wpdb;
+		$user_logger   = $simple_history->get_instantiated_logger_by_slug( 'SimpleUserLogger' );
+		$plugin_logger = $simple_history->get_instantiated_logger_by_slug( 'SimplePluginLogger' );
+		$post_logger   = $simple_history->get_instantiated_logger_by_slug( 'SimplePostLogger' );
+
+		wp_set_current_user( 1 );
+		$events_created = 0;
+
+		// 1. Successful login.
+		if ( $user_logger ) {
+			$user_logger->info_message(
+				'user_logged_in',
+				[
+					'_initiator'             => Log_Initiators::WP_USER,
+					'_server_remote_addr'    => '192.168.1.42',
+					'server_http_user_agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: successful login' );
+		}
+
+		// 2. Failed login (known user, wrong password).
+		if ( $user_logger ) {
+			$user_logger->warning_message(
+				'user_login_failed',
+				[
+					'_initiator'             => Log_Initiators::WEB_USER,
+					'login'                  => 'admin',
+					'server_http_user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+					'_server_remote_addr'    => '203.0.113.50',
+					'_occasionsID'           => 'SimpleUserLogger/failed_user_login',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: failed login (known user)' );
+		}
+
+		// 3. Failed login (unknown user).
+		if ( $user_logger ) {
+			$user_logger->warning_message(
+				'user_unknown_login_failed',
+				[
+					'_initiator'             => Log_Initiators::WEB_USER,
+					'failed_username'        => 'hacker123',
+					'server_http_user_agent' => 'python-requests/2.28.0',
+					'_server_remote_addr'    => '45.33.32.156',
+					'_occasionsID'           => 'SimpleUserLogger/failed_user_login',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: failed login (unknown user)' );
+		}
+
+		// 4. Updated plugin (with prev and new version context).
+		if ( $plugin_logger ) {
+			$plugin_logger->info_message(
+				'plugin_updated',
+				[
+					'_initiator'          => Log_Initiators::WP_USER,
+					'plugin_name'         => 'WooCommerce',
+					'plugin_slug'         => 'woocommerce',
+					'plugin_version'      => '9.5.1',
+					'plugin_prev_version' => '9.4.3',
+					'plugin_author'       => 'Automattic',
+					'plugin_url'          => 'https://woocommerce.com/',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: plugin updated (WooCommerce 9.4.3 → 9.5.1)' );
+		}
+
+		// 5. Installed plugin (with full plugin details).
+		if ( $plugin_logger ) {
+			$plugin_logger->info_message(
+				'plugin_installed',
+				[
+					'_initiator'          => Log_Initiators::WP_USER,
+					'plugin_name'         => 'Query Monitor',
+					'plugin_slug'         => 'query-monitor',
+					'plugin_version'      => '3.16.4',
+					'plugin_author'       => 'John Blackbourn',
+					'plugin_url'          => 'https://querymonitor.com/',
+					'plugin_description'  => 'The developer tools panel for WordPress.',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: plugin installed (Query Monitor)' );
+		}
+
+		// 6. Updated page with content diff context.
+		if ( $post_logger ) {
+			$post_logger->info_message(
+				'post_updated',
+				[
+					'_initiator'                 => Log_Initiators::WP_USER,
+					'post_id'                    => 2,
+					'post_type'                  => 'page',
+					'post_title'                 => 'About Us',
+					'post_prev_post_title'       => 'About Us',
+					'post_new_post_title'        => 'About Us',
+					'post_prev_status'           => 'publish',
+					'post_new_status'            => 'publish',
+					'post_prev_post_content'     => "<!-- wp:paragraph -->\n<p>We are a small team of passionate developers building tools for the WordPress community.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Founded in 2018, our mission is to make WordPress better for everyone.</p>\n<!-- /wp:paragraph -->",
+					'post_new_post_content'      => "<!-- wp:paragraph -->\n<p>We are a growing team of passionate developers building tools for the WordPress community.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Founded in 2018, our mission is to make WordPress better for everyone.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>We now serve over 100,000 active users worldwide.</p>\n<!-- /wp:paragraph -->",
+					'post_prev_post_excerpt'     => '',
+					'post_new_post_excerpt'       => 'Learn about our team and mission.',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: page updated with content diff (About Us)' );
+		}
+
+		// 7. Created blog post.
+		if ( $post_logger ) {
+			$post_logger->info_message(
+				'post_created',
+				[
+					'_initiator'      => Log_Initiators::WP_USER,
+					'post_id'         => wp_rand( 100, 9999 ),
+					'post_type'       => 'post',
+					'post_title'      => 'Announcing Our New Features for 2026',
+					'post_new_status' => 'publish',
+					'post_prev_status' => 'auto-draft',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: blog post published' );
+		}
+
+		// 8. Trashed a post.
+		if ( $post_logger ) {
+			$post_logger->info_message(
+				'post_trashed',
+				[
+					'_initiator' => Log_Initiators::WP_USER,
+					'post_id'    => wp_rand( 100, 9999 ),
+					'post_type'  => 'post',
+					'post_title' => 'Old Draft: Marketing Ideas 2024',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: post trashed' );
+		}
+
+		// 9. Activated plugin.
+		if ( $plugin_logger ) {
+			$plugin_logger->info_message(
+				'plugin_activated',
+				[
+					'_initiator'     => Log_Initiators::WP_USER,
+					'plugin_name'    => 'Yoast SEO',
+					'plugin_slug'    => 'wordpress-seo',
+					'plugin_version' => '24.1',
+					'plugin_author'  => 'Team Yoast',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: plugin activated (Yoast SEO)' );
+		}
+
+		// 10. Deactivated plugin.
+		if ( $plugin_logger ) {
+			$plugin_logger->info_message(
+				'plugin_deactivated',
+				[
+					'_initiator'     => Log_Initiators::WP_USER,
+					'plugin_name'    => 'Hello Dolly',
+					'plugin_slug'    => 'hello-dolly',
+					'plugin_version' => '1.7.2',
+					'plugin_author'  => 'Matt Mullenweg',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: plugin deactivated (Hello Dolly)' );
+		}
+
+		// Add reactions to all showcase events.
+		if ( $add_reactions ) {
+			$events_table_name = $simple_history->get_events_table_name();
+			$user_ids          = get_users(
+				[
+					'fields' => 'ID',
+					'number' => 50,
+				]
+			);
+
+			if ( empty( $user_ids ) ) {
+				$user_ids = [ 1 ];
+			}
+
+			// Get the most recent showcase event IDs.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$recent_ids = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT id FROM {$events_table_name} ORDER BY id DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$events_created
+				)
+			);
+
+			foreach ( $recent_ids as $event_id ) {
+				$this->add_random_reactions( (int) $event_id, $user_ids );
+			}
+
+			WP_CLI::log( sprintf( 'Added reactions to %d events.', count( $recent_ids ) ) );
+		}
+
+		WP_CLI::success(
+			sprintf( 'Created %d showcase events.', $events_created )
+		);
 	}
 }

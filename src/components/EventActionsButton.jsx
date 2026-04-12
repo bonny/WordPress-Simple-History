@@ -10,6 +10,7 @@ import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEvents
 import { EventSurroundingEventsMenuItem } from './EventSurroundingEventsMenuItem';
 import { EventStickMenuItem } from './EventStickMenuItem';
 import { EventUnstickMenuItem } from './EventUnstickMenuItem';
+import { EventReactionQuickButton } from './EventReactions';
 import { navigateToEventPermalink } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
 
@@ -18,15 +19,14 @@ import { useEventsSettings } from './EventsSettingsContext';
  * three-dot dropdown menu.
  *
  * @param {Object} props
- * @param {Object} props.event        The event object
- * @param {string} props.eventVariant The variant of the event ('normal' or 'modal')
+ * @param {Object} props.event          The event object
+ * @param {string} props.eventVariant   The variant of the event ('normal' or 'modal')
+ * @param {Object} props.reactionState  Reaction state from useEventReactions hook
  * @return {Object|null} React element or null if variant is modal
  */
-export function EventActionsButton( {
-	event,
-	eventVariant,
-} ) {
-	const { eventsAdminPageURL, hasPremiumAddOn, userCanManageOptions } = useEventsSettings();
+export function EventActionsButton( { event, eventVariant, reactionState } ) {
+	const { eventsAdminPageURL, hasPremiumAddOn, userCanManageOptions } =
+		useEventsSettings();
 	const actionsRef = useRef( null );
 
 	// Don't show actions on modal or dashboard events.
@@ -36,14 +36,18 @@ export function EventActionsButton( {
 
 	return (
 		<div ref={ actionsRef } className="SimpleHistoryLogitem__actions">
-			<div className="SimpleHistoryLogitem__quickActions">
-				<Button
-					icon={ fullscreen }
-					label={ __( 'Event details', 'simple-history' ) }
-					size="small"
-					onClick={ () => navigateToEventPermalink( { event } ) }
+			{ reactionState && (
+				<EventReactionQuickButton
+					isUpdating={ reactionState.isUpdating }
+					toggleReaction={ reactionState.toggleReaction }
 				/>
-			</div>
+			) }
+			<Button
+				icon={ fullscreen }
+				label={ __( 'Event details', 'simple-history' ) }
+				size="small"
+				onClick={ () => navigateToEventPermalink( { event } ) }
+			/>
 
 			<DropdownMenu
 				label={ __( 'Actions…', 'simple-history' ) }

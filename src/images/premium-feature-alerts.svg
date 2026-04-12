@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 200">
+  <!-- Event card -->
+  <rect x="75" y="15" width="300" height="50" rx="6" fill="#fff" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.08))"/>
+  <!-- Event type indicator -->
+  <rect x="90" y="30" width="8" height="20" rx="2" fill="#3f9349"/>
+  <!-- Event text bars -->
+  <rect x="108" y="30" width="140" height="7" rx="3" fill="#6b7280"/>
+  <rect x="108" y="44" width="80" height="6" rx="3" fill="#d1d5db"/>
+  <!-- Timestamp -->
+  <rect x="310" y="34" width="50" height="6" rx="3" fill="#d1d5db"/>
+  <!-- Connecting lines from card to channels -->
+  <line x1="225" y1="65" x2="225" y2="90" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="225" y1="90" x2="110" y2="115" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="225" y1="90" x2="225" y2="115" stroke="#d1d5db" stroke-width="1.5"/>
+  <line x1="225" y1="90" x2="340" y2="115" stroke="#d1d5db" stroke-width="1.5"/>
+  <!-- Email chip -->
+  <rect x="65" y="115" width="90" height="36" rx="6" fill="#fff" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.08))"/>
+  <!-- Envelope icon -->
+  <rect x="78" y="126" width="16" height="12" rx="2" fill="none" stroke="#6b7280" stroke-width="1.5"/>
+  <polyline points="78,126 86,133 94,126" fill="none" stroke="#6b7280" stroke-width="1.5"/>
+  <rect x="100" y="130" width="40" height="6" rx="3" fill="#d1d5db"/>
+  <!-- Email notification dot -->
+  <circle cx="150" cy="119" r="5" fill="#2271b1"/>
+  <!-- Slack chip -->
+  <rect x="180" y="115" width="90" height="36" rx="6" fill="#fff" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.08))"/>
+  <!-- Hash icon for Slack -->
+  <text x="198" y="139" font-family="system-ui, sans-serif" font-size="15" fill="#6b7280" font-weight="700">#</text>
+  <rect x="212" y="130" width="42" height="6" rx="3" fill="#d1d5db"/>
+  <!-- Slack notification dot -->
+  <circle cx="265" cy="119" r="5" fill="#2271b1"/>
+  <!-- Telegram/Discord chip -->
+  <rect x="295" y="115" width="90" height="36" rx="6" fill="#fff" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.08))"/>
+  <!-- Paper plane icon -->
+  <polygon points="310,125 326,133 310,141 314,133" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linejoin="round"/>
+  <rect x="332" y="130" width="38" height="6" rx="3" fill="#d1d5db"/>
+  <!-- Telegram notification dot -->
+  <circle cx="380" cy="119" r="5" fill="#2271b1"/>
+  <!-- Small labels under chips -->
+  <text x="110" y="166" font-family="system-ui, sans-serif" font-size="9" fill="#6b7280" text-anchor="middle">Email</text>
+  <text x="225" y="166" font-family="system-ui, sans-serif" font-size="9" fill="#6b7280" text-anchor="middle">Slack</text>
+  <text x="340" y="166" font-family="system-ui, sans-serif" font-size="9" fill="#6b7280" text-anchor="middle">Telegram</text>
+</svg>

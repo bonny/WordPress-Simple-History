@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 6.9
-Stable tag: 5.25.0
+Stable tag: 5.26.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -248,6 +248,29 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Sponsor the plugin to keep it free.](https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_sponsor_footer)
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
+
+### 5.26.0 (April 2026)
+
+This version makes the log actions more discoverable by moving them out of the dropdown menu and into inline buttons. It also contains a new experimental feature: reactions!
+
+[Read more about it in the release post](https://simple-history.com/2026/simple-history-5-26-0-released/)
+
+**Added**
+
+-   Media, Comments, and Themes sections to the weekly email summary report. Comments section only appears when comments are enabled on the site.
+-   Event reactions — react to log events with a thumbs up emoji, with a Slack-style emoji picker in the actions bar. (experimental)
+-   `--fields` support for `wp simple-history list` WP-CLI command, including a `reactions` field showing reaction counts.
+
+**Changed**
+
+-   Control bar actions are now inline buttons instead of a dropdown menu, making Export, Create Alert, Create Log Entry, and Share View more visible and accessible.
+-   Expanded filters panel: reordered filters with Users first, moved "Hide my own events" into the Users row, replaced initiators help link with an icon, and trimmed helper text for a cleaner layout.
+
+**Fixed**
+
+-   Memory exhaustion when exporting large event logs by reducing batch size and eliminating redundant database queries.
+-   Layout shift in control bar action buttons while search options are loading.
+-   Oversized file type icon for non-image attachments (e.g. DOCX, PDF) in the event log.
 
 ### 5.25.0 (March 2026)
 

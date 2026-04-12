@@ -1,6 +1,6 @@
 ---
 name: github-project
-description: Use when working with the Simple History GitHub project board — updating issue status, querying board items, or automating project workflows.
+description: Manages the Simple History GitHub project board. Use when updating issue status, querying board items, or automating project workflows.
 allowed-tools: Bash
 ---
 

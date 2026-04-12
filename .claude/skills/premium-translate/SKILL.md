@@ -1,7 +1,7 @@
 ---
 name: premium-translate
-description: Translate Simple History Premium plugin strings for one or multiple locales. Triggers when user says "translate premium", "premium translate", "update premium translations".
-argument-hint: "[locales]"
+description: Translates Simple History Premium plugin strings for one or multiple locales. Use when translating or updating premium plugin PO files.
+argument-hint: '[locales]'
 allowed-tools: Read, Edit, Write, Bash(cat:*), Bash(ls:*), Bash(npm run:*), Bash(npm:*), Bash(wp:*), Bash(msgfmt:*), Glob, Agent
 ---
 
@@ -45,9 +45,9 @@ Run from the premium add-on path:
 
 **If translating 3+ locales:** Use batched parallel agents:
 
-- Process locales in batches of 5 at a time
-- For each batch, spawn parallel agents (one per locale) using the Agent tool
-- Wait for the batch to complete before starting the next batch
+-   Process locales in batches of 5 at a time
+-   For each batch, spawn parallel agents (one per locale) using the Agent tool
+-   Wait for the batch to complete before starting the next batch
 
 **Translation rules for each locale:**
 
@@ -68,6 +68,6 @@ Run from the premium add-on path:
 
 ## Examples
 
-- `/premium-translate de_DE` — Translate to German
-- `/premium-translate sv_SE da_DK` — Translate to Swedish and Danish
-- `/premium-translate` — Translate all configured locales
+-   `/premium-translate de_DE` — Translate to German
+-   `/premium-translate sv_SE da_DK` — Translate to Swedish and Danish
+-   `/premium-translate` — Translate all configured locales

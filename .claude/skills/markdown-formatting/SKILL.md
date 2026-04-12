@@ -1,6 +1,6 @@
 ---
 name: markdown-formatting
-description: Formats markdown files using Prettier for consistent style. Runs after creating or updating markdown (.md) files. Triggers: "format markdown", "prettier", "fix md formatting".
+description: Formats markdown files using Prettier for consistent style. Use after creating or updating markdown files.
 allowed-tools: Bash
 ---
 
@@ -32,11 +32,11 @@ npx prettier --check path/to/file.md
 
 Prettier applies these rules to markdown:
 
-- **Prose wrap**: `preserve` (respects original line breaks)
-- **Tab width**: 2 spaces
-- **Trailing newline**: Yes
-- **Consistent list markers**: `-` for unordered lists
-- **Table formatting**: Aligned columns
+-   **Prose wrap**: `preserve` (respects original line breaks)
+-   **Tab width**: 2 spaces
+-   **Trailing newline**: Yes
+-   **Consistent list markers**: `-` for unordered lists
+-   **Table formatting**: Aligned columns
 
 ## Example Usage
 
@@ -48,6 +48,6 @@ npx prettier --write readme.issue-608-alerts.md
 
 ## Notes
 
-- Prettier is available via npx (version 3.0.3)
-- No configuration file needed - uses sensible defaults
-- Safe to run multiple times (idempotent)
+-   Prettier is available via npx (version 3.0.3)
+-   No configuration file needed - uses sensible defaults
+-   Safe to run multiple times (idempotent)
