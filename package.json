@@ -1,6 +1,6 @@
 {
 	"name": "simple-history",
-	"version": "5.25.0",
+	"version": "5.26.0",
 	"description": "WordPress audit log and history plugin with nice GUI",
 	"author": "Pär Thernström",
 	"license": "GPL",
@@ -47,7 +47,7 @@
 		"test:mysql57": "DB_IMAGE=biarms/mysql:5.7 DB_DATA_DIR=./data/mysql-5.7 npm run test:wpunit && npm run test:functional && npm run test:acceptance",
 		"test:wpunit": "docker compose run --rm php-cli vendor/bin/codecept run wpunit",
 		"test:functional": "docker compose run --rm php-cli vendor/bin/codecept run functional",
-		"test:acceptance": "timeout 300 docker compose run --rm php-cli vendor/bin/codecept clean && timeout 300 docker compose run --rm php-cli vendor/bin/codecept run acceptance",
+		"test:acceptance": "docker compose run --rm php-cli vendor/bin/codecept clean && docker compose run --rm php-cli vendor/bin/codecept run acceptance",
 		"spell-check": "typos",
 		"spell-check:write-changes": "typos --write-changes",
 		"test:log-query-mysql55": "DB_IMAGE=biarms/mysql:5.5 DB_DATA_DIR=./data/mysql-5.5 npm run test:wpunit-logquery",
