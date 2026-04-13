@@ -63,9 +63,7 @@
 		"wp-env:start": "npx @wordpress/env start",
 		"wp-env:stop": "npx @wordpress/env stop",
 		"wp-env:reset": "npx @wordpress/env reset && npx @wordpress/env start",
-		"wp-now": "npx @wp-now/wp-now start",
-		"playground:start": "npx @wp-playground/cli start",
-		"playground:server": "npx @wp-playground/cli server"
+		"playground:start": "npx @wp-playground/cli server --mount=.:/wordpress/wp-content/plugins/simple-history --blueprint=.claude/worktree-blueprint.json"
 	},
 	"dependencies": {
 		"@wordpress/icons": "^10.6.0",
