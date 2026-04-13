@@ -289,9 +289,11 @@ class Media_Logger extends Logger {
 				);
 			}
 		} elseif ( $is_audio ) {
-			$thumb_html = do_shortcode( sprintf( '[audio src="%1$s"]', $file_url ) );
+			$thumb_html = '<div style="max-width: 500px;">'
+				. do_shortcode( sprintf( '[audio src="%1$s"]', $file_url ) )
+				. '</div>';
 		} elseif ( $is_video ) {
-			$thumb_html = do_shortcode( sprintf( '[video src="%1$s"]', $file_url ) );
+			$thumb_html = do_shortcode( sprintf( '[video src="%1$s" width="250" height="150"]', $file_url ) );
 		} elseif ( $attachment_is_available ) {
 			$thumb_html = sprintf(
 				'<div class="SimpleHistoryLogitemThumbnail">%1$s</div>',
@@ -441,6 +443,52 @@ class Media_Logger extends Logger {
 		}
 
 		return Event_Details_Container::create_from( $groups );
+	}
+
+	/**
+	 * Get action links for a log row.
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		$context       = $row->context;
+		$message_key   = $context['_message_key'] ?? '';
+		$attachment_id = isset( $context['attachment_id'] ) ? (int) $context['attachment_id'] : 0;
+
+		if ( ! $attachment_id || $message_key === 'attachment_deleted' ) {
+			return [];
+		}
+
+		$attachment = get_post( $attachment_id );
+
+		if ( ! ( $attachment instanceof \WP_Post ) ) {
+			return [];
+		}
+
+		$action_links = [];
+
+		if ( current_user_can( 'edit_post', $attachment_id ) ) {
+			$edit_link = get_edit_post_link( $attachment_id, 'raw' );
+			if ( $edit_link ) {
+				$action_links[] = [
+					'url'    => $edit_link,
+					'label'  => __( 'Edit attachment', 'simple-history' ),
+					'action' => 'edit',
+				];
+			}
+		}
+
+		$permalink = wp_get_attachment_url( $attachment_id );
+		if ( $permalink ) {
+			$action_links[] = [
+				'url'    => $permalink,
+				'label'  => __( 'View attachment', 'simple-history' ),
+				'action' => 'view',
+			];
+		}
+
+		return $action_links;
 	}
 
 	/**
