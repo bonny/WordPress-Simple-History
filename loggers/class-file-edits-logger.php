@@ -60,9 +60,10 @@ class File_Edits_Logger extends Logger {
 	 */
 	public function on_file_edit_ajax() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$file = isset( $_POST['file'] ) ? sanitize_file_name( wp_unslash( $_POST['file'] ) ) : '';
+		$file = isset( $_POST['file'] ) ? wp_unslash( $_POST['file'] ) : '';
 
-		if ( ! $file ) {
+		// Validate file path (same check WordPress core uses).
+		if ( ! $file || 0 !== validate_file( $file ) ) {
 			return;
 		}
 
@@ -70,9 +71,9 @@ class File_Edits_Logger extends Logger {
 		$new_contents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : '';
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$plugin = isset( $_POST['plugin'] ) ? sanitize_text_field( wp_unslash( $_POST['plugin'] ) ) : '';
+		$plugin = isset( $_POST['plugin'] ) ? wp_unslash( $_POST['plugin'] ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$theme = isset( $_POST['theme'] ) ? sanitize_text_field( wp_unslash( $_POST['theme'] ) ) : '';
+		$theme = isset( $_POST['theme'] ) ? wp_unslash( $_POST['theme'] ) : '';
 
 		if ( $plugin ) {
 			$this->capture_plugin_file_edit( $file, $plugin, $new_contents );
