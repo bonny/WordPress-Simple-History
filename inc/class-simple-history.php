@@ -167,6 +167,7 @@ class Simple_History {
 			Services\Notification_Bar::class,
 			Services\Plugin_List_Info::class,
 			Services\Plugin_List_Link::class,
+			Services\Post_Row_Actions::class,
 			Services\REST_API::class,
 			Services\Review_Reminder_Service::class,
 			Services\Scripts_And_Templates::class,

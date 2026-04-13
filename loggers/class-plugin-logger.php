@@ -877,6 +877,7 @@ class Plugin_Logger extends Logger {
 			'plugin_author'      => $plugin_data['Author'] ?? '',
 			'plugin_version'     => $plugin_data['Version'] ?? '',
 			'plugin_url'         => $plugin_data['PluginURI'] ?? '',
+			'plugin_was_active'  => is_plugin_active( $arr_data['plugin'] ) ? '1' : '0',
 		];
 
 		// Add Update URI if it is set. Available since WP 5.8.
@@ -1000,6 +1001,7 @@ class Plugin_Logger extends Logger {
 				'plugin_author'         => $plugin_data['Author'] ?? '',
 				'plugin_version'        => $plugin_data['Version'] ?? '',
 				'plugin_url'            => $plugin_data['PluginURI'] ?? '',
+				'plugin_was_active'     => is_plugin_active( $plugin_main_file_path ) ? '1' : '0',
 			];
 
 			// Add Update URI if it is set. Available since WP 5.8.
@@ -1535,6 +1537,16 @@ class Plugin_Logger extends Logger {
 
 				// Display update method and upgrade notice in a key-value table.
 				$update_info_rows = [];
+
+				// Show whether the plugin was active or inactive at update time.
+				if ( isset( $context['plugin_was_active'] ) ) {
+					$update_info_rows[] = [
+						'label' => _x( 'Status at update', 'plugin logger: plugin active status label', 'simple-history' ),
+						'value' => $context['plugin_was_active'] === '1'
+							? _x( 'Active', 'plugin logger: plugin was active at update', 'simple-history' )
+							: _x( 'Inactive', 'plugin logger: plugin was inactive at update', 'simple-history' ),
+					];
+				}
 
 				// Add update method row only for forced security updates (unexpected).
 				// Skip for user-enabled auto-updates (expected) and manual updates (obvious).
