@@ -12,12 +12,13 @@ Simple History's admin pages can live in different locations depending on user s
 
 All in `inc/class-helpers.php`:
 
-| Method                                             | Returns               | Example                                            |
-| -------------------------------------------------- | --------------------- | -------------------------------------------------- |
-| `Helpers::get_history_admin_url()`                 | Main history page URL | `admin.php?page=simple_history_admin_menu_page`    |
-| `Helpers::get_settings_page_url()`                 | Settings page URL     | `admin.php?page=simple_history_settings_page`      |
-| `Helpers::get_settings_page_tab_url($tab)`         | Settings tab URL      | `...&selected-tab=general_settings_subtab_general` |
-| `Helpers::get_settings_page_sub_tab_url($sub_tab)` | Settings sub-tab URL  | `...&selected-tab=...&selected-sub-tab=...`        |
+| Method                                             | Returns                            | Example                                            |
+| -------------------------------------------------- | ---------------------------------- | -------------------------------------------------- |
+| `Helpers::get_history_admin_url()`                 | Main history page URL (no filters) | `admin.php?page=simple_history_admin_menu_page`    |
+| `Helpers::get_filtered_history_url($args)`         | History URL with filters applied   | See "Building Filtered URLs" below                 |
+| `Helpers::get_settings_page_url()`                 | Settings page URL                  | `admin.php?page=simple_history_settings_page`      |
+| `Helpers::get_settings_page_tab_url($tab)`         | Settings tab URL                   | `...&selected-tab=general_settings_subtab_general` |
+| `Helpers::get_settings_page_sub_tab_url($sub_tab)` | Settings sub-tab URL               | `...&selected-tab=...&selected-sub-tab=...`        |
 
 ## Why URLs Are Dynamic
 
@@ -56,6 +57,70 @@ Look up tab slugs in the module or service that registers them:
 -   Alerts (premium): `Alerts_Module::ALERTS_TAB_SLUG` (same value, premium add-on only)
 -   General settings: `Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG`
 -   Check module/service classes for their `*_TAB_SLUG` or `MENU_SLUG` constants
+
+## History Page Filter Parameters
+
+The main history page accepts URL query parameters that pre-fill filters:
+
+| Parameter      | Format                                                   | Example                                          |
+| -------------- | -------------------------------------------------------- | ------------------------------------------------ |
+| `date`         | `lastdays:N`, `allDates`, `month:YYYY-MM`, `customRange` | `date=allDates`                                  |
+| `context`      | `key:value` (one per line)                               | `context=post_id:123`                            |
+| `show-filters` | `1` to expand filter panel                               | `show-filters=1`                                 |
+| `messages`     | JSON array (URL-encoded)                                 | See below                                        |
+| `users`        | JSON array of user objects                               | `[{"id":"1","value":"Jane (jane@example.com)"}]` |
+
+### Building the `messages` Parameter
+
+The `messages` param is a JSON array of objects, each with `value` (display label) and `search_options` (array of `LoggerSlug:message_key` strings):
+
+```php
+$messages_json = wp_json_encode( array(
+    array(
+        'value'          => 'All posts & pages activity',
+        'search_options' => array(
+            'SimplePostLogger:post_created',
+            'SimplePostLogger:post_updated',
+            'SimplePostLogger:post_trashed',
+        ),
+    ),
+) );
+```
+
+### Building Filtered URLs
+
+**Always use `Helpers::get_filtered_history_url()`** — it handles the JSON encoding gotcha internally:
+
+```php
+// General-purpose filtered URL.
+$url = Helpers::get_filtered_history_url( array(
+    'date'         => 'allDates',
+    'context'      => 'post_id:123',
+    'show_filters' => true,
+    'messages'     => array(
+        array(
+            'value'          => 'All posts & pages activity',
+            'search_options' => array(
+                'SimplePostLogger:post_created',
+                'SimplePostLogger:post_updated',
+            ),
+        ),
+    ),
+) );
+
+// Shortcut for post-specific history (used by row actions and History column).
+$url = Post_History_Column::get_post_history_url( $post_id );
+```
+
+**Never pass `messages` via `add_query_arg()`** — it double-encodes JSON. The shared helper handles this correctly with `rawurlencode()`.
+
+### Finding Logger Slugs and Message Keys
+
+Each logger has a `$slug` property and `messages` array in `get_info()`. The `search_options` format is `LoggerSlug:message_key`. Check the logger class to find available keys:
+
+```bash
+grep -n "slug\|messages" loggers/class-post-logger.php | head -20
+```
 
 ## Anti-Patterns
 
