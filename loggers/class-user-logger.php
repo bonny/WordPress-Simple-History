@@ -1015,6 +1015,41 @@ class User_Logger extends Logger {
 	/**
 	 * Return more info about an logged event.
 	 *
+	 * Get action links for a log row.
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		$context     = $row->context;
+		$message_key = $context['_message_key'] ?? '';
+
+		if ( $message_key === 'user_updated_profile' ) {
+			$user_id = isset( $context['edited_user_id'] ) ? (int) $context['edited_user_id'] : 0;
+		} elseif ( $message_key === 'user_created' ) {
+			$user_id = isset( $context['created_user_id'] ) ? (int) $context['created_user_id'] : 0;
+		} else {
+			return [];
+		}
+
+		if ( ! $user_id || ! get_userdata( $user_id ) ) {
+			return [];
+		}
+
+		if ( ! current_user_can( 'edit_user', $user_id ) ) {
+			return [];
+		}
+
+		return [
+			[
+				'url'    => get_edit_user_link( $user_id ),
+				'label'  => __( 'Edit user', 'simple-history' ),
+				'action' => 'edit',
+			],
+		];
+	}
+
+	/**
 	 * @param object $row Log row.
 	 * @return Event_Details_Group|string
 	 */
