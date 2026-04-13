@@ -2,6 +2,8 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
 
 /**
@@ -335,11 +337,10 @@ class Options_Logger extends Logger {
 	public function get_log_row_details_output( $row ) {
 		$context     = $row->context;
 		$message_key = $context['_message_key'];
-		$output      = '';
 
 		// Bail if not option_updated message.
 		if ( $message_key !== 'option_updated' ) {
-			return $output;
+			return '';
 		}
 
 		$option      = $context['option'] ?? null;
@@ -347,48 +348,37 @@ class Options_Logger extends Logger {
 		$new_value   = $context['new_value'] ?? null;
 		$old_value   = $context['old_value'] ?? null;
 
-		$tmpl_row = '
-			<tr>
-				<td>%1$s</td>
-				<td>%2$s</td>
-			</tr>
-		';
+		if ( ! $new_value && ! $old_value ) {
+			return '';
+		}
 
-		$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
+		// Try custom output method for specific options.
+		$methodname = 'get_details_group_for_option_' . strtolower( $option );
 
-		// Output old and new values.
-		if ( $context['new_value'] || $context['old_value'] ) {
-			$option_custom_output = '';
-			$methodname           = 'get_details_output_for_option_' . strtolower( $option );
-
-			if ( method_exists( $this, $methodname ) ) {
-				$option_custom_output = $this->$methodname( $context, $old_value, $new_value, $option, $option_page, $tmpl_row );
-			} else {
-				$option_custom_output = $this->get_output_for_option_with_type_option( $option, $new_value, $old_value, $option_custom_output, $tmpl_row );
-			}
-
-			if ( empty( $option_custom_output ) ) {
-				// All other options or fallback if custom output did not find all it's stuff.
-				$trimmed_new_value = $this->excerptify( $new_value );
-				$trimmed_old_value = $this->excerptify( $old_value );
-
-				$output .= sprintf(
-					$tmpl_row,
-					__( 'New value', 'simple-history' ),
-					esc_html( $trimmed_new_value )
-				);
-
-				$output .= sprintf(
-					$tmpl_row,
-					__( 'Old value', 'simple-history' ),
-					esc_html( $trimmed_old_value )
-				);
-			} else {
-				$output .= $option_custom_output;
+		if ( method_exists( $this, $methodname ) ) {
+			$group = $this->$methodname( $context, $old_value, $new_value, $option, $option_page );
+			if ( $group instanceof Event_Details_Group ) {
+				return $group;
 			}
 		}
 
-		return $output . '</table>';
+		// Try type-based output (onoff, reversed_onoff).
+		$group = $this->get_group_for_option_with_type( $option, $new_value, $old_value );
+		if ( $group instanceof Event_Details_Group ) {
+			return $group;
+		}
+
+		// Fallback: show trimmed old and new values.
+		$group = new Event_Details_Group();
+
+		$group->add_items( [
+			( new Event_Details_Item( null, __( 'New value', 'simple-history' ) ) )
+				->set_new_value( $this->excerptify( $new_value ) ),
+			( new Event_Details_Item( null, __( 'Old value', 'simple-history' ) ) )
+				->set_new_value( $this->excerptify( $old_value ) ),
+		] );
+
+		return $group;
 	}
 
 	/**
@@ -459,6 +449,7 @@ class Options_Logger extends Logger {
 	/**
 	 * Get detailed output for page_on_front for posts page.
 	 *
+	 * @deprecated Use get_details_group_for_option_page_for_posts() instead.
 	 * @param array  $context context.
 	 * @param mixed  $old_value old value.
 	 * @param mixed  $new_value new value.
@@ -473,6 +464,7 @@ class Options_Logger extends Logger {
 	/**
 	 * Add detailed output for page_on_front
 	 *
+	 * @deprecated Use get_details_group_for_option_page_on_front() instead.
 	 * @param array  $context context.
 	 * @param mixed  $old_value old value.
 	 * @param mixed  $new_value new value.
@@ -481,7 +473,7 @@ class Options_Logger extends Logger {
 	 * @param string $tmpl_row template row.
 	 * @return string output
 	 */
-	protected function get_details_output_for_option_page_on_front( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
+	protected function get_details_output_for_option_page_on_front( $context, $old_value, $new_value, $option, $option_page, $tmpl_row = '' ) {
 		$output = '';
 
 		if ( $new_value && ! empty( $context['new_post_title'] ) ) {
@@ -492,7 +484,7 @@ class Options_Logger extends Logger {
 			}
 
 			$output .= sprintf(
-				$tmpl_row,
+				'<tr><td>%1$s</td><td>%2$s</td></tr>',
 				__( 'New value', 'simple-history' ),
 				sprintf(
 					/* translators: %s post title with link. */
@@ -503,7 +495,7 @@ class Options_Logger extends Logger {
 		}
 		if ( (int) $new_value === 0 ) {
 			$output .= sprintf(
-				$tmpl_row,
+				'<tr><td>%1$s</td><td>%2$s</td></tr>',
 				__( 'New value', 'simple-history' ),
 				__( 'Your latest posts', 'simple-history' )
 			);
@@ -517,7 +509,7 @@ class Options_Logger extends Logger {
 			}
 
 			$output .= sprintf(
-				$tmpl_row,
+				'<tr><td>%1$s</td><td>%2$s</td></tr>',
 				__( 'Old value', 'simple-history' ),
 				sprintf(
 					/* translators: %s post title with link. */
@@ -529,13 +521,78 @@ class Options_Logger extends Logger {
 
 		if ( (int) $old_value === 0 ) {
 			$output .= sprintf(
-				$tmpl_row,
+				'<tr><td>%1$s</td><td>%2$s</td></tr>',
 				__( 'Old value', 'simple-history' ),
 				__( 'Your latest posts', 'simple-history' )
 			);
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Get Event_Details_Group for page_on_front option.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return Event_Details_Group
+	 */
+	protected function get_details_group_for_option_page_on_front( $context, $old_value, $new_value, $option, $option_page ) {
+		$group = new Event_Details_Group();
+
+		$formatted_new = '';
+		$formatted_old = '';
+
+		if ( $new_value && ! empty( $context['new_post_title'] ) ) {
+			$formatted_new = sprintf(
+				/* translators: %s post title. */
+				__( 'Page %s', 'simple-history' ),
+				$context['new_post_title']
+			);
+		} elseif ( (int) $new_value === 0 ) {
+			$formatted_new = __( 'Your latest posts', 'simple-history' );
+		}
+
+		if ( $old_value && ! empty( $context['old_post_title'] ) ) {
+			$formatted_old = sprintf(
+				/* translators: %s post title. */
+				__( 'Page %s', 'simple-history' ),
+				$context['old_post_title']
+			);
+		} elseif ( (int) $old_value === 0 ) {
+			$formatted_old = __( 'Your latest posts', 'simple-history' );
+		}
+
+		if ( $formatted_new || $formatted_old ) {
+			$item = new Event_Details_Item( null, __( 'Value', 'simple-history' ) );
+			if ( $formatted_new && $formatted_old ) {
+				$item->set_values( $formatted_new, $formatted_old );
+			} elseif ( $formatted_new ) {
+				$item->set_new_value( $formatted_new );
+			} else {
+				$item->set_prev_value( $formatted_old );
+			}
+			$group->add_item( $item );
+		}
+
+		return $group;
+	}
+
+	/**
+	 * Get Event_Details_Group for page_for_posts option.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return Event_Details_Group
+	 */
+	protected function get_details_group_for_option_page_for_posts( $context, $old_value, $new_value, $option, $option_page ) {
+		return $this->get_details_group_for_option_page_on_front( $context, $old_value, $new_value, $option, $option_page );
 	}
 
 	/**
@@ -625,6 +682,7 @@ class Options_Logger extends Logger {
 	/**
 	 * Add detailed output for default_category
 	 *
+	 * @deprecated Use get_details_group_for_option_default_category() instead.
 	 * @param array  $context context.
 	 * @param mixed  $old_value old value.
 	 * @param mixed  $new_value new value.
@@ -660,6 +718,7 @@ class Options_Logger extends Logger {
 	/**
 	 * Get detailed output for default_category for default_email_category.
 	 *
+	 * @deprecated Use get_details_group_for_option_default_email_category() instead.
 	 * @param array  $context context.
 	 * @param mixed  $old_value old value.
 	 * @param mixed  $new_value new value.
@@ -673,8 +732,116 @@ class Options_Logger extends Logger {
 	}
 
 	/**
+	 * Get Event_Details_Group for default_category option.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return Event_Details_Group|null
+	 */
+	protected function get_details_group_for_option_default_category( $context, $old_value, $new_value, $option, $option_page ) {
+		$old_category_name = $context['old_category_name'] ?? null;
+		$new_category_name = $context['new_category_name'] ?? null;
+
+		if ( ! $old_category_name && ! $new_category_name ) {
+			return null;
+		}
+
+		$group = new Event_Details_Group();
+		$item  = new Event_Details_Item( null, __( 'Value', 'simple-history' ) );
+
+		if ( $new_category_name && $old_category_name ) {
+			$item->set_values( $new_category_name, $old_category_name );
+		} elseif ( $new_category_name ) {
+			$item->set_new_value( $new_category_name );
+		} else {
+			$item->set_prev_value( $old_category_name );
+		}
+
+		$group->add_item( $item );
+		return $group;
+	}
+
+	/**
+	 * Get Event_Details_Group for default_email_category option.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return Event_Details_Group|null
+	 */
+	protected function get_details_group_for_option_default_email_category( $context, $old_value, $new_value, $option, $option_page ) {
+		return $this->get_details_group_for_option_default_category( $context, $old_value, $new_value, $option, $option_page );
+	}
+
+	/**
+	 * Get Event_Details_Group for start_of_week option.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return Event_Details_Group|null
+	 */
+	protected function get_details_group_for_option_start_of_week( $context, $old_value, $new_value, $option, $option_page ) {
+		/** @var \WP_Locale Logger slug */
+		global $wp_locale;
+
+		if ( ! ( $wp_locale instanceof \WP_Locale ) ) {
+			return null;
+		}
+
+		$group = new Event_Details_Group();
+		$group->add_item(
+			( new Event_Details_Item( null, __( 'Value', 'simple-history' ) ) )
+				->set_values(
+					$wp_locale->get_weekday( $new_value ),
+					$wp_locale->get_weekday( $old_value )
+				)
+		);
+
+		return $group;
+	}
+
+	/**
+	 * Get Event_Details_Group for rss_use_excerpt option.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return Event_Details_Group
+	 */
+	protected function get_details_group_for_option_rss_use_excerpt( $context, $old_value, $new_value, $option, $option_page ) {
+		// 0 full text, 1 excerpt.
+		// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Value may be string '0' or int 0 from database.
+		if ( $old_value == 0 ) {
+			$old_display = __( 'Full text', 'simple-history' );
+			$new_display = __( 'Excerpt', 'simple-history' );
+		} else {
+			$old_display = __( 'Excerpt', 'simple-history' );
+			$new_display = __( 'Full text', 'simple-history' );
+		}
+
+		$group = new Event_Details_Group();
+		$group->add_item(
+			( new Event_Details_Item( null, __( 'Value', 'simple-history' ) ) )
+				->set_values( $new_display, $old_display )
+		);
+
+		return $group;
+	}
+
+	/**
 	 * Get detailed output for start_of_week option.
 	 *
+	 * @deprecated Use get_details_group_for_option_start_of_week() instead.
 	 * @param array  $context context.
 	 * @param mixed  $old_value old value.
 	 * @param mixed  $new_value new value.
@@ -711,8 +878,9 @@ class Options_Logger extends Logger {
 	}
 
 	/**
-	 * Get detailed output for start_of_week option.
+	 * Get detailed output for rss_use_excerpt option.
 	 *
+	 * @deprecated Use get_details_group_for_option_rss_use_excerpt() instead.
 	 * @param array  $context context.
 	 * @param mixed  $old_value old value.
 	 * @param mixed  $new_value new value.
@@ -802,6 +970,47 @@ class Options_Logger extends Logger {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get Event_Details_Group for options with type (onoff, reversed_onoff).
+	 *
+	 * @param string $option_name Option name.
+	 * @param mixed  $new_value New value.
+	 * @param mixed  $old_value Old value.
+	 * @return Event_Details_Group|null Group or null if no type match.
+	 */
+	protected function get_group_for_option_with_type( $option_name, $new_value, $old_value ) {
+		$option_info = $this->get_option_info( $option_name );
+		$option_type = $option_info['type'] ?? '';
+
+		if ( ! $option_type ) {
+			return null;
+		}
+
+		switch ( $option_type ) {
+			case 'onoff':
+			case 'reversed_onoff':
+				if ( $option_type === 'onoff' ) {
+					$true_value  = __( 'On', 'simple-history' );
+					$false_value = __( 'Off', 'simple-history' );
+				} else {
+					$true_value  = __( 'Off', 'simple-history' );
+					$false_value = __( 'On', 'simple-history' );
+				}
+
+				$old_display = $old_value ? $true_value : $false_value;
+				$new_display = $new_value ? $true_value : $false_value;
+
+				$group = new Event_Details_Group();
+				$group->add_item(
+					( new Event_Details_Item( null, __( 'Value', 'simple-history' ) ) )
+						->set_values( $new_display, $old_display )
+				);
+				return $group;
+		}
+
+		return null;
 	}
 
 	/**

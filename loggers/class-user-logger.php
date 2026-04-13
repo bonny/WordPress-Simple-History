@@ -2,9 +2,11 @@
 namespace Simple_History\Loggers;
 
 use Error;
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Existing_Data_Importer;
-use Simple_History\Log_Initiators;
 use Simple_History\Helpers;
+use Simple_History\Log_Initiators;
 
 /**
  * Logs changes to user logins (and logouts).
@@ -1014,17 +1016,15 @@ class User_Logger extends Logger {
 	 * Return more info about an logged event.
 	 *
 	 * @param object $row Log row.
-	 * @return string
+	 * @return Event_Details_Group|string
 	 */
 	public function get_log_row_details_output( $row ) {
 		$context     = $row->context;
 		$message_key = $context['_message_key'];
 
-		$out               = '';
-		$diff_table_output = '';
+		$group = new Event_Details_Group();
 
 		if ( $message_key === 'user_updated_profile' ) {
-			// Find all user_prev_ and user_new_ values and show them.
 			$arr_user_keys_to_show_diff_for = array(
 				'rich_editing'         => array(
 					'title'       => _x( 'Visual editor', 'User logger', 'simple-history' ),
@@ -1085,7 +1085,6 @@ class User_Logger extends Logger {
 			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 			$translations = wp_get_available_translations();
 
-			// English (United States) is not included in translations_array, add manually.
 			if ( ! isset( $translations['en_US'] ) ) {
 				$translations['en_US'] = array(
 					'language'     => 'en_US',
@@ -1101,152 +1100,88 @@ class User_Logger extends Logger {
 				$user_old_value = $context[ "user_prev_{$key}" ];
 				$user_new_value = $context[ "user_new_{$key}" ];
 
+				// Transform locale codes to display names.
 				if ( $key === 'locale' ) {
 					if ( isset( $translations[ $user_old_value ] ) ) {
-						$language_english_name = $translations[ $user_old_value ]['english_name'];
-						$user_old_value        = "{$language_english_name} ({$user_old_value})";
+						$user_old_value = "{$translations[ $user_old_value ]['english_name']} ({$user_old_value})";
 					} elseif ( $user_old_value === 'SITE_DEFAULT' ) {
 						$user_old_value = __( 'Site Default', 'simple-history' );
 					}
 
 					if ( isset( $translations[ $user_new_value ] ) ) {
-						$language_english_name = $translations[ $user_new_value ]['english_name'];
-						$user_new_value        = "{$language_english_name} ({$user_new_value})";
+						$user_new_value = "{$translations[ $user_new_value ]['english_name']} ({$user_new_value})";
 					} elseif ( $user_new_value === 'SITE_DEFAULT' ) {
 						$user_new_value = __( 'Site Default', 'simple-history' );
 					}
 				}
 
-				// Change naming for checkbox items from "true" or "false" to
-				// something more user friendly "Checked" and "Unchecked".
+				// Transform checkbox values to user-friendly labels.
 				if ( isset( $val['type'] ) && $val['type'] === 'checkbox' ) {
 					$user_old_value = $user_old_value === 'true' ? $val['value_true'] : $val['value_false'];
 					$user_new_value = $user_new_value === 'true' ? $val['value_true'] : $val['value_false'];
 				}
 
-				$diff_table_output .= sprintf(
-					'<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>',
-					$val['title'],
-					sprintf(
-						'<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins> <del class="SimpleHistoryLogitem__keyValueTable__removedThing">%2$s</del>',
-						esc_html( $user_new_value ), // 1
-						esc_html( $user_old_value ) // 2
-					)
+				$group->add_item(
+					( new Event_Details_Item( null, $val['title'] ) )
+						->set_values( $user_new_value, $user_old_value )
 				);
 			}
 
-			// Check if password was changed.
+			// Password changed.
 			if ( isset( $context['edited_user_password_changed'] ) ) {
-				$diff_table_output .= sprintf(
-					'<tr>
-                        <td>%1$s</td>
-                        <td>%2$s</td>
-                    </tr>',
-					_x( 'Password', 'User logger', 'simple-history' ),
-					_x( 'Changed', 'User logger', 'simple-history' )
+				$group->add_item(
+					( new Event_Details_Item( null, _x( 'Password', 'User logger', 'simple-history' ) ) )
+						->set_new_value( _x( 'Changed', 'User logger', 'simple-history' ) )
 				);
 			}
 		} elseif ( $message_key === 'user_created' ) {
-			// Show fields for created users.
-			$arr_user_keys_to_show_diff_for = array(
-				'created_user_role'       => array(
-					'title' => _x( 'Role', 'User logger', 'simple-history' ),
-				),
-				'created_user_first_name' => array(
-					'title' => _x( 'First name', 'User logger', 'simple-history' ),
-				),
-				'created_user_last_name'  => array(
-					'title' => _x( 'Last name', 'User logger', 'simple-history' ),
-				),
-				'created_user_url'        => array(
-					'title' => _x( 'Website', 'User logger', 'simple-history' ),
-				),
-				'send_user_notification'  => array(
-					'title' => _x( 'Send notification', 'User logger', 'simple-history' ),
-				),
+			$arr_user_keys_to_show = array(
+				'created_user_role'       => _x( 'Role', 'User logger', 'simple-history' ),
+				'created_user_first_name' => _x( 'First name', 'User logger', 'simple-history' ),
+				'created_user_last_name'  => _x( 'Last name', 'User logger', 'simple-history' ),
+				'created_user_url'        => _x( 'Website', 'User logger', 'simple-history' ),
+				'send_user_notification'  => _x( 'Send notification', 'User logger', 'simple-history' ),
 			);
 
-			foreach ( $arr_user_keys_to_show_diff_for as $key => $val ) {
+			foreach ( $arr_user_keys_to_show as $key => $title ) {
 				if ( ! isset( $context[ $key ] ) || ! trim( $context[ $key ] ) ) {
 					continue;
 				}
 
-				if ( $key === 'send_user_notification' ) {
-					if ( (int) $context[ $key ] === 1 ) {
-						// The checkbox for notification was checked.
-						$sent_status = _x(
-							'Checked',
-							'User logger',
-							'simple-history'
-						);
-					} else {
-						$sent_status = '';
-					}
+				$value = $context[ $key ];
 
-					if ( $sent_status !== '' ) {
-						$diff_table_output .= sprintf(
-							'<tr>
-								<td>%1$s</td>
-								<td>%2$s</td>
-							</tr>',
-							$val['title'],
-							sprintf(
-								'<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>',
-								esc_html( $sent_status ) // 1
-							)
-						);
+				if ( $key === 'send_user_notification' ) {
+					if ( (int) $value !== 1 ) {
+						continue;
 					}
-				} else {
-					$diff_table_output .= sprintf(
-						'<tr>
-							<td>%1$s</td>
-							<td>%2$s</td>
-						</tr>',
-						$val['title'],
-						sprintf(
-							'<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%1$s</ins>',
-							esc_html( $context[ $key ] ) // 1
-						)
-					);
+					$value = _x( 'Checked', 'User logger', 'simple-history' );
 				}
+
+				$group->add_item(
+					( new Event_Details_Item( null, $title ) )
+						->set_new_value( $value )
+				);
 			}
 		}
 
 		// Common for both modified and added users.
 		if ( isset( $context['user_added_roles'] ) ) {
-			$diff_table_output .= sprintf(
-				'
-					<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>
-				',
-				__( 'Role added', 'simple-history' ),
-				esc_html( $context['user_added_roles'] )
+			$group->add_item(
+				( new Event_Details_Item( 'user_added_roles', __( 'Role added', 'simple-history' ) ) )
 			);
 		}
 
 		if ( isset( $context['user_removed_roles'] ) ) {
-			$diff_table_output .= sprintf(
-				'
-					<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>
-				',
-				__( 'Role removed', 'simple-history' ),
-				esc_html( $context['user_removed_roles'] )
+			$group->add_item(
+				( new Event_Details_Item( 'user_removed_roles', __( 'Role removed', 'simple-history' ) ) )
 			);
 		}
 
-		if ( $diff_table_output !== '' ) {
-			$out .= '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
+		if ( empty( $group->items ) ) {
+			return '';
 		}
 
-		return $out;
+		return $group;
 	}
 
 	/**

@@ -188,6 +188,28 @@ class Event_Details_Container implements Event_Details_Container_Interface {
 	}
 
 	/**
+	 * Create from an array of groups.
+	 *
+	 * Returns the group directly when there is only one (so that
+	 * the calling logger's group gets wrapped by Simple_History::get_log_row_details_output()
+	 * with the row context applied). When there are multiple groups,
+	 * wraps them in a container.
+	 *
+	 * @param array<Event_Details_Group> $groups Groups to wrap.
+	 * @return Event_Details_Group|Event_Details_Container
+	 */
+	public static function create_from( $groups ) {
+		if ( count( $groups ) === 1 ) {
+			return $groups[0];
+		}
+
+		$container = new self();
+		$container->add_groups( $groups );
+
+		return $container;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function to_html() {
