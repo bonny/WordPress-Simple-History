@@ -249,6 +249,19 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+### Unreleased
+
+**Added**
+
+-   "History" column on post and page list tables showing recent activity at a glance, with "View history" row action links. Requires experimental features to be enabled.
+-   Plugin active/inactive status is now recorded when plugins are updated, shown in event details when the plugin was inactive at update time.
+-   `Helpers::get_filtered_history_url()` for building pre-filtered links to the activity log.
+-   Success confirmation and automatic log refresh after manually adding a log entry.
+
+**Fixed**
+
+-   Retention upsell message showing "deleted in 0 days" when event deletion is imminent. Now shows "scheduled for deletion" instead.
+
 ### 5.26.0 (April 2026)
 
 This version makes the log actions more discoverable by moving them out of the dropdown menu and into inline buttons. It also contains a new experimental feature: reactions!

@@ -2048,6 +2048,49 @@ class Helpers {
 	}
 
 	/**
+	 * Get a filtered URL to the history admin page.
+	 *
+	 * Builds a URL with optional filters pre-applied: date range, context,
+	 * message types, and expanded filter panel. Handles the `messages` JSON
+	 * parameter correctly (add_query_arg double-encodes JSON, so it's appended manually).
+	 *
+	 * @param array $args {
+	 *     Optional. Filter arguments.
+	 *
+	 *     @type string $date         Date filter. E.g. 'allDates', 'lastdays:30', 'month:2025-04'.
+	 *     @type string $context      Context filter. E.g. 'post_id:123'.
+	 *     @type bool   $show_filters Whether to expand the filter panel. Default false.
+	 *     @type array  $messages     Array of message filter objects, each with 'value' and 'search_options' keys.
+	 *                                Example: [ [ 'value' => 'Posts', 'search_options' => [ 'SimplePostLogger:post_created' ] ] ]
+	 * }
+	 * @return string Full admin URL with filter parameters.
+	 */
+	public static function get_filtered_history_url( $args = array() ) {
+		$query_args = array();
+
+		if ( ! empty( $args['date'] ) ) {
+			$query_args['date'] = $args['date'];
+		}
+
+		if ( ! empty( $args['context'] ) ) {
+			$query_args['context'] = $args['context'];
+		}
+
+		if ( ! empty( $args['show_filters'] ) ) {
+			$query_args['show-filters'] = '1';
+		}
+
+		$url = add_query_arg( $query_args, self::get_history_admin_url() );
+
+		// Append messages param manually — add_query_arg double-encodes JSON.
+		if ( ! empty( $args['messages'] ) ) {
+			$url .= '&messages=' . rawurlencode( wp_json_encode( $args['messages'] ) );
+		}
+
+		return $url;
+	}
+
+	/**
 	 * Get URL for settings page.
 	 *
 	 * Uses the same menu location logic as the main history page.

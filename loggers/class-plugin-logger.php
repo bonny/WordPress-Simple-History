@@ -1538,13 +1538,11 @@ class Plugin_Logger extends Logger {
 				// Display update method and upgrade notice in a key-value table.
 				$update_info_rows = [];
 
-				// Show whether the plugin was active or inactive at update time.
-				if ( isset( $context['plugin_was_active'] ) ) {
+				// Show status at update only when the plugin was inactive — that's the noteworthy case.
+				if ( isset( $context['plugin_was_active'] ) && $context['plugin_was_active'] === '0' ) {
 					$update_info_rows[] = [
 						'label' => _x( 'Status at update', 'plugin logger: plugin active status label', 'simple-history' ),
-						'value' => $context['plugin_was_active'] === '1'
-							? _x( 'Active', 'plugin logger: plugin was active at update', 'simple-history' )
-							: _x( 'Inactive', 'plugin logger: plugin was inactive at update', 'simple-history' ),
+						'value' => _x( 'Inactive', 'plugin logger: plugin was inactive at update', 'simple-history' ),
 					];
 				}
 
