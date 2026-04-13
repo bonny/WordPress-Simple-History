@@ -19,11 +19,23 @@ For thorough testing that needs MySQL or WP-CLI, use the Docker Compose setup in
 
 ## Quick Start (current directory)
 
+**Before starting**, ensure build assets exist — Playground mounts the directory as-is:
+
+```bash
+# Install dependencies if node_modules is missing (common in worktrees)
+[ -d node_modules ] || npm install
+
+# Build JS/CSS assets (required — Playground has no build step)
+npm run build
+```
+
+Then start:
+
 ```bash
 npm run playground:start
 ```
 
-This runs `npx @wp-playground/cli start --auto-mount` which auto-detects the plugin and mounts it.
+This runs `npx @wp-playground/cli server` with the plugin mounted and the blueprint applied.
 
 ## With a Blueprint (recommended)
 
