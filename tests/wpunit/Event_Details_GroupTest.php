@@ -1,7 +1,9 @@
 <?php
 
 use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Single_Item_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
 use Simple_History\Event_Details\Event_Details_Group_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Group_Inline_Formatter;
 
@@ -200,12 +202,84 @@ class Event_Details_GroupTest extends \Codeception\TestCase\WPTestCase {
 		$group = new Event_Details_Group();
 		$original_formatter = $group->formatter;
 		$new_formatter = new Event_Details_Group_Inline_Formatter();
-		
+
 		$this->assertNotSame( $new_formatter, $original_formatter, 'New formatter should be different from original' );
-		
+
 		$group->set_formatter( $new_formatter );
-		
+
 		$this->assertSame( $new_formatter, $group->formatter, 'Formatter should be replaced' );
 		$this->assertNotSame( $original_formatter, $group->formatter, 'Original formatter should no longer be set' );
+	}
+
+	public function test_create_raw_returns_group() {
+		$group = Event_Details_Group::create_raw( '<p>Hello</p>' );
+
+		$this->assertInstanceOf( Event_Details_Group::class, $group );
+	}
+
+	public function test_create_raw_uses_single_item_formatter() {
+		$group = Event_Details_Group::create_raw( '<p>Hello</p>' );
+
+		$this->assertInstanceOf( Event_Details_Group_Single_Item_Formatter::class, $group->formatter );
+	}
+
+	public function test_create_raw_has_one_item() {
+		$group = Event_Details_Group::create_raw( '<p>Hello</p>' );
+
+		$this->assertCount( 1, $group->items );
+	}
+
+	public function test_create_raw_item_has_raw_formatter() {
+		$group = Event_Details_Group::create_raw( '<p>Hello</p>' );
+
+		$this->assertInstanceOf( Event_Details_Item_RAW_Formatter::class, $group->items[0]->get_formatter() );
+	}
+
+	public function test_create_raw_html_output() {
+		$html = '<div class="thumbnail"><img src="test.jpg" alt=""></div>';
+		$group = Event_Details_Group::create_raw( $html );
+
+		$output = $group->formatter->to_html( $group );
+
+		$this->assertStringContainsString( $html, $output, 'HTML output should contain the raw HTML' );
+	}
+
+	public function test_create_raw_with_json() {
+		$html = '<img src="test.jpg">';
+		$json = [ 'type' => 'image_thumbnail', 'attachment_id' => 42 ];
+		$group = Event_Details_Group::create_raw( $html, $json );
+
+		$json_output = $group->formatter->to_json( $group );
+
+		$this->assertIsArray( $json_output );
+		$this->assertEquals( 'image_thumbnail', $json_output['items'][0]['type'] );
+		$this->assertEquals( 42, $json_output['items'][0]['attachment_id'] );
+	}
+
+	public function test_create_raw_without_json() {
+		$group = Event_Details_Group::create_raw( '<p>No JSON</p>' );
+
+		$json_output = $group->formatter->to_json( $group );
+
+		$this->assertIsArray( $json_output );
+		$this->assertEmpty( $json_output['items'][0], 'JSON output should be empty when no JSON provided' );
+	}
+
+	public function test_create_raw_with_empty_html() {
+		$group = Event_Details_Group::create_raw( '' );
+
+		$output = $group->formatter->to_html( $group );
+
+		$this->assertEmpty( $output, 'Empty HTML should produce empty output' );
+	}
+
+	public function test_create_raw_preserves_html_entities() {
+		$html = '<p>Price: &euro;5 &amp; tax &lt;included&gt;</p>';
+		$group = Event_Details_Group::create_raw( $html );
+
+		$output = $group->formatter->to_html( $group );
+
+		$this->assertStringContainsString( '&euro;5', $output );
+		$this->assertStringContainsString( '&amp;', $output );
 	}
 }

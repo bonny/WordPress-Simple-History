@@ -1,7 +1,9 @@
 <?php
 namespace Simple_History\Loggers;
 
-use Simple_History\Helpers;
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
+use Simple_History\Event_Details\Event_Details_Item;
 
 /**
  * Logs edits to theme or plugin files done from Appearance -> Editor or Plugins -> Editor
@@ -191,7 +193,7 @@ class File_Edits_Logger extends Logger {
 	 * Get output for row details
 	 *
 	 * @param object $row Log row.
-	 * @return string HTML
+	 * @return Event_Details_Group|string
 	 */
 	public function get_log_row_details_output( $row ) {
 		$context     = $row->context;
@@ -201,22 +203,17 @@ class File_Edits_Logger extends Logger {
 			return '';
 		}
 
-		$out = '';
-
-		$diff_table_output = '';
-
-		if ( ! empty( $context['new_file_contents'] ) && ! empty( $context['old_file_contents'] ) && $context['new_file_contents'] !== $context['old_file_contents'] ) {
-			$diff_table_output .= sprintf(
-				'<tr><td>%1$s</td><td>%2$s</td></tr>',
-				__( 'File contents', 'simple-history' ),
-				helpers::text_diff( $context['old_file_contents'], $context['new_file_contents'] )
+		$group = ( new Event_Details_Group() )
+			->set_formatter( new Event_Details_Group_Diff_Table_Formatter() )
+			->add_items(
+				[
+					new Event_Details_Item(
+						[ 'new_file_contents', 'old_file_contents' ],
+						__( 'File contents', 'simple-history' ),
+					),
+				]
 			);
-		}
 
-		if ( $diff_table_output !== '' ) {
-			$diff_table_output = '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
-		}
-
-		return $out . $diff_table_output;
+		return $group;
 	}
 }

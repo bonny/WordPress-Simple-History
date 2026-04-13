@@ -3,8 +3,10 @@
 namespace Simple_History\Loggers;
 
 use Simple_History\Helpers;
+use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Container_Interface;
 use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Inline_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
 
 /**
@@ -257,92 +259,84 @@ class Media_Logger extends Logger {
 		$attachment_post         = get_post( $attachment_id );
 		$attachment_is_available = is_a( $attachment_post, 'WP_Post' );
 
-		// Attachment is created/uploaded = show details with image thumbnail.
-		$attachment_id = $context['attachment_id'];
 		$filetype      = wp_check_filetype( $context['attachment_filename'] );
 		$file_url      = wp_get_attachment_url( $attachment_id );
 		$edit_link     = get_edit_post_link( $attachment_id );
 		$attached_file = get_attached_file( $attachment_id );
-		$message       = '';
-		$full_src      = false;
 
-		// Is true if attachment is an image. But for example PDFs can have thumbnail images, but they are not considered to be image.
 		$is_image = wp_attachment_is_image( $attachment_id );
-
 		$is_video = strpos( $filetype['type'], 'video/' ) !== false;
 		$is_audio = strpos( $filetype['type'], 'audio/' ) !== false;
 
+		$groups          = [];
+		$thumb_html      = '';
 		$full_image_width  = null;
 		$full_image_height = null;
 
+		// Build thumbnail/media preview HTML.
 		if ( $is_image ) {
 			$thumb_src = wp_get_attachment_image_src( $attachment_id, 'medium' );
 			$full_src  = wp_get_attachment_image_src( $attachment_id, 'full' );
 
-			$full_image_width  = $full_src[1];
-			$full_image_height = $full_src[2];
+			$full_image_width  = $full_src[1] ?? null;
+			$full_image_height = $full_src[2] ?? null;
 
-			// is_image is also true for mime types that WP can't create thumbs for
-			// so we need to check that wp got an resized version.
-			if ( $full_image_width && $full_image_height ) {
-				$context['full_image_width']  = $full_image_width;
-				$context['full_image_height'] = $full_image_height;
-
-				// Only output thumb if file exists
-				// For example images deleted on file system but not in WP cause broken images (rare case, but has happened to me.).
-				if ( file_exists( $attached_file ) && $thumb_src ) {
-					$context['attachment_thumb'] = sprintf( '<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>', $thumb_src[0] );
-				}
+			if ( $full_image_width && $full_image_height && file_exists( $attached_file ) && $thumb_src ) {
+				$thumb_html = sprintf(
+					'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s"><div class="SimpleHistoryLogitemThumbnail"><img src="%2$s" alt=""></div></a>',
+					esc_url( (string) $edit_link ),
+					esc_url( $thumb_src[0] )
+				);
 			}
 		} elseif ( $is_audio ) {
-			$content                     = sprintf( '[audio src="%1$s"]', $file_url );
-			$context['attachment_thumb'] = do_shortcode( $content );
+			$thumb_html = do_shortcode( sprintf( '[audio src="%1$s"]', $file_url ) );
 		} elseif ( $is_video ) {
-			$content                     = sprintf( '[video src="%1$s"]', $file_url );
-			$context['attachment_thumb'] = do_shortcode( $content );
+			$thumb_html = do_shortcode( sprintf( '[video src="%1$s"]', $file_url ) );
 		} elseif ( $attachment_is_available ) {
-			// Use WordPress icon for other media types.
-			$context['attachment_thumb'] = sprintf(
+			$thumb_html = sprintf(
 				'<div class="SimpleHistoryLogitemThumbnail">%1$s</div>',
 				wp_get_attachment_image( $attachment_id, array( 350, 500 ), true )
 			);
 		}
 
-		// Only set attachment_size_format if we have a valid filesize.
+		// Thumbnail group (RAW).
+		if ( ! empty( $thumb_html ) ) {
+			$groups[] = Event_Details_Group::create_raw(
+				$thumb_html,
+				[
+					'type'          => 'media_preview',
+					'attachment_id' => (int) $attachment_id,
+					'media_type'    => $is_image ? 'image' : ( $is_audio ? 'audio' : ( $is_video ? 'video' : 'file' ) ),
+				]
+			);
+		}
+
+		// Metadata group (inline).
+		$meta_group = ( new Event_Details_Group() )
+			->set_formatter( new Event_Details_Group_Inline_Formatter() );
+
 		if ( ! empty( $row->context['attachment_filesize'] ) ) {
-			$context['attachment_size_format'] = size_format( $row->context['attachment_filesize'] );
+			$meta_group->add_item(
+				( new Event_Details_Item( null, __( 'Size', 'simple-history' ) ) )
+					->set_new_value( size_format( $row->context['attachment_filesize'] ) )
+			);
 		}
 
-		$context['attachment_filetype_extension'] = strtoupper( $filetype['ext'] );
-
-		if ( ! empty( $context['attachment_thumb'] ) ) {
-			if ( $is_image ) {
-				$message .= "<a class='SimpleHistoryLogitemThumbnailLink' href='" . $edit_link . "'>";
-			}
-
-			$message .= __( '{attachment_thumb}', 'simple-history' );
-
-			if ( $is_image ) {
-				$message .= '</a>';
-			}
-		}
-
-		$message .= "<p class='SimpleHistoryLogitem--logger-SimpleMediaLogger--attachment-meta'>";
-
-		// Only show file size if we have one.
-		if ( ! empty( $context['attachment_size_format'] ) ) {
-			$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{attachment_size_format}', 'simple-history' ) . '</span> ';
-		}
-
-		$message .= "<span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{attachment_filetype_extension}', 'simple-history' ) . '</span>';
+		$meta_group->add_item(
+			( new Event_Details_Item( null, __( 'Type', 'simple-history' ) ) )
+				->set_new_value( strtoupper( $filetype['ext'] ) )
+		);
 
 		if ( $full_image_width && $full_image_height ) {
-			$message .= " <span class='SimpleHistoryLogitem__inlineDivided'>" . __( '{full_image_width} × {full_image_height}', 'simple-history' ) . '</span>';
+			$meta_group->add_item(
+				( new Event_Details_Item( null, __( 'Dimensions', 'simple-history' ) ) )
+					->set_new_value( "{$full_image_width} × {$full_image_height}" )
+			);
 		}
 
-		$message .= '</p>';
+		$groups[] = $meta_group;
 
-		return helpers::interpolate( $message, $context, $row );
+		return Event_Details_Container::create_from( $groups );
 	}
 
 	/**
@@ -383,12 +377,12 @@ class Media_Logger extends Logger {
 	 * Get details output for image editing events.
 	 *
 	 * @param object $row Log row.
-	 * @return string
+	 * @return Event_Details_Group|Event_Details_Container|string
 	 */
 	protected function get_details_output_for_image_edited( $row ) {
 		$context       = $row->context;
 		$attachment_id = (int) ( $context['attachment_id'] ?? 0 );
-		$output        = '';
+		$groups        = [];
 
 		// Show thumbnail if the image attachment is still available.
 		if ( $attachment_id && wp_attachment_is_image( $attachment_id ) ) {
@@ -397,47 +391,56 @@ class Media_Logger extends Logger {
 			$edit_link     = get_edit_post_link( $attachment_id );
 
 			if ( $attached_file && file_exists( $attached_file ) && $thumb_src ) {
-				$output .= sprintf(
+				$thumb_html = sprintf(
 					'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s"><div class="SimpleHistoryLogitemThumbnail SimpleHistoryLogitemThumbnail--small"><img src="%2$s" alt=""></div></a>',
 					esc_url( (string) $edit_link ),
 					esc_url( $thumb_src[0] )
 				);
+
+				$groups[] = Event_Details_Group::create_raw(
+					$thumb_html,
+					[
+						'type'          => 'image_thumbnail',
+						'attachment_id' => $attachment_id,
+					]
+				);
 			}
 		}
 
-		if ( empty( $context['edit_operations'] ) ) {
-			return $output;
-		}
+		// Show edit operations.
+		if ( ! empty( $context['edit_operations'] ) ) {
+			$operation_labels = [
+				'crop'   => __( 'Cropped', 'simple-history' ),
+				'rotate' => __( 'Rotated', 'simple-history' ),
+				'flip'   => __( 'Flipped', 'simple-history' ),
+				'scale'  => __( 'Scaled', 'simple-history' ),
+			];
 
-		$operations_raw = $context['edit_operations'];
+			$operations = array_map( 'trim', explode( ',', $context['edit_operations'] ) );
+			$labels     = [];
 
-		$operation_labels = [
-			'crop'   => __( 'Cropped', 'simple-history' ),
-			'rotate' => __( 'Rotated', 'simple-history' ),
-			'flip'   => __( 'Flipped', 'simple-history' ),
-			'scale'  => __( 'Scaled', 'simple-history' ),
-		];
-
-		$operations = array_map( 'trim', explode( ',', $operations_raw ) );
-
-		$labels = [];
-		foreach ( $operations as $operation ) {
-			if ( ! isset( $operation_labels[ $operation ] ) ) {
-				continue;
+			foreach ( $operations as $operation ) {
+				if ( isset( $operation_labels[ $operation ] ) ) {
+					$labels[] = $operation_labels[ $operation ];
+				}
 			}
 
-			$labels[] = $operation_labels[ $operation ];
+			if ( ! empty( $labels ) ) {
+				$ops_group = ( new Event_Details_Group() )
+					->set_formatter( new Event_Details_Group_Inline_Formatter() );
+				$ops_group->add_item(
+					( new Event_Details_Item( null, __( 'Operations', 'simple-history' ) ) )
+						->set_new_value( implode( ', ', $labels ) )
+				);
+				$groups[] = $ops_group;
+			}
 		}
 
-		if ( ! empty( $labels ) ) {
-			$output .= sprintf(
-				'<p>%1$s: %2$s</p>',
-				esc_html__( 'Operations', 'simple-history' ),
-				esc_html( implode( ', ', $labels ) )
-			);
+		if ( empty( $groups ) ) {
+			return '';
 		}
 
-		return $output;
+		return Event_Details_Container::create_from( $groups );
 	}
 
 	/**
