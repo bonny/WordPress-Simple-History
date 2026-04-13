@@ -1318,7 +1318,7 @@ class Plugin_Logger extends Logger {
 				return $this->get_plugin_installed_details_group( $context );
 			case 'plugin_bulk_updated':
 			case 'plugin_updated':
-				return $this->get_plugin_updated_details_group( $context, $message_key );
+				return $this->get_plugin_updated_details_group( $context );
 			case 'plugin_activated':
 			case 'plugin_deactivated':
 				return '';
@@ -1577,15 +1577,14 @@ class Plugin_Logger extends Logger {
 
 		$group = new Event_Details_Group();
 
+		$raw_keys = [ 'plugin_description', 'plugin_author', 'plugin_url' ];
+
 		foreach ( $arr_plugin_keys as $key => $desc ) {
 			$desc_output = $this->get_plugin_key_description_output( $key, $context, $plugin_description );
 
 			if ( trim( $desc_output ) === '' ) {
 				continue;
 			}
-
-			// Keys with pre-formatted HTML need RAW formatter.
-			$raw_keys = [ 'plugin_description', 'plugin_author', 'plugin_url' ];
 
 			$item = new Event_Details_Item( null, $desc );
 
@@ -1607,11 +1606,10 @@ class Plugin_Logger extends Logger {
 	/**
 	 * Get Event_Details_Group for plugin update details.
 	 *
-	 * @param array  $context Log context.
-	 * @param string $message_key Message key.
+	 * @param array $context Log context.
 	 * @return Event_Details_Group|string
 	 */
-	private function get_plugin_updated_details_group( $context, $message_key ) {
+	private function get_plugin_updated_details_group( $context ) {
 		$plugin_slug    = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
 		$plugin_version = empty( $context['plugin_version'] ) ? '' : $context['plugin_version'];
 
@@ -1636,10 +1634,8 @@ class Plugin_Logger extends Logger {
 			$groups[] = Event_Details_Group::create_raw( $extra_details );
 		}
 
-		// Build update info group.
 		$info_group = new Event_Details_Group();
 
-		// Status at update.
 		if ( isset( $context['plugin_was_active'] ) ) {
 			$info_group->add_item(
 				( new Event_Details_Item( null, _x( 'Status at update', 'plugin logger: plugin active status label', 'simple-history' ) ) )
@@ -1651,7 +1647,6 @@ class Plugin_Logger extends Logger {
 			);
 		}
 
-		// Forced security update method.
 		$plugin_update_type = $context['plugin_update_type'] ?? '';
 		if ( $plugin_update_type === 'forced_security' ) {
 			$info_group->add_item(
@@ -1660,7 +1655,6 @@ class Plugin_Logger extends Logger {
 			);
 		}
 
-		// Upgrade notice.
 		if ( ! empty( $context['plugin_upgrade_notice'] ) ) {
 			$upgrade_notice = wp_strip_all_tags( $context['plugin_upgrade_notice'] );
 			$upgrade_notice = wp_trim_words( $upgrade_notice, 30, '…' );
@@ -1679,18 +1673,6 @@ class Plugin_Logger extends Logger {
 		}
 
 		return Event_Details_Container::create_from( $groups );
-	}
-
-	/**
-	 * Get detailed output for plugin actions (update, activate, deactivate)
-	 *
-	 * @deprecated Use get_plugin_updated_details_group() instead.
-	 * @param array  $context Log context.
-	 * @param string $message_key Message key.
-	 * @return string HTML output.
-	 */
-	private function get_plugin_action_details_output( $context, $message_key ) {
-		return '';
 	}
 
 	/**

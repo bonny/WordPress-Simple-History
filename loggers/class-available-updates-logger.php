@@ -365,7 +365,9 @@ class Available_Updates_Logger extends Logger {
 		$plugin_slug  = $context['plugin_slug'] ?? '';
 
 		if ( $message_key === 'plugin_update_available' && $plugin_slug ) {
-			$url = admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550" );
+			$url = is_multisite()
+				? network_admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550" )
+				: admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550" );
 
 			// Prepend so changelog appears before "View all updates".
 			array_unshift(

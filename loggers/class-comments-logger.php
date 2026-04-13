@@ -718,7 +718,7 @@ class Comments_Logger extends Logger {
 		$edit_comment_link = get_edit_comment_link( $comment_ID );
 
 		// Edit link sometimes does not contain comment ID.
-		if ( ! $edit_comment_link || $edit_comment_link[ strlen( $edit_comment_link ) - 1 ] === '=' ) {
+		if ( ! $edit_comment_link || $edit_comment_link[-1] === '=' ) {
 			return [];
 		}
 

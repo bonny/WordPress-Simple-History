@@ -92,16 +92,12 @@ class File_Edits_Logger extends Logger {
 	private function capture_plugin_file_edit( $file, $plugin, $new_contents ) {
 		$file_full_path = WP_PLUGIN_DIR . '/' . $file;
 
-		if ( ! file_exists( $file_full_path ) ) {
-			return;
-		}
-
 		$plugin_info = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
 		$old_contents = file_get_contents( $file_full_path );
 
-		if ( $old_contents === $new_contents ) {
+		if ( $old_contents === false || $old_contents === $new_contents ) {
 			return;
 		}
 
@@ -134,14 +130,10 @@ class File_Edits_Logger extends Logger {
 
 		$file_full_path = $theme->get_stylesheet_directory() . '/' . $file;
 
-		if ( ! file_exists( $file_full_path ) ) {
-			return;
-		}
-
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
 		$old_contents = file_get_contents( $file_full_path );
 
-		if ( $old_contents === $new_contents ) {
+		if ( $old_contents === false || $old_contents === $new_contents ) {
 			return;
 		}
 
