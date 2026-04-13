@@ -44,149 +44,119 @@ class File_Edits_Logger extends Logger {
 	}
 
 	/**
-	 * Called when logger is loaded
+	 * Called when logger is loaded.
 	 */
 	public function loaded() {
-		add_action( 'admin_init', array( $this, 'on_load_theme_editor' ), 10, 1 );
-		add_action( 'admin_init', array( $this, 'on_load_plugin_editor' ), 10, 1 );
+		// Capture old file contents before WordPress saves the edit.
+		// Priority 0 runs before WP's handler at priority 1.
+		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'on_file_edit_ajax' ), 0 );
 	}
 
 	/**
-	 * Called when /wp/wp-admin/plugin-editor.php is loaded
-	 * Both using regular GET and during POST with updated file data
+	 * Capture file contents before the AJAX edit handler saves.
 	 *
-	 * todo:
-	 * - log edits
-	 * - log failed edits that result in error and plugin deactivation
+	 * Runs at priority 0 on wp_ajax_edit-theme-plugin-file,
+	 * before WordPress's own handler which writes the file.
 	 */
-	public function on_load_plugin_editor() {
+	public function on_file_edit_ajax() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$file = isset( $_POST['file'] ) ? sanitize_file_name( wp_unslash( $_POST['file'] ) ) : '';
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! $file ) {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( ! isset( $_POST['plugin'] ) || ! isset( $_POST['action'] ) || $_POST['action'] !== 'edit-theme-plugin-file' ) {
-			return;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$new_contents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : '';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$plugin = isset( $_POST['plugin'] ) ? sanitize_text_field( wp_unslash( $_POST['plugin'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$theme = isset( $_POST['theme'] ) ? sanitize_text_field( wp_unslash( $_POST['theme'] ) ) : '';
+
+		if ( $plugin ) {
+			$this->capture_plugin_file_edit( $file, $plugin, $new_contents );
+		} elseif ( $theme ) {
+			$this->capture_theme_file_edit( $file, $theme, $new_contents );
 		}
+	}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$file = wp_unslash( $_POST['file'] ?? null );
-		$file = sanitize_file_name( $file );
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$plugin_file = wp_unslash( $_POST['plugin'] ?? null );
-		$plugin_file = sanitize_file_name( $plugin_file );
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
-
-		// if 'phperror' is set then there was an error and an edit is done and wp tries to activate the plugin again
-		// $phperror = isset($_POST["phperror"]) ? $_POST["phperror"] : null;
-		// Get info about the edited plugin.
-		$pluginInfo    = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file );
-		$pluginName    = $pluginInfo['Name'] ?? null;
-		$pluginVersion = $pluginInfo['Version'] ?? null;
-
+	/**
+	 * Capture and log a plugin file edit.
+	 *
+	 * @param string $file Relative file name.
+	 * @param string $plugin Plugin file path.
+	 * @param string $new_contents New file contents.
+	 */
+	private function capture_plugin_file_edit( $file, $plugin, $new_contents ) {
 		$file_full_path = WP_PLUGIN_DIR . '/' . $file;
 
-		// Check if file exists and bail if not.
 		if ( ! file_exists( $file_full_path ) ) {
 			return;
 		}
 
-		// Get contents before save.
-		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- This is a known local file.
-		$fileContentsBeforeEdit = file_get_contents( $file_full_path );
+		$plugin_info = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
 
-		$context = array(
-			'file_name'         => $plugin_file,
-			'plugin_name'       => $pluginName,
-			'plugin_version'    => $pluginVersion,
-			'old_file_contents' => $fileContentsBeforeEdit,
-			'new_file_contents' => $fileNewContents,
-			'_occasionsID'      => self::class . '/' . __FUNCTION__ . "/file-edit/$plugin_file/$file",
+		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
+		$old_contents = file_get_contents( $file_full_path );
+
+		if ( $old_contents === $new_contents ) {
+			return;
+		}
+
+		$this->info_message(
+			'plugin_file_edited',
+			array(
+				'file_name'         => $file,
+				'plugin_name'       => $plugin_info['Name'] ?? '',
+				'plugin_version'    => $plugin_info['Version'] ?? '',
+				'old_file_contents' => $old_contents,
+				'new_file_contents' => $new_contents,
+				'_occasionsID'      => self::class . "/file-edit/plugin/$plugin/$file",
+			)
 		);
-
-		$this->info_message( 'plugin_file_edited', $context );
 	}
 
 	/**
-	 * Called when /wp/wp-admin/theme-editor.php is loaded
-	 * Both using regular GET and during POST with updated file data
+	 * Capture and log a theme file edit.
 	 *
-	 * When this action is fired we don't know if a file will be successfully saved or not.
-	 * There are no filters/actions fired when the edit is saved. On the end wp_redirect() is
-	 * called however and we know the location for the redirect and wp_redirect() has filters
-	 * so we hook onto that to save the edit.
+	 * @param string $file Relative file name.
+	 * @param string $stylesheet Theme stylesheet slug.
+	 * @param string $new_contents New file contents.
 	 */
-	public function on_load_theme_editor() {
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		// Only continue if method is post and action is update.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( ! isset( $_POST['theme'] ) || ! isset( $_POST['action'] ) || $_POST['action'] !== 'edit-theme-plugin-file' ) {
-			return;
-		}
-
-		/**
-		 * POST data is like
-		 *  array(8)
-		 *      '_wpnonce' => string(10) "9b5e46634f"
-		 *      '_wp_http_referer' => string(88) "/wp/wp-admin/theme-editor.php?file=style.css&theme=twentyfifteen&scrollto=0&upda…"
-		 *      'newcontent' => string(104366) "/* Theme Name: Twenty Fifteen Theme URI: https://wordpress.org/themes/twentyfift…"
-		 *      'action' => string(6) "edit-theme-plugin-file"
-		 *      'file' => string(9) "style.css"
-		 *      'theme' => string(13) "twentyfifteen"
-		 *      'scrollto' => string(3) "638"
-		 *      'submit' => string(11) "Update File"
-		 */
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$file = wp_unslash( $_POST['file'] ?? null );
-		$file = sanitize_file_name( $file );
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$theme = wp_unslash( $_POST['theme'] ?? null );
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$fileNewContents = isset( $_POST['newcontent'] ) ? wp_unslash( $_POST['newcontent'] ) : null;
-
-		// Same code as in theme-editor.php.
-		if ( $theme ) {
-			$stylesheet = $theme;
-		} else {
-			$stylesheet = get_stylesheet();
-		}
-
+	private function capture_theme_file_edit( $file, $stylesheet, $new_contents ) {
 		$theme = wp_get_theme( $stylesheet );
 
-		if ( ! is_a( $theme, 'WP_Theme' ) ) {
+		if ( ! $theme->exists() ) {
 			return;
 		}
 
-		// Same code as in theme-editor.php.
-		$relative_file = $file;
-		$file          = $theme->get_stylesheet_directory() . '/' . $relative_file;
+		$file_full_path = $theme->get_stylesheet_directory() . '/' . $file;
 
-		// Get file contents, so we have something to compare with later.
-		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- This is a known local file.
-		$fileContentsBeforeEdit = file_get_contents( $file );
+		if ( ! file_exists( $file_full_path ) ) {
+			return;
+		}
 
-		$context = array(
-			'theme_name'            => $theme->name,
-			'theme_stylesheet_path' => $theme->get_stylesheet(),
-			'theme_stylesheet_dir'  => $theme->get_stylesheet_directory(),
-			'file_name'             => $relative_file,
-			'file_dir'              => $file,
-			'old_file_contents'     => $fileContentsBeforeEdit,
-			'new_file_contents'     => $fileNewContents,
-			'_occasionsID'          => self::class . '/' . __FUNCTION__ . "/file-edit/$file",
+		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
+		$old_contents = file_get_contents( $file_full_path );
+
+		if ( $old_contents === $new_contents ) {
+			return;
+		}
+
+		$this->info_message(
+			'theme_file_edited',
+			array(
+				'theme_name'            => $theme->name,
+				'theme_stylesheet_path' => $theme->get_stylesheet(),
+				'theme_stylesheet_dir'  => $theme->get_stylesheet_directory(),
+				'file_name'             => $file,
+				'file_dir'              => $file_full_path,
+				'old_file_contents'     => $old_contents,
+				'new_file_contents'     => $new_contents,
+				'_occasionsID'          => self::class . "/file-edit/theme/$stylesheet/$file",
+			)
 		);
-
-		$this->info_message( 'theme_file_edited', $context );
 	}
 
 	/**
