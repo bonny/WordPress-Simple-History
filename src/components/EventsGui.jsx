@@ -634,6 +634,26 @@ function EventsGUI() {
 		setSelectedCustomDateTo,
 	] );
 
+	// Listen for event creation from premium add-on or other extensions.
+	// When a new log entry is created, refresh the event list immediately.
+	useEffect( () => {
+		const handleEventCreated = () => {
+			handleReload();
+		};
+
+		window.addEventListener(
+			'SimpleHistory:eventCreated',
+			handleEventCreated
+		);
+
+		return () => {
+			window.removeEventListener(
+				'SimpleHistory:eventCreated',
+				handleEventCreated
+			);
+		};
+	}, [ handleReload ] );
+
 	// Listen for IP address filter events from the IP address popover.
 	// When a user clicks "Show all events from this IP address" in the popover,
 	// update the IP address filter.
