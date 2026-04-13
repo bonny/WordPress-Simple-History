@@ -70,4 +70,32 @@ class Event_Details_Group {
 	public function get_title() {
 		return $this->title;
 	}
+
+	/**
+	 * Create a group that outputs raw HTML (and optional JSON).
+	 *
+	 * Shortcut for the common pattern of creating a single-item group
+	 * with a RAW formatter for content like thumbnails, media players,
+	 * or pre-formatted HTML blocks.
+	 *
+	 * @param string       $html Raw HTML output.
+	 * @param array<mixed> $json Optional JSON output for REST API.
+	 * @return Event_Details_Group
+	 */
+	public static function create_raw( $html, $json = [] ) {
+		$formatter = ( new Event_Details_Item_RAW_Formatter() )
+			->set_html_output( $html );
+
+		if ( ! empty( $json ) ) {
+			$formatter->set_json_output( $json );
+		}
+
+		$group = new self();
+		$group->set_formatter( new Event_Details_Group_Single_Item_Formatter() );
+		$group->add_item(
+			( new Event_Details_Item() )->set_formatter( $formatter )
+		);
+
+		return $group;
+	}
 }

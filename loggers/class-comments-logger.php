@@ -2,6 +2,10 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Table_Formatter;
+use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
 use Simple_History\Helpers;
 use Simple_History\Log_Initiators;
 
@@ -576,10 +580,10 @@ class Comments_Logger extends Logger {
 	 * @param object $row Log row.
 	 */
 	public function get_log_row_details_output( $row ) {
+		$context      = $row->context;
+		$comment_type = $context['comment_type'] ?? '';
 
-		$context = $row->context;
-		$output  = '';
-
+		// Prepare comment text for content field.
 		$comment_text = '';
 		if ( isset( $context['comment_content'] ) && $context['comment_content'] ) {
 			$comment_text = $context['comment_content'];
@@ -589,7 +593,6 @@ class Comments_Logger extends Logger {
 
 		// Keys to show.
 		$arr_plugin_keys = array();
-		$comment_type    = $context['comment_type'] ?? '';
 
 		switch ( $comment_type ) {
 			case 'trackback':
@@ -599,7 +602,6 @@ class Comments_Logger extends Logger {
 					'trackback_author_email' => _x( 'Email', 'comments logger - detailed output email', 'simple-history' ),
 					'trackback_content'      => _x( 'Content', 'comments logger - detailed output content', 'simple-history' ),
 				);
-
 				break;
 			case 'pingback':
 				$arr_plugin_keys = array(
@@ -607,9 +609,7 @@ class Comments_Logger extends Logger {
 					'pingback_author'       => _x( 'Name', 'comments logger - detailed output author', 'simple-history' ),
 					'pingback_author_email' => _x( 'Email', 'comments logger - detailed output email', 'simple-history' ),
 					'pingback_content'      => _x( 'Content', 'comments logger - detailed output content', 'simple-history' ),
-
 				);
-
 				break;
 			case 'comment':
 			default:
@@ -619,7 +619,6 @@ class Comments_Logger extends Logger {
 					'comment_author_email' => _x( 'Email', 'comments logger - detailed output email', 'simple-history' ),
 					'comment_content'      => _x( 'Comment', 'comments logger - detailed output content', 'simple-history' ),
 				);
-
 				break;
 		}
 
@@ -630,10 +629,12 @@ class Comments_Logger extends Logger {
 		 */
 		$arr_plugin_keys = apply_filters( 'simple_history/comments_logger/row_details_plugin_info_keys', $arr_plugin_keys );
 
-		// Start output of plugin meta data table.
-		$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
+		$group = new Event_Details_Group();
+		$group->set_formatter( new Event_Details_Group_Table_Formatter() );
 
 		foreach ( $arr_plugin_keys as $key => $desc ) {
+			$desc_output = '';
+
 			switch ( $key ) {
 				case 'comment_content':
 				case 'trackback_content':
@@ -644,12 +645,9 @@ class Comments_Logger extends Logger {
 				case 'comment_author':
 				case 'trackback_author':
 				case 'pingback_author':
-					$desc_output = '';
-
 					if ( isset( $context[ $key ] ) ) {
-						$desc_output .= esc_html( $context[ $key ] );
+						$desc_output = $context[ $key ];
 					}
-
 					break;
 
 				case 'comment_status':
@@ -664,81 +662,73 @@ class Comments_Logger extends Logger {
 							$desc_output = __( 'Pending', 'simple-history' );
 						}
 					}
-
-					break;
-
-				case 'comment_type':
-				case 'trackback_type':
-				case 'pingback_type':
-					if ( isset( $context['comment_type'] ) ) {
-						if ( $context['comment_type'] === 'trackback' ) {
-							$desc_output = __( 'Trackback', 'simple-history' );
-						} elseif ( $context['comment_type'] === 'pingback' ) {
-							$desc_output = __( 'Pingback', 'simple-history' );
-						} elseif ( $context['comment_type'] === 'comment' ) {
-							$desc_output = __( 'Comment', 'simple-history' );
-						} else {
-							$desc_output = '';
-						}
-					}
-
 					break;
 
 				default:
 					if ( isset( $context[ $key ] ) ) {
-						$desc_output = esc_html( $context[ $key ] );
+						$desc_output = $context[ $key ];
 					}
-
 					break;
 			}
 
-			// Skip empty rows.
 			if ( empty( $desc_output ) ) {
 				continue;
 			}
 
-			$output .= sprintf(
-				'
-				<tr>
-					<td>%1$s</td>
-					<td>%2$s</td>
-				</tr>
-				',
-				esc_html( $desc ),
-				$desc_output
-			);
+			// Content fields contain HTML (from wpautop), use RAW formatter.
+			$is_content_field = in_array( $key, [ 'comment_content', 'trackback_content', 'pingback_content' ], true );
+
+			$item = new Event_Details_Item( null, $desc );
+
+			if ( $is_content_field ) {
+				$item->set_formatter(
+					( new Event_Details_Item_Table_Row_RAW_Formatter() )
+						->set_html_output( $desc_output )
+				);
+			} else {
+				$item->set_new_value( $desc_output );
+			}
+
+			$group->add_item( $item );
 		}
 
-		// Add link to edit comment.
+		return $group;
+	}
+
+	/**
+	 * Get action links for a log row.
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		$context    = $row->context;
 		$comment_ID = isset( $context['comment_ID'] ) && is_numeric( $context['comment_ID'] ) ? (int) $context['comment_ID'] : false;
 
-		if ( $comment_ID ) {
-			$comment = get_comment( $comment_ID );
-
-			if ( $comment instanceof \WP_Comment ) {
-				// http://site.local/wp/wp-admin/comment.php?action=editcomment&c=.
-				$edit_comment_link = get_edit_comment_link( $comment_ID );
-
-				// Edit link sometimes does not contain comment ID
-				// Probably because comment has been removed or something
-				// So only continue if link does not end with "="".
-				if ( $edit_comment_link && $edit_comment_link[ strlen( $edit_comment_link ) - 1 ] !== '=' ) {
-					$output .= sprintf(
-						'
-						<tr>
-							<td></td>
-							<td><a href="%2$s">%1$s</a></td>
-						</tr>
-						',
-						_x( 'View/Edit', 'comments logger - edit comment', 'simple-history' ),
-						$edit_comment_link
-					);
-				}
-			}
+		if ( ! $comment_ID ) {
+			return [];
 		}
 
-		// End table.
-		return $output . '</table>';
+		$comment = get_comment( $comment_ID );
+
+		if ( ! ( $comment instanceof \WP_Comment ) ) {
+			return [];
+		}
+
+		$edit_comment_link = get_edit_comment_link( $comment_ID );
+
+		// Edit link sometimes does not contain comment ID.
+		if ( ! $edit_comment_link || $edit_comment_link[ strlen( $edit_comment_link ) - 1 ] === '=' ) {
+			return [];
+		}
+
+		return [
+			[
+				'url'    => $edit_comment_link,
+				'label'  => _x( 'Edit comment', 'comments logger - edit comment action link', 'simple-history' ),
+				'action' => 'edit',
+			],
+		];
 	}
 
 	/**

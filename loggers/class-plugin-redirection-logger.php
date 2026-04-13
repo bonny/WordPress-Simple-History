@@ -2,6 +2,9 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Table_Formatter;
+use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
 
 /**
@@ -388,44 +391,24 @@ class Plugin_Redirection_Logger extends Logger {
 		$context     = $row->context;
 		$message_key = $context['_message_key'];
 
-		$out = '';
-
-		if ( $message_key === 'redirection_redirection_edited' ) {
-			if ( $context['new_source_url'] !== $context['prev_source_url'] ) {
-				$diff_table_output = sprintf(
-					'<tr>
-						<td>%1$s</td>
-						<td>
-							<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins>
-							<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
-						</td>
-					</tr>',
-					esc_html_x( 'Source URL', 'Logger: Redirection', 'simple-history' ), // 1
-					esc_html( $context['new_source_url'] ), // 2
-					esc_html( $context['prev_source_url'] ) // 3
-				);
-
-				$out .= '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
-			}
-
-			if ( $context['new_target'] !== $context['prev_target'] ) {
-				$diff_table_output = sprintf(
-					'<tr>
-						<td>%1$s</td>
-						<td>
-							<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins>
-							<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
-						</td>
-					</tr>',
-					esc_html_x( 'Target', 'Logger: Redirection', 'simple-history' ), // 1
-					esc_html( $context['new_target'] ), // 2
-					esc_html( $context['prev_target'] ) // 3
-				);
-
-				$out .= '<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
-			}
+		if ( $message_key !== 'redirection_redirection_edited' ) {
+			return '';
 		}
 
-		return $out;
+		$group = new Event_Details_Group();
+		$group->set_formatter( new Event_Details_Group_Table_Formatter() );
+
+		$group->add_items( [
+			new Event_Details_Item(
+				[ 'new_source_url', 'prev_source_url' ],
+				_x( 'Source URL', 'Logger: Redirection', 'simple-history' ),
+			),
+			new Event_Details_Item(
+				[ 'new_target', 'prev_target' ],
+				_x( 'Target', 'Logger: Redirection', 'simple-history' ),
+			),
+		] );
+
+		return $group;
 	}
 }

@@ -2,6 +2,9 @@
 
 namespace Simple_History\Loggers;
 
+use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
 use Simple_History\Helpers;
 
 /**
@@ -532,84 +535,70 @@ class Theme_Logger extends Logger {
 	 * Get detailed output for a row.
 	 *
 	 * @param object $row Log row.
-	 * @return string
+	 * @return Event_Details_Group|string
 	 */
 	public function get_log_row_details_output( $row ) {
 		$context     = $row->context;
 		$message_key = $context['_message_key'];
-		$output      = '';
 
-		// Theme customizer.
-		if ( $message_key === 'appearance_customized' ) {
-			if ( isset( $context['setting_old_value'] ) && isset( $context['setting_new_value'] ) ) {
-				$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
-
-				// Output section, if saved.
-				if ( ! empty( $context['section_id'] ) ) {
-					$output .= sprintf(
-						'
-						<tr>
-							<td>%1$s</td>
-							<td>%2$s</td>
-						</tr>
-						',
-						__( 'Section', 'simple-history' ),
-						esc_html( $context['section_id'] )
-					);
-				}
-
-				// Don't output prev and new value if none exist.
-				// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-				if ( empty( $context['setting_old_value'] ) && empty( $context['setting_new_value'] ) ) {
-					// Empty, so skip.
-				} else {
-					// if control is color let's be fancy and output as color.
-					$control_type          = $context['control_type'] ?? '';
-					$str_old_value_prepend = '';
-					$str_new_value_prepend = '';
-
-					if ( $control_type === 'color' ) {
-						$str_old_value_prepend .= sprintf(
-							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
-							esc_attr( ltrim( $context['setting_old_value'], ' #' ) )
-						);
-
-						$str_new_value_prepend .= sprintf(
-							'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> ',
-							esc_attr( ltrim( $context['setting_new_value'], '#' ) )
-						);
-					}
-
-					$output .= sprintf(
-						'
-						<tr>
-							<td>%1$s</td>
-							<td>%3$s%2$s</td>
-						</tr>
-						',
-						__( 'New value', 'simple-history' ),
-						esc_html( $context['setting_new_value'] ),
-						$str_new_value_prepend
-					);
-
-					$output .= sprintf(
-						'
-						<tr>
-							<td>%1$s</td>
-							<td>%3$s%2$s</td>
-						</tr>
-						',
-						__( 'Old value', 'simple-history' ),
-						esc_html( $context['setting_old_value'] ),
-						$str_old_value_prepend
-					);
-				}
-
-				$output .= '</table>';
-			}
+		if ( $message_key !== 'appearance_customized' ) {
+			return '';
 		}
 
-		return $output;
+		if ( ! isset( $context['setting_old_value'] ) || ! isset( $context['setting_new_value'] ) ) {
+			return '';
+		}
+
+		if ( empty( $context['setting_old_value'] ) && empty( $context['setting_new_value'] ) ) {
+			return '';
+		}
+
+		$group = new Event_Details_Group();
+
+		// Section row.
+		if ( ! empty( $context['section_id'] ) ) {
+			$group->add_item(
+				( new Event_Details_Item( 'section_id', __( 'Section', 'simple-history' ) ) )
+			);
+		}
+
+		// Color controls need RAW formatter for the color swatches.
+		$control_type = $context['control_type'] ?? '';
+
+		if ( $control_type === 'color' ) {
+			$new_swatch = sprintf(
+				'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
+				esc_attr( ltrim( $context['setting_new_value'], '#' ) ),
+				esc_html( $context['setting_new_value'] )
+			);
+			$old_swatch = sprintf(
+				'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
+				esc_attr( ltrim( $context['setting_old_value'], ' #' ) ),
+				esc_html( $context['setting_old_value'] )
+			);
+
+			$group->add_item(
+				( new Event_Details_Item( null, __( 'New value', 'simple-history' ) ) )
+					->set_formatter(
+						( new Event_Details_Item_Table_Row_RAW_Formatter() )
+							->set_html_output( $new_swatch )
+					)
+			);
+			$group->add_item(
+				( new Event_Details_Item( null, __( 'Old value', 'simple-history' ) ) )
+					->set_formatter(
+						( new Event_Details_Item_Table_Row_RAW_Formatter() )
+							->set_html_output( $old_swatch )
+					)
+			);
+		} else {
+			$group->add_item(
+				( new Event_Details_Item( null, __( 'Value', 'simple-history' ) ) )
+					->set_values( $context['setting_new_value'], $context['setting_old_value'] )
+			);
+		}
+
+		return $group;
 	}
 
 	/**

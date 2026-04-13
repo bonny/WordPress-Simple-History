@@ -480,4 +480,87 @@ class Event_Details_ContainerTest extends \Codeception\TestCase\WPTestCase {
 		$html = $container->to_html();
 		$this->assertStringContainsString('RAW output ignores context', $html, 'Should use RAW formatter output, not context value');
 	}
+
+	public function test_create_from_single_group_returns_group() {
+		$group = new Event_Details_Group();
+		$group->add_item( ( new Event_Details_Item( null, 'Test' ) )->set_new_value( 'value' ) );
+
+		$result = Event_Details_Container::create_from( [ $group ] );
+
+		$this->assertInstanceOf( Event_Details_Group::class, $result, 'Single group should return the group directly' );
+		$this->assertSame( $group, $result, 'Should return the exact same group instance' );
+	}
+
+	public function test_create_from_multiple_groups_returns_container() {
+		$group1 = new Event_Details_Group();
+		$group1->add_item( ( new Event_Details_Item( null, 'Field 1' ) )->set_new_value( 'a' ) );
+		$group2 = new Event_Details_Group();
+		$group2->add_item( ( new Event_Details_Item( null, 'Field 2' ) )->set_new_value( 'b' ) );
+
+		$result = Event_Details_Container::create_from( [ $group1, $group2 ] );
+
+		$this->assertInstanceOf( Event_Details_Container::class, $result, 'Multiple groups should return a container' );
+		$this->assertCount( 2, $result->groups, 'Container should have both groups' );
+		$this->assertSame( $group1, $result->groups[0], 'First group should be preserved' );
+		$this->assertSame( $group2, $result->groups[1], 'Second group should be preserved' );
+	}
+
+	public function test_create_from_three_groups() {
+		$groups = [];
+		for ( $i = 0; $i < 3; $i++ ) {
+			$group = new Event_Details_Group();
+			$group->add_item( ( new Event_Details_Item( null, "Field $i" ) )->set_new_value( "val$i" ) );
+			$groups[] = $group;
+		}
+
+		$result = Event_Details_Container::create_from( $groups );
+
+		$this->assertInstanceOf( Event_Details_Container::class, $result );
+		$this->assertCount( 3, $result->groups );
+	}
+
+	public function test_create_from_container_produces_valid_html() {
+		$group1 = new Event_Details_Group();
+		$group1->add_item( ( new Event_Details_Item( null, 'Name' ) )->set_new_value( 'Alice' ) );
+		$group2 = new Event_Details_Group();
+		$group2->add_item( ( new Event_Details_Item( null, 'Role' ) )->set_new_value( 'Admin' ) );
+
+		$result = Event_Details_Container::create_from( [ $group1, $group2 ] );
+
+		$html = $result->to_html();
+
+		$this->assertStringContainsString( 'Alice', $html );
+		$this->assertStringContainsString( 'Admin', $html );
+		$this->assertStringContainsString( 'SimpleHistoryLogitem__keyValueTable', $html );
+	}
+
+	public function test_create_from_container_produces_valid_json() {
+		$group1 = new Event_Details_Group();
+		$group1->add_item( ( new Event_Details_Item( null, 'Name' ) )->set_new_value( 'Alice' ) );
+		$group2 = new Event_Details_Group();
+		$group2->add_item( ( new Event_Details_Item( null, 'Role' ) )->set_new_value( 'Admin' ) );
+
+		$result = Event_Details_Container::create_from( [ $group1, $group2 ] );
+
+		$json = $result->to_json();
+
+		$this->assertIsArray( $json );
+		$this->assertCount( 2, $json, 'JSON should have two group entries' );
+	}
+
+	public function test_create_from_single_group_not_wrapped_in_container() {
+		// This tests the important behavior: a single group returned directly
+		// will later be wrapped by Simple_History::get_log_row_details_output()
+		// with context applied. If we wrapped it in a container here, context
+		// would not be applied.
+		$group = new Event_Details_Group();
+		$item = new Event_Details_Item( 'my_field', 'My Field' );
+		$group->add_item( $item );
+
+		$result = Event_Details_Container::create_from( [ $group ] );
+
+		// The item should NOT have values populated yet (no context applied).
+		$this->assertNull( $item->new_value, 'Item value should not be set — context is applied later' );
+		$this->assertNotInstanceOf( Event_Details_Container::class, $result, 'Should not be a container' );
+	}
 }

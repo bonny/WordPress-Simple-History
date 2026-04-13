@@ -286,10 +286,7 @@ class Simple_History_Logger extends Logger {
 		$message_key = $row->context_message_key;
 
 		if ( $message_key === 'purged_events' ) {
-			// For message "Removed 24318 events that were older than 60 days"
-			// add a text with a link with information on how to modify this.
-			// If they already have the plugin, show message with link to settings page.
-
+			// Add a text with a link with information on how to modify retention.
 			if ( Helpers::is_premium_add_on_active() ) {
 				$message = sprintf(
 					/* translators: 1 is a link to the settings page retention setting */
@@ -304,7 +301,7 @@ class Simple_History_Logger extends Logger {
 				);
 			}
 
-			return '<p>' . wp_kses(
+			$html_output = '<p>' . wp_kses(
 				$message,
 				[
 					'a' => [
@@ -314,6 +311,16 @@ class Simple_History_Logger extends Logger {
 					],
 				]
 			) . '</p>';
+
+			return Event_Details_Group::create_raw(
+				$html_output,
+				[
+					'type'    => 'retention_link',
+					'content' => Helpers::is_premium_add_on_active()
+						? Helpers::get_settings_page_url() . '#simple-history-premium-settings'
+						: Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_logger_purged' ),
+				]
+			);
 		}
 
 		return ( new Event_Details_Group() )

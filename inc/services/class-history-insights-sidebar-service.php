@@ -555,7 +555,7 @@ class History_Insights_Sidebar_Service extends Service {
 		$days_until_gone = (int) $now->diff( $deletion_date )->format( '%r%a' );
 
 		// Only show when oldest events are within 15 days of deletion.
-		if ( $days_until_gone > 15 || $days_until_gone < 0 ) {
+		if ( $days_until_gone > 15 ) {
 			return '';
 		}
 
@@ -564,19 +564,29 @@ class History_Insights_Sidebar_Service extends Service {
 			'premium_retention_nudge'
 		);
 
-		$days_text = sprintf(
-			// translators: %d is number of days until deletion.
-			_n( '%d day', '%d days', $days_until_gone, 'simple-history' ),
-			$days_until_gone
-		);
+		// Use appropriate copy depending on how imminent the deletion is.
+		if ( $days_until_gone <= 0 ) {
+			$nudge_text = sprintf(
+				// translators: 1 is opening link tag, 2 is closing link tag.
+				__( 'Your oldest events are scheduled for deletion. Want to keep them longer? %1$sGet Premium%2$s', 'simple-history' ),
+				'<a href="' . esc_url( $premium_url ) . '" target="_blank">',
+				'</a>'
+			);
+		} else {
+			$days_text = sprintf(
+				// translators: %d is number of days until deletion.
+				_n( '%d day', '%d days', $days_until_gone, 'simple-history' ),
+				$days_until_gone
+			);
 
-		$nudge_text = sprintf(
-			// translators: 1 is number of days (e.g. "15 days"), 2 is opening link tag, 3 is closing link tag.
-			__( 'Your oldest events will be deleted in %1$s. Want to keep them longer? %2$sGet Premium%3$s', 'simple-history' ),
-			$days_text,
-			'<a href="' . esc_url( $premium_url ) . '" target="_blank">',
-			'</a>'
-		);
+			$nudge_text = sprintf(
+				// translators: 1 is number of days (e.g. "15 days"), 2 is opening link tag, 3 is closing link tag.
+				__( 'Your oldest events will be deleted in %1$s. Want to keep them longer? %2$sGet Premium%3$s', 'simple-history' ),
+				$days_text,
+				'<a href="' . esc_url( $premium_url ) . '" target="_blank">',
+				'</a>'
+			);
+		}
 
 		return '<p class="sh-m-0 sh-SidebarStats-retentionUpsell">' . $nudge_text . '</p>';
 	}
