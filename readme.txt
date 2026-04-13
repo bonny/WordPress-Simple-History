@@ -256,6 +256,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "History" column on post and page list tables showing recent activity at a glance, with "View history" row action links. Requires experimental features to be enabled.
 -   Plugin active/inactive status is now recorded when plugins are updated, shown in event details when the plugin was inactive at update time.
 -   Success confirmation and automatic log refresh after manually adding a log entry.
+-   Action links (Edit, View) for media attachment events, plugin update events ("View changelog"), and user profile events ("Edit user").
+
+**Changed**
+
+-   12 loggers migrated from manual HTML output to the structured Event Details API, improving consistency and enabling structured JSON in the REST API.
+-   Navigational links in comment and plugin events (e.g. "Edit comment", "View plugin info") moved from event details to the action links bar for better discoverability.
 
 **Fixed**
 
