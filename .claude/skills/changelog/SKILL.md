@@ -51,6 +51,7 @@ Changelogs are for **humans, not machines**. Write for both technical and non-te
 -   Don't duplicate commit messages — curate and translate them into user-facing language
 -   Group related small changes into a single entry rather than listing each separately
 -   Omit internal refactors, code cleanup, and dev tooling changes unless they affect users
+-   Omit new PHP/JS functions, helpers, or APIs — these are internal and not user-facing (e.g., don't list `Helpers::get_filtered_history_url()`)
 
 **Don't write:**
 

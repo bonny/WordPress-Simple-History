@@ -255,7 +255,6 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   "History" column on post and page list tables showing recent activity at a glance, with "View history" row action links. Requires experimental features to be enabled.
 -   Plugin active/inactive status is now recorded when plugins are updated, shown in event details when the plugin was inactive at update time.
--   `Helpers::get_filtered_history_url()` for building pre-filtered links to the activity log.
 -   Success confirmation and automatic log refresh after manually adding a log entry.
 
 **Fixed**
