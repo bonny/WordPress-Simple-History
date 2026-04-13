@@ -178,6 +178,7 @@ class Available_Updates_Logger extends Logger {
 
 			$context = array(
 				'plugin_name'            => $plugin_info['Name'] ?? '',
+				'plugin_slug'            => $data->slug ?? '',
 				'plugin_current_version' => $plugin_info['Version'] ?? '',
 				'plugin_new_version'     => $plugin_new_version,
 				'_initiator'             => Log_Initiators::WORDPRESS,
@@ -350,12 +351,33 @@ class Available_Updates_Logger extends Logger {
 			return [];
 		}
 
-		return [
+		$action_links = [
 			[
 				'url'    => admin_url( 'update-core.php' ),
 				'label'  => __( 'View all updates', 'simple-history' ),
 				'action' => 'view',
 			],
 		];
+
+		// Add "View changelog" for plugin updates with a known slug.
+		$context      = $row->context;
+		$message_key  = $context['_message_key'] ?? '';
+		$plugin_slug  = $context['plugin_slug'] ?? '';
+
+		if ( $message_key === 'plugin_update_available' && $plugin_slug ) {
+			$url = admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550" );
+
+			// Prepend so changelog appears before "View all updates".
+			array_unshift(
+				$action_links,
+				[
+					'url'    => $url,
+					'label'  => _x( 'View changelog', 'Available updates logger: changelog link', 'simple-history' ),
+					'action' => 'edit',
+				]
+			);
+		}
+
+		return $action_links;
 	}
 }
