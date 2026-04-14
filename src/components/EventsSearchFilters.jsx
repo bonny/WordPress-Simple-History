@@ -5,7 +5,10 @@ import { useEffect, useMemo, useState, Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { settings, chevronDown } from '@wordpress/icons';
-import { DEFAULT_DATE_OPTIONS, OPTIONS_LOADING } from '../constants';
+import {
+	DATE_OPTION_GROUPS_LOADING,
+	DEFAULT_DATE_OPTION_GROUPS,
+} from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
 
@@ -112,7 +115,9 @@ export function EventsSearchFilters( props ) {
 	const [ isManuallyExpanded, setIsManuallyExpanded ] = useState( null );
 	const moreOptionsIsExpanded =
 		isManuallyExpanded !== null ? isManuallyExpanded : isAutoExpanded;
-	const [ dateOptions, setDateOptions ] = useState( OPTIONS_LOADING );
+	const [ dateOptionGroups, setDateOptionGroups ] = useState(
+		DATE_OPTION_GROUPS_LOADING
+	);
 	const [ searchOptions, setSearchOptions ] = useState( null );
 
 	// Wrap parent's clear handler to also reset local UI state.
@@ -142,7 +147,10 @@ export function EventsSearchFilters( props ) {
 
 				setSearchOptions( searchOptionsResponse );
 
-				// Append result_months and all dates to dateOptions.
+				// Build the "By month" group from API months. "All dates"
+				// is appended as an ungrouped option at the very bottom —
+				// it's a "no filter" escape, not a month, so it doesn't
+				// belong inside the months optgroup.
 				const monthsOptions =
 					searchOptionsResponse.dates.result_months.map(
 						( row ) => ( {
@@ -151,15 +159,25 @@ export function EventsSearchFilters( props ) {
 						} )
 					);
 
-				const allDatesOption = {
-					label: __( 'All dates', 'simple-history' ),
-					value: 'allDates',
+				const monthsGroup = {
+					label: __( 'By month', 'simple-history' ),
+					options: monthsOptions,
 				};
 
-				setDateOptions( [
-					...DEFAULT_DATE_OPTIONS,
-					...monthsOptions,
-					allDatesOption,
+				const allDatesGroup = {
+					label: '',
+					options: [
+						{
+							label: __( 'All dates', 'simple-history' ),
+							value: 'allDates',
+						},
+					],
+				};
+
+				setDateOptionGroups( [
+					...DEFAULT_DATE_OPTION_GROUPS,
+					monthsGroup,
+					allDatesGroup,
 				] );
 
 				// Store the default date option for use when clearing filters.
@@ -270,7 +288,7 @@ export function EventsSearchFilters( props ) {
 			<div className="SimpleHistory-filters">
 				<div className="SimpleHistory-filters__searchRow">
 					<DefaultFilters
-						dateOptions={ dateOptions }
+						dateOptionGroups={ dateOptionGroups }
 						selectedDateOption={ selectedDateOption }
 						setSelectedDateOption={ setSelectedDateOption }
 						searchText={ enteredSearchText }

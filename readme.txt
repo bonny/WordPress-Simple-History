@@ -263,6 +263,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   12 loggers migrated from manual HTML output to the structured Event Details API, improving consistency and enabling structured JSON in the REST API.
 -   Navigational links in comment and plugin events (e.g. "Edit comment", "View plugin info") moved from event details to the action links bar for better discoverability.
 -   Tips in the sidebar and the dashboard widget now draw from a single curated list, so both surfaces stay in sync and show context-appropriate advice.
+-   Date filter dropdown now groups options into "Relative dates" and "By month" sections, places "Custom range…" with the relative dates, and lists "All dates" at the bottom for easier scanning.
 
 **Fixed**
 
