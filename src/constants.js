@@ -3,7 +3,7 @@ import { endOfDay, format, startOfDay } from 'date-fns';
 
 export const DEFAULT_DATE_OPTION_GROUPS = [
 	{
-		label: __( 'Relative dates', 'simple-history' ),
+		label: __( 'Recent', 'simple-history' ),
 		options: [
 			{
 				label: __( 'Today', 'simple-history' ),

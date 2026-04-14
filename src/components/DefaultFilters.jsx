@@ -215,28 +215,25 @@ export function DefaultFilters( props ) {
 					className="SimpleHistory-filters__dateSelect"
 				>
 					{ dateOptionGroups.map( ( group, groupIndex ) => {
-						const optionElements = group.options.map(
-							( option ) => (
-								<option
-									key={ option.value }
-									value={ option.value }
-								>
-									{ option.label }
-								</option>
-							)
-						);
+						const groupKey =
+							group.label || `__ungrouped_${ groupIndex }`;
+						const options = group.options.map( ( option ) => (
+							<option key={ option.value } value={ option.value }>
+								{ option.label }
+							</option>
+						) );
 
 						if ( ! group.label ) {
 							return (
-								<Fragment key={ groupIndex }>
-									{ optionElements }
+								<Fragment key={ groupKey }>
+									{ options }
 								</Fragment>
 							);
 						}
 
 						return (
-							<optgroup key={ group.label } label={ group.label }>
-								{ optionElements }
+							<optgroup key={ groupKey } label={ group.label }>
+								{ options }
 							</optgroup>
 						);
 					} ) }
