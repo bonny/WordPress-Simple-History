@@ -147,10 +147,20 @@ export function EventsSearchFilters( props ) {
 
 				setSearchOptions( searchOptionsResponse );
 
-				// Build the "By month" group from API months. "All dates"
-				// is appended as an ungrouped option at the very bottom —
-				// it's a "no filter" escape, not a month, so it doesn't
-				// belong inside the months optgroup.
+				// "All dates" is rendered as an ungrouped option at the
+				// very top — it's the conventional "reset/clear" slot
+				// in a select, immediately discoverable, and avoids the
+				// orphaned-option problem of placing it after optgroups.
+				const allDatesGroup = {
+					label: '',
+					options: [
+						{
+							label: __( 'All dates', 'simple-history' ),
+							value: 'allDates',
+						},
+					],
+				};
+
 				const monthsOptions =
 					searchOptionsResponse.dates.result_months.map(
 						( row ) => ( {
@@ -164,20 +174,10 @@ export function EventsSearchFilters( props ) {
 					options: monthsOptions,
 				};
 
-				const allDatesGroup = {
-					label: '',
-					options: [
-						{
-							label: __( 'All dates', 'simple-history' ),
-							value: 'allDates',
-						},
-					],
-				};
-
 				setDateOptionGroups( [
+					allDatesGroup,
 					...DEFAULT_DATE_OPTION_GROUPS,
 					monthsGroup,
-					allDatesGroup,
 				] );
 
 				// Store the default date option for use when clearing filters.
