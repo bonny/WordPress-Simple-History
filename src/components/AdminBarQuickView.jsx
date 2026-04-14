@@ -6,6 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
 import { useInView } from 'react-intersection-observer';
 import { EventsCompactList } from './EventsCompactList';
+import { getEventsApiPath } from '../functions';
 import RefreshImage from '../../css/icons/refresh_24dp_5F6368_FILL0_wght400_GRAD0_opsz48.svg';
 import './AdminBarQuickView.scss';
 
@@ -167,10 +168,7 @@ const AdminBarQuickView = () => {
 
 			try {
 				const eventsResponse = await apiFetch( {
-					path: addQueryArgs(
-						'/simple-history/v1/events',
-						eventsQueryParams
-					),
+					path: addQueryArgs( getEventsApiPath(), eventsQueryParams ),
 					// Skip parsing to be able to retrieve headers.
 					parse: false,
 				} );
@@ -254,7 +252,7 @@ const AdminBarQuickView = () => {
 				</p>
 				<p className="SimpleHistory-adminBarQuickView-premiumTeaser-description">
 					{ __(
-						'Filter the log to show only events for the page you\'re viewing.',
+						"Filter the log to show only events for the page you're viewing.",
 						'simple-history'
 					) }
 				</p>

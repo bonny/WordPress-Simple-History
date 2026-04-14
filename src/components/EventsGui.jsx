@@ -22,7 +22,11 @@ import {
 	SEARCH_FILTER_DEFAULT_END_DATE,
 	SEARCH_FILTER_DEFAULT_START_DATE,
 } from '../constants';
-import { generateAPIQueryParams, parseApiFetchError } from '../functions';
+import {
+	generateAPIQueryParams,
+	getEventsApiPath,
+	parseApiFetchError,
+} from '../functions';
 import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
@@ -506,10 +510,7 @@ function EventsGUI() {
 
 		try {
 			const eventsResponse = await apiFetch( {
-				path: addQueryArgs(
-					'/simple-history/v1/events',
-					eventsQueryParams
-				),
+				path: addQueryArgs( getEventsApiPath(), eventsQueryParams ),
 				parse: false,
 			} );
 

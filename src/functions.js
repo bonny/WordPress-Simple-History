@@ -435,3 +435,19 @@ export async function parseApiFetchError( error ) {
 
 	return errorDetails;
 }
+
+/**
+ * Returns the base path for the events REST API, accounting for network admin mode.
+ *
+ * In network admin, events are served from the network-scoped endpoint that
+ * queries base_prefix tables instead of per-site tables.
+ *
+ * @return {string} The base path, e.g. '/simple-history/v1/events' or '/simple-history/v1/network/events'.
+ */
+export function getEventsApiPath() {
+	if ( window.simpleHistoryNetworkContext?.isNetworkAdmin ) {
+		return '/simple-history/v1/network/events';
+	}
+
+	return '/simple-history/v1/events';
+}
