@@ -37,6 +37,18 @@ export function EventUnstickMenuItem( {
 				path: `/simple-history/v1/events/${ event.id }/unstick`,
 				method: 'POST',
 			} );
+
+			window.dispatchEvent(
+				new CustomEvent( 'SimpleHistory:eventUpdated' )
+			);
+
+			window.dispatchEvent(
+				new CustomEvent( 'SimpleHistory:showSnackbar', {
+					detail: {
+						message: __( 'Event unstuck.', 'simple-history' ),
+					},
+				} )
+			);
 		} catch ( error ) {
 			// Silently fail - the user will see the event is still sticky.
 		} finally {

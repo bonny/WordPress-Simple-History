@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { Snackbar } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import {
 	useCallback,
@@ -100,6 +101,7 @@ function EventsGUI() {
 	const [ events, setEvents ] = useState( [] );
 	const [ eventsMeta, setEventsMeta ] = useState( {} );
 	const [ eventsReloadTime, setEventsReloadTime ] = useState( Date.now() );
+	const [ snackbarMessage, setSnackbarMessage ] = useState( '' );
 
 	// Store the max id of the events. Used to check for new events.
 	const [ eventsMaxId, setEventsMaxId ] = useState();
@@ -655,6 +657,49 @@ function EventsGUI() {
 		};
 	}, [ handleReload ] );
 
+	// Listen for event updates from the event actions menu (e.g. stick/unstick)
+	// or other extensions. Refresh the list so the change is visible immediately.
+	useEffect( () => {
+		const handleEventUpdated = () => {
+			handleReload();
+		};
+
+		window.addEventListener(
+			'SimpleHistory:eventUpdated',
+			handleEventUpdated
+		);
+
+		return () => {
+			window.removeEventListener(
+				'SimpleHistory:eventUpdated',
+				handleEventUpdated
+			);
+		};
+	}, [ handleReload ] );
+
+	// Listen for snackbar requests from menu items and other extensions.
+	useEffect( () => {
+		const handleShowSnackbar = ( event ) => {
+			const message = event.detail?.message;
+
+			if ( message ) {
+				setSnackbarMessage( message );
+			}
+		};
+
+		window.addEventListener(
+			'SimpleHistory:showSnackbar',
+			handleShowSnackbar
+		);
+
+		return () => {
+			window.removeEventListener(
+				'SimpleHistory:showSnackbar',
+				handleShowSnackbar
+			);
+		};
+	}, [] );
+
 	// Listen for IP address filter events from the IP address popover.
 	// When a user clicks "Show all events from this IP address" in the popover,
 	// update the IP address filter.
@@ -807,6 +852,22 @@ function EventsGUI() {
 			/>
 
 			<EventsModalIfFragment />
+
+			{ snackbarMessage && (
+				<div
+					style={ {
+						position: 'fixed',
+						bottom: '40px',
+						left: '50%',
+						transform: 'translateX(-50%)',
+						zIndex: 100001,
+					} }
+				>
+					<Snackbar onRemove={ () => setSnackbarMessage( '' ) }>
+						{ snackbarMessage }
+					</Snackbar>
+				</div>
+			) }
 		</EventsSettingsProvider>
 	);
 }
