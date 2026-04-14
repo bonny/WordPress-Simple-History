@@ -1259,6 +1259,13 @@ class Helpers {
 			return true;
 		}
 
+		// Recognize the Network Admin Simple History page. It isn't registered via
+		// the Menu_Manager because it lives under network_admin_menu, so we match
+		// its slug explicitly.
+		if ( $page === Services\Network_Admin_Page::PAGE_SLUG ) {
+			return true;
+		}
+
 		$current_screen = self::get_current_screen();
 
 		// We are on a Simple History page if we are on dashboard and the setting is set to show on dashboard.

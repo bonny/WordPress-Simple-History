@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
+use Simple_History\Services\Admin_Pages;
 
 /**
  * Register Simple History page in the Network Admin.
@@ -25,7 +26,33 @@ class Network_Admin_Page extends Service {
 		}
 
 		add_action( 'network_admin_menu', [ $this, 'add_network_admin_menu' ] );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+		add_action( 'simple_history/enqueue_admin_scripts', [ $this, 'localize_network_context' ] );
+	}
+
+	/**
+	 * Attach the simpleHistoryNetworkContext JS variable to the React bundle
+	 * when rendering the network admin page.
+	 *
+	 * The core Scripts_And_Templates service already enqueues all Simple
+	 * History assets (including the React app via React_Dropin) whenever
+	 * Helpers::is_on_our_own_pages() is true. Our Network Admin page is
+	 * recognized as one of our own pages, so all we need to do is tag the
+	 * React bundle with the network context so the frontend routes its API
+	 * calls to the network endpoint.
+	 */
+	public function localize_network_context() {
+		if ( ! is_network_admin() ) {
+			return;
+		}
+
+		wp_localize_script(
+			'simple_history_wp_scripts',
+			'simpleHistoryNetworkContext',
+			[
+				'isNetworkAdmin' => true,
+				'apiNamespace'   => 'simple-history/v1/network',
+			]
+		);
 	}
 
 	/**
@@ -46,80 +73,6 @@ class Network_Admin_Page extends Service {
 		);
 	}
 
-	/**
-	 * Enqueue scripts and styles on the network admin page.
-	 *
-	 * @param string $hook_suffix The current admin page hook.
-	 */
-	public function enqueue_scripts( $hook_suffix ) {
-		if ( $hook_suffix !== $this->page_hook ) {
-			return;
-		}
-
-		add_thickbox();
-
-		wp_enqueue_style(
-			'simple_history_styles',
-			SIMPLE_HISTORY_DIR_URL . 'css/styles.css',
-			false,
-			SIMPLE_HISTORY_VERSION
-		);
-
-		wp_enqueue_style(
-			'simple_history_icons',
-			SIMPLE_HISTORY_DIR_URL . 'css/icons.css',
-			false,
-			SIMPLE_HISTORY_VERSION
-		);
-
-		wp_enqueue_style(
-			'simple_history_utility_styles',
-			SIMPLE_HISTORY_DIR_URL . 'css/utility-classes.css',
-			false,
-			SIMPLE_HISTORY_VERSION
-		);
-
-		// Enqueue the main React app.
-		$asset_file = SIMPLE_HISTORY_PATH . 'build/index.asset.php';
-
-		if ( file_exists( $asset_file ) ) {
-			$asset = require $asset_file;
-
-			wp_enqueue_script(
-				'simple_history_react_app',
-				SIMPLE_HISTORY_DIR_URL . 'build/index.js',
-				$asset['dependencies'],
-				$asset['version'],
-				true
-			);
-
-			// Pass network context to the React app.
-			wp_localize_script(
-				'simple_history_react_app',
-				'simpleHistoryNetworkContext',
-				[
-					'isNetworkAdmin' => true,
-					'apiNamespace'   => 'simple-history/v1/network',
-				]
-			);
-		}
-
-		wp_enqueue_script(
-			'simple_history_script',
-			SIMPLE_HISTORY_DIR_URL . 'js/scripts.js',
-			[ 'jquery', 'backbone', 'wp-util', 'wp-api-fetch' ],
-			SIMPLE_HISTORY_VERSION,
-			true
-		);
-
-		/**
-		 * Fires when the network admin scripts have been enqueued.
-		 *
-		 * @since 5.6.0
-		 * @param Simple_History $instance The Simple_History instance.
-		 */
-		do_action( 'simple_history/enqueue_network_admin_scripts', $this->simple_history );
-	}
 
 	/**
 	 * Render the network admin page.
@@ -134,6 +87,8 @@ class Network_Admin_Page extends Service {
 					</h1>
 				</div>
 			</header>
+
+			<?php Admin_Pages::dev_badges_output(); ?>
 
 			<div class="wrap">
 				<div class="SimpleHistoryGuiWrap">
