@@ -96,6 +96,21 @@ class Network_Admin_Page extends Service {
 					// Fire the same hook the React dropin listens to,
 					// so it outputs the #simple-history-react-root mount div.
 					do_action( 'simple_history/history_page/gui_wrap_top', $this->simple_history );
+
+					/**
+					 * Fires after the main event list on the network admin page.
+					 * Dedicated hook (not the shared after_gui) so services can
+					 * opt in explicitly — the network context doesn't share
+					 * every sidebar widget that makes sense at the site level.
+					 *
+					 * Fires inside .SimpleHistoryGuiWrap so the sidebar becomes
+					 * a flex sibling of the React root for proper layout.
+					 *
+					 * @since 5.6.0
+					 *
+					 * @param Simple_History $instance The Simple_History instance.
+					 */
+					do_action( 'simple_history/network_history_page/after_gui', $this->simple_history );
 					?>
 				</div>
 			</div>
