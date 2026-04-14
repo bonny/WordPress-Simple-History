@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
+use Simple_History\Services\Network_Admin_Page;
 
 /**
  * Add a "View history" item/shortcut to the admin bar.
@@ -14,6 +15,7 @@ class Network_Menu_Items extends Service {
 	public function loaded() {
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
+		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_admin_history_item' ), 40 );
 	}
 
 
@@ -132,5 +134,29 @@ class Network_Menu_Items extends Service {
 		);
 
 		$wp_admin_bar->add_node( $args );
+	}
+
+	/**
+	 * Adds a "View History" item under the Network Admin submenu in the admin bar.
+	 *
+	 * @since 5.6.0
+	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar object.
+	 */
+	public function add_admin_bar_network_admin_history_item( $wp_admin_bar ) {
+		if ( ! is_multisite() || ! is_super_admin() ) {
+			return;
+		}
+
+		$wp_admin_bar->add_node(
+			[
+				'id'     => 'simple-history-network-admin',
+				'parent' => 'network-admin',
+				'title'  => _x( 'View History', 'Admin bar network admin name', 'simple-history' ),
+				'href'   => network_admin_url( 'admin.php?page=' . Network_Admin_Page::PAGE_SLUG ),
+				'meta'   => [
+					'class' => 'ab-item--simplehistory',
+				],
+			]
+		);
 	}
 }
