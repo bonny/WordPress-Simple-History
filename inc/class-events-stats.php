@@ -24,6 +24,25 @@ class Events_Stats {
 	private $contexts_table;
 
 	/**
+	 * Whether to target the network-level tables (base_prefix) instead of
+	 * the per-site tables. Only meaningful on multisite.
+	 *
+	 * @since 5.6.0
+	 * @var bool
+	 */
+	private $is_network;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param bool $is_network Whether stats should be computed against the
+	 *                         network-level event tables. Default false (site).
+	 */
+	public function __construct( bool $is_network = false ) {
+		$this->is_network = $is_network;
+	}
+
+	/**
 	 * Get the events table name, lazy-loading if needed.
 	 *
 	 * @return string
@@ -31,7 +50,9 @@ class Events_Stats {
 	private function get_events_table_name() {
 		if ( ! $this->events_table ) {
 			$simple_history     = Simple_History::get_instance();
-			$this->events_table = $simple_history->get_events_table_name();
+			$this->events_table = $this->is_network
+				? $simple_history->get_network_events_table_name()
+				: $simple_history->get_events_table_name();
 		}
 		return $this->events_table;
 	}
@@ -44,7 +65,9 @@ class Events_Stats {
 	private function get_contexts_table_name() {
 		if ( ! $this->contexts_table ) {
 			$simple_history       = Simple_History::get_instance();
-			$this->contexts_table = $simple_history->get_contexts_table_name();
+			$this->contexts_table = $this->is_network
+				? $simple_history->get_network_contexts_table_name()
+				: $simple_history->get_contexts_table_name();
 		}
 		return $this->contexts_table;
 	}

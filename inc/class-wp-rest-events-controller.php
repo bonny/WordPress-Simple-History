@@ -299,6 +299,18 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Whether writes made by this controller (e.g. create_item) should be
+	 * routed to the network-scope tables. Overridden by the network
+	 * subclass. Default: site tables.
+	 *
+	 * @since 5.6.0
+	 * @return bool
+	 */
+	protected function should_force_network_logging() {
+		return false;
+	}
+
+	/**
 	 * Get a single event using the log query API.
 	 *
 	 * @param int $event_id Event ID.
@@ -1324,7 +1336,23 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		$method = $level . '_message';
-		$logger->$method( 'custom_entry_added', $context );
+
+		// Subclasses (network controller) can force the logger to write to
+		// network tables. Wrapped in try/finally so an exception doesn't
+		// leave the instance-level override dangling.
+		$force_network = $this->should_force_network_logging();
+
+		if ( $force_network ) {
+			$logger->force_network_tables( true );
+		}
+
+		try {
+			$logger->$method( 'custom_entry_added', $context );
+		} finally {
+			if ( $force_network ) {
+				$logger->force_network_tables( null );
+			}
+		}
 
 		return new \WP_REST_Response(
 			array(

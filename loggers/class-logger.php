@@ -125,6 +125,18 @@ abstract class Logger {
 	protected $is_network_logger = false;
 
 	/**
+	 * Instance-level override to force the next log() call to write to
+	 * network tables even when should_use_network_tables() would return false
+	 * (e.g. during a REST request, where referer-based routing is disabled).
+	 *
+	 * Set via force_network_tables(). Does NOT persist across requests.
+	 *
+	 * @since 5.6.0
+	 * @var bool|null
+	 */
+	private $force_network_tables = null;
+
+	/**
 	 * Flag to track if messages have been loaded for this logger.
 	 *
 	 * @var bool
@@ -154,6 +166,12 @@ abstract class Logger {
 	 * @return bool
 	 */
 	protected function should_use_network_tables() {
+		// Per-instance override for scoped calls like a REST create_item
+		// on the network controller — see force_network_tables().
+		if ( $this->force_network_tables !== null ) {
+			return $this->force_network_tables && is_multisite();
+		}
+
 		// Dedicated network loggers always write to network tables — bypass
 		// the cached request-level decision since the answer depends on the
 		// instance, not the request.
@@ -162,6 +180,21 @@ abstract class Logger {
 		}
 
 		return self::is_network_request_context();
+	}
+
+	/**
+	 * Force the next log call on this logger instance to write to network
+	 * tables (when true) or site tables (when false), bypassing the usual
+	 * context-based detection. Pass null to reset to the default behavior.
+	 *
+	 * Scoped to the instance — clear with force_network_tables(null) after
+	 * use to avoid bleeding the override into unrelated log calls.
+	 *
+	 * @since 5.6.0
+	 * @param bool|null $force true, false, or null to reset.
+	 */
+	public function force_network_tables( ?bool $force ): void {
+		$this->force_network_tables = $force;
 	}
 
 	/**

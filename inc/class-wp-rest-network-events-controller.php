@@ -38,6 +38,33 @@ class WP_REST_Network_Events_Controller extends WP_REST_Events_Controller {
 					'permission_callback' => [ $this, 'get_items_permissions_check' ],
 					'args'                => $this->get_collection_params(),
 				],
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'create_item' ],
+					'permission_callback' => [ $this, 'create_item_permissions_check' ],
+					'args'                => [
+						'message' => [
+							'required'    => true,
+							'type'        => 'string',
+							'description' => 'Short message to log',
+						],
+						'note'    => [
+							'type'        => 'string',
+							'description' => 'Additional note or details about the event',
+						],
+						'level'   => [
+							'type'        => 'string',
+							'enum'        => [ 'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug' ],
+							'default'     => 'info',
+							'description' => 'Log level',
+						],
+						'date'    => [
+							'type'        => 'string',
+							'format'      => 'date-time',
+							'description' => 'Date and time for the event in MySQL datetime format (Y-m-d H:i:s). If not provided, current time will be used.',
+						],
+					],
+				],
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
@@ -212,5 +239,26 @@ class WP_REST_Network_Events_Controller extends WP_REST_Events_Controller {
 	 */
 	protected function create_event( $event_id ) {
 		return new Event( $event_id, true );
+	}
+
+	/**
+	 * Writes originated from the network controller should land in the
+	 * network tables.
+	 *
+	 * @since 5.6.0
+	 * @return bool
+	 */
+	protected function should_force_network_logging() {
+		return true;
+	}
+
+	/**
+	 * Creating a network-level custom entry requires super admin.
+	 *
+	 * @param \WP_REST_Request $request Full request.
+	 * @return true|\WP_Error
+	 */
+	public function create_item_permissions_check( $request ) {
+		return $this->get_items_permissions_check( $request );
 	}
 }

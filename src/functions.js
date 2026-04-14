@@ -451,3 +451,43 @@ export function getEventsApiPath() {
 
 	return '/simple-history/v1/events';
 }
+
+/**
+ * Returns the base path for the search-options REST API, accounting for
+ * network admin mode.
+ *
+ * @return {string}
+ */
+export function getSearchOptionsApiPath() {
+	if ( window.simpleHistoryNetworkContext?.isNetworkAdmin ) {
+		return '/simple-history/v1/network/search-options';
+	}
+
+	return '/simple-history/v1/search-options';
+}
+
+/**
+ * Returns the base path for the user card REST API.
+ *
+ * @return {string}
+ */
+export function getUserCardApiBase() {
+	if ( window.simpleHistoryNetworkContext?.isNetworkAdmin ) {
+		return '/simple-history/v1/network/users';
+	}
+
+	return '/simple-history/v1/users';
+}
+
+/**
+ * Returns the base path for the initiator card REST API.
+ *
+ * @return {string}
+ */
+export function getInitiatorCardApiBase() {
+	if ( window.simpleHistoryNetworkContext?.isNetworkAdmin ) {
+		return '/simple-history/v1/network/initiators';
+	}
+
+	return '/simple-history/v1/initiators';
+}

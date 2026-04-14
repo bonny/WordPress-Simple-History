@@ -23,6 +23,17 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Whether this controller serves network-scoped cards.
+	 * Subclasses override to return true.
+	 *
+	 * @since 5.6.0
+	 * @return bool
+	 */
+	protected function is_network_scope() {
+		return false;
+	}
+
+	/**
 	 * Valid non-user initiator types for the initiator card endpoint.
 	 *
 	 * @var array<string>
@@ -223,19 +234,19 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			[
 				'key'   => 'events_today',
 				'label' => __( 'Today', 'simple-history' ),
-				'value' => self::get_initiator_event_count( $type, 1 ),
+				'value' => self::get_initiator_event_count( $type, 1, $this->is_network_scope() ),
 				'type'  => 'stat',
 			],
 			[
 				'key'   => 'events_7_days',
 				'label' => __( 'Last 7 days', 'simple-history' ),
-				'value' => self::get_initiator_event_count( $type, 7 ),
+				'value' => self::get_initiator_event_count( $type, 7, $this->is_network_scope() ),
 				'type'  => 'stat',
 			],
 			[
 				'key'   => 'events_total',
 				'label' => __( 'Total', 'simple-history' ),
-				'value' => self::get_initiator_total_event_count( $type ),
+				'value' => self::get_initiator_total_event_count( $type, $this->is_network_scope() ),
 				'type'  => 'stat',
 			],
 		];
@@ -287,8 +298,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param int $period_days Number of days to look back (including today).
 	 * @return int Number of events found.
 	 */
-	public static function get_user_event_count( $user_id, $period_days ) {
+	public static function get_user_event_count( $user_id, $period_days, bool $is_network = false ) {
 		$log_query = new Log_Query();
+
+		if ( $is_network ) {
+			$log_query->set_network_query();
+		}
 
 		$date_from = Date_Helper::get_last_n_days_start_timestamp( $period_days );
 
@@ -310,8 +325,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param int $user_id WordPress user ID.
 	 * @return int Number of events found.
 	 */
-	public static function get_user_total_event_count( $user_id ) {
+	public static function get_user_total_event_count( $user_id, bool $is_network = false ) {
 		$log_query = new Log_Query();
+
+		if ( $is_network ) {
+			$log_query->set_network_query();
+		}
 
 		$query_result = $log_query->query(
 			[
@@ -344,8 +363,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param int    $period_days    Number of days to look back (including today).
 	 * @return int Number of events found.
 	 */
-	public static function get_initiator_event_count( $initiator_type, $period_days ) {
+	public static function get_initiator_event_count( $initiator_type, $period_days, bool $is_network = false ) {
 		$log_query = new Log_Query();
+
+		if ( $is_network ) {
+			$log_query->set_network_query();
+		}
 
 		$date_from = Date_Helper::get_last_n_days_start_timestamp( $period_days );
 
@@ -367,8 +390,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
 	 * @return int Number of events found.
 	 */
-	public static function get_initiator_total_event_count( $initiator_type ) {
+	public static function get_initiator_total_event_count( $initiator_type, bool $is_network = false ) {
 		$log_query = new Log_Query();
+
+		if ( $is_network ) {
+			$log_query->set_network_query();
+		}
 
 		$query_result = $log_query->query(
 			[
@@ -388,8 +415,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param string|null $messages Optional message filter (e.g. 'SimpleUserLogger:user_logged_in').
 	 * @return string|null Date string in site local timezone, or null if no events found.
 	 */
-	private static function get_most_recent_event_date( $user_id, $messages = null ) {
+	private static function get_most_recent_event_date( $user_id, $messages = null, bool $is_network = false ) {
 		$log_query = new Log_Query();
+
+		if ( $is_network ) {
+			$log_query->set_network_query();
+		}
 
 		$args = [
 			'user'             => $user_id,

@@ -1488,10 +1488,11 @@ class Helpers {
 	 * @param int $period_days Number of days to get events for.
 	 * @return int Number of events user can view.
 	 */
-	public static function get_num_events_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH ) {
-		$cache_key   = 'num_events_last_n_days_' . $period_days . '_user_' . get_current_user_id();
-		$cache_group = self::get_cache_group();
-		$cached      = wp_cache_get( $cache_key, $cache_group );
+	public static function get_num_events_last_n_days( $period_days = Date_Helper::DAYS_PER_MONTH, bool $is_network = false ) {
+		$cache_suffix = $is_network ? '_network' : '';
+		$cache_key    = 'num_events_last_n_days_' . $period_days . $cache_suffix . '_user_' . get_current_user_id();
+		$cache_group  = self::get_cache_group();
+		$cached       = wp_cache_get( $cache_key, $cache_group );
 
 		if ( $cached !== false ) {
 			return (int) $cached;
@@ -1500,6 +1501,9 @@ class Helpers {
 		global $wpdb;
 		$simple_history              = Simple_History::get_instance();
 		$sqlStringLoggersUserCanRead = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
+		$table_name                  = $is_network
+			? $simple_history->get_network_events_table_name()
+			: $simple_history->get_events_table_name();
 
 		$sql = sprintf(
 			'
@@ -1508,7 +1512,7 @@ class Helpers {
                 WHERE date >= FROM_UNIXTIME(%2$d)
                 AND logger IN %3$s
             ',
-			$simple_history->get_events_table_name(),
+			$table_name,
 			Date_Helper::get_last_n_days_start_timestamp( $period_days ),
 			$sqlStringLoggersUserCanRead
 		);
@@ -1530,8 +1534,8 @@ class Helpers {
 	 *
 	 * @return int Number of events today that user can view.
 	 */
-	public static function get_num_events_today() {
-		return self::get_num_events_last_n_days( 1 );
+	public static function get_num_events_today( bool $is_network = false ) {
+		return self::get_num_events_last_n_days( 1, $is_network );
 	}
 
 	/**
@@ -1666,13 +1670,15 @@ class Helpers {
 	 * @param int $days Number of days to get events for.
 	 * @return int Number of unique events.
 	 */
-	public static function get_unique_events_for_days( $days = 7 ) {
+	public static function get_unique_events_for_days( $days = 7, bool $is_network = false ) {
 		global $wpdb;
 		$simple_history = Simple_History::get_instance();
 
 		$days       = (int) $days;
-		$table_name = $simple_history->get_events_table_name();
-		$cache_key  = 'sh_' . md5( __METHOD__ . $days );
+		$table_name = $is_network
+			? $simple_history->get_network_events_table_name()
+			: $simple_history->get_events_table_name();
+		$cache_key  = 'sh_' . md5( __METHOD__ . $days . ( $is_network ? '_network' : '' ) );
 		$numEvents  = get_transient( $cache_key );
 
 		if ( $numEvents === false ) {
@@ -1718,18 +1724,22 @@ class Helpers {
 	 *
 	 * @return array
 	 */
-	public static function get_data_for_date_filter() {
+	public static function get_data_for_date_filter( bool $is_network = false ) {
 		global $wpdb;
 
 		$simple_history = Simple_History::get_instance();
 
 		// Start months filter.
-		$table_name                   = $simple_history->get_events_table_name();
+		$table_name                   = $is_network
+			? $simple_history->get_network_events_table_name()
+			: $simple_history->get_events_table_name();
 		$loggers_user_can_read_sql_in = $simple_history->get_loggers_that_user_can_read( null, 'sql' );
 
-		// Get unique months.
+		// Get unique months. Separate cache bucket per scope so site/network
+		// transients don't collide.
 		$loggers_slugs = $simple_history->get_loggers_that_user_can_read( null, 'slugs' );
-		$cache_key     = 'sh_filter_unique_months_' . md5( implode( ',', $loggers_slugs ) );
+		$cache_prefix  = $is_network ? 'sh_filter_unique_months_network_' : 'sh_filter_unique_months_';
+		$cache_key     = $cache_prefix . md5( implode( ',', $loggers_slugs ) );
 		$result_months = get_transient( $cache_key );
 
 		if ( $result_months === false ) {
@@ -1761,7 +1771,7 @@ class Helpers {
 		$daysToShow = 1;
 
 		// Start with the latest day.
-		$numEvents = self::get_unique_events_for_days( $daysToShow );
+		$numEvents = self::get_unique_events_for_days( $daysToShow, $is_network );
 		$numPages  = $numEvents / self::get_pager_size();
 
 		$arr_days_and_pages[] = array(
@@ -1775,7 +1785,7 @@ class Helpers {
 		if ( $numPages < 20 ) {
 			// Not that many things the last day. Let's try to expand to 7 days instead.
 			$daysToShow = 7;
-			$numEvents  = self::get_unique_events_for_days( $daysToShow );
+			$numEvents  = self::get_unique_events_for_days( $daysToShow, $is_network );
 			$numPages   = $numEvents / self::get_pager_size();
 
 			$arr_days_and_pages[] = array(
@@ -1786,7 +1796,7 @@ class Helpers {
 			if ( $numPages < 20 ) {
 				// Not that many things the last 7 days. Let's try to expand to 14 days instead.
 				$daysToShow = 14;
-				$numEvents  = self::get_unique_events_for_days( $daysToShow );
+				$numEvents  = self::get_unique_events_for_days( $daysToShow, $is_network );
 				$numPages   = $numEvents / self::get_pager_size();
 
 				$arr_days_and_pages[] = array(
@@ -1797,7 +1807,7 @@ class Helpers {
 				if ( $numPages < 20 ) {
 					// Not many things the last 14 days either. Let try with 30 days.
 					$daysToShow = 30;
-					$numEvents  = self::get_unique_events_for_days( $daysToShow );
+					$numEvents  = self::get_unique_events_for_days( $daysToShow, $is_network );
 					$numPages   = $numEvents / self::get_pager_size();
 
 					$arr_days_and_pages[] = array(

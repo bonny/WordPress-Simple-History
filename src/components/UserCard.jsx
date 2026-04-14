@@ -4,7 +4,11 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { close, external, people, wordpress } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { humanTimeDiff } from '@wordpress/date';
-import { getTrackingUrl } from '../functions';
+import {
+	getInitiatorCardApiBase,
+	getTrackingUrl,
+	getUserCardApiBase,
+} from '../functions';
 
 // Only one user card open at a time.
 let closeActiveUserCard = null;
@@ -15,9 +19,28 @@ const initiatorCardCache = {};
 
 // Terminal prompt icon for WP-CLI (no suitable icon in @wordpress/icons).
 const terminalPrompt = (
-	<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true">
-		<path d="M6 7l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-		<path d="M13 17h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+	<svg
+		viewBox="0 0 24 24"
+		xmlns="http://www.w3.org/2000/svg"
+		width="24"
+		height="24"
+		aria-hidden="true"
+	>
+		<path
+			d="M6 7l5 5-5 5"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M13 17h5"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+		/>
 	</svg>
 );
 
@@ -75,21 +98,17 @@ function PremiumTeaserBlurred() {
 			>
 				<ul className="sh-UserCard__meta" aria-hidden="true">
 					<li className="sh-UserCard__detail sh-UserCard__detail--blurred">
-						{ __( 'Logged in', 'simple-history' ) }
-						{ ' ' }
+						{ __( 'Logged in', 'simple-history' ) }{ ' ' }
 						<span className="sh-UserCard__blurredValue">
 							{ '3' }
-						</span>
-						{ ' ' }
+						</span>{ ' ' }
 						{ __( 'hours ago', 'simple-history' ) }
 					</li>
 					<li className="sh-UserCard__detail sh-UserCard__detail--blurred">
-						{ __( 'Last activity', 'simple-history' ) }
-						{ ' ' }
+						{ __( 'Last activity', 'simple-history' ) }{ ' ' }
 						<span className="sh-UserCard__blurredValue">
 							{ '12' }
-						</span>
-						{ ' ' }
+						</span>{ ' ' }
 						{ __( 'minutes ago', 'simple-history' ) }
 					</li>
 				</ul>
@@ -524,13 +543,15 @@ export function UserCard( { event, children } ) {
 				setCardData( userCardCache[ userId ] );
 				return;
 			}
-			apiPath = `/simple-history/v1/users/${ userId }/card`;
+			apiPath = `${ getUserCardApiBase() }/${ userId }/card`;
 		} else {
 			if ( initiatorCardCache[ event.initiator ] ) {
 				setCardData( initiatorCardCache[ event.initiator ] );
 				return;
 			}
-			apiPath = `/simple-history/v1/initiators/${ event.initiator }/card`;
+			apiPath = `${ getInitiatorCardApiBase() }/${
+				event.initiator
+			}/card`;
 		}
 
 		setIsLoading( true );
