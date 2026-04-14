@@ -275,13 +275,25 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Create a Log_Query instance for this controller.
+	 * Subclasses can override to return a Log_Query configured for different tables
+	 * (e.g. network events).
+	 *
+	 * @since 5.6.0
+	 * @return Log_Query
+	 */
+	protected function create_log_query() {
+		return new Log_Query();
+	}
+
+	/**
 	 * Get a single event using the log query API.
 	 *
 	 * @param int $event_id Event ID.
 	 * @return false|object Event data on success, false on failure.
 	 */
 	protected function get_single_event( $event_id ) {
-		$query_result = ( new Log_Query() )->query(
+		$query_result = $this->create_log_query()->query(
 			[
 				'post__in'  => [ $event_id ],
 				'ungrouped' => true,
@@ -864,7 +876,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// Force ungrouped for accurate count — grouping is irrelevant for "has updates" check.
 		$args['ungrouped'] = true;
 
-		$log_query    = new Log_Query();
+		$log_query    = $this->create_log_query();
 		$query_result = $log_query->query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
@@ -963,7 +975,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$args[ $wp_param ] = $request[ $api_param ];
 		}
 
-		$log_query    = new Log_Query();
+		$log_query    = $this->create_log_query();
 		$query_result = $log_query->query( $args );
 
 		if ( is_wp_error( $query_result ) ) {

@@ -9,6 +9,7 @@ use Simple_History\WP_REST_Stats_Controller;
 use Simple_History\WP_REST_Support_Info_Controller;
 use Simple_History\WP_REST_User_Card_Controller;
 use Simple_History\WP_REST_Devtools_Controller;
+use Simple_History\WP_REST_Network_Events_Controller;
 
 /**
  * Load the Simple History REST API.
@@ -37,6 +38,12 @@ class REST_API extends Service {
 
 		$user_card_controller = new WP_REST_User_Card_Controller();
 		$user_card_controller->register_routes();
+
+		// Register network events API on multisite.
+		if ( is_multisite() ) {
+			$network_events_controller = new WP_REST_Network_Events_Controller();
+			$network_events_controller->register_routes();
+		}
 
 		// Only register dev tools routes when dev mode is enabled.
 		if ( ! Helpers::dev_mode_is_enabled() ) {
