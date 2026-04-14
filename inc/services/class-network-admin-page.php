@@ -96,10 +96,16 @@ class Network_Admin_Page extends Service {
 		?>
 		<div class="SimpleHistoryWrap">
 			<header class="sh-PageHeader">
-				<div class="sh-PageHeader-titleGroup">
+				<div class="sh-PageHeader-titleGroup sh-PageHeader-titleGroup--stacked">
 					<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
 						<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="Simple History logotype"/>
+						<span class="sh-PageHeader-badge sh-PageHeader-badge--network">
+							<?php echo esc_html_x( 'Network', 'Network Admin page badge', 'simple-history' ); ?>
+						</span>
 					</h1>
+					<p class="sh-PageHeader-subtitle">
+						<?php echo esc_html_x( 'Showing network-wide events — plugin activations, site creation, super admin changes, and more.', 'Network Admin page subtitle', 'simple-history' ); ?>
+					</p>
 				</div>
 			</header>
 
