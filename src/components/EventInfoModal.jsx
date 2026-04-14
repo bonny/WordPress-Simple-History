@@ -4,6 +4,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Event } from './Event';
+import { getEventsApiPath } from '../functions';
 
 export function EventInfoModal( props ) {
 	const { eventId, closeModal = null } = props;
@@ -46,7 +47,7 @@ export function EventInfoModal( props ) {
 
 				const eventResponse = await apiFetch( {
 					path: addQueryArgs(
-						'/simple-history/v1/events/' + eventId,
+						getEventsApiPath() + '/' + eventId,
 						eventsQueryParams
 					),
 					// Skip parsing to be able to retrieve headers.

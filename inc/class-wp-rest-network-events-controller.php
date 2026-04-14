@@ -41,6 +41,39 @@ class WP_REST_Network_Events_Controller extends WP_REST_Events_Controller {
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
+
+		// Single event endpoint for the event modal.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)',
+			[
+				'args'   => [
+					'id' => [
+						'description' => __( 'Unique identifier for the event.', 'simple-history' ),
+						'type'        => 'integer',
+					],
+				],
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_item' ],
+					'permission_callback' => [ $this, 'get_item_permissions_check' ],
+					'args'                => [
+						'context' => $this->get_context_param( [ 'default' => 'view' ] ),
+					],
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
+	}
+
+	/**
+	 * Check permissions for single event — same rule as collection.
+	 *
+	 * @param \WP_REST_Request $request Full request.
+	 * @return true|\WP_Error
+	 */
+	public function get_item_permissions_check( $request ) {
+		return $this->get_items_permissions_check( $request );
 	}
 
 	/**
