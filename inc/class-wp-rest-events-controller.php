@@ -287,6 +287,18 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Create an Event instance for this controller's scope.
+	 * Subclasses can override to construct a network-scoped Event.
+	 *
+	 * @since 5.6.0
+	 * @param int $event_id Event ID.
+	 * @return Event
+	 */
+	protected function create_event( $event_id ) {
+		return new Event( $event_id );
+	}
+
+	/**
 	 * Get a single event using the log query API.
 	 *
 	 * @param int $event_id Event ID.
@@ -1360,7 +1372,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function stick_event( $request ) {
-		$event = new Event( $request['id'] );
+		$event = $this->create_event( $request['id'] );
 
 		if ( ! $event->exists() ) {
 			return new WP_Error(
@@ -1389,7 +1401,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function unstick_event( $request ) {
-		$event = new Event( $request['id'] );
+		$event = $this->create_event( $request['id'] );
 
 		if ( ! $event->exists() ) {
 			return new WP_Error(
@@ -1438,7 +1450,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
-		$event = new Event( $request['id'] );
+		$event = $this->create_event( $request['id'] );
 
 		if ( ! $event->exists() ) {
 			return new WP_Error(
@@ -1478,7 +1490,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
-		$event = new Event( $request['id'] );
+		$event = $this->create_event( $request['id'] );
 
 		if ( ! $event->exists() ) {
 			return new WP_Error(

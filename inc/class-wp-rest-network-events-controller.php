@@ -65,14 +65,43 @@ class WP_REST_Network_Events_Controller extends WP_REST_Events_Controller {
 			]
 		);
 
-		/*
-		 * Stick/unstick endpoints are intentionally NOT registered on the network
-		 * controller for now: the Event class that backs them reads/writes via
-		 * get_contexts_table_name() which returns the site-level contexts table.
-		 * Making stick work on network events requires teaching Event about the
-		 * base_prefix tables. Deferred until we actually surface a stick button
-		 * on the network admin page.
-		 */
+		// POST /network/events/{id}/stick.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/stick',
+			[
+				'args' => [
+					'id' => [
+						'description' => __( 'Unique identifier for the event.', 'simple-history' ),
+						'type'        => 'integer',
+					],
+				],
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'stick_event' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+				],
+			]
+		);
+
+		// POST /network/events/{id}/unstick.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/unstick',
+			[
+				'args' => [
+					'id' => [
+						'description' => __( 'Unique identifier for the event.', 'simple-history' ),
+						'type'        => 'integer',
+					],
+				],
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'unstick_event' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+				],
+			]
+		);
 	}
 
 	/**
@@ -111,5 +140,16 @@ class WP_REST_Network_Events_Controller extends WP_REST_Events_Controller {
 	 */
 	protected function create_log_query() {
 		return ( new Log_Query() )->set_network_query();
+	}
+
+	/**
+	 * Create an Event instance scoped to the network tables.
+	 *
+	 * @since 5.6.0
+	 * @param int $event_id Event ID.
+	 * @return Event
+	 */
+	protected function create_event( $event_id ) {
+		return new Event( $event_id, true );
 	}
 }

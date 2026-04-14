@@ -67,11 +67,24 @@ class Event {
 	private string $load_status = 'NOT_LOADED';
 
 	/**
+	 * Whether this event lives in the network-level tables (base_prefix) on multisite.
+	 *
+	 * @since 5.6.0
+	 * @var bool
+	 */
+	private bool $is_network = false;
+
+	/**
 	 * Constructor for existing events.
 	 *
-	 * @param int|null $event_id Event ID. If null, creates an empty event instance.
+	 * @param int|null $event_id   Event ID. If null, creates an empty event instance.
+	 * @param bool     $is_network Whether to load this event from the network
+	 *                             (base_prefix) tables instead of the per-site tables.
+	 *                             Only meaningful on multisite. Default false.
 	 */
-	public function __construct( ?int $event_id = null ) {
+	public function __construct( ?int $event_id = null, bool $is_network = false ) {
+		$this->is_network = $is_network;
+
 		if ( empty( $event_id ) ) {
 			return;
 		}
@@ -80,6 +93,38 @@ class Event {
 
 		// Load data immediately to validate event exists.
 		$this->load_data();
+	}
+
+	/**
+	 * Return the events table name for this event's context.
+	 *
+	 * @since 5.6.0
+	 * @return string
+	 */
+	private function get_events_table(): string {
+		$simple_history = Simple_History::get_instance();
+
+		if ( $this->is_network ) {
+			return $simple_history->get_network_events_table_name();
+		}
+
+		return $simple_history->get_events_table_name();
+	}
+
+	/**
+	 * Return the contexts table name for this event's context.
+	 *
+	 * @since 5.6.0
+	 * @return string
+	 */
+	private function get_contexts_table(): string {
+		$simple_history = Simple_History::get_instance();
+
+		if ( $this->is_network ) {
+			return $simple_history->get_network_contexts_table_name();
+		}
+
+		return $simple_history->get_contexts_table_name();
 	}
 
 	/**
@@ -560,7 +605,7 @@ class Event {
 		}
 
 		// No cached data, so load from database using the shared query method.
-		$events_data = self::query_db_for_events( $this->id );
+		$events_data = self::query_db_for_events( $this->id, $this->is_network );
 
 		// No event found.
 		if ( empty( $events_data ) ) {
@@ -610,11 +655,17 @@ class Event {
 	 * @param int|array $event_ids Single event ID or array of event IDs.
 	 * @return array Array of event data grouped by event ID, or empty array if no events found.
 	 */
-	private static function query_db_for_events( $event_ids ): array {
+	private static function query_db_for_events( $event_ids, bool $is_network = false ): array {
 		global $wpdb;
 		$simple_history = Simple_History::get_instance();
-		$table_name     = $simple_history->get_events_table_name();
-		$contexts_table = $simple_history->get_contexts_table_name();
+
+		if ( $is_network ) {
+			$table_name     = $simple_history->get_network_events_table_name();
+			$contexts_table = $simple_history->get_network_contexts_table_name();
+		} else {
+			$table_name     = $simple_history->get_events_table_name();
+			$contexts_table = $simple_history->get_contexts_table_name();
+		}
 
 		// Normalize to array and ensure all are integers.
 		$ids = is_array( $event_ids ) ? $event_ids : [ $event_ids ];
@@ -724,8 +775,7 @@ class Event {
 	public function stick(): bool {
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$contexts_table = $this->get_contexts_table();
 
 		// First remove any existing sticky context.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -769,8 +819,7 @@ class Event {
 	public function unstick(): bool {
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$contexts_table = $this->get_contexts_table();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$result = $wpdb->delete(
@@ -885,8 +934,7 @@ class Event {
 	private function save_reactions( array $reactions ): bool {
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$contexts_table = $this->get_contexts_table();
 
 		// Remove existing reactions context row.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
