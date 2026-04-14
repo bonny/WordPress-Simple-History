@@ -81,9 +81,21 @@ class Plugin_Logger extends Logger {
 					'simple-history'
 				),
 
+				'plugin_network_activated'      => _x(
+					'Network activated plugin "{plugin_name}"',
+					'Plugin was activated network-wide',
+					'simple-history'
+				),
+
 				'plugin_deactivated'            => _x(
 					'Deactivated plugin "{plugin_name}"',
 					'Plugin was non-silently deactivated by a user',
+					'simple-history'
+				),
+
+				'plugin_network_deactivated'    => _x(
+					'Network deactivated plugin "{plugin_name}"',
+					'Plugin was deactivated network-wide',
 					'simple-history'
 				),
 
@@ -162,9 +174,11 @@ class Plugin_Logger extends Logger {
 					'options'   => array(
 						_x( 'Activated plugins', 'Plugin logger: search', 'simple-history' ) => array(
 							'plugin_activated',
+							'plugin_network_activated',
 						),
 						_x( 'Deactivated plugins', 'Plugin logger: search', 'simple-history' ) => array(
 							'plugin_deactivated',
+							'plugin_network_deactivated',
 							'plugin_disabled_because_error',
 						),
 						_x( 'Installed plugins', 'Plugin logger: search', 'simple-history' ) => array(
@@ -208,7 +222,7 @@ class Plugin_Logger extends Logger {
 		// Fires after a plugin is deactivated.
 		// If a plugin is silently deactivated (such as during an update),
 		// this hook does not fire.
-		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ), 10, 1 );
+		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ), 10, 2 );
 
 		// Fires after plugin install/update completes (but BEFORE health check for auto-updates).
 		// Logs: plugin_installed, plugin_updated, plugin_bulk_updated, etc.
@@ -237,6 +251,7 @@ class Plugin_Logger extends Logger {
 		// So we hook into gettext and look for the usage of the error that is returned when this happens.
 		// Only register gettext filters and auto-update hooks when on plugins.php page for better performance.
 		add_action( 'load-plugins.php', array( $this, 'on_load_plugins_page' ) );
+		add_action( 'load-plugins-network.php', array( $this, 'on_load_plugins_page' ) );
 		add_action( 'wp_ajax_toggle-auto-updates', array( $this, 'handle_auto_update_change' ), 1, 1 );
 
 		// Log plugin deletions, i.e. when a user click "Delete" in the plugins listing
@@ -402,145 +417,105 @@ class Plugin_Logger extends Logger {
 	public function handle_auto_update_change() {
 		$option = 'auto_update_plugins';
 
-		add_action(
-			"update_option_{$option}",
-			// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-			function ( $old_value, $value, $option ) {
-				/**
-				 * Option contains array with plugin that are set to be auto updated.
-				 * Example:
-				 * Array
-				 *   (
-				 *       [1] => query-monitor/query-monitor.php
-				 *       [2] => akismet/akismet.php
-				 *       [3] => wp-crontrol/wp-crontrol.php
-				 *       [4] => redirection/redirection.php
-				 *   )
-				 *
-				 * $_GET when opening single item enable/disable auto update link in plugin list in new window
-				 *   Array
-				 *   (
-				 *       [action] => disable-auto-update | enable-auto-update
-				 *       [plugin] => akismet/akismet.php
-				 *   )
-				 *
-				 *
-				 * $_POST from ajax call when clicking single item enable/disable link in plugin list
-				 *    [action] => toggle-auto-updates
-				 *    [state] => disable | enable
-				 *    [type] => plugin
-				 *    [asset] => redirection/redirection.php
-				 *
-				 *
-				 * $_POST when selecting multiple plugins and choosing Enable auto updates or Disable auto updates
-				 *     [action] => enable-auto-update-selected | disable-auto-update-selected
-				 *     [checked] => Array
-				 *         (
-				 *             [0] => query-monitor/query-monitor.php
-				 *             [1] => redirection/redirection.php
-				 *         )
-				 */
+		// Single-site: WP uses update_option() which fires update_option_{$option}.
+		add_action( "update_option_{$option}", [ $this, 'on_auto_update_option_changed' ] );
 
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$action = sanitize_text_field( wp_unslash( $_GET['action'] ?? '' ) );
-				if ( ! $action ) {
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$action = sanitize_text_field( wp_unslash( $_POST['action'] ?? '' ) );
-				}
+		// Network admin: WP uses update_site_option() which fires update_site_option_{$option}.
+		add_action( "update_site_option_{$option}", [ $this, 'on_auto_update_option_changed' ] );
+	}
 
-				// Bail if doing ajax and
-				// - action is not toggle-auto-updates.
-				// - type is not plugin.
-				if ( wp_doing_ajax() ) {
-					if ( $action !== 'toggle-auto-updates' ) {
-						return;
-					}
+	/**
+	 * Inspects request parameters to determine which plugins had auto-updates
+	 * enabled or disabled, then logs each event.
+	 *
+	 * Fires from update_option_auto_update_plugins (single-site) and
+	 * update_site_option_auto_update_plugins (network admin).
+	 *
+	 * The option value contains an array of plugin files:
+	 *   [ 'akismet/akismet.php', 'hello.php' ]
+	 *
+	 * Request shapes we handle:
+	 * - $_GET single-item link: action=enable-auto-update|disable-auto-update, plugin=<slug>
+	 * - $_POST ajax toggle:     action=toggle-auto-updates, state=enable|disable, asset=<slug>
+	 * - $_POST bulk:            action=enable-auto-update-selected|disable-auto-update-selected, checked=[<slugs>]
+	 */
+	public function on_auto_update_option_changed() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action = sanitize_text_field( wp_unslash( $_GET['action'] ?? '' ) );
 
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$type = sanitize_text_field( wp_unslash( $_POST['type'] ?? '' ) );
-					if ( $type !== 'plugin' ) {
-						return;
-					}
-				}
+		if ( ! $action ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$action = sanitize_text_field( wp_unslash( $_POST['action'] ?? '' ) );
+		}
 
-				// Bail if screen and not plugin screen.
-				$current_screen = get_current_screen();
-				if ( is_a( $current_screen, 'WP_Screen' ) && ( $current_screen->base !== 'plugins' ) ) {
-					return;
-				}
+		// Bail if doing ajax and this isn't a plugin auto-update toggle.
+		if ( wp_doing_ajax() ) {
+			if ( $action !== 'toggle-auto-updates' ) {
+				return;
+			}
 
-				// Enable or disable, string "enable" or "disable".
-				$enableOrDisable = null;
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$type = sanitize_text_field( wp_unslash( $_POST['type'] ?? '' ) );
 
-				// Plugin slugs that actions are performed against.
-				$plugins = array();
+			if ( $type !== 'plugin' ) {
+				return;
+			}
+		}
 
-				if ( in_array( $action, array( 'enable-auto-update', 'disable-auto-update' ), true ) ) {
-					// Opening single item enable/disable auto update link in plugin list in new window.
-					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					$plugin = sanitize_text_field( wp_unslash( $_GET['plugin'] ?? '' ) );
+		// Bail if on an admin screen that isn't the plugins page (plugins or plugins-network).
+		$current_screen = get_current_screen();
 
-					if ( $plugin ) {
-						$plugins[] = sanitize_text_field( urldecode( $plugin ) );
-					}
+		if ( is_a( $current_screen, 'WP_Screen' ) ) {
+			$allowed_bases = [ 'plugins', 'plugins-network' ];
 
-					if ( $action === 'enable-auto-update' ) {
-						$enableOrDisable = 'enable';
-					} elseif ( $action === 'disable-auto-update' ) {
-						$enableOrDisable = 'disable';
-					}
-				} elseif ( $action === 'toggle-auto-updates' ) {
-					// Ajax post call when clicking single item enable/disable link in plugin list.
-					// *    [action] => toggle-auto-updates
-					// *    [state] => disable | enable
-					// *    [type] => plugin
-					// *    [asset] => redirection/redirection.php.
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$state = sanitize_text_field( wp_unslash( $_POST['state'] ?? '' ) );
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$asset = sanitize_text_field( wp_unslash( $_POST['asset'] ?? '' ) );
+			if ( ! in_array( $current_screen->base, $allowed_bases, true ) ) {
+				return;
+			}
+		}
 
-					if ( $state === 'enable' ) {
-						$enableOrDisable = 'enable';
-					} elseif ( $state === 'disable' ) {
-						$enableOrDisable = 'disable';
-					}
+		$enable_or_disable = null;
+		$plugins           = [];
 
-					if ( $asset ) {
-						$plugins[] = sanitize_text_field( urldecode( $asset ) );
-					}
-				} elseif ( in_array( $action, array( 'enable-auto-update-selected', 'disable-auto-update-selected' ), true ) ) {
-					// $_POST when checking multiple plugins and choosing Enable auto updates or Disable auto updates.
-					// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-					$checked = wp_unslash( $_POST['checked'] ?? null );
-					if ( $checked ) {
-						$plugins = (array) $checked;
-					}
+		if ( in_array( $action, [ 'enable-auto-update', 'disable-auto-update' ], true ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$plugin = sanitize_text_field( wp_unslash( $_GET['plugin'] ?? '' ) );
 
-					if ( $action === 'enable-auto-update-selected' ) {
-						$enableOrDisable = 'enable';
-					} elseif ( $action === 'disable-auto-update-selected' ) {
-						$enableOrDisable = 'disable';
-					}
-				}
+			if ( $plugin ) {
+				$plugins[] = sanitize_text_field( urldecode( $plugin ) );
+			}
 
-				// Now we have:
-				// - an array of plugin slugs in $plugins.
-				// - if plugin auto updates is to be enabled or disabled din $enableOrDisable.
+			$enable_or_disable = $action === 'enable-auto-update' ? 'enable' : 'disable';
+		} elseif ( $action === 'toggle-auto-updates' ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$state = sanitize_text_field( wp_unslash( $_POST['state'] ?? '' ) );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$asset = sanitize_text_field( wp_unslash( $_POST['asset'] ?? '' ) );
 
-				// Bail if required values not set.
-				if ( ! $plugins || ! $enableOrDisable ) {
-					return;
-				}
+			if ( $state === 'enable' || $state === 'disable' ) {
+				$enable_or_disable = $state;
+			}
 
-				// Finally log each plugin.
-				foreach ( $plugins as $onePluginSlug ) {
-					$this->logPluginAutoUpdateEnableOrDisable( $onePluginSlug, $enableOrDisable );
-				}
-			},
-			10,
-			3
-		);
+			if ( $asset ) {
+				$plugins[] = sanitize_text_field( urldecode( $asset ) );
+			}
+		} elseif ( in_array( $action, [ 'enable-auto-update-selected', 'disable-auto-update-selected' ], true ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$checked = wp_unslash( $_POST['checked'] ?? null );
+
+			if ( $checked ) {
+				$plugins = (array) $checked;
+			}
+
+			$enable_or_disable = $action === 'enable-auto-update-selected' ? 'enable' : 'disable';
+		}
+
+		if ( ! $plugins || ! $enable_or_disable ) {
+			return;
+		}
+
+		foreach ( $plugins as $plugin_slug ) {
+			$this->logPluginAutoUpdateEnableOrDisable( $plugin_slug, $enable_or_disable );
+		}
 	}
 
 	/**
@@ -1273,16 +1248,22 @@ class Plugin_Logger extends Logger {
 			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI']; // @phpstan-ignore-line offsetAccess.notFound
 		}
 
-		$this->info_message( 'plugin_activated', $context );
+		if ( $network_wide ) {
+			$context['network_wide'] = true;
+			$this->info_message( 'plugin_network_activated', $context );
+		} else {
+			$this->info_message( 'plugin_activated', $context );
+		}
 	}
 
 	/**
-	 * Plugin is deactivated
-	 * plugin_name is like admin-menu-tree-page-view/index.php
+	 * Plugin is deactivated.
+	 * plugin_name is like admin-menu-tree-page-view/index.php.
 	 *
-	 * @param string $plugin_name Plugin name.
+	 * @param string $plugin_name            Plugin name.
+	 * @param bool   $network_deactivating   Whether the plugin is being deactivated network-wide.
 	 */
-	public function on_deactivated_plugin( $plugin_name ) {
+	public function on_deactivated_plugin( $plugin_name, $network_deactivating = false ) {
 
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name, true, false );
 		$plugin_slug = dirname( $plugin_name );
@@ -1301,7 +1282,12 @@ class Plugin_Logger extends Logger {
 			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI']; // @phpstan-ignore-line offsetAccess.notFound
 		}
 
-		$this->info_message( 'plugin_deactivated', $context );
+		if ( $network_deactivating ) {
+			$context['network_wide'] = true;
+			$this->info_message( 'plugin_network_deactivated', $context );
+		} else {
+			$this->info_message( 'plugin_deactivated', $context );
+		}
 	}
 
 	/**
@@ -1321,6 +1307,8 @@ class Plugin_Logger extends Logger {
 				return $this->get_plugin_updated_details_group( $context );
 			case 'plugin_activated':
 			case 'plugin_deactivated':
+			case 'plugin_network_activated':
+			case 'plugin_network_deactivated':
 				return '';
 		}
 
@@ -1344,7 +1332,7 @@ class Plugin_Logger extends Logger {
 		if ( ! empty( $context['plugin_github_url'] ) ) {
 			return [
 				[
-					'url'   => wp_nonce_url(
+					'url'    => wp_nonce_url(
 						admin_url(
 							sprintf(
 								'admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&repo=%1$s&TB_iframe=true&width=640&height=550',
@@ -1377,7 +1365,7 @@ class Plugin_Logger extends Logger {
 			];
 		}
 
-		if ( in_array( $message_key, [ 'plugin_installed', 'plugin_activated', 'plugin_deactivated' ], true ) ) {
+		if ( in_array( $message_key, [ 'plugin_installed', 'plugin_activated', 'plugin_deactivated', 'plugin_network_activated', 'plugin_network_deactivated' ], true ) ) {
 			return [
 				[
 					'url'    => admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=&TB_iframe=true&width=640&height=550" ),
@@ -1470,6 +1458,10 @@ class Plugin_Logger extends Logger {
 				return $context[ $key ];
 
 			case 'plugin_url':
+				if ( empty( $context['plugin_url'] ) ) {
+					return '';
+				}
+
 				return sprintf( '<a href="%1$s">%2$s</a>', esc_attr( $context['plugin_url'] ), esc_html( $context['plugin_url'] ) );
 
 			case 'plugin_description':
