@@ -177,7 +177,7 @@ class Simple_History {
 			Services\Setup_Pause_Resume_Actions::class,
 			Services\Setup_Purge_DB_Cron::class,
 			Services\Setup_Settings_Page::class,
-			Services\Sidebar_Tips_Service::class,
+			Services\Tips_Service::class,
 			Services\Simple_History_Updates::class,
 			Services\Stats_Service::class,
 			Services\Status_Box_Service::class,
