@@ -262,10 +262,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   12 loggers migrated from manual HTML output to the structured Event Details API, improving consistency and enabling structured JSON in the REST API.
 -   Navigational links in comment and plugin events (e.g. "Edit comment", "View plugin info") moved from event details to the action links bar for better discoverability.
+-   Tips in the sidebar and the dashboard widget now draw from a single curated list, so both surfaces stay in sync and show context-appropriate advice.
 
 **Fixed**
 
 -   Retention upsell message showing "deleted in 0 days" when event deletion is imminent. Now shows "scheduled for deletion" instead.
+-   Sidebar tip that suggested clicking a user's avatar would filter the log — clicking actually opens a user details card, and the tip now reflects that.
 
 ### 5.26.0 (April 2026)
 

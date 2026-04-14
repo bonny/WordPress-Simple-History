@@ -57,7 +57,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Message_Control_Settings_Page_Teaser',
 			'Command_Palette',
 			'Welcome_Message_Service',
-			'Sidebar_Tips_Service',
+			'Tips_Service',
 			'Failed_Login_Limit_Service',
 			'Status_Box_Service',
 		];

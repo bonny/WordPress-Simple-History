@@ -113,64 +113,17 @@ export function DashboardEventsWidget() {
 	const transitionHandlerRef = useRef( null );
 	const tipSeedRef = useRef( Math.random() );
 
-	// Pick a tip using a stable seed so it doesn't change when hasPremiumAddOn flips.
+	// Pick a tip from the PHP-provided list (see Tips_Service::localize_tips_for_react).
+	// Stable seed keeps the selection stable across re-renders.
 	const tip = useMemo( () => {
-		const tips = hasPremiumAddOn
-			? [
-					__(
-						'Keep important events visible by marking them as Sticky.',
-						'simple-history'
-					),
-					__(
-						'Set up alerts in Settings to get notified when important events happen.',
-						'simple-history'
-					),
-					__(
-						'Control exactly which events get logged in Message Control under Settings.',
-						'simple-history'
-					),
-					__(
-						'Check recent events from any page using the Quick View in the admin bar.',
-						'simple-history'
-					),
-					__(
-						'Export your event log as CSV, JSON, or HTML from Export & Tools.',
-						'simple-history'
-					),
-					__(
-						'Use "Show surrounding events" to see what happened right before and after any event.',
-						'simple-history'
-					),
-			  ]
-			: [
-					__(
-						'Simple History Premium sends email alerts when important events happen.',
-						'simple-history'
-					),
-					__(
-						'Simple History Premium lets you pin important events so they stay at the top.',
-						'simple-history'
-					),
-					__(
-						'Simple History Premium stores up to a full year of event history.',
-						'simple-history'
-					),
-					__(
-						'Check recent events from any page using the Quick View in the admin bar.',
-						'simple-history'
-					),
-					__(
-						'Export your event log as CSV, JSON, or HTML from Export & Tools.',
-						'simple-history'
-					),
-					__(
-						'Use "Show surrounding events" to see what happened right before and after any event.',
-						'simple-history'
-					),
-			  ];
+		const tips = window.simpleHistoryTips?.dashboard || [];
+
+		if ( tips.length === 0 ) {
+			return null;
+		}
 
 		return tips[ Math.floor( tipSeedRef.current * tips.length ) ];
-	}, [ hasPremiumAddOn ] );
+	}, [] );
 
 	// Animate any content height change (skeleton resize, events loading, etc.).
 	// Runs every render (no deps) — the early-exit guard makes it cheap when height is unchanged.
@@ -391,21 +344,32 @@ export function DashboardEventsWidget() {
 					failedLoginSuppressedCount > 0 &&
 					! hasPremiumAddOn && (
 						<div className="sh-DashboardWidget-throttleNotice">
-							<span className="dashicons dashicons-info" aria-hidden="true"></span>
+							<span
+								className="dashicons dashicons-info"
+								aria-hidden="true"
+							></span>
 							<p>
 								<strong>
-									{ __( 'Failed login throttling active', 'simple-history' ) }
+									{ __(
+										'Failed login throttling active',
+										'simple-history'
+									) }
 								</strong>
 								{ ' — ' }
 								{ sprintf(
 									/* translators: %s: number of skipped attempts */
-									__( '%s attempts skipped to reduce database bloat.', 'simple-history' ),
+									__(
+										'%s attempts skipped to reduce database bloat.',
+										'simple-history'
+									),
 									failedLoginSuppressedCount.toLocaleString()
-								) }
-								{ ' ' }
+								) }{ ' ' }
 								{ eventsAdminPageURL && (
 									<a href={ eventsAdminPageURL }>
-										{ __( 'View details →', 'simple-history' ) }
+										{ __(
+											'View details →',
+											'simple-history'
+										) }
 									</a>
 								) }
 							</p>
@@ -459,19 +423,26 @@ export function DashboardEventsWidget() {
 				<div className="sh-DashboardWidget-viewAll">
 					{ eventsAdminPageURL ? (
 						<a href={ eventsAdminPageURL }>
-							{ __( 'View full activity log →', 'simple-history' ) }
+							{ __(
+								'View full activity log →',
+								'simple-history'
+							) }
 						</a>
 					) : (
 						<span className="sh-DashboardWidget-viewAll__placeholder">
-							{ __( 'View full activity log →', 'simple-history' ) }
+							{ __(
+								'View full activity log →',
+								'simple-history'
+							) }
 						</span>
 					) }
 				</div>
 
 				{ /* Tip: shown after events load. */ }
-				{ ! eventsIsLoading && events.length > 0 && (
+				{ ! eventsIsLoading && events.length > 0 && tip && (
 					<p className="sh-DashboardWidget-tip">
-						<strong>{ __( 'Tip:', 'simple-history' ) }</strong> { tip }
+						<strong>{ __( 'Tip:', 'simple-history' ) }</strong>{ ' ' }
+						{ tip }
 					</p>
 				) }
 			</div>
