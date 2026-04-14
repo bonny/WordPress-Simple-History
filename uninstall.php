@@ -95,7 +95,10 @@ if ( is_multisite() ) {
 function simple_history_cleanup_network() {
 	global $wpdb;
 
-	// Remove network tables.
+	// Remove network tables. Names match Simple_History::DBTABLE_NETWORK and
+	// DBTABLE_NETWORK_CONTEXTS — kept as literal strings here because
+	// uninstall.php runs without the plugin's autoloader registered, so
+	// the class constants aren't resolvable.
 	$network_table = $wpdb->base_prefix . 'simple_history_network';
 	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 	$wpdb->query( "DROP TABLE IF EXISTS $network_table" );

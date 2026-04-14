@@ -163,15 +163,29 @@ abstract class Logger {
 			return true;
 		}
 
+		// Cron and WP-CLI can carry an arbitrary (or stale) Referer header,
+		// so they must never route based on it. If such a context ever needs
+		// to log to network tables, that logger should declare itself as a
+		// network logger explicitly.
+		if ( wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			return false;
+		}
+
 		// Direct network admin request (URL starts with /wp-admin/network/).
 		if ( is_network_admin() ) {
 			return true;
 		}
 
-		// AJAX/REST requests triggered from the network admin keep their origin
-		// in the HTTP referer. Plugin/theme/core updates fire via admin-ajax.php
-		// where is_network_admin() returns false, so we check the referer.
-		if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		// AJAX updates triggered from the network admin (plugin/theme/core
+		// updates, auto-update toggles, etc.) hit admin-ajax.php where
+		// is_network_admin() returns false. The originating page is in the
+		// HTTP referer, which browsers set reliably for same-origin XHR.
+		//
+		// Deliberately NOT checking REST requests here: REST is called both
+		// from the browser AND programmatically from third-party code, and
+		// an arbitrary Referer header could misroute events. REST endpoints
+		// that need network routing should declare their logger as network.
+		if ( wp_doing_ajax() ) {
 			$referer = wp_get_referer();
 
 			if ( $referer && strpos( $referer, '/wp-admin/network/' ) !== false ) {
@@ -1398,6 +1412,10 @@ abstract class Logger {
 		);
 
 		// Route to network tables if this is a network-level event.
+		// We swap the table properties for the duration of the insert and
+		// restore them afterwards via try/finally so a thrown exception
+		// (e.g. from a hook in append_context) doesn't leave the logger
+		// instance pointing at the wrong tables for subsequent calls.
 		$use_network_tables         = $this->should_use_network_tables();
 		$original_db_table          = null;
 		$original_db_table_contexts = null;
@@ -1414,41 +1432,43 @@ abstract class Logger {
 			}
 		}
 
-		// Insert data into db.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$result = $wpdb->insert( $this->db_table, $data );
+		try {
+			// Insert data into db.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$result = $wpdb->insert( $this->db_table, $data );
 
-		// Auto-recover from missing tables.
-		if ( $result === false && ! empty( $wpdb->last_error ) ) {
-			if ( Services\Setup_Database::is_table_missing_error( $wpdb->last_error ) ) {
-				// Try to recreate tables.
-				$recreated = Services\Setup_Database::recreate_tables_if_missing();
+			// Auto-recover from missing tables.
+			if ( $result === false && ! empty( $wpdb->last_error ) ) {
+				if ( Services\Setup_Database::is_table_missing_error( $wpdb->last_error ) ) {
+					// Try to recreate tables.
+					$recreated = Services\Setup_Database::recreate_tables_if_missing();
 
-				if ( $recreated ) {
-					// Retry the insert after recreating tables.
-					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-					$result = $wpdb->insert( $this->db_table, $data );
+					if ( $recreated ) {
+						// Retry the insert after recreating tables.
+						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+						$result = $wpdb->insert( $this->db_table, $data );
+					}
 				}
 			}
-		}
 
-		// Save context if able to store row.
-		if ( $result === false ) {
-			$history_inserted_id = null;
-		} else {
-			$history_inserted_id = $wpdb->insert_id;
+			// Save context if able to store row.
+			if ( $result === false ) {
+				$history_inserted_id = null;
+			} else {
+				$history_inserted_id = $wpdb->insert_id;
 
-			// Insert all context values into db.
-			$this->append_context( $history_inserted_id, $context );
+				// Insert all context values into db.
+				$this->append_context( $history_inserted_id, $context );
 
-			// Add event ID to data array for hooks.
-			$data['id'] = $history_inserted_id;
-		}
-
-		// Restore original tables after network insert.
-		if ( $original_db_table !== null ) {
-			$this->db_table          = $original_db_table;
-			$this->db_table_contexts = $original_db_table_contexts;
+				// Add event ID to data array for hooks.
+				$data['id'] = $history_inserted_id;
+			}
+		} finally {
+			// Always restore original tables, even if insert/context throws.
+			if ( $original_db_table !== null ) {
+				$this->db_table          = $original_db_table;
+				$this->db_table_contexts = $original_db_table_contexts;
+			}
 		}
 
 		$this->last_insert_id      = $history_inserted_id;

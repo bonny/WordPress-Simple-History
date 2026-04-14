@@ -151,11 +151,13 @@ class Event {
 	 * $event = Event::get( 123 );
 	 * ```
 	 *
-	 * @param int $event_id Event ID to get.
+	 * @param int  $event_id   Event ID to get.
+	 * @param bool $is_network Optional. Whether to look up the event in the
+	 *                         network-level tables. Default false (site).
 	 * @return Event|null Event instance if exists and is valid, null otherwise.
 	 */
-	public static function get( int $event_id ): ?Event {
-		$event        = new Event();
+	public static function get( int $event_id, bool $is_network = false ): ?Event {
+		$event        = new Event( null, $is_network );
 		$event->id    = $event_id;
 		$event_exists = $event->load_data();
 
@@ -175,10 +177,12 @@ class Event {
 	 * $events = Event::get_many( [123, 456, 789] );
 	 * ```
 	 *
-	 * @param array $event_ids Array of event IDs to get.
+	 * @param array $event_ids  Array of event IDs to get.
+	 * @param bool  $is_network Optional. Whether to look up events in the
+	 *                          network-level tables. Default false (site).
 	 * @return array Array of Event objects, indexed by event ID. Missing events are not included.
 	 */
-	public static function get_many( array $event_ids ): array {
+	public static function get_many( array $event_ids, bool $is_network = false ): array {
 		// Convert to ints, remove duplicates, remove empty values, then check if empty.
 		$event_ids = array_map( 'intval', $event_ids );
 		$event_ids = array_unique( $event_ids );
@@ -188,9 +192,19 @@ class Event {
 			return [];
 		}
 
-		// Create cache key based on event IDs.
+		// Cache key includes $is_network — site and network tables have
+		// separate auto-increment sequences, so the same ID can refer to
+		// two different events. Keying on IDs alone would cause cross-context
+		// cache collisions.
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		$cache_key   = md5( __METHOD__ . serialize( [ 'event_ids' => $event_ids ] ) );
+		$cache_key   = md5(
+			__METHOD__ . serialize(
+				[
+					'event_ids'  => $event_ids,
+					'is_network' => $is_network,
+				] 
+			) 
+		);
 		$cache_group = Helpers::get_cache_group();
 
 		// Try to get cached data first.
@@ -206,7 +220,7 @@ class Event {
 		}
 
 		// No cached data, so load from database using the shared query method.
-		$events_data = self::query_db_for_events( $event_ids );
+		$events_data = self::query_db_for_events( $event_ids, $is_network );
 
 		if ( empty( $events_data ) ) {
 			// Cache empty result to avoid repeated DB queries.
@@ -587,9 +601,17 @@ class Event {
 	 * @return bool True if event exists and data was loaded, false if event does not exist.
 	 */
 	private function load_data(): bool {
-		// Create cache key based on event ID.
+		// Cache key includes $this->is_network — same ID can refer to different
+		// events in the site and network tables, so cache keys must be distinct.
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		$cache_key   = md5( __METHOD__ . serialize( [ 'event_id' => $this->id ] ) );
+		$cache_key   = md5(
+			__METHOD__ . serialize(
+				[
+					'event_id'   => $this->id,
+					'is_network' => $this->is_network,
+				] 
+			) 
+		);
 		$cache_group = Helpers::get_cache_group();
 
 		// Try to get cached data first.
@@ -652,7 +674,8 @@ class Event {
 	/**
 	 * Query database for events and their contexts.
 	 *
-	 * @param int|array $event_ids Single event ID or array of event IDs.
+	 * @param int|array $event_ids  Single event ID or array of event IDs.
+	 * @param bool      $is_network Whether to query the network-level tables instead of the per-site tables.
 	 * @return array Array of event data grouped by event ID, or empty array if no events found.
 	 */
 	private static function query_db_for_events( $event_ids, bool $is_network = false ): array {

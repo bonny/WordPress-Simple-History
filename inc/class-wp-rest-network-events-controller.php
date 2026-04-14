@@ -102,6 +102,53 @@ class WP_REST_Network_Events_Controller extends WP_REST_Events_Controller {
 				],
 			]
 		);
+
+		$reaction_type_arg = [
+			'description' => __( 'Reaction type, e.g. "thumbsup".', 'simple-history' ),
+			'type'        => 'string',
+			'required'    => true,
+			'enum'        => $this->get_allowed_reaction_types(),
+		];
+
+		// POST /network/events/{id}/react.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/react',
+			[
+				'args' => [
+					'id'   => [
+						'description' => __( 'Unique identifier for the event.', 'simple-history' ),
+						'type'        => 'integer',
+					],
+					'type' => $reaction_type_arg,
+				],
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'react_to_event' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+				],
+			]
+		);
+
+		// POST /network/events/{id}/unreact.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/unreact',
+			[
+				'args' => [
+					'id'   => [
+						'description' => __( 'Unique identifier for the event.', 'simple-history' ),
+						'type'        => 'integer',
+					],
+					'type' => $reaction_type_arg,
+				],
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'unreact_to_event' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+				],
+			]
+		);
 	}
 
 	/**

@@ -156,6 +156,11 @@ class Network_Logger extends Logger {
 		add_action( 'revoked_super_admin', [ $this, 'on_super_admin_revoked' ] );
 
 		// Network user management.
+		// `wpmu_new_user` fires when a network user is created (admin-created or
+		// signup-activated). For networks that require email activation, the
+		// signup itself fires `after_signup_user` and then `wpmu_new_user` fires
+		// only when the user clicks the activation link. We log creation, not
+		// signup, on purpose — pending signups are noise for super admins.
 		add_action( 'wpmu_new_user', [ $this, 'on_network_user_created' ] );
 		add_action( 'wpmu_delete_user', [ $this, 'on_network_user_deleted' ] );
 		add_action( 'make_spam_user', [ $this, 'on_network_user_spam' ] );

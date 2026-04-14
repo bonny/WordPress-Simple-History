@@ -469,6 +469,11 @@ class Setup_Database extends Service {
 	 * Network tables have their own version track so they are created
 	 * independently of per-site tables.
 	 *
+	 * Runs from run_setup_steps() on every admin request, but the
+	 * get_network_db_version() check short-circuits in O(1) (one autoloaded
+	 * site option read) once the tables exist. This keeps the setup path
+	 * idempotent without needing a separate activation hook.
+	 *
 	 * @since 5.6.0
 	 */
 	private function setup_network_tables() {

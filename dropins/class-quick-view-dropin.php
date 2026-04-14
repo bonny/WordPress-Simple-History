@@ -3,6 +3,7 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
+use Simple_History\Services;
 
 /**
  * Displays the latest events from Simple History in the admin bar using React.
@@ -112,7 +113,9 @@ class Quick_View_Dropin extends Dropin {
 			$asset_file['version']
 		);
 
-		// When in network admin context, point the admin bar quick view at the network events endpoint.
+		// When in network admin context, point the admin bar quick view at
+		// the network events endpoint. Same shape as the variable set by
+		// Network_Admin_Page so JS can consume either source uniformly.
 		if ( is_multisite() && is_network_admin() ) {
 			wp_localize_script(
 				'simple_history_admin_bar_scripts',
@@ -120,6 +123,7 @@ class Quick_View_Dropin extends Dropin {
 				[
 					'isNetworkAdmin' => true,
 					'apiNamespace'   => 'simple-history/v1/network',
+					'adminPageUrl'   => network_admin_url( 'admin.php?page=' . Services\Network_Admin_Page::PAGE_SLUG ),
 				]
 			);
 		}

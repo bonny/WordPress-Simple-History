@@ -1428,7 +1428,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 *
 	 * @return array List of allowed reaction type strings.
 	 */
-	private function get_allowed_reaction_types(): array {
+	protected function get_allowed_reaction_types(): array {
 		return apply_filters(
 			'simple_history/reactions/allowed_types',
 			[ 'thumbsup' ]
