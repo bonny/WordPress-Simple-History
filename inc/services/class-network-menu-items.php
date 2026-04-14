@@ -3,7 +3,6 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
-use Simple_History\Services\Network_Admin_Page;
 
 /**
  * Add a "View history" item/shortcut to the admin bar.
@@ -152,7 +151,7 @@ class Network_Menu_Items extends Service {
 				'id'     => 'simple-history-network-admin',
 				'parent' => 'network-admin',
 				'title'  => _x( 'View History', 'Admin bar network admin name', 'simple-history' ),
-				'href'   => network_admin_url( 'admin.php?page=' . Network_Admin_Page::PAGE_SLUG ),
+				'href'   => Helpers::get_network_admin_page_url(),
 				'meta'   => [
 					'class' => 'ab-item--simplehistory',
 				],

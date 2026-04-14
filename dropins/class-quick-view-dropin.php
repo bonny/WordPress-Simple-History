@@ -114,17 +114,12 @@ class Quick_View_Dropin extends Dropin {
 		);
 
 		// When in network admin context, point the admin bar quick view at
-		// the network events endpoint. Same shape as the variable set by
-		// Network_Admin_Page so JS can consume either source uniformly.
+		// the network events endpoint.
 		if ( is_multisite() && is_network_admin() ) {
 			wp_localize_script(
 				'simple_history_admin_bar_scripts',
 				'simpleHistoryNetworkContext',
-				[
-					'isNetworkAdmin' => true,
-					'apiNamespace'   => 'simple-history/v1/network',
-					'adminPageUrl'   => network_admin_url( 'admin.php?page=' . Services\Network_Admin_Page::PAGE_SLUG ),
-				]
+				Services\Network_Admin_Page::get_network_context_data()
 			);
 		}
 

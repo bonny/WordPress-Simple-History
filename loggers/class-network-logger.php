@@ -205,49 +205,71 @@ class Network_Logger extends Logger {
 	/**
 	 * Get site context for a given blog ID.
 	 *
+	 * Memoized per-request — bulk operations on the same site shouldn't
+	 * re-hit get_site() each time.
+	 *
 	 * @param int $blog_id Blog ID.
 	 * @return array<string,string|int> Site context.
 	 */
 	private function get_site_context( $blog_id ) {
+		static $cache = [];
+
+		if ( isset( $cache[ $blog_id ] ) ) {
+			return $cache[ $blog_id ];
+		}
+
 		$site = get_site( $blog_id );
 
 		if ( ! $site ) {
-			return [
+			$cache[ $blog_id ] = [
 				'site_id'   => $blog_id,
 				'site_name' => '',
 				'site_url'  => '',
 			];
+		} else {
+			$cache[ $blog_id ] = [
+				'site_id'   => $blog_id,
+				'site_name' => ! empty( $site->blogname ) ? $site->blogname : $site->domain . $site->path,
+				'site_url'  => $site->domain . $site->path,
+			];
 		}
 
-		return [
-			'site_id'   => $blog_id,
-			'site_name' => ! empty( $site->blogname ) ? $site->blogname : $site->domain . $site->path,
-			'site_url'  => $site->domain . $site->path,
-		];
+		return $cache[ $blog_id ];
 	}
 
 	/**
 	 * Get user context for a given user ID.
 	 *
+	 * Memoized per-request — bulk operations (e.g. adding the same user to
+	 * many sites in one request) shouldn't re-hit get_userdata() each time.
+	 *
 	 * @param int $user_id User ID.
 	 * @return array<string,string|int> User context.
 	 */
 	private function get_user_context( $user_id ) {
+		static $cache = [];
+
+		if ( isset( $cache[ $user_id ] ) ) {
+			return $cache[ $user_id ];
+		}
+
 		$user = get_userdata( $user_id );
 
 		if ( ! $user ) {
-			return [
+			$cache[ $user_id ] = [
 				'affected_user_id' => $user_id,
 				'user_login'       => '',
 				'user_email'       => '',
 			];
+		} else {
+			$cache[ $user_id ] = [
+				'affected_user_id' => $user_id,
+				'user_login'       => $user->user_login,
+				'user_email'       => $user->user_email,
+			];
 		}
 
-		return [
-			'affected_user_id' => $user_id,
-			'user_login'       => $user->user_login,
-			'user_email'       => $user->user_email,
-		];
+		return $cache[ $user_id ];
 	}
 
 	// -------------------------------------------------------------------------

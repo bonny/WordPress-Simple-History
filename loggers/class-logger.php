@@ -154,13 +154,37 @@ abstract class Logger {
 	 * @return bool
 	 */
 	protected function should_use_network_tables() {
-		if ( ! is_multisite() ) {
-			return false;
+		// Dedicated network loggers always write to network tables — bypass
+		// the cached request-level decision since the answer depends on the
+		// instance, not the request.
+		if ( $this->is_network_logger ) {
+			return is_multisite();
 		}
 
-		// Dedicated network loggers always write to network tables.
-		if ( $this->is_network_logger ) {
-			return true;
+		return self::is_network_request_context();
+	}
+
+	/**
+	 * Decide whether the current request itself counts as "happening in the
+	 * network admin" for routing-by-context loggers (Plugin_Logger, etc.).
+	 *
+	 * Cached for the request because the answer never changes within one
+	 * PHP execution and the underlying checks (referer parsing especially)
+	 * would otherwise repeat for every logged event.
+	 *
+	 * @since 5.6.0
+	 * @return bool
+	 */
+	private static function is_network_request_context() {
+		static $cached = null;
+
+		if ( $cached !== null ) {
+			return $cached;
+		}
+
+		if ( ! is_multisite() ) {
+			$cached = false;
+			return $cached;
 		}
 
 		// Cron and WP-CLI can carry an arbitrary (or stale) Referer header,
@@ -168,12 +192,13 @@ abstract class Logger {
 		// to log to network tables, that logger should declare itself as a
 		// network logger explicitly.
 		if ( wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
-			return false;
+			$cached = false;
+			return $cached;
 		}
 
-		// Direct network admin request (URL starts with /wp-admin/network/).
 		if ( is_network_admin() ) {
-			return true;
+			$cached = true;
+			return $cached;
 		}
 
 		// AJAX updates triggered from the network admin (plugin/theme/core
@@ -181,19 +206,20 @@ abstract class Logger {
 		// is_network_admin() returns false. The originating page is in the
 		// HTTP referer, which browsers set reliably for same-origin XHR.
 		//
-		// Deliberately NOT checking REST requests here: REST is called both
-		// from the browser AND programmatically from third-party code, and
-		// an arbitrary Referer header could misroute events. REST endpoints
-		// that need network routing should declare their logger as network.
+		// REST is intentionally excluded: it's called programmatically too,
+		// and an arbitrary Referer header could misroute events. REST
+		// endpoints that need network routing should use a network logger.
 		if ( wp_doing_ajax() ) {
 			$referer = wp_get_referer();
 
 			if ( $referer && strpos( $referer, '/wp-admin/network/' ) !== false ) {
-				return true;
+				$cached = true;
+				return $cached;
 			}
 		}
 
-		return false;
+		$cached = false;
+		return $cached;
 	}
 
 	/**

@@ -2026,6 +2026,18 @@ class Helpers {
 	}
 
 	/**
+	 * Get the URL to the Network Admin Simple History page.
+	 *
+	 * Only meaningful on multisite — returns a /wp-admin/network/ URL.
+	 *
+	 * @since 5.6.0
+	 * @return string
+	 */
+	public static function get_network_admin_page_url() {
+		return network_admin_url( 'admin.php?page=' . Services\Network_Admin_Page::PAGE_SLUG );
+	}
+
+	/**
 	 * Get the URL to the admin page where user views the history feed.
 	 *
 	 * Can not use `menu_page_url()` because it only works within the admin area.
