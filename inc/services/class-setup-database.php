@@ -41,6 +41,9 @@ class Setup_Database extends Service {
 		$this->setup_version_6_to_version_7();
 		$this->setup_version_7_to_version_8();
 		$this->setup_version_8_to_version_9();
+
+		// Network tables use a separate versioning track.
+		$this->setup_network_tables();
 	}
 
 	/**
@@ -437,6 +440,91 @@ class Setup_Database extends Service {
 		update_option( 'simple_history_retention_days', $retention_days, true );
 
 		$this->update_db_to_version( 9 );
+	}
+
+	/**
+	 * Get the current network database version.
+	 *
+	 * @return int The network database version.
+	 */
+	private function get_network_db_version() {
+		return (int) get_site_option( 'simple_history_network_db_version', 0 );
+	}
+
+	/**
+	 * Update the network database version.
+	 *
+	 * @param int $new_version The new version to set.
+	 */
+	private function update_network_db_to_version( $new_version ) {
+		update_site_option( 'simple_history_network_db_version', $new_version );
+	}
+
+	/**
+	 * Create network-wide tables for multisite.
+	 *
+	 * Uses base_prefix (once per network) instead of prefix (per-site),
+	 * following how WordPress separates wp_options from wp_sitemeta.
+	 *
+	 * Network tables have their own version track so they are created
+	 * independently of per-site tables.
+	 *
+	 * @since 5.6.0
+	 */
+	private function setup_network_tables() {
+		if ( ! is_multisite() ) {
+			return;
+		}
+
+		$network_db_version = $this->get_network_db_version();
+
+		if ( $network_db_version >= 1 ) {
+			return;
+		}
+
+		global $wpdb;
+
+		$table_name          = $this->simple_history->get_network_events_table_name();
+		$table_name_contexts = $this->simple_history->get_network_contexts_table_name();
+
+		if ( empty( $table_name ) || empty( $table_name_contexts ) ) {
+			return;
+		}
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+		// Create network events table.
+		$sql = "CREATE TABLE {$table_name} (
+			id bigint(20) NOT NULL AUTO_INCREMENT,
+			date datetime NOT NULL,
+			logger varchar(30) DEFAULT NULL,
+			level varchar(20) DEFAULT NULL,
+			message varchar(255) DEFAULT NULL,
+			occasionsID varchar(32) DEFAULT NULL,
+			initiator varchar(16) DEFAULT NULL,
+			PRIMARY KEY  (id),
+			KEY date (date),
+			KEY loggerdate (logger,date)
+		) {$charset_collate};";
+
+		dbDelta( $sql );
+
+		// Create network contexts table.
+		$sql = "CREATE TABLE {$table_name_contexts} (
+			context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			history_id bigint(20) unsigned NOT NULL,
+			`key` varchar(255) DEFAULT NULL,
+			value longtext,
+			PRIMARY KEY  (context_id),
+			KEY history_id (history_id),
+			KEY `key` (`key`)
+		) {$charset_collate};";
+
+		dbDelta( $sql );
+
+		$this->update_network_db_to_version( 1 );
 	}
 
 	/**

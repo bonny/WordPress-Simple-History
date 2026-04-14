@@ -73,7 +73,7 @@ if ( is_multisite() ) {
 		array(
 			'fields' => 'ids',
 			'number' => 0,
-		) 
+		)
 	);
 
 	foreach ( $site_ids as $site_id ) {
@@ -81,6 +81,29 @@ if ( is_multisite() ) {
 		simple_history_cleanup_site();
 		restore_current_blog();
 	}
+
+	// Remove network-wide tables and options.
+	simple_history_cleanup_network();
 } else {
 	simple_history_cleanup_site();
+}
+
+/**
+ * Remove network-level Simple History data:
+ * network tables (base_prefix) and network options.
+ */
+function simple_history_cleanup_network() {
+	global $wpdb;
+
+	// Remove network tables.
+	$network_table = $wpdb->base_prefix . 'simple_history_network';
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+	$wpdb->query( "DROP TABLE IF EXISTS $network_table" );
+
+	$network_contexts_table = $wpdb->base_prefix . 'simple_history_network_contexts';
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+	$wpdb->query( "DROP TABLE IF EXISTS $network_contexts_table" );
+
+	// Remove network options.
+	delete_site_option( 'simple_history_network_db_version' );
 }

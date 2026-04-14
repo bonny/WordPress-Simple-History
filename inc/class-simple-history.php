@@ -61,11 +61,20 @@ class Simple_History {
 	public const DBTABLE          = 'simple_history';
 	public const DBTABLE_CONTEXTS = 'simple_history_contexts';
 
+	public const DBTABLE_NETWORK          = 'simple_history_network';
+	public const DBTABLE_NETWORK_CONTEXTS = 'simple_history_network_contexts';
+
 	/** @var string $dbtable Full database name with prefix, i.e. wp_simple_history */
 	public static $dbtable;
 
 	/** @var string $dbtable Full database name with prefix for contexts, i.e. wp_simple_history_contexts */
 	public static $dbtable_contexts;
+
+	/** @var string $dbtable_network Full database name with base_prefix for network events, i.e. wp_simple_history_network */
+	public static $dbtable_network;
+
+	/** @var string $dbtable_network_contexts Full database name with base_prefix for network contexts, i.e. wp_simple_history_network_contexts */
+	public static $dbtable_network_contexts;
 
 	/** @var string $plugin_basename */
 	public $plugin_basename = SIMPLE_HISTORY_BASENAME;
@@ -163,6 +172,7 @@ class Simple_History {
 			Services\Loggers_Loader::class,
 			Services\Menu_Service::class,
 			Services\Message_Control_Settings_Page_Teaser::class,
+			Services\Network_Admin_Page::class,
 			Services\Network_Menu_Items::class,
 			Services\Notification_Bar::class,
 			Services\Plugin_List_Info::class,
@@ -379,6 +389,35 @@ class Simple_History {
 			'simple_history/logger_db_table_contexts',
 			$this::$dbtable_contexts
 		);
+
+		// Network tables use base_prefix (once per network, not per-site).
+		if ( ! is_multisite() ) {
+			return;
+		}
+
+		$this::$dbtable_network          = $wpdb->base_prefix . self::DBTABLE_NETWORK;
+		$this::$dbtable_network_contexts = $wpdb->base_prefix . self::DBTABLE_NETWORK_CONTEXTS;
+
+		/**
+		 * Filter db table used for network-level events.
+		 *
+		 * @since 5.6.0
+		 *
+		 * @param string $db_table
+		 */
+		$this::$dbtable_network = apply_filters( 'simple_history/db_table_network', $this::$dbtable_network );
+
+		/**
+		 * Filter table name for network contexts.
+		 *
+		 * @since 5.6.0
+		 *
+		 * @param string $db_table_network_contexts
+		 */
+		$this::$dbtable_network_contexts = apply_filters(
+			'simple_history/db_table_network_contexts',
+			$this::$dbtable_network_contexts
+		);
 	}
 
 	/**
@@ -530,6 +569,7 @@ class Simple_History {
 			Loggers\User_Logger::class,
 			Loggers\Simple_History_Logger::class,
 			Loggers\Custom_Entry_Logger::class,
+			Loggers\Network_Logger::class,
 		);
 
 		// Experimental loggers, only loaded when experimental features are enabled.
@@ -1609,6 +1649,28 @@ class Simple_History {
 	 */
 	public function get_contexts_table_name() {
 		return $this::$dbtable_contexts;
+	}
+
+	/**
+	 * Get the name of the network events database table.
+	 * Only available on multisite.
+	 *
+	 * @since 5.6.0
+	 * @return string
+	 */
+	public function get_network_events_table_name() {
+		return $this::$dbtable_network ?? '';
+	}
+
+	/**
+	 * Get the name of the network contexts database table.
+	 * Only available on multisite.
+	 *
+	 * @since 5.6.0
+	 * @return string
+	 */
+	public function get_network_contexts_table_name() {
+		return $this::$dbtable_network_contexts ?? '';
 	}
 
 	/**

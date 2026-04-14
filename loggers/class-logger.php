@@ -116,6 +116,15 @@ abstract class Logger {
 	public $db_table_contexts;
 
 	/**
+	 * Whether this logger always writes to network tables.
+	 * Override in subclass to true for loggers that only log network-level events.
+	 *
+	 * @since 5.6.0
+	 * @var bool
+	 */
+	protected $is_network_logger = false;
+
+	/**
 	 * Flag to track if messages have been loaded for this logger.
 	 *
 	 * @var bool
@@ -131,6 +140,46 @@ abstract class Logger {
 		$this->simple_history    = $simple_history;
 		$this->db_table          = $this->simple_history->get_events_table_name();
 		$this->db_table_contexts = $this->simple_history->get_contexts_table_name();
+	}
+
+	/**
+	 * Determine if the current log call should use network tables.
+	 *
+	 * Returns true when:
+	 * - Running on multisite AND
+	 * - The logger is a dedicated network logger ($is_network_logger = true)
+	 *   OR the action is happening in the network admin context.
+	 *
+	 * @since 5.6.0
+	 * @return bool
+	 */
+	protected function should_use_network_tables() {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		// Dedicated network loggers always write to network tables.
+		if ( $this->is_network_logger ) {
+			return true;
+		}
+
+		// Direct network admin request (URL starts with /wp-admin/network/).
+		if ( is_network_admin() ) {
+			return true;
+		}
+
+		// AJAX/REST requests triggered from the network admin keep their origin
+		// in the HTTP referer. Plugin/theme/core updates fire via admin-ajax.php
+		// where is_network_admin() returns false, so we check the referer.
+		if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			$referer = wp_get_referer();
+
+			if ( $referer && strpos( $referer, '/wp-admin/network/' ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -1348,6 +1397,23 @@ abstract class Logger {
 			$this
 		);
 
+		// Route to network tables if this is a network-level event.
+		$use_network_tables         = $this->should_use_network_tables();
+		$original_db_table          = null;
+		$original_db_table_contexts = null;
+
+		if ( $use_network_tables ) {
+			$network_table          = $this->simple_history->get_network_events_table_name();
+			$network_table_contexts = $this->simple_history->get_network_contexts_table_name();
+
+			if ( ! empty( $network_table ) && ! empty( $network_table_contexts ) ) {
+				$original_db_table          = $this->db_table;
+				$original_db_table_contexts = $this->db_table_contexts;
+				$this->db_table             = $network_table;
+				$this->db_table_contexts    = $network_table_contexts;
+			}
+		}
+
 		// Insert data into db.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->insert( $this->db_table, $data );
@@ -1377,6 +1443,12 @@ abstract class Logger {
 
 			// Add event ID to data array for hooks.
 			$data['id'] = $history_inserted_id;
+		}
+
+		// Restore original tables after network insert.
+		if ( $original_db_table !== null ) {
+			$this->db_table          = $original_db_table;
+			$this->db_table_contexts = $original_db_table_contexts;
 		}
 
 		$this->last_insert_id      = $history_inserted_id;
