@@ -42,6 +42,20 @@ class WP_REST_Network_Events_Controller extends WP_REST_Events_Controller {
 			]
 		);
 
+		// GET /network/events/has-updates — used by NewEventsNotifier polling.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/has-updates',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_has_updates' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+					'args'                => $this->get_collection_params_for_has_updates(),
+				],
+			]
+		);
+
 		// Single event endpoint for the event modal.
 		register_rest_route(
 			$this->namespace,

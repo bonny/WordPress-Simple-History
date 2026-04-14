@@ -5,7 +5,7 @@ import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { SVG, Path } from '@wordpress/primitives';
 import { useEventsSettings } from './EventsSettingsContext';
-import { getTrackingUrl } from '../functions';
+import { getEventsApiPath, getTrackingUrl } from '../functions';
 
 /**
  * All supported reaction types. Only thumbsup is free in core.
@@ -101,7 +101,7 @@ export function useEventReactions( event ) {
 
 			try {
 				const response = await apiFetch( {
-					path: `/simple-history/v1/events/${ event.id }/${ endpoint }`,
+					path: `${ getEventsApiPath() }/${ event.id }/${ endpoint }`,
 					method: 'POST',
 					data: { type },
 				} );

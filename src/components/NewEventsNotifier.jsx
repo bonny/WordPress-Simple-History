@@ -5,6 +5,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { update } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { clsx } from 'clsx';
+import { getEventsApiPath } from '../functions';
 
 // How often to check for new events, in milliseconds.
 const UPDATE_CHECK_INTERVAL = 30000;
@@ -64,7 +65,7 @@ export function NewEventsNotifier( props ) {
 			try {
 				const eventsResponse = await apiFetch( {
 					path: addQueryArgs(
-						'/simple-history/v1/events/has-updates',
+						`${ getEventsApiPath() }/has-updates`,
 						eventsQueryParamsWithSinceId
 					),
 					// Skip parsing to be able to retrieve headers.
