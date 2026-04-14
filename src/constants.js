@@ -1,41 +1,51 @@
 import { __, _x } from '@wordpress/i18n';
 import { endOfDay, format, startOfDay } from 'date-fns';
 
-export const DEFAULT_DATE_OPTIONS = [
+export const DEFAULT_DATE_OPTION_GROUPS = [
 	{
-		label: __( 'Custom date range…', 'simple-history' ),
-		value: 'customRange',
-	},
-	{
-		label: __( 'Today', 'simple-history' ),
-		value: 'lastdays:1',
-	},
-	{
-		label: __( 'Yesterday', 'simple-history' ),
-		value: 'yesterday',
-	},
-	{
-		label: __( 'Last 7 days', 'simple-history' ),
-		value: 'lastdays:7',
-	},
-	{
-		label: __( 'Last 14 days', 'simple-history' ),
-		value: 'lastdays:14',
-	},
-	{
-		label: __( 'Last 30 days', 'simple-history' ),
-		value: 'lastdays:30',
-	},
-	{
-		label: __( 'Last 60 days', 'simple-history' ),
-		value: 'lastdays:60',
+		label: __( 'Relative dates', 'simple-history' ),
+		options: [
+			{
+				label: __( 'Today', 'simple-history' ),
+				value: 'lastdays:1',
+			},
+			{
+				label: __( 'Yesterday', 'simple-history' ),
+				value: 'yesterday',
+			},
+			{
+				label: __( 'Last 7 days', 'simple-history' ),
+				value: 'lastdays:7',
+			},
+			{
+				label: __( 'Last 14 days', 'simple-history' ),
+				value: 'lastdays:14',
+			},
+			{
+				label: __( 'Last 30 days', 'simple-history' ),
+				value: 'lastdays:30',
+			},
+			{
+				label: __( 'Last 60 days', 'simple-history' ),
+				value: 'lastdays:60',
+			},
+			{
+				label: __( 'Custom range…', 'simple-history' ),
+				value: 'customRange',
+			},
+		],
 	},
 ];
 
-export const OPTIONS_LOADING = [
+export const DATE_OPTION_GROUPS_LOADING = [
 	{
-		label: __( 'Loading…', 'simple-history' ),
-		value: '',
+		label: '',
+		options: [
+			{
+				label: __( 'Loading…', 'simple-history' ),
+				value: '',
+			},
+		],
 	},
 ];
 export const LOGLEVELS_OPTIONS = [
