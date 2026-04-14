@@ -199,8 +199,11 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.failed_login_suppressed_count || 0
 				);
 
+				// In network admin, override with the network page URL so
+				// links (e.g. surrounding events) stay in network context.
 				setEventsAdminPageURL(
-					searchOptionsResponse.events_admin_page_url
+					window.simpleHistoryNetworkContext?.adminPageUrl ||
+						searchOptionsResponse.events_admin_page_url
 				);
 				setEventsSettingsPageURL(
 					searchOptionsResponse.settings_page_url

@@ -26,7 +26,11 @@ class Network_Admin_Page extends Service {
 		}
 
 		add_action( 'network_admin_menu', [ $this, 'add_network_admin_menu' ] );
-		add_action( 'simple_history/enqueue_admin_scripts', [ $this, 'localize_network_context' ] );
+
+		// Priority 20: run AFTER React_Dropin (priority 10) has registered
+		// the simple_history_wp_scripts handle, otherwise wp_localize_script
+		// silently fails and the React app never learns it's in network context.
+		add_action( 'simple_history/enqueue_admin_scripts', [ $this, 'localize_network_context' ], 20 );
 	}
 
 	/**
@@ -51,6 +55,7 @@ class Network_Admin_Page extends Service {
 			[
 				'isNetworkAdmin' => true,
 				'apiNamespace'   => 'simple-history/v1/network',
+				'adminPageUrl'   => network_admin_url( 'admin.php?page=' . self::PAGE_SLUG ),
 			]
 		);
 	}

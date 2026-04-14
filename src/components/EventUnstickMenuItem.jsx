@@ -6,6 +6,7 @@ import {
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { pin } from '@wordpress/icons';
+import { getEventsApiPath } from '../functions';
 
 /**
  * Menu item to unstick a sticky event.
@@ -34,7 +35,7 @@ export function EventUnstickMenuItem( {
 	const handleUnstickClickConfirm = async () => {
 		try {
 			await apiFetch( {
-				path: `/simple-history/v1/events/${ event.id }/unstick`,
+				path: `${ getEventsApiPath() }/${ event.id }/unstick`,
 				method: 'POST',
 			} );
 

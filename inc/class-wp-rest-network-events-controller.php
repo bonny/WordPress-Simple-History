@@ -64,6 +64,15 @@ class WP_REST_Network_Events_Controller extends WP_REST_Events_Controller {
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
+
+		/*
+		 * Stick/unstick endpoints are intentionally NOT registered on the network
+		 * controller for now: the Event class that backs them reads/writes via
+		 * get_contexts_table_name() which returns the site-level contexts table.
+		 * Making stick work on network events requires teaching Event about the
+		 * base_prefix tables. Deferred until we actually surface a stick button
+		 * on the network admin page.
+		 */
 	}
 
 	/**
