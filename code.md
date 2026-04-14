@@ -35,6 +35,28 @@ npm run php:lint-fix
 npm run php:phpstan
 ```
 
+## Whitespace: Let the Code Breathe
+
+Add blank lines before `if` statements, `return` statements, and between logical blocks. Code should "breathe" — don't pack statements tightly together.
+
+```php
+// Good: Blank lines before if and return.
+$simple_history = Simple_History::get_instance();
+
+if ( $this->is_network_query ) {
+    return $simple_history->get_network_events_table_name();
+}
+
+return $simple_history->get_events_table_name();
+
+// Avoid: Everything packed together.
+$simple_history = Simple_History::get_instance();
+if ( $this->is_network_query ) {
+    return $simple_history->get_network_events_table_name();
+}
+return $simple_history->get_events_table_name();
+```
+
 ## Comments
 
 ### Placement: Above the Code
