@@ -30,6 +30,30 @@ class Network_Teaser_Page extends Service {
 		}
 
 		add_action( 'network_admin_menu', [ $this, 'add_menu_page' ] );
+
+		// The teaser uses add_menu_page() directly, not the Menu_Manager, so
+		// Helpers::is_on_our_own_pages() doesn't recognize the page slug on
+		// its own. Opt in via the filter so the core stylesheet (and the
+		// rest of the Simple History asset pipeline) loads here too.
+		add_filter( 'simple_history/is_on_our_own_pages', [ $this, 'mark_teaser_as_our_own_page' ] );
+	}
+
+	/**
+	 * Filter callback that marks the Network Admin teaser page as a
+	 * Simple History page so the main stylesheet gets enqueued.
+	 *
+	 * @param bool $is_on_our_own_pages Current value.
+	 * @return bool
+	 */
+	public function mark_teaser_as_our_own_page( $is_on_our_own_pages ) {
+		if ( $is_on_our_own_pages ) {
+			return $is_on_our_own_pages;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen detection, no state change.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : null;
+
+		return $page === self::MENU_SLUG;
 	}
 
 	/**
