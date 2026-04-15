@@ -1262,7 +1262,22 @@ class Helpers {
 		$current_screen = self::get_current_screen();
 
 		// We are on a Simple History page if we are on dashboard and the setting is set to show on dashboard.
-		return $current_screen->base === 'dashboard' && self::setting_show_on_dashboard();
+		$is_on_our_page = $current_screen->base === 'dashboard' && self::setting_show_on_dashboard();
+
+		/**
+		 * Filter whether the current admin screen should be treated as a
+		 * Simple History page.
+		 *
+		 * Add-ons can use this to opt their own pages into the normal
+		 * Simple History asset pipeline (React bundle, admin bar, etc.)
+		 * without having to register a matching menu slug.
+		 *
+		 * @since 5.13.0
+		 *
+		 * @param bool           $is_on_our_page Whether the current screen is a Simple History page.
+		 * @param \WP_Screen|null $current_screen The current WP_Screen object.
+		 */
+		return (bool) apply_filters( 'simple_history/is_on_our_own_pages', $is_on_our_page, $current_screen );
 	}
 
 	/**
