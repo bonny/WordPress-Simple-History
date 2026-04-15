@@ -5,6 +5,47 @@
 **Core behavior after migration:** same as today's shipped plugin — network admin events silently land in site 1's log. No regression. Plus a new teaser page for multisite super admins.
 **Freemium stance:** additive upgrade, not gate. No locked code ships in the wp.org ZIP.
 
+## Current status (2026-04-15)
+
+Both sides implemented. Ready for manual integration testing.
+
+### Core branch `issue-network-teaser` (6 commits on top of develop)
+
+```
+03521b8d Add Network Admin teaser page on multisite
+b454cc1b Add factory methods to REST controllers
+84da0bb5 Centralize Event table name resolution
+4eb6f804 Centralize Log_Query table name resolution
+c6d2069c Add filter to opt external pages into Simple History asset pipeline
+d53c5209 Expose Events_Stats table getters to subclasses
+```
+
+### Premium branch `network-module` (9 commits on top of main)
+
+```
+a5627fa Match core's get_events_table_name() / get_contexts_table_name() method names
+90e7f7a Register Network_Module in Extended_Settings
+4a5366b Add network CSS and JS helpers
+1245517 Add Network Admin page and sidebar dropin
+0b07698 Add network-scoped REST controllers
+5c68341 Add network-aware Log_Query / Event / Events_Stats subclasses
+b5fe558 Port Network_Logger for multisite event capture
+863563f Add network database setup
+3e7aeda Scaffold network module skeleton
+```
+
+### Coupling
+
+Premium `network-module` requires core `issue-network-teaser` to function — premium relies on `protected` table-name accessors on `Log_Query` / `Event` / `Events_Stats`, the `create_log_query()` / `create_event()` / `create_events_stats()` factory methods on REST controllers, and the `simple_history/is_on_our_own_pages` filter. Ship core first, then premium.
+
+### Known limitation (not blocking ship)
+
+`WP_REST_User_Card_Controller` has its `Log_Query` instantiations inside `public static` helper methods. Those static helpers can't be overridden via instance factory methods. Result: on the Premium network page, user card activity counts will show site-level activity rather than network-level. Fix in a follow-up — either introduce late-static-binding `static::create_log_query()` or migrate those helpers off statics.
+
+### readme.txt audit
+
+Done. Two historical changelog entries mention "multisite" and "network" but both describe the plugin's own multisite install/uninstall behavior, not a claim that network admin events are logged. No changes needed.
+
 ## Guiding principles
 
 1. **No regression in core.** Core continues to behave exactly like the shipped version for non-premium users — network events "leak" into site 1's log as they do today.
