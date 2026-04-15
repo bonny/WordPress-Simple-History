@@ -97,13 +97,13 @@ class Network_Teaser_Page extends Service {
 					</span>
 
 					<h1 class="sh-NetworkTeaser-title">
-						<?php echo esc_html_x( 'Know what happened, on which site, by whom.', 'Network Admin teaser heading', 'simple-history' ); ?>
+						<?php echo esc_html_x( 'Finally, a log for the Network Admin.', 'Network Admin teaser heading', 'simple-history' ); ?>
 					</h1>
 
 					<p class="sh-NetworkTeaser-lede">
 						<?php
 						echo esc_html_x(
-							'Simple History already logs activity on each site. With Premium you get one stream across the whole network — built for super admins tired of jumping between dashboards.',
+							"Super admin actions — creating sites, granting super admin, network-activating plugins, changing network settings — aren't logged today, or land silently on the main site's log. Premium adds a dedicated log for network-level events.",
 							'Network Admin teaser lede',
 							'simple-history'
 						);
@@ -126,17 +126,17 @@ class Network_Teaser_Page extends Service {
 				<li class="sh-NetworkTeaser-card">
 					<span class="dashicons dashicons-networking sh-NetworkTeaser-cardIcon" aria-hidden="true"></span>
 					<h2 class="sh-NetworkTeaser-cardTitle">
-						<?php echo esc_html_x( 'One log for every site', 'Network Admin teaser card heading', 'simple-history' ); ?>
+						<?php echo esc_html_x( 'Dedicated log for network-level events', 'Network Admin teaser card heading', 'simple-history' ); ?>
 					</h2>
 					<p class="sh-NetworkTeaser-cardBody">
-						<?php echo esc_html_x( 'Every network event in a single, searchable feed — no more jumping between site dashboards to piece a story together.', 'Network Admin teaser card body', 'simple-history' ); ?>
+						<?php echo esc_html_x( 'Site creation and deletion, super admin grants, network-activated plugins, network settings changes — all kept in their own log instead of silently dumped on the main site.', 'Network Admin teaser card body', 'simple-history' ); ?>
 					</p>
 				</li>
 
 				<li class="sh-NetworkTeaser-card">
 					<span class="dashicons dashicons-filter sh-NetworkTeaser-cardIcon" aria-hidden="true"></span>
 					<h2 class="sh-NetworkTeaser-cardTitle">
-						<?php echo esc_html_x( 'Filter by site, user, or date', 'Network Admin teaser card heading', 'simple-history' ); ?>
+						<?php echo esc_html_x( 'Filter by user, event type, or date', 'Network Admin teaser card heading', 'simple-history' ); ?>
 					</h2>
 					<p class="sh-NetworkTeaser-cardBody">
 						<?php echo esc_html_x( 'Pinpoint exactly who changed what and when. Same filter UX as the per-site log you already know.', 'Network Admin teaser card body', 'simple-history' ); ?>
@@ -202,7 +202,7 @@ class Network_Teaser_Page extends Service {
 			<section class="sh-NetworkTeaser-faq" aria-label="<?php esc_attr_e( 'Frequently asked questions', 'simple-history' ); ?>">
 				<details class="sh-NetworkTeaser-faqItem">
 					<summary><?php echo esc_html_x( 'Does this replace the per-site logs?', 'Network Admin teaser FAQ question', 'simple-history' ); ?></summary>
-					<p><?php echo esc_html_x( 'No. The per-site log keeps working exactly as it does today. The network log is an additional view for super admins who need to see cross-site activity.', 'Network Admin teaser FAQ answer', 'simple-history' ); ?></p>
+					<p><?php echo esc_html_x( "No. The per-site logs keep working exactly as they do today. The network log is a separate view that captures actions super admins take at the network level — things like site creation or network settings changes that currently aren't logged or end up on the main site's log by accident.", 'Network Admin teaser FAQ answer', 'simple-history' ); ?></p>
 				</details>
 
 				<details class="sh-NetworkTeaser-faqItem">
