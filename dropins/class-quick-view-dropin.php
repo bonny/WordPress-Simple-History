@@ -66,7 +66,7 @@ class Quick_View_Dropin extends Dropin {
 				// Id's are prefixed automatically, so no need to prefix them here.
 				'id'    => 'simple-history',
 				'title' => 'History',
-				'href'  => $this->get_quick_view_admin_page_url(),
+				'href'  => Helpers::get_network_history_admin_url() ?? Helpers::get_history_admin_url(),
 			)
 		);
 
@@ -86,20 +86,6 @@ class Quick_View_Dropin extends Dropin {
 				'title'  => '',
 			)
 		);
-	}
-
-	/**
-	 * Resolve the admin-page URL used by both the admin bar History link
-	 * and the Quick View React popup's "view full history" link.
-	 *
-	 * Uses the network log URL when the user is on a super-admin-global
-	 * screen (Network Admin, user admin, My Sites) — see
-	 * Helpers::get_network_history_admin_url() for the full scope rules.
-	 *
-	 * @return string
-	 */
-	private function get_quick_view_admin_page_url() {
-		return Helpers::get_network_history_admin_url() ?? Helpers::get_history_admin_url();
 	}
 
 	/**
@@ -139,7 +125,7 @@ class Quick_View_Dropin extends Dropin {
 			apply_filters(
 				'simple_history/admin_bar/localize_data',
 				[
-					'adminPageUrl'              => $this->get_quick_view_admin_page_url(),
+					'adminPageUrl'              => Helpers::get_network_history_admin_url() ?? Helpers::get_history_admin_url(),
 					'viewSettingsUrl'           => Helpers::get_settings_page_url(),
 					// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
 					'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),

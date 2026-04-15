@@ -2034,16 +2034,6 @@ class Helpers {
 	}
 
 	/**
-	 * Get the URL to the admin page where user views the history feed.
-	 *
-	 * Can not use `menu_page_url()` because it only works within the admin area.
-	 * But we want to be able to link to history page also from front end.
-	 *
-	 * Calls to this from the Admin Bar Quick View also happens before menu is registered.
-	 *
-	 * @return string URL to admin page, for example http://wordpress-stable.test/wordpress/wp-admin/index.php?page=simple_history_page.
-	 */
-	/**
 	 * Return the URL to the network Simple History page when the user is on
 	 * a super-admin-global screen (Network Admin, user admin, My Sites), or
 	 * null otherwise.
@@ -2053,33 +2043,49 @@ class Helpers {
 	 * log. Guarded by the experimental features flag because that's what
 	 * registers the network page (teaser in core, real log in Premium).
 	 *
+	 * Result is memoized — the inputs (capability, option, current screen)
+	 * don't change within a request once the admin bar is rendering.
+	 *
 	 * @since 5.13.0
 	 * @return string|null Network admin page URL, or null if not in scope.
 	 */
 	public static function get_network_history_admin_url() {
-		if ( ! is_multisite() ) {
-			return null;
+		static $cached   = null;
+		static $resolved = false;
+
+		if ( $resolved ) {
+			return $cached;
 		}
 
-		if ( ! current_user_can( 'manage_network' ) ) {
-			return null;
+		if ( ! is_multisite() || ! current_user_can( 'manage_network' ) || ! self::experimental_features_is_enabled() ) {
+			$resolved = true;
+			return $cached;
 		}
 
-		if ( ! self::experimental_features_is_enabled() ) {
-			return null;
+		$screen      = self::get_current_screen();
+		$is_my_sites = $screen && $screen->id === 'my-sites';
+
+		if ( ! is_network_admin() && ! is_user_admin() && ! $is_my_sites ) {
+			$resolved = true;
+			return $cached;
 		}
 
-		$screen         = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		$is_my_sites    = $screen && $screen->id === 'my-sites';
-		$network_scoped = is_network_admin() || is_user_admin() || $is_my_sites;
+		$cached   = network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
+		$resolved = true;
 
-		if ( ! $network_scoped ) {
-			return null;
-		}
-
-		return network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
+		return $cached;
 	}
 
+	/**
+	 * Get the URL to the admin page where user views the history feed.
+	 *
+	 * Can not use `menu_page_url()` because it only works within the admin area.
+	 * But we want to be able to link to history page also from front end.
+	 *
+	 * Calls to this from the Admin Bar Quick View also happens before menu is registered.
+	 *
+	 * @return string URL to admin page, for example http://wordpress-stable.test/wordpress/wp-admin/index.php?page=simple_history_page.
+	 */
 	public static function get_history_admin_url() {
 		$history_page_location = self::get_menu_page_location();
 
