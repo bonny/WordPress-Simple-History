@@ -28,6 +28,19 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Create an Events_Stats instance for this controller.
+	 *
+	 * Subclasses can override to return an Events_Stats subclass that
+	 * reads from a different events table (e.g. an alternate events store
+	 * provided by an add-on).
+	 *
+	 * @return Events_Stats
+	 */
+	protected function create_events_stats() {
+		return new Events_Stats();
+	}
+
+	/**
 	 * Register the routes for the objects of the controller.
 	 */
 	public function register_routes() {
@@ -308,7 +321,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$summary = array(
 			'date_range'                 => $this->format_date_range( $date_from, $date_to ),
@@ -368,7 +381,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$limit           = $request->get_param( 'limit' );
 		$include_details = $request->get_param( 'include_details' );
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
@@ -400,7 +413,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$limit           = $request->get_param( 'limit' );
 		$include_details = $request->get_param( 'include_details' );
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
@@ -431,7 +444,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$date_to         = $date_range['to'];
 		$include_details = $request->get_param( 'include_details' );
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
@@ -467,7 +480,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$limit           = $request->get_param( 'limit' );
 		$include_details = $request->get_param( 'include_details' );
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
@@ -503,7 +516,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
@@ -528,7 +541,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
@@ -549,7 +562,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),
@@ -570,7 +583,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$stats = array(
 			'date_range'       => $this->format_date_range( $date_from, $date_to ),
@@ -591,7 +604,7 @@ class WP_REST_Stats_Controller extends WP_REST_Controller {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
-		$events_stats = new Events_Stats();
+		$events_stats = $this->create_events_stats();
 
 		$stats = array(
 			'date_range' => $this->format_date_range( $date_from, $date_to ),

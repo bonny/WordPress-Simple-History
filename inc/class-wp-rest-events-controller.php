@@ -32,6 +32,32 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Create a Log_Query instance for this controller.
+	 *
+	 * Subclasses can override to return a Log_Query subclass that queries
+	 * a different events table (e.g. an alternate events store provided by
+	 * an add-on).
+	 *
+	 * @return Log_Query
+	 */
+	protected function create_log_query() {
+		return new Log_Query();
+	}
+
+	/**
+	 * Create an Event instance for this controller.
+	 *
+	 * Subclasses can override to return an Event subclass backed by a
+	 * different events table.
+	 *
+	 * @param int $id Event ID.
+	 * @return Event
+	 */
+	protected function create_event( $id ) {
+		return new Event( $id );
+	}
+
+	/**
 	 * Register the routes for the objects of the controller.
 	 */
 	public function register_routes() {
@@ -281,7 +307,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return false|object Event data on success, false on failure.
 	 */
 	protected function get_single_event( $event_id ) {
-		$query_result = ( new Log_Query() )->query(
+		$query_result = $this->create_log_query()->query(
 			[
 				'post__in'  => [ $event_id ],
 				'ungrouped' => true,
@@ -864,7 +890,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// Force ungrouped for accurate count — grouping is irrelevant for "has updates" check.
 		$args['ungrouped'] = true;
 
-		$log_query    = new Log_Query();
+		$log_query    = $this->create_log_query();
 		$query_result = $log_query->query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
@@ -963,7 +989,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$args[ $wp_param ] = $request[ $api_param ];
 		}
 
-		$log_query    = new Log_Query();
+		$log_query    = $this->create_log_query();
 		$query_result = $log_query->query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
@@ -1348,7 +1374,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function stick_event( $request ) {
-		$event = new Event( $request['id'] );
+		$event = $this->create_event( $request['id'] );
 
 		if ( ! $event->exists() ) {
 			return new WP_Error(
@@ -1377,7 +1403,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function unstick_event( $request ) {
-		$event = new Event( $request['id'] );
+		$event = $this->create_event( $request['id'] );
 
 		if ( ! $event->exists() ) {
 			return new WP_Error(
@@ -1426,7 +1452,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
-		$event = new Event( $request['id'] );
+		$event = $this->create_event( $request['id'] );
 
 		if ( ! $event->exists() ) {
 			return new WP_Error(
@@ -1466,7 +1492,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
-		$event = new Event( $request['id'] );
+		$event = $this->create_event( $request['id'] );
 
 		if ( ! $event->exists() ) {
 			return new WP_Error(
