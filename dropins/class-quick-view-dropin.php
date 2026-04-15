@@ -3,6 +3,7 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
+use Simple_History\Services;
 
 /**
  * Displays the latest events from Simple History in the admin bar using React.
@@ -66,7 +67,7 @@ class Quick_View_Dropin extends Dropin {
 				// Id's are prefixed automatically, so no need to prefix them here.
 				'id'    => 'simple-history',
 				'title' => 'History',
-				'href'  => Helpers::get_history_admin_url(),
+				'href'  => $this->get_quick_view_admin_page_url(),
 			)
 		);
 
@@ -86,6 +87,31 @@ class Quick_View_Dropin extends Dropin {
 				'title'  => '',
 			)
 		);
+	}
+
+	/**
+	 * Resolve the admin-page URL used by both the admin bar History link
+	 * and the Quick View React popup's "view full history" link.
+	 *
+	 * On multisite, when a super admin is currently viewing the Network
+	 * Admin, point at the network page — otherwise clicking History from
+	 * a network admin screen dumps the user onto site 1's log. Guarded by
+	 * the experimental features flag because that's what registers the
+	 * network page (teaser in core, real page in premium).
+	 *
+	 * @return string
+	 */
+	private function get_quick_view_admin_page_url() {
+		if (
+			is_multisite()
+			&& is_network_admin()
+			&& current_user_can( 'manage_network' )
+			&& Helpers::experimental_features_is_enabled()
+		) {
+			return network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
+		}
+
+		return Helpers::get_history_admin_url();
 	}
 
 	/**
@@ -125,7 +151,7 @@ class Quick_View_Dropin extends Dropin {
 			apply_filters(
 				'simple_history/admin_bar/localize_data',
 				[
-					'adminPageUrl'              => Helpers::get_history_admin_url(),
+					'adminPageUrl'              => $this->get_quick_view_admin_page_url(),
 					'viewSettingsUrl'           => Helpers::get_settings_page_url(),
 					// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
 					'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),
