@@ -23,6 +23,12 @@ class Network_Teaser_Page extends Service {
 			return;
 		}
 
+		// Network event logging is rolling out behind the experimental
+		// features flag while the premium add-on lands.
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			return;
+		}
+
 		add_action( 'network_admin_menu', [ $this, 'add_menu_page' ] );
 	}
 
