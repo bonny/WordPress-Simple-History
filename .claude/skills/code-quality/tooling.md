@@ -4,18 +4,18 @@ This document covers the tools used to maintain code quality in the Simple Histo
 
 ## Overview
 
-- **phpcs/phpcbf** - PHP_CodeSniffer for linting and auto-fixing PHP code
-- **phpstan** - Static analysis to catch bugs before runtime
-- **rector** - Automated code modernization and refactoring
-- **npm scripts** - Convenient wrappers for all quality tools
+-   **phpcs/phpcbf** - PHP_CodeSniffer for linting and auto-fixing PHP code
+-   **phpstan** - Static analysis to catch bugs before runtime
+-   **rector** - Automated code modernization and refactoring
+-   **npm scripts** - Convenient wrappers for all quality tools
 
 ## PHP_CodeSniffer (phpcs)
 
 ### Configuration
 
-- Config file: `phpcs.xml.dist` in project root
-- Uses `dealerdirect/phpcodesniffer-composer-installer` to auto-discover WordPress Coding Standards
-- Run `composer install` to set up
+-   Config file: `phpcs.xml.dist` in project root
+-   Uses `dealerdirect/phpcodesniffer-composer-installer` to auto-discover WordPress Coding Standards
+-   Run `composer install` to set up
 
 ### Linting PHP Code
 
@@ -54,32 +54,65 @@ npm run php:lint-fix
 
 ### Configuration
 
-- Config file: `phpstan.neon` in project root
-- Set to analyze for bugs, type errors, and potential issues
+-   Config file: `phpstan.neon` in project root
+-   Set to analyze for bugs, type errors, and potential issues
 
 ### Running PHPStan
 
 ```bash
-# Run analysis (recommended after significant changes)
+# Run analysis (whole plugin)
 vendor/bin/phpstan analyse --memory-limit 2048M
+
+# Analyse specific files (faster during iteration)
+vendor/bin/phpstan analyse inc/services/foo.php inc/bar.php --memory-limit 2G
 
 # Run with npm script
 npm run php:phpstan
 ```
 
+### Cross-plugin analysis (core ↔ premium)
+
+When a change touches the boundary between the core plugin and the premium add-on
+(e.g. new `protected` method a premium subclass consumes, a new public constant,
+a new factory method exposed to add-ons), run phpstan from the **add-ons
+monorepo root** — it has `scanDirectories: ../WordPress-Simple-History/` wired
+specifically for this:
+
+```bash
+cd /Users/bonny/Projects/Personal/simple-history-add-ons && \
+  vendor/bin/phpstan analyse simple-history-premium/inc/path/... --memory-limit 2G
+```
+
+This is the only reliable way to catch issues that show up at runtime as fatal
+errors but look perfectly valid in isolation — e.g., a premium subclass calling
+`$this->parent_method()` where `parent_method()` is `private` in the core parent.
+
 ### When to Run PHPStan
 
-- After making changes to multiple PHP files
-- After making a larger change in a single file
-- Before committing significant PHP refactoring
-- When adding new classes or methods
+Required (not optional):
+
+-   After any non-trivial PHP change. `php -l` only catches syntax errors — it
+    never catches the classes of bug that cause runtime fatals (private method
+    access, undefined constants, undefined methods, type mismatches).
+-   Before declaring a cross-plugin integration ready to test. Run from the
+    monorepo root (see above). Premium-side `php -l` is not sufficient.
+-   Before committing any refactor that changes visibility, adds/removes methods,
+    or introduces new public API intended for add-on consumption.
+-   When briefing a subagent that writes PHP: require phpstan in the agent's
+    quality-check step. Do not accept `php -l` as a substitute.
+
+Strongly recommended:
+
+-   After making changes to multiple PHP files
+-   After making a larger change in a single file
+-   When adding new classes or methods
 
 ### Common PHPStan Issues
 
-- **Type mismatches**: Ensure function return types match declarations
-- **Null safety**: Check for null before accessing properties/methods
-- **Unused variables**: Remove or use variables that are assigned but never used
-- **Incorrect doc blocks**: Update @param and @return annotations to match code
+-   **Type mismatches**: Ensure function return types match declarations
+-   **Null safety**: Check for null before accessing properties/methods
+-   **Unused variables**: Remove or use variables that are assigned but never used
+-   **Incorrect doc blocks**: Update @param and @return annotations to match code
 
 ## Rector (Code Modernization)
 
@@ -137,16 +170,17 @@ npm run test              # Run all tests
 
 ### During Development
 
-- Keep phpcs running in your IDE (VS Code plugin: `vscode-phpsab`)
-- Fix linting issues as you code
-- Run phpstan periodically on files you're actively editing
+-   Keep phpcs running in your IDE (VS Code plugin: `vscode-phpsab`)
+-   Fix linting issues as you code
+-   Run phpstan periodically on files you're actively editing
 
 ### Continuous Integration
 
 All pull requests should pass:
-- phpcs (no coding standard violations)
-- phpstan (no static analysis errors)
-- All tests passing
+
+-   phpcs (no coding standard violations)
+-   phpstan (no static analysis errors)
+-   All tests passing
 
 ## IDE Integration
 
@@ -159,9 +193,10 @@ All pull requests should pass:
 ### Other IDEs
 
 Most IDEs support phpcs integration:
-- **PhpStorm**: Built-in PHP_CodeSniffer support
-- **Sublime Text**: PHP_CodeSniffer plugin available
-- **Vim/Neovim**: ALE or CoC plugins support phpcs
+
+-   **PhpStorm**: Built-in PHP_CodeSniffer support
+-   **Sublime Text**: PHP_CodeSniffer plugin available
+-   **Vim/Neovim**: ALE or CoC plugins support phpcs
 
 ## Troubleshooting
 
@@ -172,6 +207,7 @@ Run `composer install` first to install dependencies.
 ### "Memory exhausted" when running phpstan
 
 Use the `--memory-limit` flag:
+
 ```bash
 vendor/bin/phpstan analyse --memory-limit 2048M
 ```
@@ -183,6 +219,7 @@ These directories should be excluded in `phpcs.xml.dist`. Check the config file.
 ### Conflicting PHP versions
 
 If local PHP version conflicts with project requirements, use Docker:
+
 ```bash
 docker run --rm -v $(pwd):/var/www/composer ghcr.io/devgine/composer-php:v2-php7.4-alpine composer <command>
 ```

@@ -161,4 +161,11 @@ Use native HTML elements and CSS before reaching for JavaScript:
 
 -   Will try to follow OneFlow:
     https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
--   Run phpstan after making php changes in many files or making a larger change in a single file.
+-   **Run phpstan after every non-trivial PHP change.** `php -l` only catches syntax errors — phpstan catches visibility violations, undefined methods/constants/properties, and cross-plugin integration issues that manifest as runtime fatals. Use `vendor/bin/phpstan analyse <paths> --memory-limit 2G` or `npm run php:phpstan`.
+-   **For cross-plugin changes (core ↔ premium):** run phpstan from the add-ons monorepo root so the `scanDirectories: ../WordPress-Simple-History/` wiring picks up both sides:
+    ```bash
+    cd /Users/bonny/Projects/Personal/simple-history-add-ons && \
+      vendor/bin/phpstan analyse simple-history-premium/inc/... --memory-limit 2G
+    ```
+    This is the only reliable way to catch issues like a premium subclass calling a `private` method on a core parent class.
+-   When delegating PHP work to subagents, require phpstan (not `php -l`) in the agent's quality check — and specify that it must include scanning the other plugin when a change touches the core/premium boundary.
