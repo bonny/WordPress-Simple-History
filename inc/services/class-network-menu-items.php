@@ -138,24 +138,13 @@ class Network_Menu_Items extends Service {
 	 * Resolve the URL used by the "View History" admin-bar shortcut under the
 	 * site-name node.
 	 *
-	 * On multisite, when a super admin is currently viewing the Network Admin,
-	 * point at the network page — otherwise clicking "View History" from a
-	 * network admin screen dumps the user onto site 1's log. Guarded by the
-	 * experimental features flag because that's what registers the network
-	 * page (teaser in core, real page in Premium).
+	 * Uses the network log URL when the user is on a super-admin-global
+	 * screen (Network Admin, user admin, My Sites) — see
+	 * Helpers::get_network_history_admin_url() for the full scope rules.
 	 *
 	 * @return string
 	 */
 	private function get_view_history_admin_bar_url() {
-		if (
-			is_multisite()
-			&& is_network_admin()
-			&& current_user_can( 'manage_network' )
-			&& Helpers::experimental_features_is_enabled()
-		) {
-			return network_admin_url( 'admin.php?page=' . Network_Teaser_Page::MENU_SLUG );
-		}
-
-		return Helpers::get_history_admin_url();
+		return Helpers::get_network_history_admin_url() ?? Helpers::get_history_admin_url();
 	}
 }

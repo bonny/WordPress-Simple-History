@@ -2043,6 +2043,43 @@ class Helpers {
 	 *
 	 * @return string URL to admin page, for example http://wordpress-stable.test/wordpress/wp-admin/index.php?page=simple_history_page.
 	 */
+	/**
+	 * Return the URL to the network Simple History page when the user is on
+	 * a super-admin-global screen (Network Admin, user admin, My Sites), or
+	 * null otherwise.
+	 *
+	 * Used by admin-bar shortcuts so clicking "History" from a network-level
+	 * screen opens the network log instead of dumping the user onto site 1's
+	 * log. Guarded by the experimental features flag because that's what
+	 * registers the network page (teaser in core, real log in Premium).
+	 *
+	 * @since 5.13.0
+	 * @return string|null Network admin page URL, or null if not in scope.
+	 */
+	public static function get_network_history_admin_url() {
+		if ( ! is_multisite() ) {
+			return null;
+		}
+
+		if ( ! current_user_can( 'manage_network' ) ) {
+			return null;
+		}
+
+		if ( ! self::experimental_features_is_enabled() ) {
+			return null;
+		}
+
+		$screen         = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$is_my_sites    = $screen && $screen->id === 'my-sites';
+		$network_scoped = is_network_admin() || is_user_admin() || $is_my_sites;
+
+		if ( ! $network_scoped ) {
+			return null;
+		}
+
+		return network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
+	}
+
 	public static function get_history_admin_url() {
 		$history_page_location = self::get_menu_page_location();
 
