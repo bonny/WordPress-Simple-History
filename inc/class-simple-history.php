@@ -164,6 +164,7 @@ class Simple_History {
 			Services\Menu_Service::class,
 			Services\Message_Control_Settings_Page_Teaser::class,
 			Services\Network_Menu_Items::class,
+			Services\Network_Teaser_Page::class,
 			Services\Notification_Bar::class,
 			Services\Plugin_List_Info::class,
 			Services\Plugin_List_Link::class,
