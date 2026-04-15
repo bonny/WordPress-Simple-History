@@ -51,7 +51,7 @@ class Quick_View_Dropin extends Dropin {
 		// Quick View is available both in the admin and on the front end,
 		// so we need to enqueue the scripts on both.
 		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-		add_action( 'admin_enqueue_scripts', [ $this,'enqueue_scripts' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 	}
 
 	/**

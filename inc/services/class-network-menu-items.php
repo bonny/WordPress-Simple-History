@@ -19,7 +19,6 @@ class Network_Menu_Items extends Service {
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_admin_submenu_item' ), 50 );
 	}
 
-
 	/**
 	 * Adds a "View history" item/shortcut to the network admin, on blogs where Simple History is installed
 	 *
