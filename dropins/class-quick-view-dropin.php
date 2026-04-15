@@ -60,15 +60,29 @@ class Quick_View_Dropin extends Dropin {
 	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar instance.
 	 */
 	public function add_simple_history_to_admin_bar( $wp_admin_bar ) {
-		// Add the main menu item.
+		$network_url = Helpers::get_network_history_admin_url();
+
+		// Add the main menu item. On network-scoped screens (Network Admin,
+		// user admin, My Sites) point at the network page directly so the
+		// user isn't dumped on the main site's log.
 		$wp_admin_bar->add_node(
 			array(
 				// Id's are prefixed automatically, so no need to prefix them here.
 				'id'    => 'simple-history',
 				'title' => 'History',
-				'href'  => Helpers::get_network_history_admin_url() ?? Helpers::get_history_admin_url(),
+				'href'  => $network_url ?? Helpers::get_history_admin_url(),
 			)
 		);
+
+		// Skip the React-rendered dropdown preview on network-scoped screens.
+		// In that context the underlying REST endpoint is still site-scoped
+		// (site 1 in practice, since that's what $wpdb->prefix resolves to
+		// in network admin), so the preview would show misleading main-site
+		// events instead of network events. The top-level click-through
+		// above still works, so users can reach the real log.
+		if ( $network_url !== null ) {
+			return;
+		}
 
 		$wp_admin_bar->add_group(
 			array(
@@ -92,6 +106,13 @@ class Quick_View_Dropin extends Dropin {
 	 * Enqueue scripts.
 	 */
 	public function enqueue_scripts() {
+		// No React mount point on network-scoped screens (see
+		// add_simple_history_to_admin_bar()), so the admin-bar bundle has
+		// nothing to render. Skip the enqueue to keep those pages lean.
+		if ( Helpers::get_network_history_admin_url() !== null ) {
+			return;
+		}
+
 		$asset_file = include SIMPLE_HISTORY_PATH . 'build/index-admin-bar.asset.php';
 
 		wp_enqueue_script(
