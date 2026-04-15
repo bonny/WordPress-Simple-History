@@ -134,6 +134,9 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * [--only_sticky]
 	 * : Show only sticky events.
 	 *
+	 * [--network]
+	 * : Query network-scoped events (requires Simple History Premium on a multisite network).
+	 *
 	 * ## Surrounding Events
 	 *
 	 * Show events chronologically before and after a specific event. Useful for debugging
@@ -252,6 +255,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'months'               => '',
 				'include_sticky'       => false,
 				'only_sticky'          => false,
+				'network'              => false,
 				'exclude_search'       => '',
 				'exclude_log_level'    => '',
 				'exclude_logger'       => '',
@@ -302,10 +306,38 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			'exclude_initiator'
 		);
 
+		$is_network = (bool) $assoc_args['network'];
+
+		if ( $is_network && ! is_multisite() ) {
+			WP_CLI::error( __( '--network requires a multisite network.', 'simple-history' ) );
+		}
+
 		// Override capability check: if you can run wp cli commands you can read all loggers.
 		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
 
-		$query = new Log_Query();
+		/**
+		 * Filters the Log_Query instance the list command uses.
+		 *
+		 * Providers (e.g. Simple History Premium's network module) return
+		 * a Log_Query subclass configured for network-scoped reads when
+		 * $is_network is true.
+		 *
+		 * @since 5.13.0
+		 *
+		 * @param Log_Query|null $query      Query instance, or null if no provider supplied one.
+		 * @param bool           $is_network Whether the --network flag was passed.
+		 */
+		$query = apply_filters( 'simple_history/cli/log_query', null, $is_network );
+
+		if ( $is_network && ! $query instanceof Log_Query ) {
+			WP_CLI::error(
+				__( '--network requires Simple History Premium, which adds network event logging. See: https://simple-history.com/premium/', 'simple-history' )
+			);
+		}
+
+		if ( ! $query instanceof Log_Query ) {
+			$query = new Log_Query();
+		}
 
 		// Build query args with filters.
 		// Use ungrouped for simpler/faster SQL — CLI output is always a flat list.
