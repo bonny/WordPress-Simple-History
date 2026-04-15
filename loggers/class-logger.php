@@ -116,6 +116,18 @@ abstract class Logger {
 	public $db_table_contexts;
 
 	/**
+	 * Whether this logger always writes to the network tables.
+	 *
+	 * Subclasses that only log network-level events (e.g. the Premium network
+	 * logger) set this to true so their writes are routed to the network
+	 * tables regardless of the current request context.
+	 *
+	 * @since 5.13.0
+	 * @var bool
+	 */
+	protected $is_network_logger = false;
+
+	/**
 	 * Flag to track if messages have been loaded for this logger.
 	 *
 	 * @var bool
@@ -141,6 +153,48 @@ abstract class Logger {
 	 * @return void
 	 */
 	public function loaded() {
+	}
+
+	/**
+	 * Determine if the current log call should write to the network tables.
+	 *
+	 * Returns true when running on multisite AND either:
+	 * - the logger is flagged as a network logger via $is_network_logger;
+	 * - the current request is a Network Admin request;
+	 * - the current AJAX or REST request originates from a Network Admin screen
+	 *   (plugin/theme/core updates dispatch through admin-ajax.php where
+	 *   is_network_admin() returns false, so we fall back to the referer).
+	 *
+	 * Routing only actually kicks in when a provider (e.g. the Premium
+	 * add-on) supplies the network table names via the
+	 * `simple_history/network_tables` filter — otherwise log() falls back
+	 * to the normal per-site tables.
+	 *
+	 * @since 5.13.0
+	 * @return bool
+	 */
+	protected function should_use_network_tables() {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		if ( $this->is_network_logger ) {
+			return true;
+		}
+
+		if ( is_network_admin() ) {
+			return true;
+		}
+
+		if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			$referer = wp_get_referer();
+
+			if ( $referer && strpos( $referer, '/wp-admin/network/' ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -1348,6 +1402,39 @@ abstract class Logger {
 			$this
 		);
 
+		// Route to network tables when this is a network-level event and a
+		// provider (e.g. the Premium add-on) has registered the network table
+		// names. append_context() reads $this->db_table_contexts naturally,
+		// so swapping the properties is enough — restore them after the insert.
+		$original_db_table          = null;
+		$original_db_table_contexts = null;
+
+		if ( $this->should_use_network_tables() ) {
+			/**
+			 * Filters the network event/context tables a logger should
+			 * route writes to when the current log call is network-scoped.
+			 *
+			 * Providers return an array with `events` and `contexts` keys.
+			 * Returning null (default) keeps the current per-site tables.
+			 *
+			 * @since 5.13.0
+			 *
+			 * @param array{events: string, contexts: string}|null $tables Network table names.
+			 */
+			$network_tables = apply_filters( 'simple_history/network_tables', null );
+
+			if (
+				is_array( $network_tables )
+				&& ! empty( $network_tables['events'] )
+				&& ! empty( $network_tables['contexts'] )
+			) {
+				$original_db_table          = $this->db_table;
+				$original_db_table_contexts = $this->db_table_contexts;
+				$this->db_table             = $network_tables['events'];
+				$this->db_table_contexts    = $network_tables['contexts'];
+			}
+		}
+
 		// Insert data into db.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->insert( $this->db_table, $data );
@@ -1377,6 +1464,12 @@ abstract class Logger {
 
 			// Add event ID to data array for hooks.
 			$data['id'] = $history_inserted_id;
+		}
+
+		// Restore the original tables after a network-routed insert.
+		if ( $original_db_table !== null ) {
+			$this->db_table          = $original_db_table;
+			$this->db_table_contexts = $original_db_table_contexts;
 		}
 
 		$this->last_insert_id      = $history_inserted_id;
