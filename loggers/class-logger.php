@@ -1435,41 +1435,46 @@ abstract class Logger {
 			}
 		}
 
-		// Insert data into db.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$result = $wpdb->insert( $this->db_table, $data );
+		// try/finally guarantees the restore runs even if a hook fired from
+		// append_context() throws or re-enters log() on the same instance —
+		// otherwise the swapped network table would leak into subsequent
+		// per-site writes.
+		try {
+			// Insert data into db.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$result = $wpdb->insert( $this->db_table, $data );
 
-		// Auto-recover from missing tables.
-		if ( $result === false && ! empty( $wpdb->last_error ) ) {
-			if ( Services\Setup_Database::is_table_missing_error( $wpdb->last_error ) ) {
-				// Try to recreate tables.
-				$recreated = Services\Setup_Database::recreate_tables_if_missing();
+			// Auto-recover from missing tables.
+			if ( $result === false && ! empty( $wpdb->last_error ) ) {
+				if ( Services\Setup_Database::is_table_missing_error( $wpdb->last_error ) ) {
+					// Try to recreate tables.
+					$recreated = Services\Setup_Database::recreate_tables_if_missing();
 
-				if ( $recreated ) {
-					// Retry the insert after recreating tables.
-					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-					$result = $wpdb->insert( $this->db_table, $data );
+					if ( $recreated ) {
+						// Retry the insert after recreating tables.
+						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+						$result = $wpdb->insert( $this->db_table, $data );
+					}
 				}
 			}
-		}
 
-		// Save context if able to store row.
-		if ( $result === false ) {
-			$history_inserted_id = null;
-		} else {
-			$history_inserted_id = $wpdb->insert_id;
+			// Save context if able to store row.
+			if ( $result === false ) {
+				$history_inserted_id = null;
+			} else {
+				$history_inserted_id = $wpdb->insert_id;
 
-			// Insert all context values into db.
-			$this->append_context( $history_inserted_id, $context );
+				// Insert all context values into db.
+				$this->append_context( $history_inserted_id, $context );
 
-			// Add event ID to data array for hooks.
-			$data['id'] = $history_inserted_id;
-		}
-
-		// Restore the original tables after a network-routed insert.
-		if ( $original_db_table !== null ) {
-			$this->db_table          = $original_db_table;
-			$this->db_table_contexts = $original_db_table_contexts;
+				// Add event ID to data array for hooks.
+				$data['id'] = $history_inserted_id;
+			}
+		} finally {
+			if ( $original_db_table !== null ) {
+				$this->db_table          = $original_db_table;
+				$this->db_table_contexts = $original_db_table_contexts;
+			}
 		}
 
 		$this->last_insert_id      = $history_inserted_id;
