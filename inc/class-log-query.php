@@ -84,6 +84,30 @@ use Simple_History\Services;
  */
 class Log_Query {
 	/**
+	 * Get the events table name.
+	 *
+	 * Marked protected so subclasses can override which events table
+	 * Log_Query reads from, without duplicating every query method.
+	 *
+	 * @return string
+	 */
+	protected function get_events_table_name() {
+		return Simple_History::get_instance()->get_events_table_name();
+	}
+
+	/**
+	 * Get the contexts table name.
+	 *
+	 * Marked protected so subclasses can override which contexts table
+	 * Log_Query reads from. See {@see get_events_table_name()}.
+	 *
+	 * @return string
+	 */
+	protected function get_contexts_table_name() {
+		return Simple_History::get_instance()->get_contexts_table_name();
+	}
+
+	/**
 	 * Query the log.
 	 *
 	 * @param string|array|object $args {
@@ -253,8 +277,6 @@ class Log_Query {
 
 		global $wpdb;
 
-		$Simple_History = Simple_History::get_instance();
-
 		/**
 		 * @var string SQL template used to get all events from the ones
 		 *             found in statement sql_statement_max_ids_and_count_template.
@@ -288,7 +310,7 @@ class Log_Query {
 
 		$sql_query_log_rows = sprintf(
 			$sql_statement_log_rows,
-			$Simple_History->get_events_table_name(), // 1
+			$this->get_events_table_name(), // 1
 			$inner_where_string, // 2
 			$limit_clause // 3
 		);
@@ -327,7 +349,7 @@ class Log_Query {
 
 			$sql_query_log_rows_count = sprintf(
 				$sql_statement_log_rows_count,
-				$Simple_History->get_events_table_name(), // 1
+				$this->get_events_table_name(), // 1
 				$inner_where_string, // 2
 			);
 
@@ -396,8 +418,6 @@ class Log_Query {
 
 		global $wpdb;
 
-		$Simple_History = Simple_History::get_instance();
-
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0, SQL_BIG_SELECTS=1' );
 
@@ -440,8 +460,8 @@ class Log_Query {
 
 		$inner_sql_query_statement = sprintf(
 			$inner_sql_statement_template,
-			$Simple_History->get_events_table_name(), // 1
-			$Simple_History->get_contexts_table_name(), // 2
+			$this->get_events_table_name(), // 1
+			$this->get_contexts_table_name(), // 2
 			$inner_where_string // 3
 		);
 
@@ -498,8 +518,8 @@ class Log_Query {
 
 		$max_ids_and_count_sql_statement = sprintf(
 			$sql_statement_max_ids_and_count_template,
-			$Simple_History->get_events_table_name(), // 1
-			$Simple_History->get_contexts_table_name(), // 2
+			$this->get_events_table_name(), // 1
+			$this->get_contexts_table_name(), // 2
 			$inner_sql_query_statement, // 3
 			$outer_where_string, // 4
 			$limit_clause // 5 Limit clause.
@@ -539,7 +559,7 @@ class Log_Query {
 
 		$sql_query_log_rows = sprintf(
 			$sql_statement_log_rows,
-			$Simple_History->get_events_table_name(), // 1
+			$this->get_events_table_name(), // 1
 			$max_ids_and_count_sql_statement // 2
 		);
 
@@ -600,8 +620,8 @@ class Log_Query {
 			// to get count(*).
 			$max_ids_and_count_without_limit_sql_statement = sprintf(
 				$sql_statement_max_ids_and_count_template,
-				$Simple_History->get_events_table_name(), // 1
-				$Simple_History->get_contexts_table_name(), // 2
+				$this->get_events_table_name(), // 1
+				$this->get_contexts_table_name(), // 2
 				$inner_sql_query_statement, // 3
 				$outer_where_string, // 4
 				'', // 5 Limit clause.
@@ -609,7 +629,7 @@ class Log_Query {
 
 			$sql_query_log_rows_count = sprintf(
 				$sql_statement_log_rows_count,
-				$Simple_History->get_events_table_name(), // 1
+				$this->get_events_table_name(), // 1
 				$max_ids_and_count_without_limit_sql_statement // 2
 			);
 
@@ -701,9 +721,8 @@ class Log_Query {
 			return $arr_return;
 		}
 
-		$simpe_history       = Simple_History::get_instance();
-		$events_table_name   = $simpe_history->get_events_table_name();
-		$contexts_table_name = $simpe_history->get_contexts_table_name();
+		$events_table_name   = $this->get_events_table_name();
+		$contexts_table_name = $this->get_contexts_table_name();
 
 		$args = wp_parse_args(
 			$args,
@@ -840,8 +859,7 @@ class Log_Query {
 	protected function query_surrounding_events( $args ) {
 		global $wpdb;
 
-		$simple_history    = Simple_History::get_instance();
-		$events_table_name = $simple_history->get_events_table_name();
+		$events_table_name = $this->get_events_table_name();
 
 		// Parse arguments with defaults.
 		$args = wp_parse_args(
@@ -1534,8 +1552,7 @@ class Log_Query {
 
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
-		$table_contexts = $simple_history->get_contexts_table_name();
+		$table_contexts = $this->get_contexts_table_name();
 
 		$post_ids = wp_list_pluck( $log_rows, 'id' );
 
@@ -1599,7 +1616,7 @@ class Log_Query {
 
 		global $wpdb;
 
-		$events_table_name = Simple_History::get_instance()->get_events_table_name();
+		$events_table_name = $this->get_events_table_name();
 
 		// Max id is simply the id of the first/most recent row.
 		$max_id = reset( $log_rows )->id;
@@ -1736,7 +1753,7 @@ class Log_Query {
 		global $wpdb;
 
 		$simple_history      = Simple_History::get_instance();
-		$contexts_table_name = $simple_history->get_contexts_table_name();
+		$contexts_table_name = $this->get_contexts_table_name();
 
 		$inner_where = [];
 
@@ -2192,7 +2209,7 @@ class Log_Query {
 
 		global $wpdb;
 
-		$contexts_table_name = Simple_History::get_instance()->get_contexts_table_name();
+		$contexts_table_name = $this->get_contexts_table_name();
 
 		$arr_search_words = $this->get_sanitized_search_words( $args['search'] );
 
@@ -2248,7 +2265,7 @@ class Log_Query {
 
 		global $wpdb;
 
-		$contexts_table_name = Simple_History::get_instance()->get_contexts_table_name();
+		$contexts_table_name = $this->get_contexts_table_name();
 
 		$arr_exclude_words = $this->get_sanitized_search_words( $args['exclude_search'] );
 
@@ -2468,7 +2485,7 @@ class Log_Query {
 
 		global $wpdb;
 
-		$events_table_name   = Simple_History::get_instance()->get_events_table_name();
+		$events_table_name   = $this->get_events_table_name();
 		$logger_placeholders = implode( ', ', array_fill( 0, count( $logger_slugs ), '%s' ) );
 
 		// Get distinct message templates for fallback loggers.
@@ -2562,8 +2579,7 @@ class Log_Query {
 	protected function get_sticky_events() {
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$contexts_table = $this->get_contexts_table_name();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		return $wpdb->get_col(
