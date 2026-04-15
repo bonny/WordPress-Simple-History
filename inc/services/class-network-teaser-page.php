@@ -29,23 +29,30 @@ class Network_Teaser_Page extends Service {
 			return;
 		}
 
+		// Skip the whole teaser pipeline when Premium is active — Premium
+		// registers its own page at the same slug and its own filter.
+		if ( Helpers::is_premium_add_on_active() ) {
+			return;
+		}
+
 		add_action( 'network_admin_menu', [ $this, 'add_menu_page' ] );
 
 		// The teaser uses add_menu_page() directly, not the Menu_Manager, so
 		// Helpers::is_on_our_own_pages() doesn't recognize the page slug on
 		// its own. Opt in via the filter so the core stylesheet (and the
 		// rest of the Simple History asset pipeline) loads here too.
-		add_filter( 'simple_history/is_on_our_own_pages', [ $this, 'mark_teaser_as_our_own_page' ] );
+		add_filter( 'simple_history/is_on_our_own_pages', [ $this, 'mark_teaser_as_our_own_page' ], 10, 2 );
 	}
 
 	/**
 	 * Filter callback that marks the Network Admin teaser page as a
 	 * Simple History page so the main stylesheet gets enqueued.
 	 *
-	 * @param bool $is_on_our_own_pages Current value.
+	 * @param bool                $is_on_our_own_pages Current value.
+	 * @param \WP_Screen|null     $current_screen      Current screen (unused here — detection is slug-based).
 	 * @return bool
 	 */
-	public function mark_teaser_as_our_own_page( $is_on_our_own_pages ) {
+	public function mark_teaser_as_our_own_page( $is_on_our_own_pages, $current_screen = null ) {
 		if ( $is_on_our_own_pages ) {
 			return $is_on_our_own_pages;
 		}
@@ -60,12 +67,6 @@ class Network_Teaser_Page extends Service {
 	 * Register the Network Admin menu item.
 	 */
 	public function add_menu_page() {
-		// Premium's Network_Module registers at the same slug when active;
-		// bail out cleanly so there's no duplicate registration warning.
-		if ( Helpers::is_premium_add_on_active() ) {
-			return;
-		}
-
 		add_menu_page(
 			_x( 'Network History — Simple History', 'Network Admin teaser page title', 'simple-history' ),
 			_x( 'Simple History', 'Network Admin teaser menu label', 'simple-history' ),
@@ -170,23 +171,29 @@ class Network_Teaser_Page extends Service {
 					</h3>
 					<p class="sh-NetworkTeaser-cardBody">
 						<?php
-						printf(
-							/* translators: %s: the WP-CLI command with --network flag */
-							esc_html_x( 'Run %s to pipe events into scripts, cron, or your monitoring of choice.', 'Network Admin teaser card body', 'simple-history' ),
-							'<code>wp simple-history list --network</code>'
+						echo wp_kses(
+							sprintf(
+								/* translators: %s: the WP-CLI command with --network flag */
+								esc_html_x( 'Run %s to pipe events into scripts, cron, or your monitoring of choice.', 'Network Admin teaser card body', 'simple-history' ),
+								'<code>wp simple-history list --network</code>'
+							),
+							[ 'code' => [] ]
 						);
 						?>
 					</p>
 				</li>
 			</ul>
 
-			<section class="sh-NetworkTeaser-preview" aria-label="<?php esc_attr_e( 'Sample events', 'simple-history' ); ?>">
+			<section class="sh-NetworkTeaser-preview" aria-label="<?php esc_attr_e( 'Sample events (illustrative)', 'simple-history' ); ?>">
 				<p class="sh-NetworkTeaser-previewLabel">
 					<?php echo esc_html_x( 'What the Network Event Log looks like', 'Network Admin teaser preview heading', 'simple-history' ); ?>
 				</p>
 
 				<ul class="sh-NetworkTeaser-previewRows">
 					<?php
+					// `example.com` hostnames aren't translated — they're
+					// placeholder URLs, not prose, and shouldn't churn PO files
+					// across locales.
 					$sample_rows = [
 						[ 'A', __( 'Anna added Ben as Super Admin', 'simple-history' ), __( '2 min ago', 'simple-history' ), 'network.example.com' ],
 						[ 'J', __( 'Plugin "WooCommerce" network-activated', 'simple-history' ), __( '1 hour ago', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
@@ -194,7 +201,7 @@ class Network_Teaser_Page extends Service {
 						[ 'A', __( 'Network setting "Registration" changed', 'simple-history' ), __( '3 days ago', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
 					];
 					foreach ( $sample_rows as $row ) {
-						list( $initial, $message, $when, $where ) = $row;
+						[ $initial, $message, $when, $where ] = $row;
 						?>
 						<li class="sh-NetworkTeaser-previewRow">
 							<span class="sh-NetworkTeaser-previewAvatar" aria-hidden="true"><?php echo esc_html( $initial ); ?></span>
