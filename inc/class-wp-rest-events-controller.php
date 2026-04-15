@@ -1428,9 +1428,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	/**
 	 * Get allowed reaction types. Filterable so premium can add more.
 	 *
+	 * Marked protected so REST controller subclasses can share the same
+	 * allow-list when registering their own routes.
+	 *
 	 * @return array List of allowed reaction type strings.
 	 */
-	private function get_allowed_reaction_types(): array {
+	protected function get_allowed_reaction_types(): array {
 		return apply_filters(
 			'simple_history/reactions/allowed_types',
 			[ 'thumbsup' ]
