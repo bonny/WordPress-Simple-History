@@ -2,8 +2,26 @@
 
 **Issue:** Multisite information for super admin
 **Branch:** issue-multisite-network-logging
-**Status:** In progress
+**Status:** Phases A–E shipped; Phase F (cleanup) and freemium surfaces remain
 **Priority:** 1-high
+
+## Progress summary (2026-04-14)
+
+**Shipped** (commits `99fac837` → `53a114fc`):
+
+-   Database: `base_prefix` network tables with separate db version
+-   Routing: `Logger::log()` network-aware via `is_network_logger` / `should_use_network_tables()` with per-request cache and try/finally table swap
+-   `Network_Logger` — ~25 events (site lifecycle, super admin, network users, themes, network settings)
+-   Re-routing of existing loggers (plugin/theme/core-update) for network admin context
+-   REST API: dedicated network controllers for events (GET/POST/single/stick/react/has-updates), stats, search options, user cards
+-   `Network_Admin_Page` service with React app reuse via `simpleHistoryNetworkContext`
+-   `Network_Sidebar_Dropin` with multisite upgrade card and support box
+-   Dedicated `simple_history/network_history_page/after_gui` hook (no bleed-through from site sidebar widgets)
+-   Admin bar quick-view network-awareness via `Quick_View_Dropin`
+-   UX polish: network badge + subtitle on page header, dev labels, date filter grouping, surrounding events routing, stick/unstick snackbar
+-   Code review cleanup: simplified plumbing, memoized Network_Logger site/user context
+
+**Remaining:** see Phase F and Freemium surfaces below.
 
 ## Goal
 
@@ -80,42 +98,49 @@ Modify `Logger::log()` to detect network context and insert into the correct tab
 
 ## Implementation plan
 
-### Phase A: Database foundation
+### Phase A: Database foundation — DONE
 
--   [ ] Extend `Setup_Database` service to create `base_prefix` tables on multisite
--   [ ] Add `get_network_events_table_name()` / `get_network_contexts_table_name()` to `Simple_History`
--   [ ] Handle db versioning for network tables separately from site tables
+-   [x] Extend `Setup_Database` service to create `base_prefix` tables on multisite
+-   [x] Add `get_network_events_table_name()` / `get_network_contexts_table_name()` to `Simple_History`
+-   [x] Handle db versioning for network tables separately from site tables (`simple_history_network_db_version`)
+-   [x] Use `utf8mb4` charset collation for emoji support
 
-### Phase B: Logging infrastructure
+### Phase B: Logging infrastructure — DONE
 
--   [ ] Modify `Logger::log()` to route to network tables when in network admin context
--   [ ] Add network table references to Logger base class
--   [ ] Ensure context storage (`append_context`) works with network tables
+-   [x] `Logger::log()` routes to network tables via `should_use_network_tables()` with per-request cache
+-   [x] `force_network_tables()` helper + try/finally table swap for REST POST flow
+-   [x] Context storage works with both site and network contexts tables via `get_events_table()` / `get_contexts_table()` helpers in `Log_Query`
+-   [x] `Event` / `Events_Stats` accept `$is_network` flag, cache keys include it to prevent collisions
 
-### Phase C: Network Logger
+### Phase C: Network Logger — DONE
 
--   [ ] Create `Network_Logger` class for ~25 new events (site lifecycle, super admin, network users, settings, themes)
--   [ ] Use active voice message format per project conventions
--   [ ] Store rich context for premium "reveal" later
+-   [x] `Network_Logger` class — ~25 events covering site lifecycle, super admin, network users, themes, settings
+-   [x] Active voice messages per project conventions
+-   [x] Memoized `get_site_context()` / `get_user_context()` per-request for bulk operations
+-   [ ] Rich `_ext_` context keys for Store-in-Core/Reveal-in-Premium pattern (deferred — see freemium surfaces)
 
-### Phase D: Enhanced existing loggers
+### Phase D: Enhanced existing loggers — DONE
 
--   [ ] Plugin Logger: add `$network_wide` context, distinct message keys
--   [ ] Theme Logger: detect network admin context
--   [ ] Minimal changes — routing handled by Phase B
+-   [x] Plugin Logger: `plugin_network_activated` message key, routes to network tables when `$network_wide=true` or `is_network_admin()`
+-   [x] Theme / Core Update loggers: route based on network admin context
 
-### Phase E: Network Admin GUI
+### Phase E: Network Admin GUI — DONE
 
--   [ ] New `Network_Admin_Page` service (menu registration, script enqueuing)
--   [ ] New REST endpoint for network events (or network mode on existing controller)
--   [ ] Extend `Log_Query` to support network tables
--   [ ] React app reuse — same `EventsGui`, different data source
+-   [x] `Network_Admin_Page` service, registered on `network_admin_menu`, `manage_network` capability
+-   [x] Dedicated REST controllers: `WP_REST_Network_Events_Controller`, `WP_REST_Network_Stats_Controller`, `WP_REST_Network_SearchOptions_Controller`, `WP_REST_Network_User_Card_Controller`
+-   [x] `Log_Query::set_network_query()` fluent setter + `is_network_query` flag
+-   [x] React reuse via `simpleHistoryNetworkContext` + `getEventsApiPath()` / `getSearchOptionsApiPath()` / `getUserCardApiBase()` / `getInitiatorCardApiBase()` helpers
+-   [x] `Network_Sidebar_Dropin` — multisite upgrade card with dynamic site count + support box
+-   [x] Dedicated `simple_history/network_history_page/after_gui` hook (prevents site sidebar widgets from bleeding into network page)
+-   [x] Quick_View_Dropin admin bar network-awareness
+-   [x] Network badge and subtitle on page header
 
-### Phase F: Cleanup
+### Phase F: Cleanup — REMAINING
 
--   [ ] Update `uninstall.php` to drop network tables
--   [ ] Handle `index.php` activation TODO
--   [ ] Test on multisite installation
+-   [ ] `uninstall.php` — drop network tables and `simple_history_network_db_version` option on multisite
+-   [ ] `index.php` activation TODO
+-   [ ] Full multisite activation test (fresh install, sub-site events, network events, cross-site isolation)
+-   [ ] Confirm no regressions on non-multisite installs
 
 ## Freemium Split
 
@@ -213,7 +238,21 @@ Quiet networks may have days with no network events. Without a good empty state,
 
 UX review flagged that $79/year may be underpriced for multisite (a 50-site admin gets 50x the value). Consider a multisite tier ($149-199/year) later. Ship the feature first, evaluate pricing after seeing adoption.
 
+## Freemium surfaces — REMAINING
+
+Not yet implemented. Plan still valid from earlier review:
+
+-   [ ] Segmented control: `[Network-wide actions] [All sites]` — second tab shows upgrade page (no locked rows)
+-   [ ] Static "see all N sites activity" card after 5th/10th event row, dismissible (returns after 30 days)
+-   [ ] Premium text link "see full site details" on events with `_ext_` context
+-   [ ] `_ext_` rich-context storage in `Network_Logger` (Store-in-Core, Reveal-in-Premium)
+-   [ ] Empty state copy for quiet networks
+
+## Follow-up work surfaced during implementation
+
+-   [ ] WP-CLI `--network` flag so `wp simple-history list --network` works from the command line
+-   [ ] Decide on network admin bar menu item linking to network log (open question from original issue)
+
 ## Open questions
 
--   Should we add a network admin bar menu item linking to the network log?
--   How to handle events that span both contexts (e.g. plugin network-activated affects all sites)?
+-   How to handle events that span both contexts (e.g. plugin network-activated affects all sites)? Currently logged once to network table — confirm this is the desired behavior.
