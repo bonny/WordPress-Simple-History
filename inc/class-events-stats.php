@@ -14,21 +14,25 @@ class Events_Stats {
 	 *
 	 * @var string
 	 */
-	private $events_table;
+	protected $events_table;
 
 	/**
 	 * Contexts table name.
 	 *
 	 * @var string
 	 */
-	private $contexts_table;
+	protected $contexts_table;
 
 	/**
 	 * Get the events table name, lazy-loading if needed.
 	 *
+	 * Marked protected so subclasses (e.g. an add-on querying a different
+	 * events table) can override which table is used without having to
+	 * override every query method.
+	 *
 	 * @return string
 	 */
-	private function get_events_table_name() {
+	protected function get_events_table_name() {
 		if ( ! $this->events_table ) {
 			$simple_history     = Simple_History::get_instance();
 			$this->events_table = $simple_history->get_events_table_name();
@@ -39,9 +43,12 @@ class Events_Stats {
 	/**
 	 * Get the contexts table name, lazy-loading if needed.
 	 *
+	 * Marked protected so subclasses can override which contexts table is
+	 * used. See {@see get_events_table_name()}.
+	 *
 	 * @return string
 	 */
-	private function get_contexts_table_name() {
+	protected function get_contexts_table_name() {
 		if ( ! $this->contexts_table ) {
 			$simple_history       = Simple_History::get_instance();
 			$this->contexts_table = $simple_history->get_contexts_table_name();
