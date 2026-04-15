@@ -4964,81 +4964,265 @@ Styles for plugin update details. Markup looks like this:
  * Network Admin teaser page (multisite only, core/free plugin).
  * Explains that network-wide event logging is available in Premium.
  * Replaced by the real network log page when Premium is active.
+ *
+ * Layout is a sequence of separate sections with margins between —
+ * no outer boxed card. That way the design doesn't look broken on
+ * dark admin color schemes, where a hardcoded white card would float.
  */
 
 .sh-NetworkTeaser-wrap {
-	max-width: 720px;
+	max-width: 860px;
 }
 
-.sh-NetworkTeaser {
-	background: #fff;
-	border: 1px solid #e2e4e7;
-	border-radius: 4px;
-	padding: 32px 40px;
-	margin-top: 20px;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+/* Hero */
+
+.sh-NetworkTeaser-hero {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sh-spacing-xlarge);
+	align-items: flex-start;
+	justify-content: space-between;
+	margin: var(--sh-spacing-large) 0 var(--sh-spacing-xlarge);
+}
+
+.sh-NetworkTeaser-heroCopy {
+	flex: 1 1 420px;
+	min-width: 0;
+}
+
+.sh-NetworkTeaser-heroActions {
+	flex: 0 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: var(--sh-spacing-small);
+	align-items: flex-start;
+}
+
+.sh-NetworkTeaser-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	margin-bottom: var(--sh-spacing-small);
+	background: var(--sh-color-yellow);
+	color: #1a1a1a;
+	border-radius: 100px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
 }
 
 .sh-NetworkTeaser-title {
-	margin: 0 0 8px;
+	margin: 0 0 var(--sh-spacing-small);
 	padding: 0;
-	font-size: 24px;
-	line-height: 1.3;
+	font-size: 26px;
+	font-weight: 600;
+	line-height: 1.25;
 }
 
 .sh-NetworkTeaser-lede {
-	margin: 0 0 24px;
-	font-size: 16px;
-	color: #50575e;
-}
-
-.sh-NetworkTeaser p {
-	font-size: 14px;
+	margin: 0;
+	font-size: 15px;
 	line-height: 1.6;
-	color: #1e1e1e;
+	color: var(--sh-color-gray-3);
+	max-width: 56ch;
 }
 
-.sh-NetworkTeaser-subheading {
-	margin: 32px 0 12px;
-	font-size: 16px;
+.sh-NetworkTeaser-primaryCta {
+	white-space: nowrap;
+}
+
+.sh-NetworkTeaser-secondaryLink {
+	font-size: 13px;
+	text-decoration: none;
+}
+
+.sh-NetworkTeaser-secondaryLink:hover,
+.sh-NetworkTeaser-secondaryLink:focus {
+	text-decoration: underline;
+}
+
+/* Feature cards */
+
+.sh-NetworkTeaser-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: var(--sh-spacing-medium);
+	margin: 0 0 var(--sh-spacing-xlarge);
+	padding: 0;
+	list-style: none;
+}
+
+.sh-NetworkTeaser-card {
+	margin: 0;
+	padding: var(--sh-spacing-large);
+	border: 1px solid var(--sh-color-gray);
+	border-radius: var(--sh-border-radius);
+	background: transparent;
+}
+
+.sh-NetworkTeaser-cardIcon {
+	display: block;
+	width: 28px;
+	height: 28px;
+	font-size: 28px;
+	margin-bottom: var(--sh-spacing-small);
+	color: var(--sh-color-blue);
+}
+
+.sh-NetworkTeaser-cardTitle {
+	margin: 0 0 var(--sh-spacing-xsmall);
+	padding: 0;
+	font-size: 14px;
 	font-weight: 600;
 }
 
-.sh-NetworkTeaser-features {
-	margin: 0 0 32px;
-	padding: 0 0 0 20px;
-	list-style: disc;
+.sh-NetworkTeaser-cardBody {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.55;
+	color: var(--sh-color-gray-3);
 }
 
-.sh-NetworkTeaser-features li {
-	margin-bottom: 8px;
-	line-height: 1.6;
-}
-
-.sh-NetworkTeaser-features code {
-	background: #f0f0f1;
+.sh-NetworkTeaser-cardBody code {
+	background: var(--sh-color-gray-4);
 	padding: 1px 6px;
 	border-radius: 3px;
-	font-size: 13px;
+	font-size: 12px;
 }
 
-.sh-NetworkTeaser-cta {
-	margin: 32px 0 24px;
-	padding: 24px 0;
-	border-top: 1px solid #f0f0f1;
-	border-bottom: 1px solid #f0f0f1;
+/* Sample events preview. Dashed border is the universal "illustrative"
+   signal — no tooltip, no disclaimer needed. */
+
+.sh-NetworkTeaser-preview {
+	margin: 0 0 var(--sh-spacing-xlarge);
+	padding: var(--sh-spacing-large) var(--sh-spacing-large)
+		var(--sh-spacing-medium);
+	border: 2px dashed var(--sh-color-gray);
+	border-radius: var(--sh-border-radius);
+}
+
+.sh-NetworkTeaser-previewLabel {
+	margin: 0 0 var(--sh-spacing-small);
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--sh-color-gray-3);
+}
+
+.sh-NetworkTeaser-previewRows {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.sh-NetworkTeaser-previewRow {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-medium);
+	padding: var(--sh-spacing-small) 0;
+	border-bottom: 1px solid var(--sh-color-gray-4);
+}
+
+.sh-NetworkTeaser-previewRow:last-child {
+	border-bottom: none;
+}
+
+.sh-NetworkTeaser-previewAvatar {
+	flex: 0 0 auto;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: var(--sh-color-gray);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.sh-NetworkTeaser-previewMessage {
+	flex: 1 1 auto;
+	font-size: 13px;
+	color: #1e1e1e;
+}
+
+.sh-NetworkTeaser-previewMeta {
+	flex: 0 0 auto;
+	font-size: 12px;
+	color: var(--sh-color-gray-3);
+	white-space: nowrap;
+}
+
+.sh-NetworkTeaser-previewSep {
+	margin: 0 var(--sh-spacing-xsmall);
+}
+
+/* Trust line and FAQ */
+
+.sh-NetworkTeaser-trust {
+	margin: 0 0 var(--sh-spacing-xlarge);
+	font-size: 13px;
+	color: var(--sh-color-gray-3);
 	text-align: center;
 }
 
-.sh-NetworkTeaser-licenseLink {
-	margin: 16px 0 0;
-	font-size: 13px;
-	color: #50575e;
+.sh-NetworkTeaser-faq {
+	margin: 0 0 var(--sh-spacing-xlarge);
 }
 
-.sh-NetworkTeaser-footer {
-	margin: 16px 0 0;
+.sh-NetworkTeaser-faqItem {
+	padding: var(--sh-spacing-small) 0;
+	border-bottom: 1px solid var(--sh-color-gray-4);
+}
+
+.sh-NetworkTeaser-faqItem:first-child {
+	border-top: 1px solid var(--sh-color-gray-4);
+}
+
+.sh-NetworkTeaser-faqItem > summary {
+	cursor: pointer;
+	padding: var(--sh-spacing-xsmall) 0;
+	font-size: 14px;
+	font-weight: 600;
+	list-style: none;
+}
+
+.sh-NetworkTeaser-faqItem > summary::-webkit-details-marker {
+	display: none;
+}
+
+.sh-NetworkTeaser-faqItem > summary::before {
+	content: "›";
+	display: inline-block;
+	width: 1em;
+	margin-right: var(--sh-spacing-xsmall);
+	color: var(--sh-color-gray-3);
+	transition: transform 0.15s ease-out;
+}
+
+.sh-NetworkTeaser-faqItem[open] > summary::before {
+	transform: rotate(90deg);
+}
+
+.sh-NetworkTeaser-faqItem > p {
+	margin: var(--sh-spacing-small) 0 var(--sh-spacing-small) 1.5em;
 	font-size: 13px;
-	color: #50575e;
-	text-align: center;
+	line-height: 1.6;
+	color: var(--sh-color-gray-3);
+	max-width: 72ch;
+}
+
+/* Narrow screens: stack the hero CTAs below the copy. */
+
+@media (max-width: 720px) {
+	.sh-NetworkTeaser-hero {
+		flex-direction: column;
+		gap: var(--sh-spacing-medium);
+	}
+
+	.sh-NetworkTeaser-heroActions {
+		align-items: stretch;
+	}
 }

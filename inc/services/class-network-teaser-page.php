@@ -65,81 +65,133 @@ class Network_Teaser_Page extends Service {
 		$license_url = network_admin_url( 'settings.php#simple-history-license' );
 		?>
 		<div class="wrap sh-NetworkTeaser-wrap">
-			<div class="sh-NetworkTeaser">
-				<h1 class="sh-NetworkTeaser-title">
-					<?php echo esc_html_x( 'Network Event Log', 'Network Admin teaser heading', 'simple-history' ); ?>
-				</h1>
 
-				<p class="sh-NetworkTeaser-lede">
-					<?php echo esc_html_x( 'Track what happens across all sites in your network — from one place.', 'Network Admin teaser lede', 'simple-history' ); ?>
-				</p>
+			<header class="sh-NetworkTeaser-hero">
+				<div class="sh-NetworkTeaser-heroCopy">
+					<span class="sh-NetworkTeaser-badge">
+						<?php echo esc_html_x( 'Premium feature', 'Network Admin teaser badge', 'simple-history' ); ?>
+					</span>
 
-				<p>
-					<?php
-					echo esc_html_x(
-						"Simple History's free version logs activity on each site individually. Network-wide logging is available in Simple History Premium.",
-						'Network Admin teaser explainer',
-						'simple-history'
-					);
-					?>
-				</p>
+					<h1 class="sh-NetworkTeaser-title">
+						<?php echo esc_html_x( 'Know what happened, on which site, by whom.', 'Network Admin teaser heading', 'simple-history' ); ?>
+					</h1>
 
-				<p>
-					<?php
-					echo esc_html_x(
-						'Super admins managing multiple sites often need to know: who changed a setting on the marketing site? Which editor deleted content on the client portal? The Network Event Log gives you a single stream of activity across your entire WordPress network.',
-						'Network Admin teaser body',
-						'simple-history'
-					);
-					?>
-				</p>
-
-				<h2 class="sh-NetworkTeaser-subheading">
-					<?php echo esc_html_x( "What's included in Simple History Premium on multisite", 'Network Admin teaser feature list heading', 'simple-history' ); ?>
-				</h2>
-
-				<ul class="sh-NetworkTeaser-features">
-					<li><?php echo esc_html_x( 'A dedicated Network Admin event log — site creation and deletion, super admin grants and revokes, plugin network activations, network settings changes, and more (25+ event types)', 'Network Admin teaser feature', 'simple-history' ); ?></li>
-					<li><?php echo esc_html_x( 'Unified activity feed across every site in your network', 'Network Admin teaser feature', 'simple-history' ); ?></li>
-					<li><?php echo esc_html_x( 'Filter network events by user, event type, or date', 'Network Admin teaser feature', 'simple-history' ); ?></li>
-					<li>
+					<p class="sh-NetworkTeaser-lede">
 						<?php
-						printf(
-							/* translators: %s: the WP-CLI command with --network flag */
-							esc_html_x( 'WP-CLI support with %s for scripted audits', 'Network Admin teaser feature', 'simple-history' ),
-							'<code>wp simple-history list --network</code>'
-						);
-						?>
-					</li>
-					<li><?php echo esc_html_x( 'Full event details for every action — before/after diffs, affected sites, user metadata', 'Network Admin teaser feature', 'simple-history' ); ?></li>
-				</ul>
-
-				<div class="sh-NetworkTeaser-cta">
-					<a href="<?php echo esc_url( $upgrade_url ); ?>" class="button button-primary button-hero">
-						<?php echo esc_html_x( 'Upgrade to Simple History Premium', 'Network Admin teaser upgrade button', 'simple-history' ); ?>
-					</a>
-
-					<p class="sh-NetworkTeaser-licenseLink">
-						<?php
-						printf(
-							/* translators: %s: link to activate license */
-							esc_html_x( 'Already have Premium? %s', 'Network Admin teaser license prompt', 'simple-history' ),
-							'<a href="' . esc_url( $license_url ) . '">' . esc_html_x( 'Activate your license', 'Network Admin teaser license link', 'simple-history' ) . '</a>'
+						echo esc_html_x(
+							'Simple History already logs activity on each site. With Premium you get one stream across the whole network — built for super admins tired of jumping between dashboards.',
+							'Network Admin teaser lede',
+							'simple-history'
 						);
 						?>
 					</p>
 				</div>
 
-				<p class="sh-NetworkTeaser-footer">
-					<?php
-					printf(
-						/* translators: %s: link to simple-history.com premium page */
-						esc_html_x( 'Need more information? %s', 'Network Admin teaser learn more prompt', 'simple-history' ),
-						'<a href="' . esc_url( $upgrade_url ) . '">' . esc_html_x( 'Learn more about Simple History Premium', 'Network Admin teaser learn more link', 'simple-history' ) . '</a>'
-					);
-					?>
+				<div class="sh-NetworkTeaser-heroActions">
+					<a href="<?php echo esc_url( $upgrade_url ); ?>" class="button button-primary button-hero sh-NetworkTeaser-primaryCta">
+						<?php echo esc_html_x( 'Get Simple History Premium — $79/year', 'Network Admin teaser upgrade button', 'simple-history' ); ?>
+					</a>
+
+					<a href="<?php echo esc_url( $license_url ); ?>" class="sh-NetworkTeaser-secondaryLink">
+						<?php echo esc_html_x( 'Already have Premium? Activate your license →', 'Network Admin teaser license link', 'simple-history' ); ?>
+					</a>
+				</div>
+			</header>
+
+			<ul class="sh-NetworkTeaser-cards">
+				<li class="sh-NetworkTeaser-card">
+					<span class="dashicons dashicons-networking sh-NetworkTeaser-cardIcon" aria-hidden="true"></span>
+					<h2 class="sh-NetworkTeaser-cardTitle">
+						<?php echo esc_html_x( 'One log for every site', 'Network Admin teaser card heading', 'simple-history' ); ?>
+					</h2>
+					<p class="sh-NetworkTeaser-cardBody">
+						<?php echo esc_html_x( 'Every network event in a single, searchable feed — no more jumping between site dashboards to piece a story together.', 'Network Admin teaser card body', 'simple-history' ); ?>
+					</p>
+				</li>
+
+				<li class="sh-NetworkTeaser-card">
+					<span class="dashicons dashicons-filter sh-NetworkTeaser-cardIcon" aria-hidden="true"></span>
+					<h2 class="sh-NetworkTeaser-cardTitle">
+						<?php echo esc_html_x( 'Filter by site, user, or date', 'Network Admin teaser card heading', 'simple-history' ); ?>
+					</h2>
+					<p class="sh-NetworkTeaser-cardBody">
+						<?php echo esc_html_x( 'Pinpoint exactly who changed what and when. Same filter UX as the per-site log you already know.', 'Network Admin teaser card body', 'simple-history' ); ?>
+					</p>
+				</li>
+
+				<li class="sh-NetworkTeaser-card">
+					<span class="dashicons dashicons-editor-code sh-NetworkTeaser-cardIcon" aria-hidden="true"></span>
+					<h2 class="sh-NetworkTeaser-cardTitle">
+						<?php echo esc_html_x( 'WP-CLI for scripted audits', 'Network Admin teaser card heading', 'simple-history' ); ?>
+					</h2>
+					<p class="sh-NetworkTeaser-cardBody">
+						<?php
+						printf(
+							/* translators: %s: the WP-CLI command with --network flag */
+							esc_html_x( 'Run %s to pipe events into scripts, cron, or your monitoring of choice.', 'Network Admin teaser card body', 'simple-history' ),
+							'<code>wp simple-history list --network</code>'
+						);
+						?>
+					</p>
+				</li>
+			</ul>
+
+			<section class="sh-NetworkTeaser-preview" aria-label="<?php esc_attr_e( 'Sample events', 'simple-history' ); ?>">
+				<p class="sh-NetworkTeaser-previewLabel">
+					<?php echo esc_html_x( 'What the Network Event Log looks like', 'Network Admin teaser preview heading', 'simple-history' ); ?>
 				</p>
-			</div>
+
+				<ul class="sh-NetworkTeaser-previewRows">
+					<?php
+					$sample_rows = [
+						[ 'A', __( 'Anna added Ben as Super Admin', 'simple-history' ), __( '2 min ago', 'simple-history' ), 'network.example.com' ],
+						[ 'J', __( 'Plugin "WooCommerce" network-activated', 'simple-history' ), __( '1 hour ago', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
+						[ 'M', __( 'Site "shop.example.com" created', 'simple-history' ), __( 'Yesterday', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
+						[ 'A', __( 'Network setting "Registration" changed', 'simple-history' ), __( '3 days ago', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
+					];
+					foreach ( $sample_rows as $row ) {
+						list( $initial, $message, $when, $where ) = $row;
+						?>
+						<li class="sh-NetworkTeaser-previewRow">
+							<span class="sh-NetworkTeaser-previewAvatar" aria-hidden="true"><?php echo esc_html( $initial ); ?></span>
+							<span class="sh-NetworkTeaser-previewMessage"><?php echo esc_html( $message ); ?></span>
+							<span class="sh-NetworkTeaser-previewMeta">
+								<?php echo esc_html( $when ); ?>
+								<span class="sh-NetworkTeaser-previewSep" aria-hidden="true">·</span>
+								<?php echo esc_html( $where ); ?>
+							</span>
+						</li>
+					<?php } ?>
+				</ul>
+			</section>
+
+			<p class="sh-NetworkTeaser-trust">
+				<?php
+				echo esc_html_x(
+					'Used on 300,000+ sites · 4.8 on WordPress.org · 30-day money-back guarantee',
+					'Network Admin teaser trust line',
+					'simple-history'
+				);
+				?>
+			</p>
+
+			<section class="sh-NetworkTeaser-faq" aria-label="<?php esc_attr_e( 'Frequently asked questions', 'simple-history' ); ?>">
+				<details class="sh-NetworkTeaser-faqItem">
+					<summary><?php echo esc_html_x( 'Does this replace the per-site logs?', 'Network Admin teaser FAQ question', 'simple-history' ); ?></summary>
+					<p><?php echo esc_html_x( 'No. The per-site log keeps working exactly as it does today. The network log is an additional view for super admins who need to see cross-site activity.', 'Network Admin teaser FAQ answer', 'simple-history' ); ?></p>
+				</details>
+
+				<details class="sh-NetworkTeaser-faqItem">
+					<summary><?php echo esc_html_x( 'One license for a whole multisite — how does that work?', 'Network Admin teaser FAQ question', 'simple-history' ); ?></summary>
+					<p><?php echo esc_html_x( 'A multisite network counts as one site for licensing. Running 30 sub-sites on one network? One $79/year license.', 'Network Admin teaser FAQ answer', 'simple-history' ); ?></p>
+				</details>
+
+				<details class="sh-NetworkTeaser-faqItem">
+					<summary><?php echo esc_html_x( 'Can I try it first?', 'Network Admin teaser FAQ question', 'simple-history' ); ?></summary>
+					<p><?php echo esc_html_x( 'Yes. There is a 30-day money-back guarantee — install it, run it on real data, get a refund if it is not pulling its weight.', 'Network Admin teaser FAQ answer', 'simple-history' ); ?></p>
+				</details>
+			</section>
+
 		</div>
 		<?php
 	}
