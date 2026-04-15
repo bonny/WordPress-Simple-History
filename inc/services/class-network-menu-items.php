@@ -14,6 +14,9 @@ class Network_Menu_Items extends Service {
 	public function loaded() {
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_menu_item' ), 40 );
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
+		// Priority 50: WordPress core adds the Network Admin submenu items at
+		// priority 40, so we need to run after that to attach under them.
+		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_admin_submenu_item' ), 50 );
 	}
 
 
@@ -146,5 +149,44 @@ class Network_Menu_Items extends Service {
 	 */
 	private function get_view_history_admin_bar_url() {
 		return Helpers::get_network_history_admin_url() ?? Helpers::get_history_admin_url();
+	}
+
+	/**
+	 * Add a "History" item to the Network Admin submenu in the admin bar.
+	 *
+	 * Sits alongside Dashboard / Sites / Users / Themes / Plugins / Settings
+	 * so super admins can jump to the network event log from anywhere they
+	 * see the My Sites menu.
+	 *
+	 * Only rendered when the network page is actually registered — that
+	 * requires multisite, the super-admin capability, and the experimental
+	 * features flag (which gates the teaser in core and the real page in
+	 * Premium).
+	 *
+	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar instance.
+	 */
+	public function add_admin_bar_network_admin_submenu_item( $wp_admin_bar ) {
+		if ( ! is_multisite() || ! current_user_can( 'manage_network' ) ) {
+			return;
+		}
+
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			return;
+		}
+
+		// Bail if the core-registered "Network Admin" parent node isn't there
+		// (some setups suppress it), otherwise the add_node call would be orphaned.
+		if ( ! $wp_admin_bar->get_node( 'network-admin' ) ) {
+			return;
+		}
+
+		$wp_admin_bar->add_node(
+			array(
+				'id'     => 'network-admin-simple-history',
+				'parent' => 'network-admin',
+				'title'  => _x( 'History', 'Admin bar network submenu item', 'simple-history' ),
+				'href'   => network_admin_url( 'admin.php?page=' . Network_Teaser_Page::MENU_SLUG ),
+			)
+		);
 	}
 }
