@@ -67,6 +67,30 @@ class Event {
 	private string $load_status = 'NOT_LOADED';
 
 	/**
+	 * Get the events table name.
+	 *
+	 * Marked protected so subclasses can override which events table
+	 * Event reads from, without duplicating every query method.
+	 *
+	 * @return string
+	 */
+	protected function get_events_table_name() {
+		return Simple_History::get_instance()->get_events_table_name();
+	}
+
+	/**
+	 * Get the contexts table name.
+	 *
+	 * Marked protected so subclasses can override which contexts table
+	 * Event reads from. See {@see get_events_table_name()}.
+	 *
+	 * @return string
+	 */
+	protected function get_contexts_table_name() {
+		return Simple_History::get_instance()->get_contexts_table_name();
+	}
+
+	/**
 	 * Constructor for existing events.
 	 *
 	 * @param int|null $event_id Event ID. If null, creates an empty event instance.
@@ -724,8 +748,7 @@ class Event {
 	public function stick(): bool {
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$contexts_table = $this->get_contexts_table_name();
 
 		// First remove any existing sticky context.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -769,8 +792,7 @@ class Event {
 	public function unstick(): bool {
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$contexts_table = $this->get_contexts_table_name();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$result = $wpdb->delete(
@@ -885,8 +907,7 @@ class Event {
 	private function save_reactions( array $reactions ): bool {
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		$contexts_table = $this->get_contexts_table_name();
 
 		// Remove existing reactions context row.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
