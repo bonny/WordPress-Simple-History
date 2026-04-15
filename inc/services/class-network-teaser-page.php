@@ -88,17 +88,37 @@ class Network_Teaser_Page extends Service {
 		$upgrade_url = 'https://simple-history.com/premium/?utm_source=wpadmin&utm_medium=network-teaser&utm_campaign=network-log';
 		$license_url = network_admin_url( 'settings.php#simple-history-license' );
 		?>
-		<div class="wrap sh-NetworkTeaser-wrap">
+		<div class="SimpleHistoryWrap sh-NetworkTeaser-wrap">
 
-			<header class="sh-NetworkTeaser-hero">
+			<?php
+			/*
+			 * Render the standard Simple History page header so the teaser
+			 * feels like part of the plugin rather than a disconnected promo.
+			 * Inlined (instead of calling Admin_Pages::header_output()) because
+			 * that method also renders tabs/subnav/settings_errors for pages
+			 * registered via Menu_Manager — the teaser uses add_menu_page()
+			 * directly and doesn't participate in that pipeline.
+			 */
+			?>
+			<header class="sh-PageHeader">
+				<div class="sh-PageHeader-titleGroup">
+					<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
+						<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="<?php esc_attr_e( 'Simple History logotype', 'simple-history' ); ?>" />
+					</h1>
+				</div>
+			</header>
+
+			<?php Admin_Pages::dev_badges_output(); ?>
+
+			<section class="sh-NetworkTeaser-hero">
 				<div class="sh-NetworkTeaser-heroCopy">
 					<span class="sh-NetworkTeaser-badge">
 						<?php echo esc_html_x( 'Premium feature', 'Network Admin teaser badge', 'simple-history' ); ?>
 					</span>
 
-					<h1 class="sh-NetworkTeaser-title">
+					<h2 class="sh-NetworkTeaser-title">
 						<?php echo esc_html_x( 'Finally, a log for the Network Admin.', 'Network Admin teaser heading', 'simple-history' ); ?>
-					</h1>
+					</h2>
 
 					<p class="sh-NetworkTeaser-lede">
 						<?php
@@ -120,14 +140,14 @@ class Network_Teaser_Page extends Service {
 						<?php echo esc_html_x( 'Already have Premium? Activate your license →', 'Network Admin teaser license link', 'simple-history' ); ?>
 					</a>
 				</div>
-			</header>
+			</section>
 
 			<ul class="sh-NetworkTeaser-cards">
 				<li class="sh-NetworkTeaser-card">
 					<span class="dashicons dashicons-networking sh-NetworkTeaser-cardIcon" aria-hidden="true"></span>
-					<h2 class="sh-NetworkTeaser-cardTitle">
+					<h3 class="sh-NetworkTeaser-cardTitle">
 						<?php echo esc_html_x( 'Dedicated log for network-level events', 'Network Admin teaser card heading', 'simple-history' ); ?>
-					</h2>
+					</h3>
 					<p class="sh-NetworkTeaser-cardBody">
 						<?php echo esc_html_x( 'Site creation and deletion, super admin grants, network-activated plugins, network settings changes — all kept in their own log instead of silently dumped on the main site.', 'Network Admin teaser card body', 'simple-history' ); ?>
 					</p>
@@ -135,9 +155,9 @@ class Network_Teaser_Page extends Service {
 
 				<li class="sh-NetworkTeaser-card">
 					<span class="dashicons dashicons-filter sh-NetworkTeaser-cardIcon" aria-hidden="true"></span>
-					<h2 class="sh-NetworkTeaser-cardTitle">
+					<h3 class="sh-NetworkTeaser-cardTitle">
 						<?php echo esc_html_x( 'Filter by user, event type, or date', 'Network Admin teaser card heading', 'simple-history' ); ?>
-					</h2>
+					</h3>
 					<p class="sh-NetworkTeaser-cardBody">
 						<?php echo esc_html_x( 'Pinpoint exactly who changed what and when. Same filter UX as the per-site log you already know.', 'Network Admin teaser card body', 'simple-history' ); ?>
 					</p>
@@ -145,9 +165,9 @@ class Network_Teaser_Page extends Service {
 
 				<li class="sh-NetworkTeaser-card">
 					<span class="dashicons dashicons-editor-code sh-NetworkTeaser-cardIcon" aria-hidden="true"></span>
-					<h2 class="sh-NetworkTeaser-cardTitle">
+					<h3 class="sh-NetworkTeaser-cardTitle">
 						<?php echo esc_html_x( 'WP-CLI for scripted audits', 'Network Admin teaser card heading', 'simple-history' ); ?>
-					</h2>
+					</h3>
 					<p class="sh-NetworkTeaser-cardBody">
 						<?php
 						printf(
