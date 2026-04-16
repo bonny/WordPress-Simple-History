@@ -20,6 +20,9 @@ class Export {
 	/** @var array $options Export options. */
 	protected $options = [];
 
+	/** @var bool Whether the export targets the network event tables. */
+	protected $is_network = false;
+
 	/**
 	 * Constructor.
 	 */
@@ -64,6 +67,20 @@ class Export {
 	}
 
 	/**
+	 * Flag the export as network-scoped so the log query is resolved
+	 * against the network event tables via the `simple_history/export/log_query`
+	 * filter.
+	 *
+	 * @param bool $is_network Whether the export is network-scoped.
+	 * @return self Chainable method.
+	 */
+	public function set_is_network( $is_network ) {
+		$this->is_network = (bool) $is_network;
+
+		return $this;
+	}
+
+	/**
 	 * Get an export option value.
 	 *
 	 * @param string $key Option key.
@@ -102,7 +119,23 @@ class Export {
 
 		$export_format = $this->format;
 
-		$query = new Log_Query();
+		/**
+		 * Filters the Log_Query instance used to fetch events for export.
+		 *
+		 * Providers (e.g. Simple History Premium's network module) return a
+		 * Log_Query subclass configured for network-scoped reads when
+		 * $is_network is true.
+		 *
+		 * @since 5.13.0
+		 *
+		 * @param Log_Query|null $query      Query instance, or null if no provider supplied one.
+		 * @param bool           $is_network Whether the export is network-scoped.
+		 */
+		$query = apply_filters( 'simple_history/export/log_query', null, $this->is_network );
+
+		if ( ! $query instanceof Log_Query ) {
+			$query = new Log_Query();
+		}
 
 		$download_query_args = $this->query_args;
 
