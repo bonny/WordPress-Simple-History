@@ -25,12 +25,20 @@ class Network_Teaser_Page extends Service {
 
 		// Network event logging is rolling out behind the experimental
 		// features flag while the premium add-on lands.
+		// TODO: remove this gate once the premium network module ships
+		// (tracked alongside the Premium network module release).
 		if ( ! Helpers::experimental_features_is_enabled() ) {
 			return;
 		}
 
 		// Skip the whole teaser pipeline when Premium is active — Premium
-		// registers its own page at the same slug and its own filter.
+		// registers its own page at the same slug (MENU_SLUG) on the same
+		// network_admin_menu hook. Whichever callback runs last wins, so the
+		// teaser must bail early based on Premium presence at plugins_loaded
+		// time. If Premium ever starts activating its network module later in
+		// the request lifecycle (e.g. after a deferred license check), this
+		// guard will need to move or Premium will need to deregister the
+		// teaser explicitly.
 		if ( Helpers::is_premium_add_on_active() ) {
 			return;
 		}
@@ -88,6 +96,7 @@ class Network_Teaser_Page extends Service {
 	public function render_page() {
 		$upgrade_url = 'https://simple-history.com/premium/?utm_source=wpadmin&utm_medium=network-teaser&utm_campaign=network-log';
 		$license_url = network_admin_url( 'settings.php#simple-history-license' );
+		$price_label = _x( '$79/year', 'Network Admin teaser price label', 'simple-history' );
 		?>
 		<div class="SimpleHistoryWrap sh-NetworkTeaser-wrap">
 
@@ -134,7 +143,15 @@ class Network_Teaser_Page extends Service {
 
 				<div class="sh-NetworkTeaser-heroActions">
 					<a href="<?php echo esc_url( $upgrade_url ); ?>" class="button button-primary button-hero sh-NetworkTeaser-primaryCta">
-						<?php echo esc_html_x( 'Get Simple History Premium — $79/year', 'Network Admin teaser upgrade button', 'simple-history' ); ?>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: yearly price, e.g. $79/year */
+								_x( 'Get Simple History Premium — %s', 'Network Admin teaser upgrade button', 'simple-history' ),
+								$price_label
+							)
+						);
+						?>
 					</a>
 
 					<a href="<?php echo esc_url( $license_url ); ?>" class="sh-NetworkTeaser-secondaryLink">
@@ -234,7 +251,17 @@ class Network_Teaser_Page extends Service {
 
 				<details class="sh-NetworkTeaser-faqItem">
 					<summary><?php echo esc_html_x( 'One license for a whole multisite — how does that work?', 'Network Admin teaser FAQ question', 'simple-history' ); ?></summary>
-					<p><?php echo esc_html_x( 'A multisite network counts as one site for licensing. Running 30 sub-sites on one network? One $79/year license.', 'Network Admin teaser FAQ answer', 'simple-history' ); ?></p>
+					<p>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: %s: yearly price, e.g. $79/year */
+								_x( 'A multisite network counts as one site for licensing. Running 30 sub-sites on one network? One %s license.', 'Network Admin teaser FAQ answer', 'simple-history' ),
+								$price_label
+							)
+						);
+						?>
+					</p>
 				</details>
 
 				<details class="sh-NetworkTeaser-faqItem">

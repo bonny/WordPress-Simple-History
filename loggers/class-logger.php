@@ -186,7 +186,16 @@ abstract class Logger {
 			return true;
 		}
 
+		// AJAX/REST requests from Network Admin screens don't have
+		// is_network_admin() return true, so fall back to the referer.
+		// Gate on manage_network so a non-super-admin can't spoof the
+		// _wp_http_referer / HTTP_REFERER header to redirect log entries
+		// into the network tables.
 		if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			if ( ! current_user_can( 'manage_network' ) ) {
+				return false;
+			}
+
 			$referer = wp_get_referer();
 
 			if ( $referer && strpos( $referer, '/wp-admin/network/' ) !== false ) {
