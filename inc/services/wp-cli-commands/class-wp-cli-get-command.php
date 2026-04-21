@@ -4,7 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
-use Simple_History\Log_Query;
+use Simple_History\Services\WP_CLI_Commands\WP_CLI_Network_Helper;
 use WP_CLI;
 use WP_CLI_Command;
 
@@ -23,10 +23,14 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 	 * [--format=<format>]
 	 * : Format of output. Defaults to table. Options: table, json, csv, yaml.
 	 *
+	 * [--network]
+	 * : Look up the event in the network log (requires Simple History Premium on a multisite network).
+	 *
 	 * ## Examples
 	 *
 	 *     wp simple-history event get 123
 	 *     wp simple-history event get 123 --format=json
+	 *     wp simple-history event get 123 --network
 	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Associative arguments.
@@ -35,7 +39,8 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 		$assoc_args = wp_parse_args(
 			$assoc_args,
 			array(
-				'format' => 'table',
+				'format'  => 'table',
+				'network' => false,
 			)
 		);
 
@@ -45,11 +50,14 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 			WP_CLI::error( 'Event ID must be an integer.' );
 		}
 
+		$is_network = WP_CLI_Network_Helper::is_network_mode( $assoc_args );
+
 		// Override capability check: if you can run wp cli commands you can read all loggers.
 		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
 
+		$query = WP_CLI_Network_Helper::get_log_query( $is_network );
+
 		// Get information about event using the Simple History Log Query API.
-		$query        = new Log_Query();
 		$query_result = $query->query(
 			array(
 				'post__in'  => [ $event_id ],

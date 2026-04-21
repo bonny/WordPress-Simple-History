@@ -4,6 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
+use Simple_History\Services\WP_CLI_Commands\WP_CLI_Network_Helper;
 use WP_CLI;
 use WP_CLI_Command;
 
@@ -31,10 +32,14 @@ class WP_CLI_Search_Command extends WP_CLI_Command {
 	 * [--count=<number>]
 	 * : Default 10.
 	 *
+	 * [--network]
+	 * : Search the network log (requires Simple History Premium on a multisite network).
+	 *
 	 * ## Examples
 	 *
 	 *     wp simple-history search "activated plugin"
 	 *     wp simple-history search "created user" --count=20
+	 *     wp simple-history search "created site" --network
 	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Associative arguments.
@@ -50,6 +55,7 @@ class WP_CLI_Search_Command extends WP_CLI_Command {
 				'format'     => 'table',
 				'older_than' => '',
 				'newer_than' => '',
+				'network'    => false,
 			)
 		);
 
@@ -58,17 +64,29 @@ class WP_CLI_Search_Command extends WP_CLI_Command {
 		$query_args = array(
 			'posts_per_page' => $assoc_args['count'],
 			'search'         => $search,
-			'date_from'      => $assoc_args['newer_than'],
-			'date_to'        => $assoc_args['older_than'],
 			'ungrouped'      => true,
 		);
+
+		// Log_Query parses any non-null `date_from` / `date_to` string
+		// through DateTimeImmutable — and `new DateTimeImmutable('')`
+		// silently becomes "now", which filters out every past event.
+		// Only pass the keys when the user actually supplied a date.
+		if ( ! empty( $assoc_args['newer_than'] ) ) {
+			$query_args['date_from'] = $assoc_args['newer_than'];
+		}
+
+		if ( ! empty( $assoc_args['older_than'] ) ) {
+			$query_args['date_to'] = $assoc_args['older_than'];
+		}
+
+		$is_network = WP_CLI_Network_Helper::is_network_mode( $assoc_args );
 
 		// Override capability check: if you can run wp cli commands you can read all loggers.
 		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
 
-		// Use Log_Query-class to query the log.
-		$log_query = new \Simple_History\Log_Query();
-		$events    = $log_query->query( $query_args );
+		$log_query = WP_CLI_Network_Helper::get_log_query( $is_network );
+
+		$events = $log_query->query( $query_args );
 
 		// A cleaned version of the events, formatted for wp cli table output.
 		$events_cleaned = [];
