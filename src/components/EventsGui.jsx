@@ -123,6 +123,8 @@ function EventsGUI() {
 		useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
+	const [ networkHistoryAdminURL, setNetworkHistoryAdminURL ] =
+		useState( null );
 	const [ alertsPageURL, setAlertsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
 	const [ userCanManageOptions, setUserCanManageOptions ] = useState( false );
@@ -757,6 +759,7 @@ function EventsGUI() {
 					eventsAdminPageURL={ eventsAdminPageURL }
 					setEventsAdminPageURL={ setEventsAdminPageURL }
 					setEventsSettingsPageURL={ setSettingsPageURL }
+					setNetworkHistoryAdminURL={ setNetworkHistoryAdminURL }
 					setAlertsPageURL={ setAlertsPageURL }
 					setPage={ setPage }
 					onReload={ handleReload }
@@ -789,7 +792,10 @@ function EventsGUI() {
 			) }
 
 			{ ! surroundingEventId && (
-				<EventsNetworkFallbackSummary events={ events } />
+				<EventsNetworkFallbackSummary
+					events={ events }
+					networkHistoryAdminURL={ networkHistoryAdminURL }
+				/>
 			) }
 
 			<EventsList

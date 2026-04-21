@@ -127,7 +127,7 @@ class Network_Menu_Items extends Service {
 			'id'     => 'simple-history-view-history',
 			'parent' => 'site-name',
 			'title'  => _x( 'View History', 'Admin bar name', 'simple-history' ),
-			'href'   => Helpers::get_network_history_admin_url() ?? Helpers::get_history_admin_url(),
+			'href'   => ( Helpers::is_network_scoped_admin_screen() ? Helpers::get_network_history_admin_url() : null ) ?? Helpers::get_history_admin_url(),
 			'meta'   => array(
 				'class' => 'ab-item--simplehistory',
 			),

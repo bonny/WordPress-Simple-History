@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Tooltip } from '@wordpress/components';
 import { EventHeaderItem } from './EventHeaderItem';
 
 /**
@@ -27,14 +28,14 @@ export function EventNetworkFallbackIndicator( props ) {
 
 	return (
 		<EventHeaderItem className="SimpleHistoryLogitem__networkFallback">
-			<span
-				title={ __(
+			<Tooltip
+				text={ __(
 					'This action happened at the network level.',
 					'simple-history'
 				) }
 			>
-				{ __( 'network-level', 'simple-history' ) }
-			</span>
+				<span>{ __( 'network-level', 'simple-history' ) }</span>
+			</Tooltip>
 		</EventHeaderItem>
 	);
 }

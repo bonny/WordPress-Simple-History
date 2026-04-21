@@ -60,11 +60,12 @@ class Quick_View_Dropin extends Dropin {
 	 * @param \WP_Admin_Bar $wp_admin_bar Admin bar instance.
 	 */
 	public function add_simple_history_to_admin_bar( $wp_admin_bar ) {
-		$network_url = Helpers::get_network_history_admin_url();
+		// On network-scoped screens (Network Admin, user admin, My Sites)
+		// point the "History" shortcut at the network page so the user
+		// isn't dumped on the main site's log.
+		$route_to_network = Helpers::is_network_scoped_admin_screen();
+		$network_url      = $route_to_network ? Helpers::get_network_history_admin_url() : null;
 
-		// Add the main menu item. On network-scoped screens (Network Admin,
-		// user admin, My Sites) point at the network page directly so the
-		// user isn't dumped on the main site's log.
 		$wp_admin_bar->add_node(
 			array(
 				// Id's are prefixed automatically, so no need to prefix them here.
@@ -109,7 +110,7 @@ class Quick_View_Dropin extends Dropin {
 		// No React mount point on network-scoped screens (see
 		// add_simple_history_to_admin_bar()), so the admin-bar bundle has
 		// nothing to render. Skip the enqueue to keep those pages lean.
-		if ( Helpers::get_network_history_admin_url() !== null ) {
+		if ( Helpers::is_network_scoped_admin_screen() && Helpers::get_network_history_admin_url() !== null ) {
 			return;
 		}
 
@@ -146,7 +147,7 @@ class Quick_View_Dropin extends Dropin {
 			apply_filters(
 				'simple_history/admin_bar/localize_data',
 				[
-					'adminPageUrl'              => Helpers::get_network_history_admin_url() ?? Helpers::get_history_admin_url(),
+					'adminPageUrl'              => ( Helpers::is_network_scoped_admin_screen() ? Helpers::get_network_history_admin_url() : null ) ?? Helpers::get_history_admin_url(),
 					'viewSettingsUrl'           => Helpers::get_settings_page_url(),
 					// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is filterable, defaults to 'read'.
 					'currentUserCanViewHistory' => current_user_can( Helpers::get_view_history_capability() ),

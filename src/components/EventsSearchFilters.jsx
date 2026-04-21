@@ -56,6 +56,7 @@ export function EventsSearchFilters( props ) {
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
+		setNetworkHistoryAdminURL,
 		setAlertsPageURL,
 		setCurrentUserId,
 		setUserCanManageOptions,
@@ -223,6 +224,9 @@ export function EventsSearchFilters( props ) {
 				setEventsSettingsPageURL(
 					searchOptionsResponse.settings_page_url
 				);
+				setNetworkHistoryAdminURL(
+					searchOptionsResponse.network_history_admin_url || null
+				);
 
 				// Set alerts page URL if provided by premium add-on.
 				if ( searchOptionsResponse.alerts_page_url ) {
@@ -265,6 +269,7 @@ export function EventsSearchFilters( props ) {
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
+		setNetworkHistoryAdminURL,
 		setAlertsPageURL,
 		setCurrentUserId,
 		setUserCanManageOptions,

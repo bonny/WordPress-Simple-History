@@ -188,6 +188,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				: 0,
 			'experimental_features_enabled'   => Helpers::experimental_features_is_enabled(),
 			'events_admin_page_url'           => Helpers::get_history_admin_url(),
+			'network_history_admin_url'       => Helpers::get_network_history_admin_url(),
 			'settings_page_url'               => Helpers::get_settings_page_url(),
 			'stats_page_url'                  => admin_url( 'admin.php?page=simple_history_stats_page' ),
 			'current_user_id'                 => get_current_user_id(),

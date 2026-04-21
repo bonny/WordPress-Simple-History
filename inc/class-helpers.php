@@ -2054,52 +2054,55 @@ class Helpers {
 	}
 
 	/**
-	 * Return the URL to the network Simple History page when the user is on
-	 * a super-admin-global screen (Network Admin, user admin, My Sites), or
-	 * null otherwise.
+	 * Return the URL to the network Simple History page when it's available
+	 * on this install (multisite + super admin cap + experimental features
+	 * flag), or null otherwise.
 	 *
-	 * Used by admin-bar shortcuts so clicking "History" from a network-level
-	 * screen opens the network log instead of dumping the user onto site 1's
-	 * log. Guarded by the experimental features flag because that's what
-	 * registers the network page (teaser in core, real log in Premium).
+	 * Pure availability check — doesn't look at current screen. Admin-bar
+	 * routing that only wants to redirect "History" on network-scoped
+	 * screens should combine this with is_network_scoped_admin_screen().
 	 *
-	 * Result is memoized — the inputs (capability, option, current screen)
-	 * don't change within a request once the admin bar is rendering.
+	 * Memoized per request since the inputs don't change.
 	 *
 	 * @since 5.27.0
-	 * @return string|null Network admin page URL, or null if not in scope.
+	 * @return string|null Network admin page URL, or null if not available.
 	 */
 	public static function get_network_history_admin_url() {
-		static $cached   = null;
-		static $resolved = false;
+		static $cached = null;
 
-		if ( $resolved ) {
+		if ( $cached !== null ) {
 			return $cached;
 		}
 
 		if ( ! is_multisite() || ! current_user_can( 'manage_network' ) || ! self::experimental_features_is_enabled() ) {
-			$resolved = true;
-			return $cached;
+			return null;
 		}
 
-		$screen      = self::get_current_screen();
-		$is_my_sites = $screen && $screen->id === 'my-sites';
-
-		if ( is_network_admin() || is_user_admin() || $is_my_sites ) {
-			$cached   = network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
-			$resolved = true;
-
-			return $cached;
-		}
-
-		// Negative result reached. Only memoize when the screen was actually
-		// resolvable — otherwise a caller running before set_current_screen()
-		// would poison the cache with null for the rest of the request.
-		if ( $screen !== null ) {
-			$resolved = true;
-		}
+		$cached = network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
 
 		return $cached;
+	}
+
+	/**
+	 * True when the current admin screen is one of the super-admin-global
+	 * screens (Network Admin, user admin, My Sites) where admin-bar
+	 * "History" shortcuts should point at the network log rather than the
+	 * per-site one.
+	 *
+	 * Callers that want "route the admin bar to the network page" should
+	 * combine this with get_network_history_admin_url() being non-null.
+	 *
+	 * @since 5.27.0
+	 * @return bool
+	 */
+	public static function is_network_scoped_admin_screen() {
+		if ( is_network_admin() || is_user_admin() ) {
+			return true;
+		}
+
+		$screen = self::get_current_screen();
+
+		return $screen && $screen->id === 'my-sites';
 	}
 
 	/**
