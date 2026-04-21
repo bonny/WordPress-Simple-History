@@ -119,22 +119,20 @@ class Export {
 
 		$export_format = $this->format;
 
-		/**
-		 * Filters the Log_Query instance used to fetch events for export.
-		 *
-		 * Providers (e.g. Simple History Premium's network module) return a
-		 * Log_Query subclass configured for network-scoped reads when
-		 * $is_network is true.
-		 *
-		 * @since 5.13.0
-		 *
-		 * @param Log_Query|null $query      Query instance, or null if no provider supplied one.
-		 * @param bool           $is_network Whether the export is network-scoped.
-		 */
-		$query = apply_filters( 'simple_history/export/log_query', null, $this->is_network );
+		$query = $this->is_network
+			? $this->simple_history->get_network_log_query()
+			: new Log_Query();
 
-		if ( ! $query instanceof Log_Query ) {
-			$query = new Log_Query();
+		// Network-scoped exports require Premium's network module. Fail
+		// visibly instead of silently falling back to per-site data under
+		// a "network export" label — the CLI list command does the same.
+		if ( $query === null ) {
+			wp_die(
+				esc_html__(
+					'Network-scoped export requires Simple History Premium, which adds network event logging.',
+					'simple-history'
+				)
+			);
 		}
 
 		$download_query_args = $this->query_args;
@@ -143,7 +141,7 @@ class Export {
 		$download_query_args['ungrouped'] = true;
 
 		// Cap batch size to avoid memory exhaustion.
-		$max_batch_size = 250;
+		$max_batch_size                        = 250;
 		$download_query_args['posts_per_page'] = min( $max_batch_size, max( 1, (int) ( $download_query_args['posts_per_page'] ?? $max_batch_size ) ) );
 
 		$query_result = $query->query( $download_query_args );

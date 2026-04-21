@@ -292,7 +292,7 @@ class Admin_Pages extends Service {
 	 * from any page callback. Shared between the main admin page header and
 	 * add-on pages that want to expose the same developer affordances.
 	 *
-	 * @since 5.13.0
+	 * @since 5.27.0
 	 */
 	public static function dev_badges_output() {
 		if ( ! Helpers::dev_mode_is_enabled() ) {

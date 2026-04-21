@@ -459,8 +459,9 @@ class Simple_History {
 	/**
 	 * Get an instantiated service by its class name.
 	 *
-	 * @param string $service_classname Full class name of service to get. Example: AddOns_Licences::class.
-	 * @return Service|null Found service or null if no service found.
+	 * @template T of Service
+	 * @param class-string<T> $service_classname Full class name of service to get. Example: AddOns_Licences::class.
+	 * @return T|null Found service or null if no service found.
 	 */
 	public function get_service( $service_classname ) {
 		foreach ( $this->instantiated_services as $service ) {
@@ -1610,6 +1611,131 @@ class Simple_History {
 	 */
 	public function get_contexts_table_name() {
 		return $this::$dbtable_contexts;
+	}
+
+	/**
+	 * Network event/context tables registered by an add-on (typically the
+	 * Premium network module) at init. Null when no provider has registered.
+	 *
+	 * @var array{events: string, contexts: string}|null
+	 */
+	private $network_tables = null;
+
+	/**
+	 * Factory for a network-scoped Log_Query, registered by an add-on.
+	 *
+	 * @var callable|null
+	 */
+	private $network_log_query_factory = null;
+
+	/**
+	 * Factory for a network-scoped Event, registered by an add-on.
+	 * Takes an int event ID and returns an Event (subclass) backed by the
+	 * network tables.
+	 *
+	 * @var callable|null
+	 */
+	private $network_event_factory = null;
+
+	/**
+	 * Register the network events/contexts tables. Called once at init by
+	 * the Simple History Premium network module. Identifiers are validated
+	 * here (letters, digits, underscores only) so $wpdb->insert() calls
+	 * downstream can embed them safely.
+	 *
+	 * @since 5.27.0
+	 * @param string $events_table   Fully-qualified network events table name.
+	 * @param string $contexts_table Fully-qualified network contexts table name.
+	 * @return bool True on success, false if either identifier is invalid.
+	 */
+	public function set_network_tables( string $events_table, string $contexts_table ): bool {
+		if (
+			! preg_match( '/^[A-Za-z0-9_]+$/', $events_table )
+			|| ! preg_match( '/^[A-Za-z0-9_]+$/', $contexts_table )
+		) {
+			return false;
+		}
+
+		$this->network_tables = [
+			'events'   => $events_table,
+			'contexts' => $contexts_table,
+		];
+
+		return true;
+	}
+
+	/**
+	 * Get the registered network events/contexts tables, or null if no
+	 * provider has registered (no Premium network module running).
+	 *
+	 * @since 5.27.0
+	 * @return array{events: string, contexts: string}|null
+	 */
+	public function get_network_tables() {
+		return $this->network_tables;
+	}
+
+	/**
+	 * Register a factory for network-scoped Log_Query instances. The factory
+	 * is invoked each time core needs a fresh Log_Query configured for the
+	 * network tables (export, CLI --network, REST controllers).
+	 *
+	 * @since 5.27.0
+	 * @param callable $factory A callable returning a Log_Query instance.
+	 */
+	public function set_network_log_query_factory( callable $factory ): void {
+		$this->network_log_query_factory = $factory;
+	}
+
+	/**
+	 * Build a fresh network-scoped Log_Query, or null if no factory has
+	 * been registered. Returns null (not an error) so callers can decide
+	 * how to handle the missing-provider case.
+	 *
+	 * @since 5.27.0
+	 * @return Log_Query|null
+	 */
+	public function get_network_log_query() {
+		if ( $this->network_log_query_factory === null ) {
+			return null;
+		}
+
+		$query = ( $this->network_log_query_factory )();
+
+		return $query instanceof Log_Query ? $query : null;
+	}
+
+	/**
+	 * Register a factory for network-scoped Event instances. The factory is
+	 * invoked with an event ID and must return an Event (subclass) backed
+	 * by the network tables — used by CLI and REST paths that operate on a
+	 * single event in network scope (stick, unstick, reactions).
+	 *
+	 * @since 5.27.0
+	 * @param callable $factory Callable taking an int event ID, returning an Event.
+	 */
+	public function set_network_event_factory( callable $factory ): void {
+		$this->network_event_factory = $factory;
+	}
+
+	/**
+	 * Build an Event scoped to the network tables for the given ID, or null
+	 * if no factory has been registered or the factory returned something
+	 * other than an Event (the factory may also return a non-existent Event
+	 * — callers should check ->exists() just as they would with Event::get()).
+	 *
+	 * @since 5.27.0
+	 * @param int $event_id Event ID to load.
+	 * @return Event|null
+	 */
+	public function get_network_event( int $event_id ) {
+		if ( $this->network_event_factory === null ) {
+			return null;
+		}
+
+		$event = ( $this->network_event_factory )( $event_id );
+
+		return $event instanceof Event ? $event : null;
 	}
 
 	/**

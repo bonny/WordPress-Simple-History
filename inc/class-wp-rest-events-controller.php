@@ -9,6 +9,7 @@ use WP_REST_Server;
 use Simple_History\Event;
 use Simple_History\Helpers;
 use Simple_History\Log_Initiators;
+use Simple_History\Loggers\Logger;
 use Simple_History\Services;
 
 /**
@@ -764,6 +765,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Whether the event was backfilled from existing WordPress data.', 'simple-history' ),
 					'type'        => 'boolean',
 				),
+				'network_fallback'           => array(
+					'description' => __( 'Whether the event was a network-level action that was logged to the per-site log because a dedicated network log was not available. Used by the UI to show a small explanatory note on the event.', 'simple-history' ),
+					'type'        => 'boolean',
+				),
 				'reactions'                  => array(
 					'description' => __( 'Reactions on the event.', 'simple-history' ),
 					'type'        => 'object',
@@ -1210,6 +1215,16 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( rest_is_field_included( 'backfilled', $fields ) ) {
 			$data['backfilled'] = isset( $item->context[ Existing_Data_Importer::BACKFILLED_CONTEXT_KEY ] );
+		}
+
+		if ( rest_is_field_included( 'network_fallback', $fields ) ) {
+			// Only expose the flag when Premium is NOT active. Once
+			// Premium is active, future events route to the network
+			// log correctly, and showing the note on historical events
+			// would be noise — the dedicated log is right there in
+			// Network Admin, no explanation needed.
+			$data['network_fallback'] = isset( $item->context[ Logger::NETWORK_FALLBACK_CONTEXT_KEY ] )
+				&& ! Helpers::is_premium_add_on_active();
 		}
 
 		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::experimental_features_is_enabled() ) {

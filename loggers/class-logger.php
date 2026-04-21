@@ -24,6 +24,14 @@ use Simple_History\Event_Details\Event_Details_Group;
  */
 abstract class Logger {
 	/**
+	 * Context key marking an event that was network-scoped at log time but
+	 * ended up on the per-site log because no network provider was registered.
+	 * Consumed by the REST controller + React log UI to render a small
+	 * explanatory note pointing at the dedicated network log in Premium.
+	 */
+	public const NETWORK_FALLBACK_CONTEXT_KEY = '_network_fallback';
+
+	/**
 	 * Unique slug for the logger.
 	 *
 	 * The slug will be saved in DB and used to associate each log row with its logger.
@@ -122,7 +130,7 @@ abstract class Logger {
 	 * logger) set this to true so their writes are routed to the network
 	 * tables regardless of the current request context.
 	 *
-	 * @since 5.13.0
+	 * @since 5.27.0
 	 * @var bool
 	 */
 	protected $is_network_logger = false;
@@ -170,7 +178,7 @@ abstract class Logger {
 	 * `simple_history/network_tables` filter — otherwise log() falls back
 	 * to the normal per-site tables.
 	 *
-	 * @since 5.13.0
+	 * @since 5.27.0
 	 * @return bool
 	 */
 	protected function should_use_network_tables() {
@@ -198,7 +206,17 @@ abstract class Logger {
 
 			$referer = wp_get_referer();
 
-			if ( $referer && strpos( $referer, '/wp-admin/network/' ) !== false ) {
+			if ( ! $referer ) {
+				return false;
+			}
+
+			// Match against the actual network admin URL prefix for this
+			// site instead of a substring. An attacker-controlled referer
+			// like https://evil.example.com/wp-admin/network/foo won't
+			// match because network_admin_url() carries our host.
+			$network_admin_prefix = network_admin_url();
+
+			if ( strpos( $referer, $network_admin_prefix ) === 0 ) {
 				return true;
 			}
 		}
@@ -1411,79 +1429,64 @@ abstract class Logger {
 			$this
 		);
 
-		// Route to network tables when this is a network-level event and a
-		// provider (e.g. the Premium add-on) has registered the network table
-		// names. append_context() reads $this->db_table_contexts naturally,
-		// so swapping the properties is enough — restore them after the insert.
-		$original_db_table          = null;
-		$original_db_table_contexts = null;
+		// Resolve the tables this specific log call should target. Defaults
+		// to the per-site tables; a network-scoped call with a registered
+		// provider (e.g. the Premium network module) writes to the network
+		// tables instead. Using local variables — not swapping $this->
+		// properties — means concurrent / re-entrant log() calls on the
+		// same logger instance (e.g. a hook fired from append_context()
+		// triggering another log()) never see each other's target tables.
+		$events_table   = $this->db_table;
+		$contexts_table = $this->db_table_contexts;
 
 		if ( $this->should_use_network_tables() ) {
-			/**
-			 * Filters the network event/context tables a logger should
-			 * route writes to when the current log call is network-scoped.
-			 *
-			 * Providers return an array with `events` and `contexts` keys.
-			 * Returning null (default) keeps the current per-site tables.
-			 *
-			 * @since 5.13.0
-			 *
-			 * @param array{events: string, contexts: string}|null $tables Network table names.
-			 */
-			$network_tables = apply_filters( 'simple_history/network_tables', null );
+			$network_tables = $this->simple_history->get_network_tables();
 
-			if (
-				is_array( $network_tables )
-				&& ! empty( $network_tables['events'] )
-				&& ! empty( $network_tables['contexts'] )
-			) {
-				$original_db_table          = $this->db_table;
-				$original_db_table_contexts = $this->db_table_contexts;
-				$this->db_table             = $network_tables['events'];
-				$this->db_table_contexts    = $network_tables['contexts'];
+			if ( $network_tables !== null ) {
+				$events_table   = $network_tables['events'];
+				$contexts_table = $network_tables['contexts'];
+			} else {
+				// Scope was network but no provider registered (Premium
+				// network module not available) — the event is about to
+				// land on the per-site log instead. Flag it so the UI
+				// can show a small note that this action would normally
+				// live in the dedicated network log, and point the user
+				// at where to find it.
+				$context[ self::NETWORK_FALLBACK_CONTEXT_KEY ] = '1';
 			}
 		}
 
-		// try/finally guarantees the restore runs even if a hook fired from
-		// append_context() throws or re-enters log() on the same instance —
-		// otherwise the swapped network table would leak into subsequent
-		// per-site writes.
-		try {
-			// Insert data into db.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$result = $wpdb->insert( $this->db_table, $data );
+		// Insert data into db.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->insert( $events_table, $data );
 
-			// Auto-recover from missing tables.
-			if ( $result === false && ! empty( $wpdb->last_error ) ) {
-				if ( Services\Setup_Database::is_table_missing_error( $wpdb->last_error ) ) {
-					// Try to recreate tables.
-					$recreated = Services\Setup_Database::recreate_tables_if_missing();
+		// Auto-recover from missing tables.
+		if ( $result === false && ! empty( $wpdb->last_error ) ) {
+			if ( Services\Setup_Database::is_table_missing_error( $wpdb->last_error ) ) {
+				// Try to recreate tables.
+				$recreated = Services\Setup_Database::recreate_tables_if_missing();
 
-					if ( $recreated ) {
-						// Retry the insert after recreating tables.
-						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-						$result = $wpdb->insert( $this->db_table, $data );
-					}
+				if ( $recreated ) {
+					// Retry the insert after recreating tables.
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+					$result = $wpdb->insert( $events_table, $data );
 				}
 			}
+		}
 
-			// Save context if able to store row.
-			if ( $result === false ) {
-				$history_inserted_id = null;
-			} else {
-				$history_inserted_id = $wpdb->insert_id;
+		// Save context if able to store row.
+		if ( $result === false ) {
+			$history_inserted_id = null;
+		} else {
+			$history_inserted_id = $wpdb->insert_id;
 
-				// Insert all context values into db.
-				$this->append_context( $history_inserted_id, $context );
+			// Insert all context values into db. Pass $contexts_table
+			// explicitly so network-scoped writes land in the right table
+			// without mutating $this->db_table_contexts.
+			$this->append_context( $history_inserted_id, $context, $contexts_table );
 
-				// Add event ID to data array for hooks.
-				$data['id'] = $history_inserted_id;
-			}
-		} finally {
-			if ( $original_db_table !== null ) {
-				$this->db_table          = $original_db_table;
-				$this->db_table_contexts = $original_db_table_contexts;
-			}
+			// Add event ID to data array for hooks.
+			$data['id'] = $history_inserted_id;
 		}
 
 		$this->last_insert_id      = $history_inserted_id;
@@ -1517,26 +1520,32 @@ abstract class Logger {
 	/**
 	 * Append new info to the context of history item with id $post_logger->last_insert_id.
 	 *
-	 * @param int   $history_id The id of the history row to add context to.
-	 * @param array $context Context to append to existing context for the row.
+	 * @param int         $history_id     The id of the history row to add context to.
+	 * @param array       $context        Context to append to existing context for the row.
+	 * @param string|null $contexts_table Optional contexts table override. Defaults to $this->db_table_contexts.
 	 * @return bool True if context was added, false if not (because row_id or context is empty).
 	 */
-	public function append_context( $history_id, $context ) {
+	public function append_context( $history_id, $context, $contexts_table = null ) {
 		// Use new batched method.
-		return $this->append_context_batched( $history_id, $context );
+		return $this->append_context_batched( $history_id, $context, $contexts_table );
 	}
 
 	/**
 	 * Append new info to the context of history item using batch inserts for better performance.
 	 * This method uses size-based batching to ensure queries stay within database limits.
 	 *
-	 * @param int   $history_id The id of the history row to add context to.
-	 * @param array $context Context to append to existing context for the row.
+	 * @param int         $history_id     The id of the history row to add context to.
+	 * @param array       $context        Context to append to existing context for the row.
+	 * @param string|null $contexts_table Optional contexts table override. Defaults to $this->db_table_contexts.
 	 * @return bool True if context was added, false if not (because row_id or context is empty).
 	 */
-	public function append_context_batched( $history_id, $context ) {
+	public function append_context_batched( $history_id, $context, $contexts_table = null ) {
 		if ( empty( $history_id ) || empty( $context ) ) {
 			return false;
+		}
+
+		if ( $contexts_table === null ) {
+			$contexts_table = $this->db_table_contexts;
 		}
 
 		global $wpdb;
@@ -1619,12 +1628,13 @@ abstract class Logger {
 				$placeholders[] = '(%d, %s, %s)';
 			}
 
-			// Execute batch insert.
-			$sql = "INSERT INTO {$this->db_table_contexts} (history_id, `key`, value) VALUES "
+			// Execute batch insert. Table name goes through %i so $wpdb
+			// quotes the identifier — matches Event::query_db_for_events().
+			$sql = 'INSERT INTO %i (history_id, `key`, value) VALUES '
 				. implode( ', ', $placeholders );
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
-			$wpdb->query( $wpdb->prepare( $sql, $values ) );
+			$wpdb->query( $wpdb->prepare( $sql, array_merge( [ $contexts_table ], $values ) ) );
 		}
 
 		// Log debug summary if debug logging is enabled.

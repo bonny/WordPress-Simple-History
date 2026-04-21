@@ -247,6 +247,15 @@ class Helpers {
 	 * @return array
 	 */
 	public static function get_ip_number_header_names() {
+		// Memoized: called once per event when rendering REST list
+		// responses (via get_event_ip_number_headers()), which adds up on
+		// busy endpoints. The header list is stable for the request.
+		static $cached = null;
+
+		if ( $cached !== null ) {
+			return $cached;
+		}
+
 		$headers = array(
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
@@ -266,7 +275,8 @@ class Helpers {
 			$headers,
 		);
 
-		return $headers;
+		$cached = $headers;
+		return $cached;
 	}
 
 	/**
@@ -1272,7 +1282,7 @@ class Helpers {
 		 * Simple History asset pipeline (React bundle, admin bar, etc.)
 		 * without having to register a matching menu slug.
 		 *
-		 * @since 5.13.0
+		 * @since 5.27.0
 		 *
 		 * @param bool           $is_on_our_page Whether the current screen is a Simple History page.
 		 * @param \WP_Screen|null $current_screen The current WP_Screen object.
@@ -2023,7 +2033,17 @@ class Helpers {
 	 * @return bool True if premium add-on is active, false otherwise.
 	 */
 	public static function is_premium_add_on_active() {
-		return self::is_plugin_active( 'simple-history-premium/simple-history-premium.php' );
+		// Memoized per request: called once per event when rendering REST
+		// list responses (gates the `network_fallback` field), which adds
+		// up on busy endpoints. The result can't change within a single
+		// request, so a static cache is safe.
+		static $cached = null;
+
+		if ( $cached === null ) {
+			$cached = self::is_plugin_active( 'simple-history-premium/simple-history-premium.php' );
+		}
+
+		return $cached;
 	}
 
 	/**
@@ -2046,7 +2066,7 @@ class Helpers {
 	 * Result is memoized — the inputs (capability, option, current screen)
 	 * don't change within a request once the admin bar is rendering.
 	 *
-	 * @since 5.13.0
+	 * @since 5.27.0
 	 * @return string|null Network admin page URL, or null if not in scope.
 	 */
 	public static function get_network_history_admin_url() {
@@ -2065,13 +2085,19 @@ class Helpers {
 		$screen      = self::get_current_screen();
 		$is_my_sites = $screen && $screen->id === 'my-sites';
 
-		if ( ! is_network_admin() && ! is_user_admin() && ! $is_my_sites ) {
+		if ( is_network_admin() || is_user_admin() || $is_my_sites ) {
+			$cached   = network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
 			$resolved = true;
+
 			return $cached;
 		}
 
-		$cached   = network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
-		$resolved = true;
+		// Negative result reached. Only memoize when the screen was actually
+		// resolvable — otherwise a caller running before set_current_screen()
+		// would poison the cache with null for the rest of the request.
+		if ( $screen !== null ) {
+			$resolved = true;
+		}
 
 		return $cached;
 	}
@@ -2297,13 +2323,18 @@ class Helpers {
 	/**
 	 * Get all sticky event IDs.
 	 *
+	 * @param string|null $contexts_table Optional contexts table to query. Defaults
+	 *                                    to the per-site contexts table. Pass the
+	 *                                    network contexts table for network-scoped
+	 *                                    sticky lookups.
 	 * @return array<int> Array of sticky event IDs.
 	 */
-	public static function get_sticky_event_ids() {
+	public static function get_sticky_event_ids( $contexts_table = null ) {
 		global $wpdb;
 
-		$simple_history = Simple_History::get_instance();
-		$contexts_table = $simple_history->get_contexts_table_name();
+		if ( $contexts_table === null ) {
+			$contexts_table = Simple_History::get_instance()->get_contexts_table_name();
+		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$results = $wpdb->get_col(
