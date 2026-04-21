@@ -185,7 +185,12 @@ class Event {
 		}
 
 		// No cached data, so load from database using the shared query method.
-		$events_data = self::query_db_for_events( $event_ids );
+		$simple_history = Simple_History::get_instance();
+		$events_data    = self::query_db_for_events(
+			$event_ids,
+			$simple_history->get_events_table_name(),
+			$simple_history->get_contexts_table_name()
+		);
 
 		if ( empty( $events_data ) ) {
 			// Cache empty result to avoid repeated DB queries.
@@ -584,7 +589,11 @@ class Event {
 		}
 
 		// No cached data, so load from database using the shared query method.
-		$events_data = self::query_db_for_events( $this->id );
+		$events_data = self::query_db_for_events(
+			$this->id,
+			$this->get_events_table_name(),
+			$this->get_contexts_table_name()
+		);
 
 		// No event found.
 		if ( empty( $events_data ) ) {
@@ -631,14 +640,19 @@ class Event {
 	/**
 	 * Query database for events and their contexts.
 	 *
-	 * @param int|array $event_ids Single event ID or array of event IDs.
+	 * Table names are passed in rather than resolved here so subclass
+	 * overrides of get_events_table_name() / get_contexts_table_name()
+	 * reach this query path. Callers in instance context should pass
+	 * $this->get_events_table_name() / $this->get_contexts_table_name();
+	 * static callers can pass the defaults from Simple_History.
+	 *
+	 * @param int|array $event_ids      Single event ID or array of event IDs.
+	 * @param string    $events_table   Events table name to query.
+	 * @param string    $contexts_table Contexts table name to query.
 	 * @return array Array of event data grouped by event ID, or empty array if no events found.
 	 */
-	private static function query_db_for_events( $event_ids ): array {
+	private static function query_db_for_events( $event_ids, string $events_table, string $contexts_table ): array {
 		global $wpdb;
-		$simple_history = Simple_History::get_instance();
-		$table_name     = $simple_history->get_events_table_name();
-		$contexts_table = $simple_history->get_contexts_table_name();
 
 		// Normalize to array and ensure all are integers.
 		$ids = is_array( $event_ids ) ? $event_ids : [ $event_ids ];
@@ -652,7 +666,7 @@ class Event {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT 
+				'SELECT
 					e.*,
 					c.key,
 					c.value
@@ -660,7 +674,7 @@ class Event {
 				LEFT JOIN %i c ON e.id = c.history_id
 				WHERE e.id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')
 				ORDER BY e.id, c.context_id',
-				array_merge( [ $table_name, $contexts_table ], $ids )
+				array_merge( [ $events_table, $contexts_table ], $ids )
 			)
 		);
 
