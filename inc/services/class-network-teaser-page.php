@@ -11,7 +11,7 @@ use Simple_History\Helpers;
  * When the premium add-on is active (and its network module running), it
  * registers its own menu at the same slug, which takes over the page.
  *
- * @since 5.13.0
+ * @since 5.27.0
  */
 class Network_Teaser_Page extends Service {
 	/** @var string Menu slug shared with the premium network page so the add-on can take over. */
@@ -56,8 +56,8 @@ class Network_Teaser_Page extends Service {
 	 * Filter callback that marks the Network Admin teaser page as a
 	 * Simple History page so the main stylesheet gets enqueued.
 	 *
-	 * @param bool                $is_on_our_own_pages Current value.
-	 * @param \WP_Screen|null     $current_screen      Current screen (unused here — detection is slug-based).
+	 * @param bool            $is_on_our_own_pages Current value.
+	 * @param \WP_Screen|null $current_screen      Current screen (unused here — detection is slug-based).
 	 * @return bool
 	 */
 	public function mark_teaser_as_our_own_page( $is_on_our_own_pages, $current_screen = null ) {
@@ -95,7 +95,11 @@ class Network_Teaser_Page extends Service {
 	 */
 	public function render_page() {
 		$upgrade_url = 'https://simple-history.com/premium/?utm_source=wpadmin&utm_medium=network-teaser&utm_campaign=network-log';
-		$license_url = network_admin_url( 'settings.php#simple-history-license' );
+		// The teaser only renders when the Premium plugin is NOT active, so
+		// an in-admin "#simple-history-license" anchor doesn't exist yet.
+		// Point users who have already purchased at the plugin-upload screen
+		// so they can upload the downloaded Premium zip.
+		$install_url = network_admin_url( 'plugin-install.php?tab=upload' );
 		$price_label = _x( '$79/year', 'Network Admin teaser price label', 'simple-history' );
 		?>
 		<div class="SimpleHistoryWrap sh-NetworkTeaser-wrap">
@@ -154,8 +158,8 @@ class Network_Teaser_Page extends Service {
 						?>
 					</a>
 
-					<a href="<?php echo esc_url( $license_url ); ?>" class="sh-NetworkTeaser-secondaryLink">
-						<?php echo esc_html_x( 'Already have Premium? Activate your license →', 'Network Admin teaser license link', 'simple-history' ); ?>
+					<a href="<?php echo esc_url( $install_url ); ?>" class="sh-NetworkTeaser-secondaryLink">
+						<?php echo esc_html_x( 'Already purchased? Upload the Premium plugin →', 'Network Admin teaser install link', 'simple-history' ); ?>
 					</a>
 				</div>
 			</section>
@@ -201,36 +205,73 @@ class Network_Teaser_Page extends Service {
 				</li>
 			</ul>
 
-			<section class="sh-NetworkTeaser-preview" aria-label="<?php esc_attr_e( 'Sample events (illustrative)', 'simple-history' ); ?>">
+			<section class="sh-NetworkTeaser-preview" aria-label="<?php esc_attr_e( 'Preview of the Network Event Log', 'simple-history' ); ?>">
 				<p class="sh-NetworkTeaser-previewLabel">
-					<?php echo esc_html_x( 'What the Network Event Log looks like', 'Network Admin teaser preview heading', 'simple-history' ); ?>
+					<?php echo esc_html_x( 'Preview: Network Event Log in Premium', 'Network Admin teaser preview heading', 'simple-history' ); ?>
 				</p>
 
-				<ul class="sh-NetworkTeaser-previewRows">
-					<?php
-					// `example.com` hostnames aren't translated — they're
-					// placeholder URLs, not prose, and shouldn't churn PO files
-					// across locales.
-					$sample_rows = [
-						[ 'A', __( 'Anna added Ben as Super Admin', 'simple-history' ), __( '2 min ago', 'simple-history' ), 'network.example.com' ],
-						[ 'J', __( 'Plugin "WooCommerce" network-activated', 'simple-history' ), __( '1 hour ago', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
-						[ 'M', __( 'Site "shop.example.com" created', 'simple-history' ), __( 'Yesterday', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
-						[ 'A', __( 'Network setting "Registration" changed', 'simple-history' ), __( '3 days ago', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
-					];
-					foreach ( $sample_rows as $row ) {
-						[ $initial, $message, $when, $where ] = $row;
-						?>
-						<li class="sh-NetworkTeaser-previewRow">
-							<span class="sh-NetworkTeaser-previewAvatar" aria-hidden="true"><?php echo esc_html( $initial ); ?></span>
-							<span class="sh-NetworkTeaser-previewMessage"><?php echo esc_html( $message ); ?></span>
-							<span class="sh-NetworkTeaser-previewMeta">
-								<?php echo esc_html( $when ); ?>
-								<span class="sh-NetworkTeaser-previewSep" aria-hidden="true">·</span>
-								<?php echo esc_html( $where ); ?>
-							</span>
-						</li>
-					<?php } ?>
-				</ul>
+				<?php
+				/*
+				 * Preview is rendered as a stylized browser window using CSS
+				 * rather than a PNG so it stays sharp at any zoom level and
+				 * adapts to admin color schemes. When we have a real Premium
+				 * screenshot captured against a populated network, this block
+				 * can be swapped for an <img> without touching the surrounding
+				 * layout — the .sh-NetworkTeaser-previewFrame container sits
+				 * where the <img> would go.
+				 */
+				?>
+				<div class="sh-NetworkTeaser-previewFrame">
+					<div class="sh-NetworkTeaser-previewChrome" aria-hidden="true">
+						<span class="sh-NetworkTeaser-previewDot sh-NetworkTeaser-previewDot--red"></span>
+						<span class="sh-NetworkTeaser-previewDot sh-NetworkTeaser-previewDot--yellow"></span>
+						<span class="sh-NetworkTeaser-previewDot sh-NetworkTeaser-previewDot--green"></span>
+						<span class="sh-NetworkTeaser-previewAddress"><?php echo esc_html( 'Network Admin › Simple History' ); ?></span>
+					</div>
+
+					<div class="sh-NetworkTeaser-previewBody">
+						<ul class="sh-NetworkTeaser-previewRows">
+							<?php
+							// `example.com` hostnames aren't translated — they're
+							// placeholder URLs, not prose, and shouldn't churn PO files
+							// across locales.
+							$sample_rows = [
+								[ 'A', '#0073aa', __( 'Anna Johnson', 'simple-history' ), __( 'added Ben Okafor as Super Admin', 'simple-history' ), __( '2 minutes ago', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
+								[ 'J', '#00a32a', __( 'Jamie Park', 'simple-history' ), __( 'network-activated plugin "WooCommerce"', 'simple-history' ), __( '1 hour ago', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
+								[
+									'M',
+									'#d63638',
+									__( 'Marco Silva', 'simple-history' ),
+									sprintf(
+										/* translators: %s: placeholder hostname of the newly-created site. */
+										__( 'created site "%s"', 'simple-history' ),
+										'shop.example.com'
+									),
+									__( 'Yesterday at 14:02', 'simple-history' ),
+									__( 'Network Admin', 'simple-history' ),
+								],
+								[ 'A', '#0073aa', __( 'Anna Johnson', 'simple-history' ), __( 'changed network setting "Registration" from "Logged in users may register new sites" to "Disabled"', 'simple-history' ), __( '3 days ago', 'simple-history' ), __( 'Network Admin', 'simple-history' ) ],
+							];
+							foreach ( $sample_rows as $row ) {
+								[ $initial, $color, $user, $action, $when, $where ] = $row;
+								?>
+								<li class="sh-NetworkTeaser-previewRow">
+									<span class="sh-NetworkTeaser-previewAvatar" aria-hidden="true" style="background: <?php echo esc_attr( $color ); ?>;"><?php echo esc_html( $initial ); ?></span>
+									<span class="sh-NetworkTeaser-previewText">
+										<span class="sh-NetworkTeaser-previewMessage">
+											<strong class="sh-NetworkTeaser-previewUser"><?php echo esc_html( $user ); ?></strong> <?php echo esc_html( $action ); ?>
+										</span>
+										<span class="sh-NetworkTeaser-previewMeta">
+											<?php echo esc_html( $when ); ?>
+											<span class="sh-NetworkTeaser-previewSep" aria-hidden="true">·</span>
+											<?php echo esc_html( $where ); ?>
+										</span>
+									</span>
+								</li>
+								<?php } ?>
+						</ul>
+					</div>
+				</div>
 			</section>
 
 			<p class="sh-NetworkTeaser-trust">

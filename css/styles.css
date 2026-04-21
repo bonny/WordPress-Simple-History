@@ -5090,15 +5090,13 @@ Styles for plugin update details. Markup looks like this:
 	font-size: 12px;
 }
 
-/* Sample events preview. Dashed border is the universal "illustrative"
-   signal — no tooltip, no disclaimer needed. */
+/* Preview section — stylized as a small browser window so it reads as
+   an actual product screenshot rather than a vague sample list. Swap
+   the .sh-NetworkTeaser-previewFrame internals for an <img> when a
+   real Premium screenshot is available. */
 
 .sh-NetworkTeaser-preview {
 	margin: 0 0 var(--sh-spacing-xlarge);
-	padding: var(--sh-spacing-large) var(--sh-spacing-large)
-		var(--sh-spacing-medium);
-	border: 2px dashed var(--sh-color-gray);
-	border-radius: var(--sh-border-radius);
 }
 
 .sh-NetworkTeaser-previewLabel {
@@ -5110,6 +5108,55 @@ Styles for plugin update details. Markup looks like this:
 	color: var(--sh-color-gray-3);
 }
 
+.sh-NetworkTeaser-previewFrame {
+	border: 1px solid var(--sh-color-gray);
+	border-radius: 8px;
+	overflow: hidden;
+	background: #fff;
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.04),
+		0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.sh-NetworkTeaser-previewChrome {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 12px;
+	background: linear-gradient(to bottom, #f4f4f5, #e9e9eb);
+	border-bottom: 1px solid var(--sh-color-gray);
+}
+
+.sh-NetworkTeaser-previewDot {
+	width: 11px;
+	height: 11px;
+	border-radius: 50%;
+	display: inline-block;
+}
+
+.sh-NetworkTeaser-previewDot--red {
+	background: #ff5f57;
+}
+
+.sh-NetworkTeaser-previewDot--yellow {
+	background: #febc2e;
+}
+
+.sh-NetworkTeaser-previewDot--green {
+	background: #28c840;
+}
+
+.sh-NetworkTeaser-previewAddress {
+	margin-left: 12px;
+	font-size: 11px;
+	color: #6b6b6e;
+	letter-spacing: 0.02em;
+}
+
+.sh-NetworkTeaser-previewBody {
+	padding: var(--sh-spacing-small) var(--sh-spacing-large);
+}
+
 .sh-NetworkTeaser-previewRows {
 	margin: 0;
 	padding: 0;
@@ -5118,7 +5165,7 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-NetworkTeaser-previewRow {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: var(--sh-spacing-medium);
 	padding: var(--sh-spacing-small) 0;
 	border-bottom: 1px solid var(--sh-color-gray-4);
@@ -5130,29 +5177,38 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-NetworkTeaser-previewAvatar {
 	flex: 0 0 auto;
-	width: 28px;
-	height: 28px;
+	width: 32px;
+	height: 32px;
 	border-radius: 50%;
-	background: var(--sh-color-gray);
 	color: #fff;
-	font-size: 12px;
+	font-size: 13px;
 	font-weight: 600;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 }
 
-.sh-NetworkTeaser-previewMessage {
+.sh-NetworkTeaser-previewText {
 	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.sh-NetworkTeaser-previewMessage {
 	font-size: 13px;
+	line-height: 1.45;
 	color: #1e1e1e;
 }
 
+.sh-NetworkTeaser-previewUser {
+	font-weight: 600;
+}
+
 .sh-NetworkTeaser-previewMeta {
-	flex: 0 0 auto;
 	font-size: 12px;
 	color: var(--sh-color-gray-3);
-	white-space: nowrap;
 }
 
 .sh-NetworkTeaser-previewSep {
@@ -5225,4 +5281,29 @@ Styles for plugin update details. Markup looks like this:
 	.sh-NetworkTeaser-heroActions {
 		align-items: stretch;
 	}
+}
+
+/* Network fallback badge on per-site log events. Shown when a network-level
+   action was logged to the per-site log because Simple History Premium is
+   not active. REST controller gates the flag on Premium being inactive, so
+   the badge disappears once Premium is installed. */
+
+.SimpleHistoryLogitem__networkFallback a {
+	display: inline-block;
+	padding: 1px 8px;
+	background: var(--sh-color-yellow);
+	color: #1a1a1a;
+	border-radius: 100px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	text-decoration: none;
+}
+
+.SimpleHistoryLogitem__networkFallback a:hover,
+.SimpleHistoryLogitem__networkFallback a:focus-visible {
+	background: #facc15;
+	color: #1a1a1a;
+	text-decoration: none;
 }

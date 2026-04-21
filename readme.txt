@@ -257,6 +257,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Plugin active/inactive status is now recorded when plugins are updated, shown in event details when the plugin was inactive at update time.
 -   Success confirmation and automatic log refresh after manually adding a log entry.
 -   Action links (Edit, View) for media attachment events, plugin update events ("View changelog"), and user profile events ("Edit user").
+-   Network Admin page on multisite that explains network event logging and links to the Premium upgrade. Appears alongside the core plugin's existing per-site log, doesn't affect anything that works today on sub-sites. (experimental)
+-   "History" item in the admin bar's Network Admin submenu, plus routing so the main "History" shortcut links to the network log when you're on Network Admin, user admin, or the My Sites screen. (experimental)
+-   `--network` flag on WP-CLI commands: `wp simple-history list`, `event list`, `event search`, `event get`, `event stick`, `event unstick`, `event is-sticky`, and `event list-sticky`. Requires Simple History Premium on a multisite network.
+-   Small "Network action" badge on per-site log events that were actually performed at the network level (e.g. network-activating a plugin from Network Admin). Links to information about the dedicated network log in Simple History Premium. Only appears on multisite when Premium isn't active — disappears automatically once Premium is installed.
 
 **Changed**
 
@@ -269,6 +273,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Retention upsell message showing "deleted in 0 days" when event deletion is imminent. Now shows "scheduled for deletion" instead.
 -   Sidebar tip that suggested clicking a user's avatar would filter the log — clicking actually opens a user details card, and the tip now reflects that.
+-   `wp simple-history event search` returning zero results when neither `--newer_than` nor `--older_than` was passed. The same underlying issue also affected the REST API's events endpoint when clients sent empty `date_from` / `date_to` query parameters — both paths now correctly ignore empty date filters instead of silently filtering every past event out.
+-   File edit logger not logging theme and plugin file edits in modern WordPress due to stricter file path sanitization.
 
 ### 5.26.0 (April 2026)
 
