@@ -25,6 +25,7 @@ import {
 import { generateAPIQueryParams, parseApiFetchError } from '../functions';
 import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
+import { EventsNetworkFallbackSummary } from './EventsNetworkFallbackSummary';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
@@ -785,6 +786,10 @@ function EventsGUI() {
 						/>
 					}
 				/>
+			) }
+
+			{ ! surroundingEventId && (
+				<EventsNetworkFallbackSummary events={ events } />
 			) }
 
 			<EventsList

@@ -2,17 +2,18 @@ import { __ } from '@wordpress/i18n';
 import { EventHeaderItem } from './EventHeaderItem';
 
 /**
- * Small explanatory note shown on events that were actually performed at
- * the network level (super admin actions on a multisite Network Admin
- * screen) but ended up in the per-site log because no dedicated network
- * log was available at log time.
+ * Discreet per-row marker on events that were actually performed at the
+ * network level (super-admin actions on a multisite Network Admin screen)
+ * but ended up in the per-site log because no dedicated network log was
+ * available.
  *
- * Helps users understand why a network-level action appears here, and
- * points them to where it would otherwise live. The REST controller
- * gates the `network_fallback` flag on Premium being inactive, so once
- * Premium is installed (and its network module is running) the note
- * disappears from all previously-flagged events — the dedicated log
- * takes over and the explanation is no longer useful.
+ * Rendered as muted metadata text matching the style of other header
+ * items (date, via, IP). The prominent call-to-action lives in the
+ * summary line above the events list — we don't want a CTA on every row.
+ *
+ * The REST controller gates the `network_fallback` flag on Premium
+ * being inactive, so once Premium is installed (and its network module
+ * is running) the marker disappears from all previously-flagged events.
  *
  * @param {Object} props
  * @param {Object} props.event
@@ -24,22 +25,16 @@ export function EventNetworkFallbackIndicator( props ) {
 		return null;
 	}
 
-	const upgradeUrl =
-		'https://simple-history.com/premium/?utm_source=wpadmin&utm_medium=event-badge&utm_campaign=network-fallback';
-
 	return (
 		<EventHeaderItem className="SimpleHistoryLogitem__networkFallback">
-			<a
-				href={ upgradeUrl }
-				target="_blank"
-				rel="noopener noreferrer"
+			<span
 				title={ __(
-					'This action happened at the network level. Simple History Premium has a dedicated network log where events like this would normally live.',
+					'This action happened at the network level.',
 					'simple-history'
 				) }
 			>
-				{ __( 'Network-level action →', 'simple-history' ) }
-			</a>
+				{ __( 'network-level', 'simple-history' ) }
+			</span>
 		</EventHeaderItem>
 	);
 }

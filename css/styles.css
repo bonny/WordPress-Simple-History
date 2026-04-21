@@ -5283,27 +5283,40 @@ Styles for plugin update details. Markup looks like this:
 	}
 }
 
-/* Network fallback badge on per-site log events. Shown when a network-level
-   action was logged to the per-site log because Simple History Premium is
-   not active. REST controller gates the flag on Premium being inactive, so
-   the badge disappears once Premium is installed. */
+/* Network fallback indicators — shown when a network-level action was
+   logged to the per-site log because Simple History Premium is not
+   active. REST controller gates the flag on Premium being inactive, so
+   both surfaces disappear once Premium is installed.
 
-.SimpleHistoryLogitem__networkFallback a {
-	display: inline-block;
-	padding: 1px 8px;
-	background: var(--sh-color-yellow);
-	color: #1a1a1a;
-	border-radius: 100px;
-	font-size: 11px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+   Per-row marker is rendered as muted metadata matching the rest of
+   the event header; the clickable explanation lives once at the top
+   of the events list via .sh-NetworkFallbackSummary below. */
+
+.SimpleHistoryLogitem__networkFallback span {
+	cursor: help;
+}
+
+/* One-line summary above the events list */
+
+.sh-NetworkFallbackSummary {
+	margin: 0 0 var(--sh-spacing-small);
+	padding: 6px 12px;
+	background: rgba(0, 0, 0, 0.02);
+	border-left: 3px solid var(--sh-color-gray);
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--sh-color-gray-3);
+}
+
+.sh-NetworkFallbackSummary-label {
+	color: #1e1e1e;
+}
+
+.sh-NetworkFallbackSummary-link {
 	text-decoration: none;
 }
 
-.SimpleHistoryLogitem__networkFallback a:hover,
-.SimpleHistoryLogitem__networkFallback a:focus-visible {
-	background: #facc15;
-	color: #1a1a1a;
-	text-decoration: none;
+.sh-NetworkFallbackSummary-link:hover,
+.sh-NetworkFallbackSummary-link:focus-visible {
+	text-decoration: underline;
 }
