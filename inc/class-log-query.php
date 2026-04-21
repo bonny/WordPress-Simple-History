@@ -1232,10 +1232,12 @@ class Log_Query {
 		}
 
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
+		// Empty strings are treated as "not set" — new DateTimeImmutable('') silently
+		// returns the current time, which would filter out every past event.
 		// Uses WordPress timezone for date parsing to ensure correct day boundaries.
-		if ( isset( $args['date_from'] ) && is_numeric( $args['date_from'] ) ) {
+		if ( isset( $args['date_from'] ) && $args['date_from'] !== '' && is_numeric( $args['date_from'] ) ) {
 			$args['date_from'] = (int) $args['date_from'];
-		} elseif ( isset( $args['date_from'] ) && is_string( $args['date_from'] ) ) {
+		} elseif ( isset( $args['date_from'] ) && $args['date_from'] !== '' && is_string( $args['date_from'] ) ) {
 			// If value is "2025-03-29" that means the beginning of the day on 2025-03-29 in WordPress timezone.
 			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_from'], 'Y-m-d' );
 			if ( $is_start_of_day_date_format ) {
@@ -1247,15 +1249,15 @@ class Log_Query {
 				$date              = new \DateTimeImmutable( $args['date_from'], wp_timezone() );
 				$args['date_from'] = $date->getTimestamp();
 			}
-		} elseif ( isset( $args['date_from'] ) ) {
+		} elseif ( isset( $args['date_from'] ) && $args['date_from'] !== '' ) {
 			throw new \InvalidArgumentException( 'Invalid date_from' );
 		}
 
 		// "date_to" must be timestamp or string. If string then convert to timestamp.
-		// Uses WordPress timezone for date parsing to ensure correct day boundaries.
-		if ( isset( $args['date_to'] ) && is_numeric( $args['date_to'] ) ) {
+		// See note above on date_from for why empty strings are skipped.
+		if ( isset( $args['date_to'] ) && $args['date_to'] !== '' && is_numeric( $args['date_to'] ) ) {
 			$args['date_to'] = (int) $args['date_to'];
-		} elseif ( isset( $args['date_to'] ) && is_string( $args['date_to'] ) ) {
+		} elseif ( isset( $args['date_to'] ) && $args['date_to'] !== '' && is_string( $args['date_to'] ) ) {
 			// If value is "2025-03-29" that means the end of the day on 2025-03-29 in WordPress timezone.
 			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_to'], 'Y-m-d' );
 			if ( $is_start_of_day_date_format ) {
@@ -1267,7 +1269,7 @@ class Log_Query {
 				$date            = new \DateTimeImmutable( $args['date_to'], wp_timezone() );
 				$args['date_to'] = $date->getTimestamp();
 			}
-		} elseif ( isset( $args['date_to'] ) ) {
+		} elseif ( isset( $args['date_to'] ) && $args['date_to'] !== '' ) {
 			throw new \InvalidArgumentException( 'Invalid date_to' );
 		}
 
