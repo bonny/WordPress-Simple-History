@@ -32,6 +32,15 @@ abstract class Logger {
 	public const NETWORK_FALLBACK_CONTEXT_KEY = '_network_fallback';
 
 	/**
+	 * Context key loggers can set to signal an event's semantic scope
+	 * ('network' or 'site') when they know it at logging time (e.g. a
+	 * plugin activation with $network_wide === true). When present, this
+	 * is a stronger signal than request-context heuristics (referer,
+	 * is_network_admin()) and takes precedence in should_use_network_tables().
+	 */
+	public const EVENT_SCOPE_CONTEXT_KEY = '_event_scope';
+
+	/**
 	 * Unique slug for the logger.
 	 *
 	 * The slug will be saved in DB and used to associate each log row with its logger.
@@ -166,24 +175,35 @@ abstract class Logger {
 	/**
 	 * Determine if the current log call should write to the network tables.
 	 *
-	 * Returns true when running on multisite AND either:
-	 * - the logger is flagged as a network logger via $is_network_logger;
-	 * - the current request is a Network Admin request;
-	 * - the current AJAX or REST request originates from a Network Admin screen
-	 *   (plugin/theme/core updates dispatch through admin-ajax.php where
-	 *   is_network_admin() returns false, so we fall back to the referer).
+	 * Signals, in order of precedence (strongest first):
+	 *   1. Per-event semantic hint — $context[EVENT_SCOPE_CONTEXT_KEY]
+	 *      set to 'network' by a logger that knows the event is network-
+	 *      scoped (e.g. Plugin_Logger for $network_wide activations).
+	 *      Deterministic; does not depend on request context.
+	 *   2. Class-level flag — $is_network_logger = true on loggers whose
+	 *      every event is network-scoped (e.g. Premium's Network_Logger).
+	 *   3. Request-context heuristics — is_network_admin(), or a
+	 *      manage_network-gated AJAX/REST request with a Referer that
+	 *      matches this site's network admin URL prefix.
 	 *
-	 * Routing only actually kicks in when a provider (e.g. the Premium
-	 * add-on) supplies the network table names via the
-	 * `simple_history/network_tables` filter — otherwise log() falls back
-	 * to the normal per-site tables.
+	 * Routing only actually takes effect when a provider (typically the
+	 * Premium add-on) has registered network tables via
+	 * Simple_History::set_network_tables(); otherwise log() falls back
+	 * to the per-site tables and tags the event with _network_fallback.
 	 *
 	 * @since 5.27.0
+	 * @param array $context Context the logger is about to write. Optional for
+	 *                       backwards compat with overrides; defaults to empty.
 	 * @return bool
 	 */
-	protected function should_use_network_tables() {
+	protected function should_use_network_tables( $context = array() ) {
 		if ( ! is_multisite() ) {
 			return false;
+		}
+
+		// 1. Per-event semantic hint wins over everything else.
+		if ( isset( $context[ self::EVENT_SCOPE_CONTEXT_KEY ] ) ) {
+			return $context[ self::EVENT_SCOPE_CONTEXT_KEY ] === 'network';
 		}
 
 		if ( $this->is_network_logger ) {
@@ -1439,7 +1459,7 @@ abstract class Logger {
 		$events_table   = $this->db_table;
 		$contexts_table = $this->db_table_contexts;
 
-		if ( $this->should_use_network_tables() ) {
+		if ( $this->should_use_network_tables( $context ) ) {
 			$network_tables = $this->simple_history->get_network_tables();
 
 			if ( $network_tables !== null ) {

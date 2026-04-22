@@ -139,7 +139,7 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 			// we're testing the post-gate plumbing, not the gate itself.
 			// Public (base is protected) so the test can exercise it via
 			// normal method dispatch without reflection gymnastics.
-			public function should_use_network_tables() {
+			public function should_use_network_tables( $context = array() ) {
 				return true;
 			}
 		};
@@ -155,6 +155,91 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse(
 			$reflect->invoke( $logger ),
 			'should_use_network_tables() must return false on a single-site install, regardless of other signals.'
+		);
+	}
+
+	public function test_semantic_scope_hint_routes_to_network_tables(): void {
+		global $wpdb;
+
+		// Register network tables + a logger that follows the normal
+		// should_use_network_tables() logic (no forced override). With
+		// only the EVENT_SCOPE_CONTEXT_KEY hint in $context, Logger::log()
+		// should route to the network tables.
+		$sh = Simple_History::get_instance();
+		$sh->set_network_tables( $this->alt_events_table, $this->alt_contexts_table );
+
+		$logger = new class( $sh ) extends Logger {
+			public $slug = 'SH_Test_ScopeHint';
+
+			public function get_info() {
+				return [
+					'name'        => 'Test scope-hint logger',
+					'description' => '',
+					'messages'    => [],
+				];
+			}
+
+			// Force the multisite gate open for this test. Normal request
+			// context detection otherwise bails before the hint is checked.
+			protected function should_use_network_tables( $context = array() ) {
+				if ( isset( $context[ self::EVENT_SCOPE_CONTEXT_KEY ] ) ) {
+					return $context[ self::EVENT_SCOPE_CONTEXT_KEY ] === 'network';
+				}
+				return false;
+			}
+		};
+
+		// Network-scoped event via the hint.
+		$logger->info(
+			'Scope-hint event',
+			[
+				Logger::EVENT_SCOPE_CONTEXT_KEY => 'network',
+				'marker'                        => 'hinted-network',
+			]
+		);
+
+		$alt_row = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$this->alt_events_table} WHERE message = %s",
+				'Scope-hint event'
+			)
+		);
+		$this->assertSame( '1', (string) $alt_row, 'Event tagged with _event_scope=network must land in the registered network events table.' );
+
+		// Same logger, no hint → stays on per-site tables.
+		$logger->info( 'No-hint event', [ 'marker' => 'unhinted' ] );
+
+		$default_events = $sh->get_events_table_name();
+		$default_row    = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$default_events} WHERE message = %s",
+				'No-hint event'
+			)
+		);
+		$this->assertSame( '1', (string) $default_row, 'Event without _event_scope must stay on the per-site tables.' );
+	}
+
+	public function test_event_scope_context_key_takes_precedence_on_multisite(): void {
+		// Verify the semantic-scope hint wins over request-context heuristics.
+		// Can't flip is_multisite() from within a single-site test bed, but we
+		// can confirm that without is_multisite() the hint is still ignored —
+		// the multisite gate remains the outer guard.
+		$this->assertFalse( is_multisite(), 'Single-site test bed.' );
+
+		$logger  = SimpleLogger();
+		$reflect = new ReflectionMethod( $logger, 'should_use_network_tables' );
+		$reflect->setAccessible( true );
+
+		$network_hint = [ Logger::EVENT_SCOPE_CONTEXT_KEY => 'network' ];
+		$site_hint    = [ Logger::EVENT_SCOPE_CONTEXT_KEY => 'site' ];
+
+		$this->assertFalse(
+			$reflect->invoke( $logger, $network_hint ),
+			'Multisite gate must block even a network-scope hint on a single-site install.'
+		);
+		$this->assertFalse(
+			$reflect->invoke( $logger, $site_hint ),
+			'Site-scope hint should obviously also return false on single-site.'
 		);
 	}
 

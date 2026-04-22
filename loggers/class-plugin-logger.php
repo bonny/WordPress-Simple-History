@@ -208,7 +208,7 @@ class Plugin_Logger extends Logger {
 		// Fires after a plugin is deactivated.
 		// If a plugin is silently deactivated (such as during an update),
 		// this hook does not fire.
-		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ), 10, 1 );
+		add_action( 'deactivated_plugin', array( $this, 'on_deactivated_plugin' ), 10, 2 );
 
 		// Fires after plugin install/update completes (but BEFORE health check for auto-updates).
 		// Logs: plugin_installed, plugin_updated, plugin_bulk_updated, etc.
@@ -1273,6 +1273,14 @@ class Plugin_Logger extends Logger {
 			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI']; // @phpstan-ignore-line offsetAccess.notFound
 		}
 
+		// Network-wide activations are semantically network-scoped — they
+		// affect every site in the network. Tag the event so Logger::log()
+		// can route it to the network tables deterministically, instead
+		// of falling back to Network-Admin-referer heuristics.
+		if ( $network_wide ) {
+			$context[ Logger::EVENT_SCOPE_CONTEXT_KEY ] = 'network';
+		}
+
 		$this->info_message( 'plugin_activated', $context );
 	}
 
@@ -1280,9 +1288,12 @@ class Plugin_Logger extends Logger {
 	 * Plugin is deactivated
 	 * plugin_name is like admin-menu-tree-page-view/index.php
 	 *
-	 * @param string $plugin_name Plugin name.
+	 * @param string $plugin_name         Plugin name.
+	 * @param bool   $network_deactivating Whether the plugin is being
+	 *                                    deactivated network-wide. Optional
+	 *                                    (legacy callers may not pass it).
 	 */
-	public function on_deactivated_plugin( $plugin_name ) {
+	public function on_deactivated_plugin( $plugin_name, $network_deactivating = false ) {
 
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_name, true, false );
 		$plugin_slug = dirname( $plugin_name );
@@ -1299,6 +1310,12 @@ class Plugin_Logger extends Logger {
 
 		if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
 			$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI']; // @phpstan-ignore-line offsetAccess.notFound
+		}
+
+		// Mirror the activation side: a network-wide deactivation belongs
+		// on the network log.
+		if ( $network_deactivating ) {
+			$context[ Logger::EVENT_SCOPE_CONTEXT_KEY ] = 'network';
 		}
 
 		$this->info_message( 'plugin_deactivated', $context );
@@ -1344,7 +1361,7 @@ class Plugin_Logger extends Logger {
 		if ( ! empty( $context['plugin_github_url'] ) ) {
 			return [
 				[
-					'url'   => wp_nonce_url(
+					'url'    => wp_nonce_url(
 						admin_url(
 							sprintf(
 								'admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&repo=%1$s&TB_iframe=true&width=640&height=550',
