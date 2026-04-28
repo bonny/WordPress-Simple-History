@@ -259,6 +259,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Action links (Edit, View) for media attachment events, plugin update events ("View changelog"), and user profile events ("Edit user").
 -   `wp simple-history info` WP-CLI command — prints the installed version, premium add-on status, and a list of useful subcommands.
 -   AI agent attribution on event log rows: when an event is triggered by a request from an AI tool (Claude Code, ChatGPT, Perplexity, MCP clients, the Abilities API, etc.), a sparkle icon and a "by {agent}" marker appears on the log row alongside the existing initiator. The signed-in user remains the actual initiator — this is additional audit context, not an authentication signal. Detected from the Abilities API route, the RFC 9421 `Signature-Agent` header, MCP client headers, vendor-published user-agent identifiers, and WP-CLI environment hints.
+-   New "Copy as JSON" menu item for each event, that copies the full event payload — including all context data — for scripting and debugging.
 
 **Changed**
 
@@ -266,7 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Navigational links in comment and plugin events (e.g. "Edit comment", "View plugin info") moved from event details to the action links bar for better discoverability.
 -   Tips in the sidebar and the dashboard widget now draw from a single curated list, so both surfaces stay in sync and show context-appropriate advice.
 -   Date filter dropdown reorganized: "All dates" moved to the top as the reset option, presets grouped under "Recent" (Today through Last 60 days, plus "Custom range…"), and specific months grouped under "By month" — easier to scan and matches how users think about date ranges.
--   "Copy detailed event message" action menu item renamed to "Copy as Markdown" with a richer Markdown layout (heading + properties table + structured details + context table) suitable for pasting into a ticket, Slack, or notes app. The Details section reflects what the event row shows (e.g. plugin description / version / author for plugin install events). New "Copy as JSON" menu item alongside it copies the full event payload — including all context data — for scripting and debugging.
+-   "Copy detailed event message" action menu item renamed to "Copy as Markdown" with a richer Markdown layout (heading + properties table + structured details + context table) suitable for pasting into a ticket, Slack, or notes app. The Details section reflects what the event row shows (e.g. plugin description / version / author for plugin install events).
 -   Stats page "Events overview" chart and sidebar "History Insights" daily activity chart switched from line charts to bar charts, with today highlighted in a contrasting accent color for at-a-glance recency.
 
 **Fixed**
