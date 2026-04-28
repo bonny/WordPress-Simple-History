@@ -15,6 +15,14 @@ class Translations_Logger extends Logger {
 	public $slug = 'SH_Translations_Logger';
 
 	/**
+	 * Translation files live in the shared filesystem (wp-content/languages);
+	 * any update affects every site on a multisite network.
+	 *
+	 * @var bool
+	 */
+	protected $is_network_logger = true;
+
+	/**
 	 * Return info about logger.
 	 *
 	 * @return array Array with plugin info.

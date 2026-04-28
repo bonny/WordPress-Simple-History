@@ -13,6 +13,14 @@ class File_Edits_Logger extends Logger {
 	public $slug = 'FileEditsLogger';
 
 	/**
+	 * Theme and plugin files are filesystem-shared across the whole network;
+	 * any edit is by definition network-scoped on multisite.
+	 *
+	 * @var bool
+	 */
+	protected $is_network_logger = true;
+
+	/**
 	 * Get array with information about this logger
 	 *
 	 * @return array<string, mixed>

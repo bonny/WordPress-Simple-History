@@ -15,6 +15,14 @@ class Core_Files_Logger extends Logger {
 	/** @var string Logger slug */
 	public $slug = 'CoreFilesLogger';
 
+	/**
+	 * Core file integrity checks run against the single WordPress install
+	 * shared by every site on a multisite network.
+	 *
+	 * @var bool
+	 */
+	protected $is_network_logger = true;
+
 	/** @var string Option name to store previous check results */
 	const OPTION_NAME_FILE_CHECK_RESULTS = 'simple_history_core_files_integrity_results';
 

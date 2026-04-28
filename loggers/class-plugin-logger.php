@@ -191,6 +191,26 @@ class Plugin_Logger extends Logger {
 	}
 
 	/**
+	 * Filesystem- and network-settings-level events: always network-scoped
+	 * on multisite. Activation / deactivation stay conditional and use the
+	 * _event_scope hint because they depend on $network_wide at call time.
+	 *
+	 * @var string[]
+	 */
+	protected $network_scoped_message_keys = [
+		'plugin_installed',
+		'plugin_installed_failed',
+		'plugin_updated',
+		'plugin_update_failed',
+		'plugin_update_rolled_back',
+		'plugin_deleted',
+		'plugin_bulk_updated',
+		'plugin_bulk_updated_failed',
+		'plugin_auto_updates_enabled',
+		'plugin_auto_updates_disabled',
+	];
+
+	/**
 	 * Plugin loaded.
 	 */
 	public function loaded() {

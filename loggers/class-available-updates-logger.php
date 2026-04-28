@@ -19,6 +19,14 @@ class Available_Updates_Logger extends Logger {
 	public $slug = 'AvailableUpdatesLogger';
 
 	/**
+	 * Every event this logger records — core/plugin/theme update availability —
+	 * concerns filesystem-shared resources that are network-scoped on multisite.
+	 *
+	 * @var bool
+	 */
+	protected $is_network_logger = true;
+
+	/**
 	 * Return logger info
 	 *
 	 * @return array

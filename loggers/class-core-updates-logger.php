@@ -10,6 +10,14 @@ class Core_Updates_Logger extends Logger {
 	public $slug = 'SimpleCoreUpdatesLogger';
 
 	/**
+	 * WordPress core is a single filesystem install shared by every site on a
+	 * multisite network; core updates are always network-scoped.
+	 *
+	 * @var bool
+	 */
+	protected $is_network_logger = true;
+
+	/**
 	 * Get array with information about this logger
 	 *
 	 * @return array

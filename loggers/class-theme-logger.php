@@ -108,6 +108,19 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
+	 * Filesystem-level theme events: always network-scoped on multisite.
+	 * Switch / customize / widget events are per-site and not listed.
+	 *
+	 * @var string[]
+	 */
+	protected $network_scoped_message_keys = [
+		'theme_installed',
+		'theme_deleted',
+		'theme_updated',
+		'theme_update_failed',
+	];
+
+	/**
 	 * Called when logger is loaded.
 	 */
 	public function loaded() {

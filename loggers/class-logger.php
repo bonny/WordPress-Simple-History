@@ -145,6 +145,18 @@ abstract class Logger {
 	protected $is_network_logger = false;
 
 	/**
+	 * Message keys whose events are always network-scoped on multisite,
+	 * even when the rest of this logger's events are per-site. Subclasses
+	 * populate this when some hooks mutate shared resources (filesystem,
+	 * network options) and others don't — e.g. Plugin_Logger treats
+	 * plugin_installed as network, plugin_activated as conditional.
+	 *
+	 * @since 5.27.0
+	 * @var string[]
+	 */
+	protected $network_scoped_message_keys = [];
+
+	/**
 	 * Flag to track if messages have been loaded for this logger.
 	 *
 	 * @var bool
@@ -180,9 +192,14 @@ abstract class Logger {
 	 *      set to 'network' by a logger that knows the event is network-
 	 *      scoped (e.g. Plugin_Logger for $network_wide activations).
 	 *      Deterministic; does not depend on request context.
-	 *   2. Class-level flag — $is_network_logger = true on loggers whose
-	 *      every event is network-scoped (e.g. Premium's Network_Logger).
-	 *   3. Request-context heuristics — is_network_admin(), or a
+	 *   2. Message-key allowlist — $network_scoped_message_keys populated
+	 *      by loggers with mixed-scope events (e.g. Plugin_Logger treats
+	 *      plugin_installed as always-network but plugin_activated as
+	 *      conditional on $network_wide).
+	 *   3. Class-level flag — $is_network_logger = true on loggers whose
+	 *      every event is network-scoped (e.g. Available_Updates_Logger,
+	 *      Core_Updates_Logger, Premium's Network_Logger).
+	 *   4. Request-context heuristics — is_network_admin(), or a
 	 *      manage_network-gated AJAX/REST request with a Referer that
 	 *      matches this site's network admin URL prefix.
 	 *
@@ -204,6 +221,15 @@ abstract class Logger {
 		// 1. Per-event semantic hint wins over everything else.
 		if ( isset( $context[ self::EVENT_SCOPE_CONTEXT_KEY ] ) ) {
 			return $context[ self::EVENT_SCOPE_CONTEXT_KEY ] === 'network';
+		}
+
+		// 2. Message-key allowlist for mixed-scope loggers.
+		if ( $this->network_scoped_message_keys !== [] ) {
+			$message_key = $context['_message_key'] ?? null;
+
+			if ( $message_key !== null && in_array( $message_key, $this->network_scoped_message_keys, true ) ) {
+				return true;
+			}
 		}
 
 		if ( $this->is_network_logger ) {
