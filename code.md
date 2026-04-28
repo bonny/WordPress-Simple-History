@@ -35,6 +35,26 @@ npm run php:lint-fix
 npm run php:phpstan
 ```
 
+## Arrays: Short Syntax for New Code
+
+New PHP code must use the short array syntax (`[]`), not `array()`. Existing `array()` call sites can stay as-is — don't churn unrelated lines just to convert — but anything you add or rewrite should use `[]`.
+
+```php
+// Good: Short syntax for new code.
+protected $network_scoped_message_keys = [
+    'plugin_installed',
+    'plugin_deleted',
+];
+
+// Avoid in new code.
+protected $network_scoped_message_keys = array(
+    'plugin_installed',
+    'plugin_deleted',
+);
+```
+
+`phpcs.xml.dist` permits both, so the linter won't catch regressions — this rule is enforced by reviewers and agents.
+
 ## Whitespace: Let the Code Breathe
 
 Add blank lines before `if` statements, `return` statements, and between logical blocks. Code should "breathe" — don't pack statements tightly together.
