@@ -42,6 +42,21 @@ class Event_Details_Item_RAW_Formatter extends Event_Details_Item_Formatter {
 			}
 		}
 
+		// Fallback: when no json_output was provided but the item has html_output and a name,
+		// expose name + plain-text value so JSON/Markdown copies of the event aren't blank
+		// for items rendered via set_html_output() only (e.g. plugin description, author, URL).
+		if ( empty( $output ) && $this->item && ! empty( $this->html_output ) ) {
+			$plain_value = trim( wp_strip_all_tags( $this->html_output ) );
+
+			if ( $plain_value !== '' ) {
+				if ( ! empty( $this->item->name ) ) {
+					$output['name'] = $this->item->name;
+				}
+
+				$output['new_value'] = $plain_value;
+			}
+		}
+
 		return $output;
 	}
 

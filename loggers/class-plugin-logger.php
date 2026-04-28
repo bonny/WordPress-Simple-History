@@ -5,7 +5,6 @@ namespace Simple_History\Loggers;
 use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
-use Simple_History\Event_Details\Event_Details_Item_Table_Row_RAW_Formatter;
 use Simple_History\Helpers;
 use Simple_History\Log_Initiators;
 
@@ -1391,161 +1390,6 @@ class Plugin_Logger extends Logger {
 	}
 
 	/**
-	 * Get detailed output for plugin installation
-	 *
-	 * @param array $context Log context.
-	 * @return string HTML output.
-	 */
-	private function get_plugin_installed_details_output( $context ) {
-		$output = '';
-
-		if ( ! isset( $context['plugin_description'] ) ) {
-			return $output;
-		}
-
-		// Description includes a link to author, remove that, i.e. all text after and including <cite>.
-		$plugin_description = $context['plugin_description'];
-		$cite_pos           = strpos( $plugin_description, '<cite>' );
-		if ( $cite_pos ) {
-			$plugin_description = substr( $plugin_description, 0, $cite_pos );
-		}
-
-		// Keys to show.
-		$arr_plugin_keys = array(
-			'plugin_description'         => _x( 'Description', 'plugin logger - detailed output', 'simple-history' ),
-			'plugin_install_source'      => _x( 'Source', 'plugin logger - detailed output install source', 'simple-history' ),
-			'plugin_install_source_file' => _x( 'Source file name', 'plugin logger - detailed output install source', 'simple-history' ),
-			'plugin_version'             => _x( 'Version', 'plugin logger - detailed output version', 'simple-history' ),
-			'plugin_author'              => _x( 'Author', 'plugin logger - detailed output author', 'simple-history' ),
-			'plugin_url'                 => _x( 'URL', 'plugin logger - detailed output url', 'simple-history' ),
-		);
-
-		$arr_plugin_keys = apply_filters( 'simple_history/plugin_logger/row_details_plugin_info_keys', $arr_plugin_keys );
-
-		// Start output of plugin meta data table.
-		$output .= "<table class='SimpleHistoryLogitem__keyValueTable'>";
-
-		foreach ( $arr_plugin_keys as $key => $desc ) {
-			$desc_output = $this->get_plugin_key_description_output( $key, $context, $plugin_description );
-
-			if ( trim( $desc_output ) === '' ) {
-				continue;
-			}
-
-			$output .= sprintf(
-				'
-				<tr>
-					<td>%1$s</td>
-					<td>%2$s</td>
-				</tr>
-				',
-				esc_html( $desc ),
-				$desc_output
-			);
-		}
-
-		// Add link with more info about the plugin.
-		$output .= $this->get_plugin_info_link( $context );
-
-		$output .= '</table>';
-
-		return $output;
-	}
-
-	/**
-	 * Get description output for a specific plugin key
-	 *
-	 * @param string $key Plugin key.
-	 * @param array  $context Log context.
-	 * @param string $plugin_description Plugin description.
-	 * @return string Description output.
-	 */
-	private function get_plugin_key_description_output( $key, $context, $plugin_description ) {
-		switch ( $key ) {
-			case 'plugin_downloaded':
-				return esc_html( number_format_i18n( (int) $context[ $key ] ) );
-
-			case 'plugin_author':
-				// Author is already formatted.
-				return $context[ $key ];
-
-			case 'plugin_url':
-				return sprintf( '<a href="%1$s">%2$s</a>', esc_attr( $context['plugin_url'] ), esc_html( $context['plugin_url'] ) );
-
-			case 'plugin_description':
-				return $plugin_description;
-
-			case 'plugin_install_source':
-				if ( ! isset( $context[ $key ] ) ) {
-					return '';
-				}
-
-				if ( $context[ $key ] === 'web' ) {
-					return esc_html( __( 'WordPress Plugin Repository', 'simple-history' ) );
-				}
-
-				if ( $context[ $key ] === 'upload' ) {
-					return esc_html( __( 'Uploaded ZIP archive', 'simple-history' ) );
-				}
-
-				return esc_html( $context[ $key ] );
-
-			case 'plugin_install_source_file':
-				if ( ! isset( $context['plugin_upload_name'] ) || ! isset( $context['plugin_install_source'] ) ) {
-					return '';
-				}
-
-				if ( $context['plugin_install_source'] === 'upload' ) {
-					$plugin_upload_name = $context['plugin_upload_name'];
-					return esc_html( $plugin_upload_name );
-				}
-
-				return '';
-
-			default:
-				return esc_html( $context[ $key ] );
-		}
-	}
-
-	/**
-	 * Get plugin info link
-	 *
-	 * @param array $context Log context.
-	 * @return string HTML output.
-	 */
-	private function get_plugin_info_link( $context ) {
-		$output      = '';
-		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
-
-		// Slug + web as install source = show link to wordpress.org.
-		if ( $plugin_slug && isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] === 'web' ) {
-			$output .= sprintf(
-				'
-				<tr>
-					<td></td>
-					<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
-				</tr>
-				',
-				admin_url( "plugin-install.php?tab=plugin-information&amp;plugin={$plugin_slug}&amp;section=&amp;TB_iframe=true&amp;width=640&amp;height=550" ),
-				esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
-			);
-		} elseif ( isset( $context['plugin_install_source'] ) && $context['plugin_install_source'] === 'upload' && ! empty( $context['plugin_github_url'] ) ) {
-			$output .= sprintf(
-				'
-				<tr>
-					<td></td>
-					<td><a title="%2$s" class="thickbox" href="%1$s">%2$s</a></td>
-				</tr>
-				',
-				wp_nonce_url( admin_url( sprintf( 'admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&amp;repo=%1$s&amp;TB_iframe=true&amp;width=640&amp;height=550', esc_url_raw( $context['plugin_github_url'] ) ) ), 'simple-history-github-plugin-info' ),
-				esc_html_x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' )
-			);
-		}
-
-		return $output;
-	}
-
-	/**
 	 * Get Event_Details_Group for installed plugin details.
 	 *
 	 * @param array $context Log context.
@@ -1556,48 +1400,71 @@ class Plugin_Logger extends Logger {
 			return '';
 		}
 
-		// Description includes a link to author, remove that.
+		// Description includes a link to author after <cite>; strip it and any HTML.
 		$plugin_description = $context['plugin_description'];
 		$cite_pos           = strpos( $plugin_description, '<cite>' );
-		if ( $cite_pos ) {
+
+		if ( $cite_pos !== false ) {
 			$plugin_description = substr( $plugin_description, 0, $cite_pos );
 		}
 
-		// Keys to show — filterable for backward compatibility.
-		$arr_plugin_keys = array(
-			'plugin_description'         => _x( 'Description', 'plugin logger - detailed output', 'simple-history' ),
-			'plugin_install_source'      => _x( 'Source', 'plugin logger - detailed output install source', 'simple-history' ),
-			'plugin_install_source_file' => _x( 'Source file name', 'plugin logger - detailed output install source', 'simple-history' ),
-			'plugin_version'             => _x( 'Version', 'plugin logger - detailed output version', 'simple-history' ),
-			'plugin_author'              => _x( 'Author', 'plugin logger - detailed output author', 'simple-history' ),
-			'plugin_url'                 => _x( 'URL', 'plugin logger - detailed output url', 'simple-history' ),
+		$plugin_description = trim( wp_strip_all_tags( $plugin_description ) );
+
+		// Author header is often wrapped in <a href="...">Name</a> by WP — flatten to plain text.
+		$plugin_author = isset( $context['plugin_author'] )
+			? trim( wp_strip_all_tags( $context['plugin_author'] ) )
+			: '';
+
+		// Translate install source codes to readable labels.
+		$install_source       = $context['plugin_install_source'] ?? '';
+		$install_source_label = '';
+
+		if ( $install_source === 'web' ) {
+			$install_source_label = __( 'WordPress Plugin Repository', 'simple-history' );
+		} elseif ( $install_source === 'upload' ) {
+			$install_source_label = __( 'Uploaded ZIP archive', 'simple-history' );
+		} elseif ( $install_source !== '' ) {
+			$install_source_label = $install_source;
+		}
+
+		// Source filename only meaningful for uploaded archives.
+		$install_source_file = '';
+
+		if ( $install_source === 'upload' && ! empty( $context['plugin_upload_name'] ) ) {
+			$install_source_file = $context['plugin_upload_name'];
+		}
+
+		// Map of context-key => [ label, value ]. Empty values are skipped.
+		$rows = array(
+			'plugin_description'         => array( _x( 'Description', 'plugin logger - detailed output', 'simple-history' ), $plugin_description ),
+			'plugin_install_source'      => array( _x( 'Source', 'plugin logger - detailed output install source', 'simple-history' ), $install_source_label ),
+			'plugin_install_source_file' => array( _x( 'Source file name', 'plugin logger - detailed output install source', 'simple-history' ), $install_source_file ),
+			'plugin_version'             => array( _x( 'Version', 'plugin logger - detailed output version', 'simple-history' ), $context['plugin_version'] ?? '' ),
+			'plugin_author'              => array( _x( 'Author', 'plugin logger - detailed output author', 'simple-history' ), $plugin_author ),
+			'plugin_url'                 => array( _x( 'URL', 'plugin logger - detailed output url', 'simple-history' ), $context['plugin_url'] ?? '' ),
 		);
 
-		$arr_plugin_keys = apply_filters( 'simple_history/plugin_logger/row_details_plugin_info_keys', $arr_plugin_keys );
+		// Backward-compatible filter: receives map of context-key => label.
+		$arr_plugin_keys = apply_filters(
+			'simple_history/plugin_logger/row_details_plugin_info_keys',
+			wp_list_pluck( $rows, 0 )
+		);
 
 		$group = new Event_Details_Group();
 
-		$raw_keys = [ 'plugin_description', 'plugin_author', 'plugin_url' ];
+		foreach ( $arr_plugin_keys as $key => $label ) {
+			// Prefer our prepared value; fall back to raw context for keys added via filter.
+			$value = isset( $rows[ $key ][1] )
+				? $rows[ $key ][1]
+				: ( $context[ $key ] ?? '' );
 
-		foreach ( $arr_plugin_keys as $key => $desc ) {
-			$desc_output = $this->get_plugin_key_description_output( $key, $context, $plugin_description );
-
-			if ( trim( $desc_output ) === '' ) {
+			if ( trim( (string) $value ) === '' ) {
 				continue;
 			}
 
-			$item = new Event_Details_Item( null, $desc );
-
-			if ( in_array( $key, $raw_keys, true ) ) {
-				$item->set_formatter(
-					( new Event_Details_Item_Table_Row_RAW_Formatter() )
-						->set_html_output( $desc_output )
-				);
-			} else {
-				$item->set_new_value( $desc_output );
-			}
-
-			$group->add_item( $item );
+			$group->add_item(
+				( new Event_Details_Item( $key, $label ) )->set_new_value( $value )
+			);
 		}
 
 		return $group;
