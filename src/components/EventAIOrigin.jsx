@@ -25,6 +25,11 @@ const sparkleIcon = (
 	</svg>
 );
 
+const sparkleIconStyle = {
+	verticalAlign: 'text-bottom',
+	marginInlineEnd: '4px',
+};
+
 /**
  * Map of `detected_via` values to a sentence fragment that completes the
  * tooltip "Detected from the …" phrasing in plain language.
@@ -110,10 +115,7 @@ export function EventAIOrigin( props ) {
 					<Icon
 						icon={ sparkleIcon }
 						size={ 12 }
-						style={ {
-							verticalAlign: 'text-bottom',
-							marginInlineEnd: '4px',
-						} }
+						style={ sparkleIconStyle }
 					/>
 					{ accessibleLabel }
 				</span>

@@ -10,28 +10,25 @@ namespace Simple_History\Services;
  *
  * The actual initiator stays the real signed-in user — this is *additional*
  * audit context, not an authentication signal.
- *
- * Detection prefers signals that identify a *tool*: explicit headers, the
- * Abilities API route, opt-in WP-CLI env vars, and user-agent strings that
- * carry a recognisable tool identifier (e.g. `claude-code/1.2.3`). We
- * deliberately avoid heuristics on human-readable names like application
- * password labels, because flagging a user named "Claude" as an AI is bad.
  */
 class AI_Initiator_Detector extends Service {
-	/**
-	 * Cached detection result for the current request.
-	 *
-	 * @var array{agent_name: string, detected_via: string, application: string}|null|false
-	 */
-	private $detected = false;
+	/** Context key set on each event when AI attribution is detected. */
+	const CONTEXT_KEY_AGENT        = '_initiator_ai_agent';
+	const CONTEXT_KEY_DETECTED_VIA = '_initiator_ai_detected_via';
+	const CONTEXT_KEY_APPLICATION  = '_initiator_ai_application';
+
+	/** Canonical `detected_via` values exposed in REST and the React UI. */
+	const VIA_ABILITIES_API   = 'abilities-api';
+	const VIA_SIGNATURE_AGENT = 'signature-agent';
+	const VIA_HEADER          = 'header';
+	const VIA_USER_AGENT      = 'user-agent';
+	const VIA_WP_CLI_ENV      = 'wp-cli-env';
 
 	/**
 	 * Map of regex → friendly agent name. Each pattern targets a known tool
 	 * identifier in a user-agent string. Patterns are anchored to product
 	 * tokens (with a slash, hyphen-suffix, or an explicit tool keyword) so
 	 * incidental occurrences of the bare brand word do not match.
-	 *
-	 * Order matters: more specific patterns first.
 	 *
 	 * Verified against the public bot directories of Anthropic, OpenAI,
 	 * Perplexity, Meta, Google, ByteDance, Amazon, and the MCP reference
@@ -41,44 +38,66 @@ class AI_Initiator_Detector extends Service {
 	 */
 	const UA_PATTERNS = [
 		// Anthropic / Claude family.
-		'/claude-code\//i'           => 'Claude Code',
-		'/claude-user\//i'           => 'Claude',
-		'/claude-searchbot\//i'      => 'Claude (search)',
-		'/claudebot\//i'             => 'ClaudeBot',
-		'/\bclaude-web\b/i'          => 'Claude (web)',
-		'/\bAnthropic[\/\s-]/i'      => 'Anthropic',
+		'/claude-code\//i'          => 'Claude Code',
+		'/claude-user\//i'          => 'Claude',
+		'/claude-searchbot\//i'     => 'Claude (search)',
+		'/claudebot\//i'            => 'ClaudeBot',
+		'/\bclaude-web\b/i'         => 'Claude (web)',
+		'/\bAnthropic[\/\s-]/i'     => 'Anthropic',
 
 		// OpenAI / ChatGPT family.
-		'/chatgpt-user\//i'          => 'ChatGPT',
-		'/oai-searchbot\//i'         => 'OpenAI (search)',
-		'/\bGPTBot\b/i'              => 'GPTBot',
-		'/\bOpenAI[\/\s-]/i'         => 'OpenAI',
+		'/chatgpt-user\//i'         => 'ChatGPT',
+		'/oai-searchbot\//i'        => 'OpenAI (search)',
+		'/\bGPTBot\b/i'             => 'GPTBot',
+		'/\bOpenAI[\/\s-]/i'        => 'OpenAI',
 
 		// Perplexity. User-initiated agentic action vs background crawler are
 		// labelled differently so an auditor can tell at a glance whether
 		// their site was scraped or actively used by a human via Perplexity.
-		'/perplexity-user\//i'       => 'Perplexity AI',
-		'/perplexitybot\//i'         => 'PerplexityBot (crawler)',
+		'/perplexity-user\//i'      => 'Perplexity AI',
+		'/perplexitybot\//i'        => 'PerplexityBot (crawler)',
 
 		// Meta AI.
-		'/meta-externalagent\//i'    => 'Meta AI',
-		'/meta-externalfetcher\//i'  => 'Meta AI',
+		'/meta-externalagent\//i'   => 'Meta AI',
+		'/meta-externalfetcher\//i' => 'Meta AI',
 
 		// Google AI.
-		'/google-cloudvertexbot/i'   => 'Google Vertex AI',
-		'/\bGoogleOther\b/i'         => 'Google AI',
+		'/google-cloudvertexbot/i'  => 'Google Vertex AI',
+		'/\bGoogleOther\b/i'        => 'Google AI',
 
 		// Other vendor crawlers commonly used to feed AI products.
-		'/\bBytespider\b/i'          => 'Bytespider',
-		'/amazonbot\//i'             => 'Amazonbot',
+		'/\bBytespider\b/i'         => 'Bytespider',
+		'/amazonbot\//i'            => 'Amazonbot',
 
 		// Agentic IDE / harness tooling.
-		'/cursor-agent\//i'          => 'Cursor',
+		'/cursor-agent\//i'         => 'Cursor',
 
 		// MCP reference fetch server and clients that follow its convention.
-		'/modelcontextprotocol\//i'  => 'MCP client',
-		'/\bmcp[-\/]/i'              => 'MCP client',
+		'/modelcontextprotocol\//i' => 'MCP client',
+		'/\bmcp[-\/]/i'             => 'MCP client',
 	];
+
+	/**
+	 * Map of known Signature-Agent host values to friendly brand names.
+	 *
+	 * @var array<string, string>
+	 */
+	const SIGNATURE_AGENT_HOSTS = [
+		'chatgpt.com'   => 'ChatGPT',
+		'openai.com'    => 'OpenAI',
+		'claude.ai'     => 'Claude',
+		'anthropic.com' => 'Anthropic',
+	];
+
+	/** Whether detection has run for this request. */
+	private bool $has_detected = false;
+
+	/**
+	 * Cached detection result for the current request.
+	 *
+	 * @var array{agent_name: string, detected_via: string, application: string}|null
+	 */
+	private ?array $detected = null;
 
 	/**
 	 * Called when service is loaded.
@@ -101,11 +120,11 @@ class AI_Initiator_Detector extends Service {
 			return $context;
 		}
 
-		$context['_initiator_ai_agent']        = $origin['agent_name'];
-		$context['_initiator_ai_detected_via'] = $origin['detected_via'];
+		$context[ self::CONTEXT_KEY_AGENT ]        = $origin['agent_name'];
+		$context[ self::CONTEXT_KEY_DETECTED_VIA ] = $origin['detected_via'];
 
 		if ( '' !== $origin['application'] ) {
-			$context['_initiator_ai_application'] = $origin['application'];
+			$context[ self::CONTEXT_KEY_APPLICATION ] = $origin['application'];
 		}
 
 		return $context;
@@ -118,10 +137,9 @@ class AI_Initiator_Detector extends Service {
 	 * even though context attachment fires for every event.
 	 *
 	 * @return array{agent_name: string, detected_via: string, application: string}|null
-	 *   Origin info, or null if no AI signal was found.
 	 */
 	public function detect() {
-		if ( false !== $this->detected ) {
+		if ( $this->has_detected ) {
 			return $this->detected;
 		}
 
@@ -134,7 +152,8 @@ class AI_Initiator_Detector extends Service {
 		 *
 		 * @param array{agent_name: string, detected_via: string, application: string}|null $result Detection result.
 		 */
-		$this->detected = apply_filters( 'simple_history/ai_initiator_origin', $result );
+		$this->detected     = apply_filters( 'simple_history/ai_initiator_origin', $result );
+		$this->has_detected = true;
 
 		return $this->detected;
 	}
@@ -145,73 +164,81 @@ class AI_Initiator_Detector extends Service {
 	 * @return array{agent_name: string, detected_via: string, application: string}|null
 	 */
 	private function run_detection() {
-		$user_agent  = isset( $_SERVER['HTTP_USER_AGENT'] ) ? substr( (string) wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 0, 256 ) : '';
-		$application = substr( $user_agent, 0, 64 );
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? substr( (string) wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 0, 256 ) : '';
+		$ua_app     = substr( $user_agent, 0, 64 );
 
-		// 1. Abilities API route — deterministic.
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 
 		if ( false !== strpos( $request_uri, '/wp-json/wp-abilities/' ) || false !== strpos( $request_uri, 'rest_route=/wp-abilities/' ) ) {
 			return [
 				'agent_name'   => $this->match_ua_pattern( $user_agent ) ?? __( 'Abilities API client', 'simple-history' ),
-				'detected_via' => 'abilities-api',
-				'application'  => $application,
+				'detected_via' => self::VIA_ABILITIES_API,
+				'application'  => $ua_app,
 			];
 		}
 
-		// 2. RFC 9421 Signature-Agent header — emerging standard for
-		// signed AI-agent requests, already used by ChatGPT Agent and the
-		// Cloudflare Web Bot Auth ecosystem.
+		// RFC 9421 Signature-Agent header — emerging standard for signed
+		// AI-agent requests, used by ChatGPT Agent and the Cloudflare Web
+		// Bot Auth ecosystem.
 		$signature_agent = $this->get_header( 'Signature-Agent' );
 
 		if ( null !== $signature_agent ) {
 			return [
 				'agent_name'   => $this->normalize_signature_agent( $signature_agent ),
-				'detected_via' => 'signature-agent',
-				'application'  => $application,
+				'detected_via' => self::VIA_SIGNATURE_AGENT,
+				'application'  => '',
 			];
 		}
 
-		// 3. Explicit MCP / source-application headers.
 		$header_value = $this->get_header( 'X-MCP-Client' ) ?? $this->get_header( 'X-Source-Application' );
 
 		if ( null !== $header_value ) {
 			return [
 				'agent_name'   => substr( $header_value, 0, 64 ),
-				'detected_via' => 'header',
-				'application'  => $application,
+				'detected_via' => self::VIA_HEADER,
+				'application'  => $ua_app,
 			];
 		}
 
-		// 4. User-Agent — must match a known tool identifier (not a bare brand word).
 		$ua_match = $this->match_ua_pattern( $user_agent );
 
 		if ( null !== $ua_match ) {
 			return [
 				'agent_name'   => $ua_match,
-				'detected_via' => 'user-agent',
-				'application'  => $application,
+				'detected_via' => self::VIA_USER_AGENT,
+				'application'  => $ua_app,
 			];
 		}
 
-		// 5. WP-CLI environment hints.
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			if ( ! empty( getenv( 'CLAUDECODE' ) ) ) {
-				return [
-					'agent_name'   => 'Claude Code',
-					'detected_via' => 'wp-cli-env',
-					'application'  => 'wp-cli',
-				];
-			}
+		return $this->detect_from_wp_cli_env();
+	}
 
-			$cli_agent = getenv( 'WP_CLI_AI_AGENT' );
-			if ( ! empty( $cli_agent ) ) {
-				return [
-					'agent_name'   => substr( (string) $cli_agent, 0, 64 ),
-					'detected_via' => 'wp-cli-env',
-					'application'  => 'wp-cli',
-				];
-			}
+	/**
+	 * Detect AI tooling from WP-CLI environment variables.
+	 *
+	 * @return array{agent_name: string, detected_via: string, application: string}|null
+	 */
+	private function detect_from_wp_cli_env() {
+		if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+			return null;
+		}
+
+		if ( ! empty( getenv( 'CLAUDECODE' ) ) ) {
+			return [
+				'agent_name'   => 'Claude Code',
+				'detected_via' => self::VIA_WP_CLI_ENV,
+				'application'  => 'wp-cli',
+			];
+		}
+
+		$cli_agent = getenv( 'WP_CLI_AI_AGENT' );
+
+		if ( ! empty( $cli_agent ) ) {
+			return [
+				'agent_name'   => substr( (string) $cli_agent, 0, 64 ),
+				'detected_via' => self::VIA_WP_CLI_ENV,
+				'application'  => 'wp-cli',
+			];
 		}
 
 		return null;
@@ -234,18 +261,6 @@ class AI_Initiator_Detector extends Service {
 
 		return '' === $value ? null : $value;
 	}
-
-	/**
-	 * Map of known Signature-Agent host values to friendly brand names.
-	 *
-	 * @var array<string, string>
-	 */
-	const SIGNATURE_AGENT_HOSTS = [
-		'chatgpt.com'  => 'ChatGPT',
-		'openai.com'   => 'OpenAI',
-		'claude.ai'    => 'Claude',
-		'anthropic.com' => 'Anthropic',
-	];
 
 	/**
 	 * Normalize a Signature-Agent header value into a friendly agent name.

@@ -1228,11 +1228,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'ai_origin', $fields ) ) {
-			if ( isset( $context['_initiator_ai_agent'] ) ) {
+			$ai_agent_key = \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_AGENT;
+
+			if ( isset( $context[ $ai_agent_key ] ) ) {
 				$data['ai_origin'] = [
-					'agent_name'   => (string) $context['_initiator_ai_agent'],
-					'detected_via' => (string) ( $context['_initiator_ai_detected_via'] ?? '' ),
-					'application'  => (string) ( $context['_initiator_ai_application'] ?? '' ),
+					'agent_name'   => (string) $context[ $ai_agent_key ],
+					'detected_via' => (string) ( $context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA ] ?? '' ),
+					'application'  => (string) ( $context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ] ?? '' ),
 				];
 			} else {
 				$data['ai_origin'] = null;
