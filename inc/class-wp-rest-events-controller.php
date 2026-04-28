@@ -722,6 +722,21 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The context of the event.', 'simple-history' ),
 					'type'        => 'object',
 				),
+				'ai_origin'                  => array(
+					'description' => __( 'AI agent origin information when the event was triggered by an AI tool.', 'simple-history' ),
+					'type'        => array( 'object', 'null' ),
+					'properties'  => array(
+						'agent_name'   => array(
+							'type' => 'string',
+						),
+						'detected_via' => array(
+							'type' => 'string',
+						),
+						'application'  => array(
+							'type' => 'string',
+						),
+					),
+				),
 				'permalink'                  => array(
 					'description' => __( 'The permalink of the event.', 'simple-history' ),
 					'type'        => 'string',
@@ -1210,6 +1225,18 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			}
 
 			$data['reactions'] = $formatted;
+		}
+
+		if ( rest_is_field_included( 'ai_origin', $fields ) ) {
+			if ( isset( $context['_initiator_ai_agent'] ) ) {
+				$data['ai_origin'] = [
+					'agent_name'   => (string) $context['_initiator_ai_agent'],
+					'detected_via' => (string) ( $context['_initiator_ai_detected_via'] ?? '' ),
+					'application'  => (string) ( $context['_initiator_ai_application'] ?? '' ),
+				];
+			} else {
+				$data['ai_origin'] = null;
+			}
 		}
 
 		if ( rest_is_field_included( 'context', $fields ) ) {

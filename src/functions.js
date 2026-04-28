@@ -24,6 +24,7 @@ export const EVENT_FIELDS = [
 	'initiator_data',
 	'ip_addresses',
 	'via',
+	'ai_origin',
 	'permalink',
 	'sticky',
 	'sticky_appended',

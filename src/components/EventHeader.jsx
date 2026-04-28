@@ -2,6 +2,7 @@ import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
 import { EventIPAddresses } from './EventIPAddresses';
 import { EventVia } from './EventVia';
+import { EventAIOrigin } from './EventAIOrigin';
 import { EventBackfilledIndicator } from './EventBackfilledIndicator';
 
 /**
@@ -10,11 +11,7 @@ import { EventBackfilledIndicator } from './EventBackfilledIndicator';
  * @param {Object} props
  */
 export function EventHeader( props ) {
-	const {
-		event,
-		eventVariant,
-		isSurroundingEventsMode,
-	} = props;
+	const { event, eventVariant, isSurroundingEventsMode } = props;
 
 	return (
 		<div className="SimpleHistoryLogitem__header">
@@ -28,11 +25,9 @@ export function EventHeader( props ) {
 
 			<EventDate event={ event } eventVariant={ eventVariant } />
 
-			<EventIPAddresses
-				event={ event }
-				eventVariant={ eventVariant }
-			/>
+			<EventIPAddresses event={ event } eventVariant={ eventVariant } />
 
+			<EventAIOrigin event={ event } />
 			<EventVia event={ event } />
 			<EventBackfilledIndicator event={ event } />
 		</div>

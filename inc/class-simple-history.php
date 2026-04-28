@@ -146,6 +146,7 @@ class Simple_History {
 			Services\AddOns_Licences::class,
 			Services\Admin_Page_Premium_Promo::class,
 			Services\Admin_Pages::class,
+			Services\AI_Initiator_Detector::class,
 			Services\Alerts_Settings_Page_Teaser::class,
 			Services\Auto_Backfill_Service::class,
 			Services\Channels_Service::class,

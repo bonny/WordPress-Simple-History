@@ -60,6 +60,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Tips_Service',
 			'Failed_Login_Limit_Service',
 			'Status_Box_Service',
+			'AI_Initiator_Detector',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);
