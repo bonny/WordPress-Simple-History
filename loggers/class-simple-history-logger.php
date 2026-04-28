@@ -74,7 +74,7 @@ class Simple_History_Logger extends Logger {
 		add_action( 'load-options.php', [ $this, 'on_load_options_page' ] );
 		add_action( 'simple_history/rss_feed/secret_updated', [ $this, 'on_rss_feed_secret_updated' ] );
 		add_action( 'simple_history/settings/log_cleared', [ $this, 'on_log_cleared' ] );
-		add_action( 'simple_history/db/purge_done', [ $this, 'on_purge_done' ], 10, 2 );
+		add_action( 'simple_history/db/purge_done', [ $this, 'on_purge_done' ], 10, 3 );
 		add_action( 'simple_history/backfill/completed', [ $this, 'on_backfill_completed' ] );
 		add_action( 'simple_history/channel/auto_disabled', [ $this, 'on_channel_auto_disabled' ], 10, 2 );
 	}
@@ -82,23 +82,29 @@ class Simple_History_Logger extends Logger {
 	/**
 	 * Log when the purge is done.
 	 *
-	 * @param int $days Number of days to keep.
-	 * @param int $total_rows Total number of rows deleted across all batches.
+	 * @param int  $days       Number of days to keep.
+	 * @param int  $total_rows Total number of rows deleted across all batches.
+	 * @param bool $is_network True when the completed run targeted the network tables.
 	 * @return void
 	 */
-	public function on_purge_done( $days, $total_rows ) {
+	public function on_purge_done( $days, $total_rows, $is_network = false ) {
 		// Don't log if no events were purged.
 		if ( $total_rows === 0 ) {
 			return;
 		}
 
-		$this->info_message(
-			'purged_events',
-			[
-				'days'     => $days,
-				'num_rows' => $total_rows,
-			]
-		);
+		$context = [
+			'days'     => $days,
+			'num_rows' => $total_rows,
+		];
+
+		// Route the "X network events purged" message into the network log so
+		// it doesn't land in whichever per-site log happened to run the cron.
+		if ( $is_network ) {
+			$context[ self::EVENT_SCOPE_CONTEXT_KEY ] = 'network';
+		}
+
+		$this->info_message( 'purged_events', $context );
 	}
 
 	/**

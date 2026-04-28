@@ -8,6 +8,13 @@ use Simple_History\Helpers;
  * Setup a wp-cron job that daily checks if the database should be cleared.
  */
 class Setup_Purge_DB_Cron extends Service {
+	/**
+	 * Site-transient key used to dedupe the network purge across the
+	 * network. The transient lives for one day so a second cron tick
+	 * within the same window can't re-run the network purge.
+	 */
+	private const NETWORK_PURGE_LOCK_TRANSIENT = 'simple_history_network_purge_lock';
+
 	/** @inheritdoc */
 	public function loaded() {
 		add_action( 'after_setup_theme', array( $this, 'setup_cron' ) );
@@ -102,23 +109,60 @@ class Setup_Purge_DB_Cron extends Service {
 			return;
 		}
 
-		$table_name          = $this->simple_history->get_events_table_name();
-		$table_name_contexts = $this->simple_history->get_contexts_table_name();
+		$this->purge_table_pair(
+			$this->simple_history->get_events_table_name(),
+			$this->simple_history->get_contexts_table_name(),
+			$days,
+			false
+		);
 
+		// Also purge the network event tables when an add-on (Premium) has
+		// registered them. Without this, the shared network log grows
+		// unbounded — the per-site purge above only touches per-site tables.
+		// Run from the main site only, with a site-transient lock for a
+		// network-wide same-day dedupe.
+		$network_tables = $this->simple_history->get_network_tables();
+
+		if (
+			$network_tables !== null
+			&& is_multisite()
+			&& is_main_site()
+			&& get_site_transient( self::NETWORK_PURGE_LOCK_TRANSIENT ) === false
+		) {
+			set_site_transient( self::NETWORK_PURGE_LOCK_TRANSIENT, 1, DAY_IN_SECONDS );
+
+			$this->purge_table_pair(
+				$network_tables['events'],
+				$network_tables['contexts'],
+				$days,
+				true
+			);
+		}
+	}
+
+	/**
+	 * Run the batched purge against a single events/contexts table pair.
+	 *
+	 * @param string $events_table   Events table name.
+	 * @param string $contexts_table Contexts table name.
+	 * @param int    $days           Retention in days.
+	 * @param bool   $is_network     True when purging the shared network tables.
+	 */
+	private function purge_table_pair( $events_table, $contexts_table, $days, $is_network ) {
 		global $wpdb;
 
 		// Track total rows deleted across all batches.
 		$total_rows = 0;
 
 		// Build the WHERE clause for selecting events to purge.
-		$where = $this->get_purge_where_clause( $days, $table_name );
+		$where = $this->get_purge_where_clause( $days, $events_table );
 
 		// Process deletions in batches of 100,000 rows to avoid memory exhaustion,
 		// query timeouts, and long table locks. Loop continues until no old events remain.
 		while ( 1 > 0 ) {
 			// Get id of rows to delete.
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-			$sql = "SELECT id FROM {$table_name} WHERE {$where} LIMIT 100000";
+			$sql = "SELECT id FROM {$events_table} WHERE {$where} LIMIT 100000";
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$ids_to_delete = $wpdb->get_col( $sql );
@@ -131,8 +175,8 @@ class Setup_Purge_DB_Cron extends Service {
 			$sql_ids_in = implode( ',', $ids_to_delete );
 
 			// Remove rows + contexts.
-			$sql_delete_history         = "DELETE FROM {$table_name} WHERE id IN ($sql_ids_in)";
-			$sql_delete_history_context = "DELETE FROM {$table_name_contexts} WHERE history_id IN ($sql_ids_in)";
+			$sql_delete_history         = "DELETE FROM {$events_table} WHERE id IN ($sql_ids_in)";
+			$sql_delete_history_context = "DELETE FROM {$contexts_table} WHERE history_id IN ($sql_ids_in)";
 
 			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query( $sql_delete_history );
@@ -147,10 +191,11 @@ class Setup_Purge_DB_Cron extends Service {
 			 * Fires after a batch of events have been purged from the database.
 			 * Note: This fires for each batch of 100,000 rows.
 			 *
-			 * @param int $days Number of days to keep events.
-			 * @param int $num_rows_purged_in_batch Number of rows deleted in this batch.
+			 * @param int  $days                     Number of days to keep events.
+			 * @param int  $num_rows_purged_in_batch Number of rows deleted in this batch.
+			 * @param bool $is_network               True when the batch came from the network tables.
 			 */
-			do_action( 'simple_history/db/events_purged', $days, $num_rows_purged_in_batch );
+			do_action( 'simple_history/db/events_purged', $days, $num_rows_purged_in_batch, $is_network );
 
 			Helpers::clear_cache();
 		}
@@ -160,11 +205,12 @@ class Setup_Purge_DB_Cron extends Service {
 		 * This fires once when the entire purge operation is complete.
 		 * Total rows can be 0 if no events were purged.
 		 *
-		 * @param int $days Number of days to keep events.
-		 * @param int $total_rows Total number of rows deleted across all batches.
+		 * @param int  $days       Number of days to keep events.
+		 * @param int  $total_rows Total number of rows deleted across all batches.
+		 * @param bool $is_network True when the completed run targeted the network tables.
 		 * @since 5.21.0
 		 */
-		do_action( 'simple_history/db/purge_done', $days, $total_rows );
+		do_action( 'simple_history/db/purge_done', $days, $total_rows, $is_network );
 	}
 
 	/**
@@ -202,11 +248,16 @@ class Setup_Purge_DB_Cron extends Service {
 		 * IMPORTANT: You are responsible for returning valid SQL.
 		 * Always use $wpdb->prepare() for dynamic values.
 		 *
+		 * Note: on multisite with the network log enabled, this filter runs
+		 * twice — once for the per-site events table and once for the shared
+		 * network events table. Branch on $table_name if the customization
+		 * should only apply to one of them.
+		 *
 		 * @since 5.21.0
 		 *
 		 * @param string $where      SQL WHERE clause (without "WHERE" keyword).
 		 * @param int    $days       Default retention days from settings.
-		 * @param string $table_name Events table name (for reference).
+		 * @param string $table_name Events table name (per-site or network) the WHERE will run against.
 		 *
 		 * @example Keep SimpleOptionsLogger events forever (exclude from purge).
 		 *

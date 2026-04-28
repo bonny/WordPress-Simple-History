@@ -35,6 +35,7 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 	public function tearDown(): void {
 		remove_all_filters( 'simple_history/purge_db_where' );
 		remove_all_filters( 'simple_history/db_purge_days_interval' );
+		remove_all_filters( 'simple_history/log_argument/context' );
 		remove_all_actions( 'simple_history/db/purge_done' );
 		parent::tearDown();
 	}
@@ -380,5 +381,188 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertGreaterThanOrEqual( 1, Helpers::count_events( [ 'level' => 'info' ] ), 'Should have at least 1 info event' );
 		$this->assertGreaterThanOrEqual( 1, Helpers::count_events( [ 'level' => 'warning' ] ), 'Should have at least 1 warning event' );
 		$this->assertGreaterThanOrEqual( 1, Helpers::count_events( [ 'level' => 'error' ] ), 'Should have at least 1 error event' );
+	}
+
+	/**
+	 * When no provider has registered network tables, the network branch
+	 * must not fire — the purge_done action fires exactly once, with
+	 * $is_network === false.
+	 */
+	public function test_purge_done_fires_only_once_when_no_network_tables_registered() {
+		add_filter( 'simple_history/db_purge_days_interval', fn() => 30 );
+
+		$calls = [];
+
+		add_action(
+			'simple_history/db/purge_done',
+			function ( $days, $total_rows, $is_network ) use ( &$calls ) {
+				$calls[] = [ 'total' => $total_rows, 'is_network' => $is_network ];
+			},
+			10,
+			3
+		);
+
+		$this->add_event_days_ago( 'Old event', 60 );
+
+		$this->purge_service->purge_db();
+
+		$this->assertCount( 1, $calls, 'purge_done should fire once when no network tables are registered.' );
+		$this->assertFalse( $calls[0]['is_network'], 'is_network must be false for the per-site purge.' );
+	}
+
+	/**
+	 * Direct exercise of the private purge_table_pair() — the helper that
+	 * does the actual work for both per-site and network table pairs.
+	 *
+	 * The test bed is single-site, so the multisite/main-site gates inside
+	 * purge_db() can't be reached here. Reflection lets us verify the
+	 * shared SQL/action plumbing on an alternate table pair (mirroring
+	 * the schema the Premium network module would register) without
+	 * needing a multisite fixture.
+	 */
+	public function test_purge_table_pair_purges_alt_tables_and_passes_is_network_flag() {
+		global $wpdb;
+
+		$alt_events   = $wpdb->prefix . 'sh_test_purge_alt_events';
+		$alt_contexts = $wpdb->prefix . 'sh_test_purge_alt_contexts';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query(
+			"CREATE TABLE IF NOT EXISTS {$alt_events} (
+				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				date datetime NOT NULL,
+				logger varchar(30) DEFAULT NULL,
+				level varchar(20) DEFAULT NULL,
+				message varchar(255) DEFAULT NULL,
+				occasionsID varchar(32) DEFAULT NULL,
+				initiator varchar(16) DEFAULT NULL,
+				PRIMARY KEY  (id)
+			)"
+		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query(
+			"CREATE TABLE IF NOT EXISTS {$alt_contexts} (
+				context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				history_id bigint(20) unsigned NOT NULL,
+				`key` varchar(255) DEFAULT NULL,
+				value longtext,
+				PRIMARY KEY  (context_id),
+				KEY history_id (history_id)
+			)"
+		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$alt_events}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$alt_contexts}" );
+
+		$old_date = gmdate( 'Y-m-d H:i:s', strtotime( '-60 days' ) );
+		$new_date = gmdate( 'Y-m-d H:i:s', strtotime( '-5 days' ) );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->insert( $alt_events, [ 'date' => $old_date, 'logger' => 'SimpleLogger', 'level' => 'info', 'message' => 'old' ] );
+		$old_id = (int) $wpdb->insert_id;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->insert( $alt_contexts, [ 'history_id' => $old_id, 'key' => '_marker', 'value' => 'old-context' ] );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->insert( $alt_events, [ 'date' => $new_date, 'logger' => 'SimpleLogger', 'level' => 'info', 'message' => 'new' ] );
+		$new_id = (int) $wpdb->insert_id;
+
+		$captured = [];
+
+		add_action(
+			'simple_history/db/purge_done',
+			function ( $days, $total_rows, $is_network ) use ( &$captured ) {
+				$captured[] = [ 'days' => $days, 'total' => $total_rows, 'is_network' => $is_network ];
+			},
+			10,
+			3
+		);
+
+		$method = new ReflectionMethod( Setup_Purge_DB_Cron::class, 'purge_table_pair' );
+		$method->setAccessible( true );
+		$method->invoke( $this->purge_service, $alt_events, $alt_contexts, 30, true );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$remaining_event_ids = $wpdb->get_col( "SELECT id FROM {$alt_events}" );
+		$this->assertEquals( [ (string) $new_id ], $remaining_event_ids, 'Only the in-retention event should remain.' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$orphan_contexts = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$alt_contexts} WHERE history_id = {$old_id}" );
+		$this->assertSame( 0, $orphan_contexts, 'Context rows for the deleted event must be removed.' );
+
+		$this->assertCount( 1, $captured, 'purge_done must fire exactly once.' );
+		$this->assertSame( 1, $captured[0]['total'], 'Total deleted should match the single old event.' );
+		$this->assertTrue( $captured[0]['is_network'], 'is_network must be propagated through to the action.' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$alt_events}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$alt_contexts}" );
+	}
+
+	/**
+	 * The "X events purged" log entry written by Simple_History_Logger
+	 * must carry _event_scope=network when the completed run targeted
+	 * the network tables, so it routes into the network log instead of
+	 * landing on whichever per-site log happened to run the cron.
+	 */
+	public function test_on_purge_done_tags_log_entry_with_network_event_scope() {
+		$logger = $this->get_simple_history_logger();
+
+		$captured_context = null;
+
+		add_filter(
+			'simple_history/log_argument/context',
+			function ( $context, $level, $message ) use ( &$captured_context ) {
+				if ( ( $context['_message_key'] ?? null ) === 'purged_events' ) {
+					$captured_context = $context;
+				}
+
+				return $context;
+			},
+			10,
+			3
+		);
+
+		// Simulate the network purge completing.
+		$logger->on_purge_done( 30, 5, true );
+
+		$this->assertIsArray( $captured_context, 'A purged_events log entry must be written.' );
+		$this->assertArrayHasKey(
+			\Simple_History\Loggers\Logger::EVENT_SCOPE_CONTEXT_KEY,
+			$captured_context,
+			'Network purge log entry must carry the event-scope hint.'
+		);
+		$this->assertSame(
+			'network',
+			$captured_context[ \Simple_History\Loggers\Logger::EVENT_SCOPE_CONTEXT_KEY ],
+			'Event-scope hint must be set to "network" so routing sends the entry to the network log.'
+		);
+
+		// Per-site purge (is_network=false) must NOT add the network scope hint.
+		$captured_context = null;
+		$logger->on_purge_done( 30, 7, false );
+
+		$this->assertIsArray( $captured_context, 'A purged_events log entry must be written for the per-site case too.' );
+		$this->assertArrayNotHasKey(
+			\Simple_History\Loggers\Logger::EVENT_SCOPE_CONTEXT_KEY,
+			$captured_context,
+			'Per-site purge log entry must not carry the network scope hint.'
+		);
+	}
+
+	/**
+	 * Locate the Simple_History_Logger instance via the registered loggers.
+	 */
+	private function get_simple_history_logger(): \Simple_History\Loggers\Simple_History_Logger {
+		$loggers = $this->simple_history->get_instantiated_loggers();
+		foreach ( $loggers as $entry ) {
+			$instance = $entry['instance'] ?? null;
+			if ( $instance instanceof \Simple_History\Loggers\Simple_History_Logger ) {
+				return $instance;
+			}
+		}
+		$this->fail( 'Simple_History_Logger not registered.' );
 	}
 }
