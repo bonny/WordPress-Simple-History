@@ -257,6 +257,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Plugin active/inactive status is now recorded when plugins are updated, shown in event details when the plugin was inactive at update time.
 -   Success confirmation and automatic log refresh after manually adding a log entry.
 -   Action links (Edit, View) for media attachment events, plugin update events ("View changelog"), and user profile events ("Edit user").
+-   `wp simple-history info` WP-CLI command — prints the installed version, premium add-on status, and a list of useful subcommands.
 
 **Changed**
 
