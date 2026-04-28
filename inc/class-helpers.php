@@ -1444,10 +1444,22 @@ class Helpers {
 	 * @return bool
 	 */
 	public static function experimental_features_is_enabled() {
-		return (bool) apply_filters(
-			'simple_history/experimental_features_enabled',
-			get_option( 'simple_history_experimental_features_enabled', 0 )
-		);
+		// Request-scoped cache: this is called from per-event REST response
+		// shaping (paginated list responses → 25× per request) and from
+		// several admin-page boot paths. The underlying option is autoloaded
+		// and the filter shouldn't return different values within a single
+		// request, so a static cache trims a measurable amount of repeated
+		// lookups without changing semantics.
+		static $cached = null;
+
+		if ( $cached === null ) {
+			$cached = (bool) apply_filters(
+				'simple_history/experimental_features_enabled',
+				get_option( 'simple_history_experimental_features_enabled', 0 )
+			);
+		}
+
+		return $cached;
 	}
 
 	/**
