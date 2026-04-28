@@ -117,7 +117,7 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 		WP_CLI::log(
 			sprintf(
 				/* translators: %d: number of options deleted */
-				__( '%d options deleted.', 'simple-history' ),
+				_n( '%d option deleted.', '%d options deleted.', $deleted_count, 'simple-history' ),
 				$deleted_count
 			)
 		);

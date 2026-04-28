@@ -270,6 +270,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Retention upsell message showing "deleted in 0 days" when event deletion is imminent. Now shows "scheduled for deletion" instead.
 -   Sidebar tip that suggested clicking a user's avatar would filter the log — clicking actually opens a user details card, and the tip now reflects that.
+-   `wp simple-history dev reset` reported "1 options deleted" for the singular case; now uses proper plural handling via `_n()`.
 
 ### 5.26.0 (April 2026)
 
