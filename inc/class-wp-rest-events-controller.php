@@ -769,14 +769,17 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
-							'url'    => array(
+							'url'         => array(
 								'type'   => 'string',
 								'format' => 'uri',
 							),
-							'label'  => array(
+							'label'       => array(
 								'type' => 'string',
 							),
-							'action' => array(
+							'action'      => array(
+								'type' => 'string',
+							),
+							'description' => array(
 								'type' => 'string',
 							),
 						),

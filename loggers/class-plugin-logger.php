@@ -1334,6 +1334,45 @@ class Plugin_Logger extends Logger {
 	 * @param object $row Log row object.
 	 * @return array Array of action link arrays.
 	 */
+	/**
+	 * Failure-path events store the underlying error in context (error_code,
+	 * error_message, plus the raw upgrader package_result for rollbacks).
+	 * Surface a "Show error message" link so users can open the modal and
+	 * see what actually went wrong without hunting through the row dropdown.
+	 *
+	 * @param object $row Log row object.
+	 * @return string|false
+	 */
+	public function event_has_more_details( $row ) {
+		$context     = $row->context;
+		$message_key = $context['_message_key'] ?? '';
+
+		$failure_message_keys = array(
+			'plugin_installed_failed',
+			'plugin_update_failed',
+			'plugin_bulk_updated_failed',
+			'plugin_disabled_because_error',
+		);
+
+		if ( ! in_array( $message_key, $failure_message_keys, true ) ) {
+			return false;
+		}
+
+		// Only show the link when there's actually an error payload to read.
+		// Older failure events sometimes lack these keys, in which case the
+		// modal wouldn't reveal anything useful.
+		$has_error_payload = ! empty( $context['error_message'] )
+			|| ! empty( $context['error_code'] )
+			|| ! empty( $context['package_result_errors'] )
+			|| ! empty( $context['deactivation_reason'] );
+
+		if ( ! $has_error_payload ) {
+			return false;
+		}
+
+		return __( 'Show error message', 'simple-history' );
+	}
+
 	public function get_action_links( $row ) {
 		$context     = $row->context;
 		$message_key = $context['_message_key'] ?? '';

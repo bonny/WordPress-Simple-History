@@ -14,16 +14,21 @@ Icons represent **action type**, not destination. Use a small, consistent icon v
 
 ## Action Types
 
-Use only these four types. Do not invent new ones unless truly necessary.
+Use only these five types. Do not invent new ones unless truly necessary.
 
-| Action      | Icon             | When to use                             |
-| ----------- | ---------------- | --------------------------------------- |
-| `view`      | Eye (visibility) | Navigate to see/inspect something       |
-| `edit`      | Pencil           | Navigate to modify something            |
-| `preview`   | Preview          | View a draft or unpublished item        |
-| `revisions` | History clock    | Compare versions or view change history |
+| Action      | Icon             | When to use                                                                         |
+| ----------- | ---------------- | ----------------------------------------------------------------------------------- |
+| `view`      | Eye (visibility) | Navigate to see/inspect something                                                   |
+| `edit`      | Pencil           | Navigate to modify something                                                        |
+| `preview`   | Preview          | View a draft or unpublished item                                                    |
+| `revisions` | History clock    | Compare versions or view change history                                             |
+| `details`   | Info             | Open the event details modal (auto-appended via `Logger::event_has_more_details()`) |
 
-Most links are `view`. When in doubt, use `view`.
+Most links are `view`. When in doubt, use `view`. Don't return `details` from `get_action_links()` directly — opt in via `event_has_more_details()` instead so the modal-link wiring stays consistent.
+
+`event_has_more_details()` returns `string|false`: the label to render (e.g. `__( 'Show error message', ... )`), or `false` to skip. Pick a label that names the actual payload (`Show error message`, `Show all 47 roles`) rather than a generic `Show details` — the icon already signals "more info", the label should sell what's behind it.
+
+**Verify the payload exists before returning a label.** A logger opted into this should still inspect `$row->context` and return `false` when the relevant keys are missing — otherwise older events without the payload would lead users to a modal with nothing extra. Match on both the message key and the presence of the data.
 
 ## PHP: Adding Action Links to a Logger
 

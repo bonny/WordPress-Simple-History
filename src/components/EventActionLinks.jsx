@@ -3,6 +3,7 @@ const ACTION_ICONS = {
 	edit: 'sh-Icon--edit',
 	preview: 'sh-Icon--preview',
 	revisions: 'sh-Icon--history',
+	details: 'sh-Icon--details',
 };
 
 /**
@@ -24,6 +25,7 @@ export function EventActionLinks( { event } ) {
 				<a
 					key={ link.action }
 					href={ link.url }
+					title={ link.description || undefined }
 					className="SimpleHistoryLogitem__actionLinks__link"
 				>
 					{ ACTION_ICONS[ link.action ] && (

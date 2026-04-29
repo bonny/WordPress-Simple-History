@@ -963,6 +963,21 @@ class Simple_History {
 
 		$action_links = $logger->get_action_links( $row );
 
+		// Append a "Show details" link when the logger flags the event as
+		// having additional context worth inspecting in the modal. The
+		// logger returns the label so it can name the actual payload
+		// ("Show error message", etc.) rather than a generic phrase. The
+		// URL fragment is picked up by EventsModalIfFragment.jsx.
+		$more_details_label = $logger->event_has_more_details( $row );
+		if ( is_string( $more_details_label ) && $more_details_label !== '' ) {
+			$action_links[] = array(
+				'url'         => '#simple-history/event/' . (int) $row->id,
+				'label'       => $more_details_label,
+				'action'      => 'details',
+				'description' => __( 'Opens the event details with the full context.', 'simple-history' ),
+			);
+		}
+
 		/**
 		 * Filter the action links for a log row.
 		 *

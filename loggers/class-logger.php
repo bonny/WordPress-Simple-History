@@ -845,6 +845,24 @@ abstract class Logger {
 	}
 
 	/**
+	 * Opt a log row in to the auto-appended "Show details" action link.
+	 *
+	 * Return a translated label string to add a link that opens the event
+	 * details modal — pick a label that names the actual payload (e.g.
+	 * "Show error message", "Show all 47 roles") rather than the generic
+	 * default. Return false to skip the link.
+	 *
+	 * Use sparingly: only for events that carry context the inline row
+	 * doesn't already show (error messages, large lists, diagnostic dumps).
+	 *
+	 * @param object $row Log row object.
+	 * @return string|false Label to show, or false for no link.
+	 */
+	public function event_has_more_details( $row ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		return false;
+	}
+
+	/**
 	 * System is unusable.
 	 *
 	 * @param string $message Message to log.
