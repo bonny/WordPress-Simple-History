@@ -11,6 +11,7 @@ import { EventsSettingsProvider } from './EventsSettingsContext';
 import { addQueryArgs } from '@wordpress/url';
 import {
 	parseAsArrayOf,
+	parseAsBoolean,
 	parseAsInteger,
 	parseAsIsoDate,
 	parseAsJson,
@@ -256,6 +257,12 @@ function EventsGUI() {
 		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
 	);
 
+	// Show only events triggered via an AI agent.
+	const [ showAIOnly, setShowAIOnly ] = useQueryState(
+		'ai-only',
+		parseAsBoolean.withDefault( false ).withOptions( useQueryStateOptions )
+	);
+
 	// Negative/exclusion filters - hide events matching these criteria.
 	// Read-only from URL (no setters needed until Phase 2: GUI controls).
 	const [ excludeSearch ] = useQueryState(
@@ -374,6 +381,7 @@ function EventsGUI() {
 			enteredIPAddress.trim().length > 0 ||
 			selectedContextFilters.trim().length > 0 ||
 			enteredMetadataSearch.trim().length > 0 ||
+			showAIOnly ||
 			hideOwnEvents;
 
 		const hasSearchText = enteredSearchText.trim().length > 0;
@@ -391,6 +399,7 @@ function EventsGUI() {
 		enteredIPAddress,
 		selectedContextFilters,
 		enteredMetadataSearch,
+		showAIOnly,
 		hideOwnEvents,
 		enteredSearchText,
 		selectedDateOption,
@@ -409,6 +418,7 @@ function EventsGUI() {
 		setEnteredIPAddress( '' );
 		setSelectedContextFilters( '' );
 		setEnteredMetadataSearch( '' );
+		setShowAIOnly( false );
 		setHideOwnEvents( false );
 	}, [
 		setSelectedDateOption,
@@ -422,6 +432,7 @@ function EventsGUI() {
 		setEnteredIPAddress,
 		setSelectedContextFilters,
 		setEnteredMetadataSearch,
+		setShowAIOnly,
 		setHideOwnEvents,
 	] );
 
@@ -436,6 +447,7 @@ function EventsGUI() {
 			enteredIPAddress,
 			selectedContextFilters,
 			enteredMetadataSearch,
+			showAIOnly,
 			enteredSearchText,
 			selectedDateOption,
 			selectedCustomDateFrom,
@@ -462,6 +474,7 @@ function EventsGUI() {
 		enteredIPAddress,
 		selectedContextFilters,
 		enteredMetadataSearch,
+		showAIOnly,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		page,
@@ -489,6 +502,7 @@ function EventsGUI() {
 		enteredIPAddress,
 		selectedContextFilters,
 		enteredMetadataSearch,
+		showAIOnly,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		excludeUsers,
@@ -734,6 +748,8 @@ function EventsGUI() {
 					setSelectedContextFilters={ setSelectedContextFilters }
 					enteredMetadataSearch={ enteredMetadataSearch }
 					setEnteredMetadataSearch={ setEnteredMetadataSearch }
+					showAIOnly={ showAIOnly }
+					setShowAIOnly={ setShowAIOnly }
 					searchOptionsLoaded={ searchOptionsLoaded }
 					setSearchOptionsLoaded={ setSearchOptionsLoaded }
 					setPagerSize={ setPagerSize }

@@ -546,6 +546,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'sanitize_callback' => 'sanitize_text_field',
 		);
 
+		$query_params['ai_only'] = array(
+			'description' => __( 'Limit result set to events triggered via an AI agent (Claude Code, ChatGPT, MCP clients, etc.).', 'simple-history' ),
+			'type'        => 'boolean',
+			'default'     => false,
+		);
+
 		$query_params['ungrouped'] = array(
 			'description' => __( 'Return ungrouped events without occasions grouping.', 'simple-history' ),
 			'type'        => 'boolean',
@@ -860,6 +866,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
 			'metadata_search'         => 'metadata_search',
+			'ai_only'                 => 'ai_only',
 			'ungrouped'               => 'ungrouped',
 			'skip_count_query'        => 'skip_count_query',
 		);
@@ -951,6 +958,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
 			'metadata_search'         => 'metadata_search',
+			'ai_only'                 => 'ai_only',
 			'ungrouped'               => 'ungrouped',
 			'skip_count_query'        => 'skip_count_query',
 			// Surrounding events parameters.

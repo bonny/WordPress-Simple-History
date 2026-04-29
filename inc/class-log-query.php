@@ -1094,6 +1094,10 @@ class Log_Query {
 				// Metadata search: plain text search across all context values.
 				'metadata_search'   => null,
 
+				// When true, only return events that have an AI agent attribution
+				// (any value of the `_initiator_ai_agent` context key).
+				'ai_only'           => false,
+
 				// Return ungrouped events without occasions grouping.
 				'ungrouped'         => false,
 
@@ -2037,6 +2041,15 @@ class Log_Query {
 					$context_value
 				);
 			}
+		}
+
+		// Show only events that carry an AI agent attribution.
+		if ( ! empty( $args['ai_only'] ) ) {
+			$inner_where[] = $wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.`key` = %s )",
+				\Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_AGENT
+			);
 		}
 
 		// Metadata search: plain text search across all context values.

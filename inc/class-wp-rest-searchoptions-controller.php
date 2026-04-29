@@ -3,6 +3,7 @@
 namespace Simple_History;
 
 use Simple_History\Services\AddOns_Licences;
+use Simple_History\Services\AI_Initiator_Detector;
 use Simple_History\Services\Failed_Login_Limit_Service;
 use WP_Error;
 use WP_REST_Controller;
@@ -168,6 +169,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 			'dates'                           => Helpers::get_data_for_date_filter(),
 			'loggers'                         => $this->get_loggers_and_messages(),
 			'initiators'                      => $this->get_initiator_options(),
+			'has_ai_events'                   => $this->has_ai_events(),
 			'pager_size'                      => [
 				'page'      => (int) Helpers::get_pager_size(),
 				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
@@ -298,6 +300,32 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 		}
 
 		return $options;
+	}
+
+	/**
+	 * Whether the log contains any events with AI agent attribution.
+	 *
+	 * The frontend uses this to decide whether to render the
+	 * "Show only AI-initiated events" checkbox — no point offering it on
+	 * sites that have never seen an AI tool.
+	 *
+	 * @return bool
+	 */
+	protected function has_ai_events() {
+		global $wpdb;
+
+		$contexts_table = $this->simple_history->get_contexts_table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$row = $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT 1 FROM {$contexts_table} WHERE `key` = %s LIMIT 1",
+				AI_Initiator_Detector::CONTEXT_KEY_AGENT
+			)
+		);
+
+		return ! empty( $row );
 	}
 
 	/**

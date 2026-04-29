@@ -258,7 +258,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Success confirmation and automatic log refresh after manually adding a log entry.
 -   Action links (Edit, View) for media attachment events, plugin update events ("View changelog"), and user profile events ("Edit user").
 -   `wp simple-history info` WP-CLI command — prints the installed version, premium add-on status, and a list of useful subcommands.
--   AI agent attribution on event log rows: when an event is triggered by a request from an AI tool (Claude Code, ChatGPT, Perplexity, MCP clients, the Abilities API, etc.), a sparkle icon and a "by {agent}" marker appears on the log row alongside the existing initiator. The signed-in user remains the actual initiator — this is additional audit context, not an authentication signal. Detected from the Abilities API route, the RFC 9421 `Signature-Agent` header, MCP client headers, vendor-published user-agent identifiers, and WP-CLI environment hints.
+-   AI agent attribution on event log rows: when an event is triggered by a request from an AI tool (Claude Code, ChatGPT, Perplexity, MCP clients, the Abilities API, etc.), a sparkle icon and the agent name appear next to the user who initiated the event. The signed-in user remains the actual initiator — this is additional audit context, not an authentication signal. Detected from the Abilities API route, the RFC 9421 `Signature-Agent` header, MCP client headers, vendor-published user-agent identifiers, and WP-CLI environment hints.
+-   "AI-initiated events only" filter in the expanded filters panel — quickly narrow the log to actions triggered via AI tools. The filter only appears on sites that have at least one AI-attributed event, so it stays out of the way otherwise.
 -   New "Copy as JSON" menu item for each event, that copies the full event payload — including all context data — for scripting and debugging.
 
 **Changed**

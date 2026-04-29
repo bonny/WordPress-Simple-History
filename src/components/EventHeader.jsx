@@ -23,11 +23,12 @@ export function EventHeader( props ) {
 
 			<EventInitiatorName event={ event } eventVariant={ eventVariant } />
 
+			<EventAIOrigin event={ event } />
+
 			<EventDate event={ event } eventVariant={ eventVariant } />
 
 			<EventIPAddresses event={ event } eventVariant={ eventVariant } />
 
-			<EventAIOrigin event={ event } />
 			<EventVia event={ event } />
 			<EventBackfilledIndicator event={ event } />
 		</div>

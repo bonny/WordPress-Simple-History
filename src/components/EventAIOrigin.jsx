@@ -86,7 +86,7 @@ export function EventAIOrigin( props ) {
 
 	const accessibleLabel = sprintf(
 		/* translators: %s: AI agent name (e.g. "Claude Code"). */
-		__( 'by %s', 'simple-history' ),
+		__( 'AI agent: %s', 'simple-history' ),
 		aiOrigin.agent_name
 	);
 
@@ -117,7 +117,7 @@ export function EventAIOrigin( props ) {
 						size={ 12 }
 						style={ sparkleIconStyle }
 					/>
-					{ accessibleLabel }
+					{ aiOrigin.agent_name }
 				</span>
 			</Tooltip>
 		</EventHeaderItem>

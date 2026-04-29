@@ -7,6 +7,7 @@ use WP_CLI_Command;
 use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
 use Simple_History\Event;
+use Simple_History\Services\AI_Initiator_Detector;
 
 /**
  * Populate the log with test events for benchmarking and development.
@@ -373,6 +374,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		];
 
 		$context = $this->maybe_add_ip_address( $context );
+		$context = $this->maybe_add_ai_origin( $context );
 		$logger->info_message( $action, $context );
 	}
 
@@ -440,6 +442,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		}
 
 		$context = $this->maybe_add_ip_address( $context );
+		$context = $this->maybe_add_ai_origin( $context );
 		$logger->info_message( $action, $context );
 	}
 
@@ -520,6 +523,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		}
 
 		$context = $this->maybe_add_ip_address( $context );
+		$context = $this->maybe_add_ai_origin( $context );
 		$logger->info_message( $action, $context );
 	}
 
@@ -583,6 +587,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		];
 
 		$context = $this->maybe_add_ip_address( $context );
+		$context = $this->maybe_add_ai_origin( $context );
 		$logger->info_message( 'option_updated', $context );
 	}
 
@@ -644,6 +649,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 		$entry['context']['_initiator'] = $initiator;
 		$entry['context']               = $this->maybe_add_ip_address( $entry['context'] );
+		$entry['context']               = $this->maybe_add_ai_origin( $entry['context'] );
 
 		$logger->info( $entry['message'], $entry['context'] );
 	}
@@ -717,6 +723,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		];
 
 		$context = $this->maybe_add_ip_address( $context );
+		$context = $this->maybe_add_ai_origin( $context );
 		$logger->info( 'REST API response from {endpoint} (HTTP {status_code})', $context );
 	}
 
@@ -794,6 +801,50 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		if ( wp_rand( 1, 5 ) === 1 ) {
 			$proxy_ip                                  = $ip_addresses[ wp_rand( 0, count( $ip_addresses ) - 1 ) ];
 			$context['_server_http_x_forwarded_for_0'] = $proxy_ip;
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Maybe add AI initiator context to the event so the log shows the
+	 * sparkle + agent name marker on a sample of events.
+	 *
+	 * Mirrors {@see AI_Initiator_Detector::maybe_attach_context()} — same
+	 * context keys, same `detected_via` values, drawn from a pool that
+	 * covers the major agent families and detection paths.
+	 *
+	 * @param array $context Event context array.
+	 * @return array Modified context.
+	 */
+	private function maybe_add_ai_origin( $context ) {
+		// ~15% of events get AI origin attribution.
+		if ( wp_rand( 1, 100 ) > 15 ) {
+			return $context;
+		}
+
+		$samples = [
+			[ 'Claude Code',          AI_Initiator_Detector::VIA_USER_AGENT,      'claude-code/1.4.2' ],
+			[ 'ChatGPT',              AI_Initiator_Detector::VIA_SIGNATURE_AGENT, '' ],
+			[ 'ChatGPT',              AI_Initiator_Detector::VIA_USER_AGENT,      'ChatGPT-User/1.0' ],
+			[ 'Cursor',               AI_Initiator_Detector::VIA_USER_AGENT,      'cursor-agent/0.45.1' ],
+			[ 'Claude',               AI_Initiator_Detector::VIA_SIGNATURE_AGENT, '' ],
+			[ 'Perplexity AI',        AI_Initiator_Detector::VIA_USER_AGENT,      'Perplexity-User/1.0' ],
+			[ 'PerplexityBot (crawler)', AI_Initiator_Detector::VIA_USER_AGENT,   'PerplexityBot/1.0' ],
+			[ 'GPTBot',               AI_Initiator_Detector::VIA_USER_AGENT,      'GPTBot/1.2' ],
+			[ 'Meta AI',              AI_Initiator_Detector::VIA_USER_AGENT,      'meta-externalagent/1.1' ],
+			[ 'Claude Code',          AI_Initiator_Detector::VIA_WP_CLI_ENV,      'wp-cli' ],
+			[ 'MCP client',           AI_Initiator_Detector::VIA_HEADER,          'modelcontextprotocol/0.6.0' ],
+			[ 'Abilities API client', AI_Initiator_Detector::VIA_ABILITIES_API,   'WordPress/6.8' ],
+		];
+
+		$pick = $samples[ wp_rand( 0, count( $samples ) - 1 ) ];
+
+		$context[ AI_Initiator_Detector::CONTEXT_KEY_AGENT ]        = $pick[0];
+		$context[ AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA ] = $pick[1];
+
+		if ( '' !== $pick[2] ) {
+			$context[ AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ] = $pick[2];
 		}
 
 		return $context;
@@ -1005,6 +1056,66 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			);
 			++$events_created;
 			WP_CLI::log( 'Created: plugin deactivated (Hello Dolly)' );
+		}
+
+		// 11. Post created via Claude Code (AI agent attribution).
+		if ( $post_logger ) {
+			$post_logger->info_message(
+				'post_created',
+				[
+					'_initiator'                                      => Log_Initiators::WP_USER,
+					'post_id'                                         => wp_rand( 100, 9999 ),
+					'post_type'                                       => 'post',
+					'post_title'                                      => 'Draft generated via Claude Code',
+					'post_new_status'                                 => 'draft',
+					'post_prev_status'                                => 'auto-draft',
+					AI_Initiator_Detector::CONTEXT_KEY_AGENT          => 'Claude Code',
+					AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA   => AI_Initiator_Detector::VIA_USER_AGENT,
+					AI_Initiator_Detector::CONTEXT_KEY_APPLICATION    => 'claude-code/1.4.2',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: post created via Claude Code' );
+		}
+
+		// 12. Post updated via ChatGPT (Signature-Agent header).
+		if ( $post_logger ) {
+			$post_logger->info_message(
+				'post_updated',
+				[
+					'_initiator'                                    => Log_Initiators::WP_USER,
+					'post_id'                                       => 2,
+					'post_type'                                     => 'page',
+					'post_title'                                    => 'Pricing',
+					'post_prev_post_title'                          => 'Pricing',
+					'post_new_post_title'                           => 'Pricing',
+					'post_prev_status'                              => 'publish',
+					'post_new_status'                               => 'publish',
+					AI_Initiator_Detector::CONTEXT_KEY_AGENT        => 'ChatGPT',
+					AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA => AI_Initiator_Detector::VIA_SIGNATURE_AGENT,
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: page updated via ChatGPT' );
+		}
+
+		// 13. Plugin activated via Cursor.
+		if ( $plugin_logger ) {
+			$plugin_logger->info_message(
+				'plugin_activated',
+				[
+					'_initiator'                                      => Log_Initiators::WP_USER,
+					'plugin_name'                                     => 'Query Monitor',
+					'plugin_slug'                                     => 'query-monitor',
+					'plugin_version'                                  => '3.16.4',
+					'plugin_author'                                   => 'John Blackbourn',
+					AI_Initiator_Detector::CONTEXT_KEY_AGENT          => 'Cursor',
+					AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA   => AI_Initiator_Detector::VIA_USER_AGENT,
+					AI_Initiator_Detector::CONTEXT_KEY_APPLICATION    => 'cursor-agent/0.45.1',
+				]
+			);
+			++$events_created;
+			WP_CLI::log( 'Created: plugin activated via Cursor' );
 		}
 
 		// Add reactions to all showcase events.

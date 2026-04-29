@@ -36,10 +36,17 @@ export function ExpandedFilters( props ) {
 		setSelectedContextFilters,
 		enteredMetadataSearch,
 		setEnteredMetadataSearch,
+		showAIOnly,
+		setShowAIOnly,
 		searchOptions,
 		hideOwnEvents,
 		setHideOwnEvents,
 	} = props;
+
+	// Show the AI-only checkbox on sites that have at least one AI-attributed
+	// event (or already have the filter on — keep state visible when toggled).
+	const showAIOnlyCheckbox =
+		Boolean( searchOptions?.has_ai_events ) || showAIOnly;
 
 	// Array with objects that contains message types suggestions, used in the message types select control.
 	// Keys are "slug" for search and "value".
@@ -426,6 +433,38 @@ export function ExpandedFilters( props ) {
 					</div>
 				</FlexBlock>
 			</Flex>
+
+			{ showAIOnlyCheckbox && (
+				<Flex align="top" gap="0" style={ filterRowStyle }>
+					<FlexItem style={ labelMarginStyle }>
+						<div className="SimpleHistory__filters__filterLabel">
+							{ __( 'AI-initiated', 'simple-history' ) }
+						</div>
+					</FlexItem>
+					<FlexBlock>
+						<div
+							style={ {
+								marginTop: `calc(${ GRID_UNIT } / 2 + 4px)`,
+								paddingLeft: '1px',
+							} }
+						>
+							<CheckboxControl
+								__nextHasNoMarginBottom
+								label={ __(
+									'AI-initiated events only',
+									'simple-history'
+								) }
+								help={ __(
+									'Events where an AI tool or agent acted on behalf of a user.',
+									'simple-history'
+								) }
+								checked={ showAIOnly }
+								onChange={ setShowAIOnly }
+							/>
+						</div>
+					</FlexBlock>
+				</Flex>
+			) }
 
 			<Flex align="top" gap="0" style={ filterRowStyle }>
 				<FlexItem style={ labelMarginStyle }>

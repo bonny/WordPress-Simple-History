@@ -43,6 +43,8 @@ export function EventsSearchFilters( props ) {
 		setSelectedContextFilters,
 		enteredMetadataSearch,
 		setEnteredMetadataSearch,
+		showAIOnly,
+		setShowAIOnly,
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
 		setPagerSize,
@@ -90,6 +92,9 @@ export function EventsSearchFilters( props ) {
 		if ( enteredMetadataSearch.trim().length > 0 ) {
 			count++;
 		}
+		if ( showAIOnly ) {
+			count++;
+		}
 		if ( hideOwnEvents ) {
 			count++;
 		}
@@ -102,6 +107,7 @@ export function EventsSearchFilters( props ) {
 		enteredIPAddress,
 		selectedContextFilters,
 		enteredMetadataSearch,
+		showAIOnly,
 		hideOwnEvents,
 	] );
 
@@ -361,6 +367,8 @@ export function EventsSearchFilters( props ) {
 							setEnteredMetadataSearch={
 								setEnteredMetadataSearch
 							}
+							showAIOnly={ showAIOnly }
+							setShowAIOnly={ setShowAIOnly }
 							isExperimentalFeaturesEnabled={
 								isExperimentalFeaturesEnabled
 							}
