@@ -97,6 +97,16 @@ class User_Logger extends Logger {
 					'User revoke application password',
 					'simple-history'
 				),
+				'user_application_password_login_failed'   => _x(
+					'Failed to authenticate with application password for user "{login}"',
+					'Failed application password authentication on REST/XML-RPC',
+					'simple-history'
+				),
+				'user_application_password_unknown_login_failed' => _x(
+					'Failed to authenticate with application password for user "{failed_username}" (user does not exist)',
+					'Failed application password authentication for unknown user',
+					'simple-history'
+				),
 				'user_admin_page_access_denied'            => _x(
 					'Attempted to access restricted admin page "{admin_page}"',
 					'User was denied access to an admin page',
@@ -142,6 +152,10 @@ class User_Logger extends Logger {
 						),
 						_x( 'User application password deletion', 'User logger: search', 'simple-history' ) => array(
 							'user_application_password_revoked',
+						),
+						_x( 'Failed application password authentication', 'User logger: search', 'simple-history' ) => array(
+							'user_application_password_login_failed',
+							'user_application_password_unknown_login_failed',
 						),
 						_x( 'Admin page access denied', 'User logger: search', 'simple-history' ) => array(
 							'user_admin_page_access_denied',
@@ -197,6 +211,29 @@ class User_Logger extends Logger {
 		add_action( 'wp_create_application_password', array( $this, 'on_action_wp_create_application_password' ), 10, 4 );
 		add_action( 'wp_delete_application_password', array( $this, 'on_action_wp_delete_application_password' ), 10, 2 );
 		// TODO: there is also an action "wp_update_application_password". Used by rest api and fired when a user updates app password there.
+
+		// Failed application password authentication (REST/XML-RPC).
+		// Gated behind experimental features while we validate noise levels in the wild.
+		// Sites can additionally opt out via the `simple_history/log_failed_app_password_auth` filter.
+		/**
+		 * Filter whether failed application password authentication attempts should be logged.
+		 *
+		 * Defaults to true when experimental features are enabled. Set to false to disable
+		 * logging without turning off experimental features entirely (useful on sites with
+		 * heavy API traffic where the log would fill with brute-force noise).
+		 *
+		 * @since 5.x
+		 *
+		 * @param bool $should_log Whether to log failed application password authentication.
+		 */
+		$log_failed_app_password_auth = apply_filters(
+			'simple_history/log_failed_app_password_auth',
+			Helpers::experimental_features_is_enabled()
+		);
+
+		if ( $log_failed_app_password_auth ) {
+			add_action( 'application_password_failed_authentication', array( $this, 'on_application_password_failed_authentication' ), 10, 1 );
+		}
 
 		// Admin page access denied.
 		add_action( 'admin_page_access_denied', array( $this, 'on_admin_page_access_denied' ), 10 );
@@ -369,6 +406,74 @@ class User_Logger extends Logger {
 				'application_password_name' => $item['name'],
 			)
 		);
+	}
+
+	/**
+	 * Log failed application password authentication.
+	 *
+	 * Fired from action `application_password_failed_authentication` (since WP 5.6.0)
+	 * when an application password fails to authenticate a REST or XML-RPC request.
+	 *
+	 * Possible error codes from WordPress core:
+	 * - `invalid_username` / `invalid_email`     — username does not exist.
+	 * - `incorrect_password`                     — wrong application password.
+	 * - `application_passwords_disabled`         — disabled site-wide.
+	 * - `application_passwords_disabled_for_user` — disabled for this user.
+	 *
+	 * @param \WP_Error $error The authentication error.
+	 */
+	public function on_application_password_failed_authentication( $error ) {
+		// Guard against recursion: resolving the current user during the log write can
+		// re-trigger `determine_current_user` -> `wp_validate_application_password` and
+		// fire this action again. Also dedupes the action firing twice per request
+		// (once during `authenticate`, once during `determine_current_user`).
+		static $logged = false;
+
+		if ( $logged ) {
+			return;
+		}
+
+		$logged = true;
+
+		// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.BasicAuthentication -- Reading the attempted username for security logging only; authentication is handled by WP core.
+		$attempted_username = sanitize_text_field( wp_unslash( $_SERVER['PHP_AUTH_USER'] ?? '' ) );
+		$error_code         = is_a( $error, 'WP_Error' ) ? $error->get_error_code() : '';
+		$error_message      = is_a( $error, 'WP_Error' ) ? wp_strip_all_tags( $error->get_error_message() ) : '';
+
+		$context = array(
+			'_initiator'             => Log_Initiators::WEB_USER,
+			'error_code'             => (string) $error_code,
+			'error_message'          => $error_message,
+			'request_uri'            => sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ),
+			'request_method'         => sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ),
+			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
+			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
+			'_occasionsID'           => self::class . '/failed_application_password_login',
+		);
+
+		$is_unknown_user = in_array( $error_code, array( 'invalid_username', 'invalid_email' ), true );
+
+		if ( $is_unknown_user ) {
+			$context['failed_username'] = $attempted_username;
+			$this->warning_message( 'user_application_password_unknown_login_failed', $context );
+
+			return;
+		}
+
+		$context['login'] = $attempted_username;
+
+		$user = $attempted_username !== '' ? get_user_by( 'login', $attempted_username ) : false;
+
+		if ( ! $user && is_email( $attempted_username ) ) {
+			$user = get_user_by( 'email', $attempted_username );
+		}
+
+		if ( $user instanceof \WP_User ) {
+			$context['login_id']    = $user->ID;
+			$context['login_email'] = $user->user_email;
+		}
+
+		$this->warning_message( 'user_application_password_login_failed', $context );
 	}
 
 	/**
