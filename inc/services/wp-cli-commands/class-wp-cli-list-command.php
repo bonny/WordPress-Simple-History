@@ -218,6 +218,9 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *     # On multisite: include site name in output
 	 *     wp simple-history list --fields=ID,date,site,description
 	 *
+	 *     # Show which events were initiated via an AI tool (e.g. Claude Code, ChatGPT)
+	 *     wp simple-history list --fields=ID,date,ai_agent,description
+	 *
 	 * [--fields=<fields>]
 	 * : Limit output to specific fields. Comma-separated list.
 	 * ---
@@ -235,6 +238,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *   - count
 	 *   - reactions
 	 *   - site
+	 *   - ai_agent
 	 * ---
 	 *
 	 * @when after_wp_load
@@ -483,6 +487,10 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				)
 				: '';
 
+			$ai_agent = isset( $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_AGENT ] )
+				? (string) $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_AGENT ]
+				: '';
+
 			$eventsCleaned[] = array(
 				'ID'            => $id_display,
 				'date'          => get_date_from_gmt( $row->date ),
@@ -497,6 +505,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'count'         => $row->subsequentOccasions,
 				'reactions'     => $reactions_display,
 				'site'          => $site_label,
+				'ai_agent'      => $ai_agent,
 			);
 		}
 
