@@ -296,8 +296,8 @@ This version makes the log actions more discoverable by moving them out of the d
 **Added**
 
 -   Media, Comments, and Themes sections to the weekly email summary report. Comments section only appears when comments are enabled on the site.
--   Event reactions — react to log events with a thumbs up emoji, with a Slack-style emoji picker in the actions bar. (experimental)
 -   `--fields` support for `wp simple-history list` WP-CLI command, including a `reactions` field showing reaction counts.
+-   🧪 **Experimental** — Event reactions: react to log events with a thumbs up emoji, with a Slack-style emoji picker in the actions bar.
 
 **Changed**
 
@@ -325,8 +325,8 @@ This release focuses on keeping your database lean. Three features that reduce l
 -   "/" keyboard shortcut to focus the search input, with a visual hint badge. Pressing Escape returns focus to the previously focused element.
 -   Settings and Premium/Get Premium buttons in the top-right header, replacing the Add-ons link.
 -   Email Reports settings moved to their own sub-tab under Settings for better discoverability.
--   Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access. (experimental)
 -   New installs default to 30-day retention (existing installs keep 60 days), keeping your database lean from day one.
+-   🧪 **Experimental** — Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access.
 
 **Changed**
 
