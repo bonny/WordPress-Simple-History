@@ -251,9 +251,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+> 🧪 **Experimental** entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+
 **Added**
 
--   "History" column on post and page list tables showing recent activity at a glance, with "View history" row action links. Requires experimental features to be enabled.
 -   Plugin active/inactive status is now recorded when plugins are updated, shown in event details when the plugin was inactive at update time.
 -   Success confirmation and automatic log refresh after manually adding a log entry.
 -   Action links (Edit, View) for media attachment events, plugin update events ("View changelog"), and user profile events ("Edit user").
@@ -266,7 +267,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   AI agent attribution on event log rows: when an event is triggered by a request from an AI tool (Claude Code, ChatGPT, Perplexity, MCP clients, the Abilities API, etc.), a sparkle icon and the agent name appear next to the user who initiated the event. The signed-in user remains the actual initiator — this is additional audit context, not an authentication signal. Detected from the Abilities API route, the RFC 9421 `Signature-Agent` header, MCP client headers, vendor-published user-agent identifiers, and WP-CLI environment hints.
 -   "AI-initiated events only" filter in the expanded filters panel — quickly narrow the log to actions triggered via AI tools. The filter only appears on sites that have at least one AI-attributed event, so it stays out of the way otherwise.
 -   New "Copy as JSON" menu item for each event, that copies the full event payload — including all context data — for scripting and debugging.
--   Failed application password authentication on REST API and XML-RPC requests is now logged as a warning, with the attempted user, error code and message, request URI, request method, and user agent. Closes a visibility gap where wrong app password attempts left no trace in the log, while wp-login failures already did. Requires experimental features to be enabled, or can be toggled directly via the new `simple_history/log_failed_app_password_auth` filter.
+-   🧪 **Experimental** — "History" column on post and page list tables showing recent activity at a glance, with "View history" row action links.
+-   🧪 **Experimental** — Failed application password authentication on REST API and XML-RPC requests is now logged as a warning, with the attempted user, error code and message, request URI, request method, and user agent. Closes a visibility gap where wrong app password attempts left no trace in the log, while wp-login failures already did. Can also be toggled directly via the new `simple_history/log_failed_app_password_auth` filter.
 
 **Changed**
 
