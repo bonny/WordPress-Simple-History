@@ -206,6 +206,10 @@ class Menu_Logger extends Logger {
 			return;
 		}
 
+		// Snapshot the menu's current name before update so we can detect renames.
+		$old_menu          = wp_get_nav_menu_object( $menu_id );
+		$old_menu_name_raw = $old_menu instanceof \WP_Term ? (string) $old_menu->name : '';
+
 		// Get saved menu. May be empty if this is the first time we save the menu.
 		$arr_prev_menu_items = wp_get_nav_menu_items( $menu_id );
 
@@ -288,15 +292,33 @@ class Menu_Logger extends Logger {
 				continue;
 			}
 
-			$old_item  = $old_items_map[ $item_id ];
-			$new_title = isset( $post_titles[ $item_id ] ) ? sanitize_text_field( $post_titles[ $item_id ] ) : '';
+			$old_item = $old_items_map[ $item_id ];
 
-			// Detect rename.
-			if ( $new_title !== '' && $new_title !== $old_item->title ) {
+			// Two raw shapes for the old label:
+			//   - post_title: the value stored in the DB (empty when the item
+			//     has no custom label and inherits the linked object's title).
+			//   - $old_item->title: the resolved label as set by
+			//     wp_setup_nav_menu_item() — falls back to the linked object's
+			//     title when post_title is empty.
+			// The form re-submits whatever label the user sees in the input,
+			// which matches one of these two. Treat a match against either as
+			// "no rename" so we don't flag items with HTML in the label
+			// (e.g. "Books <span>& authors</span>") or items inheriting their
+			// label from a linked page on every save.
+			$old_post_title    = isset( $old_item->post_title ) ? (string) $old_item->post_title : '';
+			$old_display_title = isset( $old_item->title ) ? (string) $old_item->title : '';
+			$new_title_raw     = isset( $post_titles[ $item_id ] ) ? (string) $post_titles[ $item_id ] : '';
+			$new_title         = sanitize_text_field( $new_title_raw );
+
+			$is_rename = $new_title_raw !== ''
+				&& $new_title_raw !== $old_post_title
+				&& $new_title_raw !== $old_display_title;
+
+			if ( $is_rename ) {
 				$menu_changes['renamed'][] = array(
 					'id'   => (int) $item_id,
-					'from' => $old_item->title,
-					'to'   => $new_title,
+					'from' => $old_display_title !== '' ? $old_display_title : $old_post_title,
+					'to'   => $new_title_raw,
 				);
 			}
 
@@ -346,14 +368,21 @@ class Menu_Logger extends Logger {
 		// Remove empty change types.
 		$menu_changes = array_filter( $menu_changes );
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$new_menu_name = sanitize_text_field( wp_unslash( $_POST['menu-name'] ) );
+
 		$context = array(
 			'menu_id'            => $menu_id,
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			'menu_name'          => sanitize_text_field( wp_unslash( $_POST['menu-name'] ) ),
+			'menu_name'          => $new_menu_name,
 			'menu_items_added'   => count( $arr_added ),
 			'menu_items_removed' => count( $arr_removed ),
 			'menu_changes'       => Helpers::json_encode( $menu_changes ),
 		);
+
+		// Detect rename of the menu itself (the "Menu Name" field).
+		if ( $old_menu_name_raw !== '' && $new_menu_name !== '' && $new_menu_name !== $old_menu_name_raw ) {
+			$context['menu_name_prev'] = $old_menu_name_raw;
+		}
 
 		if ( ! empty( $locations_changed ) ) {
 			$context['locations_changed'] = Helpers::json_encode( $locations_changed );
@@ -365,6 +394,67 @@ class Menu_Logger extends Logger {
 		}
 
 		$this->info_message( 'edited_menu', $context );
+	}
+
+	/**
+	 * Action links for menu events — jump to the menu editor.
+	 *
+	 * @param object $row Log row.
+	 * @return array
+	 */
+	public function get_action_links( $row ) {
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			return array();
+		}
+
+		$context     = $row->context;
+		$message_key = $context['_message_key'] ?? '';
+
+		// "Manage locations" link for location-only events.
+		if ( $message_key === 'edited_menu_locations' ) {
+			return array(
+				array(
+					'url'    => add_query_arg(
+						array( 'action' => 'locations' ),
+						admin_url( 'nav-menus.php' )
+					),
+					'label'  => __( 'Manage menu locations', 'simple-history' ),
+					'action' => 'edit',
+				),
+			);
+		}
+
+		// "Edit menu" link for events that target a specific menu.
+		if ( ! in_array( $message_key, array( 'edited_menu', 'created_menu' ), true ) ) {
+			return array();
+		}
+
+		// Resolve menu term id from context. edited_menu uses "menu_id";
+		// created_menu uses "term_id".
+		$menu_id = 0;
+		if ( ! empty( $context['menu_id'] ) ) {
+			$menu_id = (int) $context['menu_id'];
+		} elseif ( ! empty( $context['term_id'] ) ) {
+			$menu_id = (int) $context['term_id'];
+		}
+
+		if ( $menu_id <= 0 || ! is_nav_menu( $menu_id ) ) {
+			return array();
+		}
+
+		return array(
+			array(
+				'url'    => add_query_arg(
+					array(
+						'action' => 'edit',
+						'menu'   => $menu_id,
+					),
+					admin_url( 'nav-menus.php' )
+				),
+				'label'  => __( 'Edit menu', 'simple-history' ),
+				'action' => 'edit',
+			),
+		);
 	}
 
 	/**
@@ -404,6 +494,17 @@ class Menu_Logger extends Logger {
 			}
 
 			$group = new Event_Details_Group();
+
+			// Menu rename (the menu itself, not its items). menu_name_prev is
+			// only set in context when the name actually changed.
+			if ( ! empty( $context['menu_name_prev'] ) ) {
+				$group->add_item(
+					new Event_Details_Item(
+						array( 'menu_name', 'menu_name_prev' ),
+						__( 'Menu name', 'simple-history' )
+					)
+				);
+			}
 
 			if ( ! empty( $changes['added'] ) ) {
 				$descriptions = array();

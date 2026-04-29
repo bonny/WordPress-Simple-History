@@ -257,6 +257,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Plugin active/inactive status is now recorded when plugins are updated, shown in event details when the plugin was inactive at update time.
 -   Success confirmation and automatic log refresh after manually adding a log entry.
 -   Action links (Edit, View) for media attachment events, plugin update events ("View changelog"), and user profile events ("Edit user").
+-   "Edit menu" action link on menu events, and "Manage menu locations" action link on menu location events — jump straight from the log to the relevant nav menu screen.
 -   `wp simple-history info` WP-CLI command — prints the installed version, premium add-on status, and a list of useful subcommands.
 -   AI agent attribution on event log rows: when an event is triggered by a request from an AI tool (Claude Code, ChatGPT, Perplexity, MCP clients, the Abilities API, etc.), a sparkle icon and the agent name appear next to the user who initiated the event. The signed-in user remains the actual initiator — this is additional audit context, not an authentication signal. Detected from the Abilities API route, the RFC 9421 `Signature-Agent` header, MCP client headers, vendor-published user-agent identifiers, and WP-CLI environment hints.
 -   "AI-initiated events only" filter in the expanded filters panel — quickly narrow the log to actions triggered via AI tools. The filter only appears on sites that have at least one AI-attributed event, so it stays out of the way otherwise.
@@ -276,6 +277,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Retention upsell message showing "deleted in 0 days" when event deletion is imminent. Now shows "scheduled for deletion" instead.
 -   Sidebar tip that suggested clicking a user's avatar would filter the log — clicking actually opens a user details card, and the tip now reflects that.
 -   `wp simple-history dev reset` reported "1 options deleted" for the singular case; now uses proper plural handling via `_n()`.
+-   Menu logger flagging unrelated items as "Renamed" on every menu save. Items with HTML in their label, and items inheriting their label from a linked page, are no longer reported as renamed when nothing was actually changed.
+-   Menu logger not surfacing renames of the menu itself — the previous and new menu name are now shown in the event details when the "Menu Name" field is changed.
 
 ### 5.26.0 (April 2026)
 
