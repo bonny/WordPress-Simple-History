@@ -3,8 +3,8 @@
 Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
-Tested up to: 6.9
-Stable tag: 5.27.0
+Tested up to: 7.0
+Stable tag: 5.28.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -252,33 +252,37 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 🧪 **Experimental** entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
-### Unreleased
+### 5.28.0 (May 2026)
+
+Ready for [WordPress 7.0](https://make.wordpress.org/core/7-0/)! This version is tested and confirmed working on the latest WordPress version. It also adds logging for the new [AI Connectors Screen](https://make.wordpress.org/core/2026/03/18/introducing-the-connectors-api-in-wordpress-7-0/). Plus: WP-CLI and REST API coverage for content and settings changes. And the usual round of UI improvements and bug fixes.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-28-0-released/)
 
 **Added**
 
--   WordPress 7.0 connector API keys (AI providers, anti-spam, etc.) are now logged when added, changed, or removed. Only the last 4 characters are stored.
--   "How are AI agents detected?" link in the AI agent attribution tooltip, pointing to a docs article that explains the detection signals.
--   System Information page (and `wp simple-history db stats` WP-CLI command, and `/wp-json/simple-history/v1/support-info` REST endpoint) now report the charset and collation of each Simple History table. Useful when triaging emoji-related context-drop reports or checking that a site's tables actually upgraded to utf8mb4.
--   Reminder card on Simple History pages when a premium add-on is installed without a license key entered, so users notice that updates won't arrive until the key is added. Links directly to the license entry field.
+-   WordPress 7.0 AI Connectors screen changes are now logged.
+-   Built-in WordPress settings changed via the REST API (`POST /wp/v2/settings`) or WP-CLI (`wp option update`) are now logged. Previously the Options Logger only captured changes made through Settings → General/Writing/Reading/Discussion/Media/Permalinks, so automation, scripts, and AI agents could change the site tagline, title, default category, permalinks, and similar settings invisibly.
+-   Post, user, media, menu, widget, and privacy page changes made via WP-CLI or the REST API are now logged. Previously these loggers only captured changes from inside wp-admin, so commands like `wp post create`, `wp post update`, `wp user update`, `wp menu item add`, and REST-driven edits from external tools or AI agents were not recorded.
+-   Post update events now expose status, publish date, comment status, author, and page template as structured data in the REST API, "Copy as JSON", and "Copy as Markdown" outputs — previously these fields were only available as prerendered HTML, so external clients had to parse the markup.
+-   Action link on Options Logger events for quick navigation back to the Settings page where the option lives.
+-   "How are AI agents detected?" link in the AI agent attribution tooltip, pointing to a [docs article that explains the detection signals](https://simple-history.com/docs/ai-agent-detection/).
+-   System Information page, `wp simple-history db stats`, and the `/wp-json/simple-history/v1/support-info` REST endpoint now report the charset and collation of each Simple History table — useful when diagnosing emoji-related context-drop issues.
+-   Reminder card on Simple History pages when an add-on is installed without a license key entered, so users notice that updates won't arrive until the key is added. Links directly to the license entry field.
 
 **Changed**
 
--   `wp simple-history info` now shows "Experimental features: enabled" when experimental features are active. The line is omitted when they are off, so it only surfaces when relevant.
--   Copy menu items ("Copy event message", "Copy as Markdown", "Copy as JSON", "Copy link to event details") now show a green checkmark and confirmation label for two seconds after copying, making the success state obvious instead of relying on a label change alone.
--   Options Logger event details show the change inline as a single row (new value → strike-through old value) labeled with the setting name (e.g. "Site Title", "Tagline"), instead of stacked "New value" / "Old value" rows. Adds a "Manage [Page] settings" action link below each event for quick navigation back to the Settings page.
--   Post update events expose status, publish date, comment status, author, and page template as structured data in the REST API, "Copy as JSON", and "Copy as Markdown" outputs — previously these fields were only available as prerendered HTML, so external clients had to parse the markup. Admin display for these five fields changes from a stacked table row ("Changed from draft to publish") to an inline pill style ("Status: draft → publish"), matching how user profile changes already render. Title, content, custom field, term, and featured-image diffs still render in the existing table layout.
+-   `wp simple-history info` now shows "Experimental features: enabled" when experimental features are active.
+-   Options Logger event details show the change inline as a single row (new value → strike-through old value) labeled with the setting name (e.g. "Site Title", "Tagline"), instead of stacked "New value" / "Old value" rows.
+-   Admin display for post update status, publish date, comment status, author, and page template switches from a stacked table row ("Changed from draft to publish") to an inline pill style ("Status: draft → publish"), matching how user profile changes already render. Title, content, custom field, term, and featured-image diffs still render in the existing table layout.
 
 **Fixed**
 
--   🧪 **Experimental** — Failed application password authentication on XML-RPC requests no longer logs an empty username, so brute-force attempts against `xmlrpc.php` show which account is being targeted.
 -   "Copy as JSON" and "Copy as Markdown" now include the full event context (request URI, method, user agent, error codes, etc.), making copied payloads self-contained for triage and bug reports.
 -   IP addresses are now included in failed application password authentication events, matching how wp-login failures already worked.
--   New installs create history tables as `utf8mb4` (using `$wpdb->get_charset_collate()`), so emoji and other 4-byte UTF-8 characters in event context are preserved instead of silently dropping the entire context row. Existing installs are unchanged; an opt-in conversion path for older tables will follow.
+-   New installs create history tables as `utf8mb4` (using `$wpdb->get_charset_collate()`), so emoji and other 4-byte UTF-8 characters in events are preserved.
 -   Support info page no longer prints a "no such table: dbstat" database error when `WP_DEBUG` is on and SQLite's optional `dbstat` virtual table isn't available (notably on WordPress Playground).
--   Built-in WordPress settings changed via the REST API (`POST /wp/v2/settings`) or WP-CLI (`wp option update`) are now logged. Previously the Options Logger only captured changes made through Settings → General/Writing/Reading/Discussion/Media/Permalinks, so automation, scripts, and AI agents could change the site tagline, title, default category, permalinks, and similar settings invisibly.
--   Post, user, media, menu, widget, and privacy page changes made via WP-CLI or the REST API are now logged. Previously these loggers only captured changes from inside wp-admin, so commands like `wp post create`, `wp post update`, `wp user update`, `wp menu item add`, and REST-driven edits from external tools or AI agents were not recorded. [#185](https://github.com/bonny/WordPress-Simple-History/issues/185)
--   "Most active users" widget no longer shows nameless entries like "(1)" for users without a display name, and no longer counts anonymous events (WP-CLI, anonymous web users, unknown initiators) or deleted users in the ranking. Users without a display name now fall back to their username.
--   Redirect loops in wp-admin for low-privilege users. A legacy-URL redirect intended only for the old `/wp-admin/index.php?page=simple_history_page` bookmark was also firing for unrelated access-denied events on the dashboard, which could send users in circles. Thanks to [@freshembassy](https://github.com/freshembassy) for the detailed report. [#639](https://github.com/bonny/WordPress-Simple-History/issues/639)
+-   "Most active users" widget no longer shows nameless entries for users without a display name.
+-   Redirect loops in wp-admin for low-privilege users. A legacy-URL redirect intended only for the old `/wp-admin/index.php?page=simple_history_page` bookmark was also firing for unrelated access-denied events on the dashboard, which could send users in circles. [#639](https://github.com/bonny/WordPress-Simple-History/issues/639)
+-   🧪 **Experimental** — Brute-force attempts against `xmlrpc.php` now show which account is being targeted instead of logging an empty username.
 
 ### 5.27.0 (May 2026)
 

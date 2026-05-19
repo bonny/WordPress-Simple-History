@@ -23,6 +23,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.24.0', [ $this, 'on_plugin_updated_details_5_24_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.25.0', [ $this, 'on_plugin_updated_details_5_25_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.27.0', [ $this, 'on_plugin_updated_details_5_27_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.28.0', [ $this, 'on_plugin_updated_details_5_28_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -266,6 +267,26 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-27-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.28.0.
+	 *
+	 * @param string $extra_details Extra details.
+	 * @return string
+	 */
+	public function on_plugin_updated_details_5_28_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'Ready for WordPress 7.0! We have tested the plugin on the latest version of WordPress and have found no issues.', 'simple-history' ),
+			__( 'Added support for the new WordPress 7.0 AI Connectors Screen.', 'simple-history' ),
+			__( 'Improved support for changes made using WP-CLI and REST API. Actions performed by for example AI agents are now visible in the log.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-28-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
