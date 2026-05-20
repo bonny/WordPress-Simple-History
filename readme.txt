@@ -254,8 +254,15 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Added**
+
+-   Overview action links on user, plugin, post, and media events — "All users", "All plugins", "All posts" / "All pages" / "All `<custom-post-type>`", "All media". Also shown on delete events where the per-item link would dead-end.
+-   "About this version" and "WordPress X.Y release notes" action links on core update events for major-version bumps.
+
 **Changed**
 
+-   Action link labels dropped the "View" prefix: "View plugin info" → "Plugin info", "View Site Health" → "Site Health", "View changelog" → "Changelog". Verbs kept where multiple actions target the same noun (Edit / View / Preview post).
+-   External action links now show an "open in new tab" icon and open in a new tab.
 -   🧪 **Experimental** — Role and capability events no longer dump the full list of capability slugs into the event headline. A plugin activation that adds 40 caps to a role now reads "Added 40 capabilities to role Editor" instead of a paragraph of slugs. The full list is still available in the event details panel.
 
 **Fixed**
