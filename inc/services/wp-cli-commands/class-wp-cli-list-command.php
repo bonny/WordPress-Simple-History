@@ -5,12 +5,22 @@ namespace Simple_History\Services;
 use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
 use Simple_History\Log_Levels;
+use Simple_History\Services\WP_CLI_Commands\WP_CLI_Promo;
 use WP_CLI;
 use WP_CLI_Command;
 use Simple_History\Log_Query;
 
 /**
- * Interact with the Simple History log via WP-CLI.
+ * Read, search, and manage events from Simple History — WordPress' activity log.
+ *
+ * Run `wp simple-history info` for plugin version and add-on status.
+ *
+ * ## PREMIUM
+ *
+ * Simple History Premium adds export, custom retention, alerts, and log
+ * forwarding — built for teams running this at scale.
+ *
+ *   https://simple-history.com/premium/
  */
 class WP_CLI_List_Command extends WP_CLI_Command {
 
@@ -512,5 +522,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 		$fields = explode( ',', $assoc_args['fields'] );
 
 		WP_CLI\Utils\format_items( $assoc_args['format'], $eventsCleaned, $fields );
+
+		WP_CLI_Promo::maybe_print_footer( $assoc_args );
 	}
 }
