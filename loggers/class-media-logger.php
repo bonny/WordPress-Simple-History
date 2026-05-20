@@ -19,6 +19,12 @@ class Media_Logger extends Logger {
 	/** @var array Array with prev attachment values, before save. */
 	protected array $prev_attachment_values = [];
 
+	/** @var array<int,array{prev:string,new:string}> Pending alt-text diffs awaiting shutdown flush, keyed by attachment id. */
+	protected array $pending_alt_text_changes = [];
+
+	/** @var array<int,bool> Attachment ids that already produced an attachment_updated event this request. */
+	protected array $attachment_updated_logged = [];
+
 	/**
 	 * Get array with information about this logger
 	 *
@@ -77,6 +83,12 @@ class Media_Logger extends Logger {
 		// so we need a dedicated hook pair to capture before and append diff after.
 		add_filter( 'rest_pre_insert_attachment', [ $this, 'on_rest_pre_insert_attachment_capture_alt_text' ], 10, 2 );
 		add_action( 'rest_after_insert_attachment', [ $this, 'on_rest_after_insert_attachment_append_alt_text' ], 10, 3 );
+
+		// Catch bare update_post_meta() writes that never trigger attachment_updated
+		// (e.g. `wp post meta update <id> _wp_attachment_image_alt "..."`). The shutdown
+		// flusher is registered lazily — only after the first pending entry is queued —
+		// so the hook isn't paid for on every request.
+		add_action( 'updated_post_meta', [ $this, 'on_updated_post_meta_capture_alt_text' ], 10, 4 );
 	}
 
 	/**
@@ -107,6 +119,89 @@ class Media_Logger extends Logger {
 		];
 
 		return $check;
+	}
+
+	/**
+	 * Queue an alt-text diff after a meta write so it can be logged on shutdown
+	 * if no attachment_updated event covered it.
+	 *
+	 * Logging is deferred so that flows which also call wp_update_post() (admin,
+	 * REST, the existing WP-CLI post-update path) log via attachment_updated first
+	 * and mark the id as already-logged; the shutdown flusher then skips them.
+	 *
+	 * @param int    $meta_id    Meta row id (unused).
+	 * @param int    $object_id  Post ID the meta was written to.
+	 * @param string $meta_key   Meta key being written.
+	 * @param mixed  $meta_value New meta value.
+	 */
+	public function on_updated_post_meta_capture_alt_text( $meta_id, $object_id, $meta_key, $meta_value ) {
+		if ( $meta_key !== '_wp_attachment_image_alt' ) {
+			return;
+		}
+
+		if ( get_post_type( $object_id ) !== 'attachment' ) {
+			return;
+		}
+
+		$prev_alt_text = $this->prev_attachment_values[ $object_id ]['alt_text'] ?? null;
+
+		if ( $prev_alt_text === null ) {
+			return;
+		}
+
+		$new_alt_text = (string) $meta_value;
+
+		if ( $prev_alt_text === $new_alt_text ) {
+			return;
+		}
+
+		// Register the shutdown flusher only when there's actually something to flush.
+		if ( $this->pending_alt_text_changes === [] ) {
+			add_action( 'shutdown', [ $this, 'on_shutdown_log_pending_alt_text_changes' ] );
+		}
+
+		$this->pending_alt_text_changes[ $object_id ] = [
+			'prev' => $prev_alt_text,
+			'new'  => $new_alt_text,
+		];
+	}
+
+	/**
+	 * Flush pending alt-text changes at end of request.
+	 *
+	 * Emits one attachment_updated event per queued change UNLESS an
+	 * attachment_updated action already logged for that id this request
+	 * (admin and REST flows).
+	 */
+	public function on_shutdown_log_pending_alt_text_changes() {
+		foreach ( $this->pending_alt_text_changes as $attachment_id => $diff ) {
+			if ( isset( $this->attachment_updated_logged[ $attachment_id ] ) ) {
+				continue;
+			}
+
+			$attachment_post = get_post( $attachment_id );
+
+			// Post may have been deleted between the meta write and shutdown.
+			if ( ! $attachment_post instanceof \WP_Post ) {
+				continue;
+			}
+
+			$this->info_message(
+				'attachment_updated',
+				[
+					'attachment_id'            => $attachment_id,
+					'attachment_title'         => $attachment_post->post_title,
+					'attachment_mime'          => $attachment_post->post_mime_type,
+					'post_type'                => 'attachment',
+					'attachment_alt_text_prev' => $diff['prev'],
+					'attachment_alt_text_new'  => $diff['new'],
+				]
+			);
+		}
+
+		$this->pending_alt_text_changes  = [];
+		$this->attachment_updated_logged = [];
+		$this->prev_attachment_values    = [];
 	}
 
 	/**
@@ -731,6 +826,8 @@ class Media_Logger extends Logger {
 
 		$context['attachment_new']  = $post_new;
 		$context['attachment_prev'] = $post_prev;
+
+		$this->attachment_updated_logged[ $attachment_id ] = true;
 
 		$this->info_message( 'attachment_updated', $context );
 	}

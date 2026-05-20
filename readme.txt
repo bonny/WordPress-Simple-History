@@ -258,6 +258,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   🧪 **Experimental** — Role and capability events no longer dump the full list of capability slugs into the event headline. A plugin activation that adds 40 caps to a role now reads "Added 40 capabilities to role Editor" instead of a paragraph of slugs. The full list is still available in the event details panel.
 
+**Fixed**
+
+-   Alt-text changes to media made via direct meta updates (e.g. `wp post meta update <id> _wp_attachment_image_alt "..."`) are now logged. Previously only changes made through wp-admin or the REST API were captured, so automation and CLI scripts could update alt text silently.
+
 ### 5.28.0 (May 2026)
 
 Ready for [WordPress 7.0](https://make.wordpress.org/core/7-0/)! This version is tested and confirmed working on the latest WordPress version. It also adds logging for the new [AI Connectors Screen](https://make.wordpress.org/core/2026/03/18/introducing-the-connectors-api-in-wordpress-7-0/). Plus: WP-CLI and REST API coverage for content and settings changes. And the usual round of UI improvements and bug fixes.
