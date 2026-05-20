@@ -86,7 +86,7 @@ See @CLAUDE.local.md for specific commands for stable and nightly WordPress inst
 
 Some skills contain personal preferences or sensitive business data and live in the maintainer's Obsidian vault rather than in this repo. To wire them up on a maintainer machine:
 
-1. Set `SH_PRIVATE_SKILLS_DIR` to the absolute path of the `claude-skills/` folder in the vault (add the export to your shell profile so it persists)
+1. Set `SH_PRIVATE_SKILLS_DIR` to the absolute path of the `claude-skills/` folder in the vault (add the export to your shell profile so the env var persists across sessions)
 2. Run `scripts/setup-private-skills.sh` (safe to re-run)
 
 Contributors without the vault can ignore this — the script bails with a clear error if `SH_PRIVATE_SKILLS_DIR` isn't set.
