@@ -66,12 +66,12 @@ class Role_Capability_Logger extends Logger {
 					'simple-history'
 				),
 				'role_caps_added'           => _x(
-					'Added {cap_count} capabilities to role "{role_name}": {capabilities}',
+					'Added {cap_count} capabilities to role "{role_name}"',
 					'Role logger: capabilities added to role',
 					'simple-history'
 				),
 				'role_caps_removed'         => _x(
-					'Removed {cap_count} capabilities from role "{role_name}": {capabilities}',
+					'Removed {cap_count} capabilities from role "{role_name}"',
 					'Role logger: capabilities removed from role',
 					'simple-history'
 				),
