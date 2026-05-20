@@ -63,6 +63,10 @@ metrics=["sessions", "engagedSessions", "engagementRate"]
 
 Pass two entries in `date_ranges` (the API returns a `dateRange` dimension automatically when there are 2+).
 
+## Known noise — scrambled weekly-report scanner traffic
+
+A recurring campaign `jffxyl-efcbeg` from source `jcbezva` (medium `email`) is **not** a real campaign. It's a near-ROT13 scramble of the plugin's own `weekly-report` / `wpadmin` UTMs (templates/email-summary-report.php), produced by email security scanners (Mimecast / Proofpoint / Defender Safe Links / etc.) prefetching links in the weekly summary email. Profile: all desktop Chrome, mixed countries, near-zero session duration, all landing on `/`. Volume is ~25× the real `weekly-report` campaign. Treat as bot noise — don't include in upsell/engagement analyses, and exclude with `sessionSource != "jcbezva"` if it skews a report.
+
 ## Date handling
 
 -   Today's date is in the system context. "Last week" = previous Mon–Sun, not last 7 days. "Last 28 days" excludes today.
