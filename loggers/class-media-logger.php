@@ -651,34 +651,40 @@ class Media_Logger extends Logger {
 		$message_key   = $context['_message_key'] ?? '';
 		$attachment_id = isset( $context['attachment_id'] ) ? (int) $context['attachment_id'] : 0;
 
-		if ( ! $attachment_id || $message_key === 'attachment_deleted' ) {
-			return [];
-		}
-
-		$attachment = get_post( $attachment_id );
-
-		if ( ! ( $attachment instanceof \WP_Post ) ) {
-			return [];
-		}
-
 		$action_links = [];
 
-		if ( current_user_can( 'edit_post', $attachment_id ) ) {
-			$edit_link = get_edit_post_link( $attachment_id, 'raw' );
-			if ( $edit_link ) {
-				$action_links[] = [
-					'url'    => $edit_link,
-					'label'  => __( 'Edit attachment', 'simple-history' ),
-					'action' => 'edit',
-				];
+		if ( $attachment_id && $message_key !== 'attachment_deleted' ) {
+			$attachment = get_post( $attachment_id );
+
+			if ( $attachment instanceof \WP_Post ) {
+				if ( current_user_can( 'edit_post', $attachment_id ) ) {
+					$edit_link = get_edit_post_link( $attachment_id, 'raw' );
+					if ( $edit_link ) {
+						$action_links[] = [
+							'url'    => $edit_link,
+							'label'  => __( 'Edit attachment', 'simple-history' ),
+							'action' => 'edit',
+						];
+					}
+				}
+
+				$permalink = wp_get_attachment_url( $attachment_id );
+				if ( $permalink ) {
+					$action_links[] = [
+						'url'    => $permalink,
+						'label'  => __( 'View attachment', 'simple-history' ),
+						'action' => 'view',
+					];
+				}
 			}
 		}
 
-		$permalink = wp_get_attachment_url( $attachment_id );
-		if ( $permalink ) {
+		// Overview link survives on attachment_deleted events where the
+		// per-attachment links above are suppressed.
+		if ( current_user_can( 'upload_files' ) ) {
 			$action_links[] = [
-				'url'    => $permalink,
-				'label'  => __( 'View attachment', 'simple-history' ),
+				'url'    => admin_url( 'upload.php' ),
+				'label'  => __( 'All media', 'simple-history' ),
 				'action' => 'view',
 			];
 		}

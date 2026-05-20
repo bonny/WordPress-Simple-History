@@ -158,12 +158,14 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		// Actions: links shown in the actions section of the card.
 		// Each item: [ 'key' => string, 'label' => string, 'url' => string ].
-		// Core provides "View user profile". Add-ons use the filter to add
-		// links like "View all user activity".
+		// Core provides "User profile". Add-ons use the filter to add
+		// links like "All user activity". Labels are verbless — the icon
+		// supplies the action (people icon for the profile link, external
+		// arrow for off-site destinations).
 		$actions = [
 			[
 				'key'   => 'view_profile',
-				'label' => __( 'View user profile', 'simple-history' ),
+				'label' => __( 'User profile', 'simple-history' ),
 				'url'   => get_edit_user_link( $user->ID ),
 			],
 		];
@@ -177,7 +179,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 * Example — adding an activity filter link:
 		 *     $actions[] = [
 		 *         'key'   => 'view_activity',
-		 *         'label' => __( 'View all user activity', 'my-plugin' ),
+		 *         'label' => __( 'All user activity', 'my-plugin' ),
 		 *         'url'   => admin_url( '...' ),
 		 *     ];
 		 *

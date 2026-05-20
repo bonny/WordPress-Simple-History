@@ -354,7 +354,7 @@ class Available_Updates_Logger extends Logger {
 		$action_links = [
 			[
 				'url'    => admin_url( 'update-core.php' ),
-				'label'  => __( 'View all updates', 'simple-history' ),
+				'label'  => __( 'All updates', 'simple-history' ),
 				'action' => 'view',
 			],
 		];
@@ -374,7 +374,7 @@ class Available_Updates_Logger extends Logger {
 				$action_links,
 				[
 					'url'    => $url,
-					'label'  => _x( 'View changelog', 'Available updates logger: changelog link', 'simple-history' ),
+					'label'  => _x( 'Changelog', 'Available updates logger: changelog link', 'simple-history' ),
 					'action' => 'edit',
 				]
 			);

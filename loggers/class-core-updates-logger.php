@@ -151,6 +151,135 @@ class Core_Updates_Logger extends Logger {
 	}
 
 	/**
+	 * Get action links for a log row.
+	 *
+	 * For major-version updates (e.g. 6.9 → 7.0), surface up to two links:
+	 * - wp-admin/about.php — only when the currently installed WP version's
+	 *   X.Y still matches the event's new_version. The about.php page always
+	 *   shows the *current* version's content, so for historical events on
+	 *   older versions the local link would be misleading and gets dropped.
+	 * - wordpress.org release notes — version-specific URL built from
+	 *   new_version (matches the pattern WP core itself uses on about.php).
+	 *   Always shown on major-bump events because it's historically accurate.
+	 *
+	 * Skipped for:
+	 * - minor/patch releases (e.g. 7.0.1 → 7.0.2) where there is no major
+	 *   release to describe
+	 * - update setting changes and failures (no destination to send the
+	 *   user to)
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		if ( ! current_user_can( 'read' ) ) {
+			return [];
+		}
+
+		$context     = $row->context ?? [];
+		$message_key = $context['_message_key'] ?? '';
+
+		if ( ! in_array( $message_key, [ 'core_updated', 'core_auto_updated' ], true ) ) {
+			return [];
+		}
+
+		$prev_version = $context['prev_version'] ?? '';
+		$new_version  = $context['new_version'] ?? '';
+
+		if ( ! $this->is_major_version_update( $prev_version, $new_version ) ) {
+			return [];
+		}
+
+		$action_links = [];
+
+		$event_xy   = $this->extract_major_version( $new_version );
+		$current_xy = $this->extract_major_version( get_bloginfo( 'version' ) );
+
+		if ( $event_xy !== '' && $event_xy === $current_xy ) {
+			$action_links[] = [
+				'url'    => admin_url( 'about.php' ),
+				'label'  => __( 'About this version', 'simple-history' ),
+				'action' => 'view',
+			];
+		}
+
+		if ( $event_xy !== '' ) {
+			$action_links[] = [
+				'url'    => sprintf(
+					'https://wordpress.org/documentation/wordpress-version/version-%s/',
+					sanitize_title( $event_xy )
+				),
+				'label'  => sprintf(
+					/* translators: %s: WordPress major version, e.g. "7.0". */
+					__( 'WordPress %s release notes', 'simple-history' ),
+					$event_xy
+				),
+				'action' => 'view',
+			];
+		}
+
+		return $action_links;
+	}
+
+	/**
+	 * Detect whether a version bump is a major WordPress release.
+	 *
+	 * Compares the X.Y portion of the two versions (ignoring any pre-release
+	 * suffix like -RC1 or -beta1). A change to X or Y is a major release;
+	 * a change only to the patch component (Z) is a minor/security release.
+	 *
+	 * Examples:
+	 * - 6.9   → 7.0    → true  (X changed)
+	 * - 6.5.3 → 6.6    → true  (Y changed)
+	 * - 6.5   → 6.5.1  → false (only Z changed)
+	 * - 7.0-RC4 → 7.0-RC5 → false (same X.Y)
+	 *
+	 * @param string $prev_version Previous version string.
+	 * @param string $new_version  New version string.
+	 * @return bool True when the X or Y component differs.
+	 */
+	private function is_major_version_update( $prev_version, $new_version ) {
+		$prev_xy = $this->extract_major_version( $prev_version );
+		$new_xy  = $this->extract_major_version( $new_version );
+
+		if ( $prev_xy === '' || $new_xy === '' ) {
+			return false;
+		}
+
+		return $prev_xy !== $new_xy;
+	}
+
+	/**
+	 * Extract the X.Y major version from a version string.
+	 *
+	 * Strips any pre-release suffix (-RC1, -beta1, -alpha2, etc.) before
+	 * splitting on dot. Returns "" when the input doesn't have at least
+	 * two numeric components.
+	 *
+	 * Examples:
+	 * - "6.9"       → "6.9"
+	 * - "6.5.3"     → "6.5"
+	 * - "7.0-RC5"   → "7.0"
+	 *
+	 * @param string $version Version string.
+	 * @return string X.Y or empty string when not derivable.
+	 */
+	private function extract_major_version( $version ) {
+		if ( empty( $version ) ) {
+			return '';
+		}
+
+		$main  = preg_replace( '/-.+$/', '', (string) $version );
+		$parts = explode( '.', $main );
+
+		if ( count( $parts ) < 2 ) {
+			return '';
+		}
+
+		return $parts[0] . '.' . $parts[1];
+	}
+
+	/**
 	 * Log automatic core update failures.
 	 *
 	 * This filter is called when WordPress is about to send an email notification
