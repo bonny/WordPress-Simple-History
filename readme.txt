@@ -267,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
+-   "All users" overview link no longer appears on login, logout, failed-login, and session-destroy events. It now only shows on user-management events (profile updated, user created, user deleted), where navigating to the users list is actually relevant.
 -   Alt-text changes to media made via direct meta updates (e.g. `wp post meta update <id> _wp_attachment_image_alt "..."`) are now logged. Previously only changes made through wp-admin or the REST API were captured, so automation and CLI scripts could update alt text silently.
 
 ### 5.28.0 (May 2026)

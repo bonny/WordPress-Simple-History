@@ -1207,8 +1207,10 @@ class User_Logger extends Logger {
 			];
 		}
 
-		// Overview link for anyone who can list users.
-		if ( current_user_can( 'list_users' ) ) {
+		// Overview link only for user-management events, not auth events like login/logout.
+		$user_management_message_keys = [ 'user_updated_profile', 'user_created', 'user_deleted' ];
+
+		if ( in_array( $message_key, $user_management_message_keys, true ) && current_user_can( 'list_users' ) ) {
 			$action_links[] = [
 				'url'    => admin_url( 'users.php' ),
 				'label'  => __( 'All users', 'simple-history' ),

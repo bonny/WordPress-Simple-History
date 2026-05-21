@@ -11,8 +11,9 @@ use Simple_History\Loggers\User_Logger;
  *
  * Covers:
  * - user_updated_profile / user_created surface "Edit user" for an existing target user.
- * - Non-user-targeting messages (e.g. login events) skip per-user link.
- * - "All users" overview link gated by list_users capability.
+ * - "All users" overview link only on user-management events (profile, created, deleted).
+ * - Auth events (login, logout, failed login, session) do NOT show "All users".
+ * - "All users" gated by list_users capability.
  * - Deleted target user: per-user link suppressed, overview still rendered.
  *
  * Run with:
@@ -74,17 +75,23 @@ class UserLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertContains( 'All users', $labels );
 	}
 
-	public function test_non_user_targeting_message_only_shows_overview() {
-		// e.g. login / logout events don't carry an edited_user_id /
-		// created_user_id; still surface the overview link.
-		$row = $this->build_row( [
-			'_message_key' => 'user_logged_in',
-		] );
+	public function test_auth_events_do_not_show_overview() {
+		// Login / logout / failed-login are auth events — "All users" is not relevant.
+		foreach ( [ 'user_logged_in', 'user_logged_out', 'user_login_failed', 'user_session_destroy_others', 'user_session_destroy_everywhere' ] as $message_key ) {
+			$row    = $this->build_row( [ '_message_key' => $message_key ] );
+			$links  = $this->logger->get_action_links( $row );
+			$labels = wp_list_pluck( $links, 'label' );
 
+			$this->assertNotContains( 'Edit user', $labels, "Edit user should not appear for {$message_key}" );
+			$this->assertNotContains( 'All users', $labels, "All users should not appear for {$message_key}" );
+		}
+	}
+
+	public function test_user_deleted_shows_overview() {
+		$row    = $this->build_row( [ '_message_key' => 'user_deleted' ] );
 		$links  = $this->logger->get_action_links( $row );
 		$labels = wp_list_pluck( $links, 'label' );
 
-		$this->assertNotContains( 'Edit user', $labels );
 		$this->assertContains( 'All users', $labels );
 	}
 
@@ -105,13 +112,16 @@ class UserLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 	public function test_subscriber_without_list_users_gets_no_overview() {
 		wp_set_current_user( $this->subscriber_user_id );
 
+		// Use a user-management event so we're testing the capability gate, not the message-key gate.
 		$row = $this->build_row( [
-			'_message_key' => 'user_logged_in',
+			'_message_key'   => 'user_updated_profile',
+			'edited_user_id' => (string) $this->editor_user_id,
 		] );
 
-		$links = $this->logger->get_action_links( $row );
+		$links  = $this->logger->get_action_links( $row );
+		$labels = wp_list_pluck( $links, 'label' );
 
-		$this->assertSame( [], $links, 'Subscriber lacks list_users — no overview link' );
+		$this->assertNotContains( 'All users', $labels, 'Subscriber lacks list_users — no overview link' );
 	}
 
 }
