@@ -1075,7 +1075,7 @@ a.sh-DashboardWidget-stats--link:hover {
 	min-width: 0;
 }
 
-.sh-DashboardWidget-search > .components-base-control {
+.sh-DashboardWidget-search__input {
 	flex: 1;
 	min-width: 0;
 }

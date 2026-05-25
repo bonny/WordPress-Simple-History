@@ -312,26 +312,32 @@ export function DashboardEventsWidget() {
 							onSubmit={ handleSearchSubmit }
 							role="search"
 						>
-							<TextControl
-								__nextHasNoMarginBottom
-								__next40pxDefaultSize
-								type="search"
-								value={ searchValue }
-								onChange={ setSearchValue }
-								label={ __(
-									'Search events',
-									'simple-history'
-								) }
-								hideLabelFromVision
-								placeholder={ __(
-									'Search events',
-									'simple-history'
-								) }
-							/>
+							<div className="sh-DashboardWidget-search__input">
+								<TextControl
+									__nextHasNoMarginBottom
+									__next40pxDefaultSize
+									type="search"
+									value={ searchValue }
+									onChange={ setSearchValue }
+									label={ __(
+										'Search events',
+										'simple-history'
+									) }
+									hideLabelFromVision
+									placeholder={ __(
+										'Search events',
+										'simple-history'
+									) }
+								/>
+							</div>
 							<Button
 								type="submit"
 								variant="secondary"
 								__next40pxDefaultSize
+								aria-label={ __(
+									'Search all events',
+									'simple-history'
+								) }
 							>
 								{ __( 'Search', 'simple-history' ) }
 							</Button>
