@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { Button, TextControl } from '@wordpress/components';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -108,6 +109,7 @@ export function DashboardEventsWidget() {
 	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
 		useState( 0 );
 	const [ stats, setStats ] = useState( null );
+	const [ searchValue, setSearchValue ] = useState( '' );
 	const contentRef = useRef( null );
 	const prevHeightRef = useRef( 0 );
 	const transitionHandlerRef = useRef( null );
@@ -244,13 +246,18 @@ export function DashboardEventsWidget() {
 
 	const handleSearchSubmit = ( evt ) => {
 		evt.preventDefault();
-		const searchValue =
-			evt.target.elements[ 'sh-dashboard-search' ].value.trim();
-		if ( searchValue && eventsAdminPageURL ) {
+
+		if ( ! eventsAdminPageURL ) {
+			return;
+		}
+
+		const trimmed = searchValue.trim();
+
+		if ( trimmed ) {
 			window.location.href = addQueryArgs( eventsAdminPageURL, {
-				q: searchValue,
+				q: trimmed,
 			} );
-		} else if ( eventsAdminPageURL ) {
+		} else {
 			window.location.href = eventsAdminPageURL;
 		}
 	};
@@ -303,23 +310,31 @@ export function DashboardEventsWidget() {
 						<form
 							className="sh-DashboardWidget-search"
 							onSubmit={ handleSearchSubmit }
+							role="search"
 						>
-							<input
+							<TextControl
+								__nextHasNoMarginBottom
+								__next40pxDefaultSize
 								type="search"
-								name="sh-dashboard-search"
-								aria-label={ __(
+								value={ searchValue }
+								onChange={ setSearchValue }
+								label={ __(
 									'Search events',
 									'simple-history'
 								) }
+								hideLabelFromVision
 								placeholder={ __(
 									'Search events',
 									'simple-history'
 								) }
-								className="sh-DashboardWidget-search__input"
 							/>
-							<button type="submit" className="button">
-								{ __( 'Search all events', 'simple-history' ) }
-							</button>
+							<Button
+								type="submit"
+								variant="secondary"
+								__next40pxDefaultSize
+							>
+								{ __( 'Search', 'simple-history' ) }
+							</Button>
 						</form>
 						{ eventsAdminPageURL ? (
 							<a

@@ -1069,32 +1069,15 @@ a.sh-DashboardWidget-stats--link:hover {
 
 .sh-DashboardWidget-search {
 	display: flex;
-	align-items: stretch;
-	gap: 6px;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
 	flex: 1;
+	min-width: 0;
 }
 
-.sh-DashboardWidget-search__input {
+.sh-DashboardWidget-search > .components-base-control {
 	flex: 1;
-	border: 1px solid #dcdcde;
-	border-radius: 3px;
-	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
-	font-size: var(--sh-font-size-normal);
-	line-height: 1.6;
-	background: #fff;
-	color: #2c3338;
-	outline: none;
-}
-
-.sh-DashboardWidget-search__input:focus {
-	border-color: #2271b1;
-	box-shadow: 0 0 0 1px #2271b1;
-	position: relative;
-	z-index: 1;
-}
-
-.sh-DashboardWidget-search__input::placeholder {
-	color: #a7aaad;
+	min-width: 0;
 }
 
 .sh-DashboardWidget-searchRow__filtersLink {
