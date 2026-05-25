@@ -22,6 +22,12 @@ test.describe( 'Simple History dashboard widget', () => {
 	} );
 
 	test( 'search submits to events page with query', async ( { page } ) => {
+		// Wait for the widget's events data to load — the submit handler
+		// short-circuits until eventsAdminPageURL is populated by apiFetch.
+		await expect(
+			page.getByRole( 'link', { name: 'View full activity log →' } )
+		).toBeVisible();
+
 		await page
 			.getByLabel( 'Search events', { exact: true } )
 			.fill( 'login' );
