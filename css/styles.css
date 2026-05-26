@@ -4953,62 +4953,58 @@ Styles for plugin update details. Markup looks like this:
 	color: var(--sh-color-blue, #2271b1);
 }
 
-/* License Reminder card — shown when an add-on is installed without a license key. */
-.sh-LicenseReminder {
-	display: flex;
-	align-items: center;
-	gap: var(--sh-spacing-medium);
+/* License Reminder — sidebar postbox shown when an add-on is missing a license key. */
+.sh-LicenseReminder.postbox {
+	border-top: 3px solid var(--sh-color-yellow);
+}
+
+.sh-LicenseReminder .inside {
 	padding: var(--sh-spacing-medium) var(--sh-spacing-large);
-	margin: var(--sh-spacing-large) 0;
-	background: var(--sh-color-cream);
-	border-left: 4px solid var(--sh-color-yellow);
-	border-radius: var(--sh-border-radius);
-}
-
-.sh-LicenseReminder-icon {
-	flex-shrink: 0;
-	width: 32px;
-	height: 32px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: var(--sh-color-black-2);
-}
-
-.sh-LicenseReminder-icon .dashicons {
-	font-size: 24px;
-	width: 24px;
-	height: 24px;
-}
-
-.sh-LicenseReminder-body {
-	flex: 1;
-	min-width: 0;
 }
 
 .sh-LicenseReminder-title {
-	margin: 0 0 var(--sh-spacing-xxsmall) 0;
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-xsmall);
+	margin: 0 0 var(--sh-spacing-xsmall) 0;
 	font-size: 14px;
 	font-weight: 600;
 	color: #1d2327;
 }
 
+.sh-LicenseReminder-icon.dashicons {
+	flex-shrink: 0;
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	color: var(--sh-color-black-2);
+}
+
 .sh-LicenseReminder-text {
-	margin: 0;
+	margin: 0 0 var(--sh-spacing-medium) 0;
 	font-size: 13px;
 	color: #3c434a;
 }
 
-.sh-LicenseReminder-action {
-	flex-shrink: 0;
+.sh-LicenseReminder-actions {
+	margin: 0 0 var(--sh-spacing-xsmall) 0;
 }
 
-@media (max-width: 600px) {
-	.sh-LicenseReminder {
-		flex-wrap: wrap;
-	}
+.sh-LicenseReminder-dismissWrap {
+	margin: 0;
+}
 
-	.sh-LicenseReminder-action {
-		flex-basis: 100%;
-	}
+.sh-LicenseReminder-dismiss {
+	padding: 0;
+	background: transparent;
+	border: 0;
+	color: var(--sh-color-black-2);
+	font-size: 12px;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.sh-LicenseReminder-dismiss:hover,
+.sh-LicenseReminder-dismiss:focus-visible {
+	color: #1d2327;
 }
