@@ -139,6 +139,26 @@ if ( get_post_status( $post_id ) === 'publish' ) {
 return $action_links;
 ```
 
+### No Links in the Message Body When Action Links Cover the Destination
+
+Action links are the canonical "what can I do?" affordance. The message body's job is "what happened?" — a declarative sentence. Putting an `<a>` inside the message (e.g. wrapping `{post_title}` in the template) re-introduces the visual hierarchy collapse action links were designed to eliminate: the linked title reads as a CTA mid-sentence and competes with the action row below.
+
+**Rule:** Inline links inside message templates are permitted **only when they point somewhere the action row cannot reach**. If `get_action_links()` already returns a link to that destination (Edit, View, Revisions, the overview page, …), the message text must be plain.
+
+**Examples:**
+
+| Message template                                                           | OK?                                                                          |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `Updated page "<a href='…'>{post_title}</a>"` with Edit/View in action row | ❌ duplicates the Edit link — drop the `<a>`, keep just `"{post_title}"`     |
+| `Updated page "{post_title}"`                                              | ✅ plain title, action row handles navigation                                |
+| `Mentioned {external_url}` where no action link points there               | ✅ legitimate — the action row can't represent arbitrary external references |
+
+**Deleted-item events stay plain too.** When the per-item link would be dead (post trashed, plugin uninstalled), a plain title beats a broken link. The overview action link (`All pages`, `All plugins`) is the right hand-off.
+
+**A11y:** screen reader users navigating by link list hear fewer, clearer labels — "Edit page" beats an ambiguous quoted title followed by "Edit page".
+
+This is not an urgent migration. Apply opportunistically when touching a logger for other reasons. See the **logger-messages** skill for the corresponding guidance on the message side.
+
 ### Migrating from Inline Links
 
 When moving a link from `get_log_row_details_output()` to action links:
