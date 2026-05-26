@@ -112,6 +112,32 @@ class WP_REST_Devtools_Controller extends WP_REST_Controller {
 				],
 			],
 		);
+
+		// POST /wp-json/simple-history/v1/dev-tools/reset-license-reminder-dismissals.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/reset-license-reminder-dismissals',
+			[
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'reset_license_reminder_dismissals' ],
+					'permission_callback' => [ $this, 'toggle_plugin_permissions_check' ],
+				],
+			],
+		);
+
+		// GET /wp-json/simple-history/v1/dev-tools/license-reminder-dismissals.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/license-reminder-dismissals',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_license_reminder_dismissals' ],
+					'permission_callback' => [ $this, 'toggle_plugin_permissions_check' ],
+				],
+			],
+		);
 	}
 
 	/**
@@ -295,6 +321,54 @@ class WP_REST_Devtools_Controller extends WP_REST_Controller {
 				'success' => true,
 				'slug'    => $slug,
 				'has_key' => $key !== '',
+			]
+		);
+	}
+
+	/**
+	 * Clear the license reminder dismissed-addons user meta for the current user.
+	 *
+	 * Used by Playwright tests to reset to a "card visible" state between
+	 * scenarios without poking the database directly.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function reset_license_reminder_dismissals( $request ) {
+		delete_user_meta(
+			get_current_user_id(),
+			Services\License_Reminder_Service::USER_META_KEY
+		);
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'user_id' => get_current_user_id(),
+			]
+		);
+	}
+
+	/**
+	 * Return the current user's license-reminder dismissed-addons array.
+	 *
+	 * Used by Playwright tests to lock in the actual user_meta state rather
+	 * than only asserting downstream visibility, so a regression that hides
+	 * the card for an unrelated reason still fails the test.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_license_reminder_dismissals( $request ) {
+		$stored = get_user_meta(
+			get_current_user_id(),
+			Services\License_Reminder_Service::USER_META_KEY,
+			true
+		);
+
+		return rest_ensure_response(
+			[
+				'user_id'           => get_current_user_id(),
+				'dismissed_addons'  => is_array( $stored ) ? array_values( $stored ) : [],
 			]
 		);
 	}

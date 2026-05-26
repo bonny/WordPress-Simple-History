@@ -263,6 +263,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Action link labels dropped the "View" prefix: "View plugin info" → "Plugin info", "View Site Health" → "Site Health", "View changelog" → "Changelog". Verbs kept where multiple actions target the same noun (Edit / View / Preview post).
 -   External action links now show an "open in new tab" icon and open in a new tab.
+-   License reminder for missing add-on license keys moved from a full-width banner on every Simple History page to a dismissible card in the History Insights sidebar. Visiting Settings → Licenses also dismisses it. A new `simple_history/license_reminder/should_show` filter lets managed/Composer installs suppress it site-wide.
 -   🧪 **Experimental** — Role and capability events no longer dump the full list of capability slugs into the event headline. A plugin activation that adds 40 caps to a role now reads "Added 40 capabilities to role Editor" instead of a paragraph of slugs. The full list is still available in the event details panel.
 
 **Fixed**

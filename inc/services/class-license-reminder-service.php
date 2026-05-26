@@ -36,8 +36,53 @@ class License_Reminder_Service extends Service {
 	public function loaded() {
 		// Priority 10 so we render above the History Insights box (priority 30).
 		add_action( 'simple_history/dropin/sidebar/sidebar_html', [ $this, 'maybe_output_card' ], 10 );
+		add_action( 'admin_init', [ $this, 'maybe_implicit_dismiss_on_licenses_tab' ] );
 		add_action( 'wp_ajax_' . self::DISMISS_ACTION, [ $this, 'handle_ajax_dismiss' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+	}
+
+	/**
+	 * If the current user is viewing the Licenses settings sub-tab, mark every
+	 * currently-unlicensed add-on as dismissed for them. They have found the
+	 * License tab on their own, so the discovery goal is satisfied even if they
+	 * haven't entered a key yet.
+	 *
+	 * Runs on admin_init so it fires on the Settings page (the sidebar-render
+	 * hook only fires on the event log page).
+	 */
+	public function maybe_implicit_dismiss_on_licenses_tab() {
+		// Scope to the Simple History settings page. admin_init fires on every
+		// admin request, so without this guard a stale URL on any wp-admin page
+		// that carries selected-sub-tab=general_settings_subtab_licenses would
+		// silently dismiss the reminder.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( $page !== 'simple_history_settings_page' ) {
+			return;
+		}
+
+		if ( ! $this->is_on_licenses_settings_tab() ) {
+			return;
+		}
+
+		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
+			return;
+		}
+
+		// Respect the same suppression filter as maybe_output_card() — sites
+		// that opt out of the card should not accumulate dismissal state either.
+		if ( ! apply_filters( 'simple_history/license_reminder/should_show', true ) ) {
+			return;
+		}
+
+		$addons_without_license = $this->get_addons_missing_license();
+
+		if ( empty( $addons_without_license ) ) {
+			return;
+		}
+
+		$this->mark_addons_dismissed( $addons_without_license );
 	}
 
 	/**
@@ -66,13 +111,6 @@ class License_Reminder_Service extends Service {
 		$addons_without_license = $this->get_addons_missing_license();
 
 		if ( empty( $addons_without_license ) ) {
-			return;
-		}
-
-		// Implicit dismiss: the user has found the License tab on their own,
-		// so the discovery goal is satisfied even if they haven't entered a key yet.
-		if ( $this->is_on_licenses_settings_tab() ) {
-			$this->mark_addons_dismissed( $addons_without_license );
 			return;
 		}
 
