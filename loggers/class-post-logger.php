@@ -1134,6 +1134,15 @@ class Post_Logger extends Logger {
 			$meta_changes['changed'][ $meta_key ] = true;
 		}
 
+		// Look for removed custom fields/meta.
+		foreach ( $old_meta as $meta_key => $meta_value ) {
+			if ( isset( $new_meta[ $meta_key ] ) ) {
+				continue;
+			}
+
+			$meta_changes['removed'][ $meta_key ] = true;
+		}
+
 		if ( $meta_changes['added'] ) {
 			$context['post_meta_added'] = count( $meta_changes['added'] );
 		}
