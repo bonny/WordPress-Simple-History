@@ -3487,6 +3487,24 @@ a.sh-EventsStatsBar--link:hover {
 	padding: var(--sh-spacing-medium) var(--sh-spacing-medium);
 }
 
+/* End-of-results hint: shown at the bottom of the list on the last page
+   when filters are active. Includes a premium-retention upsell for free
+   users. Left-aligned, dimmed — orientation, not action. */
+.sh-EndOfResultsHint {
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+	padding: var(--sh-spacing-small) var(--sh-spacing-medium);
+}
+
+.sh-EndOfResultsHint__line {
+	margin: 0;
+}
+
+.sh-EndOfResultsHint__line + .sh-EndOfResultsHint__line {
+	margin-top: var(--sh-spacing-xsmall);
+}
+
 /* Inline action buttons group in control bar. */
 .sh-ControlBarButtons {
 	gap: var(--sh-spacing-xsmall);

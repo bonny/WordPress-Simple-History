@@ -371,8 +371,10 @@ function EventsGUI() {
 	// Store the default date option from the API so we can restore it when clearing filters.
 	const defaultDateOptionRef = useRef( '' );
 
-	// Check if any filter has a non-default value.
-	const hasAnyActiveFilters = useMemo( () => {
+	// Check if any non-date filter has a non-default value. Used by the
+	// end-of-results hint to decide whether "adjust filters above" is
+	// actionable advice.
+	const hasNonDateActiveFilters = useMemo( () => {
 		const hasExpandedFilters =
 			selectedLogLevels.length > 0 ||
 			selectedMessageTypes.length > 0 ||
@@ -386,11 +388,7 @@ function EventsGUI() {
 
 		const hasSearchText = enteredSearchText.trim().length > 0;
 
-		const hasNonDefaultDate =
-			defaultDateOptionRef.current &&
-			selectedDateOption !== defaultDateOptionRef.current;
-
-		return hasExpandedFilters || hasSearchText || hasNonDefaultDate;
+		return hasExpandedFilters || hasSearchText;
 	}, [
 		selectedLogLevels,
 		selectedMessageTypes,
@@ -402,8 +400,16 @@ function EventsGUI() {
 		showAIOnly,
 		hideOwnEvents,
 		enteredSearchText,
-		selectedDateOption,
 	] );
+
+	// Check if any filter has a non-default value.
+	const hasAnyActiveFilters = useMemo( () => {
+		const hasNonDefaultDate =
+			defaultDateOptionRef.current &&
+			selectedDateOption !== defaultDateOptionRef.current;
+
+		return hasNonDateActiveFilters || hasNonDefaultDate;
+	}, [ hasNonDateActiveFilters, selectedDateOption ] );
 
 	// Reset all filter values to defaults.
 	const handleClearFilters = useCallback( () => {
@@ -819,6 +825,9 @@ function EventsGUI() {
 				surroundingCount={ surroundingCount }
 				hasActiveFilters={ hasAnyActiveFilters }
 				onClearFilters={ handleClearFilters }
+				canAdjustFilters={
+					hasNonDateActiveFilters && selectedDateOption !== 'allDates'
+				}
 			/>
 
 			<EventsModalIfFragment />
