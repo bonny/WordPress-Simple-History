@@ -1016,10 +1016,24 @@ i.e. the log is inside a .postbox element.
 	color: var(--sh-color-gray-3);
 }
 
-/* Dashboard widget: tighter action links. */
+/* Dashboard widget: tighter action links — drop icons, tighter spacing. */
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks {
+	gap: var(--sh-spacing-xsmall) 0;
 	margin-top: var(--sh-spacing-xsmall);
+	margin-right: 0;
 	margin-bottom: 0;
+	margin-left: calc(var(--sh-spacing-xsmall) * -1);
+}
+
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks__link {
+	padding-left: var(--sh-spacing-xsmall);
+	padding-right: var(--sh-spacing-xsmall);
+}
+
+.SimpleHistoryReactRoot.is-dashboard
+	.SimpleHistoryLogitem__actionLinks__link
+	.sh-Icon {
+	display: none;
 }
 
 /* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
