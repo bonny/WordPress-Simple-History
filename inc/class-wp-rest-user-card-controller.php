@@ -498,6 +498,49 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Get date + IP + user-agent for the user's most recent login event in a
+	 * single query.
+	 *
+	 * Faster path for callers that need all three (the premium user-card
+	 * module is the main one). Replaces three separate Log_Query calls —
+	 * `get_last_login()` + `get_last_ip_for_user()` + `get_last_user_agent_for_user()`
+	 * — with one. IP comes from the same login event as the UA, so the two
+	 * always describe the same session (previously they could diverge:
+	 * IP was pulled from the last event of any kind, UA only from logins).
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return array|null { date: string, ip: string|null, user_agent: string|null }
+	 *                   or null if no login event was found.
+	 */
+	public static function get_last_login_session( $user_id ) {
+		$log_query = new Log_Query();
+
+		$query_result = $log_query->query(
+			[
+				'user'             => $user_id,
+				'messages'         => 'SimpleUserLogger:user_logged_in',
+				'posts_per_page'   => 1,
+				'skip_count_query' => true,
+				'ungrouped'        => true,
+			]
+		);
+
+		$events = $query_result['log_rows'] ?? [];
+
+		if ( empty( $events ) ) {
+			return null;
+		}
+
+		$event = $events[0];
+
+		return [
+			'date'       => get_date_from_gmt( $event->date ),
+			'ip'         => $event->context['_server_remote_addr'] ?? null,
+			'user_agent' => $event->context['server_http_user_agent'] ?? null,
+		];
+	}
+
+	/**
 	 * Get the most recent event date for a user, optionally filtered by message type.
 	 *
 	 * @param int         $user_id  WordPress user ID.

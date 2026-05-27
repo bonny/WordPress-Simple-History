@@ -158,6 +158,24 @@ test( `capture user card popover (${ MODE })`, async ( { page } ) => {
 		throw new Error( 'Could not measure popover bounding box' );
 	}
 
+	// Tight box for the close-up: just `.sh-UserCard` itself, no popover
+	// wrapper or arrow. The descendant walk above includes the WP Popover
+	// arrow, which extends from the popover toward the anchored trigger
+	// row — that pulls the top edge up into the log row above. For the
+	// close-up we only want the card content. The context shot still uses
+	// popoverBox so the arrow + cream overflow are accounted for.
+	const cardBox = await page.evaluate( () => {
+		const el = document.querySelector( '.sh-UserCard' );
+		if ( ! el ) {
+			return null;
+		}
+		const r = el.getBoundingClientRect();
+		return { x: r.x, y: r.y, width: r.width, height: r.height };
+	} );
+	if ( ! cardBox ) {
+		throw new Error( 'Could not measure .sh-UserCard bounding box' );
+	}
+
 	const viewport = page.viewportSize();
 	const clamp = ( box ) => ( {
 		x: Math.max( 0, box.x ),
@@ -166,12 +184,24 @@ test( `capture user card popover (${ MODE })`, async ( { page } ) => {
 		height: Math.min( viewport.height - Math.max( 0, box.y ), box.height ),
 	} );
 
-	// Close-up: element-level screenshot, taken IMMEDIATELY after the
-	// bounding-box measurement (no debug captures, no DOM mutations in
-	// between). The WordPress Popover seems to remove itself from the DOM
-	// on focus events that get triggered by other Playwright operations,
-	// so we keep the gap between measurement and screenshot tight.
-	await popover.screenshot( { path: OUTPUT[ MODE ].closeup } );
+	// Close-up: page.screenshot with a clip computed from popoverBox,
+	// shaving a strip off the right edge so the WP Popover close (×)
+	// button doesn't appear in the embedded teaser preview (reads as a
+	// ghost affordance — "can I close something inside the screenshot?").
+	// Done IMMEDIATELY after the bounding-box measurement (no debug
+	// captures, no DOM mutations in between). The WordPress Popover
+	// removes itself from the DOM on focus events triggered by other
+	// Playwright operations, so we keep the gap tight.
+	const CLOSE_X_CROP = 40;
+	await page.screenshot( {
+		path: OUTPUT[ MODE ].closeup,
+		clip: clamp( {
+			x: cardBox.x,
+			y: cardBox.y,
+			width: cardBox.width - CLOSE_X_CROP,
+			height: cardBox.height,
+		} ),
+	} );
 
 	// Context clip: combine popover bounds with the trigger's event row so
 	// the screenshot shows "popover anchored to this event in the log."

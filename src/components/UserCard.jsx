@@ -1,7 +1,16 @@
 import { Button, Icon, Popover, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { close, external, people, wordpress } from '@wordpress/icons';
+import {
+	chartBar,
+	close,
+	external,
+	globe,
+	key,
+	people,
+	seen,
+	wordpress,
+} from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { humanTimeDiff } from '@wordpress/date';
 import { getTrackingUrl } from '../functions';
@@ -126,13 +135,13 @@ function PremiumTeaserBlurred() {
 							'Preview of the user card with Simple History Premium.',
 							'simple-history'
 						) }
-						width={ 720 }
-						height={ 582 }
+						width={ 640 }
+						height={ 580 }
 					/>
 				</a>
 				<figcaption className="sh-UserCard__teaserCaption">
 					{ __(
-						'Premium adds activity time, IP, browser, event counts, and one click to see everything they did.',
+						'Event counts, last-activity time, IP, browser — and one click to see everything they did.',
 						'simple-history'
 					) }
 				</figcaption>
@@ -235,6 +244,11 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 			{ ! isLoading && statDetails.length > 0 && (
 				<div className="sh-UserCard__stats">
 					<h5 className="sh-UserCard__statsHeading">
+						<Icon
+							icon={ chartBar }
+							size={ 14 }
+							className="sh-UserCard__statsHeadingIcon"
+						/>
 						{ __( 'Events', 'simple-history' ) }
 					</h5>
 					{ statDetails.map( ( stat ) => (
@@ -252,18 +266,41 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 
 			{ ! isLoading && textDetails.length > 0 && (
 				<ul className="sh-UserCard__meta sh-UserCard__meta--belowStats">
-					{ textDetails.map( ( detail ) => (
-						<li key={ detail.key } className="sh-UserCard__detail">
-							{ detail.label
-								? sprintf(
-										'%s %s',
-										detail.label,
-										renderDetailValue( detail )
-								  )
-								: renderDetailValue( detail ) }
-						</li>
-					) ) }
+					{ textDetails.map( ( detail ) => {
+						const iconForKey = {
+							last_activity: seen,
+							last_login: key,
+							last_session: globe,
+						}[ detail.key ];
+						return (
+							<li
+								key={ detail.key }
+								className="sh-UserCard__detail"
+							>
+								{ iconForKey && (
+									<Icon
+										icon={ iconForKey }
+										size={ 14 }
+										className="sh-UserCard__detailIcon"
+									/>
+								) }
+								<span>
+									{ detail.label
+										? sprintf(
+												'%s %s',
+												detail.label,
+												renderDetailValue( detail )
+										  )
+										: renderDetailValue( detail ) }
+								</span>
+							</li>
+						);
+					} ) }
 				</ul>
+			) }
+
+			{ ! isLoading && cardData && ! hasPremium && (
+				<PremiumTeaserBlurred />
 			) }
 
 			{ actions.length > 0 && (
@@ -292,10 +329,6 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 						) ) }
 					</ul>
 				</nav>
-			) }
-
-			{ ! isLoading && cardData && ! hasPremium && (
-				<PremiumTeaserBlurred />
 			) }
 		</div>
 	);

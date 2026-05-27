@@ -4763,7 +4763,7 @@ Styles for plugin update details. Markup looks like this:
 }
 
 body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
-	min-height: 295px;
+	min-height: 290px;
 }
 
 .sh-UserCard__close.components-button {
@@ -4857,6 +4857,27 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 
 .sh-UserCard__meta .sh-UserCard__detail + .sh-UserCard__detail {
 	margin-top: 0;
+}
+
+/* Inline icon + value layout for the meta-belowStats rows. Keeps the
+   value reading first, with a small muted icon as a wayfinder on the
+   left so the eye can scan the three lines (activity / login / session)
+   without reading the labels. */
+.sh-UserCard__meta--belowStats .sh-UserCard__detail {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.sh-UserCard__detailIcon {
+	flex-shrink: 0;
+	fill: var(--sh-color-gray-3, #757575);
+}
+
+.sh-UserCard__statsHeadingIcon {
+	margin-right: 4px;
+	vertical-align: -2px;
+	fill: var(--sh-color-gray-3, #757575);
 }
 
 .sh-UserCard__description {
@@ -4965,7 +4986,7 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 .sh-UserCard__premiumTeaser {
 	position: relative;
 	margin-top: var(--sh-spacing-small);
-	padding: 12px;
+	padding: 10px 12px 12px;
 	background: var(--sh-color-cream);
 	border: 1px solid var(--sh-color-gray-4);
 	border-radius: var(--sh-border-radius, 4px);
@@ -4975,7 +4996,7 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 }
 
 .sh-UserCard__teaserHeader {
-	margin: 0 0 8px 0;
+	margin: 0 0 6px 0;
 }
 
 /* No-op kept for the non-WP-user teaser, which still passes this modifier
@@ -5033,7 +5054,7 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 /* Premium teaser screenshot block — figure + caption + CTA.
    Screenshot regen: npm run screenshots:teaser-user-card. */
 .sh-UserCard__teaserScreenshot {
-	margin: 0 0 8px 0;
+	margin: 0 0 6px 0;
 }
 
 .sh-UserCard__teaserScreenshot img {
@@ -5044,7 +5065,7 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 	   on first open (causes a scrollbar until the image loads + repositions).
 	   Ratio matches the source PNG produced by the teaser-screenshots skill;
 	   tolerant of small variance run-to-run. */
-	aspect-ratio: 720 / 582;
+	aspect-ratio: 640 / 580;
 	/* No box-shadow / white frame — the screenshot already has its own
 	   popover border and shadow baked in. Adding another shadow inside the
 	   cream block creates a busy triple-frame effect. */

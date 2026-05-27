@@ -70,8 +70,34 @@ wp_cli plugin deactivate simple-history-premium
 echo "→ Capturing free-version screenshots (logged in as sally)…"
 SH_TEASER_MODE=free ${PLAYWRIGHT_BIN} test "${SPEC}" --project=chromium
 
+PNGS=(
+	"assets/images/user-card-with-premium.png"
+	"assets/images/user-card-with-premium-context.png"
+	"assets/images/user-card-without-premium.png"
+	"assets/images/user-card-without-premium-context.png"
+)
+
+# Optimize the captured PNGs. pngquant is lossy but visually clean for UI
+# screenshots and typically halves file size. `--skip-if-larger` keeps the
+# original if quantization would somehow grow the file. Skipped silently if
+# pngquant isn't installed — the captures still ship, just larger.
+if command -v pngquant >/dev/null 2>&1; then
+	echo "→ Optimizing PNGs with pngquant…"
+	for png in "${PNGS[@]}"; do
+		before=$(stat -f%z "${png}" 2>/dev/null || stat -c%s "${png}")
+		pngquant --quality=80-95 --strip --skip-if-larger --force \
+			--ext .png "${png}" 2>/dev/null || true
+		after=$(stat -f%z "${png}" 2>/dev/null || stat -c%s "${png}")
+		saved=$(( ( before - after ) * 100 / before ))
+		printf "    %s  %d → %d bytes (-%d%%)\n" \
+			"$(basename "${png}")" "${before}" "${after}" "${saved}"
+	done
+else
+	echo "→ pngquant not found — skipping image optimization."
+	echo "    Install: brew install pngquant"
+fi
+
 echo "✓ Done. Four PNGs written to assets/images/:"
-echo "    user-card-with-premium.png"
-echo "    user-card-with-premium-context.png"
-echo "    user-card-without-premium.png"
-echo "    user-card-without-premium-context.png"
+for png in "${PNGS[@]}"; do
+	echo "    $(basename "${png}")"
+done
