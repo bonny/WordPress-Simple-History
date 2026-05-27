@@ -228,6 +228,15 @@ test( `capture user card popover (${ MODE })`, async ( { page } ) => {
 		return { x: r.x, y: r.y, width: r.width, height: r.height };
 	}, triggerHandle );
 
+	// WP Popover programmatically focuses its close (×) button on open, and
+	// the resulting outline reads as "the user is hovering the close
+	// button" in the marketing asset. A click on a non-interactive area
+	// inside the card moves focus off the close button without dismissing
+	// the popover (only focusable elements receive focus; the avatar img
+	// doesn't qualify, so activeElement falls back to <body>).
+	await page.locator( '.sh-UserCard__avatar' ).first().click();
+	await page.waitForTimeout( 100 );
+
 	if ( rowBox ) {
 		const PAD = 24;
 		const left = Math.max( 0, Math.min( popoverBox.x, rowBox.x ) - PAD );
