@@ -189,7 +189,10 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 * @param array    $actions Array of action link items.
 		 * @param \WP_User $user    The WordPress user object.
 		 */
-		$data['actions'] = apply_filters( 'simple_history/user_card/actions', $actions, $user );
+		$filtered_actions = apply_filters( 'simple_history/user_card/actions', $actions, $user );
+
+		$data['details'] = self::sanitize_filter_array( $data['details'], true );
+		$data['actions'] = self::sanitize_filter_array( $filtered_actions, false );
 
 		return rest_ensure_response( $data );
 	}
@@ -246,11 +249,51 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		$data = [
 			'initiator'          => $type,
 			'has_premium_add_on' => Helpers::is_premium_add_on_active(),
-			'details'            => $details,
-			'actions'            => $actions,
+			'details'            => self::sanitize_filter_array( $details, true ),
+			'actions'            => self::sanitize_filter_array( $actions, false ),
 		];
 
 		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Ensure a filtered array is actually an array, optionally deduplicating
+	 * entries by `key` so a misbehaving filter (returns null, an object, a
+	 * string) can't crash the React consumer and so two plugins pushing the
+	 * same `key` don't trigger React's duplicate-key warning. First-write
+	 * wins on dedup — third-party filters running at lower priorities can
+	 * reserve a key before premium appends.
+	 *
+	 * @param mixed $value      Whatever the filter returned.
+	 * @param bool  $dedup_keys Whether to deduplicate entries by their `key` field.
+	 * @return array
+	 */
+	private static function sanitize_filter_array( $value, $dedup_keys ) {
+		if ( ! is_array( $value ) ) {
+			return [];
+		}
+
+		if ( ! $dedup_keys ) {
+			return array_values( $value );
+		}
+
+		$seen = [];
+		$out  = [];
+
+		foreach ( $value as $item ) {
+			if ( ! is_array( $item ) || ! isset( $item['key'] ) ) {
+				continue;
+			}
+
+			if ( isset( $seen[ $item['key'] ] ) ) {
+				continue;
+			}
+
+			$seen[ $item['key'] ] = true;
+			$out[]                = $item;
+		}
+
+		return $out;
 	}
 
 	/**
@@ -350,7 +393,62 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			return null;
 		}
 
-		return get_date_from_gmt( $events[0]->date );
+		return self::to_iso_utc( $events[0]->date );
+	}
+
+	/**
+	 * Get last-event date plus today / last-7-days / all-time event counts for
+	 * a non-user initiator, in a single SQL query.
+	 *
+	 * Replaces four separate `Log_Query` calls — three of them full
+	 * `COUNT(*)` aggregates — with one round trip using conditional
+	 * aggregation. Both MySQL/MariaDB and SQLite support this `SUM(CASE
+	 * WHEN ...)` pattern, so the helper works regardless of the database
+	 * backend Simple History is running on.
+	 *
+	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
+	 * @return array { last_event: string|null (ISO 8601 UTC), today: int, last_7_days: int, total: int }
+	 */
+	public static function get_initiator_card_stats( $initiator_type ) {
+		global $wpdb;
+
+		$table           = \Simple_History\Simple_History::get_instance()->get_events_table_name();
+		$today_start_gmt = gmdate( 'Y-m-d H:i:s', Date_Helper::get_last_n_days_start_timestamp( 1 ) );
+		$week_start_gmt  = gmdate( 'Y-m-d H:i:s', Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT
+					MAX(date) AS last_event,
+					SUM(CASE WHEN date >= %s THEN 1 ELSE 0 END) AS today_count,
+					SUM(CASE WHEN date >= %s THEN 1 ELSE 0 END) AS week_count,
+					COUNT(*) AS total_count
+				FROM {$table}
+				WHERE initiator = %s",
+				$today_start_gmt,
+				$week_start_gmt,
+				$initiator_type
+			),
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		if ( ! $row ) {
+			return [
+				'last_event'  => null,
+				'today'       => 0,
+				'last_7_days' => 0,
+				'total'       => 0,
+			];
+		}
+
+		return [
+			'last_event'  => $row['last_event'] ? self::to_iso_utc( $row['last_event'] ) : null,
+			'today'       => (int) $row['today_count'],
+			'last_7_days' => (int) $row['week_count'],
+			'total'       => (int) $row['total_count'],
+		];
 	}
 
 	/**
@@ -547,7 +645,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		$event = $events[0];
 
 		return [
-			'date'       => get_date_from_gmt( $event->date ),
+			'date'       => self::to_iso_utc( $event->date ),
 			'ip'         => $event->context['_server_remote_addr'] ?? null,
 			'user_agent' => $event->context['server_http_user_agent'] ?? null,
 		];
@@ -581,6 +679,24 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			return null;
 		}
 
-		return get_date_from_gmt( $events[0]->date );
+		return self::to_iso_utc( $events[0]->date );
+	}
+
+	/**
+	 * Convert a database datetime string (stored as GMT, no TZ marker) into
+	 * an ISO-8601 string with an explicit UTC offset.
+	 *
+	 * The React side renders these via `humanTimeDiff()`, which delegates to
+	 * `moment()`. A naked "Y-m-d H:i:s" is parsed in the *browser's* local
+	 * timezone, so admin browsers running in a different TZ than the site
+	 * would see relative times skewed by the offset (e.g. "9 hours ago" for
+	 * an event that just happened). Returning an offset-marked ISO string
+	 * makes the parse unambiguous everywhere.
+	 *
+	 * @param string $db_date Date string from the `simple_history` table.
+	 * @return string ISO-8601 datetime with `+00:00` offset.
+	 */
+	private static function to_iso_utc( $db_date ) {
+		return gmdate( 'c', strtotime( $db_date . ' UTC' ) );
 	}
 }

@@ -35,17 +35,29 @@ const OUTPUT = {
 
 // Selector + locator used to confirm the popover has finished loading the
 // content we care about for this mode. Premium waits for the meta line
-// rendered below the stats (an IP + browser string — only present once
-// the REST call has populated the premium details). Free waits for the
-// WP-user teaser's embedded screenshot (unique to that variant — non-WP
-// initiators have a simpler teaser block).
+// rendered below the stats inside the WP-user card specifically (an IP +
+// browser string — only present once the REST call has populated the
+// premium details). Free waits for the WP-user teaser's embedded
+// screenshot (unique to that variant — non-WP initiators have a simpler
+// teaser block).
+//
+// Both selectors are scoped under `.sh-UserCard--wp-user` because non-user
+// initiator cards (wp_cli, wp, web_user, other) now also render
+// `.sh-UserCard__meta--belowStats` once premium populates their "Last
+// event" detail — without the wp-user scope, the screenshot pipeline
+// would happily satisfy readyLocator on the wrong card variant and
+// overwrite the marketing asset with the wrong popover.
 function readyLocator( page ) {
 	if ( MODE === 'premium' ) {
 		return page
-			.locator( '.sh-UserCard__meta--belowStats .sh-UserCard__detail' )
+			.locator(
+				'.sh-UserCard--wp-user .sh-UserCard__meta--belowStats .sh-UserCard__detail'
+			)
 			.first();
 	}
-	return page.locator( '.sh-UserCard__teaserScreenshot' );
+	return page.locator(
+		'.sh-UserCard--wp-user .sh-UserCard__teaserScreenshot'
+	);
 }
 
 test.use( {

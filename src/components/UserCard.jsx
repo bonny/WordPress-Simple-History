@@ -18,9 +18,28 @@ import { getTrackingUrl } from '../functions';
 // Only one user card open at a time.
 let closeActiveUserCard = null;
 
-// Cache API responses to avoid duplicate fetches.
+// Cache API responses to avoid duplicate fetches. Entries are stored as
+// `{ data, fetchedAt }` and expire after CACHE_TTL_MS so dynamic fields
+// (last_event, events_today) don't freeze for the whole SPA session.
+const CACHE_TTL_MS = 60_000;
 const userCardCache = {};
 const initiatorCardCache = {};
+
+function readCache( cache, cacheKey ) {
+	const entry = cache[ cacheKey ];
+	if ( ! entry ) {
+		return null;
+	}
+	if ( Date.now() - entry.fetchedAt > CACHE_TTL_MS ) {
+		delete cache[ cacheKey ];
+		return null;
+	}
+	return entry.data;
+}
+
+function writeCache( cache, cacheKey, data ) {
+	cache[ cacheKey ] = { data, fetchedAt: Date.now() };
+}
 
 // Terminal prompt icon for WP-CLI (no suitable icon in @wordpress/icons).
 const terminalPrompt = (
@@ -89,6 +108,58 @@ function getPremiumUrl( content = '' ) {
 	);
 }
 
+// Icon mapped per detail key so the meta block reads at a glance.
+// Centralized so both card variants render the same way.
+const DETAIL_ICONS = {
+	last_activity: seen,
+	last_login: key,
+	last_session: globe,
+};
+
+/**
+ * Render the "below stats" meta block (Last login / Last event / IP·Browser).
+ *
+ * Shared between the WP-user card and the non-user initiator card so the two
+ * variants stay in sync — adding a new detail key + icon happens in one place.
+ *
+ * @param {Object} props
+ * @param {Array}  props.details textDetails array (everything not type='stat').
+ */
+function MetaDetailsList( { details } ) {
+	if ( details.length === 0 ) {
+		return null;
+	}
+
+	return (
+		<ul className="sh-UserCard__meta sh-UserCard__meta--belowStats">
+			{ details.map( ( detail ) => {
+				const iconForKey = DETAIL_ICONS[ detail.key ];
+				return (
+					<li key={ detail.key } className="sh-UserCard__detail">
+						{ iconForKey && (
+							<Icon
+								icon={ iconForKey }
+								size={ 14 }
+								className="sh-UserCard__detailIcon"
+							/>
+						) }
+						<span>
+							{ detail.label ? (
+								<>
+									{ detail.label }{ ' ' }
+									{ renderDetailValue( detail ) }
+								</>
+							) : (
+								renderDetailValue( detail )
+							) }
+						</span>
+					</li>
+				);
+			} ) }
+		</ul>
+	);
+}
+
 /**
  * Premium upsell block shown inside the user card for free users.
  *
@@ -141,7 +212,7 @@ function PremiumTeaserBlurred() {
 				</a>
 				<figcaption className="sh-UserCard__teaserCaption">
 					{ __(
-						'Event counts, last-activity time, IP, browser — and one click to see everything they did.',
+						'With Premium, this card also shows event counts, last login, IP, and browser — plus a direct link to everything they’ve done.',
 						'simple-history'
 					) }
 				</figcaption>
@@ -153,7 +224,7 @@ function PremiumTeaserBlurred() {
 				target="_blank"
 				rel="noopener noreferrer"
 			>
-				{ __( 'Show me what I’m missing', 'simple-history' ) }
+				{ __( 'Learn more about Premium', 'simple-history' ) }
 				<Icon icon={ external } size={ 16 } />
 			</a>
 		</div>
@@ -264,40 +335,7 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 				</div>
 			) }
 
-			{ ! isLoading && textDetails.length > 0 && (
-				<ul className="sh-UserCard__meta sh-UserCard__meta--belowStats">
-					{ textDetails.map( ( detail ) => {
-						const iconForKey = {
-							last_activity: seen,
-							last_login: key,
-							last_session: globe,
-						}[ detail.key ];
-						return (
-							<li
-								key={ detail.key }
-								className="sh-UserCard__detail"
-							>
-								{ iconForKey && (
-									<Icon
-										icon={ iconForKey }
-										size={ 14 }
-										className="sh-UserCard__detailIcon"
-									/>
-								) }
-								<span>
-									{ detail.label
-										? sprintf(
-												'%s %s',
-												detail.label,
-												renderDetailValue( detail )
-										  )
-										: renderDetailValue( detail ) }
-								</span>
-							</li>
-						);
-					} ) }
-				</ul>
-			) }
+			{ ! isLoading && <MetaDetailsList details={ textDetails } /> }
 
 			{ ! isLoading && cardData && ! hasPremium && (
 				<PremiumTeaserBlurred />
@@ -464,40 +502,7 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 				</div>
 			) }
 
-			{ ! isLoading && textDetails.length > 0 && (
-				<ul className="sh-UserCard__meta sh-UserCard__meta--belowStats">
-					{ textDetails.map( ( detail ) => {
-						const iconForKey = {
-							last_activity: seen,
-							last_login: key,
-							last_session: globe,
-						}[ detail.key ];
-						return (
-							<li
-								key={ detail.key }
-								className="sh-UserCard__detail"
-							>
-								{ iconForKey && (
-									<Icon
-										icon={ iconForKey }
-										size={ 14 }
-										className="sh-UserCard__detailIcon"
-									/>
-								) }
-								<span>
-									{ detail.label
-										? sprintf(
-												'%s %s',
-												detail.label,
-												renderDetailValue( detail )
-										  )
-										: renderDetailValue( detail ) }
-								</span>
-							</li>
-						);
-					} ) }
-				</ul>
-			) }
+			{ ! isLoading && <MetaDetailsList details={ textDetails } /> }
 
 			{ actions.length > 0 && (
 				<nav
@@ -615,14 +620,16 @@ export function UserCard( { event, children } ) {
 			if ( ! userId ) {
 				return;
 			}
-			if ( userCardCache[ userId ] ) {
-				setCardData( userCardCache[ userId ] );
+			const cached = readCache( userCardCache, userId );
+			if ( cached ) {
+				setCardData( cached );
 				return;
 			}
 			apiPath = `/simple-history/v1/users/${ userId }/card`;
 		} else {
-			if ( initiatorCardCache[ event.initiator ] ) {
-				setCardData( initiatorCardCache[ event.initiator ] );
+			const cached = readCache( initiatorCardCache, event.initiator );
+			if ( cached ) {
+				setCardData( cached );
 				return;
 			}
 			apiPath = `/simple-history/v1/initiators/${ event.initiator }/card`;
@@ -633,9 +640,9 @@ export function UserCard( { event, children } ) {
 		apiFetch( { path: apiPath } )
 			.then( ( data ) => {
 				if ( isWPUser ) {
-					userCardCache[ userId ] = data;
+					writeCache( userCardCache, userId, data );
 				} else {
-					initiatorCardCache[ event.initiator ] = data;
+					writeCache( initiatorCardCache, event.initiator, data );
 				}
 				setCardData( data );
 				setIsLoading( false );
