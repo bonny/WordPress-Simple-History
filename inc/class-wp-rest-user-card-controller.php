@@ -158,10 +158,11 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		// Actions: links shown in the actions section of the card.
 		// Each item: [ 'key' => string, 'label' => string, 'url' => string ].
-		// Core provides "User profile". Add-ons use the filter to add
-		// links like "All user activity". Labels are verbless — the icon
-		// supplies the action (people icon for the profile link, external
-		// arrow for off-site destinations).
+		// Core ships "User profile" — a basic WP utility, not premium content.
+		// Add-ons use the filter below to add premium-specific links like
+		// "View all user activity". Visual separation between the upsell
+		// teaser block (cream) and the actions section is what makes the
+		// mixed-tier nature read clearly to free users.
 		$actions = [
 			[
 				'key'   => 'view_profile',
@@ -381,6 +382,119 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		);
 
 		return $query_result['total_row_count'] ?? 0;
+	}
+
+	/**
+	 * Get the IP address from the user's most recent event.
+	 *
+	 * Reads `_server_remote_addr` from the event context. That value is already
+	 * passed through `Helpers::privacy_anonymize_ip()` at write time, so the
+	 * premium IP anonymization setting is respected automatically.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return string|null IP address, or null if no event with an IP is found.
+	 */
+	public static function get_last_ip_for_user( $user_id ) {
+		$log_query = new Log_Query();
+
+		$query_result = $log_query->query(
+			[
+				'user'             => $user_id,
+				'posts_per_page'   => 5,
+				'skip_count_query' => true,
+				'ungrouped'        => true,
+			]
+		);
+
+		foreach ( $query_result['log_rows'] ?? [] as $event ) {
+			if ( ! empty( $event->context['_server_remote_addr'] ) ) {
+				return $event->context['_server_remote_addr'];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Format a user-agent string into a short human-readable label.
+	 *
+	 * Tiny pattern-matching parser covering the common browsers and OSes seen
+	 * in WordPress admin (Chrome / Safari / Firefox / Edge × macOS / Windows /
+	 * Linux / iOS / Android). Avoids a composer dependency.
+	 *
+	 * @param string|null $ua_string Raw user-agent string.
+	 * @return string|null Label like "Chrome on macOS", or null if the input is empty.
+	 */
+	public static function format_user_agent_label( $ua_string ) {
+		if ( empty( $ua_string ) ) {
+			return null;
+		}
+
+		// Order matters: Edge UA contains "Chrome", Chrome UA contains "Safari".
+		$browser = null;
+		if ( preg_match( '#\bEdg[e]?/#', $ua_string ) ) {
+			$browser = 'Edge';
+		} elseif ( strpos( $ua_string, 'Firefox/' ) !== false ) {
+			$browser = 'Firefox';
+		} elseif ( strpos( $ua_string, 'Chrome/' ) !== false ) {
+			$browser = 'Chrome';
+		} elseif ( strpos( $ua_string, 'Safari/' ) !== false ) {
+			$browser = 'Safari';
+		}
+
+		$os = null;
+		if ( strpos( $ua_string, 'iPhone' ) !== false ) {
+			$os = 'iPhone';
+		} elseif ( strpos( $ua_string, 'iPad' ) !== false ) {
+			$os = 'iPad';
+		} elseif ( strpos( $ua_string, 'Android' ) !== false ) {
+			$os = 'Android';
+		} elseif ( strpos( $ua_string, 'Mac OS X' ) !== false || strpos( $ua_string, 'Macintosh' ) !== false ) {
+			$os = 'macOS';
+		} elseif ( strpos( $ua_string, 'Windows' ) !== false ) {
+			$os = 'Windows';
+		} elseif ( strpos( $ua_string, 'Linux' ) !== false ) {
+			$os = 'Linux';
+		}
+
+		if ( $browser && $os ) {
+			// U+00A0 NBSP between words keeps the label as one unbreakable
+			// unit so line-wrapping happens at outer separators only.
+			return sprintf( "%s\xC2\xA0on\xC2\xA0%s", $browser, $os );
+		}
+
+		return $browser ?? $os;
+	}
+
+	/**
+	 * Get the user-agent string from the user's most recent login event.
+	 *
+	 * The full UA string is captured by `User_Logger` only on login events
+	 * (`SimpleUserLogger:user_logged_in`), so the lookup is scoped accordingly.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return string|null User-agent string, or null if no login event with a UA is found.
+	 */
+	public static function get_last_user_agent_for_user( $user_id ) {
+		$log_query = new Log_Query();
+
+		$query_result = $log_query->query(
+			[
+				'user'             => $user_id,
+				'messages'         => 'SimpleUserLogger:user_logged_in',
+				'posts_per_page'   => 5,
+				'skip_count_query' => true,
+				'ungrouped'        => true,
+			]
+		);
+
+		foreach ( $query_result['log_rows'] ?? [] as $event ) {
+			if ( ! empty( $event->context['server_http_user_agent'] ) ) {
+				return $event->context['server_http_user_agent'];
+			}
+		}
+
+		return null;
 	}
 
 	/**

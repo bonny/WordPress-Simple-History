@@ -1,6 +1,6 @@
 import { Button, Icon, Popover, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { close, external, people, wordpress } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { humanTimeDiff } from '@wordpress/date';
@@ -15,9 +15,28 @@ const initiatorCardCache = {};
 
 // Terminal prompt icon for WP-CLI (no suitable icon in @wordpress/icons).
 const terminalPrompt = (
-	<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true">
-		<path d="M6 7l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-		<path d="M13 17h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+	<svg
+		viewBox="0 0 24 24"
+		xmlns="http://www.w3.org/2000/svg"
+		width="24"
+		height="24"
+		aria-hidden="true"
+	>
+		<path
+			d="M6 7l5 5-5 5"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M13 17h5"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+		/>
 	</svg>
 );
 
@@ -47,85 +66,86 @@ function renderDetailValue( detail ) {
 /**
  * Premium link helper.
  *
+ * @param {string} [content] utm_content value — lets us tell apart clicks
+ *                           from the screenshot vs the CTA vs other surfaces.
  * @return {string} Premium URL with tracking.
  */
-function getPremiumUrl() {
+function getPremiumUrl( content = '' ) {
 	return getTrackingUrl(
-		'https://simple-history.com/add-ons/premium/',
-		'premium_user_card'
+		'https://simple-history.com/features/user-card/',
+		'premium_user_card',
+		'wpadmin',
+		'plugin',
+		content
 	);
 }
 
 /**
- * Option A: Blurred placeholder values.
- * Shows premium items with blurred fake values to hint at what you'd get.
+ * Premium upsell block shown inside the user card for free users.
+ *
+ * Visually walled off (cream background + border + corner badge) so the
+ * eye reads it as marketing, not as more card content. Contains an
+ * embedded screenshot of the same popup with premium active, a caption
+ * listing what premium adds, and a clearly marketing-framed CTA — the
+ * label deliberately doesn't mirror any real in-app action so it can't
+ * be mistaken for one.
+ *
+ * Screenshot regen: npm run screenshots:teaser-user-card
+ * (see .claude/skills/teaser-screenshots/SKILL.md).
  */
 function PremiumTeaserBlurred() {
+	const screenshotUrl =
+		'/wp-content/plugins/simple-history/assets/images/user-card-with-premium.png';
+
 	return (
 		<div
-			className="sh-UserCard__premiumTeaser sh-UserCard__premiumTeaser--blurred"
+			className="sh-UserCard__premiumTeaser"
 			role="group"
-			aria-label={ __( 'Premium features', 'simple-history' ) }
+			aria-label={ __( 'Premium preview', 'simple-history' ) }
 		>
+			<div className="sh-UserCard__teaserHeader">
+				<span className="sh-Badge sh-Badge--premium">
+					{ __( 'Premium', 'simple-history' ) }
+				</span>
+			</div>
+
+			<figure className="sh-UserCard__teaserScreenshot">
+				<a
+					href={ getPremiumUrl( 'screenshot_click' ) }
+					target="_blank"
+					rel="noopener noreferrer"
+					className="sh-UserCard__teaserScreenshotLink"
+					aria-label={ __(
+						'See the premium user card on simple-history.com',
+						'simple-history'
+					) }
+				>
+					<img
+						src={ screenshotUrl }
+						alt={ __(
+							'Preview of the user card with Simple History Premium.',
+							'simple-history'
+						) }
+						width={ 720 }
+						height={ 582 }
+					/>
+				</a>
+				<figcaption className="sh-UserCard__teaserCaption">
+					{ __(
+						'Premium adds activity time, IP, browser, event counts, and one click to see everything they did.',
+						'simple-history'
+					) }
+				</figcaption>
+			</figure>
+
 			<a
-				href={ getPremiumUrl() }
-				className="sh-UserCard__blurredPreview"
+				href={ getPremiumUrl( 'cta_click' ) }
+				className="sh-UserCard__teaserCta"
 				target="_blank"
 				rel="noopener noreferrer"
 			>
-				<ul className="sh-UserCard__meta" aria-hidden="true">
-					<li className="sh-UserCard__detail sh-UserCard__detail--blurred">
-						{ __( 'Logged in', 'simple-history' ) }
-						{ ' ' }
-						<span className="sh-UserCard__blurredValue">
-							{ '3' }
-						</span>
-						{ ' ' }
-						{ __( 'hours ago', 'simple-history' ) }
-					</li>
-					<li className="sh-UserCard__detail sh-UserCard__detail--blurred">
-						{ __( 'Last activity', 'simple-history' ) }
-						{ ' ' }
-						<span className="sh-UserCard__blurredValue">
-							{ '12' }
-						</span>
-						{ ' ' }
-						{ __( 'minutes ago', 'simple-history' ) }
-					</li>
-				</ul>
-				<div className="sh-UserCard__stats" aria-hidden="true">
-					<div className="sh-UserCard__stat">
-						<span className="sh-UserCard__statValue sh-UserCard__blurredValue">
-							{ '8' }
-						</span>
-						<span className="sh-UserCard__statLabel">
-							{ __( 'Today', 'simple-history' ) }
-						</span>
-					</div>
-					<div className="sh-UserCard__stat">
-						<span className="sh-UserCard__statValue sh-UserCard__blurredValue">
-							{ '34' }
-						</span>
-						<span className="sh-UserCard__statLabel">
-							{ __( 'Last 7 days', 'simple-history' ) }
-						</span>
-					</div>
-					<div className="sh-UserCard__stat">
-						<span className="sh-UserCard__statValue sh-UserCard__blurredValue">
-							{ '847' }
-						</span>
-						<span className="sh-UserCard__statLabel">
-							{ __( 'Total', 'simple-history' ) }
-						</span>
-					</div>
-				</div>
-				<span className="sh-UserCard__blurredAction" aria-hidden="true">
-					<Icon icon={ external } size={ 16 } />
-					{ __( 'View all user activity', 'simple-history' ) }
-				</span>
-				<span className="sh-UserCard__premiumBadge">
-					{ __( 'Available with Premium', 'simple-history' ) }
-				</span>
+				{ __( 'Show me what I’m missing', 'simple-history' ) }
+				<Icon icon={ external } size={ 16 } />
 			</a>
 		</div>
 	);
@@ -202,21 +222,6 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 								</a>
 							</li>
 						) }
-						{ ! isLoading &&
-							textDetails.map( ( detail ) => (
-								<li
-									key={ detail.key }
-									className="sh-UserCard__detail"
-								>
-									{ detail.label
-										? sprintf(
-												'%s %s',
-												detail.label,
-												renderDetailValue( detail )
-										  )
-										: renderDetailValue( detail ) }
-								</li>
-							) ) }
 					</ul>
 				</div>
 			</div>
@@ -245,8 +250,20 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 				</div>
 			) }
 
-			{ ! isLoading && cardData && ! hasPremium && (
-				<PremiumTeaserBlurred />
+			{ ! isLoading && textDetails.length > 0 && (
+				<ul className="sh-UserCard__meta sh-UserCard__meta--belowStats">
+					{ textDetails.map( ( detail ) => (
+						<li key={ detail.key } className="sh-UserCard__detail">
+							{ detail.label
+								? sprintf(
+										'%s %s',
+										detail.label,
+										renderDetailValue( detail )
+								  )
+								: renderDetailValue( detail ) }
+						</li>
+					) ) }
+				</ul>
 			) }
 
 			{ actions.length > 0 && (
@@ -275,6 +292,10 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 						) ) }
 					</ul>
 				</nav>
+			) }
+
+			{ ! isLoading && cardData && ! hasPremium && (
+				<PremiumTeaserBlurred />
 			) }
 		</div>
 	);
@@ -566,13 +587,17 @@ export function UserCard( { event, children } ) {
 					anchorRef={ buttonRef }
 					noArrow={ false }
 					offset={ 10 }
-					placement="top"
+					placement="top-start"
 					animate={ false }
 					shift={ true }
 					className="sh-UserCard__popover"
 					onFocusOutside={ () => setShowPopover( false ) }
 				>
-					<div className="sh-UserCard">
+					<div
+						className={ `sh-UserCard${
+							isWPUser ? ' sh-UserCard--wp-user' : ''
+						}${ isLoading ? ' sh-UserCard--loading' : '' }` }
+					>
 						<Button
 							icon={ close }
 							iconSize={ 20 }
