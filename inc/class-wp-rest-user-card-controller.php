@@ -221,27 +221,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 */
 		$actions = apply_filters( 'simple_history/initiator_card/actions', $actions, $type );
 
-		// Build stats details for this initiator type.
-		$details = [
-			[
-				'key'   => 'events_today',
-				'label' => __( 'Today', 'simple-history' ),
-				'value' => self::get_initiator_event_count( $type, 1 ),
-				'type'  => 'stat',
-			],
-			[
-				'key'   => 'events_7_days',
-				'label' => __( 'Last 7 days', 'simple-history' ),
-				'value' => self::get_initiator_event_count( $type, 7 ),
-				'type'  => 'stat',
-			],
-			[
-				'key'   => 'events_total',
-				'label' => __( 'Total', 'simple-history' ),
-				'value' => self::get_initiator_total_event_count( $type ),
-				'type'  => 'stat',
-			],
-		];
+		// Details: key-value items shown below identity info.
+		// Core provides no details; other plugins and add-ons (including
+		// the premium add-on) can use the filter below to populate items
+		// like Today / Last 7 days / Total event counts. This keeps the
+		// initiator card aligned with the user card, where event stats
+		// are added via a filter rather than shipped in core.
+		$details = [];
 
 		/**
 		 * Filters the initiator card detail items.
@@ -338,6 +324,33 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 */
 	public static function get_last_event( $user_id ) {
 		return self::get_most_recent_event_date( $user_id );
+	}
+
+	/**
+	 * Get the most recent event date for a non-user initiator.
+	 *
+	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
+	 * @return string|null Date string in site local timezone, or null if no events found.
+	 */
+	public static function get_last_initiator_event( $initiator_type ) {
+		$log_query = new Log_Query();
+
+		$query_result = $log_query->query(
+			[
+				'initiator'        => $initiator_type,
+				'posts_per_page'   => 1,
+				'skip_count_query' => true,
+				'ungrouped'        => true,
+			]
+		);
+
+		$events = $query_result['log_rows'] ?? [];
+
+		if ( empty( $events ) ) {
+			return null;
+		}
+
+		return get_date_from_gmt( $events[0]->date );
 	}
 
 	/**

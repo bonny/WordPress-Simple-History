@@ -352,6 +352,7 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 	const actions = cardData?.actions || [];
 	const allDetails = cardData?.details || [];
 	const statDetails = allDetails.filter( ( d ) => d.type === 'stat' );
+	const textDetails = allDetails.filter( ( d ) => d.type !== 'stat' );
 
 	let label;
 	let description;
@@ -443,6 +444,11 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 			{ ! isLoading && statDetails.length > 0 && (
 				<div className="sh-UserCard__stats">
 					<h5 className="sh-UserCard__statsHeading">
+						<Icon
+							icon={ chartBar }
+							size={ 14 }
+							className="sh-UserCard__statsHeadingIcon"
+						/>
 						{ __( 'Events', 'simple-history' ) }
 					</h5>
 					{ statDetails.map( ( stat ) => (
@@ -456,6 +462,41 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 						</div>
 					) ) }
 				</div>
+			) }
+
+			{ ! isLoading && textDetails.length > 0 && (
+				<ul className="sh-UserCard__meta sh-UserCard__meta--belowStats">
+					{ textDetails.map( ( detail ) => {
+						const iconForKey = {
+							last_activity: seen,
+							last_login: key,
+							last_session: globe,
+						}[ detail.key ];
+						return (
+							<li
+								key={ detail.key }
+								className="sh-UserCard__detail"
+							>
+								{ iconForKey && (
+									<Icon
+										icon={ iconForKey }
+										size={ 14 }
+										className="sh-UserCard__detailIcon"
+									/>
+								) }
+								<span>
+									{ detail.label
+										? sprintf(
+												'%s %s',
+												detail.label,
+												renderDetailValue( detail )
+										  )
+										: renderDetailValue( detail ) }
+								</span>
+							</li>
+						);
+					} ) }
+				</ul>
 			) }
 
 			{ actions.length > 0 && (
