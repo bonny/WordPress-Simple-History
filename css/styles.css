@@ -4736,7 +4736,7 @@ Styles for plugin update details. Markup looks like this:
 }
 
 .sh-UserCard__popover .components-popover__content {
-	min-width: 320px;
+	min-width: 360px;
 	overflow: visible;
 	max-height: none;
 }
@@ -4745,6 +4745,25 @@ Styles for plugin update details. Markup looks like this:
 	position: relative;
 	padding: var(--sh-spacing-medium);
 	padding-right: calc(var(--sh-spacing-medium) + 20px);
+}
+
+/* Reserve content height during loading so the popover positions correctly
+   before the REST call resolves (otherwise it sizes for the identity-only
+   shell, then overflows / scrollbars when content fills in).
+
+   Two heights because the two card variants have very different sizes:
+   - Free  (teaser block with embedded screenshot): ~460px
+   - Premium (identity + meta + stats + actions):   ~340px
+
+   The body class `sh-has-premium` is set in PHP at admin_body_class time
+   so we know which to reserve before any JS runs. Class drops once data
+   loads — popover then snaps to natural content height. */
+.sh-UserCard--wp-user.sh-UserCard--loading {
+	min-height: 460px;
+}
+
+body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
+	min-height: 290px;
 }
 
 .sh-UserCard__close.components-button {
@@ -4818,6 +4837,13 @@ Styles for plugin update details. Markup looks like this:
 	padding: 0;
 }
 
+/* Meta block rendered below the stats grid (last active, IP+browser).
+   Visual continuity with the stats above — no border, just spacing. */
+.sh-UserCard__meta--belowStats {
+	margin-top: var(--sh-spacing-small);
+	padding-top: var(--sh-spacing-small);
+}
+
 .sh-UserCard__userId {
 	font-size: 12px;
 	font-weight: 400;
@@ -4831,6 +4857,27 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-UserCard__meta .sh-UserCard__detail + .sh-UserCard__detail {
 	margin-top: 0;
+}
+
+/* Inline icon + value layout for the meta-belowStats rows. Keeps the
+   value reading first, with a small muted icon as a wayfinder on the
+   left so the eye can scan the three lines (activity / login / session)
+   without reading the labels. */
+.sh-UserCard__meta--belowStats .sh-UserCard__detail {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.sh-UserCard__detailIcon {
+	flex-shrink: 0;
+	fill: var(--sh-color-gray-3, #757575);
+}
+
+.sh-UserCard__statsHeadingIcon {
+	margin-right: 4px;
+	vertical-align: -2px;
+	fill: var(--sh-color-gray-3, #757575);
 }
 
 .sh-UserCard__description {
@@ -4921,17 +4968,42 @@ Styles for plugin update details. Markup looks like this:
 	flex-shrink: 0;
 }
 
+/* Email in identity section: data, not action — keep subtle. */
+.sh-UserCard__email {
+	color: var(--sh-color-gray-3);
+	text-decoration: none;
+}
+
+.sh-UserCard__email:hover,
+.sh-UserCard__email:focus {
+	text-decoration: underline;
+}
+
+/* Premium teaser block — visually walled off so the eye reads it as an
+   ad, not as more card content. Cream background + soft border + corner
+   "Premium" pill. Padding kept compact so the block doesn't dominate
+   the popover when the rest of the card is short. */
 .sh-UserCard__premiumTeaser {
+	position: relative;
 	margin-top: var(--sh-spacing-small);
+	padding: 10px 12px 12px;
+	background: var(--sh-color-cream);
+	border: 1px solid var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius, 4px);
 	font-size: var(--sh-font-size-small);
 	color: var(--sh-color-gray-3);
 	line-height: 1.4;
 }
 
+.sh-UserCard__teaserHeader {
+	margin: 0 0 6px 0;
+}
+
+/* No-op kept for the non-WP-user teaser, which still passes this modifier
+   class. Cream/padding is now on the base rule above. Safe to delete once
+   that teaser is refactored. */
 .sh-UserCard__premiumTeaser--blurred {
-	background: var(--sh-color-cream);
-	border-radius: var(--sh-border-radius, 4px);
-	padding: var(--sh-spacing-small);
+	/* empty */
 }
 
 /* Option A: Blurred preview. */
@@ -4956,12 +5028,6 @@ Styles for plugin update details. Markup looks like this:
 	color: var(--sh-color-gray-3);
 }
 
-.sh-UserCard__blurredValue {
-	filter: blur(4px);
-	user-select: none;
-	margin-left: 4px;
-}
-
 .sh-UserCard__blurredAction {
 	display: flex;
 	align-items: center;
@@ -4983,6 +5049,70 @@ Styles for plugin update details. Markup looks like this:
 
 .sh-UserCard__blurredPreview:hover .sh-UserCard__premiumBadge {
 	color: var(--sh-color-blue, #2271b1);
+}
+
+/* Premium teaser screenshot block — figure + caption + CTA.
+   Screenshot regen: npm run screenshots:teaser-user-card. */
+.sh-UserCard__teaserScreenshot {
+	margin: 0 0 6px 0;
+}
+
+.sh-UserCard__teaserScreenshot img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	/* Reserve space upfront so the popover doesn't lay out smaller-than-content
+	   on first open (causes a scrollbar until the image loads + repositions).
+	   Ratio matches the source PNG produced by the teaser-screenshots skill;
+	   tolerant of small variance run-to-run. */
+	aspect-ratio: 640 / 580;
+	/* No box-shadow / white frame — the screenshot already has its own
+	   popover border and shadow baked in. Adding another shadow inside the
+	   cream block creates a busy triple-frame effect. */
+}
+
+.sh-UserCard__teaserCaption {
+	margin: 6px 0 0 0;
+	font-size: 12px;
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+}
+
+/* Outlined button styling so the CTA reads as the conversion target,
+   not just another link nestled in the caption text. */
+.sh-UserCard__teaserCta {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 4px;
+	padding: 6px 12px;
+	color: #2271b1;
+	background: #fff;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
+	text-decoration: none;
+	font-weight: 500;
+}
+
+.sh-UserCard__teaserCta:hover,
+.sh-UserCard__teaserCta:focus {
+	color: #fff;
+	background: #2271b1;
+	text-decoration: none;
+}
+
+/* Clickable wrapper around the embedded preview — strip default anchor
+   styling so the image still looks like an image, just with a pointer
+   cursor + subtle lift on hover. */
+.sh-UserCard__teaserScreenshotLink {
+	display: block;
+	text-decoration: none;
+	transition: opacity 0.15s ease-out;
+}
+
+.sh-UserCard__teaserScreenshotLink:hover,
+.sh-UserCard__teaserScreenshotLink:focus {
+	opacity: 0.9;
 }
 
 /* License Reminder — sidebar postbox shown when an add-on is missing a license key. */

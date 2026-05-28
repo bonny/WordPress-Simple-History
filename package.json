@@ -68,7 +68,8 @@
 		"wp-env:stop": "npx @wordpress/env stop",
 		"wp-env:reset": "npx @wordpress/env reset && npx @wordpress/env start",
 		"playground:start": "npx @wp-playground/cli server --mount=.:/wordpress/wp-content/plugins/simple-history --blueprint=.claude/worktree-blueprint.json",
-		"screenshot": "bash tests/screenshot/run.sh"
+		"screenshot": "bash tests/screenshot/run.sh",
+		"screenshots:teaser-user-card": "bash scripts/capture-teaser-screenshots.sh"
 	},
 	"dependencies": {
 		"@wordpress/icons": "^10.6.0",
