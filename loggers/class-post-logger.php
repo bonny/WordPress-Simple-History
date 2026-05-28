@@ -961,7 +961,6 @@ class Post_Logger extends Logger {
 			'post_status',
 			'menu_order',
 			'post_date',
-			'post_date_gmt',
 			'post_excerpt',
 			'comment_status',
 			'ping_status',

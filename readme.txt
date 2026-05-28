@@ -272,6 +272,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "All users" overview link no longer appears on login, logout, failed-login, and session-destroy events. It now only shows on user-management events (profile updated, user created, user deleted), where navigating to the users list is actually relevant.
 -   Alt-text changes to media made via direct meta updates (e.g. `wp post meta update <id> _wp_attachment_image_alt "..."`) are now logged. Previously only changes made through wp-admin or the REST API were captured, so automation and CLI scripts could update alt text silently.
 -   Removed custom fields on post updates are now counted in the event details. Previously the "removed" bucket was initialized but never populated, so deleted post meta keys were silently dropped from the log entry.
+-   `post_date_gmt` (UTC publish date) no longer appears as a separate row in post update details. It was redundant with the "Publish date" row and produced confusing `0000-00-00 00:00:00` diffs when a post was first published.
 
 ### 5.28.0 (May 2026)
 
