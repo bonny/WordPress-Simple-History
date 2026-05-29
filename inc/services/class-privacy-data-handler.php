@@ -135,6 +135,73 @@ class Privacy_Data_Handler extends Service {
 	}
 
 	/**
+	 * Anonymize all PII in a single event's context, in place.
+	 *
+	 * Removes login/email/user-agent/referer, zeroes the initiator user id,
+	 * and fully anonymizes every stored IP-address key. The event row itself
+	 * is preserved as an audit record. Idempotent.
+	 *
+	 * @param int $history_id Event id.
+	 * @return void
+	 */
+	private function anonymize_event( $history_id ) {
+		global $wpdb;
+
+		$contexts_table = \Simple_History\Simple_History::get_instance()->get_contexts_table_name();
+
+		// Context keys removed entirely.
+		$keys_to_remove = array( '_user_login', '_user_email', 'server_http_user_agent', '_server_http_referer' );
+
+		foreach ( $keys_to_remove as $key ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->delete(
+				$contexts_table,
+				array(
+					'history_id' => $history_id,
+					'key'        => $key,
+				) 
+			);
+		}
+
+		// Initiator user id zeroed (kept as a key so the row stays well-formed).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->update(
+			$contexts_table,
+			array( 'value' => '0' ),
+			array(
+				'history_id' => $history_id,
+				'key'        => '_user_id',
+			) 
+		);
+
+		// Fully anonymize every stored IP key (main + proxy-header variants).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$ip_keys = $wpdb->get_col(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT `key` FROM {$contexts_table}
+				 WHERE history_id = %d
+				 AND ( `key` = %s OR `key` REGEXP %s )",
+				$history_id,
+				'_server_remote_addr',
+				'^_server_http_.+_[0-9]+$'
+			)
+		);
+
+		foreach ( $ip_keys as $ip_key ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->update(
+				$contexts_table,
+				array( 'value' => '0.0.0.x' ),
+				array(
+					'history_id' => $history_id,
+					'key'        => $ip_key,
+				) 
+			);
+		}
+	}
+
+	/**
 	 * Resolve an email to a user and fetch one page of their initiated events.
 	 *
 	 * Events are matched by the `_user_id` context key (initiator-only scope).

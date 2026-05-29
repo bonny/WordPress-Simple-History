@@ -149,4 +149,95 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( [], $result['data'] );
 		$this->assertTrue( $result['done'] );
 	}
+
+	/**
+	 * Helper: read an event's context as an associative array straight from the DB.
+	 *
+	 * @param int $history_id Event id.
+	 * @return array<string,string>
+	 */
+	private function read_context( $history_id ) {
+		global $wpdb;
+		$table = Simple_History::get_instance()->get_contexts_table_name();
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare( "SELECT `key`, value FROM {$table} WHERE history_id = %d", $history_id ),
+			ARRAY_A
+		);
+
+		$out = [];
+		foreach ( $rows as $r ) {
+			$out[ $r['key'] ] = $r['value'];
+		}
+		return $out;
+	}
+
+	/**
+	 * Scrubbing removes/masks PII keys but keeps the event and non-PII context.
+	 */
+	public function test_anonymize_event_scrubs_pii_keeps_rest() {
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator', 'user_email' => 'scrub-' . uniqid() . '@example.com' ] );
+		wp_set_current_user( $user_id );
+
+		$logger = SimpleLogger()->info(
+			'Scrub me',
+			[
+				'_server_remote_addr'            => '203.0.113.45',
+				'_server_http_x_forwarded_for_0' => '198.51.100.7',
+				'server_http_user_agent'         => 'Mozilla/5.0 (TestAgent)',
+				'_server_http_referer'           => 'https://example.com/secret?token=abc',
+				'object_subtype'                 => 'post',
+			]
+		);
+		$event_id = $logger->last_insert_id;
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$method  = new ReflectionMethod( $service, 'anonymize_event' );
+		$method->setAccessible( true );
+		$method->invoke( $service, $event_id );
+
+		$context = $this->read_context( $event_id );
+
+		// Identity removed / zeroed.
+		$this->assertSame( '0', $context['_user_id'] );
+		$this->assertArrayNotHasKey( '_user_login', $context );
+		$this->assertArrayNotHasKey( '_user_email', $context );
+		$this->assertArrayNotHasKey( 'server_http_user_agent', $context );
+		$this->assertArrayNotHasKey( '_server_http_referer', $context );
+
+		// All IP keys fully anonymized.
+		$this->assertSame( '0.0.0.x', $context['_server_remote_addr'] );
+		$this->assertSame( '0.0.0.x', $context['_server_http_x_forwarded_for_0'] );
+
+		// Non-PII context preserved.
+		$this->assertSame( 'post', $context['object_subtype'] );
+
+		// Event row itself still exists.
+		global $wpdb;
+		$events_table = Simple_History::get_instance()->get_events_table_name();
+		$still_there  = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$events_table} WHERE id = %d", $event_id ) );
+		$this->assertSame( '1', (string) $still_there, 'Event row must NOT be deleted.' );
+	}
+
+	/**
+	 * Running the scrub twice is a stable no-op.
+	 */
+	public function test_anonymize_event_is_idempotent() {
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator', 'user_email' => 'idem-' . uniqid() . '@example.com' ] );
+		wp_set_current_user( $user_id );
+
+		$logger   = SimpleLogger()->info( 'Idempotent', [ '_server_remote_addr' => '203.0.113.45' ] );
+		$event_id = $logger->last_insert_id;
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$method  = new ReflectionMethod( $service, 'anonymize_event' );
+		$method->setAccessible( true );
+
+		$method->invoke( $service, $event_id );
+		$method->invoke( $service, $event_id );
+
+		$context = $this->read_context( $event_id );
+		$this->assertSame( '0', $context['_user_id'] );
+		$this->assertSame( '0.0.0.x', $context['_server_remote_addr'] );
+	}
 }
