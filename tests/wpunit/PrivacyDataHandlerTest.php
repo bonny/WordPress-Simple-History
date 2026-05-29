@@ -243,4 +243,75 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayNotHasKey( '_user_login', $context );
 		$this->assertArrayNotHasKey( '_user_email', $context );
 	}
+
+	/**
+	 * Registering the eraser adds our group with a callable.
+	 */
+	public function test_register_eraser_adds_group() {
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$erasers = $service->register_eraser( [] );
+
+		$this->assertArrayHasKey( 'simple-history', $erasers );
+		$this->assertIsCallable( $erasers['simple-history']['callback'] );
+	}
+
+	/**
+	 * Erasing scrubs the user's events and reports the WP-shaped result.
+	 */
+	public function test_erase_user_data_scrubs_and_reports() {
+		$email   = 'erase-' . uniqid() . '@example.com';
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator', 'user_email' => $email ] );
+		wp_set_current_user( $user_id );
+		$logger   = SimpleLogger()->info( 'Erase me', [ '_server_remote_addr' => '203.0.113.45' ] );
+		$event_id = $logger->last_insert_id;
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->erase_user_data( $email, 1 );
+
+		$this->assertTrue( $result['items_removed'] );
+		$this->assertTrue( $result['items_retained'] );
+		$this->assertTrue( $result['done'] );
+		$this->assertNotEmpty( $result['messages'] );
+
+		$context = $this->read_context( $event_id );
+		$this->assertSame( '0.0.0.x', $context['_server_remote_addr'] );
+		$this->assertSame( '0', $context['_user_id'] );
+	}
+
+	/**
+	 * The eraser is NOT registered when experimental features are off.
+	 */
+	public function test_eraser_not_registered_when_experimental_off() {
+		add_filter( 'simple_history/experimental_features_enabled', '__return_false', 99 );
+
+		// Re-run loaded() to re-evaluate the gate with the filter applied.
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		remove_filter( 'wp_privacy_personal_data_erasers', [ $service, 'register_eraser' ] );
+		$service->loaded();
+
+		$this->assertFalse(
+			has_filter( 'wp_privacy_personal_data_erasers', [ $service, 'register_eraser' ] ),
+			'Eraser must not be registered when experimental features are off.'
+		);
+
+		remove_filter( 'simple_history/experimental_features_enabled', '__return_false', 99 );
+	}
+
+	/**
+	 * The eraser IS registered when experimental features are on.
+	 */
+	public function test_eraser_registered_when_experimental_on() {
+		add_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$service->loaded();
+
+		$this->assertNotFalse(
+			has_filter( 'wp_privacy_personal_data_erasers', [ $service, 'register_eraser' ] ),
+			'Eraser must be registered when experimental features are on.'
+		);
+
+		remove_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
+		remove_filter( 'wp_privacy_personal_data_erasers', [ $service, 'register_eraser' ] );
+	}
 }

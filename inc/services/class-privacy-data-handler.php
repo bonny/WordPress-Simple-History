@@ -8,6 +8,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
+use Simple_History\Log_Initiators;
 use Simple_History\Log_Query;
 
 /**
@@ -131,6 +132,91 @@ class Privacy_Data_Handler extends Service {
 				'name'  => __( 'User agent', 'simple-history' ),
 				'value' => $context['server_http_user_agent'] ?? '',
 			),
+		);
+	}
+
+	/**
+	 * Register Simple History as a personal-data eraser.
+	 *
+	 * @param array $erasers Registered erasers.
+	 * @return array
+	 */
+	public function register_eraser( $erasers ) {
+		$erasers['simple-history'] = array(
+			'eraser_friendly_name' => __( 'Simple History activity log', 'simple-history' ),
+			'callback'             => array( $this, 'erase_user_data' ),
+		);
+
+		return $erasers;
+	}
+
+	/**
+	 * Anonymize one batch of the user's activity-log events.
+	 *
+	 * Scrubs PII while preserving the event rows as an audit record.
+	 *
+	 * Always fetches the FIRST page, ignoring the incoming `$page`: scrubbing
+	 * zeroes each event's `_user_id`, so anonymized events drop out of the
+	 * `user => ID` filter. Re-querying page 1 each call therefore walks through
+	 * the remaining un-erased events. (Incrementing `$page` would skip events,
+	 * because the result set shrinks under us between calls.)
+	 *
+	 * @param string $email_address Email from the privacy request.
+	 * @param int    $page          1-based page number (unused; see above).
+	 * @return array{items_removed:bool,items_retained:bool,messages:array,done:bool}
+	 */
+	public function erase_user_data( $email_address, $page = 1 ) {
+		$rows = $this->get_user_event_rows( $email_address, 1 );
+
+		foreach ( $rows as $row ) {
+			$this->anonymize_event( $row->id );
+		}
+
+		$count = count( $rows );
+		$done  = $count < self::PAGE_SIZE;
+
+		$messages = array();
+
+		if ( $count > 0 ) {
+			$messages[] = sprintf(
+				/* translators: %d: number of activity-log entries anonymized. */
+				_n(
+					'Simple History anonymized the personal data in %d activity-log entry. The entry is retained as an audit record with personal data removed.',
+					'Simple History anonymized the personal data in %d activity-log entries. The entries are retained as an audit record with personal data removed.',
+					$count,
+					'simple-history'
+				),
+				$count
+			);
+		}
+
+		// On the final batch that actually scrubbed events, log a single summary
+		// event (count only, no subject PII). Guarding on `$count > 0` avoids a
+		// misleading breadcrumb on an empty erasure or the trailing empty page.
+		if ( $done && $count > 0 ) {
+			$this->log_erasure_summary( $email_address );
+		}
+
+		return array(
+			'items_removed'  => $count > 0,
+			'items_retained' => $count > 0,
+			'messages'       => $messages,
+			'done'           => $done,
+		);
+	}
+
+	/**
+	 * Log a single summary event for an erasure request. Count only, no subject PII.
+	 *
+	 * @param string $email_address Email from the privacy request (not logged).
+	 * @return void
+	 */
+	private function log_erasure_summary( $email_address ) {
+		SimpleLogger()->info(
+			'Anonymized personal data in Simple History for a privacy erasure request',
+			array(
+				'_initiator' => Log_Initiators::WP_USER,
+			)
 		);
 	}
 
