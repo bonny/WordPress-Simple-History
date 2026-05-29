@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
+use Simple_History\Log_Query;
 
 /**
  * Registers Simple History with WordPress's personal-data privacy tools
@@ -43,5 +44,38 @@ class Privacy_Data_Handler extends Service {
 		}
 
 		add_filter( 'wp_privacy_personal_data_erasers', [ $this, 'register_eraser' ] );
+	}
+
+	/**
+	 * Resolve an email to a user and fetch one page of their initiated events.
+	 *
+	 * Events are matched by the `_user_id` context key (initiator-only scope).
+	 * Ordered oldest-first for stable pagination across export/erase passes.
+	 *
+	 * @param string $email_address Email address from the privacy request.
+	 * @param int    $page          1-based page number.
+	 * @return array<int,object> Array of Log_Query row objects (may be empty).
+	 */
+	private function get_user_event_rows( $email_address, $page ) {
+		$user = get_user_by( 'email', $email_address );
+
+		if ( ! $user instanceof \WP_User ) {
+			return [];
+		}
+
+		$query_result = ( new Log_Query() )->query(
+			[
+				'user'           => $user->ID,
+				'posts_per_page' => self::PAGE_SIZE,
+				'paged'          => max( 1, (int) $page ),
+				'order'          => 'ASC',
+			]
+		);
+
+		if ( empty( $query_result['log_rows'] ) || ! is_array( $query_result['log_rows'] ) ) {
+			return [];
+		}
+
+		return $query_result['log_rows'];
 	}
 }
