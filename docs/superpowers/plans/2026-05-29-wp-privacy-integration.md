@@ -581,8 +581,10 @@ Add to `Privacy_Data_Handler`:
 
 		$contexts_table = \Simple_History\Simple_History::get_instance()->get_contexts_table_name();
 
-		// Context keys removed entirely.
-		$keys_to_remove = [ '_user_login', '_user_email', 'server_http_user_agent', '_server_http_referer' ];
+		// Initiator identity + device/network keys removed entirely. `_user_role`
+		// is included because on small sites a role like "administrator" is
+		// linkable to a specific person.
+		$keys_to_remove = [ '_user_login', '_user_email', '_user_role', 'server_http_user_agent', '_server_http_referer' ];
 
 		foreach ( $keys_to_remove as $key ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
