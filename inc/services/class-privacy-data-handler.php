@@ -113,6 +113,10 @@ class Privacy_Data_Handler extends Service {
 				'value' => get_date_from_gmt( $row->date ),
 			),
 			array(
+				'name'  => __( 'Date (UTC)', 'simple-history' ),
+				'value' => $row->date,
+			),
+			array(
 				'name'  => __( 'Logger', 'simple-history' ),
 				'value' => $row->logger,
 			),
@@ -190,10 +194,11 @@ class Privacy_Data_Handler extends Service {
 			);
 		}
 
-		// On the final batch that actually scrubbed events, log a single summary
-		// event (count only, no subject PII). Guarding on `$count > 0` avoids a
-		// misleading breadcrumb on an empty erasure or the trailing empty page.
-		if ( $done && $count > 0 ) {
+		// Log a summary event for any batch that actually scrubbed events. For
+		// most users (fewer than PAGE_SIZE events) this fires exactly once;
+		// guarding on `$done` would skip it entirely for users whose event count
+		// is an exact multiple of PAGE_SIZE.
+		if ( $count > 0 ) {
 			$this->log_erasure_summary();
 		}
 
@@ -268,27 +273,30 @@ class Privacy_Data_Handler extends Service {
 		);
 
 		// Fully anonymize every stored IP key (main + proxy-header variants).
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$ip_keys = $wpdb->get_col(
+		// Fetch all context keys for the event and filter in PHP so this works
+		// identically on MySQL/MariaDB and SQLite (no REGEXP dependency).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$all_keys = $wpdb->get_col(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT `key` FROM {$contexts_table}
-				 WHERE history_id = %d
-				 AND ( `key` = %s OR `key` REGEXP %s )",
-				$history_id,
-				'_server_remote_addr',
-				'^_server_http_.+_[0-9]+$'
+				"SELECT `key` FROM {$contexts_table} WHERE history_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$history_id
 			)
 		);
 
-		foreach ( $ip_keys as $ip_key ) {
+		foreach ( $all_keys as $key ) {
+			$is_ip_key = $key === '_server_remote_addr' || preg_match( '/^_server_http_.+_[0-9]+$/', $key );
+
+			if ( ! $is_ip_key ) {
+				continue;
+			}
+
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->update(
 				$contexts_table,
 				array( 'value' => '0.0.0.x' ),
 				array(
 					'history_id' => $history_id,
-					'key'        => $ip_key,
+					'key'        => $key,
 				),
 				array( '%s' ),
 				array( '%d', '%s' )

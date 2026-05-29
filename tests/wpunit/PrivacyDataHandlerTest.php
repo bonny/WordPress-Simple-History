@@ -324,6 +324,19 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Erasing for an unknown email is a clean, empty, done result.
+	 */
+	public function test_erase_user_data_unknown_email_is_done() {
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->erase_user_data( 'nobody-' . uniqid() . '@example.com', 1 );
+
+		$this->assertFalse( $result['items_removed'] );
+		$this->assertFalse( $result['items_retained'] );
+		$this->assertSame( array(), $result['messages'] );
+		$this->assertTrue( $result['done'] );
+	}
+
+	/**
 	 * Remove any experimental-feature filters added by the gating tests so that
 	 * a failing assertion cannot leak state to subsequent tests.
 	 */

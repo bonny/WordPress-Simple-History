@@ -1,4 +1,9 @@
 <?php
+/**
+ * Privacy & Data settings page service for Simple History.
+ *
+ * @package Simple_History
+ */
 
 namespace Simple_History\Services;
 
