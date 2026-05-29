@@ -239,7 +239,10 @@ Add these methods to `Privacy_Data_Handler`:
 	 * Resolve an email to a user and fetch one page of their initiated events.
 	 *
 	 * Events are matched by the `_user_id` context key (initiator-only scope).
-	 * Ordered oldest-first for stable pagination across export/erase passes.
+	 * Uses `ungrouped` so every individual event is returned — without it,
+	 * Log_Query collapses repeated events by occasion, which would exclude
+	 * duplicates from export and leave their personal data un-scrubbed on
+	 * erasure. Rows come back newest-first (Log_Query's default ordering).
 	 *
 	 * @param string $email_address Email address from the privacy request.
 	 * @param int    $page          1-based page number.
@@ -257,7 +260,7 @@ Add these methods to `Privacy_Data_Handler`:
 				'user'           => $user->ID,
 				'posts_per_page' => self::PAGE_SIZE,
 				'paged'          => max( 1, (int) $page ),
-				'order'          => 'ASC',
+				'ungrouped'      => true,
 			]
 		);
 
@@ -734,16 +737,22 @@ Add to `Privacy_Data_Handler`:
 	}
 
 	/**
-	 * Anonymize one page of the user's activity-log events.
+	 * Anonymize one batch of the user's activity-log events.
 	 *
 	 * Scrubs PII while preserving the event rows as an audit record.
 	 *
+	 * Always fetches the FIRST page, ignoring the incoming `$page`: scrubbing
+	 * zeroes each event's `_user_id`, so anonymized events drop out of the
+	 * `user => ID` filter. Re-querying page 1 each call therefore walks through
+	 * the remaining un-erased events. (Incrementing `$page` would skip events,
+	 * because the result set shrinks under us between calls.)
+	 *
 	 * @param string $email_address Email from the privacy request.
-	 * @param int    $page          1-based page number.
+	 * @param int    $page          1-based page number (unused; see above).
 	 * @return array{items_removed:bool,items_retained:bool,messages:array,done:bool}
 	 */
 	public function erase_user_data( $email_address, $page = 1 ) {
-		$rows = $this->get_user_event_rows( $email_address, $page );
+		$rows = $this->get_user_event_rows( $email_address, 1 );
 
 		foreach ( $rows as $row ) {
 			$this->anonymize_event( $row->id );
@@ -767,8 +776,10 @@ Add to `Privacy_Data_Handler`:
 			);
 		}
 
-		// On the final page, log a single summary event (count only, no subject PII).
-		if ( $done ) {
+		// On the final batch that actually scrubbed events, log a single summary
+		// event (count only, no subject PII). Guarding on `$count > 0` avoids a
+		// misleading breadcrumb on an empty erasure or the trailing empty page.
+		if ( $done && $count > 0 ) {
 			$this->log_erasure_summary( $email_address );
 		}
 
