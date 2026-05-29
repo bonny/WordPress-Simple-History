@@ -1512,9 +1512,7 @@ class Plugin_Logger extends Logger {
 
 		foreach ( $arr_plugin_keys as $key => $label ) {
 			// Prefer our prepared value; fall back to raw context for keys added via filter.
-			$value = isset( $rows[ $key ][1] )
-				? $rows[ $key ][1]
-				: ( $context[ $key ] ?? '' );
+			$value = $rows[ $key ][1] ?? ( $context[ $key ] ?? '' );
 
 			if ( trim( (string) $value ) === '' ) {
 				continue;

@@ -66,6 +66,7 @@ class License_Reminder_Service extends Service {
 			return;
 		}
 
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability(), filterable.
 		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
 			return;
 		}
@@ -90,6 +91,7 @@ class License_Reminder_Service extends Service {
 	 * and has not already dismissed those add-ons.
 	 */
 	public function maybe_output_card() {
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability(), filterable.
 		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
 			return;
 		}
@@ -224,6 +226,7 @@ class License_Reminder_Service extends Service {
 			wp_send_json_error( 'Invalid nonce' );
 		}
 
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability(), filterable.
 		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
 			wp_send_json_error( 'Permission denied' );
 		}
@@ -243,6 +246,7 @@ class License_Reminder_Service extends Service {
 	 * @param string $hook Current admin page hook.
 	 */
 	public function enqueue_scripts( $hook ) {
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability(), filterable.
 		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
 			return;
 		}

@@ -161,7 +161,7 @@ class Post_History_Column extends Service {
 	 */
 	private function is_column_hidden() {
 		if ( $this->is_column_hidden === null ) {
-			$screen                = get_current_screen();
+			$screen                 = get_current_screen();
 			$this->is_column_hidden = $screen && in_array( 'simple_history_activity', get_hidden_columns( $screen ), true );
 		}
 
@@ -207,8 +207,8 @@ class Post_History_Column extends Service {
 
 		$action = $this->get_action_label( $event['message_key'] );
 
-		$parts = array();
-		$parts[] = $action ?: __( 'Modified', 'simple-history' );
+		$parts   = array();
+		$parts[] = $action ? $action : __( 'Modified', 'simple-history' );
 
 		// translators: %s is a human-readable time difference, e.g. "2 hours".
 		$parts[] = sprintf( __( '%s ago', 'simple-history' ), $time_ago );

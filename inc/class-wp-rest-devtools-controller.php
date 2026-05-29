@@ -367,8 +367,8 @@ class WP_REST_Devtools_Controller extends WP_REST_Controller {
 
 		return rest_ensure_response(
 			[
-				'user_id'           => get_current_user_id(),
-				'dismissed_addons'  => is_array( $stored ) ? array_values( $stored ) : [],
+				'user_id'          => get_current_user_id(),
+				'dismissed_addons' => is_array( $stored ) ? array_values( $stored ) : [],
 			]
 		);
 	}

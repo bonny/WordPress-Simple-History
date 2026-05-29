@@ -398,16 +398,18 @@ class Plugin_Redirection_Logger extends Logger {
 		$group = new Event_Details_Group();
 		$group->set_formatter( new Event_Details_Group_Table_Formatter() );
 
-		$group->add_items( [
-			new Event_Details_Item(
-				[ 'new_source_url', 'prev_source_url' ],
-				_x( 'Source URL', 'Logger: Redirection', 'simple-history' ),
-			),
-			new Event_Details_Item(
-				[ 'new_target', 'prev_target' ],
-				_x( 'Target', 'Logger: Redirection', 'simple-history' ),
-			),
-		] );
+		$group->add_items(
+			[
+				new Event_Details_Item(
+					[ 'new_source_url', 'prev_source_url' ],
+					_x( 'Source URL', 'Logger: Redirection', 'simple-history' ),
+				),
+				new Event_Details_Item(
+					[ 'new_target', 'prev_target' ],
+					_x( 'Target', 'Logger: Redirection', 'simple-history' ),
+				),
+			] 
+		);
 
 		return $group;
 	}
