@@ -105,6 +105,10 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayHasKey( 'simple-history', $exporters );
 		$this->assertIsCallable( $exporters['simple-history']['callback'] );
+		$this->assertSame(
+			'Simple History activity log',
+			$exporters['simple-history']['exporter_friendly_name']
+		);
 	}
 
 	/**
@@ -129,6 +133,10 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertContains( 'Date', $field_names );
 		$this->assertContains( 'IP address', $field_names );
 		$this->assertContains( 'User agent', $field_names );
+		$this->assertContains( 'Logger', $field_names );
+		$this->assertContains( 'Level', $field_names );
+		$this->assertContains( 'Message', $field_names );
+		$this->assertSame( 'Simple History activity log', $first['group_label'] );
 	}
 
 	/**

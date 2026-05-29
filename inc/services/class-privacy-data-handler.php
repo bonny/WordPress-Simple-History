@@ -109,7 +109,7 @@ class Privacy_Data_Handler extends Service {
 		return array(
 			array(
 				'name'  => __( 'Date', 'simple-history' ),
-				'value' => $row->date,
+				'value' => get_date_from_gmt( $row->date ),
 			),
 			array(
 				'name'  => __( 'Logger', 'simple-history' ),
