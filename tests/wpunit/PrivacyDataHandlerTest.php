@@ -95,4 +95,50 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertGreaterThanOrEqual( 3, count( $rows ), 'All three repeated events must be returned individually (ungrouped).' );
 	}
+
+	/**
+	 * Registering the exporter adds our group to the exporters array.
+	 */
+	public function test_register_exporter_adds_group() {
+		$service   = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$exporters = $service->register_exporter( [] );
+
+		$this->assertArrayHasKey( 'simple-history', $exporters );
+		$this->assertIsCallable( $exporters['simple-history']['callback'] );
+	}
+
+	/**
+	 * Export returns the user's events with the expected fields and a done flag.
+	 */
+	public function test_export_user_data_returns_events() {
+		$email   = 'export-' . uniqid() . '@example.com';
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator', 'user_email' => $email ] );
+		$this->log_event_as_user( $user_id, 'Exportable event' );
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $email, 1 );
+
+		$this->assertTrue( $result['done'] );
+		$this->assertNotEmpty( $result['data'] );
+
+		$first = $result['data'][0];
+		$this->assertSame( 'simple-history', $first['group_id'] );
+		$this->assertStringStartsWith( 'sh-event-', $first['item_id'] );
+
+		$field_names = wp_list_pluck( $first['data'], 'name' );
+		$this->assertContains( 'Date', $field_names );
+		$this->assertContains( 'IP address', $field_names );
+		$this->assertContains( 'User agent', $field_names );
+	}
+
+	/**
+	 * Export for an unknown email is empty and done.
+	 */
+	public function test_export_user_data_unknown_email_is_done() {
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( 'nobody-' . uniqid() . '@example.com', 1 );
+
+		$this->assertSame( [], $result['data'] );
+		$this->assertTrue( $result['done'] );
+	}
 }

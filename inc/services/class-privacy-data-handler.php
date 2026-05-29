@@ -1,4 +1,9 @@
 <?php
+/**
+ * Privacy data handler service for Simple History.
+ *
+ * @package Simple_History
+ */
 
 namespace Simple_History\Services;
 
@@ -30,11 +35,13 @@ class Privacy_Data_Handler extends Service {
 	private const PAGE_SIZE = 100;
 
 	/**
+	 * Register hooks for the privacy export and erasure integrations.
+	 *
 	 * @inheritdoc
 	 */
 	public function loaded() {
 		// Exporter — always on. Read-only; zero behavioural risk.
-		add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'register_exporter' ] );
+		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_exporter' ) );
 
 		// Eraser — gated behind experimental features for one release cycle.
 		// When off, WordPress's erasure simply skips Simple History (the
@@ -43,7 +50,88 @@ class Privacy_Data_Handler extends Service {
 			return;
 		}
 
-		add_filter( 'wp_privacy_personal_data_erasers', [ $this, 'register_eraser' ] );
+		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_eraser' ) );
+	}
+
+	/**
+	 * Register Simple History as a personal-data exporter.
+	 *
+	 * @param array $exporters Registered exporters.
+	 * @return array
+	 */
+	public function register_exporter( $exporters ) {
+		$exporters[ self::GROUP_ID ] = array(
+			'exporter_friendly_name' => __( 'Simple History activity log', 'simple-history' ),
+			'callback'               => array( $this, 'export_user_data' ),
+		);
+
+		return $exporters;
+	}
+
+	/**
+	 * Export one page of the user's activity-log events.
+	 *
+	 * @param string $email_address Email from the privacy request.
+	 * @param int    $page          1-based page number.
+	 * @return array{data:array,done:bool}
+	 */
+	public function export_user_data( $email_address, $page = 1 ) {
+		$rows = $this->get_user_event_rows( $email_address, $page );
+
+		$export_items = array();
+
+		foreach ( $rows as $row ) {
+			$export_items[] = array(
+				'group_id'    => self::GROUP_ID,
+				'group_label' => __( 'Simple History activity log', 'simple-history' ),
+				'item_id'     => 'sh-event-' . $row->id,
+				'data'        => $this->build_export_item_data( $row ),
+			);
+		}
+
+		return array(
+			'data' => $export_items,
+			'done' => count( $rows ) < self::PAGE_SIZE,
+		);
+	}
+
+	/**
+	 * Build the name/value field list for a single exported event.
+	 *
+	 * @param object $row Log_Query row object.
+	 * @return array<int,array{name:string,value:string}>
+	 */
+	private function build_export_item_data( $row ) {
+		$context = is_array( $row->context ) ? $row->context : array();
+
+		$message = \Simple_History\Simple_History::get_instance()->get_log_row_plain_text_output( $row );
+
+		return array(
+			array(
+				'name'  => __( 'Date', 'simple-history' ),
+				'value' => $row->date,
+			),
+			array(
+				'name'  => __( 'Logger', 'simple-history' ),
+				'value' => $row->logger,
+			),
+			array(
+				'name'  => __( 'Level', 'simple-history' ),
+				'value' => $row->level,
+			),
+			array(
+				'name'  => __( 'Message', 'simple-history' ),
+				'value' => wp_strip_all_tags( $message ),
+			),
+			array(
+				'name'  => __( 'IP address', 'simple-history' ),
+				'value' => $context['_server_remote_addr'] ?? '',
+			),
+			array(
+				'name'  => __( 'User agent', 'simple-history' ),
+				'value' => $context['server_http_user_agent'] ?? '',
+			),
+		);
 	}
 
 	/**
@@ -63,20 +151,20 @@ class Privacy_Data_Handler extends Service {
 		$user = get_user_by( 'email', $email_address );
 
 		if ( ! $user instanceof \WP_User ) {
-			return [];
+			return array();
 		}
 
 		$query_result = ( new Log_Query() )->query(
-			[
+			array(
 				'user'           => $user->ID,
 				'posts_per_page' => self::PAGE_SIZE,
 				'paged'          => max( 1, (int) $page ),
 				'ungrouped'      => true,
-			]
+			)
 		);
 
 		if ( empty( $query_result['log_rows'] ) || ! is_array( $query_result['log_rows'] ) ) {
-			return [];
+			return array();
 		}
 
 		return $query_result['log_rows'];
