@@ -123,15 +123,15 @@ user-resolution and pagination as the exporter.
 
 For each matched event, rewrite its context rows:
 
-| Context key(s)                                                                                            | Action                                                     |
-| --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| `_user_id`                                                                                                | set to `0`                                                 |
-| `_user_login`                                                                                             | remove                                                     |
-| `_user_email`                                                                                             | remove                                                     |
-| `server_http_user_agent`                                                                                  | remove                                                     |
-| `_server_http_referer`                                                                                    | remove                                                     |
-| `_server_remote_addr` **and every `_server_*` IP-header variant** (e.g. `_server_http_x_forwarded_for_0`) | re-mask to `0.0.0.x` via `Helpers::privacy_anonymize_ip()` |
-| timestamp, logger, level, message key, object references                                                  | **keep**                                                   |
+| Context key(s)                                                                                            | Action                                                                                                                                                                                            |
+| --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_user_id`                                                                                                | set to `0`                                                                                                                                                                                        |
+| `_user_login`                                                                                             | remove                                                                                                                                                                                            |
+| `_user_email`                                                                                             | remove                                                                                                                                                                                            |
+| `server_http_user_agent`                                                                                  | remove                                                                                                                                                                                            |
+| `_server_http_referer`                                                                                    | remove                                                                                                                                                                                            |
+| `_server_remote_addr` **and every `_server_*` IP-header variant** (e.g. `_server_http_x_forwarded_for_0`) | set to the fully-anonymized form `0.0.0.x` (an erasure zeroes the address entirely; this is deliberately more aggressive than core's subnet-preserving `Helpers::privacy_anonymize_ip()` masking) |
+| timestamp, logger, level, message key, object references                                                  | **keep**                                                                                                                                                                                          |
 
 -   **Scrub, never delete.** Event rows are retained as an anonymized audit record
     ("someone did X at time T"), with personal data removed.
