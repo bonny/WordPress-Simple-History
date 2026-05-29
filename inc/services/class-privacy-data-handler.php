@@ -141,6 +141,9 @@ class Privacy_Data_Handler extends Service {
 	 * and fully anonymizes every stored IP-address key. The event row itself
 	 * is preserved as an audit record. Idempotent.
 	 *
+	 * IP keys covered: `_server_remote_addr` (exact) and proxy-header variants
+	 * stored as `_server_http_*_N` (REGEXP `^_server_http_.+_[0-9]+$`).
+	 *
 	 * @param int $history_id Event id.
 	 * @return void
 	 */
@@ -149,8 +152,10 @@ class Privacy_Data_Handler extends Service {
 
 		$contexts_table = \Simple_History\Simple_History::get_instance()->get_contexts_table_name();
 
-		// Context keys removed entirely.
-		$keys_to_remove = array( '_user_login', '_user_email', 'server_http_user_agent', '_server_http_referer' );
+		// Initiator identity + device/network keys removed entirely. `_user_role`
+		// is included because on small sites a role like "administrator" is
+		// linkable to a specific person.
+		$keys_to_remove = array( '_user_login', '_user_email', '_user_role', 'server_http_user_agent', '_server_http_referer' );
 
 		foreach ( $keys_to_remove as $key ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -159,7 +164,8 @@ class Privacy_Data_Handler extends Service {
 				array(
 					'history_id' => $history_id,
 					'key'        => $key,
-				) 
+				),
+				array( '%d', '%s' )
 			);
 		}
 
@@ -171,7 +177,9 @@ class Privacy_Data_Handler extends Service {
 			array(
 				'history_id' => $history_id,
 				'key'        => '_user_id',
-			) 
+			),
+			array( '%s' ),
+			array( '%d', '%s' )
 		);
 
 		// Fully anonymize every stored IP key (main + proxy-header variants).
@@ -196,7 +204,9 @@ class Privacy_Data_Handler extends Service {
 				array(
 					'history_id' => $history_id,
 					'key'        => $ip_key,
-				) 
+				),
+				array( '%s' ),
+				array( '%d', '%s' )
 			);
 		}
 	}

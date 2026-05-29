@@ -202,6 +202,7 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( '0', $context['_user_id'] );
 		$this->assertArrayNotHasKey( '_user_login', $context );
 		$this->assertArrayNotHasKey( '_user_email', $context );
+		$this->assertArrayNotHasKey( '_user_role', $context );
 		$this->assertArrayNotHasKey( 'server_http_user_agent', $context );
 		$this->assertArrayNotHasKey( '_server_http_referer', $context );
 
@@ -239,5 +240,7 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 		$context = $this->read_context( $event_id );
 		$this->assertSame( '0', $context['_user_id'] );
 		$this->assertSame( '0.0.0.x', $context['_server_remote_addr'] );
+		$this->assertArrayNotHasKey( '_user_login', $context );
+		$this->assertArrayNotHasKey( '_user_email', $context );
 	}
 }
