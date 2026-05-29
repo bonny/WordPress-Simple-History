@@ -283,6 +283,46 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * The settings-page service is loaded.
+	 */
+	public function test_privacy_settings_page_service_is_loaded() {
+		$service = Simple_History::get_instance()->get_service( \Simple_History\Services\Privacy_Settings_Page::class );
+
+		$this->assertInstanceOf(
+			\Simple_History\Services\Privacy_Settings_Page::class,
+			$service,
+			'Privacy_Settings_Page should be loaded as a core service.'
+		);
+	}
+
+	/**
+	 * The Compliance section output always mentions the export tool, and only
+	 * mentions erasure when experimental features are enabled.
+	 */
+	public function test_compliance_section_text_is_conditional() {
+		$service = Simple_History::get_instance()->get_service( \Simple_History\Services\Privacy_Settings_Page::class );
+
+		// Experimental OFF — export mentioned, erasure not.
+		add_filter( 'simple_history/experimental_features_enabled', '__return_false', 99 );
+		ob_start();
+		$service->render_compliance_section();
+		$off = ob_get_clean();
+		remove_filter( 'simple_history/experimental_features_enabled', '__return_false', 99 );
+
+		$this->assertStringContainsString( 'export', strtolower( $off ) );
+		$this->assertStringNotContainsString( 'erasure', strtolower( $off ) );
+
+		// Experimental ON — erasure also mentioned.
+		add_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
+		ob_start();
+		$service->render_compliance_section();
+		$on = ob_get_clean();
+		remove_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
+
+		$this->assertStringContainsString( 'erasure', strtolower( $on ) );
+	}
+
+	/**
 	 * Remove any experimental-feature filters added by the gating tests so that
 	 * a failing assertion cannot leak state to subsequent tests.
 	 */
