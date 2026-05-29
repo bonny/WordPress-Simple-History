@@ -253,6 +253,10 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayHasKey( 'simple-history', $erasers );
 		$this->assertIsCallable( $erasers['simple-history']['callback'] );
+		$this->assertSame(
+			'Simple History activity log',
+			$erasers['simple-history']['eraser_friendly_name']
+		);
 	}
 
 	/**
@@ -276,6 +280,16 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 		$context = $this->read_context( $event_id );
 		$this->assertSame( '0.0.0.x', $context['_server_remote_addr'] );
 		$this->assertSame( '0', $context['_user_id'] );
+	}
+
+	/**
+	 * Remove any experimental-feature filters added by the gating tests so that
+	 * a failing assertion cannot leak state to subsequent tests.
+	 */
+	public function tearDown(): void {
+		remove_filter( 'simple_history/experimental_features_enabled', '__return_false', 99 );
+		remove_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
+		parent::tearDown();
 	}
 
 	/**

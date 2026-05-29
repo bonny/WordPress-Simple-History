@@ -142,7 +142,7 @@ class Privacy_Data_Handler extends Service {
 	 * @return array
 	 */
 	public function register_eraser( $erasers ) {
-		$erasers['simple-history'] = array(
+		$erasers[ self::GROUP_ID ] = array(
 			'eraser_friendly_name' => __( 'Simple History activity log', 'simple-history' ),
 			'callback'             => array( $this, 'erase_user_data' ),
 		);
@@ -194,7 +194,7 @@ class Privacy_Data_Handler extends Service {
 		// event (count only, no subject PII). Guarding on `$count > 0` avoids a
 		// misleading breadcrumb on an empty erasure or the trailing empty page.
 		if ( $done && $count > 0 ) {
-			$this->log_erasure_summary( $email_address );
+			$this->log_erasure_summary();
 		}
 
 		return array(
@@ -206,12 +206,11 @@ class Privacy_Data_Handler extends Service {
 	}
 
 	/**
-	 * Log a single summary event for an erasure request. Count only, no subject PII.
+	 * Log a single summary event for an erasure request. Count-free, no subject PII.
 	 *
-	 * @param string $email_address Email from the privacy request (not logged).
 	 * @return void
 	 */
-	private function log_erasure_summary( $email_address ) {
+	private function log_erasure_summary() {
 		SimpleLogger()->info(
 			'Anonymized personal data in Simple History for a privacy erasure request',
 			array(
