@@ -171,6 +171,7 @@ class Simple_History {
 			Services\Plugin_List_Link::class,
 			Services\Post_History_Column::class,
 			Services\Post_Row_Actions::class,
+			Services\Privacy_Data_Handler::class,
 			Services\REST_API::class,
 			Services\Review_Reminder_Service::class,
 			Services\Scripts_And_Templates::class,
