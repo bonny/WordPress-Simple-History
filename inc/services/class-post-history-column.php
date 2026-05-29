@@ -277,21 +277,38 @@ class Post_History_Column extends Service {
 			$this->load_history_data_mysql( $post_ids );
 		}
 
-		// Prime the WP user cache in one query for all unique user IDs.
+		$this->prime_user_cache();
+	}
+
+	/**
+	 * Prime WP's internal user cache in one query for every user referenced by
+	 * the loaded history data, so subsequent get_userdata() calls don't query.
+	 */
+	private function prime_user_cache() {
 		$user_ids = array();
-		foreach ( $this->history_data as $events ) {
+
+		foreach ( (array) $this->history_data as $events ) {
 			foreach ( $events as $event ) {
 				$uid = (int) $event['user_id'];
-				if ( $uid > 0 ) {
-					$user_ids[ $uid ] = true;
+
+				if ( $uid <= 0 ) {
+					continue;
 				}
+
+				$user_ids[ $uid ] = true;
 			}
 		}
 
-		if ( ! empty( $user_ids ) ) {
-			// Populates WP's internal cache so subsequent get_userdata() calls don't query.
-			get_users( array( 'include' => array_keys( $user_ids ), 'fields' => 'all' ) );
+		if ( empty( $user_ids ) ) {
+			return;
 		}
+
+		get_users(
+			array(
+				'include' => array_keys( $user_ids ),
+				'fields'  => 'all',
+			)
+		);
 	}
 
 	/**
