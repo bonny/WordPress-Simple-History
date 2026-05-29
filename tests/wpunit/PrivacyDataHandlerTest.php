@@ -320,6 +320,7 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 		remove_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
 
 		$this->assertStringContainsString( 'erasure', strtolower( $on ) );
+		$this->assertStringContainsString( 'export', strtolower( $on ) );
 	}
 
 	/**

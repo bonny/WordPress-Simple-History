@@ -12,7 +12,7 @@ use Simple_History\Menu_Page;
  * shared container that premium privacy features register additional
  * subsections into.
  *
- * @since 5.x
+ * @since 5.29.0
  */
 class Privacy_Settings_Page extends Service {
 	private const SETTINGS_PAGE_SLUG = 'simple_history_settings_menu_slug_privacy';

@@ -18,7 +18,7 @@ use Simple_History\Log_Query;
  * The exporter is always registered. The eraser is gated behind experimental
  * features for one release cycle (see the design spec, "Release & lifecycle").
  *
- * @since 5.x
+ * @since 5.29.0
  */
 class Privacy_Data_Handler extends Service {
 	/**
