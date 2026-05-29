@@ -108,7 +108,7 @@ Registered on `wp_privacy_personal_data_exporters` as group `simple-history`.
 -   One export item per event: `item_id = "sh-event-{id}"`, group label
     _"Simple History activity log"_.
 -   Fields per event:
-    -   **Date** (site-local + GMT)
+    -   **Date** (site-local) and **Date (UTC)** (raw GMT)
     -   **Logger**
     -   **Level**
     -   **Message** (human-readable, interpolated to plain text)
@@ -142,8 +142,12 @@ For each matched event, rewrite its context rows:
     The `messages[]` line:
     > "Simple History anonymized the personal data in N activity-log entries. The
     > entries themselves are retained as an audit record with personal data removed."
--   After a successful pass, log **one** summary event ("Anonymized personal data
-    in N events for a privacy erasure request") — count only, no subject PII.
+-   For each batch that actually scrubbed events, log a summary event
+    ("Anonymized personal data in Simple History for a privacy erasure request")
+    — no count, no subject PII. For most users (fewer than one page of events)
+    this fires exactly once; very large logs get one per batch. (Firing only on
+    the final batch would skip it entirely for users whose event count is an
+    exact multiple of the page size.)
 
 ## Settings UI
 
