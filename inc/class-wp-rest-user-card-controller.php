@@ -370,33 +370,6 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get the most recent event date for a non-user initiator.
-	 *
-	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
-	 * @return string|null Date string in site local timezone, or null if no events found.
-	 */
-	public static function get_last_initiator_event( $initiator_type ) {
-		$log_query = new Log_Query();
-
-		$query_result = $log_query->query(
-			[
-				'initiator'        => $initiator_type,
-				'posts_per_page'   => 1,
-				'skip_count_query' => true,
-				'ungrouped'        => true,
-			]
-		);
-
-		$events = $query_result['log_rows'] ?? [];
-
-		if ( empty( $events ) ) {
-			return null;
-		}
-
-		return self::to_iso_utc( $events[0]->date );
-	}
-
-	/**
 	 * Get last-event date plus today / last-7-days / all-time event counts for
 	 * a non-user initiator, in a single SQL query.
 	 *
@@ -452,81 +425,6 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get the number of events for a non-user initiator within a given number of days.
-	 *
-	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
-	 * @param int    $period_days    Number of days to look back (including today).
-	 * @return int Number of events found.
-	 */
-	public static function get_initiator_event_count( $initiator_type, $period_days ) {
-		$log_query = new Log_Query();
-
-		$date_from = Date_Helper::get_last_n_days_start_timestamp( $period_days );
-
-		$query_result = $log_query->query(
-			[
-				'initiator'      => $initiator_type,
-				'posts_per_page' => 1,
-				'date_from'      => $date_from,
-				'ungrouped'      => true,
-			]
-		);
-
-		return $query_result['total_row_count'] ?? 0;
-	}
-
-	/**
-	 * Get the total number of logged events for a non-user initiator (all time).
-	 *
-	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
-	 * @return int Number of events found.
-	 */
-	public static function get_initiator_total_event_count( $initiator_type ) {
-		$log_query = new Log_Query();
-
-		$query_result = $log_query->query(
-			[
-				'initiator'      => $initiator_type,
-				'posts_per_page' => 1,
-				'ungrouped'      => true,
-			]
-		);
-
-		return $query_result['total_row_count'] ?? 0;
-	}
-
-	/**
-	 * Get the IP address from the user's most recent event.
-	 *
-	 * Reads `_server_remote_addr` from the event context. That value is already
-	 * passed through `Helpers::privacy_anonymize_ip()` at write time, so the
-	 * premium IP anonymization setting is respected automatically.
-	 *
-	 * @param int $user_id WordPress user ID.
-	 * @return string|null IP address, or null if no event with an IP is found.
-	 */
-	public static function get_last_ip_for_user( $user_id ) {
-		$log_query = new Log_Query();
-
-		$query_result = $log_query->query(
-			[
-				'user'             => $user_id,
-				'posts_per_page'   => 5,
-				'skip_count_query' => true,
-				'ungrouped'        => true,
-			]
-		);
-
-		foreach ( $query_result['log_rows'] ?? [] as $event ) {
-			if ( ! empty( $event->context['_server_remote_addr'] ) ) {
-				return $event->context['_server_remote_addr'];
-			}
-		}
-
-		return null;
-	}
-
-	/**
 	 * Format a user-agent string into a short human-readable label.
 	 *
 	 * Tiny pattern-matching parser covering the common browsers and OSes seen
@@ -578,46 +476,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get the user-agent string from the user's most recent login event.
-	 *
-	 * The full UA string is captured by `User_Logger` only on login events
-	 * (`SimpleUserLogger:user_logged_in`), so the lookup is scoped accordingly.
-	 *
-	 * @param int $user_id WordPress user ID.
-	 * @return string|null User-agent string, or null if no login event with a UA is found.
-	 */
-	public static function get_last_user_agent_for_user( $user_id ) {
-		$log_query = new Log_Query();
-
-		$query_result = $log_query->query(
-			[
-				'user'             => $user_id,
-				'messages'         => 'SimpleUserLogger:user_logged_in',
-				'posts_per_page'   => 5,
-				'skip_count_query' => true,
-				'ungrouped'        => true,
-			]
-		);
-
-		foreach ( $query_result['log_rows'] ?? [] as $event ) {
-			if ( ! empty( $event->context['server_http_user_agent'] ) ) {
-				return $event->context['server_http_user_agent'];
-			}
-		}
-
-		return null;
-	}
-
-	/**
 	 * Get date + IP + user-agent for the user's most recent login event in a
 	 * single query.
 	 *
 	 * Faster path for callers that need all three (the premium user-card
-	 * module is the main one). Replaces three separate Log_Query calls —
-	 * `get_last_login()` + `get_last_ip_for_user()` + `get_last_user_agent_for_user()`
-	 * — with one. IP comes from the same login event as the UA, so the two
-	 * always describe the same session (previously they could diverge:
-	 * IP was pulled from the last event of any kind, UA only from logins).
+	 * module is the main one). Pulls the date, IP, and user-agent from the
+	 * same login event, so the three always describe the same session.
 	 *
 	 * @param int $user_id WordPress user ID.
 	 * @return array|null { date: string, ip: string|null, user_agent: string|null }

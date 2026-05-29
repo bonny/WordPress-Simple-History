@@ -13,6 +13,7 @@ import {
 } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { humanTimeDiff } from '@wordpress/date';
+import { clsx } from 'clsx';
 import { getTrackingUrl } from '../functions';
 
 // Only one user card open at a time.
@@ -675,9 +676,10 @@ export function UserCard( { event, children } ) {
 					onFocusOutside={ () => setShowPopover( false ) }
 				>
 					<div
-						className={ `sh-UserCard${
-							isWPUser ? ' sh-UserCard--wp-user' : ''
-						}${ isLoading ? ' sh-UserCard--loading' : '' }` }
+						className={ clsx( 'sh-UserCard', {
+							'sh-UserCard--wp-user': isWPUser,
+							'sh-UserCard--loading': isLoading,
+						} ) }
 					>
 						<Button
 							icon={ close }
