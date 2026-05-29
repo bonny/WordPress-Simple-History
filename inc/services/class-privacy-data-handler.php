@@ -50,7 +50,10 @@ class Privacy_Data_Handler extends Service {
 	 * Resolve an email to a user and fetch one page of their initiated events.
 	 *
 	 * Events are matched by the `_user_id` context key (initiator-only scope).
-	 * Ordered oldest-first for stable pagination across export/erase passes.
+	 * Uses `ungrouped` so every individual event is returned — without it,
+	 * Log_Query collapses repeated events by occasion, which would exclude
+	 * duplicates from export and leave their personal data un-scrubbed on
+	 * erasure. Rows come back newest-first (Log_Query's default ordering).
 	 *
 	 * @param string $email_address Email address from the privacy request.
 	 * @param int    $page          1-based page number.
@@ -68,7 +71,7 @@ class Privacy_Data_Handler extends Service {
 				'user'           => $user->ID,
 				'posts_per_page' => self::PAGE_SIZE,
 				'paged'          => max( 1, (int) $page ),
-				'order'          => 'ASC',
+				'ungrouped'      => true,
 			]
 		);
 

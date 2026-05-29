@@ -43,17 +43,18 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Returns this user's events, newest-page logic aside.
+	 * Returns initiated events for the matching user by email.
 	 */
 	public function test_get_user_event_rows_returns_users_events() {
-		$user_id = $this->factory->user->create( [ 'role' => 'administrator', 'user_email' => 'erika@example.com' ] );
+		$email   = 'erika-' . uniqid() . '@example.com';
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator', 'user_email' => $email ] );
 		$this->log_event_as_user( $user_id, 'Erika did a thing' );
 
 		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
 		$method  = new ReflectionMethod( $service, 'get_user_event_rows' );
 		$method->setAccessible( true );
 
-		$rows = $method->invoke( $service, 'erika@example.com', 1 );
+		$rows = $method->invoke( $service, $email, 1 );
 
 		$this->assertNotEmpty( $rows, 'Should return the user\'s events.' );
 		$this->assertSame( (string) $user_id, (string) $rows[0]->context['_user_id'] );
@@ -70,5 +71,28 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 		$rows = $method->invoke( $service, 'nobody-' . uniqid() . '@example.com', 1 );
 
 		$this->assertSame( [], $rows, 'Unknown email should return an empty array.' );
+	}
+
+	/**
+	 * Repeated (occasion-grouped) events are each returned individually, so
+	 * none are silently excluded from export/erasure.
+	 */
+	public function test_get_user_event_rows_returns_each_repeated_event() {
+		$email   = 'repeat-' . uniqid() . '@example.com';
+		$user_id = $this->factory->user->create( [ 'role' => 'administrator', 'user_email' => $email ] );
+		wp_set_current_user( $user_id );
+
+		// Three events that would normally collapse into one occasion group.
+		for ( $i = 0; $i < 3; $i++ ) {
+			SimpleLogger()->info( 'Repeated privacy event', [ '_occasionsID' => 'privacy_test_occasion' ] );
+		}
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$method  = new ReflectionMethod( $service, 'get_user_event_rows' );
+		$method->setAccessible( true );
+
+		$rows = $method->invoke( $service, $email, 1 );
+
+		$this->assertGreaterThanOrEqual( 3, count( $rows ), 'All three repeated events must be returned individually (ungrouped).' );
 	}
 }
