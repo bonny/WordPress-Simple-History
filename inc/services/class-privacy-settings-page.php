@@ -75,7 +75,7 @@ class Privacy_Settings_Page extends Service {
 			</p>
 			<?php if ( Helpers::experimental_features_is_enabled() ) { ?>
 				<p>
-					<?php esc_html_e( 'It is also registered with the erasure tool — running an erasure request anonymizes personal data in matching activity-log entries while preserving the audit record.', 'simple-history' ); ?>
+					<?php esc_html_e( '🧪 Experimental: Simple History is also registered with the erasure tool — running an erasure request anonymizes personal data in matching activity-log entries while preserving the audit record.', 'simple-history' ); ?>
 				</p>
 			<?php } ?>
 		</div>

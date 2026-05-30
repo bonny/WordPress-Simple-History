@@ -347,6 +347,25 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Export must be complete regardless of who (or what context) runs it —
+	 * it must not be filtered by the current user's logger-read permissions.
+	 */
+	public function test_export_is_complete_without_current_user() {
+		$email   = 'nocurrent-' . uniqid() . '@example.com';
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator', 'user_email' => $email ) );
+		$this->log_event_as_user( $user_id, 'Event one' );
+		$this->log_event_as_user( $user_id, 'Event two' );
+
+		// Simulate a cron / no-admin context.
+		wp_set_current_user( 0 );
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $email, 1 );
+
+		$this->assertGreaterThanOrEqual( 2, count( $result['data'] ), 'Export must include the user events even with no current user set.' );
+	}
+
+	/**
 	 * The eraser is NOT registered when experimental features are off.
 	 */
 	public function test_eraser_not_registered_when_experimental_off() {

@@ -326,10 +326,11 @@ class Privacy_Data_Handler extends Service {
 
 		$query_result = ( new Log_Query() )->query(
 			array(
-				'user'           => $user->ID,
-				'posts_per_page' => self::PAGE_SIZE,
-				'paged'          => max( 1, (int) $page ),
-				'ungrouped'      => true,
+				'user'                       => $user->ID,
+				'posts_per_page'             => self::PAGE_SIZE,
+				'paged'                      => max( 1, (int) $page ),
+				'ungrouped'                  => true,
+				'ignore_logger_capabilities' => true,
 			)
 		);
 
