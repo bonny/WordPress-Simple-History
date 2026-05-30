@@ -70,30 +70,304 @@ class Privacy_Data_Handler extends Service {
 	}
 
 	/**
-	 * Export one page of the user's activity-log events.
+	 * Export one page of the user's activity-log data: events they initiated
+	 * (full detail) plus events where they are the subject of someone else's
+	 * action (third-party identity redacted, per GDPR Art. 15(4)).
 	 *
 	 * @param string $email_address Email from the privacy request.
 	 * @param int    $page          1-based page number.
 	 * @return array{data:array,done:bool}
 	 */
 	public function export_user_data( $email_address, $page = 1 ) {
-		$rows = $this->get_user_event_rows( $email_address, $page );
+		$user = get_user_by( 'email', $email_address );
+
+		if ( ! $user instanceof \WP_User ) {
+			return array(
+				'data' => array(),
+				'done' => true,
+			);
+		}
+
+		$initiator_ids = $this->get_initiator_event_ids( $user->ID );
+		$subject_ids   = array_values( array_diff( $this->get_subject_event_ids( $user ), $initiator_ids ) );
+
+		$roles = array();
+
+		foreach ( $initiator_ids as $id ) {
+			$roles[ (int) $id ] = 'initiator';
+		}
+
+		foreach ( $subject_ids as $id ) {
+			$roles[ (int) $id ] = 'subject';
+		}
+
+		$all_ids = array_keys( $roles );
+		rsort( $all_ids, SORT_NUMERIC );
+
+		$total    = count( $all_ids );
+		$page_num = max( 1, (int) $page );
+		$page_ids = array_slice( $all_ids, ( $page_num - 1 ) * self::PAGE_SIZE, self::PAGE_SIZE );
 
 		$export_items = array();
 
-		foreach ( $rows as $row ) {
-			$export_items[] = array(
-				'group_id'    => self::GROUP_ID,
-				'group_label' => __( 'Simple History activity log', 'simple-history' ),
-				'item_id'     => 'sh-event-' . $row->id,
-				'data'        => $this->build_export_item_data( $row ),
-			);
+		if ( ! empty( $page_ids ) ) {
+			$rows = $this->get_event_rows_by_ids( $page_ids );
+
+			foreach ( $page_ids as $id ) {
+				if ( ! isset( $rows[ $id ] ) ) {
+					continue;
+				}
+
+				if ( $roles[ $id ] === 'subject' ) {
+					$export_items[] = $this->build_subject_export_item( $rows[ $id ], $user );
+				} else {
+					$export_items[] = $this->build_initiator_export_item( $rows[ $id ] );
+				}
+			}
 		}
 
 		return array(
 			'data' => $export_items,
-			'done' => count( $rows ) < self::PAGE_SIZE,
+			'done' => $page_num * self::PAGE_SIZE >= $total,
 		);
+	}
+
+	/**
+	 * Event ids the given user initiated (matched by the `_user_id` context key).
+	 *
+	 * @param int $user_id User id.
+	 * @return int[]
+	 */
+	private function get_initiator_event_ids( $user_id ) {
+		global $wpdb;
+
+		$contexts_table = \Simple_History\Simple_History::get_instance()->get_contexts_table_name();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT history_id FROM {$contexts_table} WHERE `key` = %s AND value = %s",
+				'_user_id',
+				(string) $user_id
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return array_map( 'intval', $ids );
+	}
+
+	/**
+	 * Context keys that identify a user an event was performed *on* (the
+	 * subject/target), grouped by how their value matches the requester.
+	 * Filterable so other loggers can register their own subject keys.
+	 *
+	 * @return array{id:string[],login:string[],email:string[]}
+	 */
+	private function get_subject_context_keys() {
+		$keys = array(
+			'id'    => array( 'created_user_id', 'edited_user_id', 'deleted_user_id', 'old_user_id', 'reassign_user_id', 'login_id', 'user_id' ),
+			'login' => array( 'created_user_login', 'edited_user_login', 'deleted_user_login', 'login', 'failed_username', 'user_login', 'user_login_to', 'user_login_from' ),
+			'email' => array( 'created_user_email', 'edited_user_email', 'deleted_user_email', 'login_email', 'user_email' ),
+		);
+
+		/**
+		 * Filters the context keys used to find events where a user is the
+		 * subject/target, for the privacy data export.
+		 *
+		 * @param array $keys Keys grouped by 'id', 'login', 'email'.
+		 */
+		return apply_filters( 'simple_history/privacy/subject_context_keys', $keys );
+	}
+
+	/**
+	 * Event ids where the given user is the subject/target of an action.
+	 *
+	 * @param \WP_User $user User.
+	 * @return int[]
+	 */
+	private function get_subject_event_ids( $user ) {
+		global $wpdb;
+
+		$contexts_table = \Simple_History\Simple_History::get_instance()->get_contexts_table_name();
+		$keys           = $this->get_subject_context_keys();
+
+		$clauses = array();
+		$params  = array();
+
+		if ( ! empty( $keys['id'] ) ) {
+			$clauses[] = '( `key` IN ( ' . implode( ', ', array_fill( 0, count( $keys['id'] ), '%s' ) ) . ' ) AND value = %s )';
+			$params    = array_merge( $params, array_values( $keys['id'] ), array( (string) $user->ID ) );
+		}
+
+		if ( ! empty( $keys['login'] ) && (string) $user->user_login !== '' ) {
+			$clauses[] = '( `key` IN ( ' . implode( ', ', array_fill( 0, count( $keys['login'] ), '%s' ) ) . ' ) AND value = %s )';
+			$params    = array_merge( $params, array_values( $keys['login'] ), array( (string) $user->user_login ) );
+		}
+
+		if ( ! empty( $keys['email'] ) && (string) $user->user_email !== '' ) {
+			$clauses[] = '( `key` IN ( ' . implode( ', ', array_fill( 0, count( $keys['email'] ), '%s' ) ) . ' ) AND value = %s )';
+			$params    = array_merge( $params, array_values( $keys['email'] ), array( (string) $user->user_email ) );
+		}
+
+		if ( empty( $clauses ) ) {
+			return array();
+		}
+
+		$sql = "SELECT DISTINCT history_id FROM {$contexts_table} WHERE " . implode( ' OR ', $clauses );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		$ids = $wpdb->get_col( $wpdb->prepare( $sql, $params ) );
+
+		return array_map( 'intval', $ids );
+	}
+
+	/**
+	 * Load event rows for a set of ids, keyed by id. Bypasses logger-capability
+	 * filtering so the export is complete.
+	 *
+	 * @param int[] $ids Event ids.
+	 * @return array<int,object>
+	 */
+	private function get_event_rows_by_ids( $ids ) {
+		if ( empty( $ids ) ) {
+			return array();
+		}
+
+		$query_result = ( new Log_Query() )->query(
+			array(
+				'post__in'                   => array_map( 'intval', $ids ),
+				'posts_per_page'             => count( $ids ),
+				'paged'                      => 1,
+				'ungrouped'                  => true,
+				'ignore_logger_capabilities' => true,
+			)
+		);
+
+		$rows = array();
+
+		if ( ! empty( $query_result['log_rows'] ) && is_array( $query_result['log_rows'] ) ) {
+			foreach ( $query_result['log_rows'] as $row ) {
+				$rows[ (int) $row->id ] = $row;
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Build a full export item for an event the requester initiated.
+	 *
+	 * @param object $row Log_Query row.
+	 * @return array
+	 */
+	private function build_initiator_export_item( $row ) {
+		return array(
+			'group_id'    => self::GROUP_ID,
+			'group_label' => __( 'Simple History activity log', 'simple-history' ),
+			'item_id'     => 'sh-event-' . $row->id,
+			'data'        => $this->build_export_item_data( $row ),
+		);
+	}
+
+	/**
+	 * Build a redacted export item for an event where the requester is the
+	 * subject of someone else's action. Omits the actor's IP/user-agent and
+	 * redacts any third-party login/email from the message (GDPR Art. 15(4)).
+	 *
+	 * @param object   $row  Log_Query row.
+	 * @param \WP_User $user The requester.
+	 * @return array
+	 */
+	private function build_subject_export_item( $row, $user ) {
+		$context = is_array( $row->context ) ? $row->context : array();
+
+		$message = \Simple_History\Simple_History::get_instance()->get_log_row_plain_text_output( $row );
+		$message = $this->redact_third_party_identity( wp_strip_all_tags( $message ), $context, $user );
+
+		return array(
+			'group_id'    => self::GROUP_ID . '-subject',
+			'group_label' => __( 'Simple History — activity concerning you (performed by others)', 'simple-history' ),
+			'item_id'     => 'sh-event-' . $row->id,
+			'data'        => array(
+				array(
+					'name'  => __( 'Date', 'simple-history' ),
+					'value' => get_date_from_gmt( $row->date ),
+				),
+				array(
+					'name'  => __( 'Date (UTC)', 'simple-history' ),
+					'value' => $row->date,
+				),
+				array(
+					'name'  => __( 'Logger', 'simple-history' ),
+					'value' => $row->logger,
+				),
+				array(
+					'name'  => __( 'Level', 'simple-history' ),
+					'value' => $row->level,
+				),
+				array(
+					'name'  => __( 'Action concerning you', 'simple-history' ),
+					'value' => $message,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Remove other people's login/email (and the actor's identity) from a
+	 * subject-event message, leaving the requester's own identifiers intact.
+	 *
+	 * @param string   $message Plain-text message.
+	 * @param array    $context Event context.
+	 * @param \WP_User $user    The requester.
+	 * @return string
+	 */
+	private function redact_third_party_identity( $message, $context, $user ) {
+		$own = array_filter(
+			array(
+				(string) $user->ID,
+				(string) $user->user_login,
+				(string) $user->user_email,
+			),
+			static function ( $v ) {
+				return $v !== '';
+			}
+		);
+
+		$subject_keys  = $this->get_subject_context_keys();
+		$identity_keys = array_merge( array( '_user_login', '_user_email' ), $subject_keys['login'], $subject_keys['email'] );
+
+		$secrets = array();
+
+		foreach ( $identity_keys as $key ) {
+			if ( ! isset( $context[ $key ] ) ) {
+				continue;
+			}
+
+			$value = (string) $context[ $key ];
+
+			if ( $value === '' || in_array( $value, $own, true ) ) {
+				continue;
+			}
+
+			$secrets[] = $value;
+		}
+
+		$secrets = array_unique( $secrets );
+
+		// Replace longest values first so overlapping substrings redact cleanly.
+		usort(
+			$secrets,
+			static function ( $a, $b ) {
+				return strlen( $b ) - strlen( $a );
+			}
+		);
+
+		foreach ( $secrets as $secret ) {
+			$message = str_ireplace( $secret, '[redacted]', $message );
+		}
+
+		return $message;
 	}
 
 	/**

@@ -337,6 +337,124 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Helper: log an event as actor $actor_id with arbitrary context (e.g. a
+	 * "user edited" event targeting another user).
+	 *
+	 * @param int    $actor_id Initiator user id.
+	 * @param string $message  Event message.
+	 * @param array  $context  Extra context (subject keys, etc.).
+	 * @return int Event id.
+	 */
+	private function log_event_as_actor( $actor_id, $message, $context ) {
+		wp_set_current_user( $actor_id );
+		$logger = SimpleLogger()->info( $message, $context );
+		return $logger->last_insert_id;
+	}
+
+	/**
+	 * Events where the requester is the SUBJECT (not the actor) are included,
+	 * grouped separately, with the actor's identity/IP/user-agent removed.
+	 */
+	public function test_export_includes_subject_events_redacted() {
+		$actor_login = 'actor-' . uniqid();
+		$actor_id    = $this->factory->user->create( array( 'role' => 'administrator', 'user_login' => $actor_login, 'user_email' => $actor_login . '@example.com' ) );
+
+		$subject_login = 'subject-' . uniqid();
+		$subject_email = $subject_login . '@example.com';
+		$subject_id    = $this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $subject_login, 'user_email' => $subject_email ) );
+
+		// Actor edits the subject's profile. Initiator context (_user_id etc.) is
+		// auto-added for the actor; subject keys identify the target.
+		$event_id = $this->log_event_as_actor(
+			$actor_id,
+			'Edited the profile for user ' . $subject_login,
+			array(
+				'edited_user_id'    => $subject_id,
+				'edited_user_login' => $subject_login,
+				'edited_user_email' => $subject_email,
+			)
+		);
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $subject_email, 1 );
+
+		// The subject event is present.
+		$ids = wp_list_pluck( $result['data'], 'item_id' );
+		$this->assertContains( 'sh-event-' . $event_id, $ids, 'Subject event must be in the export.' );
+
+		// Find the subject item and verify redaction.
+		$subject_item = null;
+		foreach ( $result['data'] as $item ) {
+			if ( $item['item_id'] === 'sh-event-' . $event_id ) {
+				$subject_item = $item;
+			}
+		}
+		$this->assertNotNull( $subject_item );
+
+		// It is in a separate "concerning you" group.
+		$this->assertSame( 'simple-history-subject', $subject_item['group_id'] );
+
+		// No IP / User agent field for subject events (those belong to the actor).
+		$field_names = wp_list_pluck( $subject_item['data'], 'name' );
+		$this->assertNotContains( 'IP address', $field_names );
+		$this->assertNotContains( 'User agent', $field_names );
+
+		// The actor's login/email must NOT appear anywhere in the subject item.
+		$blob = wp_json_encode( $subject_item );
+		$this->assertStringNotContainsString( $actor_login, $blob, 'Actor login must be redacted from subject event.' );
+		$this->assertStringNotContainsString( $actor_login . '@example.com', $blob, 'Actor email must be redacted.' );
+
+		// The subject's own login may appear (it is their data).
+	}
+
+	/**
+	 * An event the requester both initiated and is subject of appears once,
+	 * as an initiator event (full detail).
+	 */
+	public function test_export_does_not_double_count_initiator_subject_event() {
+		$login = 'self-' . uniqid();
+		$email = $login . '@example.com';
+		$uid   = $this->factory->user->create( array( 'role' => 'administrator', 'user_login' => $login, 'user_email' => $email ) );
+
+		// User edits their own profile: they are both initiator and subject.
+		$event_id = $this->log_event_as_actor(
+			$uid,
+			'Edited own profile',
+			array( 'edited_user_id' => $uid, 'edited_user_login' => $login, 'edited_user_email' => $email )
+		);
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $email, 1 );
+
+		$matches = array_filter( $result['data'], function ( $i ) use ( $event_id ) {
+			return $i['item_id'] === 'sh-event-' . $event_id;
+		} );
+		$this->assertCount( 1, $matches, 'Event must appear exactly once.' );
+		$item = array_values( $matches )[0];
+		$this->assertSame( 'simple-history', $item['group_id'], 'Self-initiated event is an initiator event.' );
+	}
+
+	/**
+	 * Failed-login events targeting the user (by username) are included as subject events.
+	 */
+	public function test_export_includes_failed_login_subject_event() {
+		$login = 'victim-' . uniqid();
+		$email = $login . '@example.com';
+		$uid   = $this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $login, 'user_email' => $email ) );
+
+		// A failed login attempt against this username (no current user / anonymous).
+		wp_set_current_user( 0 );
+		$logger   = SimpleLogger()->warning( 'Failed to login with username "' . $login . '"', array( 'login' => $login, 'failed_username' => $login ) );
+		$event_id = $logger->last_insert_id;
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $email, 1 );
+
+		$ids = wp_list_pluck( $result['data'], 'item_id' );
+		$this->assertContains( 'sh-event-' . $event_id, $ids, 'Failed-login subject event must be included.' );
+	}
+
+	/**
 	 * Remove any experimental-feature filters added by the gating tests so that
 	 * a failing assertion cannot leak state to subsequent tests.
 	 */
