@@ -455,6 +455,58 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * A third party named in a subject-event message is redacted (in raw and
+	 * HTML-entity-encoded forms), while the requester's own identifier remains.
+	 */
+	public function test_subject_message_redacts_third_party_identity() {
+		$req_login = 'reqto-' . uniqid();
+		$req_email = $req_login . '@example.com';
+		$this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $req_login, 'user_email' => $req_email ) );
+
+		// A third party whose identifier contains an HTML-special char (&).
+		$third_party = 'a&b-' . uniqid();
+
+		// Anonymous actor; message interpolates both the requester (to) and the
+		// third party (from). `user_login_to` / `user_login_from` are subject keys.
+		wp_set_current_user( 0 );
+		$logger = SimpleLogger()->info(
+			'Switched to user "{user_login_to}" from "{user_login_from}"',
+			array(
+				'user_login_to'   => $req_login,
+				'user_login_from' => $third_party,
+			)
+		);
+		$event_id = $logger->last_insert_id;
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $req_email, 1 );
+
+		$item = null;
+		foreach ( $result['data'] as $i ) {
+			if ( $i['item_id'] === 'sh-event-' . $event_id ) {
+				$item = $i;
+			}
+		}
+		$this->assertNotNull( $item, 'Subject event must be exported.' );
+
+		// Find the message field value.
+		$message = '';
+		foreach ( $item['data'] as $field ) {
+			if ( __( 'Action concerning you', 'simple-history' ) === $field['name'] ) {
+				$message = $field['value'];
+			}
+		}
+
+		// Third party redacted (raw AND entity-encoded forms absent).
+		$this->assertStringNotContainsString( $third_party, $message, 'Third-party identifier must be redacted (raw).' );
+		$this->assertStringNotContainsString( 'a&amp;b', $message, 'Third-party identifier must not survive entity-encoded.' );
+		$this->assertStringContainsString( '[redacted]', $message, 'Redaction marker should be present.' );
+
+		// Requester's own login preserved (it is their data).
+		$this->assertStringContainsString( $req_login, $message, 'Requester own identifier must remain.' );
+	}
+
+	/**
 	 * Remove any experimental-feature filters added by the gating tests so that
 	 * a failing assertion cannot leak state to subsequent tests.
 	 */

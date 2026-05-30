@@ -282,7 +282,8 @@ class Privacy_Data_Handler extends Service {
 		$context = is_array( $row->context ) ? $row->context : array();
 
 		$message = \Simple_History\Simple_History::get_instance()->get_log_row_plain_text_output( $row );
-		$message = $this->redact_third_party_identity( wp_strip_all_tags( $message ), $context, $user );
+		$message = html_entity_decode( wp_strip_all_tags( $message ), ENT_QUOTES );
+		$message = $this->redact_third_party_identity( $message, $context, $user );
 
 		return array(
 			'group_id'    => self::GROUP_ID . '-subject',
