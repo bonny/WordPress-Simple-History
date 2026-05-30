@@ -215,3 +215,37 @@ This feature is the free/core foundation of roadmap [[3 - Add privacy-GDPR setti
 It deliberately creates the "Privacy & Data" settings tab so the premium
 features slot in later: #1 IP Address Storage, #2 User Agent Storage, #3 Login
 Page Notice, #5 Data Snapshot, #6 Bulk Retroactive Anonymization.
+
+## Addendum (2026-05-30): export scope broadened to subject events (Option C)
+
+After review testing, the export scope was broadened beyond the original
+initiator-only decision, based on a GDPR/CCPA research pass (see the research
+summary in the branch history). Key changes:
+
+-   **Export = initiator + subject events.** Under GDPR Art. 15 and Art. 4(1)
+    (and CJEU *J.M. v Pankki S*, C-579/21), log entries *about* a person are
+    their personal data, so the export now also includes events where the
+    requester is the subject/target of someone else's action (profile edited,
+    user created/deleted, role changed, failed logins targeting them, sessions
+    destroyed, user-switching). Matched via a filterable subject-key map
+    (`simple_history/privacy/subject_context_keys`), by user ID, then login,
+    then email.
+-   **Art. 15(4) redaction.** Subject events are exported in a separate group
+    ("activity concerning you — performed by others"), with the actor's
+    IP/user-agent omitted and any third party's login/email redacted from the
+    message (entities decoded first so encoded identifiers can't slip through).
+    The requester's own identifiers are preserved.
+-   **Erasure stays initiator-only, anonymize-not-delete** — validated by the
+    research as the correct, defensible posture (Art. 17(3)(b)/(e), Art. 5(2)
+    accountability; CCPA §1798.105(d)(2) security-log exemption). Erasing
+    subject events would destroy another person's accountability record.
+-   **Completeness fix.** `Log_Query` gained an opt-in `ignore_logger_capabilities`
+    arg; the privacy export/erasure use it so results are complete regardless of
+    which user (or cron context) processes the request — previously they were
+    silently filtered by the current viewer's logger-read permissions (returning
+    0 events with no current user).
+-   **Comment/post-author data is intentionally excluded** from subject matching
+    — WordPress core's own exporters already cover comments and posts.
+
+This asymmetry — **access is broad, erasure is narrow-with-retention** — is the
+research-recommended design.

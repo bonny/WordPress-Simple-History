@@ -258,7 +258,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Overview action links on user, plugin, post, and media events — "All users", "All plugins", "All posts" / "All pages" / "All `<custom-post-type>`", "All media". Also shown on delete events where the per-item link would dead-end.
 -   "About this version" and "WordPress X.Y release notes" action links on core update events for major-version bumps.
--   A user's Simple History activity-log events are now included in WordPress's personal-data export (Tools → Export Personal Data). Previously the activity log was silently left out of export requests.
+-   Simple History's activity log is now included in WordPress's personal-data export (Tools → Export Personal Data) — both the events a person performed and events about them performed by others (e.g. an admin editing their profile, failed logins targeting their account). Other people's names and emails are redacted from those "about you" entries. Previously the activity log was left out of export requests entirely.
 -   New "Privacy & Data" settings tab (Settings → Simple History) describing how Simple History works with WordPress's personal-data export and erasure tools.
 -   🧪 **Experimental** — Running a WordPress personal-data erasure (Tools → Erase Personal Data) now anonymizes the person's data in matching activity-log entries — IP address, user agent, login, email, and role are removed — while keeping each entry as an audit record so the log isn't left with gaps.
 
