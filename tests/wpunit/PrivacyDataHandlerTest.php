@@ -507,6 +507,240 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * A third party's DISPLAY NAME interpolated into a subject-event message is
+	 * redacted — not just their login/email. (Display names are PII and were
+	 * previously leaked because redaction only covered login/email keys.)
+	 */
+	public function test_subject_message_redacts_third_party_display_name() {
+		$req_login = 'reqdn-' . uniqid();
+		$req_email = $req_login . '@example.com';
+		$this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $req_login, 'user_email' => $req_email ) );
+
+		$third_party_name = 'Jane ThirdParty ' . uniqid();
+
+		// Anonymous actor. Requester is the subject (matched via edited_user_login);
+		// a third party's display name is interpolated into the message.
+		wp_set_current_user( 0 );
+		$logger   = SimpleLogger()->info(
+			'Profile of "{edited_user_login}" was changed by "{user_display_name}"',
+			array(
+				'edited_user_login' => $req_login,
+				'user_display_name' => $third_party_name,
+			)
+		);
+		$event_id = $logger->last_insert_id;
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $req_email, 1 );
+
+		$message = $this->find_subject_message( $result, $event_id );
+		$this->assertNotNull( $message, 'Subject event must be exported.' );
+
+		$this->assertStringNotContainsString( $third_party_name, $message, 'Third-party display name must be redacted.' );
+		$this->assertStringContainsString( '[redacted]', $message, 'Redaction marker should be present.' );
+		$this->assertStringContainsString( $req_login, $message, 'Requester own identifier must remain.' );
+	}
+
+	/**
+	 * Redaction must not corrupt unrelated text that merely contains a short
+	 * third-party login as a substring (the old blind str_ireplace did).
+	 */
+	public function test_subject_message_does_not_corrupt_unrelated_text() {
+		$req_login = 'reqsub-' . uniqid();
+		$req_email = $req_login . '@example.com';
+		$this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $req_login, 'user_email' => $req_email ) );
+
+		// Short, common third-party login that is a substring of "latest".
+		wp_set_current_user( 0 );
+		$logger   = SimpleLogger()->info(
+			'Switched to "{user_login_to}" from "{user_login_from}" in the latest session',
+			array(
+				'user_login_to'   => $req_login,
+				'user_login_from' => 'test',
+			)
+		);
+		$event_id = $logger->last_insert_id;
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $req_email, 1 );
+
+		$message = $this->find_subject_message( $result, $event_id );
+		$this->assertNotNull( $message, 'Subject event must be exported.' );
+
+		// The third-party placeholder is redacted...
+		$this->assertStringContainsString( '[redacted]', $message );
+		// ...but the unrelated word "latest" (which contains "test") is intact.
+		$this->assertStringContainsString( 'latest session', $message, 'Unrelated text must not be corrupted by substring redaction.' );
+	}
+
+	/**
+	 * Helper: locate the "Action concerning you" message for a subject event.
+	 *
+	 * @param array $result   Export result.
+	 * @param int   $event_id Event id.
+	 * @return string|null
+	 */
+	private function find_subject_message( $result, $event_id ) {
+		foreach ( $result['data'] as $item ) {
+			if ( $item['item_id'] !== 'sh-event-' . $event_id ) {
+				continue;
+			}
+
+			foreach ( $item['data'] as $field ) {
+				if ( __( 'Action concerning you', 'simple-history' ) === $field['name'] ) {
+					return $field['value'];
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Helper: id of the most recent event with the given exact message.
+	 *
+	 * @param string $message Event message.
+	 * @return int Event id, or 0.
+	 */
+	private function get_latest_event_id_by_message( $message ) {
+		global $wpdb;
+		$events = Simple_History::get_instance()->get_events_table_name();
+
+		$id = $wpdb->get_var(
+			$wpdb->prepare( "SELECT id FROM {$events} WHERE message = %s ORDER BY id DESC LIMIT 1", $message )
+		);
+
+		return $id ? (int) $id : 0;
+	}
+
+	/**
+	 * Helper: initiator value stored for an event.
+	 *
+	 * @param int $event_id Event id.
+	 * @return string
+	 */
+	private function get_event_initiator( $event_id ) {
+		global $wpdb;
+		$events = Simple_History::get_instance()->get_events_table_name();
+
+		return (string) $wpdb->get_var(
+			$wpdb->prepare( "SELECT initiator FROM {$events} WHERE id = %d", $event_id )
+		);
+	}
+
+	/**
+	 * When an admin runs an erasure, the summary event is attributed to that
+	 * admin (initiator wp_user + their _user_id).
+	 */
+	public function test_erasure_summary_attributed_to_running_admin() {
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator', 'user_email' => 'admin-' . uniqid() . '@example.com' ) );
+
+		$subject_email = 'subj-' . uniqid() . '@example.com';
+		$subject_id    = $this->factory->user->create( array( 'role' => 'subscriber', 'user_email' => $subject_email ) );
+		$this->log_event_as_user( $subject_id, 'Subject event to erase' );
+
+		// The admin (not the subject) runs the erasure.
+		wp_set_current_user( $admin_id );
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$service->erase_user_data( $subject_email, 1 );
+
+		$summary_id = $this->get_latest_event_id_by_message( 'Anonymized personal data in Simple History for a privacy erasure request' );
+		$this->assertGreaterThan( 0, $summary_id, 'Summary event must be logged.' );
+
+		$this->assertSame( 'wp_user', $this->get_event_initiator( $summary_id ) );
+
+		$context = $this->read_context( $summary_id );
+		$this->assertSame( (string) $admin_id, (string) ( $context['_user_id'] ?? '' ), 'Summary must be attributed to the admin who ran the erasure.' );
+	}
+
+	/**
+	 * When an erasure runs with no current user (wp-cron/async), the summary
+	 * event is attributed to WordPress — not a phantom wp_user with no id.
+	 */
+	public function test_erasure_summary_in_no_user_context_is_attributed_to_wordpress() {
+		$subject_email = 'cron-' . uniqid() . '@example.com';
+		$subject_id    = $this->factory->user->create( array( 'role' => 'subscriber', 'user_email' => $subject_email ) );
+		$this->log_event_as_user( $subject_id, 'Subject event to erase in cron' );
+
+		// No current user — simulates wp-cron processing.
+		wp_set_current_user( 0 );
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$service->erase_user_data( $subject_email, 1 );
+
+		$summary_id = $this->get_latest_event_id_by_message( 'Anonymized personal data in Simple History for a privacy erasure request' );
+		$this->assertGreaterThan( 0, $summary_id, 'Summary event must be logged.' );
+
+		$this->assertSame( 'wp', $this->get_event_initiator( $summary_id ), 'No-user erasure must be attributed to WordPress, not a phantom user.' );
+
+		$context = $this->read_context( $summary_id );
+		$this->assertArrayNotHasKey( '_user_id', $context, 'No phantom _user_id should be stored.' );
+	}
+
+	/**
+	 * Pagination: a page past the end of the result set is empty and done, and
+	 * does not error (exercises the SQL offset path).
+	 */
+	public function test_export_pagination_past_end_is_empty_and_done() {
+		$email   = 'page-' . uniqid() . '@example.com';
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator', 'user_email' => $email ) );
+		$this->log_event_as_user( $user_id, 'Only event' );
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+
+		$page1 = $service->export_user_data( $email, 1 );
+		$this->assertNotEmpty( $page1['data'] );
+		$this->assertTrue( $page1['done'] );
+
+		$page2 = $service->export_user_data( $email, 2 );
+		$this->assertSame( array(), $page2['data'], 'Page past the end must be empty.' );
+		$this->assertTrue( $page2['done'] );
+	}
+
+	/**
+	 * Crossing the page-size boundary: page 1 returns a full page and reports
+	 * not-done; page 2 returns the remainder and reports done. The two pages
+	 * together cover every event exactly once.
+	 */
+	public function test_export_paginates_across_page_boundary() {
+		$email   = 'bulk-' . uniqid() . '@example.com';
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator', 'user_email' => $email ) );
+		wp_set_current_user( $user_id );
+
+		// One more than a full page, so the result spans exactly two pages.
+		$total = 101;
+		for ( $i = 0; $i < $total; $i++ ) {
+			SimpleLogger()->info( 'Bulk privacy event ' . $i );
+		}
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+
+		$page1 = $service->export_user_data( $email, 1 );
+		$page2 = $service->export_user_data( $email, 2 );
+
+		// Page 1 is a full page and reports more to come; page 2 is the last.
+		$this->assertCount( 100, $page1['data'], 'Page 1 must return a full page of 100 events.' );
+		$this->assertFalse( $page1['done'], 'Page 1 must not be the last page when more remain.' );
+		$this->assertTrue( $page2['done'], 'Page 2 must be the last page.' );
+
+		$ids1 = wp_list_pluck( $page1['data'], 'item_id' );
+		$ids2 = wp_list_pluck( $page2['data'], 'item_id' );
+		$all  = array_merge( $ids1, $ids2 );
+
+		// At least our 101 logged events are covered (the account-creation event
+		// counts as a subject event too, so the real total is a little higher).
+		$this->assertGreaterThanOrEqual( $total, count( $all ), 'All logged events must be covered across the two pages.' );
+
+		// No overlap between pages, and every event appears exactly once.
+		$this->assertEmpty( array_intersect( $ids1, $ids2 ), 'Pages must not overlap.' );
+		$this->assertCount( count( $all ), array_unique( $all ), 'Each event must appear exactly once across pages.' );
+
+		// Page 2 holds exactly the events beyond the first full page.
+		$this->assertCount( count( $all ) - 100, $ids2, 'Page 2 must hold exactly the remainder past page 1.' );
+	}
+
+	/**
 	 * Remove any experimental-feature filters added by the gating tests so that
 	 * a failing assertion cannot leak state to subsequent tests.
 	 */

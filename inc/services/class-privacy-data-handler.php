@@ -36,6 +36,14 @@ class Privacy_Data_Handler extends Service {
 	private const PAGE_SIZE = 100;
 
 	/**
+	 * Memoized subject context keys (the result of the filterable map), so the
+	 * filter runs once per request instead of once per exported subject event.
+	 *
+	 * @var array{id:string[],login:string[],email:string[]}|null
+	 */
+	private $subject_context_keys_cache = null;
+
+	/**
 	 * Register hooks for the privacy export and erasure integrations.
 	 *
 	 * @inheritdoc
@@ -88,30 +96,17 @@ class Privacy_Data_Handler extends Service {
 			);
 		}
 
-		$initiator_ids = $this->get_initiator_event_ids( $user->ID );
-		$subject_ids   = array_values( array_diff( $this->get_subject_event_ids( $user ), $initiator_ids ) );
-
-		$roles = array();
-
-		foreach ( $initiator_ids as $id ) {
-			$roles[ (int) $id ] = 'initiator';
-		}
-
-		foreach ( $subject_ids as $id ) {
-			$roles[ (int) $id ] = 'subject';
-		}
-
-		$all_ids = array_keys( $roles );
-		rsort( $all_ids, SORT_NUMERIC );
-
-		$total    = count( $all_ids );
-		$page_num = max( 1, (int) $page );
-		$page_ids = array_slice( $all_ids, ( $page_num - 1 ) * self::PAGE_SIZE, self::PAGE_SIZE );
+		// Resolve only this page's event ids (and each one's role) directly in
+		// SQL, so we don't recompute and load the user's entire id set into
+		// memory on every page WordPress requests.
+		$page_result = $this->get_event_id_page( $user, $page );
+		$roles       = $page_result['roles'];
 
 		$export_items = array();
 
-		if ( ! empty( $page_ids ) ) {
-			$rows = $this->get_event_rows_by_ids( $page_ids );
+		if ( ! empty( $roles ) ) {
+			$page_ids = array_keys( $roles );
+			$rows     = $this->get_event_rows_by_ids( $page_ids );
 
 			foreach ( $page_ids as $id ) {
 				if ( ! isset( $rows[ $id ] ) ) {
@@ -128,68 +123,72 @@ class Privacy_Data_Handler extends Service {
 
 		return array(
 			'data' => $export_items,
-			'done' => $page_num * self::PAGE_SIZE >= $total,
+			'done' => $page_result['done'],
 		);
 	}
 
 	/**
-	 * Event ids the given user initiated (matched by the `_user_id` context key).
+	 * Resolve one page of the user's event ids — initiator and subject combined,
+	 * de-duplicated (initiator wins), newest first — paginated entirely in SQL.
 	 *
-	 * @param int $user_id User id.
-	 * @return int[]
+	 * @param \WP_User $user The requester.
+	 * @param int      $page 1-based page number.
+	 * @return array{roles:array<int,string>,done:bool} id => 'initiator'|'subject', and whether this is the last page.
 	 */
-	private function get_initiator_event_ids( $user_id ) {
+	private function get_event_id_page( $user, $page ) {
 		global $wpdb;
 
 		$contexts_table = \Simple_History\Simple_History::get_instance()->get_contexts_table_name();
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$ids = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT DISTINCT history_id FROM {$contexts_table} WHERE `key` = %s AND value = %s",
-				'_user_id',
-				(string) $user_id
-			)
-		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$page_num = max( 1, (int) $page );
+		$offset   = ( $page_num - 1 ) * self::PAGE_SIZE;
 
-		return array_map( 'intval', $ids );
+		// Initiator arm: events the user performed (is_init = 1).
+		$union  = "SELECT history_id, 1 AS is_init FROM {$contexts_table} WHERE `key` = %s AND value = %s";
+		$params = array( '_user_id', (string) $user->ID );
+
+		// Subject arm(s): events performed on the user (is_init = 0).
+		list( $subject_clauses, $subject_params ) = $this->build_subject_match( $user );
+
+		if ( ! empty( $subject_clauses ) ) {
+			$union .= " UNION ALL SELECT history_id, 0 AS is_init FROM {$contexts_table} WHERE " . implode( ' OR ', $subject_clauses );
+			$params = array_merge( $params, $subject_params );
+		}
+
+		// MAX(is_init) lets an id that is both initiator and subject collapse to
+		// a single initiator row. Fetch one extra row to detect further pages
+		// without a separate COUNT query.
+		$sql      = "SELECT history_id, MAX(is_init) AS is_init FROM ( {$union} ) AS combined GROUP BY history_id ORDER BY history_id DESC LIMIT %d OFFSET %d";
+		$params[] = self::PAGE_SIZE + 1;
+		$params[] = $offset;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		$results = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
+
+		$has_more = count( $results ) > self::PAGE_SIZE;
+		$results  = array_slice( $results, 0, self::PAGE_SIZE );
+
+		$roles = array();
+
+		foreach ( $results as $r ) {
+			$roles[ (int) $r->history_id ] = (int) $r->is_init === 1 ? 'initiator' : 'subject';
+		}
+
+		return array(
+			'roles' => $roles,
+			'done'  => ! $has_more,
+		);
 	}
 
 	/**
-	 * Context keys that identify a user an event was performed *on* (the
-	 * subject/target), grouped by how their value matches the requester.
-	 * Filterable so other loggers can register their own subject keys.
+	 * Build the SQL OR-clauses (and bound params) that match events where the
+	 * given user is the subject/target, by id, then login, then email.
 	 *
-	 * @return array{id:string[],login:string[],email:string[]}
+	 * @param \WP_User $user The requester.
+	 * @return array{0:string[],1:array<int,string>} [ clauses, params ].
 	 */
-	private function get_subject_context_keys() {
-		$keys = array(
-			'id'    => array( 'created_user_id', 'edited_user_id', 'deleted_user_id', 'old_user_id', 'reassign_user_id', 'login_id', 'user_id' ),
-			'login' => array( 'created_user_login', 'edited_user_login', 'deleted_user_login', 'login', 'failed_username', 'user_login', 'user_login_to', 'user_login_from' ),
-			'email' => array( 'created_user_email', 'edited_user_email', 'deleted_user_email', 'login_email', 'user_email' ),
-		);
-
-		/**
-		 * Filters the context keys used to find events where a user is the
-		 * subject/target, for the privacy data export.
-		 *
-		 * @param array $keys Keys grouped by 'id', 'login', 'email'.
-		 */
-		return apply_filters( 'simple_history/privacy/subject_context_keys', $keys );
-	}
-
-	/**
-	 * Event ids where the given user is the subject/target of an action.
-	 *
-	 * @param \WP_User $user User.
-	 * @return int[]
-	 */
-	private function get_subject_event_ids( $user ) {
-		global $wpdb;
-
-		$contexts_table = \Simple_History\Simple_History::get_instance()->get_contexts_table_name();
-		$keys           = $this->get_subject_context_keys();
+	private function build_subject_match( $user ) {
+		$keys = $this->get_subject_context_keys();
 
 		$clauses = array();
 		$params  = array();
@@ -209,16 +208,36 @@ class Privacy_Data_Handler extends Service {
 			$params    = array_merge( $params, array_values( $keys['email'] ), array( (string) $user->user_email ) );
 		}
 
-		if ( empty( $clauses ) ) {
-			return array();
+		return array( $clauses, $params );
+	}
+
+	/**
+	 * Context keys that identify a user an event was performed *on* (the
+	 * subject/target), grouped by how their value matches the requester.
+	 * Filterable so other loggers can register their own subject keys.
+	 *
+	 * @return array{id:string[],login:string[],email:string[]}
+	 */
+	private function get_subject_context_keys() {
+		if ( $this->subject_context_keys_cache !== null ) {
+			return $this->subject_context_keys_cache;
 		}
 
-		$sql = "SELECT DISTINCT history_id FROM {$contexts_table} WHERE " . implode( ' OR ', $clauses );
+		$keys = array(
+			'id'    => array( 'created_user_id', 'edited_user_id', 'deleted_user_id', 'old_user_id', 'reassign_user_id', 'login_id', 'user_id' ),
+			'login' => array( 'created_user_login', 'edited_user_login', 'deleted_user_login', 'login', 'failed_username', 'user_login', 'user_login_to', 'user_login_from' ),
+			'email' => array( 'created_user_email', 'edited_user_email', 'deleted_user_email', 'login_email', 'user_email' ),
+		);
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
-		$ids = $wpdb->get_col( $wpdb->prepare( $sql, $params ) );
+		/**
+		 * Filters the context keys used to find events where a user is the
+		 * subject/target, for the privacy data export.
+		 *
+		 * @param array $keys Keys grouped by 'id', 'login', 'email'.
+		 */
+		$this->subject_context_keys_cache = apply_filters( 'simple_history/privacy/subject_context_keys', $keys );
 
-		return array_map( 'intval', $ids );
+		return $this->subject_context_keys_cache;
 	}
 
 	/**
@@ -279,109 +298,52 @@ class Privacy_Data_Handler extends Service {
 	 * @return array
 	 */
 	private function build_subject_export_item( $row, $user ) {
-		$context = is_array( $row->context ) ? $row->context : array();
+		// Redact third-party identifiers in the CONTEXT before rendering, so the
+		// message interpolates "[redacted]" in place of each other person's
+		// placeholder. This covers logins, emails AND display names, and avoids
+		// corrupting unrelated text (a blind str_ireplace on the rendered string
+		// would turn e.g. "latest" into "la[redacted]" for a login "test").
+		//
+		// IMPORTANT: redaction correctness assumes a logger's plain-text output
+		// renders identity ONLY from the (now-redacted) context — i.e. via
+		// message placeholders. Core loggers hold to this; the User_Logger
+		// override re-fetches the user via get_user_by() but uses only the
+		// numeric ID for an edit-link URL (stripped by wp_strip_all_tags below),
+		// never the live name. A logger that interpolated a freshly-fetched
+		// display name/email instead of the context placeholder would bypass
+		// this redaction — don't do that in a logger meant for subject events.
+		$redacted_row = $this->redact_third_party_context( $row, $user );
 
-		$message = \Simple_History\Simple_History::get_instance()->get_log_row_plain_text_output( $row );
+		$message = \Simple_History\Simple_History::get_instance()->get_log_row_plain_text_output( $redacted_row );
 		$message = html_entity_decode( wp_strip_all_tags( $message ), ENT_QUOTES );
-		$message = $this->redact_third_party_identity( $message, $context, $user );
+
+		// Defence in depth: scrub any third-party email a logger baked literally
+		// into the message text. Emails are distinctive enough to replace without
+		// corrupting surrounding words.
+		$message = $this->redact_literal_emails( $message, $row->context, $user );
+
+		$data   = $this->build_common_fields( $row );
+		$data[] = array(
+			'name'  => __( 'Action concerning you', 'simple-history' ),
+			'value' => $message,
+		);
 
 		return array(
 			'group_id'    => self::GROUP_ID . '-subject',
 			'group_label' => __( 'Simple History — activity concerning you (performed by others)', 'simple-history' ),
 			'item_id'     => 'sh-event-' . $row->id,
-			'data'        => array(
-				array(
-					'name'  => __( 'Date', 'simple-history' ),
-					'value' => get_date_from_gmt( $row->date ),
-				),
-				array(
-					'name'  => __( 'Date (UTC)', 'simple-history' ),
-					'value' => $row->date,
-				),
-				array(
-					'name'  => __( 'Logger', 'simple-history' ),
-					'value' => $row->logger,
-				),
-				array(
-					'name'  => __( 'Level', 'simple-history' ),
-					'value' => $row->level,
-				),
-				array(
-					'name'  => __( 'Action concerning you', 'simple-history' ),
-					'value' => $message,
-				),
-			),
+			'data'        => $data,
 		);
 	}
 
 	/**
-	 * Remove other people's login/email (and the actor's identity) from a
-	 * subject-event message, leaving the requester's own identifiers intact.
-	 *
-	 * @param string   $message Plain-text message.
-	 * @param array    $context Event context.
-	 * @param \WP_User $user    The requester.
-	 * @return string
-	 */
-	private function redact_third_party_identity( $message, $context, $user ) {
-		$own = array_filter(
-			array(
-				(string) $user->ID,
-				(string) $user->user_login,
-				(string) $user->user_email,
-			),
-			static function ( $v ) {
-				return $v !== '';
-			}
-		);
-
-		$subject_keys  = $this->get_subject_context_keys();
-		$identity_keys = array_merge( array( '_user_login', '_user_email' ), $subject_keys['login'], $subject_keys['email'] );
-
-		$secrets = array();
-
-		foreach ( $identity_keys as $key ) {
-			if ( ! isset( $context[ $key ] ) ) {
-				continue;
-			}
-
-			$value = (string) $context[ $key ];
-
-			if ( $value === '' || in_array( $value, $own, true ) ) {
-				continue;
-			}
-
-			$secrets[] = $value;
-		}
-
-		$secrets = array_unique( $secrets );
-
-		// Replace longest values first so overlapping substrings redact cleanly.
-		usort(
-			$secrets,
-			static function ( $a, $b ) {
-				return strlen( $b ) - strlen( $a );
-			}
-		);
-
-		foreach ( $secrets as $secret ) {
-			$message = str_ireplace( $secret, '[redacted]', $message );
-		}
-
-		return $message;
-	}
-
-	/**
-	 * Build the name/value field list for a single exported event.
+	 * Build the export fields shared by initiator and subject events: the dates,
+	 * logger and level. Callers append their own message / PII fields.
 	 *
 	 * @param object $row Log_Query row object.
 	 * @return array<int,array{name:string,value:string}>
 	 */
-	private function build_export_item_data( $row ) {
-		$context = is_array( $row->context ) ? $row->context : array();
-
-		$message = \Simple_History\Simple_History::get_instance()->get_log_row_plain_text_output( $row );
-
+	private function build_common_fields( $row ) {
 		return array(
 			array(
 				'name'  => __( 'Date', 'simple-history' ),
@@ -399,19 +361,134 @@ class Privacy_Data_Handler extends Service {
 				'name'  => __( 'Level', 'simple-history' ),
 				'value' => $row->level,
 			),
-			array(
-				'name'  => __( 'Message', 'simple-history' ),
-				'value' => wp_strip_all_tags( $message ),
-			),
-			array(
-				'name'  => __( 'IP address', 'simple-history' ),
-				'value' => $context['_server_remote_addr'] ?? '',
-			),
-			array(
-				'name'  => __( 'User agent', 'simple-history' ),
-				'value' => $context['server_http_user_agent'] ?? '',
-			),
 		);
+	}
+
+	/**
+	 * Return a copy of the row whose context has every third party's identifying
+	 * value replaced with "[redacted]", leaving the requester's own identifiers
+	 * intact. Redacting at the context level (before interpolation) means only
+	 * the actual identity placeholders are masked — surrounding message text is
+	 * never corrupted.
+	 *
+	 * @param object   $row  Log_Query row.
+	 * @param \WP_User $user The requester.
+	 * @return object Cloned row with a redacted context.
+	 */
+	private function redact_third_party_context( $row, $user ) {
+		$context = is_array( $row->context ) ? $row->context : array();
+
+		$own = array_filter(
+			array(
+				(string) $user->ID,
+				(string) $user->user_login,
+				(string) $user->user_email,
+				(string) $user->display_name,
+				(string) $user->user_nicename,
+				(string) $user->first_name,
+				(string) $user->last_name,
+			),
+			static function ( $v ) {
+				return $v !== '';
+			}
+		);
+
+		foreach ( $this->get_identity_context_keys() as $key ) {
+			if ( ! isset( $context[ $key ] ) ) {
+				continue;
+			}
+
+			$value = (string) $context[ $key ];
+
+			if ( $value === '' || in_array( $value, $own, true ) ) {
+				continue;
+			}
+
+			$context[ $key ] = '[redacted]';
+		}
+
+		$redacted_row          = clone $row;
+		$redacted_row->context = $context;
+
+		return $redacted_row;
+	}
+
+	/**
+	 * Context keys whose values name a person (login, email, or display name).
+	 * Used to redact third parties from subject-event messages.
+	 *
+	 * @return string[]
+	 */
+	private function get_identity_context_keys() {
+		$subject = $this->get_subject_context_keys();
+
+		$keys = array_merge(
+			array( '_user_login', '_user_email' ),
+			$subject['login'],
+			$subject['email'],
+			array( 'user_display_name', 'display_name', 'first_name', 'last_name', 'created_user_first_name', 'created_user_last_name', 'user_names', 'nickname' )
+		);
+
+		return array_values( array_unique( $keys ) );
+	}
+
+	/**
+	 * Replace any third-party email present in the context (and thus possibly
+	 * baked literally into the message) with "[redacted]". The requester's own
+	 * email is preserved.
+	 *
+	 * @param string   $message Rendered message.
+	 * @param array    $context Event context (original, un-redacted).
+	 * @param \WP_User $user    The requester.
+	 * @return string
+	 */
+	private function redact_literal_emails( $message, $context, $user ) {
+		$context   = is_array( $context ) ? $context : array();
+		$own_email = strtolower( (string) $user->user_email );
+
+		foreach ( $context as $value ) {
+			$value = (string) $value;
+
+			if ( strpos( $value, '@' ) === false || ! is_email( $value ) ) {
+				continue;
+			}
+
+			if ( strtolower( $value ) === $own_email ) {
+				continue;
+			}
+
+			$message = str_ireplace( $value, '[redacted]', $message );
+		}
+
+		return $message;
+	}
+
+	/**
+	 * Build the name/value field list for a single exported event.
+	 *
+	 * @param object $row Log_Query row object.
+	 * @return array<int,array{name:string,value:string}>
+	 */
+	private function build_export_item_data( $row ) {
+		$context = is_array( $row->context ) ? $row->context : array();
+
+		$message = \Simple_History\Simple_History::get_instance()->get_log_row_plain_text_output( $row );
+
+		$data   = $this->build_common_fields( $row );
+		$data[] = array(
+			'name'  => __( 'Message', 'simple-history' ),
+			'value' => wp_strip_all_tags( $message ),
+		);
+		$data[] = array(
+			'name'  => __( 'IP address', 'simple-history' ),
+			'value' => $context['_server_remote_addr'] ?? '',
+		);
+		$data[] = array(
+			'name'  => __( 'User agent', 'simple-history' ),
+			'value' => $context['server_http_user_agent'] ?? '',
+		);
+
+		return $data;
 	}
 
 	/**
@@ -491,11 +568,25 @@ class Privacy_Data_Handler extends Service {
 	 * @return void
 	 */
 	private function log_erasure_summary() {
+		$current_user_id = get_current_user_id();
+
+		// Attribute to the admin who ran the erasure when there is one; otherwise
+		// (wp-cron / async processing with no current user) attribute to
+		// WordPress, rather than a phantom "wp_user" with no id.
+		if ( $current_user_id > 0 ) {
+			$context = array(
+				'_initiator' => Log_Initiators::WP_USER,
+				'_user_id'   => $current_user_id,
+			);
+		} else {
+			$context = array(
+				'_initiator' => Log_Initiators::WORDPRESS,
+			);
+		}
+
 		SimpleLogger()->info(
 			'Anonymized personal data in Simple History for a privacy erasure request',
-			array(
-				'_initiator' => Log_Initiators::WP_USER,
-			)
+			$context
 		);
 	}
 
