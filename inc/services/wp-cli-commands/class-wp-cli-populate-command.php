@@ -459,33 +459,44 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			return;
 		}
 
+		// Fabricated users for fake events. The `id` values are deliberately set
+		// far above any real user id so populated events never collide with a
+		// real account (which would otherwise pull this fake data into that
+		// user's privacy export and show it redacted). The id/login/email of each
+		// entry are kept consistent so rendered messages look realistic.
 		$users = [
 			[
+				'id'    => 900001,
 				'login' => 'johndoe',
 				'email' => 'john@example.com',
 				'name'  => 'John Doe',
 			],
 			[
+				'id'    => 900002,
 				'login' => 'janedoe',
 				'email' => 'jane@example.com',
 				'name'  => 'Jane Doe',
 			],
 			[
+				'id'    => 900003,
 				'login' => 'admin',
 				'email' => 'admin@example.com',
 				'name'  => 'Admin User',
 			],
 			[
+				'id'    => 900004,
 				'login' => 'editor1',
 				'email' => 'editor@example.com',
 				'name'  => 'Sarah Editor',
 			],
 			[
+				'id'    => 900005,
 				'login' => 'author1',
 				'email' => 'author@example.com',
 				'name'  => 'Mike Author',
 			],
 			[
+				'id'    => 900006,
 				'login' => 'subscriber1',
 				'email' => 'subscriber@example.com',
 				'name'  => 'Tom Subscriber',
@@ -512,11 +523,11 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		];
 
 		if ( $action === 'user_updated_profile' ) {
-			$context['edited_user_id']    = wp_rand( 1, 100 );
+			$context['edited_user_id']    = $user['id'];
 			$context['edited_user_login'] = $user['login'];
 			$context['edited_user_email'] = $user['email'];
 		} elseif ( $action === 'user_created' ) {
-			$context['created_user_id']    = wp_rand( 1, 100 );
+			$context['created_user_id']    = $user['id'];
 			$context['created_user_login'] = $user['login'];
 			$context['created_user_email'] = $user['email'];
 			$context['created_user_role']  = $role;
