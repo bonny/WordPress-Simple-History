@@ -71,9 +71,12 @@ class Privacy_Settings_Page extends Service {
 		?>
 		<div class="sh-SettingsSectionIntroduction">
 			<p>
-				<?php esc_html_e( 'Simple History is registered with WordPress\'s personal-data export tool (Tools → Export Personal Data). When you process a request there, Simple History\'s activity log is included automatically.', 'simple-history' ); ?>
+				<?php esc_html_e( 'Simple History is registered with WordPress\'s personal-data export tool (Tools → Export Personal Data). When you process a request there, the activity the person performed is included automatically.', 'simple-history' ); ?>
 			</p>
 			<?php if ( Helpers::experimental_features_is_enabled() ) { ?>
+				<p>
+					<?php esc_html_e( '🧪 Experimental: exports also include activity about the person performed by others (for example an admin editing their profile, or failed logins targeting their account), with other people\'s names and emails redacted.', 'simple-history' ); ?>
+				</p>
 				<p>
 					<?php esc_html_e( '🧪 Experimental: Simple History is also registered with the erasure tool — running an erasure request anonymizes personal data in matching activity-log entries while preserving the audit record.', 'simple-history' ); ?>
 				</p>

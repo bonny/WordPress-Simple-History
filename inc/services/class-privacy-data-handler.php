@@ -15,8 +15,11 @@ use Simple_History\Log_Query;
  * Registers Simple History with WordPress's personal-data privacy tools
  * (Tools → Export/Erase Personal Data).
  *
- * The exporter is always registered. The eraser is gated behind experimental
- * features for one release cycle (see the design spec, "Release & lifecycle").
+ * The exporter is always registered and always exports the user's own
+ * (initiator) events. Two parts are gated behind experimental features for one
+ * release cycle (see the design spec, "Release & lifecycle"): the eraser, and
+ * the export of subject events (activity about the user performed by others,
+ * which carries the third-party redaction surface).
  *
  * @since 5.29.0
  */
@@ -79,8 +82,9 @@ class Privacy_Data_Handler extends Service {
 
 	/**
 	 * Export one page of the user's activity-log data: events they initiated
-	 * (full detail) plus events where they are the subject of someone else's
-	 * action (third-party identity redacted, per GDPR Art. 15(4)).
+	 * (full detail, always on) plus — when experimental features are enabled —
+	 * events where they are the subject of someone else's action (third-party
+	 * identity redacted, per GDPR Art. 15(4)).
 	 *
 	 * @param string $email_address Email from the privacy request.
 	 * @param int    $page          1-based page number.
@@ -148,7 +152,19 @@ class Privacy_Data_Handler extends Service {
 		$params = array( '_user_id', (string) $user->ID );
 
 		// Subject arm(s): events performed on the user (is_init = 0).
-		list( $subject_clauses, $subject_params ) = $this->build_subject_match( $user );
+		//
+		// Subject events (activity ABOUT the user, performed by others) are matched
+		// only when experimental features are enabled. Initiator events — the
+		// user's own activity, their own data with no third-party leak surface —
+		// are always exported. This keeps the safe compliance win always-on while
+		// the third-party redaction path gets more real-world testing behind the
+		// flag, mirroring the eraser's experimental gating.
+		$subject_clauses = array();
+		$subject_params  = array();
+
+		if ( Helpers::experimental_features_is_enabled() ) {
+			list( $subject_clauses, $subject_params ) = $this->build_subject_match( $user );
+		}
 
 		if ( ! empty( $subject_clauses ) ) {
 			$union .= " UNION ALL SELECT history_id, 0 AS is_init FROM {$contexts_table} WHERE " . implode( ' OR ', $subject_clauses );

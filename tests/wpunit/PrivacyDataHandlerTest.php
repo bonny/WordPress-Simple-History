@@ -356,6 +356,8 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	 * grouped separately, with the actor's identity/IP/user-agent removed.
 	 */
 	public function test_export_includes_subject_events_redacted() {
+		$this->enable_experimental_features();
+
 		$actor_login = 'actor-' . uniqid();
 		$actor_id    = $this->factory->user->create( array( 'role' => 'administrator', 'user_login' => $actor_login, 'user_email' => $actor_login . '@example.com' ) );
 
@@ -408,6 +410,43 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * With experimental features OFF (the default), the export is initiator-only:
+	 * the requester's own events are exported, but events ABOUT them performed by
+	 * others (subject events) are excluded. The subject-export path — and its
+	 * third-party redaction surface — is gated behind experimental features.
+	 */
+	public function test_subject_events_excluded_from_export_when_experimental_off() {
+		// Do NOT enable experimental features — assert the default-off behavior.
+		$actor_id = $this->factory->user->create( array( 'role' => 'administrator', 'user_email' => 'actoroff-' . uniqid() . '@example.com' ) );
+
+		$subject_login = 'subjoff-' . uniqid();
+		$subject_email = $subject_login . '@example.com';
+		$subject_id    = $this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $subject_login, 'user_email' => $subject_email ) );
+
+		// An event the subject performed themselves (initiator).
+		$own_event_id = $this->log_event_as_user( $subject_id, 'Subject did their own thing' );
+
+		// An event the actor performed ON the subject (subject event).
+		$subject_event_id = $this->log_event_as_actor(
+			$actor_id,
+			'Edited the profile for user ' . $subject_login,
+			array(
+				'edited_user_id'    => $subject_id,
+				'edited_user_login' => $subject_login,
+				'edited_user_email' => $subject_email,
+			)
+		);
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $subject_email, 1 );
+
+		$ids = wp_list_pluck( $result['data'], 'item_id' );
+
+		$this->assertContains( 'sh-event-' . $own_event_id, $ids, 'Initiator events must always export.' );
+		$this->assertNotContains( 'sh-event-' . $subject_event_id, $ids, 'Subject events must be excluded when experimental features are off.' );
+	}
+
+	/**
 	 * An event the requester both initiated and is subject of appears once,
 	 * as an initiator event (full detail).
 	 */
@@ -438,6 +477,8 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	 * Failed-login events targeting the user (by username) are included as subject events.
 	 */
 	public function test_export_includes_failed_login_subject_event() {
+		$this->enable_experimental_features();
+
 		$login = 'victim-' . uniqid();
 		$email = $login . '@example.com';
 		$uid   = $this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $login, 'user_email' => $email ) );
@@ -459,6 +500,8 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	 * HTML-entity-encoded forms), while the requester's own identifier remains.
 	 */
 	public function test_subject_message_redacts_third_party_identity() {
+		$this->enable_experimental_features();
+
 		$req_login = 'reqto-' . uniqid();
 		$req_email = $req_login . '@example.com';
 		$this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $req_login, 'user_email' => $req_email ) );
@@ -512,6 +555,8 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	 * previously leaked because redaction only covered login/email keys.)
 	 */
 	public function test_subject_message_redacts_third_party_display_name() {
+		$this->enable_experimental_features();
+
 		$req_login = 'reqdn-' . uniqid();
 		$req_email = $req_login . '@example.com';
 		$this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $req_login, 'user_email' => $req_email ) );
@@ -546,6 +591,8 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	 * third-party login as a substring (the old blind str_ireplace did).
 	 */
 	public function test_subject_message_does_not_corrupt_unrelated_text() {
+		$this->enable_experimental_features();
+
 		$req_login = 'reqsub-' . uniqid();
 		$req_email = $req_login . '@example.com';
 		$this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $req_login, 'user_email' => $req_email ) );
@@ -747,7 +794,41 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 	public function tearDown(): void {
 		remove_filter( 'simple_history/experimental_features_enabled', '__return_false', 99 );
 		remove_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
+
+		// The subject-key guardrail tests register a filter and pollute the
+		// service's memoized key cache. Clear both so they can't leak into other
+		// tests (or into the next test's view of the production default keys).
+		remove_all_filters( 'simple_history/privacy/subject_context_keys' );
+		$this->reset_subject_key_cache();
+
 		parent::tearDown();
+	}
+
+	/**
+	 * Helper: null out the Privacy_Data_Handler's memoized subject-key cache so a
+	 * freshly-added `simple_history/privacy/subject_context_keys` filter is seen.
+	 * The cache is per-request and memoized on the singleton service, so without
+	 * this reset a filter added mid-test would be ignored.
+	 *
+	 * @return void
+	 */
+	private function reset_subject_key_cache() {
+		$service  = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$property = new ReflectionProperty( $service, 'subject_context_keys_cache' );
+		$property->setAccessible( true );
+		$property->setValue( $service, null );
+	}
+
+	/**
+	 * Helper: turn experimental features ON for the current test. Subject-event
+	 * export (activity about the user performed by others) is gated behind this
+	 * flag — only initiator events export when it is off. The priority-99 filter
+	 * is removed in tearDown.
+	 *
+	 * @return void
+	 */
+	private function enable_experimental_features() {
+		add_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
 	}
 
 	/**
@@ -804,5 +885,102 @@ class PrivacyDataHandlerTest extends \Codeception\TestCase\WPTestCase {
 
 		remove_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
 		remove_filter( 'wp_privacy_personal_data_erasers', [ $service, 'register_eraser' ] );
+	}
+
+	/**
+	 * GUARDRAIL (structural): every context key that can match a *third party's*
+	 * event into a person's subject export by a person-identifying value — i.e.
+	 * the `login` and `email` subject-key groups — MUST also be in the redaction
+	 * key list. Otherwise an event pulled in via that key would render the third
+	 * party's login/email into the "concerning you" message un-redacted.
+	 *
+	 * This reads the live, filtered key maps (the same the exporter uses), so a
+	 * future logger or premium add-on that registers a new subject login/email key
+	 * via `simple_history/privacy/subject_context_keys` is covered automatically —
+	 * and this test fails the moment such a key is added without redaction support.
+	 *
+	 * The `id` group is intentionally excluded: numeric ids are used for match and
+	 * for edit-link URLs (stripped by wp_strip_all_tags), not rendered as identity.
+	 */
+	public function test_all_subject_login_and_email_keys_are_redactable() {
+		$this->reset_subject_key_cache();
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+
+		$subject_method = new ReflectionMethod( $service, 'get_subject_context_keys' );
+		$subject_method->setAccessible( true );
+		$identity_method = new ReflectionMethod( $service, 'get_identity_context_keys' );
+		$identity_method->setAccessible( true );
+
+		$subject  = $subject_method->invoke( $service );
+		$identity = $identity_method->invoke( $service );
+
+		$match_identity_keys = array_merge( $subject['login'], $subject['email'] );
+		$not_redactable      = array_values( array_diff( $match_identity_keys, $identity ) );
+
+		$this->assertSame(
+			array(),
+			$not_redactable,
+			'Every subject login/email match key must also be a redaction key, or the third party it names leaks. Missing from redaction: ' . implode( ', ', $not_redactable )
+		);
+	}
+
+	/**
+	 * GUARDRAIL (behavioral): a subject-match key registered *after the fact* via
+	 * the `simple_history/privacy/subject_context_keys` filter — i.e. how a new
+	 * logger or premium add-on extends matching — is redacted when it holds a
+	 * third party, end to end through the real export path.
+	 *
+	 * This proves the redaction key list is genuinely derived from the (filtered)
+	 * subject-key map, not a stale hardcoded copy: register a brand-new login key,
+	 * have a third party occupy it, and assert it is scrubbed from the exported
+	 * "concerning you" message while the requester's own identifier survives.
+	 */
+	public function test_subject_key_registered_via_filter_is_redacted() {
+		$this->enable_experimental_features();
+
+		$req_login = 'filtreq-' . uniqid();
+		$req_email = $req_login . '@example.com';
+		$this->factory->user->create( array( 'role' => 'subscriber', 'user_login' => $req_login, 'user_email' => $req_email ) );
+
+		$third_party = 'tpfilter-' . uniqid();
+		$custom_key  = 'sh_test_custom_subject_login';
+
+		// Simulate a future logger / premium add-on registering a new subject key.
+		add_filter(
+			'simple_history/privacy/subject_context_keys',
+			static function ( $keys ) use ( $custom_key ) {
+				$keys['login'][] = $custom_key;
+				return $keys;
+			}
+		);
+
+		// The service memoizes the key map; clear it so the new filter is seen.
+		$this->reset_subject_key_cache();
+
+		// Requester is matched as subject via a stock key (edited_user_login); the
+		// third party occupies the newly-registered key and is named in the message.
+		wp_set_current_user( 0 );
+		$logger   = SimpleLogger()->info(
+			'Profile of "{edited_user_login}" touched by "{' . $custom_key . '}"',
+			array(
+				'edited_user_login' => $req_login,
+				$custom_key         => $third_party,
+			)
+		);
+		$event_id = $logger->last_insert_id;
+
+		$service = Simple_History::get_instance()->get_service( Privacy_Data_Handler::class );
+		$result  = $service->export_user_data( $req_email, 1 );
+
+		$ids = wp_list_pluck( $result['data'], 'item_id' );
+		$this->assertContains( 'sh-event-' . $event_id, $ids, 'Subject event must be exported.' );
+
+		$message = $this->find_subject_message( $result, $event_id );
+		$this->assertNotNull( $message, 'Subject event must carry a "concerning you" message.' );
+
+		$this->assertStringNotContainsString( $third_party, $message, 'A third party named via a filter-registered subject key must be redacted.' );
+		$this->assertStringContainsString( '[redacted]', $message, 'Redaction marker should be present.' );
+		$this->assertStringContainsString( $req_login, $message, 'Requester own identifier must remain.' );
 	}
 }
