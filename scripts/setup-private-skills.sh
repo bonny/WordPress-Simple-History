@@ -45,6 +45,8 @@ SKILLS=(
   premium-upsell-design
   lemonsqueezy-sales
   writing-blog-posts
+  analytics-traffic
+  freemium-conversion
 )
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
