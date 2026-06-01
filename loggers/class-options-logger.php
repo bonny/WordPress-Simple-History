@@ -279,7 +279,8 @@ class Options_Logger extends Logger {
 	 * @return bool
 	 */
 	protected function is_form_submitted_from_permalink_page() {
-		return strpos( wp_get_referer(), 'options-permalink.php' ) !== false;
+		$referer = wp_get_referer();
+		return $referer && strpos( $referer, 'options-permalink.php' ) !== false;
 	}
 
 	/**
