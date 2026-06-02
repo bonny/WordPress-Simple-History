@@ -62,13 +62,13 @@ echo "→ Activating premium…"
 wp_cli plugin activate simple-history-premium
 
 echo "→ Capturing premium screenshots (logged in as sally)…"
-SH_TEASER_MODE=premium ${PLAYWRIGHT_BIN} test "${SPEC}" --project=chromium
+SH_TEASER_MODE=premium ${PLAYWRIGHT_BIN} test "${SPEC}" --project=teaser
 
 echo "→ Deactivating premium…"
 wp_cli plugin deactivate simple-history-premium
 
 echo "→ Capturing free-version screenshots (logged in as sally)…"
-SH_TEASER_MODE=free ${PLAYWRIGHT_BIN} test "${SPEC}" --project=chromium
+SH_TEASER_MODE=free ${PLAYWRIGHT_BIN} test "${SPEC}" --project=teaser
 
 PNGS=(
 	"assets/images/user-card-with-premium.png"

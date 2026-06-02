@@ -49,7 +49,7 @@ Runs in ~30 seconds (two Playwright passes + plugin toggles). For each mode the 
 
 After capture, the orchestrator runs each PNG through `pngquant` (`--quality=80-95 --strip --skip-if-larger`) — typically shrinks files ~65–70% with no visible quality loss. If `pngquant` isn't installed (`brew install pngquant`), the step is skipped with a hint and the un-optimized PNGs still ship.
 
-Run the orchestrator instead of invoking Playwright directly — the script handles the premium activate/deactivate dance, the optimization step, and trap-restores premium on exit even if a test fails. Manual single-mode runs are still possible via `SH_TEASER_MODE=premium|free playwright test tests/playwright/screenshot-teaser-user-card.spec.js --project=chromium` (but you'll need to run `pngquant` yourself afterwards).
+Run the orchestrator instead of invoking Playwright directly — the script handles the premium activate/deactivate dance, the optimization step, and trap-restores premium on exit even if a test fails. Manual single-mode runs are still possible via `SH_TEASER_MODE=premium|free playwright test tests/playwright/screenshot-teaser-user-card.spec.js --project=teaser` (but you'll need to run `pngquant` yourself afterwards).
 
 ## When to re-run
 

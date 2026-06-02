@@ -54,7 +54,7 @@
 		"test:log-query-mysql57": "DB_IMAGE=biarms/mysql:5.7 DB_DATA_DIR=./data/mysql-5.7 npm run test:wpunit-logquery",
 		"test:log-query-mariadb105": "DB_IMAGE=mariadb:10.5 DB_DATA_DIR=./data/mysql npm run test:wpunit-logquery",
 		"test:wpunit-logquery": "docker compose run --rm php-cli vendor/bin/codecept run wpunit:LogQueryTest",
-		"test:playwright": "playwright test",
+		"test:playwright": "playwright test --project=tests",
 		"test:playwright:ui": "playwright test --ui",
 		"start": "wp-scripts start src/index.js src/index-admin-bar.js src/index-command-palette.js",
 		"build": "wp-scripts build src/index.js src/index-admin-bar.js src/index-command-palette.js",
