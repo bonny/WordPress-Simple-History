@@ -305,19 +305,19 @@ class WP_CLI_Dev_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # Add a plugin update message with default versions
-	 *     wp simple-history dev add-plugin-update-message
+	 *     wp simple-history dev add_plugin_update_message
 	 *
 	 *     # Add a plugin update message simulating update from specific version
-	 *     wp simple-history dev add-plugin-update-message --prev-version=5.17.0
+	 *     wp simple-history dev add_plugin_update_message --prev-version=5.17.0
 	 *
 	 *     # Add a plugin update message simulating update to specific version
-	 *     wp simple-history dev add-plugin-update-message --version=5.22.0
+	 *     wp simple-history dev add_plugin_update_message --version=5.22.0
 	 *
 	 *     # Add a plugin update message with both versions specified
-	 *     wp simple-history dev add-plugin-update-message --prev-version=5.20.0 --version=5.22.0
+	 *     wp simple-history dev add_plugin_update_message --prev-version=5.20.0 --version=5.22.0
 	 *
 	 *     # Add a plugin update message for Simple History Premium
-	 *     wp simple-history dev add-plugin-update-message --plugin=simple-history-premium/simple-history-premium.php --prev-version=1.9.0 --version=1.10.0
+	 *     wp simple-history dev add_plugin_update_message --plugin=simple-history-premium/simple-history-premium.php --prev-version=1.9.0 --version=1.10.0
 	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Associative arguments.

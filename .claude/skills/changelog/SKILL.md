@@ -141,6 +141,23 @@ Always maintain an `### Unreleased` section at the top of the changelog. This le
 
 When releasing, move Unreleased entries into a new versioned section with the release date.
 
+## Release: the "What's new" update notice
+
+At release time, besides the changelog, add the **in-plugin "Highlights in this version"** notice that users see when they update. It's separate from `readme.txt`:
+
+-   File: `inc/services/class-simple-history-updates.php`
+-   Register `add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/X.Y.Z', [ $this, 'on_plugin_updated_details_X_Y_Z' ] );` in `loaded()`
+-   Add a matching `on_plugin_updated_details_X_Y_Z()` method returning 3 short highlight bullets + the release-post link (copy the previous version's method)
+
+**Preview it** with the dev WP-CLI command (needs `SIMPLE_HISTORY_DEV`). Note the subcommand uses **underscores**, not dashes:
+
+```bash
+docker compose run --rm wpcli_mariadb \
+  simple-history dev add_plugin_update_message --prev-version=<PREV> --version=<NEW>
+```
+
+This logs a fake "plugin updated" event; the highlights render in its event-details panel in wp-admin. `--version` defaults to the installed version. Premium has its own `on_plugin_updated_details_*` in the premium plugin — preview with `--plugin=simple-history-premium/simple-history-premium.php`.
+
 ## Examples
 
 ```
