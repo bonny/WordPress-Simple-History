@@ -961,7 +961,6 @@ class Post_Logger extends Logger {
 			'post_status',
 			'menu_order',
 			'post_date',
-			'post_date_gmt',
 			'post_excerpt',
 			'comment_status',
 			'ping_status',
@@ -1132,6 +1131,15 @@ class Post_Logger extends Logger {
 			}
 
 			$meta_changes['changed'][ $meta_key ] = true;
+		}
+
+		// Look for removed custom fields/meta.
+		foreach ( $old_meta as $meta_key => $meta_value ) {
+			if ( isset( $new_meta[ $meta_key ] ) ) {
+				continue;
+			}
+
+			$meta_changes['removed'][ $meta_key ] = true;
 		}
 
 		if ( $meta_changes['added'] ) {
@@ -1398,79 +1406,98 @@ class Post_Logger extends Logger {
 	 */
 	public function get_action_links( $row ) {
 		$context     = $row->context;
-		$post_id     = $context['post_id'] ?? 0;
+		$post_id     = (int) ( $context['post_id'] ?? 0 );
+		$post_type   = $context['post_type'] ?? '';
 		$message_key = $context['_message_key'] ?? null;
 
-		$post = get_post( $post_id );
+		$action_links = [];
 
-		if ( ! $post instanceof \WP_Post ) {
-			return [];
-		}
+		// Skip the DB lookup for post_deleted (the post is gone) and for
+		// events without a post id. The overview block below still runs
+		// from $context['post_type'].
+		$post = $post_id && $message_key !== 'post_deleted' ? get_post( $post_id ) : null;
 
-		// Post was permanently deleted; no links to show.
-		if ( $message_key === 'post_deleted' ) {
-			return [];
-		}
+		$effective_post_type_obj = null;
 
-		$post_type_obj = get_post_type_object( $post->post_type );
-		$type_label    = $post_type_obj ? strtolower( $post_type_obj->labels->singular_name ) : $post->post_type;
-		$post_status   = get_post_status( $post );
-		$action_links  = [];
+		if ( $post instanceof \WP_Post ) {
+			$effective_post_type_obj = get_post_type_object( $post->post_type );
+			$type_label              = $effective_post_type_obj ? strtolower( $effective_post_type_obj->labels->singular_name ) : $post->post_type;
+			$post_status             = get_post_status( $post );
 
-		$is_published = $post_status === 'publish';
-		$is_viewable  = in_array( $post_status, [ 'draft', 'pending', 'future' ], true );
-		$has_edit_cap = current_user_can( 'edit_post', $post_id );
+			$is_published = $post_status === 'publish';
+			$is_viewable  = in_array( $post_status, [ 'draft', 'pending', 'future' ], true );
+			$has_edit_cap = current_user_can( 'edit_post', $post_id );
 
-		// Edit link — if user has capability.
-		if ( $has_edit_cap ) {
-			$edit_link = get_edit_post_link( $post_id, 'raw' );
-			if ( $edit_link ) {
-				$action_links[] = [
-					'url'    => $edit_link,
-					/* translators: %s: post type label, e.g. "page" or "post". */
-					'label'  => sprintf( __( 'Edit %s', 'simple-history' ), $type_label ),
-					'action' => 'edit',
-				];
+			if ( $has_edit_cap ) {
+				$edit_link = get_edit_post_link( $post_id, 'raw' );
+				if ( $edit_link ) {
+					$action_links[] = [
+						'url'    => $edit_link,
+						/* translators: %s: post type label, e.g. "page" or "post". */
+						'label'  => sprintf( __( 'Edit %s', 'simple-history' ), $type_label ),
+						'action' => 'edit',
+					];
+				}
+			}
+
+			if ( $is_published ) {
+				$permalink = get_permalink( $post_id );
+				if ( $permalink ) {
+					$action_links[] = [
+						'url'    => $permalink,
+						/* translators: %s: post type label, e.g. "page" or "post". */
+						'label'  => sprintf( __( 'View %s', 'simple-history' ), $type_label ),
+						'action' => 'view',
+					];
+				}
+			}
+
+			if ( $is_viewable && $has_edit_cap ) {
+				$preview_link = get_preview_post_link( $post_id );
+				if ( $preview_link ) {
+					$action_links[] = [
+						'url'    => $preview_link,
+						/* translators: %s: post type label, e.g. "page" or "post". */
+						'label'  => sprintf( __( 'Preview %s', 'simple-history' ), $type_label ),
+						'action' => 'preview',
+					];
+				}
+			}
+
+			// `wp_revisions_enabled()` is a constant-time check (post-type
+			// support + WP_POST_REVISIONS); skipping it would issue a WP_Query
+			// per post_updated event on sites that have revisions disabled.
+			if ( $message_key === 'post_updated' && wp_revisions_enabled( $post ) ) {
+				$revisions = wp_get_post_revisions( $post_id, [ 'numberposts' => 1 ] );
+				if ( ! empty( $revisions ) ) {
+					$latest_revision = reset( $revisions );
+					$action_links[]  = [
+						'url'    => admin_url( 'revision.php?revision=' . $latest_revision->ID ),
+						'label'  => __( 'Revisions', 'simple-history' ),
+						'action' => 'revisions',
+					];
+				}
 			}
 		}
 
-		// View link — only for published posts.
-		if ( $is_published ) {
-			$permalink = get_permalink( $post_id );
-			if ( $permalink ) {
-				$action_links[] = [
-					'url'    => $permalink,
-					/* translators: %s: post type label, e.g. "page" or "post". */
-					'label'  => sprintf( __( 'View %s', 'simple-history' ), $type_label ),
-					'action' => 'view',
-				];
-			}
+		// Overview link still renders for post_deleted (per-post block is
+		// gone there); fall back to $context['post_type'] when $post is null.
+		$overview_obj = $effective_post_type_obj;
+		if ( ! $overview_obj && $post_type ) {
+			$overview_obj = get_post_type_object( $post_type );
 		}
 
-		// Preview link — for drafts, pending, and future posts.
-		if ( $is_viewable && $has_edit_cap ) {
-			$preview_link = get_preview_post_link( $post_id );
-			if ( $preview_link ) {
-				$action_links[] = [
-					'url'    => $preview_link,
-					/* translators: %s: post type label, e.g. "page" or "post". */
-					'label'  => sprintf( __( 'Preview %s', 'simple-history' ), $type_label ),
-					'action' => 'preview',
-				];
-			}
-		}
-
-		// Revisions link — only for post_updated when revisions exist.
-		if ( $message_key === 'post_updated' && post_type_supports( $post->post_type, 'revisions' ) ) {
-			$revisions = wp_get_post_revisions( $post_id, [ 'numberposts' => 1 ] );
-			if ( ! empty( $revisions ) ) {
-				$latest_revision = reset( $revisions );
-				$action_links[]  = [
-					'url'    => admin_url( 'revision.php?revision=' . $latest_revision->ID ),
-					'label'  => __( 'View revisions', 'simple-history' ),
-					'action' => 'revisions',
-				];
-			}
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability comes from registered post type's cap mapping.
+		if ( $overview_obj && current_user_can( $overview_obj->cap->edit_posts ) ) {
+			$action_links[] = [
+				'url'    => admin_url( 'edit.php?post_type=' . rawurlencode( $overview_obj->name ) ),
+				'label'  => sprintf(
+					/* translators: %s: post type plural label, e.g. "posts" or "pages". */
+					__( 'All %s', 'simple-history' ),
+					strtolower( $overview_obj->labels->name )
+				),
+				'action' => 'view',
+			];
 		}
 
 		return $action_links;

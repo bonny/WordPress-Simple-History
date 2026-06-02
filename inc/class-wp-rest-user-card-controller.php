@@ -158,12 +158,15 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		// Actions: links shown in the actions section of the card.
 		// Each item: [ 'key' => string, 'label' => string, 'url' => string ].
-		// Core provides "View user profile". Add-ons use the filter to add
-		// links like "View all user activity".
+		// Core ships "User profile" — a basic WP utility, not premium content.
+		// Add-ons use the filter below to add premium-specific links like
+		// "View all user activity". Visual separation between the upsell
+		// teaser block (cream) and the actions section is what makes the
+		// mixed-tier nature read clearly to free users.
 		$actions = [
 			[
 				'key'   => 'view_profile',
-				'label' => __( 'View user profile', 'simple-history' ),
+				'label' => __( 'User profile', 'simple-history' ),
 				'url'   => get_edit_user_link( $user->ID ),
 			],
 		];
@@ -177,7 +180,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 * Example — adding an activity filter link:
 		 *     $actions[] = [
 		 *         'key'   => 'view_activity',
-		 *         'label' => __( 'View all user activity', 'my-plugin' ),
+		 *         'label' => __( 'All user activity', 'my-plugin' ),
 		 *         'url'   => admin_url( '...' ),
 		 *     ];
 		 *
@@ -186,7 +189,10 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 * @param array    $actions Array of action link items.
 		 * @param \WP_User $user    The WordPress user object.
 		 */
-		$data['actions'] = apply_filters( 'simple_history/user_card/actions', $actions, $user );
+		$filtered_actions = apply_filters( 'simple_history/user_card/actions', $actions, $user );
+
+		$data['details'] = self::sanitize_filter_array( $data['details'], true );
+		$data['actions'] = self::sanitize_filter_array( $filtered_actions, false );
 
 		return rest_ensure_response( $data );
 	}
@@ -218,27 +224,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 */
 		$actions = apply_filters( 'simple_history/initiator_card/actions', $actions, $type );
 
-		// Build stats details for this initiator type.
-		$details = [
-			[
-				'key'   => 'events_today',
-				'label' => __( 'Today', 'simple-history' ),
-				'value' => self::get_initiator_event_count( $type, 1 ),
-				'type'  => 'stat',
-			],
-			[
-				'key'   => 'events_7_days',
-				'label' => __( 'Last 7 days', 'simple-history' ),
-				'value' => self::get_initiator_event_count( $type, 7 ),
-				'type'  => 'stat',
-			],
-			[
-				'key'   => 'events_total',
-				'label' => __( 'Total', 'simple-history' ),
-				'value' => self::get_initiator_total_event_count( $type ),
-				'type'  => 'stat',
-			],
-		];
+		// Details: key-value items shown below identity info.
+		// Core provides no details; other plugins and add-ons (including
+		// the premium add-on) can use the filter below to populate items
+		// like Today / Last 7 days / Total event counts. This keeps the
+		// initiator card aligned with the user card, where event stats
+		// are added via a filter rather than shipped in core.
+		$details = [];
 
 		/**
 		 * Filters the initiator card detail items.
@@ -257,11 +249,51 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		$data = [
 			'initiator'          => $type,
 			'has_premium_add_on' => Helpers::is_premium_add_on_active(),
-			'details'            => $details,
-			'actions'            => $actions,
+			'details'            => self::sanitize_filter_array( $details, true ),
+			'actions'            => self::sanitize_filter_array( $actions, false ),
 		];
 
 		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Ensure a filtered array is actually an array, optionally deduplicating
+	 * entries by `key` so a misbehaving filter (returns null, an object, a
+	 * string) can't crash the React consumer and so two plugins pushing the
+	 * same `key` don't trigger React's duplicate-key warning. First-write
+	 * wins on dedup — third-party filters running at lower priorities can
+	 * reserve a key before premium appends.
+	 *
+	 * @param mixed $value      Whatever the filter returned.
+	 * @param bool  $dedup_keys Whether to deduplicate entries by their `key` field.
+	 * @return array
+	 */
+	private static function sanitize_filter_array( $value, $dedup_keys ) {
+		if ( ! is_array( $value ) ) {
+			return [];
+		}
+
+		if ( ! $dedup_keys ) {
+			return array_values( $value );
+		}
+
+		$seen = [];
+		$out  = [];
+
+		foreach ( $value as $item ) {
+			if ( ! is_array( $item ) || ! isset( $item['key'] ) ) {
+				continue;
+			}
+
+			if ( isset( $seen[ $item['key'] ] ) ) {
+				continue;
+			}
+
+			$seen[ $item['key'] ] = true;
+			$out[]                = $item;
+		}
+
+		return $out;
 	}
 
 	/**
@@ -338,47 +370,149 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get the number of events for a non-user initiator within a given number of days.
+	 * Get last-event date plus today / last-7-days / all-time event counts for
+	 * a non-user initiator, in a single SQL query.
+	 *
+	 * Replaces four separate `Log_Query` calls — three of them full
+	 * `COUNT(*)` aggregates — with one round trip using conditional
+	 * aggregation. Both MySQL/MariaDB and SQLite support this `SUM(CASE
+	 * WHEN ...)` pattern, so the helper works regardless of the database
+	 * backend Simple History is running on.
 	 *
 	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
-	 * @param int    $period_days    Number of days to look back (including today).
-	 * @return int Number of events found.
+	 * @return array { last_event: string|null (ISO 8601 UTC), today: int, last_7_days: int, total: int }
 	 */
-	public static function get_initiator_event_count( $initiator_type, $period_days ) {
-		$log_query = new Log_Query();
+	public static function get_initiator_card_stats( $initiator_type ) {
+		global $wpdb;
 
-		$date_from = Date_Helper::get_last_n_days_start_timestamp( $period_days );
+		$table           = \Simple_History\Simple_History::get_instance()->get_events_table_name();
+		$today_start_gmt = gmdate( 'Y-m-d H:i:s', Date_Helper::get_last_n_days_start_timestamp( 1 ) );
+		$week_start_gmt  = gmdate( 'Y-m-d H:i:s', Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK ) );
 
-		$query_result = $log_query->query(
-			[
-				'initiator'      => $initiator_type,
-				'posts_per_page' => 1,
-				'date_from'      => $date_from,
-				'ungrouped'      => true,
-			]
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT
+					MAX(date) AS last_event,
+					SUM(CASE WHEN date >= %s THEN 1 ELSE 0 END) AS today_count,
+					SUM(CASE WHEN date >= %s THEN 1 ELSE 0 END) AS week_count,
+					COUNT(*) AS total_count
+				FROM {$table}
+				WHERE initiator = %s",
+				$today_start_gmt,
+				$week_start_gmt,
+				$initiator_type
+			),
+			ARRAY_A
 		);
+		// phpcs:enable
 
-		return $query_result['total_row_count'] ?? 0;
+		if ( ! $row ) {
+			return [
+				'last_event'  => null,
+				'today'       => 0,
+				'last_7_days' => 0,
+				'total'       => 0,
+			];
+		}
+
+		return [
+			'last_event'  => $row['last_event'] ? self::to_iso_utc( $row['last_event'] ) : null,
+			'today'       => (int) $row['today_count'],
+			'last_7_days' => (int) $row['week_count'],
+			'total'       => (int) $row['total_count'],
+		];
 	}
 
 	/**
-	 * Get the total number of logged events for a non-user initiator (all time).
+	 * Format a user-agent string into a short human-readable label.
 	 *
-	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
-	 * @return int Number of events found.
+	 * Tiny pattern-matching parser covering the common browsers and OSes seen
+	 * in WordPress admin (Chrome / Safari / Firefox / Edge × macOS / Windows /
+	 * Linux / iOS / Android). Avoids a composer dependency.
+	 *
+	 * @param string|null $ua_string Raw user-agent string.
+	 * @return string|null Label like "Chrome on macOS", or null if the input is empty.
 	 */
-	public static function get_initiator_total_event_count( $initiator_type ) {
+	public static function format_user_agent_label( $ua_string ) {
+		if ( empty( $ua_string ) ) {
+			return null;
+		}
+
+		// Order matters: Edge UA contains "Chrome", Chrome UA contains "Safari".
+		$browser = null;
+		if ( preg_match( '#\bEdg[e]?/#', $ua_string ) ) {
+			$browser = 'Edge';
+		} elseif ( strpos( $ua_string, 'Firefox/' ) !== false ) {
+			$browser = 'Firefox';
+		} elseif ( strpos( $ua_string, 'Chrome/' ) !== false ) {
+			$browser = 'Chrome';
+		} elseif ( strpos( $ua_string, 'Safari/' ) !== false ) {
+			$browser = 'Safari';
+		}
+
+		$os = null;
+		if ( strpos( $ua_string, 'iPhone' ) !== false ) {
+			$os = 'iPhone';
+		} elseif ( strpos( $ua_string, 'iPad' ) !== false ) {
+			$os = 'iPad';
+		} elseif ( strpos( $ua_string, 'Android' ) !== false ) {
+			$os = 'Android';
+		} elseif ( strpos( $ua_string, 'Mac OS X' ) !== false || strpos( $ua_string, 'Macintosh' ) !== false ) {
+			$os = 'macOS';
+		} elseif ( strpos( $ua_string, 'Windows' ) !== false ) {
+			$os = 'Windows';
+		} elseif ( strpos( $ua_string, 'Linux' ) !== false ) {
+			$os = 'Linux';
+		}
+
+		if ( $browser && $os ) {
+			// U+00A0 NBSP between words keeps the label as one unbreakable
+			// unit so line-wrapping happens at outer separators only.
+			return sprintf( "%s\xC2\xA0on\xC2\xA0%s", $browser, $os );
+		}
+
+		return $browser ?? $os;
+	}
+
+	/**
+	 * Get date + IP + user-agent for the user's most recent login event in a
+	 * single query.
+	 *
+	 * Faster path for callers that need all three (the premium user-card
+	 * module is the main one). Pulls the date, IP, and user-agent from the
+	 * same login event, so the three always describe the same session.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return array|null { date: string, ip: string|null, user_agent: string|null }
+	 *                   or null if no login event was found.
+	 */
+	public static function get_last_login_session( $user_id ) {
 		$log_query = new Log_Query();
 
 		$query_result = $log_query->query(
 			[
-				'initiator'      => $initiator_type,
-				'posts_per_page' => 1,
-				'ungrouped'      => true,
+				'user'             => $user_id,
+				'messages'         => 'SimpleUserLogger:user_logged_in',
+				'posts_per_page'   => 1,
+				'skip_count_query' => true,
+				'ungrouped'        => true,
 			]
 		);
 
-		return $query_result['total_row_count'] ?? 0;
+		$events = $query_result['log_rows'] ?? [];
+
+		if ( empty( $events ) ) {
+			return null;
+		}
+
+		$event = $events[0];
+
+		return [
+			'date'       => self::to_iso_utc( $event->date ),
+			'ip'         => $event->context['_server_remote_addr'] ?? null,
+			'user_agent' => $event->context['server_http_user_agent'] ?? null,
+		];
 	}
 
 	/**
@@ -409,6 +543,24 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			return null;
 		}
 
-		return get_date_from_gmt( $events[0]->date );
+		return self::to_iso_utc( $events[0]->date );
+	}
+
+	/**
+	 * Convert a database datetime string (stored as GMT, no TZ marker) into
+	 * an ISO-8601 string with an explicit UTC offset.
+	 *
+	 * The React side renders these via `humanTimeDiff()`, which delegates to
+	 * `moment()`. A naked "Y-m-d H:i:s" is parsed in the *browser's* local
+	 * timezone, so admin browsers running in a different TZ than the site
+	 * would see relative times skewed by the offset (e.g. "9 hours ago" for
+	 * an event that just happened). Returning an offset-marked ISO string
+	 * makes the parse unambiguous everywhere.
+	 *
+	 * @param string $db_date Date string from the `simple_history` table.
+	 * @return string ISO-8601 datetime with `+00:00` offset.
+	 */
+	private static function to_iso_utc( $db_date ) {
+		return gmdate( 'c', strtotime( $db_date . ' UTC' ) );
 	}
 }

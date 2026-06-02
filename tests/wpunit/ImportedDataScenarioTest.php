@@ -1,6 +1,7 @@
 <?php
 
 use Simple_History\Log_Query;
+use Simple_History\Simple_History;
 
 /**
  * Test the exact scenario from issue #583/#584:
@@ -8,6 +9,23 @@ use Simple_History\Log_Query;
  * Verify they appear in correct chronological order.
  */
 class ImportedDataScenarioTest extends \Codeception\TestCase\WPTestCase {
+	/**
+	 * Set up before each test.
+	 * Clear event history so ordering assertions aren't affected by data
+	 * pollution from previous runs (e.g. leftover events from `dev populate`).
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		// Use DELETE (not TRUNCATE) so the cleanup stays inside the test's
+		// transaction and is rolled back in tearDown — TRUNCATE causes an
+		// implicit commit that leaks this test's events into the next test.
+		global $wpdb;
+		$sh = Simple_History::get_instance();
+		$wpdb->query( "DELETE FROM {$sh->get_events_table_name()}" );
+		$wpdb->query( "DELETE FROM {$sh->get_contexts_table_name()}" );
+	}
+
 	/**
 	 * Simulate the exact scenario: existing events + imported old events.
 	 */

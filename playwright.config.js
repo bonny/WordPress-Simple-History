@@ -45,12 +45,29 @@ module.exports = defineConfig( {
 			testMatch: /auth\.setup\.js/,
 		},
 		{
-			name: 'chromium',
+			name: 'tests',
 			use: {
 				...devices[ 'Desktop Chrome' ],
 				// Reuse admin login session across tests.
 				storageState: 'tests/playwright/.auth/admin.json',
 			},
+			// Screenshot specs are not tests — they run via the dedicated
+			// `screenshot` project (tests/screenshot/run.sh) against a fresh
+			// Playground instance, so keep them out of the regular suite.
+			testIgnore: /screenshot-.*\.spec\.js$/,
+			dependencies: [ 'setup' ],
+		},
+		{
+			// Teaser user-card screenshots, captured against the dev WordPress
+			// via scripts/capture-teaser-screenshots.sh (logs in as sally).
+			// Kept in its own project so it stays out of the regular `tests`
+			// suite but still runs against the dev install, not Playground.
+			name: 'teaser',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState: 'tests/playwright/.auth/admin.json',
+			},
+			testMatch: /screenshot-teaser-.*\.spec\.js$/,
 			dependencies: [ 'setup' ],
 		},
 		{

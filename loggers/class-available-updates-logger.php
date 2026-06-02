@@ -292,7 +292,7 @@ class Available_Updates_Logger extends Logger {
 								__( 'This update will be installed automatically by WordPress.', 'simple-history' )
 							)
 						);
-					$groups[] = $security_group;
+					$groups[]       = $security_group;
 				}
 
 				// Upgrade notice.
@@ -308,7 +308,7 @@ class Available_Updates_Logger extends Logger {
 								_x( 'Update notice', 'Available updates logger: update notice label', 'simple-history' )
 							) )->set_new_value( $upgrade_notice )
 						);
-					$groups[] = $notice_group;
+					$groups[]     = $notice_group;
 				}
 				break;
 
@@ -322,13 +322,15 @@ class Available_Updates_Logger extends Logger {
 		if ( $current_version && $new_version ) {
 			$version_group = ( new Event_Details_Group() )
 				->set_formatter( new Event_Details_Group_Inline_Formatter() )
-				->add_items( [
-					( new Event_Details_Item( null, __( 'Available version', 'simple-history' ) ) )
-						->set_new_value( $new_version ),
-					( new Event_Details_Item( null, __( 'Installed version', 'simple-history' ) ) )
-						->set_new_value( $current_version ),
-				] );
-			$groups[] = $version_group;
+				->add_items(
+					[
+						( new Event_Details_Item( null, __( 'Available version', 'simple-history' ) ) )
+							->set_new_value( $new_version ),
+						( new Event_Details_Item( null, __( 'Installed version', 'simple-history' ) ) )
+							->set_new_value( $current_version ),
+					] 
+				);
+			$groups[]      = $version_group;
 		}
 
 		if ( empty( $groups ) ) {
@@ -354,15 +356,15 @@ class Available_Updates_Logger extends Logger {
 		$action_links = [
 			[
 				'url'    => admin_url( 'update-core.php' ),
-				'label'  => __( 'View all updates', 'simple-history' ),
+				'label'  => __( 'All updates', 'simple-history' ),
 				'action' => 'view',
 			],
 		];
 
 		// Add "View changelog" for plugin updates with a known slug.
-		$context      = $row->context;
-		$message_key  = $context['_message_key'] ?? '';
-		$plugin_slug  = $context['plugin_slug'] ?? '';
+		$context     = $row->context;
+		$message_key = $context['_message_key'] ?? '';
+		$plugin_slug = $context['plugin_slug'] ?? '';
 
 		if ( $message_key === 'plugin_update_available' && $plugin_slug ) {
 			$url = is_multisite()
@@ -374,7 +376,7 @@ class Available_Updates_Logger extends Logger {
 				$action_links,
 				[
 					'url'    => $url,
-					'label'  => _x( 'View changelog', 'Available updates logger: changelog link', 'simple-history' ),
+					'label'  => _x( 'Changelog', 'Available updates logger: changelog link', 'simple-history' ),
 					'action' => 'edit',
 				]
 			);

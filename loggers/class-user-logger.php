@@ -1188,29 +1188,37 @@ class User_Logger extends Logger {
 		$context     = $row->context;
 		$message_key = $context['_message_key'] ?? '';
 
+		$action_links = [];
+
+		// Per-user edit link for messages that target a specific user.
+		$user_id = 0;
+
 		if ( $message_key === 'user_updated_profile' ) {
 			$user_id = isset( $context['edited_user_id'] ) ? (int) $context['edited_user_id'] : 0;
 		} elseif ( $message_key === 'user_created' ) {
 			$user_id = isset( $context['created_user_id'] ) ? (int) $context['created_user_id'] : 0;
-		} else {
-			return [];
 		}
 
-		if ( ! $user_id || ! get_userdata( $user_id ) ) {
-			return [];
-		}
-
-		if ( ! current_user_can( 'edit_user', $user_id ) ) {
-			return [];
-		}
-
-		return [
-			[
+		if ( $user_id && get_userdata( $user_id ) && current_user_can( 'edit_user', $user_id ) ) {
+			$action_links[] = [
 				'url'    => get_edit_user_link( $user_id ),
 				'label'  => __( 'Edit user', 'simple-history' ),
 				'action' => 'edit',
-			],
-		];
+			];
+		}
+
+		// Overview link only for user-management events, not auth events like login/logout.
+		$user_management_message_keys = [ 'user_updated_profile', 'user_created', 'user_deleted' ];
+
+		if ( in_array( $message_key, $user_management_message_keys, true ) && current_user_can( 'list_users' ) ) {
+			$action_links[] = [
+				'url'    => admin_url( 'users.php' ),
+				'label'  => __( 'All users', 'simple-history' ),
+				'action' => 'view',
+			];
+		}
+
+		return $action_links;
 	}
 
 	/**

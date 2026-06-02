@@ -81,6 +81,7 @@ class Experimental_Features_Dropin extends Dropin {
 				<li><?php esc_html_e( 'Role & Capability change logging', 'simple-history' ); ?></li>
 				<li><?php esc_html_e( 'Feature discovery bar in page header showing active and available features', 'simple-history' ); ?></li>
 				<li><?php esc_html_e( 'Event reactions — react to events with a thumbs up', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Personal-data erasure integration — anonymize a user\'s activity-log entries from Tools → Erase Personal Data', 'simple-history' ); ?></li>
 			</ul>
 		</details>
 		<?php

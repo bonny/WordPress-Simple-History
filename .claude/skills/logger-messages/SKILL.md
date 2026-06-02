@@ -62,6 +62,26 @@ Verify uniqueness: `grep -r "'your_key'" loggers/`
 -   ❌ "has been [verb]" - passive
 -   ❌ Technical jargon users won't understand
 
+## No Links Inside Message Text
+
+The message body is a declarative sentence ("what happened?"). Action links (rendered below the message, see the **action-links** skill) are the canonical "what can I do?" affordance. Wrapping `{post_title}` (or any other interpolated token) in an `<a>` tag inside the template puts a CTA mid-sentence and competes with the action row.
+
+**Rule:** Inline links inside message templates are permitted **only when they point somewhere the action row cannot reach**. If `get_action_links()` already covers the destination (Edit, View, Revisions, the overview page, …), the message must be plain text.
+
+```php
+// ❌ Don't — Edit/View action links already point to the post.
+'post_updated' => __( 'Updated post "<a href="...">{post_title}</a>"', 'simple-history' ),
+
+// ✅ Do — plain title, action row handles navigation.
+'post_updated' => __( 'Updated post "{post_title}"', 'simple-history' ),
+```
+
+**Deleted items:** still plain text. A dead link is worse than no link — the overview action link (`All pages`, `All plugins`) is the right hand-off.
+
+**Legitimate exception:** the link goes somewhere no action link can express (e.g. an arbitrary external reference). Then an inline link is additive, not redundant.
+
+Not an urgent migration — apply opportunistically when touching a logger for other reasons.
+
 ## Context Key Naming
 
 Prefix all context keys with the entity name to avoid collisions and keep keys self-documenting.

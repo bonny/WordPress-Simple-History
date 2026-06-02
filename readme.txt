@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 7.0
-Stable tag: 5.28.0
+Stable tag: 5.29.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -250,7 +250,36 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-🧪 **Experimental** entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+> 🧪 **Experimental** entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+
+### 5.29.0 (June 2026)
+
+🔒 This release brings Simple History together with WordPress's built-in privacy tools: a person's activity log is now included in personal-data exports (Tools → Export Personal Data), and a new "Privacy & Data" settings tab explains how it works. Plus: overview action links across user, plugin, post, and media events, and action links on core update and privacy events for quicker navigation.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-29-0-released/)
+
+**Added**
+
+-   Overview action links on user, plugin, post, and media events — "All users", "All plugins", "All posts" / "All pages" / "All `<custom-post-type>`", "All media". Also shown on delete events where the per-item link would dead-end. The "All users" link shows only on user-management events (profile updated, user created, user deleted), not on login, logout, failed-login, or session-destroy events.
+-   "About this version" and "WordPress X.Y release notes" action links on core update events for major-version bumps.
+-   Action links on privacy events: data export and erasure requests link to the matching WordPress tool page (Tools → Export Personal Data / Erase Personal Data), and privacy page changes link to the page editor and Settings → Privacy.
+-   Simple History's activity log is now included in WordPress's personal-data export (Tools → Export Personal Data): the events a person performed are exported automatically. Previously the activity log was left out of export requests entirely.
+-   New "Privacy & Data" settings tab (Settings → Simple History) describing how Simple History works with WordPress's personal-data export and erasure tools.
+-   🧪 **Experimental** — Exports also include activity about a person performed by others (e.g. an admin editing their profile, failed logins targeting their account), with other people's names and emails redacted from those "about you" entries.
+-   🧪 **Experimental** — Running a WordPress personal-data erasure (Tools → Erase Personal Data) now anonymizes the person's data in matching activity-log entries — IP address, user agent, login, email, and role are removed — while keeping each entry as an audit record so the log isn't left with gaps.
+
+**Changed**
+
+-   Action link labels dropped the "View" prefix: "View plugin info" → "Plugin info", "View Site Health" → "Site Health", "View changelog" → "Changelog". Verbs kept where multiple actions target the same noun (Edit / View / Preview post).
+-   External action links now show an "open in new tab" icon and open in a new tab.
+-   Dashboard widget action links are now more compact — icons are hidden and spacing between links is tighter, so the event message stays the visual anchor on the smaller "glance" surface. The main History page is unchanged.
+-   License reminder for missing add-on license keys moved from a full-width banner on every Simple History page to a dismissible card in the History Insights sidebar. Visiting Settings → Licenses also dismisses it. A new `simple_history/license_reminder/should_show` filter lets managed/Composer installs suppress it site-wide.
+-   🧪 **Experimental** — Role and capability events no longer dump the full list of capability slugs into the event headline. A plugin activation that adds 40 caps to a role now reads "Added 40 capabilities to role Editor" instead of a paragraph of slugs. The full list is still available in the event details panel.
+
+**Fixed**
+
+-   Alt-text changes to media made via direct meta updates (e.g. `wp post meta update <id> _wp_attachment_image_alt "..."`) are now logged. Previously only changes made through wp-admin or the REST API were captured, so automation and CLI scripts could update alt text silently.
+-   Removed custom fields on post updates are now counted in the event details. Previously deleted post meta keys were silently dropped from the log entry.
+-   The UTC publish date no longer appears as a duplicate row in post update details. It was redundant with the "Publish date" row and produced confusing `0000-00-00 00:00:00` diffs when a post was first published.
 
 ### 5.28.0 (May 2026)
 

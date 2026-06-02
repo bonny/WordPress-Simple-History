@@ -193,6 +193,58 @@ class MediaLoggerRestCliTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Issue #218: a bare `wp post meta update <id> _wp_attachment_image_alt "..."`
+	 * call (no wp_update_post() follow-up) must still produce a log event with the
+	 * before/after diff. Without this fix, only update_post_meta() runs and
+	 * attachment_updated never fires, so the change is silent.
+	 *
+	 * Currently FAILS — the only event-producing hook is attachment_updated.
+	 */
+	public function test_logs_alt_text_change_via_bare_update_post_meta() {
+		add_filter( 'simple_history/is_wp_cli', '__return_true' );
+
+		$new_alt      = 'alt text from bare meta update';
+		$count_before = $this->get_event_count();
+
+		// Simulate: wp post meta update <id> _wp_attachment_image_alt "..."
+		// No subsequent wp_update_post() — the meta write is the only call.
+		update_post_meta( $this->attachment_id, '_wp_attachment_image_alt', $new_alt );
+
+		// Emulate end-of-request — the deferred logger flushes on shutdown.
+		$this->logger->on_shutdown_log_pending_alt_text_changes();
+
+		$this->assertEquals(
+			$count_before + 1,
+			$this->get_event_count(),
+			'Bare update_post_meta for alt text must log exactly one event'
+		);
+
+		$context = get_latest_context();
+		$this->assert_context_has( $context, '_message_key', 'attachment_updated' );
+		$this->assert_context_has( $context, 'attachment_alt_text_prev', 'original alt text' );
+		$this->assert_context_has( $context, 'attachment_alt_text_new', $new_alt );
+	}
+
+	/**
+	 * Regression: a no-op meta write (same value as current) must not produce an
+	 * event. Otherwise tools that re-set the same alt text would spam the log.
+	 */
+	public function test_no_event_when_bare_update_post_meta_same_value() {
+		add_filter( 'simple_history/is_wp_cli', '__return_true' );
+
+		$count_before = $this->get_event_count();
+
+		update_post_meta( $this->attachment_id, '_wp_attachment_image_alt', 'original alt text' );
+		$this->logger->on_shutdown_log_pending_alt_text_changes();
+
+		$this->assertEquals(
+			$count_before,
+			$this->get_event_count(),
+			'A meta write with no value change must not log an event'
+		);
+	}
+
+	/**
 	 * No duplicate: changing alt text must produce exactly one attachment_updated
 	 * event — not two (one from the old admin hook, one from the new filter).
 	 * Regression guard for after both hooks exist simultaneously.

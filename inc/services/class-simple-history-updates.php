@@ -24,6 +24,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.25.0', [ $this, 'on_plugin_updated_details_5_25_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.27.0', [ $this, 'on_plugin_updated_details_5_27_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.28.0', [ $this, 'on_plugin_updated_details_5_28_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.29.0', [ $this, 'on_plugin_updated_details_5_29_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -287,6 +288,27 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-28-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.29.0.
+	 *
+	 * @param string $extra_details Extra details.
+	 * @return string
+	 */
+	public function on_plugin_updated_details_5_29_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( "A person's activity log is now included in WordPress personal-data exports (Tools → Export Personal Data).", 'simple-history' ),
+			__( 'New "Privacy & Data" settings tab explaining how Simple History works with WordPress privacy tools.', 'simple-history' ),
+			__( 'Overview action links across user, plugin, post, and media events for quicker navigation.', 'simple-history' ),
+			__( "Premium: See any user's last login, IP, browser, and event counts — right in the log.", 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-29-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}

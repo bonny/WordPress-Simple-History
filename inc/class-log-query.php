@@ -1744,10 +1744,15 @@ class Log_Query {
 
 		$inner_where = [];
 
-		// Only include loggers that the current user can view
+		// Only include loggers that the current user can view.
+		// Skipped when `ignore_logger_capabilities` is set — used by the privacy
+		// export/erasure so a data subject's records are complete regardless of
+		// which user (or cron context) processes the request.
 		// TODO: this causes error if user has no access to any logger at all.
-		$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
-		$inner_where[]             = "logger IN {$sql_loggers_user_can_view}";
+		if ( empty( $args['ignore_logger_capabilities'] ) ) {
+			$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
+			$inner_where[]             = "logger IN {$sql_loggers_user_can_view}";
+		}
 
 		// Add post__in where.
 		if ( isset( $args['post__in'] ) && sizeof( $args['post__in'] ) > 0 ) {

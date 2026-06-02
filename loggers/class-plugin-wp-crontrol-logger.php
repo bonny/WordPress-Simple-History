@@ -6,7 +6,6 @@ use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Group_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
-use Simple_History\Helpers;
 
 /**
  * Logs cron event management from the WP Crontrol plugin
@@ -432,11 +431,13 @@ class Plugin_WP_Crontrol_Logger extends Logger {
 		$group = new Event_Details_Group();
 		$group->set_formatter( new Event_Details_Group_Table_Formatter() );
 
-		$group->add_items( [
-			new Event_Details_Item( 'schedule_name', _x( 'Name', 'PluginWPCrontrolLogger', 'simple-history' ) ),
-			new Event_Details_Item( 'schedule_interval', _x( 'Interval', 'PluginWPCrontrolLogger', 'simple-history' ) ),
-			new Event_Details_Item( 'schedule_display', _x( 'Display Name', 'PluginWPCrontrolLogger', 'simple-history' ) ),
-		] );
+		$group->add_items(
+			[
+				new Event_Details_Item( 'schedule_name', _x( 'Name', 'PluginWPCrontrolLogger', 'simple-history' ) ),
+				new Event_Details_Item( 'schedule_interval', _x( 'Interval', 'PluginWPCrontrolLogger', 'simple-history' ) ),
+				new Event_Details_Item( 'schedule_display', _x( 'Display Name', 'PluginWPCrontrolLogger', 'simple-history' ) ),
+			] 
+		);
 
 		return $group;
 	}

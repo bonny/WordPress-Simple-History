@@ -63,6 +63,8 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'AI_Initiator_Detector',
 			'Post_History_Column',
 			'Post_Row_Actions',
+			'Privacy_Data_Handler',
+			'Privacy_Settings_Page',
 			'License_Reminder_Service',
 		];
 

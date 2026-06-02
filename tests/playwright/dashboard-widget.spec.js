@@ -20,4 +20,21 @@ test.describe( 'Simple History dashboard widget', () => {
 
 		await expect( page ).toHaveURL( /page=simple_history_admin_menu_page/ );
 	} );
+
+	test( 'search submits to events page with query', async ( { page } ) => {
+		// Wait for the widget's events data to load — the submit handler
+		// short-circuits until eventsAdminPageURL is populated by apiFetch.
+		await expect(
+			page.getByRole( 'link', { name: 'View full activity log →' } )
+		).toBeVisible();
+
+		await page
+			.getByLabel( 'Search events', { exact: true } )
+			.fill( 'login' );
+
+		await page.getByRole( 'button', { name: 'Search all events' } ).click();
+
+		await expect( page ).toHaveURL( /page=simple_history_admin_menu_page/ );
+		await expect( page ).toHaveURL( /[?&]q=login(&|$)/ );
+	} );
 } );

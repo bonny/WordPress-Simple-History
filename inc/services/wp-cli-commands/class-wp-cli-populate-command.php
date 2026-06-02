@@ -459,33 +459,44 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			return;
 		}
 
+		// Fabricated users for fake events. The `id` values are deliberately set
+		// far above any real user id so populated events never collide with a
+		// real account (which would otherwise pull this fake data into that
+		// user's privacy export and show it redacted). The id/login/email of each
+		// entry are kept consistent so rendered messages look realistic.
 		$users = [
 			[
+				'id'    => 900001,
 				'login' => 'johndoe',
 				'email' => 'john@example.com',
 				'name'  => 'John Doe',
 			],
 			[
+				'id'    => 900002,
 				'login' => 'janedoe',
 				'email' => 'jane@example.com',
 				'name'  => 'Jane Doe',
 			],
 			[
+				'id'    => 900003,
 				'login' => 'admin',
 				'email' => 'admin@example.com',
 				'name'  => 'Admin User',
 			],
 			[
+				'id'    => 900004,
 				'login' => 'editor1',
 				'email' => 'editor@example.com',
 				'name'  => 'Sarah Editor',
 			],
 			[
+				'id'    => 900005,
 				'login' => 'author1',
 				'email' => 'author@example.com',
 				'name'  => 'Mike Author',
 			],
 			[
+				'id'    => 900006,
 				'login' => 'subscriber1',
 				'email' => 'subscriber@example.com',
 				'name'  => 'Tom Subscriber',
@@ -512,11 +523,11 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		];
 
 		if ( $action === 'user_updated_profile' ) {
-			$context['edited_user_id']    = wp_rand( 1, 100 );
+			$context['edited_user_id']    = $user['id'];
 			$context['edited_user_login'] = $user['login'];
 			$context['edited_user_email'] = $user['email'];
 		} elseif ( $action === 'user_created' ) {
-			$context['created_user_id']    = wp_rand( 1, 100 );
+			$context['created_user_id']    = $user['id'];
 			$context['created_user_login'] = $user['login'];
 			$context['created_user_email'] = $user['email'];
 			$context['created_user_role']  = $role;
@@ -824,18 +835,18 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		}
 
 		$samples = [
-			[ 'Claude Code',          AI_Initiator_Detector::VIA_USER_AGENT,      'claude-code/1.4.2' ],
-			[ 'ChatGPT',              AI_Initiator_Detector::VIA_SIGNATURE_AGENT, '' ],
-			[ 'ChatGPT',              AI_Initiator_Detector::VIA_USER_AGENT,      'ChatGPT-User/1.0' ],
-			[ 'Cursor',               AI_Initiator_Detector::VIA_USER_AGENT,      'cursor-agent/0.45.1' ],
-			[ 'Claude',               AI_Initiator_Detector::VIA_SIGNATURE_AGENT, '' ],
-			[ 'Perplexity AI',        AI_Initiator_Detector::VIA_USER_AGENT,      'Perplexity-User/1.0' ],
-			[ 'PerplexityBot (crawler)', AI_Initiator_Detector::VIA_USER_AGENT,   'PerplexityBot/1.0' ],
-			[ 'GPTBot',               AI_Initiator_Detector::VIA_USER_AGENT,      'GPTBot/1.2' ],
-			[ 'Meta AI',              AI_Initiator_Detector::VIA_USER_AGENT,      'meta-externalagent/1.1' ],
-			[ 'Claude Code',          AI_Initiator_Detector::VIA_WP_CLI_ENV,      'wp-cli' ],
-			[ 'MCP client',           AI_Initiator_Detector::VIA_HEADER,          'modelcontextprotocol/0.6.0' ],
-			[ 'Abilities API client', AI_Initiator_Detector::VIA_ABILITIES_API,   'WordPress/6.8' ],
+			[ 'Claude Code', AI_Initiator_Detector::VIA_USER_AGENT, 'claude-code/1.4.2' ],
+			[ 'ChatGPT', AI_Initiator_Detector::VIA_SIGNATURE_AGENT, '' ],
+			[ 'ChatGPT', AI_Initiator_Detector::VIA_USER_AGENT, 'ChatGPT-User/1.0' ],
+			[ 'Cursor', AI_Initiator_Detector::VIA_USER_AGENT, 'cursor-agent/0.45.1' ],
+			[ 'Claude', AI_Initiator_Detector::VIA_SIGNATURE_AGENT, '' ],
+			[ 'Perplexity AI', AI_Initiator_Detector::VIA_USER_AGENT, 'Perplexity-User/1.0' ],
+			[ 'PerplexityBot (crawler)', AI_Initiator_Detector::VIA_USER_AGENT, 'PerplexityBot/1.0' ],
+			[ 'GPTBot', AI_Initiator_Detector::VIA_USER_AGENT, 'GPTBot/1.2' ],
+			[ 'Meta AI', AI_Initiator_Detector::VIA_USER_AGENT, 'meta-externalagent/1.1' ],
+			[ 'Claude Code', AI_Initiator_Detector::VIA_WP_CLI_ENV, 'wp-cli' ],
+			[ 'MCP client', AI_Initiator_Detector::VIA_HEADER, 'modelcontextprotocol/0.6.0' ],
+			[ 'Abilities API client', AI_Initiator_Detector::VIA_ABILITIES_API, 'WordPress/6.8' ],
 		];
 
 		$pick = $samples[ wp_rand( 0, count( $samples ) - 1 ) ];
@@ -843,7 +854,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		$context[ AI_Initiator_Detector::CONTEXT_KEY_AGENT ]        = $pick[0];
 		$context[ AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA ] = $pick[1];
 
-		if ( '' !== $pick[2] ) {
+		if ( $pick[2] !== '' ) {
 			$context[ AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ] = $pick[2];
 		}
 
@@ -878,7 +889,7 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * a fixed set of hand-picked events that cover common scenarios.
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
-	 * @param bool          $add_reactions  Whether to add random reactions.
+	 * @param bool           $add_reactions  Whether to add random reactions.
 	 */
 	private function create_showcase_events( $simple_history, $add_reactions = false ) {
 		global $wpdb;
@@ -958,13 +969,13 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			$plugin_logger->info_message(
 				'plugin_installed',
 				[
-					'_initiator'          => Log_Initiators::WP_USER,
-					'plugin_name'         => 'Query Monitor',
-					'plugin_slug'         => 'query-monitor',
-					'plugin_version'      => '3.16.4',
-					'plugin_author'       => 'John Blackbourn',
-					'plugin_url'          => 'https://querymonitor.com/',
-					'plugin_description'  => 'The developer tools panel for WordPress.',
+					'_initiator'         => Log_Initiators::WP_USER,
+					'plugin_name'        => 'Query Monitor',
+					'plugin_slug'        => 'query-monitor',
+					'plugin_version'     => '3.16.4',
+					'plugin_author'      => 'John Blackbourn',
+					'plugin_url'         => 'https://querymonitor.com/',
+					'plugin_description' => 'The developer tools panel for WordPress.',
 				]
 			);
 			++$events_created;
@@ -976,18 +987,18 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			$post_logger->info_message(
 				'post_updated',
 				[
-					'_initiator'                 => Log_Initiators::WP_USER,
-					'post_id'                    => 2,
-					'post_type'                  => 'page',
-					'post_title'                 => 'About Us',
-					'post_prev_post_title'       => 'About Us',
-					'post_new_post_title'        => 'About Us',
-					'post_prev_status'           => 'publish',
-					'post_new_status'            => 'publish',
-					'post_prev_post_content'     => "<!-- wp:paragraph -->\n<p>We are a small team of passionate developers building tools for the WordPress community.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Founded in 2018, our mission is to make WordPress better for everyone.</p>\n<!-- /wp:paragraph -->",
-					'post_new_post_content'      => "<!-- wp:paragraph -->\n<p>We are a growing team of passionate developers building tools for the WordPress community.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Founded in 2018, our mission is to make WordPress better for everyone.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>We now serve over 100,000 active users worldwide.</p>\n<!-- /wp:paragraph -->",
-					'post_prev_post_excerpt'     => '',
-					'post_new_post_excerpt'       => 'Learn about our team and mission.',
+					'_initiator'             => Log_Initiators::WP_USER,
+					'post_id'                => 2,
+					'post_type'              => 'page',
+					'post_title'             => 'About Us',
+					'post_prev_post_title'   => 'About Us',
+					'post_new_post_title'    => 'About Us',
+					'post_prev_status'       => 'publish',
+					'post_new_status'        => 'publish',
+					'post_prev_post_content' => "<!-- wp:paragraph -->\n<p>We are a small team of passionate developers building tools for the WordPress community.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Founded in 2018, our mission is to make WordPress better for everyone.</p>\n<!-- /wp:paragraph -->",
+					'post_new_post_content'  => "<!-- wp:paragraph -->\n<p>We are a growing team of passionate developers building tools for the WordPress community.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Founded in 2018, our mission is to make WordPress better for everyone.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>We now serve over 100,000 active users worldwide.</p>\n<!-- /wp:paragraph -->",
+					'post_prev_post_excerpt' => '',
+					'post_new_post_excerpt'  => 'Learn about our team and mission.',
 				]
 			);
 			++$events_created;
@@ -999,11 +1010,11 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			$post_logger->info_message(
 				'post_created',
 				[
-					'_initiator'      => Log_Initiators::WP_USER,
-					'post_id'         => wp_rand( 100, 9999 ),
-					'post_type'       => 'post',
-					'post_title'      => 'Announcing Our New Features for 2026',
-					'post_new_status' => 'publish',
+					'_initiator'       => Log_Initiators::WP_USER,
+					'post_id'          => wp_rand( 100, 9999 ),
+					'post_type'        => 'post',
+					'post_title'       => 'Announcing Our New Features for 2026',
+					'post_new_status'  => 'publish',
 					'post_prev_status' => 'auto-draft',
 				]
 			);
@@ -1063,15 +1074,15 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			$post_logger->info_message(
 				'post_created',
 				[
-					'_initiator'                                      => Log_Initiators::WP_USER,
-					'post_id'                                         => wp_rand( 100, 9999 ),
-					'post_type'                                       => 'post',
-					'post_title'                                      => 'Draft generated via Claude Code',
-					'post_new_status'                                 => 'draft',
-					'post_prev_status'                                => 'auto-draft',
-					AI_Initiator_Detector::CONTEXT_KEY_AGENT          => 'Claude Code',
-					AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA   => AI_Initiator_Detector::VIA_USER_AGENT,
-					AI_Initiator_Detector::CONTEXT_KEY_APPLICATION    => 'claude-code/1.4.2',
+					'_initiator'       => Log_Initiators::WP_USER,
+					'post_id'          => wp_rand( 100, 9999 ),
+					'post_type'        => 'post',
+					'post_title'       => 'Draft generated via Claude Code',
+					'post_new_status'  => 'draft',
+					'post_prev_status' => 'auto-draft',
+					AI_Initiator_Detector::CONTEXT_KEY_AGENT => 'Claude Code',
+					AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA => AI_Initiator_Detector::VIA_USER_AGENT,
+					AI_Initiator_Detector::CONTEXT_KEY_APPLICATION => 'claude-code/1.4.2',
 				]
 			);
 			++$events_created;
@@ -1083,15 +1094,15 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			$post_logger->info_message(
 				'post_updated',
 				[
-					'_initiator'                                    => Log_Initiators::WP_USER,
-					'post_id'                                       => 2,
-					'post_type'                                     => 'page',
-					'post_title'                                    => 'Pricing',
-					'post_prev_post_title'                          => 'Pricing',
-					'post_new_post_title'                           => 'Pricing',
-					'post_prev_status'                              => 'publish',
-					'post_new_status'                               => 'publish',
-					AI_Initiator_Detector::CONTEXT_KEY_AGENT        => 'ChatGPT',
+					'_initiator'           => Log_Initiators::WP_USER,
+					'post_id'              => 2,
+					'post_type'            => 'page',
+					'post_title'           => 'Pricing',
+					'post_prev_post_title' => 'Pricing',
+					'post_new_post_title'  => 'Pricing',
+					'post_prev_status'     => 'publish',
+					'post_new_status'      => 'publish',
+					AI_Initiator_Detector::CONTEXT_KEY_AGENT => 'ChatGPT',
 					AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA => AI_Initiator_Detector::VIA_SIGNATURE_AGENT,
 				]
 			);
@@ -1104,14 +1115,14 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 			$plugin_logger->info_message(
 				'plugin_activated',
 				[
-					'_initiator'                                      => Log_Initiators::WP_USER,
-					'plugin_name'                                     => 'Query Monitor',
-					'plugin_slug'                                     => 'query-monitor',
-					'plugin_version'                                  => '3.16.4',
-					'plugin_author'                                   => 'John Blackbourn',
-					AI_Initiator_Detector::CONTEXT_KEY_AGENT          => 'Cursor',
-					AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA   => AI_Initiator_Detector::VIA_USER_AGENT,
-					AI_Initiator_Detector::CONTEXT_KEY_APPLICATION    => 'cursor-agent/0.45.1',
+					'_initiator'     => Log_Initiators::WP_USER,
+					'plugin_name'    => 'Query Monitor',
+					'plugin_slug'    => 'query-monitor',
+					'plugin_version' => '3.16.4',
+					'plugin_author'  => 'John Blackbourn',
+					AI_Initiator_Detector::CONTEXT_KEY_AGENT => 'Cursor',
+					AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA => AI_Initiator_Detector::VIA_USER_AGENT,
+					AI_Initiator_Detector::CONTEXT_KEY_APPLICATION => 'cursor-agent/0.45.1',
 				]
 			);
 			++$events_created;

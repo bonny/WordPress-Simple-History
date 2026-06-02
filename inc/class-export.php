@@ -110,7 +110,7 @@ class Export {
 		$download_query_args['ungrouped'] = true;
 
 		// Cap batch size to avoid memory exhaustion.
-		$max_batch_size = 250;
+		$max_batch_size                        = 250;
 		$download_query_args['posts_per_page'] = min( $max_batch_size, max( 1, (int) ( $download_query_args['posts_per_page'] ?? $max_batch_size ) ) );
 
 		$query_result = $query->query( $download_query_args );

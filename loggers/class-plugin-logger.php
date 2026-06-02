@@ -1373,16 +1373,36 @@ class Plugin_Logger extends Logger {
 		return __( 'Show error message', 'simple-history' );
 	}
 
+	/**
+	 * Get action links for a log row.
+	 *
+	 * Returns up to two links: a per-plugin link appropriate for the message
+	 * (changelog for updates, info thickbox for install/activate/deactivate,
+	 * GitHub info for GitHub-hosted plugins) and an "All plugins" overview
+	 * link for users who can manage plugins.
+	 *
+	 * The per-plugin destinations (plugin-install.php thickbox and the
+	 * GitHub-info AJAX handler) all gate themselves with `install_plugins`
+	 * and wp_die() without it. Cap-check here so we don't surface a link
+	 * that lands the user on a permission-denied screen — on multisite that
+	 * means only network admins see per-plugin links, while site admins
+	 * still get the overview link below.
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
 	public function get_action_links( $row ) {
 		$context     = $row->context;
 		$message_key = $context['_message_key'] ?? '';
 		$plugin_slug = empty( $context['plugin_slug'] ) ? '' : $context['plugin_slug'];
+		$is_network  = is_multisite();
 
-		// GitHub-hosted plugins use a different thickbox URL.
-		if ( ! empty( $context['plugin_github_url'] ) ) {
-			return [
-				[
-					'url'   => wp_nonce_url(
+		$action_links = [];
+
+		if ( current_user_can( 'install_plugins' ) ) {
+			if ( ! empty( $context['plugin_github_url'] ) ) {
+				$action_links[] = [
+					'url'    => wp_nonce_url(
 						admin_url(
 							sprintf(
 								'admin-ajax.php?action=SimplePluginLogger_GetGitHubPluginInfo&getrepo&repo=%1$s&TB_iframe=true&width=640&height=550',
@@ -1391,41 +1411,40 @@ class Plugin_Logger extends Logger {
 						),
 						'simple-history-github-plugin-info'
 					),
-					'label'  => _x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' ),
+					'label'  => _x( 'Plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' ),
 					'action' => 'view',
-				],
-			];
-		}
+				];
+			} elseif ( $plugin_slug && in_array( $message_key, [ 'plugin_updated', 'plugin_bulk_updated' ], true ) ) {
+				$changelog_path = "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550";
 
-		if ( ! $plugin_slug ) {
-			return [];
-		}
-
-		if ( in_array( $message_key, [ 'plugin_updated', 'plugin_bulk_updated' ], true ) ) {
-			$url = is_multisite()
-				? network_admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550" )
-				: admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550" );
-
-			return [
-				[
-					'url'    => $url,
-					'label'  => _x( 'View changelog', 'plugin logger: plugin info thickbox title', 'simple-history' ),
+				$action_links[] = [
+					'url'    => $is_network ? network_admin_url( $changelog_path ) : admin_url( $changelog_path ),
+					'label'  => _x( 'Changelog', 'plugin logger: plugin info thickbox title', 'simple-history' ),
 					'action' => 'view',
-				],
-			];
-		}
-
-		if ( in_array( $message_key, [ 'plugin_installed', 'plugin_activated', 'plugin_deactivated' ], true ) ) {
-			return [
-				[
+				];
+			} elseif ( $plugin_slug && in_array( $message_key, [ 'plugin_installed', 'plugin_activated', 'plugin_deactivated' ], true ) ) {
+				$action_links[] = [
 					'url'    => admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=&TB_iframe=true&width=640&height=550" ),
-					'label'  => _x( 'View plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' ),
+					'label'  => _x( 'Plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' ),
 					'action' => 'view',
-				],
+				];
+			}
+		}
+
+		// Overview cap matches the destination: network admin requires
+		// `manage_network_plugins`; single-site requires `activate_plugins`.
+		$overview_cap = $is_network ? 'manage_network_plugins' : 'activate_plugins';
+
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- One of two literal caps picked above.
+		if ( current_user_can( $overview_cap ) ) {
+			$action_links[] = [
+				'url'    => $is_network ? network_admin_url( 'plugins.php' ) : admin_url( 'plugins.php' ),
+				'label'  => __( 'All plugins', 'simple-history' ),
+				'action' => 'view',
 			];
 		}
 
-		return [];
+		return $action_links;
 	}
 
 	/**
@@ -1493,9 +1512,7 @@ class Plugin_Logger extends Logger {
 
 		foreach ( $arr_plugin_keys as $key => $label ) {
 			// Prefer our prepared value; fall back to raw context for keys added via filter.
-			$value = isset( $rows[ $key ][1] )
-				? $rows[ $key ][1]
-				: ( $context[ $key ] ?? '' );
+			$value = $rows[ $key ][1] ?? ( $context[ $key ] ?? '' );
 
 			if ( trim( (string) $value ) === '' ) {
 				continue;

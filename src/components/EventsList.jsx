@@ -18,6 +18,7 @@ import { EventsPagination } from './EventsPagination';
 import { FailedLoginLimitNotice } from './FailedLoginLimitNotice';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
+import { EndOfResultsHint } from './EndOfResultsHint';
 
 /**
  * Notice shown at the end of the event list when backfilled entries
@@ -124,6 +125,7 @@ export function EventsList( props ) {
 		surroundingCount,
 		hasActiveFilters,
 		onClearFilters,
+		canAdjustFilters,
 	} = props;
 
 	const { hasPremiumAddOn, hasFailedLoginLimit } = useEventsSettings();
@@ -198,6 +200,18 @@ export function EventsList( props ) {
 			{ showBackfilledNotice && <BackfilledNotice /> }
 
 			<Spacer margin={ 4 } />
+
+			{ /* End-of-results hint with premium-retention upsell.
+			     Shown on the last page with results, regardless of filter
+			     state — the date dropdown is always set to something, so
+			     there's always context for "adjust filters" or "Premium for
+			     longer retention". No precise claim about older events. */ }
+			{ ! isSurroundingEventsMode &&
+				events.length > 0 &&
+				totalPages > 0 &&
+				page === totalPages && (
+					<EndOfResultsHint canAdjustFilters={ canAdjustFilters } />
+				) }
 
 			{ /* Hide pagination when viewing surrounding events */ }
 			{ ! isSurroundingEventsMode && (

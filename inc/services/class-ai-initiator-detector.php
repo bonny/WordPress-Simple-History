@@ -89,7 +89,11 @@ class AI_Initiator_Detector extends Service {
 		'anthropic.com' => 'Anthropic',
 	];
 
-	/** Whether detection has run for this request. */
+	/**
+	 * Whether detection has run for this request.
+	 *
+	 * @var bool
+	 */
 	private bool $has_detected = false;
 
 	/**
@@ -116,14 +120,14 @@ class AI_Initiator_Detector extends Service {
 	public function maybe_attach_context( $context ) {
 		$origin = $this->detect();
 
-		if ( null === $origin ) {
+		if ( $origin === null ) {
 			return $context;
 		}
 
 		$context[ self::CONTEXT_KEY_AGENT ]        = $origin['agent_name'];
 		$context[ self::CONTEXT_KEY_DETECTED_VIA ] = $origin['detected_via'];
 
-		if ( '' !== $origin['application'] ) {
+		if ( $origin['application'] !== '' ) {
 			$context[ self::CONTEXT_KEY_APPLICATION ] = $origin['application'];
 		}
 
@@ -164,12 +168,13 @@ class AI_Initiator_Detector extends Service {
 	 * @return array{agent_name: string, detected_via: string, application: string}|null
 	 */
 	private function run_detection() {
-		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? substr( (string) wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 0, 256 ) : '';
+		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- AI-agent detection is inherently server-side; the user agent must be inspected on the request that is being logged.
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 256 ) : '';
 		$ua_app     = substr( $user_agent, 0, 64 );
 
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
-		if ( false !== strpos( $request_uri, '/wp-json/wp-abilities/' ) || false !== strpos( $request_uri, 'rest_route=/wp-abilities/' ) ) {
+		if ( strpos( $request_uri, '/wp-json/wp-abilities/' ) !== false || strpos( $request_uri, 'rest_route=/wp-abilities/' ) !== false ) {
 			return [
 				'agent_name'   => $this->match_ua_pattern( $user_agent ) ?? __( 'Abilities API client', 'simple-history' ),
 				'detected_via' => self::VIA_ABILITIES_API,
@@ -182,7 +187,7 @@ class AI_Initiator_Detector extends Service {
 		// Bot Auth ecosystem.
 		$signature_agent = $this->get_header( 'Signature-Agent' );
 
-		if ( null !== $signature_agent ) {
+		if ( $signature_agent !== null ) {
 			return [
 				'agent_name'   => $this->normalize_signature_agent( $signature_agent ),
 				'detected_via' => self::VIA_SIGNATURE_AGENT,
@@ -192,7 +197,7 @@ class AI_Initiator_Detector extends Service {
 
 		$header_value = $this->get_header( 'X-MCP-Client' ) ?? $this->get_header( 'X-Source-Application' );
 
-		if ( null !== $header_value ) {
+		if ( $header_value !== null ) {
 			return [
 				'agent_name'   => substr( $header_value, 0, 64 ),
 				'detected_via' => self::VIA_HEADER,
@@ -202,7 +207,7 @@ class AI_Initiator_Detector extends Service {
 
 		$ua_match = $this->match_ua_pattern( $user_agent );
 
-		if ( null !== $ua_match ) {
+		if ( $ua_match !== null ) {
 			return [
 				'agent_name'   => $ua_match,
 				'detected_via' => self::VIA_USER_AGENT,
@@ -257,9 +262,9 @@ class AI_Initiator_Detector extends Service {
 			return null;
 		}
 
-		$value = trim( (string) wp_unslash( $_SERVER[ $server_key ] ) );
+		$value = trim( sanitize_text_field( wp_unslash( $_SERVER[ $server_key ] ) ) );
 
-		return '' === $value ? null : $value;
+		return $value === '' ? null : $value;
 	}
 
 	/**
@@ -277,7 +282,7 @@ class AI_Initiator_Detector extends Service {
 		$cleaned = trim( $value, " \t\n\r\0\x0B\"" );
 		$host    = wp_parse_url( $cleaned, PHP_URL_HOST );
 
-		if ( is_string( $host ) && '' !== $host ) {
+		if ( is_string( $host ) && $host !== '' ) {
 			$host = strtolower( ltrim( $host, '.' ) );
 
 			if ( str_starts_with( $host, 'www.' ) ) {
@@ -297,11 +302,11 @@ class AI_Initiator_Detector extends Service {
 	/**
 	 * Match a user-agent string against the known tool patterns.
 	 *
-	 * @param string $user_agent
+	 * @param string $user_agent User-agent string to match.
 	 * @return string|null Friendly agent name, or null on no match.
 	 */
 	private function match_ua_pattern( $user_agent ) {
-		if ( '' === $user_agent ) {
+		if ( $user_agent === '' ) {
 			return null;
 		}
 

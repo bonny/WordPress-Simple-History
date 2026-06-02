@@ -582,4 +582,72 @@ class Privacy_Logger extends Logger {
 			)
 		);
 	}
+
+	/**
+	 * Get action links for a log row.
+	 *
+	 * Links each privacy event to the relevant WordPress admin tool page:
+	 * export events to Tools → Export Personal Data, erasure events to
+	 * Tools → Erase Personal Data, and privacy page changes to the page
+	 * itself plus the Privacy settings screen.
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		$context     = $row->context ?? [];
+		$message_key = $context['_message_key'] ?? '';
+
+		// Privacy page create/set events: edit the page and the Privacy settings screen.
+		if ( in_array( $message_key, [ 'privacy_page_created', 'privacy_page_set' ], true ) ) {
+			$action_links = [];
+			$new_post_id  = isset( $context['new_post_id'] ) ? (int) $context['new_post_id'] : 0;
+
+			if ( $new_post_id && get_post( $new_post_id ) && current_user_can( 'edit_page', $new_post_id ) ) {
+				$edit_link = get_edit_post_link( $new_post_id, 'raw' );
+
+				if ( $edit_link ) {
+					$action_links[] = [
+						'url'    => $edit_link,
+						'label'  => __( 'Edit page', 'simple-history' ),
+						'action' => 'edit',
+					];
+				}
+			}
+
+			if ( current_user_can( 'manage_privacy_options' ) ) {
+				$action_links[] = [
+					'url'    => admin_url( 'options-privacy.php' ),
+					'label'  => __( 'Privacy settings', 'simple-history' ),
+					'action' => 'view',
+				];
+			}
+
+			return $action_links;
+		}
+
+		// Data export events (privacy_data_export_*): link to Tools → Export Personal Data.
+		if ( str_starts_with( $message_key, 'privacy_data_export_' ) && current_user_can( 'export_others_personal_data' ) ) {
+			return [
+				[
+					'url'    => admin_url( 'export-personal-data.php' ),
+					'label'  => __( 'Data export requests', 'simple-history' ),
+					'action' => 'view',
+				],
+			];
+		}
+
+		// Data erasure events (data_erasure_*): link to Tools → Erase Personal Data.
+		if ( str_starts_with( $message_key, 'data_erasure_' ) && current_user_can( 'erase_others_personal_data' ) ) {
+			return [
+				[
+					'url'    => admin_url( 'erase-personal-data.php' ),
+					'label'  => __( 'Data erasure requests', 'simple-history' ),
+					'action' => 'view',
+				],
+			];
+		}
+
+		return [];
+	}
 }

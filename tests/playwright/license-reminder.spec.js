@@ -13,8 +13,9 @@ const PREMIUM_SLUG = 'simple-history-premium';
 // skips the suite so the tests fail loudly rather than silently passing in the
 // wrong environment.
 //
-// Serial mode: the last test mutates the license key option, which would race
-// other tests in parallel mode (fullyParallel is true in playwright.config.js).
+// Serial mode: tests share the underlying premium plugin state and the test
+// user's dismissed-addons meta. Running them in parallel would race those
+// mutations against each other.
 test.describe.configure( { mode: 'serial' } );
 
 test.describe( 'License reminder card', () => {
@@ -48,6 +49,28 @@ test.describe( 'License reminder card', () => {
 		} );
 	} );
 
+	// Reset to the canonical "no license key, no dismissals" state before
+	// each test so they don't depend on each other. Wrap each REST call so a
+	// missing endpoint surfaces a focused error instead of an opaque
+	// rest_forbidden / 404 from inside Playwright's request util.
+	test.beforeEach( async ( { requestUtils } ) => {
+		try {
+			await requestUtils.rest( {
+				method: 'POST',
+				path: 'simple-history/v1/dev-tools/set-license-key',
+				data: { slug: PREMIUM_SLUG, key: '' },
+			} );
+			await requestUtils.rest( {
+				method: 'POST',
+				path: 'simple-history/v1/dev-tools/reset-license-reminder-dismissals',
+			} );
+		} catch ( err ) {
+			throw new Error(
+				`License-reminder test setup failed — is SIMPLE_HISTORY_DEV enabled and the dev-tools controller loaded? (${ err.message })`
+			);
+		}
+	} );
+
 	test( 'shows on history page when premium active without license', async ( {
 		page,
 	} ) => {
@@ -62,13 +85,10 @@ test.describe( 'License reminder card', () => {
 		).toBeVisible();
 	} );
 
-	test( 'shows on settings page', async ( { page } ) => {
+	test( 'does not show on settings page (sidebar-only surface)', async ( {
+		page,
+	} ) => {
 		await page.goto( SETTINGS_PAGE );
-		await expect( page.locator( '.sh-LicenseReminder' ) ).toBeVisible();
-	} );
-
-	test( 'hides on the licenses sub-tab itself', async ( { page } ) => {
-		await page.goto( LICENSES_TAB );
 		await expect( page.locator( '.sh-LicenseReminder' ) ).toHaveCount( 0 );
 	} );
 
@@ -77,6 +97,55 @@ test.describe( 'License reminder card', () => {
 		const link = page.locator( '.sh-LicenseReminder a.button-primary' );
 		const href = await link.getAttribute( 'href' );
 		expect( href ).toContain( 'general_settings_subtab_licenses' );
+	} );
+
+	test( 'explicit dismiss hides the card and it stays gone after reload', async ( {
+		page,
+	} ) => {
+		await page.goto( HISTORY_PAGE );
+		const card = page.locator( '.sh-LicenseReminder' );
+		await expect( card ).toBeVisible();
+
+		// Use class selector rather than getByRole({name: 'Dismiss'}) so the
+		// test stays stable under non-en_US locales.
+		await card.locator( '.sh-LicenseReminder-dismiss' ).click();
+
+		// The fadeOut() animation hides the card client-side.
+		await expect( card ).toBeHidden();
+
+		// And after a reload, the server-side check filters it out.
+		await page.goto( HISTORY_PAGE );
+		await expect( page.locator( '.sh-LicenseReminder' ) ).toHaveCount( 0 );
+	} );
+
+	test( 'visiting the licenses sub-tab implicitly dismisses the card', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		// Baseline: card visible AND the dismissed-addons meta is empty.
+		await page.goto( HISTORY_PAGE );
+		await expect( page.locator( '.sh-LicenseReminder' ) ).toBeVisible();
+
+		const before = await requestUtils.rest( {
+			path: 'simple-history/v1/dev-tools/license-reminder-dismissals',
+		} );
+		expect( before.dismissed_addons ).toEqual( [] );
+
+		// User finds the licenses tab on their own.
+		await page.goto( LICENSES_TAB );
+
+		// Direct invariant: admin_init wrote the premium slug into user meta.
+		// This locks in the actual cause, so a regression that hides the card
+		// for any other reason (e.g. should_show filter side effect) still
+		// fails the test.
+		const after = await requestUtils.rest( {
+			path: 'simple-history/v1/dev-tools/license-reminder-dismissals',
+		} );
+		expect( after.dismissed_addons ).toContain( PREMIUM_SLUG );
+
+		// Downstream effect: returning to the history page, the card is gone.
+		await page.goto( HISTORY_PAGE );
+		await expect( page.locator( '.sh-LicenseReminder' ) ).toHaveCount( 0 );
 	} );
 
 	test( 'hides when license key is set, reappears when cleared', async ( {

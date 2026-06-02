@@ -15,6 +15,25 @@ class Scripts_And_Templates extends Service {
 	public function loaded() {
 		add_action( 'admin_footer', array( $this, 'add_logger_javascript_in_admin_footer' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_filter( 'admin_body_class', array( $this, 'add_premium_status_body_class' ) );
+	}
+
+	/**
+	 * Add a body class indicating whether the premium add-on is active.
+	 *
+	 * Lets CSS reserve the right popover height during loading without
+	 * waiting for the REST response. Free installs need ~480px (tall
+	 * teaser); premium installs need ~340px (compact card).
+	 *
+	 * @param string $classes Existing space-separated body classes.
+	 * @return string Modified body classes.
+	 */
+	public function add_premium_status_body_class( $classes ) {
+		if ( Helpers::is_premium_add_on_active() ) {
+			$classes .= ' sh-has-premium';
+		}
+
+		return $classes;
 	}
 
 	/**

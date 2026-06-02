@@ -330,6 +330,7 @@ class Admin_Pages extends Service {
 		}
 
 		// Don't redirect to a page the user can't access — would loop.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability(), filterable.
 		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return;
 		}

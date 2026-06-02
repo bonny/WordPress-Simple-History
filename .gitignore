@@ -55,10 +55,15 @@ build/
 !.claude/settings.json
 !.claude/commands/
 !.claude/skills/
-# Skills with sensitive/business content (kept local only)
-.claude/skills/release/
-.claude/skills/local-issues/
-.claude/skills/premium-upsell-design/
+# Skills with sensitive/business content (symlinked from Obsidian — see scripts/setup-private-skills.sh)
+# No trailing slashes: git's `dir/` syntax matches directories but symlinks are files.
+.claude/skills/release
+.claude/skills/local-issues
+.claude/skills/premium-upsell-design
+.claude/skills/lemonsqueezy-sales
+.claude/skills/writing-blog-posts
+.claude/skills/analytics-traffic
+.claude/skills/freemium-conversion
 !.claude/hooks/
 !.claude/agents/
 scripts/copy-current-to-simple-history-com.sh
