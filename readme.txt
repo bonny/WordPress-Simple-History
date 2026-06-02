@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 7.0
-Stable tag: 5.28.0
+Stable tag: 5.29.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -252,7 +252,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > 🧪 **Experimental** entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
-### Unreleased
+### 5.29.0 (June 2026)
+
+🔒 This release brings Simple History together with WordPress's built-in privacy tools: a person's activity log is now included in personal-data exports (Tools → Export Personal Data), and a new "Privacy & Data" settings tab explains how it works. Plus: overview action links across user, plugin, post, and media events, and action links on core update and privacy events for quicker navigation.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-29-0-released/)
 
 **Added**
 
