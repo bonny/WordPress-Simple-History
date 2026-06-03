@@ -1,4 +1,5 @@
 node_modules
+.superpowers/
 log-tests.php
 .npm-debug.log
 tmp
@@ -82,3 +83,6 @@ test-results/
 docs/channels-local-testing.md
 docs/alerts-feature-research.md
 docs/utm-tracking-guide.md
+.wp-env.override.json
+.wp-env/
+/xdebug-profiles/
