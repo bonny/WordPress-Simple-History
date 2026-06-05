@@ -451,15 +451,16 @@ class User_Logger extends Logger {
 
 		// Guard against recursion: resolving the current user during the log write can
 		// re-trigger `determine_current_user` -> `wp_validate_application_password` and
-		// fire this action again. Also dedupes the action firing twice per request
-		// (once during `authenticate`, once during `determine_current_user`).
+		// fire this action again. The XML-RPC / `authenticate` firing already returned at
+		// the PHP_AUTH_USER bail above, so the double-fire this dedupes is the REST
+		// recursion path.
 		if ( $this->app_password_failure_logged ) {
 			return;
 		}
 
 		$this->app_password_failure_logged = true;
 
-		// Guaranteed set by the bail above; this is the username the REST client sent.
+		// Set by the bail above; read from the Basic-auth header (may be an empty string).
 		// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.BasicAuthentication -- Reading the attempted username for security logging only; authentication is handled by WP core.
 		$attempted_username = sanitize_text_field( wp_unslash( $_SERVER['PHP_AUTH_USER'] ) );
 

@@ -185,6 +185,29 @@ class UserLoggerAppPasswordTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Premise of the duplicate-suppression: the standard `authenticate`-chain logger
+	 * records unknown-user login failures, XML-RPC included. The app-password handler
+	 * deliberately bails on the XML-RPC path *because* this logger covers it — so if
+	 * `onAuthenticate` ever stops firing for that case, XML-RPC brute-force attempts
+	 * would become invisible. This test pins that premise so the two halves of the
+	 * invariant don't drift apart.
+	 */
+	public function test_regular_authenticate_logger_covers_unknown_user() {
+		$error = new WP_Error( 'invalid_username', 'Unknown username.' );
+		$this->logger->onAuthenticate( $error, 'xmlrpc_brute_user', 'wrong-password' );
+
+		$this->assertNotNull(
+			$this->captured_log,
+			'The standard authenticate-chain logger must record the failed login the app-password handler defers to.'
+		);
+
+		[ , $context ] = $this->captured_log;
+
+		$this->assertSame( 'user_unknown_login_failed', $context['_message_key'] );
+		$this->assertSame( 'xmlrpc_brute_user', $context['failed_username'] );
+	}
+
+	/**
 	 * Dedupe guard. WP fires the action twice per request (once via `authenticate`,
 	 * once via `determine_current_user`); we only want one log row per request. Tested
 	 * on the REST path, the path that actually logs.
