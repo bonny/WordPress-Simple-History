@@ -33,7 +33,7 @@ Changelogs are for **humans, not machines**. Write for both technical and non-te
 **Write for the user:**
 
 -   Explain what changed from the user's perspective, not what you did in the code
--   Provide context and scope: instead of "Optimized query" write "Improved performance on sites with large activity logs"
+-   Name the outcome, not the mechanism: instead of "Optimized query" write "Improved performance on sites with large activity logs" — but keep it to that one clause, not a paragraph of scope
 -   Replace jargon with clarity: avoid acronyms, internal class names, or hook names unless the audience is developers
 -   Be specific: "Fixed timezone handling in email reports" not "Bug fixes"
 -   Active voice: "Fixed X" not "X was fixed"
@@ -45,16 +45,45 @@ Changelogs are for **humans, not machines**. Write for both technical and non-te
 -   Include all notable user-facing changes; selective entries undermine credibility
 -   Mark experimental features with the `🧪 **Experimental** —` prefix (see "Experimental features" section below)
 
-**Keep it concise:**
+**Keep it concise — one line per entry:**
 
--   One bullet per change, one or two sentences max
--   Don't duplicate commit messages — curate and translate them into user-facing language
--   Group related small changes into a single entry rather than listing each separately
--   Omit internal refactors, code cleanup, and dev tooling changes unless they affect users
--   Omit new PHP/JS functions, helpers, or APIs — these are internal and not user-facing (e.g., don't list `Helpers::get_filtered_history_url()`)
--   Cut implementation detail. Filter names, fallback chains, caching strategy, byte limits, index prefix lengths — these belong in the PR description, not the changelog. Lead with the user-visible effect; stop before the "how it works" explanation
+The model is the [Claude Code changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md): one short line per change that states the new behavior and stops. Aim for a single sentence; add a short `—` clause only when the consequence isn't obvious from the change itself. The changelog is the index — the release-post link is where the full story lives.
 
-**Too long → tightened (real example):**
+-   One bullet, one change, one line. If an entry runs to two or three sentences, it's a release-post paragraph wearing a changelog costume — cut it down.
+-   Lead with the user-visible change. Stop there.
+-   Drop "Previously…" contrast clauses. "Now logged" already implies it wasn't before — don't narrate the old behavior.
+-   Cut inline examples, slug lists, and scope caveats (which events it does/doesn't fire on, edge cases, redaction rules, "existing installs unchanged"). A short location hint in parentheses is fine ("Tools → Export Personal Data"); a full enumeration is not.
+-   Push the detail to the release post. Anything a curious user might want but most won't read belongs behind the "[Read more…]" link, not in the bullet.
+-   Don't duplicate commit messages — curate and translate them into user-facing language.
+-   Group related small changes into a single entry rather than listing each separately.
+-   Omit internal refactors, code cleanup, and dev tooling changes unless they affect users.
+-   Omit new PHP/JS functions, helpers, or APIs — these are internal and not user-facing (e.g., don't list `Helpers::get_filtered_history_url()`).
+-   Cut implementation detail. Filter names, fallback chains, caching strategy, byte limits, index prefix lengths — these belong in the PR description, not the changelog.
+
+We borrow Claude Code's **brevity**, not its structure: it uses a flat list so every line starts with "Added/Fixed", while Simple History keeps category headings — so don't add the verb prefix here (see the "Do NOT repeat the category verb" rule above).
+
+**Too long → tightened (real examples):**
+
+These are all from the 5.29.0 changelog — each ran 2–3 sentences with "Previously…" clauses, enumerations, and scope caveats. Tightened to one line:
+
+```
+❌ Overview action links on user, plugin, post, and media events — "All users", "All plugins",
+   "All posts" / "All pages" / "All `<custom-post-type>`", "All media". Also shown on delete
+   events where the per-item link would dead-end. The "All users" link shows only on
+   user-management events (profile updated, user created, user deleted), not on login, logout,
+   failed-login, or session-destroy events.
+
+✅ Overview action links ("All users", "All plugins", "All posts", "All media") on user,
+   plugin, post, and media events.
+```
+
+```
+❌ Simple History's activity log is now included in WordPress's personal-data export
+   (Tools → Export Personal Data): the events a person performed are exported automatically.
+   Previously the activity log was left out of export requests entirely.
+
+✅ Activity log is now included in WordPress's personal-data export (Tools → Export Personal Data).
+```
 
 ```
 ❌ New installs now create the history tables with `$wpdb->get_charset_collate()` (matching
@@ -62,17 +91,12 @@ Changelogs are for **humans, not machines**. Write for both technical and non-te
    this means tables are created as `utf8mb4`, so they can store 4-byte UTF-8 characters
    like emoji in event context — previously a post title with an emoji could silently drop
    the entire context row, leaving log entries like `Updated ""` with no user attribution.
-   The contexts table's `key` index is now a 191-char prefix index so it stays under
-   InnoDB's 767-byte limit on older row formats. Existing installs are unchanged by this
-   release; a follow-up will add an opt-in conversion path for older tables.
 
-✅ New installs create history tables as `utf8mb4` (using `$wpdb->get_charset_collate()`),
-   so emoji and other 4-byte UTF-8 characters in event context are preserved instead of
-   silently dropping the entire context row. Existing installs are unchanged; an opt-in
-   conversion path for older tables will follow.
+✅ New installs create history tables as `utf8mb4`, so emoji and other 4-byte characters in
+   event context are preserved.
 ```
 
-What was cut: WP core history ("since 4.2"), the broken-log example (`Updated ""`), and the InnoDB 767-byte index reasoning. What was kept: the user-visible effect (emoji preserved, context not dropped) and the scope note (existing installs unchanged, follow-up coming).
+The pattern in every case: keep the user-visible change and a short location hint, cut the "Previously…" framing, the per-item enumerations, the edge-case scoping, and the mechanism. If a caveat genuinely matters to users (e.g. "existing installs unchanged"), it goes in the release post, not the bullet.
 
 **Don't write:**
 
