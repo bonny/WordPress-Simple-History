@@ -17,6 +17,9 @@ class Simple_History_Logger extends Logger {
 	/** @var array<int,array<string,string>> Found changes */
 	private $arr_found_changes = [];
 
+	/** @var array<string,string>|null Cached map of tracked option name => label. */
+	private $tracked_settings = null;
+
 	/**
 	 * Get info about this logger.
 	 *
@@ -77,6 +80,61 @@ class Simple_History_Logger extends Logger {
 		add_action( 'simple_history/db/purge_done', [ $this, 'on_purge_done' ], 10, 2 );
 		add_action( 'simple_history/backfill/completed', [ $this, 'on_backfill_completed' ] );
 		add_action( 'simple_history/channel/auto_disabled', [ $this, 'on_channel_auto_disabled' ], 10, 2 );
+	}
+
+	/**
+	 * Get the map of option keys that should be logged when changed.
+	 *
+	 * Keyed by full option name, value is a human-readable label.
+	 * Add-ons contribute their own keys via the
+	 * `simple_history/settings/tracked_options` filter.
+	 *
+	 * @param bool $force_rebuild Rebuild the cached map (used in tests).
+	 * @return array<string,string>
+	 */
+	public function get_tracked_settings( $force_rebuild = false ) {
+		if ( $this->tracked_settings !== null && ! $force_rebuild ) {
+			return $this->tracked_settings;
+		}
+
+		$core_settings = [
+			'simple_history_show_on_dashboard'      => __( 'Show on dashboard', 'simple-history' ),
+			'simple_history_show_as_page'           => __( 'Show as a page', 'simple-history' ),
+			'simple_history_pager_size'             => __( 'Items on page', 'simple-history' ),
+			'simple_history_pager_size_dashboard'   => __( 'Items on dashboard', 'simple-history' ),
+			'simple_history_enable_rss_feed'        => __( 'RSS feed enabled', 'simple-history' ),
+			'simple_history_detective_mode_enabled' => __( 'Detective Mode enabled', 'simple-history' ),
+			'simple_history_menu_page_location'     => __( 'Menu page location', 'simple-history' ),
+			'simple_history_show_in_admin_bar'      => __( 'Show in admin bar', 'simple-history' ),
+		];
+
+		/**
+		 * Filter the map of option keys that Simple History logs when changed.
+		 *
+		 * Add-ons use this to have their own settings logged as
+		 * "Modified settings" via the Simple History logger.
+		 *
+		 * @param array<string,string> $settings Map of option name => human label.
+		 */
+		$this->tracked_settings = apply_filters( 'simple_history/settings/tracked_options', $core_settings );
+
+		return $this->tracked_settings;
+	}
+
+	/**
+	 * Get the list of tracked option names whose values must not be stored
+	 * in the log (e.g. secrets/API keys). Their change is logged, but the
+	 * value is replaced with a placeholder.
+	 *
+	 * @return array<int,string>
+	 */
+	public function get_redacted_settings() {
+		/**
+		 * Filter the list of tracked option names whose values are redacted in the log.
+		 *
+		 * @param array<int,string> $option_names List of option names to redact.
+		 */
+		return apply_filters( 'simple_history/settings/redacted_options', [] );
 	}
 
 	/**
