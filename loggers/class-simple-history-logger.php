@@ -457,6 +457,12 @@ class Simple_History_Logger extends Logger {
 			);
 		}
 
+		// The generic settings renderer below only applies to settings changes.
+		// Other message keys (e.g. cleared_log, backfill) have no changed-items detail.
+		if ( $message_key !== 'modified_settings' ) {
+			return '';
+		}
+
 		$context = isset( $row->context ) && is_array( $row->context ) ? $row->context : [];
 
 		// Build a base => label lookup from the tracked-options map.
@@ -469,7 +475,7 @@ class Simple_History_Logger extends Logger {
 		$items       = [];
 		$bases_added = [];
 
-		foreach ( $context as $key => $value ) {
+		foreach ( array_keys( $context ) as $key ) {
 			if ( substr( $key, -4 ) === '_new' ) {
 				$base = substr( $key, 0, -4 );
 			} elseif ( substr( $key, -5 ) === '_prev' ) {

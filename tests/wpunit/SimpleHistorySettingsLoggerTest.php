@@ -131,4 +131,60 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertStringContainsString( 'Message Control settings', $html );
 	}
+
+	public function test_details_output_falls_back_to_raw_base_when_no_label() {
+		$row = (object) [
+			'context_message_key' => 'modified_settings',
+			'context'             => [
+				'sh_unlabeled_option_prev' => 'x',
+				'sh_unlabeled_option_new'  => 'y',
+			],
+		];
+
+		$output = $this->logger->get_log_row_details_output( $row );
+		$html   = (string) ( new \Simple_History\Event_Details\Event_Details_Container( $output, $row->context ) );
+
+		$this->assertStringContainsString( 'sh_unlabeled_option', $html );
+	}
+
+	public function test_details_output_renders_multiple_changed_settings() {
+		$callback = static function ( $tracked ) {
+			$tracked['shp_one'] = 'Setting One';
+			$tracked['shp_two'] = 'Setting Two';
+			return $tracked;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $callback );
+		$this->logger->get_tracked_settings( true );
+
+		$row = (object) [
+			'context_message_key' => 'modified_settings',
+			'context'             => [
+				'shp_one_prev' => '1a',
+				'shp_one_new'  => '1b',
+				'shp_two_prev' => '2a',
+				'shp_two_new'  => '2b',
+			],
+		];
+
+		$output = $this->logger->get_log_row_details_output( $row );
+		$html   = (string) ( new \Simple_History\Event_Details\Event_Details_Container( $output, $row->context ) );
+
+		remove_filter( 'simple_history/settings/tracked_options', $callback );
+
+		$this->assertStringContainsString( 'Setting One', $html );
+		$this->assertStringContainsString( 'Setting Two', $html );
+	}
+
+	public function test_details_output_empty_for_non_settings_message() {
+		$row = (object) [
+			'context_message_key' => 'cleared_log',
+			'context'             => [
+				'num_rows_deleted' => '5',
+			],
+		];
+
+		$output = $this->logger->get_log_row_details_output( $row );
+
+		$this->assertSame( '', $output );
+	}
 }
