@@ -4,6 +4,7 @@ require_once 'functions.php';
 
 use Simple_History\Simple_History;
 use Simple_History\Loggers\Simple_History_Logger;
+use Simple_History\Event_Details\Event_Details_Container;
 
 /**
  * Test Simple History settings change logging.
@@ -101,5 +102,33 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 
 		// No tracked change accumulated, so the latest event must not be a settings change for this option.
 		$this->assertArrayNotHasKey( 'some_unrelated_option_new', $context_map );
+	}
+
+	public function test_details_output_renders_tracked_key_with_label() {
+		$callback = static function ( $tracked ) {
+			$tracked['shp_message_control'] = 'Message Control settings';
+			return $tracked;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $callback );
+		$this->logger->get_tracked_settings( true );
+
+		$row = (object) [
+			'context_message_key' => 'modified_settings',
+			'context'             => [
+				'shp_message_control_prev' => 'a',
+				'shp_message_control_new'  => 'b',
+			],
+		];
+
+		$output = $this->logger->get_log_row_details_output( $row );
+
+		// Event_Details_Group is not stringable on its own; render it through an
+		// Event_Details_Container (the proper API), which applies the context and
+		// exposes __toString().
+		$html = (string) ( new Event_Details_Container( $output, $row->context ) );
+
+		remove_filter( 'simple_history/settings/tracked_options', $callback );
+
+		$this->assertStringContainsString( 'Message Control settings', $html );
 	}
 }

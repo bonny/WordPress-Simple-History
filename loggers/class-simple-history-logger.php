@@ -417,8 +417,6 @@ class Simple_History_Logger extends Logger {
 	 * @return Event_Details_Group|string
 	 */
 	public function get_log_row_details_output( $row ) {
-		// TODO(issue-232): the hardcoded item labels below are superseded by the
-		// tracked-options map in Task 3's generic renderer; remove the duplication then.
 		$message_key = $row->context_message_key;
 
 		if ( $message_key === 'purged_events' ) {
@@ -459,43 +457,40 @@ class Simple_History_Logger extends Logger {
 			);
 		}
 
-		return ( new Event_Details_Group() )
-			->add_items(
-				[
-					new Event_Details_Item(
-						[ 'show_on_dashboard' ],
-						__( 'Show on dashboard', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'show_as_page' ],
-						__( 'Show as a page', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'pager_size' ],
-						__( 'Items on page', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'pager_size_dashboard' ],
-						__( 'Items on dashboard', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'enable_rss_feed' ],
-						__( 'RSS feed enabled', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'detective_mode_enabled' ],
-						__( 'Detective Mode enabled', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'menu_page_location' ],
-						__( 'Menu page location', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'show_in_admin_bar' ],
-						__( 'Show in admin bar', 'simple-history' ),
-					),
-				]
-			)
-			->set_title( __( 'Changed items', 'simple-history' ) );
+		$context = isset( $row->context ) && is_array( $row->context ) ? $row->context : [];
+
+		// Build a base => label lookup from the tracked-options map.
+		$labels = [];
+		foreach ( $this->get_tracked_settings() as $option => $label ) {
+			$labels[ $this->get_setting_context_base( $option ) ] = $label;
+		}
+
+		$group       = new Event_Details_Group();
+		$items       = [];
+		$bases_added = [];
+
+		foreach ( $context as $key => $value ) {
+			if ( substr( $key, -4 ) === '_new' ) {
+				$base = substr( $key, 0, -4 );
+			} elseif ( substr( $key, -5 ) === '_prev' ) {
+				$base = substr( $key, 0, -5 );
+			} else {
+				continue;
+			}
+
+			if ( isset( $bases_added[ $base ] ) ) {
+				continue;
+			}
+
+			$bases_added[ $base ] = true;
+
+			$label   = $labels[ $base ] ?? $base;
+			$items[] = new Event_Details_Item( [ $base ], $label );
+		}
+
+		$group->add_items( $items );
+		$group->set_title( __( 'Changed items', 'simple-history' ) );
+
+		return $group;
 	}
 }
