@@ -341,6 +341,8 @@ class Simple_History_Logger extends Logger {
 	 * @return Event_Details_Group|string
 	 */
 	public function get_log_row_details_output( $row ) {
+		// TODO(issue-232): the hardcoded item labels below are superseded by the
+		// tracked-options map in Task 3's generic renderer; remove the duplication then.
 		$message_key = $row->context_message_key;
 
 		if ( $message_key === 'purged_events' ) {

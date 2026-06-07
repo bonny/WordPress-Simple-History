@@ -21,8 +21,18 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$sh           = Simple_History::get_instance();
 		$this->logger = $sh->get_instantiated_logger_by_slug( 'SimpleHistoryLogger' );
 
+		$this->assertNotNull( $this->logger, 'SimpleHistoryLogger should be instantiated' );
+
 		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $admin_user_id );
+	}
+
+	public function tearDown(): void {
+		// Flush the per-request tracked-settings cache so a filter added by
+		// one test cannot leak into the next via the shared logger instance.
+		$this->logger->get_tracked_settings( true );
+
+		parent::tearDown();
 	}
 
 	public function test_core_keys_are_tracked() {
