@@ -14,8 +14,8 @@ class Simple_History_Logger extends Logger {
 	/** @var string Logger slug */
 	protected $slug = 'SimpleHistoryLogger';
 
-	/** @var array<int,array<string,string>> Found changes */
-	private $arr_found_changes = [];
+	/** @var array<string,array{old:mixed,new:mixed}> Accumulated settings changes, keyed by option name. */
+	private $settings_changes = [];
 
 	/** @var array<string,string>|null Cached map of tracked option name => label. */
 	private $tracked_settings = null;
@@ -80,6 +80,12 @@ class Simple_History_Logger extends Logger {
 		add_action( 'simple_history/db/purge_done', [ $this, 'on_purge_done' ], 10, 2 );
 		add_action( 'simple_history/backfill/completed', [ $this, 'on_backfill_completed' ] );
 		add_action( 'simple_history/channel/auto_disabled', [ $this, 'on_channel_auto_disabled' ], 10, 2 );
+
+		// Watch tracked settings (core + add-ons) across every save mechanism.
+		add_action( 'updated_option', [ $this, 'on_tracked_option_updated' ], 10, 3 );
+		add_action( 'added_option', [ $this, 'on_tracked_option_added' ], 10, 2 );
+		add_action( 'deleted_option', [ $this, 'on_tracked_option_deleted' ], 10, 1 );
+		add_action( 'shutdown', [ $this, 'commit_settings_changes' ] );
 	}
 
 	/**
@@ -244,8 +250,6 @@ class Simple_History_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_load_options_page() {
-		// Bail if option_page does not exist in $_POST variable.
-		// This happens when visiting /wp-admin/options.php directly.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! isset( $_POST['option_page'] ) ) {
 			return;
@@ -254,15 +258,7 @@ class Simple_History_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$option_page = sanitize_text_field( wp_unslash( $_POST['option_page'] ) );
 
-		// Log changes to general settings.
-		if ( $option_page === $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP ) {
-			// Save all changes.
-			add_action( 'updated_option', array( $this, 'on_updated_option' ), 10, 3 );
-
-			// Finally, before redirecting back to Simple History options page, log the changes.
-			add_filter( 'wp_redirect', [ $this, 'commit_log_on_wp_redirect' ], 10, 2 );
-		} elseif ( $option_page === Channels_Settings_Page::SETTINGS_OPTION_GROUP ) {
-			// Log changes to Log Forwarding settings.
+		if ( $option_page === Channels_Settings_Page::SETTINGS_OPTION_GROUP ) {
 			add_filter( 'wp_redirect', [ $this, 'log_forwarding_settings_saved' ], 10, 2 );
 		}
 	}
@@ -281,57 +277,127 @@ class Simple_History_Logger extends Logger {
 	}
 
 	/**
+	 * Record a changed tracked option.
+	 *
+	 * @param string $option    Option name.
+	 * @param mixed  $old_value Old value.
+	 * @param mixed  $new_value New value.
+	 * @return void
+	 */
+	public function on_tracked_option_updated( $option, $old_value, $new_value ) {
+		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return;
+		}
+
+		$this->settings_changes[ $option ] = [
+			'old' => $this->prepare_setting_value( $option, $old_value ),
+			'new' => $this->prepare_setting_value( $option, $new_value ),
+		];
+	}
+
+	/**
+	 * Record a newly added tracked option.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  New value.
+	 * @return void
+	 */
+	public function on_tracked_option_added( $option, $value ) {
+		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return;
+		}
+
+		$this->settings_changes[ $option ] = [
+			'old' => '',
+			'new' => $this->prepare_setting_value( $option, $value ),
+		];
+	}
+
+	/**
+	 * Record a deleted tracked option.
+	 *
+	 * @param string $option Option name.
+	 * @return void
+	 */
+	public function on_tracked_option_deleted( $option ) {
+		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return;
+		}
+
+		$this->settings_changes[ $option ] = [
+			'old' => '',
+			'new' => '',
+		];
+	}
+
+	/**
+	 * Prepare an option value for storage in the log.
+	 *
+	 * Redacts sensitive options and stringifies non-scalar values.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  Raw value.
+	 * @return mixed
+	 */
+	private function prepare_setting_value( $option, $value ) {
+		if ( in_array( $option, $this->get_redacted_settings(), true ) ) {
+			return __( '(value hidden)', 'simple-history' );
+		}
+
+		if ( is_scalar( $value ) || $value === null ) {
+			return $value;
+		}
+
+		return wp_json_encode( $value );
+	}
+
+	/**
+	 * Commit all accumulated settings changes as one event.
+	 *
+	 * Hooked to `shutdown` so it runs regardless of how the save happened
+	 * (Settings API, direct update_option, or REST).
+	 *
+	 * @return void
+	 */
+	public function commit_settings_changes() {
+		if ( count( $this->settings_changes ) === 0 ) {
+			return;
+		}
+
+		$context = [];
+
+		foreach ( $this->settings_changes as $option => $change ) {
+			$base = $this->get_setting_context_base( $option );
+
+			$context[ "{$base}_prev" ] = $change['old'];
+			$context[ "{$base}_new" ]  = $change['new'];
+		}
+
+		$this->info_message( 'modified_settings', $context );
+
+		$this->settings_changes = [];
+	}
+
+	/**
+	 * Get the context-key base for an option name.
+	 *
+	 * Strips the `simple_history_` prefix so core keys keep their historical
+	 * short context names (e.g. `show_on_dashboard`).
+	 *
+	 * @param string $option Option name.
+	 * @return string
+	 */
+	private function get_setting_context_base( $option ) {
+		return preg_replace( '/^simple_history_/', '', $option );
+	}
+
+	/**
 	 * Log when the RSS feed secret is updated.
 	 *
 	 * @return void
 	 */
 	public function on_rss_feed_secret_updated() {
 		$this->info_message( 'regenerated_rss_feed_secret' );
-	}
-
-	/**
-	 * Log found changes made on the Simple History settings page.
-	 *
-	 * @param string $location URL to redirect to.
-	 * @param int    $status HTTP status code.
-	 * @return string
-	 */
-	public function commit_log_on_wp_redirect( $location, $status ) {
-		if ( count( $this->arr_found_changes ) === 0 ) {
-			return $location;
-		}
-
-		$context = [];
-
-		foreach ( $this->arr_found_changes as $change ) {
-			$option = $change['option'];
-
-			// Remove 'simple_history_' from beginning of string.
-			$option = preg_replace( '/^simple_history_/', '', $option );
-
-			$context[ "{$option}_prev" ] = $change['old_value'];
-			$context[ "{$option}_new" ]  = $change['new_value'];
-		}
-
-		$this->info_message( 'modified_settings', $context );
-
-		return $location;
-	}
-
-	/**
-	 * Store all changed options in one array.
-	 *
-	 * @param string $option Option name.
-	 * @param mixed  $old_value Old value.
-	 * @param mixed  $new_value New value.
-	 * @return void
-	 */
-	public function on_updated_option( $option, $old_value, $new_value ) {
-		$this->arr_found_changes[] = [
-			'option'    => $option,
-			'old_value' => $old_value,
-			'new_value' => $new_value,
-		];
 	}
 
 	/**

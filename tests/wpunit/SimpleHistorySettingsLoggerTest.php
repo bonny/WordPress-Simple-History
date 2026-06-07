@@ -57,4 +57,49 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( 'my_addon_option', $tracked );
 		$this->assertSame( 'My add-on option', $tracked['my_addon_option'] );
 	}
+
+	public function test_logs_tracked_option_change_on_commit() {
+		$callback = static function ( $tracked ) {
+			$tracked['sh_test_tracked_option'] = 'Test tracked option';
+			return $tracked;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $callback );
+		$this->logger->get_tracked_settings( true );
+
+		add_option( 'sh_test_tracked_option', 'old-value' );
+		update_option( 'sh_test_tracked_option', 'new-value' );
+
+		// Commit is normally on 'shutdown'; call directly in the test.
+		$this->logger->commit_settings_changes();
+
+		remove_filter( 'simple_history/settings/tracked_options', $callback );
+
+		$row = \Simple_History\tests\get_latest_row();
+		$this->assertSame( 'SimpleHistoryLogger', $row['logger'], 'Event should be logged by the Simple History logger' );
+
+		$context = \Simple_History\tests\get_latest_context();
+		$context_map = [];
+		foreach ( $context as $item ) {
+			$context_map[ $item['key'] ] = $item['value'];
+		}
+
+		$this->assertArrayHasKey( '_message_key', $context_map );
+		$this->assertSame( 'modified_settings', $context_map['_message_key'] );
+		$this->assertSame( 'old-value', $context_map['sh_test_tracked_option_prev'] );
+		$this->assertSame( 'new-value', $context_map['sh_test_tracked_option_new'] );
+	}
+
+	public function test_does_not_log_untracked_option_change() {
+		update_option( 'some_unrelated_option', 'whatever' );
+		$this->logger->commit_settings_changes();
+
+		$context = \Simple_History\tests\get_latest_context();
+		$context_map = [];
+		foreach ( $context as $item ) {
+			$context_map[ $item['key'] ] = $item['value'];
+		}
+
+		// No tracked change accumulated, so the latest event must not be a settings change for this option.
+		$this->assertArrayNotHasKey( 'some_unrelated_option_new', $context_map );
+	}
 }
