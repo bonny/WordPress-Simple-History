@@ -20,6 +20,12 @@ class Simple_History_Logger extends Logger {
 	/** @var array<string,string>|null Cached map of tracked option name => label. */
 	private $tracked_settings = null;
 
+	/** @var array<int,string>|null Cached list of redacted option names. */
+	private $redacted_settings = null;
+
+	/** @var array<string,mixed> Snapshot of tracked option values captured before deletion. */
+	private $deleted_option_values = [];
+
 	/**
 	 * Get info about this logger.
 	 *
@@ -84,6 +90,7 @@ class Simple_History_Logger extends Logger {
 		// Watch tracked settings (core + add-ons) across every save mechanism.
 		add_action( 'updated_option', [ $this, 'on_tracked_option_updated' ], 10, 3 );
 		add_action( 'added_option', [ $this, 'on_tracked_option_added' ], 10, 2 );
+		add_action( 'delete_option', [ $this, 'on_tracked_option_pre_delete' ] );
 		add_action( 'deleted_option', [ $this, 'on_tracked_option_deleted' ], 10, 1 );
 		add_action( 'shutdown', [ $this, 'commit_settings_changes' ] );
 	}
@@ -132,15 +139,22 @@ class Simple_History_Logger extends Logger {
 	 * in the log (e.g. secrets/API keys). Their change is logged, but the
 	 * value is replaced with a placeholder.
 	 *
+	 * @param bool $force_rebuild Rebuild the cached list (used in tests).
 	 * @return array<int,string>
 	 */
-	public function get_redacted_settings() {
+	public function get_redacted_settings( $force_rebuild = false ) {
+		if ( $this->redacted_settings !== null && ! $force_rebuild ) {
+			return $this->redacted_settings;
+		}
+
 		/**
 		 * Filter the list of tracked option names whose values are redacted in the log.
 		 *
 		 * @param array<int,string> $option_names List of option names to redact.
 		 */
-		return apply_filters( 'simple_history/settings/redacted_options', [] );
+		$this->redacted_settings = apply_filters( 'simple_history/settings/redacted_options', [] );
+
+		return $this->redacted_settings;
 	}
 
 	/**
@@ -320,6 +334,22 @@ class Simple_History_Logger extends Logger {
 	}
 
 	/**
+	 * Snapshot a tracked option's value before it is deleted.
+	 *
+	 * `deleted_option` does not provide the previous value, so capture it here.
+	 *
+	 * @param string $option Option name.
+	 * @return void
+	 */
+	public function on_tracked_option_pre_delete( $option ) {
+		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return;
+		}
+
+		$this->deleted_option_values[ $option ] = get_option( $option );
+	}
+
+	/**
 	 * Record a deleted tracked option.
 	 *
 	 * @param string $option Option name.
@@ -330,10 +360,16 @@ class Simple_History_Logger extends Logger {
 			return;
 		}
 
+		$old_value = array_key_exists( $option, $this->deleted_option_values )
+			? $this->deleted_option_values[ $option ]
+			: '';
+
 		$this->settings_changes[ $option ] = [
-			'old' => '',
+			'old' => $this->prepare_setting_value( $option, $old_value ),
 			'new' => __( '(deleted)', 'simple-history' ),
 		];
+
+		unset( $this->deleted_option_values[ $option ] );
 	}
 
 	/**

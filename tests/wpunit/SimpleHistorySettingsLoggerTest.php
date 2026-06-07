@@ -29,9 +29,10 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function tearDown(): void {
-		// Flush the per-request tracked-settings cache so a filter added by
-		// one test cannot leak into the next via the shared logger instance.
+		// Flush the per-request caches so a filter added by one test cannot
+		// leak into the next via the shared logger instance.
 		$this->logger->get_tracked_settings( true );
+		$this->logger->get_redacted_settings( true );
 
 		parent::tearDown();
 	}
@@ -200,6 +201,7 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 		add_filter( 'simple_history/settings/tracked_options', $tracked_cb );
 		add_filter( 'simple_history/settings/redacted_options', $redact_cb );
 		$this->logger->get_tracked_settings( true );
+		$this->logger->get_redacted_settings( true );
 
 		add_option( 'sh_test_secret_option', 'old-secret' );
 		update_option( 'sh_test_secret_option', 'new-secret' );
@@ -216,5 +218,29 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertSame( '(value hidden)', $context_map['sh_test_secret_option_new'] );
 		$this->assertStringNotContainsString( 'new-secret', wp_json_encode( $context_map ) );
+	}
+
+	public function test_logs_tracked_option_deletion_with_previous_value() {
+		$callback = static function ( $tracked ) {
+			$tracked['sh_test_deletable_option'] = 'Test deletable option';
+			return $tracked;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $callback );
+		$this->logger->get_tracked_settings( true );
+
+		add_option( 'sh_test_deletable_option', 'value-before-delete' );
+		delete_option( 'sh_test_deletable_option' );
+		$this->logger->commit_settings_changes();
+
+		remove_filter( 'simple_history/settings/tracked_options', $callback );
+
+		$context = \Simple_History\tests\get_latest_context();
+		$context_map = [];
+		foreach ( $context as $item ) {
+			$context_map[ $item['key'] ] = $item['value'];
+		}
+
+		$this->assertSame( 'value-before-delete', $context_map['sh_test_deletable_option_prev'] );
+		$this->assertSame( '(deleted)', $context_map['sh_test_deletable_option_new'] );
 	}
 }
