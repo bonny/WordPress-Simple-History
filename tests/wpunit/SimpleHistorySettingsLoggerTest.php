@@ -187,4 +187,34 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertSame( '', $output );
 	}
+
+	public function test_redacted_option_value_is_hidden() {
+		$tracked_cb = static function ( $tracked ) {
+			$tracked['sh_test_secret_option'] = 'Test secret';
+			return $tracked;
+		};
+		$redact_cb = static function ( $redacted ) {
+			$redacted[] = 'sh_test_secret_option';
+			return $redacted;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+		add_filter( 'simple_history/settings/redacted_options', $redact_cb );
+		$this->logger->get_tracked_settings( true );
+
+		add_option( 'sh_test_secret_option', 'old-secret' );
+		update_option( 'sh_test_secret_option', 'new-secret' );
+		$this->logger->commit_settings_changes();
+
+		remove_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+		remove_filter( 'simple_history/settings/redacted_options', $redact_cb );
+
+		$context = \Simple_History\tests\get_latest_context();
+		$context_map = [];
+		foreach ( $context as $item ) {
+			$context_map[ $item['key'] ] = $item['value'];
+		}
+
+		$this->assertSame( '(value hidden)', $context_map['sh_test_secret_option_new'] );
+		$this->assertStringNotContainsString( 'new-secret', wp_json_encode( $context_map ) );
+	}
 }
