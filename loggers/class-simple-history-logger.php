@@ -250,6 +250,8 @@ class Simple_History_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_load_options_page() {
+		// Bail if option_page does not exist in $_POST variable.
+		// This happens when visiting /wp-admin/options.php directly.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! isset( $_POST['option_page'] ) ) {
 			return;
@@ -258,9 +260,13 @@ class Simple_History_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$option_page = sanitize_text_field( wp_unslash( $_POST['option_page'] ) );
 
-		if ( $option_page === Channels_Settings_Page::SETTINGS_OPTION_GROUP ) {
-			add_filter( 'wp_redirect', [ $this, 'log_forwarding_settings_saved' ], 10, 2 );
+		// Only the Channels (log forwarding) settings are handled here; other
+		// settings are captured by the global option watcher.
+		if ( $option_page !== Channels_Settings_Page::SETTINGS_OPTION_GROUP ) {
+			return;
 		}
+
+		add_filter( 'wp_redirect', [ $this, 'log_forwarding_settings_saved' ], 10, 2 );
 	}
 
 	/**
@@ -326,7 +332,7 @@ class Simple_History_Logger extends Logger {
 
 		$this->settings_changes[ $option ] = [
 			'old' => '',
-			'new' => '',
+			'new' => __( '(deleted)', 'simple-history' ),
 		];
 	}
 
@@ -348,7 +354,9 @@ class Simple_History_Logger extends Logger {
 			return $value;
 		}
 
-		return wp_json_encode( $value );
+		$encoded = wp_json_encode( $value );
+
+		return $encoded ? $encoded : __( '(non-serializable value)', 'simple-history' );
 	}
 
 	/**
@@ -382,7 +390,9 @@ class Simple_History_Logger extends Logger {
 	 * Get the context-key base for an option name.
 	 *
 	 * Strips the `simple_history_` prefix so core keys keep their historical
-	 * short context names (e.g. `show_on_dashboard`).
+	 * short context names (e.g. `show_on_dashboard`). Add-on option names that
+	 * do not start with `simple_history_` are used as-is; avoid registering an
+	 * option name that collides with a core key once the prefix is stripped.
 	 *
 	 * @param string $option Option name.
 	 * @return string
