@@ -14,8 +14,17 @@ class Simple_History_Logger extends Logger {
 	/** @var string Logger slug */
 	protected $slug = 'SimpleHistoryLogger';
 
-	/** @var array<int,array<string,string>> Found changes */
-	private $arr_found_changes = [];
+	/** @var array<string,array{old:mixed,new:mixed}> Accumulated settings changes, keyed by option name. */
+	private $settings_changes = [];
+
+	/** @var array<string,string>|null Cached map of tracked option name => label. */
+	private $tracked_settings = null;
+
+	/** @var array<int,string>|null Cached list of redacted option names. */
+	private $redacted_settings = null;
+
+	/** @var array<string,mixed> Snapshot of tracked option values captured before deletion. */
+	private $deleted_option_values = [];
 
 	/**
 	 * Get info about this logger.
@@ -77,6 +86,75 @@ class Simple_History_Logger extends Logger {
 		add_action( 'simple_history/db/purge_done', [ $this, 'on_purge_done' ], 10, 2 );
 		add_action( 'simple_history/backfill/completed', [ $this, 'on_backfill_completed' ] );
 		add_action( 'simple_history/channel/auto_disabled', [ $this, 'on_channel_auto_disabled' ], 10, 2 );
+
+		// Watch tracked settings (core + add-ons) across every save mechanism.
+		add_action( 'updated_option', [ $this, 'on_tracked_option_updated' ], 10, 3 );
+		add_action( 'added_option', [ $this, 'on_tracked_option_added' ], 10, 2 );
+		add_action( 'delete_option', [ $this, 'on_tracked_option_pre_delete' ] );
+		add_action( 'deleted_option', [ $this, 'on_tracked_option_deleted' ], 10, 1 );
+		add_action( 'shutdown', [ $this, 'commit_settings_changes' ] );
+	}
+
+	/**
+	 * Get the map of option keys that should be logged when changed.
+	 *
+	 * Keyed by full option name, value is a human-readable label.
+	 * Add-ons contribute their own keys via the
+	 * `simple_history/settings/tracked_options` filter.
+	 *
+	 * @param bool $force_rebuild Rebuild the cached map (used in tests).
+	 * @return array<string,string>
+	 */
+	public function get_tracked_settings( $force_rebuild = false ) {
+		if ( $this->tracked_settings !== null && ! $force_rebuild ) {
+			return $this->tracked_settings;
+		}
+
+		$core_settings = [
+			'simple_history_show_on_dashboard'      => __( 'Show on dashboard', 'simple-history' ),
+			'simple_history_show_as_page'           => __( 'Show as a page', 'simple-history' ),
+			'simple_history_pager_size'             => __( 'Items on page', 'simple-history' ),
+			'simple_history_pager_size_dashboard'   => __( 'Items on dashboard', 'simple-history' ),
+			'simple_history_enable_rss_feed'        => __( 'RSS feed enabled', 'simple-history' ),
+			'simple_history_detective_mode_enabled' => __( 'Detective Mode enabled', 'simple-history' ),
+			'simple_history_menu_page_location'     => __( 'Menu page location', 'simple-history' ),
+			'simple_history_show_in_admin_bar'      => __( 'Show in admin bar', 'simple-history' ),
+		];
+
+		/**
+		 * Filter the map of option keys that Simple History logs when changed.
+		 *
+		 * Add-ons use this to have their own settings logged as
+		 * "Modified settings" via the Simple History logger.
+		 *
+		 * @param array<string,string> $settings Map of option name => human label.
+		 */
+		$this->tracked_settings = apply_filters( 'simple_history/settings/tracked_options', $core_settings );
+
+		return $this->tracked_settings;
+	}
+
+	/**
+	 * Get the list of tracked option names whose values must not be stored
+	 * in the log (e.g. secrets/API keys). Their change is logged, but the
+	 * value is replaced with a placeholder.
+	 *
+	 * @param bool $force_rebuild Rebuild the cached list (used in tests).
+	 * @return array<int,string>
+	 */
+	public function get_redacted_settings( $force_rebuild = false ) {
+		if ( $this->redacted_settings !== null && ! $force_rebuild ) {
+			return $this->redacted_settings;
+		}
+
+		/**
+		 * Filter the list of tracked option names whose values are redacted in the log.
+		 *
+		 * @param array<int,string> $option_names List of option names to redact.
+		 */
+		$this->redacted_settings = apply_filters( 'simple_history/settings/redacted_options', [] );
+
+		return $this->redacted_settings;
 	}
 
 	/**
@@ -196,17 +274,13 @@ class Simple_History_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		$option_page = sanitize_text_field( wp_unslash( $_POST['option_page'] ) );
 
-		// Log changes to general settings.
-		if ( $option_page === $this->simple_history::SETTINGS_GENERAL_OPTION_GROUP ) {
-			// Save all changes.
-			add_action( 'updated_option', array( $this, 'on_updated_option' ), 10, 3 );
-
-			// Finally, before redirecting back to Simple History options page, log the changes.
-			add_filter( 'wp_redirect', [ $this, 'commit_log_on_wp_redirect' ], 10, 2 );
-		} elseif ( $option_page === Channels_Settings_Page::SETTINGS_OPTION_GROUP ) {
-			// Log changes to Log Forwarding settings.
-			add_filter( 'wp_redirect', [ $this, 'log_forwarding_settings_saved' ], 10, 2 );
+		// Only the Channels (log forwarding) settings are handled here; other
+		// settings are captured by the global option watcher.
+		if ( $option_page !== Channels_Settings_Page::SETTINGS_OPTION_GROUP ) {
+			return;
 		}
+
+		add_filter( 'wp_redirect', [ $this, 'log_forwarding_settings_saved' ], 10, 2 );
 	}
 
 	/**
@@ -223,57 +297,153 @@ class Simple_History_Logger extends Logger {
 	}
 
 	/**
+	 * Record a changed tracked option.
+	 *
+	 * @param string $option    Option name.
+	 * @param mixed  $old_value Old value.
+	 * @param mixed  $new_value New value.
+	 * @return void
+	 */
+	public function on_tracked_option_updated( $option, $old_value, $new_value ) {
+		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return;
+		}
+
+		$this->settings_changes[ $option ] = [
+			'old' => $this->prepare_setting_value( $option, $old_value ),
+			'new' => $this->prepare_setting_value( $option, $new_value ),
+		];
+	}
+
+	/**
+	 * Record a newly added tracked option.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  New value.
+	 * @return void
+	 */
+	public function on_tracked_option_added( $option, $value ) {
+		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return;
+		}
+
+		$this->settings_changes[ $option ] = [
+			'old' => '',
+			'new' => $this->prepare_setting_value( $option, $value ),
+		];
+	}
+
+	/**
+	 * Snapshot a tracked option's value before it is deleted.
+	 *
+	 * `deleted_option` does not provide the previous value, so capture it here.
+	 *
+	 * @param string $option Option name.
+	 * @return void
+	 */
+	public function on_tracked_option_pre_delete( $option ) {
+		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return;
+		}
+
+		$this->deleted_option_values[ $option ] = get_option( $option );
+	}
+
+	/**
+	 * Record a deleted tracked option.
+	 *
+	 * @param string $option Option name.
+	 * @return void
+	 */
+	public function on_tracked_option_deleted( $option ) {
+		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return;
+		}
+
+		$old_value = array_key_exists( $option, $this->deleted_option_values )
+			? $this->deleted_option_values[ $option ]
+			: '';
+
+		$this->settings_changes[ $option ] = [
+			'old' => $this->prepare_setting_value( $option, $old_value ),
+			'new' => __( '(deleted)', 'simple-history' ),
+		];
+
+		unset( $this->deleted_option_values[ $option ] );
+	}
+
+	/**
+	 * Prepare an option value for storage in the log.
+	 *
+	 * Redacts sensitive options and stringifies non-scalar values.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  Raw value.
+	 * @return mixed
+	 */
+	private function prepare_setting_value( $option, $value ) {
+		if ( in_array( $option, $this->get_redacted_settings(), true ) ) {
+			return __( '(value hidden)', 'simple-history' );
+		}
+
+		if ( is_scalar( $value ) || $value === null ) {
+			return $value;
+		}
+
+		$encoded = wp_json_encode( $value );
+
+		return $encoded ? $encoded : __( '(non-serializable value)', 'simple-history' );
+	}
+
+	/**
+	 * Commit all accumulated settings changes as one event.
+	 *
+	 * Hooked to `shutdown` so it runs regardless of how the save happened
+	 * (Settings API, direct update_option, or REST).
+	 *
+	 * @return void
+	 */
+	public function commit_settings_changes() {
+		if ( count( $this->settings_changes ) === 0 ) {
+			return;
+		}
+
+		$context = [];
+
+		foreach ( $this->settings_changes as $option => $change ) {
+			$base = $this->get_setting_context_base( $option );
+
+			$context[ "{$base}_prev" ] = $change['old'];
+			$context[ "{$base}_new" ]  = $change['new'];
+		}
+
+		$this->info_message( 'modified_settings', $context );
+
+		$this->settings_changes = [];
+	}
+
+	/**
+	 * Get the context-key base for an option name.
+	 *
+	 * Strips the `simple_history_` prefix so core keys keep their historical
+	 * short context names (e.g. `show_on_dashboard`). Add-on option names that
+	 * do not start with `simple_history_` are used as-is; avoid registering an
+	 * option name that collides with a core key once the prefix is stripped.
+	 *
+	 * @param string $option Option name.
+	 * @return string
+	 */
+	private function get_setting_context_base( $option ) {
+		return preg_replace( '/^simple_history_/', '', $option );
+	}
+
+	/**
 	 * Log when the RSS feed secret is updated.
 	 *
 	 * @return void
 	 */
 	public function on_rss_feed_secret_updated() {
 		$this->info_message( 'regenerated_rss_feed_secret' );
-	}
-
-	/**
-	 * Log found changes made on the Simple History settings page.
-	 *
-	 * @param string $location URL to redirect to.
-	 * @param int    $status HTTP status code.
-	 * @return string
-	 */
-	public function commit_log_on_wp_redirect( $location, $status ) {
-		if ( count( $this->arr_found_changes ) === 0 ) {
-			return $location;
-		}
-
-		$context = [];
-
-		foreach ( $this->arr_found_changes as $change ) {
-			$option = $change['option'];
-
-			// Remove 'simple_history_' from beginning of string.
-			$option = preg_replace( '/^simple_history_/', '', $option );
-
-			$context[ "{$option}_prev" ] = $change['old_value'];
-			$context[ "{$option}_new" ]  = $change['new_value'];
-		}
-
-		$this->info_message( 'modified_settings', $context );
-
-		return $location;
-	}
-
-	/**
-	 * Store all changed options in one array.
-	 *
-	 * @param string $option Option name.
-	 * @param mixed  $old_value Old value.
-	 * @param mixed  $new_value New value.
-	 * @return void
-	 */
-	public function on_updated_option( $option, $old_value, $new_value ) {
-		$this->arr_found_changes[] = [
-			'option'    => $option,
-			'old_value' => $old_value,
-			'new_value' => $new_value,
-		];
 	}
 
 	/**
@@ -323,43 +493,46 @@ class Simple_History_Logger extends Logger {
 			);
 		}
 
-		return ( new Event_Details_Group() )
-			->add_items(
-				[
-					new Event_Details_Item(
-						[ 'show_on_dashboard' ],
-						__( 'Show on dashboard', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'show_as_page' ],
-						__( 'Show as a page', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'pager_size' ],
-						__( 'Items on page', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'pager_size_dashboard' ],
-						__( 'Items on dashboard', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'enable_rss_feed' ],
-						__( 'RSS feed enabled', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'detective_mode_enabled' ],
-						__( 'Detective Mode enabled', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'menu_page_location' ],
-						__( 'Menu page location', 'simple-history' ),
-					),
-					new Event_Details_Item(
-						[ 'show_in_admin_bar' ],
-						__( 'Show in admin bar', 'simple-history' ),
-					),
-				]
-			)
-			->set_title( __( 'Changed items', 'simple-history' ) );
+		// The generic settings renderer below only applies to settings changes.
+		// Other message keys (e.g. cleared_log, backfill) have no changed-items detail.
+		if ( $message_key !== 'modified_settings' ) {
+			return '';
+		}
+
+		$context = isset( $row->context ) && is_array( $row->context ) ? $row->context : [];
+
+		// Build a base => label lookup from the tracked-options map.
+		$labels = [];
+		foreach ( $this->get_tracked_settings() as $option => $label ) {
+			$labels[ $this->get_setting_context_base( $option ) ] = $label;
+		}
+
+		$group       = new Event_Details_Group();
+		$items       = [];
+		$bases_added = [];
+
+		foreach ( array_keys( $context ) as $key ) {
+			if ( substr( $key, -4 ) === '_new' ) {
+				$base = substr( $key, 0, -4 );
+			} elseif ( substr( $key, -5 ) === '_prev' ) {
+				$base = substr( $key, 0, -5 );
+			} else {
+				continue;
+			}
+
+			if ( isset( $bases_added[ $base ] ) ) {
+				continue;
+			}
+
+			$bases_added[ $base ] = true;
+
+			$label   = $labels[ $base ] ?? $base;
+			$items[] = new Event_Details_Item( [ $base ], $label );
+		}
+
+		$group->add_items( $items );
+		$group->set_title( __( 'Changed items', 'simple-history' ) );
+
+		return $group;
 	}
 }
