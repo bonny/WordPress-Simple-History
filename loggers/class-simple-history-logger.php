@@ -14,7 +14,7 @@ class Simple_History_Logger extends Logger {
 	/** @var string Logger slug */
 	protected $slug = 'SimpleHistoryLogger';
 
-	/** @var array<string,array{old:mixed,new:mixed}> Accumulated settings changes, keyed by option name. */
+	/** @var array<string,array{old?:mixed,new?:mixed,changed_only?:bool}> Accumulated settings changes, keyed by option name. */
 	private $settings_changes = [];
 
 	/** @var array<string,string>|null Cached map of tracked option name => label. */
@@ -22,6 +22,9 @@ class Simple_History_Logger extends Logger {
 
 	/** @var array<int,string>|null Cached list of redacted option names. */
 	private $redacted_settings = null;
+
+	/** @var array<int,string>|null Cached list of changed-only option names. */
+	private $changed_only_settings = null;
 
 	/** @var array<string,mixed> Snapshot of tracked option values captured before deletion. */
 	private $deleted_option_values = [];
@@ -155,6 +158,57 @@ class Simple_History_Logger extends Logger {
 		$this->redacted_settings = apply_filters( 'simple_history/settings/redacted_options', [] );
 
 		return $this->redacted_settings;
+	}
+
+	/**
+	 * Get the list of tracked option names that are logged as "changed" without
+	 * storing their before/after value (for large or structured settings).
+	 *
+	 * @param bool $force_rebuild Rebuild the cached list (used in tests).
+	 * @return array<int,string>
+	 */
+	public function get_changed_only_settings( $force_rebuild = false ) {
+		if ( $this->changed_only_settings !== null && ! $force_rebuild ) {
+			return $this->changed_only_settings;
+		}
+
+		/**
+		 * Filter the list of tracked option names logged as "changed" without
+		 * storing their before/after value.
+		 *
+		 * Use this for large or structured settings (e.g. arrays of rules) whose
+		 * raw value would be unreadable and bloat the log.
+		 *
+		 * @param array<int,string> $option_names List of option names.
+		 */
+		$this->changed_only_settings = apply_filters( 'simple_history/settings/changed_only_options', [] );
+
+		return $this->changed_only_settings;
+	}
+
+	/**
+	 * Whether an option should be logged as "changed" without its value.
+	 *
+	 * True when the option is explicitly registered as changed-only, or when
+	 * either value is non-scalar (safety net so structured values are never
+	 * serialized into the log).
+	 *
+	 * @param string $option    Option name.
+	 * @param mixed  $old_value Old value.
+	 * @param mixed  $new_value New value.
+	 * @return bool
+	 */
+	private function is_changed_only_setting( $option, $old_value, $new_value ) {
+		if ( in_array( $option, $this->get_changed_only_settings(), true ) ) {
+			return true;
+		}
+
+		// Treat null like a scalar (get_option() may yield null/false); only
+		// real structured values (arrays/objects) trigger the safety net.
+		$old_is_simple = is_scalar( $old_value ) || is_null( $old_value );
+		$new_is_simple = is_scalar( $new_value ) || is_null( $new_value );
+
+		return ! $old_is_simple || ! $new_is_simple;
 	}
 
 	/**
@@ -309,6 +363,12 @@ class Simple_History_Logger extends Logger {
 			return;
 		}
 
+		if ( $this->is_changed_only_setting( $option, $old_value, $new_value ) ) {
+			$this->settings_changes[ $option ] = [ 'changed_only' => true ];
+
+			return;
+		}
+
 		$this->settings_changes[ $option ] = [
 			'old' => $this->prepare_setting_value( $option, $old_value ),
 			'new' => $this->prepare_setting_value( $option, $new_value ),
@@ -324,6 +384,13 @@ class Simple_History_Logger extends Logger {
 	 */
 	public function on_tracked_option_added( $option, $value ) {
 		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return;
+		}
+
+		// No prior value on add; use the new value for both scalarity checks.
+		if ( $this->is_changed_only_setting( $option, $value, $value ) ) {
+			$this->settings_changes[ $option ] = [ 'changed_only' => true ];
+
 			return;
 		}
 
@@ -364,10 +431,17 @@ class Simple_History_Logger extends Logger {
 			? $this->deleted_option_values[ $option ]
 			: '';
 
-		$this->settings_changes[ $option ] = [
-			'old' => $this->prepare_setting_value( $option, $old_value ),
-			'new' => __( '(deleted)', 'simple-history' ),
-		];
+		if ( $this->is_changed_only_setting( $option, $old_value, $old_value ) ) {
+			$this->settings_changes[ $option ] = [
+				'changed_only' => true,
+				'new'          => __( '(deleted)', 'simple-history' ),
+			];
+		} else {
+			$this->settings_changes[ $option ] = [
+				'old' => $this->prepare_setting_value( $option, $old_value ),
+				'new' => __( '(deleted)', 'simple-history' ),
+			];
+		}
 
 		unset( $this->deleted_option_values[ $option ] );
 	}
@@ -412,6 +486,12 @@ class Simple_History_Logger extends Logger {
 
 		foreach ( $this->settings_changes as $option => $change ) {
 			$base = $this->get_setting_context_base( $option );
+
+			if ( ! empty( $change['changed_only'] ) ) {
+				$context[ "{$base}_new" ] = $change['new'] ?? __( '(changed)', 'simple-history' );
+
+				continue;
+			}
 
 			$context[ "{$base}_prev" ] = $change['old'];
 			$context[ "{$base}_new" ]  = $change['new'];
