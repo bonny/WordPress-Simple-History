@@ -14,7 +14,7 @@ class Simple_History_Logger extends Logger {
 	/** @var string Logger slug */
 	protected $slug = 'SimpleHistoryLogger';
 
-	/** @var array<string,array{old:mixed,new:mixed}> Accumulated settings changes, keyed by option name. */
+	/** @var array<string,array{old?:mixed,new?:mixed,changed_only?:bool}> Accumulated settings changes, keyed by option name. */
 	private $settings_changes = [];
 
 	/** @var array<string,string>|null Cached map of tracked option name => label. */
@@ -203,7 +203,12 @@ class Simple_History_Logger extends Logger {
 			return true;
 		}
 
-		return ! is_scalar( $old_value ) || ! is_scalar( $new_value );
+		// Treat null like a scalar (get_option() may yield null/false); only
+		// real structured values (arrays/objects) trigger the safety net.
+		$old_is_simple = is_scalar( $old_value ) || is_null( $old_value );
+		$new_is_simple = is_scalar( $new_value ) || is_null( $new_value );
+
+		return ! $old_is_simple || ! $new_is_simple;
 	}
 
 	/**
@@ -382,6 +387,7 @@ class Simple_History_Logger extends Logger {
 			return;
 		}
 
+		// No prior value on add; use the new value for both scalarity checks.
 		if ( $this->is_changed_only_setting( $option, $value, $value ) ) {
 			$this->settings_changes[ $option ] = [ 'changed_only' => true ];
 

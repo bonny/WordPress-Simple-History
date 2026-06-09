@@ -346,4 +346,35 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'before', $context_map['sh_test_plain_scalar_prev'] );
 		$this->assertSame( 'after', $context_map['sh_test_plain_scalar_new'] );
 	}
+
+	public function test_changed_only_deletion_logs_deleted_without_value() {
+		$tracked_cb = static function ( $tracked ) {
+			$tracked['sh_test_changed_only_delete'] = 'Test changed-only delete';
+			return $tracked;
+		};
+		$changed_cb = static function ( $changed_only ) {
+			$changed_only[] = 'sh_test_changed_only_delete';
+			return $changed_only;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+		add_filter( 'simple_history/settings/changed_only_options', $changed_cb );
+		$this->logger->get_tracked_settings( true );
+		$this->logger->get_changed_only_settings( true );
+
+		add_option( 'sh_test_changed_only_delete', 'unique_delete_marker' );
+		delete_option( 'sh_test_changed_only_delete' );
+		$this->logger->commit_settings_changes();
+
+		remove_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+		remove_filter( 'simple_history/settings/changed_only_options', $changed_cb );
+
+		$context_map = [];
+		foreach ( \Simple_History\tests\get_latest_context() as $item ) {
+			$context_map[ $item['key'] ] = $item['value'];
+		}
+
+		$this->assertSame( '(deleted)', $context_map['sh_test_changed_only_delete_new'] );
+		$this->assertArrayNotHasKey( 'sh_test_changed_only_delete_prev', $context_map );
+		$this->assertStringNotContainsString( 'unique_delete_marker', wp_json_encode( $context_map ) );
+	}
 }
