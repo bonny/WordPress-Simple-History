@@ -298,6 +298,7 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( '(changed)', $context_map['sh_test_array_option_new'] );
 		$this->assertArrayNotHasKey( 'sh_test_array_option_prev', $context_map );
 		$this->assertStringNotContainsString( 'unique_marker_bbb', wp_json_encode( $context_map ) );
+		$this->assertStringNotContainsString( 'unique_marker_aaa', wp_json_encode( $context_map ) );
 	}
 
 	public function test_changed_only_renders_sentinel_in_details() {
