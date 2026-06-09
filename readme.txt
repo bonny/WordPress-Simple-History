@@ -261,6 +261,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
+-   Large or structured settings (e.g. alert rules) are now logged as "changed" without storing their full value, keeping the log readable. Add-ons can opt keys in via the new `simple_history/settings/changed_only_options` filter.
 
 ### 5.29.0 (June 2026)
 
