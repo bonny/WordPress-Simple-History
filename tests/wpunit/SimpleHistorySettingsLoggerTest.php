@@ -33,6 +33,7 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 		// leak into the next via the shared logger instance.
 		$this->logger->get_tracked_settings( true );
 		$this->logger->get_redacted_settings( true );
+		$this->logger->get_changed_only_settings( true );
 
 		parent::tearDown();
 	}
@@ -242,5 +243,107 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertSame( 'value-before-delete', $context_map['sh_test_deletable_option_prev'] );
 		$this->assertSame( '(deleted)', $context_map['sh_test_deletable_option_new'] );
+	}
+
+	public function test_changed_only_filter_logs_sentinel_without_value() {
+		$tracked_cb = static function ( $tracked ) {
+			$tracked['sh_test_changed_only_scalar'] = 'Test changed-only scalar';
+			return $tracked;
+		};
+		$changed_cb = static function ( $changed_only ) {
+			$changed_only[] = 'sh_test_changed_only_scalar';
+			return $changed_only;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+		add_filter( 'simple_history/settings/changed_only_options', $changed_cb );
+		$this->logger->get_tracked_settings( true );
+		$this->logger->get_changed_only_settings( true );
+
+		add_option( 'sh_test_changed_only_scalar', 'old-value' );
+		update_option( 'sh_test_changed_only_scalar', 'new-secret-detail' );
+		$this->logger->commit_settings_changes();
+
+		remove_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+		remove_filter( 'simple_history/settings/changed_only_options', $changed_cb );
+
+		$context_map = [];
+		foreach ( \Simple_History\tests\get_latest_context() as $item ) {
+			$context_map[ $item['key'] ] = $item['value'];
+		}
+
+		$this->assertSame( '(changed)', $context_map['sh_test_changed_only_scalar_new'] );
+		$this->assertArrayNotHasKey( 'sh_test_changed_only_scalar_prev', $context_map );
+		$this->assertStringNotContainsString( 'new-secret-detail', wp_json_encode( $context_map ) );
+	}
+
+	public function test_non_scalar_value_logs_as_changed_only_safety_net() {
+		$tracked_cb = static function ( $tracked ) {
+			$tracked['sh_test_array_option'] = 'Test array option';
+			return $tracked;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+		$this->logger->get_tracked_settings( true );
+
+		add_option( 'sh_test_array_option', [ 'unique_marker_aaa' => 1 ] );
+		update_option( 'sh_test_array_option', [ 'unique_marker_bbb' => 2 ] );
+		$this->logger->commit_settings_changes();
+
+		remove_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+
+		$context_map = [];
+		foreach ( \Simple_History\tests\get_latest_context() as $item ) {
+			$context_map[ $item['key'] ] = $item['value'];
+		}
+
+		$this->assertSame( '(changed)', $context_map['sh_test_array_option_new'] );
+		$this->assertArrayNotHasKey( 'sh_test_array_option_prev', $context_map );
+		$this->assertStringNotContainsString( 'unique_marker_bbb', wp_json_encode( $context_map ) );
+	}
+
+	public function test_changed_only_renders_sentinel_in_details() {
+		$tracked_cb = static function ( $tracked ) {
+			$tracked['sh_test_changed_only_render'] = 'Test changed-only render';
+			return $tracked;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+		$this->logger->get_tracked_settings( true );
+
+		$row = (object) [
+			'context_message_key' => 'modified_settings',
+			'context'             => [
+				'sh_test_changed_only_render_new' => '(changed)',
+			],
+		];
+
+		$output = $this->logger->get_log_row_details_output( $row );
+		$html   = (string) ( new \Simple_History\Event_Details\Event_Details_Container( $output, $row->context ) );
+
+		remove_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+
+		$this->assertStringContainsString( 'Test changed-only render', $html );
+		$this->assertStringContainsString( '(changed)', $html );
+	}
+
+	public function test_scalar_setting_still_logs_before_and_after() {
+		$tracked_cb = static function ( $tracked ) {
+			$tracked['sh_test_plain_scalar'] = 'Test plain scalar';
+			return $tracked;
+		};
+		add_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+		$this->logger->get_tracked_settings( true );
+
+		add_option( 'sh_test_plain_scalar', 'before' );
+		update_option( 'sh_test_plain_scalar', 'after' );
+		$this->logger->commit_settings_changes();
+
+		remove_filter( 'simple_history/settings/tracked_options', $tracked_cb );
+
+		$context_map = [];
+		foreach ( \Simple_History\tests\get_latest_context() as $item ) {
+			$context_map[ $item['key'] ] = $item['value'];
+		}
+
+		$this->assertSame( 'before', $context_map['sh_test_plain_scalar_prev'] );
+		$this->assertSame( 'after', $context_map['sh_test_plain_scalar_new'] );
 	}
 }
