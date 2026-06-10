@@ -5,7 +5,9 @@ namespace Simple_History\Loggers;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
+use Simple_History\Simple_History;
 use Simple_History\Services\Channels_Settings_Page;
+use Simple_History\Services\Licences_Settings_Page;
 
 /**
  * Logs changes made on the Simple History settings page.
@@ -14,17 +16,11 @@ class Simple_History_Logger extends Logger {
 	/** @var string Logger slug */
 	protected $slug = 'SimpleHistoryLogger';
 
-	/** @var array<string,array{old?:mixed,new?:mixed,changed_only?:bool}> Accumulated settings changes, keyed by option name. */
+	/** @var int Max string length of a stored setting value; longer values are logged as changed-only. */
+	private const MAX_STORED_VALUE_LENGTH = 500;
+
+	/** @var array<string,array{old?:mixed,new?:mixed,changed_only?:bool,deleted?:bool}> Accumulated settings changes, keyed by option name. Values are raw; redaction happens at commit. */
 	private $settings_changes = [];
-
-	/** @var array<string,string>|null Cached map of tracked option name => label. */
-	private $tracked_settings = null;
-
-	/** @var array<int,string>|null Cached list of redacted option names. */
-	private $redacted_settings = null;
-
-	/** @var array<int,string>|null Cached list of changed-only option names. */
-	private $changed_only_settings = null;
 
 	/** @var array<string,mixed> Snapshot of tracked option values captured before deletion. */
 	private $deleted_option_values = [];
@@ -105,23 +101,26 @@ class Simple_History_Logger extends Logger {
 	 * Add-ons contribute their own keys via the
 	 * `simple_history/settings/tracked_options` filter.
 	 *
-	 * @param bool $force_rebuild Rebuild the cached map (used in tests).
+	 * The result is intentionally not cached: the watcher runs for every
+	 * option write on the site, and caching would silently lock out add-ons
+	 * that register their filter after the first option write of the request.
+	 *
 	 * @return array<string,string>
 	 */
-	public function get_tracked_settings( $force_rebuild = false ) {
-		if ( $this->tracked_settings !== null && ! $force_rebuild ) {
-			return $this->tracked_settings;
-		}
-
+	public function get_tracked_settings() {
 		$core_settings = [
-			'simple_history_show_on_dashboard'      => __( 'Show on dashboard', 'simple-history' ),
-			'simple_history_show_as_page'           => __( 'Show as a page', 'simple-history' ),
-			'simple_history_pager_size'             => __( 'Items on page', 'simple-history' ),
-			'simple_history_pager_size_dashboard'   => __( 'Items on dashboard', 'simple-history' ),
-			'simple_history_enable_rss_feed'        => __( 'RSS feed enabled', 'simple-history' ),
-			'simple_history_detective_mode_enabled' => __( 'Detective Mode enabled', 'simple-history' ),
-			'simple_history_menu_page_location'     => __( 'Menu page location', 'simple-history' ),
-			'simple_history_show_in_admin_bar'      => __( 'Show in admin bar', 'simple-history' ),
+			'simple_history_show_on_dashboard'             => __( 'Show on dashboard', 'simple-history' ),
+			'simple_history_show_as_page'                  => __( 'Show as a page', 'simple-history' ),
+			'simple_history_pager_size'                    => __( 'Items on page', 'simple-history' ),
+			'simple_history_pager_size_dashboard'          => __( 'Items on dashboard', 'simple-history' ),
+			'simple_history_enable_rss_feed'               => __( 'RSS feed enabled', 'simple-history' ),
+			'simple_history_detective_mode_enabled'        => __( 'Detective Mode enabled', 'simple-history' ),
+			'simple_history_menu_page_location'            => __( 'Menu page location', 'simple-history' ),
+			'simple_history_show_in_admin_bar'             => __( 'Show in admin bar', 'simple-history' ),
+			'simple_history_experimental_features_enabled' => __( 'Experimental features enabled', 'simple-history' ),
+			'simple_history_email_report_enabled'          => __( 'Email report enabled', 'simple-history' ),
+			'simple_history_email_report_recipients'       => __( 'Email report recipients', 'simple-history' ),
+			Licences_Settings_Page::OPTION_NAME_LICENSE_KEY => __( 'License key', 'simple-history' ),
 		];
 
 		/**
@@ -132,46 +131,59 @@ class Simple_History_Logger extends Logger {
 		 *
 		 * @param array<string,string> $settings Map of option name => human label.
 		 */
-		$this->tracked_settings = apply_filters( 'simple_history/settings/tracked_options', $core_settings );
+		return apply_filters( 'simple_history/settings/tracked_options', $core_settings );
+	}
 
-		return $this->tracked_settings;
+	/**
+	 * Whether changes to an option should be logged.
+	 *
+	 * True for options in the tracked-settings map, and for any option
+	 * registered to the Simple History general settings group. The latter
+	 * keeps settings from add-ons that register settings the normal way,
+	 * but have not (yet) adopted the tracked-options filter, logged like
+	 * they were by earlier versions of this logger.
+	 *
+	 * @param string $option Option name.
+	 * @return bool
+	 */
+	private function is_tracked_option( $option ) {
+		if ( array_key_exists( $option, $this->get_tracked_settings() ) ) {
+			return true;
+		}
+
+		$registered_settings = get_registered_settings();
+		$option_group        = $registered_settings[ $option ]['group'] ?? '';
+
+		return $option_group === Simple_History::SETTINGS_GENERAL_OPTION_GROUP;
 	}
 
 	/**
 	 * Get the list of tracked option names whose values must not be stored
-	 * in the log (e.g. secrets/API keys). Their change is logged, but the
-	 * value is replaced with a placeholder.
+	 * in the log (e.g. secrets/API keys). Their change is logged as
+	 * "(changed)" without storing any value.
 	 *
-	 * @param bool $force_rebuild Rebuild the cached list (used in tests).
 	 * @return array<int,string>
 	 */
-	public function get_redacted_settings( $force_rebuild = false ) {
-		if ( $this->redacted_settings !== null && ! $force_rebuild ) {
-			return $this->redacted_settings;
-		}
+	public function get_redacted_settings() {
+		$core_redacted = [
+			Licences_Settings_Page::OPTION_NAME_LICENSE_KEY,
+		];
 
 		/**
-		 * Filter the list of tracked option names whose values are redacted in the log.
+		 * Filter the list of tracked option names whose values are never stored in the log.
 		 *
 		 * @param array<int,string> $option_names List of option names to redact.
 		 */
-		$this->redacted_settings = apply_filters( 'simple_history/settings/redacted_options', [] );
-
-		return $this->redacted_settings;
+		return apply_filters( 'simple_history/settings/redacted_options', $core_redacted );
 	}
 
 	/**
 	 * Get the list of tracked option names that are logged as "changed" without
 	 * storing their before/after value (for large or structured settings).
 	 *
-	 * @param bool $force_rebuild Rebuild the cached list (used in tests).
 	 * @return array<int,string>
 	 */
-	public function get_changed_only_settings( $force_rebuild = false ) {
-		if ( $this->changed_only_settings !== null && ! $force_rebuild ) {
-			return $this->changed_only_settings;
-		}
-
+	public function get_changed_only_settings() {
 		/**
 		 * Filter the list of tracked option names logged as "changed" without
 		 * storing their before/after value.
@@ -181,9 +193,7 @@ class Simple_History_Logger extends Logger {
 		 *
 		 * @param array<int,string> $option_names List of option names.
 		 */
-		$this->changed_only_settings = apply_filters( 'simple_history/settings/changed_only_options', [] );
-
-		return $this->changed_only_settings;
+		return apply_filters( 'simple_history/settings/changed_only_options', [] );
 	}
 
 	/**
@@ -208,7 +218,16 @@ class Simple_History_Logger extends Logger {
 		$old_is_simple = is_scalar( $old_value ) || is_null( $old_value );
 		$new_is_simple = is_scalar( $new_value ) || is_null( $new_value );
 
-		return ! $old_is_simple || ! $new_is_simple;
+		if ( ! $old_is_simple || ! $new_is_simple ) {
+			return true;
+		}
+
+		// Very long values would bloat the log; log them as changed-only too.
+		if ( is_string( $old_value ) && strlen( $old_value ) > self::MAX_STORED_VALUE_LENGTH ) {
+			return true;
+		}
+
+		return is_string( $new_value ) && strlen( $new_value ) > self::MAX_STORED_VALUE_LENGTH;
 	}
 
 	/**
@@ -359,7 +378,7 @@ class Simple_History_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_tracked_option_updated( $option, $old_value, $new_value ) {
-		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+		if ( ! $this->is_tracked_option( $option ) ) {
 			return;
 		}
 
@@ -370,9 +389,34 @@ class Simple_History_Logger extends Logger {
 		}
 
 		$this->settings_changes[ $option ] = [
-			'old' => $this->prepare_setting_value( $option, $old_value ),
-			'new' => $this->prepare_setting_value( $option, $new_value ),
+			'old' => $this->get_first_seen_old_value( $option, $old_value ),
+			'new' => $new_value,
 		];
+	}
+
+	/**
+	 * Get the old value to buffer for an option change.
+	 *
+	 * When an option changes multiple times during the same request, keep the
+	 * first-seen old value so the logged event shows the value the option had
+	 * before the request, not an intermediate one.
+	 *
+	 * Returns the raw value: redaction happens at commit, since comparing
+	 * redacted values would make every change to a redacted option look like
+	 * a no-op.
+	 *
+	 * @param string $option    Option name.
+	 * @param mixed  $old_value Old value reported by the current hook call.
+	 * @return mixed
+	 */
+	private function get_first_seen_old_value( $option, $old_value ) {
+		$buffered_change = $this->settings_changes[ $option ] ?? null;
+
+		if ( $buffered_change !== null && array_key_exists( 'old', $buffered_change ) ) {
+			return $buffered_change['old'];
+		}
+
+		return $old_value;
 	}
 
 	/**
@@ -383,7 +427,7 @@ class Simple_History_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_tracked_option_added( $option, $value ) {
-		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+		if ( ! $this->is_tracked_option( $option ) ) {
 			return;
 		}
 
@@ -394,9 +438,12 @@ class Simple_History_Logger extends Logger {
 			return;
 		}
 
+		// Keep the buffered old value if the option was deleted (or otherwise
+		// changed) earlier in the same request, so delete + re-add logs the
+		// true previous value instead of an empty one.
 		$this->settings_changes[ $option ] = [
-			'old' => '',
-			'new' => $this->prepare_setting_value( $option, $value ),
+			'old' => $this->get_first_seen_old_value( $option, '' ),
+			'new' => $value,
 		];
 	}
 
@@ -409,7 +456,7 @@ class Simple_History_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_tracked_option_pre_delete( $option ) {
-		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+		if ( ! $this->is_tracked_option( $option ) ) {
 			return;
 		}
 
@@ -423,7 +470,7 @@ class Simple_History_Logger extends Logger {
 	 * @return void
 	 */
 	public function on_tracked_option_deleted( $option ) {
-		if ( ! array_key_exists( $option, $this->get_tracked_settings() ) ) {
+		if ( ! $this->is_tracked_option( $option ) ) {
 			return;
 		}
 
@@ -431,42 +478,17 @@ class Simple_History_Logger extends Logger {
 			? $this->deleted_option_values[ $option ]
 			: '';
 
+		$change = [ 'deleted' => true ];
+
 		if ( $this->is_changed_only_setting( $option, $old_value, $old_value ) ) {
-			$this->settings_changes[ $option ] = [
-				'changed_only' => true,
-				'new'          => __( '(deleted)', 'simple-history' ),
-			];
+			$change['changed_only'] = true;
 		} else {
-			$this->settings_changes[ $option ] = [
-				'old' => $this->prepare_setting_value( $option, $old_value ),
-				'new' => __( '(deleted)', 'simple-history' ),
-			];
+			$change['old'] = $this->get_first_seen_old_value( $option, $old_value );
 		}
+
+		$this->settings_changes[ $option ] = $change;
 
 		unset( $this->deleted_option_values[ $option ] );
-	}
-
-	/**
-	 * Prepare an option value for storage in the log.
-	 *
-	 * Redacts sensitive options and stringifies non-scalar values.
-	 *
-	 * @param string $option Option name.
-	 * @param mixed  $value  Raw value.
-	 * @return mixed
-	 */
-	private function prepare_setting_value( $option, $value ) {
-		if ( in_array( $option, $this->get_redacted_settings(), true ) ) {
-			return __( '(value hidden)', 'simple-history' );
-		}
-
-		if ( is_scalar( $value ) || $value === null ) {
-			return $value;
-		}
-
-		$encoded = wp_json_encode( $value );
-
-		return $encoded ? $encoded : __( '(non-serializable value)', 'simple-history' );
 	}
 
 	/**
@@ -482,13 +504,35 @@ class Simple_History_Logger extends Logger {
 			return;
 		}
 
-		$context = [];
+		$context           = [];
+		$redacted_settings = $this->get_redacted_settings();
 
 		foreach ( $this->settings_changes as $option => $change ) {
 			$base = $this->get_setting_context_base( $option );
 
-			if ( ! empty( $change['changed_only'] ) ) {
-				$context[ "{$base}_new" ] = $change['new'] ?? __( '(changed)', 'simple-history' );
+			// Changed-only entries carry no values at all; redacted entries
+			// carry raw values in the buffer but never store them in the log.
+			$is_changed_only = ! empty( $change['changed_only'] );
+			$stores_value    = ! $is_changed_only && ! in_array( $option, $redacted_settings, true );
+
+			if ( ! empty( $change['deleted'] ) ) {
+				if ( $stores_value ) {
+					$context[ "{$base}_prev" ] = $change['old'];
+				}
+
+				$context[ "{$base}_new" ] = __( '(deleted)', 'simple-history' );
+
+				continue;
+			}
+
+			// Skip changes that ended up back at the original value,
+			// e.g. an option that was changed and reverted in the same request.
+			if ( ! $is_changed_only && (string) $change['old'] === (string) $change['new'] ) {
+				continue;
+			}
+
+			if ( ! $stores_value ) {
+				$context[ "{$base}_new" ] = __( '(changed)', 'simple-history' );
 
 				continue;
 			}
@@ -497,9 +541,13 @@ class Simple_History_Logger extends Logger {
 			$context[ "{$base}_new" ]  = $change['new'];
 		}
 
-		$this->info_message( 'modified_settings', $context );
-
 		$this->settings_changes = [];
+
+		if ( count( $context ) === 0 ) {
+			return;
+		}
+
+		$this->info_message( 'modified_settings', $context );
 	}
 
 	/**
@@ -530,7 +578,7 @@ class Simple_History_Logger extends Logger {
 	 * Get the log row details for this logger.
 	 *
 	 * @param object $row Log row.
-	 * @return Event_Details_Group|string
+	 * @return Event_Details_Group
 	 */
 	public function get_log_row_details_output( $row ) {
 		$message_key = $row->context_message_key;
@@ -574,9 +622,12 @@ class Simple_History_Logger extends Logger {
 		}
 
 		// The generic settings renderer below only applies to settings changes.
-		// Other message keys (e.g. cleared_log, backfill) have no changed-items detail.
+		// Other message keys (e.g. cleared_log, backfill) have no changed-items
+		// detail; return an empty group (not a string) so the
+		// `simple_history/log_row_details_output-SimpleHistoryLogger` filter
+		// keeps running for those rows like it did in earlier versions.
 		if ( $message_key !== 'modified_settings' ) {
-			return '';
+			return new Event_Details_Group();
 		}
 
 		$context = isset( $row->context ) && is_array( $row->context ) ? $row->context : [];
@@ -587,27 +638,27 @@ class Simple_History_Logger extends Logger {
 			$labels[ $this->get_setting_context_base( $option ) ] = $label;
 		}
 
-		$group       = new Event_Details_Group();
-		$items       = [];
-		$bases_added = [];
+		$group = new Event_Details_Group();
+		$items = [];
 
+		// Every change writes a `{base}_new` context key, so scanning the
+		// `_new` suffix alone finds each changed setting exactly once.
 		foreach ( array_keys( $context ) as $key ) {
-			if ( substr( $key, -4 ) === '_new' ) {
-				$base = substr( $key, 0, -4 );
-			} elseif ( substr( $key, -5 ) === '_prev' ) {
-				$base = substr( $key, 0, -5 );
-			} else {
+			if ( ! str_ends_with( $key, '_new' ) ) {
 				continue;
 			}
 
-			if ( isset( $bases_added[ $base ] ) ) {
+			$base = substr( $key, 0, -4 );
+
+			// Only render known settings. Events stored by earlier versions can
+			// contain unrelated keys captured during the same save request, and
+			// add-ons that have not adopted the tracked-options filter render
+			// their own items via the details-output filter.
+			if ( ! isset( $labels[ $base ] ) ) {
 				continue;
 			}
 
-			$bases_added[ $base ] = true;
-
-			$label   = $labels[ $base ] ?? $base;
-			$items[] = new Event_Details_Item( [ $base ], $label );
+			$items[] = new Event_Details_Item( [ $base ], $labels[ $base ] );
 		}
 
 		$group->add_items( $items );

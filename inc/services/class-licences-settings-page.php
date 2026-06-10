@@ -17,11 +17,11 @@ class Licences_Settings_Page extends Service {
 	/** @var AddOns_Licences $licences_service */
 	private $licences_service;
 
-	private const SETTINGS_SECTION_ID     = 'simple_history_settings_section_tab_licenses';
-	private const SETTINGS_PAGE_SLUG      = 'simple_history_settings_menu_slug_tab_licenses';
-	private const SETTINGS_OPTION_GROUP   = 'simple_history_settings_group_tab_licenses';
-	private const OPTION_NAME_LICENSE_KEY = 'shp_license_key';
-	private const OPTION_LICENSE_MESSAGE  = 'example_plugin_license_message';
+	private const SETTINGS_SECTION_ID    = 'simple_history_settings_section_tab_licenses';
+	private const SETTINGS_PAGE_SLUG     = 'simple_history_settings_menu_slug_tab_licenses';
+	private const SETTINGS_OPTION_GROUP  = 'simple_history_settings_group_tab_licenses';
+	public const OPTION_NAME_LICENSE_KEY = 'shp_license_key';
+	private const OPTION_LICENSE_MESSAGE = 'example_plugin_license_message';
 
 	/** @inheritdoc */
 	public function loaded() {
