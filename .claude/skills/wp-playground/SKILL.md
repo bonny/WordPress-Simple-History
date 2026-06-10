@@ -92,7 +92,7 @@ Each gets its own browser tab: `http://localhost:9400`, `http://localhost:9401`,
 
 ## Deprecated: wp-now
 
-`@wp-now/wp-now` is deprecated. Use `@wp-playground/cli` with `--auto-mount` instead — it provides the same auto-detection behavior.
+`@wp-now/wp-now` is [deprecated](https://make.wordpress.org/playground/2026/06/08/wp-now-is-deprecated-migrate-to-playground-cli/). Use `@wp-playground/cli` with `--auto-mount` instead — it provides the same auto-detection behavior.
 
 ## See Also
 
