@@ -163,19 +163,24 @@ helper_stop() {
 }
 
 # For slugs following the issue-<id>-<name> convention, resolve the local
-# Obsidian issue file and build an obsidian:// deep link for the dev toolbar.
-# Echoes an empty string when the slug has no id, SH_NOTES_DIR is unset, or
-# no issue file matches.
-issue_url_for() {
-	local slug="$1" vault="${SH_OBSIDIAN_VAULT:-nvALT}"
+# Obsidian issue file. Echoes an empty string when the slug has no id,
+# SH_NOTES_DIR is unset, or no issue file matches.
+issue_file_for() {
+	local slug="$1"
 
 	[[ "$slug" =~ ^issue-([0-9]+)- ]] || return 0
-	local id="${BASH_REMATCH[1]}"
 
 	[ -n "${SH_NOTES_DIR:-}" ] || return 0
 
+	ls "$SH_NOTES_DIR/Simple History/issues/${BASH_REMATCH[1]} - "*.md 2>/dev/null | head -1
+}
+
+# obsidian:// deep link to the issue document, for the dev toolbar.
+issue_url_for() {
+	local slug="$1" vault="${SH_OBSIDIAN_VAULT:-nvALT}"
+
 	local file
-	file="$(ls "$SH_NOTES_DIR/Simple History/issues/$id - "*.md 2>/dev/null | head -1)"
+	file="$(issue_file_for "$slug")"
 
 	[ -n "$file" ] || return 0
 
@@ -187,6 +192,35 @@ issue_url_for() {
 	encoded="$(jq -rn --arg v "$rel" '$v | @uri')"
 
 	echo "obsidian://open?vault=$vault&file=$encoded"
+}
+
+# Record (or clear) which worktree serves an issue in the issue's
+# frontmatter, so issue overviews can link straight to the instance.
+# Best-effort: silently skipped when the obsidian CLI is unavailable.
+issue_set_worktree() {
+	local slug="$1" vault="${SH_OBSIDIAN_VAULT:-nvALT}"
+
+	command -v obsidian >/dev/null 2>&1 || return 0
+
+	local file
+	file="$(issue_file_for "$slug")"
+
+	[ -n "$file" ] || return 0
+
+	obsidian property:set vault="$vault" name=worktree value="$slug" path="${file#"$SH_NOTES_DIR"/}" >/dev/null 2>&1 || true
+}
+
+issue_clear_worktree() {
+	local slug="$1" vault="${SH_OBSIDIAN_VAULT:-nvALT}"
+
+	command -v obsidian >/dev/null 2>&1 || return 0
+
+	local file
+	file="$(issue_file_for "$slug")"
+
+	[ -n "$file" ] || return 0
+
+	obsidian property:remove vault="$vault" name=worktree path="${file#"$SH_NOTES_DIR"/}" >/dev/null 2>&1 || true
 }
 
 # Valet (or any dnsmasq setup) resolving *.test to 127.0.0.1 lets each
@@ -325,6 +359,9 @@ cmd_up() {
 
 	local issue_url
 	issue_url="$(issue_url_for "$slug")"
+
+	# Link the issue to this worktree in its frontmatter (overview shows it).
+	issue_set_worktree "$slug"
 
 	local extra_consts
 	extra_consts="$(jq -n \
@@ -537,6 +574,7 @@ cmd_down() {
 		# No --force: after the dirty check and state-file cleanup a clean
 		# worktree removes fine, and git's own safety stays as a backstop.
 		git -C "$MAIN_REPO" worktree remove "$dir"
+		issue_clear_worktree "$slug"
 		echo "Removed. Branch worktree-$slug still exists (delete with: git branch -D worktree-$slug)"
 	else
 		echo "Stopped. Worktree kept at $dir"
