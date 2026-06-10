@@ -19,6 +19,17 @@ function sh_dev_toolbar_available() {
 	return current_user_can( 'manage_options' );
 }
 
+// esc_url() (used by the admin bar on every href) strips protocols it
+// doesn't know; allow obsidian:// for the issue deep link.
+add_filter(
+	'kses_allowed_protocols',
+	function ( $protocols ) {
+		$protocols[] = 'obsidian';
+
+		return $protocols;
+	}
+);
+
 add_action(
 	'admin_bar_menu',
 	function ( $wp_admin_bar ) {
@@ -38,6 +49,19 @@ add_action(
 				'href'  => false,
 			]
 		);
+
+		// Issue deep link first — a plain obsidian:// href the OS hands to
+		// Obsidian directly; the click handler below leaves it alone.
+		if ( defined( 'SH_DEV_ISSUE_URL' ) ) {
+			$wp_admin_bar->add_node(
+				[
+					'id'     => 'sh-dev-worktree-issue',
+					'parent' => 'sh-dev-worktree',
+					'title'  => 'Open issue document',
+					'href'   => SH_DEV_ISSUE_URL,
+				]
+			);
+		}
 
 		$apps = [
 			'vscode' => 'Open in VS Code',

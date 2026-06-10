@@ -162,6 +162,33 @@ helper_stop() {
 	fi
 }
 
+# For slugs following the issue-<id>-<name> convention, resolve the local
+# Obsidian issue file and build an obsidian:// deep link for the dev toolbar.
+# Echoes an empty string when the slug has no id, SH_NOTES_DIR is unset, or
+# no issue file matches.
+issue_url_for() {
+	local slug="$1" vault="${SH_OBSIDIAN_VAULT:-nvALT}"
+
+	[[ "$slug" =~ ^issue-([0-9]+)- ]] || return 0
+	local id="${BASH_REMATCH[1]}"
+
+	[ -n "${SH_NOTES_DIR:-}" ] || return 0
+
+	local file
+	file="$(ls "$SH_NOTES_DIR/Simple History/issues/$id - "*.md 2>/dev/null | head -1)"
+
+	[ -n "$file" ] || return 0
+
+	# Vault-relative path, without the .md extension.
+	local rel="${file#"$SH_NOTES_DIR"/}"
+	rel="${rel%.md}"
+
+	local encoded
+	encoded="$(jq -rn --arg v "$rel" '$v | @uri')"
+
+	echo "obsidian://open?vault=$vault&file=$encoded"
+}
+
 # Valet (or any dnsmasq setup) resolving *.test to 127.0.0.1 lets each
 # instance get a readable URL like http://issue-15-whats-new.test:9400.
 test_domains_available() {
@@ -296,16 +323,21 @@ cmd_up() {
 	local named=false
 	test_domains_available && named=true
 
+	local issue_url
+	issue_url="$(issue_url_for "$slug")"
+
 	local extra_consts
 	extra_consts="$(jq -n \
 		--arg url "$site_url" \
 		--arg path "$dir" \
 		--argjson hport "$HELPER_PORT" \
 		--arg token "$(helper_token)" \
+		--arg issue "$issue_url" \
 		--argjson named "$named" \
 		'{WP_DEBUG: true, WP_DEBUG_LOG: true, WP_DEBUG_DISPLAY: false,
 		  SH_DEV_WORKTREE_PATH: $path, SH_DEV_HELPER_PORT: $hport, SH_DEV_HELPER_TOKEN: $token}
-		 + (if $named then {WP_HOME: $url, WP_SITEURL: $url} else {} end)')"
+		 + (if $named then {WP_HOME: $url, WP_SITEURL: $url} else {} end)
+		 + (if $issue != "" then {SH_DEV_ISSUE_URL: $issue} else {} end)')"
 
 	jq --argjson consts "$extra_consts" \
 		'.steps += [{"step": "defineWpConfigConsts", "consts": $consts}]' \
