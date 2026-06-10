@@ -86,3 +86,6 @@ docs/utm-tracking-guide.md
 .wp-env.override.json
 .wp-env/
 /xdebug-profiles/
+
+# Playwright MCP browser artifacts
+.playwright-mcp/
