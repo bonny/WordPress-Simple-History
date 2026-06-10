@@ -90,7 +90,8 @@ docs/utm-tracking-guide.md
 # Playwright MCP browser artifacts
 .playwright-mcp/
 
-# Per-worktree Playground state (scripts/parallel-dev.sh)
-.playground.json
-.playground.log
-.playground-blueprint.json
+# Per-worktree Playground state (scripts/parallel-dev.sh) — anchored to the
+# repo root so same-named files elsewhere are never silently ignored.
+/.playground.json
+/.playground.log
+/.playground-blueprint.json

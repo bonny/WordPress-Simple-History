@@ -22,8 +22,9 @@ For thorough testing that needs MySQL or WP-CLI, use the Docker Compose setup in
 **Before starting**, ensure build assets exist — Playground mounts the directory as-is:
 
 ```bash
-# Install dependencies if node_modules is missing (common in worktrees)
-[ -d node_modules ] || npm install
+# Install dependencies if node_modules is missing (common in worktrees).
+# npm ci, not npm install — install can rewrite package-lock.json.
+[ -d node_modules ] || npm ci
 
 # Build JS/CSS assets (required — Playground has no build step)
 npm run build

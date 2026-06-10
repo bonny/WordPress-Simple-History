@@ -37,10 +37,10 @@ scripts/parallel-dev.sh down issue-42-some-feature --remove
 scripts/parallel-dev.sh logs issue-42-some-feature
 ```
 
-Per-instance state lives inside the worktree as `.playground.json` / `.playground.log` / `.playground-blueprint.json` (all gitignored). Run Playwright against an instance from inside its worktree:
+Per-instance state lives inside the worktree as `.playground.json` / `.playground.log` / `.playground-blueprint.json` (all gitignored). Run Playwright against an instance from inside its worktree — read the URL from the state file, since the instance's canonical URL may be the named `.test` one and `localhost` would get canonical-redirected cross-origin:
 
 ```bash
-PLAYWRIGHT_BASE_URL=http://localhost:<port> WP_ADMIN_USER=admin WP_ADMIN_PASSWORD=password \
+PLAYWRIGHT_BASE_URL=$(jq -r .url .playground.json) WP_ADMIN_USER=admin WP_ADMIN_PASSWORD=password \
   npx playwright test tests/playwright/<spec>.spec.js
 ```
 
@@ -69,7 +69,9 @@ This creates a worktree at `.claude/worktrees/<name>` on branch `worktree-<name>
 ### Step 2: Install dependencies
 
 ```bash
-npm install
+# npm ci, not npm install — install can rewrite package-lock.json and
+# leave the worktree permanently dirty.
+npm ci
 ```
 
 ### Step 3: Build assets

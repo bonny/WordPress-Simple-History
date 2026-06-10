@@ -3,12 +3,17 @@
  * Tiny localhost helper for parallel-dev: lets the WP admin bar inside
  * Playground instances open the current worktree in local macOS apps.
  *
- *   GET /open?app=fork|vscode|iterm|finder&path=/absolute/path
+ *   GET /open?app=fork|vscode|iterm|finder&path=/absolute/path&token=<secret>
  *   GET /ping
  *
- * Started by scripts/parallel-dev.sh (helper start). Binds 127.0.0.1 only.
- * Allowed roots are passed as CLI arguments; any path outside them is
- * rejected, and apps are limited to the whitelist below.
+ * Started by scripts/parallel-dev.sh (helper start) as:
+ *   node parallel-dev-helper.js <port> <token> <root> [<root>...]
+ *
+ * Binds 127.0.0.1 only. Requests must carry the shared token (baked into
+ * each instance via the SH_DEV_HELPER_TOKEN constant) so arbitrary web
+ * pages can't trigger /open. Paths outside the allowed roots and apps
+ * outside the whitelist are rejected; all rejections share one status so
+ * responses don't leak filesystem layout.
  */
 
 const http = require( 'http' );
@@ -16,10 +21,19 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const { execFile } = require( 'child_process' );
 
-const PORT = 9399;
+const [ portArg, TOKEN, ...rootArgs ] = process.argv.slice( 2 );
 
-const ROOTS = process.argv
-	.slice( 2 )
+const PORT = parseInt( portArg, 10 );
+
+if ( ! PORT || ! TOKEN || rootArgs.length === 0 ) {
+	// eslint-disable-next-line no-console
+	console.error(
+		'Usage: parallel-dev-helper.js <port> <token> <root> [<root>...] — start via scripts/parallel-dev.sh helper start'
+	);
+	process.exit( 1 );
+}
+
+const ROOTS = rootArgs
 	.map( ( p ) => {
 		try {
 			return fs.realpathSync( p );
@@ -36,6 +50,11 @@ const APPS = {
 	finder: ( p ) => [ p ],
 };
 
+const deny = ( res ) => {
+	res.statusCode = 403;
+	res.end( 'denied' );
+};
+
 const server = http.createServer( ( req, res ) => {
 	const url = new URL( req.url, 'http://127.0.0.1' );
 
@@ -47,17 +66,16 @@ const server = http.createServer( ( req, res ) => {
 	}
 
 	if ( url.pathname !== '/open' ) {
-		res.statusCode = 404;
-		res.end( 'not found' );
+		deny( res );
 		return;
 	}
 
+	const token = url.searchParams.get( 'token' );
 	const app = url.searchParams.get( 'app' );
 	const target = url.searchParams.get( 'path' );
 
-	if ( ! APPS[ app ] || ! target ) {
-		res.statusCode = 400;
-		res.end( 'bad request' );
+	if ( token !== TOKEN || ! Object.hasOwn( APPS, app ) || ! target ) {
+		deny( res );
 		return;
 	}
 
@@ -66,8 +84,7 @@ const server = http.createServer( ( req, res ) => {
 	try {
 		real = fs.realpathSync( target );
 	} catch ( e ) {
-		res.statusCode = 404;
-		res.end( 'no such path' );
+		deny( res );
 		return;
 	}
 
@@ -76,12 +93,17 @@ const server = http.createServer( ( req, res ) => {
 	);
 
 	if ( ! allowed ) {
-		res.statusCode = 403;
-		res.end( 'path not allowed' );
+		deny( res );
 		return;
 	}
 
-	execFile( 'open', APPS[ app ]( real ), () => {} );
+	execFile( 'open', APPS[ app ]( real ), ( err ) => {
+		if ( err ) {
+			// eslint-disable-next-line no-console
+			console.error( `open failed for app=${ app }: ${ err.message }` );
+		}
+	} );
+
 	res.end( 'ok' );
 } );
 

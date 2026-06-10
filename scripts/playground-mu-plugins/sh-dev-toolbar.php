@@ -29,6 +29,7 @@ add_action(
 		$worktree_path = SH_DEV_WORKTREE_PATH;
 		$slug          = basename( $worktree_path );
 		$helper_url    = 'http://127.0.0.1:' . SH_DEV_HELPER_PORT . '/open';
+		$helper_token  = defined( 'SH_DEV_HELPER_TOKEN' ) ? SH_DEV_HELPER_TOKEN : '';
 
 		$wp_admin_bar->add_node(
 			[
@@ -46,7 +47,7 @@ add_action(
 		];
 
 		foreach ( $apps as $app => $label ) {
-			$open_url = $helper_url . '?app=' . $app . '&path=' . rawurlencode( $worktree_path );
+			$open_url = $helper_url . '?app=' . $app . '&path=' . rawurlencode( $worktree_path ) . '&token=' . rawurlencode( $helper_token );
 
 			$wp_admin_bar->add_node(
 				[
@@ -90,5 +91,6 @@ function sh_dev_toolbar_print_script() {
 	<?php
 }
 
-add_action( 'admin_footer', 'sh_dev_toolbar_print_script' );
-add_action( 'wp_footer', 'sh_dev_toolbar_print_script' );
+// Fires right where the admin bar was rendered, on both front end and
+// admin — one hook instead of admin_footer + wp_footer.
+add_action( 'wp_after_admin_bar_render', 'sh_dev_toolbar_print_script' );

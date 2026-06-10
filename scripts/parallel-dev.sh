@@ -29,6 +29,7 @@ BASE_PORT=9400
 HELPER_PORT=9399
 HELPER_SCRIPT="$SCRIPT_DIR/parallel-dev-helper.js"
 HELPER_LOG=/tmp/sh-parallel-dev-helper.log
+HELPER_TOKEN_FILE="$MAIN_REPO/.claude/parallel-dev-helper-token"
 MU_PLUGINS_DIR="$SCRIPT_DIR/playground-mu-plugins"
 
 usage() {
@@ -98,14 +99,33 @@ pid_alive() {
 	[ -n "${1:-}" ] && kill -0 "$1" 2>/dev/null
 }
 
-# Git status excluding our own state files (untracked until .gitignore
-# catches up in the worktree's branch).
+# Git status excluding our own state files at the worktree root (untracked
+# until .gitignore catches up in the worktree's branch). If git itself fails
+# (corrupt worktree, pruned admin dir), emit the error so callers treat the
+# worktree as unsafe instead of clean.
 worktree_dirty_output() {
-	git -C "$1" status --porcelain 2>/dev/null | grep -vE '\.playground[.-]' || true
+	local out
+
+	if ! out="$(git -C "$1" status --porcelain 2>&1)"; then
+		echo "git-error: $out"
+		return
+	fi
+
+	echo "$out" | grep -vE '^.. \.playground(\.json|\.log|-blueprint\.json)$' || true
 }
 
 helper_running() {
 	curl -s --max-time 1 "http://127.0.0.1:$HELPER_PORT/ping" 2>/dev/null | grep -q pong
+}
+
+# Shared secret between instances and the helper, so random web pages
+# can't trigger /open. Stable across helper restarts.
+helper_token() {
+	if [ ! -f "$HELPER_TOKEN_FILE" ]; then
+		uuidgen | tr -d '-' > "$HELPER_TOKEN_FILE"
+	fi
+
+	cat "$HELPER_TOKEN_FILE"
 }
 
 helper_start() {
@@ -118,7 +138,7 @@ helper_start() {
 	[ -n "$addons_root" ] && roots+=("$addons_root")
 
 	echo "==> starting open-in-app helper on port $HELPER_PORT"
-	nohup node "$HELPER_SCRIPT" "${roots[@]}" > "$HELPER_LOG" 2>&1 &
+	nohup node "$HELPER_SCRIPT" "$HELPER_PORT" "$(helper_token)" "${roots[@]}" > "$HELPER_LOG" 2>&1 &
 
 	local waited=0
 	while [ $waited -lt 10 ]; do
@@ -132,7 +152,7 @@ helper_start() {
 
 helper_stop() {
 	local pid
-	pid="$(lsof -ti tcp:"$HELPER_PORT" 2>/dev/null || true)"
+	pid="$(lsof -ti tcp:"$HELPER_PORT" -sTCP:LISTEN 2>/dev/null || true)"
 
 	if [ -n "$pid" ]; then
 		kill $pid 2>/dev/null || true
@@ -203,15 +223,20 @@ cmd_up() {
 		fi
 	fi
 
-	# Already running? Just report it.
+	# Already running? Require BOTH a live pid and a listener on the recorded
+	# port — a recycled pid alone must not count (stale state after a crash).
 	local existing_pid existing_port
 	existing_pid="$(state_get "$dir" pid)"
 	existing_port="$(state_get "$dir" port)"
 
-	if pid_alive "$existing_pid"; then
+	if pid_alive "$existing_pid" && [ -n "$existing_port" ] \
+		&& lsof -ti tcp:"$existing_port" -sTCP:LISTEN >/dev/null 2>&1; then
 		echo "Already running: $(state_get "$dir" url) ($slug)"
 		return 0
 	fi
+
+	# Anything left in the state file at this point is stale.
+	rm -f "$dir/.playground.json"
 
 	echo "==> [$slug] installing dependencies and building assets"
 	(
@@ -219,34 +244,71 @@ cmd_up() {
 		# npm ci: exact install from the lockfile, never modifies it
 		# (npm install can rewrite package-lock.json and dirty the worktree).
 		[ -d node_modules ] || npm ci
-		npm run build
+
+		# Skip the build when no source file changed since the last one.
+		if [ ! -f build/index.asset.php ] \
+			|| [ -n "$(find src -newer build/index.asset.php -print -quit 2>/dev/null)" ]; then
+			npm run build
+		else
+			echo "Build up to date — skipping npm run build"
+		fi
 	)
+
+	# PHP tooling: phpstan/phpcs need vendor/ and the gitignored test plugin
+	# stubs, neither of which exists in a fresh worktree. Symlink them from
+	# the main checkout (both are gitignored, so the worktree stays clean).
+	[ -e "$dir/vendor" ] || ln -s "$MAIN_REPO/vendor" "$dir/vendor"
+
+	if [ -d "$MAIN_REPO/tests/plugins" ]; then
+		mkdir -p "$dir/tests/plugins"
+
+		local stub stub_name
+		for stub in "$MAIN_REPO/tests/plugins"/*/; do
+			[ -d "$stub" ] || continue
+
+			stub="${stub%/}"
+			stub_name="$(basename "$stub")"
+			[ -e "$dir/tests/plugins/$stub_name" ] || ln -s "$stub" "$dir/tests/plugins/$stub_name"
+		done
+	fi
 
 	local port site_url
 	port="$(find_free_port)"
 	site_url="$(site_url_for "$slug" "$port")"
 
 	# Generate the per-instance blueprint with the slug as site title.
+	# sed writes to a temp file first: redirecting straight onto $blueprint
+	# truncates the input when --blueprint points at the generated file itself.
 	local blueprint="$dir/.playground-blueprint.json"
-	sed "s/WORKTREE_NAME/$slug/" "${blueprint_override:-$BLUEPRINT_TEMPLATE}" > "$blueprint"
+	sed "s/WORKTREE_NAME/$slug/" "${blueprint_override:-$BLUEPRINT_TEMPLATE}" > "$blueprint.tmp" \
+		&& mv "$blueprint.tmp" "$blueprint"
 
 	if [ -n "$premium" ]; then
 		jq '.steps += [{"step": "activatePlugin", "pluginPath": "simple-history-premium/simple-history-premium.php"}]' \
 			"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
 	fi
 
-	# With a named URL, WordPress must treat it as canonical — otherwise it
-	# redirects back to 127.0.0.1 and REST calls become cross-origin.
-	if test_domains_available; then
-		jq --arg url "$site_url" \
-			'.steps += [{"step": "defineWpConfigConsts", "consts": {"WP_HOME": $url, "WP_SITEURL": $url}}]' \
-			"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
-	fi
+	# One consts step for everything the instance needs:
+	# - debug logging on (matches the premium repo's playground defaults)
+	# - WP_HOME/WP_SITEURL pinned to the named URL (avoids 127.0.0.1
+	#   redirects and Site Editor CORS) — only when .test resolution exists
+	# - dev toolbar metadata (read by the mounted mu-plugin)
+	local named=false
+	test_domains_available && named=true
 
-	# Dev toolbar: tell the instance which worktree it serves and where the
-	# open-in-app helper listens (read by the mounted mu-plugin).
-	jq --arg path "$dir" --argjson hport "$HELPER_PORT" \
-		'.steps += [{"step": "defineWpConfigConsts", "consts": {"SH_DEV_WORKTREE_PATH": $path, "SH_DEV_HELPER_PORT": $hport}}]' \
+	local extra_consts
+	extra_consts="$(jq -n \
+		--arg url "$site_url" \
+		--arg path "$dir" \
+		--argjson hport "$HELPER_PORT" \
+		--arg token "$(helper_token)" \
+		--argjson named "$named" \
+		'{WP_DEBUG: true, WP_DEBUG_LOG: true, WP_DEBUG_DISPLAY: false,
+		  SH_DEV_WORKTREE_PATH: $path, SH_DEV_HELPER_PORT: $hport, SH_DEV_HELPER_TOKEN: $token}
+		 + (if $named then {WP_HOME: $url, WP_SITEURL: $url} else {} end)')"
+
+	jq --argjson consts "$extra_consts" \
+		'.steps += [{"step": "defineWpConfigConsts", "consts": $consts}]' \
 		"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
 
 	helper_start
@@ -275,6 +337,19 @@ cmd_up() {
 	pid="$(cat "$dir/.playground.pid")"
 	rm -f "$dir/.playground.pid"
 
+	# Record state immediately — if the wait below is interrupted or times
+	# out, the running server must still be visible to `status` and `down`.
+	jq -n \
+		--arg slug "$slug" \
+		--arg branch "$branch" \
+		--argjson port "$port" \
+		--argjson pid "$pid" \
+		--arg url "$site_url" \
+		--arg premium "$premium" \
+		--arg started "$(date '+%Y-%m-%d %H:%M:%S')" \
+		'{slug: $slug, branch: $branch, port: $port, pid: $pid, url: $url, premium: $premium, started: $started}' \
+		> "$dir/.playground.json"
+
 	# Wait until the site responds (first run downloads WordPress, allow time).
 	# Any 2xx/3xx counts — the blueprint's login step answers with a redirect.
 	local waited=0 http_code="" ready=0
@@ -294,24 +369,17 @@ cmd_up() {
 		waited=$((waited + 2))
 	done
 
-	[ "$ready" = 1 ] || err "Playground did not respond within ${waited}s — see $dir/.playground.log"
-
-	jq -n \
-		--arg slug "$slug" \
-		--arg branch "$branch" \
-		--argjson port "$port" \
-		--argjson pid "$pid" \
-		--arg url "$site_url" \
-		--arg premium "$premium" \
-		--arg started "$(date '+%Y-%m-%d %H:%M:%S')" \
-		'{slug: $slug, branch: $branch, port: $port, pid: $pid, url: $url, premium: $premium, started: $started}' \
-		> "$dir/.playground.json"
+	[ "$ready" = 1 ] || err "Playground did not respond within ${waited}s — see $dir/.playground.log (instance is recorded; stop it with: scripts/parallel-dev.sh down $slug)"
 
 	echo ""
 	echo "Ready: $site_url"
 	echo "  worktree: $dir"
 	echo "  branch:   $branch"
-	[ -n "$premium" ] && echo "  premium:  $premium"
+	if [ -n "$premium" ]; then
+		echo "  premium:  $premium"
+	else
+		echo "  premium:  (not mounted)"
+	fi
 	echo "  log:      $dir/.playground.log"
 }
 
@@ -349,13 +417,13 @@ cmd_status() {
 		dir="${dir%/}"
 		slug="${dir##*/}"
 		branch="$(git -C "$dir" branch --show-current 2>/dev/null || echo '?')"
-		port="$(state_get "$dir" port)"
-		pid="$(state_get "$dir" pid)"
-		url="$(state_get "$dir" url)"
-		premium="$(state_get "$dir" premium)"
 
-		# Older state files predate the url field.
-		[ -z "$url" ] && [ -n "$port" ] && url="http://localhost:$port"
+		port="" pid="" url="" premium=""
+		if [ -f "$dir/.playground.json" ]; then
+			IFS=$'\t' read -r port pid url premium <<< "$(jq -r \
+				'[.port, .pid, .url, .premium] | map(. // "") | @tsv' \
+				"$dir/.playground.json" 2>/dev/null)" || true
+		fi
 
 		if pid_alive "$pid"; then
 			running="yes"
@@ -399,28 +467,44 @@ cmd_down() {
 	pid="$(state_get "$dir" pid)"
 	port="$(state_get "$dir" port)"
 
+	local pid_was_alive=0
+
 	if pid_alive "$pid"; then
+		pid_was_alive=1
 		echo "==> [$slug] stopping Playground (pid $pid)"
 		kill "$pid" 2>/dev/null || true
 	fi
 
-	# Belt and braces: kill whatever still listens on the recorded port.
-	if [ -n "$port" ]; then
+	# Belt and braces: kill remaining LISTENERS on the recorded port — but
+	# only when the recorded pid was ours and alive. A dead pid means stale
+	# state, and the port may have been reassigned to something else since.
+	if [ "$pid_was_alive" = 1 ] && [ -n "$port" ]; then
 		local listener
-		listener="$(lsof -ti tcp:"$port" 2>/dev/null || true)"
+		listener="$(lsof -ti tcp:"$port" -sTCP:LISTEN 2>/dev/null || true)"
 		[ -n "$listener" ] && kill $listener 2>/dev/null || true
+
+		# Wait for the port to actually free so an immediate re-up doesn't
+		# race the dying process and end up on a different port.
+		local waited=0
+		while [ $waited -lt 10 ] && lsof -ti tcp:"$port" -sTCP:LISTEN >/dev/null 2>&1; do
+			sleep 1
+			waited=$((waited + 1))
+		done
 	fi
 
 	rm -f "$dir/.playground.json"
 
 	if [ "$remove" = 1 ]; then
 		if [ -n "$(worktree_dirty_output "$dir")" ]; then
-			err "worktree has uncommitted changes — commit or discard them first: $dir"
+			err "worktree has uncommitted changes (or git failed) — resolve first: $dir"
 		fi
 
 		echo "==> [$slug] removing worktree"
 		rm -f "$dir/.playground.log" "$dir/.playground-blueprint.json"
-		git -C "$MAIN_REPO" worktree remove --force "$dir"
+
+		# No --force: after the dirty check and state-file cleanup a clean
+		# worktree removes fine, and git's own safety stays as a backstop.
+		git -C "$MAIN_REPO" worktree remove "$dir"
 		echo "Removed. Branch worktree-$slug still exists (delete with: git branch -D worktree-$slug)"
 	else
 		echo "Stopped. Worktree kept at $dir"
