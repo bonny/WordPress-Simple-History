@@ -48,7 +48,7 @@ How to cover Premium instead:
 
 -   **Config:** `playwright.config.js`
 -   **Tests:** `tests/playwright/*.spec.js`
--   **Auth:** login cached in `tests/playwright/.auth/admin.json` (gitignored) — regenerated on every run by `auth.setup.js` before tests execute. If auth breaks (wrong credentials, WordPress unreachable), delete `tests/playwright/.auth/admin.json` and re-run.
+-   **Auth:** login cached in `tests/playwright/.auth/admin.json` (gitignored). `auth.setup.js` logs in and writes this file **only when it is absent** — an existing file is reused as-is and is **never refreshed**, even after its WordPress session expires. So a stale/old cache makes every test silently redirect to `wp-login.php`, which shows up as `waitForSelector` timeouts and fields/tabs that "don't exist". **Fix: delete `tests/playwright/.auth/admin.json` and re-run** — `auth.setup` then logs in fresh. Delete it too if credentials change or the dev site was unreachable. Tip: if a brand-new spec fails on selectors that are definitely on the page, suspect stale auth first.
 -   **Target:** dev WordPress at `http://wordpress-stable-docker-mariadb.test:8282` (override with `PLAYWRIGHT_BASE_URL` env var)
 -   **Admin credentials:** `claude` / `claude` (override with `WP_ADMIN_USER` / `WP_ADMIN_PASSWORD`)
 -   **HTML report:** written to `playwright-report/` after each run — open it to debug failures
