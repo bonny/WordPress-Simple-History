@@ -59,7 +59,11 @@ class Auto_Backfill_Service extends Service {
 		}
 
 		// Clear the pending flag first to prevent re-runs.
-		delete_option( self::PENDING_OPTION );
+		// Set to 0 instead of deleting: this flag is read on every admin_init,
+		// and a missing option row costs one extra query per request on sites
+		// without a persistent object cache. Keeping the row autoloaded makes
+		// the read free.
+		update_option( self::PENDING_OPTION, 0, true );
 
 		$this->run_auto_backfill();
 	}
