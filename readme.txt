@@ -254,6 +254,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Added**
+
+-   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
+
 **Fixed**
 
 -   🧪 **Experimental** — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
