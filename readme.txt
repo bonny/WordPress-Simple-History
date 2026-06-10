@@ -257,6 +257,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
+-   Changes to more settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log).
 -   Developers: new `simple_history/settings/tracked_options` filter lets add-ons register their own option keys to be logged as "Modified settings", plus `simple_history/settings/redacted_options` to hide sensitive values.
 
 **Changed**
@@ -266,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
+-   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
 -   🧪 **Experimental** — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
 
 ### 5.29.0 (June 2026)
