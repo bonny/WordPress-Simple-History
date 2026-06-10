@@ -105,9 +105,20 @@ test.describe( 'Premium settings logging', () => {
 
 			await openLogAndWaitForHydration( page );
 
+			const settingsItem = latestLogItem( page, 'Modified settings' );
+			await expect( settingsItem ).toBeVisible();
+
+			// The change must be rendered exactly once. A premium add-on must
+			// not re-render a setting that core's generic renderer already
+			// handles (regression: the misc-settings module used to also add
+			// these items via the SimpleHistoryLogger details filter, producing
+			// duplicate rows).
 			await expect(
-				latestLogItem( page, 'Modified settings' )
-			).toBeVisible();
+				settingsItem.locator(
+					'.SimpleHistoryLogitem__keyValueTable tr',
+					{ hasText: 'Store full IP address' }
+				)
+			).toHaveCount( 1 );
 		} );
 	} );
 
