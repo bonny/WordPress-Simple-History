@@ -257,6 +257,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
+-   Developers: new `simple_history/settings/tracked_options` filter lets add-ons register their own option keys to be logged as "Modified settings", plus `simple_history/settings/redacted_options` to hide sensitive values.
+
+**Changed**
+
+-   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
+-   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable. Add-ons can opt option keys in via the new `simple_history/settings/changed_only_options` filter.
 
 **Fixed**
 
