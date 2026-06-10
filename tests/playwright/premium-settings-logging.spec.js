@@ -62,8 +62,10 @@ async function saveIpSetting( page, value ) {
 	await page.check( `input[name="${ IP_RADIO_NAME }"][value="${ value }"]` );
 	await page.click( 'input[type=submit][name=submit]' );
 
-	// Settings API redirects back with settings-updated=true; wait for the form.
-	await page.waitForSelector( `input[name="${ IP_RADIO_NAME }"]` );
+	// The Settings API redirects back with settings-updated=true. Wait for
+	// that URL (not for the form, which also exists in the pre-submit DOM)
+	// so the save request has fully committed before the test moves on.
+	await page.waitForURL( /settings-updated=true/ );
 }
 
 test.describe( 'Premium settings logging', () => {
