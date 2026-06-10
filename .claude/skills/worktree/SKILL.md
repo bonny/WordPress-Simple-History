@@ -9,6 +9,43 @@ disable-model-invocation: true
 
 Use git worktrees for issues that require extended development (multiple days, risky changes, or parallel feature work). Each worktree gets its own branch, dependencies, and a WordPress test site.
 
+## Quick Path: scripts/parallel-dev.sh
+
+For the common case (worktree + Playground instance per issue), use the helper script instead of the manual steps below:
+
+```bash
+# Create worktree, npm install + build, start Playground on a free port (9400+).
+# With Valet's .test resolution available (/etc/resolver/test), the instance
+# gets a named canonical URL like http://issue-42-some-feature.test:9400
+# (WP_HOME/WP_SITEURL set via blueprint — avoids 127.0.0.1 redirects and
+# Site Editor CORS issues). Falls back to http://localhost:<port> otherwise.
+scripts/parallel-dev.sh up issue-42-some-feature
+
+# Premium is mounted + activated by default (add-ons main checkout, or
+# $SH_PREMIUM_DIR). Opt out, or point at a premium worktree:
+scripts/parallel-dev.sh up issue-42-some-feature --no-premium
+scripts/parallel-dev.sh up issue-42-premium-thing --premium=/path/to/premium-worktree
+
+# Overview of all worktrees: port, URL, running?, dirty?
+scripts/parallel-dev.sh status
+
+# Stop the instance / stop and remove the worktree (refuses if dirty)
+scripts/parallel-dev.sh down issue-42-some-feature
+scripts/parallel-dev.sh down issue-42-some-feature --remove
+
+# Tail the Playground server log
+scripts/parallel-dev.sh logs issue-42-some-feature
+```
+
+Per-instance state lives inside the worktree as `.playground.json` / `.playground.log` / `.playground-blueprint.json` (all gitignored). Run Playwright against an instance from inside its worktree:
+
+```bash
+PLAYWRIGHT_BASE_URL=http://localhost:<port> WP_ADMIN_USER=admin WP_ADMIN_PASSWORD=password \
+  npx playwright test tests/playwright/<spec>.spec.js
+```
+
+The manual steps below remain useful for special setups (multisite, custom blueprints).
+
 ## When to Use Worktrees
 
 -   Issue has `size: 2-medium` or `3-large`

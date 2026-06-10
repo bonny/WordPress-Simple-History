@@ -52,7 +52,15 @@ The blueprint (`.claude/worktree-blueprint.json`) enables dev mode, activates th
 
 ## Multiple Instances (worktrees or branches)
 
-Each instance needs a unique port. Find the next available one:
+**Preferred:** use `scripts/parallel-dev.sh` — it creates the worktree, installs/builds, picks a free port, starts Playground detached, and tracks state per worktree (see the worktree skill for full usage):
+
+```bash
+scripts/parallel-dev.sh up <slug> [--no-premium] [--premium=<path>]
+scripts/parallel-dev.sh status
+scripts/parallel-dev.sh down <slug> [--remove]
+```
+
+Manual approach: each instance needs a unique port. Find the next available one:
 
 ```bash
 PORT=9400; while lsof -i :$PORT >/dev/null 2>&1; do PORT=$((PORT+1)); done; echo $PORT
