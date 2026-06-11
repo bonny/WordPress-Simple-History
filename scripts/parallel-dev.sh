@@ -593,6 +593,21 @@ cmd_down() {
 		pid_was_alive=1
 		echo "==> [$slug] stopping Playground (pid $pid)"
 		kill "$pid" 2>/dev/null || true
+
+		# Wait for the process to actually die — a dying server can still
+		# flush output into .playground.log, and a file recreated while
+		# 'git worktree remove' deletes the directory fails the removal
+		# with "Directory not empty".
+		local pid_waited=0
+
+		while [ $pid_waited -lt 10 ] && pid_alive "$pid"; do
+			sleep 1
+			pid_waited=$((pid_waited + 1))
+		done
+
+		if pid_alive "$pid"; then
+			kill -9 "$pid" 2>/dev/null || true
+		fi
 	fi
 
 	# Belt and braces: kill remaining LISTENERS on the recorded port — but
@@ -624,7 +639,25 @@ cmd_down() {
 
 		# No --force: after the dirty check and state-file cleanup a clean
 		# worktree removes fine, and git's own safety stays as a backstop.
-		git -C "$MAIN_REPO" worktree remove "$dir"
+		if ! git -C "$MAIN_REPO" worktree remove "$dir" 2>/dev/null; then
+			# A straggling server process can recreate .playground.log
+			# mid-delete ("Directory not empty"), sometimes leaving the
+			# directory orphaned with its git metadata already gone. The
+			# dirty check above passed and commits live on the branch, so
+			# nothing is lost: re-clean and retry, then remove by hand.
+			sleep 2
+			rm -f "$dir/.playground.log" "$dir/.playground-blueprint.json" "$dir/.playground.json"
+
+			if ! git -C "$MAIN_REPO" worktree remove "$dir" 2>/dev/null; then
+				rm -rf "$dir"
+				git -C "$MAIN_REPO" worktree prune
+			fi
+		fi
+
+		if [ -d "$dir" ]; then
+			err "could not remove $dir — remove it manually, then run: git -C $MAIN_REPO worktree prune"
+		fi
+
 		issue_clear_worktree "$slug"
 		echo "Removed. Branch worktree-$slug still exists (delete with: git branch -D worktree-$slug)"
 	else
