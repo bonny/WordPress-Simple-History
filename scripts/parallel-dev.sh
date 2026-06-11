@@ -32,6 +32,15 @@ HELPER_LOG=/tmp/sh-parallel-dev-helper.log
 HELPER_TOKEN_FILE="$MAIN_REPO/.claude/parallel-dev-helper-token"
 MU_PLUGINS_DIR="$SCRIPT_DIR/playground-mu-plugins"
 
+# Deterministic application password provisioned in every instance, so REST
+# calls work with plain Basic auth (no cookie/nonce dance). Local-only, so a
+# fixed value is fine. Validated as alphanumeric below — WordPress strips
+# other chars from application passwords during authentication, so anything
+# else would hash one value and verify another (silent 401s).
+APP_PASSWORD_USER="admin"
+APP_PASSWORD="paralleldevpassword"
+PROVISION_PHP_FILE="$SCRIPT_DIR/playground-provision-app-password.php"
+
 usage() {
 	cat <<'EOF'
 Parallel development helper: one git worktree + one WordPress Playground
@@ -61,6 +70,10 @@ err() {
 	echo "Error: $*" >&2
 	exit 1
 }
+
+if ! [[ "$APP_PASSWORD_USER" =~ ^[A-Za-z0-9]+$ && "$APP_PASSWORD" =~ ^[A-Za-z0-9]+$ ]]; then
+	err "APP_PASSWORD_USER and APP_PASSWORD must be alphanumeric"
+fi
 
 require_slug() {
 	local slug="${1:-}"
@@ -344,6 +357,16 @@ cmd_up() {
 	sed "s/WORKTREE_NAME/$slug/" "${blueprint_override:-$BLUEPRINT_TEMPLATE}" > "$blueprint.tmp" \
 		&& mv "$blueprint.tmp" "$blueprint"
 
+	# Strip any steps a previous run injected (supports --blueprint pointing
+	# at the generated file itself) — otherwise the appends below accumulate
+	# on every restart, and stale copies carry old ports/tokens/passwords.
+	jq '.steps |= map(select(
+			((.step == "defineWpConfigConsts") and ((.consts // {}) | has("SH_DEV_WORKTREE_PATH")))
+			or ((.step == "runPHP") and ((.code // "") | contains("sh-parallel-dev-provision")))
+			or ((.step == "activatePlugin") and (.pluginPath == "simple-history-premium/simple-history-premium.php"))
+			| not))' \
+		"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
+
 	if [ -n "$premium" ]; then
 		jq '.steps += [{"step": "activatePlugin", "pluginPath": "simple-history-premium/simple-history-premium.php"}]' \
 			"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
@@ -363,6 +386,18 @@ cmd_up() {
 	# Link the issue to this worktree in its frontmatter (overview shows it).
 	issue_set_worktree "$slug"
 
+	# Default the environment type to 'local' — application passwords are
+	# unavailable over plain HTTP otherwise. Respect a blueprint that sets
+	# its own WP_ENVIRONMENT_TYPE (e.g. to reproduce production-only
+	# behavior); note environment-gated code behaves differently than on a
+	# default ('production') site either way.
+	local set_env_type=true
+
+	if [ "$(jq '[.steps[]? | select(.step == "defineWpConfigConsts") | ((.consts // {}) | has("WP_ENVIRONMENT_TYPE"))] | any' "$blueprint")" = "true" ]; then
+		set_env_type=false
+		echo "Note: blueprint defines WP_ENVIRONMENT_TYPE — keeping it. Basic-auth REST access needs 'local' over plain HTTP."
+	fi
+
 	local extra_consts
 	extra_consts="$(jq -n \
 		--arg url "$site_url" \
@@ -371,13 +406,26 @@ cmd_up() {
 		--arg token "$(helper_token)" \
 		--arg issue "$issue_url" \
 		--argjson named "$named" \
+		--argjson set_env "$set_env_type" \
+		--arg app_user "$APP_PASSWORD_USER" \
+		--arg app_password "$APP_PASSWORD" \
 		'{WP_DEBUG: true, WP_DEBUG_LOG: true, WP_DEBUG_DISPLAY: false,
-		  SH_DEV_WORKTREE_PATH: $path, SH_DEV_HELPER_PORT: $hport, SH_DEV_HELPER_TOKEN: $token}
+		  SH_DEV_WORKTREE_PATH: $path, SH_DEV_HELPER_PORT: $hport, SH_DEV_HELPER_TOKEN: $token,
+		  SH_DEV_APP_USER: $app_user, SH_DEV_APP_PASSWORD: $app_password}
+		 + (if $set_env then {WP_ENVIRONMENT_TYPE: "local"} else {} end)
 		 + (if $named then {WP_HOME: $url, WP_SITEURL: $url} else {} end)
 		 + (if $issue != "" then {SH_DEV_ISSUE_URL: $issue} else {} end)')"
 
 	jq --argjson consts "$extra_consts" \
 		'.steps += [{"step": "defineWpConfigConsts", "consts": $consts}]' \
+		"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
+
+	# Provision a fixed application password so the REST API accepts Basic
+	# auth (curl -u "$APP_PASSWORD_USER:$APP_PASSWORD"). The step reads the
+	# SH_DEV_APP_* constants injected above; see the provisioning file for
+	# how the password is created through the core API.
+	jq --rawfile code "$PROVISION_PHP_FILE" \
+		'.steps += [{"step": "runPHP", "code": $code}]' \
 		"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
 
 	helper_start
@@ -416,7 +464,9 @@ cmd_up() {
 		--arg url "$site_url" \
 		--arg premium "$premium" \
 		--arg started "$(date '+%Y-%m-%d %H:%M:%S')" \
-		'{slug: $slug, branch: $branch, port: $port, pid: $pid, url: $url, premium: $premium, started: $started}' \
+		--arg app_user "$APP_PASSWORD_USER" \
+		--arg app_password "$APP_PASSWORD" \
+		'{slug: $slug, branch: $branch, port: $port, pid: $pid, url: $url, premium: $premium, started: $started, app_user: $app_user, app_password: $app_password}' \
 		> "$dir/.playground.json"
 
 	# Wait until the site responds (first run downloads WordPress, allow time).
@@ -450,6 +500,7 @@ cmd_up() {
 		echo "  premium:  (not mounted)"
 	fi
 	echo "  log:      $dir/.playground.log"
+	echo "  rest:     curl -u '$APP_PASSWORD_USER:$APP_PASSWORD' '$site_url/wp-json/simple-history/v1/events?per_page=5'"
 }
 
 cmd_helper() {

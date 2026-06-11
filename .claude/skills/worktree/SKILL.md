@@ -37,7 +37,33 @@ scripts/parallel-dev.sh down issue-42-some-feature --remove
 scripts/parallel-dev.sh logs issue-42-some-feature
 ```
 
-Per-instance state lives inside the worktree as `.playground.json` / `.playground.log` / `.playground-blueprint.json` (all gitignored). Run Playwright against an instance from inside its worktree — read the URL from the state file, since the instance's canonical URL may be the named `.test` one and `localhost` would get canonical-redirected cross-origin:
+Per-instance state lives inside the worktree as `.playground.json` / `.playground.log` / `.playground-blueprint.json` (all gitignored).
+
+### REST API access (Basic auth)
+
+Instances started by `parallel-dev.sh` get a fixed application password (provisioned through the core API by a blueprint `runPHP` step), and a mounted mu-plugin (`scripts/playground-mu-plugins/sh-allow-basic-auth.php`) lets REST and Basic-auth requests through Playground's auto-login redirect — so plain `curl -u` works. Read the credentials from `.playground.json` (`app_user` / `app_password`) rather than hardcoding them:
+
+```bash
+URL=$(jq -r .url .playground.json)
+curl -u "$(jq -r '.app_user + ":" + .app_password' .playground.json)" \
+  "$URL/wp-json/simple-history/v1/events?per_page=5"
+```
+
+Caveats:
+
+-   Instances started before this feature existed, and worktrees set up via the manual steps below, have no app password. If `jq -r .app_password .playground.json` returns `null`, restart with `down` + `up`.
+-   The script sets `WP_ENVIRONMENT_TYPE=local` (app passwords are unavailable over plain HTTP otherwise) unless a custom `--blueprint` defines its own environment type — so environment-gated behavior differs from a default production site.
+-   Don't authenticate REST calls with the WP auth cookies — cookie auth without a nonce makes REST return 401.
+
+For wp-admin HTML (non-REST), the first request auto-logs in and sets cookies — use a curl cookie jar:
+
+```bash
+jar=$(mktemp)
+curl -s -c "$jar" -o /dev/null "$URL/"
+curl -s -b "$jar" "$URL/wp-admin/admin.php?page=simple_history_admin_menu_page"
+```
+
+Run Playwright against an instance from inside its worktree — read the URL from the state file, since the instance's canonical URL may be the named `.test` one and `localhost` would get canonical-redirected cross-origin:
 
 ```bash
 PLAYWRIGHT_BASE_URL=$(jq -r .url .playground.json) WP_ADMIN_USER=admin WP_ADMIN_PASSWORD=password \
