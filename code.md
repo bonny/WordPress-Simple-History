@@ -112,6 +112,8 @@ Simple History supports WordPress 6.3+, which means the `@wordpress/*` packages 
 -   When considering a new `@wordpress/*` import, check whether `@wordpress/scripts` will treat it as an external (loaded from WP) or bundle it. Externals must exist in the minimum supported WP version.
 -   If you need a component from a newer `@wordpress/*` package, either build a custom equivalent or conditionally load it with version detection.
 
+-   **Do NOT upgrade `@wordpress/scripts` beyond 27.x.** Version 28+ makes built assets depend on the `react-jsx-runtime` script handle, which only exists in WP 6.6+ — scripts silently fail to load on WP 6.3–6.5. The ~15 leftover npm audit advisories this causes are dev-only and accepted. See [docs/upgrading-wordpress-scripts.md](docs/upgrading-wordpress-scripts.md) for the full rationale and the two upgrade paths.
+
 ### Prefer Web Standards Over JavaScript
 
 Use native HTML elements and CSS before reaching for JavaScript:
