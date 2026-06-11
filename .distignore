@@ -13,6 +13,7 @@
 /docs
 /examples
 /node_modules
+/scripts
 /src
 /tests
 /vendor
