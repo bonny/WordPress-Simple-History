@@ -65,6 +65,7 @@ build/
 .claude/skills/writing-blog-posts
 .claude/skills/analytics-traffic
 .claude/skills/freemium-conversion
+.claude/skills/night-shift
 !.claude/hooks/
 !.claude/agents/
 scripts/copy-current-to-simple-history-com.sh
