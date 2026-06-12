@@ -129,6 +129,12 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * [--search=<term>]
 	 * : Text search across message content, logger names, and context values.
 	 *
+	 * [--metadata_search=<text>]
+	 * : Search all event metadata/context values (IP addresses, emails, user agents, etc.). Same as the metadata search in the GUI.
+	 *
+	 * [--ai_only]
+	 * : Show only events initiated via an AI tool (e.g. Claude Code, ChatGPT). Same as the AI filter in the GUI.
+	 *
 	 * [--date_from=<date>]
 	 * : Show events from this date onwards. Accepts Unix timestamp or Y-m-d H:i:s format.
 	 *
@@ -191,6 +197,12 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *
 	 *     # Search with date range
 	 *     wp simple-history list --search="login failed" --date_from="2024-01-01"
+	 *
+	 *     # Search all event metadata for an IP address
+	 *     wp simple-history list --metadata_search="192.168.1.100"
+	 *
+	 *     # Show only events initiated via an AI tool
+	 *     wp simple-history list --ai_only --count=20
 	 *
 	 *     # Filter by specific users and loggers
 	 *     wp simple-history list --userid=1,2,3 --logger=SimpleUserLogger,SimplePluginLogger
@@ -269,6 +281,8 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'message'              => '',
 				'userid'               => '',
 				'search'               => '',
+				'metadata_search'      => '',
+				'ai_only'              => false,
 				'date_from'            => '',
 				'date_to'              => '',
 				'months'               => '',
@@ -282,6 +296,10 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'exclude_initiator'    => '',
 				'surrounding_event_id' => '',
 				'surrounding_count'    => 5,
+				// WP-CLI injects this docblock default when the command is invoked
+				// from the shell, but not when the method is called directly
+				// (e.g. by the deprecated event search alias).
+				'fields'               => 'ID,date,initiator,description,via,level,count',
 			)
 		);
 
@@ -363,6 +381,14 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 
 		if ( ! empty( $assoc_args['search'] ) ) {
 			$query_args['search'] = $assoc_args['search'];
+		}
+
+		if ( ! empty( $assoc_args['metadata_search'] ) ) {
+			$query_args['metadata_search'] = $assoc_args['metadata_search'];
+		}
+
+		if ( ! empty( $assoc_args['ai_only'] ) ) {
+			$query_args['ai_only'] = true;
 		}
 
 		if ( ! empty( $assoc_args['date_from'] ) ) {

@@ -259,14 +259,20 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
 -   Changes to more settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log).
 -   Developers: new `simple_history/settings/tracked_options` filter lets add-ons register their own option keys to be logged as "Modified settings", plus `simple_history/settings/redacted_options` to hide sensitive values.
+-   WP-CLI: `--metadata_search` and `--ai_only` options on `wp simple-history list`, matching the metadata search and AI filter in the GUI.
 
 **Changed**
 
 -   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
 -   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable. Add-ons can opt option keys in via the new `simple_history/settings/changed_only_options` filter.
 
+**Deprecated**
+
+-   WP-CLI: `wp simple-history event search` — use `wp simple-history list --search=<term>` instead. The old command still works but will be removed in a future version.
+
 **Fixed**
 
+-   WP-CLI: `wp simple-history event search` always returned zero results.
 -   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
 -   🧪 **Experimental** — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
 

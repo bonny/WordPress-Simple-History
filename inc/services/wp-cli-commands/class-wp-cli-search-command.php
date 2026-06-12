@@ -2,17 +2,18 @@
 
 namespace Simple_History\Services;
 
-use Simple_History\Simple_History;
-use Simple_History\Log_Initiators;
 use WP_CLI;
 use WP_CLI_Command;
 
 /**
- * WP CLI command that search the history.
+ * WP CLI command that searches the history.
+ *
+ * Deprecated: kept as a thin alias for `wp simple-history list --search=<term>`,
+ * which supports the same search plus many more filters.
  */
 class WP_CLI_Search_Command extends WP_CLI_Command {
 	/**
-	 * Search the log.
+	 * Search the log. (Deprecated — use `wp simple-history list --search=<term>` instead.)
 	 *
 	 * ## OPTIONS
 	 *
@@ -20,10 +21,10 @@ class WP_CLI_Search_Command extends WP_CLI_Command {
 	 * : Words to search for.
 	 *
 	 * [--older_than=<date>]
-	 * : Only show events older than this date.
+	 * : Only show events older than this date. Alias for --date_to on the list command.
 	 *
 	 * [--newer_than=<date>]
-	 * : Only show events newer than this date.
+	 * : Only show events newer than this date. Alias for --date_from on the list command.
 	 *
 	 * [--format=<format>]
 	 * : Format of output. Defaults to table. Options: table, json, csv, yaml.
@@ -40,66 +41,32 @@ class WP_CLI_Search_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function search( $args, $assoc_args ) {
-		/** @var Simple_History */
-		$simple_history = Simple_History::get_instance();
-
-		$assoc_args = wp_parse_args(
-			$assoc_args,
-			array(
-				'count'      => 10,
-				'format'     => 'table',
-				'older_than' => '',
-				'newer_than' => '',
-			)
+		WP_CLI::warning(
+			'The "event search" command is deprecated and will be removed in a future version. Use "wp simple-history list --search=<term>" instead.'
 		);
 
-		$search = $args[0];
+		// Translate this command's arguments to their list command equivalents
+		// and delegate, so only one search implementation exists.
+		$list_assoc_args = [
+			'search' => $args[0],
+		];
 
-		$query_args = array(
-			'posts_per_page' => $assoc_args['count'],
-			'search'         => $search,
-			'date_from'      => $assoc_args['newer_than'],
-			'date_to'        => $assoc_args['older_than'],
-			'ungrouped'      => true,
-		);
-
-		// Override capability check: if you can run wp cli commands you can read all loggers.
-		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
-
-		// Use Log_Query-class to query the log.
-		$log_query = new \Simple_History\Log_Query();
-		$events    = $log_query->query( $query_args );
-
-		// A cleaned version of the events, formatted for wp cli table output.
-		$events_cleaned = [];
-
-		foreach ( $events['log_rows'] as $row ) {
-			$header_output = $simple_history->get_log_row_header_output( $row );
-			$text_output   = $simple_history->get_log_row_plain_text_output( $row );
-			$header_output = wp_strip_all_tags( html_entity_decode( $header_output, ENT_QUOTES, 'UTF-8' ) );
-			$header_output = trim( preg_replace( '/\s\s+/', ' ', $header_output ) );
-
-			$text_output = wp_strip_all_tags( html_entity_decode( $text_output, ENT_QUOTES, 'UTF-8' ) );
-
-			$events_cleaned[] = array(
-				'date'        => get_date_from_gmt( $row->date ),
-				'initiator'   => Log_Initiators::get_initiator_text_from_row( $row ),
-				'logger'      => $row->logger,
-				'level'       => $row->level,
-				'who_when'    => $header_output,
-				'description' => $text_output,
-				'count'       => $row->subsequentOccasions, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			);
+		if ( ! empty( $assoc_args['newer_than'] ) ) {
+			$list_assoc_args['date_from'] = $assoc_args['newer_than'];
 		}
 
-		$fields = array(
-			'date',
-			'initiator',
-			'description',
-			'level',
-			'count',
-		);
+		if ( ! empty( $assoc_args['older_than'] ) ) {
+			$list_assoc_args['date_to'] = $assoc_args['older_than'];
+		}
 
-		WP_CLI\Utils\format_items( $assoc_args['format'], $events_cleaned, $fields );
+		if ( ! empty( $assoc_args['count'] ) ) {
+			$list_assoc_args['count'] = $assoc_args['count'];
+		}
+
+		if ( ! empty( $assoc_args['format'] ) ) {
+			$list_assoc_args['format'] = $assoc_args['format'];
+		}
+
+		( new WP_CLI_List_Command() )->list( [], $list_assoc_args );
 	}
 }
