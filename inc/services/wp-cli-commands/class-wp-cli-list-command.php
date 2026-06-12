@@ -456,7 +456,13 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			);
 		}
 
-		$events = $query->query( $query_args );
+		// The finally block guarantees the capability override is removed even
+		// when query() throws on invalid arguments.
+		try {
+			$events = $query->query( $query_args );
+		} finally {
+			remove_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10 );
+		}
 
 		// Handle database errors.
 		if ( is_wp_error( $events ) ) {
@@ -545,7 +551,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			);
 		}
 
-		$fields = explode( ',', $assoc_args['fields'] );
+		$fields = $this->parse_comma_separated_values( $assoc_args['fields'] );
 
 		WP_CLI\Utils\format_items( $assoc_args['format'], $eventsCleaned, $fields );
 

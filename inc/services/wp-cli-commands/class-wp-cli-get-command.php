@@ -49,13 +49,20 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
 
 		// Get information about event using the Simple History Log Query API.
-		$query        = new Log_Query();
-		$query_result = $query->query(
-			array(
-				'post__in'  => [ $event_id ],
-				'ungrouped' => true,
-			)
-		);
+		// The finally block guarantees the capability override is removed even
+		// when query() throws on invalid arguments.
+		$query = new Log_Query();
+
+		try {
+			$query_result = $query->query(
+				array(
+					'post__in'  => [ $event_id ],
+					'ungrouped' => true,
+				)
+			);
+		} finally {
+			remove_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10 );
+		}
 
 		// Handle database errors.
 		if ( is_wp_error( $query_result ) ) {

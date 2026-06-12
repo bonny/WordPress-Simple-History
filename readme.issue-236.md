@@ -40,6 +40,35 @@ conventions — filtering local entities is done with flags on `list`, dedicated
     Codeception's `$I->cli()` does not capture, so only results are asserted.
 -   `readme.txt` — changelog entries (Added / Deprecated / Fixed).
 
+### Follow-up fixes from /code-review (2026-06-12)
+
+Two review rounds after the initial implementation surfaced these; all fixed:
+
+-   `inc/class-log-query.php` — months filter hardened: entries are now trimmed
+    and validated against the `Y-m` format using the existing
+    `is_valid_date_format()` helper. Blank entries used to parse as "now minus
+    1 second"; malformed entries ("banana", "2024-13") threw an uncaught
+    exception (a 500 via REST); an all-blank list produced an empty `()` SQL
+    group (syntax error). Clause building switched from string concat +
+    fragile `rtrim( ' OR ' )` (a char-list strip, not a suffix strip) to an
+    array + `implode`, and the clause is only added when at least one valid
+    month survived.
+-   `inc/class-log-query.php` — unparseable `date_from`/`date_to` strings
+    (e.g. "banana") now throw the same catchable `InvalidArgumentException`
+    as the rest of the argument validation instead of an uncaught `\Exception`.
+    Relative formats like "yesterday" still work.
+-   `inc/services/wp-cli-commands/class-wp-cli-list-command.php` — capability
+    override filter is now removed in a `finally` block (was leaked if
+    `query()` threw); `--fields` parsing reuses `parse_comma_separated_values()`
+    (trims entries, so `--fields="ID, date"` works) instead of a raw explode.
+-   `inc/services/wp-cli-commands/class-wp-cli-get-command.php` — same
+    add/remove filter pairing applied (was the last command leaking it).
+-   `inc/services/wp-cli-commands/class-wp-cli-search-command.php` —
+    deprecation warning now notes that output columns changed (ID and via
+    added; verified against git history that no visible columns were removed).
+-   `tests/wpunit/LogQueryTest.php` — regression tests for blank/malformed/mixed
+    months values and for the `date_from` exception type.
+
 ## Docs
 
 Live docs page https://simple-history.com/features/wp-cli-commands/ (page id 2866) updated 2026-06-12: `event search` marked deprecated, search section now
