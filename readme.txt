@@ -273,6 +273,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   WP-CLI: `wp simple-history event search` always returned zero results.
+-   Invalid date or month filter values no longer cause errors when querying the log (REST API and WP-CLI) — they are now ignored or rejected with a clear message.
 -   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
 -   🧪 **Experimental** — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
 

@@ -1241,7 +1241,14 @@ class Log_Query {
 				$args['date_from'] = $date->getTimestamp();
 			} else {
 				// Parse datetime string in WordPress timezone.
-				$date              = new \DateTimeImmutable( $args['date_from'], wp_timezone() );
+				// Rethrow unparseable values as the same catchable exception type
+				// used by the rest of the argument validation.
+				try {
+					$date = new \DateTimeImmutable( $args['date_from'], wp_timezone() );
+				} catch ( \Exception $exception ) {
+					throw new \InvalidArgumentException( 'Invalid date_from' );
+				}
+
 				$args['date_from'] = $date->getTimestamp();
 			}
 		} elseif ( isset( $args['date_from'] ) ) {
@@ -1261,7 +1268,14 @@ class Log_Query {
 				$args['date_to'] = $date->getTimestamp();
 			} else {
 				// Parse datetime string in WordPress timezone.
-				$date            = new \DateTimeImmutable( $args['date_to'], wp_timezone() );
+				// Rethrow unparseable values as the same catchable exception type
+				// used by the rest of the argument validation.
+				try {
+					$date = new \DateTimeImmutable( $args['date_to'], wp_timezone() );
+				} catch ( \Exception $exception ) {
+					throw new \InvalidArgumentException( 'Invalid date_to' );
+				}
+
 				$args['date_to'] = $date->getTimestamp();
 			}
 		} elseif ( isset( $args['date_to'] ) ) {
@@ -1890,9 +1904,24 @@ class Log_Query {
 				$arr_months = explode( ',', $args['months'] );
 			}
 
-			$sql_months = "\n" . '
-				(
-			';
+			// Keep only entries in valid "Y-m" format. A blank entry would make
+			// DateTimeImmutable parse "-01 00:00:00" as "now minus 1 second" and a
+			// malformed entry like "banana" would throw an uncaught exception.
+			$arr_months = array_map(
+				static function ( $one_month ) {
+					return is_string( $one_month ) ? trim( $one_month ) : '';
+				},
+				$arr_months
+			);
+
+			$arr_months = array_filter(
+				$arr_months,
+				function ( $one_month ) {
+					return $this->is_valid_date_format( $one_month, 'Y-m' );
+				}
+			);
+
+			$sql_month_clauses = [];
 
 			foreach ( $arr_months as $one_month ) {
 				// Beginning of month in WordPress timezone.
@@ -1906,28 +1935,18 @@ class Log_Query {
 				$date_month_end_obj = $date_month_beginning_obj->modify( '+1 month' )->modify( '-1 second' );
 				$date_month_end     = $date_month_end_obj->getTimestamp();
 
-				$sql_months .= sprintf(
-					'
-					(
-						date >= "%1$s"
-						AND date <= "%2$s"
-					)
-
-					OR
-					',
+				$sql_month_clauses[] = sprintf(
+					'( date >= "%1$s" AND date <= "%2$s" )',
 					gmdate( 'Y-m-d H:i:s', $date_month_beginning ), // 1
 					gmdate( 'Y-m-d H:i:s', $date_month_end ) // 2
 				);
 			}
 
-			$sql_months = trim( $sql_months );
-			$sql_months = rtrim( $sql_months, ' OR ' );
-
-			$sql_months .= '
-				)
-			';
-
-			$inner_where[] = $sql_months;
+			// Only add the clause when at least one valid month survived —
+			// an empty group "()" would be a SQL syntax error.
+			if ( $sql_month_clauses !== [] ) {
+				$inner_where[] = '( ' . implode( ' OR ', $sql_month_clauses ) . ' )';
+			}
 		}
 
 		// Search.

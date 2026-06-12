@@ -678,4 +678,84 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 			'Whitespace-only dates should behave exactly like omitted dates'
 		);
 	}
+
+	/**
+	 * Test that blank or malformed months entries are ignored.
+	 *
+	 * Regression test: a blank entry used to make DateTimeImmutable parse
+	 * "-01 00:00:00" as "now minus 1 second", and an all-blank list produced
+	 * an empty "()" group in the WHERE clause — a SQL syntax error. Malformed
+	 * entries like "banana" threw an uncaught exception.
+	 */
+	function test_blank_and_malformed_months_are_ignored() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		SimpleLogger()->info( 'Event for months filter test' );
+
+		$log_query = new Log_Query();
+
+		// A valid month filter finds the event.
+		$results_valid_month = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => gmdate( 'Y-m' ),
+			]
+		);
+
+		$this->assertGreaterThan( 0, $results_valid_month['log_rows_count'], 'Valid month should find the event' );
+
+		// Only-blank entries must behave like no months filter, not produce
+		// an empty "()" SQL group.
+		$results_blank_months = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => ',',
+			]
+		);
+
+		$this->assertFalse( is_wp_error( $results_blank_months ), 'Blank months entries should not cause a database error' );
+		$this->assertGreaterThan( 0, $results_blank_months['log_rows_count'], 'Blank months entries should behave like no months filter' );
+
+		// Malformed entries are filtered out instead of throwing.
+		$results_malformed_months = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => 'banana,2024-13',
+			]
+		);
+
+		$this->assertFalse( is_wp_error( $results_malformed_months ), 'Malformed months entries should not cause a database error' );
+		$this->assertGreaterThan( 0, $results_malformed_months['log_rows_count'], 'Malformed months entries should behave like no months filter' );
+
+		// A mix of valid and blank entries applies only the valid one.
+		$results_mixed_months = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => ',' . gmdate( 'Y-m' ),
+			]
+		);
+
+		$this->assertGreaterThan( 0, $results_mixed_months['log_rows_count'], 'Valid month mixed with blank entry should still find the event' );
+	}
+
+	/**
+	 * Test that an unparseable date_from throws a catchable InvalidArgumentException.
+	 *
+	 * Regression test: garbage like "banana" used to throw an uncaught
+	 * \Exception from DateTimeImmutable instead of the InvalidArgumentException
+	 * used by the rest of the argument validation.
+	 */
+	function test_unparseable_date_from_throws_invalid_argument_exception() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		$this->expectException( \InvalidArgumentException::class );
+
+		( new Log_Query() )->query(
+			[
+				'date_from' => 'banana',
+			]
+		);
+	}
 }
