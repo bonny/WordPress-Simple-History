@@ -1217,6 +1217,17 @@ class Log_Query {
 			}
 		}
 
+		// Treat empty or whitespace-only date strings as "no date filter".
+		// Without this, DateTimeImmutable parses an empty string as "now",
+		// silently turning the query into "date >= now" and matching nothing.
+		if ( isset( $args['date_from'] ) && is_string( $args['date_from'] ) && trim( $args['date_from'] ) === '' ) {
+			$args['date_from'] = null;
+		}
+
+		if ( isset( $args['date_to'] ) && is_string( $args['date_to'] ) && trim( $args['date_to'] ) === '' ) {
+			$args['date_to'] = null;
+		}
+
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
 		// Uses WordPress timezone for date parsing to ensure correct day boundaries.
 		if ( isset( $args['date_from'] ) && is_numeric( $args['date_from'] ) ) {

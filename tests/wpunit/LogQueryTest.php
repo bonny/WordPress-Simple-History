@@ -620,4 +620,62 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		// Should return 0 results (injection should not work).
 		$this->assertEquals( 0, $query_results['log_rows_count'], 'SQL injection in value should return no results' );
 	}
+
+	/**
+	 * Test that empty-string date_from/date_to behave as "no date filter".
+	 *
+	 * Regression test: DateTimeImmutable parses an empty string as "now",
+	 * which turned queries into "date >= now" and silently returned zero
+	 * results for callers passing '' (e.g. the WP-CLI event search command).
+	 */
+	function test_empty_string_dates_are_ignored() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		SimpleLogger()->info( 'Event for empty date test' );
+
+		$log_query = new Log_Query();
+
+		// Baseline: no date args at all.
+		$results_no_dates = $log_query->query(
+			[
+				'search'         => 'empty date test',
+				'posts_per_page' => 10,
+			]
+		);
+
+		$this->assertGreaterThan( 0, $results_no_dates['log_rows_count'], 'Baseline query should find the event' );
+
+		// Same query with empty-string dates must return the same rows.
+		$results_empty_dates = $log_query->query(
+			[
+				'search'         => 'empty date test',
+				'date_from'      => '',
+				'date_to'        => '',
+				'posts_per_page' => 10,
+			]
+		);
+
+		$this->assertEquals(
+			$results_no_dates['log_rows_count'],
+			$results_empty_dates['log_rows_count'],
+			'Empty-string dates should behave exactly like omitted dates'
+		);
+
+		// Whitespace-only strings should be treated the same way.
+		$results_whitespace_dates = $log_query->query(
+			[
+				'search'         => 'empty date test',
+				'date_from'      => ' ',
+				'date_to'        => ' ',
+				'posts_per_page' => 10,
+			]
+		);
+
+		$this->assertEquals(
+			$results_no_dates['log_rows_count'],
+			$results_whitespace_dates['log_rows_count'],
+			'Whitespace-only dates should behave exactly like omitted dates'
+		);
+	}
 }
