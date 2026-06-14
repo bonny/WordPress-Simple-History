@@ -71,8 +71,42 @@ Two review rounds after the initial implementation surfaced these; all fixed:
 
 ## Docs
 
-Live docs page https://simple-history.com/features/wp-cli-commands/ (page id 2866) updated 2026-06-12: `event search` marked deprecated, search section now
-shows `wp simple-history list --search=WooCommerce`.
+Live docs page https://simple-history.com/features/wp-cli-commands/ (page id 2866):
+
+-   2026-06-12: `event search` marked deprecated, search section now shows
+    `wp simple-history list --search=WooCommerce`.
+-   2026-06-14: added `--metadata_search=<text>` and `--ai_only` to the Basic
+    Parameters table plus an examples block (incl. the AI attribution columns
+    `ai_agent`, `ai_detected_via`, `ai_application`).
+-   2026-06-14: copy/docs review pass — added AI-columns "only filled in for AI
+    events" caveat; added `--fields` row to the parameters table; fixed the `get`
+    example to the canonical `wp simple-history event get 1072` and merged the
+    duplicate/misplaced "get" section into the event get section; showed real
+    `db stats --format` values; dropped stale "new" wording; named the
+    `event list` alias target; tightened the intro.
+-   2026-06-14: made `wp simple-history event list` the primary/canonical command
+    (matches the WP-CLI `wp <noun> <verb>` convention, e.g. `wp cron event list`).
+    Overview now lists it first with `wp simple-history list` as a shorthand alias,
+    and all examples use the `event list` form. Docs-only — both commands still
+    work; `list` is NOT deprecated.
+
+### In-CLI help/messages aligned to `event list` (2026-06-14)
+
+Code change so the WP-CLI help matches the docs' canonical command:
+
+-   `class-wp-cli-search-command.php` — deprecation warning + docblocks now point
+    to `wp simple-history event list --search=<term>` (was bare `list`).
+-   `class-wp-cli-list-command.php` — all 19 `## Examples` rewritten to the
+    `event list` form.
+-   `class-wp-cli-info-command.php` — "Useful subcommands" cheat sheet now shows
+    `event list` and, importantly, stops recommending the **deprecated**
+    `wp simple-history search <q>` (replaced with `event list --search=<q>`).
+-   `readme.txt` — Deprecated changelog entry now recommends `event list --search`.
+
+String-only; no behavior change. php -l / phpcs / phpstan all clean on the
+three PHP files. No tests assert on the changed strings (the `wp simple-history`
+help test checks WP-CLI's own subcommand list, where bare `list` is still
+registered).
 
 ## Verification
 

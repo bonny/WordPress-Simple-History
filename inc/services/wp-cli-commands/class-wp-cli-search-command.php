@@ -8,12 +8,12 @@ use WP_CLI_Command;
 /**
  * WP CLI command that searches the history.
  *
- * Deprecated: kept as a thin alias for `wp simple-history list --search=<term>`,
+ * Deprecated: kept as a thin alias for `wp simple-history event list --search=<term>`,
  * which supports the same search plus many more filters.
  */
 class WP_CLI_Search_Command extends WP_CLI_Command {
 	/**
-	 * Search the log. (Deprecated — use `wp simple-history list --search=<term>` instead.)
+	 * Search the log. (Deprecated — use `wp simple-history event list --search=<term>` instead.)
 	 *
 	 * ## OPTIONS
 	 *
@@ -42,7 +42,7 @@ class WP_CLI_Search_Command extends WP_CLI_Command {
 	 */
 	public function search( $args, $assoc_args ) {
 		WP_CLI::warning(
-			'The "event search" command is deprecated and will be removed in a future version. Use "wp simple-history list --search=<term>" instead. Note: output columns have changed (ID and via are now included).'
+			'The "event search" command is deprecated and will be removed in a future version. Use "wp simple-history event list --search=<term>" instead. Note: output columns have changed (ID and via are now included).'
 		);
 
 		// Translate this command's arguments to their list command equivalents

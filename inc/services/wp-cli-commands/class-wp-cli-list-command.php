@@ -190,61 +190,61 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * ## Examples
 	 *
 	 *     # Basic usage
-	 *     wp simple-history list --count=20 --format=json
+	 *     wp simple-history event list --count=20 --format=json
 	 *
 	 *     # Filter by initiator and log level
-	 *     wp simple-history list --initiator=wp_user,web_user --log_level=info,debug
+	 *     wp simple-history event list --initiator=wp_user,web_user --log_level=info,debug
 	 *
 	 *     # Search with date range
-	 *     wp simple-history list --search="login failed" --date_from="2024-01-01"
+	 *     wp simple-history event list --search="login failed" --date_from="2024-01-01"
 	 *
 	 *     # Search all event metadata for an IP address
-	 *     wp simple-history list --metadata_search="192.168.1.100"
+	 *     wp simple-history event list --metadata_search="192.168.1.100"
 	 *
 	 *     # Show only events initiated via an AI tool
-	 *     wp simple-history list --ai_only --count=20
+	 *     wp simple-history event list --ai_only --count=20
 	 *
 	 *     # Filter by specific users and loggers
-	 *     wp simple-history list --userid=1,2,3 --logger=SimpleUserLogger,SimplePluginLogger
+	 *     wp simple-history event list --userid=1,2,3 --logger=SimpleUserLogger,SimplePluginLogger
 	 *
 	 *     # Show only sticky events
-	 *     wp simple-history list --only_sticky --format=json
+	 *     wp simple-history event list --only_sticky --format=json
 	 *
 	 *     # Exclude debug level events
-	 *     wp simple-history list --exclude_log_level=debug --count=50
+	 *     wp simple-history event list --exclude_log_level=debug --count=50
 	 *
 	 *     # Exclude events containing "cron"
-	 *     wp simple-history list --exclude_search=cron --count=50
+	 *     wp simple-history event list --exclude_search=cron --count=50
 	 *
 	 *     # Exclude WordPress-initiated events (cron jobs, automatic updates)
-	 *     wp simple-history list --exclude_initiator=wp --count=50
+	 *     wp simple-history event list --exclude_initiator=wp --count=50
 	 *
 	 *     # Combine positive and negative filters
-	 *     wp simple-history list --log_level=info --exclude_search=cron --count=50
+	 *     wp simple-history event list --log_level=info --exclude_search=cron --count=50
 	 *
 	 *     # Exclude multiple log levels and initiators
-	 *     wp simple-history list --exclude_log_level=debug,info --exclude_initiator=wp,wp_cli --count=100
+	 *     wp simple-history event list --exclude_log_level=debug,info --exclude_initiator=wp,wp_cli --count=100
 	 *
 	 *     # Show surrounding events around event ID 123 (5 before + event + 5 after = 11 total)
-	 *     wp simple-history list --surrounding_event_id=123
+	 *     wp simple-history event list --surrounding_event_id=123
 	 *
 	 *     # Show 10 events before and after event ID 456
-	 *     wp simple-history list --surrounding_event_id=456 --surrounding_count=10
+	 *     wp simple-history event list --surrounding_event_id=456 --surrounding_count=10
 	 *
 	 *     # Show events with reactions
-	 *     wp simple-history list --fields=ID,date,description,reactions
+	 *     wp simple-history event list --fields=ID,date,description,reactions
 	 *
 	 *     # Show events with relative date ("5 minutes ago") for easier scanning
-	 *     wp simple-history list --fields=ID,date_relative,initiator,description
+	 *     wp simple-history event list --fields=ID,date_relative,initiator,description
 	 *
 	 *     # On multisite: include site name in output
-	 *     wp simple-history list --fields=ID,date,site,description
+	 *     wp simple-history event list --fields=ID,date,site,description
 	 *
 	 *     # Show which events were initiated via an AI tool (e.g. Claude Code, ChatGPT)
-	 *     wp simple-history list --fields=ID,date,ai_agent,description
+	 *     wp simple-history event list --fields=ID,date,ai_agent,description
 	 *
 	 *     # Show full AI attribution: the agent, how it was detected, and the application
-	 *     wp simple-history list --ai_only --fields=ID,date,ai_agent,ai_detected_via,ai_application,description
+	 *     wp simple-history event list --ai_only --fields=ID,date,ai_agent,ai_detected_via,ai_application,description
 	 *
 	 * [--fields=<fields>]
 	 * : Limit output to specific fields. Comma-separated list.

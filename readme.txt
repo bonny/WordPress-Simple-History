@@ -269,7 +269,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Deprecated**
 
--   WP-CLI: `wp simple-history event search` — use `wp simple-history list --search=<term>` instead. The old command still works but will be removed in a future version.
+-   WP-CLI: `wp simple-history event search` — use `wp simple-history event list --search=<term>` instead. The old command still works but will be removed in a future version.
 
 **Fixed**
 
