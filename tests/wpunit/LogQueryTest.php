@@ -680,14 +680,13 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test that blank or malformed months entries are ignored.
+	 * Test that blank months entries are treated as "no filter".
 	 *
 	 * Regression test: a blank entry used to make DateTimeImmutable parse
 	 * "-01 00:00:00" as "now minus 1 second", and an all-blank list produced
-	 * an empty "()" group in the WHERE clause — a SQL syntax error. Malformed
-	 * entries like "banana" threw an uncaught exception.
+	 * an empty "()" group in the WHERE clause — a SQL syntax error.
 	 */
-	function test_blank_and_malformed_months_are_ignored() {
+	function test_blank_months_entries_are_ignored() {
 		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $admin_user_id );
 
@@ -717,17 +716,6 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( is_wp_error( $results_blank_months ), 'Blank months entries should not cause a database error' );
 		$this->assertGreaterThan( 0, $results_blank_months['log_rows_count'], 'Blank months entries should behave like no months filter' );
 
-		// Malformed entries are filtered out instead of throwing.
-		$results_malformed_months = $log_query->query(
-			[
-				'search' => 'months filter test',
-				'months' => 'banana,2024-13',
-			]
-		);
-
-		$this->assertFalse( is_wp_error( $results_malformed_months ), 'Malformed months entries should not cause a database error' );
-		$this->assertGreaterThan( 0, $results_malformed_months['log_rows_count'], 'Malformed months entries should behave like no months filter' );
-
 		// A mix of valid and blank entries applies only the valid one.
 		$results_mixed_months = $log_query->query(
 			[
@@ -737,6 +725,48 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$this->assertGreaterThan( 0, $results_mixed_months['log_rows_count'], 'Valid month mixed with blank entry should still find the event' );
+	}
+
+	/**
+	 * Test that a malformed months value throws InvalidArgumentException.
+	 *
+	 * Invalid filter values fail loud rather than being silently dropped
+	 * (which would widen results without any signal).
+	 */
+	function test_malformed_months_throws_invalid_argument_exception() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		$this->expectException( \InvalidArgumentException::class );
+
+		( new Log_Query() )->query(
+			[
+				'months' => 'banana',
+			]
+		);
+	}
+
+	/**
+	 * Test that a valid short month is accepted regardless of today's date.
+	 *
+	 * Regression test: is_valid_date_format() filled the unparsed day from the
+	 * current day, so on the 29th–31st a valid shorter month like "2024-02"
+	 * overflowed (to March) and was wrongly rejected — which, with fail-closed
+	 * validation, surfaced as an InvalidArgumentException. The "!" format reset
+	 * makes validation date-independent.
+	 */
+	function test_valid_short_month_is_not_rejected() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		// Must not throw, regardless of what day of the month the test runs on.
+		$results = ( new Log_Query() )->query(
+			[
+				'months' => '2024-02',
+			]
+		);
+
+		$this->assertFalse( is_wp_error( $results ), 'A valid short month must be accepted on any day of the month' );
 	}
 
 	/**

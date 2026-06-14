@@ -296,6 +296,28 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Run a Log_Query, converting invalid-argument exceptions to a REST error.
+	 *
+	 * Invalid filter values (e.g. a malformed date_from or months value) make
+	 * Log_Query throw an InvalidArgumentException. Without this, that surfaces
+	 * as an HTTP 500; converting it to a WP_Error returns a clean 400 instead.
+	 *
+	 * @param array $args Query arguments.
+	 * @return array|\WP_Error Query result, or a 400 error for invalid arguments.
+	 */
+	protected function run_log_query( $args ) {
+		try {
+			return ( new Log_Query() )->query( $args );
+		} catch ( \InvalidArgumentException $exception ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				$exception->getMessage(),
+				[ 'status' => 400 ]
+			);
+		}
+	}
+
+	/**
 	 * Retrieves the query params for the posts collection for has_updates.
 	 *
 	 * @return array Collection parameters.
@@ -889,8 +911,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// Force ungrouped for accurate count — grouping is irrelevant for "has updates" check.
 		$args['ungrouped'] = true;
 
-		$log_query    = new Log_Query();
-		$query_result = $log_query->query( $args );
+		$query_result = $this->run_log_query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
 			return $query_result;
@@ -989,8 +1010,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$args[ $wp_param ] = $request[ $api_param ];
 		}
 
-		$log_query    = new Log_Query();
-		$query_result = $log_query->query( $args );
+		$query_result = $this->run_log_query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
 			return $query_result;

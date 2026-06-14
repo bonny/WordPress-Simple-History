@@ -1229,57 +1229,15 @@ class Log_Query {
 		}
 
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
-		// Uses WordPress timezone for date parsing to ensure correct day boundaries.
-		if ( isset( $args['date_from'] ) && is_numeric( $args['date_from'] ) ) {
-			$args['date_from'] = (int) $args['date_from'];
-		} elseif ( isset( $args['date_from'] ) && is_string( $args['date_from'] ) ) {
-			// If value is "2025-03-29" that means the beginning of the day on 2025-03-29 in WordPress timezone.
-			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_from'], 'Y-m-d' );
-			if ( $is_start_of_day_date_format ) {
-				// Parse date in WordPress timezone and get start of day (00:00:00).
-				$date              = new \DateTimeImmutable( $args['date_from'] . ' 00:00:00', wp_timezone() );
-				$args['date_from'] = $date->getTimestamp();
-			} else {
-				// Parse datetime string in WordPress timezone.
-				// Rethrow unparseable values as the same catchable exception type
-				// used by the rest of the argument validation.
-				try {
-					$date = new \DateTimeImmutable( $args['date_from'], wp_timezone() );
-				} catch ( \Exception $exception ) {
-					throw new \InvalidArgumentException( 'Invalid date_from' );
-				}
-
-				$args['date_from'] = $date->getTimestamp();
-			}
-		} elseif ( isset( $args['date_from'] ) ) {
-			throw new \InvalidArgumentException( 'Invalid date_from' );
+		// A bare "Y-m-d" date means the beginning of that day in WordPress timezone.
+		if ( isset( $args['date_from'] ) ) {
+			$args['date_from'] = $this->convert_date_arg_to_timestamp( $args['date_from'], 'date_from', '00:00:00' );
 		}
 
 		// "date_to" must be timestamp or string. If string then convert to timestamp.
-		// Uses WordPress timezone for date parsing to ensure correct day boundaries.
-		if ( isset( $args['date_to'] ) && is_numeric( $args['date_to'] ) ) {
-			$args['date_to'] = (int) $args['date_to'];
-		} elseif ( isset( $args['date_to'] ) && is_string( $args['date_to'] ) ) {
-			// If value is "2025-03-29" that means the end of the day on 2025-03-29 in WordPress timezone.
-			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_to'], 'Y-m-d' );
-			if ( $is_start_of_day_date_format ) {
-				// Parse date in WordPress timezone and get end of day (23:59:59).
-				$date            = new \DateTimeImmutable( $args['date_to'] . ' 23:59:59', wp_timezone() );
-				$args['date_to'] = $date->getTimestamp();
-			} else {
-				// Parse datetime string in WordPress timezone.
-				// Rethrow unparseable values as the same catchable exception type
-				// used by the rest of the argument validation.
-				try {
-					$date = new \DateTimeImmutable( $args['date_to'], wp_timezone() );
-				} catch ( \Exception $exception ) {
-					throw new \InvalidArgumentException( 'Invalid date_to' );
-				}
-
-				$args['date_to'] = $date->getTimestamp();
-			}
-		} elseif ( isset( $args['date_to'] ) ) {
-			throw new \InvalidArgumentException( 'Invalid date_to' );
+		// A bare "Y-m-d" date means the end of that day in WordPress timezone.
+		if ( isset( $args['date_to'] ) ) {
+			$args['date_to'] = $this->convert_date_arg_to_timestamp( $args['date_to'], 'date_to', '23:59:59' );
 		}
 
 		// "search" must be string.
@@ -1760,6 +1718,7 @@ class Log_Query {
 	 *
 	 * @param array $args Query arguments, as passed to query().
 	 * @return array<string> Where clauses.
+	 * @throws \InvalidArgumentException If a months value is not in valid Y-m format.
 	 */
 	protected function get_inner_where( $args ) {
 		global $wpdb;
@@ -1904,26 +1863,24 @@ class Log_Query {
 				$arr_months = explode( ',', $args['months'] );
 			}
 
-			// Keep only entries in valid "Y-m" format. A blank entry would make
-			// DateTimeImmutable parse "-01 00:00:00" as "now minus 1 second" and a
-			// malformed entry like "banana" would throw an uncaught exception.
-			$arr_months = array_map(
-				static function ( $one_month ) {
-					return is_string( $one_month ) ? trim( $one_month ) : '';
-				},
-				$arr_months
-			);
-
-			$arr_months = array_filter(
-				$arr_months,
-				function ( $one_month ) {
-					return $this->is_valid_date_format( $one_month, 'Y-m' );
-				}
-			);
-
 			$sql_month_clauses = [];
 
 			foreach ( $arr_months as $one_month ) {
+				$one_month = is_string( $one_month ) ? trim( $one_month ) : $one_month;
+
+				// Blank entries mean "no filter" and are skipped, matching how
+				// empty date_from/date_to are treated.
+				if ( $one_month === '' || $one_month === null ) {
+					continue;
+				}
+
+				// Anything else must be a valid "Y-m" value. A malformed value
+				// like "banana" would otherwise produce a nonsense date filter
+				// or an uncaught exception from DateTimeImmutable.
+				if ( ! is_string( $one_month ) || ! $this->is_valid_date_format( $one_month, 'Y-m' ) ) {
+					throw new \InvalidArgumentException( 'Invalid months value. Use Y-m format (e.g., 2024-08)' );
+				}
+
 				// Beginning of month in WordPress timezone.
 				// For "2014-08", this is 2014-08-01 00:00:00 in WordPress timezone.
 				$date_month_beginning_obj = new \DateTimeImmutable( $one_month . '-01 00:00:00', wp_timezone() );
@@ -2587,6 +2544,47 @@ class Log_Query {
 	}
 
 	/**
+	 * Convert a date_from/date_to argument to a timestamp.
+	 *
+	 * Numeric values are used as-is. A bare "Y-m-d" string is expanded to
+	 * the given day boundary time in the WordPress timezone. Any other
+	 * string is parsed leniently (e.g. "yesterday").
+	 *
+	 * @param mixed  $value Date value to convert.
+	 * @param string $arg_name Argument name, used in error messages.
+	 * @param string $day_boundary_time Time appended to bare dates, e.g. "00:00:00" or "23:59:59".
+	 * @return int Timestamp.
+	 * @throws \InvalidArgumentException When the value is not a valid date.
+	 */
+	protected function convert_date_arg_to_timestamp( $value, $arg_name, $day_boundary_time ) {
+		if ( is_numeric( $value ) ) {
+			return (int) $value;
+		}
+
+		if ( ! is_string( $value ) ) {
+			throw new \InvalidArgumentException( 'Invalid ' . esc_html( $arg_name ) );
+		}
+
+		// A bare date means the start or end of that day in WordPress timezone.
+		if ( $this->is_valid_date_format( $value, 'Y-m-d' ) ) {
+			$date = new \DateTimeImmutable( $value . ' ' . $day_boundary_time, wp_timezone() );
+
+			return $date->getTimestamp();
+		}
+
+		// Parse datetime string in WordPress timezone. Rethrow unparseable
+		// values as the same catchable exception type used by the rest of
+		// the argument validation.
+		try {
+			$date = new \DateTimeImmutable( $value, wp_timezone() );
+		} catch ( \Exception $exception ) {
+			throw new \InvalidArgumentException( 'Invalid ' . esc_html( $arg_name ) );
+		}
+
+		return $date->getTimestamp();
+	}
+
+	/**
 	 * Check if a date string is in the specified format.
 	 *
 	 * Example:
@@ -2598,7 +2596,12 @@ class Log_Query {
 	 * @return bool True if the date string is in the specified format, false otherwise.
 	 */
 	protected function is_valid_date_format( $date_string, $format = 'Y-m-d' ) {
-		$d = \DateTime::createFromFormat( $format, $date_string );
+		// The "!" resets fields not present in the format to the Unix epoch
+		// instead of the current date. Without it, validating "Y-m" near the
+		// end of a month would overflow shorter months (e.g. "2024-02" parsed
+		// on the 31st becomes 2024-03-02) and wrongly reject valid values.
+		$d = \DateTime::createFromFormat( '!' . $format, $date_string );
+
 		return $d && $d->format( $format ) === $date_string;
 	}
 

@@ -6,9 +6,9 @@ use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
 use Simple_History\Log_Levels;
 use Simple_History\Services\WP_CLI_Commands\WP_CLI_Promo;
+use Simple_History\Services\WP_CLI_Commands\WP_CLI_Query_Helper;
 use WP_CLI;
 use WP_CLI_Command;
-use Simple_History\Log_Query;
 
 /**
  * Read, search, and manage events from Simple History — WordPress' activity log.
@@ -243,6 +243,9 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *     # Show which events were initiated via an AI tool (e.g. Claude Code, ChatGPT)
 	 *     wp simple-history list --fields=ID,date,ai_agent,description
 	 *
+	 *     # Show full AI attribution: the agent, how it was detected, and the application
+	 *     wp simple-history list --ai_only --fields=ID,date,ai_agent,ai_detected_via,ai_application,description
+	 *
 	 * [--fields=<fields>]
 	 * : Limit output to specific fields. Comma-separated list.
 	 * ---
@@ -261,6 +264,8 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *   - reactions
 	 *   - site
 	 *   - ai_agent
+	 *   - ai_detected_via
+	 *   - ai_application
 	 * ---
 	 *
 	 * @when after_wp_load
@@ -341,11 +346,6 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			Log_Initiators::get_valid_initiators(),
 			'exclude_initiator'
 		);
-
-		// Override capability check: if you can run wp cli commands you can read all loggers.
-		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
-
-		$query = new Log_Query();
 
 		// Build query args with filters.
 		// Use ungrouped for simpler/faster SQL — CLI output is always a flat list.
@@ -456,12 +456,16 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			);
 		}
 
-		// The finally block guarantees the capability override is removed even
-		// when query() throws on invalid arguments.
+		// Override the logger read capability check: if you can run WP-CLI
+		// commands you can read all loggers. Invalid filter values (e.g. a
+		// malformed date) surface as a clean error instead of a PHP fatal.
 		try {
-			$events = $query->query( $query_args );
-		} finally {
-			remove_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10 );
+			$events = WP_CLI_Query_Helper::query_with_full_read_access( $query_args );
+		} catch ( \InvalidArgumentException $exception ) {
+			// WP_CLI::error() halts execution; the return keeps static analysis
+			// happy that $events is always defined below.
+			WP_CLI::error( $exception->getMessage() );
+			return;
 		}
 
 		// Handle database errors.
@@ -533,21 +537,31 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				? (string) $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_AGENT ]
 				: '';
 
+			$ai_detected_via = isset( $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA ] )
+				? (string) $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA ]
+				: '';
+
+			$ai_application = isset( $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ] )
+				? (string) $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ]
+				: '';
+
 			$eventsCleaned[] = array(
-				'ID'            => $id_display,
-				'date'          => get_date_from_gmt( $row->date ),
-				'date_relative' => $date_relative,
-				'initiator'     => Log_Initiators::get_initiator_text_from_row( $row ),
-				'logger'        => $row->logger,
-				'level'         => $row->level,
-				'who_when'      => $header_output,
-				'description'   => $text_output,
-				'via'           => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
+				'ID'              => $id_display,
+				'date'            => get_date_from_gmt( $row->date ),
+				'date_relative'   => $date_relative,
+				'initiator'       => Log_Initiators::get_initiator_text_from_row( $row ),
+				'logger'          => $row->logger,
+				'level'           => $row->level,
+				'who_when'        => $header_output,
+				'description'     => $text_output,
+				'via'             => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'count'         => $row->subsequentOccasions,
-				'reactions'     => $reactions_display,
-				'site'          => $site_label,
-				'ai_agent'      => $ai_agent,
+				'count'           => $row->subsequentOccasions,
+				'reactions'       => $reactions_display,
+				'site'            => $site_label,
+				'ai_agent'        => $ai_agent,
+				'ai_detected_via' => $ai_detected_via,
+				'ai_application'  => $ai_application,
 			);
 		}
 

@@ -260,6 +260,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Changes to more settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log).
 -   Developers: new `simple_history/settings/tracked_options` filter lets add-ons register their own option keys to be logged as "Modified settings", plus `simple_history/settings/redacted_options` to hide sensitive values.
 -   WP-CLI: `--metadata_search` and `--ai_only` options on `wp simple-history list`, matching the metadata search and AI filter in the GUI.
+-   WP-CLI: AI attribution columns (`ai_agent`, `ai_detected_via`, `ai_application`) on `wp simple-history list`, showing which AI tool made a change and how it was detected.
 
 **Changed**
 
@@ -273,7 +274,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   WP-CLI: `wp simple-history event search` always returned zero results.
--   Invalid date or month filter values no longer cause errors when querying the log (REST API and WP-CLI) — they are now ignored or rejected with a clear message.
+-   Invalid date or month filter values now return a clear error (HTTP 400 in the REST API, a friendly message in WP-CLI) instead of a server error.
 -   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
 -   🧪 **Experimental** — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
 

@@ -4,7 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
-use Simple_History\Log_Query;
+use Simple_History\Services\WP_CLI_Commands\WP_CLI_Query_Helper;
 use WP_CLI;
 use WP_CLI_Command;
 
@@ -45,24 +45,15 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 			WP_CLI::error( 'Event ID must be an integer.' );
 		}
 
-		// Override capability check: if you can run wp cli commands you can read all loggers.
-		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
-
 		// Get information about event using the Simple History Log Query API.
-		// The finally block guarantees the capability override is removed even
-		// when query() throws on invalid arguments.
-		$query = new Log_Query();
-
-		try {
-			$query_result = $query->query(
-				array(
-					'post__in'  => [ $event_id ],
-					'ungrouped' => true,
-				)
-			);
-		} finally {
-			remove_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10 );
-		}
+		// Override the logger read capability check: if you can run WP-CLI
+		// commands you can read all loggers.
+		$query_result = WP_CLI_Query_Helper::query_with_full_read_access(
+			array(
+				'post__in'  => [ $event_id ],
+				'ungrouped' => true,
+			)
+		);
 
 		// Handle database errors.
 		if ( is_wp_error( $query_result ) ) {
