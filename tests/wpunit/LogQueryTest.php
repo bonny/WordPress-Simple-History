@@ -620,4 +620,172 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		// Should return 0 results (injection should not work).
 		$this->assertEquals( 0, $query_results['log_rows_count'], 'SQL injection in value should return no results' );
 	}
+
+	/**
+	 * Test that empty-string date_from/date_to behave as "no date filter".
+	 *
+	 * Regression test: DateTimeImmutable parses an empty string as "now",
+	 * which turned queries into "date >= now" and silently returned zero
+	 * results for callers passing '' (e.g. the WP-CLI event search command).
+	 */
+	function test_empty_string_dates_are_ignored() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		SimpleLogger()->info( 'Event for empty date test' );
+
+		$log_query = new Log_Query();
+
+		// Baseline: no date args at all.
+		$results_no_dates = $log_query->query(
+			[
+				'search'         => 'empty date test',
+				'posts_per_page' => 10,
+			]
+		);
+
+		$this->assertGreaterThan( 0, $results_no_dates['log_rows_count'], 'Baseline query should find the event' );
+
+		// Same query with empty-string dates must return the same rows.
+		$results_empty_dates = $log_query->query(
+			[
+				'search'         => 'empty date test',
+				'date_from'      => '',
+				'date_to'        => '',
+				'posts_per_page' => 10,
+			]
+		);
+
+		$this->assertEquals(
+			$results_no_dates['log_rows_count'],
+			$results_empty_dates['log_rows_count'],
+			'Empty-string dates should behave exactly like omitted dates'
+		);
+
+		// Whitespace-only strings should be treated the same way.
+		$results_whitespace_dates = $log_query->query(
+			[
+				'search'         => 'empty date test',
+				'date_from'      => ' ',
+				'date_to'        => ' ',
+				'posts_per_page' => 10,
+			]
+		);
+
+		$this->assertEquals(
+			$results_no_dates['log_rows_count'],
+			$results_whitespace_dates['log_rows_count'],
+			'Whitespace-only dates should behave exactly like omitted dates'
+		);
+	}
+
+	/**
+	 * Test that blank months entries are treated as "no filter".
+	 *
+	 * Regression test: a blank entry used to make DateTimeImmutable parse
+	 * "-01 00:00:00" as "now minus 1 second", and an all-blank list produced
+	 * an empty "()" group in the WHERE clause — a SQL syntax error.
+	 */
+	function test_blank_months_entries_are_ignored() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		SimpleLogger()->info( 'Event for months filter test' );
+
+		$log_query = new Log_Query();
+
+		// A valid month filter finds the event.
+		$results_valid_month = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => gmdate( 'Y-m' ),
+			]
+		);
+
+		$this->assertGreaterThan( 0, $results_valid_month['log_rows_count'], 'Valid month should find the event' );
+
+		// Only-blank entries must behave like no months filter, not produce
+		// an empty "()" SQL group.
+		$results_blank_months = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => ',',
+			]
+		);
+
+		$this->assertFalse( is_wp_error( $results_blank_months ), 'Blank months entries should not cause a database error' );
+		$this->assertGreaterThan( 0, $results_blank_months['log_rows_count'], 'Blank months entries should behave like no months filter' );
+
+		// A mix of valid and blank entries applies only the valid one.
+		$results_mixed_months = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => ',' . gmdate( 'Y-m' ),
+			]
+		);
+
+		$this->assertGreaterThan( 0, $results_mixed_months['log_rows_count'], 'Valid month mixed with blank entry should still find the event' );
+	}
+
+	/**
+	 * Test that a malformed months value throws InvalidArgumentException.
+	 *
+	 * Invalid filter values fail loud rather than being silently dropped
+	 * (which would widen results without any signal).
+	 */
+	function test_malformed_months_throws_invalid_argument_exception() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		$this->expectException( \InvalidArgumentException::class );
+
+		( new Log_Query() )->query(
+			[
+				'months' => 'banana',
+			]
+		);
+	}
+
+	/**
+	 * Test that a valid short month is accepted regardless of today's date.
+	 *
+	 * Regression test: is_valid_date_format() filled the unparsed day from the
+	 * current day, so on the 29th–31st a valid shorter month like "2024-02"
+	 * overflowed (to March) and was wrongly rejected — which, with fail-closed
+	 * validation, surfaced as an InvalidArgumentException. The "!" format reset
+	 * makes validation date-independent.
+	 */
+	function test_valid_short_month_is_not_rejected() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		// Must not throw, regardless of what day of the month the test runs on.
+		$results = ( new Log_Query() )->query(
+			[
+				'months' => '2024-02',
+			]
+		);
+
+		$this->assertFalse( is_wp_error( $results ), 'A valid short month must be accepted on any day of the month' );
+	}
+
+	/**
+	 * Test that an unparseable date_from throws a catchable InvalidArgumentException.
+	 *
+	 * Regression test: garbage like "banana" used to throw an uncaught
+	 * \Exception from DateTimeImmutable instead of the InvalidArgumentException
+	 * used by the rest of the argument validation.
+	 */
+	function test_unparseable_date_from_throws_invalid_argument_exception() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		$this->expectException( \InvalidArgumentException::class );
+
+		( new Log_Query() )->query(
+			[
+				'date_from' => 'banana',
+			]
+		);
+	}
 }

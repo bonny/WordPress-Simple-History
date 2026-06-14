@@ -650,4 +650,34 @@ class SearchTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertEquals( 1, (int) $results['total_row_count'], 'metadata_search should work with ungrouped query mode' );
 	}
+
+	/**
+	 * Test ai_only returns only events carrying AI agent attribution.
+	 */
+	public function test_ai_only_filters_to_ai_attributed_events() {
+		$this->create_event( 'SimpleLogger', 'info', 'Human event', [
+			'_user_email' => 'human@example.com',
+		] );
+		$this->create_event( 'SimpleLogger', 'info', 'AI event', [
+			\Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_AGENT => 'Claude Code',
+		] );
+
+		// Without ai_only both events are returned.
+		$results_all = ( new Log_Query() )->query( [
+			'posts_per_page' => 100,
+			'ungrouped'      => true,
+		] );
+
+		$this->assertEquals( 2, (int) $results_all['total_row_count'], 'Baseline query should return both events' );
+
+		// With ai_only only the AI-attributed event is returned.
+		$results_ai = ( new Log_Query() )->query( [
+			'posts_per_page' => 100,
+			'ungrouped'      => true,
+			'ai_only'        => true,
+		] );
+
+		$this->assertEquals( 1, (int) $results_ai['total_row_count'], 'ai_only should return only AI-attributed events' );
+		$this->assertEquals( 'AI event', $results_ai['log_rows'][0]->message, 'The returned event should be the AI-attributed one' );
+	}
 }
