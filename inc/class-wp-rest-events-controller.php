@@ -1232,7 +1232,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['backfilled'] = isset( $item->context[ Existing_Data_Importer::BACKFILLED_CONTEXT_KEY ] );
 		}
 
-		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::experimental_features_is_enabled() ) {
+		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::reactions_are_enabled() ) {
 			$raw            = $item->context['_reactions'] ?? null;
 			$reactions_data = $raw ? (array) json_decode( $raw, true ) : [];
 			$current_user   = get_current_user_id();
@@ -1478,10 +1478,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function react_to_event( $request ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+		if ( ! Helpers::reactions_are_enabled() ) {
 			return new WP_Error(
 				'rest_reactions_disabled',
-				__( 'Reactions are an experimental feature that is not enabled.', 'simple-history' ),
+				__( 'Reactions are not enabled.', 'simple-history' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -1518,10 +1518,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function unreact_to_event( $request ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+		if ( ! Helpers::reactions_are_enabled() ) {
 			return new WP_Error(
 				'rest_reactions_disabled',
-				__( 'Reactions are an experimental feature that is not enabled.', 'simple-history' ),
+				__( 'Reactions are not enabled.', 'simple-history' ),
 				array( 'status' => 404 )
 			);
 		}

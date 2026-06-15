@@ -118,6 +118,7 @@ class Simple_History_Logger extends Logger {
 			'simple_history_menu_page_location'            => __( 'Menu page location', 'simple-history' ),
 			'simple_history_show_in_admin_bar'             => __( 'Show in admin bar', 'simple-history' ),
 			'simple_history_experimental_features_enabled' => __( 'Experimental features enabled', 'simple-history' ),
+			'simple_history_reactions_enabled'             => __( 'Reactions', 'simple-history' ),
 			'simple_history_email_report_enabled'          => __( 'Email report enabled', 'simple-history' ),
 			'simple_history_email_report_recipients'       => __( 'Email report recipients', 'simple-history' ),
 			Licences_Settings_Page::OPTION_NAME_LICENSE_KEY => __( 'License key', 'simple-history' ),
@@ -132,6 +133,51 @@ class Simple_History_Logger extends Logger {
 		 * @param array<string,string> $settings Map of option name => human label.
 		 */
 		return apply_filters( 'simple_history/settings/tracked_options', $core_settings );
+	}
+
+	/**
+	 * Get the tracked options whose value is a checkbox (1/0) and should be
+	 * rendered as "On"/"Off" in the settings-changed log details.
+	 *
+	 * @return array<string> Option names.
+	 */
+	public function get_boolean_settings() {
+		$boolean_settings = [
+			'simple_history_show_on_dashboard',
+			'simple_history_show_as_page',
+			'simple_history_enable_rss_feed',
+			'simple_history_detective_mode_enabled',
+			'simple_history_show_in_admin_bar',
+			'simple_history_experimental_features_enabled',
+			'simple_history_reactions_enabled',
+			'simple_history_email_report_enabled',
+		];
+
+		/**
+		 * Filter the tracked options rendered as "On"/"Off" (instead of 1/0)
+		 * in the "Modified settings" log details. Add-ons add their own
+		 * checkbox options here.
+		 *
+		 * @param array<string> $boolean_settings Option names.
+		 */
+		return apply_filters( 'simple_history/settings/boolean_options', $boolean_settings );
+	}
+
+	/**
+	 * Format a checkbox option value for display as "On" or "Off".
+	 *
+	 * Returns null unchanged so an absent value (added/removed setting) is
+	 * still detected as such by the details container.
+	 *
+	 * @param mixed $value Raw stored value.
+	 * @return string|null
+	 */
+	private function format_boolean_setting_value( $value ) {
+		if ( $value === null ) {
+			return null;
+		}
+
+		return $value ? __( 'On', 'simple-history' ) : __( 'Off', 'simple-history' );
 	}
 
 	/**
@@ -638,6 +684,12 @@ class Simple_History_Logger extends Logger {
 			$labels[ $this->get_setting_context_base( $option ) ] = $label;
 		}
 
+		// Bases whose stored 1/0 value renders as "On"/"Off" instead of a number.
+		$boolean_bases = [];
+		foreach ( $this->get_boolean_settings() as $option ) {
+			$boolean_bases[ $this->get_setting_context_base( $option ) ] = true;
+		}
+
 		$group = new Event_Details_Group();
 		$items = [];
 
@@ -658,7 +710,17 @@ class Simple_History_Logger extends Logger {
 				continue;
 			}
 
-			$items[] = new Event_Details_Item( [ $base ], $labels[ $base ] );
+			$item = new Event_Details_Item( [ $base ], $labels[ $base ] );
+
+			// Render checkbox settings as On/Off rather than the stored 1/0.
+			if ( isset( $boolean_bases[ $base ] ) ) {
+				$item->set_values(
+					$this->format_boolean_setting_value( $context[ $base . '_new' ] ?? null ),
+					$this->format_boolean_setting_value( $context[ $base . '_prev' ] ?? null )
+				);
+			}
+
+			$items[] = $item;
 		}
 
 		$group->add_items( $items );

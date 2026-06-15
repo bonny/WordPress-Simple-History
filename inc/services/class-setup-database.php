@@ -472,6 +472,7 @@ class Setup_Database extends Service {
 			'simple_history_pager_size_dashboard' => 5,
 			'simple_history_menu_page_location'   => 'top',
 			'simple_history_enable_rss_feed'      => $rss_feed_default,
+			'simple_history_reactions_enabled'    => '1',
 			Auto_Backfill_Service::PENDING_OPTION => 0,
 		];
 
