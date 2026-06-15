@@ -119,8 +119,7 @@ function EventsGUI() {
 		useState( 0 );
 	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
 		useState( 0 );
-	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
-		useState( false );
+	const [ isReactionsEnabled, setIsReactionsEnabled ] = useState( false );
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ alertsPageURL, setAlertsPageURL ] = useState();
@@ -702,7 +701,7 @@ function EventsGUI() {
 			hasExtendedSettingsAddOn,
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
-			experimentalFeaturesEnabled: isExperimentalFeaturesEnabled,
+			reactionsEnabled: isReactionsEnabled,
 			eventsSettingsPageURL: settingsPageURL,
 			alertsPageURL,
 			eventsAdminPageURL,
@@ -715,7 +714,7 @@ function EventsGUI() {
 			hasExtendedSettingsAddOn,
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
-			isExperimentalFeaturesEnabled,
+			isReactionsEnabled,
 			settingsPageURL,
 			alertsPageURL,
 			eventsAdminPageURL,
@@ -769,12 +768,7 @@ function EventsGUI() {
 					setFailedLoginSuppressedCount={
 						setFailedLoginSuppressedCount
 					}
-					isExperimentalFeaturesEnabled={
-						isExperimentalFeaturesEnabled
-					}
-					setIsExperimentalFeaturesEnabled={
-						setIsExperimentalFeaturesEnabled
-					}
+					setIsReactionsEnabled={ setIsReactionsEnabled }
 					eventsAdminPageURL={ eventsAdminPageURL }
 					setEventsAdminPageURL={ setEventsAdminPageURL }
 					setEventsSettingsPageURL={ setSettingsPageURL }

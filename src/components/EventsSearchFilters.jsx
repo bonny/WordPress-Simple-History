@@ -54,8 +54,7 @@ export function EventsSearchFilters( props ) {
 		setHasFailedLoginLimit,
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
-		isExperimentalFeaturesEnabled,
-		setIsExperimentalFeaturesEnabled,
+		setIsReactionsEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setAlertsPageURL,
@@ -207,8 +206,8 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.addons.has_premium_add_on
 				);
 
-				setIsExperimentalFeaturesEnabled(
-					searchOptionsResponse.experimental_features_enabled
+				setIsReactionsEnabled(
+					searchOptionsResponse.reactions_enabled
 				);
 
 				setHasFailedLoginLimit(
@@ -268,7 +267,7 @@ export function EventsSearchFilters( props ) {
 		setHasFailedLoginLimit,
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
-		setIsExperimentalFeaturesEnabled,
+		setIsReactionsEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setAlertsPageURL,
@@ -369,9 +368,6 @@ export function EventsSearchFilters( props ) {
 							}
 							showAIOnly={ showAIOnly }
 							setShowAIOnly={ setShowAIOnly }
-							isExperimentalFeaturesEnabled={
-								isExperimentalFeaturesEnabled
-							}
 							searchOptions={ searchOptions }
 							hideOwnEvents={ hideOwnEvents }
 							setHideOwnEvents={ setHideOwnEvents }

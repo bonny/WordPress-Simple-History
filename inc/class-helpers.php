@@ -1560,6 +1560,22 @@ class Helpers {
 	}
 
 	/**
+	 * Returns true if event reactions are enabled.
+	 *
+	 * Enabled by default; can be turned off in Settings → General. The reaction
+	 * button is shown discreetly on hover, so it is unobtrusive even on
+	 * single-user sites.
+	 *
+	 * @return bool
+	 */
+	public static function reactions_are_enabled() {
+		return (bool) apply_filters(
+			'simple_history/reactions_enabled',
+			get_option( 'simple_history_reactions_enabled', '1' )
+		);
+	}
+
+	/**
 	 * Render a stored JSON diff (from jfcherng/php-diff JsonHtml renderer) to side-by-side HTML.
 	 *
 	 * @param string $json_diff_string JSON-encoded diff array.

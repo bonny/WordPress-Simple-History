@@ -257,7 +257,7 @@ function ReactionPickerPopover( {
 							) ) }
 						</span>
 						<span className="sh-ReactionPicker__premiumText">
-							{ __( 'More with Premium →', 'simple-history' ) }
+							{ __( 'More ways to react →', 'simple-history' ) }
 						</span>
 					</a>
 				) }
@@ -321,9 +321,9 @@ function InlineAddReactionButton( { isUpdating, toggleReaction } ) {
  * @param {Function} props.toggleReaction  Callback to toggle the reaction.
  */
 export function EventReactions( { reactions, isUpdating, toggleReaction } ) {
-	const { experimentalFeaturesEnabled, currentUserId } = useEventsSettings();
+	const { reactionsEnabled, currentUserId } = useEventsSettings();
 
-	if ( ! experimentalFeaturesEnabled ) {
+	if ( ! reactionsEnabled ) {
 		return null;
 	}
 
@@ -365,11 +365,11 @@ export function EventReactions( { reactions, isUpdating, toggleReaction } ) {
  * @param {Function} props.toggleReaction   Callback to toggle the reaction.
  */
 export function EventReactionQuickButton( { isUpdating, toggleReaction } ) {
-	const { experimentalFeaturesEnabled, currentUserId } = useEventsSettings();
+	const { reactionsEnabled, currentUserId } = useEventsSettings();
 	const [ isOpen, setIsOpen ] = useState( false );
 	const buttonRef = useRef( null );
 
-	if ( ! experimentalFeaturesEnabled ) {
+	if ( ! reactionsEnabled ) {
 		return null;
 	}
 
