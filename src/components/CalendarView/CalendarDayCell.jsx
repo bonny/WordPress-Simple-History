@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { __, sprintf } from '@wordpress/i18n';
 import { getSeverityCounts } from './calendarUtils';
 
 export function CalendarDayCell( { children, value, groupedEvents } ) {
@@ -14,19 +15,28 @@ export function CalendarDayCell( { children, value, groupedEvents } ) {
 					{ counts.error > 0 && (
 						<span
 							className="sh-calendar-dot sh-calendar-dot--error"
-							title={ `${ counts.error } error(s)` }
+							title={ sprintf(
+								__( '%d error(s)', 'simple-history' ),
+								counts.error
+							) }
 						/>
 					) }
 					{ counts.warning > 0 && (
 						<span
 							className="sh-calendar-dot sh-calendar-dot--warning"
-							title={ `${ counts.warning } warning(s)` }
+							title={ sprintf(
+								__( '%d warning(s)', 'simple-history' ),
+								counts.warning
+							) }
 						/>
 					) }
 					{ counts.info > 0 && (
 						<span
 							className="sh-calendar-dot sh-calendar-dot--info"
-							title={ `${ counts.info } info` }
+							title={ sprintf(
+								__( '%d info', 'simple-history' ),
+								counts.info
+							) }
 						/>
 					) }
 				</div>

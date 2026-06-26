@@ -18,7 +18,8 @@ export function CalendarEventRow( { event } ) {
 			tabIndex={ 0 }
 			onClick={ () => openModal( shEvent.id ) }
 			onKeyDown={ ( e ) => {
-				if ( e.key === 'Enter' ) {
+				if ( e.key === 'Enter' || e.key === ' ' ) {
+					e.preventDefault();
 					openModal( shEvent.id );
 				}
 			} }
