@@ -33,6 +33,7 @@ import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
+import { getPeriodRange } from './CalendarView/calendarUtils';
 
 const CalendarView = lazy( () =>
 	import(
@@ -842,7 +843,13 @@ function EventsGUI() {
 							viewMode === 'list' ? 'primary' : 'secondary'
 						}
 						onClick={ () => {
-							// Date sync (calendar → list) added in Task 6.
+							const { start, end } = getPeriodRange(
+								calendarDate,
+								calView
+							);
+							setSelectedDateOption( 'customRange' );
+							setSelectedCustomDateFrom( start );
+							setSelectedCustomDateTo( end );
 							setViewMode( 'list' );
 						} }
 					>
