@@ -252,6 +252,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > 🧪 **Experimental** entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+#### Added
+
+-   Calendar view on the event log — toggle between List and Calendar to browse events in a month/week/day grid, with per-day severity indicators and mini event previews.
+
 ### 5.29.0 (June 2026)
 
 🔒 This release brings Simple History together with WordPress's built-in privacy tools: a person's activity log is now included in personal-data exports (Tools → Export Personal Data), and a new "Privacy & Data" settings tab explains how it works. Plus: overview action links across user, plugin, post, and media events, and action links on core update and privacy events for quicker navigation.
