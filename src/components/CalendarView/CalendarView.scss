@@ -1,0 +1,81 @@
+.sh-calendar-wrap {
+	margin-top: 16px;
+
+	// Toolbar
+	.sh-calendar-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 12px;
+
+		&__nav {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+
+		&__label {
+			font-weight: 600;
+			font-size: 14px;
+			margin-left: 8px;
+		}
+	}
+
+	// Day cell severity dots
+	.sh-calendar-severity-dots {
+		display: flex;
+		gap: 4px;
+		padding: 2px 4px;
+		flex-wrap: wrap;
+	}
+
+	.sh-calendar-dot {
+		display: inline-block;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+
+		&--error {
+			background-color: #ef4444;
+		}
+
+		&--warning {
+			background-color: #f97316;
+		}
+
+		&--info {
+			background-color: #6b7280;
+		}
+	}
+
+	// Day cell container
+	.sh-calendar-day-cell {
+		width: 100%;
+		height: 100%;
+	}
+
+	// Mini event rows
+	.sh-calendar-event-row {
+		border-left: 3px solid #6b7280;
+		padding-left: 4px;
+		font-size: 11px;
+		line-height: 1.3;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		cursor: pointer;
+	}
+
+	.sh-calendar-event-message {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		display: block;
+	}
+
+	.sh-calendar-loading {
+		padding: 24px;
+		text-align: center;
+		color: #6b7280;
+	}
+}
