@@ -4,6 +4,7 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { CalendarToolbar } from './CalendarToolbar';
+import { useCalendarEvents } from './useCalendarEvents';
 import './CalendarView.scss';
 
 const localizer = dateFnsLocalizer( {
@@ -21,6 +22,24 @@ export function CalendarView( {
 	setCalendarDate,
 	eventsQueryParams,
 } ) {
+	const { events, groupedEvents, isLoading } = useCalendarEvents( {
+		calView,
+		calendarDate,
+		eventsQueryParams,
+	} );
+
+	const rbcEvents = useMemo(
+		() =>
+			events.map( ( event ) => ( {
+				id: event.id,
+				title: event.message,
+				start: new Date( event.date_local ),
+				end: new Date( event.date_local ),
+				resource: event,
+			} ) ),
+		[ events ]
+	);
+
 	const components = useMemo(
 		() => ( {
 			toolbar: CalendarToolbar,
@@ -30,9 +49,14 @@ export function CalendarView( {
 
 	return (
 		<div className="sh-calendar-wrap">
+			{ isLoading && (
+				<div className="sh-calendar-loading">
+					{ /* Loading indicator — events already in state stay visible */ }
+				</div>
+			) }
 			<Calendar
 				localizer={ localizer }
-				events={ [] }
+				events={ rbcEvents }
 				view={ calView }
 				onView={ setCalView }
 				date={ calendarDate }
@@ -42,7 +66,7 @@ export function CalendarView( {
 					setCalView( nextView );
 					setCalendarDate( date );
 				} }
-				onShowMore={ ( _events, date ) => {
+				onShowMore={ ( _evts, date ) => {
 					setCalView( 'day' );
 					setCalendarDate( date );
 				} }
