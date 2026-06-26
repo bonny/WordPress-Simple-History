@@ -4,6 +4,8 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { CalendarToolbar } from './CalendarToolbar';
+import { CalendarDayCell } from './CalendarDayCell';
+import { CalendarEventRow } from './CalendarEventRow';
 import { useCalendarEvents } from './useCalendarEvents';
 import './CalendarView.scss';
 
@@ -43,8 +45,12 @@ export function CalendarView( {
 	const components = useMemo(
 		() => ( {
 			toolbar: CalendarToolbar,
+			dateCellWrapper: ( props ) => (
+				<CalendarDayCell { ...props } groupedEvents={ groupedEvents } />
+			),
+			event: CalendarEventRow,
 		} ),
-		[]
+		[ groupedEvents ]
 	);
 
 	return (
