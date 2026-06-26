@@ -1,12 +1,16 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
 import {
+	lazy,
+	Suspense,
 	useCallback,
 	useEffect,
 	useMemo,
 	useRef,
 	useState,
 } from '@wordpress/element';
+import { Button } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { EventsSettingsProvider } from './EventsSettingsContext';
 import { addQueryArgs } from '@wordpress/url';
 import {
@@ -29,6 +33,12 @@ import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
+
+const CalendarView = lazy( () =>
+	import(
+		/* webpackChunkName: "sh-calendar" */ './CalendarView/CalendarView'
+	)
+);
 
 // Schema for the users object.
 const usersSchema = z.array(
@@ -323,9 +333,24 @@ function EventsGUI() {
 		parseAsInteger.withOptions( useQueryStateOptions )
 	);
 
+	// Active view: 'list' (default) or 'calendar'.
+	const [ viewMode, setViewMode ] = useQueryState(
+		'view',
+		parseAsString.withDefault( 'list' ).withOptions( useQueryStateOptions )
+	);
+
+	// Calendar sub-view: 'month', 'week', or 'day'.
+	const [ calView, setCalView ] = useQueryState(
+		'calView',
+		parseAsString.withDefault( 'month' ).withOptions( useQueryStateOptions )
+	);
+
 	/**
 	 * End filter/search options states.
 	 */
+
+	// Current date shown in the calendar (local state — not serialised to URL).
+	const [ calendarDate, setCalendarDate ] = useState( new Date() );
 
 	// Derive hideOwnEvents from whether current user is in excludeUsers.
 	const hideOwnEvents = useMemo( () => {
@@ -809,26 +834,70 @@ function EventsGUI() {
 				/>
 			) }
 
-			<EventsList
-				eventsIsLoading={ eventsIsLoading }
-				events={ events }
-				eventsMeta={ eventsMeta }
-				page={ page }
-				pagerSize={ pagerSize }
-				setPage={ setPage }
-				prevEventsMaxId={ prevEventsMaxId }
-				failedLoginLimitThreshold={ failedLoginLimitThreshold }
-				failedLoginSuppressedCount={ failedLoginSuppressedCount }
-				eventsLoadingHasErrors={ eventsLoadingHasErrors }
-				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
-				surroundingEventId={ surroundingEventId }
-				surroundingCount={ surroundingCount }
-				hasActiveFilters={ hasAnyActiveFilters }
-				onClearFilters={ handleClearFilters }
-				canAdjustFilters={
-					hasNonDateActiveFilters && selectedDateOption !== 'allDates'
-				}
-			/>
+			{ /* View toggle — hidden when browsing surrounding events */ }
+			{ ! surroundingEventId && (
+				<div className="sh-view-toggle">
+					<Button
+						variant={
+							viewMode === 'list' ? 'primary' : 'secondary'
+						}
+						onClick={ () => {
+							// Date sync (calendar → list) added in Task 6.
+							setViewMode( 'list' );
+						} }
+					>
+						{ __( 'List', 'simple-history' ) }
+					</Button>
+					<Button
+						variant={
+							viewMode === 'calendar' ? 'primary' : 'secondary'
+						}
+						onClick={ () => setViewMode( 'calendar' ) }
+					>
+						{ __( 'Calendar', 'simple-history' ) }
+					</Button>
+				</div>
+			) }
+
+			{ viewMode === 'calendar' && ! surroundingEventId ? (
+				<Suspense
+					fallback={
+						<div className="sh-calendar-loading">
+							{ __( 'Loading calendar…', 'simple-history' ) }
+						</div>
+					}
+				>
+					<CalendarView
+						calView={ calView }
+						setCalView={ setCalView }
+						calendarDate={ calendarDate }
+						setCalendarDate={ setCalendarDate }
+						eventsQueryParams={ eventsQueryParams }
+					/>
+				</Suspense>
+			) : (
+				<EventsList
+					eventsIsLoading={ eventsIsLoading }
+					events={ events }
+					eventsMeta={ eventsMeta }
+					page={ page }
+					pagerSize={ pagerSize }
+					setPage={ setPage }
+					prevEventsMaxId={ prevEventsMaxId }
+					failedLoginLimitThreshold={ failedLoginLimitThreshold }
+					failedLoginSuppressedCount={ failedLoginSuppressedCount }
+					eventsLoadingHasErrors={ eventsLoadingHasErrors }
+					eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+					surroundingEventId={ surroundingEventId }
+					surroundingCount={ surroundingCount }
+					hasActiveFilters={ hasAnyActiveFilters }
+					onClearFilters={ handleClearFilters }
+					canAdjustFilters={
+						hasNonDateActiveFilters &&
+						selectedDateOption !== 'allDates'
+					}
+				/>
+			) }
 
 			<EventsModalIfFragment />
 		</EventsSettingsProvider>
