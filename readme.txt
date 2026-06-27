@@ -250,7 +250,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-> 🧪 **Experimental** entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+> Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
 ### Unreleased
 
@@ -278,7 +278,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   WP-CLI: `wp simple-history event search` always returned zero results.
 -   Invalid date or month filter values now return a clear error (HTTP 400 in the REST API, a friendly message in WP-CLI) instead of a server error.
 -   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
--   🧪 **Experimental** — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
+-   Experimental — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
 
 ### 5.29.0 (June 2026)
 
@@ -292,8 +292,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Action links on privacy events linking to the matching WordPress tool page (Tools → Export / Erase Personal Data, Settings → Privacy).
 -   Activity log is now included in WordPress's personal-data export (Tools → Export Personal Data).
 -   New "Privacy & Data" settings tab (Settings → Simple History) explaining how Simple History works with WordPress's personal-data tools.
--   🧪 **Experimental** — Exports also include activity about a person performed by others, with other people's names and emails redacted.
--   🧪 **Experimental** — Running a WordPress personal-data erasure (Tools → Erase Personal Data) anonymizes the person's data in matching log entries while keeping the entries as audit records.
+-   Experimental — Exports also include activity about a person performed by others, with other people's names and emails redacted.
+-   Experimental — Running a WordPress personal-data erasure (Tools → Erase Personal Data) anonymizes the person's data in matching log entries while keeping the entries as audit records.
 
 **Changed**
 
@@ -301,7 +301,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   External action links now show an "open in new tab" icon and open in a new tab.
 -   Dashboard widget action links are now more compact, so the event message stays the visual anchor.
 -   License reminder for missing add-on license keys moved from a full-width banner to a dismissible card in the History Insights sidebar.
--   🧪 **Experimental** — Role and capability events show a count ("Added 40 capabilities to role Editor") instead of dumping every capability slug into the headline; the full list stays in the event details.
+-   Experimental — Role and capability events show a count ("Added 40 capabilities to role Editor") instead of dumping every capability slug into the headline; the full list stays in the event details.
 
 **Fixed**
 
@@ -339,7 +339,7 @@ Ready for [WordPress 7.0](https://make.wordpress.org/core/7-0/)! This version is
 -   Support info page no longer prints a "no such table: dbstat" database error when `WP_DEBUG` is on and SQLite's optional `dbstat` virtual table isn't available (notably on WordPress Playground).
 -   "Most active users" widget no longer shows nameless entries for users without a display name.
 -   Redirect loops in wp-admin for low-privilege users. A legacy-URL redirect intended only for the old `/wp-admin/index.php?page=simple_history_page` bookmark was also firing for unrelated access-denied events on the dashboard, which could send users in circles. [#639](https://github.com/bonny/WordPress-Simple-History/issues/639)
--   🧪 **Experimental** — Brute-force attempts against `xmlrpc.php` now show which account is being targeted instead of logging an empty username.
+-   Experimental — Brute-force attempts against `xmlrpc.php` now show which account is being targeted instead of logging an empty username.
 
 ### 5.27.0 (May 2026)
 
@@ -357,8 +357,8 @@ Ready for [WordPress 7.0](https://make.wordpress.org/core/7-0/)! This version is
 -   AI agent attribution on event log rows: when an event is triggered by an AI tool (Claude Code, ChatGPT, MCP clients, the Abilities API, etc.), a sparkle icon and the agent name appear next to the user who initiated the event. The signed-in user remains the actual initiator — this is additional audit context, not an authentication signal.
 -   "AI-initiated events only" filter in the expanded filters panel — quickly narrow the log to actions triggered via AI tools.
 -   New "Copy as JSON" menu item for each event, that copies the full event payload — including all context data — for scripting and debugging.
--   🧪 **Experimental** — "History" column on post and page list tables showing recent activity at a glance, with "View history" row action links.
--   🧪 **Experimental** — Failed application password authentication on REST API and XML-RPC requests is now logged as a warning, with the attempted user, error code and message, request URI, request method, and user agent. Closes a visibility gap where wrong app password attempts left no trace in the log, while wp-login failures already did. Can also be toggled directly via the new `simple_history/log_failed_app_password_auth` filter.
+-   Experimental — "History" column on post and page list tables showing recent activity at a glance, with "View history" row action links.
+-   Experimental — Failed application password authentication on REST API and XML-RPC requests is now logged as a warning, with the attempted user, error code and message, request URI, request method, and user agent. Closes a visibility gap where wrong app password attempts left no trace in the log, while wp-login failures already did. Can also be toggled directly via the new `simple_history/log_failed_app_password_auth` filter.
 
 **Changed**
 
@@ -390,7 +390,7 @@ This version makes the log actions more discoverable by moving them out of the d
 
 -   Media, Comments, and Themes sections to the weekly email summary report. Comments section only appears when comments are enabled on the site.
 -   `--fields` support for `wp simple-history list` WP-CLI command, including a `reactions` field showing reaction counts.
--   🧪 **Experimental** — Event reactions: react to log events with a thumbs up emoji, with a Slack-style emoji picker in the actions bar.
+-   Experimental — Event reactions: react to log events with a thumbs up emoji, with a Slack-style emoji picker in the actions bar.
 
 **Changed**
 
@@ -419,7 +419,7 @@ This release focuses on keeping your database lean. Three features that reduce l
 -   Settings and Premium/Get Premium buttons in the top-right header, replacing the Add-ons link.
 -   Email Reports settings moved to their own sub-tab under Settings for better discoverability.
 -   New installs default to 30-day retention (existing installs keep 60 days), keeping your database lean from day one.
--   🧪 **Experimental** — Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access.
+-   Experimental — Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access.
 
 **Changed**
 

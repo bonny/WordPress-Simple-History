@@ -43,7 +43,7 @@ Changelogs are for **humans, not machines**. Write for both technical and non-te
 -   Never hide breaking changes, deprecations, or security fixes
 -   Be upfront about what changed and why — users trust changelogs that are transparent
 -   Include all notable user-facing changes; selective entries undermine credibility
--   Mark experimental features with the `🧪 **Experimental** —` prefix (see "Experimental features" section below)
+-   Mark experimental features with the `Experimental —` prefix (see "Experimental features" section below)
 
 **Keep it concise — one line per entry:**
 
@@ -118,17 +118,17 @@ Use these standard categories from [Keep a Changelog](https://keepachangelog.com
 
 ## Experimental features
 
-Features gated behind the experimental features setting use a consistent format that signals the gating _and_ invites curiosity.
+Features gated behind the experimental features setting use a consistent prefix that signals the gating without drawing extra attention.
 
 **Format:**
 
 ```
--   🧪 **Experimental** — Description of the feature, written like any other entry.
+-   Experimental — Description of the feature, written like any other entry.
 ```
 
 **Rules:**
 
--   Lead with `🧪 **Experimental** — ` (test-tube emoji + bold label + em-dash + space).
+-   Lead with `Experimental — ` (plain label + em-dash + space — no emoji, no bold).
 -   Don't add "Requires experimental features to be enabled" or trailing "(experimental)" — the prefix already says it.
 -   Place experimental entries at the **bottom** of their subsection (Added/Changed/Fixed/Security). Stable items first, experimental opt-ins after.
 -   If a feature also has a developer-facing filter or hook to toggle it, mention that in the body of the entry, not as boilerplate.
@@ -139,24 +139,23 @@ Features gated behind the experimental features setting use a consistent format 
 The Unreleased section starts with a one-line blockquote that explains what the marker means. This lives once at the top of Unreleased — don't duplicate it in older releases:
 
 ```
-> 🧪 **Experimental** entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+> Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 ```
 
 **Why this format:**
 
--   The 🧪 emoji reads as "try this, it's new" — a curiosity hook, not a warning.
--   Leading the line (rather than trailing) makes it scannable: a reader skimming the changelog can spot experimental items immediately.
--   Placing them last in each section means readers focused on stable shipping changes can stop scanning at the first 🧪.
--   The format matches the style already used for headings in the readme description (🔍 ✨ 🚀 💚).
+-   The plain `Experimental` prefix labels the entry without making it stand out — experimental opt-ins shouldn't compete with stable shipping changes for attention.
+-   Leading the line (rather than trailing) keeps it consistent and easy to spot when you're looking for it.
+-   Placing experimental items last in each section means readers focused on stable changes hit them only after the entries that apply to everyone.
 
 **Examples:**
 
 ```
-✅ 🧪 **Experimental** — Failed application password authentication on REST API and XML-RPC requests is now logged as a warning…
-✅ 🧪 **Experimental** — "History" column on post and page list tables showing recent activity at a glance.
+✅ Experimental — Failed application password authentication on REST API and XML-RPC requests is now logged as a warning…
+✅ Experimental — "History" column on post and page list tables showing recent activity at a glance.
 ❌ "History" column on post and page list tables… (experimental)            (trailing tag — old format)
-❌ "History" column on post and page list tables… Requires experimental features to be enabled.   (boilerplate phrase — superseded by the 🧪 prefix)
-❌ 🧪 History column…                                                        (missing **Experimental** label)
+❌ "History" column on post and page list tables… Requires experimental features to be enabled.   (boilerplate phrase — superseded by the prefix)
+❌ History column…                                                          (missing Experimental label)
 ```
 
 ## Unreleased Section
