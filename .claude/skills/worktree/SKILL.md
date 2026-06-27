@@ -92,72 +92,42 @@ EnterWorktree(name="issue-name-short")
 
 This creates a worktree at `.claude/worktrees/<name>` on branch `worktree-<name>`.
 
-### Step 2: Install dependencies
+### Step 2: Start Playground (mandatory — do this immediately)
+
+From the **main repo root** (not the worktree), run:
 
 ```bash
-# npm ci, not npm install — install can rewrite package-lock.json and
-# leave the worktree permanently dirty.
-npm ci
+cd "$(git rev-parse --git-common-dir)/.."
+scripts/parallel-dev.sh up issue-name-short
 ```
 
-### Step 3: Build assets
+This handles `npm ci`, `npm run build`, port allocation, and Playground startup in one command. Once it finishes, read `.claude/worktrees/issue-name-short/.playground.json` to get the URL and report it to the user:
 
 ```bash
-npm run build
+jq -r .url .claude/worktrees/issue-name-short/.playground.json
 ```
 
-### Step 4: Start WordPress Playground CLI
+**Always report the URL immediately after worktree creation.** The user needs it to preview the feature without merging.
 
-First generate a blueprint from the template, replacing the worktree name:
+Premium is mounted and activated by default. Opt out if the issue is core-only:
 
 ```bash
-WORKTREE_NAME="<worktree-name>"
-MAIN_REPO="$(dirname "$(git rev-parse --git-common-dir)")"
-sed "s/WORKTREE_NAME/$WORKTREE_NAME/" "$MAIN_REPO/.claude/worktree-blueprint.json" > /tmp/wp-blueprint-$WORKTREE_NAME.json
+scripts/parallel-dev.sh up issue-name-short --no-premium
 ```
-
-Then start the server:
-
-```bash
-npx @wp-playground/cli@latest server \
-  --port=<unique-port> \
-  --mount=.:/wordpress/wp-content/plugins/simple-history \
-  --blueprint=/tmp/wp-blueprint-$WORKTREE_NAME.json &
-```
-
-The blueprint (`/.claude/worktree-blueprint.json`) automatically:
-
--   Sets `SIMPLE_HISTORY_DEV` constant (enables dev mode badges and tools)
--   Logs in as admin (sets WP auth cookies on first visit)
--   Activates the Simple History plugin
--   Enables experimental features
--   Sets the site title to the worktree name (visible in browser tab and wp-admin header)
 
 ### Multisite
 
-If the issue involves network/multisite functionality, ask the user if they want a multisite install. If yes, add an `enableMultisite` step to the generated blueprint before starting:
+If the issue involves network/multisite functionality, ask the user if they want a multisite install. If yes, pass a custom blueprint:
 
 ```bash
-# Add enableMultisite as the first step in the blueprint
+# Generate a multisite blueprint from the template
+WORKTREE_NAME="issue-name-short"
+MAIN_REPO="$(git rev-parse --git-common-dir)/.."
+sed "s/WORKTREE_NAME/$WORKTREE_NAME/" "$MAIN_REPO/.claude/worktree-blueprint.json" > /tmp/wp-blueprint-$WORKTREE_NAME.json
 jq '.steps = [{"step": "enableMultisite"}] + .steps' /tmp/wp-blueprint-$WORKTREE_NAME.json > /tmp/wp-blueprint-$WORKTREE_NAME-tmp.json && mv /tmp/wp-blueprint-$WORKTREE_NAME-tmp.json /tmp/wp-blueprint-$WORKTREE_NAME.json
+
+scripts/parallel-dev.sh up $WORKTREE_NAME --blueprint=/tmp/wp-blueprint-$WORKTREE_NAME.json
 ```
-
-**Port assignment:** Find the next available port automatically:
-
-```bash
-PORT=9400; while lsof -i :$PORT >/dev/null 2>&1; do PORT=$((PORT+1)); done; echo $PORT
-```
-
-Ports start at 9400 and increment for each active worktree.
-
-### Step 5: Report the URL
-
-Tell the user:
-
--   Worktree path
--   Branch name
--   WordPress test site URL (e.g., `http://localhost:9400`)
--   Login credentials (Playground auto-logs in with `--login`)
 
 ## Copying Uncommitted Changes
 
