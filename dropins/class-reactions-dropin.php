@@ -58,13 +58,19 @@ class Reactions_Dropin extends Dropin {
 			<?php esc_html_e( 'Enable reactions', 'simple-history' ); ?>
 		</label>
 
-		<p class="description">
-			<?php esc_html_e( 'Let people react to events with a 👍. The button only shows on hover, so it stays out of the way.', 'simple-history' ); ?>
-		</p>
+		<?php if ( Helpers::is_premium_add_on_active() ) { ?>
+			<p class="description">
+				<?php esc_html_e( 'Let people react to events with 👍 ❤️ 🎉 🚀 and more. The button only shows on hover, so it stays out of the way.', 'simple-history' ); ?>
+			</p>
+		<?php } else { ?>
+			<p class="description">
+				<?php esc_html_e( 'Let people react to events with a 👍. The button only shows on hover, so it stays out of the way.', 'simple-history' ); ?>
+			</p>
 
-		<p class="description">
-			<?php esc_html_e( 'Want more ways to react? ❤️ 🎉 🚀 and more come with Premium.', 'simple-history' ); ?>
-		</p>
+			<p class="description">
+				<?php esc_html_e( 'Want more ways to react? ❤️ 🎉 🚀 and more come with Premium.', 'simple-history' ); ?>
+			</p>
+		<?php } ?>
 		<?php
 	}
 }
