@@ -47,6 +47,9 @@ class Status_Box_Service extends Service {
 		 * - 'badge'  (string, optional) Badge label rendered after the text (e.g. 'Premium').
 		 * - 'target' (string, optional) Link target, e.g. '_blank' for external links.
 		 *
+		 * Consumers can match on 'id' to replace or remove an item — the premium
+		 * add-on replaces the 'alerts' upsell item with the real Alerts status.
+		 *
 		 * @since 5.16
 		 *
 		 * @param array $items Array of status items.
@@ -75,8 +78,9 @@ class Status_Box_Service extends Service {
 	 * Whether every discoverable feature has been configured.
 	 *
 	 * When true the discovery bar is hidden — it has done its job.
-	 * Alerts only count when Premium is active (for free users Alerts is an
-	 * upsell that can never be "configured", so it must not keep the bar alive).
+	 * Alerts is a premium feature, so the add-on reports whether it is
+	 * configured via a filter (defaulting to true so it never keeps the bar
+	 * alive on the free version, where Alerts can't be configured).
 	 *
 	 * @return bool
 	 */
@@ -85,12 +89,18 @@ class Status_Box_Service extends Service {
 
 		$forwarding_on = $this->get_active_forwarding_channels_count() > 0;
 
-		$alerts_ok = true;
-
-		if ( Helpers::is_premium_add_on_active() ) {
-			$alert_rules = get_option( 'simple_history_alert_rules', [] );
-			$alerts_ok   = is_array( $alert_rules ) && count( array_filter( $alert_rules, fn( $rule ) => ! empty( $rule['enabled'] ) ) ) > 0;
-		}
+		/**
+		 * Whether the premium Alerts feature is configured.
+		 *
+		 * Alerts lives in the premium add-on, so the add-on answers this.
+		 * Defaults to true so alerts never keeps the discovery bar visible on
+		 * installs where it isn't available (e.g. the free version).
+		 *
+		 * @since 5.30.0
+		 *
+		 * @param bool $configured Whether alerts are configured.
+		 */
+		$alerts_ok = (bool) apply_filters( 'simple_history/header_status/alerts_configured', true );
 
 		return $email_on && $forwarding_on && $alerts_ok;
 	}
@@ -177,8 +187,7 @@ class Status_Box_Service extends Service {
 	 * @return array<array{id: string, text: string, icon: string, url?: string, title?: string, badge?: string, target?: string}>
 	 */
 	private function get_status_items() {
-		$items      = [];
-		$is_premium = Helpers::is_premium_add_on_active();
+		$items = [];
 
 		$settings_url       = Helpers::get_settings_page_url();
 		$general_section    = $settings_url . '#simple_history_general_section';
@@ -189,7 +198,6 @@ class Status_Box_Service extends Service {
 			],
 			$settings_url
 		);
-		$alerts_tab_url     = add_query_arg( 'selected-tab', 'general_settings_subtab_alerts', $settings_url );
 		$forwarding_tab_url = add_query_arg( 'selected-tab', 'general_settings_subtab_log_forwarding', $settings_url );
 
 		// Retention period — always first, always shown as context.
@@ -230,43 +238,18 @@ class Status_Box_Service extends Service {
 			];
 		}
 
-		// Alerts (Premium). Factual/invite when Premium is active; upsell teaser when not.
-		if ( $is_premium ) {
-			$alert_rules    = get_option( 'simple_history_alert_rules', [] );
-			$enabled_alerts = is_array( $alert_rules ) ? count( array_filter( $alert_rules, fn( $rule ) => ! empty( $rule['enabled'] ) ) ) : 0;
-
-			if ( $enabled_alerts > 0 ) {
-				$items[] = [
-					'id'    => 'alerts',
-					'text'  => sprintf(
-						/* translators: %d: number of active alert rules */
-						_n( 'Alerts: %d active', 'Alerts: %d active', $enabled_alerts, 'simple-history' ),
-						$enabled_alerts
-					),
-					'icon'  => 'dashicons-bell',
-					'url'   => $alerts_tab_url,
-					'title' => __( 'Change which events trigger an alert', 'simple-history' ),
-				];
-			} else {
-				$items[] = [
-					'id'    => 'alerts',
-					'text'  => __( 'Set up alerts', 'simple-history' ),
-					'icon'  => 'dashicons-bell',
-					'url'   => $alerts_tab_url,
-					'title' => __( 'Get a heads-up when something important changes on your site', 'simple-history' ),
-				];
-			}
-		} else {
-			$items[] = [
-				'id'     => 'alerts',
-				'text'   => __( 'Alerts', 'simple-history' ),
-				'icon'   => 'dashicons-bell',
-				'url'    => Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'alerts_header_statusbar' ),
-				'title'  => __( 'Get notified of key changes — plugin deactivations, role changes, failed logins', 'simple-history' ),
-				'badge'  => __( 'Premium', 'simple-history' ),
-				'target' => '_blank',
-			];
-		}
+		// Alerts is a premium feature — core only shows the upsell teaser. When
+		// the premium add-on is active it replaces this item (matched by id)
+		// via the simple_history/header_status/items filter.
+		$items[] = [
+			'id'     => 'alerts',
+			'text'   => __( 'Alerts', 'simple-history' ),
+			'icon'   => 'dashicons-bell',
+			'url'    => Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'alerts_header_statusbar' ),
+			'title'  => __( 'Get notified of key changes — plugin deactivations, role changes, failed logins', 'simple-history' ),
+			'badge'  => __( 'Premium', 'simple-history' ),
+			'target' => '_blank',
+		];
 
 		// Log forwarding — the core file channel is free; premium adds more
 		// channels. Count all enabled channels so the label stays accurate when
