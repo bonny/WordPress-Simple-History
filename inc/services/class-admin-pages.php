@@ -172,18 +172,20 @@ class Admin_Pages extends Service {
 					<?php echo wp_kses( $headline_link_end_elm, $allowed_link_html ); ?>
 				</h1>
 
-				<?php
-				// Settings gear — anchors the discovery bar's section deep-links.
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo Helpers::get_header_settings_link();
+				<nav class="sh-PageHeader-settingsNav" aria-label="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>">
+					<?php
+					// Settings gear — anchors the discovery bar's section deep-links.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo Helpers::get_header_settings_link();
 
-				/**
-				 * Fires inside the title group, after badges.
-				 *
-				 * @since 5.16
-				 */
-				do_action( 'simple_history/admin_page/title_group_end' );
-				?>
+					/**
+					 * Fires inside the title group, after badges.
+					 *
+					 * @since 5.16
+					 */
+					do_action( 'simple_history/admin_page/title_group_end' );
+					?>
+				</nav>
 			</div>
 
 			<?php

@@ -1773,6 +1773,15 @@ so add some extra place then to make it look a bit less ugly.
 	flex: 1;
 }
 
+/* Groups the settings gear + feature-discovery bar into one landmark.
+   Tighter gap after the gear than between the bar items, so the section
+   links read as hanging off the "Settings" anchor. */
+.sh-PageHeader-settingsNav {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-small);
+}
+
 .sh-PageHeader-title {
 	font-size: 23px;
 	font-weight: 400;
