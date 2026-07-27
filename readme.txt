@@ -283,6 +283,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Dashboard widget now shows an error message with details when the log can't be loaded (for example when the REST API is blocked), instead of loading placeholders forever.
 -   PHP warning when logging a comment whose post has been deleted. Such events now read "a comment to (deleted)" instead of showing an empty title.
 -   "Filter events: This IP" in the IP address popover did nothing when used from the dashboard widget — it now opens the event log filtered to that address.
+-   Dismiss buttons in the review reminder notice rendered as boxed links.
 -   Experimental — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
 
 ### 5.29.0 (June 2026)
