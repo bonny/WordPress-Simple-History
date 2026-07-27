@@ -30,12 +30,12 @@ export function EventViewMoreSimilarEventsMenuItem( {
 	const isLoggerAndMessageEvent = event?.logger && event?.message_key;
 
 	// An event can carry several addresses — the remote address plus whatever
-	// proxy headers were present. Prefer the remote address, since the header
-	// ones are client-supplied and can be spoofed, and fall back to the first
-	// entry when it's absent.
-	const ipAddresses = event?.ip_addresses || {};
-	const filterableIPAddress =
-		ipAddresses._server_remote_addr || Object.values( ipAddresses )[ 0 ];
+	// proxy headers were present — but the ip filter only ever matches against
+	// the _server_remote_addr context key (see Log_Query). Falling back to a
+	// header address would build a filter that cannot match, landing the user on
+	// an empty result page, so offer the item only when the remote address is
+	// there. It is also the trustworthy one: header values are client-supplied.
+	const filterableIPAddress = event?.ip_addresses?._server_remote_addr;
 
 	return (
 		<>
