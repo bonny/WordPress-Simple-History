@@ -99,7 +99,11 @@ export function DashboardEventsWidget() {
 		useState( false );
 	const [ eventsLoadingErrorDetails, setEventsLoadingErrorDetails ] =
 		useState( null );
-	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState( '' );
+	// Seeded from the value localized at enqueue time (see React_Dropin), so links
+	// out of the widget work before the search-options response arrives.
+	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState(
+		window.simpleHistoryReactData?.eventsAdminPageURL || ''
+	);
 	const [ settingsPageURL, setSettingsPageURL ] = useState( '' );
 	const [ statsPageURL, setStatsPageURL ] = useState( '' );
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );

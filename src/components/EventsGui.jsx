@@ -120,7 +120,12 @@ function EventsGUI() {
 	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
 		useState( 0 );
 	const [ isReactionsEnabled, setIsReactionsEnabled ] = useState( false );
-	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
+	// Seeded from the value localized at enqueue time (see React_Dropin) so links
+	// can be built on the first render. The search-options response overwrites it
+	// with the same value once it arrives.
+	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState(
+		window.simpleHistoryReactData?.eventsAdminPageURL
+	);
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ alertsPageURL, setAlertsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
