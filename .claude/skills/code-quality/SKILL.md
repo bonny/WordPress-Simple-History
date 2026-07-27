@@ -9,12 +9,18 @@ allowed-tools: Read, Grep, Glob, Bash
 ## Quick Commands
 
 ```bash
-npm run php:lint        # Check PHP style
-npm run php:lint-fix    # Auto-fix PHP issues
+composer lint           # Check PHP style (local, fastest)
+composer lint-fix       # Auto-fix PHP issues (local)
+npm run php:lint        # Same check, in Docker
+npm run php:lint-fix    # Same fix, in Docker
 npm run php:phpstan     # Static analysis
 npm run lint:js         # JavaScript
 npm run lint:css        # CSS
 ```
+
+Always run phpstan via `npm run php:phpstan`. Bare `vendor/bin/phpstan analyse`
+crashes a worker at the default 128M and still crashes at 1G; the npm script
+passes the 2048M that actually works.
 
 ## Project-Specific Rules
 
