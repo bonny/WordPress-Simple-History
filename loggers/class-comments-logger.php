@@ -367,6 +367,10 @@ class Comments_Logger extends Logger {
 			return false;
 		}
 
+		// The parent post can be gone — a comment orphaned by a deleted post, or an
+		// import that brought comments without their posts. The comment action is
+		// still worth logging, so fall back to empty strings rather than bailing.
+		// See get_log_row_plain_text_output() for how those empties are presented.
 		$comment_parent_post = get_post( $comment_data->comment_post_ID );
 
 		$context = array(
@@ -381,8 +385,8 @@ class Comments_Logger extends Logger {
 			'comment_type'         => $comment_data->comment_type,
 			'comment_parent'       => $comment_data->comment_parent,
 			'comment_post_ID'      => $comment_data->comment_post_ID,
-			'comment_post_title'   => $comment_parent_post->post_title,
-			'comment_post_type'    => $comment_parent_post->post_type,
+			'comment_post_title'   => $comment_parent_post->post_title ?? '',
+			'comment_post_type'    => $comment_parent_post->post_type ?? '',
 		);
 
 		// Note: comment type is empty for normal comments.
@@ -555,6 +559,20 @@ class Comments_Logger extends Logger {
 			if ( $translated_message !== null ) {
 				$message = $translated_message;
 			}
+		}
+
+		// Substitute placeholders when the parent post is gone, so messages don't
+		// render as 'Approved a comment to ""'. Done at render time rather than when
+		// the context is stored, both to keep the strings translatable per viewer and
+		// so events already logged with empty values render sensibly too.
+		if ( empty( $context['comment_post_title'] ) ) {
+			$context['comment_post_title'] = _x( '(deleted)', 'Comment logger: parent post no longer exists', 'simple-history' );
+		}
+
+		// The real post type is unknowable once the post is deleted, so use the
+		// generic noun to keep 'Added a comment to {comment_post_type} …' readable.
+		if ( empty( $context['comment_post_type'] ) ) {
+			$context['comment_post_type'] = _x( 'post', 'Comment logger: parent post type is unknown', 'simple-history' );
 		}
 
 		// Wrap links around {comment_post_title}.
