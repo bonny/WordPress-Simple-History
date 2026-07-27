@@ -436,6 +436,13 @@ export async function parseApiFetchError( error ) {
 		} else {
 			errorDetails.bodyText = await error.text();
 		}
+	} else if ( error.code || error.message ) {
+		// Error already parsed by apiFetch (REST error object or JS Error).
+		errorDetails.code = error.data?.status || error.code || null;
+		errorDetails.bodyJson = error.code
+			? { code: error.code, message: error.message }
+			: null;
+		errorDetails.bodyText = error.code ? null : error.message;
 	} else {
 		errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
 	}

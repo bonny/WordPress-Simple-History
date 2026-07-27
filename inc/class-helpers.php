@@ -1092,21 +1092,39 @@ class Helpers {
 	}
 
 	/**
-	 * Output the top-right header area with Premium status or CTA.
+	 * Output the settings gear link for the header's left title group.
 	 *
-	 * @return string HTML for the premium/settings header link.
+	 * Sits next to the feature-discovery bar so the settings root and its
+	 * section deep-links read as one group. Rendered independently of the
+	 * bar, so it remains visible even when the bar self-hides.
+	 *
+	 * @return string HTML for the settings gear link.
 	 */
-	public static function get_header_premium_link() {
+	public static function get_header_settings_link() {
 		$settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 
 		ob_start();
 
 		?>
-		<div class="sh-PageHeader-rightLink">
-			<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-settingsIcon" aria-label="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>" title="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>">
-				<span class="dashicons dashicons-admin-generic"></span>
-			</a>
+		<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-settingsIcon">
+			<span class="dashicons dashicons-admin-generic"></span>
+			<span class="sh-PageHeader-settingsIconText"><?php esc_html_e( 'Settings', 'simple-history' ); ?></span>
+		</a>
+		<?php
 
+		return ob_get_clean();
+	}
+
+	/**
+	 * Output the top-right header area with Premium status or CTA.
+	 *
+	 * @return string HTML for the premium header link.
+	 */
+	public static function get_header_premium_link() {
+		ob_start();
+
+		?>
+		<div class="sh-PageHeader-rightLink">
 			<?php if ( self::is_premium_add_on_active() ) { ?>
 				<span class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--premiumActive">
 					<span class="dashicons dashicons-star-filled"></span>

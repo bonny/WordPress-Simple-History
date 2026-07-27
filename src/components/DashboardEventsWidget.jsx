@@ -208,7 +208,15 @@ export function DashboardEventsWidget() {
 					setStats( response.stats );
 				}
 			} )
-			.catch( () => {} );
+			.catch( async ( error ) => {
+				// Without this response the events fetch never starts,
+				// so surface the error instead of showing skeletons forever.
+				setEventsLoadingHasErrors( true );
+				setEventsLoadingErrorDetails(
+					await parseApiFetchError( error )
+				);
+				setEventsIsLoading( false );
+			} );
 	}, [] );
 
 	// Fetch events once pager size is available.

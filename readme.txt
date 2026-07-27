@@ -259,12 +259,14 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
 -   Changes to more settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log).
 -   Developers: new `simple_history/settings/tracked_options` filter lets add-ons register their own option keys to be logged as "Modified settings", plus `simple_history/settings/redacted_options` to hide sensitive values.
+-   Developers: `simple_history/header_status/items` filter to add, replace (by `id`), or remove items in the header feature-discovery bar.
 -   WP-CLI: `--metadata_search` and `--ai_only` options on `wp simple-history list`, matching the metadata search and AI filter in the GUI.
 -   WP-CLI: AI attribution columns (`ai_agent`, `ai_detected_via`, `ai_application`) on `wp simple-history list`, showing which AI tool made a change and how it was detected.
 
 **Changed**
 
 -   Reactions graduated from experimental and are now on by default — react to events with a 👍 (disable in Settings → General). Premium adds ❤️ 🎉 🚀 and more reaction types.
+-   Header feature-discovery bar graduated from experimental and now shows for all admins — quick links into your retention, email report, alerts, and log-forwarding settings that tuck away once you've set them up.
 -   Checkbox settings now show as On/Off (instead of 1/0) in the "Modified settings" log details.
 -   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
 -   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable. Add-ons can opt option keys in via the new `simple_history/settings/changed_only_options` filter.
@@ -278,6 +280,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   WP-CLI: `wp simple-history event search` always returned zero results.
 -   Invalid date or month filter values now return a clear error (HTTP 400 in the REST API, a friendly message in WP-CLI) instead of a server error.
 -   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
+-   Dashboard widget now shows an error message with details when the log can't be loaded (for example when the REST API is blocked), instead of loading placeholders forever.
 -   Experimental — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
 
 ### 5.29.0 (June 2026)
