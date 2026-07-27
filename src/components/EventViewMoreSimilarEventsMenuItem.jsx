@@ -22,6 +22,16 @@ export function EventViewMoreSimilarEventsMenuItem( {
 	event,
 	eventsAdminPageURL,
 } ) {
+	// Every item here navigates to the events admin page, and the URL arrives
+	// asynchronously from the search-options request. addQueryArgs() would turn an
+	// undefined base into a bare "?ip=…", which drops the page= arg and lands the
+	// user on "Sorry, you are not allowed to access this page". Events can render
+	// before that request resolves — the surrounding-events view deliberately
+	// skips waiting for it — so render nothing until the URL is known.
+	if ( ! eventsAdminPageURL ) {
+		return null;
+	}
+
 	const isWPUserInitiatorWithIdAndEmail =
 		event?.initiator === 'wp_user' &&
 		event?.initiator_data?.user_id &&

@@ -324,8 +324,11 @@ function IPAddressLink( ipAddressProps ) {
 	// admin page with the 'ip' query arg it already reads on load instead.
 	// Rendering a real anchor there also gets middle-click and open-in-new-tab
 	// for free.
+	//
+	// Safe because the row itself is gated on canOfferFilter below: whenever
+	// in-place filtering is unavailable, the URL is known to be present.
 	const renderFilterByIPLink = ( ip, label ) => {
-		if ( ! canFilterEventsInPlace && eventsAdminPageURL ) {
+		if ( ! canFilterEventsInPlace ) {
 			return (
 				<a
 					href={ addQueryArgs( eventsAdminPageURL, { ip } ) }
@@ -351,6 +354,13 @@ function IPAddressLink( ipAddressProps ) {
 	// against the _server_remote_addr context key alone, so offering it for a
 	// proxy-header address would send the user to a guaranteed-empty result page.
 	const isFilterableAddress = header === '_server_remote_addr';
+
+	// Filtering needs somewhere to go: either a GUI listening for the in-place
+	// event, or a URL to navigate to. With neither, the control would do nothing
+	// when clicked, so don't render it at all.
+	const canOfferFilter =
+		isFilterableAddress &&
+		( canFilterEventsInPlace || !! eventsAdminPageURL );
 
 	// Subnet collapsing is IPv4-only — the regex is a no-op on IPv6, which would
 	// otherwise render a "This subnet" link identical to "This IP" beside it.
@@ -424,7 +434,7 @@ function IPAddressLink( ipAddressProps ) {
 								</tr>
 							);
 						} ) }
-						{ isFilterableAddress && (
+						{ canOfferFilter && (
 							<tr>
 								<td className="SimpleHistoryIpInfoDropin__ipInfoTable__key">
 									{ __( 'Filter events:', 'simple-history' ) }
