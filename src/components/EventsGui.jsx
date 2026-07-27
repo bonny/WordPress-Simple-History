@@ -708,6 +708,9 @@ function EventsGUI() {
 			userCanManageOptions,
 			searchOptionsLoaded,
 			currentUserId,
+			// This GUI owns the filter controls, so descendants can filter by
+			// updating state here instead of navigating away.
+			canFilterEventsInPlace: true,
 		} ),
 		[
 			mapsApiKey,

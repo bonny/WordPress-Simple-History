@@ -20,6 +20,7 @@ export function useEventsSettings() {
 			hasFailedLoginLimit: false,
 			reactionsEnabled: false,
 			currentUserId: null,
+			canFilterEventsInPlace: false,
 		};
 	}
 	return context;

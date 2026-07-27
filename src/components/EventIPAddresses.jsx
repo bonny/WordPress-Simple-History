@@ -13,6 +13,7 @@ import {
 } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import { addQueryArgs } from '@wordpress/url';
 import { getTrackingUrl } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
 import { EventHeaderItem } from './EventHeaderItem';
@@ -94,7 +95,13 @@ let closeActivePopover = null;
  */
 function IPAddressLink( ipAddressProps ) {
 	const { header, ipAddress } = ipAddressProps;
-	const { mapsApiKey, hasPremiumAddOn, eventsSettingsPageURL } = useEventsSettings();
+	const {
+		mapsApiKey,
+		hasPremiumAddOn,
+		eventsSettingsPageURL,
+		eventsAdminPageURL,
+		canFilterEventsInPlace,
+	} = useEventsSettings();
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ isLoadingIpInfo, setIsLoadingIpInfo ] = useState( false );
 	const [ ipInfoResult, setIpInfoResult ] = useState();
@@ -236,7 +243,9 @@ function IPAddressLink( ipAddressProps ) {
 						),
 						{
 							a: eventsSettingsPageURL ? (
-								<a href={ `${ eventsSettingsPageURL }#simple-history-premium-settings` } />
+								<a
+									href={ `${ eventsSettingsPageURL }#simple-history-premium-settings` }
+								/>
 							) : (
 								<span />
 							),
@@ -308,6 +317,34 @@ function IPAddressLink( ipAddressProps ) {
 			} )
 		);
 		setShowPopover( false );
+	};
+
+	// The events GUI listens for the event above and filters in place. Anywhere
+	// else — the dashboard widget — nothing is listening, so link to the events
+	// admin page with the 'ip' query arg it already reads on load instead.
+	// Rendering a real anchor there also gets middle-click and open-in-new-tab
+	// for free.
+	const renderFilterByIPLink = ( ip, label ) => {
+		if ( ! canFilterEventsInPlace && eventsAdminPageURL ) {
+			return (
+				<a
+					href={ addQueryArgs( eventsAdminPageURL, { ip } ) }
+					style={ { fontSize: 'inherit' } }
+				>
+					{ label }
+				</a>
+			);
+		}
+
+		return (
+			<Button
+				variant="link"
+				onClick={ () => handleFilterByIP( ip ) }
+				style={ { fontSize: 'inherit' } }
+			>
+				{ label }
+			</Button>
+		);
 	};
 
 	const subnetIP = ipAddress.replace( /\.\d+$/, '.x' );
@@ -384,33 +421,20 @@ function IPAddressLink( ipAddressProps ) {
 								{ __( 'Filter events:', 'simple-history' ) }
 							</td>
 							<td>
-								<Button
-									variant="link"
-									onClick={ () =>
-										handleFilterByIP( ipAddress )
-									}
-									style={ { fontSize: 'inherit' } }
-								>
-									{ __( 'This IP', 'simple-history' ) }
-								</Button>
+								{ renderFilterByIPLink(
+									ipAddress,
+									__( 'This IP', 'simple-history' )
+								) }
 								{ ! ipAddress.endsWith( '.x' ) && (
 									<>
 										{ ' | ' }
-										<Button
-											variant="link"
-											onClick={ () =>
-												handleFilterByIP( subnetIP )
-											}
-											style={ {
-												fontSize: 'inherit',
-											} }
-										>
-											{ __(
+										{ renderFilterByIPLink(
+											subnetIP,
+											`${ __(
 												'This subnet',
 												'simple-history'
-											) }
-											{ ` (${ subnetIP })` }
-										</Button>
+											) } (${ subnetIP })`
+										) }
 									</>
 								) }
 							</td>
@@ -516,19 +540,22 @@ export function EventIPAddresses( props ) {
 		return null;
 	}
 
-	const ipAddressesLabel = eventVariant === 'dashboard'
-		? ''
-		: _n( 'IP address:', 'IP addresses:', ipAddressesCount, 'simple-history' );
+	const ipAddressesLabel =
+		eventVariant === 'dashboard'
+			? ''
+			: _n(
+					'IP address:',
+					'IP addresses:',
+					ipAddressesCount,
+					'simple-history'
+			  );
 
 	const IPAddressesText = [];
 	let loopCount = 0;
 	for ( const [ header, ipAddress ] of Object.entries( ipAddresses ) ) {
 		IPAddressesText.push(
 			<Fragment key={ header }>
-				<IPAddressLink
-					header={ header }
-					ipAddress={ ipAddress }
-				/>{ ' ' }
+				<IPAddressLink header={ header } ipAddress={ ipAddress } />{ ' ' }
 				{ /* Add comma to separate IP addresses, but not after the last one */ }
 				{ loopCount < ipAddressesCount - 1 ? ', ' : '' }
 			</Fragment>

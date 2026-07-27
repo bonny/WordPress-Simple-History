@@ -279,6 +279,9 @@ export function DashboardEventsWidget() {
 			eventsSettingsPageURL: settingsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions: false,
+			// The widget has no filter controls, so descendants must link to the
+			// events admin page instead of trying to filter in place.
+			canFilterEventsInPlace: false,
 		} ),
 		[
 			mapsApiKey,
