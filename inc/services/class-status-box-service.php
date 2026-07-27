@@ -130,9 +130,11 @@ class Status_Box_Service extends Service {
 		$count = 0;
 
 		foreach ( $manager->get_channels() as $channel ) {
-			if ( $channel->is_enabled() ) {
-				$count++;
+			if ( ! $channel->is_enabled() ) {
+				continue;
 			}
+
+			++$count;
 		}
 
 		return $count;
