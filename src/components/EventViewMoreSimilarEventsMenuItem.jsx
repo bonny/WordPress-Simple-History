@@ -9,10 +9,10 @@ import { addQueryArgs } from '@wordpress/url';
  * Can add now:
  * - This user
  * - Logger and message
+ * - IP address
  *
  * Can add in the future, when support is added to search filter:
  *   - Initiator
- *   - IP address
  *
  * @param {Object} props
  * @param {Object} props.event
@@ -28,6 +28,14 @@ export function EventViewMoreSimilarEventsMenuItem( {
 		event?.initiator_data?.user_email;
 
 	const isLoggerAndMessageEvent = event?.logger && event?.message_key;
+
+	// An event can carry several addresses — the remote address plus whatever
+	// proxy headers were present. Prefer the remote address, since the header
+	// ones are client-supplied and can be spoofed, and fall back to the first
+	// entry when it's absent.
+	const ipAddresses = event?.ip_addresses || {};
+	const filterableIPAddress =
+		ipAddresses._server_remote_addr || Object.values( ipAddresses )[ 0 ];
 
 	return (
 		<>
@@ -80,6 +88,28 @@ export function EventViewMoreSimilarEventsMenuItem( {
 				>
 					{ __(
 						'Filter event by this event type',
+						'simple-history'
+					) }
+				</MenuItem>
+			) : null }
+
+			{ filterableIPAddress ? (
+				<MenuItem
+					icon={ search }
+					onClick={ () => {
+						// The events page reads the 'ip' query arg on load.
+						// /wp-admin/admin.php?page=simple_history_admin_menu_page&ip=192.168.1.1
+						const viewIPEventsURL = addQueryArgs(
+							eventsAdminPageURL,
+							{
+								ip: filterableIPAddress,
+							}
+						);
+						window.location.href = viewIPEventsURL;
+					} }
+				>
+					{ __(
+						'Find events from the same IP address',
 						'simple-history'
 					) }
 				</MenuItem>
