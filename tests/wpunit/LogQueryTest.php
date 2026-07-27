@@ -788,4 +788,197 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 	}
+
+	/**
+	 * Log an event with a fully controlled set of IP context keys.
+	 *
+	 * Passing _server_remote_addr explicitly short-circuits
+	 * Logger::append_remote_addr_to_context(), so nothing is collected from
+	 * $_SERVER and the test decides exactly which keys the event carries.
+	 *
+	 * @param string $message Event message.
+	 * @param array  $ip_context IP related context keys and values.
+	 */
+	private function log_event_with_ip_context( $message, $ip_context ) {
+		SimpleLogger()->info( $message, $ip_context );
+	}
+
+	/**
+	 * Filtering by the address the web server saw.
+	 */
+	function test_filter_by_ip_address_matches_remote_addr() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->log_event_with_ip_context( 'Event from wanted address', [ '_server_remote_addr' => '192.0.2.10' ] );
+		$this->log_event_with_ip_context( 'Event from other address', [ '_server_remote_addr' => '192.0.2.99' ] );
+
+		$results = ( new Log_Query() )->query(
+			[
+				'ip_address'     => '192.0.2.10',
+				'posts_per_page' => 100,
+			]
+		);
+
+		$this->assertEquals( 1, $results['log_rows_count'], 'Only the event from the wanted address should match' );
+		$this->assertEquals( 'Event from wanted address', reset( $results['log_rows'] )->message );
+	}
+
+	/**
+	 * Filtering by an address that only exists in a forwarding header.
+	 *
+	 * Regression test: the filter used to match _server_remote_addr only, so on
+	 * a site behind a proxy — where that key holds the load balancer and the
+	 * visitor's real address is in a header — filtering by the address a user
+	 * actually cares about returned nothing.
+	 */
+	function test_filter_by_ip_address_matches_forwarded_header_address() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		// A proxied request: remote addr is the load balancer, visitor is in the header.
+		$this->log_event_with_ip_context(
+			'Proxied event',
+			[
+				'_server_remote_addr'            => '10.0.0.1',
+				'_server_http_x_forwarded_for_0' => '192.0.2.44',
+			]
+		);
+		$this->log_event_with_ip_context( 'Unrelated event', [ '_server_remote_addr' => '10.0.0.1' ] );
+
+		$results = ( new Log_Query() )->query(
+			[
+				'ip_address'     => '192.0.2.44',
+				'posts_per_page' => 100,
+			]
+		);
+
+		$this->assertEquals( 1, $results['log_rows_count'], 'The forwarded-header address should be filterable' );
+		$this->assertEquals( 'Proxied event', reset( $results['log_rows'] )->message );
+	}
+
+	/**
+	 * Every stored address matches, not just the first one in a header.
+	 */
+	function test_filter_by_ip_address_matches_any_header_index() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->log_event_with_ip_context(
+			'Multi hop event',
+			[
+				'_server_remote_addr'            => '10.0.0.1',
+				'_server_http_x_forwarded_for_0' => '192.0.2.60',
+				'_server_http_x_forwarded_for_1' => '192.0.2.61',
+				'_server_http_client_ip_0'       => '192.0.2.62',
+			]
+		);
+
+		foreach ( [ '10.0.0.1', '192.0.2.60', '192.0.2.61', '192.0.2.62' ] as $ip_address ) {
+			$results = ( new Log_Query() )->query(
+				[
+					'ip_address'     => $ip_address,
+					'posts_per_page' => 100,
+				]
+			);
+
+			$this->assertEquals( 1, $results['log_rows_count'], "Filtering by {$ip_address} should find the event" );
+		}
+	}
+
+	/**
+	 * Context keys that are not IP addresses must never match.
+	 *
+	 * Regression test: _server_http_referer and _server_http_user_agent share the
+	 * "_server_http_" prefix but hold no address, so a broad prefix match would
+	 * let an IP filter match against a referer URL.
+	 */
+	function test_filter_by_ip_address_ignores_non_ip_context_keys() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		// Values shaped exactly like an IP address, under keys that hold no address.
+		$this->log_event_with_ip_context(
+			'Event with IP shaped referer',
+			[
+				'_server_remote_addr'     => '10.0.0.1',
+				'_server_http_referer'    => '192.0.2.77',
+				'_server_http_user_agent' => '192.0.2.78',
+			]
+		);
+
+		foreach ( [ '192.0.2.77', '192.0.2.78' ] as $not_an_address ) {
+			$results = ( new Log_Query() )->query(
+				[
+					'ip_address'     => $not_an_address,
+					'posts_per_page' => 100,
+				]
+			);
+
+			$this->assertEquals(
+				0,
+				$results['log_rows_count'],
+				"A value stored under a non-IP key ({$not_an_address}) must not match an IP filter"
+			);
+		}
+	}
+
+	/**
+	 * Anonymized addresses filter as a subnet, across all IP keys.
+	 */
+	function test_filter_by_anonymized_ip_address_matches_subnet() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->log_event_with_ip_context( 'In subnet via remote addr', [ '_server_remote_addr' => '192.0.2.10' ] );
+		$this->log_event_with_ip_context(
+			'In subnet via header',
+			[
+				'_server_remote_addr'            => '10.0.0.1',
+				'_server_http_x_forwarded_for_0' => '192.0.2.55',
+			]
+		);
+		$this->log_event_with_ip_context( 'Outside subnet', [ '_server_remote_addr' => '198.51.100.10' ] );
+
+		$results = ( new Log_Query() )->query(
+			[
+				'ip_address'     => '192.0.2.x',
+				'posts_per_page' => 100,
+			]
+		);
+
+		$this->assertEquals( 2, $results['log_rows_count'], 'Both events in the subnet should match, whichever key holds the address' );
+	}
+
+	/**
+	 * Headers added through the filter stay queryable.
+	 *
+	 * The query builds its key list from Helpers::get_ip_number_header_names(),
+	 * so a site that registers an extra header gets it stored *and* filterable
+	 * without further changes.
+	 */
+	function test_filter_by_ip_address_honors_ip_number_header_names_filter() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$add_header = function ( $headers ) {
+			$headers[] = 'HTTP_CF_CONNECTING_IP';
+			return $headers;
+		};
+
+		add_filter( 'simple_history/ip_number_header_names', $add_header );
+
+		$this->log_event_with_ip_context(
+			'Event behind Cloudflare',
+			[
+				'_server_remote_addr'                => '10.0.0.1',
+				'_server_http_cf_connecting_ip_0'    => '192.0.2.88',
+			]
+		);
+
+		$results = ( new Log_Query() )->query(
+			[
+				'ip_address'     => '192.0.2.88',
+				'posts_per_page' => 100,
+			]
+		);
+
+		remove_filter( 'simple_history/ip_number_header_names', $add_header );
+
+		$this->assertEquals( 1, $results['log_rows_count'], 'A header registered through the filter should be filterable' );
+	}
 }
