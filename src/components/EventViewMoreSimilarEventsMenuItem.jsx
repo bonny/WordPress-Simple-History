@@ -22,15 +22,18 @@ export function EventViewMoreSimilarEventsMenuItem( {
 	event,
 	eventsAdminPageURL,
 } ) {
-	// Every item here navigates to the events admin page, and the URL arrives
-	// asynchronously from the search-options request. addQueryArgs() would turn an
-	// undefined base into a bare "?ip=…", which drops the page= arg and lands the
-	// user on "Sorry, you are not allowed to access this page". Events can render
-	// before that request resolves — the surrounding-events view deliberately
-	// skips waiting for it — so render nothing until the URL is known.
+	// Every item here builds on this URL, and addQueryArgs() would turn a missing
+	// base into a bare "?users=…" — dropping the page= arg and landing the user on
+	// "Sorry, you are not allowed to access this page". It is seeded at enqueue
+	// time so it should always be here; show nothing rather than a broken link if
+	// it somehow isn't.
 	if ( ! eventsAdminPageURL ) {
 		return null;
 	}
+
+	const goToEvents = ( args ) => () => {
+		window.location.href = addQueryArgs( eventsAdminPageURL, args );
+	};
 
 	const isWPUserInitiatorWithIdAndEmail =
 		event?.initiator === 'wp_user' &&
@@ -52,23 +55,16 @@ export function EventViewMoreSimilarEventsMenuItem( {
 			{ isWPUserInitiatorWithIdAndEmail ? (
 				<MenuItem
 					icon={ search }
-					onClick={ () => {
-						// Example URL when searching for user, where user key is an array of objects with id and value keys.
-						// /wp-admin/admin.php?page=simple_history_admin_menu_page&users=[{%22id%22:%221%22,%22value%22:%22P%C3%A4r+(par@earthpeople.se)%22}]
-						const userJsonString = JSON.stringify( [
+					// The users filter takes an array of objects with id and value keys:
+					// …&users=[{%22id%22:%221%22,%22value%22:%22P%C3%A4r+(par@earthpeople.se)%22}]
+					onClick={ goToEvents( {
+						users: JSON.stringify( [
 							{
 								id: event.initiator_data.user_id,
 								value: event.initiator_data.user_email,
 							},
-						] );
-						const viewUserEventsURL = addQueryArgs(
-							eventsAdminPageURL,
-							{
-								users: userJsonString,
-							}
-						);
-						window.location.href = viewUserEventsURL;
-					} }
+						] ),
+					} ) }
 				>
 					{ __( 'Find events by the same user', 'simple-history' ) }
 				</MenuItem>
@@ -77,24 +73,17 @@ export function EventViewMoreSimilarEventsMenuItem( {
 			{ isLoggerAndMessageEvent ? (
 				<MenuItem
 					icon={ search }
-					onClick={ () => {
-						// /wp-admin/admin.php?page=simple_history_admin_menu_page&messages=[{"value":"+-+All+found+updates","search_options":["AvailableUpdatesLogger:core_update_available","AvailableUpdatesLogger:plugin_update_available","AvailableUpdatesLogger:theme_update_available"]}]
-						const messageJsonString = JSON.stringify( [
+					// …&messages=[{"value":"+-+All+found+updates","search_options":["AvailableUpdatesLogger:core_update_available"]}]
+					onClick={ goToEvents( {
+						messages: JSON.stringify( [
 							{
 								value: event.message_key,
 								search_options: [
 									`${ event.logger }:${ event.message_key }`,
 								],
 							},
-						] );
-						const viewUserEventsURL = addQueryArgs(
-							eventsAdminPageURL,
-							{
-								messages: messageJsonString,
-							}
-						);
-						window.location.href = viewUserEventsURL;
-					} }
+						] ),
+					} ) }
 				>
 					{ __(
 						'Filter event by this event type',
@@ -106,17 +95,7 @@ export function EventViewMoreSimilarEventsMenuItem( {
 			{ filterableIPAddress ? (
 				<MenuItem
 					icon={ search }
-					onClick={ () => {
-						// The events page reads the 'ip' query arg on load.
-						// /wp-admin/admin.php?page=simple_history_admin_menu_page&ip=192.168.1.1
-						const viewIPEventsURL = addQueryArgs(
-							eventsAdminPageURL,
-							{
-								ip: filterableIPAddress,
-							}
-						);
-						window.location.href = viewIPEventsURL;
-					} }
+					onClick={ goToEvents( { ip: filterableIPAddress } ) }
 				>
 					{ __(
 						'Find events from the same IP address',

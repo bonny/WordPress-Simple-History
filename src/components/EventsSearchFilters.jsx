@@ -222,9 +222,15 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.failed_login_suppressed_count || 0
 				);
 
-				setEventsAdminPageURL(
-					searchOptionsResponse.events_admin_page_url
-				);
+				// Only when the response actually carries one. Add-ons can
+				// override the URL through the search options filter, but an
+				// absent field must not downgrade the value seeded at enqueue
+				// time — losing it hides the links built from it.
+				if ( searchOptionsResponse.events_admin_page_url ) {
+					setEventsAdminPageURL(
+						searchOptionsResponse.events_admin_page_url
+					);
+				}
 				setEventsSettingsPageURL(
 					searchOptionsResponse.settings_page_url
 				);

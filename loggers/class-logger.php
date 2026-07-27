@@ -1887,10 +1887,10 @@ abstract class Logger {
 					// attempt to validate IP.
 					if ( Helpers::is_valid_public_ip( $ip ) ) {
 						// valid, add to context, with loop index appended so we can store many IPs.
-						$key_lower = strtolower( $key );
-						$ip        = Helpers::privacy_anonymize_ip( $ip );
+						$key_prefix = Helpers::get_ip_address_context_key_prefix( $key );
+						$ip         = Helpers::privacy_anonymize_ip( $ip );
 
-						$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
+						$context[ $key_prefix . $ip_loop_num ] = $ip;
 					}
 
 					++$ip_loop_num;

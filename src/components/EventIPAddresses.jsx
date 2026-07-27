@@ -323,10 +323,8 @@ function IPAddressLink( ipAddressProps ) {
 	// else — the dashboard widget — nothing is listening, so link to the events
 	// admin page with the 'ip' query arg it already reads on load instead.
 	// Rendering a real anchor there also gets middle-click and open-in-new-tab
-	// for free.
-	//
-	// Safe because the row itself is gated on canOfferFilter below: whenever
-	// in-place filtering is unavailable, the URL is known to be present.
+	// for free. canOfferFilter below keeps the row out entirely when neither
+	// route exists, so the URL is present whenever this branch is taken.
 	const renderFilterByIPLink = ( ip, label ) => {
 		if ( ! canFilterEventsInPlace ) {
 			return (

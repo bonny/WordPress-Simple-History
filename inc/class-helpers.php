@@ -270,13 +270,31 @@ class Helpers {
 	}
 
 	/**
+	 * Returns the context key prefix that addresses from a given header are stored under.
+	 *
+	 * Logger::append_remote_addr_to_context() stores each address found in a
+	 * forwarding header as "<prefix><n>" — the index suffix exists because a
+	 * single header can carry several comma separated addresses.
+	 *
+	 * This is the one place that knows the convention. The writer, the display
+	 * path (get_event_ip_number_headers()) and the query (Log_Query) all build
+	 * from it, so the shape can change here without them drifting apart.
+	 *
+	 * @since 5.30.0
+	 *
+	 * @param string $header_name Header name, e.g. "HTTP_X_FORWARDED_FOR".
+	 * @return string Context key prefix, e.g. "_server_http_x_forwarded_for_".
+	 */
+	public static function get_ip_address_context_key_prefix( $header_name ) {
+		return '_server_' . strtolower( $header_name ) . '_';
+	}
+
+	/**
 	 * Returns the context key prefixes that hold an IP address for an event.
 	 *
 	 * A context key holds an IP address if it equals one of these or begins with
-	 * one. Logger::append_remote_addr_to_context() stores the address the web
-	 * server saw as "_server_remote_addr", and each address found in a forwarding
-	 * header as "_server_<lowercased header name>_<n>" — the index suffix exists
-	 * because a single header can carry several comma separated addresses.
+	 * one: the address the web server saw is stored as "_server_remote_addr", and
+	 * forwarding header addresses under the per-header prefixes.
 	 *
 	 * Prefixes rather than exact keys, so callers do not have to guess how many
 	 * addresses a header supplied. Note that matching on "_server_http_" alone
@@ -295,7 +313,7 @@ class Helpers {
 		$prefixes = array( '_server_remote_addr' );
 
 		foreach ( self::get_ip_number_header_names() as $header_name ) {
-			$prefixes[] = '_server_' . strtolower( $header_name ) . '_';
+			$prefixes[] = self::get_ip_address_context_key_prefix( $header_name );
 		}
 
 		return $prefixes;
@@ -873,20 +891,12 @@ class Helpers {
 		$context                         = $row->context;
 
 		foreach ( $ip_header_names_keys as $one_ip_header_key ) {
-			$one_ip_header_key_lower = strtolower( $one_ip_header_key );
+			// Addresses are stored as "<prefix><n>", e.g.
+			// _server_http_x_forwarded_for_0, _server_http_x_forwarded_for_1, ...
+			$key_prefix = self::get_ip_address_context_key_prefix( $one_ip_header_key );
 
 			foreach ( $context as $context_key => $context_val ) {
-				// Header value is stored in key with lowercased
-				// header name and with a number appended to it.
-				// Examples:
-				// _server_http_x_forwarded_for_0, _server_http_x_forwarded_for_1, ...
-				$match = preg_match(
-					"/^_server_{$one_ip_header_key_lower}_[\d+]/",
-					$context_key,
-					$matches
-				);
-
-				if ( ! $match ) {
+				if ( ! preg_match( '/^' . preg_quote( $key_prefix, '/' ) . '\d/', $context_key ) ) {
 					continue;
 				}
 
