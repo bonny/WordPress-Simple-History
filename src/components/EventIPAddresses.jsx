@@ -347,7 +347,15 @@ function IPAddressLink( ipAddressProps ) {
 		);
 	};
 
+	// Only the remote address is filterable: Log_Query matches the ip filter
+	// against the _server_remote_addr context key alone, so offering it for a
+	// proxy-header address would send the user to a guaranteed-empty result page.
+	const isFilterableAddress = header === '_server_remote_addr';
+
+	// Subnet collapsing is IPv4-only — the regex is a no-op on IPv6, which would
+	// otherwise render a "This subnet" link identical to "This IP" beside it.
 	const subnetIP = ipAddress.replace( /\.\d+$/, '.x' );
+	const hasSubnet = subnetIP !== ipAddress;
 
 	const loadedIpInfoText = ipInfoResult ? (
 		<>
@@ -416,29 +424,31 @@ function IPAddressLink( ipAddressProps ) {
 								</tr>
 							);
 						} ) }
-						<tr>
-							<td className="SimpleHistoryIpInfoDropin__ipInfoTable__key">
-								{ __( 'Filter events:', 'simple-history' ) }
-							</td>
-							<td>
-								{ renderFilterByIPLink(
-									ipAddress,
-									__( 'This IP', 'simple-history' )
-								) }
-								{ ! ipAddress.endsWith( '.x' ) && (
-									<>
-										{ ' | ' }
-										{ renderFilterByIPLink(
-											subnetIP,
-											`${ __(
-												'This subnet',
-												'simple-history'
-											) } (${ subnetIP })`
-										) }
-									</>
-								) }
-							</td>
-						</tr>
+						{ isFilterableAddress && (
+							<tr>
+								<td className="SimpleHistoryIpInfoDropin__ipInfoTable__key">
+									{ __( 'Filter events:', 'simple-history' ) }
+								</td>
+								<td>
+									{ renderFilterByIPLink(
+										ipAddress,
+										__( 'This IP', 'simple-history' )
+									) }
+									{ hasSubnet && (
+										<>
+											{ ' | ' }
+											{ renderFilterByIPLink(
+												subnetIP,
+												`${ __(
+													'This subnet',
+													'simple-history'
+												) } (${ subnetIP })`
+											) }
+										</>
+									) }
+								</td>
+							</tr>
+						) }
 					</tbody>
 				</table>
 			</div>
