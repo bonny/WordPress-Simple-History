@@ -371,7 +371,13 @@ class Comments_Logger extends Logger {
 		// import that brought comments without their posts. The comment action is
 		// still worth logging, so fall back to empty strings rather than bailing.
 		// See get_log_row_plain_text_output() for how those empties are presented.
-		$comment_parent_post = get_post( $comment_data->comment_post_ID );
+		//
+		// The id guard matters: get_post() falls back to $GLOBALS['post'] when its
+		// argument is empty, so an unattached comment (post ID 0) would otherwise be
+		// logged against whatever post happened to be global during the request.
+		$comment_parent_post = $comment_data->comment_post_ID
+			? get_post( $comment_data->comment_post_ID )
+			: null;
 
 		$context = array(
 			'comment_ID'           => $comment_ID_original,
@@ -561,23 +567,36 @@ class Comments_Logger extends Logger {
 			}
 		}
 
+		// Whether the parent post still exists decides both the placeholder below and
+		// the link further down, so resolve it once. An empty title is NOT the same
+		// thing as a missing post — attachments and the aside/status/quote post
+		// formats legitimately have no title — so the post is looked up rather than
+		// inferred from the stored title. Note get_post() falls back to the global
+		// post when given 0, hence the id guard.
+		$comment_post_ID = isset( $context['comment_post_ID'] ) ? (int) $context['comment_post_ID'] : 0;
+		$parent_post     = $comment_post_ID ? get_post( $comment_post_ID ) : null;
+
 		// Substitute placeholders when the parent post is gone, so messages don't
 		// render as 'Approved a comment to ""'. Done at render time rather than when
 		// the context is stored, both to keep the strings translatable per viewer and
-		// so events already logged with empty values render sensibly too.
-		if ( empty( $context['comment_post_title'] ) ) {
-			$context['comment_post_title'] = _x( '(deleted)', 'Comment logger: parent post no longer exists', 'simple-history' );
+		// so events already logged with empty values render sensibly too. A post
+		// deleted after the event was logged keeps its recorded title — only events
+		// that never captured one get the placeholder.
+		if ( ! $parent_post ) {
+			if ( empty( $context['comment_post_title'] ) ) {
+				$context['comment_post_title'] = _x( '(deleted)', 'Comment logger: parent post no longer exists', 'simple-history' );
+			}
+
+			// The real post type is unknowable once the post is deleted, so use the
+			// generic noun to keep 'Added a comment to {comment_post_type} …' readable.
+			if ( empty( $context['comment_post_type'] ) ) {
+				$context['comment_post_type'] = _x( 'post', 'Comment logger: parent post type is unknown', 'simple-history' );
+			}
 		}
 
-		// The real post type is unknowable once the post is deleted, so use the
-		// generic noun to keep 'Added a comment to {comment_post_type} …' readable.
-		if ( empty( $context['comment_post_type'] ) ) {
-			$context['comment_post_type'] = _x( 'post', 'Comment logger: parent post type is unknown', 'simple-history' );
-		}
-
-		// Wrap links around {comment_post_title}.
-		$comment_post_ID = isset( $context['comment_post_ID'] ) ? (int) $context['comment_post_ID'] : null;
-		if ( $comment_post_ID ) {
+		// Wrap links around {comment_post_title}, but only while there is still
+		// something to link to.
+		if ( $parent_post ) {
 			$edit_post_link = get_edit_post_link( $comment_post_ID );
 
 			if ( $edit_post_link ) {
