@@ -350,17 +350,10 @@ function IPAddressLink( ipAddressProps ) {
 		);
 	};
 
-	// Only the remote address is filterable: Log_Query matches the ip filter
-	// against the _server_remote_addr context key alone, so offering it for a
-	// proxy-header address would send the user to a guaranteed-empty result page.
-	const isFilterableAddress = header === '_server_remote_addr';
-
 	// Filtering needs somewhere to go: either a GUI listening for the in-place
 	// event, or a URL to navigate to. With neither, the control would do nothing
 	// when clicked, so don't render it at all.
-	const canOfferFilter =
-		isFilterableAddress &&
-		( canFilterEventsInPlace || !! eventsAdminPageURL );
+	const canOfferFilter = canFilterEventsInPlace || !! eventsAdminPageURL;
 
 	// Subnet collapsing is IPv4-only — the regex is a no-op on IPv6, which would
 	// otherwise render a "This subnet" link identical to "This IP" beside it.

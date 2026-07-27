@@ -270,6 +270,38 @@ class Helpers {
 	}
 
 	/**
+	 * Returns the context key prefixes that hold an IP address for an event.
+	 *
+	 * A context key holds an IP address if it equals one of these or begins with
+	 * one. Logger::append_remote_addr_to_context() stores the address the web
+	 * server saw as "_server_remote_addr", and each address found in a forwarding
+	 * header as "_server_<lowercased header name>_<n>" — the index suffix exists
+	 * because a single header can carry several comma separated addresses.
+	 *
+	 * Prefixes rather than exact keys, so callers do not have to guess how many
+	 * addresses a header supplied. Note that matching on "_server_http_" alone
+	 * would be wrong: keys such as "_server_http_referer" and
+	 * "_server_http_user_agent" share that prefix and hold no IP address.
+	 *
+	 * Derived from get_ip_number_header_names(), so the
+	 * 'simple_history/ip_number_header_names' filter applies here too and
+	 * additional headers stay queryable.
+	 *
+	 * @since 5.30.0
+	 *
+	 * @return array<string> Context key prefixes.
+	 */
+	public static function get_ip_address_context_key_prefixes() {
+		$prefixes = array( '_server_remote_addr' );
+
+		foreach ( self::get_ip_number_header_names() as $header_name ) {
+			$prefixes[] = '_server_' . strtolower( $header_name ) . '_';
+		}
+
+		return $prefixes;
+	}
+
+	/**
 	 * Returns true if $haystack ends with $needle
 	 *
 	 * @param string $haystack String to check.
