@@ -11,7 +11,7 @@
  *
  * @return bool
  */
-function sh_dev_toolbar_available() {
+function simple_history_dev_toolbar_available() {
 	if ( ! defined( 'SH_DEV_WORKTREE_PATH' ) || ! defined( 'SH_DEV_HELPER_PORT' ) ) {
 		return false;
 	}
@@ -33,7 +33,7 @@ add_filter(
 add_action(
 	'admin_bar_menu',
 	function ( $wp_admin_bar ) {
-		if ( ! sh_dev_toolbar_available() ) {
+		if ( ! simple_history_dev_toolbar_available() ) {
 			return;
 		}
 
@@ -95,8 +95,8 @@ add_action(
  * backslash-escapes quotes and breaks inline handlers — hence this
  * delegated listener instead.
  */
-function sh_dev_toolbar_print_script() {
-	if ( ! sh_dev_toolbar_available() ) {
+function simple_history_dev_toolbar_print_script() {
+	if ( ! simple_history_dev_toolbar_available() ) {
 		return;
 	}
 	?>
@@ -117,4 +117,4 @@ function sh_dev_toolbar_print_script() {
 
 // Fires right where the admin bar was rendered, on both front end and
 // admin — one hook instead of admin_footer + wp_footer.
-add_action( 'wp_after_admin_bar_render', 'sh_dev_toolbar_print_script' );
+add_action( 'wp_after_admin_bar_render', 'simple_history_dev_toolbar_print_script' );

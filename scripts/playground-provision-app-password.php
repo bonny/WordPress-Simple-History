@@ -17,9 +17,14 @@
 
 // Fixed Playground docroot — no WP helpers exist before wp-load, and the
 // path only exists inside the Playground instance, not on the host.
-// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+//
+// Suppressions below are order-sensitive: each applies only to the line
+// directly beneath it. So the VIP path warning rides on the require itself
+// (leaving the slot above free for @phpstan-ignore), and @phpstan-ignore in
+// turn needs its own cover, since it has no sentence-ending punctuation.
+// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
 // @phpstan-ignore requireOnce.fileNotFound
-require_once '/wordpress/wp-load.php';
+require_once '/wordpress/wp-load.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 
 if ( ! defined( 'SH_DEV_APP_USER' ) || ! defined( 'SH_DEV_APP_PASSWORD' ) ) {
 	throw new Exception( 'parallel-dev: SH_DEV_APP_USER / SH_DEV_APP_PASSWORD constants missing — application password not provisioned.' );
