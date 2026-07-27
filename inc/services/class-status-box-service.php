@@ -191,14 +191,8 @@ class Status_Box_Service extends Service {
 
 		$settings_url       = Helpers::get_settings_page_url();
 		$general_section    = $settings_url . '#simple_history_general_section';
-		$email_section      = add_query_arg(
-			[
-				'selected-tab'     => 'general_settings_subtab_general',
-				'selected-sub-tab' => 'general_settings_subtab_email_reports',
-			],
-			$settings_url
-		);
-		$forwarding_tab_url = add_query_arg( 'selected-tab', 'general_settings_subtab_log_forwarding', $settings_url );
+		$email_section      = Helpers::get_settings_page_sub_tab_url( 'general_settings_subtab_email_reports' );
+		$forwarding_tab_url = Helpers::get_settings_page_sub_tab_url( 'general_settings_subtab_log_forwarding' );
 
 		// Retention period — always first, always shown as context.
 		$days    = Helpers::get_clear_history_interval();
@@ -238,17 +232,17 @@ class Status_Box_Service extends Service {
 			];
 		}
 
-		// Alerts is a premium feature — core only shows the upsell teaser. When
-		// the premium add-on is active it replaces this item (matched by id)
-		// via the simple_history/header_status/items filter.
+		// Alerts is a premium feature — core shows an upsell teaser linking to
+		// the in-plugin Alerts settings page, which carries the premium promo.
+		// When the premium add-on is active it replaces this item (matched by
+		// id) via the simple_history/header_status/items filter.
 		$items[] = [
-			'id'     => 'alerts',
-			'text'   => __( 'Alerts', 'simple-history' ),
-			'icon'   => 'dashicons-bell',
-			'url'    => Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'alerts_header_statusbar' ),
-			'title'  => __( 'Get notified of key changes — plugin deactivations, role changes, failed logins', 'simple-history' ),
-			'badge'  => __( 'Premium', 'simple-history' ),
-			'target' => '_blank',
+			'id'    => 'alerts',
+			'text'  => __( 'Alerts', 'simple-history' ),
+			'icon'  => 'dashicons-bell',
+			'url'   => Helpers::get_settings_page_sub_tab_url( 'general_settings_subtab_alerts' ),
+			'title' => __( 'Get notified of key changes — plugin deactivations, role changes, failed logins', 'simple-history' ),
+			'badge' => __( 'Premium', 'simple-history' ),
 		];
 
 		// Log forwarding — the core file channel is free; premium adds more
