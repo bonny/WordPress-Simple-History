@@ -149,4 +149,49 @@ class AbilitiesEventPresenterTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertNull( $presented['user'] );
 	}
+
+	/**
+	 * Guards against a string initiator_data, which would otherwise reach
+	 * isset( $data['user_id'] ) and be silently treated as "no id".
+	 *
+	 * @covers ::present
+	 */
+	public function test_string_initiator_data_yields_null_user() {
+		$event                    = $this->rest_event();
+		$event['initiator_data'] = 'not-an-array';
+
+		$presented = Abilities_Event_Presenter::present( $event );
+
+		$this->assertNull( $presented['user'] );
+	}
+
+	/**
+	 * An object initiator_data must not fatal with "Cannot use object of type
+	 * stdClass as array" when read with array syntax.
+	 *
+	 * @covers ::present
+	 */
+	public function test_object_initiator_data_yields_null_user() {
+		$event                    = $this->rest_event();
+		$event['initiator_data'] = new stdClass();
+
+		$presented = Abilities_Event_Presenter::present( $event );
+
+		$this->assertNull( $presented['user'] );
+	}
+
+	/**
+	 * A scalar ip_addresses must still come out as an array, so a future
+	 * change to the cast breaks visibly instead of silently.
+	 *
+	 * @covers ::present
+	 */
+	public function test_scalar_ip_addresses_is_cast_to_an_array() {
+		$event                  = $this->rest_event();
+		$event['ip_addresses'] = '192.0.2.1';
+
+		$presented = Abilities_Event_Presenter::present( $event );
+
+		$this->assertSame( array( '192.0.2.1' ), $presented['ip_addresses'] );
+	}
 }

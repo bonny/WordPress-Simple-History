@@ -21,10 +21,10 @@ class Abilities_Event_Presenter {
 	 * @param bool  $include_context Whether to include the context array.
 	 * @return array
 	 */
-	public static function present( array $event, bool $include_context = false ) {
+	public static function present( array $event, bool $include_context = false ): array {
 		$presented = [
 			'id'           => isset( $event['id'] ) ? (int) $event['id'] : null,
-			'date_gmt'     => $event['date_gmt'] ?? null,
+			'date_gmt'     => $event['date_gmt'] ?? '',
 			'message'      => $event['message'] ?? '',
 			'logger'       => $event['logger'] ?? '',
 			'level'        => $event['loglevel'] ?? '',
@@ -51,7 +51,7 @@ class Abilities_Event_Presenter {
 	 * @param array $event One event as returned by WP_REST_Events_Controller.
 	 * @return array|null Null when the event has no resolvable user.
 	 */
-	private static function present_user( array $event ) {
+	private static function present_user( array $event ): ?array {
 		$data = $event['initiator_data'] ?? null;
 
 		if ( ! is_array( $data ) || $data === [] ) {
