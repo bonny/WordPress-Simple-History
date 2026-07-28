@@ -283,6 +283,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
 -   Dashboard widget now shows an error message with details when the log can't be loaded (for example when the REST API is blocked), instead of loading placeholders forever.
 -   Fatal error on WordPress 6.3 when saving a post that creates a revision.
+-   Post update events now link to the revision they created. The link had been missing since the feature was added in 5.16.0.
 -   PHP warning when logging a comment whose post has been deleted. Such events now read "a comment to (deleted)" instead of showing an empty title.
 -   "Filter events: This IP" in the IP address popover did nothing when used from the dashboard widget — it now opens the event log filtered to that address.
 -   Filtering by IP address now finds events by any address recorded for them, not just the one the web server saw. On sites behind a proxy or load balancer the visitor's real address is read from a forwarding header, and filtering by it previously returned nothing.

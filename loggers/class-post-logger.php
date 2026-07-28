@@ -28,6 +28,19 @@ class Post_Logger extends Logger {
 	protected $old_post_data = [];
 
 	/**
+	 * Revision ids created during this request, keyed by post id.
+	 *
+	 * Core saves the revision before Simple History logs the change — both
+	 * revision paths run first, wp_save_post_revision on post_updated and
+	 * wp_save_post_revision_on_insert on wp_after_insert_post at priority 9,
+	 * against this logger's priority 10 — so the id has to be held until there
+	 * is an event to attach it to.
+	 *
+	 * @var array<int, int>
+	 */
+	protected $post_revision_ids = [];
+
+	/**
 	 * Get array with information about this logger.
 	 *
 	 * @return array
@@ -124,11 +137,6 @@ class Post_Logger extends Logger {
 	 * @param int|null $post_id The post ID. Only passed by WordPress 6.4 and later.
 	 */
 	public function on_wp_put_post_revision( $revision_id, $post_id = null ) {
-		// Ensure that the last_insert_id is set.
-		if ( ! $this->last_insert_id ) {
-			return;
-		}
-
 		// WordPress only started passing the post id with this action in 6.4, and
 		// the plugin supports 6.3 — requiring an argument core does not send is a
 		// fatal ArgumentCountError under PHP 8, on every post save that creates a
@@ -137,17 +145,13 @@ class Post_Logger extends Logger {
 			$post_id = wp_get_post_parent_id( $revision_id );
 		}
 
-		// Ensure that the revision is for the same post that we just logged.
-		if ( ( $this->last_insert_context['post_id'] ?? null ) !== $post_id ) {
+		if ( ! $post_id ) {
 			return;
 		}
 
-		$this->append_context(
-			$this->last_insert_id,
-			[
-				'post_revision_id' => $revision_id,
-			]
-		);
+		// Only held here. The event this belongs to has not been logged yet, so
+		// maybe_log_post_change() reads it back when it builds the context.
+		$this->post_revision_ids[ (int) $post_id ] = (int) $revision_id;
 	}
 
 	/**
@@ -804,6 +808,15 @@ class Post_Logger extends Logger {
 			'post_type'  => get_post_type( $post ),
 			'post_title' => get_the_title( $post ),
 		);
+
+		// A revision saved earlier in this request belongs to this event. Consumed
+		// rather than only read, so a second change to the same post within one
+		// request cannot inherit the first one's revision.
+		if ( isset( $this->post_revision_ids[ $post->ID ] ) ) {
+			$context['post_revision_id'] = $this->post_revision_ids[ $post->ID ];
+
+			unset( $this->post_revision_ids[ $post->ID ] );
+		}
 
 		// Check if this is a post being created.
 		// This includes manual creation (auto-draft -> draft/publish), auto-save
