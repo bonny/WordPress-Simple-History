@@ -372,13 +372,13 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * All five abilities must actually be reachable by name, not merely
+	 * All six abilities must actually be reachable by name, not merely
 	 * registered somewhere under the simple-history/ prefix — a typo in a
 	 * wp_register_ability() call would otherwise pass unnoticed.
 	 *
 	 * @covers ::register_abilities
 	 */
-	public function test_all_five_abilities_are_registered_by_name() {
+	public function test_all_six_abilities_are_registered_by_name() {
 		$this->ensure_abilities_registered();
 
 		foreach (
@@ -388,6 +388,7 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 				'simple-history/search-events',
 				'simple-history/get-user-activity',
 				'simple-history/get-failed-logins',
+				'simple-history/get-stats-summary',
 			] as $name
 		) {
 			$this->assertNotNull(
@@ -481,6 +482,115 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 
 		foreach ( $result as $event ) {
 			$this->assertSame( 'SimpleUserLogger', $event['logger'] );
+		}
+	}
+
+	/**
+	 * @covers ::execute_get_stats_summary
+	 */
+	public function test_get_stats_summary_returns_data_for_administrator() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		SimpleLogger()->info( 'An event for the stats summary to count' );
+
+		$result = wp_get_ability( 'simple-history/get-stats-summary' )->execute( [] );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+	}
+
+	/**
+	 * Pins the events/stats permission asymmetry at the ability layer, not
+	 * merely at the service-method layer that
+	 * test_stats_permission_is_refused_for_editor() already covers: an editor
+	 * may call get-recent-events but must be refused get-stats-summary via the
+	 * ability's own check_permissions(), which is what an agent or MCP client
+	 * actually calls before executing.
+	 *
+	 * @covers ::execute_get_stats_summary
+	 * @covers ::check_stats_permission
+	 */
+	public function test_stats_summary_ability_refuses_editor() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'editor' ] ) );
+
+		$ability = wp_get_ability( 'simple-history/get-stats-summary' );
+
+		$this->assertInstanceOf( WP_Error::class, $ability->check_permissions( [] ) );
+	}
+
+	/**
+	 * A schema an agent cannot rely on is worse than none: every ability must
+	 * declare a usable label, description and a typed output_schema, not a
+	 * bare untyped object.
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_all_abilities_declare_label_description_and_typed_output_schema() {
+		$this->ensure_abilities_registered();
+
+		foreach ( wp_get_abilities() as $ability ) {
+			if ( strpos( $ability->get_name(), 'simple-history/' ) !== 0 ) {
+				continue;
+			}
+
+			$this->assertNotEmpty(
+				$ability->get_label(),
+				sprintf( 'Ability "%s" must have a non-empty label.', $ability->get_name() )
+			);
+
+			$this->assertNotEmpty(
+				$ability->get_description(),
+				sprintf( 'Ability "%s" must have a non-empty description.', $ability->get_name() )
+			);
+
+			$output_schema = $ability->get_output_schema();
+
+			$this->assertIsArray(
+				$output_schema,
+				sprintf( 'Ability "%s" must declare an output_schema.', $ability->get_name() )
+			);
+
+			$this->assertArrayHasKey(
+				'type',
+				$output_schema,
+				sprintf( 'Ability "%s" output_schema must declare a type.', $ability->get_name() )
+			);
+		}
+	}
+
+	/**
+	 * Simple History logs attacker-controlled strings by design — a
+	 * failed-login username is whatever was typed at the login form — so every
+	 * ability that returns events must tell an agent that returned content is
+	 * untrusted data, not instructions. This stops that warning being quietly
+	 * dropped in a future edit. get-stats-summary is exempt: it returns only
+	 * aggregate counts, never event content.
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_every_event_returning_ability_warns_content_is_untrusted() {
+		$this->ensure_abilities_registered();
+
+		foreach ( wp_get_abilities() as $ability ) {
+			$name = $ability->get_name();
+
+			if ( strpos( $name, 'simple-history/' ) !== 0 ) {
+				continue;
+			}
+
+			if ( 'simple-history/get-stats-summary' === $name ) {
+				continue;
+			}
+
+			$this->assertStringContainsString(
+				'untrusted',
+				$ability->get_description(),
+				sprintf( 'Ability "%s" must warn that returned content is untrusted.', $name )
+			);
 		}
 	}
 }

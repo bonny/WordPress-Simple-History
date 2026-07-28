@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Abilities_Event_Presenter;
+use Simple_History\Date_Helper;
 use Simple_History\Log_Levels;
 use Simple_History\WP_REST_Events_Controller;
 use Simple_History\WP_REST_Stats_Controller;
@@ -167,6 +168,53 @@ class Abilities_Service extends Service {
 				'output_schema'       => $this->get_event_list_schema(),
 				'execute_callback'    => [ $this, 'execute_get_failed_logins' ],
 				'permission_callback' => [ $this, 'check_events_permission' ],
+				'meta'                => $this->get_read_only_meta(),
+			]
+		);
+
+		wp_register_ability(
+			'simple-history/get-stats-summary',
+			[
+				'label'               => __( 'Get activity statistics summary', 'simple-history' ),
+				'description'         => __( 'Returns aggregate activity statistics for a date range: total event counts broken down by users, content, media, plugins, core and notes. This does not return individual events, only counts. Requires administrator privileges (manage_options) — a user who may read the activity log itself may still be refused here, and that asymmetry is deliberate, not an oversight.', 'simple-history' ),
+				'category'            => self::CATEGORY,
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'date_from' => [
+							'type'        => 'integer',
+							// translators: %d is the number of days.
+							'description' => sprintf( 'Start of the date range, as a Unix timestamp. Defaults to %d days ago if omitted.', Date_Helper::DAYS_PER_MONTH ),
+						],
+						'date_to'   => [
+							'type'        => 'integer',
+							'description' => 'End of the date range, as a Unix timestamp. Defaults to the end of today if omitted.',
+						],
+					],
+				],
+				'output_schema'       => [
+					'type'       => 'object',
+					'properties' => [
+						'date_range'                 => [
+							'type'        => 'object',
+							'description' => 'The resolved date range the statistics were calculated over, including human-readable formatted dates.',
+						],
+						'total_events'               => [
+							'type'        => 'integer',
+							'description' => 'Total number of events logged within the date range.',
+						],
+						'total_events_since_install' => [
+							'type'        => 'integer',
+							'description' => 'Total number of events logged since the plugin was installed, independent of the date range.',
+						],
+						'totals'                     => [
+							'type'        => 'object',
+							'description' => 'Event counts within the date range, grouped by category: users (logins, failed logins, profile updates), content (created, updated, deleted), media (uploads, edits, deletions), plugins (updates, installations, activations), core (updates, available updates), and notes (added, resolved). Each category also includes a total.',
+						],
+					],
+				],
+				'execute_callback'    => [ $this, 'execute_get_stats_summary' ],
+				'permission_callback' => [ $this, 'check_stats_permission' ],
 				'meta'                => $this->get_read_only_meta(),
 			]
 		);
@@ -478,6 +526,33 @@ class Abilities_Service extends Service {
 		];
 
 		return $this->present_events( $this->dispatch( '/simple-history/v1/events', $params ) );
+	}
+
+	/**
+	 * Return aggregate activity statistics for a date range.
+	 *
+	 * Unlike the event-returning abilities, the stats route's date_from and
+	 * date_to are Unix timestamps, not YYYY-MM-DD strings — a different shape
+	 * from get_common_filter_properties(), so this does not reuse it. The
+	 * summary shape has no *_html or otherwise noisy fields, so unlike the
+	 * event abilities this returns the dispatched result directly with no
+	 * presenter step.
+	 *
+	 * @param array $input Ability input.
+	 * @return array|\WP_Error
+	 */
+	public function execute_get_stats_summary( $input ) {
+		$params = [];
+
+		foreach ( [ 'date_from', 'date_to' ] as $key ) {
+			if ( ! isset( $input[ $key ] ) ) {
+				continue;
+			}
+
+			$params[ $key ] = (int) $input[ $key ];
+		}
+
+		return $this->dispatch( '/simple-history/v1/stats/summary', $params );
 	}
 
 	/**
