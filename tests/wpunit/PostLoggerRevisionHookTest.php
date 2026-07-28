@@ -259,6 +259,53 @@ class PostLoggerRevisionHookTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * An event receives at most one revision id.
+	 *
+	 * After attaching to an already-logged event, that event stays the most
+	 * recent one. A later save that Simple History declines to log — a post type
+	 * it ignores, an ok_to_log filter, the meta-box-loader bail — still creates a
+	 * revision, and without a guard that revision would be appended to the same
+	 * event, leaving two values and flipping the link to the wrong one.
+	 */
+	function test_event_is_not_given_a_second_revision_id() {
+		global $wpdb;
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_status'  => 'publish',
+				'post_content' => 'First version',
+			]
+		);
+
+		$this->log_post_update( $post_id );
+
+		$logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimplePostLogger' );
+		$event_id = $logger->last_insert_id;
+
+		wp_save_post_revision( $post_id );
+
+		// A later change that is never logged, but still produces a revision.
+		wp_update_post(
+			[
+				'ID'           => $post_id,
+				'post_content' => 'Second version',
+			]
+		);
+		wp_save_post_revision( $post_id );
+
+		$contexts_table = $wpdb->prefix . 'simple_history_contexts';
+
+		$revision_id_rows = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$contexts_table} WHERE history_id = %d AND `key` = 'post_revision_id'",
+				$event_id
+			)
+		);
+
+		$this->assertSame( 1, $revision_id_rows, 'An event should carry exactly one revision id' );
+	}
+
+	/**
 	 * The held id is consumed, not reused.
 	 *
 	 * A second change to the same post in one request must not inherit the first
