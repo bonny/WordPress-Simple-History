@@ -24,6 +24,23 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Register abilities once per process.
+	 *
+	 * The plugin registers these during bootstrap on WordPress 6.9+, and the
+	 * registry outlives individual tests, so registering again would trip
+	 * _doing_it_wrong() and fail the test for the wrong reason.
+	 */
+	private function ensure_abilities_registered() {
+		$this->require_abilities_api();
+
+		if ( wp_get_ability( 'simple-history/get-recent-events' ) ) {
+			return;
+		}
+
+		( new Abilities_Service( Simple_History::get_instance() ) )->register_abilities();
+	}
+
+	/**
 	 * The hook is only added when the API exists, and is always added when it does.
 	 *
 	 * This assertion is meaningful on both WP 6.8 and 6.9, which is why it does
@@ -75,10 +92,7 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	 * @covers ::register_abilities
 	 */
 	public function test_registers_no_write_or_destructive_abilities() {
-		$this->require_abilities_api();
-
-		$service = new Abilities_Service( Simple_History::get_instance() );
-		$service->register_abilities();
+		$this->ensure_abilities_registered();
 
 		foreach ( wp_get_abilities() as $ability ) {
 			$name = $ability->get_name();
@@ -159,14 +173,11 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	 * @covers ::execute_get_recent_events
 	 */
 	public function test_get_recent_events_returns_presented_events() {
-		$this->require_abilities_api();
+		$this->ensure_abilities_registered();
 
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
 		SimpleLogger()->info( 'An event for the ability to find' );
-
-		$service = new Abilities_Service( Simple_History::get_instance() );
-		$service->register_abilities();
 
 		$result = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 5 ] );
 
@@ -187,10 +198,7 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	 * @covers ::execute_get_recent_events
 	 */
 	public function test_subscriber_sees_fewer_events_than_administrator() {
-		$this->require_abilities_api();
-
-		$service = new Abilities_Service( Simple_History::get_instance() );
-		$service->register_abilities();
+		$this->ensure_abilities_registered();
 
 		SimpleLogger()->info( 'Routine event' );
 		SimpleLogger()->warning( 'Sensitive event' );
@@ -220,16 +228,13 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	 * @covers ::execute_get_recent_events
 	 */
 	public function test_per_page_is_clamped_to_one_hundred() {
-		$this->require_abilities_api();
+		$this->ensure_abilities_registered();
 
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
 		for ( $i = 0; $i < 105; $i++ ) {
 			SimpleLogger()->info( 'Event number ' . $i );
 		}
-
-		$service = new Abilities_Service( Simple_History::get_instance() );
-		$service->register_abilities();
 
 		$result = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 500 ] );
 

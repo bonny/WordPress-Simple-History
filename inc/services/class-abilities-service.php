@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Abilities_Event_Presenter;
+use Simple_History\Log_Levels;
 use Simple_History\WP_REST_Events_Controller;
 use Simple_History\WP_REST_Stats_Controller;
 
@@ -54,42 +55,73 @@ class Abilities_Service extends Service {
 				'category'            => self::CATEGORY,
 				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => [
-						'per_page'        => [
-							'type'        => 'integer',
-							'description' => 'Number of events to return. Maximum 100.',
-							'default'     => 20,
-						],
-						'date_from'       => [
-							'type'        => 'string',
-							'description' => 'Only events at or after this date. Format: YYYY-MM-DD.',
-						],
-						'date_to'         => [
-							'type'        => 'string',
-							'description' => 'Only events at or before this date. Format: YYYY-MM-DD.',
-						],
-						'loglevels'       => [
-							'type'        => 'array',
-							'description' => 'Only events at these severities, e.g. warning, error, critical.',
-							'items'       => [ 'type' => 'string' ],
-						],
-						'loggers'         => [
-							'type'        => 'array',
-							'description' => 'Only events from these loggers, e.g. SimpleUserLogger.',
-							'items'       => [ 'type' => 'string' ],
-						],
-						'include_context' => [
-							'type'        => 'boolean',
-							'description' => 'Include the full context data for each event. Verbose; off by default.',
-							'default'     => false,
-						],
-					],
+					'properties' => array_merge(
+						$this->get_common_filter_properties(),
+						[
+							'include_context' => [
+								'type'        => 'boolean',
+								'description' => 'Include the full context data for each event. Verbose; off by default.',
+								'default'     => false,
+							],
+						]
+					),
 				],
 				'output_schema'       => $this->get_event_list_schema(),
 				'execute_callback'    => [ $this, 'execute_get_recent_events' ],
 				'permission_callback' => [ $this, 'check_events_permission' ],
 			]
 		);
+	}
+
+	/**
+	 * Filter input properties shared by every ability that lists events.
+	 *
+	 * Factored out because five abilities accept this same per_page /
+	 * date_from / date_to / loglevels / loggers shape, and schema drift
+	 * between them would make an agent's model of the API worse, not better.
+	 *
+	 * @return array
+	 */
+	private function get_common_filter_properties(): array {
+		return [
+			'per_page'  => [
+				'type'        => 'integer',
+				'description' => 'Number of events to return. Maximum 100.',
+				'default'     => 20,
+				'minimum'     => 1,
+				'maximum'     => 100,
+			],
+			'date_from' => [
+				'type'        => 'string',
+				'description' => 'Only events at or after this date. Format: YYYY-MM-DD.',
+			],
+			'date_to'   => [
+				'type'        => 'string',
+				'description' => 'Only events at or before this date. Format: YYYY-MM-DD.',
+			],
+			'loglevels' => [
+				'type'        => 'array',
+				'description' => 'Only events at these severities.',
+				'items'       => [
+					'type' => 'string',
+					'enum' => [
+						Log_Levels::EMERGENCY,
+						Log_Levels::ALERT,
+						Log_Levels::CRITICAL,
+						Log_Levels::ERROR,
+						Log_Levels::WARNING,
+						Log_Levels::NOTICE,
+						Log_Levels::INFO,
+						Log_Levels::DEBUG,
+					],
+				],
+			],
+			'loggers'   => [
+				'type'        => 'array',
+				'description' => 'Only events from these loggers, e.g. SimpleUserLogger.',
+				'items'       => [ 'type' => 'string' ],
+			],
+		];
 	}
 
 	/**
@@ -209,12 +241,17 @@ class Abilities_Service extends Service {
 	}
 
 	/**
-	 * Return recent events.
+	 * Build REST dispatch params from ability input shared by every ability
+	 * that lists events.
+	 *
+	 * Factored out alongside get_common_filter_properties() so later abilities
+	 * reuse the same clamp-and-copy logic instead of each hand-rolling a
+	 * variant of it.
 	 *
 	 * @param array $input Ability input.
-	 * @return array|\WP_Error
+	 * @return array
 	 */
-	public function execute_get_recent_events( $input ) {
+	private function build_event_params( array $input ): array {
 		$params = [ 'per_page' => $this->clamp_per_page( $input['per_page'] ?? 20 ) ];
 
 		foreach ( [ 'date_from', 'date_to', 'loglevels', 'loggers' ] as $key ) {
@@ -225,8 +262,18 @@ class Abilities_Service extends Service {
 			$params[ $key ] = $input[ $key ];
 		}
 
+		return $params;
+	}
+
+	/**
+	 * Return recent events.
+	 *
+	 * @param array $input Ability input.
+	 * @return array|\WP_Error
+	 */
+	public function execute_get_recent_events( $input ) {
 		return $this->present_events(
-			$this->dispatch( '/simple-history/v1/events', $params ),
+			$this->dispatch( '/simple-history/v1/events', $this->build_event_params( $input ) ),
 			! empty( $input['include_context'] )
 		);
 	}
@@ -251,14 +298,25 @@ class Abilities_Service extends Service {
 					'logger'       => [ 'type' => 'string' ],
 					'level'        => [ 'type' => 'string' ],
 					'initiator'    => [ 'type' => 'string' ],
-					'user'         => [ 'type' => [ 'object', 'null' ] ],
+					'user'         => [
+						'type'        => [ 'object', 'null' ],
+						'description' => 'Null when the event has no resolvable user, e.g. a failed login with an unrecognized username.',
+						'properties'  => [
+							'id'    => [ 'type' => [ 'integer', 'null' ] ],
+							'login' => [ 'type' => 'string' ],
+							'name'  => [ 'type' => 'string' ],
+						],
+					],
 					'ip_addresses' => [
 						'type'  => 'array',
 						'items' => [ 'type' => 'string' ],
 					],
 					'occasions'    => [ 'type' => 'integer' ],
 					'permalink'    => [ 'type' => 'string' ],
-					'context'      => [ 'type' => 'object' ],
+					'context'      => [
+						'type'        => 'object',
+						'description' => 'Only present when include_context was requested.',
+					],
 				],
 			],
 		];
