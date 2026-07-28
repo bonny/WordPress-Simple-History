@@ -548,6 +548,38 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * search-events, get-user-activity and get-failed-logins share
+	 * get_event_list_schema(), whose `context` property claims it is "only
+	 * present when include_context was requested" — but until this was
+	 * fixed, none of the three accepted that input, so the field could never
+	 * actually come back and the promise was false for all three. This pins
+	 * get-failed-logins specifically, since seeing the full context of a
+	 * failed login (the attempted username, IP, user agent) is exactly what
+	 * makes the ability useful for its stated brute-force/credential-stuffing
+	 * purpose.
+	 *
+	 * @covers ::execute_get_failed_logins
+	 */
+	public function test_get_failed_logins_can_include_context() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$user_logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleUserLogger' );
+		$user_logger->warning_message( 'user_login_failed', [ 'login' => 'attacker' ] );
+
+		$without = wp_get_ability( 'simple-history/get-failed-logins' )->execute( [] );
+
+		$this->assertNotEmpty( $without );
+		$this->assertArrayNotHasKey( 'context', $without[0], 'Context should stay excluded by default.' );
+
+		$with = wp_get_ability( 'simple-history/get-failed-logins' )->execute( [ 'include_context' => true ] );
+
+		$this->assertNotEmpty( $with );
+		$this->assertArrayHasKey( 'context', $with[0], 'include_context should now be honoured by get-failed-logins.' );
+	}
+
+	/**
 	 * @covers ::execute_get_stats_summary
 	 */
 	public function test_get_stats_summary_returns_data_for_administrator() {

@@ -58,16 +58,7 @@ class Abilities_Service extends Service {
 				'category'            => self::CATEGORY,
 				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array_merge(
-						$this->get_common_filter_properties(),
-						[
-							'include_context' => [
-								'type'        => 'boolean',
-								'description' => 'Include the full context data for each event. Verbose; off by default.',
-								'default'     => false,
-							],
-						]
-					),
+					'properties' => $this->get_common_filter_properties(),
 				],
 				'output_schema'       => $this->get_event_list_schema(),
 				'execute_callback'    => [ $this, 'execute_get_recent_events' ],
@@ -113,11 +104,12 @@ class Abilities_Service extends Service {
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
-						'query'    => [
+						'query'           => [
 							'type'        => 'string',
 							'description' => 'Text to search for in event messages.',
 						],
-						'per_page' => $this->get_common_filter_properties()['per_page'],
+						'per_page'        => $this->get_common_filter_properties()['per_page'],
+						'include_context' => $this->get_common_filter_properties()['include_context'],
 					],
 					'required'   => [ 'query' ],
 				],
@@ -137,11 +129,12 @@ class Abilities_Service extends Service {
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
-						'user_id'  => [
+						'user_id'         => [
 							'type'        => 'integer',
 							'description' => 'The id of the user whose activity to return.',
 						],
-						'per_page' => $this->get_common_filter_properties()['per_page'],
+						'per_page'        => $this->get_common_filter_properties()['per_page'],
+						'include_context' => $this->get_common_filter_properties()['include_context'],
 					],
 					'required'   => [ 'user_id' ],
 				],
@@ -161,8 +154,9 @@ class Abilities_Service extends Service {
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
-						'per_page'  => $this->get_common_filter_properties()['per_page'],
-						'date_from' => $this->get_common_filter_properties()['date_from'],
+						'per_page'        => $this->get_common_filter_properties()['per_page'],
+						'date_from'       => $this->get_common_filter_properties()['date_from'],
+						'include_context' => $this->get_common_filter_properties()['include_context'],
 					],
 				],
 				'output_schema'       => $this->get_event_list_schema(),
@@ -257,22 +251,22 @@ class Abilities_Service extends Service {
 	 */
 	private function get_common_filter_properties(): array {
 		return [
-			'per_page'  => [
+			'per_page'        => [
 				'type'        => 'integer',
 				'description' => 'Number of events to return. Maximum 100.',
 				'default'     => 20,
 				'minimum'     => 1,
 				'maximum'     => 100,
 			],
-			'date_from' => [
+			'date_from'       => [
 				'type'        => 'string',
 				'description' => 'Only events at or after this date. Format: YYYY-MM-DD.',
 			],
-			'date_to'   => [
+			'date_to'         => [
 				'type'        => 'string',
 				'description' => 'Only events at or before this date. Format: YYYY-MM-DD.',
 			],
-			'loglevels' => [
+			'loglevels'       => [
 				'type'        => 'array',
 				'description' => 'Only events at these severities.',
 				'items'       => [
@@ -289,10 +283,15 @@ class Abilities_Service extends Service {
 					],
 				],
 			],
-			'loggers'   => [
+			'loggers'         => [
 				'type'        => 'array',
 				'description' => 'Only events from these loggers, e.g. SimpleUserLogger.',
 				'items'       => [ 'type' => 'string' ],
+			],
+			'include_context' => [
+				'type'        => 'boolean',
+				'description' => 'Include the full context data for each event. Verbose; off by default.',
+				'default'     => false,
 			],
 		];
 	}
@@ -419,6 +418,46 @@ class Abilities_Service extends Service {
 	}
 
 	/**
+	 * REST fields the presenter actually reads, shared by every ability that
+	 * returns one or more events.
+	 *
+	 * Without this, dispatch() renders every field the REST controller knows
+	 * how to build — message_html, two separate get_log_row_details_output()
+	 * renders, action_links, a get_userdata() per reacting user, and
+	 * get_avatar_data() / get_user_by() for initiator_data — only for the
+	 * presenter to throw nearly all of it away. The controller honours
+	 * `_fields` via rest_is_field_included(), so requesting only what the
+	 * presenter keeps skips that work at the source instead of paying for it
+	 * and discarding the result.
+	 *
+	 * @param bool $include_context Whether context was requested. Left out of
+	 *                              the field list otherwise, since it is the
+	 *                              densest PII in an event and list abilities
+	 *                              opt in rather than out.
+	 * @return string[]
+	 */
+	private function get_event_response_fields( bool $include_context ): array {
+		$fields = [
+			'id',
+			'date_gmt',
+			'message',
+			'logger',
+			'loglevel',
+			'initiator',
+			'initiator_data',
+			'ip_addresses',
+			'subsequent_occasions_count',
+			'permalink',
+		];
+
+		if ( $include_context ) {
+			$fields[] = 'context';
+		}
+
+		return $fields;
+	}
+
+	/**
 	 * Build REST dispatch params from ability input shared by every ability
 	 * that lists events.
 	 *
@@ -426,11 +465,15 @@ class Abilities_Service extends Service {
 	 * reuse the same clamp-and-copy logic instead of each hand-rolling a
 	 * variant of it.
 	 *
-	 * @param array $input Ability input.
+	 * @param array $input           Ability input.
+	 * @param bool  $include_context Whether context was requested.
 	 * @return array
 	 */
-	private function build_event_params( array $input ): array {
-		$params = [ 'per_page' => $this->clamp_per_page( $input['per_page'] ?? 20 ) ];
+	private function build_event_params( array $input, bool $include_context ): array {
+		$params = [
+			'per_page' => $this->clamp_per_page( $input['per_page'] ?? 20 ),
+			'_fields'  => $this->get_event_response_fields( $include_context ),
+		];
 
 		foreach ( [ 'date_from', 'date_to', 'loglevels', 'loggers' ] as $key ) {
 			if ( ! isset( $input[ $key ] ) ) {
@@ -450,9 +493,11 @@ class Abilities_Service extends Service {
 	 * @return array|\WP_Error
 	 */
 	public function execute_get_recent_events( $input ) {
+		$include_context = ! empty( $input['include_context'] );
+
 		return $this->present_events(
-			$this->dispatch( '/simple-history/v1/events', $this->build_event_params( $input ) ),
-			! empty( $input['include_context'] )
+			$this->dispatch( '/simple-history/v1/events', $this->build_event_params( $input, $include_context ) ),
+			$include_context
 		);
 	}
 
@@ -465,16 +510,18 @@ class Abilities_Service extends Service {
 	public function execute_get_event( $input ) {
 		$id = isset( $input['id'] ) ? (int) $input['id'] : 0;
 
-		$event = $this->dispatch( '/simple-history/v1/events/' . $id );
+		$include_context = ! isset( $input['include_context'] ) || (bool) $input['include_context'];
+
+		$event = $this->dispatch(
+			'/simple-history/v1/events/' . $id,
+			[ '_fields' => $this->get_event_response_fields( $include_context ) ]
+		);
 
 		if ( is_wp_error( $event ) ) {
 			return $event;
 		}
 
-		return Abilities_Event_Presenter::present(
-			(array) $event,
-			! isset( $input['include_context'] ) || (bool) $input['include_context']
-		);
+		return Abilities_Event_Presenter::present( (array) $event, $include_context );
 	}
 
 	/**
@@ -498,10 +545,12 @@ class Abilities_Service extends Service {
 			);
 		}
 
-		$params           = $this->build_event_params( $input );
+		$include_context = ! empty( $input['include_context'] );
+
+		$params           = $this->build_event_params( $input, $include_context );
 		$params['search'] = $input['query'];
 
-		return $this->present_events( $this->dispatch( '/simple-history/v1/events', $params ) );
+		return $this->present_events( $this->dispatch( '/simple-history/v1/events', $params ), $include_context );
 	}
 
 	/**
@@ -529,10 +578,12 @@ class Abilities_Service extends Service {
 			);
 		}
 
-		$params          = $this->build_event_params( $input );
+		$include_context = ! empty( $input['include_context'] );
+
+		$params          = $this->build_event_params( $input, $include_context );
 		$params['users'] = [ (int) $input['user_id'] ];
 
-		return $this->present_events( $this->dispatch( '/simple-history/v1/events', $params ) );
+		return $this->present_events( $this->dispatch( '/simple-history/v1/events', $params ), $include_context );
 	}
 
 	/**
@@ -552,7 +603,9 @@ class Abilities_Service extends Service {
 	 * @return array|\WP_Error
 	 */
 	public function execute_get_failed_logins( $input ) {
-		$params             = $this->build_event_params( $input );
+		$include_context = ! empty( $input['include_context'] );
+
+		$params             = $this->build_event_params( $input, $include_context );
 		$params['messages'] = [
 			'SimpleUserLogger:user_login_failed',
 			'SimpleUserLogger:user_unknown_login_failed',
@@ -560,7 +613,7 @@ class Abilities_Service extends Service {
 			'SimpleUserLogger:user_application_password_unknown_login_failed',
 		];
 
-		return $this->present_events( $this->dispatch( '/simple-history/v1/events', $params ) );
+		return $this->present_events( $this->dispatch( '/simple-history/v1/events', $params ), $include_context );
 	}
 
 	/**
