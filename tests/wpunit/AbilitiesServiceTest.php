@@ -370,4 +370,117 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 			);
 		}
 	}
+
+	/**
+	 * All five abilities must actually be reachable by name, not merely
+	 * registered somewhere under the simple-history/ prefix — a typo in a
+	 * wp_register_ability() call would otherwise pass unnoticed.
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_all_five_abilities_are_registered_by_name() {
+		$this->ensure_abilities_registered();
+
+		foreach (
+			[
+				'simple-history/get-recent-events',
+				'simple-history/get-event',
+				'simple-history/search-events',
+				'simple-history/get-user-activity',
+				'simple-history/get-failed-logins',
+			] as $name
+		) {
+			$this->assertNotNull(
+				wp_get_ability( $name ),
+				sprintf( 'Ability "%s" should be registered.', $name )
+			);
+		}
+	}
+
+	/**
+	 * A convenience preset over get-recent-events for when an agent has a
+	 * search term rather than a logger or severity in mind.
+	 *
+	 * @covers ::execute_search_events
+	 */
+	public function test_search_events_matches_message_text() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		SimpleLogger()->info( 'A wildly distinctive phrase for search to find' );
+		SimpleLogger()->info( 'An unrelated event' );
+
+		$result = wp_get_ability( 'simple-history/search-events' )->execute(
+			[ 'query' => 'wildly distinctive phrase' ]
+		);
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+
+		foreach ( $result as $event ) {
+			$this->assertStringContainsString( 'wildly distinctive phrase', $event['message'] );
+		}
+	}
+
+	/**
+	 * Uses the `users` REST parameter, not `user` — the two are different
+	 * parameters, and using the wrong one would silently return an unfiltered
+	 * log instead of one user's activity.
+	 *
+	 * @covers ::execute_get_user_activity
+	 */
+	public function test_get_user_activity_is_scoped_to_one_user() {
+		$this->ensure_abilities_registered();
+
+		$user_a = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$user_b = self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+		wp_set_current_user( $user_a );
+		SimpleLogger()->info( 'Event by user A' );
+
+		wp_set_current_user( $user_b );
+		SimpleLogger()->info( 'Event by user B' );
+
+		wp_set_current_user( $user_a );
+
+		$result = wp_get_ability( 'simple-history/get-user-activity' )->execute( [ 'user_id' => $user_a ] );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+
+		foreach ( $result as $event ) {
+			$this->assertSame( $user_a, $event['user']['id'] );
+		}
+	}
+
+	/**
+	 * The presenter deliberately drops the raw `_message_key` context (see
+	 * Abilities_Event_Presenter::present()), so the message key itself cannot
+	 * be asserted on here. The logger slug is the closest available signal
+	 * that a returned event is genuinely a failed login rather than some
+	 * other SimpleUserLogger event, so this asserts that instead.
+	 *
+	 * @covers ::execute_get_failed_logins
+	 */
+	public function test_get_failed_logins_returns_only_login_failures() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$user_logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleUserLogger' );
+		$user_logger->warning_message( 'user_login_failed', [ 'login' => 'attacker' ] );
+		$user_logger->warning_message( 'user_unknown_login_failed', [ 'failed_username' => 'nonexistent' ] );
+
+		SimpleLogger()->info( 'A routine, unrelated event' );
+
+		$result = wp_get_ability( 'simple-history/get-failed-logins' )->execute( [] );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+
+		foreach ( $result as $event ) {
+			$this->assertSame( 'SimpleUserLogger', $event['logger'] );
+		}
+	}
 }
