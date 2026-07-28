@@ -48,6 +48,14 @@ class Abilities_Event_Presenter {
 	 * Email addresses, gravatar URLs, and profile links are dropped: they are
 	 * PII or chrome, and neither helps an agent answer "who did this".
 	 *
+	 * WP_REST_Events_Controller::prepare_item_for_response() always emits a
+	 * 7-key initiator_data array, falling back to null/empty values rather
+	 * than omitting the key — so the is_array()/[] guard below only catches a
+	 * shape the REST API never actually produces. It stays as defence for
+	 * direct callers, but the real "no resolvable user" signal is that the
+	 * identity fields themselves are all empty, e.g. a `wp`-initiated event
+	 * or a failed login with an unrecognized username.
+	 *
 	 * @param array $event One event as returned by WP_REST_Events_Controller.
 	 * @return array|null Null when the event has no resolvable user.
 	 */
@@ -58,10 +66,18 @@ class Abilities_Event_Presenter {
 			return null;
 		}
 
+		$id    = isset( $data['user_id'] ) ? (int) $data['user_id'] : null;
+		$login = $data['user_login'] ?? '';
+		$name  = $data['user_display_name'] ?? '';
+
+		if ( $id === null && $login === '' && $name === '' ) {
+			return null;
+		}
+
 		return [
-			'id'    => isset( $data['user_id'] ) ? (int) $data['user_id'] : null,
-			'login' => $data['user_login'] ?? '',
-			'name'  => $data['user_display_name'] ?? '',
+			'id'    => $id,
+			'login' => $login,
+			'name'  => $name,
 		];
 	}
 }

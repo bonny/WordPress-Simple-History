@@ -484,6 +484,20 @@ class Abilities_Service extends Service {
 	 * @return array|\WP_Error
 	 */
 	public function execute_search_events( $input ) {
+		// Schema declares `query` as required, but that only stops an agent
+		// calling through wp_get_ability()->execute(), which validates input
+		// first. A direct PHP caller that invokes this method skips that
+		// validation entirely, and a null/empty search silently falls through
+		// to the controller as no search parameter at all — returning the
+		// whole recent log instead of erroring.
+		if ( ! isset( $input['query'] ) || $input['query'] === '' ) {
+			return new \WP_Error(
+				'simple_history_missing_search_query',
+				__( 'A search query is required.', 'simple-history' ),
+				[ 'status' => 400 ]
+			);
+		}
+
 		$params           = $this->build_event_params( $input );
 		$params['search'] = $input['query'];
 
@@ -501,6 +515,20 @@ class Abilities_Service extends Service {
 	 * @return array|\WP_Error
 	 */
 	public function execute_get_user_activity( $input ) {
+		// Same unguarded shape as execute_search_events() above, but this one
+		// already fails safe: a missing/zero user_id becomes users => [0],
+		// which matches no real user and returns an empty list rather than
+		// the whole log. Guarded anyway, cheaply, so the agent gets a clear
+		// error instead of a result indistinguishable from "this user did
+		// nothing".
+		if ( empty( $input['user_id'] ) ) {
+			return new \WP_Error(
+				'simple_history_missing_user_id',
+				__( 'A user_id is required.', 'simple-history' ),
+				[ 'status' => 400 ]
+			);
+		}
+
 		$params          = $this->build_event_params( $input );
 		$params['users'] = [ (int) $input['user_id'] ];
 
@@ -510,9 +538,15 @@ class Abilities_Service extends Service {
 	/**
 	 * Return recent failed login attempts.
 	 *
-	 * Filters on SimpleUserLogger's two failed-login message keys. The REST
-	 * route's `messages` parameter expects "LoggerSlug:message_key" entries,
-	 * not bare message keys — see Log_Query::prepare_args().
+	 * Filters on SimpleUserLogger's four failed-login message keys: the two
+	 * ordinary login-form ones, plus the two application-password ones (see
+	 * User_Logger::on_application_password_failed_authentication()). Without
+	 * the application-password keys, a site under attack through app
+	 * passwords or the REST API would make this ability report an empty
+	 * list — "no failed logins" being the worst possible answer to the
+	 * question this ability exists to answer. The REST route's `messages`
+	 * parameter expects "LoggerSlug:message_key" entries, not bare message
+	 * keys — see Log_Query::prepare_args().
 	 *
 	 * @param array $input Ability input.
 	 * @return array|\WP_Error
@@ -522,6 +556,8 @@ class Abilities_Service extends Service {
 		$params['messages'] = [
 			'SimpleUserLogger:user_login_failed',
 			'SimpleUserLogger:user_unknown_login_failed',
+			'SimpleUserLogger:user_application_password_login_failed',
+			'SimpleUserLogger:user_application_password_unknown_login_failed',
 		];
 
 		return $this->present_events( $this->dispatch( '/simple-history/v1/events', $params ) );
@@ -545,6 +581,18 @@ class Abilities_Service extends Service {
 
 		foreach ( [ 'date_from', 'date_to' ] as $key ) {
 			if ( ! isset( $input[ $key ] ) ) {
+				continue;
+			}
+
+			// The schema declares these as integers, so an agent calling
+			// through wp_get_ability()->execute() never reaches this with a
+			// non-numeric value. A direct PHP caller bypasses that
+			// validation, and could otherwise pass the YYYY-MM-DD strings the
+			// other five abilities use: (int) '2026-07-01' === 2026, silently
+			// producing a range starting in 1970 instead of an error. Skip
+			// the value rather than pass through a meaningless timestamp,
+			// the same defence-in-depth reasoning as clamp_per_page().
+			if ( ! is_numeric( $input[ $key ] ) ) {
 				continue;
 			}
 

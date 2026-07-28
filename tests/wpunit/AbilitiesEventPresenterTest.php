@@ -151,6 +151,34 @@ class AbilitiesEventPresenterTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * The REST controller always emits a 7-key initiator_data array — even
+	 * for an event with no resolvable user, e.g. a `wp`-initiated event or a
+	 * failed login with an unrecognized username — falling back to null or
+	 * empty-string values rather than omitting the key. This is the shape
+	 * that actually reaches the presenter in that case; the guard in
+	 * test_missing_initiator_data_yields_null_user() above pins a shape the
+	 * REST API never produces.
+	 *
+	 * @covers ::present
+	 */
+	public function test_all_keys_present_but_empty_yields_null_user() {
+		$event                    = $this->rest_event();
+		$event['initiator_data'] = array(
+			'user_id'           => null,
+			'user_login'        => '',
+			'user_email'        => null,
+			'user_display_name' => '',
+			'user_avatar_url'   => 'https://secure.gravatar.com/avatar/anonymous',
+			'user_image'        => '',
+			'user_profile_url'  => '',
+		);
+
+		$presented = Abilities_Event_Presenter::present( $event );
+
+		$this->assertNull( $presented['user'] );
+	}
+
+	/**
 	 * Guards against a string initiator_data, which would otherwise reach
 	 * isset( $data['user_id'] ) and be silently treated as "no id".
 	 *

@@ -439,6 +439,28 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * The input schema declares `query` as required, which stops an agent
+	 * calling through wp_get_ability()->execute() from ever reaching this
+	 * with a missing query. A direct PHP caller invoking the execute
+	 * method itself bypasses that validation entirely: without a guard, a
+	 * null/empty search silently becomes no search parameter at all, and the
+	 * ability returns the entire recent log instead of erroring — the
+	 * opposite of what "search for nothing" should do.
+	 *
+	 * @covers ::execute_search_events
+	 */
+	public function test_search_events_requires_a_query() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+
+		$this->assertInstanceOf( WP_Error::class, $service->execute_search_events( [] ) );
+		$this->assertInstanceOf( WP_Error::class, $service->execute_search_events( [ 'query' => '' ] ) );
+	}
+
+	/**
 	 * Uses the `users` REST parameter, not `user` — the two are different
 	 * parameters, and using the wrong one would silently return an unfiltered
 	 * log instead of one user's activity.
@@ -470,11 +492,36 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * A direct PHP caller bypassing schema validation and omitting user_id
+	 * already failed safe here — (int) null becomes users => [0], matching
+	 * no real user — but a clear error is better than a result an agent
+	 * could misread as "this user did nothing".
+	 *
+	 * @covers ::execute_get_user_activity
+	 */
+	public function test_get_user_activity_requires_a_user_id() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+
+		$this->assertInstanceOf( WP_Error::class, $service->execute_get_user_activity( [] ) );
+	}
+
+	/**
 	 * The presenter deliberately drops the raw `_message_key` context (see
 	 * Abilities_Event_Presenter::present()), so the message key itself cannot
 	 * be asserted on here. The logger slug is the closest available signal
 	 * that a returned event is genuinely a failed login rather than some
 	 * other SimpleUserLogger event, so this asserts that instead.
+	 *
+	 * Also logs an application-password failure (see
+	 * User_Logger::on_application_password_failed_authentication(), which
+	 * fires this via the same warning_message() path) alongside the two
+	 * ordinary login-form failures. A site under attack through application
+	 * passwords or the REST API must still show up here — this is the test
+	 * that would have caught filtering on only the two login-form keys.
 	 *
 	 * @covers ::execute_get_failed_logins
 	 */
@@ -486,13 +533,14 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 		$user_logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleUserLogger' );
 		$user_logger->warning_message( 'user_login_failed', [ 'login' => 'attacker' ] );
 		$user_logger->warning_message( 'user_unknown_login_failed', [ 'failed_username' => 'nonexistent' ] );
+		$user_logger->warning_message( 'user_application_password_login_failed', [ 'login' => 'attacker' ] );
 
 		SimpleLogger()->info( 'A routine, unrelated event' );
 
 		$result = wp_get_ability( 'simple-history/get-failed-logins' )->execute( [] );
 
 		$this->assertIsArray( $result );
-		$this->assertNotEmpty( $result );
+		$this->assertCount( 3, $result, 'All three failed-login events should be returned, including the application-password one.' );
 
 		foreach ( $result as $event ) {
 			$this->assertSame( 'SimpleUserLogger', $event['logger'] );
