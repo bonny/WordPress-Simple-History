@@ -31,6 +31,9 @@ parameters:
     -
       identifier: WPCompat.actionNotAvailable.wpabilitiesapiinit
       path: inc/services/class-abilities-service.php
+    -
+      identifier: WPCompat.functionNotAvailable
+      path: inc/services/class-abilities-service.php
   WPCompat:
     pluginFile: index.php
     requiresAtLeast: '6.3'

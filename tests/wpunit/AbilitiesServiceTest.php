@@ -87,10 +87,15 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 				continue;
 			}
 
+			// Split on both '/' and '-' so only whole tokens are checked, not
+			// substrings — a legitimately read-only name could otherwise
+			// false-positive, e.g. "offset" containing "set".
+			$tokens = preg_split( '/[\/-]/', $name );
+
 			foreach ( [ 'create', 'update', 'delete', 'purge', 'set', 'remove' ] as $verb ) {
-				$this->assertStringNotContainsString(
+				$this->assertNotContains(
 					$verb,
-					$name,
+					$tokens,
 					'Simple History registers read abilities only.'
 				);
 			}
@@ -148,5 +153,86 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 		$service = new Abilities_Service( Simple_History::get_instance() );
 
 		$this->assertTrue( $service->check_stats_permission() );
+	}
+
+	/**
+	 * @covers ::execute_get_recent_events
+	 */
+	public function test_get_recent_events_returns_presented_events() {
+		$this->require_abilities_api();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		SimpleLogger()->info( 'An event for the ability to find' );
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+		$service->register_abilities();
+
+		$result = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 5 ] );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+		$this->assertArrayHasKey( 'message', $result[0] );
+		$this->assertArrayNotHasKey( 'message_html', $result[0], 'Ability output must be presented, not raw REST data.' );
+	}
+
+	/**
+	 * The whole permission model rests on this.
+	 *
+	 * Simple History's per-logger visibility filtering lives inside Log_Query,
+	 * not in the permission callback — get_items_permissions_check() only
+	 * asserts that someone is logged in. Delegating through rest_do_request()
+	 * is what makes a subscriber see a filtered log instead of everything.
+	 *
+	 * @covers ::execute_get_recent_events
+	 */
+	public function test_subscriber_sees_fewer_events_than_administrator() {
+		$this->require_abilities_api();
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+		$service->register_abilities();
+
+		SimpleLogger()->info( 'Routine event' );
+		SimpleLogger()->warning( 'Sensitive event' );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+		$admin_events = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 100 ] );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+		$subscriber_events = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 100 ] );
+
+		$this->assertIsArray( $admin_events );
+		$this->assertNotEmpty( $admin_events, 'An administrator should see events.' );
+
+		$subscriber_count = is_wp_error( $subscriber_events ) ? 0 : count( $subscriber_events );
+
+		$this->assertLessThan(
+			count( $admin_events ),
+			$subscriber_count,
+			'A subscriber must not see the same log an administrator sees.'
+		);
+	}
+
+	/**
+	 * An agent asking for a thousand events would spend its whole context on
+	 * one answer, so the ceiling is enforced server-side.
+	 *
+	 * @covers ::execute_get_recent_events
+	 */
+	public function test_per_page_is_clamped_to_one_hundred() {
+		$this->require_abilities_api();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		for ( $i = 0; $i < 105; $i++ ) {
+			SimpleLogger()->info( 'Event number ' . $i );
+		}
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+		$service->register_abilities();
+
+		$result = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 500 ] );
+
+		$this->assertLessThanOrEqual( 100, count( $result ) );
 	}
 }
