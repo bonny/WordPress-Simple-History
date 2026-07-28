@@ -240,4 +240,58 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertLessThanOrEqual( 100, count( $result ) );
 	}
+
+	/**
+	 * Fetching one event by id is already the "drill in" act, so context comes
+	 * back by default here where list abilities leave it out.
+	 *
+	 * @covers ::execute_get_event
+	 */
+	public function test_get_event_includes_context_by_default() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		SimpleLogger()->info( 'Event with context', [ 'custom_key' => 'custom_value' ] );
+
+		$recent = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 1 ] );
+		$event  = wp_get_ability( 'simple-history/get-event' )->execute( [ 'id' => $recent[0]['id'] ] );
+
+		$this->assertArrayHasKey( 'context', $event );
+		$this->assertSame( $recent[0]['id'], $event['id'] );
+	}
+
+	/**
+	 * @covers ::execute_get_event
+	 */
+	public function test_get_event_can_omit_context() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		SimpleLogger()->info( 'Another event' );
+
+		$recent = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 1 ] );
+		$event  = wp_get_ability( 'simple-history/get-event' )->execute(
+			[
+				'id'              => $recent[0]['id'],
+				'include_context' => false,
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'context', $event );
+	}
+
+	/**
+	 * @covers ::execute_get_event
+	 */
+	public function test_get_event_returns_error_for_unknown_id() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$result = wp_get_ability( 'simple-history/get-event' )->execute( [ 'id' => 99999999 ] );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+	}
 }
