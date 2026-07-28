@@ -259,6 +259,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
 -   "Find events from the same IP address" in an event's actions menu, alongside the existing user and event-type filters.
 -   Changes to more settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log).
+-   Activity log is now available to AI tools and automation through the WordPress Abilities API (WordPress 6.9+). Read-only — nothing exposed can change or delete log entries.
 -   Developers: new `simple_history/settings/tracked_options` filter lets add-ons register their own option keys to be logged as "Modified settings", plus `simple_history/settings/redacted_options` to hide sensitive values.
 -   Developers: `simple_history/header_status/items` filter to add, replace (by `id`), or remove items in the header feature-discovery bar.
 -   WP-CLI: `--metadata_search` and `--ai_only` options on `wp simple-history list`, matching the metadata search and AI filter in the GUI.

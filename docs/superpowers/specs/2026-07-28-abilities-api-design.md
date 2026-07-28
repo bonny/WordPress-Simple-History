@@ -241,20 +241,35 @@ The permission-delegation test is the important one and should be written first.
 
 ---
 
-## 10. Open Questions
+## 10. Answered Questions
 
-1. **Ability category.** Registration takes a `category`. Whether to register a `simple-history` category or reuse a core one needs checking against the 6.9 source — the handbook is vague and the local site returns only two core abilities where docs describe three.
-2. **Is ability listing capability-filtered?** Unverified: does a subscriber see abilities they cannot run? If listing is unfiltered, any authenticated user can enumerate our full surface and schemas. For read-only abilities this is enumeration rather than data exposure, so it is a "know it" not a blocker — but confirm before finalising descriptions.
-3. **Exact core REST controller behaviour** for `wp-abilities/v1` should be read from the 6.9 source rather than trusted from documentation.
-4. **Stats summary permissions** — confirm `/stats/summary` has an equivalent permission check to the events routes before wrapping it.
+All four were resolved during implementation, verified against a live WordPress 7.0.2 site rather than documentation. Two of them turned out to be defects, not merely unknowns — both would have shipped a feature that did nothing.
+
+1. **Ability category — registers on its own hook.** `wp_register_ability_category( string $slug, array $args )` takes required `label` and `description`. Critically, **categories register on `wp_abilities_api_categories_init`, not `wp_abilities_api_init`.** Registering the category from inside the abilities callback made WordPress reject it, and an ability naming a non-existent category is then rejected too — so nothing registered at all. Core fires the categories action first from `WP_Abilities_Registry::get_instance()` precisely so categories exist "before abilities that depend on them".
+
+2. **Abilities are invisible over REST unless they opt in.** `meta.show_in_rest` **defaults to false**, and both `class-wp-rest-abilities-v1-list-controller.php:92` and `…run-controller.php:145` filter on it. Without it the abilities registered fine in PHP and returned `rest_ability_not_found` to every REST and MCP client — the only consumers that matter. We now also set `meta.annotations` (`readonly: true`, `destructive: false`, `idempotent: true`), which states §6's read-only position in a form an agent can act on rather than only in prose. Core additionally derives the required HTTP method from `readonly` — read-only abilities must be called with GET.
+
+3. **Core REST controller behaviour**, read from 7.0.2 source: anonymous listing returns 401 as designed; input is passed as a single `input` parameter (query param for GET, JSON body for POST), not as top-level params; the permission method on `WP_Ability` is `check_permissions( $input )`.
+
+4. **Stats permissions are stricter, and stay that way.** `WP_REST_Stats_Controller::get_items_permissions_check()` requires `manage_options` where the events controller only requires being logged in. Verified live: an editor is refused stats but permitted events. The asymmetry is preserved deliberately.
+
+### The security model, verified
+
+Measured on the live site: an administrator's `get-recent-events` returned **100 events**; a subscriber's returned **0** — while `check_permissions()` returned `true` for both. That is exactly the claim in §3 and §6: authorization is permissive by design, and the real per-logger filtering happens deeper, inside `Log_Query`, which delegating through `rest_do_request()` preserves. Reimplementing permissions in the ability layer would have quietly bypassed it.
+
+### One behaviour changed on evidence
+
+`per_page` above the maximum is **rejected**, not clamped. The schema's `maximum: 100` makes `WP_Ability::validate_input()` refuse the call before our callback runs. That is better than silent truncation — an agent learns the real limit instead of reading a short answer as a complete one. `clamp_per_page()` remains as defence-in-depth for direct PHP callers, which bypass schema validation.
 
 ---
 
 ## 11. Sizing
 
-`size: 1-small` to `2-medium`. One new service class (~300 lines, mostly schema literals), a small retain-the-controllers refactor in `class-rest-api.php`, and six tests. No UI, no migrations, no new dependencies.
+Estimated `size: 1-small` to `2-medium`. Actual: one new service class plus a stateless presenter, no changes to `class-rest-api.php`, and 24 tests. No UI, no migrations, no new dependencies.
 
 Priority `2-normal`. This is worth doing and cheap, but it is hygiene — it has no deadline, and the competitor announcement is a reason to keep scope tight, not to hurry.
+
+**Where the estimate was wrong:** the code was as small as predicted, but two runtime defects (the categories hook and `show_in_rest`) were invisible to code review and to the WordPress 6.8 test environment, and would each have shipped a feature that silently did nothing. Neither is discoverable from the current documentation. Any future work against a WordPress API this new should budget for verification on a real site of the target version, not just a green test suite.
 
 ---
 
