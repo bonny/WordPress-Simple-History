@@ -323,10 +323,8 @@ function IPAddressLink( ipAddressProps ) {
 	// else — the dashboard widget — nothing is listening, so link to the events
 	// admin page with the 'ip' query arg it already reads on load instead.
 	// Rendering a real anchor there also gets middle-click and open-in-new-tab
-	// for free.
-	//
-	// Safe because the row itself is gated on canOfferFilter below: whenever
-	// in-place filtering is unavailable, the URL is known to be present.
+	// for free. canOfferFilter below keeps the row out entirely when neither
+	// route exists, so the URL is present whenever this branch is taken.
 	const renderFilterByIPLink = ( ip, label ) => {
 		if ( ! canFilterEventsInPlace ) {
 			return (
@@ -350,17 +348,10 @@ function IPAddressLink( ipAddressProps ) {
 		);
 	};
 
-	// Only the remote address is filterable: Log_Query matches the ip filter
-	// against the _server_remote_addr context key alone, so offering it for a
-	// proxy-header address would send the user to a guaranteed-empty result page.
-	const isFilterableAddress = header === '_server_remote_addr';
-
 	// Filtering needs somewhere to go: either a GUI listening for the in-place
 	// event, or a URL to navigate to. With neither, the control would do nothing
 	// when clicked, so don't render it at all.
-	const canOfferFilter =
-		isFilterableAddress &&
-		( canFilterEventsInPlace || !! eventsAdminPageURL );
+	const canOfferFilter = canFilterEventsInPlace || !! eventsAdminPageURL;
 
 	// Subnet collapsing is IPv4-only — the regex is a no-op on IPv6, which would
 	// otherwise render a "This subnet" link identical to "This IP" beside it.

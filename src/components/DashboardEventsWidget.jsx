@@ -99,7 +99,11 @@ export function DashboardEventsWidget() {
 		useState( false );
 	const [ eventsLoadingErrorDetails, setEventsLoadingErrorDetails ] =
 		useState( null );
-	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState( '' );
+	// Seeded from the value localized at enqueue time (see React_Dropin), so links
+	// out of the widget work before the search-options response arrives.
+	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState(
+		window.simpleHistoryReactData?.eventsAdminPageURL || ''
+	);
 	const [ settingsPageURL, setSettingsPageURL ] = useState( '' );
 	const [ statsPageURL, setStatsPageURL ] = useState( '' );
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
@@ -191,7 +195,13 @@ export function DashboardEventsWidget() {
 		apiFetch( { path: '/simple-history/v1/search-options' } )
 			.then( ( response ) => {
 				setPagerSize( response.pager_size );
-				setEventsAdminPageURL( response.events_admin_page_url || '' );
+				// Only when the response actually carries one. Add-ons can
+				// override the URL through the search options filter, but an
+				// absent field must not downgrade the value seeded at enqueue
+				// time — losing it hides the links built from it.
+				if ( response.events_admin_page_url ) {
+					setEventsAdminPageURL( response.events_admin_page_url );
+				}
 				setSettingsPageURL( response.settings_page_url || '' );
 				setStatsPageURL( response.stats_page_url || '' );
 				setMapsApiKey( response.maps_api_key || '' );
