@@ -25,6 +25,12 @@ Consequences:
     ```
 -   Tasks 1 and 2 are deliberately designed to be fully testable on 6.8, so most of the logic has real coverage in the default suite.
 
+**PHPStan needs `--memory-limit=2G`.** The default 128M and even 512M crash a parallel worker on the full run. Always analyse with `./vendor/bin/phpstan analyse --memory-limit=2G`.
+
+**PHPStan WPCompat flags every Abilities API symbol**, correctly — the config sets `requiresAtLeast: '6.3'` and the API is 6.9+. Our uses are `function_exists`-guarded, which WPCompat cannot see through (and for `add_action( 'wp_abilities_api_init', … )` could not in principle, since the hook name is just a string). `phpstan.neon` carries scoped `ignoreErrors` entries for `inc/services/class-abilities-service.php` only. **Unmatched ignores are hard errors in this project**, so the config lists only identifiers that currently fire. When a task introduces `wp_register_ability()`, add `WPCompat.functionNotAvailable` scoped to the same path; do not pre-declare identifiers that are not yet triggered.
+
+**`wp_register_ability_category()` signature is confirmed:** `wp_register_ability_category( string $slug, array $args ): ?WP_Ability_Category`, where `$args` requires `label` and `description` and optionally takes `meta`. The code in Task 2 is correct as written — this resolves open question 1 in the spec.
+
 **Deviation from the spec:** the spec's §3 proposed refactoring `class-rest-api.php` to retain controller instances. Skip that. `WP_REST_Events_Controller::__construct()` (`inc/class-wp-rest-events-controller.php:28-32`) only assigns three properties, so instantiating one per permission check is free and avoids coupling two services. No task in this plan modifies `class-rest-api.php`.
 
 ---
