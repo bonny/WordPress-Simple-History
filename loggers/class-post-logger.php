@@ -149,9 +149,34 @@ class Post_Logger extends Logger {
 			return;
 		}
 
-		// Only held here. The event this belongs to has not been logged yet, so
-		// maybe_log_post_change() reads it back when it builds the context.
-		$this->post_revision_ids[ (int) $post_id ] = (int) $revision_id;
+		$post_id = (int) $post_id;
+
+		// Which side of the event this fires on depends on how the post was
+		// saved, so both orderings have to work.
+		//
+		// The classic editor and Quick Edit log from transition_post_status,
+		// which core fires before post_updated — the hook that saves the
+		// revision. There the event already exists, so the id is attached to it.
+		//
+		// Gutenberg and WP-CLI log after the revision is saved, from
+		// rest_after_insert_* and wp_after_insert_post. There is nothing to
+		// attach to yet, so the id is held for maybe_log_post_change() to pick
+		// up when it builds the context.
+		$logged_event_is_for_this_post = $this->last_insert_id
+			&& (int) ( $this->last_insert_context['post_id'] ?? 0 ) === $post_id;
+
+		if ( $logged_event_is_for_this_post ) {
+			$this->append_context(
+				$this->last_insert_id,
+				[
+					'post_revision_id' => $revision_id,
+				]
+			);
+
+			return;
+		}
+
+		$this->post_revision_ids[ $post_id ] = (int) $revision_id;
 	}
 
 	/**

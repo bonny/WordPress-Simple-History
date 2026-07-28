@@ -181,6 +181,84 @@ class PostLoggerRevisionHookTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * The classic editor and Quick Edit log before the revision exists.
+	 *
+	 * Core fires transition_post_status — which is where those paths log from —
+	 * before post_updated, which is what saves the revision. So on that path the
+	 * event is already written when the revision hook fires, and the id has to be
+	 * attached to it rather than held for a log that has already happened.
+	 *
+	 * Gutenberg and WP-CLI are the other way round, which is why both orderings
+	 * have to work.
+	 */
+	function test_revision_id_is_recorded_when_the_event_is_logged_first() {
+		global $wpdb;
+
+		$post_id = $this->factory->post->create(
+			[
+				'post_status'  => 'publish',
+				'post_content' => 'First version',
+			]
+		);
+
+		// Log first — the classic editor ordering.
+		$context = $this->log_post_update( $post_id );
+
+		$this->assertArrayNotHasKey( 'post_revision_id', $context, 'Sanity check: no revision exists yet at log time' );
+
+		$logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimplePostLogger' );
+		$event_id = $logger->last_insert_id;
+
+		// Revision second, as core does on this path.
+		$revision_id = wp_save_post_revision( $post_id );
+
+		$this->assertNotNull( $revision_id, 'Sanity check: a revision should have been created' );
+
+		$contexts_table = $wpdb->prefix . 'simple_history_contexts';
+
+		$recorded_revision_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT value FROM {$contexts_table} WHERE history_id = %d AND `key` = 'post_revision_id'",
+				$event_id
+			)
+		);
+
+		$this->assertEquals(
+			$revision_id,
+			$recorded_revision_id,
+			'The revision should have been attached to the event that was already logged'
+		);
+	}
+
+	/**
+	 * A revision logged first must not then leak onto a later event.
+	 *
+	 * Two saves of the same post in one request happen whenever a plugin calls
+	 * wp_update_post() from save_post.
+	 */
+	function test_revision_attached_to_an_earlier_event_does_not_leak_to_a_later_one() {
+		$post_id = $this->factory->post->create(
+			[
+				'post_status'  => 'publish',
+				'post_content' => 'First version',
+			]
+		);
+
+		// First save, classic ordering: log, then revision.
+		$this->log_post_update( $post_id );
+		wp_save_post_revision( $post_id );
+
+		// Second save of the same post in the same request.
+		$second_context = $this->log_post_update( $post_id );
+
+		$this->assertArrayNotHasKey(
+			'post_revision_id',
+			$second_context,
+			'The second event must not inherit the first save\'s revision'
+		);
+	}
+
+	/**
 	 * The held id is consumed, not reused.
 	 *
 	 * A second change to the same post in one request must not inherit the first
