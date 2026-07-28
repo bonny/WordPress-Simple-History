@@ -24,20 +24,19 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Register abilities once per process.
+	 * Assert the plugin registered its abilities during bootstrap.
 	 *
-	 * The plugin registers these during bootstrap on WordPress 6.9+, and the
-	 * registry outlives individual tests, so registering again would trip
-	 * _doing_it_wrong() and fail the test for the wrong reason.
+	 * Registering here instead would trip _doing_it_wrong — WordPress requires
+	 * wp_register_ability() to run on wp_abilities_api_init and
+	 * wp_register_ability_category() on wp_abilities_api_categories_init.
 	 */
 	private function ensure_abilities_registered() {
 		$this->require_abilities_api();
 
-		if ( wp_get_ability( 'simple-history/get-recent-events' ) ) {
-			return;
-		}
-
-		( new Abilities_Service( Simple_History::get_instance() ) )->register_abilities();
+		$this->assertNotNull(
+			wp_get_ability( 'simple-history/get-recent-events' ),
+			'The plugin should register its abilities during bootstrap.'
+		);
 	}
 
 	/**
@@ -83,6 +82,22 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		$this->assertTrue( $found, 'Abilities_Service should be in the plugin service list.' );
+	}
+
+	/**
+	 * The category must actually be registered, not merely referenced by the
+	 * abilities — this is precisely what broke when registration ran on the
+	 * wrong hook.
+	 *
+	 * @covers ::register_category
+	 */
+	public function test_category_is_registered() {
+		$this->ensure_abilities_registered();
+
+		$category = wp_get_ability_category( 'simple-history' );
+
+		$this->assertNotNull( $category, 'The simple-history ability category should be registered.' );
+		$this->assertSame( 'Simple History', $category->get_label() );
 	}
 
 	/**

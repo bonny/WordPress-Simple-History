@@ -32,6 +32,9 @@ parameters:
       identifier: WPCompat.actionNotAvailable.wpabilitiesapiinit
       path: inc/services/class-abilities-service.php
     -
+      identifier: WPCompat.actionNotAvailable.wpabilitiesapicategoriesinit
+      path: inc/services/class-abilities-service.php
+    -
       identifier: WPCompat.functionNotAvailable
       path: inc/services/class-abilities-service.php
   WPCompat:

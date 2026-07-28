@@ -38,6 +38,10 @@ class Abilities_Service extends Service {
 			return;
 		}
 
+		// Categories and abilities register on separate hooks, and WordPress
+		// rejects an ability whose category does not already exist — so the
+		// category cannot simply be registered alongside the abilities.
+		add_action( 'wp_abilities_api_categories_init', [ $this, 'register_category' ] );
 		add_action( 'wp_abilities_api_init', [ $this, 'register_abilities' ] );
 	}
 
@@ -45,8 +49,6 @@ class Abilities_Service extends Service {
 	 * Register every Simple History ability.
 	 */
 	public function register_abilities() {
-		$this->register_category();
-
 		wp_register_ability(
 			'simple-history/get-recent-events',
 			[
@@ -153,8 +155,11 @@ class Abilities_Service extends Service {
 
 	/**
 	 * Register the category Simple History abilities are grouped under.
+	 *
+	 * Runs on the wp_abilities_api_categories_init action, which is separate
+	 * from the wp_abilities_api_init action that abilities register on.
 	 */
-	private function register_category() {
+	public function register_category() {
 		if ( ! function_exists( 'wp_register_ability_category' ) ) {
 			return;
 		}

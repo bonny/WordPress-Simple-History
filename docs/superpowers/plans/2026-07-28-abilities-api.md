@@ -31,6 +31,8 @@ Consequences:
 
 **`wp_register_ability_category()` signature is confirmed:** `wp_register_ability_category( string $slug, array $args ): ?WP_Ability_Category`, where `$args` requires `label` and `description` and optionally takes `meta`. The code in Task 2 is correct as written — this resolves open question 1 in the spec.
 
+**Correction, verified against a real WordPress 7.0.2 site:** the signature above was right, but the original Task 2 implementation called `register_category()` from inside the `wp_abilities_api_init` callback, and that hook is the wrong one for categories. Categories and abilities register on two separate init hooks — `wp_abilities_api_categories_init` for `wp_register_ability_category()`, and `wp_abilities_api_init` for `wp_register_ability()`. Registering the category on the abilities hook makes WordPress reject it outright (`_doing_it_wrong: wp_register_ability_category`), and an ability that names a category which does not exist is then rejected too (`_doing_it_wrong: WP_Abilities_Registry::register`). The net effect was that nothing registered at all. The fix hooks `register_category()` to `wp_abilities_api_categories_init` directly and `register_abilities()` to `wp_abilities_api_init`, with no call between them.
+
 **Deviation from the spec:** the spec's §3 proposed refactoring `class-rest-api.php` to retain controller instances. Skip that. `WP_REST_Events_Controller::__construct()` (`inc/class-wp-rest-events-controller.php:28-32`) only assigns three properties, so instantiating one per permission check is free and avoids coupling two services. No task in this plan modifies `class-rest-api.php`.
 
 ---
