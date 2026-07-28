@@ -159,6 +159,10 @@ Two things to know before doing this:
 
 If you only need the image and the exact tag is not on disk, an already-present image can be retagged rather than pulling a gigabyte: `docker tag wordpress:6.9 wordpress:6.9-php8.1`. The `wordpress` container only populates core files; the tests themselves execute in `php-cli`, so that image's bundled PHP version does not affect the run.
 
+Do **not** reach for `docker compose run --no-deps` to skip starting Chrome. The run container then never joins the project network and every test dies with `getaddrinfo for db failed: Name does not resolve`. Chrome is only needed for acceptance tests, but `wpunit` still has to start with the normal dependency chain.
+
+This procedure is verified: run on 6.9.1 the abilities suite goes from 18 skipped to 24 passing, and `docker compose down -v` followed by a plain `docker compose up -d` returns the volume to 6.8.3 with the skips restored.
+
 ### Nothing runs these tests automatically
 
 There is no CI test workflow. `.github/workflows/` contains only `claude`, `claude-code-review`, `deploy`, and `spelling` — none invokes Codeception. The suite runs only when someone runs it locally, so a green branch means "green on whoever last ran it, at whatever WordPress version their volume happens to hold".
