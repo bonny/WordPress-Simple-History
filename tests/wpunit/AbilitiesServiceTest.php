@@ -255,7 +255,10 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 		SimpleLogger()->info( 'Event with context', [ 'custom_key' => 'custom_value' ] );
 
 		$recent = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 1 ] );
-		$event  = wp_get_ability( 'simple-history/get-event' )->execute( [ 'id' => $recent[0]['id'] ] );
+
+		$this->assertNotEmpty( $recent );
+
+		$event = wp_get_ability( 'simple-history/get-event' )->execute( [ 'id' => $recent[0]['id'] ] );
 
 		$this->assertArrayHasKey( 'context', $event );
 		$this->assertSame( $recent[0]['id'], $event['id'] );
@@ -272,7 +275,10 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 		SimpleLogger()->info( 'Another event' );
 
 		$recent = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 1 ] );
-		$event  = wp_get_ability( 'simple-history/get-event' )->execute(
+
+		$this->assertNotEmpty( $recent );
+
+		$event = wp_get_ability( 'simple-history/get-event' )->execute(
 			[
 				'id'              => $recent[0]['id'],
 				'include_context' => false,

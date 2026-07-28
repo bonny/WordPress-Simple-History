@@ -93,7 +93,7 @@ class Abilities_Service extends Service {
 					],
 					'required'   => [ 'id' ],
 				],
-				'output_schema'       => $this->get_event_schema(),
+				'output_schema'       => $this->get_event_schema( true ),
 				'execute_callback'    => [ $this, 'execute_get_event' ],
 				'permission_callback' => [ $this, 'check_events_permission' ],
 			]
@@ -332,10 +332,16 @@ class Abilities_Service extends Service {
 	 *
 	 * Declared once because six abilities describe this same shape, and an
 	 * agent decides whether an ability is worth calling by reading its schema.
+	 * Only the `context` property's description varies: get-event defaults
+	 * include_context to true, while the list abilities default it to false,
+	 * so the field's presence-by-default is opposite between the two and the
+	 * schema needs to say so accurately for whichever ability is calling.
 	 *
+	 * @param bool $context_included_by_default Whether the calling ability
+	 *                                           includes context by default.
 	 * @return array
 	 */
-	private function get_event_schema(): array {
+	private function get_event_schema( bool $context_included_by_default = false ): array {
 		return [
 			'type'       => 'object',
 			'properties' => [
@@ -362,7 +368,9 @@ class Abilities_Service extends Service {
 				'permalink'    => [ 'type' => 'string' ],
 				'context'      => [
 					'type'        => 'object',
-					'description' => 'Only present when include_context was requested.',
+					'description' => $context_included_by_default
+						? 'Present by default. Omitted only when include_context was explicitly set to false.'
+						: 'Only present when include_context was requested.',
 				],
 			],
 		];
