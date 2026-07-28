@@ -71,6 +71,7 @@ class Abilities_Service extends Service {
 				'output_schema'       => $this->get_event_list_schema(),
 				'execute_callback'    => [ $this, 'execute_get_recent_events' ],
 				'permission_callback' => [ $this, 'check_events_permission' ],
+				'meta'                => $this->get_read_only_meta(),
 			]
 		);
 
@@ -98,8 +99,36 @@ class Abilities_Service extends Service {
 				'output_schema'       => $this->get_event_schema( true ),
 				'execute_callback'    => [ $this, 'execute_get_event' ],
 				'permission_callback' => [ $this, 'check_events_permission' ],
+				'meta'                => $this->get_read_only_meta(),
 			]
 		);
+	}
+
+	/**
+	 * Meta block shared by every Simple History ability.
+	 *
+	 * `show_in_rest` defaults to false in WordPress core, so an ability without
+	 * it registers fine in PHP but stays unreachable over REST — which is the
+	 * only way an AI agent or MCP client ever reaches an ability.
+	 *
+	 * The `annotations` put our read-only design position where an agent can act
+	 * on it, not merely read it in a description: Simple History registers no
+	 * write or destructive abilities, because the value of an audit log is that
+	 * it is tamper-evident. Stating that machine-readably lets an agent (or a
+	 * human skimming abilities across many plugins) tell that apart from a
+	 * plugin that only claims it in prose.
+	 *
+	 * @return array
+	 */
+	private function get_read_only_meta(): array {
+		return [
+			'annotations'  => [
+				'readonly'    => true,
+				'destructive' => false,
+				'idempotent'  => true,
+			],
+			'show_in_rest' => true,
+		];
 	}
 
 	/**

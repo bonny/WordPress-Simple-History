@@ -315,4 +315,56 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 	}
+
+	/**
+	 * An ability without `show_in_rest` registers fine in PHP but is
+	 * unreachable by any REST or MCP client, which is the only way an agent
+	 * ever reaches an ability — so this is the test that would have caught
+	 * that bug.
+	 *
+	 * @covers ::get_read_only_meta
+	 */
+	public function test_abilities_are_exposed_to_rest() {
+		$this->ensure_abilities_registered();
+
+		foreach ( wp_get_abilities() as $ability ) {
+			if ( strpos( $ability->get_name(), 'simple-history/' ) !== 0 ) {
+				continue;
+			}
+
+			$this->assertTrue(
+				$ability->get_meta_item( 'show_in_rest' ),
+				sprintf( 'Ability "%s" must set show_in_rest, or it is invisible to REST and MCP clients.', $ability->get_name() )
+			);
+		}
+	}
+
+	/**
+	 * Every Simple History ability must declare itself read-only and
+	 * non-destructive in machine-readable form, not only in prose — an audit
+	 * log an agent can alter or purge is worse than no audit log.
+	 *
+	 * @covers ::get_read_only_meta
+	 */
+	public function test_abilities_declare_read_only_annotations() {
+		$this->ensure_abilities_registered();
+
+		foreach ( wp_get_abilities() as $ability ) {
+			if ( strpos( $ability->get_name(), 'simple-history/' ) !== 0 ) {
+				continue;
+			}
+
+			$annotations = $ability->get_meta_item( 'annotations' );
+
+			$this->assertTrue(
+				$annotations['readonly'] ?? false,
+				sprintf( 'Ability "%s" must declare annotations.readonly = true.', $ability->get_name() )
+			);
+
+			$this->assertFalse(
+				$annotations['destructive'] ?? true,
+				sprintf( 'Ability "%s" must declare annotations.destructive = false.', $ability->get_name() )
+			);
+		}
+	}
 }
