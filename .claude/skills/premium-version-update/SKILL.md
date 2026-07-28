@@ -3,6 +3,7 @@ name: premium-version-update
 description: Updates the Simple History Premium plugin version in all required locations, then builds and archives the distributable release zip. Use when bumping the premium version or cutting a premium release.
 argument-hint: <new-version>
 allowed-tools: Read, Edit, Glob, Bash
+disable-model-invocation: true
 ---
 
 # Update Premium Plugin Version

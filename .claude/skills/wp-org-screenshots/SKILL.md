@@ -2,6 +2,7 @@
 name: wp-org-screenshots
 description: How to design and regenerate marketing screenshots for the wordpress.org plugin page (banner-1544x500.png, screenshot-1.png, etc). Covers the event mix that converts, the reproducible WordPress Playground pipeline that bakes it, and every non-obvious gotcha from previous shoots. Use when refreshing screenshot-1.png, banners, or any image showing the Simple History event log.
 allowed-tools: Read, Edit, Write, Bash
+disable-model-invocation: true
 ---
 
 # wordpress.org Marketing Screenshots
