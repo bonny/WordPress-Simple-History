@@ -268,9 +268,11 @@ class Abilities_Service extends Service {
 	/**
 	 * Clamp a caller-supplied result count.
 	 *
-	 * An agent asking for a thousand events would spend its whole context on
-	 * one answer, so the ceiling is enforced here rather than trusted to the
-	 * caller.
+	 * The input schema's `maximum` is the primary guard: WP_Ability::validate_input()
+	 * rejects an out-of-range per_page with a WP_Error before execute_callback
+	 * ever runs, which is better for an agent than silently receiving fewer rows
+	 * than it asked for. This clamp is defence-in-depth for direct PHP callers
+	 * that invoke an execute_*() method directly and so bypass schema validation.
 	 *
 	 * @param mixed $per_page Requested count.
 	 * @return int

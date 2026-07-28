@@ -237,23 +237,26 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * An agent asking for a thousand events would spend its whole context on
-	 * one answer, so the ceiling is enforced server-side.
+	 * The input schema's `maximum` on per_page makes WP_Ability::validate_input()
+	 * refuse an out-of-range request before execute_callback ever runs. That is
+	 * better for an agent than silently clamping and returning fewer rows than
+	 * asked for: the agent is told the real limit instead of misreading a short
+	 * result as the complete answer.
+	 *
+	 * clamp_per_page() remains in the service as defence-in-depth for direct PHP
+	 * callers that invoke execute_get_recent_events() directly and so bypass
+	 * schema validation entirely.
 	 *
 	 * @covers ::execute_get_recent_events
 	 */
-	public function test_per_page_is_clamped_to_one_hundred() {
+	public function test_per_page_above_maximum_is_rejected() {
 		$this->ensure_abilities_registered();
 
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
-		for ( $i = 0; $i < 105; $i++ ) {
-			SimpleLogger()->info( 'Event number ' . $i );
-		}
-
 		$result = wp_get_ability( 'simple-history/get-recent-events' )->execute( [ 'per_page' => 500 ] );
 
-		$this->assertLessThanOrEqual( 100, count( $result ) );
+		$this->assertInstanceOf( WP_Error::class, $result );
 	}
 
 	/**
