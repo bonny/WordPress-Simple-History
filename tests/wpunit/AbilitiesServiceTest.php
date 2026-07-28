@@ -48,21 +48,35 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	 * @covers ::loaded
 	 */
 	public function test_hook_is_registered_only_when_abilities_api_exists() {
+		// The plugin already hooked this during bootstrap. Clearing it isolates
+		// the assertion, so put it back afterwards rather than leaving another
+		// test to discover the hook missing.
+		global $wp_filter;
+		$original = $wp_filter['wp_abilities_api_init'] ?? null;
+
 		remove_all_actions( 'wp_abilities_api_init' );
 
 		$service = new Abilities_Service( Simple_History::get_instance() );
 		$service->loaded();
 
-		if ( function_exists( 'wp_register_ability' ) ) {
-			$this->assertNotFalse(
-				has_action( 'wp_abilities_api_init', [ $service, 'register_abilities' ] ),
-				'Abilities should be registered on WordPress 6.9+.'
-			);
-		} else {
-			$this->assertFalse(
-				has_action( 'wp_abilities_api_init' ),
-				'Nothing should hook the abilities init on WordPress below 6.9.'
-			);
+		try {
+			if ( function_exists( 'wp_register_ability' ) ) {
+				$this->assertNotFalse(
+					has_action( 'wp_abilities_api_init', [ $service, 'register_abilities' ] ),
+					'Abilities should be registered on WordPress 6.9+.'
+				);
+			} else {
+				$this->assertFalse(
+					has_action( 'wp_abilities_api_init' ),
+					'Nothing should hook the abilities init on WordPress below 6.9.'
+				);
+			}
+		} finally {
+			remove_all_actions( 'wp_abilities_api_init' );
+
+			if ( null !== $original ) {
+				$wp_filter['wp_abilities_api_init'] = $original;
+			}
 		}
 	}
 

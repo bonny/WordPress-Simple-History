@@ -183,7 +183,6 @@ class Abilities_Service extends Service {
 					'properties' => [
 						'date_from' => [
 							'type'        => 'integer',
-							// translators: %d is the number of days.
 							'description' => sprintf( 'Start of the date range, as a Unix timestamp. Defaults to %d days ago if omitted.', Date_Helper::DAYS_PER_MONTH ),
 						],
 						'date_to'   => [
