@@ -96,4 +96,57 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 			}
 		}
 	}
+
+	/**
+	 * Reading the log requires being logged in.
+	 *
+	 * @covers ::check_events_permission
+	 */
+	public function test_events_permission_is_refused_when_logged_out() {
+		wp_set_current_user( 0 );
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+
+		$this->assertInstanceOf( WP_Error::class, $service->check_events_permission() );
+	}
+
+	/**
+	 * A subscriber may read the log. What they actually see is filtered inside
+	 * Log_Query, not here — this helper only mirrors the REST route's check.
+	 *
+	 * @covers ::check_events_permission
+	 */
+	public function test_events_permission_is_granted_to_logged_in_user() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+
+		$this->assertTrue( $service->check_events_permission() );
+	}
+
+	/**
+	 * Stats are stricter than events: the stats controller requires
+	 * manage_options where the events controller only requires being logged in.
+	 * That asymmetry is deliberate and must survive.
+	 *
+	 * @covers ::check_stats_permission
+	 */
+	public function test_stats_permission_is_refused_for_editor() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'editor' ] ) );
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+
+		$this->assertInstanceOf( WP_Error::class, $service->check_stats_permission() );
+	}
+
+	/**
+	 * @covers ::check_stats_permission
+	 */
+	public function test_stats_permission_is_granted_to_administrator() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+
+		$this->assertTrue( $service->check_stats_permission() );
+	}
 }
