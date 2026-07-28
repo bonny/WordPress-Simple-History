@@ -120,17 +120,25 @@ class Post_Logger extends Logger {
 	 * This is done after simple history has logged the post change.
 	 * So we need to update the context with the revision id.
 	 *
-	 * @param int $revision_id The revision ID.
-	 * @param int $post_id The post ID.
+	 * @param int      $revision_id The revision ID.
+	 * @param int|null $post_id The post ID. Only passed by WordPress 6.4 and later.
 	 */
-	public function on_wp_put_post_revision( $revision_id, $post_id ) {
+	public function on_wp_put_post_revision( $revision_id, $post_id = null ) {
 		// Ensure that the last_insert_id is set.
 		if ( ! $this->last_insert_id ) {
 			return;
 		}
 
+		// WordPress only started passing the post id with this action in 6.4, and
+		// the plugin supports 6.3 — requiring an argument core does not send is a
+		// fatal ArgumentCountError under PHP 8, on every post save that creates a
+		// revision. Fall back to the revision's parent, which is what 6.4 passes.
+		if ( $post_id === null ) {
+			$post_id = wp_get_post_parent_id( $revision_id );
+		}
+
 		// Ensure that the revision is for the same post that we just logged.
-		if ( $this->last_insert_context['post_id'] !== $post_id ) {
+		if ( ( $this->last_insert_context['post_id'] ?? null ) !== $post_id ) {
 			return;
 		}
 
