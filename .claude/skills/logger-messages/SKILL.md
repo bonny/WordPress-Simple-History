@@ -2,6 +2,7 @@
 name: logger-messages
 description: Enforces active voice for logger messages and the Event Details API. Use when writing a new logger class or modifying message arrays in getInfo().
 allowed-tools: Read, Grep, Glob
+user-invocable: false
 ---
 
 # Logger Message Guidelines
