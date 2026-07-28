@@ -56,6 +56,18 @@ class Status_Box_Service extends Service {
 		 */
 		$items = apply_filters( 'simple_history/header_status/items', $items );
 
+		// Drop items with nothing to show before any markup is emitted. The check
+		// in render_item() cannot do this on its own — by the time it runs, the
+		// <li> wrapper is already on the page, leaving an empty styled bullet.
+		// Consumers of the filter above do return such items: the premium add-on
+		// replaces the alerts entry wholesale.
+		$items = array_filter(
+			$items,
+			function ( $item ) {
+				return ! empty( $item['text'] );
+			}
+		);
+
 		if ( empty( $items ) ) {
 			return;
 		}
