@@ -10,7 +10,8 @@ use Simple_History\Simple_History;
  * Add an optional "History" column to post/page list tables
  * showing the most recent history events for each post.
  *
- * Only active when experimental features are enabled.
+ * Only active when experimental features are enabled, and can be turned off
+ * on its own with the simple_history/post_history_column/enabled filter.
  */
 class Post_History_Column extends Service {
 
@@ -32,12 +33,39 @@ class Post_History_Column extends Service {
 
 	/** @inheritdoc */
 	public function loaded() {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+		if ( ! self::is_feature_enabled() ) {
 			return;
 		}
 
 		add_action( 'admin_init', array( $this, 'register_column_hooks' ) );
 		add_action( 'admin_head', array( $this, 'print_column_styles' ) );
+	}
+
+	/**
+	 * Whether the "History" column and its "View history" row action are active.
+	 *
+	 * Shared with Post_Row_Actions so both halves of the feature are enabled
+	 * and disabled together.
+	 *
+	 * @return bool
+	 */
+	public static function is_feature_enabled() {
+		/**
+		 * Filter whether the "History" column and the "View history" row action
+		 * on post list tables are enabled.
+		 *
+		 * Defaults to whether experimental features are enabled. Use this to
+		 * turn off just this feature while keeping other experimental features
+		 * active:
+		 *
+		 *     add_filter( 'simple_history/post_history_column/enabled', '__return_false' );
+		 *
+		 * @param bool $enabled Whether the feature is enabled.
+		 */
+		return (bool) apply_filters(
+			'simple_history/post_history_column/enabled',
+			Helpers::experimental_features_is_enabled()
+		);
 	}
 
 	/**
@@ -273,8 +301,10 @@ class Post_History_Column extends Service {
 
 		if ( $db_engine === 'sqlite' ) {
 			$this->load_history_data_sqlite( $post_ids );
-		} else {
+		} elseif ( Helpers::db_supports_window_functions() ) {
 			$this->load_history_data_mysql( $post_ids );
+		} else {
+			$this->load_history_data_legacy_mysql( $post_ids );
 		}
 
 		$this->prime_user_cache();
@@ -314,6 +344,9 @@ class Post_History_Column extends Service {
 	/**
 	 * MySQL/MariaDB query using ROW_NUMBER() window function.
 	 *
+	 * Requires MySQL 8.0+ or MariaDB 10.2+. Older servers are served by
+	 * load_history_data_legacy_mysql() instead.
+	 *
 	 * @param array $post_ids Array of post IDs.
 	 */
 	private function load_history_data_mysql( $post_ids ) {
@@ -343,7 +376,7 @@ class Post_History_Column extends Service {
 					AND c.`value` IN ({$id_placeholders})
 				) ranked
 				WHERE rn <= 2
-				ORDER BY post_id, date DESC",
+				ORDER BY post_id, rn",
 				array_merge(
 					array( $contexts_table, $events_table, $contexts_table, $contexts_table ),
 					$post_ids
@@ -353,6 +386,116 @@ class Post_History_Column extends Service {
 		// phpcs:enable
 
 		$this->store_history_results( $results );
+	}
+
+	/**
+	 * Query for MySQL versions without window function support (5.7 and older).
+	 *
+	 * ROW_NUMBER() is a syntax error on those servers, and the SQLite query
+	 * can not be reused either since MySQL 5.7 rejects LIMIT inside an IN
+	 * subquery. So the two most recent event ids per post are collected with
+	 * two aggregate passes instead: one for the newest event per post, then
+	 * one for the newest remaining event per post.
+	 *
+	 * Each pass returns at most one row per post, so the work stays bounded
+	 * no matter how many events a post has.
+	 *
+	 * @param array $post_ids Array of post IDs.
+	 */
+	private function load_history_data_legacy_mysql( $post_ids ) {
+		$newest_history_ids = $this->get_newest_history_ids_per_post( $post_ids, array() );
+
+		if ( $newest_history_ids === array() ) {
+			return;
+		}
+
+		$history_ids = array_merge(
+			$newest_history_ids,
+			$this->get_newest_history_ids_per_post( $post_ids, $newest_history_ids )
+		);
+
+		$this->store_history_results( $this->get_events_by_history_ids( $history_ids ) );
+	}
+
+	/**
+	 * Get the newest history id for each of the given posts, ignoring any
+	 * history ids already collected by a previous pass.
+	 *
+	 * @param array $post_ids            Array of post IDs.
+	 * @param array $exclude_history_ids History ids to exclude.
+	 * @return array<int> One history id per post that still has events left.
+	 */
+	private function get_newest_history_ids_per_post( $post_ids, $exclude_history_ids ) {
+		global $wpdb;
+
+		$contexts_table  = Simple_History::$dbtable_contexts;
+		$id_placeholders = implode( ',', array_fill( 0, count( $post_ids ), '%d' ) );
+
+		$exclude_sql    = '';
+		$exclude_values = array();
+
+		if ( $exclude_history_ids !== array() ) {
+			$exclude_placeholders = implode( ',', array_fill( 0, count( $exclude_history_ids ), '%d' ) );
+			$exclude_sql          = "AND history_id NOT IN ({$exclude_placeholders})";
+			$exclude_values       = $exclude_history_ids;
+		}
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$history_ids = $wpdb->get_col(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			$wpdb->prepare(
+				"SELECT MAX(history_id)
+				FROM %i
+				WHERE `key` = 'post_id'
+				AND `value` IN ({$id_placeholders})
+				{$exclude_sql}
+				GROUP BY `value`",
+				array_merge( array( $contexts_table ), $post_ids, $exclude_values )
+			)
+		);
+		// phpcs:enable
+
+		return array_map( 'intval', (array) $history_ids );
+	}
+
+	/**
+	 * Fetch the event data for a known, bounded set of history ids.
+	 *
+	 * @param array $history_ids History ids to fetch.
+	 * @return array Rows with post_id, date, message_key and user_id.
+	 */
+	private function get_events_by_history_ids( $history_ids ) {
+		global $wpdb;
+
+		$events_table    = Simple_History::$dbtable;
+		$contexts_table  = Simple_History::$dbtable_contexts;
+		$id_placeholders = implode( ',', array_fill( 0, count( $history_ids ), '%d' ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$results = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			$wpdb->prepare(
+				"SELECT
+					c.`value` AS post_id,
+					h.date,
+					COALESCE(mk.`value`, '') AS message_key,
+					COALESCE(ui.`value`, '') AS user_id
+				FROM %i c
+				JOIN %i h ON c.history_id = h.id
+				LEFT JOIN %i mk ON h.id = mk.history_id AND mk.`key` = '_message_key'
+				LEFT JOIN %i ui ON h.id = ui.history_id AND ui.`key` = '_user_id'
+				WHERE c.`key` = 'post_id'
+				AND c.history_id IN ({$id_placeholders})
+				ORDER BY c.`value`, h.id DESC",
+				array_merge(
+					array( $contexts_table, $events_table, $contexts_table, $contexts_table ),
+					$history_ids
+				)
+			)
+		);
+		// phpcs:enable
+
+		return (array) $results;
 	}
 
 	/**

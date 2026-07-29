@@ -1560,6 +1560,79 @@ class Helpers {
 	}
 
 	/**
+	 * Returns true if the database server supports SQL window functions,
+	 * for example ROW_NUMBER() OVER ( PARTITION BY ... ).
+	 *
+	 * Window functions require MySQL 8.0+ or MariaDB 10.2+. MySQL 5.7 and
+	 * older fail with a syntax error, so queries using them must provide a
+	 * fallback for those servers.
+	 *
+	 * Detection is cached for the request since the server version can not
+	 * change while a request is running.
+	 *
+	 * @return bool
+	 */
+	public static function db_supports_window_functions() {
+		static $detected_support = null;
+
+		if ( $detected_support === null ) {
+			$detected_support = self::detect_db_window_function_support();
+		}
+
+		/**
+		 * Filter whether the database server supports window functions.
+		 *
+		 * Useful to force the fallback query path if version detection gets
+		 * it wrong on an unusual setup, and to exercise that path in tests.
+		 *
+		 * @param bool $detected_support Whether window functions are supported.
+		 */
+		return (bool) apply_filters(
+			'simple_history/db_supports_window_functions',
+			$detected_support
+		);
+	}
+
+	/**
+	 * Determine window function support from the database server version.
+	 *
+	 * Returns false when the version can not be determined, so callers fall
+	 * back to the more portable query.
+	 *
+	 * @return bool
+	 */
+	private static function detect_db_window_function_support() {
+		global $wpdb;
+
+		if ( ! isset( $wpdb ) || ! method_exists( $wpdb, 'db_server_info' ) ) {
+			return false;
+		}
+
+		$server_info = $wpdb->db_server_info();
+
+		if ( ! is_string( $server_info ) || $server_info === '' ) {
+			return false;
+		}
+
+		// MariaDB 10.x reports itself as e.g. "5.5.5-10.6.12-MariaDB" for old
+		// client compatibility, so drop that prefix before comparing versions.
+		$version_string = preg_replace( '/^5\.5\.5-/', '', $server_info );
+
+		// Keep only the leading version number, dropping suffixes like "-log".
+		preg_match( '/^[0-9]+(\.[0-9]+)*/', $version_string, $matches );
+
+		if ( empty( $matches[0] ) ) {
+			return false;
+		}
+
+		if ( stripos( $server_info, 'mariadb' ) !== false ) {
+			return version_compare( $matches[0], '10.2', '>=' );
+		}
+
+		return version_compare( $matches[0], '8.0', '>=' );
+	}
+
+	/**
 	 * Render a stored JSON diff (from jfcherng/php-diff JsonHtml renderer) to side-by-side HTML.
 	 *
 	 * @param string $json_diff_string JSON-encoded diff array.

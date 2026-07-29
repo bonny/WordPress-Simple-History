@@ -8,13 +8,14 @@ use Simple_History\Helpers;
  * Add a "View history" action link to post/page list tables
  * that links to Simple History filtered by that post's ID.
  *
- * Only active when experimental features are enabled.
+ * Only active when experimental features are enabled, and can be turned off
+ * on its own with the simple_history/post_history_column/enabled filter.
  * Reuses Post_History_Column's batch query to avoid duplicate database queries.
  */
 class Post_Row_Actions extends Service {
 	/** @inheritdoc */
 	public function loaded() {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+		if ( ! Post_History_Column::is_feature_enabled() ) {
 			return;
 		}
 

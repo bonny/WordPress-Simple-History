@@ -252,6 +252,18 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > 🧪 **Experimental** entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Added**
+
+-   New `simple_history/post_history_column/enabled` filter to turn off the experimental "History" column and its "View history" row action on post list tables, without disabling other experimental features. Add `add_filter( 'simple_history/post_history_column/enabled', '__return_false' );` to disable it.
+-   New `simple_history/db_supports_window_functions` filter to override database window function detection, for setups where the server version can't be read reliably.
+
+**Fixed**
+
+-   🧪 **Experimental** — SQL syntax error on post and page list tables when running MySQL 5.7 or older. The "History" column and "View history" row action used the `ROW_NUMBER()` window function, which requires MySQL 8.0+ or MariaDB 10.2+, so on older servers an error appeared next to the post title instead of the history. Those servers now use a fallback query. Affected versions 5.27.0 through 5.29.0 with experimental features enabled.
+-   🧪 **Experimental** — "History" column could list a post's two events in the wrong order when both were logged during the same second, showing the older one first.
+
 ### 5.29.0 (June 2026)
 
 🔒 This release brings Simple History together with WordPress's built-in privacy tools: a person's activity log is now included in personal-data exports (Tools → Export Personal Data), and a new "Privacy & Data" settings tab explains how it works. Plus: overview action links across user, plugin, post, and media events, and action links on core update and privacy events for quicker navigation.
