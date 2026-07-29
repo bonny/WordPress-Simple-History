@@ -393,69 +393,79 @@ class Post_History_Column extends Service {
 	 *
 	 * ROW_NUMBER() is a syntax error on those servers, and the SQLite query
 	 * can not be reused either since MySQL 5.7 rejects LIMIT inside an IN
-	 * subquery. So the two most recent event ids per post are collected with
-	 * two aggregate passes instead: one for the newest event per post, then
-	 * one for the newest remaining event per post.
-	 *
-	 * Each pass returns at most one row per post, so the work stays bounded
-	 * no matter how many events a post has.
+	 * subquery. So the two most recent event ids per post are ranked with a
+	 * single grouped scan, then their data is fetched by id.
 	 *
 	 * @param array $post_ids Array of post IDs.
 	 */
 	private function load_history_data_legacy_mysql( $post_ids ) {
-		$newest_history_ids = $this->get_newest_history_ids_per_post( $post_ids, array() );
+		$history_ids = $this->get_recent_history_ids_per_post( $post_ids );
 
-		if ( $newest_history_ids === array() ) {
+		if ( $history_ids === array() ) {
 			return;
 		}
-
-		$history_ids = array_merge(
-			$newest_history_ids,
-			$this->get_newest_history_ids_per_post( $post_ids, $newest_history_ids )
-		);
 
 		$this->store_history_results( $this->get_events_by_history_ids( $history_ids ) );
 	}
 
 	/**
-	 * Get the newest history id for each of the given posts, ignoring any
-	 * history ids already collected by a previous pass.
+	 * Get the ids of the two most recent events for each of the given posts.
 	 *
-	 * @param array $post_ids            Array of post IDs.
-	 * @param array $exclude_history_ids History ids to exclude.
-	 * @return array<int> One history id per post that still has events left.
+	 * GROUP_CONCAT lists each post's event ids newest first and SUBSTRING_INDEX
+	 * keeps the leading two, which ranks the same way ROW_NUMBER() does but in
+	 * one grouped scan, so the fallback costs no more scans than the window
+	 * function query it replaces.
+	 *
+	 * The concatenated list is cut off at group_concat_max_len, but since ids
+	 * are ordered newest first the cut only ever drops older ids that are
+	 * discarded anyway. The default 1024 byte limit holds around fifty ids,
+	 * far more than the two read back.
+	 *
+	 * Joining the events table keeps orphaned contexts out of the ranking: the
+	 * purge cron deletes events and contexts in separate statements, so an
+	 * interrupted purge can leave contexts whose event row is already gone, and
+	 * those must not take up one of the two slots.
+	 *
+	 * @param array $post_ids Array of post IDs.
+	 * @return array<int> Up to two history ids per post.
 	 */
-	private function get_newest_history_ids_per_post( $post_ids, $exclude_history_ids ) {
+	private function get_recent_history_ids_per_post( $post_ids ) {
 		global $wpdb;
 
+		$events_table    = Simple_History::$dbtable;
 		$contexts_table  = Simple_History::$dbtable_contexts;
 		$id_placeholders = implode( ',', array_fill( 0, count( $post_ids ), '%d' ) );
 
-		$exclude_sql    = '';
-		$exclude_values = array();
-
-		if ( $exclude_history_ids !== array() ) {
-			$exclude_placeholders = implode( ',', array_fill( 0, count( $exclude_history_ids ), '%d' ) );
-			$exclude_sql          = "AND history_id NOT IN ({$exclude_placeholders})";
-			$exclude_values       = $exclude_history_ids;
-		}
-
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$history_ids = $wpdb->get_col(
+		$grouped_history_ids = $wpdb->get_col(
 			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 			$wpdb->prepare(
-				"SELECT MAX(history_id)
-				FROM %i
-				WHERE `key` = 'post_id'
-				AND `value` IN ({$id_placeholders})
-				{$exclude_sql}
-				GROUP BY `value`",
-				array_merge( array( $contexts_table ), $post_ids, $exclude_values )
+				"SELECT SUBSTRING_INDEX(
+					GROUP_CONCAT(c.history_id ORDER BY c.history_id DESC),
+					',',
+					2
+				)
+				FROM %i c
+				JOIN %i h ON c.history_id = h.id
+				WHERE c.`key` = 'post_id'
+				AND c.`value` IN ({$id_placeholders})
+				GROUP BY c.`value`",
+				array_merge( array( $contexts_table, $events_table ), $post_ids )
 			)
 		);
 		// phpcs:enable
 
-		return array_map( 'intval', (array) $history_ids );
+		$history_ids = array();
+
+		foreach ( (array) $grouped_history_ids as $ids_for_post ) {
+			foreach ( explode( ',', (string) $ids_for_post ) as $history_id ) {
+				if ( $history_id !== '' ) {
+					$history_ids[] = (int) $history_id;
+				}
+			}
+		}
+
+		return $history_ids;
 	}
 
 	/**

@@ -151,6 +151,39 @@ class PostHistoryColumnTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * The purge cron deletes events and contexts in two separate statements,
+	 * so an interrupted purge can leave a context whose event row is gone.
+	 * Such a context must not take up one of the two ranked slots and hide a
+	 * still-present older event.
+	 */
+	public function test_fallback_query_skips_contexts_whose_event_is_gone() {
+		global $wpdb;
+
+		$post_id = $this->factory->post->create();
+
+		$this->log_event( $post_id, 'post_updated' );
+		$this->log_event( $post_id, 'post_trashed' );
+		$this->log_event( $post_id, 'post_restored' );
+
+		// Orphan the newest event by removing only its events table row,
+		// exactly what an interrupted purge leaves behind.
+		$newest_event_id = (int) $wpdb->get_var(
+			$wpdb->prepare( 'SELECT MAX(id) FROM %i', Simple_History::$dbtable )
+		);
+		$wpdb->delete( Simple_History::$dbtable, array( 'id' => $newest_event_id ), array( '%d' ) );
+
+		add_filter( 'simple_history/db_supports_window_functions', '__return_false' );
+
+		$history_data = $this->load_history_data( array( $post_id ) );
+
+		$this->assertSame(
+			array( 'post_trashed', 'post_updated' ),
+			wp_list_pluck( $history_data[ $post_id ], 'message_key' ),
+			'The orphaned context is skipped and the two surviving events are returned.'
+		);
+	}
+
+	/**
 	 * The fallback exists only to work around missing window functions, so it
 	 * must agree with the window function query wherever both can run.
 	 */
