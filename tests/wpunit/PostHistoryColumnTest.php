@@ -13,9 +13,15 @@ use Simple_History\Services\Post_History_Column;
  * - The simple_history/post_history_column/enabled filter, so the feature can
  *   be turned off on its own without disabling all experimental features.
  * - Both database query strategies. The window function query (ROW_NUMBER)
- *   needs MySQL 8.0+ / MariaDB 10.2+, so a fallback exists for MySQL 5.7 and
- *   older. Both must return the same events, and the fallback is exercised
- *   here on whatever database the test suite runs against.
+ *   needs MySQL 8.0+ / MariaDB 10.2+; everything else — older MySQL/MariaDB
+ *   and SQLite — uses the portable GROUP_CONCAT query. Both must return the
+ *   same events, and the portable one is exercised here on whatever database
+ *   the test suite runs against.
+ *
+ * The portable query's SQLite dialect (no ORDER BY inside GROUP_CONCAT, sorted
+ * in PHP instead) can't be reached from this suite, which always runs on
+ * MySQL/MariaDB. It is covered by the standalone SQLite harness noted in the
+ * pull request instead.
  *
  * Run with:
  *   docker compose run --rm php-cli vendor/bin/codecept run wpunit PostHistoryColumnTest

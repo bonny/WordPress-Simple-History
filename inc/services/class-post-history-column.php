@@ -297,14 +297,13 @@ class Post_History_Column extends Service {
 			return;
 		}
 
-		$db_engine = Log_Query::get_db_engine();
-
-		if ( $db_engine === 'sqlite' ) {
-			$this->load_history_data_sqlite( $post_ids );
-		} elseif ( Helpers::db_supports_window_functions() ) {
-			$this->load_history_data_mysql( $post_ids );
+		// SQLite has had window functions since 3.25, but the portable query is
+		// a single scan there too and needs no version floor, so only
+		// MySQL/MariaDB take the window function path.
+		if ( Log_Query::get_db_engine() !== 'sqlite' && Helpers::db_supports_window_functions() ) {
+			$this->load_history_data_window_function( $post_ids );
 		} else {
-			$this->load_history_data_legacy_mysql( $post_ids );
+			$this->load_history_data_portable( $post_ids );
 		}
 
 		$this->prime_user_cache();
@@ -344,12 +343,12 @@ class Post_History_Column extends Service {
 	/**
 	 * MySQL/MariaDB query using ROW_NUMBER() window function.
 	 *
-	 * Requires MySQL 8.0+ or MariaDB 10.2+. Older servers are served by
-	 * load_history_data_legacy_mysql() instead.
+	 * Requires MySQL 8.0+ or MariaDB 10.2+. Everything else is served by
+	 * load_history_data_portable() instead.
 	 *
 	 * @param array $post_ids Array of post IDs.
 	 */
-	private function load_history_data_mysql( $post_ids ) {
+	private function load_history_data_window_function( $post_ids ) {
 		global $wpdb;
 
 		$events_table    = Simple_History::$dbtable;
@@ -389,16 +388,16 @@ class Post_History_Column extends Service {
 	}
 
 	/**
-	 * Query for MySQL versions without window function support (5.7 and older).
+	 * Query for every database without a usable window function path: MySQL
+	 * 5.7 and older, MariaDB 10.1 and older, and SQLite of any version.
 	 *
-	 * ROW_NUMBER() is a syntax error on those servers, and the SQLite query
-	 * can not be reused either since MySQL 5.7 rejects LIMIT inside an IN
-	 * subquery. So the two most recent event ids per post are ranked with a
-	 * single grouped scan, then their data is fetched by id.
+	 * ROW_NUMBER() is a syntax error on the older MySQL servers, so the two
+	 * most recent event ids per post are ranked with a single grouped scan,
+	 * then their data is fetched by id.
 	 *
 	 * @param array $post_ids Array of post IDs.
 	 */
-	private function load_history_data_legacy_mysql( $post_ids ) {
+	private function load_history_data_portable( $post_ids ) {
 		$history_ids = $this->get_recent_history_ids_per_post( $post_ids );
 
 		if ( $history_ids === array() ) {
@@ -411,15 +410,19 @@ class Post_History_Column extends Service {
 	/**
 	 * Get the ids of the two most recent events for each of the given posts.
 	 *
-	 * GROUP_CONCAT lists each post's event ids newest first and SUBSTRING_INDEX
-	 * keeps the leading two, which ranks the same way ROW_NUMBER() does but in
-	 * one grouped scan, so the fallback costs no more scans than the window
-	 * function query it replaces.
+	 * GROUP_CONCAT reduces each post to one row of event ids, which ranks the
+	 * same way ROW_NUMBER() does but in a single grouped scan, and the two
+	 * newest are picked out below.
 	 *
-	 * The concatenated list is cut off at group_concat_max_len, but since ids
-	 * are ordered newest first the cut only ever drops older ids that are
-	 * discarded anyway. The default 1024 byte limit holds around fifty ids,
-	 * far more than the two read back.
+	 * The two databases need slightly different handling of that list:
+	 *
+	 * - MySQL and MariaDB cut it off at group_concat_max_len, so the ids are
+	 *   ordered newest first and the cut only ever drops ids that would be
+	 *   discarded anyway. The 1024 byte default holds around fifty of them.
+	 * - SQLite has no such limit, but only accepts ORDER BY inside
+	 *   group_concat from 3.44, so it concatenates in whatever order rows are
+	 *   read. Sorting below rather than in SQL keeps the query working on
+	 *   every SQLite version instead of needing a version floor.
 	 *
 	 * Joining the events table keeps orphaned contexts out of the ranking: the
 	 * purge cron deletes events and contexts in separate statements, so an
@@ -436,15 +439,15 @@ class Post_History_Column extends Service {
 		$contexts_table  = Simple_History::$dbtable_contexts;
 		$id_placeholders = implode( ',', array_fill( 0, count( $post_ids ), '%d' ) );
 
+		$concat_order = Log_Query::get_db_engine() === 'sqlite'
+			? ''
+			: 'ORDER BY c.history_id DESC';
+
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$grouped_history_ids = $wpdb->get_col(
 			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 			$wpdb->prepare(
-				"SELECT SUBSTRING_INDEX(
-					GROUP_CONCAT(c.history_id ORDER BY c.history_id DESC),
-					',',
-					2
-				)
+				"SELECT GROUP_CONCAT(c.history_id {$concat_order})
 				FROM %i c
 				JOIN %i h ON c.history_id = h.id
 				WHERE c.`key` = 'post_id'
@@ -458,11 +461,17 @@ class Post_History_Column extends Service {
 		$history_ids = array();
 
 		foreach ( (array) $grouped_history_ids as $ids_for_post ) {
+			$ids_for_single_post = array();
+
 			foreach ( explode( ',', (string) $ids_for_post ) as $history_id ) {
 				if ( $history_id !== '' ) {
-					$history_ids[] = (int) $history_id;
+					$ids_for_single_post[] = (int) $history_id;
 				}
 			}
+
+			rsort( $ids_for_single_post, SORT_NUMERIC );
+
+			$history_ids = array_merge( $history_ids, array_slice( $ids_for_single_post, 0, 2 ) );
 		}
 
 		return $history_ids;
@@ -506,55 +515,6 @@ class Post_History_Column extends Service {
 		// phpcs:enable
 
 		return (array) $results;
-	}
-
-	/**
-	 * SQLite-compatible query using correlated subquery instead of window functions.
-	 *
-	 * @param array $post_ids Array of post IDs.
-	 */
-	private function load_history_data_sqlite( $post_ids ) {
-		global $wpdb;
-
-		$events_table    = Simple_History::$dbtable;
-		$contexts_table  = Simple_History::$dbtable_contexts;
-		$id_placeholders = implode( ',', array_fill( 0, count( $post_ids ), '%d' ) );
-
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$results = $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-			$wpdb->prepare(
-				"SELECT
-					c.`value` AS post_id,
-					h.date,
-					COALESCE(mk.`value`, '') AS message_key,
-					COALESCE(ui.`value`, '') AS user_id
-				FROM %i c
-				JOIN %i h ON c.history_id = h.id
-				LEFT JOIN %i mk ON h.id = mk.history_id AND mk.`key` = '_message_key'
-				LEFT JOIN %i ui ON h.id = ui.history_id AND ui.`key` = '_user_id'
-				WHERE c.`key` = 'post_id'
-				AND c.`value` IN ({$id_placeholders})
-				AND h.id IN (
-					SELECT h2.id
-					FROM %i c2
-					JOIN %i h2 ON c2.history_id = h2.id
-					WHERE c2.`key` = 'post_id'
-					AND c2.`value` = c.`value`
-					ORDER BY h2.id DESC
-					LIMIT 2
-				)
-				ORDER BY c.`value`, h.id DESC",
-				array_merge(
-					array( $contexts_table, $events_table, $contexts_table, $contexts_table ),
-					$post_ids,
-					array( $contexts_table, $events_table )
-				)
-			)
-		);
-		// phpcs:enable
-
-		$this->store_history_results( $results );
 	}
 
 	/**
