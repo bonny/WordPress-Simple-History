@@ -22,7 +22,7 @@
 		"grunt-wp-i18n": "^1.0.3",
 		"grunt-wp-readme-to-markdown": "^2.1.0",
 		"load-grunt-tasks": "^5.1.0",
-		"postcss": "^8.4.49",
+		"postcss": "^8.5.25",
 		"prettier": "npm:wp-prettier@^3.0",
 		"zod": "^3.24.3"
 	},
