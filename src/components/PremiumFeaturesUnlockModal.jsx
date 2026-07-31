@@ -10,6 +10,7 @@ import { getTrackingUrl } from '../functions';
  * @param {string}   props.premiumFeatureDescription - Description of the feature
  * @param {Object}   props.icon                      - Feature-specific icon (JSX/SVG)
  * @param {string}   props.image                     - Path to feature screenshot image
+ * @param {string}   props.utmCampaign               - Campaign name for the "Get Premium" link
  * @param {Function} props.handleModalClose
  */
 export const PremiumFeaturesUnlockModal = ( props ) => {
@@ -18,6 +19,7 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 		premiumFeatureDescription,
 		icon,
 		image,
+		utmCampaign,
 		handleModalClose,
 	} = props;
 
@@ -26,7 +28,7 @@ export const PremiumFeaturesUnlockModal = ( props ) => {
 		window.open(
 			getTrackingUrl(
 				'https://simple-history.com/add-ons/premium/',
-				'premium_global_modal'
+				utmCampaign
 			)
 		);
 		handleModalClose();
