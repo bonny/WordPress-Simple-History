@@ -449,3 +449,26 @@ export async function parseApiFetchError( error ) {
 
 	return errorDetails;
 }
+
+/**
+ * Strip HTML tags and decode entities, returning plain text.
+ *
+ * Uses DOMParser rather than assigning to a detached element's innerHTML.
+ * A detached node is not inert: `div.innerHTML = '<img src=x onerror=…>'`
+ * starts the image load and fires the handler even though the node was never
+ * added to the document, so the old approach executed attacker-supplied event
+ * handlers while appearing to strip them. DOMParser documents have no browsing
+ * context — they don't fetch resources or run handlers.
+ *
+ * @param {string} html
+ * @return {string} Plain text, or empty string for non-string input.
+ */
+export function htmlToPlainText( html ) {
+	if ( ! html || typeof html !== 'string' ) {
+		return '';
+	}
+
+	const doc = new DOMParser().parseFromString( html, 'text/html' );
+
+	return ( doc.body.textContent || '' ).replace( /\n{3,}/g, '\n\n' ).trim();
+}

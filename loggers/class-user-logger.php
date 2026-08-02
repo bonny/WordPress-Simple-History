@@ -864,6 +864,16 @@ class User_Logger extends Logger {
 	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;
 
+		// Logins are sanitize_user()'d and emails validated on the way in, so
+		// this is belt and braces rather than a known payload — but the
+		// escaping should not depend on upstream validation staying as strict
+		// as it is today. The parent call below reads $row->context, not this
+		// escaped copy, so it keeps applying its own esc_html().
+		$context = $this->esc_html_context_keys(
+			$context,
+			[ 'edited_user_login', 'edited_user_email', 'created_user_login', 'created_user_email', 'created_user_role' ]
+		);
+
 		$output          = parent::get_log_row_plain_text_output( $row );
 		$current_user_id = get_current_user_id();
 

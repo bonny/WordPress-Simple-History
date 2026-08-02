@@ -608,6 +608,14 @@ class Comments_Logger extends Logger {
 			}
 		}
 
+		// The post title is the reachable one here: stored verbatim from the
+		// parent post, so a user holding unfiltered_html can put script in it
+		// that then fires for any administrator reading the log.
+		$context = $this->esc_html_context_keys(
+			$context,
+			[ 'comment_post_title', 'comment_post_type', 'comment_author', 'comment_author_email' ]
+		);
+
 		return helpers::interpolate( $message, $context, $row );
 	}
 
