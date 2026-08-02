@@ -252,6 +252,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// User must be allowed to view the history log, matching the collection
+		// endpoint. The per event check below would otherwise let a user who
+		// cannot open the history page still read single events by id, for any
+		// logger whose own capability they hold. The reaction routes share this
+		// callback, so they inherit the same floor.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		// Event must exist.
 		if ( ! Helpers::event_exists( $request['id'] ) ) {
 			return new WP_Error(
@@ -831,6 +845,22 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// User must be allowed to view the history log, same gate as the admin
+		// page and the dashboard widget. Without it, any logged in user reaches
+		// this endpoint and receives events from every logger whose own
+		// capability they happen to hold — some ship below the view floor, so
+		// e.g. an author could read Notes logger events despite being blocked
+		// from the history page. The per logger filter in Log_Query stays as
+		// defence in depth.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		// Surrounding events feature requires administrator privileges.
 		// This bypasses normal logger permission checks and could expose sensitive events.
 		if ( isset( $request['surrounding_event_id'] ) && ! current_user_can( 'manage_options' ) ) {
@@ -1172,10 +1202,16 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$user_avatar_url  = $user_avatar_data['url'] ?? '';
 			$user_object      = get_user_by( 'id', $context['_user_id'] ?? null );
 
+			// Gated the same way as the user card. Without this the card gate
+			// achieves nothing: UserCard falls back to initiator_data when the
+			// card omits a field, and the event list prints the initiator's
+			// email beside every row.
+			$can_view_pii = Helpers::current_user_can_view_user_pii();
+
 			$user_info = [
 				'user_id'           => $context['_user_id'] ?? null,
-				'user_login'        => $context['_user_login'] ?? null,
-				'user_email'        => $context['_user_email'] ?? null,
+				'user_login'        => $can_view_pii ? ( $context['_user_login'] ?? null ) : null,
+				'user_email'        => $can_view_pii ? ( $context['_user_email'] ?? null ) : null,
 				'user_image'        => $this->simple_history->get_log_row_sender_image_output( $item ),
 				'user_avatar_url'   => $user_avatar_url,
 				'user_profile_url'  => get_edit_user_link( $context['_user_id'] ?? null ),

@@ -1393,6 +1393,31 @@ class Helpers {
 	}
 
 	/**
+	 * Whether the current user may see another user's identifying details.
+	 *
+	 * Covers login, email address and roles, wherever they appear — the user
+	 * card, the initiator shown beside each event, and the user search. These
+	 * have to agree: the card and the event list feed the same UI, so gating
+	 * one without the other only moves where the data leaks out.
+	 *
+	 * Defaults to "list_users", which is what WordPress itself requires to see
+	 * another user's email, and which editors do not hold.
+	 *
+	 * @since 5.30.0
+	 * @return bool
+	 */
+	public static function current_user_can_view_user_pii() {
+		/**
+		 * Filters whether the current user may see other users' login, email and roles.
+		 *
+		 * @since 5.30.0
+		 *
+		 * @param bool $can_view Defaults to current_user_can( 'list_users' ).
+		 */
+		return apply_filters( 'simple_history/user_can_view_user_pii', current_user_can( 'list_users' ) );
+	}
+
+	/**
 	 * Return capability required to view settings.
 	 * Default capability is "manage_options",
 	 * but can be modified using filter.
