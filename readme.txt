@@ -271,6 +271,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Checkbox settings now show as On/Off (instead of 1/0) in the "Modified settings" log details.
 -   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
 -   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable. Add-ons can opt option keys in via the new `simple_history/settings/changed_only_options` filter.
+-   Developers: `simple_history/user_can_clear_log` defaults to whether the user can manage settings — sites that let non-administrators clear the log must opt back in through the filter.
 
 **Deprecated**
 
@@ -289,6 +290,15 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Filtering by IP address now finds events by any address recorded for them, not just the one the web server saw. On sites behind a proxy or load balancer the visitor's real address is read from a forwarding header, and filtering by it previously returned nothing.
 -   Dismiss buttons in the review reminder notice rendered as boxed links.
 -   Experimental — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
+
+**Security**
+
+-   Usernames and email addresses in the log and the user card are only shown to viewers allowed to list users.
+-   Reading the activity log through the REST API requires the same permission as opening the history page.
+-   Detective Mode masks a wider set of sensitive field names, including `old_password`, tokens, secrets and card numbers, and now also masks nested values, the request query string and command line arguments.
+-   Clearing the log, exporting it and regenerating the RSS feed address require permission to manage settings.
+-   The RSS feed secret is compared in constant time.
+-   Event text is escaped consistently in the media, categories, user and comments loggers, and exported HTML files are filtered.
 
 ### 5.29.0 (June 2026)
 
