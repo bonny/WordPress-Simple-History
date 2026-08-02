@@ -115,7 +115,10 @@ class RSS_Dropin extends Dropin {
 		$create_secret_nonce_name = 'simple_history_rss_secret_regenerate_nonce';
 		$create_nonce_ok          = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET[ $create_secret_nonce_name ] ) ), 'simple_history_rss_update_secret' );
 
-		if ( $create_nonce_ok ) {
+		// Nonce alone is not authorization: rotating the secret invalidates
+		// every existing feed URL, so require the settings capability too.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
+		if ( $create_nonce_ok && current_user_can( Helpers::get_view_settings_capability() ) ) {
 			$this->update_rss_secret();
 
 			// Add updated-message and store in transient and then redirect
@@ -260,7 +263,10 @@ class RSS_Dropin extends Dropin {
 			get_bloginfo( 'name' )
 		);
 
-		if ( $rss_secret_option === $rss_secret_get ) {
+		// Constant time comparison: a match below unlocks the whole log, so this
+		// is a bearer secret and must not be compared with a short circuiting
+		// operator that leaks how many leading characters matched.
+		if ( hash_equals( (string) $rss_secret_option, (string) $rss_secret_get ) ) {
 			echo PHP_EOL;
 
 			?>
