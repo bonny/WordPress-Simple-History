@@ -329,8 +329,8 @@ class Stats_View {
 	public static function output_top_posts_and_pages_section( $top_posts_and_pages ) {
 		?>
 		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
-			<h2
-				class="sh-StatsDashboard-cardTitle"
+			<h2 
+				class="sh-StatsDashboard-cardTitle" 
 				style="--sh-badge-background-color: var(--sh-color-green-light);"
 			>
 				<?php echo esc_html_x( 'Most edited posts and pages', 'stats section title', 'simple-history' ); ?>
@@ -535,7 +535,7 @@ class Stats_View {
 		?>
 		<div class="sh-StatsDashboard-card">
 			<h2
-			class="sh-StatsDashboard-cardTitle"
+			class="sh-StatsDashboard-cardTitle" 
 			style="
 					--sh-badge-background-color: var(--sh-color-green-light);
 					--sh-icon-size: 14px;
@@ -677,8 +677,8 @@ class Stats_View {
 	public static function output_stats_box_section( $title, $stats, $color_var, $description_text = '' ) {
 		?>
 		<div class="sh-StatsDashboard-card sh-StatsDashboard-card--wide">
-			<h2
-				class="sh-StatsDashboard-cardTitle"
+			<h2 
+				class="sh-StatsDashboard-cardTitle" 
 				style="
 					--sh-badge-background-color: var(<?php echo esc_attr( $color_var ); ?>);
 					--sh-icon-size: 14px;
