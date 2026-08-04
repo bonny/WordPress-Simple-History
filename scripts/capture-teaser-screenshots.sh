@@ -77,12 +77,12 @@ PNGS=(
 	"assets/images/user-card-without-premium-context.png"
 )
 
-# Optimize the captured PNGs. pngquant is lossy but visually clean for UI
+# Optimize the captured PNG files. pngquant is lossy but visually clean for UI
 # screenshots and typically halves file size. `--skip-if-larger` keeps the
 # original if quantization would somehow grow the file. Skipped silently if
 # pngquant isn't installed — the captures still ship, just larger.
 if command -v pngquant >/dev/null 2>&1; then
-	echo "→ Optimizing PNGs with pngquant…"
+	echo "→ Optimizing PNG files with pngquant…"
 	for png in "${PNGS[@]}"; do
 		before=$(stat -f%z "${png}" 2>/dev/null || stat -c%s "${png}")
 		pngquant --quality=80-95 --strip --skip-if-larger --force \
@@ -97,7 +97,7 @@ else
 	echo "    Install: brew install pngquant"
 fi
 
-echo "✓ Done. Four PNGs written to assets/images/:"
+echo "✓ Done. Four PNG files written to assets/images/:"
 for png in "${PNGS[@]}"; do
 	echo "    $(basename "${png}")"
 done
