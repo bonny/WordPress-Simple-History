@@ -189,7 +189,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 </head>
 <body style="margin: 0; padding: 0; width: 100%; word-break: break-word; -webkit-font-smoothing: antialiased; background-color: #FFF4E4;">
 
-	<div role="article" aria-roledescription="email" lang="<?php echo esc_attr( get_locale() ); ?>"
+	<div role="article" aria-roledescription="email" lang="<?php echo esc_attr( get_locale() ); ?>" 
 		style="text-size-adjust: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #FFF4E4;">
 
 		<!-- Visually Hidden Preheader Text -->
@@ -256,7 +256,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 				<td style="background-color: #ffffff; border-radius: 8px 8px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" class="email-container">
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 						<tr>
-							<td style="padding: 30px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center; background-color: #ffffff;"
+							<td style="padding: 30px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center; background-color: #ffffff;" 
 								class="mobile-padding email-container" role="main">
 
 					<!-- Main Headline -->
@@ -276,7 +276,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 						<?php echo esc_html( __( "Here's a summary of activity on your website.", 'simple-history' ) ); ?>
 					</p>
 
-					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;"
+					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
 						class="mobile-text">
 						<?php
 						$allowed_html = array(
@@ -370,7 +370,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 
 							// Iterate through each day in the range.
 							while ( $current_date <= $end_date ) {
-								$day_name  = wp_date( 'l', $current_date->getTimestamp() ); // Full day name (e.g., "Monday").
+								$day_name   = wp_date( 'l', $current_date->getTimestamp() ); // Full day name (e.g., "Monday").
 								$day_number = (int) $current_date->format( 'w' ); // Day of week (0=Sunday, 6=Saturday).
 
 								// Get full formatted date for tooltip.
@@ -732,7 +732,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
 						<tr>
 							<td>
-								<a href="<?php echo esc_url( $args['history_admin_url'] ); ?>"
+								<a href="<?php echo esc_url( $args['history_admin_url'] ); ?>" 
 									style="background: #0040FF; border: 16px solid #0040FF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 20px; text-decoration: none; color: #ffffff; display: block; border-radius: 6px; font-weight: 600;">
 									<?php echo esc_html( __( 'View Activity Log', 'simple-history' ) ); ?>
 								</a>
