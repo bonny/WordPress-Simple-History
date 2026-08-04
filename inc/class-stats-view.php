@@ -752,7 +752,7 @@ class Stats_View {
 			__( 'Plugins', 'simple-history' ),
 			$stats_data,
 			'--sh-color-green-mint',
-			'Premium users get quick overview of vital plugin numbers, like installations, activations, updates, deactivations and deletions.'
+			__( 'Premium users get quick overview of vital plugin numbers, like installations, activations, updates, deactivations and deletions.', 'simple-history' )
 		);
 	}
 
@@ -787,7 +787,7 @@ class Stats_View {
 			_x( 'User profile activity', 'stats section title', 'simple-history' ),
 			$stats_data,
 			'--sh-color-pink',
-			'Premium users get detailed stats on user profile activity, like successful logins, failed logins, profile updates, added users and removed users.'
+			__( 'Premium users get detailed stats on user profile activity, like successful logins, failed logins, profile updates, added users and removed users.', 'simple-history' )
 		);
 	}
 
@@ -818,7 +818,7 @@ class Stats_View {
 			_x( 'Posts & pages activity', 'stats section title', 'simple-history' ),
 			$stats_data,
 			'--sh-color-yellow',
-			'Premium users get detailed stats on posts and pages activity, like created, updated, trashed and deleted.'
+			__( 'Premium users get detailed stats on posts and pages activity, like created, updated, trashed and deleted.', 'simple-history' )
 		);
 	}
 
@@ -845,7 +845,7 @@ class Stats_View {
 			_x( 'Media', 'stats section title', 'simple-history' ),
 			$stats_data,
 			'--sh-color-green-light',
-			'Premium users get detailed stats on media activity, like uploads, edits and deletions.'
+			__( 'Premium users get detailed stats on media activity, like uploads, edits and deletions.', 'simple-history' )
 		);
 	}
 
@@ -869,7 +869,7 @@ class Stats_View {
 			_x( 'Notes', 'stats section title', 'simple-history' ),
 			$stats_data,
 			'--sh-color-blue',
-			'Premium users get detailed stats on collaborative notes activity from the block editor.'
+			__( 'Premium users get detailed stats on collaborative notes activity from the block editor.', 'simple-history' )
 		);
 	}
 
