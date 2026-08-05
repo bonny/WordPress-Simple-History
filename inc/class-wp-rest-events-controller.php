@@ -1202,16 +1202,16 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$user_avatar_url  = $user_avatar_data['url'] ?? '';
 			$user_object      = get_user_by( 'id', $context['_user_id'] ?? null );
 
-			// Gated the same way as the user card. Without this the card gate
-			// achieves nothing: UserCard falls back to initiator_data when the
-			// card omits a field, and the event list prints the initiator's
-			// email beside every row.
-			$can_view_pii = Helpers::current_user_can_view_user_pii();
-
+			// Deliberately not gated on the user-card capability. The initiator
+			// is the person who performed an event the reader is already
+			// allowed to see, so this is context for visible activity rather
+			// than a directory: it cannot be walked to reach users who never
+			// appear in the log. The card is gated instead, because that one
+			// answers arbitrary user ids and so could be harvested.
 			$user_info = [
 				'user_id'           => $context['_user_id'] ?? null,
-				'user_login'        => $can_view_pii ? ( $context['_user_login'] ?? null ) : null,
-				'user_email'        => $can_view_pii ? ( $context['_user_email'] ?? null ) : null,
+				'user_login'        => $context['_user_login'] ?? null,
+				'user_email'        => $context['_user_email'] ?? null,
 				'user_image'        => $this->simple_history->get_log_row_sender_image_output( $item ),
 				'user_avatar_url'   => $user_avatar_url,
 				'user_profile_url'  => get_edit_user_link( $context['_user_id'] ?? null ),
@@ -1309,11 +1309,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'context', $fields ) ) {
-			// Raw context repeats the login and email that initiator_data gates
-			// above, so it has to be filtered the same way. "Copy details"
-			// requests this field on its own, which would otherwise hand an
-			// editor every login and email in the log.
-			$data['context'] = Helpers::remove_user_pii_from_context( $item->context ?? [] );
+			$data['context'] = $item->context ?? [];
 		}
 
 		if ( rest_is_field_included( 'permalink', $fields ) ) {

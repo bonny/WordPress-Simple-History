@@ -160,12 +160,12 @@ class SecurityAuthorizationTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Gating the user card alone achieves nothing: the events response carries
-	 * the initiator's login and email too, the event list prints the email
-	 * beside every row, and the card falls back to it when the card omits it.
-	 * Both had to be gated together.
+	 * The initiator is the person who performed an event the reader may already
+	 * see, so it stays visible: it is context for visible activity, not a
+	 * directory, and it is what tells two people sharing a display name apart.
+	 * The card is gated instead, because that answers arbitrary user ids.
 	 */
-	public function test_events_initiator_data_hides_pii_from_users_without_list_users() {
+	public function test_events_initiator_data_stays_visible_to_users_without_list_users() {
 		$actor = $this->factory->user->create(
 			[
 				'role'       => 'administrator',
@@ -182,17 +182,13 @@ class SecurityAuthorizationTest extends \Codeception\TestCase\WPTestCase {
 
 		$events = (array) $this->dispatch_request( 'GET', '/simple-history/v1/events', [ 'per_page' => 20 ] )->get_data();
 
-		$this->assertNotEmpty( $events, 'Editor should still be able to read events.' );
+		$logins = array_column( array_column( $events, 'initiator_data' ), 'user_login' );
 
-		foreach ( $events as $event ) {
-			$this->assertNull( $event['initiator_data']['user_login'] ?? null, 'Initiator login must not leak.' );
-			$this->assertNull( $event['initiator_data']['user_email'] ?? null, 'Initiator email must not leak.' );
-		}
+		$this->assertContains( 'initiator_actor', $logins, 'Editors must still see who performed an event they can read.' );
 	}
 
 	/**
-	 * Administrators hold list_users and must keep seeing the initiator, so the
-	 * gate scopes the data rather than removing the feature.
+	 * Administrators are unaffected.
 	 */
 	public function test_events_initiator_data_still_visible_to_users_with_list_users() {
 		$actor = $this->factory->user->create(
@@ -214,93 +210,51 @@ class SecurityAuthorizationTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Gating initiator_data was not enough on its own: raw context carries the
-	 * same _user_login and _user_email, and "Copy details" fetches exactly
-	 * ?_fields=context, so the gate could be walked around by asking for the
-	 * other field.
+	 * The bound on initiator PII is the log itself: an editor may see who
+	 * performed an event only when they may read that event.
+	 *
+	 * Log_Query filters per logger, so an event from a logger the reader lacks
+	 * the capability for never reaches prepare_item_for_response() and its
+	 * initiator is never built. This asserts that end to end, because it is the
+	 * property that makes leaving initiator_data ungated defensible — remove it
+	 * and the ungated field becomes a way to read the address of anyone who
+	 * ever acted on the site.
 	 */
-	public function test_events_context_hides_pii_from_users_without_list_users() {
+	public function test_initiator_pii_is_bounded_by_the_events_the_reader_may_see() {
 		$actor = $this->factory->user->create(
 			[
 				'role'       => 'administrator',
-				'user_login' => 'context_actor',
-				'user_email' => 'context_actor@example.com',
+				'user_login' => 'unreadable_event_actor',
+				'user_email' => 'unreadable_actor@example.com',
 			]
 		);
 
 		wp_set_current_user( $actor );
-		SimpleLogger()->info( 'Event used by the context field test.' );
+		SimpleLogger()->info( 'Event the editor is not allowed to read.' );
 
 		$this->login_as( 'editor' );
-		$this->assertFalse( current_user_can( 'list_users' ), 'Precondition: editors lack list_users.' );
 
-		$events = (array) $this->dispatch_request(
-			'GET',
-			'/simple-history/v1/events',
-			[
-				'per_page' => 20,
-				'_fields'  => 'context',
-			]
-		)->get_data();
+		// Deny the editor every logger, standing in for any logger whose own
+		// capability they do not hold.
+		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_false', 20 );
 
-		$this->assertNotEmpty( $events, 'Editor should still be able to read events.' );
+		$response = $this->dispatch_request( 'GET', '/simple-history/v1/events', [ 'per_page' => 50 ] );
+		$events   = (array) $response->get_data();
 
-		foreach ( $events as $event ) {
-			$this->assertArrayNotHasKey( '_user_login', $event['context'], 'Initiator login must not leak via context.' );
-			$this->assertArrayNotHasKey( '_user_email', $event['context'], 'Initiator email must not leak via context.' );
-		}
-	}
+		remove_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_false', 20 );
 
-	/**
-	 * The context gate scopes the payload rather than emptying it: "Copy
-	 * details" still has to work for editors, minus the PII.
-	 */
-	public function test_events_context_keeps_non_pii_keys_for_users_without_list_users() {
-		$this->login_as( 'editor' );
+		$serialised = wp_json_encode( $events );
 
-		$events = (array) $this->dispatch_request(
-			'GET',
-			'/simple-history/v1/events',
-			[
-				'per_page' => 20,
-				'_fields'  => 'context',
-			]
-		)->get_data();
-
-		$this->assertNotEmpty( $events, 'Editor should still be able to read events.' );
-
-		$non_empty_contexts = array_filter( array_column( $events, 'context' ) );
-
-		$this->assertNotEmpty( $non_empty_contexts, 'Context must still carry its non-PII keys.' );
-	}
-
-	/**
-	 * Administrators hold list_users, so context must reach them intact.
-	 */
-	public function test_events_context_still_visible_to_users_with_list_users() {
-		$actor = $this->factory->user->create(
-			[
-				'role'       => 'administrator',
-				'user_login' => 'context_actor_admin_view',
-				'user_email' => 'context_admin_view@example.com',
-			]
+		$this->assertStringNotContainsString(
+			'unreadable_actor@example.com',
+			$serialised,
+			'The initiator of an unreadable event must not be reachable.'
 		);
-
-		wp_set_current_user( $actor );
-		SimpleLogger()->info( 'Event used by the admin context field test.' );
-
-		$events = (array) $this->dispatch_request(
-			'GET',
-			'/simple-history/v1/events',
-			[
-				'per_page' => 20,
-				'_fields'  => 'context',
-			]
-		)->get_data();
-
-		$logins = array_column( array_column( $events, 'context' ), '_user_login' );
-
-		$this->assertContains( 'context_actor_admin_view', $logins, 'Administrator must still see context logins.' );
+		$this->assertStringNotContainsString(
+			'unreadable_event_actor',
+			$serialised,
+			'Nor their login.'
+		);
 	}
 
 	/**

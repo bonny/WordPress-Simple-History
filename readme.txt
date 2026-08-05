@@ -295,7 +295,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Security**
 
--   Usernames and email addresses in the log now follow WordPress's own rule and are shown only to users who can list users.
+-   Looking up a person's username, email address and roles from the user card now follows WordPress's own rule and requires permission to list users. Who performed an event is still shown to everyone who can read that event.
 -   REST API endpoints now require the same permission as opening the history page.
 -   Detective Mode masks more field names — passwords, tokens, secrets and card numbers — and now also covers nested values, query strings and command line arguments.
 -   Clearing the log, exporting it and regenerating the RSS feed address now also require permission to manage settings.

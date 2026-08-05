@@ -1408,12 +1408,17 @@ class Helpers {
 	}
 
 	/**
-	 * Whether the current user may see another user's identifying details.
+	 * Whether the current user may look up another user's identifying details.
 	 *
-	 * Covers login, email address and roles, wherever they appear — the user
-	 * card, the initiator shown beside each event, and the user search. These
-	 * have to agree: the card and the event list feed the same UI, so gating
-	 * one without the other only moves where the data leaks out.
+	 * Scoped to lookups that answer an arbitrary user id — the user card. That
+	 * endpoint could be walked from id 1 upwards to collect the login, email
+	 * and roles of every account on the site, including users who never appear
+	 * in the log, which is why it needs a capability of its own.
+	 *
+	 * Deliberately not applied to the initiator shown beside each event. That
+	 * is the person who performed an event the reader is already allowed to
+	 * see, so it is context for visible activity rather than a directory, and
+	 * it is what makes two people sharing a display name tellable apart.
 	 *
 	 * Defaults to "list_users", which is what WordPress itself requires to see
 	 * another user's email, and which editors do not hold.
@@ -1430,47 +1435,6 @@ class Helpers {
 		 * @param bool $can_view Defaults to current_user_can( 'list_users' ).
 		 */
 		return apply_filters( 'simple_history/user_can_view_user_pii', current_user_can( 'list_users' ) );
-	}
-
-	/**
-	 * Remove logins and email addresses from a context array.
-	 *
-	 * The context holds the same identifying details that the initiator and the
-	 * user card expose, so anywhere raw context is handed out it has to be run
-	 * through here — otherwise gating the readable fields only changes which
-	 * key the data arrives under.
-	 *
-	 * Covers both the initiator (_user_login, _user_email, set on every event)
-	 * and the user a user-logger event was about (edited_, created_, deleted_).
-	 * "failed_user_login" is deliberately kept: it is the name someone typed at
-	 * a login form, not a confirmed account, and it is the substance of a failed
-	 * login event rather than an incidental detail attached to it.
-	 *
-	 * @since 5.30.0
-	 * @param array<string,mixed> $context Context to filter.
-	 * @return array<string,mixed> Context, without user PII if the current user may not see it.
-	 */
-	public static function remove_user_pii_from_context( $context ) {
-		if ( self::current_user_can_view_user_pii() ) {
-			return $context;
-		}
-
-		$pii_keys = [
-			'_user_login',
-			'_user_email',
-			'edited_user_login',
-			'edited_user_email',
-			'created_user_login',
-			'created_user_email',
-			'deleted_user_login',
-			'deleted_user_email',
-		];
-
-		foreach ( $pii_keys as $pii_key ) {
-			unset( $context[ $pii_key ] );
-		}
-
-		return $context;
 	}
 
 	/**
