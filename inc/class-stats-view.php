@@ -83,7 +83,7 @@ class Stats_View {
 						<?php
 							printf(
 								/* translators: 1: opening link tag, 2: closing link tag */
-								__( '%1$sUpgrade to Premium%2$s to get access to more date ranges.', 'simple-history' ),
+								esc_html__( '%1$sUpgrade to Premium%2$s to get access to more date ranges.', 'simple-history' ),
 								'<a target="_blank" rel="noopener noreferrer" href="' . esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_stats_daterange' ) ) . '">', // 1
 								'</a>', // 2
 							);
@@ -438,7 +438,7 @@ class Stats_View {
 									printf(
 										/* translators: %d: number of events */
 										esc_html( _n( '%d event', '%d events', $user['count'], 'simple-history' ) ),
-										number_format_i18n( $user['count'] )
+										esc_html( number_format_i18n( $user['count'] ) )
 									);
 								?>
 							</span>
