@@ -1199,7 +1199,6 @@ class Plugin_Logger extends Logger {
 	 * - plugin_update_fatal_error_rollback_successful: Update caused fatal, rollback succeeded
 	 * - plugin_update_fatal_error_rollback_failed: Update caused fatal, rollback also failed
 	 *
-	 * @see readme.issue-608-alerts.md for investigation details and testing instructions.
 	 * @see wp-admin/includes/class-wp-automatic-updater.php lines 566-619 for rollback code.
 	 *
 	 * @param array $update_results Results of all update attempts.
@@ -1423,8 +1422,10 @@ class Plugin_Logger extends Logger {
 					'action' => 'view',
 				];
 			} elseif ( $plugin_slug && in_array( $message_key, [ 'plugin_installed', 'plugin_activated', 'plugin_deactivated' ], true ) ) {
+				$plugin_info_path = "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=&TB_iframe=true&width=640&height=550";
+
 				$action_links[] = [
-					'url'    => admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=&TB_iframe=true&width=640&height=550" ),
+					'url'    => $is_network ? network_admin_url( $plugin_info_path ) : admin_url( $plugin_info_path ),
 					'label'  => _x( 'Plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' ),
 					'action' => 'view',
 				];
@@ -1642,7 +1643,6 @@ class Plugin_Logger extends Logger {
 	 * 4. Trigger: wp eval 'wp_maybe_auto_update();'
 	 * 5. Check log for "Security Update" badge
 	 *
-	 * @see readme.issue-608-alerts.md for detailed testing instructions.
 	 * @see https://gist.github.com/bonny/dceab0c8582f08075919e9f760380f50 Real API response with autoupdate=1.
 	 * @see https://make.wordpress.org/plugins/2015/03/14/plugin-automatic-security-updates/
 	 *

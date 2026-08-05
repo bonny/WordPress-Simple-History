@@ -270,6 +270,56 @@ class Helpers {
 	}
 
 	/**
+	 * Returns the context key prefix that addresses from a given header are stored under.
+	 *
+	 * Logger::append_remote_addr_to_context() stores each address found in a
+	 * forwarding header as "<prefix><n>" — the index suffix exists because a
+	 * single header can carry several comma separated addresses.
+	 *
+	 * This is the one place that knows the convention. The writer, the display
+	 * path (get_event_ip_number_headers()) and the query (Log_Query) all build
+	 * from it, so the shape can change here without them drifting apart.
+	 *
+	 * @since 5.30.0
+	 *
+	 * @param string $header_name Header name, e.g. "HTTP_X_FORWARDED_FOR".
+	 * @return string Context key prefix, e.g. "_server_http_x_forwarded_for_".
+	 */
+	public static function get_ip_address_context_key_prefix( $header_name ) {
+		return '_server_' . strtolower( $header_name ) . '_';
+	}
+
+	/**
+	 * Returns the context key prefixes that hold an IP address for an event.
+	 *
+	 * A context key holds an IP address if it equals one of these or begins with
+	 * one: the address the web server saw is stored as "_server_remote_addr", and
+	 * forwarding header addresses under the per-header prefixes.
+	 *
+	 * Prefixes rather than exact keys, so callers do not have to guess how many
+	 * addresses a header supplied. Note that matching on "_server_http_" alone
+	 * would be wrong: keys such as "_server_http_referer" and
+	 * "_server_http_user_agent" share that prefix and hold no IP address.
+	 *
+	 * Derived from get_ip_number_header_names(), so the
+	 * 'simple_history/ip_number_header_names' filter applies here too and
+	 * additional headers stay queryable.
+	 *
+	 * @since 5.30.0
+	 *
+	 * @return array<string> Context key prefixes.
+	 */
+	public static function get_ip_address_context_key_prefixes() {
+		$prefixes = array( '_server_remote_addr' );
+
+		foreach ( self::get_ip_number_header_names() as $header_name ) {
+			$prefixes[] = self::get_ip_address_context_key_prefix( $header_name );
+		}
+
+		return $prefixes;
+	}
+
+	/**
 	 * Returns true if $haystack ends with $needle
 	 *
 	 * @param string $haystack String to check.
@@ -841,20 +891,12 @@ class Helpers {
 		$context                         = $row->context;
 
 		foreach ( $ip_header_names_keys as $one_ip_header_key ) {
-			$one_ip_header_key_lower = strtolower( $one_ip_header_key );
+			// Addresses are stored as "<prefix><n>", e.g.
+			// _server_http_x_forwarded_for_0, _server_http_x_forwarded_for_1, ...
+			$key_prefix = self::get_ip_address_context_key_prefix( $one_ip_header_key );
 
 			foreach ( $context as $context_key => $context_val ) {
-				// Header value is stored in key with lowercased
-				// header name and with a number appended to it.
-				// Examples:
-				// _server_http_x_forwarded_for_0, _server_http_x_forwarded_for_1, ...
-				$match = preg_match(
-					"/^_server_{$one_ip_header_key_lower}_[\d+]/",
-					$context_key,
-					$matches
-				);
-
-				if ( ! $match ) {
+				if ( ! preg_match( '/^' . preg_quote( $key_prefix, '/' ) . '\d/', $context_key ) ) {
 					continue;
 				}
 
@@ -1092,21 +1134,49 @@ class Helpers {
 	}
 
 	/**
-	 * Output the top-right header area with Premium status or CTA.
+	 * Output the settings gear link for the header's left title group.
 	 *
-	 * @return string HTML for the premium/settings header link.
+	 * Sits next to the feature-discovery bar so the settings root and its
+	 * section deep-links read as one group. Rendered independently of the
+	 * bar, so it remains visible even when the bar self-hides.
+	 *
+	 * @return string HTML for the settings gear link.
 	 */
-	public static function get_header_premium_link() {
+	public static function get_header_settings_link() {
+		// Viewing the log and viewing the settings are separate capabilities.
+		// Editors reach the log by default but not the settings page, so
+		// without this they are offered a gear that lands on a permission
+		// error. The divider is a border on the link itself, so dropping the
+		// link leaves no stray separator behind.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
+		if ( ! current_user_can( self::get_view_settings_capability() ) ) {
+			return '';
+		}
+
 		$settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 
 		ob_start();
 
 		?>
-		<div class="sh-PageHeader-rightLink">
-			<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-settingsIcon" aria-label="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>" title="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>">
-				<span class="dashicons dashicons-admin-generic"></span>
-			</a>
+		<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-settingsIcon">
+			<span class="dashicons dashicons-admin-generic"></span>
+			<span class="sh-PageHeader-settingsIconText"><?php esc_html_e( 'Settings', 'simple-history' ); ?></span>
+		</a>
+		<?php
 
+		return ob_get_clean();
+	}
+
+	/**
+	 * Output the top-right header area with Premium status or CTA.
+	 *
+	 * @return string HTML for the premium header link.
+	 */
+	public static function get_header_premium_link() {
+		ob_start();
+
+		?>
+		<div class="sh-PageHeader-rightLink">
 			<?php if ( self::is_premium_add_on_active() ) { ?>
 				<span class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--premiumActive">
 					<span class="dashicons dashicons-star-filled"></span>
@@ -1213,7 +1283,12 @@ class Helpers {
 		 *
 		 * @param bool $allow Whether the current user is allowed to clear the log.
 		*/
-		return apply_filters( 'simple_history/user_can_clear_log', true );
+		// Defaults to the settings capability rather than to true. Clearing
+		// truncates the entire events and contexts tables, i.e. destroys the
+		// audit trail, so it must not be authorized by nonce possession alone.
+		// The filter can still open it up or lock it down further.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from self::get_view_settings_capability().
+		return apply_filters( 'simple_history/user_can_clear_log', current_user_can( self::get_view_settings_capability() ) );
 	}
 
 	/**
@@ -1330,6 +1405,36 @@ class Helpers {
 		$view_history_capability = apply_filters( 'simple_history/view_history_capability', $view_history_capability );
 
 		return $view_history_capability;
+	}
+
+	/**
+	 * Whether the current user may look up another user's identifying details.
+	 *
+	 * Scoped to lookups that answer an arbitrary user id — the user card. That
+	 * endpoint could be walked from id 1 upwards to collect the login, email
+	 * and roles of every account on the site, including users who never appear
+	 * in the log, which is why it needs a capability of its own.
+	 *
+	 * Deliberately not applied to the initiator shown beside each event. That
+	 * is the person who performed an event the reader is already allowed to
+	 * see, so it is context for visible activity rather than a directory, and
+	 * it is what makes two people sharing a display name tellable apart.
+	 *
+	 * Defaults to "list_users", which is what WordPress itself requires to see
+	 * another user's email, and which editors do not hold.
+	 *
+	 * @since 5.30.0
+	 * @return bool
+	 */
+	public static function current_user_can_view_user_pii() {
+		/**
+		 * Filters whether the current user may see other users' login, email and roles.
+		 *
+		 * @since 5.30.0
+		 *
+		 * @param bool $can_view Defaults to current_user_can( 'list_users' ).
+		 */
+		return apply_filters( 'simple_history/user_can_view_user_pii', current_user_can( 'list_users' ) );
 	}
 
 	/**
@@ -1556,6 +1661,22 @@ class Helpers {
 		return (bool) apply_filters(
 			'simple_history/experimental_features_enabled',
 			get_option( 'simple_history_experimental_features_enabled', 0 )
+		);
+	}
+
+	/**
+	 * Returns true if event reactions are enabled.
+	 *
+	 * Enabled by default; can be turned off in Settings → General. The reaction
+	 * button is shown discreetly on hover, so it is unobtrusive even on
+	 * single-user sites.
+	 *
+	 * @return bool
+	 */
+	public static function reactions_are_enabled() {
+		return (bool) apply_filters(
+			'simple_history/reactions_enabled',
+			get_option( 'simple_history_reactions_enabled', '1' )
 		);
 	}
 

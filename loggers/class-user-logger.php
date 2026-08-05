@@ -25,18 +25,6 @@ class User_Logger extends Logger {
 	];
 
 	/**
-	 * Username captured from the `authenticate` filter chain.
-	 *
-	 * Needed for XML-RPC application-password failures, where the username travels
-	 * inside the XML body and never lands in `$_SERVER['PHP_AUTH_USER']`. The
-	 * `application_password_failed_authentication` action passes only the WP_Error,
-	 * so we stash the value seen during `authenticate` and read it back here.
-	 *
-	 * @var string|null
-	 */
-	private $last_attempted_username = null;
-
-	/**
 	 * Dedupe guard for `application_password_failed_authentication`.
 	 *
 	 * WP fires the action twice per request (during `authenticate` and again during
@@ -256,10 +244,6 @@ class User_Logger extends Logger {
 		);
 
 		if ( $log_failed_app_password_auth ) {
-			// Capture the attempted username just before WP's wp_authenticate_application_password
-			// (priority 20) runs, so the XML-RPC code path — where PHP_AUTH_USER is empty — still
-			// has a username to log.
-			add_filter( 'authenticate', array( $this, 'capture_attempted_username' ), 19, 3 );
 			add_action( 'application_password_failed_authentication', array( $this, 'on_application_password_failed_authentication' ), 10, 1 );
 		}
 
@@ -437,29 +421,6 @@ class User_Logger extends Logger {
 	}
 
 	/**
-	 * Capture the attempted username from the `authenticate` filter chain.
-	 *
-	 * The `application_password_failed_authentication` action only receives the WP_Error,
-	 * not the username. For XML-RPC requests the username never reaches `$_SERVER['PHP_AUTH_USER']`,
-	 * so without this we'd log an empty value.
-	 *
-	 * This fires only for paths that go through `wp_authenticate()` — primarily XML-RPC.
-	 * The REST API code path (`determine_current_user` -> `wp_validate_application_password()`
-	 * -> `wp_authenticate_application_password()`) bypasses the `authenticate` filter chain
-	 * entirely, which is why the failed-auth handler also falls back to `$_SERVER['PHP_AUTH_USER']`.
-	 *
-	 * @param null|\WP_User|\WP_Error $user     Authenticated user, error, or null.
-	 * @param string                  $username The username or email being authenticated.
-	 * @param string                  $password The password being authenticated.
-	 * @return null|\WP_User|\WP_Error Unchanged $user — we only observe.
-	 */
-	public function capture_attempted_username( $user, $username, $password ) {
-		$this->last_attempted_username = (string) $username;
-
-		return $user;
-	}
-
-	/**
 	 * Log failed application password authentication.
 	 *
 	 * Fired from action `application_password_failed_authentication` (since WP 5.6.0)
@@ -474,32 +435,34 @@ class User_Logger extends Logger {
 	 * @param \WP_Error $error The authentication error.
 	 */
 	public function on_application_password_failed_authentication( $error ) {
+		// Only log REST failures; skip XML-RPC to avoid duplicate rows. Core gates its REST
+		// path (`wp_validate_application_password` on `determine_current_user`) on
+		// `isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])`, so PHP_AUTH_USER is
+		// always set when this action fires on REST. Over XML-RPC the username travels in
+		// the request body and PHP_AUTH_USER is empty — and those attempts are already
+		// recorded by the standard failed-login loggers (`onAuthenticate` /
+		// `onWpAuthenticateUser`) on the `authenticate` chain, so logging here too would
+		// double up every attempt. A missing PHP_AUTH_USER therefore means "not the REST
+		// path" — bail and let the regular loggers cover it.
+		// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.BasicAuthentication -- Reading the attempted username for security logging only; authentication is handled by WP core.
+		if ( ! isset( $_SERVER['PHP_AUTH_USER'] ) ) {
+			return;
+		}
+
 		// Guard against recursion: resolving the current user during the log write can
 		// re-trigger `determine_current_user` -> `wp_validate_application_password` and
-		// fire this action again. Also dedupes the action firing twice per request
-		// (once during `authenticate`, once during `determine_current_user`).
+		// fire this action again. The XML-RPC / `authenticate` firing already returned at
+		// the PHP_AUTH_USER bail above, so the double-fire this dedupes is the REST
+		// recursion path.
 		if ( $this->app_password_failure_logged ) {
 			return;
 		}
 
 		$this->app_password_failure_logged = true;
 
-		// Prefer the username captured during the `authenticate` filter chain — this is
-		// the only source that works for XML-RPC, where the username is inside the XML
-		// body and never lands in PHP_AUTH_USER.
-		//
-		// Fall back to PHP_AUTH_USER for the REST API code path: WP fires the action
-		// from `wp_validate_application_password()` (hooked on `determine_current_user`),
-		// which calls `wp_authenticate_application_password()` *directly* — bypassing the
-		// `authenticate` filter chain, so our capture at priority 19 never runs there.
-		$captured_username = (string) ( $this->last_attempted_username ?? '' );
-
-		if ( $captured_username !== '' ) {
-			$attempted_username = sanitize_text_field( $captured_username );
-		} else {
-			// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.BasicAuthentication -- Reading the attempted username for security logging only; authentication is handled by WP core.
-			$attempted_username = sanitize_text_field( wp_unslash( $_SERVER['PHP_AUTH_USER'] ?? '' ) );
-		}
+		// Set by the bail above; read from the Basic-auth header (may be an empty string).
+		// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.BasicAuthentication -- Reading the attempted username for security logging only; authentication is handled by WP core.
+		$attempted_username = sanitize_text_field( wp_unslash( $_SERVER['PHP_AUTH_USER'] ) );
 
 		$error_code    = is_a( $error, 'WP_Error' ) ? $error->get_error_code() : '';
 		$error_message = is_a( $error, 'WP_Error' ) ? wp_strip_all_tags( $error->get_error_message() ) : '';
@@ -900,6 +863,16 @@ class User_Logger extends Logger {
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;
+
+		// Logins are sanitize_user()'d and emails validated on the way in, so
+		// this is belt and braces rather than a known payload — but the
+		// escaping should not depend on upstream validation staying as strict
+		// as it is today. The parent call below reads $row->context, not this
+		// escaped copy, so it keeps applying its own esc_html().
+		$context = $this->esc_html_context_keys(
+			$context,
+			[ 'edited_user_login', 'edited_user_email', 'created_user_login', 'created_user_email', 'created_user_role' ]
+		);
 
 		$output          = parent::get_log_row_plain_text_output( $row );
 		$current_user_id = get_current_user_id();

@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Guidance for writing and running tests in Simple History. Covers which framework to use, how to run existing tests, and how to create new ones (including the codegen recording workflow).
+description: Guidance for writing and running tests in Simple History, including the Premium add-on. Covers which framework to use, how to run existing tests, how to create new ones (codegen recording workflow), and how to test Premium (which has no PHP test infra).
 allowed-tools: Read, Bash, Edit, Write
 ---
 
@@ -34,11 +34,21 @@ npm test
 
 **Note:** `npm test` runs only the Codeception suite. To get full coverage, run both `npm run test:playwright` and `npm test` separately.
 
+## Testing Simple History Premium
+
+The Premium add-on (`simple-history-premium`) is a **separate repo with no test infrastructure** — no Codeception/PHPUnit config, no `tests/` directory, no test npm scripts. Do **not** add a PHP test suite there or assume `npm test`/`vendor/bin/codecept` exists in that repo.
+
+How to cover Premium instead:
+
+-   **Behavioral / UI features → Playwright in _this_ (core) repo.** The dev WordPress runs core + Premium together, so a core Playwright spec in `tests/playwright/` exercises Premium features end-to-end. This is the only place Premium behavior gets automated coverage.
+-   **PHP correctness in Premium → `phpcs` + `phpstan` only.** After PHP changes in the Premium repo, run its phpcs (lint) and phpstan (static analysis) — these are the only automated gates Premium has.
+-   **Cross-repo changes** (a core hook/filter + a Premium consumer): unit-test the **mechanism** on the core side (wpunit), run `phpcs`/`phpstan` in **each** repo, and verify the **behavior** with one Playwright spec in core. Don't try to unit-test Premium PHP.
+
 ## Playwright setup
 
 -   **Config:** `playwright.config.js`
 -   **Tests:** `tests/playwright/*.spec.js`
--   **Auth:** login cached in `tests/playwright/.auth/admin.json` (gitignored) — regenerated on every run by `auth.setup.js` before tests execute. If auth breaks (wrong credentials, WordPress unreachable), delete `tests/playwright/.auth/admin.json` and re-run.
+-   **Auth:** login cached in `tests/playwright/.auth/admin.json` (gitignored). `auth.setup.js` logs in and writes this file **only when it is absent** — an existing file is reused as-is and is **never refreshed**, even after its WordPress session expires. So a stale/old cache makes every test silently redirect to `wp-login.php`, which shows up as `waitForSelector` timeouts and fields/tabs that "don't exist". **Fix: delete `tests/playwright/.auth/admin.json` and re-run** — `auth.setup` then logs in fresh. Delete it too if credentials change or the dev site was unreachable. Tip: if a brand-new spec fails on selectors that are definitely on the page, suspect stale auth first.
 -   **Target:** dev WordPress at `http://wordpress-stable-docker-mariadb.test:8282` (override with `PLAYWRIGHT_BASE_URL` env var)
 -   **Admin credentials:** `claude` / `claude` (override with `WP_ADMIN_USER` / `WP_ADMIN_PASSWORD`)
 -   **HTML report:** written to `playwright-report/` after each run — open it to debug failures

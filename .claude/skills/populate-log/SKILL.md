@@ -2,6 +2,7 @@
 name: populate-log
 description: Populates the event log with test data via WP-CLI. Use when adding sample events, generating test data, or benchmarking with realistic activity.
 allowed-tools: Bash, Read
+disable-model-invocation: true
 ---
 
 # Populate Event Log

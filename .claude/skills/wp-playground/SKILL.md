@@ -2,6 +2,7 @@
 name: wp-playground
 description: Use for quick local testing with WordPress Playground CLI. Spins up a disposable WordPress instance with the plugin mounted — no Docker needed. Ideal for worktrees, quick feature checks, and parallel testing on different branches.
 allowed-tools: Bash, Read, Write, Edit, Glob
+disable-model-invocation: true
 ---
 
 # WordPress Playground CLI for Quick Testing
@@ -22,8 +23,9 @@ For thorough testing that needs MySQL or WP-CLI, use the Docker Compose setup in
 **Before starting**, ensure build assets exist — Playground mounts the directory as-is:
 
 ```bash
-# Install dependencies if node_modules is missing (common in worktrees)
-[ -d node_modules ] || npm install
+# Install dependencies if node_modules is missing (common in worktrees).
+# npm ci, not npm install — install can rewrite package-lock.json.
+[ -d node_modules ] || npm ci
 
 # Build JS/CSS assets (required — Playground has no build step)
 npm run build
@@ -52,7 +54,15 @@ The blueprint (`.claude/worktree-blueprint.json`) enables dev mode, activates th
 
 ## Multiple Instances (worktrees or branches)
 
-Each instance needs a unique port. Find the next available one:
+**Preferred:** use `scripts/parallel-dev.sh` — it creates the worktree, installs/builds, picks a free port, starts Playground detached, and tracks state per worktree (see the worktree skill for full usage):
+
+```bash
+scripts/parallel-dev.sh up <slug> [--no-premium] [--premium=<path>]
+scripts/parallel-dev.sh status
+scripts/parallel-dev.sh down <slug> [--remove]
+```
+
+Manual approach: each instance needs a unique port. Find the next available one:
 
 ```bash
 PORT=9400; while lsof -i :$PORT >/dev/null 2>&1; do PORT=$((PORT+1)); done; echo $PORT
@@ -92,7 +102,7 @@ Each gets its own browser tab: `http://localhost:9400`, `http://localhost:9401`,
 
 ## Deprecated: wp-now
 
-`@wp-now/wp-now` is deprecated. Use `@wp-playground/cli` with `--auto-mount` instead — it provides the same auto-detection behavior.
+`@wp-now/wp-now` is [deprecated](https://make.wordpress.org/playground/2026/06/08/wp-now-is-deprecated-migrate-to-playground-cli/). Use `@wp-playground/cli` with `--auto-mount` instead — it provides the same auto-detection behavior.
 
 ## See Also
 

@@ -753,6 +753,34 @@ abstract class Logger {
 	}
 
 	/**
+	 * Escape the given context values, ready to be interpolated into a message.
+	 *
+	 * For loggers that override get_log_row_plain_text_output(). That override
+	 * skips the esc_html() above, and the result is rendered in the admin with
+	 * dangerouslySetInnerHTML — so any value interpolated into a message the
+	 * logger builds itself has to be escaped on the way in. Values whose keys
+	 * are absent from the context are left alone.
+	 *
+	 * Do not use it for values interpolated into an href or another attribute;
+	 * those need esc_url()/esc_attr() instead.
+	 *
+	 * @param array         $context Log row context.
+	 * @param array<string> $keys    Context keys to escape.
+	 * @return array Context with the given keys escaped.
+	 */
+	protected function esc_html_context_keys( $context, array $keys ) {
+		foreach ( $keys as $key ) {
+			if ( ! isset( $context[ $key ] ) ) {
+				continue;
+			}
+
+			$context[ $key ] = esc_html( $context[ $key ] );
+		}
+
+		return $context;
+	}
+
+	/**
 	 * Get output for image
 	 * Image can be for example gravatar if sender is user,
 	 * or other images if sender i system, WordPress, and so on
@@ -1887,10 +1915,10 @@ abstract class Logger {
 					// attempt to validate IP.
 					if ( Helpers::is_valid_public_ip( $ip ) ) {
 						// valid, add to context, with loop index appended so we can store many IPs.
-						$key_lower = strtolower( $key );
-						$ip        = Helpers::privacy_anonymize_ip( $ip );
+						$key_prefix = Helpers::get_ip_address_context_key_prefix( $key );
+						$ip         = Helpers::privacy_anonymize_ip( $ip );
 
-						$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
+						$context[ $key_prefix . $ip_loop_num ] = $ip;
 					}
 
 					++$ip_loop_num;

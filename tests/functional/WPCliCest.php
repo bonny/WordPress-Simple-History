@@ -103,4 +103,60 @@ class WPCliCest {
         $I->seeInShellOutput('Full Stealth Mode	Disabled');
         $I->seeInShellOutput('Partial Stealth Mode	Disabled');
     }
+
+    public function test_list_search( FunctionalTester $I ) {
+        $I->haveUserInDatabase(
+            'carol',
+            'editor',
+            [
+                'user_email' => 'carol@example.org',
+                'user_pass' => 'passw0rd',
+            ]
+        );
+        $I->loginAs('carol', 'passw0rd');
+
+        // Search via the canonical list --search flag.
+        $I->cli('--allow-root simple-history list --search=carol');
+        $I->seeInShellOutput('carol (carol@example.org)');
+
+        // Metadata search finds the login event by a context value
+        // (login events store user_email in context).
+        $I->cli('--allow-root simple-history list --metadata_search=carol@example.org');
+        $I->seeInShellOutput('carol (carol@example.org)');
+
+        // The ai_only flag is accepted and excludes regular user events.
+        // (Positive AI matches are covered in wpunit SearchTest —
+        // functional tests cannot create events with AI context.)
+        $I->cli('--allow-root simple-history list --ai_only');
+        $I->dontSeeInShellOutput('carol (carol@example.org)');
+    }
+
+    public function test_event_search_deprecated_alias( FunctionalTester $I ) {
+        $I->haveUserInDatabase(
+            'dave',
+            'editor',
+            [
+                'user_email' => 'dave@example.org',
+                'user_pass' => 'passw0rd',
+            ]
+        );
+        $I->loginAs('dave', 'passw0rd');
+
+        // The deprecated command must still return matching events.
+        // Regression: it previously returned zero rows because its empty-string
+        // date defaults were parsed as "now" by Log_Query.
+        // The deprecation warning is not asserted here because WP_CLI::warning()
+        // writes to STDERR, which $I->cli() does not capture.
+        $I->cli('--allow-root simple-history event search dave');
+        $I->seeInShellOutput('dave (dave@example.org)');
+
+        // Date flags translate to list's date_from/date_to:
+        // a far-future newer_than must exclude the event...
+        $I->cli('--allow-root simple-history event search dave --newer_than=2099-01-01');
+        $I->dontSeeInShellOutput('dave (dave@example.org)');
+
+        // ...and a far-past older_than must too.
+        $I->cli('--allow-root simple-history event search dave --older_than=2000-01-01');
+        $I->dontSeeInShellOutput('dave (dave@example.org)');
+    }
 }

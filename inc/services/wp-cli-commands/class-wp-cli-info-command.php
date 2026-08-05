@@ -61,10 +61,10 @@ class WP_CLI_Info_Command extends WP_CLI_Command {
 
 		WP_CLI::log( '' );
 		WP_CLI::log( 'Useful subcommands:' );
-		WP_CLI::log( '  wp simple-history list           List events' );
-		WP_CLI::log( '  wp simple-history search <q>     Search events' );
-		WP_CLI::log( '  wp simple-history event get <id> Show one event' );
-		WP_CLI::log( '  wp simple-history db stats       DB stats' );
+		WP_CLI::log( '  wp simple-history event list                List events' );
+		WP_CLI::log( '  wp simple-history event list --search=<q>   Search events' );
+		WP_CLI::log( '  wp simple-history event get <id>            Show one event' );
+		WP_CLI::log( '  wp simple-history db stats                  DB stats' );
 		WP_CLI::log( '' );
 		WP_CLI::log( 'Run `wp help simple-history` for the full reference.' );
 	}

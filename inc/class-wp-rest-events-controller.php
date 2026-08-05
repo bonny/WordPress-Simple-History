@@ -252,6 +252,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// User must be allowed to view the history log, matching the collection
+		// endpoint. The per event check below would otherwise let a user who
+		// cannot open the history page still read single events by id, for any
+		// logger whose own capability they hold. The reaction routes share this
+		// callback, so they inherit the same floor.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		// Event must exist.
 		if ( ! Helpers::event_exists( $request['id'] ) ) {
 			return new WP_Error(
@@ -293,6 +307,28 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Run a Log_Query, converting invalid-argument exceptions to a REST error.
+	 *
+	 * Invalid filter values (e.g. a malformed date_from or months value) make
+	 * Log_Query throw an InvalidArgumentException. Without this, that surfaces
+	 * as an HTTP 500; converting it to a WP_Error returns a clean 400 instead.
+	 *
+	 * @param array $args Query arguments.
+	 * @return array|\WP_Error Query result, or a 400 error for invalid arguments.
+	 */
+	protected function run_log_query( $args ) {
+		try {
+			return ( new Log_Query() )->query( $args );
+		} catch ( \InvalidArgumentException $exception ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				$exception->getMessage(),
+				[ 'status' => 400 ]
+			);
+		}
 	}
 
 	/**
@@ -809,6 +845,22 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// User must be allowed to view the history log, same gate as the admin
+		// page and the dashboard widget. Without it, any logged in user reaches
+		// this endpoint and receives events from every logger whose own
+		// capability they happen to hold — some ship below the view floor, so
+		// e.g. an author could read Notes logger events despite being blocked
+		// from the history page. The per logger filter in Log_Query stays as
+		// defence in depth.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		// Surrounding events feature requires administrator privileges.
 		// This bypasses normal logger permission checks and could expose sensitive events.
 		if ( isset( $request['surrounding_event_id'] ) && ! current_user_can( 'manage_options' ) ) {
@@ -889,8 +941,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// Force ungrouped for accurate count — grouping is irrelevant for "has updates" check.
 		$args['ungrouped'] = true;
 
-		$log_query    = new Log_Query();
-		$query_result = $log_query->query( $args );
+		$query_result = $this->run_log_query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
 			return $query_result;
@@ -989,8 +1040,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$args[ $wp_param ] = $request[ $api_param ];
 		}
 
-		$log_query    = new Log_Query();
-		$query_result = $log_query->query( $args );
+		$query_result = $this->run_log_query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
 			return $query_result;
@@ -1152,6 +1202,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$user_avatar_url  = $user_avatar_data['url'] ?? '';
 			$user_object      = get_user_by( 'id', $context['_user_id'] ?? null );
 
+			// Deliberately not gated on the user-card capability. The initiator
+			// is the person who performed an event the reader is already
+			// allowed to see, so this is context for visible activity rather
+			// than a directory: it cannot be walked to reach users who never
+			// appear in the log. The card is gated instead, because that one
+			// answers arbitrary user ids and so could be harvested.
 			$user_info = [
 				'user_id'           => $context['_user_id'] ?? null,
 				'user_login'        => $context['_user_login'] ?? null,
@@ -1212,7 +1268,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['backfilled'] = isset( $item->context[ Existing_Data_Importer::BACKFILLED_CONTEXT_KEY ] );
 		}
 
-		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::experimental_features_is_enabled() ) {
+		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::reactions_are_enabled() ) {
 			$raw            = $item->context['_reactions'] ?? null;
 			$reactions_data = $raw ? (array) json_decode( $raw, true ) : [];
 			$current_user   = get_current_user_id();
@@ -1253,7 +1309,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'context', $fields ) ) {
-			$data['context'] = $item->context;
+			$data['context'] = $item->context ?? [];
 		}
 
 		if ( rest_is_field_included( 'permalink', $fields ) ) {
@@ -1458,10 +1514,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function react_to_event( $request ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+		if ( ! Helpers::reactions_are_enabled() ) {
 			return new WP_Error(
 				'rest_reactions_disabled',
-				__( 'Reactions are an experimental feature that is not enabled.', 'simple-history' ),
+				__( 'Reactions are not enabled.', 'simple-history' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -1498,10 +1554,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function unreact_to_event( $request ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+		if ( ! Helpers::reactions_are_enabled() ) {
 			return new WP_Error(
 				'rest_reactions_disabled',
-				__( 'Reactions are an experimental feature that is not enabled.', 'simple-history' ),
+				__( 'Reactions are not enabled.', 'simple-history' ),
 				array( 'status' => 404 )
 			);
 		}

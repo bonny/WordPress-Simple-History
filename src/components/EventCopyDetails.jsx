@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { CopyMenuItem } from './CopyMenuItem';
+import { htmlToPlainText } from '../functions';
 
 // Module-level cache of per-event context payloads. Capped to keep memory bounded
 // in long admin sessions where the user opens the actions menu on many events.
@@ -230,26 +231,6 @@ function formatDetailsDataAsMarkdown( detailsData ) {
 	}
 
 	return sections.join( '\n\n' );
-}
-
-/**
- * Strip HTML tags and decode entities for a plain-text fallback.
- *
- * Only used when details_data is empty but details_html is present (older
- * loggers that haven't migrated to the Event Details API yet).
- *
- * @param {string} html
- * @return {string}
- */
-function htmlToPlainText( html ) {
-	if ( ! html || typeof html !== 'string' ) {
-		return '';
-	}
-	const tmp = document.createElement( 'div' );
-	tmp.innerHTML = html;
-	return ( tmp.textContent || tmp.innerText || '' )
-		.replace( /\n{3,}/g, '\n\n' )
-		.trim();
 }
 
 /**

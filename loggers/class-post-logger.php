@@ -28,6 +28,29 @@ class Post_Logger extends Logger {
 	protected $old_post_data = [];
 
 	/**
+	 * Revision ids created during this request, keyed by post id.
+	 *
+	 * Holds a revision until there is an event to put it on. Only used by the
+	 * saves that log after the revision exists — see on_wp_put_post_revision()
+	 * for which those are.
+	 *
+	 * @var array<int, int>
+	 */
+	protected $post_revision_ids = [];
+
+	/**
+	 * Event ids that have already been given a revision id.
+	 *
+	 * An event takes at most one. Without this, a later save that Simple History
+	 * declines to log still produces a revision, and since last_insert_id still
+	 * points at the previous event that revision would be appended to it as a
+	 * second value.
+	 *
+	 * @var array<int, bool>
+	 */
+	protected $events_given_a_revision_id = [];
+
+	/**
 	 * Get array with information about this logger.
 	 *
 	 * @return array
@@ -110,7 +133,8 @@ class Post_Logger extends Logger {
 
 		add_filter( 'simple_history/rss_item_link', array( $this, 'filter_rss_item_link' ), 10, 2 );
 
-		// This is fired from wp_after_insert_post? So that's after simple history has done it's thing.
+		// Fires whenever core stores a revision. Where that lands relative to this
+		// logger's own event depends on how the post was saved — see the handler.
 		add_action( '_wp_put_post_revision', array( $this, 'on_wp_put_post_revision' ), 1, 2 );
 	}
 
@@ -120,26 +144,61 @@ class Post_Logger extends Logger {
 	 * This is done after simple history has logged the post change.
 	 * So we need to update the context with the revision id.
 	 *
-	 * @param int $revision_id The revision ID.
-	 * @param int $post_id The post ID.
+	 * @param int      $revision_id The revision ID.
+	 * @param int|null $post_id The post ID. Only passed by WordPress 6.4 and later.
 	 */
-	public function on_wp_put_post_revision( $revision_id, $post_id ) {
-		// Ensure that the last_insert_id is set.
-		if ( ! $this->last_insert_id ) {
+	public function on_wp_put_post_revision( $revision_id, $post_id = null ) {
+		// WordPress only started passing the post id with this action in 6.4, and
+		// the plugin supports 6.3 — requiring an argument core does not send is a
+		// fatal ArgumentCountError under PHP 8, on every post save that creates a
+		// revision. Fall back to the revision's parent, which is what 6.4 passes.
+		if ( $post_id === null ) {
+			$post_id = wp_get_post_parent_id( $revision_id );
+		}
+
+		if ( ! $post_id ) {
 			return;
 		}
 
-		// Ensure that the revision is for the same post that we just logged.
-		if ( $this->last_insert_context['post_id'] !== $post_id ) {
+		$post_id = (int) $post_id;
+
+		// Which side of the event this fires on depends on how the post was
+		// saved, so both orderings have to work.
+		//
+		// The classic editor and Quick Edit log from transition_post_status,
+		// which core fires from wp_insert_post() before the revision is saved —
+		// on 6.4+ from wp_after_insert_post priority 9, and on 6.3 from
+		// post_updated. The version differs, the ordering does not: the event
+		// already exists, so the id is attached to it.
+		//
+		// Gutenberg and WP-CLI log after the revision, from rest_after_insert_*
+		// and wp_after_insert_post priority 10. There is nothing to attach to
+		// yet, so the id is held for maybe_log_post_change() to pick up when it
+		// builds the context.
+		$logged_event_is_for_this_post = $this->last_insert_id
+			&& (int) ( $this->last_insert_context['post_id'] ?? 0 ) === $post_id;
+
+		if ( $logged_event_is_for_this_post ) {
+			// One per event. A later save that is not logged — an ignored post
+			// type, an ok_to_log filter, the meta-box-loader bail — still makes a
+			// revision, and last_insert_id would still be pointing here.
+			if ( isset( $this->events_given_a_revision_id[ $this->last_insert_id ] ) ) {
+				return;
+			}
+
+			$this->append_context(
+				$this->last_insert_id,
+				[
+					'post_revision_id' => $revision_id,
+				]
+			);
+
+			$this->events_given_a_revision_id[ $this->last_insert_id ] = true;
+
 			return;
 		}
 
-		$this->append_context(
-			$this->last_insert_id,
-			[
-				'post_revision_id' => $revision_id,
-			]
-		);
+		$this->post_revision_ids[ $post_id ] = (int) $revision_id;
 	}
 
 	/**
@@ -796,6 +855,15 @@ class Post_Logger extends Logger {
 			'post_type'  => get_post_type( $post ),
 			'post_title' => get_the_title( $post ),
 		);
+
+		// A revision saved earlier in this request belongs to this event. Consumed
+		// rather than only read, so a second change to the same post within one
+		// request cannot inherit the first one's revision.
+		if ( isset( $this->post_revision_ids[ $post->ID ] ) ) {
+			$context['post_revision_id'] = $this->post_revision_ids[ $post->ID ];
+
+			unset( $this->post_revision_ids[ $post->ID ] );
+		}
 
 		// Check if this is a post being created.
 		// This includes manual creation (auto-draft -> draft/publish), auto-save

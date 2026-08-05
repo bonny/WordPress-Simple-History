@@ -2,12 +2,7 @@
 
 ## Code Quality
 
-For comprehensive code quality guidelines, see the **code-quality** skill which covers:
-
--   PHP standards and style guide
--   CSS naming conventions (SuitCSS)
--   Tooling (phpcs, phpstan, rector)
--   IDE integration
+For comprehensive code quality guidelines, see the **code-quality** skill.
 
 ## Quick Reference
 
@@ -24,15 +19,6 @@ For comprehensive code quality guidelines, see the **code-quality** skill which 
 # npm run build compiles all entry points (index, admin-bar, command-palette).
 # npx wp-scripts build only compiles index.js, causing missing asset errors.
 npm run build
-
-# Lint PHP
-npm run php:lint
-
-# Fix PHP issues
-npm run php:lint-fix
-
-# Static analysis
-npm run php:phpstan
 ```
 
 ## Whitespace: Let the Code Breathe
@@ -79,19 +65,6 @@ return $result; // Return because user is not authorized
 -   Easier to maintain consistent formatting
 -   Git diffs show comment changes separately from code changes
 
-### Minimize Comments (Clean Code)
-
-Prefer self-documenting code over explanatory comments. As Robert Martin's "Clean Code" advises: comments often compensate for failure to express intent in code.
-
-```php
-// Avoid: Comment explains unclear code.
-// Check if user can edit posts.
-if ( $user->cap & 0x04 ) { ... }
-
-// Better: Self-documenting code needs no comment.
-if ( $user->can_edit_posts() ) { ... }
-```
-
 **When comments are appropriate:**
 
 -   Explaining intent or "why" (not "what")
@@ -103,14 +76,9 @@ if ( $user->can_edit_posts() ) { ... }
 
 ### WordPress JavaScript Compatibility
 
-Simple History supports WordPress 6.3+, which means the `@wordpress/*` packages available in wp-admin vary across versions. Important rules:
+Simple History supports WordPress 6.3+, so `@wordpress/*` imports must exist in WP 6.3. The full externals-vs-bundled rules live in [src/CLAUDE.md](src/CLAUDE.md), loaded when working in `src/`.
 
--   **`@wordpress/components`, `@wordpress/element`, `@wordpress/i18n`, etc. are NOT bundled** — they are loaded as externals from the host WordPress. The `@wordpress/scripts` build tool auto-extracts imports into a `.asset.php` dependency array, and WordPress provides them as global scripts.
--   **Never adopt new `@wordpress/*` packages or components that only exist in recent WordPress versions** unless you verify they are available in WordPress 6.3. For example, `@wordpress/ui` (introduced in Gutenberg 22.9 / WP 7.0+) would break on older installs.
--   **Packages listed in `dependencies` in package.json** (e.g., `@wordpress/icons`, `clsx`, `date-fns`) ARE bundled into the plugin's JS build and are safe to use regardless of WP version.
--   **Packages listed only in `devDependencies`** (e.g., `@wordpress/scripts`, `@wordpress/eslint-plugin`) are build tools, not runtime code.
--   When considering a new `@wordpress/*` import, check whether `@wordpress/scripts` will treat it as an external (loaded from WP) or bundle it. Externals must exist in the minimum supported WP version.
--   If you need a component from a newer `@wordpress/*` package, either build a custom equivalent or conditionally load it with version detection.
+-   **Do NOT upgrade `@wordpress/scripts` beyond 27.x.** Version 28+ makes built assets depend on the `react-jsx-runtime` script handle, which only exists in WP 6.6+ — scripts silently fail to load on WP 6.3–6.5. The ~15 leftover npm audit advisories this causes are dev-only and accepted. See [docs/upgrading-wordpress-scripts.md](docs/upgrading-wordpress-scripts.md) for the full rationale and the two upgrade paths.
 
 ### Prefer Web Standards Over JavaScript
 

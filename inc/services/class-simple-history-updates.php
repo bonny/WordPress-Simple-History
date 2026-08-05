@@ -25,6 +25,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.27.0', [ $this, 'on_plugin_updated_details_5_27_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.28.0', [ $this, 'on_plugin_updated_details_5_28_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.29.0', [ $this, 'on_plugin_updated_details_5_29_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.30.0', [ $this, 'on_plugin_updated_details_5_30_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -309,6 +310,25 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-29-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.30.0.
+	 *
+	 * @param string $extra_details Extra details.
+	 * @return string
+	 */
+	public function on_plugin_updated_details_5_30_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'You can now react to events with a 👍.', 'simple-history' ),
+			__( 'New header bar shows admins brief information about the current settings.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-30-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}

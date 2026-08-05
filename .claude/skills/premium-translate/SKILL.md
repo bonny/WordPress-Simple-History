@@ -3,6 +3,7 @@ name: premium-translate
 description: Translates Simple History Premium plugin strings for one or multiple locales. Use when translating or updating premium plugin PO files.
 argument-hint: '[locales]'
 allowed-tools: Read, Edit, Write, Bash(cat:*), Bash(ls:*), Bash(npm run:*), Bash(npm:*), Bash(wp:*), Bash(msgfmt:*), Glob, Agent
+disable-model-invocation: true
 ---
 
 # Translate Premium Plugin Strings

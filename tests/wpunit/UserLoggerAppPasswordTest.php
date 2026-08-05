@@ -8,25 +8,26 @@ use Simple_History\Loggers\User_Logger;
 /**
  * Test failed application-password authentication logging.
  *
- * Covers the bug where XML-RPC brute force attempts logged an empty username
- * because `$_SERVER['PHP_AUTH_USER']` is never populated for XML-RPC requests.
- * See issue 200.
- *
- * Background — two code paths fire `application_password_failed_authentication`:
+ * Two code paths fire `application_password_failed_authentication`:
  *
  * 1. **XML-RPC**: `class-wp-xmlrpc-server.php` calls `wp_authenticate()` which runs the
- *    `authenticate` filter chain. WP's `wp_authenticate_application_password` runs at
- *    priority 20; our `capture_attempted_username` runs at priority 19 just before it
- *    and stashes the username. PHP_AUTH_USER is NOT populated for XML-RPC.
+ *    `authenticate` filter chain. The standard failed-login loggers (`onAuthenticate` /
+ *    `onWpAuthenticateUser`) run on that chain and already record the attempt — so the
+ *    app-password handler must stay SILENT here, otherwise every XML-RPC attempt produces
+ *    a duplicate row. Core fires this action even for plain logins that never used an
+ *    application password, so the "application password" label can't be trusted over
+ *    XML-RPC anyway. The username travels in the XML body, so `$_SERVER['PHP_AUTH_USER']`
+ *    is empty on this path.
  *
  * 2. **REST API**: WP's `wp_validate_application_password` is hooked on
- *    `determine_current_user` (priority 20) and calls `wp_authenticate_application_password()`
- *    *directly* — bypassing the `authenticate` filter chain. Our capture does NOT run.
- *    PHP_AUTH_USER is populated by the web server from the Basic-auth header and is the
- *    only source available in this path.
+ *    `determine_current_user` and calls `wp_authenticate_application_password()` *directly*
+ *    — bypassing the `authenticate` filter chain. No other logger watches this path, so the
+ *    app-password handler logs it. Core gates that call on
+ *    `isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])`, so PHP_AUTH_USER is
+ *    guaranteed present whenever the handler fires on REST.
  *
- * The logger must handle both: prefer the captured value when present (XML-RPC),
- * fall back to PHP_AUTH_USER when not (REST API).
+ * `$_SERVER['PHP_AUTH_USER']` is therefore the path marker: present => REST => log;
+ * absent => XML-RPC (or no creds) => bail and let the regular loggers cover it.
  *
  * Run with:
  * docker compose run --rm php-cli vendor/bin/codecept run wpunit UserLoggerAppPasswordTest
@@ -64,12 +65,8 @@ class UserLoggerAppPasswordTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->logger = $logger;
 
-		// Reset both internal state properties so each test starts clean.
+		// Reset the per-request dedupe guard so each test starts clean.
 		$reflection = new ReflectionClass( $this->logger );
-
-		$captured = $reflection->getProperty( 'last_attempted_username' );
-		$captured->setAccessible( true );
-		$captured->setValue( $this->logger, null );
 
 		$logged = $reflection->getProperty( 'app_password_failure_logged' );
 		$logged->setAccessible( true );
@@ -112,19 +109,48 @@ class UserLoggerAppPasswordTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * XML-RPC path. The username arrives via the `authenticate` filter chain
-	 * (our capture at priority 19, just before WP's wp_authenticate_application_password
-	 * at 20). PHP_AUTH_USER is empty for XML-RPC requests.
-	 *
-	 * This is the path that was broken before the fix — it logged an empty username
-	 * because the original code only read from PHP_AUTH_USER.
+	 * XML-RPC, unknown-user branch (`invalid_username`). PHP_AUTH_USER is absent
+	 * (the username is in the XML body), so the handler must stay silent — the
+	 * regular failed-login loggers already record this attempt.
 	 */
-	public function test_xmlrpc_path_logs_username_from_authenticate_filter() {
-		// Simulate WP's authenticate filter chain running with the XML-RPC body's username.
-		$this->logger->capture_attempted_username( null, 'xmlrpc_target_user', 'wrong-password' );
-
-		// PHP_AUTH_USER stays unset — XML-RPC never populates it.
+	public function test_xmlrpc_failure_is_not_logged_to_avoid_duplicate() {
+		// XML-RPC: PHP_AUTH_USER stays unset (cleared in setUp).
 		$this->assertArrayNotHasKey( 'PHP_AUTH_USER', $_SERVER );
+
+		$error = new WP_Error( 'invalid_username', 'Unknown username.' );
+		$this->logger->on_application_password_failed_authentication( $error );
+
+		$this->assertNull(
+			$this->captured_log,
+			'XML-RPC app-password failures must not be logged here — the regular failed-login loggers already cover them.'
+		);
+	}
+
+	/**
+	 * XML-RPC, existing-user / wrong-password branch (`incorrect_password`). Same
+	 * duplicate-suppression rule: `onWpAuthenticateUser` already logs `user_login_failed`
+	 * for this attempt, and PHP_AUTH_USER is absent on the XML-RPC path.
+	 */
+	public function test_xmlrpc_incorrect_password_is_not_logged() {
+		// XML-RPC: PHP_AUTH_USER stays unset (cleared in setUp).
+		$this->assertArrayNotHasKey( 'PHP_AUTH_USER', $_SERVER );
+
+		$error = new WP_Error( 'incorrect_password', 'The provided password is an invalid application password.' );
+		$this->logger->on_application_password_failed_authentication( $error );
+
+		$this->assertNull(
+			$this->captured_log,
+			'XML-RPC app-password failures must not be logged here — onWpAuthenticateUser already covers them.'
+		);
+	}
+
+	/**
+	 * REST path, existing-user / wrong-password branch. PHP_AUTH_USER is set by the web
+	 * server, no other logger watches this path, so the handler logs the attempt and
+	 * reads the username from PHP_AUTH_USER.
+	 */
+	public function test_rest_path_logs_with_php_auth_user() {
+		$_SERVER['PHP_AUTH_USER'] = 'rest_target_user';
 
 		$error = new WP_Error( 'incorrect_password', 'The provided password is an invalid application password.' );
 		$this->logger->on_application_password_failed_authentication( $error );
@@ -136,58 +162,13 @@ class UserLoggerAppPasswordTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'SimpleUserLogger', $data['logger'] );
 		$this->assertSame( 'warning', $data['level'] );
 		$this->assertSame( 'user_application_password_login_failed', $context['_message_key'] );
-		$this->assertSame( 'xmlrpc_target_user', $context['login'] );
-		$this->assertSame( 'incorrect_password', $context['error_code'] );
-	}
-
-	/**
-	 * REST API path. WP's `wp_validate_application_password` (hooked on
-	 * `determine_current_user`) calls `wp_authenticate_application_password()` directly,
-	 * skipping the `authenticate` filter chain — so our capture never runs.
-	 * PHP_AUTH_USER is the only source for the attempted username in this path.
-	 *
-	 * No prior `capture_attempted_username()` call in this test on purpose: that
-	 * matches the actual REST production flow.
-	 */
-	public function test_rest_path_falls_back_to_php_auth_user() {
-		// REST production flow: PHP_AUTH_USER set by the web server, capture filter
-		// never ran (last_attempted_username remains null from setUp).
-		$_SERVER['PHP_AUTH_USER'] = 'rest_target_user';
-
-		$error = new WP_Error( 'incorrect_password', 'The provided password is an invalid application password.' );
-		$this->logger->on_application_password_failed_authentication( $error );
-
-		$this->assertNotNull( $this->captured_log, 'Expected the logger to write a row.' );
-
-		[ , $context ] = $this->captured_log;
-
-		$this->assertSame( 'user_application_password_login_failed', $context['_message_key'] );
 		$this->assertSame( 'rest_target_user', $context['login'] );
 		$this->assertSame( 'incorrect_password', $context['error_code'] );
 	}
 
 	/**
-	 * Unknown-user branch via XML-RPC: error code `invalid_username` should log
-	 * the attempted username under `failed_username` (not `login`).
-	 */
-	public function test_unknown_user_branch_xmlrpc() {
-		$this->logger->capture_attempted_username( null, 'no_such_user', 'wrong-password' );
-
-		$error = new WP_Error( 'invalid_username', 'Unknown username.' );
-		$this->logger->on_application_password_failed_authentication( $error );
-
-		$this->assertNotNull( $this->captured_log );
-
-		[ , $context ] = $this->captured_log;
-
-		$this->assertSame( 'user_application_password_unknown_login_failed', $context['_message_key'] );
-		$this->assertSame( 'no_such_user', $context['failed_username'] );
-		$this->assertSame( 'invalid_username', $context['error_code'] );
-	}
-
-	/**
-	 * Unknown-user branch via REST: same as above but with the username coming from
-	 * PHP_AUTH_USER, since the REST path never triggers our capture filter.
+	 * REST path, unknown-user branch (`invalid_username`): the attempted username is
+	 * logged under `failed_username` (not `login`), sourced from PHP_AUTH_USER.
 	 */
 	public function test_unknown_user_branch_rest() {
 		$_SERVER['PHP_AUTH_USER'] = 'no_such_rest_user';
@@ -204,50 +185,35 @@ class UserLoggerAppPasswordTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Precedence: when the capture is set, it must win over PHP_AUTH_USER. The
-	 * captured value is the more authoritative source (it's the exact `$username`
-	 * passed to the authenticate filter); PHP_AUTH_USER is only the fallback
-	 * for paths that bypass `wp_authenticate()`.
+	 * Premise of the duplicate-suppression: the standard `authenticate`-chain logger
+	 * records unknown-user login failures, XML-RPC included. The app-password handler
+	 * deliberately bails on the XML-RPC path *because* this logger covers it — so if
+	 * `onAuthenticate` ever stops firing for that case, XML-RPC brute-force attempts
+	 * would become invisible. This test pins that premise so the two halves of the
+	 * invariant don't drift apart.
 	 */
-	public function test_captured_username_wins_over_php_auth_user() {
-		$this->logger->capture_attempted_username( null, 'captured_user', 'wrong-password' );
-		$_SERVER['PHP_AUTH_USER'] = 'php_auth_user_value';
+	public function test_regular_authenticate_logger_covers_unknown_user() {
+		$error = new WP_Error( 'invalid_username', 'Unknown username.' );
+		$this->logger->onAuthenticate( $error, 'xmlrpc_brute_user', 'wrong-password' );
 
-		$error = new WP_Error( 'incorrect_password', 'The provided password is an invalid application password.' );
-		$this->logger->on_application_password_failed_authentication( $error );
-
-		$this->assertNotNull( $this->captured_log );
+		$this->assertNotNull(
+			$this->captured_log,
+			'The standard authenticate-chain logger must record the failed login the app-password handler defers to.'
+		);
 
 		[ , $context ] = $this->captured_log;
 
-		$this->assertSame( 'captured_user', $context['login'] );
-	}
-
-	/**
-	 * Worst case: neither source available. Should still log the row (so the
-	 * attack itself isn't invisible) with an empty `login`. The admin will see
-	 * "for user """ — not ideal, but better than dropping the event entirely,
-	 * and matches the pre-fix behavior for paths with no username source.
-	 */
-	public function test_logs_empty_username_when_no_source_available() {
-		// last_attempted_username is null (setUp), PHP_AUTH_USER is unset (setUp).
-		$error = new WP_Error( 'incorrect_password', 'The provided password is an invalid application password.' );
-		$this->logger->on_application_password_failed_authentication( $error );
-
-		$this->assertNotNull( $this->captured_log );
-
-		[ , $context ] = $this->captured_log;
-
-		$this->assertSame( 'user_application_password_login_failed', $context['_message_key'] );
-		$this->assertSame( '', $context['login'] );
+		$this->assertSame( 'user_unknown_login_failed', $context['_message_key'] );
+		$this->assertSame( 'xmlrpc_brute_user', $context['failed_username'] );
 	}
 
 	/**
 	 * Dedupe guard. WP fires the action twice per request (once via `authenticate`,
-	 * once via `determine_current_user`); we only want one log row per request.
+	 * once via `determine_current_user`); we only want one log row per request. Tested
+	 * on the REST path, the path that actually logs.
 	 */
 	public function test_recursion_guard_dedupes_second_call() {
-		$this->logger->capture_attempted_username( null, 'dedupe_user', 'wrong-password' );
+		$_SERVER['PHP_AUTH_USER'] = 'dedupe_user';
 
 		$error = new WP_Error( 'incorrect_password', 'The provided password is an invalid application password.' );
 		$this->logger->on_application_password_failed_authentication( $error );
@@ -264,32 +230,29 @@ class UserLoggerAppPasswordTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Realistic combined path: an attacker brute-forces both XML-RPC and REST.
-	 * The first action call comes from XML-RPC (capture set, PHP_AUTH_USER empty).
-	 * After reset, the next request is REST (capture null, PHP_AUTH_USER set).
-	 * Each must log the right username via its appropriate source.
+	 * The XML-RPC request (no PHP_AUTH_USER) must stay silent — the regular loggers
+	 * cover it. The REST request (PHP_AUTH_USER set) must log, since REST bypasses the
+	 * `authenticate` chain and has no other logger watching it.
 	 */
-	public function test_xmlrpc_then_rest_use_different_sources() {
-		// First request: XML-RPC.
-		$this->logger->capture_attempted_username( null, 'attacker_target_xmlrpc', 'wrong-password' );
+	public function test_xmlrpc_bails_then_rest_logs() {
+		// First request: XML-RPC — must be suppressed (no PHP_AUTH_USER).
 		$error = new WP_Error( 'incorrect_password', 'The provided password is an invalid application password.' );
 		$this->logger->on_application_password_failed_authentication( $error );
 
-		[ , $first_context ] = $this->captured_log;
-		$this->assertSame( 'attacker_target_xmlrpc', $first_context['login'] );
+		$this->assertNull( $this->captured_log, 'XML-RPC attempt must not be logged here.' );
 
-		// Simulate end-of-request: reset the per-request guards as setUp does.
+		// Simulate end-of-request: reset the per-request dedupe guard as setUp does.
 		$reflection = new ReflectionClass( $this->logger );
-		$captured = $reflection->getProperty( 'last_attempted_username' );
-		$captured->setAccessible( true );
-		$captured->setValue( $this->logger, null );
 		$logged = $reflection->getProperty( 'app_password_failure_logged' );
 		$logged->setAccessible( true );
 		$logged->setValue( $this->logger, false );
 		$this->captured_log = null;
 
-		// Second request: REST API.
+		// Second request: REST API — must log.
 		$_SERVER['PHP_AUTH_USER'] = 'attacker_target_rest';
 		$this->logger->on_application_password_failed_authentication( $error );
+
+		$this->assertNotNull( $this->captured_log, 'REST attempt must be logged.' );
 
 		[ , $second_context ] = $this->captured_log;
 		$this->assertSame( 'attacker_target_rest', $second_context['login'] );
