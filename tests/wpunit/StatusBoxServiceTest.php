@@ -131,4 +131,67 @@ class StatusBoxServiceTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertStringContainsString( 'sh-PageHeader-settingsIcon', $html );
 	}
+
+	/**
+	 * Email-based stealth mode hides the plugin from other users, which the
+	 * admin who enabled it tends to forget. The header says so.
+	 */
+	function test_stealth_indicator_renders_under_email_based_stealth_mode() {
+		add_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+
+		$html = \Simple_History\Helpers::get_header_stealth_indicator();
+
+		remove_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+
+		$this->assertStringContainsString( 'sh-PageHeader-headerBtn--stealthActive', $html );
+	}
+
+	/**
+	 * Nothing to say when the plugin is not hiding.
+	 */
+	function test_stealth_indicator_absent_when_stealth_mode_is_off() {
+		$this->assertSame( '', \Simple_History\Helpers::get_header_stealth_indicator() );
+	}
+
+	/**
+	 * Full stealth hides the GUI from everyone, so there is nobody to inform.
+	 */
+	function test_stealth_indicator_absent_under_full_stealth_mode() {
+		add_filter( 'simple_history/full_stealth_mode_enabled', '__return_true' );
+
+		$html = \Simple_History\Helpers::get_header_stealth_indicator();
+
+		remove_filter( 'simple_history/full_stealth_mode_enabled', '__return_true' );
+
+		$this->assertSame( '', $html );
+	}
+
+	/**
+	 * It is a settings-state readout that links to settings, so it uses the
+	 * same gate as the settings gear.
+	 */
+	function test_stealth_indicator_hidden_from_users_without_settings_capability() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'editor' ] ) );
+
+		add_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+
+		$html = \Simple_History\Helpers::get_header_stealth_indicator();
+
+		remove_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+
+		$this->assertSame( '', $html );
+	}
+
+	/**
+	 * Callback for the allowed-emails filter. Any non-empty list turns
+	 * email-based stealth mode on.
+	 *
+	 * @param array $emails Existing allowed emails.
+	 * @return array
+	 */
+	public function allow_one_address( $emails ) {
+		$emails[] = 'someone@example.com';
+
+		return $emails;
+	}
 }
