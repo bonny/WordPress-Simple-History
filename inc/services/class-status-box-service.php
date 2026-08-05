@@ -5,10 +5,15 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 
 /**
- * Renders a feature discovery bar inside the page header.
- * Surfaces core and premium features so users can discover
- * settings they may not know exist. Hides itself once the
- * discoverable features have been configured.
+ * Renders a settings and status bar inside the page header.
+ *
+ * Surfaces core and premium features so users can discover settings they may
+ * not know exist, and reports the ones that are already on — retention period,
+ * email reports, alerts, log forwarding, stealth mode.
+ *
+ * The bar stays visible once those are configured. It reads as a status line
+ * rather than an onboarding prompt, and the standing answer to "how long is
+ * history kept here?" is worth more than the header space it costs.
  */
 class Status_Box_Service extends Service {
 	/**
@@ -26,23 +31,10 @@ class Status_Box_Service extends Service {
 			return;
 		}
 
-		// This is a feature-discovery aid, not a permanent status readout.
-		// Once the discoverable features are configured it has done its job,
-		// so hide it rather than let it become permanent header chrome.
-		//
-		// Stealth mode is the exception: it is a state rather than a feature to
-		// discover, and forgetting it is the whole problem it causes — an admin
-		// who cannot explain why a colleague sees no Simple History at all.
-		// Hiding the bar on a fully configured site would drop that warning on
-		// exactly the mature installs most likely to have forgotten it.
-		if ( $this->all_discoverable_features_configured() && ! $this->stealth_mode_is_active() ) {
-			return;
-		}
-
 		$items = $this->get_status_items();
 
 		/**
-		 * Filter the feature discovery bar items.
+		 * Filter the header settings and status bar items.
 		 *
 		 * Each item is an array with keys:
 		 * - 'id'     (string) Stable identifier, e.g. 'email', 'alerts'. Lets consumers target a specific item.
@@ -90,37 +82,6 @@ class Status_Box_Service extends Service {
 		</div>
 
 		<?php
-	}
-
-	/**
-	 * Whether every discoverable feature has been configured.
-	 *
-	 * When true the discovery bar is hidden — it has done its job.
-	 * Alerts is a premium feature, so the add-on reports whether it is
-	 * configured via a filter (defaulting to true so it never keeps the bar
-	 * alive on the free version, where Alerts can't be configured).
-	 *
-	 * @return bool
-	 */
-	private function all_discoverable_features_configured() {
-		$email_on = (bool) get_option( 'simple_history_email_report_enabled' );
-
-		$forwarding_on = $this->get_active_forwarding_channels_count() > 0;
-
-		/**
-		 * Whether the premium Alerts feature is configured.
-		 *
-		 * Alerts lives in the premium add-on, so the add-on answers this.
-		 * Defaults to true so alerts never keeps the discovery bar visible on
-		 * installs where it isn't available (e.g. the free version).
-		 *
-		 * @since 5.30.0
-		 *
-		 * @param bool $configured Whether alerts are configured.
-		 */
-		$alerts_ok = (bool) apply_filters( 'simple_history/header_status/alerts_configured', true );
-
-		return $email_on && $forwarding_on && $alerts_ok;
 	}
 
 	/**

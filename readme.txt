@@ -258,9 +258,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
 -   "Find events from the same IP address" in an event's actions menu, alongside the existing user and event-type filters.
--   Changes to more settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log).
--   Developers: new `simple_history/settings/tracked_options` filter lets add-ons register their own option keys to be logged as "Modified settings", plus `simple_history/settings/redacted_options` to hide sensitive values.
--   Developers: `simple_history/header_status/items` filter to add, replace (by `id`), or remove items in the header feature-discovery bar.
+-   Changes to more Simple History settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log). (And yes – it was a bit funny that the plugin that logs changes to other plugins didn't log its own settings changes!)
 -   WP-CLI: `--metadata_search` and `--ai_only` options on `wp simple-history list`, matching the metadata search and AI filter in the GUI.
 -   WP-CLI: AI attribution columns (`ai_agent`, `ai_detected_via`, `ai_application`) on `wp simple-history list`, showing which AI tool made a change and how it was detected.
 -   Header now shows "Stealth mode: on" while stealth mode is hiding Simple History from other users, including other administrators.
@@ -268,7 +266,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   Reactions graduated from experimental and are now on by default — react to events with a 👍 (disable in Settings → General). Premium adds ❤️ 🎉 🚀 and more reaction types.
--   Header settings/info bar is graduated from experimental and now shows for all admins — quick links into your retention, email report, alerts, and log-forwarding settings that tuck away once you've set them up.
+-   Header settings/info bar is graduated from experimental and now shows for all admins — a glance at how long history is kept, whether email reports and alerts are on, and where logs are forwarded, with each one linking straight to its setting.
 -   Checkbox settings now show as On/Off (instead of 1/0) in the "Modified settings" log details.
 -   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
 -   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable.

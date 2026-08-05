@@ -167,29 +167,30 @@ class StatusBoxServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * The bar hides itself once its discoverable features are configured. That
-	 * must not take the stealth warning with it: a fully configured site is
-	 * exactly where stealth mode has been on longest and is most forgotten.
+	 * The bar is a standing status line, not an onboarding prompt: configuring
+	 * everything it points at must not make it disappear.
+	 *
+	 * An earlier version hid the bar once email reports, log forwarding and
+	 * alerts were all set up. That guarantee is now the opposite one, so this
+	 * pins it — the retention period and stealth state are exactly what a
+	 * long-running, fully configured site still wants answered at a glance.
 	 */
-	function test_bar_stays_visible_for_stealth_mode_once_features_are_configured() {
-		// All three discoverable features on, so the bar would normally hide.
+	function test_bar_stays_visible_once_every_feature_is_configured() {
 		update_option( 'simple_history_email_report_enabled', true );
 		update_option( 'simple_history_channel_file', [ 'enabled' => 1 ] );
 
-		add_filter( 'simple_history/header_status/alerts_configured', '__return_true' );
 		add_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
-		add_filter( 'simple_history/header_status/items', [ $this, 'keep_only_stealth_item' ], 20 );
 
 		$html = $this->render();
 
-		remove_filter( 'simple_history/header_status/items', [ $this, 'keep_only_stealth_item' ], 20 );
 		remove_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
-		remove_filter( 'simple_history/header_status/alerts_configured', '__return_true' );
 
 		delete_option( 'simple_history_channel_file' );
 		delete_option( 'simple_history_email_report_enabled' );
 
-		$this->assertStringContainsString( 'Stealth mode: on', $html );
+		$this->assertStringContainsString( 'sh-HeaderStatus-zone', $html, 'The bar itself should still render' );
+		$this->assertStringContainsString( 'History kept:', $html, 'Retention is always-on context' );
+		$this->assertStringContainsString( 'Stealth mode: on', $html, 'Stealth state must survive too' );
 	}
 
 	/**
@@ -203,21 +204,5 @@ class StatusBoxServiceTest extends \Codeception\TestCase\WPTestCase {
 		$emails[] = 'someone@example.com';
 
 		return $emails;
-	}
-
-	/**
-	 * Drop every item but stealth, so the assertion cannot pass on the strength
-	 * of some other item keeping the bar alive.
-	 *
-	 * @param array $items Status items.
-	 * @return array
-	 */
-	public function keep_only_stealth_item( $items ) {
-		return array_filter(
-			$items,
-			function ( $item ) {
-				return ( $item['id'] ?? '' ) === 'stealth';
-			}
-		);
 	}
 }
