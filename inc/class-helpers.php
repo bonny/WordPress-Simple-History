@@ -1143,6 +1143,16 @@ class Helpers {
 	 * @return string HTML for the settings gear link.
 	 */
 	public static function get_header_settings_link() {
+		// Viewing the log and viewing the settings are separate capabilities.
+		// Editors reach the log by default but not the settings page, so
+		// without this they are offered a gear that lands on a permission
+		// error. The divider is a border on the link itself, so dropping the
+		// link leaves no stray separator behind.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
+		if ( ! current_user_can( self::get_view_settings_capability() ) ) {
+			return '';
+		}
+
 		$settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 
 		ob_start();

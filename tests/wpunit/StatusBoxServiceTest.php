@@ -99,4 +99,36 @@ class StatusBoxServiceTest extends \Codeception\TestCase\WPTestCase {
 			'The default items should still render'
 		);
 	}
+
+	/**
+	 * Viewing the log and viewing the settings are separate capabilities, so
+	 * the gear must not be offered to someone the settings page will reject.
+	 */
+	function test_header_settings_link_hidden_from_users_without_settings_capability() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'editor' ] ) );
+
+		$this->assertTrue(
+			current_user_can( \Simple_History\Helpers::get_view_history_capability() ),
+			'Precondition: editors can view the log.'
+		);
+		$this->assertFalse(
+			current_user_can( \Simple_History\Helpers::get_view_settings_capability() ),
+			'Precondition: editors cannot view the settings.'
+		);
+
+		$this->assertSame(
+			'',
+			\Simple_History\Helpers::get_header_settings_link(),
+			'Editors must not be offered a link to a page that rejects them.'
+		);
+	}
+
+	/**
+	 * The gate scopes the link rather than removing it: administrators keep it.
+	 */
+	function test_header_settings_link_still_shown_to_administrators() {
+		$html = \Simple_History\Helpers::get_header_settings_link();
+
+		$this->assertStringContainsString( 'sh-PageHeader-settingsIcon', $html );
+	}
 }
