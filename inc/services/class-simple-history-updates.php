@@ -324,10 +324,8 @@ class Simple_History_Updates extends Service {
 		$title = __( 'Highlights in this version', 'simple-history' );
 
 		$new_features = [
-			__( 'React to events with a 👍 — reactions are no longer experimental and are on for everyone.', 'simple-history' ),
-			__( 'New header bar shows how long history is kept, whether email reports and alerts are on, and where logs are forwarded.', 'simple-history' ),
-			__( "Changes to Simple History's own settings are now logged, including email reports and license keys.", 'simple-history' ),
-			__( 'Security hardening: reading the log over the REST API, clearing it, and exporting it now require the same permissions as the history page.', 'simple-history' ),
+			__( 'You can now react to events with a 👍.', 'simple-history' ),
+			__( 'New header bar shows admins brief information about the current settings.', 'simple-history' ),
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-30-0-released/';
