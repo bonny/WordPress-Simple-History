@@ -1309,7 +1309,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'context', $fields ) ) {
-			$data['context'] = $item->context;
+			// Raw context repeats the login and email that initiator_data gates
+			// above, so it has to be filtered the same way. "Copy details"
+			// requests this field on its own, which would otherwise hand an
+			// editor every login and email in the log.
+			$data['context'] = Helpers::remove_user_pii_from_context( $item->context ?? [] );
 		}
 
 		if ( rest_is_field_included( 'permalink', $fields ) ) {

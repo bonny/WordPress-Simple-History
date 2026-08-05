@@ -214,6 +214,96 @@ class SecurityAuthorizationTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Gating initiator_data was not enough on its own: raw context carries the
+	 * same _user_login and _user_email, and "Copy details" fetches exactly
+	 * ?_fields=context, so the gate could be walked around by asking for the
+	 * other field.
+	 */
+	public function test_events_context_hides_pii_from_users_without_list_users() {
+		$actor = $this->factory->user->create(
+			[
+				'role'       => 'administrator',
+				'user_login' => 'context_actor',
+				'user_email' => 'context_actor@example.com',
+			]
+		);
+
+		wp_set_current_user( $actor );
+		SimpleLogger()->info( 'Event used by the context field test.' );
+
+		$this->login_as( 'editor' );
+		$this->assertFalse( current_user_can( 'list_users' ), 'Precondition: editors lack list_users.' );
+
+		$events = (array) $this->dispatch_request(
+			'GET',
+			'/simple-history/v1/events',
+			[
+				'per_page' => 20,
+				'_fields'  => 'context',
+			]
+		)->get_data();
+
+		$this->assertNotEmpty( $events, 'Editor should still be able to read events.' );
+
+		foreach ( $events as $event ) {
+			$this->assertArrayNotHasKey( '_user_login', $event['context'], 'Initiator login must not leak via context.' );
+			$this->assertArrayNotHasKey( '_user_email', $event['context'], 'Initiator email must not leak via context.' );
+		}
+	}
+
+	/**
+	 * The context gate scopes the payload rather than emptying it: "Copy
+	 * details" still has to work for editors, minus the PII.
+	 */
+	public function test_events_context_keeps_non_pii_keys_for_users_without_list_users() {
+		$this->login_as( 'editor' );
+
+		$events = (array) $this->dispatch_request(
+			'GET',
+			'/simple-history/v1/events',
+			[
+				'per_page' => 20,
+				'_fields'  => 'context',
+			]
+		)->get_data();
+
+		$this->assertNotEmpty( $events, 'Editor should still be able to read events.' );
+
+		$non_empty_contexts = array_filter( array_column( $events, 'context' ) );
+
+		$this->assertNotEmpty( $non_empty_contexts, 'Context must still carry its non-PII keys.' );
+	}
+
+	/**
+	 * Administrators hold list_users, so context must reach them intact.
+	 */
+	public function test_events_context_still_visible_to_users_with_list_users() {
+		$actor = $this->factory->user->create(
+			[
+				'role'       => 'administrator',
+				'user_login' => 'context_actor_admin_view',
+				'user_email' => 'context_admin_view@example.com',
+			]
+		);
+
+		wp_set_current_user( $actor );
+		SimpleLogger()->info( 'Event used by the admin context field test.' );
+
+		$events = (array) $this->dispatch_request(
+			'GET',
+			'/simple-history/v1/events',
+			[
+				'per_page' => 20,
+				'_fields'  => 'context',
+			]
+		)->get_data();
+
+		$logins = array_column( array_column( $events, 'context' ), '_user_login' );
+
+		$this->assertContains( 'context_actor_admin_view', $logins, 'Administrator must still see context logins.' );
+	}
+
+	/**
 	 * The filter must still be able to override the new default, since that is
 	 * its documented purpose.
 	 */

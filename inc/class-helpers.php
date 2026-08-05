@@ -1433,6 +1433,47 @@ class Helpers {
 	}
 
 	/**
+	 * Remove logins and email addresses from a context array.
+	 *
+	 * The context holds the same identifying details that the initiator and the
+	 * user card expose, so anywhere raw context is handed out it has to be run
+	 * through here — otherwise gating the readable fields only changes which
+	 * key the data arrives under.
+	 *
+	 * Covers both the initiator (_user_login, _user_email, set on every event)
+	 * and the user a user-logger event was about (edited_, created_, deleted_).
+	 * "failed_user_login" is deliberately kept: it is the name someone typed at
+	 * a login form, not a confirmed account, and it is the substance of a failed
+	 * login event rather than an incidental detail attached to it.
+	 *
+	 * @since 5.30.0
+	 * @param array<string,mixed> $context Context to filter.
+	 * @return array<string,mixed> Context, without user PII if the current user may not see it.
+	 */
+	public static function remove_user_pii_from_context( $context ) {
+		if ( self::current_user_can_view_user_pii() ) {
+			return $context;
+		}
+
+		$pii_keys = [
+			'_user_login',
+			'_user_email',
+			'edited_user_login',
+			'edited_user_email',
+			'created_user_login',
+			'created_user_email',
+			'deleted_user_login',
+			'deleted_user_email',
+		];
+
+		foreach ( $pii_keys as $pii_key ) {
+			unset( $context[ $pii_key ] );
+		}
+
+		return $context;
+	}
+
+	/**
 	 * Return capability required to view settings.
 	 * Default capability is "manage_options",
 	 * but can be modified using filter.
