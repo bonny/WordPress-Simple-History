@@ -252,7 +252,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
-### Unreleased
+### 5.30.0 (August 2026)
+
+👍 Two experimental features graduate in this release and are now on for everyone: event reactions, and the header status bar that shows how long history is kept, whether email reports and alerts are on, and where logs are forwarded — each one linking straight to its setting. Simple History also logs changes to its own settings now, which it really should have been doing all along. Plus: a round of security hardening around permissions and the data returned over the REST API, and a long list of fixes.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-30-0-released/)
 
 **Added**
 
@@ -279,6 +282,9 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   WP-CLI: `wp simple-history event search` always returned zero results.
+-   WP-CLI: `--fields` on `wp simple-history list` ignored column names written with a space after the comma.
+-   PHP 8 fatal error when a setting was changed by a request without a referrer, such as from the REST API or WP-CLI. [#649](https://github.com/bonny/WordPress-Simple-History/pull/649)
+-   Untranslatable strings in the statistics view and the weekly email report. [#672](https://github.com/bonny/WordPress-Simple-History/pull/672)
 -   Invalid date or month filter values now return a clear error (HTTP 400 in the REST API, a friendly message in WP-CLI) instead of a server error.
 -   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
 -   Dashboard widget now shows an error message with details when the log can't be loaded (for example when the REST API is blocked), instead of loading placeholders forever.
