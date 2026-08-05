@@ -254,7 +254,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.30.0 (August 2026)
 
-👍 Two experimental features graduate in this release and are now on for everyone: event reactions, and the header status bar that shows how long history is kept, whether email reports and alerts are on, and where logs are forwarded — each one linking straight to its setting. Simple History also logs changes to its own settings now, which it really should have been doing all along. Plus: a round of security hardening around permissions and the data returned over the REST API, and a long list of fixes.
+👍 Two experimental features graduate in this release: **event reactions** and the **header status bar**, which shows the status of your current settings at a glance — how long history is kept, whether email reports and alerts are on, and where logs are forwarded. This release also includes a round of security hardening and some miscellaneous fixes.
 [Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-30-0-released/)
 
 **Added**
