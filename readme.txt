@@ -256,7 +256,6 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Header now shows "Stealth mode: on" while stealth mode is hiding Simple History from other users, including other administrators.
 -   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
 -   "Find events from the same IP address" in an event's actions menu, alongside the existing user and event-type filters.
 -   Changes to more settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log).
@@ -264,15 +263,16 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Developers: `simple_history/header_status/items` filter to add, replace (by `id`), or remove items in the header feature-discovery bar.
 -   WP-CLI: `--metadata_search` and `--ai_only` options on `wp simple-history list`, matching the metadata search and AI filter in the GUI.
 -   WP-CLI: AI attribution columns (`ai_agent`, `ai_detected_via`, `ai_application`) on `wp simple-history list`, showing which AI tool made a change and how it was detected.
+-   Header now shows "Stealth mode: on" while stealth mode is hiding Simple History from other users, including other administrators.
 
 **Changed**
 
 -   Reactions graduated from experimental and are now on by default — react to events with a 👍 (disable in Settings → General). Premium adds ❤️ 🎉 🚀 and more reaction types.
--   Header feature-discovery bar graduated from experimental and now shows for all admins — quick links into your retention, email report, alerts, and log-forwarding settings that tuck away once you've set them up.
+-   Header settings/info bar is graduated from experimental and now shows for all admins — quick links into your retention, email report, alerts, and log-forwarding settings that tuck away once you've set them up.
 -   Checkbox settings now show as On/Off (instead of 1/0) in the "Modified settings" log details.
 -   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
--   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable. Add-ons can opt option keys in via the new `simple_history/settings/changed_only_options` filter.
--   Developers: `simple_history/user_can_clear_log` now defaults to whether the user can manage settings, instead of always allowing it. The "Clear log" button is unaffected for administrators. Code that calls `Helpers::user_can_clear_log()` outside the settings page may need to opt back in through the filter.
+-   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable.
+-   Developers: `simple_history/user_can_clear_log` now defaults to whether the user can manage settings, instead of always allowing it. The "Clear log" button is unaffected for administrators.
 
 **Deprecated**
 
@@ -285,12 +285,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
 -   Dashboard widget now shows an error message with details when the log can't be loaded (for example when the REST API is blocked), instead of loading placeholders forever.
 -   Fatal error on WordPress 6.3 when saving a post that creates a revision.
--   Post update events now link to the revision they created. The link had been missing since the feature was added in 5.16.0.
+-   Post update events now link to the revision they created. (The link had been missing since the feature was added in 5.16.0!)
 -   PHP warning when logging a comment whose post has been deleted. Such events now read "a comment to (deleted)" instead of showing an empty title.
 -   "Filter events: This IP" in the IP address popover did nothing when used from the dashboard widget — it now opens the event log filtered to that address.
 -   Filtering by IP address now finds events by any address recorded for them, not just the one the web server saw. On sites behind a proxy or load balancer the visitor's real address is read from a forwarding header, and filtering by it previously returned nothing.
--   Dismiss buttons in the review reminder notice rendered as boxed links.
--   The "Settings" link in the header is no longer shown to users who can view the log but not the settings, where it led to a permission error.
 -   Experimental — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
 
 **Security**
@@ -299,7 +297,6 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   REST API endpoints now require the same permission as opening the history page.
 -   Detective Mode masks more field names — passwords, tokens, secrets and card numbers — and now also covers nested values, query strings and command line arguments.
 -   Clearing the log, exporting it and regenerating the RSS feed address now also require permission to manage settings.
--   The RSS feed secret is compared in constant time.
 -   Event text escaping is now consistent across the media, categories, user and comments loggers, and in exported HTML files.
 
 ### 5.29.0 (June 2026)
