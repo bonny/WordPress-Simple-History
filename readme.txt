@@ -293,12 +293,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Security**
 
--   Usernames and email addresses in the log and the user card are only shown to viewers allowed to list users.
--   Reading the activity log through the REST API requires the same permission as opening the history page.
--   Detective Mode masks a wider set of sensitive field names, including `old_password`, tokens, secrets and card numbers, and now also masks nested values, the request query string and command line arguments.
--   Clearing the log, exporting it and regenerating the RSS feed address require permission to manage settings.
+-   Usernames and email addresses in the log now follow WordPress's own rule and are shown only to users who can list users.
+-   REST API endpoints now require the same permission as opening the history page.
+-   Detective Mode masks more field names — passwords, tokens, secrets and card numbers — and now also covers nested values, query strings and command line arguments.
+-   Clearing the log, exporting it and regenerating the RSS feed address now also require permission to manage settings.
 -   The RSS feed secret is compared in constant time.
--   Event text is escaped consistently in the media, categories, user and comments loggers, and exported HTML files are filtered.
+-   Event text escaping is now consistent across the media, categories, user and comments loggers, and in exported HTML files.
 
 ### 5.29.0 (June 2026)
 
