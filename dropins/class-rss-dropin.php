@@ -338,14 +338,9 @@ class RSS_Dropin extends Dropin {
 					 */
 					$args = apply_filters( 'simple_history/rss_feed_args', $args );
 
-					$logQuery     = new Log_Query();
-					$queryResults = $logQuery->query( $args );
-
 					// Remove capability override after query is done
 					// remove_action( $action_tag, '__return_true', 10 );.
-					if ( is_wp_error( $queryResults ) ) {
-						$queryResults = array( 'log_rows' => array() );
-					}
+					$queryResults = $this->query_events_for_feed( $args );
 
 					foreach ( $queryResults['log_rows'] as $row ) {
 						$header_output  = $this->clean_broken_links( $this->simple_history->get_log_row_header_output( $row ) );
@@ -640,6 +635,36 @@ class RSS_Dropin extends Dropin {
 		 * @since 4.0
 		 */
 		do_action( 'simple_history/feeds/settings_section_description' );
+	}
+
+	/**
+	 * Run the feed query, degrading to an empty feed instead of an error.
+	 *
+	 * date_from, date_to and dates reach us from the query string, so a feed
+	 * reader holding a stale or hand-edited URL can supply a value Log_Query
+	 * refuses to parse. Log_Query throws for those, and an uncaught throw here
+	 * would replace the feed with a fatal.
+	 *
+	 * A feed reader cannot render an error page, so there is no useful way to
+	 * report the bad argument the way the REST API (HTTP 400) and WP-CLI (a
+	 * message) do. An empty but valid feed is the honest fallback, and it is
+	 * the same shape the WP_Error branch already produced.
+	 *
+	 * @param array $args Log query args.
+	 * @return array Query results, or an empty result set.
+	 */
+	public function query_events_for_feed( $args ) {
+		try {
+			$results = ( new Log_Query() )->query( $args );
+		} catch ( \InvalidArgumentException $exception ) {
+			return array( 'log_rows' => array() );
+		}
+
+		if ( is_wp_error( $results ) ) {
+			return array( 'log_rows' => array() );
+		}
+
+		return $results;
 	}
 
 	/**

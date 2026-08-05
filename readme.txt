@@ -280,6 +280,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   WP-CLI: `wp simple-history event search` always returned zero results.
 -   Invalid date or month filter values now return a clear error (HTTP 400 in the REST API, a friendly message in WP-CLI) instead of a server error.
+-   RSS feed no longer breaks when its address contains a date filter it can't read — for example an older feed URL saved in a feed reader. It now returns an empty feed instead of an error.
 -   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
 -   Dashboard widget now shows an error message with details when the log can't be loaded (for example when the REST API is blocked), instead of loading placeholders forever.
 -   Fatal error on WordPress 6.3 when saving a post that creates a revision.
