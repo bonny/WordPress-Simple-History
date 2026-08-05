@@ -289,6 +289,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Filter events: This IP" in the IP address popover did nothing when used from the dashboard widget — it now opens the event log filtered to that address.
 -   Filtering by IP address now finds events by any address recorded for them, not just the one the web server saw. On sites behind a proxy or load balancer the visitor's real address is read from a forwarding header, and filtering by it previously returned nothing.
 -   Dismiss buttons in the review reminder notice rendered as boxed links.
+-   The "Settings" link in the header is no longer shown to users who can view the log but not the settings, where it led to a permission error.
 -   Experimental — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
 
 **Security**
