@@ -271,7 +271,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Checkbox settings now show as On/Off (instead of 1/0) in the "Modified settings" log details.
 -   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
 -   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable. Add-ons can opt option keys in via the new `simple_history/settings/changed_only_options` filter.
--   Developers: `simple_history/user_can_clear_log` defaults to whether the user can manage settings — sites that let non-administrators clear the log must opt back in through the filter.
+-   Developers: `simple_history/user_can_clear_log` now defaults to whether the user can manage settings, instead of always allowing it. The "Clear log" button is unaffected for administrators. Code that calls `Helpers::user_can_clear_log()` outside the settings page may need to opt back in through the filter.
 
 **Deprecated**
 
