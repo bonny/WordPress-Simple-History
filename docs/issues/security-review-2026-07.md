@@ -20,19 +20,20 @@ report).
 
 ## Severity summary
 
-| # | Finding | Severity | Status |
-|---|---------|----------|--------|
-| 1 | REST `/events` + `/search-options` don't enforce `view_history_capability` | Low | Confirmed (empirical) |
-| 2 | User Card endpoint leaks any user's email/login/roles + enables enumeration | **Medium** | Confirmed |
-| 3 | RSS feed secret compared with `===` instead of `hash_equals()` | Low–Med | Confirmed |
-| 4 | `clear_log` has no capability backstop (nonce-only) | Low | Confirmed |
-| 5 | Full-log export & RSS-secret regeneration are nonce-only, no cap check | Low | Confirmed |
-| 6 | XSS hardening: unescaped entity names in 3 loggers + HTML export lacks `wp_kses` | Low | Confirmed |
-| 7 | Detective Mode masks only `pass*`-prefixed fields | Low | Per audit |
-| 8 | Reactions are a write gated by read permission (likely by design) | Low | Confirmed |
-| — | Dead code: `SearchOptions_Controller::get_item_permissions_check` (login-only, unused) | Info | Confirmed |
+| #   | Finding                                                                                | Severity   | Status                 |
+| --- | -------------------------------------------------------------------------------------- | ---------- | ---------------------- |
+| 1   | REST `/events` + `/search-options` don't enforce `view_history_capability`             | Low        | Fixed in 5.30.0        |
+| 2   | User Card endpoint leaks any user's email/login/roles + enables enumeration            | **Medium** | Fixed in 5.30.0        |
+| 3   | RSS feed secret compared with `===` instead of `hash_equals()`                         | Low–Med    | Fixed in 5.30.0        |
+| 4   | `clear_log` has no capability backstop (nonce-only)                                    | Low        | Fixed in 5.30.0        |
+| 5   | Full-log export & RSS-secret regeneration are nonce-only, no cap check                 | Low        | Fixed in 5.30.0        |
+| 6   | XSS hardening: unescaped entity names in 3 loggers + HTML export lacks `wp_kses`       | Low        | Fixed in 5.30.0        |
+| 7   | Detective Mode masks only `pass*`-prefixed fields                                      | Low        | Fixed in 5.30.0        |
+| 8   | Reactions are a write gated by read permission (by design)                             | Low        | Resolved — no change   |
+| —   | Dead code: `SearchOptions_Controller::get_item_permissions_check` (login-only, unused) | Info       | Fixed (method deleted) |
 
-Recommended fix order: **2 → 1 → 3 → 4/5 → 6**, with 7/8 as follow-ups.
+**All findings in this review are resolved as of 5.30.0.** The original
+recommended fix order was **2 → 1 → 3 → 4/5 → 6**, with 7/8 as follow-ups.
 
 ---
 
@@ -50,7 +51,7 @@ Recommended fix order: **2 → 1 → 3 → 4/5 → 6**, with 7/8 as follow-ups.
 The events query is still filtered per-logger by
 `Simple_History::get_loggers_that_user_can_read()`, so this is **not** a
 "dump the whole log" hole — a caller only receives events from loggers whose
-capability they hold. But some core loggers declare a capability *below* the
+capability they hold. But some core loggers declare a capability _below_ the
 `edit_pages` view floor. The **Notes logger**
 (`loggers/class-notes-logger.php` → `capability => 'edit_posts'`) is the clear
 case: `edit_posts` is held by **Author**/**Contributor**, who lack `edit_pages`.
@@ -93,7 +94,7 @@ endpoints while an Administrator still gets **200** — verified the same way.
  				array( 'status' => rest_authorization_required_code() )
  			);
  		}
- 
+
 +		// User must be allowed to view the history log.
 +		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
 +		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
@@ -115,7 +116,7 @@ endpoints while an Administrator still gets **200** — verified the same way.
  		if ( ! is_user_logged_in() ) {
  			return new WP_Error( ... );
  		}
- 
+
 +		// User must be allowed to view the history log.
 +		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
 +		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
@@ -174,7 +175,7 @@ the user).
 +++ b/inc/class-wp-rest-user-card-controller.php
 @@ public function get_user_card( $request ) {
  		$avatar_data = get_avatar_data( $user_id, [ 'size' => 96 ] );
- 
+
 +		// Email / login / roles are PII: only expose to users who may list users,
 +		// matching the /search-user route and WordPress core behaviour.
 +		$can_list_users = current_user_can( 'list_users' );
@@ -255,7 +256,7 @@ authorized by nonce-possession alone — add an explicit capability default:
 +		return apply_filters( 'simple_history/user_can_clear_log', current_user_can( 'manage_options' ) );
 ```
 
-Then also *enforce* it in the handler (defense in depth) before clearing:
+Then also _enforce_ it in the handler (defense in depth) before clearing:
 `if ( ! self::user_can_clear_log() ) { return; }`.
 
 ---
@@ -268,27 +269,27 @@ Two more privileged actions verify a nonce but no capability. Same containment a
 Finding 4 (the nonce only appears on `manage_options` pages), so these are
 hardening backstops, not live holes.
 
-- **Export** — `dropins/class-export-dropin.php:63` `download_export()` runs on
-  `admin_init`, checks page + action + `check_admin_referer( self::class . '-action-export' )`
-  (line 82), then streams the whole log (all events, IPs, activity) as CSV/JSON.
-  Add a cap check right after the nonce check:
+-   **Export** — `dropins/class-export-dropin.php:63` `download_export()` runs on
+    `admin_init`, checks page + action + `check_admin_referer( self::class . '-action-export' )`
+    (line 82), then streams the whole log (all events, IPs, activity) as CSV/JSON.
+    Add a cap check right after the nonce check:
 
-  ```diff
-  		check_admin_referer( self::class . '-action-export' );
-  +
-  +		if ( ! current_user_can( 'manage_options' ) ) {
-  +			wp_die( esc_html__( 'You do not have permission to export the history.', 'simple-history' ) );
-  +		}
-  ```
+    ```diff
+    		check_admin_referer( self::class . '-action-export' );
+    +
+    +		if ( ! current_user_can( 'manage_options' ) ) {
+    +			wp_die( esc_html__( 'You do not have permission to export the history.', 'simple-history' ) );
+    +		}
+    ```
 
-- **RSS secret regeneration** — `dropins/class-rss-dropin.php:116` regenerates the
-  feed secret after a nonce check only. Gate the mutation on capability:
+-   **RSS secret regeneration** — `dropins/class-rss-dropin.php:116` regenerates the
+    feed secret after a nonce check only. Gate the mutation on capability:
 
-  ```diff
-  -		if ( $create_nonce_ok ) {
-  +		if ( $create_nonce_ok && current_user_can( 'manage_options' ) ) {
-  			$this->update_rss_secret();
-  ```
+    ```diff
+    -		if ( $create_nonce_ok ) {
+    +		if ( $create_nonce_ok && current_user_can( 'manage_options' ) ) {
+    			$this->update_rss_secret();
+    ```
 
 (If a dedicated settings capability helper exists, e.g.
 `Helpers::get_view_settings_capability()`, prefer it over the literal
@@ -304,7 +305,7 @@ Output escaping is broadly correct — the base
 `Logger::get_log_row_plain_text_output()` wraps interpolated messages in
 `esc_html()`, REST/React use the escaped paths, and the RSS dropin has a
 `wp_kses()` safety net. The exceptions are loggers that **override** the output
-and interpolate an entity *name* into `message_html` (rendered by React via
+and interpolate an entity _name_ into `message_html` (rendered by React via
 `dangerouslySetInnerHTML`) **without** `esc_html()`, unlike the post logger which
 does escape. Each is gated by WordPress kses on save, so only an actor holding
 `unfiltered_html` (single-site admin/editor) could plant a payload, which then
@@ -312,23 +313,23 @@ fires for an admin viewing the log. Real but low-severity and fragile.
 
 Escape the interpolated name/title in these overrides (mirror the post logger):
 
-- **Media** — `loggers/class-media-logger.php:434` interpolates `{attachment_title}`
-  raw (only `post_type`, `attachment_filename`, and `attachment_parent_title` are
-  escaped). Add `$context['attachment_title'] = esc_html( $context['attachment_title'] ?? '' );`
-  before the `interpolate()` call.
-- **Categories** — `loggers/class-categories-logger.php:347` interpolates
-  `{term_name}` / `{to_term_name}` unescaped. `esc_html()` them into `$context`
-  before interpolating.
-- **User** — `loggers/class-user-logger.php:898,917` interpolate
-  `{edited_user_login}`/`{edited_user_email}`/`{created_user_login}`/`{created_user_email}`
-  unescaped. Structurally low-risk (`user_login` is `sanitize_user( …, strict )`,
-  emails are validated) but escape for consistency. Note: the unauthenticated
-  failed-login `{login}` path is **not** affected — it uses the base `esc_html`
-  path and is `sanitize_text_field`'d.
-- **Comments** — `loggers/class-comments-logger.php:588,679` feed raw
-  comment/pingback/trackback content through the RAW details formatter. Consider
-  `wp_kses_post()` before rendering so `unfiltered_html`-authored script can't
-  reach the admin viewer.
+-   **Media** — `loggers/class-media-logger.php:434` interpolates `{attachment_title}`
+    raw (only `post_type`, `attachment_filename`, and `attachment_parent_title` are
+    escaped). Add `$context['attachment_title'] = esc_html( $context['attachment_title'] ?? '' );`
+    before the `interpolate()` call.
+-   **Categories** — `loggers/class-categories-logger.php:347` interpolates
+    `{term_name}` / `{to_term_name}` unescaped. `esc_html()` them into `$context`
+    before interpolating.
+-   **User** — `loggers/class-user-logger.php:898,917` interpolate
+    `{edited_user_login}`/`{edited_user_email}`/`{created_user_login}`/`{created_user_email}`
+    unescaped. Structurally low-risk (`user_login` is `sanitize_user( …, strict )`,
+    emails are validated) but escape for consistency. Note: the unauthenticated
+    failed-login `{login}` path is **not** affected — it uses the base `esc_html`
+    path and is `sanitize_text_field`'d.
+-   **Comments** — `loggers/class-comments-logger.php:588,679` feed raw
+    comment/pingback/trackback content through the RAW details formatter. Consider
+    `wp_kses_post()` before rendering so `unfiltered_html`-authored script can't
+    reach the admin viewer.
 
 **HTML export has no kses net** — `inc/class-export.php:314` writes the header,
 plain-text, and details outputs **raw** into a downloadable `.html`, unlike the
@@ -371,14 +372,25 @@ as capturing sensitive data, the data is only readable by users with the logger'
 
 ## Finding 8 — Reactions are a write gated by read permission
 
-**Severity: Low · Confirmed (likely by design)**
+**Severity: Low · Resolved — by design, no change made**
 
 `inc/class-wp-rest-events-controller.php:199,219` — the `react`/`unreact`
 `CREATABLE` routes use `get_item_permissions_check` (logged-in + can-view-event)
 rather than `update_item_permissions_check` (`manage_options`). So any user who
 can view an event can toggle a reaction on it (mutating a `_reactions` context
-blob). Reactions are default-disabled and low-impact; confirm this is intended,
-otherwise raise to a write-appropriate capability.
+blob).
+
+Confirmed intended: reacting to an event you can already read is the whole
+point of the feature, so read permission is the correct gate. The write is
+bounded in both directions — `type` is `enum`-validated against
+`get_allowed_reaction_types()`, so arbitrary keys can't be injected, and
+reactions are stored per `(type, user_id)`, so a user can add at most one of
+each type per event. No unbounded growth, no spam vector.
+
+Note for readers of the original review: this finding's first write-up leaned
+on "reactions are default-disabled" as a mitigating factor. That is no longer
+true — reactions graduated out of experimental and are **on by default** as of
+5.30.0. The reasoning above does not depend on it.
 
 ---
 
@@ -394,34 +406,34 @@ inherit a login-only gate. Delete it.
 
 ## Verified clean (with evidence)
 
-- **SQL injection: none.** `inc/class-log-query.php` was read in full. Every REST
-  param (`search`, `loggers`, `loglevels`, `users`, `messages`, `date_*`,
-  `dates`/`months`, `ip_address`, `context_filters`, `metadata_search`,
-  `include`/`post__in`, etc.) reaches SQL via `$wpdb->prepare()` placeholders,
-  `intval` casts, strict date validation, or a fixed whitelist. `initiator` uses
-  `esc_sql()` **and** is whitelisted against `Log_Initiators::get_valid_initiators()`
-  (a 5-constant set). No `orderby`/`order` REST param exists, so no ORDER BY
-  vector; all `ORDER BY` clauses are hardcoded. Table names are prefix-derived.
-- **Output escaping** is defended in depth outside Finding 6 (base `esc_html`,
-  React auto-escaping except the two `dangerouslySetInnerHTML` sinks fed by PHP
-  escaping paths, RSS `wp_kses` net).
-- **Credential handling** — passwords never stored (`user_pass` skipped; app
-  passwords log the name, not the value); options logger redacts license keys and
-  logs oversized/structured values as "(changed)".
-- **Privacy `ignore_logger_capabilities` bypass** is only reachable from WP's
-  admin-gated, email-confirmed export/erase flow, scoped to the specific data
-  subject — not user-facing.
-- **CSRF** — every state-changing non-REST handler verifies a nonce; import
-  handlers, dismiss-notice AJAX, and settings save also check `manage_options`.
-- **stats / support-info / devtools** REST controllers all require
-  `manage_options` (or dev-mode + `activate_plugins` + an allowlist).
-- **IP handling** — display off by default, anonymization on by default.
+-   **SQL injection: none.** `inc/class-log-query.php` was read in full. Every REST
+    param (`search`, `loggers`, `loglevels`, `users`, `messages`, `date_*`,
+    `dates`/`months`, `ip_address`, `context_filters`, `metadata_search`,
+    `include`/`post__in`, etc.) reaches SQL via `$wpdb->prepare()` placeholders,
+    `intval` casts, strict date validation, or a fixed whitelist. `initiator` uses
+    `esc_sql()` **and** is whitelisted against `Log_Initiators::get_valid_initiators()`
+    (a 5-constant set). No `orderby`/`order` REST param exists, so no ORDER BY
+    vector; all `ORDER BY` clauses are hardcoded. Table names are prefix-derived.
+-   **Output escaping** is defended in depth outside Finding 6 (base `esc_html`,
+    React auto-escaping except the two `dangerouslySetInnerHTML` sinks fed by PHP
+    escaping paths, RSS `wp_kses` net).
+-   **Credential handling** — passwords never stored (`user_pass` skipped; app
+    passwords log the name, not the value); options logger redacts license keys and
+    logs oversized/structured values as "(changed)".
+-   **Privacy `ignore_logger_capabilities` bypass** is only reachable from WP's
+    admin-gated, email-confirmed export/erase flow, scoped to the specific data
+    subject — not user-facing.
+-   **CSRF** — every state-changing non-REST handler verifies a nonce; import
+    handlers, dismiss-notice AJAX, and settings save also check `manage_options`.
+-   **stats / support-info / devtools** REST controllers all require
+    `manage_options` (or dev-mode + `activate_plugins` + an allowlist).
+-   **IP handling** — display off by default, anonymization on by default.
 
 ## Suggested regression tests
 
-- Assert an **Author** gets `403` from `/events` and `/search-options`, an
-  **Editor/Admin** gets `200` (Finding 1).
-- Assert the **User Card** endpoint omits `user_email`/`user_login`/`roles` for a
-  caller without `list_users` (Finding 2).
-- Assert `user_can_clear_log()` is `false` for a non-`manage_options` user
-  (Finding 4).
+-   Assert an **Author** gets `403` from `/events` and `/search-options`, an
+    **Editor/Admin** gets `200` (Finding 1).
+-   Assert the **User Card** endpoint omits `user_email`/`user_login`/`roles` for a
+    caller without `list_users` (Finding 2).
+-   Assert `user_can_clear_log()` is `false` for a non-`manage_options` user
+    (Finding 4).
