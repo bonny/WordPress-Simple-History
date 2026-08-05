@@ -4,7 +4,6 @@ namespace Simple_History;
 
 use Simple_History\Simple_History;
 use Simple_History\Services\Setup_Settings_Page;
-use Simple_History\Services\Stealth_Mode;
 use Simple_History\Date_Helper;
 
 /**
@@ -1190,72 +1189,6 @@ class Helpers {
 				</a>
 			<?php } ?>
 		</div>
-		<?php
-
-		return ob_get_clean();
-	}
-
-	/**
-	 * Output a header indicator while email-based Stealth Mode is active.
-	 *
-	 * Stealth Mode does its job well enough to be forgotten: the admin who
-	 * enabled it later cannot explain why a colleague, often another
-	 * administrator, sees no Simple History at all. This says so in the header.
-	 *
-	 * Rendered independently of the feature discovery bar, which deletes
-	 * itself once its features are configured — that bar would take this with
-	 * it on exactly the mature installs most likely to have forgotten.
-	 *
-	 * Deliberately carries no count of allowed users. The allow list mixes
-	 * exact addresses with "@domain" wildcards, so an entry count is not a
-	 * count of people and would read as one.
-	 *
-	 * @since 5.30.0
-	 * @return string HTML for the stealth indicator, or empty string if it should not show.
-	 */
-	public static function get_header_stealth_indicator() {
-		// Full stealth mode hides the GUI from everyone, so no header renders
-		// and there is nobody left to inform.
-		if ( Stealth_Mode::is_full_stealth_mode_enabled() ) {
-			return '';
-		}
-
-		if ( ! Stealth_Mode::is_stealth_mode_enabled() ) {
-			return '';
-		}
-
-		// A settings-state readout that links to settings, so it uses the same
-		// gate as the settings gear. The two agree by construction.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
-		if ( ! current_user_can( self::get_view_settings_capability() ) ) {
-			return '';
-		}
-
-		$label = __( 'Stealth mode — hidden from others', 'simple-history' );
-
-		$title = __( "Simple History is hidden from everyone whose email address isn't on the allow list — including other administrators.", 'simple-history' );
-
-		// The Stealth Mode setting lives in the premium add-on. Without it,
-		// stealth mode was set by constant or filter and there is no settings
-		// screen to point at, so render plain text.
-		$settings_url = self::is_premium_add_on_active()
-			? self::get_settings_page_url() . '#shp-misc-settings-section'
-			: '';
-
-		ob_start();
-
-		?>
-		<?php if ( $settings_url !== '' ) { ?>
-			<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--stealthActive" title="<?php echo esc_attr( $title ); ?>">
-				<span class="dashicons dashicons-hidden"></span>
-				<?php echo esc_html( $label ); ?>
-			</a>
-		<?php } else { ?>
-			<span class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--stealthActive" title="<?php echo esc_attr( $title ); ?>">
-				<span class="dashicons dashicons-hidden"></span>
-				<?php echo esc_html( $label ); ?>
-			</span>
-		<?php } ?>
 		<?php
 
 		return ob_get_clean();

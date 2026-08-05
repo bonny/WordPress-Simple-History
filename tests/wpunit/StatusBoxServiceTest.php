@@ -134,52 +134,62 @@ class StatusBoxServiceTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Email-based stealth mode hides the plugin from other users, which the
-	 * admin who enabled it tends to forget. The header says so.
+	 * admin who enabled it tends to forget. The bar says so.
 	 */
-	function test_stealth_indicator_renders_under_email_based_stealth_mode() {
+	function test_stealth_item_renders_under_email_based_stealth_mode() {
 		add_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
 
-		$html = \Simple_History\Helpers::get_header_stealth_indicator();
+		$html = $this->render();
 
 		remove_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
 
-		$this->assertStringContainsString( 'sh-PageHeader-headerBtn--stealthActive', $html );
+		$this->assertStringContainsString( 'Stealth mode: on', $html );
 	}
 
 	/**
 	 * Nothing to say when the plugin is not hiding.
 	 */
-	function test_stealth_indicator_absent_when_stealth_mode_is_off() {
-		$this->assertSame( '', \Simple_History\Helpers::get_header_stealth_indicator() );
+	function test_stealth_item_absent_when_stealth_mode_is_off() {
+		$this->assertStringNotContainsString( 'Stealth mode', $this->render() );
 	}
 
 	/**
 	 * Full stealth hides the GUI from everyone, so there is nobody to inform.
 	 */
-	function test_stealth_indicator_absent_under_full_stealth_mode() {
+	function test_stealth_item_absent_under_full_stealth_mode() {
 		add_filter( 'simple_history/full_stealth_mode_enabled', '__return_true' );
 
-		$html = \Simple_History\Helpers::get_header_stealth_indicator();
+		$html = $this->render();
 
 		remove_filter( 'simple_history/full_stealth_mode_enabled', '__return_true' );
 
-		$this->assertSame( '', $html );
+		$this->assertStringNotContainsString( 'Stealth mode', $html );
 	}
 
 	/**
-	 * It is a settings-state readout that links to settings, so it uses the
-	 * same gate as the settings gear.
+	 * The bar hides itself once its discoverable features are configured. That
+	 * must not take the stealth warning with it: a fully configured site is
+	 * exactly where stealth mode has been on longest and is most forgotten.
 	 */
-	function test_stealth_indicator_hidden_from_users_without_settings_capability() {
-		wp_set_current_user( $this->factory->user->create( [ 'role' => 'editor' ] ) );
+	function test_bar_stays_visible_for_stealth_mode_once_features_are_configured() {
+		// All three discoverable features on, so the bar would normally hide.
+		update_option( 'simple_history_email_report_enabled', true );
+		update_option( 'simple_history_channel_file', [ 'enabled' => 1 ] );
 
+		add_filter( 'simple_history/header_status/alerts_configured', '__return_true' );
 		add_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+		add_filter( 'simple_history/header_status/items', [ $this, 'keep_only_stealth_item' ], 20 );
 
-		$html = \Simple_History\Helpers::get_header_stealth_indicator();
+		$html = $this->render();
 
+		remove_filter( 'simple_history/header_status/items', [ $this, 'keep_only_stealth_item' ], 20 );
 		remove_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+		remove_filter( 'simple_history/header_status/alerts_configured', '__return_true' );
 
-		$this->assertSame( '', $html );
+		delete_option( 'simple_history_channel_file' );
+		delete_option( 'simple_history_email_report_enabled' );
+
+		$this->assertStringContainsString( 'Stealth mode: on', $html );
 	}
 
 	/**
@@ -193,5 +203,21 @@ class StatusBoxServiceTest extends \Codeception\TestCase\WPTestCase {
 		$emails[] = 'someone@example.com';
 
 		return $emails;
+	}
+
+	/**
+	 * Drop every item but stealth, so the assertion cannot pass on the strength
+	 * of some other item keeping the bar alive.
+	 *
+	 * @param array $items Status items.
+	 * @return array
+	 */
+	public function keep_only_stealth_item( $items ) {
+		return array_filter(
+			$items,
+			function ( $item ) {
+				return ( $item['id'] ?? '' ) === 'stealth';
+			}
+		);
 	}
 }

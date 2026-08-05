@@ -1,7 +1,44 @@
 # Stealth Mode Header Indicator — Design Spec
 
 **Date:** 2026-08-05  
-**Status:** Approved
+**Status:** Implemented, with one revision — see "Revision: placement" below
+
+---
+
+## Revision: placement (2026-08-05, after review of the built result)
+
+Sections 2 and 7 below describe a separate element in the header's right-hand
+zone. Built and reviewed, that read as disconnected from the other header
+facts, so the indicator now sits **in the discovery bar itself**, alongside
+"History kept", "Email reports", "Alerts" and "Log forwarding".
+
+Section 1's objection still stands and is solved in the mechanism instead of
+by placement: `output_status_box()` now reads
+
+```php
+if ( $this->all_discoverable_features_configured() && ! $this->stealth_mode_is_active() ) {
+    return;
+}
+```
+
+so the bar stops self-hiding while stealth mode is on. The warning survives on
+a fully configured site, which was the whole reason for keeping it out of that
+bar in the first place.
+
+Consequences for the sections below:
+
+-   **§2 Placement** — superseded. It is an item in the bar, last in the row.
+-   **§3 Label** — shortened to `Stealth mode: on`, matching the "Label: value"
+    shape of the neighbouring items. The no-count reasoning is unchanged and the
+    consequence moved wholly into the tooltip.
+-   **§5 Render conditions** — the capability check is now the bar's own
+    `manage_options` gate rather than a separate one.
+-   **§6 Link target** — the anchor is `#simple-history-premium-settings`, the
+    rendered HTML id. `#shp-misc-settings-section` named below is the Settings
+    API section id, which is not an anchor and would have jumped nowhere.
+-   **§7 Components** — superseded. No `Helpers` method and no new CSS: the item
+    goes through `Status_Box_Service::get_status_items()` and reuses the bar's
+    existing item rendering, which already marks its dashicons `aria-hidden`.
 
 ---
 
