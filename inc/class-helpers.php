@@ -1143,6 +1143,16 @@ class Helpers {
 	 * @return string HTML for the settings gear link.
 	 */
 	public static function get_header_settings_link() {
+		// Viewing the log and viewing the settings are separate capabilities.
+		// Editors reach the log by default but not the settings page, so
+		// without this they are offered a gear that lands on a permission
+		// error. The divider is a border on the link itself, so dropping the
+		// link leaves no stray separator behind.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
+		if ( ! current_user_can( self::get_view_settings_capability() ) ) {
+			return '';
+		}
+
 		$settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 
 		ob_start();
@@ -1273,7 +1283,12 @@ class Helpers {
 		 *
 		 * @param bool $allow Whether the current user is allowed to clear the log.
 		*/
-		return apply_filters( 'simple_history/user_can_clear_log', true );
+		// Defaults to the settings capability rather than to true. Clearing
+		// truncates the entire events and contexts tables, i.e. destroys the
+		// audit trail, so it must not be authorized by nonce possession alone.
+		// The filter can still open it up or lock it down further.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from self::get_view_settings_capability().
+		return apply_filters( 'simple_history/user_can_clear_log', current_user_can( self::get_view_settings_capability() ) );
 	}
 
 	/**
@@ -1390,6 +1405,36 @@ class Helpers {
 		$view_history_capability = apply_filters( 'simple_history/view_history_capability', $view_history_capability );
 
 		return $view_history_capability;
+	}
+
+	/**
+	 * Whether the current user may look up another user's identifying details.
+	 *
+	 * Scoped to lookups that answer an arbitrary user id — the user card. That
+	 * endpoint could be walked from id 1 upwards to collect the login, email
+	 * and roles of every account on the site, including users who never appear
+	 * in the log, which is why it needs a capability of its own.
+	 *
+	 * Deliberately not applied to the initiator shown beside each event. That
+	 * is the person who performed an event the reader is already allowed to
+	 * see, so it is context for visible activity rather than a directory, and
+	 * it is what makes two people sharing a display name tellable apart.
+	 *
+	 * Defaults to "list_users", which is what WordPress itself requires to see
+	 * another user's email, and which editors do not hold.
+	 *
+	 * @since 5.30.0
+	 * @return bool
+	 */
+	public static function current_user_can_view_user_pii() {
+		/**
+		 * Filters whether the current user may see other users' login, email and roles.
+		 *
+		 * @since 5.30.0
+		 *
+		 * @param bool $can_view Defaults to current_user_can( 'list_users' ).
+		 */
+		return apply_filters( 'simple_history/user_can_view_user_pii', current_user_can( 'list_users' ) );
 	}
 
 	/**

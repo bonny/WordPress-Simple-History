@@ -29,7 +29,13 @@ class Status_Box_Service extends Service {
 		// This is a feature-discovery aid, not a permanent status readout.
 		// Once the discoverable features are configured it has done its job,
 		// so hide it rather than let it become permanent header chrome.
-		if ( $this->all_discoverable_features_configured() ) {
+		//
+		// Stealth mode is the exception: it is a state rather than a feature to
+		// discover, and forgetting it is the whole problem it causes — an admin
+		// who cannot explain why a colleague sees no Simple History at all.
+		// Hiding the bar on a fully configured site would drop that warning on
+		// exactly the mature installs most likely to have forgotten it.
+		if ( $this->all_discoverable_features_configured() && ! $this->stealth_mode_is_active() ) {
 			return;
 		}
 
@@ -115,6 +121,22 @@ class Status_Box_Service extends Service {
 		$alerts_ok = (bool) apply_filters( 'simple_history/header_status/alerts_configured', true );
 
 		return $email_on && $forwarding_on && $alerts_ok;
+	}
+
+	/**
+	 * Whether email-based stealth mode is hiding the plugin from other users.
+	 *
+	 * Full stealth mode is excluded: it hides the GUI from everyone, so this
+	 * bar never renders under it and there is nobody left to inform.
+	 *
+	 * @return bool
+	 */
+	private function stealth_mode_is_active() {
+		if ( Stealth_Mode::is_full_stealth_mode_enabled() ) {
+			return false;
+		}
+
+		return Stealth_Mode::is_stealth_mode_enabled();
 	}
 
 	/**
@@ -283,6 +305,21 @@ class Status_Box_Service extends Service {
 				'icon'  => 'dashicons-migrate',
 				'url'   => $forwarding_tab_url,
 				'title' => __( 'Keep a copy of your activity log in a file', 'simple-history' ),
+			];
+		}
+
+		// Stealth mode, last and only while it is on. Unlike the items above it
+		// is not an invitation to configure something — it reports a state the
+		// admin already chose, and which they tend to forget they chose. The
+		// Stealth Mode setting itself lives in the premium add-on, so link there
+		// only when it is installed to point at a screen that exists.
+		if ( $this->stealth_mode_is_active() ) {
+			$items[] = [
+				'id'    => 'stealth',
+				'text'  => __( 'Stealth mode: on', 'simple-history' ),
+				'icon'  => 'dashicons-hidden',
+				'url'   => Helpers::is_premium_add_on_active() ? $settings_url . '#simple-history-premium-settings' : '',
+				'title' => __( 'Simple History is hidden from everyone not on the allow list, including other administrators', 'simple-history' ),
 			];
 		}
 

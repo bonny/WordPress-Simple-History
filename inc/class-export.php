@@ -311,6 +311,13 @@ class Export {
 	 * @param object   $one_row Log row.
 	 */
 	protected function output_html_row( $fp, $one_row ) {
+		// Resolved once for the whole export rather than per row: wp_kses_post()
+		// rebuilds this list and dispatches the wp_kses_allowed_html filter on
+		// every call, and this method runs three times for each of potentially
+		// hundreds of thousands of rows.
+		static $allowed_html = null;
+		$allowed_html      ??= wp_kses_allowed_html( 'post' );
+
 		$html = sprintf(
 			'
 			<li>
@@ -319,9 +326,14 @@ class Export {
 				<div>%3$s</div>
 			</li>
 			',
-			$this->simple_history->get_log_row_header_output( $one_row ),
-			$this->simple_history->get_log_row_plain_text_output( $one_row ),
-			$this->simple_history->get_log_row_details_output( $one_row )
+			// Filtered through kses because this writes a file the user then
+			// opens in a browser. Loggers that override the plain text output
+			// build their own HTML, so script planted by an author holding
+			// unfiltered_html would otherwise execute on open. The RSS dropin
+			// already filters the same three outputs this way.
+			wp_kses( $this->simple_history->get_log_row_header_output( $one_row ), $allowed_html ),
+			wp_kses( $this->simple_history->get_log_row_plain_text_output( $one_row ), $allowed_html ),
+			wp_kses( $this->simple_history->get_log_row_details_output( $one_row ), $allowed_html )
 		);
 
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite

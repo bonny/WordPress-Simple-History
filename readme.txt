@@ -256,6 +256,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Header now shows "Stealth mode: on" while stealth mode is hiding Simple History from other users, including other administrators.
 -   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
 -   "Find events from the same IP address" in an event's actions menu, alongside the existing user and event-type filters.
 -   Changes to more settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log).
@@ -271,6 +272,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Checkbox settings now show as On/Off (instead of 1/0) in the "Modified settings" log details.
 -   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
 -   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable. Add-ons can opt option keys in via the new `simple_history/settings/changed_only_options` filter.
+-   Developers: `simple_history/user_can_clear_log` now defaults to whether the user can manage settings, instead of always allowing it. The "Clear log" button is unaffected for administrators. Code that calls `Helpers::user_can_clear_log()` outside the settings page may need to opt back in through the filter.
 
 **Deprecated**
 
@@ -288,7 +290,17 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Filter events: This IP" in the IP address popover did nothing when used from the dashboard widget — it now opens the event log filtered to that address.
 -   Filtering by IP address now finds events by any address recorded for them, not just the one the web server saw. On sites behind a proxy or load balancer the visitor's real address is read from a forwarding header, and filtering by it previously returned nothing.
 -   Dismiss buttons in the review reminder notice rendered as boxed links.
+-   The "Settings" link in the header is no longer shown to users who can view the log but not the settings, where it led to a permission error.
 -   Experimental — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
+
+**Security**
+
+-   Looking up a person's username, email address and roles from the user card now follows WordPress's own rule and requires permission to list users. Who performed an event is still shown to everyone who can read that event.
+-   REST API endpoints now require the same permission as opening the history page.
+-   Detective Mode masks more field names — passwords, tokens, secrets and card numbers — and now also covers nested values, query strings and command line arguments.
+-   Clearing the log, exporting it and regenerating the RSS feed address now also require permission to manage settings.
+-   The RSS feed secret is compared in constant time.
+-   Event text escaping is now consistent across the media, categories, user and comments loggers, and in exported HTML files.
 
 ### 5.29.0 (June 2026)
 

@@ -116,15 +116,25 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		$avatar_data = get_avatar_data( $user_id, [ 'size' => 96 ] );
 
+		// This endpoint is viewable at the history capability (default
+		// "edit_pages", i.e. editors). Without this gate the card hands out
+		// login and email a full capability tier lower, for any user id —
+		// which also makes it an account enumeration endpoint.
+		$can_view_pii = Helpers::current_user_can_view_user_pii();
+
 		// Core identity fields.
+		// Display name and avatar stay ungated: both are already exposed to
+		// this capability level elsewhere in the log. profile_url is
+		// self-gating — get_edit_user_link() returns '' when the current user
+		// may not edit the target user.
 		$data = [
 			'user_id'            => $user->ID,
 			'display_name'       => $user->display_name,
-			'user_login'         => $user->user_login,
-			'user_email'         => $user->user_email,
+			'user_login'         => $can_view_pii ? $user->user_login : '',
+			'user_email'         => $can_view_pii ? $user->user_email : '',
 			'avatar_url'         => $avatar_data['url'] ?? '',
 			'profile_url'        => get_edit_user_link( $user->ID ),
-			'roles'              => array_values( $user->roles ),
+			'roles'              => $can_view_pii ? array_values( $user->roles ) : [],
 			'has_premium_add_on' => Helpers::is_premium_add_on_active(),
 		];
 
