@@ -1,3 +1,4 @@
+/.agents
 /.claude
 /.cursor
 /.git
@@ -59,3 +60,4 @@ README.md
 readme.issue*.md
 readme.slot-slotfills-filters.md
 rector.php
+skills-lock.json
