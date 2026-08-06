@@ -493,7 +493,7 @@ function IPAddressLink( ipAddressProps ) {
 
 			{ showPopover ? (
 				<Popover
-					anchorRef={ buttonRef }
+					anchor={ buttonRef.current }
 					noArrow={ false }
 					offset={ 10 }
 					placement="top"
