@@ -2,7 +2,7 @@
 name: premium-translate
 description: Translates Simple History Premium plugin strings for one or multiple locales. Use when translating or updating premium plugin PO files.
 argument-hint: '[locales]'
-allowed-tools: Read, Edit, Write, Bash(cat:*), Bash(ls:*), Bash(npm run:*), Bash(npm:*), Bash(wp:*), Bash(msgfmt:*), Bash(msgunfmt:*), Bash(unzip:*), Bash(for:*), Glob, Agent
+allowed-tools: Read, Edit, Write, Bash(cat:*), Bash(ls:*), Bash(grep:*), Bash(echo:*), Bash(npm:*), Bash(wp:*), Bash(msgfmt:*), Bash(msgunfmt:*), Bash(msgattrib:*), Bash(unzip:*), Bash(for:*), Glob, Agent
 disable-model-invocation: true
 ---
 
@@ -54,19 +54,31 @@ Show the locales to be translated for confirmation.
 
 ### Step 1: Update Source Strings (once)
 
+Record the string count **before** regenerating, so there is something to
+compare against:
+
 ```bash
+POT="$PREMIUM/languages/simple-history-add-on.pot"
+BEFORE=$(grep -c '^msgid "' "$POT")
+
 # Update the POT file with the latest strings from source code.
 npm --prefix "$PREMIUM" run i18n:make-pot
 
-# Merge the new strings into every locale's PO file.
-npm --prefix "$PREMIUM" run i18n:update-po
+echo "msgids: $BEFORE -> $(grep -c '^msgid "' "$POT")"
 ```
 
-Sanity-check that the POT grew as expected before translating — if the msgid
-count is unchanged after adding strings, `make-pot` scanned the wrong tree:
+The count must not go _down_, and if strings were added to the source it must
+go up. An unchanged or shrinking count means `make-pot` scanned the wrong tree
+— check `$PREMIUM` before going further, because the next command merges the
+result into all 22 catalogues.
+
+Match `'^msgid "'` and not `'^msgid'`: the latter also counts every
+`msgid_plural` line and inflates the number.
+
+Then merge the new strings into every locale's PO file:
 
 ```bash
-grep -c '^msgid' "$PREMIUM/languages/simple-history-add-on.pot"
+npm --prefix "$PREMIUM" run i18n:update-po
 ```
 
 ### Step 2: Translate Each Locale
@@ -115,7 +127,7 @@ Every locale needs a correct `Plural-Forms:` header, and every entry with a
 
 | Locales                                                                              | Header                                                                                                            |
 | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `ja_JP` `ko_KR` `zh_CN` `zh_TW`                                                      | `nplurals=1; plural=0;`                                                                                           |
+| `ja` `ko_KR` `zh_CN` `zh_TW`                                                         | `nplurals=1; plural=0;`                                                                                           |
 | `de_DE` `es_ES` `it_IT` `pt_PT` `nl_NL` `sv_SE` `da_DK` `nb_NO` `nn_NO` `fi` `hi_IN` | `nplurals=2; plural=(n != 1);`                                                                                    |
 | `fr_FR` `pt_BR` `tr_TR`                                                              | `nplurals=2; plural=(n > 1);`                                                                                     |
 | `ro_RO`                                                                              | `nplurals=3; plural=n==1 ? 0 : (n==0 \|\| (n%100 > 0 && n%100 < 20)) ? 1 : 2;`                                    |
@@ -135,10 +147,23 @@ carry context the translator needs and the format check relies on.
 Never compile an unvalidated catalogue.
 
 ```bash
+fail=0
 for f in "$PREMIUM"/languages/*.po; do
-    msgfmt -c -o /dev/null "$f" || echo "FAIL: $f"
+    msgfmt -c -o /dev/null "$f" || { echo "FAIL: $f"; fail=1; }
 done
+[ "$fail" -eq 0 ] && echo "all catalogues valid"
 ```
+
+The trailing `[ "$fail" -eq 0 ]` matters. Without it the loop's exit status is
+whatever the last `echo` returned, so the whole command reports success even
+when catalogues are broken and the `FAIL:` lines scroll past unnoticed. With
+it, a red validation is a non-zero exit you cannot miss.
+
+Validate each file separately, as above. Do **not** collapse this into
+`msgfmt -c -o /dev/null "$PREMIUM"/languages/*.po` — passing several PO files
+to one `msgfmt` invocation merges them into a single catalogue and reports
+every shared msgid as a "duplicate message definition", which is noise, not a
+real error.
 
 `-c` checks the header and verifies that plural translations match the
 declared `nplurals`. Fix every reported file before continuing — `wp i18n
@@ -158,9 +183,11 @@ npm --prefix "$PREMIUM" run i18n:make-php
 Then confirm the compiled output really carries the plural rule:
 
 ```bash
+miss=0
 for f in "$PREMIUM"/languages/*.mo; do
-    msgunfmt "$f" | grep -q "Plural-Forms" || echo "no plural rule: $f"
+    msgunfmt "$f" | grep -q "Plural-Forms" || { echo "no plural rule: $f"; miss=1; }
 done
+[ "$miss" -eq 0 ] && echo "all compiled catalogues carry a plural rule"
 ```
 
 ### Step 5: Verify the artifacts actually ship
