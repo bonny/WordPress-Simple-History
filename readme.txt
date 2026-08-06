@@ -258,6 +258,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   The plugin preview on WordPress.org now runs the latest WordPress and opens with a month of example activity, so you can see what the log actually looks like on a site in use.
 
+**Fixed**
+
+-   Event counts are now grouped for your locale — "187 304 events" rather than "187304 events" — in the log header, the stats bar, pagination and grouped-event counts.
+-   Backfill notice showed a stray `&nbsp;` in its item counts on locales that separate thousands with a space.
+
 ### 5.30.0 (August 2026)
 
 👍 Two experimental features graduate in this release: **event reactions** and the **header status bar**, which shows the status of your current settings at a glance — how long history is kept, whether email reports and alerts are on, and where logs are forwarded. This release also includes a round of security hardening and some miscellaneous fixes.
