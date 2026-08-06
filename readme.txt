@@ -254,10 +254,6 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
-**Changed**
-
--   The plugin preview on WordPress.org now runs the latest WordPress and opens with a month of example activity, so you can see what the log actually looks like on a site in use.
-
 **Fixed**
 
 -   Event counts are now grouped for your locale — "187 304 events" rather than "187304 events" — in the log header, the stats bar, pagination and grouped-event counts.
