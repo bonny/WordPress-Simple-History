@@ -258,6 +258,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Event counts are now grouped for your locale — "187 304 events" rather than "187304 events" — in the log header, the stats bar, pagination and grouped-event counts.
 -   Backfill notice showed a stray `&nbsp;` in its item counts on locales that separate thousands with a space.
+-   Welcome notice shown after install no longer appears on the history page it links to, so its "Take a look" link always goes somewhere.
 
 ### 5.30.0 (August 2026)
 
