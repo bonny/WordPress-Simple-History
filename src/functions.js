@@ -472,3 +472,79 @@ export function htmlToPlainText( html ) {
 
 	return ( doc.body.textContent || '' ).replace( /\n{3,}/g, '\n\n' ).trim();
 }
+
+/**
+ * Format a number using the admin locale, e.g. 187304 → "187 304" or "187,304".
+ *
+ * The JavaScript counterpart to PHP's number_format_i18n(), which the PHP-rendered
+ * surfaces already use. Without it the React UI shows raw digits while the stats
+ * page right next to it shows grouped ones.
+ *
+ * WordPress ships no JS number formatter — `@wordpress/i18n` exports no such
+ * function, not even in versions well ahead of core. Core is adding one in
+ * https://github.com/WordPress/gutenberg/pull/71214 (issue #22628), and it uses
+ * native Intl.NumberFormat rather than the separators WordPress translators define
+ * for number_format_i18n(). We deliberately match that upstream behaviour — name,
+ * signature and en-US fallback — so that once `numberFormatI18n` ships in a
+ * WordPress we support, this implementation can be deleted and the import swapped
+ * without touching a single call site.
+ *
+ * A consequence worth knowing: separators come from the browser's CLDR data, not
+ * from WordPress's translated `number_format_thousands_sep`, so a site filtering
+ * `number_format_i18n` is not reflected here. Core accepted the same tradeoff —
+ * an earlier attempt at exact PHP parity failed on rounding differences.
+ *
+ * @param {number} value      Number to format.
+ * @param {number} [decimals] Number of decimal places. Defaults to 0, matching number_format_i18n().
+ * @return {string} Locale-formatted number, or the value coerced to string if not finite.
+ */
+export function numberFormatI18n( value, decimals = 0 ) {
+	if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
+		return String( value ?? '' );
+	}
+
+	// Intl throws outside 0–20; core clamps to the same range for Node compatibility.
+	const fractionDigits = Math.min(
+		Math.max( Math.trunc( decimals ), 0 ),
+		20
+	);
+
+	const options = {
+		minimumFractionDigits: fractionDigits,
+		maximumFractionDigits: fractionDigits,
+	};
+
+	return new Intl.NumberFormat( getAdminLocale(), options ).format( value );
+}
+
+/**
+ * Resolve the admin locale as a BCP 47 tag usable by the Intl APIs.
+ *
+ * WordPress renders the locale into the html lang attribute via
+ * get_bloginfo( 'language' ), which returns BCP 47 ("en-US") rather than the
+ * underscored form get_locale() gives ("en_US") — so the attribute is already the
+ * shape Intl wants. The underscore replacement is defensive: some locales and
+ * filtered values still come through as "sv_SE".
+ *
+ * In wp-admin get_bloginfo( 'language' ) resolves through determine_locale(), which
+ * returns the *user's* locale, so a user whose personal admin language differs from
+ * the site language gets their own grouping.
+ *
+ * @return {string} A canonical locale tag, or 'en-US' when the attribute is missing or invalid.
+ */
+function getAdminLocale() {
+	const lang = ( document.documentElement.lang || '' ).replace( '_', '-' );
+
+	if ( ! lang ) {
+		return 'en-US';
+	}
+
+	try {
+		// Rejects malformed tags without constructing a formatter, matching how
+		// core validates. Falling back to the browser default instead would silently
+		// format in a locale the user never chose.
+		return Intl.getCanonicalLocales( lang )[ 0 ] ?? 'en-US';
+	} catch ( error ) {
+		return 'en-US';
+	}
+}
