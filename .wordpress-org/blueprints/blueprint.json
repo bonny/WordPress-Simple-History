@@ -2,7 +2,7 @@
 	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
 	"meta": {
 		"title": "Simple History – Track, Log, and Audit WordPress Changes",
-		"author": "bonny",
+		"author": "Simple-History",
 		"description": "Try Simple History with a pre-seeded activity log. Posts, pages, comments and user events are spread across the last 30 days so the log and the History Insights charts have real data to show.",
 		"categories": [ "Plugins", "Security" ]
 	},
