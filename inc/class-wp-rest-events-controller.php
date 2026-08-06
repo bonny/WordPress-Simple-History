@@ -1696,6 +1696,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					$stats['missed_label'] = number_format_i18n( $missed ) . ' more ' . $type;
 				}
 			}
+
+			// For locales whose thousands separator is a space (Swedish, French, ...),
+			// WP_Locale stores the separator as the literal string "&nbsp;", so
+			// number_format_i18n() returns "1&nbsp;234". That is fine in a PHP template,
+			// but this value goes out over REST and is rendered by React as a text node,
+			// which escapes it — the user would literally read "1&nbsp;234 more posts".
+			// A REST payload should carry data, not HTML entities, so decode to a real
+			// non-breaking space here.
+			$stats['missed_label'] = html_entity_decode( $stats['missed_label'], ENT_QUOTES, 'UTF-8' );
 		}
 		unset( $stats );
 

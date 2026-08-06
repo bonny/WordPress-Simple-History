@@ -4,7 +4,7 @@ import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { EventOccasionsList } from './EventOccasionsList';
-import { getTrackingUrl } from '../functions';
+import { numberFormatI18n, getTrackingUrl } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
 
 /**
@@ -86,10 +86,7 @@ function EventOccasionsAddonsContent( props ) {
  * @param {Object} props
  */
 export function EventOccasions( props ) {
-	const {
-		event,
-		eventVariant,
-	} = props;
+	const { event, eventVariant } = props;
 	const { subsequent_occasions_count: subsequentOccasionsCount } = event;
 	const [ isLoadingOccasions, setIsLoadingOccasions ] = useState( false );
 	const [ isShowingOccasions, setIsShowingOccasions ] = useState( false );
@@ -174,13 +171,11 @@ export function EventOccasions( props ) {
 						subsequentOccasionsCount - 1,
 						'simple-history'
 					),
-					subsequentOccasionsCount - 1
+					numberFormatI18n( subsequentOccasionsCount - 1 )
 				) }
 			</Button>
 
-			<EventOccasionsAddonsContent
-				event={ event }
-			/>
+			<EventOccasionsAddonsContent event={ event } />
 		</div>
 	);
 
@@ -207,7 +202,7 @@ export function EventOccasions( props ) {
 							{ sprintf(
 								/* translators: %s: number of similar events */
 								__( 'Showing %1$s more', 'simple-history' ),
-								subsequentOccasionsCount - 1
+								numberFormatI18n( subsequentOccasionsCount - 1 )
 							) }
 						</Button>
 					</div>
