@@ -263,6 +263,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Event counts are now grouped for your locale — "187 304 events" rather than "187304 events" — in the log header, the stats bar, pagination and grouped-event counts.
 -   Backfill notice showed a stray `&nbsp;` in its item counts on locales that separate thousands with a space.
 -   Welcome notice shown after install no longer appears on the history page it links to, so its "Take a look" link always goes somewhere.
+-   Log now shows the real reason it failed to load instead of "Unknown error" — on most sites every error detail was being discarded before it reached the screen.
+-   Database errors while loading the log now name the problem, so you can act on it or pass it to your host.
 
 ### 5.30.0 (August 2026)
 

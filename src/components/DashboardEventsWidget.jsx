@@ -225,10 +225,14 @@ export function DashboardEventsWidget() {
 			.catch( async ( error ) => {
 				// Without this response the events fetch never starts,
 				// so surface the error instead of showing skeletons forever.
+				//
+				// Parse before setting state, so all updates land in the same
+				// render. Awaiting between them renders an intermediate
+				// "there is an error but no details yet" state.
+				const errorDetails = await parseApiFetchError( error );
+
 				setEventsLoadingHasErrors( true );
-				setEventsLoadingErrorDetails(
-					await parseApiFetchError( error )
-				);
+				setEventsLoadingErrorDetails( errorDetails );
 				setEventsIsLoading( false );
 			} );
 	}, [] );
@@ -255,8 +259,11 @@ export function DashboardEventsWidget() {
 			const eventsJson = await eventsResponse.json();
 			setEvents( eventsJson );
 		} catch ( error ) {
+			// Parse before setting state — see the note in the fetch above.
+			const errorDetails = await parseApiFetchError( error );
+
 			setEventsLoadingHasErrors( true );
-			setEventsLoadingErrorDetails( await parseApiFetchError( error ) );
+			setEventsLoadingErrorDetails( errorDetails );
 		} finally {
 			setEventsIsLoading( false );
 		}
