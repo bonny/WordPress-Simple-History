@@ -2188,12 +2188,16 @@ class Helpers {
 	 * @return string CSV field with escaped characters.
 	 */
 	public static function esc_csv_field( $field ) {
-		// Bail if not string.
+		// Bail if not string. Note that this turns any non-string into an empty cell,
+		// which is what we want for null. All callers pass DB strings or null.
 		if ( ! is_string( $field ) ) {
 			return '';
 		}
 
-		$active_content_triggers = array( '=', '+', '-', '@' );
+		// Tab and carriage return are on the OWASP list alongside the four operators,
+		// because some spreadsheet applications trim leading whitespace before deciding
+		// whether the cell is a formula.
+		$active_content_triggers = array( '=', '+', '-', '@', "\t", "\r" );
 
 		if ( in_array( substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
 			$field = "'" . $field;

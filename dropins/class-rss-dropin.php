@@ -420,10 +420,10 @@ class RSS_Dropin extends Dropin {
 						<item>
 						<title><?php echo esc_xml( $item_title ); ?></title>
 							<description><![CDATA[
-								<p><?php echo wp_kses( $header_output, $wp_kses_attrs ); ?></p>
-								<p><?php echo wp_kses( $text_output, $wp_kses_attrs ); ?></p>
-								<div><?php echo wp_kses( $details_output, $wp_kses_attrs ); ?></div>
-								<p><?php echo wp_kses( $level_output, $wp_kses_attrs ); ?></p>
+								<p><?php echo $this->escape_cdata( wp_kses( $header_output, $wp_kses_attrs ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by wp_kses() above. ?></p>
+								<p><?php echo $this->escape_cdata( wp_kses( $text_output, $wp_kses_attrs ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by wp_kses() above. ?></p>
+								<div><?php echo $this->escape_cdata( wp_kses( $details_output, $wp_kses_attrs ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by wp_kses() above. ?></div>
+								<p><?php echo $this->escape_cdata( wp_kses( $level_output, $wp_kses_attrs ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by wp_kses() above. ?></p>
 								<?php
 								// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 								$occasions = $row->subsequentOccasions - 1;
@@ -505,6 +505,25 @@ class RSS_Dropin extends Dropin {
 		}
 
 		return $processor->get_updated_html();
+	}
+
+	/**
+	 * Make a string safe to place inside a CDATA section.
+	 *
+	 * A CDATA section ends at the first `]]>`, so any occurrence inside the content
+	 * would terminate it early and produce invalid XML. The standard workaround is to
+	 * split the sequence across two CDATA sections.
+	 *
+	 * Neither wp_kses() nor wp_strip_all_tags() removes `]]>` — there is no `<`
+	 * involved — so logger output reaching the feed can contain it. Comment content is
+	 * unauthenticated, which makes this the one field anyone can use to break the feed.
+	 *
+	 * @since 5.28.0
+	 * @param string $content Content to place inside a CDATA section.
+	 * @return string Content safe for CDATA.
+	 */
+	private function escape_cdata( $content ) {
+		return str_replace( ']]>', ']]]]><![CDATA[>', $content );
 	}
 
 	/**
