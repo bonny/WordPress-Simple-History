@@ -23,6 +23,7 @@ See the **wordpress-org-compliance** skill for detailed guidelines on implementi
 -   Use `Log_Query::get_db_engine()` to check database type (`'mysql'` or `'sqlite'`)
 -   Avoid MySQL-specific SQL (e.g., `OPTIMIZE TABLE`, `SHOW TABLE STATUS`) without a database type guard
 -   Some vendor packages are patched via `cweagans/composer-patches`. Patches live in `patches/` and are auto-applied on `composer install`. See [patches/README.md](patches/README.md) before editing anything under `vendor/`.
+-   Premium declares a **minimum core version** and calls core methods directly. Users update the two plugins independently, so adding a method here and calling it from premium is a fatal error for anyone on an older core. When premium starts using a new core API, bump `SIMPLE_HISTORY_PREMIUM_MIN_CORE_VERSION` in the add-ons repo. `npm run php:phpstan:min-core` there catches misses.
 
 ## Quick Start
 
