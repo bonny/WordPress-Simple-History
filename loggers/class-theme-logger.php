@@ -621,16 +621,8 @@ class Theme_Logger extends Logger {
 		$control_type = $context['control_type'] ?? '';
 
 		if ( $control_type === 'color' ) {
-			$new_swatch = sprintf(
-				'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
-				esc_attr( ltrim( $context['setting_new_value'], '#' ) ),
-				esc_html( $context['setting_new_value'] )
-			);
-			$old_swatch = sprintf(
-				'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
-				esc_attr( ltrim( $context['setting_old_value'], ' #' ) ),
-				esc_html( $context['setting_old_value'] )
-			);
+			$new_swatch = $this->get_color_swatch_html( $context['setting_new_value'] );
+			$old_swatch = $this->get_color_swatch_html( $context['setting_old_value'] );
 
 			$group->add_item(
 				( new Event_Details_Item( null, __( 'New value', 'simple-history' ) ) )
@@ -657,6 +649,33 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
+	 * Build the HTML for a colour swatch, falling back to the plain value.
+	 *
+	 * The value is validated with sanitize_hex_color() rather than escaped, because it
+	 * ends up inside a style attribute. esc_attr() leaves `;`, `:`, `(` and `/` intact —
+	 * harmless in an ordinary attribute, but enough to append extra CSS declarations
+	 * here. `control_type` is the *control* type, so a theme is free to bind a colour
+	 * control to a setting whose sanitize_callback lets any string through.
+	 *
+	 * @since 5.28.0
+	 * @param string $value Colour value from the customizer setting.
+	 * @return string Swatch HTML, or the escaped value when it is not a valid hex colour.
+	 */
+	private function get_color_swatch_html( $value ) {
+		$hex = sanitize_hex_color( '#' . ltrim( trim( (string) $value ), '#' ) );
+
+		if ( $hex === null ) {
+			return esc_html( $value );
+		}
+
+		return sprintf(
+			'<span style="background-color: %1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
+			esc_attr( $hex ),
+			esc_html( $value )
+		);
+	}
+
+	/**
 	 * Add widget name and sidebar name to output
 	 *
 	 * @param object $row Log row.
@@ -678,11 +697,16 @@ class Theme_Logger extends Logger {
 				$translated_message = $this->get_translated_message( $message_key );
 
 				if ( $translated_message !== null ) {
+					// Returning from this override skips the parent's esc_html(), so
+					// escape the interpolated values here instead.
 					$message = helpers::interpolate(
 						$translated_message,
-						array(
-							'widget_id_base' => $widget->name,
-							'sidebar_id'     => $sidebar['name'],
+						$this->esc_html_context_keys(
+							array(
+								'widget_id_base' => $widget->name,
+								'sidebar_id'     => $sidebar['name'],
+							),
+							[ 'widget_id_base', 'sidebar_id' ]
 						),
 						$row
 					);

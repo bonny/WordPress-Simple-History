@@ -266,6 +266,14 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Log now shows the real reason it failed to load instead of "Unknown error" — on most sites every error detail was being discarded before it reached the screen.
 -   Database errors while loading the log now name the problem, so you can act on it or pass it to your host.
 
+**Security**
+
+-   Comment content is escaped before it reaches the event details panel, so a comment can no longer put markup into the log.
+-   RSS feed no longer breaks when logged content contains the `]]>` character sequence, which anyone able to leave a comment could trigger.
+-   Colour values from the theme customizer are validated before being drawn as a swatch, so a theme with a permissive colour setting cannot inject CSS into the log.
+-   CSV exports treat tab and carriage return as formula triggers, alongside the `=`, `+`, `-` and `@` already covered.
+-   Additional escaping and input validation across the options, theme and media loggers.
+
 ### 5.30.0 (August 2026)
 
 👍 Two experimental features graduate in this release: **event reactions** and the **header status bar**, which shows the status of your current settings at a glance — how long history is kept, whether email reports and alerts are on, and where logs are forwarded. This release also includes a round of security hardening and some miscellaneous fixes.
