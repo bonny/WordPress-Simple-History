@@ -254,6 +254,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Changed**
+
+-   Theme update events now name the version the theme went from and to, the way plugin update events already did.
+
 **Fixed**
 
 -   Event counts are now grouped for your locale — "187 304 events" rather than "187304 events" — in the log header, the stats bar, pagination and grouped-event counts.
