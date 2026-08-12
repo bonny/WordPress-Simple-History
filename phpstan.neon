@@ -12,13 +12,35 @@ parameters:
     - tests/plugins/
   bootstrapFiles:
     - tests/phpstan/bootstrap.php
-  # phpVersion: 80500 — disabled due to phpstan 2.1.44 bug with enum case resolution in PHP 8 signature maps.
-  # Re-enable when fixed upstream: https://github.com/phpstan/phpstan/issues
-  level: 3
+  # Analyse against the whole supported PHP range rather than whatever version
+  # the container happens to run, so using an 8.x-only function is reported as
+  # breaking 7.4 instead of passing silently. Keep in step with the
+  # `Requires PHP` header in index.php.
+  #
+  # This replaces a disabled `phpVersion: 80500` that was commented out over a
+  # phpstan enum/signature-map bug. That bug no longer reproduces, with or
+  # without bleedingEdge, and a single version was the wrong target anyway —
+  # it would only ever have checked the newest PHP, never the oldest.
+  phpVersion:
+    min: 70400
+    max: 80500
+  level: 4
+  # In WordPress a docblock is a statement of intent, not a guarantee. Anything
+  # passing through apply_filters() can be replaced by third-party code with a
+  # different type entirely, so the declared type is unenforceable by design —
+  # and the stubs are generated from core's own docblocks, which additionally
+  # omit false/null/WP_Error returns that really happen.
+  #
+  # Treating those types as proof makes phpstan call correct defensive checks
+  # dead code: 60 of 80 findings here were exactly that. Worse, "fixing" them
+  # by deleting the guards would make the plugin more fragile, since a filter
+  # really can hand back something unexpected.
+  #
+  # Inference still uses PHPDoc — it just isn't treated as proof when deciding
+  # that something is impossible.
+  treatPhpDocTypesAsCertain: false
   ignoreErrors:
     # - '#Access to an undefined property object::\$context_message_key.#'
   WPCompat:
     pluginFile: index.php
     requiresAtLeast: '6.3'
-includes:
-	- phar://phpstan.phar/conf/bleedingEdge.neon
