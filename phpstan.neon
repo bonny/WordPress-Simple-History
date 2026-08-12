@@ -40,7 +40,44 @@ parameters:
   # that something is impossible.
   treatPhpDocTypesAsCertain: false
   ignoreErrors:
-    # - '#Access to an undefined property object::\$context_message_key.#'
+    # Defensive isset()/?? guards on objects WordPress or another plugin hands
+    # us. The stubs declare these properties as always present, but the objects
+    # arrive through hooks and filters where any plugin can substitute its own
+    # value, so the guard is correct rather than redundant. Dropping them would
+    # make the plugin more fragile, which is the opposite of what the reported
+    # "always present" is suggesting.
+    -
+      identifier: isset.property
+    -
+      identifier: nullCoalesce.property
+
+    # method_exists() on an optional third-party class. Reported as always true
+    # only because scanDirectories includes tests/plugins/, which bundles
+    # Jetpack — on a real site it is usually absent and the check is required.
+    -
+      identifier: function.alreadyNarrowedType
+      path: loggers/class-plugin-jetpack-logger.php
+
+    # Deliberate switches, not defects:
+    # $enable_debug is a developer toggle kept in the source on purpose.
+    -
+      identifier: if.alwaysFalse
+      path: loggers/class-logger.php
+    # Settings errors are forced on; the conditional version is kept commented
+    # directly above as documentation of when it would differ.
+    -
+      identifier: if.alwaysTrue
+      path: inc/services/class-admin-pages.php
+
+    # Type checks that are redundant for today's literal inputs but keep new
+    # inputs safe: a parent that is not a Menu_Page, and setting definitions
+    # that are not of type checkbox.
+    -
+      identifier: function.alreadyNarrowedType
+      path: inc/class-menu-page.php
+    -
+      identifier: identical.alwaysTrue
+      path: loggers/class-user-logger.php
   WPCompat:
     pluginFile: index.php
     requiresAtLeast: '6.3'
