@@ -254,12 +254,19 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Added**
+
+-   `--format=json` and `--format=yaml` on `wp simple-history info`, so a deploy or CI script can check that Premium is active and licensed.
+
 **Changed**
 
 -   Theme update events now name the version the theme went from and to, the way plugin update events already did.
 
 **Fixed**
 
+-   "Deleted user" events showed a blank id, email and login instead of the details of the removed user.
+-   Personal data export requests were logged whatever their status, not only when newly requested.
+-   `wp simple-history info` never showed the license line on sites with Premium active.
 -   Event counts are now grouped for your locale — "187 304 events" rather than "187304 events" — in the log header, the stats bar, pagination and grouped-event counts.
 -   Backfill notice showed a stray `&nbsp;` in its item counts on locales that separate thousands with a space.
 -   Welcome notice shown after install no longer appears on the history page it links to, so its "Take a look" link always goes somewhere.
