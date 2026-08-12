@@ -37,6 +37,10 @@ class WP_CLI_Info_Command extends WP_CLI_Command {
 				WP_CLI::colorize( '%GPremium add-on:%n active' )
 			);
 
+			WP_CLI::log(
+				'  ' . __( 'Thank you for supporting Simple History — it keeps the plugin going!', 'simple-history' )
+			);
+
 			// If a license/expiry helper is available, surface it.
 			$license_summary = self::get_license_summary();
 			if ( $license_summary !== '' ) {
