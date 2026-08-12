@@ -572,8 +572,13 @@ function EventsGUI() {
 
 			setEvents( eventsJson );
 		} catch ( error ) {
+			// Parse before setting state, so both updates land in the same
+			// render. Awaiting between them renders an intermediate "there is
+			// an error but no details yet" state.
+			const errorDetails = await parseApiFetchError( error );
+
 			setEventsLoadingHasErrors( true );
-			setEventsLoadingErrorDetails( await parseApiFetchError( error ) );
+			setEventsLoadingErrorDetails( errorDetails );
 		} finally {
 			setEventsIsLoading( false );
 		}

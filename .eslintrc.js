@@ -1,4 +1,8 @@
 module.exports = {
+	// Stop ESLint walking further up the tree. Parallel-dev worktrees live
+	// inside the main checkout, so without this their config cascades into
+	// the parent repo's and both register the same plugin, which is an error.
+	root: true,
 	extends: [ 'plugin:@wordpress/eslint-plugin/recommended' ],
 	env: {
 		browser: true,

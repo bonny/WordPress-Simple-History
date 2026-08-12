@@ -415,6 +415,13 @@ export function getTrackingUrl(
 /**
  * Parse an error from wp.apiFetch into a structured details object.
  *
+ * Two shapes arrive here, depending on how apiFetch was called:
+ *
+ * - With `parse: false` apiFetch rejects with the raw `Response`, leaving the
+ *   body unread. We read it here.
+ * - Otherwise apiFetch rejects with the already-parsed REST error object
+ *   (`{ code, message, data }`), or a plain JS `Error`.
+ *
  * @param {Error|Response} error The caught error from apiFetch.
  * @return {Promise<Object>} Error details with code, statusText, bodyJson, bodyText.
  */
@@ -426,28 +433,91 @@ export async function parseApiFetchError( error ) {
 		bodyText: null,
 	};
 
-	if ( error.headers && error.status && error.statusText ) {
-		const contentType = error.headers.get( 'Content-Type' );
-		errorDetails.code = error.status;
-		errorDetails.statusText = error.statusText;
-
-		if ( contentType && contentType.includes( 'application/json' ) ) {
-			errorDetails.bodyJson = await error.json();
-		} else {
-			errorDetails.bodyText = await error.text();
-		}
-	} else if ( error.code || error.message ) {
-		// Error already parsed by apiFetch (REST error object or JS Error).
-		errorDetails.code = error.data?.status || error.code || null;
-		errorDetails.bodyJson = error.code
-			? { code: error.code, message: error.message }
-			: null;
-		errorDetails.bodyText = error.code ? null : error.message;
-	} else {
+	if ( ! error ) {
 		errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
+
+		return errorDetails;
 	}
 
+	// An unread Response, from a `parse: false` call.
+	//
+	// Detected by its own `json()`/`text()` methods rather than by
+	// `statusText`: HTTP/2 dropped the status reason phrase, so `statusText`
+	// is always an empty string there. Testing it sent every failed request
+	// on an HTTP/2 site — most sites — down the "Unknown error" path below,
+	// discarding a response body that said exactly what went wrong.
+	if (
+		typeof error.json === 'function' &&
+		typeof error.text === 'function'
+	) {
+		const contentType = error.headers?.get( 'Content-Type' );
+		errorDetails.code = error.status || null;
+		errorDetails.statusText = error.statusText || null;
+
+		// The body is a stream and reading it can fail — on invalid JSON, or
+		// if something upstream consumed it already. Losing the body should
+		// not cost us the status we already have.
+		try {
+			if ( contentType && contentType.includes( 'application/json' ) ) {
+				errorDetails.bodyJson = await error.json();
+			} else {
+				errorDetails.bodyText = await error.text();
+			}
+		} catch ( bodyError ) {
+			errorDetails.bodyText = __(
+				'Could not read the error response body.',
+				'simple-history'
+			);
+		}
+
+		return errorDetails;
+	}
+
+	// Error already parsed by apiFetch (REST error object or JS Error).
+	if ( error.code || error.message ) {
+		errorDetails.code = error.data?.status || error.code || null;
+
+		// Keep `data` — it carries the diagnostic detail, such as the database
+		// error behind a failed query. Rebuilding this object from `code` and
+		// `message` alone used to throw that away.
+		errorDetails.bodyJson = error.code
+			? {
+					code: error.code,
+					message: error.message,
+					...( error.data ? { data: error.data } : {} ),
+			  }
+			: null;
+		errorDetails.bodyText = error.code ? null : error.message;
+
+		return errorDetails;
+	}
+
+	errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
+
 	return errorDetails;
+}
+
+/**
+ * Get the underlying database error message from parsed error details, if the
+ * failure was a database error.
+ *
+ * The REST API attaches the real `$wpdb->last_error` string to the error
+ * response, which is far more actionable than "Database query failed." — it
+ * names the table and the problem, e.g. a corrupt index.
+ *
+ * @param {Object} errorDetails Output of parseApiFetchError().
+ * @return {string} The database error message, or an empty string.
+ */
+export function getDatabaseErrorMessage( errorDetails ) {
+	const bodyJson = errorDetails?.bodyJson;
+
+	if ( bodyJson?.code !== 'simple_history_db_error' ) {
+		return '';
+	}
+
+	const dbError = bodyJson?.data?.db_error;
+
+	return typeof dbError === 'string' ? dbError : '';
 }
 
 /**
