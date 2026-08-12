@@ -14,9 +14,22 @@ class WP_CLI_Info_Command extends WP_CLI_Command {
 	/**
 	 * Show Simple History version, premium add-on status, and useful links.
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--format=<format>]
+	 * : Render machine-readable output instead of the human summary.
+	 * ---
+	 * options:
+	 *   - json
+	 *   - yaml
+	 * ---
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp simple-history info
+	 *
+	 *     # Fail a deploy when premium is running without a license.
+	 *     wp simple-history info --format=json | jq -e '.premium_active and .license_key_entered'
 	 *
 	 * @when after_wp_load
 	 *
@@ -24,6 +37,78 @@ class WP_CLI_Info_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Associative arguments.
 	 */
 	public function __invoke( $args, $assoc_args ) {
+		$format = $assoc_args['format'] ?? null;
+
+		if ( $format !== null ) {
+			self::output_machine_readable( $format );
+			return;
+		}
+
+		self::output_human_summary();
+	}
+
+	/**
+	 * Print the info as JSON or YAML, for scripts and CI.
+	 *
+	 * Only the data is printed — no thank-you line, no feature list, no
+	 * subcommand hints. Those are for humans and would be noise here.
+	 *
+	 * @param string $format Output format.
+	 * @return void
+	 */
+	private static function output_machine_readable( $format ) {
+		$allowed_formats = [ 'json', 'yaml' ];
+
+		// WP-CLI validates this from the docblock, but the command can also be
+		// called programmatically, where it does not.
+		if ( ! in_array( $format, $allowed_formats, true ) ) {
+			WP_CLI::error(
+				sprintf(
+					'Invalid format "%1$s". Use one of: %2$s.',
+					$format,
+					implode( ', ', $allowed_formats )
+				)
+			);
+		}
+
+		WP_CLI::print_value( self::get_info_data(), [ 'format' => $format ] );
+	}
+
+	/**
+	 * Collect the status data behind the machine-readable output.
+	 *
+	 * Values are real booleans rather than localised "Yes"/"No" strings, so a
+	 * script asserting on them keeps working on a site running in any language.
+	 *
+	 * The license key itself is never included — `license_key_entered` answers
+	 * the question a deploy script actually asks, without putting a credential
+	 * into build logs.
+	 *
+	 * `premium_version` is null when premium is inactive, and also on premium
+	 * releases older than the one that started defining the version constant.
+	 *
+	 * @return array<string, scalar|null>
+	 */
+	private static function get_info_data() {
+		$license_key     = Licences_Settings_Page::get_license_key();
+		$license_message = Licences_Settings_Page::get_license_message();
+
+		return [
+			'version'               => defined( 'SIMPLE_HISTORY_VERSION' ) ? SIMPLE_HISTORY_VERSION : null,
+			'premium_active'        => Helpers::is_premium_add_on_active(),
+			'premium_version'       => defined( 'SIMPLE_HISTORY_PREMIUM_VERSION' ) ? SIMPLE_HISTORY_PREMIUM_VERSION : null,
+			'license_key_entered'   => ! empty( $license_key ),
+			'license_message'       => is_string( $license_message ) ? $license_message : '',
+			'experimental_features' => Helpers::experimental_features_is_enabled(),
+		];
+	}
+
+	/**
+	 * Print the human-readable summary.
+	 *
+	 * @return void
+	 */
+	private static function output_human_summary() {
 		$version = defined( 'SIMPLE_HISTORY_VERSION' ) ? SIMPLE_HISTORY_VERSION : '?';
 
 		WP_CLI::log( '' );
