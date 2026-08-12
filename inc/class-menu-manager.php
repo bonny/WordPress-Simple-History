@@ -227,34 +227,6 @@ class Menu_Manager {
 	}
 
 	/**
-	 * Get all child pages of a parent page.
-	 *
-	 * @param Menu_Page $parent_page Parent page to get children for.
-	 * @return array<Menu_Page>
-	 */
-	private function get_child_pages( Menu_Page $parent_page ) {
-		$children = [];
-
-		foreach ( $this->pages as $page ) {
-			if ( $page->get_parent() !== $parent_page ) {
-				continue;
-			}
-
-			$children[] = $page;
-		}
-
-		// Sort children by order.
-		usort(
-			$children,
-			function ( $a, $b ) {
-				return $a->get_order() - $b->get_order();
-			}
-		);
-
-		return $children;
-	}
-
-	/**
 	 * Return all slugs for all pages.
 	 *
 	 * @return array<string> Array of all slugs for all pages.
