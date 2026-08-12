@@ -507,8 +507,8 @@ class Comments_Logger extends Logger {
 	/**
 	 * Fires immediately after a comment is inserted into the database.
 	 *
-	 * @param int $comment_ID The comment ID.
-	 * @param int $comment_approved 1 if the comment is approved, 0 if not, 'spam' if spam.
+	 * @param int        $comment_ID The comment ID.
+	 * @param int|string $comment_approved 1 if the comment is approved, 0 if not, 'spam' if spam.
 	 */
 	public function on_comment_post( $comment_ID, $comment_approved ) {
 

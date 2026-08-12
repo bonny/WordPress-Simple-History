@@ -352,7 +352,7 @@ class Stats_View {
 	/**
 	 * Output the table of top posts and pages.
 	 *
-	 * @param object $top_posts_and_pages Array of top posts and pages data.
+	 * @param array $top_posts_and_pages Array of top posts and pages data.
 	 */
 	public static function output_top_posts_and_pages_table( $top_posts_and_pages ) {
 		?>
