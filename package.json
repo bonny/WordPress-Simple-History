@@ -36,7 +36,7 @@
 		"grunt": "grunt",
 		"php:lint": "docker compose run --rm php-lint vendor/bin/phpcs . --report=full,summary",
 		"php:lint-fix": "docker compose run --rm php-lint vendor/bin/phpcbf .",
-		"php:phpstan": "docker compose run --rm php-lint vendor/bin/phpstan analyse --memory-limit 2048M",
+		"php:phpstan": "docker compose run --rm php-lint vendor/bin/phpstan analyse --memory-limit 4096M",
 		"php:rector": "docker compose run --rm php-lint vendor/bin/rector process --dry-run",
 		"php:rector-fix": "docker compose run --rm php-lint vendor/bin/rector process",
 		"addons": "./scripts/addons.sh",
