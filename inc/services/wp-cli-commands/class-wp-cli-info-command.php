@@ -3,6 +3,7 @@
 namespace Simple_History\Services\WP_CLI_Commands;
 
 use Simple_History\Helpers;
+use Simple_History\Services\Licences_Settings_Page;
 use WP_CLI;
 use WP_CLI_Command;
 
@@ -70,30 +71,32 @@ class WP_CLI_Info_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Build a one-line summary of the premium license, if a public helper exposes it.
+	 * Build a one-line summary of the premium license.
 	 *
-	 * Falls back to an empty string when the premium plugin doesn't expose a known
-	 * helper — the calling code just skips the line in that case.
+	 * The license key and the server's reply are stored by core, not by premium,
+	 * so both are read from Licences_Settings_Page. An earlier version looked for
+	 * a `\Simple_History_Premium\License` class that has never existed, which
+	 * meant this line was silently never printed.
+	 *
+	 * The key itself is deliberately not included — it is a credential, and this
+	 * output gets pasted into support threads.
 	 *
 	 * @return string
 	 */
 	private static function get_license_summary() {
-		// Premium exposes license helpers under its own namespace; we reach for them
-		// defensively so this command never fatals when premium is missing or older
-		// than the helper we look for.
-		if ( ! class_exists( '\\Simple_History_Premium\\License' ) ) {
-			return '';
+		$license_key = Licences_Settings_Page::get_license_key();
+
+		if ( empty( $license_key ) ) {
+			return __( 'License: no key entered', 'simple-history' );
 		}
 
-		$license_class = '\\Simple_History_Premium\\License';
+		$license_message = Licences_Settings_Page::get_license_message();
 
-		if ( method_exists( $license_class, 'get_status_summary' ) ) {
-			$summary = call_user_func( array( $license_class, 'get_status_summary' ) );
-			if ( is_string( $summary ) && $summary !== '' ) {
-				return $summary;
-			}
+		if ( is_string( $license_message ) && $license_message !== '' ) {
+			/* translators: %s: license status message returned by the license server. */
+			return sprintf( __( 'License: %s', 'simple-history' ), $license_message );
 		}
 
-		return '';
+		return __( 'License: key entered', 'simple-history' );
 	}
 }
