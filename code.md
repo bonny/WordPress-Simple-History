@@ -6,11 +6,6 @@ For comprehensive code quality guidelines, see the **code-quality** skill.
 
 ## Quick Reference
 
--   Code standards is WordPress own
--   **phpcodesniffer** is used to format code
--   **phpstan** is used to check for bugs
--   **rector** is used to update code
-
 ### Common Commands
 
 ```bash
@@ -58,20 +53,6 @@ return $result;
 return $result; // Return because user is not authorized
 ```
 
-**Why comments above are preferred:**
-
--   More visible and easier to scan
--   Avoids pushing lines beyond character limits
--   Easier to maintain consistent formatting
--   Git diffs show comment changes separately from code changes
-
-**When comments are appropriate:**
-
--   Explaining intent or "why" (not "what")
--   Warning of consequences
--   Clarifying complex algorithms
--   TODO markers for future work
-
 ## Frontend Development
 
 ### WordPress JavaScript Compatibility
@@ -89,28 +70,6 @@ Use native HTML elements and CSS before reaching for JavaScript:
 -   **CSS `:focus-visible`** for focus states instead of JS focus management
 -   **Form validation attributes** (`required`, `pattern`, `type="email"`) before JS validation
 -   **CSS Grid/Flexbox** for layouts instead of JS-based positioning
-
-**Why?**
-
--   Works without JavaScript (progressive enhancement)
--   Accessible by default (screen readers, keyboard navigation)
--   Less code to maintain
--   Better performance
--   Browser handles edge cases
-
-**Example:**
-
-```html
-<!-- Good: Native HTML -->
-<details>
-	<summary>Show more</summary>
-	<p>Hidden content</p>
-</details>
-
-<!-- Avoid: JavaScript-dependent -->
-<button onclick="toggle()">Show more</button>
-<div id="content" hidden>Hidden content</div>
-```
 
 ### Accessibility
 

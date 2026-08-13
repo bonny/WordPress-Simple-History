@@ -49,12 +49,9 @@ See @CLAUDE.local.md for specific commands for stable and nightly WordPress inst
 
 ### Quick Reference
 
--   **WordPress Way**: Follow WordPress best practices and conventions
 -   **Prefixes**: Use `sh`, `simplehistory`, or `simple_history`
 -   **Text Domain**: `simple-history`
 -   **PHP**: 7.4+ compatibility, WordPress Coding Standards
--   **Escaping**: Always escape output properly
--   **JavaScript**: Follow @wordpress/scripts conventions
 
 ## Project Management
 
