@@ -256,6 +256,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Support for the official WordPress AI plugin: Simple History now logs when AI features are enabled or disabled, when a feature's AI provider or model is changed, and when plugins or themes request, are granted, or lose access to AI providers on the Connector Approvals screen. API keys and AI prompt content are never stored in the log.
 -   `--format=json` and `--format=yaml` on `wp simple-history info`, so a deploy or CI script can check that Premium is active and licensed.
 
 **Changed**
