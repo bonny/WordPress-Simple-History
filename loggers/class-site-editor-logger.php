@@ -39,6 +39,31 @@ class Site_Editor_Logger extends Logger {
 	private $deleted_font_family_ids = [];
 
 	/**
+	 * How deeply nested the current REST dispatch is, if any.
+	 *
+	 * Saves made while serving a REST request are logged from
+	 * rest_after_insert_* instead of save_post, because meta and terms
+	 * are not stored yet when save_post runs. Tracked with a counter
+	 * rather than the REST_REQUEST constant, which is only defined when
+	 * WordPress serves an HTTP request and not when code dispatches a
+	 * request internally with rest_do_request().
+	 *
+	 * @var int
+	 */
+	private $rest_dispatch_depth = 0;
+
+	/**
+	 * Whether a post is currently being restored from the trash.
+	 *
+	 * Restoring updates the post status, which fires save_post. That save
+	 * is not an edit the user made, so it is skipped in favour of the
+	 * restore message.
+	 *
+	 * @var bool
+	 */
+	private $is_untrashing = false;
+
+	/**
 	 * Term and meta data captured just before a post is deleted,
 	 * because WordPress removes terms and meta before the delete_post
 	 * action fires. Keyed by post ID.
@@ -155,12 +180,19 @@ class Site_Editor_Logger extends Logger {
 		// Tell Post_Logger to not log Site Editor post types, this logger handles them.
 		add_filter( 'simple_history/post_logger/skip_posttypes', [ $this, 'on_post_logger_skip_posttypes' ] );
 
-		// The Site Editor saves everything through the REST API.
+		// The Site Editor saves everything through the REST API, but the same
+		// post types can also be changed by WP-CLI, an importer or plugin code,
+		// so listen for both and let the handlers agree on which one logs.
 		foreach ( self::FSE_POST_TYPES as $post_type ) {
 			add_action( "rest_after_insert_{$post_type}", [ $this, 'on_rest_after_insert' ], 10, 3 );
+			add_action( "save_post_{$post_type}", [ $this, 'on_save_post' ], 10, 3 );
 		}
 
+		add_filter( 'rest_pre_dispatch', [ $this, 'on_rest_pre_dispatch' ] );
+		add_filter( 'rest_post_dispatch', [ $this, 'on_rest_post_dispatch' ] );
+
 		add_action( 'trashed_post', [ $this, 'on_trashed_post' ] );
+		add_action( 'untrash_post', [ $this, 'on_untrash_post' ] );
 		add_action( 'untrashed_post', [ $this, 'on_untrashed_post' ] );
 		add_action( 'before_delete_post', [ $this, 'on_before_delete_post' ], 10, 2 );
 		add_action( 'delete_post', [ $this, 'on_delete_post' ], 10, 2 );
@@ -178,13 +210,92 @@ class Site_Editor_Logger extends Logger {
 	}
 
 	/**
+	 * Remember that a REST request started being dispatched.
+	 *
+	 * @param mixed $result Dispatch result, passed through untouched.
+	 * @return mixed
+	 */
+	public function on_rest_pre_dispatch( $result ) {
+		++$this->rest_dispatch_depth;
+
+		return $result;
+	}
+
+	/**
+	 * Remember that a REST request finished being dispatched.
+	 *
+	 * @param mixed $response Dispatch response, passed through untouched.
+	 * @return mixed
+	 */
+	public function on_rest_post_dispatch( $response ) {
+		if ( $this->rest_dispatch_depth > 0 ) {
+			--$this->rest_dispatch_depth;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Fired before a post is restored from the trash.
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	public function on_untrash_post( $post_id ) {
+		$this->is_untrashing = true;
+	}
+
+	/**
 	 * Fired after a Site Editor post is created or updated via the REST API.
+	 *
+	 * This is the path the Site Editor itself uses. It runs after meta and
+	 * terms have been saved, so the area of a template part and the sync
+	 * status of a pattern are readable here but not yet during save_post.
 	 *
 	 * @param \WP_Post         $post     Inserted or updated post object.
 	 * @param \WP_REST_Request $request  Request object.
 	 * @param bool             $creating True when creating a post, false when updating.
 	 */
 	public function on_rest_after_insert( $post, $request, $creating ) {
+		$this->log_post_change( $post, $creating );
+	}
+
+	/**
+	 * Fired when a Site Editor post is saved outside the REST API,
+	 * for example by WP-CLI, an importer or plugin code.
+	 *
+	 * REST saves are skipped here because on_rest_after_insert() logs those
+	 * with fuller context. Without this hook such changes would go unlogged
+	 * entirely, since Post_Logger no longer handles these post types.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post object.
+	 * @param bool     $update  True when updating an existing post.
+	 */
+	public function on_save_post( $post_id, $post, $update ) {
+		if ( $this->rest_dispatch_depth > 0 ) {
+			return;
+		}
+
+		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+			return;
+		}
+
+		// Trashing and restoring both change the post status, which fires
+		// save_post. Those are logged as trash and restore instead.
+		if ( $post->post_status === 'trash' || $this->is_untrashing ) {
+			return;
+		}
+
+		$this->log_post_change( $post, ! $update );
+	}
+
+	/**
+	 * Log the creation or update of a Site Editor post.
+	 *
+	 * @param \WP_Post $post     Inserted or updated post object.
+	 * @param bool     $creating True when the post was just created.
+	 */
+	private function log_post_change( $post, $creating ) {
 		if ( ! $post instanceof \WP_Post ) {
 			return;
 		}
@@ -311,6 +422,8 @@ class Site_Editor_Logger extends Logger {
 	 * @param int $post_id Post ID.
 	 */
 	public function on_untrashed_post( $post_id ) {
+		$this->is_untrashing = false;
+
 		$post = get_post( $post_id );
 
 		if ( ! $post instanceof \WP_Post ) {
