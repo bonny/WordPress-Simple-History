@@ -187,6 +187,7 @@ class Simple_History {
 			Services\Status_Box_Service::class,
 			Services\Stealth_Mode::class,
 			Services\Welcome_Message_Service::class,
+			Services\Whats_New_Service::class,
 			Services\WP_CLI_Commands::class,
 		);
 

@@ -5169,3 +5169,118 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 .sh-LicenseReminder-dismiss:focus-visible {
 	color: #1d2327;
 }
+
+/* What's new: expired premium sidebar card. */
+.sh-WhatsNewCard.postbox {
+	position: relative;
+	padding: 12px;
+	border-left: 4px solid var(--wp-admin-theme-color);
+	overflow: hidden;
+	transition: height 150ms ease;
+}
+
+.sh-WhatsNewCard-title {
+	margin: 0 24px 4px 0;
+	padding: 0;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.sh-WhatsNewCard-subhead {
+	margin: 0 0 6px;
+	color: #646970;
+	font-size: 12px;
+}
+
+.sh-WhatsNewCard-list {
+	margin: 0 0 10px;
+	padding-left: 16px;
+	color: #3c434a;
+	font-size: 12px;
+	list-style: disc;
+}
+
+.sh-WhatsNewCard-list li {
+	margin-bottom: 2px;
+}
+
+.sh-WhatsNewCard-more {
+	margin-left: -16px;
+	list-style: none;
+}
+
+.sh-WhatsNewCard-cta.button {
+	width: 100%;
+	text-align: center;
+}
+
+.sh-WhatsNewCard-dismiss {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 16px;
+	height: 16px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #646970;
+	font-size: 14px;
+	line-height: 16px;
+	cursor: pointer;
+}
+
+.sh-WhatsNewCard-dismiss:hover,
+.sh-WhatsNewCard-dismiss:focus-visible {
+	color: #1d2327;
+}
+
+/* What's new: small single-line variant after first dismissal. */
+.sh-WhatsNewSmall {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 20px;
+	padding: 8px 12px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid var(--wp-admin-theme-color);
+	font-size: 12px;
+	transition: opacity 200ms ease;
+}
+
+.sh-WhatsNewSmall.is-dismissed {
+	opacity: 0;
+}
+
+.sh-WhatsNewSmall-text {
+	flex: 1;
+	min-width: 0;
+}
+
+.sh-WhatsNewSmall-dismiss {
+	flex: 0 0 auto;
+	width: 16px;
+	height: 16px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #646970;
+	font-size: 14px;
+	line-height: 16px;
+	cursor: pointer;
+}
+
+.sh-WhatsNewSmall-dismiss:hover,
+.sh-WhatsNewSmall-dismiss:focus-visible {
+	color: #1d2327;
+}
+
+/* What's new: update strip for active premium users. */
+.sh-WhatsNewStrip {
+	margin: 8px 0;
+	padding: 6px 12px;
+	background: #f0f6fc;
+	border-left: 3px solid var(--wp-admin-theme-color);
+	font-size: 13px;
+	overflow-wrap: break-word;
+}
