@@ -1931,7 +1931,22 @@ abstract class Logger {
 			! isset( $context['_server_http_referer'] ) &&
 			isset( $_SERVER['HTTP_REFERER'] )
 		) {
-			$context['_server_http_referer'] = esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
+			// A referer carries the previous page's query string, which sometimes
+			// holds a credential — an access token, a session id. Detective Mode
+			// already masks the query string it stores, and that path is opt-in
+			// and short lived. This one is always on and keeps events for the
+			// full retention period, so it should not be the laxer of the two.
+			//
+			// Masking is by field name, so it only covers the names listed in
+			// Helpers::get_sensitive_field_names(). A password reset "key" and an
+			// OAuth "code" are deliberately not on that list: both are too short
+			// to match on without also swallowing "keywords" and "postcode".
+			//
+			// Masking runs after esc_url_raw() because the replacement value is
+			// not URL safe and would be mangled by it.
+			$context['_server_http_referer'] = Helpers::mask_sensitive_query_string(
+				esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) )
+			);
 		}
 
 		return $context;

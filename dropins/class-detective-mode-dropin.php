@@ -12,7 +12,7 @@ class Detective_Mode_Dropin extends Dropin {
 	/**
 	 * Replacement written in place of a value whose key looks sensitive.
 	 */
-	const MASKED_VALUE = '<removed by Simple History>';
+	const MASKED_VALUE = Helpers::MASKED_VALUE;
 
 	/** @inheritdoc */
 	public function loaded() {
@@ -123,7 +123,7 @@ class Detective_Mode_Dropin extends Dropin {
 
 		// Resolved once and threaded through every masking call below, so the
 		// filter fires once per event rather than once per value inspected.
-		$sensitive_field_names = $this->get_sensitive_field_names();
+		$sensitive_field_names = Helpers::get_sensitive_field_names();
 
 		// Keys from $_SERVER to add to context.
 		$arr_server_keys_to_add = [
@@ -153,7 +153,7 @@ class Detective_Mode_Dropin extends Dropin {
 			// value verbatim — masking $_GET alone would leave the same secret
 			// sitting in plain sight one context key over.
 			if ( $key === 'REQUEST_URI' ) {
-				$value = $this->mask_sensitive_query_string( $value, $sensitive_field_names );
+				$value = Helpers::mask_sensitive_query_string( $value, $sensitive_field_names );
 			}
 
 			$detective_mode_data[ 'server_' . strtolower( $key ) ] = $value;
@@ -216,7 +216,7 @@ class Detective_Mode_Dropin extends Dropin {
 	protected function mask_sensitive_data( $data ) {
 		// Substring match, so "pass" covers "old_password" and
 		// "confirm_password_2" and not just names that start with it.
-		return $this->mask_fields( $data, $this->get_sensitive_field_names() );
+		return $this->mask_fields( $data, Helpers::get_sensitive_field_names() );
 	}
 
 	/**
@@ -255,97 +255,6 @@ class Detective_Mode_Dropin extends Dropin {
 	}
 
 	/**
-	 * Field name fragments that mark a value as sensitive.
-	 *
-	 * Shared by every masking path — request data, the query string in
-	 * REQUEST_URI, and command line arguments — so a name only has to be
-	 * added once.
-	 *
-	 * Needles are deliberately specific rather than short. "auth" would match
-	 * "author" and "post_author", and a bare "cc" would match "account" —
-	 * masking those loses ordinary debugging data for no security gain, which
-	 * is how the feature stops being useful.
-	 *
-	 * @return array<string> Lowercase substrings.
-	 */
-	protected function get_sensitive_field_names() {
-		$field_names = [
-			'pass',
-			'pwd',
-			'token',
-			'secret',
-			'authoriz',
-			'api_key',
-			'apikey',
-			'private_key',
-			'card',
-			'cc_num',
-			'ccnum',
-			'credit',
-			'cvv',
-			'cvc',
-		];
-
-		/**
-		 * Filters the field name fragments Detective Mode masks.
-		 *
-		 * Matching is a case-insensitive substring test against the field name,
-		 * so "token" also covers "api_token" and "refresh_token".
-		 *
-		 * @since 5.30.0
-		 *
-		 * @param array<string> $field_names Lowercase substrings.
-		 */
-		return apply_filters( 'simple_history/detective_mode/sensitive_field_names', $field_names );
-	}
-
-	/**
-	 * Mask sensitive values inside a URL or query string.
-	 *
-	 * Operates on the query part only, so the path stays readable.
-	 *
-	 * @param string             $url_or_query URL or query string, e.g. "/wp-admin/admin.php?a=1&token=x".
-	 * @param array<string>|null $needles      Lowercase substrings. Resolved from the filter when null.
-	 * @return string Same string with sensitive values replaced.
-	 */
-	protected function mask_sensitive_query_string( $url_or_query, $needles = null ) {
-		$needles ??= $this->get_sensitive_field_names();
-
-		$url_or_query = (string) $url_or_query;
-
-		$query_start = strpos( $url_or_query, '?' );
-
-		if ( $query_start === false ) {
-			return $url_or_query;
-		}
-
-		$path  = substr( $url_or_query, 0, $query_start + 1 );
-		$query = substr( $url_or_query, $query_start + 1 );
-
-		$masked_pairs = [];
-
-		foreach ( explode( '&', $query ) as $pair ) {
-			if ( $pair === '' ) {
-				continue;
-			}
-
-			$parts = explode( '=', $pair, 2 );
-
-			// A bare flag with no value has nothing to mask.
-			if ( count( $parts ) < 2 ) {
-				$masked_pairs[] = $pair;
-				continue;
-			}
-
-			$masked_pairs[] = $this->is_sensitive_field_name( urldecode( $parts[0] ), $needles )
-				? $parts[0] . '=' . self::MASKED_VALUE
-				: $pair;
-		}
-
-		return $path . implode( '&', $masked_pairs );
-	}
-
-	/**
 	 * Mask the value of a single command line argument.
 	 *
 	 * Handles the "--name=value" form used by WP-CLI. Bare values are left
@@ -366,27 +275,8 @@ class Detective_Mode_Dropin extends Dropin {
 
 		$name = ltrim( substr( $argument, 0, $separator ), '-' );
 
-		return $this->is_sensitive_field_name( $name, $needles )
+		return Helpers::is_sensitive_field_name( $name, $needles )
 			? substr( $argument, 0, $separator ) . '=' . self::MASKED_VALUE
 			: $argument;
-	}
-
-	/**
-	 * Whether a field name looks like it holds something secret.
-	 *
-	 * @param string             $field_name Field name.
-	 * @param array<string>|null $needles    Lowercase substrings. Resolved from the filter when null.
-	 * @return bool
-	 */
-	protected function is_sensitive_field_name( $field_name, $needles = null ) {
-		$field_name = strtolower( (string) $field_name );
-
-		foreach ( $needles ?? $this->get_sensitive_field_names() as $needle ) {
-			if ( str_contains( $field_name, $needle ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 }

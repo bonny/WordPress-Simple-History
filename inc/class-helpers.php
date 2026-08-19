@@ -1651,6 +1651,158 @@ class Helpers {
 	}
 
 	/**
+	 * Value stored in place of something that looks sensitive.
+	 */
+	const MASKED_VALUE = '<removed by Simple History>';
+
+	/**
+	 * Field name fragments that mark a value as sensitive.
+	 *
+	 * Shared by every masking path — Detective Mode request data, the query
+	 * string in REQUEST_URI, command line arguments, and the referer stored on
+	 * every event — so a name only has to be added once.
+	 *
+	 * Needles are deliberately specific rather than short. "auth" would match
+	 * "author" and "post_author", and a bare "cc" would match "account" —
+	 * masking those loses ordinary debugging data for no security gain, which
+	 * is how the feature stops being useful. A bare "key" is left out for the
+	 * same reason, since it matches "keywords".
+	 *
+	 * The key bearing names are enumerated rather than matched as "_key",
+	 * which looks tempting because it skips "keywords" and "monkey". It also
+	 * swallows "meta_key", "cache_key" and "option_key", and Detective Mode
+	 * captures raw request data from every admin screen, core's custom fields
+	 * box included.
+	 *
+	 * @since 5.31.0
+	 *
+	 * @return array<string> Lowercase substrings.
+	 */
+	public static function get_sensitive_field_names() {
+		$field_names = [
+			'pass',
+			'pwd',
+			'token',
+			'secret',
+			'authoriz',
+			'api_key',
+			'apikey',
+			'private_key',
+			'privatekey',
+			'access_key',
+			'consumer_key',
+			'license_key',
+			'oauth',
+			'credential',
+			'bearer',
+			'session',
+			'card',
+			'cc_num',
+			'ccnum',
+			'credit',
+			'cvv',
+			'cvc',
+		];
+
+		/**
+		 * Filters the field name fragments that are masked before being stored.
+		 *
+		 * Matching is a case-insensitive substring test against the field name,
+		 * so "token" also covers "api_token" and "refresh_token".
+		 *
+		 * Named after Detective Mode because that is where masking started, but
+		 * it governs the always-on referer masking too. The name is kept as it
+		 * is so existing callbacks keep working.
+		 *
+		 * @since 5.30.0
+		 *
+		 * @param array<string> $field_names Lowercase substrings.
+		 */
+		return apply_filters( 'simple_history/detective_mode/sensitive_field_names', $field_names );
+	}
+
+	/**
+	 * Whether a field name looks like it holds something secret.
+	 *
+	 * @since 5.31.0
+	 *
+	 * @param string             $field_name Field name.
+	 * @param array<string>|null $needles    Lowercase substrings. Resolved from the filter when null.
+	 * @return bool
+	 */
+	public static function is_sensitive_field_name( $field_name, $needles = null ) {
+		if ( $needles === null ) {
+			$needles = self::get_sensitive_field_names();
+		}
+
+		$field_name = strtolower( (string) $field_name );
+
+		foreach ( $needles as $needle ) {
+			if ( str_contains( $field_name, $needle ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Mask sensitive values inside a URL or query string.
+	 *
+	 * Operates on the query part only, so the path stays readable.
+	 *
+	 * @since 5.31.0
+	 *
+	 * A string with no "?" in it is returned untouched, so pass a full URL
+	 * rather than a bare query string.
+	 *
+	 * @param string             $url_or_query URL, e.g. "/wp-admin/admin.php?a=1&token=x".
+	 * @param array<string>|null $needles      Lowercase substrings. Resolved from the filter when null.
+	 * @return string Same string with sensitive values replaced.
+	 */
+	public static function mask_sensitive_query_string( $url_or_query, $needles = null ) {
+		$url_or_query = (string) $url_or_query;
+
+		$query_start = strpos( $url_or_query, '?' );
+
+		if ( $query_start === false ) {
+			return $url_or_query;
+		}
+
+		// Resolved after the early return, not before: this runs for every
+		// logged event, and a referer with no query string should not pay for
+		// a filter dispatch it cannot use.
+		if ( $needles === null ) {
+			$needles = self::get_sensitive_field_names();
+		}
+
+		$path  = substr( $url_or_query, 0, $query_start + 1 );
+		$query = substr( $url_or_query, $query_start + 1 );
+
+		$masked_pairs = [];
+
+		foreach ( explode( '&', $query ) as $pair ) {
+			if ( $pair === '' ) {
+				continue;
+			}
+
+			$parts = explode( '=', $pair, 2 );
+
+			// A bare flag with no value has nothing to mask.
+			if ( count( $parts ) < 2 ) {
+				$masked_pairs[] = $pair;
+				continue;
+			}
+
+			$masked_pairs[] = self::is_sensitive_field_name( urldecode( $parts[0] ), $needles )
+				? $parts[0] . '=' . self::MASKED_VALUE
+				: $pair;
+		}
+
+		return $path . implode( '&', $masked_pairs );
+	}
+
+	/**
 	 * Returns true if Experimental Features is active.
 	 *
 	 * Default is false.
