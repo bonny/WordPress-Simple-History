@@ -162,12 +162,11 @@ class Plugin_WP_AI_Logger extends Logger {
 			return;
 		}
 
-		if ( preg_match( '/^wpai_feature_(.+)_enabled$/', $option, $matches ) === 1 ) {
-			$this->log_feature_toggle( $matches[1], $new_value );
-
-			return;
-		}
-
+		// Feature fields are matched before the on/off toggle. Features may
+		// register any field name, so a field ending in "_enabled" (e.g.
+		// wpai_feature_type-ahead_field_autocomplete_enabled) would otherwise
+		// be swallowed by the greedy toggle pattern and logged as a feature
+		// being switched on.
 		if ( preg_match( '/^wpai_feature_(.+)_field_developer$/', $option, $matches ) === 1 ) {
 			$this->log_feature_model_change( $matches[1], $old_value, $new_value );
 
@@ -176,6 +175,12 @@ class Plugin_WP_AI_Logger extends Logger {
 
 		if ( preg_match( '/^wpai_feature_(.+)_field_(.+)$/', $option, $matches ) === 1 ) {
 			$this->log_feature_setting_change( $matches[1], $matches[2], $old_value, $new_value );
+
+			return;
+		}
+
+		if ( preg_match( '/^wpai_feature_(.+)_enabled$/', $option, $matches ) === 1 ) {
+			$this->log_feature_toggle( $matches[1], $new_value );
 		}
 	}
 
@@ -241,8 +246,13 @@ class Plugin_WP_AI_Logger extends Logger {
 			}
 
 			// An approval removes its pending entry in the same request;
-			// that removal is part of the approval, not a dismissal.
+			// that removal is part of the approval, not a dismissal. The key
+			// is consumed here so a later, genuine dismissal of a re-created
+			// request for the same pair still logs — possible in a
+			// long-running process such as WP-CLI.
 			if ( isset( $this->approvals_granted_this_request[ $pair_key ] ) ) {
+				unset( $this->approvals_granted_this_request[ $pair_key ] );
+
 				continue;
 			}
 
@@ -562,11 +572,32 @@ class Plugin_WP_AI_Logger extends Logger {
 	}
 
 	/**
+	 * Whether the AI plugin currently registers its Connector Approvals page.
+	 *
+	 * The page is added by the connector-approval feature, which only loads
+	 * when both that feature and the global AI switch are on. Reading the two
+	 * options keeps this check free of any AI plugin code.
+	 *
+	 * @return bool
+	 */
+	protected function is_connector_approval_page_available() {
+		if ( ! get_option( 'wpai_features_enabled' ) ) {
+			return false;
+		}
+
+		return (bool) get_option( 'wpai_feature_connector-approval_enabled' );
+	}
+
+	/**
 	 * Link approval events to the Connector Approvals page and settings
 	 * events to the AI settings page.
 	 *
 	 * Links are only offered while the AI plugin is active, so the admin is
-	 * never handed a dead URL.
+	 * never handed a dead URL. The Connector Approvals page is registered by
+	 * the connector-approval feature, so approval events fall back to the
+	 * settings page when that feature (or the global AI switch) is off —
+	 * otherwise an old approval event would link to a page that no longer
+	 * exists.
 	 *
 	 * @param object $row Log row.
 	 * @return array<array{url: string, label: string, action: string}>
@@ -589,7 +620,7 @@ class Plugin_WP_AI_Logger extends Logger {
 			'ai_connector_request_dismissed',
 		];
 
-		if ( in_array( $message_key, $approval_message_keys, true ) ) {
+		if ( in_array( $message_key, $approval_message_keys, true ) && $this->is_connector_approval_page_available() ) {
 			return [
 				[
 					'url'    => admin_url( 'tools.php?page=ai-connector-approval' ),
