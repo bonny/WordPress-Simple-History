@@ -52,11 +52,14 @@ Done. Two historical changelog entries mention "multisite" and "network" but bot
 2. **No locked code in core.** Everything network-specific leaves core entirely.
 3. **Clean extensibility, no special casing.** If premium needs a hook in core, it's a legitimate hook useful beyond network — not a "premium backdoor."
 4. **Full taxonomy carried forward.** All 25 Network_Logger events with their tuned active-voice messages, context keys, and memoization move as-is.
-5. **Branch preserved.** Don't delete `issue-multisite-network-logging` until premium ships. Use it as the source for cherry-picked file copies and history reference.
+5. **Branch preserved.** Don't delete `reference-network-premium-port-source` until premium ships. Use it as the source for cherry-picked file copies and history reference.
 
 ## Branching strategy
 
-1. Keep `issue-multisite-network-logging` as the reference branch (do not push, do not merge to develop).
+1. Keep `reference-network-premium-port-source` (formerly `issue-multisite-network-logging`) as the reference branch.
+   Pushing it is fine — it is a backup, and the work exists nowhere else in this form.
+   **It must never be merged into `develop`.** Its whole point is that this code left core; merging
+   it back would reintroduce the network implementation into the free plugin and undo the split.
 2. Create **`issue-network-teaser`** from `develop` for core changes (teaser page + readme audit + possibly small hook additions).
 3. In the premium repo, create a branch `network-module` (or whatever naming convention premium uses) for the new module.
 
