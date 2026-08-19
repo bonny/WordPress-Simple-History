@@ -408,3 +408,36 @@ Simple History currently logs FSE post types via the generic Post_Logger, but th
 4. **Specialized loggers** - Dedicated FSE logger or enhanced Theme_Logger
 
 The most impactful improvement would be enhancing post type labels and messages for FSE content, which requires relatively low effort but provides significant UX improvement.
+
+---
+
+## Implementation (v1, June 2026)
+
+Implemented in `loggers/class-site-editor-logger.php` (slug `SiteEditorLogger`), registered in `inc/class-simple-history.php`.
+
+### Architecture
+
+- Claims all seven FSE post types via the `simple_history/post_logger/skip_posttypes` filter so Post_Logger ignores them.
+- Create/update events come from `rest_after_insert_{post_type}` (the Site Editor saves exclusively through REST; meta like `wp_pattern_sync_status` and terms like `wp_template_part_area` are set by the time this hook fires, unlike `save_post`).
+- Trash events from `trashed_post` (patterns and navigation menus only — the other types are force-deleted).
+- Delete events from `delete_post`. Term/meta data is captured on `before_delete_post` because WordPress removes terms and meta **before** `delete_post` fires.
+
+### Verified hook facts (WP core source)
+
+- `WP_REST_Templates_Controller` fires `rest_after_insert_wp_template(_part)` on both create and update; first customization of a theme template goes through `update_item` with `$creating = false` (logged as "Updated", which matches user intent).
+- Template reset: both DELETE `?force=true` and PUT with `source=theme` end in `wp_delete_post( $id, true )` — detected at delete time via `_get_block_template_file()` (theme still provides a default file = reset, not delete).
+- `WP_REST_Global_Styles_Controller` extends the posts controller and inherits `update_item`, so `rest_after_insert_wp_global_styles` fires on style saves. Global styles posts are auto-created by core, so creation is not logged; deletion (theme cleanup) is deliberately not logged either.
+- Font family/face controllers delegate to `parent::create_item()`/`delete_item()`. Deleting a family cascades to its faces via `_wp_after_delete_font_family` on `deleted_post` — cascade face deletions are suppressed (family IDs tracked in the logger instance).
+
+### v1 scope cut / follow-ups
+
+- No global styles JSON diffing (explicitly out of scope) — only "Updated site-wide styles (global styles)" with theme in context.
+- No navigation block-content diffing, no style variation detection.
+- No `get_action_links()` (a "Open in Site Editor" link would be nice but URLs vary by WP version and deleted items would dead-link).
+- Categories_Logger noise: terms like `wp_template_part_area`/`wp_theme` show up as "Added term ..." events — could be added to its taxonomy skip list.
+- Non-REST changes (WP-CLI, programmatic) to FSE post types are no longer logged by Post_Logger and not picked up by this logger (REST hooks only).
+
+### Testing
+
+- Playwright spec: `tests/playwright/site-editor-logger.spec.js` (edits Header template part in the Site Editor UI, asserts `Updated template part "Header"` in the log).
+- All seven post types verified against a WordPress Playground instance via the same REST endpoints the Site Editor uses (create/update/trash/delete/reset/cascade paths).

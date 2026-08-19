@@ -256,6 +256,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Site Editor changes are now logged with clear messages: templates, template parts (with their area), site-wide styles (global styles), synced and standard patterns, navigation menus, and font installs/removals. Resetting a template to the theme default is logged as a reset, not a deletion.
 -   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
 -   Changes to more settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log).
 -   Developers: new `simple_history/settings/tracked_options` filter lets add-ons register their own option keys to be logged as "Modified settings", plus `simple_history/settings/redacted_options` to hide sensitive values.
