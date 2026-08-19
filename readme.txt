@@ -256,7 +256,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Site Editor changes are now logged with clear messages: templates, template parts (with their area), site-wide styles (global styles), synced and standard patterns, navigation menus, and font installs/removals. Resetting a template to the theme default is logged as a reset, not a deletion.
+-   Site Editor changes are now logged: templates, template parts, site-wide styles, patterns, navigation menus and fonts, including changes made outside the block editor. Resetting a template to the theme default is logged as a reset, not a deletion.
 -   `--format=json` and `--format=yaml` on `wp simple-history info`, so a deploy or CI script can check that Premium is active and licensed.
 
 **Changed**
