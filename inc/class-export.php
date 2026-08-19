@@ -316,7 +316,10 @@ class Export {
 		// every call, and this method runs three times for each of potentially
 		// hundreds of thousands of rows.
 		static $allowed_html = null;
-		$allowed_html      ??= wp_kses_allowed_html( 'post' );
+
+		if ( $allowed_html === null ) {
+			$allowed_html = wp_kses_allowed_html( 'post' );
+		}
 
 		$html = sprintf(
 			'

@@ -50,6 +50,7 @@ gruntfile.js
 package-lock.json
 package.json
 phpcs.xml.dist
+/phpcs-rules
 phpstan.neon
 phpunit.xml
 playwright.config.js
