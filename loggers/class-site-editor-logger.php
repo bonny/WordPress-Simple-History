@@ -56,41 +56,47 @@ class Site_Editor_Logger extends Logger {
 		return [
 			'name'        => __( 'Site Editor Logger', 'simple-history' ),
 			'description' => __( 'Logs changes made in the Site Editor: templates, template parts, site-wide styles, patterns, navigation menus, and fonts', 'simple-history' ),
-			'capability'  => 'edit_theme_options',
+			// Site Editor post types were previously logged by Post_Logger,
+			// which uses edit_pages. Keep the same capability so users who
+			// could read these events before can still read them.
+			'capability'  => 'edit_pages',
 			'messages'    => [
-				'template_created'         => __( 'Created template "{post_title}"', 'simple-history' ),
-				'template_updated'         => __( 'Updated template "{post_title}"', 'simple-history' ),
-				'template_deleted'         => __( 'Deleted template "{post_title}"', 'simple-history' ),
-				'template_reset'           => __( 'Reset template "{post_title}" to theme default', 'simple-history' ),
+				'template_created'          => __( 'Created template "{post_title}"', 'simple-history' ),
+				'template_updated'          => __( 'Updated template "{post_title}"', 'simple-history' ),
+				'template_deleted'          => __( 'Deleted template "{post_title}"', 'simple-history' ),
+				'template_reset'            => __( 'Reset template "{post_title}" to theme default', 'simple-history' ),
 
-				'template_part_created'    => __( 'Created template part "{post_title}"', 'simple-history' ),
-				'template_part_updated'    => __( 'Updated template part "{post_title}"', 'simple-history' ),
-				'template_part_deleted'    => __( 'Deleted template part "{post_title}"', 'simple-history' ),
-				'template_part_reset'      => __( 'Reset template part "{post_title}" to theme default', 'simple-history' ),
+				'template_part_created'     => __( 'Created template part "{post_title}"', 'simple-history' ),
+				'template_part_updated'     => __( 'Updated template part "{post_title}"', 'simple-history' ),
+				'template_part_deleted'     => __( 'Deleted template part "{post_title}"', 'simple-history' ),
+				'template_part_reset'       => __( 'Reset template part "{post_title}" to theme default', 'simple-history' ),
 
-				'global_styles_updated'    => __( 'Updated site-wide styles (global styles)', 'simple-history' ),
+				'global_styles_updated'     => __( 'Updated site-wide styles (global styles)', 'simple-history' ),
 
-				'synced_pattern_created'   => __( 'Created synced pattern "{post_title}"', 'simple-history' ),
-				'synced_pattern_updated'   => __( 'Updated synced pattern "{post_title}"', 'simple-history' ),
-				'synced_pattern_deleted'   => __( 'Deleted synced pattern "{post_title}"', 'simple-history' ),
-				'synced_pattern_trashed'   => __( 'Moved synced pattern "{post_title}" to the trash', 'simple-history' ),
+				'synced_pattern_created'    => __( 'Created synced pattern "{post_title}"', 'simple-history' ),
+				'synced_pattern_updated'    => __( 'Updated synced pattern "{post_title}"', 'simple-history' ),
+				'synced_pattern_deleted'    => __( 'Deleted synced pattern "{post_title}"', 'simple-history' ),
+				'synced_pattern_trashed'    => __( 'Moved synced pattern "{post_title}" to the trash', 'simple-history' ),
+				'synced_pattern_restored'   => __( 'Restored synced pattern "{post_title}" from the trash', 'simple-history' ),
 
-				'unsynced_pattern_created' => __( 'Created pattern "{post_title}"', 'simple-history' ),
-				'unsynced_pattern_updated' => __( 'Updated pattern "{post_title}"', 'simple-history' ),
-				'unsynced_pattern_deleted' => __( 'Deleted pattern "{post_title}"', 'simple-history' ),
-				'unsynced_pattern_trashed' => __( 'Moved pattern "{post_title}" to the trash', 'simple-history' ),
+				'unsynced_pattern_created'  => __( 'Created pattern "{post_title}"', 'simple-history' ),
+				'unsynced_pattern_updated'  => __( 'Updated pattern "{post_title}"', 'simple-history' ),
+				'unsynced_pattern_deleted'  => __( 'Deleted pattern "{post_title}"', 'simple-history' ),
+				'unsynced_pattern_trashed'  => __( 'Moved pattern "{post_title}" to the trash', 'simple-history' ),
+				'unsynced_pattern_restored' => __( 'Restored pattern "{post_title}" from the trash', 'simple-history' ),
 
-				'navigation_menu_created'  => __( 'Created navigation menu "{post_title}"', 'simple-history' ),
-				'navigation_menu_updated'  => __( 'Updated navigation menu "{post_title}"', 'simple-history' ),
-				'navigation_menu_deleted'  => __( 'Deleted navigation menu "{post_title}"', 'simple-history' ),
-				'navigation_menu_trashed'  => __( 'Moved navigation menu "{post_title}" to the trash', 'simple-history' ),
+				'navigation_menu_created'   => __( 'Created navigation menu "{post_title}"', 'simple-history' ),
+				'navigation_menu_updated'   => __( 'Updated navigation menu "{post_title}"', 'simple-history' ),
+				'navigation_menu_deleted'   => __( 'Deleted navigation menu "{post_title}"', 'simple-history' ),
+				'navigation_menu_trashed'   => __( 'Moved navigation menu "{post_title}" to the trash', 'simple-history' ),
+				'navigation_menu_restored'  => __( 'Restored navigation menu "{post_title}" from the trash', 'simple-history' ),
 
-				'font_family_created'      => __( 'Installed font family "{font_family_name}"', 'simple-history' ),
-				'font_family_updated'      => __( 'Updated font family "{font_family_name}"', 'simple-history' ),
-				'font_family_deleted'      => __( 'Deleted font family "{font_family_name}"', 'simple-history' ),
+				'font_family_created'       => __( 'Installed font family "{font_family_name}"', 'simple-history' ),
+				'font_family_updated'       => __( 'Updated font family "{font_family_name}"', 'simple-history' ),
+				'font_family_deleted'       => __( 'Deleted font family "{font_family_name}"', 'simple-history' ),
 
-				'font_face_created'        => __( 'Added font face "{font_face_name}" to font family "{font_family_name}"', 'simple-history' ),
-				'font_face_deleted'        => __( 'Removed font face "{font_face_name}" from font family "{font_family_name}"', 'simple-history' ),
+				'font_face_created'         => __( 'Added font face "{font_face_name}" to font family "{font_family_name}"', 'simple-history' ),
+				'font_face_deleted'         => __( 'Removed font face "{font_face_name}" from font family "{font_family_name}"', 'simple-history' ),
 			],
 			'labels'      => [
 				'search' => [
@@ -119,12 +125,15 @@ class Site_Editor_Logger extends Logger {
 							'unsynced_pattern_updated',
 							'unsynced_pattern_deleted',
 							'unsynced_pattern_trashed',
+							'synced_pattern_restored',
+							'unsynced_pattern_restored',
 						],
 						_x( 'Navigation menus changed', 'Site Editor logger: search', 'simple-history' ) => [
 							'navigation_menu_created',
 							'navigation_menu_updated',
 							'navigation_menu_deleted',
 							'navigation_menu_trashed',
+							'navigation_menu_restored',
 						],
 						_x( 'Fonts changed', 'Site Editor logger: search', 'simple-history' ) => [
 							'font_family_created',
@@ -152,6 +161,7 @@ class Site_Editor_Logger extends Logger {
 		}
 
 		add_action( 'trashed_post', [ $this, 'on_trashed_post' ] );
+		add_action( 'untrashed_post', [ $this, 'on_untrashed_post' ] );
 		add_action( 'before_delete_post', [ $this, 'on_before_delete_post' ], 10, 2 );
 		add_action( 'delete_post', [ $this, 'on_delete_post' ], 10, 2 );
 	}
@@ -213,7 +223,7 @@ class Site_Editor_Logger extends Logger {
 			case 'wp_block':
 				$sync_status = $this->get_pattern_sync_status( $post );
 
-				$message_prefix = 'synced' === $sync_status ? 'synced_pattern' : 'unsynced_pattern';
+				$message_prefix = $sync_status === 'synced' ? 'synced_pattern' : 'unsynced_pattern';
 
 				$this->info_message(
 					$message_prefix . ( $creating ? '_created' : '_updated' ),
@@ -268,10 +278,10 @@ class Site_Editor_Logger extends Logger {
 			return;
 		}
 
-		if ( 'wp_block' === $post->post_type ) {
+		if ( $post->post_type === 'wp_block' ) {
 			$sync_status = $this->get_pattern_sync_status( $post );
 
-			$message_prefix = 'synced' === $sync_status ? 'synced_pattern' : 'unsynced_pattern';
+			$message_prefix = $sync_status === 'synced' ? 'synced_pattern' : 'unsynced_pattern';
 
 			$this->info_message(
 				$message_prefix . '_trashed',
@@ -281,9 +291,48 @@ class Site_Editor_Logger extends Logger {
 					'pattern_sync_status' => $sync_status,
 				]
 			);
-		} elseif ( 'wp_navigation' === $post->post_type ) {
+		} elseif ( $post->post_type === 'wp_navigation' ) {
 			$this->info_message(
 				'navigation_menu_trashed',
+				[
+					'post_id'    => $post->ID,
+					'post_title' => $post->post_title,
+				]
+			);
+		}
+	}
+
+	/**
+	 * Fired after a post is restored from the trash.
+	 *
+	 * Mirrors on_trashed_post() so a restore is visible in the log,
+	 * the way the trashing of the same post is.
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	public function on_untrashed_post( $post_id ) {
+		$post = get_post( $post_id );
+
+		if ( ! $post instanceof \WP_Post ) {
+			return;
+		}
+
+		if ( $post->post_type === 'wp_block' ) {
+			$sync_status = $this->get_pattern_sync_status( $post );
+
+			$message_prefix = $sync_status === 'synced' ? 'synced_pattern' : 'unsynced_pattern';
+
+			$this->info_message(
+				$message_prefix . '_restored',
+				[
+					'post_id'             => $post->ID,
+					'post_title'          => $post->post_title,
+					'pattern_sync_status' => $sync_status,
+				]
+			);
+		} elseif ( $post->post_type === 'wp_navigation' ) {
+			$this->info_message(
+				'navigation_menu_restored',
 				[
 					'post_id'    => $post->ID,
 					'post_title' => $post->post_title,
@@ -307,13 +356,13 @@ class Site_Editor_Logger extends Logger {
 		if ( in_array( $post->post_type, [ 'wp_template', 'wp_template_part' ], true ) ) {
 			$this->pre_delete_data[ $post_id ] = [
 				'theme_slug'         => $this->get_post_term_slug( $post, 'wp_theme' ),
-				'template_part_area' => 'wp_template_part' === $post->post_type ? $this->get_post_term_slug( $post, 'wp_template_part_area' ) : '',
+				'template_part_area' => $post->post_type === 'wp_template_part' ? $this->get_post_term_slug( $post, 'wp_template_part_area' ) : '',
 			];
-		} elseif ( 'wp_block' === $post->post_type ) {
+		} elseif ( $post->post_type === 'wp_block' ) {
 			$sync_status = get_post_meta( $post_id, 'wp_pattern_sync_status', true );
 
 			$this->pre_delete_data[ $post_id ] = [
-				'pattern_sync_status' => 'unsynced' === $sync_status ? 'unsynced' : 'synced',
+				'pattern_sync_status' => $sync_status === 'unsynced' ? 'unsynced' : 'synced',
 			];
 		}
 	}
@@ -351,7 +400,7 @@ class Site_Editor_Logger extends Logger {
 			case 'wp_block':
 				$sync_status = $this->get_pattern_sync_status( $post );
 
-				$message_prefix = 'synced' === $sync_status ? 'synced_pattern' : 'unsynced_pattern';
+				$message_prefix = $sync_status === 'synced' ? 'synced_pattern' : 'unsynced_pattern';
 
 				$this->info_message(
 					$message_prefix . '_deleted',
@@ -406,7 +455,7 @@ class Site_Editor_Logger extends Logger {
 	 * @param \WP_Post $post Template or template part post object.
 	 */
 	private function log_template_deletion( $post ) {
-		$is_template_part = 'wp_template_part' === $post->post_type;
+		$is_template_part = $post->post_type === 'wp_template_part';
 
 		if ( $this->is_theme_provided_template( $post ) ) {
 			$message_key = $is_template_part ? 'template_part_reset' : 'template_reset';
@@ -433,11 +482,11 @@ class Site_Editor_Logger extends Logger {
 		// Only the active theme's files can provide a default.
 		$theme_slug = $this->get_theme_slug_for_post( $post );
 
-		if ( '' !== $theme_slug && get_stylesheet() !== $theme_slug ) {
+		if ( $theme_slug !== '' && get_stylesheet() !== $theme_slug ) {
 			return false;
 		}
 
-		return null !== _get_block_template_file( $post->post_type, $post->post_name );
+		return _get_block_template_file( $post->post_type, $post->post_name ) !== null;
 	}
 
 	/**
@@ -454,10 +503,10 @@ class Site_Editor_Logger extends Logger {
 			'theme'         => $this->get_theme_name_for_post( $post ),
 		];
 
-		if ( 'wp_template_part' === $post->post_type ) {
+		if ( $post->post_type === 'wp_template_part' ) {
 			$area = $this->pre_delete_data[ $post->ID ]['template_part_area'] ?? $this->get_post_term_slug( $post, 'wp_template_part_area' );
 
-			if ( '' !== $area ) {
+			if ( $area !== '' ) {
 				$context['template_part_area'] = $area;
 			}
 		}
@@ -480,7 +529,7 @@ class Site_Editor_Logger extends Logger {
 
 		$font_face_name = trim( "{$weight} {$style}" );
 
-		if ( '' === $font_face_name ) {
+		if ( $font_face_name === '' ) {
 			$font_face_name = $post->post_title;
 		}
 
@@ -492,11 +541,11 @@ class Site_Editor_Logger extends Logger {
 			'font_family_name' => $parent_font_family instanceof \WP_Post ? $this->get_font_family_name( $parent_font_family ) : '',
 		];
 
-		if ( '' !== $weight ) {
+		if ( $weight !== '' ) {
 			$context['font_face_weight'] = $weight;
 		}
 
-		if ( '' !== $style ) {
+		if ( $style !== '' ) {
 			$context['font_face_style'] = $style;
 		}
 
@@ -513,7 +562,7 @@ class Site_Editor_Logger extends Logger {
 	 * @return string
 	 */
 	private function get_font_family_name( $post ) {
-		if ( '' !== $post->post_title ) {
+		if ( $post->post_title !== '' ) {
 			return $post->post_title;
 		}
 
@@ -536,7 +585,7 @@ class Site_Editor_Logger extends Logger {
 	private function get_theme_name_for_post( $post ) {
 		$theme_slug = $this->get_theme_slug_for_post( $post );
 
-		if ( '' === $theme_slug ) {
+		if ( $theme_slug === '' ) {
 			$theme_slug = get_stylesheet();
 		}
 
@@ -596,7 +645,7 @@ class Site_Editor_Logger extends Logger {
 
 		$sync_status = get_post_meta( $post->ID, 'wp_pattern_sync_status', true );
 
-		return 'unsynced' === $sync_status ? 'unsynced' : 'synced';
+		return $sync_status === 'unsynced' ? 'unsynced' : 'synced';
 	}
 
 	/**
