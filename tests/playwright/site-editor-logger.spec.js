@@ -6,6 +6,7 @@ const SIMPLE_HISTORY_PAGE =
 // Requires a block theme (the Site Editor is only available for block themes).
 test.describe( 'Site Editor logging', () => {
 	let themeSlug;
+	let headerWasAlreadyCustomized;
 
 	test.beforeEach( async ( { requestUtils } ) => {
 		const themes = await requestUtils.rest( {
@@ -13,15 +14,32 @@ test.describe( 'Site Editor logging', () => {
 			params: { status: 'active' },
 		} );
 
-		themeSlug = themes[ 0 ].stylesheet;
+		const activeTheme = themes?.[ 0 ];
 
 		test.skip(
-			! themes[ 0 ].is_block_theme,
+			! activeTheme?.is_block_theme,
 			'Active theme is not a block theme'
 		);
+
+		themeSlug = activeTheme.stylesheet;
+
+		// Only the customization this test creates may be deleted afterwards.
+		// Deleting one that already existed would permanently destroy the
+		// site's own header, which matters on a shared dev or staging install.
+		const header = await requestUtils
+			.rest( {
+				path: `/wp/v2/template-parts/${ themeSlug }//header`,
+			} )
+			.catch( () => null );
+
+		headerWasAlreadyCustomized = header?.source === 'custom';
 	} );
 
 	test.afterEach( async ( { requestUtils } ) => {
+		if ( headerWasAlreadyCustomized ) {
+			return;
+		}
+
 		// Reset the header template part to the theme default
 		// so the test can run again from a clean state.
 		await requestUtils
@@ -54,9 +72,7 @@ test.describe( 'Site Editor logging', () => {
 			.getByRole( 'button', { name: /Get started|Close/ } )
 			.first();
 
-		if (
-			await welcomeGuideButton.isVisible().catch( () => false )
-		) {
+		if ( await welcomeGuideButton.isVisible().catch( () => false ) ) {
 			await welcomeGuideButton.click();
 		}
 
