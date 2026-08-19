@@ -44,7 +44,8 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 				'simple-history'
 			),
 			download,
-			exportFeatureImage
+			exportFeatureImage,
+			'premium_global_modal_menu_export'
 		);
 	};
 
@@ -58,7 +59,8 @@ export function PremiumAddonsPromoMenuGroup( props ) {
 				'simple-history'
 			),
 			plusCircle,
-			createEntryFeatureImage
+			createEntryFeatureImage,
+			'premium_global_modal_menu_logentry'
 		);
 	};
 

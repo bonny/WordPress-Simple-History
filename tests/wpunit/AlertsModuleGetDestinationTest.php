@@ -9,6 +9,8 @@ use Helper\PremiumTestCase;
  *
  * Run tests with:
  * `docker compose run --rm php-cli vendor/bin/codecept run wpunit AlertsModuleGetDestinationTest`
+ *
+ * @group premium
  */
 class AlertsModuleGetDestinationTest extends PremiumTestCase {
 

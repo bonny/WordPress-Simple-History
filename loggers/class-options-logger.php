@@ -279,7 +279,8 @@ class Options_Logger extends Logger {
 	 * @return bool
 	 */
 	protected function is_form_submitted_from_permalink_page() {
-		return strpos( wp_get_referer(), 'options-permalink.php' ) !== false;
+		$referer = wp_get_referer();
+		return $referer && strpos( $referer, 'options-permalink.php' ) !== false;
 	}
 
 	/**
@@ -393,11 +394,15 @@ class Options_Logger extends Logger {
 			$options_page_translation          = $options_page_info['translation_settings_page'] ?? $option_page;
 			$context['option_page_translated'] = $options_page_translation;
 
-			$message = sprintf(
-				__( 'Updated setting "{option_translated}" on the <a href="{option_page_link}">{option_page_translated}</a>', 'simple-history' ),
-				$context['option'],
-				$option_page
+			// This override skips the parent's esc_html(), so escape the interpolated
+			// values here instead. option_page_link is built from admin_url() with an
+			// allowlisted page and is used as an href, so it is left alone.
+			$context = $this->esc_html_context_keys(
+				$context,
+				[ 'option_translated', 'option_page_translated' ]
 			);
+
+			$message = __( 'Updated setting "{option_translated}" on the <a href="{option_page_link}">{option_page_translated}</a>', 'simple-history' );
 		}
 
 		return Helpers::interpolate( $message, $context, $row );

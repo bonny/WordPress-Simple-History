@@ -65,6 +65,7 @@ build/
 .claude/skills/writing-blog-posts
 .claude/skills/analytics-traffic
 .claude/skills/freemium-conversion
+.claude/skills/night-shift
 !.claude/hooks/
 !.claude/agents/
 scripts/copy-current-to-simple-history-com.sh
@@ -89,3 +90,9 @@ docs/utm-tracking-guide.md
 
 # Playwright MCP browser artifacts
 .playwright-mcp/
+
+# Per-worktree Playground state (scripts/parallel-dev.sh).
+# Also in .git/info/exclude so linked worktrees ignore them too.
+/.playground.json
+/.playground.log
+/.playground-blueprint.json

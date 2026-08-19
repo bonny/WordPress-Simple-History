@@ -415,6 +415,13 @@ export function getTrackingUrl(
 /**
  * Parse an error from wp.apiFetch into a structured details object.
  *
+ * Two shapes arrive here, depending on how apiFetch was called:
+ *
+ * - With `parse: false` apiFetch rejects with the raw `Response`, leaving the
+ *   body unread. We read it here.
+ * - Otherwise apiFetch rejects with the already-parsed REST error object
+ *   (`{ code, message, data }`), or a plain JS `Error`.
+ *
  * @param {Error|Response} error The caught error from apiFetch.
  * @return {Promise<Object>} Error details with code, statusText, bodyJson, bodyText.
  */
@@ -426,19 +433,188 @@ export async function parseApiFetchError( error ) {
 		bodyText: null,
 	};
 
-	if ( error.headers && error.status && error.statusText ) {
-		const contentType = error.headers.get( 'Content-Type' );
-		errorDetails.code = error.status;
-		errorDetails.statusText = error.statusText;
-
-		if ( contentType && contentType.includes( 'application/json' ) ) {
-			errorDetails.bodyJson = await error.json();
-		} else {
-			errorDetails.bodyText = await error.text();
-		}
-	} else {
+	if ( ! error ) {
 		errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
+
+		return errorDetails;
 	}
 
+	// An unread Response, from a `parse: false` call.
+	//
+	// Detected by its own `json()`/`text()` methods rather than by
+	// `statusText`: HTTP/2 dropped the status reason phrase, so `statusText`
+	// is always an empty string there. Testing it sent every failed request
+	// on an HTTP/2 site — most sites — down the "Unknown error" path below,
+	// discarding a response body that said exactly what went wrong.
+	if (
+		typeof error.json === 'function' &&
+		typeof error.text === 'function'
+	) {
+		const contentType = error.headers?.get( 'Content-Type' );
+		errorDetails.code = error.status || null;
+		errorDetails.statusText = error.statusText || null;
+
+		// The body is a stream and reading it can fail — on invalid JSON, or
+		// if something upstream consumed it already. Losing the body should
+		// not cost us the status we already have.
+		try {
+			if ( contentType && contentType.includes( 'application/json' ) ) {
+				errorDetails.bodyJson = await error.json();
+			} else {
+				errorDetails.bodyText = await error.text();
+			}
+		} catch ( bodyError ) {
+			errorDetails.bodyText = __(
+				'Could not read the error response body.',
+				'simple-history'
+			);
+		}
+
+		return errorDetails;
+	}
+
+	// Error already parsed by apiFetch (REST error object or JS Error).
+	if ( error.code || error.message ) {
+		errorDetails.code = error.data?.status || error.code || null;
+
+		// Keep `data` — it carries the diagnostic detail, such as the database
+		// error behind a failed query. Rebuilding this object from `code` and
+		// `message` alone used to throw that away.
+		errorDetails.bodyJson = error.code
+			? {
+					code: error.code,
+					message: error.message,
+					...( error.data ? { data: error.data } : {} ),
+			  }
+			: null;
+		errorDetails.bodyText = error.code ? null : error.message;
+
+		return errorDetails;
+	}
+
+	errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
+
 	return errorDetails;
+}
+
+/**
+ * Get the underlying database error message from parsed error details, if the
+ * failure was a database error.
+ *
+ * The REST API attaches the real `$wpdb->last_error` string to the error
+ * response, which is far more actionable than "Database query failed." — it
+ * names the table and the problem, e.g. a corrupt index.
+ *
+ * @param {Object} errorDetails Output of parseApiFetchError().
+ * @return {string} The database error message, or an empty string.
+ */
+export function getDatabaseErrorMessage( errorDetails ) {
+	const bodyJson = errorDetails?.bodyJson;
+
+	if ( bodyJson?.code !== 'simple_history_db_error' ) {
+		return '';
+	}
+
+	const dbError = bodyJson?.data?.db_error;
+
+	return typeof dbError === 'string' ? dbError : '';
+}
+
+/**
+ * Strip HTML tags and decode entities, returning plain text.
+ *
+ * Uses DOMParser rather than assigning to a detached element's innerHTML.
+ * A detached node is not inert: `div.innerHTML = '<img src=x onerror=…>'`
+ * starts the image load and fires the handler even though the node was never
+ * added to the document, so the old approach executed attacker-supplied event
+ * handlers while appearing to strip them. DOMParser documents have no browsing
+ * context — they don't fetch resources or run handlers.
+ *
+ * @param {string} html
+ * @return {string} Plain text, or empty string for non-string input.
+ */
+export function htmlToPlainText( html ) {
+	if ( ! html || typeof html !== 'string' ) {
+		return '';
+	}
+
+	const doc = new DOMParser().parseFromString( html, 'text/html' );
+
+	return ( doc.body.textContent || '' ).replace( /\n{3,}/g, '\n\n' ).trim();
+}
+
+/**
+ * Format a number using the admin locale, e.g. 187304 → "187 304" or "187,304".
+ *
+ * The JavaScript counterpart to PHP's number_format_i18n(), which the PHP-rendered
+ * surfaces already use. Without it the React UI shows raw digits while the stats
+ * page right next to it shows grouped ones.
+ *
+ * WordPress ships no JS number formatter — `@wordpress/i18n` exports no such
+ * function, not even in versions well ahead of core. Core is adding one in
+ * https://github.com/WordPress/gutenberg/pull/71214 (issue #22628), and it uses
+ * native Intl.NumberFormat rather than the separators WordPress translators define
+ * for number_format_i18n(). We deliberately match that upstream behaviour — name,
+ * signature and en-US fallback — so that once `numberFormatI18n` ships in a
+ * WordPress we support, this implementation can be deleted and the import swapped
+ * without touching a single call site.
+ *
+ * A consequence worth knowing: separators come from the browser's CLDR data, not
+ * from WordPress's translated `number_format_thousands_sep`, so a site filtering
+ * `number_format_i18n` is not reflected here. Core accepted the same tradeoff —
+ * an earlier attempt at exact PHP parity failed on rounding differences.
+ *
+ * @param {number} value      Number to format.
+ * @param {number} [decimals] Number of decimal places. Defaults to 0, matching number_format_i18n().
+ * @return {string} Locale-formatted number, or the value coerced to string if not finite.
+ */
+export function numberFormatI18n( value, decimals = 0 ) {
+	if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
+		return String( value ?? '' );
+	}
+
+	// Intl throws outside 0–20; core clamps to the same range for Node compatibility.
+	const fractionDigits = Math.min(
+		Math.max( Math.trunc( decimals ), 0 ),
+		20
+	);
+
+	const options = {
+		minimumFractionDigits: fractionDigits,
+		maximumFractionDigits: fractionDigits,
+	};
+
+	return new Intl.NumberFormat( getAdminLocale(), options ).format( value );
+}
+
+/**
+ * Resolve the admin locale as a BCP 47 tag usable by the Intl APIs.
+ *
+ * WordPress renders the locale into the html lang attribute via
+ * get_bloginfo( 'language' ), which returns BCP 47 ("en-US") rather than the
+ * underscored form get_locale() gives ("en_US") — so the attribute is already the
+ * shape Intl wants. The underscore replacement is defensive: some locales and
+ * filtered values still come through as "sv_SE".
+ *
+ * In wp-admin get_bloginfo( 'language' ) resolves through determine_locale(), which
+ * returns the *user's* locale, so a user whose personal admin language differs from
+ * the site language gets their own grouping.
+ *
+ * @return {string} A canonical locale tag, or 'en-US' when the attribute is missing or invalid.
+ */
+function getAdminLocale() {
+	const lang = ( document.documentElement.lang || '' ).replace( '_', '-' );
+
+	if ( ! lang ) {
+		return 'en-US';
+	}
+
+	try {
+		// Rejects malformed tags without constructing a formatter, matching how
+		// core validates. Falling back to the browser default instead would silently
+		// format in a locale the user never chose.
+		return Intl.getCanonicalLocales( lang )[ 0 ] ?? 'en-US';
+	} catch ( error ) {
+		return 'en-US';
+	}
 }

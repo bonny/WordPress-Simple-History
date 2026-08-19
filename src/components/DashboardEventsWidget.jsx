@@ -12,7 +12,11 @@ import {
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Icon, chartBar } from '@wordpress/icons';
-import { EVENT_FIELDS, parseApiFetchError } from '../functions';
+import {
+	EVENT_FIELDS,
+	numberFormatI18n,
+	parseApiFetchError,
+} from '../functions';
 import { EventsSettingsProvider } from './EventsSettingsContext';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
@@ -60,7 +64,7 @@ function StatsContent( { stats } ) {
 							stats.num_events_today,
 							'simple-history'
 						),
-						stats.num_events_today
+						numberFormatI18n( stats.num_events_today )
 					),
 					{ strong: <strong /> }
 				) }
@@ -78,7 +82,7 @@ function StatsContent( { stats } ) {
 							stats.num_events_last_7_days,
 							'simple-history'
 						),
-						stats.num_events_last_7_days
+						numberFormatI18n( stats.num_events_last_7_days )
 					),
 					{ strong: <strong /> }
 				) }
@@ -99,7 +103,11 @@ export function DashboardEventsWidget() {
 		useState( false );
 	const [ eventsLoadingErrorDetails, setEventsLoadingErrorDetails ] =
 		useState( null );
-	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState( '' );
+	// Seeded from the value localized at enqueue time (see React_Dropin), so links
+	// out of the widget work before the search-options response arrives.
+	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState(
+		window.simpleHistoryReactData?.eventsAdminPageURL || ''
+	);
 	const [ settingsPageURL, setSettingsPageURL ] = useState( '' );
 	const [ statsPageURL, setStatsPageURL ] = useState( '' );
 	const [ mapsApiKey, setMapsApiKey ] = useState( '' );
@@ -191,7 +199,13 @@ export function DashboardEventsWidget() {
 		apiFetch( { path: '/simple-history/v1/search-options' } )
 			.then( ( response ) => {
 				setPagerSize( response.pager_size );
-				setEventsAdminPageURL( response.events_admin_page_url || '' );
+				// Only when the response actually carries one. Add-ons can
+				// override the URL through the search options filter, but an
+				// absent field must not downgrade the value seeded at enqueue
+				// time — losing it hides the links built from it.
+				if ( response.events_admin_page_url ) {
+					setEventsAdminPageURL( response.events_admin_page_url );
+				}
 				setSettingsPageURL( response.settings_page_url || '' );
 				setStatsPageURL( response.stats_page_url || '' );
 				setMapsApiKey( response.maps_api_key || '' );
@@ -208,7 +222,19 @@ export function DashboardEventsWidget() {
 					setStats( response.stats );
 				}
 			} )
-			.catch( () => {} );
+			.catch( async ( error ) => {
+				// Without this response the events fetch never starts,
+				// so surface the error instead of showing skeletons forever.
+				//
+				// Parse before setting state, so all updates land in the same
+				// render. Awaiting between them renders an intermediate
+				// "there is an error but no details yet" state.
+				const errorDetails = await parseApiFetchError( error );
+
+				setEventsLoadingHasErrors( true );
+				setEventsLoadingErrorDetails( errorDetails );
+				setEventsIsLoading( false );
+			} );
 	}, [] );
 
 	// Fetch events once pager size is available.
@@ -233,8 +259,11 @@ export function DashboardEventsWidget() {
 			const eventsJson = await eventsResponse.json();
 			setEvents( eventsJson );
 		} catch ( error ) {
+			// Parse before setting state — see the note in the fetch above.
+			const errorDetails = await parseApiFetchError( error );
+
 			setEventsLoadingHasErrors( true );
-			setEventsLoadingErrorDetails( await parseApiFetchError( error ) );
+			setEventsLoadingErrorDetails( errorDetails );
 		} finally {
 			setEventsIsLoading( false );
 		}
@@ -271,6 +300,9 @@ export function DashboardEventsWidget() {
 			eventsSettingsPageURL: settingsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions: false,
+			// The widget has no filter controls, so descendants must link to the
+			// events admin page instead of trying to filter in place.
+			canFilterEventsInPlace: false,
 		} ),
 		[
 			mapsApiKey,

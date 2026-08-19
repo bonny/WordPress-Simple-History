@@ -87,25 +87,6 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Checks if a given request has access to read a post.
-	 *
-	 * @param \WP_REST_Request $request Full details about the request.
-	 * @return bool|\WP_Error True if the request has read access for the item, WP_Error object or false otherwise.
-	 */
-	public function get_item_permissions_check( $request ) {
-		// User must be logged in.
-		if ( ! is_user_logged_in() ) {
-			return new WP_Error(
-				'rest_forbidden_context',
-				__( 'Sorry, you are not allowed to search options.', 'simple-history' ),
-				[ 'status' => rest_authorization_required_code() ]
-			);
-		}
-
-		return true;
-	}
-
-	/**
 	 * Checks if a given request has access to read posts.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
@@ -114,6 +95,20 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 	public function get_items_permissions_check( $request ) {
 		// User must be logged in.
 		if ( ! is_user_logged_in() ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				[ 'status' => rest_authorization_required_code() ]
+			);
+		}
+
+		// User must be allowed to view the history log.
+		// Unlike the events endpoint, this payload is not filtered per logger:
+		// it carries site wide data (event counts, activity date range, add-on
+		// list and versions, feature flags and the premium maps API key), so
+		// logged in alone is not a sufficient gate.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
@@ -187,6 +182,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				? Failed_Login_Limit_Service::get_last_suppressed_count()
 				: 0,
 			'experimental_features_enabled'   => Helpers::experimental_features_is_enabled(),
+			'reactions_enabled'               => Helpers::reactions_are_enabled(),
 			'events_admin_page_url'           => Helpers::get_history_admin_url(),
 			'settings_page_url'               => Helpers::get_settings_page_url(),
 			'stats_page_url'                  => admin_url( 'admin.php?page=simple_history_stats_page' ),

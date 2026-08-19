@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 'theme_updated'             => __( 'Updated theme "{theme_name}"', 'simple-history' ),
+ * 'theme_updated' => __( 'Updated theme "{theme_name}" to version {theme_version} from {theme_prev_version}', 'simple-history' ),
  */
 
 class SimpleThemeLoggerCest
@@ -29,8 +29,8 @@ class SimpleThemeLoggerCest
         $I->waitForElementVisible('#wpadminbar');
         $I->seeLogMessage('Switched theme to "Twenty Sixteen" from "Twenty Twenty-Five"');
 
-        // Upload Theme again to test theme_updated, does not currently work when
-        // uploading zip however?
+        // Upload Theme again to test theme_updated. No event is logged for this
+        // path — tracked separately, see local issue 281.
         $I->amOnAdminPage('/theme-install.php?browse=popular');
         $I->click('Upload Theme');
         $I->attachFile('#themezip', 'twentysixteen.2.7.zip');

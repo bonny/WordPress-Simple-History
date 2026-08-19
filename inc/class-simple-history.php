@@ -572,6 +572,7 @@ class Simple_History {
 			Dropins\Plugin_Patches_Dropin::class,
 			Dropins\Quick_View_Dropin::class,
 			Dropins\React_Dropin::class,
+			Dropins\Reactions_Dropin::class,
 			Dropins\RSS_Dropin::class,
 			Dropins\Settings_Help_Support_Dropin::class,
 			Dropins\Sidebar_Add_Ons_Dropin::class,

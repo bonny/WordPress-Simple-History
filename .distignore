@@ -1,3 +1,4 @@
+/.agents
 /.claude
 /.cursor
 /.git
@@ -6,6 +7,7 @@
 /.playwright-mcp
 /.vscode
 /.wordpress-org
+/.wp-env
 /assets-wp-repo
 /cursor
 /data
@@ -13,6 +15,8 @@
 /docs
 /examples
 /node_modules
+/patches
+/scripts
 /src
 /tests
 /vendor
@@ -23,6 +27,7 @@
 .env.testing
 .eslintignore
 .eslintrc
+.eslintrc.js
 .gitattributes
 .gitignore
 .mcp.json
@@ -31,6 +36,8 @@
 .prettierrc
 .typos.toml
 .valetrc
+.wp-env.json
+.wp-env.override.json
 AGENTS.md
 CLAUDE.local.md
 CLAUDE.md
@@ -43,9 +50,15 @@ gruntfile.js
 package-lock.json
 package.json
 phpcs.xml.dist
+/phpcs-rules
 phpstan.neon
 phpunit.xml
+playwright.config.js
 README.md
-readme.issue-*.md
+# Per-branch working notes. Keep the glob loose: the earlier
+# "readme.issue-*.md" missed "readme.issue.fse-logging.md" (dot, not dash),
+# which then shipped to wordpress.org for several releases.
+readme.issue*.md
 readme.slot-slotfills-filters.md
 rector.php
+skills-lock.json

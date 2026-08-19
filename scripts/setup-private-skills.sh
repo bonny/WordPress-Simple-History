@@ -47,6 +47,7 @@ SKILLS=(
   writing-blog-posts
   analytics-traffic
   freemium-conversion
+  night-shift
 )
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"

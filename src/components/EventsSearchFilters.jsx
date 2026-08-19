@@ -54,8 +54,7 @@ export function EventsSearchFilters( props ) {
 		setHasFailedLoginLimit,
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
-		isExperimentalFeaturesEnabled,
-		setIsExperimentalFeaturesEnabled,
+		setIsReactionsEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setAlertsPageURL,
@@ -207,8 +206,8 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.addons.has_premium_add_on
 				);
 
-				setIsExperimentalFeaturesEnabled(
-					searchOptionsResponse.experimental_features_enabled
+				setIsReactionsEnabled(
+					searchOptionsResponse.reactions_enabled
 				);
 
 				setHasFailedLoginLimit(
@@ -223,9 +222,15 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.failed_login_suppressed_count || 0
 				);
 
-				setEventsAdminPageURL(
-					searchOptionsResponse.events_admin_page_url
-				);
+				// Only when the response actually carries one. Add-ons can
+				// override the URL through the search options filter, but an
+				// absent field must not downgrade the value seeded at enqueue
+				// time — losing it hides the links built from it.
+				if ( searchOptionsResponse.events_admin_page_url ) {
+					setEventsAdminPageURL(
+						searchOptionsResponse.events_admin_page_url
+					);
+				}
 				setEventsSettingsPageURL(
 					searchOptionsResponse.settings_page_url
 				);
@@ -268,7 +273,7 @@ export function EventsSearchFilters( props ) {
 		setHasFailedLoginLimit,
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
-		setIsExperimentalFeaturesEnabled,
+		setIsReactionsEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setAlertsPageURL,
@@ -369,9 +374,6 @@ export function EventsSearchFilters( props ) {
 							}
 							showAIOnly={ showAIOnly }
 							setShowAIOnly={ setShowAIOnly }
-							isExperimentalFeaturesEnabled={
-								isExperimentalFeaturesEnabled
-							}
 							searchOptions={ searchOptions }
 							hideOwnEvents={ hideOwnEvents }
 							setHideOwnEvents={ setHideOwnEvents }

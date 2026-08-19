@@ -2,6 +2,7 @@
 name: action-links
 description: Guides implementation of structured action links on log events. Use when adding get_action_links() to a logger or migrating from get_log_row_details_output().
 allowed-tools: Read, Grep, Glob
+user-invocable: false
 ---
 
 # Action Links

@@ -2,6 +2,7 @@
 name: wp-org-screenshots
 description: How to design and regenerate marketing screenshots for the wordpress.org plugin page (banner-1544x500.png, screenshot-1.png, etc). Covers the event mix that converts, the reproducible WordPress Playground pipeline that bakes it, and every non-obvious gotcha from previous shoots. Use when refreshing screenshot-1.png, banners, or any image showing the Simple History event log.
 allowed-tools: Read, Edit, Write, Bash
+disable-model-invocation: true
 ---
 
 # wordpress.org Marketing Screenshots
@@ -93,7 +94,7 @@ That boots a fresh WordPress Playground, populates the curated events + historic
 
 ```
 tests/screenshot/
-├── blueprint.json              ← Playground blueprint (steps: login, mkdir, runPHP, activatePlugin, setSiteOptions, runPHP)
+├── blueprint.json              ← Playground blueprint (steps: login, mkdir, cp, activatePlugin, setSiteOptions, runPHP)
 ├── events.php                  ← Creates users, fires the 5 curated events, generates ~50 historical events
 ├── silence-mu-plugin.php       ← Filters out noise + remaps avatars
 ├── run.sh                      ← Boots playground, calls Playwright, tears down
@@ -119,7 +120,7 @@ Width 1600 gives the sidebar room to breathe (Insights chart legible). Height 11
 
 1. `login` — admin / password (Playground's default — note this differs from the project's other Playwright pipeline at `auth.setup.js`, which targets the Docker/wp-env stack with `claude` / `claude`. They're separate stacks, don't unify the creds)
 2. `mkdir mu-plugins` — manual because Playground's WP install doesn't have it
-3. `runPHP` — copies `silence-mu-plugin.php` to `wp-content/mu-plugins/` (drop-in mu-plugin loaded before everything else)
+3. `cp` — copies `silence-mu-plugin.php` to `wp-content/mu-plugins/` (drop-in mu-plugin loaded before everything else). Note this aborts the whole blueprint if the source is missing, unlike the `runPHP copy()` it replaced, which failed silently and left the noise filters off
 4. `activatePlugin` — Simple History
 5. `setSiteOptions` — site title "My website", tagline "Just another WordPress site", `show_avatars=1`, default avatar `mystery`
 6. `runPHP` — requires `events.php` to populate the log
