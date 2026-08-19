@@ -12,7 +12,11 @@ import {
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Icon, chartBar } from '@wordpress/icons';
-import { EVENT_FIELDS, parseApiFetchError } from '../functions';
+import {
+	EVENT_FIELDS,
+	numberFormatI18n,
+	parseApiFetchError,
+} from '../functions';
 import { EventsSettingsProvider } from './EventsSettingsContext';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
@@ -60,7 +64,7 @@ function StatsContent( { stats } ) {
 							stats.num_events_today,
 							'simple-history'
 						),
-						stats.num_events_today
+						numberFormatI18n( stats.num_events_today )
 					),
 					{ strong: <strong /> }
 				) }
@@ -78,7 +82,7 @@ function StatsContent( { stats } ) {
 							stats.num_events_last_7_days,
 							'simple-history'
 						),
-						stats.num_events_last_7_days
+						numberFormatI18n( stats.num_events_last_7_days )
 					),
 					{ strong: <strong /> }
 				) }
@@ -221,10 +225,14 @@ export function DashboardEventsWidget() {
 			.catch( async ( error ) => {
 				// Without this response the events fetch never starts,
 				// so surface the error instead of showing skeletons forever.
+				//
+				// Parse before setting state, so all updates land in the same
+				// render. Awaiting between them renders an intermediate
+				// "there is an error but no details yet" state.
+				const errorDetails = await parseApiFetchError( error );
+
 				setEventsLoadingHasErrors( true );
-				setEventsLoadingErrorDetails(
-					await parseApiFetchError( error )
-				);
+				setEventsLoadingErrorDetails( errorDetails );
 				setEventsIsLoading( false );
 			} );
 	}, [] );
@@ -251,8 +259,11 @@ export function DashboardEventsWidget() {
 			const eventsJson = await eventsResponse.json();
 			setEvents( eventsJson );
 		} catch ( error ) {
+			// Parse before setting state — see the note in the fetch above.
+			const errorDetails = await parseApiFetchError( error );
+
 			setEventsLoadingHasErrors( true );
-			setEventsLoadingErrorDetails( await parseApiFetchError( error ) );
+			setEventsLoadingErrorDetails( errorDetails );
 		} finally {
 			setEventsIsLoading( false );
 		}

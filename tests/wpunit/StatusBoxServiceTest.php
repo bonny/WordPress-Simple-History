@@ -99,4 +99,110 @@ class StatusBoxServiceTest extends \Codeception\TestCase\WPTestCase {
 			'The default items should still render'
 		);
 	}
+
+	/**
+	 * Viewing the log and viewing the settings are separate capabilities, so
+	 * the gear must not be offered to someone the settings page will reject.
+	 */
+	function test_header_settings_link_hidden_from_users_without_settings_capability() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'editor' ] ) );
+
+		$this->assertTrue(
+			current_user_can( \Simple_History\Helpers::get_view_history_capability() ),
+			'Precondition: editors can view the log.'
+		);
+		$this->assertFalse(
+			current_user_can( \Simple_History\Helpers::get_view_settings_capability() ),
+			'Precondition: editors cannot view the settings.'
+		);
+
+		$this->assertSame(
+			'',
+			\Simple_History\Helpers::get_header_settings_link(),
+			'Editors must not be offered a link to a page that rejects them.'
+		);
+	}
+
+	/**
+	 * The gate scopes the link rather than removing it: administrators keep it.
+	 */
+	function test_header_settings_link_still_shown_to_administrators() {
+		$html = \Simple_History\Helpers::get_header_settings_link();
+
+		$this->assertStringContainsString( 'sh-PageHeader-settingsIcon', $html );
+	}
+
+	/**
+	 * Email-based stealth mode hides the plugin from other users, which the
+	 * admin who enabled it tends to forget. The bar says so.
+	 */
+	function test_stealth_item_renders_under_email_based_stealth_mode() {
+		add_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+
+		$html = $this->render();
+
+		remove_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+
+		$this->assertStringContainsString( 'Stealth mode: on', $html );
+	}
+
+	/**
+	 * Nothing to say when the plugin is not hiding.
+	 */
+	function test_stealth_item_absent_when_stealth_mode_is_off() {
+		$this->assertStringNotContainsString( 'Stealth mode', $this->render() );
+	}
+
+	/**
+	 * Full stealth hides the GUI from everyone, so there is nobody to inform.
+	 */
+	function test_stealth_item_absent_under_full_stealth_mode() {
+		add_filter( 'simple_history/full_stealth_mode_enabled', '__return_true' );
+
+		$html = $this->render();
+
+		remove_filter( 'simple_history/full_stealth_mode_enabled', '__return_true' );
+
+		$this->assertStringNotContainsString( 'Stealth mode', $html );
+	}
+
+	/**
+	 * The bar is a standing status line, not an onboarding prompt: configuring
+	 * everything it points at must not make it disappear.
+	 *
+	 * An earlier version hid the bar once email reports, log forwarding and
+	 * alerts were all set up. That guarantee is now the opposite one, so this
+	 * pins it — the retention period and stealth state are exactly what a
+	 * long-running, fully configured site still wants answered at a glance.
+	 */
+	function test_bar_stays_visible_once_every_feature_is_configured() {
+		update_option( 'simple_history_email_report_enabled', true );
+		update_option( 'simple_history_channel_file', [ 'enabled' => 1 ] );
+
+		add_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+
+		$html = $this->render();
+
+		remove_filter( 'simple_history/stealth_mode_allowed_emails', [ $this, 'allow_one_address' ] );
+
+		delete_option( 'simple_history_channel_file' );
+		delete_option( 'simple_history_email_report_enabled' );
+
+		$this->assertStringContainsString( 'sh-HeaderStatus-zone', $html, 'The bar itself should still render' );
+		$this->assertStringContainsString( 'History kept:', $html, 'Retention is always-on context' );
+		$this->assertStringContainsString( 'Stealth mode: on', $html, 'Stealth state must survive too' );
+	}
+
+	/**
+	 * Callback for the allowed-emails filter. Any non-empty list turns
+	 * email-based stealth mode on.
+	 *
+	 * @param array $emails Existing allowed emails.
+	 * @return array
+	 */
+	public function allow_one_address( $emails ) {
+		$emails[] = 'someone@example.com';
+
+		return $emails;
+	}
 }

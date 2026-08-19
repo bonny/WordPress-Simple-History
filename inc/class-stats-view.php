@@ -68,18 +68,27 @@ class Stats_View {
 
 			<div class="sh-StatsDashboard-dateRangeControls">
 				<select>
-					<option disabled>Today</option>
-					<option disabled>Last 7 days</option>
-					<option selected>Last 30 days</option>
-					<option disabled>Last 3 months</option>
-					<option disabled>Last 6 months</option>
-					<option disabled>Last year</option>
-					<option disabled>All time</option>
+					<option disabled><?php esc_html_e( 'Today', 'simple-history' ); ?></option>
+					<option disabled><?php esc_html_e( 'Last 7 days', 'simple-history' ); ?></option>
+					<option selected><?php esc_html_e( 'Last 30 days', 'simple-history' ); ?></option>
+					<option disabled><?php esc_html_e( 'Last 3 months', 'simple-history' ); ?></option>
+					<option disabled><?php esc_html_e( 'Last 6 months', 'simple-history' ); ?></option>
+					<option disabled><?php esc_html_e( 'Last year', 'simple-history' ); ?></option>
+					<option disabled><?php esc_html_e( 'All time', 'simple-history' ); ?></option>
 				</select>
 
 				<div class="sh-StatsDashboard-dateRangeControls-description">
 					<span class="sh-Icon sh-Icon-lock"></span>
-					<span><a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_stats_daterange' ) ); ?>">Upgrade to Premium</a> to get access to more date ranges.</span>
+					<span>
+						<?php
+							printf(
+								/* translators: 1: opening link tag, 2: closing link tag */
+								esc_html__( '%1$sUpgrade to Premium%2$s to get access to more date ranges.', 'simple-history' ),
+								'<a target="_blank" rel="noopener noreferrer" href="' . esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_stats_daterange' ) ) . '">', // 1
+								'</a>', // 2
+							);
+						?>
+					</span>
 				</div>
 			</div>
 
@@ -136,8 +145,8 @@ class Stats_View {
 					<span class="sh-StatsDashboard-statLabel"><?php esc_html_e( 'Users with most events', 'simple-history' ); ?></span>
 					<span class="sh-StatsDashboard-statValue"><?php self::output_top_users_avatar_list( $top_users ); ?></span>
 				</div>
-			</div>		
-			
+			</div>
+
 			<div class="sh-flex sh-justify-between sh-mb-large">
 				<?php
 				/*
@@ -176,7 +185,7 @@ class Stats_View {
 				}
 				?>
 			</div>
-	
+
 			<div class="sh-StatsDashboard-stat">
 				<div class="sh-StatsDashboard-statLabel">
 					<?php esc_html_e( 'Activity by date', 'simple-history' ); ?>
@@ -327,7 +336,7 @@ class Stats_View {
 				<?php echo esc_html_x( 'Most edited posts and pages', 'stats section title', 'simple-history' ); ?>
 			</h2>
 
-			<p>Events can be page created, updated, deleted, trashed or restored.</p>
+			<p><?php esc_html_e( 'Events can be page created, updated, deleted, trashed or restored.', 'simple-history' ); ?></p>
 
 			<div class="sh-StatsDashboard-content">
 				<?php
@@ -343,7 +352,7 @@ class Stats_View {
 	/**
 	 * Output the table of top posts and pages.
 	 *
-	 * @param object $top_posts_and_pages Array of top posts and pages data.
+	 * @param array $top_posts_and_pages Array of top posts and pages data.
 	 */
 	public static function output_top_posts_and_pages_table( $top_posts_and_pages ) {
 		?>
@@ -424,7 +433,15 @@ class Stats_View {
 						>
 						<span class="sh-StatsDashboard-userData">
 							<span class="sh-StatsDashboard-userName"><?php echo esc_html( $user['display_name'] ); ?></span>
-							<span class="sh-StatsDashboard-userActions"><?php echo esc_html( number_format_i18n( $user['count'] ) ); ?> events</span>
+							<span class="sh-StatsDashboard-userActions">
+								<?php
+									printf(
+										/* translators: %d: number of events */
+										esc_html( _n( '%d event', '%d events', $user['count'], 'simple-history' ) ),
+										esc_html( number_format_i18n( $user['count'] ) )
+									);
+								?>
+							</span>
 						</span>
 					</a>
 				</li>
@@ -529,7 +546,7 @@ class Stats_View {
 			</h2>
 
 			<p class="sh-mt-0">
-				Premium users get access to charts with detailed stats.
+				<?php esc_html_e( 'Premium users get access to charts with detailed stats.', 'simple-history' ); ?>
 				<a href="<?php echo esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/#stats-and-summaries', 'premium_stats_charts' ) ); ?>" class="sh-ml-1" target="_blank"><?php esc_html_e( 'View more details', 'simple-history' ); ?></a>.
 			</p>
 
@@ -681,7 +698,7 @@ class Stats_View {
 				<?php
 			}
 			?>
-			
+
 			<div class="sh-StatsDashboard-content">
 				<div class="sh-StatsDashboard-stats is-blurred">
 					<?php
@@ -735,7 +752,7 @@ class Stats_View {
 			__( 'Plugins', 'simple-history' ),
 			$stats_data,
 			'--sh-color-green-mint',
-			'Premium users get quick overview of vital plugin numbers, like installations, activations, updates, deactivations and deletions.'
+			__( 'Premium users get quick overview of vital plugin numbers, like installations, activations, updates, deactivations and deletions.', 'simple-history' )
 		);
 	}
 
@@ -770,7 +787,7 @@ class Stats_View {
 			_x( 'User profile activity', 'stats section title', 'simple-history' ),
 			$stats_data,
 			'--sh-color-pink',
-			'Premium users get detailed stats on user profile activity, like successful logins, failed logins, profile updates, added users and removed users.'
+			__( 'Premium users get detailed stats on user profile activity, like successful logins, failed logins, profile updates, added users and removed users.', 'simple-history' )
 		);
 	}
 
@@ -801,7 +818,7 @@ class Stats_View {
 			_x( 'Posts & pages activity', 'stats section title', 'simple-history' ),
 			$stats_data,
 			'--sh-color-yellow',
-			'Premium users get detailed stats on posts and pages activity, like created, updated, trashed and deleted.'
+			__( 'Premium users get detailed stats on posts and pages activity, like created, updated, trashed and deleted.', 'simple-history' )
 		);
 	}
 
@@ -828,7 +845,7 @@ class Stats_View {
 			_x( 'Media', 'stats section title', 'simple-history' ),
 			$stats_data,
 			'--sh-color-green-light',
-			'Premium users get detailed stats on media activity, like uploads, edits and deletions.'
+			__( 'Premium users get detailed stats on media activity, like uploads, edits and deletions.', 'simple-history' )
 		);
 	}
 
@@ -852,7 +869,7 @@ class Stats_View {
 			_x( 'Notes', 'stats section title', 'simple-history' ),
 			$stats_data,
 			'--sh-color-blue',
-			'Premium users get detailed stats on collaborative notes activity from the block editor.'
+			__( 'Premium users get detailed stats on collaborative notes activity from the block editor.', 'simple-history' )
 		);
 	}
 

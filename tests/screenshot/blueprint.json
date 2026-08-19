@@ -3,9 +3,8 @@
 	"landingPage": "/wp-admin/admin.php?page=simple_history_admin_menu_page",
 	"preferredVersions": {
 		"php": "8.2",
-		"wp": "6.9"
+		"wp": "latest"
 	},
-	"phpExtensionBundles": [ "kitchen-sink" ],
 	"steps": [
 		{
 			"step": "login"
@@ -15,8 +14,9 @@
 			"path": "/wordpress/wp-content/mu-plugins"
 		},
 		{
-			"step": "runPHP",
-			"code": "<?php copy('/wordpress/wp-content/plugins/simple-history/tests/screenshot/silence-mu-plugin.php', '/wordpress/wp-content/mu-plugins/screenshot-silencer.php');"
+			"step": "cp",
+			"fromPath": "/wordpress/wp-content/plugins/simple-history/tests/screenshot/silence-mu-plugin.php",
+			"toPath": "/wordpress/wp-content/mu-plugins/screenshot-silencer.php"
 		},
 		{
 			"step": "activatePlugin",

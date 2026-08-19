@@ -6,6 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
 import { useInView } from 'react-intersection-observer';
 import { EventsCompactList } from './EventsCompactList';
+import { getTrackingUrl } from '../functions';
 import RefreshImage from '../../css/icons/refresh_24dp_5F6368_FILL0_wght400_GRAD0_opsz48.svg';
 import './AdminBarQuickView.scss';
 
@@ -254,12 +255,17 @@ const AdminBarQuickView = () => {
 				</p>
 				<p className="SimpleHistory-adminBarQuickView-premiumTeaser-description">
 					{ __(
-						'Filter the log to show only events for the page you\'re viewing.',
+						"Filter the log to show only events for the page you're viewing.",
 						'simple-history'
 					) }
 				</p>
 				<a
-					href="https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=adminbar&utm_campaign=this-page-filter"
+					href={ getTrackingUrl(
+						'https://simple-history.com/add-ons/premium/',
+						'this-page-filter',
+						'wpadmin',
+						'adminbar'
+					) }
 					className="SimpleHistory-adminBarQuickView-premiumTeaser-link"
 					target="_blank"
 					rel="noopener noreferrer"

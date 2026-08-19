@@ -239,6 +239,13 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		$total_weight = array_sum( $day_weights );
 		$timestamps   = [];
 
+		// Cannot happen: $days > 0 is guaranteed above and every weight is at
+		// least 0.5. But phpstan cannot see that the loop always ran, and a zero
+		// total would be a fatal division rather than a bad result.
+		if ( $total_weight <= 0 ) {
+			return [];
+		}
+
 		foreach ( $day_weights as $d => $weight ) {
 			$day_count = (int) round( $weight / $total_weight * $count );
 			$day_start = $now - ( ( $d + 1 ) * DAY_IN_SECONDS );

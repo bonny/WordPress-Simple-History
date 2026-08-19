@@ -2,6 +2,7 @@
 
 use Simple_History\Simple_History;
 use Simple_History\Services\Abilities_Service;
+use Simple_History\Helpers;
 
 /**
  * Registering Simple History abilities with the WordPress Abilities API.
@@ -146,7 +147,8 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Reading the log requires being logged in.
+	 * Reading the log requires being logged in and holding the view-history
+	 * capability.
 	 *
 	 * @covers ::check_events_permission
 	 */
@@ -159,13 +161,34 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * A subscriber may read the log. What they actually see is filtered inside
-	 * Log_Query, not here — this helper only mirrors the REST route's check.
+	 * Being logged in is not enough. The events route requires the same
+	 * capability as the history page itself, so a subscriber is refused even
+	 * though they are authenticated.
 	 *
 	 * @covers ::check_events_permission
 	 */
-	public function test_events_permission_is_granted_to_logged_in_user() {
+	public function test_events_permission_is_refused_without_view_history_capability() {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+
+		$this->assertInstanceOf( WP_Error::class, $service->check_events_permission() );
+	}
+
+	/**
+	 * A user who may view the history page may read the log through an ability.
+	 * What they actually see is filtered inside Log_Query, not here — this
+	 * helper only mirrors the REST route's check.
+	 *
+	 * @covers ::check_events_permission
+	 */
+	public function test_events_permission_is_granted_with_view_history_capability() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'editor' ] ) );
+
+		$this->assertTrue(
+			current_user_can( Helpers::get_view_history_capability() ),
+			'An editor is expected to hold the default view-history capability.'
+		);
 
 		$service = new Abilities_Service( Simple_History::get_instance() );
 
@@ -174,8 +197,9 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 
 	/**
 	 * Stats are stricter than events: the stats controller requires
-	 * manage_options where the events controller only requires being logged in.
-	 * That asymmetry is deliberate and must survive.
+	 * manage_options where the events controller requires the view-history
+	 * capability, which an editor holds. That asymmetry is deliberate and must
+	 * survive.
 	 *
 	 * @covers ::check_stats_permission
 	 */

@@ -1,6 +1,6 @@
 {
 	"name": "simple-history",
-	"version": "5.28.0",
+	"version": "5.30.0",
 	"description": "WordPress audit log and history plugin with nice GUI",
 	"author": "Pär Thernström",
 	"license": "GPL",
@@ -36,9 +36,14 @@
 		"grunt": "grunt",
 		"php:lint": "docker compose run --rm php-lint vendor/bin/phpcs . --report=full,summary",
 		"php:lint-fix": "docker compose run --rm php-lint vendor/bin/phpcbf .",
-		"php:phpstan": "docker compose run --rm php-lint vendor/bin/phpstan analyse --memory-limit 2048M",
+		"php:phpstan": "docker compose run --rm php-lint vendor/bin/phpstan analyse --memory-limit 4096M",
 		"php:rector": "docker compose run --rm php-lint vendor/bin/rector process --dry-run",
 		"php:rector-fix": "docker compose run --rm php-lint vendor/bin/rector process",
+		"addons": "./scripts/addons.sh",
+		"addons:lint": "./scripts/addons.sh php:lint",
+		"addons:lint-fix": "./scripts/addons.sh php:lint-fix",
+		"addons:phpstan": "./scripts/addons.sh php:phpstan",
+		"addons:check": "./scripts/addons.sh check:versions && ./scripts/addons.sh php:phpstan:min-core",
 		"test": "npm run test:wpunit && npm run test:functional && npm run test:acceptance",
 		"test:all-php-versions": "npm run test:php74 && npm run test",
 		"test:php74": "PHP_CLI_VERSION=74 npm run test:wpunit && npm run test:functional && npm run test:acceptance",
@@ -78,5 +83,8 @@
 		"date-fns": "^4.1.0",
 		"nuqs": "^2.4.3",
 		"react-intersection-observer": "^9.13.1"
+	},
+	"overrides": {
+		"@babel/runtime": "^7.26.10"
 	}
 }

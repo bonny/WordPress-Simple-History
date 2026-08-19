@@ -1,8 +1,5 @@
 import { clsx } from 'clsx';
-import {
-	dateI18n,
-	__experimentalGetSettings as dateSettings,
-} from '@wordpress/date';
+import { dateI18n, getSettings as dateSettings } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/components';
 import { pinSmall } from '@wordpress/icons';

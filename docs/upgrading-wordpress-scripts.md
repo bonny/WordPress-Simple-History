@@ -10,7 +10,28 @@ This is expected behavior, not a bug. The official guidance in the [JSX in WordP
 
 ## Accepted trade-off
 
-Some npm audit advisories (~15 as of June 2026) are only fixable via a wp-scripts major bump. They are dev-only — build toolchain, nothing ships to wordpress.org users (`node_modules/`, `src/`, `scripts/`, `vendor/` are all in `.distignore`) — and are accepted until one of the upgrade paths below is taken. Everything else clears with a plain non-breaking `npm audit fix`.
+Some npm audit advisories are only fixable via a wp-scripts major bump. They are dev-only — build toolchain, nothing ships to wordpress.org users (`node_modules/`, `src/`, `scripts/`, `vendor/`, `package.json` and `package-lock.json` are all in `.distignore`) — and are accepted until one of the upgrade paths below is taken. Everything else clears with a plain non-breaking `npm audit fix`.
+
+### State as of August 2026
+
+27 open Dependabot alerts (16 high, 10 moderate, 1 low). Every one is npm, scope `development`, in `package-lock.json`. **Zero Composer alerts and zero runtime alerts** — the packages under `dependencies` in package.json are all clean, so nothing in the released plugin is affected.
+
+**The pin is not the whole story.** Roughly two thirds reach us only through `@wordpress/scripts@27.9.0` — adm-zip, cookie, linkify-it, markdown-it, serialize-javascript, uuid, webpack-dev-server. The rest also arrive via direct dev dependencies that are *not* pinned and could be addressed independently:
+
+| Package | Also pulled in by |
+| --- | --- |
+| tar-fs, extract-zip, ws | `@wordpress/e2e-test-utils-playwright` |
+| minimatch, brace-expansion | `@wordpress/eslint-plugin`, `load-grunt-tasks` |
+| lodash | `grunt`, `grunt-wp-i18n` |
+
+Two things worth knowing before anyone tries to drive the count to zero:
+
+-   **`extract-zip@2.0.1` has no fix.** The advisory range is `<= 2.0.1` with `first_patched_version: null`, so no update resolves it — only dropping or overriding the chain would.
+-   **The `tar-fs` count overstates the exposure.** Three copies are installed. `3.1.2` already satisfies its advisory; only `3.0.4` and `2.1.1`, both under wp-scripts, are actually vulnerable.
+
+The largest cluster (tar-fs, extract-zip, adm-zip, ws) is puppeteer/lighthouse browser-download machinery, which only runs when unpacking a browser binary fetched from Google's servers. The `webpack-dev-server` advisories need a developer to browse a hostile site while the dev server is running. Both are bounded to a developer machine or CI.
+
+If the alert count needs reducing without touching the pin, the route is `overrides` in package.json forcing safe transitive versions. Overriding puppeteer's `tar-fs` can break the e2e suite, so run the Playwright tests afterwards — and it still will not clear `extract-zip`.
 
 ## Upgrade paths (when the time comes)
 

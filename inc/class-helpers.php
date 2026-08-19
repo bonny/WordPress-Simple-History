@@ -1143,6 +1143,16 @@ class Helpers {
 	 * @return string HTML for the settings gear link.
 	 */
 	public static function get_header_settings_link() {
+		// Viewing the log and viewing the settings are separate capabilities.
+		// Editors reach the log by default but not the settings page, so
+		// without this they are offered a gear that lands on a permission
+		// error. The divider is a border on the link itself, so dropping the
+		// link leaves no stray separator behind.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
+		if ( ! current_user_can( self::get_view_settings_capability() ) ) {
+			return '';
+		}
+
 		$settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 
 		ob_start();
@@ -1273,7 +1283,12 @@ class Helpers {
 		 *
 		 * @param bool $allow Whether the current user is allowed to clear the log.
 		*/
-		return apply_filters( 'simple_history/user_can_clear_log', true );
+		// Defaults to the settings capability rather than to true. Clearing
+		// truncates the entire events and contexts tables, i.e. destroys the
+		// audit trail, so it must not be authorized by nonce possession alone.
+		// The filter can still open it up or lock it down further.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from self::get_view_settings_capability().
+		return apply_filters( 'simple_history/user_can_clear_log', current_user_can( self::get_view_settings_capability() ) );
 	}
 
 	/**
@@ -1390,6 +1405,36 @@ class Helpers {
 		$view_history_capability = apply_filters( 'simple_history/view_history_capability', $view_history_capability );
 
 		return $view_history_capability;
+	}
+
+	/**
+	 * Whether the current user may look up another user's identifying details.
+	 *
+	 * Scoped to lookups that answer an arbitrary user id — the user card. That
+	 * endpoint could be walked from id 1 upwards to collect the login, email
+	 * and roles of every account on the site, including users who never appear
+	 * in the log, which is why it needs a capability of its own.
+	 *
+	 * Deliberately not applied to the initiator shown beside each event. That
+	 * is the person who performed an event the reader is already allowed to
+	 * see, so it is context for visible activity rather than a directory, and
+	 * it is what makes two people sharing a display name tellable apart.
+	 *
+	 * Defaults to "list_users", which is what WordPress itself requires to see
+	 * another user's email, and which editors do not hold.
+	 *
+	 * @since 5.30.0
+	 * @return bool
+	 */
+	public static function current_user_can_view_user_pii() {
+		/**
+		 * Filters whether the current user may see other users' login, email and roles.
+		 *
+		 * @since 5.30.0
+		 *
+		 * @param bool $can_view Defaults to current_user_can( 'list_users' ).
+		 */
+		return apply_filters( 'simple_history/user_can_view_user_pii', current_user_can( 'list_users' ) );
 	}
 
 	/**
@@ -1603,6 +1648,158 @@ class Helpers {
 			'simple_history/detective_mode_enabled',
 			get_option( 'simple_history_detective_mode_enabled', 0 )
 		);
+	}
+
+	/**
+	 * Value stored in place of something that looks sensitive.
+	 */
+	const MASKED_VALUE = '<removed by Simple History>';
+
+	/**
+	 * Field name fragments that mark a value as sensitive.
+	 *
+	 * Shared by every masking path — Detective Mode request data, the query
+	 * string in REQUEST_URI, command line arguments, and the referer stored on
+	 * every event — so a name only has to be added once.
+	 *
+	 * Needles are deliberately specific rather than short. "auth" would match
+	 * "author" and "post_author", and a bare "cc" would match "account" —
+	 * masking those loses ordinary debugging data for no security gain, which
+	 * is how the feature stops being useful. A bare "key" is left out for the
+	 * same reason, since it matches "keywords".
+	 *
+	 * The key bearing names are enumerated rather than matched as "_key",
+	 * which looks tempting because it skips "keywords" and "monkey". It also
+	 * swallows "meta_key", "cache_key" and "option_key", and Detective Mode
+	 * captures raw request data from every admin screen, core's custom fields
+	 * box included.
+	 *
+	 * @since 5.31.0
+	 *
+	 * @return array<string> Lowercase substrings.
+	 */
+	public static function get_sensitive_field_names() {
+		$field_names = [
+			'pass',
+			'pwd',
+			'token',
+			'secret',
+			'authoriz',
+			'api_key',
+			'apikey',
+			'private_key',
+			'privatekey',
+			'access_key',
+			'consumer_key',
+			'license_key',
+			'oauth',
+			'credential',
+			'bearer',
+			'session',
+			'card',
+			'cc_num',
+			'ccnum',
+			'credit',
+			'cvv',
+			'cvc',
+		];
+
+		/**
+		 * Filters the field name fragments that are masked before being stored.
+		 *
+		 * Matching is a case-insensitive substring test against the field name,
+		 * so "token" also covers "api_token" and "refresh_token".
+		 *
+		 * Named after Detective Mode because that is where masking started, but
+		 * it governs the always-on referer masking too. The name is kept as it
+		 * is so existing callbacks keep working.
+		 *
+		 * @since 5.30.0
+		 *
+		 * @param array<string> $field_names Lowercase substrings.
+		 */
+		return apply_filters( 'simple_history/detective_mode/sensitive_field_names', $field_names );
+	}
+
+	/**
+	 * Whether a field name looks like it holds something secret.
+	 *
+	 * @since 5.31.0
+	 *
+	 * @param string             $field_name Field name.
+	 * @param array<string>|null $needles    Lowercase substrings. Resolved from the filter when null.
+	 * @return bool
+	 */
+	public static function is_sensitive_field_name( $field_name, $needles = null ) {
+		if ( $needles === null ) {
+			$needles = self::get_sensitive_field_names();
+		}
+
+		$field_name = strtolower( (string) $field_name );
+
+		foreach ( $needles as $needle ) {
+			if ( str_contains( $field_name, $needle ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Mask sensitive values inside a URL or query string.
+	 *
+	 * Operates on the query part only, so the path stays readable.
+	 *
+	 * @since 5.31.0
+	 *
+	 * A string with no "?" in it is returned untouched, so pass a full URL
+	 * rather than a bare query string.
+	 *
+	 * @param string             $url_or_query URL, e.g. "/wp-admin/admin.php?a=1&token=x".
+	 * @param array<string>|null $needles      Lowercase substrings. Resolved from the filter when null.
+	 * @return string Same string with sensitive values replaced.
+	 */
+	public static function mask_sensitive_query_string( $url_or_query, $needles = null ) {
+		$url_or_query = (string) $url_or_query;
+
+		$query_start = strpos( $url_or_query, '?' );
+
+		if ( $query_start === false ) {
+			return $url_or_query;
+		}
+
+		// Resolved after the early return, not before: this runs for every
+		// logged event, and a referer with no query string should not pay for
+		// a filter dispatch it cannot use.
+		if ( $needles === null ) {
+			$needles = self::get_sensitive_field_names();
+		}
+
+		$path  = substr( $url_or_query, 0, $query_start + 1 );
+		$query = substr( $url_or_query, $query_start + 1 );
+
+		$masked_pairs = [];
+
+		foreach ( explode( '&', $query ) as $pair ) {
+			if ( $pair === '' ) {
+				continue;
+			}
+
+			$parts = explode( '=', $pair, 2 );
+
+			// A bare flag with no value has nothing to mask.
+			if ( count( $parts ) < 2 ) {
+				$masked_pairs[] = $pair;
+				continue;
+			}
+
+			$masked_pairs[] = self::is_sensitive_field_name( urldecode( $parts[0] ), $needles )
+				? $parts[0] . '=' . self::MASKED_VALUE
+				: $pair;
+		}
+
+		return $path . implode( '&', $masked_pairs );
 	}
 
 	/**
@@ -2143,12 +2340,16 @@ class Helpers {
 	 * @return string CSV field with escaped characters.
 	 */
 	public static function esc_csv_field( $field ) {
-		// Bail if not string.
+		// Bail if not string. Note that this turns any non-string into an empty cell,
+		// which is what we want for null. All callers pass DB strings or null.
 		if ( ! is_string( $field ) ) {
 			return '';
 		}
 
-		$active_content_triggers = array( '=', '+', '-', '@' );
+		// Tab and carriage return are on the OWASP list alongside the four operators,
+		// because some spreadsheet applications trim leading whitespace before deciding
+		// whether the cell is a formula.
+		$active_content_triggers = array( '=', '+', '-', '@', "\t", "\r" );
 
 		if ( in_array( substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
 			$field = "'" . $field;

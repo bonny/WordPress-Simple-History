@@ -5,10 +5,15 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 
 /**
- * Renders a feature discovery bar inside the page header.
- * Surfaces core and premium features so users can discover
- * settings they may not know exist. Hides itself once the
- * discoverable features have been configured.
+ * Renders a settings and status bar inside the page header.
+ *
+ * Surfaces core and premium features so users can discover settings they may
+ * not know exist, and reports the ones that are already on — retention period,
+ * email reports, alerts, log forwarding, stealth mode.
+ *
+ * The bar stays visible once those are configured. It reads as a status line
+ * rather than an onboarding prompt, and the standing answer to "how long is
+ * history kept here?" is worth more than the header space it costs.
  */
 class Status_Box_Service extends Service {
 	/**
@@ -26,17 +31,10 @@ class Status_Box_Service extends Service {
 			return;
 		}
 
-		// This is a feature-discovery aid, not a permanent status readout.
-		// Once the discoverable features are configured it has done its job,
-		// so hide it rather than let it become permanent header chrome.
-		if ( $this->all_discoverable_features_configured() ) {
-			return;
-		}
-
 		$items = $this->get_status_items();
 
 		/**
-		 * Filter the feature discovery bar items.
+		 * Filter the header settings and status bar items.
 		 *
 		 * Each item is an array with keys:
 		 * - 'id'     (string) Stable identifier, e.g. 'email', 'alerts'. Lets consumers target a specific item.
@@ -87,34 +85,19 @@ class Status_Box_Service extends Service {
 	}
 
 	/**
-	 * Whether every discoverable feature has been configured.
+	 * Whether email-based stealth mode is hiding the plugin from other users.
 	 *
-	 * When true the discovery bar is hidden — it has done its job.
-	 * Alerts is a premium feature, so the add-on reports whether it is
-	 * configured via a filter (defaulting to true so it never keeps the bar
-	 * alive on the free version, where Alerts can't be configured).
+	 * Full stealth mode is excluded: it hides the GUI from everyone, so this
+	 * bar never renders under it and there is nobody left to inform.
 	 *
 	 * @return bool
 	 */
-	private function all_discoverable_features_configured() {
-		$email_on = (bool) get_option( 'simple_history_email_report_enabled' );
+	private function stealth_mode_is_active() {
+		if ( Stealth_Mode::is_full_stealth_mode_enabled() ) {
+			return false;
+		}
 
-		$forwarding_on = $this->get_active_forwarding_channels_count() > 0;
-
-		/**
-		 * Whether the premium Alerts feature is configured.
-		 *
-		 * Alerts lives in the premium add-on, so the add-on answers this.
-		 * Defaults to true so alerts never keeps the discovery bar visible on
-		 * installs where it isn't available (e.g. the free version).
-		 *
-		 * @since 5.30.0
-		 *
-		 * @param bool $configured Whether alerts are configured.
-		 */
-		$alerts_ok = (bool) apply_filters( 'simple_history/header_status/alerts_configured', true );
-
-		return $email_on && $forwarding_on && $alerts_ok;
+		return Stealth_Mode::is_stealth_mode_enabled();
 	}
 
 	/**
@@ -283,6 +266,21 @@ class Status_Box_Service extends Service {
 				'icon'  => 'dashicons-migrate',
 				'url'   => $forwarding_tab_url,
 				'title' => __( 'Keep a copy of your activity log in a file', 'simple-history' ),
+			];
+		}
+
+		// Stealth mode, last and only while it is on. Unlike the items above it
+		// is not an invitation to configure something — it reports a state the
+		// admin already chose, and which they tend to forget they chose. The
+		// Stealth Mode setting itself lives in the premium add-on, so link there
+		// only when it is installed to point at a screen that exists.
+		if ( $this->stealth_mode_is_active() ) {
+			$items[] = [
+				'id'    => 'stealth',
+				'text'  => __( 'Stealth mode: on', 'simple-history' ),
+				'icon'  => 'dashicons-hidden',
+				'url'   => Helpers::is_premium_add_on_active() ? $settings_url . '#simple-history-premium-settings' : '',
+				'title' => __( 'Simple History is hidden from everyone not on the allow list, including other administrators', 'simple-history' ),
 			];
 		}
 

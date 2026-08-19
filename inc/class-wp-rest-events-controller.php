@@ -252,6 +252,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// User must be allowed to view the history log, matching the collection
+		// endpoint. The per event check below would otherwise let a user who
+		// cannot open the history page still read single events by id, for any
+		// logger whose own capability they hold. The reaction routes share this
+		// callback, so they inherit the same floor.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		// Event must exist.
 		if ( ! Helpers::event_exists( $request['id'] ) ) {
 			return new WP_Error(
@@ -831,6 +845,22 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			);
 		}
 
+		// User must be allowed to view the history log, same gate as the admin
+		// page and the dashboard widget. Without it, any logged in user reaches
+		// this endpoint and receives events from every logger whose own
+		// capability they happen to hold — some ship below the view floor, so
+		// e.g. an author could read Notes logger events despite being blocked
+		// from the history page. The per logger filter in Log_Query stays as
+		// defence in depth.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
 		// Surrounding events feature requires administrator privileges.
 		// This bypasses normal logger permission checks and could expose sensitive events.
 		if ( isset( $request['surrounding_event_id'] ) && ! current_user_can( 'manage_options' ) ) {
@@ -1172,6 +1202,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$user_avatar_url  = $user_avatar_data['url'] ?? '';
 			$user_object      = get_user_by( 'id', $context['_user_id'] ?? null );
 
+			// Deliberately not gated on the user-card capability. The initiator
+			// is the person who performed an event the reader is already
+			// allowed to see, so this is context for visible activity rather
+			// than a directory: it cannot be walked to reach users who never
+			// appear in the log. The card is gated instead, because that one
+			// answers arbitrary user ids and so could be harvested.
 			$user_info = [
 				'user_id'           => $context['_user_id'] ?? null,
 				'user_login'        => $context['_user_login'] ?? null,
@@ -1273,7 +1309,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'context', $fields ) ) {
-			$data['context'] = $item->context;
+			$data['context'] = $item->context ?? [];
 		}
 
 		if ( rest_is_field_included( 'permalink', $fields ) ) {
@@ -1660,6 +1696,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					$stats['missed_label'] = number_format_i18n( $missed ) . ' more ' . $type;
 				}
 			}
+
+			// For locales whose thousands separator is a space (Swedish, French, ...),
+			// WP_Locale stores the separator as the literal string "&nbsp;", so
+			// number_format_i18n() returns "1&nbsp;234". That is fine in a PHP template,
+			// but this value goes out over REST and is rendered by React as a text node,
+			// which escapes it — the user would literally read "1&nbsp;234 more posts".
+			// A REST payload should carry data, not HTML entities, so decode to a real
+			// non-breaking space here.
+			$stats['missed_label'] = html_entity_decode( $stats['missed_label'], ENT_QUOTES, 'UTF-8' );
 		}
 		unset( $stats );
 

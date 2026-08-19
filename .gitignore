@@ -74,7 +74,11 @@ CLAUDE.local.md
 # Docker Claude Code environment
 docker/claude-code/.env
 benchmarks/
+# Local server-log analysis. Not shipped: it correlates billing records
+# with IP access logs to re-identify buyers. Scheduled for retirement in
+# the cookieless-attribution work (local issue 283).
 scripts/check-server-logs.sh
+scripts/lib/
 
 # Playwright output
 playwright-report/
@@ -96,3 +100,7 @@ docs/utm-tracking-guide.md
 /.playground.json
 /.playground.log
 /.playground-blueprint.json
+
+# Python bytecode cache
+__pycache__/
+*.pyc
