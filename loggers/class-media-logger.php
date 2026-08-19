@@ -430,9 +430,9 @@ class Media_Logger extends Logger {
 			// Defaulted before escaping, so a missing value interpolates as
 			// empty rather than leaving a literal "{attachment_title}" in the
 			// message.
-			$context['post_type']           ??= 'attachment';
-			$context['attachment_filename'] ??= '';
-			$context['attachment_title']    ??= '';
+			$context['post_type']           = $context['post_type'] ?? 'attachment';
+			$context['attachment_filename'] = $context['attachment_filename'] ?? '';
+			$context['attachment_title']    = $context['attachment_title'] ?? '';
 
 			$context = $this->esc_html_context_keys( $context, [ 'post_type', 'attachment_filename', 'attachment_title' ] );
 

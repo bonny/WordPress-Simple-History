@@ -280,6 +280,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Colour values from the theme customizer are validated before being drawn as a swatch, so a theme with a permissive colour setting cannot inject CSS into the log.
 -   CSV exports treat tab and carriage return as formula triggers, alongside the `=`, `+`, `-` and `@` already covered.
 -   Additional escaping and input validation across the options, theme and media loggers.
+-   Referring URL stored with every event now has secret-looking query string values masked, the way Detective Mode already masked the URLs it stores.
+-   Masking now also covers session, bearer, credentials and private key field names.
 
 ### 5.30.0 (August 2026)
 
@@ -303,6 +305,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
 -   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable.
 -   Developers: `simple_history/user_can_clear_log` now defaults to whether the user can manage settings, instead of always allowing it. The "Clear log" button is unaffected for administrators.
+-   Exporting the log as HTML is faster on sites with large activity logs.
 
 **Deprecated**
 

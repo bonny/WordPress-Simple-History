@@ -1,6 +1,8 @@
 <?php
 
 use Simple_History\Dropins\Detective_Mode_Dropin;
+use Simple_History\Helpers;
+use Simple_History\Loggers\Logger;
 use Simple_History\Simple_History;
 
 /**
@@ -53,6 +55,22 @@ class SecurityMaskingAndEscapingTest extends \Codeception\TestCase\WPTestCase {
 			[ 'cc_number' ],
 			[ 'credit_card' ],
 			[ 'cvv' ],
+			[ 'bearer' ],
+			[ 'bearer_token' ],
+			[ 'session' ],
+			[ 'sessionid' ],
+			[ 'session_id' ],
+			[ 'credentials' ],
+			[ 'privatekey' ],
+			[ 'mysql_pwd' ],
+			[ 'csrftoken' ],
+			[ 'access_token' ],
+			[ 'access_key' ],
+			[ 'aws_access_key_id' ],
+			[ 'consumer_key' ],
+			[ 'license_key' ],
+			[ 'oauth_token' ],
+			[ 'oauth_verifier' ],
 		];
 	}
 
@@ -83,7 +101,14 @@ class SecurityMaskingAndEscapingTest extends \Codeception\TestCase\WPTestCase {
 			[ 'user_login' ],
 			[ 'post_title' ],
 			[ 'keyword' ],
+			[ 'keywords' ],
 			[ 'action' ],
+			[ 'sidebar_id' ],
+			[ 'design' ],
+			[ 'post_status' ],
+			[ 'meta_key' ],
+			[ 'cache_key' ],
+			[ 'option_key' ],
 		];
 	}
 
@@ -125,9 +150,8 @@ class SecurityMaskingAndEscapingTest extends \Codeception\TestCase\WPTestCase {
 	 * the same secret in plain sight one context key over.
 	 */
 	public function test_query_string_values_are_masked() {
-		$masked = $this->call_protected(
-			'mask_sensitive_query_string',
-			[ '/wp-admin/admin.php?page=x&api_key=SECRET&token=SECRET&keep=visible' ]
+		$masked = Helpers::mask_sensitive_query_string(
+			'/wp-admin/admin.php?page=x&api_key=SECRET&token=SECRET&keep=visible'
 		);
 
 		$this->assertStringNotContainsString( 'SECRET', $masked );
@@ -188,5 +212,82 @@ class SecurityMaskingAndEscapingTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertDoesNotMatchRegularExpression( '/<img[^>]*onerror/i', $output, 'Post title must not produce a live img tag.' );
 		$this->assertStringNotContainsString( '<script', strtolower( $output ), 'Comment author must not produce a script tag.' );
 		$this->assertStringContainsString( 'TITLE', $output, 'The readable part of the title must survive.' );
+	}
+
+	/**
+	 * Call a private method on the base logger class.
+	 *
+	 * @param string $method Method name.
+	 * @param array  $args   Arguments.
+	 * @return mixed
+	 */
+	private function call_logger_private( $method, $args ) {
+		$logger     = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleLogger' );
+		$reflection = new ReflectionMethod( Logger::class, $method );
+		$reflection->setAccessible( true );
+
+		return $reflection->invokeArgs( $logger, $args );
+	}
+
+	/**
+	 * Build the context that would be stored for a given referer.
+	 *
+	 * @param string $referer Value to place in HTTP_REFERER.
+	 * @return array Resulting context.
+	 */
+	private function context_for_referer( $referer ) {
+		$had_referer      = isset( $_SERVER['HTTP_REFERER'] );
+		$original_referer = $_SERVER['HTTP_REFERER'] ?? null;
+
+		$_SERVER['HTTP_REFERER'] = $referer;
+
+		try {
+			return $this->call_logger_private( 'append_remote_addr_to_context', [ [] ] );
+		} finally {
+			if ( $had_referer ) {
+				$_SERVER['HTTP_REFERER'] = $original_referer;
+			} else {
+				unset( $_SERVER['HTTP_REFERER'] );
+			}
+		}
+	}
+
+	/**
+	 * The referer is stored on every event, always on, and kept for the full
+	 * retention period. It carries the previous page's query string, which
+	 * sometimes holds a credential — an access token, a session id. Detective
+	 * Mode masked its query string already; this path did not.
+	 */
+	public function test_referer_query_string_is_masked() {
+		$context = $this->context_for_referer(
+			'http://example.org/wp-admin/admin.php?page=x&access_token=SECRET&keep=visible'
+		);
+
+		$this->assertArrayHasKey( '_server_http_referer', $context );
+		$this->assertStringNotContainsString( 'SECRET', $context['_server_http_referer'] );
+		$this->assertStringContainsString( 'keep=visible', $context['_server_http_referer'], 'Ordinary parameters must stay readable.' );
+		$this->assertStringContainsString( 'page=x', $context['_server_http_referer'], 'Ordinary parameters must stay readable.' );
+	}
+
+	/**
+	 * Over-masking is the failure mode that makes a referer useless for
+	 * working out where an event came from, so an ordinary admin URL has to
+	 * come through byte for byte.
+	 */
+	public function test_ordinary_referer_is_stored_unchanged() {
+		$referer = 'http://example.org/wp-admin/edit.php?post_type=page&paged=2';
+		$context = $this->context_for_referer( $referer );
+
+		$this->assertSame( $referer, $context['_server_http_referer'] );
+	}
+
+	/**
+	 * A referer with no query string has nothing to mask.
+	 */
+	public function test_referer_without_query_string_is_stored_unchanged() {
+		$referer = 'http://example.org/wp-admin/index.php';
+		$context = $this->context_for_referer( $referer );
+
+		$this->assertSame( $referer, $context['_server_http_referer'] );
 	}
 }
