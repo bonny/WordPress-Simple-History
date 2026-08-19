@@ -31,6 +31,31 @@ class Site_Editor_Logger extends Logger {
 	];
 
 	/**
+	 * Taxonomies the Site Editor uses as internal plumbing.
+	 *
+	 * WordPress creates these terms itself to connect a template to its
+	 * theme and a template part to its area. They are not choices the user
+	 * made, so logging them alongside the Site Editor event is noise.
+	 *
+	 * @var array<string>
+	 */
+	private const FSE_TAXONOMIES = [
+		'wp_theme',
+		'wp_template_part_area',
+	];
+
+	/**
+	 * IDs of font families installed during the current request.
+	 *
+	 * Installing a family posts the family and then each of its font faces
+	 * as separate requests. The faces are part of that one install, not
+	 * separate user actions, so they are not logged on their own.
+	 *
+	 * @var array<int,bool>
+	 */
+	private $created_font_family_ids = [];
+
+	/**
 	 * IDs of font families being deleted during the current request,
 	 * used to skip logging the cascading deletion of their font faces.
 	 *
@@ -179,6 +204,7 @@ class Site_Editor_Logger extends Logger {
 	public function loaded() {
 		// Tell Post_Logger to not log Site Editor post types, this logger handles them.
 		add_filter( 'simple_history/post_logger/skip_posttypes', [ $this, 'on_post_logger_skip_posttypes' ] );
+		add_filter( 'simple_history/categories_logger/skip_taxonomies', [ $this, 'on_categories_logger_skip_taxonomies' ] );
 
 		// The Site Editor saves everything through the REST API, but the same
 		// post types can also be changed by WP-CLI, an importer or plugin code,
@@ -207,6 +233,20 @@ class Site_Editor_Logger extends Logger {
 	 */
 	public function on_post_logger_skip_posttypes( $skip_posttypes ) {
 		return array_merge( $skip_posttypes, self::FSE_POST_TYPES );
+	}
+
+	/**
+	 * Add the Site Editor's internal taxonomies to the list of taxonomies
+	 * that the categories logger should not log.
+	 *
+	 * Without this the first Site Editor save on a site logs a term
+	 * creation for the active theme next to the Site Editor event itself.
+	 *
+	 * @param array<string> $skip_taxonomies Taxonomies to skip.
+	 * @return array<string>
+	 */
+	public function on_categories_logger_skip_taxonomies( $skip_taxonomies ) {
+		return array_merge( $skip_taxonomies, self::FSE_TAXONOMIES );
 	}
 
 	/**
@@ -357,6 +397,10 @@ class Site_Editor_Logger extends Logger {
 				break;
 
 			case 'wp_font_family':
+				if ( $creating ) {
+					$this->created_font_family_ids[ $post->ID ] = true;
+				}
+
 				$this->info_message(
 					$creating ? 'font_family_created' : 'font_family_updated',
 					[
@@ -367,7 +411,9 @@ class Site_Editor_Logger extends Logger {
 				break;
 
 			case 'wp_font_face':
-				if ( $creating ) {
+				// A face added to a family installed moments ago is part of
+				// that install, which is already logged as one event.
+				if ( $creating && ! isset( $this->created_font_family_ids[ $post->post_parent ] ) ) {
 					$this->info_message( 'font_face_created', $this->get_font_face_context( $post ) );
 				}
 				break;
@@ -557,6 +603,11 @@ class Site_Editor_Logger extends Logger {
 				}
 				break;
 		}
+
+		// The captured data has served its purpose now that the event is
+		// logged. Dropping it keeps the array from growing through a bulk
+		// delete, and stops a stale entry being read later in the request.
+		unset( $this->pre_delete_data[ $post_id ] );
 	}
 
 	/**
