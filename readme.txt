@@ -260,6 +260,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
+-   Tested on WordPress 7.1.
 -   Theme update events now name the version the theme went from and to, the way plugin update events already did.
 
 **Fixed**
