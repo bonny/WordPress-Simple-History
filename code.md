@@ -59,7 +59,7 @@ return $result; // Return because user is not authorized
 
 Simple History supports WordPress 6.3+, so `@wordpress/*` imports must exist in WP 6.3. The full externals-vs-bundled rules live in [src/CLAUDE.md](src/CLAUDE.md), loaded when working in `src/`.
 
--   **Do NOT upgrade `@wordpress/scripts` beyond 27.x.** Version 28+ makes built assets depend on the `react-jsx-runtime` script handle, which only exists in WP 6.6+ — scripts silently fail to load on WP 6.3–6.5. The ~15 leftover npm audit advisories this causes are dev-only and accepted. See [docs/upgrading-wordpress-scripts.md](docs/upgrading-wordpress-scripts.md) for the full rationale and the two upgrade paths.
+-   **Do NOT upgrade `@wordpress/scripts` beyond 27.x.** Version 28+ makes built assets depend on the `react-jsx-runtime` script handle, which only exists in WP 6.6+ — scripts silently fail to load on WP 6.3–6.5. The leftover npm audit advisories are dev-only and accepted — 27 open as of August 2026, all transitive dev dependencies in `package-lock.json`, none of which ship to users. Note that not all of them come from this pin. See [docs/upgrading-wordpress-scripts.md](docs/upgrading-wordpress-scripts.md) for the full rationale and the two upgrade paths.
 
 ### Prefer Web Standards Over JavaScript
 
