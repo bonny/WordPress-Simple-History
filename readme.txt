@@ -262,6 +262,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Tested on WordPress 7.1.
 -   Theme update events now name the version the theme went from and to, the way plugin update events already did.
+-   Experimental — Role events no longer list every capability in the details panel when there are more than 10; the count stays in the event message and the full list in the event context.
 
 **Fixed**
 
