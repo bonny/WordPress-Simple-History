@@ -179,9 +179,11 @@ class Plugin_WP_AI_Logger extends Logger {
 			return;
 		}
 
-		if ( preg_match( '/^wpai_feature_(.+)_enabled$/', $option, $matches ) === 1 ) {
-			$this->log_feature_toggle( $matches[1], $new_value );
+		if ( preg_match( '/^wpai_feature_(.+)_enabled$/', $option, $matches ) !== 1 ) {
+			return;
 		}
+
+		$this->log_feature_toggle( $matches[1], $new_value );
 	}
 
 	/**
