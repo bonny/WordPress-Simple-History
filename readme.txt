@@ -16,6 +16,8 @@ Trusted by 300,000+ WordPress sites, rated 4.9 stars with [450+ five-star review
 
 Simple History is the complete audit log for WordPress. It tracks every meaningful change — content edits, user logins, plugin updates, security events, and more — so site owners, teams, agencies, and developers always know who did what and when. Just install and activate; no configuration required.
 
+Every event is written to be read: plain language like _Updated page "About us"_, relative timestamps such as "5 minutes ago", and before/after comparisons instead of raw data dumps.
+
 ### 🔍 How Simple History Helps in Real Situations
 
 **Track what's happening on your site**
@@ -63,11 +65,13 @@ _"I see three failed logins from an unfamiliar IP address overnight. Let me clic
 -   Privacy data export and user data erasure requests
 -   Privacy page changes
 -   IP addresses anonymized by default — no cookies, no external fonts
+-   WordPress AI plugin activity is logged without ever storing API keys or prompt content
 
 ### 🔌 Built-in Third-Party Plugin Support
 
 Simple History includes built-in logging for:
 
+-   **WordPress AI plugin** – Feature toggles, AI provider and model changes, and connector approval requests, grants, and revocations
 -   **Jetpack** – Module activations and deactivations
 -   **Advanced Custom Fields (ACF)** – Field group and field changes
 -   **User Switching** – User switch events
@@ -173,6 +177,12 @@ Yes, you can export logs in **CSV** or **JSON** format for further analysis.
 ### Is it compatible with other plugins?
 
 Yes! Simple History supports many popular plugins out of the box. Additionally, developers can integrate it with any plugin using the [Logging API](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_faq_api).
+
+### Does Simple History log the WordPress AI plugin?
+
+Yes. When the official WordPress AI plugin is active, Simple History logs when AI features are turned on or off, when a feature's AI provider or model changes, and when plugins or themes request, are granted, or lose access to an AI provider on the Connector Approvals screen.
+
+API keys and AI prompt or response content are never logged — those stay in the AI plugin's own settings.
 
 ### Will this plugin slow down my website?
 
