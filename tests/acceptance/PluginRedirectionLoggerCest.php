@@ -8,14 +8,9 @@ use \Step\Acceptance\Admin;
 class PluginRedirectionLoggerCest
 {
 
-    public function _before( AcceptanceTester $I, FunctionalTester $I2 ) {
+    public function _before( Admin $I, FunctionalTester $I2 ) {
         $I->loginAsAdmin();
-        $I->amOnPluginsPage();
-        $isActive = $I->executeJS("return !!document.getElementById('deactivate-redirection')");
-        if (!$isActive) {
-            $I->activatePlugin('redirection');
-        }
-        $I->canSeePluginActivated('redirection');
+        $I->activatePluginByFile('redirection/redirection.php');
         $I->amOnAdminPage('/tools.php?page=redirection.php');
 
         // Go through setup wizard.
