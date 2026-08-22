@@ -2,7 +2,6 @@
 
 This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, etc.) working with code in this repository.
 
-@.cursor/rules/
 @code.md
 
 ## Project Overview
@@ -11,33 +10,9 @@ This file provides guidance to AI agents (Claude Code, GitHub Copilot, Cursor, e
 
 -   **Core Version**: Free, fully-featured version in this repository
 -   **Premium Version**: Additional plugin with extended features (both must be installed together).
--   **Payment Processor**: Simple History Premium is sold through **Lemon Squeezy**, which acts as the merchant of record. Lemon Squeezy collects and remits all sales tax/VAT — the seller does not handle tax directly. Customer billing lives at `app.lemonsqueezy.com/my-orders/` and `simple-history.lemonsqueezy.com/billing`. Tax exemptions, refunds of tax, and similar billing concerns must be handled by Lemon Squeezy support (help@lemonsqueezy.com), not from the seller dashboard.
+-   **Payment Processor**: Premium is sold through **Lemon Squeezy** (merchant of record). See the **lemonsqueezy-sales** skill for billing, tax/VAT, and refund specifics.
 -   **Documentation**: See readme.txt for detailed plugin information
 -   **Upsell Philosophy**: Core version must be fully usable for free users with non-intrusive upgrade prompts. However, the premium version should be a "must-have" for most users. Convince users to upgrade to the premium version by "nudging" them discreetly in different places throughout the plugin. But don't be too pushy, don't annoy users! Win over users in the long run and make them happy to use the premium version.
-
-### Simple History's Freemium Approach
-
-**Free Version** (This Repository):
-
--   Must be fully functional for all core features
--   No artificial limitations
--   No license key requirements
--   No trial periods or usage limits
--   Can include non-intrusive upgrade prompts
--   Premium feature teasers (clearly marked)
-
-**Premium Version** (Separate Plugin):
-
--   Extended functionality (more retention, filters)
--   Premium-only integrations
--   Advanced features
--   Priority support
-
-**Philosophy**: "Free is great, Premium is a must-have"
-
--   Make users **want** to upgrade, not **have** to upgrade
--   Provide real value in premium, not just unlocking free features
--   Be helpful and friendly, not pushy or annoying
 
 See the **wordpress-org-compliance** skill for detailed guidelines on implementing this approach while maintaining WordPress.org compliance.
 
@@ -48,6 +23,7 @@ See the **wordpress-org-compliance** skill for detailed guidelines on implementi
 -   Use `Log_Query::get_db_engine()` to check database type (`'mysql'` or `'sqlite'`)
 -   Avoid MySQL-specific SQL (e.g., `OPTIMIZE TABLE`, `SHOW TABLE STATUS`) without a database type guard
 -   Some vendor packages are patched via `cweagans/composer-patches`. Patches live in `patches/` and are auto-applied on `composer install`. See [patches/README.md](patches/README.md) before editing anything under `vendor/`.
+-   Premium declares a **minimum core version** and calls core methods directly. Users update the two plugins independently, so adding a method here and calling it from premium is a fatal error for anyone on an older core. When premium starts using a new core API, bump `SIMPLE_HISTORY_PREMIUM_MIN_CORE_VERSION` in the add-ons repo. Run `npm run addons:check` from here to catch misses — it runs the add-ons repo's version and minimum-core checks without leaving core. `npm run addons:lint` and `npm run addons:phpstan` are also available.
 
 ## Quick Start
 
@@ -73,23 +49,15 @@ See @CLAUDE.local.md for specific commands for stable and nightly WordPress inst
 
 ### Quick Reference
 
--   **WordPress Way**: Follow WordPress best practices and conventions
 -   **Prefixes**: Use `sh`, `simplehistory`, or `simple_history`
 -   **Text Domain**: `simple-history`
 -   **PHP**: 7.4+ compatibility, WordPress Coding Standards
--   **Escaping**: Always escape output properly
--   **JavaScript**: Follow @wordpress/scripts conventions
 
 ## Project Management
 
 ### Private Skills
 
-Some skills contain personal preferences or sensitive business data and live in the maintainer's Obsidian vault rather than in this repo. To wire them up on a maintainer machine:
-
-1. Set `SH_PRIVATE_SKILLS_DIR` to the absolute path of the `claude-skills/` folder in the vault (add the export to your shell profile so the env var persists across sessions)
-2. Run `scripts/setup-private-skills.sh` (safe to re-run)
-
-Contributors without the vault can ignore this — the script bails with a clear error if `SH_PRIVATE_SKILLS_DIR` isn't set.
+Some skills live in the maintainer's Obsidian vault rather than in this repo. Run `scripts/setup-private-skills.sh` to wire them up; see the comments at the top of that script for setup details. Contributors without the vault can ignore this.
 
 ### GitHub Project Board
 
@@ -103,4 +71,5 @@ Use the **github-project** skill for project board automation, IDs, and GraphQL 
 -   Issues are tracked locally in Obsidian (use the `local-issues` skill), not on GitHub
 -   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos. Never add any sensitive information to this document, like API keys or passwords, since this document will be commited to GIT and can be shown on GitHub.
 -   Don't add to git or commit without user explicitly saying so
+-   Pushing branch commits does NOT deploy. The WordPress.org deploy runs only when a **semver tag** is pushed (see `.github/workflows/deploy.yml`; `workflow_dispatch` allows a manual run). So pushing `develop`/`main` without a new tag is safe — it will not release. (Pushing is still an outward, shared-remote action, so confirm before doing it.)
 -   Never add auth tokens or api keys to code or documents in /docs folder

@@ -4,44 +4,49 @@ This document covers the tools used to maintain code quality in the Simple Histo
 
 ## Overview
 
-- **phpcs/phpcbf** - PHP_CodeSniffer for linting and auto-fixing PHP code
-- **phpstan** - Static analysis to catch bugs before runtime
-- **rector** - Automated code modernization and refactoring
-- **npm scripts** - Convenient wrappers for all quality tools
+-   **phpcs/phpcbf** - PHP_CodeSniffer for linting and auto-fixing PHP code
+-   **phpstan** - Static analysis to catch bugs before runtime
+-   **rector** - Automated code modernization and refactoring
+-   **npm scripts** - Convenient wrappers for all quality tools
 
 ## PHP_CodeSniffer (phpcs)
 
 ### Configuration
 
-- Config file: `phpcs.xml.dist` in project root
-- Uses `dealerdirect/phpcodesniffer-composer-installer` to auto-discover WordPress Coding Standards
-- Run `composer install` to set up
+-   Config file: `phpcs.xml.dist` in project root
+-   Uses `dealerdirect/phpcodesniffer-composer-installer` to auto-discover WordPress Coding Standards
+-   Run `composer install` to set up
 
 ### Linting PHP Code
 
 ```bash
-# Lint all files (from project root)
-vendor/bin/phpcs
+# Composer script - runs phpcs locally, fastest
+composer lint
+
+# npm script - same thing inside the php-lint Docker container,
+# with --report=full,summary. Use when local PHP differs from the target.
+npm run php:lint
 
 # Lint specific file
 vendor/bin/phpcs path/to/file.php
-
-# Lint with npm script (recommended)
-npm run php:lint
 ```
 
 ### Auto-Fixing Issues
 
 ```bash
-# Fix all auto-fixable issues
-vendor/bin/phpcbf
+# Composer script - runs phpcbf locally
+composer lint-fix
+
+# npm script - same thing inside Docker
+npm run php:lint-fix
 
 # Fix specific file
 vendor/bin/phpcbf path/to/file.php
-
-# Fix with npm script (recommended)
-npm run php:lint-fix
 ```
+
+`composer lint` exits with code 2 when it finds errors, so it fails CI and
+pre-commit checks as expected. There is deliberately no `composer` script for
+phpstan — use `npm run php:phpstan`.
 
 ### Common phpcs Issues
 
@@ -54,32 +59,37 @@ npm run php:lint-fix
 
 ### Configuration
 
-- Config file: `phpstan.neon` in project root
-- Set to analyze for bugs, type errors, and potential issues
+-   Config file: `phpstan.neon` in project root
+-   Set to analyze for bugs, type errors, and potential issues
 
 ### Running PHPStan
 
 ```bash
-# Run analysis (recommended after significant changes)
-vendor/bin/phpstan analyse --memory-limit 2048M
-
-# Run with npm script
+# Run analysis (use this - it sets the memory limit for you)
 npm run php:phpstan
+
+# Direct equivalent - the memory limit is REQUIRED, not optional
+vendor/bin/phpstan analyse --memory-limit 2048M
 ```
+
+Never run bare `vendor/bin/phpstan analyse`. It crashes a parallel worker at
+the default 128M, and the crash message ("increase your memory limit") is
+misleading — raising it to 1G still crashes. 2048M is the working value, which
+is why `npm run php:phpstan` bakes it in.
 
 ### When to Run PHPStan
 
-- After making changes to multiple PHP files
-- After making a larger change in a single file
-- Before committing significant PHP refactoring
-- When adding new classes or methods
+-   After making changes to multiple PHP files
+-   After making a larger change in a single file
+-   Before committing significant PHP refactoring
+-   When adding new classes or methods
 
 ### Common PHPStan Issues
 
-- **Type mismatches**: Ensure function return types match declarations
-- **Null safety**: Check for null before accessing properties/methods
-- **Unused variables**: Remove or use variables that are assigned but never used
-- **Incorrect doc blocks**: Update @param and @return annotations to match code
+-   **Type mismatches**: Ensure function return types match declarations
+-   **Null safety**: Check for null before accessing properties/methods
+-   **Unused variables**: Remove or use variables that are assigned but never used
+-   **Incorrect doc blocks**: Update @param and @return annotations to match code
 
 ## Rector (Code Modernization)
 
@@ -137,16 +147,17 @@ npm run test              # Run all tests
 
 ### During Development
 
-- Keep phpcs running in your IDE (VS Code plugin: `vscode-phpsab`)
-- Fix linting issues as you code
-- Run phpstan periodically on files you're actively editing
+-   Keep phpcs running in your IDE (VS Code plugin: `vscode-phpsab`)
+-   Fix linting issues as you code
+-   Run phpstan periodically on files you're actively editing
 
 ### Continuous Integration
 
 All pull requests should pass:
-- phpcs (no coding standard violations)
-- phpstan (no static analysis errors)
-- All tests passing
+
+-   phpcs (no coding standard violations)
+-   phpstan (no static analysis errors)
+-   All tests passing
 
 ## IDE Integration
 
@@ -159,9 +170,31 @@ All pull requests should pass:
 ### Other IDEs
 
 Most IDEs support phpcs integration:
-- **PhpStorm**: Built-in PHP_CodeSniffer support
-- **Sublime Text**: PHP_CodeSniffer plugin available
-- **Vim/Neovim**: ALE or CoC plugins support phpcs
+
+-   **PhpStorm**: Built-in PHP_CodeSniffer support
+-   **Sublime Text**: PHP_CodeSniffer plugin available
+-   **Vim/Neovim**: ALE or CoC plugins support phpcs
+
+## Dependency Constraints
+
+The sniffer toolchain is capped at **PHP_CodeSniffer 3.x**. Don't try to lift
+it — `composer update` will just fail to resolve.
+
+| Package                              | Requires PHPCS     |
+| ------------------------------------ | ------------------ |
+| `wp-coding-standards/wpcs`           | `^3.13.5`          |
+| `automattic/vipwpcs`                 | `^3.9.2`           |
+| `phpcompatibility/php-compatibility` | `^2.3 \|\| ^3.0.2` |
+
+Consequence: **`slevomat/coding-standard` is stuck at 8.22.1.** Every release
+from 8.23.0 onward requires `squizlabs/php_codesniffer ^4.0`, so `composer
+outdated` will keep listing it as behind. That is expected, not a task. It
+unblocks only when WPCS ships PHPCS 4 support (their `dev-phpcs-4` branch);
+re-check then and bump both together.
+
+When updating WPCS itself, read the release notes for changed sniff defaults —
+`phpcs.xml.dist` pins `minimum_wp_version` to 6.3, which overrides WPCS's own
+default and is the setting most likely to drift.
 
 ## Troubleshooting
 
@@ -171,10 +204,14 @@ Run `composer install` first to install dependencies.
 
 ### "Memory exhausted" when running phpstan
 
-Use the `--memory-limit` flag:
+Use the `--memory-limit` flag — and use `2048M`, not a smaller bump. A parallel
+worker still crashes at 1G despite the error text implying any increase helps:
+
 ```bash
 vendor/bin/phpstan analyse --memory-limit 2048M
 ```
+
+`npm run php:phpstan` already includes this flag.
 
 ### phpcs reports errors in vendor/ or node_modules/
 
@@ -183,6 +220,7 @@ These directories should be excluded in `phpcs.xml.dist`. Check the config file.
 ### Conflicting PHP versions
 
 If local PHP version conflicts with project requirements, use Docker:
+
 ```bash
 docker run --rm -v $(pwd):/var/www/composer ghcr.io/devgine/composer-php:v2-php7.4-alpine composer <command>
 ```

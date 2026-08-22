@@ -2,6 +2,7 @@
 name: quick-wins
 description: Surface and triage local issues that are safe and quick for an AI to implement and easy for a human to verify. Use when the user wants to "knock out issues", asks for "quick wins", "low-hanging fruit", "what's easy to do right now", or wants a batch of small tasks to work through in one session.
 allowed-tools: Bash, Read
+disable-model-invocation: true
 ---
 
 # Quick Wins — find AI-friendly issues to knock out

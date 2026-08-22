@@ -32,6 +32,41 @@ class Admin extends \AcceptanceTester
     }
 
     /**
+     * Activate a plugin from the plugins screen, identified by its plugin file.
+     *
+     * wp-browser's activatePlugin() clicks `a#activate-{slug}`, and WordPress builds
+     * that id from the plugin's *display name*. A plugin renaming itself upstream —
+     * "Duplicate Post" becoming "Yoast Duplicate Post", say — silently breaks every
+     * test that activates it. The `data-plugin` attribute holds the plugin file path
+     * instead, which stays put across renames.
+     *
+     * Navigates to the plugins screen itself and is idempotent, so it is safe to call
+     * from a _before() that runs once per test method.
+     *
+     * @param string $plugin_file Plugin file relative to the plugins directory,
+     *                            i.e. "duplicate-post/duplicate-post.php".
+     */
+    public function activatePluginByFile(string $plugin_file)
+    {
+        $I = $this;
+
+        $I->amOnPluginsPage();
+
+        // Fail with a useful message if the plugin was never copied into tests/plugins.
+        $I->seeElement("tr[data-plugin='{$plugin_file}']");
+
+        $is_active = $I->executeJS(
+            "return !!document.querySelector('tr[data-plugin=\"{$plugin_file}\"].active')"
+        );
+
+        if (!$is_active) {
+            $I->click("tr[data-plugin='{$plugin_file}'] span.activate a");
+        }
+
+        $I->waitForElement("tr[data-plugin='{$plugin_file}'].active", 10);
+    }
+
+    /**
      * Check log entry for a message.
      * 
      * @param string $who Clear text initiator, i.e. "Anonymous web user", "Erik", "WP-CLI", ...

@@ -119,9 +119,13 @@ function EventsGUI() {
 		useState( 0 );
 	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
 		useState( 0 );
-	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
-		useState( false );
-	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
+	const [ isReactionsEnabled, setIsReactionsEnabled ] = useState( false );
+	// Seeded from the value localized at enqueue time (see React_Dropin) so links
+	// can be built on the first render. The search-options response overwrites it
+	// with the same value once it arrives.
+	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState(
+		window.simpleHistoryReactData?.eventsAdminPageURL
+	);
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ alertsPageURL, setAlertsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
@@ -568,8 +572,13 @@ function EventsGUI() {
 
 			setEvents( eventsJson );
 		} catch ( error ) {
+			// Parse before setting state, so both updates land in the same
+			// render. Awaiting between them renders an intermediate "there is
+			// an error but no details yet" state.
+			const errorDetails = await parseApiFetchError( error );
+
 			setEventsLoadingHasErrors( true );
-			setEventsLoadingErrorDetails( await parseApiFetchError( error ) );
+			setEventsLoadingErrorDetails( errorDetails );
 		} finally {
 			setEventsIsLoading( false );
 		}
@@ -702,20 +711,23 @@ function EventsGUI() {
 			hasExtendedSettingsAddOn,
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
-			experimentalFeaturesEnabled: isExperimentalFeaturesEnabled,
+			reactionsEnabled: isReactionsEnabled,
 			eventsSettingsPageURL: settingsPageURL,
 			alertsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions,
 			searchOptionsLoaded,
 			currentUserId,
+			// This GUI owns the filter controls, so descendants can filter by
+			// updating state here instead of navigating away.
+			canFilterEventsInPlace: true,
 		} ),
 		[
 			mapsApiKey,
 			hasExtendedSettingsAddOn,
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
-			isExperimentalFeaturesEnabled,
+			isReactionsEnabled,
 			settingsPageURL,
 			alertsPageURL,
 			eventsAdminPageURL,
@@ -769,12 +781,7 @@ function EventsGUI() {
 					setFailedLoginSuppressedCount={
 						setFailedLoginSuppressedCount
 					}
-					isExperimentalFeaturesEnabled={
-						isExperimentalFeaturesEnabled
-					}
-					setIsExperimentalFeaturesEnabled={
-						setIsExperimentalFeaturesEnabled
-					}
+					setIsReactionsEnabled={ setIsReactionsEnabled }
 					eventsAdminPageURL={ eventsAdminPageURL }
 					setEventsAdminPageURL={ setEventsAdminPageURL }
 					setEventsSettingsPageURL={ setSettingsPageURL }

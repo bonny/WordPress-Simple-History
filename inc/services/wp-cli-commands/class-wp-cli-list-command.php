@@ -6,9 +6,9 @@ use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
 use Simple_History\Log_Levels;
 use Simple_History\Services\WP_CLI_Commands\WP_CLI_Promo;
+use Simple_History\Services\WP_CLI_Commands\WP_CLI_Query_Helper;
 use WP_CLI;
 use WP_CLI_Command;
-use Simple_History\Log_Query;
 
 /**
  * Read, search, and manage events from Simple History — WordPress' activity log.
@@ -129,6 +129,12 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * [--search=<term>]
 	 * : Text search across message content, logger names, and context values.
 	 *
+	 * [--metadata_search=<text>]
+	 * : Search all event metadata/context values (IP addresses, emails, user agents, etc.). Same as the metadata search in the GUI.
+	 *
+	 * [--ai_only]
+	 * : Show only events initiated via an AI tool (e.g. Claude Code, ChatGPT). Same as the AI filter in the GUI.
+	 *
 	 * [--date_from=<date>]
 	 * : Show events from this date onwards. Accepts Unix timestamp or Y-m-d H:i:s format.
 	 *
@@ -184,52 +190,61 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * ## Examples
 	 *
 	 *     # Basic usage
-	 *     wp simple-history list --count=20 --format=json
+	 *     wp simple-history event list --count=20 --format=json
 	 *
 	 *     # Filter by initiator and log level
-	 *     wp simple-history list --initiator=wp_user,web_user --log_level=info,debug
+	 *     wp simple-history event list --initiator=wp_user,web_user --log_level=info,debug
 	 *
 	 *     # Search with date range
-	 *     wp simple-history list --search="login failed" --date_from="2024-01-01"
+	 *     wp simple-history event list --search="login failed" --date_from="2024-01-01"
+	 *
+	 *     # Search all event metadata for an IP address
+	 *     wp simple-history event list --metadata_search="192.168.1.100"
+	 *
+	 *     # Show only events initiated via an AI tool
+	 *     wp simple-history event list --ai_only --count=20
 	 *
 	 *     # Filter by specific users and loggers
-	 *     wp simple-history list --userid=1,2,3 --logger=SimpleUserLogger,SimplePluginLogger
+	 *     wp simple-history event list --userid=1,2,3 --logger=SimpleUserLogger,SimplePluginLogger
 	 *
 	 *     # Show only sticky events
-	 *     wp simple-history list --only_sticky --format=json
+	 *     wp simple-history event list --only_sticky --format=json
 	 *
 	 *     # Exclude debug level events
-	 *     wp simple-history list --exclude_log_level=debug --count=50
+	 *     wp simple-history event list --exclude_log_level=debug --count=50
 	 *
 	 *     # Exclude events containing "cron"
-	 *     wp simple-history list --exclude_search=cron --count=50
+	 *     wp simple-history event list --exclude_search=cron --count=50
 	 *
 	 *     # Exclude WordPress-initiated events (cron jobs, automatic updates)
-	 *     wp simple-history list --exclude_initiator=wp --count=50
+	 *     wp simple-history event list --exclude_initiator=wp --count=50
 	 *
 	 *     # Combine positive and negative filters
-	 *     wp simple-history list --log_level=info --exclude_search=cron --count=50
+	 *     wp simple-history event list --log_level=info --exclude_search=cron --count=50
 	 *
 	 *     # Exclude multiple log levels and initiators
-	 *     wp simple-history list --exclude_log_level=debug,info --exclude_initiator=wp,wp_cli --count=100
+	 *     wp simple-history event list --exclude_log_level=debug,info --exclude_initiator=wp,wp_cli --count=100
 	 *
 	 *     # Show surrounding events around event ID 123 (5 before + event + 5 after = 11 total)
-	 *     wp simple-history list --surrounding_event_id=123
+	 *     wp simple-history event list --surrounding_event_id=123
 	 *
 	 *     # Show 10 events before and after event ID 456
-	 *     wp simple-history list --surrounding_event_id=456 --surrounding_count=10
+	 *     wp simple-history event list --surrounding_event_id=456 --surrounding_count=10
 	 *
 	 *     # Show events with reactions
-	 *     wp simple-history list --fields=ID,date,description,reactions
+	 *     wp simple-history event list --fields=ID,date,description,reactions
 	 *
 	 *     # Show events with relative date ("5 minutes ago") for easier scanning
-	 *     wp simple-history list --fields=ID,date_relative,initiator,description
+	 *     wp simple-history event list --fields=ID,date_relative,initiator,description
 	 *
 	 *     # On multisite: include site name in output
-	 *     wp simple-history list --fields=ID,date,site,description
+	 *     wp simple-history event list --fields=ID,date,site,description
 	 *
 	 *     # Show which events were initiated via an AI tool (e.g. Claude Code, ChatGPT)
-	 *     wp simple-history list --fields=ID,date,ai_agent,description
+	 *     wp simple-history event list --fields=ID,date,ai_agent,description
+	 *
+	 *     # Show full AI attribution: the agent, how it was detected, and the application
+	 *     wp simple-history event list --ai_only --fields=ID,date,ai_agent,ai_detected_via,ai_application,description
 	 *
 	 * [--fields=<fields>]
 	 * : Limit output to specific fields. Comma-separated list.
@@ -249,6 +264,8 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *   - reactions
 	 *   - site
 	 *   - ai_agent
+	 *   - ai_detected_via
+	 *   - ai_application
 	 * ---
 	 *
 	 * @when after_wp_load
@@ -269,6 +286,8 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'message'              => '',
 				'userid'               => '',
 				'search'               => '',
+				'metadata_search'      => '',
+				'ai_only'              => false,
 				'date_from'            => '',
 				'date_to'              => '',
 				'months'               => '',
@@ -282,6 +301,10 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'exclude_initiator'    => '',
 				'surrounding_event_id' => '',
 				'surrounding_count'    => 5,
+				// WP-CLI injects this docblock default when the command is invoked
+				// from the shell, but not when the method is called directly
+				// (e.g. by the deprecated event search alias).
+				'fields'               => 'ID,date,initiator,description,via,level,count',
 			)
 		);
 
@@ -324,11 +347,6 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			'exclude_initiator'
 		);
 
-		// Override capability check: if you can run wp cli commands you can read all loggers.
-		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true', 10, 0 );
-
-		$query = new Log_Query();
-
 		// Build query args with filters.
 		// Use ungrouped for simpler/faster SQL — CLI output is always a flat list.
 		$query_args = array(
@@ -363,6 +381,14 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 
 		if ( ! empty( $assoc_args['search'] ) ) {
 			$query_args['search'] = $assoc_args['search'];
+		}
+
+		if ( ! empty( $assoc_args['metadata_search'] ) ) {
+			$query_args['metadata_search'] = $assoc_args['metadata_search'];
+		}
+
+		if ( ! empty( $assoc_args['ai_only'] ) ) {
+			$query_args['ai_only'] = true;
 		}
 
 		if ( ! empty( $assoc_args['date_from'] ) ) {
@@ -430,7 +456,17 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 			);
 		}
 
-		$events = $query->query( $query_args );
+		// Override the logger read capability check: if you can run WP-CLI
+		// commands you can read all loggers. Invalid filter values (e.g. a
+		// malformed date) surface as a clean error instead of a PHP fatal.
+		try {
+			$events = WP_CLI_Query_Helper::query_with_full_read_access( $query_args );
+		} catch ( \InvalidArgumentException $exception ) {
+			// WP_CLI::error() halts execution; the return keeps static analysis
+			// happy that $events is always defined below.
+			WP_CLI::error( $exception->getMessage() );
+			return;
+		}
 
 		// Handle database errors.
 		if ( is_wp_error( $events ) ) {
@@ -501,25 +537,35 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				? (string) $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_AGENT ]
 				: '';
 
+			$ai_detected_via = isset( $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA ] )
+				? (string) $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA ]
+				: '';
+
+			$ai_application = isset( $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ] )
+				? (string) $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ]
+				: '';
+
 			$eventsCleaned[] = array(
-				'ID'            => $id_display,
-				'date'          => get_date_from_gmt( $row->date ),
-				'date_relative' => $date_relative,
-				'initiator'     => Log_Initiators::get_initiator_text_from_row( $row ),
-				'logger'        => $row->logger,
-				'level'         => $row->level,
-				'who_when'      => $header_output,
-				'description'   => $text_output,
-				'via'           => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
+				'ID'              => $id_display,
+				'date'            => get_date_from_gmt( $row->date ),
+				'date_relative'   => $date_relative,
+				'initiator'       => Log_Initiators::get_initiator_text_from_row( $row ),
+				'logger'          => $row->logger,
+				'level'           => $row->level,
+				'who_when'        => $header_output,
+				'description'     => $text_output,
+				'via'             => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				'count'         => $row->subsequentOccasions,
-				'reactions'     => $reactions_display,
-				'site'          => $site_label,
-				'ai_agent'      => $ai_agent,
+				'count'           => $row->subsequentOccasions,
+				'reactions'       => $reactions_display,
+				'site'            => $site_label,
+				'ai_agent'        => $ai_agent,
+				'ai_detected_via' => $ai_detected_via,
+				'ai_application'  => $ai_application,
 			);
 		}
 
-		$fields = explode( ',', $assoc_args['fields'] );
+		$fields = $this->parse_comma_separated_values( $assoc_args['fields'] );
 
 		WP_CLI\Utils\format_items( $assoc_args['format'], $eventsCleaned, $fields );
 

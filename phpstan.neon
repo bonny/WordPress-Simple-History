@@ -12,13 +12,72 @@ parameters:
     - tests/plugins/
   bootstrapFiles:
     - tests/phpstan/bootstrap.php
-  # phpVersion: 80500 — disabled due to phpstan 2.1.44 bug with enum case resolution in PHP 8 signature maps.
-  # Re-enable when fixed upstream: https://github.com/phpstan/phpstan/issues
-  level: 3
+  # Analyse against the whole supported PHP range rather than whatever version
+  # the container happens to run, so using an 8.x-only function is reported as
+  # breaking 7.4 instead of passing silently. Keep in step with the
+  # `Requires PHP` header in index.php.
+  #
+  # This replaces a disabled `phpVersion: 80500` that was commented out over a
+  # phpstan enum/signature-map bug. That bug no longer reproduces, with or
+  # without bleedingEdge, and a single version was the wrong target anyway —
+  # it would only ever have checked the newest PHP, never the oldest.
+  phpVersion:
+    min: 70400
+    max: 80500
+  level: 4
+  # In WordPress a docblock is a statement of intent, not a guarantee. Anything
+  # passing through apply_filters() can be replaced by third-party code with a
+  # different type entirely, so the declared type is unenforceable by design —
+  # and the stubs are generated from core's own docblocks, which additionally
+  # omit false/null/WP_Error returns that really happen.
+  #
+  # Treating those types as proof makes phpstan call correct defensive checks
+  # dead code: 60 of 80 findings here were exactly that. Worse, "fixing" them
+  # by deleting the guards would make the plugin more fragile, since a filter
+  # really can hand back something unexpected.
+  #
+  # Inference still uses PHPDoc — it just isn't treated as proof when deciding
+  # that something is impossible.
+  treatPhpDocTypesAsCertain: false
   ignoreErrors:
-    # - '#Access to an undefined property object::\$context_message_key.#'
+    # Defensive isset()/?? guards on objects WordPress or another plugin hands
+    # us. The stubs declare these properties as always present, but the objects
+    # arrive through hooks and filters where any plugin can substitute its own
+    # value, so the guard is correct rather than redundant. Dropping them would
+    # make the plugin more fragile, which is the opposite of what the reported
+    # "always present" is suggesting.
+    -
+      identifier: isset.property
+    -
+      identifier: nullCoalesce.property
+
+    # method_exists() on an optional third-party class. Reported as always true
+    # only because scanDirectories includes tests/plugins/, which bundles
+    # Jetpack — on a real site it is usually absent and the check is required.
+    -
+      identifier: function.alreadyNarrowedType
+      path: loggers/class-plugin-jetpack-logger.php
+
+    # Deliberate switches, not defects:
+    # $enable_debug is a developer toggle kept in the source on purpose.
+    -
+      identifier: if.alwaysFalse
+      path: loggers/class-logger.php
+    # Settings errors are forced on; the conditional version is kept commented
+    # directly above as documentation of when it would differ.
+    -
+      identifier: if.alwaysTrue
+      path: inc/services/class-admin-pages.php
+
+    # Type checks that are redundant for today's literal inputs but keep new
+    # inputs safe: a parent that is not a Menu_Page, and setting definitions
+    # that are not of type checkbox.
+    -
+      identifier: function.alreadyNarrowedType
+      path: inc/class-menu-page.php
+    -
+      identifier: identical.alwaysTrue
+      path: loggers/class-user-logger.php
   WPCompat:
     pluginFile: index.php
     requiresAtLeast: '6.3'
-includes:
-	- phar://phpstan.phar/conf/bleedingEdge.neon

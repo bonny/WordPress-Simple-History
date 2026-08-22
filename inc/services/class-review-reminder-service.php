@@ -119,11 +119,11 @@ class Review_Reminder_Service extends Service {
 					%1$s
 				</a>
 				&nbsp;
-				<button type="button" class="button button-link simple-history-review-notice-dismiss-button">
+				<button type="button" class="button-link simple-history-review-notice-dismiss-button">
 					%2$s
 				</button>
 				&nbsp;
-				<button type="button" class="button button-link simple-history-review-notice-dismiss-button">
+				<button type="button" class="button-link simple-history-review-notice-dismiss-button">
 					%3$s
 				</button>
 			</p>',

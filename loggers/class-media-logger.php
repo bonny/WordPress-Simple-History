@@ -427,9 +427,16 @@ class Media_Logger extends Logger {
 				}
 			}
 
-			$context['post_type']           = esc_html( $context['post_type'] ?? 'attachment' );
-			$context['attachment_filename'] = esc_html( $context['attachment_filename'] ?? '' );
-			$context['edit_link']           = get_edit_post_link( $attachment_id );
+			// Defaulted before escaping, so a missing value interpolates as
+			// empty rather than leaving a literal "{attachment_title}" in the
+			// message.
+			$context['post_type']           = $context['post_type'] ?? 'attachment';
+			$context['attachment_filename'] = $context['attachment_filename'] ?? '';
+			$context['attachment_title']    = $context['attachment_title'] ?? '';
+
+			$context = $this->esc_html_context_keys( $context, [ 'post_type', 'attachment_filename', 'attachment_title' ] );
+
+			$context['edit_link'] = get_edit_post_link( $attachment_id );
 
 			$message = helpers::interpolate( $message, $context, $row );
 		} else {
@@ -483,10 +490,10 @@ class Media_Logger extends Logger {
 			}
 		} elseif ( $is_audio ) {
 			$thumb_html = '<div style="max-width: 500px;">'
-				. do_shortcode( sprintf( '[audio src="%1$s"]', $file_url ) )
+				. do_shortcode( sprintf( '[audio src="%1$s"]', esc_url( $file_url ) ) )
 				. '</div>';
 		} elseif ( $is_video ) {
-			$thumb_html = do_shortcode( sprintf( '[video src="%1$s" width="250" height="150"]', $file_url ) );
+			$thumb_html = do_shortcode( sprintf( '[video src="%1$s" width="250" height="150"]', esc_url( $file_url ) ) );
 		} elseif ( $attachment_is_available ) {
 			$thumb_html = sprintf(
 				'<div class="SimpleHistoryLogitemThumbnail">%1$s</div>',

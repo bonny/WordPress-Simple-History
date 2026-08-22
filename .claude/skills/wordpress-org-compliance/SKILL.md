@@ -2,6 +2,7 @@
 name: wordpress-org-compliance
 description: Reviews plugin code for WordPress.org compliance and trialware violations. Use when checking premium features, upsells, or license keys before submission.
 allowed-tools: Read, Grep, Glob
+user-invocable: false
 ---
 
 # WordPress.org Plugin Compliance

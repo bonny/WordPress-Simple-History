@@ -121,9 +121,9 @@ class RSSDropinIntegrationTest extends \Codeception\TestCase\WPTestCase {
 		// Apply the filter that would normally be applied in output_rss().
 		$args = apply_filters( 'simple_history/rss_feed_args', $args );
 
-		// Execute log query.
-		$log_query = new \Simple_History\Log_Query();
-		$query_results = $log_query->query( $args );
+		// Execute log query through the same method output_rss() uses, so this
+		// helper cannot drift from the code it stands in for.
+		$query_results = $this->rss_dropin->query_events_for_feed( $args );
 
 		// Remove capability override filter.
 		remove_filter( $action_tag, '__return_true', 10 );
@@ -495,5 +495,72 @@ class RSSDropinIntegrationTest extends \Codeception\TestCase\WPTestCase {
 
 		// Should return at least our 2 events (null means no filter, may include other events like user creation).
 		$this->assertGreaterThanOrEqual( 2, count( $query_results['log_rows'] ), 'Null loggers parameter should return all events including our test events' );
+	}
+
+	/**
+	 * A feed reader holding a stale or hand-edited URL can pass a date the
+	 * query refuses to parse. That must not fatal the feed.
+	 *
+	 * Log_Query throws InvalidArgumentException for these, and the feed has
+	 * nowhere to report it: a reader cannot render an HTTP 400 the way the
+	 * REST API can. An empty but well-formed feed is the fallback.
+	 *
+	 * @dataProvider provide_unparseable_date_args
+	 *
+	 * @param array $query_args Query string arguments with a bad date.
+	 */
+	public function test_unparseable_date_yields_an_empty_feed_rather_than_a_fatal( $query_args ) {
+		$this->create_event( 'SimplePostLogger', 'info', 'Test event for feed query' );
+
+		// Precondition: the query really does reject this, otherwise the test
+		// passes for the wrong reason.
+		$args = $this->rss_dropin->set_log_query_args_from_query_string( $query_args );
+
+		$threw = false;
+
+		try {
+			( new \Simple_History\Log_Query() )->query( $args );
+		} catch ( \InvalidArgumentException $exception ) {
+			$threw = true;
+		}
+
+		$this->assertTrue( $threw, 'Precondition: Log_Query should reject these args, or this test proves nothing' );
+
+		// The feed swallows it and returns an empty result set.
+		$results = $this->rss_dropin->query_events_for_feed( $args );
+
+		$this->assertIsArray( $results );
+		$this->assertSame( [], $results['log_rows'], 'A rejected date should produce an empty feed, not an exception' );
+	}
+
+	/**
+	 * Date values Log_Query cannot parse.
+	 *
+	 * @return array
+	 */
+	public function provide_unparseable_date_args() {
+		return [
+			'garbage date_from'  => [ [ 'date_from' => 'banana' ] ],
+			'garbage date_to'    => [ [ 'date_to' => 'not-a-date' ] ],
+		];
+	}
+
+	/**
+	 * The fallback must not swallow ordinary queries: a valid date range still
+	 * returns its events.
+	 */
+	public function test_valid_dates_still_return_events_through_the_feed_query() {
+		$this->create_event( 'SimplePostLogger', 'info', 'Test event for feed query' );
+
+		wp_set_current_user( $this->admin_user_id );
+		$action_tag = 'simple_history/loggers_user_can_read/can_read_single_logger';
+		add_filter( $action_tag, '__return_true', 10, 3 );
+
+		$args    = $this->rss_dropin->set_log_query_args_from_query_string( [ 'dates' => 'lastdays:7' ] );
+		$results = $this->rss_dropin->query_events_for_feed( $args );
+
+		remove_filter( $action_tag, '__return_true', 10 );
+
+		$this->assertGreaterThanOrEqual( 1, count( $results['log_rows'] ), 'A valid date filter should still return events' );
 	}
 }

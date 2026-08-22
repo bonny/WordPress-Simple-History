@@ -300,4 +300,69 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals( 'Hello', Helpers::snake_case_to_sentence_case( 'hello' ) );
 		$this->assertEquals( '', Helpers::snake_case_to_sentence_case( '' ) );
 	}
+
+	/**
+	 * The key prefix is the single definition of how addresses from a header are
+	 * stored. Logger writes with it, the display path and the query read with it,
+	 * so pinning the exact string keeps those three from drifting apart.
+	 */
+	function test_get_ip_address_context_key_prefix() {
+		$this->assertEquals(
+			'_server_http_x_forwarded_for_',
+			Helpers::get_ip_address_context_key_prefix( 'HTTP_X_FORWARDED_FOR' )
+		);
+
+		$this->assertEquals(
+			'_server_http_client_ip_',
+			Helpers::get_ip_address_context_key_prefix( 'HTTP_CLIENT_IP' )
+		);
+	}
+
+	function test_get_ip_address_context_key_prefixes_includes_remote_addr_and_headers() {
+		$prefixes = Helpers::get_ip_address_context_key_prefixes();
+
+		$this->assertContains( '_server_remote_addr', $prefixes, 'The address the web server saw must be included' );
+		$this->assertContains( '_server_http_x_forwarded_for_', $prefixes );
+		$this->assertContains( '_server_http_client_ip_', $prefixes );
+	}
+
+	/**
+	 * Guard against a prefix that would sweep in context keys holding no address.
+	 *
+	 * "_server_http_referer" and "_server_http_user_agent" share the
+	 * "_server_http_" prefix, so a broad pattern would let an IP filter match a
+	 * referer URL. Asserted on the prefixes themselves so the contract is pinned
+	 * here as well as at the query level.
+	 */
+	function test_get_ip_address_context_key_prefixes_do_not_match_non_ip_keys() {
+		$prefixes = Helpers::get_ip_address_context_key_prefixes();
+
+		$non_ip_keys = array( '_server_http_referer', '_server_http_user_agent' );
+
+		foreach ( $non_ip_keys as $non_ip_key ) {
+			foreach ( $prefixes as $prefix ) {
+				$this->assertStringStartsNotWith(
+					$prefix,
+					$non_ip_key,
+					"Prefix {$prefix} must not match {$non_ip_key}, which holds no IP address"
+				);
+			}
+		}
+	}
+
+	/**
+	 * A site that registers an extra header gets it stored and queryable.
+	 */
+	function test_get_ip_address_context_key_prefixes_honors_header_names_filter() {
+		$add_header = function ( $headers ) {
+			$headers[] = 'HTTP_CF_CONNECTING_IP';
+			return $headers;
+		};
+
+		add_filter( 'simple_history/ip_number_header_names', $add_header );
+		$prefixes = Helpers::get_ip_address_context_key_prefixes();
+		remove_filter( 'simple_history/ip_number_header_names', $add_header );
+
+		$this->assertContains( '_server_http_cf_connecting_ip_', $prefixes );
+	}
 }

@@ -1773,6 +1773,15 @@ so add some extra place then to make it look a bit less ugly.
 	flex: 1;
 }
 
+/* Groups the settings gear + feature-discovery bar into one landmark.
+   Tighter gap after the gear than between the bar items, so the section
+   links read as hanging off the "Settings" anchor. */
+.sh-PageHeader-settingsNav {
+	display: flex;
+	align-items: center;
+	gap: var(--sh-spacing-small);
+}
+
 .sh-PageHeader-title {
 	font-size: 23px;
 	font-weight: 400;
@@ -1825,27 +1834,33 @@ so add some extra place then to make it look a bit less ugly.
 	line-height: 16px;
 }
 
-/* Settings — icon-only gear link */
+/* Settings — gear + label. Anchors the discovery bar in the left title
+   group; the left border starts the "settings island" (gear + bar). Bolder
+   and darker than the section deep-links so it reads as their parent/anchor,
+   not a peer. */
 .sh-PageHeader-settingsIcon {
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
-	color: #50575e;
+	gap: 5px;
+	color: #1d2327;
+	font-weight: 600;
 	text-decoration: none;
+	font-size: var(--sh-font-size-small);
 	padding: 4px;
-	border-radius: var(--sh-border-radius);
+	padding-left: var(--sh-spacing-medium);
+	border-left: 1px solid var(--sh-color-gray);
 	transition: color 0.15s ease;
 }
 
 .sh-PageHeader-settingsIcon .dashicons {
-	font-size: 20px;
-	width: 20px;
-	height: 20px;
-	line-height: 20px;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	line-height: 16px;
 }
 
 .sh-PageHeader-settingsIcon:hover {
-	color: #1d2327;
+	color: #2271b1;
 }
 
 .sh-PageHeader-settingsIcon:focus-visible {
@@ -1970,18 +1985,12 @@ so add some extra place then to make it look a bit less ugly.
 	align-items: center;
 	font-size: var(--sh-font-size-small);
 	color: var(--sh-color-gray-3);
-	margin-left: var(--sh-spacing-medium);
-	border-left: 1px solid var(--sh-color-gray);
-	padding-left: var(--sh-spacing-medium);
 }
 
 /* On narrow screens, drop below the logo as full-width block */
 @media (max-width: 960px) {
 	.sh-HeaderStatus {
-		margin-left: 0;
 		margin-top: var(--sh-spacing-small);
-		border-left: none;
-		padding-left: 0;
 		width: 100%;
 	}
 }
@@ -2028,15 +2037,6 @@ a.sh-HeaderStatus-item-inner:hover {
 
 a.sh-HeaderStatus-item-inner:hover .dashicons {
 	color: #2271b1;
-}
-
-/* Inactive state — #767676 = 4.54:1 on white, WCAG AA compliant */
-.sh-HeaderStatus-item-inner--inactive {
-	color: #767676;
-}
-
-.sh-HeaderStatus-item-inner--inactive .dashicons {
-	color: #767676;
 }
 
 /* Focus outline on the whole item via :has */

@@ -444,24 +444,6 @@ class Menu_Page {
 	}
 
 	/**
-	 * Sanitize a menu slug.
-	 *
-	 * @param string $slug Slug to sanitize.
-	 * @return string The sanitized slug.
-	 */
-	private function sanitize_menu_slug( $slug ) {
-		// Use WordPress's sanitize_key function as base.
-		$slug = sanitize_key( $slug );
-
-		// Ensure slug starts with 'simple-history'.
-		if ( ! str_starts_with( $slug, 'simple-history' ) ) {
-			$slug = 'simple-history-' . $slug;
-		}
-
-		return $slug;
-	}
-
-	/**
 	 * Set the menu manager instance.
 	 * Used to lookup parent pages by slug.
 	 *

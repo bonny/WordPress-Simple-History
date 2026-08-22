@@ -284,7 +284,7 @@ class Privacy_Logger extends Logger {
 			return;
 		}
 
-		if ( ! $update && $user_request->action_name === 'export_personal_data' && 'request-pending' && $user_request->status ) {
+		if ( ! $update && $user_request->action_name === 'export_personal_data' && $user_request->status === 'request-pending' ) {
 			// Add Data Export Request.
 			// An email will be sent to the user at this email address asking them to verify the request.
 			// Notice message in admin is "Confirmation request initiated successfully.".
@@ -348,7 +348,7 @@ class Privacy_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
-		if ( ! $user_request || $action !== 'delete' ) {
+		if ( $action !== 'delete' ) {
 			return;
 		}
 
@@ -392,7 +392,7 @@ class Privacy_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
-		if ( ! $user_request || $action !== 'delete' ) {
+		if ( $action !== 'delete' ) {
 			return;
 		}
 

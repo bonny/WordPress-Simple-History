@@ -57,7 +57,7 @@ class Theme_Logger extends Logger {
 				'theme_switched'            => __( 'Switched theme to "{theme_name}" from "{prev_theme_name}"', 'simple-history' ),
 				'theme_installed'           => __( 'Installed theme "{theme_name}" by {theme_author}', 'simple-history' ),
 				'theme_deleted'             => __( 'Deleted theme "{theme_name}"', 'simple-history' ),
-				'theme_updated'             => __( 'Updated theme "{theme_name}"', 'simple-history' ),
+				'theme_updated'             => __( 'Updated theme "{theme_name}" to version {theme_version} from {theme_prev_version}', 'simple-history' ),
 				'theme_update_failed'       => __( 'Failed to update theme "{theme_name}"', 'simple-history' ),
 				'appearance_customized'     => __( 'Customized theme appearance "{setting_id}"', 'simple-history' ),
 				'widget_removed'            => __( 'Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', 'simple-history' ),
@@ -136,6 +136,10 @@ class Theme_Logger extends Logger {
 		add_filter( 'upgrader_install_package_result', array( $this, 'on_upgrader_install_package_result' ), 10, 2 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_install' ), 10, 2 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_update' ), 10, 2 );
+
+		// Runs before the theme files are replaced, which is our only chance to
+		// see what version a theme had before it was updated.
+		add_filter( 'upgrader_pre_install', array( $this, 'save_versions_before_update' ), 10, 2 );
 
 		// Log theme deletion.
 		add_action( 'delete_theme', array( $this, 'on_action_delete_theme' ), 10, 1 );
@@ -245,6 +249,33 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
+	 * Saves the version of all installed themes to an option, before they are updated.
+	 * The option is not autoloaded and is overwritten on every subsequent update,
+	 * so it is intentionally not deleted afterwards (same approach as the
+	 * plugin logger's equivalent `save_versions_before_update()`).
+	 * Fired from filter `upgrader_pre_install`.
+	 *
+	 * @param bool|\WP_Error $bool_or_error Default null.
+	 * @param array          $hook_extra Default null.
+	 * @return bool|\WP_Error Unmodified $bool_or_error, passed through.
+	 */
+	public function save_versions_before_update( $bool_or_error = null, $hook_extra = null ) {
+		$themes_before_update = [];
+
+		foreach ( wp_get_themes() as $theme_slug => $theme_object ) {
+			$themes_before_update[ $theme_slug ] = $theme_object->get( 'Version' );
+		}
+
+		update_option(
+			$this->get_slug() . '_theme_info_before_update',
+			Helpers::json_encode( $themes_before_update ),
+			false
+		);
+
+		return $bool_or_error;
+	}
+
+	/**
 	 * Log theme updated.
 	 *
 	 * @param \WP_Upgrader $upgrader_instance WP_Upgrader instance.
@@ -304,6 +335,9 @@ class Theme_Logger extends Logger {
 			);
 		}
 
+		// Get the versions themes had before the update, saved in save_versions_before_update().
+		$themes_before_update = json_decode( get_option( $this->get_slug() . '_theme_info_before_update', false ), true );
+
 		// $one_updated_theme is the theme slug
 		foreach ( $arr_themes as $one_updated_theme ) {
 			$theme_info_object = wp_get_theme( $one_updated_theme );
@@ -319,6 +353,12 @@ class Theme_Logger extends Logger {
 				continue;
 			}
 
+			// Get the previous version, if we have it stored.
+			$theme_prev_version = null;
+			if ( is_array( $themes_before_update ) && isset( $themes_before_update[ $one_updated_theme ] ) ) {
+				$theme_prev_version = $themes_before_update[ $one_updated_theme ];
+			}
+
 			// Check if update failed (result is WP_Error).
 			$package_result = $this->package_results[ $one_updated_theme ] ?? null;
 			$has_error      = $package_result && is_wp_error( $package_result['result'] );
@@ -329,6 +369,10 @@ class Theme_Logger extends Logger {
 					'theme_slug' => $one_updated_theme,
 					'theme_name' => $theme_name,
 				];
+
+				if ( $theme_prev_version !== null ) {
+					$context['theme_prev_version'] = $theme_prev_version;
+				}
 
 				// Add rollback context if rollback will occur.
 				$context = $this->add_rollback_context( $context, $one_updated_theme );
@@ -343,12 +387,18 @@ class Theme_Logger extends Logger {
 					continue;
 				}
 
+				$context = [
+					'theme_name'    => $theme_name,
+					'theme_version' => $theme_version,
+				];
+
+				if ( $theme_prev_version !== null ) {
+					$context['theme_prev_version'] = $theme_prev_version;
+				}
+
 				$this->info_message(
 					'theme_updated',
-					array(
-						'theme_name'    => $theme_name,
-						'theme_version' => $theme_version,
-					)
+					$context
 				);
 			}
 		}
@@ -571,16 +621,8 @@ class Theme_Logger extends Logger {
 		$control_type = $context['control_type'] ?? '';
 
 		if ( $control_type === 'color' ) {
-			$new_swatch = sprintf(
-				'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
-				esc_attr( ltrim( $context['setting_new_value'], '#' ) ),
-				esc_html( $context['setting_new_value'] )
-			);
-			$old_swatch = sprintf(
-				'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
-				esc_attr( ltrim( $context['setting_old_value'], ' #' ) ),
-				esc_html( $context['setting_old_value'] )
-			);
+			$new_swatch = $this->get_color_swatch_html( $context['setting_new_value'] );
+			$old_swatch = $this->get_color_swatch_html( $context['setting_old_value'] );
 
 			$group->add_item(
 				( new Event_Details_Item( null, __( 'New value', 'simple-history' ) ) )
@@ -607,6 +649,33 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
+	 * Build the HTML for a colour swatch, falling back to the plain value.
+	 *
+	 * The value is validated with sanitize_hex_color() rather than escaped, because it
+	 * ends up inside a style attribute. esc_attr() leaves `;`, `:`, `(` and `/` intact —
+	 * harmless in an ordinary attribute, but enough to append extra CSS declarations
+	 * here. `control_type` is the *control* type, so a theme is free to bind a colour
+	 * control to a setting whose sanitize_callback lets any string through.
+	 *
+	 * @since 5.28.0
+	 * @param string $value Colour value from the customizer setting.
+	 * @return string Swatch HTML, or the escaped value when it is not a valid hex colour.
+	 */
+	private function get_color_swatch_html( $value ) {
+		$hex = sanitize_hex_color( '#' . ltrim( trim( (string) $value ), '#' ) );
+
+		if ( $hex === null ) {
+			return esc_html( $value );
+		}
+
+		return sprintf(
+			'<span style="background-color: %1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
+			esc_attr( $hex ),
+			esc_html( $value )
+		);
+	}
+
+	/**
 	 * Add widget name and sidebar name to output
 	 *
 	 * @param object $row Log row.
@@ -628,11 +697,16 @@ class Theme_Logger extends Logger {
 				$translated_message = $this->get_translated_message( $message_key );
 
 				if ( $translated_message !== null ) {
+					// Returning from this override skips the parent's esc_html(), so
+					// escape the interpolated values here instead.
 					$message = helpers::interpolate(
 						$translated_message,
-						array(
-							'widget_id_base' => $widget->name,
-							'sidebar_id'     => $sidebar['name'],
+						$this->esc_html_context_keys(
+							array(
+								'widget_id_base' => $widget->name,
+								'sidebar_id'     => $sidebar['name'],
+							),
+							[ 'widget_id_base', 'sidebar_id' ]
 						),
 						$row
 					);
@@ -640,6 +714,20 @@ class Theme_Logger extends Logger {
 					$output .= $message;
 				}
 			}
+		}
+
+		// Theme updated, but the version the theme had before the update is unknown.
+		// Happens for events logged before we started saving it, and for themes whose
+		// own updater never fires `upgrader_pre_install`. Without this the unresolved
+		// placeholder would render literally, as "from {theme_prev_version}".
+		if ( $message_key === 'theme_updated' && ! isset( $context['theme_prev_version'] ) ) {
+			$context = $this->esc_html_context_keys( $context, [ 'theme_name', 'theme_version' ] );
+
+			$output .= Helpers::interpolate(
+				__( 'Updated theme "{theme_name}" to version {theme_version}', 'simple-history' ),
+				$context,
+				$row
+			);
 		}
 
 		// Fallback to default/parent output if nothing was added to output.

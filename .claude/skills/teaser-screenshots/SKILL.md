@@ -2,6 +2,7 @@
 name: teaser-screenshots
 description: Reproducibly capture in-product UI screenshots (admin popovers, settings teasers, dashboard widgets) used as embedded images in premium upsell teasers. Use whenever a teaser image needs refreshing after the underlying UI changes.
 allowed-tools: Read, Bash, Edit, Write
+disable-model-invocation: true
 ---
 
 # In-product teaser screenshots
