@@ -517,6 +517,7 @@ class Simple_History {
 			Loggers\Plugin_User_Switching_Logger::class,
 			Loggers\Plugin_WP_Crontrol_Logger::class,
 			Loggers\Plugin_Jetpack_Logger::class,
+			Loggers\Plugin_WP_AI_Logger::class,
 			Loggers\Privacy_Logger::class,
 			Loggers\Translations_Logger::class,
 			Loggers\Categories_Logger::class,

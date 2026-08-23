@@ -14,6 +14,19 @@ use Simple_History\Event_Details\Event_Details_Item;
  * Requires experimental features to be enabled.
  */
 class Role_Capability_Logger extends Logger {
+	/**
+	 * Largest capability list that is shown in the event details panel.
+	 *
+	 * Plugin roles can carry 80+ capabilities. Listing them all turns the
+	 * details panel into an unreadable wall of slugs that buries the other
+	 * items, so longer lists are left out. Nothing is lost: the number of
+	 * capabilities is part of the event message and the full list stays in
+	 * the event context.
+	 *
+	 * @var int
+	 */
+	private const MAX_CAPS_IN_DETAILS = 10;
+
 	/** @var string Logger slug */
 	public $slug = 'SimpleRoleCapabilityLogger';
 
@@ -418,9 +431,16 @@ class Role_Capability_Logger extends Logger {
 			);
 		}
 
-		// Show capabilities list for role creation and capability changes.
-		$messages_with_caps = array( 'role_created', 'role_caps_added', 'role_caps_removed' );
-		if ( in_array( $message_key, $messages_with_caps, true ) && ! empty( $context['capabilities'] ) ) {
+		// Show capabilities list for role creation and capability changes,
+		// but only when the list is short enough to be readable.
+		$messages_with_caps = [ 'role_created', 'role_caps_added', 'role_caps_removed' ];
+		$cap_count          = (int) ( $context['cap_count'] ?? 0 );
+
+		$show_capabilities = in_array( $message_key, $messages_with_caps, true )
+			&& ! empty( $context['capabilities'] )
+			&& $cap_count <= self::MAX_CAPS_IN_DETAILS;
+
+		if ( $show_capabilities ) {
 			$group->add_item(
 				( new Event_Details_Item( 'capabilities', __( 'Capabilities', 'simple-history' ) ) )
 			);

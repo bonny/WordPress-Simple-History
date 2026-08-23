@@ -179,6 +179,10 @@ class SimpleUserLoggerCest
 
         $I->moveMouseOver('//td[contains(.,"anna")]/parent::tr');
         $I->click('//td[contains(.,"anna")]/parent::tr//a[contains(@class,"submitdelete")]');
+
+        // Wait for the "Delete Users" confirmation screen to load before clicking
+        // its button, otherwise the click can run against the still-visible users list.
+        $I->waitForElementVisible('#updateusers', 10);
         $I->click("Confirm Deletion");
 
         $I->seeLogInitiator('wp_user');
@@ -201,6 +205,9 @@ class SimpleUserLoggerCest
 
         $I->click('#doaction');
 
+        // Wait for the "Delete Users" confirmation screen to load before clicking
+        // its button, otherwise the click can run against the still-visible users list.
+        $I->waitForElementVisible('#updateusers', 10);
         $I->click("Confirm Deletion");
         $I->waitForElementVisible('#bulk-action-selector-top');
 
