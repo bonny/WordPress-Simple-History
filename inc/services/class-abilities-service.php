@@ -4,6 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Abilities_Event_Presenter;
 use Simple_History\Date_Helper;
+use Simple_History\Helpers;
 use Simple_History\Log_Levels;
 use Simple_History\WP_REST_Events_Controller;
 use Simple_History\WP_REST_Stats_Controller;
@@ -34,8 +35,7 @@ class Abilities_Service extends Service {
 
 	/** @inheritDoc */
 	public function loaded() {
-		// Abilities API is WordPress 6.9+. Bail quietly on older versions.
-		if ( ! function_exists( 'wp_register_ability' ) ) {
+		if ( ! $this->is_enabled() ) {
 			return;
 		}
 
@@ -44,6 +44,57 @@ class Abilities_Service extends Service {
 		// category cannot simply be registered alongside the abilities.
 		add_action( 'wp_abilities_api_categories_init', [ $this, 'register_category' ] );
 		add_action( 'wp_abilities_api_init', [ $this, 'register_abilities' ] );
+	}
+
+	/**
+	 * Whether Simple History should register its abilities at all.
+	 *
+	 * Three gates, cheapest first, because this runs on every request:
+	 *
+	 * - The Abilities API is WordPress 6.9+, so there is nothing to register
+	 *   on older versions.
+	 * - The abilities are experimental while we learn whether agents find the
+	 *   surface useful, so they follow the experimental features setting.
+	 * - A filter lets a site turn them off outright, which matters for sites
+	 *   with a policy against AI tooling reading the audit log.
+	 *
+	 * Note that the filter controls registration, not access. Who may read
+	 * the log through an ability is decided by the permission callbacks, and
+	 * ultimately by the `simple_history/view_history_capability` filter — the
+	 * same gate as the history page itself. Turning abilities off here does
+	 * not restrict the REST API, which exposes the same events to the same
+	 * users and is unaffected by this filter.
+	 *
+	 * @return bool
+	 */
+	private function is_enabled() {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			return false;
+		}
+
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			return false;
+		}
+
+		/**
+		 * Filter whether Simple History registers its abilities.
+		 *
+		 * Abilities expose the activity log to AI tools and automation
+		 * through the WordPress Abilities API. Return false to register none
+		 * of them, for example on a site whose policy is that the audit log
+		 * is not readable by AI tooling.
+		 *
+		 * @example Turn off Simple History's abilities.
+		 *
+		 * ```php
+		 * add_filter( 'simple_history/abilities/enabled', '__return_false' );
+		 * ```
+		 *
+		 * @since 5.31.0
+		 *
+		 * @param bool $enabled Whether to register abilities. Default true.
+		 */
+		return (bool) apply_filters( 'simple_history/abilities/enabled', true );
 	}
 
 	/**
