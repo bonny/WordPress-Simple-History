@@ -181,7 +181,7 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 
 		$service = new Abilities_Service( Simple_History::get_instance() );
 
-		$this->assertInstanceOf( WP_Error::class, $service->check_events_permission() );
+		$this->assertFalse( $service->check_events_permission() );
 	}
 
 	/**
@@ -196,7 +196,7 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 
 		$service = new Abilities_Service( Simple_History::get_instance() );
 
-		$this->assertInstanceOf( WP_Error::class, $service->check_events_permission() );
+		$this->assertFalse( $service->check_events_permission() );
 	}
 
 	/**
@@ -232,7 +232,7 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 
 		$service = new Abilities_Service( Simple_History::get_instance() );
 
-		$this->assertInstanceOf( WP_Error::class, $service->check_stats_permission() );
+		$this->assertFalse( $service->check_stats_permission() );
 	}
 
 	/**
@@ -260,6 +260,86 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	 *
 	 * @covers ::register_abilities
 	 */
+	/**
+	 * A permission callback must answer with a bool. Core reads a WP_Error as
+	 * the ability author's mistake and routes it through _doing_it_wrong() so
+	 * the reason cannot leak, which means every denied call would raise a
+	 * notice — on a WP_DEBUG site, once per refused request.
+	 *
+	 * @covers ::check_events_permission
+	 * @covers ::check_stats_permission
+	 */
+	/**
+	 * A burst of failed logins must be countable.
+	 *
+	 * The obvious expectation is one row per attempt, and that is wrong here:
+	 * the user logger gives every failed login to an unknown user the same
+	 * _occasionsID so a brute-force run cannot flood the log. The count
+	 * therefore lives in occasions, and per_page would truncate a row-per-
+	 * attempt response long before an agent could add it up.
+	 *
+	 * @covers ::execute_get_failed_logins
+	 */
+	public function test_failed_login_burst_is_counted_in_occasions() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$attempts = 6;
+		for ( $i = 0; $i < $attempts; $i++ ) {
+			wp_authenticate( 'occasions_probe_user', 'wrong-password' );
+		}
+
+		$result = wp_get_ability( 'simple-history/get-failed-logins' )->execute( [ 'per_page' => 20 ] );
+
+		$this->assertNotWPError( $result );
+		$this->assertNotEmpty( $result, 'Failed logins should be logged and returned.' );
+
+		$counted = array_sum( array_map( static fn( $row ) => (int) ( $row['occasions'] ?? 1 ), $result ) );
+
+		$this->assertGreaterThanOrEqual(
+			$attempts,
+			$counted,
+			'Summing occasions should account for every attempt, even when they collapse into one row.'
+		);
+
+		$this->assertLessThan(
+			$counted,
+			count( $result ) + 1,
+			'Counting rows should not be mistaken for counting attempts.'
+		);
+	}
+
+	/**
+	 * The grouping above is only discoverable if the schema says so.
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_occasions_field_documents_the_grouping() {
+		$this->ensure_abilities_registered();
+
+		$schema = wp_get_ability( 'simple-history/get-recent-events' )->get_output_schema();
+
+		$this->assertNotEmpty(
+			$schema['items']['properties']['occasions']['description'] ?? '',
+			'occasions is the only place an agent can learn that a row may stand for several events.'
+		);
+	}
+
+	public function test_permission_callbacks_answer_with_a_bool() {
+		$this->require_abilities_api();
+
+		$service = new Abilities_Service( Simple_History::get_instance() );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+		$this->assertIsBool( $service->check_events_permission() );
+		$this->assertIsBool( $service->check_stats_permission() );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+		$this->assertIsBool( $service->check_events_permission() );
+		$this->assertIsBool( $service->check_stats_permission() );
+	}
+
 	public function test_abilities_without_required_input_can_be_called_with_no_input() {
 		$this->ensure_abilities_registered();
 
@@ -748,7 +828,7 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 
 		$ability = wp_get_ability( 'simple-history/get-stats-summary' );
 
-		$this->assertInstanceOf( WP_Error::class, $ability->check_permissions( [] ) );
+		$this->assertFalse( $ability->check_permissions( [] ) );
 	}
 
 	/**
