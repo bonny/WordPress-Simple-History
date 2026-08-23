@@ -247,29 +247,6 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * @covers ::execute_get_recent_events
-	 */
-	/**
-	 * Calling an ability with no input at all is the first thing any client
-	 * does, and it used to fail: WordPress hands the ability null, and null
-	 * is not an object, so validation rejected it before the callback ran.
-	 * The input schemas declare a default of {} so that call resolves.
-	 *
-	 * Every test here passes input explicitly, which is exactly why this
-	 * shipped unnoticed — so assert the bare call directly.
-	 *
-	 * @covers ::register_abilities
-	 */
-	/**
-	 * A permission callback must answer with a bool. Core reads a WP_Error as
-	 * the ability author's mistake and routes it through _doing_it_wrong() so
-	 * the reason cannot leak, which means every denied call would raise a
-	 * notice — on a WP_DEBUG site, once per refused request.
-	 *
-	 * @covers ::check_events_permission
-	 * @covers ::check_stats_permission
-	 */
-	/**
 	 * A burst of failed logins must be countable.
 	 *
 	 * The obvious expectation is one row per attempt, and that is wrong here:
@@ -326,6 +303,15 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
+	/**
+	 * A permission callback must answer with a bool. Core reads a WP_Error as
+	 * the ability author's mistake and routes it through _doing_it_wrong() so
+	 * the reason cannot leak, which means every denied call would raise a
+	 * notice — on a WP_DEBUG site, once per refused request.
+	 *
+	 * @covers ::check_events_permission
+	 * @covers ::check_stats_permission
+	 */
 	public function test_permission_callbacks_answer_with_a_bool() {
 		$this->require_abilities_api();
 
@@ -340,6 +326,17 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertIsBool( $service->check_stats_permission() );
 	}
 
+	/**
+	 * Calling an ability with no input at all is the first thing any client
+	 * does, and it used to fail: WordPress hands the ability null, and null
+	 * is not an object, so validation rejected it before the callback ran.
+	 * The input schemas declare a default of {} so that call resolves.
+	 *
+	 * Every test here passes input explicitly, which is exactly why this
+	 * shipped unnoticed — so assert the bare call directly.
+	 *
+	 * @covers ::register_abilities
+	 */
 	public function test_abilities_without_required_input_can_be_called_with_no_input() {
 		$this->ensure_abilities_registered();
 
@@ -416,6 +413,9 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 		}
 	}
 
+	/**
+	 * @covers ::execute_get_recent_events
+	 */
 	public function test_get_recent_events_returns_presented_events() {
 		$this->ensure_abilities_registered();
 

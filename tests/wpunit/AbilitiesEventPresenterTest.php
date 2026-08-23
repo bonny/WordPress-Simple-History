@@ -151,13 +151,47 @@ class AbilitiesEventPresenterTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * The REST controller always emits a 7-key initiator_data array — even
-	 * for an event with no resolvable user, e.g. a `wp`-initiated event or a
-	 * failed login with an unrecognized username — falling back to null or
-	 * empty-string values rather than omitting the key. This is the shape
-	 * that actually reaches the presenter in that case; the guard in
-	 * test_missing_initiator_data_yields_null_user() above pins a shape the
-	 * REST API never produces.
+	 * An event not initiated by a logged-in user must never carry one.
+	 *
+	 * The controller derives initiator_data from the context's _user_id, which
+	 * the logger records whenever anyone is logged in during the request. So a
+	 * failed login submitted while an administrator has a session open arrives
+	 * carrying that administrator's identity, with initiator still web_user.
+	 * Returning it would have an agent name the wrong person when asked who
+	 * attempted a break-in.
+	 *
+	 * @covers ::present
+	 */
+	public function test_non_user_initiator_yields_null_user() {
+		$event                   = $this->rest_event();
+		$event['initiator']      = 'web_user';
+		$event['message']        = 'Failed to login with username "intruder"';
+		$event['initiator_data'] = array(
+			'user_id'           => 4,
+			'user_login'        => 'admin_with_a_tab_open',
+			'user_email'        => 'admin@example.com',
+			'user_display_name' => 'Admin',
+			'user_avatar_url'   => '',
+			'user_image'        => '',
+			'user_profile_url'  => '',
+		);
+
+		$presented = Abilities_Event_Presenter::present( $event );
+
+		$this->assertNull(
+			$presented['user'],
+			'A web_user event must not be attributed to whoever happened to be logged in.'
+		);
+	}
+
+	/**
+	 * The REST controller always emits a 7-key initiator_data array, falling
+	 * back to null or empty-string values rather than omitting the key. This
+	 * is the shape that reaches the presenter when nobody is logged in; the
+	 * guard in test_missing_initiator_data_yields_null_user() above pins a
+	 * shape the REST API never produces. Note that empty identity fields are
+	 * not what makes the user null in practice — see
+	 * test_non_user_initiator_yields_null_user() for the case that matters.
 	 *
 	 * @covers ::present
 	 */

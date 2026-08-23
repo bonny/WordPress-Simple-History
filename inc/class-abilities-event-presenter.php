@@ -48,18 +48,31 @@ class Abilities_Event_Presenter {
 	 * Email addresses, gravatar URLs, and profile links are dropped: they are
 	 * PII or chrome, and neither helps an agent answer "who did this".
 	 *
+	 * Only events initiated by a logged-in user get a user. The controller
+	 * derives initiator_data from the context's _user_id, which the logger
+	 * records whenever anyone is logged in during the request — including an
+	 * anonymous request made while an administrator happens to have a session
+	 * open. Without the initiator check a failed login from an intruder is
+	 * returned carrying that administrator's identity, and an agent asked to
+	 * report on a break-in names the wrong person. The identity fields alone
+	 * cannot distinguish the two cases, because they are populated in both.
+	 *
 	 * WP_REST_Events_Controller::prepare_item_for_response() always emits a
 	 * 7-key initiator_data array, falling back to null/empty values rather
 	 * than omitting the key — so the is_array()/[] guard below only catches a
 	 * shape the REST API never actually produces. It stays as defence for
-	 * direct callers, but the real "no resolvable user" signal is that the
-	 * identity fields themselves are all empty, e.g. a `wp`-initiated event
-	 * or a failed login with an unrecognized username.
+	 * direct callers.
 	 *
 	 * @param array $event One event as returned by WP_REST_Events_Controller.
-	 * @return array|null Null when the event has no resolvable user.
+	 * @return array|null Null when the event was not initiated by a user.
 	 */
 	private static function present_user( array $event ): ?array {
+		// Kept as a literal rather than Log_Initiators::WP_USER so this class
+		// stays free of WordPress dependencies, as the class docblock says.
+		if ( ( $event['initiator'] ?? '' ) !== 'wp_user' ) {
+			return null;
+		}
+
 		$data = $event['initiator_data'] ?? null;
 
 		if ( ! is_array( $data ) || $data === [] ) {

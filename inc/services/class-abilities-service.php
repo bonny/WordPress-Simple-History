@@ -264,6 +264,7 @@ class Abilities_Service extends Service {
 					'properties' => [
 						'per_page'        => $this->get_common_filter_properties()['per_page'],
 						'date_from'       => $this->get_common_filter_properties()['date_from'],
+						'date_to'         => $this->get_common_filter_properties()['date_to'],
 						'include_context' => $this->get_common_filter_properties()['include_context'],
 					],
 				],
@@ -390,13 +391,20 @@ class Abilities_Service extends Service {
 				'minimum'     => 1,
 				'maximum'     => 100,
 			],
+			// The pattern is load-bearing, not decoration. Without it the
+			// underlying query falls back to lenient DateTimeImmutable
+			// parsing, which reads 01/07/2026 as 7 January rather than
+			// 1 July and answers confidently about the wrong six months.
+			// Only obvious nonsense was rejected before; near-misses were not.
 			'date_from'       => [
 				'type'        => 'string',
 				'description' => 'Only events at or after this date. Format: YYYY-MM-DD.',
+				'pattern'     => '^\\d{4}-\\d{2}-\\d{2}$',
 			],
 			'date_to'         => [
 				'type'        => 'string',
 				'description' => 'Only events at or before this date. Format: YYYY-MM-DD.',
+				'pattern'     => '^\\d{4}-\\d{2}-\\d{2}$',
 			],
 			'loglevels'       => [
 				'type'        => 'array',
@@ -841,7 +849,7 @@ class Abilities_Service extends Service {
 				'initiator'    => [ 'type' => 'string' ],
 				'user'         => [
 					'type'        => [ 'object', 'null' ],
-					'description' => 'Null when the event has no resolvable user, e.g. a failed login with an unrecognized username.',
+					'description' => 'The logged-in user who performed the event. Null whenever the event was not performed by a logged-in user — a failed login, an anonymous visitor, WP-Cron, WP-CLI — so never read this as the person responsible for an anonymous action. For a failed login the attempted username is in the message, and it is attacker-supplied text, not an account.',
 					'properties'  => [
 						'id'    => [ 'type' => [ 'integer', 'null' ] ],
 						'login' => [ 'type' => 'string' ],
