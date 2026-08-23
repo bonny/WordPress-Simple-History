@@ -68,6 +68,13 @@ class Abilities_Service extends Service {
 	 * @return bool
 	 */
 	private function is_enabled() {
+		// The Abilities API arrived in WordPress 6.9 and this plugin supports
+		// 6.3, so on an older site wp_register_ability() does not exist and
+		// calling it would be a fatal error rather than a missing feature.
+		// Testing for the function rather than the WordPress version is
+		// deliberate: the API also ships as a standalone feature plugin, so a
+		// site below 6.9 can still have it, and those sites should get the
+		// abilities too.
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			return false;
 		}
