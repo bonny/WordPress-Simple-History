@@ -35,7 +35,14 @@ class Abilities_Service extends Service {
 
 	/** @inheritDoc */
 	public function loaded() {
-		if ( ! $this->is_enabled() ) {
+		// The Abilities API arrived in WordPress 6.9 and this plugin supports
+		// 6.3, so on an older site wp_register_ability() does not exist and
+		// calling it would be a fatal error rather than a missing feature.
+		// Testing for the function rather than the WordPress version is
+		// deliberate: the API also ships as a standalone feature plugin, so a
+		// site below 6.9 can still have it, and those sites should get the
+		// abilities too.
+		if ( ! function_exists( 'wp_register_ability' ) ) {
 			return;
 		}
 
@@ -49,7 +56,13 @@ class Abilities_Service extends Service {
 	/**
 	 * Whether Simple History should register its abilities at all.
 	 *
-	 * Three gates, cheapest first, because this runs on every request:
+	 * Checked when the abilities registry initialises rather than at
+	 * bootstrap, so a filter registered later in the request still counts.
+	 * Adding the two hooks costs nothing on a request that never touches
+	 * abilities, because WordPress only fires them when something asks the
+	 * registry for one.
+	 *
+	 * Three gates:
 	 *
 	 * - The Abilities API is WordPress 6.9+, so there is nothing to register
 	 *   on older versions.
@@ -68,13 +81,6 @@ class Abilities_Service extends Service {
 	 * @return bool
 	 */
 	private function is_enabled() {
-		// The Abilities API arrived in WordPress 6.9 and this plugin supports
-		// 6.3, so on an older site wp_register_ability() does not exist and
-		// calling it would be a fatal error rather than a missing feature.
-		// Testing for the function rather than the WordPress version is
-		// deliberate: the API also ships as a standalone feature plugin, so a
-		// site below 6.9 can still have it, and those sites should get the
-		// abilities too.
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			return false;
 		}
@@ -108,6 +114,10 @@ class Abilities_Service extends Service {
 	 * Register every Simple History ability.
 	 */
 	public function register_abilities() {
+		if ( ! $this->is_enabled() ) {
+			return;
+		}
+
 		wp_register_ability(
 			'simple-history/get-recent-events',
 			[
@@ -116,6 +126,14 @@ class Abilities_Service extends Service {
 				'category'            => self::CATEGORY,
 				'input_schema'        => [
 					'type'       => 'object',
+					// Without a default, an ability invoked with no input at all
+					// receives null, which fails validation as "input is not of
+					// type object" — so the most natural agent call, asking with
+					// no filters, errors instead of returning defaults. Defaulting
+					// to an empty object makes that call work where every property
+					// is optional, and produces a useful "required property"
+					// message where one is not.
+					'default'    => [],
 					'properties' => $this->get_common_filter_properties(),
 				],
 				'output_schema'       => $this->get_event_list_schema(),
@@ -133,6 +151,14 @@ class Abilities_Service extends Service {
 				'category'            => self::CATEGORY,
 				'input_schema'        => [
 					'type'       => 'object',
+					// Without a default, an ability invoked with no input at all
+					// receives null, which fails validation as "input is not of
+					// type object" — so the most natural agent call, asking with
+					// no filters, errors instead of returning defaults. Defaulting
+					// to an empty object makes that call work where every property
+					// is optional, and produces a useful "required property"
+					// message where one is not.
+					'default'    => [],
 					'properties' => [
 						'id'              => [
 							'type'        => 'integer',
@@ -161,6 +187,14 @@ class Abilities_Service extends Service {
 				'category'            => self::CATEGORY,
 				'input_schema'        => [
 					'type'       => 'object',
+					// Without a default, an ability invoked with no input at all
+					// receives null, which fails validation as "input is not of
+					// type object" — so the most natural agent call, asking with
+					// no filters, errors instead of returning defaults. Defaulting
+					// to an empty object makes that call work where every property
+					// is optional, and produces a useful "required property"
+					// message where one is not.
+					'default'    => [],
 					'properties' => [
 						'query'           => [
 							'type'        => 'string',
@@ -186,6 +220,14 @@ class Abilities_Service extends Service {
 				'category'            => self::CATEGORY,
 				'input_schema'        => [
 					'type'       => 'object',
+					// Without a default, an ability invoked with no input at all
+					// receives null, which fails validation as "input is not of
+					// type object" — so the most natural agent call, asking with
+					// no filters, errors instead of returning defaults. Defaulting
+					// to an empty object makes that call work where every property
+					// is optional, and produces a useful "required property"
+					// message where one is not.
+					'default'    => [],
 					'properties' => [
 						'user_id'         => [
 							'type'        => 'integer',
@@ -211,6 +253,14 @@ class Abilities_Service extends Service {
 				'category'            => self::CATEGORY,
 				'input_schema'        => [
 					'type'       => 'object',
+					// Without a default, an ability invoked with no input at all
+					// receives null, which fails validation as "input is not of
+					// type object" — so the most natural agent call, asking with
+					// no filters, errors instead of returning defaults. Defaulting
+					// to an empty object makes that call work where every property
+					// is optional, and produces a useful "required property"
+					// message where one is not.
+					'default'    => [],
 					'properties' => [
 						'per_page'        => $this->get_common_filter_properties()['per_page'],
 						'date_from'       => $this->get_common_filter_properties()['date_from'],
@@ -232,6 +282,14 @@ class Abilities_Service extends Service {
 				'category'            => self::CATEGORY,
 				'input_schema'        => [
 					'type'       => 'object',
+					// Without a default, an ability invoked with no input at all
+					// receives null, which fails validation as "input is not of
+					// type object" — so the most natural agent call, asking with
+					// no filters, errors instead of returning defaults. Defaulting
+					// to an empty object makes that call work where every property
+					// is optional, and produces a useful "required property"
+					// message where one is not.
+					'default'    => [],
 					'properties' => [
 						'date_from' => [
 							'type'        => 'integer',
@@ -294,7 +352,23 @@ class Abilities_Service extends Service {
 				'destructive' => false,
 				'idempotent'  => true,
 			],
+			// Three exposure keys because the ecosystem is mid-migration.
+			// WordPress 7.1 unified them under `public`, and core's own
+			// abilities have moved to it, but the MCP Adapter shipping today
+			// still reads `mcp.public` and only honours `public` from its next
+			// release. `show_in_rest` stays for 6.9 and 7.0, where `public`
+			// does not exist. All three say the same thing: these abilities
+			// are meant to be found by clients.
+			//
+			// Exposure is not authorisation. Being discoverable does not make
+			// an ability runnable — check_events_permission() and
+			// check_stats_permission() decide that, and an anonymous request
+			// is refused whether or not these flags are set.
 			'show_in_rest' => true,
+			'public'       => true,
+			'mcp'          => [
+				'public' => true,
+			],
 		];
 	}
 
@@ -362,6 +436,10 @@ class Abilities_Service extends Service {
 	 */
 	public function register_category() {
 		if ( ! function_exists( 'wp_register_ability_category' ) ) {
+			return;
+		}
+
+		if ( ! $this->is_enabled() ) {
 			return;
 		}
 

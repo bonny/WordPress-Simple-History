@@ -16,6 +16,30 @@ use Simple_History\Helpers;
  */
 class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	/**
+	 * Turn the abilities on for the duration of these tests.
+	 *
+	 * They are gated behind the experimental features setting, which is off by
+	 * default and off in the test fixture. The gate is evaluated when the
+	 * abilities registry first initialises, so filtering here is early enough
+	 * as long as nothing has asked the registry for an ability yet — these are
+	 * the only tests that do.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+
+		add_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function tearDown(): void {
+		remove_filter( 'simple_history/experimental_features_enabled', '__return_true', 99 );
+
+		parent::tearDown();
+	}
+
+	/**
 	 * Skip a test when the Abilities API is not present.
 	 */
 	private function require_abilities_api() {
@@ -225,6 +249,93 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * @covers ::execute_get_recent_events
 	 */
+	/**
+	 * Calling an ability with no input at all is the first thing any client
+	 * does, and it used to fail: WordPress hands the ability null, and null
+	 * is not an object, so validation rejected it before the callback ran.
+	 * The input schemas declare a default of {} so that call resolves.
+	 *
+	 * Every test here passes input explicitly, which is exactly why this
+	 * shipped unnoticed — so assert the bare call directly.
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_abilities_without_required_input_can_be_called_with_no_input() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		SimpleLogger()->info( 'An event for the bare ability call to find' );
+
+		foreach ( [ 'get-recent-events', 'get-failed-logins', 'get-stats-summary' ] as $slug ) {
+			$result = wp_get_ability( 'simple-history/' . $slug )->execute();
+
+			$this->assertNotWPError(
+				$result,
+				sprintf( 'Ability %s should be callable with no input, since every one of its properties is optional.', $slug )
+			);
+		}
+	}
+
+	/**
+	 * The counterpart: an ability that does require input must still refuse a
+	 * bare call, and say which property is missing rather than complaining
+	 * that the input is not an object.
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_abilities_with_required_input_name_the_missing_property() {
+		$this->ensure_abilities_registered();
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$expected = [
+			'get-event'         => 'id',
+			'search-events'     => 'query',
+			'get-user-activity' => 'user_id',
+		];
+
+		foreach ( $expected as $slug => $property ) {
+			$result = wp_get_ability( 'simple-history/' . $slug )->execute();
+
+			$this->assertWPError( $result, sprintf( 'Ability %s requires input and should refuse a bare call.', $slug ) );
+			$this->assertStringContainsString(
+				$property,
+				$result->get_error_message(),
+				sprintf( 'Ability %s should name the missing property, not just reject the input shape.', $slug )
+			);
+		}
+	}
+
+	/**
+	 * The abilities are meant to be found by REST and MCP clients, which is
+	 * the entire point of registering them. Discovery is opt-in and defaults
+	 * to off, so a missing flag makes the feature invisible while every test
+	 * that calls execute() directly still passes.
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_abilities_declare_themselves_discoverable() {
+		$this->ensure_abilities_registered();
+
+		$names = [
+			'simple-history/get-recent-events',
+			'simple-history/get-event',
+			'simple-history/search-events',
+			'simple-history/get-user-activity',
+			'simple-history/get-failed-logins',
+			'simple-history/get-stats-summary',
+		];
+
+		foreach ( $names as $name ) {
+			$meta = wp_get_ability( $name )->get_meta();
+
+			$this->assertTrue( $meta['show_in_rest'] ?? false, sprintf( '%s should be exposed to REST clients.', $name ) );
+			$this->assertTrue( $meta['public'] ?? false, sprintf( '%s should set the unified public flag.', $name ) );
+			$this->assertTrue( $meta['mcp']['public'] ?? false, sprintf( '%s should be discoverable by MCP clients.', $name ) );
+		}
+	}
+
 	public function test_get_recent_events_returns_presented_events() {
 		$this->ensure_abilities_registered();
 
