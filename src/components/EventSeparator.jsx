@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { dateI18n, getSettings as dateSettings } from '@wordpress/date';
+import { date, dateI18n, getSettings as dateSettings } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/components';
 import { pinSmall } from '@wordpress/icons';
@@ -20,16 +20,28 @@ function getEventDateKey( event ) {
 		return 'sticky';
 	}
 
-	// Get the date key for comparison
-	const eventYmd = new Date( event.date_local )
-		.toISOString()
-		.split( 'T' )[ 0 ];
-	const todayYmd = new Date().toISOString().split( 'T' )[ 0 ];
-	const yesterdayYmd = new Date(
-		new Date().setDate( new Date().getDate() - 1 )
-	)
-		.toISOString()
-		.split( 'T' )[ 0 ];
+	// Event times are shown in the visitor's own time zone, so group the days
+	// by that zone too. A divider must never disagree with the time printed
+	// under it.
+	const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+	// date_gmt carries no offset, so mark it as UTC. A bare date_local string
+	// would be read as browser-local and then merely converted, which moves
+	// the day whenever the visitor is not in the website's time zone.
+	const eventDateTimeInGMTTimeZone = event.date_gmt + 'Z';
+
+	const eventYmd = date(
+		'Y-m-d',
+		eventDateTimeInGMTTimeZone,
+		browserTimeZone
+	);
+	const todayYmd = date( 'Y-m-d', new Date(), browserTimeZone );
+
+	// Step back one calendar day on the date string itself. Subtracting 24
+	// hours from a timestamp would land on the same day across a DST change.
+	const yesterday = new Date( `${ todayYmd }T12:00:00Z` );
+	yesterday.setUTCDate( yesterday.getUTCDate() - 1 );
+	const yesterdayYmd = yesterday.toISOString().split( 'T' )[ 0 ];
 
 	if ( eventYmd === todayYmd ) {
 		return 'today';
@@ -38,7 +50,11 @@ function getEventDateKey( event ) {
 	}
 
 	// Return the formatted date for other dates
-	return dateI18n( dateSettings().formats.date, event.date_local );
+	return dateI18n(
+		dateSettings().formats.date,
+		eventDateTimeInGMTTimeZone,
+		browserTimeZone
+	);
 }
 
 /**
