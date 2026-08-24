@@ -78,6 +78,28 @@ parameters:
     -
       identifier: identical.alwaysTrue
       path: loggers/class-user-logger.php
+
+    # - '#Access to an undefined property object::\$context_message_key.#'
+    #
+    # The Abilities API is WordPress 6.9+ and Simple History supports 6.3+, so
+    # WPCompat is right to flag these symbols as too new. Every one of them sits
+    # behind a function_exists() guard and the service does nothing at all on
+    # older sites, but WPCompat cannot see through a runtime guard — and the
+    # hook name is just a string, so it could not in principle. Scoped to the
+    # one file that is allowed to touch the API.
+    # Unmatched ignores are hard errors here, so only identifiers that actually
+    # fire may be listed. As more of the API gets used, add the matching
+    # identifiers (WPCompat.functionNotAvailable for wp_register_ability, and so
+    # on) — do not pre-declare them.
+    -
+      identifier: WPCompat.actionNotAvailable.wpabilitiesapiinit
+      path: inc/services/class-abilities-service.php
+    -
+      identifier: WPCompat.actionNotAvailable.wpabilitiesapicategoriesinit
+      path: inc/services/class-abilities-service.php
+    -
+      identifier: WPCompat.functionNotAvailable
+      path: inc/services/class-abilities-service.php
   WPCompat:
     pluginFile: index.php
     requiresAtLeast: '6.3'

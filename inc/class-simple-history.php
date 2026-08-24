@@ -143,6 +143,7 @@ class Simple_History {
 	 */
 	private function get_services() {
 		$services = array(
+			Services\Abilities_Service::class,
 			Services\AddOns_Licences::class,
 			Services\Admin_Page_Premium_Promo::class,
 			Services\Admin_Pages::class,
