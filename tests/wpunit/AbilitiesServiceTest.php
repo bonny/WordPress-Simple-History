@@ -489,12 +489,16 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Fetching one event by id is already the "drill in" act, so context comes
-	 * back by default here where list abilities leave it out.
+	 * Context is withheld until asked for, on every ability including this one.
+	 *
+	 * Fetching one event by id looks like the "drill in" act and used to
+	 * return context by default, but context carries the initiator's email
+	 * address and IP, and handing those to an agent that only asked what an
+	 * event was is more than it needs. Opting in is one parameter.
 	 *
 	 * @covers ::execute_get_event
 	 */
-	public function test_get_event_includes_context_by_default() {
+	public function test_get_event_omits_context_by_default() {
 		$this->ensure_abilities_registered();
 
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
@@ -507,8 +511,38 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 
 		$event = wp_get_ability( 'simple-history/get-event' )->execute( [ 'id' => $recent[0]['id'] ] );
 
-		$this->assertArrayHasKey( 'context', $event );
+		$this->assertArrayNotHasKey( 'context', $event );
 		$this->assertSame( $recent[0]['id'], $event['id'] );
+	}
+
+	/**
+	 * The context an agent opts into is the same on every ability, and it does
+	 * contain identity data — so the description has to say so.
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_include_context_defaults_to_false_everywhere() {
+		$this->ensure_abilities_registered();
+
+		$names = [
+			'simple-history/get-recent-events',
+			'simple-history/get-event',
+			'simple-history/search-events',
+			'simple-history/get-user-activity',
+			'simple-history/get-failed-logins',
+		];
+
+		foreach ( $names as $name ) {
+			$property = wp_get_ability( $name )->get_input_schema()['properties']['include_context'] ?? null;
+
+			$this->assertNotNull( $property, sprintf( '%s should offer include_context.', $name ) );
+			$this->assertFalse( $property['default'], sprintf( '%s should withhold context until asked.', $name ) );
+			$this->assertStringContainsString(
+				'email',
+				$property['description'],
+				sprintf( '%s should say that context carries identity data.', $name )
+			);
+		}
 	}
 
 	/**

@@ -166,8 +166,8 @@ class Abilities_Service extends Service {
 						],
 						'include_context' => [
 							'type'        => 'boolean',
-							'description' => 'Include full context data. On by default for a single event, unlike the list abilities.',
-							'default'     => true,
+							'description' => 'Include the full context data for the event. Verbose, and includes the initiator\'s email address and IP address, so ask for it only when the message and user are not enough. Off by default.',
+							'default'     => false,
 						],
 					],
 					'required'   => [ 'id' ],
@@ -430,7 +430,7 @@ class Abilities_Service extends Service {
 			],
 			'include_context' => [
 				'type'        => 'boolean',
-				'description' => 'Include the full context data for each event. Verbose; off by default.',
+				'description' => 'Include the full context data for each event. Verbose, and includes the initiator\'s email address and IP address, so ask for it only when the message and user are not enough. Off by default.',
 				'default'     => false,
 			],
 		];
@@ -580,12 +580,22 @@ class Abilities_Service extends Service {
 	 *
 	 * Without this, dispatch() renders every field the REST controller knows
 	 * how to build — message_html, two separate get_log_row_details_output()
-	 * renders, action_links, a get_userdata() per reacting user, and
-	 * get_avatar_data() / get_user_by() for initiator_data — only for the
-	 * presenter to throw nearly all of it away. The controller honours
+	 * renders, action_links, a get_userdata() per reacting user — only for
+	 * the presenter to throw nearly all of it away. The controller honours
 	 * `_fields` via rest_is_field_included(), so requesting only what the
 	 * presenter keeps skips that work at the source instead of paying for it
 	 * and discarding the result.
+	 *
+	 * initiator_data is the exception, and is requested despite being mostly
+	 * discarded. Asking for it makes the controller run get_avatar_data(),
+	 * get_user_by() and get_log_row_sender_image_output() — which renders
+	 * avatar markup — for every row, of which the presenter keeps three
+	 * fields. Measured at roughly 3 ms against 7 ms per hundred events. The
+	 * alternative is to build the user from the context's _user_id and
+	 * _user_login, but list abilities deliberately do not request context, so
+	 * that would trade this cost for a larger one. Left as is, deliberately;
+	 * this note exists because the list above otherwise reads as though the
+	 * avatar work were being skipped.
 	 *
 	 * @param bool $include_context Whether context was requested. Left out of
 	 *                              the field list otherwise, since it is the
@@ -667,7 +677,10 @@ class Abilities_Service extends Service {
 	public function execute_get_event( $input ) {
 		$id = isset( $input['id'] ) ? (int) $input['id'] : 0;
 
-		$include_context = ! isset( $input['include_context'] ) || (bool) $input['include_context'];
+		// Core applies only a schema's top-level default, not per-property
+		// ones, so the default lives here as well as in the schema and the
+		// two have to agree.
+		$include_context = ! empty( $input['include_context'] );
 
 		$event = $this->dispatch(
 			'/simple-history/v1/events/' . $id,
