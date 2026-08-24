@@ -5173,44 +5173,82 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 /* What's new: expired premium sidebar card. */
 .sh-WhatsNewCard.postbox {
 	position: relative;
-	padding: 12px;
-	border-left: 4px solid var(--wp-admin-theme-color);
+	padding: var(--sh-spacing-medium);
+	background: var(--sh-color-cream);
+	border: 0;
+	border-radius: var(--sh-border-radius);
 	overflow: hidden;
 	transition: height 150ms ease;
 }
 
-.sh-WhatsNewCard-title {
+/* Scoped through .postbox to outrank WP core's `.postbox h3`, which applies
+   `padding: 8px 12px` and would indent the headline past the body text. */
+.sh-WhatsNewCard.postbox .sh-WhatsNewCard-title {
 	margin: 0 24px 4px 0;
 	padding: 0;
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: 600;
+	line-height: 1.4;
 }
 
 .sh-WhatsNewCard-subhead {
-	margin: 0 0 6px;
+	margin: 0 0 10px;
 	color: #646970;
 	font-size: 12px;
 }
 
+/* Green dashicon checkmarks instead of disc bullets, so the list reads as
+   benefits rather than raw markup. No list indent — every line in the card
+   shares one left edge. */
 .sh-WhatsNewCard-list {
-	margin: 0 0 10px;
-	padding-left: 16px;
+	margin: 0 0 12px;
+	padding-left: 0;
 	color: #3c434a;
 	font-size: 12px;
-	list-style: disc;
+	list-style: none;
 }
 
 .sh-WhatsNewCard-list li {
-	margin-bottom: 2px;
+	position: relative;
+	margin-bottom: 4px;
+	padding-left: 22px;
+	line-height: 1.5;
 }
 
-.sh-WhatsNewCard-more {
-	margin-left: -16px;
-	list-style: none;
+.sh-WhatsNewCard-list li::before {
+	content: "\f147";
+	position: absolute;
+	top: 0;
+	left: 0;
+	color: #00a32a;
+	font-family: dashicons, sans-serif;
+	font-size: 16px;
+	line-height: 1.4;
+}
+
+/* Reads as a footnote tally, not a third benefit: no checkmark, but kept on
+   the text column so the left edge stays clean. Selectors carry the same
+   `.sh-WhatsNewCard-list li` weight so the checkmark is actually removed. */
+.sh-WhatsNewCard-list li.sh-WhatsNewCard-more {
+	margin-top: 8px;
+	color: #646970;
+	font-size: 11px;
+}
+
+.sh-WhatsNewCard-list li.sh-WhatsNewCard-more::before {
+	content: none;
 }
 
 .sh-WhatsNewCard-cta.button {
 	width: 100%;
+	text-align: center;
+}
+
+/* Price sits under the CTA so the button label stays outcome-led. */
+.sh-WhatsNewCard-price {
+	margin: 4px 0 0;
+	color: #646970;
+	font-size: 11px;
 	text-align: center;
 }
 
@@ -5235,15 +5273,18 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 }
 
 /* What's new: small single-line variant after first dismissal. */
-.sh-WhatsNewSmall {
+/* Scoped to :not([hidden]) because an author display rule beats the browser's
+   own [hidden] rule on origin, which would keep the strip visible while the
+   full card is still showing. */
+.sh-WhatsNewSmall:not([hidden]) {
 	display: flex;
 	align-items: center;
 	gap: 6px;
 	margin-bottom: 20px;
 	padding: 8px 12px;
-	background: #fff;
-	border: 1px solid #c3c4c7;
-	border-left: 4px solid var(--wp-admin-theme-color);
+	background: var(--sh-color-cream);
+	border: 0;
+	border-radius: var(--sh-border-radius);
 	font-size: 12px;
 	transition: opacity 200ms ease;
 }

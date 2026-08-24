@@ -216,10 +216,10 @@ class WhatsNewServiceTest extends \Codeception\TestCase\WPTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'sh-WhatsNewCard', $output );
-		$this->assertStringContainsString( 'Your Premium license lapsed', $output );
+		$this->assertStringContainsString( 'premium features shipped since you left', $output );
 		$this->assertStringContainsString( 'Slack alerts', $output );
 		$this->assertStringContainsString( 'utm_campaign=premium_whats_new', $output );
-		$this->assertStringContainsString( 'Dismiss renewal reminder', $output );
+		$this->assertStringContainsString( 'Dismiss what&#039;s new', $output );
 	}
 
 	public function test_fewer_than_three_highlights_suppresses_card() {

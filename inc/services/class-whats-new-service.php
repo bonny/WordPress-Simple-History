@@ -585,12 +585,21 @@ class Whats_New_Service extends Service {
 
 		$more_since = $expires_timestamp !== false ? date_i18n( 'F Y', $expires_timestamp ) : '';
 
+		/* translators: %s: price, e.g. "$79". */
+		$price_caption = sprintf( __( 'from %s/yr', 'simple-history' ), $price_text );
+
+		// Every bucket leads with what shipped, never with license status —
+		// the momentum framing is the whole mechanic.
 		if ( $days_lapsed < 90 ) {
 			return [
-				'title'          => __( 'Your Premium license lapsed', 'simple-history' ),
-				'subhead'        => __( 'A few things shipped recently. Quick to catch up.', 'simple-history' ),
-				/* translators: %s: price, e.g. "$79". */
-				'cta'            => sprintf( __( 'Renew — from %s/yr', 'simple-history' ), $price_text ),
+				'title'          => sprintf(
+					/* translators: %d: number of premium features shipped. */
+					_n( '%d premium feature shipped since you left', '%d premium features shipped since you left', $total_highlights, 'simple-history' ),
+					$total_highlights
+				),
+				'subhead'        => __( 'Your license lapsed recently. Quick to catch up.', 'simple-history' ),
+				'cta'            => __( 'See what you missed', 'simple-history' ),
+				'price'          => $price_caption,
 				'show_more_line' => true,
 				'more_since'     => $more_since,
 			];
@@ -603,9 +612,9 @@ class Whats_New_Service extends Service {
 					_n( '%d premium feature shipped', '%d premium features shipped', $total_highlights, 'simple-history' ),
 					$total_highlights
 				),
-				'subhead'        => __( 'Since your license lapsed.', 'simple-history' ),
-				/* translators: %s: price, e.g. "$79". */
-				'cta'            => sprintf( __( 'See what you missed — from %s/yr', 'simple-history' ), $price_text ),
+				'subhead'        => __( 'While your license was inactive.', 'simple-history' ),
+				'cta'            => __( 'See what you missed', 'simple-history' ),
+				'price'          => $price_caption,
 				'show_more_line' => true,
 				'more_since'     => $more_since,
 			];
@@ -614,8 +623,8 @@ class Whats_New_Service extends Service {
 		return [
 			'title'          => __( 'Simple History Premium now does this', 'simple-history' ),
 			'subhead'        => __( 'A quick look at recent additions.', 'simple-history' ),
-			/* translators: %s: price, e.g. "$79". */
-			'cta'            => sprintf( __( 'Get Premium — from %s/yr', 'simple-history' ), $price_text ),
+			'cta'            => __( 'Explore Premium', 'simple-history' ),
+			'price'          => $price_caption,
 			'show_more_line' => false,
 			'more_since'     => '',
 		];
@@ -632,7 +641,7 @@ class Whats_New_Service extends Service {
 		$bullets    = array_slice( $highlights, 0, 2 );
 		$more_count = count( $highlights ) - count( $bullets );
 		?>
-		<div class="postbox sh-WhatsNewCard" role="region" aria-label="<?php esc_attr_e( 'Premium renewal reminder', 'simple-history' ); ?>">
+		<div class="postbox sh-WhatsNewCard" role="region" aria-label="<?php esc_attr_e( 'What\'s new in Premium', 'simple-history' ); ?>">
 			<h3 class="sh-WhatsNewCard-title"><?php echo esc_html( $copy['title'] ); ?></h3>
 			<p class="sh-WhatsNewCard-subhead"><?php echo esc_html( $copy['subhead'] ); ?></p>
 			<ul class="sh-WhatsNewCard-list">
@@ -657,7 +666,10 @@ class Whats_New_Service extends Service {
 			<a href="<?php echo esc_url( $cta_url ); ?>" target="_blank" rel="noopener noreferrer" class="button button-secondary sh-WhatsNewCard-cta">
 				<?php echo esc_html( $copy['cta'] ); ?>
 			</a>
-			<button type="button" class="sh-WhatsNewCard-dismiss js-sh-whats-new-dismiss-full" aria-label="<?php esc_attr_e( 'Dismiss renewal reminder', 'simple-history' ); ?>">&times;</button>
+			<?php if ( isset( $copy['price'] ) && is_string( $copy['price'] ) && $copy['price'] !== '' ) { ?>
+				<p class="sh-WhatsNewCard-price"><?php echo esc_html( $copy['price'] ); ?></p>
+			<?php } ?>
+			<button type="button" class="sh-WhatsNewCard-dismiss js-sh-whats-new-dismiss-full" aria-label="<?php esc_attr_e( 'Dismiss what\'s new', 'simple-history' ); ?>">&times;</button>
 		</div>
 		<?php
 	}
@@ -689,7 +701,7 @@ class Whats_New_Service extends Service {
 			<a href="<?php echo esc_url( $details_url ); ?>" target="_blank" rel="noopener noreferrer" class="sh-WhatsNewSmall-link">
 				<?php esc_html_e( 'Details', 'simple-history' ); ?>
 			</a>
-			<button type="button" class="sh-WhatsNewSmall-dismiss js-sh-whats-new-dismiss-small" aria-label="<?php esc_attr_e( 'Dismiss renewal reminder', 'simple-history' ); ?>">&times;</button>
+			<button type="button" class="sh-WhatsNewSmall-dismiss js-sh-whats-new-dismiss-small" aria-label="<?php esc_attr_e( 'Dismiss what\'s new', 'simple-history' ); ?>">&times;</button>
 		</div>
 		<?php
 	}
