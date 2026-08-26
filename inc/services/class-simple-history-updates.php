@@ -26,6 +26,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.28.0', [ $this, 'on_plugin_updated_details_5_28_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.29.0', [ $this, 'on_plugin_updated_details_5_29_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.30.0', [ $this, 'on_plugin_updated_details_5_30_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.31.0', [ $this, 'on_plugin_updated_details_5_31_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -329,6 +330,25 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-30-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.31.0.
+	 *
+	 * @param string $extra_details Extra details.
+	 * @return string
+	 */
+	public function on_plugin_updated_details_5_31_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'Site Editor changes are now logged: templates, styles, patterns, navigation menus and fonts.', 'simple-history' ),
+			__( 'Support for the official WordPress AI plugin — logs when AI features, providers and access are changed.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-31-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}
