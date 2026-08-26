@@ -168,6 +168,14 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				'dashboard' => (int) Helpers::get_pager_size_dashboard(),
 			],
 			'new_events_check_interval'       => Helpers::get_new_events_check_interval(),
+			/**
+			 * Filters the Google Maps API key that is used
+			 * to render a static map image.
+			 *
+			 * @since 4.2
+			 *
+			 * @param string $api_key The API key to use. Default is empty string, causing no Map image to be outputted.
+			 */
 			'maps_api_key'                    => apply_filters( 'simple_history/maps_api_key', '' ),
 			'addons'                          => [
 				'addons'                       => $addons_service->get_addon_plugins(),
