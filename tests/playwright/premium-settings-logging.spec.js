@@ -2,7 +2,6 @@ const { test, expect } = require( '@playwright/test' );
 const {
 	SETTINGS_GENERAL_PAGE,
 	openLogAndWaitForHydration,
-	latestLogItem,
 	isLoggerEnabled,
 	toggleLogger,
 } = require( './premium-helpers' );
@@ -24,11 +23,19 @@ const {
 // likely stale — delete tests/playwright/.auth/admin.json and re-run.
 
 const IP_RADIO_NAME = 'shp_store_full_ip_address';
+
+// Label of the IP setting as rendered in the event's changed-items table. Used
+// to pick out this test's own "Modified settings" event.
+const IP_SETTING_LABEL = 'Store full IP address';
 const IP_VALUE_ANON = 'store_anonymized';
 const IP_VALUE_FULL = 'store_full';
 
 // Any always-present logger works for the Message Control toggle.
 const MESSAGE_CONTROL_LOGGER_SLUG = 'AlertsLogger';
+
+// Label of the Message Control setting as rendered in the event's changed-items
+// table. Used to pick out this test's own "Modified settings" event.
+const MESSAGE_CONTROL_SETTING_LABEL = 'Message Control';
 
 /**
  * Read the currently selected value of the Store-full-IP-address radio group.
@@ -107,7 +114,17 @@ test.describe( 'Premium settings logging', () => {
 
 			await openLogAndWaitForHydration( page );
 
-			const settingsItem = latestLogItem( page, 'Modified settings' );
+			// Other specs write their own "Modified settings" events, so the
+			// newest one is not necessarily ours when the suite runs in
+			// parallel. Match on the settings row this test changed instead.
+			const settingsItem = page
+				.locator( '.SimpleHistoryLogitem', {
+					has: page.locator(
+						'.SimpleHistoryLogitem__keyValueTable tr',
+						{ hasText: IP_SETTING_LABEL }
+					),
+				} )
+				.first();
 			await expect( settingsItem ).toBeVisible();
 
 			// The change must be rendered exactly once. A premium add-on must
@@ -118,7 +135,7 @@ test.describe( 'Premium settings logging', () => {
 			await expect(
 				settingsItem.locator(
 					'.SimpleHistoryLogitem__keyValueTable tr',
-					{ hasText: 'Store full IP address' }
+					{ hasText: IP_SETTING_LABEL }
 				)
 			).toHaveCount( 1 );
 		} );
@@ -169,10 +186,18 @@ test.describe( 'Premium settings logging', () => {
 
 			await openLogAndWaitForHydration( page );
 
-			const modifiedSettingsItem = latestLogItem(
-				page,
-				'Modified settings'
-			);
+			// The activity log is global and other specs write their own
+			// "Modified settings" events, so the newest one is not necessarily
+			// ours when the suite runs in parallel. Match on the settings row
+			// this test actually changed instead.
+			const modifiedSettingsItem = page
+				.locator( '.SimpleHistoryLogitem', {
+					has: page.locator(
+						'.SimpleHistoryLogitem__keyValueTable tr',
+						{ hasText: MESSAGE_CONTROL_SETTING_LABEL }
+					),
+				} )
+				.first();
 			await expect( modifiedSettingsItem ).toBeVisible();
 
 			// Details render inline within the log item (no expand needed).
