@@ -262,6 +262,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Fixed**
+
+-   Relative times ("2 minutes ago") could be off by the site's UTC offset everywhere they are shown — the log, the dashboard widget and the admin bar.
+
 ### 5.31.0 (August 2026)
 
 🎨 Site Editor changes are now logged — templates, template parts, site-wide styles, patterns, navigation menus and fonts. This release also adds support for the official **WordPress AI plugin**, so you can see which plugins and themes have been granted access to which AI providers, plus a round of security hardening and the usual fixes.

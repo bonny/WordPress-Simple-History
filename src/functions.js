@@ -1,7 +1,77 @@
 import { LOGLEVELS_OPTIONS } from './constants';
+import { humanTimeDiff } from '@wordpress/date';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { format } from 'date-fns';
+
+/**
+ * Turn an event's GMT date into the moment it happened.
+ *
+ * `date_gmt` is a bare `Y-m-d H:i:s` string carrying no offset, so it has to be
+ * marked as UTC before it is parsed.
+ *
+ * Relative times are built from this rather than from `date_local`, which
+ * carries no offset either. `humanTimeDiff()` reads a zone-less string in the
+ * zone `wp.date` was configured with, so `date_local` is only correct while
+ * those settings are in place. WordPress hands them over in an inline script on
+ * the `wp-date` handle, and on a site where something strips or defers inline
+ * admin scripts they never arrive — `@wordpress/date` then falls back to UTC and
+ * every event reads off by the site's own UTC offset. An absolute instant has no
+ * such dependency.
+ *
+ * The REST schema allows the field to be null, and a caller can leave it out
+ * of `_fields` — including one in another repo with its own hand-kept list. So
+ * return null rather than throw: without an error boundary above them, a throw
+ * here takes the whole event list down with it.
+ *
+ * @param {Object} event          Event object.
+ * @param {string} event.date_gmt Event date in GMT, as `Y-m-d H:i:s`.
+ * @return {Date|null} The moment the event was logged, or null without a date.
+ */
+export function getEventDate( event ) {
+	if ( ! event?.date_gmt ) {
+		return null;
+	}
+
+	return new Date( event.date_gmt.replace( ' ', 'T' ) + 'Z' );
+}
+
+/**
+ * A relative time for an event, e.g. "3 minutes ago", refreshed every second.
+ *
+ * @param {Object} event Event object.
+ * @return {string} The relative time, or an empty string without a date.
+ */
+export function useEventRelativeTime( event ) {
+	const dateGmt = event?.date_gmt;
+
+	const [ formatted, setFormatted ] = useState( () => {
+		const eventDate = getEventDate( event );
+
+		return eventDate ? humanTimeDiff( eventDate ) : '';
+	} );
+
+	useEffect( () => {
+		if ( ! dateGmt ) {
+			setFormatted( '' );
+
+			return undefined;
+		}
+
+		const update = () =>
+			setFormatted(
+				humanTimeDiff( getEventDate( { date_gmt: dateGmt } ) )
+			);
+
+		update();
+
+		const intervalId = setInterval( update, 1000 );
+
+		return () => clearInterval( intervalId );
+	}, [ dateGmt ] );
+
+	return formatted;
+}
 
 /**
  * Fields to request from the events REST API endpoint.
