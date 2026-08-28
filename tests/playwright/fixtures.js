@@ -15,7 +15,9 @@ const test = base.extend( {
 		async ( {}, use ) => {
 			const requestUtils = await RequestUtils.setup( {
 				baseURL,
-				storageStatePath: path.join( __dirname, '.auth/admin.json' ),
+				storageStatePath: process.env.PLAYWRIGHT_STORAGE_STATE
+					? path.resolve( process.env.PLAYWRIGHT_STORAGE_STATE )
+					: path.join( __dirname, '.auth/admin.json' ),
 			} );
 
 			await use( requestUtils );
