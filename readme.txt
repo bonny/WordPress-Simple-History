@@ -267,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Relative times ("2 minutes ago") could be off by the site's UTC offset everywhere they are shown — the log, the dashboard widget and the admin bar.
+-   "Copy event message" and "Copy as Markdown" put the site's time on the clipboard while the log on screen showed the visitor's own.
 
 ### 5.31.0 (August 2026)
 
