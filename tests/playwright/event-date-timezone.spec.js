@@ -6,9 +6,9 @@ const SIMPLE_HISTORY_PAGE =
 const POST_TITLE = 'Playwright timezone test post';
 const DIVIDER_POST_TITLE = 'Playwright divider test post';
 
-// A browser far from the site's timezone. `humanTimeDiff` is zone-safe (it
-// parses bare timestamps in the site's zone via WP_ZONE), so these tests pin
-// that behaviour rather than chase it.
+// A browser far from the site's timezone. Relative times are built from an
+// absolute instant (`getEventDate()`), so they hold whatever zone the visitor
+// is in — these tests pin that.
 const BROWSER_TIMEZONE = 'Pacific/Kiritimati';
 
 // moment's fromNow() for an event logged seconds ago: "a second ago", "a few
@@ -51,6 +51,67 @@ function deleteTestPost( requestUtils, post ) {
 		method: 'DELETE',
 		params: { force: true },
 	} );
+}
+
+/**
+ * How far the timezone handed to `wp.date` is pushed away from the site's own,
+ * in hours. Any non-zero gap reproduces the bug; five is far enough that the
+ * resulting relative time is stated in hours and cannot be mistaken for "just
+ * now" whatever the rounding.
+ */
+const WRONG_TIMEZONE_SHIFT_HOURS = 5;
+
+/**
+ * Give `wp.date` a timezone that disagrees with the site's by a known number of
+ * hours.
+ *
+ * A relative time built from a bare site-local timestamp is read in whatever
+ * zone `wp.date` was configured with, so any disagreement shifts every event by
+ * the gap. The reported case is the package's UTC default surviving because
+ * WordPress's inline settings script never ran, but shifting from the site's
+ * actual offset reproduces the same fault on a UTC site too — which a plain
+ * "reset it to UTC" cannot.
+ *
+ * Applied to the loaded page rather than injected up front: an init script
+ * trapping `window.wp` trips over other plugins, and rewriting the response
+ * costs the page its address-space context, which makes Chrome block every
+ * asset on a loopback host.
+ *
+ * @param {import('@playwright/test').Page} page            Page to change the settings on.
+ * @param {number}                          siteOffsetHours The site's own UTC offset, in hours.
+ */
+async function misconfigureWpDateTimezone( page, siteOffsetHours ) {
+	// Shift towards zero so the result stays inside the real -12..+14 range
+	// whatever the site's offset is.
+	const offset =
+		siteOffsetHours >= 0
+			? siteOffsetHours - WRONG_TIMEZONE_SHIFT_HOURS
+			: siteOffsetHours + WRONG_TIMEZONE_SHIFT_HOURS;
+
+	await page.evaluate( ( wrongOffset ) => {
+		window.wp.date.setSettings( {
+			...window.wp.date.getSettings(),
+			timezone: {
+				offset: wrongOffset,
+				offsetFormatted: String( wrongOffset ),
+				// An empty string is what makes @wordpress/date build its zone
+				// from the offset above rather than look one up by name.
+				string: '',
+				abbr: '',
+			},
+		} );
+	}, offset );
+}
+
+/**
+ * Wait out one tick of the once-a-second timer the relative times re-render
+ * on, so the assertion reads a value produced after the timezone was changed
+ * rather than whatever happened to render first.
+ *
+ * @param {import('@playwright/test').Page} page Page to wait on.
+ */
+async function waitForRelativeTimeToRerender( page ) {
+	await page.waitForTimeout( 1500 );
 }
 
 test.describe( 'Relative event times in a browser far from the site timezone', () => {
@@ -121,6 +182,73 @@ test.describe( 'Relative event times in a browser far from the site timezone', (
 				page.locator( '.SimpleHistory-adminBarEventsList-item' )
 			)
 		).toHaveText( JUST_NOW );
+	} );
+} );
+
+test.describe( "Relative event times when wp.date's timezone is wrong", () => {
+	let post;
+	let siteOffsetHours;
+
+	test.beforeEach( async ( { requestUtils } ) => {
+		post = await createTestPost( requestUtils );
+
+		// Read it after creating the post: the helper needs a logged event.
+		siteOffsetHours = await getSiteOffsetHours( requestUtils );
+	} );
+
+	test.afterEach( async ( { requestUtils } ) => {
+		if ( post ) {
+			await deleteTestPost( requestUtils, post );
+			post = undefined;
+		}
+	} );
+
+	test( 'dashboard widget shows a just-logged event as seconds old', async ( {
+		page,
+	} ) => {
+		await page.goto( '/wp-admin/' );
+		await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
+
+		const when = whenForTestPost( page.locator( '.SimpleHistoryLogitem' ) );
+		await expect( when ).toBeVisible();
+
+		await misconfigureWpDateTimezone( page, siteOffsetHours );
+		await waitForRelativeTimeToRerender( page );
+
+		await expect( when ).toHaveText( JUST_NOW );
+	} );
+
+	test( 'events page shows a just-logged event as seconds old', async ( {
+		page,
+	} ) => {
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
+
+		const when = whenForTestPost( page.locator( '.SimpleHistoryLogitem' ) );
+		await expect( when ).toBeVisible();
+
+		await misconfigureWpDateTimezone( page, siteOffsetHours );
+		await waitForRelativeTimeToRerender( page );
+
+		// The relative time sits in parentheses after the absolute date here.
+		await expect( when ).toContainText( JUST_NOW );
+	} );
+
+	test( 'admin bar quick view shows a just-logged event as seconds old', async ( {
+		page,
+	} ) => {
+		await page.goto( '/wp-admin/' );
+		await page.hover( '#wp-admin-bar-simple-history' );
+
+		const when = whenForTestPost(
+			page.locator( '.SimpleHistory-adminBarEventsList-item' )
+		);
+		await expect( when ).toBeVisible();
+
+		await misconfigureWpDateTimezone( page, siteOffsetHours );
+		await waitForRelativeTimeToRerender( page );
+
+		await expect( when ).toHaveText( JUST_NOW );
 	} );
 } );
 

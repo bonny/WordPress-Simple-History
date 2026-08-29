@@ -53,6 +53,27 @@ How to cover Premium instead:
 -   **Admin credentials:** `claude` / `claude` (override with `WP_ADMIN_USER` / `WP_ADMIN_PASSWORD`)
 -   **HTML report:** written to `playwright-report/` after each run — open it to debug failures
 
+### Running against wp-env instead of the dev WordPress
+
+The dev WordPress is shared and long-lived, so tests that need to change global
+site state — the timezone, say — are better run against the disposable wp-env
+install:
+
+```bash
+npm run wp-env:start                 # http://localhost:8888, admin/password
+npm run test:playwright:wp-env       # same suite, pointed at wp-env
+npm run test:playwright:wp-env -- tests/playwright/my-feature.spec.js
+```
+
+`test:playwright:wp-env` sets `PLAYWRIGHT_BASE_URL`, `WP_ADMIN_USER`,
+`WP_ADMIN_PASSWORD` and `PLAYWRIGHT_STORAGE_STATE`. The separate storage-state
+path matters: without it the wp-env login would overwrite
+`tests/playwright/.auth/admin.json` and every later run against the dev
+WordPress would silently redirect to `wp-login.php`.
+
+wp-env mounts this repo as the plugin, so **run `npm run build` first** — it
+serves whatever is in `build/`, not the source.
+
 ### CLI shortcuts
 
 ```bash

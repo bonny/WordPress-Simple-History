@@ -5,6 +5,12 @@ const baseURL =
 	process.env.PLAYWRIGHT_BASE_URL ||
 	'http://wordpress-stable-docker-mariadb.test:8282';
 
+// Where the cached admin session is written and read from. Overridable so a
+// run against another install — wp-env, say — gets its own session file
+// instead of overwriting the one for the dev WordPress.
+const storageState =
+	process.env.PLAYWRIGHT_STORAGE_STATE || 'tests/playwright/.auth/admin.json';
+
 // Specs captured by tests/screenshot/run.sh against the fresh Playground
 // instance (plus `banner`, which renders local HTML over file://).
 const screenshotSpecs = [
@@ -49,7 +55,7 @@ module.exports = defineConfig( {
 			use: {
 				...devices[ 'Desktop Chrome' ],
 				// Reuse admin login session across tests.
-				storageState: 'tests/playwright/.auth/admin.json',
+				storageState,
 			},
 			// Screenshot specs are not tests — they run via the dedicated
 			// `screenshot` project (tests/screenshot/run.sh) against a fresh
@@ -65,7 +71,7 @@ module.exports = defineConfig( {
 			name: 'teaser',
 			use: {
 				...devices[ 'Desktop Chrome' ],
-				storageState: 'tests/playwright/.auth/admin.json',
+				storageState,
 			},
 			testMatch: /screenshot-teaser-.*\.spec\.js$/,
 			dependencies: [ 'setup' ],

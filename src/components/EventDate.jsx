@@ -7,11 +7,9 @@ import {
 	date,
 	dateI18n,
 	getSettings as getDateSettings,
-	humanTimeDiff,
 } from '@wordpress/date';
-import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { navigateToEventPermalink } from '../functions';
+import { navigateToEventPermalink, useEventRelativeTime } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
 import { EventHeaderItem } from './EventHeaderItem';
 
@@ -57,22 +55,7 @@ export function EventDate( props ) {
 		);
 	}
 
-	const [ formattedDateLiveUpdated, setFormattedDateLiveUpdated ] = useState(
-		() => {
-			return humanTimeDiff( event.date_local );
-		}
-	);
-
-	// Update live time every second.
-	useEffect( () => {
-		const intervalId = setInterval( () => {
-			setFormattedDateLiveUpdated( humanTimeDiff( event.date_local ) );
-		}, 1000 );
-
-		return () => {
-			clearInterval( intervalId );
-		};
-	}, [ event.date_local ] );
+	const formattedDateLiveUpdated = useEventRelativeTime( event );
 
 	const tooltipText = (
 		<>
