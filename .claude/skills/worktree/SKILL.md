@@ -2,7 +2,7 @@
 name: worktree
 description: Creates an isolated git worktree with its own WordPress test environment. Use when working on multi-day features or risky changes needing parallel testing.
 allowed-tools: Bash, Read, Write, Edit, Glob
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Worktree Workflow

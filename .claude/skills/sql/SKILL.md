@@ -1,7 +1,7 @@
 ---
 name: sql
 description: Runs SQL queries against the WordPress development database. Use when inspecting tables, checking event data, or debugging database issues.
-disable-model-invocation: true
+disable-model-invocation: false
 allowed-tools: Read, Bash
 ---
 
