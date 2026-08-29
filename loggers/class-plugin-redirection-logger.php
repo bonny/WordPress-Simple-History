@@ -373,13 +373,33 @@ class Plugin_Redirection_Logger extends Logger {
 
 		if ( $redirection_item !== false ) {
 			$context['prev_source_url'] = $redirection_item->get_url();
-			$context['prev_target']     = maybe_unserialize( $redirection_item->get_action_data() );
+			$context['prev_target']     = $this->unserialize_action_data( $redirection_item->get_action_data() );
 		}
 
 		$this->info_message(
 			'redirection_redirection_edited',
 			$context
 		);
+	}
+
+	/**
+	 * Unserialize action data from the Redirection plugin, without allowing objects.
+	 *
+	 * The value comes from Redirection's own database table and is only ever
+	 * expected to hold scalars and arrays. Allowing objects would turn this into
+	 * a PHP object injection sink if any active plugin or theme ships a usable
+	 * gadget chain.
+	 *
+	 * @param mixed $action_data Raw action data from Redirection.
+	 * @return mixed Unserialized data, or the value as-is if it is not serialized.
+	 */
+	private function unserialize_action_data( $action_data ) {
+		if ( ! is_string( $action_data ) || ! is_serialized( $action_data ) ) {
+			return $action_data;
+		}
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Objects are explicitly disallowed.
+		return unserialize( $action_data, [ 'allowed_classes' => false ] );
 	}
 
 	/**
