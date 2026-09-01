@@ -264,10 +264,15 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Changed**
+
+-   Post and page events now link to the revision that change actually created, labelled "View this revision". On WordPress 7.1 and later the link opens the editor's visual revision view, where changed blocks are marked up in place.
+
 **Fixed**
 
 -   Relative times ("2 minutes ago") could be off by the site's UTC offset everywhere they are shown — the log, the dashboard widget and the admin bar.
 -   "Copy event message" and "Copy as Markdown" put the site's time on the clipboard while the log on screen showed the visitor's own.
+-   The revisions link on post events opened the newest revision instead of the one belonging to the event, so an older event could show today's content.
 
 **Security**
 

@@ -51,6 +51,14 @@ class Post_Logger extends Logger {
 	protected $events_given_a_revision_id = [];
 
 	/**
+	 * Posts and revisions already looked up while rendering this request,
+	 * including the ones that turned out not to exist.
+	 *
+	 * @var array<int, \WP_Post|null>
+	 */
+	private $looked_up_posts = [];
+
+	/**
 	 * Get array with information about this logger.
 	 *
 	 * @return array
@@ -1532,18 +1540,11 @@ class Post_Logger extends Logger {
 				}
 			}
 
-			// `wp_revisions_enabled()` is a constant-time check (post-type
-			// support + WP_POST_REVISIONS); skipping it would issue a WP_Query
-			// per post_updated event on sites that have revisions disabled.
-			if ( $message_key === 'post_updated' && wp_revisions_enabled( $post ) ) {
-				$revisions = wp_get_post_revisions( $post_id, [ 'numberposts' => 1 ] );
-				if ( ! empty( $revisions ) ) {
-					$latest_revision = reset( $revisions );
-					$action_links[]  = [
-						'url'    => admin_url( 'revision.php?revision=' . $latest_revision->ID ),
-						'label'  => __( 'Revisions', 'simple-history' ),
-						'action' => 'revisions',
-					];
+			if ( $message_key === 'post_updated' && $has_edit_cap ) {
+				$revision_link = $this->get_revision_action_link( $context, $post_id );
+
+				if ( $revision_link ) {
+					$action_links[] = $revision_link;
 				}
 			}
 		}
@@ -1569,6 +1570,179 @@ class Post_Logger extends Logger {
 		}
 
 		return $action_links;
+	}
+
+	/**
+	 * Get the action link to the revision that this event created.
+	 *
+	 * Only returned when we know which revision the event produced and that
+	 * revision still exists. Linking to the newest revision instead — which is
+	 * what this used to do — silently sent the user to today's content when
+	 * they asked for a change from two years ago.
+	 *
+	 * The label is deliberately phrased per event rather than as the generic
+	 * "Revisions": a capability-shaped label makes an intermittent link read as
+	 * breakage, while a per-event label makes its absence read as a fact about
+	 * that event.
+	 *
+	 * @param array $context Event context.
+	 * @param int   $post_id ID of the post the event belongs to.
+	 * @return array|null Action link array, or null when there is nothing to link to.
+	 */
+	protected function get_revision_action_link( $context, $post_id ) {
+		$revision = $this->get_event_revision( $context, $post_id );
+
+		if ( ! $revision ) {
+			return null;
+		}
+
+		return [
+			'url'    => $this->get_revision_admin_url( $revision->ID, $post_id ),
+			'label'  => __( 'View this revision', 'simple-history' ),
+			'action' => 'revisions',
+		];
+	}
+
+	/**
+	 * Get the revision this event created, if it is still viewable.
+	 *
+	 * @param array $context Event context.
+	 * @param int   $post_id ID of the post the event belongs to.
+	 * @return \WP_Post|null Revision post object, or null when not viewable.
+	 */
+	protected function get_event_revision( $context, $post_id ) {
+		$state = $this->get_event_revision_state( $context, $post_id );
+
+		return $state['status'] === 'available' ? $state['revision'] : null;
+	}
+
+	/**
+	 * Work out what became of the revision this event created.
+	 *
+	 * WordPress prunes revisions on its own schedule (WP_POST_REVISIONS) and
+	 * deletes them with their parent post, while our events outlive both. The
+	 * cases have to be told apart rather than lumped into "no link", because
+	 * only one of them can honestly be reported to the user as gone:
+	 *
+	 * - `unknown`      no revision id stored — an old event, or none was made.
+	 * - `available`    stored, still present, and WordPress will display it.
+	 * - `gone`         stored, and the row no longer exists. Safe to report.
+	 * - `unverifiable` the id points at something that is not this post's
+	 *                  revision, which happens after a restore or migration.
+	 *                  The revision may well still exist, so claiming it is
+	 *                  gone would be a false statement.
+	 * - `disabled`     the row exists but revisions were turned off since, and
+	 *                  revision.php now refuses to render it.
+	 *
+	 * @param array $context Event context.
+	 * @param int   $post_id ID of the post the event belongs to.
+	 * @return array{status:string,revision:\WP_Post|null}
+	 */
+	protected function get_event_revision_state( $context, $post_id ) {
+		$revision_id = (int) ( $context['post_revision_id'] ?? 0 );
+
+		if ( $revision_id === 0 ) {
+			return [
+				'status'   => 'unknown',
+				'revision' => null,
+			];
+		}
+
+		$revision = $this->get_cached_post( $revision_id );
+
+		if ( ! $revision instanceof \WP_Post || $revision->post_type !== 'revision' ) {
+			return [
+				'status'   => 'gone',
+				'revision' => null,
+			];
+		}
+
+		if ( (int) $revision->post_parent !== $post_id ) {
+			return [
+				'status'   => 'unverifiable',
+				'revision' => null,
+			];
+		}
+
+		// A site can turn revisions off after the fact, leaving rows that
+		// WordPress now refuses to display: revision.php redirects to the post
+		// list rather than render one. Mirror its check so we do not offer a
+		// link into that dead end. Autosaves stay viewable, as they do there.
+		$parent = $this->get_cached_post( $post_id );
+
+		if (
+			$parent instanceof \WP_Post
+			&& ! wp_revisions_enabled( $parent )
+			&& ! wp_is_post_autosave( $revision )
+		) {
+			return [
+				'status'   => 'disabled',
+				'revision' => $revision,
+			];
+		}
+
+		return [
+			'status'   => 'available',
+			'revision' => $revision,
+		];
+	}
+
+	/**
+	 * get_post() wrapper that also remembers misses.
+	 *
+	 * Each rendered row asks about its revision twice — once for the action
+	 * link, once for the details panel. WP_Post::get_instance() caches hits but
+	 * not misses, and a miss is the common case here: an old event whose
+	 * revision WordPress has long since pruned. Without this, a page of such
+	 * events issues two uncached queries per row.
+	 *
+	 * @param int $post_id Post ID to look up.
+	 * @return \WP_Post|null
+	 */
+	private function get_cached_post( $post_id ) {
+		if ( array_key_exists( $post_id, $this->looked_up_posts ) ) {
+			return $this->looked_up_posts[ $post_id ];
+		}
+
+		$post = get_post( $post_id );
+
+		$this->looked_up_posts[ $post_id ] = $post instanceof \WP_Post ? $post : null;
+
+		return $this->looked_up_posts[ $post_id ];
+	}
+
+	/**
+	 * Get the admin URL for viewing a single revision.
+	 *
+	 * WordPress 7.1 renders revisions visually in the editor, with added,
+	 * modified and removed blocks marked up in place, and accepts the revision
+	 * id as a query arg. Older versions get the classic comparison screen.
+	 *
+	 * The upgrade is deliberately silent — same label either way — because we
+	 * cannot tell from the server whether the visual view will actually open.
+	 * WordPress disables it whenever the post has active meta boxes, which any
+	 * SEO or custom fields plugin adds, and then redirects to the classic
+	 * screen. Both destinations show the correct revision, so the fallback is
+	 * harmless; a label promising a visual comparison would not be.
+	 *
+	 * @param int $revision_id ID of the revision to view.
+	 * @param int $post_id     ID of the revision's parent post.
+	 * @return string Admin URL.
+	 */
+	protected function get_revision_admin_url( $revision_id, $post_id ) {
+		global $wp_version;
+
+		if ( version_compare( $wp_version, '7.1', '>=' ) ) {
+			return admin_url(
+				sprintf(
+					'post.php?post=%1$d&action=edit&revision=%2$d',
+					$post_id,
+					$revision_id
+				)
+			);
+		}
+
+		return admin_url( 'revision.php?revision=' . $revision_id );
 	}
 
 	/**
@@ -1815,6 +1989,31 @@ class Post_Logger extends Logger {
 			if ( $has_diff_values || $diff_table_output ) {
 				$diff_table_output =
 					'<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
+			}
+
+			// Explain a missing "View this revision" link, but only when we can
+			// do so truthfully. Without this the link's absence invites the
+			// wrong conclusion — that the edit did not produce a revision —
+			// which is a false statement about the user's own history.
+			//
+			// Only the 'gone' state earns the note. 'unverifiable' means the id
+			// no longer resolves to this post's revision after a restore or
+			// migration, where the revision may well still exist; 'unknown'
+			// means we never recorded one. Neither can be reported as deleted.
+			//
+			// Gated on the same capability as the link itself, so we never
+			// explain the absence of something the reader could not have seen.
+			$post_id_for_revision = (int) ( $context['post_id'] ?? 0 );
+
+			if ( $post_id_for_revision && current_user_can( 'edit_post', $post_id_for_revision ) ) {
+				$revision_state = $this->get_event_revision_state( $context, $post_id_for_revision );
+
+				if ( $revision_state['status'] === 'gone' ) {
+					$inline_group->add_item(
+						( new Event_Details_Item( null, __( 'Revision', 'simple-history' ) ) )
+							->set_new_value( __( 'No longer stored by WordPress', 'simple-history' ) )
+					);
+				}
 			}
 
 			$groups = [];
