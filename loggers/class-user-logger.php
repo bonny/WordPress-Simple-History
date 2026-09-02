@@ -124,6 +124,11 @@ class User_Logger extends Logger {
 					'User was denied access to an admin page',
 					'simple-history'
 				),
+				self::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED => _x(
+					'Skipped logging {failed_login_suppressed_count} failed login attempts after the first {failed_login_threshold} in a row',
+					'Summary written when a burst of throttled failed logins ends',
+					'simple-history'
+				),
 			),
 			'labels'      => array(
 				'search' => array(
@@ -174,6 +179,9 @@ class User_Logger extends Logger {
 						_x( 'Admin page access denied', 'User logger: search', 'simple-history' ) => array(
 							'user_admin_page_access_denied',
 						),
+						_x( 'Skipped failed login attempts', 'User logger: search', 'simple-history' ) => array(
+							self::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED,
+						),
 					),
 				),
 
@@ -201,6 +209,17 @@ class User_Logger extends Logger {
 		'user_unknown_login_failed',
 		'user_application_password_unknown_login_failed',
 	];
+
+	/**
+	 * Message key for the summary written when a throttled burst of failed
+	 * logins ends. Deliberately not in the failed login key lists above:
+	 * the summary must never be counted or suppressed as a failed login itself.
+	 *
+	 * @since 5.32.0
+	 *
+	 * @var string
+	 */
+	public const MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED = 'user_failed_logins_suppressed';
 
 	/**
 	 * Get every message key that represents a failed login attempt.
@@ -1458,6 +1477,19 @@ class User_Logger extends Logger {
 						->set_new_value( $value )
 				);
 			}
+		} elseif ( $message_key === self::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED ) {
+			$group->add_items(
+				array(
+					new Event_Details_Item( 'failed_login_suppressed_count', _x( 'Attempts not logged', 'User logger', 'simple-history' ) ),
+					new Event_Details_Item( 'failed_login_threshold', _x( 'Attempts logged before skipping', 'User logger', 'simple-history' ) ),
+					( new Event_Details_Item( null, _x( 'First skipped attempt', 'User logger', 'simple-history' ) ) )
+						->set_new_value( $this->format_gmt_date_for_details( $context['failed_login_suppressed_first_date'] ?? '' ) ),
+					( new Event_Details_Item( null, _x( 'Last skipped attempt', 'User logger', 'simple-history' ) ) )
+						->set_new_value( $this->format_gmt_date_for_details( $context['failed_login_suppressed_last_date'] ?? '' ) ),
+					new Event_Details_Item( 'failed_login_last_username', _x( 'Last username tried', 'User logger', 'simple-history' ) ),
+					new Event_Details_Item( 'failed_login_last_ip', _x( 'Last IP address', 'User logger', 'simple-history' ) ),
+				)
+			);
 		}
 
 		// Common for both modified and added users.
@@ -1478,6 +1510,20 @@ class User_Logger extends Logger {
 		}
 
 		return $group;
+	}
+
+	/**
+	 * Format a GMT "Y-m-d H:i:s" string in the site's timezone and date settings.
+	 *
+	 * @param string $gmt_date Date string in GMT, as stored in event context.
+	 * @return string Formatted local date, or empty string when input is empty.
+	 */
+	private function format_gmt_date_for_details( $gmt_date ) {
+		if ( $gmt_date === '' ) {
+			return '';
+		}
+
+		return get_date_from_gmt( $gmt_date, get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) );
 	}
 
 	/**
