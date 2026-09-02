@@ -282,6 +282,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Content diffs used two different sets of greens and reds depending on how the event was stored. They now use the same colours as WordPress core's revision screen.
 -   "Edited your profile" events with no changed fields no longer appear when the block editor saves editor preferences in the background.
 -   Notes added to a word or phrase inside a block no longer show a literal `<br>` tag in the event details.
+-   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable. They now render as text and make no external request.
 
 **Security**
 
