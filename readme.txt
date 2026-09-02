@@ -288,6 +288,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   A note that starts with an @mention no longer shows the mention glued to the next word.
 -   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable. They now render as text and make no external request.
 -   Failed application password logins are now throttled like other failed logins, and no longer reset the count for ordinary failed logins. A brute-force attack against the REST API could previously flood the log with tens of thousands of events.
+-   Failed application password logins now group with failed form logins in the log, so a burst that mixes both shows as one row, and the "Failed user logins" filter finds both.
 -   Featured image changes on posts no longer show duplicate raw "thumb_id" and "thumb_title" rows, and an added or removed image now says "None" on the empty side instead of showing a blank box.
 -   Updating a theme or plugin by uploading a newer zip ("Replace installed with uploaded") is now logged as an update with the previous version, instead of as a new install.
 

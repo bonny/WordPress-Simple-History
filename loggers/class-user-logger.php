@@ -137,6 +137,8 @@ class User_Logger extends Logger {
 						_x( 'Failed user logins', 'User logger: search', 'simple-history' ) => array(
 							'user_login_failed',
 							'user_unknown_login_failed',
+							'user_application_password_login_failed',
+							'user_application_password_unknown_login_failed',
 						),
 						_x( 'Failed login (known user)', 'User logger: search', 'simple-history' ) => array(
 							'user_login_failed',
@@ -513,7 +515,10 @@ class User_Logger extends Logger {
 			'request_method'         => sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ),
 			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
 			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
-			'_occasionsID'           => self::class . '/failed_application_password_login',
+			// Same occasions group as failed logins through the login form. A
+			// brute force burst that mixes both channels then collapses into
+			// one row instead of alternating between two groups.
+			'_occasionsID'           => self::class . '/failed_user_login',
 		);
 
 		$is_unknown_user = in_array( $error_code, array( 'invalid_username', 'invalid_email' ), true );
