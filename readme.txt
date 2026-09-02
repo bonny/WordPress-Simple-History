@@ -266,11 +266,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Long diffs can now be expanded in place with a "Show full diff" button, instead of only scrolling inside a small box.
+-   Long diffs can now be expanded in place with an "Expand diff" button, instead of only scrolling inside a small box.
 
 **Changed**
 
--   Post and page events now link to the revision that change actually created, labelled "View this revision". On WordPress 7.1 and later the link opens the editor's visual revision view, where changed blocks are marked up in place.
+-   Post and page events now link to the revision that change actually created, labelled "View revision". On WordPress 7.1 and later the link opens the editor's visual revision view, where changed blocks are marked up in place.
 
 **Fixed**
 

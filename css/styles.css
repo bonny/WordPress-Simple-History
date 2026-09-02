@@ -1648,53 +1648,111 @@ Modal window with detailss
 
 /*
 Cropping used to be silent — a long diff just stopped, with nothing to say more
-existed. The fade signals that there is more below, and the toggle beside it
-opens the diff in place. Both are only added to diffs that actually overflow,
-by useExpandableDiffs.js.
-*/
-/*
+existed, which on a long diff can hide most of a recorded change while the row
+still looks complete. A fade marks the crop line and a toggle opens the diff in
+place. Both are added only to diffs that actually overflow, by
+useExpandableDiffs.js.
+
 A mask rather than a gradient overlay, for two reasons. It fades the content
 itself, so it works on rows that are not white — newly polled events and the
 highlighted permalink target both tint the row behind the diff. And it is
 anchored to the element's own box, so it stays at the bottom edge when the user
 hovers and scrolls inside the box, instead of drifting up over the text they
 are reading.
+
+Kept deliberately shallow. The fade can only ever be a supporting cue: whether
+it reads at all depends on what happens to sit at the crop line, and grey markup
+on white fades to almost nothing. The button below carries the message.
 */
 .SimpleHistory__diff__contents--isCropped {
 	-webkit-mask-image: linear-gradient(
 		to bottom,
-		rgb(0, 0, 0) calc(100% - 3em),
+		rgb(0, 0, 0) calc(100% - 1.5em),
 		rgba(0, 0, 0, 0) 100%
 	);
 	mask-image: linear-gradient(
 		to bottom,
-		rgb(0, 0, 0) calc(100% - 3em),
+		rgb(0, 0, 0) calc(100% - 1.5em),
 		rgba(0, 0, 0, 0) 100%
 	);
 }
 
-/* Once expanded there is nothing below to hint at, so the last line should be
-fully legible. */
-.SimpleHistory__diff__contents--isCropped.SimpleHistory__diff__contents--noContentsCrop {
+/*
+Expanding lifts the crop to a tall bound rather than removing it. Letting a
+long diff grow to its full height pushes the rest of the page — including the
+button that collapses it again — far below the viewport, so the action cannot
+be undone without hunting for the control. Bounded, the row stays a row and the
+scrollbar carries "there is more" on its own.
+*/
+.SimpleHistory__diff__contents--isExpanded {
+	max-height: 40em;
+	overflow-y: auto;
+}
+
+.SimpleHistory__diff__contents--isCropped.SimpleHistory__diff__contents--isExpanded {
 	-webkit-mask-image: none;
 	mask-image: none;
 }
 
+/*
+Right-aligned on purpose: it sits where the scrollbar appears, which is where
+the hand goes when someone realises the diff is cropped. The negative right
+margin hangs the padding past the text edge, mirroring what the action links
+below do on the left, so both rows share one optical edge.
+
+Styled as a control rather than a link — same hover treatment as the action
+links, no resting underline — because it changes this view instead of
+navigating away.
+*/
 .SimpleHistory__diff__expandToggle {
 	background: none;
 	border: 0;
-	color: rgb(0, 115, 170);
+	color: #2271b1;
 	cursor: pointer;
+	display: block;
+	font-size: var(--sh-font-size-small);
+	margin-top: var(--sh-spacing-xsmall);
+	margin-left: auto;
+	margin-right: calc(var(--sh-spacing-small) * -1);
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
+	text-decoration: none;
+}
+
+/*
+A chevron rather than one of the sh-Icon sprites, because it has to rotate to
+show state and the icon set has no chevron. Drawn from two borders so it takes
+currentColor and needs no asset.
+
+Keyed off aria-expanded rather than a class of its own, so the arrow and what
+screen readers announce are driven by the same attribute and cannot drift apart.
+*/
+.SimpleHistory__diff__expandToggle::after {
+	content: "";
 	display: inline-block;
-	font-size: 0.9em;
-	margin-top: 0.25em;
-	padding: 0.25em 0;
-	text-decoration: underline;
+	width: 0.35em;
+	height: 0.35em;
+	margin-left: 0.5em;
+	border-right: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	transform: translateY(-0.15em) rotate(45deg);
+	transition: transform 0.15s ease;
+}
+
+.SimpleHistory__diff__expandToggle[aria-expanded="true"]::after {
+	transform: translateY(0.1em) rotate(-135deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.SimpleHistory__diff__expandToggle::after {
+		transition: none;
+	}
 }
 
 .SimpleHistory__diff__expandToggle:hover,
 .SimpleHistory__diff__expandToggle:focus-visible {
-	color: rgb(0, 86, 132);
+	background-color: var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius);
+	color: #135e96;
 }
 
 .SimpleHistory__diff__contents:focus {

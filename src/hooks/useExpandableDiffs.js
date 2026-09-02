@@ -4,7 +4,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Diff containers are cropped to a fixed height by CSS. Anything taller is
  * silently cut off and can only be read by scrolling inside a small box, with
- * nothing to indicate there is more below.
+ * nothing to indicate there is more below — on a long diff that can hide the
+ * overwhelming majority of a recorded change while the row still looks complete.
  *
  * This adds an expand toggle, but only to the diffs that are actually cropped.
  * That "actually" is why this is JavaScript and not markup: whether a diff
@@ -19,8 +20,22 @@ import { __ } from '@wordpress/i18n';
  */
 
 const CONTENTS_SELECTOR = '.SimpleHistory__diff__contents';
+
+/**
+ * Set statically in PHP by diffs that opt out of cropping altogether, such as
+ * the before/after thumbnail comparison. Nothing to expand there.
+ */
 const NO_CROP_CLASS = 'SimpleHistory__diff__contents--noContentsCrop';
+
 const CROPPED_CLASS = 'SimpleHistory__diff__contents--isCropped';
+
+/**
+ * Deliberately not NO_CROP_CLASS: expanding lifts the crop to a tall-but-bounded
+ * height rather than removing it, so a very long diff does not push the rest of
+ * the page — and this button — far out of reach.
+ */
+const EXPANDED_CLASS = 'SimpleHistory__diff__contents--isExpanded';
+
 const TOGGLE_CLASS = 'SimpleHistory__diff__expandToggle';
 
 /**
@@ -29,8 +44,24 @@ const TOGGLE_CLASS = 'SimpleHistory__diff__expandToggle';
  */
 const OVERFLOW_TOLERANCE = 4;
 
+/** Used to give each diff a stable id for aria-controls. */
+let idCounter = 0;
+
 /**
  * Set the toggle's label and state to match whether its diff is expanded.
+ *
+ * "Expand" rather than "Show full diff", because expanding raises the height
+ * limit but does not remove it — a very long diff is still scrollable once
+ * open, so promising the full diff would be a promise the control does not
+ * keep. Naming the object ("diff") also keeps each button distinguishable in a
+ * screen reader's button list, where a page of events would otherwise present a
+ * stack of identical "Show more" controls.
+ *
+ * No count of hidden lines is offered. It cannot be measured honestly: the diff
+ * is a table whose every row holds both the before and after column, and either
+ * cell may wrap to several visual lines, so neither table rows nor pixel
+ * heights correspond to lines as a reader perceives them. A number that looks
+ * precise and is not would be worse than no number.
  *
  * @param {HTMLElement} button
  * @param {boolean}     isExpanded
@@ -38,8 +69,8 @@ const OVERFLOW_TOLERANCE = 4;
 function setToggleState( button, isExpanded ) {
 	button.setAttribute( 'aria-expanded', isExpanded ? 'true' : 'false' );
 	button.textContent = isExpanded
-		? __( 'Show less', 'simple-history' )
-		: __( 'Show full diff', 'simple-history' );
+		? __( 'Collapse diff', 'simple-history' )
+		: __( 'Expand diff', 'simple-history' );
 }
 
 /**
@@ -59,14 +90,27 @@ function attachToggle( contents ) {
 	let button = null;
 
 	const onClick = () => {
-		const isExpanded = contents.classList.toggle( NO_CROP_CLASS );
+		const isExpanded = contents.classList.toggle( EXPANDED_CLASS );
 		setToggleState( button, isExpanded );
+
+		// Collapsing removes a lot of height at once, so without this the
+		// button and everything below it jump up the screen by however tall
+		// the diff was. Disorienting in general, worse when zoomed in.
+		if ( ! isExpanded ) {
+			contents.scrollIntoView( { block: 'nearest' } );
+		}
 	};
 
 	const addButton = () => {
+		if ( ! contents.id ) {
+			idCounter += 1;
+			contents.id = `sh-diff-contents-${ idCounter }`;
+		}
+
 		button = document.createElement( 'button' );
 		button.type = 'button';
 		button.className = TOGGLE_CLASS;
+		button.setAttribute( 'aria-controls', contents.id );
 		setToggleState( button, false );
 		button.addEventListener( 'click', onClick );
 		contents.after( button );
@@ -77,13 +121,14 @@ function attachToggle( contents ) {
 		button.removeEventListener( 'click', onClick );
 		button.remove();
 		button = null;
-		contents.classList.remove( CROPPED_CLASS, NO_CROP_CLASS );
+		contents.classList.remove( CROPPED_CLASS, EXPANDED_CLASS );
 	};
 
 	const sync = () => {
-		// An expanded diff is taller than its limit by definition, so re-measuring
-		// it would always read as cropped. Leave the user's choice alone.
-		if ( button && contents.classList.contains( NO_CROP_CLASS ) ) {
+		// An expanded diff is taller than its collapsed limit by definition, so
+		// re-measuring it would always read as cropped. Leave the user's choice
+		// alone.
+		if ( button && contents.classList.contains( EXPANDED_CLASS ) ) {
 			return;
 		}
 
@@ -138,7 +183,6 @@ export function useExpandableDiffs( ref, resetOnDep ) {
 		const cleanups = [];
 
 		root.querySelectorAll( CONTENTS_SELECTOR ).forEach( ( contents ) => {
-			// Some diffs opt out of cropping entirely, so there is nothing to expand.
 			if ( contents.classList.contains( NO_CROP_CLASS ) ) {
 				return;
 			}
