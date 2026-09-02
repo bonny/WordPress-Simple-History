@@ -27,6 +27,8 @@ class LicencesSettingsPageActivationMessageTest extends \Codeception\TestCase\WP
 		$html = $this->page->get_activation_error_message( 'This license key has reached the activation limit.' );
 
 		$this->assertStringContainsString( 'already active on another site', $html );
+		$this->assertStringContainsString( 'href="https://app.lemonsqueezy.com/my-orders/"', $html, 'Buyers can deactivate old sites themselves on My orders' );
+		$this->assertStringContainsString( 'href="https://simple-history.com/support/add-ons/license-activation-limit/', $html );
 		$this->assertStringContainsString( 'href="https://simple-history.com/contact/', $html );
 		$this->assertStringContainsString( 'Settings → Licences', $html, 'Spelling must match the tab name' );
 
@@ -34,7 +36,6 @@ class LicencesSettingsPageActivationMessageTest extends \Codeception\TestCase\WP
 		// read-more link would only repeat it.
 		$this->assertStringNotContainsString( '<code>', $html );
 		$this->assertStringNotContainsString( 'Error info', $html );
-		$this->assertStringNotContainsString( 'support/add-ons', $html );
 	}
 
 	public function test_other_errors_keep_the_generic_message() {

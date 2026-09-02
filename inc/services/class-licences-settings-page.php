@@ -254,11 +254,15 @@ class Licences_Settings_Page extends Service {
 			return __( 'Could not activate license. 😢', 'simple-history' ) . ' ' . $error_info;
 		}
 
-		$contact_url = Helpers::get_tracking_url( 'https://simple-history.com/contact/', 'licences_activation_limit' );
+		$my_orders_url = 'https://app.lemonsqueezy.com/my-orders/';
+		$guide_url     = Helpers::get_tracking_url( 'https://simple-history.com/support/add-ons/license-activation-limit/', 'licences_activation_limit' );
+		$contact_url   = Helpers::get_tracking_url( 'https://simple-history.com/contact/', 'licences_activation_limit' );
 
 		return sprintf(
-			/* translators: %s: URL to the contact page. */
-			__( '<strong>This license key is already active on another site</strong>, often an earlier copy of this one such as a backup or staging site. Deactivate it there under Simple History → Settings → Licences and try again. If that site no longer exists, <a href="%s" class="sh-ExternalLink" target="_blank">contact support</a> and we will free up the activation.', 'simple-history' ),
+			/* translators: 1: URL to the Lemon Squeezy "My orders" page, 2: URL to the support guide, 3: URL to the contact page. */
+			__( '<strong>This license key is already active on another site</strong>, often an earlier copy of this one such as a backup or staging site. Deactivate that site on your <a href="%1$s" class="sh-ExternalLink" target="_blank">My orders page</a> at Lemon Squeezy, or under Simple History → Settings → Licences on the site itself, then try again. <a href="%2$s" class="sh-ExternalLink" target="_blank">Read the guide</a> or <a href="%3$s" class="sh-ExternalLink" target="_blank">contact support</a> if you get stuck.', 'simple-history' ),
+			esc_url( $my_orders_url ),
+			esc_url( $guide_url ),
 			esc_url( $contact_url )
 		);
 	}
