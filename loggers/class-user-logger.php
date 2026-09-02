@@ -693,6 +693,32 @@ class User_Logger extends Logger {
 	}
 
 	/**
+	 * Profile fields diffed on update: the users-table columns plus the meta
+	 * fields WordPress's own profile form saves through wp_update_user().
+	 *
+	 * @var string[]
+	 */
+	private const PROFILE_FIELDS_TO_DIFF = [
+		'user_login',
+		'user_pass',
+		'user_nicename',
+		'user_email',
+		'user_url',
+		'display_name',
+		'nickname',
+		'first_name',
+		'last_name',
+		'description',
+		'rich_editing',
+		'syntax_highlighting',
+		'comment_shortcuts',
+		'admin_color',
+		'use_ssl',
+		'show_admin_bar_front',
+		'locale',
+	];
+
+	/**
 	 * Filters user data before the record is created or updated.
 	 * Used to gather user profile updates.
 	 *
@@ -745,10 +771,24 @@ class User_Logger extends Logger {
 		// Get user object that contains old/existing values.
 		$user_before_update = get_user_by( 'ID', $user_id );
 
+		if ( ! $user_before_update instanceof \WP_User ) {
+			return $data;
+		}
+
 		$password_changed = false;
 
 		foreach ( $userdata as $option_key => $one_maybe_updated_option_value ) {
-			$prev_option_value = $user_before_update->$option_key;
+			// Only diff fields this logger knows how to read back. $userdata holds
+			// everything handed to wp_update_user(): the role, and any field a
+			// plugin adds to the profile form. Reading those off WP_User falls
+			// through to user meta, which is often empty, so each save produced a
+			// "" -> value diff and logged an edit that never happened. The role is
+			// diffed separately below from the roles array.
+			if ( ! in_array( $option_key, self::PROFILE_FIELDS_TO_DIFF, true ) ) {
+				continue;
+			}
+
+			$prev_option_value = $user_before_update->get( $option_key );
 			$add_diff          = true;
 
 			// Some options need special treatment.

@@ -283,7 +283,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Copy event message" and "Copy as Markdown" put the site's time on the clipboard while the log on screen showed the visitor's own.
 -   The revisions link on post events opened the newest revision instead of the one belonging to the event, so an older event could show today's content.
 -   Content diffs used two different sets of greens and reds depending on how the event was stored. They now use the same colours as WordPress core's revision screen.
--   "Edited your profile" events with no changed fields no longer appear out of nowhere. The block editor saves your editor preferences to your user record whenever one changes — opening the settings sidebar, collapsing a panel, dismissing the welcome guide — and each save was logged as a profile edit.
+-   "Edited your profile" events with no changed fields no longer appear out of nowhere. The block editor saves your editor preferences to your user record whenever one changes — opening the settings sidebar, collapsing a panel, dismissing the welcome guide — and each save was logged as a profile edit. Clicking "Update User" on another user's profile without changing anything also logged an edit, with a role change from nothing to their current role that never happened.
 -   Notes added to a word or phrase inside a block, a WordPress 7.1 addition to the notes feature from 6.9, no longer show a literal `<br>` tag in the event details.
 -   A note that starts with an @mention no longer shows the mention glued to the next word.
 -   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable. They now render as text and make no external request.

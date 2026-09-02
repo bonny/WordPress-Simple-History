@@ -114,6 +114,97 @@ class UserLoggerGhostProfileEditTest extends \Codeception\TestCase\WPTestCase {
 		$this->assert_context_has( $context, 'edited_user_password_changed', '1' );
 	}
 
+	/**
+	 * user-edit.php posts every profile field, including role and any fields
+	 * plugins add to the form. Keys that are not WP_User properties resolve to
+	 * empty user meta on the old user object, so they produced a "" -> value
+	 * diff on every save and the guard above let the ghost event through.
+	 */
+	public function test_saving_another_user_with_unchanged_role_does_not_log_profile_edit() {
+		$editor_id = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$editor    = get_user_by( 'ID', $editor_id );
+
+		$count_before = $this->get_event_count();
+
+		// The shape edit_user() hands to wp_update_user() when nothing was changed.
+		wp_update_user(
+			array(
+				'ID'           => $editor_id,
+				'role'         => 'editor',
+				'user_email'   => $editor->user_email,
+				'display_name' => $editor->display_name,
+				'first_name'   => '',
+				'last_name'    => '',
+				'nickname'     => $editor->nickname,
+			)
+		);
+
+		$this->assertEquals(
+			$count_before,
+			$this->get_event_count(),
+			'Saving another user without changing anything must not log a profile edit'
+		);
+	}
+
+	public function test_unknown_plugin_field_does_not_log_profile_edit() {
+		$editor_id    = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$count_before = $this->get_event_count();
+
+		wp_update_user(
+			array(
+				'ID'                 => $editor_id,
+				'infinite_scrolling' => 'true',
+			)
+		);
+
+		$this->assertEquals(
+			$count_before,
+			$this->get_event_count(),
+			'A field the logger does not track must not produce a profile edit'
+		);
+	}
+
+	public function test_role_change_still_logs() {
+		$editor_id    = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$count_before = $this->get_event_count();
+
+		wp_update_user(
+			array(
+				'ID'   => $editor_id,
+				'role' => 'author',
+			)
+		);
+
+		// Under REST the set_user_role handler logs a user_role_updated event
+		// as well, so only require that the profile edit was logged on top.
+		$this->assertGreaterThan( $count_before, $this->get_event_count(), 'A role change must still log' );
+
+		$context = get_latest_context();
+		$this->assert_context_has( $context, '_message_key', 'user_updated_profile' );
+		$this->assert_context_has( $context, 'user_added_roles', 'author' );
+		$this->assert_context_has( $context, 'user_removed_roles', 'editor' );
+		$this->assertNotContains(
+			'user_prev_role',
+			array_column( $context, 'key' ),
+			'role must not be diffed as a plain field; the roles diff covers it'
+		);
+	}
+
+	public function test_core_profile_meta_change_still_logs() {
+		$editor_id    = $this->factory->user->create( array( 'role' => 'editor' ) );
+		$count_before = $this->get_event_count();
+
+		wp_update_user(
+			array(
+				'ID'         => $editor_id,
+				'first_name' => 'Erik',
+			)
+		);
+
+		$this->assertEquals( $count_before + 1, $this->get_event_count(), 'A first name change must still log' );
+		$this->assert_context_has( get_latest_context(), 'user_new_first_name', 'Erik' );
+	}
+
 	private function assert_context_has( array $context, string $key, string $value ): void {
 		$this->assertContains(
 			array( 'key' => $key, 'value' => $value ),
