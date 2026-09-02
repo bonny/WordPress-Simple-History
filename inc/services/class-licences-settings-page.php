@@ -258,13 +258,39 @@ class Licences_Settings_Page extends Service {
 		$guide_url     = Helpers::get_tracking_url( 'https://simple-history.com/support/license-activation-limit/', 'licences_activation_limit' );
 		$contact_url   = Helpers::get_tracking_url( 'https://simple-history.com/contact/', 'licences_activation_limit' );
 
-		return sprintf(
-			/* translators: 1: URL to the Lemon Squeezy "My orders" page, 2: URL to the support guide, 3: URL to the contact page. */
-			__( '<strong>This license key is already active on another site</strong>, often an earlier copy of this one such as a backup or staging site.<br>Deactivate that site on your <a href="%1$s" class="sh-ExternalLink" target="_blank">My orders page</a> at Lemon Squeezy, then try again.<br><a href="%2$s" class="sh-ExternalLink" target="_blank">Read the guide</a> or <a href="%3$s" class="sh-ExternalLink" target="_blank">contact support</a> if you get stuck.', 'simple-history' ),
-			esc_url( $my_orders_url ),
-			esc_url( $guide_url ),
-			esc_url( $contact_url )
+		$link_end = '</a>';
+
+		// One short string per line, with the link tags passed in as
+		// placeholders, so translators never have to reproduce markup.
+		$line_what = __( '<strong>This license key is already active on another site</strong>, often an earlier copy of this one such as a backup or staging site.', 'simple-history' );
+
+		$line_fix = sprintf(
+			/* translators: 1: link start tag to the Lemon Squeezy "My orders" page, 2: link end tag. */
+			__( 'Deactivate that site on your %1$sMy orders page%2$s at Lemon Squeezy, then try again.', 'simple-history' ),
+			$this->get_external_link_start( $my_orders_url ),
+			$link_end
 		);
+
+		$line_help = sprintf(
+			/* translators: 1: link start tag to the guide, 2: link end tag, 3: link start tag to the contact page, 4: link end tag. */
+			__( '%1$sRead the guide%2$s or %3$scontact support%4$s if you get stuck.', 'simple-history' ),
+			$this->get_external_link_start( $guide_url ),
+			$link_end,
+			$this->get_external_link_start( $contact_url ),
+			$link_end
+		);
+
+		return $line_what . '<br>' . $line_fix . '<br>' . $line_help;
+	}
+
+	/**
+	 * Opening tag for a link that opens in a new tab, for use as a translation placeholder.
+	 *
+	 * @param string $url Link target.
+	 * @return string
+	 */
+	private function get_external_link_start( $url ) {
+		return sprintf( '<a href="%s" class="sh-ExternalLink" target="_blank">', esc_url( $url ) );
 	}
 
 	/**
