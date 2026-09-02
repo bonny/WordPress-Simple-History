@@ -120,6 +120,8 @@ function EventsGUI() {
 	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
 		useState( 0 );
 	const [ isReactionsEnabled, setIsReactionsEnabled ] = useState( false );
+	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
+		useState( false );
 	// Seeded from the value localized at enqueue time (see React_Dropin) so links
 	// can be built on the first render. The search-options response overwrites it
 	// with the same value once it arrives.
@@ -758,6 +760,7 @@ function EventsGUI() {
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
 			reactionsEnabled: isReactionsEnabled,
+			experimentalFeaturesEnabled: isExperimentalFeaturesEnabled,
 			eventsSettingsPageURL: settingsPageURL,
 			alertsPageURL,
 			eventsAdminPageURL,
@@ -775,6 +778,7 @@ function EventsGUI() {
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
 			isReactionsEnabled,
+			isExperimentalFeaturesEnabled,
 			settingsPageURL,
 			alertsPageURL,
 			eventsAdminPageURL,
@@ -830,6 +834,9 @@ function EventsGUI() {
 						setFailedLoginSuppressedCount
 					}
 					setIsReactionsEnabled={ setIsReactionsEnabled }
+					setIsExperimentalFeaturesEnabled={
+						setIsExperimentalFeaturesEnabled
+					}
 					eventsAdminPageURL={ eventsAdminPageURL }
 					setEventsAdminPageURL={ setEventsAdminPageURL }
 					setEventsSettingsPageURL={ setSettingsPageURL }

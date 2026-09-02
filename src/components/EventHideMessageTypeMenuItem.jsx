@@ -9,16 +9,26 @@ import { useEventsSettings } from './EventsSettingsContext';
  * like the other filters and is undone from the chips above the list.
  * The permanent "stop logging this" is a different feature.
  *
+ * Experimental: the chips it adds above the list are a new kind of filter
+ * UI, and how negative filters fit the filter bar as a whole is still an
+ * open question. Off until experimental features are enabled.
+ *
  * @param {Object}   props
  * @param {Object}   props.event   The event.
  * @param {Function} props.onClose Close the dropdown menu.
  */
 export function EventHideMessageTypeMenuItem( { event, onClose } ) {
-	const { canFilterEventsInPlace, hideMessageType } = useEventsSettings();
+	const {
+		experimentalFeaturesEnabled,
+		canFilterEventsInPlace,
+		hideMessageType,
+	} = useEventsSettings();
 
-	// Only where this GUI owns the filters (not the dashboard widget or the
-	// admin bar), and only for events that have a type to hide.
+	// Only with experimental features on, only where this GUI owns the filters
+	// (not the dashboard widget or the admin bar), and only for events that
+	// have a type to hide.
 	if (
+		! experimentalFeaturesEnabled ||
 		! canFilterEventsInPlace ||
 		! hideMessageType ||
 		! event?.logger ||

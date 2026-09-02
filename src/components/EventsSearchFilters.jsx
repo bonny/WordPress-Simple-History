@@ -56,6 +56,7 @@ export function EventsSearchFilters( props ) {
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
 		setIsReactionsEnabled,
+		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setAlertsPageURL,
@@ -213,6 +214,12 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.reactions_enabled
 				);
 
+				setIsExperimentalFeaturesEnabled(
+					Boolean(
+						searchOptionsResponse.experimental_features_enabled
+					)
+				);
+
 				setHasFailedLoginLimit(
 					searchOptionsResponse.has_failed_login_limit
 				);
@@ -277,6 +284,7 @@ export function EventsSearchFilters( props ) {
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
 		setIsReactionsEnabled,
+		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setAlertsPageURL,
