@@ -1808,19 +1808,19 @@ screen readers announce are driven by the same attribute and cannot drift apart.
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-ins td.new {
-	background: #dfd;
+	background: var(--sh-diff-added-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-del td.old {
-	background: #fdd;
+	background: var(--sh-diff-removed-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.old {
-	background: #fdd;
+	background: var(--sh-diff-removed-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.new {
-	background: #dfd;
+	background: var(--sh-diff-added-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side td.none {
@@ -1828,12 +1828,18 @@ screen readers announce are driven by the same attribute and cannot drift apart.
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side ins {
-	background: #9e9;
+	background: var(--sh-diff-added-inline-background);
 	text-decoration: none;
 }
 
+/*
+Core sets text-decoration:none on its own del, because its rows already carry
+a minus glyph. This renderer has no such marker, so the strike-through is the
+only non-colour signal that text was removed — keep it, or the distinction
+rests on colour alone.
+*/
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side del {
-	background: #e99;
+	background: var(--sh-diff-removed-inline-background);
 	text-decoration: line-through;
 }
 
