@@ -1053,14 +1053,30 @@ i.e. the log is inside a .postbox element.
 }
 
 /* Without icons the grey labels run together, so a dot marks each boundary.
-   Spacing is 8px on both sides of the dot: the neighbouring paddings before
-   it, the flex gap plus this margin after it. */
+   The dot is drawn outside the link box, in the margin between two links, so
+   the hover background wraps the label only and never the separator. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks__link {
+	position: relative;
+}
+
+.SimpleHistoryReactRoot.is-dashboard
+	.SimpleHistoryLogitem__actionLinks__link
+	+ .SimpleHistoryLogitem__actionLinks__link {
+	margin-left: var(--sh-spacing-small);
+}
+
 .SimpleHistoryReactRoot.is-dashboard
 	.SimpleHistoryLogitem__actionLinks__link
 	+ .SimpleHistoryLogitem__actionLinks__link::before {
 	content: "·";
+	position: absolute;
+	top: 50%;
+	left: calc(var(--sh-spacing-small) * -1);
+	width: var(--sh-spacing-small);
+	transform: translateY(-50%);
+	text-align: center;
 	color: var(--sh-color-gray-2);
-	margin-right: var(--sh-spacing-xsmall);
+	pointer-events: none;
 }
 
 /* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
