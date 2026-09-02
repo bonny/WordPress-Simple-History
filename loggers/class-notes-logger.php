@@ -232,7 +232,15 @@ class Notes_Logger extends Logger {
 		// "<span class=\"wp-note-mention user-2\">@name</span>nice!", and the
 		// editor draws the gap with CSS. Put a real space there so stripping
 		// the span does not glue "@name" to "nice!".
-		$content = preg_replace( '#(<span class="wp-note-mention[^"]*">[^<]*</span>)(?=\S)#', '$1 ', $content );
+		//
+		// Match the chip the way core's wp_get_note_mentioned_user_ids() does:
+		// a span whose class list contains the wp-note-mention token, whatever
+		// the token order, attribute order, quote style or tag case.
+		$content = preg_replace(
+			'#(<span\b[^>]*\bclass\s*=\s*(["\'])(?:[^"\']*\s)?wp-note-mention(?:\s[^"\']*)?\2[^>]*>[^<]*</span>)(?=\S)#i',
+			'$1 ',
+			$content
+		);
 
 		// Entities such as &lt; stay encoded, as WordPress stored them. Decoding
 		// here would turn a kses-neutralised payload from a Contributor back

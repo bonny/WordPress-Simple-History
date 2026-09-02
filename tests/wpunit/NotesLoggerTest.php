@@ -405,6 +405,59 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * The mention chip is matched the way core matches it: a span carrying the
+	 * wp-note-mention class token, whatever the class order or quote style.
+	 *
+	 * @dataProvider mention_markup_variants
+	 */
+	public function test_mention_is_recognised_regardless_of_class_order_and_quotes( string $markup ) {
+		wp_insert_comment(
+			[
+				'comment_post_ID'  => $this->post_id,
+				'comment_content'  => $markup . 'nice!',
+				'comment_type'     => 'note',
+				'comment_approved' => 1,
+				'user_id'          => $this->admin_user_id,
+			]
+		);
+
+		$this->assertContains(
+			[ 'key' => 'note_content', 'value' => '@simple-history nice!' ],
+			get_latest_context()
+		);
+	}
+
+	public function mention_markup_variants(): array {
+		return [
+			'classes swapped'  => [ '<span class="user-2 wp-note-mention">@simple-history</span>' ],
+			'single quotes'    => [ "<span class='wp-note-mention user-2'>@simple-history</span>" ],
+			'other attr first' => [ '<span data-x="1" class="wp-note-mention user-2">@simple-history</span>' ],
+			'upper case tag'   => [ '<SPAN CLASS="wp-note-mention user-2">@simple-history</SPAN>' ],
+		];
+	}
+
+	/**
+	 * A span that merely contains the class name as part of a longer token
+	 * is not a mention and must not get a space.
+	 */
+	public function test_span_with_a_similar_class_is_not_treated_as_a_mention() {
+		wp_insert_comment(
+			[
+				'comment_post_ID'  => $this->post_id,
+				'comment_content'  => '<span class="wp-note-mentions-off">@x</span>y',
+				'comment_type'     => 'note',
+				'comment_approved' => 1,
+				'user_id'          => $this->admin_user_id,
+			]
+		);
+
+		$this->assertContains(
+			[ 'key' => 'note_content', 'value' => '@xy' ],
+			get_latest_context()
+		);
+	}
+
+	/**
 	 * A mention already followed by a space must not get a second one.
 	 */
 	public function test_mention_followed_by_a_space_is_not_double_spaced() {
