@@ -271,6 +271,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   Post and page events now link to the revision that change actually created, labelled "View revision". On WordPress 7.1 and later the link opens the editor's visual revision view, where changed blocks are marked up in place.
+-   Site icon changes now show the old and new icon as images instead of attachment IDs.
 -   Experimental — Event fields sent to AI tools and MCP clients through the WordPress Abilities API now carry readable labels and descriptions, so a client shows "Date (UTC)" and "Times Repeated" instead of raw field names. Follows the [output schema conventions added in WordPress 7.1](https://make.wordpress.org/core/2026/07/31/abilities-api-improvements-in-wordpress-7-1/); the Abilities API itself needs WordPress 6.9 or later.
 
 **Fixed**

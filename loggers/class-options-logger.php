@@ -723,6 +723,46 @@ class Options_Logger extends Logger {
 	}
 
 	/**
+	 * Add context for option site_icon.
+	 *
+	 * Captures the icon URL and filename at log time so the event can still
+	 * say what the icon was if the attachment is deleted later.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return array context
+	 */
+	protected function add_context_for_option_site_icon( $context, $old_value, $new_value, $option, $option_page ) {
+		foreach ( [
+			'old' => $old_value,
+			'new' => $new_value,
+		] as $prefix => $attachment_id ) {
+			if ( empty( $attachment_id ) || ! is_numeric( $attachment_id ) ) {
+				continue;
+			}
+
+			$url = wp_get_attachment_image_url( (int) $attachment_id, 'thumbnail' );
+
+			if ( $url ) {
+				$context[ "{$prefix}_site_icon_url" ] = $url;
+			}
+
+			$attached_file = get_attached_file( (int) $attachment_id );
+
+			if ( ! $attached_file ) {
+				continue;
+			}
+
+			$context[ "{$prefix}_site_icon_filename" ] = wp_basename( $attached_file );
+		}
+
+		return $context;
+	}
+
+	/**
 	 * "default_category" = Writing Settings » Default Post Category
 	 *
 	 * @param array  $context context.
@@ -856,6 +896,97 @@ class Options_Logger extends Logger {
 	 */
 	protected function get_details_output_for_option_default_email_category( $context, $old_value, $new_value, $option, $option_page, $tmpl_row ) {
 		return call_user_func_array( array( $this, 'get_details_output_for_option_default_category' ), func_get_args() );
+	}
+
+	/**
+	 * Get Event_Details_Group for site_icon option.
+	 *
+	 * Shows the old and new icon as small images instead of attachment IDs.
+	 *
+	 * @param array  $context context.
+	 * @param mixed  $old_value old value.
+	 * @param mixed  $new_value new value.
+	 * @param string $option option name.
+	 * @param string $option_page option page name.
+	 * @return Event_Details_Group
+	 */
+	protected function get_details_group_for_option_site_icon( $context, $old_value, $new_value, $option, $option_page ) {
+		$new = $this->get_site_icon_value_output( $new_value, $context['new_site_icon_url'] ?? '', $context['new_site_icon_filename'] ?? '' );
+		$old = $this->get_site_icon_value_output( $old_value, $context['old_site_icon_url'] ?? '', $context['old_site_icon_filename'] ?? '' );
+
+		$html = sprintf(
+			'<em>%1$s:</em> <ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins> <del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>',
+			esc_html( $this->get_inline_diff_label( $option ) ),
+			$new['html'],
+			$old['html']
+		);
+
+		$json = [
+			'name'       => $this->get_inline_diff_label( $option ),
+			'new_value'  => $new['plain'],
+			'prev_value' => $old['plain'],
+		];
+
+		return Event_Details_Group::create_raw( $html, $json );
+	}
+
+	/**
+	 * Build the HTML and plain-text representation of one site icon value.
+	 *
+	 * @param mixed  $attachment_id Attachment ID, or 0 for no icon.
+	 * @param string $captured_url  Icon URL captured when the event was logged.
+	 * @param string $filename      Icon filename captured when the event was logged.
+	 * @return array{html: string, plain: string}
+	 */
+	private function get_site_icon_value_output( $attachment_id, $captured_url, $filename ) {
+		$attachment_id = (int) $attachment_id;
+
+		// A value of 0 means no site icon.
+		if ( $attachment_id === 0 ) {
+			$none = __( 'None', 'simple-history' );
+
+			return [
+				'html'  => esc_html( $none ),
+				'plain' => $none,
+			];
+		}
+
+		$image_src = wp_get_attachment_image_src( $attachment_id, 'thumbnail' );
+
+		if ( $image_src ) {
+			$image_html = sprintf(
+				'<img src="%1$s" alt="" width="32" height="32" style="vertical-align: middle;">',
+				esc_url( $image_src[0] )
+			);
+
+			$edit_link = get_edit_post_link( $attachment_id );
+
+			if ( $edit_link ) {
+				$image_html = sprintf( '<a href="%1$s">%2$s</a>', esc_url( $edit_link ), $image_html );
+			}
+
+			return [
+				'html'  => $image_html,
+				'plain' => $image_src[0],
+			];
+		}
+
+		// Attachment is gone. Fall back to what was captured at log time.
+		if ( $filename ) {
+			$text = sprintf(
+				/* translators: 1: image filename, 2: attachment ID. */
+				__( '%1$s (ID %2$d)', 'simple-history' ),
+				$filename,
+				$attachment_id
+			);
+		} else {
+			$text = (string) $attachment_id;
+		}
+
+		return [
+			'html'  => esc_html( $text ),
+			'plain' => $captured_url ? $captured_url : $text,
+		];
 	}
 
 	/**
