@@ -84,6 +84,30 @@ class ThemeLoggerZipOverwriteTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( '1.0.0', $context['theme_prev_version'] );
 	}
 
+	public function test_overwriting_with_an_older_zip_logs_theme_downgraded() {
+		$this->write_theme_dir( '3.0.0' );
+		wp_clean_themes_cache();
+
+		$this->install_zip( true );
+
+		$context = $this->context_to_assoc( get_latest_context() );
+		$this->assertSame( 'theme_downgraded', $context['_message_key'] );
+		$this->assertSame( '2.0.0', $context['theme_version'] );
+		$this->assertSame( '3.0.0', $context['theme_prev_version'] );
+	}
+
+	public function test_overwriting_with_the_same_version_logs_theme_reinstalled() {
+		$this->write_theme_dir( '2.0.0' );
+		wp_clean_themes_cache();
+
+		$this->install_zip( true );
+
+		$context = $this->context_to_assoc( get_latest_context() );
+		$this->assertSame( 'theme_reinstalled', $context['_message_key'] );
+		$this->assertSame( '2.0.0', $context['theme_version'] );
+		$this->assertSame( '2.0.0', $context['theme_prev_version'] );
+	}
+
 	public function test_installing_a_new_theme_from_a_zip_still_logs_theme_installed() {
 		wp_clean_themes_cache();
 		$this->assertFalse( wp_get_theme( self::SLUG )->exists() );

@@ -77,6 +77,30 @@ class PluginLoggerZipOverwriteTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( '1.0.0', $context['plugin_prev_version'] );
 	}
 
+	public function test_overwriting_with_an_older_zip_logs_plugin_downgraded() {
+		$this->write_plugin_dir( '3.0.0' );
+		wp_clean_plugins_cache( false );
+
+		$this->install_zip( true );
+
+		$context = $this->context_to_assoc( get_latest_context() );
+		$this->assertSame( 'plugin_downgraded', $context['_message_key'] );
+		$this->assertSame( '2.0.0', $context['plugin_version'] );
+		$this->assertSame( '3.0.0', $context['plugin_prev_version'] );
+	}
+
+	public function test_overwriting_with_the_same_version_logs_plugin_reinstalled() {
+		$this->write_plugin_dir( '2.0.0' );
+		wp_clean_plugins_cache( false );
+
+		$this->install_zip( true );
+
+		$context = $this->context_to_assoc( get_latest_context() );
+		$this->assertSame( 'plugin_reinstalled', $context['_message_key'] );
+		$this->assertSame( '2.0.0', $context['plugin_version'] );
+		$this->assertSame( '2.0.0', $context['plugin_prev_version'] );
+	}
+
 	public function test_installing_a_new_plugin_from_a_zip_still_logs_plugin_installed() {
 		wp_clean_plugins_cache( false );
 		$this->assertArrayNotHasKey( self::SLUG . '/' . self::SLUG . '.php', get_plugins() );

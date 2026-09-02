@@ -59,6 +59,8 @@ class Theme_Logger extends Logger {
 				'theme_deleted'             => __( 'Deleted theme "{theme_name}"', 'simple-history' ),
 				'theme_updated'             => __( 'Updated theme "{theme_name}" to version {theme_version} from {theme_prev_version}', 'simple-history' ),
 				'theme_update_failed'       => __( 'Failed to update theme "{theme_name}"', 'simple-history' ),
+				'theme_downgraded'          => __( 'Downgraded theme "{theme_name}" to version {theme_version} from {theme_prev_version}', 'simple-history' ),
+				'theme_reinstalled'         => __( 'Reinstalled theme "{theme_name}" version {theme_version}', 'simple-history' ),
 				'appearance_customized'     => __( 'Customized theme appearance "{setting_id}"', 'simple-history' ),
 				'widget_removed'            => __( 'Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', 'simple-history' ),
 				'widget_added'              => __( 'Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', 'simple-history' ),
@@ -73,6 +75,8 @@ class Theme_Logger extends Logger {
 					'options'   => array(
 						_x( 'Updated themes', 'Theme logger: search', 'simple-history' ) => array(
 							'theme_updated',
+							'theme_downgraded',
+							'theme_reinstalled',
 						),
 						_x( 'Deleted themes', 'Theme logger: search', 'simple-history' ) => array(
 							'theme_deleted',
@@ -448,8 +452,9 @@ class Theme_Logger extends Logger {
 
 		// Uploading a zip of a theme that is already installed ("Replace installed
 		// with uploaded") also arrives here, as an install with overwrite. The
-		// version snapshot taken on upgrader_pre_install tells the two apart:
-		// a theme present before the install was updated, not installed.
+		// version snapshot taken on upgrader_pre_install tells the two apart: a
+		// theme present before was replaced, and the two versions say whether
+		// that was an update, a downgrade or a reinstall of the same version.
 		$themes_before_update = json_decode( get_option( $this->get_slug() . '_theme_info_before_update', false ), true );
 
 		if ( is_array( $themes_before_update ) && isset( $themes_before_update[ $destination_name ] ) ) {
@@ -458,11 +463,16 @@ class Theme_Logger extends Logger {
 				'theme_version' => $new_theme_data['Version'],
 			);
 
-			if ( $themes_before_update[ $destination_name ] ) {
-				$context['theme_prev_version'] = $themes_before_update[ $destination_name ];
+			$prev_version = (string) $themes_before_update[ $destination_name ];
+
+			if ( $prev_version !== '' ) {
+				$context['theme_prev_version'] = $prev_version;
 			}
 
-			$this->info_message( 'theme_updated', $context );
+			$this->info_message(
+				Plugin_Logger::get_replace_message_key( 'theme', $prev_version, (string) $new_theme_data['Version'] ),
+				$context
+			);
 
 			return;
 		}

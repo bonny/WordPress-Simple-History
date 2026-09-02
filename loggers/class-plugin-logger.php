@@ -110,6 +110,18 @@ class Plugin_Logger extends Logger {
 					'simple-history'
 				),
 
+				'plugin_downgraded'             => _x(
+					'Downgraded plugin "{plugin_name}" to version {plugin_version} from {plugin_prev_version}',
+					'Plugin was replaced by an older version',
+					'simple-history'
+				),
+
+				'plugin_reinstalled'            => _x(
+					'Reinstalled plugin "{plugin_name}" version {plugin_version}',
+					'Plugin was replaced by the same version',
+					'simple-history'
+				),
+
 				'plugin_update_rolled_back'     => _x(
 					'Plugin "{plugin_name}" was rolled back to version {plugin_prev_version} after update to {plugin_version} failed',
 					'Plugin update was rolled back',
@@ -175,6 +187,8 @@ class Plugin_Logger extends Logger {
 						_x( 'Updated plugins', 'Plugin logger: search', 'simple-history' ) => array(
 							'plugin_updated',
 							'plugin_bulk_updated',
+							'plugin_downgraded',
+							'plugin_reinstalled',
 						),
 						_x( 'Failed plugin updates', 'Plugin logger: search', 'simple-history' ) => array(
 							'plugin_update_failed',
@@ -1175,18 +1189,22 @@ class Plugin_Logger extends Logger {
 				// Uploading a zip of a plugin that is already installed ("Replace
 				// current with uploaded") also arrives here, as an install with
 				// overwrite. The version snapshot taken on upgrader_pre_install
-				// tells the two apart: a plugin present before was updated.
+				// tells the two apart: a plugin present before was replaced, and
+				// the two versions say whether that was an update, a downgrade or
+				// a reinstall of the same version.
 				$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
 
 				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_info ] ) ) {
 					$context['plugin_main_file_path'] = $plugin_info;
 
-					if ( ! empty( $plugins_before_update[ $plugin_info ]['Version'] ) ) {
-						$context['plugin_prev_version'] = $plugins_before_update[ $plugin_info ]['Version'];
+					$prev_version = $plugins_before_update[ $plugin_info ]['Version'] ?? '';
+
+					if ( $prev_version !== '' ) {
+						$context['plugin_prev_version'] = $prev_version;
 					}
 
 					$this->info_message(
-						'plugin_updated',
+						$this->get_replace_message_key( 'plugin', $prev_version, $context['plugin_version'] ),
 						$context
 					);
 
@@ -1199,6 +1217,34 @@ class Plugin_Logger extends Logger {
 				$context
 			);
 		}
+	}
+
+	/**
+	 * Pick the message key for a plugin replaced by an uploaded zip.
+	 *
+	 * @param string $prefix       Message key prefix, e.g. 'plugin'.
+	 * @param string $prev_version Version before the upload, or empty if unknown.
+	 * @param string $new_version  Version after the upload, or empty if unknown.
+	 * @return string One of "{$prefix}_updated", "{$prefix}_downgraded" or "{$prefix}_reinstalled".
+	 */
+	public static function get_replace_message_key( $prefix, $prev_version, $new_version ) {
+		// Without both versions there is nothing to compare; an update is the
+		// most likely reason to replace a plugin, so that is the default.
+		if ( $prev_version === '' || $new_version === '' ) {
+			return "{$prefix}_updated";
+		}
+
+		$comparison = version_compare( $new_version, $prev_version );
+
+		if ( $comparison < 0 ) {
+			return "{$prefix}_downgraded";
+		}
+
+		if ( $comparison === 0 ) {
+			return "{$prefix}_reinstalled";
+		}
+
+		return "{$prefix}_updated";
 	}
 
 	/**
@@ -1337,6 +1383,8 @@ class Plugin_Logger extends Logger {
 				return $this->get_plugin_installed_details_group( $context );
 			case 'plugin_bulk_updated':
 			case 'plugin_updated':
+			case 'plugin_downgraded':
+			case 'plugin_reinstalled':
 				return $this->get_plugin_updated_details_group( $context );
 			case 'plugin_activated':
 			case 'plugin_deactivated':
@@ -1434,7 +1482,7 @@ class Plugin_Logger extends Logger {
 					'label'  => _x( 'Plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' ),
 					'action' => 'view',
 				];
-			} elseif ( $plugin_slug && in_array( $message_key, [ 'plugin_updated', 'plugin_bulk_updated' ], true ) ) {
+			} elseif ( $plugin_slug && in_array( $message_key, [ 'plugin_updated', 'plugin_bulk_updated', 'plugin_downgraded', 'plugin_reinstalled' ], true ) ) {
 				$changelog_path = "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550";
 
 				$action_links[] = [
