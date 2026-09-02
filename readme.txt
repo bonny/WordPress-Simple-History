@@ -266,29 +266,29 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Long diffs can be expanded in place with an "Expand diff" button, instead of only scrolling inside a small box.
+-   Long diffs can be expanded in place with an "Expand diff" button.
 -   Note events carry the same action links as the page or post the note belongs to.
--   Experimental — "Hide events of this type" in an event's actions menu removes that event type from the current list, for when you cannot say what you are looking for but can recognise what it is not. Hidden types show as removable chips above the list and never change what gets logged.
+-   Experimental — "Hide events of this type" in an event's actions menu removes that event type from the current list. Hidden types show as removable chips above the list and never change what gets logged.
 
 **Changed**
 
--   Post and page events link to the revision that change actually created, labelled "View revision", instead of the newest revision. On WordPress 7.1 and later the link opens the editor's visual revision view, where changed blocks are marked up in place.
--   Site icon changes show the previous and the new icon as images, side by side like featured image changes on posts, instead of attachment IDs.
--   Action links below events are grey until the event is hovered or focused, so a list of similar events no longer reads as a wall of blue links. In the dashboard widget a dot separates them.
--   A license key that has reached its activation limit now gets an explanation and the steps to free it up from your Lemon Squeezy "My orders" page, instead of only the raw error.
--   Experimental — Event fields sent to AI tools through the WordPress Abilities API carry readable labels and descriptions, so a client shows "Date (UTC)" instead of a raw field name. Follows the [output schema conventions added in WordPress 7.1](https://make.wordpress.org/core/2026/07/31/abilities-api-improvements-in-wordpress-7-1/).
+-   Post and page events link to the revision the change created, labelled "View revision". On WordPress 7.1 and later it opens the editor's visual revision view.
+-   Site icon changes show the old and new icon as images, side by side, instead of attachment IDs.
+-   Action links below events are grey until the event is hovered or focused, and separated by a dot in the dashboard widget.
+-   When a license key has reached its activation limit, the settings page explains why and how to free it up from the Lemon Squeezy "My orders" page.
+-   Experimental — Event fields sent to AI tools through the WordPress Abilities API carry readable labels and descriptions, following the [output schema conventions added in WordPress 7.1](https://make.wordpress.org/core/2026/07/31/abilities-api-improvements-in-wordpress-7-1/).
 
 **Fixed**
 
--   Relative times ("2 minutes ago") could be off by the site's UTC offset in the log, the dashboard widget and the admin bar.
--   "Copy event message" and "Copy as Markdown" put the site's time on the clipboard while the log on screen showed the visitor's own.
--   Content diffs used two different sets of greens and reds depending on how the event was stored. They now use the colours of WordPress core's revision screen.
--   "Edited your profile" events no longer appear when nothing changed. The block editor saves your editor preferences to your user record whenever one changes, and each save was logged as a profile edit, as was clicking "Update User" on a profile without changing anything.
--   Notes inside a block, added in WordPress 7.1, no longer show a literal `<br>` tag in the event details, and a note that starts with an @mention no longer shows the mention glued to the next word.
+-   Relative times ("2 minutes ago") could be off by the site's UTC offset.
+-   "Copy event message" and "Copy as Markdown" copied the site's time instead of the time shown in the log.
+-   Content diffs use the same green and red as WordPress core's revision screen. Some events used a different set.
+-   "Edited your profile" events no longer appear when nothing changed. The block editor saves editor preferences to your user record, and each save was logged as a profile edit.
+-   Notes inside a block (WordPress 7.1) no longer show a literal `<br>` tag, and a note starting with an @mention no longer has it glued to the next word.
 -   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable.
--   Failed application password logins are treated like other failed logins: throttled by the same limit, grouped in the same row, found by the "Failed user logins" filter, counted in the stats, and given the "Configure failed login attempts" link. A brute-force attack against the REST API could previously flood the log with tens of thousands of events.
--   Featured image changes on posts no longer show raw "thumb_id" and "thumb_title" rows, say "None" on the empty side of an added or removed image, load small thumbnails instead of full-size originals, and are included in the structured event details for the REST API, WP-CLI and the abilities.
--   Uploading a zip over an installed theme or plugin ("Replace installed with uploaded") is logged as an update, downgrade or reinstall with the previous version, instead of as a new install.
+-   Failed application password logins are throttled, grouped, filtered and counted like other failed logins. A brute-force attack against the REST API could previously flood the log.
+-   Featured image changes on posts no longer show raw "thumb_id" and "thumb_title" rows, show "None" on the empty side, load small thumbnails, and are included in the structured event details.
+-   Uploading a zip over an installed theme or plugin is logged as an update, downgrade or reinstall, instead of as a new install.
 
 **Security**
 
