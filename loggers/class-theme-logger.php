@@ -446,6 +446,27 @@ class Theme_Logger extends Logger {
 
 		$new_theme_data = $upgrader_instance->new_theme_data;
 
+		// Uploading a zip of a theme that is already installed ("Replace installed
+		// with uploaded") also arrives here, as an install with overwrite. The
+		// version snapshot taken on upgrader_pre_install tells the two apart:
+		// a theme present before the install was updated, not installed.
+		$themes_before_update = json_decode( get_option( $this->get_slug() . '_theme_info_before_update', false ), true );
+
+		if ( is_array( $themes_before_update ) && isset( $themes_before_update[ $destination_name ] ) ) {
+			$context = array(
+				'theme_name'    => $new_theme_data['Name'],
+				'theme_version' => $new_theme_data['Version'],
+			);
+
+			if ( $themes_before_update[ $destination_name ] ) {
+				$context['theme_prev_version'] = $themes_before_update[ $destination_name ];
+			}
+
+			$this->info_message( 'theme_updated', $context );
+
+			return;
+		}
+
 		$this->info_message(
 			'theme_installed',
 			array(

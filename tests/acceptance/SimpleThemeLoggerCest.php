@@ -29,8 +29,7 @@ class SimpleThemeLoggerCest
         $I->waitForElementVisible('#wpadminbar');
         $I->seeLogMessage('Switched theme to "Twenty Sixteen" from "Twenty Twenty-Five"');
 
-        // Upload Theme again to test theme_updated. No event is logged for this
-        // path — tracked separately, see local issue 281.
+        // Upload Theme again to test theme_updated via "Replace installed with uploaded".
         $I->amOnAdminPage('/theme-install.php?browse=popular');
         $I->click('Upload Theme');
         $I->attachFile('#themezip', 'twentysixteen.2.7.zip');
@@ -38,6 +37,10 @@ class SimpleThemeLoggerCest
         $I->waitForText('This theme is already installed.');
         $I->click('Replace installed with uploaded');
         $I->waitForText('Theme updated successfully');
+
+        // Message key: theme_updated.
+        // Index varies because the zip deletion event may be logged after the update.
+        $I->seeLogEventExists('Updated theme "{theme_name}" to version {theme_version} from {theme_prev_version}');
 
         // theme_switched: Switch back theme so we can delete the uploaded one.
         $I->amOnAdminPage('/themes.php?theme=twentytwentyfive');
