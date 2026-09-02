@@ -260,7 +260,7 @@ class Licences_Settings_Page extends Service {
 
 		return sprintf(
 			/* translators: 1: URL to the Lemon Squeezy "My orders" page, 2: URL to the support guide, 3: URL to the contact page. */
-			__( '<strong>This license key is already active on another site</strong>, often an earlier copy of this one such as a backup or staging site. Deactivate that site on your <a href="%1$s" class="sh-ExternalLink" target="_blank">My orders page</a> at Lemon Squeezy, then try again. <a href="%2$s" class="sh-ExternalLink" target="_blank">Read the guide</a> or <a href="%3$s" class="sh-ExternalLink" target="_blank">contact support</a> if you get stuck.', 'simple-history' ),
+			__( '<strong>This license key is already active on another site</strong>, often an earlier copy of this one such as a backup or staging site.<br>Deactivate that site on your <a href="%1$s" class="sh-ExternalLink" target="_blank">My orders page</a> at Lemon Squeezy, then try again.<br><a href="%2$s" class="sh-ExternalLink" target="_blank">Read the guide</a> or <a href="%3$s" class="sh-ExternalLink" target="_blank">contact support</a> if you get stuck.', 'simple-history' ),
 			esc_url( $my_orders_url ),
 			esc_url( $guide_url ),
 			esc_url( $contact_url )
