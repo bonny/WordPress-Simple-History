@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Guidance for writing and running tests in Simple History, including the Premium add-on. Covers which framework to use, how to run existing tests, how to create new ones (codegen recording workflow), and how to test Premium (which has no PHP test infra).
+description: Guidance for writing and running tests in Simple History, including the Premium add-on. Covers which framework to use, how to run existing tests, how to create new ones (codegen recording workflow), and how to test Premium (whose PHP tests live in this repo, not the add-ons repo).
 allowed-tools: Read, Bash, Edit, Write
 ---
 
@@ -36,13 +36,51 @@ npm test
 
 ## Testing Simple History Premium
 
-The Premium add-on (`simple-history-premium`) is a **separate repo with no test infrastructure** — no Codeception/PHPUnit config, no `tests/` directory, no test npm scripts. Do **not** add a PHP test suite there or assume `npm test`/`vendor/bin/codecept` exists in that repo.
+Premium **is** covered by PHP tests — but they live in **this** (core) repo, not in the
+add-ons repo. One harness, in core; Premium borrows it.
 
-How to cover Premium instead:
+| Location | What's there |
+| --- | --- |
+| `tests/wpunit/premium/` | 11 test files, ~229 tests. Alerts (evaluator/logger/module), custom rules, destination senders, formatters, extended settings, WP-CLI alerts command, both REST controllers, core-vs-premium behaviour |
+| `tests/functional/premium/` | `AlertsCliCest.php` |
+| `tests/playwright/` | `premium-settings-logging.spec.js`, `license-reminder.spec.js`, plus `premium-helpers.js` |
+| `tests/_support/Helper/PremiumTestCase.php` | Base class — call `$this->activate_premium()`; it skips (not fails) when Premium isn't installed |
 
--   **Behavioral / UI features → Playwright in _this_ (core) repo.** The dev WordPress runs core + Premium together, so a core Playwright spec in `tests/playwright/` exercises Premium features end-to-end. This is the only place Premium behavior gets automated coverage.
--   **PHP correctness in Premium → `phpcs` + `phpstan` only.** After PHP changes in the Premium repo, run its phpcs (lint) and phpstan (static analysis) — these are the only automated gates Premium has.
--   **Cross-repo changes** (a core hook/filter + a Premium consumer): unit-test the **mechanism** on the core side (wpunit), run `phpcs`/`phpstan` in **each** repo, and verify the **behavior** with one Playwright spec in core. Don't try to unit-test Premium PHP.
+Run them:
+
+```bash
+docker compose run --rm php-cli vendor/bin/codecept run wpunit premium   # ~15s
+```
+
+### How Premium gets loaded
+
+Premium is mounted into the test WordPress at `tests/plugins/simple-history-premium`,
+a **symlink** to the local add-ons checkout, wired up in `compose.yaml`. The symlink is
+**not tracked in git** — on a fresh machine it's absent and every Premium test silently
+*skips*. A green run therefore does not prove Premium passed; check the skip count.
+
+It is deliberately not in `wpunit.suite.yml`'s `plugins` list — tests activate it
+on demand via `activate_premium()`.
+
+### Where to put a new Premium test
+
+-   **PHP logic (loggers, senders, formatters, REST, WP-CLI, settings) → wpunit in `tests/wpunit/premium/`.** This is the default. Extend `Helper\PremiumTestCase`.
+-   **Browser-visible behaviour → Playwright in `tests/playwright/`.** The dev WordPress runs core + Premium together. Use this only when a human would need a browser to check it — wpunit runs in seconds, Playwright doesn't.
+-   **Cross-repo changes** (a core hook/filter + a Premium consumer): unit-test the mechanism on the core side, add the Premium-side test under `tests/wpunit/premium/`, and run `phpcs`/`phpstan` in **both** repos.
+
+### What the add-ons repo does and doesn't have
+
+The add-ons repo has **no test runner** — no Codeception config, no `tests/` dir, and its
+`npm test` is a stub that exits 1. Its only local gates are `phpcs` and `phpstan`
+(`npm run addons:lint` / `addons:phpstan` from core). **Don't add a Codeception stack
+there** — add the test to `tests/wpunit/premium/` here instead.
+
+### Nothing runs in CI yet
+
+There is no GitHub Actions workflow running any test suite, in either repo — core's
+`.github/workflows/` has spelling, the Claude bots, and deploy, and the add-ons repo has
+no workflows at all. Every suite is local-and-manual. Tracked in local issue
+`293 - Run the PHP test suites in CI`; coverage gaps in `292 - Close premium test coverage gaps`.
 
 ## Playwright setup
 

@@ -7,6 +7,48 @@
  */
 
 /**
+ * Label describing the database this instance runs on.
+ *
+ * Reads the engine the same way Simple History does, so the toolbar cannot
+ * disagree with the plugin about which query path is in use.
+ *
+ * @return string
+ */
+function simple_history_dev_toolbar_db_label() {
+	global $wpdb;
+
+	$is_sqlite = defined( 'DB_ENGINE' ) && constant( 'DB_ENGINE' ) === 'sqlite';
+
+	if ( $is_sqlite ) {
+		$version = class_exists( 'SQLite3' ) ? \SQLite3::version()['versionString'] : '';
+
+		// Named so the consequence travels with the fact — the whole reason to
+		// surface this is that ungrouped events look like a bug on SQLite.
+		return $version
+			? sprintf( 'DB: SQLite %s — events not grouped', $version )
+			: 'DB: SQLite — events not grouped';
+	}
+
+	$server = '';
+
+	if ( $wpdb instanceof \wpdb && method_exists( $wpdb, 'db_server_info' ) ) {
+		$server = (string) $wpdb->db_server_info();
+	}
+
+	if ( $server === '' ) {
+		return 'DB: MySQL';
+	}
+
+	$is_maria = stripos( $server, 'mariadb' ) !== false;
+
+	return sprintf(
+		'DB: %s %s',
+		$is_maria ? 'MariaDB' : 'MySQL',
+		preg_replace( '/[^0-9.].*$/', '', $server )
+	);
+}
+
+/**
  * Whether the dev toolbar can render in the current request.
  *
  * @return bool
@@ -47,6 +89,21 @@ add_action(
 				'id'    => 'sh-dev-worktree',
 				'title' => '🛠 ' . esc_html( $slug ),
 				'href'  => false,
+			]
+		);
+
+		// Which database this instance runs on, because it changes behaviour in
+		// ways that look like bugs. Playground is SQLite, and Simple History
+		// deliberately skips occasion grouping there (Log_Query::query_overview()
+		// routes SQLite to query_overview_simple(), which returns every event
+		// individually) — so repeated events appear ungrouped and it is easy to
+		// go hunting for a regression that is not there.
+		$wp_admin_bar->add_node(
+			[
+				'id'     => 'sh-dev-worktree-db',
+				'parent' => 'sh-dev-worktree',
+				'title'  => esc_html( simple_history_dev_toolbar_db_label() ),
+				'href'   => false,
 			]
 		);
 
