@@ -288,7 +288,9 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
-	const [ excludeMessages ] = useQueryState(
+	// Same shape as selectedMessageTypes. Set from an event's "Hide events of
+	// this type" action and cleared from the chips above the list.
+	const [ excludeMessages, setExcludeMessages ] = useQueryState(
 		'exclude-messages',
 		parseAsJson( messageTypesSchema.parse )
 			.withDefault( emptyArray )
@@ -388,7 +390,8 @@ function EventsGUI() {
 			selectedContextFilters.trim().length > 0 ||
 			enteredMetadataSearch.trim().length > 0 ||
 			showAIOnly ||
-			hideOwnEvents;
+			hideOwnEvents ||
+			excludeMessages.length > 0;
 
 		const hasSearchText = enteredSearchText.trim().length > 0;
 
@@ -403,6 +406,7 @@ function EventsGUI() {
 		enteredMetadataSearch,
 		showAIOnly,
 		hideOwnEvents,
+		excludeMessages,
 		enteredSearchText,
 	] );
 
@@ -430,6 +434,7 @@ function EventsGUI() {
 		setEnteredMetadataSearch( '' );
 		setShowAIOnly( false );
 		setHideOwnEvents( false );
+		setExcludeMessages( [] );
 	}, [
 		setSelectedDateOption,
 		setEnteredSearchText,
@@ -444,7 +449,48 @@ function EventsGUI() {
 		setEnteredMetadataSearch,
 		setShowAIOnly,
 		setHideOwnEvents,
+		setExcludeMessages,
 	] );
+
+	// Hide every event with the same logger and message key as this event
+	// from the current list. Subtractive search: the user cannot say what
+	// they are looking for, but can recognise what it is not.
+	const hideMessageType = useCallback(
+		( event ) => {
+			if ( ! event?.logger || ! event?.message_key ) {
+				return;
+			}
+
+			const searchOption = `${ event.logger }:${ event.message_key }`;
+
+			const alreadyHidden = excludeMessages.some( ( messageType ) =>
+				messageType.search_options.includes( searchOption )
+			);
+
+			if ( alreadyHidden ) {
+				return;
+			}
+
+			// Label the chip with the message template, with placeholders
+			// blanked out so it reads as a type rather than as this one event.
+			const label = (
+				event.message_uninterpolated ||
+				event.message ||
+				searchOption
+			)
+				.replace( /\{[^}]+\}/g, '…' )
+				.trim();
+
+			setExcludeMessages( [
+				...excludeMessages,
+				{
+					value: label,
+					search_options: [ searchOption ],
+				},
+			] );
+		},
+		[ excludeMessages, setExcludeMessages ]
+	);
 
 	// Generate the events query params.
 	// Memoized to avoid unnecessary re-renders in the child components.
@@ -721,6 +767,7 @@ function EventsGUI() {
 			// This GUI owns the filter controls, so descendants can filter by
 			// updating state here instead of navigating away.
 			canFilterEventsInPlace: true,
+			hideMessageType,
 		} ),
 		[
 			mapsApiKey,
@@ -734,6 +781,7 @@ function EventsGUI() {
 			userCanManageOptions,
 			searchOptionsLoaded,
 			currentUserId,
+			hideMessageType,
 		]
 	);
 
@@ -790,6 +838,8 @@ function EventsGUI() {
 					onReload={ handleReload }
 					setCurrentUserId={ setCurrentUserId }
 					setUserCanManageOptions={ setUserCanManageOptions }
+					excludeMessages={ excludeMessages }
+					setExcludeMessages={ setExcludeMessages }
 					hideOwnEvents={ hideOwnEvents }
 					setHideOwnEvents={ setHideOwnEvents }
 					defaultDateOptionRef={ defaultDateOptionRef }

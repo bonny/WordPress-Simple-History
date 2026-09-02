@@ -11,6 +11,7 @@ import {
 } from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
+import { HiddenMessageTypes } from './HiddenMessageTypes';
 
 /**
  * Search component with a search input visible by default.
@@ -62,6 +63,8 @@ export function EventsSearchFilters( props ) {
 		setUserCanManageOptions,
 		hideOwnEvents,
 		setHideOwnEvents,
+		excludeMessages,
+		setExcludeMessages,
 		defaultDateOptionRef,
 		handleClearFilters,
 		hasAnyActiveFilters,
@@ -350,6 +353,10 @@ export function EventsSearchFilters( props ) {
 						) }
 					</DefaultFilters>
 				</div>
+				<HiddenMessageTypes
+					excludeMessages={ excludeMessages }
+					setExcludeMessages={ setExcludeMessages }
+				/>
 				{ moreOptionsIsExpanded ? (
 					<div
 						className="SimpleHistory-filters__expandedFilters"

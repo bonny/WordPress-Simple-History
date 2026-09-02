@@ -267,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Long diffs can now be expanded in place with an "Expand diff" button, instead of only scrolling inside a small box.
+-   "Hide events of this type" in an event's actions menu removes that event type from the current list, for the times you cannot say what you are looking for but can recognise what it is not. Hidden types show as removable chips above the list and are part of the page URL, so they clear when you clear filters and never change what gets logged.
 
 **Changed**
 

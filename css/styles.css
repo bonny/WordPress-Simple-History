@@ -3199,6 +3199,36 @@ a.sh-SettingsTabs-link:hover {
 	background-color: #f9f9f9;
 }
 
+/* Chips for event types hidden from the current list. */
+.SimpleHistory-hiddenTypes {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--sh-color-separator);
+	background-color: #f9f9f9;
+	font-size: 13px;
+}
+
+.SimpleHistory-hiddenTypes__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 2px 2px 2px 8px;
+	border: 1px solid #c3c4c7;
+	border-radius: 2px;
+	background: #fff;
+	line-height: 1.6;
+}
+
+.SimpleHistory-hiddenTypes__chipText {
+	max-width: 32em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .SimpleHistory-filters__defaultRow {
 	display: flex;
 	align-items: center;
