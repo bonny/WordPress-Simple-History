@@ -153,6 +153,68 @@ function simple_history_dev_toolbar_branch( $dir ) {
 	return $cache[ $dir ];
 }
 
+/**
+ * Read a single-line value out of a file in the checkout, or '' if absent.
+ *
+ * @param string $path Absolute path.
+ * @return string
+ */
+function simple_history_dev_toolbar_read_line( $path ) {
+	if ( $path === '' || ! is_readable( $path ) ) {
+		return '';
+	}
+
+	// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- Local file, not a remote fetch.
+	return trim( (string) file_get_contents( $path ) );
+}
+
+/**
+ * Port the open-in-app helper listens on.
+ *
+ * @return int
+ */
+function simple_history_dev_toolbar_helper_port() {
+	// Matches HELPER_PORT in scripts/parallel-dev.sh; the constant is only set
+	// inside a worktree instance.
+	return defined( 'SH_DEV_HELPER_PORT' ) ? (int) SH_DEV_HELPER_PORT : 9399;
+}
+
+/**
+ * Shared secret the helper requires.
+ *
+ * @return string
+ */
+function simple_history_dev_toolbar_helper_token() {
+	if ( defined( 'SH_DEV_HELPER_TOKEN' ) ) {
+		return SH_DEV_HELPER_TOKEN;
+	}
+
+	return simple_history_dev_toolbar_read_line(
+		simple_history_dev_toolbar_repo_path() . '/.claude/parallel-dev-helper-token'
+	);
+}
+
+/**
+ * The checkout's path *on the developer's machine*.
+ *
+ * Distinct from simple_history_dev_toolbar_repo_path(), which is the path this
+ * process can read. The helper runs outside the container and opens editors
+ * there, so it needs the host's view — which a containerised site cannot work
+ * out for itself. A worktree gets it as a constant; otherwise parallel-dev
+ * leaves it in a file inside the checkout.
+ *
+ * @return string
+ */
+function simple_history_dev_toolbar_host_path() {
+	if ( defined( 'SH_DEV_WORKTREE_PATH' ) ) {
+		return SH_DEV_WORKTREE_PATH;
+	}
+
+	return simple_history_dev_toolbar_read_line(
+		simple_history_dev_toolbar_repo_path() . '/.claude/dev-host-path'
+	);
+}
+
 // esc_url() (used by the admin bar on every href) strips protocols it
 // doesn't know; allow obsidian:// for the issue deep link.
 add_filter(
@@ -230,23 +292,29 @@ add_action(
 			);
 		}
 
-		if ( ! simple_history_dev_toolbar_has_worktree() ) {
+		$host_path    = simple_history_dev_toolbar_host_path();
+		$helper_token = simple_history_dev_toolbar_helper_token();
+
+		// Both are needed for the helper to act: a path on this developer's
+		// machine, and the secret it checks. Worktrees get them as constants;
+		// plain sites read them out of the checkout. Without either there is
+		// nothing to link to, so the panel simply ends here.
+		if ( $host_path === '' || $helper_token === '' ) {
 			return;
 		}
 
-		$worktree_path = SH_DEV_WORKTREE_PATH;
-		$helper_url    = 'http://127.0.0.1:' . SH_DEV_HELPER_PORT . '/open';
-		$helper_token  = defined( 'SH_DEV_HELPER_TOKEN' ) ? SH_DEV_HELPER_TOKEN : '';
+		$helper_url = 'http://127.0.0.1:' . simple_history_dev_toolbar_helper_port() . '/open';
 
 		$apps = [
 			'vscode' => 'Open in VS Code',
+			'zed'    => 'Open in Zed',
 			'fork'   => 'Open in Fork',
 			'iterm'  => 'Open in iTerm',
 			'finder' => 'Reveal in Finder',
 		];
 
 		foreach ( $apps as $app => $app_label ) {
-			$open_url = $helper_url . '?app=' . $app . '&path=' . rawurlencode( $worktree_path ) . '&token=' . rawurlencode( $helper_token );
+			$open_url = $helper_url . '?app=' . $app . '&path=' . rawurlencode( $host_path ) . '&token=' . rawurlencode( $helper_token );
 
 			$wp_admin_bar->add_node(
 				[
@@ -271,15 +339,13 @@ add_action(
  * delegated listener instead.
  */
 function simple_history_dev_toolbar_print_script() {
-	// Also requires a worktree, not just the panel: without the helper there
-	// are no links to intercept, and SH_DEV_HELPER_PORT below is undefined.
-	if ( ! simple_history_dev_toolbar_available() || ! simple_history_dev_toolbar_has_worktree() ) {
+	if ( ! simple_history_dev_toolbar_available() ) {
 		return;
 	}
 	?>
 	<script>
 	document.addEventListener( 'click', function ( event ) {
-		var link = event.target.closest( '#wp-admin-bar-sh-dev-worktree a.ab-item[href*=":<?php echo (int) SH_DEV_HELPER_PORT; ?>/open"]' );
+		var link = event.target.closest( '#wp-admin-bar-sh-dev-worktree a.ab-item[href*=":<?php echo (int) simple_history_dev_toolbar_helper_port(); ?>/open"]' );
 
 		if ( ! link ) {
 			return;

@@ -31,6 +31,10 @@ HELPER_SCRIPT="$SCRIPT_DIR/parallel-dev-helper.js"
 HELPER_LOG=/tmp/sh-parallel-dev-helper.log
 HELPER_TOKEN_FILE="$MAIN_REPO/.claude/parallel-dev-helper-token"
 MU_PLUGINS_DIR="$SCRIPT_DIR/playground-mu-plugins"
+# The open-in-app helper runs on this machine and needs paths as this machine
+# sees them. A site running in a container only knows its own mount points, so
+# record the host path where the mounted repo can read it back.
+HOST_PATH_FILE="$MAIN_REPO/.claude/dev-host-path"
 
 # Deterministic application password provisioned in every instance, so REST
 # calls work with plain Basic auth (no cookie/nonce dance). Local-only, so a
@@ -133,6 +137,11 @@ helper_running() {
 
 # Shared secret between instances and the helper, so random web pages
 # can't trigger /open. Stable across helper restarts.
+write_host_path_file() {
+	mkdir -p "$(dirname "$HOST_PATH_FILE")"
+	printf '%s\n' "$MAIN_REPO" > "$HOST_PATH_FILE"
+}
+
 helper_token() {
 	if [ ! -f "$HELPER_TOKEN_FILE" ]; then
 		uuidgen | tr -d '-' > "$HELPER_TOKEN_FILE"
@@ -142,6 +151,8 @@ helper_token() {
 }
 
 helper_start() {
+	write_host_path_file
+
 	helper_running && return 0
 
 	local roots=("$MAIN_REPO")
