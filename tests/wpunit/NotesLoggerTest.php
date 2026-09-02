@@ -425,14 +425,14 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Entities WordPress stores in the note are decoded, so the event shows
-	 * the characters the user typed. Output escapes them again.
+	 * Entities WordPress stored stay encoded in the context. Decoding them at
+	 * log time would turn a kses-neutralised payload back into live markup.
 	 */
-	public function test_html_entities_in_note_are_decoded() {
+	public function test_html_entities_in_note_stay_encoded() {
 		wp_insert_comment(
 			[
 				'comment_post_ID'  => $this->post_id,
-				'comment_content'  => 'Use &lt;strong&gt; here &amp; there',
+				'comment_content'  => 'Use &lt;img src=x onerror=alert(1)&gt; here',
 				'comment_type'     => 'note',
 				'comment_approved' => 1,
 				'user_id'          => $this->admin_user_id,
@@ -440,7 +440,7 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		$this->assertContains(
-			[ 'key' => 'note_content', 'value' => 'Use <strong> here & there' ],
+			[ 'key' => 'note_content', 'value' => 'Use &lt;img src=x onerror=alert(1)&gt; here' ],
 			get_latest_context()
 		);
 	}

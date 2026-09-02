@@ -234,11 +234,11 @@ class Notes_Logger extends Logger {
 		// the span does not glue "@name" to "nice!".
 		$content = preg_replace( '#(<span class="wp-note-mention[^"]*">[^<]*</span>)(?=\S)#', '$1 ', $content );
 
+		// Entities such as &lt; stay encoded, as WordPress stored them. Decoding
+		// here would turn a kses-neutralised payload from a Contributor back
+		// into live markup that every sink must then escape; the text sinks
+		// (export, CLI, REST message) decode at output time instead.
 		$content = wp_strip_all_tags( $content );
-
-		// Stored notes carry entities such as &lt; and &amp;. Decode them so the
-		// context holds the characters the user typed; output escapes again.
-		$content = html_entity_decode( $content, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 
 		return trim( $content );
 	}
