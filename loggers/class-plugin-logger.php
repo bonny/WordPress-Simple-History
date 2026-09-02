@@ -1171,6 +1171,27 @@ class Plugin_Logger extends Logger {
 				if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
 					$context['plugin_github_url'] = $plugin_data['GitHub Plugin URI']; // @phpstan-ignore-line offsetAccess.notFound
 				}
+
+				// Uploading a zip of a plugin that is already installed ("Replace
+				// current with uploaded") also arrives here, as an install with
+				// overwrite. The version snapshot taken on upgrader_pre_install
+				// tells the two apart: a plugin present before was updated.
+				$plugins_before_update = json_decode( get_option( $this->get_slug() . '_plugin_info_before_update', false ), true );
+
+				if ( is_array( $plugins_before_update ) && isset( $plugins_before_update[ $plugin_info ] ) ) {
+					$context['plugin_main_file_path'] = $plugin_info;
+
+					if ( ! empty( $plugins_before_update[ $plugin_info ]['Version'] ) ) {
+						$context['plugin_prev_version'] = $plugins_before_update[ $plugin_info ]['Version'];
+					}
+
+					$this->info_message(
+						'plugin_updated',
+						$context
+					);
+
+					return;
+				}
 			}
 
 			$this->info_message(

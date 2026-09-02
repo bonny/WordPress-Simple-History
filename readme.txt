@@ -285,7 +285,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Notes added to a word or phrase inside a block no longer show a literal `<br>` tag in the event details.
 -   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable. They now render as text and make no external request.
 -   Failed application password logins are now throttled like other failed logins, and no longer reset the count for ordinary failed logins. A brute-force attack against the REST API could previously flood the log with tens of thousands of events.
--   Updating a theme by uploading a newer zip ("Replace installed with uploaded") is now logged as a theme update with the previous version, instead of as a new install.
+-   Updating a theme or plugin by uploading a newer zip ("Replace installed with uploaded") is now logged as an update with the previous version, instead of as a new install.
 
 **Security**
 
