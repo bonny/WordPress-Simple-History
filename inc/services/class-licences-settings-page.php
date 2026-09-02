@@ -272,8 +272,8 @@ class Licences_Settings_Page extends Service {
 		);
 
 		$line_help = sprintf(
-			/* translators: 1: link start tag to the guide, 2: link end tag, 3: link start tag to the contact page, 4: link end tag. */
-			__( '%1$sRead the guide%2$s or %3$scontact support%4$s if you get stuck.', 'simple-history' ),
+			/* translators: 1: link start tag to the instructions page, 2: link end tag, 3: link start tag to the contact page, 4: link end tag. */
+			__( 'Stuck? See the %1$sstep-by-step instructions%2$s or %3$scontact support%4$s.', 'simple-history' ),
 			$this->get_external_link_start( $guide_url ),
 			$link_end,
 			$this->get_external_link_start( $contact_url ),
