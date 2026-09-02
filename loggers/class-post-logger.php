@@ -1646,19 +1646,6 @@ class Post_Logger extends Logger {
 	}
 
 	/**
-	 * Get the revision this event created, if it is still viewable.
-	 *
-	 * @param array $context Event context.
-	 * @param int   $post_id ID of the post the event belongs to.
-	 * @return \WP_Post|null Revision post object, or null when not viewable.
-	 */
-	protected function get_event_revision( $context, $post_id ) {
-		$state = $this->get_event_revision_state( $context, $post_id );
-
-		return $state['status'] === 'available' ? $state['revision'] : null;
-	}
-
-	/**
 	 * Work out what became of the revision this event created.
 	 *
 	 * WordPress prunes revisions on its own schedule (WP_POST_REVISIONS) and
@@ -1692,9 +1679,23 @@ class Post_Logger extends Logger {
 
 		$revision = $this->get_cached_post( $revision_id );
 
-		if ( ! $revision instanceof \WP_Post || $revision->post_type !== 'revision' ) {
+		// Nothing at that id at all: the revision really has been deleted, and
+		// saying so is accurate.
+		if ( ! $revision instanceof \WP_Post ) {
 			return [
 				'status'   => 'gone',
+				'revision' => null,
+			];
+		}
+
+		// Something is there, but it is not a revision. After a restore or
+		// migration an id can just as easily land on an ordinary post as on
+		// another post's revision, and the revision this event made may be
+		// perfectly intact under a different id — so this cannot be reported
+		// as deleted either.
+		if ( $revision->post_type !== 'revision' ) {
+			return [
+				'status'   => 'unverifiable',
 				'revision' => null,
 			];
 		}

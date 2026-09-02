@@ -117,7 +117,15 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 
 		wp_save_post_revision( $post_id );
 		wp_update_post( [ 'ID' => $post_id, 'post_content' => 'Later edit.' ] );
-		$latest_revision_id = wp_save_post_revision( $post_id );
+
+		// Read the id back rather than trusting wp_save_post_revision()'s return
+		// value: wp_update_post() has already saved a revision by this point, so
+		// a further call finds nothing changed and returns null. Casting that to
+		// a string gives '', and asserting a URL contains '' passes for any URL
+		// at all — which is what this test used to do.
+		$revisions = wp_get_post_revisions( $post_id, [ 'numberposts' => 1 ] );
+		$this->assertNotEmpty( $revisions, 'The post must have a revision for this test to mean anything' );
+		$latest_revision_id = reset( $revisions )->ID;
 
 		// An event logged before we captured the revision id cannot say which
 		// revision it made, so it keeps the original behaviour and the original
@@ -136,7 +144,7 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNotContains( 'View revision', $labels );
 
 		$link = $this->find_by_label( $links, 'Revisions' );
-		$this->assertStringContainsString( (string) $latest_revision_id, $link['url'] );
+		$this->assertStringContainsString( 'revision=' . $latest_revision_id, $link['url'] );
 	}
 
 	public function test_post_updated_without_revision_id_and_no_revisions_renders_no_link() {
@@ -203,6 +211,15 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 		// The other post's revision still exists, so calling it "no longer
 		// stored" would be a false statement.
 		$this->assertSame( 'unverifiable', $state_for( $other_revision_id ) );
+
+		// An id that resolves to an ordinary post — what a restore or migration
+		// can leave behind — says nothing about whether the revision survived,
+		// so it must not be reported as deleted either.
+		$this->assertSame(
+			'unverifiable',
+			$state_for( $other_id ),
+			'An id pointing at a normal post is unverifiable, not gone'
+		);
 	}
 
 	public function test_revision_id_belonging_to_another_post_is_rejected() {

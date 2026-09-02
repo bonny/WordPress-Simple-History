@@ -118,6 +118,15 @@ function attachToggle( contents ) {
 	};
 
 	const removeButton = () => {
+		// Removal is triggered by a resize, not by the user, so it can land
+		// while the button has keyboard focus — widening a window or collapsing
+		// a sidebar is enough. Ripping a focused element out drops focus to
+		// <body> and sends the user back to the top of the page, so hand focus
+		// to the diff itself, which is already focusable.
+		if ( button.contains( contents.ownerDocument.activeElement ) ) {
+			contents.focus();
+		}
+
 		button.removeEventListener( 'click', onClick );
 		button.remove();
 		button = null;
