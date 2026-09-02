@@ -4,6 +4,7 @@ namespace Simple_History\Loggers;
 
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Item_Image_Diff_Table_Row_Formatter;
 use Simple_History\Helpers;
 
 /**
@@ -901,7 +902,9 @@ class Options_Logger extends Logger {
 	/**
 	 * Get Event_Details_Group for site_icon option.
 	 *
-	 * Shows the old and new icon as small images instead of attachment IDs.
+	 * Shows the previous and the new icon side by side in the same red/green
+	 * diff table the post logger uses for featured images, instead of the
+	 * attachment IDs WordPress stores.
 	 *
 	 * @param array  $context context.
 	 * @param mixed  $old_value old value.
@@ -911,81 +914,74 @@ class Options_Logger extends Logger {
 	 * @return Event_Details_Group
 	 */
 	protected function get_details_group_for_option_site_icon( $context, $old_value, $new_value, $option, $option_page ) {
-		$new = $this->get_site_icon_value_output( $new_value, $context['new_site_icon_url'] ?? '', $context['new_site_icon_filename'] ?? '' );
-		$old = $this->get_site_icon_value_output( $old_value, $context['old_site_icon_url'] ?? '', $context['old_site_icon_filename'] ?? '' );
+		$new = $this->get_site_icon_value( $new_value, $context['new_site_icon_url'] ?? '', $context['new_site_icon_filename'] ?? '' );
+		$old = $this->get_site_icon_value( $old_value, $context['old_site_icon_url'] ?? '', $context['old_site_icon_filename'] ?? '' );
 
-		$html = sprintf(
-			'<em>%1$s:</em> <ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins> <del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>',
-			esc_html( $this->get_inline_diff_label( $option ) ),
-			$new['html'],
-			$old['html']
-		);
+		$item = new Event_Details_Item( null, $this->get_inline_diff_label( $option ) );
+		$item->set_values( $new['plain'], $old['plain'] );
 
-		$json = [
-			'name'       => $this->get_inline_diff_label( $option ),
-			'new_value'  => $new['plain'],
-			'prev_value' => $old['plain'],
-		];
+		$formatter = new Event_Details_Item_Image_Diff_Table_Row_Formatter();
+		$formatter->set_new_image( $new['src'], $new['caption'] );
+		$formatter->set_prev_image( $old['src'], $old['caption'] );
 
-		return Event_Details_Group::create_raw( $html, $json );
+		$item->set_formatter( $formatter );
+
+		$group = new Event_Details_Group();
+		$group->add_item( $item );
+
+		return $group;
 	}
 
 	/**
-	 * Build the HTML and plain-text representation of one site icon value.
+	 * Resolve one site icon value to an image URL, a caption, and a plain
+	 * text representation for JSON.
 	 *
 	 * @param mixed  $attachment_id Attachment ID, or 0 for no icon.
 	 * @param string $captured_url  Icon URL captured when the event was logged.
 	 * @param string $filename      Icon filename captured when the event was logged.
-	 * @return array{html: string, plain: string}
+	 * @return array{src: string, caption: string, plain: string}
 	 */
-	private function get_site_icon_value_output( $attachment_id, $captured_url, $filename ) {
+	private function get_site_icon_value( $attachment_id, $captured_url, $filename ) {
 		$attachment_id = (int) $attachment_id;
 
-		// A value of 0 means no site icon.
+		// A value of 0 means no site icon. Empty src and caption make the
+		// formatter print "None".
 		if ( $attachment_id === 0 ) {
-			$none = __( 'None', 'simple-history' );
-
 			return [
-				'html'  => esc_html( $none ),
-				'plain' => $none,
+				'src'     => '',
+				'caption' => '',
+				'plain'   => __( 'None', 'simple-history' ),
 			];
 		}
 
 		$image_src = wp_get_attachment_image_src( $attachment_id, 'thumbnail' );
 
 		if ( $image_src ) {
-			$image_html = sprintf(
-				'<img src="%1$s" alt="" width="32" height="32" style="vertical-align: middle;">',
-				esc_url( $image_src[0] )
-			);
-
-			$edit_link = get_edit_post_link( $attachment_id );
-
-			if ( $edit_link ) {
-				$image_html = sprintf( '<a href="%1$s">%2$s</a>', esc_url( $edit_link ), $image_html );
-			}
+			$current_filename = wp_basename( (string) get_attached_file( $attachment_id ) );
 
 			return [
-				'html'  => $image_html,
-				'plain' => $image_src[0],
+				'src'     => $image_src[0],
+				'caption' => $current_filename !== '' ? $current_filename : $filename,
+				'plain'   => $image_src[0],
 			];
 		}
 
 		// Attachment is gone. Fall back to what was captured at log time.
 		if ( $filename ) {
-			$text = sprintf(
+			$caption = sprintf(
 				/* translators: 1: image filename, 2: attachment ID. */
 				__( '%1$s (ID %2$d)', 'simple-history' ),
 				$filename,
 				$attachment_id
 			);
 		} else {
-			$text = (string) $attachment_id;
+			$caption = (string) $attachment_id;
 		}
 
 		return [
-			'html'  => esc_html( $text ),
-			'plain' => $captured_url ? $captured_url : $text,
+			'src'     => '',
+			'caption' => $caption,
+			'plain'   => $captured_url ? $captured_url : $caption,
 		];
 	}
 

@@ -67,8 +67,58 @@ class OptionsLoggerSiteIconTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertStringContainsString( '<img', $html );
 		$this->assertStringContainsString( esc_url( wp_get_attachment_image_url( $this->attachment_id, 'thumbnail' ) ), $html );
-		$this->assertStringContainsString( 'None', $html );
+		$this->assertMatchesRegularExpression(
+			'#class="diff-deletedline">\s*None\s*</td>#s',
+			$html,
+			'"No previous icon" must be spelled out as "None" in the deleted cell'
+		);
 		$this->assertStringNotContainsString( '>0<', $html, 'The raw "0" must not be shown for "no icon"' );
+	}
+
+	public function test_details_show_previous_icon_in_deleted_cell_and_new_icon_in_added_cell() {
+		$old_attachment_id = $this->factory->attachment->create_upload_object( dirname( __DIR__ ) . '/_data/Image 2.jpg' );
+
+		$row = $this->make_row(
+			array(
+				'_message_key'      => 'option_updated',
+				'option'            => 'site_icon',
+				'option_page'       => 'general',
+				'new_value'         => (string) $this->attachment_id,
+				'old_value'         => (string) $old_attachment_id,
+				'new_site_icon_url' => wp_get_attachment_image_url( $this->attachment_id, 'thumbnail' ),
+				'old_site_icon_url' => wp_get_attachment_image_url( $old_attachment_id, 'thumbnail' ),
+			)
+		);
+
+		$html = (string) $this->sh->get_log_row_details_output( $row );
+
+		wp_delete_attachment( $old_attachment_id, true );
+
+		$this->assertMatchesRegularExpression(
+			'#class="diff-deletedline".*?<img[^>]*Image-2.*?class="diff-addedline".*?<img[^>]*Image-1#s',
+			$html,
+			'Previous icon must be in the red deleted cell, new icon in the green added cell'
+		);
+	}
+
+	public function test_details_show_none_in_added_cell_when_icon_is_removed() {
+		$row = $this->make_row(
+			array(
+				'_message_key'      => 'option_updated',
+				'option'            => 'site_icon',
+				'option_page'       => 'general',
+				'new_value'         => '0',
+				'old_value'         => (string) $this->attachment_id,
+				'old_site_icon_url' => wp_get_attachment_image_url( $this->attachment_id, 'thumbnail' ),
+			)
+		);
+
+		$html = (string) $this->sh->get_log_row_details_output( $row );
+
+		$this->assertMatchesRegularExpression(
+			'#class="diff-deletedline".*?<img.*?class="diff-addedline">\s*None\s*</td>#s',
+			$html
+		);
 	}
 
 	public function test_details_fall_back_to_filename_when_attachment_is_gone() {

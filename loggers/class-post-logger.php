@@ -6,6 +6,7 @@ use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Item_Image_Diff_Table_Row_Formatter;
 use Simple_History\Helpers;
 use Simple_History\Vendor\Jfcherng\Diff\DiffHelper;
 
@@ -1811,8 +1812,15 @@ class Post_Logger extends Logger {
 				// Skip some context keys.
 				$keys_to_skip = [];
 
-				// Skip post author because we manually output the change already.
-				$keys_to_skip = [ 'post_author/user_login', 'post_author/user_email', 'post_author/display_name' ];
+				// Skip post author and featured image keys because we output
+				// those changes manually further down.
+				$keys_to_skip = [
+					'post_author/user_login',
+					'post_author/user_email',
+					'post_author/display_name',
+					'thumb_id',
+					'thumb_title',
+				];
 
 				if ( strpos( $key, 'post_prev_' ) === false ) {
 					continue;
@@ -2279,89 +2287,64 @@ class Post_Logger extends Logger {
 	 * Get the HTML output for context that contains a modified post thumb.
 	 *
 	 * @param array $context Context that may contains prev- and new thumb ids.
-	 * @return string HTML to be used in keyvale table.
+	 * @return string HTML
 	 */
 	private function get_log_row_details_output_for_post_thumb( $context = null ) {
-		$out = '';
+		$prev_thumb_id = empty( $context['post_prev_thumb_id'] ) ? 0 : (int) $context['post_prev_thumb_id'];
+		$new_thumb_id  = empty( $context['post_new_thumb_id'] ) ? 0 : (int) $context['post_new_thumb_id'];
 
-		if ( ! empty( $context['post_prev_thumb_id'] ) || ! empty( $context['post_new_thumb_id'] ) ) {
-			// Check if images still exists and if so get their thumbnails.
-			$prev_thumb_id         = empty( $context['post_prev_thumb_id'] ) ? null : $context['post_prev_thumb_id'];
-			$new_thumb_id          = empty( $context['post_new_thumb_id'] ) ? null : $context['post_new_thumb_id'];
-			$post_new_thumb_title  = empty( $context['post_new_thumb_title'] ) ? null : $context['post_new_thumb_title'];
-			$post_prev_thumb_title = empty( $context['post_prev_thumb_title'] )
-				? null
-				: $context['post_prev_thumb_title'];
-
-			$prev_attached_file = get_attached_file( $prev_thumb_id );
-			$prev_thumb_src     = wp_get_attachment_image_src( $prev_thumb_id, 'small' );
-
-			$new_attached_file = get_attached_file( $new_thumb_id );
-			$new_thumb_src     = wp_get_attachment_image_src( $new_thumb_id, 'small' );
-
-			if ( file_exists( $prev_attached_file ) && $prev_thumb_src ) {
-				$prev_thumb_html = sprintf(
-					'
-						<div>%2$s</div>
-						<div class="SimpleHistoryLogitemThumbnail">
-							<img src="%1$s" alt="">
-						</div>
-					',
-					$prev_thumb_src[0],
-					esc_html( $post_prev_thumb_title )
-				);
-			} else {
-				// Fallback if image does not exist.
-				$prev_thumb_html = sprintf( '<div>%1$s</div>', esc_html( $post_prev_thumb_title ) );
-			}
-
-			$new_thumb_html = '';
-			if ( file_exists( $new_attached_file ) && $new_thumb_src ) {
-				$new_thumb_html = sprintf(
-					'
-						<div>%2$s</div>
-						<div class="SimpleHistoryLogitemThumbnail">
-							<img src="%1$s" alt="">
-						</div>
-					',
-					$new_thumb_src[0],
-					esc_html( $post_new_thumb_title )
-				);
-			} else {
-				// Fallback if image does not exist.
-				$new_thumb_html = sprintf( '<div>%1$s</div>', esc_html( $post_new_thumb_title ) );
-			}
-
-			$out .= sprintf(
-				'<tr>
-					<td>%1$s</td>
-					<td>
-
-						<div class="SimpleHistory__diff__contents SimpleHistory__diff__contents--noContentsCrop" tabindex="0">
-						    <div class="SimpleHistory__diff__contentsInner">
-						        <table class="diff SimpleHistory__diff">
-						            <tr>
-						                <td class="diff-deletedline">
-						                    %2$s
-						                </td>
-						                <td>&nbsp;</td>
-						                <td class="diff-addedline">
-						                    %3$s
-						                </td>
-						            </tr>
-						        </table>
-						    </div>
-						</div>
-
-					</td>
-				</tr>',
-				esc_html( __( 'Featured image', 'simple-history' ) ), // 1
-				$prev_thumb_html, // 2
-				$new_thumb_html // 3
-			);
+		if ( ! $prev_thumb_id && ! $new_thumb_id ) {
+			return '';
 		}
 
-		return $out;
+		$prev = $this->get_post_thumb_value( $prev_thumb_id, $context['post_prev_thumb_title'] ?? '' );
+		$new  = $this->get_post_thumb_value( $new_thumb_id, $context['post_new_thumb_title'] ?? '' );
+
+		$item = new Event_Details_Item( null, __( 'Featured image', 'simple-history' ) );
+		$item->set_values( $new['plain'], $prev['plain'] );
+
+		$formatter = new Event_Details_Item_Image_Diff_Table_Row_Formatter();
+		$formatter->set_prev_image( $prev['src'], $prev['caption'] );
+		$formatter->set_new_image( $new['src'], $new['caption'] );
+
+		return $item->set_formatter( $formatter )->get_formatter()->to_html();
+	}
+
+	/**
+	 * Resolve one featured image to an image URL, a caption, and a plain
+	 * text representation for JSON.
+	 *
+	 * @param int    $thumb_id Attachment ID, 0 when there was no image on this side.
+	 * @param string $title    Attachment title captured when the event was logged.
+	 * @return array{src: string, caption: string, plain: string}
+	 */
+	private function get_post_thumb_value( $thumb_id, $title ) {
+		// No image on this side. Empty src and caption make the formatter print "None".
+		if ( ! $thumb_id ) {
+			return [
+				'src'     => '',
+				'caption' => '',
+				'plain'   => __( 'None', 'simple-history' ),
+			];
+		}
+
+		$attached_file = get_attached_file( $thumb_id );
+		$thumb_src     = wp_get_attachment_image_src( $thumb_id, 'small' );
+
+		if ( $attached_file && file_exists( $attached_file ) && $thumb_src ) {
+			return [
+				'src'     => $thumb_src[0],
+				'caption' => $title,
+				'plain'   => $thumb_src[0],
+			];
+		}
+
+		// Attachment is gone. Show the title captured at log time.
+		return [
+			'src'     => '',
+			'caption' => $title !== '' ? $title : (string) $thumb_id,
+			'plain'   => $title !== '' ? $title : (string) $thumb_id,
+		];
 	}
 
 	/**

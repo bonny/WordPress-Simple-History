@@ -273,7 +273,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   Post and page events now link to the revision that change actually created, labelled "View revision". On WordPress 7.1 and later the link opens the editor's visual revision view, where changed blocks are marked up in place.
--   Site icon changes now show the old and new icon as images instead of attachment IDs.
+-   Site icon changes now show the previous and the new icon side by side, in the same red and green layout as featured image changes on posts, instead of attachment IDs.
 -   When a license key cannot be activated because it has reached its activation limit, the settings page now explains that the key is still in use on another copy of the site and how to free it up, instead of only showing the raw error.
 -   Experimental — Event fields sent to AI tools and MCP clients through the WordPress Abilities API now carry readable labels and descriptions, so a client shows "Date (UTC)" and "Times Repeated" instead of raw field names. Follows the [output schema conventions added in WordPress 7.1](https://make.wordpress.org/core/2026/07/31/abilities-api-improvements-in-wordpress-7-1/); the Abilities API itself needs WordPress 6.9 or later.
 
@@ -288,6 +288,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   A note that starts with an @mention no longer shows the mention glued to the next word.
 -   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable. They now render as text and make no external request.
 -   Failed application password logins are now throttled like other failed logins, and no longer reset the count for ordinary failed logins. A brute-force attack against the REST API could previously flood the log with tens of thousands of events.
+-   Featured image changes on posts no longer show duplicate raw "thumb_id" and "thumb_title" rows, and an added or removed image now says "None" on the empty side instead of showing a blank box.
 -   Updating a theme or plugin by uploading a newer zip ("Replace installed with uploaded") is now logged as an update with the previous version, instead of as a new install.
 
 **Security**
