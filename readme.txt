@@ -283,6 +283,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Edited your profile" events with no changed fields no longer appear out of nowhere. The block editor saves your editor preferences to your user record whenever one changes — opening the settings sidebar, collapsing a panel, dismissing the welcome guide — and each save was logged as a profile edit.
 -   Notes added to a word or phrase inside a block no longer show a literal `<br>` tag in the event details.
 -   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable. They now render as text and make no external request.
+-   Failed application password logins are now throttled like other failed logins, and no longer reset the count for ordinary failed logins. A brute-force attack against the REST API could previously flood the log with tens of thousands of events.
 
 **Security**
 

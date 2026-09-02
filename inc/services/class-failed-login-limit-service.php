@@ -4,6 +4,7 @@ namespace Simple_History\Services;
 
 use Simple_History\Helpers;
 use Simple_History\Loggers\Logger;
+use Simple_History\Loggers\User_Logger;
 
 /**
  * Limits logging of consecutive failed login attempts to prevent database bloat.
@@ -29,12 +30,6 @@ class Failed_Login_Limit_Service extends Service {
 
 	/** @var string Option name for the all-time total of suppressed attempts. */
 	private const OPTION_TOTAL_SUPPRESSED = 'sh_core_failed_login_total_suppressed';
-
-	/** @var string[] Message keys for failed login events. */
-	private const FAILED_LOGIN_MESSAGE_KEYS = [
-		'user_login_failed',
-		'user_unknown_login_failed',
-	];
 
 	/**
 	 * @inheritdoc
@@ -141,7 +136,7 @@ class Failed_Login_Limit_Service extends Service {
 
 		$message_key = $context['_message_key'] ?? '';
 
-		return in_array( $message_key, self::FAILED_LOGIN_MESSAGE_KEYS, true );
+		return in_array( $message_key, User_Logger::get_failed_login_message_keys(), true );
 	}
 
 	/**

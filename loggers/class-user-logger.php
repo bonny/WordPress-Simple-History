@@ -180,6 +180,44 @@ class User_Logger extends Logger {
 	}
 
 	/**
+	 * Message keys for failed login attempts by an existing user, whichever
+	 * way they authenticated (login form or application password).
+	 *
+	 * @var string[]
+	 */
+	public const FAILED_LOGIN_MESSAGE_KEYS_EXISTING_USER = [
+		'user_login_failed',
+		'user_application_password_login_failed',
+	];
+
+	/**
+	 * Message keys for failed login attempts with an unknown username or email.
+	 *
+	 * @var string[]
+	 */
+	public const FAILED_LOGIN_MESSAGE_KEYS_UNKNOWN_USER = [
+		'user_unknown_login_failed',
+		'user_application_password_unknown_login_failed',
+	];
+
+	/**
+	 * Get every message key that represents a failed login attempt.
+	 *
+	 * This is the one list the failed login throttling in core and premium
+	 * should use, so a new failed-login message key only needs adding here.
+	 *
+	 * @since 5.32.0
+	 *
+	 * @return string[]
+	 */
+	public static function get_failed_login_message_keys() {
+		return array_merge(
+			self::FAILED_LOGIN_MESSAGE_KEYS_EXISTING_USER,
+			self::FAILED_LOGIN_MESSAGE_KEYS_UNKNOWN_USER
+		);
+	}
+
+	/**
 	 * Add actions and filters when logger is loaded by Simple History
 	 */
 	public function loaded() {
