@@ -279,6 +279,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   "Copy event message" and "Copy as Markdown" put the site's time on the clipboard while the log on screen showed the visitor's own.
 -   The revisions link on post events opened the newest revision instead of the one belonging to the event, so an older event could show today's content.
 -   Content diffs used two different sets of greens and reds depending on how the event was stored. They now use the same colours as WordPress core's revision screen.
+-   "Edited your profile" events with no changed fields no longer appear when the block editor saves editor preferences in the background.
 
 **Security**
 

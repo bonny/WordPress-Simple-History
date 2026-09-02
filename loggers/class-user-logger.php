@@ -613,7 +613,40 @@ class User_Logger extends Logger {
 		// Remove keys used for diff.
 		unset( $context['user_prev_roles'], $context['user_new_roles'] );
 
+		// Bail if nothing actually changed. WordPress fires profile_update even
+		// when wp_update_user() only touched user meta, e.g. when the block editor
+		// persists editor preferences via REST. Logging those as profile edits
+		// creates events for edits that never happened.
+		if ( ! $this->profile_update_context_has_changes( $context ) ) {
+			return;
+		}
+
 		$this->info_message( 'user_updated_profile', $context );
+	}
+
+	/**
+	 * Check if a collected profile update context contains any real change:
+	 * a changed users-table field, a changed password, or a role change.
+	 *
+	 * @param array $context Context collected for the profile update.
+	 * @return bool True if at least one change is recorded in the context.
+	 */
+	private function profile_update_context_has_changes( $context ) {
+		if ( ! empty( $context['edited_user_password_changed'] ) ) {
+			return true;
+		}
+
+		if ( ! empty( $context['user_added_roles'] ) || ! empty( $context['user_removed_roles'] ) ) {
+			return true;
+		}
+
+		foreach ( array_keys( $context ) as $key ) {
+			if ( str_starts_with( $key, 'user_prev_' ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
