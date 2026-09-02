@@ -283,7 +283,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The revisions link on post events opened the newest revision instead of the one belonging to the event, so an older event could show today's content.
 -   Content diffs used two different sets of greens and reds depending on how the event was stored. They now use the same colours as WordPress core's revision screen.
 -   "Edited your profile" events with no changed fields no longer appear out of nowhere. The block editor saves your editor preferences to your user record whenever one changes — opening the settings sidebar, collapsing a panel, dismissing the welcome guide — and each save was logged as a profile edit.
--   Notes added to a word or phrase inside a block no longer show a literal `<br>` tag in the event details.
+-   Notes added to a word or phrase inside a block, a WordPress 7.1 addition to the notes feature from 6.9, no longer show a literal `<br>` tag in the event details.
 -   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable. They now render as text and make no external request.
 -   Failed application password logins are now throttled like other failed logins, and no longer reset the count for ordinary failed logins. A brute-force attack against the REST API could previously flood the log with tens of thousands of events.
 -   Updating a theme or plugin by uploading a newer zip ("Replace installed with uploaded") is now logged as an update with the previous version, instead of as a new install.
