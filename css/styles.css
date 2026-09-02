@@ -1696,9 +1696,10 @@ scrollbar carries "there is more" on its own.
 
 /*
 Right-aligned on purpose: it sits where the scrollbar appears, which is where
-the hand goes when someone realises the diff is cropped. The negative right
-margin hangs the padding past the text edge, mirroring what the action links
-below do on the left, so both rows share one optical edge.
+the hand goes when someone realises the diff is cropped. Tucked flush against
+the diff above it, and inset from the right edge rather than hanging its
+padding past it, so it reads as belonging to the diff rather than to the
+action links below.
 
 Styled as a control rather than a link — same hover treatment as the action
 links, no resting underline — because it changes this view instead of
@@ -1711,9 +1712,9 @@ navigating away.
 	cursor: pointer;
 	display: block;
 	font-size: var(--sh-font-size-small);
-	margin-top: var(--sh-spacing-xsmall);
+	margin-top: 0;
 	margin-left: auto;
-	margin-right: calc(var(--sh-spacing-small) * -1);
+	margin-right: var(--sh-spacing-small);
 	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
 	text-decoration: none;
 }
