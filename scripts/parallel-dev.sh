@@ -185,7 +185,11 @@ issue_file_for() {
 
 	[ -n "${SH_NOTES_DIR:-}" ] || return 0
 
-	ls "$SH_NOTES_DIR/Simple History/issues/${BASH_REMATCH[1]} - "*.md 2>/dev/null | head -1
+	# `|| true` because a missing issue is normal, not an error: the issue may
+	# have been archived while its worktree is still up. Without it, `ls`
+	# failing propagates through pipefail and set -e aborts the whole command
+	# — which made `up` die silently for any slug whose issue had been filed away.
+	ls "$SH_NOTES_DIR/Simple History/issues/${BASH_REMATCH[1]} - "*.md 2>/dev/null | head -1 || true
 }
 
 # obsidian:// deep link to the issue document, for the dev toolbar.
@@ -398,10 +402,17 @@ cmd_up() {
 		echo "Note: blueprint defines WP_ENVIRONMENT_TYPE — keeping it. Basic-auth REST access needs 'local' over plain HTTP."
 	fi
 
+	# The branch has to be passed in: a worktree's .git is a file pointing at
+	# an absolute path on this machine, which the container serving the site
+	# cannot follow, so the toolbar cannot read it for itself.
+	local branch_name
+	branch_name="$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '')"
+
 	local extra_consts
 	extra_consts="$(jq -n \
 		--arg url "$site_url" \
 		--arg path "$dir" \
+		--arg branch "$branch_name" \
 		--argjson hport "$HELPER_PORT" \
 		--arg token "$(helper_token)" \
 		--arg issue "$issue_url" \
@@ -414,7 +425,8 @@ cmd_up() {
 		  SH_DEV_APP_USER: $app_user, SH_DEV_APP_PASSWORD: $app_password}
 		 + (if $set_env then {WP_ENVIRONMENT_TYPE: "local"} else {} end)
 		 + (if $named then {WP_HOME: $url, WP_SITEURL: $url} else {} end)
-		 + (if $issue != "" then {SH_DEV_ISSUE_URL: $issue} else {} end)')"
+		 + (if $issue != "" then {SH_DEV_ISSUE_URL: $issue} else {} end)
+		 + (if $branch != "" then {SH_DEV_BRANCH: $branch} else {} end)')"
 
 	jq --argjson consts "$extra_consts" \
 		'.steps += [{"step": "defineWpConfigConsts", "consts": $consts}]' \
