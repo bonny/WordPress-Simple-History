@@ -120,6 +120,8 @@ function EventsGUI() {
 	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
 		useState( 0 );
 	const [ isReactionsEnabled, setIsReactionsEnabled ] = useState( false );
+	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
+		useState( false );
 	// Seeded from the value localized at enqueue time (see React_Dropin) so links
 	// can be built on the first render. The search-options response overwrites it
 	// with the same value once it arrives.
@@ -288,7 +290,9 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
-	const [ excludeMessages ] = useQueryState(
+	// Same shape as selectedMessageTypes. Set from an event's "Hide events of
+	// this type" action and cleared from the chips above the list.
+	const [ excludeMessages, setExcludeMessages ] = useQueryState(
 		'exclude-messages',
 		parseAsJson( messageTypesSchema.parse )
 			.withDefault( emptyArray )
@@ -388,7 +392,8 @@ function EventsGUI() {
 			selectedContextFilters.trim().length > 0 ||
 			enteredMetadataSearch.trim().length > 0 ||
 			showAIOnly ||
-			hideOwnEvents;
+			hideOwnEvents ||
+			excludeMessages.length > 0;
 
 		const hasSearchText = enteredSearchText.trim().length > 0;
 
@@ -403,6 +408,7 @@ function EventsGUI() {
 		enteredMetadataSearch,
 		showAIOnly,
 		hideOwnEvents,
+		excludeMessages,
 		enteredSearchText,
 	] );
 
@@ -430,6 +436,7 @@ function EventsGUI() {
 		setEnteredMetadataSearch( '' );
 		setShowAIOnly( false );
 		setHideOwnEvents( false );
+		setExcludeMessages( [] );
 	}, [
 		setSelectedDateOption,
 		setEnteredSearchText,
@@ -444,7 +451,51 @@ function EventsGUI() {
 		setEnteredMetadataSearch,
 		setShowAIOnly,
 		setHideOwnEvents,
+		setExcludeMessages,
 	] );
+
+	// Hide every event with the same logger and message key as this event
+	// from the current list. Subtractive search: the user cannot say what
+	// they are looking for, but can recognise what it is not.
+	const hideMessageType = useCallback(
+		( event ) => {
+			if ( ! event?.logger || ! event?.message_key ) {
+				return;
+			}
+
+			const searchOption = `${ event.logger }:${ event.message_key }`;
+
+			const alreadyHidden = excludeMessages.some( ( messageType ) =>
+				messageType.search_options.includes( searchOption )
+			);
+
+			if ( alreadyHidden ) {
+				return;
+			}
+
+			// Label the chip with the message template, with placeholders
+			// blanked out so it reads as a type rather than as this one event.
+			// message_template is translated; message_uninterpolated is the
+			// stored template, in whatever language the site had at log time.
+			const label = (
+				event.message_template ||
+				event.message_uninterpolated ||
+				event.message ||
+				searchOption
+			)
+				.replace( /\{[^}]+\}/g, '…' )
+				.trim();
+
+			setExcludeMessages( [
+				...excludeMessages,
+				{
+					value: label,
+					search_options: [ searchOption ],
+				},
+			] );
+		},
+		[ excludeMessages, setExcludeMessages ]
+	);
 
 	// Generate the events query params.
 	// Memoized to avoid unnecessary re-renders in the child components.
@@ -712,6 +763,7 @@ function EventsGUI() {
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
 			reactionsEnabled: isReactionsEnabled,
+			experimentalFeaturesEnabled: isExperimentalFeaturesEnabled,
 			eventsSettingsPageURL: settingsPageURL,
 			alertsPageURL,
 			eventsAdminPageURL,
@@ -721,6 +773,7 @@ function EventsGUI() {
 			// This GUI owns the filter controls, so descendants can filter by
 			// updating state here instead of navigating away.
 			canFilterEventsInPlace: true,
+			hideMessageType,
 		} ),
 		[
 			mapsApiKey,
@@ -728,12 +781,14 @@ function EventsGUI() {
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
 			isReactionsEnabled,
+			isExperimentalFeaturesEnabled,
 			settingsPageURL,
 			alertsPageURL,
 			eventsAdminPageURL,
 			userCanManageOptions,
 			searchOptionsLoaded,
 			currentUserId,
+			hideMessageType,
 		]
 	);
 
@@ -782,6 +837,9 @@ function EventsGUI() {
 						setFailedLoginSuppressedCount
 					}
 					setIsReactionsEnabled={ setIsReactionsEnabled }
+					setIsExperimentalFeaturesEnabled={
+						setIsExperimentalFeaturesEnabled
+					}
 					eventsAdminPageURL={ eventsAdminPageURL }
 					setEventsAdminPageURL={ setEventsAdminPageURL }
 					setEventsSettingsPageURL={ setSettingsPageURL }
@@ -790,6 +848,8 @@ function EventsGUI() {
 					onReload={ handleReload }
 					setCurrentUserId={ setCurrentUserId }
 					setUserCanManageOptions={ setUserCanManageOptions }
+					excludeMessages={ excludeMessages }
+					setExcludeMessages={ setExcludeMessages }
 					hideOwnEvents={ hideOwnEvents }
 					setHideOwnEvents={ setHideOwnEvents }
 					defaultDateOptionRef={ defaultDateOptionRef }

@@ -119,7 +119,7 @@ class Notes_Logger extends Logger {
 			return;
 		}
 
-		$comment_content = trim( $comment->comment_content );
+		$comment_content = $this->normalize_note_content( $comment->comment_content );
 
 		// Skip if this comment has no content.
 		// Empty comments are status markers (resolved/reopened) that will be logged
@@ -184,10 +184,71 @@ class Notes_Logger extends Logger {
 			'post_id'      => $comment->comment_post_ID,
 			'post_type'    => get_post_type( $post ),
 			'post_title'   => $post->post_title,
-			'note_content' => $comment->comment_content,
+			'note_content' => $this->normalize_note_content( $comment->comment_content ),
 		];
 
 		$this->info_message( 'note_edited', $context );
+	}
+
+	/**
+	 * Action links for a note event: the same links as the post or page the
+	 * note sits on, since acting on a note means opening that post.
+	 *
+	 * Delegates to the post logger so the two never drift. The revision link
+	 * only appears for post_updated events there, and a note event has a
+	 * note_* message key, so it stays out here by construction.
+	 *
+	 * @param object $row Log row.
+	 * @return array Action links.
+	 */
+	public function get_action_links( $row ) {
+		$post_logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePostLogger' );
+
+		if ( ! $post_logger instanceof Post_Logger ) {
+			return [];
+		}
+
+		return $post_logger->get_action_links( $row );
+	}
+
+	/**
+	 * Normalize note content before it goes into the event context.
+	 *
+	 * WordPress stores a trailing <br> when a note is anchored to inline text
+	 * rather than a whole block. Since context values are escaped on output,
+	 * any stored markup would show up as literal text in the event details.
+	 *
+	 * @param string $content Raw comment content.
+	 * @return string Plain-text content with line breaks preserved.
+	 */
+	private function normalize_note_content( $content ) {
+		// Turn <br> into a newline before stripping tags. Stripping alone would
+		// glue the surrounding words together ("First line<br>Second" becomes
+		// "First lineSecond"). The trim below drops the trailing newline that
+		// inline notes carry.
+		$content = preg_replace( '#<br\s*/?>#i', "\n", (string) $content );
+
+		// A mention is stored as a span with the next word right after it,
+		// "<span class=\"wp-note-mention user-2\">@name</span>nice!", and the
+		// editor draws the gap with CSS. Put a real space there so stripping
+		// the span does not glue "@name" to "nice!".
+		//
+		// Match the chip the way core's wp_get_note_mentioned_user_ids() does:
+		// a span whose class list contains the wp-note-mention token, whatever
+		// the token order, attribute order, quote style or tag case.
+		$content = preg_replace(
+			'#(<span\b[^>]*\bclass\s*=\s*(["\'])(?:[^"\']*\s)?wp-note-mention(?:\s[^"\']*)?\2[^>]*>[^<]*</span>)(?=\S)#i',
+			'$1 ',
+			$content
+		);
+
+		// Entities such as &lt; stay encoded, as WordPress stored them. Decoding
+		// here would turn a kses-neutralised payload from a Contributor back
+		// into live markup that every sink must then escape; the text sinks
+		// (export, CLI, REST message) decode at output time instead.
+		$content = wp_strip_all_tags( $content );
+
+		return trim( $content );
 	}
 
 	/**

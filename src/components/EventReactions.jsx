@@ -11,6 +11,10 @@ import { getTrackingUrl } from '../functions';
  * All supported reaction types. Only thumbsup is free in core.
  * A couple of premium types are shown as teasers.
  */
+// Every element that renders an emoji character below carries the
+// wp-exclude-emoji class. WordPress's wp-emoji script otherwise replaces
+// emoji with <img> tags served from a remote CDN, which breaks when that
+// host is unreachable and costs an external request per emoji.
 const REACTIONS = [
 	{ type: 'thumbsup', emoji: '👍', label: 'Thumbs up', premium: false },
 	{ type: 'heart', emoji: '❤️', label: 'Heart', premium: true },
@@ -177,7 +181,7 @@ function ReactionPill( {
 				aria-pressed={ data.reacted }
 				size="small"
 			>
-				<span className="SimpleHistoryLogitem__reactionEmoji">
+				<span className="SimpleHistoryLogitem__reactionEmoji wp-exclude-emoji">
 					{ emoji }
 				</span>
 				<span className="SimpleHistoryLogitem__reactionCount">
@@ -232,7 +236,9 @@ function ReactionPickerPopover( {
 							title={ reaction.label }
 							type="button"
 						>
-							<span>{ reaction.emoji }</span>
+							<span className="wp-exclude-emoji">
+								{ reaction.emoji }
+							</span>
 						</button>
 					) ) }
 				</div>
@@ -250,7 +256,7 @@ function ReactionPickerPopover( {
 							{ PREMIUM_REACTIONS.map( ( reaction ) => (
 								<span
 									key={ reaction.type }
-									className="sh-ReactionPicker__premiumEmoji"
+									className="sh-ReactionPicker__premiumEmoji wp-exclude-emoji"
 								>
 									{ reaction.emoji }
 								</span>

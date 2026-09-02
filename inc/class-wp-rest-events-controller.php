@@ -724,6 +724,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The uninterpolated message of the event.', 'simple-history' ),
 					'type'        => 'string',
 				),
+				'message_template'           => array(
+					'description' => __( 'The message template of the event in the site language, with its placeholders. Falls back to the stored template when the logger no longer knows the message key.', 'simple-history' ),
+					'type'        => 'string',
+				),
 				'logger'                     => array(
 					'description' => __( 'The logger of the event.', 'simple-history' ),
 					'type'        => 'string',
@@ -1119,6 +1123,28 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Get the message template of an event in the site language.
+	 *
+	 * The stored message is the template as it read when the event was
+	 * logged, in the language the site had then. The logger knows the same
+	 * template in the current language, so prefer that. Fall back to the
+	 * stored one when the logger is gone or no longer has the message key.
+	 *
+	 * @param object $item Event row.
+	 * @return string Message template with its placeholders.
+	 */
+	private function get_message_template( $item ) {
+		$message_key = $item->context['_message_key'] ?? '';
+		$logger      = $this->simple_history->get_instantiated_logger_by_slug( $item->logger );
+
+		if ( $message_key === '' || ! $logger ) {
+			return $item->message;
+		}
+
+		return $logger->get_translated_message( $message_key ) ?? $item->message;
+	}
+
+	/**
 	 * Prepares a single post output for response.
 	 *
 	 * @param object           $item    Post object.
@@ -1167,6 +1193,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( rest_is_field_included( 'message_uninterpolated', $fields ) ) {
 			$data['message_uninterpolated'] = $item->message;
+		}
+
+		if ( rest_is_field_included( 'message_template', $fields ) ) {
+			$data['message_template'] = $this->get_message_template( $item );
 		}
 
 		if ( rest_is_field_included( 'details_data', $fields ) ) {

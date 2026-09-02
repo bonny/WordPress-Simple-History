@@ -84,6 +84,10 @@ export const EVENT_FIELDS = [
 	'date_gmt',
 	'message',
 	'message_html',
+	'message_uninterpolated',
+	// The message template in the site language, with its placeholders;
+	// labels the chip for a hidden event type without naming one event.
+	'message_template',
 	'message_key',
 	'details_data',
 	'details_html',
@@ -308,11 +312,19 @@ export function generateAPIQueryParams( props ) {
 	}
 
 	if ( excludeMessages && excludeMessages.length > 0 ) {
-		// Map message objects to logger:message format
-		const excludeMessageValues = excludeMessages.map( ( message ) => {
-			return `${ message.logger_slug }:${ message.message }`;
+		// Same shape as selectedMessageTypes: each entry carries one or more
+		// "LoggerSlug:message_key" strings in search_options.
+		const excludeMessageValues = [];
+
+		excludeMessages.forEach( ( messageType ) => {
+			( messageType.search_options || [] ).forEach( ( searchOption ) => {
+				excludeMessageValues.push( searchOption );
+			} );
 		} );
-		eventsQueryParams.exclude_messages = excludeMessageValues;
+
+		if ( excludeMessageValues.length ) {
+			eventsQueryParams.exclude_messages = excludeMessageValues;
+		}
 	}
 
 	if ( excludeUsers && excludeUsers.length > 0 ) {

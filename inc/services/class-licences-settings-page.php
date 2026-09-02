@@ -231,6 +231,69 @@ class Licences_Settings_Page extends Service {
 	}
 
 	/**
+	 * Build the error message shown when a license could not be activated.
+	 *
+	 * The activation-limit error gets real guidance: it is what users hit
+	 * after restoring a backup or migrating a site, when the key is still
+	 * spent on an install that no longer exists and they cannot free it
+	 * themselves. Other errors keep the generic message with the raw API
+	 * message attached, since support threads rely on it. The activation
+	 * limit notice leaves it out: it would only repeat what the notice says.
+	 *
+	 * @param string $api_message Error message returned by the license API.
+	 * @return string HTML, safe to output through wp_kses() with code, strong, br and a allowed.
+	 */
+	public function get_activation_error_message( $api_message ) {
+		$error_info = sprintf(
+			/* translators: %s: error message from the license server. */
+			__( 'Error info: <code>%s</code>', 'simple-history' ),
+			esc_html( $api_message )
+		);
+
+		if ( stripos( $api_message, 'activation limit' ) === false ) {
+			return __( 'Could not activate license. 😢', 'simple-history' ) . ' ' . $error_info;
+		}
+
+		$my_orders_url = 'https://app.lemonsqueezy.com/my-orders/';
+		$guide_url     = Helpers::get_tracking_url( 'https://simple-history.com/support/license-activation-limit/', 'licences_activation_limit' );
+		$contact_url   = Helpers::get_tracking_url( 'https://simple-history.com/contact/', 'licences_activation_limit' );
+
+		$link_end = '</a>';
+
+		// One short string per line, with the link tags passed in as
+		// placeholders, so translators never have to reproduce markup.
+		$line_what = __( '<strong>This license key is already active on another site</strong>, often an earlier copy of this one such as a backup or staging site.', 'simple-history' );
+
+		$line_fix = sprintf(
+			/* translators: 1: link start tag to the Lemon Squeezy "My orders" page, 2: link end tag. */
+			__( 'Deactivate that site on your %1$sMy orders page%2$s at Lemon Squeezy, then try again.', 'simple-history' ),
+			$this->get_external_link_start( $my_orders_url ),
+			$link_end
+		);
+
+		$line_help = sprintf(
+			/* translators: 1: link start tag to the instructions page, 2: link end tag, 3: link start tag to the contact page, 4: link end tag. */
+			__( 'Stuck? See the %1$sstep-by-step instructions%2$s or %3$scontact support%4$s.', 'simple-history' ),
+			$this->get_external_link_start( $guide_url ),
+			$link_end,
+			$this->get_external_link_start( $contact_url ),
+			$link_end
+		);
+
+		return $line_what . '<br>' . $line_fix . '<br>' . $line_help;
+	}
+
+	/**
+	 * Opening tag for a link that opens in a new tab, for use as a translation placeholder.
+	 *
+	 * @param string $url Link target.
+	 * @return string
+	 */
+	private function get_external_link_start( $url ) {
+		return sprintf( '<a href="%s" class="sh-ExternalLink" target="_blank">', esc_url( $url ) );
+	}
+
+	/**
 	 * Output fields to enter licence key and to activate, deactiave, and show info, for one plus plugin.
 	 *
 	 * @param AddOn_Plugin $plus_plugin One plus plugin.
@@ -253,19 +316,16 @@ class Licences_Settings_Page extends Service {
 				$activation_result = $plus_plugin->activate_license( $new_licence_key );
 
 				if ( $activation_result['success'] === true ) {
-					$form_success_message = 'License activated! 🎉';
+					$form_success_message = __( 'License activated! 🎉', 'simple-history' );
 				} else {
-					$form_error_message = sprintf(
-						'Could not activate license. 😢 Error info: <code>%s</code>',
-						esc_html( $activation_result['message'] )
-					);
+					$form_error_message = $this->get_activation_error_message( (string) $activation_result['message'] );
 				}
 			} elseif ( $action_deactivate ) {
 				$deactivate_result = $plus_plugin->deactivate_license();
 				if ( $deactivate_result === true ) {
-					$form_success_message = 'License deactivated. 👋';
+					$form_success_message = __( 'License deactivated. 👋', 'simple-history' );
 				} else {
-					$form_error_message = 'Could not deactivate license.';
+					$form_error_message = __( 'Could not deactivate license.', 'simple-history' );
 				}
 			}
 		}
@@ -350,7 +410,14 @@ class Licences_Settings_Page extends Service {
 						wp_kses(
 							$form_error_message,
 							[
-								'code' => [],
+								'code'   => [],
+								'strong' => [],
+								'br'     => [],
+								'a'      => [
+									'href'   => [],
+									'class'  => [],
+									'target' => [],
+								],
 							]
 						)
 					);
