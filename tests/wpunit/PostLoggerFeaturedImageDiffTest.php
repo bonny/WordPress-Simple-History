@@ -53,6 +53,27 @@ class PostLoggerFeaturedImageDiffTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
+	public function test_images_use_the_thumbnail_size_not_the_original_upload() {
+		$html = $this->render(
+			array(
+				'post_prev_thumb_id'    => (string) $this->old_attachment_id,
+				'post_prev_thumb_title' => 'Old image',
+				'post_new_thumb_id'     => (string) $this->new_attachment_id,
+				'post_new_thumb_title'  => 'New image',
+			)
+		);
+
+		preg_match_all( '#<img[^>]*src="([^"]+)"#', $html, $matches );
+		$this->assertCount( 2, $matches[1], 'Both sides should render an image' );
+
+		foreach ( $matches[1] as $src ) {
+			$this->assertMatchesRegularExpression( '#-\d+x\d+\.jpg$#', $src, "Expected a resized file, got the original upload: {$src}" );
+		}
+
+		$this->assertStringNotContainsString( wp_get_attachment_url( $this->old_attachment_id ), $html );
+		$this->assertStringNotContainsString( wp_get_attachment_url( $this->new_attachment_id ), $html );
+	}
+
 	public function test_thumb_id_and_thumb_title_are_not_rendered_as_separate_rows() {
 		$html = $this->render(
 			array(

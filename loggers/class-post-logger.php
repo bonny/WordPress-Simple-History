@@ -2329,7 +2329,7 @@ class Post_Logger extends Logger {
 		}
 
 		$attached_file = get_attached_file( $thumb_id );
-		$thumb_src     = wp_get_attachment_image_src( $thumb_id, 'small' );
+		$thumb_src     = wp_get_attachment_image_src( $thumb_id, 'thumbnail' );
 
 		if ( $attached_file && file_exists( $attached_file ) && $thumb_src ) {
 			return [
