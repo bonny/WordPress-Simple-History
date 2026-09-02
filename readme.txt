@@ -269,7 +269,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Long diffs can now be expanded in place with an "Expand diff" button, instead of only scrolling inside a small box.
 -   Note events now carry the same action links as the page or post the note belongs to: Edit, View or Preview, and the list of all pages or posts.
 -   Experimental — "Hide events of this type" in an event's actions menu removes that event type from the current list, for the times you cannot say what you are looking for but can recognise what it is not. Hidden types show as removable chips above the list and are part of the page URL, so they clear when you clear filters and never change what gets logged.
--   Experimental — When failed login throttling kicks in and the attack then stops, the log now gets one event saying how many attempts were skipped, when they happened, and the last username and IP tried, so the size of an attack stays on record after the throttling banner is gone.
+-   Experimental — When failed login throttling kicks in and the attack then stops, the log now gets one event from Simple History saying how many attempts there were in total, how many were not recorded, when they happened, and the username and IP targeted, so the size of an attack stays on record after the throttling banner is gone.
 
 **Changed**
 

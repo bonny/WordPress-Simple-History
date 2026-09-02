@@ -2,6 +2,7 @@
 
 use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
+use Simple_History\Loggers\Simple_History_Logger;
 use Simple_History\Loggers\User_Logger;
 use Simple_History\Services\Failed_Login_Limit_Service;
 
@@ -20,7 +21,7 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 	/** @var User_Logger */
 	private $logger;
 
-	/** @var array<array{0:array,1:array}> Every SimpleUserLogger write this test saw. */
+	/** @var array<array{0:array,1:array}> Every user logger and Simple History logger write this test saw. */
 	private $writes = [];
 
 	/** @var array Copy of $_SERVER to restore after tests that fake request headers. */
@@ -56,7 +57,7 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 	}
 
 	public function capture_write( $data_and_context, $instance ) {
-		if ( $instance instanceof User_Logger ) {
+		if ( $instance instanceof User_Logger || $instance instanceof Simple_History_Logger ) {
 			$this->writes[] = $data_and_context;
 		}
 
@@ -65,7 +66,7 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 
 	public function test_summary_key_is_not_treated_as_a_failed_login() {
 		$this->assertNotContains(
-			User_Logger::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED,
+			Simple_History_Logger::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED,
 			User_Logger::get_failed_login_message_keys(),
 			'The summary must never be counted or suppressed as a failed login itself'
 		);
@@ -81,14 +82,15 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 
 		[ $data, $context ] = $summary;
 
-		$this->assertSame( 5, (int) $context['failed_login_suppressed_count'] );
-		$this->assertSame( self::THRESHOLD, (int) $context['failed_login_threshold'] );
+		$this->assertSame( 5, (int) $context['failed_login_not_recorded_count'] );
+		$this->assertSame( self::THRESHOLD, (int) $context['failed_login_recorded_count'] );
+		$this->assertSame( self::THRESHOLD + 5, (int) $context['failed_login_total_count'] );
 		$this->assertSame( Log_Initiators::WORDPRESS, $data['initiator'] );
-		$this->assertSame( 'admin', $context['failed_login_last_username'] );
-		$this->assertSame( '203.0.113.10', $context['failed_login_last_ip'] );
+		$this->assertSame( 'admin', $context['failed_login_username'] );
+		$this->assertSame( '203.0.113.10', $context['failed_login_ip'] );
 		$this->assertSame( '203.0.113.10', $context['_server_remote_addr'], 'The summary should carry the attacker IP, not the IP of whoever ended the burst' );
-		$this->assertNotEmpty( $context['failed_login_suppressed_first_date'] );
-		$this->assertNotEmpty( $context['failed_login_suppressed_last_date'] );
+		$this->assertNotEmpty( $context['failed_login_first_not_recorded_date'] );
+		$this->assertNotEmpty( $context['failed_login_last_date'] );
 	}
 
 	public function test_summary_is_dated_at_the_last_suppressed_attempt() {
@@ -142,7 +144,7 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 
 		$this->assertSame( '10.0.0.x', $context['_server_remote_addr'] );
 		$this->assertSame( '198.51.100.x', $context['_server_http_x_forwarded_for_0'], 'Forwarded IPs from the attack must survive on the summary' );
-		$this->assertSame( '198.51.100.x', $context['failed_login_last_ip'], 'Behind a proxy the forwarded IP is the attacker, not the proxy' );
+		$this->assertSame( '198.51.100.x', $context['failed_login_ip'], 'Behind a proxy the forwarded IP is the attacker, not the proxy' );
 		$this->assertSame( 'https://example.com/wp-login.php', $context['_server_http_referer'] );
 	}
 
@@ -200,14 +202,14 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 			array_filter(
 				$this->writes,
 				static function ( $write ) {
-					return ( $write[1]['_message_key'] ?? '' ) === User_Logger::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED;
+					return ( $write[1]['_message_key'] ?? '' ) === Simple_History_Logger::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED;
 				}
 			)
 		);
 
 		$this->assertCount( 2, $summaries );
-		$this->assertSame( 5, (int) $summaries[0][1]['failed_login_suppressed_count'] );
-		$this->assertSame( 2, (int) $summaries[1][1]['failed_login_suppressed_count'] );
+		$this->assertSame( 5, (int) $summaries[0][1]['failed_login_not_recorded_count'] );
+		$this->assertSame( 2, (int) $summaries[1][1]['failed_login_not_recorded_count'] );
 	}
 
 	public function test_end_burst_is_callable_directly_with_tracked_details() {
@@ -223,10 +225,10 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 
 		[ , $context ] = $this->get_summary_write();
 
-		$this->assertSame( 42, (int) $context['failed_login_suppressed_count'] );
-		$this->assertSame( 500, (int) $context['failed_login_threshold'] );
-		$this->assertSame( 'editor', $context['failed_login_last_username'] );
-		$this->assertSame( '203.0.113.20', $context['failed_login_last_ip'] );
+		$this->assertSame( 42, (int) $context['failed_login_not_recorded_count'] );
+		$this->assertSame( 500, (int) $context['failed_login_recorded_count'] );
+		$this->assertSame( 'editor', $context['failed_login_username'] );
+		$this->assertSame( '203.0.113.20', $context['failed_login_ip'] );
 		$this->assertFalse( get_option( 'sh_core_failed_login_burst' ) );
 	}
 
@@ -236,13 +238,40 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 
 		[ , $context ] = $this->get_summary_write();
 
-		$row          = new stdClass();
-		$row->context = $context;
+		$row                      = new stdClass();
+		$row->context             = $context;
+		$row->context_message_key = $context['_message_key'];
+		$row->message             = '';
 
-		$details = $this->logger->get_log_row_details_output( $row );
+		$sh_logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleHistoryLogger' );
+		$details   = $sh_logger->get_log_row_details_output( $row );
 
 		$this->assertInstanceOf( \Simple_History\Event_Details\Event_Details_Group::class, $details );
-		$this->assertNotEmpty( $details->items );
+		$this->assertCount( 7, $details->items, 'Total, recorded, not recorded, last attempt, first unrecorded, username, IP' );
+	}
+
+	public function test_summary_message_reads_as_a_sentence_with_formatted_numbers() {
+		Failed_Login_Limit_Service::track_suppressed_attempt( [ 'login' => 'admin', '_server_remote_addr' => '203.0.113.10' ] );
+		Failed_Login_Limit_Service::end_burst( 4183, 100 );
+
+		[ , $context ] = $this->get_summary_write();
+
+		$row                      = new stdClass();
+		$row->context             = $context;
+		$row->context_message_key = $context['_message_key'];
+		$row->message             = '';
+
+		$sh_logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleHistoryLogger' );
+
+		$this->assertSame(
+			'Recorded 100 failed login attempts in a row, then stopped recording to keep the log small. 4,183 more attempts followed.',
+			$sh_logger->get_log_row_plain_text_output( $row )
+		);
+		$this->assertSame( '4183', (string) $context['failed_login_not_recorded_count'], 'Stored value stays a plain integer' );
+
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+		$links = $sh_logger->get_action_links( $row );
+		$this->assertSame( 'Configure failed login attempts', $links[0]['label'] ?? null );
 	}
 
 	private function run_burst( int $attempts, bool $with_ip_in_context = true ): void {
@@ -266,7 +295,7 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 	 */
 	private function get_summary_write() {
 		foreach ( $this->writes as $write ) {
-			if ( ( $write[1]['_message_key'] ?? '' ) === User_Logger::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED ) {
+			if ( ( $write[1]['_message_key'] ?? '' ) === Simple_History_Logger::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED ) {
 				return $write;
 			}
 		}

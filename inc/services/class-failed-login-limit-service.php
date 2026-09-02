@@ -5,6 +5,7 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 use Simple_History\Log_Initiators;
 use Simple_History\Loggers\Logger;
+use Simple_History\Loggers\Simple_History_Logger;
 use Simple_History\Loggers\User_Logger;
 use Simple_History\Simple_History;
 
@@ -134,7 +135,7 @@ class Failed_Login_Limit_Service extends Service {
 		// The summary written by end_burst() passes through this filter too.
 		// The counter is already zero by then; skipping it here also means the
 		// summary can never re-enter this path, whatever the option layer returns.
-		if ( ( $context['_message_key'] ?? '' ) === User_Logger::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED ) {
+		if ( ( $context['_message_key'] ?? '' ) === Simple_History_Logger::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED ) {
 			return $do_log;
 		}
 
@@ -216,9 +217,9 @@ class Failed_Login_Limit_Service extends Service {
 			return;
 		}
 
-		$user_logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleUserLogger' );
+		$logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleHistoryLogger' );
 
-		if ( ! $user_logger instanceof User_Logger ) {
+		if ( ! $logger instanceof Simple_History_Logger ) {
 			return;
 		}
 
@@ -235,12 +236,13 @@ class Failed_Login_Limit_Service extends Service {
 				// Simple History skipped these attempts. No user did anything, so
 				// stop the logger from attaching whoever ended the burst.
 				'_user_id'                           => 0,
-				'failed_login_suppressed_count'      => (int) $suppressed_count,
-				'failed_login_threshold'             => (int) $threshold,
-				'failed_login_suppressed_first_date' => $burst['first_date'] ?? '',
-				'failed_login_suppressed_last_date'  => $burst['last_date'] ?? '',
-				'failed_login_last_username'         => $burst['last_username'] ?? '',
-				'failed_login_last_ip'               => self::get_client_ip_from_request_context( $request_context ),
+				'failed_login_total_count'             => (int) $threshold + (int) $suppressed_count,
+				'failed_login_recorded_count'          => (int) $threshold,
+				'failed_login_not_recorded_count'      => (int) $suppressed_count,
+				'failed_login_first_not_recorded_date' => $burst['first_date'] ?? '',
+				'failed_login_last_date'               => $burst['last_date'] ?? '',
+				'failed_login_username'                => $burst['last_username'] ?? '',
+				'failed_login_ip'                      => self::get_client_ip_from_request_context( $request_context ),
 			]
 		);
 
@@ -248,7 +250,7 @@ class Failed_Login_Limit_Service extends Service {
 			$context['_date'] = $burst['last_date'];
 		}
 
-		$user_logger->warning_message( User_Logger::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED, $context );
+		$logger->warning_message( Simple_History_Logger::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED, $context );
 	}
 
 	/**

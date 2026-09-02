@@ -1,12 +1,14 @@
 # Issue 296 — Failed login suppression summary (experimental)
 
-When failed login throttling has skipped attempts and the burst then ends (any non-failed-login event is logged), core writes one `user_failed_logins_suppressed` event. It is gated on experimental features.
+When failed login throttling has skipped attempts and the burst then ends (any non-failed-login event is logged), core writes one `failed_logins_not_recorded` event through the Simple History logger. It is gated on experimental features.
+
+The row reads: "Recorded 100 failed login attempts in a row, then stopped recording to keep the log small. 4,183 more attempts followed." Attribution is "WordPress · Using plugin Simple History". Details: attempts in total, recorded, not recorded, last attempt, first unrecorded attempt, username targeted, IP address. Action link: "Configure failed login attempts".
 
 ## What is where
 
 -   `inc/services/class-failed-login-limit-service.php` — tracks the burst (`sh_core_failed_login_burst` option: first/last skipped time, last username, the attacker's IP, forwarded IPs and referer) while suppressing, and logs the summary from the reset path. `track_suppressed_attempt( $context )` and `end_burst( $suppressed_count, $threshold )` are public static so premium's limiter can call them; `end_burst()` owns reading and deleting the burst option.
 -   `inc/class-helpers.php` — `get_remote_addr_context()`, the REMOTE_ADDR + proxy-header block lifted out of `Logger::append_remote_addr_to_context()` so the service can capture the same keys at suppression time. The logger now calls it.
--   `loggers/class-user-logger.php` — `MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED`, the message, a "Skipped failed login attempts" search filter, and the details table.
+-   `loggers/class-simple-history-logger.php` — `MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED`, the message, a "Failed login attempts not recorded" search filter under the Simple History logger, number formatting in the plain-text output, the "Configure failed login attempts" action link, and the details table. It lives here rather than in the user logger because it records something the plugin did, and this logger's `name_via` gives the "Using plugin Simple History" attribution. Trade-off: the "Failed user logins" search filter does not include it.
 -   `uninstall.php` — the burst option is removed on uninstall.
 -   `tests/wpunit/FailedLoginSuppressionSummaryTest.php` — 12 tests.
 

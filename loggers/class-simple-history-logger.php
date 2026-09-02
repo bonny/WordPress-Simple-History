@@ -26,6 +26,19 @@ class Simple_History_Logger extends Logger {
 	private $deleted_option_values = [];
 
 	/**
+	 * Message key for the summary written when a throttled burst of failed
+	 * logins ends. Lives in this logger, not the user logger, because it records
+	 * something Simple History did (stopped recording), not something a user did.
+	 * It must stay out of User_Logger::get_failed_login_message_keys(), so it is
+	 * never counted or suppressed as a failed login itself.
+	 *
+	 * @since 5.32.0
+	 *
+	 * @var string
+	 */
+	public const MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED = 'failed_logins_not_recorded';
+
+	/**
 	 * Get info about this logger.
 	 *
 	 * @return array
@@ -45,6 +58,11 @@ class Simple_History_Logger extends Logger {
 				'manual_backfill_completed'       => _x( 'Manual backfill created {post_events} post events and {user_events} user events', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'channel_auto_disabled'           => _x( 'Auto-disabled log forwarding channel "{channel_name}" after {failure_count} consecutive failures', 'Logger: SimpleHistoryLogger', 'simple-history' ),
 				'log_forwarding_settings_updated' => _x( 'Updated Log Forwarding settings', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+				self::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED => _x(
+					'Recorded {failed_login_recorded_count} failed login attempts in a row, then stopped recording to keep the log small. {failed_login_not_recorded_count} more attempts followed.',
+					'Logger: SimpleHistoryLogger',
+					'simple-history'
+				),
 			),
 			'labels'      => array(
 				'search' => array(
@@ -66,6 +84,9 @@ class Simple_History_Logger extends Logger {
 						),
 						_x( 'Channel events', 'Simple History logger: search', 'simple-history' ) => array(
 							'channel_auto_disabled',
+						),
+						_x( 'Failed login attempts not recorded', 'Simple History logger: search', 'simple-history' ) => array(
+							self::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED,
 						),
 					),
 				),
@@ -621,13 +642,56 @@ class Simple_History_Logger extends Logger {
 	}
 
 	/**
+	 * @inheritdoc
+	 */
+	public function get_log_row_plain_text_output( $row ) {
+		if ( ( $row->context['_message_key'] ?? '' ) === self::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED ) {
+			// "4,183" reads as a count; "4183" reads as an id. Format a copy so
+			// the stored context keeps plain integers.
+			$row = clone $row;
+
+			foreach ( [ 'failed_login_recorded_count', 'failed_login_not_recorded_count' ] as $key ) {
+				if ( isset( $row->context[ $key ] ) ) {
+					$row->context[ $key ] = number_format_i18n( (int) $row->context[ $key ] );
+				}
+			}
+		}
+
+		return parent::get_log_row_plain_text_output( $row );
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function get_action_links( $row ) {
+		$message_key = $row->context['_message_key'] ?? '';
+
+		if ( $message_key !== self::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED || ! current_user_can( 'manage_options' ) ) {
+			return [];
+		}
+
+		// Same destination as the link on the grouped failed-login row below this event.
+		return [
+			[
+				'url'    => Helpers::get_settings_page_tab_url( 'failed-login-attempts' ),
+				'label'  => __( 'Configure failed login attempts', 'simple-history' ),
+				'action' => 'edit',
+			],
+		];
+	}
+
+	/**
 	 * Get the log row details for this logger.
 	 *
 	 * @param object $row Log row.
 	 * @return Event_Details_Group
 	 */
 	public function get_log_row_details_output( $row ) {
-		$message_key = $row->context_message_key;
+		$message_key = $row->context_message_key ?? ( $row->context['_message_key'] ?? '' );
+
+		if ( $message_key === self::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED ) {
+			return $this->get_failed_logins_not_recorded_details( $row->context ?? [] );
+		}
 
 		if ( $message_key === 'purged_events' ) {
 			// Add a text with a link with information on how to modify retention.
@@ -725,6 +789,55 @@ class Simple_History_Logger extends Logger {
 
 		$group->add_items( $items );
 		$group->set_title( __( 'Changed items', 'simple-history' ) );
+
+		return $group;
+	}
+
+	/**
+	 * Details table for the failed-logins-not-recorded summary, in the order a
+	 * worried admin reads them: how big, then when, then who was targeted.
+	 *
+	 * @param array $context Event context.
+	 * @return Event_Details_Group
+	 */
+	private function get_failed_logins_not_recorded_details( $context ) {
+		$group = new Event_Details_Group();
+
+		$counts = [
+			'failed_login_total_count'        => _x( 'Attempts in total', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+			'failed_login_recorded_count'     => _x( 'Recorded', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+			'failed_login_not_recorded_count' => _x( 'Not recorded', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+		];
+
+		foreach ( $counts as $key => $label ) {
+			if ( isset( $context[ $key ] ) ) {
+				$group->add_item(
+					( new Event_Details_Item( null, $label ) )->set_new_value( number_format_i18n( (int) $context[ $key ] ) )
+				);
+			}
+		}
+
+		$dates = [
+			'failed_login_last_date'               => _x( 'Last attempt', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+			'failed_login_first_not_recorded_date' => _x( 'First unrecorded attempt', 'Logger: SimpleHistoryLogger', 'simple-history' ),
+		];
+
+		foreach ( $dates as $key => $label ) {
+			if ( ! empty( $context[ $key ] ) ) {
+				$group->add_item(
+					( new Event_Details_Item( null, $label ) )->set_new_value(
+						get_date_from_gmt( $context[ $key ], get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) )
+					)
+				);
+			}
+		}
+
+		$group->add_items(
+			[
+				new Event_Details_Item( 'failed_login_username', _x( 'Username targeted', 'Logger: SimpleHistoryLogger', 'simple-history' ) ),
+				new Event_Details_Item( 'failed_login_ip', _x( 'IP address', 'Logger: SimpleHistoryLogger', 'simple-history' ) ),
+			]
+		);
 
 		return $group;
 	}
