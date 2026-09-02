@@ -236,8 +236,9 @@ class Licences_Settings_Page extends Service {
 	 * The activation-limit error gets real guidance: it is what users hit
 	 * after restoring a backup or migrating a site, when the key is still
 	 * spent on an install that no longer exists and they cannot free it
-	 * themselves. Other errors keep the generic message. The raw API message
-	 * is always included, since support threads rely on it.
+	 * themselves. Other errors keep the generic message with the raw API
+	 * message attached, since support threads rely on it. The activation
+	 * limit notice leaves it out: it would only repeat what the notice says.
 	 *
 	 * @param string $api_message Error message returned by the license API.
 	 * @return string HTML, safe to output through wp_kses() with code, strong, br and a allowed.
@@ -254,16 +255,12 @@ class Licences_Settings_Page extends Service {
 		}
 
 		$contact_url = Helpers::get_tracking_url( 'https://simple-history.com/contact/', 'licences_activation_limit' );
-		$help_url    = Helpers::get_tracking_url( 'https://simple-history.com/support/add-ons/', 'licences_activation_limit' );
 
-		$message = sprintf(
-			/* translators: 1: URL to the contact page, 2: URL to the add-ons support page. */
-			__( '<strong>This license key is already in use on another site.</strong> That is usually an earlier copy of this same site, such as a backup, a staging copy or a previous install. Deactivate the license there (Simple History → Settings → Licenses) and then activate it here. If that site is gone, <a href="%1$s" class="sh-ExternalLink" target="_blank">contact support</a> and we will free up the activation for you. <a href="%2$s" class="sh-ExternalLink" target="_blank">Read more about licenses</a>.', 'simple-history' ),
-			esc_url( $contact_url ),
-			esc_url( $help_url )
+		return sprintf(
+			/* translators: %s: URL to the contact page. */
+			__( '<strong>This license key is already active on another site</strong>, often an earlier copy of this one such as a backup or staging site. Deactivate it there under Simple History → Settings → Licences and try again. If that site no longer exists, <a href="%s" class="sh-ExternalLink" target="_blank">contact support</a> and we will free up the activation.', 'simple-history' ),
+			esc_url( $contact_url )
 		);
-
-		return $message . '<br>' . $error_info;
 	}
 
 	/**

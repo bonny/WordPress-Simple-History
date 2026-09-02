@@ -26,10 +26,15 @@ class LicencesSettingsPageActivationMessageTest extends \Codeception\TestCase\WP
 	public function test_activation_limit_error_explains_and_links_to_help() {
 		$html = $this->page->get_activation_error_message( 'This license key has reached the activation limit.' );
 
-		$this->assertStringContainsString( 'already in use on another site', $html );
+		$this->assertStringContainsString( 'already active on another site', $html );
 		$this->assertStringContainsString( 'href="https://simple-history.com/contact/', $html );
-		$this->assertStringContainsString( 'href="https://simple-history.com/support/add-ons/', $html );
-		$this->assertStringContainsString( '<code>This license key has reached the activation limit.</code>', $html );
+		$this->assertStringContainsString( 'Settings → Licences', $html, 'Spelling must match the tab name' );
+
+		// The notice already explains this error, so the raw API line and the
+		// read-more link would only repeat it.
+		$this->assertStringNotContainsString( '<code>', $html );
+		$this->assertStringNotContainsString( 'Error info', $html );
+		$this->assertStringNotContainsString( 'support/add-ons', $html );
 	}
 
 	public function test_other_errors_keep_the_generic_message() {
@@ -37,12 +42,13 @@ class LicencesSettingsPageActivationMessageTest extends \Codeception\TestCase\WP
 
 		$this->assertStringContainsString( 'Could not activate license', $html );
 		$this->assertStringContainsString( '<code>license_key not found.</code>', $html );
-		$this->assertStringNotContainsString( 'already in use on another site', $html );
+		$this->assertStringNotContainsString( 'already active on another site', $html );
 	}
 
 	public function test_api_message_is_escaped() {
-		$html = $this->page->get_activation_error_message( '<script>alert(1)</script> activation limit' );
+		$html = $this->page->get_activation_error_message( '<script>alert(1)</script> not found' );
 
+		$this->assertStringContainsString( 'alert(1)', $html, 'The raw message is still shown for unknown errors' );
 		$this->assertStringNotContainsString( '<script>', $html );
 	}
 }
