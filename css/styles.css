@@ -1646,6 +1646,116 @@ Modal window with detailss
 	overflow-y: auto;
 }
 
+/*
+Cropping used to be silent — a long diff just stopped, with nothing to say more
+existed, which on a long diff can hide most of a recorded change while the row
+still looks complete. A fade marks the crop line and a toggle opens the diff in
+place. Both are added only to diffs that actually overflow, by
+useExpandableDiffs.js.
+
+A mask rather than a gradient overlay, for two reasons. It fades the content
+itself, so it works on rows that are not white — newly polled events and the
+highlighted permalink target both tint the row behind the diff. And it is
+anchored to the element's own box, so it stays at the bottom edge when the user
+hovers and scrolls inside the box, instead of drifting up over the text they
+are reading.
+
+Kept deliberately shallow. The fade can only ever be a supporting cue: whether
+it reads at all depends on what happens to sit at the crop line, and grey markup
+on white fades to almost nothing. The button below carries the message.
+*/
+.SimpleHistory__diff__contents--isCropped {
+	-webkit-mask-image: linear-gradient(
+		to bottom,
+		rgb(0, 0, 0) calc(100% - 1.5em),
+		rgba(0, 0, 0, 0) 100%
+	);
+	mask-image: linear-gradient(
+		to bottom,
+		rgb(0, 0, 0) calc(100% - 1.5em),
+		rgba(0, 0, 0, 0) 100%
+	);
+}
+
+/*
+Expanding lifts the crop to a tall bound rather than removing it. Letting a
+long diff grow to its full height pushes the rest of the page — including the
+button that collapses it again — far below the viewport, so the action cannot
+be undone without hunting for the control. Bounded, the row stays a row and the
+scrollbar carries "there is more" on its own.
+*/
+.SimpleHistory__diff__contents--isExpanded {
+	max-height: 40em;
+	overflow-y: auto;
+}
+
+.SimpleHistory__diff__contents--isCropped.SimpleHistory__diff__contents--isExpanded {
+	-webkit-mask-image: none;
+	mask-image: none;
+}
+
+/*
+Right-aligned on purpose: it sits where the scrollbar appears, which is where
+the hand goes when someone realises the diff is cropped. Tucked flush against
+the diff above it, and inset from the right edge rather than hanging its
+padding past it, so it reads as belonging to the diff rather than to the
+action links below.
+
+Styled as a control rather than a link — same hover treatment as the action
+links, no resting underline — because it changes this view instead of
+navigating away.
+*/
+.SimpleHistory__diff__expandToggle {
+	background: none;
+	border: 0;
+	color: #2271b1;
+	cursor: pointer;
+	display: block;
+	font-size: var(--sh-font-size-small);
+	margin-top: 0;
+	margin-left: auto;
+	margin-right: var(--sh-spacing-small);
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
+	text-decoration: none;
+}
+
+/*
+A chevron rather than one of the sh-Icon sprites, because it has to rotate to
+show state and the icon set has no chevron. Drawn from two borders so it takes
+currentColor and needs no asset.
+
+Keyed off aria-expanded rather than a class of its own, so the arrow and what
+screen readers announce are driven by the same attribute and cannot drift apart.
+*/
+.SimpleHistory__diff__expandToggle::after {
+	content: "";
+	display: inline-block;
+	width: 0.35em;
+	height: 0.35em;
+	margin-left: 0.5em;
+	border-right: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	transform: translateY(-0.15em) rotate(45deg);
+	transition: transform 0.15s ease;
+}
+
+.SimpleHistory__diff__expandToggle[aria-expanded="true"]::after {
+	transform: translateY(0.1em) rotate(-135deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.SimpleHistory__diff__expandToggle::after {
+		transition: none;
+	}
+}
+
+.SimpleHistory__diff__expandToggle:hover,
+.SimpleHistory__diff__expandToggle:focus-visible {
+	background-color: var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius);
+	color: #135e96;
+}
+
 .SimpleHistory__diff__contents:focus {
 	outline: 1px solid rgb(0, 115, 170);
 	box-shadow:
@@ -1699,19 +1809,19 @@ Modal window with detailss
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-ins td.new {
-	background: #dfd;
+	background: var(--sh-diff-added-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-del td.old {
-	background: #fdd;
+	background: var(--sh-diff-removed-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.old {
-	background: #fdd;
+	background: var(--sh-diff-removed-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.new {
-	background: #dfd;
+	background: var(--sh-diff-added-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side td.none {
@@ -1719,12 +1829,18 @@ Modal window with detailss
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side ins {
-	background: #9e9;
+	background: var(--sh-diff-added-inline-background);
 	text-decoration: none;
 }
 
+/*
+Core sets text-decoration:none on its own del, because its rows already carry
+a minus glyph. This renderer has no such marker, so the strike-through is the
+only non-colour signal that text was removed — keep it, or the distinction
+rests on colour alone.
+*/
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side del {
-	background: #e99;
+	background: var(--sh-diff-removed-inline-background);
 	text-decoration: line-through;
 }
 
