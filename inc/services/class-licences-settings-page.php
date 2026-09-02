@@ -231,6 +231,42 @@ class Licences_Settings_Page extends Service {
 	}
 
 	/**
+	 * Build the error message shown when a license could not be activated.
+	 *
+	 * The activation-limit error gets real guidance: it is what users hit
+	 * after restoring a backup or migrating a site, when the key is still
+	 * spent on an install that no longer exists and they cannot free it
+	 * themselves. Other errors keep the generic message. The raw API message
+	 * is always included, since support threads rely on it.
+	 *
+	 * @param string $api_message Error message returned by the license API.
+	 * @return string HTML, safe to output through wp_kses() with code, strong, br and a allowed.
+	 */
+	public function get_activation_error_message( $api_message ) {
+		$error_info = sprintf(
+			/* translators: %s: error message from the license server. */
+			__( 'Error info: <code>%s</code>', 'simple-history' ),
+			esc_html( $api_message )
+		);
+
+		if ( stripos( $api_message, 'activation limit' ) === false ) {
+			return __( 'Could not activate license. 😢', 'simple-history' ) . ' ' . $error_info;
+		}
+
+		$contact_url = Helpers::get_tracking_url( 'https://simple-history.com/contact/', 'licences_activation_limit' );
+		$help_url    = Helpers::get_tracking_url( 'https://simple-history.com/support/add-ons/', 'licences_activation_limit' );
+
+		$message = sprintf(
+			/* translators: 1: URL to the contact page, 2: URL to the add-ons support page. */
+			__( '<strong>This license key is already in use on another site.</strong> That is usually an earlier copy of this same site, such as a backup, a staging copy or a previous install. Deactivate the license there (Simple History → Settings → Licenses) and then activate it here. If that site is gone, <a href="%1$s" class="sh-ExternalLink" target="_blank">contact support</a> and we will free up the activation for you. <a href="%2$s" class="sh-ExternalLink" target="_blank">Read more about licenses</a>.', 'simple-history' ),
+			esc_url( $contact_url ),
+			esc_url( $help_url )
+		);
+
+		return $message . '<br>' . $error_info;
+	}
+
+	/**
 	 * Output fields to enter licence key and to activate, deactiave, and show info, for one plus plugin.
 	 *
 	 * @param AddOn_Plugin $plus_plugin One plus plugin.
@@ -253,19 +289,16 @@ class Licences_Settings_Page extends Service {
 				$activation_result = $plus_plugin->activate_license( $new_licence_key );
 
 				if ( $activation_result['success'] === true ) {
-					$form_success_message = 'License activated! 🎉';
+					$form_success_message = __( 'License activated! 🎉', 'simple-history' );
 				} else {
-					$form_error_message = sprintf(
-						'Could not activate license. 😢 Error info: <code>%s</code>',
-						esc_html( $activation_result['message'] )
-					);
+					$form_error_message = $this->get_activation_error_message( (string) $activation_result['message'] );
 				}
 			} elseif ( $action_deactivate ) {
 				$deactivate_result = $plus_plugin->deactivate_license();
 				if ( $deactivate_result === true ) {
-					$form_success_message = 'License deactivated. 👋';
+					$form_success_message = __( 'License deactivated. 👋', 'simple-history' );
 				} else {
-					$form_error_message = 'Could not deactivate license.';
+					$form_error_message = __( 'Could not deactivate license.', 'simple-history' );
 				}
 			}
 		}
@@ -350,7 +383,14 @@ class Licences_Settings_Page extends Service {
 						wp_kses(
 							$form_error_message,
 							[
-								'code' => [],
+								'code'   => [],
+								'strong' => [],
+								'br'     => [],
+								'a'      => [
+									'href'   => [],
+									'class'  => [],
+									'target' => [],
+								],
 							]
 						)
 					);
