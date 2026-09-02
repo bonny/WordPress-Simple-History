@@ -201,6 +201,10 @@ class Notes_Logger extends Logger {
 	 * @return string Plain-text content with line breaks preserved.
 	 */
 	private function normalize_note_content( $content ) {
+		// Turn <br> into a newline before stripping tags. Stripping alone would
+		// glue the surrounding words together ("First line<br>Second" becomes
+		// "First lineSecond"). The trim below drops the trailing newline that
+		// inline notes carry.
 		$content = preg_replace( '#<br\s*/?>#i', "\n", (string) $content );
 		$content = wp_strip_all_tags( $content );
 
