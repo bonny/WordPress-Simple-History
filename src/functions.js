@@ -84,9 +84,10 @@ export const EVENT_FIELDS = [
 	'date_gmt',
 	'message',
 	'message_html',
-	// The message template with its placeholders; labels the chip for a
-	// hidden event type without naming one specific event.
 	'message_uninterpolated',
+	// The message template in the site language, with its placeholders;
+	// labels the chip for a hidden event type without naming one event.
+	'message_template',
 	'message_key',
 	'details_data',
 	'details_html',

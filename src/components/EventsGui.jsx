@@ -475,7 +475,10 @@ function EventsGUI() {
 
 			// Label the chip with the message template, with placeholders
 			// blanked out so it reads as a type rather than as this one event.
+			// message_template is translated; message_uninterpolated is the
+			// stored template, in whatever language the site had at log time.
 			const label = (
+				event.message_template ||
 				event.message_uninterpolated ||
 				event.message ||
 				searchOption
