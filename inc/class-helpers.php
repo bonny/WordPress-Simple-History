@@ -240,6 +240,74 @@ class Helpers {
 	}
 
 	/**
+	 * Get the anonymized IP address of the current request, plus any valid
+	 * public IPs found in proxy and load balancer headers.
+	 *
+	 * Returns the same keys the logger appends to every event context:
+	 * `_server_remote_addr` and one `_server_http_<header>_<n>` per forwarded IP.
+	 * Use it when a request's IP has to be captured for an event that is written
+	 * later, in a different request.
+	 *
+	 * @since 5.32.0
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_remote_addr_context() {
+		$context = array();
+
+		// Validate and sanitize REMOTE_ADDR.
+		$remote_addr = '';
+		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders -- REMOTE_ADDR is validated with filter_var() below
+		if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
+			$remote_addr = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+			// Validate that it's a proper IP address.
+			$validated_ip = filter_var( $remote_addr, FILTER_VALIDATE_IP );
+			$remote_addr  = $validated_ip !== false ? $validated_ip : '';
+		}
+		// phpcs:enable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders
+
+		$context['_server_remote_addr'] = self::privacy_anonymize_ip( $remote_addr );
+
+		// If web server is behind a load balancer then the ip address will always be the same
+		// See bug report: https://wordpress.org/support/topic/use-x-forwarded-for-http-header-when-logging-remote_addr?replies=1#post-6422981
+		// Note that the x-forwarded-for header can contain multiple ips, comma separated
+		// Also note that the header can be faked
+		// Ref: http://stackoverflow.com/questions/753645/how-do-i-get-the-correct-ip-from-http-x-forwarded-for-if-it-contains-multiple-ip
+		// Ref: http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/
+		// Check for IP in lots of headers
+		// Based on code:
+		// http://blackbe.lt/advanced-method-to-obtain-the-client-ip-in-php/.
+		$ip_keys = self::get_ip_number_header_names();
+
+		foreach ( $ip_keys as $key ) {
+			if ( ! array_key_exists( $key, $_SERVER ) ) {
+				continue;
+			}
+
+			// Loop through all IPs.
+			$ip_loop_num = 0;
+			foreach ( explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $key ] ) ) ) as $ip ) {
+				// trim for safety measures.
+				$ip = trim( $ip );
+
+				// attempt to validate IP.
+				if ( self::is_valid_public_ip( $ip ) ) {
+					// valid, add to context, with loop index appended so we can store many IPs.
+					$key_prefix = self::get_ip_address_context_key_prefix( $key );
+					$ip         = self::privacy_anonymize_ip( $ip );
+
+					$context[ $key_prefix . $ip_loop_num ] = $ip;
+				}
+
+				++$ip_loop_num;
+			}
+		}
+
+		return $context;
+	}
+
+	/**
 	 * Returns array with headers that may contain user IP address.
 	 *
 	 * @since 2.0.29

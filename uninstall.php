@@ -40,6 +40,7 @@ function simple_history_cleanup_site() {
 		'simple_history_retention_days',
 		'sh_core_failed_login_count',
 		'sh_core_failed_login_total_suppressed',
+		'sh_core_failed_login_burst',
 	);
 
 	foreach ( $arr_options as $one_option ) {

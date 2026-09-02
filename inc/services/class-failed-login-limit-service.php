@@ -39,7 +39,7 @@ class Failed_Login_Limit_Service extends Service {
 	/**
 	 * Option name for details about the burst currently being suppressed:
 	 * when it started, the last skipped attempt, and who that attempt targeted.
-	 * Deleted when the burst ends.
+	 * Deleted whenever the counter resets.
 	 *
 	 * @var string
 	 */
@@ -131,6 +131,13 @@ class Failed_Login_Limit_Service extends Service {
 			return $do_log;
 		}
 
+		// The summary written by end_burst() passes through this filter too.
+		// The counter is already zero by then; skipping it here also means the
+		// summary can never re-enter this path, whatever the option layer returns.
+		if ( ( $context['_message_key'] ?? '' ) === User_Logger::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED ) {
+			return $do_log;
+		}
+
 		$count = (int) get_option( self::OPTION_COUNTER, 0 );
 
 		// Only write to DB if counter is not already 0.
@@ -138,19 +145,13 @@ class Failed_Login_Limit_Service extends Service {
 			return $do_log;
 		}
 
-		$threshold        = self::get_threshold();
-		$suppressed_count = max( 0, $count - $threshold );
+		$threshold = self::get_threshold();
 
 		// Reset before logging the summary: the summary is itself an event that
 		// passes through this filter, so the counter must already be zero by then.
 		update_option( self::OPTION_COUNTER, 0, false );
 
-		if ( $suppressed_count > 0 ) {
-			$burst = get_option( self::OPTION_BURST, [] );
-			delete_option( self::OPTION_BURST );
-
-			self::maybe_log_suppression_summary( $suppressed_count, $threshold, is_array( $burst ) ? $burst : [] );
-		}
+		self::end_burst( max( 0, $count - $threshold ), $threshold );
 
 		return $do_log;
 	}
@@ -159,13 +160,18 @@ class Failed_Login_Limit_Service extends Service {
 	 * Remember when the current burst started and what its latest skipped attempt looked like.
 	 *
 	 * Called once per suppressed attempt. Public so premium's own limiter can
-	 * feed the same summary from its counters.
+	 * feed the same summary from its counters. Does nothing unless experimental
+	 * features are enabled, so sites that never see the summary pay nothing.
 	 *
 	 * @since 5.32.0
 	 *
 	 * @param array $context Context of the failed login event that was not logged.
 	 */
 	public static function track_suppressed_attempt( $context ) {
+		if ( ! Helpers::experimental_features_is_enabled() ) {
+			return;
+		}
+
 		$now   = gmdate( 'Y-m-d H:i:s' );
 		$burst = get_option( self::OPTION_BURST, [] );
 
@@ -173,31 +179,40 @@ class Failed_Login_Limit_Service extends Service {
 			$burst = [ 'first_date' => $now ];
 		}
 
-		$burst['last_date']     = $now;
-		$burst['last_username'] = (string) ( $context['login'] ?? $context['failed_username'] ?? '' );
-		$burst['last_ip']       = (string) ( $context['_server_remote_addr'] ?? self::get_request_ip() );
+		$burst['last_date']       = $now;
+		$burst['last_username']   = (string) ( $context['login'] ?? $context['failed_username'] ?? '' );
+		$burst['request_context'] = self::get_request_context( $context );
 
 		update_option( self::OPTION_BURST, $burst, false );
 	}
 
 	/**
-	 * Log one event summarising a burst of failed logins that went past the threshold.
+	 * Close the burst that just ended: discard its details and, if attempts were
+	 * skipped, log one event summarising them.
 	 *
-	 * Experimental: only writes when experimental features are enabled. The event
-	 * is dated at the last skipped attempt so it sits in the timeline where the
-	 * burst ended, and carries the attacker's IP rather than the IP of whoever
-	 * happened to log the event that ended the burst.
+	 * Public so premium's own limiter can call it when its counters reset. The
+	 * burst details are always discarded, even when nothing was skipped, so a
+	 * later burst never inherits a stale start date.
 	 *
-	 * Public so premium's own limiter can call it when its counters reset.
+	 * Experimental: the summary is only written when experimental features are
+	 * enabled. It is dated at the last skipped attempt so it sits in the timeline
+	 * where the burst ended, and carries the attacker's IP, forwarded headers and
+	 * no user identity, rather than the request details of whoever happened to
+	 * log the event that ended the burst.
 	 *
 	 * @since 5.32.0
 	 *
-	 * @param int   $suppressed_count Number of attempts that were not logged.
-	 * @param int   $threshold        Number of attempts that were logged before skipping started.
-	 * @param array $burst            Burst details as stored by track_suppressed_attempt(). May be empty.
+	 * @param int $suppressed_count Number of attempts that were not logged.
+	 * @param int $threshold        Number of attempts that were logged before skipping started.
 	 */
-	public static function maybe_log_suppression_summary( $suppressed_count, $threshold, $burst = [] ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+	public static function end_burst( $suppressed_count, $threshold ) {
+		$burst = get_option( self::OPTION_BURST );
+
+		if ( $burst !== false ) {
+			delete_option( self::OPTION_BURST );
+		}
+
+		if ( $suppressed_count <= 0 || ! Helpers::experimental_features_is_enabled() ) {
 			return;
 		}
 
@@ -207,48 +222,82 @@ class Failed_Login_Limit_Service extends Service {
 			return;
 		}
 
-		$context = [
-			'_initiator'                         => Log_Initiators::WORDPRESS,
-			'failed_login_suppressed_count'      => (int) $suppressed_count,
-			'failed_login_threshold'             => (int) $threshold,
-			'failed_login_suppressed_first_date' => $burst['first_date'] ?? '',
-			'failed_login_suppressed_last_date'  => $burst['last_date'] ?? '',
-			'failed_login_last_username'         => $burst['last_username'] ?? '',
-			'failed_login_last_ip'               => $burst['last_ip'] ?? '',
-		];
+		$burst = is_array( $burst ) ? $burst : [];
+
+		$request_context = isset( $burst['request_context'] ) && is_array( $burst['request_context'] )
+			? $burst['request_context']
+			: [];
+
+		$context = array_merge(
+			$request_context,
+			[
+				'_initiator'                         => Log_Initiators::WORDPRESS,
+				// Simple History skipped these attempts. No user did anything, so
+				// stop the logger from attaching whoever ended the burst.
+				'_user_id'                           => 0,
+				'failed_login_suppressed_count'      => (int) $suppressed_count,
+				'failed_login_threshold'             => (int) $threshold,
+				'failed_login_suppressed_first_date' => $burst['first_date'] ?? '',
+				'failed_login_suppressed_last_date'  => $burst['last_date'] ?? '',
+				'failed_login_last_username'         => $burst['last_username'] ?? '',
+				'failed_login_last_ip'               => self::get_client_ip_from_request_context( $request_context ),
+			]
+		);
 
 		if ( ! empty( $burst['last_date'] ) ) {
 			$context['_date'] = $burst['last_date'];
-		}
-
-		if ( ! empty( $burst['last_ip'] ) ) {
-			$context['_server_remote_addr'] = $burst['last_ip'];
 		}
 
 		$user_logger->warning_message( User_Logger::MESSAGE_KEY_FAILED_LOGINS_SUPPRESSED, $context );
 	}
 
 	/**
-	 * Get the anonymized IP of the current request.
+	 * Capture the request details of a suppressed attempt: IP, forwarded IPs, referer.
 	 *
-	 * The logger only appends the IP to the context after the do_log filter has
-	 * run, so a suppressed event never gets that far and we read it here instead.
+	 * The logger only appends these to the context after the do_log filter has
+	 * run, so a suppressed event never gets that far. Read them from the request
+	 * here instead, unless the caller already put them in the context.
 	 *
+	 * @param array $context Context of the failed login event.
+	 * @return array<string,string>
+	 */
+	private static function get_request_context( $context ) {
+		if ( isset( $context['_server_remote_addr'] ) ) {
+			$request_context = [];
+
+			foreach ( $context as $key => $value ) {
+				if ( is_string( $key ) && strpos( $key, '_server_' ) === 0 && is_scalar( $value ) ) {
+					$request_context[ $key ] = (string) $value;
+				}
+			}
+		} else {
+			$request_context = Helpers::get_remote_addr_context();
+		}
+
+		if ( ! isset( $request_context['_server_http_referer'] ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
+			$request_context['_server_http_referer'] = Helpers::mask_sensitive_query_string(
+				esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) )
+			);
+		}
+
+		return $request_context;
+	}
+
+	/**
+	 * Pick the IP to show as "the attacker": the first forwarded public IP when the
+	 * site sits behind a proxy, otherwise the remote address.
+	 *
+	 * @param array<string,string> $request_context Keys as returned by get_request_context().
 	 * @return string
 	 */
-	private static function get_request_ip() {
-		$remote_addr = '';
-
-		// phpcs:disable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders -- REMOTE_ADDR is validated with filter_var() below
-		if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__REMOTE_ADDR__
-			$remote_addr  = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
-			$validated_ip = filter_var( $remote_addr, FILTER_VALIDATE_IP );
-			$remote_addr  = $validated_ip !== false ? $validated_ip : '';
+	private static function get_client_ip_from_request_context( $request_context ) {
+		foreach ( $request_context as $key => $value ) {
+			if ( $key !== '_server_remote_addr' && $key !== '_server_http_referer' && strpos( $key, '_server_' ) === 0 ) {
+				return $value;
+			}
 		}
-		// phpcs:enable WordPressVIPMinimum.Variables.ServerVariables.UserControlledHeaders
 
-		return Helpers::privacy_anonymize_ip( $remote_addr );
+		return $request_context['_server_remote_addr'] ?? '';
 	}
 
 	/**

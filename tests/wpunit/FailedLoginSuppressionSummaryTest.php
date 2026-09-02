@@ -3,6 +3,7 @@
 use Simple_History\Simple_History;
 use Simple_History\Log_Initiators;
 use Simple_History\Loggers\User_Logger;
+use Simple_History\Services\Failed_Login_Limit_Service;
 
 /**
  * Issue 296: once a burst of failed logins crosses the threshold and then
@@ -22,10 +23,14 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 	/** @var array<array{0:array,1:array}> Every SimpleUserLogger write this test saw. */
 	private $writes = [];
 
+	/** @var array Copy of $_SERVER to restore after tests that fake request headers. */
+	private $server_backup = [];
+
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleUserLogger' );
+		$this->logger        = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'SimpleUserLogger' );
+		$this->server_backup = $_SERVER;
 
 		$this->reset_options();
 
@@ -41,6 +46,8 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 		remove_filter( 'simple_history/experimental_features_enabled', '__return_true' );
 		remove_filter( 'simple_history/failed_login_limit/threshold', [ $this, 'filter_threshold' ] );
 		$this->reset_options();
+		$_SERVER = $this->server_backup;
+		wp_set_current_user( 0 );
 		parent::tearDown();
 	}
 
@@ -99,6 +106,46 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 		$this->assertSame( $burst['last_date'], $data['date'], 'The summary should sit in the timeline where the burst ended, not where the next event happened' );
 	}
 
+	public function test_summary_is_not_attributed_to_the_user_who_ended_the_burst() {
+		$this->run_burst( self::THRESHOLD + 2 );
+
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		$this->end_burst();
+
+		[ $data, $context ] = $this->get_summary_write();
+
+		$this->assertSame( Log_Initiators::WORDPRESS, $data['initiator'] );
+		$this->assertSame( 0, (int) $context['_user_id'] );
+		$this->assertArrayNotHasKey( '_user_login', $context, 'The admin who happened to log the next event must not be attached to the summary' );
+		$this->assertArrayNotHasKey( '_user_email', $context );
+	}
+
+	public function test_summary_captures_forwarded_ip_and_referer_of_the_attacker_not_the_burst_ender() {
+		// Production failed-login contexts carry no IP at filter time; the
+		// service has to read the request itself, including proxy headers.
+		$_SERVER['REMOTE_ADDR']          = '10.0.0.1';
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.7';
+		$_SERVER['HTTP_REFERER']         = 'https://example.com/wp-login.php';
+
+		$this->run_burst( self::THRESHOLD + 2, false );
+
+		// The burst is ended by a very different request.
+		$_SERVER['REMOTE_ADDR']  = '10.0.0.2';
+		$_SERVER['HTTP_REFERER'] = 'https://example.com/wp-admin/post.php?post=1&action=edit';
+		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
+
+		$this->end_burst();
+
+		[ , $context ] = $this->get_summary_write();
+
+		$this->assertSame( '10.0.0.x', $context['_server_remote_addr'] );
+		$this->assertSame( '198.51.100.x', $context['_server_http_x_forwarded_for_0'], 'Forwarded IPs from the attack must survive on the summary' );
+		$this->assertSame( '198.51.100.x', $context['failed_login_last_ip'], 'Behind a proxy the forwarded IP is the attacker, not the proxy' );
+		$this->assertSame( 'https://example.com/wp-login.php', $context['_server_http_referer'] );
+	}
+
 	public function test_no_summary_when_the_burst_stays_under_the_threshold() {
 		$this->run_burst( self::THRESHOLD );
 		$this->end_burst();
@@ -106,18 +153,20 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 		$this->assertNull( $this->get_summary_write() );
 	}
 
-	public function test_no_summary_when_experimental_features_are_disabled() {
+	public function test_no_summary_and_no_tracking_when_experimental_features_are_disabled() {
 		remove_filter( 'simple_history/experimental_features_enabled', '__return_true' );
 		add_filter( 'simple_history/experimental_features_enabled', '__return_false' );
 
 		$this->run_burst( self::THRESHOLD + 5 );
+
+		$this->assertFalse( get_option( 'sh_core_failed_login_burst' ), 'No burst details are written when the summary can never be logged' );
+
 		$this->end_burst();
 
 		remove_filter( 'simple_history/experimental_features_enabled', '__return_false' );
 
 		$this->assertNull( $this->get_summary_write() );
 		$this->assertSame( 0, (int) get_option( 'sh_core_failed_login_count' ), 'The counter still resets even when no summary is written' );
-		$this->assertFalse( get_option( 'sh_core_failed_login_burst' ), 'Burst details are discarded when the burst ends' );
 	}
 
 	public function test_burst_details_are_cleared_after_the_summary() {
@@ -126,6 +175,19 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 
 		$this->assertFalse( get_option( 'sh_core_failed_login_burst' ) );
 		$this->assertSame( 0, (int) get_option( 'sh_core_failed_login_count' ) );
+	}
+
+	public function test_burst_details_are_cleared_even_when_nothing_was_skipped_at_reset_time() {
+		$this->run_burst( self::THRESHOLD + 2 );
+		$this->assertNotFalse( get_option( 'sh_core_failed_login_burst' ) );
+
+		// The threshold is raised mid-burst, so at reset time nothing counts as skipped.
+		remove_filter( 'simple_history/failed_login_limit/threshold', [ $this, 'filter_threshold' ] );
+		$this->end_burst();
+		add_filter( 'simple_history/failed_login_limit/threshold', [ $this, 'filter_threshold' ] );
+
+		$this->assertNull( $this->get_summary_write() );
+		$this->assertFalse( get_option( 'sh_core_failed_login_burst' ), 'A stale start date must not leak into the next burst' );
 	}
 
 	public function test_each_burst_gets_its_own_summary() {
@@ -148,6 +210,26 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 		$this->assertSame( 2, (int) $summaries[1][1]['failed_login_suppressed_count'] );
 	}
 
+	public function test_end_burst_is_callable_directly_with_tracked_details() {
+		// This is the seam premium's own limiter uses: it tracks each skipped
+		// attempt and closes the burst with its own count and threshold.
+		Failed_Login_Limit_Service::track_suppressed_attempt(
+			[
+				'login'               => 'editor',
+				'_server_remote_addr' => '203.0.113.20',
+			]
+		);
+		Failed_Login_Limit_Service::end_burst( 42, 500 );
+
+		[ , $context ] = $this->get_summary_write();
+
+		$this->assertSame( 42, (int) $context['failed_login_suppressed_count'] );
+		$this->assertSame( 500, (int) $context['failed_login_threshold'] );
+		$this->assertSame( 'editor', $context['failed_login_last_username'] );
+		$this->assertSame( '203.0.113.20', $context['failed_login_last_ip'] );
+		$this->assertFalse( get_option( 'sh_core_failed_login_burst' ) );
+	}
+
 	public function test_summary_renders_a_details_table() {
 		$this->run_burst( self::THRESHOLD + 5 );
 		$this->end_burst();
@@ -163,15 +245,15 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 		$this->assertNotEmpty( $details->items );
 	}
 
-	private function run_burst( int $attempts ): void {
+	private function run_burst( int $attempts, bool $with_ip_in_context = true ): void {
+		$context = [ 'login' => 'admin' ];
+
+		if ( $with_ip_in_context ) {
+			$context['_server_remote_addr'] = '203.0.113.10';
+		}
+
 		for ( $i = 0; $i < $attempts; $i++ ) {
-			$this->logger->warning_message(
-				'user_login_failed',
-				[
-					'login'               => 'admin',
-					'_server_remote_addr' => '203.0.113.10',
-				]
-			);
+			$this->logger->warning_message( 'user_login_failed', $context );
 		}
 	}
 
