@@ -7,6 +7,14 @@ import { EventOccasionsList } from './EventOccasionsList';
 import { numberFormatI18n, getTrackingUrl } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
 
+// Mirrors User_Logger::get_failed_login_message_keys() in PHP.
+const FAILED_LOGIN_MESSAGE_KEYS = [
+	'user_login_failed',
+	'user_unknown_login_failed',
+	'user_application_password_login_failed',
+	'user_application_password_unknown_login_failed',
+];
+
 /**
  * Displays some text for failed login attempts.
  *
@@ -30,11 +38,9 @@ function EventOccasionsAddonsContent( props ) {
 		return null;
 	}
 
-	// Bail if the event is not a failed login attempt.
-	if (
-		event.message_key !== 'user_login_failed' &&
-		event.message_key !== 'user_unknown_login_failed'
-	) {
+	// Bail if the event is not a failed login attempt. Application password
+	// failures on the REST API count too; the same settings throttle them.
+	if ( ! FAILED_LOGIN_MESSAGE_KEYS.includes( event.message_key ) ) {
 		return null;
 	}
 
