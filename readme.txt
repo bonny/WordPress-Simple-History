@@ -290,6 +290,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Failed application password logins are now treated like other failed logins: throttled by the same limit, grouped in the same row, found by the "Failed user logins" filter, and given the "Configure failed login attempts" link. A brute-force attack against the REST API could previously flood the log with tens of thousands of events.
 -   Featured image changes on posts no longer show duplicate raw "thumb_id" and "thumb_title" rows, and an added or removed image now says "None" on the empty side instead of showing a blank box.
 -   Featured image changes on posts now load the small thumbnail of each image instead of the full-size original.
+-   Featured image changes on posts are now part of the structured event details returned by the REST API, WP-CLI and the abilities, not only of the rendered HTML.
 -   Replacing an installed theme or plugin by uploading a zip ("Replace installed with uploaded") is now logged as an update with the previous version, instead of as a new install. Uploading an older version is logged as a downgrade, and uploading the same version again as a reinstall.
 -   Failed logins with an application password are now included in the failed login counts on the Stats & Summaries page and in the user activity totals.
 

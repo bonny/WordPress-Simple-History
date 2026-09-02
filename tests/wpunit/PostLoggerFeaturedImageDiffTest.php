@@ -128,11 +128,34 @@ class PostLoggerFeaturedImageDiffTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 1, substr_count( $html, '<img' ) );
 	}
 
+	public function test_featured_image_change_is_in_the_json_details() {
+		$json = wp_json_encode(
+			$this->sh->get_log_row_details_output(
+				$this->row(
+					array(
+						'post_prev_thumb_id'    => (string) $this->old_attachment_id,
+						'post_prev_thumb_title' => 'Old image',
+						'post_new_thumb_id'     => (string) $this->new_attachment_id,
+						'post_new_thumb_title'  => 'New image',
+					)
+				)
+			)->to_json()
+		);
+
+		$this->assertStringContainsString( 'Featured image', $json );
+		$this->assertStringContainsString( wp_json_encode( wp_get_attachment_image_url( $this->old_attachment_id, 'thumbnail' ) ), $json );
+		$this->assertStringContainsString( wp_json_encode( wp_get_attachment_image_url( $this->new_attachment_id, 'thumbnail' ) ), $json );
+	}
+
 	private function render( array $context ): string {
+		return (string) $this->sh->get_log_row_details_output( $this->row( $context ) );
+	}
+
+	private function row( array $context ): stdClass {
 		$row          = new stdClass();
 		$row->logger  = 'SimplePostLogger';
 		$row->context = array_merge( array( '_message_key' => 'post_updated' ), $context );
 
-		return (string) $this->sh->get_log_row_details_output( $row );
+		return $row;
 	}
 }

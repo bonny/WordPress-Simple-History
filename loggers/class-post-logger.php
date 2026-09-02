@@ -2005,11 +2005,6 @@ class Post_Logger extends Logger {
 			$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, 'added' );
 			$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, 'removed' );
 
-			// Changed post thumb/featured image.
-			// post_prev_thumb, int of prev thumb, empty if not prev thumb.
-			// post_new_thumb, int of new thumb, empty if no new thumb.
-			$diff_table_output .= $this->get_log_row_details_output_for_post_thumb( $context );
-
 			// Render compact JSON diff for post_content if available.
 			if ( isset( $context['post_content_diff'] ) ) {
 				$json_diff_html = Helpers::render_json_diff_to_html( $context['post_content_diff'] );
@@ -2075,6 +2070,15 @@ class Post_Logger extends Logger {
 
 			if ( $diff_table_output !== '' ) {
 				$groups[] = Event_Details_Group::create_raw( $diff_table_output );
+			}
+
+			// Changed featured image. Its own group rather than a row in the raw
+			// table above, so the change also reaches details_data (REST, CLI,
+			// abilities), which a raw HTML group cannot describe.
+			$thumb_group = $this->get_details_group_for_post_thumb( $context );
+
+			if ( $thumb_group ) {
+				$groups[] = $thumb_group;
 			}
 
 			if ( empty( $groups ) ) {
@@ -2284,17 +2288,18 @@ class Post_Logger extends Logger {
 	}
 
 	/**
-	 * Get the HTML output for context that contains a modified post thumb.
+	 * Get the details group for a changed featured image, or null when the
+	 * context holds no featured image change.
 	 *
-	 * @param array $context Context that may contains prev- and new thumb ids.
-	 * @return string HTML
+	 * @param array $context Context that may contain prev- and new thumb ids.
+	 * @return Event_Details_Group|null
 	 */
-	private function get_log_row_details_output_for_post_thumb( $context = null ) {
+	private function get_details_group_for_post_thumb( $context ) {
 		$prev_thumb_id = empty( $context['post_prev_thumb_id'] ) ? 0 : (int) $context['post_prev_thumb_id'];
 		$new_thumb_id  = empty( $context['post_new_thumb_id'] ) ? 0 : (int) $context['post_new_thumb_id'];
 
 		if ( ! $prev_thumb_id && ! $new_thumb_id ) {
-			return '';
+			return null;
 		}
 
 		$prev = $this->get_post_thumb_value( $prev_thumb_id, $context['post_prev_thumb_title'] ?? '' );
@@ -2307,7 +2312,12 @@ class Post_Logger extends Logger {
 		$formatter->set_prev_image( $prev['src'], $prev['caption'] );
 		$formatter->set_new_image( $new['src'], $new['caption'] );
 
-		return $item->set_formatter( $formatter )->get_formatter()->to_html();
+		$item->set_formatter( $formatter );
+
+		$group = new Event_Details_Group();
+		$group->add_item( $item );
+
+		return $group;
 	}
 
 	/**
