@@ -1052,6 +1052,17 @@ i.e. the log is inside a .postbox element.
 	display: none;
 }
 
+/* Without icons the grey labels run together, so a dot marks each boundary.
+   Spacing is 8px on both sides of the dot: the neighbouring paddings before
+   it, the flex gap plus this margin after it. */
+.SimpleHistoryReactRoot.is-dashboard
+	.SimpleHistoryLogitem__actionLinks__link
+	+ .SimpleHistoryLogitem__actionLinks__link::before {
+	content: "·";
+	color: var(--sh-color-gray-2);
+	margin-right: var(--sh-spacing-xsmall);
+}
+
 /* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
 .sh-DashboardWidget-stats {
 	display: flex;
