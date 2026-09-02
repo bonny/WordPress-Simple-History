@@ -28,7 +28,7 @@ class LicencesSettingsPageActivationMessageTest extends \Codeception\TestCase\WP
 
 		$this->assertStringContainsString( 'already active on another site', $html );
 		$this->assertStringContainsString( 'href="https://app.lemonsqueezy.com/my-orders/"', $html, 'Buyers can deactivate old sites themselves on My orders' );
-		$this->assertStringContainsString( 'href="https://simple-history.com/support/add-ons/license-activation-limit/', $html );
+		$this->assertStringContainsString( 'href="https://simple-history.com/support/license-activation-limit/', $html );
 		$this->assertStringContainsString( 'href="https://simple-history.com/contact/', $html );
 		$this->assertStringContainsString( 'Settings → Licences', $html, 'Spelling must match the tab name' );
 

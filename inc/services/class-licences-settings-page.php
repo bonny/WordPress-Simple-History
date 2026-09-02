@@ -255,7 +255,7 @@ class Licences_Settings_Page extends Service {
 		}
 
 		$my_orders_url = 'https://app.lemonsqueezy.com/my-orders/';
-		$guide_url     = Helpers::get_tracking_url( 'https://simple-history.com/support/add-ons/license-activation-limit/', 'licences_activation_limit' );
+		$guide_url     = Helpers::get_tracking_url( 'https://simple-history.com/support/license-activation-limit/', 'licences_activation_limit' );
 		$contact_url   = Helpers::get_tracking_url( 'https://simple-history.com/contact/', 'licences_activation_limit' );
 
 		return sprintf(
