@@ -936,4 +936,93 @@ class AbilitiesServiceTest extends \Codeception\TestCase\WPTestCase {
 			);
 		}
 	}
+
+	/**
+	 * Walk a schema and collect every property path that is missing a title
+	 * or a description.
+	 *
+	 * Recurses because the shape is nested: a list ability returns an array
+	 * whose `items` is the event object, and that object has a `user` object
+	 * of its own. A check that only looked at the top level would pass while
+	 * the fields a client actually renders stayed unlabelled.
+	 *
+	 * @param array  $schema Schema fragment to inspect.
+	 * @param string $path   Dotted path to the fragment, for the failure message.
+	 * @return array List of "path (missing title)" strings.
+	 */
+	private function find_unlabelled_properties( array $schema, string $path = '' ): array {
+		$missing = [];
+
+		if ( isset( $schema['items'] ) && is_array( $schema['items'] ) ) {
+			$missing = array_merge( $missing, $this->find_unlabelled_properties( $schema['items'], $path ) );
+		}
+
+		foreach ( $schema['properties'] ?? [] as $name => $property ) {
+			$property_path = '' === $path ? $name : $path . '.' . $name;
+
+			if ( empty( $property['title'] ) ) {
+				$missing[] = $property_path . ' (missing title)';
+			}
+
+			if ( empty( $property['description'] ) ) {
+				$missing[] = $property_path . ' (missing description)';
+			}
+
+			$missing = array_merge( $missing, $this->find_unlabelled_properties( $property, $property_path ) );
+		}
+
+		return $missing;
+	}
+
+	/**
+	 * WordPress 7.1 asks for a translatable Title Case title and a description
+	 * on every output schema property, because that is what REST, MCP and AI
+	 * clients render when they show a result to a person. Without them a client
+	 * falls back to the raw key, and nothing outside this codebase knows that
+	 * `occasions` means "this event happened N times and was collapsed".
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_every_output_schema_property_is_labelled() {
+		$this->ensure_abilities_registered();
+
+		foreach (
+			[
+				'simple-history/get-recent-events',
+				'simple-history/get-event',
+				'simple-history/search-events',
+				'simple-history/get-user-activity',
+				'simple-history/get-failed-logins',
+				'simple-history/get-stats-summary',
+			] as $name
+		) {
+			$missing = $this->find_unlabelled_properties( wp_get_ability( $name )->get_output_schema() );
+
+			$this->assertSame(
+				[],
+				$missing,
+				sprintf( "Ability \"%s\" has unlabelled output properties:\n%s", $name, implode( "\n", $missing ) )
+			);
+		}
+	}
+
+	/**
+	 * `date_gmt` is the only timestamp an ability returns and there is no
+	 * local-time counterpart, so a client that reads it as site time is
+	 * silently wrong by the site's UTC offset. The title has to say UTC —
+	 * this is the one label where a generic "Date" would actively mislead.
+	 *
+	 * @covers ::register_abilities
+	 */
+	public function test_date_field_names_its_timezone() {
+		$this->ensure_abilities_registered();
+
+		$schema = wp_get_ability( 'simple-history/get-recent-events' )->get_output_schema();
+
+		$this->assertStringContainsStringIgnoringCase(
+			'UTC',
+			$schema['items']['properties']['date_gmt']['title'] ?? '',
+			'date_gmt has no local-time counterpart, so its title must say the value is UTC.'
+		);
+	}
 }
