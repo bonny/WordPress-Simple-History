@@ -30,7 +30,7 @@ class LicencesSettingsPageActivationMessageTest extends \Codeception\TestCase\WP
 		$this->assertStringContainsString( 'href="https://app.lemonsqueezy.com/my-orders/"', $html, 'Buyers can deactivate old sites themselves on My orders' );
 		$this->assertStringContainsString( 'href="https://simple-history.com/support/license-activation-limit/', $html );
 		$this->assertStringContainsString( 'href="https://simple-history.com/contact/', $html );
-		$this->assertStringContainsString( 'Settings → Licences', $html, 'Spelling must match the tab name' );
+		$this->assertStringNotContainsString( 'Settings → Licences', $html, 'A restored site usually cannot deactivate from the old copy, so do not suggest it' );
 
 		// The notice already explains this error, so the raw API line and the
 		// read-more link would only repeat it.
