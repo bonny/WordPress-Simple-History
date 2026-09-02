@@ -191,6 +191,27 @@ class Notes_Logger extends Logger {
 	}
 
 	/**
+	 * Action links for a note event: the same links as the post or page the
+	 * note sits on, since acting on a note means opening that post.
+	 *
+	 * Delegates to the post logger so the two never drift. The revision link
+	 * only appears for post_updated events there, and a note event has a
+	 * note_* message key, so it stays out here by construction.
+	 *
+	 * @param object $row Log row.
+	 * @return array Action links.
+	 */
+	public function get_action_links( $row ) {
+		$post_logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePostLogger' );
+
+		if ( ! $post_logger instanceof Post_Logger ) {
+			return [];
+		}
+
+		return $post_logger->get_action_links( $row );
+	}
+
+	/**
 	 * Normalize note content before it goes into the event context.
 	 *
 	 * WordPress stores a trailing <br> when a note is anchored to inline text
@@ -206,7 +227,18 @@ class Notes_Logger extends Logger {
 		// "First lineSecond"). The trim below drops the trailing newline that
 		// inline notes carry.
 		$content = preg_replace( '#<br\s*/?>#i', "\n", (string) $content );
+
+		// A mention is stored as a span with the next word right after it,
+		// "<span class=\"wp-note-mention user-2\">@name</span>nice!", and the
+		// editor draws the gap with CSS. Put a real space there so stripping
+		// the span does not glue "@name" to "nice!".
+		$content = preg_replace( '#(<span class="wp-note-mention[^"]*">[^<]*</span>)(?=\S)#', '$1 ', $content );
+
 		$content = wp_strip_all_tags( $content );
+
+		// Stored notes carry entities such as &lt; and &amp;. Decode them so the
+		// context holds the characters the user typed; output escapes again.
+		$content = html_entity_decode( $content, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 
 		return trim( $content );
 	}

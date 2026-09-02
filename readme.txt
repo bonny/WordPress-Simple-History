@@ -267,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Long diffs can now be expanded in place with an "Expand diff" button, instead of only scrolling inside a small box.
+-   Note events now carry the same action links as the page or post the note belongs to: Edit, View or Preview, and the list of all pages or posts.
 -   "Hide events of this type" in an event's actions menu removes that event type from the current list, for the times you cannot say what you are looking for but can recognise what it is not. Hidden types show as removable chips above the list and are part of the page URL, so they clear when you clear filters and never change what gets logged.
 
 **Changed**
@@ -284,6 +285,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Content diffs used two different sets of greens and reds depending on how the event was stored. They now use the same colours as WordPress core's revision screen.
 -   "Edited your profile" events with no changed fields no longer appear out of nowhere. The block editor saves your editor preferences to your user record whenever one changes — opening the settings sidebar, collapsing a panel, dismissing the welcome guide — and each save was logged as a profile edit.
 -   Notes added to a word or phrase inside a block, a WordPress 7.1 addition to the notes feature from 6.9, no longer show a literal `<br>` tag in the event details.
+-   A note that starts with an @mention no longer shows the mention glued to the next word, and characters like `<` and `&` in notes show as typed instead of as entities.
 -   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable. They now render as text and make no external request.
 -   Failed application password logins are now throttled like other failed logins, and no longer reset the count for ordinary failed logins. A brute-force attack against the REST API could previously flood the log with tens of thousands of events.
 -   Updating a theme or plugin by uploading a newer zip ("Replace installed with uploaded") is now logged as an update with the previous version, instead of as a new install.
