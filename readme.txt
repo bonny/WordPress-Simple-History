@@ -273,7 +273,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   Post and page events link to the revision that change actually created, labelled "View revision", instead of the newest revision. On WordPress 7.1 and later the link opens the editor's visual revision view, where changed blocks are marked up in place.
--   Site icon changes show the previous and the new icon side by side, like featured image changes on posts, instead of attachment IDs.
+-   Site icon changes show the previous and the new icon as images, side by side like featured image changes on posts, instead of attachment IDs.
 -   Action links below events are grey until the event is hovered or focused, so a list of similar events no longer reads as a wall of blue links. In the dashboard widget a dot separates them.
 -   A license key that has reached its activation limit now gets an explanation and the steps to free it up from your Lemon Squeezy "My orders" page, instead of only the raw error.
 -   Experimental — Event fields sent to AI tools through the WordPress Abilities API carry readable labels and descriptions, so a client shows "Date (UTC)" instead of a raw field name. Follows the [output schema conventions added in WordPress 7.1](https://make.wordpress.org/core/2026/07/31/abilities-api-improvements-in-wordpress-7-1/).
