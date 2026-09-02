@@ -1573,32 +1573,74 @@ class Post_Logger extends Logger {
 	}
 
 	/**
-	 * Get the action link to the revision that this event created.
+	 * Get the revision action link for an event.
 	 *
-	 * Only returned when we know which revision the event produced and that
-	 * revision still exists. Linking to the newest revision instead — which is
-	 * what this used to do — silently sent the user to today's content when
-	 * they asked for a change from two years ago.
+	 * Two shapes, and the label distinguishes them so neither claims more than
+	 * it can deliver:
 	 *
-	 * The label is deliberately phrased per event rather than as the generic
-	 * "Revisions": a capability-shaped label makes an intermittent link read as
-	 * breakage, while a per-event label makes its absence read as a fact about
-	 * that event.
+	 * - **"View revision"** when we know which revision the event produced and
+	 *   it still exists. Phrased per event, so its absence reads as a fact
+	 *   about that event rather than as a broken capability.
+	 * - **"Revisions"** for events logged before we recorded the revision id,
+	 *   which cannot say which revision they made. These keep the original
+	 *   behaviour — the post's newest revision — under the original generic
+	 *   label, so nothing is taken away from older history.
+	 *
+	 * Where we know the specific revision and it has been pruned, there is
+	 * still no link: falling back to the newest one there would be exactly the
+	 * silent mislead this replaced, and the details panel says it is gone.
 	 *
 	 * @param array $context Event context.
 	 * @param int   $post_id ID of the post the event belongs to.
 	 * @return array|null Action link array, or null when there is nothing to link to.
 	 */
 	protected function get_revision_action_link( $context, $post_id ) {
-		$revision = $this->get_event_revision( $context, $post_id );
+		$state = $this->get_event_revision_state( $context, $post_id );
 
-		if ( ! $revision ) {
+		if ( $state['status'] === 'available' ) {
+			return [
+				'url'    => $this->get_revision_admin_url( $state['revision']->ID, $post_id ),
+				'label'  => __( 'View revision', 'simple-history' ),
+				'action' => 'revisions',
+			];
+		}
+
+		if ( $state['status'] === 'unknown' ) {
+			return $this->get_latest_revision_action_link( $post_id );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get a link to the post's newest revision, for events that never recorded
+	 * which revision they created.
+	 *
+	 * `wp_revisions_enabled()` is a constant-time check (post-type support plus
+	 * WP_POST_REVISIONS); running it first keeps sites with revisions disabled
+	 * from issuing a WP_Query per event.
+	 *
+	 * @param int $post_id ID of the post the event belongs to.
+	 * @return array|null Action link array, or null when the post has no revisions.
+	 */
+	protected function get_latest_revision_action_link( $post_id ) {
+		$post = $this->get_cached_post( $post_id );
+
+		if ( ! $post instanceof \WP_Post || ! wp_revisions_enabled( $post ) ) {
 			return null;
 		}
 
+		$revisions = wp_get_post_revisions( $post_id, [ 'numberposts' => 1 ] );
+
+		if ( empty( $revisions ) ) {
+			return null;
+		}
+
+		$latest_revision = reset( $revisions );
+
 		return [
-			'url'    => $this->get_revision_admin_url( $revision->ID, $post_id ),
-			'label'  => __( 'View this revision', 'simple-history' ),
+			'url'    => $this->get_revision_admin_url( $latest_revision->ID, $post_id ),
+			'label'  => __( 'Revisions', 'simple-history' ),
 			'action' => 'revisions',
 		];
 	}

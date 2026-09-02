@@ -102,7 +102,7 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 		] );
 
 		$links = $this->logger->get_action_links( $row );
-		$link  = $this->find_by_label( $links, 'View this revision' );
+		$link  = $this->find_by_label( $links, 'View revision' );
 
 		$this->assertNotNull( $link, 'Revision link should be rendered' );
 		$this->assertStringContainsString(
@@ -112,12 +112,35 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
-	public function test_post_updated_without_stored_revision_id_renders_no_revision_link() {
+	public function test_post_updated_without_stored_revision_id_falls_back_to_latest() {
 		$post_id = $this->factory->post->create( [ 'post_status' => 'publish', 'post_type' => 'post' ] );
 
-		// Revisions exist, but this event predates us capturing the id, so we
-		// cannot say which one it produced. Guessing the newest would mislead.
 		wp_save_post_revision( $post_id );
+		wp_update_post( [ 'ID' => $post_id, 'post_content' => 'Later edit.' ] );
+		$latest_revision_id = wp_save_post_revision( $post_id );
+
+		// An event logged before we captured the revision id cannot say which
+		// revision it made, so it keeps the original behaviour and the original
+		// generic label — the link is not taken away from older history, but it
+		// does not claim to be this event's revision either.
+		$row = $this->build_row( [
+			'_message_key' => 'post_updated',
+			'post_id'      => (string) $post_id,
+			'post_type'    => 'post',
+		] );
+
+		$links  = $this->logger->get_action_links( $row );
+		$labels = wp_list_pluck( $links, 'label' );
+
+		$this->assertContains( 'Revisions', $labels );
+		$this->assertNotContains( 'View revision', $labels );
+
+		$link = $this->find_by_label( $links, 'Revisions' );
+		$this->assertStringContainsString( (string) $latest_revision_id, $link['url'] );
+	}
+
+	public function test_post_updated_without_revision_id_and_no_revisions_renders_no_link() {
+		$post_id = $this->factory->post->create( [ 'post_status' => 'publish', 'post_type' => 'post' ] );
 
 		$row = $this->build_row( [
 			'_message_key' => 'post_updated',
@@ -128,7 +151,8 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 		$links  = $this->logger->get_action_links( $row );
 		$labels = wp_list_pluck( $links, 'label' );
 
-		$this->assertNotContains( 'View this revision', $labels );
+		$this->assertNotContains( 'Revisions', $labels );
+		$this->assertNotContains( 'View revision', $labels );
 	}
 
 	public function test_post_updated_with_deleted_revision_renders_no_revision_link() {
@@ -148,7 +172,7 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 		$labels = wp_list_pluck( $links, 'label' );
 
 		$this->assertNotContains(
-			'View this revision',
+			'View revision',
 			$labels,
 			'A pruned revision redirects to the post list, so offer nothing instead'
 		);
@@ -198,7 +222,7 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 		$labels = wp_list_pluck( $links, 'label' );
 
 		$this->assertNotContains(
-			'View this revision',
+			'View revision',
 			$labels,
 			'Guards a restored database where ids no longer mean what the log thinks'
 		);
@@ -224,7 +248,7 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 
 		remove_filter( 'wp_revisions_to_keep', '__return_zero' );
 
-		$this->assertNotContains( 'View this revision', $labels );
+		$this->assertNotContains( 'View revision', $labels );
 	}
 
 	public function test_post_created_does_not_render_revision_link() {
@@ -242,7 +266,7 @@ class PostLoggerActionLinksTest extends \Codeception\TestCase\WPTestCase {
 		$links  = $this->logger->get_action_links( $row );
 		$labels = wp_list_pluck( $links, 'label' );
 
-		$this->assertNotContains( 'View this revision', $labels );
+		$this->assertNotContains( 'View revision', $labels );
 	}
 
 	/* -------------------------------------------------------------------- */
