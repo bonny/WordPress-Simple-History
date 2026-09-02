@@ -384,6 +384,68 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * WordPress stores a mention as a span directly followed by the next word,
+	 * with the gap drawn by CSS. Stripping the span must not glue the words.
+	 */
+	public function test_mention_in_note_keeps_a_space_before_the_following_word() {
+		wp_insert_comment(
+			[
+				'comment_post_ID'  => $this->post_id,
+				'comment_content'  => '<span class="wp-note-mention user-2">@simple-history</span>nice!<br>',
+				'comment_type'     => 'note',
+				'comment_approved' => 1,
+				'user_id'          => $this->admin_user_id,
+			]
+		);
+
+		$this->assertContains(
+			[ 'key' => 'note_content', 'value' => '@simple-history nice!' ],
+			get_latest_context()
+		);
+	}
+
+	/**
+	 * A mention already followed by a space must not get a second one.
+	 */
+	public function test_mention_followed_by_a_space_is_not_double_spaced() {
+		wp_insert_comment(
+			[
+				'comment_post_ID'  => $this->post_id,
+				'comment_content'  => '<span class="wp-note-mention user-2">@simple-history</span> nice!',
+				'comment_type'     => 'note',
+				'comment_approved' => 1,
+				'user_id'          => $this->admin_user_id,
+			]
+		);
+
+		$this->assertContains(
+			[ 'key' => 'note_content', 'value' => '@simple-history nice!' ],
+			get_latest_context()
+		);
+	}
+
+	/**
+	 * Entities WordPress stores in the note are decoded, so the event shows
+	 * the characters the user typed. Output escapes them again.
+	 */
+	public function test_html_entities_in_note_are_decoded() {
+		wp_insert_comment(
+			[
+				'comment_post_ID'  => $this->post_id,
+				'comment_content'  => 'Use &lt;strong&gt; here &amp; there',
+				'comment_type'     => 'note',
+				'comment_approved' => 1,
+				'user_id'          => $this->admin_user_id,
+			]
+		);
+
+		$this->assertContains(
+			[ 'key' => 'note_content', 'value' => 'Use <strong> here & there' ],
+			get_latest_context()
+		);
+	}
+
+	/**
 	 * Test logging when a note is deleted.
 	 *
 	 * Note: This test may be skipped if wp_delete_comment doesn't trigger
