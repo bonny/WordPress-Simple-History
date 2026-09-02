@@ -24,6 +24,9 @@ class Event_Details_Item_Image_Diff_Table_Row_Formatter extends Event_Details_It
 	/** @var array{src: string, caption: string}|null */
 	private $prev_image = null;
 
+	/** @var string Thumbnail size, 'default' or 'small'. */
+	private $size = 'default';
+
 	/**
 	 * Set the image to show on the new (green) side.
 	 *
@@ -52,6 +55,21 @@ class Event_Details_Item_Image_Diff_Table_Row_Formatter extends Event_Details_It
 			'src'     => (string) $src,
 			'caption' => (string) $caption,
 		];
+
+		return $this;
+	}
+
+	/**
+	 * Set how large the thumbnails are drawn.
+	 *
+	 * Use 'small' for images that are only ever seen small, such as a site
+	 * icon, so the preview does not invite judging it as a photo.
+	 *
+	 * @param string $size 'default' (max 200x125) or 'small' (max 100x63).
+	 * @return self
+	 */
+	public function set_size( $size ) {
+		$this->size = $size === 'small' ? 'small' : 'default';
 
 		return $this;
 	}
@@ -115,8 +133,15 @@ class Event_Details_Item_Image_Diff_Table_Row_Formatter extends Event_Details_It
 		}
 
 		if ( $image['src'] !== '' ) {
+			$classes = 'SimpleHistoryLogitemThumbnail';
+
+			if ( $this->size === 'small' ) {
+				$classes .= ' SimpleHistoryLogitemThumbnail--small';
+			}
+
 			$html .= sprintf(
-				'<div class="SimpleHistoryLogitemThumbnail"><img src="%s" alt=""></div>',
+				'<div class="%1$s"><img src="%2$s" alt=""></div>',
+				esc_attr( $classes ),
 				esc_url( $image['src'] )
 			);
 		}

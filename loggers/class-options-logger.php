@@ -920,9 +920,11 @@ class Options_Logger extends Logger {
 		$item = new Event_Details_Item( null, $this->get_inline_diff_label( $option ) );
 		$item->set_values( $new['plain'], $old['plain'] );
 
+		// A favicon is only ever seen at 16 to 64px, so keep the preview small too.
 		$formatter = new Event_Details_Item_Image_Diff_Table_Row_Formatter();
 		$formatter->set_new_image( $new['src'], $new['caption'] );
 		$formatter->set_prev_image( $old['src'], $old['caption'] );
+		$formatter->set_size( 'small' );
 
 		$item->set_formatter( $formatter );
 

@@ -78,6 +78,32 @@ class Event_Details_Item_Image_Diff_FormatterTest extends \Codeception\TestCase\
 		$this->assertStringNotContainsString( 'javascript:', $html );
 	}
 
+	public function test_small_size_adds_the_small_thumbnail_modifier_to_both_sides() {
+		$item = ( new Event_Details_Item( null, 'Site Icon' ) )
+			->set_values( 'new.png', 'old.png' );
+
+		$formatter = ( new Event_Details_Item_Image_Diff_Table_Row_Formatter( $item ) )
+			->set_prev_image( 'https://example.com/old.png', 'old.png' )
+			->set_new_image( 'https://example.com/new.png', 'new.png' )
+			->set_size( 'small' );
+
+		$html = $formatter->to_html();
+
+		$this->assertSame( 2, substr_count( $html, 'SimpleHistoryLogitemThumbnail SimpleHistoryLogitemThumbnail--small' ) );
+	}
+
+	public function test_default_size_has_no_modifier() {
+		$item = ( new Event_Details_Item( null, 'Featured image' ) )
+			->set_new_value( 'new.png' );
+
+		$html = ( new Event_Details_Item_Image_Diff_Table_Row_Formatter( $item ) )
+			->set_new_image( 'https://example.com/new.png', 'new.png' )
+			->to_html();
+
+		$this->assertStringContainsString( 'class="SimpleHistoryLogitemThumbnail"', $html );
+		$this->assertStringNotContainsString( '--small', $html );
+	}
+
 	public function test_json_uses_the_item_values() {
 		$item = ( new Event_Details_Item( null, 'Featured image' ) )
 			->set_values( 'https://example.com/new.png', 'https://example.com/old.png' );

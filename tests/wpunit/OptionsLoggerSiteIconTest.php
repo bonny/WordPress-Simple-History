@@ -101,6 +101,23 @@ class OptionsLoggerSiteIconTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
+	public function test_details_show_icons_at_the_small_thumbnail_size() {
+		$row = $this->make_row(
+			array(
+				'_message_key'      => 'option_updated',
+				'option'            => 'site_icon',
+				'option_page'       => 'general',
+				'new_value'         => (string) $this->attachment_id,
+				'old_value'         => '0',
+				'new_site_icon_url' => wp_get_attachment_image_url( $this->attachment_id, 'thumbnail' ),
+			)
+		);
+
+		$html = (string) $this->sh->get_log_row_details_output( $row );
+
+		$this->assertStringContainsString( 'SimpleHistoryLogitemThumbnail--small', $html, 'A favicon is seen at 16-64px, so the preview should be small too' );
+	}
+
 	public function test_details_show_none_in_added_cell_when_icon_is_removed() {
 		$row = $this->make_row(
 			array(
