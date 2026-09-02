@@ -119,7 +119,7 @@ class Notes_Logger extends Logger {
 			return;
 		}
 
-		$comment_content = trim( $comment->comment_content );
+		$comment_content = $this->normalize_note_content( $comment->comment_content );
 
 		// Skip if this comment has no content.
 		// Empty comments are status markers (resolved/reopened) that will be logged
@@ -184,10 +184,27 @@ class Notes_Logger extends Logger {
 			'post_id'      => $comment->comment_post_ID,
 			'post_type'    => get_post_type( $post ),
 			'post_title'   => $post->post_title,
-			'note_content' => $comment->comment_content,
+			'note_content' => $this->normalize_note_content( $comment->comment_content ),
 		];
 
 		$this->info_message( 'note_edited', $context );
+	}
+
+	/**
+	 * Normalize note content before it goes into the event context.
+	 *
+	 * WordPress stores a trailing <br> when a note is anchored to inline text
+	 * rather than a whole block. Since context values are escaped on output,
+	 * any stored markup would show up as literal text in the event details.
+	 *
+	 * @param string $content Raw comment content.
+	 * @return string Plain-text content with line breaks preserved.
+	 */
+	private function normalize_note_content( $content ) {
+		$content = preg_replace( '#<br\s*/?>#i', "\n", (string) $content );
+		$content = wp_strip_all_tags( $content );
+
+		return trim( $content );
 	}
 
 	/**

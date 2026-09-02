@@ -300,6 +300,90 @@ class NotesLoggerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Issue 286: WordPress stores a trailing <br> in the comment content when a
+	 * note is anchored to inline text rather than a whole block. The logged
+	 * note_content must not carry that markup.
+	 */
+	public function test_inline_note_added_logs_content_without_markup() {
+		wp_insert_comment(
+			[
+				'comment_post_ID'  => $this->post_id,
+				'comment_content'  => 'note for "yes"?<br>',
+				'comment_type'     => 'note',
+				'comment_approved' => 1,
+				'user_id'          => $this->admin_user_id,
+			]
+		);
+
+		$context = get_latest_context();
+
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'note_added' ],
+			$context
+		);
+		$this->assertContains(
+			[ 'key' => 'note_content', 'value' => 'note for "yes"?' ],
+			$context
+		);
+	}
+
+	/**
+	 * Issue 286: same as above for the edit path.
+	 */
+	public function test_inline_note_edited_logs_content_without_markup() {
+		$comment_id = wp_insert_comment(
+			[
+				'comment_post_ID'  => $this->post_id,
+				'comment_content'  => 'Original note content',
+				'comment_type'     => 'note',
+				'comment_approved' => 1,
+				'user_id'          => $this->admin_user_id,
+			]
+		);
+
+		wp_update_comment(
+			[
+				'comment_ID'      => $comment_id,
+				'comment_content' => 'Edited inline note<br>',
+			]
+		);
+
+		$context = get_latest_context();
+
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'note_edited' ],
+			$context
+		);
+		$this->assertContains(
+			[ 'key' => 'note_content', 'value' => 'Edited inline note' ],
+			$context
+		);
+	}
+
+	/**
+	 * Issue 286: a <br> in the middle of a note becomes a line break, not
+	 * two words glued together.
+	 */
+	public function test_note_with_line_break_keeps_words_apart() {
+		wp_insert_comment(
+			[
+				'comment_post_ID'  => $this->post_id,
+				'comment_content'  => 'First line<br>Second line',
+				'comment_type'     => 'note',
+				'comment_approved' => 1,
+				'user_id'          => $this->admin_user_id,
+			]
+		);
+
+		$context = get_latest_context();
+
+		$this->assertContains(
+			[ 'key' => 'note_content', 'value' => "First line\nSecond line" ],
+			$context
+		);
+	}
+
+	/**
 	 * Test logging when a note is deleted.
 	 *
 	 * Note: This test may be skipped if wp_delete_comment doesn't trigger
