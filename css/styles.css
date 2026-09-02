@@ -390,19 +390,35 @@ Tag = the pill with the log level.
 	line-height: 1.4;
 }
 
-.SimpleHistoryLogitem__actionLinks__link {
+/* Scoped under the item so this outranks the generic ".SimpleHistoryLogitem a" colour. */
+.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--sh-spacing-xsmall);
 	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
-	color: #2271b1;
+	/* Grey at rest so a list of similar events does not become a wall of blue
+	   links outweighing the event text. Blue once the row is hovered or focused. */
+	color: var(--sh-color-gray-3);
 	text-decoration: none;
+	transition: color 0.15s ease;
 }
 
-.SimpleHistoryLogitem__actionLinks__link:hover {
+.SimpleHistoryLogitem:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__actionLinks__link {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link:hover,
+.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link:focus-visible {
 	color: #135e96;
 	background-color: var(--sh-color-gray-4);
 	border-radius: var(--sh-border-radius);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link {
+		transition: none;
+	}
 }
 
 .SimpleHistoryLogitem__actionLinks__link .sh-Icon {
