@@ -294,13 +294,15 @@ calling a run green.
 
 ### Acceptance suite: known-failing tests that are not the plugin
 
-As of 2026-09-03, 9 failures and 3 errors reproduce on the 5.31.0 tag as well:
-Redirection's "Start Setup" wizard button and Akismet's
-`#activate-akismet-anti-spam-spam-protection` id no longer exist in the plugin
-versions the suite installs; the three errors are plugin and theme installs
-from WordPress.org that need network; and `SimpleUserLoggerCest: Log user
-deleted` gets no `user_deleted` event in the Selenium container even though the
-same deletion logs fine on the dev site. Treat new failures outside that list
+As of 2026-09-03, with the fixture refreshed and Redirection replaced, 5
+failures and 3 errors remain on the Mac mini and all reproduce on the 5.31.0
+tag: `PluginDuplicatePostLoggerCest`, `SimpleMediaLoggerCest: Add media`,
+`SimpleOptionsLoggerCest: Test reading options page`, `SimplePluginLoggerCest:
+Test plugin activation` (Akismet's `#activate-akismet-anti-spam-spam-protection`
+id is gone), and `SimpleUserLoggerCest: Log user deleted` (no `user_deleted`
+event in the Selenium container, although the same deletion logs fine on the
+dev site). The three errors are the plugin and theme zip installs failing with
+"Could not create directory", a file-permission problem in the test container. Treat new failures outside that list
 as real until proven otherwise.
 
 `tests/plugins/*` (Redirection, Akismet, Jetpack, the premium symlink, …) is
