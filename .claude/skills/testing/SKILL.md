@@ -303,6 +303,14 @@ deleted` gets no `user_deleted` event in the Selenium container even though the
 same deletion logs fine on the dev site. Treat new failures outside that list
 as real until proven otherwise.
 
+`tests/plugins/*` (Redirection, Akismet, Jetpack, the premium symlink, …) is
+gitignored and bind-mounted into the test site, so third-party plugin
+*versions* are machine-local too. A Redirection test that times out on
+"Start Setup" with "Problem starting Redirection" in the saved page means the
+local copy is broken, not the logger. Replace the directory with the release
+zip from wordpress.org and recreate the container
+(`docker compose up -d --force-recreate wordpress`) so the mount follows.
+
 ## Migrating old acceptance tests to Playwright
 
 Don't migrate proactively. When you're already working on a feature that has a Codeception acceptance test (`tests/acceptance/*Cest.php`), migrate it to Playwright at that point. Leave the rest as-is.
