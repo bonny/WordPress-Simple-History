@@ -245,7 +245,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				}
 
 				foreach ( $arr_all_search_messages as $key => $val ) {
-					$arr_all_search_messages[ $key ] = $logger_slug . ':' . $val;
+					$arr_all_search_messages[ $key ] = $this->prefix_message_key_with_logger( $val, $logger_slug );
 				}
 
 				// Label for search options, like "Users" or "Post".
@@ -266,7 +266,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				$labels_search_options = $logger_info['labels']['search']['options'] ?? [];
 				foreach ( $labels_search_options as $option_key => $option_messages ) {
 					foreach ( $option_messages as $key => $val ) {
-						$option_messages[ $key ] = $logger_slug . ':' . $val;
+						$option_messages[ $key ] = $this->prefix_message_key_with_logger( $val, $logger_slug );
 					}
 
 					$logger_search_data['search_options'][] = [
@@ -323,5 +323,25 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 				'number' => 20,
 			]
 		);
+	}
+	/**
+	 * Turn a message key from a logger's search labels into the "LoggerSlug:key"
+	 * form the events query filters on.
+	 *
+	 * A label may list an event that belongs to another logger, written with
+	 * that logger's prefix already (the user logger's "Failed user logins" label
+	 * includes the Simple History logger's not-recorded summary). Such values
+	 * are kept as they are.
+	 *
+	 * @param string $message_key Message key, optionally already prefixed.
+	 * @param string $logger_slug Slug of the logger whose labels are being read.
+	 * @return string
+	 */
+	private function prefix_message_key_with_logger( $message_key, $logger_slug ) {
+		if ( strpos( $message_key, ':' ) !== false ) {
+			return $message_key;
+		}
+
+		return $logger_slug . ':' . $message_key;
 	}
 }

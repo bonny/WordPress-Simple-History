@@ -308,6 +308,37 @@ class Helpers {
 	}
 
 	/**
+	 * Get the current request's referer, ready to store in an event context.
+	 *
+	 * A referer carries the previous page's query string, which sometimes
+	 * holds a credential — an access token, a session id. Detective Mode
+	 * already masks the query string it stores, and that path is opt-in
+	 * and short lived. This one is always on and keeps events for the
+	 * full retention period, so it should not be the laxer of the two.
+	 *
+	 * Masking is by field name, so it only covers the names listed in
+	 * get_sensitive_field_names(). A password reset "key" and an
+	 * OAuth "code" are deliberately not on that list: both are too short
+	 * to match on without also swallowing "keywords" and "postcode".
+	 *
+	 * Masking runs after esc_url_raw() because the replacement value is
+	 * not URL safe and would be mangled by it.
+	 *
+	 * @since 5.32.0
+	 *
+	 * @return string|null Masked referer URL, or null when the request has none.
+	 */
+	public static function get_masked_referer() {
+		if ( ! isset( $_SERVER['HTTP_REFERER'] ) ) {
+			return null;
+		}
+
+		return self::mask_sensitive_query_string(
+			esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) )
+		);
+	}
+
+	/**
 	 * Returns array with headers that may contain user IP address.
 	 *
 	 * @since 2.0.29

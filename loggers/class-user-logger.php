@@ -139,6 +139,11 @@ class User_Logger extends Logger {
 							'user_unknown_login_failed',
 							'user_application_password_login_failed',
 							'user_application_password_unknown_login_failed',
+							// Someone investigating an attack should also see the summary of
+							// attempts that were not recorded. It is another logger's event, so
+							// it carries its own logger prefix. This list is only a search label;
+							// the throttling itself uses get_failed_login_message_keys().
+							'SimpleHistoryLogger:' . Simple_History_Logger::MESSAGE_KEY_FAILED_LOGINS_NOT_RECORDED,
 						),
 						_x( 'Failed login (known user)', 'User logger: search', 'simple-history' ) => array(
 							'user_login_failed',

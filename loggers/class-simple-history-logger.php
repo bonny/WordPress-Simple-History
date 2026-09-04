@@ -7,6 +7,7 @@ use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Helpers;
 use Simple_History\Simple_History;
 use Simple_History\Services\Channels_Settings_Page;
+use Simple_History\Services\Failed_Logins_Settings_Page_Teaser;
 use Simple_History\Services\Licences_Settings_Page;
 
 /**
@@ -670,10 +671,16 @@ class Simple_History_Logger extends Logger {
 			return [];
 		}
 
-		// Same destination as the link on the grouped failed-login row below this event.
+		// Premium replaces core's failed-logins settings sub-tab with its own
+		// top-level tab, so link to whichever this site has. (Core's limiter
+		// only runs without premium, but premium can write this event too.)
+		$url = Helpers::is_premium_add_on_active()
+			? Helpers::get_settings_page_tab_url( 'failed-login-attempts' )
+			: Helpers::get_settings_page_sub_tab_url( Failed_Logins_Settings_Page_Teaser::MENU_SLUG );
+
 		return [
 			[
-				'url'    => Helpers::get_settings_page_tab_url( 'failed-login-attempts' ),
+				'url'    => $url,
 				'label'  => __( 'Configure failed login attempts', 'simple-history' ),
 				'action' => 'edit',
 			],
