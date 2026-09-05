@@ -69,4 +69,50 @@ class PluginRedirectionLoggerActionMatchingTest extends \Codeception\TestCase\WP
 		// route_bulk is a real method, but only for the Redirect and Group entities, not Settings.
 		$this->assertNull( Plugin_Redirection_Logger::get_redirection_action_for_callable( 'Redirection\Api\Route\Settings::route_bulk' ) );
 	}
+
+	/**
+	 * Redirection 5.10 sends `global: true` with no `items` when the user picks
+	 * "select all" on the redirects or groups list, so those bulk actions need
+	 * their own message keys.
+	 */
+	function test_global_bulk_message_keys_for_redirects() {
+		$this->assertSame( 'redirection_redirection_enabled_all', Plugin_Redirection_Logger::get_global_bulk_message_key( 'redirect', 'enable' ) );
+		$this->assertSame( 'redirection_redirection_disabled_all', Plugin_Redirection_Logger::get_global_bulk_message_key( 'redirect', 'disable' ) );
+		$this->assertSame( 'redirection_redirection_deleted_all', Plugin_Redirection_Logger::get_global_bulk_message_key( 'redirect', 'delete' ) );
+		$this->assertSame( 'redirection_redirection_reset_all', Plugin_Redirection_Logger::get_global_bulk_message_key( 'redirect', 'reset' ) );
+	}
+
+	function test_global_bulk_message_keys_for_groups() {
+		$this->assertSame( 'redirection_group_enabled_all', Plugin_Redirection_Logger::get_global_bulk_message_key( 'group', 'enable' ) );
+		$this->assertSame( 'redirection_group_disabled_all', Plugin_Redirection_Logger::get_global_bulk_message_key( 'group', 'disable' ) );
+		$this->assertSame( 'redirection_group_deleted_all', Plugin_Redirection_Logger::get_global_bulk_message_key( 'group', 'delete' ) );
+	}
+
+	/**
+	 * Groups have no `reset` bulk action in Redirection's route regex
+	 * (`/bulk/group/(?P<bulk>delete|enable|disable)`), and an unknown or
+	 * missing bulk action must never pick a key.
+	 */
+	function test_unknown_global_bulk_combinations_return_null() {
+		$this->assertNull( Plugin_Redirection_Logger::get_global_bulk_message_key( 'group', 'reset' ) );
+		$this->assertNull( Plugin_Redirection_Logger::get_global_bulk_message_key( 'redirect', 'something-else' ) );
+		$this->assertNull( Plugin_Redirection_Logger::get_global_bulk_message_key( 'not-an-entity', 'enable' ) );
+		$this->assertNull( Plugin_Redirection_Logger::get_global_bulk_message_key( 'redirect', null ) );
+	}
+
+	/**
+	 * Every message key the global bulk actions can pick must exist in the
+	 * logger's own messages, or the event would render as a raw key.
+	 */
+	function test_every_global_bulk_message_key_is_registered() {
+		$logger = \Simple_History\Simple_History::get_instance()->get_instantiated_logger_by_slug( 'Plugin_Redirection' );
+
+		$messages = $logger->get_info()['messages'];
+
+		foreach ( Plugin_Redirection_Logger::GLOBAL_BULK_MESSAGE_KEYS as $entity => $actions ) {
+			foreach ( $actions as $message_key ) {
+				$this->assertArrayHasKey( $message_key, $messages, "Message key {$message_key} for {$entity} is not registered" );
+			}
+		}
+	}
 }

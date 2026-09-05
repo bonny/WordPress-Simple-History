@@ -267,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Redirection settings changes now show which settings changed and their previous values.
+-   Redirection events link to the affected redirect or group, and to the relevant Redirection screen.
 
 **Changed**
 
@@ -276,6 +277,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Redirection plugin events are logged again with Redirection 5.10.0 and later.
 -   The admin bar quick view now says when events could not be loaded.
+
+**Security**
+
+-   Redirection events can no longer be added to the log by users without permission to manage redirects.
 
 ### 5.32.0 (September 2026)
 

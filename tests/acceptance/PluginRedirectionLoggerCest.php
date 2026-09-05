@@ -91,7 +91,8 @@ class PluginRedirectionLoggerCest
      * (tools.php?page=redirection.php&sub=options): tick "Monitor changes to
      * post" and click Update, which submits the whole settings form and
      * changes both monitor_types (from [] to ["post"]) and monitor_post
-     * (from its default 0 to a non-zero value).
+     * (from its default 0 to the id of the group the monitored redirects go
+     * into — it is a group id, not an on/off switch).
      */
     public function testOptionsSaved(Admin $I) {
         $I->amOnAdminPage('/tools.php?page=redirection.php&sub=options');
@@ -109,7 +110,7 @@ class PluginRedirectionLoggerCest
         // to return the newest one — take the highest id instead, i.e. the event
         // from this test's own Update click.
         $row_ids = $I->grabColumnFromDatabase($history_table, 'id', [
-            'message' => 'Updated {settings_changed_count} redirection settings',
+            'message' => 'Updated {settings_changed_count} redirection setting(s)',
         ]);
 
         $I->assertNotEmpty($row_ids, 'Expected a "settings changed" event from the Options tab save');
@@ -123,7 +124,7 @@ class PluginRedirectionLoggerCest
         // Also verify it renders as a before/after row in the event details (issue 312).
         // monitor_post has a human label mapped in get_option_label(), so the raw
         // key does not appear in the HTML — assert on the label text instead.
-        $I->seeInLogKeyValueTable('Log post/page redirects');
+        $I->seeInLogKeyValueTable('Group for monitored post redirects');
     }
 
     public function testGroups(Admin $I) {
