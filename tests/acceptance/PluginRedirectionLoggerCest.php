@@ -82,6 +82,50 @@ class PluginRedirectionLoggerCest
         $I->seeLogMessage('Deleted redirection for 1 URL(s)');
     }
 
+    /**
+     * The setup wizard run in _before() leaves monitor_post/monitor_types at
+     * their defaults (both false), so it does not itself produce a change for
+     * those keys — only expire_redirect/expire_404 change there, from the
+     * wizard's logging step. To exercise issue 312's "which settings changed"
+     * detail table for monitor_post specifically, use the real Options tab
+     * (tools.php?page=redirection.php&sub=options): tick "Monitor changes to
+     * post" and click Update, which submits the whole settings form and
+     * changes both monitor_types (from [] to ["post"]) and monitor_post
+     * (from its default 0 to a non-zero value).
+     */
+    public function testOptionsSaved(Admin $I) {
+        $I->amOnAdminPage('/tools.php?page=redirection.php&sub=options');
+        $I->waitForElement('#monitor-type-post', 30);
+        $I->click('#monitor-type-post');
+        $I->click('Update');
+        $I->wait(1);
+
+        $history_table = $I->grabPrefixedTableNameFor('simple_history');
+        $contexts_table = $I->grabPrefixedTableNameFor('simple_history_contexts');
+
+        // The setup wizard in _before() already produced its own "settings changed"
+        // event (expire_redirect/expire_404 only), so more than one row can match
+        // this message. grabFromDatabase() has no ORDER BY, so it is not guaranteed
+        // to return the newest one — take the highest id instead, i.e. the event
+        // from this test's own Update click.
+        $row_ids = $I->grabColumnFromDatabase($history_table, 'id', [
+            'message' => 'Updated {settings_changed_count} redirection settings',
+        ]);
+
+        $I->assertNotEmpty($row_ids, 'Expected a "settings changed" event from the Options tab save');
+
+        $row_id = max($row_ids);
+
+        $context_keys = $I->grabColumnFromDatabase($contexts_table, '`key`', ['history_id' => $row_id]);
+
+        $I->assertContains('redirection_option_monitor_post_new', $context_keys);
+
+        // Also verify it renders as a before/after row in the event details (issue 312).
+        // monitor_post has a human label mapped in get_option_label(), so the raw
+        // key does not appear in the HTML — assert on the label text instead.
+        $I->seeInLogKeyValueTable('Log post/page redirects');
+    }
+
     public function testGroups(Admin $I) {
 
         // Go to page before some actions because the order is different
