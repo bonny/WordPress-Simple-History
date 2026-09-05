@@ -1,10 +1,22 @@
-import { Button, Icon, __experimentalText as Text } from '@wordpress/components';
+import {
+	Button,
+	Icon,
+	__experimentalText as Text,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 export function FetchEventsNoResultsMessage( props ) {
-	const { eventsIsLoading, events, hasActiveFilters, onClearFilters } = props;
+	const {
+		eventsIsLoading,
+		events,
+		hasActiveFilters,
+		onClearFilters,
+		hasErrors = false,
+	} = props;
 
-	if ( eventsIsLoading ) {
+	// A failed request is not "no results": the error notice rendered next
+	// to this component already explains why nothing is showing.
+	if ( eventsIsLoading || hasErrors ) {
 		return null;
 	}
 

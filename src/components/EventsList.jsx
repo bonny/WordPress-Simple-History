@@ -180,6 +180,7 @@ export function EventsList( props ) {
 
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
+				hasErrors={ eventsLoadingHasErrors }
 				events={ events }
 				hasActiveFilters={ hasActiveFilters }
 				onClearFilters={ onClearFilters }

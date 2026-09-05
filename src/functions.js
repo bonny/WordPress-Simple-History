@@ -580,6 +580,28 @@ export async function parseApiFetchError( error ) {
 }
 
 /**
+ * Whether a parsed apiFetch error is an auth failure: an expired nonce/session
+ * or a missing capability. A retry cannot fix those — the page keeps its
+ * stale nonce even after signing in again in another tab — so callers should
+ * point at a page reload instead of offering a retry.
+ *
+ * @param {Object} errorDetails Result of parseApiFetchError().
+ * @return {boolean} True for 401/403 or the REST codes WordPress uses for them.
+ */
+export function isAuthFailureError( errorDetails ) {
+	const restErrorCode = errorDetails.bodyJson?.code;
+	const status =
+		typeof errorDetails.code === 'number' ? errorDetails.code : null;
+
+	return (
+		restErrorCode === 'rest_cookie_invalid_nonce' ||
+		restErrorCode === 'rest_forbidden' ||
+		status === 401 ||
+		status === 403
+	);
+}
+
+/**
  * Get the underlying database error message from parsed error details, if the
  * failure was a database error.
  *

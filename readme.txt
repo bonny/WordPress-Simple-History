@@ -267,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Redirection plugin events are logged again with Redirection 5.10.0 and later.
+-   The admin bar quick view now says when events could not be loaded.
 
 ### 5.32.0 (September 2026)
 
