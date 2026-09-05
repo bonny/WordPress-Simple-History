@@ -39,12 +39,12 @@ npm test
 Premium **is** covered by PHP tests — but they live in **this** (core) repo, not in the
 add-ons repo. One harness, in core; Premium borrows it.
 
-| Location | What's there |
-| --- | --- |
-| `tests/wpunit/premium/` | 11 test files, ~229 tests. Alerts (evaluator/logger/module), custom rules, destination senders, formatters, extended settings, WP-CLI alerts command, both REST controllers, core-vs-premium behaviour |
-| `tests/functional/premium/` | `AlertsCliCest.php` |
-| `tests/playwright/` | `premium-settings-logging.spec.js`, `license-reminder.spec.js`, plus `premium-helpers.js` |
-| `tests/_support/Helper/PremiumTestCase.php` | Base class — call `$this->activate_premium()`; it skips (not fails) when Premium isn't installed |
+| Location                                    | What's there                                                                                                                                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tests/wpunit/premium/`                     | 11 test files, ~229 tests. Alerts (evaluator/logger/module), custom rules, destination senders, formatters, extended settings, WP-CLI alerts command, both REST controllers, core-vs-premium behaviour |
+| `tests/functional/premium/`                 | `AlertsCliCest.php`                                                                                                                                                                                    |
+| `tests/playwright/`                         | `premium-settings-logging.spec.js`, `license-reminder.spec.js`, plus `premium-helpers.js`                                                                                                              |
+| `tests/_support/Helper/PremiumTestCase.php` | Base class — call `$this->activate_premium()`; it skips (not fails) when Premium isn't installed                                                                                                       |
 
 Run them:
 
@@ -57,7 +57,7 @@ docker compose run --rm php-cli vendor/bin/codecept run wpunit premium   # ~15s
 Premium is mounted into the test WordPress at `tests/plugins/simple-history-premium`,
 a **symlink** to the local add-ons checkout, wired up in `compose.yaml`. The symlink is
 **not tracked in git** — on a fresh machine it's absent and every Premium test silently
-*skips*. A green run therefore does not prove Premium passed; check the skip count.
+_skips_. A green run therefore does not prove Premium passed; check the skip count.
 
 It is deliberately not in `wpunit.suite.yml`'s `plugins` list — tests activate it
 on demand via `activate_premium()`.
@@ -307,11 +307,22 @@ as real until proven otherwise.
 
 `tests/plugins/*` (Redirection, Akismet, Jetpack, the premium symlink, …) is
 gitignored and bind-mounted into the test site, so third-party plugin
-*versions* are machine-local too. A Redirection test that times out on
+_versions_ are machine-local too. A Redirection test that times out on
 "Start Setup" with "Problem starting Redirection" in the saved page means the
 local copy is broken, not the logger. Replace the directory with the release
 zip from wordpress.org and recreate the container
 (`docker compose up -d --force-recreate wordpress`) so the mount follows.
+
+Redirection is **5.10.0** on this machine as of 2026-09-05 (was 5.3.2). Bump
+was forced by issue 308: Redirection 5.10.0 moved its REST callbacks from
+legacy classes (`Redirection_Api_Redirect`) into namespaced ones
+(`Redirection\Api\Route\Redirect`), so `Plugin_Redirection_Logger` needed to
+match both spellings — a fixture pinned at 5.3.2 could never have caught that.
+Both `PluginRedirectionLoggerCest` tests pass against 5.10.0. Its UI also
+relabelled the redirect submit button from "Add Redirect" to "Add redirect"
+and reused that same text on a page-title toggle button and a form heading,
+so `testRedirects` now targets the submit button by CSS
+(`.add-new .table-actions button[type=submit]`) instead of by text.
 
 ## Migrating old acceptance tests to Playwright
 

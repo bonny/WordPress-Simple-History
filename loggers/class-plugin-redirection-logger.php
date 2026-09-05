@@ -20,6 +20,46 @@ class Plugin_Redirection_Logger extends Logger {
 	public $slug = 'Plugin_Redirection';
 
 	/**
+	 * REST callback class names Redirection has used, mapped to the entity each
+	 * one handles. Both the legacy classes (Redirection <= 5.9) and the
+	 * namespaced ones introduced in 5.10.0 map to the same three entities.
+	 *
+	 * @var array<string, string>
+	 */
+	const CLASS_NAMES_TO_ENTITY = array(
+		'Redirection_Api_Redirect'       => 'redirect',
+		'Redirection\Api\Route\Redirect' => 'redirect',
+		'Redirection_Api_Group'          => 'group',
+		'Redirection\Api\Route\Group'    => 'group',
+		'Redirection_Api_Settings'       => 'settings',
+		'Redirection\Api\Route\Settings' => 'settings',
+	);
+
+	/**
+	 * REST callback method names, resolving to the logging action for each
+	 * entity that supports the method.
+	 *
+	 * @var array<string, array<string, string>>
+	 */
+	const METHOD_NAMES_TO_ACTIONS = array(
+		'route_bulk'          => array(
+			'redirect' => 'redirect_bulk',
+			'group'    => 'group_bulk',
+		),
+		'route_create'        => array(
+			'redirect' => 'redirect_create',
+			'group'    => 'group_create',
+		),
+		'route_update'        => array(
+			'redirect' => 'redirect_update',
+			'group'    => 'group_update',
+		),
+		'route_save_settings' => array(
+			'settings' => 'settings_save',
+		),
+	);
+
+	/**
 	 * Return info about logger.
 	 *
 	 * @return array Array with plugin info.
@@ -113,28 +153,28 @@ class Plugin_Redirection_Logger extends Logger {
 
 		$callable_name = Helpers::get_callable_name( $callback );
 
-		$ok_redirection_api_callable_names = array(
-			'Redirection_Api_Redirect::route_bulk',
-			'Redirection_Api_Redirect::route_create',
-			'Redirection_Api_Redirect::route_update',
-			'Redirection_Api_Group::route_create',
-			'Redirection_Api_Group::route_bulk',
-			'Redirection_Api_Group::route_update',
-			'Redirection_Api_Settings::route_save_settings',
-		);
+		$redirection_action = self::get_redirection_action_for_callable( $callable_name );
 
 		// Bail directly if this is not a Redirection API call.
-		if ( ! in_array( $callable_name, $ok_redirection_api_callable_names, true ) ) {
+		if ( $redirection_action === null ) {
 			return $response;
 		}
 
-		if ( $callable_name === 'Redirection_Api_Redirect::route_create' ) {
+		if ( $redirection_action === 'redirect_create' ) {
 			$this->log_redirection_add( $request );
-		} elseif ( $callable_name === 'Redirection_Api_Redirect::route_update' ) {
+		} elseif ( $redirection_action === 'redirect_update' ) {
 			$this->log_redirection_edit( $request );
-		} elseif ( $callable_name === 'Redirection_Api_Redirect::route_bulk' ) {
+		} elseif ( $redirection_action === 'redirect_bulk' ) {
 			$bulk_action = $request->get_param( 'bulk' );
 			$bulk_items  = $request->get_param( 'items' );
+
+			// Redirection 5.10 supports a global bulk action ("apply to all
+			// redirects") that omits `items` entirely, so bail before the
+			// explode() below, which would otherwise turn a null into [ '' ]
+			// and log a bogus item id 0.
+			if ( empty( $bulk_items ) ) {
+				return $response;
+			}
 
 			if ( ! is_array( $bulk_items ) ) {
 				$bulk_items = explode( ',', $bulk_items );
@@ -153,11 +193,11 @@ class Plugin_Redirection_Logger extends Logger {
 			} elseif ( $bulk_action === 'delete' ) {
 				$this->log_redirection_delete( $request, $bulk_items );
 			}
-		} elseif ( $callable_name === 'Redirection_Api_Group::route_create' ) {
+		} elseif ( $redirection_action === 'group_create' ) {
 			$this->log_group_add( $request );
-		} elseif ( $callable_name === 'Redirection_Api_Group::route_update' ) {
+		} elseif ( $redirection_action === 'group_update' ) {
 			$this->log_group_edit( $request );
-		} elseif ( $callable_name === 'Redirection_Api_Group::route_bulk' ) {
+		} elseif ( $redirection_action === 'group_bulk' ) {
 			$bulk_action = $request->get_param( 'bulk' );
 			$bulk_items  = (array) $request->get_param( 'items' );
 
@@ -174,11 +214,45 @@ class Plugin_Redirection_Logger extends Logger {
 			} elseif ( $bulk_action === 'delete' ) {
 				$this->log_group_delete( $request, $bulk_items );
 			}
-		} elseif ( $callable_name === 'Redirection_Api_Settings::route_save_settings' ) {
+		} elseif ( $redirection_action === 'settings_save' ) {
 			$this->log_options_save( $request );
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Map a REST callback's fully qualified callable name to the Redirection action it represents.
+	 *
+	 * Redirection 5.10.0 moved its REST callbacks from legacy classes like
+	 * `Redirection_Api_Redirect` into namespaced ones like `Redirection\Api\Route\Redirect`.
+	 * This matches both spellings for the same method names, so the logger keeps working
+	 * on Redirection 5.10.0+ while still supporting sites on older versions (plugin
+	 * auto-updates are off by default, so both are in the wild).
+	 *
+	 * Public and static so the matching logic can be unit tested without the Redirection
+	 * plugin installed.
+	 *
+	 * @param string $callable_name Fully qualified callable name, e.g. "Redirection_Api_Redirect::route_create"
+	 *                              or "Redirection\Api\Route\Redirect::route_create".
+	 * @return string|null One of 'redirect_bulk', 'redirect_create', 'redirect_update',
+	 *                     'group_bulk', 'group_create', 'group_update', 'settings_save',
+	 *                     or null if the callable is not a Redirection API call we handle.
+	 */
+	public static function get_redirection_action_for_callable( $callable_name ) {
+		if ( ! is_string( $callable_name ) || strpos( $callable_name, '::' ) === false ) {
+			return null;
+		}
+
+		list( $class_name, $method_name ) = explode( '::', $callable_name, 2 );
+
+		$entity = self::CLASS_NAMES_TO_ENTITY[ $class_name ] ?? null;
+
+		if ( $entity === null ) {
+			return null;
+		}
+
+		return self::METHOD_NAMES_TO_ACTIONS[ $method_name ][ $entity ] ?? null;
 	}
 
 	/**

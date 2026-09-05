@@ -42,7 +42,10 @@ class PluginRedirectionLoggerCest
         // Add redirect.
         $I->fillField('[name=url]', '/my-source-url');
         $I->fillField('[name=text]', '/my-target-url');
-        $I->click('Add Redirect');
+        // "Add redirect" also labels the page-title toggle button and the form's
+        // <h2>, both of which sit before the submit button in DOM order and
+        // would otherwise win a plain text-based click.
+        $I->click('.add-new .table-actions button[type=submit]');
         $I->wait(1);
         $I->seeLogMessage('Added a redirection for URL "/my-source-url"');
         $I->seeLogContext([
