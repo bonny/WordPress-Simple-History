@@ -264,6 +264,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Changed**
+
+-   The "similar events" link under grouped events is now a proper expand/collapse control that keeps keyboard focus, matching the expand-diff control.
+
 **Fixed**
 
 -   Redirection plugin events are logged again with Redirection 5.10.0 and later.

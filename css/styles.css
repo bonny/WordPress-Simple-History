@@ -349,6 +349,16 @@ Tag = the pill with the log level.
 	gap: 1rem;
 }
 
+/*
+Same negative left margin as .SimpleHistoryLogitem__actionLinks, so the
+button's text lines up with the event text above it at rest. The toggle
+belongs to the row, unlike the diff toggle which is right-aligned under the
+box it expands.
+*/
+.SimpleHistoryLogitem__occasions .SimpleHistory__disclosureToggle {
+	margin-left: calc(var(--sh-spacing-small) * -1);
+}
+
 .SimpleHistoryLogitem__occasionsAddOns {
 	position: relative;
 }
@@ -1738,31 +1748,10 @@ scrollbar carries "there is more" on its own.
 }
 
 /*
-Right-aligned on purpose: it sits where the scrollbar appears, which is where
-the hand goes when someone realises the diff is cropped. Tucked flush against
-the diff above it, and inset from the right edge rather than hanging its
-padding past it, so it reads as belonging to the diff rather than to the
-action links below.
+Shared recipe for a control that toggles more content in place rather than
+navigating away: "expand diff" and "show/hide similar events" both use it, so
+the next disclosure control gets this for free instead of copying it again.
 
-Styled as a control rather than a link — same hover treatment as the action
-links, no resting underline — because it changes this view instead of
-navigating away.
-*/
-.SimpleHistory__diff__expandToggle {
-	background: none;
-	border: 0;
-	color: #2271b1;
-	cursor: pointer;
-	display: block;
-	font-size: var(--sh-font-size-small);
-	margin-top: 0;
-	margin-left: auto;
-	margin-right: var(--sh-spacing-small);
-	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
-	text-decoration: none;
-}
-
-/*
 A chevron rather than one of the sh-Icon sprites, because it has to rotate to
 show state and the icon set has no chevron. Drawn from two borders so it takes
 currentColor and needs no asset.
@@ -1770,7 +1759,29 @@ currentColor and needs no asset.
 Keyed off aria-expanded rather than a class of its own, so the arrow and what
 screen readers announce are driven by the same attribute and cannot drift apart.
 */
-.SimpleHistory__diff__expandToggle::after {
+/*
+Both toggles are plain <button>s rather than the @wordpress/components link
+Button, so the reset lives here once and nothing from wp-components has to
+be out-specified.
+*/
+.SimpleHistory__disclosureToggle {
+	background: none;
+	border: 0;
+	cursor: pointer;
+	color: #2271b1;
+	font-size: var(--sh-font-size-small);
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
+	text-decoration: none;
+}
+
+.SimpleHistory__disclosureToggle:hover,
+.SimpleHistory__disclosureToggle:focus-visible {
+	background-color: var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius);
+	color: #135e96;
+}
+
+.SimpleHistory__disclosureToggle::after {
 	content: "";
 	display: inline-block;
 	width: 0.35em;
@@ -1782,21 +1793,32 @@ screen readers announce are driven by the same attribute and cannot drift apart.
 	transition: transform 0.15s ease;
 }
 
-.SimpleHistory__diff__expandToggle[aria-expanded="true"]::after {
+.SimpleHistory__disclosureToggle[aria-expanded="true"]::after {
 	transform: translateY(0.1em) rotate(-135deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.SimpleHistory__diff__expandToggle::after {
+	.SimpleHistory__disclosureToggle::after {
 		transition: none;
 	}
 }
 
-.SimpleHistory__diff__expandToggle:hover,
-.SimpleHistory__diff__expandToggle:focus-visible {
-	background-color: var(--sh-color-gray-4);
-	border-radius: var(--sh-border-radius);
-	color: #135e96;
+/*
+Right-aligned on purpose: it sits where the scrollbar appears, which is where
+the hand goes when someone realises the diff is cropped. Tucked flush against
+the diff above it, and inset from the right edge rather than hanging its
+padding past it, so it reads as belonging to the diff rather than to the
+action links below.
+
+Styled as a control rather than a link — same hover treatment as the action
+links, no resting underline — because it changes this view instead of
+navigating away.
+*/
+.SimpleHistory__diff__expandToggle {
+	display: block;
+	margin-top: 0;
+	margin-left: auto;
+	margin-right: var(--sh-spacing-small);
 }
 
 .SimpleHistory__diff__contents:focus {
