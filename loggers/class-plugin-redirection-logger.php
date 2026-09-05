@@ -61,8 +61,13 @@ class Plugin_Redirection_Logger extends Logger {
 
 	/**
 	 * Redirection option keys that make up the single `redirection_options` option,
-	 * plus `location` (the .htaccess path, validated separately in the settings route).
-	 * Verified against Redirection 5.10.0 `models/options.php:260-295`.
+	 * plus `location` (the .htaccess path, derived from the Apache module in
+	 * `\Red_Options::get()`). Verified against Redirection 5.10.0
+	 * `models/options.php:260-295` (`get_default_options()`) plus the four
+	 * `flag_*` defaults it merges in from `Red_Source_Flags::get_json()`.
+	 *
+	 * `last_group_id` is deliberately left out: Redirection bumps it whenever a
+	 * group is added, which has nothing to do with a settings change.
 	 *
 	 * @var string[]
 	 */
@@ -78,6 +83,7 @@ class Plugin_Redirection_Logger extends Logger {
 		'track_hits',
 		'modules',
 		'redirect_cache',
+		'cache_key',
 		'ip_logging',
 		'ip_headers',
 		'ip_proxy',
@@ -93,7 +99,21 @@ class Plugin_Redirection_Logger extends Logger {
 		'token',
 		'plugin_update',
 		'update_notice',
+		'flag_query',
+		'flag_case',
+		'flag_trailing',
+		'flag_regex',
 		'location',
+	);
+
+	/**
+	 * Option keys whose value is a secret. Only the fact that they changed is
+	 * ever recorded, never the value itself, on either side of the change.
+	 *
+	 * @var string[]
+	 */
+	const REDACTED_OPTION_KEYS = array(
+		'token',
 	);
 
 	/**
@@ -115,12 +135,14 @@ class Plugin_Redirection_Logger extends Logger {
 	 * @var string[]
 	 */
 	const BOOLEAN_OPTION_KEYS = array(
-		'monitor_post',
 		'log_external',
 		'log_header',
 		'track_hits',
 		'https',
 		'support',
+		'flag_case',
+		'flag_trailing',
+		'flag_regex',
 	);
 
 	/**
@@ -129,6 +151,43 @@ class Plugin_Redirection_Logger extends Logger {
 	 * @var int
 	 */
 	const MAX_STORED_VALUE_LENGTH = 200;
+
+	/**
+	 * Message keys used for a global ("apply to everything matching the current
+	 * filter") bulk action, per entity and bulk action.
+	 *
+	 * Redirection 5.10 sends `global: true` with no `items` when the user picks
+	 * "select all" on the redirects or groups list. Groups have no `reset`
+	 * action, which is why that row is missing below.
+	 *
+	 * @var array<string, array<string, string>>
+	 */
+	const GLOBAL_BULK_MESSAGE_KEYS = array(
+		'redirect' => array(
+			'enable'  => 'redirection_redirection_enabled_all',
+			'disable' => 'redirection_redirection_disabled_all',
+			'delete'  => 'redirection_redirection_deleted_all',
+			'reset'   => 'redirection_redirection_reset_all',
+		),
+		'group'    => array(
+			'enable'  => 'redirection_group_enabled_all',
+			'disable' => 'redirection_group_disabled_all',
+			'delete'  => 'redirection_group_deleted_all',
+		),
+	);
+
+	/**
+	 * Previous state captured on `rest_request_before_callbacks`, keyed by the
+	 * request object's `spl_object_id()`.
+	 *
+	 * One PHP request can dispatch several REST requests — a `/batch/v1`
+	 * envelope, or any `rest_do_request()` call — so this cannot be a single
+	 * scalar property. Entries are removed again in
+	 * `on_rest_request_after_callbacks()`.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private $captured_request_state = array();
 
 	/**
 	 * Return info about logger.
@@ -143,19 +202,26 @@ class Plugin_Redirection_Logger extends Logger {
 			'name_via'    => _x( 'In plugin Redirection', 'Logger: Redirection', 'simple-history' ),
 			'capability'  => 'manage_options',
 			'messages'    => array(
-				'redirection_redirection_added'    => _x( 'Added a redirection for URL "{source_url}"', 'Logger: Redirection', 'simple-history' ),
-				'redirection_redirection_edited'   => _x( 'Edited redirection for URL "{prev_source_url}"', 'Logger: Redirection', 'simple-history' ),
-				'redirection_redirection_enabled'  => _x( 'Enabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-				'redirection_redirection_disabled' => _x( 'Disabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-				'redirection_redirection_deleted'  => _x( 'Deleted redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
-				'redirection_options_saved'        => _x( 'Updated redirection options', 'Logger: Redirection', 'simple-history' ),
-				'redirection_options_saved_count'  => _x( 'Updated {settings_changed_count} redirection settings', 'Logger: Redirection', 'simple-history' ),
-				'redirection_options_removed_all'  => _x( 'Removed all redirection options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
-				'redirection_group_added'          => _x( 'Added redirection group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
-				'redirection_group_edited'         => _x( 'Edited redirection group "{prev_group_name}"', 'Logger: Redirection', 'simple-history' ),
-				'redirection_group_enabled'        => _x( 'Enabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
-				'redirection_group_disabled'       => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
-				'redirection_group_deleted'        => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+				'redirection_redirection_added'        => _x( 'Added a redirection for URL "{source_url}"', 'Logger: Redirection', 'simple-history' ),
+				'redirection_redirection_edited'       => _x( 'Edited redirection for URL "{prev_source_url}"', 'Logger: Redirection', 'simple-history' ),
+				'redirection_redirection_enabled'      => _x( 'Enabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+				'redirection_redirection_disabled'     => _x( 'Disabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+				'redirection_redirection_deleted'      => _x( 'Deleted redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
+				'redirection_redirection_enabled_all'  => _x( 'Enabled all redirections matching the current filter', 'Logger: Redirection', 'simple-history' ),
+				'redirection_redirection_disabled_all' => _x( 'Disabled all redirections matching the current filter', 'Logger: Redirection', 'simple-history' ),
+				'redirection_redirection_deleted_all'  => _x( 'Deleted all redirections matching the current filter', 'Logger: Redirection', 'simple-history' ),
+				'redirection_redirection_reset_all'    => _x( 'Reset hit statistics for all redirections matching the current filter', 'Logger: Redirection', 'simple-history' ),
+				'redirection_options_saved'            => _x( 'Updated redirection options', 'Logger: Redirection', 'simple-history' ),
+				'redirection_options_saved_count'      => _x( 'Updated {settings_changed_count} redirection setting(s)', 'Logger: Redirection', 'simple-history' ),
+				'redirection_options_removed_all'      => _x( 'Removed all redirection options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
+				'redirection_group_added'              => _x( 'Added redirection group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
+				'redirection_group_edited'             => _x( 'Edited redirection group "{prev_group_name}"', 'Logger: Redirection', 'simple-history' ),
+				'redirection_group_enabled'            => _x( 'Enabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+				'redirection_group_disabled'           => _x( 'Disabled {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+				'redirection_group_deleted'            => _x( 'Deleted {items_count} redirection group(s)', 'Logger: Redirection', 'simple-history' ),
+				'redirection_group_enabled_all'        => _x( 'Enabled all redirection groups matching the current filter', 'Logger: Redirection', 'simple-history' ),
+				'redirection_group_disabled_all'       => _x( 'Disabled all redirection groups matching the current filter', 'Logger: Redirection', 'simple-history' ),
+				'redirection_group_deleted_all'        => _x( 'Deleted all redirection groups matching the current filter', 'Logger: Redirection', 'simple-history' ),
 			),
 			'labels'      => array(
 				'search' => array(
@@ -169,9 +235,13 @@ class Plugin_Redirection_Logger extends Logger {
 							'redirection_redirection_edited',
 							'redirection_redirection_enabled',
 							'redirection_redirection_disabled',
+							'redirection_redirection_enabled_all',
+							'redirection_redirection_disabled_all',
+							'redirection_redirection_reset_all',
 						),
 						_x( 'Redirections deleted', 'Redirection logger: search', 'simple-history' ) => array(
 							'redirection_redirection_deleted',
+							'redirection_redirection_deleted_all',
 						),
 						_x( 'Redirection groups', 'Redirection logger: search', 'simple-history' ) => array(
 							'redirection_group_added',
@@ -179,6 +249,9 @@ class Plugin_Redirection_Logger extends Logger {
 							'redirection_group_enabled',
 							'redirection_group_disabled',
 							'redirection_group_deleted',
+							'redirection_group_enabled_all',
+							'redirection_group_disabled_all',
+							'redirection_group_deleted_all',
 						),
 						_x( 'Redirection options', 'Redirection logger: search', 'simple-history' ) => array(
 							'redirection_options_saved',
@@ -201,30 +274,44 @@ class Plugin_Redirection_Logger extends Logger {
 			return;
 		}
 
-		// Redirection plugin uses the WP REST API, so catch when requests do the API is done.
-		// We use filter *_before_callbacks so we can access the old title
-		// of the Redirection object, i.e. before new values are saved.
+		/*
+		 * Redirection plugin uses the WP REST API, so catch when requests to
+		 * the API are done. Two hooks, with different jobs:
+		 *
+		 * - `rest_request_before_callbacks` only *captures* the state that is
+		 *   about to be overwritten (the redirect's old URL, the group's old
+		 *   name, the stored options). It logs nothing, because it runs before
+		 *   the route's `permission_callback` — logging there let any logged-in
+		 *   user write false audit entries just by POSTing to the route.
+		 * - `rest_request_after_callbacks` runs once Redirection's own callback
+		 *   has returned, so it can tell an accepted request from a rejected
+		 *   one, and read back what was actually stored.
+		 */
 		add_filter( 'rest_request_before_callbacks', array( $this, 'on_rest_request_before_callbacks' ), 10, 3 );
+		add_filter( 'rest_request_after_callbacks', array( $this, 'on_rest_request_after_callbacks' ), 10, 3 );
 	}
 
 	/**
-	 * Fired when WP REST API call is done.
+	 * Capture the state a Redirection REST request is about to overwrite.
 	 *
-	 * @param \WP_HTTP_Response $response Result to send to the client. Usually a WP_REST_Response.
-	 * @param \WP_REST_Server   $handler  ResponseHandler instance (usually WP_REST_Server).
-	 * @param \WP_REST_Request  $request  Request used to generate the response.
+	 * Nothing is logged here: this filter runs before the route's
+	 * `permission_callback` and before Redirection's own callback, so at this
+	 * point it is not yet known whether the request will be allowed, let alone
+	 * succeed.
 	 *
-	 * @return \WP_HTTP_Response $response
+	 * @param \WP_HTTP_Response|\WP_Error|mixed $response Result to send to the client. Usually a WP_REST_Response.
+	 * @param array                             $handler  Route handler used for the request.
+	 * @param \WP_REST_Request                  $request  Request used to generate the response.
+	 *
+	 * @return \WP_HTTP_Response|\WP_Error|mixed Passthrough of $response.
 	 */
 	public function on_rest_request_before_callbacks( $response, $handler, $request ) {
 		// Callback must be set.
-		if ( ! isset( $handler['callback'] ) ) {
+		if ( ! isset( $handler['callback'] ) || ! $request instanceof \WP_REST_Request ) {
 			return $response;
 		}
 
-		$callback = $handler['callback'];
-
-		$callable_name = Helpers::get_callable_name( $callback );
+		$callable_name = Helpers::get_callable_name( $handler['callback'] );
 
 		$redirection_action = self::get_redirection_action_for_callable( $callable_name );
 
@@ -233,65 +320,244 @@ class Plugin_Redirection_Logger extends Logger {
 			return $response;
 		}
 
+		// A request whose callback fatals never reaches the after-callbacks
+		// release below. In a long-running process (WP-CLI, tests) that
+		// entry would linger and could be picked up by a later request that
+		// reuses the object id, so never keep more than a handful.
+		if ( count( $this->captured_request_state ) > 10 ) {
+			$this->captured_request_state = array();
+		}
+
+		$this->captured_request_state[ spl_object_id( $request ) ] = $this->capture_previous_state( $redirection_action, $request );
+
+		return $response;
+	}
+
+	/**
+	 * Log a Redirection REST request, once Redirection itself has accepted it.
+	 *
+	 * @param \WP_HTTP_Response|\WP_Error|mixed $response Result to send to the client. Usually a WP_REST_Response.
+	 * @param array                             $handler  Route handler used for the request.
+	 * @param \WP_REST_Request                  $request  Request used to generate the response.
+	 *
+	 * @return \WP_HTTP_Response|\WP_Error|mixed Passthrough of $response.
+	 */
+	public function on_rest_request_after_callbacks( $response, $handler, $request ) {
+		if ( ! $request instanceof \WP_REST_Request ) {
+			return $response;
+		}
+
+		$request_key = spl_object_id( $request );
+
+		// Not a Redirection request we matched on the way in.
+		if ( ! isset( $this->captured_request_state[ $request_key ] ) ) {
+			return $response;
+		}
+
+		$captured_state = $this->captured_request_state[ $request_key ];
+
+		// Always release the captured state, also for a rejected request.
+		unset( $this->captured_request_state[ $request_key ] );
+
+		// A failed permission check or a failed save must not produce an event.
+		if ( self::is_failed_response( $response ) ) {
+			return $response;
+		}
+
+		$this->log_redirection_action( $captured_state['action'], $request, $captured_state );
+
+		return $response;
+	}
+
+	/**
+	 * Whether a REST response says the request was rejected or failed.
+	 *
+	 * At `rest_request_after_callbacks` time a failed permission check is still
+	 * a `WP_Error` — it is only turned into a response object afterwards — and a
+	 * route callback can return either a `WP_Error` or a response carrying an
+	 * error status.
+	 *
+	 * @param \WP_HTTP_Response|\WP_Error|mixed $response Response as passed to the filter.
+	 * @return bool
+	 */
+	private static function is_failed_response( $response ) {
+		if ( is_wp_error( $response ) ) {
+			return true;
+		}
+
+		return $response instanceof \WP_HTTP_Response && $response->get_status() >= 400;
+	}
+
+	/**
+	 * Read the values a request is about to replace, so they can be logged as
+	 * the "previous" side of the change once the request has gone through.
+	 *
+	 * @param string           $redirection_action Action from get_redirection_action_for_callable().
+	 * @param \WP_REST_Request $request            Request used to generate the response.
+	 * @return array<string, mixed> Captured state, always holding at least an `action` key.
+	 */
+	private function capture_previous_state( $redirection_action, $request ) {
+		$captured_state = array( 'action' => $redirection_action );
+
+		if ( $redirection_action === 'settings_save' ) {
+			// `\Red_Options::get()` still returns the previous values here, and
+			// caches them internally — the cache is cleared by its own save(),
+			// so reading it again afterwards gives the stored new values.
+			if ( class_exists( 'Red_Options' ) ) {
+				$captured_state['previous_options'] = \Red_Options::get();
+			}
+
+			return $captured_state;
+		}
+
+		if ( $redirection_action === 'redirect_update' ) {
+			$redirection_id = $request->get_param( 'id' );
+
+			$redirection_item = $redirection_id === null ? false : \Red_Item::get_by_id( $redirection_id );
+
+			if ( is_object( $redirection_item ) ) {
+				$captured_state['prev_source_url'] = $redirection_item->get_url();
+				$captured_state['prev_target']     = $this->unserialize_action_data( $redirection_item->get_action_data() );
+			}
+
+			return $captured_state;
+		}
+
+		if ( $redirection_action === 'group_update' ) {
+			$group_id = $request->get_param( 'id' );
+
+			$group_item = $group_id === null ? false : \Red_Group::get( $group_id );
+
+			if ( is_object( $group_item ) ) {
+				$captured_state['prev_group_name']      = $group_item->get_name();
+				$captured_state['prev_group_module_id'] = $group_item->get_module_id();
+			}
+
+			return $captured_state;
+		}
+
+		return $captured_state;
+	}
+
+	/**
+	 * Route an accepted Redirection request to the method that logs it.
+	 *
+	 * @param string               $redirection_action Action from get_redirection_action_for_callable().
+	 * @param \WP_REST_Request     $request            Request used to generate the response.
+	 * @param array<string, mixed> $captured_state     State captured before the request ran.
+	 */
+	private function log_redirection_action( $redirection_action, $request, array $captured_state ) {
 		if ( $redirection_action === 'redirect_create' ) {
 			$this->log_redirection_add( $request );
 		} elseif ( $redirection_action === 'redirect_update' ) {
-			$this->log_redirection_edit( $request );
+			$this->log_redirection_edit( $request, $captured_state );
 		} elseif ( $redirection_action === 'redirect_bulk' ) {
-			$bulk_action = $request->get_param( 'bulk' );
-			$bulk_items  = $request->get_param( 'items' );
+			$this->log_redirect_bulk( $request );
+		} elseif ( $redirection_action === 'group_create' ) {
+			$this->log_group_add( $request );
+		} elseif ( $redirection_action === 'group_update' ) {
+			$this->log_group_edit( $request, $captured_state );
+		} elseif ( $redirection_action === 'group_bulk' ) {
+			$this->log_group_bulk( $request );
+		} elseif ( $redirection_action === 'settings_save' ) {
+			$this->log_options_save( $captured_state );
+		}
+	}
 
-			// Redirection 5.10 supports a global bulk action ("apply to all
-			// redirects") that omits `items` entirely, so bail before the
-			// explode() below, which would otherwise turn a null into [ '' ]
-			// and log a bogus item id 0.
-			if ( empty( $bulk_items ) ) {
-				return $response;
-			}
+	/**
+	 * Log a bulk action on redirects.
+	 *
+	 * Mirrors Redirection's own precedence in `Redirect::route_bulk()`: an
+	 * explicit, non-empty `items` list wins, and only when there is none does
+	 * the request's `global` flag ("apply to everything matching the current
+	 * filter") come into play.
+	 *
+	 * @param \WP_REST_Request $request Request used to generate the response.
+	 */
+	private function log_redirect_bulk( $request ) {
+		$bulk_action = $request->get_param( 'bulk' );
+		$bulk_items  = $request->get_param( 'items' );
 
+		if ( ! empty( $bulk_items ) ) {
 			if ( ! is_array( $bulk_items ) ) {
 				$bulk_items = explode( ',', $bulk_items );
 			}
 
 			$bulk_items = array_map( 'intval', $bulk_items );
 
-			if ( empty( $bulk_items ) ) {
-				return $response;
-			}
-
-			if ( $bulk_action === 'enable' ) {
-				$this->log_redirection_enable_or_disable( $request, $bulk_items );
-			} elseif ( $bulk_action === 'disable' ) {
+			if ( $bulk_action === 'enable' || $bulk_action === 'disable' ) {
 				$this->log_redirection_enable_or_disable( $request, $bulk_items );
 			} elseif ( $bulk_action === 'delete' ) {
 				$this->log_redirection_delete( $request, $bulk_items );
 			}
-		} elseif ( $redirection_action === 'group_create' ) {
-			$this->log_group_add( $request );
-		} elseif ( $redirection_action === 'group_update' ) {
-			$this->log_group_edit( $request );
-		} elseif ( $redirection_action === 'group_bulk' ) {
-			$bulk_action = $request->get_param( 'bulk' );
-			$bulk_items  = (array) $request->get_param( 'items' );
 
-			$bulk_items = array_map( 'intval', $bulk_items );
+			return;
+		}
 
-			if ( empty( $bulk_items ) ) {
-				return $response;
-			}
+		$this->log_global_bulk( 'redirect', $bulk_action, $request );
+	}
 
-			if ( $bulk_action === 'enable' ) {
-				$this->log_group_enable_or_disable( $request, $bulk_items );
-			} elseif ( $bulk_action === 'disable' ) {
+	/**
+	 * Log a bulk action on redirection groups.
+	 *
+	 * @param \WP_REST_Request $request Request used to generate the response.
+	 */
+	private function log_group_bulk( $request ) {
+		$bulk_action = $request->get_param( 'bulk' );
+		$bulk_items  = $request->get_param( 'items' );
+
+		if ( ! empty( $bulk_items ) ) {
+			$bulk_items = array_map( 'intval', (array) $bulk_items );
+
+			if ( $bulk_action === 'enable' || $bulk_action === 'disable' ) {
 				$this->log_group_enable_or_disable( $request, $bulk_items );
 			} elseif ( $bulk_action === 'delete' ) {
 				$this->log_group_delete( $request, $bulk_items );
 			}
-		} elseif ( $redirection_action === 'settings_save' ) {
-			$this->log_options_save( $request );
+
+			return;
 		}
 
-		return $response;
+		$this->log_global_bulk( 'group', $bulk_action, $request );
+	}
+
+	/**
+	 * Log a global ("select all") bulk action, which carries no item ids.
+	 *
+	 * @param string           $entity      One of 'redirect' or 'group'.
+	 * @param string|null      $bulk_action Bulk action from the request.
+	 * @param \WP_REST_Request $request     Request used to generate the response.
+	 */
+	private function log_global_bulk( $entity, $bulk_action, $request ) {
+		if ( ! $request->get_param( 'global' ) ) {
+			return;
+		}
+
+		$message_key = self::get_global_bulk_message_key( $entity, $bulk_action );
+
+		if ( $message_key === null ) {
+			return;
+		}
+
+		$this->info_message( $message_key );
+	}
+
+	/**
+	 * Map an entity and bulk action to the message key for a global bulk action.
+	 *
+	 * Public and static so the key selection can be unit tested without a real
+	 * REST request.
+	 *
+	 * @param string      $entity      One of 'redirect' or 'group'.
+	 * @param string|null $bulk_action One of 'enable', 'disable', 'delete' or, for redirects, 'reset'.
+	 * @return string|null Message key, or null when the combination is not one we log.
+	 */
+	public static function get_global_bulk_message_key( $entity, $bulk_action ) {
+		if ( ! is_string( $bulk_action ) ) {
+			return null;
+		}
+
+		return self::GLOBAL_BULK_MESSAGE_KEYS[ $entity ][ $bulk_action ] ?? null;
 	}
 
 	/**
@@ -371,9 +637,10 @@ class Plugin_Redirection_Logger extends Logger {
 	/**
 	 * Log when a Redirection group is edited.
 	 *
-	 * @param \WP_REST_Request $req Request.
+	 * @param \WP_REST_Request     $req            Request.
+	 * @param array<string, mixed> $captured_state State captured before the request ran.
 	 */
-	public function log_group_edit( $req ) {
+	public function log_group_edit( $req, array $captured_state = array() ) {
 		$group_id = $req->get_param( 'id' );
 
 		if ( $group_id === null ) {
@@ -386,14 +653,10 @@ class Plugin_Redirection_Logger extends Logger {
 			'new_group_module_id' => $req->get_param( 'moduleId' ),
 		);
 
-		// Get old values.
-		$redirection_item = \Red_Group::get( $group_id );
-		if ( $redirection_item !== false ) {
-			$prev_group_name      = $redirection_item->get_name();
-			$prev_group_module_id = $redirection_item->get_module_id();
-
-			$context['prev_group_name']      = $prev_group_name;
-			$context['prev_group_module_id'] = $prev_group_module_id;
+		// Old values, read before the group was saved.
+		if ( array_key_exists( 'prev_group_name', $captured_state ) ) {
+			$context['prev_group_name']      = $captured_state['prev_group_name'];
+			$context['prev_group_module_id'] = $captured_state['prev_group_module_id'];
 		}
 
 		$this->info_message(
@@ -427,26 +690,27 @@ class Plugin_Redirection_Logger extends Logger {
 	/**
 	 * Log when options are saved.
 	 *
-	 * We hook `rest_request_before_callbacks`, so this runs before
-	 * `Settings::route_save_settings()` saves, meaning `\Red_Options::get()`
-	 * still returns the previous values here.
+	 * Runs on `rest_request_after_callbacks`, so the diff is between what
+	 * `\Red_Options::get()` returned before `Settings::route_save_settings()`
+	 * ran and what it returns now. Diffing stored-before against stored-after,
+	 * rather than against the raw request params, means the event records what
+	 * Redirection actually persisted: keys the user's capabilities did not
+	 * allow, values Redirection sanitized or ignored, and derived values such
+	 * as `location` all take care of themselves.
 	 *
-	 * @param \WP_REST_Request $req Request.
+	 * @param array<string, mixed> $captured_state State captured before the request ran.
 	 */
-	protected function log_options_save( $req ) {
-		$params = $req->get_params();
-
-		if ( ! is_array( $params ) || empty( $params ) || ! class_exists( 'Red_Options' ) ) {
+	protected function log_options_save( array $captured_state ) {
+		if ( ! array_key_exists( 'previous_options', $captured_state ) || ! class_exists( 'Red_Options' ) ) {
 			$this->info_message( 'redirection_options_saved' );
 
 			return;
 		}
 
-		$params = self::filter_params_by_capability( $params );
+		$previous_options = $captured_state['previous_options'];
+		$current_options  = \Red_Options::get();
 
-		$previous_options = \Red_Options::get();
-
-		$changed_settings = self::get_changed_settings( $params, $previous_options );
+		$changed_settings = self::get_changed_settings( $current_options, $previous_options );
 
 		if ( empty( $changed_settings ) ) {
 			$this->info_message( 'redirection_options_saved' );
@@ -459,6 +723,17 @@ class Plugin_Redirection_Logger extends Logger {
 		);
 
 		foreach ( $changed_settings as $option_key => $values ) {
+			// A redacted value is identical on both sides, and the details
+			// container drops items whose new and prev values are the same —
+			// which would hide the change while still counting it. Store only
+			// a "(changed)" new value, as class-simple-history-logger.php does
+			// for its own redacted settings.
+			if ( in_array( $option_key, self::REDACTED_OPTION_KEYS, true ) ) {
+				$context[ "redirection_option_{$option_key}_new" ] = __( '(changed)', 'simple-history' );
+
+				continue;
+			}
+
 			$context[ "redirection_option_{$option_key}_prev" ] = $values['prev'];
 			$context[ "redirection_option_{$option_key}_new" ]  = $values['new'];
 		}
@@ -467,44 +742,14 @@ class Plugin_Redirection_Logger extends Logger {
 	}
 
 	/**
-	 * Filter settings-save request params down to only the ones the current user's
-	 * Redirection capabilities allow saving.
-	 *
-	 * `Settings::route_save_settings()` runs the request params through
-	 * `\Red_Options::filter_by_capability()` and only ever persists what survives
-	 * (`includes/api/route/class-settings.php:94-95`) — a user holding only the
-	 * site or only the option capability has the other bucket's keys silently
-	 * dropped. Diffing the unfiltered params would then record a "change" for a
-	 * key Redirection never actually saved, so filter first.
-	 *
-	 * Guarded with `method_exists()`: older Redirection versions that predate
-	 * this capability split don't have the method, and everything is saved as
-	 * before, so params pass through unchanged. Phpstan resolves `\Red_Options`
-	 * against the one Redirection version installed on this machine, where the
-	 * method always exists, so it flags the check as always true — real sites
-	 * can and do run older versions, so the guard stays.
-	 *
-	 * Public and static so it can be unit tested independently of a real REST request.
-	 *
-	 * @param array<string, mixed> $params Raw request params.
-	 * @return array<string, mixed> Params filtered the same way Redirection itself filters them.
-	 */
-	public static function filter_params_by_capability( array $params ) {
-		if ( method_exists( '\Red_Options', 'filter_by_capability' ) ) { // @phpstan-ignore-line function.alreadyNarrowedType
-			return \Red_Options::filter_by_capability( $params );
-		}
-
-		return $params;
-	}
-
-	/**
-	 * Compare Redirection settings-save request params against the previous option
-	 * values and return only the ones that actually changed, formatted for storage.
+	 * Compare two sets of Redirection option values and return only the ones
+	 * that actually changed, formatted for storage.
 	 *
 	 * Public and static so the diffing logic can be unit tested without the
 	 * Redirection plugin installed or a real REST request.
 	 *
-	 * @param array<string, mixed> $params   Request params from the settings-save request.
+	 * @param array<string, mixed> $current  Current option values, i.e. the return value
+	 *                                        of `\Red_Options::get()` after the save.
 	 *                                        Only keys that are known Redirection option
 	 *                                        keys are considered; everything else is ignored.
 	 * @param array<string, mixed> $previous Previous option values, i.e. the return value
@@ -512,10 +757,10 @@ class Plugin_Redirection_Logger extends Logger {
 	 * @return array<string, array{prev: string, new: string}> Changed option keys mapped
 	 *                                                          to their formatted prev/new values.
 	 */
-	public static function get_changed_settings( array $params, array $previous ) {
+	public static function get_changed_settings( array $current, array $previous ) {
 		$changed_settings = array();
 
-		foreach ( $params as $option_key => $new_value ) {
+		foreach ( $current as $option_key => $new_value ) {
 			if ( ! in_array( $option_key, self::OPTION_KEYS, true ) ) {
 				continue;
 			}
@@ -588,7 +833,7 @@ class Plugin_Redirection_Logger extends Logger {
 	 * @return string Formatted value, safe to store in the event context.
 	 */
 	private static function format_value_for_storage( $option_key, $value ) {
-		if ( $option_key === 'token' ) {
+		if ( in_array( $option_key, self::REDACTED_OPTION_KEYS, true ) ) {
 			return '[redacted]';
 		}
 
@@ -645,6 +890,19 @@ class Plugin_Redirection_Logger extends Logger {
 			return $ip_logging_labels[ $value ] ?? $value;
 		}
 
+		if ( $option_key === 'flag_query' ) {
+			// Wording taken from Redirection's own options screen, so the event
+			// reads the same as the setting the user just changed.
+			$flag_query_labels = array(
+				'exact'      => _x( 'Exact match in any order', 'Logger: Redirection, setting value', 'simple-history' ),
+				'exactorder' => _x( 'Exact match', 'Logger: Redirection, setting value', 'simple-history' ),
+				'ignore'     => _x( 'Ignore all query parameters', 'Logger: Redirection, setting value', 'simple-history' ),
+				'pass'       => _x( 'Ignore and pass all query parameters', 'Logger: Redirection, setting value', 'simple-history' ),
+			);
+
+			return $flag_query_labels[ $value ] ?? $value;
+		}
+
 		return $value;
 	}
 
@@ -665,7 +923,7 @@ class Plugin_Redirection_Logger extends Logger {
 		}
 
 		$labels = array(
-			'monitor_post'        => _x( 'Log post/page redirects', 'Logger: Redirection', 'simple-history' ),
+			'monitor_post'        => _x( 'Group for monitored post redirects', 'Logger: Redirection', 'simple-history' ),
 			'monitor_types'       => _x( 'Monitored post types', 'Logger: Redirection', 'simple-history' ),
 			'associated_redirect' => _x( 'Associated redirect action', 'Logger: Redirection', 'simple-history' ),
 			'auto_target'         => _x( 'Auto target', 'Logger: Redirection', 'simple-history' ),
@@ -676,6 +934,7 @@ class Plugin_Redirection_Logger extends Logger {
 			'track_hits'          => _x( 'Track hits', 'Logger: Redirection', 'simple-history' ),
 			'modules'             => _x( 'Modules', 'Logger: Redirection', 'simple-history' ),
 			'redirect_cache'      => _x( 'Redirect cache', 'Logger: Redirection', 'simple-history' ),
+			'cache_key'           => _x( 'Redirect cache key', 'Logger: Redirection', 'simple-history' ),
 			'ip_logging'          => _x( 'IP logging', 'Logger: Redirection', 'simple-history' ),
 			'ip_headers'          => _x( 'IP headers', 'Logger: Redirection', 'simple-history' ),
 			'ip_proxy'            => _x( 'IP proxy headers', 'Logger: Redirection', 'simple-history' ),
@@ -691,6 +950,10 @@ class Plugin_Redirection_Logger extends Logger {
 			'token'               => _x( 'REST API token', 'Logger: Redirection', 'simple-history' ),
 			'plugin_update'       => _x( 'Plugin update channel', 'Logger: Redirection', 'simple-history' ),
 			'update_notice'       => _x( 'Update notice dismissed', 'Logger: Redirection', 'simple-history' ),
+			'flag_query'          => _x( 'Query parameter handling by default', 'Logger: Redirection', 'simple-history' ),
+			'flag_case'           => _x( 'Ignore case by default', 'Logger: Redirection', 'simple-history' ),
+			'flag_trailing'       => _x( 'Ignore trailing slash by default', 'Logger: Redirection', 'simple-history' ),
+			'flag_regex'          => _x( 'Regular expression by default', 'Logger: Redirection', 'simple-history' ),
 			'location'            => _x( '.htaccess location', 'Logger: Redirection', 'simple-history' ),
 		);
 
@@ -762,29 +1025,26 @@ class Plugin_Redirection_Logger extends Logger {
 	/**
 	 * Log when a Redirection is changed.
 	 *
-	 * @param \WP_REST_Request $req Request.
+	 * @param \WP_REST_Request     $req            Request.
+	 * @param array<string, mixed> $captured_state State captured before the request ran.
 	 */
-	protected function log_redirection_edit( $req ) {
+	protected function log_redirection_edit( $req, array $captured_state = array() ) {
 		$action_data = $req->get_param( 'action_data' );
 
 		if ( ! $action_data || ! is_array( $action_data ) ) {
 			return false;
 		}
 
-		$redirection_id = $req->get_param( 'id' );
-
 		$context = array(
 			'new_source_url' => $req->get_param( 'url' ),
 			'new_target'     => $action_data['url'],
-			'redirection_id' => $redirection_id,
+			'redirection_id' => $req->get_param( 'id' ),
 		);
 
-		// Get old values.
-		$redirection_item = \Red_Item::get_by_id( $redirection_id );
-
-		if ( $redirection_item !== false ) {
-			$context['prev_source_url'] = $redirection_item->get_url();
-			$context['prev_target']     = $this->unserialize_action_data( $redirection_item->get_action_data() );
+		// Old values, read before the redirect was saved.
+		if ( array_key_exists( 'prev_source_url', $captured_state ) ) {
+			$context['prev_source_url'] = $captured_state['prev_source_url'];
+			$context['prev_target']     = $captured_state['prev_target'];
 		}
 
 		$this->info_message(
@@ -902,5 +1162,251 @@ class Plugin_Redirection_Logger extends Logger {
 		$group->add_items( $items );
 
 		return $group;
+	}
+
+	/**
+	 * Get action links for a log row.
+	 *
+	 * Every Redirection destination lives behind the plugin's own admin
+	 * screens, so there is nothing to link to once it's inactive — mirrors
+	 * the `class_exists( 'Red_Item' )` guard `loaded()` uses to skip hooking
+	 * in at all.
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		if ( ! class_exists( 'Red_Item' ) ) {
+			return [];
+		}
+
+		$context     = $row->context;
+		$message_key = $context['_message_key'] ?? '';
+
+		$redirect_message_keys = [
+			'redirection_redirection_edited',
+			'redirection_redirection_enabled',
+			'redirection_redirection_disabled',
+			'redirection_redirection_deleted',
+			'redirection_redirection_added',
+			'redirection_redirection_enabled_all',
+			'redirection_redirection_disabled_all',
+			'redirection_redirection_deleted_all',
+			'redirection_redirection_reset_all',
+		];
+
+		if ( in_array( $message_key, $redirect_message_keys, true ) ) {
+			return $this->get_redirect_action_links( $message_key, $context );
+		}
+
+		if ( strpos( $message_key, 'redirection_group_' ) === 0 ) {
+			return $this->get_group_action_links( $message_key, $context );
+		}
+
+		if ( in_array( $message_key, [ 'redirection_options_saved', 'redirection_options_saved_count' ], true ) ) {
+			return $this->get_options_action_links();
+		}
+
+		// `redirection_options_removed_all` deactivates the plugin as part of
+		// the same request, so every destination above is already gone by the
+		// time this renders. Anything else is an unmapped message key.
+		return [];
+	}
+
+	/**
+	 * Action links for the redirect-item message keys: a per-redirect link
+	 * (when the event carries enough to build one) followed by the redirects
+	 * list overview.
+	 *
+	 * @param string               $message_key Event message key.
+	 * @param array<string, mixed> $context     Event context.
+	 * @return array Array of action link arrays.
+	 */
+	private function get_redirect_action_links( $message_key, array $context ) {
+		if ( ! self::current_user_can_manage( 'redirects' ) ) {
+			return [];
+		}
+
+		$action_links = [];
+
+		$per_redirect_link = $this->get_per_redirect_action_link( $message_key, $context );
+
+		if ( $per_redirect_link !== null ) {
+			$action_links[] = $per_redirect_link;
+		}
+
+		$action_links[] = [
+			'url'    => admin_url( 'tools.php?page=redirection.php' ),
+			'label'  => __( 'All redirects', 'simple-history' ),
+			'action' => 'view',
+		];
+
+		return $action_links;
+	}
+
+	/**
+	 * Build the per-redirect deep link for a redirect-item message key, or
+	 * null when the message key has no usable per-item destination.
+	 *
+	 * @param string               $message_key Event message key.
+	 * @param array<string, mixed> $context     Event context.
+	 * @return array{url: string, label: string, action: string}|null
+	 */
+	private function get_per_redirect_action_link( $message_key, array $context ) {
+		if ( $message_key === 'redirection_redirection_edited' ) {
+			// The redirect id is stored, but the redirects list ignores
+			// `filterby[id]` (see build_redirect_filter_link()), so filter on
+			// the source URL instead. The new one first: that is what the row
+			// looks like now, which is what the list is being filtered against.
+			$source_url = (string) ( $context['new_source_url'] ?? '' );
+
+			if ( $source_url === '' ) {
+				$source_url = (string) ( $context['prev_source_url'] ?? '' );
+			}
+
+			if ( $source_url === '' ) {
+				return null;
+			}
+
+			return $this->build_redirect_filter_link( 'url', $source_url );
+		}
+
+		if ( $message_key === 'redirection_redirection_added' ) {
+			$source_url = $context['source_url'] ?? '';
+
+			if ( $source_url === '' ) {
+				return null;
+			}
+
+			// No id is stored for "added" (Redirection's own callback creates
+			// the row, and we only read the request params), but the redirects
+			// list's own `filterby[url]` query param is honoured on load.
+			return $this->build_redirect_filter_link( 'url', $source_url );
+		}
+
+		// Everything else — deleted, enabled, disabled and the global bulk
+		// actions — either has no single item, or the item is gone. The
+		// redirects list overview is the only useful destination.
+		return null;
+	}
+
+	/**
+	 * Build a link to the redirects list filtered the same way Redirection's
+	 * own UI does it: `tools.php?page=redirection.php&filterby[url]=/old-url/`.
+	 * `add_query_arg()` with a nested array value encodes the key as
+	 * `filterby%5Burl%5D=…`, matching what Redirection's own links build in
+	 * `build/redirection.js`.
+	 *
+	 * Only the filters on the target list's own `allowedFilters` are usable.
+	 * For the redirects page (Redirection 5.10.0 `build/redirection.js`) that is
+	 * `url`, `url-exact`, `target`, `title`, `group`, `status`, `match` and
+	 * `action` — notably *not* `id`, which is why a redirect is linked by its
+	 * source URL rather than by its id. `url` matches server-side with a `LIKE`
+	 * (`includes/redirect/class-filters.php`), so a URL that is a prefix of
+	 * another can match more than one row.
+	 *
+	 * `add_query_arg()` does not encode array values (only the `filterby[…]`
+	 * key), so a source URL with `&`, `#`, `%`, or spaces would otherwise
+	 * corrupt the query string — `rawurlencode()` it ourselves; a plain
+	 * numeric group id round-trips through that unchanged.
+	 *
+	 * Labelled and typed as `edit`, not `view`: the redirects list has no
+	 * separate read-only view for a single redirect, so landing on the
+	 * filtered list is the entry point into editing that row inline.
+	 *
+	 * @param string      $filter_key One of the redirects list's filters: 'url' or 'group'.
+	 * @param int|string  $value      Value to filter by.
+	 * @param string|null $label      Link label; defaults to "Edit redirect".
+	 * @param string      $action     Action type; defaults to 'edit'.
+	 * @return array{url: string, label: string, action: string}
+	 */
+	private function build_redirect_filter_link( $filter_key, $value, $label = null, $action = 'edit' ) {
+		return [
+			'url'    => add_query_arg(
+				[ 'filterby' => [ $filter_key => rawurlencode( (string) $value ) ] ],
+				admin_url( 'tools.php?page=redirection.php' )
+			),
+			'label'  => $label ?? __( 'Edit redirect', 'simple-history' ),
+			'action' => $action,
+		];
+	}
+
+	/**
+	 * Action links for the group message keys: for `redirection_group_edited`,
+	 * a first link to the redirects in that group (the redirects list's own
+	 * `filterby[group]` filter — `group` is in its `allowedFilters`), followed
+	 * by the groups list overview. Every other group message key gets only
+	 * the overview; no other per-group deep link exists in Redirection's UI.
+	 *
+	 * @param string               $message_key Event message key.
+	 * @param array<string, mixed> $context     Event context.
+	 * @return array Array of action link arrays.
+	 */
+	private function get_group_action_links( $message_key, array $context ) {
+		$action_links = [];
+
+		if ( $message_key === 'redirection_group_edited' ) {
+			$group_id = $context['group_id'] ?? null;
+
+			if ( $group_id !== null && $group_id !== '' && self::current_user_can_manage( 'redirects' ) ) {
+				$action_links[] = $this->build_redirect_filter_link( 'group', $group_id, __( 'Redirects in group', 'simple-history' ), 'view' );
+			}
+		}
+
+		if ( self::current_user_can_manage( 'groups' ) ) {
+			$action_links[] = [
+				'url'    => add_query_arg( [ 'sub' => 'groups' ], admin_url( 'tools.php?page=redirection.php' ) ),
+				'label'  => __( 'All groups', 'simple-history' ),
+				'action' => 'view',
+			];
+		}
+
+		return $action_links;
+	}
+
+	/**
+	 * Action link for the options message keys: the options screen itself.
+	 *
+	 * @return array Array of action link arrays.
+	 */
+	private function get_options_action_links() {
+		if ( ! self::current_user_can_manage( 'options' ) ) {
+			return [];
+		}
+
+		return [
+			[
+				'url'    => add_query_arg( [ 'sub' => 'options' ], admin_url( 'tools.php?page=redirection.php' ) ),
+				'label'  => __( 'Redirection options', 'simple-history' ),
+				'action' => 'view',
+			],
+		];
+	}
+
+	/**
+	 * Whether the current user may see action links for a Redirection area.
+	 *
+	 * `Redirection_Capabilities` is only defined once `redirection-admin.php`
+	 * has loaded, which happens on `is_admin()` or WP-CLI requests — not
+	 * guaranteed in every context this can run in (e.g. wpunit, where
+	 * Redirection is loaded but never "activated"). Falls back to
+	 * `manage_options`, Redirection's own default capability, when the class
+	 * isn't there.
+	 *
+	 * @param string $area One of 'redirects', 'groups', 'options'.
+	 * @return bool
+	 */
+	private static function current_user_can_manage( $area ) {
+		$capability_constants = array(
+			'redirects' => 'CAP_REDIRECT_MANAGE',
+			'groups'    => 'CAP_GROUP_MANAGE',
+			'options'   => 'CAP_OPTION_MANAGE',
+		);
+
+		if ( class_exists( 'Redirection_Capabilities' ) ) {
+			return \Redirection_Capabilities::has_access( constant( '\Redirection_Capabilities::' . $capability_constants[ $area ] ) );
+		}
+
+		return current_user_can( 'manage_options' );
 	}
 }

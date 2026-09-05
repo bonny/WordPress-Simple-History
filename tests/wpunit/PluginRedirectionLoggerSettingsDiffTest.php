@@ -2,14 +2,15 @@
 
 require_once __DIR__ . '/_redirection_test_trait.php';
 
+use Simple_History\Simple_History;
 use Simple_History\Loggers\Plugin_Redirection_Logger;
 
 /**
  * Tests for Plugin_Redirection_Logger::get_changed_settings() — the pure
- * helper that diffs a Redirection settings-save request's params against the
- * previous option values from \Red_Options::get(), used to build the
- * before/after details table for issue 312 ("Updated redirection options"
- * event shows which settings changed).
+ * helper that diffs the Redirection option values stored after a settings save
+ * against the ones stored before it, used to build the before/after details
+ * table for issue 312 ("Updated redirection options" event shows which
+ * settings changed).
  *
  * Run with:
  *   docker compose run --rm php-cli vendor/bin/codecept run wpunit PluginRedirectionLoggerSettingsDiffTest
@@ -17,8 +18,8 @@ use Simple_History\Loggers\Plugin_Redirection_Logger;
 class PluginRedirectionLoggerSettingsDiffTest extends \Codeception\TestCase\WPTestCase {
 	use RedirectionTestTrait;
 	/**
-	 * Reset the current user after every test that changes it, so a
-	 * capability-filtering test never leaks into an unrelated one.
+	 * Reset the current user after every test that changes it, so one test
+	 * never leaks into an unrelated one.
 	 */
 	function tearDown(): void {
 		wp_set_current_user( 0 );
@@ -30,49 +31,6 @@ class PluginRedirectionLoggerSettingsDiffTest extends \Codeception\TestCase\WPTe
 		parent::setUpBeforeClass();
 
 		self::require_redirection_capabilities();
-	}
-
-	/**
-	 * Redirection ships in the wpunit fixture (tests/wpunit.suite.yml loads
-	 * "redirection/redirection.php" via WPLoader, even though it is not
-	 * "activated"), so \Red_Options::filter_by_capability() is the real
-	 * Redirection method here, not a stand-in — this exercises the actual
-	 * capability split, not an approximation of it.
-	 */
-	function test_filter_params_by_capability_passes_through_for_a_user_with_full_access() {
-		$admin_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $admin_id );
-
-		$params = [
-			'monitor_post' => 1,
-			'https'        => true,
-		];
-
-		$filtered = Plugin_Redirection_Logger::filter_params_by_capability( $params );
-
-		$this->assertSame( $params, $filtered );
-	}
-
-	/**
-	 * A user without `manage_options` (Redirection's default capability for
-	 * both the site and option buckets) fails \Red_Options::filter_by_capability()'s
-	 * `current_user_can()` check for both buckets, so every key is stripped —
-	 * mirroring what Settings::route_save_settings() would actually persist
-	 * for this user. Diffing the raw, unfiltered params would otherwise record
-	 * a "change" Redirection never saved.
-	 */
-	function test_filter_params_by_capability_strips_settings_the_user_cannot_manage() {
-		$subscriber_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-		wp_set_current_user( $subscriber_id );
-
-		$params = [
-			'monitor_post' => 1,
-			'https'        => true,
-		];
-
-		$filtered = Plugin_Redirection_Logger::filter_params_by_capability( $params );
-
-		$this->assertSame( [], $filtered );
 	}
 
 	function test_unchanged_value_is_skipped() {
@@ -103,10 +61,55 @@ class PluginRedirectionLoggerSettingsDiffTest extends \Codeception\TestCase\WPTe
 	}
 
 	function test_boolean_settings_display_as_on_and_off() {
-		$this->assertSame( 'On', Plugin_Redirection_Logger::format_value_for_display( 'monitor_post', '1' ) );
-		$this->assertSame( 'Off', Plugin_Redirection_Logger::format_value_for_display( 'monitor_post', '0' ) );
+		$this->assertSame( 'On', Plugin_Redirection_Logger::format_value_for_display( 'log_external', '1' ) );
+		$this->assertSame( 'Off', Plugin_Redirection_Logger::format_value_for_display( 'log_external', '0' ) );
 		$this->assertSame( 'Off', Plugin_Redirection_Logger::format_value_for_display( 'https', '' ) );
 		$this->assertSame( 'On', Plugin_Redirection_Logger::format_value_for_display( 'track_hits', 'true' ) );
+		$this->assertSame( 'On', Plugin_Redirection_Logger::format_value_for_display( 'flag_case', '1' ) );
+		$this->assertSame( 'Off', Plugin_Redirection_Logger::format_value_for_display( 'flag_regex', '' ) );
+	}
+
+	/**
+	 * `monitor_post` looks like a boolean — Redirection's default is 0 — but it
+	 * holds the id of the group monitored post redirects are created in
+	 * (`models/options.php`, `red_get_post_types()`/group dropdown on the
+	 * options screen). Showing "On" for group 3 would be wrong, so it must pass
+	 * through as the raw id.
+	 */
+	function test_monitor_post_displays_as_the_raw_group_id() {
+		$this->assertSame( '3', Plugin_Redirection_Logger::format_value_for_display( 'monitor_post', '3' ) );
+		$this->assertSame( '0', Plugin_Redirection_Logger::format_value_for_display( 'monitor_post', '0' ) );
+	}
+
+	/**
+	 * `flag_query` is the one `flag_*` setting that is not a boolean: it is one
+	 * of Red_Source_Flags' four query types.
+	 */
+	function test_flag_query_displays_as_words() {
+		$this->assertSame( 'Exact match in any order', Plugin_Redirection_Logger::format_value_for_display( 'flag_query', 'exact' ) );
+		$this->assertSame( 'Exact match', Plugin_Redirection_Logger::format_value_for_display( 'flag_query', 'exactorder' ) );
+		$this->assertSame( 'Ignore all query parameters', Plugin_Redirection_Logger::format_value_for_display( 'flag_query', 'ignore' ) );
+		$this->assertSame( 'Ignore and pass all query parameters', Plugin_Redirection_Logger::format_value_for_display( 'flag_query', 'pass' ) );
+		$this->assertSame( 'something-else', Plugin_Redirection_Logger::format_value_for_display( 'flag_query', 'something-else' ) );
+	}
+
+	/**
+	 * Every key Redirection 5.10.0 stores must be covered, or a change to it
+	 * would be silently dropped from the event. The list mirrors
+	 * `\Red_Options::get_default_options()` plus the four `flag_*` defaults it
+	 * merges in, minus `last_group_id` (bumped when a group is added, not a
+	 * settings change), plus the derived `location`.
+	 */
+	function test_every_stored_redirection_option_key_is_covered() {
+		if ( ! class_exists( '\Red_Options' ) ) {
+			$this->markTestSkipped( 'Redirection is not loaded.' );
+		}
+
+		$stored_keys = array_keys( \Red_Options::get_default_options() );
+
+		$uncovered = array_diff( $stored_keys, Plugin_Redirection_Logger::OPTION_KEYS, [ 'last_group_id' ] );
+
+		$this->assertSame( [], array_values( $uncovered ) );
 	}
 
 	function test_ip_logging_levels_display_as_words() {
@@ -202,6 +205,40 @@ class PluginRedirectionLoggerSettingsDiffTest extends \Codeception\TestCase\WPTe
 
 		$this->assertArrayHasKey( 'preferred_domain', $changed );
 		$this->assertSame( 200, strlen( $changed['preferred_domain']['new'] ) );
+	}
+
+	/**
+	 * The details container drops items whose new and prev values are the same,
+	 * so storing "[redacted]" on both sides of a token change made the row
+	 * disappear while the "Updated N settings" count still counted it. The
+	 * logger stores only a "(changed)" new value instead — the same convention
+	 * class-simple-history-logger.php uses for its own redacted settings.
+	 */
+	function test_redacted_token_row_survives_the_details_container() {
+		$row          = new stdClass();
+		$row->logger  = 'Plugin_Redirection';
+		$row->context = [
+			'_message_key'                     => 'redirection_options_saved_count',
+			'settings_changed_count'           => 1,
+			'redirection_option_token_new'     => '(changed)',
+		];
+
+		$details = Simple_History::get_instance()->get_log_row_details_output( $row );
+
+		$labels = [];
+		$values = [];
+
+		foreach ( $details->groups as $group ) {
+			foreach ( $group->items as $item ) {
+				$labels[] = $item->name;
+				$values[] = $item->new_value;
+			}
+		}
+
+		$this->assertContains( 'REST API token', $labels, 'The redacted token row must still render' );
+		$this->assertContains( '(changed)', $values );
+		$this->assertStringContainsString( 'REST API token', (string) $details );
+		$this->assertStringNotContainsString( '[redacted]', (string) $details );
 	}
 
 	function test_multiple_changed_and_unchanged_settings() {
