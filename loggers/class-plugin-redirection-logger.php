@@ -60,6 +60,77 @@ class Plugin_Redirection_Logger extends Logger {
 	);
 
 	/**
+	 * Redirection option keys that make up the single `redirection_options` option,
+	 * plus `location` (the .htaccess path, validated separately in the settings route).
+	 * Verified against Redirection 5.10.0 `models/options.php:260-295`.
+	 *
+	 * @var string[]
+	 */
+	const OPTION_KEYS = array(
+		'monitor_post',
+		'monitor_types',
+		'associated_redirect',
+		'auto_target',
+		'expire_redirect',
+		'expire_404',
+		'log_external',
+		'log_header',
+		'track_hits',
+		'modules',
+		'redirect_cache',
+		'ip_logging',
+		'ip_headers',
+		'ip_proxy',
+		'rest_api',
+		'https',
+		'headers',
+		'database',
+		'relocate',
+		'preferred_domain',
+		'aliases',
+		'permalinks',
+		'support',
+		'token',
+		'plugin_update',
+		'update_notice',
+		'location',
+	);
+
+	/**
+	 * Option keys whose value is an array of arrays, so a comma-joined list
+	 * would be unreadable. Stored as an item count instead.
+	 *
+	 * @var string[]
+	 */
+	const NESTED_ARRAY_OPTION_KEYS = array(
+		'headers',
+		'modules',
+	);
+
+	/**
+	 * Redirection option keys that are on/off switches. Stored as the raw
+	 * "1"/"0" (or "" for false) so the record stays factual; shown as
+	 * On/Off in the event details.
+	 *
+	 * @var string[]
+	 */
+	const BOOLEAN_OPTION_KEYS = array(
+		'monitor_post',
+		'log_external',
+		'log_header',
+		'track_hits',
+		'https',
+		'support',
+	);
+
+	/**
+	 * Maximum length, in characters, of a single stored prev/new value.
+	 *
+	 * @var int
+	 */
+	const MAX_STORED_VALUE_LENGTH = 200;
+
+	/**
 	 * Return info about logger.
 	 *
 	 * @return array Array with plugin info.
@@ -78,6 +149,7 @@ class Plugin_Redirection_Logger extends Logger {
 				'redirection_redirection_disabled' => _x( 'Disabled redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
 				'redirection_redirection_deleted'  => _x( 'Deleted redirection for {items_count} URL(s)', 'Logger: Redirection', 'simple-history' ),
 				'redirection_options_saved'        => _x( 'Updated redirection options', 'Logger: Redirection', 'simple-history' ),
+				'redirection_options_saved_count'  => _x( 'Updated {settings_changed_count} redirection settings', 'Logger: Redirection', 'simple-history' ),
 				'redirection_options_removed_all'  => _x( 'Removed all redirection options and deactivated plugin', 'Logger: Redirection', 'simple-history' ),
 				'redirection_group_added'          => _x( 'Added redirection group "{group_name}"', 'Logger: Redirection', 'simple-history' ),
 				'redirection_group_edited'         => _x( 'Edited redirection group "{prev_group_name}"', 'Logger: Redirection', 'simple-history' ),
@@ -110,6 +182,7 @@ class Plugin_Redirection_Logger extends Logger {
 						),
 						_x( 'Redirection options', 'Redirection logger: search', 'simple-history' ) => array(
 							'redirection_options_saved',
+							'redirection_options_saved_count',
 							'redirection_options_removed_all',
 						),
 					),
@@ -354,10 +427,274 @@ class Plugin_Redirection_Logger extends Logger {
 	/**
 	 * Log when options are saved.
 	 *
-	 * @param object $req Request.
+	 * We hook `rest_request_before_callbacks`, so this runs before
+	 * `Settings::route_save_settings()` saves, meaning `\Red_Options::get()`
+	 * still returns the previous values here.
+	 *
+	 * @param \WP_REST_Request $req Request.
 	 */
 	protected function log_options_save( $req ) {
-		$this->info_message( 'redirection_options_saved' );
+		$params = $req->get_params();
+
+		if ( ! is_array( $params ) || empty( $params ) || ! class_exists( 'Red_Options' ) ) {
+			$this->info_message( 'redirection_options_saved' );
+
+			return;
+		}
+
+		$params = self::filter_params_by_capability( $params );
+
+		$previous_options = \Red_Options::get();
+
+		$changed_settings = self::get_changed_settings( $params, $previous_options );
+
+		if ( empty( $changed_settings ) ) {
+			$this->info_message( 'redirection_options_saved' );
+
+			return;
+		}
+
+		$context = array(
+			'settings_changed_count' => count( $changed_settings ),
+		);
+
+		foreach ( $changed_settings as $option_key => $values ) {
+			$context[ "redirection_option_{$option_key}_prev" ] = $values['prev'];
+			$context[ "redirection_option_{$option_key}_new" ]  = $values['new'];
+		}
+
+		$this->info_message( 'redirection_options_saved_count', $context );
+	}
+
+	/**
+	 * Filter settings-save request params down to only the ones the current user's
+	 * Redirection capabilities allow saving.
+	 *
+	 * `Settings::route_save_settings()` runs the request params through
+	 * `\Red_Options::filter_by_capability()` and only ever persists what survives
+	 * (`includes/api/route/class-settings.php:94-95`) — a user holding only the
+	 * site or only the option capability has the other bucket's keys silently
+	 * dropped. Diffing the unfiltered params would then record a "change" for a
+	 * key Redirection never actually saved, so filter first.
+	 *
+	 * Guarded with `method_exists()`: older Redirection versions that predate
+	 * this capability split don't have the method, and everything is saved as
+	 * before, so params pass through unchanged. Phpstan resolves `\Red_Options`
+	 * against the one Redirection version installed on this machine, where the
+	 * method always exists, so it flags the check as always true — real sites
+	 * can and do run older versions, so the guard stays.
+	 *
+	 * Public and static so it can be unit tested independently of a real REST request.
+	 *
+	 * @param array<string, mixed> $params Raw request params.
+	 * @return array<string, mixed> Params filtered the same way Redirection itself filters them.
+	 */
+	public static function filter_params_by_capability( array $params ) {
+		if ( method_exists( '\Red_Options', 'filter_by_capability' ) ) { // @phpstan-ignore-line function.alreadyNarrowedType
+			return \Red_Options::filter_by_capability( $params );
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Compare Redirection settings-save request params against the previous option
+	 * values and return only the ones that actually changed, formatted for storage.
+	 *
+	 * Public and static so the diffing logic can be unit tested without the
+	 * Redirection plugin installed or a real REST request.
+	 *
+	 * @param array<string, mixed> $params   Request params from the settings-save request.
+	 *                                        Only keys that are known Redirection option
+	 *                                        keys are considered; everything else is ignored.
+	 * @param array<string, mixed> $previous Previous option values, i.e. the return value
+	 *                                        of `\Red_Options::get()` before the save.
+	 * @return array<string, array{prev: string, new: string}> Changed option keys mapped
+	 *                                                          to their formatted prev/new values.
+	 */
+	public static function get_changed_settings( array $params, array $previous ) {
+		$changed_settings = array();
+
+		foreach ( $params as $option_key => $new_value ) {
+			if ( ! in_array( $option_key, self::OPTION_KEYS, true ) ) {
+				continue;
+			}
+
+			$prev_value = $previous[ $option_key ] ?? '';
+
+			$is_changed = self::normalize_value_for_compare( $new_value ) !== self::normalize_value_for_compare( $prev_value );
+
+			if ( ! $is_changed ) {
+				continue;
+			}
+
+			$changed_settings[ $option_key ] = array(
+				'prev' => self::format_value_for_storage( $option_key, $prev_value ),
+				'new'  => self::format_value_for_storage( $option_key, $new_value ),
+			);
+		}
+
+		return $changed_settings;
+	}
+
+	/**
+	 * Normalize a setting value for change comparison only.
+	 *
+	 * Scalars are cast to strings, so `1` and `true` compare equal. Arrays are
+	 * stringified element by element (nested arrays as JSON) and sorted before
+	 * being joined, so array order never counts as a change.
+	 *
+	 * @param mixed $value Value to normalize.
+	 * @return string Normalized value, for comparison only, never for display.
+	 */
+	private static function normalize_value_for_compare( $value ) {
+		if ( is_array( $value ) ) {
+			return self::stringify_array( $value, ',' );
+		}
+
+		return (string) $value;
+	}
+
+	/**
+	 * Turn an array setting into one sorted, glued string, so comparison and
+	 * storage agree on what an array "looks like" regardless of item order.
+	 *
+	 * @param array  $value Array value.
+	 * @param string $glue  Separator between items.
+	 * @return string
+	 */
+	private static function stringify_array( array $value, $glue ) {
+		$stringified_items = array_map(
+			function ( $item ) {
+				return is_array( $item ) ? wp_json_encode( $item ) : (string) $item;
+			},
+			$value
+		);
+
+		sort( $stringified_items );
+
+		return implode( $glue, $stringified_items );
+	}
+
+	/**
+	 * Format a setting value for storage in the event context.
+	 *
+	 * Redacts the `token` key, counts nested arrays (`headers`, `modules`)
+	 * instead of listing them, comma-joins other arrays, and caps the result
+	 * at `MAX_STORED_VALUE_LENGTH` characters.
+	 *
+	 * @param string $option_key Redirection option key.
+	 * @param mixed  $value      Value to format.
+	 * @return string Formatted value, safe to store in the event context.
+	 */
+	private static function format_value_for_storage( $option_key, $value ) {
+		if ( $option_key === 'token' ) {
+			return '[redacted]';
+		}
+
+		if ( in_array( $option_key, self::NESTED_ARRAY_OPTION_KEYS, true ) && is_array( $value ) ) {
+			$items_count = count( $value );
+
+			return sprintf(
+				/* translators: %d: number of items. */
+				_n( '%d item', '%d items', $items_count, 'simple-history' ),
+				$items_count
+			);
+		}
+
+		$value = is_array( $value ) ? self::stringify_array( $value, ', ' ) : (string) $value;
+
+		if ( strlen( $value ) > self::MAX_STORED_VALUE_LENGTH ) {
+			$value = substr( $value, 0, self::MAX_STORED_VALUE_LENGTH );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Format a stored setting value for display in the event details table.
+	 *
+	 * Storage keeps Redirection's raw values ("1", "0", "2") so the record is
+	 * exact; this maps the ones a reader cannot decode at a glance. Unknown
+	 * keys and values pass through unchanged.
+	 *
+	 * @param string      $option_key Redirection option key.
+	 * @param string|null $value      Stored value.
+	 * @return string|null Display value.
+	 */
+	public static function format_value_for_display( $option_key, $value ) {
+		if ( $value === null ) {
+			return null;
+		}
+
+		if ( in_array( $option_key, self::BOOLEAN_OPTION_KEYS, true ) ) {
+			$is_on = in_array( $value, array( '1', 'true' ), true );
+
+			return $is_on
+				? _x( 'On', 'Logger: Redirection, setting value', 'simple-history' )
+				: _x( 'Off', 'Logger: Redirection, setting value', 'simple-history' );
+		}
+
+		if ( $option_key === 'ip_logging' ) {
+			$ip_logging_labels = array(
+				'0' => _x( 'Off', 'Logger: Redirection, setting value', 'simple-history' ),
+				'1' => _x( 'Full IP', 'Logger: Redirection, setting value', 'simple-history' ),
+				'2' => _x( 'Anonymized IP', 'Logger: Redirection, setting value', 'simple-history' ),
+			);
+
+			return $ip_logging_labels[ $value ] ?? $value;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Get a human readable label for a Redirection option key, for use in the
+	 * event details table. Falls back to the raw key when no label is mapped.
+	 *
+	 * @param string $option_key Redirection option key.
+	 * @return string Human readable label.
+	 */
+	private static function get_option_label( $option_key ) {
+		// Built once per request: this runs once per changed setting, for
+		// every settings event in a REST response.
+		static $labels = null;
+
+		if ( $labels !== null ) {
+			return $labels[ $option_key ] ?? $option_key;
+		}
+
+		$labels = array(
+			'monitor_post'        => _x( 'Log post/page redirects', 'Logger: Redirection', 'simple-history' ),
+			'monitor_types'       => _x( 'Monitored post types', 'Logger: Redirection', 'simple-history' ),
+			'associated_redirect' => _x( 'Associated redirect action', 'Logger: Redirection', 'simple-history' ),
+			'auto_target'         => _x( 'Auto target', 'Logger: Redirection', 'simple-history' ),
+			'expire_redirect'     => _x( 'Redirect log expiry (days)', 'Logger: Redirection', 'simple-history' ),
+			'expire_404'          => _x( '404 log expiry (days)', 'Logger: Redirection', 'simple-history' ),
+			'log_external'        => _x( 'Log external redirects', 'Logger: Redirection', 'simple-history' ),
+			'log_header'          => _x( 'Log HTTP headers', 'Logger: Redirection', 'simple-history' ),
+			'track_hits'          => _x( 'Track hits', 'Logger: Redirection', 'simple-history' ),
+			'modules'             => _x( 'Modules', 'Logger: Redirection', 'simple-history' ),
+			'redirect_cache'      => _x( 'Redirect cache', 'Logger: Redirection', 'simple-history' ),
+			'ip_logging'          => _x( 'IP logging', 'Logger: Redirection', 'simple-history' ),
+			'ip_headers'          => _x( 'IP headers', 'Logger: Redirection', 'simple-history' ),
+			'ip_proxy'            => _x( 'IP proxy headers', 'Logger: Redirection', 'simple-history' ),
+			'rest_api'            => _x( 'REST API mode', 'Logger: Redirection', 'simple-history' ),
+			'https'               => _x( 'Force HTTPS', 'Logger: Redirection', 'simple-history' ),
+			'headers'             => _x( 'Extra headers', 'Logger: Redirection', 'simple-history' ),
+			'database'            => _x( 'Database', 'Logger: Redirection', 'simple-history' ),
+			'relocate'            => _x( 'Relocate', 'Logger: Redirection', 'simple-history' ),
+			'preferred_domain'    => _x( 'Preferred domain', 'Logger: Redirection', 'simple-history' ),
+			'aliases'             => _x( 'Aliases', 'Logger: Redirection', 'simple-history' ),
+			'permalinks'          => _x( 'Permalinks', 'Logger: Redirection', 'simple-history' ),
+			'support'             => _x( 'Support access', 'Logger: Redirection', 'simple-history' ),
+			'token'               => _x( 'REST API token', 'Logger: Redirection', 'simple-history' ),
+			'plugin_update'       => _x( 'Plugin update channel', 'Logger: Redirection', 'simple-history' ),
+			'update_notice'       => _x( 'Update notice dismissed', 'Logger: Redirection', 'simple-history' ),
+			'location'            => _x( '.htaccess location', 'Logger: Redirection', 'simple-history' ),
+		);
+
+		return $labels[ $option_key ] ?? $option_key;
 	}
 
 	/**
@@ -492,6 +829,10 @@ class Plugin_Redirection_Logger extends Logger {
 		$context     = $row->context;
 		$message_key = $context['_message_key'];
 
+		if ( $message_key === 'redirection_options_saved_count' ) {
+			return $this->get_options_saved_details_output( $context );
+		}
+
 		if ( $message_key !== 'redirection_redirection_edited' ) {
 			return '';
 		}
@@ -509,8 +850,56 @@ class Plugin_Redirection_Logger extends Logger {
 					[ 'new_target', 'prev_target' ],
 					_x( 'Target', 'Logger: Redirection', 'simple-history' ),
 				),
-			] 
+			]
 		);
+
+		return $group;
+	}
+
+	/**
+	 * Build the before/after details table for a "settings changed" event.
+	 *
+	 * @param array $context Event context, holding a `redirection_option_<key>_prev`
+	 *                        and `redirection_option_<key>_new` pair per changed setting.
+	 * @return Event_Details_Group
+	 */
+	private function get_options_saved_details_output( $context ) {
+		$group = new Event_Details_Group();
+
+		// The compact table (new value, old value struck through) suits these
+		// short scalar settings; the wide diff table is kept for redirect edits,
+		// where a source and target URL benefit from side-by-side reading.
+		$group->set_formatter( new Event_Details_Group_Table_Formatter() );
+
+		$items = array();
+
+		// Iterate the known option keys, in a fixed order, rather than the
+		// context array, so the table renders in a stable, predictable order.
+		foreach ( self::OPTION_KEYS as $option_key ) {
+			$new_key = "redirection_option_{$option_key}_new";
+
+			if ( ! array_key_exists( $new_key, $context ) ) {
+				continue;
+			}
+
+			$prev_key = "redirection_option_{$option_key}_prev";
+
+			$item = new Event_Details_Item(
+				[ $new_key, $prev_key ],
+				self::get_option_label( $option_key )
+			);
+
+			// Values set here are kept by the details container, which only
+			// fills in values from context when none is set.
+			$item->set_values(
+				self::format_value_for_display( $option_key, $context[ $new_key ] ),
+				self::format_value_for_display( $option_key, $context[ $prev_key ] ?? null )
+			);
+
+			$items[] = $item;
+		}
+
+		$group->add_items( $items );
 
 		return $group;
 	}
