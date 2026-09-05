@@ -233,6 +233,8 @@ test( 'logs post creation', async ( { page } ) => {
 -   Write assertions that are true regardless of existing data ("at least one event", not "exactly 5 events")
 -   When a test needs specific data, create it in `beforeEach` via `requestUtils` and clean up in `afterEach`
 -   Cleanup deletions are also logged by Simple History — that's expected and correct, just accept it
+-   **Two specs must not run in parallel with the rest.** `privacy-data.spec.js` and `hide-event-type.spec.js` flip the site-wide experimental-features option through the dev-tools endpoint, so `playwright.config.js` runs them as their own chained projects before `tests`. Add any new spec that toggles a site-wide option to that chain, not to `tests`.
+-   **The dashboard widget shows only five events.** A spec that reads a row from the widget must not run its tests in parallel with each other: `event-date-timezone.spec.js` sets `test.describe.configure( { mode: 'default' } )` because every test there creates and deletes a post, and one test's clean-up pushed another's row out of the widget.
 
 ### Available `requestUtils` methods (selection)
 
@@ -249,8 +251,67 @@ requestUtils.rest( { path, method, params, data } ); // arbitrary REST API call
 
 -   **Config:** `codeception.dist.yml`, `tests/*.suite.yml`
 -   **Tests:** `tests/wpunit/`, `tests/functional/`, `tests/acceptance/`
--   **Environment:** `tests/.env.testing`
+-   **Environment:** `.env.testing` in the repo root (params for the suite ymls)
 -   All PHP tests run inside Docker via `docker compose run --rm php-cli`
+-   `wp` is not on the php-cli image's PATH. Use `vendor/bin/wp --allow-root --path=/wordpress/`.
+
+### When functional or acceptance tests fail, suspect the fixture before the code
+
+The functional and acceptance suites load `tests/_data/dump.sql` into the test
+database before every test. **That file is gitignored**, so each machine has its
+own copy and they drift apart. Pär's rule is that a version does not ship with
+failing tests, so if a suite that passed on the last release fails on a
+different machine, the fixture is the first suspect, not the plugin.
+
+Two symptoms seen on 2026-09-03 while releasing 5.32.0 (35 of 50 functional
+tests "failed"):
+
+-   **Every admin-page test fails with "Form field … not found"** and the saved
+    `tests/_output/*.fail.html` pages are titled **"WordPress › Update"**. The
+    dump's `db_version` is older than the `wordpress:6.8` test container, so
+    WordPress redirects every admin request to `upgrade.php`. Fix: load the
+    dump, run `vendor/bin/wp core update-db`, dump it back.
+-   **Wrong fixture values.** `WPCliCest` expects event id 1 inside the ten-row
+    `list` output (so the fixture must hold at most nine events);
+    `SimpleOptionsLoggerCest` expects `blogdescription` to be empty. Stray
+    logins from browsing the test site, or an installer default, get dumped
+    back in. Fix: delete rows with id > 9 from `wp_simple_history` and
+    `wp_simple_history_contexts`, blank the tagline, dump again.
+
+The step-by-step refresh lives in `CLAUDE.local.md` on the machine that needed
+it. Local issue 306 tracks the permanent fix (upgrade in the suite bootstrap,
+or a committed canonical dump).
+
+To tell fixture drift from a real regression, run the failing Cests against
+the previous release tag: `git checkout <tag>`, run them, `git checkout -`.
+The test site serves the working directory, so nothing else changes.
+
+### `npm test` stops at the first failing suite
+
+It chains `wpunit && functional && acceptance`. A functional failure means the
+acceptance suite never ran. Look for the last suite name in the output before
+calling a run green.
+
+### Acceptance suite: known-failing tests that are not the plugin
+
+As of 2026-09-03, with the fixture refreshed and Redirection replaced, 5
+failures and 3 errors remain on the Mac mini and all reproduce on the 5.31.0
+tag: `PluginDuplicatePostLoggerCest`, `SimpleMediaLoggerCest: Add media`,
+`SimpleOptionsLoggerCest: Test reading options page`, `SimplePluginLoggerCest:
+Test plugin activation` (Akismet's `#activate-akismet-anti-spam-spam-protection`
+id is gone), and `SimpleUserLoggerCest: Log user deleted` (no `user_deleted`
+event in the Selenium container, although the same deletion logs fine on the
+dev site). The three errors are the plugin and theme zip installs failing with
+"Could not create directory", a file-permission problem in the test container. Treat new failures outside that list
+as real until proven otherwise.
+
+`tests/plugins/*` (Redirection, Akismet, Jetpack, the premium symlink, …) is
+gitignored and bind-mounted into the test site, so third-party plugin
+*versions* are machine-local too. A Redirection test that times out on
+"Start Setup" with "Problem starting Redirection" in the saved page means the
+local copy is broken, not the logger. Replace the directory with the release
+zip from wordpress.org and recreate the container
+(`docker compose up -d --force-recreate wordpress`) so the mount follows.
 
 ## Migrating old acceptance tests to Playwright
 

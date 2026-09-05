@@ -50,6 +50,27 @@ module.exports = defineConfig( {
 			name: 'setup',
 			testMatch: /auth\.setup\.js/,
 		},
+		// These two specs flip the site-wide experimental-features option
+		// through the dev-tools endpoint. Run in parallel they race each
+		// other, so they run as a chain of their own before `tests`.
+		{
+			name: 'experimental-privacy',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /privacy-data\.spec\.js$/,
+			dependencies: [ 'setup' ],
+		},
+		{
+			name: 'experimental-hide',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /hide-event-type\.spec\.js$/,
+			dependencies: [ 'experimental-privacy' ],
+		},
 		{
 			name: 'tests',
 			use: {
@@ -60,8 +81,13 @@ module.exports = defineConfig( {
 			// Screenshot specs are not tests — they run via the dedicated
 			// `screenshot` project (tests/screenshot/run.sh) against a fresh
 			// Playground instance, so keep them out of the regular suite.
-			testIgnore: /screenshot-.*\.spec\.js$/,
-			dependencies: [ 'setup' ],
+			// The experimental-features specs run in their own projects above.
+			testIgnore: [
+				/screenshot-.*\.spec\.js$/,
+				/privacy-data\.spec\.js$/,
+				/hide-event-type\.spec\.js$/,
+			],
+			dependencies: [ 'experimental-hide' ],
 		},
 		{
 			// Teaser user-card screenshots, captured against the dev WordPress

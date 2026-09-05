@@ -27,6 +27,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.29.0', [ $this, 'on_plugin_updated_details_5_29_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.30.0', [ $this, 'on_plugin_updated_details_5_30_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.31.0', [ $this, 'on_plugin_updated_details_5_31_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.32.0', [ $this, 'on_plugin_updated_details_5_32_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -349,6 +350,26 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-31-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.32.0.
+	 *
+	 * @param array $extra_details Existing extra details.
+	 * @return string HTML with the highlights list.
+	 */
+	public function on_plugin_updated_details_5_32_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'Long diffs can be expanded in place with an "Expand diff" button.', 'simple-history' ),
+			__( 'Post and page events link to the exact revision the change created. On WordPress 7.1 and later it opens the visual revision view.', 'simple-history' ),
+			__( 'Failed application password logins are throttled and grouped like other failed logins, so a brute-force attack on the REST API no longer floods the log.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-32-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}

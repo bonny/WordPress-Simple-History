@@ -13,16 +13,29 @@ class PluginRedirectionLoggerCest
         $I->activatePluginByFile('redirection/redirection.php');
         $I->amOnAdminPage('/tools.php?page=redirection.php');
 
-        // Go through setup wizard.
+        // Go through setup wizard. Every step is rendered by React once the
+        // previous one resolves, so wait for each control before clicking it.
+        // An unwaited click lands on whichever step is still on screen, which
+        // made this test fail roughly one run in four.
+        $I->waitForText('Start Setup', 30);
         $I->click('Start Setup');
+
+        $I->waitForText('Continue', 30);
         $I->click('Continue');
+
+        $I->waitForText('Finish Setup', 30);
         $I->click('Finish Setup');
 
         // Wait for AJAX table setup to complete (shows progress bar then "Continue").
         $I->waitForText('Continue', 30);
         $I->click('Continue');
-        $I->waitForText('Ready to begin!');
+
+        $I->waitForText('Ready to begin!', 30);
         $I->click('Ready to begin!');
+
+        // The wizard hands over to the redirect list. Wait for that form so the
+        // first test action does not race the final transition.
+        $I->waitForElement('[name=url]', 30);
     }
 
     public function testRedirects(Admin $I) {
