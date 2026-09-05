@@ -732,18 +732,44 @@ box it expands.
 	}
 }
 
+/*
+Key-value table for event details (user profile edits, plugin meta, option
+changes).
+
+Laid out as a CSS grid rather than a table so the key column is exactly as wide
+as the widest key in that event, never wider. A real table cannot do this:
+without a min-width a long value squeezes the key column until short keys wrap,
+and with one (the old min-width: 8em) short keys float away from the left edge.
+
+fit-content(min(16em, 45%)) caps runaway keys (WooCommerce setting labels) so
+they wrap instead of pushing every value off to the right, and minmax(0, 1fr)
+stops long unbreakable values from stealing width from the keys.
+
+tbody/tr become display: contents so the cells are the grid items. Child
+combinators keep the nested <table class="diff"> inside a value cell untouched.
+*/
+.SimpleHistoryLogitem__keyValueTable {
+	display: grid;
+	grid-template-columns: fit-content(min(16em, 45%)) minmax(0, 1fr);
+	column-gap: 1em;
+	row-gap: 2px;
+}
+
+.SimpleHistoryLogitem__keyValueTable > tbody,
+.SimpleHistoryLogitem__keyValueTable > tbody > tr {
+	display: contents;
+}
+
 .SimpleHistoryLogitem__keyValueTable th,
 .SimpleHistoryLogitem__keyValueTable td {
 	vertical-align: top;
 	word-break: break-word;
 }
 
-.SimpleHistoryLogitem__keyValueTable tr > td:first-child {
+.SimpleHistoryLogitem__keyValueTable > tbody > tr > :first-child {
 	text-align: right;
-	padding-right: 1em;
 	color: #757575;
-	min-width: 8em;
-	/* white-space: nowrap; */
+	overflow-wrap: anywhere;
 }
 
 .SimpleHistoryLogitem__keyValueTable p {
