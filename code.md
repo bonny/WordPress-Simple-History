@@ -86,8 +86,11 @@ Use native HTML elements and CSS before reaching for JavaScript:
 
 ## Git
 
--   Will try to follow OneFlow:
-    https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
+-   One long-lived branch: `main`. It is always releasable. There is no `develop` branch (dropped 2026-09-05; the release-to-develop merge-back bought nothing at a one-to-three-week release cadence).
+-   **Tiny changes** (a typo, changelog wording, a colour value) go straight on `main` as one commit, if they cannot break anything.
+-   **Everything else** goes on an `issue-NNN-slug` branch and merges into `main` when the issue is done and looked at. Big or risky work uses a worktree with its own site (`scripts/parallel-dev.sh`), merges `main` into itself every few days, and is either merged early behind the experimental features flag or split if it lives longer than a release cycle.
+-   **Releases** cut `release-X.Y.Z` from `main` for the version bump and changelog heading, tag on that branch, merge back into `main` once. See the `release` skill.
+-   **Hotfixes** branch from the tag, tag `X.Y.Z+1`, merge into `main`.
 -   Run phpstan after making php changes in many files or making a larger change in a single file.
 -   Run it as `./vendor/bin/phpstan analyse --memory-limit=2G`. The default limit crashes a parallel worker part-way through with "PHPStan process crashed because it reached configured PHP memory limit", which reads like a code problem but is not.
 -   Run it with **no path argument** before committing. Passing a single file skips the check for unmatched `ignoreErrors` entries, and an ignore that no longer matches anything is a hard error here — so a per-file run can pass while the full run fails.
