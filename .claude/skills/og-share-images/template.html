@@ -1,0 +1,268 @@
+<!doctype html>
+<!--
+	OG share card template — see SKILL.md before editing.
+
+	Authored in 1200x630 coordinates; `html { zoom: 2 }` plus a 2400x1260
+	viewport renders it at 2x. Do not change the body dimensions.
+
+	What to edit:
+	  1. .eyebrow      — version badge + one-line context
+	  2. h1            — the headline. This is the joke or the concrete claim,
+	                     and the only text guaranteed readable on a phone.
+	  3. .card         — mock of real product UI. Match a real screenshot.
+	  4. .reactions    — the visual payoff. Emoji survive downscaling; use them.
+	  5. .brand        — site URL.
+
+	Minimum ~24px in this coordinate space for anything meaningful; below
+	~20px is decorative only. Keep the top and bottom 15px clear — X crops it.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+	* { margin: 0; padding: 0; box-sizing: border-box; }
+
+	/* Authored at 1200x630, rendered at 2x. zoom re-runs layout at the larger
+	   size rather than upscaling pixels, so type stays genuinely sharp on the
+	   high-DPI displays where most share cards are actually seen. */
+	html { zoom: 2; }
+
+	body {
+		width: 1200px;
+		height: 630px;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+			"Helvetica Neue", sans-serif;
+		background: #f0f0f1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: 0 70px;
+		position: relative;
+		overflow: hidden;
+	}
+
+	/* Soft brand wash so the card has something to sit on. */
+	body::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background:
+			radial-gradient(circle at 88% 12%, rgba(255, 106, 0, .10), transparent 45%),
+			radial-gradient(circle at 8% 92%, rgba(34, 113, 177, .10), transparent 42%);
+	}
+
+	.wrap { position: relative; }
+
+	.eyebrow {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin-bottom: 18px;
+	}
+
+	.eyebrow-badge {
+		background: #1d2327;
+		color: #fff;
+		font-size: 23px;
+		font-weight: 700;
+		letter-spacing: .3px;
+		padding: 8px 17px;
+		border-radius: 6px;
+	}
+
+	.eyebrow-text {
+		font-size: 23px;
+		font-weight: 600;
+		color: #50575e;
+		letter-spacing: .2px;
+	}
+
+	h1 {
+		font-size: 50px;
+		line-height: 1.14;
+		font-weight: 800;
+		color: #1d2327;
+		letter-spacing: -1.1px;
+		margin-bottom: 34px;
+		max-width: 1010px;
+	}
+
+	h1 em {
+		font-style: normal;
+		background: linear-gradient(transparent 62%, #ffd6a5 62%);
+	}
+
+	/* --- the event row, mirroring the plugin's own UI --- */
+
+	.card {
+		background: #fff;
+		border: 1px solid #dcdcde;
+		border-radius: 10px;
+		padding: 26px 30px 24px;
+		box-shadow: 0 12px 34px rgba(0, 0, 0, .10);
+		position: relative;
+	}
+
+	.row { display: flex; gap: 18px; }
+
+	.avatar {
+		width: 46px;
+		height: 46px;
+		border-radius: 50%;
+		border: 1px solid #c3c4c7;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		background: #fff;
+	}
+
+	.avatar svg { width: 30px; height: 30px; fill: #a7aaad; }
+
+	.meta {
+		font-size: 17px;
+		color: #2271b1;
+		margin-bottom: 7px;
+		font-weight: 500;
+	}
+
+	.meta .sep { color: #8c8f94; font-weight: 400; }
+
+	.title {
+		font-size: 24px;
+		font-weight: 600;
+		color: #1d2327;
+		margin-bottom: 8px;
+		display: flex;
+		align-items: center;
+		gap: 11px;
+	}
+
+	.pill {
+		background: #dbdbc5;
+		color: #4f5a2e;
+		font-size: 13px;
+		font-weight: 600;
+		padding: 3px 9px;
+		border-radius: 4px;
+		letter-spacing: .2px;
+	}
+
+	.sub { font-size: 17px; color: #50575e; margin-bottom: 13px; }
+	.sub strong { color: #1d2327; font-weight: 600; }
+
+	.links { display: flex; gap: 26px; font-size: 16px; color: #2271b1; }
+	.links span { display: flex; align-items: center; gap: 7px; }
+	.links svg { width: 17px; height: 17px; fill: #2271b1; }
+
+	/* --- reaction picker popover --- */
+
+	.picker {
+		position: absolute;
+		right: 28px;
+		top: -30px;
+		background: #fff;
+		border: 1px solid #dcdcde;
+		border-radius: 40px;
+		padding: 12px 20px;
+		display: flex;
+		gap: 15px;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, .13);
+		font-size: 31px;
+		line-height: 1;
+	}
+
+	/* --- applied reactions, the punchline --- */
+
+	.reactions {
+		display: flex;
+		gap: 9px;
+		margin-top: 18px;
+		padding-top: 17px;
+		border-top: 1px solid #f0f0f1;
+		align-items: center;
+	}
+
+	/* The reaction pills are the punchline, so they have to survive being
+	   rendered ~350px wide on a phone. Everything smaller than this was
+	   illegible at that scale and has been cut rather than shrunk further. */
+	.reaction {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		background: #eef5fb;
+		border: 2px solid #b8d4ec;
+		border-radius: 26px;
+		padding: 11px 21px;
+		font-size: 29px;
+		line-height: 1;
+	}
+
+	.reaction b {
+		font-size: 24px;
+		color: #2271b1;
+		font-weight: 700;
+	}
+
+	.brand {
+		position: absolute;
+		right: 70px;
+		bottom: 30px;
+		font-size: 21px;
+		font-weight: 600;
+		color: #8c8f94;
+		letter-spacing: .2px;
+	}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+	<div class="eyebrow">
+		<span class="eyebrow-badge">Simple History 5.30.0</span>
+		<span class="eyebrow-text">Reactions are on for everyone</span>
+	</div>
+
+	<h1>Finally, a way to say how you <em>actually feel</em><br>about a plugin update.</h1>
+
+	<div class="card">
+
+		<div class="picker">
+			<span>👍</span><span>❤️</span><span>😄</span><span>🎉</span>
+			<span>👀</span><span>🚀</span><span>👏</span><span>🔥</span>
+		</div>
+
+		<div class="row">
+			<div class="avatar">
+				<svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 1.2c1.9 0 3.7.7 5 1.9h-.3c-.6 0-1.1.5-1.1 1.1 0 .5.3.9.6 1.4.2.4.5 1 .5 1.7 0 .5-.2 1.1-.5 2l-.6 2.1-2.3-6.8c.4 0 .7-.1.7-.1.3 0 .3-.5 0-.5 0 0-1.1.1-1.8.1-.6 0-1.7-.1-1.7-.1-.3 0-.4.5 0 .5 0 0 .3.1.7.1l1 2.7-1.4 4.2-2.3-6.9c.4 0 .7-.1.7-.1.3 0 .3-.5 0-.5 0 0-1.1.1-1.8.1h-.4C7.3 4.5 9.5 3.2 12 3.2zM3.2 12c0-1.3.3-2.5.8-3.6l3.9 10.7C5.2 17.8 3.2 15.1 3.2 12zm8.8 8.8c-.8 0-1.6-.1-2.3-.3l2.5-7.2 2.5 6.9v.1c-.8.3-1.7.5-2.7.5zm3.8-1.1l2.4-6.8c.4-1.1.6-2 .6-2.8v-.6c1 1.8 1.2 3 1.2 4.5 0 2.5-1.4 4.7-3.4 5.8z"/></svg>
+			</div>
+
+			<div>
+				<div class="meta">WordPress <span class="sep">· 5 August 2026 14:02 (2 minutes ago)</span></div>
+				<div class="title">
+					Updated plugin "Simple History" to version 5.30.0
+					<span class="pill">info</span>
+				</div>
+				<div class="sub">Available version: <strong>5.30.0</strong> &nbsp;·&nbsp; Installed version: <strong>5.29.0</strong></div>
+				<div class="links">
+					<span><svg viewBox="0 0 24 24"><path d="M12 5c-5 0-9 4.5-9 7s4 7 9 7 9-4.5 9-7-4-7-9-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>Changelog</span>
+					<span><svg viewBox="0 0 24 24"><path d="M12 5c-5 0-9 4.5-9 7s4 7 9 7 9-4.5 9-7-4-7-9-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>Plugin info</span>
+					<span><svg viewBox="0 0 24 24"><path d="M12 5c-5 0-9 4.5-9 7s4 7 9 7 9-4.5 9-7-4-7-9-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>All updates</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="reactions">
+			<span class="reaction">🎉 <b>18</b></span>
+			<span class="reaction">🚀 <b>12</b></span>
+			<span class="reaction">🔥 <b>9</b></span>
+			<span class="reaction">❤️ <b>7</b></span>
+			<span class="reaction">👏 <b>4</b></span>
+		</div>
+
+	</div>
+</div>
+
+<div class="brand">simple-history.com</div>
+</body>
+</html>

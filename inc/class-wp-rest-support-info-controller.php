@@ -13,6 +13,12 @@ use WP_REST_Server;
  */
 class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 	/**
+	 * Fraction of the PHP memory limit above which the support page warns
+	 * that the site baseline leaves little headroom for heavy admin work.
+	 */
+	private const MEMORY_PEAK_WARNING_THRESHOLD = 0.7;
+
+	/**
 	 * Simple History instance.
 	 *
 	 * @var Simple_History
@@ -120,6 +126,10 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 
 		$info = [];
 
+		// Capture peak memory once so the formatted display value and the
+		// warning threshold check agree on the same number.
+		$memory_peak_bytes = memory_get_peak_usage( true );
+
 		// WordPress info.
 		$info['wordpress'] = [
 			'version'             => get_bloginfo( 'version' ),
@@ -132,6 +142,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 			'wp_debug_log'        => defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ? __( 'Enabled', 'simple-history' ) : __( 'Disabled', 'simple-history' ),
 			'wp_cron_disabled'    => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ? __( 'Yes', 'simple-history' ) : __( 'No', 'simple-history' ),
 			'wp_memory_limit'     => defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : __( 'Not set', 'simple-history' ),
+			'wp_max_memory_limit' => defined( 'WP_MAX_MEMORY_LIMIT' ) ? WP_MAX_MEMORY_LIMIT : __( 'Not set', 'simple-history' ),
 			'table_prefix'        => $wpdb->prefix,
 			'object_cache'        => wp_using_ext_object_cache() ? __( 'Yes', 'simple-history' ) : __( 'No', 'simple-history' ),
 		];
@@ -141,6 +152,8 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 			'php_version'        => phpversion(),
 			'database'           => $this->get_database_info(),
 			'memory_limit'       => ini_get( 'memory_limit' ),
+			'memory_peak'        => size_format( $memory_peak_bytes, 1 ),
+			'memory_peak_bytes'  => $memory_peak_bytes,
 			'max_input_vars'     => ini_get( 'max_input_vars' ),
 			'max_execution_time' => ini_get( 'max_execution_time' ),
 			'post_max_size'      => ini_get( 'post_max_size' ),
@@ -300,6 +313,21 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 				/* translators: %s: current memory limit */
 				__( 'PHP memory limit (%s) is below recommended 256M', 'simple-history' ),
 				$memory_limit
+			);
+		}
+
+		// Check baseline memory headroom. memory_get_peak_usage() in a REST request
+		// approximates the cost of just bootstrapping WP + active plugins + theme.
+		// If that already eats most of the limit, heavy admin operations (e.g. saving
+		// large posts) will likely OOM. -1 means unlimited; skip the check.
+		$memory_peak_bytes = $info['server']['memory_peak_bytes'] ?? 0;
+		if ( $memory_bytes > 0 && $memory_peak_bytes > 0 && $memory_peak_bytes / $memory_bytes > self::MEMORY_PEAK_WARNING_THRESHOLD ) {
+			$warnings[] = sprintf(
+				/* translators: 1: peak memory used, 2: memory limit, 3: percentage */
+				__( 'Site baseline already uses %1$s of %2$s (%3$d%%) — heavy admin operations have little memory headroom and may fail.', 'simple-history' ),
+				size_format( $memory_peak_bytes, 1 ),
+				$memory_limit,
+				(int) round( $memory_peak_bytes / $memory_bytes * 100 )
 			);
 		}
 
@@ -578,6 +606,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		$lines[]       = sprintf( 'WP_CRON: %s', $cron_disabled ? __( 'Disabled', 'simple-history' ) . ' ⚠' : __( 'Enabled', 'simple-history' ) );
 
 		$lines[] = sprintf( 'WP Memory Limit: %s', $info['wordpress']['wp_memory_limit'] );
+		$lines[] = sprintf( 'WP Max Memory Limit: %s (admin/upload ceiling)', $info['wordpress']['wp_max_memory_limit'] );
 		$lines[] = sprintf( 'Table Prefix: %s', $info['wordpress']['table_prefix'] );
 		$lines[] = sprintf( 'Object Cache: %s', $info['wordpress']['object_cache'] );
 		$lines[] = '';
@@ -598,6 +627,7 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 		$memory_bytes   = wp_convert_hr_to_bytes( $memory_limit );
 		$memory_warning = $memory_bytes > 0 && $memory_bytes < 256 * MB_IN_BYTES ? ' ⚠' : '';
 		$lines[]        = sprintf( 'PHP Memory Limit: %s%s', $memory_limit, $memory_warning );
+		$lines[]        = sprintf( 'PHP Memory Peak: %s (baseline: WP + active plugins + theme — does not reflect heavy admin operations)', $info['server']['memory_peak'] );
 
 		$lines[] = sprintf( 'PHP Max Input Vars: %s', $info['server']['max_input_vars'] );
 		$lines[] = sprintf( 'Max Execution Time: %s', $info['server']['max_execution_time'] );
@@ -636,12 +666,17 @@ class WP_REST_Support_Info_Controller extends WP_REST_Controller {
 					? round( $table['data_length'] / 1024 / 1024, 2 ) . ' MB'
 					: 'N/A';
 
+				$charset   = $table['charset'] ?? 'N/A';
+				$collation = $table['collation'] ?? 'N/A';
+
 				$lines[] = sprintf(
-					'%s: %s (data: %s), %s rows',
+					'%s: %s (data: %s), %s rows, charset: %s, collation: %s',
 					$table['table_name'],
 					$size,
 					$data_size,
-					number_format_i18n( $table['num_rows'] )
+					number_format_i18n( $table['num_rows'] ),
+					$charset,
+					$collation
 				);
 			}
 		}

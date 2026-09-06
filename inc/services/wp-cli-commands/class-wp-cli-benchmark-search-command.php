@@ -5,7 +5,6 @@ namespace Simple_History\Services\WP_CLI_Commands;
 use WP_CLI;
 use WP_CLI_Command;
 use Simple_History\Simple_History;
-use Simple_History\Log_Query;
 
 /**
  * Benchmark search performance for Simple History.
@@ -152,9 +151,6 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 	 * @return array Query result.
 	 */
 	private function run_search( $per_page, $search_term ) {
-		// Override capability check for CLI.
-		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true' );
-
 		$query_args = [
 			'paged'    => 1,
 			'per_page' => $per_page,
@@ -164,12 +160,8 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 			$query_args['search'] = $search_term;
 		}
 
-		$log_query = new Log_Query();
-		$result    = $log_query->query( $query_args );
-
-		remove_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true' );
-
-		return $result;
+		// Override capability check for CLI.
+		return WP_CLI_Query_Helper::query_with_full_read_access( $query_args );
 	}
 
 	/**
@@ -311,8 +303,6 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 	 * @return array Query result.
 	 */
 	private function run_query( $per_page, $page, $lastdays = 0 ) {
-		add_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true' );
-
 		$query_args = [
 			'paged'    => $page,
 			'per_page' => $per_page,
@@ -323,12 +313,7 @@ class WP_CLI_Benchmark_Search_Command extends WP_CLI_Command {
 			$query_args['date_to']   = time();
 		}
 
-		$log_query = new Log_Query();
-		$result    = $log_query->query( $query_args );
-
-		remove_filter( 'simple_history/loggers_user_can_read/can_read_single_logger', '__return_true' );
-
-		return $result;
+		return WP_CLI_Query_Helper::query_with_full_read_access( $query_args );
 	}
 
 	/**

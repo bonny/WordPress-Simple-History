@@ -38,7 +38,7 @@ class Post_Row_Actions extends Service {
 
 		// Reuse the column service's batch query instead of running a separate one.
 		$column_service = $this->simple_history->get_service( Post_History_Column::class );
-		if ( ! $column_service || ! $column_service->post_has_history( $post->ID ) ) {
+		if ( ! $column_service instanceof Post_History_Column || ! $column_service->post_has_history( $post->ID ) ) {
 			return $actions;
 		}
 

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "blueprint": {
+      "source": "wordpress/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/blueprint/SKILL.md",
+      "computedHash": "377e75b2481be93113ba4a51b1f9c477d037a5edb001d3956e3f920860570c1f"
+    }
+  }
+}

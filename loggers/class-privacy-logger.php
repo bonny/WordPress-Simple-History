@@ -90,6 +90,12 @@ class Privacy_Logger extends Logger {
 		// We only add the filters when the privacy page is loaded.
 		add_action( 'load-options-privacy.php', array( $this, 'on_load_privacy_page' ) );
 
+		// Capture privacy page updates outside wp-admin (WP-CLI, REST API).
+		// Admin path uses on_load_privacy_page to distinguish create vs set via $_POST.
+		// Hook both update (existing option) and add (option doesn't exist yet) variants.
+		add_action( 'update_option_wp_page_for_privacy_policy', array( $this, 'on_update_option_privacy_policy_page_non_admin' ), 10, 3 );
+		add_action( 'add_option_wp_page_for_privacy_policy', array( $this, 'on_add_option_privacy_policy_page_non_admin' ), 10, 2 );
+
 		// Add filters to detect data export related functions.
 		// We only add the filters when the tools page for export personal data is loaded.
 		add_action( 'load-export-personal-data.php', array( $this, 'on_load_export_personal_data_page' ) );
@@ -278,7 +284,7 @@ class Privacy_Logger extends Logger {
 			return;
 		}
 
-		if ( ! $update && $user_request->action_name === 'export_personal_data' && 'request-pending' && $user_request->status ) {
+		if ( ! $update && $user_request->action_name === 'export_personal_data' && $user_request->status === 'request-pending' ) {
 			// Add Data Export Request.
 			// An email will be sent to the user at this email address asking them to verify the request.
 			// Notice message in admin is "Confirmation request initiated successfully.".
@@ -342,7 +348,7 @@ class Privacy_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
-		if ( ! $user_request || $action !== 'delete' ) {
+		if ( $action !== 'delete' ) {
 			return;
 		}
 
@@ -386,7 +392,7 @@ class Privacy_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
 		$action = wp_unslash( $_REQUEST['action'] ?? null );
 
-		if ( ! $user_request || $action !== 'delete' ) {
+		if ( $action !== 'delete' ) {
 			return;
 		}
 
@@ -448,9 +454,71 @@ class Privacy_Logger extends Logger {
 	}
 
 	/**
+	 * Log a privacy page update from a non-admin context (WP-CLI, REST API).
+	 * Admin updates are handled by on_load_privacy_page() which distinguishes
+	 * create vs set via $_POST['action'].
+	 *
+	 * Fires from update_option_wp_page_for_privacy_policy (option already exists).
+	 *
+	 * @param mixed  $old_value Previous option value.
+	 * @param mixed  $value     New option value (the page ID).
+	 * @param string $option    Option name.
+	 */
+	public function on_update_option_privacy_policy_page_non_admin( $old_value, $value, $option ) {
+		if ( is_admin() ) {
+			return;
+		}
+
+		$this->log_privacy_page_set( $old_value, $value );
+	}
+
+	/**
+	 * Log when the privacy page option is first created (via add_option).
+	 * This happens when update_option() is called but the option doesn't exist yet.
+	 *
+	 * Fires from add_option_wp_page_for_privacy_policy.
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  New option value (the page ID).
+	 */
+	public function on_add_option_privacy_policy_page_non_admin( $option, $value ) {
+		if ( is_admin() ) {
+			return;
+		}
+
+		$this->log_privacy_page_set( 0, $value );
+	}
+
+	/**
+	 * Shared logging logic for non-admin privacy page set events.
+	 *
+	 * @param mixed $old_value Previous value (0 when option didn't exist before).
+	 * @param mixed $value     New page ID.
+	 */
+	private function log_privacy_page_set( $old_value, $value ) {
+		$post           = get_post( $value );
+		$new_post_title = '';
+
+		if ( is_a( $post, 'WP_Post' ) ) {
+			$new_post_title = $post->post_title;
+		}
+
+		$this->info_message(
+			'privacy_page_set',
+			array(
+				'prev_post_id'   => $old_value,
+				'new_post_id'    => $value,
+				'new_post_title' => $new_post_title,
+			)
+		);
+	}
+
+	/**
 	 * Fired when the privacy admin page is loaded.
-	 * Page is something like
-	 * http://wordpress-stable.test/wp-admin/options-privacy.php
+	 * Detects privacy page creation or selection via $_POST['action'].
+	 * Page is something like http://example.test/wp-admin/options-privacy.php
+	 *
+	 * @return void
 	 */
 	public function on_load_privacy_page() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -513,5 +581,73 @@ class Privacy_Logger extends Logger {
 				'new_post_title' => $new_post_title,
 			)
 		);
+	}
+
+	/**
+	 * Get action links for a log row.
+	 *
+	 * Links each privacy event to the relevant WordPress admin tool page:
+	 * export events to Tools → Export Personal Data, erasure events to
+	 * Tools → Erase Personal Data, and privacy page changes to the page
+	 * itself plus the Privacy settings screen.
+	 *
+	 * @param object $row Log row object.
+	 * @return array Array of action link arrays.
+	 */
+	public function get_action_links( $row ) {
+		$context     = $row->context ?? [];
+		$message_key = $context['_message_key'] ?? '';
+
+		// Privacy page create/set events: edit the page and the Privacy settings screen.
+		if ( in_array( $message_key, [ 'privacy_page_created', 'privacy_page_set' ], true ) ) {
+			$action_links = [];
+			$new_post_id  = isset( $context['new_post_id'] ) ? (int) $context['new_post_id'] : 0;
+
+			if ( $new_post_id && get_post( $new_post_id ) && current_user_can( 'edit_page', $new_post_id ) ) {
+				$edit_link = get_edit_post_link( $new_post_id, 'raw' );
+
+				if ( $edit_link ) {
+					$action_links[] = [
+						'url'    => $edit_link,
+						'label'  => __( 'Edit page', 'simple-history' ),
+						'action' => 'edit',
+					];
+				}
+			}
+
+			if ( current_user_can( 'manage_privacy_options' ) ) {
+				$action_links[] = [
+					'url'    => admin_url( 'options-privacy.php' ),
+					'label'  => __( 'Privacy settings', 'simple-history' ),
+					'action' => 'view',
+				];
+			}
+
+			return $action_links;
+		}
+
+		// Data export events (privacy_data_export_*): link to Tools → Export Personal Data.
+		if ( str_starts_with( $message_key, 'privacy_data_export_' ) && current_user_can( 'export_others_personal_data' ) ) {
+			return [
+				[
+					'url'    => admin_url( 'export-personal-data.php' ),
+					'label'  => __( 'Data export requests', 'simple-history' ),
+					'action' => 'view',
+				],
+			];
+		}
+
+		// Data erasure events (data_erasure_*): link to Tools → Erase Personal Data.
+		if ( str_starts_with( $message_key, 'data_erasure_' ) && current_user_can( 'erase_others_personal_data' ) ) {
+			return [
+				[
+					'url'    => admin_url( 'erase-personal-data.php' ),
+					'label'  => __( 'Data erasure requests', 'simple-history' ),
+					'action' => 'view',
+				],
+			];
+		}
+
+		return [];
 	}
 }

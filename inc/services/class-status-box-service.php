@@ -3,12 +3,17 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
-use Simple_History\Menu_Manager;
 
 /**
- * Renders a feature discovery bar inside the page header.
- * Shows both active and inactive features to help users
- * discover settings and premium capabilities.
+ * Renders a settings and status bar inside the page header.
+ *
+ * Surfaces core and premium features so users can discover settings they may
+ * not know exist, and reports the ones that are already on — retention period,
+ * email reports, alerts, log forwarding, stealth mode.
+ *
+ * The bar stays visible once those are configured. It reads as a status line
+ * rather than an onboarding prompt, and the standing answer to "how long is
+ * history kept here?" is worth more than the header space it costs.
  */
 class Status_Box_Service extends Service {
 	/**
@@ -26,27 +31,40 @@ class Status_Box_Service extends Service {
 			return;
 		}
 
-		// Only show when experimental features are enabled (testing phase).
-		if ( ! Helpers::experimental_features_is_enabled() ) {
-			return;
-		}
-
 		$items = $this->get_status_items();
 
 		/**
-		 * Filter the feature discovery bar items.
+		 * Filter the header settings and status bar items.
 		 *
 		 * Each item is an array with keys:
-		 * - 'text'     (string) Display text.
-		 * - 'icon'     (string) Dashicon class name (e.g. 'dashicons-clock').
-		 * - 'url'      (string, optional) Link URL. Omit for non-interactive items.
-		 * - 'inactive' (bool, optional) True if the feature is off/discoverable.
+		 * - 'id'     (string) Stable identifier, e.g. 'email', 'alerts'. Lets consumers target a specific item.
+		 * - 'text'   (string) Display text.
+		 * - 'icon'   (string) Dashicon class name (e.g. 'dashicons-clock').
+		 * - 'url'    (string, optional) Link URL. Omit for non-interactive items.
+		 * - 'title'  (string, optional) Tooltip / title attribute.
+		 * - 'badge'  (string, optional) Badge label rendered after the text (e.g. 'Premium').
+		 * - 'target' (string, optional) Link target, e.g. '_blank' for external links.
+		 *
+		 * Consumers can match on 'id' to replace or remove an item — the premium
+		 * add-on replaces the 'alerts' upsell item with the real Alerts status.
 		 *
 		 * @since 5.16
 		 *
 		 * @param array $items Array of status items.
 		 */
 		$items = apply_filters( 'simple_history/header_status/items', $items );
+
+		// Drop items with nothing to show before any markup is emitted. The check
+		// in render_item() cannot do this on its own — by the time it runs, the
+		// <li> wrapper is already on the page, leaving an empty styled bullet.
+		// Consumers of the filter above do return such items: the premium add-on
+		// replaces the alerts entry wholesale.
+		$items = array_filter(
+			$items,
+			function ( $item ) {
+				return ! empty( $item['text'] );
+			}
+		);
 
 		if ( empty( $items ) ) {
 			return;
@@ -67,24 +85,94 @@ class Status_Box_Service extends Service {
 	}
 
 	/**
-	 * Render a single status item (dot + link or text).
+	 * Whether email-based stealth mode is hiding the plugin from other users.
 	 *
-	 * @param array $item Item with text, url, inactive, title keys.
+	 * Full stealth mode is excluded: it hides the GUI from everyone, so this
+	 * bar never renders under it and there is nobody left to inform.
+	 *
+	 * @return bool
+	 */
+	private function stealth_mode_is_active() {
+		if ( Stealth_Mode::is_full_stealth_mode_enabled() ) {
+			return false;
+		}
+
+		return Stealth_Mode::is_stealth_mode_enabled();
+	}
+
+	/**
+	 * Number of enabled log-forwarding channels.
+	 *
+	 * Counts every registered channel that is enabled — the core file channel
+	 * plus any premium channels (Syslog, webhooks, external databases, etc.) —
+	 * via the channels API, so each channel owns its own "enabled" state.
+	 *
+	 * @return int
+	 */
+	private function get_active_forwarding_channels_count() {
+		$channels_service = $this->simple_history->get_service( Channels_Service::class );
+
+		if ( ! $channels_service instanceof Channels_Service ) {
+			return 0;
+		}
+
+		$manager = $channels_service->get_channels_manager();
+
+		if ( ! $manager ) {
+			return 0;
+		}
+
+		$count = 0;
+
+		foreach ( $manager->get_channels() as $channel ) {
+			if ( ! $channel->is_enabled() ) {
+				continue;
+			}
+
+			++$count;
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Render a single status item (icon + text, optional badge, as link or plain text).
+	 *
+	 * @param array $item Item with id, text, icon, url, title, badge, target keys.
 	 */
 	private function render_item( $item ) {
-		$is_inactive = ! empty( $item['inactive'] );
-		$item_class  = 'sh-HeaderStatus-item-inner' . ( $is_inactive ? ' sh-HeaderStatus-item-inner--inactive' : '' );
-		$icon_class  = ! empty( $item['icon'] ) ? $item['icon'] : 'dashicons-marker';
+		$text = $item['text'] ?? '';
+
+		if ( $text === '' ) {
+			return;
+		}
+
+		$icon_class = ! empty( $item['icon'] ) ? $item['icon'] : 'dashicons-marker';
+		$item_class = 'sh-HeaderStatus-item-inner';
+
+		$title_attr = ! empty( $item['title'] ) ? ' title="' . esc_attr( $item['title'] ) . '"' : '';
+
+		$target_attr = '';
+
+		if ( ! empty( $item['target'] ) ) {
+			$target_attr = ' target="' . esc_attr( $item['target'] ) . '" rel="noopener noreferrer"';
+		}
+
+		$badge_html = '';
+
+		if ( ! empty( $item['badge'] ) ) {
+			$badge_html = ' <span class="sh-Badge sh-Badge--premium">' . esc_html( $item['badge'] ) . '</span>';
+		}
 		?>
 		<?php if ( ! empty( $item['url'] ) ) { ?>
-			<a href="<?php echo esc_url( $item['url'] ); ?>" class="<?php echo esc_attr( $item_class ); ?>"<?php echo ! empty( $item['title'] ) ? ' title="' . esc_attr( $item['title'] ) . '"' : ''; ?>>
+			<a href="<?php echo esc_url( $item['url'] ); ?>" class="<?php echo esc_attr( $item_class ); ?>"<?php echo $title_attr . $target_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 				<span class="dashicons <?php echo esc_attr( $icon_class ); ?>" aria-hidden="true"></span>
-				<?php echo esc_html( $item['text'] ); ?>
+				<?php echo esc_html( $text ); ?><?php echo $badge_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</a>
 		<?php } else { ?>
 			<span class="<?php echo esc_attr( $item_class ); ?>">
 				<span class="dashicons <?php echo esc_attr( $icon_class ); ?>" aria-hidden="true"></span>
-				<?php echo esc_html( $item['text'] ); ?>
+				<?php echo esc_html( $text ); ?><?php echo $badge_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</span>
 		<?php } ?>
 		<?php
@@ -93,28 +181,20 @@ class Status_Box_Service extends Service {
 	/**
 	 * Get the status items to display.
 	 *
-	 * @return array<array{text: string, url?: string, inactive?: bool}>
+	 * @return array<array{id: string, text: string, icon: string, url?: string, title?: string, badge?: string, target?: string}>
 	 */
 	private function get_status_items() {
-		$items      = [];
-		$is_premium = Helpers::is_premium_add_on_active();
+		$items = [];
 
 		$settings_url       = Helpers::get_settings_page_url();
 		$general_section    = $settings_url . '#simple_history_general_section';
-		$email_section      = add_query_arg(
-			[
-				'selected-tab'     => 'general_settings_subtab_general',
-				'selected-sub-tab' => 'general_settings_subtab_email_reports',
-			],
-			$settings_url
-		);
-		$alerts_tab_url     = add_query_arg( 'selected-tab', 'general_settings_subtab_alerts', $settings_url );
-		$forwarding_tab_url = add_query_arg( 'selected-tab', 'general_settings_subtab_log_forwarding', $settings_url );
-		$upsell_url         = Menu_Manager::get_admin_url_by_slug( 'simple_history_promo_upsell' );
+		$email_section      = Helpers::get_settings_page_sub_tab_url( 'general_settings_subtab_email_reports' );
+		$forwarding_tab_url = Helpers::get_settings_page_sub_tab_url( 'general_settings_subtab_log_forwarding' );
 
-		// Retention period — always first.
+		// Retention period — always first, always shown as context.
 		$days    = Helpers::get_clear_history_interval();
 		$items[] = [
+			'id'    => 'retention',
 			'text'  => sprintf(
 				/* translators: %d: number of days events are kept */
 				_n(
@@ -127,82 +207,80 @@ class Status_Box_Service extends Service {
 			),
 			'icon'  => 'dashicons-clock',
 			'url'   => $general_section,
-			'title' => __( 'Go to retention settings', 'simple-history' ),
+			'title' => __( 'Change how long events are stored', 'simple-history' ),
 		];
 
-		// Email reports.
-		$email_title = __( 'Go to Email reports settings', 'simple-history' );
+		// Email reports (free). Factual when on, benefit-led invite when off.
 		if ( get_option( 'simple_history_email_report_enabled' ) ) {
 			$items[] = [
-				'text'  => __( 'Email reports: on', 'simple-history' ),
+				'id'    => 'email',
+				'text'  => __( 'Email reports: weekly', 'simple-history' ),
 				'icon'  => 'dashicons-email-alt',
 				'url'   => $email_section,
-				'title' => $email_title,
+				'title' => __( 'Change what the summary includes and who receives it', 'simple-history' ),
 			];
 		} else {
 			$items[] = [
-				'text'     => __( 'Email reports: off', 'simple-history' ),
-				'icon'     => 'dashicons-email-alt',
-				'url'      => $email_section,
-				'title'    => $email_title,
-				'inactive' => true,
+				'id'    => 'email',
+				'text'  => __( 'Get weekly email reports', 'simple-history' ),
+				'icon'  => 'dashicons-email-alt',
+				'url'   => $email_section,
+				'title' => __( 'A short weekly summary of site activity, straight to your inbox', 'simple-history' ),
 			];
 		}
 
-		// Alerts.
-		// Alerts require premium to function — ignore saved rules when premium is inactive.
-		$alerts_title = __( 'Go to Alerts settings', 'simple-history' );
-		if ( $is_premium ) {
-			$alert_rules    = get_option( 'simple_history_alert_rules', [] );
-			$enabled_alerts = is_array( $alert_rules ) ? count( array_filter( $alert_rules, fn( $rule ) => ! empty( $rule['enabled'] ) ) ) : 0;
-			if ( $enabled_alerts > 0 ) {
-				$items[] = [
-					'text'  => sprintf(
-						/* translators: %d: number of active alert rules */
-						_n( 'Alerts: %d active', 'Alerts: %d active', $enabled_alerts, 'simple-history' ),
-						$enabled_alerts
-					),
-					'icon'  => 'dashicons-bell',
-					'url'   => $alerts_tab_url,
-					'title' => $alerts_title,
-				];
-			} else {
-				$items[] = [
-					'text'     => __( 'Alerts: not set up', 'simple-history' ),
-					'icon'     => 'dashicons-bell',
-					'url'      => $alerts_tab_url,
-					'title'    => $alerts_title,
-					'inactive' => true,
-				];
-			}
-		} else {
-			$items[] = [
-				'text'     => __( 'Alerts: Premium only', 'simple-history' ),
-				'icon'     => 'dashicons-bell',
-				'url'      => $upsell_url,
-				'title'    => __( 'Learn about Alerts in Premium', 'simple-history' ),
-				'inactive' => true,
-			];
-		}
+		// Alerts is a premium feature — core shows an upsell teaser linking to
+		// the in-plugin Alerts settings page, which carries the premium promo.
+		// When the premium add-on is active it replaces this item (matched by
+		// id) via the simple_history/header_status/items filter.
+		$items[] = [
+			'id'    => 'alerts',
+			'text'  => __( 'Alerts', 'simple-history' ),
+			'icon'  => 'dashicons-bell',
+			'url'   => Helpers::get_settings_page_sub_tab_url( 'general_settings_subtab_alerts' ),
+			'title' => __( 'Get notified of key changes — plugin deactivations, role changes, failed logins', 'simple-history' ),
+			'badge' => __( 'Premium', 'simple-history' ),
+		];
 
-		// Log forwarding — file channel is a core feature, always available.
-		$forwarding_title     = __( 'Go to Log Forwarding settings', 'simple-history' );
-		$file_channel         = get_option( 'simple_history_channel_file', [] );
-		$is_forwarding_active = is_array( $file_channel ) && ! empty( $file_channel['enabled'] );
-		if ( $is_forwarding_active ) {
+		// Log forwarding — the core file channel is free; premium adds more
+		// channels. Count all enabled channels so the label stays accurate when
+		// several are active. Factual when on, benefit-led invite when off.
+		$active_channels = $this->get_active_forwarding_channels_count();
+
+		if ( $active_channels > 0 ) {
 			$items[] = [
-				'text'  => __( 'Log forwarding: on', 'simple-history' ),
+				'id'    => 'forwarding',
+				'text'  => sprintf(
+					/* translators: %d: number of active log-forwarding channels */
+					_n( 'Log forwarding: %d active', 'Log forwarding: %d active', $active_channels, 'simple-history' ),
+					$active_channels
+				),
 				'icon'  => 'dashicons-migrate',
 				'url'   => $forwarding_tab_url,
-				'title' => $forwarding_title,
+				'title' => __( 'Change where copies of your log are sent', 'simple-history' ),
 			];
 		} else {
 			$items[] = [
-				'text'     => __( 'Log forwarding: off', 'simple-history' ),
-				'icon'     => 'dashicons-migrate',
-				'url'      => $forwarding_tab_url,
-				'title'    => $forwarding_title,
-				'inactive' => true,
+				'id'    => 'forwarding',
+				'text'  => __( 'Forward logs to a file', 'simple-history' ),
+				'icon'  => 'dashicons-migrate',
+				'url'   => $forwarding_tab_url,
+				'title' => __( 'Keep a copy of your activity log in a file', 'simple-history' ),
+			];
+		}
+
+		// Stealth mode, last and only while it is on. Unlike the items above it
+		// is not an invitation to configure something — it reports a state the
+		// admin already chose, and which they tend to forget they chose. The
+		// Stealth Mode setting itself lives in the premium add-on, so link there
+		// only when it is installed to point at a screen that exists.
+		if ( $this->stealth_mode_is_active() ) {
+			$items[] = [
+				'id'    => 'stealth',
+				'text'  => __( 'Stealth mode: on', 'simple-history' ),
+				'icon'  => 'dashicons-hidden',
+				'url'   => Helpers::is_premium_add_on_active() ? $settings_url . '#simple-history-premium-settings' : '',
+				'title' => __( 'Simple History is hidden from everyone not on the allow list, including other administrators', 'simple-history' ),
 			];
 		}
 

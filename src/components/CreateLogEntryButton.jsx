@@ -33,7 +33,8 @@ export function CreateLogEntryButton() {
 				'simple-history'
 			),
 			plusCircle,
-			createEntryFeatureImage
+			createEntryFeatureImage,
+			'premium_global_modal_logentry'
 		);
 	};
 

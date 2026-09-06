@@ -640,6 +640,7 @@ class History_Insights_Sidebar_Service extends Service {
 		$peak_date = '';
 		foreach ( $num_events_per_day as $day ) {
 			if ( (int) $day->count === $max ) {
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- Property name is the SQL column alias "yearDate" from the query in Helpers; renaming would break data access.
 				$peak_date = wp_date( 'M j', strtotime( $day->yearDate ) );
 				break;
 			}

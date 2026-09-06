@@ -223,7 +223,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				[
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => [ $this, 'react_to_event' ],
-					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+					'permission_callback' => [ $this, 'get_item_permissions_check' ],
 				],
 			],
 		);
@@ -243,7 +243,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				[
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => [ $this, 'unreact_to_event' ],
-					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+					'permission_callback' => [ $this, 'get_item_permissions_check' ],
 				],
 			],
 		);
@@ -272,6 +272,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	public function get_item_permissions_check( $request ) {
 		// User must be logged in.
 		if ( ! is_user_logged_in() ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		// User must be allowed to view the history log, matching the collection
+		// endpoint. The per event check below would otherwise let a user who
+		// cannot open the history page still read single events by id, for any
+		// logger whose own capability they hold. The reaction routes share this
+		// callback, so they inherit the same floor.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
@@ -320,6 +334,28 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Run a Log_Query, converting invalid-argument exceptions to a REST error.
+	 *
+	 * Invalid filter values (e.g. a malformed date_from or months value) make
+	 * Log_Query throw an InvalidArgumentException. Without this, that surfaces
+	 * as an HTTP 500; converting it to a WP_Error returns a clean 400 instead.
+	 *
+	 * @param array $args Query arguments.
+	 * @return array|\WP_Error Query result, or a 400 error for invalid arguments.
+	 */
+	protected function run_log_query( $args ) {
+		try {
+			return $this->create_log_query()->query( $args );
+		} catch ( \InvalidArgumentException $exception ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				$exception->getMessage(),
+				[ 'status' => 400 ]
+			);
+		}
 	}
 
 	/**
@@ -573,6 +609,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'sanitize_callback' => 'sanitize_text_field',
 		);
 
+		$query_params['ai_only'] = array(
+			'description' => __( 'Limit result set to events triggered via an AI agent (Claude Code, ChatGPT, MCP clients, etc.).', 'simple-history' ),
+			'type'        => 'boolean',
+			'default'     => false,
+		);
+
 		$query_params['ungrouped'] = array(
 			'description' => __( 'Return ungrouped events without occasions grouping.', 'simple-history' ),
 			'type'        => 'boolean',
@@ -709,6 +751,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The uninterpolated message of the event.', 'simple-history' ),
 					'type'        => 'string',
 				),
+				'message_template'           => array(
+					'description' => __( 'The message template of the event in the site language, with its placeholders. Falls back to the stored template when the logger no longer knows the message key.', 'simple-history' ),
+					'type'        => 'string',
+				),
 				'logger'                     => array(
 					'description' => __( 'The logger of the event.', 'simple-history' ),
 					'type'        => 'string',
@@ -749,6 +795,21 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The context of the event.', 'simple-history' ),
 					'type'        => 'object',
 				),
+				'ai_origin'                  => array(
+					'description' => __( 'AI agent origin information when the event was triggered by an AI tool.', 'simple-history' ),
+					'type'        => array( 'object', 'null' ),
+					'properties'  => array(
+						'agent_name'   => array(
+							'type' => 'string',
+						),
+						'detected_via' => array(
+							'type' => 'string',
+						),
+						'application'  => array(
+							'type' => 'string',
+						),
+					),
+				),
 				'permalink'                  => array(
 					'description' => __( 'The permalink of the event.', 'simple-history' ),
 					'type'        => 'string',
@@ -779,14 +840,17 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'items'       => array(
 						'type'       => 'object',
 						'properties' => array(
-							'url'    => array(
+							'url'         => array(
 								'type'   => 'string',
 								'format' => 'uri',
 							),
-							'label'  => array(
+							'label'       => array(
 								'type' => 'string',
 							),
-							'action' => array(
+							'action'      => array(
+								'type' => 'string',
+							),
+							'description' => array(
 								'type' => 'string',
 							),
 						),
@@ -809,6 +873,22 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	public function get_items_permissions_check( $request ) {
 		// User must be logged in.
 		if ( ! is_user_logged_in() ) {
+			return new WP_Error(
+				'rest_forbidden_context',
+				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		// User must be allowed to view the history log, same gate as the admin
+		// page and the dashboard widget. Without it, any logged in user reaches
+		// this endpoint and receives events from every logger whose own
+		// capability they happen to hold — some ship below the view floor, so
+		// e.g. an author could read Notes logger events despite being blocked
+		// from the history page. The per logger filter in Log_Query stays as
+		// defence in depth.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_history_capability().
+		if ( ! current_user_can( Helpers::get_view_history_capability() ) ) {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Sorry, you are not allowed to view events.', 'simple-history' ),
@@ -876,6 +956,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
 			'metadata_search'         => 'metadata_search',
+			'ai_only'                 => 'ai_only',
 			'ungrouped'               => 'ungrouped',
 			'skip_count_query'        => 'skip_count_query',
 		);
@@ -895,8 +976,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// Force ungrouped for accurate count — grouping is irrelevant for "has updates" check.
 		$args['ungrouped'] = true;
 
-		$log_query    = $this->create_log_query();
-		$query_result = $log_query->query( $args );
+		$query_result = $this->run_log_query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
 			return $query_result;
@@ -967,6 +1047,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
 			'metadata_search'         => 'metadata_search',
+			'ai_only'                 => 'ai_only',
 			'ungrouped'               => 'ungrouped',
 			'skip_count_query'        => 'skip_count_query',
 			// Surrounding events parameters.
@@ -994,8 +1075,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$args[ $wp_param ] = $request[ $api_param ];
 		}
 
-		$log_query    = $this->create_log_query();
-		$query_result = $log_query->query( $args );
+		$query_result = $this->run_log_query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
 			return $query_result;
@@ -1074,6 +1154,28 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Get the message template of an event in the site language.
+	 *
+	 * The stored message is the template as it read when the event was
+	 * logged, in the language the site had then. The logger knows the same
+	 * template in the current language, so prefer that. Fall back to the
+	 * stored one when the logger is gone or no longer has the message key.
+	 *
+	 * @param object $item Event row.
+	 * @return string Message template with its placeholders.
+	 */
+	private function get_message_template( $item ) {
+		$message_key = $item->context['_message_key'] ?? '';
+		$logger      = $this->simple_history->get_instantiated_logger_by_slug( $item->logger );
+
+		if ( $message_key === '' || ! $logger ) {
+			return $item->message;
+		}
+
+		return $logger->get_translated_message( $message_key ) ?? $item->message;
+	}
+
+	/**
 	 * Prepares a single post output for response.
 	 *
 	 * @param object           $item    Post object.
@@ -1124,6 +1226,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['message_uninterpolated'] = $item->message;
 		}
 
+		if ( rest_is_field_included( 'message_template', $fields ) ) {
+			$data['message_template'] = $this->get_message_template( $item );
+		}
+
 		if ( rest_is_field_included( 'details_data', $fields ) ) {
 			$data['details_data'] = $this->simple_history->get_log_row_details_output( $item )->to_json();
 		}
@@ -1157,6 +1263,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$user_avatar_url  = $user_avatar_data['url'] ?? '';
 			$user_object      = get_user_by( 'id', $context['_user_id'] ?? null );
 
+			// Deliberately not gated on the user-card capability. The initiator
+			// is the person who performed an event the reader is already
+			// allowed to see, so this is context for visible activity rather
+			// than a directory: it cannot be walked to reach users who never
+			// appear in the log. The card is gated instead, because that one
+			// answers arbitrary user ids and so could be harvested.
 			$user_info = [
 				'user_id'           => $context['_user_id'] ?? null,
 				'user_login'        => $context['_user_login'] ?? null,
@@ -1227,7 +1339,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				&& ! Helpers::is_premium_add_on_active();
 		}
 
-		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::experimental_features_is_enabled() ) {
+		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::reactions_are_enabled() ) {
 			$raw            = $item->context['_reactions'] ?? null;
 			$reactions_data = $raw ? (array) json_decode( $raw, true ) : [];
 			$current_user   = get_current_user_id();
@@ -1253,8 +1365,22 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['reactions'] = $formatted;
 		}
 
+		if ( rest_is_field_included( 'ai_origin', $fields ) ) {
+			$ai_agent_key = \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_AGENT;
+
+			if ( isset( $context[ $ai_agent_key ] ) ) {
+				$data['ai_origin'] = [
+					'agent_name'   => (string) $context[ $ai_agent_key ],
+					'detected_via' => (string) ( $context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_DETECTED_VIA ] ?? '' ),
+					'application'  => (string) ( $context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ] ?? '' ),
+				];
+			} else {
+				$data['ai_origin'] = null;
+			}
+		}
+
 		if ( rest_is_field_included( 'context', $fields ) ) {
-			$data['context'] = $item->context;
+			$data['context'] = $item->context ?? [];
 		}
 
 		if ( rest_is_field_included( 'permalink', $fields ) ) {
@@ -1462,10 +1588,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function react_to_event( $request ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+		if ( ! Helpers::reactions_are_enabled() ) {
 			return new WP_Error(
 				'rest_reactions_disabled',
-				__( 'Reactions are an experimental feature that is not enabled.', 'simple-history' ),
+				__( 'Reactions are not enabled.', 'simple-history' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -1502,10 +1628,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function unreact_to_event( $request ) {
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+		if ( ! Helpers::reactions_are_enabled() ) {
 			return new WP_Error(
 				'rest_reactions_disabled',
-				__( 'Reactions are an experimental feature that is not enabled.', 'simple-history' ),
+				__( 'Reactions are not enabled.', 'simple-history' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -1644,6 +1770,15 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					$stats['missed_label'] = number_format_i18n( $missed ) . ' more ' . $type;
 				}
 			}
+
+			// For locales whose thousands separator is a space (Swedish, French, ...),
+			// WP_Locale stores the separator as the literal string "&nbsp;", so
+			// number_format_i18n() returns "1&nbsp;234". That is fine in a PHP template,
+			// but this value goes out over REST and is rendered by React as a text node,
+			// which escapes it — the user would literally read "1&nbsp;234 more posts".
+			// A REST payload should carry data, not HTML entities, so decode to a real
+			// non-breaking space here.
+			$stats['missed_label'] = html_entity_decode( $stats['missed_label'], ENT_QUOTES, 'UTF-8' );
 		}
 		unset( $stats );
 

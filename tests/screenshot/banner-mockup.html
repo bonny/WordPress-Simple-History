@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Simple History — wp.org banner mockup</title>
+		<style>
+			/* Self-hosted fonts so run.sh works offline / in CI without
+			   relying on fonts.gstatic.com. Both are variable woff2 files —
+			   one file per family serves every weight we use. */
+			@font-face {
+				font-family: 'Crimson Pro';
+				font-style: normal;
+				font-weight: 100 900;
+				font-display: block;
+				src: url('fonts/crimson-pro-latin.woff2') format('woff2');
+			}
+			@font-face {
+				font-family: 'Inter';
+				font-style: normal;
+				font-weight: 100 900;
+				font-display: block;
+				src: url('fonts/inter-latin.woff2') format('woff2');
+			}
+			*,
+			*::before,
+			*::after {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			html,
+			body {
+				width: 1544px;
+			}
+			/* When viewed in a browser, the body can scroll past the first
+			   banner to show alternative-copy previews stacked below.
+			   Playwright always clips to (0,0,1544,500) so production
+			   capture stays deterministic regardless. */
+			body {
+				font-family:
+					Inter, -apple-system, BlinkMacSystemFont, system-ui,
+					sans-serif;
+				background: #fcf9ec;
+				color: #1a1a1a;
+				-webkit-font-smoothing: antialiased;
+				text-rendering: geometricPrecision;
+			}
+			.banner {
+				width: 1544px;
+				height: 500px;
+				display: grid;
+				grid-template-columns: 1fr 580px;
+				align-items: stretch;
+			}
+
+			/* Left text panel */
+			.text-panel {
+				padding: 50px 32px 50px 70px;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				background: #fcf9ec;
+			}
+			.logo {
+				display: flex;
+				align-items: center;
+				gap: 11px;
+				margin-bottom: 22px;
+			}
+			.logo svg {
+				width: 34px;
+				height: 34px;
+			}
+			.logo .wordmark {
+				font-family: 'Crimson Pro', Georgia, serif;
+				font-weight: 500;
+				font-size: 28px;
+				letter-spacing: -0.005em;
+			}
+			.headline {
+				font-family: 'Crimson Pro', Georgia, serif;
+				font-weight: 300;
+				font-size: 87px;
+				line-height: 1.02;
+				letter-spacing: -0.015em;
+				color: #111;
+				margin-bottom: 18px;
+				white-space: nowrap;
+			}
+			.subhead {
+				font-family: Inter, sans-serif;
+				font-weight: 700;
+				font-size: 23px;
+				line-height: 1.4;
+				color: #111;
+				margin-bottom: 4px;
+			}
+			.body {
+				font-family: Inter, sans-serif;
+				font-weight: 400;
+				font-size: 23px;
+				line-height: 1.4;
+				color: #1a1a1a;
+				max-width: 620px;
+			}
+
+			/* Right UI panel — floating card sliced by the right edge */
+			.ui-panel {
+				position: relative;
+				background: #fcf9ec;
+				overflow: hidden;
+			}
+			.ui-card {
+				position: absolute;
+				top: 36px;
+				bottom: -90px;
+				left: 0;
+				right: -40px;
+				background: #ffffff;
+				border-radius: 10px;
+				box-shadow:
+					0 1px 2px rgba(15, 23, 42, 0.06),
+					0 10px 28px rgba(15, 23, 42, 0.08),
+					0 32px 64px rgba(15, 23, 42, 0.1);
+				overflow: hidden;
+				display: flex;
+				flex-direction: column;
+			}
+
+			/* Safari-ish browser chrome on top of the card */
+			.browser-chrome {
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				background: linear-gradient(#edeef1, #e5e7eb);
+				border-bottom: 1px solid #d6d9de;
+				padding: 11px 14px;
+				flex: none;
+			}
+			.traffic-lights {
+				display: flex;
+				gap: 7px;
+				flex: none;
+			}
+			.traffic-lights span {
+				width: 12px;
+				height: 12px;
+				border-radius: 50%;
+				display: block;
+			}
+			.traffic-lights .red {
+				background: #ff5f57;
+			}
+			.traffic-lights .yellow {
+				background: #febc2e;
+			}
+			.traffic-lights .green {
+				background: #28c840;
+			}
+			.url-bar {
+				flex: 1;
+				background: #ffffff;
+				border: 1px solid #d6d9de;
+				border-radius: 6px;
+				padding: 5px 12px;
+				display: flex;
+				align-items: center;
+				gap: 7px;
+				font-size: 12px;
+				color: #4b5563;
+				font-family:
+					-apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+				min-width: 0;
+			}
+			.url-bar .lock {
+				width: 11px;
+				height: 11px;
+				color: #6b7280;
+				flex: none;
+			}
+			.url-bar .url {
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.url-bar .url-domain {
+				color: #111;
+				font-weight: 500;
+			}
+
+			.card-body {
+				padding: 14px 28px 14px 28px;
+				display: flex;
+				flex-direction: column;
+				flex: 1;
+				min-height: 0;
+			}
+
+			/* Authentic WP admin bar — dark strip with familiar nav items so
+			   the viewer reads this as "inside wp-admin" not "some web app". */
+			.wp-admin-bar {
+				background: #1d2327;
+				color: #c3c4c7;
+				height: 32px;
+				display: flex;
+				align-items: center;
+				gap: 0;
+				padding: 0 10px;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+					system-ui, sans-serif;
+				font-size: 13px;
+				flex: none;
+			}
+			.wp-admin-bar .ab-item {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				padding: 0 6px;
+				height: 32px;
+				color: #c3c4c7;
+				text-decoration: none;
+			}
+			.wp-admin-bar .ab-item svg {
+				width: 18px;
+				height: 18px;
+				color: #f0f0f1;
+				flex: none;
+			}
+			.wp-admin-bar .ab-wp svg {
+				width: 20px;
+				height: 20px;
+				fill: #f0f0f1;
+			}
+			.wp-admin-bar .ab-spacer {
+				flex: 1;
+			}
+			.wp-admin-bar .ab-howdy {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				padding: 0 10px;
+				height: 32px;
+			}
+			.wp-admin-bar .ab-howdy-avatar {
+				width: 20px;
+				height: 20px;
+				border-radius: 50%;
+				background: linear-gradient(135deg, #4f46e5, #9333ea);
+			}
+			.wp-admin-bar .ab-badge {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				min-width: 18px;
+				height: 18px;
+				padding: 0 5px;
+				border-radius: 9px;
+				background: #d63638;
+				color: #fff;
+				font-size: 11px;
+				font-weight: 600;
+				margin-left: 2px;
+			}
+			/* Slim search/filter toolbar — borrows from the real SH UI to
+			   tell the viewer "this log is queryable, not just a feed". */
+			.sh-toolbar {
+				display: flex;
+				align-items: stretch;
+				gap: 8px;
+				padding-bottom: 10px;
+				/* Extra right padding so the Filters button sits whole within
+				   the visible banner area while events still bleed past the
+				   right edge for the "page continues" cue. */
+				padding-right: 50px;
+				flex: none;
+			}
+			.sh-search {
+				flex: 1;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				border: 1px solid #d1d5db;
+				border-radius: 6px;
+				padding: 7px 12px;
+				background: #fff;
+				color: #6b7280;
+				font-size: 13px;
+				line-height: 1;
+			}
+			.sh-search svg {
+				width: 14px;
+				height: 14px;
+				color: #9ca3af;
+			}
+			.sh-pill {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				border: 1px solid #d1d5db;
+				border-radius: 6px;
+				padding: 7px 12px;
+				background: #fff;
+				color: #1f2937;
+				font-size: 13px;
+				line-height: 1;
+			}
+			.sh-pill svg {
+				width: 14px;
+				height: 14px;
+				color: #6b7280;
+			}
+			.sh-pill .sh-chevron {
+				width: 10px;
+				height: 10px;
+			}
+			.sh-meta-row {
+				padding: 8px 0 4px;
+				font-size: 13px;
+				color: #374151;
+				flex: none;
+				border-bottom: 1px solid #eef0f3;
+				padding-bottom: 10px;
+			}
+			.sh-count strong {
+				color: #111;
+				font-weight: 600;
+			}
+
+			.events {
+				margin-top: 4px;
+			}
+			.event {
+				display: grid;
+				grid-template-columns: 30px 1fr;
+				gap: 10px;
+				padding: 7px 0;
+				border-bottom: 1px solid #f0f1f4;
+			}
+			.event:last-child {
+				border-bottom: 0;
+			}
+			.avatar {
+				width: 30px;
+				height: 30px;
+				border-radius: 50%;
+				background: #e9ebee;
+				overflow: hidden;
+				flex: none;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.avatar img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				display: block;
+			}
+			.avatar-anon svg {
+				width: 18px;
+				height: 18px;
+				color: #9ca3af;
+			}
+			.event-meta {
+				color: #4b5563;
+				font-size: 11.5px;
+				line-height: 1.4;
+			}
+			.event-meta .name,
+			.event-meta a {
+				color: #1d63d2;
+				text-decoration: none;
+				font-weight: 500;
+			}
+			.event-body {
+				font-size: 13px;
+				color: #1a1a1a;
+				margin-top: 2px;
+				line-height: 1.35;
+			}
+			.event-body .quoted {
+				color: #1d63d2;
+				font-weight: 500;
+			}
+			.badge-warning {
+				display: inline-block;
+				background: #fef3c7;
+				color: #92400e;
+				padding: 1px 8px;
+				border-radius: 4px;
+				font-size: 11px;
+				font-weight: 600;
+				margin-left: 4px;
+				vertical-align: 2px;
+				letter-spacing: 0.02em;
+			}
+			.diff {
+				margin-top: 6px;
+				display: grid;
+				grid-template-columns: 50px 1fr 1fr;
+				gap: 4px 10px;
+				font-size: 12px;
+				align-items: start;
+			}
+			.diff-label {
+				color: #6b7280;
+				padding-top: 2px;
+				font-size: 11.5px;
+			}
+			.diff-old,
+			.diff-new {
+				padding: 2px 7px;
+				border-radius: 3px;
+				line-height: 1.4;
+				color: #1a1a1a;
+				font-size: 12px;
+			}
+			.diff-old {
+				background: #fdf3f4;
+			}
+			.diff-new {
+				background: #eff7f0;
+			}
+			.diff-old mark {
+				background: #f6b8bd;
+				color: inherit;
+				padding: 0 2px;
+				border-radius: 2px;
+			}
+			.diff-new mark {
+				background: #a7e1b2;
+				color: inherit;
+				padding: 0 2px;
+				border-radius: 2px;
+			}
+			.event-action {
+				margin-top: 6px;
+				font-size: 13px;
+			}
+			.event-action a {
+				color: #1d63d2;
+				text-decoration: none;
+				font-weight: 500;
+			}
+			.event-action svg {
+				width: 12px;
+				height: 12px;
+				vertical-align: -1px;
+				margin-right: 4px;
+			}
+
+			/* Preview-only styling (alternative copy variants below the
+			   production banner — visible in the browser, never captured). */
+			.preview-area {
+				background: #e5e7eb;
+				padding: 40px 0 60px;
+			}
+			.preview-heading {
+				padding: 0 70px 12px;
+				font-family: Inter, sans-serif;
+				font-size: 26px;
+				font-weight: 700;
+				color: #111;
+			}
+			.preview-heading small {
+				display: block;
+				font-weight: 400;
+				font-size: 15px;
+				color: #4b5563;
+				margin-top: 6px;
+			}
+			.version-label {
+				padding: 32px 70px 14px;
+				font-family: Inter, sans-serif;
+				font-size: 18px;
+				font-weight: 600;
+				color: #111;
+			}
+			.version-label small {
+				display: block;
+				font-weight: 400;
+				font-size: 14px;
+				color: #4b5563;
+				margin-top: 4px;
+			}
+			.thumbnail-row {
+				margin-top: 6px;
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+			.thumbnail {
+				width: 72px;
+				height: 44px;
+				border-radius: 4px;
+				overflow: hidden;
+				flex: none;
+				background: url('banner-team-photo.jpg') center/cover no-repeat;
+				box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+			}
+			.thumbnail-meta {
+				font-size: 11.5px;
+				color: #6b7280;
+				line-height: 1.4;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Simple History clock-icon defined once and referenced via <use> below. -->
+		<svg
+			width="0"
+			height="0"
+			style="position: absolute"
+			aria-hidden="true"
+		>
+			<!-- Dashicons-wordpress (\f120) — the round W-in-circle WP logo
+			     that appears in the real wp-admin bar. SVG path from
+			     @wordpress/icons. -->
+			<symbol id="wp-mark" viewBox="-2 -2 24 24">
+				<path d="M20 10c0-5.51-4.49-10-10-10C4.48 0 0 4.49 0 10c0 5.52 4.48 10 10 10 5.51 0 10-4.48 10-10zM7.78 15.37L4.37 6.22c.55-.02 1.17-.08 1.17-.08.5-.06.44-1.13-.06-1.11 0 0-1.45.11-2.37.11-.18 0-.37 0-.58-.01C4.12 2.69 6.87 1.11 10 1.11c2.33 0 4.45.87 6.05 2.34-.68-.11-1.65.39-1.65 1.58 0 .74.45 1.36.9 2.1.35.61.55 1.36.55 2.46 0 1.49-1.4 5-1.4 5l-3.03-8.37c.54-.02.82-.17.82-.17.5-.05.44-1.25-.06-1.22 0 0-1.44.12-2.38.12-.87 0-2.33-.12-2.33-.12-.5-.03-.56 1.2-.06 1.22l.92.08 1.26 3.41zM17.41 10c.24-.64.74-1.87.43-4.25.7 1.29 1.05 2.71 1.05 4.25 0 3.29-1.73 6.24-4.4 7.78.97-2.59 1.94-5.27 2.92-7.78zM6.1 18.09C3.12 16.65 1.11 13.53 1.11 10c0-1.3.23-2.48.72-3.59C3.25 10.97 4.67 14.53 6.1 18.09zm4.03-6.63l2.58 6.98c-.86.29-1.76.45-2.71.45-.79 0-1.57-.11-2.29-.33.81-2.38 1.62-4.74 2.42-7.1z" />
+			</symbol>
+			<!-- Dashicons admin-home (\f102) — filled house glyph. -->
+			<symbol id="ab-home" viewBox="0 0 20 20" fill="currentColor">
+				<path d="M10 3.2L2 10h2.4V17h3.4v-4.5h4.4V17h3.4V10H18z" />
+			</symbol>
+			<!-- Dashicons plus (\f132). -->
+			<symbol id="ab-plus" viewBox="0 0 20 20" fill="none"
+				stroke="currentColor" stroke-width="2"
+				stroke-linecap="round">
+				<path d="M10 3.5v13M3.5 10h13" />
+			</symbol>
+			<!-- The real wp-admin renders the SH admin-bar entry using the
+			     Simple History plugin's clock icon as a mask. Match the
+			     visual by using the SH icon paths (sans mint background)
+			     in currentColor so it picks up the admin bar's light grey. -->
+			<symbol id="ab-history" viewBox="0 0 256 256" fill="currentColor">
+				<path d="M159.017 61.2068c-38.231-15.7148-81.5796 1.337-96.2619 34.7001l-12.0938-4.9712c-1.7613-.724-3.5665.9344-2.9921 2.749l6.6564 35.8513c.6474 2.045 3.0182 2.972 4.881 1.908l28.295-21.451c1.6215-.926 1.4662-3.311-.2617-4.022l-12.9633-5.328c12.0672-27.0073 48.1414-41.0249 80.0084-27.9256 31.868 13.0994 47.863 50.3386 34.562 82.6966s-50.34 47.797-82.729 34.484c-14.0364-5.77-24.8935-15.994-31.6117-28.361-1.6304-3.001-5.219-4.495-8.3725-3.18-3.1936 1.331-4.7207 5.028-3.1163 8.092 7.988 15.257 21.1875 27.897 38.3695 34.959 38.751 15.929 83.068-2.543 98.982-41.258s-2.6-83.0142-41.352-98.9432z" />
+				<path d="M121.254 102.148c0-3.019 2.39-5.4664 5.338-5.4664s5.337 2.4474 5.337 5.4664v33.038l24.108 15.036c2.513 1.568 3.283 4.941 1.708 7.486-1.536 2.483-4.73 3.248-7.181 1.719l-29.31-18.28z" />
+			</symbol>
+			<!-- Generic person silhouette — used in the anonymous-user avatar
+			     so it reads as "unknown user" rather than "broken image". -->
+			<symbol id="ic-user-anon" viewBox="0 0 24 24">
+				<path
+					d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z"
+					fill="currentColor"
+				/>
+			</symbol>
+			<!-- Magnifying glass for the search input. -->
+			<symbol id="ic-search" viewBox="0 0 20 20" fill="none"
+				stroke="currentColor" stroke-width="1.6"
+				stroke-linecap="round" stroke-linejoin="round">
+				<circle cx="9" cy="9" r="5.5" />
+				<path d="M13 13l4 4" />
+			</symbol>
+			<!-- Caret-down chevron. -->
+			<symbol id="ic-chevron" viewBox="0 0 12 12" fill="none"
+				stroke="currentColor" stroke-width="1.6"
+				stroke-linecap="round" stroke-linejoin="round">
+				<path d="M2.5 4.5L6 8l3.5-3.5" />
+			</symbol>
+			<!-- Filters icon (sliders). -->
+			<symbol id="ic-filters" viewBox="0 0 20 20" fill="none"
+				stroke="currentColor" stroke-width="1.6"
+				stroke-linecap="round">
+				<path d="M3 6h10M16 6h1M3 14h3M9 14h8" />
+				<circle cx="14" cy="6" r="1.8" fill="currentColor" stroke="none" />
+				<circle cx="7.5" cy="14" r="1.8" fill="currentColor" stroke="none" />
+			</symbol>
+			<symbol id="sh-icon" viewBox="0 0 256 256">
+				<rect width="256" height="256" rx="40" fill="#b0f4e6" />
+				<path
+					d="M159.017 61.2068c-38.231-15.7148-81.5796 1.337-96.2619 34.7001l-12.0938-4.9712c-1.7613-.724-3.5665.9344-2.9921 2.749l6.6564 35.8513c.6474 2.045 3.0182 2.972 4.881 1.908l28.295-21.451c1.6215-.926 1.4662-3.311-.2617-4.022l-12.9633-5.328c12.0672-27.0073 48.1414-41.0249 80.0084-27.9256 31.868 13.0994 47.863 50.3386 34.562 82.6966s-50.34 47.797-82.729 34.484c-14.0364-5.77-24.8935-15.994-31.6117-28.361-1.6304-3.001-5.219-4.495-8.3725-3.18-3.1936 1.331-4.7207 5.028-3.1163 8.092 7.988 15.257 21.1875 27.897 38.3695 34.959 38.751 15.929 83.068-2.543 98.982-41.258s-2.6-83.0142-41.352-98.9432z"
+					fill="#000"
+				/>
+				<path
+					d="M121.254 102.148c0-3.019 2.39-5.4664 5.338-5.4664s5.337 2.4474 5.337 5.4664v33.038l24.108 15.036c2.513 1.568 3.283 4.941 1.708 7.486-1.536 2.483-4.73 3.248-7.181 1.719l-29.31-18.28z"
+					fill="#000"
+				/>
+			</symbol>
+		</svg>
+
+		<div class="banner">
+			<section class="text-panel">
+				<div class="logo">
+					<svg viewBox="0 0 256 256"><use href="#sh-icon" /></svg>
+					<span class="wordmark">Simple History</span>
+				</div>
+				<h1 class="headline">
+					Your powerful all-in-one<br />WordPress Activity Log.
+				</h1>
+				<p class="subhead">
+					Stay informed and in control with Simple History.
+				</p>
+				<p class="body">
+					Track content changes, debug faster, ensure security,
+					troubleshoot client issues — and more!
+				</p>
+			</section>
+
+			<aside class="ui-panel">
+				<div class="ui-card">
+					<div class="browser-chrome">
+						<div class="traffic-lights">
+							<span class="red"></span>
+							<span class="yellow"></span>
+							<span class="green"></span>
+						</div>
+						<div class="url-bar">
+							<svg
+								class="lock"
+								viewBox="0 0 16 16"
+								fill="currentColor"
+							>
+								<path
+									d="M8 1a3 3 0 0 0-3 3v2H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-1V4a3 3 0 0 0-3-3Zm-2 5V4a2 2 0 0 1 4 0v2H6Z"
+								/>
+							</svg>
+							<span class="url">
+								<span class="url-domain">example.com</span
+								>/wp-admin/admin.php?page=simple_history_admin_menu_page
+							</span>
+						</div>
+					</div>
+					<div class="wp-admin-bar">
+						<span class="ab-item ab-wp">
+							<svg viewBox="-2 -2 24 24"><use href="#wp-mark" /></svg>
+						</span>
+						<span class="ab-item">
+							<svg><use href="#ab-home" /></svg>
+							My website
+						</span>
+						<span class="ab-item">
+							<svg><use href="#ab-plus" /></svg>
+							New
+						</span>
+						<span class="ab-item">
+							<svg><use href="#ab-history" /></svg>
+							History
+						</span>
+						<span class="ab-spacer"></span>
+						<span class="ab-howdy">
+							Howdy, <strong>admin</strong>
+							<span class="ab-howdy-avatar"></span>
+						</span>
+					</div>
+					<div class="card-body">
+						<div class="sh-toolbar">
+							<div class="sh-search">
+								<svg viewBox="0 0 20 20">
+									<use href="#ic-search" />
+								</svg>
+								<span class="sh-search-placeholder">
+									Search events
+								</span>
+							</div>
+							<div class="sh-pill">
+								Last 7 days
+								<svg class="sh-chevron" viewBox="0 0 12 12">
+									<use href="#ic-chevron" />
+								</svg>
+							</div>
+							<div class="sh-pill">
+								<svg viewBox="0 0 20 20">
+									<use href="#ic-filters" />
+								</svg>
+								Filters
+							</div>
+						</div>
+					<div class="events">
+						<!-- Event 1 — failed login (security hook) -->
+						<div class="event">
+							<div class="avatar avatar-anon">
+								<svg viewBox="0 0 24 24">
+									<use href="#ic-user-anon" />
+								</svg>
+							</div>
+							<div>
+								<div class="event-meta">
+									<span class="name"
+										>Anonymous web user</span
+									>
+									· Today 14:23 ·
+									<a href="#">203.0.113.42</a>
+								</div>
+								<div class="event-body">
+									Failed to login with username "admin"
+									<span class="badge-warning">warning</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Event 2 — content diff (the differentiator) -->
+						<div class="event">
+							<div class="avatar">
+								<img src="avatar-sally.webp" alt="" />
+							</div>
+							<div>
+								<div class="event-meta">
+									<span class="name">Sally Admin</span>
+									(sally@example.com) · Today 14:18
+								</div>
+								<div class="event-body">
+									Updated page
+									<span class="quoted">"About us"</span>
+								</div>
+								<div class="diff">
+									<span class="diff-label">Title</span>
+									<span class="diff-old">About</span>
+									<span class="diff-new"
+										>About <mark>us</mark></span
+									>
+									<span class="diff-label">Content</span>
+									<span class="diff-old"
+										><mark>Discount</mark> t-shirts and
+										hoodies for our fans.</span
+									>
+									<span class="diff-new"
+										><mark>Premium organic cotton</mark>
+										t-shirts and hoodies for our fans
+										<mark>worldwide</mark>.</span
+									>
+								</div>
+							</div>
+						</div>
+
+						<!-- Event 3 — plugin activate (ops/security tracking). -->
+						<div class="event">
+							<div class="avatar">
+								<img src="avatar-alex.webp" alt="" />
+							</div>
+							<div>
+								<div class="event-meta">
+									<span class="name">Alex Admin</span>
+									(alex@example.com) · Today 13:51
+								</div>
+								<div class="event-body">
+									Activated plugin "Yoast SEO"
+								</div>
+							</div>
+						</div>
+
+						<!-- Event 4 — media upload with thumbnail (visual
+						     variety + showcases attached-file capture). -->
+						<div class="event">
+							<div class="avatar">
+								<img src="avatar-sally.webp" alt="" />
+							</div>
+							<div>
+								<div class="event-meta">
+									<span class="name">Sally Admin</span>
+									(sally@example.com) · Today 11:42
+								</div>
+								<div class="event-body">
+									Uploaded attachment "summer-collection.jpg"
+								</div>
+								<div class="thumbnail-row">
+									<div class="thumbnail"></div>
+									<div class="thumbnail-meta">
+										JPEG · 2400×1600 · 1.4 MB
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</aside>
+		</div>
+
+		<!-- Alternative-copy previews. Cloned from the production banner above,
+		     with just headline / subhead / body text swapped. Visible when the
+		     file is opened in a browser; never captured by Playwright (which
+		     clips to the first 500px). -->
+		<script>
+			const versions = [
+				{
+					label: 'Version A — "Inside wp-admin" angle',
+					sublabel:
+						'Copywriter recommended. Front-loads the SEO phrase + leads with the genuine moat (inside wp-admin, not external dashboard).',
+					headline:
+						'The WordPress activity log<br>that lives inside wp-admin.',
+					subhead:
+						'300,000+ sites use Simple History to see who changed what, and when.',
+					body: 'Inline diffs on every edit. Failed login attempts with IPs. Plugin, theme, and settings changes — all in one timeline you already have access to.',
+				},
+				{
+					label: 'Version B — Persona-first / curiosity',
+					sublabel:
+						'Opens with the questions the "Who did this?!" persona is already asking.',
+					headline:
+						'Who edited that page?<br>Who installed that plugin?',
+					subhead:
+						'Simple History answers both, right inside your WordPress dashboard.',
+					body: 'A 10-year-old activity log used on 300,000+ sites. Inline content diffs, login monitoring, plugin and settings tracking — no external dashboard, no separate login.',
+				},
+				{
+					label: 'Version C — Audit-trail / agency angle',
+					sublabel:
+						'Targets agencies and compliance-driven sites; leans on review count + longevity.',
+					headline:
+						'A WordPress audit log built<br>for sites with more than one editor.',
+					subhead:
+						'Track every content edit, login, and plugin change — without leaving wp-admin.',
+					body: 'Inline before/after diffs. Failed login IPs. Plugin, theme, and settings history. 4.8★ from 430+ reviews, in active development since 2014.',
+				},
+			];
+
+			function renderVariants() {
+				const production = document.querySelector( '.banner' );
+				if ( ! production ) {
+					return;
+				}
+
+				const area = document.createElement( 'div' );
+				area.className = 'preview-area';
+
+				const heading = document.createElement( 'div' );
+				heading.className = 'preview-heading';
+				heading.innerHTML =
+					'Alternative copy — for review' +
+					'<small>The banner above is what Playwright captures and what ships. The variants below are for visual comparison only.</small>';
+				area.appendChild( heading );
+
+				versions.forEach( ( v ) => {
+					const label = document.createElement( 'div' );
+					label.className = 'version-label';
+					label.innerHTML =
+						v.label +
+						( v.sublabel
+							? '<small>' + v.sublabel + '</small>'
+							: '' );
+					area.appendChild( label );
+
+					const clone = production.cloneNode( true );
+					clone.querySelector( '.headline' ).innerHTML = v.headline;
+					clone.querySelector( '.subhead' ).textContent = v.subhead;
+					clone.querySelector( '.body' ).textContent = v.body;
+					area.appendChild( clone );
+				} );
+
+				production.parentNode.insertBefore(
+					area,
+					production.nextSibling
+				);
+			}
+
+			if ( document.readyState === 'loading' ) {
+				document.addEventListener( 'DOMContentLoaded', renderVariants );
+			} else {
+				renderVariants();
+			}
+		</script>
+	</body>
+</html>

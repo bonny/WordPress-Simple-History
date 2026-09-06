@@ -18,7 +18,7 @@ class Post_History_Column extends Service {
 	 * Cached history data per post ID.
 	 * Each entry contains up to 2 recent events with date, user, and message key.
 	 *
-	 * @var array<int, array<int, array{date: string, message_key: string, user_id: string}>>|null
+	 * @var array<int, array>|null
 	 */
 	private $history_data = null;
 
@@ -208,7 +208,7 @@ class Post_History_Column extends Service {
 		$action = $this->get_action_label( $event['message_key'] );
 
 		$parts   = array();
-		$parts[] = $action !== '' ? $action : __( 'Modified', 'simple-history' );
+		$parts[] = $action ? $action : __( 'Modified', 'simple-history' );
 
 		// translators: %s is a human-readable time difference, e.g. "2 hours".
 		$parts[] = sprintf( __( '%s ago', 'simple-history' ), $time_ago );
@@ -255,7 +255,7 @@ class Post_History_Column extends Service {
 	 * list table. This is reliable on edit.php screens where both services run.
 	 */
 	private function load_history_data() {
-		global $wp_query;
+		global $wp_query, $wpdb;
 
 		$this->history_data = array();
 
@@ -269,21 +269,32 @@ class Post_History_Column extends Service {
 			return;
 		}
 
-		$rows = Log_Query::get_db_engine() === 'sqlite'
-			? $this->query_history_sqlite( $post_ids )
-			: $this->query_history_mysql( $post_ids );
+		$db_engine = Log_Query::get_db_engine();
 
-		$this->history_data = $this->group_rows_by_post_id( $rows );
+		if ( $db_engine === 'sqlite' ) {
+			$this->load_history_data_sqlite( $post_ids );
+		} else {
+			$this->load_history_data_mysql( $post_ids );
+		}
 
-		// Prime the WP user cache in one query for all unique user IDs so
-		// subsequent get_userdata() calls don't hit the DB per-row.
+		$this->prime_user_cache();
+	}
+
+	/**
+	 * Prime WP's internal user cache in one query for every user referenced by
+	 * the loaded history data, so subsequent get_userdata() calls don't query.
+	 */
+	private function prime_user_cache() {
 		$user_ids = array();
-		foreach ( $this->history_data as $events ) {
+
+		foreach ( (array) $this->history_data as $events ) {
 			foreach ( $events as $event ) {
 				$uid = (int) $event['user_id'];
+
 				if ( $uid <= 0 ) {
 					continue;
 				}
+
 				$user_ids[ $uid ] = true;
 			}
 		}
@@ -304,9 +315,8 @@ class Post_History_Column extends Service {
 	 * MySQL/MariaDB query using ROW_NUMBER() window function.
 	 *
 	 * @param array $post_ids Array of post IDs.
-	 * @return array<int, object> Database rows: post_id, date, message_key, user_id.
 	 */
-	private function query_history_mysql( $post_ids ) {
+	private function load_history_data_mysql( $post_ids ) {
 		global $wpdb;
 
 		$events_table    = Simple_History::$dbtable;
@@ -342,16 +352,15 @@ class Post_History_Column extends Service {
 		);
 		// phpcs:enable
 
-		return is_array( $results ) ? $results : array();
+		$this->store_history_results( $results );
 	}
 
 	/**
 	 * SQLite-compatible query using correlated subquery instead of window functions.
 	 *
 	 * @param array $post_ids Array of post IDs.
-	 * @return array<int, object> Database rows: post_id, date, message_key, user_id.
 	 */
-	private function query_history_sqlite( $post_ids ) {
+	private function load_history_data_sqlite( $post_ids ) {
 		global $wpdb;
 
 		$events_table    = Simple_History::$dbtable;
@@ -392,33 +401,24 @@ class Post_History_Column extends Service {
 		);
 		// phpcs:enable
 
-		return is_array( $results ) ? $results : array();
+		$this->store_history_results( $results );
 	}
 
 	/**
-	 * Group DB rows into the per-post structure stored on $history_data.
-	 *
-	 * @param array<int, object> $rows Database rows from query_history_*.
-	 * @return array<int, array<int, array{date: string, message_key: string, user_id: string}>>
+	 * @param array $results Database query results.
 	 */
-	private function group_rows_by_post_id( $rows ) {
-		$grouped = array();
-
-		foreach ( $rows as $row ) {
+	private function store_history_results( $results ) {
+		foreach ( $results as $row ) {
 			$pid = (int) $row->post_id;
-
-			if ( ! isset( $grouped[ $pid ] ) ) {
-				$grouped[ $pid ] = array();
+			if ( ! isset( $this->history_data[ $pid ] ) ) {
+				$this->history_data[ $pid ] = array();
 			}
-
-			$grouped[ $pid ][] = array(
+			$this->history_data[ $pid ][] = array(
 				'date'        => $row->date,
 				'message_key' => $row->message_key,
 				'user_id'     => $row->user_id,
 			);
 		}
-
-		return $grouped;
 	}
 
 	/**

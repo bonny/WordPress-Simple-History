@@ -40,6 +40,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Licences_Settings_Page',
 			'Plugin_List_Info',
 			'REST_API',
+			'Abilities_Service',
 			'Stealth_Mode',
 			'Menu_Service',
 			'Stats_Service',
@@ -60,6 +61,12 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Tips_Service',
 			'Failed_Login_Limit_Service',
 			'Status_Box_Service',
+			'AI_Initiator_Detector',
+			'Post_History_Column',
+			'Post_Row_Actions',
+			'Privacy_Data_Handler',
+			'Privacy_Settings_Page',
+			'License_Reminder_Service',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);

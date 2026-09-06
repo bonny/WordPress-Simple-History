@@ -7,11 +7,9 @@ import {
 	date,
 	dateI18n,
 	getSettings as getDateSettings,
-	humanTimeDiff,
 } from '@wordpress/date';
-import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { navigateToEventPermalink } from '../functions';
+import { navigateToEventPermalink, useEventRelativeTime } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
 import { EventHeaderItem } from './EventHeaderItem';
 
@@ -24,8 +22,16 @@ export function EventDate( props ) {
 	const wpTimezoneString = dateSettings.timezone.string;
 	const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 	const eventDateTimeInGMTTimeZone = event.date_gmt + '+0000';
-	const eventDateYMD = date( 'Y-m-d', eventDateTimeInGMTTimeZone );
-	const eventIsToday = eventDateYMD === date( 'Y-m-d', undefined, 'GMT' );
+	// Both sides have to be read in the zone the time below is printed in, or
+	// "Today" starts and stops at a different moment than the date divider
+	// above the event does.
+	const eventDateYMD = date(
+		'Y-m-d',
+		eventDateTimeInGMTTimeZone,
+		browserTimeZone
+	);
+	const eventIsToday =
+		eventDateYMD === date( 'Y-m-d', new Date(), browserTimeZone );
 
 	let formattedDateFormatAbbreviated;
 
@@ -49,22 +55,7 @@ export function EventDate( props ) {
 		);
 	}
 
-	const [ formattedDateLiveUpdated, setFormattedDateLiveUpdated ] = useState(
-		() => {
-			return humanTimeDiff( event.date_local );
-		}
-	);
-
-	// Update live time every second.
-	useEffect( () => {
-		const intervalId = setInterval( () => {
-			setFormattedDateLiveUpdated( humanTimeDiff( event.date_local ) );
-		}, 1000 );
-
-		return () => {
-			clearInterval( intervalId );
-		};
-	}, [ event.date_local ] );
+	const formattedDateLiveUpdated = useEventRelativeTime( event );
 
 	const tooltipText = (
 		<>

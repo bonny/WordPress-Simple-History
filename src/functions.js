@@ -1,7 +1,77 @@
 import { LOGLEVELS_OPTIONS } from './constants';
+import { humanTimeDiff } from '@wordpress/date';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { format } from 'date-fns';
+
+/**
+ * Turn an event's GMT date into the moment it happened.
+ *
+ * `date_gmt` is a bare `Y-m-d H:i:s` string carrying no offset, so it has to be
+ * marked as UTC before it is parsed.
+ *
+ * Relative times are built from this rather than from `date_local`, which
+ * carries no offset either. `humanTimeDiff()` reads a zone-less string in the
+ * zone `wp.date` was configured with, so `date_local` is only correct while
+ * those settings are in place. WordPress hands them over in an inline script on
+ * the `wp-date` handle, and on a site where something strips or defers inline
+ * admin scripts they never arrive — `@wordpress/date` then falls back to UTC and
+ * every event reads off by the site's own UTC offset. An absolute instant has no
+ * such dependency.
+ *
+ * The REST schema allows the field to be null, and a caller can leave it out
+ * of `_fields` — including one in another repo with its own hand-kept list. So
+ * return null rather than throw: without an error boundary above them, a throw
+ * here takes the whole event list down with it.
+ *
+ * @param {Object} event          Event object.
+ * @param {string} event.date_gmt Event date in GMT, as `Y-m-d H:i:s`.
+ * @return {Date|null} The moment the event was logged, or null without a date.
+ */
+export function getEventDate( event ) {
+	if ( ! event?.date_gmt ) {
+		return null;
+	}
+
+	return new Date( event.date_gmt.replace( ' ', 'T' ) + 'Z' );
+}
+
+/**
+ * A relative time for an event, e.g. "3 minutes ago", refreshed every second.
+ *
+ * @param {Object} event Event object.
+ * @return {string} The relative time, or an empty string without a date.
+ */
+export function useEventRelativeTime( event ) {
+	const dateGmt = event?.date_gmt;
+
+	const [ formatted, setFormatted ] = useState( () => {
+		const eventDate = getEventDate( event );
+
+		return eventDate ? humanTimeDiff( eventDate ) : '';
+	} );
+
+	useEffect( () => {
+		if ( ! dateGmt ) {
+			setFormatted( '' );
+
+			return undefined;
+		}
+
+		const update = () =>
+			setFormatted(
+				humanTimeDiff( getEventDate( { date_gmt: dateGmt } ) )
+			);
+
+		update();
+
+		const intervalId = setInterval( update, 1000 );
+
+		return () => clearInterval( intervalId );
+	}, [ dateGmt ] );
+
+	return formatted;
+}
 
 /**
  * Fields to request from the events REST API endpoint.
@@ -14,6 +84,10 @@ export const EVENT_FIELDS = [
 	'date_gmt',
 	'message',
 	'message_html',
+	'message_uninterpolated',
+	// The message template in the site language, with its placeholders;
+	// labels the chip for a hidden event type without naming one event.
+	'message_template',
 	'message_key',
 	'details_data',
 	'details_html',
@@ -24,6 +98,7 @@ export const EVENT_FIELDS = [
 	'initiator_data',
 	'ip_addresses',
 	'via',
+	'ai_origin',
 	'permalink',
 	'sticky',
 	'sticky_appended',
@@ -60,6 +135,7 @@ export function generateAPIQueryParams( props ) {
 		enteredIPAddress,
 		selectedContextFilters,
 		enteredMetadataSearch,
+		showAIOnly,
 		enteredSearchText,
 		selectedDateOption,
 		selectedCustomDateFrom,
@@ -218,6 +294,11 @@ export function generateAPIQueryParams( props ) {
 		eventsQueryParams.metadata_search = enteredMetadataSearch.trim();
 	}
 
+	// Show only events that have an AI agent attribution.
+	if ( showAIOnly ) {
+		eventsQueryParams.ai_only = true;
+	}
+
 	// Add exclusion/negative filters - hide events matching these criteria.
 	if ( excludeSearch && excludeSearch.trim().length > 0 ) {
 		eventsQueryParams.exclude_search = excludeSearch;
@@ -232,11 +313,19 @@ export function generateAPIQueryParams( props ) {
 	}
 
 	if ( excludeMessages && excludeMessages.length > 0 ) {
-		// Map message objects to logger:message format
-		const excludeMessageValues = excludeMessages.map( ( message ) => {
-			return `${ message.logger_slug }:${ message.message }`;
+		// Same shape as selectedMessageTypes: each entry carries one or more
+		// "LoggerSlug:message_key" strings in search_options.
+		const excludeMessageValues = [];
+
+		excludeMessages.forEach( ( messageType ) => {
+			( messageType.search_options || [] ).forEach( ( searchOption ) => {
+				excludeMessageValues.push( searchOption );
+			} );
 		} );
-		eventsQueryParams.exclude_messages = excludeMessageValues;
+
+		if ( excludeMessageValues.length ) {
+			eventsQueryParams.exclude_messages = excludeMessageValues;
+		}
 	}
 
 	if ( excludeUsers && excludeUsers.length > 0 ) {
@@ -409,6 +498,13 @@ export function getTrackingUrl(
 /**
  * Parse an error from wp.apiFetch into a structured details object.
  *
+ * Two shapes arrive here, depending on how apiFetch was called:
+ *
+ * - With `parse: false` apiFetch rejects with the raw `Response`, leaving the
+ *   body unread. We read it here.
+ * - Otherwise apiFetch rejects with the already-parsed REST error object
+ *   (`{ code, message, data }`), or a plain JS `Error`.
+ *
  * @param {Error|Response} error The caught error from apiFetch.
  * @return {Promise<Object>} Error details with code, statusText, bodyJson, bodyText.
  */
@@ -420,19 +516,210 @@ export async function parseApiFetchError( error ) {
 		bodyText: null,
 	};
 
-	if ( error.headers && error.status && error.statusText ) {
-		const contentType = error.headers.get( 'Content-Type' );
-		errorDetails.code = error.status;
-		errorDetails.statusText = error.statusText;
-
-		if ( contentType && contentType.includes( 'application/json' ) ) {
-			errorDetails.bodyJson = await error.json();
-		} else {
-			errorDetails.bodyText = await error.text();
-		}
-	} else {
+	if ( ! error ) {
 		errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
+
+		return errorDetails;
 	}
 
+	// An unread Response, from a `parse: false` call.
+	//
+	// Detected by its own `json()`/`text()` methods rather than by
+	// `statusText`: HTTP/2 dropped the status reason phrase, so `statusText`
+	// is always an empty string there. Testing it sent every failed request
+	// on an HTTP/2 site — most sites — down the "Unknown error" path below,
+	// discarding a response body that said exactly what went wrong.
+	if (
+		typeof error.json === 'function' &&
+		typeof error.text === 'function'
+	) {
+		const contentType = error.headers?.get( 'Content-Type' );
+		errorDetails.code = error.status || null;
+		errorDetails.statusText = error.statusText || null;
+
+		// The body is a stream and reading it can fail — on invalid JSON, or
+		// if something upstream consumed it already. Losing the body should
+		// not cost us the status we already have.
+		try {
+			if ( contentType && contentType.includes( 'application/json' ) ) {
+				errorDetails.bodyJson = await error.json();
+			} else {
+				errorDetails.bodyText = await error.text();
+			}
+		} catch ( bodyError ) {
+			errorDetails.bodyText = __(
+				'Could not read the error response body.',
+				'simple-history'
+			);
+		}
+
+		return errorDetails;
+	}
+
+	// Error already parsed by apiFetch (REST error object or JS Error).
+	if ( error.code || error.message ) {
+		errorDetails.code = error.data?.status || error.code || null;
+
+		// Keep `data` — it carries the diagnostic detail, such as the database
+		// error behind a failed query. Rebuilding this object from `code` and
+		// `message` alone used to throw that away.
+		errorDetails.bodyJson = error.code
+			? {
+					code: error.code,
+					message: error.message,
+					...( error.data ? { data: error.data } : {} ),
+			  }
+			: null;
+		errorDetails.bodyText = error.code ? null : error.message;
+
+		return errorDetails;
+	}
+
+	errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
+
 	return errorDetails;
+}
+
+/**
+ * Whether a parsed apiFetch error is an auth failure: an expired nonce/session
+ * or a missing capability. A retry cannot fix those — the page keeps its
+ * stale nonce even after signing in again in another tab — so callers should
+ * point at a page reload instead of offering a retry.
+ *
+ * @param {Object} errorDetails Result of parseApiFetchError().
+ * @return {boolean} True for 401/403 or the REST codes WordPress uses for them.
+ */
+export function isAuthFailureError( errorDetails ) {
+	const restErrorCode = errorDetails.bodyJson?.code;
+	const status =
+		typeof errorDetails.code === 'number' ? errorDetails.code : null;
+
+	return (
+		restErrorCode === 'rest_cookie_invalid_nonce' ||
+		restErrorCode === 'rest_forbidden' ||
+		status === 401 ||
+		status === 403
+	);
+}
+
+/**
+ * Get the underlying database error message from parsed error details, if the
+ * failure was a database error.
+ *
+ * The REST API attaches the real `$wpdb->last_error` string to the error
+ * response, which is far more actionable than "Database query failed." — it
+ * names the table and the problem, e.g. a corrupt index.
+ *
+ * @param {Object} errorDetails Output of parseApiFetchError().
+ * @return {string} The database error message, or an empty string.
+ */
+export function getDatabaseErrorMessage( errorDetails ) {
+	const bodyJson = errorDetails?.bodyJson;
+
+	if ( bodyJson?.code !== 'simple_history_db_error' ) {
+		return '';
+	}
+
+	const dbError = bodyJson?.data?.db_error;
+
+	return typeof dbError === 'string' ? dbError : '';
+}
+
+/**
+ * Strip HTML tags and decode entities, returning plain text.
+ *
+ * Uses DOMParser rather than assigning to a detached element's innerHTML.
+ * A detached node is not inert: `div.innerHTML = '<img src=x onerror=…>'`
+ * starts the image load and fires the handler even though the node was never
+ * added to the document, so the old approach executed attacker-supplied event
+ * handlers while appearing to strip them. DOMParser documents have no browsing
+ * context — they don't fetch resources or run handlers.
+ *
+ * @param {string} html
+ * @return {string} Plain text, or empty string for non-string input.
+ */
+export function htmlToPlainText( html ) {
+	if ( ! html || typeof html !== 'string' ) {
+		return '';
+	}
+
+	const doc = new DOMParser().parseFromString( html, 'text/html' );
+
+	return ( doc.body.textContent || '' ).replace( /\n{3,}/g, '\n\n' ).trim();
+}
+
+/**
+ * Format a number using the admin locale, e.g. 187304 → "187 304" or "187,304".
+ *
+ * The JavaScript counterpart to PHP's number_format_i18n(), which the PHP-rendered
+ * surfaces already use. Without it the React UI shows raw digits while the stats
+ * page right next to it shows grouped ones.
+ *
+ * WordPress ships no JS number formatter — `@wordpress/i18n` exports no such
+ * function, not even in versions well ahead of core. Core is adding one in
+ * https://github.com/WordPress/gutenberg/pull/71214 (issue #22628), and it uses
+ * native Intl.NumberFormat rather than the separators WordPress translators define
+ * for number_format_i18n(). We deliberately match that upstream behaviour — name,
+ * signature and en-US fallback — so that once `numberFormatI18n` ships in a
+ * WordPress we support, this implementation can be deleted and the import swapped
+ * without touching a single call site.
+ *
+ * A consequence worth knowing: separators come from the browser's CLDR data, not
+ * from WordPress's translated `number_format_thousands_sep`, so a site filtering
+ * `number_format_i18n` is not reflected here. Core accepted the same tradeoff —
+ * an earlier attempt at exact PHP parity failed on rounding differences.
+ *
+ * @param {number} value      Number to format.
+ * @param {number} [decimals] Number of decimal places. Defaults to 0, matching number_format_i18n().
+ * @return {string} Locale-formatted number, or the value coerced to string if not finite.
+ */
+export function numberFormatI18n( value, decimals = 0 ) {
+	if ( typeof value !== 'number' || ! Number.isFinite( value ) ) {
+		return String( value ?? '' );
+	}
+
+	// Intl throws outside 0–20; core clamps to the same range for Node compatibility.
+	const fractionDigits = Math.min(
+		Math.max( Math.trunc( decimals ), 0 ),
+		20
+	);
+
+	const options = {
+		minimumFractionDigits: fractionDigits,
+		maximumFractionDigits: fractionDigits,
+	};
+
+	return new Intl.NumberFormat( getAdminLocale(), options ).format( value );
+}
+
+/**
+ * Resolve the admin locale as a BCP 47 tag usable by the Intl APIs.
+ *
+ * WordPress renders the locale into the html lang attribute via
+ * get_bloginfo( 'language' ), which returns BCP 47 ("en-US") rather than the
+ * underscored form get_locale() gives ("en_US") — so the attribute is already the
+ * shape Intl wants. The underscore replacement is defensive: some locales and
+ * filtered values still come through as "sv_SE".
+ *
+ * In wp-admin get_bloginfo( 'language' ) resolves through determine_locale(), which
+ * returns the *user's* locale, so a user whose personal admin language differs from
+ * the site language gets their own grouping.
+ *
+ * @return {string} A canonical locale tag, or 'en-US' when the attribute is missing or invalid.
+ */
+function getAdminLocale() {
+	const lang = ( document.documentElement.lang || '' ).replace( '_', '-' );
+
+	if ( ! lang ) {
+		return 'en-US';
+	}
+
+	try {
+		// Rejects malformed tags without constructing a formatter, matching how
+		// core validates. Falling back to the browser default instead would silently
+		// format in a locale the user never chose.
+		return Intl.getCanonicalLocales( lang )[ 0 ] ?? 'en-US';
+	} catch ( error ) {
+		return 'en-US';
+	}
 }

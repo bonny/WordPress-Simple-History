@@ -35,11 +35,11 @@ class Tips_Service extends Service {
 
 		$tips = [
 			[
-				'text'     => __( 'Subscribe to your activity log via RSS. Enable it in Settings > Simple History.', 'simple-history' ),
+				'text'     => __( 'Subscribe to your activity log via RSS — enable it under Simple History > Settings.', 'simple-history' ),
 				'contexts' => [ 'sidebar' ],
 			],
 			[
-				'text'     => __( 'Get a weekly email summary of your site\'s activity. Enable it in Settings > Simple History.', 'simple-history' ),
+				'text'     => __( 'Get a weekly email digest of your site\'s activity — it\'s an easy way to catch changes that happened while you were away. Enable it under Simple History > Settings.', 'simple-history' ),
 				'contexts' => [ 'sidebar', 'dashboard' ],
 			],
 			[
@@ -47,7 +47,7 @@ class Tips_Service extends Service {
 				'contexts' => [ 'sidebar' ],
 			],
 			[
-				'text'     => __( 'Export your event log as CSV, JSON, or HTML from Export & Tools.', 'simple-history' ),
+				'text'     => __( 'Export your event log as CSV, JSON, or HTML — find it under Simple History > Export & Tools.', 'simple-history' ),
 				'contexts' => [ 'sidebar', 'dashboard' ],
 			],
 			[
@@ -55,7 +55,7 @@ class Tips_Service extends Service {
 				'contexts' => [ 'sidebar', 'dashboard' ],
 			],
 			[
-				'text'     => __( 'Press Cmd+K (or Ctrl+K) in the block editor and type "history" to jump to a post\'s activity log.', 'simple-history' ),
+				'text'     => __( 'In the block editor, press Cmd+K (Ctrl+K on Windows) and type "history" to see that post\'s activity.', 'simple-history' ),
 				'contexts' => [ 'sidebar' ],
 			],
 			[
@@ -72,7 +72,7 @@ class Tips_Service extends Service {
 					'contexts' => [ 'sidebar' ],
 				],
 			[
-				'text'     => __( 'Press "/" on the event log page to quickly jump to the search field. Press Escape to return to where you were.', 'simple-history' ),
+				'text'     => __( 'Press "/" anywhere on the event log page to jump straight to the search field.', 'simple-history' ),
 				'contexts' => [ 'sidebar' ],
 			],
 			[
@@ -80,8 +80,40 @@ class Tips_Service extends Service {
 				'contexts' => [ 'sidebar' ],
 			],
 			[
-				'text'     => __( 'Developers: Log your own events from themes and plugins using the simple_history_log action.', 'simple-history' ),
+				'text'     => __( 'Developers can log custom events from themes and plugins using the simple_history_log action.', 'simple-history' ),
 				'contexts' => [ 'sidebar' ],
+			],
+			[
+				'text'     => __( 'Developers can fetch events over the REST API — try the /wp-json/simple-history/v1/events endpoint.', 'simple-history' ),
+				'contexts' => [ 'sidebar' ],
+			],
+			[
+				'text'     => __( 'Site acting strangely? Check the log — what changed right before often points straight to the cause.', 'simple-history' ),
+				'contexts' => [ 'sidebar', 'dashboard' ],
+			],
+			[
+				'text'     => __( 'After updating plugins, the log remembers exactly what was updated and when — handy if something breaks days later.', 'simple-history' ),
+				'contexts' => [ 'sidebar', 'dashboard' ],
+			],
+			[
+				'text'     => __( 'Repeated failed login attempts show up in the log — useful if you suspect someone is trying to get in.', 'simple-history' ),
+				'contexts' => [ 'sidebar', 'dashboard' ],
+			],
+			[
+				'text'     => __( 'Spot an admin user you don\'t recognize? User creations and role changes are always logged.', 'simple-history' ),
+				'contexts' => [ 'sidebar', 'dashboard' ],
+			],
+			[
+				'text'     => __( 'Working with a team or clients? The log shows who changed what, so there\'s no guessing when something looks different.', 'simple-history' ),
+				'contexts' => [ 'sidebar', 'dashboard' ],
+			],
+			[
+				'text'     => __( 'Handing over a site? The log gives the next person a head start on understanding what\'s been happening.', 'simple-history' ),
+				'contexts' => [ 'sidebar', 'dashboard' ],
+			],
+			[
+				'text'     => __( 'IP addresses in the log are anonymized by default, balancing accountability with user privacy.', 'simple-history' ),
+				'contexts' => [ 'sidebar', 'dashboard' ],
 			],
 			$is_premium_active
 				? [
@@ -89,16 +121,16 @@ class Tips_Service extends Service {
 					'contexts' => [ 'sidebar', 'dashboard' ],
 				]
 				: [
-					'text'     => __( 'Pin important events so they don\'t scroll away. Available with Simple History Premium.', 'simple-history' ),
+					'text'     => __( 'Want to pin important events so they don\'t scroll away? That\'s part of Simple History Premium.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard' ],
 				],
 			$is_premium_active
 				? [
-					'text'     => __( 'Set up alerts in Settings to get notified when important events happen.', 'simple-history' ),
+					'text'     => __( 'Set up alerts in Simple History > Settings to get notified when specific events happen.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard' ],
 				]
 				: [
-					'text'     => __( 'Get instant alerts when important events happen. Available with Simple History Premium.', 'simple-history' ),
+					'text'     => __( 'Want instant alerts when specific events happen? That\'s part of Simple History Premium.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard' ],
 				],
 			$is_premium_active
@@ -107,7 +139,7 @@ class Tips_Service extends Service {
 					'contexts' => [ 'sidebar', 'dashboard' ],
 				]
 				: [
-					'text'     => __( 'Control exactly which events get logged. Available with Simple History Premium.', 'simple-history' ),
+					'text'     => __( 'Want to control exactly which events get logged? That\'s part of Simple History Premium.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard' ],
 				],
 		];

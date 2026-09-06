@@ -22,6 +22,12 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.23.0', [ $this, 'on_plugin_updated_details_5_23_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.24.0', [ $this, 'on_plugin_updated_details_5_24_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.25.0', [ $this, 'on_plugin_updated_details_5_25_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.27.0', [ $this, 'on_plugin_updated_details_5_27_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.28.0', [ $this, 'on_plugin_updated_details_5_28_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.29.0', [ $this, 'on_plugin_updated_details_5_29_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.30.0', [ $this, 'on_plugin_updated_details_5_30_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.31.0', [ $this, 'on_plugin_updated_details_5_31_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.32.0', [ $this, 'on_plugin_updated_details_5_32_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -245,6 +251,125 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-25-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.27.0.
+	 *
+	 * @param string $extra_details Extra details.
+	 * @return string
+	 */
+	public function on_plugin_updated_details_5_27_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'AI agent attribution – see when an event was triggered through Claude Code, ChatGPT, or other AI tools, with the agent name shown next to the user', 'simple-history' ),
+			__( 'Action links front and center – jump straight from the log to edit a media item, plugin, user, or menu, or open the error message for a failed plugin install', 'simple-history' ),
+			__( 'Copy as JSON – copy the full event payload, including all context data, for scripting and debugging', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-27-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.28.0.
+	 *
+	 * @param string $extra_details Extra details.
+	 * @return string
+	 */
+	public function on_plugin_updated_details_5_28_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'Ready for WordPress 7.0! We have tested the plugin on the latest version of WordPress and have found no issues.', 'simple-history' ),
+			__( 'Added support for the new WordPress 7.0 AI Connectors Screen.', 'simple-history' ),
+			__( 'Improved support for changes made using WP-CLI and REST API. Actions performed by for example AI agents are now visible in the log.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-28-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.29.0.
+	 *
+	 * @param string $extra_details Extra details.
+	 * @return string
+	 */
+	public function on_plugin_updated_details_5_29_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( "A person's activity log is now included in WordPress personal-data exports (Tools → Export Personal Data).", 'simple-history' ),
+			__( 'New "Privacy & Data" settings tab explaining how Simple History works with WordPress privacy tools.', 'simple-history' ),
+			__( 'Overview action links across user, plugin, post, and media events for quicker navigation.', 'simple-history' ),
+			__( "Premium: See any user's last login, IP, browser, and event counts — right in the log.", 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-29-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.30.0.
+	 *
+	 * @param string $extra_details Extra details.
+	 * @return string
+	 */
+	public function on_plugin_updated_details_5_30_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'You can now react to events with a 👍.', 'simple-history' ),
+			__( 'New header bar shows admins brief information about the current settings.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-30-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.31.0.
+	 *
+	 * @param string $extra_details Extra details.
+	 * @return string
+	 */
+	public function on_plugin_updated_details_5_31_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'Site Editor changes are now logged: templates, styles, patterns, navigation menus and fonts.', 'simple-history' ),
+			__( 'Support for the official WordPress AI plugin — logs when AI features, providers and access are changed.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-31-0-released/';
+
+		return $this->format_new_features_list( $title, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.32.0.
+	 *
+	 * @param array $extra_details Existing extra details.
+	 * @return string HTML with the highlights list.
+	 */
+	public function on_plugin_updated_details_5_32_0( $extra_details ) {
+		$title = __( 'Highlights in this version', 'simple-history' );
+
+		$new_features = [
+			__( 'Long diffs can be expanded in place with an "Expand diff" button.', 'simple-history' ),
+			__( 'Post and page events link to the exact revision the change created. On WordPress 7.1 and later it opens the visual revision view.', 'simple-history' ),
+			__( 'Failed application password logins are throttled and grouped like other failed logins, so a brute-force attack on the REST API no longer floods the log.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-32-0-released/';
 
 		return $this->format_new_features_list( $title, $new_features, $release_link );
 	}

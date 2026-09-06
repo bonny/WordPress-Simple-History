@@ -274,6 +274,10 @@ class Categories_Logger extends Logger {
 		// Default to original log message.
 		$message = $row->message;
 
+		// Escaped up front, before the early return further down, so both
+		// interpolate() exits are covered.
+		$context = $this->esc_html_context_keys( $context, [ 'term_name', 'to_term_name', 'from_term_name' ] );
+
 		// Get term that was created, edited, or removed.
 		$term_id = isset( $context['term_id'] ) ? (int) $context['term_id'] : null;
 
@@ -304,14 +308,14 @@ class Categories_Logger extends Logger {
 
 		// Get taxonomy name to use in log but fall back to taxonomy slug if
 		// taxonomy has been deleted.
-		$context['termTaxonomySlugOrName']   = $context['term_taxonomy'] ?? null;
-		$context['toTermTaxonomySlugOrName'] = $context['to_term_taxonomy'] ?? null;
+		$context['termTaxonomySlugOrName']   = esc_html( $context['term_taxonomy'] ?? '' );
+		$context['toTermTaxonomySlugOrName'] = esc_html( $context['to_term_taxonomy'] ?? '' );
 
 		if ( isset( $context['term_taxonomy'] ) && $context['term_taxonomy'] ) {
 			$termTaxonomyObject = get_taxonomy( $context['term_taxonomy'] );
 			if ( is_a( $termTaxonomyObject, 'WP_Taxonomy' ) ) {
 				$termTaxonomyObjectLabels          = get_taxonomy_labels( $termTaxonomyObject );
-				$context['termTaxonomySlugOrName'] = $termTaxonomyObjectLabels->singular_name;
+				$context['termTaxonomySlugOrName'] = esc_html( $termTaxonomyObjectLabels->singular_name );
 			}
 		}
 
@@ -319,7 +323,7 @@ class Categories_Logger extends Logger {
 			$termTaxonomyObject = get_taxonomy( $context['to_term_taxonomy'] );
 			if ( is_a( $termTaxonomyObject, 'WP_Taxonomy' ) ) {
 				$termTaxonomyObjectLabels            = get_taxonomy_labels( $termTaxonomyObject );
-				$context['toTermTaxonomySlugOrName'] = $termTaxonomyObjectLabels->singular_name;
+				$context['toTermTaxonomySlugOrName'] = esc_html( $termTaxonomyObjectLabels->singular_name );
 			}
 		}
 

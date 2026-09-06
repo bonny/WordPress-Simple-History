@@ -41,6 +41,7 @@ class Setup_Database extends Service {
 		$this->setup_version_6_to_version_7();
 		$this->setup_version_7_to_version_8();
 		$this->setup_version_8_to_version_9();
+		$this->setup_version_9_to_version_10();
 	}
 
 	/**
@@ -138,25 +139,21 @@ class Setup_Database extends Service {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
+		$charset_collate = $wpdb->get_charset_collate();
+
 		// Table creation, used to be in register_activation_hook
 		// We change the varchar size to add one num just to force update of encoding. dbdelta didn't see it otherwise.
 		$sql =
 			'CREATE TABLE ' .
 			$table_name .
-			' (
+			" (
 			id bigint(20) NOT NULL AUTO_INCREMENT,
 			date datetime NOT NULL,
 			PRIMARY KEY  (id)
-		) CHARACTER SET=utf8;';
+		) {$charset_collate};";
 
 		// Upgrade db / fix utf for varchars.
 		dbDelta( $sql );
-
-		// Make sure table is using UTF-8. Early versions did not.
-		$sql = sprintf( 'alter table %1$s charset=utf8;', $table_name );
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->query( $sql );
 
 		$this->update_db_to_version( 1 );
 
@@ -237,6 +234,13 @@ class Setup_Database extends Service {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// WordPress uses utf8mb4 since 4.2 (4 bytes/char). InnoDB has a 767-byte
+		// index limit on older row formats, so prefix-index any varchar(255)
+		// column we index. floor(767 / 4) = 191. Matches WP core's pattern.
+		$max_index_length = 191;
+
 		// Update old table.
 		$sql = "
 			CREATE TABLE {$table_name} (
@@ -250,7 +254,7 @@ class Setup_Database extends Service {
 				PRIMARY KEY  (id),
 				KEY date (date),
 				KEY loggerdate (logger,date)
-			) CHARSET=utf8;";
+			) {$charset_collate};";
 
 		dbDelta( $sql );
 
@@ -263,8 +267,8 @@ class Setup_Database extends Service {
 				value longtext,
 				PRIMARY KEY  (context_id),
 				KEY history_id (history_id),
-				KEY `key` (`key`)
-			) CHARSET=utf8;
+				KEY `key` (`key`({$max_index_length}))
+			) {$charset_collate};
 		";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -437,6 +441,50 @@ class Setup_Database extends Service {
 		update_option( 'simple_history_retention_days', $retention_days, true );
 
 		$this->update_db_to_version( 9 );
+	}
+
+	/**
+	 * Update from db version 9 to version 10.
+	 *
+	 * Create rows with default values for all settings that did not get one
+	 * on install. Without a row, the first save of the settings page creates
+	 * the missing options via add_option(), which the settings logger would
+	 * record as a "Modified settings" event even when nothing was changed.
+	 * Storing the rows also lets the options autoload.
+	 */
+	private function setup_version_9_to_version_10() {
+		if ( $this->get_db_version() !== 9 ) {
+			return;
+		}
+
+		// RSS is disabled by default, but users that used the plugin before the
+		// feed became opt-in (detected via an existing RSS secret) keep it
+		// enabled, mirroring the lazy init in the RSS dropin.
+		$rss_feed_default = get_option( 'simple_history_rss_secret' ) === false ? '0' : '1';
+
+		// Auto-backfill pending: a missing row means the backfill already ran
+		// (the flag used to be deleted afterwards, costing one extra query on
+		// every admin page) or the install predates the feature — both mean
+		// "not pending", so 0. Fresh installs get the row set to true by
+		// setup_new_to_version_1() before this step runs.
+		$options_with_defaults = [
+			'simple_history_pager_size'           => 20,
+			'simple_history_pager_size_dashboard' => 5,
+			'simple_history_menu_page_location'   => 'top',
+			'simple_history_enable_rss_feed'      => $rss_feed_default,
+			'simple_history_reactions_enabled'    => '1',
+			Auto_Backfill_Service::PENDING_OPTION => 0,
+		];
+
+		foreach ( $options_with_defaults as $option_name => $default_value ) {
+			if ( get_option( $option_name ) !== false ) {
+				continue;
+			}
+
+			update_option( $option_name, $default_value, true );
+		}
+
+		$this->update_db_to_version( 10 );
 	}
 
 	/**

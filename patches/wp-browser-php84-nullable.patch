@@ -1,0 +1,71 @@
+Fix PHP 8.4 implicit-nullable deprecations in lucatume/wp-browser 3.7.19.
+
+PHP 8.4 deprecated implicitly marking a parameter as nullable via `= null`
+without an explicit `?` type prefix. The wp-browser 3.x branch is pinned to
+PHP < 8.0 upstream and will not be patched, so we add the explicit nullable
+prefix here. Without this, every autoloader load (e.g. when phpcs runs)
+emits 6 deprecation warnings, polluting tool output.
+
+See patches/README.md for context and how to refresh this patch if wp-browser
+is upgraded.
+
+--- a/src/Deprecated/deprecated-functions.php
++++ b/src/Deprecated/deprecated-functions.php
+@@ -42,7 +42,7 @@
+     /**
+      * @deprecated Use \lucatume\WPBrowser\Utils\MysqlDatabase::db instead.
+      */
+-    function db(string $dsn, string $user, string $pass, string $dbName = null): callable
++    function db(string $dsn, string $user, string $pass, ?string $dbName = null): callable
+     {
+         return Db::db($dsn, $user, $pass, $dbName);
+     }
+@@ -73,7 +73,7 @@
+      * }
+      * @deprecated Use \lucatume\WPBrowser\Utils\MysqlDatabase::dbCredentials instead.
+      */
+-    function dbCredentials(array $dsn, string $dbuser, string $dbpass, string $dbname = null): array
++    function dbCredentials(array $dsn, string $dbuser, string $dbpass, ?string $dbname = null): array
+     {
+         return Db::dbCredentials($dsn, $dbuser, $dbpass, $dbname);
+     }
+@@ -160,7 +160,7 @@
+      * @deprecated Use `lucatume\WPBrowser\Utils\Filesystem::resolvePath` instead.
+      * @return bool|string
+      */
+-    function resolvePath(string $path, string $root = null)
++    function resolvePath(string $path, ?string $root = null)
+     {
+         return Filesystem::resolvePath($path, $root);
+     }
+@@ -349,7 +349,7 @@
+     /**
+      * @deprecated Use `Codeception\Util\Debug::isEnabled` instead.
+      */
+-    function isDebug(bool $activate = null): bool
++    function isDebug(?bool $activate = null): bool
+     {
+         return Debug::isEnabled();
+     }
+@@ -415,19 +415,19 @@
+     /**
+      * @param array<string>|null $tables
+      * @return array<string>
+      * @deprecated Use `lucatume\WPBrowser\Utils\WP::dropWpTables` instead.
+      */
+-    function dropWpTables(wpdb $wpdb, array $tables = null): array
++    function dropWpTables(wpdb $wpdb, ?array $tables = null): array
+     {
+         return WP::dropWpTables($wpdb, $tables);
+     }
+
+     /**
+      * @param array<string>|null $tables
+      * @return array<string>
+      * @deprecated Use `lucatume\WPBrowser\Utils\WP::emptyWpTables` instead.
+      */
+-    function emptyWpTables(wpdb $wpdb, array $tables = null): array
++    function emptyWpTables(wpdb $wpdb, ?array $tables = null): array
+     {
+         return WP::emptyWpTables($wpdb, $tables);
+     }

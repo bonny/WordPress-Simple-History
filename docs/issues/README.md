@@ -10,6 +10,7 @@ These files capture research, decisions, and implementation details.
 ### Performance
 
 -   [autoloader-performance.md](autoloader-performance.md) - Autoloading optimization investigation with PHP-SPX profiling
+-   [channel-forwarding-synchronous-blocking.md](channel-forwarding-synchronous-blocking.md) - Channel forwarding blocks the request; async queue is a TODO stub
 
 ### Features
 

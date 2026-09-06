@@ -13,6 +13,9 @@ class Menu_Logger extends Logger {
 	/** @var string Logger slug */
 	public $slug = 'SimpleMenuLogger';
 
+	/** @var array<int,string> Menu names captured before deletion, keyed by term ID. */
+	private $pre_delete_menu_names = [];
+
 	/**
 	 * Get array with information about this logger
 	 *
@@ -87,6 +90,17 @@ class Menu_Logger extends Logger {
 		add_action( 'load-nav-menus.php', array( $this, 'on_load_nav_menus_page_detect_locations_update' ) );
 
 		add_filter( 'simple_history/categories_logger/skip_taxonomies', array( $this, 'on_categories_logger_skip_taxonomy' ) );
+
+		// WP-CLI / non-admin support.
+		// Capture menu name before term deletion (wp_delete_nav_menu fires after, when name is gone).
+		add_action( 'pre_delete_term', array( $this, 'on_pre_delete_term_capture_menu_name' ), 10, 2 );
+		add_action( 'wp_delete_nav_menu', array( $this, 'on_wp_delete_nav_menu' ), 10, 1 );
+
+		// Log menu item updates outside admin (WP-CLI, REST API).
+		add_action( 'wp_update_nav_menu_item', array( $this, 'on_wp_update_nav_menu_item_non_admin' ), 10, 3 );
+
+		// Detect nav_menu_locations changes via theme_mods (set_theme_mod path).
+		add_action( 'updated_option', array( $this, 'on_updated_option_detect_nav_menu_locations' ), 10, 3 );
 	}
 
 	/**
@@ -102,6 +116,141 @@ class Menu_Logger extends Logger {
 	public function on_categories_logger_skip_taxonomy( $taxonomies_to_skip ) {
 		$taxonomies_to_skip[] = 'nav_menu';
 		return $taxonomies_to_skip;
+	}
+
+	/**
+	 * Capture menu name before the term is deleted (fired for ALL term deletions).
+	 * Stores the name so on_wp_delete_nav_menu() can log it after the fact.
+	 *
+	 * @param int    $term     Term ID.
+	 * @param string $taxonomy Taxonomy name.
+	 */
+	public function on_pre_delete_term_capture_menu_name( $term, $taxonomy ) {
+		if ( $taxonomy !== 'nav_menu' ) {
+			return;
+		}
+
+		$menu = wp_get_nav_menu_object( $term );
+
+		if ( ! $menu || is_wp_error( $menu ) ) {
+			return;
+		}
+
+		$this->pre_delete_menu_names[ (int) $term ] = $menu->name;
+	}
+
+	/**
+	 * Log a menu deletion from a non-admin context (WP-CLI).
+	 * Fires from wp_delete_nav_menu() after the menu is gone;
+	 * the name was captured by on_pre_delete_term_capture_menu_name().
+	 *
+	 * @param int $term_id ID of the deleted menu term.
+	 */
+	public function on_wp_delete_nav_menu( $term_id ) {
+		$term_id = (int) $term_id;
+
+		// Admin path handled by on_load_nav_menus_page_detect_delete().
+		if ( is_admin() ) {
+			unset( $this->pre_delete_menu_names[ $term_id ] );
+			return;
+		}
+
+		$menu_name = $this->pre_delete_menu_names[ $term_id ] ?? '';
+		unset( $this->pre_delete_menu_names[ $term_id ] );
+
+		$this->info_message(
+			'deleted_menu',
+			array(
+				'menu_term_id' => $term_id,
+				'menu_name'    => $menu_name,
+			)
+		);
+	}
+
+	/**
+	 * Log menu item additions/updates outside wp-admin (WP-CLI, REST API).
+	 * The admin form disables this hook because changes in the editor are not
+	 * committed until "Save menu" is clicked. In WP-CLI/REST, they commit immediately.
+	 *
+	 * @param int   $menu_id          ID of the nav menu.
+	 * @param int   $menu_item_db_id  ID of the menu item.
+	 * @param array $args             Menu item arguments.
+	 */
+	public function on_wp_update_nav_menu_item_non_admin( $menu_id, $menu_item_db_id, $args ) {
+		if ( is_admin() ) {
+			return;
+		}
+
+		if ( ! Helpers::is_rest_request() && ! Helpers::is_wp_cli() ) {
+			return;
+		}
+
+		$menu = wp_get_nav_menu_object( $menu_id );
+
+		$this->info_message(
+			'edited_menu_item',
+			array(
+				'menu_id'         => $menu_id,
+				'menu_name'       => $menu ? $menu->name : '',
+				'menu_item_db_id' => $menu_item_db_id,
+			)
+		);
+	}
+
+	/**
+	 * Detect nav_menu_locations changes via theme_mods option (set_theme_mod path).
+	 * Used by WP-CLI (`wp menu location assign`) which calls set_theme_mod() directly.
+	 * Admin form path is handled by on_load_nav_menus_page_detect_locations_update().
+	 *
+	 * @param string $option    Option name.
+	 * @param mixed  $old_value Previous option value.
+	 * @param mixed  $new_value New option value.
+	 */
+	public function on_updated_option_detect_nav_menu_locations( $option, $old_value, $new_value ) {
+		if ( strpos( $option, 'theme_mods_' ) !== 0 ) {
+			return;
+		}
+
+		if ( is_admin() ) {
+			return;
+		}
+
+		$old_locations = isset( $old_value['nav_menu_locations'] ) ? (array) $old_value['nav_menu_locations'] : array();
+		$new_locations = isset( $new_value['nav_menu_locations'] ) ? (array) $new_value['nav_menu_locations'] : array();
+
+		if ( $old_locations === $new_locations ) {
+			return;
+		}
+
+		$registered_menus = get_registered_nav_menus();
+		$changes          = array();
+
+		foreach ( $new_locations as $location_slug => $new_menu_id ) {
+			$old_menu_id = isset( $old_locations[ $location_slug ] ) ? (int) $old_locations[ $location_slug ] : 0;
+			$new_menu_id = (int) $new_menu_id;
+
+			if ( $old_menu_id === $new_menu_id ) {
+				continue;
+			}
+
+			$changes[] = array(
+				'location' => $registered_menus[ $location_slug ] ?? $location_slug,
+				'from'     => $this->get_menu_name_by_id( $old_menu_id ),
+				'to'       => $this->get_menu_name_by_id( $new_menu_id ),
+			);
+		}
+
+		if ( empty( $changes ) ) {
+			return;
+		}
+
+		$this->info_message(
+			'edited_menu_locations',
+			array(
+				'menu_locations'    => Helpers::json_encode( $new_locations ),
+				'locations_changed' => Helpers::json_encode( $changes ),
+			)
+		);
 	}
 
 	/**
@@ -206,6 +355,10 @@ class Menu_Logger extends Logger {
 			return;
 		}
 
+		// Snapshot the menu's current name before update so we can detect renames.
+		$old_menu          = wp_get_nav_menu_object( $menu_id );
+		$old_menu_name_raw = $old_menu instanceof \WP_Term ? (string) $old_menu->name : '';
+
 		// Get saved menu. May be empty if this is the first time we save the menu.
 		$arr_prev_menu_items = wp_get_nav_menu_items( $menu_id );
 
@@ -288,15 +441,33 @@ class Menu_Logger extends Logger {
 				continue;
 			}
 
-			$old_item  = $old_items_map[ $item_id ];
-			$new_title = isset( $post_titles[ $item_id ] ) ? sanitize_text_field( $post_titles[ $item_id ] ) : '';
+			$old_item = $old_items_map[ $item_id ];
 
-			// Detect rename.
-			if ( $new_title !== '' && $new_title !== $old_item->title ) {
+			// Two raw shapes for the old label:
+			// - post_title: the value stored in the DB (empty when the item
+			// has no custom label and inherits the linked object's title).
+			// - $old_item->title: the resolved label as set by
+			// wp_setup_nav_menu_item() — falls back to the linked object's
+			// title when post_title is empty.
+			// The form re-submits whatever label the user sees in the input,
+			// which matches one of these two. Treat a match against either as
+			// "no rename" so we don't flag items with HTML in the label
+			// (e.g. "Books <span>& authors</span>") or items inheriting their
+			// label from a linked page on every save.
+			$old_post_title    = isset( $old_item->post_title ) ? (string) $old_item->post_title : '';
+			$old_display_title = isset( $old_item->title ) ? (string) $old_item->title : '';
+			$new_title_raw     = isset( $post_titles[ $item_id ] ) ? (string) $post_titles[ $item_id ] : '';
+			$new_title         = sanitize_text_field( $new_title_raw );
+
+			$is_rename = $new_title_raw !== ''
+				&& $new_title_raw !== $old_post_title
+				&& $new_title_raw !== $old_display_title;
+
+			if ( $is_rename ) {
 				$menu_changes['renamed'][] = array(
 					'id'   => (int) $item_id,
-					'from' => $old_item->title,
-					'to'   => $new_title,
+					'from' => $old_display_title !== '' ? $old_display_title : $old_post_title,
+					'to'   => $new_title_raw,
 				);
 			}
 
@@ -346,14 +517,21 @@ class Menu_Logger extends Logger {
 		// Remove empty change types.
 		$menu_changes = array_filter( $menu_changes );
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+		$new_menu_name = sanitize_text_field( wp_unslash( $_POST['menu-name'] ) );
+
 		$context = array(
 			'menu_id'            => $menu_id,
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-			'menu_name'          => sanitize_text_field( wp_unslash( $_POST['menu-name'] ) ),
+			'menu_name'          => $new_menu_name,
 			'menu_items_added'   => count( $arr_added ),
 			'menu_items_removed' => count( $arr_removed ),
 			'menu_changes'       => Helpers::json_encode( $menu_changes ),
 		);
+
+		// Detect rename of the menu itself (the "Menu Name" field).
+		if ( $old_menu_name_raw !== '' && $new_menu_name !== '' && $new_menu_name !== $old_menu_name_raw ) {
+			$context['menu_name_prev'] = $old_menu_name_raw;
+		}
 
 		if ( ! empty( $locations_changed ) ) {
 			$context['locations_changed'] = Helpers::json_encode( $locations_changed );
@@ -365,6 +543,67 @@ class Menu_Logger extends Logger {
 		}
 
 		$this->info_message( 'edited_menu', $context );
+	}
+
+	/**
+	 * Action links for menu events — jump to the menu editor.
+	 *
+	 * @param object $row Log row.
+	 * @return array
+	 */
+	public function get_action_links( $row ) {
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			return array();
+		}
+
+		$context     = $row->context;
+		$message_key = $context['_message_key'] ?? '';
+
+		// "Manage locations" link for location-only events.
+		if ( $message_key === 'edited_menu_locations' ) {
+			return array(
+				array(
+					'url'    => add_query_arg(
+						array( 'action' => 'locations' ),
+						admin_url( 'nav-menus.php' )
+					),
+					'label'  => __( 'Manage menu locations', 'simple-history' ),
+					'action' => 'edit',
+				),
+			);
+		}
+
+		// "Edit menu" link for events that target a specific menu.
+		if ( ! in_array( $message_key, array( 'edited_menu', 'created_menu' ), true ) ) {
+			return array();
+		}
+
+		// Resolve menu term id from context. edited_menu uses "menu_id";
+		// created_menu uses "term_id".
+		$menu_id = 0;
+		if ( ! empty( $context['menu_id'] ) ) {
+			$menu_id = (int) $context['menu_id'];
+		} elseif ( ! empty( $context['term_id'] ) ) {
+			$menu_id = (int) $context['term_id'];
+		}
+
+		if ( $menu_id <= 0 || ! is_nav_menu( $menu_id ) ) {
+			return array();
+		}
+
+		return array(
+			array(
+				'url'    => add_query_arg(
+					array(
+						'action' => 'edit',
+						'menu'   => $menu_id,
+					),
+					admin_url( 'nav-menus.php' )
+				),
+				'label'  => __( 'Edit menu', 'simple-history' ),
+				'action' => 'edit',
+			),
+		);
 	}
 
 	/**
@@ -404,6 +643,17 @@ class Menu_Logger extends Logger {
 			}
 
 			$group = new Event_Details_Group();
+
+			// Menu rename (the menu itself, not its items). menu_name_prev is
+			// only set in context when the name actually changed.
+			if ( ! empty( $context['menu_name_prev'] ) ) {
+				$group->add_item(
+					new Event_Details_Item(
+						array( 'menu_name', 'menu_name_prev' ),
+						__( 'Menu name', 'simple-history' )
+					)
+				);
+			}
 
 			if ( ! empty( $changes['added'] ) ) {
 				$descriptions = array();

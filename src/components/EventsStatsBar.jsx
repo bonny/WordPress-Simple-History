@@ -1,6 +1,7 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar } from '@wordpress/icons';
+import { numberFormatI18n } from '../functions';
 
 /**
  * Stats bar showing events today and last 7 days.
@@ -28,7 +29,7 @@ export function EventsStatsBar( { stats, statsPageURL } ) {
 							stats.num_events_today,
 							'simple-history'
 						),
-						stats.num_events_today
+						numberFormatI18n( stats.num_events_today )
 					),
 					{ strong: <strong /> }
 				) }
@@ -44,7 +45,7 @@ export function EventsStatsBar( { stats, statsPageURL } ) {
 							stats.num_events_last_7_days,
 							'simple-history'
 						),
-						stats.num_events_last_7_days
+						numberFormatI18n( stats.num_events_last_7_days )
 					),
 					{ strong: <strong /> }
 				) }

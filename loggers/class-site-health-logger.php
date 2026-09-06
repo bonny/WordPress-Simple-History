@@ -179,7 +179,7 @@ class Site_Health_Logger extends Logger {
 		return [
 			[
 				'url'    => admin_url( 'site-health.php' ),
-				'label'  => __( 'View Site Health', 'simple-history' ),
+				'label'  => __( 'Site Health', 'simple-history' ),
 				'action' => 'view',
 			],
 		];

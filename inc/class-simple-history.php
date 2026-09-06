@@ -143,9 +143,11 @@ class Simple_History {
 	 */
 	private function get_services() {
 		$services = array(
+			Services\Abilities_Service::class,
 			Services\AddOns_Licences::class,
 			Services\Admin_Page_Premium_Promo::class,
 			Services\Admin_Pages::class,
+			Services\AI_Initiator_Detector::class,
 			Services\Alerts_Settings_Page_Teaser::class,
 			Services\Auto_Backfill_Service::class,
 			Services\Channels_Service::class,
@@ -159,6 +161,7 @@ class Simple_History {
 			Services\Failed_Logins_Settings_Page_Teaser::class,
 			Services\History_Insights_Sidebar_Service::class,
 			Services\Import_Handler::class,
+			Services\License_Reminder_Service::class,
 			Services\Licences_Settings_Page::class,
 			Services\Loggers_Loader::class,
 			Services\Menu_Service::class,
@@ -170,6 +173,8 @@ class Simple_History {
 			Services\Plugin_List_Link::class,
 			Services\Post_History_Column::class,
 			Services\Post_Row_Actions::class,
+			Services\Privacy_Data_Handler::class,
+			Services\Privacy_Settings_Page::class,
 			Services\REST_API::class,
 			Services\Review_Reminder_Service::class,
 			Services\Scripts_And_Templates::class,
@@ -514,10 +519,12 @@ class Simple_History {
 			Loggers\Plugin_User_Switching_Logger::class,
 			Loggers\Plugin_WP_Crontrol_Logger::class,
 			Loggers\Plugin_Jetpack_Logger::class,
+			Loggers\Plugin_WP_AI_Logger::class,
 			Loggers\Privacy_Logger::class,
 			Loggers\Translations_Logger::class,
 			Loggers\Categories_Logger::class,
 			Loggers\Comments_Logger::class,
+			Loggers\Connectors_Logger::class,
 			Loggers\Notes_Logger::class,
 			Loggers\Core_Updates_Logger::class,
 			Loggers\Core_Files_Logger::class,
@@ -528,6 +535,7 @@ class Simple_History {
 			Loggers\Options_Logger::class,
 			Loggers\Plugin_Logger::class,
 			Loggers\Post_Logger::class,
+			Loggers\Site_Editor_Logger::class,
 			Loggers\Theme_Logger::class,
 			Loggers\User_Logger::class,
 			Loggers\Simple_History_Logger::class,
@@ -568,6 +576,7 @@ class Simple_History {
 			Dropins\Plugin_Patches_Dropin::class,
 			Dropins\Quick_View_Dropin::class,
 			Dropins\React_Dropin::class,
+			Dropins\Reactions_Dropin::class,
 			Dropins\RSS_Dropin::class,
 			Dropins\Settings_Help_Support_Dropin::class,
 			Dropins\Sidebar_Add_Ons_Dropin::class,
@@ -964,6 +973,21 @@ class Simple_History {
 
 		$action_links = $logger->get_action_links( $row );
 
+		// Append a "Show details" link when the logger flags the event as
+		// having additional context worth inspecting in the modal. The
+		// logger returns the label so it can name the actual payload
+		// ("Show error message", etc.) rather than a generic phrase. The
+		// URL fragment is picked up by EventsModalIfFragment.jsx.
+		$more_details_label = $logger->event_has_more_details( $row );
+		if ( is_string( $more_details_label ) && $more_details_label !== '' ) {
+			$action_links[] = array(
+				'url'         => '#simple-history/event/' . (int) $row->id,
+				'label'       => $more_details_label,
+				'action'      => 'details',
+				'description' => __( 'Opens the event details with the full context.', 'simple-history' ),
+			);
+		}
+
 		/**
 		 * Filter the action links for a log row.
 		 *
@@ -1041,7 +1065,7 @@ class Simple_History {
 			$is_simple_history_extended_settings_active = Helpers::is_extended_settings_add_on_active();
 			$is_simple_history_premium_active           = Helpers::is_premium_add_on_active();
 
-			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
+			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, Loggers\User_Logger::get_failed_login_message_keys(), true ) ) {
 
 				$ƒailed_login_attempts_settings_page_url = Helpers::get_settings_page_tab_url( 'failed-login-attempts' );
 

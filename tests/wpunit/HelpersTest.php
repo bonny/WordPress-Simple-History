@@ -227,4 +227,142 @@ class HelpersTest extends \Codeception\TestCase\WPTestCase {
 		$test_object->emoji = '👋';
 		$this->assertEquals( $test_object, Helpers::strip_4_byte_chars( $test_object ) );
 	}
+
+	function test_mask_secret_returns_last_four_for_long_values() {
+		$this->assertEquals( '7890', Helpers::mask_secret( 'sk-ant-test-1234567890' ) );
+		$this->assertEquals( 'EFGH', Helpers::mask_secret( 'abcdEFGH' ) );
+		$this->assertEquals( 'cdef', Helpers::mask_secret( 'abcdef' ) );
+	}
+
+	function test_mask_secret_returns_null_when_secret_too_short_to_expose_suffix() {
+		// At or below visible_suffix length: returning the suffix would *be* the secret.
+		// Returning null signals callers to record only presence/length, not a useless mask.
+		$this->assertNull( Helpers::mask_secret( 'abcd' ) );
+		$this->assertNull( Helpers::mask_secret( 'abc' ) );
+		$this->assertNull( Helpers::mask_secret( 'a' ) );
+	}
+
+	function test_mask_secret_returns_null_for_empty_input() {
+		$this->assertNull( Helpers::mask_secret( '' ) );
+	}
+
+	function test_mask_secret_casts_non_strings() {
+		// Integer cast to "1234567" (length 7) → last 4 chars exposed.
+		$this->assertEquals( '4567', Helpers::mask_secret( 1234567 ) );
+		// null casts to '' → null in, null out.
+		$this->assertNull( Helpers::mask_secret( null ) );
+		// Short integer cast to "12" (length 2) → null (too short).
+		$this->assertNull( Helpers::mask_secret( 12 ) );
+	}
+
+	function test_mask_secret_respects_custom_visible_suffix() {
+		$this->assertEquals( '90', Helpers::mask_secret( 'abc1234567890', 2 ) );
+		$this->assertEquals( '4567890', Helpers::mask_secret( 'abc1234567890', 7 ) );
+	}
+
+	function test_mask_secret_returns_null_when_visible_suffix_zero_or_negative() {
+		$this->assertNull( Helpers::mask_secret( 'longstring', -1 ) );
+		$this->assertNull( Helpers::mask_secret( 'longstring', 0 ) );
+	}
+
+	function test_format_masked_secret_for_display_prepends_bullets() {
+		// U+2022 BULLET. Default mask length is 12.
+		$this->assertEquals(
+			"\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}\u{2022}7890",
+			Helpers::format_masked_secret_for_display( '7890' )
+		);
+	}
+
+	function test_format_masked_secret_for_display_respects_custom_mask_length() {
+		$this->assertEquals(
+			"\u{2022}\u{2022}\u{2022}\u{2022}EFGH",
+			Helpers::format_masked_secret_for_display( 'EFGH', 4 )
+		);
+	}
+
+	function test_format_masked_secret_for_display_returns_empty_for_empty_input() {
+		$this->assertEquals( '', Helpers::format_masked_secret_for_display( '' ) );
+		$this->assertEquals( '', Helpers::format_masked_secret_for_display( null ) );
+	}
+
+	function test_format_masked_secret_for_display_clamps_negative_mask_length() {
+		// Negative or zero mask length: just the suffix, no bullets.
+		$this->assertEquals( '7890', Helpers::format_masked_secret_for_display( '7890', 0 ) );
+		$this->assertEquals( '7890', Helpers::format_masked_secret_for_display( '7890', -5 ) );
+	}
+
+	function test_snake_case_to_sentence_case_capitalizes_first_word_only() {
+		$this->assertEquals( 'Spam filtering', Helpers::snake_case_to_sentence_case( 'spam_filtering' ) );
+		$this->assertEquals( 'A long multi word slug', Helpers::snake_case_to_sentence_case( 'a_long_multi_word_slug' ) );
+	}
+
+	function test_snake_case_to_sentence_case_handles_already_clean_input() {
+		$this->assertEquals( 'Hello', Helpers::snake_case_to_sentence_case( 'hello' ) );
+		$this->assertEquals( '', Helpers::snake_case_to_sentence_case( '' ) );
+	}
+
+	/**
+	 * The key prefix is the single definition of how addresses from a header are
+	 * stored. Logger writes with it, the display path and the query read with it,
+	 * so pinning the exact string keeps those three from drifting apart.
+	 */
+	function test_get_ip_address_context_key_prefix() {
+		$this->assertEquals(
+			'_server_http_x_forwarded_for_',
+			Helpers::get_ip_address_context_key_prefix( 'HTTP_X_FORWARDED_FOR' )
+		);
+
+		$this->assertEquals(
+			'_server_http_client_ip_',
+			Helpers::get_ip_address_context_key_prefix( 'HTTP_CLIENT_IP' )
+		);
+	}
+
+	function test_get_ip_address_context_key_prefixes_includes_remote_addr_and_headers() {
+		$prefixes = Helpers::get_ip_address_context_key_prefixes();
+
+		$this->assertContains( '_server_remote_addr', $prefixes, 'The address the web server saw must be included' );
+		$this->assertContains( '_server_http_x_forwarded_for_', $prefixes );
+		$this->assertContains( '_server_http_client_ip_', $prefixes );
+	}
+
+	/**
+	 * Guard against a prefix that would sweep in context keys holding no address.
+	 *
+	 * "_server_http_referer" and "_server_http_user_agent" share the
+	 * "_server_http_" prefix, so a broad pattern would let an IP filter match a
+	 * referer URL. Asserted on the prefixes themselves so the contract is pinned
+	 * here as well as at the query level.
+	 */
+	function test_get_ip_address_context_key_prefixes_do_not_match_non_ip_keys() {
+		$prefixes = Helpers::get_ip_address_context_key_prefixes();
+
+		$non_ip_keys = array( '_server_http_referer', '_server_http_user_agent' );
+
+		foreach ( $non_ip_keys as $non_ip_key ) {
+			foreach ( $prefixes as $prefix ) {
+				$this->assertStringStartsNotWith(
+					$prefix,
+					$non_ip_key,
+					"Prefix {$prefix} must not match {$non_ip_key}, which holds no IP address"
+				);
+			}
+		}
+	}
+
+	/**
+	 * A site that registers an extra header gets it stored and queryable.
+	 */
+	function test_get_ip_address_context_key_prefixes_honors_header_names_filter() {
+		$add_header = function ( $headers ) {
+			$headers[] = 'HTTP_CF_CONNECTING_IP';
+			return $headers;
+		};
+
+		add_filter( 'simple_history/ip_number_header_names', $add_header );
+		$prefixes = Helpers::get_ip_address_context_key_prefixes();
+		remove_filter( 'simple_history/ip_number_header_names', $add_header );
+
+		$this->assertContains( '_server_http_cf_connecting_ip_', $prefixes );
+	}
 }

@@ -1,4 +1,5 @@
 node_modules
+.superpowers/
 log-tests.php
 .npm-debug.log
 tmp
@@ -37,6 +38,9 @@ tests/_output/*
 !tests/plugins
 tests/plugins/*
 !tests/plugins/.gitkeep
+!tests/playwright
+tests/playwright/.auth/
+!tests/screenshot
 
 # Local environment files
 db-export-*.sql
@@ -52,10 +56,16 @@ build/
 !.claude/settings.json
 !.claude/commands/
 !.claude/skills/
-# Skills with sensitive/business content (kept local only)
-.claude/skills/release/
-.claude/skills/local-issues/
-.claude/skills/premium-upsell-design/
+# Skills with sensitive/business content (symlinked from Obsidian — see scripts/setup-private-skills.sh)
+# No trailing slashes: git's `dir/` syntax matches directories but symlinks are files.
+.claude/skills/release
+.claude/skills/local-issues
+.claude/skills/premium-upsell-design
+.claude/skills/lemonsqueezy-sales
+.claude/skills/writing-blog-posts
+.claude/skills/analytics-traffic
+.claude/skills/freemium-conversion
+.claude/skills/night-shift
 !.claude/hooks/
 !.claude/agents/
 scripts/copy-current-to-simple-history-com.sh
@@ -64,9 +74,33 @@ CLAUDE.local.md
 # Docker Claude Code environment
 docker/claude-code/.env
 benchmarks/
+# Local server-log analysis. Not shipped: it correlates billing records
+# with IP access logs to re-identify buyers. Scheduled for retirement in
+# the cookieless-attribution work (local issue 283).
 scripts/check-server-logs.sh
+scripts/lib/
+
+# Playwright output
+playwright-report/
+test-results/
 
 # Docs with credentials or business-sensitive content
 docs/channels-local-testing.md
 docs/alerts-feature-research.md
 docs/utm-tracking-guide.md
+.wp-env.override.json
+.wp-env/
+/xdebug-profiles/
+
+# Playwright MCP browser artifacts
+.playwright-mcp/
+
+# Per-worktree Playground state (scripts/parallel-dev.sh).
+# Also in .git/info/exclude so linked worktrees ignore them too.
+/.playground.json
+/.playground.log
+/.playground-blueprint.json
+
+# Python bytecode cache
+__pycache__/
+*.pyc

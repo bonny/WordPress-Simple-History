@@ -8,6 +8,7 @@ import {
 } from '@wordpress/components';
 import { _n, _x, sprintf } from '@wordpress/i18n';
 import { applyFilters } from '@wordpress/hooks';
+import { numberFormatI18n } from '../functions';
 import { EventsControlBarOverflowMenu } from './EventsControlBarOverflowMenu';
 import { useEventsSettings } from './EventsSettingsContext';
 import { ExportButton } from './ExportButton';
@@ -72,6 +73,10 @@ export function EventsControlBar( props ) {
 		</>
 	) : null;
 
+	// Pass the raw number to _n() so it picks the right plural form, but the
+	// locale-formatted string to sprintf() so the user sees "187 304", not "187304".
+	const eventsTotalFormatted = numberFormatI18n( eventsTotal );
+
 	const eventsCount = eventsTotal ? (
 		<Text as="span">
 			{ hasAnyActiveFilters
@@ -83,7 +88,7 @@ export function EventsControlBar( props ) {
 							eventsTotal,
 							'simple-history'
 						),
-						eventsTotal
+						eventsTotalFormatted
 				  )
 				: sprintf(
 						/* translators: %s: number of events. Events are grouped so similar events are counted as one. */
@@ -93,7 +98,7 @@ export function EventsControlBar( props ) {
 							eventsTotal,
 							'simple-history'
 						),
-						eventsTotal
+						eventsTotalFormatted
 				  ) }
 		</Text>
 	) : null;

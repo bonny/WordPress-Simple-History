@@ -71,7 +71,7 @@ class File_Edits_Logger extends Logger {
 		$file = isset( $_POST['file'] ) ? wp_unslash( $_POST['file'] ) : '';
 
 		// Validate file path (same check WordPress core uses).
-		if ( ! $file || 0 !== validate_file( $file ) ) {
+		if ( ! $file || validate_file( $file ) !== 0 ) {
 			return;
 		}
 
@@ -83,9 +83,12 @@ class File_Edits_Logger extends Logger {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$theme = isset( $_POST['theme'] ) ? wp_unslash( $_POST['theme'] ) : '';
 
-		if ( $plugin ) {
+		// Gate on the same capabilities WP core's handler enforces, so this
+		// priority-0 hook can't be used by lower-privileged users to trigger
+		// file reads before core's own check runs.
+		if ( $plugin && current_user_can( 'edit_plugins' ) && validate_file( $plugin ) === 0 ) {
 			$this->capture_plugin_file_edit( $file, $plugin, $new_contents );
-		} elseif ( $theme ) {
+		} elseif ( $theme && current_user_can( 'edit_themes' ) && validate_file( $theme ) === 0 ) {
 			$this->capture_theme_file_edit( $file, $theme, $new_contents );
 		}
 	}
@@ -174,7 +177,7 @@ class File_Edits_Logger extends Logger {
 			return '';
 		}
 
-		$group = ( new Event_Details_Group() )
+		return ( new Event_Details_Group() )
 			->set_formatter( new Event_Details_Group_Diff_Table_Formatter() )
 			->add_items(
 				[
@@ -184,7 +187,5 @@ class File_Edits_Logger extends Logger {
 					),
 				]
 			);
-
-		return $group;
 	}
 }

@@ -86,6 +86,58 @@ class WP_REST_Devtools_Controller extends WP_REST_Controller {
 				],
 			],
 		);
+
+		// POST /wp-json/simple-history/v1/dev-tools/set-license-key.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/set-license-key',
+			[
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'set_license_key' ],
+					'permission_callback' => [ $this, 'toggle_plugin_permissions_check' ],
+					'args'                => [
+						'slug' => [
+							'required'    => true,
+							'type'        => 'string',
+							'description' => __( 'Add-on plugin slug, e.g. simple-history-premium', 'simple-history' ),
+						],
+						'key'  => [
+							'required'    => false,
+							'type'        => 'string',
+							'default'     => '',
+							'description' => __( 'License key. Empty string clears the key.', 'simple-history' ),
+						],
+					],
+				],
+			],
+		);
+
+		// POST /wp-json/simple-history/v1/dev-tools/reset-license-reminder-dismissals.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/reset-license-reminder-dismissals',
+			[
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'reset_license_reminder_dismissals' ],
+					'permission_callback' => [ $this, 'toggle_plugin_permissions_check' ],
+				],
+			],
+		);
+
+		// GET /wp-json/simple-history/v1/dev-tools/license-reminder-dismissals.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/license-reminder-dismissals',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_license_reminder_dismissals' ],
+					'permission_callback' => [ $this, 'toggle_plugin_permissions_check' ],
+				],
+			],
+		);
 	}
 
 	/**
@@ -222,6 +274,101 @@ class WP_REST_Devtools_Controller extends WP_REST_Controller {
 			[
 				'success'    => true,
 				'is_enabled' => (bool) $new_value,
+			]
+		);
+	}
+
+	/**
+	 * Set or clear the license key for a registered add-on plugin.
+	 *
+	 * Used by Playwright tests to deterministically set up the
+	 * "premium installed, no license key" state before assertions.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object or error.
+	 */
+	public function set_license_key( $request ) {
+		$slug = sanitize_text_field( $request->get_param( 'slug' ) );
+		$key  = sanitize_text_field( $request->get_param( 'key' ) );
+
+		/** @var Services\AddOns_Licences|null $licences_service */
+		$licences_service = $this->simple_history->get_service( Services\AddOns_Licences::class );
+
+		if ( ! $licences_service instanceof Services\AddOns_Licences ) {
+			return new WP_Error(
+				'rest_service_unavailable',
+				__( 'AddOns_Licences service not available.', 'simple-history' ),
+				[ 'status' => 500 ]
+			);
+		}
+
+		$addon = $licences_service->get_plugin( $slug );
+
+		if ( ! $addon instanceof AddOn_Plugin ) {
+			return new WP_Error(
+				'rest_addon_not_registered',
+				__( 'Add-on is not registered.', 'simple-history' ),
+				[ 'status' => 404 ]
+			);
+		}
+
+		$message        = $addon->get_license_message();
+		$message['key'] = $key === '' ? null : $key;
+		$addon->set_licence_message( $message );
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'slug'    => $slug,
+				'has_key' => $key !== '',
+			]
+		);
+	}
+
+	/**
+	 * Clear the license reminder dismissed-addons user meta for the current user.
+	 *
+	 * Used by Playwright tests to reset to a "card visible" state between
+	 * scenarios without poking the database directly.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function reset_license_reminder_dismissals( $request ) {
+		delete_user_meta(
+			get_current_user_id(),
+			Services\License_Reminder_Service::USER_META_KEY
+		);
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'user_id' => get_current_user_id(),
+			]
+		);
+	}
+
+	/**
+	 * Return the current user's license-reminder dismissed-addons array.
+	 *
+	 * Used by Playwright tests to lock in the actual user_meta state rather
+	 * than only asserting downstream visibility, so a regression that hides
+	 * the card for an unrelated reason still fails the test.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_license_reminder_dismissals( $request ) {
+		$stored = get_user_meta(
+			get_current_user_id(),
+			Services\License_Reminder_Service::USER_META_KEY,
+			true
+		);
+
+		return rest_ensure_response(
+			[
+				'user_id'          => get_current_user_id(),
+				'dismissed_addons' => is_array( $stored ) ? array_values( $stored ) : [],
 			]
 		);
 	}

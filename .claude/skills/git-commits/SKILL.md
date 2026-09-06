@@ -2,6 +2,7 @@
 name: git-commits
 description: Project-specific git commit guidance for Simple History. Use when committing changes, especially across core and premium plugins.
 allowed-tools: Bash
+user-invocable: false
 ---
 
 # Git Commits - Project Specifics
