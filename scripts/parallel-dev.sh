@@ -469,8 +469,9 @@ cmd_up() {
 			or ((.step == "setSiteOptions") and (((.options // {}) | keys | sort) == ["home","siteurl"]) and (.options.home == .options.siteurl))
 			or ((.step == "wp-cli") and ((.command // "") | test("^wp (core multisite-convert --base=/ |site create --slug=site2 |plugin activate simple-history( simple-history-premium)? --network$)")))
 			| not))
-		| .extraLibraries |= (if . == null then null else map(select(. != "wp-cli")) end)
-		| if .extraLibraries == [] then del(.extraLibraries) else . end' \
+		| if has("extraLibraries") then
+			(.extraLibraries |= map(select(. != "wp-cli")) | if .extraLibraries == [] then del(.extraLibraries) else . end)
+		  else . end' \
 		"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
 
 	if [ -n "$premium" ]; then
