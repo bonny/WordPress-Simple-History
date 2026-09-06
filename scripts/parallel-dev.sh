@@ -5,10 +5,14 @@
 # same time without touching the main checkout or the Docker dev site.
 #
 # Usage:
-#   scripts/parallel-dev.sh up <slug> [--premium=<path>] [--no-premium] [--blueprint=<path>]
+#   scripts/parallel-dev.sh up <slug> [--premium=<path>] [--no-premium] [--blueprint=<path>] [--multisite]
 #     Premium is mounted and activated by default (from the add-ons checkout
 #     next to this repo, or $SH_PREMIUM_DIR). Use --no-premium to skip it,
 #     or --premium=<path> to mount a specific premium worktree.
+#     --multisite converts the instance into a subdirectory multisite with a
+#     second site at /site2/, and network-activates Simple History (and
+#     Premium when mounted). Pass it on every `up`; Playground is rebuilt
+#     from the blueprint each start.
 #   scripts/parallel-dev.sh status
 #   scripts/parallel-dev.sh down <slug> [--remove]
 #   scripts/parallel-dev.sh logs <slug> [lines]
@@ -44,6 +48,7 @@ HOST_PATH_FILE="$MAIN_REPO/.claude/dev-host-path"
 APP_PASSWORD_USER="admin"
 APP_PASSWORD="paralleldevpassword"
 PROVISION_PHP_FILE="$SCRIPT_DIR/playground-provision-app-password.php"
+MULTISITE_HOST_PHP_FILE="$SCRIPT_DIR/playground-multisite-host.php"
 
 usage() {
 	cat <<'EOF'
@@ -51,10 +56,14 @@ Parallel development helper: one git worktree + one WordPress Playground
 instance per issue.
 
 Usage:
-  scripts/parallel-dev.sh up <slug> [--premium=<path>] [--no-premium] [--blueprint=<path>]
+  scripts/parallel-dev.sh up <slug> [--premium=<path>] [--no-premium] [--blueprint=<path>] [--multisite]
       Premium is mounted and activated by default (from the add-ons checkout
       next to this repo, or $SH_PREMIUM_DIR). Use --no-premium to skip it,
       or --premium=<path> to mount a specific premium worktree.
+      --multisite converts the instance into a subdirectory multisite with a
+      second site at /site2/, and network-activates Simple History (and
+      Premium when mounted). Pass it on every `up`; Playground is rebuilt
+      from the blueprint each start.
   scripts/parallel-dev.sh status
   scripts/parallel-dev.sh down <slug> [--remove]
   scripts/parallel-dev.sh logs <slug> [lines]
@@ -267,8 +276,74 @@ site_url_for() {
 	fi
 }
 
+# Turn the generated blueprint into a subdirectory multisite.
+#
+# Playground's own enableMultisite step refuses any instance URL with a
+# port, although WordPress itself has allowed ports in multisite since
+# 6.6. Its body is what we replay here, port included:
+#   1. WP_ALLOW_MULTISITE, so wp-cli lets us convert.
+#   2. siteurl/home set to the final URL — multisite-convert derives
+#      DOMAIN_CURRENT_SITE from siteurl, port and all.
+#   3. `wp core multisite-convert` (writes the MULTISITE constants).
+#   4. $_SERVER['HTTP_HOST'] pinned in wp-config.php, because
+#      Playground's internal requests arrive as 127.0.0.1:<port> and a
+#      multisite redirects unknown hosts to the network home — which is
+#      what breaks every later activatePlugin/login step without it.
+# Steps 1-4 go BEFORE the template's login/activatePlugin steps. After
+# everything else: network-activate our plugins and add a second site so
+# the network actually has something to show.
+#
+# The host can't be handed to the runPHP step as a defineWpConfigConsts
+# constant: whether those constants are visible inside a bare runPHP step
+# (which does not bootstrap WordPress) is not established. So the host is
+# substituted as a literal into the step's code instead — see
+# playground-multisite-host.php.
+#
+# Subdirectory install only. Subdomains would need wildcard DNS per slug
+# and do not work on the localhost fallback URL.
+blueprint_add_multisite_steps() {
+	local blueprint="$1" site_url="$2" slug="$3" premium="$4"
+
+	local host
+	host="${site_url#http://}"
+	host="${host%%/*}"
+
+	local pre_steps
+	pre_steps="$(jq -n \
+		--arg url "$site_url" \
+		--arg host "$host" \
+		--arg title "$slug network" \
+		--rawfile code "$MULTISITE_HOST_PHP_FILE" \
+		'[
+			{step: "defineWpConfigConsts", consts: {WP_ALLOW_MULTISITE: true, SH_DEV_MULTISITE_HOST: $host}},
+			{step: "setSiteOptions", options: {siteurl: $url, home: $url}},
+			{step: "wp-cli", command: ("wp core multisite-convert --base=/ --title=" + ($title | @json))},
+			{step: "runPHP", code: ($code | sub("__SH_DEV_MULTISITE_HOST__"; $host))}
+		]')"
+
+	local plugins="simple-history"
+
+	if [ -n "$premium" ]; then
+		plugins="$plugins simple-history-premium"
+	fi
+
+	local post_steps
+	post_steps="$(jq -n \
+		--arg plugins "$plugins" \
+		--arg title "$slug site 2" \
+		'[
+			{step: "wp-cli", command: ("wp plugin activate " + $plugins + " --network")},
+			{step: "wp-cli", command: ("wp site create --slug=site2 --title=" + ($title | @json))}
+		]')"
+
+	jq --argjson pre "$pre_steps" --argjson post "$post_steps" \
+		'.extraLibraries = (((.extraLibraries // []) + ["wp-cli"]) | unique)
+		 | .steps = $pre + .steps + $post' \
+		"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
+}
+
 cmd_up() {
-	local slug="" premium="" premium_explicit=0 no_premium=0 blueprint_override=""
+	local slug="" premium="" premium_explicit=0 no_premium=0 blueprint_override="" multisite=0
 
 	for arg in "$@"; do
 		case "$arg" in
@@ -276,6 +351,7 @@ cmd_up() {
 			--premium=*) premium="${arg#--premium=}"; premium_explicit=1 ;;
 			--no-premium) no_premium=1 ;;
 			--blueprint=*) blueprint_override="${arg#--blueprint=}" ;;
+			--multisite) multisite=1 ;;
 			-*) err "unknown flag: $arg" ;;
 			*) slug="$arg" ;;
 		esac
@@ -375,16 +451,26 @@ cmd_up() {
 	# Strip any steps a previous run injected (supports --blueprint pointing
 	# at the generated file itself) — otherwise the appends below accumulate
 	# on every restart, and stale copies carry old ports/tokens/passwords.
+	# Multisite steps are matched by content: blueprint steps are
+	# schema-validated, so there is no room for a marker key on them.
 	jq '.steps |= map(select(
 			((.step == "defineWpConfigConsts") and ((.consts // {}) | has("SH_DEV_WORKTREE_PATH")))
+			or ((.step == "defineWpConfigConsts") and ((.consts // {}) | has("SH_DEV_MULTISITE_HOST")))
 			or ((.step == "runPHP") and ((.code // "") | contains("sh-parallel-dev-provision")))
+			or ((.step == "runPHP") and ((.code // "") | contains("sh-parallel-dev-multisite")))
 			or ((.step == "activatePlugin") and (.pluginPath == "simple-history-premium/simple-history-premium.php"))
+			or ((.step == "setSiteOptions") and ((.options // {}) | has("siteurl")))
+			or ((.step == "wp-cli") and ((.command // "") | test("^wp (core multisite-convert|site create|plugin activate .*--network)")))
 			| not))' \
 		"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
 
 	if [ -n "$premium" ]; then
 		jq '.steps += [{"step": "activatePlugin", "pluginPath": "simple-history-premium/simple-history-premium.php"}]' \
 			"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
+	fi
+
+	if [ "$multisite" = 1 ]; then
+		blueprint_add_multisite_steps "$blueprint" "$site_url" "$slug" "$premium"
 	fi
 
 	# One consts step for everything the instance needs:
@@ -394,6 +480,16 @@ cmd_up() {
 	# - dev toolbar metadata (read by the mounted mu-plugin)
 	local named=false
 	test_domains_available && named=true
+
+	# WP_HOME/WP_SITEURL constants are global — WordPress core's own docs
+	# warn they break every site's URL but the main one on multisite,
+	# since a subdirectory site's siteurl (e.g. .../site2/) would get
+	# forced to the network's bare URL instead. The network's own domain
+	# is already pinned per-site via setSiteOptions and the
+	# SH_DEV_MULTISITE_HOST patch above, so skip these consts here.
+	if [ "$multisite" = 1 ]; then
+		named=false
+	fi
 
 	local issue_url
 	issue_url="$(issue_url_for "$slug")"
@@ -463,15 +559,36 @@ cmd_up() {
 
 	mounts+=("--mount=$MU_PLUGINS_DIR:/wordpress/wp-content/mu-plugins")
 
-	(
-		cd "$dir"
-		nohup npx @wp-playground/cli@latest server \
-			--port="$port" \
-			"${mounts[@]}" \
-			--blueprint="$blueprint" \
-			> .playground.log 2>&1 &
-		echo $! > .playground.pid
-	)
+	# Playground's own dev server only routes a request through to PHP
+	# when its host matches what Playground considers canonical, which
+	# defaults to 127.0.0.1:<port> — never our "$slug.test:<port>" domain.
+	# The multisite steps' own internal calls (activatePlugin, wp-cli)
+	# get redirected in a loop without telling Playground the real host.
+	# Branched rather than built into an optional array element: this
+	# script's bash (3.2 on macOS) treats "${arr[@]}" on an empty array as
+	# an unbound variable under `set -u`.
+	if [ "$multisite" = 1 ]; then
+		(
+			cd "$dir"
+			nohup npx @wp-playground/cli@latest server \
+				--port="$port" \
+				"${mounts[@]}" \
+				--site-url="$site_url" \
+				--blueprint="$blueprint" \
+				> .playground.log 2>&1 &
+			echo $! > .playground.pid
+		)
+	else
+		(
+			cd "$dir"
+			nohup npx @wp-playground/cli@latest server \
+				--port="$port" \
+				"${mounts[@]}" \
+				--blueprint="$blueprint" \
+				> .playground.log 2>&1 &
+			echo $! > .playground.pid
+		)
+	fi
 
 	local pid
 	pid="$(cat "$dir/.playground.pid")"
@@ -486,10 +603,11 @@ cmd_up() {
 		--argjson pid "$pid" \
 		--arg url "$site_url" \
 		--arg premium "$premium" \
+		--argjson multisite "$( [ "$multisite" = 1 ] && echo true || echo false )" \
 		--arg started "$(date '+%Y-%m-%d %H:%M:%S')" \
 		--arg app_user "$APP_PASSWORD_USER" \
 		--arg app_password "$APP_PASSWORD" \
-		'{slug: $slug, branch: $branch, port: $port, pid: $pid, url: $url, premium: $premium, started: $started, app_user: $app_user, app_password: $app_password}' \
+		'{slug: $slug, branch: $branch, port: $port, pid: $pid, url: $url, premium: $premium, multisite: $multisite, started: $started, app_user: $app_user, app_password: $app_password}' \
 		> "$dir/.playground.json"
 
 	# Wait until the site responds (first run downloads WordPress, allow time).
@@ -521,6 +639,9 @@ cmd_up() {
 		echo "  premium:  $premium"
 	else
 		echo "  premium:  (not mounted)"
+	fi
+	if [ "$multisite" = 1 ]; then
+		echo "  multisite: subdirectory network — sites: $site_url/ and $site_url/site2/ — Network Admin: $site_url/wp-admin/network/"
 	fi
 	echo "  log:      $dir/.playground.log"
 	echo "  rest:     curl -u '$APP_PASSWORD_USER:$APP_PASSWORD' '$site_url/wp-json/simple-history/v1/events?per_page=5'"
