@@ -31,18 +31,9 @@ class Network_Teaser_Page extends Service {
 			return;
 		}
 
-		// Skip the whole teaser pipeline when Premium is active — Premium
-		// registers its own page at the same slug (MENU_SLUG) on the same
-		// network_admin_menu hook. Whichever callback runs last wins, so the
-		// teaser must bail early based on Premium presence at plugins_loaded
-		// time. If Premium ever starts activating its network module later in
-		// the request lifecycle (e.g. after a deferred license check), this
-		// guard will need to move or Premium will need to deregister the
-		// teaser explicitly.
-		if ( Helpers::is_premium_add_on_active() ) {
-			return;
-		}
-
+		// The decision to show the teaser or not is taken in add_menu_page(),
+		// on the network_admin_menu hook, when every plugin has finished
+		// booting and a network log provider has had the chance to register.
 		add_action( 'network_admin_menu', [ $this, 'add_menu_page' ] );
 
 		// The teaser uses add_menu_page() directly, not the Menu_Manager, so
@@ -75,6 +66,15 @@ class Network_Teaser_Page extends Service {
 	 * Register the Network Admin menu item.
 	 */
 	public function add_menu_page() {
+		// A registered provider (Premium's network module) adds the real
+		// network log page at this same slug on this same hook. Bail so the
+		// two never compete for it. Checking for the provider rather than
+		// for the Premium plugin means a Premium too old to have the module
+		// still gets the teaser, which then doubles as an update prompt.
+		if ( Helpers::network_log_provider_registered() ) {
+			return;
+		}
+
 		add_menu_page(
 			_x( 'Network History — Simple History', 'Network Admin teaser page title', 'simple-history' ),
 			_x( 'Simple History', 'Network Admin teaser menu label', 'simple-history' ),

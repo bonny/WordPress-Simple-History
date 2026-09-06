@@ -401,6 +401,20 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
+	/**
+	 * The teaser page, admin bar routing and "network-level" markers must
+	 * key off a registered provider, not off the Premium plugin being active:
+	 * a Premium too old to carry the network module is active but provides
+	 * nothing, and the user should still see the teaser in that case.
+	 */
+	public function test_network_log_provider_registered_reflects_set_network_tables(): void {
+		$this->assertFalse( Helpers::network_log_provider_registered(), 'No provider before set_network_tables().' );
+
+		Simple_History::get_instance()->set_network_tables( 'wp_events_network', 'wp_contexts_network' );
+
+		$this->assertTrue( Helpers::network_log_provider_registered(), 'Provider registered after set_network_tables().' );
+	}
+
 	public function test_get_network_log_query_returns_null_without_factory(): void {
 		$this->assertNull(
 			Simple_History::get_instance()->get_network_log_query(),

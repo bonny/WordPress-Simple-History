@@ -2501,19 +2501,28 @@ class Helpers {
 	 * @return string|null Network admin page URL, or null if not available.
 	 */
 	public static function get_network_history_admin_url() {
-		static $cached = null;
-
-		if ( $cached !== null ) {
-			return $cached;
-		}
-
 		if ( ! is_multisite() || ! current_user_can( 'manage_network' ) || ! self::experimental_features_is_enabled() ) {
 			return null;
 		}
 
-		$cached = network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
+		return network_admin_url( 'admin.php?page=' . Services\Network_Teaser_Page::MENU_SLUG );
+	}
 
-		return $cached;
+	/**
+	 * True when something has registered network event tables with core,
+	 * i.e. a network log exists on this install.
+	 *
+	 * This is the question the teaser page, the admin bar routing and the
+	 * "network-level" markers need answered. It is deliberately not
+	 * "is the Premium plugin active": a Premium too old to carry the
+	 * network module is active but provides nothing, and in that case the
+	 * user should still see the teaser and the markers.
+	 *
+	 * @since 5.27.0
+	 * @return bool
+	 */
+	public static function network_log_provider_registered() {
+		return Simple_History::get_instance()->get_network_tables() !== null;
 	}
 
 	/**
