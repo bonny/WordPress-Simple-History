@@ -20,6 +20,10 @@
  * file's code before it ever reaches Playground — see
  * blueprint_add_multisite_steps().
  *
+ * The substituted host can never legitimately be an empty string; the
+ * guard below instead checks for the placeholder itself surviving
+ * un-substituted, which means parallel-dev.sh's substitution failed.
+ *
  * @package SimpleHistoryDev
  */
 
@@ -28,8 +32,8 @@
 $sh_dev_config_path = '/wordpress/wp-config.php';
 $sh_dev_host        = '__SH_DEV_MULTISITE_HOST__';
 
-if ( $sh_dev_host === '' ) {
-	echo "sh-parallel-dev-multisite: SH_DEV_MULTISITE_HOST is not defined\n";
+if ( $sh_dev_host === '' || strpos( $sh_dev_host, '__SH_DEV' ) === 0 ) {
+	echo "sh-parallel-dev-multisite: host placeholder was not substituted by parallel-dev.sh\n";
 	exit( 1 );
 }
 

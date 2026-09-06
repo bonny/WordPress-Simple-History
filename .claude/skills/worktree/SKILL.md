@@ -70,7 +70,7 @@ PLAYWRIGHT_BASE_URL=$(jq -r .url .playground.json) WP_ADMIN_USER=admin WP_ADMIN_
   npx playwright test tests/playwright/<spec>.spec.js
 ```
 
-The manual steps below remain useful for special setups (multisite, custom blueprints).
+The manual steps below remain useful for special setups (custom blueprints).
 
 ## When to Use Worktrees
 
@@ -123,7 +123,7 @@ If the issue involves network/multisite functionality, ask the user if they want
 scripts/parallel-dev.sh up issue-name-short --multisite
 ```
 
-You get a subdirectory network with two sites (`/` and `/site2/`), Simple History and Premium network-activated, and Network Admin at `<url>/wp-admin/network/`. Pass the flag on every `up`; Playground rebuilds from the blueprint each start.
+You get a subdirectory network with two sites (`/` and `/site2/`), Simple History network-activated (Premium too when it is mounted), and Network Admin at `<url>/wp-admin/network/`. Pass the flag on every `up`; Playground rebuilds from the blueprint each start.
 
 Do **not** use Playground's `enableMultisite` blueprint step. It refuses any URL with a port ("WordPress multisites do not support custom ports"), and every parallel-dev URL has one. WordPress itself has allowed ports in multisite since 6.6; the flag replays what the step does after that outdated guard. Subdomain networks are not supported (wildcard DNS per slug, and impossible on the `localhost` fallback).
 

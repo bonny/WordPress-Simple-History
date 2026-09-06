@@ -453,15 +453,24 @@ cmd_up() {
 	# on every restart, and stale copies carry old ports/tokens/passwords.
 	# Multisite steps are matched by content: blueprint steps are
 	# schema-validated, so there is no room for a marker key on them.
+	# setSiteOptions and wp-cli are matched on the exact shape the builder
+	# emits above (blueprint_add_multisite_steps), not just the step type —
+	# otherwise this would also strip a user template's own siteurl option
+	# or a `wp plugin activate … --network` the user added themselves.
+	# extraLibraries is stripped of the "wp-cli" entry the same way, so a
+	# generated multisite blueprint re-fed without --multisite round-trips
+	# cleanly; the builder re-adds it when --multisite is set.
 	jq '.steps |= map(select(
 			((.step == "defineWpConfigConsts") and ((.consts // {}) | has("SH_DEV_WORKTREE_PATH")))
 			or ((.step == "defineWpConfigConsts") and ((.consts // {}) | has("SH_DEV_MULTISITE_HOST")))
 			or ((.step == "runPHP") and ((.code // "") | contains("sh-parallel-dev-provision")))
 			or ((.step == "runPHP") and ((.code // "") | contains("sh-parallel-dev-multisite")))
 			or ((.step == "activatePlugin") and (.pluginPath == "simple-history-premium/simple-history-premium.php"))
-			or ((.step == "setSiteOptions") and ((.options // {}) | has("siteurl")))
-			or ((.step == "wp-cli") and ((.command // "") | test("^wp (core multisite-convert|site create|plugin activate .*--network)")))
-			| not))' \
+			or ((.step == "setSiteOptions") and (((.options // {}) | keys | sort) == ["home","siteurl"]) and (.options.home == .options.siteurl))
+			or ((.step == "wp-cli") and ((.command // "") | test("^wp (core multisite-convert --base=/ |site create --slug=site2 |plugin activate simple-history( simple-history-premium)? --network$)")))
+			| not))
+		| .extraLibraries |= (if . == null then null else map(select(. != "wp-cli")) end)
+		| if .extraLibraries == [] then del(.extraLibraries) else . end' \
 		"$blueprint" > "$blueprint.tmp" && mv "$blueprint.tmp" "$blueprint"
 
 	if [ -n "$premium" ]; then
@@ -559,11 +568,12 @@ cmd_up() {
 
 	mounts+=("--mount=$MU_PLUGINS_DIR:/wordpress/wp-content/mu-plugins")
 
-	# Playground's own dev server only routes a request through to PHP
-	# when its host matches what Playground considers canonical, which
-	# defaults to 127.0.0.1:<port> — never our "$slug.test:<port>" domain.
-	# The multisite steps' own internal calls (activatePlugin, wp-cli)
-	# get redirected in a loop without telling Playground the real host.
+	# Playground's internal blueprint requests (activatePlugin, login) use
+	# its own absoluteUrl, which defaults to 127.0.0.1:<port>. After the
+	# host patch pins HTTP_HOST to our named host, those internal requests
+	# no longer match the site WordPress thinks it is serving and the
+	# blueprint dies at activatePlugin. --site-url makes Playground use
+	# the host we pinned. Empirically required; A/B verified.
 	# Branched rather than built into an optional array element: this
 	# script's bash (3.2 on macOS) treats "${arr[@]}" on an empty array as
 	# an unbound variable under `set -u`.
@@ -641,7 +651,7 @@ cmd_up() {
 		echo "  premium:  (not mounted)"
 	fi
 	if [ "$multisite" = 1 ]; then
-		echo "  multisite: subdirectory network — sites: $site_url/ and $site_url/site2/ — Network Admin: $site_url/wp-admin/network/"
+		echo " multisite: subdirectory network — sites: $site_url/ and $site_url/site2/ — Network Admin: $site_url/wp-admin/network/"
 	fi
 	echo "  log:      $dir/.playground.log"
 	echo "  rest:     curl -u '$APP_PASSWORD_USER:$APP_PASSWORD' '$site_url/wp-json/simple-history/v1/events?per_page=5'"
