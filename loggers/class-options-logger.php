@@ -612,7 +612,7 @@ class Options_Logger extends Logger {
 			}
 
 			$output .= sprintf(
-				'<tr><td>%1$s</td><td>%2$s</td></tr>',
+				'<dt>%1$s</dt><dd>%2$s</dd>',
 				__( 'New value', 'simple-history' ),
 				sprintf(
 					/* translators: %s post title with link. */
@@ -623,7 +623,7 @@ class Options_Logger extends Logger {
 		}
 		if ( (int) $new_value === 0 ) {
 			$output .= sprintf(
-				'<tr><td>%1$s</td><td>%2$s</td></tr>',
+				'<dt>%1$s</dt><dd>%2$s</dd>',
 				__( 'New value', 'simple-history' ),
 				__( 'Your latest posts', 'simple-history' )
 			);
@@ -637,7 +637,7 @@ class Options_Logger extends Logger {
 			}
 
 			$output .= sprintf(
-				'<tr><td>%1$s</td><td>%2$s</td></tr>',
+				'<dt>%1$s</dt><dd>%2$s</dd>',
 				__( 'Old value', 'simple-history' ),
 				sprintf(
 					/* translators: %s post title with link. */
@@ -649,7 +649,7 @@ class Options_Logger extends Logger {
 
 		if ( (int) $old_value === 0 ) {
 			$output .= sprintf(
-				'<tr><td>%1$s</td><td>%2$s</td></tr>',
+				'<dt>%1$s</dt><dd>%2$s</dd>',
 				__( 'Old value', 'simple-history' ),
 				__( 'Your latest posts', 'simple-history' )
 			);

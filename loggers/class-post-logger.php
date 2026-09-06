@@ -1853,7 +1853,7 @@ class Post_Logger extends Logger {
 					$label           = __( 'Title', 'simple-history' );
 
 					$diff_table_output .= sprintf(
-						'<tr><td>%1$s</td><td>%2$s</td></tr>',
+						'<dt>%1$s</dt><dd>%2$s</dd>',
 						$this->label_for( $key_to_diff, $label, $context ),
 						helpers::text_diff( $post_old_value, $post_new_value )
 					);
@@ -1869,7 +1869,7 @@ class Post_Logger extends Logger {
 
 					if ( $key_text_diff ) {
 						$diff_table_output .= sprintf(
-							'<tr><td>%1$s</td><td>%2$s</td></tr>',
+							'<dt>%1$s</dt><dd>%2$s</dd>',
 							$this->label_for( $key_to_diff, $label, $context ),
 							$key_text_diff
 						);
@@ -1889,10 +1889,8 @@ class Post_Logger extends Logger {
 					$label           = __( 'Permalink', 'simple-history' );
 
 					$diff_table_output .= sprintf(
-						'<tr>
-							<td>%1$s</td>
-							<td>%2$s</td>
-						</tr>',
+						'<dt>%1$s</dt>
+							<dd>%2$s</dd>',
 						$this->label_for( $key_to_diff, $label, $context ),
 						helpers::text_diff( $post_old_value, $post_new_value )
 					);
@@ -1992,10 +1990,8 @@ class Post_Logger extends Logger {
 				}
 
 				$diff_table_output .= sprintf(
-					'<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>',
+					'<dt>%1$s</dt>
+						<dd>%2$s</dd>',
 					esc_html( __( 'Custom fields', 'simple-history' ) ),
 					$meta_changed_out
 				);
@@ -2012,15 +2008,23 @@ class Post_Logger extends Logger {
 				if ( $json_diff_html !== '' ) {
 					$has_diff_values    = true;
 					$diff_table_output .= sprintf(
-						'<tr><td>%1$s</td><td>%2$s</td></tr>',
+						'<dt>%1$s</dt><dd>%2$s</dd>',
 						esc_html( __( 'Content', 'simple-history' ) ),
 						$json_diff_html
 					);
 				}
 			}
 
+			$rows_before_filter = substr_count( strtolower( $diff_table_output ), '<tr' );
+
 			/**
-			 * Modify the formatted diff output of a saved/modified post
+			 * Modify the formatted diff output of a saved/modified post.
+			 *
+			 * The output is a string of <dt>label</dt><dd>value</dd> pairs that is
+			 * wrapped in a <dl class="SimpleHistoryLogitem__keyValueTable">.
+			 * Before 5.33 the pairs were <tr><td></td><td></td></tr> rows. A
+			 * callback that still appends such rows is detected below and the
+			 * whole list is then rendered in the old table form instead.
 			 *
 			 * @param string $diff_table_output
 			 * @param array $context
@@ -2033,8 +2037,27 @@ class Post_Logger extends Logger {
 			);
 
 			if ( $has_diff_values || $diff_table_output ) {
-				$diff_table_output =
-					'<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
+				$legacy_rows_added = substr_count( strtolower( $diff_table_output ), '<tr' ) > $rows_before_filter;
+
+				if ( $legacy_rows_added ) {
+					// Browsers drop <tr>/<td> tags inside a <dl>, so the rows a
+					// pre-5.33 callback appended would turn into loose text and
+					// shift every pair after them. Fall back to the table form,
+					// which the stylesheet lays out identically. Our own pairs
+					// translate with plain replacement: <dt>/<dd> never nest
+					// and never occur inside a value.
+					$diff_table_output = str_replace(
+						[ '<dt>', '</dt>', '<dd>', '</dd>' ],
+						[ '<tr><td>', '</td>', '<td>', '</td></tr>' ],
+						$diff_table_output
+					);
+
+					$diff_table_output =
+						'<table class="SimpleHistoryLogitem__keyValueTable"><tbody>' . $diff_table_output . '</tbody></table>';
+				} else {
+					$diff_table_output =
+						'<dl class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</dl>';
+				}
 			}
 
 			// Explain a missing "View this revision" link, but only when we can
@@ -2144,7 +2167,7 @@ class Post_Logger extends Logger {
 	 * @return string
 	 */
 	public function extra_diff_record( $key, $old_value, $new_value ) {
-		return sprintf( '<tr><td>%1$s</td><td>%2$s</td></tr>', $key, helpers::text_diff( $old_value, $new_value ) );
+		return sprintf( '<dt>%1$s</dt><dd>%2$s</dd>', $key, helpers::text_diff( $old_value, $new_value ) );
 	}
 
 	/**
@@ -2278,10 +2301,8 @@ class Post_Logger extends Logger {
 		);
 
 		return sprintf(
-			'<tr>
-				<td>%1$s</td>
-				<td>%2$s</td>
-			</tr>',
+			'<dt>%1$s</dt>
+				<dd>%2$s</dd>',
 			esc_html( $label ),
 			esc_html( $term_added_values_as_comma_separated_list ),
 		);

@@ -42,8 +42,8 @@ class Event_Details_Group_FormattersTest extends \Codeception\TestCase\WPTestCas
 		$html = $formatter->to_html( $group );
 		$json = $formatter->to_json( $group );
 		
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain table with correct class' );
-		$this->assertStringContainsString( '<tr>', $html, 'Should contain table row' );
+		$this->assertStringContainsString( '<dl class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain table with correct class' );
+		$this->assertStringContainsString( '<dt>', $html, 'Should contain a key cell' );
 		$this->assertStringContainsString( 'Test Field', $html, 'Should contain item name' );
 		$this->assertStringContainsString( 'Test Value', $html, 'Should contain item value' );
 		
@@ -65,7 +65,7 @@ class Event_Details_Group_FormattersTest extends \Codeception\TestCase\WPTestCas
 		$json = $formatter->to_json( $group );
 		
 		// Check HTML structure
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain table' );
+		$this->assertStringContainsString( '<dl class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain table' );
 		$this->assertStringContainsString( 'Setting 1', $html, 'Should contain first item name' );
 		$this->assertStringContainsString( 'Setting 2', $html, 'Should contain second item name' );
 		$this->assertStringContainsString( 'New Value 1', $html, 'Should contain first item new value' );
@@ -162,9 +162,8 @@ class Event_Details_Group_FormattersTest extends \Codeception\TestCase\WPTestCas
 		$json = $formatter->to_json( $group );
 		
 		// Should have same table structure as regular table formatter
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain table with correct class' );
-		$this->assertStringContainsString( '<tbody>', $html, 'Should contain tbody' );
-		$this->assertStringContainsString( '<tr>', $html, 'Should contain table row' );
+		$this->assertStringContainsString( '<dl class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain table with correct class' );
+				$this->assertStringContainsString( '<dt>', $html, 'Should contain a key cell' );
 		$this->assertStringContainsString( 'Content', $html, 'Should contain item name' );
 		
 		// JSON should follow standard format

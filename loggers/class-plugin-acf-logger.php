@@ -537,7 +537,7 @@ class Plugin_ACF_Logger extends Logger {
 	 * Called from PostLogger and its diff table output using filter 'simple_history/post_logger/post_updated/diff_table_output'.
 	 * Diff table is generated only for post type 'acf-field-group'.
 	 *
-	 * @param string $diff_table_output Diff table output.
+	 * @param string $diff_table_output Diff output as <dt>/<dd> pairs.
 	 * @param array  $context Context.
 	 * @return string
 	 */
@@ -580,13 +580,11 @@ class Plugin_ACF_Logger extends Logger {
 			}
 
 			$diff_table_output .= sprintf(
-				'<tr>
-					<td>%1$s</td>
-					<td>
+				'<dt>%1$s</dt>
+					<dd>
 						<ins class="SimpleHistoryLogitem__keyValueTable__addedThing">%2$s</ins>
 						<del class="SimpleHistoryLogitem__keyValueTable__removedThing">%3$s</del>
-					</td>
-				</tr>',
+					</dd>',
 				$acfVals['name'],
 				esc_html( $context[ "acf_new_$acf_key" ] ),
 				esc_html( $context[ "acf_prev_$acf_key" ] )
@@ -618,13 +616,11 @@ class Plugin_ACF_Logger extends Logger {
 			}
 
 			$diff_table_output .= sprintf(
-				'<tr>
-					<td>%1$s</td>
-					<td>
+				'<dt>%1$s</dt>
+					<dd>
 						%2$s
 						%3$s
-					</td>
-				</tr>',
+					</dd>',
 				_x( 'Hide on screen', 'Logger: Plugin ACF', 'simple-history' ), // 1
 				$strCheckedHideOnScreen, // 2
 				$strUncheckedHideOnScreen // 3
@@ -651,10 +647,8 @@ class Plugin_ACF_Logger extends Logger {
 			$strDeletedFields = trim( $strDeletedFields, ', ' );
 
 			$diff_table_output .= sprintf(
-				'<tr>
-					<td>%1$s</td>
-					<td>%2$s</td>
-				</tr>',
+				'<dt>%1$s</dt>
+					<dd>%2$s</dd>',
 				_nx( 'Deleted field', 'Deleted fields', $loopnum, 'Logger: Plugin ACF', 'simple-history' ), // 1
 				$strDeletedFields
 			);
@@ -680,10 +674,8 @@ class Plugin_ACF_Logger extends Logger {
 			$strAddedFields = trim( $strAddedFields, ', ' );
 
 			$diff_table_output .= sprintf(
-				'<tr>
-					<td>%1$s</td>
-					<td>%2$s</td>
-				</tr>',
+				'<dt>%1$s</dt>
+					<dd>%2$s</dd>',
 				_nx( 'Added field', 'Added fields', $loopnum, 'Logger: Plugin ACF', 'simple-history' ), // 1
 				$strAddedFields
 			);
@@ -751,10 +743,8 @@ class Plugin_ACF_Logger extends Logger {
 
 				if ( $strOneModifiedField !== '' && $strOneModifiedField !== '0' ) {
 					$strModifiedFields .= sprintf(
-						'<tr>
-							<td>%1$s</td>
-							<td>%2$s</td>
-						</tr>',
+						'<dt>%1$s</dt>
+							<dd>%2$s</dd>',
 						_x( 'Modified field', 'Logger: Plugin ACF', 'simple-history' ), // 1
 						$strOneModifiedField
 					);
