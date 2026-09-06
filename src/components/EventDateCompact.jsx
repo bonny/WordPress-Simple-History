@@ -1,5 +1,4 @@
-import { humanTimeDiff } from '@wordpress/date';
-import { useEffect, useState } from '@wordpress/element';
+import { useEventRelativeTime } from '../functions';
 import { EventHeaderItem } from './EventHeaderItem';
 
 /**
@@ -10,20 +9,10 @@ import { EventHeaderItem } from './EventHeaderItem';
  * keeping the admin bar bundle small.
  *
  * @param {Object} props
- * @param {Object} props.event Event object with date_local property.
+ * @param {Object} props.event Event object with date_gmt property.
  */
 export function EventDateCompact( { event } ) {
-	const [ formattedDate, setFormattedDate ] = useState( () =>
-		humanTimeDiff( event.date_local )
-	);
-
-	useEffect( () => {
-		const intervalId = setInterval( () => {
-			setFormattedDate( humanTimeDiff( event.date_local ) );
-		}, 1000 );
-
-		return () => clearInterval( intervalId );
-	}, [ event.date_local ] );
+	const formattedDate = useEventRelativeTime( event );
 
 	return (
 		<EventHeaderItem className="SimpleHistoryLogitem__permalink SimpleHistoryLogitem__when">

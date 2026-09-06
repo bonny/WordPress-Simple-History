@@ -349,6 +349,16 @@ Tag = the pill with the log level.
 	gap: 1rem;
 }
 
+/*
+Same negative left margin as .SimpleHistoryLogitem__actionLinks, so the
+button's text lines up with the event text above it at rest. The toggle
+belongs to the row, unlike the diff toggle which is right-aligned under the
+box it expands.
+*/
+.SimpleHistoryLogitem__occasions .SimpleHistory__disclosureToggle {
+	margin-left: calc(var(--sh-spacing-small) * -1);
+}
+
 .SimpleHistoryLogitem__occasionsAddOns {
 	position: relative;
 }
@@ -390,23 +400,39 @@ Tag = the pill with the log level.
 	line-height: 1.4;
 }
 
-.SimpleHistoryLogitem__actionLinks__link {
+/* Scoped under the item so this outranks the generic ".SimpleHistoryLogitem a" colour. */
+.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--sh-spacing-xsmall);
 	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
-	color: #2271b1;
+	/* Grey at rest so a list of similar events does not become a wall of blue
+	   links outweighing the event text. Blue once the row is hovered or focused. */
+	color: var(--sh-color-gray-3);
 	text-decoration: none;
+	transition: color 0.15s ease;
 }
 
-.SimpleHistoryLogitem__actionLinks__link:hover {
+.SimpleHistoryLogitem:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__actionLinks__link {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link:hover,
+.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link:focus-visible {
 	color: #135e96;
 	background-color: var(--sh-color-gray-4);
 	border-radius: var(--sh-border-radius);
 }
 
+@media (prefers-reduced-motion: reduce) {
+	.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link {
+		transition: none;
+	}
+}
+
 .SimpleHistoryLogitem__actionLinks__link .sh-Icon {
-	--sh-icon-size: 1.25em;
+	--sh-icon-size: 1em;
 	top: 0;
 	/* Use mask so icon color inherits from link via currentColor. */
 	mask-size: 100%;
@@ -706,18 +732,59 @@ Tag = the pill with the log level.
 	}
 }
 
+/*
+Key-value list for event details (user profile edits, plugin meta, option
+changes). Markup is a <dl> with <dt>/<dd> pairs as direct children; the class
+name keeps "Table" from the years it was a <table>.
+
+Laid out as a grid so the key column is exactly as wide as the widest key in
+that event, never wider. A real table cannot do this: without a min-width a
+long value squeezes the key column until short keys wrap, and with one (the
+old min-width: 8em) short keys float away from the left edge.
+
+fit-content(min(16em, 45%)) caps runaway keys (WooCommerce setting labels) so
+they wrap instead of pushing every value off to the right, and minmax(0, 1fr)
+stops long unbreakable values from stealing width from the keys.
+*/
+.SimpleHistoryLogitem__keyValueTable {
+	display: grid;
+	grid-template-columns: fit-content(min(16em, 45%)) minmax(0, 1fr);
+	column-gap: 1em;
+	row-gap: 2px;
+	margin: 0;
+}
+
+.SimpleHistoryLogitem__keyValueTable > dt,
+.SimpleHistoryLogitem__keyValueTable > dd {
+	margin: 0;
+	word-break: break-word;
+}
+
+.SimpleHistoryLogitem__keyValueTable > dt {
+	text-align: right;
+	color: #757575;
+	overflow-wrap: anywhere;
+}
+
+/*
+Third-party loggers may still emit the pre-5.33 markup, a <table> with two
+<td> per row. Flatten its rows into the same grid so they render identically.
+*/
+.SimpleHistoryLogitem__keyValueTable > tbody,
+.SimpleHistoryLogitem__keyValueTable > tbody > tr {
+	display: contents;
+}
+
 .SimpleHistoryLogitem__keyValueTable th,
 .SimpleHistoryLogitem__keyValueTable td {
 	vertical-align: top;
 	word-break: break-word;
 }
 
-.SimpleHistoryLogitem__keyValueTable tr > td:first-child {
+.SimpleHistoryLogitem__keyValueTable > tbody > tr > :first-child {
 	text-align: right;
-	padding-right: 1em;
 	color: #757575;
-	min-width: 8em;
-	/* white-space: nowrap; */
+	overflow-wrap: anywhere;
 }
 
 .SimpleHistoryLogitem__keyValueTable p {
@@ -1034,6 +1101,33 @@ i.e. the log is inside a .postbox element.
 	.SimpleHistoryLogitem__actionLinks__link
 	.sh-Icon {
 	display: none;
+}
+
+/* Without icons the grey labels run together, so a dot marks each boundary.
+   The dot is drawn outside the link box, in the margin between two links, so
+   the hover background wraps the label only and never the separator. */
+.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks__link {
+	position: relative;
+}
+
+.SimpleHistoryReactRoot.is-dashboard
+	.SimpleHistoryLogitem__actionLinks__link
+	+ .SimpleHistoryLogitem__actionLinks__link {
+	margin-left: var(--sh-spacing-small);
+}
+
+.SimpleHistoryReactRoot.is-dashboard
+	.SimpleHistoryLogitem__actionLinks__link
+	+ .SimpleHistoryLogitem__actionLinks__link::before {
+	content: "·";
+	position: absolute;
+	top: 50%;
+	left: calc(var(--sh-spacing-small) * -1);
+	width: var(--sh-spacing-small);
+	transform: translateY(-50%);
+	text-align: center;
+	color: var(--sh-color-gray-2);
+	pointer-events: none;
 }
 
 /* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
@@ -1646,6 +1740,128 @@ Modal window with detailss
 	overflow-y: auto;
 }
 
+/*
+Cropping used to be silent — a long diff just stopped, with nothing to say more
+existed, which on a long diff can hide most of a recorded change while the row
+still looks complete. A fade marks the crop line and a toggle opens the diff in
+place. Both are added only to diffs that actually overflow, by
+useExpandableDiffs.js.
+
+A mask rather than a gradient overlay, for two reasons. It fades the content
+itself, so it works on rows that are not white — newly polled events and the
+highlighted permalink target both tint the row behind the diff. And it is
+anchored to the element's own box, so it stays at the bottom edge when the user
+hovers and scrolls inside the box, instead of drifting up over the text they
+are reading.
+
+Kept deliberately shallow. The fade can only ever be a supporting cue: whether
+it reads at all depends on what happens to sit at the crop line, and grey markup
+on white fades to almost nothing. The button below carries the message.
+*/
+.SimpleHistory__diff__contents--isCropped {
+	-webkit-mask-image: linear-gradient(
+		to bottom,
+		rgb(0, 0, 0) calc(100% - 1.5em),
+		rgba(0, 0, 0, 0) 100%
+	);
+	mask-image: linear-gradient(
+		to bottom,
+		rgb(0, 0, 0) calc(100% - 1.5em),
+		rgba(0, 0, 0, 0) 100%
+	);
+}
+
+/*
+Expanding lifts the crop to a tall bound rather than removing it. Letting a
+long diff grow to its full height pushes the rest of the page — including the
+button that collapses it again — far below the viewport, so the action cannot
+be undone without hunting for the control. Bounded, the row stays a row and the
+scrollbar carries "there is more" on its own.
+*/
+.SimpleHistory__diff__contents--isExpanded {
+	max-height: 40em;
+	overflow-y: auto;
+}
+
+.SimpleHistory__diff__contents--isCropped.SimpleHistory__diff__contents--isExpanded {
+	-webkit-mask-image: none;
+	mask-image: none;
+}
+
+/*
+Shared recipe for a control that toggles more content in place rather than
+navigating away: "expand diff" and "show/hide similar events" both use it, so
+the next disclosure control gets this for free instead of copying it again.
+
+A chevron rather than one of the sh-Icon sprites, because it has to rotate to
+show state and the icon set has no chevron. Drawn from two borders so it takes
+currentColor and needs no asset.
+
+Keyed off aria-expanded rather than a class of its own, so the arrow and what
+screen readers announce are driven by the same attribute and cannot drift apart.
+*/
+/*
+Both toggles are plain <button>s rather than the @wordpress/components link
+Button, so the reset lives here once and nothing from wp-components has to
+be out-specified.
+*/
+.SimpleHistory__disclosureToggle {
+	background: none;
+	border: 0;
+	cursor: pointer;
+	color: #2271b1;
+	font-size: var(--sh-font-size-small);
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
+	text-decoration: none;
+}
+
+.SimpleHistory__disclosureToggle:hover,
+.SimpleHistory__disclosureToggle:focus-visible {
+	background-color: var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius);
+	color: #135e96;
+}
+
+.SimpleHistory__disclosureToggle::after {
+	content: "";
+	display: inline-block;
+	width: 0.35em;
+	height: 0.35em;
+	margin-left: 0.5em;
+	border-right: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	transform: translateY(-0.15em) rotate(45deg);
+	transition: transform 0.15s ease;
+}
+
+.SimpleHistory__disclosureToggle[aria-expanded="true"]::after {
+	transform: translateY(0.1em) rotate(-135deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.SimpleHistory__disclosureToggle::after {
+		transition: none;
+	}
+}
+
+/*
+Right-aligned on purpose: it sits where the scrollbar appears, which is where
+the hand goes when someone realises the diff is cropped. Tucked flush against
+the diff above it, and inset from the right edge rather than hanging its
+padding past it, so it reads as belonging to the diff rather than to the
+action links below.
+
+Styled as a control rather than a link — same hover treatment as the action
+links, no resting underline — because it changes this view instead of
+navigating away.
+*/
+.SimpleHistory__diff__expandToggle {
+	display: block;
+	margin-top: 0;
+	margin-left: auto;
+	margin-right: var(--sh-spacing-small);
+}
+
 .SimpleHistory__diff__contents:focus {
 	outline: 1px solid rgb(0, 115, 170);
 	box-shadow:
@@ -1699,19 +1915,19 @@ Modal window with detailss
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-ins td.new {
-	background: #dfd;
+	background: var(--sh-diff-added-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-del td.old {
-	background: #fdd;
+	background: var(--sh-diff-removed-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.old {
-	background: #fdd;
+	background: var(--sh-diff-removed-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side .change-rep td.new {
-	background: #dfd;
+	background: var(--sh-diff-added-background);
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side td.none {
@@ -1719,12 +1935,18 @@ Modal window with detailss
 }
 
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side ins {
-	background: #9e9;
+	background: var(--sh-diff-added-inline-background);
 	text-decoration: none;
 }
 
+/*
+Core sets text-decoration:none on its own del, because its rows already carry
+a minus glyph. This renderer has no such marker, so the strike-through is the
+only non-colour signal that text was removed — keep it, or the distinction
+rests on colour alone.
+*/
 .SimpleHistory__diff__contents .diff-html.diff-side-by-side del {
-	background: #e99;
+	background: var(--sh-diff-removed-inline-background);
 	text-decoration: line-through;
 }
 
@@ -3081,6 +3303,36 @@ a.sh-SettingsTabs-link:hover {
 	border-bottom: 1px solid var(--sh-color-separator);
 	flex-wrap: wrap;
 	background-color: #f9f9f9;
+}
+
+/* Chips for event types hidden from the current list. */
+.SimpleHistory-hiddenTypes {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--sh-color-separator);
+	background-color: #f9f9f9;
+	font-size: 13px;
+}
+
+.SimpleHistory-hiddenTypes__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 2px 2px 2px 8px;
+	border: 1px solid #c3c4c7;
+	border-radius: 2px;
+	background: #fff;
+	line-height: 1.6;
+}
+
+.SimpleHistory-hiddenTypes__chipText {
+	max-width: 32em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .SimpleHistory-filters__defaultRow {

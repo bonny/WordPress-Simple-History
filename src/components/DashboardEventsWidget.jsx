@@ -433,6 +433,7 @@ export function DashboardEventsWidget() {
 				<div className="sh-DashboardWidget-content" ref={ contentRef }>
 					<FetchEventsNoResultsMessage
 						eventsIsLoading={ eventsIsLoading }
+						hasErrors={ eventsLoadingHasErrors }
 						events={ events }
 					/>
 

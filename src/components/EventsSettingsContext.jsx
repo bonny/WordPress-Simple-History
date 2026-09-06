@@ -19,6 +19,7 @@ export function useEventsSettings() {
 			hasPremiumAddOn: false,
 			hasFailedLoginLimit: false,
 			reactionsEnabled: false,
+			experimentalFeaturesEnabled: false,
 			currentUserId: null,
 			canFilterEventsInPlace: false,
 		};

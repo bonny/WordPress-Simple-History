@@ -6,7 +6,11 @@ import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
 import { useInView } from 'react-intersection-observer';
 import { EventsCompactList } from './EventsCompactList';
-import { getTrackingUrl } from '../functions';
+import {
+	getTrackingUrl,
+	parseApiFetchError,
+	isAuthFailureError,
+} from '../functions';
 import RefreshImage from '../../css/icons/refresh_24dp_5F6368_FILL0_wght400_GRAD0_opsz48.svg';
 import './AdminBarQuickView.scss';
 
@@ -64,6 +68,7 @@ const AdminBarQuickView = () => {
 	const [ events, setEvents ] = useState( [] );
 	const [ reloadTime, setReloadTime ] = useState( null );
 	const [ filterMode, setFilterMode ] = useState( 'all' );
+	const [ loadError, setLoadError ] = useState( null );
 
 	const viewHistoryURL = window.simpleHistoryAdminBar.adminPageUrl;
 	const settingsURL = window.simpleHistoryAdminBar.viewSettingsUrl;
@@ -145,8 +150,18 @@ const AdminBarQuickView = () => {
 			return;
 		}
 
+		// Set when the effect is cleaned up, i.e. when a newer fetch has
+		// started or the component unmounted. A request that is still in
+		// flight then resolves into a stale closure and must not touch
+		// state — otherwise a slow first request can overwrite the events
+		// or the error of a newer one.
+		let ignore = false;
+
 		async function fetchEntries() {
 			setIsLoading( true );
+
+			// Clear any error from a previous attempt before this one starts.
+			setLoadError( null );
 
 			const defaultParams = {
 				per_page: 5,
@@ -177,16 +192,44 @@ const AdminBarQuickView = () => {
 				} );
 
 				const eventsJson = await eventsResponse.json();
+
+				if ( ignore ) {
+					return;
+				}
+
 				setEvents( eventsJson );
 			} catch ( error ) {
 				// eslint-disable-next-line no-console
 				console.error( 'Error loading events:', error );
+
+				const errorDetails = await parseApiFetchError( error );
+
+				if ( ignore ) {
+					return;
+				}
+
+				// A retry cannot fix an auth failure, so name the action that
+				// does (reload) instead of the generic message.
+				setLoadError(
+					isAuthFailureError( errorDetails )
+						? __(
+								'Session expired. Reload the page to see events.',
+								'simple-history'
+						  )
+						: __( "Couldn't load events.", 'simple-history' )
+				);
 			} finally {
-				setIsLoading( false );
+				if ( ! ignore ) {
+					setIsLoading( false );
+				}
 			}
 		}
 
 		fetchEntries();
+
+		return () => {
+			ignore = true;
+		};
 	}, [ reloadTime, currentPostId, filterMode ] );
 
 	const handleReloadButtonClick = () => {
@@ -245,7 +288,63 @@ const AdminBarQuickView = () => {
 		{ filterMode, currentPostId, currentPostTitle }
 	);
 
-	const showEmptyState = ! isLoading && events.length === 0;
+	const showEmptyState = ! isLoading && ! loadError && events.length === 0;
+
+	// The "last 7 days" wording only holds for the default, unfiltered view —
+	// premium's "This page" mode can filter to a different window, so fall
+	// back to a neutral string there instead of hardcoding "7 days".
+	const emptyStateText =
+		filterMode === 'all'
+			? __( 'No events in the last 7 days.', 'simple-history' )
+			: __( 'No events found.', 'simple-history' );
+
+	// Text and class for the persistent status region below. The region
+	// itself is always mounted (see eventsAreaContent) so screen readers
+	// pick up the text arriving into it — a region that only mounts once
+	// it already has content is not reliably announced.
+	let statusText = '';
+	let statusClassName = 'SimpleHistory-adminBarQuickView-emptyState';
+
+	if ( loadError ) {
+		statusText = loadError;
+		statusClassName =
+			'SimpleHistory-adminBarQuickView-emptyState SimpleHistory-adminBarQuickView-emptyState-errorState';
+	} else if ( showEmptyState ) {
+		statusText = emptyStateText;
+	}
+
+	let eventsAreaContent;
+
+	if ( isLoading ) {
+		eventsAreaContent = <EventsCompactListLoadingSkeleton />;
+	} else {
+		eventsAreaContent = (
+			<>
+				{ ! loadError && (
+					<EventsCompactList
+						events={ events }
+						isLoading={ isLoading }
+					/>
+				) }
+			</>
+		);
+	}
+
+	const statusRegion = (
+		<li>
+			<div className={ statusClassName } role="status" aria-live="polite">
+				{ loadError && (
+					<span
+						className="SimpleHistory-adminBarQuickView-emptyState-icon"
+						aria-hidden="true"
+					>
+						⚠
+					</span>
+				) }
+				{ statusText }
+			</div>
+		</li>
+	);
 
 	const thisPageTeaser = (
 		<li>
@@ -298,26 +397,8 @@ const AdminBarQuickView = () => {
 							</div>
 						</li>
 
-						{ isLoading ? (
-							<EventsCompactListLoadingSkeleton />
-						) : (
-							<>
-								<EventsCompactList
-									events={ events }
-									isLoading={ isLoading }
-								/>
-								{ showEmptyState && (
-									<li>
-										<div className="SimpleHistory-adminBarQuickView-emptyState">
-											{ __(
-												'No events found.',
-												'simple-history'
-											) }
-										</div>
-									</li>
-								) }
-							</>
-						) }
+						{ eventsAreaContent }
+						{ statusRegion }
 					</>
 				) }
 

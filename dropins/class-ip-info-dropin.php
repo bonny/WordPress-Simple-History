@@ -21,23 +21,6 @@ class IP_Info_Dropin extends Dropin {
 	}
 
 	/**
-	 * Get Google Maps API key.
-	 *
-	 * @return string
-	 */
-	private function get_maps_api_key() {
-		/**
-		 * Filters the Google Maps API key that is used
-		 * to render a static map image.
-		 *
-		 * @since 4.2
-		 *
-		 * @param string $api_key The API key to use. Default is empty string, causing no Map image to be outputted.
-		 */
-		return apply_filters( 'simple_history/maps_api_key', '' );
-	}
-
-	/**
 	 * Display IP Addresses for login related messages.
 	 *
 	 * @param bool   $bool_value True if IP Address should be displayed.

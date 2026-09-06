@@ -12,6 +12,7 @@ import { EventCopyScreenshotMenuItem } from './EventCopyScreenshotMenuItem';
 import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
 import { EventSurroundingEventsMenuItem } from './EventSurroundingEventsMenuItem';
+import { EventHideMessageTypeMenuItem } from './EventHideMessageTypeMenuItem';
 import { EventStickMenuItem } from './EventStickMenuItem';
 import { EventUnstickMenuItem } from './EventUnstickMenuItem';
 import { EventReactionQuickButton } from './EventReactions';
@@ -91,6 +92,10 @@ export function EventActionsButton( { event, eventVariant, reactionState } ) {
 								event={ event }
 								eventsAdminPageURL={ eventsAdminPageURL }
 								userCanManageOptions={ userCanManageOptions }
+							/>
+							<EventHideMessageTypeMenuItem
+								event={ event }
+								onClose={ onClose }
 							/>
 						</MenuGroup>
 

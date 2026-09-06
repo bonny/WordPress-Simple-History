@@ -142,7 +142,8 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		// Each item: [ 'key' => string, 'label' => string, 'value' => string, 'type' => string ].
 		// Core provides no details; add-ons use the filter to add items like
 		// last login time, last activity, login count, IP address, etc.
-		// Supported types: 'text' (default), 'date' (rendered as relative time on the frontend).
+		// Supported types: 'text' (default), 'date' (rendered as relative time
+		// on the frontend; the value must carry a UTC offset, see the filter below).
 		$details = [];
 
 		/**
@@ -151,11 +152,17 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 * Add-ons can add detail items shown in the user card popover.
 		 * Each item should have: key (string), label (string), value (string), and optionally type (string).
 		 *
+		 * A 'date' value must carry its own UTC offset. The card renders it as
+		 * a relative time, and a bare local timestamp is read in whatever zone
+		 * wp.date happens to be configured with — which is off by the site's
+		 * offset wherever WordPress's inline date settings never reach the
+		 * browser. gmdate( 'c' ) on a GMT timestamp gives the right shape.
+		 *
 		 * Example — adding last login time:
 		 *     $details[] = [
 		 *         'key'   => 'last_login',
 		 *         'label' => __( 'Logged in', 'simple-history' ),
-		 *         'value' => '2026-03-01 14:30:00', // Local time.
+		 *         'value' => '2026-03-01T14:30:00+00:00',
 		 *         'type'  => 'date',
 		 *     ];
 		 *

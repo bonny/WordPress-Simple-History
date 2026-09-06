@@ -66,4 +66,19 @@
 
 	/* Avatar size */
 	--sh-avatar-size: var(--sh-font-size-xxxlarge);
+
+	/*
+	Diff colours, taken from WordPress core's revision screen
+	(wp-admin/css/revisions.css, .diff-addedline / .diff-deletedline).
+
+	Two diff renderers appear in the log — core's text_diff tables and the
+	compact side-by-side one — and only the first is styled by wp-admin, so
+	without these they drift into two different palettes. Matching core also
+	means a diff here looks like the diff on revision.php, which is where
+	people have seen this before.
+	*/
+	--sh-diff-added-background: #edfaef;
+	--sh-diff-added-inline-background: #68de7c;
+	--sh-diff-removed-background: #fcf0f1;
+	--sh-diff-removed-inline-background: #ffabaf;
 }

@@ -3,7 +3,7 @@
  * Tiny localhost helper for parallel-dev: lets the WP admin bar inside
  * Playground instances open the current worktree in local macOS apps.
  *
- *   GET /open?app=fork|vscode|iterm|finder&path=/absolute/path&token=<secret>
+ *   GET /open?app=fork|vscode|zed|iterm|finder&path=/absolute/path&token=<secret>
  *   GET /ping
  *
  * Started by scripts/parallel-dev.sh (helper start) as:
@@ -46,6 +46,7 @@ const ROOTS = rootArgs
 const APPS = {
 	fork: ( p ) => [ '-a', 'Fork', p ],
 	vscode: ( p ) => [ '-a', 'Visual Studio Code', p ],
+	zed: ( p ) => [ '-a', 'Zed', p ],
 	iterm: ( p ) => [ '-a', 'iTerm', p ],
 	finder: ( p ) => [ p ],
 };

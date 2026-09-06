@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Guidance for writing and running tests in Simple History, including the Premium add-on. Covers which framework to use, how to run existing tests, how to create new ones (codegen recording workflow), and how to test Premium (which has no PHP test infra).
+description: Guidance for writing and running tests in Simple History, including the Premium add-on. Covers which framework to use, how to run existing tests, how to create new ones (codegen recording workflow), and how to test Premium (whose PHP tests live in this repo, not the add-ons repo).
 allowed-tools: Read, Bash, Edit, Write
 ---
 
@@ -36,13 +36,51 @@ npm test
 
 ## Testing Simple History Premium
 
-The Premium add-on (`simple-history-premium`) is a **separate repo with no test infrastructure** — no Codeception/PHPUnit config, no `tests/` directory, no test npm scripts. Do **not** add a PHP test suite there or assume `npm test`/`vendor/bin/codecept` exists in that repo.
+Premium **is** covered by PHP tests — but they live in **this** (core) repo, not in the
+add-ons repo. One harness, in core; Premium borrows it.
 
-How to cover Premium instead:
+| Location                                    | What's there                                                                                                                                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tests/wpunit/premium/`                     | 11 test files, ~229 tests. Alerts (evaluator/logger/module), custom rules, destination senders, formatters, extended settings, WP-CLI alerts command, both REST controllers, core-vs-premium behaviour |
+| `tests/functional/premium/`                 | `AlertsCliCest.php`                                                                                                                                                                                    |
+| `tests/playwright/`                         | `premium-settings-logging.spec.js`, `license-reminder.spec.js`, plus `premium-helpers.js`                                                                                                              |
+| `tests/_support/Helper/PremiumTestCase.php` | Base class — call `$this->activate_premium()`; it skips (not fails) when Premium isn't installed                                                                                                       |
 
--   **Behavioral / UI features → Playwright in _this_ (core) repo.** The dev WordPress runs core + Premium together, so a core Playwright spec in `tests/playwright/` exercises Premium features end-to-end. This is the only place Premium behavior gets automated coverage.
--   **PHP correctness in Premium → `phpcs` + `phpstan` only.** After PHP changes in the Premium repo, run its phpcs (lint) and phpstan (static analysis) — these are the only automated gates Premium has.
--   **Cross-repo changes** (a core hook/filter + a Premium consumer): unit-test the **mechanism** on the core side (wpunit), run `phpcs`/`phpstan` in **each** repo, and verify the **behavior** with one Playwright spec in core. Don't try to unit-test Premium PHP.
+Run them:
+
+```bash
+docker compose run --rm php-cli vendor/bin/codecept run wpunit premium   # ~15s
+```
+
+### How Premium gets loaded
+
+Premium is mounted into the test WordPress at `tests/plugins/simple-history-premium`,
+a **symlink** to the local add-ons checkout, wired up in `compose.yaml`. The symlink is
+**not tracked in git** — on a fresh machine it's absent and every Premium test silently
+_skips_. A green run therefore does not prove Premium passed; check the skip count.
+
+It is deliberately not in `wpunit.suite.yml`'s `plugins` list — tests activate it
+on demand via `activate_premium()`.
+
+### Where to put a new Premium test
+
+-   **PHP logic (loggers, senders, formatters, REST, WP-CLI, settings) → wpunit in `tests/wpunit/premium/`.** This is the default. Extend `Helper\PremiumTestCase`.
+-   **Browser-visible behaviour → Playwright in `tests/playwright/`.** The dev WordPress runs core + Premium together. Use this only when a human would need a browser to check it — wpunit runs in seconds, Playwright doesn't.
+-   **Cross-repo changes** (a core hook/filter + a Premium consumer): unit-test the mechanism on the core side, add the Premium-side test under `tests/wpunit/premium/`, and run `phpcs`/`phpstan` in **both** repos.
+
+### What the add-ons repo does and doesn't have
+
+The add-ons repo has **no test runner** — no Codeception config, no `tests/` dir, and its
+`npm test` is a stub that exits 1. Its only local gates are `phpcs` and `phpstan`
+(`npm run addons:lint` / `addons:phpstan` from core). **Don't add a Codeception stack
+there** — add the test to `tests/wpunit/premium/` here instead.
+
+### Nothing runs in CI yet
+
+There is no GitHub Actions workflow running any test suite, in either repo — core's
+`.github/workflows/` has spelling, the Claude bots, and deploy, and the add-ons repo has
+no workflows at all. Every suite is local-and-manual. Tracked in local issue
+`293 - Run the PHP test suites in CI`; coverage gaps in `292 - Close premium test coverage gaps`.
 
 ## Playwright setup
 
@@ -52,6 +90,27 @@ How to cover Premium instead:
 -   **Target:** dev WordPress at `http://wordpress-stable-docker-mariadb.test:8282` (override with `PLAYWRIGHT_BASE_URL` env var)
 -   **Admin credentials:** `claude` / `claude` (override with `WP_ADMIN_USER` / `WP_ADMIN_PASSWORD`)
 -   **HTML report:** written to `playwright-report/` after each run — open it to debug failures
+
+### Running against wp-env instead of the dev WordPress
+
+The dev WordPress is shared and long-lived, so tests that need to change global
+site state — the timezone, say — are better run against the disposable wp-env
+install:
+
+```bash
+npm run wp-env:start                 # http://localhost:8888, admin/password
+npm run test:playwright:wp-env       # same suite, pointed at wp-env
+npm run test:playwright:wp-env -- tests/playwright/my-feature.spec.js
+```
+
+`test:playwright:wp-env` sets `PLAYWRIGHT_BASE_URL`, `WP_ADMIN_USER`,
+`WP_ADMIN_PASSWORD` and `PLAYWRIGHT_STORAGE_STATE`. The separate storage-state
+path matters: without it the wp-env login would overwrite
+`tests/playwright/.auth/admin.json` and every later run against the dev
+WordPress would silently redirect to `wp-login.php`.
+
+wp-env mounts this repo as the plugin, so **run `npm run build` first** — it
+serves whatever is in `build/`, not the source.
 
 ### CLI shortcuts
 
@@ -174,6 +233,8 @@ test( 'logs post creation', async ( { page } ) => {
 -   Write assertions that are true regardless of existing data ("at least one event", not "exactly 5 events")
 -   When a test needs specific data, create it in `beforeEach` via `requestUtils` and clean up in `afterEach`
 -   Cleanup deletions are also logged by Simple History — that's expected and correct, just accept it
+-   **Two specs must not run in parallel with the rest.** `privacy-data.spec.js` and `hide-event-type.spec.js` flip the site-wide experimental-features option through the dev-tools endpoint, so `playwright.config.js` runs them as their own chained projects before `tests`. Add any new spec that toggles a site-wide option to that chain, not to `tests`.
+-   **The dashboard widget shows only five events.** A spec that reads a row from the widget must not run its tests in parallel with each other: `event-date-timezone.spec.js` sets `test.describe.configure( { mode: 'default' } )` because every test there creates and deletes a post, and one test's clean-up pushed another's row out of the widget.
 
 ### Available `requestUtils` methods (selection)
 
@@ -190,8 +251,78 @@ requestUtils.rest( { path, method, params, data } ); // arbitrary REST API call
 
 -   **Config:** `codeception.dist.yml`, `tests/*.suite.yml`
 -   **Tests:** `tests/wpunit/`, `tests/functional/`, `tests/acceptance/`
--   **Environment:** `tests/.env.testing`
+-   **Environment:** `.env.testing` in the repo root (params for the suite ymls)
 -   All PHP tests run inside Docker via `docker compose run --rm php-cli`
+-   `wp` is not on the php-cli image's PATH. Use `vendor/bin/wp --allow-root --path=/wordpress/`.
+
+### When functional or acceptance tests fail, suspect the fixture before the code
+
+The functional and acceptance suites load `tests/_data/dump.sql` into the test
+database before every test. **That file is gitignored**, so each machine has its
+own copy and they drift apart. Pär's rule is that a version does not ship with
+failing tests, so if a suite that passed on the last release fails on a
+different machine, the fixture is the first suspect, not the plugin.
+
+Two symptoms seen on 2026-09-03 while releasing 5.32.0 (35 of 50 functional
+tests "failed"):
+
+-   **Every admin-page test fails with "Form field … not found"** and the saved
+    `tests/_output/*.fail.html` pages are titled **"WordPress › Update"**. The
+    dump's `db_version` is older than the `wordpress:6.8` test container, so
+    WordPress redirects every admin request to `upgrade.php`. Fix: load the
+    dump, run `vendor/bin/wp core update-db`, dump it back.
+-   **Wrong fixture values.** `WPCliCest` expects event id 1 inside the ten-row
+    `list` output (so the fixture must hold at most nine events);
+    `SimpleOptionsLoggerCest` expects `blogdescription` to be empty. Stray
+    logins from browsing the test site, or an installer default, get dumped
+    back in. Fix: delete rows with id > 9 from `wp_simple_history` and
+    `wp_simple_history_contexts`, blank the tagline, dump again.
+
+The step-by-step refresh lives in `CLAUDE.local.md` on the machine that needed
+it. Local issue 306 tracks the permanent fix (upgrade in the suite bootstrap,
+or a committed canonical dump).
+
+To tell fixture drift from a real regression, run the failing Cests against
+the previous release tag: `git checkout <tag>`, run them, `git checkout -`.
+The test site serves the working directory, so nothing else changes.
+
+### `npm test` stops at the first failing suite
+
+It chains `wpunit && functional && acceptance`. A functional failure means the
+acceptance suite never ran. Look for the last suite name in the output before
+calling a run green.
+
+### Acceptance suite: known-failing tests that are not the plugin
+
+As of 2026-09-03, with the fixture refreshed and Redirection replaced, 5
+failures and 3 errors remain on the Mac mini and all reproduce on the 5.31.0
+tag: `PluginDuplicatePostLoggerCest`, `SimpleMediaLoggerCest: Add media`,
+`SimpleOptionsLoggerCest: Test reading options page`, `SimplePluginLoggerCest:
+Test plugin activation` (Akismet's `#activate-akismet-anti-spam-spam-protection`
+id is gone), and `SimpleUserLoggerCest: Log user deleted` (no `user_deleted`
+event in the Selenium container, although the same deletion logs fine on the
+dev site). The three errors are the plugin and theme zip installs failing with
+"Could not create directory", a file-permission problem in the test container. Treat new failures outside that list
+as real until proven otherwise.
+
+`tests/plugins/*` (Redirection, Akismet, Jetpack, the premium symlink, …) is
+gitignored and bind-mounted into the test site, so third-party plugin
+_versions_ are machine-local too. A Redirection test that times out on
+"Start Setup" with "Problem starting Redirection" in the saved page means the
+local copy is broken, not the logger. Replace the directory with the release
+zip from wordpress.org and recreate the container
+(`docker compose up -d --force-recreate wordpress`) so the mount follows.
+
+Redirection is **5.10.0** on this machine as of 2026-09-05 (was 5.3.2). Bump
+was forced by issue 308: Redirection 5.10.0 moved its REST callbacks from
+legacy classes (`Redirection_Api_Redirect`) into namespaced ones
+(`Redirection\Api\Route\Redirect`), so `Plugin_Redirection_Logger` needed to
+match both spellings — a fixture pinned at 5.3.2 could never have caught that.
+Both `PluginRedirectionLoggerCest` tests pass against 5.10.0. Its UI also
+relabelled the redirect submit button from "Add Redirect" to "Add redirect"
+and reused that same text on a page-title toggle button and a form heading,
+so `testRedirects` now targets the submit button by CSS
+(`.add-new .table-actions button[type=submit]`) instead of by text.
 
 ## Migrating old acceptance tests to Playwright
 

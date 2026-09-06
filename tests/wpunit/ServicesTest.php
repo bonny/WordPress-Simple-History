@@ -40,6 +40,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Licences_Settings_Page',
 			'Plugin_List_Info',
 			'REST_API',
+			'Abilities_Service',
 			'Stealth_Mode',
 			'Menu_Service',
 			'Stats_Service',

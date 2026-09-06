@@ -6,6 +6,7 @@ use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Event_Details\Event_Details_Item_Image_Diff_Table_Row_Formatter;
 use Simple_History\Helpers;
 use Simple_History\Vendor\Jfcherng\Diff\DiffHelper;
 
@@ -49,6 +50,14 @@ class Post_Logger extends Logger {
 	 * @var array<int, bool>
 	 */
 	protected $events_given_a_revision_id = [];
+
+	/**
+	 * Posts and revisions already looked up while rendering this request,
+	 * including the ones that turned out not to exist.
+	 *
+	 * @var array<int, \WP_Post|null>
+	 */
+	private $looked_up_posts = [];
 
 	/**
 	 * Get array with information about this logger.
@@ -1532,18 +1541,11 @@ class Post_Logger extends Logger {
 				}
 			}
 
-			// `wp_revisions_enabled()` is a constant-time check (post-type
-			// support + WP_POST_REVISIONS); skipping it would issue a WP_Query
-			// per post_updated event on sites that have revisions disabled.
-			if ( $message_key === 'post_updated' && wp_revisions_enabled( $post ) ) {
-				$revisions = wp_get_post_revisions( $post_id, [ 'numberposts' => 1 ] );
-				if ( ! empty( $revisions ) ) {
-					$latest_revision = reset( $revisions );
-					$action_links[]  = [
-						'url'    => admin_url( 'revision.php?revision=' . $latest_revision->ID ),
-						'label'  => __( 'Revisions', 'simple-history' ),
-						'action' => 'revisions',
-					];
+			if ( $message_key === 'post_updated' && $has_edit_cap ) {
+				$revision_link = $this->get_revision_action_link( $context, $post_id );
+
+				if ( $revision_link ) {
+					$action_links[] = $revision_link;
 				}
 			}
 		}
@@ -1572,6 +1574,222 @@ class Post_Logger extends Logger {
 	}
 
 	/**
+	 * Get the revision action link for an event.
+	 *
+	 * Two shapes, and the label distinguishes them so neither claims more than
+	 * it can deliver:
+	 *
+	 * - **"View revision"** when we know which revision the event produced and
+	 *   it still exists. Phrased per event, so its absence reads as a fact
+	 *   about that event rather than as a broken capability.
+	 * - **"Revisions"** for events logged before we recorded the revision id,
+	 *   which cannot say which revision they made. These keep the original
+	 *   behaviour — the post's newest revision — under the original generic
+	 *   label, so nothing is taken away from older history.
+	 *
+	 * Where we know the specific revision and it has been pruned, there is
+	 * still no link: falling back to the newest one there would be exactly the
+	 * silent mislead this replaced, and the details panel says it is gone.
+	 *
+	 * @param array $context Event context.
+	 * @param int   $post_id ID of the post the event belongs to.
+	 * @return array|null Action link array, or null when there is nothing to link to.
+	 */
+	protected function get_revision_action_link( $context, $post_id ) {
+		$state = $this->get_event_revision_state( $context, $post_id );
+
+		if ( $state['status'] === 'available' ) {
+			return [
+				'url'    => $this->get_revision_admin_url( $state['revision']->ID, $post_id ),
+				'label'  => __( 'View revision', 'simple-history' ),
+				'action' => 'revisions',
+			];
+		}
+
+		if ( $state['status'] === 'unknown' ) {
+			return $this->get_latest_revision_action_link( $post_id );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get a link to the post's newest revision, for events that never recorded
+	 * which revision they created.
+	 *
+	 * `wp_revisions_enabled()` is a constant-time check (post-type support plus
+	 * WP_POST_REVISIONS); running it first keeps sites with revisions disabled
+	 * from issuing a WP_Query per event.
+	 *
+	 * @param int $post_id ID of the post the event belongs to.
+	 * @return array|null Action link array, or null when the post has no revisions.
+	 */
+	protected function get_latest_revision_action_link( $post_id ) {
+		$post = $this->get_cached_post( $post_id );
+
+		if ( ! $post instanceof \WP_Post || ! wp_revisions_enabled( $post ) ) {
+			return null;
+		}
+
+		$revisions = wp_get_post_revisions( $post_id, [ 'numberposts' => 1 ] );
+
+		if ( empty( $revisions ) ) {
+			return null;
+		}
+
+		$latest_revision = reset( $revisions );
+
+		return [
+			'url'    => $this->get_revision_admin_url( $latest_revision->ID, $post_id ),
+			'label'  => __( 'Revisions', 'simple-history' ),
+			'action' => 'revisions',
+		];
+	}
+
+	/**
+	 * Work out what became of the revision this event created.
+	 *
+	 * WordPress prunes revisions on its own schedule (WP_POST_REVISIONS) and
+	 * deletes them with their parent post, while our events outlive both. The
+	 * cases have to be told apart rather than lumped into "no link", because
+	 * only one of them can honestly be reported to the user as gone:
+	 *
+	 * - `unknown`      no revision id stored — an old event, or none was made.
+	 * - `available`    stored, still present, and WordPress will display it.
+	 * - `gone`         stored, and the row no longer exists. Safe to report.
+	 * - `unverifiable` the id points at something that is not this post's
+	 *                  revision, which happens after a restore or migration.
+	 *                  The revision may well still exist, so claiming it is
+	 *                  gone would be a false statement.
+	 * - `disabled`     the row exists but revisions were turned off since, and
+	 *                  revision.php now refuses to render it.
+	 *
+	 * @param array $context Event context.
+	 * @param int   $post_id ID of the post the event belongs to.
+	 * @return array{status:string,revision:\WP_Post|null}
+	 */
+	protected function get_event_revision_state( $context, $post_id ) {
+		$revision_id = (int) ( $context['post_revision_id'] ?? 0 );
+
+		if ( $revision_id === 0 ) {
+			return [
+				'status'   => 'unknown',
+				'revision' => null,
+			];
+		}
+
+		$revision = $this->get_cached_post( $revision_id );
+
+		// Nothing at that id at all: the revision really has been deleted, and
+		// saying so is accurate.
+		if ( ! $revision instanceof \WP_Post ) {
+			return [
+				'status'   => 'gone',
+				'revision' => null,
+			];
+		}
+
+		// Something is there, but it is not a revision. After a restore or
+		// migration an id can just as easily land on an ordinary post as on
+		// another post's revision, and the revision this event made may be
+		// perfectly intact under a different id — so this cannot be reported
+		// as deleted either.
+		if ( $revision->post_type !== 'revision' ) {
+			return [
+				'status'   => 'unverifiable',
+				'revision' => null,
+			];
+		}
+
+		if ( (int) $revision->post_parent !== $post_id ) {
+			return [
+				'status'   => 'unverifiable',
+				'revision' => null,
+			];
+		}
+
+		// A site can turn revisions off after the fact, leaving rows that
+		// WordPress now refuses to display: revision.php redirects to the post
+		// list rather than render one. Mirror its check so we do not offer a
+		// link into that dead end. Autosaves stay viewable, as they do there.
+		$parent = $this->get_cached_post( $post_id );
+
+		if (
+			$parent instanceof \WP_Post
+			&& ! wp_revisions_enabled( $parent )
+			&& ! wp_is_post_autosave( $revision )
+		) {
+			return [
+				'status'   => 'disabled',
+				'revision' => $revision,
+			];
+		}
+
+		return [
+			'status'   => 'available',
+			'revision' => $revision,
+		];
+	}
+
+	/**
+	 * get_post() wrapper that also remembers misses.
+	 *
+	 * Each rendered row asks about its revision twice — once for the action
+	 * link, once for the details panel. WP_Post::get_instance() caches hits but
+	 * not misses, and a miss is the common case here: an old event whose
+	 * revision WordPress has long since pruned. Without this, a page of such
+	 * events issues two uncached queries per row.
+	 *
+	 * @param int $post_id Post ID to look up.
+	 * @return \WP_Post|null
+	 */
+	private function get_cached_post( $post_id ) {
+		if ( array_key_exists( $post_id, $this->looked_up_posts ) ) {
+			return $this->looked_up_posts[ $post_id ];
+		}
+
+		$post = get_post( $post_id );
+
+		$this->looked_up_posts[ $post_id ] = $post instanceof \WP_Post ? $post : null;
+
+		return $this->looked_up_posts[ $post_id ];
+	}
+
+	/**
+	 * Get the admin URL for viewing a single revision.
+	 *
+	 * WordPress 7.1 renders revisions visually in the editor, with added,
+	 * modified and removed blocks marked up in place, and accepts the revision
+	 * id as a query arg. Older versions get the classic comparison screen.
+	 *
+	 * The upgrade is deliberately silent — same label either way — because we
+	 * cannot tell from the server whether the visual view will actually open.
+	 * WordPress disables it whenever the post has active meta boxes, which any
+	 * SEO or custom fields plugin adds, and then redirects to the classic
+	 * screen. Both destinations show the correct revision, so the fallback is
+	 * harmless; a label promising a visual comparison would not be.
+	 *
+	 * @param int $revision_id ID of the revision to view.
+	 * @param int $post_id     ID of the revision's parent post.
+	 * @return string Admin URL.
+	 */
+	protected function get_revision_admin_url( $revision_id, $post_id ) {
+		global $wp_version;
+
+		if ( version_compare( $wp_version, '7.1', '>=' ) ) {
+			return admin_url(
+				sprintf(
+					'post.php?post=%1$d&action=edit&revision=%2$d',
+					$post_id,
+					$revision_id
+				)
+			);
+		}
+
+		return admin_url( 'revision.php?revision=' . $revision_id );
+	}
+
+	/**
 	 * Get details output for row.
 	 *
 	 * @param object $row Row data.
@@ -1594,8 +1812,15 @@ class Post_Logger extends Logger {
 				// Skip some context keys.
 				$keys_to_skip = [];
 
-				// Skip post author because we manually output the change already.
-				$keys_to_skip = [ 'post_author/user_login', 'post_author/user_email', 'post_author/display_name' ];
+				// Skip post author and featured image keys because we output
+				// those changes manually further down.
+				$keys_to_skip = [
+					'post_author/user_login',
+					'post_author/user_email',
+					'post_author/display_name',
+					'thumb_id',
+					'thumb_title',
+				];
 
 				if ( strpos( $key, 'post_prev_' ) === false ) {
 					continue;
@@ -1628,7 +1853,7 @@ class Post_Logger extends Logger {
 					$label           = __( 'Title', 'simple-history' );
 
 					$diff_table_output .= sprintf(
-						'<tr><td>%1$s</td><td>%2$s</td></tr>',
+						'<dt>%1$s</dt><dd>%2$s</dd>',
 						$this->label_for( $key_to_diff, $label, $context ),
 						helpers::text_diff( $post_old_value, $post_new_value )
 					);
@@ -1644,7 +1869,7 @@ class Post_Logger extends Logger {
 
 					if ( $key_text_diff ) {
 						$diff_table_output .= sprintf(
-							'<tr><td>%1$s</td><td>%2$s</td></tr>',
+							'<dt>%1$s</dt><dd>%2$s</dd>',
 							$this->label_for( $key_to_diff, $label, $context ),
 							$key_text_diff
 						);
@@ -1664,10 +1889,8 @@ class Post_Logger extends Logger {
 					$label           = __( 'Permalink', 'simple-history' );
 
 					$diff_table_output .= sprintf(
-						'<tr>
-							<td>%1$s</td>
-							<td>%2$s</td>
-						</tr>',
+						'<dt>%1$s</dt>
+							<dd>%2$s</dd>',
 						$this->label_for( $key_to_diff, $label, $context ),
 						helpers::text_diff( $post_old_value, $post_new_value )
 					);
@@ -1767,10 +1990,8 @@ class Post_Logger extends Logger {
 				}
 
 				$diff_table_output .= sprintf(
-					'<tr>
-						<td>%1$s</td>
-						<td>%2$s</td>
-					</tr>',
+					'<dt>%1$s</dt>
+						<dd>%2$s</dd>',
 					esc_html( __( 'Custom fields', 'simple-history' ) ),
 					$meta_changed_out
 				);
@@ -1780,11 +2001,6 @@ class Post_Logger extends Logger {
 			$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, 'added' );
 			$diff_table_output .= $this->get_log_row_details_output_for_post_terms( $context, 'removed' );
 
-			// Changed post thumb/featured image.
-			// post_prev_thumb, int of prev thumb, empty if not prev thumb.
-			// post_new_thumb, int of new thumb, empty if no new thumb.
-			$diff_table_output .= $this->get_log_row_details_output_for_post_thumb( $context );
-
 			// Render compact JSON diff for post_content if available.
 			if ( isset( $context['post_content_diff'] ) ) {
 				$json_diff_html = Helpers::render_json_diff_to_html( $context['post_content_diff'] );
@@ -1792,15 +2008,23 @@ class Post_Logger extends Logger {
 				if ( $json_diff_html !== '' ) {
 					$has_diff_values    = true;
 					$diff_table_output .= sprintf(
-						'<tr><td>%1$s</td><td>%2$s</td></tr>',
+						'<dt>%1$s</dt><dd>%2$s</dd>',
 						esc_html( __( 'Content', 'simple-history' ) ),
 						$json_diff_html
 					);
 				}
 			}
 
+			$rows_before_filter = substr_count( strtolower( $diff_table_output ), '<tr' );
+
 			/**
-			 * Modify the formatted diff output of a saved/modified post
+			 * Modify the formatted diff output of a saved/modified post.
+			 *
+			 * The output is a string of <dt>label</dt><dd>value</dd> pairs that is
+			 * wrapped in a <dl class="SimpleHistoryLogitem__keyValueTable">.
+			 * Before 5.33 the pairs were <tr><td></td><td></td></tr> rows. A
+			 * callback that still appends such rows is detected below and the
+			 * whole list is then rendered in the old table form instead.
 			 *
 			 * @param string $diff_table_output
 			 * @param array $context
@@ -1813,8 +2037,52 @@ class Post_Logger extends Logger {
 			);
 
 			if ( $has_diff_values || $diff_table_output ) {
-				$diff_table_output =
-					'<table class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</table>';
+				$legacy_rows_added = substr_count( strtolower( $diff_table_output ), '<tr' ) > $rows_before_filter;
+
+				if ( $legacy_rows_added ) {
+					// Browsers drop <tr>/<td> tags inside a <dl>, so the rows a
+					// pre-5.33 callback appended would turn into loose text and
+					// shift every pair after them. Fall back to the table form,
+					// which the stylesheet lays out identically. Our own pairs
+					// translate with plain replacement: <dt>/<dd> never nest
+					// and never occur inside a value.
+					$diff_table_output = str_replace(
+						[ '<dt>', '</dt>', '<dd>', '</dd>' ],
+						[ '<tr><td>', '</td>', '<td>', '</td></tr>' ],
+						$diff_table_output
+					);
+
+					$diff_table_output =
+						'<table class="SimpleHistoryLogitem__keyValueTable"><tbody>' . $diff_table_output . '</tbody></table>';
+				} else {
+					$diff_table_output =
+						'<dl class="SimpleHistoryLogitem__keyValueTable">' . $diff_table_output . '</dl>';
+				}
+			}
+
+			// Explain a missing "View this revision" link, but only when we can
+			// do so truthfully. Without this the link's absence invites the
+			// wrong conclusion — that the edit did not produce a revision —
+			// which is a false statement about the user's own history.
+			//
+			// Only the 'gone' state earns the note. 'unverifiable' means the id
+			// no longer resolves to this post's revision after a restore or
+			// migration, where the revision may well still exist; 'unknown'
+			// means we never recorded one. Neither can be reported as deleted.
+			//
+			// Gated on the same capability as the link itself, so we never
+			// explain the absence of something the reader could not have seen.
+			$post_id_for_revision = (int) ( $context['post_id'] ?? 0 );
+
+			if ( $post_id_for_revision && current_user_can( 'edit_post', $post_id_for_revision ) ) {
+				$revision_state = $this->get_event_revision_state( $context, $post_id_for_revision );
+
+				if ( $revision_state['status'] === 'gone' ) {
+					$inline_group->add_item(
+						( new Event_Details_Item( null, __( 'Revision', 'simple-history' ) ) )
+							->set_new_value( __( 'No longer stored by WordPress', 'simple-history' ) )
+					);
+				}
 			}
 
 			$groups = [];
@@ -1825,6 +2093,15 @@ class Post_Logger extends Logger {
 
 			if ( $diff_table_output !== '' ) {
 				$groups[] = Event_Details_Group::create_raw( $diff_table_output );
+			}
+
+			// Changed featured image. Its own group rather than a row in the raw
+			// table above, so the change also reaches details_data (REST, CLI,
+			// abilities), which a raw HTML group cannot describe.
+			$thumb_group = $this->get_details_group_for_post_thumb( $context );
+
+			if ( $thumb_group ) {
+				$groups[] = $thumb_group;
 			}
 
 			if ( empty( $groups ) ) {
@@ -1890,7 +2167,7 @@ class Post_Logger extends Logger {
 	 * @return string
 	 */
 	public function extra_diff_record( $key, $old_value, $new_value ) {
-		return sprintf( '<tr><td>%1$s</td><td>%2$s</td></tr>', $key, helpers::text_diff( $old_value, $new_value ) );
+		return sprintf( '<dt>%1$s</dt><dd>%2$s</dd>', $key, helpers::text_diff( $old_value, $new_value ) );
 	}
 
 	/**
@@ -2024,102 +2301,81 @@ class Post_Logger extends Logger {
 		);
 
 		return sprintf(
-			'<tr>
-				<td>%1$s</td>
-				<td>%2$s</td>
-			</tr>',
+			'<dt>%1$s</dt>
+				<dd>%2$s</dd>',
 			esc_html( $label ),
 			esc_html( $term_added_values_as_comma_separated_list ),
 		);
 	}
 
 	/**
-	 * Get the HTML output for context that contains a modified post thumb.
+	 * Get the details group for a changed featured image, or null when the
+	 * context holds no featured image change.
 	 *
-	 * @param array $context Context that may contains prev- and new thumb ids.
-	 * @return string HTML to be used in keyvale table.
+	 * @param array $context Context that may contain prev- and new thumb ids.
+	 * @return Event_Details_Group|null
 	 */
-	private function get_log_row_details_output_for_post_thumb( $context = null ) {
-		$out = '';
+	private function get_details_group_for_post_thumb( $context ) {
+		$prev_thumb_id = empty( $context['post_prev_thumb_id'] ) ? 0 : (int) $context['post_prev_thumb_id'];
+		$new_thumb_id  = empty( $context['post_new_thumb_id'] ) ? 0 : (int) $context['post_new_thumb_id'];
 
-		if ( ! empty( $context['post_prev_thumb_id'] ) || ! empty( $context['post_new_thumb_id'] ) ) {
-			// Check if images still exists and if so get their thumbnails.
-			$prev_thumb_id         = empty( $context['post_prev_thumb_id'] ) ? null : $context['post_prev_thumb_id'];
-			$new_thumb_id          = empty( $context['post_new_thumb_id'] ) ? null : $context['post_new_thumb_id'];
-			$post_new_thumb_title  = empty( $context['post_new_thumb_title'] ) ? null : $context['post_new_thumb_title'];
-			$post_prev_thumb_title = empty( $context['post_prev_thumb_title'] )
-				? null
-				: $context['post_prev_thumb_title'];
-
-			$prev_attached_file = get_attached_file( $prev_thumb_id );
-			$prev_thumb_src     = wp_get_attachment_image_src( $prev_thumb_id, 'small' );
-
-			$new_attached_file = get_attached_file( $new_thumb_id );
-			$new_thumb_src     = wp_get_attachment_image_src( $new_thumb_id, 'small' );
-
-			if ( file_exists( $prev_attached_file ) && $prev_thumb_src ) {
-				$prev_thumb_html = sprintf(
-					'
-						<div>%2$s</div>
-						<div class="SimpleHistoryLogitemThumbnail">
-							<img src="%1$s" alt="">
-						</div>
-					',
-					$prev_thumb_src[0],
-					esc_html( $post_prev_thumb_title )
-				);
-			} else {
-				// Fallback if image does not exist.
-				$prev_thumb_html = sprintf( '<div>%1$s</div>', esc_html( $post_prev_thumb_title ) );
-			}
-
-			$new_thumb_html = '';
-			if ( file_exists( $new_attached_file ) && $new_thumb_src ) {
-				$new_thumb_html = sprintf(
-					'
-						<div>%2$s</div>
-						<div class="SimpleHistoryLogitemThumbnail">
-							<img src="%1$s" alt="">
-						</div>
-					',
-					$new_thumb_src[0],
-					esc_html( $post_new_thumb_title )
-				);
-			} else {
-				// Fallback if image does not exist.
-				$new_thumb_html = sprintf( '<div>%1$s</div>', esc_html( $post_new_thumb_title ) );
-			}
-
-			$out .= sprintf(
-				'<tr>
-					<td>%1$s</td>
-					<td>
-
-						<div class="SimpleHistory__diff__contents SimpleHistory__diff__contents--noContentsCrop" tabindex="0">
-						    <div class="SimpleHistory__diff__contentsInner">
-						        <table class="diff SimpleHistory__diff">
-						            <tr>
-						                <td class="diff-deletedline">
-						                    %2$s
-						                </td>
-						                <td>&nbsp;</td>
-						                <td class="diff-addedline">
-						                    %3$s
-						                </td>
-						            </tr>
-						        </table>
-						    </div>
-						</div>
-
-					</td>
-				</tr>',
-				esc_html( __( 'Featured image', 'simple-history' ) ), // 1
-				$prev_thumb_html, // 2
-				$new_thumb_html // 3
-			);
+		if ( ! $prev_thumb_id && ! $new_thumb_id ) {
+			return null;
 		}
 
-		return $out;
+		$prev = $this->get_post_thumb_value( $prev_thumb_id, $context['post_prev_thumb_title'] ?? '' );
+		$new  = $this->get_post_thumb_value( $new_thumb_id, $context['post_new_thumb_title'] ?? '' );
+
+		$item = new Event_Details_Item( null, __( 'Featured image', 'simple-history' ) );
+		$item->set_values( $new['plain'], $prev['plain'] );
+
+		$formatter = new Event_Details_Item_Image_Diff_Table_Row_Formatter();
+		$formatter->set_prev_image( $prev['src'], $prev['caption'] );
+		$formatter->set_new_image( $new['src'], $new['caption'] );
+
+		$item->set_formatter( $formatter );
+
+		$group = new Event_Details_Group();
+		$group->add_item( $item );
+
+		return $group;
+	}
+
+	/**
+	 * Resolve one featured image to an image URL, a caption, and a plain
+	 * text representation for JSON.
+	 *
+	 * @param int    $thumb_id Attachment ID, 0 when there was no image on this side.
+	 * @param string $title    Attachment title captured when the event was logged.
+	 * @return array{src: string, caption: string, plain: string}
+	 */
+	private function get_post_thumb_value( $thumb_id, $title ) {
+		// No image on this side. Empty src and caption make the formatter print "None".
+		if ( ! $thumb_id ) {
+			return [
+				'src'     => '',
+				'caption' => '',
+				'plain'   => __( 'None', 'simple-history' ),
+			];
+		}
+
+		$attached_file = get_attached_file( $thumb_id );
+		$thumb_src     = wp_get_attachment_image_src( $thumb_id, 'thumbnail' );
+
+		if ( $attached_file && file_exists( $attached_file ) && $thumb_src ) {
+			return [
+				'src'     => $thumb_src[0],
+				'caption' => $title,
+				'plain'   => $thumb_src[0],
+			];
+		}
+
+		// Attachment is gone. Show the title captured at log time.
+		return [
+			'src'     => '',
+			'caption' => $title !== '' ? $title : (string) $thumb_id,
+			'plain'   => $title !== '' ? $title : (string) $thumb_id,
+		];
 	}
 
 	/**

@@ -4,11 +4,15 @@ const path = require( 'path' );
 
 const adminUser = process.env.WP_ADMIN_USER || 'claude';
 const adminPassword = process.env.WP_ADMIN_PASSWORD || 'claude';
-const storagePath = path.join( __dirname, '.auth/admin.json' );
+const storagePath = process.env.PLAYWRIGHT_STORAGE_STATE
+	? path.resolve( process.env.PLAYWRIGHT_STORAGE_STATE )
+	: path.join( __dirname, '.auth/admin.json' );
 
 // Logs in once and saves the authenticated browser state so all tests can
 // reuse it without logging in again on each run.
 setup( 'authenticate as admin', async ( { page } ) => {
+	fs.mkdirSync( path.dirname( storagePath ), { recursive: true } );
+
 	// Skip login if storage state already exists — re-running creates noise
 	// in the activity log. Delete .auth/admin.json to force a fresh login.
 	if ( fs.existsSync( storagePath ) ) {

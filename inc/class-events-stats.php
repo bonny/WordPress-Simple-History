@@ -2,6 +2,7 @@
 
 namespace Simple_History;
 
+use Simple_History\Loggers\User_Logger;
 use WP_Session_Tokens;
 
 /**
@@ -53,7 +54,7 @@ class Events_Stats {
 	 * Method for getting event counts by logger and message value.
 	 *
 	 * Examples:
-	 * get_event_count( 'SimpleUserLogger', [ 'user_login_failed', 'user_unknown_login_failed' ], $date_from, $date_to );
+	 * get_event_count( 'SimpleUserLogger', User_Logger::get_failed_login_message_keys(), $date_from, $date_to );
 	 * et_event_count( 'SimpleUserLogger', 'user_created', $date_from, $date_to );
 	 *
 	 * @param string       $logger_slug    The logger slug (e.g. 'SimpleMediaLogger').
@@ -550,7 +551,7 @@ class Events_Stats {
 	 * @return int|false Number of failed logins, or false if invalid dates.
 	 */
 	public function get_failed_logins_count( $date_from, $date_to ) {
-		return $this->get_event_count( 'SimpleUserLogger', [ 'user_login_failed', 'user_unknown_login_failed' ], $date_from, $date_to );
+		return $this->get_event_count( 'SimpleUserLogger', User_Logger::get_failed_login_message_keys(), $date_from, $date_to );
 	}
 
 	/**
@@ -1104,6 +1105,12 @@ class Events_Stats {
 	public function get_failed_logins_details( $date_from, $date_to, $limit, $include_ip ) {
 		global $wpdb;
 
+		$failed_login_keys = User_Logger::get_failed_login_message_keys();
+
+		// One %s per failed-login message key, matched by the merged argument array below.
+		$message_key_placeholders = implode( ',', array_fill( 0, count( $failed_login_keys ), '%s' ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		if ( $include_ip ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			return $wpdb->get_results(
@@ -1129,16 +1136,14 @@ class Events_Stats {
 							FROM {$wpdb->prefix}simple_history_contexts c_msg 
 							WHERE c_msg.history_id = h.id 
 							AND c_msg.key = '_message_key'
-							AND c_msg.value IN ('user_login_failed', 'user_unknown_login_failed')
+							AND c_msg.value IN (" . $message_key_placeholders . ')
 						)
 					GROUP BY 
 						c.value
 					ORDER BY 
 						failed_count DESC
-					LIMIT %d",
-					$date_from,
-					$date_to,
-					$limit
+					LIMIT %d',
+					array_merge( [ $date_from, $date_to ], $failed_login_keys, [ $limit ] )
 				)
 			);
 		}
@@ -1164,18 +1169,17 @@ class Events_Stats {
 						FROM {$wpdb->prefix}simple_history_contexts c_msg 
 						WHERE c_msg.history_id = h.id 
 						AND c_msg.key = '_message_key'
-						AND c_msg.value IN ('user_login_failed', 'user_unknown_login_failed')
+						AND c_msg.value IN (" . $message_key_placeholders . ')
 					)
 				GROUP BY 
 					c.value
 				ORDER BY 
 					failed_count DESC
-				LIMIT %d",
-				$date_from,
-				$date_to,
-				$limit
+				LIMIT %d',
+				array_merge( [ $date_from, $date_to ], $failed_login_keys, [ $limit ] )
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 	}
 
 	/**
@@ -1746,15 +1750,16 @@ class Events_Stats {
 	 * @return int|false Total count of user events, or false if invalid dates.
 	 */
 	public function get_user_total_count( $date_from, $date_to ) {
-		$user_events = [
-			'user_logged_in',
-			'user_unknown_logged_in',
-			'user_login_failed',
-			'user_unknown_login_failed',
-			'user_updated_profile',
-			'user_created',
-			'user_deleted',
-		];
+		$user_events = array_merge(
+			[
+				'user_logged_in',
+				'user_unknown_logged_in',
+				'user_updated_profile',
+				'user_created',
+				'user_deleted',
+			],
+			User_Logger::get_failed_login_message_keys()
+		);
 		return $this->get_event_count( 'SimpleUserLogger', $user_events, $date_from, $date_to );
 	}
 
