@@ -732,18 +732,59 @@ box it expands.
 	}
 }
 
+/*
+Key-value list for event details (user profile edits, plugin meta, option
+changes). Markup is a <dl> with <dt>/<dd> pairs as direct children; the class
+name keeps "Table" from the years it was a <table>.
+
+Laid out as a grid so the key column is exactly as wide as the widest key in
+that event, never wider. A real table cannot do this: without a min-width a
+long value squeezes the key column until short keys wrap, and with one (the
+old min-width: 8em) short keys float away from the left edge.
+
+fit-content(min(16em, 45%)) caps runaway keys (WooCommerce setting labels) so
+they wrap instead of pushing every value off to the right, and minmax(0, 1fr)
+stops long unbreakable values from stealing width from the keys.
+*/
+.SimpleHistoryLogitem__keyValueTable {
+	display: grid;
+	grid-template-columns: fit-content(min(16em, 45%)) minmax(0, 1fr);
+	column-gap: 1em;
+	row-gap: 2px;
+	margin: 0;
+}
+
+.SimpleHistoryLogitem__keyValueTable > dt,
+.SimpleHistoryLogitem__keyValueTable > dd {
+	margin: 0;
+	word-break: break-word;
+}
+
+.SimpleHistoryLogitem__keyValueTable > dt {
+	text-align: right;
+	color: #757575;
+	overflow-wrap: anywhere;
+}
+
+/*
+Third-party loggers may still emit the pre-5.33 markup, a <table> with two
+<td> per row. Flatten its rows into the same grid so they render identically.
+*/
+.SimpleHistoryLogitem__keyValueTable > tbody,
+.SimpleHistoryLogitem__keyValueTable > tbody > tr {
+	display: contents;
+}
+
 .SimpleHistoryLogitem__keyValueTable th,
 .SimpleHistoryLogitem__keyValueTable td {
 	vertical-align: top;
 	word-break: break-word;
 }
 
-.SimpleHistoryLogitem__keyValueTable tr > td:first-child {
+.SimpleHistoryLogitem__keyValueTable > tbody > tr > :first-child {
 	text-align: right;
-	padding-right: 1em;
 	color: #757575;
-	min-width: 8em;
-	/* white-space: nowrap; */
+	overflow-wrap: anywhere;
 }
 
 .SimpleHistoryLogitem__keyValueTable p {

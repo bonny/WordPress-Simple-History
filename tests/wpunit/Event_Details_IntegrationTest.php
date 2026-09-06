@@ -48,7 +48,7 @@ class Event_Details_IntegrationTest extends \Codeception\TestCase\WPTestCase {
 		
 		// Test HTML output
 		$html = $container->to_html();
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should generate settings table' );
+		$this->assertStringContainsString( '<dl class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should generate settings table' );
 		$this->assertStringContainsString( 'Show on Dashboard', $html, 'Should contain setting names' );
 		$this->assertStringContainsString( 'SimpleHistoryLogitem__keyValueTable__addedThing', $html, 'Should highlight new values' );
 		$this->assertStringContainsString( 'SimpleHistoryLogitem__keyValueTable__removedThing', $html, 'Should highlight old values' );
@@ -123,7 +123,7 @@ class Event_Details_IntegrationTest extends \Codeception\TestCase\WPTestCase {
 		$html = $container->to_html();
 		$this->assertStringContainsString( '<p>', $html, 'Should contain inline paragraph for summary' );
 		$this->assertStringContainsString( 'SimpleHistoryLogitem__inlineDivided', $html, 'Should have inline divided items' );
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain details table' );
+		$this->assertStringContainsString( '<dl class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain details table' );
 		$this->assertStringContainsString( 'plugin-description', $html, 'Should contain custom description formatting' );
 		
 		// Test JSON output structure
@@ -176,7 +176,7 @@ class Event_Details_IntegrationTest extends \Codeception\TestCase\WPTestCase {
 		
 		// Test HTML output
 		$html = $container->to_html();
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain tables' );
+		$this->assertStringContainsString( '<dl class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should contain tables' );
 		$this->assertStringContainsString( 'Content Changes', $html, 'Should contain content changes section' );
 		$this->assertStringContainsString( 'Post Information', $html, 'Should contain metadata section' );
 		$this->assertStringContainsString( 'Updated', $html, 'Should contain new title' );
@@ -254,7 +254,7 @@ class Event_Details_IntegrationTest extends \Codeception\TestCase\WPTestCase {
 		// Verify different formatting styles are present
 		$this->assertStringContainsString( '<p>', $html, 'Should have inline summary paragraph' );
 		$this->assertStringContainsString( 'SimpleHistoryLogitem__inlineDivided', $html, 'Should have inline divided items' );
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should have details table' );
+		$this->assertStringContainsString( '<dl class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should have details table' );
 		$this->assertStringContainsString( 'file-preview', $html, 'Should have custom preview section' );
 		$this->assertStringContainsString( 'max-width: 150px', $html, 'Should have custom styling' );
 		
@@ -492,7 +492,7 @@ class Event_Details_IntegrationTest extends \Codeception\TestCase\WPTestCase {
 		$string_output = (string) $container;
 		
 		// Test HTML structure and content
-		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should have table for settings' );
+		$this->assertStringContainsString( '<dl class="SimpleHistoryLogitem__keyValueTable">', $html, 'Should have table for settings' );
 		$this->assertStringContainsString( '<p>', $html, 'Should have paragraph for inline features' );
 		$this->assertStringContainsString( 'user-info', $html, 'Should have custom user info section' );
 		
