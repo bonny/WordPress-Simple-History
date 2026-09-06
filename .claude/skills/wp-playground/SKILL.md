@@ -2,7 +2,7 @@
 name: wp-playground
 description: Use for quick local testing with WordPress Playground CLI. Spins up a disposable WordPress instance with the plugin mounted — no Docker needed. Ideal for worktrees, quick feature checks, and parallel testing on different branches.
 allowed-tools: Bash, Read, Write, Edit, Glob
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # WordPress Playground CLI for Quick Testing

@@ -11,6 +11,7 @@ import {
 } from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
+import { HiddenMessageTypes } from './HiddenMessageTypes';
 
 /**
  * Search component with a search input visible by default.
@@ -55,6 +56,7 @@ export function EventsSearchFilters( props ) {
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
 		setIsReactionsEnabled,
+		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setAlertsPageURL,
@@ -62,6 +64,8 @@ export function EventsSearchFilters( props ) {
 		setUserCanManageOptions,
 		hideOwnEvents,
 		setHideOwnEvents,
+		excludeMessages,
+		setExcludeMessages,
 		defaultDateOptionRef,
 		handleClearFilters,
 		hasAnyActiveFilters,
@@ -210,6 +214,12 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.reactions_enabled
 				);
 
+				setIsExperimentalFeaturesEnabled(
+					Boolean(
+						searchOptionsResponse.experimental_features_enabled
+					)
+				);
+
 				setHasFailedLoginLimit(
 					searchOptionsResponse.has_failed_login_limit
 				);
@@ -274,6 +284,7 @@ export function EventsSearchFilters( props ) {
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
 		setIsReactionsEnabled,
+		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
 		setAlertsPageURL,
@@ -350,6 +361,10 @@ export function EventsSearchFilters( props ) {
 						) }
 					</DefaultFilters>
 				</div>
+				<HiddenMessageTypes
+					excludeMessages={ excludeMessages }
+					setExcludeMessages={ setExcludeMessages }
+				/>
 				{ moreOptionsIsExpanded ? (
 					<div
 						className="SimpleHistory-filters__expandedFilters"

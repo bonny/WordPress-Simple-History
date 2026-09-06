@@ -31,6 +31,10 @@ HELPER_SCRIPT="$SCRIPT_DIR/parallel-dev-helper.js"
 HELPER_LOG=/tmp/sh-parallel-dev-helper.log
 HELPER_TOKEN_FILE="$MAIN_REPO/.claude/parallel-dev-helper-token"
 MU_PLUGINS_DIR="$SCRIPT_DIR/playground-mu-plugins"
+# The open-in-app helper runs on this machine and needs paths as this machine
+# sees them. A site running in a container only knows its own mount points, so
+# record the host path where the mounted repo can read it back.
+HOST_PATH_FILE="$MAIN_REPO/.claude/dev-host-path"
 
 # Deterministic application password provisioned in every instance, so REST
 # calls work with plain Basic auth (no cookie/nonce dance). Local-only, so a
@@ -133,6 +137,11 @@ helper_running() {
 
 # Shared secret between instances and the helper, so random web pages
 # can't trigger /open. Stable across helper restarts.
+write_host_path_file() {
+	mkdir -p "$(dirname "$HOST_PATH_FILE")"
+	printf '%s\n' "$MAIN_REPO" > "$HOST_PATH_FILE"
+}
+
 helper_token() {
 	if [ ! -f "$HELPER_TOKEN_FILE" ]; then
 		uuidgen | tr -d '-' > "$HELPER_TOKEN_FILE"
@@ -142,6 +151,8 @@ helper_token() {
 }
 
 helper_start() {
+	write_host_path_file
+
 	helper_running && return 0
 
 	local roots=("$MAIN_REPO")
@@ -185,7 +196,11 @@ issue_file_for() {
 
 	[ -n "${SH_NOTES_DIR:-}" ] || return 0
 
-	ls "$SH_NOTES_DIR/Simple History/issues/${BASH_REMATCH[1]} - "*.md 2>/dev/null | head -1
+	# `|| true` because a missing issue is normal, not an error: the issue may
+	# have been archived while its worktree is still up. Without it, `ls`
+	# failing propagates through pipefail and set -e aborts the whole command
+	# — which made `up` die silently for any slug whose issue had been filed away.
+	ls "$SH_NOTES_DIR/Simple History/issues/${BASH_REMATCH[1]} - "*.md 2>/dev/null | head -1 || true
 }
 
 # obsidian:// deep link to the issue document, for the dev toolbar.
@@ -398,10 +413,17 @@ cmd_up() {
 		echo "Note: blueprint defines WP_ENVIRONMENT_TYPE — keeping it. Basic-auth REST access needs 'local' over plain HTTP."
 	fi
 
+	# The branch has to be passed in: a worktree's .git is a file pointing at
+	# an absolute path on this machine, which the container serving the site
+	# cannot follow, so the toolbar cannot read it for itself.
+	local branch_name
+	branch_name="$(git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '')"
+
 	local extra_consts
 	extra_consts="$(jq -n \
 		--arg url "$site_url" \
 		--arg path "$dir" \
+		--arg branch "$branch_name" \
 		--argjson hport "$HELPER_PORT" \
 		--arg token "$(helper_token)" \
 		--arg issue "$issue_url" \
@@ -414,7 +436,8 @@ cmd_up() {
 		  SH_DEV_APP_USER: $app_user, SH_DEV_APP_PASSWORD: $app_password}
 		 + (if $set_env then {WP_ENVIRONMENT_TYPE: "local"} else {} end)
 		 + (if $named then {WP_HOME: $url, WP_SITEURL: $url} else {} end)
-		 + (if $issue != "" then {SH_DEV_ISSUE_URL: $issue} else {} end)')"
+		 + (if $issue != "" then {SH_DEV_ISSUE_URL: $issue} else {} end)
+		 + (if $branch != "" then {SH_DEV_BRANCH: $branch} else {} end)')"
 
 	jq --argjson consts "$extra_consts" \
 		'.steps += [{"step": "defineWpConfigConsts", "consts": $consts}]' \

@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 7.1
-Stable tag: 5.30.0
+Stable tag: 5.32.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -266,9 +266,71 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Redirection settings changes now show which settings changed and their previous values.
+-   Redirection events link to the affected redirect or group, and to the relevant Redirection screen.
+
+**Changed**
+
+-   The "similar events" link under grouped events is now a proper expand/collapse control that keeps keyboard focus, matching the expand-diff control.
+-   Event details (profile edits, plugin info, changed settings) now line up with the event text: the label column is only as wide as its longest label, so values start further left and long labels wrap instead of pushing values off-screen.
+-   The details list is now a definition list (`<dl>`) instead of a table. Developers who append `<tr>` rows through the `simple_history/post_logger/post_updated/diff_table_output` filter still get a working table, but should switch to `<dt>`/`<dd>` pairs.
+
+**Fixed**
+
+-   Plain-text event details (Copy as text, alerts) no longer drop a value of "0" or run a group title into the first label.
+-   Redirection plugin events are logged again with Redirection 5.10.0 and later.
+-   The admin bar quick view now says when events could not be loaded.
+
+**Security**
+
+-   Redirection events can no longer be added to the log by users without permission to manage redirects.
+
+### 5.32.0 (September 2026)
+
+Expandable diffs, a "View revision" link that opens the exact revision a change created, and a fix for failed application password logins flooding the log.
+[Read more about it in the release post](https://simple-history.com/2026/simple-history-5-32-0-released/)
+
+**Added**
+
+-   Long diffs can be expanded in place with an "Expand diff" button.
+-   Note events carry the same action links as the page or post the note belongs to.
+-   Experimental — "Hide events of this type" in an event's actions menu removes that event type from the current list. Hidden types show as removable chips above the list and never change what gets logged.
+
+**Changed**
+
+-   Post and page events link to the revision the change created, labelled "View revision". On WordPress 7.1 and later it opens the editor's visual revision view.
+-   Site icon changes show the old and new icon as images, side by side, instead of attachment IDs.
+-   Action links below events are grey until the event is hovered or focused, and separated by a dot in the dashboard widget.
+-   When a license key has reached its activation limit, the settings page explains why and how to free it up from the Lemon Squeezy "My orders" page.
+-   Experimental — Event fields sent to AI tools through the WordPress Abilities API carry readable labels and descriptions, following the [output schema conventions added in WordPress 7.1](https://make.wordpress.org/core/2026/07/31/abilities-api-improvements-in-wordpress-7-1/).
+
+**Fixed**
+
+-   Relative times ("2 minutes ago") could be off by the site's UTC offset.
+-   "Copy event message" and "Copy as Markdown" copied the site's time instead of the time shown in the log.
+-   Content diffs use the same green and red as WordPress core's revision screen. Some events used a different set.
+-   "Edited your profile" events no longer appear when nothing changed. The block editor saves editor preferences to your user record, and each save was logged as a profile edit.
+-   Notes inside a block (WordPress 7.1) no longer show a literal `<br>` tag, and a note starting with an @mention no longer has it glued to the next word.
+-   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable.
+-   Failed application password logins are throttled, grouped, filtered and counted like other failed logins. A brute-force attack against the REST API could previously flood the log.
+-   Featured image changes on posts no longer show raw "thumb_id" and "thumb_title" rows, show "None" on the empty side, load small thumbnails, and are included in the structured event details.
+-   Uploading a zip over an installed theme or plugin is logged as an update, downgrade or reinstall, instead of as a new install.
+
+**Security**
+
+-   Misc security hardening.
+
+### 5.31.0 (August 2026)
+
+🎨 Site Editor changes are now logged — templates, template parts, site-wide styles, patterns, navigation menus and fonts. This release also adds support for the official **WordPress AI plugin**, so you can see which plugins and themes have been granted access to which AI providers, plus a round of security hardening and the usual fixes.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-31-0-released/)
+
+**Added**
+
 -   Site Editor changes are now logged: templates, template parts, site-wide styles, patterns, navigation menus and fonts, including changes made outside the block editor. Resetting a template to the theme default is logged as a reset, not a deletion.
 -   Support for the official WordPress AI plugin: Simple History now logs when AI features are enabled or disabled, when a feature's AI provider or model is changed, and when plugins or themes request, are granted, or lose access to AI providers on the Connector Approvals screen. API keys and AI prompt content are never stored in the log.
 -   `--format=json` and `--format=yaml` on `wp simple-history info`, so a deploy or CI script can check that Premium is active and licensed.
+-   Experimental — Activity log is now available to AI tools and automation through the WordPress Abilities API (WordPress 6.9+). Read-only — nothing exposed can change or delete log entries.
 
 **Changed**
 
@@ -283,7 +345,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   `wp simple-history info` never showed the license line on sites with Premium active.
 -   Event counts are now grouped for your locale — "187 304 events" rather than "187304 events" — in the log header, the stats bar, pagination and grouped-event counts.
 -   Backfill notice showed a stray `&nbsp;` in its item counts on locales that separate thousands with a space.
--   "Today" and "Yesterday" date dividers in the log and dashboard widget switched over at UTC midnight instead of your own midnight, so recent events could sit under the wrong day.
+-   "Today" and "Yesterday" date dividers, and the "Today" label on each event, switched over at UTC midnight instead of your own midnight, so recent events could show the wrong day.
 -   Welcome notice shown after install no longer appears on the history page it links to, so its "Take a look" link always goes somewhere.
 -   Log now shows the real reason it failed to load instead of "Unknown error" — on most sites every error detail was being discarded before it reached the screen.
 -   Database errors while loading the log now name the problem, so you can act on it or pass it to your host.

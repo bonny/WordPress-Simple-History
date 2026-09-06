@@ -143,11 +143,11 @@ class Event_Details_Item_FormattersTest extends \Codeception\TestCase\WPTestCase
 		$html = $formatter->to_html();
 		$json = $formatter->to_json();
 		
-		$this->assertStringContainsString( '<tr>', $html, 'Should start with table row' );
-		$this->assertStringContainsString( '<td>Table Field</td>', $html, 'Should have field name in first cell' );
-		$this->assertStringContainsString( '<td>', $html, 'Should have second cell for value' );
+		$this->assertStringContainsString( '<dt>', $html, 'Should start with a term (key) cell' );
+		$this->assertStringContainsString( '<dt>Table Field</dt>', $html, 'Should have field name in first cell' );
+		$this->assertStringContainsString( '<dd>', $html, 'Should have value cell' );
 		$this->assertStringContainsString( 'Table Value', $html, 'Should contain the value in second cell' );
-		$this->assertStringContainsString( '</tr>', $html, 'Should end with closing table row' );
+		$this->assertStringContainsString( '</dd>', $html, 'Should end with closing value cell' );
 		
 		// JSON should delegate to default formatter
 		$this->assertIsArray( $json, 'JSON should be an array' );
@@ -174,7 +174,7 @@ class Event_Details_Item_FormattersTest extends \Codeception\TestCase\WPTestCase
 		
 		$html = $formatter->to_html();
 		
-		$this->assertStringContainsString( '<td>Changed Table Field</td>', $html, 'Should have field name' );
+		$this->assertStringContainsString( '<dt>Changed Table Field</dt>', $html, 'Should have field name' );
 		$this->assertStringContainsString( 'SimpleHistoryLogitem__keyValueTable__addedThing', $html, 'Should have added styling for new value' );
 		$this->assertStringContainsString( 'SimpleHistoryLogitem__keyValueTable__removedThing', $html, 'Should have removed styling for old value' );
 		$this->assertStringContainsString( 'New Table Value', $html, 'Should contain new value' );
@@ -206,10 +206,10 @@ class Event_Details_Item_FormattersTest extends \Codeception\TestCase\WPTestCase
 		
 		$html = $formatter->to_html();
 		
-		$this->assertStringContainsString( '<tr>', $html, 'Should start with table row' );
-		$this->assertStringContainsString( '<td>RAW Table Field</td>', $html, 'Should have escaped field name in first cell' );
-		$this->assertStringContainsString( '<td>' . $custom_html . '</td>', $html, 'Should have raw HTML in second cell' );
-		$this->assertStringContainsString( '</tr>', $html, 'Should end with closing table row' );
+		$this->assertStringContainsString( '<dt>', $html, 'Should start with a term (key) cell' );
+		$this->assertStringContainsString( '<dt>RAW Table Field</dt>', $html, 'Should have escaped field name in first cell' );
+		$this->assertStringContainsString( '<dd>' . $custom_html . '</dd>', $html, 'Should have raw HTML in second cell' );
+		$this->assertStringContainsString( '</dd>', $html, 'Should end with closing value cell' );
 	}
 
 	public function test_table_row_raw_formatter_empty_html_output() {
@@ -246,10 +246,10 @@ class Event_Details_Item_FormattersTest extends \Codeception\TestCase\WPTestCase
 		
 		$html = $formatter->to_html();
 		
-		$this->assertStringContainsString( '<tr>', $html, 'Should start with table row' );
-		$this->assertStringContainsString( '<td>Diff Field</td>', $html, 'Should have field name in first cell' );
-		$this->assertStringContainsString( '<td>', $html, 'Should have second cell for diff' );
-		$this->assertStringContainsString( '</tr>', $html, 'Should end with closing table row' );
+		$this->assertStringContainsString( '<dt>', $html, 'Should start with a term (key) cell' );
+		$this->assertStringContainsString( '<dt>Diff Field</dt>', $html, 'Should have field name in first cell' );
+		$this->assertStringContainsString( '<dd>', $html, 'Should have value cell for diff' );
+		$this->assertStringContainsString( '</dd>', $html, 'Should end with closing value cell' );
 		
 		// The diff content will depend on the Helpers::text_diff implementation
 		// but we can check that it's not just basic diff highlighting

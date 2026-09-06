@@ -143,6 +143,7 @@ class Simple_History {
 	 */
 	private function get_services() {
 		$services = array(
+			Services\Abilities_Service::class,
 			Services\AddOns_Licences::class,
 			Services\Admin_Page_Premium_Promo::class,
 			Services\Admin_Pages::class,
@@ -1063,7 +1064,7 @@ class Simple_History {
 			$is_simple_history_extended_settings_active = Helpers::is_extended_settings_add_on_active();
 			$is_simple_history_premium_active           = Helpers::is_premium_add_on_active();
 
-			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, [ 'user_login_failed', 'user_unknown_login_failed' ], true ) ) {
+			if ( $logger === 'SimpleUserLogger' && in_array( $message_key, Loggers\User_Logger::get_failed_login_message_keys(), true ) ) {
 
 				$ƒailed_login_attempts_settings_page_url = Helpers::get_settings_page_tab_url( 'failed-login-attempts' );
 

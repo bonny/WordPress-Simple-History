@@ -4,6 +4,46 @@ import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/components';
 import { pinSmall } from '@wordpress/icons';
 
+// Event times are shown in the visitor's own time zone, so group the days by
+// that zone too. A divider must never disagree with the time printed under it.
+const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+// Building today's and yesterday's keys costs a moment parse each, and this
+// module runs twice per row on every render of the list. They only change at
+// midnight, so reuse them and rebuild on a short interval instead.
+const DAY_KEYS_MAX_AGE_MS = 10 * 1000;
+
+let cachedDayKeys = null;
+let cachedDayKeysAtMs = 0;
+
+/**
+ * Get today's and yesterday's date keys, in the visitor's time zone.
+ *
+ * @return {{todayYmd: string, yesterdayYmd: string}} The two date keys.
+ */
+function getDayKeys() {
+	const nowMs = Date.now();
+
+	if ( cachedDayKeys && nowMs - cachedDayKeysAtMs < DAY_KEYS_MAX_AGE_MS ) {
+		return cachedDayKeys;
+	}
+
+	const todayYmd = date( 'Y-m-d', new Date(), browserTimeZone );
+
+	// Step back one calendar day on the date string itself. Subtracting 24
+	// hours from a timestamp would land on the same day across a DST change.
+	const yesterday = new Date( `${ todayYmd }T12:00:00Z` );
+	yesterday.setUTCDate( yesterday.getUTCDate() - 1 );
+
+	cachedDayKeys = {
+		todayYmd,
+		yesterdayYmd: yesterday.toISOString().split( 'T' )[ 0 ],
+	};
+	cachedDayKeysAtMs = nowMs;
+
+	return cachedDayKeys;
+}
+
 /**
  * Get the date key for an event (used for comparison logic).
  *
@@ -20,11 +60,6 @@ function getEventDateKey( event ) {
 		return 'sticky';
 	}
 
-	// Event times are shown in the visitor's own time zone, so group the days
-	// by that zone too. A divider must never disagree with the time printed
-	// under it.
-	const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
 	// date_gmt carries no offset, so mark it as UTC. A bare date_local string
 	// would be read as browser-local and then merely converted, which moves
 	// the day whenever the visitor is not in the website's time zone.
@@ -35,13 +70,7 @@ function getEventDateKey( event ) {
 		eventDateTimeInGMTTimeZone,
 		browserTimeZone
 	);
-	const todayYmd = date( 'Y-m-d', new Date(), browserTimeZone );
-
-	// Step back one calendar day on the date string itself. Subtracting 24
-	// hours from a timestamp would land on the same day across a DST change.
-	const yesterday = new Date( `${ todayYmd }T12:00:00Z` );
-	yesterday.setUTCDate( yesterday.getUTCDate() - 1 );
-	const yesterdayYmd = yesterday.toISOString().split( 'T' )[ 0 ];
+	const { todayYmd, yesterdayYmd } = getDayKeys();
 
 	if ( eventYmd === todayYmd ) {
 		return 'today';
@@ -58,20 +87,16 @@ function getEventDateKey( event ) {
 }
 
 /**
- * Get the label for the event divider.
+ * Get the label to display for an event divider date key.
  *
- * @param {Object} root0       - The parameter object.
- * @param {Object} root0.event - The event object.
+ * @param {string} dateKey - A key from getEventDateKey().
  * @return {string|Object} The label for the event divider.
  */
-function getEventDividerLabel( { event } ) {
-	// Bail if not event.
-	if ( ! event ) {
+function getEventDividerLabel( dateKey ) {
+	// Bail if there is no key, ie. there is no event.
+	if ( ! dateKey ) {
 		return '';
 	}
-
-	// Get the date key and convert to display format
-	const dateKey = getEventDateKey( event );
 
 	if ( dateKey === 'sticky' ) {
 		return (
@@ -90,35 +115,17 @@ function getEventDividerLabel( { event } ) {
 	return dateKey;
 }
 
-/**
- * Get a comparable string key for the event divider label.
- * Used for comparison logic to determine if label should be shown.
- *
- * @param {Object} root0       - The parameter object.
- * @param {Object} root0.event - The event object.
- * @return {string} A comparable string key for the label.
- */
-function getEventDividerLabelKey( { event } ) {
-	return getEventDateKey( event );
-}
-
-export function EventSeparator( {
-	event,
-	eventVariant,
-	prevEvent,
-	loopIndex,
-} ) {
+export function EventSeparator( { event, eventVariant, prevEvent } ) {
 	if ( eventVariant === 'modal' ) {
 		return null;
 	}
 
-	const label = getEventDividerLabel( { event, loopIndex } );
+	// The key doubles as the label source, so derive it once per event rather
+	// than recomputing it for the label and again for the comparison.
+	const labelKey = getEventDateKey( event );
+	const prevEventLabelKey = getEventDateKey( prevEvent );
 
-	const labelKey = getEventDividerLabelKey( { event, loopIndex } );
-	const prevEventLabelKey = getEventDividerLabelKey( {
-		event: prevEvent,
-		loopIndex: loopIndex - 1,
-	} );
+	const label = getEventDividerLabel( labelKey );
 
 	const outputLabel = labelKey !== prevEventLabelKey;
 

@@ -115,7 +115,7 @@ class Setup_Purge_DB_Cron extends Service {
 
 		// Process deletions in batches of 100,000 rows to avoid memory exhaustion,
 		// query timeouts, and long table locks. Loop continues until no old events remain.
-		while ( 1 > 0 ) {
+		while ( true ) {
 			// Get id of rows to delete.
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 			$sql = "SELECT id FROM {$table_name} WHERE {$where} LIMIT 100000";

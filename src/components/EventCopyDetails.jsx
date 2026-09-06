@@ -2,9 +2,14 @@ import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
+import { dateI18n } from '@wordpress/date';
 import { addQueryArgs } from '@wordpress/url';
 import { CopyMenuItem } from './CopyMenuItem';
-import { htmlToPlainText } from '../functions';
+import { getEventDate, htmlToPlainText } from '../functions';
+
+// Copied text should read in the same zone as the row it was copied from, and
+// the log renders event times in the visitor's own.
+const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 // Module-level cache of per-event context payloads. Capped to keep memory bounded
 // in long admin sessions where the user opens the actions menu on many events.
@@ -105,9 +110,11 @@ function formatEventDetails( event ) {
 		: '';
 
 	// Format date: YYYY-MM-DD (month d yyyy) at HH:mm:ss
+	// Read off the event's absolute time: the getters below are browser-local,
+	// so date_local would round-trip back to the site's wall clock instead.
 	let formattedDate = '';
-	if ( event.date_local ) {
-		const dateObj = new Date( event.date_local.replace( ' ', 'T' ) );
+	const dateObj = getEventDate( event );
+	if ( dateObj ) {
 		const year = dateObj.getFullYear();
 		const month = dateObj.toLocaleString( 'default', { month: 'long' } );
 		const day = dateObj.getDate();
@@ -253,8 +260,12 @@ function formatEventAsMarkdown( event ) {
 	const heading = message ? message.replace( /\n/g, ' ' ) : 'Event';
 
 	const rows = [];
-	if ( event.date_local ) {
-		rows.push( [ 'When', event.date_local ] );
+	const when = getEventDate( event );
+	if ( when ) {
+		rows.push( [
+			'When',
+			dateI18n( 'Y-m-d H:i:s', when, browserTimeZone ),
+		] );
 	}
 	if ( who ) {
 		rows.push( [ 'Who', who ] );

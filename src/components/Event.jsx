@@ -20,8 +20,6 @@ export function Event( props ) {
 		variant = 'normal',
 		isNewAfterFetchNewEvents,
 		prevEvent,
-		nextEvent,
-		loopIndex,
 		isCenterEvent,
 		isSurroundingEventsMode,
 	} = props;
@@ -47,8 +45,6 @@ export function Event( props ) {
 				event={ event }
 				eventVariant={ variant }
 				prevEvent={ prevEvent }
-				nextEvent={ nextEvent }
-				loopIndex={ loopIndex }
 			/>
 
 			<div className="SimpleHistoryLogitem__firstcol">

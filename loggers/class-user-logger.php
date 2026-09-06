@@ -137,6 +137,8 @@ class User_Logger extends Logger {
 						_x( 'Failed user logins', 'User logger: search', 'simple-history' ) => array(
 							'user_login_failed',
 							'user_unknown_login_failed',
+							'user_application_password_login_failed',
+							'user_application_password_unknown_login_failed',
 						),
 						_x( 'Failed login (known user)', 'User logger: search', 'simple-history' ) => array(
 							'user_login_failed',
@@ -176,6 +178,44 @@ class User_Logger extends Logger {
 				),
 
 			),
+		);
+	}
+
+	/**
+	 * Message keys for failed login attempts by an existing user, whichever
+	 * way they authenticated (login form or application password).
+	 *
+	 * @var string[]
+	 */
+	public const FAILED_LOGIN_MESSAGE_KEYS_EXISTING_USER = [
+		'user_login_failed',
+		'user_application_password_login_failed',
+	];
+
+	/**
+	 * Message keys for failed login attempts with an unknown username or email.
+	 *
+	 * @var string[]
+	 */
+	public const FAILED_LOGIN_MESSAGE_KEYS_UNKNOWN_USER = [
+		'user_unknown_login_failed',
+		'user_application_password_unknown_login_failed',
+	];
+
+	/**
+	 * Get every message key that represents a failed login attempt.
+	 *
+	 * This is the one list the failed login throttling in core and premium
+	 * should use, so a new failed-login message key only needs adding here.
+	 *
+	 * @since 5.32.0
+	 *
+	 * @return string[]
+	 */
+	public static function get_failed_login_message_keys() {
+		return array_merge(
+			self::FAILED_LOGIN_MESSAGE_KEYS_EXISTING_USER,
+			self::FAILED_LOGIN_MESSAGE_KEYS_UNKNOWN_USER
 		);
 	}
 
@@ -475,7 +515,10 @@ class User_Logger extends Logger {
 			'request_method'         => sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ),
 			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
 			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
-			'_occasionsID'           => self::class . '/failed_application_password_login',
+			// Same occasions group as failed logins through the login form. A
+			// brute force burst that mixes both channels then collapses into
+			// one row instead of alternating between two groups.
+			'_occasionsID'           => self::class . '/failed_user_login',
 		);
 
 		$is_unknown_user = in_array( $error_code, array( 'invalid_username', 'invalid_email' ), true );
@@ -613,8 +656,67 @@ class User_Logger extends Logger {
 		// Remove keys used for diff.
 		unset( $context['user_prev_roles'], $context['user_new_roles'] );
 
+		// Bail if nothing actually changed. WordPress fires profile_update even
+		// when wp_update_user() only touched user meta, e.g. when the block editor
+		// persists editor preferences via REST. Logging those as profile edits
+		// creates events for edits that never happened.
+		if ( ! $this->profile_update_context_has_changes( $context ) ) {
+			return;
+		}
+
 		$this->info_message( 'user_updated_profile', $context );
 	}
+
+	/**
+	 * Check if a collected profile update context contains any real change:
+	 * a changed users-table field, a changed password, or a role change.
+	 *
+	 * @param array $context Context collected for the profile update.
+	 * @return bool True if at least one change is recorded in the context.
+	 */
+	private function profile_update_context_has_changes( $context ) {
+		if ( ! empty( $context['edited_user_password_changed'] ) ) {
+			return true;
+		}
+
+		if ( ! empty( $context['user_added_roles'] ) || ! empty( $context['user_removed_roles'] ) ) {
+			return true;
+		}
+
+		foreach ( array_keys( $context ) as $key ) {
+			if ( str_starts_with( $key, 'user_prev_' ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Profile fields diffed on update: the users-table columns plus the meta
+	 * fields WordPress's own profile form saves through wp_update_user().
+	 *
+	 * @var string[]
+	 */
+	private const PROFILE_FIELDS_TO_DIFF = [
+		'user_login',
+		'user_pass',
+		'user_nicename',
+		'user_email',
+		'user_url',
+		'display_name',
+		'nickname',
+		'first_name',
+		'last_name',
+		'description',
+		'rich_editing',
+		'syntax_highlighting',
+		'comment_shortcuts',
+		'admin_color',
+		'use_ssl',
+		'show_admin_bar_front',
+		'locale',
+	];
 
 	/**
 	 * Filters user data before the record is created or updated.
@@ -669,10 +771,24 @@ class User_Logger extends Logger {
 		// Get user object that contains old/existing values.
 		$user_before_update = get_user_by( 'ID', $user_id );
 
+		if ( ! $user_before_update instanceof \WP_User ) {
+			return $data;
+		}
+
 		$password_changed = false;
 
 		foreach ( $userdata as $option_key => $one_maybe_updated_option_value ) {
-			$prev_option_value = $user_before_update->$option_key;
+			// Only diff fields this logger knows how to read back. $userdata holds
+			// everything handed to wp_update_user(): the role, and any field a
+			// plugin adds to the profile form. Reading those off WP_User falls
+			// through to user meta, which is often empty, so each save produced a
+			// "" -> value diff and logged an edit that never happened. The role is
+			// diffed separately below from the roles array.
+			if ( ! in_array( $option_key, self::PROFILE_FIELDS_TO_DIFF, true ) ) {
+				continue;
+			}
+
+			$prev_option_value = $user_before_update->get( $option_key );
 			$add_diff          = true;
 
 			// Some options need special treatment.

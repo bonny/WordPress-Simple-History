@@ -99,7 +99,7 @@ class Admin extends \AcceptanceTester
 
         $I->waitForElementVisible('.SimpleHistoryLogitems');
 
-        $I->see($text, ".SimpleHistoryLogitem:nth-child({$child}) .SimpleHistoryLogitem__details tr");
+        $I->see($text, ".SimpleHistoryLogitem:nth-child({$child}) .SimpleHistoryLogitem__details .SimpleHistoryLogitem__keyValueTable");
     }
 
     /**

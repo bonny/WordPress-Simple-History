@@ -71,5 +71,5 @@ Use the **github-project** skill for project board automation, IDs, and GraphQL 
 -   Issues are tracked locally in Obsidian (use the `local-issues` skill), not on GitHub
 -   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos. Never add any sensitive information to this document, like API keys or passwords, since this document will be commited to GIT and can be shown on GitHub.
 -   Don't add to git or commit without user explicitly saying so
--   Pushing branch commits does NOT deploy. The WordPress.org deploy runs only when a **semver tag** is pushed (see `.github/workflows/deploy.yml`; `workflow_dispatch` allows a manual run). So pushing `develop`/`main` without a new tag is safe — it will not release. (Pushing is still an outward, shared-remote action, so confirm before doing it.)
+-   Pushing branch commits does NOT deploy. The WordPress.org deploy runs only when a **semver tag** is pushed (see `.github/workflows/deploy.yml`; `workflow_dispatch` allows a manual run). So pushing `main` without a new tag is safe — it will not release. (Pushing is still an outward, shared-remote action, so confirm before doing it.)
 -   Never add auth tokens or api keys to code or documents in /docs folder

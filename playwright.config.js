@@ -5,6 +5,12 @@ const baseURL =
 	process.env.PLAYWRIGHT_BASE_URL ||
 	'http://wordpress-stable-docker-mariadb.test:8282';
 
+// Where the cached admin session is written and read from. Overridable so a
+// run against another install — wp-env, say — gets its own session file
+// instead of overwriting the one for the dev WordPress.
+const storageState =
+	process.env.PLAYWRIGHT_STORAGE_STATE || 'tests/playwright/.auth/admin.json';
+
 // Specs captured by tests/screenshot/run.sh against the fresh Playground
 // instance (plus `banner`, which renders local HTML over file://).
 const screenshotSpecs = [
@@ -44,18 +50,44 @@ module.exports = defineConfig( {
 			name: 'setup',
 			testMatch: /auth\.setup\.js/,
 		},
+		// These two specs flip the site-wide experimental-features option
+		// through the dev-tools endpoint. Run in parallel they race each
+		// other, so they run as a chain of their own before `tests`.
+		{
+			name: 'experimental-privacy',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /privacy-data\.spec\.js$/,
+			dependencies: [ 'setup' ],
+		},
+		{
+			name: 'experimental-hide',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /hide-event-type\.spec\.js$/,
+			dependencies: [ 'experimental-privacy' ],
+		},
 		{
 			name: 'tests',
 			use: {
 				...devices[ 'Desktop Chrome' ],
 				// Reuse admin login session across tests.
-				storageState: 'tests/playwright/.auth/admin.json',
+				storageState,
 			},
 			// Screenshot specs are not tests — they run via the dedicated
 			// `screenshot` project (tests/screenshot/run.sh) against a fresh
 			// Playground instance, so keep them out of the regular suite.
-			testIgnore: /screenshot-.*\.spec\.js$/,
-			dependencies: [ 'setup' ],
+			// The experimental-features specs run in their own projects above.
+			testIgnore: [
+				/screenshot-.*\.spec\.js$/,
+				/privacy-data\.spec\.js$/,
+				/hide-event-type\.spec\.js$/,
+			],
+			dependencies: [ 'experimental-hide' ],
 		},
 		{
 			// Teaser user-card screenshots, captured against the dev WordPress
@@ -65,7 +97,7 @@ module.exports = defineConfig( {
 			name: 'teaser',
 			use: {
 				...devices[ 'Desktop Chrome' ],
-				storageState: 'tests/playwright/.auth/admin.json',
+				storageState,
 			},
 			testMatch: /screenshot-teaser-.*\.spec\.js$/,
 			dependencies: [ 'setup' ],
