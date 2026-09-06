@@ -23,8 +23,8 @@ class Event_Details_Item_Image_Diff_FormatterTest extends \Codeception\TestCase\
 
 		$html = $formatter->to_html();
 
-		$this->assertStringStartsWith( '<tr>', trim( $html ) );
-		$this->assertStringContainsString( '<td>Featured image</td>', $html );
+		$this->assertStringStartsWith( '<dt>', trim( $html ) );
+		$this->assertStringContainsString( '<dt>Featured image</dt>', $html );
 
 		$this->assertMatchesRegularExpression(
 			'#class="diff-deletedline".*?old\.png.*?src="https://example\.com/old\.png".*?class="diff-addedline".*?new\.png.*?src="https://example\.com/new\.png"#s',

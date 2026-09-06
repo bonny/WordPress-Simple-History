@@ -84,10 +84,10 @@ class PostLoggerFeaturedImageDiffTest extends \Codeception\TestCase\WPTestCase {
 			)
 		);
 
-		$this->assertStringNotContainsString( '<td>thumb_id</td>', $html );
-		$this->assertStringNotContainsString( '<td>thumb_title</td>', $html );
-		// Outer rows start with a bare <td>; the inner diff table's cells carry a class.
-		$this->assertSame( 1, preg_match_all( '#<tr>\s*<td>#', $html ), 'Only the featured image row should be rendered' );
+		$this->assertStringNotContainsString( '<dt>thumb_id</dt>', $html );
+		$this->assertStringNotContainsString( '<dt>thumb_title</dt>', $html );
+		// Outer rows are <dt>/<dd> pairs; the inner diff table's cells are <td> with a class.
+		$this->assertSame( 1, preg_match_all( '#<dt>#', $html ), 'Only the featured image row should be rendered' );
 	}
 
 	public function test_added_featured_image_shows_none_in_deleted_cell() {
