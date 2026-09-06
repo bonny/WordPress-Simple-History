@@ -684,14 +684,16 @@ cmd_status() {
 
 		port="" pid="" url="" premium="" multisite=""
 		if [ -f "$dir/.playground.json" ]; then
-			# multisite is always "true"/"false" (never empty), so it goes
-			# before the possibly-empty premium field: `read` with IFS set
-			# to tab still collapses *adjacent* empty fields (tab counts as
-			# IFS whitespace), which would misalign every column after an
-			# empty one in the middle of the row. A trailing empty field is
-			# unaffected, so premium — the one that's often empty — stays last.
+			# `read` with IFS set to tab still collapses *adjacent* empty
+			# fields (tab counts as IFS whitespace), which shifts every
+			# field after an empty one in the middle of the row. So the
+			# only field allowed to be empty is the last one — premium —
+			# and multisite is stringified to "true"/"false" (never "")
+			# so it can safely sit before it. `map(. // "")` alone is not
+			# enough: JSON `false` is falsy for jq's `//`, so plain
+			# `(.multisite // false)` still collapses to "" here.
 			IFS=$'\t' read -r port pid url multisite premium <<< "$(jq -r \
-				'[.port, .pid, .url, (.multisite // false), .premium] | map(. // "") | @tsv' \
+				'[.port, .pid, .url, (if .multisite == true then "true" else "false" end), .premium] | map(. // "") | @tsv' \
 				"$dir/.playground.json" 2>/dev/null)" || true
 		fi
 
