@@ -272,9 +272,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   The "similar events" link under grouped events is now a proper expand/collapse control that keeps keyboard focus, matching the expand-diff control.
+-   Event details (profile edits, plugin info, changed settings) now line up with the event text: the label column is only as wide as its longest label, so values start further left and long labels wrap instead of pushing values off-screen.
+-   The details list is now a definition list (`<dl>`) instead of a table. Developers who append `<tr>` rows through the `simple_history/post_logger/post_updated/diff_table_output` filter still get a working table, but should switch to `<dt>`/`<dd>` pairs.
 
 **Fixed**
 
+-   Plain-text event details (Copy as text, alerts) no longer drop a value of "0" or run a group title into the first label.
 -   Redirection plugin events are logged again with Redirection 5.10.0 and later.
 -   The admin bar quick view now says when events could not be loaded.
 
