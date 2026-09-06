@@ -2,6 +2,48 @@
 
 namespace Simple_History\Services;
 
+use WP_CLI;
+use WP_CLI_Command;
+
+/**
+ * WP CLI command that searches the history.
+ *
+ * Deprecated: kept as a thin alias for `wp simple-history event list --search=<term>`,
+ * which supports the same search plus many more filters.
+ */
+class WP_CLI_Search_Command extends WP_CLI_Command {
+	/**
+	 * Search the log. (Deprecated — use `wp simple-history event list --search=<term>` instead.)
+	 *
+	 * ## OPTIONS
+	 *
+	 * <search>
+	 * : Words to search for.
+	 *
+	 * [--older_than=<date>]
+	 * : Only show events older than this date. Alias for --date_to on the list command.
+	 *
+	 * [--newer_than=<date>]
+	 * : Only show events newer than this date. Alias for --date_from on the list command.
+	 *
+	 * [--format=<format>]
+	 * : Format of output. Defaults to table. Options: table, json, csv, yaml.
+	 *
+	 * [--count=<number>]
+	 * : Default 10.
+	 *
+	 * [--network]
+	 * : Search the network log (requires Simple History Premium on a multisite network).
+	 *
+	 * ## Examples
+	 *
+	 *     wp simple-history search "activated plugin"
+	 *     wp simple-history search "created user" --count=20
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Associative arguments.
+	 */
+	public function search( $args, $assoc_args ) {
 		WP_CLI::warning(
 			'The "event search" command is deprecated and will be removed in a future version. Use "wp simple-history event list --search=<term>" instead. Note: output columns have changed (ID and via are now included).'
 		);
