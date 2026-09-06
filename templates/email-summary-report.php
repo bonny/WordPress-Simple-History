@@ -147,38 +147,38 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 	<![endif]-->
 	<style>
 		table, td, div, h1, p {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;}
-		
+
 		/* Mobile styles */
 		@media only screen and (max-width: 599px) {
 			.email-container {
 				width: calc(100% - 40px) !important;
 			}
-			
+
 			.fluid {
 				max-width: 100% !important;
 				width: 100% !important;
 				height: auto !important;
 			}
-			
+
 			.mobile-padding {
 				padding: 20px !important;
 			}
-			
+
 			.mobile-text {
 				font-size: 16px !important; line-height: 24px !important;
 			}
-			
+
 			.mobile-header {
 				font-size: 26px !important;
 				line-height: 32px !important;
 			}
-			
+
 			.mobile-stat {
 				display: block !important;
 				width: 100% !important;
 				margin-bottom: 10px !important;
 			}
-			
+
 			.mobile-breakdown {
 				display: block !important;
 				width: 48% !important;
@@ -188,10 +188,10 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 	</style>
 </head>
 <body style="margin: 0; padding: 0; width: 100%; word-break: break-word; -webkit-font-smoothing: antialiased; background-color: #FFF4E4;">
-	
+
 	<div role="article" aria-roledescription="email" lang="<?php echo esc_attr( get_locale() ); ?>" 
 		style="text-size-adjust: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; background-color: #FFF4E4;">
-		
+
 		<!-- Visually Hidden Preheader Text -->
 		<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
 			<?php
@@ -212,10 +212,10 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 			}
 			?>
 		</div>
-		
+
 		<!-- Email Container -->
 		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="500" style="margin: auto;" class="email-container">
-			
+
 			<!-- Logo -->
 			<tr>
 				<td style="padding: 40px 0 20px; text-align: left;">
@@ -250,7 +250,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 					</table>
 				</td>
 			</tr>
-			
+
 			<!-- White Container Starts -->
 			<tr>
 				<td style="background-color: #ffffff; border-radius: 8px 8px 0 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" class="email-container">
@@ -258,18 +258,18 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 						<tr>
 							<td style="padding: 30px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: center; background-color: #ffffff;" 
 								class="mobile-padding email-container" role="main">
-								
+
 					<!-- Main Headline -->
 					<h1 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 600; text-align: left; text-wrap: balance;"
 						class="mobile-header">
 						<?php echo esc_html( __( 'Website activity summary', 'simple-history' ) ); ?>
 					</h1>
-					
+
 					<!-- Date Range -->
 					<p style="margin: 0 0 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 18px; color: #000000; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; text-align: left;">
 						<?php echo esc_html( $args['date_range'] ); ?>
 					</p>
-					
+
 					<!-- Subtitle -->
 					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;"
 						class="mobile-text">
@@ -297,7 +297,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 						);
 						?>
 					</p>
-					
+
 					<?php
 					if ( $show_main_core_stats ) {
 						?>
@@ -340,13 +340,13 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 								<?php echo esc_html( number_format_i18n( $args['total_events_this_week'] ) ); ?>
 							</div>
 						</div>
-						
+
 						<!-- Weekly Activity Breakdown -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
 								<?php echo esc_html( __( 'Event count by day', 'simple-history' ) ); ?>
 							</h2>
-							
+
 							<?php
 							// Create a lookup array from most_active_days for easy access.
 							// Data is already keyed by day number (0-6) to avoid language issues.
@@ -370,7 +370,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 
 							// Iterate through each day in the range.
 							while ( $current_date <= $end_date ) {
-								$day_name   = $current_date->format( 'l' ); // Full day name (e.g., "Monday").
+								$day_name   = wp_date( 'l', $current_date->getTimestamp() ); // Full day name (e.g., "Monday").
 								$day_number = (int) $current_date->format( 'w' ); // Day of week (0=Sunday, 6=Saturday).
 
 								// Get full formatted date for tooltip.
@@ -397,7 +397,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 								$current_date = $current_date->modify( '+1 day' );
 							}
 							?>
-							
+
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<?php
@@ -431,7 +431,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 								</tr>
 							</table>
 						</div>
-						
+
 						<!-- Posts Section -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
@@ -591,7 +591,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
 								<?php echo esc_html( __( 'Users', 'simple-history' ) ); ?>
 							</h2>
-							
+
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
@@ -642,7 +642,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
 								<?php echo esc_html( __( 'Plugins', 'simple-history' ) ); ?>
 							</h2>
-							
+
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
@@ -727,7 +727,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 					</div>
 
 					<?php echo wp_kses_post( $content_after_core_stats ); ?>
-					
+
 					<!-- View All Events Button -->
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
 						<tr>
@@ -739,7 +739,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 							</td>
 						</tr>
 					</table>
-					
+
 					<!-- Upsell Section -->
 					<?php
 					if ( $show_upsell ) {
@@ -766,9 +766,9 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 						</table>
 					</td>
 				</tr>
-					
+
 		</table>
-		
+
 		<!-- Unsubscribe Text Outside White Container -->
 		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="500" style="padding: 40px 0;" class="email-container">
 			<tr>
@@ -808,7 +808,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 				</td>
 			</tr>
 		</table>
-		
+
 	</div>
 </body>
 </html>

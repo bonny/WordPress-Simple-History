@@ -524,16 +524,17 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Test get_log_row_details_output with capabilities context.
+	 * Get the latest logged row as an object with its context attached,
+	 * in the shape get_log_row_details_output() expects.
+	 *
+	 * @return object
 	 */
-	public function test_log_row_details_with_caps() {
-		add_role( 'test_role', 'Test Role', [ 'read' => true ] );
-		$this->flush_logger();
-
-		// Get the latest row as an object for get_log_row_details_output.
+	private function get_latest_row_with_context() {
 		global $wpdb;
+
 		$db_table = $this->sh->get_events_table_name();
 		$db_table_contexts = $this->sh->get_contexts_table_name();
+
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$row = $wpdb->get_row( "SELECT * FROM {$db_table} ORDER BY id DESC LIMIT 1" );
 
@@ -543,15 +544,110 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 			$wpdb->prepare( "SELECT `key`, `value` FROM {$db_table_contexts} WHERE history_id = %d", $row->id ),
 			ARRAY_A
 		);
+
 		$row->context = [];
+
 		foreach ( $context_rows as $ctx ) {
 			$row->context[ $ctx['key'] ] = $ctx['value'];
 		}
+
+		return $row;
+	}
+
+	/**
+	 * Get the names of the items in an event details group.
+	 *
+	 * @param \Simple_History\Event_Details\Event_Details_Group $group Group to read.
+	 * @return array<string>
+	 */
+	private function get_details_item_names( $group ) {
+		return array_map(
+			function ( $item ) {
+				return $item->name;
+			},
+			$group->items
+		);
+	}
+
+	/**
+	 * Test get_log_row_details_output with capabilities context.
+	 */
+	public function test_log_row_details_with_caps() {
+		add_role( 'test_role', 'Test Role', [ 'read' => true ] );
+		$this->flush_logger();
+
+		$row = $this->get_latest_row_with_context();
 
 		$output = $this->logger->get_log_row_details_output( $row );
 
 		// Should return Event_Details_Group with capabilities item.
 		$this->assertInstanceOf( \Simple_History\Event_Details\Event_Details_Group::class, $output );
+		$this->assertContains(
+			'Capabilities',
+			$this->get_details_item_names( $output ),
+			'Short capability lists should be shown in the details panel'
+		);
+	}
+
+	/**
+	 * Long capability lists are left out of the details panel, because listing
+	 * 80+ slugs floods the panel and buries the other items.
+	 *
+	 * The count stays in the event message and the full list stays in context.
+	 */
+	public function test_log_row_details_omits_long_caps_list() {
+		$caps = [];
+
+		for ( $i = 0; $i < 30; $i++ ) {
+			$caps[ 'test_cap_' . $i ] = true;
+		}
+
+		add_role( 'test_role', 'Test Role', $caps );
+		$this->flush_logger();
+
+		$row = $this->get_latest_row_with_context();
+
+		$this->assertEquals( 30, (int) $row->context['cap_count'], 'Sanity check: all caps should be counted' );
+
+		$output = $this->logger->get_log_row_details_output( $row );
+
+		// No other details items exist for this event, so the whole group is empty.
+		$this->assertEmpty( $output, 'A 30 capability list should not be shown in the details panel' );
+
+		// The full list is still stored in context, reachable via the event
+		// details modal and the REST API.
+		$this->assertStringContainsString(
+			'test_cap_29',
+			$row->context['capabilities'],
+			'Full capability list should still be stored in context'
+		);
+	}
+
+	/**
+	 * Long capability lists are omitted, but other details items are kept.
+	 */
+	public function test_log_row_details_keeps_other_items_when_caps_omitted() {
+		$caps = [];
+
+		for ( $i = 0; $i < 30; $i++ ) {
+			$caps[ 'test_cap_' . $i ] = true;
+		}
+
+		add_role( 'test_role', 'Test Role', $caps );
+		$this->flush_logger();
+
+		$row = $this->get_latest_row_with_context();
+
+		// Simulate the role having been created during a plugin activation.
+		$row->context['plugin_context_name'] = 'Yoast SEO';
+		$row->context['plugin_context_action'] = 'activation';
+
+		$output = $this->logger->get_log_row_details_output( $row );
+
+		$item_names = $this->get_details_item_names( $output );
+
+		$this->assertContains( 'During activation of', $item_names, 'Plugin context should still be shown' );
+		$this->assertNotContains( 'Capabilities', $item_names, 'Long capability list should be omitted' );
 	}
 
 	/**

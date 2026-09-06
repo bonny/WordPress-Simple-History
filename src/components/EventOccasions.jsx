@@ -1,11 +1,19 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, ExternalLink } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { EventOccasionsList } from './EventOccasionsList';
-import { getTrackingUrl } from '../functions';
+import { numberFormatI18n, getTrackingUrl } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
+
+// Mirrors User_Logger::get_failed_login_message_keys() in PHP.
+const FAILED_LOGIN_MESSAGE_KEYS = [
+	'user_login_failed',
+	'user_unknown_login_failed',
+	'user_application_password_login_failed',
+	'user_application_password_unknown_login_failed',
+];
 
 /**
  * Displays some text for failed login attempts.
@@ -30,11 +38,9 @@ function EventOccasionsAddonsContent( props ) {
 		return null;
 	}
 
-	// Bail if the event is not a failed login attempt.
-	if (
-		event.message_key !== 'user_login_failed' &&
-		event.message_key !== 'user_unknown_login_failed'
-	) {
+	// Bail if the event is not a failed login attempt. Application password
+	// failures on the REST API count too; the same settings throttle them.
+	if ( ! FAILED_LOGIN_MESSAGE_KEYS.includes( event.message_key ) ) {
 		return null;
 	}
 
@@ -86,10 +92,7 @@ function EventOccasionsAddonsContent( props ) {
  * @param {Object} props
  */
 export function EventOccasions( props ) {
-	const {
-		event,
-		eventVariant,
-	} = props;
+	const { event, eventVariant } = props;
 	const { subsequent_occasions_count: subsequentOccasionsCount } = event;
 	const [ isLoadingOccasions, setIsLoadingOccasions ] = useState( false );
 	const [ isShowingOccasions, setIsShowingOccasions ] = useState( false );
@@ -106,6 +109,8 @@ export function EventOccasions( props ) {
 		return null;
 	}
 
+	const occasionsCount = subsequentOccasionsCount - 1;
+
 	const loadOccasions = async () => {
 		setIsLoadingOccasions( true );
 
@@ -113,7 +118,7 @@ export function EventOccasions( props ) {
 			type: 'occasions',
 			logRowID: event.id,
 			occasionsID: event.occasions_id,
-			occasionsCount: subsequentOccasionsCount - 1,
+			occasionsCount,
 			occasionsCountMaxReturn,
 			per_page: 5,
 			_fields: [
@@ -156,72 +161,83 @@ export function EventOccasions( props ) {
 		}
 	};
 
-	const showOccasionsEventsContent = (
-		<div className="SimpleHistoryLogitem__occasions">
-			<Button
-				variant="link"
-				aria-expanded={ false }
-				onClick={ ( evt ) => {
-					loadOccasions();
-					evt.preventDefault();
-				} }
-			>
-				{ sprintf(
-					/* translators: %s: number of similar events */
-					_n(
-						'+%1$s similar event',
-						'+%1$s similar events',
-						subsequentOccasionsCount - 1,
-						'simple-history'
-					),
-					subsequentOccasionsCount - 1
-				) }
-			</Button>
+	// Clicking while expanded collapses back to the count. Clicking while
+	// collapsed loads and expands. This is the same button in both states —
+	// see the label below — so keyboard/screen-reader focus never drops the
+	// way it would if collapsed and expanded rendered two different buttons.
+	const onToggleClick = ( evt ) => {
+		evt.preventDefault();
 
-			<EventOccasionsAddonsContent
-				event={ event }
-			/>
-		</div>
-	);
+		// Ignore clicks while a request is already in flight.
+		if ( isLoadingOccasions ) {
+			return;
+		}
+
+		if ( isShowingOccasions ) {
+			setIsShowingOccasions( false );
+
+			return;
+		}
+
+		loadOccasions();
+	};
+
+	let toggleLabel;
+
+	if ( isLoadingOccasions ) {
+		toggleLabel = __( 'Loading…', 'simple-history' );
+	} else if ( isShowingOccasions ) {
+		toggleLabel = sprintf(
+			/* translators: %1$s: number of similar events */
+			_n(
+				'Hide %1$s similar event',
+				'Hide %1$s similar events',
+				occasionsCount,
+				'simple-history'
+			),
+			numberFormatI18n( occasionsCount )
+		);
+	} else {
+		toggleLabel = sprintf(
+			/* translators: %1$s: number of similar events */
+			_n(
+				'Show %1$s similar event',
+				'Show %1$s similar events',
+				occasionsCount,
+				'simple-history'
+			),
+			numberFormatI18n( occasionsCount )
+		);
+	}
 
 	return (
 		<div>
-			{ ! isShowingOccasions && ! isLoadingOccasions
-				? showOccasionsEventsContent
-				: null }
+			<div className="SimpleHistoryLogitem__occasions">
+				<button
+					type="button"
+					className="SimpleHistory__disclosureToggle"
+					aria-expanded={ isShowingOccasions }
+					aria-busy={ isLoadingOccasions }
+					onClick={ onToggleClick }
+				>
+					{ toggleLabel }
+				</button>
 
-			{ isLoadingOccasions ? (
-				<div className="SimpleHistoryLogitem__occasions">
-					{ __( 'Loading…', 'simple-history' ) }
-				</div>
-			) : null }
+				{ ! isShowingOccasions && ! isLoadingOccasions ? (
+					<EventOccasionsAddonsContent event={ event } />
+				) : null }
+			</div>
 
 			{ isShowingOccasions ? (
-				<>
-					<div className="SimpleHistoryLogitem__occasions">
-						<Button
-							variant="link"
-							aria-expanded={ true }
-							onClick={ () => setIsShowingOccasions( false ) }
-						>
-							{ sprintf(
-								/* translators: %s: number of similar events */
-								__( 'Showing %1$s more', 'simple-history' ),
-								subsequentOccasionsCount - 1
-							) }
-						</Button>
-					</div>
-
-					<EventOccasionsList
-						isLoadingOccasions={ isLoadingOccasions }
-						isShowingOccasions={ isShowingOccasions }
-						occasions={ occasions }
-						parentEvent={ event }
-						eventVariant={ eventVariant }
-						subsequent_occasions_count={ subsequentOccasionsCount }
-						occasionsCountMaxReturn={ occasionsCountMaxReturn }
-					/>
-				</>
+				<EventOccasionsList
+					isLoadingOccasions={ isLoadingOccasions }
+					isShowingOccasions={ isShowingOccasions }
+					occasions={ occasions }
+					parentEvent={ event }
+					eventVariant={ eventVariant }
+					subsequent_occasions_count={ subsequentOccasionsCount }
+					occasionsCountMaxReturn={ occasionsCountMaxReturn }
+				/>
 			) : null }
 		</div>
 	);

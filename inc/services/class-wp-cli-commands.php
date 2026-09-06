@@ -78,6 +78,12 @@ class WP_CLI_Commands extends Service {
 			WP_CLI_Commands\WP_CLI_Core_Files_Command::class,
 		);
 
+		// Add command `wp simple-history info` — version + premium add-on status.
+		WP_CLI::add_command(
+			'simple-history info',
+			WP_CLI_Commands\WP_CLI_Info_Command::class,
+		);
+
 		// Add command `wp simple-history dev` commands (reset).
 		// Only available when SIMPLE_HISTORY_DEV constant is true.
 		if ( ! Helpers::dev_mode_is_enabled() ) {

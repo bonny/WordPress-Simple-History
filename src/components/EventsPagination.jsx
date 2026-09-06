@@ -6,6 +6,7 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
+import { numberFormatI18n } from '../functions';
 
 const firstPageIcon = (
 	<svg
@@ -116,7 +117,7 @@ export function EventsPagination( props ) {
 								'paging',
 								'simple-history'
 							),
-							totalPages
+							numberFormatI18n( totalPages )
 						),
 						{
 							CurrentPageControl: (

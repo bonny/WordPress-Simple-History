@@ -21,7 +21,8 @@ export function ExportButton() {
 				'simple-history'
 			),
 			download,
-			exportFeatureImage
+			exportFeatureImage,
+			'premium_global_modal_export'
 		);
 	};
 

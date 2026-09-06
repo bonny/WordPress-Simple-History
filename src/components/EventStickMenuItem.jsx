@@ -34,7 +34,8 @@ export function EventStickMenuItem( { event, onClose, hasPremiumAddOn } ) {
 				'simple-history'
 			),
 			pin,
-			stickEventsFeatureImage
+			stickEventsFeatureImage,
+			'premium_global_modal_sticky'
 		);
 
 		onClose();

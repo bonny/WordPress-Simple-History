@@ -115,7 +115,10 @@ class RSS_Dropin extends Dropin {
 		$create_secret_nonce_name = 'simple_history_rss_secret_regenerate_nonce';
 		$create_nonce_ok          = isset( $_GET[ $create_secret_nonce_name ] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET[ $create_secret_nonce_name ] ) ), 'simple_history_rss_update_secret' );
 
-		if ( $create_nonce_ok ) {
+		// Nonce alone is not authorization: rotating the secret invalidates
+		// every existing feed URL, so require the settings capability too.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
+		if ( $create_nonce_ok && current_user_can( Helpers::get_view_settings_capability() ) ) {
 			$this->update_rss_secret();
 
 			// Add updated-message and store in transient and then redirect
@@ -260,7 +263,10 @@ class RSS_Dropin extends Dropin {
 			get_bloginfo( 'name' )
 		);
 
-		if ( $rss_secret_option === $rss_secret_get ) {
+		// Constant time comparison: a match below unlocks the whole log, so this
+		// is a bearer secret and must not be compared with a short circuiting
+		// operator that leaks how many leading characters matched.
+		if ( hash_equals( (string) $rss_secret_option, (string) $rss_secret_get ) ) {
 			echo PHP_EOL;
 
 			?>
@@ -332,14 +338,9 @@ class RSS_Dropin extends Dropin {
 					 */
 					$args = apply_filters( 'simple_history/rss_feed_args', $args );
 
-					$logQuery     = new Log_Query();
-					$queryResults = $logQuery->query( $args );
-
 					// Remove capability override after query is done
 					// remove_action( $action_tag, '__return_true', 10 );.
-					if ( is_wp_error( $queryResults ) ) {
-						$queryResults = array( 'log_rows' => array() );
-					}
+					$queryResults = $this->query_events_for_feed( $args );
 
 					foreach ( $queryResults['log_rows'] as $row ) {
 						$header_output  = $this->clean_broken_links( $this->simple_history->get_log_row_header_output( $row ) );
@@ -375,54 +376,15 @@ class RSS_Dropin extends Dropin {
 							Log_Levels::get_log_level_translated( $row->level )
 						);
 
-						$wp_kses_attrs = array(
-							'a'      => array(
-								'href'            => array(),
-								'class'           => array(),
-								'data-ip-address' => array(),
-								'target'          => array(),
-								'title'           => array(),
-							),
-							'em'     => array(),
-							'span'   => array(
-								'class'       => array(),
-								'title'       => array(),
-								'aria-hidden' => array(),
-							),
-							'time'   => array(
-								'datetime' => array(),
-								'class'    => array(),
-							),
-							'strong' => array(
-								'class' => array(),
-							),
-							'div'    => array(
-								'class'    => array(),
-								'tabindex' => array(),
-							),
-							'p'      => array(),
-							'del'    => array(),
-							'ins'    => array(),
-							'table'  => array(
-								'class' => array(),
-							),
-							'tbody'  => array(),
-							'tr'     => array(),
-							'td'     => array(
-								'class' => array(),
-							),
-							'col'    => array(
-								'class' => array(),
-							),
-						);
+						$wp_kses_attrs = $this->get_allowed_html();
 						?>
 						<item>
 						<title><?php echo esc_xml( $item_title ); ?></title>
 							<description><![CDATA[
-								<p><?php echo wp_kses( $header_output, $wp_kses_attrs ); ?></p>
-								<p><?php echo wp_kses( $text_output, $wp_kses_attrs ); ?></p>
-								<div><?php echo wp_kses( $details_output, $wp_kses_attrs ); ?></div>
-								<p><?php echo wp_kses( $level_output, $wp_kses_attrs ); ?></p>
+								<p><?php echo $this->escape_cdata( wp_kses( $header_output, $wp_kses_attrs ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by wp_kses() above. ?></p>
+								<p><?php echo $this->escape_cdata( wp_kses( $text_output, $wp_kses_attrs ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by wp_kses() above. ?></p>
+								<div><?php echo $this->escape_cdata( wp_kses( $details_output, $wp_kses_attrs ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by wp_kses() above. ?></div>
+								<p><?php echo $this->escape_cdata( wp_kses( $level_output, $wp_kses_attrs ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by wp_kses() above. ?></p>
 								<?php
 								// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 								$occasions = $row->subsequentOccasions - 1;
@@ -477,6 +439,63 @@ class RSS_Dropin extends Dropin {
 	}
 
 	/**
+	 * Tags and attributes allowed in feed item bodies.
+	 *
+	 * The event details markup must survive this list: the key-value list
+	 * (dl/dt/dd since 5.33, table/tr/td before that), change markers
+	 * (ins/del) and the diff table.
+	 *
+	 * @return array<string, array<string, array>> Allowed HTML in wp_kses() format.
+	 */
+	public function get_allowed_html() {
+		return array(
+				'a'      => array(
+					'href'            => array(),
+					'class'           => array(),
+					'data-ip-address' => array(),
+					'target'          => array(),
+					'title'           => array(),
+				),
+				'em'     => array(),
+				'span'   => array(
+					'class'       => array(),
+					'title'       => array(),
+					'aria-hidden' => array(),
+				),
+				'time'   => array(
+					'datetime' => array(),
+					'class'    => array(),
+				),
+				'strong' => array(
+					'class' => array(),
+				),
+				'div'    => array(
+					'class'    => array(),
+					'tabindex' => array(),
+				),
+				'p'      => array(),
+				'del'    => array(),
+				'ins'    => array(),
+				'dl'     => array(
+					'class' => array(),
+				),
+				'dt'     => array(),
+				'dd'     => array(),
+				'table'  => array(
+					'class' => array(),
+				),
+				'tbody'  => array(),
+				'tr'     => array(),
+				'td'     => array(
+					'class' => array(),
+				),
+				'col'    => array(
+					'class' => array(),
+				),
+		);
+	}
+
+	/**
 	 * Clean broken links from HTML output.
 	 *
 	 * Finds <a> tags with unresolved {placeholder} hrefs or empty hrefs
@@ -504,6 +523,25 @@ class RSS_Dropin extends Dropin {
 		}
 
 		return $processor->get_updated_html();
+	}
+
+	/**
+	 * Make a string safe to place inside a CDATA section.
+	 *
+	 * A CDATA section ends at the first `]]>`, so any occurrence inside the content
+	 * would terminate it early and produce invalid XML. The standard workaround is to
+	 * split the sequence across two CDATA sections.
+	 *
+	 * Neither wp_kses() nor wp_strip_all_tags() removes `]]>` — there is no `<`
+	 * involved — so logger output reaching the feed can contain it. Comment content is
+	 * unauthenticated, which makes this the one field anyone can use to break the feed.
+	 *
+	 * @since 5.28.0
+	 * @param string $content Content to place inside a CDATA section.
+	 * @return string Content safe for CDATA.
+	 */
+	private function escape_cdata( $content ) {
+		return str_replace( ']]>', ']]]]><![CDATA[>', $content );
 	}
 
 	/**
@@ -634,6 +672,36 @@ class RSS_Dropin extends Dropin {
 		 * @since 4.0
 		 */
 		do_action( 'simple_history/feeds/settings_section_description' );
+	}
+
+	/**
+	 * Run the feed query, degrading to an empty feed instead of an error.
+	 *
+	 * date_from, date_to and dates reach us from the query string, so a feed
+	 * reader holding a stale or hand-edited URL can supply a value Log_Query
+	 * refuses to parse. Log_Query throws for those, and an uncaught throw here
+	 * would replace the feed with a fatal.
+	 *
+	 * A feed reader cannot render an error page, so there is no useful way to
+	 * report the bad argument the way the REST API (HTTP 400) and WP-CLI (a
+	 * message) do. An empty but valid feed is the honest fallback, and it is
+	 * the same shape the WP_Error branch already produced.
+	 *
+	 * @param array $args Log query args.
+	 * @return array Query results, or an empty result set.
+	 */
+	public function query_events_for_feed( $args ) {
+		try {
+			$results = ( new Log_Query() )->query( $args );
+		} catch ( \InvalidArgumentException $exception ) {
+			return array( 'log_rows' => array() );
+		}
+
+		if ( is_wp_error( $results ) ) {
+			return array( 'log_rows' => array() );
+		}
+
+		return $results;
 	}
 
 	/**

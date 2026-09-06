@@ -24,34 +24,35 @@
 			$( '.SimpleHistory_SidebarChart_ChartDatasetData' ).val()
 		);
 
-		const color = getComputedStyle(
+		const baseColor = getComputedStyle(
 			document.documentElement
 		).getPropertyValue( '--sh-color-blue' );
 
-		// Highlight today (last data point) with a visible dot.
+		// Highlight today (last bar) with amber — a complementary hue
+		// shift against the blue bars so "current day" reads instantly
+		// without competing on lightness.
+		const accentColor = '#f0a500';
+
 		const lastIndex = chartDatasetData.length - 1;
-		const pointRadii = chartDatasetData.map( ( _, i ) =>
-			i === lastIndex ? 4 : 0
-		);
-		const pointHoverRadii = chartDatasetData.map( ( _, i ) =>
-			i === lastIndex ? 6 : 3
+		const barColors = chartDatasetData.map( ( _, index ) =>
+			index === lastIndex ? accentColor : baseColor
 		);
 
 		// Create chart.
 		const myChart = new window.Chart( ctx, {
-			type: 'line',
+			type: 'bar',
 			data: {
 				labels: chartLabels,
 				datasets: [
 					{
 						label: '',
 						data: chartDatasetData,
-						borderColor: color,
-						backgroundColor: color,
-						borderWidth: 2,
-						pointRadius: pointRadii,
-						pointHoverRadius: pointHoverRadii,
-						pointBackgroundColor: color,
+						backgroundColor: barColors,
+						borderColor: barColors,
+						borderWidth: 0,
+						borderRadius: 2,
+						categoryPercentage: 0.9,
+						barPercentage: 0.85,
 					},
 				],
 			},

@@ -6,9 +6,7 @@ class PluginDuplicatePostLoggerCest
 {
     public function _before(Admin $I) {
         $I->loginAsAdmin();
-        $I->amOnPluginsPage();
-        $I->activatePlugin('duplicate-post');
-        $I->canSeePluginActivated('duplicate-post');        
+        $I->activatePluginByFile('duplicate-post/duplicate-post.php');
     }
     
     public function clonePage(Admin $I) {

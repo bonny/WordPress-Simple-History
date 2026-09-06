@@ -2,19 +2,9 @@
 
 ## Code Quality
 
-For comprehensive code quality guidelines, see the **code-quality** skill which covers:
-
--   PHP standards and style guide
--   CSS naming conventions (SuitCSS)
--   Tooling (phpcs, phpstan, rector)
--   IDE integration
+For comprehensive code quality guidelines, see the **code-quality** skill.
 
 ## Quick Reference
-
--   Code standards is WordPress own
--   **phpcodesniffer** is used to format code
--   **phpstan** is used to check for bugs
--   **rector** is used to update code
 
 ### Common Commands
 
@@ -24,36 +14,7 @@ For comprehensive code quality guidelines, see the **code-quality** skill which 
 # npm run build compiles all entry points (index, admin-bar, command-palette).
 # npx wp-scripts build only compiles index.js, causing missing asset errors.
 npm run build
-
-# Lint PHP
-npm run php:lint
-
-# Fix PHP issues
-npm run php:lint-fix
-
-# Static analysis
-npm run php:phpstan
 ```
-
-## Arrays: Short Syntax for New Code
-
-New PHP code must use the short array syntax (`[]`), not `array()`. Existing `array()` call sites can stay as-is — don't churn unrelated lines just to convert — but anything you add or rewrite should use `[]`.
-
-```php
-// Good: Short syntax for new code.
-protected $network_scoped_message_keys = [
-    'plugin_installed',
-    'plugin_deleted',
-];
-
-// Avoid in new code.
-protected $network_scoped_message_keys = array(
-    'plugin_installed',
-    'plugin_deleted',
-);
-```
-
-`phpcs.xml.dist` permits both, so the linter won't catch regressions — this rule is enforced by reviewers and agents.
 
 ## Whitespace: Let the Code Breathe
 
@@ -92,45 +53,13 @@ return $result;
 return $result; // Return because user is not authorized
 ```
 
-**Why comments above are preferred:**
-
--   More visible and easier to scan
--   Avoids pushing lines beyond character limits
--   Easier to maintain consistent formatting
--   Git diffs show comment changes separately from code changes
-
-### Minimize Comments (Clean Code)
-
-Prefer self-documenting code over explanatory comments. As Robert Martin's "Clean Code" advises: comments often compensate for failure to express intent in code.
-
-```php
-// Avoid: Comment explains unclear code.
-// Check if user can edit posts.
-if ( $user->cap & 0x04 ) { ... }
-
-// Better: Self-documenting code needs no comment.
-if ( $user->can_edit_posts() ) { ... }
-```
-
-**When comments are appropriate:**
-
--   Explaining intent or "why" (not "what")
--   Warning of consequences
--   Clarifying complex algorithms
--   TODO markers for future work
-
 ## Frontend Development
 
 ### WordPress JavaScript Compatibility
 
-Simple History supports WordPress 6.3+, which means the `@wordpress/*` packages available in wp-admin vary across versions. Important rules:
+Simple History supports WordPress 6.3+, so `@wordpress/*` imports must exist in WP 6.3. The full externals-vs-bundled rules live in [src/CLAUDE.md](src/CLAUDE.md), loaded when working in `src/`.
 
--   **`@wordpress/components`, `@wordpress/element`, `@wordpress/i18n`, etc. are NOT bundled** — they are loaded as externals from the host WordPress. The `@wordpress/scripts` build tool auto-extracts imports into a `.asset.php` dependency array, and WordPress provides them as global scripts.
--   **Never adopt new `@wordpress/*` packages or components that only exist in recent WordPress versions** unless you verify they are available in WordPress 6.3. For example, `@wordpress/ui` (introduced in Gutenberg 22.9 / WP 7.0+) would break on older installs.
--   **Packages listed in `dependencies` in package.json** (e.g., `@wordpress/icons`, `clsx`, `date-fns`) ARE bundled into the plugin's JS build and are safe to use regardless of WP version.
--   **Packages listed only in `devDependencies`** (e.g., `@wordpress/scripts`, `@wordpress/eslint-plugin`) are build tools, not runtime code.
--   When considering a new `@wordpress/*` import, check whether `@wordpress/scripts` will treat it as an external (loaded from WP) or bundle it. Externals must exist in the minimum supported WP version.
--   If you need a component from a newer `@wordpress/*` package, either build a custom equivalent or conditionally load it with version detection.
+-   **Do NOT upgrade `@wordpress/scripts` beyond 27.x.** Version 28+ makes built assets depend on the `react-jsx-runtime` script handle, which only exists in WP 6.6+ — scripts silently fail to load on WP 6.3–6.5. The leftover npm audit advisories are dev-only and accepted — 27 open as of August 2026, all transitive dev dependencies in `package-lock.json`, none of which ship to users. Note that not all of them come from this pin. See [docs/upgrading-wordpress-scripts.md](docs/upgrading-wordpress-scripts.md) for the full rationale and the two upgrade paths.
 
 ### Prefer Web Standards Over JavaScript
 
@@ -141,28 +70,6 @@ Use native HTML elements and CSS before reaching for JavaScript:
 -   **CSS `:focus-visible`** for focus states instead of JS focus management
 -   **Form validation attributes** (`required`, `pattern`, `type="email"`) before JS validation
 -   **CSS Grid/Flexbox** for layouts instead of JS-based positioning
-
-**Why?**
-
--   Works without JavaScript (progressive enhancement)
--   Accessible by default (screen readers, keyboard navigation)
--   Less code to maintain
--   Better performance
--   Browser handles edge cases
-
-**Example:**
-
-```html
-<!-- Good: Native HTML -->
-<details>
-	<summary>Show more</summary>
-	<p>Hidden content</p>
-</details>
-
-<!-- Avoid: JavaScript-dependent -->
-<button onclick="toggle()">Show more</button>
-<div id="content" hidden>Hidden content</div>
-```
 
 ### Accessibility
 
@@ -179,13 +86,11 @@ Use native HTML elements and CSS before reaching for JavaScript:
 
 ## Git
 
--   Will try to follow OneFlow:
-    https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
--   **Run phpstan after every non-trivial PHP change.** `php -l` only catches syntax errors — phpstan catches visibility violations, undefined methods/constants/properties, and cross-plugin integration issues that manifest as runtime fatals. Use `vendor/bin/phpstan analyse <paths> --memory-limit 2G` or `npm run php:phpstan`.
--   **For cross-plugin changes (core ↔ premium):** run phpstan from the add-ons monorepo root so the `scanDirectories: ../WordPress-Simple-History/` wiring picks up both sides:
-    ```bash
-    cd /Users/bonny/Projects/Personal/simple-history-add-ons && \
-      vendor/bin/phpstan analyse simple-history-premium/inc/... --memory-limit 2G
-    ```
-    This is the only reliable way to catch issues like a premium subclass calling a `private` method on a core parent class.
--   When delegating PHP work to subagents, require phpstan (not `php -l`) in the agent's quality check — and specify that it must include scanning the other plugin when a change touches the core/premium boundary.
+-   One long-lived branch: `main`. It is always releasable. There is no `develop` branch (dropped 2026-09-05; the release-to-develop merge-back bought nothing at a one-to-three-week release cadence).
+-   **Tiny changes** (a typo, changelog wording, a colour value) go straight on `main` as one commit, if they cannot break anything.
+-   **Everything else** goes on an `issue-NNN-slug` branch and merges into `main` when the issue is done and looked at. Big or risky work uses a worktree with its own site (`scripts/parallel-dev.sh`), merges `main` into itself every few days, and is either merged early behind the experimental features flag or split if it lives longer than a release cycle.
+-   **Releases** cut `release-X.Y.Z` from `main` for the version bump and changelog heading, tag on that branch, merge back into `main` once. See the `release` skill.
+-   **Hotfixes** branch from the tag, tag `X.Y.Z+1`, merge into `main`.
+-   Run phpstan after making php changes in many files or making a larger change in a single file.
+-   Run it as `./vendor/bin/phpstan analyse --memory-limit=2G`. The default limit crashes a parallel worker part-way through with "PHPStan process crashed because it reached configured PHP memory limit", which reads like a code problem but is not.
+-   Run it with **no path argument** before committing. Passing a single file skips the check for unmatched `ignoreErrors` entries, and an ignore that no longer matches anything is a hard error here — so a per-file run can pass while the full run fails.

@@ -300,7 +300,7 @@ class Available_Updates_Logger extends Logger {
 								__( 'This update will be installed automatically by WordPress.', 'simple-history' )
 							)
 						);
-					$groups[] = $security_group;
+					$groups[]       = $security_group;
 				}
 
 				// Upgrade notice.
@@ -316,7 +316,7 @@ class Available_Updates_Logger extends Logger {
 								_x( 'Update notice', 'Available updates logger: update notice label', 'simple-history' )
 							) )->set_new_value( $upgrade_notice )
 						);
-					$groups[] = $notice_group;
+					$groups[]     = $notice_group;
 				}
 				break;
 
@@ -330,13 +330,15 @@ class Available_Updates_Logger extends Logger {
 		if ( $current_version && $new_version ) {
 			$version_group = ( new Event_Details_Group() )
 				->set_formatter( new Event_Details_Group_Inline_Formatter() )
-				->add_items( [
-					( new Event_Details_Item( null, __( 'Available version', 'simple-history' ) ) )
-						->set_new_value( $new_version ),
-					( new Event_Details_Item( null, __( 'Installed version', 'simple-history' ) ) )
-						->set_new_value( $current_version ),
-				] );
-			$groups[] = $version_group;
+				->add_items(
+					[
+						( new Event_Details_Item( null, __( 'Available version', 'simple-history' ) ) )
+							->set_new_value( $new_version ),
+						( new Event_Details_Item( null, __( 'Installed version', 'simple-history' ) ) )
+							->set_new_value( $current_version ),
+					] 
+				);
+			$groups[]      = $version_group;
 		}
 
 		if ( empty( $groups ) ) {
@@ -349,43 +351,56 @@ class Available_Updates_Logger extends Logger {
 	/**
 	 * Get action links for a log row.
 	 *
+	 * Plugin-update events with a known wp.org slug get per-plugin links to
+	 * the plugin-information thickbox: "Changelog" (what's in the update) and
+	 * "Plugin info" (what the plugin actually is — useful when an unfamiliar
+	 * plugin shows up in the log). All events get an "All updates" overview
+	 * link.
+	 *
+	 * The thickbox destination (plugin-install.php) gates itself with
+	 * `install_plugins` and wp_dies without it, so the per-plugin links are
+	 * capped on that — not on the update_* caps — to avoid surfacing links
+	 * that land on a permission-denied screen.
+	 *
 	 * @param object $row Log row object.
 	 * @return array Array of action link arrays.
 	 */
 	public function get_action_links( $row ) {
-		$is_allowed_to_update_page = current_user_can( 'update_core' ) || current_user_can( 'update_themes' ) || current_user_can( 'update_plugins' );
+		$context     = $row->context;
+		$message_key = $context['_message_key'] ?? '';
+		$plugin_slug = $context['plugin_slug'] ?? '';
+		$is_network  = is_multisite();
 
-		if ( ! $is_allowed_to_update_page ) {
-			return [];
+		$action_links = [];
+
+		if ( $message_key === 'plugin_update_available' && $plugin_slug && current_user_can( 'install_plugins' ) ) {
+			$changelog_path = "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550";
+
+			$action_links[] = [
+				'url'    => $is_network ? network_admin_url( $changelog_path ) : admin_url( $changelog_path ),
+				'label'  => _x( 'Changelog', 'Available updates logger: changelog link', 'simple-history' ),
+				'action' => 'view',
+			];
+
+			$plugin_info_path = "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&TB_iframe=true&width=640&height=550";
+
+			$action_links[] = [
+				'url'    => $is_network ? network_admin_url( $plugin_info_path ) : admin_url( $plugin_info_path ),
+				'label'  => _x( 'Plugin info', 'Available updates logger: plugin info thickbox link', 'simple-history' ),
+				'action' => 'view',
+			];
 		}
 
-		$action_links = [
-			[
-				'url'    => admin_url( 'update-core.php' ),
-				'label'  => __( 'View all updates', 'simple-history' ),
+		// On multisite updates are applied in the network admin, so route
+		// the overview link there.
+		$is_allowed_to_update_page = current_user_can( 'update_core' ) || current_user_can( 'update_themes' ) || current_user_can( 'update_plugins' );
+
+		if ( $is_allowed_to_update_page ) {
+			$action_links[] = [
+				'url'    => $is_network ? network_admin_url( 'update-core.php' ) : admin_url( 'update-core.php' ),
+				'label'  => __( 'All updates', 'simple-history' ),
 				'action' => 'view',
-			],
-		];
-
-		// Add "View changelog" for plugin updates with a known slug.
-		$context      = $row->context;
-		$message_key  = $context['_message_key'] ?? '';
-		$plugin_slug  = $context['plugin_slug'] ?? '';
-
-		if ( $message_key === 'plugin_update_available' && $plugin_slug ) {
-			$url = is_multisite()
-				? network_admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550" )
-				: admin_url( "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550" );
-
-			// Prepend so changelog appears before "View all updates".
-			array_unshift(
-				$action_links,
-				[
-					'url'    => $url,
-					'label'  => _x( 'View changelog', 'Available updates logger: changelog link', 'simple-history' ),
-					'action' => 'edit',
-				]
-			);
+			];
 		}
 
 		return $action_links;

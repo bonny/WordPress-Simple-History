@@ -13,6 +13,7 @@ import {
 } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import { addQueryArgs } from '@wordpress/url';
 import { getTrackingUrl } from '../functions';
 import { useEventsSettings } from './EventsSettingsContext';
 import { EventHeaderItem } from './EventHeaderItem';
@@ -94,7 +95,13 @@ let closeActivePopover = null;
  */
 function IPAddressLink( ipAddressProps ) {
 	const { header, ipAddress } = ipAddressProps;
-	const { mapsApiKey, hasPremiumAddOn, eventsSettingsPageURL } = useEventsSettings();
+	const {
+		mapsApiKey,
+		hasPremiumAddOn,
+		eventsSettingsPageURL,
+		eventsAdminPageURL,
+		canFilterEventsInPlace,
+	} = useEventsSettings();
 	const [ showPopover, setShowPopover ] = useState( false );
 	const [ isLoadingIpInfo, setIsLoadingIpInfo ] = useState( false );
 	const [ ipInfoResult, setIpInfoResult ] = useState();
@@ -236,7 +243,9 @@ function IPAddressLink( ipAddressProps ) {
 						),
 						{
 							a: eventsSettingsPageURL ? (
-								<a href={ `${ eventsSettingsPageURL }#simple-history-premium-settings` } />
+								<a
+									href={ `${ eventsSettingsPageURL }#simple-history-premium-settings` }
+								/>
 							) : (
 								<span />
 							),
@@ -310,7 +319,44 @@ function IPAddressLink( ipAddressProps ) {
 		setShowPopover( false );
 	};
 
+	// The events GUI listens for the event above and filters in place. Anywhere
+	// else — the dashboard widget — nothing is listening, so link to the events
+	// admin page with the 'ip' query arg it already reads on load instead.
+	// Rendering a real anchor there also gets middle-click and open-in-new-tab
+	// for free. canOfferFilter below keeps the row out entirely when neither
+	// route exists, so the URL is present whenever this branch is taken.
+	const renderFilterByIPLink = ( ip, label ) => {
+		if ( ! canFilterEventsInPlace ) {
+			return (
+				<a
+					href={ addQueryArgs( eventsAdminPageURL, { ip } ) }
+					style={ { fontSize: 'inherit' } }
+				>
+					{ label }
+				</a>
+			);
+		}
+
+		return (
+			<Button
+				variant="link"
+				onClick={ () => handleFilterByIP( ip ) }
+				style={ { fontSize: 'inherit' } }
+			>
+				{ label }
+			</Button>
+		);
+	};
+
+	// Filtering needs somewhere to go: either a GUI listening for the in-place
+	// event, or a URL to navigate to. With neither, the control would do nothing
+	// when clicked, so don't render it at all.
+	const canOfferFilter = canFilterEventsInPlace || !! eventsAdminPageURL;
+
+	// Subnet collapsing is IPv4-only — the regex is a no-op on IPv6, which would
+	// otherwise render a "This subnet" link identical to "This IP" beside it.
 	const subnetIP = ipAddress.replace( /\.\d+$/, '.x' );
+	const hasSubnet = subnetIP !== ipAddress;
 
 	const loadedIpInfoText = ipInfoResult ? (
 		<>
@@ -379,42 +425,31 @@ function IPAddressLink( ipAddressProps ) {
 								</tr>
 							);
 						} ) }
-						<tr>
-							<td className="SimpleHistoryIpInfoDropin__ipInfoTable__key">
-								{ __( 'Filter events:', 'simple-history' ) }
-							</td>
-							<td>
-								<Button
-									variant="link"
-									onClick={ () =>
-										handleFilterByIP( ipAddress )
-									}
-									style={ { fontSize: 'inherit' } }
-								>
-									{ __( 'This IP', 'simple-history' ) }
-								</Button>
-								{ ! ipAddress.endsWith( '.x' ) && (
-									<>
-										{ ' | ' }
-										<Button
-											variant="link"
-											onClick={ () =>
-												handleFilterByIP( subnetIP )
-											}
-											style={ {
-												fontSize: 'inherit',
-											} }
-										>
-											{ __(
-												'This subnet',
-												'simple-history'
+						{ canOfferFilter && (
+							<tr>
+								<td className="SimpleHistoryIpInfoDropin__ipInfoTable__key">
+									{ __( 'Filter events:', 'simple-history' ) }
+								</td>
+								<td>
+									{ renderFilterByIPLink(
+										ipAddress,
+										__( 'This IP', 'simple-history' )
+									) }
+									{ hasSubnet && (
+										<>
+											{ ' | ' }
+											{ renderFilterByIPLink(
+												subnetIP,
+												`${ __(
+													'This subnet',
+													'simple-history'
+												) } (${ subnetIP })`
 											) }
-											{ ` (${ subnetIP })` }
-										</Button>
-									</>
-								) }
-							</td>
-						</tr>
+										</>
+									) }
+								</td>
+							</tr>
+						) }
 					</tbody>
 				</table>
 			</div>
@@ -458,7 +493,7 @@ function IPAddressLink( ipAddressProps ) {
 
 			{ showPopover ? (
 				<Popover
-					anchorRef={ buttonRef }
+					anchor={ buttonRef.current }
 					noArrow={ false }
 					offset={ 10 }
 					placement="top"
@@ -516,19 +551,22 @@ export function EventIPAddresses( props ) {
 		return null;
 	}
 
-	const ipAddressesLabel = eventVariant === 'dashboard'
-		? ''
-		: _n( 'IP address:', 'IP addresses:', ipAddressesCount, 'simple-history' );
+	const ipAddressesLabel =
+		eventVariant === 'dashboard'
+			? ''
+			: _n(
+					'IP address:',
+					'IP addresses:',
+					ipAddressesCount,
+					'simple-history'
+			  );
 
 	const IPAddressesText = [];
 	let loopCount = 0;
 	for ( const [ header, ipAddress ] of Object.entries( ipAddresses ) ) {
 		IPAddressesText.push(
 			<Fragment key={ header }>
-				<IPAddressLink
-					header={ header }
-					ipAddress={ ipAddress }
-				/>{ ' ' }
+				<IPAddressLink header={ header } ipAddress={ ipAddress } />{ ' ' }
 				{ /* Add comma to separate IP addresses, but not after the last one */ }
 				{ loopCount < ipAddressesCount - 1 ? ', ' : '' }
 			</Fragment>

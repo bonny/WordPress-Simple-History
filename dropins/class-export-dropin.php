@@ -81,6 +81,14 @@ class Export_Dropin extends Dropin {
 		// Will die if nonce not valid.
 		check_admin_referer( self::class . '-action-export' );
 
+		// A nonce proves the request was intended, not that the user is allowed
+		// to make it. This streams the entire log — every event, IP address and
+		// piece of activity — so gate it on capability as well.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
+		if ( ! current_user_can( Helpers::get_view_settings_capability() ) ) {
+			wp_die( esc_html__( 'You do not have permission to export the history.', 'simple-history' ) );
+		}
+
 		$export_format = sanitize_text_field( wp_unslash( $_POST['format'] ?? 'json' ) );
 
 		$csv_include_headers = isset( $_POST['csv_include_headers'] );

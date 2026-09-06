@@ -227,6 +227,32 @@ $context = array(
 );
 ```
 
+### Store Human-Readable Values
+
+The Event Details API renders context values **as stored** — there is no
+per-value formatting step. A value that reads well in the database reads
+well in the event details, so detailed output comes for free.
+
+```
+Days to keep log        125  ~~120~~          <- plain number, renders as-is
+Store full IP address   store_full ~~store_anonymized~~   <- readable token, renders as-is
+```
+
+-   Prefer plain numbers and descriptive string tokens (`store_full`,
+    `store_anonymized`, `top`, `inside_tools`) over booleans/bitmasks/ids
+    that need decoding (`1`, `0x04`, term id `17`).
+-   This applies to the values your feature **stores in its own options
+    too**, not just log context: the settings logger copies option values
+    straight into context, so a readable option value gives readable
+    "Modified settings" details with zero renderer code.
+-   When the raw value is unavoidable (an id, a boolean column), resolve it
+    to something readable at **logging time** (e.g. store both `term_id`
+    and `term_name`) — not at render time, when the referenced thing may be
+    gone.
+-   Structured values (arrays/objects) don't belong in context as
+    serialized blobs — log them as changed-only instead (see the
+    `simple_history/settings/changed_only_options` filter).
+
 ### Special Context Keys (Underscore Prefix)
 
 Keys starting with `_` have special meaning and are handled by Simple History:
@@ -377,6 +403,7 @@ Before submitting a new logger:
 -   [ ] `$slug` is unique, PascalCase, max 30 characters
 -   [ ] Message keys are globally unique (prefixed with entity name)
 -   [ ] Context keys are prefixed with entity name
+-   [ ] Context values are human-readable (render as-is in event details)
 -   [ ] Messages use active voice
 -   [ ] Capability is set appropriately (not everyone needs `manage_options`)
 -   [ ] Event Details uses the API, not raw HTML

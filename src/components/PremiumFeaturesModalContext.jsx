@@ -3,6 +3,11 @@ import { PremiumFeaturesUnlockModal } from './PremiumFeaturesUnlockModal';
 
 const PremiumFeaturesModalContext = createContext( null );
 
+// Fallback campaign for callers that don't name their trigger.
+// Every trigger-specific campaign extends this prefix, so a
+// `BEGINS_WITH premium_global_modal` filter still catches them all.
+const DEFAULT_UTM_CAMPAIGN = 'premium_global_modal';
+
 export const PremiumFeaturesModalProvider = ( { children } ) => {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ modalProps, setModalProps ] = useState( {
@@ -10,6 +15,7 @@ export const PremiumFeaturesModalProvider = ( { children } ) => {
 		premiumFeatureDescription: '',
 		icon: null,
 		image: '',
+		utmCampaign: DEFAULT_UTM_CAMPAIGN,
 	} );
 
 	/**
@@ -19,13 +25,21 @@ export const PremiumFeaturesModalProvider = ( { children } ) => {
 	 * @param {string} description - Description of the feature
 	 * @param {Object} icon        - Feature-specific icon (JSX/SVG)
 	 * @param {string} image       - Path to feature screenshot image
+	 * @param {string} utmCampaign - Campaign for the "Get Premium" link
 	 */
-	const showModal = ( title, description, icon, image ) => {
+	const showModal = (
+		title,
+		description,
+		icon,
+		image,
+		utmCampaign = DEFAULT_UTM_CAMPAIGN
+	) => {
 		setModalProps( {
 			premiumFeatureModalTitle: title,
 			premiumFeatureDescription: description,
 			icon,
 			image,
+			utmCampaign,
 		} );
 		setIsOpen( true );
 	};

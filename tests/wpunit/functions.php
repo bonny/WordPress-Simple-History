@@ -36,10 +36,16 @@ function get_latest_context( $unset_fields = true ) {
 	$db_table_contexts = Simple_History::get_instance()->get_contexts_table_name();
 	$latest_context = $wpdb->get_results(
 		$wpdb->prepare(
-			"SELECT * FROM {$db_table_contexts} WHERE history_id = %d ORDER BY `key` ASC",
+			"SELECT * FROM {$db_table_contexts} WHERE history_id = %d",
 			$latest_row['id']
 		),
 		ARRAY_A
+	);
+
+	// Sort in PHP so order is independent of the contexts table's collation.
+	usort(
+		$latest_context,
+		static fn ( $a, $b ) => strcmp( $a['key'], $b['key'] )
 	);
 
 	if ( $unset_fields ) {

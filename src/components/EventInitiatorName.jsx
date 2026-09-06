@@ -29,11 +29,19 @@ export function EventInitiatorName( props ) {
 			} else if ( eventVariant === 'modal' ) {
 				userDisplay = <strong>{ nameToDisplay }</strong>;
 			} else {
+				// The email is only sent to viewers who may list users, so it
+				// can legitimately be absent — render nothing rather than an
+				// empty "()" beside the name.
 				userDisplay = (
 					<UserCard event={ event }>
 						<>
-							<strong>{ nameToDisplay }</strong>&nbsp;
-							<span>({ initiatorData.user_email })</span>
+							<strong>{ nameToDisplay }</strong>
+							{ initiatorData.user_email && (
+								<>
+									&nbsp;
+									<span>({ initiatorData.user_email })</span>
+								</>
+							) }
 						</>
 					</UserCard>
 				);

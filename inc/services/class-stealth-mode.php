@@ -238,7 +238,11 @@ class Stealth_Mode extends Service {
 			$slug = apply_filters( 'wp_plugin_dependencies_slug', $slug ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 
 			// Match to WordPress.org slug format.
-			if ( ! preg_match( '/^[a-z0-9]+(-[a-z0-9]+)*$/mu', $slug ) ) {
+			// Core's WP_Plugin_Dependencies::sanitize_dependency_slugs() uses the `m`
+			// modifier here, which makes ^ and $ match at line boundaries and lets
+			// "valid-slug\n<script>" through. Dropped deliberately — we want the anchors
+			// to mean start and end of string.
+			if ( ! preg_match( '/^[a-z0-9]+(-[a-z0-9]+)*$/u', $slug ) ) {
 				continue;
 			}
 

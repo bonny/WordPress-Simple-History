@@ -262,7 +262,20 @@ class Event_Details_GroupTest extends \Codeception\TestCase\WPTestCase {
 		$json_output = $group->formatter->to_json( $group );
 
 		$this->assertIsArray( $json_output );
-		$this->assertEmpty( $json_output['items'][0], 'JSON output should be empty when no JSON provided' );
+		$this->assertSame(
+			'No JSON',
+			$json_output['items'][0]['new_value'],
+			'JSON fallback should expose plain-text from html_output when no JSON provided'
+		);
+	}
+
+	public function test_create_raw_without_json_and_blank_html_is_empty() {
+		$group = Event_Details_Group::create_raw( '<p>   </p>' );
+
+		$json_output = $group->formatter->to_json( $group );
+
+		$this->assertIsArray( $json_output );
+		$this->assertEmpty( $json_output['items'][0], 'JSON output should be empty when html_output has no plain-text content' );
 	}
 
 	public function test_create_raw_with_empty_html() {

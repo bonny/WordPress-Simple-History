@@ -280,6 +280,56 @@ class Helpers {
 	}
 
 	/**
+	 * Returns the context key prefix that addresses from a given header are stored under.
+	 *
+	 * Logger::append_remote_addr_to_context() stores each address found in a
+	 * forwarding header as "<prefix><n>" — the index suffix exists because a
+	 * single header can carry several comma separated addresses.
+	 *
+	 * This is the one place that knows the convention. The writer, the display
+	 * path (get_event_ip_number_headers()) and the query (Log_Query) all build
+	 * from it, so the shape can change here without them drifting apart.
+	 *
+	 * @since 5.30.0
+	 *
+	 * @param string $header_name Header name, e.g. "HTTP_X_FORWARDED_FOR".
+	 * @return string Context key prefix, e.g. "_server_http_x_forwarded_for_".
+	 */
+	public static function get_ip_address_context_key_prefix( $header_name ) {
+		return '_server_' . strtolower( $header_name ) . '_';
+	}
+
+	/**
+	 * Returns the context key prefixes that hold an IP address for an event.
+	 *
+	 * A context key holds an IP address if it equals one of these or begins with
+	 * one: the address the web server saw is stored as "_server_remote_addr", and
+	 * forwarding header addresses under the per-header prefixes.
+	 *
+	 * Prefixes rather than exact keys, so callers do not have to guess how many
+	 * addresses a header supplied. Note that matching on "_server_http_" alone
+	 * would be wrong: keys such as "_server_http_referer" and
+	 * "_server_http_user_agent" share that prefix and hold no IP address.
+	 *
+	 * Derived from get_ip_number_header_names(), so the
+	 * 'simple_history/ip_number_header_names' filter applies here too and
+	 * additional headers stay queryable.
+	 *
+	 * @since 5.30.0
+	 *
+	 * @return array<string> Context key prefixes.
+	 */
+	public static function get_ip_address_context_key_prefixes() {
+		$prefixes = array( '_server_remote_addr' );
+
+		foreach ( self::get_ip_number_header_names() as $header_name ) {
+			$prefixes[] = self::get_ip_address_context_key_prefix( $header_name );
+		}
+
+		return $prefixes;
+	}
+
+	/**
 	 * Returns true if $haystack ends with $needle
 	 *
 	 * @param string $haystack String to check.
@@ -367,9 +417,9 @@ class Helpers {
 	}
 
 	/**
-	 * Get number of rows and the size of each Simple History table in the database.
+	 * Get number of rows, size, charset and collation of each Simple History table.
 	 *
-	 * @return array<string, array{table_name: string, size_in_mb: float|string, num_rows: int}>
+	 * @return array<string, array{table_name: string, size_in_mb: float|string, num_rows: int, charset: string, collation: string}>
 	 */
 	public static function get_db_table_stats() {
 		switch ( Log_Query::get_db_engine() ) {
@@ -383,12 +433,16 @@ class Helpers {
 	}
 
 	/**
-	 * Get number of rows and the size of each Simple History table in the database.
+	 * Get number of rows, size, charset and collation of each Simple History table.
 	 *
 	 * Uses sqlite_master to check if tables exist (always available),
 	 * then tries dbstat for size info (may not be available in wp-playground).
 	 *
-	 * @return array<string, array{table_name: string, size_in_mb: float|string, num_rows: int}>
+	 * SQLite stores all text as UTF-8 internally and has no per-table charset
+	 * concept; charset is reported as 'UTF-8' and collation as 'N/A' so callers
+	 * always get the same shape regardless of database engine.
+	 *
+	 * @return array<string, array{table_name: string, size_in_mb: float|string, num_rows: int, charset: string, collation: string}>
 	 */
 	public static function get_db_table_stats_sqlite() {
 		/** @var \wpdb $wpdb */
@@ -420,7 +474,13 @@ class Helpers {
 			return [];
 		}
 
-		// Try to get sizes using dbstat (may not be available in wp-playground).
+		// Try to get sizes using dbstat. The virtual table is only present
+		// when SQLite was built with SQLITE_ENABLE_DBSTAT_VTAB — wp-playground's
+		// PHP.wasm SQLite is not. Suppress wpdb errors around the queries so
+		// `WP_DEBUG` doesn't dump the "no such table: dbstat" notice; null
+		// returns are handled below (falls back to "N/A").
+		$suppress_errors = $wpdb->suppress_errors();
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$events_size_result = $wpdb->get_var(
 			$wpdb->prepare(
@@ -437,6 +497,8 @@ class Helpers {
 			)
 		);
 
+		$wpdb->suppress_errors( $suppress_errors );
+
 		// Use results if available, otherwise show N/A.
 		$events_size   = $events_size_result !== null ? round( (float) $events_size_result, 2 ) : 'N/A';
 		$contexts_size = $contexts_size_result !== null ? round( (float) $contexts_size_result, 2 ) : 'N/A';
@@ -448,37 +510,51 @@ class Helpers {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$contexts_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$contexts_table}" );
 
+		// SQLite stores all text as UTF-8 internally; there's no per-table
+		// charset or collation the way MySQL has, so report the encoding once
+		// and mark collation as not applicable.
+		$sqlite_charset   = 'UTF-8';
+		$sqlite_collation = 'N/A';
+
 		return [
 			'simple_history'          => [
 				'table_name' => $events_table,
 				'size_in_mb' => $events_size,
 				'num_rows'   => $events_rows,
+				'charset'    => $sqlite_charset,
+				'collation'  => $sqlite_collation,
 			],
 			'simple_history_contexts' => [
 				'table_name' => $contexts_table,
 				'size_in_mb' => $contexts_size,
 				'num_rows'   => $contexts_rows,
+				'charset'    => $sqlite_charset,
+				'collation'  => $sqlite_collation,
 			],
 		];
 	}
 
 	/**
-	 * Get number of rows and the size of each Simple History table in the database.
+	 * Get number of rows, size, charset and collation of each Simple History table.
 	 *
-	 * @return array<string, array{table_name: string, size_in_mb: float|string, num_rows: int}>
+	 * @return array<string, array{table_name: string, size_in_mb: float|string, num_rows: int, charset: string, collation: string}>
 	 */
 	public static function get_db_table_stats_mysql() {
 		global $wpdb;
 		$simple_history = Simple_History::get_instance();
 
-		// Get table sizes in mb.
+		// Pull size + collation from information_schema.TABLES. The collation
+		// (TABLE_COLLATION) gives us both the collation and the charset — the
+		// charset is the prefix up to the first underscore (e.g.
+		// `utf8mb4_unicode_520_ci` → `utf8mb4`).
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$table_size_result = $wpdb->get_results(
 			$wpdb->prepare(
 				'
 					SELECT table_name AS "table_name",
 					round(((data_length + index_length) / 1024 / 1024), 2) "size_in_mb",
-					data_length AS "data_length"
+					data_length AS "data_length",
+					table_collation AS "collation"
 					FROM information_schema.TABLES
 					WHERE table_schema = %s
 					AND table_name IN (%s, %s);
@@ -491,14 +567,44 @@ class Helpers {
 		);
 
 		// Bail if not exactly two tables found.
-		if ( sizeof( $table_size_result ) !== 2 ) {
+		if ( count( $table_size_result ) !== 2 ) {
+			return [];
+		}
+
+		// information_schema.TABLES has no guaranteed row order, so look up
+		// each table by name rather than trusting positional index.
+		$by_name = [];
+
+		foreach ( $table_size_result as $row ) {
+			$by_name[ $row['table_name'] ] = $row;
+		}
+
+		$events_table   = $simple_history->get_events_table_name();
+		$contexts_table = $simple_history->get_contexts_table_name();
+
+		if ( ! isset( $by_name[ $events_table ], $by_name[ $contexts_table ] ) ) {
 			return [];
 		}
 
 		$table_size_result = [
-			'simple_history'          => $table_size_result[0],
-			'simple_history_contexts' => $table_size_result[1],
+			'simple_history'          => $by_name[ $events_table ],
+			'simple_history_contexts' => $by_name[ $contexts_table ],
 		];
+
+		foreach ( $table_size_result as &$table ) {
+			$collation          = (string) ( $table['collation'] ?? '' );
+			$table['collation'] = $collation !== '' ? $collation : 'N/A';
+			// Charset is the prefix before the first underscore in the
+			// collation name (e.g. utf8mb4_unicode_520_ci -> utf8mb4). Some
+			// collations like `binary` have no underscore — fall back to the
+			// full collation name in that case.
+			$charset_prefix   = $collation !== '' ? strstr( $collation, '_', true ) : '';
+			$table['charset'] = $charset_prefix !== false && $charset_prefix !== ''
+				? $charset_prefix
+				: ( $collation !== '' ? $collation : 'N/A' );
+		}
+
+		unset( $table );
 
 		// Get num of rows for each table.
 		$table_size_result['simple_history']['num_rows'] = (int) $wpdb->get_var( "select count(*) FROM {$simple_history->get_events_table_name()}" ); // phpcs:ignore
@@ -585,6 +691,84 @@ class Helpers {
 	 */
 	public static function camel_case_to_snake_case( $input ) {
 		return strtolower( preg_replace( '/(?<!^)[A-Z]/', '_$0', $input ) );
+	}
+
+	/**
+	 * Convert a snake_case slug to a "Sentence case" label.
+	 *
+	 * Useful for rendering stored type/category slugs (e.g. `ai_provider`,
+	 * `spam_filtering`) as something readable when no explicit translation
+	 * exists. Capitalises only the first character; the rest stays lowercase
+	 * so multi-word slugs read naturally ("Spam filtering", not
+	 * "Spam Filtering").
+	 *
+	 * @since 5.28.0
+	 *
+	 * @param string $input snake_case identifier.
+	 * @return string
+	 */
+	public static function snake_case_to_sentence_case( $input ) {
+		return ucfirst( str_replace( '_', ' ', (string) $input ) );
+	}
+
+	/**
+	 * Return a low-information identifier for a secret value, safe to log.
+	 *
+	 * Returns the last `$visible_suffix` characters of `$secret`, suitable for
+	 * recording which credential changed without exposing the credential itself.
+	 *
+	 * Returns `null` when there is no value (empty input), when no characters
+	 * can be safely exposed (`$visible_suffix < 1`), or when the secret is too
+	 * short to expose a suffix without effectively revealing the whole value
+	 * (length <= $visible_suffix). Callers should treat `null` as "do not
+	 * store a partial identifier" and record only the fact of presence/length.
+	 *
+	 * Use for API keys, tokens, passwords — anything that should never appear
+	 * verbatim in event context, debug output, or downstream UI.
+	 *
+	 * @param string $secret         The secret to identify. Non-strings are cast.
+	 * @param int    $visible_suffix Number of trailing characters to expose.
+	 *                               Defaults to 4. Values < 1 force null.
+	 * @return string|null
+	 */
+	public static function mask_secret( $secret, $visible_suffix = 4 ) {
+		$secret = (string) $secret;
+		$length = strlen( $secret );
+
+		if ( $length === 0 || $visible_suffix < 1 || $length <= $visible_suffix ) {
+			return null;
+		}
+
+		return substr( $secret, -$visible_suffix );
+	}
+
+	/**
+	 * Format a masked-secret suffix for human-readable display.
+	 *
+	 * Produces a credential-style string like `••••XXXX`: a run of Unicode
+	 * bullets (U+2022) followed by the visible suffix. The bullet run is
+	 * capped at `$masked_length` to avoid runaway-width strings when keys
+	 * happen to be very long (the original length isn't material — the point
+	 * is "looks like a credential"). Matches the visual convention used by
+	 * Stripe, GitHub, OpenAI, and WordPress 7.0's own Connectors page.
+	 *
+	 * Returns the empty string when `$suffix` is empty so callers can render
+	 * "no value" cleanly.
+	 *
+	 * @param string|null $suffix        Suffix to display (typically from `mask_secret()`).
+	 * @param int         $masked_length Number of bullets to prepend. Defaults to 12.
+	 * @return string
+	 */
+	public static function format_masked_secret_for_display( $suffix, $masked_length = 12 ) {
+		$suffix = (string) ( $suffix ?? '' );
+
+		if ( $suffix === '' ) {
+			return '';
+		}
+
+		$masked_length = max( 0, (int) $masked_length );
+
+		return str_repeat( "\u{2022}", $masked_length ) . $suffix;
 	}
 
 	/**
@@ -717,20 +901,12 @@ class Helpers {
 		$context                         = $row->context;
 
 		foreach ( $ip_header_names_keys as $one_ip_header_key ) {
-			$one_ip_header_key_lower = strtolower( $one_ip_header_key );
+			// Addresses are stored as "<prefix><n>", e.g.
+			// _server_http_x_forwarded_for_0, _server_http_x_forwarded_for_1, ...
+			$key_prefix = self::get_ip_address_context_key_prefix( $one_ip_header_key );
 
 			foreach ( $context as $context_key => $context_val ) {
-				// Header value is stored in key with lowercased
-				// header name and with a number appended to it.
-				// Examples:
-				// _server_http_x_forwarded_for_0, _server_http_x_forwarded_for_1, ...
-				$match = preg_match(
-					"/^_server_{$one_ip_header_key_lower}_[\d+]/",
-					$context_key,
-					$matches
-				);
-
-				if ( ! $match ) {
+				if ( ! preg_match( '/^' . preg_quote( $key_prefix, '/' ) . '\d/', $context_key ) ) {
 					continue;
 				}
 
@@ -968,21 +1144,49 @@ class Helpers {
 	}
 
 	/**
-	 * Output the top-right header area with Premium status or CTA.
+	 * Output the settings gear link for the header's left title group.
 	 *
-	 * @return string HTML for the premium/settings header link.
+	 * Sits next to the feature-discovery bar so the settings root and its
+	 * section deep-links read as one group. Rendered independently of the
+	 * bar, so it remains visible even when the bar self-hides.
+	 *
+	 * @return string HTML for the settings gear link.
 	 */
-	public static function get_header_premium_link() {
+	public static function get_header_settings_link() {
+		// Viewing the log and viewing the settings are separate capabilities.
+		// Editors reach the log by default but not the settings page, so
+		// without this they are offered a gear that lands on a permission
+		// error. The divider is a border on the link itself, so dropping the
+		// link leaves no stray separator behind.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_settings_capability().
+		if ( ! current_user_can( self::get_view_settings_capability() ) ) {
+			return '';
+		}
+
 		$settings_url = Menu_Manager::get_admin_url_by_slug( Simple_History::SETTINGS_MENU_PAGE_SLUG );
 
 		ob_start();
 
 		?>
-		<div class="sh-PageHeader-rightLink">
-			<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-settingsIcon" aria-label="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>" title="<?php esc_attr_e( 'Settings', 'simple-history' ); ?>">
-				<span class="dashicons dashicons-admin-generic"></span>
-			</a>
+		<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PageHeader-settingsIcon">
+			<span class="dashicons dashicons-admin-generic"></span>
+			<span class="sh-PageHeader-settingsIconText"><?php esc_html_e( 'Settings', 'simple-history' ); ?></span>
+		</a>
+		<?php
 
+		return ob_get_clean();
+	}
+
+	/**
+	 * Output the top-right header area with Premium status or CTA.
+	 *
+	 * @return string HTML for the premium header link.
+	 */
+	public static function get_header_premium_link() {
+		ob_start();
+
+		?>
+		<div class="sh-PageHeader-rightLink">
 			<?php if ( self::is_premium_add_on_active() ) { ?>
 				<span class="sh-PageHeader-headerBtn sh-PageHeader-headerBtn--premiumActive">
 					<span class="dashicons dashicons-star-filled"></span>
@@ -1089,7 +1293,12 @@ class Helpers {
 		 *
 		 * @param bool $allow Whether the current user is allowed to clear the log.
 		*/
-		return apply_filters( 'simple_history/user_can_clear_log', true );
+		// Defaults to the settings capability rather than to true. Clearing
+		// truncates the entire events and contexts tables, i.e. destroys the
+		// audit trail, so it must not be authorized by nonce possession alone.
+		// The filter can still open it up or lock it down further.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from self::get_view_settings_capability().
+		return apply_filters( 'simple_history/user_can_clear_log', current_user_can( self::get_view_settings_capability() ) );
 	}
 
 	/**
@@ -1206,6 +1415,36 @@ class Helpers {
 		$view_history_capability = apply_filters( 'simple_history/view_history_capability', $view_history_capability );
 
 		return $view_history_capability;
+	}
+
+	/**
+	 * Whether the current user may look up another user's identifying details.
+	 *
+	 * Scoped to lookups that answer an arbitrary user id — the user card. That
+	 * endpoint could be walked from id 1 upwards to collect the login, email
+	 * and roles of every account on the site, including users who never appear
+	 * in the log, which is why it needs a capability of its own.
+	 *
+	 * Deliberately not applied to the initiator shown beside each event. That
+	 * is the person who performed an event the reader is already allowed to
+	 * see, so it is context for visible activity rather than a directory, and
+	 * it is what makes two people sharing a display name tellable apart.
+	 *
+	 * Defaults to "list_users", which is what WordPress itself requires to see
+	 * another user's email, and which editors do not hold.
+	 *
+	 * @since 5.30.0
+	 * @return bool
+	 */
+	public static function current_user_can_view_user_pii() {
+		/**
+		 * Filters whether the current user may see other users' login, email and roles.
+		 *
+		 * @since 5.30.0
+		 *
+		 * @param bool $can_view Defaults to current_user_can( 'list_users' ).
+		 */
+		return apply_filters( 'simple_history/user_can_view_user_pii', current_user_can( 'list_users' ) );
 	}
 
 	/**
@@ -1437,6 +1676,158 @@ class Helpers {
 	}
 
 	/**
+	 * Value stored in place of something that looks sensitive.
+	 */
+	const MASKED_VALUE = '<removed by Simple History>';
+
+	/**
+	 * Field name fragments that mark a value as sensitive.
+	 *
+	 * Shared by every masking path — Detective Mode request data, the query
+	 * string in REQUEST_URI, command line arguments, and the referer stored on
+	 * every event — so a name only has to be added once.
+	 *
+	 * Needles are deliberately specific rather than short. "auth" would match
+	 * "author" and "post_author", and a bare "cc" would match "account" —
+	 * masking those loses ordinary debugging data for no security gain, which
+	 * is how the feature stops being useful. A bare "key" is left out for the
+	 * same reason, since it matches "keywords".
+	 *
+	 * The key bearing names are enumerated rather than matched as "_key",
+	 * which looks tempting because it skips "keywords" and "monkey". It also
+	 * swallows "meta_key", "cache_key" and "option_key", and Detective Mode
+	 * captures raw request data from every admin screen, core's custom fields
+	 * box included.
+	 *
+	 * @since 5.31.0
+	 *
+	 * @return array<string> Lowercase substrings.
+	 */
+	public static function get_sensitive_field_names() {
+		$field_names = [
+			'pass',
+			'pwd',
+			'token',
+			'secret',
+			'authoriz',
+			'api_key',
+			'apikey',
+			'private_key',
+			'privatekey',
+			'access_key',
+			'consumer_key',
+			'license_key',
+			'oauth',
+			'credential',
+			'bearer',
+			'session',
+			'card',
+			'cc_num',
+			'ccnum',
+			'credit',
+			'cvv',
+			'cvc',
+		];
+
+		/**
+		 * Filters the field name fragments that are masked before being stored.
+		 *
+		 * Matching is a case-insensitive substring test against the field name,
+		 * so "token" also covers "api_token" and "refresh_token".
+		 *
+		 * Named after Detective Mode because that is where masking started, but
+		 * it governs the always-on referer masking too. The name is kept as it
+		 * is so existing callbacks keep working.
+		 *
+		 * @since 5.30.0
+		 *
+		 * @param array<string> $field_names Lowercase substrings.
+		 */
+		return apply_filters( 'simple_history/detective_mode/sensitive_field_names', $field_names );
+	}
+
+	/**
+	 * Whether a field name looks like it holds something secret.
+	 *
+	 * @since 5.31.0
+	 *
+	 * @param string             $field_name Field name.
+	 * @param array<string>|null $needles    Lowercase substrings. Resolved from the filter when null.
+	 * @return bool
+	 */
+	public static function is_sensitive_field_name( $field_name, $needles = null ) {
+		if ( $needles === null ) {
+			$needles = self::get_sensitive_field_names();
+		}
+
+		$field_name = strtolower( (string) $field_name );
+
+		foreach ( $needles as $needle ) {
+			if ( str_contains( $field_name, $needle ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Mask sensitive values inside a URL or query string.
+	 *
+	 * Operates on the query part only, so the path stays readable.
+	 *
+	 * @since 5.31.0
+	 *
+	 * A string with no "?" in it is returned untouched, so pass a full URL
+	 * rather than a bare query string.
+	 *
+	 * @param string             $url_or_query URL, e.g. "/wp-admin/admin.php?a=1&token=x".
+	 * @param array<string>|null $needles      Lowercase substrings. Resolved from the filter when null.
+	 * @return string Same string with sensitive values replaced.
+	 */
+	public static function mask_sensitive_query_string( $url_or_query, $needles = null ) {
+		$url_or_query = (string) $url_or_query;
+
+		$query_start = strpos( $url_or_query, '?' );
+
+		if ( $query_start === false ) {
+			return $url_or_query;
+		}
+
+		// Resolved after the early return, not before: this runs for every
+		// logged event, and a referer with no query string should not pay for
+		// a filter dispatch it cannot use.
+		if ( $needles === null ) {
+			$needles = self::get_sensitive_field_names();
+		}
+
+		$path  = substr( $url_or_query, 0, $query_start + 1 );
+		$query = substr( $url_or_query, $query_start + 1 );
+
+		$masked_pairs = [];
+
+		foreach ( explode( '&', $query ) as $pair ) {
+			if ( $pair === '' ) {
+				continue;
+			}
+
+			$parts = explode( '=', $pair, 2 );
+
+			// A bare flag with no value has nothing to mask.
+			if ( count( $parts ) < 2 ) {
+				$masked_pairs[] = $pair;
+				continue;
+			}
+
+			$masked_pairs[] = self::is_sensitive_field_name( urldecode( $parts[0] ), $needles )
+				? $parts[0] . '=' . self::MASKED_VALUE
+				: $pair;
+		}
+
+		return $path . implode( '&', $masked_pairs );
+	}
+
+	/**
 	 * Returns true if Experimental Features is active.
 	 *
 	 * Default is false.
@@ -1460,6 +1851,22 @@ class Helpers {
 		}
 
 		return $cached;
+	}
+
+	/**
+	 * Returns true if event reactions are enabled.
+	 *
+	 * Enabled by default; can be turned off in Settings → General. The reaction
+	 * button is shown discreetly on hover, so it is unobtrusive even on
+	 * single-user sites.
+	 *
+	 * @return bool
+	 */
+	public static function reactions_are_enabled() {
+		return (bool) apply_filters(
+			'simple_history/reactions_enabled',
+			get_option( 'simple_history_reactions_enabled', '1' )
+		);
 	}
 
 	/**
@@ -1736,7 +2143,49 @@ class Helpers {
 	 * @return bool
 	 */
 	public static function is_wp_cli() {
-		return defined( 'WP_CLI' ) && WP_CLI;
+		$is_wp_cli = defined( 'WP_CLI' ) && WP_CLI;
+
+		/**
+		 * Filter whether the current request should be treated as a WP-CLI request.
+		 *
+		 * Default value is `defined( 'WP_CLI' ) && WP_CLI`. Hooking this filter lets
+		 * tests simulate a CLI context without defining the process-global WP_CLI
+		 * constant (which can't be undefined and would leak between tests in a
+		 * single PHPUnit process).
+		 *
+		 * @since 5.28.0
+		 *
+		 * @param bool $is_wp_cli Whether the current request is a WP-CLI request.
+		 */
+		return (bool) apply_filters( 'simple_history/is_wp_cli', $is_wp_cli );
+	}
+
+	/**
+	 * Check if the current request is a REST API request.
+	 *
+	 * Checks REST_REQUEST (WordPress core) and REST_API_REQUEST (a
+	 * Jetpack-specific constant, not a documented WordPress contract — kept
+	 * for parity with pre-existing checks in the codebase).
+	 *
+	 * @return bool
+	 */
+	public static function is_rest_request() {
+		$is_rest_request = ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+			|| ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST );
+
+		/**
+		 * Filter whether the current request should be treated as a REST API request.
+		 *
+		 * Default value is true when REST_REQUEST or REST_API_REQUEST is defined and
+		 * truthy. Hooking this filter lets tests simulate a REST context without
+		 * defining the process-global REST_REQUEST constant (which can't be undefined
+		 * and would leak between tests in a single PHPUnit process).
+		 *
+		 * @since 5.28.0
+		 *
+		 * @param bool $is_rest_request Whether the current request is a REST API request.
+		 */
+		return (bool) apply_filters( 'simple_history/is_rest_request', $is_rest_request );
 	}
 
 	/**
@@ -1928,12 +2377,16 @@ class Helpers {
 	 * @return string CSV field with escaped characters.
 	 */
 	public static function esc_csv_field( $field ) {
-		// Bail if not string.
+		// Bail if not string. Note that this turns any non-string into an empty cell,
+		// which is what we want for null. All callers pass DB strings or null.
 		if ( ! is_string( $field ) ) {
 			return '';
 		}
 
-		$active_content_triggers = array( '=', '+', '-', '@' );
+		// Tab and carriage return are on the OWASP list alongside the four operators,
+		// because some spreadsheet applications trim leading whitespace before deciding
+		// whether the cell is a formula.
+		$active_content_triggers = array( '=', '+', '-', '@', "\t", "\r" );
 
 		if ( in_array( substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
 			$field = "'" . $field;

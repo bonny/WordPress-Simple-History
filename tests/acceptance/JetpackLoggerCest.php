@@ -5,12 +5,7 @@ class JetpackLoggerCest
 {
     public function _before(Admin $I) {
         $I->loginAsAdmin();
-        $I->amOnPluginsPage();
-        $isActive = $I->executeJS("return !!document.getElementById('deactivate-jetpack')");
-        if (!$isActive) {
-            $I->activatePlugin('jetpack');
-        }
-        $I->canSeePluginActivated('jetpack');
+        $I->activatePluginByFile('jetpack/jetpack.php');
     }
 
     public function test_that_jetpack_modules_can_be_activated(Admin $I) {

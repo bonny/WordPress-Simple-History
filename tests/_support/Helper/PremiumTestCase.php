@@ -46,6 +46,20 @@ abstract class PremiumTestCase extends \Codeception\TestCase\WPTestCase {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
+		// Premium lives in its own repository and is not part of a checkout of
+		// this one, so its absence is a reason to skip rather than to fail. As a
+		// failure it made the suite permanently red for anyone without premium,
+		// and a suite that is always red is one nobody reads — which is how a
+		// fatal on the minimum supported WordPress sat unnoticed for 16 releases.
+		if ( ! file_exists( WP_PLUGIN_DIR . '/' . self::PREMIUM_PLUGIN ) ) {
+			$this->markTestSkipped(
+				sprintf(
+					'Premium plugin is not installed at %s — see tests/readme.md for how to make it available.',
+					self::PREMIUM_PLUGIN
+				)
+			);
+		}
+
 		$result = activate_plugin( self::PREMIUM_PLUGIN );
 
 		if ( is_wp_error( $result ) ) {

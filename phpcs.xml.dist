@@ -41,6 +41,7 @@
 	<exclude-pattern>*/tests/</exclude-pattern>
 	<exclude-pattern>*/data/</exclude-pattern>
 	<exclude-pattern>*/.claude/</exclude-pattern>
+	<exclude-pattern>*/phpcs-rules/</exclude-pattern>
 
 	<!-- 
 		Info about customizable things:
@@ -196,8 +197,12 @@
 	<!-- Require ?? over isset() ternaries (matches "Null Coalescing Operator" guideline) -->
 	<rule ref="SlevomatCodingStandard.ControlStructures.RequireNullCoalesceOperator"/>
 
-	<!-- Require ??= for null coalescing assignment (PHP 7.4+) -->
-	<rule ref="SlevomatCodingStandard.ControlStructures.RequireNullCoalesceEqualOperator"/>
+	<!--
+		Forbid ??= — it hides a null check and an assignment behind punctuation.
+		Note this is the opposite of Slevomat's RequireNullCoalesceEqualOperator,
+		which used to be enabled here. Plain ?? is unaffected.
+	-->
+	<rule ref="./phpcs-rules/SimpleHistory/Sniffs/Operators/DisallowNullCoalesceEqualSniff.php"/>
 
 	<!-- Disallow Yoda comparisons (already excluded in WordPress rule, this enforces it) -->
 	<rule ref="SlevomatCodingStandard.ControlStructures.DisallowYodaComparison"/>

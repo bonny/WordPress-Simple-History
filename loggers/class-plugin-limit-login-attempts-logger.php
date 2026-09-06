@@ -238,12 +238,14 @@ class Plugin_Limit_Login_Attempts_Logger extends Logger {
 		$group = new Event_Details_Group();
 		$group->set_formatter( new Event_Details_Group_Table_Formatter() );
 
-		$group->add_items( [
-			( new Event_Details_Item( null, _x( 'Login attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ) ) )
-				->set_new_value( $message_string ),
-			( new Event_Details_Item( null, _x( 'Blocked duration', 'Logger: Plugin Limit Login Attempts', 'simple-history' ) ) )
-				->set_new_value( $blocked_message ),
-		] );
+		$group->add_items(
+			[
+				( new Event_Details_Item( null, _x( 'Login attempts', 'Logger: Plugin Limit Login Attempts', 'simple-history' ) ) )
+					->set_new_value( $message_string ),
+				( new Event_Details_Item( null, _x( 'Blocked duration', 'Logger: Plugin Limit Login Attempts', 'simple-history' ) ) )
+					->set_new_value( $blocked_message ),
+			] 
+		);
 
 		return $group;
 	}

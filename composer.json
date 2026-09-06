@@ -33,7 +33,8 @@
 		"johnbillion/wp-compat": "^1.1",
 		"automattic/vipwpcs": "^3.0",
 		"slevomat/coding-standard": "^8.22",
-		"brianhenryie/strauss": "^0.19"
+		"brianhenryie/strauss": "^0.19",
+		"cweagans/composer-patches": "^1.7"
 	},
 	"require": {
 		"php": "^7.4|^8.0",
@@ -72,12 +73,21 @@
 				"jfcherng/php-mb-string",
 				"jfcherng/php-sequence-matcher"
 			]
+		},
+		"patches": {
+			"lucatume/wp-browser": {
+				"[wp-browser] PHP 8.4 explicit-nullable types — see patches/README.md": "patches/wp-browser-php84-nullable.patch"
+			}
 		}
 	},
 	"config": {
+		"platform": {
+			"php": "7.4.33"
+		},
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true,
-			"phpstan/extension-installer": true
+			"phpstan/extension-installer": true,
+			"cweagans/composer-patches": true
 		}
 	}
 }

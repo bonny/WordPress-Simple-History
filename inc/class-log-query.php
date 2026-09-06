@@ -84,30 +84,6 @@ use Simple_History\Services;
  */
 class Log_Query {
 	/**
-	 * Get the events table name.
-	 *
-	 * Marked protected so subclasses can override which events table
-	 * Log_Query reads from, without duplicating every query method.
-	 *
-	 * @return string
-	 */
-	protected function get_events_table_name() {
-		return Simple_History::get_instance()->get_events_table_name();
-	}
-
-	/**
-	 * Get the contexts table name.
-	 *
-	 * Marked protected so subclasses can override which contexts table
-	 * Log_Query reads from. See {@see get_events_table_name()}.
-	 *
-	 * @return string
-	 */
-	protected function get_contexts_table_name() {
-		return Simple_History::get_instance()->get_contexts_table_name();
-	}
-
-	/**
 	 * Query the log.
 	 *
 	 * @param string|array|object $args {
@@ -277,6 +253,8 @@ class Log_Query {
 
 		global $wpdb;
 
+		$Simple_History = Simple_History::get_instance();
+
 		/**
 		 * @var string SQL template used to get all events from the ones
 		 *             found in statement sql_statement_max_ids_and_count_template.
@@ -310,7 +288,7 @@ class Log_Query {
 
 		$sql_query_log_rows = sprintf(
 			$sql_statement_log_rows,
-			$this->get_events_table_name(), // 1
+			$Simple_History->get_events_table_name(), // 1
 			$inner_where_string, // 2
 			$limit_clause // 3
 		);
@@ -349,7 +327,7 @@ class Log_Query {
 
 			$sql_query_log_rows_count = sprintf(
 				$sql_statement_log_rows_count,
-				$this->get_events_table_name(), // 1
+				$Simple_History->get_events_table_name(), // 1
 				$inner_where_string, // 2
 			);
 
@@ -418,6 +396,8 @@ class Log_Query {
 
 		global $wpdb;
 
+		$Simple_History = Simple_History::get_instance();
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( 'SET @a:=NULL, @counter:=1, @groupby:=0, SQL_BIG_SELECTS=1' );
 
@@ -460,8 +440,8 @@ class Log_Query {
 
 		$inner_sql_query_statement = sprintf(
 			$inner_sql_statement_template,
-			$this->get_events_table_name(), // 1
-			$this->get_contexts_table_name(), // 2
+			$Simple_History->get_events_table_name(), // 1
+			$Simple_History->get_contexts_table_name(), // 2
 			$inner_where_string // 3
 		);
 
@@ -518,8 +498,8 @@ class Log_Query {
 
 		$max_ids_and_count_sql_statement = sprintf(
 			$sql_statement_max_ids_and_count_template,
-			$this->get_events_table_name(), // 1
-			$this->get_contexts_table_name(), // 2
+			$Simple_History->get_events_table_name(), // 1
+			$Simple_History->get_contexts_table_name(), // 2
 			$inner_sql_query_statement, // 3
 			$outer_where_string, // 4
 			$limit_clause // 5 Limit clause.
@@ -559,7 +539,7 @@ class Log_Query {
 
 		$sql_query_log_rows = sprintf(
 			$sql_statement_log_rows,
-			$this->get_events_table_name(), // 1
+			$Simple_History->get_events_table_name(), // 1
 			$max_ids_and_count_sql_statement // 2
 		);
 
@@ -620,8 +600,8 @@ class Log_Query {
 			// to get count(*).
 			$max_ids_and_count_without_limit_sql_statement = sprintf(
 				$sql_statement_max_ids_and_count_template,
-				$this->get_events_table_name(), // 1
-				$this->get_contexts_table_name(), // 2
+				$Simple_History->get_events_table_name(), // 1
+				$Simple_History->get_contexts_table_name(), // 2
 				$inner_sql_query_statement, // 3
 				$outer_where_string, // 4
 				'', // 5 Limit clause.
@@ -629,7 +609,7 @@ class Log_Query {
 
 			$sql_query_log_rows_count = sprintf(
 				$sql_statement_log_rows_count,
-				$this->get_events_table_name(), // 1
+				$Simple_History->get_events_table_name(), // 1
 				$max_ids_and_count_without_limit_sql_statement // 2
 			);
 
@@ -721,8 +701,9 @@ class Log_Query {
 			return $arr_return;
 		}
 
-		$events_table_name   = $this->get_events_table_name();
-		$contexts_table_name = $this->get_contexts_table_name();
+		$simpe_history       = Simple_History::get_instance();
+		$events_table_name   = $simpe_history->get_events_table_name();
+		$contexts_table_name = $simpe_history->get_contexts_table_name();
 
 		$args = wp_parse_args(
 			$args,
@@ -859,7 +840,8 @@ class Log_Query {
 	protected function query_surrounding_events( $args ) {
 		global $wpdb;
 
-		$events_table_name = $this->get_events_table_name();
+		$simple_history    = Simple_History::get_instance();
+		$events_table_name = $simple_history->get_events_table_name();
 
 		// Parse arguments with defaults.
 		$args = wp_parse_args(
@@ -1112,6 +1094,10 @@ class Log_Query {
 				// Metadata search: plain text search across all context values.
 				'metadata_search'   => null,
 
+				// When true, only return events that have an AI agent attribution
+				// (any value of the `_initiator_ai_agent` context key).
+				'ai_only'           => false,
+
 				// Return ungrouped events without occasions grouping.
 				'ungrouped'         => false,
 
@@ -1231,46 +1217,27 @@ class Log_Query {
 			}
 		}
 
+		// Treat empty or whitespace-only date strings as "no date filter".
+		// Without this, DateTimeImmutable parses an empty string as "now",
+		// silently turning the query into "date >= now" and matching nothing.
+		if ( isset( $args['date_from'] ) && is_string( $args['date_from'] ) && trim( $args['date_from'] ) === '' ) {
+			$args['date_from'] = null;
+		}
+
+		if ( isset( $args['date_to'] ) && is_string( $args['date_to'] ) && trim( $args['date_to'] ) === '' ) {
+			$args['date_to'] = null;
+		}
+
 		// "date_from" must be timestamp or string. If string then convert to timestamp.
-		// Empty strings are treated as "not set" — new DateTimeImmutable('') silently
-		// returns the current time, which would filter out every past event.
-		// Uses WordPress timezone for date parsing to ensure correct day boundaries.
-		if ( isset( $args['date_from'] ) && $args['date_from'] !== '' && is_numeric( $args['date_from'] ) ) {
-			$args['date_from'] = (int) $args['date_from'];
-		} elseif ( isset( $args['date_from'] ) && $args['date_from'] !== '' && is_string( $args['date_from'] ) ) {
-			// If value is "2025-03-29" that means the beginning of the day on 2025-03-29 in WordPress timezone.
-			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_from'], 'Y-m-d' );
-			if ( $is_start_of_day_date_format ) {
-				// Parse date in WordPress timezone and get start of day (00:00:00).
-				$date              = new \DateTimeImmutable( $args['date_from'] . ' 00:00:00', wp_timezone() );
-				$args['date_from'] = $date->getTimestamp();
-			} else {
-				// Parse datetime string in WordPress timezone.
-				$date              = new \DateTimeImmutable( $args['date_from'], wp_timezone() );
-				$args['date_from'] = $date->getTimestamp();
-			}
-		} elseif ( isset( $args['date_from'] ) && $args['date_from'] !== '' ) {
-			throw new \InvalidArgumentException( 'Invalid date_from' );
+		// A bare "Y-m-d" date means the beginning of that day in WordPress timezone.
+		if ( isset( $args['date_from'] ) ) {
+			$args['date_from'] = $this->convert_date_arg_to_timestamp( $args['date_from'], 'date_from', '00:00:00' );
 		}
 
 		// "date_to" must be timestamp or string. If string then convert to timestamp.
-		// See note above on date_from for why empty strings are skipped.
-		if ( isset( $args['date_to'] ) && $args['date_to'] !== '' && is_numeric( $args['date_to'] ) ) {
-			$args['date_to'] = (int) $args['date_to'];
-		} elseif ( isset( $args['date_to'] ) && $args['date_to'] !== '' && is_string( $args['date_to'] ) ) {
-			// If value is "2025-03-29" that means the end of the day on 2025-03-29 in WordPress timezone.
-			$is_start_of_day_date_format = $this->is_valid_date_format( $args['date_to'], 'Y-m-d' );
-			if ( $is_start_of_day_date_format ) {
-				// Parse date in WordPress timezone and get end of day (23:59:59).
-				$date            = new \DateTimeImmutable( $args['date_to'] . ' 23:59:59', wp_timezone() );
-				$args['date_to'] = $date->getTimestamp();
-			} else {
-				// Parse datetime string in WordPress timezone.
-				$date            = new \DateTimeImmutable( $args['date_to'], wp_timezone() );
-				$args['date_to'] = $date->getTimestamp();
-			}
-		} elseif ( isset( $args['date_to'] ) && $args['date_to'] !== '' ) {
-			throw new \InvalidArgumentException( 'Invalid date_to' );
+		// A bare "Y-m-d" date means the end of that day in WordPress timezone.
+		if ( isset( $args['date_to'] ) ) {
+			$args['date_to'] = $this->convert_date_arg_to_timestamp( $args['date_to'], 'date_to', '23:59:59' );
 		}
 
 		// "search" must be string.
@@ -1554,7 +1521,8 @@ class Log_Query {
 
 		global $wpdb;
 
-		$table_contexts = $this->get_contexts_table_name();
+		$simple_history = Simple_History::get_instance();
+		$table_contexts = $simple_history->get_contexts_table_name();
 
 		$post_ids = wp_list_pluck( $log_rows, 'id' );
 
@@ -1618,7 +1586,7 @@ class Log_Query {
 
 		global $wpdb;
 
-		$events_table_name = $this->get_events_table_name();
+		$events_table_name = Simple_History::get_instance()->get_events_table_name();
 
 		// Max id is simply the id of the first/most recent row.
 		$max_id = reset( $log_rows )->id;
@@ -1750,19 +1718,25 @@ class Log_Query {
 	 *
 	 * @param array $args Query arguments, as passed to query().
 	 * @return array<string> Where clauses.
+	 * @throws \InvalidArgumentException If a months value is not in valid Y-m format.
 	 */
 	protected function get_inner_where( $args ) {
 		global $wpdb;
 
 		$simple_history      = Simple_History::get_instance();
-		$contexts_table_name = $this->get_contexts_table_name();
+		$contexts_table_name = $simple_history->get_contexts_table_name();
 
 		$inner_where = [];
 
-		// Only include loggers that the current user can view
+		// Only include loggers that the current user can view.
+		// Skipped when `ignore_logger_capabilities` is set — used by the privacy
+		// export/erasure so a data subject's records are complete regardless of
+		// which user (or cron context) processes the request.
 		// TODO: this causes error if user has no access to any logger at all.
-		$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
-		$inner_where[]             = "logger IN {$sql_loggers_user_can_view}";
+		if ( empty( $args['ignore_logger_capabilities'] ) ) {
+			$sql_loggers_user_can_view = $simple_history->get_loggers_that_user_can_read( get_current_user_id(), 'sql' );
+			$inner_where[]             = "logger IN {$sql_loggers_user_can_view}";
+		}
 
 		// Add post__in where.
 		if ( isset( $args['post__in'] ) && sizeof( $args['post__in'] ) > 0 ) {
@@ -1889,11 +1863,24 @@ class Log_Query {
 				$arr_months = explode( ',', $args['months'] );
 			}
 
-			$sql_months = "\n" . '
-				(
-			';
+			$sql_month_clauses = [];
 
 			foreach ( $arr_months as $one_month ) {
+				$one_month = is_string( $one_month ) ? trim( $one_month ) : $one_month;
+
+				// Blank entries mean "no filter" and are skipped, matching how
+				// empty date_from/date_to are treated.
+				if ( $one_month === '' || $one_month === null ) {
+					continue;
+				}
+
+				// Anything else must be a valid "Y-m" value. A malformed value
+				// like "banana" would otherwise produce a nonsense date filter
+				// or an uncaught exception from DateTimeImmutable.
+				if ( ! is_string( $one_month ) || ! $this->is_valid_date_format( $one_month, 'Y-m' ) ) {
+					throw new \InvalidArgumentException( 'Invalid months value. Use Y-m format (e.g., 2024-08)' );
+				}
+
 				// Beginning of month in WordPress timezone.
 				// For "2014-08", this is 2014-08-01 00:00:00 in WordPress timezone.
 				$date_month_beginning_obj = new \DateTimeImmutable( $one_month . '-01 00:00:00', wp_timezone() );
@@ -1905,28 +1892,18 @@ class Log_Query {
 				$date_month_end_obj = $date_month_beginning_obj->modify( '+1 month' )->modify( '-1 second' );
 				$date_month_end     = $date_month_end_obj->getTimestamp();
 
-				$sql_months .= sprintf(
-					'
-					(
-						date >= "%1$s"
-						AND date <= "%2$s"
-					)
-
-					OR
-					',
+				$sql_month_clauses[] = sprintf(
+					'( date >= "%1$s" AND date <= "%2$s" )',
 					gmdate( 'Y-m-d H:i:s', $date_month_beginning ), // 1
 					gmdate( 'Y-m-d H:i:s', $date_month_end ) // 2
 				);
 			}
 
-			$sql_months = trim( $sql_months );
-			$sql_months = rtrim( $sql_months, ' OR ' );
-
-			$sql_months .= '
-				)
-			';
-
-			$inner_where[] = $sql_months;
+			// Only add the clause when at least one valid month survived —
+			// an empty group "()" would be a SQL syntax error.
+			if ( $sql_month_clauses !== [] ) {
+				$inner_where[] = '( ' . implode( ' OR ', $sql_month_clauses ) . ' )';
+			}
 		}
 
 		// Search.
@@ -2025,26 +2002,43 @@ class Log_Query {
 		// Add where clause for IP address filtering.
 		// Uses LIKE to support anonymized IPs where the last octet is replaced with "x".
 		// For example, "192.168.1.x" will match by searching for "192.168.1.%".
+		//
+		// Matches every context key that can hold an address, not just the one the
+		// web server saw. Behind a proxy or load balancer _server_remote_addr is the
+		// same on every event and the visitor's real address lives in a forwarding
+		// header, so matching only the former would make the filter useless on
+		// exactly the sites that need it most. The UI shows all of an event's
+		// addresses, so all of them are filterable.
 		if ( ! empty( $args['ip_address'] ) ) {
 			$ip_address = $args['ip_address'];
 
 			// Replace ".x" octets (anonymized IP) with ".%" for LIKE matching.
 			$ip_like = preg_replace( '/\.x\b/', '.%', $ip_address );
 
+			// Any of the IP-holding keys will do. esc_like() is required because "_"
+			// is a single character wildcard in LIKE and these keys are full of them.
+			$key_where = array();
+
+			foreach ( Helpers::get_ip_address_context_key_prefixes() as $key_prefix ) {
+				$key_where[] = $wpdb->prepare( 'c.key LIKE %s', $wpdb->esc_like( $key_prefix ) . '%' );
+			}
+
+			$key_where_sql = '( ' . implode( ' OR ', $key_where ) . ' )';
+
 			// If the IP doesn't end with a wildcard, use exact match.
 			if ( str_contains( $ip_like, '%' ) ) {
-				$inner_where[] = $wpdb->prepare(
-					'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value LIKE %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-					'_server_remote_addr',
-					$ip_like
-				);
+				$value_where_sql = $wpdb->prepare( 'c.value LIKE %s', $ip_like );
 			} else {
-				$inner_where[] = $wpdb->prepare(
-					'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-					'_server_remote_addr',
-					$ip_address
-				);
+				$value_where_sql = $wpdb->prepare( 'c.value = %s', $ip_address );
 			}
+
+			// Value before keys, deliberately. Once the contexts table is large enough
+			// that the key index stops being selective — every event carries an IP, so
+			// that happens early — the planner scans, and then the address comparison
+			// wants to run before the key patterns. Measured on 400k context rows:
+			// keys first 126ms, value first 48ms, versus 50ms for the old single-key
+			// query. Ordering is what keeps this change free.
+			$inner_where[] = 'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE ' . $value_where_sql . ' AND ' . $key_where_sql . ' )'; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 
 		// Add where clause for context filters.
@@ -2056,6 +2050,15 @@ class Log_Query {
 					$context_value
 				);
 			}
+		}
+
+		// Show only events that carry an AI agent attribution.
+		if ( ! empty( $args['ai_only'] ) ) {
+			$inner_where[] = $wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.`key` = %s )",
+				\Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_AGENT
+			);
 		}
 
 		// Metadata search: plain text search across all context values.
@@ -2211,7 +2214,7 @@ class Log_Query {
 
 		global $wpdb;
 
-		$contexts_table_name = $this->get_contexts_table_name();
+		$contexts_table_name = Simple_History::get_instance()->get_contexts_table_name();
 
 		$arr_search_words = $this->get_sanitized_search_words( $args['search'] );
 
@@ -2267,7 +2270,7 @@ class Log_Query {
 
 		global $wpdb;
 
-		$contexts_table_name = $this->get_contexts_table_name();
+		$contexts_table_name = Simple_History::get_instance()->get_contexts_table_name();
 
 		$arr_exclude_words = $this->get_sanitized_search_words( $args['exclude_search'] );
 
@@ -2487,7 +2490,7 @@ class Log_Query {
 
 		global $wpdb;
 
-		$events_table_name   = $this->get_events_table_name();
+		$events_table_name   = Simple_History::get_instance()->get_events_table_name();
 		$logger_placeholders = implode( ', ', array_fill( 0, count( $logger_slugs ), '%s' ) );
 
 		// Get distinct message templates for fallback loggers.
@@ -2558,6 +2561,47 @@ class Log_Query {
 	}
 
 	/**
+	 * Convert a date_from/date_to argument to a timestamp.
+	 *
+	 * Numeric values are used as-is. A bare "Y-m-d" string is expanded to
+	 * the given day boundary time in the WordPress timezone. Any other
+	 * string is parsed leniently (e.g. "yesterday").
+	 *
+	 * @param mixed  $value Date value to convert.
+	 * @param string $arg_name Argument name, used in error messages.
+	 * @param string $day_boundary_time Time appended to bare dates, e.g. "00:00:00" or "23:59:59".
+	 * @return int Timestamp.
+	 * @throws \InvalidArgumentException When the value is not a valid date.
+	 */
+	protected function convert_date_arg_to_timestamp( $value, $arg_name, $day_boundary_time ) {
+		if ( is_numeric( $value ) ) {
+			return (int) $value;
+		}
+
+		if ( ! is_string( $value ) ) {
+			throw new \InvalidArgumentException( 'Invalid ' . esc_html( $arg_name ) );
+		}
+
+		// A bare date means the start or end of that day in WordPress timezone.
+		if ( $this->is_valid_date_format( $value, 'Y-m-d' ) ) {
+			$date = new \DateTimeImmutable( $value . ' ' . $day_boundary_time, wp_timezone() );
+
+			return $date->getTimestamp();
+		}
+
+		// Parse datetime string in WordPress timezone. Rethrow unparseable
+		// values as the same catchable exception type used by the rest of
+		// the argument validation.
+		try {
+			$date = new \DateTimeImmutable( $value, wp_timezone() );
+		} catch ( \Exception $exception ) {
+			throw new \InvalidArgumentException( 'Invalid ' . esc_html( $arg_name ) );
+		}
+
+		return $date->getTimestamp();
+	}
+
+	/**
 	 * Check if a date string is in the specified format.
 	 *
 	 * Example:
@@ -2569,7 +2613,12 @@ class Log_Query {
 	 * @return bool True if the date string is in the specified format, false otherwise.
 	 */
 	protected function is_valid_date_format( $date_string, $format = 'Y-m-d' ) {
-		$d = \DateTime::createFromFormat( $format, $date_string );
+		// The "!" resets fields not present in the format to the Unix epoch
+		// instead of the current date. Without it, validating "Y-m" near the
+		// end of a month would overflow shorter months (e.g. "2024-02" parsed
+		// on the 31st becomes 2024-03-02) and wrongly reject valid values.
+		$d = \DateTime::createFromFormat( '!' . $format, $date_string );
+
 		return $d && $d->format( $format ) === $date_string;
 	}
 
@@ -2581,7 +2630,8 @@ class Log_Query {
 	protected function get_sticky_events() {
 		global $wpdb;
 
-		$contexts_table = $this->get_contexts_table_name();
+		$simple_history = Simple_History::get_instance();
+		$contexts_table = $simple_history->get_contexts_table_name();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 		return $wpdb->get_col(

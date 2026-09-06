@@ -38,7 +38,8 @@ export function CreateAlertButton( { hasActiveFilters } ) {
 			__( 'Get Instant Alerts', 'simple-history' ),
 			description,
 			bell,
-			alertsFeatureImage
+			alertsFeatureImage,
+			'premium_global_modal_alerts'
 		);
 	};
 

@@ -36,6 +36,8 @@ export function ExpandedFilters( props ) {
 		setSelectedContextFilters,
 		enteredMetadataSearch,
 		setEnteredMetadataSearch,
+		showAIOnly,
+		setShowAIOnly,
 		searchOptions,
 		hideOwnEvents,
 		setHideOwnEvents,
@@ -422,6 +424,36 @@ export function ExpandedFilters( props ) {
 									return suggestion.value;
 								}
 							) }
+						/>
+					</div>
+				</FlexBlock>
+			</Flex>
+
+			<Flex align="top" gap="0" style={ filterRowStyle }>
+				<FlexItem style={ labelMarginStyle }>
+					<div className="SimpleHistory__filters__filterLabel">
+						{ __( 'AI-initiated', 'simple-history' ) }
+					</div>
+				</FlexItem>
+				<FlexBlock>
+					<div
+						style={ {
+							marginTop: `calc(${ GRID_UNIT } / 2 + 4px)`,
+							paddingLeft: '1px',
+						} }
+					>
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							label={ __(
+								'AI-initiated events only',
+								'simple-history'
+							) }
+							help={ __(
+								'Events where an AI tool or agent acted on behalf of a user.',
+								'simple-history'
+							) }
+							checked={ showAIOnly }
+							onChange={ setShowAIOnly }
 						/>
 					</div>
 				</FlexBlock>

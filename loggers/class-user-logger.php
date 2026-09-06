@@ -24,6 +24,18 @@ class User_Logger extends Logger {
 		'user_roles_removed' => [],
 	];
 
+	/**
+	 * Dedupe guard for `application_password_failed_authentication`.
+	 *
+	 * WP fires the action twice per request (during `authenticate` and again during
+	 * `determine_current_user`), and the resolve-current-user call inside the log
+	 * write can re-enter via `wp_validate_application_password`. We only want one
+	 * log row per request.
+	 *
+	 * @var bool
+	 */
+	private $app_password_failure_logged = false;
+
 	/** @inheritDoc */
 	public function get_info() {
 
@@ -97,6 +109,16 @@ class User_Logger extends Logger {
 					'User revoke application password',
 					'simple-history'
 				),
+				'user_application_password_login_failed'   => _x(
+					'Failed to authenticate with application password for user "{login}"',
+					'Failed application password authentication on REST/XML-RPC',
+					'simple-history'
+				),
+				'user_application_password_unknown_login_failed' => _x(
+					'Failed to authenticate with application password for user "{failed_username}" (user does not exist)',
+					'Failed application password authentication for unknown user',
+					'simple-history'
+				),
 				'user_admin_page_access_denied'            => _x(
 					'Attempted to access restricted admin page "{admin_page}"',
 					'User was denied access to an admin page',
@@ -115,6 +137,8 @@ class User_Logger extends Logger {
 						_x( 'Failed user logins', 'User logger: search', 'simple-history' ) => array(
 							'user_login_failed',
 							'user_unknown_login_failed',
+							'user_application_password_login_failed',
+							'user_application_password_unknown_login_failed',
 						),
 						_x( 'Failed login (known user)', 'User logger: search', 'simple-history' ) => array(
 							'user_login_failed',
@@ -143,6 +167,10 @@ class User_Logger extends Logger {
 						_x( 'User application password deletion', 'User logger: search', 'simple-history' ) => array(
 							'user_application_password_revoked',
 						),
+						_x( 'Failed application password authentication', 'User logger: search', 'simple-history' ) => array(
+							'user_application_password_login_failed',
+							'user_application_password_unknown_login_failed',
+						),
 						_x( 'Admin page access denied', 'User logger: search', 'simple-history' ) => array(
 							'user_admin_page_access_denied',
 						),
@@ -150,6 +178,44 @@ class User_Logger extends Logger {
 				),
 
 			),
+		);
+	}
+
+	/**
+	 * Message keys for failed login attempts by an existing user, whichever
+	 * way they authenticated (login form or application password).
+	 *
+	 * @var string[]
+	 */
+	public const FAILED_LOGIN_MESSAGE_KEYS_EXISTING_USER = [
+		'user_login_failed',
+		'user_application_password_login_failed',
+	];
+
+	/**
+	 * Message keys for failed login attempts with an unknown username or email.
+	 *
+	 * @var string[]
+	 */
+	public const FAILED_LOGIN_MESSAGE_KEYS_UNKNOWN_USER = [
+		'user_unknown_login_failed',
+		'user_application_password_unknown_login_failed',
+	];
+
+	/**
+	 * Get every message key that represents a failed login attempt.
+	 *
+	 * This is the one list the failed login throttling in core and premium
+	 * should use, so a new failed-login message key only needs adding here.
+	 *
+	 * @since 5.32.0
+	 *
+	 * @return string[]
+	 */
+	public static function get_failed_login_message_keys() {
+		return array_merge(
+			self::FAILED_LOGIN_MESSAGE_KEYS_EXISTING_USER,
+			self::FAILED_LOGIN_MESSAGE_KEYS_UNKNOWN_USER
 		);
 	}
 
@@ -197,6 +263,29 @@ class User_Logger extends Logger {
 		add_action( 'wp_create_application_password', array( $this, 'on_action_wp_create_application_password' ), 10, 4 );
 		add_action( 'wp_delete_application_password', array( $this, 'on_action_wp_delete_application_password' ), 10, 2 );
 		// TODO: there is also an action "wp_update_application_password". Used by rest api and fired when a user updates app password there.
+
+		// Failed application password authentication (REST/XML-RPC).
+		// Gated behind experimental features while we validate noise levels in the wild.
+		// Sites can additionally opt out via the `simple_history/log_failed_app_password_auth` filter.
+		/**
+		 * Filter whether failed application password authentication attempts should be logged.
+		 *
+		 * Defaults to true when experimental features are enabled. Set to false to disable
+		 * logging without turning off experimental features entirely (useful on sites with
+		 * heavy API traffic where the log would fill with brute-force noise).
+		 *
+		 * @since 5.x
+		 *
+		 * @param bool $should_log Whether to log failed application password authentication.
+		 */
+		$log_failed_app_password_auth = apply_filters(
+			'simple_history/log_failed_app_password_auth',
+			Helpers::experimental_features_is_enabled()
+		);
+
+		if ( $log_failed_app_password_auth ) {
+			add_action( 'application_password_failed_authentication', array( $this, 'on_application_password_failed_authentication' ), 10, 1 );
+		}
 
 		// Admin page access denied.
 		add_action( 'admin_page_access_denied', array( $this, 'on_admin_page_access_denied' ), 10 );
@@ -372,18 +461,122 @@ class User_Logger extends Logger {
 	}
 
 	/**
-	 * Fires after the user's role has changed,
-	 * used when quick editing a user on the user admin overview screen.
+	 * Log failed application password authentication.
+	 *
+	 * Fired from action `application_password_failed_authentication` (since WP 5.6.0)
+	 * when an application password fails to authenticate a REST or XML-RPC request.
+	 *
+	 * Possible error codes from WordPress core:
+	 * - `invalid_username` / `invalid_email`     — username does not exist.
+	 * - `incorrect_password`                     — wrong application password.
+	 * - `application_passwords_disabled`         — disabled site-wide.
+	 * - `application_passwords_disabled_for_user` — disabled for this user.
+	 *
+	 * @param \WP_Error $error The authentication error.
+	 */
+	public function on_application_password_failed_authentication( $error ) {
+		// Only log REST failures; skip XML-RPC to avoid duplicate rows. Core gates its REST
+		// path (`wp_validate_application_password` on `determine_current_user`) on
+		// `isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])`, so PHP_AUTH_USER is
+		// always set when this action fires on REST. Over XML-RPC the username travels in
+		// the request body and PHP_AUTH_USER is empty — and those attempts are already
+		// recorded by the standard failed-login loggers (`onAuthenticate` /
+		// `onWpAuthenticateUser`) on the `authenticate` chain, so logging here too would
+		// double up every attempt. A missing PHP_AUTH_USER therefore means "not the REST
+		// path" — bail and let the regular loggers cover it.
+		// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.BasicAuthentication -- Reading the attempted username for security logging only; authentication is handled by WP core.
+		if ( ! isset( $_SERVER['PHP_AUTH_USER'] ) ) {
+			return;
+		}
+
+		// Guard against recursion: resolving the current user during the log write can
+		// re-trigger `determine_current_user` -> `wp_validate_application_password` and
+		// fire this action again. The XML-RPC / `authenticate` firing already returned at
+		// the PHP_AUTH_USER bail above, so the double-fire this dedupes is the REST
+		// recursion path.
+		if ( $this->app_password_failure_logged ) {
+			return;
+		}
+
+		$this->app_password_failure_logged = true;
+
+		// Set by the bail above; read from the Basic-auth header (may be an empty string).
+		// phpcs:ignore WordPressVIPMinimum.Variables.ServerVariables.BasicAuthentication -- Reading the attempted username for security logging only; authentication is handled by WP core.
+		$attempted_username = sanitize_text_field( wp_unslash( $_SERVER['PHP_AUTH_USER'] ) );
+
+		$error_code    = is_a( $error, 'WP_Error' ) ? $error->get_error_code() : '';
+		$error_message = is_a( $error, 'WP_Error' ) ? wp_strip_all_tags( $error->get_error_message() ) : '';
+
+		$context = array(
+			'_initiator'             => Log_Initiators::WEB_USER,
+			'error_code'             => (string) $error_code,
+			'error_message'          => $error_message,
+			'request_uri'            => sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ),
+			'request_method'         => sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ),
+			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__ -- User agent logging important for security (brute force detection). Accept VIP caching limitation.
+			'server_http_user_agent' => sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ?? '' ) ),
+			// Same occasions group as failed logins through the login form. A
+			// brute force burst that mixes both channels then collapses into
+			// one row instead of alternating between two groups.
+			'_occasionsID'           => self::class . '/failed_user_login',
+		);
+
+		$is_unknown_user = in_array( $error_code, array( 'invalid_username', 'invalid_email' ), true );
+
+		if ( $is_unknown_user ) {
+			$context['failed_username'] = $attempted_username;
+			$this->warning_message( 'user_application_password_unknown_login_failed', $context );
+
+			return;
+		}
+
+		$context['login'] = $attempted_username;
+
+		$user = $attempted_username !== '' ? get_user_by( 'login', $attempted_username ) : false;
+
+		if ( ! $user && is_email( $attempted_username ) ) {
+			$user = get_user_by( 'email', $attempted_username );
+		}
+
+		if ( $user instanceof \WP_User ) {
+			$context['login_id']    = $user->ID;
+			$context['login_email'] = $user->user_email;
+		}
+
+		$this->warning_message( 'user_application_password_login_failed', $context );
+	}
+
+	/**
+	 * Fires after the user's role has changed.
+	 *
+	 * Captures role changes from the users admin overview screen (quick edit),
+	 * REST API, and WP-CLI. Profile-screen role changes flow through the
+	 * profile_update / pre_user_data path instead.
 	 *
 	 * @param int      $user_id   The user ID.
 	 * @param string   $role      The new role.
 	 * @param string[] $old_roles An array of the user's previous roles.
 	 */
 	public function on_set_user_role_on_admin_overview_screen( $user_id, $role, $old_roles ) {
-		$current_screen = helpers::get_current_screen();
+		$is_users_screen = false;
 
-		// Bail if we are not on the users screen.
-		if ( $current_screen->id !== 'users' ) {
+		if ( is_admin() ) {
+			$current_screen  = helpers::get_current_screen();
+			$is_users_screen = isset( $current_screen->id ) && $current_screen->id === 'users';
+		}
+
+		if ( ! $is_users_screen && ! Helpers::is_rest_request() && ! Helpers::is_wp_cli() ) {
+			return;
+		}
+
+		// Suppress the implicit role assignment that wp_insert_user() does during
+		// user creation — the user_created event already records the role. New
+		// users have no previous roles, so $old_roles is empty. Edge case: an
+		// admin who explicitly cleared a user's roles first (set_role('')) and
+		// then assigns a new one would also hit this branch on the second call
+		// and not be logged. Considered acceptable — the clearing call itself
+		// is logged.
+		if ( empty( $old_roles ) ) {
 			return;
 		}
 
@@ -463,8 +656,67 @@ class User_Logger extends Logger {
 		// Remove keys used for diff.
 		unset( $context['user_prev_roles'], $context['user_new_roles'] );
 
+		// Bail if nothing actually changed. WordPress fires profile_update even
+		// when wp_update_user() only touched user meta, e.g. when the block editor
+		// persists editor preferences via REST. Logging those as profile edits
+		// creates events for edits that never happened.
+		if ( ! $this->profile_update_context_has_changes( $context ) ) {
+			return;
+		}
+
 		$this->info_message( 'user_updated_profile', $context );
 	}
+
+	/**
+	 * Check if a collected profile update context contains any real change:
+	 * a changed users-table field, a changed password, or a role change.
+	 *
+	 * @param array $context Context collected for the profile update.
+	 * @return bool True if at least one change is recorded in the context.
+	 */
+	private function profile_update_context_has_changes( $context ) {
+		if ( ! empty( $context['edited_user_password_changed'] ) ) {
+			return true;
+		}
+
+		if ( ! empty( $context['user_added_roles'] ) || ! empty( $context['user_removed_roles'] ) ) {
+			return true;
+		}
+
+		foreach ( array_keys( $context ) as $key ) {
+			if ( str_starts_with( $key, 'user_prev_' ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Profile fields diffed on update: the users-table columns plus the meta
+	 * fields WordPress's own profile form saves through wp_update_user().
+	 *
+	 * @var string[]
+	 */
+	private const PROFILE_FIELDS_TO_DIFF = [
+		'user_login',
+		'user_pass',
+		'user_nicename',
+		'user_email',
+		'user_url',
+		'display_name',
+		'nickname',
+		'first_name',
+		'last_name',
+		'description',
+		'rich_editing',
+		'syntax_highlighting',
+		'comment_shortcuts',
+		'admin_color',
+		'use_ssl',
+		'show_admin_bar_front',
+		'locale',
+	];
 
 	/**
 	 * Filters user data before the record is created or updated.
@@ -499,10 +751,17 @@ class User_Logger extends Logger {
 			return $data;
 		}
 
-		$current_screen = helpers::get_current_screen();
+		// Only capture in contexts where changes are intentional: admin user screens,
+		// REST API, or WP-CLI. Arbitrary wp_update_user() calls from cron or plugins
+		// are excluded to avoid noise.
+		$is_admin_user_screen = false;
 
-		// Bail if we are not on the user-edit screen (edit other user) or profile screen (edit own user).
-		if ( ! in_array( $current_screen->id, array( 'user-edit', 'profile' ), true ) ) {
+		if ( is_admin() ) {
+			$current_screen       = helpers::get_current_screen();
+			$is_admin_user_screen = in_array( $current_screen->id, array( 'user-edit', 'profile' ), true );
+		}
+
+		if ( ! $is_admin_user_screen && ! Helpers::is_rest_request() && ! Helpers::is_wp_cli() ) {
 			return $data;
 		}
 
@@ -512,10 +771,24 @@ class User_Logger extends Logger {
 		// Get user object that contains old/existing values.
 		$user_before_update = get_user_by( 'ID', $user_id );
 
+		if ( ! $user_before_update instanceof \WP_User ) {
+			return $data;
+		}
+
 		$password_changed = false;
 
 		foreach ( $userdata as $option_key => $one_maybe_updated_option_value ) {
-			$prev_option_value = $user_before_update->$option_key;
+			// Only diff fields this logger knows how to read back. $userdata holds
+			// everything handed to wp_update_user(): the role, and any field a
+			// plugin adds to the profile form. Reading those off WP_User falls
+			// through to user meta, which is often empty, so each save produced a
+			// "" -> value diff and logged an edit that never happened. The role is
+			// diffed separately below from the roles array.
+			if ( ! in_array( $option_key, self::PROFILE_FIELDS_TO_DIFF, true ) ) {
+				continue;
+			}
+
+			$prev_option_value = $user_before_update->get( $option_key );
 			$add_diff          = true;
 
 			// Some options need special treatment.
@@ -582,8 +855,9 @@ class User_Logger extends Logger {
 	 * @param object $user_data  WP_User object.
 	 */
 	public function onRetrievePasswordMessage( $message, $key, $user_login, $user_data = null ) {
+		// Do not log $message: it contains the password reset URL (with the activation key),
+		// which is credential-equivalent until the key expires or is consumed.
 		$context = array(
-			'message'    => $message,
 			'user_login' => $user_login,
 			'user_email' => $user_data->user_email,
 		);
@@ -705,6 +979,16 @@ class User_Logger extends Logger {
 	 */
 	public function get_log_row_plain_text_output( $row ) {
 		$context = $row->context;
+
+		// Logins are sanitize_user()'d and emails validated on the way in, so
+		// this is belt and braces rather than a known payload — but the
+		// escaping should not depend on upstream validation staying as strict
+		// as it is today. The parent call below reads $row->context, not this
+		// escaped copy, so it keeps applying its own esc_html().
+		$context = $this->esc_html_context_keys(
+			$context,
+			[ 'edited_user_login', 'edited_user_email', 'created_user_login', 'created_user_email', 'created_user_role' ]
+		);
 
 		$output          = parent::get_log_row_plain_text_output( $row );
 		$current_user_id = get_current_user_id();
@@ -905,20 +1189,6 @@ class User_Logger extends Logger {
 				'_occasionsID'           => self::class . '/failed_user_login',
 			);
 
-			/**
-			 * Maybe store password too
-			 * Default is to not do this because of privacy and security
-			 *
-			 * @since 2.0
-			 *
-			 * @param bool $log_password
-			 */
-			$log_password = apply_filters( 'simple_history/comments_logger/log_failed_password', false );
-
-			if ( $log_password ) {
-				$context['login_user_password'] = $password;
-			}
-
 			$this->warning_message( 'user_login_failed', $context );
 		}
 
@@ -966,23 +1236,6 @@ class User_Logger extends Logger {
 				'_occasionsID'           => self::class . '/failed_user_login',
 			);
 
-			/**
-			 * Maybe store password too
-			 * Default is to not do this because of privacy and security
-			 *
-			 * @since 2.0
-			 *
-			 * @param bool $log_password
-			 */
-			$log_password = false;
-			$log_password = apply_filters(
-				'simple_history/comments_logger/log_not_existing_user_password',
-				$log_password
-			);
-			if ( $log_password ) {
-				$context['failed_login_password'] = $password;
-			}
-
 			$this->warning_message( 'user_unknown_login_failed', $context );
 		}
 
@@ -1024,29 +1277,37 @@ class User_Logger extends Logger {
 		$context     = $row->context;
 		$message_key = $context['_message_key'] ?? '';
 
+		$action_links = [];
+
+		// Per-user edit link for messages that target a specific user.
+		$user_id = 0;
+
 		if ( $message_key === 'user_updated_profile' ) {
 			$user_id = isset( $context['edited_user_id'] ) ? (int) $context['edited_user_id'] : 0;
 		} elseif ( $message_key === 'user_created' ) {
 			$user_id = isset( $context['created_user_id'] ) ? (int) $context['created_user_id'] : 0;
-		} else {
-			return [];
 		}
 
-		if ( ! $user_id || ! get_userdata( $user_id ) ) {
-			return [];
-		}
-
-		if ( ! current_user_can( 'edit_user', $user_id ) ) {
-			return [];
-		}
-
-		return [
-			[
+		if ( $user_id && get_userdata( $user_id ) && current_user_can( 'edit_user', $user_id ) ) {
+			$action_links[] = [
 				'url'    => get_edit_user_link( $user_id ),
 				'label'  => __( 'Edit user', 'simple-history' ),
 				'action' => 'edit',
-			],
-		];
+			];
+		}
+
+		// Overview link only for user-management events, not auth events like login/logout.
+		$user_management_message_keys = [ 'user_updated_profile', 'user_created', 'user_deleted' ];
+
+		if ( in_array( $message_key, $user_management_message_keys, true ) && current_user_can( 'list_users' ) ) {
+			$action_links[] = [
+				'url'    => admin_url( 'users.php' ),
+				'label'  => __( 'All users', 'simple-history' ),
+				'action' => 'view',
+			];
+		}
+
+		return $action_links;
 	}
 
 	/**

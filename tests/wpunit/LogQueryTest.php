@@ -620,4 +620,365 @@ class LogQueryTest extends \Codeception\TestCase\WPTestCase {
 		// Should return 0 results (injection should not work).
 		$this->assertEquals( 0, $query_results['log_rows_count'], 'SQL injection in value should return no results' );
 	}
+
+	/**
+	 * Test that empty-string date_from/date_to behave as "no date filter".
+	 *
+	 * Regression test: DateTimeImmutable parses an empty string as "now",
+	 * which turned queries into "date >= now" and silently returned zero
+	 * results for callers passing '' (e.g. the WP-CLI event search command).
+	 */
+	function test_empty_string_dates_are_ignored() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		SimpleLogger()->info( 'Event for empty date test' );
+
+		$log_query = new Log_Query();
+
+		// Baseline: no date args at all.
+		$results_no_dates = $log_query->query(
+			[
+				'search'         => 'empty date test',
+				'posts_per_page' => 10,
+			]
+		);
+
+		$this->assertGreaterThan( 0, $results_no_dates['log_rows_count'], 'Baseline query should find the event' );
+
+		// Same query with empty-string dates must return the same rows.
+		$results_empty_dates = $log_query->query(
+			[
+				'search'         => 'empty date test',
+				'date_from'      => '',
+				'date_to'        => '',
+				'posts_per_page' => 10,
+			]
+		);
+
+		$this->assertEquals(
+			$results_no_dates['log_rows_count'],
+			$results_empty_dates['log_rows_count'],
+			'Empty-string dates should behave exactly like omitted dates'
+		);
+
+		// Whitespace-only strings should be treated the same way.
+		$results_whitespace_dates = $log_query->query(
+			[
+				'search'         => 'empty date test',
+				'date_from'      => ' ',
+				'date_to'        => ' ',
+				'posts_per_page' => 10,
+			]
+		);
+
+		$this->assertEquals(
+			$results_no_dates['log_rows_count'],
+			$results_whitespace_dates['log_rows_count'],
+			'Whitespace-only dates should behave exactly like omitted dates'
+		);
+	}
+
+	/**
+	 * Test that blank months entries are treated as "no filter".
+	 *
+	 * Regression test: a blank entry used to make DateTimeImmutable parse
+	 * "-01 00:00:00" as "now minus 1 second", and an all-blank list produced
+	 * an empty "()" group in the WHERE clause — a SQL syntax error.
+	 */
+	function test_blank_months_entries_are_ignored() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		SimpleLogger()->info( 'Event for months filter test' );
+
+		$log_query = new Log_Query();
+
+		// A valid month filter finds the event.
+		$results_valid_month = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => gmdate( 'Y-m' ),
+			]
+		);
+
+		$this->assertGreaterThan( 0, $results_valid_month['log_rows_count'], 'Valid month should find the event' );
+
+		// Only-blank entries must behave like no months filter, not produce
+		// an empty "()" SQL group.
+		$results_blank_months = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => ',',
+			]
+		);
+
+		$this->assertFalse( is_wp_error( $results_blank_months ), 'Blank months entries should not cause a database error' );
+		$this->assertGreaterThan( 0, $results_blank_months['log_rows_count'], 'Blank months entries should behave like no months filter' );
+
+		// A mix of valid and blank entries applies only the valid one.
+		$results_mixed_months = $log_query->query(
+			[
+				'search' => 'months filter test',
+				'months' => ',' . gmdate( 'Y-m' ),
+			]
+		);
+
+		$this->assertGreaterThan( 0, $results_mixed_months['log_rows_count'], 'Valid month mixed with blank entry should still find the event' );
+	}
+
+	/**
+	 * Test that a malformed months value throws InvalidArgumentException.
+	 *
+	 * Invalid filter values fail loud rather than being silently dropped
+	 * (which would widen results without any signal).
+	 */
+	function test_malformed_months_throws_invalid_argument_exception() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		$this->expectException( \InvalidArgumentException::class );
+
+		( new Log_Query() )->query(
+			[
+				'months' => 'banana',
+			]
+		);
+	}
+
+	/**
+	 * Test that a valid short month is accepted regardless of today's date.
+	 *
+	 * Regression test: is_valid_date_format() filled the unparsed day from the
+	 * current day, so on the 29th–31st a valid shorter month like "2024-02"
+	 * overflowed (to March) and was wrongly rejected — which, with fail-closed
+	 * validation, surfaced as an InvalidArgumentException. The "!" format reset
+	 * makes validation date-independent.
+	 */
+	function test_valid_short_month_is_not_rejected() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		// Must not throw, regardless of what day of the month the test runs on.
+		$results = ( new Log_Query() )->query(
+			[
+				'months' => '2024-02',
+			]
+		);
+
+		$this->assertFalse( is_wp_error( $results ), 'A valid short month must be accepted on any day of the month' );
+	}
+
+	/**
+	 * Test that an unparseable date_from throws a catchable InvalidArgumentException.
+	 *
+	 * Regression test: garbage like "banana" used to throw an uncaught
+	 * \Exception from DateTimeImmutable instead of the InvalidArgumentException
+	 * used by the rest of the argument validation.
+	 */
+	function test_unparseable_date_from_throws_invalid_argument_exception() {
+		$admin_user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $admin_user_id );
+
+		$this->expectException( \InvalidArgumentException::class );
+
+		( new Log_Query() )->query(
+			[
+				'date_from' => 'banana',
+			]
+		);
+	}
+
+	/**
+	 * Log an event with a fully controlled set of IP context keys.
+	 *
+	 * Passing _server_remote_addr explicitly short-circuits
+	 * Logger::append_remote_addr_to_context(), so nothing is collected from
+	 * $_SERVER and the test decides exactly which keys the event carries.
+	 *
+	 * @param string $message Event message.
+	 * @param array  $ip_context IP related context keys and values.
+	 */
+	private function log_event_with_ip_context( $message, $ip_context ) {
+		SimpleLogger()->info( $message, $ip_context );
+	}
+
+	/**
+	 * Filtering by the address the web server saw.
+	 */
+	function test_filter_by_ip_address_matches_remote_addr() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->log_event_with_ip_context( 'Event from wanted address', [ '_server_remote_addr' => '192.0.2.10' ] );
+		$this->log_event_with_ip_context( 'Event from other address', [ '_server_remote_addr' => '192.0.2.99' ] );
+
+		$results = ( new Log_Query() )->query(
+			[
+				'ip_address'     => '192.0.2.10',
+				'posts_per_page' => 100,
+			]
+		);
+
+		$this->assertEquals( 1, $results['log_rows_count'], 'Only the event from the wanted address should match' );
+		$this->assertEquals( 'Event from wanted address', reset( $results['log_rows'] )->message );
+	}
+
+	/**
+	 * Filtering by an address that only exists in a forwarding header.
+	 *
+	 * Regression test: the filter used to match _server_remote_addr only, so on
+	 * a site behind a proxy — where that key holds the load balancer and the
+	 * visitor's real address is in a header — filtering by the address a user
+	 * actually cares about returned nothing.
+	 */
+	function test_filter_by_ip_address_matches_forwarded_header_address() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		// A proxied request: remote addr is the load balancer, visitor is in the header.
+		$this->log_event_with_ip_context(
+			'Proxied event',
+			[
+				'_server_remote_addr'            => '10.0.0.1',
+				'_server_http_x_forwarded_for_0' => '192.0.2.44',
+			]
+		);
+		$this->log_event_with_ip_context( 'Unrelated event', [ '_server_remote_addr' => '10.0.0.1' ] );
+
+		$results = ( new Log_Query() )->query(
+			[
+				'ip_address'     => '192.0.2.44',
+				'posts_per_page' => 100,
+			]
+		);
+
+		$this->assertEquals( 1, $results['log_rows_count'], 'The forwarded-header address should be filterable' );
+		$this->assertEquals( 'Proxied event', reset( $results['log_rows'] )->message );
+	}
+
+	/**
+	 * Every stored address matches, not just the first one in a header.
+	 */
+	function test_filter_by_ip_address_matches_any_header_index() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->log_event_with_ip_context(
+			'Multi hop event',
+			[
+				'_server_remote_addr'            => '10.0.0.1',
+				'_server_http_x_forwarded_for_0' => '192.0.2.60',
+				'_server_http_x_forwarded_for_1' => '192.0.2.61',
+				'_server_http_client_ip_0'       => '192.0.2.62',
+			]
+		);
+
+		foreach ( [ '10.0.0.1', '192.0.2.60', '192.0.2.61', '192.0.2.62' ] as $ip_address ) {
+			$results = ( new Log_Query() )->query(
+				[
+					'ip_address'     => $ip_address,
+					'posts_per_page' => 100,
+				]
+			);
+
+			$this->assertEquals( 1, $results['log_rows_count'], "Filtering by {$ip_address} should find the event" );
+		}
+	}
+
+	/**
+	 * Context keys that are not IP addresses must never match.
+	 *
+	 * Regression test: _server_http_referer and _server_http_user_agent share the
+	 * "_server_http_" prefix but hold no address, so a broad prefix match would
+	 * let an IP filter match against a referer URL.
+	 */
+	function test_filter_by_ip_address_ignores_non_ip_context_keys() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		// Values shaped exactly like an IP address, under keys that hold no address.
+		$this->log_event_with_ip_context(
+			'Event with IP shaped referer',
+			[
+				'_server_remote_addr'     => '10.0.0.1',
+				'_server_http_referer'    => '192.0.2.77',
+				'_server_http_user_agent' => '192.0.2.78',
+			]
+		);
+
+		foreach ( [ '192.0.2.77', '192.0.2.78' ] as $not_an_address ) {
+			$results = ( new Log_Query() )->query(
+				[
+					'ip_address'     => $not_an_address,
+					'posts_per_page' => 100,
+				]
+			);
+
+			$this->assertEquals(
+				0,
+				$results['log_rows_count'],
+				"A value stored under a non-IP key ({$not_an_address}) must not match an IP filter"
+			);
+		}
+	}
+
+	/**
+	 * Anonymized addresses filter as a subnet, across all IP keys.
+	 */
+	function test_filter_by_anonymized_ip_address_matches_subnet() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->log_event_with_ip_context( 'In subnet via remote addr', [ '_server_remote_addr' => '192.0.2.10' ] );
+		$this->log_event_with_ip_context(
+			'In subnet via header',
+			[
+				'_server_remote_addr'            => '10.0.0.1',
+				'_server_http_x_forwarded_for_0' => '192.0.2.55',
+			]
+		);
+		$this->log_event_with_ip_context( 'Outside subnet', [ '_server_remote_addr' => '198.51.100.10' ] );
+
+		$results = ( new Log_Query() )->query(
+			[
+				'ip_address'     => '192.0.2.x',
+				'posts_per_page' => 100,
+			]
+		);
+
+		$this->assertEquals( 2, $results['log_rows_count'], 'Both events in the subnet should match, whichever key holds the address' );
+	}
+
+	/**
+	 * Headers added through the filter stay queryable.
+	 *
+	 * The query builds its key list from Helpers::get_ip_number_header_names(),
+	 * so a site that registers an extra header gets it stored *and* filterable
+	 * without further changes.
+	 */
+	function test_filter_by_ip_address_honors_ip_number_header_names_filter() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		$add_header = function ( $headers ) {
+			$headers[] = 'HTTP_CF_CONNECTING_IP';
+			return $headers;
+		};
+
+		add_filter( 'simple_history/ip_number_header_names', $add_header );
+
+		$this->log_event_with_ip_context(
+			'Event behind Cloudflare',
+			[
+				'_server_remote_addr'                => '10.0.0.1',
+				'_server_http_cf_connecting_ip_0'    => '192.0.2.88',
+			]
+		);
+
+		$results = ( new Log_Query() )->query(
+			[
+				'ip_address'     => '192.0.2.88',
+				'posts_per_page' => 100,
+			]
+		);
+
+		remove_filter( 'simple_history/ip_number_header_names', $add_header );
+
+		$this->assertEquals( 1, $results['log_rows_count'], 'A header registered through the filter should be filterable' );
+	}
 }

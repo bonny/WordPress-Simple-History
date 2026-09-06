@@ -24,16 +24,14 @@ class Event_Details_Group_Table_Formatter extends Event_Details_Group_Formatter 
 		if ( $group->get_title() ) {
 			$output .= '<h4 class="screen-reader-text">' . esc_html( $group->get_title() ) . '</h4>';
 		}
-		$output .= '<table class="SimpleHistoryLogitem__keyValueTable">';
-		$output .= '<tbody>';
+		$output .= '<dl class="SimpleHistoryLogitem__keyValueTable">';
 
 		foreach ( $group->items as $item ) {
 			$item_formatter = $item->get_formatter( new Event_Details_Item_Table_Row_Formatter() );
 			$output        .= $item_formatter->to_html();
 		}
 
-		$output .= '</tbody>';
-		$output .= '</table>';
+		$output .= '</dl>';
 
 		return $output;
 	}

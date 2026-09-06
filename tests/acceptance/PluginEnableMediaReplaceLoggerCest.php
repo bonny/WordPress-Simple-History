@@ -5,14 +5,8 @@ use \Step\Acceptance\Admin;
 class EnableMediaReplaceLoggerCest
 {
     public function _before(Admin $I) {
-        $plugin_slug = 'enable-media-replace';
         $I->loginAsAdmin();
-        $I->amOnPluginsPage();
-        $isActive = $I->executeJS("return !!document.getElementById('deactivate-{$plugin_slug}')");
-        if (!$isActive) {
-            $I->activatePlugin($plugin_slug);
-        }
-        $I->canSeePluginActivated($plugin_slug);
+        $I->activatePluginByFile('enable-media-replace/enable-media-replace.php');
     }
 
     public function replaceImage(Admin $I) {

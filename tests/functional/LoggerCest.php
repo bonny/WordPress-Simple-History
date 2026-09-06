@@ -9,7 +9,7 @@ class LoggerCest {
         $I->loginAsAdmin();
 
         // Go to any admin page - the test logger outputs in the footer.
-        $I->amOnAdminPage('admin.php?page=simple_history_page');
+        $I->amOnAdminPage('index.php');
         $I->dontSee('There has been a critical error on this website.');
 
         // Verify the test logger's footer output is present.

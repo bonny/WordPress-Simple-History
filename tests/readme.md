@@ -127,6 +127,48 @@ Some tests depend on themes/plugins being present on the Docker volume filesyste
 
 -   **Twenty Sixteen theme** — Required by `SimpleMenuLoggerCest` (classic nav menus) and `SimpleThemeLoggerCest` (install/delete cycle). The `Acceptance` helper's `_beforeSuite` hook auto-installs it from `tests/_data/twentysixteen.2.6.zip` if missing. `SimpleThemeLoggerCest` re-installs it after its delete test so other tests can use it.
 
+## Running the suite against a different WordPress version
+
+`compose.yaml` parameterises the version — `wordpress:${WORDPRESS_VERSION:-6.8}-php${PHP_VERSION:-8.1}` — so it looks like setting the variable is enough:
+
+```bash
+# This does NOT work on its own.
+WORDPRESS_VERSION=6.9 npm run test:wpunit
+```
+
+**It silently does nothing.** WordPress core lives in the named volume `wordpress:/var/www/html`, and the official image's entrypoint only populates that directory when it is empty:
+
+```sh
+if [ ! -e index.php ] && [ ! -e wp-includes/version.php ]; then
+    echo >&2 "WordPress not found in $PWD - copying now..."
+```
+
+It never upgrades an existing install. So the command above starts a newer container against the old filesystem, the tests run on the old version anyway, and it _looks_ like you tested the new one. That is worse than not running it.
+
+The volume has to be discarded first:
+
+```bash
+docker compose down -v          # drops WordPress core; the DB is a bind mount and survives
+WORDPRESS_VERSION=6.9 docker compose up -d
+```
+
+Two things to know before doing this:
+
+-   `dump.sql` is version-specific (see "Required state" above). Running a newer WordPress against a fixture generated for an older one can fail in ways unrelated to what you are testing.
+-   Afterwards the volume holds the _new_ version, so a later plain `npm run test:wpunit` runs the old image against new core — the same trap in reverse. Reset with `docker compose down -v` again when you are done.
+
+If you only need the image and the exact tag is not on disk, an already-present image can be retagged rather than pulling a gigabyte: `docker tag wordpress:6.9 wordpress:6.9-php8.1`. The `wordpress` container only populates core files; the tests themselves execute in `php-cli`, so that image's bundled PHP version does not affect the run.
+
+Do **not** reach for `docker compose run --no-deps` to skip starting Chrome. The run container then never joins the project network and every test dies with `getaddrinfo for db failed: Name does not resolve`. Chrome is only needed for acceptance tests, but `wpunit` still has to start with the normal dependency chain.
+
+This procedure is verified: run on 6.9.1 the abilities suite goes from 18 skipped to 24 passing, and `docker compose down -v` followed by a plain `docker compose up -d` returns the volume to 6.8.3 with the skips restored.
+
+### Nothing runs these tests automatically
+
+There is no CI test workflow. `.github/workflows/` contains only `claude`, `claude-code-review`, `deploy`, and `spelling` — none invokes Codeception. The suite runs only when someone runs it locally, so a green branch means "green on whoever last ran it, at whatever WordPress version their volume happens to hold".
+
+This matters most for code gated on a newer WordPress than the default. Tests that `markTestSkipped()` below some version will skip forever without anyone noticing, which is exactly how two runtime defects in the Abilities API work reached a live site undetected — see `docs/superpowers/specs/2026-07-28-abilities-api-design.md` §10. For anything targeting an API newer than the default, verify against a real site of the target version rather than trusting a green suite.
+
 ## Upgrading WordPress version
 
 When upgrading the test environment to a new WordPress version, watch for these patterns:
@@ -160,6 +202,27 @@ WP may log additional system events (404s for missing thumbnails, `wp_global_sty
 WP 6.8 changed plugin upload behavior — uploading an already-installed plugin now shows a "Replace" option instead of failing. Test scenarios that depend on specific WP admin behaviors should be verified against the new version.
 
 ## Troubleshooting
+
+### `docker compose` hangs forever but plain `docker` works
+
+Symptom: `docker compose up -d` prints `Container simple-history-database Creating` and sits there at 0% CPU indefinitely, while `docker ps`, `docker run`, and `docker compose config` all respond instantly.
+
+This is Docker Desktop in a degraded state, not a problem with the compose file. Check for wedged helper processes first:
+
+```sh
+ps aux | grep -E "docker-credential|docker compose" | grep -v grep
+```
+
+A hung `docker-credential-desktop get` blocks every operation that consults the registry — including an ordinary `docker pull`, which then looks like an extremely slow download when it is actually not transferring anything. Check the timestamps; these can sit for days and accumulate one per attempt. Kill them, plus any stale `docker compose up` processes:
+
+```sh
+pkill -9 -f docker-credential-desktop
+pkill -9 -f "docker compose"
+```
+
+If compose still hangs at `Creating` afterwards, restart Docker Desktop. Note that a half-created container left in `Created` state (`docker ps -a`) is worth removing too, though it is usually a symptom rather than the cause.
+
+**When diagnosing this, do not pipe the command through `tail`/`head`** — those buffer, so you see nothing at all and cannot tell a stuck command from a quiet one. Run it unbuffered.
 
 ### Full red terminal / every test fails with timeouts
 

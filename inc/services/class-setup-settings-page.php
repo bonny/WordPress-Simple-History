@@ -738,17 +738,22 @@ class Setup_Settings_Page extends Service {
 			return;
 		}
 
-		if ( Helpers::user_can_clear_log() ) {
-			$num_rows_deleted = Helpers::clear_log();
-
-			/**
-			 * Fires after the log has been cleared using
-			 * the "Clear log now" button on the settings page.
-			 *
-			 * @param int $num_rows_deleted Number of rows deleted.
-			 */
-			do_action( 'simple_history/settings/log_cleared', $num_rows_deleted );
+		// Bail if the user is not allowed to clear the log. Previously this only
+		// skipped the clearing but still reported "Cleared database", which told
+		// the user something happened when nothing had.
+		if ( ! Helpers::user_can_clear_log() ) {
+			return;
 		}
+
+		$num_rows_deleted = Helpers::clear_log();
+
+		/**
+		 * Fires after the log has been cleared using
+		 * the "Clear log now" button on the settings page.
+		 *
+		 * @param int $num_rows_deleted Number of rows deleted.
+		 */
+		do_action( 'simple_history/settings/log_cleared', $num_rows_deleted );
 
 		$msg = __( 'Cleared database', 'simple-history' );
 

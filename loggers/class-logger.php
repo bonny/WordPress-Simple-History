@@ -880,6 +880,34 @@ abstract class Logger {
 	}
 
 	/**
+	 * Escape the given context values, ready to be interpolated into a message.
+	 *
+	 * For loggers that override get_log_row_plain_text_output(). That override
+	 * skips the esc_html() above, and the result is rendered in the admin with
+	 * dangerouslySetInnerHTML — so any value interpolated into a message the
+	 * logger builds itself has to be escaped on the way in. Values whose keys
+	 * are absent from the context are left alone.
+	 *
+	 * Do not use it for values interpolated into an href or another attribute;
+	 * those need esc_url()/esc_attr() instead.
+	 *
+	 * @param array         $context Log row context.
+	 * @param array<string> $keys    Context keys to escape.
+	 * @return array Context with the given keys escaped.
+	 */
+	protected function esc_html_context_keys( $context, array $keys ) {
+		foreach ( $keys as $key ) {
+			if ( ! isset( $context[ $key ] ) ) {
+				continue;
+			}
+
+			$context[ $key ] = esc_html( $context[ $key ] );
+		}
+
+		return $context;
+	}
+
+	/**
 	 * Get output for image
 	 * Image can be for example gravatar if sender is user,
 	 * or other images if sender i system, WordPress, and so on
@@ -969,6 +997,24 @@ abstract class Logger {
 	 */
 	public function get_action_links( $row ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		return [];
+	}
+
+	/**
+	 * Opt a log row in to the auto-appended "Show details" action link.
+	 *
+	 * Return a translated label string to add a link that opens the event
+	 * details modal — pick a label that names the actual payload (e.g.
+	 * "Show error message", "Show all 47 roles") rather than the generic
+	 * default. Return false to skip the link.
+	 *
+	 * Use sparingly: only for events that carry context the inline row
+	 * doesn't already show (error messages, large lists, diagnostic dumps).
+	 *
+	 * @param object $row Log row object.
+	 * @return string|false Label to show, or false for no link.
+	 */
+	public function event_has_more_details( $row ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+		return false;
 	}
 
 	/**
@@ -1968,7 +2014,7 @@ abstract class Logger {
 			}
 
 			// If running as CLI and WP_CLI_PHP_USED is set then it is WP CLI that is doing it.
-			if ( defined( \WP_CLI::class ) && WP_CLI ) {
+			if ( Helpers::is_wp_cli() ) {
 				$data['initiator'] = Log_Initiators::WP_CLI;
 			}
 		}
@@ -2032,10 +2078,10 @@ abstract class Logger {
 					// attempt to validate IP.
 					if ( Helpers::is_valid_public_ip( $ip ) ) {
 						// valid, add to context, with loop index appended so we can store many IPs.
-						$key_lower = strtolower( $key );
-						$ip        = Helpers::privacy_anonymize_ip( $ip );
+						$key_prefix = Helpers::get_ip_address_context_key_prefix( $key );
+						$ip         = Helpers::privacy_anonymize_ip( $ip );
 
-						$context[ "_server_{$key_lower}_{$ip_loop_num}" ] = $ip;
+						$context[ $key_prefix . $ip_loop_num ] = $ip;
 					}
 
 					++$ip_loop_num;
@@ -2048,7 +2094,22 @@ abstract class Logger {
 			! isset( $context['_server_http_referer'] ) &&
 			isset( $_SERVER['HTTP_REFERER'] )
 		) {
-			$context['_server_http_referer'] = esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) );
+			// A referer carries the previous page's query string, which sometimes
+			// holds a credential — an access token, a session id. Detective Mode
+			// already masks the query string it stores, and that path is opt-in
+			// and short lived. This one is always on and keeps events for the
+			// full retention period, so it should not be the laxer of the two.
+			//
+			// Masking is by field name, so it only covers the names listed in
+			// Helpers::get_sensitive_field_names(). A password reset "key" and an
+			// OAuth "code" are deliberately not on that list: both are too short
+			// to match on without also swallowing "keywords" and "postcode".
+			//
+			// Masking runs after esc_url_raw() because the replacement value is
+			// not URL safe and would be mangled by it.
+			$context['_server_http_referer'] = Helpers::mask_sensitive_query_string(
+				esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) )
+			);
 		}
 
 		return $context;
@@ -2112,10 +2173,7 @@ abstract class Logger {
 	 */
 	private function append_rest_api_request_to_context( $context ) {
 		// Detect REST calls and append to context, if not already there.
-		$is_rest_api_request = defined( 'REST_API_REQUEST' ) && constant( 'REST_API_REQUEST' );
-		$is_rest_request     = defined( 'REST_REQUEST' ) && constant( 'REST_REQUEST' );
-
-		if ( $is_rest_api_request || $is_rest_request ) {
+		if ( Helpers::is_rest_request() ) {
 			$context['_rest_api_request'] = true;
 		}
 

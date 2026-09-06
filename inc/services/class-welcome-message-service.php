@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
+use Simple_History\Simple_History;
 
 /**
  * Service for showing a welcome admin notice after first plugin install.
@@ -10,6 +11,8 @@ use Simple_History\Helpers;
  * Displays a brief, dismissible notice pointing users to the event log page.
  * The notice is shown once on the first admin page load after activation,
  * then automatically dismissed on the next page load.
+ *
+ * The history page itself is skipped, since the notice links there.
  */
 class Welcome_Message_Service extends Service {
 	/** Option name for tracking welcome message state. */
@@ -45,10 +48,37 @@ class Welcome_Message_Service extends Service {
 			return;
 		}
 
+		// The notice exists to point users to the history page, so on that page it is
+		// a dead end — "Take a look →" would link to the screen they are already on.
+		// Bail without marking it seen, so the single showing is saved for a screen
+		// where the link actually takes the user somewhere.
+		if ( $this->is_on_history_page() ) {
+			return;
+		}
+
 		// Mark as seen so the notice only appears once.
 		update_option( self::OPTION_NAME, 'seen', true );
 
 		add_action( 'admin_notices', array( $this, 'show_welcome_notice' ) );
+	}
+
+	/**
+	 * Check if the current request is the Simple History log page.
+	 *
+	 * The page can live under admin.php, tools.php or index.php depending on the
+	 * menu location setting, so the `page` query arg is what identifies it.
+	 *
+	 * Helpers::is_on_our_own_pages() is deliberately not used here: it also matches
+	 * the settings and tools pages, where the link is still useful, and it falls back
+	 * to get_current_screen(), which WordPress only sets up after `admin_init`.
+	 *
+	 * @return bool
+	 */
+	private function is_on_history_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check of which admin page is being viewed.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		return $page === Simple_History::MENU_PAGE_SLUG;
 	}
 
 	/**

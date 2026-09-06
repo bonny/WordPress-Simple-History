@@ -82,6 +82,8 @@ class WP_CLI_Db_Command extends WP_CLI_Command {
 				'table_name',
 				'size_in_mb',
 				'num_rows',
+				'charset',
+				'collation',
 			)
 		);
 	}

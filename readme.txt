@@ -3,8 +3,8 @@
 Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
-Tested up to: 6.9
-Stable tag: 5.27.0
+Tested up to: 7.1
+Stable tag: 5.32.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,11 @@ Track changes and user activities on your WordPress site. See who created a page
 
 ## Description
 
-Trusted by 300,000+ WordPress sites, rated 4.9 stars with [430+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5), actively developed for 10+ years, and translated into 15+ languages.
+Trusted by 300,000+ WordPress sites, rated 4.9 stars with [450+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5), actively developed for 10+ years, and translated into 15+ languages.
 
 Simple History is the complete audit log for WordPress. It tracks every meaningful change — content edits, user logins, plugin updates, security events, and more — so site owners, teams, agencies, and developers always know who did what and when. Just install and activate; no configuration required.
+
+Every event is written to be read: plain language like _Updated page "About us"_, relative timestamps such as "5 minutes ago", and before/after comparisons instead of raw data dumps.
 
 ### 🔍 How Simple History Helps in Real Situations
 
@@ -63,11 +65,13 @@ _"I see three failed logins from an unfamiliar IP address overnight. Let me clic
 -   Privacy data export and user data erasure requests
 -   Privacy page changes
 -   IP addresses anonymized by default — no cookies, no external fonts
+-   WordPress AI plugin activity is logged without ever storing API keys or prompt content
 
 ### 🔌 Built-in Third-Party Plugin Support
 
 Simple History includes built-in logging for:
 
+-   **WordPress AI plugin** – Feature toggles, AI provider and model changes, and connector approval requests, grants, and revocations
 -   **Jetpack** – Module activations and deactivations
 -   **Advanced Custom Fields (ACF)** – Field group and field changes
 -   **User Switching** – User switch events
@@ -82,7 +86,7 @@ Is your plugin missing? Plugin authors can add support using the [logging API](h
 
 ### 💬 What Users Say
 
-[430+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) on WordPress.org:
+[450+ five-star reviews](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5) on WordPress.org:
 
 -   _"So far the best and most comprehensive logging plugin"_ – [@herrschuessler](https://wordpress.org/support/topic/so-far-the-best-and-most-comprehensive-logging-plugin/)
 -   _"The best history plugin I've found"_ – [Rich Mehta](https://wordpress.org/support/topic/the-best-history-plugin-ive-found/)
@@ -174,6 +178,12 @@ Yes, you can export logs in **CSV** or **JSON** format for further analysis.
 
 Yes! Simple History supports many popular plugins out of the box. Additionally, developers can integrate it with any plugin using the [Logging API](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_faq_api).
 
+### Does Simple History log the WordPress AI plugin?
+
+Yes. When the official WordPress AI plugin is active, Simple History logs when AI features are turned on or off, when a feature's AI provider or model changes, and when plugins or themes request, are granted, or lose access to an AI provider on the Connector Approvals screen.
+
+API keys and AI prompt or response content are never logged — those stay in the AI plugin's own settings.
+
 ### Will this plugin slow down my website?
 
 No, Simple History is lightweight and optimized for performance. Most logging occurs in the WordPress admin area when a WordPress user performs an action.
@@ -220,26 +230,27 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ## Screenshots
 
-1. The log view + it also shows the filter function in use - the log only shows event that
-   are of type post and pages and media (i.e. images & other uploads), and only events
-   initiated by a specific user.
+1. The main event log: a clear timeline of who did what on your site, when, and from where — alongside a sidebar with daily activity and your most active users.
 
-2. The feature will make it quick and easy for a user of a site to see what updates other users have done to posts and pages.
+2. Content changes show a full before/after diff, so you can see exactly which words were edited on a post or page — not just that something changed.
 
-3. When users are created or changed you can see details on what have changed.
+3. User events capture every change to a profile: first and last name, display name, website, role, and more — with the previous value preserved next to the new one.
 
-4. Events have context with extra details - Each logged event can include useful rich formatted extra information. For example: a plugin install can contain author info and a the url to the plugin, and an uploaded image can contain a thumbnail of the image.
+4. Every plugin install, activation, and deactivation is logged with author, version, source, and a link to the plugin — so you always know what's running on your site.
 
-5. Click on the IP address of an entry to view the location of for example a failed login attempt.
+5. Click any IP address to see where it came from — hostname, organisation, city, and country — then filter every event from that IP or subnet in one click. Ideal for investigating failed logins.
 
-6. See even more details about a logged event (by clicking on the date and time of the event).
+6. Open any event to see the full details Simple History stores behind it: post IDs, user IDs, before/after values, and every other field — the complete audit trail for each entry.
 
-7. A chart with some quick statistics is available, so you can see the number of events that has been logged each day.
-   A simple way to see any uncommon activity, for example an increased number of logins or similar.
+7. History Insights shows a chart of daily activity, event counts for today, this week, and this month, and your most active users — all next to the log.
 
-8. Stats and summaries page that gives you a quick overview summary of your site's activity.
+8. Stats and Summaries is a full reporting dashboard: breakdowns of users, posts and pages, plugins, media, and more — for any date range you choose.
 
-9. Email reports: Get a weekly summary of your site's activity delivered straight to your inbox. Enable and configure this feature in the plugin settings.
+9. Dashboard widget: a compact view of recent activity right on your WordPress Dashboard, so you see what's happened on your site without leaving the page you already check every day.
+
+10. Weekly email reports keep you informed without logging in. Pick who receives the digest, preview it, or send a test email — all from the settings page.
+
+11. The weekly digest itself: a clean summary of posts, users, logins, plugin changes, and more — delivered straight to your inbox.
 
 ## Changelog
 
@@ -249,14 +260,14 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
+> Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+
 ### Unreleased
 
 **Added**
 
--   "History" column on post and page list tables showing recent activity at a glance, with "View history" row action links. Requires experimental features to be enabled.
--   Plugin active/inactive status is now recorded when plugins are updated, shown in event details when the plugin was inactive at update time.
--   Success confirmation and automatic log refresh after manually adding a log entry.
--   Action links (Edit, View) for media attachment events, plugin update events ("View changelog"), and user profile events ("Edit user").
+-   Redirection settings changes now show which settings changed and their previous values.
+-   Redirection events link to the affected redirect or group, and to the relevant Redirection screen.
 -   Network Admin page on multisite that explains network event logging and links to the Premium upgrade. Appears alongside the core plugin's existing per-site log, doesn't affect anything that works today on sub-sites. (experimental)
 -   "History" item in the admin bar's Network Admin submenu, plus routing so the main "History" shortcut links to the network log when you're on Network Admin, user admin, or the My Sites screen. (experimental)
 -   `--network` flag on WP-CLI commands: `wp simple-history list`, `event list`, `event search`, `event get`, `event stick`, `event unstick`, `event is-sticky`, and `event list-sticky`. Requires Simple History Premium on a multisite network.
@@ -264,17 +275,248 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
--   12 loggers migrated from manual HTML output to the structured Event Details API, improving consistency and enabling structured JSON in the REST API.
+-   The "similar events" link under grouped events is now a proper expand/collapse control that keeps keyboard focus, matching the expand-diff control.
+-   Event details (profile edits, plugin info, changed settings) now line up with the event text: the label column is only as wide as its longest label, so values start further left and long labels wrap instead of pushing values off-screen.
+-   The details list is now a definition list (`<dl>`) instead of a table. Developers who append `<tr>` rows through the `simple_history/post_logger/post_updated/diff_table_output` filter still get a working table, but should switch to `<dt>`/`<dd>` pairs.
+-   Repeated edits of the same Simple History setting now group into one row with a "similar events" link, instead of one row per save.
+
+**Fixed**
+
+-   Plain-text event details (Copy as text, alerts) no longer drop a value of "0" or run a group title into the first label.
+-   Redirection plugin events are logged again with Redirection 5.10.0 and later.
+-   The admin bar quick view now says when events could not be loaded.
+
+**Security**
+
+-   Redirection events can no longer be added to the log by users without permission to manage redirects.
+
+### 5.32.0 (September 2026)
+
+Expandable diffs, a "View revision" link that opens the exact revision a change created, and a fix for failed application password logins flooding the log.
+[Read more about it in the release post](https://simple-history.com/2026/simple-history-5-32-0-released/)
+
+**Added**
+
+-   Long diffs can be expanded in place with an "Expand diff" button.
+-   Note events carry the same action links as the page or post the note belongs to.
+-   Experimental — "Hide events of this type" in an event's actions menu removes that event type from the current list. Hidden types show as removable chips above the list and never change what gets logged.
+
+**Changed**
+
+-   Post and page events link to the revision the change created, labelled "View revision". On WordPress 7.1 and later it opens the editor's visual revision view.
+-   Site icon changes show the old and new icon as images, side by side, instead of attachment IDs.
+-   Action links below events are grey until the event is hovered or focused, and separated by a dot in the dashboard widget.
+-   When a license key has reached its activation limit, the settings page explains why and how to free it up from the Lemon Squeezy "My orders" page.
+-   Experimental — Event fields sent to AI tools through the WordPress Abilities API carry readable labels and descriptions, following the [output schema conventions added in WordPress 7.1](https://make.wordpress.org/core/2026/07/31/abilities-api-improvements-in-wordpress-7-1/).
+
+**Fixed**
+
+-   Relative times ("2 minutes ago") could be off by the site's UTC offset.
+-   "Copy event message" and "Copy as Markdown" copied the site's time instead of the time shown in the log.
+-   Content diffs use the same green and red as WordPress core's revision screen. Some events used a different set.
+-   "Edited your profile" events no longer appear when nothing changed. The block editor saves editor preferences to your user record, and each save was logged as a profile edit.
+-   Notes inside a block (WordPress 7.1) no longer show a literal `<br>` tag, and a note starting with an @mention no longer has it glued to the next word.
+-   Reaction emoji no longer show as broken images when the site's emoji image host is unreachable.
+-   Failed application password logins are throttled, grouped, filtered and counted like other failed logins. A brute-force attack against the REST API could previously flood the log.
+-   Featured image changes on posts no longer show raw "thumb_id" and "thumb_title" rows, show "None" on the empty side, load small thumbnails, and are included in the structured event details.
+-   Uploading a zip over an installed theme or plugin is logged as an update, downgrade or reinstall, instead of as a new install.
+
+**Security**
+
+-   Misc security hardening.
+
+### 5.31.0 (August 2026)
+
+🎨 Site Editor changes are now logged — templates, template parts, site-wide styles, patterns, navigation menus and fonts. This release also adds support for the official **WordPress AI plugin**, so you can see which plugins and themes have been granted access to which AI providers, plus a round of security hardening and the usual fixes.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-31-0-released/)
+
+**Added**
+
+-   Site Editor changes are now logged: templates, template parts, site-wide styles, patterns, navigation menus and fonts, including changes made outside the block editor. Resetting a template to the theme default is logged as a reset, not a deletion.
+-   Support for the official WordPress AI plugin: Simple History now logs when AI features are enabled or disabled, when a feature's AI provider or model is changed, and when plugins or themes request, are granted, or lose access to AI providers on the Connector Approvals screen. API keys and AI prompt content are never stored in the log.
+-   `--format=json` and `--format=yaml` on `wp simple-history info`, so a deploy or CI script can check that Premium is active and licensed.
+-   Experimental — Activity log is now available to AI tools and automation through the WordPress Abilities API (WordPress 6.9+). Read-only — nothing exposed can change or delete log entries.
+
+**Changed**
+
+-   Tested on WordPress 7.1.
+-   Theme update events now name the version the theme went from and to, the way plugin update events already did.
+-   Experimental — Role events no longer list every capability in the details panel when there are more than 10; the count stays in the event message and the full list in the event context.
+
+**Fixed**
+
+-   "Deleted user" events showed a blank id, email and login instead of the details of the removed user.
+-   Personal data export requests were logged whatever their status, not only when newly requested.
+-   `wp simple-history info` never showed the license line on sites with Premium active.
+-   Event counts are now grouped for your locale — "187 304 events" rather than "187304 events" — in the log header, the stats bar, pagination and grouped-event counts.
+-   Backfill notice showed a stray `&nbsp;` in its item counts on locales that separate thousands with a space.
+-   "Today" and "Yesterday" date dividers, and the "Today" label on each event, switched over at UTC midnight instead of your own midnight, so recent events could show the wrong day.
+-   Welcome notice shown after install no longer appears on the history page it links to, so its "Take a look" link always goes somewhere.
+-   Log now shows the real reason it failed to load instead of "Unknown error" — on most sites every error detail was being discarded before it reached the screen.
+-   Database errors while loading the log now name the problem, so you can act on it or pass it to your host.
+
+**Security**
+
+-   Comment content is escaped before it reaches the event details panel, so a comment can no longer put markup into the log.
+-   RSS feed no longer breaks when logged content contains the `]]>` character sequence, which anyone able to leave a comment could trigger.
+-   Colour values from the theme customizer are validated before being drawn as a swatch, so a theme with a permissive colour setting cannot inject CSS into the log.
+-   CSV exports treat tab and carriage return as formula triggers, alongside the `=`, `+`, `-` and `@` already covered.
+-   Additional escaping and input validation across the options, theme and media loggers.
+-   Referring URL stored with every event now has secret-looking query string values masked, the way Detective Mode already masked the URLs it stores.
+-   Masking now also covers session, bearer, credentials and private key field names.
+
+### 5.30.0 (August 2026)
+
+👍 Two experimental features graduate in this release: **event reactions** and the **header status bar**, which shows the status of your current settings at a glance — how long history is kept, whether email reports and alerts are on, and where logs are forwarded. This release also includes a round of security hardening and some miscellaneous fixes.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-30-0-released/)
+
+**Added**
+
+-   "Plugin info" action link on plugin update-available events, so you can quickly check what an unfamiliar plugin is without leaving the log.
+-   "Find events from the same IP address" in an event's actions menu, alongside the existing user and event-type filters.
+-   Changes to more Simple History settings are now logged: Email Reports, the Experimental features toggle, and add-on license keys (key values are never stored in the log). (And yes – it was a bit funny that the plugin that logs changes to other plugins didn't log its own settings changes!)
+-   WP-CLI: `--metadata_search` and `--ai_only` options on `wp simple-history list`, matching the metadata search and AI filter in the GUI.
+-   WP-CLI: AI attribution columns (`ai_agent`, `ai_detected_via`, `ai_application`) on `wp simple-history list`, showing which AI tool made a change and how it was detected.
+-   Header now shows "Stealth mode: on" while stealth mode is hiding Simple History from other users, including other administrators.
+
+**Changed**
+
+-   Reactions graduated from experimental and are now on by default — react to events with a 👍 (disable in Settings → General). Premium adds ❤️ 🎉 🚀 and more reaction types.
+-   Header settings/info bar is graduated from experimental and now shows for all admins — a glance at how long history is kept, whether email reports and alerts are on, and where logs are forwarded, with each one linking straight to its setting.
+-   Checkbox settings now show as On/Off (instead of 1/0) in the "Modified settings" log details.
+-   Settings changes are now detected across all save mechanisms (Settings API, direct option updates, and REST) and recorded as a single event.
+-   Large or structured settings are now logged as "changed" without storing their full value, keeping the log readable.
+-   Developers: `simple_history/user_can_clear_log` now defaults to whether the user can manage settings, instead of always allowing it. The "Clear log" button is unaffected for administrators.
+-   Exporting the log as HTML is faster on sites with large activity logs.
+
+**Deprecated**
+
+-   WP-CLI: `wp simple-history event search` — use `wp simple-history event list --search=<term>` instead. The old command still works but will be removed in a future version.
+
+**Fixed**
+
+-   WP-CLI: `wp simple-history event search` always returned zero results.
+-   WP-CLI: `--fields` on `wp simple-history list` ignored column names written with a space after the comma.
+-   PHP 8 fatal error when a setting was changed by a request without a referrer, such as from the REST API or WP-CLI. [#649](https://github.com/bonny/WordPress-Simple-History/pull/649)
+-   Untranslatable strings in the statistics view and the weekly email report. [#672](https://github.com/bonny/WordPress-Simple-History/pull/672)
+-   Invalid date or month filter values now return a clear error (HTTP 400 in the REST API, a friendly message in WP-CLI) instead of a server error.
+-   RSS feed no longer breaks when its address contains a date filter it can't read — for example an older feed URL saved in a feed reader. It now returns an empty feed instead of an error.
+-   Removed an unnecessary database query on every admin page load (a leftover from the one-time history backfill check).
+-   Dashboard widget now shows an error message with details when the log can't be loaded (for example when the REST API is blocked), instead of loading placeholders forever.
+-   Fatal error on WordPress 6.3 when saving a post that creates a revision.
+-   Post update events now link to the revision they created. (The link had been missing since the feature was added in 5.16.0!)
+-   PHP warning when logging a comment whose post has been deleted. Such events now read "a comment to (deleted)" instead of showing an empty title.
+-   "Filter events: This IP" in the IP address popover did nothing when used from the dashboard widget — it now opens the event log filtered to that address.
+-   Filtering by IP address now finds events by any address recorded for them, not just the one the web server saw. On sites behind a proxy or load balancer the visitor's real address is read from a forwarding header, and filtering by it previously returned nothing.
+-   Experimental — Failed XML-RPC logins no longer create a duplicate "failed application password" entry alongside the regular failed-login entry.
+
+**Security**
+
+-   Looking up a person's username, email address and roles from the user card now follows WordPress's own rule and requires permission to list users. Who performed an event is still shown to everyone who can read that event.
+-   REST API endpoints now require the same permission as opening the history page.
+-   Detective Mode masks more field names — passwords, tokens, secrets and card numbers — and now also covers nested values, query strings and command line arguments.
+-   Clearing the log, exporting it and regenerating the RSS feed address now also require permission to manage settings.
+-   Event text escaping is now consistent across the media, categories, user and comments loggers, and in exported HTML files.
+
+### 5.29.0 (June 2026)
+
+🔒 This release brings Simple History together with WordPress's built-in privacy tools: a person's activity log is now included in personal-data exports (Tools → Export Personal Data), and a new "Privacy & Data" settings tab explains how it works. Plus: overview action links across user, plugin, post, and media events, and action links on core update and privacy events for quicker navigation.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-29-0-released/)
+
+**Added**
+
+-   Overview action links ("All users", "All plugins", "All posts", "All media") on user, plugin, post, and media events.
+-   "About this version" and "WordPress X.Y release notes" links on core update events for major-version bumps.
+-   Action links on privacy events linking to the matching WordPress tool page (Tools → Export / Erase Personal Data, Settings → Privacy).
+-   Activity log is now included in WordPress's personal-data export (Tools → Export Personal Data).
+-   New "Privacy & Data" settings tab (Settings → Simple History) explaining how Simple History works with WordPress's personal-data tools.
+-   Experimental — Exports also include activity about a person performed by others, with other people's names and emails redacted.
+-   Experimental — Running a WordPress personal-data erasure (Tools → Erase Personal Data) anonymizes the person's data in matching log entries while keeping the entries as audit records.
+
+**Changed**
+
+-   Action link labels dropped the "View" prefix ("View plugin info" → "Plugin info").
+-   External action links now show an "open in new tab" icon and open in a new tab.
+-   Dashboard widget action links are now more compact, so the event message stays the visual anchor.
+-   License reminder for missing add-on license keys moved from a full-width banner to a dismissible card in the History Insights sidebar.
+-   Experimental — Role and capability events show a count ("Added 40 capabilities to role Editor") instead of dumping every capability slug into the headline; the full list stays in the event details.
+
+**Fixed**
+
+-   Alt-text changes to media made via direct meta updates are now logged.
+-   Removed custom fields on post updates are now counted in the event details.
+-   The UTC publish date no longer appears as a duplicate row in post update details.
+
+### 5.28.0 (May 2026)
+
+Ready for [WordPress 7.0](https://make.wordpress.org/core/7-0/)! This version is tested and confirmed working on the latest WordPress version. It also adds logging for the new [AI Connectors Screen](https://make.wordpress.org/core/2026/03/18/introducing-the-connectors-api-in-wordpress-7-0/). Plus: WP-CLI and REST API coverage for content and settings changes. And the usual round of UI improvements and bug fixes.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-28-0-released/)
+
+**Added**
+
+-   WordPress 7.0 AI Connectors screen changes are now logged.
+-   Built-in WordPress settings changed via the REST API (`POST /wp/v2/settings`) or WP-CLI (`wp option update`) are now logged. Previously the Options Logger only captured changes made through Settings → General/Writing/Reading/Discussion/Media/Permalinks, so automation, scripts, and AI agents could change the site tagline, title, default category, permalinks, and similar settings invisibly.
+-   Post, user, media, menu, widget, and privacy page changes made via WP-CLI or the REST API are now logged. Previously these loggers only captured changes from inside wp-admin, so commands like `wp post create`, `wp post update`, `wp user update`, `wp menu item add`, and REST-driven edits from external tools or AI agents were not recorded.
+-   Post update events now expose status, publish date, comment status, author, and page template as structured data in the REST API, "Copy as JSON", and "Copy as Markdown" outputs — previously these fields were only available as prerendered HTML, so external clients had to parse the markup.
+-   Action link on Options Logger events for quick navigation back to the Settings page where the option lives.
+-   "How are AI agents detected?" link in the AI agent attribution tooltip, pointing to a [docs article that explains the detection signals](https://simple-history.com/docs/ai-agent-detection/).
+-   System Information page, `wp simple-history db stats`, and the `/wp-json/simple-history/v1/support-info` REST endpoint now report the charset and collation of each Simple History table — useful when diagnosing emoji-related context-drop issues.
+-   Reminder card on Simple History pages when an add-on is installed without a license key entered, so users notice that updates won't arrive until the key is added. Links directly to the license entry field.
+
+**Changed**
+
+-   `wp simple-history info` now shows "Experimental features: enabled" when experimental features are active.
+-   Options Logger event details show the change inline as a single row (new value → strike-through old value) labeled with the setting name (e.g. "Site Title", "Tagline"), instead of stacked "New value" / "Old value" rows.
+-   Admin display for post update status, publish date, comment status, author, and page template switches from a stacked table row ("Changed from draft to publish") to an inline pill style ("Status: draft → publish"), matching how user profile changes already render. Title, content, custom field, term, and featured-image diffs still render in the existing table layout.
+
+**Fixed**
+
+-   "Copy as JSON" and "Copy as Markdown" now include the full event context (request URI, method, user agent, error codes, etc.), making copied payloads self-contained for triage and bug reports.
+-   IP addresses are now included in failed application password authentication events, matching how wp-login failures already worked.
+-   New installs create history tables as `utf8mb4` (using `$wpdb->get_charset_collate()`), so emoji and other 4-byte UTF-8 characters in events are preserved.
+-   Support info page no longer prints a "no such table: dbstat" database error when `WP_DEBUG` is on and SQLite's optional `dbstat` virtual table isn't available (notably on WordPress Playground).
+-   "Most active users" widget no longer shows nameless entries for users without a display name.
+-   Redirect loops in wp-admin for low-privilege users. A legacy-URL redirect intended only for the old `/wp-admin/index.php?page=simple_history_page` bookmark was also firing for unrelated access-denied events on the dashboard, which could send users in circles. [#639](https://github.com/bonny/WordPress-Simple-History/issues/639)
+-   Experimental — Brute-force attempts against `xmlrpc.php` now show which account is being targeted instead of logging an empty username.
+
+### 5.27.0 (May 2026)
+
+🤖 This release adds AI agent attribution to log events, so you can see when an action was triggered through Claude Code, ChatGPT, or other AI tools. Also, Action links are now front-and-center for media, plugins, users, menus, and failed plugin installs.
+[Read more about all changes in the release post](https://simple-history.com/2026/simple-history-5-27-0-released/)
+
+**Added**
+
+-   Plugin active/inactive status is now recorded when plugins are updated, shown in event details when the plugin was inactive at update time.
+-   Success confirmation and automatic log refresh after manually adding a log entry.
+-   Action links for media attachments (Edit, View), plugins ("View changelog"), user profiles ("Edit user"), menu edits ("Edit menu" and "Manage menu locations".
+-   "Show error message" action link on plugin install/update failure events — opens the event details modal where the underlying error message and diagnostic context are shown.
+-   `wp simple-history info` WP-CLI command — prints the installed version, premium add-on status, and a list of useful subcommands.
+-   New opt-in columns for `wp simple-history list` via `--fields=`: `date_relative` ("5 minutes ago" style timestamps), `site` (blog name and host, useful when comparing output across installs), and `ai_agent` (detected AI tool name when an event was initiated through an AI agent).
+-   AI agent attribution on event log rows: when an event is triggered by an AI tool (Claude Code, ChatGPT, MCP clients, the Abilities API, etc.), a sparkle icon and the agent name appear next to the user who initiated the event. The signed-in user remains the actual initiator — this is additional audit context, not an authentication signal.
+-   "AI-initiated events only" filter in the expanded filters panel — quickly narrow the log to actions triggered via AI tools.
+-   New "Copy as JSON" menu item for each event, that copies the full event payload — including all context data — for scripting and debugging.
+-   Experimental — "History" column on post and page list tables showing recent activity at a glance, with "View history" row action links.
+-   Experimental — Failed application password authentication on REST API and XML-RPC requests is now logged as a warning, with the attempted user, error code and message, request URI, request method, and user agent. Closes a visibility gap where wrong app password attempts left no trace in the log, while wp-login failures already did. Can also be toggled directly via the new `simple_history/log_failed_app_password_auth` filter.
+
+**Changed**
+
+-   Event details for 12 loggers are now more consistent across the UI and structured in the REST API (migrated from manual HTML output to the Event Details API).
 -   Navigational links in comment and plugin events (e.g. "Edit comment", "View plugin info") moved from event details to the action links bar for better discoverability.
--   Tips in the sidebar and the dashboard widget now draw from a single curated list, so both surfaces stay in sync and show context-appropriate advice.
 -   Date filter dropdown reorganized: "All dates" moved to the top as the reset option, presets grouped under "Recent" (Today through Last 60 days, plus "Custom range…"), and specific months grouped under "By month" — easier to scan and matches how users think about date ranges.
+-   "Copy detailed event message" action menu item renamed to "Copy as Markdown" with a richer Markdown layout (heading + properties table + structured details + context table) suitable for pasting into a ticket, Slack, or notes app. The Details section reflects what the event row shows (e.g. plugin description / version / author for plugin install events).
+-   Stats page "Events overview" chart and sidebar "History Insights" daily activity chart switched from line charts to bar charts, with today highlighted in a contrasting accent color for at-a-glance recency.
+
+**Security**
+
+-   Event reaction endpoints now enforce per-event read permissions to prevent logged in users to be able to read events they shouldn't have access to. Reactions are experimental and off by default. Many thanks to Ly Hoang at Wordfence for responsibly disclosing this vulnerability.
+-   Password reset request events no longer store the full reset email body, which contained the activation URL. User, email, and origin are still logged.
+-   Removed the `simple_history/comments_logger/log_failed_password` and `simple_history/comments_logger/log_not_existing_user_password` filters, which could log plaintext passwords from failed logins. Both defaulted to off.
 
 **Fixed**
 
 -   Retention upsell message showing "deleted in 0 days" when event deletion is imminent. Now shows "scheduled for deletion" instead.
--   Sidebar tip that suggested clicking a user's avatar would filter the log — clicking actually opens a user details card, and the tip now reflects that.
--   `wp simple-history event search` returning zero results when neither `--newer_than` nor `--older_than` was passed. The same underlying issue also affected the REST API's events endpoint when clients sent empty `date_from` / `date_to` query parameters — both paths now correctly ignore empty date filters instead of silently filtering every past event out.
--   File edit logger not logging theme and plugin file edits in modern WordPress due to stricter file path sanitization.
+-   Menu logger flagging unrelated items as "Renamed" on every menu save. Items with HTML in their label, and items inheriting their label from a linked page, are no longer reported as renamed when nothing was actually changed.
+-   Menu logger not surfacing renames of the menu itself — the previous and new menu name are now shown in the event details when the "Menu Name" field is changed.
 
 ### 5.26.0 (April 2026)
 
@@ -285,8 +527,8 @@ This version makes the log actions more discoverable by moving them out of the d
 **Added**
 
 -   Media, Comments, and Themes sections to the weekly email summary report. Comments section only appears when comments are enabled on the site.
--   Event reactions — react to log events with a thumbs up emoji, with a Slack-style emoji picker in the actions bar. (experimental)
 -   `--fields` support for `wp simple-history list` WP-CLI command, including a `reactions` field showing reaction counts.
+-   Experimental — Event reactions: react to log events with a thumbs up emoji, with a Slack-style emoji picker in the actions bar.
 
 **Changed**
 
@@ -314,8 +556,8 @@ This release focuses on keeping your database lean. Three features that reduce l
 -   "/" keyboard shortcut to focus the search input, with a visual hint badge. Pressing Escape returns focus to the previously focused element.
 -   Settings and Premium/Get Premium buttons in the top-right header, replacing the Add-ons link.
 -   Email Reports settings moved to their own sub-tab under Settings for better discoverability.
--   Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access. (experimental)
 -   New installs default to 30-day retention (existing installs keep 60 days), keeping your database lean from day one.
+-   Experimental — Feature discovery bar in the page header showing active features and settings status with dot indicators. Each item links directly to its settings section for quick access.
 
 **Changed**
 
@@ -443,160 +685,4 @@ A redesigned dashboard widget that takes up less space, user details card on cli
 
 -   Infinite loop when the [Debug & Monitor add-on](https://simple-history.com/add-ons/debug-and-monitor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_debug_monitor) logged HTTP requests from channels (Webhook, Datadog, Splunk).
 
-### 5.22.0 (December 2025)
-
-**Added**
-
--   Added exclusion filter support to RSS and JSON feeds, allowing you to subscribe to events while excluding specific users, loggers, messages, or log levels. Useful for monitoring what others do without seeing your own actions.
-
-**Fixed**
-
--   Simplified internal file structure to hopefully fix "Class File_Channel not found" fatal error that some users experienced when updating the plugin.
--   Fixed slow appearance of "Stick event to top" and "Unstick event" menu items in the event actions dropdown.
-
-### 5.21.0 (December 2025)
-
-🔍 Debug like a pro with the new "Surrounding Events" feature — see what happened before and after any event. Plus: Log Forwarding (Beta) lets you send events to external log files, Syslog servers, or external databases for backup and compliance. Also improved: auto-recovery for missing database tables.
-[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-21-0-released/)
-
-**Added**
-
--   "Show surrounding events" feature to view events chronologically before and after a specific event, useful for debugging to see what happened around a particular event. Available via the event actions menu (administrators only), REST API, and WP-CLI. [#610](https://github.com/bonny/WordPress-Simple-History/issues/610).
--   Log Forwarding feature to send events to external destinations for backup, compliance, and security purposes. Includes File Channel for writing events to local log files with automatic rotation. [Premium add-on](https://simple-history.com/add-ons/premium/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_log_forwarding) adds Syslog and External Database channels. [#573](https://github.com/bonny/WordPress-Simple-History/issues/573).
--   `simple_history/purge_db_where` filter for custom event retention rules, allowing per-logger retention periods or keeping certain events forever. [See documentation](https://simple-history.com/docs/hooks/#simplehistorypurgedbwhere).
--   `simple_history/db/purge_done` action that fires once when purge completes, with total deleted count.
--   `Helpers::count_events()` function for counting events in the database.
-
-**Fixed**
-
--   Database tables not being created when using the plugin as MU plugin, after site duplication (where options are copied but custom tables are not), or during multisite network activation. The plugin now auto-recovers by recreating missing tables when needed. [#606](https://github.com/bonny/WordPress-Simple-History/issues/606).
--   IP addresses not showing when expanding grouped similar events.
--   Debug page showing "No tables found" when using SQLite (e.g., wp-playground) due to missing dbstat extension.
-
-### 5.20.0 (December 2025)
-
-🚀 Ready for WordPress 6.9 — this release logs the new Notes feature so you can track when notes are added or removed. Also new: automatic backfilling on first install so your log isn't empty, a "Hide my own events" checkbox, and a "Yesterday" date filter.
-[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-20-0-released/)
-
-**Changed**
-
--   Improved code quality by resolving phpcs warnings for WordPress VIP Go compatibility.
-
-**Fixed**
-
--   Fixed Notes Logger causing error in some cases when deleting comments.
--   Fixed event context being silently dropped when post content contained emojis, causing incomplete log entries. (This is a long standing issue that has been around for a while, but now it's finally fixed 🤞.) [#607](https://github.com/bonny/WordPress-Simple-History/issues/607).
-
-### 5.19.0 (November 2025)
-
-🚀 Ready for WordPress 6.9 — this release logs the new Notes feature so you can track when notes are added or removed. Also new: automatic backfilling on first install so your log isn't empty, a "Hide my own events" checkbox, and a "Yesterday" date filter.
-[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-19-0-released/)
-
-**Added**
-
--   Add automatic backfilling of existing events on first install, so the activity log isn't empty when you start using the plugin for the first time.
--   Add logging of new [notes feature in WordPress 6.9](https://make.wordpress.org/core/2025/11/15/notes-feature-in-wordpress-6-9/). [#599](https://github.com/bonny/WordPress-Simple-History/issues/599).
--   Add "Yesterday" option to the date filter dropdown for quick access to previous day's events.
--   Add "Hide my own events" checkbox to filters, allowing users to quickly exclude their own activity from the log. [#604](https://github.com/bonny/WordPress-Simple-History/issues/604).
--   Add WordPress VIP Go coding standards for enterprise compatibility.
--   Add rollback context to plugin update failed events.
--   Add logging of failed theme updates.
--   Add support for negative filters in the event log query API, to the REST API, and to WP-CLI. [#86](https://github.com/bonny/WordPress-Simple-History/issues/86).
--   Add error message when trying to view an event that does not exist.
--   Add filter `simple_history/show_promo_boxes` to determine if promo boxes should be shown.
--   Add developer mode badge to the page header.
--   Add new Tools tab with manual backfill option for importing historical events on demand.
-
-**Changed**
-
--   Rename "Export" menu to "Export & Tools" and add tabbed interface to support additional tools.
--   Post creation events now capture initial post content, excerpt, and status transitions to provide complete audit trail without information gaps.
--   Stop polling for new events after 10+ new events are detected to reduce server resource consumption from inactive browser tabs.
--   Improved auto-backfill completion message to be more user-friendly and include the number of days imported.
--   Improved welcome message text for clarity and better Premium feature promotion.
--   Admin Bar Quick View: Display count of similar events (occasions) on a new line below the main event message and style it.
--   Insights sidebar: Clicking on users now also filters the log by the last 30 days.
--   Insights sidebar: Update text to show current events in database and total events logged with links to settings page for retention period.
--   Insights sidebar: Improve messages for message count.
--   Decrease font size on stats sidebar stats box to fit more events.
--   Reduce number of HTTP requests by consolidating the small sidebar CSS file (just 4 rules) into the main stylesheet that's already being loaded on the page.
--   Hide sidebar donation box, support box, and review box when promo boxes are hidden for a cleaner interface with the premium add-on.
--   Internal code and UI refinements.
--   Tested up to WordPress 6.9.
-
-**Fixed**
-
--   Fixed post creation via Gutenberg autosave not being logged.
--   Fixed incorrect timezone handling for imported user registration dates.
--   Fixed sidebar stats box styling conflict with premium add-on.
--   Fixed warning about invalid HTML nesting in the log GUI filters. [#548](https://github.com/bonny/WordPress-Simple-History/issues/548).
-
-**Removed**
-
--   Remove donation box from sidebar.
-
-### 5.18.0 (November 2025)
-
-👆 This release makes sidebar stats interactive - click on avatars, user names, or chart dates to instantly filter your event log. It also fixes email reports always showing Sunday as the busiest day, plus several bug fixes and improvements.
-[Read more about it in the release post](https://simple-history.com/2025/simple-history-5-18-0-released/)
-
-**Added**
-
--   Context search to the log GUI filters.
--   Date support to create event REST API endpoint (allows creating events for specific dates).
--   User names to list of most active users in last 30 days (previously only showed avatars).
--   Clickable elements in sidebar stats box: avatars, user names, and chart dates now filter the event log when clicked.
--   Dedicated Experimental Features admin page for users with experimental features enabled.
--   New experimental feature: Import existing data from WordPress into Simple History (posts, pages, users, and attachments).
-
-**Fixed**
-
--   Email reports always showing Sunday as the busiest day.
--   PHP warning "Trying to access array offset on value of type null" in Theme Logger when displaying widget events.
--   More timezone and localization issues.
-
-**Changed**
-
--   Weekly email reports now sent earlier in the day (6 AM instead of 8 AM), so they are ready when the user wakes up.
--   Reordered sidebar stats: Most active users now appears before Daily activity to group admin-only information together.
--   Misc internal code improvements and changes.
-
-### 5.17.0 (October 2025)
-
-This version focuses on stats alignment and accuracy, timezone handling fixes, email report improvements, and performance optimizations.
-
-Read more about it in the [release post](https://simple-history.com/2025/simple-history-5-17-0-released/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_release_5_17_0).
-
-**Added**
-
--   Add icon to sticky events label.
--   Add help text to sidebar stats box about refresh interval and what data is used for the statistics (for admin the stats are based on all events, for other users is based on the events they have permission to view).
--   Email reports: Add tooltips to email "Activity by day" showing full date (e.g., "Thursday 2 October 2025") on hover for each day.
--   Email reports: Each day is now a link to the full log for that day.
-
-**Fixed**
-
--   Sidebar stats was not always using the correct cached data.
--   Fix timezone and date handling across all stats features (sidebar, Insights page, REST API, charts) and all filter dropdowns (Today, Last N days, custom date ranges, month filters) to use WordPress timezone instead of server/UTC timezone.
--   "Today" now correctly shows events from 00:00 until current time (previously showed events from now minus 24 hours).
--   Email reports: Fix timezone and date handling issues (now consistently use WordPress timezone), improved daily stats accuracy, date range, and updated email copy.
--   Occasions count in main GUI was displaying incorrect number (always one event to many!) - button now shows the actual number of similar events that will be loaded when expanded.
-
-**Changed**
-
--   Email preview now shows last 7 days including today (matching sidebar "7 days" stat) so users can verify preview numbers against sidebar.
--   Email sent on Mondays now shows previous complete Monday-Sunday week (excludes current Monday).
--   Email "Activity by day" now displays days in chronological order matching the date range instead of fixed calendar week order.
--   Use "Today" instead of "Last day" in main GUI filters to make it more clear what range is being shown.
-
-**Performance**
-
--   Improved performance by loading logger messages only when needed, eliminating ~980 gettext filter calls on every page load. This reduces overhead to zero on pages that don't use Simple History.
--   Optimized context handling when logging events with many context items using batch inserts.
--   Plugin Logger now only runs gettext filters and auto-update detection on the plugins.php page instead of globally.
--   Simplified plugin action list hooks by only hooking into our plugin.
--   Added autoloading of deprecated classes, so they are only loaded if needed.
-
-**Removed**
-
--   Removed legacy AJAX API endpoint (`action=simple_history_api`). The plugin now uses the WordPress REST API exclusively.
+See [CHANGELOG.md](https://github.com/bonny/WordPress-Simple-History/blob/main/CHANGELOG.md) for the full changelog, including all releases from 2025 and earlier.

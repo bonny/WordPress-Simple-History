@@ -48,16 +48,16 @@ class FiltersTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals(
 			array(
 				array(
+					'key' => '_server_remote_addr',
+					'value' => '127.0.0.x',
+				),
+				array(
 					'key' => 'anotherThing',
 					'value' => 'anotherThingValue',
 				),
 				array(
 					'key' => 'debugThing',
 					'value' => 'debugThingValue',
-				),
-				array(
-					'key' => '_server_remote_addr',
-					'value' => '127.0.0.x',
 				),
 			),
 			$context
@@ -171,16 +171,16 @@ class FiltersTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertEquals(
 			array(
 				array(
+					'key' => '_server_remote_addr',
+					'value' => '127.0.0.x',
+				),
+				array(
 					'key' => 'anotherKey',
 					'value' => 'anotherValue',
 				),
 				array(
 					'key' => 'testKey',
 					'value' => 'testValue',
-				),
-				array(
-					'key' => '_server_remote_addr',
-					'value' => '127.0.0.x',
 				),
 			),
 			$context

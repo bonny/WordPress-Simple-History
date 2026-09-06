@@ -18,8 +18,10 @@ export function useEventsSettings() {
 			hasExtendedSettingsAddOn: false,
 			hasPremiumAddOn: false,
 			hasFailedLoginLimit: false,
+			reactionsEnabled: false,
 			experimentalFeaturesEnabled: false,
 			currentUserId: null,
+			canFilterEventsInPlace: false,
 		};
 	}
 	return context;

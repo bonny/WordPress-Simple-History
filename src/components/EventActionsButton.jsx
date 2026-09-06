@@ -2,12 +2,17 @@ import { Button, DropdownMenu, MenuGroup, Slot } from '@wordpress/components';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { fullscreen, moreHorizontalMobile } from '@wordpress/icons';
-import { EventCopyDetails, EventCopyDetailsDetailed } from './EventCopyDetails';
+import {
+	EventCopyDetails,
+	EventCopyDetailsDetailed,
+	EventCopyDetailsJson,
+} from './EventCopyDetails';
 import { EventCopyLinkMenuItem } from './EventCopyLinkMenuItem';
 import { EventCopyScreenshotMenuItem } from './EventCopyScreenshotMenuItem';
 import { EventDetailsMenuItem } from './EventDetailsMenuItem';
 import { EventViewMoreSimilarEventsMenuItem } from './EventViewMoreSimilarEventsMenuItem';
 import { EventSurroundingEventsMenuItem } from './EventSurroundingEventsMenuItem';
+import { EventHideMessageTypeMenuItem } from './EventHideMessageTypeMenuItem';
 import { EventStickMenuItem } from './EventStickMenuItem';
 import { EventUnstickMenuItem } from './EventUnstickMenuItem';
 import { EventReactionQuickButton } from './EventReactions';
@@ -71,6 +76,7 @@ export function EventActionsButton( { event, eventVariant, reactionState } ) {
 						<MenuGroup>
 							<EventCopyDetails event={ event } />
 							<EventCopyDetailsDetailed event={ event } />
+							<EventCopyDetailsJson event={ event } />
 							<EventCopyScreenshotMenuItem
 								event={ event }
 								actionsRef={ actionsRef }
@@ -86,6 +92,10 @@ export function EventActionsButton( { event, eventVariant, reactionState } ) {
 								event={ event }
 								eventsAdminPageURL={ eventsAdminPageURL }
 								userCanManageOptions={ userCanManageOptions }
+							/>
+							<EventHideMessageTypeMenuItem
+								event={ event }
+								onClose={ onClose }
 							/>
 						</MenuGroup>
 

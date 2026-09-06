@@ -35,8 +35,6 @@ class Log_Initiators {
 	 * @return string|false Human readable initiator string, or false if initiator is not set.
 	 */
 	public static function get_initiator_text_from_row( $row ) {
-		$context = array();
-
 		if ( ! isset( $row->initiator ) ) {
 			return false;
 		}
@@ -67,9 +65,9 @@ class Log_Initiators {
 					$initiatorText = sprintf(
 						/* translators: 1: user id, 2: user email address, 3: user account name. */
 						__( 'Deleted user (had id %1$s, email %2$s, login %3$s)', 'simple-history' ),
-						$context['_user_id'] ?? '', // 1
-						$context['_user_email'] ?? '', // 2
-						$context['_user_login'] ?? '' // 3
+						$row->context['_user_id'] ?? '', // 1
+						$row->context['_user_email'] ?? '', // 2
+						$row->context['_user_login'] ?? '' // 3
 					);
 				} else {
 					// No user context provided (e.g., for filter options), use generic label.

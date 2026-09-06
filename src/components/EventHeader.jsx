@@ -2,6 +2,7 @@ import { EventDate } from './EventDate';
 import { EventInitiatorName } from './EventInitiatorName';
 import { EventIPAddresses } from './EventIPAddresses';
 import { EventVia } from './EventVia';
+import { EventAIOrigin } from './EventAIOrigin';
 import { EventBackfilledIndicator } from './EventBackfilledIndicator';
 import { EventNetworkFallbackIndicator } from './EventNetworkFallbackIndicator';
 
@@ -22,6 +23,8 @@ export function EventHeader( props ) {
 			) }
 
 			<EventInitiatorName event={ event } eventVariant={ eventVariant } />
+
+			<EventAIOrigin event={ event } />
 
 			<EventDate event={ event } eventVariant={ eventVariant } />
 

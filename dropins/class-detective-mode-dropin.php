@@ -9,6 +9,11 @@ use Simple_History\Helpers;
  * Dropin Description: Add some extra info to each logged context when SIMPLE_HISTORY_LOG_DEBUG is set and true, or when Detective mode is enabled.
  */
 class Detective_Mode_Dropin extends Dropin {
+	/**
+	 * Replacement written in place of a value whose key looks sensitive.
+	 */
+	const MASKED_VALUE = Helpers::MASKED_VALUE;
+
 	/** @inheritdoc */
 	public function loaded() {
 		$this->register_settings();
@@ -90,7 +95,7 @@ class Detective_Mode_Dropin extends Dropin {
 			</p>
 
 			<p>
-				<?php esc_html_e( 'Heads up: Since request data is captured, sensitive information like API keys or tokens could end up in the log. Common password fields are automatically masked, but we recommend keeping Detective Mode enabled only while actively troubleshooting.', 'simple-history' ); ?>
+				<?php esc_html_e( 'Heads up: Since request data is captured, sensitive information could end up in the log. Fields whose name looks like a password, token, secret or key are masked automatically, but that is a best guess and cannot catch every name — we recommend keeping Detective Mode enabled only while actively troubleshooting.', 'simple-history' ); ?>
 			</p>
 
 			<p>
@@ -116,6 +121,10 @@ class Detective_Mode_Dropin extends Dropin {
 		$context_key_prefix  = 'detective_mode_';
 		$detective_mode_data = [];
 
+		// Resolved once and threaded through every masking call below, so the
+		// filter fires once per event rather than once per value inspected.
+		$sensitive_field_names = Helpers::get_sensitive_field_names();
+
 		// Keys from $_SERVER to add to context.
 		$arr_server_keys_to_add = [
 			'HTTP_HOST',
@@ -138,7 +147,16 @@ class Detective_Mode_Dropin extends Dropin {
 			}
 
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$detective_mode_data[ 'server_' . strtolower( $key ) ] = wp_unslash( $_SERVER[ $key ] );
+			$value = wp_unslash( $_SERVER[ $key ] );
+
+			// REQUEST_URI carries the query string, so it repeats every $_GET
+			// value verbatim — masking $_GET alone would leave the same secret
+			// sitting in plain sight one context key over.
+			if ( $key === 'REQUEST_URI' ) {
+				$value = Helpers::mask_sensitive_query_string( $value, $sensitive_field_names );
+			}
+
+			$detective_mode_data[ 'server_' . strtolower( $key ) ] = $value;
 		}
 
 		// Copy of posted data, because we may remove sensitive data.
@@ -148,8 +166,8 @@ class Detective_Mode_Dropin extends Dropin {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$post_data = $_POST;
 
-		$get_data  = $this->mask_sensitive_data( $get_data );
-		$post_data = $this->mask_sensitive_data( $post_data );
+		$get_data  = $this->mask_fields( $get_data, $sensitive_field_names );
+		$post_data = $this->mask_fields( $post_data, $sensitive_field_names );
 
 		$detective_mode_data += [
 			'get'             => $get_data,
@@ -167,8 +185,18 @@ class Detective_Mode_Dropin extends Dropin {
 		];
 
 		// Command line arguments. Used by for example WP-CLI.
+		// Masked because commands routinely carry credentials as flags, e.g.
+		// `wp user update bob --user_pass=secret`.
 		if ( isset( $GLOBALS['argv'] ) ) {
-			$detective_mode_data['command_line_arguments'] = implode( ' ', $GLOBALS['argv'] );
+			$detective_mode_data['command_line_arguments'] = implode(
+				' ',
+				array_map(
+					function ( $argument ) use ( $sensitive_field_names ) {
+						return $this->mask_sensitive_cli_argument( $argument, $sensitive_field_names );
+					},
+					$GLOBALS['argv']
+				)
+			);
 		}
 
 		// Add all detective mode data to context, with a prefix.
@@ -186,44 +214,69 @@ class Detective_Mode_Dropin extends Dropin {
 	 * @return array Data with sensitive data removed.
 	 */
 	protected function mask_sensitive_data( $data ) {
-		// Mask fields that begin with these strings.
-		// So for example:
-		// - "pass" will mask "password" and "password_2".
-		// - "confirm_pass" will mask "confirm_password" but also "confirm_password_2".
-		$fields_to_mask = [
-			'pwd',
-			'pass',
-			'confirm_pass',
-			'new_application_pass',
-			'user_pwd',
-			'user_password',
-			'user_pass',
-		];
+		// Substring match, so "pass" covers "old_password" and
+		// "confirm_password_2" and not just names that start with it.
+		return $this->mask_fields( $data, Helpers::get_sensitive_field_names() );
+	}
 
-		foreach ( $fields_to_mask as $field ) {
-			$data = $this->mask_field_that_begin_with( $data, $field );
+	/**
+	 * Recursively mask values whose key matches any of the given needles.
+	 *
+	 * The needle list is passed in rather than fetched per key so the whole
+	 * structure is walked once, instead of once per needle.
+	 *
+	 * @param array         $data    Data to mask, probably GET or POST data.
+	 * @param array<string> $needles Lowercase substrings.
+	 * @return array Data with sensitive values masked.
+	 */
+	protected function mask_fields( $data, array $needles ) {
+		foreach ( $data as $key => $value ) {
+			$key_lowercase = strtolower( (string) $key );
+
+			foreach ( $needles as $needle ) {
+				if ( str_contains( $key_lowercase, $needle ) ) {
+					$data[ $key ] = self::MASKED_VALUE;
+
+					continue 2;
+				}
+			}
+
+			// Recurse into nested arrays. Request bodies are commonly nested —
+			// $_POST['user']['password'] is a password no matter how deep the
+			// key sits, and a top level only walk would store it in full.
+			if ( ! is_array( $value ) ) {
+				continue;
+			}
+
+			$data[ $key ] = $this->mask_fields( $value, $needles );
 		}
 
 		return $data;
 	}
 
 	/**
-	 * Mask fields that begin with a certain string.
+	 * Mask the value of a single command line argument.
 	 *
-	 * @param array  $data Data to mask, probably GET or POST data.
-	 * @param string $field_name_to_mask String to mask. Lowercase.
-	 * @return array Data with sensitive data masked.
+	 * Handles the "--name=value" form used by WP-CLI. Bare values are left
+	 * alone: without a name there is nothing to judge them by.
+	 *
+	 * @param mixed              $argument One entry from $GLOBALS['argv'].
+	 * @param array<string>|null $needles  Lowercase substrings. Resolved from the filter when null.
+	 * @return string Argument with a sensitive value replaced.
 	 */
-	protected function mask_field_that_begin_with( $data, $field_name_to_mask ) {
-		foreach ( $data as $key => $value ) {
-			$data_key_lowercase = strtolower( $key );
-			if ( ! str_starts_with( $data_key_lowercase, $field_name_to_mask ) ) {
-				continue;
-			}
+	protected function mask_sensitive_cli_argument( $argument, $needles = null ) {
+		$argument = (string) $argument;
 
-			$data[ $key ] = '<removed by Simple History>';
+		$separator = strpos( $argument, '=' );
+
+		if ( $separator === false ) {
+			return $argument;
 		}
 
-		return $data;
+		$name = ltrim( substr( $argument, 0, $separator ), '-' );
+
+		return Helpers::is_sensitive_field_name( $name, $needles )
+			? substr( $argument, 0, $separator ) . '=' . self::MASKED_VALUE
+			: $argument;
 	}
 }

@@ -1,25 +1,26 @@
 [files]
 extend-exclude = [
-    ".git/",
+    "vendor-prefixed/",
     "build/",
     "js/*.min.js",
-    "tests/wordpress-tests-stubs.php",
+    "tests/",
     ".claude/",
-    "AGENTS.md"
 ]
-ignore-hidden = false
 
-[default]
-extend-ignore-re = [
-    '"23 juli"',
-    'shop_order_placehold',
-    'jetpack_migation'
-]
-extend-ignore-identifiers-re = [
-    "^on_setted_update_",
-]
+[default.extend-words]
+# WooCommerce post type name
+placehold = "placehold"
+# Jetpack post type name
+migation = "migation"
+# Company name (Automattic is correct)
+Automattic = "Automattic"
+# Existing message keys - can't rename without breaking stored logs
+reseted = "reseted"
+setted = "setted"
+# Swedish month name in comment
+juli = "juli"
+# Accepted English variant of "unparsable"
+unparseable = "unparseable"
 
 [default.extend-identifiers]
-Automattic = "Automattic"
-reseted_lockout_count = "reseted_lockout_count"
-user_password_reseted = "user_password_reseted"
+commited = "commited"

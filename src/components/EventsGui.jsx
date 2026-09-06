@@ -11,6 +11,7 @@ import { EventsSettingsProvider } from './EventsSettingsContext';
 import { addQueryArgs } from '@wordpress/url';
 import {
 	parseAsArrayOf,
+	parseAsBoolean,
 	parseAsInteger,
 	parseAsIsoDate,
 	parseAsJson,
@@ -119,9 +120,15 @@ function EventsGUI() {
 		useState( 0 );
 	const [ failedLoginSuppressedCount, setFailedLoginSuppressedCount ] =
 		useState( 0 );
+	const [ isReactionsEnabled, setIsReactionsEnabled ] = useState( false );
 	const [ isExperimentalFeaturesEnabled, setIsExperimentalFeaturesEnabled ] =
 		useState( false );
-	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState();
+	// Seeded from the value localized at enqueue time (see React_Dropin) so links
+	// can be built on the first render. The search-options response overwrites it
+	// with the same value once it arrives.
+	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState(
+		window.simpleHistoryReactData?.eventsAdminPageURL
+	);
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ networkHistoryAdminURL, setNetworkHistoryAdminURL ] =
 		useState( null );
@@ -259,6 +266,12 @@ function EventsGUI() {
 		parseAsString.withDefault( '' ).withOptions( useQueryStateOptions )
 	);
 
+	// Show only events triggered via an AI agent.
+	const [ showAIOnly, setShowAIOnly ] = useQueryState(
+		'ai-only',
+		parseAsBoolean.withDefault( false ).withOptions( useQueryStateOptions )
+	);
+
 	// Negative/exclusion filters - hide events matching these criteria.
 	// Read-only from URL (no setters needed until Phase 2: GUI controls).
 	const [ excludeSearch ] = useQueryState(
@@ -280,7 +293,9 @@ function EventsGUI() {
 			.withOptions( useQueryStateOptions )
 	);
 
-	const [ excludeMessages ] = useQueryState(
+	// Same shape as selectedMessageTypes. Set from an event's "Hide events of
+	// this type" action and cleared from the chips above the list.
+	const [ excludeMessages, setExcludeMessages ] = useQueryState(
 		'exclude-messages',
 		parseAsJson( messageTypesSchema.parse )
 			.withDefault( emptyArray )
@@ -367,8 +382,10 @@ function EventsGUI() {
 	// Store the default date option from the API so we can restore it when clearing filters.
 	const defaultDateOptionRef = useRef( '' );
 
-	// Check if any filter has a non-default value.
-	const hasAnyActiveFilters = useMemo( () => {
+	// Check if any non-date filter has a non-default value. Used by the
+	// end-of-results hint to decide whether "adjust filters above" is
+	// actionable advice.
+	const hasNonDateActiveFilters = useMemo( () => {
 		const hasExpandedFilters =
 			selectedLogLevels.length > 0 ||
 			selectedMessageTypes.length > 0 ||
@@ -377,15 +394,13 @@ function EventsGUI() {
 			enteredIPAddress.trim().length > 0 ||
 			selectedContextFilters.trim().length > 0 ||
 			enteredMetadataSearch.trim().length > 0 ||
-			hideOwnEvents;
+			showAIOnly ||
+			hideOwnEvents ||
+			excludeMessages.length > 0;
 
 		const hasSearchText = enteredSearchText.trim().length > 0;
 
-		const hasNonDefaultDate =
-			defaultDateOptionRef.current &&
-			selectedDateOption !== defaultDateOptionRef.current;
-
-		return hasExpandedFilters || hasSearchText || hasNonDefaultDate;
+		return hasExpandedFilters || hasSearchText;
 	}, [
 		selectedLogLevels,
 		selectedMessageTypes,
@@ -394,10 +409,20 @@ function EventsGUI() {
 		enteredIPAddress,
 		selectedContextFilters,
 		enteredMetadataSearch,
+		showAIOnly,
 		hideOwnEvents,
+		excludeMessages,
 		enteredSearchText,
-		selectedDateOption,
 	] );
+
+	// Check if any filter has a non-default value.
+	const hasAnyActiveFilters = useMemo( () => {
+		const hasNonDefaultDate =
+			defaultDateOptionRef.current &&
+			selectedDateOption !== defaultDateOptionRef.current;
+
+		return hasNonDateActiveFilters || hasNonDefaultDate;
+	}, [ hasNonDateActiveFilters, selectedDateOption ] );
 
 	// Reset all filter values to defaults.
 	const handleClearFilters = useCallback( () => {
@@ -412,7 +437,9 @@ function EventsGUI() {
 		setEnteredIPAddress( '' );
 		setSelectedContextFilters( '' );
 		setEnteredMetadataSearch( '' );
+		setShowAIOnly( false );
 		setHideOwnEvents( false );
+		setExcludeMessages( [] );
 	}, [
 		setSelectedDateOption,
 		setEnteredSearchText,
@@ -425,8 +452,53 @@ function EventsGUI() {
 		setEnteredIPAddress,
 		setSelectedContextFilters,
 		setEnteredMetadataSearch,
+		setShowAIOnly,
 		setHideOwnEvents,
+		setExcludeMessages,
 	] );
+
+	// Hide every event with the same logger and message key as this event
+	// from the current list. Subtractive search: the user cannot say what
+	// they are looking for, but can recognise what it is not.
+	const hideMessageType = useCallback(
+		( event ) => {
+			if ( ! event?.logger || ! event?.message_key ) {
+				return;
+			}
+
+			const searchOption = `${ event.logger }:${ event.message_key }`;
+
+			const alreadyHidden = excludeMessages.some( ( messageType ) =>
+				messageType.search_options.includes( searchOption )
+			);
+
+			if ( alreadyHidden ) {
+				return;
+			}
+
+			// Label the chip with the message template, with placeholders
+			// blanked out so it reads as a type rather than as this one event.
+			// message_template is translated; message_uninterpolated is the
+			// stored template, in whatever language the site had at log time.
+			const label = (
+				event.message_template ||
+				event.message_uninterpolated ||
+				event.message ||
+				searchOption
+			)
+				.replace( /\{[^}]+\}/g, '…' )
+				.trim();
+
+			setExcludeMessages( [
+				...excludeMessages,
+				{
+					value: label,
+					search_options: [ searchOption ],
+				},
+			] );
+		},
+		[ excludeMessages, setExcludeMessages ]
+	);
 
 	// Generate the events query params.
 	// Memoized to avoid unnecessary re-renders in the child components.
@@ -439,6 +511,7 @@ function EventsGUI() {
 			enteredIPAddress,
 			selectedContextFilters,
 			enteredMetadataSearch,
+			showAIOnly,
 			enteredSearchText,
 			selectedDateOption,
 			selectedCustomDateFrom,
@@ -465,6 +538,7 @@ function EventsGUI() {
 		enteredIPAddress,
 		selectedContextFilters,
 		enteredMetadataSearch,
+		showAIOnly,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		page,
@@ -492,6 +566,7 @@ function EventsGUI() {
 		enteredIPAddress,
 		selectedContextFilters,
 		enteredMetadataSearch,
+		showAIOnly,
 		selectedCustomDateFrom,
 		selectedCustomDateTo,
 		excludeUsers,
@@ -551,8 +626,13 @@ function EventsGUI() {
 
 			setEvents( eventsJson );
 		} catch ( error ) {
+			// Parse before setting state, so both updates land in the same
+			// render. Awaiting between them renders an intermediate "there is
+			// an error but no details yet" state.
+			const errorDetails = await parseApiFetchError( error );
+
 			setEventsLoadingHasErrors( true );
-			setEventsLoadingErrorDetails( await parseApiFetchError( error ) );
+			setEventsLoadingErrorDetails( errorDetails );
 		} finally {
 			setEventsIsLoading( false );
 		}
@@ -685,6 +765,7 @@ function EventsGUI() {
 			hasExtendedSettingsAddOn,
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
+			reactionsEnabled: isReactionsEnabled,
 			experimentalFeaturesEnabled: isExperimentalFeaturesEnabled,
 			eventsSettingsPageURL: settingsPageURL,
 			alertsPageURL,
@@ -692,12 +773,17 @@ function EventsGUI() {
 			userCanManageOptions,
 			searchOptionsLoaded,
 			currentUserId,
+			// This GUI owns the filter controls, so descendants can filter by
+			// updating state here instead of navigating away.
+			canFilterEventsInPlace: true,
+			hideMessageType,
 		} ),
 		[
 			mapsApiKey,
 			hasExtendedSettingsAddOn,
 			hasPremiumAddOn,
 			hasFailedLoginLimit,
+			isReactionsEnabled,
 			isExperimentalFeaturesEnabled,
 			settingsPageURL,
 			alertsPageURL,
@@ -705,6 +791,7 @@ function EventsGUI() {
 			userCanManageOptions,
 			searchOptionsLoaded,
 			currentUserId,
+			hideMessageType,
 		]
 	);
 
@@ -737,6 +824,8 @@ function EventsGUI() {
 					setSelectedContextFilters={ setSelectedContextFilters }
 					enteredMetadataSearch={ enteredMetadataSearch }
 					setEnteredMetadataSearch={ setEnteredMetadataSearch }
+					showAIOnly={ showAIOnly }
+					setShowAIOnly={ setShowAIOnly }
 					searchOptionsLoaded={ searchOptionsLoaded }
 					setSearchOptionsLoaded={ setSearchOptionsLoaded }
 					setPagerSize={ setPagerSize }
@@ -750,9 +839,7 @@ function EventsGUI() {
 					setFailedLoginSuppressedCount={
 						setFailedLoginSuppressedCount
 					}
-					isExperimentalFeaturesEnabled={
-						isExperimentalFeaturesEnabled
-					}
+					setIsReactionsEnabled={ setIsReactionsEnabled }
 					setIsExperimentalFeaturesEnabled={
 						setIsExperimentalFeaturesEnabled
 					}
@@ -765,6 +852,8 @@ function EventsGUI() {
 					onReload={ handleReload }
 					setCurrentUserId={ setCurrentUserId }
 					setUserCanManageOptions={ setUserCanManageOptions }
+					excludeMessages={ excludeMessages }
+					setExcludeMessages={ setExcludeMessages }
 					hideOwnEvents={ hideOwnEvents }
 					setHideOwnEvents={ setHideOwnEvents }
 					defaultDateOptionRef={ defaultDateOptionRef }
@@ -814,6 +903,9 @@ function EventsGUI() {
 				surroundingCount={ surroundingCount }
 				hasActiveFilters={ hasAnyActiveFilters }
 				onClearFilters={ handleClearFilters }
+				canAdjustFilters={
+					hasNonDateActiveFilters && selectedDateOption !== 'allDates'
+				}
 			/>
 
 			<EventsModalIfFragment />

@@ -1,0 +1,42 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/wp-admin/admin.php?page=simple_history_admin_menu_page",
+	"preferredVersions": {
+		"php": "8.2",
+		"wp": "latest"
+	},
+	"steps": [
+		{
+			"step": "login"
+		},
+		{
+			"step": "mkdir",
+			"path": "/wordpress/wp-content/mu-plugins"
+		},
+		{
+			"step": "cp",
+			"fromPath": "/wordpress/wp-content/plugins/simple-history/tests/screenshot/silence-mu-plugin.php",
+			"toPath": "/wordpress/wp-content/mu-plugins/screenshot-silencer.php"
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "simple-history/index.php"
+		},
+		{
+			"step": "setSiteOptions",
+			"options": {
+				"blogname": "My website",
+				"blogdescription": "Just another WordPress site",
+				"users_can_register": false,
+				"default_comment_status": "closed",
+				"show_avatars": "1",
+				"avatar_rating": "G",
+				"avatar_default": "mystery"
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php require '/wordpress/wp-content/plugins/simple-history/tests/screenshot/events.php';"
+		}
+	]
+}

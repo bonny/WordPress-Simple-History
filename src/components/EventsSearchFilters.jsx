@@ -11,6 +11,7 @@ import {
 } from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
+import { HiddenMessageTypes } from './HiddenMessageTypes';
 
 /**
  * Search component with a search input visible by default.
@@ -43,6 +44,8 @@ export function EventsSearchFilters( props ) {
 		setSelectedContextFilters,
 		enteredMetadataSearch,
 		setEnteredMetadataSearch,
+		showAIOnly,
+		setShowAIOnly,
 		searchOptionsLoaded,
 		setSearchOptionsLoaded,
 		setPagerSize,
@@ -52,7 +55,7 @@ export function EventsSearchFilters( props ) {
 		setHasFailedLoginLimit,
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
-		isExperimentalFeaturesEnabled,
+		setIsReactionsEnabled,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
@@ -62,6 +65,8 @@ export function EventsSearchFilters( props ) {
 		setUserCanManageOptions,
 		hideOwnEvents,
 		setHideOwnEvents,
+		excludeMessages,
+		setExcludeMessages,
 		defaultDateOptionRef,
 		handleClearFilters,
 		hasAnyActiveFilters,
@@ -91,6 +96,9 @@ export function EventsSearchFilters( props ) {
 		if ( enteredMetadataSearch.trim().length > 0 ) {
 			count++;
 		}
+		if ( showAIOnly ) {
+			count++;
+		}
 		if ( hideOwnEvents ) {
 			count++;
 		}
@@ -103,6 +111,7 @@ export function EventsSearchFilters( props ) {
 		enteredIPAddress,
 		selectedContextFilters,
 		enteredMetadataSearch,
+		showAIOnly,
 		hideOwnEvents,
 	] );
 
@@ -202,8 +211,14 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.addons.has_premium_add_on
 				);
 
+				setIsReactionsEnabled(
+					searchOptionsResponse.reactions_enabled
+				);
+
 				setIsExperimentalFeaturesEnabled(
-					searchOptionsResponse.experimental_features_enabled
+					Boolean(
+						searchOptionsResponse.experimental_features_enabled
+					)
 				);
 
 				setHasFailedLoginLimit(
@@ -218,9 +233,15 @@ export function EventsSearchFilters( props ) {
 					searchOptionsResponse.failed_login_suppressed_count || 0
 				);
 
-				setEventsAdminPageURL(
-					searchOptionsResponse.events_admin_page_url
-				);
+				// Only when the response actually carries one. Add-ons can
+				// override the URL through the search options filter, but an
+				// absent field must not downgrade the value seeded at enqueue
+				// time — losing it hides the links built from it.
+				if ( searchOptionsResponse.events_admin_page_url ) {
+					setEventsAdminPageURL(
+						searchOptionsResponse.events_admin_page_url
+					);
+				}
 				setEventsSettingsPageURL(
 					searchOptionsResponse.settings_page_url
 				);
@@ -266,6 +287,7 @@ export function EventsSearchFilters( props ) {
 		setHasFailedLoginLimit,
 		setFailedLoginLimitThreshold,
 		setFailedLoginSuppressedCount,
+		setIsReactionsEnabled,
 		setIsExperimentalFeaturesEnabled,
 		setEventsAdminPageURL,
 		setEventsSettingsPageURL,
@@ -344,6 +366,10 @@ export function EventsSearchFilters( props ) {
 						) }
 					</DefaultFilters>
 				</div>
+				<HiddenMessageTypes
+					excludeMessages={ excludeMessages }
+					setExcludeMessages={ setExcludeMessages }
+				/>
 				{ moreOptionsIsExpanded ? (
 					<div
 						className="SimpleHistory-filters__expandedFilters"
@@ -366,9 +392,8 @@ export function EventsSearchFilters( props ) {
 							setEnteredMetadataSearch={
 								setEnteredMetadataSearch
 							}
-							isExperimentalFeaturesEnabled={
-								isExperimentalFeaturesEnabled
-							}
+							showAIOnly={ showAIOnly }
+							setShowAIOnly={ setShowAIOnly }
 							searchOptions={ searchOptions }
 							hideOwnEvents={ hideOwnEvents }
 							setHideOwnEvents={ setHideOwnEvents }

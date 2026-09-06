@@ -20,28 +20,33 @@ This document covers the tools used to maintain code quality in the Simple Histo
 ### Linting PHP Code
 
 ```bash
-# Lint all files (from project root)
-vendor/bin/phpcs
+# Composer script - runs phpcs locally, fastest
+composer lint
+
+# npm script - same thing inside the php-lint Docker container,
+# with --report=full,summary. Use when local PHP differs from the target.
+npm run php:lint
 
 # Lint specific file
 vendor/bin/phpcs path/to/file.php
-
-# Lint with npm script (recommended)
-npm run php:lint
 ```
 
 ### Auto-Fixing Issues
 
 ```bash
-# Fix all auto-fixable issues
-vendor/bin/phpcbf
+# Composer script - runs phpcbf locally
+composer lint-fix
+
+# npm script - same thing inside Docker
+npm run php:lint-fix
 
 # Fix specific file
 vendor/bin/phpcbf path/to/file.php
-
-# Fix with npm script (recommended)
-npm run php:lint-fix
 ```
+
+`composer lint` exits with code 2 when it finds errors, so it fails CI and
+pre-commit checks as expected. There is deliberately no `composer` script for
+phpstan — use `npm run php:phpstan`.
 
 ### Common phpcs Issues
 
@@ -60,51 +65,23 @@ npm run php:lint-fix
 ### Running PHPStan
 
 ```bash
-# Run analysis (whole plugin)
-vendor/bin/phpstan analyse --memory-limit 2048M
-
-# Analyse specific files (faster during iteration)
-vendor/bin/phpstan analyse inc/services/foo.php inc/bar.php --memory-limit 2G
-
-# Run with npm script
+# Run analysis (use this - it sets the memory limit for you)
 npm run php:phpstan
+
+# Direct equivalent - the memory limit is REQUIRED, not optional
+vendor/bin/phpstan analyse --memory-limit 2048M
 ```
 
-### Cross-plugin analysis (core ↔ premium)
-
-When a change touches the boundary between the core plugin and the premium add-on
-(e.g. new `protected` method a premium subclass consumes, a new public constant,
-a new factory method exposed to add-ons), run phpstan from the **add-ons
-monorepo root** — it has `scanDirectories: ../WordPress-Simple-History/` wired
-specifically for this:
-
-```bash
-cd /Users/bonny/Projects/Personal/simple-history-add-ons && \
-  vendor/bin/phpstan analyse simple-history-premium/inc/path/... --memory-limit 2G
-```
-
-This is the only reliable way to catch issues that show up at runtime as fatal
-errors but look perfectly valid in isolation — e.g., a premium subclass calling
-`$this->parent_method()` where `parent_method()` is `private` in the core parent.
+Never run bare `vendor/bin/phpstan analyse`. It crashes a parallel worker at
+the default 128M, and the crash message ("increase your memory limit") is
+misleading — raising it to 1G still crashes. 2048M is the working value, which
+is why `npm run php:phpstan` bakes it in.
 
 ### When to Run PHPStan
 
-Required (not optional):
-
--   After any non-trivial PHP change. `php -l` only catches syntax errors — it
-    never catches the classes of bug that cause runtime fatals (private method
-    access, undefined constants, undefined methods, type mismatches).
--   Before declaring a cross-plugin integration ready to test. Run from the
-    monorepo root (see above). Premium-side `php -l` is not sufficient.
--   Before committing any refactor that changes visibility, adds/removes methods,
-    or introduces new public API intended for add-on consumption.
--   When briefing a subagent that writes PHP: require phpstan in the agent's
-    quality-check step. Do not accept `php -l` as a substitute.
-
-Strongly recommended:
-
 -   After making changes to multiple PHP files
 -   After making a larger change in a single file
+-   Before committing significant PHP refactoring
 -   When adding new classes or methods
 
 ### Common PHPStan Issues
@@ -198,6 +175,27 @@ Most IDEs support phpcs integration:
 -   **Sublime Text**: PHP_CodeSniffer plugin available
 -   **Vim/Neovim**: ALE or CoC plugins support phpcs
 
+## Dependency Constraints
+
+The sniffer toolchain is capped at **PHP_CodeSniffer 3.x**. Don't try to lift
+it — `composer update` will just fail to resolve.
+
+| Package                              | Requires PHPCS     |
+| ------------------------------------ | ------------------ |
+| `wp-coding-standards/wpcs`           | `^3.13.5`          |
+| `automattic/vipwpcs`                 | `^3.9.2`           |
+| `phpcompatibility/php-compatibility` | `^2.3 \|\| ^3.0.2` |
+
+Consequence: **`slevomat/coding-standard` is stuck at 8.22.1.** Every release
+from 8.23.0 onward requires `squizlabs/php_codesniffer ^4.0`, so `composer
+outdated` will keep listing it as behind. That is expected, not a task. It
+unblocks only when WPCS ships PHPCS 4 support (their `dev-phpcs-4` branch);
+re-check then and bump both together.
+
+When updating WPCS itself, read the release notes for changed sniff defaults —
+`phpcs.xml.dist` pins `minimum_wp_version` to 6.3, which overrides WPCS's own
+default and is the setting most likely to drift.
+
 ## Troubleshooting
 
 ### "Command not found: vendor/bin/phpcs"
@@ -206,11 +204,14 @@ Run `composer install` first to install dependencies.
 
 ### "Memory exhausted" when running phpstan
 
-Use the `--memory-limit` flag:
+Use the `--memory-limit` flag — and use `2048M`, not a smaller bump. A parallel
+worker still crashes at 1G despite the error text implying any increase helps:
 
 ```bash
 vendor/bin/phpstan analyse --memory-limit 2048M
 ```
+
+`npm run php:phpstan` already includes this flag.
 
 ### phpcs reports errors in vendor/ or node_modules/
 

@@ -112,9 +112,9 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 		$install_timestamp  = $install_date ? strtotime( $install_date ) : false;
 		$days_since_install = $install_timestamp ? ( time() - $install_timestamp ) / DAY_IN_SECONDS : 0;
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$show_premium_card = Helpers::show_promo_boxes()
 			&& (
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only preview toggle for the promo card; no state change.
 				isset( $_GET['sh_preview_premium_promo'] )
 				|| $days_since_install >= self::MINIMUM_DAYS_BEFORE_PREMIUM_PROMO
 			);

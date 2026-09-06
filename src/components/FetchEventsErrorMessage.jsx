@@ -7,7 +7,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { getTrackingUrl } from '../functions';
+import { getDatabaseErrorMessage, getTrackingUrl } from '../functions';
 
 export function FetchEventsErrorMessage( props ) {
 	const { eventsLoadingHasErrors, eventsLoadingErrorDetails } = props;
@@ -15,6 +15,12 @@ export function FetchEventsErrorMessage( props ) {
 	if ( ! eventsLoadingHasErrors ) {
 		return null;
 	}
+
+	// A database error has a cause worth naming and reloading will not fix it,
+	// so it gets its own message instead of the generic advice below.
+	const databaseErrorMessage = getDatabaseErrorMessage(
+		eventsLoadingErrorDetails
+	);
 
 	// Build support URL with tracking parameters.
 	const baseUrl = getTrackingUrl(
@@ -35,28 +41,56 @@ export function FetchEventsErrorMessage( props ) {
 		>
 			<Notice status="warning" isDismissible={ false }>
 				<VStack spacing={ 2 }>
+					{ /*
+					 * Children of VStack must stay flat — it clones each child
+					 * to apply spacing, and a React fragment here crashes the
+					 * whole admin page instead of rendering this notice.
+					 */ }
 					<Text as="p">
-						{ __(
-							'There was an error loading the events.',
-							'simple-history'
-						) }
+						{ databaseErrorMessage
+							? __(
+									'There was an error loading the events. The database reported:',
+									'simple-history'
+							  )
+							: __(
+									'There was an error loading the events.',
+									'simple-history'
+							  ) }
 					</Text>
 
-					<Text as="p">
-						{ __(
-							'This can often be resolved by refreshing your browser. If the problem persists, please try again later.',
-							'simple-history'
-						) }
-					</Text>
-
-					<Text as="p">
-						<Button
-							variant="secondary"
-							onClick={ () => window.location.reload() }
+					{ databaseErrorMessage ? (
+						<pre
+							style={ {
+								whiteSpace: 'pre-wrap',
+								margin: 0,
+							} }
 						>
-							{ __( 'Reload page', 'simple-history' ) }
-						</Button>
+							{ databaseErrorMessage }
+						</pre>
+					) : null }
+
+					<Text as="p">
+						{ databaseErrorMessage
+							? __(
+									'Reloading will not fix this. The database table holding the history needs attention — your web host can help, or send them the error above.',
+									'simple-history'
+							  )
+							: __(
+									'This can often be resolved by refreshing your browser. If the problem persists, please try again later.',
+									'simple-history'
+							  ) }
 					</Text>
+
+					{ databaseErrorMessage ? null : (
+						<Text as="p">
+							<Button
+								variant="secondary"
+								onClick={ () => window.location.reload() }
+							>
+								{ __( 'Reload page', 'simple-history' ) }
+							</Button>
+						</Text>
+					) }
 
 					<details>
 						<summary>

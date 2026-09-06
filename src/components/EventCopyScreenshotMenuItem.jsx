@@ -4,6 +4,7 @@ import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { capturePhoto } from '@wordpress/icons';
 import { snapdom } from '@zumer/snapdom';
+import { htmlToPlainText } from '../functions';
 
 const CARD_MAX_WIDTH = 460;
 
@@ -139,9 +140,7 @@ function prepareForCapture( logItem, event ) {
 	}
 
 	// Neutralize link styling so elements don't look clickable.
-	const linkEls = logItem.querySelectorAll(
-		'.components-button.is-link, a'
-	);
+	const linkEls = logItem.querySelectorAll( '.components-button.is-link, a' );
 	linkEls.forEach( ( el ) => {
 		const prevColor = el.style.color;
 		const prevDecoration = el.style.textDecoration;
@@ -201,9 +200,7 @@ function buildFilename( event ) {
 
 	// Add plain-text message, strip HTML tags.
 	if ( event.message ) {
-		const tmp = document.createElement( 'div' );
-		tmp.innerHTML = event.message;
-		parts.push( tmp.textContent || '' );
+		parts.push( htmlToPlainText( event.message ) );
 	}
 
 	// Join, slugify, and truncate.

@@ -57,8 +57,10 @@ class Theme_Logger extends Logger {
 				'theme_switched'            => __( 'Switched theme to "{theme_name}" from "{prev_theme_name}"', 'simple-history' ),
 				'theme_installed'           => __( 'Installed theme "{theme_name}" by {theme_author}', 'simple-history' ),
 				'theme_deleted'             => __( 'Deleted theme "{theme_name}"', 'simple-history' ),
-				'theme_updated'             => __( 'Updated theme "{theme_name}"', 'simple-history' ),
+				'theme_updated'             => __( 'Updated theme "{theme_name}" to version {theme_version} from {theme_prev_version}', 'simple-history' ),
 				'theme_update_failed'       => __( 'Failed to update theme "{theme_name}"', 'simple-history' ),
+				'theme_downgraded'          => __( 'Downgraded theme "{theme_name}" to version {theme_version} from {theme_prev_version}', 'simple-history' ),
+				'theme_reinstalled'         => __( 'Reinstalled theme "{theme_name}" version {theme_version}', 'simple-history' ),
 				'appearance_customized'     => __( 'Customized theme appearance "{setting_id}"', 'simple-history' ),
 				'widget_removed'            => __( 'Removed widget "{widget_id_base}" from sidebar "{sidebar_id}"', 'simple-history' ),
 				'widget_added'              => __( 'Added widget "{widget_id_base}" to sidebar "{sidebar_id}"', 'simple-history' ),
@@ -73,6 +75,8 @@ class Theme_Logger extends Logger {
 					'options'   => array(
 						_x( 'Updated themes', 'Theme logger: search', 'simple-history' ) => array(
 							'theme_updated',
+							'theme_downgraded',
+							'theme_reinstalled',
 						),
 						_x( 'Deleted themes', 'Theme logger: search', 'simple-history' ) => array(
 							'theme_deleted',
@@ -137,6 +141,11 @@ class Theme_Logger extends Logger {
 
 		add_action( 'sidebar_admin_setup', array( $this, 'on_action_sidebar_admin_setup__detect_widget_delete' ) );
 		add_action( 'sidebar_admin_setup', array( $this, 'on_action_sidebar_admin_setup__detect_widget_add' ) );
+
+		// Detect widget add/remove outside wp-admin (WP-CLI, REST API).
+		// Admin path uses sidebar_admin_setup which reads $_POST.
+		// This hook fires after the option is written and provides both old and new values.
+		add_action( 'update_option_sidebars_widgets', array( $this, 'on_update_option_sidebars_widgets_non_admin' ), 10, 3 );
 		add_filter( 'widget_update_callback', array( $this, 'on_widget_update_callback' ), 10, 4 );
 
 		add_action( 'load-appearance_page_custom-background', array( $this, 'on_page_load_custom_background' ) );
@@ -144,6 +153,10 @@ class Theme_Logger extends Logger {
 		add_filter( 'upgrader_install_package_result', array( $this, 'on_upgrader_install_package_result' ), 10, 2 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_install' ), 10, 2 );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_process_complete_theme_update' ), 10, 2 );
+
+		// Runs before the theme files are replaced, which is our only chance to
+		// see what version a theme had before it was updated.
+		add_filter( 'upgrader_pre_install', array( $this, 'save_versions_before_update' ), 10, 2 );
 
 		// Log theme deletion.
 		add_action( 'delete_theme', array( $this, 'on_action_delete_theme' ), 10, 1 );
@@ -253,6 +266,33 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
+	 * Saves the version of all installed themes to an option, before they are updated.
+	 * The option is not autoloaded and is overwritten on every subsequent update,
+	 * so it is intentionally not deleted afterwards (same approach as the
+	 * plugin logger's equivalent `save_versions_before_update()`).
+	 * Fired from filter `upgrader_pre_install`.
+	 *
+	 * @param bool|\WP_Error $bool_or_error Default null.
+	 * @param array          $hook_extra Default null.
+	 * @return bool|\WP_Error Unmodified $bool_or_error, passed through.
+	 */
+	public function save_versions_before_update( $bool_or_error = null, $hook_extra = null ) {
+		$themes_before_update = [];
+
+		foreach ( wp_get_themes() as $theme_slug => $theme_object ) {
+			$themes_before_update[ $theme_slug ] = $theme_object->get( 'Version' );
+		}
+
+		update_option(
+			$this->get_slug() . '_theme_info_before_update',
+			Helpers::json_encode( $themes_before_update ),
+			false
+		);
+
+		return $bool_or_error;
+	}
+
+	/**
 	 * Log theme updated.
 	 *
 	 * @param \WP_Upgrader $upgrader_instance WP_Upgrader instance.
@@ -312,6 +352,9 @@ class Theme_Logger extends Logger {
 			);
 		}
 
+		// Get the versions themes had before the update, saved in save_versions_before_update().
+		$themes_before_update = json_decode( get_option( $this->get_slug() . '_theme_info_before_update', false ), true );
+
 		// $one_updated_theme is the theme slug
 		foreach ( $arr_themes as $one_updated_theme ) {
 			$theme_info_object = wp_get_theme( $one_updated_theme );
@@ -327,6 +370,12 @@ class Theme_Logger extends Logger {
 				continue;
 			}
 
+			// Get the previous version, if we have it stored.
+			$theme_prev_version = null;
+			if ( is_array( $themes_before_update ) && isset( $themes_before_update[ $one_updated_theme ] ) ) {
+				$theme_prev_version = $themes_before_update[ $one_updated_theme ];
+			}
+
 			// Check if update failed (result is WP_Error).
 			$package_result = $this->package_results[ $one_updated_theme ] ?? null;
 			$has_error      = $package_result && is_wp_error( $package_result['result'] );
@@ -337,6 +386,10 @@ class Theme_Logger extends Logger {
 					'theme_slug' => $one_updated_theme,
 					'theme_name' => $theme_name,
 				];
+
+				if ( $theme_prev_version !== null ) {
+					$context['theme_prev_version'] = $theme_prev_version;
+				}
 
 				// Add rollback context if rollback will occur.
 				$context = $this->add_rollback_context( $context, $one_updated_theme );
@@ -351,12 +404,18 @@ class Theme_Logger extends Logger {
 					continue;
 				}
 
+				$context = [
+					'theme_name'    => $theme_name,
+					'theme_version' => $theme_version,
+				];
+
+				if ( $theme_prev_version !== null ) {
+					$context['theme_prev_version'] = $theme_prev_version;
+				}
+
 				$this->info_message(
 					'theme_updated',
-					array(
-						'theme_name'    => $theme_name,
-						'theme_version' => $theme_version,
-					)
+					$context
 				);
 			}
 		}
@@ -403,6 +462,33 @@ class Theme_Logger extends Logger {
 		}
 
 		$new_theme_data = $upgrader_instance->new_theme_data;
+
+		// Uploading a zip of a theme that is already installed ("Replace installed
+		// with uploaded") also arrives here, as an install with overwrite. The
+		// version snapshot taken on upgrader_pre_install tells the two apart: a
+		// theme present before was replaced, and the two versions say whether
+		// that was an update, a downgrade or a reinstall of the same version.
+		$themes_before_update = json_decode( get_option( $this->get_slug() . '_theme_info_before_update', false ), true );
+
+		if ( is_array( $themes_before_update ) && isset( $themes_before_update[ $destination_name ] ) ) {
+			$context = array(
+				'theme_name'    => $new_theme_data['Name'],
+				'theme_version' => $new_theme_data['Version'],
+			);
+
+			$prev_version = (string) $themes_before_update[ $destination_name ];
+
+			if ( $prev_version !== '' ) {
+				$context['theme_prev_version'] = $prev_version;
+			}
+
+			$this->info_message(
+				Plugin_Logger::get_replace_message_key( 'theme', $prev_version, (string) $new_theme_data['Version'] ),
+				$context
+			);
+
+			return;
+		}
 
 		$this->info_message(
 			'theme_installed',
@@ -579,16 +665,8 @@ class Theme_Logger extends Logger {
 		$control_type = $context['control_type'] ?? '';
 
 		if ( $control_type === 'color' ) {
-			$new_swatch = sprintf(
-				'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
-				esc_attr( ltrim( $context['setting_new_value'], '#' ) ),
-				esc_html( $context['setting_new_value'] )
-			);
-			$old_swatch = sprintf(
-				'<span style="background-color: #%1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
-				esc_attr( ltrim( $context['setting_old_value'], ' #' ) ),
-				esc_html( $context['setting_old_value'] )
-			);
+			$new_swatch = $this->get_color_swatch_html( $context['setting_new_value'] );
+			$old_swatch = $this->get_color_swatch_html( $context['setting_old_value'] );
 
 			$group->add_item(
 				( new Event_Details_Item( null, __( 'New value', 'simple-history' ) ) )
@@ -615,6 +693,33 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
+	 * Build the HTML for a colour swatch, falling back to the plain value.
+	 *
+	 * The value is validated with sanitize_hex_color() rather than escaped, because it
+	 * ends up inside a style attribute. esc_attr() leaves `;`, `:`, `(` and `/` intact —
+	 * harmless in an ordinary attribute, but enough to append extra CSS declarations
+	 * here. `control_type` is the *control* type, so a theme is free to bind a colour
+	 * control to a setting whose sanitize_callback lets any string through.
+	 *
+	 * @since 5.28.0
+	 * @param string $value Colour value from the customizer setting.
+	 * @return string Swatch HTML, or the escaped value when it is not a valid hex colour.
+	 */
+	private function get_color_swatch_html( $value ) {
+		$hex = sanitize_hex_color( '#' . ltrim( trim( (string) $value ), '#' ) );
+
+		if ( $hex === null ) {
+			return esc_html( $value );
+		}
+
+		return sprintf(
+			'<span style="background-color: %1$s; width: 1em; display: inline-block;">&nbsp;</span> %2$s',
+			esc_attr( $hex ),
+			esc_html( $value )
+		);
+	}
+
+	/**
 	 * Add widget name and sidebar name to output
 	 *
 	 * @param object $row Log row.
@@ -636,11 +741,16 @@ class Theme_Logger extends Logger {
 				$translated_message = $this->get_translated_message( $message_key );
 
 				if ( $translated_message !== null ) {
+					// Returning from this override skips the parent's esc_html(), so
+					// escape the interpolated values here instead.
 					$message = helpers::interpolate(
 						$translated_message,
-						array(
-							'widget_id_base' => $widget->name,
-							'sidebar_id'     => $sidebar['name'],
+						$this->esc_html_context_keys(
+							array(
+								'widget_id_base' => $widget->name,
+								'sidebar_id'     => $sidebar['name'],
+							),
+							[ 'widget_id_base', 'sidebar_id' ]
 						),
 						$row
 					);
@@ -648,6 +758,20 @@ class Theme_Logger extends Logger {
 					$output .= $message;
 				}
 			}
+		}
+
+		// Theme updated, but the version the theme had before the update is unknown.
+		// Happens for events logged before we started saving it, and for themes whose
+		// own updater never fires `upgrader_pre_install`. Without this the unresolved
+		// placeholder would render literally, as "from {theme_prev_version}".
+		if ( $message_key === 'theme_updated' && ! isset( $context['theme_prev_version'] ) ) {
+			$context = $this->esc_html_context_keys( $context, [ 'theme_name', 'theme_version' ] );
+
+			$output .= Helpers::interpolate(
+				__( 'Updated theme "{theme_name}" to version {theme_version}', 'simple-history' ),
+				$context,
+				$row
+			);
 		}
 
 		// Fallback to default/parent output if nothing was added to output.
@@ -826,6 +950,81 @@ class Theme_Logger extends Logger {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Detect widget additions and removals made outside wp-admin (WP-CLI, REST).
+	 *
+	 * The admin path uses sidebar_admin_setup hooks that read $_POST directly.
+	 * This hook fires after the option is written with both old and new values,
+	 * so we can diff them to log the same events for non-admin contexts.
+	 *
+	 * @param mixed  $old_value Previous sidebars_widgets value.
+	 * @param mixed  $new_value New sidebars_widgets value.
+	 * @param string $option    Option name (always 'sidebars_widgets').
+	 * @return void
+	 */
+	public function on_update_option_sidebars_widgets_non_admin( $old_value, $new_value, $option ) {
+		// Admin uses sidebar_admin_setup + $_POST for widget changes; skip to avoid double-logging.
+		if ( is_admin() ) {
+			return;
+		}
+
+		if ( $old_value === $new_value ) {
+			return;
+		}
+
+		$old_value = (array) $old_value;
+		$new_value = (array) $new_value;
+
+		$all_sidebar_ids = array_unique( array_merge( array_keys( $old_value ), array_keys( $new_value ) ) );
+
+		foreach ( $all_sidebar_ids as $sidebar_id ) {
+			// Skip WordPress internal array_version key.
+			if ( $sidebar_id === 'array_version' ) {
+				continue;
+			}
+
+			$old_widgets = (array) ( $old_value[ $sidebar_id ] ?? array() );
+			$new_widgets = (array) ( $new_value[ $sidebar_id ] ?? array() );
+
+			// Reorders within the same sidebar (same widget IDs, different positions)
+			// produce empty diffs and are intentionally not logged.
+			$changes = array(
+				'widget_added'   => array_diff( $new_widgets, $old_widgets ),
+				'widget_removed' => array_diff( $old_widgets, $new_widgets ),
+			);
+
+			foreach ( $changes as $message_key => $widget_ids ) {
+				foreach ( $widget_ids as $widget_id ) {
+					$this->log_widget_change( $message_key, $widget_id, $sidebar_id );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Log a single widget add/remove event.
+	 *
+	 * @param string $message_key 'widget_added' or 'widget_removed'.
+	 * @param string $widget_id   Full widget id (e.g. "text-99").
+	 * @param string $sidebar_id  Sidebar id.
+	 */
+	private function log_widget_change( $message_key, $widget_id, $sidebar_id ) {
+		$widget_id_base = _get_widget_id_base( $widget_id );
+
+		$context = array(
+			'widget_id_base' => $widget_id_base,
+			'sidebar_id'     => $sidebar_id,
+		);
+
+		$widget = $this->get_widget_by_id_base( $widget_id_base );
+
+		if ( $widget ) {
+			$context['widget_name_translated'] = $widget->name;
+		}
+
+		$this->info_message( $message_key, $context );
 	}
 
 	/**
