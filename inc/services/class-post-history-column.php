@@ -18,7 +18,7 @@ class Post_History_Column extends Service {
 	 * Cached history data per post ID.
 	 * Each entry contains up to 2 recent events with date, user, and message key.
 	 *
-	 * @var array<int, array>|null
+	 * @var array<int, array<int, array{date: string, message_key: string, user_id: string}>>|null
 	 */
 	private $history_data = null;
 
@@ -255,7 +255,7 @@ class Post_History_Column extends Service {
 	 * list table. This is reliable on edit.php screens where both services run.
 	 */
 	private function load_history_data() {
-		global $wp_query, $wpdb;
+		global $wp_query;
 
 		$this->history_data = array();
 
@@ -269,13 +269,11 @@ class Post_History_Column extends Service {
 			return;
 		}
 
-		$db_engine = Log_Query::get_db_engine();
+		$rows = Log_Query::get_db_engine() === 'sqlite'
+			? $this->query_history_sqlite( $post_ids )
+			: $this->query_history_mysql( $post_ids );
 
-		if ( $db_engine === 'sqlite' ) {
-			$this->load_history_data_sqlite( $post_ids );
-		} else {
-			$this->load_history_data_mysql( $post_ids );
-		}
+		$this->history_data = $this->group_rows_by_post_id( $rows );
 
 		$this->prime_user_cache();
 	}
@@ -315,8 +313,9 @@ class Post_History_Column extends Service {
 	 * MySQL/MariaDB query using ROW_NUMBER() window function.
 	 *
 	 * @param array $post_ids Array of post IDs.
+	 * @return array<int, object> Database rows: post_id, date, message_key, user_id.
 	 */
-	private function load_history_data_mysql( $post_ids ) {
+	private function query_history_mysql( $post_ids ) {
 		global $wpdb;
 
 		$events_table    = Simple_History::$dbtable;
@@ -352,15 +351,16 @@ class Post_History_Column extends Service {
 		);
 		// phpcs:enable
 
-		$this->store_history_results( $results );
+		return is_array( $results ) ? $results : array();
 	}
 
 	/**
 	 * SQLite-compatible query using correlated subquery instead of window functions.
 	 *
 	 * @param array $post_ids Array of post IDs.
+	 * @return array<int, object> Database rows: post_id, date, message_key, user_id.
 	 */
-	private function load_history_data_sqlite( $post_ids ) {
+	private function query_history_sqlite( $post_ids ) {
 		global $wpdb;
 
 		$events_table    = Simple_History::$dbtable;
@@ -401,24 +401,33 @@ class Post_History_Column extends Service {
 		);
 		// phpcs:enable
 
-		$this->store_history_results( $results );
+		return is_array( $results ) ? $results : array();
 	}
 
 	/**
-	 * @param array $results Database query results.
+	 * Group DB rows into the per-post structure stored on $history_data.
+	 *
+	 * @param array<int, object> $rows Database rows from query_history_*.
+	 * @return array<int, array<int, array{date: string, message_key: string, user_id: string}>>
 	 */
-	private function store_history_results( $results ) {
-		foreach ( $results as $row ) {
+	private function group_rows_by_post_id( $rows ) {
+		$grouped = array();
+
+		foreach ( $rows as $row ) {
 			$pid = (int) $row->post_id;
-			if ( ! isset( $this->history_data[ $pid ] ) ) {
-				$this->history_data[ $pid ] = array();
+
+			if ( ! isset( $grouped[ $pid ] ) ) {
+				$grouped[ $pid ] = array();
 			}
-			$this->history_data[ $pid ][] = array(
+
+			$grouped[ $pid ][] = array(
 				'date'        => $row->date,
 				'message_key' => $row->message_key,
 				'user_id'     => $row->user_id,
 			);
 		}
+
+		return $grouped;
 	}
 
 	/**
