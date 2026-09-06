@@ -196,11 +196,14 @@ issue_file_for() {
 
 	[ -n "${SH_NOTES_DIR:-}" ] || return 0
 
-	# `|| true` because a missing issue is normal, not an error: the issue may
-	# have been archived while its worktree is still up. Without it, `ls`
-	# failing propagates through pipefail and set -e aborts the whole command
-	# — which made `up` die silently for any slug whose issue had been filed away.
-	ls "$SH_NOTES_DIR/Simple History/issues/${BASH_REMATCH[1]} - "*.md 2>/dev/null | head -1 || true
+	# Search the archive too: worktree issues are archived at done, before
+	# the branch is merged and the worktree torn down, so `down --remove`
+	# must still find the file to clear its `worktree` property.
+	# `|| true` because a missing issue is normal, not an error. Without it,
+	# a failing lookup propagates through pipefail and set -e aborts the
+	# whole command — which made `up` die silently for unknown slugs.
+	/usr/bin/find "$SH_NOTES_DIR/Simple History/issues" -maxdepth 2 \
+		-name "${BASH_REMATCH[1]} - *.md" 2>/dev/null | sort | head -1 || true
 }
 
 # obsidian:// deep link to the issue document, for the dev toolbar.
