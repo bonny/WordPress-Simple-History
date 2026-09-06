@@ -587,11 +587,17 @@ class Simple_History_Logger extends Logger {
 			$context[ "{$base}_new" ]  = $change['new'];
 		}
 
+		$changed_options        = array_keys( $this->settings_changes );
 		$this->settings_changes = [];
 
 		if ( count( $context ) === 0 ) {
 			return;
 		}
+
+		// Group consecutive edits of the same set of settings into one occasion,
+		// so repeatedly toggling a setting collapses into a single row.
+		sort( $changed_options );
+		$context['_occasionsID'] = self::class . '/modified_settings/' . implode( ',', $changed_options );
 
 		$this->info_message( 'modified_settings', $context );
 	}
