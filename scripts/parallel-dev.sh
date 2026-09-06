@@ -672,9 +672,9 @@ cmd_status() {
 	fi
 	echo ""
 
-	printf '%-28s %-32s %-6s %-42s %-8s %-6s %s\n' SLUG BRANCH PORT URL RUNNING DIRTY PREMIUM
+	printf '%-28s %-32s %-6s %-42s %-8s %-6s %-4s %s\n' SLUG BRANCH PORT URL RUNNING DIRTY MS PREMIUM
 
-	local dir slug branch port pid url premium running dirty
+	local dir slug branch port pid url premium multisite running dirty
 	for dir in "$WORKTREES_DIR"/*/; do
 		[ -d "$dir" ] || continue
 
@@ -682,10 +682,16 @@ cmd_status() {
 		slug="${dir##*/}"
 		branch="$(git -C "$dir" branch --show-current 2>/dev/null || echo '?')"
 
-		port="" pid="" url="" premium=""
+		port="" pid="" url="" premium="" multisite=""
 		if [ -f "$dir/.playground.json" ]; then
-			IFS=$'\t' read -r port pid url premium <<< "$(jq -r \
-				'[.port, .pid, .url, .premium] | map(. // "") | @tsv' \
+			# multisite is always "true"/"false" (never empty), so it goes
+			# before the possibly-empty premium field: `read` with IFS set
+			# to tab still collapses *adjacent* empty fields (tab counts as
+			# IFS whitespace), which would misalign every column after an
+			# empty one in the middle of the row. A trailing empty field is
+			# unaffected, so premium — the one that's often empty — stays last.
+			IFS=$'\t' read -r port pid url multisite premium <<< "$(jq -r \
+				'[.port, .pid, .url, (.multisite // false), .premium] | map(. // "") | @tsv' \
 				"$dir/.playground.json" 2>/dev/null)" || true
 		fi
 
@@ -703,9 +709,12 @@ cmd_status() {
 			dirty="no"
 		fi
 
-		printf '%-28s %-32s %-6s %-42s %-8s %-6s %s\n' \
+		local ms="-"
+		[ "$multisite" = "true" ] && ms="yes"
+
+		printf '%-28s %-32s %-6s %-42s %-8s %-6s %-4s %s\n' \
 			"$slug" "$branch" "${port:--}" "${url:--}" \
-			"$running" "$dirty" "${premium:--}"
+			"$running" "$dirty" "$ms" "${premium:--}"
 	done
 }
 
