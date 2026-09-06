@@ -70,7 +70,7 @@ PLAYWRIGHT_BASE_URL=$(jq -r .url .playground.json) WP_ADMIN_USER=admin WP_ADMIN_
   npx playwright test tests/playwright/<spec>.spec.js
 ```
 
-The manual steps below remain useful for special setups (multisite, custom blueprints).
+The manual steps below remain useful for special setups (custom blueprints).
 
 ## When to Use Worktrees
 
@@ -117,17 +117,15 @@ scripts/parallel-dev.sh up issue-name-short --no-premium
 
 ### Multisite
 
-If the issue involves network/multisite functionality, ask the user if they want a multisite install. If yes, pass a custom blueprint:
+If the issue involves network/multisite functionality, ask the user if they want a multisite install. If yes, add `--multisite`:
 
 ```bash
-# Generate a multisite blueprint from the template
-WORKTREE_NAME="issue-name-short"
-MAIN_REPO="$(git rev-parse --git-common-dir)/.."
-sed "s/WORKTREE_NAME/$WORKTREE_NAME/" "$MAIN_REPO/.claude/worktree-blueprint.json" > /tmp/wp-blueprint-$WORKTREE_NAME.json
-jq '.steps = [{"step": "enableMultisite"}] + .steps' /tmp/wp-blueprint-$WORKTREE_NAME.json > /tmp/wp-blueprint-$WORKTREE_NAME-tmp.json && mv /tmp/wp-blueprint-$WORKTREE_NAME-tmp.json /tmp/wp-blueprint-$WORKTREE_NAME.json
-
-scripts/parallel-dev.sh up $WORKTREE_NAME --blueprint=/tmp/wp-blueprint-$WORKTREE_NAME.json
+scripts/parallel-dev.sh up issue-name-short --multisite
 ```
+
+You get a subdirectory network with two sites (`/` and `/site2/`), Simple History network-activated (Premium too when it is mounted), and Network Admin at `<url>/wp-admin/network/`. Pass the flag on every `up`; Playground rebuilds from the blueprint each start.
+
+Do **not** use Playground's `enableMultisite` blueprint step. It refuses any URL with a port ("WordPress multisites do not support custom ports"), and every parallel-dev URL has one. WordPress itself has allowed ports in multisite since 6.6; the flag replays what the step does after that outdated guard. Subdomain networks are not supported (wildcard DNS per slug, and impossible on the `localhost` fallback).
 
 ## Copying Uncommitted Changes
 
