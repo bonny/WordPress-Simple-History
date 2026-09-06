@@ -1330,13 +1330,12 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'network_fallback', $fields ) ) {
-			// Only expose the flag when Premium is NOT active. Once
-			// Premium is active, future events route to the network
-			// log correctly, and showing the note on historical events
-			// would be noise — the dedicated log is right there in
-			// Network Admin, no explanation needed.
+			// Only expose the flag while no network log provider is
+			// registered. Once one is, new events route to the network log
+			// and a note on historical events would be noise — the
+			// dedicated log is right there in Network Admin.
 			$data['network_fallback'] = isset( $item->context[ Logger::NETWORK_FALLBACK_CONTEXT_KEY ] )
-				&& ! Helpers::is_premium_add_on_active();
+				&& ! Helpers::network_log_provider_registered();
 		}
 
 		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::reactions_are_enabled() ) {
