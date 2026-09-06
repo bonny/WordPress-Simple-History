@@ -563,4 +563,25 @@ class RSSDropinIntegrationTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertGreaterThanOrEqual( 1, count( $results['log_rows'] ), 'A valid date filter should still return events' );
 	}
+
+	/**
+	 * Event details are a <dl> since 5.33; the feed's kses allowlist must let
+	 * it through, or keys and values run together in feed readers.
+	 */
+	public function test_feed_allowed_html_keeps_key_value_list() {
+		$html = '<dl class="SimpleHistoryLogitem__keyValueTable"><dt>First name</dt><dd><ins class="SimpleHistoryLogitem__keyValueTable__addedThing">Pär</ins> <del class="SimpleHistoryLogitem__keyValueTable__removedThing">Par</del></dd></dl>';
+
+		// The list and its cells survive; ins/del keep their meaning but not their class.
+		$this->assertSame(
+			'<dl class="SimpleHistoryLogitem__keyValueTable"><dt>First name</dt><dd><ins>Pär</ins> <del>Par</del></dd></dl>',
+			wp_kses( $html, $this->rss_dropin->get_allowed_html() )
+		);
+	}
+
+	public function test_feed_allowed_html_keeps_legacy_table_and_diff() {
+		$html = '<table class="SimpleHistoryLogitem__keyValueTable"><tbody><tr><td>Role</td><td>editor</td></tr></tbody></table>'
+			. '<table class="diff"><tbody><tr><td class="diff-deletedline">a</td><td></td><td class="diff-addedline">b</td></tr></tbody></table>';
+
+		$this->assertSame( $html, wp_kses( $html, $this->rss_dropin->get_allowed_html() ) );
+	}
 }

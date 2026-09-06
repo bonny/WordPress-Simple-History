@@ -376,46 +376,7 @@ class RSS_Dropin extends Dropin {
 							Log_Levels::get_log_level_translated( $row->level )
 						);
 
-						$wp_kses_attrs = array(
-							'a'      => array(
-								'href'            => array(),
-								'class'           => array(),
-								'data-ip-address' => array(),
-								'target'          => array(),
-								'title'           => array(),
-							),
-							'em'     => array(),
-							'span'   => array(
-								'class'       => array(),
-								'title'       => array(),
-								'aria-hidden' => array(),
-							),
-							'time'   => array(
-								'datetime' => array(),
-								'class'    => array(),
-							),
-							'strong' => array(
-								'class' => array(),
-							),
-							'div'    => array(
-								'class'    => array(),
-								'tabindex' => array(),
-							),
-							'p'      => array(),
-							'del'    => array(),
-							'ins'    => array(),
-							'table'  => array(
-								'class' => array(),
-							),
-							'tbody'  => array(),
-							'tr'     => array(),
-							'td'     => array(
-								'class' => array(),
-							),
-							'col'    => array(
-								'class' => array(),
-							),
-						);
+						$wp_kses_attrs = $this->get_allowed_html();
 						?>
 						<item>
 						<title><?php echo esc_xml( $item_title ); ?></title>
@@ -475,6 +436,63 @@ class RSS_Dropin extends Dropin {
 			</rss>
 			<?php
 		}
+	}
+
+	/**
+	 * Tags and attributes allowed in feed item bodies.
+	 *
+	 * The event details markup must survive this list: the key-value list
+	 * (dl/dt/dd since 5.33, table/tr/td before that), change markers
+	 * (ins/del) and the diff table.
+	 *
+	 * @return array<string, array<string, array>> Allowed HTML in wp_kses() format.
+	 */
+	public function get_allowed_html() {
+		return array(
+				'a'      => array(
+					'href'            => array(),
+					'class'           => array(),
+					'data-ip-address' => array(),
+					'target'          => array(),
+					'title'           => array(),
+				),
+				'em'     => array(),
+				'span'   => array(
+					'class'       => array(),
+					'title'       => array(),
+					'aria-hidden' => array(),
+				),
+				'time'   => array(
+					'datetime' => array(),
+					'class'    => array(),
+				),
+				'strong' => array(
+					'class' => array(),
+				),
+				'div'    => array(
+					'class'    => array(),
+					'tabindex' => array(),
+				),
+				'p'      => array(),
+				'del'    => array(),
+				'ins'    => array(),
+				'dl'     => array(
+					'class' => array(),
+				),
+				'dt'     => array(),
+				'dd'     => array(),
+				'table'  => array(
+					'class' => array(),
+				),
+				'tbody'  => array(),
+				'tr'     => array(),
+				'td'     => array(
+					'class' => array(),
+				),
+				'col'    => array(
+					'class' => array(),
+				),
+		);
 	}
 
 	/**
