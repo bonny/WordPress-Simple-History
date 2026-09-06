@@ -100,6 +100,12 @@ parameters:
     -
       identifier: WPCompat.functionNotAvailable
       path: inc/services/class-abilities-service.php
+    # WP_HTML_Processor is 6.4+ and grew the methods used here up to 6.6. The
+    # converter checks for the newest one before touching the class and falls
+    # back to regexes otherwise; WPCompat cannot see that guard either.
+    -
+      identifier: WPCompat.methodNotAvailable
+      path: inc/class-details-text.php
   WPCompat:
     pluginFile: index.php
     requiresAtLeast: '6.3'
