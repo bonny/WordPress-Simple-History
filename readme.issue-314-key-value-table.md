@@ -37,29 +37,22 @@ track and `minmax(0, 1fr)` for the value track gives all three properties at onc
 
 ## Change
 
-`css/styles.css`, block starting around line 736:
+Two commits plus follow-up work; the current state is:
 
--   `.SimpleHistoryLogitem__keyValueTable` → `display: grid; grid-template-columns: fit-content(min(16em, 45%)) minmax(0, 1fr)`.
--   `> tbody`, `> tbody > tr` → `display: contents` so the cells are the grid items.
--   Key cell keeps `text-align: right` and the grey colour, loses `min-width` and
-    `padding-right` (replaced by `column-gap: 1em`), gains `overflow-wrap: anywhere`.
--   Selectors use child combinators so the nested `<table class="diff">` inside a value
-    cell (post content diffs) is untouched.
-
-The 45% clamp only bites on narrow viewports (below ~560px content width).
-
-Markup is unchanged. Every producer of this table in core emits two `<td>` per row and
-no `colspan`/`<th>`: the two group formatters in `inc/event-details/`, the hand-built rows
-in `loggers/class-post-logger.php`. Premium does not use the class at all.
-
-### Accessibility note
-
-`display: contents` on `<tbody>`/`<tr>` historically dropped table semantics from the
-accessibility tree in Chromium and Safari. Both fixed this in 2023 (Chromium 118-ish,
-Safari 17); Firefox never had the bug. The table carries no `<th>`, caption or headers, so
-what a screen reader could lose is "table, 2 columns, N rows" navigation, not labelling.
-If this ever matters, the fallback is `role="table"/"row"/"cell"` attributes in the two
-formatters, which browsers keep regardless of `display`.
+- **Markup**: `<dl class="SimpleHistoryLogitem__keyValueTable"><dt>key</dt><dd>value</dd>…</dl>`,
+  produced by the two group formatters, four row formatters, and the hand-built rows in the
+  post, ACF and options loggers. The class name keeps "Table" for third-party CSS.
+- **CSS** (`css/styles.css` around line 736): grid on the `<dl>` with
+  `grid-template-columns: fit-content(min(16em, 45%)) minmax(0, 1fr)`; `dt` right-aligned.
+  A `<table>` block below it lays out pre-5.33 markup from third-party loggers the same way.
+- **Legacy rows through the post-updated filter**: if a callback appends `<tr>` rows, the
+  post logger renders the whole list as a table instead of a `<dl>` (browsers drop `tr`/`td`
+  inside a `dl`). Detection is a `<tr` count before vs after the filter.
+- **Plain text** (`inc/class-details-text.php`, used by `Event::get_details_text()`):
+  parsed with `WP_HTML_Processor`, falling back to a few simple regexes on WordPress
+  without it (6.3) or where it refuses the markup (tables before 6.7). Both paths are
+  tested against the same fixtures in `tests/wpunit/DetailsTextTest.php`.
+- **RSS**: `dl`/`dt`/`dd` added to the feed's kses allowlist.
 
 ## Test data
 
@@ -114,3 +107,78 @@ Simple History settings modified, template part updated) are stored in the Obsid
 and embedded in issue 314. The "before" shots were taken on the new build with the old
 rules re-applied through an injected stylesheet, so both halves of each pair show the same
 event and timestamp.
+
+## Markup switch: `<table>` → `<dl>` (second step, uncommitted)
+
+Decided with Pär after the CSS commit: since the layout is a grid anyway, use the
+element that means "key-value pairs" and drop `display: contents` on table rows.
+
+Markup is now `<dl class="SimpleHistoryLogitem__keyValueTable"><dt>key</dt><dd>value</dd>…</dl>`,
+`dt`/`dd` as direct children (no per-row wrapper), so they are the grid items directly.
+The class name keeps "Table" so third-party CSS and loggers keep working.
+
+Changed producers:
+
+- `inc/event-details/`: both group formatters (wrapper), the four row formatters
+  (table row, diff row, image-diff row, raw row). The raw row formatter is used by the
+  Debug & Monitor add-on, which therefore gets the new markup without a change of its own.
+- `loggers/class-post-logger.php`: 7 hand-built rows + wrapper, `extra_diff_record()`.
+  The `simple_history/post_logger/post_updated/diff_table_output` filter now carries
+  `<dt>/<dd>` pairs; its docblock says so and warns not to mix in `<tr>`.
+- `loggers/class-plugin-acf-logger.php` (5 rows, appended via that filter),
+  `loggers/class-options-logger.php` (4 rows in a deprecated method).
+- `inc/class-event.php` `get_details_text()`: converts `<dt>/<dd>` to "Label: Value" for
+  plain-text output (Copy as text, abilities). The `<tr><td>` branch stays for legacy markup.
+- `dropins/class-rss-dropin.php`: `dl`/`dt`/`dd` added to the kses allowlist. Without it
+  the feed stripped the new tags and ran keys and values together. Verified in the
+  worktree feed: 10 lists, 39 rows, 0 tables.
+- `css/styles.css`: grid on the `<dl>`; the `<table>` rules are kept below it as a
+  fallback for third-party loggers still emitting the old markup.
+- Tests: `Event_Details_*Test`, `PostLoggerFeaturedImageDiffTest` assertions moved from
+  `<tr>/<td>` to `<dt>/<dd>`.
+
+Verified: full wpunit suite 1278 tests, one failure (`PostLoggerFeaturedImageDiffTest`)
+fixed by updating its assertion and re-run green. phpstan clean, phpcs clean on all
+changed PHP files, stylelint clean in the edited CSS range.
+
+### Running wpunit from this worktree
+
+The repo's `compose.yaml` hard-codes container names, so it cannot run next to the main
+checkout's stack. An override with `sh314-*` names, port 9314 and main's `vendor/`
+bind-mounted (the worktree's `vendor` is a host symlink the container cannot follow)
+lives in the session scratchpad as `compose.sh314.yml`. `tests_db` had to be created by
+hand in the fresh MariaDB. Stop it with
+`docker compose -p sh314 down -v` from the worktree when done.
+
+## Code review follow-ups (2026-09-06)
+
+`/code-review` on the `<dl>` switch found ten things; 1–7 fixed, 8–10 left as follow-ups:
+
+1. Acceptance helper `seeInLogKeyValueTable()` and three Playwright locators selected
+   `… tr`; now select the `.SimpleHistoryLogitem__keyValueTable` element.
+2. Legacy `<tr>` rows appended through the post-updated filter: the post logger now counts
+   `<tr` before/after the filter and renders the whole list as a table if a callback added
+   rows (see "Change" above).
+3. Changelog entries added (Changed ×2, Fixed ×1).
+4. `get_details_text()` dropped a value of `"0"` (`empty()`): fixed, `=== ''` now.
+5. No coverage for plain-text conversion: `tests/wpunit/DetailsTextTest.php` runs ten
+   fixtures through both converters plus one end-to-end `Event::get_details_text()` check.
+6. Screen-reader group titles ran into the first key: both converters drop
+   `.screen-reader-text` elements of any tag.
+7. The alternation regex is gone. Plain text is now produced by `Details_Text`, which
+   walks the markup with `WP_HTML_Processor` (WP ≥ 6.6, falls back when the processor
+   reports an error on older tag support) and otherwise uses a handful of single-purpose
+   regexes. phpstan needed a scoped `WPCompat.methodNotAvailable` ignore for that file.
+
+Not done: 8 (delete or harden the `<table>` CSS fallback), 9 (a shared row-template helper
+for the 20 hand-written `<dt>/<dd>` literals), 10 (dev logger nits: example 15 sorts last,
+`__( '{example_title}' )` could be `$logger->info()`).
+
+Also tested afterwards: the post logger's legacy-row fallback and its default `<dl>` output
+(`PostLoggerEventDetailsTest`), and the RSS feed's kses allowlist keeping `dl`/`dt`/`dd`,
+the legacy table and the diff table (`RSSDropinIntegrationTest`; the allowlist moved out of
+the per-item loop into `RSS_Dropin::get_allowed_html()` to make it reachable).
+
+Verified after the fixes: full wpunit suite green (1313 tests, 35 new), phpstan clean,
+phpcs clean on all changed PHP. Acceptance and Playwright suites not run here (need the
+main docker stack / a Playwright run); their selectors were fixed by inspection.
