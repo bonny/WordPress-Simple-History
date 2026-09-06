@@ -247,15 +247,6 @@ class Helpers {
 	 * @return array
 	 */
 	public static function get_ip_number_header_names() {
-		// Memoized: called once per event when rendering REST list
-		// responses (via get_event_ip_number_headers()), which adds up on
-		// busy endpoints. The header list is stable for the request.
-		static $cached = null;
-
-		if ( $cached !== null ) {
-			return $cached;
-		}
-
 		$headers = array(
 			'HTTP_CLIENT_IP',
 			'HTTP_X_FORWARDED_FOR',
@@ -275,8 +266,7 @@ class Helpers {
 			$headers,
 		);
 
-		$cached = $headers;
-		return $cached;
+		return $headers;
 	}
 
 	/**
@@ -1835,22 +1825,10 @@ class Helpers {
 	 * @return bool
 	 */
 	public static function experimental_features_is_enabled() {
-		// Request-scoped cache: this is called from per-event REST response
-		// shaping (paginated list responses → 25× per request) and from
-		// several admin-page boot paths. The underlying option is autoloaded
-		// and the filter shouldn't return different values within a single
-		// request, so a static cache trims a measurable amount of repeated
-		// lookups without changing semantics.
-		static $cached = null;
-
-		if ( $cached === null ) {
-			$cached = (bool) apply_filters(
-				'simple_history/experimental_features_enabled',
-				get_option( 'simple_history_experimental_features_enabled', 0 )
-			);
-		}
-
-		return $cached;
+		return (bool) apply_filters(
+			'simple_history/experimental_features_enabled',
+			get_option( 'simple_history_experimental_features_enabled', 0 )
+		);
 	}
 
 	/**
@@ -2498,17 +2476,7 @@ class Helpers {
 	 * @return bool True if premium add-on is active, false otherwise.
 	 */
 	public static function is_premium_add_on_active() {
-		// Memoized per request: called once per event when rendering REST
-		// list responses (gates the `network_fallback` field), which adds
-		// up on busy endpoints. The result can't change within a single
-		// request, so a static cache is safe.
-		static $cached = null;
-
-		if ( $cached === null ) {
-			$cached = self::is_plugin_active( 'simple-history-premium/simple-history-premium.php' );
-		}
-
-		return $cached;
+		return self::is_plugin_active( 'simple-history-premium/simple-history-premium.php' );
 	}
 
 	/**
