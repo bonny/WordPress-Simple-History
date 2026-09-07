@@ -167,11 +167,18 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 *     ];
 		 *
 		 * @since 5.24.0
+		 * @since 5.27.0 The controller instance is passed as the third argument.
 		 *
-		 * @param array    $details Array of detail items.
-		 * @param \WP_User $user    The WordPress user object.
+		 * @param array                       $details    Array of detail items.
+		 * @param \WP_User                    $user       The WordPress user object.
+		 * @param WP_REST_User_Card_Controller $controller The controller serving this card. Call its
+		 *                                                 get_last_login_session() / get_last_event() /
+		 *                                                 get_user_event_count() helpers through this
+		 *                                                 instance so the numbers come from the log the
+		 *                                                 card is actually showing — the network card is
+		 *                                                 a subclass reading different tables.
 		 */
-		$data['details'] = apply_filters( 'simple_history/user_card/details', $details, $user );
+		$data['details'] = apply_filters( 'simple_history/user_card/details', $details, $user, $this );
 
 		// Actions: links shown in the actions section of the card.
 		// Each item: [ 'key' => string, 'label' => string, 'url' => string ].
@@ -257,11 +264,16 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 * and optionally type (string: 'text', 'date', or 'stat').
 		 *
 		 * @since 5.25.0
+		 * @since 5.27.0 The controller instance is passed as the third argument.
 		 *
-		 * @param array  $details Array of detail items.
-		 * @param string $type    The initiator type (wp, wp_cli, web_user, other).
+		 * @param array                       $details    Array of detail items.
+		 * @param string                      $type       The initiator type (wp, wp_cli, web_user, other).
+		 * @param WP_REST_User_Card_Controller $controller The controller serving this card. Call its
+		 *                                                 get_initiator_card_stats() through this instance
+		 *                                                 so the numbers come from the log the card is
+		 *                                                 actually showing.
 		 */
-		$details = apply_filters( 'simple_history/initiator_card/details', $details, $type );
+		$details = apply_filters( 'simple_history/initiator_card/details', $details, $type, $this );
 
 		$data = [
 			'initiator'          => $type,
@@ -314,6 +326,33 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Build the Log_Query used by this controller's helpers.
+	 *
+	 * A seam, not a convenience: subclasses that serve a different log —
+	 * Premium's network user card, for one — override this so every
+	 * counter below reads their tables instead of the per-site ones.
+	 *
+	 * @since 5.27.0
+	 * @return Log_Query
+	 */
+	protected function create_log_query() {
+		return new Log_Query();
+	}
+
+	/**
+	 * The events table this controller's raw queries read from.
+	 *
+	 * Companion seam to create_log_query() for the one helper that talks
+	 * to $wpdb directly.
+	 *
+	 * @since 5.27.0
+	 * @return string
+	 */
+	protected function get_events_table_name() {
+		return Simple_History::get_instance()->get_events_table_name();
+	}
+
+	/**
 	 * Get the last login date for a user from Simple History logs.
 	 *
 	 * Useful for add-ons that want to show login time in the user card
@@ -322,8 +361,8 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param int $user_id WordPress user ID.
 	 * @return string|null Date string in site local timezone, or null if no login found.
 	 */
-	public static function get_last_login( $user_id ) {
-		return self::get_most_recent_event_date( $user_id, 'SimpleUserLogger:user_logged_in' );
+	public function get_last_login( $user_id ) {
+		return $this->get_most_recent_event_date( $user_id, 'SimpleUserLogger:user_logged_in' );
 	}
 
 	/**
@@ -336,8 +375,8 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param int $period_days Number of days to look back (including today).
 	 * @return int Number of events found.
 	 */
-	public static function get_user_event_count( $user_id, $period_days ) {
-		$log_query = new Log_Query();
+	public function get_user_event_count( $user_id, $period_days ) {
+		$log_query = $this->create_log_query();
 
 		$date_from = Date_Helper::get_last_n_days_start_timestamp( $period_days );
 
@@ -359,8 +398,8 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param int $user_id WordPress user ID.
 	 * @return int Number of events found.
 	 */
-	public static function get_user_total_event_count( $user_id ) {
-		$log_query = new Log_Query();
+	public function get_user_total_event_count( $user_id ) {
+		$log_query = $this->create_log_query();
 
 		$query_result = $log_query->query(
 			[
@@ -382,8 +421,8 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param int $user_id WordPress user ID.
 	 * @return string|null Date string in site local timezone, or null if no events found.
 	 */
-	public static function get_last_event( $user_id ) {
-		return self::get_most_recent_event_date( $user_id );
+	public function get_last_event( $user_id ) {
+		return $this->get_most_recent_event_date( $user_id );
 	}
 
 	/**
@@ -399,10 +438,10 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
 	 * @return array { last_event: string|null (ISO 8601 UTC), today: int, last_7_days: int, total: int }
 	 */
-	public static function get_initiator_card_stats( $initiator_type ) {
+	public function get_initiator_card_stats( $initiator_type ) {
 		global $wpdb;
 
-		$table           = \Simple_History\Simple_History::get_instance()->get_events_table_name();
+		$table           = $this->get_events_table_name();
 		$today_start_gmt = gmdate( 'Y-m-d H:i:s', Date_Helper::get_last_n_days_start_timestamp( 1 ) );
 		$week_start_gmt  = gmdate( 'Y-m-d H:i:s', Date_Helper::get_last_n_days_start_timestamp( Date_Helper::DAYS_PER_WEEK ) );
 
@@ -504,8 +543,8 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @return array|null { date: string, ip: string|null, user_agent: string|null }
 	 *                   or null if no login event was found.
 	 */
-	public static function get_last_login_session( $user_id ) {
-		$log_query = new Log_Query();
+	public function get_last_login_session( $user_id ) {
+		$log_query = $this->create_log_query();
 
 		$query_result = $log_query->query(
 			[
@@ -539,8 +578,8 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * @param string|null $messages Optional message filter (e.g. 'SimpleUserLogger:user_logged_in').
 	 * @return string|null Date string in site local timezone, or null if no events found.
 	 */
-	private static function get_most_recent_event_date( $user_id, $messages = null ) {
-		$log_query = new Log_Query();
+	private function get_most_recent_event_date( $user_id, $messages = null ) {
+		$log_query = $this->create_log_query();
 
 		$args = [
 			'user'             => $user_id,

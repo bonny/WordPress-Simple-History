@@ -117,6 +117,11 @@ class Simple_History {
 		 */
 		do_action( 'simple_history/before_init', $this );
 
+		// Must run before anything reads from the object cache: a global
+		// group only counts as global for lookups made after it was
+		// registered.
+		Helpers::register_cache_groups();
+
 		$this->setup_db_variables();
 
 		// Load services that are required for Simple History to work.
@@ -1646,6 +1651,14 @@ class Simple_History {
 	private $network_tables = null;
 
 	/**
+	 * Callback that (re)creates the network tables, registered alongside
+	 * them by the provider. Null when no provider registered one.
+	 *
+	 * @var callable|null
+	 */
+	private $network_tables_recreate_callback = null;
+
+	/**
 	 * Factory for a network-scoped Log_Query, registered by an add-on.
 	 *
 	 * @var callable|null
@@ -1668,11 +1681,12 @@ class Simple_History {
 	 * downstream can embed them safely.
 	 *
 	 * @since 5.27.0
-	 * @param string $events_table   Fully-qualified network events table name.
-	 * @param string $contexts_table Fully-qualified network contexts table name.
+	 * @param string        $events_table   Fully-qualified network events table name.
+	 * @param string        $contexts_table Fully-qualified network contexts table name.
+	 * @param callable|null $recreate       Optional callback that (re)creates the two tables. Called when a query or a write hits a "table doesn't exist" error. Should return truthy when the tables were created.
 	 * @return bool True on success, false if either identifier is invalid.
 	 */
-	public function set_network_tables( string $events_table, string $contexts_table ): bool {
+	public function set_network_tables( string $events_table, string $contexts_table, ?callable $recreate = null ): bool {
 		if (
 			! preg_match( '/^[A-Za-z0-9_]+$/', $events_table )
 			|| ! preg_match( '/^[A-Za-z0-9_]+$/', $contexts_table )
@@ -1685,7 +1699,26 @@ class Simple_History {
 			'contexts' => $contexts_table,
 		];
 
+		$this->network_tables_recreate_callback = $recreate;
+
 		return true;
+	}
+
+	/**
+	 * Get the callback that recreates the network tables, or null when the
+	 * provider did not register one.
+	 *
+	 * Core's own missing-table recovery (Setup_Database) knows nothing about
+	 * these tables — it would reset the per-site schema version and re-run
+	 * the per-site setup, leaving the network table just as missing. So
+	 * recovery for the network tables goes through the provider, or does not
+	 * happen at all.
+	 *
+	 * @since 5.27.0
+	 * @return callable|null
+	 */
+	public function get_network_tables_recreate_callback() {
+		return $this->network_tables_recreate_callback;
 	}
 
 	/**

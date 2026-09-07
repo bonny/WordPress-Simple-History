@@ -91,6 +91,37 @@ class Event {
 	}
 
 	/**
+	 * Whether this event is loaded from something other than the per-site
+	 * events table — i.e. from the shared network tables a subclass points
+	 * it at.
+	 *
+	 * @since 5.27.0
+	 * @return bool
+	 */
+	protected function is_network_event(): bool {
+		return $this->get_events_table_name() !== Simple_History::get_instance()->get_events_table_name();
+	}
+
+	/**
+	 * Invalidate the cache this event's data lives in.
+	 *
+	 * Events read from the shared network tables are cached under the
+	 * network incrementor, so clearing the per-site cache would leave a
+	 * stale copy behind after sticking or reacting to a network event.
+	 *
+	 * @since 5.27.0
+	 */
+	private function clear_cache_for_this_event(): void {
+		if ( $this->is_network_event() ) {
+			Helpers::clear_network_cache();
+
+			return;
+		}
+
+		Helpers::clear_cache();
+	}
+
+	/**
 	 * Constructor for existing events.
 	 *
 	 * @param int|null $event_id Event ID. If null, creates an empty event instance.
@@ -480,10 +511,18 @@ class Event {
 	 * @return bool True if event exists and data was loaded, false if event does not exist.
 	 */
 	private function load_data(): bool {
-		// Create cache key based on event ID.
+		// Create cache key based on event ID and the table it is read from.
+		// Event IDs restart at 1 in every table, so a subclass reading the
+		// shared network tables would otherwise share one cache entry with
+		// the per-site event of the same numeric ID.
+		$cache_key_parts = [
+			'event_id'     => $this->id,
+			'events_table' => $this->get_events_table_name(),
+		];
+
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		$cache_key   = md5( __METHOD__ . serialize( [ 'event_id' => $this->id ] ) );
-		$cache_group = Helpers::get_cache_group();
+		$cache_key   = md5( __METHOD__ . serialize( $cache_key_parts ) );
+		$cache_group = Helpers::get_cache_group( $this->is_network_event() );
 
 		// Try to get cached data first.
 		$cached_data = wp_cache_get( $cache_key, $cache_group );
@@ -698,7 +737,7 @@ class Event {
 
 		if ( $result ) {
 			// Clear cache to ensure all related data is fresh.
-			Helpers::clear_cache();
+			$this->clear_cache_for_this_event();
 
 			// Reload data to reflect changes.
 			$this->reload_data();
@@ -729,7 +768,7 @@ class Event {
 
 		if ( $result ) {
 			// Clear cache to ensure all related data is fresh.
-			Helpers::clear_cache();
+			$this->clear_cache_for_this_event();
 
 			// Reload data to reflect changes.
 			$this->reload_data();
@@ -844,7 +883,7 @@ class Event {
 		);
 
 		// Clear cache so reloads get fresh data.
-		Helpers::clear_cache();
+		$this->clear_cache_for_this_event();
 
 		// If no reactions left, we're done.
 		if ( empty( $reactions ) ) {
