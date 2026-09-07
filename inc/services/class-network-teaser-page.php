@@ -27,7 +27,7 @@ class Network_Teaser_Page extends Service {
 		// features flag while the premium add-on lands.
 		// TODO: remove this gate once the premium network module ships
 		// (tracked alongside the Premium network module release).
-		if ( ! Helpers::experimental_features_is_enabled() ) {
+		if ( ! Helpers::network_experimental_features_is_enabled() ) {
 			return;
 		}
 

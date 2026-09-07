@@ -1965,6 +1965,29 @@ class Helpers {
 	}
 
 	/**
+	 * Returns true if Experimental Features is active for the network.
+	 *
+	 * The flag is a per-site option, but the network log is one thing for
+	 * the whole network: a provider that only hooks in on sites where the
+	 * flag happens to be set would miss events triggered on the others.
+	 * So on a multisite the main site's flag decides, wherever the request
+	 * runs. On a single site this is the ordinary check.
+	 *
+	 * @since 5.33.0
+	 * @return bool
+	 */
+	public static function network_experimental_features_is_enabled() {
+		if ( ! is_multisite() || is_main_site() ) {
+			return self::experimental_features_is_enabled();
+		}
+
+		return (bool) apply_filters(
+			'simple_history/experimental_features_enabled',
+			get_blog_option( get_main_site_id(), 'simple_history_experimental_features_enabled', 0 )
+		);
+	}
+
+	/**
 	 * Returns true if event reactions are enabled.
 	 *
 	 * Enabled by default; can be turned off in Settings → General. The reaction
@@ -2632,7 +2655,7 @@ class Helpers {
 	 * @return string|null Network admin page URL, or null if not available.
 	 */
 	public static function get_network_history_admin_url() {
-		if ( ! is_multisite() || ! current_user_can( 'manage_network' ) || ! self::experimental_features_is_enabled() ) {
+		if ( ! is_multisite() || ! current_user_can( 'manage_network' ) || ! self::network_experimental_features_is_enabled() ) {
 			return null;
 		}
 
