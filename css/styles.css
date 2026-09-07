@@ -3257,6 +3257,11 @@ a.sh-SettingsTabs-link:hover {
 	margin-bottom: 1rem;
 }
 
+/* Licenses tab: expired, disabled or invalid key. Color plus text, never color alone. */
+.sh-LicencesPage-plugin-active--problem {
+	color: #b32d2e;
+}
+
 .sh-FeedIntroduction {
 	background: #f6f7f7;
 	border-radius: var(--sh-border-radius);

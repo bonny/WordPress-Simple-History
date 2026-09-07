@@ -357,17 +357,46 @@ class Licences_Settings_Page extends Service {
 				</p>
 	
 				<?php
-				// Show deactivate key button if key is activated.
+				// Show license status if key is activated.
 				if ( $licence_message['key_activated'] === true ) {
+					$license_state = $plus_plugin->get_license_state();
+					$is_ok         = $license_state['state'] === 'active';
+
+					// Expired keys can be renewed. Disabled (refunded) and unknown keys
+					// cannot, so those get the support page instead of a sales page.
+					if ( $license_state['state'] === 'expired' ) {
+						$help_url   = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'premium_license_renew' );
+						$help_label = __( 'Renew license', 'simple-history' );
+					} else {
+						$help_url   = Helpers::get_tracking_url( 'https://simple-history.com/support/', 'premium_license_help' );
+						$help_label = __( 'Get help', 'simple-history' );
+					}
 					?>
-					<p class="sh-LicencesPage-plugin-active">
+					<p class="sh-LicencesPage-plugin-active <?php echo $is_ok ? '' : 'sh-LicencesPage-plugin-active--problem'; ?>">
 						<?php
-						echo wp_kses(
-							__( 'License key is <strong>active</strong>. ', 'simple-history' ),
-							[
-								'strong' => [],
-							]
-						);
+						if ( $is_ok ) {
+							echo wp_kses(
+								__( 'License key is <strong>active</strong>.', 'simple-history' ),
+								[ 'strong' => [] ]
+							);
+						} else {
+							echo wp_kses(
+								__( 'License key is <strong>not active</strong>.', 'simple-history' ),
+								[ 'strong' => [] ]
+							);
+						}
+
+						echo ' ';
+						echo esc_html( $plus_plugin->get_license_state_description() );
+
+						if ( ! $is_ok ) {
+							echo ' ';
+							printf(
+								'<a href="%s" class="sh-ExternalLink" target="_blank">%s</a>',
+								esc_url( $help_url ),
+								esc_html( $help_label )
+							);
+						}
 						?>
 					</p>
 					<?php
