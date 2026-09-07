@@ -71,6 +71,7 @@ class Export {
 	 * against the network event tables via the `simple_history/export/log_query`
 	 * filter.
 	 *
+	 * @since 5.33.0
 	 * @param bool $is_network Whether the export is network-scoped.
 	 * @return self Chainable method.
 	 */

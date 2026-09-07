@@ -1576,6 +1576,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * Marked protected so REST controller subclasses can share the same
 	 * allow-list when registering their own routes.
 	 *
+	 * @since 5.33.0 Protected instead of private.
 	 * @return array List of allowed reaction type strings.
 	 */
 	protected function get_allowed_reaction_types(): array {
