@@ -46,11 +46,10 @@ Four tasks; this branch covers Task 1 only.
         counting as active, null/malformed responses keeping previous state,
         never creating a license for a site without one, description text per
         state, and deactivation clearing status + updater cache.
+-   Task 2: updater stores license, 401 bodies accepted + cached 1h.
 
 ## Not done yet (later tasks in the plan)
 
--   Task 2: `Plugin_Updater` calls `update_license_status_from_response()` from
-    the update-check response (200 and 401).
 -   Task 3: Licenses tab renders `get_license_state_description()` with a
     renew/support link.
 -   Task 4: changelog entry, full phpcs/phpstan/wpunit run, `npm run addons:check`.

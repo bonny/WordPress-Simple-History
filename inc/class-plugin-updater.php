@@ -68,19 +68,26 @@ class Plugin_Updater {
 	}
 
 	/**
+	 * The add-on this updater serves, for reading and refreshing its license.
+	 *
+	 * @return AddOn_Plugin
+	 */
+	protected function get_addon_plugin() {
+		return new AddOn_Plugin(
+			$this->plugin_id,
+			$this->plugin_slug,
+			$this->version,
+		);
+	}
+
+	/**
 	 * Get the license key. Normally, your plugin would have a settings page where
 	 * you ask for and store a license key. Fetch it here.
 	 *
 	 * @return string
 	 */
 	protected function get_license_key() {
-		$plus_plugin = new AddOn_Plugin(
-			$this->plugin_id,
-			$this->plugin_slug,
-			$this->version,
-		);
-
-		return $plus_plugin->get_license_key();
+		return $this->get_addon_plugin()->get_license_key();
 	}
 
 	/**
@@ -123,23 +130,58 @@ class Plugin_Updater {
 			]
 		);
 
-		if (
-			is_wp_error( $remote )
-			|| wp_remote_retrieve_response_code( $remote ) !== 200
-			|| empty( wp_remote_retrieve_body( $remote ) )
-		) {
+		if ( is_wp_error( $remote ) || empty( wp_remote_retrieve_body( $remote ) ) ) {
 			// Cache errors for 10 minutes.
 			set_transient( $this->cache_key, 'error', MINUTE_IN_SECONDS * 10 );
 
 			return false;
 		}
 
-		$payload = wp_remote_retrieve_body( $remote );
+		$response_code = wp_remote_retrieve_response_code( $remote );
+		$payload       = wp_remote_retrieve_body( $remote );
+		$decoded       = json_decode( $payload );
+
+		// 200 is an update answer. 401 is the endpoint's answer for a key that
+		// is expired, disabled or unknown, and since issue 315 it carries the
+		// key's status too. Anything else, or a non-JSON body from an older
+		// server, is an error like before.
+		if ( ! in_array( $response_code, [ 200, 401 ], true ) || ! is_object( $decoded ) ) {
+			// Cache errors for 10 minutes.
+			set_transient( $this->cache_key, 'error', MINUTE_IN_SECONDS * 10 );
+
+			return false;
+		}
+
+		$this->store_license_from_payload( $decoded );
+
+		if ( $response_code !== 200 ) {
+			// Cache the refusal too, so an expired key does not re-validate on every check.
+			set_transient( $this->cache_key, $payload, HOUR_IN_SECONDS );
+
+			return $decoded;
+		}
 
 		// Cache response for 1 hour.
 		set_transient( $this->cache_key, $payload, HOUR_IN_SECONDS );
 
-		return json_decode( $payload );
+		return $decoded;
+	}
+
+	/**
+	 * Hand the `license` object from an update response to the add-on.
+	 *
+	 * Older servers send no such key and newer ones send null when Lemon
+	 * Squeezy could not be reached; both leave the stored state untouched.
+	 *
+	 * @param object $decoded Decoded update response.
+	 * @return void
+	 */
+	private function store_license_from_payload( $decoded ) {
+		if ( ! isset( $decoded->license ) || ! is_object( $decoded->license ) ) {
+			return;
+		}
+
+		$this->get_addon_plugin()->update_license_status_from_response( (array) $decoded->license );
 	}
 
 	/**
