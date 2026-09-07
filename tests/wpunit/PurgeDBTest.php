@@ -35,9 +35,27 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 	public function tearDown(): void {
 		remove_all_filters( 'simple_history/purge_db_where' );
 		remove_all_filters( 'simple_history/db_purge_days_interval' );
+		remove_all_filters( 'simple_history/network/db_purge_days' );
 		remove_all_filters( 'simple_history/log_argument/context' );
 		remove_all_actions( 'simple_history/db/purge_done' );
+		remove_all_actions( 'simple_history/db/network_purge_done' );
+		remove_all_actions( 'simple_history/db/events_purged' );
+		remove_all_actions( 'simple_history/db/network_events_purged' );
+
+		delete_site_option( 'simple_history_network_retention_days' );
+		$this->reset_network_tables_registration();
+
 		parent::tearDown();
+	}
+
+	/**
+	 * Simple_History is a singleton, so network tables registered by one
+	 * test would otherwise leak into every test that runs after it.
+	 */
+	private function reset_network_tables_registration(): void {
+		$prop = new ReflectionProperty( Simple_History::class, 'network_tables' );
+		$prop->setAccessible( true );
+		$prop->setValue( $this->simple_history, null );
 	}
 
 	/**
@@ -384,9 +402,10 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * When no provider has registered network tables, the network branch
-	 * must not fire — the purge_done action fires exactly once, with
-	 * $is_network === false.
+	 * purge_done keeps its original contract: it fires exactly once per
+	 * run, for the per-site tables, with ($days, $total_rows). The network
+	 * tables have their own action, so a callback that counts purges or
+	 * logs the result doesn't start firing twice on multisite.
 	 */
 	public function test_purge_done_fires_only_once_when_no_network_tables_registered() {
 		add_filter( 'simple_history/db_purge_days_interval', fn() => 30 );
@@ -395,11 +414,11 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 
 		add_action(
 			'simple_history/db/purge_done',
-			function ( $days, $total_rows, $is_network ) use ( &$calls ) {
-				$calls[] = [ 'total' => $total_rows, 'is_network' => $is_network ];
+			function ( $days, $total_rows ) use ( &$calls ) {
+				$calls[] = [ 'days' => $days, 'total' => $total_rows ];
 			},
 			10,
-			3
+			2
 		);
 
 		$this->add_event_days_ago( 'Old event', 60 );
@@ -407,7 +426,32 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 		$this->purge_service->purge_db();
 
 		$this->assertCount( 1, $calls, 'purge_done should fire once when no network tables are registered.' );
-		$this->assertFalse( $calls[0]['is_network'], 'is_network must be false for the per-site purge.' );
+		$this->assertSame( 30, $calls[0]['days'], 'purge_done must receive the per-site retention.' );
+	}
+
+	/**
+	 * Same, but with a provider registered: purge_done must still fire
+	 * exactly once. The network pair gets network_purge_done instead.
+	 */
+	public function test_purge_done_fires_once_when_network_tables_are_registered() {
+		add_filter( 'simple_history/db_purge_days_interval', fn() => 30 );
+
+		$this->simple_history->set_network_tables( 'wp_events_network', 'wp_contexts_network' );
+
+		$calls = 0;
+
+		add_action(
+			'simple_history/db/purge_done',
+			function () use ( &$calls ) {
+				++$calls;
+			}
+		);
+
+		$this->add_event_days_ago( 'Old event', 60 );
+
+		$this->purge_service->purge_db();
+
+		$this->assertSame( 1, $calls, 'purge_done must fire exactly once per run, also when network tables are registered.' );
 	}
 
 	/**
@@ -420,7 +464,7 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 	 * the schema the Premium network module would register) without
 	 * needing a multisite fixture.
 	 */
-	public function test_purge_table_pair_purges_alt_tables_and_passes_is_network_flag() {
+	public function test_purge_table_pair_purges_alt_tables_and_fires_the_network_actions() {
 		global $wpdb;
 
 		$alt_events   = $wpdb->prefix . 'sh_test_purge_alt_events';
@@ -468,15 +512,33 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 		$wpdb->insert( $alt_events, [ 'date' => $new_date, 'logger' => 'SimpleLogger', 'level' => 'info', 'message' => 'new' ] );
 		$new_id = (int) $wpdb->insert_id;
 
-		$captured = [];
+		$captured           = [];
+		$captured_batches   = [];
+		$per_site_done_runs = 0;
+
+		add_action(
+			'simple_history/db/network_purge_done',
+			function ( $days, $total_rows ) use ( &$captured ) {
+				$captured[] = [ 'days' => $days, 'total' => $total_rows ];
+			},
+			10,
+			2
+		);
+
+		add_action(
+			'simple_history/db/network_events_purged',
+			function ( $days, $num_rows ) use ( &$captured_batches ) {
+				$captured_batches[] = $num_rows;
+			},
+			10,
+			2
+		);
 
 		add_action(
 			'simple_history/db/purge_done',
-			function ( $days, $total_rows, $is_network ) use ( &$captured ) {
-				$captured[] = [ 'days' => $days, 'total' => $total_rows, 'is_network' => $is_network ];
-			},
-			10,
-			3
+			function () use ( &$per_site_done_runs ) {
+				++$per_site_done_runs;
+			}
 		);
 
 		$method = new ReflectionMethod( Setup_Purge_DB_Cron::class, 'purge_table_pair' );
@@ -491,9 +553,10 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 		$orphan_contexts = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$alt_contexts} WHERE history_id = {$old_id}" );
 		$this->assertSame( 0, $orphan_contexts, 'Context rows for the deleted event must be removed.' );
 
-		$this->assertCount( 1, $captured, 'purge_done must fire exactly once.' );
+		$this->assertCount( 1, $captured, 'network_purge_done must fire exactly once.' );
 		$this->assertSame( 1, $captured[0]['total'], 'Total deleted should match the single old event.' );
-		$this->assertTrue( $captured[0]['is_network'], 'is_network must be propagated through to the action.' );
+		$this->assertSame( [ 1 ], $captured_batches, 'network_events_purged must fire per batch with the batch count.' );
+		$this->assertSame( 0, $per_site_done_runs, 'The per-site purge_done must not fire for a network table pair.' );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query( "DROP TABLE IF EXISTS {$alt_events}" );
@@ -550,6 +613,132 @@ class PurgeDBTest extends \Codeception\TestCase\WPTestCase {
 			$captured_context,
 			'Per-site purge log entry must not carry the network scope hint.'
 		);
+	}
+
+	/**
+	 * The shared network log is not governed by whichever site happened to
+	 * run the cron job: it reads its own site option and its own filter,
+	 * and the per-site retention filter must not reach it.
+	 */
+	public function test_network_retention_is_independent_of_the_per_site_retention() {
+		add_filter( 'simple_history/db_purge_days_interval', fn() => 7 );
+
+		$this->assertSame(
+			60,
+			Helpers::get_network_clear_history_interval(),
+			'Network retention must fall back to its own default, not to the per-site setting.'
+		);
+
+		update_site_option( 'simple_history_network_retention_days', 120 );
+
+		$this->assertSame(
+			120,
+			Helpers::get_network_clear_history_interval(),
+			'Network retention must come from the simple_history_network_retention_days site option.'
+		);
+
+		add_filter( 'simple_history/network/db_purge_days', fn() => 5 );
+
+		$this->assertSame(
+			5,
+			Helpers::get_network_clear_history_interval(),
+			'simple_history/network/db_purge_days must be able to override the stored value.'
+		);
+
+		$this->assertSame(
+			7,
+			Helpers::get_clear_history_interval(),
+			'The network filter must not leak into the per-site retention.'
+		);
+	}
+
+	/**
+	 * Helpers::clear_network_log() mirrors clear_log() for the shared
+	 * network tables — and does nothing at all when core is running
+	 * without a provider, because then there are no network tables.
+	 */
+	public function test_clear_network_log_does_nothing_without_a_provider() {
+		$this->assertSame( 0, Helpers::clear_network_log(), 'Without a registered provider there is nothing to clear.' );
+	}
+
+	public function test_clear_network_log_truncates_the_registered_network_tables() {
+		global $wpdb;
+
+		[ $alt_events, $alt_contexts ] = $this->create_alt_tables( 'sh_test_clear_alt' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->insert( $alt_events, [ 'date' => gmdate( 'Y-m-d H:i:s' ), 'logger' => 'SimpleLogger', 'level' => 'info', 'message' => 'network event' ] );
+		$event_id = (int) $wpdb->insert_id;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->insert( $alt_contexts, [ 'history_id' => $event_id, 'key' => '_marker', 'value' => 'network' ] );
+
+		$this->simple_history->set_network_tables( $alt_events, $alt_contexts );
+
+		$removed = Helpers::clear_network_log();
+
+		$this->assertSame( 1, $removed, 'clear_network_log() must return the number of events removed.' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$this->assertSame( '0', (string) $wpdb->get_var( "SELECT COUNT(*) FROM {$alt_events}" ), 'Network events table must be empty.' );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$this->assertSame( '0', (string) $wpdb->get_var( "SELECT COUNT(*) FROM {$alt_contexts}" ), 'Network contexts table must be empty.' );
+
+		// The per-site log must be untouched.
+		$this->assertGreaterThan(
+			0,
+			Helpers::count_events(),
+			'clear_network_log() must not touch the per-site tables. (An event is logged by the setUp user creation.)'
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$alt_events}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$alt_contexts}" );
+	}
+
+	/**
+	 * Create an events/contexts table pair mirroring the schema a network
+	 * provider would register.
+	 *
+	 * @param string $base_name Table base name, without the wpdb prefix.
+	 * @return string[] Events table name, contexts table name.
+	 */
+	private function create_alt_tables( string $base_name ): array {
+		global $wpdb;
+
+		$alt_events   = $wpdb->prefix . $base_name . '_events';
+		$alt_contexts = $wpdb->prefix . $base_name . '_contexts';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query(
+			"CREATE TABLE IF NOT EXISTS {$alt_events} (
+				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				date datetime NOT NULL,
+				logger varchar(30) DEFAULT NULL,
+				level varchar(20) DEFAULT NULL,
+				message varchar(255) DEFAULT NULL,
+				occasionsID varchar(32) DEFAULT NULL,
+				initiator varchar(16) DEFAULT NULL,
+				PRIMARY KEY  (id)
+			)"
+		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query(
+			"CREATE TABLE IF NOT EXISTS {$alt_contexts} (
+				context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				history_id bigint(20) unsigned NOT NULL,
+				`key` varchar(255) DEFAULT NULL,
+				value longtext,
+				PRIMARY KEY  (context_id),
+				KEY history_id (history_id)
+			)"
+		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$alt_events}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$alt_contexts}" );
+
+		return [ $alt_events, $alt_contexts ];
 	}
 
 	/**

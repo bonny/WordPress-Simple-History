@@ -3,6 +3,7 @@
 use Simple_History\Event;
 use Simple_History\Export;
 use Simple_History\Helpers;
+use Simple_History\Log_Initiators;
 use Simple_History\Log_Query;
 use Simple_History\Loggers\Logger;
 use Simple_History\Simple_History;
@@ -10,7 +11,11 @@ use Simple_History\Simple_History;
 /**
  * Tests for the network-scoped routing primitives added in 5.13.0:
  *
- * - Logger::should_use_network_tables() decision gates
+ * - Logger::should_use_network_tables() decision gates (the per-event
+ *   _event_scope hint and the class-level $is_network_logger flag — the
+ *   only two signals; routing never sniffs the current screen)
+ * - Logger::mark_as_network_scoped(), used by the plugin and theme
+ *   handlers to declare filesystem-level events network-scoped
  * - Logger::log() routes writes to the tables registered via
  *   Simple_History::set_network_tables() (and falls back to the
  *   per-site tables when nothing is registered)
@@ -324,7 +329,10 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 
 		// No network provider registered — the event will fall back to the
 		// per-site tables. The flag is what the REST controller reads to
-		// show the small "network action" note in the React log UI.
+		// show the small "network action" note in the React log UI. It is
+		// only written for events a person caused, so log in first.
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
 		$logger = $this->make_forced_network_logger();
 		$logger->info( 'Fallback-flag event', [ 'marker' => 'flag-check' ] );
 		$event_id = (int) $logger->last_insert_id;
@@ -652,6 +660,201 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 			Helpers::get_network_history_admin_url(),
 			'On a single-site install, get_network_history_admin_url() must return null — there is no network scope to link to.'
 		);
+	}
+
+	/**
+	 * Background events — available updates, core file checks, translation
+	 * updates — are logged by whole-logger network loggers on every site,
+	 * on a schedule, with nobody watching. Flagging them would put a
+	 * "this belongs in the network log" note on a steady stream of events
+	 * no one acted on, so the flag is only written for events a person
+	 * caused.
+	 */
+	public function test_fallback_flag_is_only_written_for_events_a_person_caused(): void {
+		global $wpdb;
+
+		// Logged out, and an explicit non-user initiator: this is what a
+		// cron-driven logger looks like.
+		wp_set_current_user( 0 );
+
+		$logger = $this->make_forced_network_logger();
+		$logger->info(
+			'Background fallback event',
+			[
+				'_initiator' => Log_Initiators::WORDPRESS,
+				'marker'     => 'background-flag-check',
+			]
+		);
+		$event_id = (int) $logger->last_insert_id;
+
+		$default_contexts = Simple_History::get_instance()->get_contexts_table_name();
+
+		$flag_value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT value FROM {$default_contexts} WHERE history_id = %d AND `key` = %s",
+				$event_id,
+				'_network_fallback'
+			)
+		);
+
+		$this->assertNull( $flag_value, 'Events not caused by a user must not be tagged with _network_fallback — the note is advice for a person, and background loggers would flood the log with it.' );
+	}
+
+	/**
+	 * Routing is deterministic: the only signals are the per-event scope
+	 * hint and the class-level flag. The message-key allowlist that used
+	 * to route by message key is gone, so a logger cannot silently opt
+	 * events into the network log by name.
+	 */
+	public function test_message_key_allowlist_is_gone(): void {
+		$classes = [
+			Logger::class,
+			\Simple_History\Loggers\Plugin_Logger::class,
+			\Simple_History\Loggers\Theme_Logger::class,
+		];
+
+		foreach ( $classes as $class_name ) {
+			$this->assertFalse(
+				( new ReflectionClass( $class_name ) )->hasProperty( 'network_scoped_message_keys' ),
+				sprintf( '%s must not declare $network_scoped_message_keys — routing by message key was replaced by the explicit _event_scope hint.', $class_name )
+			);
+		}
+	}
+
+	/**
+	 * The scope hint is a multisite concept. On a single-site install the
+	 * helper must leave the context alone, so single-site logs don't grow
+	 * an _event_scope context row that means nothing there.
+	 */
+	public function test_mark_as_network_scoped_is_a_noop_on_single_site(): void {
+		$this->assertFalse( is_multisite(), 'Single-site test bed.' );
+
+		$logger  = SimpleLogger();
+		$reflect = new ReflectionMethod( $logger, 'mark_as_network_scoped' );
+		$reflect->setAccessible( true );
+
+		$context = [ 'plugin_name' => 'Some plugin' ];
+
+		$this->assertSame(
+			$context,
+			$reflect->invoke( $logger, $context ),
+			'mark_as_network_scoped() must return the context unchanged on a single-site install.'
+		);
+	}
+
+	/**
+	 * Filesystem-level plugin and theme events are network-scoped, and the
+	 * handlers say so themselves instead of routing being guessed from the
+	 * current screen. is_multisite() is false in this test bed, so the
+	 * subclasses below force the helper open; what is under test is that
+	 * the handler runs its context through the helper at all.
+	 */
+	public function test_plugin_deletion_marks_its_context_as_network_scoped(): void {
+		$logger = new class( Simple_History::get_instance() ) extends \Simple_History\Loggers\Plugin_Logger {
+			protected function mark_as_network_scoped( $context ) {
+				$context[ self::EVENT_SCOPE_CONTEXT_KEY ] = 'network';
+
+				return $context;
+			}
+
+			public function seed_plugin_data( $plugin_file, $plugin_data ) {
+				$this->plugins_data[ $plugin_file ] = $plugin_data;
+			}
+		};
+
+		$logger->seed_plugin_data(
+			'sh-probe/sh-probe.php',
+			[
+				'Name'        => 'SH Probe',
+				'Title'       => 'SH Probe',
+				'Description' => '',
+				'Author'      => '',
+				'Version'     => '1.0.0',
+				'PluginURI'   => '',
+			]
+		);
+
+		$context = $this->capture_logged_context(
+			function () use ( $logger ) {
+				$logger->on_action_deleted_plugin( 'sh-probe/sh-probe.php', true );
+			},
+			'plugin_deleted'
+		);
+
+		$this->assertIsArray( $context, 'Deleting a plugin must log a plugin_deleted event.' );
+		$this->assertSame(
+			'network',
+			$context[ Logger::EVENT_SCOPE_CONTEXT_KEY ] ?? null,
+			'Deleting plugin files affects the whole network, so the handler must mark the event as network-scoped.'
+		);
+	}
+
+	public function test_theme_deletion_marks_its_context_as_network_scoped(): void {
+		$logger = new class( Simple_History::get_instance() ) extends \Simple_History\Loggers\Theme_Logger {
+			protected function mark_as_network_scoped( $context ) {
+				$context[ self::EVENT_SCOPE_CONTEXT_KEY ] = 'network';
+
+				return $context;
+			}
+
+			public function seed_theme_data( $stylesheet, $theme_data ) {
+				$this->themes_data[ $stylesheet ] = $theme_data;
+			}
+		};
+
+		$logger->seed_theme_data(
+			'sh-probe-theme',
+			[
+				'name'        => 'SH Probe Theme',
+				'version'     => '1.0.0',
+				'author'      => '',
+				'description' => '',
+			]
+		);
+
+		$context = $this->capture_logged_context(
+			function () use ( $logger ) {
+				$logger->on_action_deleted_theme( 'sh-probe-theme', true );
+			},
+			'theme_deleted'
+		);
+
+		$this->assertIsArray( $context, 'Deleting a theme must log a theme_deleted event.' );
+		$this->assertSame(
+			'network',
+			$context[ Logger::EVENT_SCOPE_CONTEXT_KEY ] ?? null,
+			'Deleting theme files affects the whole network, so the handler must mark the event as network-scoped.'
+		);
+	}
+
+	/**
+	 * Run $callback and return the context of the event logged with
+	 * $message_key, or null if no such event was logged.
+	 *
+	 * @param callable $callback    Code that is expected to log an event.
+	 * @param string   $message_key Message key to capture.
+	 * @return array|null
+	 */
+	private function capture_logged_context( callable $callback, string $message_key ): ?array {
+		$captured = null;
+
+		$filter = function ( $context ) use ( &$captured, $message_key ) {
+			if ( ( $context['_message_key'] ?? null ) === $message_key ) {
+				$captured = $context;
+			}
+
+			return $context;
+		};
+
+		add_filter( 'simple_history/log_insert_context', $filter );
+
+		try {
+			$callback();
+		} finally {
+			remove_filter( 'simple_history/log_insert_context', $filter );
+		}
+
+		return $captured;
 	}
 
 	public function test_export_set_is_network_is_chainable_and_boolean_cast(): void {

@@ -93,6 +93,12 @@ class Setup_Purge_DB_Cron extends Service {
 	 * Removes in batches of 100 000 rows.
 	 */
 	public function purge_db() {
+		// The shared network log has its own retention and its own filters,
+		// so it is purged before the per-site settings below get a chance to
+		// return early. Otherwise whatever the main site is set to would
+		// silently govern the log of the entire network.
+		$this->maybe_purge_network_db();
+
 		$do_purge_history = true;
 
 		$do_purge_history = apply_filters( 'simple_history_allow_db_purge', $do_purge_history );
@@ -115,29 +121,46 @@ class Setup_Purge_DB_Cron extends Service {
 			$days,
 			false
 		);
+	}
 
-		// Also purge the network event tables when an add-on (Premium) has
-		// registered them. Without this, the shared network log grows
-		// unbounded — the per-site purge above only touches per-site tables.
-		// Run from the main site only, with a site-transient lock for a
-		// network-wide same-day dedupe.
+	/**
+	 * Purge the network event tables when an add-on (Premium) has
+	 * registered them.
+	 *
+	 * Without this the shared network log grows unbounded — the per-site
+	 * purge only touches per-site tables. Runs from the main site only,
+	 * with a site-transient lock for a network-wide same-day dedupe.
+	 */
+	private function maybe_purge_network_db() {
 		$network_tables = $this->simple_history->get_network_tables();
 
-		if (
-			$network_tables !== null
-			&& is_multisite()
-			&& is_main_site()
-			&& get_site_transient( self::NETWORK_PURGE_LOCK_TRANSIENT ) === false
-		) {
-			set_site_transient( self::NETWORK_PURGE_LOCK_TRANSIENT, 1, DAY_IN_SECONDS );
-
-			$this->purge_table_pair(
-				$network_tables['events'],
-				$network_tables['contexts'],
-				$days,
-				true
-			);
+		if ( $network_tables === null || ! is_multisite() || ! is_main_site() ) {
+			return;
 		}
+
+		// Already purged within the last day.
+		if ( get_site_transient( self::NETWORK_PURGE_LOCK_TRANSIENT ) !== false ) {
+			return;
+		}
+
+		$days = Helpers::get_network_clear_history_interval();
+
+		// Never clear the network log if days = 0.
+		if ( $days === 0 ) {
+			return;
+		}
+
+		$this->purge_table_pair(
+			$network_tables['events'],
+			$network_tables['contexts'],
+			$days,
+			true
+		);
+
+		// Take the lock only once the purge actually finished. Setting it
+		// first would burn a whole day of network purging if the purge
+		// died half way through; this way the next cron tick retries.
+		set_site_transient( self::NETWORK_PURGE_LOCK_TRANSIENT, 1, DAY_IN_SECONDS );
 	}
 
 	/**
@@ -187,17 +210,50 @@ class Setup_Purge_DB_Cron extends Service {
 			$num_rows_purged_in_batch = is_countable( $ids_to_delete ) ? count( $ids_to_delete ) : 0;
 			$total_rows              += $num_rows_purged_in_batch;
 
-			/**
-			 * Fires after a batch of events have been purged from the database.
-			 * Note: This fires for each batch of 100,000 rows.
-			 *
-			 * @param int  $days                     Number of days to keep events.
-			 * @param int  $num_rows_purged_in_batch Number of rows deleted in this batch.
-			 * @param bool $is_network               True when the batch came from the network tables.
-			 */
-			do_action( 'simple_history/db/events_purged', $days, $num_rows_purged_in_batch, $is_network );
+			if ( $is_network ) {
+				/**
+				 * Fires after a batch of events have been purged from the
+				 * shared network tables.
+				 * Note: This fires for each batch of 100,000 rows.
+				 *
+				 * @since 5.27.0
+				 *
+				 * @param int $days                     Number of days to keep events.
+				 * @param int $num_rows_purged_in_batch Number of rows deleted in this batch.
+				 */
+				do_action( 'simple_history/db/network_events_purged', $days, $num_rows_purged_in_batch );
+			} else {
+				/**
+				 * Fires after a batch of events have been purged from the database.
+				 * Note: This fires for each batch of 100,000 rows.
+				 *
+				 * @param int $days                     Number of days to keep events.
+				 * @param int $num_rows_purged_in_batch Number of rows deleted in this batch.
+				 */
+				do_action( 'simple_history/db/events_purged', $days, $num_rows_purged_in_batch );
+			}
 
 			Helpers::clear_cache();
+		}
+
+		if ( $is_network ) {
+			/**
+			 * Fires after all events have been purged from the shared
+			 * network tables. This fires once per completed network purge.
+			 * Total rows can be 0 if no events were purged.
+			 *
+			 * The per-site `simple_history/db/purge_done` never fires for
+			 * the network tables, so a callback that counts purges or logs
+			 * the result doesn't have to tell the two runs apart.
+			 *
+			 * @since 5.27.0
+			 *
+			 * @param int $days       Number of days to keep events.
+			 * @param int $total_rows Total number of rows deleted across all batches.
+			 */
+			do_action( 'simple_history/db/network_purge_done', $days, $total_rows );
+
+			return;
 		}
 
 		/**
@@ -205,12 +261,11 @@ class Setup_Purge_DB_Cron extends Service {
 		 * This fires once when the entire purge operation is complete.
 		 * Total rows can be 0 if no events were purged.
 		 *
-		 * @param int  $days       Number of days to keep events.
-		 * @param int  $total_rows Total number of rows deleted across all batches.
-		 * @param bool $is_network True when the completed run targeted the network tables.
+		 * @param int $days       Number of days to keep events.
+		 * @param int $total_rows Total number of rows deleted across all batches.
 		 * @since 5.21.0
 		 */
-		do_action( 'simple_history/db/purge_done', $days, $total_rows, $is_network );
+		do_action( 'simple_history/db/purge_done', $days, $total_rows );
 	}
 
 	/**

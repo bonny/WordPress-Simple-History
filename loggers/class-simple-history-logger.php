@@ -82,7 +82,8 @@ class Simple_History_Logger extends Logger {
 		add_action( 'load-options.php', [ $this, 'on_load_options_page' ] );
 		add_action( 'simple_history/rss_feed/secret_updated', [ $this, 'on_rss_feed_secret_updated' ] );
 		add_action( 'simple_history/settings/log_cleared', [ $this, 'on_log_cleared' ] );
-		add_action( 'simple_history/db/purge_done', [ $this, 'on_purge_done' ], 10, 3 );
+		add_action( 'simple_history/db/purge_done', [ $this, 'on_purge_done' ], 10, 2 );
+		add_action( 'simple_history/db/network_purge_done', [ $this, 'on_network_purge_done' ], 10, 2 );
 		add_action( 'simple_history/backfill/completed', [ $this, 'on_backfill_completed' ] );
 		add_action( 'simple_history/channel/auto_disabled', [ $this, 'on_channel_auto_disabled' ], 10, 2 );
 
@@ -302,6 +303,17 @@ class Simple_History_Logger extends Logger {
 		}
 
 		$this->info_message( 'purged_events', $context );
+	}
+
+	/**
+	 * Log when the purge of the shared network log is done.
+	 *
+	 * @param int $days       Number of days to keep.
+	 * @param int $total_rows Total number of rows deleted across all batches.
+	 * @return void
+	 */
+	public function on_network_purge_done( $days, $total_rows ) {
+		$this->on_purge_done( $days, $total_rows, true );
 	}
 
 	/**

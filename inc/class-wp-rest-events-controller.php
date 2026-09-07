@@ -1334,8 +1334,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			// registered. Once one is, new events route to the network log
 			// and a note on historical events would be noise — the
 			// dedicated log is right there in Network Admin.
+			//
+			// And only to super admins: the note explains that the event
+			// belongs in a network-wide log, which is only something a
+			// user who administers the whole network can act on.
 			$data['network_fallback'] = isset( $item->context[ Logger::NETWORK_FALLBACK_CONTEXT_KEY ] )
-				&& ! Helpers::network_log_provider_registered();
+				&& ! Helpers::network_log_provider_registered()
+				&& current_user_can( 'manage_network' );
 		}
 
 		if ( rest_is_field_included( 'reactions', $fields ) && Helpers::reactions_are_enabled() ) {

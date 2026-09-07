@@ -145,18 +145,6 @@ abstract class Logger {
 	protected $is_network_logger = false;
 
 	/**
-	 * Message keys whose events are always network-scoped on multisite,
-	 * even when the rest of this logger's events are per-site. Subclasses
-	 * populate this when some hooks mutate shared resources (filesystem,
-	 * network options) and others don't — e.g. Plugin_Logger treats
-	 * plugin_installed as network, plugin_activated as conditional.
-	 *
-	 * @since 5.27.0
-	 * @var string[]
-	 */
-	protected $network_scoped_message_keys = [];
-
-	/**
 	 * Flag to track if messages have been loaded for this logger.
 	 *
 	 * @var bool
@@ -187,26 +175,28 @@ abstract class Logger {
 	/**
 	 * Determine if the current log call should write to the network tables.
 	 *
-	 * Signals, in order of precedence (strongest first):
+	 * The decision is deterministic: it depends only on what the logger
+	 * knows about the event, never on the screen the request came from.
+	 * Two signals, strongest first:
+	 *
 	 *   1. Per-event semantic hint — $context[EVENT_SCOPE_CONTEXT_KEY]
-	 *      set to 'network' by a logger that knows the event is network-
-	 *      scoped (e.g. Plugin_Logger for $network_wide activations).
-	 *      Deterministic; does not depend on request context.
-	 *   2. Message-key allowlist — $network_scoped_message_keys populated
-	 *      by loggers with mixed-scope events (e.g. Plugin_Logger treats
-	 *      plugin_installed as always-network but plugin_activated as
-	 *      conditional on $network_wide).
-	 *   3. Class-level flag — $is_network_logger = true on loggers whose
+	 *      set to 'network' (or 'site') by a logger that knows the scope
+	 *      of this particular event, e.g. Plugin_Logger for a
+	 *      $network_wide activation or for a plugin file being installed.
+	 *   2. Class-level flag — $is_network_logger = true on loggers whose
 	 *      every event is network-scoped (e.g. Available_Updates_Logger,
 	 *      Core_Updates_Logger, Premium's Network_Logger).
-	 *   4. Request-context heuristics — is_network_admin(), or a
-	 *      manage_network-gated AJAX/REST request with a Referer that
-	 *      matches this site's network admin URL prefix.
+	 *
+	 * Earlier versions also sniffed is_network_admin() and the referer of
+	 * AJAX/REST requests. That routed unrelated events into the network
+	 * log purely because they happened to be triggered from a Network
+	 * Admin screen, so it was dropped: a logger that wants network
+	 * routing says so with the hint above.
 	 *
 	 * Routing only actually takes effect when a provider (typically the
 	 * Premium add-on) has registered network tables via
 	 * Simple_History::set_network_tables(); otherwise log() falls back
-	 * to the per-site tables and tags the event with _network_fallback.
+	 * to the per-site tables and may tag the event with _network_fallback.
 	 *
 	 * @since 5.27.0
 	 * @param array $context Context the logger is about to write. Optional for
@@ -218,56 +208,36 @@ abstract class Logger {
 			return false;
 		}
 
-		// 1. Per-event semantic hint wins over everything else.
+		// Per-event semantic hint wins over the class-level flag, so a
+		// network logger can still log a per-site event with 'site'.
 		if ( isset( $context[ self::EVENT_SCOPE_CONTEXT_KEY ] ) ) {
 			return $context[ self::EVENT_SCOPE_CONTEXT_KEY ] === 'network';
 		}
 
-		// 2. Message-key allowlist for mixed-scope loggers.
-		if ( $this->network_scoped_message_keys !== [] ) {
-			$message_key = $context['_message_key'] ?? null;
+		return $this->is_network_logger;
+	}
 
-			if ( $message_key !== null && in_array( $message_key, $this->network_scoped_message_keys, true ) ) {
-				return true;
-			}
+	/**
+	 * Mark a context as belonging to a network-scoped event.
+	 *
+	 * Used by loggers for events that change something shared by the whole
+	 * network — the plugin and theme files on disk, network options — so
+	 * routing can send them to the network log without guessing from the
+	 * current screen. Does nothing on single-site installs, where there is
+	 * no network scope and the extra context row would just be noise.
+	 *
+	 * @since 5.27.0
+	 * @param array $context Context about to be logged.
+	 * @return array Context, with the network scope hint added on multisite.
+	 */
+	protected function mark_as_network_scoped( $context ) {
+		if ( ! is_multisite() ) {
+			return $context;
 		}
 
-		if ( $this->is_network_logger ) {
-			return true;
-		}
+		$context[ self::EVENT_SCOPE_CONTEXT_KEY ] = 'network';
 
-		if ( is_network_admin() ) {
-			return true;
-		}
-
-		// AJAX/REST requests from Network Admin screens don't have
-		// is_network_admin() return true, so fall back to the referer.
-		// Gate on manage_network so a non-super-admin can't spoof the
-		// _wp_http_referer / HTTP_REFERER header to redirect log entries
-		// into the network tables.
-		if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-			if ( ! current_user_can( 'manage_network' ) ) {
-				return false;
-			}
-
-			$referer = wp_get_referer();
-
-			if ( ! $referer ) {
-				return false;
-			}
-
-			// Match against the actual network admin URL prefix for this
-			// site instead of a substring. An attacker-controlled referer
-			// like https://evil.example.com/wp-admin/network/foo won't
-			// match because network_admin_url() carries our host.
-			$network_admin_prefix = network_admin_url();
-
-			if ( strpos( $referer, $network_admin_prefix ) === 0 ) {
-				return true;
-			}
-		}
-
-		return false;
+		return $context;
 	}
 
 	/**
@@ -1535,15 +1505,29 @@ abstract class Logger {
 			$network_tables = $this->simple_history->get_network_tables();
 
 			if ( $network_tables !== null ) {
+				// Loggers that are network-scoped as a whole run on every
+				// site of the network — their cron jobs and hooks fire per
+				// site — so writing on each one would put one copy of the
+				// same network-level event in the shared log per subsite.
+				// Keep the copy written from the main site only.
+				if ( $this->is_network_logger && is_multisite() && ! is_main_site() ) {
+					return $this;
+				}
+
 				$events_table   = $network_tables['events'];
 				$contexts_table = $network_tables['contexts'];
-			} else {
+			} elseif ( ( $data['initiator'] ?? '' ) === Log_Initiators::WP_USER ) {
 				// Scope was network but no provider registered (Premium
 				// network module not available) — the event is about to
 				// land on the per-site log instead. Flag it so the UI
 				// can show a small note that this action would normally
 				// live in the dedicated network log, and point the user
 				// at where to find it.
+				//
+				// Only for events a person caused: the note asks the
+				// reader to go look somewhere else, which is noise on the
+				// steady stream of background events (available updates,
+				// core file checks, translations) that nobody acted on.
 				$context[ self::NETWORK_FALLBACK_CONTEXT_KEY ] = '1';
 			}
 		}

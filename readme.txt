@@ -271,7 +271,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Network Admin page on multisite that explains network event logging and links to the Premium upgrade. Appears alongside the core plugin's existing per-site log, doesn't affect anything that works today on sub-sites. (experimental)
 -   "History" item in the admin bar's Network Admin submenu, plus routing so the main "History" shortcut links to the network log when you're on Network Admin, user admin, or the My Sites screen. (experimental)
 -   `--network` flag on WP-CLI commands: `wp simple-history list`, `event list`, `event search`, `event get`, `event stick`, `event unstick`, `event is-sticky`, and `event list-sticky`. Requires Simple History Premium on a multisite network.
--   Small "Network action" badge on per-site log events that were actually performed at the network level (e.g. network-activating a plugin from Network Admin). Links to information about the dedicated network log in Simple History Premium. Only appears on multisite when Premium isn't active — disappears automatically once Premium is installed.
+-   Small "Network action" badge on per-site log events that were actually performed at the network level (e.g. network-activating a plugin, or installing one from Network Admin). Links to information about the dedicated network log in Simple History Premium. Shown on multisite only, only to super admins, and only for things a person did — scheduled background events like update checks never carry it. Disappears automatically once the network log is available.
 
 **Changed**
 
