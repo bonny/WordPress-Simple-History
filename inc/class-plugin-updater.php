@@ -154,14 +154,8 @@ class Plugin_Updater {
 
 		$this->store_license_from_payload( $decoded );
 
-		if ( $response_code !== 200 ) {
-			// Cache the refusal too, so an expired key does not re-validate on every check.
-			set_transient( $this->cache_key, $payload, HOUR_IN_SECONDS );
-
-			return $decoded;
-		}
-
-		// Cache response for 1 hour.
+		// Cache the update answer for 1 hour. A refusal is cached too, so an
+		// expired key does not re-validate on every check.
 		set_transient( $this->cache_key, $payload, HOUR_IN_SECONDS );
 
 		return $decoded;

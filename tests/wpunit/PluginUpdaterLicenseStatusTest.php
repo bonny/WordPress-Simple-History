@@ -90,7 +90,7 @@ class PluginUpdaterLicenseStatusTest extends \Codeception\TestCase\WPTestCase {
 		return wp_json_encode(
 			[
 				'valid'            => $valid,
-				'status'           => $status === 'null' ? null : $status,
+				'status'           => $status,
 				'expires_at'       => $expires_at,
 				'created_at'       => '2024-01-01T00:00:00.000000Z',
 				'activation_limit' => 1,
@@ -188,6 +188,39 @@ class PluginUpdaterLicenseStatusTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertFalse( $this->updater()->request() );
 		$this->assertSame( 'activation', $this->addon()->get_license_state()['source'] );
+	}
+
+	public function test_cached_401_is_replayed_without_a_request_or_option_write() {
+		$this->seed_activated_option();
+		set_transient(
+			'simple_history_updater_cache_sh_test_addon',
+			'{"success":false,"error":"Invalid license_key","error_code":"invalid_license_key","license":' . $this->license_json( 'expired', '2026-05-27T01:17:07.000000Z', false, 'This license key is expired.' ) . '}',
+			HOUR_IN_SECONDS
+		);
+
+		// Leave cache_allowed at its default (true) so the cached payload is replayed.
+		$updater = new Plugin_Updater( self::ID, self::SLUG, '1.0.0', self::API_URL );
+
+		$remote = $updater->request();
+
+		$this->assertIsObject( $remote );
+		$this->assertFalse( $remote->success );
+		$this->assertSame( 0, $this->requests_seen );
+
+		$state = $this->addon()->get_license_state();
+		$this->assertSame( 'activation', $state['source'] );
+		$this->assertSame( '2025-01-01T00:00:00.000000Z', $state['expires_at'] );
+
+		$transient = (object) [
+			'checked'   => [ self::ID => '1.0.0' ],
+			'response'  => [],
+			'no_update' => [],
+		];
+
+		$transient = $updater->site_transient_update_plugins_update( $transient );
+
+		$this->assertArrayNotHasKey( self::ID, $transient->response );
+		$this->assertArrayHasKey( self::ID, $transient->no_update );
 	}
 
 	public function test_site_transient_filter_offers_no_update_for_expired_key() {
