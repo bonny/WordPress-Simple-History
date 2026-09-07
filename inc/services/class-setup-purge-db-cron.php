@@ -216,7 +216,7 @@ class Setup_Purge_DB_Cron extends Service {
 				 * shared network tables.
 				 * Note: This fires for each batch of 100,000 rows.
 				 *
-				 * @since 5.27.0
+				 * @since 5.33.0
 				 *
 				 * @param int $days                     Number of days to keep events.
 				 * @param int $num_rows_purged_in_batch Number of rows deleted in this batch.
@@ -252,7 +252,7 @@ class Setup_Purge_DB_Cron extends Service {
 			 * the network tables, so a callback that counts purges or logs
 			 * the result doesn't have to tell the two runs apart.
 			 *
-			 * @since 5.27.0
+			 * @since 5.33.0
 			 *
 			 * @param int $days       Number of days to keep events.
 			 * @param int $total_rows Total number of rows deleted across all batches.

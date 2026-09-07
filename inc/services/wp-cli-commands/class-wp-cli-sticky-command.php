@@ -32,7 +32,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Command options.
 	 */
 	public function stick( $args, $assoc_args ) {
-		$event_id = $this->parse_event_id( $args[0] );
+		$event_id = WP_CLI_Network_Helper::parse_event_id( $args[0] );
 		$event    = $this->resolve_event( $event_id, $assoc_args );
 
 		if ( $event->is_sticky() ) {
@@ -67,7 +67,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Command options.
 	 */
 	public function unstick( $args, $assoc_args ) {
-		$event_id = $this->parse_event_id( $args[0] );
+		$event_id = WP_CLI_Network_Helper::parse_event_id( $args[0] );
 		$event    = $this->resolve_event( $event_id, $assoc_args );
 
 		if ( ! $event->is_sticky() ) {
@@ -181,7 +181,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Command options.
 	 */
 	public function is_sticky( $args, $assoc_args ) {
-		$event_id = $this->parse_event_id( $args[0] );
+		$event_id = WP_CLI_Network_Helper::parse_event_id( $args[0] );
 		$event    = $this->resolve_event( $event_id, $assoc_args );
 
 		$assoc_args = wp_parse_args(
@@ -217,20 +217,6 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 	}
 
 	/**
-	 * Validate the <event_id> positional, errors out if not an integer.
-	 *
-	 * @param mixed $raw Raw CLI positional value.
-	 * @return int
-	 */
-	private function parse_event_id( $raw ): int {
-		if ( ! is_numeric( $raw ) ) {
-			WP_CLI::error( 'Invalid event ID.' );
-		}
-
-		return (int) $raw;
-	}
-
-	/**
 	 * Resolve a single event for stick/unstick/is-sticky, honoring the
 	 * --network flag. Thin adapter over the shared CLI helper so each
 	 * method doesn't have to destructure the args twice.
@@ -241,6 +227,7 @@ class WP_CLI_Sticky_Command extends WP_CLI_Command {
 	 */
 	private function resolve_event( int $event_id, array $assoc_args ): Event {
 		$is_network = WP_CLI_Network_Helper::is_network_mode( $assoc_args );
+
 		return WP_CLI_Network_Helper::get_event( $event_id, $is_network );
 	}
 }

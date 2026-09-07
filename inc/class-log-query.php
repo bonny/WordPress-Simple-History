@@ -116,7 +116,7 @@ class Log_Query {
 	 * stays correct for any subclass that overrides
 	 * get_events_table_name(), including ones outside core.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return bool
 	 */
 	protected function is_network_query(): bool {
@@ -130,7 +130,7 @@ class Log_Query {
 	 * invalidated by network writes (from any site in the network) rather
 	 * than by writes to the site the query happens to run on.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return string
 	 */
 	protected function get_cache_group(): string {

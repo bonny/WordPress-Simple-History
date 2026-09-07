@@ -167,13 +167,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 *     ];
 		 *
 		 * @since 5.24.0
-		 * @since 5.27.0 The controller instance is passed as the third argument.
+		 * @since 5.33.0 The controller instance is passed as the third argument.
 		 *
 		 * @param array                       $details    Array of detail items.
 		 * @param \WP_User                    $user       The WordPress user object.
 		 * @param WP_REST_User_Card_Controller $controller The controller serving this card. Call its
-		 *                                                 get_last_login_session() / get_last_event() /
-		 *                                                 get_user_event_count() helpers through this
+		 *                                                 user_last_login_session() / user_last_event() /
+		 *                                                 user_event_count() helpers through this
 		 *                                                 instance so the numbers come from the log the
 		 *                                                 card is actually showing — the network card is
 		 *                                                 a subclass reading different tables.
@@ -264,12 +264,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 		 * and optionally type (string: 'text', 'date', or 'stat').
 		 *
 		 * @since 5.25.0
-		 * @since 5.27.0 The controller instance is passed as the third argument.
+		 * @since 5.33.0 The controller instance is passed as the third argument.
 		 *
 		 * @param array                       $details    Array of detail items.
 		 * @param string                      $type       The initiator type (wp, wp_cli, web_user, other).
 		 * @param WP_REST_User_Card_Controller $controller The controller serving this card. Call its
-		 *                                                 get_initiator_card_stats() through this instance
+		 *                                                 initiator_card_stats() through this instance
 		 *                                                 so the numbers come from the log the card is
 		 *                                                 actually showing.
 		 */
@@ -332,7 +332,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * Premium's network user card, for one — override this so every
 	 * counter below reads their tables instead of the per-site ones.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return Log_Query
 	 */
 	protected function create_log_query() {
@@ -345,7 +345,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * Companion seam to create_log_query() for the one helper that talks
 	 * to $wpdb directly.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return string
 	 */
 	protected function get_events_table_name() {
@@ -358,10 +358,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * Useful for add-ons that want to show login time in the user card
 	 * via the 'simple_history/user_card/details' filter.
 	 *
+	 * @since 5.33.0 Renamed from get_last_login().
+	 *
 	 * @param int $user_id WordPress user ID.
 	 * @return string|null Date string in site local timezone, or null if no login found.
 	 */
-	public function get_last_login( $user_id ) {
+	public function user_last_login( $user_id ) {
 		return $this->get_most_recent_event_date( $user_id, 'SimpleUserLogger:user_logged_in' );
 	}
 
@@ -371,11 +373,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * Useful for add-ons that want to show activity counts in the user card
 	 * via the 'simple_history/user_card/details' filter.
 	 *
+	 * @since 5.33.0 Renamed from get_user_event_count().
+	 *
 	 * @param int $user_id    WordPress user ID.
 	 * @param int $period_days Number of days to look back (including today).
 	 * @return int Number of events found.
 	 */
-	public function get_user_event_count( $user_id, $period_days ) {
+	public function user_event_count( $user_id, $period_days ) {
 		$log_query = $this->create_log_query();
 
 		$date_from = Date_Helper::get_last_n_days_start_timestamp( $period_days );
@@ -395,10 +399,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	/**
 	 * Get the total number of logged events for a user (all time).
 	 *
+	 * @since 5.33.0 Renamed from get_user_total_event_count().
+	 *
 	 * @param int $user_id WordPress user ID.
 	 * @return int Number of events found.
 	 */
-	public function get_user_total_event_count( $user_id ) {
+	public function user_total_event_count( $user_id ) {
 		$log_query = $this->create_log_query();
 
 		$query_result = $log_query->query(
@@ -418,10 +424,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * Useful for add-ons that want to show last activity in the user card
 	 * via the 'simple_history/user_card/details' filter.
 	 *
+	 * @since 5.33.0 Renamed from get_last_event().
+	 *
 	 * @param int $user_id WordPress user ID.
 	 * @return string|null Date string in site local timezone, or null if no events found.
 	 */
-	public function get_last_event( $user_id ) {
+	public function user_last_event( $user_id ) {
 		return $this->get_most_recent_event_date( $user_id );
 	}
 
@@ -435,10 +443,12 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * WHEN ...)` pattern, so the helper works regardless of the database
 	 * backend Simple History is running on.
 	 *
+	 * @since 5.33.0 Renamed from get_initiator_card_stats().
+	 *
 	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
 	 * @return array { last_event: string|null (ISO 8601 UTC), today: int, last_7_days: int, total: int }
 	 */
-	public function get_initiator_card_stats( $initiator_type ) {
+	public function initiator_card_stats( $initiator_type ) {
 		global $wpdb;
 
 		$table           = $this->get_events_table_name();
@@ -539,11 +549,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * module is the main one). Pulls the date, IP, and user-agent from the
 	 * same login event, so the three always describe the same session.
 	 *
+	 * @since 5.33.0 Renamed from get_last_login_session().
+	 *
 	 * @param int $user_id WordPress user ID.
 	 * @return array|null { date: string, ip: string|null, user_agent: string|null }
 	 *                   or null if no login event was found.
 	 */
-	public function get_last_login_session( $user_id ) {
+	public function user_last_login_session( $user_id ) {
 		$log_query = $this->create_log_query();
 
 		$query_result = $log_query->query(
@@ -618,5 +630,98 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 */
 	private static function to_iso_utc( $db_date ) {
 		return gmdate( 'c', strtotime( $db_date . ' UTC' ) );
+	}
+
+	/*
+	 * Deprecated static helpers.
+	 *
+	 * These were public statics until 5.33.0, when they became instance methods
+	 * so a subclass serving another log — Premium's network user card — can
+	 * reroute them. Simple History Premium 1.15 and older calls them statically
+	 * from its user card filter callbacks, and the two plugins update
+	 * independently, so the old names stay as wrappers.
+	 *
+	 * They use `self`, not `static`: a static call carries no instance, so
+	 * there is nothing to reroute, and an older caller is asking for the
+	 * per-site numbers it has always got.
+	 *
+	 * No _deprecated_function() call on purpose — it would fire on every card
+	 * open for everyone still on an older Premium, which is noise they cannot
+	 * act on from inside WordPress.
+	 */
+
+	/**
+	 * Get the last login date for a user from Simple History logs.
+	 *
+	 * @deprecated 5.33.0 Use the instance method on the controller passed to the filter.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return string|null Date string in site local timezone, or null if no login found.
+	 */
+	public static function get_last_login( $user_id ) {
+		return ( new self() )->user_last_login( $user_id );
+	}
+
+	/**
+	 * Get the number of events for a user within a given number of days.
+	 *
+	 * @deprecated 5.33.0 Use the instance method on the controller passed to the filter.
+	 *
+	 * @param int $user_id     WordPress user ID.
+	 * @param int $period_days Number of days to look back (including today).
+	 * @return int Number of events found.
+	 */
+	public static function get_user_event_count( $user_id, $period_days ) {
+		return ( new self() )->user_event_count( $user_id, $period_days );
+	}
+
+	/**
+	 * Get the total number of logged events for a user (all time).
+	 *
+	 * @deprecated 5.33.0 Use the instance method on the controller passed to the filter.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return int Number of events found.
+	 */
+	public static function get_user_total_event_count( $user_id ) {
+		return ( new self() )->user_total_event_count( $user_id );
+	}
+
+	/**
+	 * Get the most recent event date for a user from Simple History logs.
+	 *
+	 * @deprecated 5.33.0 Use the instance method on the controller passed to the filter.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return string|null Date string in site local timezone, or null if no events found.
+	 */
+	public static function get_last_event( $user_id ) {
+		return ( new self() )->user_last_event( $user_id );
+	}
+
+	/**
+	 * Get date + IP + user-agent for the user's most recent login event.
+	 *
+	 * @deprecated 5.33.0 Use the instance method on the controller passed to the filter.
+	 *
+	 * @param int $user_id WordPress user ID.
+	 * @return array|null { date: string, ip: string|null, user_agent: string|null }
+	 *                   or null if no login event was found.
+	 */
+	public static function get_last_login_session( $user_id ) {
+		return ( new self() )->user_last_login_session( $user_id );
+	}
+
+	/**
+	 * Get last-event date plus today / last-7-days / all-time event counts for
+	 * a non-user initiator.
+	 *
+	 * @deprecated 5.33.0 Use the instance method on the controller passed to the filter.
+	 *
+	 * @param string $initiator_type Initiator type (wp, wp_cli, web_user, other).
+	 * @return array { last_event: string|null (ISO 8601 UTC), today: int, last_7_days: int, total: int }
+	 */
+	public static function get_initiator_card_stats( $initiator_type ) {
+		return ( new self() )->initiator_card_stats( $initiator_type );
 	}
 }

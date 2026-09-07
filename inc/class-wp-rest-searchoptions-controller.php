@@ -193,6 +193,7 @@ class WP_REST_SearchOptions_Controller extends WP_REST_Controller {
 			'reactions_enabled'               => Helpers::reactions_are_enabled(),
 			'events_admin_page_url'           => Helpers::get_history_admin_url(),
 			'network_history_admin_url'       => Helpers::get_network_history_admin_url(),
+			'network_upgrade_url'             => Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'network_fallback_summary' ),
 			'settings_page_url'               => Helpers::get_settings_page_url(),
 			'stats_page_url'                  => admin_url( 'admin.php?page=simple_history_stats_page' ),
 			'current_user_id'                 => get_current_user_id(),

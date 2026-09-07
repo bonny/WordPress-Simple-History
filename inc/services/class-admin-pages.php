@@ -299,6 +299,74 @@ class Admin_Pages extends Service {
 	}
 
 	/**
+	 * Output the plain Simple History masthead — logo, optional badge next to
+	 * it, optional subtitle — followed by the dev-mode badges.
+	 *
+	 * header_output() above is the whole pipeline for pages registered through
+	 * the Menu_Manager: tabs, subnav, settings errors, tab callbacks. Pages
+	 * that call add_menu_page() directly — the Network Admin teaser in core,
+	 * the network log page in Premium — take part in none of that and only
+	 * want the masthead, so they each grew their own copy of this markup.
+	 * This is that markup, in one place.
+	 *
+	 * @since 5.33.0
+	 *
+	 * @param array $args {
+	 *     Optional. Header contents.
+	 *
+	 *     @type string $badge    Short label shown next to the logo, e.g. "Network". Plain text.
+	 *     @type string $subtitle One line of context below the title. Plain text.
+	 * }
+	 */
+	public static function standalone_header_output( $args = [] ) {
+		$args = wp_parse_args(
+			$args,
+			[
+				'badge'    => '',
+				'subtitle' => '',
+			]
+		);
+
+		// A subtitle needs the title and the text stacked; without one the
+		// title group stays on a single row.
+		$title_group_class = $args['subtitle'] === ''
+			? 'sh-PageHeader-titleGroup'
+			: 'sh-PageHeader-titleGroup sh-PageHeader-titleGroup--stacked';
+
+		?>
+		<header class="sh-PageHeader">
+			<div class="<?php echo esc_attr( $title_group_class ); ?>">
+				<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
+					<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="<?php esc_attr_e( 'Simple History logotype', 'simple-history' ); ?>" />
+
+					<?php
+					if ( $args['badge'] !== '' ) {
+						?>
+						<span class="sh-PageHeader-badge sh-PageHeader-badge--network">
+							<?php echo esc_html( $args['badge'] ); ?>
+						</span>
+						<?php
+					}
+					?>
+				</h1>
+
+				<?php
+				if ( $args['subtitle'] !== '' ) {
+					?>
+					<p class="sh-PageHeader-subtitle">
+						<?php echo esc_html( $args['subtitle'] ); ?>
+					</p>
+					<?php
+				}
+				?>
+			</div>
+		</header>
+
+		<?php
+		self::dev_badges_output();
+	}
+
+	/**
 	 * Output the dev-mode badges (Dev / Premium toggle / Experimental toggle)
 	 * used above log content on Simple History admin pages.
 	 *
@@ -306,7 +374,7 @@ class Admin_Pages extends Service {
 	 * from any page callback. Shared between the main admin page header and
 	 * add-on pages that want to expose the same developer affordances.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 */
 	public static function dev_badges_output() {
 		if ( ! Helpers::dev_mode_is_enabled() ) {

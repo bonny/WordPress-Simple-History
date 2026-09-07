@@ -12,9 +12,11 @@ import { EventHeaderItem } from './EventHeaderItem';
  * items (date, via, IP). The prominent call-to-action lives in the
  * summary line above the events list — we don't want a CTA on every row.
  *
- * The REST controller gates the `network_fallback` flag on Premium
- * being inactive, so once Premium is installed (and its network module
- * is running) the marker disappears from all previously-flagged events.
+ * The REST controller only exposes the `network_fallback` flag while no
+ * network log provider is registered, and only to users who can manage
+ * the network — the marker points at something only a super admin can
+ * act on. Once a provider registers (Premium's network module), the
+ * marker disappears from all previously-flagged events.
  *
  * @param {Object} props
  * @param {Object} props.event

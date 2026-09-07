@@ -1528,7 +1528,7 @@ class Plugin_Logger extends Logger {
 				$changelog_path = "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=changelog&TB_iframe=true&width=772&height=550";
 
 				$action_links[] = [
-					'url'    => $is_network ? network_admin_url( $changelog_path ) : admin_url( $changelog_path ),
+					'url'    => $this->get_plugins_screen_url( $changelog_path ),
 					'label'  => _x( 'Changelog', 'plugin logger: plugin info thickbox title', 'simple-history' ),
 					'action' => 'view',
 				];
@@ -1536,7 +1536,7 @@ class Plugin_Logger extends Logger {
 				$plugin_info_path = "plugin-install.php?tab=plugin-information&plugin={$plugin_slug}&section=&TB_iframe=true&width=640&height=550";
 
 				$action_links[] = [
-					'url'    => $is_network ? network_admin_url( $plugin_info_path ) : admin_url( $plugin_info_path ),
+					'url'    => $this->get_plugins_screen_url( $plugin_info_path ),
 					'label'  => _x( 'Plugin info', 'plugin logger: plugin info thickbox title view all info', 'simple-history' ),
 					'action' => 'view',
 				];
@@ -1550,13 +1550,34 @@ class Plugin_Logger extends Logger {
 		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- One of two literal caps picked above.
 		if ( current_user_can( $overview_cap ) ) {
 			$action_links[] = [
-				'url'    => $is_network ? network_admin_url( 'plugins.php' ) : admin_url( 'plugins.php' ),
+				'url'    => $this->get_plugins_screen_url( 'plugins.php' ),
 				'label'  => __( 'All plugins', 'simple-history' ),
 				'action' => 'view',
 			];
 		}
 
 		return $action_links;
+	}
+
+	/**
+	 * Admin URL for one of the plugin screens these action links point at.
+	 *
+	 * On multisite those screens live in Network Admin — the site-admin
+	 * copies either don't exist or refuse the request — so every link here
+	 * has to make the same choice. Making it in one place keeps the three
+	 * call sites from drifting apart.
+	 *
+	 * @since 5.33.0
+	 *
+	 * @param string $path Admin-relative path, e.g. 'plugins.php'.
+	 * @return string Full admin URL.
+	 */
+	private function get_plugins_screen_url( $path ) {
+		if ( is_multisite() ) {
+			return network_admin_url( $path );
+		}
+
+		return admin_url( $path );
 	}
 
 	/**

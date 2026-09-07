@@ -139,7 +139,7 @@ abstract class Logger {
 	 * logger) set this to true so their writes are routed to the network
 	 * tables regardless of the current request context.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @var bool
 	 */
 	protected $is_network_logger = false;
@@ -198,12 +198,12 @@ abstract class Logger {
 	 * Simple_History::set_network_tables(); otherwise log() falls back
 	 * to the per-site tables and may tag the event with _network_fallback.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @param array $context Context the logger is about to write. Optional for
 	 *                       backwards compat with overrides; defaults to empty.
 	 * @return bool
 	 */
-	protected function should_use_network_tables( $context = array() ) {
+	protected function should_use_network_tables( $context = [] ) {
 		if ( ! is_multisite() ) {
 			return false;
 		}
@@ -226,7 +226,7 @@ abstract class Logger {
 	 * current screen. Does nothing on single-site installs, where there is
 	 * no network scope and the extra context row would just be noise.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @param array $context Context about to be logged.
 	 * @return array Context, with the network scope hint added on multisite.
 	 */

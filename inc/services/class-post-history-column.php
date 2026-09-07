@@ -351,7 +351,7 @@ class Post_History_Column extends Service {
 		);
 		// phpcs:enable
 
-		return is_array( $results ) ? $results : array();
+		return is_array( $results ) ? $results : [];
 	}
 
 	/**
@@ -401,7 +401,7 @@ class Post_History_Column extends Service {
 		);
 		// phpcs:enable
 
-		return is_array( $results ) ? $results : array();
+		return is_array( $results ) ? $results : [];
 	}
 
 	/**
@@ -411,20 +411,20 @@ class Post_History_Column extends Service {
 	 * @return array<int, array<int, array{date: string, message_key: string, user_id: string}>>
 	 */
 	private function group_rows_by_post_id( $rows ) {
-		$grouped = array();
+		$grouped = [];
 
 		foreach ( $rows as $row ) {
 			$pid = (int) $row->post_id;
 
 			if ( ! isset( $grouped[ $pid ] ) ) {
-				$grouped[ $pid ] = array();
+				$grouped[ $pid ] = [];
 			}
 
-			$grouped[ $pid ][] = array(
+			$grouped[ $pid ][] = [
 				'date'        => $row->date,
 				'message_key' => $row->message_key,
 				'user_id'     => $row->user_id,
-			);
+			];
 		}
 
 		return $grouped;

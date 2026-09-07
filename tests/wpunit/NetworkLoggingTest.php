@@ -145,7 +145,7 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 			// we're testing the post-gate plumbing, not the gate itself.
 			// Public (base is protected) so the test can exercise it via
 			// normal method dispatch without reflection gymnastics.
-			public function should_use_network_tables( $context = array() ) {
+			public function should_use_network_tables( $context = [] ) {
 				return true;
 			}
 		};
@@ -187,7 +187,7 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 
 			// Force the multisite gate open for this test. Normal request
 			// context detection otherwise bails before the hint is checked.
-			protected function should_use_network_tables( $context = array() ) {
+			protected function should_use_network_tables( $context = [] ) {
 				if ( isset( $context[ self::EVENT_SCOPE_CONTEXT_KEY ] ) ) {
 					return $context[ self::EVENT_SCOPE_CONTEXT_KEY ] === 'network';
 				}
@@ -1323,20 +1323,139 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertSame(
 			2,
-			(int) $network_controller->get_user_total_event_count( $user_id ),
+			(int) $network_controller->user_total_event_count( $user_id ),
 			'A controller subclass overriding create_log_query() must count events from its own tables. If this returns the per-site number, the helper is still building its own Log_Query.'
 		);
 
 		$this->assertSame(
 			2,
-			(int) $network_controller->get_initiator_card_stats( 'wp_user' )['total'],
-			'get_initiator_card_stats() must read the table from get_events_table_name(), not from the per-site Simple_History instance.'
+			(int) $network_controller->initiator_card_stats( 'wp_user' )['total'],
+			'initiator_card_stats() must read the table from get_events_table_name(), not from the per-site Simple_History instance.'
 		);
 
 		$this->assertSame(
 			0,
-			(int) ( new WP_REST_User_Card_Controller() )->get_user_total_event_count( $user_id ),
+			(int) ( new WP_REST_User_Card_Controller() )->user_total_event_count( $user_id ),
 			'Sanity: the alt-table events must be invisible to the per-site controller, or the assertions above prove nothing.'
+		);
+	}
+
+	/**
+	 * The five card helpers were public statics before 5.33.0 and Premium
+	 * 1.15 and older still calls them that way. They must keep working, and
+	 * keep returning exactly what the instance methods return.
+	 */
+	public function test_deprecated_static_card_helpers_match_the_instance_methods(): void {
+		global $wpdb;
+
+		$user_id = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		$events_table   = Simple_History::get_instance()->get_events_table_name();
+		$contexts_table = Simple_History::get_instance()->get_contexts_table_name();
+
+		// A login event (so the login helpers have something to find) and a
+		// plain one, both attributed to this user.
+		$events = [
+			[
+				'logger'   => 'SimpleUserLogger',
+				'message'  => 'Logged in',
+				'contexts' => [
+					'_user_id'               => (string) $user_id,
+					'_message_key'           => 'user_logged_in',
+					'_server_remote_addr'    => '192.0.2.10',
+					'server_http_user_agent' => 'Mozilla/5.0 (Macintosh) Chrome/120.0',
+				],
+			],
+			[
+				'logger'   => 'SimpleLogger',
+				'message'  => 'Did a thing',
+				'contexts' => [
+					'_user_id' => (string) $user_id,
+				],
+			],
+		];
+
+		foreach ( $events as $event ) {
+			$wpdb->insert(
+				$events_table,
+				[
+					'date'        => gmdate( 'Y-m-d H:i:s' ),
+					'logger'      => $event['logger'],
+					'level'       => 'info',
+					'message'     => $event['message'],
+					'occasionsID' => 'bc-occ-' . wp_generate_password( 8, false ),
+					'initiator'   => 'wp_user',
+				]
+			);
+
+			$history_id = (int) $wpdb->insert_id;
+
+			foreach ( $event['contexts'] as $key => $value ) {
+				$wpdb->insert(
+					$contexts_table,
+					[
+						'history_id' => $history_id,
+						'key'        => $key,
+						'value'      => $value,
+					]
+				);
+			}
+		}
+
+		$controller = new WP_REST_User_Card_Controller();
+
+		$this->assertNotNull(
+			$controller->user_last_login( $user_id ),
+			'Sanity: the fixture login event must be findable, or the comparisons below compare two nulls.'
+		);
+
+		$this->assertSame(
+			$controller->user_last_login( $user_id ),
+			WP_REST_User_Card_Controller::get_last_login( $user_id ),
+			'The deprecated get_last_login() wrapper must return what user_last_login() returns.'
+		);
+
+		$this->assertSame(
+			$controller->user_event_count( $user_id, 7 ),
+			WP_REST_User_Card_Controller::get_user_event_count( $user_id, 7 ),
+			'The deprecated get_user_event_count() wrapper must return what user_event_count() returns.'
+		);
+
+		$this->assertSame(
+			2,
+			(int) $controller->user_total_event_count( $user_id ),
+			'Sanity: both fixture events must be counted.'
+		);
+
+		$this->assertSame(
+			$controller->user_total_event_count( $user_id ),
+			WP_REST_User_Card_Controller::get_user_total_event_count( $user_id ),
+			'The deprecated get_user_total_event_count() wrapper must return what user_total_event_count() returns.'
+		);
+
+		$this->assertSame(
+			$controller->user_last_event( $user_id ),
+			WP_REST_User_Card_Controller::get_last_event( $user_id ),
+			'The deprecated get_last_event() wrapper must return what user_last_event() returns.'
+		);
+
+		$this->assertSame(
+			$controller->user_last_login_session( $user_id ),
+			WP_REST_User_Card_Controller::get_last_login_session( $user_id ),
+			'The deprecated get_last_login_session() wrapper must return what user_last_login_session() returns.'
+		);
+
+		$this->assertSame(
+			'192.0.2.10',
+			WP_REST_User_Card_Controller::get_last_login_session( $user_id )['ip'],
+			'Sanity: the session helper must actually read the login event context.'
+		);
+
+		$this->assertSame(
+			$controller->initiator_card_stats( 'wp_user' ),
+			WP_REST_User_Card_Controller::get_initiator_card_stats( 'wp_user' ),
+			'The deprecated get_initiator_card_stats() wrapper must return what initiator_card_stats() returns.'
 		);
 	}
 

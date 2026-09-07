@@ -95,7 +95,7 @@ class Event {
 	 * events table — i.e. from the shared network tables a subclass points
 	 * it at.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return bool
 	 */
 	protected function is_network_event(): bool {
@@ -109,7 +109,7 @@ class Event {
 	 * network incrementor, so clearing the per-site cache would leave a
 	 * stale copy behind after sticking or reacting to a network event.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 */
 	private function clear_cache_for_this_event(): void {
 		if ( $this->is_network_event() ) {
