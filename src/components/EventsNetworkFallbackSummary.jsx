@@ -15,10 +15,11 @@ import { __, _n, sprintf } from '@wordpress/i18n';
  *
  * @param {Object}      props
  * @param {Array}       props.events                 The events currently in the view.
- * @param {string|null} props.networkHistoryAdminURL Network history page URL (null when the feature isn't available on this install — fall back to the marketing page).
+ * @param {string|null} props.networkHistoryAdminURL Network history page URL (null when the feature isn't available on this install — fall back to the upgrade URL).
+ * @param {string|null} props.networkUpgradeURL      Tracked upgrade URL, built in PHP so the campaign parameters live with the rest of them.
  */
 export function EventsNetworkFallbackSummary( props ) {
-	const { events, networkHistoryAdminURL } = props;
+	const { events, networkHistoryAdminURL, networkUpgradeURL } = props;
 
 	if ( ! Array.isArray( events ) || events.length === 0 ) {
 		return null;
@@ -34,10 +35,11 @@ export function EventsNetworkFallbackSummary( props ) {
 
 	// Prefer linking to the in-admin network history page (the teaser) so
 	// users stay inside WP-admin; fall back to the marketing page only when
-	// the feature isn't registered on this install.
-	const linkHref =
-		networkHistoryAdminURL ||
-		'https://simple-history.com/premium/?utm_source=wpadmin&utm_medium=event-log-summary&utm_campaign=network-fallback';
+	// the feature isn't registered on this install. Both URLs come from the
+	// search options response — the marketing one carries the tracking
+	// parameters Helpers::get_tracking_url() adds, which is why it isn't
+	// written out here.
+	const linkHref = networkHistoryAdminURL || networkUpgradeURL;
 
 	// External link opens in a new tab; internal link navigates in place.
 	const linkTargetProps = networkHistoryAdminURL
@@ -54,6 +56,18 @@ export function EventsNetworkFallbackSummary( props ) {
 		),
 		count
 	);
+
+	// No URL at all (an install whose search options response predates
+	// these fields): say what happened, without a dead link.
+	if ( ! linkHref ) {
+		return (
+			<p className="sh-NetworkFallbackSummary">
+				<span className="sh-NetworkFallbackSummary-label">
+					{ label }
+				</span>
+			</p>
+		);
+	}
 
 	return (
 		<p className="sh-NetworkFallbackSummary">

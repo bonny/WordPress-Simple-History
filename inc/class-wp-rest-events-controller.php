@@ -826,10 +826,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Whether the event was backfilled from existing WordPress data.', 'simple-history' ),
 					'type'        => 'boolean',
 				),
-				'network_fallback'           => array(
+				'network_fallback'           => [
 					'description' => __( 'Whether the event was a network-level action that was logged to the per-site log because a dedicated network log was not available. Used by the UI to show a small explanatory note on the event.', 'simple-history' ),
 					'type'        => 'boolean',
-				),
+				],
 				'reactions'                  => array(
 					'description' => __( 'Reactions on the event.', 'simple-history' ),
 					'type'        => 'object',

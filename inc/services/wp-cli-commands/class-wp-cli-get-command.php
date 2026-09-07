@@ -45,11 +45,7 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 			)
 		);
 
-		$event_id = $args[0];
-
-		if ( ! is_numeric( $event_id ) ) {
-			WP_CLI::error( 'Event ID must be an integer.' );
-		}
+		$event_id = WP_CLI_Network_Helper::parse_event_id( $args[0] );
 
 		$is_network = WP_CLI_Network_Helper::is_network_mode( $assoc_args );
 

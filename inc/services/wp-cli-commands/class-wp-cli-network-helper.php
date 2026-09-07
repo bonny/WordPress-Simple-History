@@ -8,17 +8,52 @@ use Simple_History\Simple_History;
 use WP_CLI;
 
 /**
- * Shared helpers for WP-CLI commands that support the `--network` flag.
+ * Shared helpers for the WP-CLI event commands.
  *
- * Keeps the multisite + Premium guard consistent across every command
- * (`list`, `event search`, `event get`, `event stick`, `event unstick`,
- * `event is-sticky`, `event list-sticky`). Each method exits the CLI
- * process on failure via WP_CLI::error(), so callers can treat the
+ * Keeps the multisite + Premium guard behind `--network` consistent across
+ * every command that offers it (`list`, `event search`, `event get`,
+ * `event stick`, `event unstick`, `event is-sticky`, `event list-sticky`),
+ * plus the `<event_id>` positional those commands share. Each method exits
+ * the CLI process on failure via WP_CLI::error(), so callers can treat the
  * return value as non-null.
  *
- * @since 5.27.0
+ * @since 5.33.0
  */
 class WP_CLI_Network_Helper {
+	/**
+	 * What to tell someone who asked for the network log on a site that
+	 * has no provider for it.
+	 *
+	 * A method rather than a constant because the text is translated, and a
+	 * class constant cannot hold a function call.
+	 *
+	 * @since 5.33.0
+	 *
+	 * @return string
+	 */
+	private static function no_provider_message(): string {
+		return __( '--network requires Simple History Premium, which adds network event logging. See: https://simple-history.com/premium/', 'simple-history' );
+	}
+
+	/**
+	 * Validate an `<event_id>` positional, erroring out if it is not a number.
+	 *
+	 * Every event command takes the same positional and rejected it in its
+	 * own words; this is the one place that decides what "an event id" is.
+	 *
+	 * @since 5.33.0
+	 *
+	 * @param mixed $raw Raw CLI positional value.
+	 * @return int
+	 */
+	public static function parse_event_id( $raw ): int {
+		if ( ! is_numeric( $raw ) ) {
+			WP_CLI::error( 'Event ID must be an integer.' );
+		}
+
+		return (int) $raw;
+	}
+
 	/**
 	 * Read the `--network` flag and reject if used on a single-site install.
 	 *
@@ -49,9 +84,7 @@ class WP_CLI_Network_Helper {
 			: new Log_Query();
 
 		if ( $query === null ) {
-			WP_CLI::error(
-				__( '--network requires Simple History Premium, which adds network event logging. See: https://simple-history.com/premium/', 'simple-history' )
-			);
+			WP_CLI::error( self::no_provider_message() );
 		}
 
 		return $query;
@@ -71,9 +104,7 @@ class WP_CLI_Network_Helper {
 			$event = Simple_History::get_instance()->get_network_event( $event_id );
 
 			if ( $event === null ) {
-				WP_CLI::error(
-					__( '--network requires Simple History Premium, which adds network event logging. See: https://simple-history.com/premium/', 'simple-history' )
-				);
+				WP_CLI::error( self::no_provider_message() );
 			}
 		} else {
 			$event = Event::get( $event_id );

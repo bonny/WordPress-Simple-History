@@ -16,7 +16,7 @@ class Network_Menu_Items extends Service {
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_menu_item' ), 40 );
 		// Run after core's priority-40 Network Admin submenu setup so we can
 		// attach under the node it registers.
-		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_network_admin_submenu_item' ), 50 );
+		add_action( 'admin_bar_menu', [ $this, 'add_admin_bar_network_admin_submenu_item' ], 50 );
 	}
 
 	/**
@@ -159,12 +159,12 @@ class Network_Menu_Items extends Service {
 		}
 
 		$wp_admin_bar->add_node(
-			array(
+			[
 				'id'     => 'network-admin-simple-history',
 				'parent' => 'network-admin',
 				'title'  => _x( 'History', 'Admin bar network submenu item', 'simple-history' ),
 				'href'   => $network_url,
-			)
+			]
 		);
 	}
 }

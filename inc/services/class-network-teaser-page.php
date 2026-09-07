@@ -11,7 +11,7 @@ use Simple_History\Helpers;
  * When the premium add-on is active (and its network module running), it
  * registers its own menu at the same slug, which takes over the page.
  *
- * @since 5.27.0
+ * @since 5.33.0
  */
 class Network_Teaser_Page extends Service {
 	/** @var string Menu slug shared with the premium network page so the add-on can take over. */
@@ -94,7 +94,7 @@ class Network_Teaser_Page extends Service {
 	 * existing functionality is affected on sub-sites.
 	 */
 	public function render_page() {
-		$upgrade_url = 'https://simple-history.com/premium/?utm_source=wpadmin&utm_medium=network-teaser&utm_campaign=network-log';
+		$upgrade_url = Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', 'network_teaser' );
 		// The teaser only renders when the Premium plugin is NOT active, so
 		// an in-admin "#simple-history-license" anchor doesn't exist yet.
 		// Point users who have already purchased at the plugin-upload screen
@@ -106,23 +106,14 @@ class Network_Teaser_Page extends Service {
 
 			<?php
 			/*
-			 * Render the standard Simple History page header so the teaser
-			 * feels like part of the plugin rather than a disconnected promo.
-			 * Inlined (instead of calling Admin_Pages::header_output()) because
-			 * that method also renders tabs/subnav/settings_errors for pages
-			 * registered via Menu_Manager — the teaser uses add_menu_page()
-			 * directly and doesn't participate in that pipeline.
+			 * The standard Simple History masthead, so the teaser feels like
+			 * part of the plugin rather than a disconnected promo. Not
+			 * header_output(): that one also renders tabs, subnav and settings
+			 * errors for pages registered via Menu_Manager, and this page uses
+			 * add_menu_page() directly.
 			 */
+			Admin_Pages::standalone_header_output();
 			?>
-			<header class="sh-PageHeader">
-				<div class="sh-PageHeader-titleGroup">
-					<h1 class="sh-PageHeader-title SimpleHistoryPageHeadline">
-						<img width="1000" height="156" class="sh-PageHeader-logo" src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL ); ?>css/simple-history-logo.png" alt="<?php esc_attr_e( 'Simple History logotype', 'simple-history' ); ?>" />
-					</h1>
-				</div>
-			</header>
-
-			<?php Admin_Pages::dev_badges_output(); ?>
 
 			<section class="sh-NetworkTeaser-hero">
 				<div class="sh-NetworkTeaser-heroCopy">

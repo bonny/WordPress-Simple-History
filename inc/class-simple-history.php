@@ -1680,7 +1680,7 @@ class Simple_History {
 	 * here (letters, digits, underscores only) so $wpdb->insert() calls
 	 * downstream can embed them safely.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @param string        $events_table   Fully-qualified network events table name.
 	 * @param string        $contexts_table Fully-qualified network contexts table name.
 	 * @param callable|null $recreate       Optional callback that (re)creates the two tables. Called when a query or a write hits a "table doesn't exist" error. Should return truthy when the tables were created.
@@ -1714,7 +1714,7 @@ class Simple_History {
 	 * recovery for the network tables goes through the provider, or does not
 	 * happen at all.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return callable|null
 	 */
 	public function get_network_tables_recreate_callback() {
@@ -1725,7 +1725,7 @@ class Simple_History {
 	 * Get the registered network events/contexts tables, or null if no
 	 * provider has registered (no Premium network module running).
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return array{events: string, contexts: string}|null
 	 */
 	public function get_network_tables() {
@@ -1737,7 +1737,7 @@ class Simple_History {
 	 * is invoked each time core needs a fresh Log_Query configured for the
 	 * network tables (export, CLI --network, REST controllers).
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @param callable $factory A callable returning a Log_Query instance.
 	 */
 	public function set_network_log_query_factory( callable $factory ): void {
@@ -1749,7 +1749,7 @@ class Simple_History {
 	 * been registered. Returns null (not an error) so callers can decide
 	 * how to handle the missing-provider case.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return Log_Query|null
 	 */
 	public function get_network_log_query() {
@@ -1768,7 +1768,7 @@ class Simple_History {
 	 * by the network tables — used by CLI and REST paths that operate on a
 	 * single event in network scope (stick, unstick, reactions).
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @param callable $factory Callable taking an int event ID, returning an Event.
 	 */
 	public function set_network_event_factory( callable $factory ): void {
@@ -1781,7 +1781,7 @@ class Simple_History {
 	 * other than an Event (the factory may also return a non-existent Event
 	 * — callers should check ->exists() just as they would with Event::get()).
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @param int $event_id Event ID to load.
 	 * @return Event|null
 	 */

@@ -338,7 +338,7 @@ class Helpers {
 	 * incrementor — a network event written from site 3 would then leave
 	 * site 1's cached network queries in place.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @var string
 	 */
 	public const NETWORK_CACHE_GLOBAL_GROUP = 'simple_history_network';
@@ -350,7 +350,7 @@ class Helpers {
 	 * must run before the first read of a key in the group, so this has to
 	 * happen at init and not lazily from the first cache lookup.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 */
 	public static function register_cache_groups() {
 		wp_cache_add_global_groups( [ self::NETWORK_CACHE_GLOBAL_GROUP ] );
@@ -414,7 +414,7 @@ class Helpers {
 	 * Clears the cache used by reads of the shared network tables, on every
 	 * site in the network at once.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 */
 	public static function clear_network_cache() {
 		self::get_cache_incrementor( true, true );
@@ -1381,7 +1381,7 @@ class Helpers {
 	 * Does nothing when no provider is registered — core has no network
 	 * tables of its own to clear.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return int Number of rows removed. 0 when no provider is registered.
 	 */
 	public static function clear_network_log() {
@@ -1472,7 +1472,7 @@ class Helpers {
 	 * its own retention instead of inheriting whatever the site that
 	 * happened to run the cron job is set to.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return int Number of days.
 	 */
 	public static function get_network_clear_history_interval() {
@@ -1495,7 +1495,7 @@ class Helpers {
 		 * } );
 		 * ```
 		 *
-		 * @since 5.27.0
+		 * @since 5.33.0
 		 *
 		 * @param int $days Number of days of network history to keep.
 		 */
@@ -1644,7 +1644,7 @@ class Helpers {
 		 * Simple History asset pipeline (React bundle, admin bar, etc.)
 		 * without having to register a matching menu slug.
 		 *
-		 * @since 5.27.0
+		 * @since 5.33.0
 		 *
 		 * @param bool           $is_on_our_page Whether the current screen is a Simple History page.
 		 * @param \WP_Screen|null $current_screen The current WP_Screen object.
@@ -2628,9 +2628,7 @@ class Helpers {
 	 * routing that only wants to redirect "History" on network-scoped
 	 * screens should combine this with is_network_scoped_admin_screen().
 	 *
-	 * Memoized per request since the inputs don't change.
-	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return string|null Network admin page URL, or null if not available.
 	 */
 	public static function get_network_history_admin_url() {
@@ -2651,7 +2649,7 @@ class Helpers {
 	 * network module is active but provides nothing, and in that case the
 	 * user should still see the teaser and the markers.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return bool
 	 */
 	public static function network_log_provider_registered() {
@@ -2667,7 +2665,7 @@ class Helpers {
 	 * Callers that want "route the admin bar to the network page" should
 	 * combine this with get_network_history_admin_url() being non-null.
 	 *
-	 * @since 5.27.0
+	 * @since 5.33.0
 	 * @return bool
 	 */
 	public static function is_network_scoped_admin_screen() {
