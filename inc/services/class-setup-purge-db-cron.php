@@ -233,7 +233,13 @@ class Setup_Purge_DB_Cron extends Service {
 				do_action( 'simple_history/db/events_purged', $days, $num_rows_purged_in_batch );
 			}
 
-			Helpers::clear_cache();
+			// Invalidate the cache the deleted rows were cached in. The
+			// network pair has its own incrementor, shared by every site.
+			if ( $is_network ) {
+				Helpers::clear_network_cache();
+			} else {
+				Helpers::clear_cache();
+			}
 		}
 
 		if ( $is_network ) {

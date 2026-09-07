@@ -1501,6 +1501,12 @@ abstract class Logger {
 		$events_table   = $this->db_table;
 		$contexts_table = $this->db_table_contexts;
 
+		// Whether this call ends up writing to the shared network tables.
+		// Drives both the missing-table recovery path (which must not reset
+		// the per-site schema for someone else's tables) and which cache
+		// incrementor gets bumped afterwards.
+		$is_network_write = false;
+
 		if ( $this->should_use_network_tables( $context ) ) {
 			$network_tables = $this->simple_history->get_network_tables();
 
@@ -1514,8 +1520,9 @@ abstract class Logger {
 					return $this;
 				}
 
-				$events_table   = $network_tables['events'];
-				$contexts_table = $network_tables['contexts'];
+				$events_table     = $network_tables['events'];
+				$contexts_table   = $network_tables['contexts'];
+				$is_network_write = true;
 			} elseif ( ( $data['initiator'] ?? '' ) === Log_Initiators::WP_USER ) {
 				// Scope was network but no provider registered (Premium
 				// network module not available) — the event is about to
@@ -1539,8 +1546,19 @@ abstract class Logger {
 		// Auto-recover from missing tables.
 		if ( $result === false && ! empty( $wpdb->last_error ) ) {
 			if ( Services\Setup_Database::is_table_missing_error( $wpdb->last_error ) ) {
-				// Try to recreate tables.
-				$recreated = Services\Setup_Database::recreate_tables_if_missing();
+				// Ask whoever owns the missing table to recreate it. For the
+				// per-site tables that is core's own Setup_Database; for the
+				// network tables it is the provider that registered them.
+				// Core must never run its per-site recovery here — that path
+				// deletes simple_history_db_version and re-runs the per-site
+				// setup steps, which does nothing for the missing network
+				// table and quietly resets the site's own schema state.
+				if ( $is_network_write ) {
+					$recreate  = $this->simple_history->get_network_tables_recreate_callback();
+					$recreated = $recreate === null ? false : (bool) $recreate();
+				} else {
+					$recreated = Services\Setup_Database::recreate_tables_if_missing();
+				}
 
 				if ( $recreated ) {
 					// Retry the insert after recreating tables.
@@ -1569,7 +1587,17 @@ abstract class Logger {
 		$this->last_insert_context = $context;
 		$this->last_insert_data    = $data;
 
-		Helpers::clear_cache();
+		// Invalidate the cache the new row belongs to. A network write bumps
+		// the shared network incrementor instead, so the cached network
+		// queries on every site in the network expire — and the per-site
+		// caches, which nothing just changed, survive.
+		if ( $is_network_write ) {
+			if ( $history_inserted_id !== null ) {
+				Helpers::clear_network_cache();
+			}
+		} else {
+			Helpers::clear_cache();
+		}
 
 		/**
 		 * Fired after an event has been logged.

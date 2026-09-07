@@ -330,21 +330,51 @@ class Helpers {
 	}
 
 	/**
+	 * Object cache group that holds the network cache incrementor.
+	 *
+	 * Registered as a global group so every site in a network reads and
+	 * writes the same value. Without that, `wp_cache_*` prefixes the key
+	 * with the current blog id and each subsite would keep its own
+	 * incrementor — a network event written from site 3 would then leave
+	 * site 1's cached network queries in place.
+	 *
+	 * @since 5.27.0
+	 * @var string
+	 */
+	public const NETWORK_CACHE_GLOBAL_GROUP = 'simple_history_network';
+
+	/**
+	 * Register the object cache groups Simple History owns.
+	 *
+	 * Called once from Simple_History::init(). `wp_cache_add_global_groups()`
+	 * must run before the first read of a key in the group, so this has to
+	 * happen at init and not lazily from the first cache lookup.
+	 *
+	 * @since 5.27.0
+	 */
+	public static function register_cache_groups() {
+		wp_cache_add_global_groups( [ self::NETWORK_CACHE_GLOBAL_GROUP ] );
+	}
+
+	/**
 	 * Get the Incrementor value for the cache.
 	 *
 	 * Based on code from https://www.tollmanz.com/invalidation-schemes/.
 	 *
 	 * @param bool $refresh Pass true to invalidate the cache.
+	 * @param bool $network Pass true for the network incrementor, which is shared by every site in the network.
 	 * @return string Incrementor value, example: `68c1c8545881b`.
 	 */
-	public static function get_cache_incrementor( $refresh = false ) {
-		$incrementor_key   = 'simple_history_incrementor';
-		$incrementor_value = wp_cache_get( $incrementor_key );
+	public static function get_cache_incrementor( $refresh = false, $network = false ) {
+		$incrementor_key   = $network ? 'simple_history_network_incrementor' : 'simple_history_incrementor';
+		$incrementor_group = $network ? self::NETWORK_CACHE_GLOBAL_GROUP : '';
+
+		$incrementor_value = wp_cache_get( $incrementor_key, $incrementor_group );
 
 		// Generate a new incrementor if it doesn't exist or if we want to refresh it.
 		if ( $incrementor_value === false || $refresh ) {
 			$incrementor_value = uniqid();
-			wp_cache_set( $incrementor_key, $incrementor_value );
+			wp_cache_set( $incrementor_key, $incrementor_value, $incrementor_group );
 		}
 
 		return $incrementor_value;
@@ -356,9 +386,20 @@ class Helpers {
 	 * same cache group, meaning if we invalidate the cache group
 	 * all caches will be cleared/flushed.
 	 *
+	 * Reads of the shared network tables pass `$network = true` so they
+	 * get their own group, keyed off the shared network incrementor. A
+	 * write to the network tables from any site in the network then
+	 * invalidates the network queries cached on every other site, while
+	 * leaving the per-site caches alone.
+	 *
+	 * @param bool $network Pass true for the group used by network-table reads.
 	 * @return string
 	 */
-	public static function get_cache_group() {
+	public static function get_cache_group( $network = false ) {
+		if ( $network ) {
+			return 'simple-history-network-' . self::get_cache_incrementor( false, true );
+		}
+
 		return 'simple-history-' . self::get_cache_incrementor();
 	}
 
@@ -367,6 +408,16 @@ class Helpers {
 	 */
 	public static function clear_cache() {
 		self::get_cache_incrementor( true );
+	}
+
+	/**
+	 * Clears the cache used by reads of the shared network tables, on every
+	 * site in the network at once.
+	 *
+	 * @since 5.27.0
+	 */
+	public static function clear_network_cache() {
+		self::get_cache_incrementor( true, true );
 	}
 
 	/**
@@ -1359,7 +1410,10 @@ class Helpers {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( $sql );
 
-		self::clear_cache();
+		// Only the network tables were emptied, so only the network cache
+		// needs to go — on every site in the network, which is what the
+		// shared incrementor takes care of.
+		self::clear_network_cache();
 
 		return $num_rows;
 	}

@@ -108,6 +108,36 @@ class Log_Query {
 	}
 
 	/**
+	 * Whether this query reads from something other than the per-site
+	 * events table — i.e. from the shared network tables a subclass points
+	 * it at.
+	 *
+	 * Derived from the table name rather than a constructor flag so it
+	 * stays correct for any subclass that overrides
+	 * get_events_table_name(), including ones outside core.
+	 *
+	 * @since 5.27.0
+	 * @return bool
+	 */
+	protected function is_network_query(): bool {
+		return $this->get_events_table_name() !== Simple_History::get_instance()->get_events_table_name();
+	}
+
+	/**
+	 * Cache group for this query's results.
+	 *
+	 * Network queries get their own group so their cached results are
+	 * invalidated by network writes (from any site in the network) rather
+	 * than by writes to the site the query happens to run on.
+	 *
+	 * @since 5.27.0
+	 * @return string
+	 */
+	protected function get_cache_group(): string {
+		return Helpers::get_cache_group( $this->is_network_query() );
+	}
+
+	/**
 	 * Query the log.
 	 *
 	 * @param string|array|object $args {
@@ -192,8 +222,18 @@ class Log_Query {
 			$db_error = $result->get_error_data( 'simple_history_db_error' )['db_error'] ?? '';
 
 			if ( Services\Setup_Database::is_table_missing_error( $db_error ) ) {
-				// Try to recreate tables.
-				$recreated = Services\Setup_Database::recreate_tables_if_missing();
+				// Ask whoever owns the missing table to recreate it. Core's
+				// Setup_Database only knows the per-site tables — running it
+				// for a missing network table would reset this site's schema
+				// version and re-run its setup without creating anything the
+				// query needs, so the network path goes through the callback
+				// the provider registered, or gives up.
+				if ( $this->is_network_query() ) {
+					$recreate  = Simple_History::get_instance()->get_network_tables_recreate_callback();
+					$recreated = $recreate === null ? false : (bool) $recreate();
+				} else {
+					$recreated = Services\Setup_Database::recreate_tables_if_missing();
+				}
 
 				if ( $recreated ) {
 					// Retry the query after recreating tables.
@@ -261,10 +301,13 @@ class Log_Query {
 	protected function query_overview_simple( $args ) {
 		$args = $this->prepare_args( $args );
 
-		// Create cache key based on args and current user.
+		// Create cache key based on args and current user. The events table
+		// is part of the key: a subclass reading the shared network tables
+		// must not collide with the per-site query that has the same args
+		// and the same current user.
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		$cache_key   = md5( __METHOD__ . serialize( $args ) ) . '_userid_' . get_current_user_id();
-		$cache_group = Helpers::get_cache_group();
+		$cache_key   = md5( __METHOD__ . serialize( $args ) . $this->get_events_table_name() ) . '_userid_' . get_current_user_id();
+		$cache_group = $this->get_cache_group();
 
 		/** @var array|false Return value. */
 		$arr_return = wp_cache_get( $cache_key, $cache_group );
@@ -402,10 +445,13 @@ class Log_Query {
 		// Parse and prepare args.
 		$args = $this->prepare_args( $args );
 
-		// Create cache key based on args and current user.
+		// Create cache key based on args and current user. The events table
+		// is part of the key: a subclass reading the shared network tables
+		// must not collide with the per-site query that has the same args
+		// and the same current user.
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		$cache_key   = md5( __METHOD__ . serialize( $args ) ) . '_userid_' . get_current_user_id();
-		$cache_group = Helpers::get_cache_group();
+		$cache_key   = md5( __METHOD__ . serialize( $args ) . $this->get_events_table_name() ) . '_userid_' . get_current_user_id();
+		$cache_group = $this->get_cache_group();
 
 		/** @var array|false Return value. */
 		$arr_return = wp_cache_get( $cache_key, $cache_group );
@@ -707,10 +753,13 @@ class Log_Query {
 	 * @return array|\WP_Error Log rows or WP_Error on database error.
 	 */
 	protected function query_occasions( $args ) {
-		// Create cache key based on args and current user.
+		// Create cache key based on args and current user. The events table
+		// is part of the key: a subclass reading the shared network tables
+		// must not collide with the per-site query that has the same args
+		// and the same current user.
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		$cache_key   = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) ) . '_userid_' . get_current_user_id();
-		$cache_group = Helpers::get_cache_group();
+		$cache_key   = 'SimpleHistoryLogQuery_' . md5( serialize( $args ) . $this->get_events_table_name() ) . '_userid_' . get_current_user_id();
+		$cache_group = $this->get_cache_group();
 
 		/** @var array Return value. */
 		$arr_return = wp_cache_get( $cache_key, $cache_group );

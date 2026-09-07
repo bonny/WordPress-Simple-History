@@ -7,6 +7,7 @@ use Simple_History\Log_Initiators;
 use Simple_History\Log_Query;
 use Simple_History\Loggers\Logger;
 use Simple_History\Simple_History;
+use Simple_History\WP_REST_User_Card_Controller;
 
 /**
  * Tests for the network-scoped routing primitives added in 5.13.0:
@@ -645,8 +646,9 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 		);
 
 		// And the inverse: a plain Event for the same ID must NOT find it,
-		// proving the alt event really only lives in the alt tables.
-		wp_cache_flush();
+		// proving the alt event really only lives in the alt tables. No cache
+		// flush needed: the cache key carries the events table name, so the
+		// two reads cannot share an entry.
 		$plain = new Event( $alt_event_id );
 		$this->assertFalse(
 			$plain->exists(),
@@ -855,6 +857,487 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 		}
 
 		return $captured;
+	}
+
+	/**
+	 * Build an Event subclass pointed at the alternate tables. Stands in
+	 * for Premium's Network_Event, which does exactly this.
+	 */
+	private function make_alt_event( int $event_id ): Event {
+		return new class( $event_id, $this->alt_events_table, $this->alt_contexts_table ) extends Event {
+			/** @var string */
+			private $alt_events_table;
+
+			/** @var string */
+			private $alt_contexts_table;
+
+			public function __construct( int $event_id, string $events_table, string $contexts_table ) {
+				$this->alt_events_table   = $events_table;
+				$this->alt_contexts_table = $contexts_table;
+
+				parent::__construct( $event_id );
+			}
+
+			protected function get_events_table_name() {
+				return $this->alt_events_table;
+			}
+
+			protected function get_contexts_table_name() {
+				return $this->alt_contexts_table;
+			}
+		};
+	}
+
+	/**
+	 * Build a Log_Query subclass pointed at the alternate tables. Stands in
+	 * for Premium's Network_Log_Query.
+	 */
+	private function make_alt_log_query(): Log_Query {
+		return new class( $this->alt_events_table, $this->alt_contexts_table ) extends Log_Query {
+			/** @var string */
+			private $alt_events_table;
+
+			/** @var string */
+			private $alt_contexts_table;
+
+			public function __construct( string $events_table, string $contexts_table ) {
+				$this->alt_events_table   = $events_table;
+				$this->alt_contexts_table = $contexts_table;
+			}
+
+			protected function get_events_table_name() {
+				return $this->alt_events_table;
+			}
+
+			protected function get_contexts_table_name() {
+				return $this->alt_contexts_table;
+			}
+
+			// Exposed so the test can assert on the routing decision itself.
+			public function is_network_query(): bool {
+				return parent::is_network_query();
+			}
+		};
+	}
+
+	/**
+	 * Event IDs restart at 1 in every table, so the per-site event 57 and
+	 * the network event 57 are different events. They must not share a
+	 * cache entry.
+	 */
+	public function test_event_cache_key_carries_the_events_table(): void {
+		global $wpdb;
+
+		// A real per-site event, then a different event with the SAME id in
+		// the alt tables. Explicit id, because the collision only happens
+		// when the numbers match.
+		$per_site_logger = SimpleLogger();
+		$per_site_logger->info( 'Per-site event', [ 'marker' => 'per-site' ] );
+		$event_id = (int) $per_site_logger->last_insert_id;
+
+		$wpdb->insert(
+			$this->alt_events_table,
+			[
+				'id'          => $event_id,
+				'date'        => gmdate( 'Y-m-d H:i:s' ),
+				'logger'      => 'SimpleLogger',
+				'level'       => 'info',
+				'message'     => 'Network event',
+				'occasionsID' => 'alt-occ-' . wp_generate_password( 8, false ),
+				'initiator'   => 'wp_user',
+			]
+		);
+
+		$wpdb->insert(
+			$this->alt_contexts_table,
+			[
+				'history_id' => $event_id,
+				'key'        => 'marker',
+				'value'      => 'network',
+			]
+		);
+
+		// Load the per-site one FIRST so it is the one sitting in the cache.
+		$per_site_event = new Event( $event_id );
+		$this->assertSame( 'per-site', $per_site_event->get_context()['marker'] ?? null );
+
+		// Same numeric id, different table. No cache flush in between: this
+		// is the whole point.
+		$network_event = $this->make_alt_event( $event_id );
+
+		$this->assertSame(
+			'network',
+			$network_event->get_context()['marker'] ?? null,
+			'An Event reading the network tables must not be served the cached per-site event of the same id. If this fails, Event::load_data() built its cache key without the table name.'
+		);
+
+		// And the reverse direction, to prove the per-site entry was not
+		// overwritten by the network read either.
+		$per_site_again = new Event( $event_id );
+		$this->assertSame(
+			'per-site',
+			$per_site_again->get_context()['marker'] ?? null,
+			'Reading the network event must not evict or overwrite the cached per-site event of the same id.'
+		);
+	}
+
+	/**
+	 * Log_Query knows it is reading someone else's tables by comparing them
+	 * with the per-site ones — no constructor flag to forget to set.
+	 */
+	public function test_is_network_query_is_derived_from_the_events_table(): void {
+		$this->assertTrue(
+			$this->make_alt_log_query()->is_network_query(),
+			'A Log_Query subclass pointed at other tables must report itself as a network query.'
+		);
+
+		$reflect = new ReflectionMethod( Log_Query::class, 'is_network_query' );
+		$reflect->setAccessible( true );
+
+		$this->assertFalse(
+			$reflect->invoke( new Log_Query() ),
+			'A plain Log_Query reads the per-site tables and must not report itself as a network query.'
+		);
+	}
+
+	/**
+	 * A write to the shared network tables has to invalidate the cached
+	 * network queries — the per-site incrementor that Helpers::clear_cache()
+	 * bumps is a different key, and on a real network a different site's
+	 * key entirely.
+	 */
+	public function test_network_write_invalidates_a_cached_network_query(): void {
+		// An administrator, so Log_Query does not filter the rows away on
+		// logger capabilities.
+		wp_set_current_user( $this->factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		Simple_History::get_instance()->set_network_tables(
+			$this->alt_events_table,
+			$this->alt_contexts_table
+		);
+
+		$logger = $this->make_forced_network_logger();
+
+		// Log_Query only returns rows from loggers the current user may
+		// read, and the anonymous test logger is not registered. Borrow
+		// SimpleLogger's slug so the rows survive that filter.
+		$logger->slug = 'SimpleLogger';
+
+		$logger->info( 'First network event' );
+
+		$query_args = [
+			'posts_per_page' => 10,
+			'ungrouped'      => true,
+		];
+
+		$first = $this->make_alt_log_query()->query( $query_args );
+		$this->assertSame( 1, (int) $first['total_row_count'], 'Sanity: the network query must see the first event.' );
+
+		// Prove the result really is cached, so the assertion below is about
+		// invalidation and not about the cache never being used.
+		$cached = $this->make_alt_log_query()->query( $query_args );
+		$this->assertTrue( $cached['cached_result'] ?? false, 'Sanity: the second identical network query must be served from cache.' );
+
+		$logger->info( 'Second network event' );
+
+		$after_write = $this->make_alt_log_query()->query( $query_args );
+
+		$this->assertArrayNotHasKey( 'cached_result', $after_write, 'A network write must invalidate the cached network query, so the next query goes to the database.' );
+		$this->assertSame(
+			2,
+			(int) $after_write['total_row_count'],
+			'The network query must see the event that was just written to the network tables. If this fails, Logger::log() did not bump the network cache incrementor.'
+		);
+	}
+
+	/**
+	 * The per-site cache and the network cache are separate: a per-site
+	 * write must not throw away cached network results, and the two live
+	 * in different groups.
+	 */
+	public function test_network_and_per_site_cache_groups_are_separate(): void {
+		$this->assertNotSame(
+			Helpers::get_cache_group(),
+			Helpers::get_cache_group( true ),
+			'Network reads must be cached in their own group.'
+		);
+
+		$network_group_before = Helpers::get_cache_group( true );
+
+		Helpers::clear_cache();
+
+		$this->assertSame(
+			$network_group_before,
+			Helpers::get_cache_group( true ),
+			'Clearing the per-site cache must leave the network cache alone — nothing in the shared network tables changed.'
+		);
+
+		$per_site_group_before = Helpers::get_cache_group();
+
+		Helpers::clear_network_cache();
+
+		$this->assertNotSame(
+			$network_group_before,
+			Helpers::get_cache_group( true ),
+			'clear_network_cache() must bump the network incrementor.'
+		);
+		$this->assertSame(
+			$per_site_group_before,
+			Helpers::get_cache_group(),
+			'Clearing the network cache must leave the per-site cache alone.'
+		);
+	}
+
+	/**
+	 * The network incrementor lives in a global cache group so every site
+	 * in a network reads the same value. Without that registration a write
+	 * on site 3 would leave site 1 serving stale network results.
+	 */
+	public function test_network_cache_incrementor_lives_in_a_global_group(): void {
+		global $wp_object_cache;
+
+		Helpers::register_cache_groups();
+
+		$this->assertNotEmpty(
+			$wp_object_cache->global_groups[ Helpers::NETWORK_CACHE_GLOBAL_GROUP ] ?? null,
+			'The network cache group must be registered as global, or wp_cache_* prefixes its keys with the current blog id and each site keeps its own incrementor.'
+		);
+	}
+
+	/**
+	 * Core must never run its own per-site table recovery for a missing
+	 * network table: that path deletes simple_history_db_version and re-runs
+	 * the per-site setup, which does not create the network table and does
+	 * quietly reset this site's schema state.
+	 */
+	public function test_failed_network_insert_leaves_the_per_site_db_version_alone(): void {
+		global $wpdb;
+
+		$missing_events_table = $wpdb->prefix . 'sh_test_missing_network_events';
+
+		Simple_History::get_instance()->set_network_tables(
+			$missing_events_table,
+			$wpdb->prefix . 'sh_test_missing_network_contexts'
+		);
+
+		$db_version_before = get_option( 'simple_history_db_version' );
+		$this->assertNotFalse( $db_version_before, 'Sanity: the per-site schema version option must exist before the failed write.' );
+
+		// Suppress the expected "table doesn't exist" error output.
+		$suppress_before = $wpdb->suppress_errors( true );
+
+		$logger = $this->make_forced_network_logger();
+		$logger->info( 'Event for a network table that does not exist' );
+
+		$wpdb->suppress_errors( $suppress_before );
+
+		$this->assertSame(
+			$db_version_before,
+			get_option( 'simple_history_db_version' ),
+			'A failed write to the network tables must not touch the per-site schema version. If this fails, log() ran Setup_Database::recreate_tables_if_missing() for someone else\'s table.'
+		);
+	}
+
+	/**
+	 * With a provider-supplied recovery callback, the missing network table
+	 * is handed back to the provider, and the write is retried once.
+	 */
+	public function test_missing_network_table_is_recreated_through_the_provider_callback(): void {
+		global $wpdb;
+
+		$recovery_events_table   = $wpdb->prefix . 'sh_test_recovered_events';
+		$recovery_contexts_table = $wpdb->prefix . 'sh_test_recovered_contexts';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$recovery_events_table}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$recovery_contexts_table}" );
+
+		$calls = 0;
+
+		Simple_History::get_instance()->set_network_tables(
+			$recovery_events_table,
+			$recovery_contexts_table,
+			function () use ( $recovery_events_table, $recovery_contexts_table, &$calls ) {
+				++$calls;
+
+				global $wpdb;
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$wpdb->query(
+					"CREATE TABLE IF NOT EXISTS {$recovery_events_table} (
+						id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+						date datetime NOT NULL,
+						logger varchar(30) DEFAULT NULL,
+						level varchar(20) DEFAULT NULL,
+						message varchar(255) DEFAULT NULL,
+						occasionsID varchar(32) DEFAULT NULL,
+						initiator varchar(16) DEFAULT NULL,
+						PRIMARY KEY  (id)
+					)"
+				);
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$wpdb->query(
+					"CREATE TABLE IF NOT EXISTS {$recovery_contexts_table} (
+						context_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+						history_id bigint(20) unsigned NOT NULL,
+						`key` varchar(255) DEFAULT NULL,
+						value longtext,
+						PRIMARY KEY  (context_id),
+						KEY history_id (history_id)
+					)"
+				);
+
+				return true;
+			}
+		);
+
+		$suppress_before = $wpdb->suppress_errors( true );
+
+		$logger = $this->make_forced_network_logger();
+		$logger->info( 'Event that recreates its own table' );
+
+		$wpdb->suppress_errors( $suppress_before );
+
+		$this->assertSame( 1, $calls, 'The provider recovery callback must be called exactly once for the missing network table.' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$found = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$recovery_events_table} WHERE message = %s", 'Event that recreates its own table' ) );
+
+		$this->assertSame( '1', (string) $found, 'The write must be retried once after the provider recreated the table.' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$recovery_events_table}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$recovery_contexts_table}" );
+	}
+
+	/**
+	 * The user card filters hand over the controller that is serving the
+	 * card, so a callback can ask it for numbers instead of guessing which
+	 * log the card belongs to.
+	 */
+	public function test_user_card_details_filter_receives_the_controller(): void {
+		$user_id = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		$received = null;
+
+		$capture = function ( $details, $user, $controller = null ) use ( &$received ) {
+			$received = $controller;
+
+			return $details;
+		};
+
+		add_filter( 'simple_history/user_card/details', $capture, 10, 3 );
+
+		$controller = new WP_REST_User_Card_Controller();
+		$request    = new WP_REST_Request( 'GET', '/simple-history/v1/users/' . $user_id . '/card' );
+		$request->set_param( 'id', $user_id );
+		$controller->get_user_card( $request );
+
+		remove_filter( 'simple_history/user_card/details', $capture, 10 );
+
+		$this->assertSame( $controller, $received, 'The controller instance must reach the user card details filter as the third argument.' );
+	}
+
+	/**
+	 * A controller subclass that overrides the two seams reads its own log:
+	 * this is what Premium's network user card controller does.
+	 */
+	public function test_user_card_controller_seams_reroute_the_counters(): void {
+		global $wpdb;
+
+		$user_id = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+		wp_set_current_user( $user_id );
+
+		// Two events for this user in the alt ("network") tables only.
+		foreach ( [ 'Alt event one', 'Alt event two' ] as $message ) {
+			$wpdb->insert(
+				$this->alt_events_table,
+				[
+					'date'        => gmdate( 'Y-m-d H:i:s' ),
+					'logger'      => 'SimpleLogger',
+					'level'       => 'info',
+					'message'     => $message,
+					'occasionsID' => 'alt-occ-' . wp_generate_password( 8, false ),
+					'initiator'   => 'wp_user',
+				]
+			);
+
+			$wpdb->insert(
+				$this->alt_contexts_table,
+				[
+					'history_id' => (int) $wpdb->insert_id,
+					'key'        => '_user_id',
+					'value'      => (string) $user_id,
+				]
+			);
+		}
+
+		$alt_events   = $this->alt_events_table;
+		$alt_contexts = $this->alt_contexts_table;
+
+		$network_controller = new class( $alt_events, $alt_contexts ) extends WP_REST_User_Card_Controller {
+			/** @var string */
+			private $alt_events_table;
+
+			/** @var string */
+			private $alt_contexts_table;
+
+			public function __construct( string $events_table, string $contexts_table ) {
+				parent::__construct();
+
+				$this->alt_events_table   = $events_table;
+				$this->alt_contexts_table = $contexts_table;
+			}
+
+			protected function create_log_query() {
+				return new class( $this->alt_events_table, $this->alt_contexts_table ) extends Log_Query {
+					/** @var string */
+					private $alt_events_table;
+
+					/** @var string */
+					private $alt_contexts_table;
+
+					public function __construct( string $events_table, string $contexts_table ) {
+						$this->alt_events_table   = $events_table;
+						$this->alt_contexts_table = $contexts_table;
+					}
+
+					protected function get_events_table_name() {
+						return $this->alt_events_table;
+					}
+
+					protected function get_contexts_table_name() {
+						return $this->alt_contexts_table;
+					}
+				};
+			}
+
+			protected function get_events_table_name() {
+				return $this->alt_events_table;
+			}
+		};
+
+		$this->assertSame(
+			2,
+			(int) $network_controller->get_user_total_event_count( $user_id ),
+			'A controller subclass overriding create_log_query() must count events from its own tables. If this returns the per-site number, the helper is still building its own Log_Query.'
+		);
+
+		$this->assertSame(
+			2,
+			(int) $network_controller->get_initiator_card_stats( 'wp_user' )['total'],
+			'get_initiator_card_stats() must read the table from get_events_table_name(), not from the per-site Simple_History instance.'
+		);
+
+		$this->assertSame(
+			0,
+			(int) ( new WP_REST_User_Card_Controller() )->get_user_total_event_count( $user_id ),
+			'Sanity: the alt-table events must be invisible to the per-site controller, or the assertions above prove nothing.'
+		);
 	}
 
 	public function test_export_set_is_network_is_chainable_and_boolean_cast(): void {
