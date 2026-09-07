@@ -159,13 +159,17 @@ class AddOn_Plugin {
 			$expires_at = null;
 		}
 
-		$message['key_expires_at']           = $expires_at;
-		$message['license_status']           = $status;
+		$license_error = isset( $license['error'] ) && is_string( $license['error'] ) ? $license['error'] : '';
+
+		// Cap server-supplied strings before storing: they end up in an
+		// autoloaded option and this is the only validation they get.
+		$message['key_expires_at']           = $this->cap_string_length( $expires_at );
+		$message['license_status']           = $this->cap_string_length( $status );
 		$message['license_valid']            = ! empty( $license['valid'] );
-		$message['license_error']            = isset( $license['error'] ) && is_string( $license['error'] ) ? $license['error'] : '';
+		$message['license_error']            = $this->cap_string_length( $license_error );
 		$message['license_activation_limit'] = isset( $license['activation_limit'] ) && is_int( $license['activation_limit'] ) ? $license['activation_limit'] : null;
 		$message['license_activation_usage'] = isset( $license['activation_usage'] ) && is_int( $license['activation_usage'] ) ? $license['activation_usage'] : null;
-		$message['license_checked_at']       = $license['checked_at'];
+		$message['license_checked_at']       = $this->cap_string_length( $license['checked_at'] );
 
 		$this->set_licence_message( $message );
 
@@ -255,10 +259,20 @@ class AddOn_Plugin {
 	/**
 	 * One-sentence, plain-text description of the license state for the Licenses tab.
 	 *
-	 * @return string Empty when there is no license.
+	 * An activation-source `expired` state is a guess made from the stale
+	 * activation-time expiry, not a fact from the server, so it makes no
+	 * claim about expiry: it returns an empty string rather than telling a
+	 * renewed customer their license expired.
+	 *
+	 * @param array<string,mixed>|null $license_state Pass an already-computed state to avoid recomputing it. Defaults to computing it.
+	 * @return string Empty when there is no license, or when the only evidence of expiry is a stale activation-time guess.
 	 */
-	public function get_license_state_description() {
-		$state = $this->get_license_state();
+	public function get_license_state_description( ?array $license_state = null ) {
+		$state = $license_state ?? $this->get_license_state();
+
+		if ( $state['state'] === 'expired' && $state['source'] === 'activation' ) {
+			return '';
+		}
 
 		$date = $state['expires_timestamp'] !== null ? wp_date( get_option( 'date_format' ), $state['expires_timestamp'] ) : '';
 
@@ -279,7 +293,7 @@ class AddOn_Plugin {
 					$text = __( 'Lifetime license.', 'simple-history' );
 				} else {
 					/* translators: %s: date */
-					$text = sprintf( __( 'Renews on %s.', 'simple-history' ), $date );
+					$text = sprintf( __( 'Valid until %s.', 'simple-history' ), $date );
 				}
 				break;
 
@@ -301,6 +315,20 @@ class AddOn_Plugin {
 		}
 
 		return trim( $text . ' ' . $usage );
+	}
+
+	/**
+	 * Cap a server-supplied value's length before it is stored.
+	 *
+	 * @param mixed $value Value to cap.
+	 * @return mixed The capped string, or the value unchanged when it is not a string.
+	 */
+	private function cap_string_length( $value ) {
+		if ( ! is_string( $value ) ) {
+			return $value;
+		}
+
+		return substr( $value, 0, 255 );
 	}
 
 	/**
