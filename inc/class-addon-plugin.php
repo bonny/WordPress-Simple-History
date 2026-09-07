@@ -51,15 +51,23 @@ class AddOn_Plugin {
 	 * @var array<string,mixed>
 	 */
 	private array $message_defaults = [
-		'key'             => null,
-		'key_activated'   => false,
-		'key_instance_id' => null,
-		'key_created_at'  => null,
-		'key_expires_at'  => null,
-		'product_id'      => null,
-		'product_name'    => null,
-		'customer_name'   => null,
-		'customer_email'  => null,
+		'key'                      => null,
+		'key_activated'            => false,
+		'key_instance_id'          => null,
+		'key_created_at'           => null,
+		'key_expires_at'           => null,
+		'product_id'               => null,
+		'product_name'             => null,
+		'customer_name'            => null,
+		'customer_email'           => null,
+		// Refreshed by every update check, see update_license_status_from_response().
+		// Absent from options written by older versions, so read them with ??.
+		'license_status'           => null,
+		'license_valid'            => null,
+		'license_error'            => '',
+		'license_activation_limit' => null,
+		'license_activation_usage' => null,
+		'license_checked_at'       => null,
 	];
 
 	/**
@@ -105,6 +113,204 @@ class AddOn_Plugin {
 	 */
 	public function set_licence_message( $new_licence_message ) {
 		return update_option( $this->get_license_message_option_name(), $new_licence_message );
+	}
+
+	/**
+	 * Merge the license object from an update-check response into the stored license message.
+	 *
+	 * The activation response is stored once and never refreshed by Lemon Squeezy,
+	 * so a renewed subscription looks expired locally. The update endpoint on
+	 * simple-history.com now returns the key's current status and expiry on every
+	 * check; this stores it next to the activation data.
+	 *
+	 * Ignores anything that is not a well-formed license object, and never
+	 * creates a license for a site that has none: a missing or null object
+	 * means "could not check", and the previous state must survive.
+	 *
+	 * @param mixed $license Decoded `license` array from the update response.
+	 * @return bool True when the option was written.
+	 */
+	public function update_license_status_from_response( $license ) {
+		if ( ! is_array( $license ) ) {
+			return false;
+		}
+
+		// checked_at is the marker that a real check happened; without it the
+		// object is not from our endpoint.
+		if ( ! isset( $license['checked_at'] ) || ! is_string( $license['checked_at'] ) ) {
+			return false;
+		}
+
+		$message = $this->get_license_message();
+
+		if ( empty( $message['key'] ) || empty( $message['key_activated'] ) ) {
+			return false;
+		}
+
+		$status = $license['status'] ?? null;
+
+		if ( $status !== null && ! is_string( $status ) ) {
+			return false;
+		}
+
+		$expires_at = $license['expires_at'] ?? null;
+
+		if ( $expires_at !== null && ! is_string( $expires_at ) ) {
+			$expires_at = null;
+		}
+
+		$message['key_expires_at']           = $expires_at;
+		$message['license_status']           = $status;
+		$message['license_valid']            = ! empty( $license['valid'] );
+		$message['license_error']            = isset( $license['error'] ) && is_string( $license['error'] ) ? $license['error'] : '';
+		$message['license_activation_limit'] = isset( $license['activation_limit'] ) && is_int( $license['activation_limit'] ) ? $license['activation_limit'] : null;
+		$message['license_activation_usage'] = isset( $license['activation_usage'] ) && is_int( $license['activation_usage'] ) ? $license['activation_usage'] : null;
+		$message['license_checked_at']       = $license['checked_at'];
+
+		$this->set_licence_message( $message );
+
+		return true;
+	}
+
+	/**
+	 * Derive one license state from the stored license message.
+	 *
+	 * Prefers the status from the last update check. Falls back to the
+	 * activation-time expiry date for sites where no check has run since
+	 * this was added, which is the same guess older versions made.
+	 *
+	 * @return array{
+	 *   state: string,
+	 *   source: string,
+	 *   expires_at: ?string,
+	 *   expires_timestamp: ?int,
+	 *   is_lifetime: bool,
+	 *   checked_at: ?string,
+	 *   error: string,
+	 *   activation_limit: ?int,
+	 *   activation_usage: ?int
+	 * } state is one of none, active, expired, disabled, invalid. source is one of none, activation, update_check.
+	 */
+	public function get_license_state() {
+		$message = $this->get_license_message();
+
+		$state = [
+			'state'             => 'none',
+			'source'            => 'none',
+			'expires_at'        => null,
+			'expires_timestamp' => null,
+			'is_lifetime'       => false,
+			'checked_at'        => null,
+			'error'             => '',
+			'activation_limit'  => null,
+			'activation_usage'  => null,
+		];
+
+		if ( empty( $message['key'] ) || empty( $message['key_activated'] ) ) {
+			return $state;
+		}
+
+		$expires_at        = isset( $message['key_expires_at'] ) && is_string( $message['key_expires_at'] ) ? $message['key_expires_at'] : null;
+		$expires_timestamp = $expires_at !== null ? strtotime( $expires_at ) : false;
+
+		if ( $expires_timestamp === false ) {
+			$expires_timestamp = null;
+			$expires_at        = null;
+		}
+
+		$state['expires_at']        = $expires_at;
+		$state['expires_timestamp'] = $expires_timestamp;
+		$state['error']             = isset( $message['license_error'] ) && is_string( $message['license_error'] ) ? $message['license_error'] : '';
+		$state['activation_limit']  = isset( $message['license_activation_limit'] ) && is_int( $message['license_activation_limit'] ) ? $message['license_activation_limit'] : null;
+		$state['activation_usage']  = isset( $message['license_activation_usage'] ) && is_int( $message['license_activation_usage'] ) ? $message['license_activation_usage'] : null;
+
+		$checked_at = isset( $message['license_checked_at'] ) && is_string( $message['license_checked_at'] ) ? $message['license_checked_at'] : null;
+
+		if ( $checked_at === null ) {
+			// Never checked: the activation-time expiry is all there is.
+			$state['source'] = 'activation';
+			$state['state']  = $expires_timestamp !== null && $expires_timestamp < time() ? 'expired' : 'active';
+		} else {
+			$state['source']     = 'update_check';
+			$state['checked_at'] = $checked_at;
+
+			$status = isset( $message['license_status'] ) && is_string( $message['license_status'] ) ? $message['license_status'] : null;
+
+			if ( $status === 'active' || $status === 'inactive' ) {
+				$state['state'] = 'active';
+			} elseif ( $status === 'expired' ) {
+				$state['state'] = 'expired';
+			} elseif ( $status === 'disabled' ) {
+				$state['state'] = 'disabled';
+			} else {
+				$state['state'] = 'invalid';
+			}
+		}
+
+		$state['is_lifetime'] = $state['state'] === 'active' && $expires_at === null;
+
+		return $state;
+	}
+
+	/**
+	 * One-sentence, plain-text description of the license state for the Licenses tab.
+	 *
+	 * @return string Empty when there is no license.
+	 */
+	public function get_license_state_description() {
+		$state = $this->get_license_state();
+
+		$date = $state['expires_timestamp'] !== null ? wp_date( get_option( 'date_format' ), $state['expires_timestamp'] ) : '';
+
+		$usage = '';
+
+		if ( $state['activation_limit'] !== null && $state['activation_usage'] !== null ) {
+			$usage = sprintf(
+				/* translators: 1: number of sites the key is activated on, 2: number of sites the key allows. */
+				__( 'Activated on %1$d of %2$d sites.', 'simple-history' ),
+				$state['activation_usage'],
+				$state['activation_limit']
+			);
+		}
+
+		switch ( $state['state'] ) {
+			case 'active':
+				if ( $state['is_lifetime'] ) {
+					$text = __( 'Lifetime license.', 'simple-history' );
+				} else {
+					/* translators: %s: date */
+					$text = sprintf( __( 'Renews on %s.', 'simple-history' ), $date );
+				}
+				break;
+
+			case 'expired':
+				/* translators: %s: date */
+				$text = $date !== '' ? sprintf( __( 'Expired on %s.', 'simple-history' ), $date ) : __( 'License has expired.', 'simple-history' );
+				break;
+
+			case 'disabled':
+				$text = __( 'License has been disabled.', 'simple-history' );
+				break;
+
+			case 'invalid':
+				$text = __( 'License key is no longer valid.', 'simple-history' );
+				break;
+
+			default:
+				return '';
+		}
+
+		return trim( $text . ' ' . $usage );
+	}
+
+	/**
+	 * Forget the cached update-check response for this add-on.
+	 *
+	 * Mirrors Plugin_Updater::$cache_key. Called on (de)activation so the next
+	 * check asks the server instead of replaying a stale answer.
+	 */
+	private function purge_updater_cache() {
+		delete_transient( 'simple_history_updater_cache_' . str_replace( '-', '_', $this->slug ) );
 	}
 
 	/**
@@ -194,6 +400,7 @@ class AddOn_Plugin {
 		];
 
 		$this->set_licence_message( $message );
+		$this->purge_updater_cache();
 
 		// Deactivate and bail if activation was for another product.
 		if ( $this->product_id && $this->product_id !== $remote_body_json['data']['meta']['product_id'] ) {
@@ -241,17 +448,25 @@ class AddOn_Plugin {
 		if ( wp_remote_retrieve_response_code( $response ) === 200 ) {
 			$this->set_licence_message(
 				[
-					'key'             => null,
-					'key_activated'   => false,
-					'key_instance_id' => null,
-					'key_created_at'  => null,
-					'key_expires_at'  => null,
-					'product_id'      => null,
-					'product_name'    => null,
-					'customer_name'   => null,
-					'customer_email'  => null,
+					'key'                      => null,
+					'key_activated'            => false,
+					'key_instance_id'          => null,
+					'key_created_at'           => null,
+					'key_expires_at'           => null,
+					'product_id'               => null,
+					'product_name'             => null,
+					'customer_name'            => null,
+					'customer_email'           => null,
+					'license_status'           => null,
+					'license_valid'            => null,
+					'license_error'            => '',
+					'license_activation_limit' => null,
+					'license_activation_usage' => null,
+					'license_checked_at'       => null,
 				]
 			);
+			$this->purge_updater_cache();
+
 			return true;
 		}
 
