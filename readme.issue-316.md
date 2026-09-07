@@ -47,9 +47,8 @@ Four tasks; this branch covers Task 1 only.
         never creating a license for a site without one, description text per
         state, and deactivation clearing status + updater cache.
 -   Task 2: updater stores license, 401 bodies accepted + cached 1h.
+-   Task 3: Licenses tab shows state, verified with seeded option.
 
 ## Not done yet (later tasks in the plan)
 
--   Task 3: Licenses tab renders `get_license_state_description()` with a
-    renew/support link.
 -   Task 4: changelog entry, full phpcs/phpstan/wpunit run, `npm run addons:check`.
