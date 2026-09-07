@@ -360,7 +360,12 @@ class Licences_Settings_Page extends Service {
 				// Show license status if key is activated.
 				if ( $licence_message['key_activated'] === true ) {
 					$license_state = $plus_plugin->get_license_state();
-					$is_ok         = $license_state['state'] === 'active';
+
+					// Only an authoritative update check can report a problem.
+					// A guess from the stale activation-time expiry (source
+					// "activation") renders as active until a real check lands,
+					// same as before this branch.
+					$is_problem = $license_state['source'] === 'update_check' && $license_state['state'] !== 'active';
 
 					// Expired keys can be renewed. Disabled (refunded) and unknown keys
 					// cannot, so those get the support page instead of a sales page.
@@ -371,25 +376,27 @@ class Licences_Settings_Page extends Service {
 						$help_url   = Helpers::get_tracking_url( 'https://simple-history.com/support/', 'premium_license_help' );
 						$help_label = __( 'Get help', 'simple-history' );
 					}
+
+					$classes = 'sh-LicencesPage-plugin-active' . ( $is_problem ? ' sh-LicencesPage-plugin-active--problem' : '' );
 					?>
-					<p class="sh-LicencesPage-plugin-active <?php echo $is_ok ? '' : 'sh-LicencesPage-plugin-active--problem'; ?>">
+					<p class="<?php echo esc_attr( $classes ); ?>">
 						<?php
-						if ( $is_ok ) {
+						if ( $is_problem ) {
 							echo wp_kses(
-								__( 'License key is <strong>active</strong>.', 'simple-history' ),
+								__( 'License key is <strong>not active</strong>.', 'simple-history' ),
 								[ 'strong' => [] ]
 							);
 						} else {
 							echo wp_kses(
-								__( 'License key is <strong>not active</strong>.', 'simple-history' ),
+								__( 'License key is <strong>active</strong>.', 'simple-history' ),
 								[ 'strong' => [] ]
 							);
 						}
 
 						echo ' ';
-						echo esc_html( $plus_plugin->get_license_state_description() );
+						echo esc_html( $plus_plugin->get_license_state_description( $license_state ) );
 
-						if ( ! $is_ok ) {
+						if ( $is_problem ) {
 							echo ' ';
 							printf(
 								'<a href="%s" class="sh-ExternalLink" target="_blank">%s</a>',

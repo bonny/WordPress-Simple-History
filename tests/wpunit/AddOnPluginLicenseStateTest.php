@@ -10,6 +10,9 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 	private const SLUG = 'sh-test-addon';
 	private const OPTION = 'simple_history_plusplugin_message_' . self::SLUG;
 
+	/** @var callable|null Filter callback added by test_deactivation_clears_status_and_updater_cache(), if any. */
+	private $pre_http_request_filter = null;
+
 	public function setUp(): void {
 		parent::setUp();
 		delete_option( self::OPTION );
@@ -17,7 +20,12 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 
 	public function tearDown(): void {
 		delete_option( self::OPTION );
-		remove_all_filters( 'pre_http_request' );
+
+		if ( $this->pre_http_request_filter !== null ) {
+			remove_filter( 'pre_http_request', $this->pre_http_request_filter );
+			$this->pre_http_request_filter = null;
+		}
+
 		parent::tearDown();
 	}
 
@@ -167,7 +175,10 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->addon()->update_license_status_from_response( [ 'valid' => true, 'status' => 'inactive', 'expires_at' => null, 'error' => '', 'checked_at' => '2026-09-06T12:00:00Z' ] );
 
-		$this->assertSame( 'active', $this->addon()->get_license_state()['state'] );
+		$state = $this->addon()->get_license_state();
+
+		$this->assertSame( 'active', $state['state'] );
+		$this->assertTrue( $state['is_lifetime'] );
 	}
 
 	public function test_null_or_malformed_license_keeps_previous_state() {
@@ -194,7 +205,7 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'Lifetime license.', $this->addon()->get_license_state_description() );
 
 		$this->addon()->update_license_status_from_response( [ 'valid' => true, 'status' => 'active', 'expires_at' => '2027-09-01T00:00:00.000000Z', 'activation_limit' => 5, 'activation_usage' => 2, 'error' => '', 'checked_at' => '2026-09-06T12:00:00Z' ] );
-		$this->assertStringContainsString( 'Renews on', $this->addon()->get_license_state_description() );
+		$this->assertStringContainsString( 'Valid until', $this->addon()->get_license_state_description() );
 		$this->assertStringContainsString( wp_date( get_option( 'date_format' ), strtotime( '2027-09-01T00:00:00.000000Z' ) ), $this->addon()->get_license_state_description() );
 		$this->assertStringContainsString( '2 of 5 sites', $this->addon()->get_license_state_description() );
 
@@ -210,11 +221,24 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 		$this->addon()->update_license_status_from_response( [ 'valid' => false, 'status' => 'expired', 'expires_at' => '2026-05-27T01:17:07.000000Z', 'error' => 'This license key is expired.', 'checked_at' => '2026-09-06T12:00:00Z' ] );
 		set_transient( 'simple_history_updater_cache_sh_test_addon', '{"success":false}', HOUR_IN_SECONDS );
 		// deactivate_license() calls the license server; fake a 200 so the reset branch runs.
-		add_filter( 'pre_http_request', static function () { return [ 'headers' => [], 'body' => '{}', 'response' => [ 'code' => 200, 'message' => '' ], 'cookies' => [], 'filename' => null ]; }, 10, 3 );
+		$this->pre_http_request_filter = static function () {
+			return [ 'headers' => [], 'body' => '{}', 'response' => [ 'code' => 200, 'message' => '' ], 'cookies' => [], 'filename' => null ];
+		};
+		add_filter( 'pre_http_request', $this->pre_http_request_filter, 10, 3 );
 
 		$this->addon()->deactivate_license();
 
 		$this->assertSame( 'none', $this->addon()->get_license_state()['state'] );
 		$this->assertFalse( get_transient( 'simple_history_updater_cache_sh_test_addon' ) );
+	}
+
+	public function test_activation_time_expiry_makes_no_expiry_claim_in_description() {
+		$this->seed_activated_option( '2024-01-23T13:25:53.000000Z' );
+
+		$state = $this->addon()->get_license_state();
+
+		$this->assertSame( 'expired', $state['state'] );
+		$this->assertSame( 'activation', $state['source'] );
+		$this->assertSame( '', $this->addon()->get_license_state_description() );
 	}
 }

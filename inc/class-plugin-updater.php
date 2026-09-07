@@ -274,8 +274,7 @@ class Plugin_Updater {
 		$remote = $this->request();
 
 		if (
-			// @phpstan-ignore-next-line
-			$remote && $remote->success && ! empty( $remote->update )
+			$remote && ! empty( $remote->success ) && ! empty( $remote->update )
 			&& version_compare( $this->version, $remote->update->version, '<' )
 		) {
 			// Update is available for plugin.

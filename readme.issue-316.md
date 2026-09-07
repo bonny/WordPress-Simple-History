@@ -13,7 +13,7 @@ update endpoint on simple-history.com now returns a `license` object on every
 check; core needs to store and derive state from it.
 
 Implementation plan: `docs/superpowers/plans/2026-09-06-license-status-from-update-checks.md`.
-Four tasks; this branch covers Task 1 only.
+Four tasks; all four are done on this branch.
 
 ## Done
 
@@ -125,3 +125,28 @@ errors, unchanged on old core.)` No `method.notFound` against
     this claim — that command analyses premium against the _current_ core,
     which already has the new methods, so it cannot detect a too-new API
     call. Corrected here to the actual min-core command.)
+
+## Final review fixes
+
+-   `get_license_state_description()` returns `''` for an activation-source
+    `expired` state, so a renewed customer no longer sees an expiry claim
+    before the first update check lands.
+-   `site_transient_update_plugins_update()` reads `$remote->success` with
+    `! empty()` instead of unguarded, so a foreign 401 JSON body (WordPress
+    REST auth errors, security plugins) no longer emits an undefined-property
+    warning for up to an hour.
+-   `update_license_status_from_response()` caps `key_expires_at`,
+    `license_status`, `license_error`, and `license_checked_at` at 255
+    characters before storing them.
+-   `test_inactive_status_counts_as_active` now also asserts `is_lifetime`.
+-   "Renews on %s." is now "Valid until %s.", since a cancelled subscription's
+    key stays active until `expires_at` and then does not renew.
+-   The Licenses tab template computes `$is_problem` from `source ===
+'update_check'` instead of `state === 'active'`, so an activation-source
+    guess never renders as a problem; the CSS class list is built once and
+    escaped, and `get_license_state_description()` takes the already-computed
+    state to avoid computing it twice.
+-   `AddOnPluginLicenseStateTest::tearDown()` removes the specific
+    `pre_http_request` callback it added instead of `remove_all_filters()`.
+-   `docs/superpowers/plans/2026-09-06-license-status-from-update-checks.md`
+    is now committed with the branch.

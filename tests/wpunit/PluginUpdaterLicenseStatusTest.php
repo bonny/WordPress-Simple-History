@@ -223,6 +223,31 @@ class PluginUpdaterLicenseStatusTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertArrayHasKey( self::ID, $transient->no_update );
 	}
 
+	public function test_foreign_401_json_offers_no_update_without_notices() {
+		$this->seed_activated_option();
+		// A 401 JSON body from something other than our endpoint, e.g. a
+		// WordPress REST auth error or a security plugin. It has no `success`
+		// property, so reading it unguarded emits "Undefined property".
+		$this->fake_reply = [
+			'code' => 401,
+			'body' => '{"code":"rest_forbidden","message":"Sorry, you are not allowed to do that.","data":{"status":401}}',
+		];
+
+		$transient = (object) [
+			'checked'   => [ self::ID => '1.0.0' ],
+			'response'  => [],
+			'no_update' => [],
+		];
+
+		// WPTestCase converts PHP warnings/notices to exceptions, so simply
+		// reaching the assertions below without one being thrown is itself
+		// part of what this test verifies.
+		$transient = $this->updater()->site_transient_update_plugins_update( $transient );
+
+		$this->assertArrayNotHasKey( self::ID, $transient->response );
+		$this->assertArrayHasKey( self::ID, $transient->no_update );
+	}
+
 	public function test_site_transient_filter_offers_no_update_for_expired_key() {
 		$this->seed_activated_option();
 		$this->fake_reply = [
