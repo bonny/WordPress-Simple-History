@@ -268,6 +268,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Redirection settings changes now show which settings changed and their previous values.
 -   Redirection events link to the affected redirect or group, and to the relevant Redirection screen.
+-   The Licenses tab now shows when an add-on license renews or when it expired, and how many sites the key is activated on. The status is refreshed from simple-history.com on every update check, so a renewed license no longer looks expired.
 
 **Changed**
 
@@ -281,6 +282,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Plain-text event details (Copy as text, alerts) no longer drop a value of "0" or run a group title into the first label.
 -   Redirection plugin events are logged again with Redirection 5.10.0 and later.
 -   The admin bar quick view now says when events could not be loaded.
+-   An expired or disabled add-on license key silently stopped updates without saying why. The Licenses tab now shows the reason and a renew link.
 
 **Security**
 
