@@ -63,25 +63,35 @@ Four tasks; this branch covers Task 1 only.
     `test_401_with_null_license_keeps_previous_state` (a 401 with `license: null`
     keeps whatever state was already stored) in `PluginUpdaterLicenseStatusTest`.
 -   Old stored option without `license_*` keys: proven by every
-    `seed_activated_option()`-based test in `AddOnPluginLicenseStateTest`
+    `seed_activated_option()`-based test in `AddOnPluginLicenseStateTest` — all
+    ten tests that call the helper
     (`test_activation_only_option_with_future_expiry_is_active`,
     `test_activation_only_option_with_past_expiry_is_expired`,
     `test_activation_only_option_without_expiry_is_lifetime`,
     `test_update_check_refreshes_a_stale_activation_expiry`,
     `test_update_check_reporting_expired_wins_over_activation_data`,
-    `test_update_check_never_creates_a_license_for_a_site_without_one`) — a
-    pre-issue-316 option that only has the activation-time keys still derives a
-    correct state.
+    `test_disabled_and_not_found_have_their_own_states`,
+    `test_inactive_status_counts_as_active`,
+    `test_null_or_malformed_license_keeps_previous_state`,
+    `test_description_text_per_state`,
+    `test_deactivation_clears_status_and_updater_cache`) — a pre-issue-316
+    option that only has the activation-time keys still derives a correct
+    state.
+-   No option at all: `test_update_check_never_creates_a_license_for_a_site_without_one`
+    proves an update check never creates a license entry for a site that never
+    had one — this test deliberately does not call `seed_activated_option()`.
 -   Old core, new server: the update endpoint's 200 keys and 401 status are
     unchanged from before issue 315 — issue 315's own tests cover the server
     side; this branch's tests only add the new `license` key/behaviour and
     don't assume anything about the response shape beyond it, so an old core
     talking to the new server still parses the response the same way it always
     did.
--   Premium untouched: `SH_ADDONS_PATH=... npm run addons:check` (specifically
-    the `php:phpstan:min-core` step) shows premium calling no method beyond
-    what `SIMPLE_HISTORY_PREMIUM_MIN_CORE_VERSION` (5.29.0) already requires —
-    see Task 4 run log below.
+-   Premium untouched: `SH_ADDONS_PATH=... ./scripts/addons.sh
+php:phpstan:min-core` (which exports core at the
+    `SIMPLE_HISTORY_PREMIUM_MIN_CORE_VERSION` tag, 5.29.0, and analyses
+    premium against that checkout instead of the current one) reports
+    `OK — premium is compatible with core 5.29.0.` — see Task 4 run log
+    below.
 
 ## Task 4: command results (2026-09-07)
 
@@ -98,10 +108,20 @@ addons:check` — `check:versions` fails on a pre-existing, unrelated
     mismatch in the add-ons repo (premium `Version:` header 1.15.0 vs
     `package.json` 1.14.0 in `simple-history-premium`, present on the add-ons
     repo's `main` before this session touched anything), which stops the
-    `&&`-chained `php:phpstan:min-core` step from running. Ran
-    `npm run addons:phpstan` (the underlying min-core PHPStan pass) directly
-    instead: 23 pre-existing errors, none related to this branch's new core
-    methods (`update_license_status_from_response`, `get_license_state`,
-    `get_license_state_description`, `purge_updater_cache`) — no
-    `method.notFound` against those names, confirming premium does not call
-    them and `SIMPLE_HISTORY_PREMIUM_MIN_CORE_VERSION` stays at 5.29.0.
+    `&&`-chained `php:phpstan:min-core` step from running. Bypassed it by
+    running that step directly:
+    `SH_ADDONS_PATH=/Users/bonnymacmini/Projects/Simple-History-Add-Ons
+./scripts/addons.sh php:phpstan:min-core` — this exports core at the
+    `SIMPLE_HISTORY_PREMIUM_MIN_CORE_VERSION` tag (5.29.0) and analyses
+    premium against that old checkout, not the current one, so it actually
+    tests whether premium calls anything too new. Result:
+    `OK — premium is compatible with core 5.29.0. (22 pre-existing phpstan
+errors, unchanged on old core.)` No `method.notFound` against
+    `update_license_status_from_response`, `get_license_state`,
+    `get_license_state_description`, `purge_updater_cache`, or
+    `get_addon_plugin` — premium calls none of this branch's new methods, and
+    `SIMPLE_HISTORY_PREMIUM_MIN_CORE_VERSION` stays at 5.29.0. (An earlier
+    version of this report incorrectly cited `npm run addons:phpstan` for
+    this claim — that command analyses premium against the _current_ core,
+    which already has the new methods, so it cannot detect a too-new API
+    call. Corrected here to the actual min-core command.)
