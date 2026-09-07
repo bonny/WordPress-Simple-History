@@ -204,26 +204,6 @@ class Plugin_Logger extends Logger {
 	}
 
 	/**
-	 * Filesystem- and network-settings-level events: always network-scoped
-	 * on multisite. Activation / deactivation stay conditional and use the
-	 * _event_scope hint because they depend on $network_wide at call time.
-	 *
-	 * @var string[]
-	 */
-	protected $network_scoped_message_keys = [
-		'plugin_installed',
-		'plugin_installed_failed',
-		'plugin_updated',
-		'plugin_update_failed',
-		'plugin_update_rolled_back',
-		'plugin_deleted',
-		'plugin_bulk_updated',
-		'plugin_bulk_updated_failed',
-		'plugin_auto_updates_enabled',
-		'plugin_auto_updates_disabled',
-	];
-
-	/**
 	 * Plugin loaded.
 	 */
 	public function loaded() {
@@ -417,6 +397,10 @@ class Plugin_Logger extends Logger {
 			'plugin_url'         => $plugin_data['PluginURI'],
 		);
 
+		// Deleting the plugin files removes the plugin from every site in
+		// the network, so this is a network-level event on multisite.
+		$context = $this->mark_as_network_scoped( $context );
+
 		$this->info_message(
 			'plugin_deleted',
 			$context
@@ -591,6 +575,10 @@ class Plugin_Logger extends Logger {
 			'plugin_name'    => $pluginData['Name'] ?? null,
 			'plugin_version' => $pluginData['Version'] ?? null,
 		);
+
+		// Auto update settings are stored in a site option shared by the
+		// whole network, so the change is network-level on multisite.
+		$context = $this->mark_as_network_scoped( $context );
 
 		if ( $enableOrDisable === 'enable' ) {
 			$this->info_message( 'plugin_auto_updates_enabled', $context );
@@ -953,6 +941,10 @@ class Plugin_Logger extends Logger {
 		// Add update type context (forced_security, user_enabled, manual).
 		$context = $this->add_update_type_context( $context, $arr_data['plugin'], $update_plugins );
 
+		// Updating replaces the plugin files, which every site in the
+		// network runs, so this is a network-level event on multisite.
+		$context = $this->mark_as_network_scoped( $context );
+
 		if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
 			// Add errors
 			// Errors is in original wp admin language.
@@ -1088,6 +1080,10 @@ class Plugin_Logger extends Logger {
 			// Add update type context (forced_security, user_enabled, manual).
 			$context = $this->add_update_type_context( $context, $plugin_main_file_path, $update_plugins );
 
+			// Updating replaces the plugin files, which every site in the
+			// network runs, so this is a network-level event on multisite.
+			$context = $this->mark_as_network_scoped( $context );
+
 			$plugin_errors = $this->package_results[ $plugin_main_file_path ]['result']->errors ?? [];
 
 			if ( count( $plugin_errors ) > 0 ) {
@@ -1171,6 +1167,11 @@ class Plugin_Logger extends Logger {
 			$plugin_upload_name            = sanitize_text_field( $_FILES['pluginzip']['name'] );
 			$context['plugin_upload_name'] = $plugin_upload_name;
 		}
+
+		// Installing puts plugin files on disk for the whole network, so
+		// this is a network-level event on multisite. Covers the replace
+		// variants (updated/downgraded/reinstalled) logged further down too.
+		$context = $this->mark_as_network_scoped( $context );
 
 		if ( is_a( $plugin_upgrader_instance->skin->result, 'WP_Error' ) ) {
 			// Add errors
@@ -1327,6 +1328,10 @@ class Plugin_Logger extends Logger {
 				'rollback_successful' => $rollback_successful ? '1' : '0',
 				'error_message'       => $update->result->get_error_message(),
 			];
+
+			// A rollback restores the previous plugin files for every site
+			// in the network, so this is a network-level event on multisite.
+			$context = $this->mark_as_network_scoped( $context );
 
 			$this->warning_message( 'plugin_update_rolled_back', $context );
 		}

@@ -112,19 +112,6 @@ class Theme_Logger extends Logger {
 	}
 
 	/**
-	 * Filesystem-level theme events: always network-scoped on multisite.
-	 * Switch / customize / widget events are per-site and not listed.
-	 *
-	 * @var string[]
-	 */
-	protected $network_scoped_message_keys = [
-		'theme_installed',
-		'theme_deleted',
-		'theme_updated',
-		'theme_update_failed',
-	];
-
-	/**
 	 * Called when logger is loaded.
 	 */
 	public function loaded() {
@@ -212,8 +199,9 @@ class Theme_Logger extends Logger {
 
 		$theme_data = $this->themes_data[ $stylesheet ];
 
-		$this->info_message(
-			'theme_deleted',
+		// Deleting the theme files removes the theme from every site in
+		// the network, so this is a network-level event on multisite.
+		$context = $this->mark_as_network_scoped(
 			array(
 				'theme_slug'        => $stylesheet,
 				'theme_name'        => $theme_data['name'],
@@ -221,6 +209,11 @@ class Theme_Logger extends Logger {
 				'theme_author'      => $theme_data['author'],
 				'theme_description' => $theme_data['description'],
 			)
+		);
+
+		$this->info_message(
+			'theme_deleted',
+			$context
 		);
 	}
 
@@ -394,6 +387,10 @@ class Theme_Logger extends Logger {
 				// Add rollback context if rollback will occur.
 				$context = $this->add_rollback_context( $context, $one_updated_theme );
 
+				// Updating replaces the theme files, which every site in
+				// the network can use, so this is a network-level event.
+				$context = $this->mark_as_network_scoped( $context );
+
 				$this->warning_message(
 					'theme_update_failed',
 					$context
@@ -412,6 +409,10 @@ class Theme_Logger extends Logger {
 				if ( $theme_prev_version !== null ) {
 					$context['theme_prev_version'] = $theme_prev_version;
 				}
+
+				// Updating replaces the theme files, which every site in
+				// the network can use, so this is a network-level event.
+				$context = $this->mark_as_network_scoped( $context );
 
 				$this->info_message(
 					'theme_updated',
@@ -482,6 +483,10 @@ class Theme_Logger extends Logger {
 				$context['theme_prev_version'] = $prev_version;
 			}
 
+			// Replacing the theme files affects every site in the network,
+			// so this is a network-level event on multisite.
+			$context = $this->mark_as_network_scoped( $context );
+
 			$this->info_message(
 				Plugin_Logger::get_replace_message_key( 'theme', $prev_version, (string) $new_theme_data['Version'] ),
 				$context
@@ -490,8 +495,9 @@ class Theme_Logger extends Logger {
 			return;
 		}
 
-		$this->info_message(
-			'theme_installed',
+		// Installing puts theme files on disk for the whole network, so
+		// this is a network-level event on multisite.
+		$context = $this->mark_as_network_scoped(
 			array(
 				'theme_slug'        => $destination_name,
 				'theme_name'        => $new_theme_data['Name'],
@@ -499,6 +505,11 @@ class Theme_Logger extends Logger {
 				'theme_author'      => $new_theme_data['Author'],
 				'theme_description' => $theme->get( 'Description' ),
 			)
+		);
+
+		$this->info_message(
+			'theme_installed',
+			$context
 		);
 	}
 

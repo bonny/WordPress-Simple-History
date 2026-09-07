@@ -1324,6 +1324,47 @@ class Helpers {
 	}
 
 	/**
+	 * Clear the shared network log, i.e. the tables a provider (Premium)
+	 * registered with Simple_History::set_network_tables().
+	 *
+	 * Does nothing when no provider is registered — core has no network
+	 * tables of its own to clear.
+	 *
+	 * @since 5.27.0
+	 * @return int Number of rows removed. 0 when no provider is registered.
+	 */
+	public static function clear_network_log() {
+		global $wpdb;
+
+		$network_tables = Simple_History::get_instance()->get_network_tables();
+
+		if ( $network_tables === null ) {
+			return 0;
+		}
+
+		$events_table   = $network_tables['events'];
+		$contexts_table = $network_tables['contexts'];
+
+		// Get number of rows before delete.
+		$sql_num_rows = "SELECT count(id) AS num_rows FROM {$events_table}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$num_rows = (int) $wpdb->get_var( $sql_num_rows, 0 );
+
+		// Truncate instead of delete, same as clear_log(): much faster.
+		$sql = "TRUNCATE {$events_table}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query( $sql );
+
+		$sql = "TRUNCATE {$contexts_table}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query( $sql );
+
+		self::clear_cache();
+
+		return $num_rows;
+	}
+
+	/**
 	 * How old log entries are allowed to be.
 	 * 0 = don't delete old entries.
 	 *
@@ -1367,6 +1408,44 @@ class Helpers {
 		$days = apply_filters( 'simple_history/db_purge_days_interval', $days );
 
 		return $days;
+	}
+
+	/**
+	 * How old entries in the shared network log are allowed to be.
+	 * 0 = don't delete old entries.
+	 *
+	 * The network log is shared by every site in the network, so it keeps
+	 * its own retention instead of inheriting whatever the site that
+	 * happened to run the cron job is set to.
+	 *
+	 * @since 5.27.0
+	 * @return int Number of days.
+	 */
+	public static function get_network_clear_history_interval() {
+		// Same default as the per-site log, stored as a site option so the
+		// whole network shares one value.
+		$stored_days = get_site_option( 'simple_history_network_retention_days' );
+		$days        = $stored_days !== false ? (int) $stored_days : 60;
+
+		/**
+		 * Filter number of days of network history to keep.
+		 *
+		 * Only used on multisite, and only when an add-on has registered
+		 * network tables. Return 0 to keep network events forever.
+		 *
+		 * @example Keep 365 days in the shared network log.
+		 *
+		 * ```php
+		 * add_filter( 'simple_history/network/db_purge_days', function( $days ) {
+		 *      return 365;
+		 * } );
+		 * ```
+		 *
+		 * @since 5.27.0
+		 *
+		 * @param int $days Number of days of network history to keep.
+		 */
+		return (int) apply_filters( 'simple_history/network/db_purge_days', $days );
 	}
 
 	/**
