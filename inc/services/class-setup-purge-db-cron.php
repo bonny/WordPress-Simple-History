@@ -97,7 +97,16 @@ class Setup_Purge_DB_Cron extends Service {
 		// so it is purged before the per-site settings below get a chance to
 		// return early. Otherwise whatever the main site is set to would
 		// silently govern the log of the entire network.
-		$this->maybe_purge_network_db();
+		// Contained so a failure inside the provider's tables, or in a
+		// third-party callback on the network purge actions, cannot stop
+		// the per-site purge below. A throw here also means the network
+		// purge lock is never set, so the next tick retries.
+		try {
+			$this->maybe_purge_network_db();
+		} catch ( \Throwable $throwable ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'Simple History: network log purge failed: ' . $throwable->getMessage() );
+		}
 
 		$do_purge_history = true;
 

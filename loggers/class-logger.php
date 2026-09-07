@@ -92,7 +92,10 @@ abstract class Logger {
 	/**
 	 * ID of last inserted row.
 	 *
-	 * @var int
+	 * Null until this logger has inserted a row in the current request, and
+	 * reset to null when log() skips a write on purpose.
+	 *
+	 * @var int|null
 	 */
 	public $last_insert_id;
 
@@ -143,6 +146,25 @@ abstract class Logger {
 	 * @var bool
 	 */
 	protected $is_network_logger = false;
+
+	/**
+	 * Whether this network logger's events recur on every site of the
+	 * network and should therefore be written from the main site only.
+	 *
+	 * Only for loggers whose triggers fire once per site for the same
+	 * network-level fact: update checks, core file checks, translation
+	 * updates. Loggers whose events are one-offs on whichever site the
+	 * request runs on (adding a user to a subsite, network settings saved
+	 * from a subsite context, WP-CLI with --url) must leave this false, or
+	 * those events are lost.
+	 *
+	 * Has no effect unless $is_network_logger is true and a network log
+	 * provider is registered.
+	 *
+	 * @since 5.33.0
+	 * @var bool
+	 */
+	protected $dedupe_network_writes_to_main_site = false;
 
 	/**
 	 * Flag to track if messages have been loaded for this logger.
@@ -1511,12 +1533,18 @@ abstract class Logger {
 			$network_tables = $this->simple_history->get_network_tables();
 
 			if ( $network_tables !== null ) {
-				// Loggers that are network-scoped as a whole run on every
-				// site of the network — their cron jobs and hooks fire per
-				// site — so writing on each one would put one copy of the
-				// same network-level event in the shared log per subsite.
-				// Keep the copy written from the main site only.
-				if ( $this->is_network_logger && is_multisite() && ! is_main_site() ) {
+				// Some network loggers' triggers fire on every site of the
+				// network for the same fact (update checks, core file
+				// checks), which would put one copy per subsite in the
+				// shared log. Those opt in to writing from the main site
+				// only. Clear the last-insert state so a caller that
+				// appends context to "the event just logged" cannot touch
+				// an unrelated earlier event.
+				if ( $this->dedupe_network_writes_to_main_site && is_multisite() && ! is_main_site() ) {
+					$this->last_insert_id      = null;
+					$this->last_insert_context = [];
+					$this->last_insert_data    = [];
+
 					return $this;
 				}
 

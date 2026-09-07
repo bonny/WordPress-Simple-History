@@ -27,6 +27,14 @@ class Available_Updates_Logger extends Logger {
 	protected $is_network_logger = true;
 
 	/**
+	 * The trigger fires on every site for the same network-level fact, so
+	 * only the main site writes it to the network log.
+	 *
+	 * @var bool
+	 */
+	protected $dedupe_network_writes_to_main_site = true;
+
+	/**
 	 * Return logger info
 	 *
 	 * @return array
