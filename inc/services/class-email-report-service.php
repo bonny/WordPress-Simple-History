@@ -530,11 +530,12 @@ class Email_Report_Service extends Service {
 		array_unshift(
 			$periods,
 			[
-				// Dates as ISO 8601 in the site's timezone, so the option can be
-				// read without converting anything. The offset is part of the
-				// string, so it still points at one exact moment.
-				'from'  => wp_date( 'c', $date_from ),
-				'to'    => wp_date( 'c', $date_to ),
+				// ISO 8601 in UTC, the same basis the events table stores its
+				// dates on. Readable when the option is opened, sorts the way
+				// it reads, and cannot drift if the site's timezone changes.
+				// Render with wp_date() to show it in the site's timezone.
+				'from'  => gmdate( 'Y-m-d\TH:i:s\Z', $date_from ),
+				'to'    => gmdate( 'Y-m-d\TH:i:s\Z', $date_to ),
 				'days'  => $this->get_period_days( $date_from, $date_to ),
 				'total' => (int) $total,
 			]
@@ -550,7 +551,7 @@ class Email_Report_Service extends Service {
 	/**
 	 * Timestamp for a date stored in the option.
 	 *
-	 * @param mixed $value ISO 8601 date string.
+	 * @param mixed $value ISO 8601 date string in UTC.
 	 * @return int|null Unix timestamp, or null when the value cannot be read.
 	 */
 	private function parse_stored_date( $value ) {
