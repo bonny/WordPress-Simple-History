@@ -29,7 +29,7 @@ jobs:
         if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v7
 
             # 8.1 matches PHP_CLI_VERSION's default in compose.yaml, so CI and the
             # local php-lint container report the same thing.
@@ -45,7 +45,7 @@ jobs:
             # a hit means the install can be skipped outright.
             - name: Restore vendor/
               id: vendor-cache
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: vendor
                   key: vendor-php8.1-${{ hashFiles('composer.lock') }}
@@ -71,7 +71,7 @@ jobs:
             # here also means CI notices when the build itself breaks - nothing
             # else checks that today.
             - name: Set up Node
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v7
               with:
                   node-version-file: '.nvmrc'
                   cache: npm
@@ -87,7 +87,7 @@ jobs:
             # That directory is gitignored, so CI has to fetch it. Versions are
             # pinned inside the script, which is why the script is the cache key.
             - name: Restore test plugins
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: tests/plugins
                   key: test-plugins-${{ hashFiles('scripts/install-test-plugins.sh') }}
@@ -98,7 +98,7 @@ jobs:
             # Unlike vendor/, a partial hit is what we want here: both tools only
             # re-check what changed since whichever run this restores from.
             - name: Restore phpcs and phpstan result caches
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: .cache
                   key: lint-cache-${{ github.ref_name }}-${{ github.sha }}
