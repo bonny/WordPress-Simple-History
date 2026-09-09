@@ -313,18 +313,25 @@ if ( $show_tip && $tips_service instanceof \Simple_History\Services\Tips_Service
 						<?php echo esc_html( $args['date_range'] ); ?>
 					</p>
 
+					<!-- Subtitle -->
+					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;"
+						class="mobile-text">
+						<?php echo esc_html( __( "Here's a summary of activity on your website.", 'simple-history' ) ); ?>
+					</p>
+
 					<!-- Summary -->
 					<?php
-					$summary_text = $args['summary_text'];
-
-					if ( $summary_text === '' ) {
-						$summary_text = __( "Here's a summary of activity on your website.", 'simple-history' );
+					// Nothing to say only when an add-on has filtered it away; the
+					// subtitle above already introduces the email either way.
+					if ( $args['summary_text'] !== '' ) {
+						?>
+						<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; color: #000000; text-align: left;"
+							class="mobile-text">
+							<?php echo esc_html( $args['summary_text'] ); ?>
+						</p>
+						<?php
 					}
 					?>
-					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; color: #000000; text-align: left;"
-						class="mobile-text">
-						<?php echo esc_html( $summary_text ); ?>
-					</p>
 
 					<p style="margin: 0 0 <?php echo $top_teaser_text ? '10px' : '40px'; ?>; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 22px; color: #666666; text-align: left;">
 						<?php
