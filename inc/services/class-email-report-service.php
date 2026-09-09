@@ -15,6 +15,9 @@ class Email_Report_Service extends Service {
 	private const SETTINGS_PAGE_SLUG    = 'simple_history_settings_menu_slug_email_reports';
 	private const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_email_reports';
 
+	/** Total and length of the last period a report was sent for, so the next one can compare against it. */
+	private const PREVIOUS_PERIOD_OPTION = 'simple_history_email_report_previous_period';
+
 	/**
 	 * @inheritdoc
 	 */
@@ -313,10 +316,193 @@ class Email_Report_Service extends Service {
 		// Add a log page URL behind every number in the report.
 		$stats['stat_urls'] = $this->get_stat_urls( $date_from, $date_to );
 
+		// The opening sentences, which need the numbers gathered above.
+		$stats['summary_text'] = $this->get_summary_text( $stats, $date_from, $date_to );
+
 		// Add settings URL for unsubscribe link.
 		$stats['settings_url'] = admin_url( 'admin.php?page=simple_history_settings_page&selected-tab=general_settings_subtab_general&selected-sub-tab=general_settings_subtab_email_reports' );
 
 		return $stats;
+	}
+
+	/**
+	 * Opening sentences of the report.
+	 *
+	 * Says the things the numbers below cannot: how this week compares with
+	 * the last one, and who was behind it. Everything already printed as a
+	 * large number in its own block is left out, because a number in a box is
+	 * read faster than the same number inside a sentence.
+	 *
+	 * The wording never varies for the same situation. A reader who gets this
+	 * every week learns the sentence as a shape and reads it at a glance, so
+	 * rewording it for variety would cost them that and give nothing back.
+	 *
+	 * @param array $stats     Report stats gathered so far.
+	 * @param int   $date_from Start date as Unix timestamp.
+	 * @param int   $date_to   End date as Unix timestamp.
+	 * @return string One to three sentences, or an empty string.
+	 */
+	private function get_summary_text( $stats, $date_from, $date_to ) {
+		$total     = (int) ( $stats['total_events_this_week'] ?? 0 );
+		$previous  = $this->get_previous_period_total( $date_from, $date_to );
+		$sentences = [];
+
+		// How much happened, and whether that is more or less than last time.
+		// On an empty week this is the sentence that tells someone their
+		// logging stopped working, so it is never dropped.
+		if ( $total === 0 && $previous === null ) {
+			$sentences[] = __( 'No events were logged.', 'simple-history' );
+		} elseif ( $total === 0 ) {
+			$sentences[] = sprintf(
+				/* translators: %s: number of events in the previous period */
+				__( 'No events were logged, compared with %s the week before.', 'simple-history' ),
+				number_format_i18n( $previous )
+			);
+		} elseif ( $previous === null ) {
+			$sentences[] = sprintf(
+				/* translators: %s: number of events */
+				_n( 'Your site logged %s event.', 'Your site logged %s events.', $total, 'simple-history' ),
+				number_format_i18n( $total )
+			);
+		} else {
+			$sentences[] = sprintf(
+				/* translators: 1: number of events this period, 2: number of events in the previous period */
+				_n(
+					'Your site logged %1$s event, compared with %2$s the week before.',
+					'Your site logged %1$s events, compared with %2$s the week before.',
+					$total,
+					'simple-history'
+				),
+				number_format_i18n( $total ),
+				number_format_i18n( $previous )
+			);
+		}
+
+		// Failed logins, stated plainly at any number. A threshold above which
+		// it becomes worth mentioning would be a judgement the log cannot make:
+		// twenty attempts is background noise on a public site and a real
+		// event on a private one.
+		$failed_logins = (int) ( $stats['failed_logins'] ?? 0 );
+
+		if ( $failed_logins > 0 ) {
+			$sentences[] = sprintf(
+				/* translators: %s: number of failed login attempts */
+				_n( 'There was %s failed login.', 'There were %s failed logins.', $failed_logins, 'simple-history' ),
+				number_format_i18n( $failed_logins )
+			);
+		}
+
+		$most_active_user = $this->get_most_active_user_name( $stats, $total );
+
+		if ( $most_active_user !== '' ) {
+			$sentences[] = sprintf(
+				/* translators: %s: display name of the user with the most events */
+				__( '%s was the most active user.', 'simple-history' ),
+				$most_active_user
+			);
+		}
+
+		return implode( ' ', $sentences );
+	}
+
+	/**
+	 * Name of the one user who was clearly the most active, if there is one.
+	 *
+	 * Silent unless the answer is unambiguous and worth saying: a busy enough
+	 * week, more than one person in it, and a clear leader. A tie has no single
+	 * most active user, so naming either of them would be false.
+	 *
+	 * @param array $stats Report stats.
+	 * @param int   $total Total events in the period.
+	 * @return string Display name, or an empty string when there is no clear answer.
+	 */
+	private function get_most_active_user_name( $stats, $total ) {
+		// Below this the ranking says more about chance than about the week.
+		if ( $total < 20 ) {
+			return '';
+		}
+
+		$users = $stats['most_active_users'] ?? [];
+
+		// Every entry is padded out to a fixed length, so drop the empty ones.
+		$users = array_values(
+			array_filter(
+				$users,
+				function ( $user ) {
+					return ! empty( $user['name'] ) && ! empty( $user['count'] );
+				}
+			)
+		);
+
+		if ( count( $users ) < 2 ) {
+			return '';
+		}
+
+		if ( (int) $users[0]['count'] === (int) $users[1]['count'] ) {
+			return '';
+		}
+
+		return $users[0]['name'];
+	}
+
+	/**
+	 * Total events in the period before this one, when it can be compared.
+	 *
+	 * Returns null when there is nothing stored yet, or when the stored period
+	 * covered a different number of days — "the week before" has to be true.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return int|null Previous total, or null when there is nothing to compare with.
+	 */
+	private function get_previous_period_total( $date_from, $date_to ) {
+		$previous = get_option( self::PREVIOUS_PERIOD_OPTION );
+
+		if ( ! is_array( $previous ) || ! isset( $previous['total'], $previous['days'] ) ) {
+			return null;
+		}
+
+		if ( (int) $previous['days'] !== $this->get_period_days( $date_from, $date_to ) ) {
+			return null;
+		}
+
+		return (int) $previous['total'];
+	}
+
+	/**
+	 * Remember this period's total so the next report can compare against it.
+	 *
+	 * Only a report that was actually sent counts. Previews and test emails
+	 * would otherwise overwrite the number a real report is going to be
+	 * measured against.
+	 *
+	 * @param int $total     Total events in the period.
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return void
+	 */
+	private function store_period_total( $total, $date_from, $date_to ) {
+		update_option(
+			self::PREVIOUS_PERIOD_OPTION,
+			[
+				'total' => (int) $total,
+				'days'  => $this->get_period_days( $date_from, $date_to ),
+			],
+			false
+		);
+	}
+
+	/**
+	 * Number of days a report period covers.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return int Days, at least 1.
+	 */
+	private function get_period_days( $date_from, $date_to ) {
+		$days = (int) round( ( $date_to - $date_from ) / DAY_IN_SECONDS );
+
+		return max( 1, $days );
 	}
 
 	/**
@@ -800,11 +986,13 @@ class Email_Report_Service extends Service {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
+		$report_data = $this->get_summary_report_data( $date_from, $date_to, false );
+
 		ob_start();
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			$this->get_summary_report_data( $date_from, $date_to, false )
+			$report_data
 		);
 		$email_content = ob_get_clean();
 
@@ -822,5 +1010,7 @@ class Email_Report_Service extends Service {
 				$headers
 			);
 		}
+
+		$this->store_period_total( $report_data['total_events_this_week'] ?? 0, $date_from, $date_to );
 	}
 }

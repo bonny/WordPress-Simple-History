@@ -67,6 +67,7 @@ $args = wp_parse_args(
 		'wordpress_updates'      => 0,
 		'history_admin_url'      => '',
 		'stat_urls'              => [],
+		'summary_text'           => '',
 		'settings_url'           => '',
 	]
 );
@@ -141,7 +142,7 @@ if ( $show_upsell ) {
 	}
 
 	// Generic teasers, always in the pool.
-	$teaser_pool[] = __( 'Premium also adds real-time alerts for critical events — so you don\'t have to wait for the weekly digest.', 'simple-history' );
+	$teaser_pool[] = __( 'Premium fills this email in with the details — which post, which plugin, who logged in — and sends real-time alerts for critical events, so you don\'t have to wait for Monday to hear about them.', 'simple-history' );
 	$teaser_pool[] = __( 'Free logs expire after 60 days. Premium keeps up to a full year, so you can still see what changed months later.', 'simple-history' );
 	$teaser_pool[] = __( 'With Premium, this email lists who did what — the names behind the numbers below.', 'simple-history' );
 
@@ -312,31 +313,17 @@ if ( $show_tip && $tips_service instanceof \Simple_History\Services\Tips_Service
 						<?php echo esc_html( $args['date_range'] ); ?>
 					</p>
 
-					<!-- Subtitle -->
-					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;"
-						class="mobile-text">
-						<?php echo esc_html( __( "Here's a summary of activity on your website.", 'simple-history' ) ); ?>
-					</p>
+					<!-- Summary -->
+					<?php
+					$summary_text = $args['summary_text'];
 
-					<p style="margin: 0 0 <?php echo $top_teaser_text ? '10px' : '40px'; ?>; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 22px; color: #666666; text-align: left;">
-						<?php
-						$allowed_html = array(
-							'a' => array(
-								'href'  => array(),
-								'style' => array(),
-							),
-						);
-						$link_style   = 'style="color: #0040FF; text-decoration: underline;"';
-						echo wp_kses(
-							sprintf(
-								/* translators: 1: URL to history page, 2: link style attribute including style="" */
-								__( '<a href="%1$s" %2$s>View the Simple History event log</a> on your website for a detailed history of changes and activities.', 'simple-history' ),
-								esc_url( $args['history_admin_url'] ),
-								$link_style
-							),
-							$allowed_html
-						);
-						?>
+					if ( $summary_text === '' ) {
+						$summary_text = __( "Here's a summary of activity on your website.", 'simple-history' );
+					}
+					?>
+					<p style="margin: 0 0 <?php echo $top_teaser_text ? '10px' : '40px'; ?>; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; color: #000000; text-align: left;"
+						class="mobile-text">
+						<?php echo esc_html( $summary_text ); ?>
 					</p>
 
 					<?php
