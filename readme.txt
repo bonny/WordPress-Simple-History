@@ -268,6 +268,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   The event log loads its first page sooner — search options and events were each fetched twice on page load, and the first events request waited out a debounce meant for fast filter changes.
 -   Loading placeholder rows keep their shape while the log loads instead of reshuffling.
+-   The date dropdown keeps the same width while the log loads instead of growing when the month options arrive.
 
 ### 5.32.0 (September 2026)
 
