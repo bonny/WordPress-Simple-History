@@ -379,12 +379,14 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 		$actions = [ 'note_added', 'note_added', 'note_reply_added', 'note_resolved', 'note_reopened' ];
 
+		$title_index = wp_rand( 0, count( $post_titles ) - 1 );
+
 		$context = [
 			'_initiator' => $initiator,
 			'note_id'    => wp_rand( 1, 9999 ),
-			'post_id'    => wp_rand( 1, 9999 ),
+			'post_id'    => $this->get_post_id_for_title( $post_titles[ $title_index ] ),
 			'post_type'  => wp_rand( 0, 1 ) === 1 ? 'page' : 'post',
-			'post_title' => $post_titles[ wp_rand( 0, count( $post_titles ) - 1 ) ],
+			'post_title' => $post_titles[ $title_index ],
 		];
 
 		$context = $this->maybe_add_ip_address( $context );
@@ -559,6 +561,25 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * Post ID for one of the fixture post titles.
+	 *
+	 * A random ID per event would make every event its own post, so a week of
+	 * activity would look like hundreds of posts touched once each. Real sites
+	 * edit the same handful of posts over and over, and anything that groups
+	 * events by post — the weekly email, the post history column — only looks
+	 * right against a fixture that does the same.
+	 *
+	 * Derived from the title so the same title keeps its ID across runs and
+	 * across the different lists these fixtures pick from.
+	 *
+	 * @param string $title Post title.
+	 * @return int Post ID.
+	 */
+	private function get_post_id_for_title( $title ) {
+		return 1000 + ( abs( crc32( $title ) ) % 500 );
+	}
+
+	/**
 	 * Create a post event.
 	 *
 	 * @param Simple_History $simple_history Simple History instance.
@@ -598,13 +619,14 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 
 		$post_types = [ 'post', 'page', 'product' ];
 
-		$title     = $post_titles[ wp_rand( 0, count( $post_titles ) - 1 ) ];
-		$action    = $actions[ wp_rand( 0, count( $actions ) - 1 ) ];
-		$post_type = $post_types[ wp_rand( 0, count( $post_types ) - 1 ) ];
+		$title_index = wp_rand( 0, count( $post_titles ) - 1 );
+		$title       = $post_titles[ $title_index ];
+		$action      = $actions[ wp_rand( 0, count( $actions ) - 1 ) ];
+		$post_type   = $post_types[ wp_rand( 0, count( $post_types ) - 1 ) ];
 
 		$context = [
 			'_initiator' => $initiator,
-			'post_id'    => wp_rand( 1, 9999 ),
+			'post_id'    => $this->get_post_id_for_title( $title ),
 			'post_type'  => $post_type,
 			'post_title' => $title,
 		];

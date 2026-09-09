@@ -274,7 +274,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The weekly email is 600px wide instead of 500px. Activity sections carry a small icon in the heading (the same Material icons as the settings pages, served from your own site), stat captions are quieter so the numbers lead, the intro link is toned down, and sections with nothing to report collapse into a single "Nothing to report" line.
 -   The "WordPress" section of the weekly email is now "WordPress core", and stat captions no longer repeat the section name ("Created" under Posts and Pages instead of "Posts created").
 -   Every number in the weekly email links to the log, filtered to the events it counted over the same days, so "Successful logins 17" opens those 17 logins. Numbers that are zero stay plain text.
--   `wp simple-history dev populate` also generates media, note, theme and WordPress core update events, and plugin updates step the version up instead of picking two random versions.
+-   `wp simple-history dev populate` also generates media, note, theme and WordPress core update events, plugin updates step the version up instead of picking two random versions, and post and note events reuse a small set of post IDs so a generated week looks like a handful of posts edited often rather than hundreds edited once.
 
 **Fixed**
 
