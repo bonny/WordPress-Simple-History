@@ -439,32 +439,16 @@ class Post_History_Column extends Service {
 	}
 
 	/**
-	 * Build a URL to the history page filtered by a specific post ID,
-	 * with message types scoped to SimplePostLogger events.
+	 * Build a URL to the history page filtered by a specific post ID.
+	 *
+	 * Kept as the name the posts list and row action already use; the filters
+	 * themselves live in Helpers so the email and anything else that links to
+	 * one post's history agrees with this page.
 	 *
 	 * @param int $post_id The post ID to filter by.
 	 * @return string Full admin URL with all filter parameters.
 	 */
 	public static function get_post_history_url( $post_id ) {
-		return Helpers::get_filtered_history_url(
-			array(
-				'context'      => 'post_id:' . $post_id,
-				'show_filters' => true,
-				'date'         => 'allDates',
-				'messages'     => array(
-					array(
-						// Display-only label; frontend uses search_options for filtering.
-						'value'          => _x( 'All posts & pages activity', 'Post logger: search', 'simple-history' ),
-						'search_options' => array(
-							'SimplePostLogger:post_created',
-							'SimplePostLogger:post_updated',
-							'SimplePostLogger:post_trashed',
-							'SimplePostLogger:post_deleted',
-							'SimplePostLogger:post_restored',
-						),
-					),
-				),
-			)
-		);
+		return Helpers::get_post_history_url( $post_id );
 	}
 }

@@ -2555,6 +2555,64 @@ class Helpers {
 	}
 
 	/**
+	 * Get a URL to the history page filtered to one post's events.
+	 *
+	 * Defaults to every posts and pages event for that post, over all time —
+	 * what the History column and the post row action link to. Callers that
+	 * count a narrower set of events pass their own search options and date
+	 * range, so the page they open agrees with the number they showed.
+	 *
+	 * @param int   $post_id The post ID to filter by.
+	 * @param array $args {
+	 *     Optional. Overrides for the default filters.
+	 *
+	 *     @type string $date           Date filter. Default 'allDates'.
+	 *     @type string $from           Start date as 'Y-m-d'. Only used with $date set to 'customRange'.
+	 *     @type string $to             End date as 'Y-m-d'. Only used with $date set to 'customRange'.
+	 *     @type bool   $show_filters   Whether to expand the filter panel. Default true.
+	 *     @type string $label          Display label for the message filter chip.
+	 *     @type array  $search_options "LoggerSlug:message_key" entries to filter on.
+	 * }
+	 * @return string Full admin URL with all filter parameters.
+	 */
+	public static function get_post_history_url( $post_id, $args = array() ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'date'           => 'allDates',
+				'from'           => '',
+				'to'             => '',
+				'show_filters'   => true,
+				// Display-only label; the frontend filters on search_options.
+				'label'          => _x( 'All posts & pages activity', 'Post logger: search', 'simple-history' ),
+				'search_options' => array(
+					'SimplePostLogger:post_created',
+					'SimplePostLogger:post_updated',
+					'SimplePostLogger:post_trashed',
+					'SimplePostLogger:post_deleted',
+					'SimplePostLogger:post_restored',
+				),
+			)
+		);
+
+		return self::get_filtered_history_url(
+			array(
+				'context'      => 'post_id:' . $post_id,
+				'date'         => $args['date'],
+				'from'         => $args['from'],
+				'to'           => $args['to'],
+				'show_filters' => $args['show_filters'],
+				'messages'     => array(
+					array(
+						'value'          => $args['label'],
+						'search_options' => $args['search_options'],
+					),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Get URL for settings page.
 	 *
 	 * Uses the same menu location logic as the main history page.
