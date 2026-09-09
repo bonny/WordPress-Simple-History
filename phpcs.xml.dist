@@ -43,6 +43,10 @@
 	<exclude-pattern>*/tests/</exclude-pattern>
 	<exclude-pattern>*/data/</exclude-pattern>
 	<exclude-pattern>*/.claude/</exclude-pattern>
+	<!-- phpstan's result cache lives here and is a thousand-plus generated PHP
+	     files. Scanning them wedges phpcs, and on a memory-limited runner it
+	     dies outright. -->
+	<exclude-pattern>*/.cache/</exclude-pattern>
 	<exclude-pattern>*/phpcs-rules/</exclude-pattern>
 
 	<!-- 

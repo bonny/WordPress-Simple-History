@@ -23,6 +23,11 @@ jobs:
         name: phpcs + phpstan
         runs-on: ubuntu-latest
 
+        # A wedged lint job otherwise sits for GitHub's 6-hour default. Both
+        # tools finish in well under a minute warm, so anything past this is a
+        # bug, not slow work.
+        timeout-minutes: 15
+
         # Pushes cover our own branches. A pull_request event would then run a
         # second, identical job for any branch in this repo, so only let PRs
         # through when they come from a fork.
