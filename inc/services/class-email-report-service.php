@@ -15,8 +15,18 @@ class Email_Report_Service extends Service {
 	private const SETTINGS_PAGE_SLUG    = 'simple_history_settings_menu_slug_email_reports';
 	private const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_email_reports';
 
-	/** Total and length of the last period a report was sent for, so the next one can compare against it. */
-	private const PREVIOUS_PERIOD_OPTION = 'simple_history_email_report_previous_period';
+	/** The last few periods a report was sent for, newest first, so a report can compare itself against them. */
+	private const SENT_PERIODS_OPTION = 'simple_history_email_report_sent_periods';
+
+	/**
+	 * How many sent periods to remember.
+	 *
+	 * One is enough to say "compared with last week". Keeping a few costs
+	 * nothing — it is a handful of integers in one option — and is what a
+	 * typical-week comparison would need, which is the more useful statement
+	 * and the one worth being able to add without a data migration.
+	 */
+	private const MAX_STORED_PERIODS = 5;
 
 	/**
 	 * @inheritdoc
@@ -456,21 +466,52 @@ class Email_Report_Service extends Service {
 	 * @return int|null Previous total, or null when there is nothing to compare with.
 	 */
 	private function get_previous_period_total( $date_from, $date_to ) {
-		$previous = get_option( self::PREVIOUS_PERIOD_OPTION );
+		$days = $this->get_period_days( $date_from, $date_to );
 
-		if ( ! is_array( $previous ) || ! isset( $previous['total'], $previous['days'] ) ) {
-			return null;
+		foreach ( $this->get_sent_periods() as $period ) {
+			// A period of a different length is not "the week before", whether
+			// the schedule changed or the first report covered a part week.
+			if ( (int) $period['days'] !== $days ) {
+				continue;
+			}
+
+			// It also has to be the period that ran up to this one. Reports
+			// switched off for a month and back on again would otherwise
+			// compare against a week from before the gap and call it last week.
+			if ( abs( $date_from - (int) $period['to'] ) > 2 * DAY_IN_SECONDS ) {
+				continue;
+			}
+
+			return (int) $period['total'];
 		}
 
-		if ( (int) $previous['days'] !== $this->get_period_days( $date_from, $date_to ) ) {
-			return null;
-		}
-
-		return (int) $previous['total'];
+		return null;
 	}
 
 	/**
-	 * Remember this period's total so the next report can compare against it.
+	 * The periods reports have been sent for, newest first.
+	 *
+	 * @return array List of [ 'from' => int, 'to' => int, 'days' => int, 'total' => int ].
+	 */
+	private function get_sent_periods() {
+		$periods = get_option( self::SENT_PERIODS_OPTION );
+
+		if ( ! is_array( $periods ) ) {
+			return [];
+		}
+
+		return array_values(
+			array_filter(
+				$periods,
+				function ( $period ) {
+					return is_array( $period ) && isset( $period['from'], $period['to'], $period['days'], $period['total'] );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Remember this period so the next report can compare against it.
 	 *
 	 * Only a report that was actually sent counts. Previews and test emails
 	 * would otherwise overwrite the number a real report is going to be
@@ -482,12 +523,21 @@ class Email_Report_Service extends Service {
 	 * @return void
 	 */
 	private function store_period_total( $total, $date_from, $date_to ) {
-		update_option(
-			self::PREVIOUS_PERIOD_OPTION,
+		$periods = $this->get_sent_periods();
+
+		array_unshift(
+			$periods,
 			[
-				'total' => (int) $total,
+				'from'  => (int) $date_from,
+				'to'    => (int) $date_to,
 				'days'  => $this->get_period_days( $date_from, $date_to ),
-			],
+				'total' => (int) $total,
+			]
+		);
+
+		update_option(
+			self::SENT_PERIODS_OPTION,
+			array_slice( $periods, 0, self::MAX_STORED_PERIODS ),
 			false
 		);
 	}
