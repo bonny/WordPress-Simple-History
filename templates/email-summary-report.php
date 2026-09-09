@@ -321,9 +321,30 @@ if ( $show_tip && $tips_service instanceof \Simple_History\Services\Tips_Service
 						$summary_text = __( "Here's a summary of activity on your website.", 'simple-history' );
 					}
 					?>
-					<p style="margin: 0 0 <?php echo $top_teaser_text ? '10px' : '40px'; ?>; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; color: #000000; text-align: left;"
+					<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; color: #000000; text-align: left;"
 						class="mobile-text">
 						<?php echo esc_html( $summary_text ); ?>
+					</p>
+
+					<p style="margin: 0 0 <?php echo $top_teaser_text ? '10px' : '40px'; ?>; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 22px; color: #666666; text-align: left;">
+						<?php
+						$allowed_html = array(
+							'a' => array(
+								'href'  => array(),
+								'style' => array(),
+							),
+						);
+						$link_style   = 'style="color: #0040FF; text-decoration: underline;"';
+						echo wp_kses(
+							sprintf(
+								/* translators: 1: URL to history page, 2: link style attribute including style="" */
+								__( '<a href="%1$s" %2$s>View the Simple History event log</a> on your website for a detailed history of changes and activities.', 'simple-history' ),
+								esc_url( $args['history_admin_url'] ),
+								$link_style
+							),
+							$allowed_html
+						);
+						?>
 					</p>
 
 					<?php
