@@ -7,6 +7,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # The image copies WordPress core into the shared volume *after* the
+    # container starts, which takes 10-20s on a fresh volume (`docker compose
+    # down -v`, or a WORDPRESS_VERSION switch). php-cli's WPLoader reads that
+    # volume with no wait or retry, so `service_started` would hand it a
+    # half-copied core. wp-config.php is written once the copy is done.
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "test -f /var/www/html/wp-config.php && test -f /var/www/html/wp-includes/version.php",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
     ports:
       - "${DOCKER_WEB_PORT_FORWARD:-9191}:80"
     environment:
@@ -131,7 +146,7 @@ services:
       db:
         condition: service_healthy
       wordpress:
-        condition: service_started
+        condition: service_healthy
 
   wp-cli:
     image: wordpress:cli-php${PHP_VERSION:-7.4}
@@ -146,7 +161,7 @@ services:
       db:
         condition: service_healthy
       wordpress:
-        condition: service_started
+        condition: service_healthy
     init: true
     volumes:
       - wordpress:/var/www/html:rw
