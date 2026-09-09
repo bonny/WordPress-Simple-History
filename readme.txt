@@ -262,6 +262,13 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Fixed**
+
+-   The event log loads its first page sooner — search options and events were each fetched twice on page load, and the first events request waited out a debounce meant for fast filter changes.
+-   Loading placeholder rows keep their shape while the log loads instead of reshuffling.
+
 ### 5.32.0 (September 2026)
 
 Expandable diffs, a "View revision" link that opens the exact revision a change created, and a fix for failed application password logins flooding the log.
