@@ -2511,6 +2511,9 @@ class Helpers {
 	 *     Optional. Filter arguments.
 	 *
 	 *     @type string $date         Date filter. E.g. 'allDates', 'lastdays:30', 'month:2025-04'.
+	 *                                Use 'customRange' together with $from and $to for exact days.
+	 *     @type string $from         Start date as 'Y-m-d'. Only used with $date set to 'customRange'.
+	 *     @type string $to           End date as 'Y-m-d'. Only used with $date set to 'customRange'.
 	 *     @type string $context      Context filter. E.g. 'post_id:123'.
 	 *     @type bool   $show_filters Whether to expand the filter panel. Default false.
 	 *     @type array  $messages     Array of message filter objects, each with 'value' and 'search_options' keys.
@@ -2523,6 +2526,14 @@ class Helpers {
 
 		if ( ! empty( $args['date'] ) ) {
 			$query_args['date'] = $args['date'];
+		}
+
+		if ( ! empty( $args['from'] ) ) {
+			$query_args['from'] = $args['from'];
+		}
+
+		if ( ! empty( $args['to'] ) ) {
+			$query_args['to'] = $args['to'];
 		}
 
 		if ( ! empty( $args['context'] ) ) {

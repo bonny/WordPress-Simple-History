@@ -5,6 +5,7 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 use Simple_History\Events_Stats;
 use Simple_History\Date_Helper;
+use Simple_History\Loggers\User_Logger;
 use Simple_History\Menu_Page;
 
 /**
@@ -309,10 +310,91 @@ class Email_Report_Service extends Service {
 		// Add history admin URL.
 		$stats['history_admin_url'] = \Simple_History\Helpers::get_history_admin_url();
 
+		// Add a log page URL behind every number in the report.
+		$stats['stat_urls'] = $this->get_stat_urls( $date_from, $date_to );
+
 		// Add settings URL for unsubscribe link.
 		$stats['settings_url'] = admin_url( 'admin.php?page=simple_history_settings_page&selected-tab=general_settings_subtab_general&selected-sub-tab=general_settings_subtab_email_reports' );
 
 		return $stats;
+	}
+
+	/**
+	 * Log page URLs for the numbers in the report, keyed by stat.
+	 *
+	 * Every number in the email answers "how many", and the reader's next
+	 * question is "which ones". Each URL filters the log to the same logger and
+	 * message keys the stat was counted from, over the same days, so the page
+	 * they land on holds the events behind the number they clicked.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return array<string,string> Stat key to log page URL.
+	 */
+	private function get_stat_urls( $date_from, $date_to ) {
+		// Label, logger slug and message keys per stat. The keys have to stay
+		// in step with the Events_Stats methods the counts come from, or a
+		// number will lead to a page that disagrees with it.
+		$stat_events = [
+			'successful_logins'    => [ __( 'Successful logins', 'simple-history' ), 'SimpleUserLogger', [ 'user_logged_in', 'user_unknown_logged_in' ] ],
+			'failed_logins'        => [ __( 'Failed logins', 'simple-history' ), 'SimpleUserLogger', User_Logger::get_failed_login_message_keys() ],
+			'users_created'        => [ __( 'Users created', 'simple-history' ), 'SimpleUserLogger', [ 'user_created' ] ],
+			'users_updated'        => [ __( 'Profile updates', 'simple-history' ), 'SimpleUserLogger', [ 'user_updated_profile' ] ],
+			'posts_created'        => [ __( 'Posts and pages created', 'simple-history' ), 'SimplePostLogger', [ 'post_created' ] ],
+			'posts_updated'        => [ __( 'Posts and pages edited', 'simple-history' ), 'SimplePostLogger', [ 'post_updated' ] ],
+			'media_uploads'        => [ __( 'Media uploads', 'simple-history' ), 'SimpleMediaLogger', [ 'attachment_created' ] ],
+			'media_edits'          => [ __( 'Media edits', 'simple-history' ), 'SimpleMediaLogger', [ 'attachment_updated' ] ],
+			'comments_added'       => [ __( 'Comments added', 'simple-history' ), 'SimpleCommentsLogger', [ 'anon_comment_added', 'user_comment_added' ] ],
+			'comments_approved'    => [ __( 'Comments approved', 'simple-history' ), 'SimpleCommentsLogger', [ 'comment_status_approve' ] ],
+			'comments_spam'        => [ __( 'Comments marked as spam', 'simple-history' ), 'SimpleCommentsLogger', [ 'comment_status_spam' ] ],
+			'notes_added'          => [ __( 'Notes added', 'simple-history' ), 'NotesLogger', [ 'note_added', 'note_reply_added' ] ],
+			'notes_resolved'       => [ __( 'Notes resolved', 'simple-history' ), 'NotesLogger', [ 'note_resolved' ] ],
+			'plugin_activations'   => [ __( 'Plugin activations', 'simple-history' ), 'SimplePluginLogger', [ 'plugin_activated' ] ],
+			'plugin_deactivations' => [ __( 'Plugin deactivations', 'simple-history' ), 'SimplePluginLogger', [ 'plugin_deactivated' ] ],
+			'theme_switches'       => [ __( 'Theme switches', 'simple-history' ), 'SimpleThemeLogger', [ 'theme_switched' ] ],
+			'theme_updates'        => [ __( 'Theme updates', 'simple-history' ), 'SimpleThemeLogger', [ 'theme_updated' ] ],
+			'wordpress_updates'    => [ __( 'WordPress core updates', 'simple-history' ), 'SimpleCoreUpdatesLogger', [ 'core_updated', 'core_auto_updated' ] ],
+		];
+
+		// The report covers whole days in the site's timezone, so the log has to
+		// be asked for those same days rather than the last seven from now.
+		$from = ( new \DateTimeImmutable( '@' . $date_from ) )->setTimezone( wp_timezone() )->format( 'Y-m-d' );
+		$to   = ( new \DateTimeImmutable( '@' . $date_to ) )->setTimezone( wp_timezone() )->format( 'Y-m-d' );
+
+		$date_args = [
+			'date' => 'customRange',
+			'from' => $from,
+			'to'   => $to,
+		];
+
+		// The whole period, for the total events number.
+		$urls = [ 'total_events_this_week' => Helpers::get_filtered_history_url( $date_args ) ];
+
+		foreach ( $stat_events as $stat_key => $stat_event ) {
+			list( $label, $logger_slug, $message_keys ) = $stat_event;
+
+			$search_options = [];
+
+			foreach ( $message_keys as $message_key ) {
+				$search_options[] = $logger_slug . ':' . $message_key;
+			}
+
+			$urls[ $stat_key ] = Helpers::get_filtered_history_url(
+				array_merge(
+					$date_args,
+					[
+						'messages' => [
+							[
+								'value'          => $label,
+								'search_options' => $search_options,
+							],
+						],
+					]
+				)
+			);
+		}
+
+		return $urls;
 	}
 
 	/**
