@@ -264,6 +264,20 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Added**
+
+-   The weekly email ends with a tip about Simple History that changes every week, picked to match what happened on the site when it can.
+-   The weekly email opens with a sentence or two about the week itself: how many events, how that compares with the week before, any failed logins, and who was most active. On a week with nothing logged it says so and still names last week's total — which is how you find out logging has stopped.
+
+**Changed**
+
+-   The weekly email's Premium teaser sits under the intro instead of inside one of the activity sections, and rotates between texts that match the week's activity. One of them now points at the email the reader is holding — Premium fills it in with which post, which plugin and who logged in.
+-   The weekly email is 600px wide instead of 500px. Activity sections carry a small icon in the heading (the same Material icons as the settings pages, served from your own site), stat captions are quieter so the numbers lead, the intro link is toned down, and sections with nothing to report collapse into a single "Nothing to report" line.
+-   The "WordPress" section of the weekly email is now "WordPress core", and stat captions no longer repeat the section name ("Created" under Posts and Pages instead of "Posts created").
+-   Every number in the weekly email links to the log, filtered to the events it counted over the same days, so "Successful logins 17" opens those 17 logins. Numbers that are zero stay plain text.
+-   The weekly email no longer explains the link to the log under the intro. The summary above it and the button below it already cover it.
+-   `wp simple-history dev populate` also generates media, note, theme and WordPress core update events, plugin updates step the version up instead of picking two random versions, and post and note events reuse a small set of post IDs so a generated week looks like a handful of posts edited often rather than hundreds edited once.
+
 **Fixed**
 
 -   The event log loads its first page sooner — search options and events were each fetched twice on page load, and the first events request waited out a debounce meant for fast filter changes.

@@ -1,4 +1,7 @@
 parameters:
+  # Keep the result cache in the repo instead of the system temp dir, so CI can
+  # restore it between runs and only re-analyse what changed. Gitignored.
+  tmpDir: .cache/phpstan
   paths:
     - index.php
     - uninstall.php

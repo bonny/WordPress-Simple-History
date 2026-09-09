@@ -5,6 +5,7 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 use Simple_History\Events_Stats;
 use Simple_History\Date_Helper;
+use Simple_History\Loggers\User_Logger;
 use Simple_History\Menu_Page;
 
 /**
@@ -13,6 +14,19 @@ use Simple_History\Menu_Page;
 class Email_Report_Service extends Service {
 	private const SETTINGS_PAGE_SLUG    = 'simple_history_settings_menu_slug_email_reports';
 	private const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_email_reports';
+
+	/** The last few periods a report was sent for, newest first, so a report can compare itself against them. */
+	private const SENT_PERIODS_OPTION = 'simple_history_email_report_sent_periods';
+
+	/**
+	 * How many sent periods to remember.
+	 *
+	 * One is enough to say "compared with last week". Keeping a few costs
+	 * nothing — it is a handful of integers in one option — and is what a
+	 * typical-week comparison would need, which is the more useful statement
+	 * and the one worth being able to add without a data migration.
+	 */
+	private const MAX_STORED_PERIODS = 5;
 
 	/**
 	 * @inheritdoc
@@ -309,10 +323,340 @@ class Email_Report_Service extends Service {
 		// Add history admin URL.
 		$stats['history_admin_url'] = \Simple_History\Helpers::get_history_admin_url();
 
+		// Add a log page URL behind every number in the report.
+		$stats['stat_urls'] = $this->get_stat_urls( $date_from, $date_to );
+
+		// The opening sentences, which need the numbers gathered above.
+		$stats['summary_text'] = $this->get_summary_text( $stats, $date_from, $date_to );
+
 		// Add settings URL for unsubscribe link.
 		$stats['settings_url'] = admin_url( 'admin.php?page=simple_history_settings_page&selected-tab=general_settings_subtab_general&selected-sub-tab=general_settings_subtab_email_reports' );
 
 		return $stats;
+	}
+
+	/**
+	 * Opening sentences of the report.
+	 *
+	 * Says the things the numbers below cannot: how this week compares with
+	 * the last one, and who was behind it. Everything already printed as a
+	 * large number in its own block is left out, because a number in a box is
+	 * read faster than the same number inside a sentence.
+	 *
+	 * The wording never varies for the same situation. A reader who gets this
+	 * every week learns the sentence as a shape and reads it at a glance, so
+	 * rewording it for variety would cost them that and give nothing back.
+	 *
+	 * @param array $stats     Report stats gathered so far.
+	 * @param int   $date_from Start date as Unix timestamp.
+	 * @param int   $date_to   End date as Unix timestamp.
+	 * @return string One to three sentences, or an empty string.
+	 */
+	private function get_summary_text( $stats, $date_from, $date_to ) {
+		$total     = (int) ( $stats['total_events_this_week'] ?? 0 );
+		$previous  = $this->get_previous_period_total( $date_from, $date_to );
+		$sentences = [];
+
+		// How much happened, and whether that is more or less than last time.
+		// On an empty week this is the sentence that tells someone their
+		// logging stopped working, so it is never dropped.
+		if ( $total === 0 && $previous === null ) {
+			$sentences[] = __( 'No events were logged.', 'simple-history' );
+		} elseif ( $total === 0 ) {
+			$sentences[] = sprintf(
+				/* translators: %s: number of events in the previous period */
+				__( 'No events were logged, compared with %s the week before.', 'simple-history' ),
+				number_format_i18n( $previous )
+			);
+		} elseif ( $previous === null ) {
+			$sentences[] = sprintf(
+				/* translators: %s: number of events */
+				_n( 'Your site logged %s event.', 'Your site logged %s events.', $total, 'simple-history' ),
+				number_format_i18n( $total )
+			);
+		} else {
+			$sentences[] = sprintf(
+				/* translators: 1: number of events this period, 2: number of events in the previous period */
+				_n(
+					'Your site logged %1$s event, compared with %2$s the week before.',
+					'Your site logged %1$s events, compared with %2$s the week before.',
+					$total,
+					'simple-history'
+				),
+				number_format_i18n( $total ),
+				number_format_i18n( $previous )
+			);
+		}
+
+		// Failed logins, stated plainly at any number. A threshold above which
+		// it becomes worth mentioning would be a judgement the log cannot make:
+		// twenty attempts is background noise on a public site and a real
+		// event on a private one.
+		$failed_logins = (int) ( $stats['failed_logins'] ?? 0 );
+
+		if ( $failed_logins > 0 ) {
+			$sentences[] = sprintf(
+				/* translators: %s: number of failed login attempts */
+				_n( 'There was %s failed login.', 'There were %s failed logins.', $failed_logins, 'simple-history' ),
+				number_format_i18n( $failed_logins )
+			);
+		}
+
+		$most_active_user = $this->get_most_active_user_name( $stats, $total );
+
+		if ( $most_active_user !== '' ) {
+			$sentences[] = sprintf(
+				/* translators: %s: display name of the user with the most events */
+				__( '%s was the most active user.', 'simple-history' ),
+				$most_active_user
+			);
+		}
+
+		return implode( ' ', $sentences );
+	}
+
+	/**
+	 * Name of the one user who was clearly the most active, if there is one.
+	 *
+	 * Silent unless the answer is unambiguous and worth saying: a busy enough
+	 * week, more than one person in it, and a clear leader. A tie has no single
+	 * most active user, so naming either of them would be false.
+	 *
+	 * @param array $stats Report stats.
+	 * @param int   $total Total events in the period.
+	 * @return string Display name, or an empty string when there is no clear answer.
+	 */
+	private function get_most_active_user_name( $stats, $total ) {
+		// Below this the ranking says more about chance than about the week.
+		if ( $total < 20 ) {
+			return '';
+		}
+
+		$users = $stats['most_active_users'] ?? [];
+
+		// Every entry is padded out to a fixed length, so drop the empty ones.
+		$users = array_values(
+			array_filter(
+				$users,
+				function ( $user ) {
+					return ! empty( $user['name'] ) && ! empty( $user['count'] );
+				}
+			)
+		);
+
+		if ( count( $users ) < 2 ) {
+			return '';
+		}
+
+		if ( (int) $users[0]['count'] === (int) $users[1]['count'] ) {
+			return '';
+		}
+
+		return $users[0]['name'];
+	}
+
+	/**
+	 * Total events in the period before this one, when it can be compared.
+	 *
+	 * Returns null when there is nothing stored yet, or when the stored period
+	 * covered a different number of days — "the week before" has to be true.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return int|null Previous total, or null when there is nothing to compare with.
+	 */
+	private function get_previous_period_total( $date_from, $date_to ) {
+		$days = $this->get_period_days( $date_from, $date_to );
+
+		foreach ( $this->get_sent_periods() as $period ) {
+			// A period of a different length is not "the week before", whether
+			// the schedule changed or the first report covered a part week.
+			if ( (int) $period['days'] !== $days ) {
+				continue;
+			}
+
+			$period_to = $this->parse_stored_date( $period['to'] );
+
+			// It also has to be the period that ran up to this one. Reports
+			// switched off for a month and back on again would otherwise
+			// compare against a week from before the gap and call it last week.
+			if ( $period_to === null || abs( $date_from - $period_to ) > 2 * DAY_IN_SECONDS ) {
+				continue;
+			}
+
+			return (int) $period['total'];
+		}
+
+		return null;
+	}
+
+	/**
+	 * The periods reports have been sent for, newest first.
+	 *
+	 * @return array List of [ 'from' => string, 'to' => string, 'days' => int, 'total' => int ].
+	 */
+	private function get_sent_periods() {
+		$periods = get_option( self::SENT_PERIODS_OPTION );
+
+		if ( ! is_array( $periods ) ) {
+			return [];
+		}
+
+		return array_values(
+			array_filter(
+				$periods,
+				function ( $period ) {
+					return is_array( $period ) && isset( $period['from'], $period['to'], $period['days'], $period['total'] );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Remember this period so the next report can compare against it.
+	 *
+	 * Only a report that was actually sent counts. Previews and test emails
+	 * would otherwise overwrite the number a real report is going to be
+	 * measured against.
+	 *
+	 * @param int $total     Total events in the period.
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return void
+	 */
+	private function store_period_total( $total, $date_from, $date_to ) {
+		$periods = $this->get_sent_periods();
+
+		array_unshift(
+			$periods,
+			[
+				// ISO 8601 in UTC, the same basis the events table stores its
+				// dates on. Readable when the option is opened, sorts the way
+				// it reads, and cannot drift if the site's timezone changes.
+				// Render with wp_date() to show it in the site's timezone.
+				'from'  => gmdate( 'Y-m-d\TH:i:s\Z', $date_from ),
+				'to'    => gmdate( 'Y-m-d\TH:i:s\Z', $date_to ),
+				'days'  => $this->get_period_days( $date_from, $date_to ),
+				'total' => (int) $total,
+			]
+		);
+
+		update_option(
+			self::SENT_PERIODS_OPTION,
+			array_slice( $periods, 0, self::MAX_STORED_PERIODS ),
+			false
+		);
+	}
+
+	/**
+	 * Timestamp for a date stored in the option.
+	 *
+	 * @param mixed $value ISO 8601 date string in UTC.
+	 * @return int|null Unix timestamp, or null when the value cannot be read.
+	 */
+	private function parse_stored_date( $value ) {
+		if ( ! is_string( $value ) || $value === '' ) {
+			return null;
+		}
+
+		try {
+			$date = new \DateTimeImmutable( $value );
+		} catch ( \Exception $e ) {
+			return null;
+		}
+
+		return $date->getTimestamp();
+	}
+
+	/**
+	 * Number of days a report period covers.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return int Days, at least 1.
+	 */
+	private function get_period_days( $date_from, $date_to ) {
+		$days = (int) round( ( $date_to - $date_from ) / DAY_IN_SECONDS );
+
+		return max( 1, $days );
+	}
+
+	/**
+	 * Log page URLs for the numbers in the report, keyed by stat.
+	 *
+	 * Every number in the email answers "how many", and the reader's next
+	 * question is "which ones". Each URL filters the log to the same logger and
+	 * message keys the stat was counted from, over the same days, so the page
+	 * they land on holds the events behind the number they clicked.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return array<string,string> Stat key to log page URL.
+	 */
+	private function get_stat_urls( $date_from, $date_to ) {
+		// Label, logger slug and message keys per stat. The keys have to stay
+		// in step with the Events_Stats methods the counts come from, or a
+		// number will lead to a page that disagrees with it.
+		$stat_events = [
+			'successful_logins'    => [ __( 'Successful logins', 'simple-history' ), 'SimpleUserLogger', [ 'user_logged_in', 'user_unknown_logged_in' ] ],
+			'failed_logins'        => [ __( 'Failed logins', 'simple-history' ), 'SimpleUserLogger', User_Logger::get_failed_login_message_keys() ],
+			'users_created'        => [ __( 'Users created', 'simple-history' ), 'SimpleUserLogger', [ 'user_created' ] ],
+			'users_updated'        => [ __( 'Profile updates', 'simple-history' ), 'SimpleUserLogger', [ 'user_updated_profile' ] ],
+			'posts_created'        => [ __( 'Posts and pages created', 'simple-history' ), 'SimplePostLogger', [ 'post_created' ] ],
+			'posts_updated'        => [ __( 'Posts and pages edited', 'simple-history' ), 'SimplePostLogger', [ 'post_updated' ] ],
+			'media_uploads'        => [ __( 'Media uploads', 'simple-history' ), 'SimpleMediaLogger', [ 'attachment_created' ] ],
+			'media_edits'          => [ __( 'Media edits', 'simple-history' ), 'SimpleMediaLogger', [ 'attachment_updated' ] ],
+			'comments_added'       => [ __( 'Comments added', 'simple-history' ), 'SimpleCommentsLogger', [ 'anon_comment_added', 'user_comment_added' ] ],
+			'comments_approved'    => [ __( 'Comments approved', 'simple-history' ), 'SimpleCommentsLogger', [ 'comment_status_approve' ] ],
+			'comments_spam'        => [ __( 'Comments marked as spam', 'simple-history' ), 'SimpleCommentsLogger', [ 'comment_status_spam' ] ],
+			'notes_added'          => [ __( 'Notes added', 'simple-history' ), 'NotesLogger', [ 'note_added', 'note_reply_added' ] ],
+			'notes_resolved'       => [ __( 'Notes resolved', 'simple-history' ), 'NotesLogger', [ 'note_resolved' ] ],
+			'plugin_activations'   => [ __( 'Plugin activations', 'simple-history' ), 'SimplePluginLogger', [ 'plugin_activated' ] ],
+			'plugin_deactivations' => [ __( 'Plugin deactivations', 'simple-history' ), 'SimplePluginLogger', [ 'plugin_deactivated' ] ],
+			'theme_switches'       => [ __( 'Theme switches', 'simple-history' ), 'SimpleThemeLogger', [ 'theme_switched' ] ],
+			'theme_updates'        => [ __( 'Theme updates', 'simple-history' ), 'SimpleThemeLogger', [ 'theme_updated' ] ],
+			'wordpress_updates'    => [ __( 'WordPress core updates', 'simple-history' ), 'SimpleCoreUpdatesLogger', [ 'core_updated', 'core_auto_updated' ] ],
+		];
+
+		// The report covers whole days in the site's timezone, so the log has to
+		// be asked for those same days rather than the last seven from now.
+		$from = ( new \DateTimeImmutable( '@' . $date_from ) )->setTimezone( wp_timezone() )->format( 'Y-m-d' );
+		$to   = ( new \DateTimeImmutable( '@' . $date_to ) )->setTimezone( wp_timezone() )->format( 'Y-m-d' );
+
+		$date_args = [
+			'date' => 'customRange',
+			'from' => $from,
+			'to'   => $to,
+		];
+
+		// The whole period, for the total events number.
+		$urls = [ 'total_events_this_week' => Helpers::get_filtered_history_url( $date_args ) ];
+
+		foreach ( $stat_events as $stat_key => $stat_event ) {
+			list( $label, $logger_slug, $message_keys ) = $stat_event;
+
+			$search_options = [];
+
+			foreach ( $message_keys as $message_key ) {
+				$search_options[] = $logger_slug . ':' . $message_key;
+			}
+
+			$urls[ $stat_key ] = Helpers::get_filtered_history_url(
+				array_merge(
+					$date_args,
+					[
+						'messages' => [
+							[
+								'value'          => $label,
+								'search_options' => $search_options,
+							],
+						],
+					]
+				)
+			);
+		}
+
+		return $urls;
 	}
 
 	/**
@@ -718,11 +1062,13 @@ class Email_Report_Service extends Service {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
+		$report_data = $this->get_summary_report_data( $date_from, $date_to, false );
+
 		ob_start();
 		load_template(
 			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
 			false,
-			$this->get_summary_report_data( $date_from, $date_to, false )
+			$report_data
 		);
 		$email_content = ob_get_clean();
 
@@ -740,5 +1086,7 @@ class Email_Report_Service extends Service {
 				$headers
 			);
 		}
+
+		$this->store_period_total( $report_data['total_events_this_week'] ?? 0, $date_from, $date_to );
 	}
 }
