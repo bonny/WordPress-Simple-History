@@ -290,19 +290,181 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 	 * @param string         $initiator Log initiator constant.
 	 */
 	private function create_mixed_event( $simple_history, $index, $initiator ) {
-		$rand = $index % 20;
+		$rand = $index % 25;
 
-		if ( $rand < 8 ) {
+		if ( $rand < 7 ) {
 			$this->create_post_event( $simple_history, $initiator );
-		} elseif ( $rand < 13 ) {
+		} elseif ( $rand < 11 ) {
 			$this->create_plugin_event( $simple_history, $initiator );
-		} elseif ( $rand < 16 ) {
+		} elseif ( $rand < 14 ) {
 			$this->create_user_event( $simple_history, $initiator );
-		} elseif ( $rand < 18 ) {
+		} elseif ( $rand < 16 ) {
 			$this->create_option_event( $simple_history, $initiator );
+		} elseif ( $rand < 18 ) {
+			$this->create_media_event( $simple_history, $initiator );
+		} elseif ( $rand < 20 ) {
+			$this->create_note_event( $simple_history, $initiator );
+		} elseif ( $rand < 22 ) {
+			$this->create_theme_event( $simple_history, $initiator );
+		} elseif ( $rand < 23 ) {
+			$this->create_core_update_event( $simple_history, $initiator );
 		} else {
 			$this->create_simple_event( $simple_history, $initiator );
 		}
+	}
+
+	/**
+	 * Create a media event (upload, edit or delete).
+	 *
+	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
+	 */
+	private function create_media_event( $simple_history, $initiator ) {
+		$logger = $simple_history->get_instantiated_logger_by_slug( 'SimpleMediaLogger' );
+
+		if ( ! $logger ) {
+			return;
+		}
+
+		$files = [
+			[ 'hero-banner.jpg', 'Hero banner', 'image/jpeg' ],
+			[ 'team-photo.jpg', 'Team photo', 'image/jpeg' ],
+			[ 'product-sheet.pdf', 'Product sheet', 'application/pdf' ],
+			[ 'logo.svg', 'Logo', 'image/svg+xml' ],
+			[ 'annual-report.pdf', 'Annual report', 'application/pdf' ],
+			[ 'office-tour.mp4', 'Office tour', 'video/mp4' ],
+			[ 'newsletter-header.png', 'Newsletter header', 'image/png' ],
+		];
+
+		$actions = [ 'attachment_created', 'attachment_created', 'attachment_updated', 'attachment_deleted' ];
+
+		$file   = $files[ wp_rand( 0, count( $files ) - 1 ) ];
+		$action = $actions[ wp_rand( 0, count( $actions ) - 1 ) ];
+
+		$context = [
+			'_initiator'          => $initiator,
+			'post_type'           => 'attachment',
+			'attachment_id'       => wp_rand( 1, 9999 ),
+			'attachment_title'    => $file[1],
+			'attachment_filename' => $file[0],
+			'attachment_mime'     => $file[2],
+			'attachment_filesize' => wp_rand( 20000, 5000000 ),
+		];
+
+		$context = $this->maybe_add_ip_address( $context );
+		$context = $this->maybe_add_ai_origin( $context );
+		$logger->info_message( $action, $context );
+	}
+
+	/**
+	 * Create a note event (added, replied, resolved or reopened).
+	 *
+	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
+	 */
+	private function create_note_event( $simple_history, $initiator ) {
+		$logger = $simple_history->get_instantiated_logger_by_slug( 'NotesLogger' );
+
+		if ( ! $logger ) {
+			return;
+		}
+
+		$post_titles = [
+			'About Our Team',
+			'Pricing',
+			'Summer Sale Campaign',
+			'Privacy Policy Update',
+			'Homepage',
+		];
+
+		$actions = [ 'note_added', 'note_added', 'note_reply_added', 'note_resolved', 'note_reopened' ];
+
+		$context = [
+			'_initiator' => $initiator,
+			'note_id'    => wp_rand( 1, 9999 ),
+			'post_id'    => wp_rand( 1, 9999 ),
+			'post_type'  => wp_rand( 0, 1 ) === 1 ? 'page' : 'post',
+			'post_title' => $post_titles[ wp_rand( 0, count( $post_titles ) - 1 ) ],
+		];
+
+		$context = $this->maybe_add_ip_address( $context );
+		$context = $this->maybe_add_ai_origin( $context );
+		$logger->info_message( $actions[ wp_rand( 0, count( $actions ) - 1 ) ], $context );
+	}
+
+	/**
+	 * Create a theme event (switch or update).
+	 *
+	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
+	 */
+	private function create_theme_event( $simple_history, $initiator ) {
+		$logger = $simple_history->get_instantiated_logger_by_slug( 'SimpleThemeLogger' );
+
+		if ( ! $logger ) {
+			return;
+		}
+
+		$themes = [
+			[ 'twentytwentyfive', 'Twenty Twenty-Five' ],
+			[ 'twentytwentyfour', 'Twenty Twenty-Four' ],
+			[ 'astra', 'Astra' ],
+			[ 'generatepress', 'GeneratePress' ],
+			[ 'kadence', 'Kadence' ],
+		];
+
+		$theme = $themes[ wp_rand( 0, count( $themes ) - 1 ) ];
+		$prev  = $themes[ wp_rand( 0, count( $themes ) - 1 ) ];
+
+		$context = [
+			'_initiator' => $initiator,
+			'theme_slug' => $theme[0],
+			'theme_name' => $theme[1],
+		];
+
+		if ( wp_rand( 0, 2 ) === 0 ) {
+			$context['prev_theme_name'] = $prev[1];
+			$action                     = 'theme_switched';
+		} else {
+			$major = wp_rand( 1, 4 );
+			$minor = wp_rand( 0, 9 );
+
+			$context['theme_prev_version'] = $major . '.' . $minor . '.' . wp_rand( 0, 5 );
+			$context['theme_version']      = $major . '.' . ( $minor + 1 ) . '.0';
+			$action                        = 'theme_updated';
+		}
+
+		$context = $this->maybe_add_ip_address( $context );
+		$context = $this->maybe_add_ai_origin( $context );
+		$logger->info_message( $action, $context );
+	}
+
+	/**
+	 * Create a WordPress core update event.
+	 *
+	 * @param Simple_History $simple_history Simple History instance.
+	 * @param string         $initiator Log initiator constant.
+	 */
+	private function create_core_update_event( $simple_history, $initiator ) {
+		$logger = $simple_history->get_instantiated_logger_by_slug( 'SimpleCoreUpdatesLogger' );
+
+		if ( ! $logger ) {
+			return;
+		}
+
+		$major = wp_rand( 6, 7 );
+		$minor = wp_rand( 0, 9 );
+		$patch = wp_rand( 0, 3 );
+
+		$context = [
+			'_initiator'   => $initiator,
+			'prev_version' => $major . '.' . $minor . '.' . $patch,
+			'new_version'  => $major . '.' . $minor . '.' . ( $patch + 1 ),
+		];
+
+		$context = $this->maybe_add_ip_address( $context );
+		$context = $this->maybe_add_ai_origin( $context );
+		$logger->info_message( wp_rand( 0, 1 ) === 1 ? 'core_auto_updated' : 'core_updated', $context );
 	}
 
 	/**
@@ -371,12 +533,23 @@ class WP_CLI_Populate_Command extends WP_CLI_Command {
 		$plugin = $plugins[ wp_rand( 0, count( $plugins ) - 1 ) ];
 		$action = $actions[ wp_rand( 0, count( $actions ) - 1 ) ];
 
+		// The new version is one minor or patch step above the previous one,
+		// so generated updates read like real ones instead of random jumps.
+		$major = wp_rand( 1, 9 );
+		$minor = wp_rand( 0, 20 );
+		$patch = wp_rand( 0, 10 );
+
+		$prev_version = $major . '.' . $minor . '.' . $patch;
+		$new_version  = wp_rand( 0, 1 ) === 1
+			? $major . '.' . ( $minor + 1 ) . '.0'
+			: $major . '.' . $minor . '.' . ( $patch + 1 );
+
 		$context = [
 			'_initiator'          => $initiator,
 			'plugin_name'         => $plugin['name'],
 			'plugin_slug'         => $plugin['slug'],
-			'plugin_version'      => wp_rand( 1, 9 ) . '.' . wp_rand( 0, 20 ) . '.' . wp_rand( 0, 10 ),
-			'plugin_prev_version' => wp_rand( 1, 9 ) . '.' . wp_rand( 0, 20 ) . '.' . wp_rand( 0, 10 ),
+			'plugin_version'      => $new_version,
+			'plugin_prev_version' => $prev_version,
 			'plugin_author'       => 'Test Author',
 		];
 
