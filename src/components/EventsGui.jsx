@@ -638,10 +638,15 @@ function EventsGUI() {
 	// Debounce the loadEvents function to avoid multiple calls when user types fast.
 	const debouncedLoadEvents = useDebounce( loadEvents, 500 );
 
+	// The debounce coalesces fast filter changes. The first load has nothing to
+	// coalesce, so waiting out the 500 ms trailing edge only delays the first paint.
+	const isFirstLoadRef = useRef( true );
+
 	/**
 	 * Load events when search options are loaded,
 	 * when the reload time is changed,
 	 * or when function debouncedLoadEvents is changed due to changes in eventsQueryParams.
+	 * The very first load happens immediately; subsequent loads are debounced.
 	 */
 	useEffect( () => {
 		// Wait for search options to be loaded before loading events,
@@ -651,8 +656,15 @@ function EventsGUI() {
 			return;
 		}
 
+		if ( isFirstLoadRef.current ) {
+			isFirstLoadRef.current = false;
+			loadEvents();
+			return;
+		}
+
 		debouncedLoadEvents();
 	}, [
+		loadEvents,
 		debouncedLoadEvents,
 		searchOptionsLoaded,
 		eventsReloadTime,
