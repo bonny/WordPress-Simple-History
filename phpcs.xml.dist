@@ -21,8 +21,10 @@
 	<!-- Only scan PHP files. -->
 	<arg name="extensions" value="php"/>
 
-	<!-- Whenever possible, cache the scan results and re-use those for unchanged files on the next scan. -->
-	<arg name="cache"/>
+	<!-- Whenever possible, cache the scan results and re-use those for unchanged files on the next scan.
+	     The path is explicit so CI can restore it between runs; without a value phpcs
+	     picks a temp location that does not survive a job. Gitignored. -->
+	<arg name="cache" value=".cache/phpcs.json"/>
 
 	<!-- Strip the filepaths down to the relevant bit. -->
 	<arg name="basepath" value="./"/>

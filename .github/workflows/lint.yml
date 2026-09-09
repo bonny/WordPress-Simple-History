@@ -1,0 +1,88 @@
+name: Lint
+
+# Nothing ran phpcs or phpstan automatically before this, so a branch was only
+# ever as clean as the last time someone remembered to run them locally.
+#
+# This job deliberately does not use compose.yaml: phpcs and phpstan need no
+# database and no WordPress, and setting PHP up directly is far quicker than
+# pulling the dockette/ci image. The test suites are the ones that should run
+# through compose, so CI runs the same command as a developer.
+on:
+    push:
+    pull_request:
+
+concurrency:
+    group: lint-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    lint:
+        name: phpcs + phpstan
+        runs-on: ubuntu-latest
+
+        # Pushes cover our own branches. A pull_request event would then run a
+        # second, identical job for any branch in this repo, so only let PRs
+        # through when they come from a fork.
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+        steps:
+            - uses: actions/checkout@v4
+
+            # 8.1 matches PHP_CLI_VERSION's default in compose.yaml, so CI and the
+            # local php-lint container report the same thing.
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.1'
+                  extensions: mysqli, zip
+                  coverage: none
+                  tools: composer:v2
+
+            # composer.lock pins everything, so the lock file is an exact cache key:
+            # a hit means the install can be skipped outright.
+            - name: Restore vendor/
+              id: vendor-cache
+              uses: actions/cache@v4
+              with:
+                  path: vendor
+                  key: vendor-php8.1-${{ hashFiles('composer.lock') }}
+
+            # No --ignore-platform-req=php: composer.json pins
+            # config.platform.php to 7.4.33, so the resolver targets PHP 7.4 no
+            # matter which PHP the runner has. See docs/composer.md.
+            # The ext- flags are belt and braces next to the extensions installed
+            # above, and are harmless when the extension is present.
+            - name: Install dependencies
+              if: steps.vendor-cache.outputs.cache-hit != 'true'
+              run: |
+                  composer install \
+                    --no-interaction \
+                    --no-progress \
+                    --prefer-dist \
+                    --ignore-platform-req=ext-mysqli \
+                    --ignore-platform-req=ext-zip
+
+            # Unlike vendor/, a partial hit is what we want here: both tools only
+            # re-check what changed since whichever run this restores from.
+            - name: Restore phpcs and phpstan result caches
+              uses: actions/cache@v4
+              with:
+                  path: .cache
+                  key: lint-cache-${{ github.ref_name }}-${{ github.sha }}
+                  restore-keys: |
+                      lint-cache-${{ github.ref_name }}-
+                      lint-cache-
+
+            - run: mkdir -p .cache
+
+            - name: phpcs
+              run: vendor/bin/phpcs --report=full,summary
+
+            # No path argument on purpose: passing one skips the check for
+            # ignoreErrors entries that no longer match anything, which is a hard
+            # error here. See code.md.
+            - name: phpstan
+              run: vendor/bin/phpstan analyse --memory-limit=2G --no-progress
