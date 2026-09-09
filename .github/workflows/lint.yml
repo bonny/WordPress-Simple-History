@@ -65,6 +65,36 @@ jobs:
                     --ignore-platform-req=ext-mysqli \
                     --ignore-platform-req=ext-zip
 
+            # phpstan checks the paths in include() calls, and three of them point
+            # at build/*.asset.php, which webpack generates and git does not
+            # track. The build is ~5s once node_modules is warm, and running it
+            # here also means CI notices when the build itself breaks - nothing
+            # else checks that today.
+            - name: Set up Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: '.nvmrc'
+                  cache: npm
+
+            - name: Install JS dependencies
+              run: npm ci
+
+            - name: Build assets
+              run: npm run build
+
+            # phpstan.neon scans tests/plugins/ for the third-party function
+            # declarations our loggers call (ACF, limit-login-attempts, Jetpack).
+            # That directory is gitignored, so CI has to fetch it. Versions are
+            # pinned inside the script, which is why the script is the cache key.
+            - name: Restore test plugins
+              uses: actions/cache@v4
+              with:
+                  path: tests/plugins
+                  key: test-plugins-${{ hashFiles('scripts/install-test-plugins.sh') }}
+
+            - name: Install test plugins
+              run: ./scripts/install-test-plugins.sh
+
             # Unlike vendor/, a partial hit is what we want here: both tools only
             # re-check what changed since whichever run this restores from.
             - name: Restore phpcs and phpstan result caches
