@@ -475,10 +475,12 @@ class Email_Report_Service extends Service {
 				continue;
 			}
 
+			$period_to = $this->parse_stored_date( $period['to'] );
+
 			// It also has to be the period that ran up to this one. Reports
 			// switched off for a month and back on again would otherwise
 			// compare against a week from before the gap and call it last week.
-			if ( abs( $date_from - (int) $period['to'] ) > 2 * DAY_IN_SECONDS ) {
+			if ( $period_to === null || abs( $date_from - $period_to ) > 2 * DAY_IN_SECONDS ) {
 				continue;
 			}
 
@@ -491,7 +493,7 @@ class Email_Report_Service extends Service {
 	/**
 	 * The periods reports have been sent for, newest first.
 	 *
-	 * @return array List of [ 'from' => int, 'to' => int, 'days' => int, 'total' => int ].
+	 * @return array List of [ 'from' => string, 'to' => string, 'days' => int, 'total' => int ].
 	 */
 	private function get_sent_periods() {
 		$periods = get_option( self::SENT_PERIODS_OPTION );
@@ -528,8 +530,11 @@ class Email_Report_Service extends Service {
 		array_unshift(
 			$periods,
 			[
-				'from'  => (int) $date_from,
-				'to'    => (int) $date_to,
+				// Dates as ISO 8601 in the site's timezone, so the option can be
+				// read without converting anything. The offset is part of the
+				// string, so it still points at one exact moment.
+				'from'  => wp_date( 'c', $date_from ),
+				'to'    => wp_date( 'c', $date_to ),
 				'days'  => $this->get_period_days( $date_from, $date_to ),
 				'total' => (int) $total,
 			]
@@ -540,6 +545,26 @@ class Email_Report_Service extends Service {
 			array_slice( $periods, 0, self::MAX_STORED_PERIODS ),
 			false
 		);
+	}
+
+	/**
+	 * Timestamp for a date stored in the option.
+	 *
+	 * @param mixed $value ISO 8601 date string.
+	 * @return int|null Unix timestamp, or null when the value cannot be read.
+	 */
+	private function parse_stored_date( $value ) {
+		if ( ! is_string( $value ) || $value === '' ) {
+			return null;
+		}
+
+		try {
+			$date = new \DateTimeImmutable( $value );
+		} catch ( \Exception $e ) {
+			return null;
+		}
+
+		return $date->getTimestamp();
 	}
 
 	/**
