@@ -7,6 +7,7 @@ use Simple_History\Events_Stats;
 use Simple_History\Date_Helper;
 use Simple_History\Loggers\User_Logger;
 use Simple_History\Menu_Page;
+use Simple_History\Simple_History;
 
 /**
  * Service that handles email reports.
@@ -660,6 +661,127 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
+	 * The Premium teaser shown under the intro, for free users.
+	 *
+	 * Every teaser that matches this week's activity goes into a pool with the
+	 * generic ones, and the pick rotates by week number so the same activity
+	 * does not produce the same line two weeks running.
+	 *
+	 * Both versions of the email ask for this, so that the text part of a
+	 * message says what its HTML part says.
+	 *
+	 * @param array $args Email template args.
+	 * @return string Teaser text, empty when there is no upsell to show.
+	 */
+	public function get_top_teaser_text( $args ) {
+		/** This filter is documented in templates/email-summary-report.php */
+		$show_upsell = apply_filters( 'simple_history/email_summary_report/show_upsell', Helpers::show_promo_boxes() );
+
+		if ( ! $show_upsell ) {
+			return '';
+		}
+
+		$teaser_pool = [];
+
+		if ( ( $args['failed_logins'] ?? 0 ) > 0 ) {
+			$teaser_pool[] = __( 'With Premium, this email shows the IP addresses and usernames behind every failed login attempt.', 'simple-history' );
+		}
+
+		if ( ( $args['plugin_activations'] ?? 0 ) + ( $args['plugin_deactivations'] ?? 0 ) > 0 ) {
+			$teaser_pool[] = __( 'With Premium, this email names each plugin and the person who changed it.', 'simple-history' );
+		}
+
+		// Only tease the posts list when activity is notable — low counts don't create curiosity.
+		if ( ( $args['posts_created'] ?? 0 ) + ( $args['posts_updated'] ?? 0 ) > 3 ) {
+			$teaser_pool[] = __( 'With Premium, this email shows who edited which posts and when.', 'simple-history' );
+		}
+
+		if ( ( $args['users_created'] ?? 0 ) > 0 ) {
+			$teaser_pool[] = __( 'With Premium, this email includes the username and role of every new account.', 'simple-history' );
+		}
+
+		// Generic teasers, always in the pool.
+		$teaser_pool[] = __( 'Premium fills this email in with the details — which post, which plugin, who logged in — and sends real-time alerts for critical events, so you don\'t have to wait for Monday to hear about them.', 'simple-history' );
+		$teaser_pool[] = __( 'Free logs expire after 60 days. Premium keeps up to a full year, so you can still see what changed months later.', 'simple-history' );
+		$teaser_pool[] = __( 'With Premium, this email lists who did what — the names behind the numbers below.', 'simple-history' );
+
+		$tips_service = Simple_History::get_instance()->get_service( Tips_Service::class );
+		$week_index   = $tips_service instanceof Tips_Service ? $tips_service->get_week_index( $args ) : (int) gmdate( 'W' );
+
+		$top_teaser_text = $teaser_pool[ $week_index % count( $teaser_pool ) ];
+
+		/**
+		 * Filter the teaser text shown under the intro.
+		 * Return an empty string to hide the teaser.
+		 *
+		 * @param string $top_teaser_text The teaser text.
+		 * @param array  $args The email template args.
+		 */
+		return apply_filters( 'simple_history/email_summary_report/top_teaser_text', $top_teaser_text, $args );
+	}
+
+	/**
+	 * Render one of the report templates into a string.
+	 *
+	 * @param string $template    Template file name, inside templates/.
+	 * @param array  $report_data Data the template renders.
+	 * @return string
+	 */
+	private function render_report_template( $template, $report_data ) {
+		ob_start();
+
+		load_template( SIMPLE_HISTORY_PATH . 'templates/' . $template, false, $report_data );
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Send one report email, with a plain text part alongside the HTML.
+	 *
+	 * wp_mail() cannot carry a text alternative on its own: the message it is
+	 * given goes straight to PHPMailer's Body, and AltBody is reset to an
+	 * empty string on every call. The phpmailer_init hook fires after that
+	 * reset and before the message is assembled, so setting AltBody there is
+	 * what makes PHPMailer build a multipart/alternative email.
+	 *
+	 * The hook is global, so the callback is added and removed around this one
+	 * send. Left attached it would put this report inside every email the site
+	 * sends afterwards. It runs last so that a mailer plugin generating its own
+	 * AltBody out of the HTML does not overwrite the text written for this.
+	 *
+	 * A plugin that filters pre_wp_mail short-circuits before phpmailer_init
+	 * runs, and an API mailer may only map the HTML body. Both end up sending
+	 * what was sent before this existed: HTML only, never a broken email.
+	 *
+	 * @param string   $recipient Recipient email address.
+	 * @param string   $subject   Email subject.
+	 * @param string   $html      HTML version of the report.
+	 * @param string   $text      Plain text version of the report.
+	 * @param string[] $headers   Email headers.
+	 * @return bool Whether the email was handed off for sending.
+	 */
+	private function send_report_email( $recipient, $subject, $html, $text, $headers ) {
+		/**
+		 * Add the text part to the message PHPMailer is about to build.
+		 *
+		 * @param \PHPMailer\PHPMailer\PHPMailer $phpmailer The mailer instance.
+		 */
+		$set_alt_body = function ( $phpmailer ) use ( $text ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHPMailer's property name.
+			$phpmailer->AltBody = $text;
+		};
+
+		add_action( 'phpmailer_init', $set_alt_body, PHP_INT_MAX );
+
+		try {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this goes to a single manually added recipient.
+			return wp_mail( $recipient, $subject, $html, $headers );
+		} finally {
+			remove_action( 'phpmailer_init', $set_alt_body, PHP_INT_MAX );
+		}
+	}
+
+	/**
 	 * Generate email subject for reports.
 	 *
 	 * @param bool $is_preview Whether this is a preview email.
@@ -690,23 +812,20 @@ class Email_Report_Service extends Service {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
-		ob_start();
-		load_template(
-			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
-			false,
-			$this->get_summary_report_data( $date_from, $date_to, true )
-		);
-		$email_content = ob_get_clean();
+		$report_data = $this->get_summary_report_data( $date_from, $date_to, true );
+
+		$email_content = $this->render_report_template( 'email-summary-report.php', $report_data );
+		$text_content  = $this->render_report_template( 'email-summary-report-text.php', $report_data );
 
 		$subject = $this->get_email_subject( true );
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
-		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this is a preview email sent to a single recipient.
-		$sent = wp_mail(
+		$sent = $this->send_report_email(
 			$current_user->user_email,
 			$subject,
 			$email_content,
+			$text_content,
 			$headers
 		);
 
@@ -1064,13 +1183,8 @@ class Email_Report_Service extends Service {
 
 		$report_data = $this->get_summary_report_data( $date_from, $date_to, false );
 
-		ob_start();
-		load_template(
-			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
-			false,
-			$report_data
-		);
-		$email_content = ob_get_clean();
+		$email_content = $this->render_report_template( 'email-summary-report.php', $report_data );
+		$text_content  = $this->render_report_template( 'email-summary-report-text.php', $report_data );
 
 		$subject = $this->get_email_subject( false );
 
@@ -1078,11 +1192,11 @@ class Email_Report_Service extends Service {
 
 		// Send to each recipient.
 		foreach ( $recipients as $recipient ) {
-			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this is the email that is sent to a short list of manually added recipients.
-			wp_mail(
+			$this->send_report_email(
 				$recipient,
 				$subject,
 				$email_content,
+				$text_content,
 				$headers
 			);
 		}
