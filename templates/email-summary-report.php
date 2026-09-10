@@ -113,50 +113,12 @@ $render_stat = function ( $label, $count, $stat_key, $number_style = null ) use 
 };
 
 $tips_service = \Simple_History\Simple_History::get_instance()->get_service( \Simple_History\Services\Tips_Service::class );
-$week_index   = $tips_service instanceof \Simple_History\Services\Tips_Service ? $tips_service->get_week_index( $args ) : (int) gmdate( 'W' );
 
-// Pick the top teaser text (free users only). Every teaser that matches this
-// week's activity goes in a pool together with the generic ones, and the pick
-// rotates by week number so the same activity does not repeat the same line.
-$top_teaser_text = '';
-$premium_url     = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=email&utm_campaign=weekly-report&utm_content=top-teaser';
-
-if ( $show_upsell ) {
-	$teaser_pool = [];
-
-	if ( $args['failed_logins'] > 0 ) {
-		$teaser_pool[] = __( 'With Premium, this email shows the IP addresses and usernames behind every failed login attempt.', 'simple-history' );
-	}
-
-	if ( $args['plugin_activations'] + $args['plugin_deactivations'] > 0 ) {
-		$teaser_pool[] = __( 'With Premium, this email names each plugin and the person who changed it.', 'simple-history' );
-	}
-
-	// Only tease the posts list when activity is notable — low counts don't create curiosity.
-	if ( $args['posts_created'] + $args['posts_updated'] > 3 ) {
-		$teaser_pool[] = __( 'With Premium, this email shows who edited which posts and when.', 'simple-history' );
-	}
-
-	if ( $args['users_created'] > 0 ) {
-		$teaser_pool[] = __( 'With Premium, this email includes the username and role of every new account.', 'simple-history' );
-	}
-
-	// Generic teasers, always in the pool.
-	$teaser_pool[] = __( 'Premium fills this email in with the details — which post, which plugin, who logged in — and sends real-time alerts for critical events, so you don\'t have to wait for Monday to hear about them.', 'simple-history' );
-	$teaser_pool[] = __( 'Free logs expire after 60 days. Premium keeps up to a full year, so you can still see what changed months later.', 'simple-history' );
-	$teaser_pool[] = __( 'With Premium, this email lists who did what — the names behind the numbers below.', 'simple-history' );
-
-	$top_teaser_text = $teaser_pool[ $week_index % count( $teaser_pool ) ];
-
-	/**
-	 * Filter the teaser text shown under the intro.
-	 * Return an empty string to hide the teaser.
-	 *
-	 * @param string $top_teaser_text The teaser text.
-	 * @param array  $args The email template args.
-	 */
-	$top_teaser_text = apply_filters( 'simple_history/email_summary_report/top_teaser_text', $top_teaser_text, $args );
-}
+// The teaser under the intro, for free users. Both versions of the email ask
+// the service for it, so that they cannot drift apart.
+$email_report_service = \Simple_History\Simple_History::get_instance()->get_service( \Simple_History\Services\Email_Report_Service::class );
+$top_teaser_text      = $email_report_service instanceof \Simple_History\Services\Email_Report_Service ? $email_report_service->get_top_teaser_text( $args ) : '';
+$premium_url          = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=email&utm_campaign=weekly-report&utm_content=top-teaser';
 
 /**
  * Filter whether to show the weekly tip.
