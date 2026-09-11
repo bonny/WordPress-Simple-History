@@ -15,7 +15,6 @@
 /docs
 /examples
 /node_modules
-/patches
 /scripts
 /src
 /tests
@@ -62,3 +61,4 @@ readme.issue*.md
 readme.slot-slotfills-filters.md
 rector.php
 skills-lock.json
+/.cache

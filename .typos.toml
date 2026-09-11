@@ -24,3 +24,5 @@ unparseable = "unparseable"
 
 [default.extend-identifiers]
 commited = "commited"
+# Plural of PNG: typos splits it into "PN" + "Gs" and flags PN as ON.
+PNGs = "PNGs"
