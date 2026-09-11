@@ -104,3 +104,6 @@ docs/utm-tracking-guide.md
 # Python bytecode cache
 __pycache__/
 *.pyc
+
+# Lint result caches (phpcs, phpstan) — restored by CI, never committed.
+.cache/
