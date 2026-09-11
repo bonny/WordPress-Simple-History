@@ -4,6 +4,24 @@ services:
     container_name: simple-history-wordpress
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     user: "33:33"
+    depends_on:
+      db:
+        condition: service_healthy
+    # The image copies WordPress core into the shared volume *after* the
+    # container starts, which takes 10-20s on a fresh volume (`docker compose
+    # down -v`, or a WORDPRESS_VERSION switch). php-cli's WPLoader reads that
+    # volume with no wait or retry, so `service_started` would hand it a
+    # half-copied core. wp-config.php is written once the copy is done.
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "test -f /var/www/html/wp-config.php && test -f /var/www/html/wp-includes/version.php",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
     ports:
       - "${DOCKER_WEB_PORT_FORWARD:-9191}:80"
     environment:
@@ -36,6 +54,18 @@ services:
     image: "${DB_IMAGE:-mariadb:10.5}"
     container_name: simple-history-database
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    # Without this, `docker compose run php-cli` returns as soon as the db
+    # container has *started*, not when it accepts connections, and the test
+    # run races the database on any cold machine.
+    # mysqladmin rather than the mariadb image's healthcheck.sh: the
+    # npm test:mysql55/57 scripts swap DB_IMAGE for mysql images that do not
+    # ship that script, but every one of them has mysqladmin.
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
     environment:
       MYSQL_DATABASE: wp_test_site
       MYSQL_USER: dbuser
@@ -52,6 +82,16 @@ services:
     shm_size: "2gb"
     container_name: simple-history-chrome
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    # Selenium needs ~10s after the container starts before it accepts
+    # sessions. `npm run test:acceptance` waits on this healthcheck; without
+    # it the first WPWebDriver action dies with a curl connection error on a
+    # cold stack. check-grid.sh ships in the image for exactly this.
+    healthcheck:
+      test: ["CMD", "/opt/bin/check-grid.sh", "--host", "0.0.0.0", "--port", "4444"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
     # ports:
     #   - 14444:4444
     extra_hosts:
@@ -70,7 +110,12 @@ services:
     volumes:
       - ./:/srv
 
-  # Full PHP CLI for tests - depends on db, wordpress, chrome
+  # Full PHP CLI for tests.
+  # Needs wordpress: that service populates the shared `wordpress` volume with
+  # WordPress core, which WPLoader (wp-browser 3.x) loads rather than installing
+  # its own. Does NOT need chrome — only the acceptance suite talks to it, and
+  # `npm run test:acceptance` starts it. Keeping chrome here made every wpunit
+  # run boot a 1GB Selenium container for nothing.
   php-cli:
     image: dockette/ci:php${PHP_CLI_VERSION:-81}
     init: true
@@ -98,12 +143,13 @@ services:
       - ./tests/plugins/simple-history-premium:/wordpress/wp-content/plugins/simple-history-premium
       - ./tests/_data/mu-plugins:/wordpress/wp-content/mu-plugins
     depends_on:
-      - db
-      - wordpress
-      - chrome
+      db:
+        condition: service_healthy
+      wordpress:
+        condition: service_healthy
 
   wp-cli:
-    image: wordpress:cli-php${PHP_VERSION-7.4}
+    image: wordpress:cli-php${PHP_VERSION:-7.4}
     container_name: simple-history-wpcli
     environment:
       WORDPRESS_DB_HOST: db
@@ -112,8 +158,10 @@ services:
       WORDPRESS_DB_PASSWORD: examplepass
     user: "33:33"
     depends_on:
-      - db
-      - wordpress
+      db:
+        condition: service_healthy
+      wordpress:
+        condition: service_healthy
     init: true
     volumes:
       - wordpress:/var/www/html:rw

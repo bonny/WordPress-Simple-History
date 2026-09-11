@@ -1,7 +1,13 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Disabled, Icon } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useEffect, useMemo, useState, Fragment } from '@wordpress/element';
+import {
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	Fragment,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { settings, chevronDown } from '@wordpress/icons';
@@ -143,6 +149,14 @@ export function EventsSearchFilters( props ) {
 		}
 	}, [ activeExpandedFilterCount, isAutoExpanded ] );
 
+	// The search options effect only needs to know whether a date option was
+	// already picked (from the URL) when the response arrives. Read it through
+	// a ref so the effect does not depend on the value it sets itself; with the
+	// value in the deps it re-ran after setting the default, fetching the
+	// search options twice and, via a new pagerSize object, the events twice.
+	const selectedDateOptionRef = useRef( selectedDateOption );
+	selectedDateOptionRef.current = selectedDateOption;
+
 	// Load search options when component mounts.
 	useEffect( () => {
 		const fetchSearchOptions = async () => {
@@ -195,7 +209,7 @@ export function EventsSearchFilters( props ) {
 
 				// Set selected date option to "recommended" option from API.
 				// Only set if not already set, because it can be set in the URL.
-				if ( ! selectedDateOption ) {
+				if ( ! selectedDateOptionRef.current ) {
 					setSelectedDateOption( apiDefaultDateOption );
 				}
 
@@ -290,7 +304,6 @@ export function EventsSearchFilters( props ) {
 		setAlertsPageURL,
 		setCurrentUserId,
 		setUserCanManageOptions,
-		selectedDateOption,
 	] );
 
 	const filtersButtonLabel =

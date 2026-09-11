@@ -221,8 +221,8 @@ class EmailReportServiceCest {
         // Check that date range is shown (should be last 7 days)
         $I->seeInSource('–'); // Date range separator
         
-        // Verify statistics sections are present even if empty
-        $I->seeInSource('Posts created');
+        // Verify statistics sections are present. A section with no activity
+        // is named in the "Nothing happened this week in …" line instead.
         $I->seeInSource('Posts and Pages');
         $I->seeInSource('Event count by day');
         $I->seeInSource('Total events');
