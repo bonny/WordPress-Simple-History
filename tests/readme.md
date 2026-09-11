@@ -8,8 +8,10 @@
 -   Copy `twentysixteen.2.6.zip` and `twentysixteen.2.7.zip` to `tests/_data/twentysixteen.2.6.zip` and `tests/_data/twentysixteen.2.7.zip`.
 -   Manually download [Jetpack](https://wordpress.org/plugins/jetpack/) and [WP Crontrol](https://wordpress.org/plugins/wp-crontrol/) and place in `tests/plugins`. The plugins are are used to test that Simple History catches changes in those plugins.
 -   Start containers required for testing:
-    `$ docker compose up -d`.
-    This will start **WordPress**, **MariaDB** and a **Headless Chrome** using Selenium.
+    `$ docker compose up -d --wait`.
+    This will start **WordPress**, **MariaDB** and a **Headless Chrome** using Selenium, and wait until each is actually ready rather than merely started.
+    -   `wpunit` and `functional` only need WordPress and MariaDB — `php-cli` starts those itself, so you can skip this step for them.
+    -   **Acceptance needs Chrome, and `php-cli` does not start it.** `npm run test:acceptance` brings it up for you; if you invoke `codecept run acceptance` directly, run `$ docker compose up -d --wait chrome` first or the first browser action fails with a WebDriver connection error.
 -   Run _unit_, _acceptance_, and _functional_ tests using PHP 7.4:
     -   `$ docker-compose run --rm php-cli vendor/bin/codecept run wpunit`
         -   Faster tests to test things that does not require so much user input.
@@ -26,7 +28,10 @@
 
 To run for example `UserCest:logUserProfileUpdated`:
 
-`$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance UserCest:logUserProfileUpdated`
+`$ docker compose up -d --wait chrome && docker compose run --rm php-cli vendor/bin/codecept run acceptance UserCest:logUserProfileUpdated`
+
+The `chrome` part is only needed for acceptance tests. For a single `wpunit` or
+`functional` test, `docker compose run --rm php-cli …` on its own is enough.
 
 ## Setting up the starting database fixture
 
@@ -159,7 +164,7 @@ Two things to know before doing this:
 
 If you only need the image and the exact tag is not on disk, an already-present image can be retagged rather than pulling a gigabyte: `docker tag wordpress:6.9 wordpress:6.9-php8.1`. The `wordpress` container only populates core files; the tests themselves execute in `php-cli`, so that image's bundled PHP version does not affect the run.
 
-Do **not** reach for `docker compose run --no-deps` to skip starting Chrome. The run container then never joins the project network and every test dies with `getaddrinfo for db failed: Name does not resolve`. Chrome is only needed for acceptance tests, but `wpunit` still has to start with the normal dependency chain.
+Do **not** reach for `docker compose run --no-deps`. The run container then never joins the project network and every test dies with `getaddrinfo for db failed: Name does not resolve`. (Chrome is no longer in `php-cli`'s dependency chain, so there is nothing to save by skipping it — see the acceptance note at the top of this file.)
 
 This procedure is verified: run on 6.9.1 the abilities suite goes from 18 skipped to 24 passing, and `docker compose down -v` followed by a plain `docker compose up -d` returns the volume to 6.8.3 with the skips restored.
 

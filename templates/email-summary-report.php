@@ -66,66 +66,71 @@ $args = wp_parse_args(
 		'theme_updates'          => 0,
 		'wordpress_updates'      => 0,
 		'history_admin_url'      => '',
+		'stat_urls'              => [],
+		'summary_text'           => '',
 		'settings_url'           => '',
 	]
 );
 
-// Determine which inline teaser to show (first match wins, only for free users).
-$inline_teaser_section = '';
-$inline_teaser_text    = '';
-$premium_url           = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=email&utm_campaign=weekly-report&utm_content=inline-teaser';
-
-if ( $show_upsell ) {
-	if ( $args['failed_logins'] > 0 ) {
-		$inline_teaser_section = 'users';
-		$inline_teaser_text    = __( 'With Premium, this email shows the IP addresses and usernames behind every failed attempt.', 'simple-history' );
-	} elseif ( $args['plugin_activations'] > 0 ) {
-		$inline_teaser_section = 'plugins';
-		$inline_teaser_text    = __( 'With Premium, this email names each plugin and the person who changed it.', 'simple-history' );
-		// Only show posts teaser when activity is notable — low counts don't create curiosity.
-	} elseif ( $args['posts_created'] + $args['posts_updated'] > 3 ) {
-		$inline_teaser_section = 'posts';
-		$inline_teaser_text    = __( 'With Premium, this email shows who edited which posts and when.', 'simple-history' );
-	} elseif ( $args['users_created'] > 0 ) {
-		$inline_teaser_section = 'users';
-		$inline_teaser_text    = __( 'With Premium, this email includes the username and role of every new account.', 'simple-history' );
-	} else {
-		$inline_teaser_section = 'fallback';
-		$inline_teaser_text    = __( 'Premium also adds real-time alerts for critical events — so you don\'t have to wait for the weekly digest.', 'simple-history' );
-	}
-
-	/**
-	 * Filter the inline teaser section and text.
-	 * Premium can set section to empty string to disable inline teasers.
-	 *
-	 * @param string $inline_teaser_section The section to show the teaser in (users, plugins, posts, fallback).
-	 * @param string $inline_teaser_text The teaser text.
-	 * @param array  $args The email template args.
-	 */
-	$inline_teaser_section = apply_filters( 'simple_history/email_summary_report/inline_teaser_section', $inline_teaser_section, $inline_teaser_text, $args );
-	$inline_teaser_text    = apply_filters( 'simple_history/email_summary_report/inline_teaser_text', $inline_teaser_text, $inline_teaser_section, $args );
-}
+$stat_font             = '-apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Arial, sans-serif';
+$stat_label_style      = "font-family: {$stat_font}; font-size: 13px; line-height: 18px; color: #666666; text-align: left; font-weight: 400; margin-bottom: 2px;";
+$stat_number_style     = "font-family: {$stat_font}; font-size: 24px; line-height: 28px; font-weight: 700; text-align: left;";
+$stat_big_number_style = "font-family: {$stat_font}; font-size: 36px; line-height: 42px; font-weight: 700; text-align: left;";
 
 /**
- * Render an inline teaser if the current section matches.
+ * Render one statistic: its label and its number.
  *
- * @param string $section The current section name.
- * @param string $active_section The section that should show the teaser.
- * @param string $text The teaser text.
- * @param string $url The premium URL.
+ * Every number answers "how many", and the reader's next question is "which
+ * ones", so a number with events behind it links to the log filtered to those
+ * events over the same days. A zero stays plain text — a link to an empty log
+ * is a worse answer than no link. Linked numbers take the accent colour, the
+ * same signal the clickable day counts already use.
+ *
+ * @param string $label        Label shown above the number.
+ * @param int    $count        Number of events.
+ * @param string $stat_key     Key into $args['stat_urls'].
+ * @param string $number_style Inline style for the number, without its colour.
  */
-$render_inline_teaser = function ( $section, $active_section, $text, $url ) {
-	if ( $section !== $active_section || empty( $text ) ) {
-		return;
+$render_stat = function ( $label, $count, $stat_key, $number_style = null ) use ( $args, $stat_label_style, $stat_number_style ) {
+	if ( $number_style === null ) {
+		$number_style = $stat_number_style;
 	}
-	$learn_more = __( 'See what\'s included', 'simple-history' );
-	?>
-	<p style="margin: 15px 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 13px; line-height: 20px; color: #666666; text-align: left;">
-		<?php echo esc_html( $text ); ?>
-		<a href="<?php echo esc_url( $url ); ?>" style="color: #0040FF; text-decoration: underline;"><?php echo esc_html( $learn_more ); ?></a>
-	</p>
-	<?php
+
+	$url = $count > 0 && ! empty( $args['stat_urls'][ $stat_key ] ) ? $args['stat_urls'][ $stat_key ] : '';
+
+	$number_style .= $url === '' ? ' color: #000000;' : ' color: #0040FF;';
+
+	$html = '<div style="' . esc_attr( $stat_label_style ) . '">' . esc_html( $label ) . '</div>';
+
+	$html .= '<div style="' . esc_attr( $number_style ) . '">' . esc_html( number_format_i18n( $count ) ) . '</div>';
+
+	if ( $url !== '' ) {
+		$html = '<a href="' . esc_url( $url ) . '" style="text-decoration: none; display: block;">' . $html . '</a>';
+	}
+
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- every part is escaped as it is built above.
+	echo $html;
 };
+
+$tips_service = \Simple_History\Simple_History::get_instance()->get_service( \Simple_History\Services\Tips_Service::class );
+
+// The teaser under the intro, for free users. Both versions of the email ask
+// the service for it, so that they cannot drift apart.
+$email_report_service = \Simple_History\Simple_History::get_instance()->get_service( \Simple_History\Services\Email_Report_Service::class );
+$top_teaser_text      = $email_report_service instanceof \Simple_History\Services\Email_Report_Service ? $email_report_service->get_top_teaser_text( $args ) : '';
+$premium_url          = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=email&utm_campaign=weekly-report&utm_content=top-teaser';
+
+/**
+ * Filter whether to show the weekly tip.
+ *
+ * @param bool $show_tip Whether to show the tip. Default true.
+ */
+$show_tip = apply_filters( 'simple_history/email_summary_report/show_tip', true );
+$tip_text = '';
+
+if ( $show_tip && $tips_service instanceof \Simple_History\Services\Tips_Service ) {
+	$tip_text = $tips_service->get_tip_for_email( $args );
+}
 
 ?>
 
@@ -149,7 +154,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 		table, td, div, h1, p {font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;}
 
 		/* Mobile styles */
-		@media only screen and (max-width: 599px) {
+		@media only screen and (max-width: 639px) {
 			.email-container {
 				width: calc(100% - 40px) !important;
 			}
@@ -214,7 +219,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 		</div>
 
 		<!-- Email Container -->
-		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="500" style="margin: auto;" class="email-container">
+		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: auto;" class="email-container">
 
 			<!-- Logo -->
 			<tr>
@@ -276,8 +281,21 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 						<?php echo esc_html( __( "Here's a summary of activity on your website.", 'simple-history' ) ); ?>
 					</p>
 
-					<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 18px; line-height: 26px; color: #000000; text-align: left;" 
-						class="mobile-text">
+					<!-- Summary -->
+					<?php
+					// Nothing to say only when an add-on has filtered it away; the
+					// subtitle above already introduces the email either way.
+					if ( $args['summary_text'] !== '' ) {
+						?>
+						<p style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; color: #000000; text-align: left;"
+							class="mobile-text">
+							<?php echo esc_html( $args['summary_text'] ); ?>
+						</p>
+						<?php
+					}
+					?>
+
+					<p style="margin: 0 0 <?php echo $top_teaser_text ? '10px' : '40px'; ?>; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 22px; color: #666666; text-align: left;">
 						<?php
 						$allowed_html = array(
 							'a' => array(
@@ -299,6 +317,16 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 					</p>
 
 					<?php
+					// Premium teaser, shown once under the intro for free users.
+					if ( $top_teaser_text ) {
+						?>
+						<p style="margin: 0 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 13px; line-height: 20px; color: #666666; text-align: left;">
+							<?php echo esc_html( $top_teaser_text ); ?>
+							<a href="<?php echo esc_url( $premium_url ); ?>" style="color: #0040FF; text-decoration: underline;"><?php echo esc_html( __( 'See what\'s included', 'simple-history' ) ); ?></a>
+						</p>
+						<?php
+					}
+
 					if ( $show_main_core_stats ) {
 						?>
 					<!-- Key Metrics Section -->
@@ -336,9 +364,21 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
 								<?php echo esc_html( __( 'Total events', 'simple-history' ) ); ?>
 							</h2>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">
+							<?php
+							$total_events_url = $args['total_events_this_week'] > 0 && ! empty( $args['stat_urls']['total_events_this_week'] ) ? $args['stat_urls']['total_events_this_week'] : '';
+
+							if ( $total_events_url !== '' ) {
+								echo '<a href="' . esc_url( $total_events_url ) . '" style="text-decoration: none; display: block;">';
+							}
+							?>
+							<div style="<?php echo esc_attr( $stat_big_number_style . ( $total_events_url === '' ? ' color: #000000;' : ' color: #0040FF;' ) ); ?>">
 								<?php echo esc_html( number_format_i18n( $args['total_events_this_week'] ) ); ?>
 							</div>
+							<?php
+							if ( $total_events_url !== '' ) {
+								echo '</a>';
+							}
+							?>
 						</div>
 
 						<!-- Weekly Activity Breakdown -->
@@ -432,108 +472,89 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 							</table>
 						</div>
 
+						<?php
+						$empty_sections = [];
+
+						if ( $args['posts_created'] + $args['posts_updated'] > 0 ) {
+							?>
 						<!-- Posts Section -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Posts and Pages', 'simple-history' ) ); ?>
+								<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/icons/email/posts.png' ); ?>" width="20" height="20" alt="✎" style="display: inline-block; width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; border: 0; font-size: 18px; line-height: 20px; color: #000000;"><?php echo esc_html( __( 'Posts and Pages', 'simple-history' ) ); ?>
 							</h2>
 
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Posts created', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['posts_created'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Created', 'simple-history' ), $args['posts_created'], 'posts_created' ); ?>
 									</td>
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Updates', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['posts_updated'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Edits', 'simple-history' ), $args['posts_updated'], 'posts_updated' ); ?>
 									</td>
 								</tr>
 							</table>
 							<?php
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
 							echo apply_filters( 'simple_history/email_summary_report/section_content/posts', '', $args );
-							$render_inline_teaser( 'posts', $inline_teaser_section, $inline_teaser_text, $premium_url );
 							?>
 						</div>
+							<?php
+						} else {
+							$empty_sections[] = __( 'Posts and Pages', 'simple-history' );
+						}
+						?>
+						<?php
+						if ( $args['media_uploads'] + $args['media_edits'] > 0 ) {
+							?>
 						<!-- Media Section -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Media', 'simple-history' ) ); ?>
+								<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/icons/email/media.png' ); ?>" width="20" height="20" alt="▣" style="display: inline-block; width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; border: 0; font-size: 18px; line-height: 20px; color: #000000;"><?php echo esc_html( __( 'Media', 'simple-history' ) ); ?>
 							</h2>
 
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Uploads', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['media_uploads'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Uploads', 'simple-history' ), $args['media_uploads'], 'media_uploads' ); ?>
 									</td>
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Edits', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['media_edits'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Edits', 'simple-history' ), $args['media_edits'], 'media_edits' ); ?>
 									</td>
 								</tr>
 							</table>
 							<?php
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
 							echo apply_filters( 'simple_history/email_summary_report/section_content/media', '', $args );
-							$render_inline_teaser( 'media', $inline_teaser_section, $inline_teaser_text, $premium_url );
 							?>
 						</div>
+							<?php
+						} else {
+							$empty_sections[] = __( 'Media', 'simple-history' );
+						}
+						?>
 						<?php
 						// Comments Section - only show when comments are enabled on the site.
-						if ( $args['comments_enabled'] ) {
+						if ( $args['comments_enabled'] && $args['comments_added'] + $args['comments_approved'] + $args['comments_spam'] > 0 ) {
 							?>
 							<!-- Comments Section -->
 							<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 								<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-									<?php echo esc_html( __( 'Comments', 'simple-history' ) ); ?>
+									<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/icons/email/comments.png' ); ?>" width="20" height="20" alt="❝" style="display: inline-block; width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; border: 0; font-size: 18px; line-height: 20px; color: #000000;"><?php echo esc_html( __( 'Comments', 'simple-history' ) ); ?>
 								</h2>
 
 								<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 									<tr>
 										<td style="width: 50%; vertical-align: top; padding-right: 15px;">
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-												<?php echo esc_html( __( 'New comments', 'simple-history' ) ); ?>
-											</div>
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-												<?php echo esc_html( number_format_i18n( $args['comments_added'] ) ); ?>
-											</div>
+											<?php $render_stat( __( 'New', 'simple-history' ), $args['comments_added'], 'comments_added' ); ?>
 										</td>
 										<td style="width: 50%; vertical-align: top; padding-left: 15px;">
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-												<?php echo esc_html( __( 'Approved', 'simple-history' ) ); ?>
-											</div>
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-												<?php echo esc_html( number_format_i18n( $args['comments_approved'] ) ); ?>
-											</div>
+											<?php $render_stat( __( 'Approved', 'simple-history' ), $args['comments_approved'], 'comments_approved' ); ?>
 										</td>
 									</tr>
 									<?php if ( $args['comments_spam'] > 0 ) { ?>
 									<tr>
 										<td style="width: 50%; vertical-align: top; padding-right: 15px; padding-top: 15px;">
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-												<?php echo esc_html( __( 'Spam', 'simple-history' ) ); ?>
-											</div>
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-												<?php echo esc_html( number_format_i18n( $args['comments_spam'] ) ); ?>
-											</div>
+											<?php $render_stat( __( 'Spam', 'simple-history' ), $args['comments_spam'], 'comments_spam' ); ?>
 										</td>
 										<td style="width: 50%; vertical-align: top; padding-left: 15px; padding-top: 15px;"></td>
 									</tr>
@@ -542,186 +563,183 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 								<?php
 								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
 								echo apply_filters( 'simple_history/email_summary_report/section_content/comments', '', $args );
-								$render_inline_teaser( 'comments', $inline_teaser_section, $inline_teaser_text, $premium_url );
 								?>
 							</div>
 							<?php
+						} elseif ( $args['comments_enabled'] ) {
+							$empty_sections[] = __( 'Comments', 'simple-history' );
 						}
 
 						// Notes Section - only show on WordPress 6.9+ where Notes feature exists.
-						if ( $args['notes_enabled'] ) {
+						if ( $args['notes_enabled'] && $args['notes_added'] + $args['notes_resolved'] > 0 ) {
 							?>
 							<!-- Notes Section (WordPress 6.9+) -->
 							<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 								<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-									<?php echo esc_html( __( 'Notes', 'simple-history' ) ); ?>
+									<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/icons/email/notes.png' ); ?>" width="20" height="20" alt="❏" style="display: inline-block; width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; border: 0; font-size: 18px; line-height: 20px; color: #000000;"><?php echo esc_html( __( 'Notes', 'simple-history' ) ); ?>
 								</h2>
 
 								<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 									<tr>
 										<td style="width: 50%; vertical-align: top; padding-right: 15px;">
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-												<?php echo esc_html( __( 'Notes added', 'simple-history' ) ); ?>
-											</div>
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-												<?php echo esc_html( number_format_i18n( $args['notes_added'] ) ); ?>
-											</div>
+											<?php $render_stat( __( 'Added', 'simple-history' ), $args['notes_added'], 'notes_added' ); ?>
 										</td>
 										<td style="width: 50%; vertical-align: top; padding-left: 15px;">
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-												<?php echo esc_html( __( 'Notes resolved', 'simple-history' ) ); ?>
-											</div>
-											<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-												<?php echo esc_html( number_format_i18n( $args['notes_resolved'] ) ); ?>
-											</div>
+											<?php $render_stat( __( 'Resolved', 'simple-history' ), $args['notes_resolved'], 'notes_resolved' ); ?>
 										</td>
 									</tr>
 								</table>
 							<?php
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
 							echo apply_filters( 'simple_history/email_summary_report/section_content/notes', '', $args );
-							$render_inline_teaser( 'notes', $inline_teaser_section, $inline_teaser_text, $premium_url );
 							?>
 							</div>
 							<?php
+						} elseif ( $args['notes_enabled'] ) {
+							$empty_sections[] = __( 'Notes', 'simple-history' );
 						}
 						?>
+						<?php
+						if ( $args['successful_logins'] + $args['failed_logins'] + $args['users_created'] + $args['users_updated'] > 0 ) {
+							?>
 						<!-- Users Section -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Users', 'simple-history' ) ); ?>
+								<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/icons/email/users.png' ); ?>" width="20" height="20" alt="◉" style="display: inline-block; width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; border: 0; font-size: 18px; line-height: 20px; color: #000000;"><?php echo esc_html( __( 'Users', 'simple-history' ) ); ?>
 							</h2>
 
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Successful logins', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['successful_logins'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Successful logins', 'simple-history' ), $args['successful_logins'], 'successful_logins' ); ?>
 									</td>
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Failed logins', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['failed_logins'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Failed logins', 'simple-history' ), $args['failed_logins'], 'failed_logins' ); ?>
 									</td>
 								</tr>
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px; padding-top: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Users created', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['users_created'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Created', 'simple-history' ), $args['users_created'], 'users_created' ); ?>
 									</td>
 									<td style="width: 50%; vertical-align: top; padding-left: 15px; padding-top: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Profile updates', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['users_updated'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Profile updates', 'simple-history' ), $args['users_updated'], 'users_updated' ); ?>
 									</td>
 								</tr>
 							</table>
 							<?php
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
 							echo apply_filters( 'simple_history/email_summary_report/section_content/users', '', $args );
-							$render_inline_teaser( 'users', $inline_teaser_section, $inline_teaser_text, $premium_url );
 							?>
 						</div>
+							<?php
+						} else {
+							$empty_sections[] = __( 'Users', 'simple-history' );
+						}
+						?>
 
+						<?php
+						if ( $args['plugin_activations'] + $args['plugin_deactivations'] > 0 ) {
+							?>
 						<!-- Plugins Section -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Plugins', 'simple-history' ) ); ?>
+								<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/icons/email/plugins.png' ); ?>" width="20" height="20" alt="✚" style="display: inline-block; width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; border: 0; font-size: 18px; line-height: 20px; color: #000000;"><?php echo esc_html( __( 'Plugins', 'simple-history' ) ); ?>
 							</h2>
 
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Activations', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['plugin_activations'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Activations', 'simple-history' ), $args['plugin_activations'], 'plugin_activations' ); ?>
 									</td>
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Deactivations', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['plugin_deactivations'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Deactivations', 'simple-history' ), $args['plugin_deactivations'], 'plugin_deactivations' ); ?>
 									</td>
 								</tr>
 							</table>
 							<?php
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
 							echo apply_filters( 'simple_history/email_summary_report/section_content/plugins', '', $args );
-							$render_inline_teaser( 'plugins', $inline_teaser_section, $inline_teaser_text, $premium_url );
 							?>
 						</div>
+							<?php
+						} else {
+							$empty_sections[] = __( 'Plugins', 'simple-history' );
+						}
+						?>
 
+						<?php
+						if ( $args['theme_switches'] + $args['theme_updates'] > 0 ) {
+							?>
 						<!-- Themes Section -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'Themes', 'simple-history' ) ); ?>
+								<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/icons/email/themes.png' ); ?>" width="20" height="20" alt="◐" style="display: inline-block; width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; border: 0; font-size: 18px; line-height: 20px; color: #000000;"><?php echo esc_html( __( 'Themes', 'simple-history' ) ); ?>
 							</h2>
 
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 								<tr>
 									<td style="width: 50%; vertical-align: top; padding-right: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Switches', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['theme_switches'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Switches', 'simple-history' ), $args['theme_switches'], 'theme_switches' ); ?>
 									</td>
 									<td style="width: 50%; vertical-align: top; padding-left: 15px;">
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-											<?php echo esc_html( __( 'Updates', 'simple-history' ) ); ?>
-										</div>
-										<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; line-height: 28px; color: #000000; font-weight: 700; text-align: left;">
-											<?php echo esc_html( number_format_i18n( $args['theme_updates'] ) ); ?>
-										</div>
+										<?php $render_stat( __( 'Updates', 'simple-history' ), $args['theme_updates'], 'theme_updates' ); ?>
 									</td>
 								</tr>
 							</table>
 							<?php
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
 							echo apply_filters( 'simple_history/email_summary_report/section_content/themes', '', $args );
-							$render_inline_teaser( 'themes', $inline_teaser_section, $inline_teaser_text, $premium_url );
 							?>
 						</div>
+							<?php
+						} else {
+							$empty_sections[] = __( 'Themes', 'simple-history' );
+						}
+						?>
 
+						<?php
+						if ( $args['wordpress_updates'] > 0 ) {
+							?>
 						<!-- WordPress Section -->
 						<div style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 2px solid #000000;">
 							<h2 style="margin: 0 0 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 20px; line-height: 26px; color: #000000; font-weight: 600; text-align: left;">
-								<?php echo esc_html( __( 'WordPress', 'simple-history' ) ); ?>
+								<img src="<?php echo esc_url( SIMPLE_HISTORY_DIR_URL . 'css/icons/email/wordpress.png' ); ?>" width="20" height="20" alt="Ⓦ" style="display: inline-block; width: 20px; height: 20px; vertical-align: -3px; margin-right: 6px; border: 0; font-size: 18px; line-height: 20px; color: #000000;"><?php echo esc_html( __( 'WordPress core', 'simple-history' ) ); ?>
 							</h2>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; color: #000000; text-align: left; font-weight: 500; margin-bottom: 5px;">
-								<?php echo esc_html( __( 'Updates completed', 'simple-history' ) ); ?>
-							</div>
-							<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 36px; line-height: 42px; color: #000000; font-weight: 700; text-align: left;">
-								<?php echo esc_html( number_format_i18n( $args['wordpress_updates'] ) ); ?>
-							</div>
+							<?php $render_stat( __( 'Core updates', 'simple-history' ), $args['wordpress_updates'], 'wordpress_updates', $stat_big_number_style ); ?>
 							<?php
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML from filter, premium is responsible for escaping.
 							echo apply_filters( 'simple_history/email_summary_report/section_content/wordpress', '', $args );
 							?>
 						</div>
-
+							<?php
+						} else {
+							$empty_sections[] = __( 'WordPress core', 'simple-history' );
+						}
+						?>
 						<?php
-						$render_inline_teaser( 'fallback', $inline_teaser_section, $inline_teaser_text, $premium_url );
+						// Sections without activity collapse into one line so the email ends sooner.
+						if ( ! empty( $empty_sections ) ) {
+							?>
+							<div style="margin-bottom: 30px;">
+								<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 11px; line-height: 16px; color: #6B6B6B; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; text-align: left; margin-bottom: 6px;">
+									<?php echo esc_html( __( 'Nothing to report', 'simple-history' ) ); ?>
+								</div>
+								<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 22px; color: #666666; text-align: left;">
+									<?php
+									echo esc_html(
+										sprintf(
+											/* translators: %s: list of section names, e.g. "Media, Themes, and WordPress core" */
+											__( 'No activity was logged this week in %s.', 'simple-history' ),
+											wp_sprintf( '%l', $empty_sections )
+										)
+									);
+									?>
+								</div>
+							</div>
+							<?php
+						}
+						?>
+						<?php
 					}
 					?>
 					</div>
@@ -739,6 +757,21 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 							</td>
 						</tr>
 					</table>
+
+					<!-- Weekly Tip -->
+					<?php
+					if ( $tip_text ) {
+						?>
+						<div style="margin: 30px 0 0; padding: 15px 20px; background-color: #f6f6f6; border-radius: 8px;">
+							<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 14px; line-height: 22px; color: #000000; text-align: left;">
+								<span aria-hidden="true">💡</span>
+								<strong><?php echo esc_html( __( 'Tip:', 'simple-history' ) ); ?></strong>
+								<?php echo esc_html( $tip_text ); ?>
+							</p>
+						</div>
+						<?php
+					}
+					?>
 
 					<!-- Upsell Section -->
 					<?php
@@ -770,7 +803,7 @@ $render_inline_teaser = function ( $section, $active_section, $text, $url ) {
 		</table>
 
 		<!-- Unsubscribe Text Outside White Container -->
-		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="500" style="padding: 40px 0;" class="email-container">
+		<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="padding: 40px 0;" class="email-container">
 			<tr>
 				<td style="padding: 0 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 12px; line-height: 16px; text-align: center; color: #000000;"
 					class="mobile-padding">

@@ -25,6 +25,13 @@ Author at **1200x630**, render at **2x (2400x1260)**.
 | Format     | PNG                     | flat graphics + text; JPG only for photos         |
 | Size       | under ~1 MB             | limits are 8 MB (FB) / 5 MB (X), so this is slack |
 
+**Compress before committing.** Run the two-step PNG pipeline from [code.md](../../../code.md#images) on every generated file:
+
+```bash
+pngquant --quality=80-95 --strip --skip-if-larger --force --ext .png <file>.png
+oxipng -o max --strip safe <file>.png
+```
+
 1200x630 satisfies Facebook, LinkedIn (1200x627), Slack, Discord and iMessage
 without cropping. X is the one that crops — see below.
 

@@ -31,6 +31,13 @@ Sizes are fixed by wordpress.org — see [developer.wordpress.org/plugins/wordpr
 -   **PNG or JPG**; for icons SVG is also accepted but needs a PNG fallback
 -   **Localized variants** possible with `-rtl`, `-es`, `-es_ES` suffixes (e.g. `banner-772x250-rtl.png`)
 
+**Compress before committing.** Run the two-step PNG pipeline from [code.md](../../../code.md#images) on every generated file:
+
+```bash
+pngquant --quality=80-95 --strip --skip-if-larger --force --ext .png <file>.png
+oxipng -o max --strip safe <file>.png
+```
+
 ---
 
 ## Part 1: The event mix (strategy)

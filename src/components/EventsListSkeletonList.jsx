@@ -14,7 +14,9 @@ export function EventsListSkeletonList( props ) {
 		return null;
 	}
 
-	const skeletonRowsCount = pagerSize.page ?? 0;
+	// Pager size arrives with the search options. Until then, show a typical
+	// page's worth of rows so the list is not empty for the first round trip.
+	const skeletonRowsCount = pagerSize.page ?? 10;
 
 	return (
 		<div>
