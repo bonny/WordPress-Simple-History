@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a64e8b228cc8d6d80ad101fff561b761",
+    "content-hash": "3c07bd8b3105a9fb18f43e74d70958fe",
     "packages": [
         {
             "name": "jfcherng/php-color-output",
@@ -1706,54 +1706,6 @@
             "time": "2024-05-06T16:37:16+00:00"
         },
         {
-            "name": "cweagans/composer-patches",
-            "version": "1.7.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cweagans/composer-patches.git",
-                "reference": "e190d4466fe2b103a55467dfa83fc2fecfcaf2db"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cweagans/composer-patches/zipball/e190d4466fe2b103a55467dfa83fc2fecfcaf2db",
-                "reference": "e190d4466fe2b103a55467dfa83fc2fecfcaf2db",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0 || ^2.0",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "composer/composer": "~1.0 || ~2.0",
-                "phpunit/phpunit": "~4.6"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "cweagans\\Composer\\Patches"
-            },
-            "autoload": {
-                "psr-4": {
-                    "cweagans\\Composer\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Cameron Eagans",
-                    "email": "me@cweagans.net"
-                }
-            ],
-            "description": "Provides a way to patch Composer packages.",
-            "support": {
-                "issues": "https://github.com/cweagans/composer-patches/issues",
-                "source": "https://github.com/cweagans/composer-patches/tree/1.7.3"
-            },
-            "time": "2022-12-20T22:53:13+00:00"
-        },
-        {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
             "version": "v1.2.1",
             "source": {
@@ -2938,16 +2890,16 @@
         },
         {
             "name": "lucatume/wp-browser",
-            "version": "3.7.19",
+            "version": "3.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lucatume/wp-browser.git",
-                "reference": "8db4f658151bdae2a5905c68d5540331ddf3d340"
+                "reference": "b118b38355c950743344763157219f67816b3eb2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/8db4f658151bdae2a5905c68d5540331ddf3d340",
-                "reference": "8db4f658151bdae2a5905c68d5540331ddf3d340",
+                "url": "https://api.github.com/repos/lucatume/wp-browser/zipball/b118b38355c950743344763157219f67816b3eb2",
+                "reference": "b118b38355c950743344763157219f67816b3eb2",
                 "shasum": ""
             },
             "require": {
@@ -2974,6 +2926,7 @@
             "require-dev": {
                 "gumlet/php-image-resize": "^1.6",
                 "lucatume/codeception-snapshot-assertions": "^0.4",
+                "phpcompatibility/php-compatibility": "^9.3",
                 "phpstan/extension-installer": "^1.0",
                 "phpstan/phpstan-symfony": "^0.12.44",
                 "squizlabs/php_codesniffer": "^3.7",
@@ -2989,8 +2942,9 @@
             },
             "autoload": {
                 "files": [
+                    "src/tokens-polyfill.php",
                     "src/version-4-aliases.php",
-                    "src/Deprecated/deprecated-functions.php",
+                    "src/deprecated-functions.php",
                     "src/functions.php",
                     "src/shim.php"
                 ],
@@ -2999,8 +2953,7 @@
                     "lucatume\\WPBrowser\\": [
                         "src/",
                         "src/Deprecated"
-                    ],
-                    "lucatume\\WPBrowser\\Opis\\Closure\\": "includes/opis/closure/src"
+                    ]
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -3023,7 +2976,7 @@
             ],
             "support": {
                 "issues": "https://github.com/lucatume/wp-browser/issues",
-                "source": "https://github.com/lucatume/wp-browser/tree/3.7.19"
+                "source": "https://github.com/lucatume/wp-browser/tree/3.8.2"
             },
             "funding": [
                 {
@@ -3031,7 +2984,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-23T09:47:59+00:00"
+            "time": "2026-08-26T11:10:36+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
