@@ -38,6 +38,7 @@ Simple History automatically logs various actions in WordPress and displays them
 -   [Custom Loggers](development/custom-loggers.md) - Creating your own loggers
 -   [Hooks Reference](development/hooks-reference.md) - Available filters and actions
 -   [Best Practices](development/best-practices.md) - Development guidelines
+-   [Composer](composer.md) - Running Composer here and the PHP 7.4 resolver pin
 
 ### API Reference
 
