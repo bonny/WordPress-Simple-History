@@ -11,25 +11,27 @@ use Exception;
 class Admin extends \AcceptanceTester
 {
     /**
-     * Log in as admin and wait for the dashboard to have loaded.
+     * Log in as admin and leave the browser on a page that has finished loading.
      *
-     * wp-browser's loginAs() returns as soon as the auth cookies exist, while
-     * the browser is still following the redirect to wp-admin/. A test that
-     * navigates elsewhere in that window can end up with the dashboard as the
-     * page it then acts on ("#tag-name not found", screenshot shows the
-     * dashboard). On a fresh fixture that first admin request is slow enough
-     * for this to happen in most runs.
+     * wp-browser's loginAs() deliberately does not follow the redirect that
+     * follows the login POST, so the browser can still be navigating when the
+     * test goes somewhere else, and the late landing page then replaces the
+     * one the test is acting on (symptom: "#tag-name not found", and the saved
+     * screenshot shows the dashboard). Navigating somewhere known, rather than
+     * waiting for an implicit redirect that may already have happened, leaves
+     * every test starting from the same settled state.
      */
     public function loginAsAdmin(int $timeout = 10, int $maxAttempts = 5): void
     {
         parent::loginAsAdmin($timeout, $maxAttempts);
 
+        $this->amOnPage('/wp-admin/');
+
         // The functional suite reuses this step class through WPBrowser, which
-        // has no browser to race and no wait actions; Codeception rejects the
-        // call rather than ignoring it.
+        // drives no browser and so has no wait actions; Codeception rejects
+        // the call rather than ignoring it. Nothing to settle there anyway.
         try {
             $this->waitForElement('#wpadminbar', $timeout);
-            $this->waitForJS('return document.readyState === "complete";', $timeout);
         } catch (\RuntimeException $e) {
             if (strpos($e->getMessage(), "can't be called") === false) {
                 throw $e;
