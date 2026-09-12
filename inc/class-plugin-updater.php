@@ -181,13 +181,19 @@ class Plugin_Updater {
 	 * Hand the `license` object from an update response to the add-on.
 	 *
 	 * Older servers send no such key and newer ones send null when Lemon
-	 * Squeezy could not be reached; both leave the stored state untouched.
+	 * Squeezy could not be reached. Both leave the stored license details
+	 * untouched, but a successful update answer is itself evidence the key
+	 * is valid, so it still clears a previously stored problem verdict.
 	 *
 	 * @param object $decoded Decoded update response.
 	 * @return void
 	 */
 	private function store_license_from_payload( $decoded ) {
 		if ( ! isset( $decoded->license ) || ! is_object( $decoded->license ) ) {
+			if ( ! empty( $decoded->success ) ) {
+				$this->get_addon_plugin()->note_valid_key_without_details();
+			}
+
 			return;
 		}
 

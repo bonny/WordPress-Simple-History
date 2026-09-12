@@ -3262,6 +3262,10 @@ a.sh-SettingsTabs-link:hover {
 	color: #b32d2e;
 }
 
+.sh-LicencesPage-plugin-checked {
+	margin-top: 0;
+}
+
 .sh-FeedIntroduction {
 	background: #f6f7f7;
 	border-radius: var(--sh-border-radius);

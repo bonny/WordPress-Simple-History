@@ -173,15 +173,16 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'invalid', $this->addon()->get_license_state()['state'] );
 	}
 
-	public function test_inactive_status_counts_as_active() {
+	public function test_inactive_status_has_its_own_state() {
 		$this->seed_activated_option( null );
 
 		$this->addon()->update_license_status_from_response( [ 'valid' => true, 'status' => 'inactive', 'expires_at' => null, 'error' => '', 'checked_at' => '2026-09-06T12:00:00Z' ] );
 
 		$state = $this->addon()->get_license_state();
 
-		$this->assertSame( 'active', $state['state'] );
-		$this->assertTrue( $state['is_lifetime'] );
+		$this->assertSame( 'inactive', $state['state'] );
+		$this->assertFalse( $state['is_lifetime'] );
+		$this->assertStringContainsString( 'not activated on any site', $this->addon()->get_license_state_description( $state ) );
 	}
 
 	public function test_null_or_malformed_license_keeps_previous_state() {
@@ -235,7 +236,10 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertFalse( get_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) ) );
 	}
 
-	public function test_update_check_active_with_past_expiry_is_expired() {
+	public function test_update_check_active_with_past_expiry_stays_active() {
+		// Lemon Squeezy extends expires_at on renewal and the site only learns
+		// that at the next check, so a stored, already-past expiry alongside
+		// an "active" verdict must not be second-guessed into "expired" here.
 		$this->seed_activated_option( null );
 		$this->addon()->update_license_status_from_response(
 			[
@@ -249,9 +253,29 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 
 		$state = $this->addon()->get_license_state();
 
-		$this->assertSame( 'expired', $state['state'] );
+		$this->assertSame( 'active', $state['state'] );
 		$this->assertSame( 'update_check', $state['source'] );
-		$this->assertFalse( $state['is_lifetime'] );
+		$this->assertSame( strtotime( '2026-01-01T00:00:00.000000Z' ), $state['expires_timestamp'] );
+	}
+
+	public function test_empty_expires_at_is_lifetime() {
+		$this->seed_activated_option( null );
+		$written = $this->addon()->update_license_status_from_response(
+			[
+				'valid'      => true,
+				'status'     => 'active',
+				'expires_at' => '',
+				'error'      => '',
+				'checked_at' => '2026-09-06T12:00:00Z',
+			]
+		);
+
+		$this->assertTrue( $written );
+
+		$state = $this->addon()->get_license_state();
+
+		$this->assertSame( 'active', $state['state'] );
+		$this->assertTrue( $state['is_lifetime'] );
 	}
 
 	public function test_activation_time_expiry_makes_no_expiry_claim_in_description() {

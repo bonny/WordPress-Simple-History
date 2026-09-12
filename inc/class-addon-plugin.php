@@ -165,6 +165,11 @@ class AddOn_Plugin {
 			$expires_at = null;
 		}
 
+		// An empty string means no expiry, same as a missing or null value.
+		if ( $expires_at === '' ) {
+			$expires_at = null;
+		}
+
 		// A string that strtotime() cannot parse is worse than no date at
 		// all: storing it would make get_license_state() silently treat the
 		// license as having no expiry. Reject the whole response instead.
@@ -190,6 +195,42 @@ class AddOn_Plugin {
 	}
 
 	/**
+	 * Record that the update endpoint answered successfully without a license object.
+	 *
+	 * Lemon Squeezy was not reachable for details on this check, but the
+	 * update endpoint itself accepted the key. That is not enough to learn a
+	 * renewal's new expiry, but it is enough to clear a stored problem
+	 * verdict from an earlier check (expired, disabled, or unrecognised) so
+	 * a renewed subscriber is not told to renew until the next check fills
+	 * in the details. A stored active/inactive verdict, or no verdict at
+	 * all, is left untouched.
+	 *
+	 * @return bool True when the option was written.
+	 */
+	public function note_valid_key_without_details() {
+		$message = $this->get_license_message();
+
+		if ( empty( $message['key'] ) || empty( $message['key_activated'] ) ) {
+			return false;
+		}
+
+		$status     = isset( $message['license_status'] ) && is_string( $message['license_status'] ) ? $message['license_status'] : null;
+		$checked_at = isset( $message['license_checked_at'] ) && is_string( $message['license_checked_at'] ) ? $message['license_checked_at'] : null;
+
+		$is_stored_problem = $status === 'expired' || $status === 'disabled' || ( $status === null && $checked_at !== null );
+
+		if ( ! $is_stored_problem ) {
+			return false;
+		}
+
+		$message['license_status']     = 'active';
+		$message['license_error']      = '';
+		$message['license_checked_at'] = gmdate( 'Y-m-d\TH:i:s\Z' );
+
+		return $this->set_licence_message( $message );
+	}
+
+	/**
 	 * Derive one license state from the stored license message.
 	 *
 	 * Prefers the status from the last update check. When no check has run
@@ -207,7 +248,7 @@ class AddOn_Plugin {
 	 *   error: string,
 	 *   activation_limit: ?int,
 	 *   activation_usage: ?int
-	 * } state is one of none, active, expired, disabled, invalid. source is one of none, activation, update_check.
+	 * } state is one of none, active, inactive, expired, disabled, invalid. source is one of none, activation, update_check.
 	 */
 	public function get_license_state() {
 		$message = $this->get_license_message();
@@ -256,14 +297,10 @@ class AddOn_Plugin {
 
 			$status = isset( $message['license_status'] ) && is_string( $message['license_status'] ) ? $message['license_status'] : null;
 
-			if ( $status === 'active' || $status === 'inactive' ) {
+			if ( $status === 'active' ) {
 				$state['state'] = 'active';
-
-				// A stored expiry that has already passed means expired,
-				// even though the last check reported the key as active.
-				if ( $expires_timestamp !== null && $expires_timestamp < time() ) {
-					$state['state'] = 'expired';
-				}
+			} elseif ( $status === 'inactive' ) {
+				$state['state'] = 'inactive';
 			} elseif ( $status === 'expired' ) {
 				$state['state'] = 'expired';
 			} elseif ( $status === 'disabled' ) {
@@ -323,6 +360,10 @@ class AddOn_Plugin {
 					/* translators: %s: date */
 					$text = sprintf( __( 'Valid until %s.', 'simple-history' ), $date );
 				}
+				break;
+
+			case 'inactive':
+				$text = __( 'The key is valid but not activated on any site. Activate it again to tie it to this site.', 'simple-history' );
 				break;
 
 			case 'expired':
@@ -505,25 +546,7 @@ class AddOn_Plugin {
 		);
 
 		if ( wp_remote_retrieve_response_code( $response ) === 200 ) {
-			$this->set_licence_message(
-				[
-					'key'                      => null,
-					'key_activated'            => false,
-					'key_instance_id'          => null,
-					'key_created_at'           => null,
-					'key_expires_at'           => null,
-					'product_id'               => null,
-					'product_name'             => null,
-					'customer_name'            => null,
-					'customer_email'           => null,
-					'license_status'           => null,
-					'license_valid'            => null,
-					'license_error'            => '',
-					'license_activation_limit' => null,
-					'license_activation_usage' => null,
-					'license_checked_at'       => null,
-				]
-			);
+			$this->set_licence_message( $this->message_defaults );
 			$this->purge_updater_cache();
 
 			return true;

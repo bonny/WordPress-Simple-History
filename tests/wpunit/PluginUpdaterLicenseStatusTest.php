@@ -257,6 +257,53 @@ class PluginUpdaterLicenseStatusTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( $this->fake_reply['body'], get_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) ) );
 	}
 
+	public function test_200_with_null_license_clears_a_stored_problem_state() {
+		$this->seed_activated_option();
+		$this->addon()->update_license_status_from_response(
+			[
+				'valid'      => false,
+				'status'     => 'expired',
+				'expires_at' => '2026-05-27T01:17:07.000000Z',
+				'error'      => 'This license key is expired.',
+				'checked_at' => '2026-09-06T12:00:00Z',
+			]
+		);
+
+		$this->fake_reply = [
+			'code' => 200,
+			'body' => '{"success":true,"error":"","error_code":"","update":{"version":"2.0.0","download_link":"https://example.test/dl.zip"},"license":null}',
+		];
+
+		$this->updater()->request();
+
+		$state = $this->addon()->get_license_state();
+		$this->assertSame( 'active', $state['state'] );
+		$this->assertSame( 'update_check', $state['source'] );
+	}
+
+	public function test_200_with_null_license_leaves_an_active_state_alone() {
+		$this->seed_activated_option();
+		$this->addon()->update_license_status_from_response(
+			[
+				'valid'      => true,
+				'status'     => 'active',
+				'expires_at' => '2027-09-01T00:00:00.000000Z',
+				'error'      => '',
+				'checked_at' => '2026-09-06T12:00:00Z',
+			]
+		);
+
+		$this->fake_reply = [
+			'code' => 200,
+			'body' => '{"success":true,"error":"","error_code":"","update":{"version":"2.0.0","download_link":"https://example.test/dl.zip"},"license":null}',
+		];
+
+		$this->updater()->request();
+
+		$option = get_option( self::OPTION );
+		$this->assertSame( '2026-09-06T12:00:00Z', $option['license_checked_at'] );
+	}
+
 	public function test_site_transient_filter_offers_no_update_for_expired_key() {
 		$this->seed_activated_option();
 		$this->fake_reply = [
