@@ -1,0 +1,26 @@
+# Run the wpunit suite against SQLite instead of MariaDB.
+#
+#   docker compose run --rm php-cli vendor/bin/codecept run wpunit --env sqlite
+#
+# Simple History supports both engines, and Log_Query takes a different path on
+# each, so this is the only way to test the SQLite one.
+#
+# WPLoader picks SQLite when dbHost is empty and dbName is an absolute path
+# inside the project. It then copies wp-browser's bundled SQLite drop-in to
+# wp-content/db.php, which is what defines the DB_ENGINE constant that
+# Log_Query::get_db_engine() reads.
+#
+# Careful locally: that drop-in lands in the shared `wordpress` volume, so the
+# MySQL test site keeps using SQLite until it is removed. CI gets a fresh
+# volume per job, so it only bites on a development machine.
+#
+#   docker compose exec -u root wordpress rm -f /var/www/html/wp-content/db.php
+#   rm -rf tests/_data/sqlite tests/_data/mu-plugins/sqlite-database-integration
+#
+# The directory below must exist before the run; tests/_data/sqlite/.gitkeep
+# is committed for that reason.
+modules:
+    config:
+        WPLoader:
+            dbHost: ''
+            dbName: '/srv/tests/_data/sqlite/db.sqlite'
