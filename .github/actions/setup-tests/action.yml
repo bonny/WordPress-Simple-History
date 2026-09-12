@@ -43,11 +43,13 @@ runs:
         # functional suite has a Cest that reuses the acceptance Admin step,
         # whose AcceptanceTester needs the acceptance trait, so a functional-
         # only run dies with "Trait _generated\AcceptanceTesterActions not
-        # found". Build every actor up front. --no-deps: this needs no
-        # database or WordPress.
+        # found". Build every actor up front. Not --no-deps: build validates
+        # the WPCLI module config, which needs WordPress core in the shared
+        # volume, so the db and wordpress services start here instead of at
+        # the first test run.
         - name: Build Codeception actors
           shell: bash
-          run: docker compose run --rm --no-deps php-cli vendor/bin/codecept build
+          run: docker compose run --rm php-cli vendor/bin/codecept build
 
         # The React dropins include build/*.asset.php unconditionally, and
         # build/ is not tracked. Without this every test that renders an
