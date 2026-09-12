@@ -27,7 +27,13 @@ tests/_data/*
 !tests/_data/Image 2.jpg
 !tests/_data/mu-plugins
 !tests/_data/plugins
+# Codeception writes the SQLite database here when run with `--env sqlite`.
+# The directory has to exist before the run, so keep it, not its contents.
+!tests/_data/sqlite
+tests/_data/sqlite/*
+!tests/_data/sqlite/.gitkeep
 !tests/acceptance
+!tests/_envs
 !tests/functional
 !tests/unit
 !tests/phpstan
