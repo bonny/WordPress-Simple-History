@@ -7,6 +7,7 @@ use Simple_History\Services\AddOns_Licences;
 use Simple_History\AddOn_Plugin;
 use Simple_History\Menu_Manager;
 use Simple_History\Menu_Page;
+use Simple_History\Plugin_Updater;
 use Simple_History\Services\Setup_Settings_Page;
 
 /**
@@ -307,10 +308,17 @@ class Licences_Settings_Page extends Service {
 		$form_error_message   = null;
 		$nonce_valid          = wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) ), 'sh-plugin-keys' ) !== false;
 
+		// Set when this request just ran activate_license() or deactivate_license()
+		// for this plugin, so the on-visit refresh below is skipped: that call
+		// already wrote a fresh option and purged the updater cache.
+		$did_run_activate_or_deactivate = false;
+
 		if ( $nonce_valid && isset( $_POST['plugin_slug'] ) && $_POST['plugin_slug'] === $plus_plugin->slug ) {
 			$action_activate   = boolval( $_POST['activate'] ?? false );
 			$action_deactivate = boolval( $_POST['deactivate'] ?? false );
 			$new_licence_key   = trim( sanitize_text_field( wp_unslash( $_POST['licence_key'] ?? '' ) ) );
+
+			$did_run_activate_or_deactivate = $action_activate || $action_deactivate;
 
 			if ( $action_activate ) {
 				$activation_result = $plus_plugin->activate_license( $new_licence_key );
@@ -359,13 +367,28 @@ class Licences_Settings_Page extends Service {
 				<?php
 				// Show license status if key is activated.
 				if ( $licence_message['key_activated'] === true ) {
+					// The Licenses tab is the one place a person expects a fresh
+					// answer, so refresh the cached update-check on every visit.
+					// Skip this when the current request just ran activate_license()
+					// or deactivate_license() for this plugin: that already wrote
+					// a fresh option and purged the cache.
+					if ( ! $did_run_activate_or_deactivate ) {
+						$updater = $this->licences_service->get_updater( $plus_plugin->slug );
+
+						if ( $updater ) {
+							delete_transient( Plugin_Updater::get_cache_key_for_slug( $plus_plugin->slug ) );
+							$updater->request();
+						}
+					}
+
 					$license_state = $plus_plugin->get_license_state();
 
 					// An activation-source state is always "active" (see
-					// AddOn_Plugin::get_license_state()), so a non-active
-					// state here always comes from an authoritative update
-					// check.
-					$is_problem = $license_state['state'] !== 'active';
+					// AddOn_Plugin::get_license_state()), so a non-active,
+					// non-inactive state here always comes from an
+					// authoritative update check. "inactive" (a valid key not
+					// tied to any site) is not a problem state.
+					$is_problem = ! in_array( $license_state['state'], [ 'active', 'inactive' ], true );
 
 					// Expired keys can be renewed. Disabled (refunded) and unknown keys
 					// cannot, so those get the support page instead of a sales page.
@@ -386,14 +409,25 @@ class Licences_Settings_Page extends Service {
 								__( 'License key is <strong>not active</strong>.', 'simple-history' ),
 								[ 'strong' => [] ]
 							);
-						} else {
+							echo ' ';
+						} elseif ( $license_state['state'] === 'active' ) {
+							// Keep the trailing space inside this msgid, unlike the
+							// other strings here: it existed before this branch, and
+							// keeping it lets existing translations still match. The
+							// separate echo ' ' used for the other branches is
+							// skipped here so the space is not doubled.
 							echo wp_kses(
-								__( 'License key is <strong>active</strong>.', 'simple-history' ),
+								__( 'License key is <strong>active</strong>. ', 'simple-history' ),
 								[ 'strong' => [] ]
 							);
+						} else {
+							echo wp_kses(
+								__( 'License key is <strong>valid</strong>.', 'simple-history' ),
+								[ 'strong' => [] ]
+							);
+							echo ' ';
 						}
 
-						echo ' ';
 						echo esc_html( $plus_plugin->get_license_state_description( $license_state ) );
 
 						if ( $is_problem ) {
@@ -407,6 +441,21 @@ class Licences_Settings_Page extends Service {
 						?>
 					</p>
 					<?php
+					if ( $license_state['checked_at'] !== null ) {
+						?>
+						<p class="sh-LicencesPage-plugin-checked description">
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: %s: date and time the license was last checked. */
+									__( 'Last checked %s.', 'simple-history' ),
+									wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $license_state['checked_at'] ) )
+								)
+							);
+							?>
+						</p>
+						<?php
+					}
 				}
 				?>
 
