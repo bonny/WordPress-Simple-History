@@ -45,22 +45,13 @@ jobs:
         # inside the php-cli container, so that is the PHP actually running the
         # plugin. PHP_VERSION only has to make a WordPress tag that exists.
         #
-        # Two axes are deliberately absent, both blocked by the harness rather
-        # than by the plugin:
-        #
-        #   MySQL. The WordPress test harness turns every table into a TEMPORARY
-        #   table, and MySQL cannot open one twice in a single query, so any
-        #   query that joins the contexts table to itself dies with "Can't reopen
-        #   table". Identical on 5.7 and 8.0, 46 tests either way; MariaDB has no
-        #   such restriction. A real site has permanent tables, so this says
-        #   nothing about production, and proving that needs its own work.
-        #
-        #   WordPress 6.3, the floor the plugin header declares. Yoast Duplicate
-        #   Post 4.6 requires 6.8 and Redirection 5.10.0 requires 6.7, and a
-        #   plugin that refuses to activate ends the run at bootstrap. Older pins
-        #   break the loggers those plugins exist to test, and a Codeception
-        #   environment can only add to WPLoader's plugin list, never remove from
-        #   it. A separate suite file would do it.
+        # One axis is deliberately absent, blocked by the harness rather than by
+        # the plugin: MySQL. The WordPress test harness turns every table into a
+        # TEMPORARY table, and MySQL cannot open one twice in a single query, so
+        # anything joining the contexts table to itself dies with "Can't reopen
+        # table". Identical on 5.7 and 8.0, 46 tests either way, while MariaDB
+        # has no such restriction. A real site has permanent tables, so this says
+        # nothing about production, and proving that needs its own work.
         name: wpunit · ${{ matrix.label }}
         runs-on: ubuntu-latest
 
@@ -93,6 +84,17 @@ jobs:
                       php: '8.2'
                       cli: '82'
                       db: 'mariadb:10.5'
+
+                    # The oldest WordPress the plugin header declares. Runs the
+                    # wpunit-min suite, which is the same tests with the two
+                    # third-party plugins that now require 6.7 and 6.8 left out;
+                    # see tests/wpunit-min.suite.yml.
+                    - label: WP 6.3 · PHP 8.1 · MariaDB 10.5
+                      wordpress: '6.3'
+                      php: '8.1'
+                      cli: '81'
+                      db: 'mariadb:10.5'
+                      suite: 'wpunit-min'
 
                     # The PHP floor from the plugin header. Composer already
                     # resolves for 7.4, but nothing ran the code on it.
@@ -134,7 +136,7 @@ jobs:
             # The SQLite entry still starts the database service, because
             # php-cli depends on it. WPLoader just does not use it.
             - name: wpunit
-              run: docker compose run --rm php-cli vendor/bin/codecept run wpunit ${{ matrix.codecept_env }}
+              run: docker compose run --rm php-cli vendor/bin/codecept run ${{ matrix.suite || 'wpunit' }} ${{ matrix.codecept_env }}
 
             - name: Upload test output
               if: failure()
