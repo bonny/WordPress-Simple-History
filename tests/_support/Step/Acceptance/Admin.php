@@ -10,6 +10,33 @@ use Exception;
 
 class Admin extends \AcceptanceTester
 {
+    /**
+     * Log in as admin and wait for the dashboard to have loaded.
+     *
+     * wp-browser's loginAs() returns as soon as the auth cookies exist, while
+     * the browser is still following the redirect to wp-admin/. A test that
+     * navigates elsewhere in that window can end up with the dashboard as the
+     * page it then acts on ("#tag-name not found", screenshot shows the
+     * dashboard). On a fresh fixture that first admin request is slow enough
+     * for this to happen in most runs.
+     */
+    public function loginAsAdmin(int $timeout = 10, int $maxAttempts = 5): void
+    {
+        parent::loginAsAdmin($timeout, $maxAttempts);
+
+        // The functional suite reuses this step class through WPBrowser, which
+        // has no browser to race and no wait actions; Codeception rejects the
+        // call rather than ignoring it.
+        try {
+            $this->waitForElement('#wpadminbar', $timeout);
+            $this->waitForJS('return document.readyState === "complete";', $timeout);
+        } catch (\RuntimeException $e) {
+            if (strpos($e->getMessage(), "can't be called") === false) {
+                throw $e;
+            }
+        }
+    }
+
     public function loginAsAdminToHistoryPage()
     {
         $I = $this;
@@ -227,6 +254,39 @@ class Admin extends \AcceptanceTester
     }
 
     /**
+     * Get the history row at $index, retrying while it does not satisfy $is_match.
+     *
+     * A click that submits a form returns when the browser has the response,
+     * but the assertion that follows reads the database, and on a slow request
+     * the newest row can still be the previous event ("Logged in" instead of
+     * "Deleted user anna"). Retry for a few seconds before giving up, so the
+     * caller asserts on what the action produced rather than on the race.
+     *
+     * @param int $index 0 for the newest row.
+     * @param callable $is_match Receives ['row' => ..., 'context' => ...], returns bool.
+     * @param array $required_context_keys Passed to getHistory() on the final read.
+     * @return array The last history read, matching or not.
+     */
+    private function getHistoryMatching(int $index, callable $is_match, array $required_context_keys = []): array
+    {
+        $max_attempts = 25;
+
+        for ($attempt = 1; $attempt < $max_attempts; $attempt++) {
+            $history = $this->getHistory($index);
+
+            if ($is_match($history)) {
+                return $history;
+            }
+
+            usleep(200000);
+        }
+
+        // Final read with the caller's required keys, so a real failure
+        // reports the same way it always did.
+        return $this->getHistory($index, $required_context_keys);
+    }
+
+    /**
      * 
      * @param mixed $initiator wp_user, web_user, ...
      * @return void 
@@ -236,7 +296,9 @@ class Admin extends \AcceptanceTester
      */
     public function seeLogInitiator(string $initiator, int $index = 0)
     {
-        $history = $this->getHistory($index);
+        $history = $this->getHistoryMatching($index, function ($history) use ($initiator) {
+            return $history['row']['initiator'] === $initiator;
+        });
         $this->assertEquals($initiator, $history['row']['initiator']);
     }
 
@@ -255,7 +317,9 @@ class Admin extends \AcceptanceTester
      */
     public function seeLogMessage(string $message_to_test, int $index = 0)
     {
-        ['row' => $row, 'context' => $context] = $this->getHistory($index);
+        ['row' => $row, 'context' => $context] = $this->getHistoryMatching($index, function ($history) use ($message_to_test) {
+            return self::interpolate($history['row']['message'], $history['context']) === $message_to_test;
+        });
 
         $interpolated_message = self::interpolate(
             $row['message'],
@@ -285,7 +349,9 @@ class Admin extends \AcceptanceTester
      */
     public function seeLogMessageStartsWith(string $message_to_test, int $index = 0)
     {
-        ['row' => $row, 'context' => $context] = $this->getHistory($index);
+        ['row' => $row, 'context' => $context] = $this->getHistoryMatching($index, function ($history) use ($message_to_test) {
+            return strpos(self::interpolate($history['row']['message'], $history['context']), $message_to_test) === 0;
+        });
 
         $interpolated_message = self::interpolate(
             $row['message'],
@@ -315,7 +381,9 @@ class Admin extends \AcceptanceTester
      */
     public function seeLogContext(array $expectedContext, int $index = 0)
     {
-        ['row' => $row, 'context' => $foundContext] = $this->getHistory($index, array_keys($expectedContext));
+        ['row' => $row, 'context' => $foundContext] = $this->getHistoryMatching($index, function ($history) use ($expectedContext) {
+            return array_intersect_key($history['context'], $expectedContext) == $expectedContext;
+        }, array_keys($expectedContext));
 
         // Only test the keys passed.
         $foundContext = array_intersect_key($foundContext, $expectedContext);
