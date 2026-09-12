@@ -1,0 +1,71 @@
+name: Set up the test environment
+description: >
+    Everything the Codeception suites need before `docker compose run php-cli`:
+    vendor/, built assets, and the third-party plugins in tests/plugins/. Shared
+    by the wpunit, functional and acceptance jobs so they cannot drift apart.
+
+runs:
+    using: composite
+    steps:
+        # Composer runs on the runner rather than in php-lint so vendor/ can
+        # share lint.yml's cache (same key). composer.json pins
+        # config.platform.php to 7.4.33, so the resolver targets PHP 7.4
+        # whatever the runner has, and the resulting vendor/ is the one
+        # php-cli (PHP 8.1) runs the tests with.
+        - name: Set up PHP
+          uses: shivammathur/setup-php@v2
+          with:
+              php-version: '8.1'
+              extensions: mysqli, zip
+              coverage: none
+              tools: composer:v2
+
+        - name: Restore vendor/
+          id: vendor-cache
+          uses: actions/cache@v6
+          with:
+              path: vendor
+              key: vendor-php8.1-${{ hashFiles('composer.lock') }}
+
+        - name: Install dependencies
+          if: steps.vendor-cache.outputs.cache-hit != 'true'
+          shell: bash
+          run: |
+              composer install \
+                --no-interaction \
+                --no-progress \
+                --prefer-dist \
+                --ignore-platform-req=ext-mysqli \
+                --ignore-platform-req=ext-zip
+
+        # The React dropins include build/*.asset.php unconditionally, and
+        # build/ is not tracked. Without this every test that renders an
+        # admin page dies on a missing include.
+        - name: Set up Node
+          uses: actions/setup-node@v7
+          with:
+              node-version-file: '.nvmrc'
+              cache: npm
+
+        - name: Install JS dependencies
+          shell: bash
+          run: npm ci
+
+        - name: Build assets
+          shell: bash
+          run: npm run build
+
+        # tests/wpunit.suite.yml lists six third-party plugins under WPLoader
+        # `plugins:`, and WPLoader throws if any is missing. The acceptance
+        # suite activates them through the admin UI. tests/plugins/ is
+        # gitignored, so fetch them at the versions pinned in the script
+        # (which is why the script is the cache key).
+        - name: Restore test plugins
+          uses: actions/cache@v6
+          with:
+              path: tests/plugins
+              key: test-plugins-${{ hashFiles('scripts/install-test-plugins.sh') }}
+
+        - name: Install test plugins
+          shell: bash
+          run: ./scripts/install-test-plugins.sh
