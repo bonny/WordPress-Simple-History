@@ -217,7 +217,7 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertStringContainsString( 'Expired on', $this->addon()->get_license_state_description() );
 
 		$this->addon()->update_license_status_from_response( [ 'valid' => false, 'status' => null, 'expires_at' => null, 'error' => 'license_key not found.', 'checked_at' => '2026-09-06T12:00:00Z' ] );
-		$this->assertStringContainsString( 'no longer valid', $this->addon()->get_license_state_description() );
+		$this->assertStringContainsString( 'was not found', $this->addon()->get_license_state_description() );
 	}
 
 	public function test_deactivation_clears_status_and_updater_cache() {

@@ -397,7 +397,7 @@ class Licences_Settings_Page extends Service {
 						$help_label = __( 'Renew license', 'simple-history' );
 					} else {
 						$help_url   = Helpers::get_tracking_url( 'https://simple-history.com/support/', 'premium_license_help' );
-						$help_label = __( 'Get help', 'simple-history' );
+						$help_label = __( 'Contact support', 'simple-history' );
 					}
 
 					$classes = 'sh-LicencesPage-plugin-active' . ( $is_problem ? ' sh-LicencesPage-plugin-active--problem' : '' );

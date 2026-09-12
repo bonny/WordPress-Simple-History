@@ -372,11 +372,11 @@ class AddOn_Plugin {
 				break;
 
 			case 'disabled':
-				$text = __( 'License has been disabled.', 'simple-history' );
+				$text = __( 'The key has been disabled.', 'simple-history' );
 				break;
 
 			case 'invalid':
-				$text = __( 'License key is no longer valid.', 'simple-history' );
+				$text = __( 'The key was not found, check it for typos.', 'simple-history' );
 				break;
 
 			default:
