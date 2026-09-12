@@ -449,49 +449,49 @@ class RSS_Dropin extends Dropin {
 	 */
 	public function get_allowed_html() {
 		return array(
-				'a'      => array(
-					'href'            => array(),
-					'class'           => array(),
-					'data-ip-address' => array(),
-					'target'          => array(),
-					'title'           => array(),
-				),
-				'em'     => array(),
-				'span'   => array(
-					'class'       => array(),
-					'title'       => array(),
-					'aria-hidden' => array(),
-				),
-				'time'   => array(
-					'datetime' => array(),
-					'class'    => array(),
-				),
-				'strong' => array(
-					'class' => array(),
-				),
-				'div'    => array(
-					'class'    => array(),
-					'tabindex' => array(),
-				),
-				'p'      => array(),
-				'del'    => array(),
-				'ins'    => array(),
-				'dl'     => array(
-					'class' => array(),
-				),
-				'dt'     => array(),
-				'dd'     => array(),
-				'table'  => array(
-					'class' => array(),
-				),
-				'tbody'  => array(),
-				'tr'     => array(),
-				'td'     => array(
-					'class' => array(),
-				),
-				'col'    => array(
-					'class' => array(),
-				),
+			'a'      => array(
+				'href'            => array(),
+				'class'           => array(),
+				'data-ip-address' => array(),
+				'target'          => array(),
+				'title'           => array(),
+			),
+			'em'     => array(),
+			'span'   => array(
+				'class'       => array(),
+				'title'       => array(),
+				'aria-hidden' => array(),
+			),
+			'time'   => array(
+				'datetime' => array(),
+				'class'    => array(),
+			),
+			'strong' => array(
+				'class' => array(),
+			),
+			'div'    => array(
+				'class'    => array(),
+				'tabindex' => array(),
+			),
+			'p'      => array(),
+			'del'    => array(),
+			'ins'    => array(),
+			'dl'     => array(
+				'class' => array(),
+			),
+			'dt'     => array(),
+			'dd'     => array(),
+			'table'  => array(
+				'class' => array(),
+			),
+			'tbody'  => array(),
+			'tr'     => array(),
+			'td'     => array(
+				'class' => array(),
+			),
+			'col'    => array(
+				'class' => array(),
+			),
 		);
 	}
 

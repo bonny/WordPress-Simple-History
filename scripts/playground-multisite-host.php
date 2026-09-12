@@ -27,7 +27,7 @@
  * @package SimpleHistoryDev
  */
 
-// phpcs:disable WordPress.WP.AlternativeFunctions -- runs before WordPress loads.
+// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.Security.EscapeOutput, WordPressVIPMinimum.Performance.FetchingRemoteData, WordPressVIPMinimum.Functions.RestrictedFunctions -- runs before WordPress loads, as a CLI script writing a local file.
 
 $sh_dev_config_path = '/wordpress/wp-config.php';
 $sh_dev_host        = '__SH_DEV_MULTISITE_HOST__';
