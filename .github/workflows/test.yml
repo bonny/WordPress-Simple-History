@@ -1,0 +1,141 @@
+name: Test
+
+# Runs the three Codeception suites on every push. Before this, the test
+# suites only ran when someone remembered to run them locally; lint.yml
+# covered phpcs and phpstan but nothing executed a single test.
+#
+# Unlike lint.yml this goes through compose.yaml on purpose: the suites need
+# WordPress core, a database and (for acceptance) a browser, and running the
+# exact command a developer runs (`docker compose run --rm php-cli
+# vendor/bin/codecept run <suite>`) means CI and a laptop cannot disagree
+# about the environment. The shared setup lives in
+# .github/actions/setup-tests.
+#
+# Each suite is its own job so they run in parallel and a failure in one
+# does not hide the others. functional and acceptance need the database
+# fixture, which scripts/build-test-fixture.sh generates from the WordPress
+# in the container rather than from a committed dump that would drift.
+on:
+    push:
+    pull_request:
+
+concurrency:
+    group: test-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+# Same rule as lint.yml: pushes cover our own branches, so only let
+# pull_request events through when they come from a fork.
+jobs:
+    wpunit:
+        name: wpunit
+        runs-on: ubuntu-latest
+
+        # The suite itself takes ~30s warm. Image pulls and a cold WordPress
+        # volume add a few minutes on top; anything past this is a hang.
+        timeout-minutes: 30
+
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: ./.github/actions/setup-tests
+
+            # Premium is a separate, private repository and is not checked out
+            # here. Its tests (tests/wpunit/premium/) skip when the plugin is
+            # absent; the add-ons repository runs them with premium present.
+            #
+            # The db and wordpress services start on demand through php-cli's
+            # depends_on, and their healthchecks make compose wait until the
+            # database accepts connections and WordPress core has been copied
+            # into the shared volume.
+            - name: wpunit
+              run: docker compose run --rm php-cli vendor/bin/codecept run wpunit
+
+            - name: Upload test output
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: wpunit-output
+                  path: tests/_output
+                  if-no-files-found: ignore
+
+    functional:
+        name: functional
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: ./.github/actions/setup-tests
+
+            # Installs WordPress into the test site and exports it as
+            # tests/_data/dump.sql, which WPDb imports before every test.
+            - name: Build database fixture
+              run: ./scripts/build-test-fixture.sh --dump
+
+            - name: functional
+              run: docker compose run --rm php-cli vendor/bin/codecept run functional
+
+            - name: Upload test output
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: functional-output
+                  path: tests/_output
+                  if-no-files-found: ignore
+
+    acceptance:
+        name: acceptance
+        runs-on: ubuntu-latest
+
+        # ~2 minutes of browser tests plus the Selenium image pull.
+        timeout-minutes: 40
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: ./.github/actions/setup-tests
+
+            # The plugin and theme zips the tests upload through the admin UI
+            # are public downloads at pinned versions; cache them on the
+            # script that lists them. The dump is rebuilt every run.
+            - name: Restore fixture zips
+              uses: actions/cache@v6
+              with:
+                  path: tests/_data/*.zip
+                  key: fixture-zips-${{ hashFiles('scripts/build-test-fixture.sh') }}
+
+            - name: Build fixture
+              run: ./scripts/build-test-fixture.sh
+
+            # Same as `npm run test:acceptance`: chrome is not in php-cli's
+            # depends_on, so start it (and wait for Selenium) explicitly.
+            #
+            # Browser tests are the one suite with genuine flakes we do not
+            # control (ChromeDriver "Node with given id does not belong to the
+            # document" mid-navigation, roughly one test in fifty runs). The
+            # RunFailed extension records failures, so a single rerun of just
+            # those tests separates a flake from a real failure without
+            # hiding either: both attempts are in the job log.
+            - name: acceptance
+              run: |
+                  docker compose up -d --wait chrome
+                  docker compose run --rm php-cli vendor/bin/codecept run acceptance \
+                    || docker compose run --rm php-cli vendor/bin/codecept run acceptance -g failed
+
+            # Failed acceptance tests leave a screenshot and the page HTML
+            # here; that is usually the whole diagnosis.
+            - name: Upload test output
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: acceptance-output
+                  path: tests/_output
+                  if-no-files-found: ignore
