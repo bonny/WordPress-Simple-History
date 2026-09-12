@@ -16,12 +16,16 @@ use Simple_History\Log_Query;
  * @coversDefaultClass Simple_History\Log_Query
  */
 class LogQueryTest extends \Codeception\TestCase\WPTestCase {
+	use \Helper\SkipsOnSqlite;
+
 	/**
 	 * Add n log entries and then query for them.
 	 * 
 	 * Then add another login attempt and check for updates since the last above id.
 	 */
 	function test_query() {
+		$this->skip_on_sqlite( 'occasion grouping is MySQL-only. Log_Query::query_overview() sends SQLite to query_overview_simple(), which returns every event ungrouped, because the grouping query counts consecutive rows with MySQL session variables. Delete this skip when grouping works on SQLite.' );
+
 		// Add and set current user to admin user, so user can read all logs.
 		$user_id = $this->factory->user->create(
 			array(
