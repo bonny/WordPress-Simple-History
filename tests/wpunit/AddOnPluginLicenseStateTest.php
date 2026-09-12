@@ -2,6 +2,7 @@
 // tests/wpunit/AddOnPluginLicenseStateTest.php
 
 use Simple_History\AddOn_Plugin;
+use Simple_History\Plugin_Updater;
 
 /**
  * License state derived from the per-add-on license option, refreshed by update checks.
@@ -76,12 +77,12 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertNull( $state['checked_at'] );
 	}
 
-	public function test_activation_only_option_with_past_expiry_is_expired() {
+	public function test_activation_only_option_with_past_expiry_stays_active_without_a_check() {
 		$this->seed_activated_option( '2024-01-23T13:25:53.000000Z' );
 
 		$state = $this->addon()->get_license_state();
 
-		$this->assertSame( 'expired', $state['state'] );
+		$this->assertSame( 'active', $state['state'] );
 		$this->assertSame( 'activation', $state['source'] );
 		$this->assertSame( strtotime( '2024-01-23T13:25:53.000000Z' ), $state['expires_timestamp'] );
 	}
@@ -97,8 +98,10 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 
 	public function test_update_check_refreshes_a_stale_activation_expiry() {
 		// Activated a year ago with a one-year key; renewed since, but core never knew.
+		// The stale activation-time expiry has passed, but with no check yet
+		// the state stays "active" rather than guessing "expired".
 		$this->seed_activated_option( '2025-09-01T00:00:00.000000Z' );
-		$this->assertSame( 'expired', $this->addon()->get_license_state()['state'] );
+		$this->assertSame( 'active', $this->addon()->get_license_state()['state'] );
 
 		$written = $this->addon()->update_license_status_from_response(
 			[
@@ -219,7 +222,7 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 	public function test_deactivation_clears_status_and_updater_cache() {
 		$this->seed_activated_option( null );
 		$this->addon()->update_license_status_from_response( [ 'valid' => false, 'status' => 'expired', 'expires_at' => '2026-05-27T01:17:07.000000Z', 'error' => 'This license key is expired.', 'checked_at' => '2026-09-06T12:00:00Z' ] );
-		set_transient( 'simple_history_updater_cache_sh_test_addon', '{"success":false}', HOUR_IN_SECONDS );
+		set_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ), '{"success":false}', HOUR_IN_SECONDS );
 		// deactivate_license() calls the license server; fake a 200 so the reset branch runs.
 		$this->pre_http_request_filter = static function () {
 			return [ 'headers' => [], 'body' => '{}', 'response' => [ 'code' => 200, 'message' => '' ], 'cookies' => [], 'filename' => null ];
@@ -229,7 +232,26 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 		$this->addon()->deactivate_license();
 
 		$this->assertSame( 'none', $this->addon()->get_license_state()['state'] );
-		$this->assertFalse( get_transient( 'simple_history_updater_cache_sh_test_addon' ) );
+		$this->assertFalse( get_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) ) );
+	}
+
+	public function test_update_check_active_with_past_expiry_is_expired() {
+		$this->seed_activated_option( null );
+		$this->addon()->update_license_status_from_response(
+			[
+				'valid'      => true,
+				'status'     => 'active',
+				'expires_at' => '2026-01-01T00:00:00.000000Z',
+				'error'      => '',
+				'checked_at' => '2026-09-06T12:00:00Z',
+			]
+		);
+
+		$state = $this->addon()->get_license_state();
+
+		$this->assertSame( 'expired', $state['state'] );
+		$this->assertSame( 'update_check', $state['source'] );
+		$this->assertFalse( $state['is_lifetime'] );
 	}
 
 	public function test_activation_time_expiry_makes_no_expiry_claim_in_description() {
@@ -237,8 +259,49 @@ class AddOnPluginLicenseStateTest extends \Codeception\TestCase\WPTestCase {
 
 		$state = $this->addon()->get_license_state();
 
-		$this->assertSame( 'expired', $state['state'] );
+		$this->assertSame( 'active', $state['state'] );
 		$this->assertSame( 'activation', $state['source'] );
 		$this->assertSame( '', $this->addon()->get_license_state_description() );
+	}
+
+	public function test_activation_source_future_expiry_yields_valid_until_description() {
+		$this->seed_activated_option( gmdate( 'Y-m-d\TH:i:s.000000\Z', time() + 30 * DAY_IN_SECONDS ) );
+
+		$state = $this->addon()->get_license_state();
+
+		$this->assertSame( 'active', $state['state'] );
+		$this->assertSame( 'activation', $state['source'] );
+		$this->assertStringContainsString( 'Valid until', $this->addon()->get_license_state_description( $state ) );
+	}
+
+	public function test_unparsable_expires_at_is_rejected() {
+		$this->seed_activated_option( null );
+		$this->addon()->update_license_status_from_response(
+			[
+				'valid'      => false,
+				'status'     => 'expired',
+				'expires_at' => '2026-05-27T01:17:07.000000Z',
+				'error'      => 'This license key is expired.',
+				'checked_at' => '2026-09-06T12:00:00Z',
+			]
+		);
+
+		$written = $this->addon()->update_license_status_from_response(
+			[
+				'valid'      => true,
+				'status'     => 'active',
+				'expires_at' => 'soon',
+				'error'      => '',
+				'checked_at' => '2026-09-07T12:00:00Z',
+			]
+		);
+
+		$this->assertFalse( $written );
+
+		$state = $this->addon()->get_license_state();
+
+		$this->assertSame( 'expired', $state['state'] );
+		$this->assertSame( '2026-05-27T01:17:07.000000Z', $state['expires_at'] );
+		$this->assertSame( '2026-09-06T12:00:00Z', $state['checked_at'] );
 	}
 }

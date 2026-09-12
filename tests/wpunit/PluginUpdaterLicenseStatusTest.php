@@ -23,14 +23,14 @@ class PluginUpdaterLicenseStatusTest extends \Codeception\TestCase\WPTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		delete_option( self::OPTION );
-		delete_transient( 'simple_history_updater_cache_sh_test_addon' );
+		delete_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) );
 		add_filter( 'pre_http_request', [ $this, 'filter_pre_http_request' ], 10, 3 );
 	}
 
 	public function tearDown(): void {
 		remove_filter( 'pre_http_request', [ $this, 'filter_pre_http_request' ] );
 		delete_option( self::OPTION );
-		delete_transient( 'simple_history_updater_cache_sh_test_addon' );
+		delete_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) );
 		parent::tearDown();
 	}
 
@@ -129,9 +129,10 @@ class PluginUpdaterLicenseStatusTest extends \Codeception\TestCase\WPTestCase {
 
 	public function test_401_with_license_stores_expired_and_returns_no_update() {
 		$this->seed_activated_option();
+		$body = '{"success":false,"error":"Invalid license_key","error_code":"invalid_license_key","license":' . $this->license_json( 'expired', '2026-05-27T01:17:07.000000Z', false, 'This license key is expired.' ) . '}';
 		$this->fake_reply = [
 			'code' => 401,
-			'body' => '{"success":false,"error":"Invalid license_key","error_code":"invalid_license_key","license":' . $this->license_json( 'expired', '2026-05-27T01:17:07.000000Z', false, 'This license key is expired.' ) . '}',
+			'body' => $body,
 		];
 
 		$remote = $this->updater()->request();
@@ -144,6 +145,10 @@ class PluginUpdaterLicenseStatusTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'expired', $state['state'] );
 		$this->assertSame( '2026-05-27T01:17:07.000000Z', $state['expires_at'] );
 		$this->assertSame( 'This license key is expired.', $state['error'] );
+
+		// cache_allowed = false only skips reading the cache; the write still
+		// happens, and a 401 refusal is cached too (for a shorter window).
+		$this->assertSame( $body, get_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) ) );
 	}
 
 	public function test_401_with_null_license_keeps_previous_state() {
@@ -193,7 +198,7 @@ class PluginUpdaterLicenseStatusTest extends \Codeception\TestCase\WPTestCase {
 	public function test_cached_401_is_replayed_without_a_request_or_option_write() {
 		$this->seed_activated_option();
 		set_transient(
-			'simple_history_updater_cache_sh_test_addon',
+			Plugin_Updater::get_cache_key_for_slug( self::SLUG ),
 			'{"success":false,"error":"Invalid license_key","error_code":"invalid_license_key","license":' . $this->license_json( 'expired', '2026-05-27T01:17:07.000000Z', false, 'This license key is expired.' ) . '}',
 			HOUR_IN_SECONDS
 		);
@@ -246,6 +251,10 @@ class PluginUpdaterLicenseStatusTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertArrayNotHasKey( self::ID, $transient->response );
 		$this->assertArrayHasKey( self::ID, $transient->no_update );
+
+		// cache_allowed = false only skips reading the cache; the write still
+		// happens, and a 401 refusal is cached too (for a shorter window).
+		$this->assertSame( $this->fake_reply['body'], get_transient( Plugin_Updater::get_cache_key_for_slug( self::SLUG ) ) );
 	}
 
 	public function test_site_transient_filter_offers_no_update_for_expired_key() {
