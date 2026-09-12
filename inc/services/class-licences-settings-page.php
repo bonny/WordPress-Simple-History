@@ -512,13 +512,17 @@ class Licences_Settings_Page extends Service {
 					?>
 					<details style="margin-top: 1em;">
 						<summary>Licence message (debug)</summary>
-						<pre>
-						<?php 
+						<p>This is only shown when WP_DEBUG is enabled. It shows the raw message returned from the license server.</p>
+						<p>Licence key: <code><?php echo esc_html( $license_key ); ?></code></p>
+						<pre><?php 
 							// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 							echo esc_html( print_r( $licence_message, true ) ); 
-						?>
-						</pre>
-						<br />Licence key: <code><?php echo esc_html( $license_key ); ?></code>
+						?></pre>
+						<p>Derived license state, as read by the rest of the plugin:</p>
+						<pre><?php
+							// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+							echo esc_html( print_r( $plus_plugin->get_license_state(), true ) );
+						?></pre>
 					</details>
 					<?php
 				}
