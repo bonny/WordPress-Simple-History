@@ -181,6 +181,10 @@ services:
       - ./tests/plugins/developer-loggers-for-simple-history:/var/www/html/wp-content/plugins/developer-loggers-for-simple-history
       - ./tests/plugins/issue-373-disable-core-loggers:/var/www/html/wp-content/plugins/issue-373-disable-core-loggers
       - ./tests/_data/mu-plugins:/var/www/html/wp-content/mu-plugins
+      # Same uploads directory the wordpress service serves. Without it
+      # wp-cli sees the volume's own (root-owned, empty) uploads directory
+      # and anything it writes or deletes there is invisible to the site.
+      - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
     profiles:
       - noautostart
 
