@@ -118,6 +118,14 @@ for entry in "${PLUGINS[@]}"; do
 			continue
 		fi
 
+		# An empty directory is not an installation. Docker creates one when
+		# it bind-mounts a path that does not exist yet, and a plugin that was
+		# deleted by hand leaves one behind; both used to look "present" here
+		# and get skipped, so the suite then failed on a missing plugin.
+		if [ -d "$DEST/$slug" ] && [ -z "$(ls -A "$DEST/$slug" 2>/dev/null)" ]; then
+			rmdir "$DEST/$slug" 2>/dev/null || true
+		fi
+
 		# Present without a stamp: put there by hand before this script
 		# existed. Leave it alone rather than overwrite someone's checkout.
 		if [ -d "$DEST/$slug" ] && [ -z "$have" ]; then
