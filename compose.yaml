@@ -76,6 +76,9 @@ services:
       - "${DB_EXPOSE_PORT:-127.0.0.1:}:3306"
     volumes:
       - "${DB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
+      # Creates tests_db for the wpunit suite on first start. Only runs on an
+      # empty data directory, so it never touches an existing local database.
+      - ./docker/db-init:/docker-entrypoint-initdb.d:ro
 
   chrome:
     image: selenium/standalone-chromium:145.0
