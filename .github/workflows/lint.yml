@@ -7,8 +7,14 @@ name: Lint
 # database and no WordPress, and setting PHP up directly is far quicker than
 # pulling the dockette/ci image. The test suites are the ones that should run
 # through compose, so CI runs the same command as a developer.
+# The branch filter is what keeps tags out: a release tag points at a commit
+# that already ran this workflow on main, so rerunning it only delays
+# deploy.yml. Do not "simplify" this to tags-ignore -- GitHub evaluates only
+# the ref filter you define, so a lone tags-ignore makes push a tag-only
+# trigger and the workflow then never runs for a branch at all.
 on:
     push:
+        branches: ['**']
     pull_request:
 
 concurrency:
