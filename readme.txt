@@ -271,6 +271,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The weekly email ends with a tip about Simple History that changes every week, picked to match what happened on the site when it can.
 -   The weekly email is sent with a plain text version alongside the HTML one. Mail that is HTML-only scores worse with spam filters, some gateways strip the HTML and leave a blank message, and notification previews read the text part. The text version carries the same numbers in the same order.
 -   The weekly email opens with a sentence or two about the week itself: how many events, how that compares with the week before, any failed logins, and who was most active. On a week with nothing logged it says so and still names last week's total — which is how you find out logging has stopped.
+-   The Licenses tab now shows when an add-on license renews or when it expired, and how many sites the key is activated on. The status is refreshed from simple-history.com on every update check, so a renewed license no longer looks expired.
 
 **Changed**
 
@@ -293,6 +294,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The event log loads its first page sooner — search options and events were each fetched twice on page load, and the first events request waited out a debounce meant for fast filter changes.
 -   Loading placeholder rows keep their shape while the log loads instead of reshuffling.
 -   The date dropdown keeps the same width while the log loads instead of growing when the month options arrive.
+-   An expired or disabled add-on license key silently stopped updates without saying why. The Licenses tab now shows the reason and a renew or help link.
 
 **Security**
 
