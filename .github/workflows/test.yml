@@ -30,7 +30,38 @@ permissions:
 # pull_request events through when they come from a fork.
 jobs:
     wpunit:
-        name: wpunit
+        # The combinations we promise and can actually run: the newest released
+        # WordPress, the PHP floor from the plugin header, and both database
+        # engines the plugin branches on. Only wpunit is multiplied. It takes
+        # about thirty seconds, has no browser to be flaky, and version-sensitive
+        # behaviour shows up there first; the two browser-driven suites stay on
+        # one combination below.
+        #
+        # The list is explicit rather than a cross product because the WordPress
+        # images do not exist for every pair — there is no 7.1-php8.1 and no
+        # 6.8-php7.4, so a generated matrix would ask for tags that 404.
+        #
+        # PHP_CLI_VERSION is the one that matters here: WPLoader loads WordPress
+        # inside the php-cli container, so that is the PHP actually running the
+        # plugin. PHP_VERSION only has to make a WordPress tag that exists.
+        #
+        # Two axes are deliberately absent, both blocked by the harness rather
+        # than by the plugin:
+        #
+        #   MySQL. The WordPress test harness turns every table into a TEMPORARY
+        #   table, and MySQL cannot open one twice in a single query, so any
+        #   query that joins the contexts table to itself dies with "Can't reopen
+        #   table". Identical on 5.7 and 8.0, 46 tests either way; MariaDB has no
+        #   such restriction. A real site has permanent tables, so this says
+        #   nothing about production, and proving that needs its own work.
+        #
+        #   WordPress 6.3, the floor the plugin header declares. Yoast Duplicate
+        #   Post 4.6 requires 6.8 and Redirection 5.10.0 requires 6.7, and a
+        #   plugin that refuses to activate ends the run at bootstrap. Older pins
+        #   break the loggers those plugins exist to test, and a Codeception
+        #   environment can only add to WPLoader's plugin list, never remove from
+        #   it. A separate suite file would do it.
+        name: wpunit · ${{ matrix.label }}
         runs-on: ubuntu-latest
 
         # The suite itself takes ~30s warm. Image pulls and a cold WordPress
@@ -38,6 +69,53 @@ jobs:
         timeout-minutes: 30
 
         if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+        strategy:
+            # Every combination should report. Cancelling the rest on the first
+            # red one hides whether a failure is version-specific or general,
+            # which is the whole question a matrix exists to answer.
+            fail-fast: false
+            matrix:
+                include:
+                    # What a developer gets by default, and what the other two
+                    # suites run on.
+                    - label: WP 6.8 · PHP 8.1 · MariaDB 10.5
+                      wordpress: '6.8'
+                      php: '8.1'
+                      cli: '81'
+                      db: 'mariadb:10.5'
+
+                    # Newest released WordPress. readme.txt says we are tested
+                    # up to this, so something had better be testing it. Thirty
+                    # tests that skip on 6.8 for a missing API run here.
+                    - label: WP 7.1 · PHP 8.2 · MariaDB 10.5
+                      wordpress: '7.1'
+                      php: '8.2'
+                      cli: '82'
+                      db: 'mariadb:10.5'
+
+                    # The PHP floor from the plugin header. Composer already
+                    # resolves for 7.4, but nothing ran the code on it.
+                    - label: WP 6.8 · PHP 7.4 · MariaDB 10.5
+                      wordpress: '6.8'
+                      php: '8.1'
+                      cli: '74'
+                      db: 'mariadb:10.5'
+
+                    # Log_Query takes a different path on SQLite, and the
+                    # occasion-grouping tests skip themselves there.
+                    - label: WP 6.8 · PHP 8.1 · SQLite
+                      wordpress: '6.8'
+                      php: '8.1'
+                      cli: '81'
+                      db: 'mariadb:10.5'
+                      codecept_env: '--env sqlite'
+
+        env:
+            WORDPRESS_VERSION: ${{ matrix.wordpress }}
+            PHP_VERSION: ${{ matrix.php }}
+            PHP_CLI_VERSION: ${{ matrix.cli }}
+            DB_IMAGE: ${{ matrix.db }}
 
         steps:
             - uses: actions/checkout@v7
@@ -52,14 +130,17 @@ jobs:
             # depends_on, and their healthchecks make compose wait until the
             # database accepts connections and WordPress core has been copied
             # into the shared volume.
+            #
+            # The SQLite entry still starts the database service, because
+            # php-cli depends on it. WPLoader just does not use it.
             - name: wpunit
-              run: docker compose run --rm php-cli vendor/bin/codecept run wpunit
+              run: docker compose run --rm php-cli vendor/bin/codecept run wpunit ${{ matrix.codecept_env }}
 
             - name: Upload test output
               if: failure()
               uses: actions/upload-artifact@v7
               with:
-                  name: wpunit-output
+                  name: wpunit-output-${{ strategy.job-index }}
                   path: tests/_output
                   if-no-files-found: ignore
 
