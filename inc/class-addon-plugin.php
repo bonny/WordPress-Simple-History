@@ -101,8 +101,14 @@ class AddOn_Plugin {
 	 * @return array<string,mixed> Licence message.
 	 */
 	public function get_license_message() {
-		/** @var array<string,mixed> */
-		return get_option( $this->get_license_message_option_name(), $this->message_defaults );
+		$stored = get_option( $this->get_license_message_option_name(), $this->message_defaults );
+
+		if ( is_array( $stored ) ) {
+			/** @var array<string,mixed> */
+			return wp_parse_args( $stored, $this->message_defaults );
+		}
+
+		return $this->message_defaults;
 	}
 
 	/**
@@ -159,6 +165,13 @@ class AddOn_Plugin {
 			$expires_at = null;
 		}
 
+		// A string that strtotime() cannot parse is worse than no date at
+		// all: storing it would make get_license_state() silently treat the
+		// license as having no expiry. Reject the whole response instead.
+		if ( is_string( $expires_at ) && strtotime( $expires_at ) === false ) {
+			return false;
+		}
+
 		$license_error = isset( $license['error'] ) && is_string( $license['error'] ) ? $license['error'] : '';
 
 		// Cap server-supplied strings before storing: they end up in an
@@ -179,9 +192,10 @@ class AddOn_Plugin {
 	/**
 	 * Derive one license state from the stored license message.
 	 *
-	 * Prefers the status from the last update check. Falls back to the
-	 * activation-time expiry date for sites where no check has run since
-	 * this was added, which is the same guess older versions made.
+	 * Prefers the status from the last update check. When no check has run
+	 * since activation, there is no way to tell an expired key from one that
+	 * has since been renewed, so it is reported as active rather than
+	 * guessed as expired from the stale activation-time date.
 	 *
 	 * @return array{
 	 *   state: string,
@@ -231,9 +245,11 @@ class AddOn_Plugin {
 		$checked_at = isset( $message['license_checked_at'] ) && is_string( $message['license_checked_at'] ) ? $message['license_checked_at'] : null;
 
 		if ( $checked_at === null ) {
-			// Never checked: the activation-time expiry is all there is.
+			// Never checked: we cannot tell an expired key from one that has
+			// since been renewed, so treat it as active until a real check
+			// says otherwise.
 			$state['source'] = 'activation';
-			$state['state']  = $expires_timestamp !== null && $expires_timestamp < time() ? 'expired' : 'active';
+			$state['state']  = 'active';
 		} else {
 			$state['source']     = 'update_check';
 			$state['checked_at'] = $checked_at;
@@ -242,6 +258,12 @@ class AddOn_Plugin {
 
 			if ( $status === 'active' || $status === 'inactive' ) {
 				$state['state'] = 'active';
+
+				// A stored expiry that has already passed means expired,
+				// even though the last check reported the key as active.
+				if ( $expires_timestamp !== null && $expires_timestamp < time() ) {
+					$state['state'] = 'expired';
+				}
 			} elseif ( $status === 'expired' ) {
 				$state['state'] = 'expired';
 			} elseif ( $status === 'disabled' ) {
@@ -259,22 +281,28 @@ class AddOn_Plugin {
 	/**
 	 * One-sentence, plain-text description of the license state for the Licenses tab.
 	 *
-	 * An activation-source `expired` state is a guess made from the stale
-	 * activation-time expiry, not a fact from the server, so it makes no
-	 * claim about expiry: it returns an empty string rather than telling a
-	 * renewed customer their license expired.
+	 * An activation-source state is always `active` (see get_license_state()),
+	 * but its expiry date is the stale one recorded at activation time. When
+	 * that date has already passed, we still don't know whether the license
+	 * was renewed since, so this makes no claim about expiry: it returns an
+	 * empty string rather than an unverified "valid until" date.
 	 *
 	 * @param array<string,mixed>|null $license_state Pass an already-computed state to avoid recomputing it. Defaults to computing it.
-	 * @return string Empty when there is no license, or when the only evidence of expiry is a stale activation-time guess.
+	 * @return string Empty when there is no license, or when the only evidence about expiry is a stale, already-past activation-time date.
 	 */
 	public function get_license_state_description( ?array $license_state = null ) {
 		$state = $license_state ?? $this->get_license_state();
 
-		if ( $state['state'] === 'expired' && $state['source'] === 'activation' ) {
-			return '';
-		}
-
 		$date = $state['expires_timestamp'] !== null ? wp_date( get_option( 'date_format' ), $state['expires_timestamp'] ) : '';
+
+		if ( $state['source'] === 'activation' && $state['expires_timestamp'] !== null ) {
+			if ( $state['expires_timestamp'] < time() ) {
+				return '';
+			}
+
+			/* translators: %s: date */
+			return sprintf( __( 'Valid until %s.', 'simple-history' ), $date );
+		}
 
 		$usage = '';
 
@@ -328,7 +356,10 @@ class AddOn_Plugin {
 			return $value;
 		}
 
-		return substr( $value, 0, 255 );
+		// wp_check_invalid_utf8() turns an invalid byte sequence into an
+		// empty string, which the readers of these fields already treat as
+		// absent.
+		return wp_check_invalid_utf8( substr( $value, 0, 255 ) );
 	}
 
 	/**
@@ -338,7 +369,7 @@ class AddOn_Plugin {
 	 * check asks the server instead of replaying a stale answer.
 	 */
 	private function purge_updater_cache() {
-		delete_transient( 'simple_history_updater_cache_' . str_replace( '-', '_', $this->slug ) );
+		delete_transient( Plugin_Updater::get_cache_key_for_slug( $this->slug ) );
 	}
 
 	/**

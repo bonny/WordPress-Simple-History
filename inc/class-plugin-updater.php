@@ -59,12 +59,25 @@ class Plugin_Updater {
 		$this->version     = $version;
 		$this->api_url     = $api_url;
 
-		$this->cache_key             = 'simple_history_updater_cache_' . str_replace( '-', '_', $this->plugin_slug );
+		$this->cache_key             = self::get_cache_key_for_slug( $this->plugin_slug );
 		$this->cache_key_plugin_info = 'simple_history_updater_info_cache_' . str_replace( '-', '_', $this->plugin_slug );
 
 		add_filter( 'plugins_api', array( $this, 'on_plugins_api_handle_plugin_info' ), 20, 3 );
 		add_filter( 'site_transient_update_plugins', array( $this, 'site_transient_update_plugins_update' ) );
 		add_action( 'upgrader_process_complete', array( $this, 'purge' ), 10, 2 );
+	}
+
+	/**
+	 * Build the transient key used to cache an add-on's update-check response.
+	 *
+	 * The single source of truth for this key, so AddOn_Plugin::purge_updater_cache()
+	 * and tests can derive it instead of duplicating the literal.
+	 *
+	 * @param string $slug Plugin slug.
+	 * @return string
+	 */
+	public static function get_cache_key_for_slug( $slug ) {
+		return 'simple_history_updater_cache_' . str_replace( '-', '_', $slug );
 	}
 
 	/**
@@ -154,9 +167,12 @@ class Plugin_Updater {
 
 		$this->store_license_from_payload( $decoded );
 
-		// Cache the update answer for 1 hour. A refusal is cached too, so an
-		// expired key does not re-validate on every check.
-		set_transient( $this->cache_key, $payload, HOUR_IN_SECONDS );
+		// Cache a 200 answer for an hour. Cache a 401 refusal for only 10
+		// minutes, the same window used for the network/decode errors above,
+		// so a renewed customer waits at most ten minutes for updates to
+		// return rather than up to an hour.
+		$cache_duration = $response_code === 200 ? HOUR_IN_SECONDS : MINUTE_IN_SECONDS * 10;
+		set_transient( $this->cache_key, $payload, $cache_duration );
 
 		return $decoded;
 	}

@@ -361,11 +361,11 @@ class Licences_Settings_Page extends Service {
 				if ( $licence_message['key_activated'] === true ) {
 					$license_state = $plus_plugin->get_license_state();
 
-					// Only an authoritative update check can report a problem.
-					// A guess from the stale activation-time expiry (source
-					// "activation") renders as active until a real check lands,
-					// same as before this branch.
-					$is_problem = $license_state['source'] === 'update_check' && $license_state['state'] !== 'active';
+					// An activation-source state is always "active" (see
+					// AddOn_Plugin::get_license_state()), so a non-active
+					// state here always comes from an authoritative update
+					// check.
+					$is_problem = $license_state['state'] !== 'active';
 
 					// Expired keys can be renewed. Disabled (refunded) and unknown keys
 					// cannot, so those get the support page instead of a sales page.
