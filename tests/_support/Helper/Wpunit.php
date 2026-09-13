@@ -31,6 +31,11 @@ class Wpunit extends \Codeception\Module
 		// Media_Logger: alt-text edits queued for shutdown, and ids already done.
 		'pending_alt_text_changes'   => [],
 		'attachment_updated_logged'  => [],
+		// Media_Logger: the pre-update snapshot an attachment edit is diffed
+		// against. Cleared only by the shutdown handler above, which is
+		// registered just when an alt-text edit is pending, so a test that
+		// edits an attachment any other way leaves this behind.
+		'prev_attachment_values'     => [],
 		// User_Logger: the profile diff held between the filter and the commit.
 		'user_profile_update_modified_context' => [],
 		'app_password_failure_logged'          => false,

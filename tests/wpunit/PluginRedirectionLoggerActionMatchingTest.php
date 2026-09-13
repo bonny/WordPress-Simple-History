@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/_redirection_test_trait.php';
+
 use Simple_History\Loggers\Plugin_Redirection_Logger;
 
 /**
