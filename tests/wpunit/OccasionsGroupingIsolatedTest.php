@@ -21,10 +21,16 @@ class OccasionsGroupingIsolatedTest extends \Codeception\TestCase\WPTestCase {
 		$this->skip_on_sqlite( 'occasion grouping is MySQL-only. Log_Query::query_overview() sends SQLite to query_overview_simple(), which returns every event ungrouped, because the grouping query counts consecutive rows with MySQL session variables. Delete this skip when grouping works on SQLite.' );
 
 		// Clear event history for clean tests.
+		// Use DELETE (not TRUNCATE) so the cleanup stays inside the test's
+		// transaction and is rolled back in tearDown -- TRUNCATE is DDL, so it
+		// commits implicitly, cannot be rolled back, and resets the events
+		// table's AUTO_INCREMENT to 1. Ids then repeat between runs while the
+		// contexts rows written under them survive, so a later
+		// `WHERE history_id = N` matches rows from several unrelated events.
 		global $wpdb;
 		$sh = Simple_History::get_instance();
-		$wpdb->query( "TRUNCATE TABLE {$sh->get_events_table_name()}" );
-		$wpdb->query( "TRUNCATE TABLE {$sh->get_contexts_table_name()}" );
+		$wpdb->query( "DELETE FROM {$sh->get_events_table_name()}" );
+		$wpdb->query( "DELETE FROM {$sh->get_contexts_table_name()}" );
 	}
 
 	/**
