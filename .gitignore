@@ -26,6 +26,9 @@ tests/_data/*
 !tests/_data/Image 1.jpg
 !tests/_data/Image 2.jpg
 !tests/_data/mu-plugins
+# wp-browser copies its bundled SQLite drop-in in here on an `--env sqlite`
+# run. It is a vendored plugin that the run recreates, not ours to track.
+tests/_data/mu-plugins/sqlite-database-integration/
 !tests/_data/plugins
 # Codeception writes the SQLite database here when run with `--env sqlite`.
 # The directory has to exist before the run, so keep it, not its contents.
