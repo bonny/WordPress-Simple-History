@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/_redirection_test_trait.php';
+
 use Simple_History\Loggers\Plugin_Redirection_Logger;
 
 /**
@@ -14,6 +16,14 @@ use Simple_History\Loggers\Plugin_Redirection_Logger;
  *   docker compose run --rm php-cli vendor/bin/codecept run wpunit PluginRedirectionLoggerActionMatchingTest
  */
 class PluginRedirectionLoggerActionMatchingTest extends \Codeception\TestCase\WPTestCase {
+	use RedirectionTestTrait;
+
+	public function setUp(): void {
+		parent::setUp();
+
+		$this->skip_without_redirection();
+	}
+
 	/**
 	 * Every supported callable in both spellings, with the action it maps to.
 	 *

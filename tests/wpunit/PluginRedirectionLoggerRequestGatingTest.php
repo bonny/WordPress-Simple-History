@@ -1,6 +1,7 @@
 <?php
 
 require_once 'functions.php';
+require_once __DIR__ . '/_redirection_test_trait.php';
 
 use Simple_History\Simple_History;
 use function Simple_History\tests\get_latest_context;
@@ -48,6 +49,7 @@ if ( ! class_exists( 'Redirection_Api_Redirect' ) ) {
  *   docker compose run --rm php-cli vendor/bin/codecept run wpunit PluginRedirectionLoggerRequestGatingTest
  */
 class PluginRedirectionLoggerRequestGatingTest extends \Codeception\TestCase\WPTestCase {
+	use RedirectionTestTrait;
 	const REST_NAMESPACE = 'sh-test-redirection/v1';
 
 	/** @var Simple_History */
@@ -61,6 +63,8 @@ class PluginRedirectionLoggerRequestGatingTest extends \Codeception\TestCase\WPT
 
 	public function setUp(): void {
 		parent::setUp();
+
+		$this->skip_without_redirection();
 
 		$this->sh           = Simple_History::get_instance();
 		$this->route_object = new Redirection_Api_Redirect();
