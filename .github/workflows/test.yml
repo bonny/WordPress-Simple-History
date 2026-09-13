@@ -1,0 +1,248 @@
+name: Test
+
+# Runs the three Codeception suites on every push. Before this, the test
+# suites only ran when someone remembered to run them locally; lint.yml
+# covered phpcs and phpstan but nothing executed a single test.
+#
+# Unlike lint.yml this goes through compose.yaml on purpose: the suites need
+# WordPress core, a database and (for acceptance) a browser, and running the
+# exact command a developer runs (`docker compose run --rm php-cli
+# vendor/bin/codecept run <suite>`) means CI and a laptop cannot disagree
+# about the environment. The shared setup lives in
+# .github/actions/setup-tests.
+#
+# Each suite is its own job so they run in parallel and a failure in one
+# does not hide the others. functional and acceptance need the database
+# fixture, which scripts/build-test-fixture.sh generates from the WordPress
+# in the container rather than from a committed dump that would drift.
+# The branch filter is what keeps tags out: a release tag points at a commit
+# that already ran this workflow on main, so rerunning it only delays
+# deploy.yml. Do not "simplify" this to tags-ignore -- GitHub evaluates only
+# the ref filter you define, so a lone tags-ignore makes push a tag-only
+# trigger and the workflow then never runs for a branch at all.
+on:
+    push:
+        branches: ['**']
+    pull_request:
+
+concurrency:
+    group: test-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+# Same rule as lint.yml: pushes cover our own branches, so only let
+# pull_request events through when they come from a fork.
+jobs:
+    wpunit:
+        # The combinations we promise and can actually run: the newest released
+        # WordPress, the PHP floor from the plugin header, and both database
+        # engines the plugin branches on. Only wpunit is multiplied. It takes
+        # about thirty seconds, has no browser to be flaky, and version-sensitive
+        # behaviour shows up there first; the two browser-driven suites stay on
+        # one combination below.
+        #
+        # The list is explicit rather than a cross product because the WordPress
+        # images do not exist for every pair — there is no 7.1-php8.1 and no
+        # 6.8-php7.4, so a generated matrix would ask for tags that 404.
+        #
+        # PHP_CLI_VERSION is the one that matters here: WPLoader loads WordPress
+        # inside the php-cli container, so that is the PHP actually running the
+        # plugin. PHP_VERSION only has to make a WordPress tag that exists.
+        #
+        # One axis is deliberately absent, blocked by the harness rather than by
+        # the plugin: MySQL. The WordPress test harness turns every table into a
+        # TEMPORARY table, and MySQL cannot open one twice in a single query, so
+        # anything joining the contexts table to itself dies with "Can't reopen
+        # table". Identical on 5.7 and 8.0, 46 tests either way, while MariaDB
+        # has no such restriction. A real site has permanent tables, so this says
+        # nothing about production, and proving that needs its own work.
+        name: wpunit · ${{ matrix.label }}
+        runs-on: ubuntu-latest
+
+        # The suite itself takes ~30s warm. Image pulls and a cold WordPress
+        # volume add a few minutes on top; anything past this is a hang.
+        timeout-minutes: 30
+
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+        strategy:
+            # Every combination should report. Cancelling the rest on the first
+            # red one hides whether a failure is version-specific or general,
+            # which is the whole question a matrix exists to answer.
+            fail-fast: false
+            matrix:
+                include:
+                    # What a developer gets by default, and what the other two
+                    # suites run on.
+                    - label: WP 6.8 · PHP 8.1 · MariaDB 10.5
+                      wordpress: '6.8'
+                      php: '8.1'
+                      cli: '81'
+                      db: 'mariadb:10.5'
+
+                    # Newest released WordPress. readme.txt says we are tested
+                    # up to this, so something had better be testing it. Thirty
+                    # tests that skip on 6.8 for a missing API run here.
+                    - label: WP 7.1 · PHP 8.2 · MariaDB 10.5
+                      wordpress: '7.1'
+                      php: '8.2'
+                      cli: '82'
+                      db: 'mariadb:10.5'
+
+                    # The oldest WordPress the plugin header declares. Runs the
+                    # wpunit-min suite, which is the same tests with the two
+                    # third-party plugins that now require 6.7 and 6.8 left out;
+                    # see tests/wpunit-min.suite.yml.
+                    - label: WP 6.3 · PHP 8.1 · MariaDB 10.5
+                      wordpress: '6.3'
+                      php: '8.1'
+                      cli: '81'
+                      db: 'mariadb:10.5'
+                      suite: 'wpunit-min'
+
+                    # The PHP floor from the plugin header. Composer already
+                    # resolves for 7.4, but nothing ran the code on it.
+                    - label: WP 6.8 · PHP 7.4 · MariaDB 10.5
+                      wordpress: '6.8'
+                      php: '8.1'
+                      cli: '74'
+                      db: 'mariadb:10.5'
+
+                    # Log_Query takes a different path on SQLite, and the
+                    # occasion-grouping tests skip themselves there.
+                    - label: WP 6.8 · PHP 8.1 · SQLite
+                      wordpress: '6.8'
+                      php: '8.1'
+                      cli: '81'
+                      db: 'mariadb:10.5'
+                      codecept_env: '--env sqlite'
+
+        env:
+            WORDPRESS_VERSION: ${{ matrix.wordpress }}
+            PHP_VERSION: ${{ matrix.php }}
+            PHP_CLI_VERSION: ${{ matrix.cli }}
+            DB_IMAGE: ${{ matrix.db }}
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: ./.github/actions/setup-tests
+
+            # Premium is a separate, private repository and is not checked out
+            # here. Its tests (tests/wpunit/premium/) skip when the plugin is
+            # absent; the add-ons repository runs them with premium present.
+            #
+            # The db and wordpress services start on demand through php-cli's
+            # depends_on, and their healthchecks make compose wait until the
+            # database accepts connections and WordPress core has been copied
+            # into the shared volume.
+            #
+            # The SQLite entry still starts the database service, because
+            # php-cli depends on it. WPLoader just does not use it.
+            - name: wpunit
+              run: docker compose run --rm php-cli vendor/bin/codecept run ${{ matrix.suite || 'wpunit' }} ${{ matrix.codecept_env }}
+
+            - name: Upload test output
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: wpunit-output-${{ strategy.job-index }}
+                  path: tests/_output
+                  if-no-files-found: ignore
+
+    functional:
+        name: functional
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: ./.github/actions/setup-tests
+
+            # Installs WordPress into the test site and exports it as
+            # tests/_data/dump.sql, which WPDb imports before every test.
+            - name: Build database fixture
+              run: ./scripts/build-test-fixture.sh --dump
+
+            - name: functional
+              run: docker compose run --rm php-cli vendor/bin/codecept run functional
+
+            - name: Upload test output
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: functional-output
+                  path: tests/_output
+                  if-no-files-found: ignore
+
+    acceptance:
+        name: acceptance
+        runs-on: ubuntu-latest
+
+        # ~2 minutes of browser tests plus the Selenium image pull.
+        timeout-minutes: 40
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+
+        steps:
+            - uses: actions/checkout@v7
+
+            - uses: ./.github/actions/setup-tests
+
+            # The plugin and theme zips the tests upload through the admin UI
+            # are public downloads at pinned versions; cache them on the
+            # script that lists them. The dump is rebuilt every run.
+            - name: Restore fixture zips
+              uses: actions/cache@v6
+              with:
+                  path: tests/_data/*.zip
+                  key: fixture-zips-${{ hashFiles('scripts/build-test-fixture.sh') }}
+
+            - name: Build fixture
+              run: ./scripts/build-test-fixture.sh
+
+            # Same as `npm run test:acceptance`: chrome is not in php-cli's
+            # depends_on, so start it (and wait for Selenium) explicitly.
+            #
+            # Browser tests are the one suite with genuine flakes we do not
+            # control (ChromeDriver "Node with given id does not belong to the
+            # document" mid-navigation, roughly one test in fifty runs). The
+            # RunFailed extension records failures, so a single rerun of just
+            # those tests separates a flake from a real failure without
+            # hiding either: both attempts are in the job log.
+            - name: acceptance
+              run: |
+                  docker compose up -d --wait chrome
+
+                  if docker compose run --rm php-cli vendor/bin/codecept run acceptance; then
+                    exit 0
+                  fi
+
+                  # Only a suite that ran and reported results earns a rerun.
+                  # RunFailed writes tests/_output/failed on the print-results
+                  # event, so a run that died before that -- a bad fixture
+                  # import, a module that could not init, Selenium unreachable
+                  # -- leaves no file. Codeception skips a missing group file
+                  # silently, so `-g failed` would then run zero tests and exit
+                  # 0, reporting a wholly broken suite as green.
+                  if [ ! -s tests/_output/failed ]; then
+                    echo "::error::acceptance failed before any test reported a result; not rerunning"
+                    exit 1
+                  fi
+
+                  echo "Rerunning the tests that failed:"
+                  cat tests/_output/failed
+                  docker compose run --rm php-cli vendor/bin/codecept run acceptance -g failed
+
+            # Failed acceptance tests leave a screenshot and the page HTML
+            # here; that is usually the whole diagnosis.
+            - name: Upload test output
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: acceptance-output
+                  path: tests/_output
+                  if-no-files-found: ignore
