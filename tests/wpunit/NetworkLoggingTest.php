@@ -65,6 +65,21 @@ class NetworkLoggingTest extends \Codeception\TestCase\WPTestCase {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query( "DELETE FROM {$this->alt_contexts_table}" );
 
+		// The CREATE TABLE above is DDL, so it commits the transaction the
+		// WordPress test case would otherwise roll back. Rows other tests
+		// wrote to the per-site tables therefore outlive their test, and
+		// outlive the suite run, and a plain Event can then find a real row
+		// under the same id as an alt-table row. Start every test from empty
+		// per-site tables and fresh caches so the alt-versus-per-site
+		// assertions mean what they say.
+		$sh = Simple_History::get_instance();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$sh->get_events_table_name()}" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$sh->get_contexts_table_name()}" );
+		Helpers::clear_cache();
+		Helpers::clear_network_cache();
+
 		$this->reset_network_registrations();
 	}
 
