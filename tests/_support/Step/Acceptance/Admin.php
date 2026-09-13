@@ -273,7 +273,7 @@ class Admin extends \AcceptanceTester
     {
         $max_attempts = 25;
 
-        for ($attempt = 1; $attempt < $max_attempts; $attempt++) {
+        for ($attempt = 1; $attempt <= $max_attempts; $attempt++) {
             $history = $this->getHistory($index);
 
             if ($is_match($history)) {

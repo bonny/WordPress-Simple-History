@@ -112,18 +112,27 @@ for entry in "${PLUGINS[@]}"; do
 	[ -f "$stamp" ] && have="$(cat "$stamp")"
 
 	if [ "$FORCE" -eq 0 ]; then
-		# Present at the pinned version already.
-		if [ -d "$DEST/$slug" ] && [ "$have" = "$version" ]; then
-			skipped=$((skipped + 1))
-			continue
-		fi
-
 		# An empty directory is not an installation. Docker creates one when
 		# it bind-mounts a path that does not exist yet, and a plugin that was
 		# deleted by hand leaves one behind; both used to look "present" here
 		# and get skipped, so the suite then failed on a missing plugin.
+		#
+		# This runs before the stamp comparison on purpose. A restored cache or
+		# an interrupted install can leave the stamp claiming the pinned version
+		# over an empty directory, and checking afterwards never sees that case.
 		if [ -d "$DEST/$slug" ] && [ -z "$(ls -A "$DEST/$slug" 2>/dev/null)" ]; then
-			rmdir "$DEST/$slug" 2>/dev/null || true
+			if ! rmdir "$DEST/$slug" 2>/dev/null; then
+				echo "  ! $slug: $DEST/$slug is empty and could not be removed." >&2
+				echo "    Docker creates bind-mount directories owned by root. Stop the" >&2
+				echo "    containers, remove it (sudo rmdir '$DEST/$slug') and rerun." >&2
+				exit 1
+			fi
+		fi
+
+		# Present at the pinned version already.
+		if [ -d "$DEST/$slug" ] && [ "$have" = "$version" ]; then
+			skipped=$((skipped + 1))
+			continue
 		fi
 
 		# Present without a stamp: put there by hand before this script

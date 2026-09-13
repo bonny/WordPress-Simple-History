@@ -1,6 +1,7 @@
 <?php
 
 require_once 'functions.php';
+require_once __DIR__ . '/_redirection_test_trait.php';
 
 use Simple_History\Simple_History;
 use function Simple_History\tests\get_latest_context;

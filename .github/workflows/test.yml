@@ -216,8 +216,26 @@ jobs:
             - name: acceptance
               run: |
                   docker compose up -d --wait chrome
-                  docker compose run --rm php-cli vendor/bin/codecept run acceptance \
-                    || docker compose run --rm php-cli vendor/bin/codecept run acceptance -g failed
+
+                  if docker compose run --rm php-cli vendor/bin/codecept run acceptance; then
+                    exit 0
+                  fi
+
+                  # Only a suite that ran and reported results earns a rerun.
+                  # RunFailed writes tests/_output/failed on the print-results
+                  # event, so a run that died before that -- a bad fixture
+                  # import, a module that could not init, Selenium unreachable
+                  # -- leaves no file. Codeception skips a missing group file
+                  # silently, so `-g failed` would then run zero tests and exit
+                  # 0, reporting a wholly broken suite as green.
+                  if [ ! -s tests/_output/failed ]; then
+                    echo "::error::acceptance failed before any test reported a result; not rerunning"
+                    exit 1
+                  fi
+
+                  echo "Rerunning the tests that failed:"
+                  cat tests/_output/failed
+                  docker compose run --rm php-cli vendor/bin/codecept run acceptance -g failed
 
             # Failed acceptance tests leave a screenshot and the page HTML
             # here; that is usually the whole diagnosis.
