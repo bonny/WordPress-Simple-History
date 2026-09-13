@@ -1,0 +1,46 @@
+# The wpunit tests, run on the oldest WordPress the plugin says it supports.
+#
+#   WORDPRESS_VERSION=6.3 docker compose run --rm php-cli \
+#     vendor/bin/codecept run wpunit-min
+#
+# Same tests, same modules, same actor as the wpunit suite — `path` points both
+# suites at tests/wpunit. The only difference is the plugin list.
+#
+# Two of the third-party plugins have outgrown this WordPress: Yoast Duplicate
+# Post 4.6 requires 6.8 and Redirection 5.10.0 requires 6.7. WPLoader activates
+# what is listed here and throws when activation is refused, so leaving them in
+# ends the run at bootstrap instead of skipping. Pinning older copies does not
+# work either: Duplicate Post 4.5 never fires the hook its logger listens for,
+# and Redirection 5.3.2 fatals under WPLoader with a redeclared class.
+#
+# A Codeception environment cannot do this job. Configuration::mergeConfigs()
+# merges sequential arrays, so an environment can only add entries to a list,
+# never take one away — hence a second suite file rather than an --env flag.
+#
+# Keep the modules block in step with wpunit.suite.yml.
+actor: WpunitTester
+path: wpunit
+modules:
+    enabled:
+        - Asserts
+        - WPLoader
+        - \Helper\Wpunit
+    config:
+        WPLoader:
+            wpRootFolder: '%WP_ROOT_FOLDER%'
+            dbName: '%TEST_DB_NAME%'
+            dbHost: '%TEST_DB_HOST%'
+            dbUser: '%TEST_DB_USER%'
+            dbPassword: '%TEST_DB_PASSWORD%'
+            tablePrefix: '%TEST_TABLE_PREFIX%'
+            domain: '%TEST_SITE_WP_DOMAIN%'
+            adminEmail: '%TEST_SITE_ADMIN_EMAIL%'
+            title: 'Test'
+            plugins:
+                - simple-history/index.php
+                - jetpack/jetpack.php
+                - wp-crontrol/wp-crontrol.php
+                - enable-media-replace/enable-media-replace.php
+                - user-switching/user-switching.php
+            activatePlugins:
+                - simple-history/index.php

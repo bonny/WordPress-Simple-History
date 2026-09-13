@@ -17,8 +17,17 @@
 #     found" and friends.
 #
 # Versions are pinned rather than "latest" on purpose: phpstan analyses this
-# code, so a newer Jetpack can change what it reports. Pinning keeps CI and a
-# developer machine looking at identical source.
+# code, so a newer Jetpack can change what it reports, and the acceptance
+# tests assert on plugin names and version numbers (Akismet 5.5, say). Pinning
+# keeps CI and a developer machine looking at identical source.
+#
+# Pins the tests depend on:
+#   - akismet 5.5: SimplePluginLoggerCest asserts plugin_version 5.5.
+#   - duplicate-post 4.6: the logger listens for duplicate_post_after_duplicated,
+#     which 4.5 and older never fire (PluginDuplicatePostLoggerCest).
+#   - redirection 5.10.0: the namespaced REST API the logger was fixed for.
+#   - developer-loggers-for-simple-history: DeveloperLoggersCest (functional).
+#     Not on wordpress.org, fetched from its GitHub repository.
 #
 # Usage
 # -----
@@ -32,22 +41,26 @@
 
 set -euo pipefail
 
-# slug|version|alternative directory name that also satisfies this entry
+# slug|version|alternative directory name that also satisfies this entry|source
+#
+# source is empty for a wordpress.org plugin, or github:<owner>/<repo> for a
+# repository zip, where version is the commit or tag to fetch.
 #
 # The ACF alternative is not cosmetic: only the free build is downloadable, but
 # a developer machine may hold Advanced Custom Fields *Pro* instead. Both
 # declare the functions phpstan needs, and installing the free copy next to Pro
 # would give phpstan two declarations of the same function.
 PLUGINS=(
-	"advanced-custom-fields|6.1.7|advanced-custom-fields-pro"
-	"akismet|5.3|"
-	"duplicate-post|4.6|"
-	"enable-media-replace|3.6.3|"
-	"jetpack|12.2|"
-	"limit-login-attempts|1.7.2|"
-	"redirection|5.3.2|"
-	"user-switching|1.7.0|"
-	"wp-crontrol|1.12.1|"
+	"advanced-custom-fields|6.1.7|advanced-custom-fields-pro|"
+	"akismet|5.5||"
+	"developer-loggers-for-simple-history|4b2e5f31666e70d307b1a51680564f9001b50c09||github:bonny/Developer-Loggers-for-Simple-History"
+	"duplicate-post|4.6||"
+	"enable-media-replace|3.6.3||"
+	"jetpack|12.2||"
+	"limit-login-attempts|1.7.2||"
+	"redirection|5.10.0||"
+	"user-switching|1.7.0||"
+	"wp-crontrol|1.12.1||"
 )
 
 DEST="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/tests/plugins"
@@ -92,13 +105,30 @@ installed=0
 skipped=0
 
 for entry in "${PLUGINS[@]}"; do
-	IFS='|' read -r slug version alt <<<"$entry"
+	IFS='|' read -r slug version alt source <<<"$entry"
 
 	stamp="$STAMPS/$slug"
 	have=""
 	[ -f "$stamp" ] && have="$(cat "$stamp")"
 
 	if [ "$FORCE" -eq 0 ]; then
+		# An empty directory is not an installation. Docker creates one when
+		# it bind-mounts a path that does not exist yet, and a plugin that was
+		# deleted by hand leaves one behind; both used to look "present" here
+		# and get skipped, so the suite then failed on a missing plugin.
+		#
+		# This runs before the stamp comparison on purpose. A restored cache or
+		# an interrupted install can leave the stamp claiming the pinned version
+		# over an empty directory, and checking afterwards never sees that case.
+		if [ -d "$DEST/$slug" ] && [ -z "$(ls -A "$DEST/$slug" 2>/dev/null)" ]; then
+			if ! rmdir "$DEST/$slug" 2>/dev/null; then
+				echo "  ! $slug: $DEST/$slug is empty and could not be removed." >&2
+				echo "    Docker creates bind-mount directories owned by root. Stop the" >&2
+				echo "    containers, remove it (sudo rmdir '$DEST/$slug') and rerun." >&2
+				exit 1
+			fi
+		fi
+
 		# Present at the pinned version already.
 		if [ -d "$DEST/$slug" ] && [ "$have" = "$version" ]; then
 			skipped=$((skipped + 1))
@@ -121,7 +151,15 @@ for entry in "${PLUGINS[@]}"; do
 		fi
 	fi
 
-	url="https://downloads.wordpress.org/plugin/${slug}.${version}.zip"
+	# The wordpress.org zip unpacks to <slug>/; a GitHub zip to <repo>-<ref>/.
+	if [ -n "$source" ]; then
+		repo="${source#github:}"
+		url="https://codeload.github.com/${repo}/zip/${version}"
+		unpacked="${repo#*/}-${version}"
+	else
+		url="https://downloads.wordpress.org/plugin/${slug}.${version}.zip"
+		unpacked="$slug"
+	fi
 	echo "  + $slug $version"
 
 	tmp="$(mktemp -d)"
@@ -137,7 +175,7 @@ for entry in "${PLUGINS[@]}"; do
 	# Unpack to a temporary name and swap, so an interrupted run cannot leave
 	# a half-extracted plugin that then looks installed.
 	rm -rf "$DEST/$slug"
-	mv "$tmp/unpacked/$slug" "$DEST/$slug"
+	mv "$tmp/unpacked/$unpacked" "$DEST/$slug"
 	echo "$version" >"$stamp"
 
 	rm -rf "$tmp"

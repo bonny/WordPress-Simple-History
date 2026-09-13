@@ -17,6 +17,13 @@ use Simple_History\Loggers\Plugin_Redirection_Logger;
  */
 class PluginRedirectionLoggerSettingsDiffTest extends \Codeception\TestCase\WPTestCase {
 	use RedirectionTestTrait;
+
+	public function setUp(): void {
+		parent::setUp();
+
+		$this->skip_without_redirection();
+	}
+
 	/**
 	 * Reset the current user after every test that changes it, so one test
 	 * never leaks into an unrelated one.

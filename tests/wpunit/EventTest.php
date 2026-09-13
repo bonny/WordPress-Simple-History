@@ -8,6 +8,8 @@ use Simple_History\Log_Query;
  * `docker compose run --rm php-cli vendor/bin/codecept run wpunit EventTest`
  */
 class EventTest extends \Codeception\TestCase\WPTestCase {
+	use \Helper\SkipsOnSqlite;
+
 
 	/** @var int The ID of the last inserted event, i.e. the event we will use to test loading. */
 	private $event_id;
@@ -49,6 +51,8 @@ class EventTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	public function test_event_class_vs_log_query_result() {
+		$this->skip_on_sqlite( 'occasion grouping is MySQL-only. Log_Query::query_overview() sends SQLite to query_overview_simple(), which returns every event ungrouped, because the grouping query counts consecutive rows with MySQL session variables. Delete this skip when grouping works on SQLite.' );
+
 		$event = Event::get( $this->event_id );
 		
 		$log_query = new Log_Query();

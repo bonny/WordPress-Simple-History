@@ -20,6 +20,7 @@ Simple History automatically logs various actions in WordPress and displays them
 -   [Event System](architecture/event-system.md) - How events are logged and processed
 -   [Event Details](architecture/event-details.md) - Event details formatting and display system
 -   [Services](architecture/services.md) - Service-based architecture details
+-   [Add-on Licenses](architecture/licenses.md) - How license keys are activated, refreshed from update checks, stored and read
 
 ### Folder Structure
 
