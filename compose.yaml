@@ -45,7 +45,7 @@ services:
       - ./tests/plugins/enable-media-replace:/var/www/html/wp-content/plugins/enable-media-replace
       - ./tests/plugins/user-switching:/var/www/html/wp-content/plugins/user-switching
       - ./tests/plugins/developer-loggers-for-simple-history:/var/www/html/wp-content/plugins/developer-loggers-for-simple-history
-      - ./tests/plugins/issue-373-disable-core-loggers:/var/www/html/wp-content/plugins/issue-373-disable-core-loggers
+      - ./tests/_data/plugins/issue-373-disable-core-loggers:/var/www/html/wp-content/plugins/issue-373-disable-core-loggers
       - ./tests/plugins/simple-history-premium:/var/www/html/wp-content/plugins/simple-history-premium
       - ./tests/_data/mu-plugins:/var/www/html/wp-content/mu-plugins
       - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
@@ -76,6 +76,9 @@ services:
       - "${DB_EXPOSE_PORT:-127.0.0.1:}:3306"
     volumes:
       - "${DB_DATA_DIR:-./data/mysql}:/var/lib/mysql"
+      # Creates tests_db for the wpunit suite on first start. Only runs on an
+      # empty data directory, so it never touches an existing local database.
+      - ./docker/db-init:/docker-entrypoint-initdb.d:ro
 
   chrome:
     image: selenium/standalone-chromium:145.0
@@ -139,7 +142,7 @@ services:
       - ./tests/plugins/redirection:/wordpress/wp-content/plugins/redirection
       - ./tests/plugins/enable-media-replace:/wordpress/wp-content/plugins/enable-media-replace
       - ./tests/plugins/user-switching:/wordpress/wp-content/plugins/user-switching
-      - ./tests/plugins/issue-373-disable-core-loggers:/wordpress/wp-content/plugins/issue-373-disable-core-loggers
+      - ./tests/_data/plugins/issue-373-disable-core-loggers:/wordpress/wp-content/plugins/issue-373-disable-core-loggers
       - ./tests/plugins/simple-history-premium:/wordpress/wp-content/plugins/simple-history-premium
       - ./tests/_data/mu-plugins:/wordpress/wp-content/mu-plugins
     depends_on:
@@ -176,8 +179,12 @@ services:
       - ./tests/plugins/enable-media-replace:/var/www/html/wp-content/plugins/enable-media-replace
       - ./tests/plugins/user-switching:/var/www/html/wp-content/plugins/user-switching
       - ./tests/plugins/developer-loggers-for-simple-history:/var/www/html/wp-content/plugins/developer-loggers-for-simple-history
-      - ./tests/plugins/issue-373-disable-core-loggers:/var/www/html/wp-content/plugins/issue-373-disable-core-loggers
+      - ./tests/_data/plugins/issue-373-disable-core-loggers:/var/www/html/wp-content/plugins/issue-373-disable-core-loggers
       - ./tests/_data/mu-plugins:/var/www/html/wp-content/mu-plugins
+      # Same uploads directory the wordpress service serves. Without it
+      # wp-cli sees the volume's own (root-owned, empty) uploads directory
+      # and anything it writes or deletes there is invisible to the site.
+      - "${WP_UPLOADS_DIR:-./data/wp-uploads}:/var/www/html/wp-content/uploads"
     profiles:
       - noautostart
 
