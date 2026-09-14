@@ -181,6 +181,16 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'pending', get_option( First_Purge_Notice_Service::OPTION_NAME ) );
 	}
 
+	public function test_shown_when_the_menu_is_placed_under_dashboard() {
+		$this->first_purge_day_in( 4 );
+
+		// With the menu under Dashboard, the log page is index.php?page=simple_history_admin_menu_page.
+		global $pagenow;
+		$pagenow = 'index.php';
+
+		$this->assertStringContainsString( 'In 4 days', $this->render_notice() );
+	}
+
 	public function test_not_shown_to_sites_without_the_flag() {
 		delete_option( First_Purge_Notice_Service::OPTION_NAME );
 		$this->first_purge_day_in( 4 );
