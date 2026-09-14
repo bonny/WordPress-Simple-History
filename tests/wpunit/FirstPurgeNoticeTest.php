@@ -97,6 +97,12 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 	 * @return string
 	 */
 	private function render_notice() {
+		// The notice uses wp_admin_notice(), added in WordPress 6.4, and renders nothing
+		// on older versions. The CI matrix still runs WordPress 6.3.
+		if ( ! function_exists( 'wp_admin_notice' ) ) {
+			$this->markTestSkipped( 'wp_admin_notice() requires WordPress 6.4 or later.' );
+		}
+
 		$service = Simple_History::get_instance()->get_service( First_Purge_Notice_Service::class );
 
 		$this->assertInstanceOf( First_Purge_Notice_Service::class, $service );
