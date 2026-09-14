@@ -3307,6 +3307,22 @@ a.sh-SettingsTabs-link:hover {
 	line-height: 1;
 }
 
+.sh-EmailReportOptIn {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5em 1em;
+}
+
+.sh-FeedIntroduction .sh-EmailReportOptIn {
+	margin: 0.75em 0 0;
+}
+
+.sh-EmailReportOptIn-description {
+	color: #50575e;
+	font-size: 13px;
+}
+
 /* .sh-FeedIntroduction-ps {
 	font-size: 13px;
 } */
