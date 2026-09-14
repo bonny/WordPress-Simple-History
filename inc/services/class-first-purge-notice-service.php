@@ -241,7 +241,7 @@ class First_Purge_Notice_Service extends Service {
 		if ( $opt_in_html !== '' ) {
 			$message .= sprintf(
 				'<p>%1$s</p>%2$s',
-				esc_html__( 'Or get a summary by email every week, so you keep a record of what happened.', 'simple-history' ),
+				esc_html__( 'Or follow it by email instead.', 'simple-history' ),
 				$opt_in_html
 			);
 		}
