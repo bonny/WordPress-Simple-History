@@ -189,7 +189,7 @@ $top_teaser_text = $email_report_service instanceof \Simple_History\Services\Ema
 if ( $top_teaser_text !== '' ) {
 	$lines[] = '';
 	$lines[] = wordwrap( $plain( $top_teaser_text ), $wrap_width, "\n", false );
-	$lines[] = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=email&utm_campaign=weekly-report&utm_content=top-teaser';
+	$lines[] = \Simple_History\Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', \Simple_History\Services\Email_Report_Service::PREMIUM_UTM_CAMPAIGN, 'wpadmin', 'email', 'top-teaser' );
 }
 
 if ( $show_main_core_stats ) {
@@ -386,7 +386,7 @@ if ( $show_upsell ) {
 		false
 	);
 	$lines[] = '';
-	$lines[] = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=email&utm_campaign=weekly-report&utm_content=upsell-block';
+	$lines[] = \Simple_History\Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', \Simple_History\Services\Email_Report_Service::PREMIUM_UTM_CAMPAIGN, 'wpadmin', 'email', 'upsell-block' );
 }
 
 // Why this email arrived, and how to stop it.

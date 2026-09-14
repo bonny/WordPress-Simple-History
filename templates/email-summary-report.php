@@ -118,7 +118,7 @@ $tips_service = \Simple_History\Simple_History::get_instance()->get_service( \Si
 // the service for it, so that they cannot drift apart.
 $email_report_service = \Simple_History\Simple_History::get_instance()->get_service( \Simple_History\Services\Email_Report_Service::class );
 $top_teaser_text      = $email_report_service instanceof \Simple_History\Services\Email_Report_Service ? $email_report_service->get_top_teaser_text( $args ) : '';
-$premium_url          = 'https://simple-history.com/add-ons/premium/?utm_source=wpadmin&utm_medium=email&utm_campaign=weekly-report&utm_content=top-teaser';
+$premium_url          = \Simple_History\Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', \Simple_History\Services\Email_Report_Service::PREMIUM_UTM_CAMPAIGN, 'wpadmin', 'email', 'top-teaser' );
 
 /**
  * Filter whether to show the weekly tip.
@@ -786,7 +786,7 @@ if ( $show_tip && $tips_service instanceof \Simple_History\Services\Tips_Service
 							</p>
 
 							<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; text-align: left;">
-								<a href="https://simple-history.com/add-ons/premium/?utm_source=wpadmin&amp;utm_medium=email&amp;utm_campaign=weekly-report&amp;utm_content=upsell-block" style="color: #0040FF; text-decoration: underline; font-weight: 600;">
+								<a href="<?php echo esc_url( \Simple_History\Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', \Simple_History\Services\Email_Report_Service::PREMIUM_UTM_CAMPAIGN, 'wpadmin', 'email', 'upsell-block' ) ); ?>" style="color: #0040FF; text-decoration: underline; font-weight: 600;">
 									<?php echo esc_html( __( 'See what Premium includes', 'simple-history' ) ); ?>
 								</a>
 							</p>
