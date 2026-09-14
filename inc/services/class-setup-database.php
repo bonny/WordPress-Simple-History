@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Event_Details\Event_Details_Group;
+use Simple_History\Event_Details\Event_Details_Group_Single_Item_Formatter;
 use Simple_History\Event_Details\Event_Details_Item;
 use Simple_History\Event_Details\Event_Details_Item_RAW_Formatter;
 use Simple_History\Helpers;
@@ -614,7 +615,9 @@ class Setup_Database extends Service {
 
 		$welcome_item = ( new Event_Details_Item( 'is_welcome_message' ) )->set_formatter( $item_table_row_raw_formatter );
 
-		$details_group = new Event_Details_Group();
+		// Single item formatter, not the default key/value list: that list is a two-column
+		// grid, and a block of HTML without a key lands in the narrow key column.
+		$details_group = ( new Event_Details_Group() )->set_formatter( new Event_Details_Group_Single_Item_Formatter() );
 		$details_group->add_items(
 			[
 				$welcome_item,
