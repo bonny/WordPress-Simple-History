@@ -3323,6 +3323,109 @@ a.sh-SettingsTabs-link:hover {
 	font-size: 13px;
 }
 
+/*
+ * Live thumbnail of the weekly email, to the right of the email report settings.
+ * The email renders at its real 640px width in the iframe and is scaled down,
+ * so the thumbnail is the email itself rather than a screenshot that can go stale.
+ * Shown only when the settings card has room for it next to the form.
+ */
+.sh-SettingsCard:has(> .sh-EmailReportThumbnail) {
+	/* Set on the card, so that the form next to the thumbnail can use them too. */
+	--sh-email-thumbnail-scale: 0.45;
+	--sh-email-thumbnail-width: calc(640px * var(--sh-email-thumbnail-scale));
+	--sh-email-thumbnail-height: calc(1100px * var(--sh-email-thumbnail-scale));
+	--sh-email-thumbnail-gap: var(--sh-spacing-xxlarge);
+	--sh-email-form-max-width: 700px;
+
+	position: relative;
+	container-type: inline-size;
+}
+
+.sh-EmailReportThumbnail {
+	display: none;
+}
+
+/*
+ * The thumbnail follows the form, a fixed gap after its widest content, so on
+ * a wide screen it does not drift off to the far edge of the card. When the
+ * card is narrower than that, it sits against the card edge instead.
+ */
+@container (min-width: 1000px) {
+	.sh-EmailReportThumbnail:not([hidden]) {
+		display: block;
+		position: absolute;
+		top: var(--sh-spacing-large);
+		inset-inline-start: min(
+			calc(100% - var(--sh-spacing-large) - var(--sh-email-thumbnail-width)),
+			calc(var(--sh-spacing-large) + var(--sh-email-form-max-width) + var(--sh-email-thumbnail-gap))
+		);
+		width: var(--sh-email-thumbnail-width);
+	}
+
+	.sh-EmailReportThumbnail:not([hidden]) ~ .form-table {
+		width: min(
+			calc(100% - var(--sh-email-thumbnail-width) - var(--sh-email-thumbnail-gap)),
+			var(--sh-email-form-max-width)
+		);
+	}
+}
+
+.sh-EmailReportThumbnail-label {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.sh-EmailReportThumbnail-description {
+	margin: 0 0 var(--sh-spacing-small);
+	color: #50575e;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.sh-EmailReportThumbnail-link {
+	display: block;
+	color: inherit;
+	text-decoration: none;
+}
+
+.sh-EmailReportThumbnail-frame {
+	display: block;
+	position: relative;
+	overflow: hidden;
+	height: var(--sh-email-thumbnail-height);
+	border: 1px solid var(--sh-color-separator);
+	border-radius: 6px;
+	background: #fff4e4;
+}
+
+/* Fade out the cut-off bottom edge. */
+.sh-EmailReportThumbnail-frame::after {
+	content: "";
+	position: absolute;
+	inset: auto 0 0;
+	height: 48px;
+	background: linear-gradient(rgba(255, 244, 228, 0), #fff4e4);
+}
+
+.sh-EmailReportThumbnail-iframe {
+	display: block;
+	width: 640px;
+	height: 1100px;
+	border: 0;
+	transform: scale(var(--sh-email-thumbnail-scale));
+	transform-origin: 0 0;
+	pointer-events: none;
+}
+
+.sh-EmailReportThumbnail-open {
+	display: block;
+	margin-top: var(--sh-spacing-small);
+	color: var(--wp-admin-theme-color, #2271b1);
+	font-size: 12px;
+	text-decoration: underline;
+}
+
 /* .sh-FeedIntroduction-ps {
 	font-size: 13px;
 } */

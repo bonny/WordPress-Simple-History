@@ -1244,6 +1244,83 @@ class Email_Report_Service extends Service {
 			<strong><?php esc_html_e( 'Stay on top of your site without logging in.', 'simple-history' ); ?></strong>
 		</p>
 		<?php
+		$this->output_preview_thumbnail();
+	}
+
+	/**
+	 * Get the URL of the HTML preview of the email.
+	 *
+	 * @return string URL, unescaped.
+	 */
+	private function get_preview_url() {
+		return add_query_arg(
+			[
+				'_wpnonce' => wp_create_nonce( 'wp_rest' ),
+			],
+			rest_url( 'simple-history/v1/email-report/preview/html' )
+		);
+	}
+
+	/**
+	 * Output a scaled-down live preview of the email next to the settings.
+	 *
+	 * Shown only while the email is off: it is there to make the case for turning it on,
+	 * and it builds a full report, so users who already get the email do not pay for it.
+	 * Hidden by CSS when the settings card is too narrow for it.
+	 *
+	 * The iframe gets its src from the script below only when the thumbnail is visible.
+	 * With src in the markup, browsers load it even when hidden: loading="lazy" does not
+	 * apply to display:none iframes.
+	 */
+	private function output_preview_thumbnail() {
+		if ( $this->is_email_reports_enabled() ) {
+			return;
+		}
+
+		$preview_url = $this->get_preview_url();
+
+		?>
+		<aside class="sh-EmailReportThumbnail" aria-labelledby="sh-EmailReportThumbnail-label" hidden>
+			<p class="sh-EmailReportThumbnail-label" id="sh-EmailReportThumbnail-label">
+				<?php esc_html_e( 'Preview', 'simple-history' ); ?>
+			</p>
+			<p class="sh-EmailReportThumbnail-description">
+				<?php esc_html_e( 'Using real data from the last 7 days.', 'simple-history' ); ?>
+			</p>
+			<a class="sh-EmailReportThumbnail-link" href="<?php echo esc_url( $preview_url ); ?>" target="_blank">
+				<span class="sh-EmailReportThumbnail-frame">
+					<iframe
+						class="sh-EmailReportThumbnail-iframe"
+						data-src="<?php echo esc_url( $preview_url ); ?>"
+						title="<?php esc_attr_e( 'Preview of the weekly email', 'simple-history' ); ?>"
+						tabindex="-1"
+						aria-hidden="true"
+						scrolling="no"
+					></iframe>
+				</span>
+				<span class="sh-EmailReportThumbnail-open"><?php esc_html_e( 'Open full size', 'simple-history' ); ?></span>
+			</a>
+		</aside>
+		<script>
+			( function () {
+				var thumbnail = document.currentScript.previousElementSibling;
+				var iframe = thumbnail.querySelector( 'iframe' );
+
+				thumbnail.hidden = false;
+
+				function loadIfVisible() {
+					if ( iframe.src || getComputedStyle( thumbnail ).display === 'none' ) {
+						return;
+					}
+
+					iframe.src = iframe.dataset.src;
+				}
+
+				loadIfVisible();
+				window.addEventListener( 'resize', loadIfVisible );
+			} )();
+		</script>
+		<?php
 	}
 
 	/**
@@ -1251,12 +1328,7 @@ class Email_Report_Service extends Service {
 	 */
 	public function settings_field_preview() {
 		$current_user = wp_get_current_user();
-		$preview_url  = add_query_arg(
-			[
-				'_wpnonce' => wp_create_nonce( 'wp_rest' ),
-			],
-			rest_url( 'simple-history/v1/email-report/preview/html' )
-		);
+		$preview_url  = $this->get_preview_url();
 		?>
 		<div>
 			<p>
