@@ -782,7 +782,7 @@ if ( $show_tip && $tips_service instanceof \Simple_History\Services\Tips_Service
 								<?php echo esc_html( __( 'Get more from your activity log', 'simple-history' ) ); ?>
 							</h2>
 							<p style="margin: 0 0 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; color: #000000; text-align: left;">
-								<?php echo esc_html( __( 'Free logs expire after 60 days. Premium lets you keep them longer — and adds real-time alerts, Slack notifications, CSV export, and log forwarding to syslog or external databases.', 'simple-history' ) ); ?>
+								<?php echo esc_html( $email_report_service instanceof \Simple_History\Services\Email_Report_Service ? $email_report_service->get_upsell_block_text() : '' ); ?>
 							</p>
 
 							<p style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 16px; line-height: 24px; text-align: left;">

@@ -74,7 +74,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 					<?php
 					printf(
 						/* translators: %s: Simple History Premium (bold text). */
-						esc_html__( "Don't lose important history after 60 days. %s keeps your logs as long as you need, plus adds exports, custom events, and more.", 'simple-history' ),
+						esc_html__( "Don't lose important history to automatic cleanup. %s keeps your logs as long as you need, plus adds exports, custom events, and more.", 'simple-history' ),
 						'<strong>' . esc_html__( 'Simple History Premium', 'simple-history' ) . '</strong>'
 					);
 					?>

@@ -702,8 +702,24 @@ class Email_Report_Service extends Service {
 
 		// Generic teasers, always in the pool.
 		$teaser_pool[] = __( 'Premium fills this email in with the details — which post, which plugin, who logged in — and sends real-time alerts for critical events, so you don\'t have to wait for Monday to hear about them.', 'simple-history' );
-		$teaser_pool[] = __( 'Free logs expire after 60 days. Premium keeps up to a full year, so you can still see what changed months later.', 'simple-history' );
 		$teaser_pool[] = __( 'With Premium, this email lists who did what — the names behind the numbers below.', 'simple-history' );
+
+		// Retention teaser only when the log is actually purged. Retention is
+		// 30 days on new installs and 60 on older ones, so never hardcode it.
+		$retention_days = Helpers::get_clear_history_interval();
+
+		if ( $retention_days > 0 ) {
+			$teaser_pool[] = sprintf(
+				/* translators: %d: number of days events are kept. */
+				_n(
+					'Free logs are removed after %d day. Premium keeps them as long as you need, so you can still see what changed months later.',
+					'Free logs are removed after %d days. Premium keeps them as long as you need, so you can still see what changed months later.',
+					$retention_days,
+					'simple-history'
+				),
+				$retention_days
+			);
+		}
 
 		$tips_service = Simple_History::get_instance()->get_service( Tips_Service::class );
 		$week_index   = $tips_service instanceof Tips_Service ? $tips_service->get_week_index( $args ) : (int) gmdate( 'W' );
@@ -718,6 +734,34 @@ class Email_Report_Service extends Service {
 		 * @param array  $args The email template args.
 		 */
 		return apply_filters( 'simple_history/email_summary_report/top_teaser_text', $top_teaser_text, $args );
+	}
+
+	/**
+	 * The body text of the upsell block at the bottom of the email, for free users.
+	 *
+	 * Both versions of the email ask for this, so that the text part of a
+	 * message says what its HTML part says.
+	 *
+	 * @return string Upsell text.
+	 */
+	public function get_upsell_block_text() {
+		$retention_days = Helpers::get_clear_history_interval();
+
+		// Retention can be set to forever with a filter, then only the other features apply.
+		if ( $retention_days <= 0 ) {
+			return __( 'Premium adds real-time alerts, Slack notifications, CSV export, and log forwarding to syslog or external databases.', 'simple-history' );
+		}
+
+		return sprintf(
+			/* translators: %d: number of days events are kept. */
+			_n(
+				'Free logs are removed after %d day. Premium lets you keep them longer — and adds real-time alerts, Slack notifications, CSV export, and log forwarding to syslog or external databases.',
+				'Free logs are removed after %d days. Premium lets you keep them longer — and adds real-time alerts, Slack notifications, CSV export, and log forwarding to syslog or external databases.',
+				$retention_days,
+				'simple-history'
+			),
+			$retention_days
+		);
 	}
 
 	/**
