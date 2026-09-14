@@ -61,12 +61,14 @@ class First_Purge_Notice_Service extends Service {
 	 * Show the notice if this is the right site, user, page and time.
 	 */
 	public function maybe_show_notice() {
-		// Sites installed before this notice existed have no option and never get it.
-		if ( get_option( self::OPTION_NAME ) !== 'pending' ) {
+		// Cheap checks first. This runs on every admin page, and the option below does
+		// not exist on sites installed before this notice, which costs a query to look up.
+		if ( ! function_exists( 'wp_admin_notice' ) || ! current_user_can( 'manage_options' ) || ! self::is_on_plugin_page() ) {
 			return;
 		}
 
-		if ( ! function_exists( 'wp_admin_notice' ) || ! current_user_can( 'manage_options' ) || ! self::is_on_plugin_page() ) {
+		// Sites installed before this notice existed have no option and never get it.
+		if ( get_option( self::OPTION_NAME ) !== 'pending' ) {
 			return;
 		}
 
@@ -100,14 +102,19 @@ class First_Purge_Notice_Service extends Service {
 	 * Check if the current screen is one of Simple History's own admin pages.
 	 *
 	 * Helpers::is_on_our_own_pages() also counts the WordPress dashboard when the
-	 * dashboard widget is on, and a retention notice does not belong there.
+	 * dashboard widget is on, and a retention notice does not belong there. The
+	 * plugin's own pages always have a `page` query arg, also when the menu is placed
+	 * under Dashboard (index.php?page=...), so require one.
 	 *
 	 * @return bool
 	 */
 	private static function is_on_plugin_page() {
-		global $pagenow;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check of which admin page is being viewed.
+		if ( empty( $_GET['page'] ) ) {
+			return false;
+		}
 
-		return $pagenow !== 'index.php' && Helpers::is_on_our_own_pages();
+		return Helpers::is_on_our_own_pages();
 	}
 
 	/**
