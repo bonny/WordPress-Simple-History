@@ -57,6 +57,19 @@ class Setup_Purge_DB_Cron extends Service {
 		 */
 		$current_day_of_week = (int) gmdate( 'N' );
 
+		if ( $current_day_of_week !== self::get_day_of_week_to_purge_db() ) {
+			return;
+		}
+
+		$this->purge_db();
+	}
+
+	/**
+	 * Get the day of the week the database is purged on, in GMT.
+	 *
+	 * @return int ISO-8601 day of week, 1 (Monday) to 7 (Sunday).
+	 */
+	public static function get_day_of_week_to_purge_db() {
 		/**
 		 * Day number to purge db on.
 		 *
@@ -71,13 +84,7 @@ class Setup_Purge_DB_Cron extends Service {
 		 * @param int $day_of_week_to_purge_db
 		 * @since 4.1.0
 		 */
-		$day_of_week_to_purge_db = apply_filters( 'simple_history/day_of_week_to_purge_db', $day_of_week_to_purge_db );
-
-		if ( $current_day_of_week !== $day_of_week_to_purge_db ) {
-			return;
-		}
-
-		$this->purge_db();
+		return apply_filters( 'simple_history/day_of_week_to_purge_db', $day_of_week_to_purge_db );
 	}
 
 	/**
