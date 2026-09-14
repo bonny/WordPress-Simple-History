@@ -754,6 +754,15 @@ stops long unbreakable values from stealing width from the keys.
 	margin: 0;
 }
 
+/*
+A logger that adds a block of HTML without a key to a key/value group (a RAW
+item) outputs it as a direct child of the <dl>. Span both columns, or it is
+squeezed into the key column.
+*/
+.SimpleHistoryLogitem__keyValueTable > :not(dt):not(dd):not(tbody) {
+	grid-column: 1 / -1;
+}
+
 .SimpleHistoryLogitem__keyValueTable > dt,
 .SimpleHistoryLogitem__keyValueTable > dd {
 	margin: 0;
