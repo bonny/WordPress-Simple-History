@@ -608,6 +608,22 @@ class Setup_Database extends Service {
 			)
 		);
 
+		// Offer the weekly email summary. The button is empty for users who can not
+		// change the setting or already get the email, and then the row is skipped.
+		$opt_in_html = Email_Report_Service::get_opt_in_html();
+
+		if ( $opt_in_html !== '' ) {
+			$message .= sprintf(
+				$row_template,
+				'📬',
+				sprintf(
+					'%1$s%2$s',
+					esc_html__( 'Get a summary of this site\'s activity by email every week, so you know what changed even when you are not logged in.', 'simple-history' ),
+					$opt_in_html
+				)
+			);
+		}
+
 		// Close sh-FeedIntroduction.
 		$message .= '</div>';
 

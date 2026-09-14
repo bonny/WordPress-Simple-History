@@ -103,6 +103,19 @@ class Welcome_Message_Service extends Service {
 			)
 		);
 
+		// Offer the weekly email right away. It is off by default and otherwise only
+		// found in the settings, and it is the one record that still reaches users who
+		// do not log in for longer than the retention period.
+		$opt_in_html = Email_Report_Service::get_opt_in_html();
+
+		if ( $opt_in_html !== '' ) {
+			$message .= sprintf(
+				'<p>%1$s</p>%2$s',
+				esc_html__( 'Not logging in every day? Get a short summary of what happened on your site by email.', 'simple-history' ),
+				$opt_in_html
+			);
+		}
+
 		wp_admin_notice(
 			$message,
 			array(
