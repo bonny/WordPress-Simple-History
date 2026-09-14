@@ -754,6 +754,15 @@ stops long unbreakable values from stealing width from the keys.
 	margin: 0;
 }
 
+/*
+A logger that adds a block of HTML without a key to a key/value group (a RAW
+item) outputs it as a direct child of the <dl>. Span both columns, or it is
+squeezed into the key column.
+*/
+.SimpleHistoryLogitem__keyValueTable > :not(dt):not(dd):not(tbody) {
+	grid-column: 1 / -1;
+}
+
 .SimpleHistoryLogitem__keyValueTable > dt,
 .SimpleHistoryLogitem__keyValueTable > dd {
 	margin: 0;
@@ -3296,6 +3305,22 @@ a.sh-SettingsTabs-link:hover {
 	display: block;
 	font-size: 1.5em;
 	line-height: 1;
+}
+
+.sh-EmailReportOptIn {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5em 1em;
+}
+
+.sh-FeedIntroduction .sh-EmailReportOptIn {
+	margin: 0.75em 0 0;
+}
+
+.sh-EmailReportOptIn-description {
+	color: #50575e;
+	font-size: 13px;
 }
 
 /* .sh-FeedIntroduction-ps {

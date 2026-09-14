@@ -35,6 +35,15 @@ class Email_Report_Service extends Service {
 	 */
 	private const MAX_STORED_PERIODS = 5;
 
+	/** The admin-post action for the one-click opt-in offered after install. */
+	public const OPT_IN_ACTION = 'simple_history_email_report_opt_in';
+
+	/** Query arg added to the redirect after opting in, so the confirmation notice can show. */
+	private const OPT_IN_QUERY_ARG = 'simple-history-email-report-opt-in';
+
+	/** Settings sub-tab slug for the email reports settings. */
+	private const SETTINGS_SUB_TAB_SLUG = 'general_settings_subtab_email_reports';
+
 	/**
 	 * @inheritdoc
 	 */
@@ -52,6 +61,185 @@ class Email_Report_Service extends Service {
 
 		// Handle enable/disable of email reports.
 		add_action( 'update_option_simple_history_email_report_enabled', [ $this, 'on_email_report_enabled_updated' ], 10, 2 );
+
+		// One-click opt-in from the welcome notice and the welcome log event.
+		add_action( 'admin_post_' . self::OPT_IN_ACTION, [ $this, 'handle_opt_in' ] );
+		add_action( 'admin_notices', [ $this, 'show_opt_in_confirmation_notice' ] );
+		add_filter( 'removable_query_args', [ $this, 'add_removable_query_args' ] );
+	}
+
+	/**
+	 * Get the one-click "email me a weekly summary" button.
+	 *
+	 * Returns an empty string when the current user can not change the setting,
+	 * has no valid email address, or already gets the report, so callers can
+	 * output the result without checks of their own.
+	 *
+	 * A nonce link, not a form: wp_admin_notice() runs its message through
+	 * wp_kses_post(), which strips form and input tags. WordPress uses the same
+	 * pattern for its own Activate and Trash links.
+	 *
+	 * A secondary button: the offer is optional, and the notice shows on screens
+	 * that already have a primary action of their own.
+	 *
+	 * @return string Button HTML, escaped.
+	 */
+	public static function get_opt_in_html() {
+		if ( ! self::current_user_can_opt_in() ) {
+			return '';
+		}
+
+		$user_email = wp_get_current_user()->user_email;
+
+		if ( self::is_email_in_active_recipients( $user_email ) ) {
+			return '';
+		}
+
+		return sprintf(
+			'<p class="sh-EmailReportOptIn">
+				<a href="%1$s" class="button">%2$s</a>
+				<span class="description sh-EmailReportOptIn-description">%3$s</span>
+			</p>',
+			esc_url( self::get_opt_in_url() ),
+			esc_html__( 'Email me a weekly summary', 'simple-history' ),
+			esc_html(
+				sprintf(
+					/* translators: %s: email address of the current user. */
+					__( 'Sent to %s every Monday. Turn it off any time in Settings.', 'simple-history' ),
+					$user_email
+				)
+			)
+		);
+	}
+
+	/**
+	 * Get the URL that turns on the weekly email for the current user in one click.
+	 *
+	 * @return string URL, unescaped. Empty string if the current user can not opt in.
+	 */
+	public static function get_opt_in_url() {
+		if ( ! self::current_user_can_opt_in() ) {
+			return '';
+		}
+
+		return wp_nonce_url(
+			add_query_arg( 'action', self::OPT_IN_ACTION, admin_url( 'admin-post.php' ) ),
+			self::OPT_IN_ACTION
+		);
+	}
+
+	/**
+	 * Check if the current user can use the one-click opt-in.
+	 *
+	 * Uses the same capability as the email report settings page.
+	 *
+	 * @return bool
+	 */
+	private static function current_user_can_opt_in() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return (bool) is_email( wp_get_current_user()->user_email );
+	}
+
+	/**
+	 * Check if reports are enabled and the email address is one of the recipients.
+	 *
+	 * @param string $email Email address.
+	 * @return bool
+	 */
+	public static function is_email_in_active_recipients( $email ) {
+		if ( ! get_option( 'simple_history_email_report_enabled', false ) ) {
+			return false;
+		}
+
+		$recipients = explode( "\n", (string) get_option( 'simple_history_email_report_recipients', '' ) );
+		$recipients = array_map( 'strtolower', array_map( 'trim', $recipients ) );
+
+		return in_array( strtolower( $email ), $recipients, true );
+	}
+
+	/**
+	 * Handle the one-click opt-in button.
+	 *
+	 * Enables the weekly report and adds the current user's email address to the
+	 * recipients. Recipients that are already set are kept.
+	 */
+	public function handle_opt_in() {
+		if ( ! self::current_user_can_opt_in() ) {
+			wp_die( esc_html__( 'You are not allowed to change the email report settings.', 'simple-history' ), 403 );
+		}
+
+		check_admin_referer( self::OPT_IN_ACTION );
+
+		// Add the current user and keep any recipients that are already set.
+		$recipients = $this->sanitize_email_recipients(
+			$this->get_email_report_recipients() . "\n" . wp_get_current_user()->user_email
+		);
+
+		update_option( 'simple_history_email_report_recipients', $recipients );
+		update_option( 'simple_history_email_report_enabled', true );
+
+		// update_option() only fires the "updated" hook that schedules the report when
+		// the option already existed, and on a new install it does not.
+		$this->schedule_email_report();
+
+		$redirect_url = wp_get_referer();
+
+		if ( ! $redirect_url ) {
+			$redirect_url = Helpers::get_history_admin_url();
+		}
+
+		wp_safe_redirect( add_query_arg( self::OPT_IN_QUERY_ARG, 'enabled', $redirect_url ) );
+		exit;
+	}
+
+	/**
+	 * Show a confirmation notice after opting in.
+	 */
+	public function show_opt_in_confirmation_notice() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only decides whether to show a notice.
+		$opt_in_state = isset( $_GET[ self::OPT_IN_QUERY_ARG ] ) ? sanitize_key( wp_unslash( $_GET[ self::OPT_IN_QUERY_ARG ] ) ) : '';
+
+		if ( $opt_in_state !== 'enabled' || ! function_exists( 'wp_admin_notice' ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$user_email = wp_get_current_user()->user_email;
+
+		// Confirm only what is actually true, in case the arg was added to a URL by hand.
+		if ( ! self::is_email_in_active_recipients( $user_email ) ) {
+			return;
+		}
+
+		$message = sprintf(
+			/* translators: 1: email address, 2: opening link tag, 3: closing link tag. */
+			esc_html__( 'Done. A summary of your site\'s activity will be emailed to %1$s every Monday. %2$sChange recipients or turn it off%3$s', 'simple-history' ),
+			'<strong>' . esc_html( $user_email ) . '</strong>',
+			'<a href="' . esc_url( Helpers::get_settings_page_sub_tab_url( self::SETTINGS_SUB_TAB_SLUG ) ) . '">',
+			'</a>'
+		);
+
+		wp_admin_notice(
+			$message,
+			[
+				'type'        => 'success',
+				'dismissible' => true,
+			]
+		);
+	}
+
+	/**
+	 * Remove the opt-in query arg from the address bar after the page has loaded.
+	 *
+	 * @param array<string> $args Query args WordPress removes.
+	 * @return array<string>
+	 */
+	public function add_removable_query_args( $args ) {
+		$args[] = self::OPT_IN_QUERY_ARG;
+
+		return $args;
 	}
 
 	/**
@@ -100,7 +288,7 @@ class Email_Report_Service extends Service {
 		( new Menu_Page() )
 			->set_page_title( __( 'Email Reports', 'simple-history' ) )
 			->set_menu_title( __( 'Email Reports', 'simple-history' ) )
-			->set_menu_slug( 'general_settings_subtab_email_reports' )
+			->set_menu_slug( self::SETTINGS_SUB_TAB_SLUG )
 			->set_callback( [ $this, 'settings_output_email_reports' ] )
 			->set_order( 15 )
 			->set_parent( Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG )
