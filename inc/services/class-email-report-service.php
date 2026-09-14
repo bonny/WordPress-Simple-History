@@ -16,6 +16,12 @@ class Email_Report_Service extends Service {
 	private const SETTINGS_PAGE_SLUG    = 'simple_history_settings_menu_slug_email_reports';
 	private const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_email_reports';
 
+	/**
+	 * UTM campaign for the Premium links in the email. Uses the premium_ prefix
+	 * like every other upsell, so email clicks count in the conversion funnel.
+	 */
+	public const PREMIUM_UTM_CAMPAIGN = 'premium_email_weekly';
+
 	/** The last few periods a report was sent for, newest first, so a report can compare itself against them. */
 	private const SENT_PERIODS_OPTION = 'simple_history_email_report_sent_periods';
 
