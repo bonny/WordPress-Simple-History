@@ -84,7 +84,7 @@ class EmailReportOptInTest extends \Codeception\TestCase\WPTestCase {
 
 		$html = Email_Report_Service::get_opt_in_html();
 
-		$this->assertStringContainsString( 'Email me a weekly summary', $html );
+		$this->assertStringContainsString( 'Turn on weekly email', $html );
 		$this->assertStringContainsString( 'admin-optin@example.com', $html );
 		$this->assertStringContainsString( 'action=' . Email_Report_Service::OPT_IN_ACTION, $html );
 		$this->assertStringContainsString( '_wpnonce=', $html );
@@ -112,7 +112,7 @@ class EmailReportOptInTest extends \Codeception\TestCase\WPTestCase {
 		update_option( 'simple_history_email_report_enabled', '1' );
 		update_option( 'simple_history_email_report_recipients', 'someone@example.com' );
 
-		$this->assertStringContainsString( 'Email me a weekly summary', Email_Report_Service::get_opt_in_html() );
+		$this->assertStringContainsString( 'Add me to the weekly email', Email_Report_Service::get_opt_in_html() );
 	}
 
 	public function test_opting_in_enables_report_keeps_recipients_and_schedules_it() {

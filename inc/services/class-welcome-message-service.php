@@ -49,7 +49,7 @@ class Welcome_Message_Service extends Service {
 		}
 
 		// The notice exists to point users to the history page, so on that page it is
-		// a dead end — "Take a look →" would link to the screen they are already on.
+		// a dead end — "Open the activity log" would link to the screen they are already on.
 		// Bail without marking it seen, so the single showing is saved for a screen
 		// where the link actually takes the user somewhere.
 		if ( $this->is_on_history_page() ) {
@@ -92,27 +92,40 @@ class Welcome_Message_Service extends Service {
 
 		$history_url = Helpers::get_history_admin_url();
 
+		// Offer the weekly email next to the log: two ways to follow the same activity.
+		// The email is off by default and otherwise only found in the settings, and it
+		// is the one record that still reaches users who do not log in. Empty when the
+		// user already gets it or can not turn it on.
+		$opt_in_button = Email_Report_Service::get_opt_in_button_html();
+
+		if ( $opt_in_button !== '' ) {
+			$intro = __( 'See who logged in, what changed, and when – in the activity log, or in a summary email every week.', 'simple-history' );
+		} else {
+			$intro = __( 'See who logged in, what changed, and when, in the activity log.', 'simple-history' );
+		}
+
+		// Cap line length: on a wide screen the text otherwise runs across the whole notice.
 		$message = sprintf(
-			'<p><strong>%1$s</strong></p><p>%2$s</p>',
-			esc_html__( 'Simple History is now tracking everything that happens on your site.', 'simple-history' ),
-			sprintf(
-				/* translators: %1$s: opening link tag, %2$s: closing link tag */
-				esc_html__( 'Who logged in, what was changed, and when — it\'s all in your activity log. %1$sTake a look →%2$s', 'simple-history' ),
-				'<a href="' . esc_url( $history_url ) . '">',
-				'</a>'
-			)
+			'<p style="max-width:60em;"><strong>%1$s</strong></p><p style="max-width:60em;">%2$s</p>',
+			esc_html__( 'Simple History is now logging what happens on your site.', 'simple-history' ),
+			esc_html( $intro )
 		);
 
-		// Offer the weekly email right away. It is off by default and otherwise only
-		// found in the settings, and it is the one record that still reaches users who
-		// do not log in for longer than the retention period.
-		$opt_in_html = Email_Report_Service::get_opt_in_html();
+		// Both actions as secondary buttons in one row, the email first: the notice shows
+		// once, and the log stays one click away in the menu while the email offer does not.
+		// Inline styles, because the plugin stylesheet is not loaded on these screens.
+		$buttons = $opt_in_button . sprintf(
+			'<a href="%1$s" class="button">%2$s</a>',
+			esc_url( $history_url ),
+			esc_html__( 'Open the activity log', 'simple-history' )
+		);
 
-		if ( $opt_in_html !== '' ) {
+		$message .= '<p style="display:flex;flex-wrap:wrap;gap:0.5em;">' . $buttons . '</p>';
+
+		if ( $opt_in_button !== '' ) {
 			$message .= sprintf(
-				'<p>%1$s</p>%2$s',
-				esc_html__( 'Not logging in every day? Get a short summary of what happened on your site by email.', 'simple-history' ),
-				$opt_in_html
+				'<p class="description" style="max-width:60em;color:#50575e;font-size:13px;">%s</p>',
+				esc_html( Email_Report_Service::get_opt_in_description() )
 			);
 		}
 
@@ -120,7 +133,7 @@ class Welcome_Message_Service extends Service {
 			$message,
 			array(
 				'paragraph_wrap' => false,
-				'type'           => 'success',
+				'type'           => 'info',
 				'dismissible'    => true,
 			)
 		);

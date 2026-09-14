@@ -151,7 +151,7 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertStringContainsString( 'In 4 days, Simple History starts removing', $output );
 		$this->assertStringContainsString( 'Once a week, events older than 30 days are removed', $output );
 		$this->assertStringContainsString( 'utm_campaign=premium_retention_first_purge', $output );
-		$this->assertStringContainsString( 'Email me a weekly summary', $output );
+		$this->assertStringContainsString( 'Turn on weekly email', $output );
 		$this->assertSame( 'shown', get_option( First_Purge_Notice_Service::OPTION_NAME ) );
 
 		$this->assertSame( '', $this->render_notice() );
@@ -231,6 +231,6 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 		delete_option( 'simple_history_email_report_recipients' );
 
 		$this->assertStringContainsString( 'In 4 days', $output );
-		$this->assertStringNotContainsString( 'Email me a weekly summary', $output );
+		$this->assertStringNotContainsString( 'Turn on weekly email', $output );
 	}
 }
