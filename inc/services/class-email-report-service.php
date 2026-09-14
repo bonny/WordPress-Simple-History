@@ -69,7 +69,7 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
-	 * Get the one-click "email me a weekly summary" button.
+	 * Get the one-click weekly email opt-in: button and the text that goes with it.
 	 *
 	 * Returns an empty string when the current user can not change the setting,
 	 * has no valid email address, or already gets the report, so callers can
@@ -85,31 +85,77 @@ class Email_Report_Service extends Service {
 	 * @return string Button HTML, escaped.
 	 */
 	public static function get_opt_in_html() {
-		if ( ! self::current_user_can_opt_in() ) {
+		if ( ! self::should_offer_opt_in() ) {
 			return '';
 		}
 
-		$user_email = wp_get_current_user()->user_email;
+		// Inline layout styles, matching .sh-EmailReportOptIn in styles.css: the welcome
+		// notice shows on screens where that stylesheet is not loaded.
+		return sprintf(
+			'<p class="sh-EmailReportOptIn" style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5em 1em;">
+				%1$s
+				<span class="description sh-EmailReportOptIn-description" style="color:#50575e;font-size:13px;">%2$s</span>
+			</p>',
+			self::get_opt_in_button_html(),
+			esc_html( self::get_opt_in_description() )
+		);
+	}
 
-		if ( self::is_email_in_active_recipients( $user_email ) ) {
+	/**
+	 * Get the one-click opt-in button, with an envelope icon that sets it apart from
+	 * buttons that only navigate.
+	 *
+	 * @return string Button HTML, escaped. Empty string if the opt-in should not be offered.
+	 */
+	public static function get_opt_in_button_html() {
+		if ( ! self::should_offer_opt_in() ) {
 			return '';
+		}
+
+		// Say what the click does: turn the email on, or add the user when it is
+		// already on for other recipients.
+		if ( get_option( 'simple_history_email_report_enabled', false ) ) {
+			$label = __( 'Add me to the weekly email', 'simple-history' );
+		} else {
+			$label = __( 'Turn on weekly email', 'simple-history' );
 		}
 
 		return sprintf(
-			'<p class="sh-EmailReportOptIn">
-				<a href="%1$s" class="button">%2$s</a>
-				<span class="description sh-EmailReportOptIn-description">%3$s</span>
-			</p>',
+			'<a href="%1$s" class="button" style="display:inline-flex;align-items:center;gap:4px;"><span class="dashicons dashicons-email-alt" style="line-height:1;" aria-hidden="true"></span>%2$s</a>',
 			esc_url( self::get_opt_in_url() ),
-			esc_html__( 'Email me a weekly summary', 'simple-history' ),
-			esc_html(
-				sprintf(
-					/* translators: %s: email address of the current user. */
-					__( 'Sent to %s every Monday. Turn it off any time in Settings.', 'simple-history' ),
-					$user_email
-				)
-			)
+			esc_html( $label )
 		);
+	}
+
+	/**
+	 * Get the text that goes with the opt-in button.
+	 *
+	 * The button label already says the click turns the email on, so this only says
+	 * what it contains, where it goes, when, and how to stop it.
+	 *
+	 * @return string Plain text, unescaped.
+	 */
+	public static function get_opt_in_description() {
+		return sprintf(
+			/* translators: %s: email address of the current user. */
+			__( 'A summary of the past week, sent to %s every Monday. You can turn it off in the Simple History settings.', 'simple-history' ),
+			wp_get_current_user()->user_email
+		);
+	}
+
+	/**
+	 * Check if the one-click opt-in should be offered to the current user: they can
+	 * change the setting, have a valid email address, and do not already get the email.
+	 *
+	 * @return bool
+	 */
+	public static function should_offer_opt_in() {
+		if ( ! self::current_user_can_opt_in() ) {
+			return false;
+		}
+
+		// Offer it unless the user already gets the email.
+		return ! self::is_email_in_active_recipients( wp_get_current_user()->user_email );
 	}
 
 	/**
@@ -215,11 +261,24 @@ class Email_Report_Service extends Service {
 
 		$message = sprintf(
 			/* translators: 1: email address, 2: opening link tag, 3: closing link tag. */
-			esc_html__( 'Done. A summary of your site\'s activity will be emailed to %1$s every Monday. %2$sChange recipients or turn it off%3$s', 'simple-history' ),
+			esc_html__( 'Done. Every Monday, %1$s will get a summary of the past week. %2$sChange recipients or turn it off%3$s', 'simple-history' ),
 			'<strong>' . esc_html( $user_email ) . '</strong>',
 			'<a href="' . esc_url( Helpers::get_settings_page_sub_tab_url( self::SETTINGS_SUB_TAB_SLUG ) ) . '">',
 			'</a>'
 		);
+
+		// Opting in from the welcome notice sends people back to the screen they were on,
+		// often Plugins, so point them to the log too, unless they are already there.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check of which admin page is being viewed.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( $page !== Simple_History::MENU_PAGE_SLUG ) {
+			$message .= sprintf(
+				' | <a href="%1$s">%2$s</a>',
+				esc_url( Helpers::get_history_admin_url() ),
+				esc_html__( 'Open the activity log', 'simple-history' )
+			);
+		}
 
 		wp_admin_notice(
 			$message,
