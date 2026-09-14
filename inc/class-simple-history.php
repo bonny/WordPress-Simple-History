@@ -159,6 +159,7 @@ class Simple_History {
 			Services\Experimental_Features_Page::class,
 			Services\Failed_Login_Limit_Service::class,
 			Services\Failed_Logins_Settings_Page_Teaser::class,
+			Services\First_Purge_Notice_Service::class,
 			Services\History_Insights_Sidebar_Service::class,
 			Services\Import_Handler::class,
 			Services\License_Reminder_Service::class,
