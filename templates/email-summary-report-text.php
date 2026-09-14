@@ -380,7 +380,7 @@ if ( $show_upsell ) {
 	$lines[] = $plain( __( 'Get more from your activity log', 'simple-history' ) );
 	$lines[] = '';
 	$lines[] = wordwrap(
-		$plain( __( 'Free logs expire after 60 days. Premium lets you keep them longer — and adds real-time alerts, Slack notifications, CSV export, and log forwarding to syslog or external databases.', 'simple-history' ) ),
+		$plain( $email_report_service instanceof \Simple_History\Services\Email_Report_Service ? $email_report_service->get_upsell_block_text() : '' ),
 		$wrap_width,
 		"\n",
 		false

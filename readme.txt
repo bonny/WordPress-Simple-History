@@ -205,7 +205,7 @@ For more details, check the [hooks documentation](https://simple-history.com/doc
 
 ### How long is the history kept?
 
-By default, logs are stored for **60 days**.
+By default, logs are stored for **30 days**. Sites that installed Simple History before version 5.25.0 keep **60 days**.
 
 Upgrade to [Simple History Premium](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium) to change this using a GUI.
 
@@ -295,6 +295,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Loading placeholder rows keep their shape while the log loads instead of reshuffling.
 -   The date dropdown keeps the same width while the log loads instead of growing when the month options arrive.
 -   An expired or disabled add-on license key silently stopped updates without saying why. The Licenses tab now shows the reason and a renew or help link.
+-   The weekly email, the help page and the readme said free logs are kept for 60 days; they now state your site's actual retention (30 days on new installs).
 
 **Security**
 
