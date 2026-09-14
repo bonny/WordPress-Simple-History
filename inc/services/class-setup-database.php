@@ -166,6 +166,10 @@ class Setup_Database extends Service {
 		// Flag this as a fresh install so later migration steps can detect it.
 		$this->is_fresh_install = true;
 
+		// Warn once, shortly before the first events logged on this site are removed.
+		// Only new installs: existing sites are already past their first cleanup.
+		First_Purge_Notice_Service::set_pending();
+
 		// Show a welcome admin notice on the next admin page load.
 		// Only set pending if the option doesn't exist yet (true first install, not table recovery).
 		if ( get_option( Welcome_Message_Service::OPTION_NAME ) !== false ) {

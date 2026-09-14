@@ -271,6 +271,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The weekly email ends with a tip about Simple History that changes every week, picked to match what happened on the site when it can.
 -   The weekly email is sent with a plain text version alongside the HTML one. Mail that is HTML-only scores worse with spam filters, some gateways strip the HTML and leave a blank message, and notification previews read the text part. The text version carries the same numbers in the same order.
 -   The weekly email opens with a sentence or two about the week itself: how many events, how that compares with the week before, any failed logins, and who was most active. On a week with nothing logged it says so and still names last week's total — which is how you find out logging has stopped.
+-   New installs get a one-time notice a few days before Simple History starts removing the first events it logged, with the option to keep them with Premium or get the weekly email.
 -   The weekly email summary can be turned on with one click from the welcome notice, the welcome entry in the log, and the digest card in the log sidebar.
 -   The Licenses tab now shows when an add-on license renews or when it expired, and how many sites the key is activated on. The status is refreshed from simple-history.com on every update check, so a renewed license no longer looks expired.
 
