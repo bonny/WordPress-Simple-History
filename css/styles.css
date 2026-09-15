@@ -3892,6 +3892,17 @@ a.sh-EventsStatsBar--link:hover {
 	margin: 0;
 }
 
+/* Premium hint above the events when filtered to one initiator.
+   Same quiet look as the end-of-results hint. The extra bottom padding
+   leaves room for the first date label, which sits half above its row. */
+.sh-InitiatorFilterHint {
+	margin: 0;
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+	padding: var(--sh-spacing-small) var(--sh-spacing-medium) 20px;
+}
+
 .sh-EndOfResultsHint__line + .sh-EndOfResultsHint__line {
 	margin-top: var(--sh-spacing-xsmall);
 }
