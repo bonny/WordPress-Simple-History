@@ -140,6 +140,27 @@ class LoggerUserContextTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( (string) $this->admin_id, $this->latest_context()['_user_id'] );
 	}
 
+	/**
+	 * Plugins that log from Action Scheduler's finish hooks at a normal
+	 * priority are still inside the scheduled action.
+	 */
+	public function test_action_scheduler_finish_hook_callbacks_are_wordpress_without_user() {
+		$log_on_finish = static function () {
+			SimpleLogger()->info( 'Logged from after_execute callback test' );
+		};
+
+		add_action( 'action_scheduler_after_execute', $log_on_finish, 10, 0 );
+
+		do_action( 'action_scheduler_before_execute', 1, 'Async Request' );
+		do_action( 'action_scheduler_after_execute', 1, null, 'Async Request' );
+
+		remove_action( 'action_scheduler_after_execute', $log_on_finish, 10 );
+
+		$this->assertSame( Log_Initiators::WORDPRESS, get_latest_row()['initiator'] );
+		$this->assert_no_user( $this->latest_context() );
+		$this->assertFalse( Action_Scheduler_Tracker::is_running_scheduled_action() );
+	}
+
 	public function test_action_scheduler_run_from_admin_list_table_keeps_user() {
 		do_action( 'action_scheduler_before_execute', 1, 'Admin List Table' );
 		SimpleLogger()->info( 'Action Scheduler run by admin test' );

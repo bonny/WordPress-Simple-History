@@ -43,12 +43,14 @@ class Action_Scheduler_Tracker extends Service {
 		// Every way process_action() can finish. Older Action Scheduler versions
 		// lack some of these hooks; the next before_execute or the end of the
 		// queue run resets the flag in that case.
-		add_action( 'action_scheduler_after_execute', [ $this, 'on_execute_finished' ], 0, 0 );
-		add_action( 'action_scheduler_failed_execution', [ $this, 'on_execute_finished' ], 0, 0 );
-		add_action( 'action_scheduler_failed_validation', [ $this, 'on_execute_finished' ], 0, 0 );
-		add_action( 'action_scheduler_execution_ignored', [ $this, 'on_execute_finished' ], 0, 0 );
-		add_action( 'action_scheduler_canceled_corrupted_action', [ $this, 'on_execute_finished' ], 0, 0 );
-		add_action( 'action_scheduler_after_process_queue', [ $this, 'on_execute_finished' ], 0, 0 );
+		// Last priority, so anything other plugins log from these same hooks
+		// still counts as part of the scheduled action.
+		add_action( 'action_scheduler_after_execute', [ $this, 'on_execute_finished' ], PHP_INT_MAX, 0 );
+		add_action( 'action_scheduler_failed_execution', [ $this, 'on_execute_finished' ], PHP_INT_MAX, 0 );
+		add_action( 'action_scheduler_failed_validation', [ $this, 'on_execute_finished' ], PHP_INT_MAX, 0 );
+		add_action( 'action_scheduler_execution_ignored', [ $this, 'on_execute_finished' ], PHP_INT_MAX, 0 );
+		add_action( 'action_scheduler_canceled_corrupted_action', [ $this, 'on_execute_finished' ], PHP_INT_MAX, 0 );
+		add_action( 'action_scheduler_after_process_queue', [ $this, 'on_execute_finished' ], PHP_INT_MAX, 0 );
 	}
 
 	/**
