@@ -3,6 +3,7 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
+use Simple_History\Services\REST_API;
 
 /**
  * Loads the new GUI based on React.
@@ -59,11 +60,15 @@ class React_Dropin extends Dropin {
 		// it resolves — the surrounding-events view renders without waiting for
 		// search options — would otherwise have no base URL to build on. It costs
 		// nothing to know at enqueue time, so hand it over rather than fetch it.
+		$stored_events_view = get_user_meta( get_current_user_id(), REST_API::EVENTS_VIEW_USER_META_KEY, true );
+
 		wp_localize_script(
 			'simple_history_wp_scripts',
 			'simpleHistoryReactData',
 			[
 				'eventsAdminPageURL' => Helpers::get_history_admin_url(),
+				// Read at enqueue time so the first render already uses the user's view.
+				'eventsView'         => $stored_events_view === 'compact' ? 'compact' : 'detailed',
 			]
 		);
 	}
