@@ -55,13 +55,13 @@ class React_Dropin extends Dropin {
 		wp_enqueue_script( 'simple_history_wp_scripts' );
 		wp_set_script_translations( 'simple_history_wp_scripts', 'simple-history' );
 
+		$stored_events_view = get_user_meta( get_current_user_id(), REST_API::EVENTS_VIEW_USER_META_KEY, true );
+
 		// The events page URL is also returned by the search-options REST endpoint,
 		// but that arrives after the first render. Anything building a link before
 		// it resolves — the surrounding-events view renders without waiting for
 		// search options — would otherwise have no base URL to build on. It costs
 		// nothing to know at enqueue time, so hand it over rather than fetch it.
-		$stored_events_view = get_user_meta( get_current_user_id(), REST_API::EVENTS_VIEW_USER_META_KEY, true );
-
 		wp_localize_script(
 			'simple_history_wp_scripts',
 			'simpleHistoryReactData',

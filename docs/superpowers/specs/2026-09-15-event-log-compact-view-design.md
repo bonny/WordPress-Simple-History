@@ -120,21 +120,40 @@ register_meta(
 	'user',
 	'simple_history_events_view',
 	[
-		'type'          => 'string',
-		'single'        => true,
-		'default'       => 'detailed',
-		'show_in_rest'  => [
-			'schema' => [
-				'type' => 'string',
-				'enum' => [ 'detailed', 'compact' ],
-			],
-		],
-		'auth_callback' => function ( $allowed, $meta_key, $object_id, $user_id ) {
-			return (int) $object_id === (int) $user_id;
+		'type'              => 'string',
+		'single'            => true,
+		'default'           => 'detailed',
+		'sanitize_callback' => function ( $value ) {
+			return $value === 'compact' ? 'compact' : 'detailed';
 		},
 	]
 );
 ```
+
+No `show_in_rest` and no `auth_callback`: the meta is not exposed through `/wp/v2/users` at all. It's saved through a dedicated route instead (see below), so there is nothing for the core users endpoint to read or write.
+
+The dedicated route, registered in the same service's `register_routes()`:
+
+```php
+register_rest_route(
+	'simple-history/v1',
+	'/events-view',
+	[
+		'methods'             => WP_REST_Server::EDITABLE,
+		'callback'            => [ $this, 'save_events_view' ],
+		'permission_callback' => [ $this, 'events_view_permissions_check' ],
+		'args'                => [
+			'view' => [
+				'type'     => 'string',
+				'required' => true,
+				'enum'     => [ 'detailed', 'compact' ],
+			],
+		],
+	]
+);
+```
+
+`events_view_permissions_check()` requires `Helpers::get_view_history_capability()` — the same capability the history page itself requires. `save_events_view()` writes `update_user_meta( get_current_user_id(), ..., $view )` for the current user only; there's no user-id parameter, so it can never touch another user's meta.
 
 In `dropins/class-react-dropin.php`, add to the existing `simpleHistoryReactData` localize call:
 
@@ -146,15 +165,13 @@ In `dropins/class-react-dropin.php`, add to the existing `simpleHistoryReactData
 
 ```js
 apiFetch( {
-	path: '/wp/v2/users/me',
+	path: '/simple-history/v1/events-view',
 	method: 'POST',
-	data: { meta: { simple_history_events_view: newView } },
+	data: { view: newView },
 } ).catch( () => {} );
 ```
 
-Uses the core users endpoint instead of a new route. Any logged-in user may edit their own user object, and the `auth_callback` blocks writing another user's value. The meta is only a layout preference, so exposing it in REST responses carries no privacy cost.
-
-The core endpoint always calls `wp_update_user()`, so `profile_update` fires. The User logger's `on_profile_update_commit()` bails when nothing in its tracked context changed, so no event is expected — verify it, because changing a view is not profile activity and must not be logged.
+A dedicated route, not the core `/wp/v2/users/me` endpoint. That endpoint always calls `wp_update_user()`, which fires `profile_update` on every save. Third-party plugins act on that hook — on the local dev site, the Stream activity logger logged "claude's profile was updated" on every toggle, Rank Math bumped the author sitemap's lastmod, and Jetpack queued a user sync. None of that is true: switching the event log view is not profile activity. The dedicated route only ever runs `update_user_meta()`, so none of those side effects fire.
 
 ## Error handling
 
@@ -173,11 +190,13 @@ Playwright, `tests/playwright/events-view-toggle.spec.js`:
 5. Keyboard: focus the toggle, press an arrow key, view changes.
 6. Clean up: reset the stored preference to `detailed`.
 
-wpunit:
+wpunit, `tests/wpunit/EventsViewUserMetaTest.php`:
 
--   The meta is registered with `show_in_rest` and the enum.
--   A user can update their own `simple_history_events_view` through `/wp/v2/users/me`.
--   A user cannot update another user's value; an invalid value is rejected.
+-   The meta is registered (single, default `detailed`), not exposed via `show_in_rest`, and wired on `init`.
+-   A user with the view-history capability can save `compact` through `POST /simple-history/v1/events-view`.
+-   An invalid value is rejected (400), a user without the capability is forbidden (403), a logged-out request is unauthorized (401) — none of these change the stored meta.
+-   Saving does not fire `profile_update`.
+-   `GET /wp/v2/users/<id>` does not expose the meta.
 
 Manual, on the local WP 7.1 site:
 
