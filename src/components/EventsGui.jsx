@@ -907,6 +907,7 @@ function EventsGUI() {
 				canAdjustFilters={
 					hasNonDateActiveFilters && selectedDateOption !== 'allDates'
 				}
+				selectedInitiator={ selectedInitiator }
 			/>
 
 			<EventsModalIfFragment />

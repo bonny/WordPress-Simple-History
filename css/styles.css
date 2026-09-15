@@ -3356,15 +3356,23 @@ a.sh-SettingsTabs-link:hover {
 		position: absolute;
 		top: var(--sh-spacing-large);
 		inset-inline-start: min(
-			calc(100% - var(--sh-spacing-large) - var(--sh-email-thumbnail-width)),
-			calc(var(--sh-spacing-large) + var(--sh-email-form-max-width) + var(--sh-email-thumbnail-gap))
+			calc(
+				100% - var(--sh-spacing-large) - var(--sh-email-thumbnail-width)
+			),
+			calc(
+				var(--sh-spacing-large) + var(--sh-email-form-max-width) +
+					var(--sh-email-thumbnail-gap)
+			)
 		);
 		width: var(--sh-email-thumbnail-width);
 	}
 
 	.sh-EmailReportThumbnail:not([hidden]) ~ .form-table {
 		width: min(
-			calc(100% - var(--sh-email-thumbnail-width) - var(--sh-email-thumbnail-gap)),
+			calc(
+				100% - var(--sh-email-thumbnail-width) -
+					var(--sh-email-thumbnail-gap)
+			),
 			var(--sh-email-form-max-width)
 		);
 	}
@@ -3890,6 +3898,17 @@ a.sh-EventsStatsBar--link:hover {
 
 .sh-EndOfResultsHint__line {
 	margin: 0;
+}
+
+/* Premium hint above the events when filtered to one initiator.
+   Same quiet look as the end-of-results hint. The extra bottom padding
+   leaves room for the first date label, which sits half above its row. */
+.sh-InitiatorFilterHint {
+	margin: 0;
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+	padding: var(--sh-spacing-small) var(--sh-spacing-medium) 20px;
 }
 
 .sh-EndOfResultsHint__line + .sh-EndOfResultsHint__line {
@@ -5389,58 +5408,6 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 	margin: 0 0 6px 0;
 }
 
-/* No-op kept for the non-WP-user teaser, which still passes this modifier
-   class. Cream/padding is now on the base rule above. Safe to delete once
-   that teaser is refactored. */
-.sh-UserCard__premiumTeaser--blurred {
-	/* empty */
-}
-
-/* Option A: Blurred preview. */
-.sh-UserCard__blurredPreview {
-	display: block;
-	text-decoration: none;
-	color: inherit;
-	position: relative;
-}
-
-.sh-UserCard__blurredPreview:hover {
-	text-decoration: none;
-}
-
-.sh-UserCard__blurredPreview .sh-UserCard__meta {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.sh-UserCard__detail--blurred {
-	color: var(--sh-color-gray-3);
-}
-
-.sh-UserCard__blurredAction {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	margin-top: 8px;
-	color: #2271b1;
-}
-
-.sh-UserCard__premiumBadge {
-	display: inline-block;
-	margin-top: 8px;
-	padding: 2px 7px;
-	background: #f0f0f0;
-	color: #595959;
-	border-radius: 3px;
-	font-size: 11px;
-	font-weight: 400;
-}
-
-.sh-UserCard__blurredPreview:hover .sh-UserCard__premiumBadge {
-	color: var(--sh-color-blue, #2271b1);
-}
-
 /* Premium teaser screenshot block — figure + caption + CTA.
    Screenshot regen: npm run screenshots:teaser-user-card. */
 .sh-UserCard__teaserScreenshot {
@@ -5455,10 +5422,12 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 	   on first open (causes a scrollbar until the image loads + repositions).
 	   Ratio matches the source PNG produced by the teaser-screenshots skill;
 	   tolerant of small variance run-to-run. */
-	aspect-ratio: 640 / 580;
-	/* No box-shadow / white frame — the screenshot already has its own
-	   popover border and shadow baked in. Adding another shadow inside the
-	   cream block creates a busy triple-frame effect. */
+	aspect-ratio: 636 / 366;
+	/* The screenshot is a crop from inside the card, so it has no frame of
+	   its own. A plain border sets it off from the cream block; no shadow. */
+	background: #fff;
+	border: 1px solid var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius, 4px);
 }
 
 .sh-UserCard__teaserCaption {
