@@ -1343,7 +1343,7 @@ abstract class Logger {
 			$context = array();
 		}
 
-		$context = $this->append_user_context( $context );
+		$context = $this->append_user_context( $context, $data['initiator'] ?? '' );
 		$context = $this->append_remote_addr_to_context( $context );
 
 		/**
@@ -1776,13 +1776,32 @@ abstract class Logger {
 	}
 
 	/**
-	 * Append user data to context.
+	 * Append the current user's data to context.
 	 *
-	 * @param array $context Context.
+	 * Only when the event was initiated by someone who can be the current user.
+	 * WordPress itself, anonymous visitors and unknown sources are not the
+	 * administrator who happens to be logged in during the request (an update
+	 * check on an admin page load, a failed login from a browser that still
+	 * holds a session, a backfill run on admin_init), so those events get no
+	 * user. WP-CLI keeps it, since `wp --user=<id>` is a real identity.
+	 *
+	 * @param array  $context   Context.
+	 * @param string $initiator Initiator the event will be stored with.
 	 * @return array $context Context with user data appended.
 	 */
-	private function append_user_context( $context ) {
+	private function append_user_context( $context, $initiator ) {
+		// A logger that knows who did it has already said so.
 		if ( isset( $context['_user_id'] ) ) {
+			return $context;
+		}
+
+		$initiators_without_user = [
+			Log_Initiators::WORDPRESS,
+			Log_Initiators::WEB_USER,
+			Log_Initiators::OTHER,
+		];
+
+		if ( in_array( $initiator, $initiators_without_user, true ) ) {
 			return $context;
 		}
 
@@ -1828,18 +1847,19 @@ abstract class Logger {
 			$data['initiator'] = Log_Initiators::OTHER;
 
 			// Check if user is responsible.
+			// The user's identity itself is added later by append_user_context(),
+			// once the final initiator is known.
 			if ( function_exists( 'wp_get_current_user' ) ) {
 				$current_user = wp_get_current_user();
 
 				if ( isset( $current_user->ID ) && $current_user->ID ) {
-					$data['initiator']      = Log_Initiators::WP_USER;
-					$context['_user_id']    = $current_user->ID;
-					$context['_user_login'] = $current_user->user_login;
-					$context['_user_email'] = $current_user->user_email;
+					$data['initiator'] = Log_Initiators::WP_USER;
 				}
 			}
 
 			// If cron then set WordPress as responsible.
+			// A user can be logged in here: with ALTERNATE_WP_CRON, WordPress runs
+			// wp-cron.php inside the visitor's own request.
 			if ( wp_doing_cron() ) {
 				$data['initiator']           = Log_Initiators::WORDPRESS;
 				$context['_wp_cron_running'] = true;
@@ -1848,6 +1868,12 @@ abstract class Logger {
 				if ( Helpers::log_debug_is_enabled() ) {
 					$context['_wp_cron_current_filter'] = current_filter();
 				}
+			}
+
+			// Action Scheduler runs queued actions from an admin-ajax request that
+			// carries the admin's cookies, so they are not cron to WordPress.
+			if ( Services\Action_Scheduler_Tracker::is_running_scheduled_action() ) {
+				$data['initiator'] = Log_Initiators::WORDPRESS;
 			}
 
 			// If running as CLI and WP_CLI_PHP_USED is set then it is WP CLI that is doing it.
