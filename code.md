@@ -120,6 +120,12 @@ If a screenshot has fine gradients or text that visibly degrades at `80-95`, rai
 
 See CLAUDE.local.md for which of these are installed locally.
 
+## Writing Prose
+
+Any prose written for this project (changelogs, commit messages, PR descriptions, blog posts, docs) should read like a person wrote it, not an AI. Avoid stock AI filler phrases and hype words: "seamlessly", "carries through to" / "carry through", "robust", "leverage" (as a verb), "delve into", "elevate", "streamline", "unlock", "empower", "cutting-edge", "game-changer", "boasts", "a testament to", "harness the power of", "in today's ... landscape/world", "when it comes to", "at the end of the day", "it's worth noting that", "furthermore" / "moreover" as transitions.
+
+Prefer a plain, direct sentence over a polished-sounding one. If a phrase sounds like marketing copy or a LinkedIn post, cut it.
+
 ## Changelog
 
 -   Try to use format from https://keepachangelog.com
