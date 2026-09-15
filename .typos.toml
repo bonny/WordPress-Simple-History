@@ -21,6 +21,8 @@ setted = "setted"
 juli = "juli"
 # Accepted English variant of "unparsable"
 unparseable = "unparseable"
+# FTC Franchise Rule: Financial Performance Representation
+FPR = "FPR"
 
 [default.extend-identifiers]
 commited = "commited"
