@@ -24,6 +24,9 @@ class EventsViewUserMetaTest extends \Codeception\TestCase\WPTestCase {
 
 		// rest_do_request() doesn't define REST_REQUEST in the test environment.
 		add_filter( 'simple_history/is_rest_request', '__return_true' );
+
+		// wp-browser unregisters all meta in tearDown, so re-register before each test.
+		\Simple_History\Simple_History::get_instance()->get_service( REST_API::class )->register_user_meta();
 	}
 
 	public function tearDown(): void {
@@ -41,6 +44,10 @@ class EventsViewUserMetaTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( $args['single'] );
 		$this->assertSame( 'detailed', $args['default'] );
 		$this->assertSame( array( 'detailed', 'compact' ), $args['show_in_rest']['schema']['enum'] );
+
+		// Verify production wires it on init.
+		$service = \Simple_History\Simple_History::get_instance()->get_service( REST_API::class );
+		$this->assertNotFalse( has_action( 'init', [ $service, 'register_user_meta' ] ) );
 	}
 
 	public function test_default_is_detailed() {

@@ -26,7 +26,6 @@ class REST_API extends Service {
 		// On init, not rest_api_init, so the registered default also applies
 		// when the events page reads the value outside a REST request.
 		add_action( 'init', [ $this, 'register_user_meta' ] );
-		add_action( 'init', [ $this, 'apply_default_meta_filter' ] );
 	}
 
 	/**
@@ -50,28 +49,10 @@ class REST_API extends Service {
 					],
 				],
 				// Users may only change their own view.
-				'auth_callback' => function ( $allowed, $meta_key, $object_id ) {
-					return (int) $object_id === (int) get_current_user_id();
+				'auth_callback' => function ( $allowed, $meta_key, $object_id, $user_id ) {
+					return (int) $object_id === (int) $user_id;
 				},
 			]
-		);
-	}
-
-	/**
-	 * Apply a filter to return the registered default when the meta hasn't been set.
-	 */
-	public function apply_default_meta_filter() {
-		add_filter(
-			'get_user_metadata',
-			function ( $meta_value, $object_id, $meta_key, $single ) {
-				if ( $meta_key === self::EVENTS_VIEW_USER_META_KEY && $single && ( $meta_value === false || $meta_value === '' ) ) {
-					return 'detailed';
-				}
-
-				return $meta_value;
-			},
-			10,
-			4
 		);
 	}
 
