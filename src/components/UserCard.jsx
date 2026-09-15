@@ -95,11 +95,12 @@ function renderDetailValue( detail ) {
 /**
  * Premium link helper.
  *
- * @param {string} [content] utm_content value — lets us tell apart clicks
- *                           from the screenshot vs the CTA vs other surfaces.
+ * @param {string} content utm_content value — lets us tell apart clicks
+ *                         from the screenshot vs the CTA vs the initiator
+ *                         cards' "View all … activity" link.
  * @return {string} Premium URL with tracking.
  */
-function getPremiumUrl( content = '' ) {
+function getPremiumUrl( content ) {
 	return getTrackingUrl(
 		'https://simple-history.com/features/user-card/',
 		'premium_user_card',
@@ -528,7 +529,9 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 			{ ! isLoading && cardData && activityLabel && ! hasPremium && (
 				<div className="sh-UserCard__premiumTeaser sh-UserCard__premiumTeaser--blurred">
 					<a
-						href={ getPremiumUrl() }
+						href={ getPremiumUrl(
+							`${ initiator }_activity_click`
+						) }
 						className="sh-UserCard__blurredPreview"
 						target="_blank"
 						rel="noopener noreferrer"
