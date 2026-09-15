@@ -165,9 +165,11 @@ function MetaDetailsList( { details } ) {
  * Premium upsell block shown inside the user card for free users.
  *
  * Visually walled off (cream background + border + corner badge) so the
- * eye reads it as marketing, not as more card content. Contains an
- * embedded screenshot of the same popup with premium active, a caption
- * listing what premium adds, and a clearly marketing-framed CTA — the
+ * eye reads it as marketing, not as more card content. Contains a
+ * screenshot of only the rows premium adds to this card (not the whole
+ * card, which made the teaser taller than the card it advertises and showed
+ * a second "User profile" link), a caption, and a clearly marketing-framed
+ * CTA — the
  * label deliberately doesn't mirror any real in-app action so it can't
  * be mistaken for one.
  *
@@ -176,7 +178,7 @@ function MetaDetailsList( { details } ) {
  */
 function PremiumTeaserBlurred() {
 	const screenshotUrl =
-		'/wp-content/plugins/simple-history/assets/images/user-card-with-premium.png';
+		'/wp-content/plugins/simple-history/assets/images/user-card-premium-details.png';
 
 	return (
 		<div
@@ -204,16 +206,16 @@ function PremiumTeaserBlurred() {
 					<img
 						src={ screenshotUrl }
 						alt={ __(
-							'Preview of the user card with Simple History Premium.',
+							'Premium user card rows: event counts for today, the last 7 days and in total, last login, last event, IP address and browser, and a link to the user’s events.',
 							'simple-history'
 						) }
-						width={ 640 }
-						height={ 580 }
+						width={ 636 }
+						height={ 366 }
 					/>
 				</a>
 				<figcaption className="sh-UserCard__teaserCaption">
 					{ __(
-						'With Premium, this card also shows event counts, last login, IP, and browser — plus a direct link to everything they’ve done.',
+						'Premium adds event counts, last login, IP address and browser to every user card.',
 						'simple-history'
 					) }
 				</figcaption>
