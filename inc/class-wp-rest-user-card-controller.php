@@ -218,7 +218,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * Get card data for a non-user initiator type.
 	 *
 	 * Returns a filterable response so add-ons can extend it
-	 * (e.g., adding "View all activity" action links).
+	 * (e.g., adding event stats as detail items).
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return \WP_REST_Response Response object.
@@ -226,7 +226,17 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	public function get_initiator_card( $request ) {
 		$type = $request->get_param( 'type' );
 
+		// Core ships the "View … events" link. It only opens the log with the
+		// free Initiators filter applied, so it is not a premium feature.
+		// It used to be added by premium and teased to free users as a
+		// sales link, which read like a broken filter action.
 		$actions = [];
+
+		$view_activity_action = self::get_initiator_view_activity_action( $type );
+
+		if ( $view_activity_action ) {
+			$actions[] = $view_activity_action;
+		}
 
 		/**
 		 * Filters the initiator card action links.
@@ -267,10 +277,50 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			'initiator'          => $type,
 			'has_premium_add_on' => Helpers::is_premium_add_on_active(),
 			'details'            => self::sanitize_filter_array( $details, true ),
-			'actions'            => self::sanitize_filter_array( $actions, false ),
+			// Dedup so a premium version that still adds its own
+			// `view_activity` link does not show it twice. Core's comes first.
+			'actions'            => self::sanitize_filter_array( $actions, true ),
 		];
 
 		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Get the action that opens the log filtered by an initiator type.
+	 *
+	 * @param string $type The initiator type (wp, wp_cli, web_user, other).
+	 * @return array|null Action item with key, label and url, or null for unknown types.
+	 */
+	private static function get_initiator_view_activity_action( $type ) {
+		$labels = [
+			Log_Initiators::WEB_USER  => __( 'View anonymous events', 'simple-history' ),
+			Log_Initiators::WP_CLI    => __( 'View WP-CLI events', 'simple-history' ),
+			Log_Initiators::WORDPRESS => __( 'View WordPress events', 'simple-history' ),
+			Log_Initiators::OTHER     => __( 'View events from other sources', 'simple-history' ),
+		];
+
+		if ( ! isset( $labels[ $type ] ) ) {
+			return null;
+		}
+
+		$display_name = Log_Initiators::get_initiator_label( $type );
+
+		// Same shape the Initiators filter reads from the `initiator` URL parameter.
+		$initiator_json = wp_json_encode(
+			[
+				[
+					'value'          => $display_name,
+					'initiator_key'  => $type,
+					'search_options' => [ $display_name ],
+				],
+			]
+		);
+
+		return [
+			'key'   => 'view_activity',
+			'label' => $labels[ $type ],
+			'url'   => Helpers::get_history_admin_url() . '&initiator=' . rawurlencode( $initiator_json ),
+		];
 	}
 
 	/**

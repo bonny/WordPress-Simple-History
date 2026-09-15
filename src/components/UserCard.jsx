@@ -96,8 +96,7 @@ function renderDetailValue( detail ) {
  * Premium link helper.
  *
  * @param {string} content utm_content value — lets us tell apart clicks
- *                         from the screenshot vs the CTA vs the initiator
- *                         cards' "View all … activity" link.
+ *                         from the screenshot vs the CTA.
  * @return {string} Premium URL with tracking.
  */
 function getPremiumUrl( content ) {
@@ -381,14 +380,13 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
  * so add-ons can extend the card via server-side filters.
  *
  * @param {Object}  props
- * @param {Object}  props.event    The event object.
- * @param {Object}  props.cardData Data from the REST API (or null).
+ * @param {Object}  props.event     The event object.
+ * @param {Object}  props.cardData  Data from the REST API (or null).
  * @param {boolean} props.isLoading Whether API data is loading.
  */
 function NonUserCardContent( { event, cardData, isLoading } ) {
 	const { initiator, initiator_data: initiatorData } = event;
 
-	const hasPremium = cardData?.has_premium_add_on;
 	const actions = cardData?.actions || [];
 	const allDetails = cardData?.details || [];
 	const statDetails = allDetails.filter( ( d ) => d.type === 'stat' );
@@ -396,17 +394,12 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 
 	let label;
 	let description;
-	let activityLabel;
 
 	switch ( initiator ) {
 		case 'web_user':
 			label = __( 'Anonymous web user', 'simple-history' );
 			description = __(
 				'A visitor to your site who was not logged in.',
-				'simple-history'
-			);
-			activityLabel = __(
-				'View all anonymous activity',
 				'simple-history'
 			);
 			break;
@@ -416,16 +409,11 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 				'Action performed via the WP-CLI command line tool.',
 				'simple-history'
 			);
-			activityLabel = __( 'View all WP-CLI activity', 'simple-history' );
 			break;
 		case 'wp':
 			label = __( 'WordPress', 'simple-history' );
 			description = __(
 				'An automatic action by WordPress, such as a scheduled task or auto-update.',
-				'simple-history'
-			);
-			activityLabel = __(
-				'View all WordPress activity',
 				'simple-history'
 			);
 			break;
@@ -435,15 +423,10 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 				'Action triggered by a plugin, theme, or external process.',
 				'simple-history'
 			);
-			activityLabel = __(
-				'View all activity from other sources',
-				'simple-history'
-			);
 			break;
 		default:
 			label = initiator;
 			description = null;
-			activityLabel = null;
 	}
 
 	return (
@@ -525,26 +508,6 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 						) ) }
 					</ul>
 				</nav>
-			) }
-			{ ! isLoading && cardData && activityLabel && ! hasPremium && (
-				<div className="sh-UserCard__premiumTeaser sh-UserCard__premiumTeaser--blurred">
-					<a
-						href={ getPremiumUrl(
-							`${ initiator }_activity_click`
-						) }
-						className="sh-UserCard__blurredPreview"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<span className="sh-UserCard__blurredAction">
-							<Icon icon={ external } size={ 16 } />
-							{ activityLabel }
-						</span>
-						<span className="sh-UserCard__premiumBadge">
-							{ __( 'Available with Premium', 'simple-history' ) }
-						</span>
-					</a>
-				</div>
 			) }
 		</div>
 	);
