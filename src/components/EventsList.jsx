@@ -19,6 +19,7 @@ import { FailedLoginLimitNotice } from './FailedLoginLimitNotice';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 import { EndOfResultsHint } from './EndOfResultsHint';
+import { InitiatorFilterHint } from './InitiatorFilterHint';
 
 /**
  * Notice shown at the end of the event list when backfilled entries
@@ -126,6 +127,7 @@ export function EventsList( props ) {
 		hasActiveFilters,
 		onClearFilters,
 		canAdjustFilters,
+		selectedInitiator,
 	} = props;
 
 	const { hasPremiumAddOn, hasFailedLoginLimit } = useEventsSettings();
@@ -177,6 +179,14 @@ export function EventsList( props ) {
 				failedLoginSuppressedCount={ failedLoginSuppressedCount }
 				eventsIsLoading={ eventsIsLoading }
 			/>
+
+			{ ! isSurroundingEventsMode && (
+				<InitiatorFilterHint
+					selectedInitiator={ selectedInitiator }
+					eventsIsLoading={ eventsIsLoading }
+					events={ events }
+				/>
+			) }
 
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
