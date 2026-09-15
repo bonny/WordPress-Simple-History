@@ -1139,6 +1139,54 @@ i.e. the log is inside a .postbox element.
 	pointer-events: none;
 }
 
+/*
+ * Compact view of the main event log (issue 240).
+ * Same density as the dashboard widget, but kept separate from the
+ * .is-dashboard rules so a change to one never moves the other.
+ */
+.SimpleHistoryLogitem--variant-compact {
+	padding-top: var(--sh-spacing-small);
+	padding-bottom: var(--sh-spacing-small);
+}
+
+/* No extra space before a labelled date separator. */
+.SimpleHistoryLogitem--variant-compact:has(
+		+ .SimpleHistoryLogitem .SimpleHistoryEventSeparator--hasLabel
+	) {
+	padding-bottom: calc(var(--sh-spacing-small) * 3);
+}
+
+/* The separator pulls itself up by the row padding; match the smaller padding. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator {
+	margin-top: calc(var(--sh-spacing-small) * -1);
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__senderImage {
+	width: 24px;
+	height: 24px;
+}
+
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-wp
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-wp_cli
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-web_user
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-other
+	.SimpleHistoryLogitem__senderImage:before {
+	font-size: 24px;
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__secondcol {
+	margin-left: 40px;
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__actionLinks {
+	gap: var(--sh-spacing-xsmall) 0;
+	margin-top: var(--sh-spacing-xsmall);
+	margin-bottom: 0;
+}
+
 /* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
 .sh-DashboardWidget-stats {
 	display: flex;
