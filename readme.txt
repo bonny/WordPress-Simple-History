@@ -275,7 +275,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The weekly email summary can be turned on with one click from the welcome notice, the welcome entry in the log, and the digest card in the log sidebar.
 -   The email reports settings show a live thumbnail of the weekly email, built from your own site's last 7 days, while the email is turned off.
 -   The Licenses tab now shows when an add-on license renews or when it expired, and how many sites the key is activated on. The status is refreshed from simple-history.com on every update check, so a renewed license no longer looks expired.
--   The event log has a compact view. Switch between detailed and compact with the buttons at the end of the bar above the events; the log remembers your choice, and a shared link opens in the view it was copied from.
+-   The event log has a compact view. Switch between detailed and compact with the buttons at the end of the bar above the events; the log remembers your choice.
 
 **Changed**
 

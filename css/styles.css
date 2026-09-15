@@ -4007,6 +4007,16 @@ a.sh-EventsStatsBar--link:hover {
 	color: #fff;
 }
 
+/* Windows High Contrast Mode flattens the background/color swap above, so the
+   checked option would look identical to the unchecked ones — add an outline
+   so the selection is still visible. */
+@media (forced-colors: active) {
+	.sh-EventsViewToggle__option.is-checked {
+		outline: 2px solid Highlight;
+		outline-offset: -2px;
+	}
+}
+
 .sh-EventsViewToggle__option svg {
 	fill: currentColor;
 }
