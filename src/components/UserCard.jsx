@@ -376,6 +376,39 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 }
 
 /**
+ * Avatar for a non-WP-user initiator card.
+ *
+ * @param {Object} props
+ * @param {string} props.initiator Initiator type (web_user, wp_cli, wp, other).
+ * @param {string} props.avatarUrl Avatar URL from the event, if any.
+ */
+function NonUserAvatar( { initiator, avatarUrl } ) {
+	if ( initiator === 'wp' ) {
+		return (
+			<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--wp">
+				<Icon icon={ wordpress } size={ 36 } />
+			</div>
+		);
+	}
+
+	if ( initiator === 'wp_cli' ) {
+		return (
+			<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--cli">
+				{ terminalPrompt }
+			</div>
+		);
+	}
+
+	if ( avatarUrl ) {
+		return <img className="sh-UserCard__avatar" src={ avatarUrl } alt="" />;
+	}
+
+	return (
+		<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder" />
+	);
+}
+
+/**
  * Card content for non-WP-user initiators (web_user, wp_cli, wp, other).
  *
  * Uses the data-driven `actions` array from the REST API,
@@ -434,23 +467,10 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 	return (
 		<div className="sh-UserCard__content">
 			<div className="sh-UserCard__identity">
-				{ initiator === 'wp' ? (
-					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--wp">
-						<Icon icon={ wordpress } size={ 36 } />
-					</div>
-				) : initiator === 'wp_cli' ? (
-					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--cli">
-						{ terminalPrompt }
-					</div>
-				) : initiatorData?.user_avatar_url ? (
-					<img
-						className="sh-UserCard__avatar"
-						src={ initiatorData.user_avatar_url }
-						alt=""
-					/>
-				) : (
-					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder" />
-				) }
+				<NonUserAvatar
+					initiator={ initiator }
+					avatarUrl={ initiatorData?.user_avatar_url }
+				/>
 				<div className="sh-UserCard__info">
 					<h4 className="sh-UserCard__name">{ label }</h4>
 					{ description && (
