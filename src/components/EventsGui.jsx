@@ -356,12 +356,16 @@ function EventsGUI() {
 			setUrlEventsView( newView );
 			setStoredEventsView( newView );
 
-			// Remember the choice for next time. A failed save is not worth
+			// Remember the choice for next time, through a dedicated route
+			// rather than /wp/v2/users/me — that endpoint always runs
+			// wp_update_user() and fires profile_update, which third-party
+			// plugins act on for actual profile changes. See
+			// REST_API::save_events_view(). A failed save is not worth
 			// interrupting the user for; the toggle still works on this visit.
 			apiFetch( {
-				path: '/wp/v2/users/me',
+				path: '/simple-history/v1/events-view',
 				method: 'POST',
-				data: { meta: { simple_history_events_view: newView } },
+				data: { view: newView },
 			} ).catch( () => {} );
 		},
 		[ setUrlEventsView ]
