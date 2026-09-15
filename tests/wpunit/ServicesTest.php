@@ -63,6 +63,7 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Failed_Login_Limit_Service',
 			'Status_Box_Service',
 			'AI_Initiator_Detector',
+			'Action_Scheduler_Tracker',
 			'Post_History_Column',
 			'Post_Row_Actions',
 			'Privacy_Data_Handler',

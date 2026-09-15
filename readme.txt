@@ -300,6 +300,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The date dropdown keeps the same width while the log loads instead of growing when the month options arrive.
 -   An expired or disabled add-on license key silently stopped updates without saying why. The Licenses tab now shows the reason and a renew or help link.
 -   The weekly email, the help page and the readme said free logs are kept for 60 days; they now state your site's actual retention (30 days on new installs).
+-   Events done by WordPress or by visitors (update checks, failed logins, scheduled tasks, WooCommerce background jobs) are no longer attributed to the administrator who happened to be logged in, so they stop showing up under that user in filters, stats and personal-data exports.
 
 **Security**
 
