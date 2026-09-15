@@ -28,7 +28,7 @@ Add a row whenever a new in-product screenshot is wired up.
 1. **Premium add-on must be installed** on the stable WP install (the orchestrator handles activate/deactivate itself, but the plugin files need to exist). Verify:
 
     ```bash
-    cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot
+    cd ../_docker-compose-to-run-on-system-boot   # or $SH_DOCKER_DIR
     docker compose run --rm wpcli_mariadb plugin list | grep simple-history-premium
     ```
 
