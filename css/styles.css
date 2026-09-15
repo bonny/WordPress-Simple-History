@@ -5389,58 +5389,6 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 	margin: 0 0 6px 0;
 }
 
-/* No-op kept for the non-WP-user teaser, which still passes this modifier
-   class. Cream/padding is now on the base rule above. Safe to delete once
-   that teaser is refactored. */
-.sh-UserCard__premiumTeaser--blurred {
-	/* empty */
-}
-
-/* Option A: Blurred preview. */
-.sh-UserCard__blurredPreview {
-	display: block;
-	text-decoration: none;
-	color: inherit;
-	position: relative;
-}
-
-.sh-UserCard__blurredPreview:hover {
-	text-decoration: none;
-}
-
-.sh-UserCard__blurredPreview .sh-UserCard__meta {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.sh-UserCard__detail--blurred {
-	color: var(--sh-color-gray-3);
-}
-
-.sh-UserCard__blurredAction {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	margin-top: 8px;
-	color: #2271b1;
-}
-
-.sh-UserCard__premiumBadge {
-	display: inline-block;
-	margin-top: 8px;
-	padding: 2px 7px;
-	background: #f0f0f0;
-	color: #595959;
-	border-radius: 3px;
-	font-size: 11px;
-	font-weight: 400;
-}
-
-.sh-UserCard__blurredPreview:hover .sh-UserCard__premiumBadge {
-	color: var(--sh-color-blue, #2271b1);
-}
-
 /* Premium teaser screenshot block — figure + caption + CTA.
    Screenshot regen: npm run screenshots:teaser-user-card. */
 .sh-UserCard__teaserScreenshot {

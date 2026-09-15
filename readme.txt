@@ -287,6 +287,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The "WordPress" section of the weekly email is now "WordPress core", and stat captions no longer repeat the section name ("Created" under Posts and Pages instead of "Posts created").
 -   Every number in the weekly email links to the log, filtered to the events it counted over the same days, so "Successful logins 17" opens those 17 logins. Numbers that are zero stay plain text.
 -   The weekly email no longer explains the link to the log under the intro. The summary above it and the button below it already cover it.
+-   The WordPress, WP-CLI, anonymous user and "other" cards now link to their events in the log for everyone, not only with Premium.
 -   `wp simple-history dev populate` also generates media, note, theme and WordPress core update events, plugin updates step the version up instead of picking two random versions, and post and note events reuse a small set of post IDs so a generated week looks like a handful of posts edited often rather than hundreds edited once.
 
 **Fixed**
