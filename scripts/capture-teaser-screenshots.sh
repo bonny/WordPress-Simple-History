@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Capture four user-card screenshots: { premium, free } × { closeup, context }.
+# Capture user-card screenshots: { premium, free } × { closeup, context },
+# plus the premium details crop embedded in the free teaser.
 #
 # Drives the Playwright spec twice with SH_TEASER_MODE, toggling the premium
 # plugin via WP-CLI between runs. Logs in as "sally" so the captured cards
@@ -72,6 +73,7 @@ SH_TEASER_MODE=free ${PLAYWRIGHT_BIN} test "${SPEC}" --project=teaser
 
 PNGS=(
 	"assets/images/user-card-with-premium.png"
+	"assets/images/user-card-premium-details.png"
 	"assets/images/user-card-with-premium-context.png"
 	"assets/images/user-card-without-premium.png"
 	"assets/images/user-card-without-premium-context.png"
@@ -97,7 +99,7 @@ else
 	echo "    Install: brew install pngquant"
 fi
 
-echo "✓ Done. Four PNG files written to assets/images/:"
+echo "✓ Done. Five PNG files written to assets/images/:"
 for png in "${PNGS[@]}"; do
 	echo "    $(basename "${png}")"
 done
