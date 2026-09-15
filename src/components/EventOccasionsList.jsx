@@ -13,6 +13,7 @@ export function EventOccasionsList( props ) {
 	} = props;
 
 	const isDashboard = eventVariant === 'dashboard';
+	const isCompact = eventVariant === 'compact';
 
 	const ulClassNames = clsx( {
 		SimpleHistoryLogitems: true,
@@ -24,19 +25,32 @@ export function EventOccasionsList( props ) {
 		'is-dashboard': isDashboard,
 	} );
 
+	// The -4.5rem/-1.5rem pull-out matches the normal row's geometry:
+	// .SimpleHistoryLogitem__secondcol margin-left (50px) plus the li's own
+	// padding (var(--sh-spacing-medium)). Compact rows use a narrower
+	// secondcol margin-left (40px, see css/styles.css), so reusing the normal
+	// offset pulled the nested occasion rows too far left and clipped their
+	// avatars — cancel the compact geometry instead.
+	let wrapStyle;
+
+	if ( isDashboard ) {
+		wrapStyle = { marginTop: '0.5rem' };
+	} else if ( isCompact ) {
+		wrapStyle = {
+			marginTop: '1rem',
+			marginLeft: 'calc(-40px - var(--sh-spacing-medium))',
+			marginRight: '-1.5rem',
+		};
+	} else {
+		wrapStyle = {
+			marginTop: '1rem',
+			marginLeft: '-4.5rem',
+			marginRight: '-1.5rem',
+		};
+	}
+
 	return (
-		<div
-			className={ wrapClassNames }
-			style={
-				isDashboard
-					? { marginTop: '0.5rem' }
-					: {
-							marginTop: '1rem',
-							marginLeft: '-4.5rem',
-							marginRight: '-1.5rem',
-					  }
-			}
-		>
+		<div className={ wrapClassNames } style={ wrapStyle }>
 			<ul className={ ulClassNames }>
 				{ occasions.map( ( event, index ) => (
 					<Event
