@@ -130,7 +130,7 @@ export function EventsList( props ) {
 		selectedInitiator,
 	} = props;
 
-	const { hasPremiumAddOn, hasFailedLoginLimit } = useEventsSettings();
+	const { hasPremiumAddOn } = useEventsSettings();
 
 	const totalPages = eventsMeta.totalPages;
 	const isSurroundingEventsMode = Boolean( surroundingEventId );
