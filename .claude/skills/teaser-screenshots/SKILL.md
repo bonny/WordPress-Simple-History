@@ -11,11 +11,12 @@ These screenshots are embedded _inside the free version's UI_ (e.g. the user car
 
 ## Captured screenshots
 
-A single capture run produces four PNGs in `assets/images/`. The orchestrator (`scripts/capture-teaser-screenshots.sh`) toggles the premium plugin between the two passes and trap-restores it on exit.
+A single capture run produces five PNGs in `assets/images/`. The orchestrator (`scripts/capture-teaser-screenshots.sh`) toggles the premium plugin between the two passes and trap-restores it on exit.
 
 | File                                    | Mode                | Variant                | Used in                                                                 |
 | --------------------------------------- | ------------------- | ---------------------- | ----------------------------------------------------------------------- |
-| `user-card-with-premium.png`            | premium active      | close-up               | `src/components/UserCard.jsx` — `PremiumTeaserBlurred` embedded preview |
+| `user-card-premium-details.png`         | premium active      | premium rows only      | `src/components/UserCard.jsx` — `PremiumTeaserBlurred` embedded preview |
+| `user-card-with-premium.png`            | premium active      | close-up               | Marketing / docs                                                        |
 | `user-card-with-premium-context.png`    | premium active      | with event-row context | Marketing / blog / docs                                                 |
 | `user-card-without-premium.png`         | premium deactivated | close-up               | Marketing / docs ("what free users see")                                |
 | `user-card-without-premium-context.png` | premium deactivated | with event-row context | Marketing / blog                                                        |

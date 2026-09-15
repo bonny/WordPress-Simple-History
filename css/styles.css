@@ -5414,10 +5414,12 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 	   on first open (causes a scrollbar until the image loads + repositions).
 	   Ratio matches the source PNG produced by the teaser-screenshots skill;
 	   tolerant of small variance run-to-run. */
-	aspect-ratio: 640 / 580;
-	/* No box-shadow / white frame — the screenshot already has its own
-	   popover border and shadow baked in. Adding another shadow inside the
-	   cream block creates a busy triple-frame effect. */
+	aspect-ratio: 636 / 366;
+	/* The screenshot is a crop from inside the card, so it has no frame of
+	   its own. A plain border sets it off from the cream block; no shadow. */
+	background: #fff;
+	border: 1px solid var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius, 4px);
 }
 
 .sh-UserCard__teaserCaption {
