@@ -3356,15 +3356,23 @@ a.sh-SettingsTabs-link:hover {
 		position: absolute;
 		top: var(--sh-spacing-large);
 		inset-inline-start: min(
-			calc(100% - var(--sh-spacing-large) - var(--sh-email-thumbnail-width)),
-			calc(var(--sh-spacing-large) + var(--sh-email-form-max-width) + var(--sh-email-thumbnail-gap))
+			calc(
+				100% - var(--sh-spacing-large) - var(--sh-email-thumbnail-width)
+			),
+			calc(
+				var(--sh-spacing-large) + var(--sh-email-form-max-width) +
+					var(--sh-email-thumbnail-gap)
+			)
 		);
 		width: var(--sh-email-thumbnail-width);
 	}
 
 	.sh-EmailReportThumbnail:not([hidden]) ~ .form-table {
 		width: min(
-			calc(100% - var(--sh-email-thumbnail-width) - var(--sh-email-thumbnail-gap)),
+			calc(
+				100% - var(--sh-email-thumbnail-width) -
+					var(--sh-email-thumbnail-gap)
+			),
 			var(--sh-email-form-max-width)
 		);
 	}
