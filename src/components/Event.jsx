@@ -60,7 +60,7 @@ export function Event( props ) {
 
 				<EventText event={ event } eventVariant={ variant } />
 
-				{ variant !== 'dashboard' && (
+				{ variant !== 'dashboard' && variant !== 'compact' && (
 					<EventDetails event={ event } eventVariant={ variant } />
 				) }
 
