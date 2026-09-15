@@ -552,7 +552,7 @@ export function EventIPAddresses( props ) {
 	}
 
 	const ipAddressesLabel =
-		eventVariant === 'dashboard'
+		eventVariant === 'dashboard' || eventVariant === 'compact'
 			? ''
 			: _n(
 					'IP address:',
