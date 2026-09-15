@@ -128,6 +128,7 @@ export function EventsList( props ) {
 		onClearFilters,
 		canAdjustFilters,
 		selectedInitiator,
+		eventsView,
 	} = props;
 
 	const { hasPremiumAddOn } = useEventsSettings();
@@ -206,6 +207,7 @@ export function EventsList( props ) {
 				events={ events }
 				prevEventsMaxId={ prevEventsMaxId }
 				surroundingEventId={ surroundingEventId }
+				eventsView={ eventsView }
 			/>
 
 			{ showBackfilledNotice && <BackfilledNotice /> }

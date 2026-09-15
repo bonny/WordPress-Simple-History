@@ -7,6 +7,7 @@ export function EventsListItemsList( props ) {
 		prevEventsMaxId,
 		eventsIsLoading,
 		surroundingEventId,
+		eventsView,
 	} = props;
 
 	if ( ! events || events.length === 0 ) {
@@ -27,6 +28,7 @@ export function EventsListItemsList( props ) {
 				<Event
 					key={ `${ event.id }-${ index }` }
 					event={ event }
+					variant={ eventsView === 'compact' ? 'compact' : 'normal' }
 					loopIndex={ index }
 					prevEvent={ events[ index - 1 ] }
 					nextEvent={ events[ index + 1 ] }

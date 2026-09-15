@@ -16,6 +16,7 @@ import {
 	parseAsIsoDate,
 	parseAsJson,
 	parseAsString,
+	parseAsStringLiteral,
 	useQueryState,
 } from 'nuqs';
 import { z } from 'zod';
@@ -127,6 +128,14 @@ function EventsGUI() {
 	// with the same value once it arrives.
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState(
 		window.simpleHistoryReactData?.eventsAdminPageURL
+	);
+
+	// The view the user last chose, localized at enqueue time from user meta
+	// so the first render already uses it. See REST_API::register_user_meta().
+	const [ storedEventsView, setStoredEventsView ] = useState(
+		window.simpleHistoryReactData?.eventsView === 'compact'
+			? 'compact'
+			: 'detailed'
 	);
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ alertsPageURL, setAlertsPageURL ] = useState();
@@ -329,6 +338,33 @@ function EventsGUI() {
 	const [ surroundingCount ] = useQueryState(
 		'surrounding_count',
 		parseAsInteger.withOptions( useQueryStateOptions )
+	);
+
+	// View in the URL wins over the stored one, so a shared link opens in the
+	// view it was copied from. Nothing is written to the URL on page load.
+	const [ urlEventsView, setUrlEventsView ] = useQueryState(
+		'view',
+		parseAsStringLiteral( [ 'detailed', 'compact' ] ).withOptions(
+			useQueryStateOptions
+		)
+	);
+
+	const eventsView = urlEventsView ?? storedEventsView;
+
+	const handleEventsViewChange = useCallback(
+		( newView ) => {
+			setUrlEventsView( newView );
+			setStoredEventsView( newView );
+
+			// Remember the choice for next time. A failed save is not worth
+			// interrupting the user for; the toggle still works on this visit.
+			apiFetch( {
+				path: '/wp/v2/users/me',
+				method: 'POST',
+				data: { meta: { simple_history_events_view: newView } },
+			} ).catch( () => {} );
+		},
+		[ setUrlEventsView ]
 	);
 
 	/**
@@ -877,6 +913,8 @@ function EventsGUI() {
 					eventsTotal={ eventsMeta.total }
 					eventsQueryParams={ eventsQueryParams }
 					hasAnyActiveFilters={ hasAnyActiveFilters }
+					eventsView={ eventsView }
+					onEventsViewChange={ handleEventsViewChange }
 					newEventsNotifier={
 						<NewEventsNotifier
 							eventsQueryParams={ eventsQueryParams }
@@ -908,6 +946,7 @@ function EventsGUI() {
 					hasNonDateActiveFilters && selectedDateOption !== 'allDates'
 				}
 				selectedInitiator={ selectedInitiator }
+				eventsView={ eventsView }
 			/>
 
 			<EventsModalIfFragment />
