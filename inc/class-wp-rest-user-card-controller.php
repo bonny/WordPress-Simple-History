@@ -279,7 +279,8 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 			'details'            => self::sanitize_filter_array( $details, true ),
 			// Dedup so a premium version that still adds its own
 			// `view_activity` link does not show it twice. Core's comes first.
-			'actions'            => self::sanitize_filter_array( $actions, true ),
+			// Actions without a key are kept, as they were before dedup.
+			'actions'            => self::sanitize_filter_array( $actions, true, true ),
 		];
 
 		return rest_ensure_response( $data );
@@ -331,11 +332,13 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 	 * wins on dedup — third-party filters running at lower priorities can
 	 * reserve a key before premium appends.
 	 *
-	 * @param mixed $value      Whatever the filter returned.
-	 * @param bool  $dedup_keys Whether to deduplicate entries by their `key` field.
+	 * @param mixed $value        Whatever the filter returned.
+	 * @param bool  $dedup_keys   Whether to deduplicate entries by their `key` field.
+	 * @param bool  $keep_keyless When deduplicating, keep entries that have no `key`
+	 *                            instead of dropping them.
 	 * @return array
 	 */
-	private static function sanitize_filter_array( $value, $dedup_keys ) {
+	private static function sanitize_filter_array( $value, $dedup_keys, $keep_keyless = false ) {
 		if ( ! is_array( $value ) ) {
 			return [];
 		}
@@ -349,6 +352,10 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		foreach ( $value as $item ) {
 			if ( ! is_array( $item ) || ! isset( $item['key'] ) ) {
+				if ( $keep_keyless ) {
+					$out[] = $item;
+				}
+
 				continue;
 			}
 
