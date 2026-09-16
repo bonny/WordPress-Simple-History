@@ -134,6 +134,8 @@ class Log_Query {
 	 *      @type boolean $only_sticky Only return sticky events. Default false.
 	 *      @type array $context_filters Context filters as key-value pairs. Default null.
 	 *      @type boolean $ungrouped Return ungrouped events without occasions grouping. Default false.
+	 *      @type string $orderby Column to sort by. One of 'date', 'id', 'level', 'logger', 'message'. Anything else falls back to 'date'. Setting this to anything but 'date' forces $ungrouped to true, because occasion grouping depends on rows arriving in date order. Default 'date'.
+	 *      @type string $order Sort direction, 'ASC' or 'DESC', case-insensitive. Anything else falls back to 'DESC'. Default 'DESC'.
 	 *
 	 *    Surrounding Events (Admin Only - bypasses logger permissions).
 	 *
@@ -198,7 +200,18 @@ class Log_Query {
 	 */
 	public function query_overview( $args ) {
 		// Force simple query for ungrouped results.
-		if ( ! empty( $args['ungrouped'] ) ) {
+		//
+		// Sorting by anything other than date also forces the simple query,
+		// because occasion grouping depends on rows arriving in date order.
+		// prepare_args() normalises this too, but that runs inside
+		// query_overview_simple()/query_overview_mysql(), which is too late
+		// to decide which of the two gets called — so the same non-date
+		// columns are checked again here, against the raw arg.
+		$non_date_orderby = [ 'id', 'level', 'logger', 'message' ];
+
+		$sorts_by_non_date_column = isset( $args['orderby'] ) && in_array( $args['orderby'], $non_date_orderby, true );
+
+		if ( ! empty( $args['ungrouped'] ) || $sorts_by_non_date_column ) {
 			return $this->query_overview_simple( $args );
 		}
 
@@ -273,7 +286,7 @@ class Log_Query {
 				1 AS subsequentOccasions
 			FROM %1$s AS simple_history_1
 			%2$s
-			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
+			%4$s
 			%3$s
 		';
 
@@ -290,7 +303,8 @@ class Log_Query {
 			$sql_statement_log_rows,
 			$Simple_History->get_events_table_name(), // 1
 			$inner_where_string, // 2
-			$limit_clause // 3
+			$limit_clause, // 3
+			$this->get_order_by_clause( $args, 'simple_history_1' ) // 4
 		);
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
@@ -322,7 +336,6 @@ class Log_Query {
 				SELECT count(*) as count
 				FROM %1$s AS simple_history_1
 				%2$s
-				ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 			';
 
 			$sql_query_log_rows_count = sprintf(
@@ -1127,6 +1140,12 @@ class Log_Query {
 				// Initiator(s) to exclude.
 				'exclude_initiator' => null,
 
+				// Column to sort by. See the query() docblock for accepted values.
+				'orderby'           => 'date',
+
+				// Sort direction, ASC or DESC.
+				'order'             => 'DESC',
+
 			// Can also contain:
 			// logRowID
 			// occasionsCount
@@ -1174,6 +1193,29 @@ class Log_Query {
 
 		if ( isset( $args['paged'] ) ) {
 			$args['paged'] = (int) $args['paged'];
+		}
+
+		// Normalise orderby to a known column. An unknown value falls back to
+		// the default rather than throwing, the same way an out-of-range
+		// posts_per_page is clamped. The value never reaches SQL as-is — it is
+		// mapped to a literal column name in get_order_by_clause().
+		$allowed_orderby = [ 'date', 'id', 'level', 'logger', 'message' ];
+
+		if ( ! isset( $args['orderby'] ) || ! in_array( $args['orderby'], $allowed_orderby, true ) ) {
+			$args['orderby'] = 'date';
+		}
+
+		// Normalise order to ASC or DESC.
+		$order = isset( $args['order'] ) ? strtoupper( (string) $args['order'] ) : 'DESC';
+
+		$args['order'] = in_array( $order, [ 'ASC', 'DESC' ], true ) ? $order : 'DESC';
+
+		// Occasion grouping counts consecutive rows with the same occasionsID,
+		// which only holds while rows arrive in date order. Sorting by anything
+		// else means the grouped query cannot run, so drop the grouping rather
+		// than silently returning date-ordered rows.
+		if ( $args['orderby'] !== 'date' ) {
+			$args['ungrouped'] = true;
 		}
 
 		// "post__in" must be array and must only contain integers.
@@ -1503,6 +1545,44 @@ class Log_Query {
 		}
 
 		return $args;
+	}
+
+	/**
+	 * Build the ORDER BY clause for a query.
+	 *
+	 * The column name is never taken from the args directly — it is looked up
+	 * in a map of literal strings, so no caller-supplied text reaches SQL.
+	 * The id column is always appended as a tiebreaker: without it, paging
+	 * over a low-cardinality column like level can repeat a row on two pages.
+	 *
+	 * @param array  $args        Prepared query args.
+	 * @param string $table_alias Table alias to prefix columns with, without the trailing dot.
+	 * @return string Complete ORDER BY clause.
+	 */
+	protected function get_order_by_clause( $args, $table_alias = '' ) {
+		$columns = [
+			'date'    => 'date',
+			'id'      => 'id',
+			'level'   => 'level',
+			'logger'  => 'logger',
+			'message' => 'message',
+		];
+
+		$orderby = isset( $columns[ $args['orderby'] ] ) ? $columns[ $args['orderby'] ] : 'date';
+		$order   = $args['order'] === 'ASC' ? 'ASC' : 'DESC';
+		$prefix  = $table_alias === '' ? '' : $table_alias . '.';
+
+		// Sorting by id already is the tiebreaker.
+		if ( $orderby === 'id' ) {
+			return sprintf( 'ORDER BY %1$sid %2$s', $prefix, $order );
+		}
+
+		return sprintf(
+			'ORDER BY %1$s%2$s %3$s, %1$sid %3$s',
+			$prefix,
+			$orderby,
+			$order
+		);
 	}
 
 	/**
