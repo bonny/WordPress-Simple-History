@@ -135,7 +135,12 @@ export function EventSeparator( { event, eventVariant, prevEvent } ) {
 	} );
 
 	const labelClasses = 'SimpleHistoryEventSeparator__label';
-	const LabelTag = eventVariant === 'dashboard' ? 'h3' : 'span';
+	// A real heading where the label is styled as one, so a screen reader can
+	// jump between days. The detailed view keeps the span: its label is a pill
+	// straddling the divider line, which does not read as a section heading.
+	const isHeadingVariant =
+		eventVariant === 'dashboard' || eventVariant === 'compact';
+	const LabelTag = isHeadingVariant ? 'h3' : 'span';
 
 	return (
 		<div className={ separatorClassNames }>
