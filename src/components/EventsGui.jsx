@@ -16,6 +16,7 @@ import {
 	parseAsIsoDate,
 	parseAsJson,
 	parseAsString,
+	parseAsStringLiteral,
 	useQueryState,
 } from 'nuqs';
 import { z } from 'zod';
@@ -127,6 +128,14 @@ function EventsGUI() {
 	// with the same value once it arrives.
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState(
 		window.simpleHistoryReactData?.eventsAdminPageURL
+	);
+
+	// The view the user last chose, localized at enqueue time from user meta
+	// so the first render already uses it. See REST_API::register_user_meta().
+	const [ storedEventsView, setStoredEventsView ] = useState(
+		window.simpleHistoryReactData?.eventsView === 'compact'
+			? 'compact'
+			: 'detailed'
 	);
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ alertsPageURL, setAlertsPageURL ] = useState();
@@ -329,6 +338,42 @@ function EventsGUI() {
 	const [ surroundingCount ] = useQueryState(
 		'surrounding_count',
 		parseAsInteger.withOptions( useQueryStateOptions )
+	);
+
+	// View in the URL wins over the stored one, so a shared link opens in the
+	// view it was copied from. Nothing is written to the URL on page load.
+	const [ urlEventsView, setUrlEventsView ] = useQueryState(
+		'view',
+		parseAsStringLiteral( [ 'detailed', 'compact' ] ).withOptions(
+			useQueryStateOptions
+		)
+	);
+
+	// Compact view is experimental for now. With the flag off the log is always
+	// detailed, so a stored preference or a ?view=compact link from the time the
+	// flag was on does not keep a feature alive that the site has turned off.
+	const eventsView = isExperimentalFeaturesEnabled
+		? urlEventsView ?? storedEventsView
+		: 'detailed';
+
+	const handleEventsViewChange = useCallback(
+		( newView ) => {
+			setUrlEventsView( newView );
+			setStoredEventsView( newView );
+
+			// Remember the choice for next time, through a dedicated route
+			// rather than /wp/v2/users/me — that endpoint always runs
+			// wp_update_user() and fires profile_update, which third-party
+			// plugins act on for actual profile changes. See
+			// REST_API::save_events_view(). A failed save is not worth
+			// interrupting the user for; the toggle still works on this visit.
+			apiFetch( {
+				path: '/simple-history/v1/events-view',
+				method: 'POST',
+				data: { view: newView },
+			} ).catch( () => {} );
+		},
+		[ setUrlEventsView ]
 	);
 
 	/**
@@ -877,6 +922,8 @@ function EventsGUI() {
 					eventsTotal={ eventsMeta.total }
 					eventsQueryParams={ eventsQueryParams }
 					hasAnyActiveFilters={ hasAnyActiveFilters }
+					eventsView={ eventsView }
+					onEventsViewChange={ handleEventsViewChange }
 					newEventsNotifier={
 						<NewEventsNotifier
 							eventsQueryParams={ eventsQueryParams }
@@ -908,6 +955,7 @@ function EventsGUI() {
 					hasNonDateActiveFilters && selectedDateOption !== 'allDates'
 				}
 				selectedInitiator={ selectedInitiator }
+				eventsView={ eventsView }
 			/>
 
 			<EventsModalIfFragment />

@@ -197,6 +197,15 @@
 	box-shadow: 0px 3px 3px 0px #f7f7f7;
 }
 
+/* The "Sticky" divider puts a pin inside the label (see EventSeparator.jsx).
+   @wordpress/icons renders it at 24px, which is twice the height the label's
+   max-height: 1em allows, so it spills out of the pill. Match it to the text. */
+.SimpleHistoryEventSeparator__label svg {
+	width: 1em;
+	height: 1em;
+	margin-right: var(--sh-spacing-xsmall);
+}
+
 /* Text inside event, contains tooltip and SVG icon component */
 .SimpleHistoryLogitem--sticky {
 	display: inline-block;
@@ -1092,7 +1101,7 @@ i.e. the log is inside a .postbox element.
 	color: var(--sh-color-gray-3);
 }
 
-/* Dashboard widget: tighter action links — drop icons, tighter spacing. */
+/* Dashboard widget: tighter action links. */
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks {
 	gap: var(--sh-spacing-xsmall) 0;
 	margin-top: var(--sh-spacing-xsmall);
@@ -1101,42 +1110,398 @@ i.e. the log is inside a .postbox element.
 	margin-left: calc(var(--sh-spacing-xsmall) * -1);
 }
 
-.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks__link {
+/* The dashboard widget and the compact log both drop the icons: at that
+   density a row of small glyphs is noise, and the labels alone read faster. */
+:is(
+		.SimpleHistoryReactRoot.is-dashboard,
+		.SimpleHistoryLogitem--variant-compact
+	)
+	.SimpleHistoryLogitem__actionLinks__link {
 	padding-left: var(--sh-spacing-xsmall);
 	padding-right: var(--sh-spacing-xsmall);
 }
 
-.SimpleHistoryReactRoot.is-dashboard
+:is(
+		.SimpleHistoryReactRoot.is-dashboard,
+		.SimpleHistoryLogitem--variant-compact
+	)
 	.SimpleHistoryLogitem__actionLinks__link
 	.sh-Icon {
 	display: none;
 }
 
-/* Without icons the grey labels run together, so a dot marks each boundary.
-   The dot is drawn outside the link box, in the margin between two links, so
-   the hover background wraps the label only and never the separator. */
-.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks__link {
+/* Only the icon-less views need the dot: with icons the labels already have a
+   boundary. The separator is a real element rather than a ::before on the
+   link, so it stays out of the link's accessible name — see the comment in
+   EventActionLinks.jsx. It sits between two paddings, so the hover background
+   wraps the label only and never the dot. */
+.SimpleHistoryLogitem__actionLinks__item {
+	display: inline-flex;
+	align-items: center;
 	position: relative;
 }
 
-.SimpleHistoryReactRoot.is-dashboard
-	.SimpleHistoryLogitem__actionLinks__link
-	+ .SimpleHistoryLogitem__actionLinks__link {
-	margin-left: var(--sh-spacing-small);
+.SimpleHistoryLogitem__actionLinks__separator {
+	display: none;
 }
 
-.SimpleHistoryReactRoot.is-dashboard
-	.SimpleHistoryLogitem__actionLinks__link
-	+ .SimpleHistoryLogitem__actionLinks__link::before {
-	content: "·";
+/* Out of flow, like the ::before this replaced, so the dot is painted in the
+   gap between two links and adds no width of its own. In flow it would be a
+   third thing the flex gap applies to on both sides. */
+:is(
+		.SimpleHistoryReactRoot.is-dashboard,
+		.SimpleHistoryLogitem--variant-compact
+	)
+	.SimpleHistoryLogitem__actionLinks__separator {
+	display: block;
 	position: absolute;
 	top: 50%;
-	left: calc(var(--sh-spacing-small) * -1);
-	width: var(--sh-spacing-small);
 	transform: translateY(-50%);
 	text-align: center;
 	color: var(--sh-color-gray-2);
-	pointer-events: none;
+
+	/* The box spans the whole gap between the two labels — the flex gap plus
+	   the padding each link carries — so the centred glyph lands midway
+	   between them instead of hard against the one on its left. */
+	left: calc(var(--sh-spacing-xsmall) * -1);
+	width: var(--sh-spacing-small);
+}
+
+/*
+ * Compact view of the main event log (issue 240).
+ * Same density as the dashboard widget, but kept separate from the
+ * .is-dashboard rules so a change to one never moves the other.
+ */
+/* One value for the row's own padding, because the separator has to cancel it
+   exactly: its negative margin and its min-height both read this. Two numbers
+   that drifted apart here once already, and the symptom was content glued to
+   the hairline below it and floating away from the one above. */
+.SimpleHistoryLogitem--variant-compact {
+	--sh-compact-row-padding: 6px;
+
+	padding-top: var(--sh-compact-row-padding);
+	padding-bottom: var(--sh-compact-row-padding);
+}
+
+/* The row above a labelled divider gets no extra air: there is no pill sitting
+   on the line for it to clear. */
+.SimpleHistoryLogitem--variant-compact:has(
+		+ .SimpleHistoryLogitem .SimpleHistoryEventSeparator--hasLabel
+	) {
+	padding-bottom: var(--sh-compact-row-padding);
+}
+
+/* Without a label the separator draws nothing but the hairline between two
+   rows, so it does not need the 30px the label pill reserves — that height was
+   most of a compact row's air. The negative margin puts the line on the row's
+   real top edge, and the min-height then gives the content the same air below
+   the line as the padding gives it above the next one. Drop the min-height and
+   rows lose their top padding entirely: content ends up glued to the line
+   below it and floating away from the line above. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator {
+	margin-top: calc(var(--sh-compact-row-padding) * -1);
+	min-height: var(--sh-compact-row-padding);
+}
+
+/* A day label here is a caption, not a chip — the same treatment the dashboard
+   widget already ships (see the .is-dashboard rules above). The centred pill it
+   replaces was the only centred thing in a view whose every other element is
+   flush left, and it was also the heaviest type on screen: 12px/600 in near
+   black, above a 15px message in a lighter weight. Grey it and the label ranks
+   below the content it introduces, which is the right way round.
+
+   It was expensive too: 30px of reserved height plus 12px of extra padding on
+   the row above, so 48px of clear space for one word. This costs 42px, and a
+   plain row break in the same list costs 7px.
+
+   The hairline stays. It is this row's own rule, full bleed, lining up with the
+   rules above and below it — dropping it would leave the day break with nothing
+   to sit on. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator--hasLabel {
+	min-height: 0;
+	justify-content: flex-start;
+
+	/* The separator is full bleed, so its content edge sits a medium step to
+	   the left of the row's. Put that step back or the label hangs 16px left
+	   of the avatar it introduces. */
+	padding-left: var(--sh-spacing-medium);
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator__label {
+	transform: none;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	padding: 0;
+	max-height: none;
+
+	/* Three row-paddings above, one below. The asymmetry is the point: a day
+	   label belongs to the day under it, so it has to sit closer to the event
+	   it introduces than to the last event of the day before. Equal margins
+	   leave it floating between the two, and a smaller bottom margin than this
+	   glues it to the avatar line. */
+	margin: calc(var(--sh-compact-row-padding) * 3) 0
+		var(--sh-compact-row-padding);
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--sh-color-gray-3);
+}
+
+/* The avatar moves into the header line (see EventHeader.jsx), so there is no
+   left column to indent past: the avatar, the message and the action links
+   all share the row's left edge. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__secondcol {
+	margin-left: 0;
+}
+
+/* line-height: 0 keeps the box exactly as tall as the avatar. With the
+   inherited line-height the span was 23px for an 18px image, and an inline
+   box that tall stretches the header's line box — which showed up as more
+   air above the message than below it. */
+.SimpleHistoryLogitem__headerAvatar {
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: var(--sh-spacing-xsmall);
+	line-height: 0;
+}
+
+.SimpleHistoryLogitem__headerAvatar
+	.sh-UserCard__trigger.components-button.is-link {
+	display: block;
+	padding: 0;
+	height: auto;
+	line-height: 0;
+}
+
+.SimpleHistoryLogitem__headerAvatar .SimpleHistoryLogitem__senderImage {
+	display: block;
+}
+
+/* The base rule only drops the middot from a divided item that is the header's
+   :first-child, and in this view it never is: the avatar comes first, and in
+   surrounding-events mode the "#123" span comes after that. Key it on the
+   dividers themselves instead — the first one carries no middot whatever
+   undivided elements happen to sit before it. */
+.SimpleHistoryLogitem__header
+	.SimpleHistoryLogitem__inlineDivided:not(
+		:where(
+				.SimpleHistoryLogitem__inlineDivided
+					~ .SimpleHistoryLogitem__inlineDivided
+			)
+	):before {
+	content: "";
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__senderImage {
+	width: 18px;
+	height: 18px;
+	margin-top: 0;
+}
+
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-wp
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-wp_cli
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-web_user
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-other
+	.SimpleHistoryLogitem__senderImage:before {
+	font-size: 18px;
+}
+
+/* The "CLI" overlay is positioned for the 32px avatar. */
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-wp_cli
+	.SimpleHistoryLogitem__senderImage:after {
+	line-height: 18px;
+	font-size: 7px;
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__header {
+	margin-top: 0;
+	line-height: 1.5;
+}
+
+/* The date is a link-variant Button, which carries the 30px height every
+   WordPress button has. */
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button {
+	height: auto;
+	line-height: 1.5;
+}
+
+/* The whole meta line goes grey at rest and blue once the row is hovered or
+   focused — the same deal the action links take, and for the same reason.
+   Measured over 12 rows, name and timestamp together were 1696px of blue
+   text against 3969px of black message, and 1190px of that blue said
+   "13 minutes ago" on every row: the loudest colour in the view was carrying
+   its least distinguishing datum, right down the path the eye scans. The name
+   is a <strong>, so weight already marks it as the who and colour on top of
+   that is redundant. Blue now means one thing per row — the objects named in
+   the message, which are the things you would click to go somewhere.
+
+   Both are still controls (the permalink and the user card), so they keep the
+   underline on their own hover. */
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button.is-link {
+	color: var(--sh-color-gray-3);
+	text-decoration: none;
+}
+
+.SimpleHistoryLogitem--variant-compact:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__header
+	.components-button.is-link {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button.is-link:hover,
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button.is-link:focus-visible {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+/* 1.4, not the 1.5 this started at: at 15px that was 22.5px of line box, which
+   made the message in the *compact* view more loosely leaded than the same
+   message in the detailed one (21px). */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__text {
+	line-height: 1.4;
+	margin-top: 1px;
+}
+
+/* The links keep their own line under the message, tight against it. The
+   negative left margin cancels the link's own padding so the first label
+   lines up with the avatar and the message above it. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__actionLinks {
+	gap: var(--sh-spacing-xsmall) 0;
+	margin-top: 1px;
+	margin-bottom: 0;
+	margin-left: calc(var(--sh-spacing-xsmall) * -1);
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__actionLinks__link {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+/* The details disclosure shares the action links line, so it takes their
+   metrics and their colour: grey at rest, blue once the row is hovered or
+   focused, rather than the standing blue a disclosure has elsewhere. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__detailsToggle {
+	padding: 0 var(--sh-spacing-xsmall);
+	color: var(--sh-color-gray-3);
+	line-height: inherit;
+}
+
+.SimpleHistoryLogitem--variant-compact:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__detailsToggle {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__detailsToggle:hover,
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__detailsToggle:focus-visible {
+	color: #135e96;
+}
+
+/* The details sit under the links they were opened from, not tucked against
+   the message the way they are in the detailed row.
+
+   They also get a tinted panel, which the detailed row does not need: there,
+   the avatar column runs down the side of every row and keeps the details
+   attached to the event above them. Compact dropped that column, so an open
+   diff would otherwise float between two hairlines with nothing saying which
+   event it belongs to. The negative side margins let the panel bleed past the
+   text without moving the text off the row's left edge. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__details {
+	margin-top: var(--sh-spacing-small);
+	margin-bottom: var(--sh-spacing-xsmall);
+	margin-left: calc(var(--sh-spacing-medium) * -1);
+	margin-right: calc(var(--sh-spacing-medium) * -1);
+	padding: var(--sh-spacing-small) var(--sh-spacing-medium);
+	border-radius: var(--sh-border-radius);
+	/* Lighter than --sh-color-gray-4, which is the hover background for links
+	   and buttons: a panel in that same grey would swallow their hover state. */
+	background: #f6f7f7;
+}
+
+/* Reaction pills are sized for the detailed row, where a 24px pill sits under
+   a 32px avatar. In a compact row they are the tallest thing below the message
+   and outweigh the links line right above them, so scale them to the same
+   order as that line. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__reactions {
+	margin-top: 2px;
+	gap: 3px;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__reactionButton.components-button {
+	gap: 3px;
+	padding: 1px 6px;
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__reactionEmoji {
+	font-size: 12px;
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__reactionCount {
+	font-size: 11px;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__reactionAddInline {
+	width: 19px;
+	height: 19px;
+	font-size: 12px;
+}
+
+/* A shrink-to-fit key column is sized by the longest key in that one event, so
+   two open rows line their values up at two different x. Fix the column and
+   they agree. */
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__details
+	.SimpleHistoryLogitem__keyValueTable {
+	grid-template-columns: 120px minmax(0, 1fr);
+}
+
+/* The occasions disclosure is the same kind of control as the action links
+   right above it, so it takes the same metrics and the same grey instead of a
+   standing blue at twice the height. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__occasions {
+	margin-top: 1px;
+	font-size: var(--sh-font-size-small);
+	line-height: 1.4;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__occasions
+	.SimpleHistory__disclosureToggle {
+	padding: 0 var(--sh-spacing-xsmall);
+	margin-left: calc(var(--sh-spacing-xsmall) * -1);
+	color: var(--sh-color-gray-3);
+	line-height: inherit;
+}
+
+.SimpleHistoryLogitem--variant-compact:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__occasions
+	.SimpleHistory__disclosureToggle {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__occasions
+	.SimpleHistory__disclosureToggle:hover,
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__occasions
+	.SimpleHistory__disclosureToggle:focus-visible {
+	color: #135e96;
 }
 
 /* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
@@ -3918,6 +4283,72 @@ a.sh-EventsStatsBar--link:hover {
 /* Inline action buttons group in control bar. */
 .sh-ControlBarButtons {
 	gap: var(--sh-spacing-xsmall);
+}
+
+/* Detailed | Compact view toggle at the end of the control bar (issue 240).
+   Built like GitHub's segmented control: the group sits on a grey track and
+   the chosen option is a white tile on top of it. The icon is small but the
+   button around it keeps a comfortable hit area. */
+.sh-EventsViewToggle {
+	display: inline-flex;
+	gap: 2px;
+	margin: 0 0 0 var(--sh-spacing-small);
+	padding: 3px;
+	border: 0;
+	border-radius: 6px;
+	background: #f0f0f1;
+	list-style: none;
+}
+
+.sh-EventsViewToggle__item {
+	margin: 0;
+	display: inline-flex;
+}
+
+.sh-EventsViewToggle__option {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 30px;
+	height: 28px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	color: #646970;
+	background: transparent;
+	cursor: pointer;
+}
+
+.sh-EventsViewToggle__option:hover {
+	color: #1e1e1e;
+}
+
+.sh-EventsViewToggle__option.is-checked {
+	background: #fff;
+	border-color: #dcdcde;
+	color: #1e1e1e;
+}
+
+/* Windows High Contrast Mode flattens the background/color swap above, so the
+   checked option would look identical to the unchecked ones — add an outline
+   so the selection is still visible. */
+@media (forced-colors: active) {
+	.sh-EventsViewToggle__option.is-checked {
+		outline: 2px solid Highlight;
+		outline-offset: -2px;
+	}
+}
+
+.sh-EventsViewToggle__option svg {
+	fill: currentColor;
+}
+
+.sh-EventsViewToggle__option:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 1px;
+	z-index: 1;
 }
 
 /* Individual control bar button — compact tertiary style, matching action link sizing. */

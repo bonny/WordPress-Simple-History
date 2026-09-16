@@ -80,6 +80,7 @@ class Experimental_Features_Dropin extends Dropin {
 			<ul class="description" style="margin-top: 0.5em; list-style: disc; padding-left: 1.5em;">
 				<li><?php esc_html_e( 'Role & Capability change logging', 'simple-history' ); ?></li>
 				<li><?php esc_html_e( 'Personal-data erasure integration — anonymize a user\'s activity-log entries from Tools → Erase Personal Data', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Compact event log view — switch the event log between detailed rows and a denser list', 'simple-history' ); ?></li>
 			</ul>
 		</details>
 		<?php

@@ -15,6 +15,7 @@ import { ExportButton } from './ExportButton';
 import { ShareFilteredViewButton } from './ShareFilteredViewButton';
 import { CreateAlertButton } from './CreateAlertButton';
 import { CreateLogEntryButton } from './CreateLogEntryButton';
+import { EventsViewToggle } from './EventsViewToggle';
 
 /**
  * Control bar between filters and the events listing,
@@ -29,10 +30,16 @@ export function EventsControlBar( props ) {
 		eventsQueryParams,
 		hasAnyActiveFilters,
 		newEventsNotifier,
+		eventsView,
+		onEventsViewChange,
 	} = props;
 
-	const { alertsPageURL, userCanManageOptions, searchOptionsLoaded } =
-		useEventsSettings();
+	const {
+		alertsPageURL,
+		userCanManageOptions,
+		searchOptionsLoaded,
+		experimentalFeaturesEnabled,
+	} = useEventsSettings();
 
 	/**
 	 * Filter to show/hide the premium promo buttons (Export, Create Alert, Create Log Entry).
@@ -154,6 +161,14 @@ export function EventsControlBar( props ) {
 						/>
 
 						<ShareFilteredViewButton />
+
+						{ /* Compact view is experimental for now. */ }
+						{ experimentalFeaturesEnabled && (
+							<EventsViewToggle
+								view={ eventsView }
+								onChange={ onEventsViewChange }
+							/>
+						) }
 					</HStack>
 				</FlexItem>
 
