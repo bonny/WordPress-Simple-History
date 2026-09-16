@@ -17,11 +17,37 @@ async function setStoredView( requestUtils, view ) {
 	} );
 }
 
+// Matches Table_View_Module::DEFAULT_COLUMNS in premium's PHP.
+const DEFAULT_COLUMNS = [ 'date', 'user', 'message', 'level' ];
+
+/**
+ * Save the admin's stored table columns directly, so a test starts from a
+ * known column set and can be restored to the defaults afterwards.
+ *
+ * @param {Object}   requestUtils
+ * @param {string[]} columns
+ */
+async function setStoredColumns( requestUtils, columns ) {
+	await requestUtils.rest( {
+		method: 'POST',
+		path: 'simple-history/v1/premium/events-table-columns',
+		data: { columns },
+	} );
+}
+
 test.describe( 'Premium table view', () => {
 	test.describe.configure( { mode: 'serial' } );
 
 	test.afterAll( async ( { requestUtils } ) => {
 		await setStoredView( requestUtils, 'detailed' );
+	} );
+
+	// This preference is stored per user on a shared dev site, so a hidden
+	// column left behind by the test below would silently change what later
+	// specs and the developer see. Restore the default set every run, not
+	// just when the test passes.
+	test.afterAll( async ( { requestUtils } ) => {
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
 	} );
 
 	test( 'premium replaces the preview with a real table', async ( {
@@ -240,5 +266,50 @@ test.describe( 'Premium table view', () => {
 		expect( [ ...exportedIds ].sort() ).toEqual(
 			[ ...selectedIdsBeforeSort ].sort()
 		);
+	} );
+
+	test( 'hiding a column persists across a reload', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await expect(
+			page.getByRole( 'columnheader', { name: /Level/ } )
+		).toBeVisible();
+
+		// Saving is fire-and-forget (see saveColumns() in PremiumTableView.jsx):
+		// the checkbox applies locally at once and the POST lands in the
+		// background. Waiting for that response here — rather than reloading
+		// the instant the checkbox unchecks — mirrors how a reader would
+		// actually reload a moment later; without it, this reload can race
+		// the save and read the column back from before the toggle.
+		const saveResponse = page.waitForResponse(
+			( response ) =>
+				response.url().includes( 'events-table-columns' ) &&
+				response.request().method() === 'POST'
+		);
+
+		await page.getByRole( 'button', { name: /Columns/ } ).click();
+		await page.getByRole( 'checkbox', { name: /Level/ } ).uncheck();
+		await page.keyboard.press( 'Escape' );
+
+		await expect(
+			page.getByRole( 'columnheader', { name: /Level/ } )
+		).toHaveCount( 0 );
+
+		await saveResponse;
+
+		// The preference is stored per user, so a fresh load keeps it.
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await expect(
+			page.getByRole( 'columnheader', { name: /Level/ } )
+		).toHaveCount( 0 );
 	} );
 } );
