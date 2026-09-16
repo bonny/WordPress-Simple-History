@@ -349,12 +349,9 @@ function EventsGUI() {
 		)
 	);
 
-	// Compact view is experimental for now. With the flag off the log is always
-	// detailed, so a stored preference or a ?view=compact link from the time the
-	// flag was on does not keep a feature alive that the site has turned off.
-	const eventsView = isExperimentalFeaturesEnabled
-		? urlEventsView ?? storedEventsView
-		: 'detailed';
+	// The URL wins over the stored preference, so a shared link opens in the
+	// view it was copied from.
+	const eventsView = urlEventsView ?? storedEventsView;
 
 	const handleEventsViewChange = useCallback(
 		( newView ) => {

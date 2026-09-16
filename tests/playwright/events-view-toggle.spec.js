@@ -181,27 +181,34 @@ test.describe( 'Event log view toggle', () => {
 		).toHaveCount( 0 );
 	} );
 
-	test( 'the toggle is gone and the log is detailed when experimental features are off', async ( {
+	test( 'view toggle shows when experimental features are off', async ( {
 		page,
 		requestUtils,
 	} ) => {
-		// A stored compact preference from when the flag was on must not keep
-		// the compact view alive after the site turns experimental features off.
-		await setStoredView( requestUtils, 'compact' );
 		await setExperimentalFeatures( requestUtils, false );
+		await setStoredView( requestUtils, 'detailed' );
 
-		await page.goto( `${ SIMPLE_HISTORY_PAGE }&view=compact` );
-		await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.locator( '.sh-EventsViewToggle' ).waitFor();
 
 		await expect(
 			page.getByRole( 'button', { name: 'Compact view' } )
-		).toHaveCount( 0 );
-		await expect(
-			page.locator( '.SimpleHistoryLogitem--variant-compact' )
-		).toHaveCount( 0 );
-		await expect(
-			page.locator( '.SimpleHistoryLogitem--variant-normal' ).first()
 		).toBeVisible();
+	} );
+
+	test( 'compact view works when experimental features are off', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setExperimentalFeatures( requestUtils, false );
+		await setStoredView( requestUtils, 'compact' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.locator( '.sh-EventsViewToggle' ).waitFor();
+
+		await expect(
+			page.getByRole( 'button', { name: 'Compact view' } )
+		).toHaveAttribute( 'aria-pressed', 'true' );
 	} );
 
 	// Tab has to reach the button and Space or Enter has to switch the view:
