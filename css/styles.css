@@ -1135,18 +1135,36 @@ i.e. the log is inside a .postbox element.
    link, so it stays out of the link's accessible name — see the comment in
    EventActionLinks.jsx. It sits between two paddings, so the hover background
    wraps the label only and never the dot. */
+.SimpleHistoryLogitem__actionLinks__item {
+	display: inline-flex;
+	align-items: center;
+	position: relative;
+}
+
 .SimpleHistoryLogitem__actionLinks__separator {
 	display: none;
 }
 
+/* Out of flow, like the ::before this replaced, so the dot is painted in the
+   gap between two links and adds no width of its own. In flow it would be a
+   third thing the flex gap applies to on both sides. */
 :is(
 		.SimpleHistoryReactRoot.is-dashboard,
 		.SimpleHistoryLogitem--variant-compact
 	)
 	.SimpleHistoryLogitem__actionLinks__separator {
 	display: block;
-	align-self: center;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	text-align: center;
 	color: var(--sh-color-gray-2);
+
+	/* The box spans the whole gap between the two labels — the flex gap plus
+	   the padding each link carries — so the centred glyph lands midway
+	   between them instead of hard against the one on its left. */
+	left: calc(var(--sh-spacing-xsmall) * -1);
+	width: var(--sh-spacing-small);
 }
 
 /*
@@ -1260,10 +1278,18 @@ i.e. the log is inside a .postbox element.
 	display: block;
 }
 
-/* The avatar is the header's first element, which would hand the name the
-   middot every item but the first one gets. */
-.SimpleHistoryLogitem__headerAvatar
-	+ .SimpleHistoryLogitem__inlineDivided:before {
+/* The base rule only drops the middot from a divided item that is the header's
+   :first-child, and in this view it never is: the avatar comes first, and in
+   surrounding-events mode the "#123" span comes after that. Key it on the
+   dividers themselves instead — the first one carries no middot whatever
+   undivided elements happen to sit before it. */
+.SimpleHistoryLogitem__header
+	.SimpleHistoryLogitem__inlineDivided:not(
+		:where(
+				.SimpleHistoryLogitem__inlineDivided
+					~ .SimpleHistoryLogitem__inlineDivided
+			)
+	):before {
 	content: "";
 }
 

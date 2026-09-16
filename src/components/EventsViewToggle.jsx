@@ -35,8 +35,14 @@ export function EventsViewToggle( { view, onChange } ) {
 	};
 
 	return (
+		// Safari strips the implicit list role from a list-style: none list, and
+		// an aria-label on a role-less element is not exposed — so without the
+		// explicit role the group label is lost for VoiceOver users, who are
+		// exactly who it was written for.
+		// eslint-disable-next-line jsx-a11y/no-redundant-roles
 		<ul
 			className="sh-EventsViewToggle"
+			role="list"
 			aria-label={ __( 'Event list view', 'simple-history' ) }
 		>
 			{ VIEWS.map( ( option ) => {
