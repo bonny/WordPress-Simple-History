@@ -34,8 +34,12 @@ export function EventsControlBar( props ) {
 		onEventsViewChange,
 	} = props;
 
-	const { alertsPageURL, userCanManageOptions, searchOptionsLoaded } =
-		useEventsSettings();
+	const {
+		alertsPageURL,
+		userCanManageOptions,
+		searchOptionsLoaded,
+		experimentalFeaturesEnabled,
+	} = useEventsSettings();
 
 	/**
 	 * Filter to show/hide the premium promo buttons (Export, Create Alert, Create Log Entry).
@@ -158,10 +162,13 @@ export function EventsControlBar( props ) {
 
 						<ShareFilteredViewButton />
 
-						<EventsViewToggle
-							view={ eventsView }
-							onChange={ onEventsViewChange }
-						/>
+						{ /* Compact view is experimental for now. */ }
+						{ experimentalFeaturesEnabled && (
+							<EventsViewToggle
+								view={ eventsView }
+								onChange={ onEventsViewChange }
+							/>
+						) }
 					</HStack>
 				</FlexItem>
 

@@ -12,7 +12,7 @@ Let users switch the main event log between the current **Detailed** view and a 
 
 In:
 
--   A two-state Detailed | Compact toggle on the event log page.
+-   A two-state Detailed | Compact toggle on the event log page, behind the experimental features flag (added 2026-09-16). With the flag off the toggle is not rendered and the log is always detailed, so a stored preference or a `?view=compact` link from when the flag was on does not keep the feature alive.
 -   A Compact rendering of events on the main log.
 -   Per-user persistence plus a `?view=` URL parameter.
 
