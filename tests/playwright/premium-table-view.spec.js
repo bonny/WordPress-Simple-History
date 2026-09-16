@@ -115,4 +115,52 @@ test.describe( 'Premium table view', () => {
 			'ascending'
 		);
 	} );
+
+	test( 'selecting rows reveals a bulk bar with the count', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await expect( page.locator( '.shp-TableView__bulkBar' ) ).toHaveCount(
+			0
+		);
+
+		const checkboxes = page.locator(
+			'.shp-TableView__row input[type="checkbox"]'
+		);
+		await checkboxes.nth( 0 ).check();
+		await checkboxes.nth( 1 ).check();
+
+		const bulkBar = page.locator( '.shp-TableView__bulkBar' );
+		await expect( bulkBar ).toBeVisible();
+		await expect( bulkBar ).toContainText( '2' );
+	} );
+
+	test( 'select-all on the page toggles every row', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const rowCount = await page.locator( '.shp-TableView__row' ).count();
+
+		await page.locator( '.shp-TableView__selectAll' ).check();
+
+		const checked = page.locator(
+			'.shp-TableView__row input[type="checkbox"]:checked'
+		);
+		await expect( checked ).toHaveCount( rowCount );
+
+		await page.locator( '.shp-TableView__selectAll' ).uncheck();
+		await expect( page.locator( '.shp-TableView__bulkBar' ) ).toHaveCount(
+			0
+		);
+	} );
 } );
