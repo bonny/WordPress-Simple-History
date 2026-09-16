@@ -84,6 +84,19 @@ use Simple_History\Services;
  */
 class Log_Query {
 	/**
+	 * Columns that $args['orderby'] is allowed to sort by.
+	 *
+	 * Shared between prepare_args(), which falls back to 'date' for anything
+	 * not in this list, and query_overview(), which routes to the ungrouped
+	 * query for anything in this list except 'date'. Keeping both reads from
+	 * one constant means adding a sortable column can't update one and miss
+	 * the other.
+	 *
+	 * @var string[]
+	 */
+	const ORDERBY_COLUMNS = [ 'date', 'id', 'level', 'logger', 'message' ];
+
+	/**
 	 * Query the log.
 	 *
 	 * @param string|array|object $args {
@@ -205,11 +218,13 @@ class Log_Query {
 		// because occasion grouping depends on rows arriving in date order.
 		// prepare_args() normalises this too, but that runs inside
 		// query_overview_simple()/query_overview_mysql(), which is too late
-		// to decide which of the two gets called — so the same non-date
-		// columns are checked again here, against the raw arg.
-		$non_date_orderby = [ 'id', 'level', 'logger', 'message' ];
-
-		$sorts_by_non_date_column = isset( $args['orderby'] ) && in_array( $args['orderby'], $non_date_orderby, true );
+		// to decide which of the two gets called — so the same check is
+		// done again here, against the raw arg, reading from the same
+		// self::ORDERBY_COLUMNS list prepare_args() uses so the two can't
+		// drift apart.
+		$sorts_by_non_date_column = isset( $args['orderby'] )
+			&& in_array( $args['orderby'], self::ORDERBY_COLUMNS, true )
+			&& $args['orderby'] !== 'date';
 
 		if ( ! empty( $args['ungrouped'] ) || $sorts_by_non_date_column ) {
 			return $this->query_overview_simple( $args );
@@ -1199,9 +1214,7 @@ class Log_Query {
 		// the default rather than throwing, the same way an out-of-range
 		// posts_per_page is clamped. The value never reaches SQL as-is — it is
 		// mapped to a literal column name in get_order_by_clause().
-		$allowed_orderby = [ 'date', 'id', 'level', 'logger', 'message' ];
-
-		if ( ! isset( $args['orderby'] ) || ! in_array( $args['orderby'], $allowed_orderby, true ) ) {
+		if ( ! isset( $args['orderby'] ) || ! in_array( $args['orderby'], self::ORDERBY_COLUMNS, true ) ) {
 			$args['orderby'] = 'date';
 		}
 
