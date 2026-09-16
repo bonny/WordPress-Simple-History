@@ -312,4 +312,30 @@ test.describe( 'Premium table view', () => {
 			page.getByRole( 'columnheader', { name: /Level/ } )
 		).toHaveCount( 0 );
 	} );
+
+	test( 'scrolling to the bottom loads more events', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const initialCount = await page
+			.locator( '.shp-TableView__row' )
+			.count();
+
+		await page
+			.locator( '.shp-TableView__row' )
+			.last()
+			.scrollIntoViewIfNeeded();
+
+		await expect
+			.poll(
+				async () => await page.locator( '.shp-TableView__row' ).count(),
+				{ timeout: 10000 }
+			)
+			.toBeGreaterThan( initialCount );
+	} );
 } );
