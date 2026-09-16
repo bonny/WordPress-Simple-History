@@ -1,5 +1,6 @@
 import { Icon, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { table } from '@wordpress/icons';
 import { clsx } from 'clsx';
 import { viewAgenda, viewHeadline } from '../icons';
 
@@ -9,6 +10,7 @@ import { viewAgenda, viewHeadline } from '../icons';
 const VIEWS = [
 	{ value: 'detailed', icon: viewAgenda },
 	{ value: 'compact', icon: viewHeadline },
+	{ value: 'table', icon: table },
 ];
 
 /**
@@ -25,13 +27,14 @@ const VIEWS = [
  * with Tab only.
  *
  * @param {Object}   props
- * @param {string}   props.view     Current view, "detailed" or "compact".
+ * @param {string}   props.view     Current view, "detailed", "compact" or "table".
  * @param {Function} props.onChange Called with the newly chosen view.
  */
 export function EventsViewToggle( { view, onChange } ) {
 	const labels = {
 		detailed: __( 'Detailed view', 'simple-history' ),
 		compact: __( 'Compact view', 'simple-history' ),
+		table: __( 'Table view', 'simple-history' ),
 	};
 
 	return (

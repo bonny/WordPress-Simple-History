@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { Slot } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import {
 	useCallback,
@@ -30,6 +31,7 @@ import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
 import { NewEventsNotifier } from './NewEventsNotifier';
+import { TablePreview } from './TablePreview';
 
 // Schema for the users object.
 const usersSchema = z.array(
@@ -344,7 +346,7 @@ function EventsGUI() {
 	// view it was copied from. Nothing is written to the URL on page load.
 	const [ urlEventsView, setUrlEventsView ] = useQueryState(
 		'view',
-		parseAsStringLiteral( [ 'detailed', 'compact' ] ).withOptions(
+		parseAsStringLiteral( [ 'detailed', 'compact', 'table' ] ).withOptions(
 			useQueryStateOptions
 		)
 	);
@@ -932,28 +934,48 @@ function EventsGUI() {
 				/>
 			) }
 
-			<EventsList
-				eventsIsLoading={ eventsIsLoading }
-				events={ events }
-				eventsMeta={ eventsMeta }
-				page={ page }
-				pagerSize={ pagerSize }
-				setPage={ setPage }
-				prevEventsMaxId={ prevEventsMaxId }
-				failedLoginLimitThreshold={ failedLoginLimitThreshold }
-				failedLoginSuppressedCount={ failedLoginSuppressedCount }
-				eventsLoadingHasErrors={ eventsLoadingHasErrors }
-				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
-				surroundingEventId={ surroundingEventId }
-				surroundingCount={ surroundingCount }
-				hasActiveFilters={ hasAnyActiveFilters }
-				onClearFilters={ handleClearFilters }
-				canAdjustFilters={
-					hasNonDateActiveFilters && selectedDateOption !== 'allDates'
-				}
-				selectedInitiator={ selectedInitiator }
-				eventsView={ eventsView }
-			/>
+			{ eventsView === 'table' ? (
+				/* Premium fills this Slot with the real table. With no fill —
+				   no Premium, or a Premium too old to know about the Slot —
+				   the preview renders, so the view is never blank. */
+				<Slot
+					name="SimpleHistorySlotTableView"
+					fillProps={ {
+						eventsQueryParams,
+						eventsTotal: eventsMeta.total,
+						hasAnyActiveFilters,
+						eventsIsLoading,
+					} }
+				>
+					{ ( fills ) =>
+						fills.length > 0 ? fills : <TablePreview />
+					}
+				</Slot>
+			) : (
+				<EventsList
+					eventsIsLoading={ eventsIsLoading }
+					events={ events }
+					eventsMeta={ eventsMeta }
+					page={ page }
+					pagerSize={ pagerSize }
+					setPage={ setPage }
+					prevEventsMaxId={ prevEventsMaxId }
+					failedLoginLimitThreshold={ failedLoginLimitThreshold }
+					failedLoginSuppressedCount={ failedLoginSuppressedCount }
+					eventsLoadingHasErrors={ eventsLoadingHasErrors }
+					eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+					surroundingEventId={ surroundingEventId }
+					surroundingCount={ surroundingCount }
+					hasActiveFilters={ hasAnyActiveFilters }
+					onClearFilters={ handleClearFilters }
+					canAdjustFilters={
+						hasNonDateActiveFilters &&
+						selectedDateOption !== 'allDates'
+					}
+					selectedInitiator={ selectedInitiator }
+					eventsView={ eventsView }
+				/>
+			) }
 
 			<EventsModalIfFragment />
 		</EventsSettingsProvider>

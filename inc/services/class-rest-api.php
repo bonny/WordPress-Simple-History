@@ -16,7 +16,7 @@ use WP_REST_Server;
  */
 class REST_API extends Service {
 	/**
-	 * User meta key holding the user's chosen event log view, "detailed" or "compact".
+	 * User meta key holding the user's chosen event log view, "detailed", "compact" or "table".
 	 */
 	const EVENTS_VIEW_USER_META_KEY = 'simple_history_events_view';
 
@@ -49,10 +49,12 @@ class REST_API extends Service {
 				'type'              => 'string',
 				'single'            => true,
 				'default'           => 'detailed',
-				// Collapse anything but the two known values to the default,
+				// Collapse anything but the known values to the default,
 				// since the value no longer goes through a REST enum check.
 				'sanitize_callback' => function ( $value ) {
-					return $value === 'compact' ? 'compact' : 'detailed';
+					return in_array( $value, [ 'compact', 'table' ], true )
+						? $value
+						: 'detailed';
 				},
 			]
 		);
@@ -91,7 +93,7 @@ class REST_API extends Service {
 						'description' => __( 'The event log view to remember for the current user.', 'simple-history' ),
 						'type'        => 'string',
 						'required'    => true,
-						'enum'        => [ 'detailed', 'compact' ],
+						'enum'        => [ 'detailed', 'compact', 'table' ],
 					],
 				],
 			]
