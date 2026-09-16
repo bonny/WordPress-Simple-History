@@ -61,6 +61,34 @@ function isEventsViewSaveResponse( response ) {
 	);
 }
 
+// Shared with both describe blocks below: the free preview only renders when
+// nothing fills SimpleHistorySlotTableView, and Premium is active on the dev
+// site by default (see premium-helpers.js), so testing the preview means
+// toggling the real plugin off rather than faking a flag.
+const PREMIUM_FILE = 'simple-history-premium/simple-history-premium.php';
+
+/**
+ * Set the premium plugin's active state, toggling only if it differs
+ * from what's asked for.
+ *
+ * @param {Object}  requestUtils
+ * @param {boolean} desiredActive
+ */
+async function setPremiumActive( requestUtils, desiredActive ) {
+	const status = await requestUtils.rest( {
+		path: 'simple-history/v1/dev-tools/plugin-status',
+		params: { plugin: PREMIUM_FILE },
+	} );
+
+	if ( status.is_active !== desiredActive ) {
+		await requestUtils.rest( {
+			method: 'POST',
+			path: 'simple-history/v1/dev-tools/toggle-plugin',
+			data: { plugin: PREMIUM_FILE },
+		} );
+	}
+}
+
 test.describe( 'Event log view toggle', () => {
 	// All tests share the admin's stored preference and the site-wide
 	// experimental features option.
@@ -249,84 +277,119 @@ test.describe( 'Event log view toggle', () => {
 		} );
 	}
 
-	test( 'table view shows the premium preview', async ( {
-		page,
-		requestUtils,
-	} ) => {
-		await setStoredView( requestUtils, 'detailed' );
+	// The free TablePreview only renders when nothing fills
+	// SimpleHistorySlotTableView. Since Premium now fills that Slot with a
+	// real table (see premium-table-view.spec.js), these tests deactivate
+	// Premium for their duration to exercise the free-plugin fallback that
+	// they were written to cover.
+	test.describe( 'table view free preview (Premium deactivated)', () => {
+		let premiumWasActive;
 
-		await page.goto( SIMPLE_HISTORY_PAGE );
-		await page.locator( '.sh-EventsViewToggle' ).waitFor();
+		test.beforeAll( async ( { requestUtils } ) => {
+			try {
+				const status = await requestUtils.rest( {
+					path: 'simple-history/v1/dev-tools/plugin-status',
+					params: { plugin: PREMIUM_FILE },
+				} );
+				premiumWasActive = status.is_active;
 
-		await page.getByRole( 'button', { name: 'Table view' } ).click();
+				await setPremiumActive( requestUtils, false );
+			} catch ( err ) {
+				test.skip(
+					true,
+					`Dev-tools REST endpoint unreachable — is SIMPLE_HISTORY_DEV enabled? (${ err.message })`
+				);
+			}
+		} );
 
-		await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
-	} );
+		test.afterAll( async ( { requestUtils } ) => {
+			if ( typeof premiumWasActive === 'boolean' ) {
+				await setPremiumActive( requestUtils, premiumWasActive );
+			}
+		} );
 
-	test( 'table view can be linked to with ?view=table', async ( {
-		page,
-		requestUtils,
-	} ) => {
-		await setStoredView( requestUtils, 'detailed' );
+		test( 'table view shows the premium preview', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'detailed' );
 
-		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+			await page.goto( SIMPLE_HISTORY_PAGE );
+			await page.locator( '.sh-EventsViewToggle' ).waitFor();
 
-		await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
-		await expect(
-			page.getByRole( 'button', { name: 'Table view' } )
-		).toHaveAttribute( 'aria-pressed', 'true' );
-	} );
+			await page.getByRole( 'button', { name: 'Table view' } ).click();
 
-	// Every other spec above reaches the table view through a click or
-	// ?view=table, which is exactly why a stored `table` preference being
-	// silently downgraded to `detailed` on a fresh, param-less load went
-	// unnoticed (dropins/class-react-dropin.php and EventsGui.jsx both used
-	// to accept only 'compact', collapsing anything else to 'detailed').
-	test( 'table is remembered after a reload without the parameter', async ( {
-		page,
-		requestUtils,
-	} ) => {
-		await setStoredView( requestUtils, 'table' );
+			await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+		} );
 
-		await page.goto( SIMPLE_HISTORY_PAGE );
+		test( 'table view can be linked to with ?view=table', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'detailed' );
 
-		await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
-		await expect(
-			page.getByRole( 'button', { name: 'Table view' } )
-		).toHaveAttribute( 'aria-pressed', 'true' );
-	} );
+			await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 
-	test( 'table preview is inert and its CTA is not', async ( {
-		page,
-		requestUtils,
-	} ) => {
-		await setStoredView( requestUtils, 'detailed' );
+			await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: 'Table view' } )
+			).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
 
-		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.sh-TablePreview' ).waitFor();
+		// Every other spec above reaches the table view through a click or
+		// ?view=table, which is exactly why a stored `table` preference being
+		// silently downgraded to `detailed` on a fresh, param-less load went
+		// unnoticed (dropins/class-react-dropin.php and EventsGui.jsx both used
+		// to accept only 'compact', collapsing anything else to 'detailed').
+		test( 'table is remembered after a reload without the parameter', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'table' );
 
-		// The sample table is decoration: hidden from screen readers and
-		// unreachable by the mouse.
-		const sampleTable = page.locator( '.sh-TablePreview__table' );
-		await expect( sampleTable ).toHaveAttribute( 'aria-hidden', 'true' );
-		await expect( sampleTable ).toHaveCSS( 'pointer-events', 'none' );
+			await page.goto( SIMPLE_HISTORY_PAGE );
 
-		// Every checkbox in it is disabled.
-		const boxes = sampleTable.locator( 'input[type="checkbox"]' );
-		const count = await boxes.count();
-		expect( count ).toBeGreaterThan( 0 );
+			await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: 'Table view' } )
+			).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
 
-		for ( let i = 0; i < count; i++ ) {
-			await expect( boxes.nth( i ) ).toBeDisabled();
-		}
+		test( 'table preview is inert and its CTA is not', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'detailed' );
 
-		// The upgrade link stays clickable and carries the campaign.
-		const cta = page.locator( '.sh-TablePreview__banner a' ).first();
-		await expect( cta ).toBeVisible();
+			await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+			await page.locator( '.sh-TablePreview' ).waitFor();
 
-		const href = await cta.getAttribute( 'href' );
-		expect( href ).toContain( 'utm_campaign=premium_table_view' );
-		expect( href ).toContain( 'utm_content=' );
+			// The sample table is decoration: hidden from screen readers and
+			// unreachable by the mouse.
+			const sampleTable = page.locator( '.sh-TablePreview__table' );
+			await expect( sampleTable ).toHaveAttribute(
+				'aria-hidden',
+				'true'
+			);
+			await expect( sampleTable ).toHaveCSS( 'pointer-events', 'none' );
+
+			// Every checkbox in it is disabled.
+			const boxes = sampleTable.locator( 'input[type="checkbox"]' );
+			const count = await boxes.count();
+			expect( count ).toBeGreaterThan( 0 );
+
+			for ( let i = 0; i < count; i++ ) {
+				await expect( boxes.nth( i ) ).toBeDisabled();
+			}
+
+			// The upgrade link stays clickable and carries the campaign.
+			const cta = page.locator( '.sh-TablePreview__banner a' ).first();
+			await expect( cta ).toBeVisible();
+
+			const href = await cta.getAttribute( 'href' );
+			expect( href ).toContain( 'utm_campaign=premium_table_view' );
+			expect( href ).toContain( 'utm_content=' );
+		} );
 	} );
 } );
 
@@ -339,31 +402,7 @@ test.describe( 'Event log view toggle', () => {
 test.describe( 'Table view button premium indicator', () => {
 	test.describe.configure( { mode: 'serial' } );
 
-	const PREMIUM_FILE = 'simple-history-premium/simple-history-premium.php';
-
 	let premiumWasActive;
-
-	/**
-	 * Set the premium plugin's active state, toggling only if it differs
-	 * from what's asked for.
-	 *
-	 * @param {Object}  requestUtils
-	 * @param {boolean} desiredActive
-	 */
-	async function setPremiumActive( requestUtils, desiredActive ) {
-		const status = await requestUtils.rest( {
-			path: 'simple-history/v1/dev-tools/plugin-status',
-			params: { plugin: PREMIUM_FILE },
-		} );
-
-		if ( status.is_active !== desiredActive ) {
-			await requestUtils.rest( {
-				method: 'POST',
-				path: 'simple-history/v1/dev-tools/toggle-plugin',
-				data: { plugin: PREMIUM_FILE },
-			} );
-		}
-	}
 
 	test.beforeAll( async ( { requestUtils } ) => {
 		try {
