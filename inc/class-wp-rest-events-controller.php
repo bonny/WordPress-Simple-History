@@ -594,6 +594,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'default'     => false,
 		);
 
+		$query_params['orderby'] = array(
+			'description' => __( 'Column to sort events by. Sorting by anything other than date returns ungrouped events, because occasion grouping depends on date order.', 'simple-history' ),
+			'type'        => 'string',
+			'default'     => 'date',
+			'enum'        => array( 'date', 'id', 'level', 'logger', 'message' ),
+		);
+
+		$query_params['order'] = array(
+			'description' => __( 'Sort direction.', 'simple-history' ),
+			'type'        => 'string',
+			'default'     => 'desc',
+			'enum'        => array( 'asc', 'desc' ),
+		);
+
 		// Surrounding events parameters (admin only).
 		$query_params['surrounding_event_id'] = array(
 			'description' => __( 'Show events surrounding this event ID. Returns events chronologically before and after the specified event, regardless of other filters. Requires administrator privileges.', 'simple-history' ),
@@ -927,6 +941,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'metadata_search'         => 'metadata_search',
 			'ai_only'                 => 'ai_only',
 			'ungrouped'               => 'ungrouped',
+			'orderby'                 => 'orderby',
+			'order'                   => 'order',
 			'skip_count_query'        => 'skip_count_query',
 		);
 
@@ -1018,6 +1034,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'metadata_search'         => 'metadata_search',
 			'ai_only'                 => 'ai_only',
 			'ungrouped'               => 'ungrouped',
+			'orderby'                 => 'orderby',
+			'order'                   => 'order',
 			'skip_count_query'        => 'skip_count_query',
 			// Surrounding events parameters.
 			'surrounding_event_id'    => 'surrounding_event_id',
