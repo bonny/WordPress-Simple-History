@@ -3975,6 +3975,12 @@ a.sh-EventsStatsBar--link:hover {
 	padding: 0 0 0 var(--sh-spacing-small);
 	border: 0;
 	border-left: 1px solid var(--sh-color-gray-4);
+	list-style: none;
+}
+
+.sh-EventsViewToggle__item {
+	margin: 0;
+	display: inline-flex;
 }
 
 .sh-EventsViewToggle__option {
@@ -3984,21 +3990,22 @@ a.sh-EventsStatsBar--link:hover {
 	justify-content: center;
 	width: 32px;
 	height: 32px;
+	padding: 0;
 	border: 1px solid #949494;
 	color: #1e1e1e;
 	background: #fff;
 	cursor: pointer;
 }
 
-.sh-EventsViewToggle__option + .sh-EventsViewToggle__option {
+.sh-EventsViewToggle__item + .sh-EventsViewToggle__item .sh-EventsViewToggle__option {
 	border-left: 0;
 }
 
-.sh-EventsViewToggle__option:first-of-type {
+.sh-EventsViewToggle__item:first-child .sh-EventsViewToggle__option {
 	border-radius: 2px 0 0 2px;
 }
 
-.sh-EventsViewToggle__option:last-of-type {
+.sh-EventsViewToggle__item:last-child .sh-EventsViewToggle__option {
 	border-radius: 0 2px 2px 0;
 }
 
@@ -4021,18 +4028,7 @@ a.sh-EventsStatsBar--link:hover {
 	fill: currentColor;
 }
 
-/* Visually hidden but still focusable, so arrow keys and screen readers work. */
-.sh-EventsViewToggle__input {
-	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	margin: 0;
-	opacity: 0;
-	cursor: pointer;
-}
-
-.sh-EventsViewToggle__option:has(.sh-EventsViewToggle__input:focus-visible) {
+.sh-EventsViewToggle__option:focus-visible {
 	outline: 2px solid #2271b1;
 	outline-offset: 1px;
 	z-index: 1;

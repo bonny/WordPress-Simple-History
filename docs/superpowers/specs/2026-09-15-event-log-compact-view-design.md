@@ -39,10 +39,12 @@ Out, decided during brainstorming:
 ### `EventsViewToggle` (new, `src/components/EventsViewToggle.jsx`)
 
 -   Props: `view` (`'detailed' | 'compact'`), `onChange( view )`.
--   Markup: `<fieldset>` with a visually hidden `<legend>` ("Event list view") and two visually hidden `<input type="radio" name="sh-events-view">` elements, each wrapped in a `<label>` that renders an icon. Native radios give arrow-key navigation and screen-reader grouping.
--   Accessible names: "Detailed view" and "Compact view", also shown as tooltips.
+-   Markup (changed 2026-09-16): a `<ul>` labelled with `aria-label="Event list view"`, one `<li>` per view, each holding a plain `<button type="button">` with `aria-pressed` and an icon — the segmented-control pattern GitHub ships for its pull-request density switch.
+-   The first version used a radio group. It was wrong here: a radio group implies a form you submit, Tab lands on the already-selected option, and Space on it does nothing, so the control looked dead unless you guessed the arrow keys. WordPress's `Tooltip` also puts `tabindex="0"` on whatever it wraps, which added a second, inert tab stop per option.
+-   Arrow keys are deliberately not handled, same as GitHub: Tab moves between the buttons, Enter and Space both switch the view.
+-   Accessible names "Detailed view" and "Compact view" via `aria-label`, also shown as tooltips.
 -   Icons from `@wordpress/icons` (bundled, so no WP 6.3 concern).
--   Checked state: dark background matching the WordPress segmented control; focus ring via `:focus-visible` on the input's label.
+-   Active button: dark background matching the WordPress segmented control, plus an outline under `@media (forced-colors: active)`; focus ring via `:focus-visible` on the button.
 -   No hover lifts, shadows or transitions.
 
 ### `EventsControlBar`
