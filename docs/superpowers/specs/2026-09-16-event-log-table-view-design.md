@@ -47,7 +47,7 @@ In:
 -   Graduating the view switcher and Compact view out of experimental features.
 -   `orderby` / `order` in `Log_Query`, the REST events controller, and the `simple-history list` WP-CLI command.
 -   A `TablePreview` component in core: inert markup, staged sample rows, banner CTA.
--   The filter and Slot that let Premium replace the preview with the real table.
+-   The Slot that lets Premium replace the preview with the real table.
 -   In Premium: the working table — sortable headers, row selection, bulk bar into the existing `ExportModal`, column configuration, virtual scrolling.
 
 Out:
@@ -129,12 +129,20 @@ Draft banner copy, pending a voice pass:
 
 ### 4. The seam
 
-Same shape as the Export button, which has been through WordPress.org review: core renders a promo, Premium hides it with a filter and fills a Slot.
+Same idea as the Export button, which has been through WordPress.org review: core renders a promo, Premium replaces it. One difference — Export needs a filter as well as a Slot because its promo and its real button sit in a row of other buttons. The table view owns the whole log area, so a Slot with a fallback is enough:
 
--   Core renders `<TablePreview />` when `applyFilters( 'SimpleHistory.showTablePreview', true )` returns true.
--   Core renders `<Slot name="SimpleHistorySlotTableView" fillProps={ … } />` in the same place.
+```jsx
+<Slot name="SimpleHistorySlotTableView" fillProps={ … }>
+    { ( fills ) => ( fills.length ? fills : <TablePreview /> ) }
+</Slot>
+```
+
+-   No filter. Whether the preview shows is decided by whether anything filled the Slot, which is the thing we actually mean.
+-   A Premium build that is too old to know about the Slot leaves it empty, so the preview renders. There is no combination that produces a blank log area, which a separate `showTablePreview` filter could: return `false`, fail to fill, show nothing.
 -   `fillProps` carries what the table needs and already exists in `EventsGui`: `eventsQueryParams`, `eventsTotal`, `hasAnyActiveFilters`, `eventsIsLoading`, and the setters for paging and sort.
--   Premium returns `false` from the filter and fills the Slot.
+-   Keep `bubblesVirtually` off (the default) — render-prop children need it.
+
+A side effect worth knowing while building: until Premium ships its fill, the Slot is empty on every site, so the preview renders even where Premium is active. That is what makes the core Playwright specs work on the dev WordPress, which has Premium enabled.
 
 Add `'table'` to the `parseAsStringLiteral` list in `EventsGui.jsx:348`, to `VIEWS` in `EventsViewToggle.jsx`, and to the sanitiser in `REST_API::save_events_view()`. The Table button carries a Premium pill for free users, per the 2026-06-27 decision that the switcher shows premium views rather than hiding them.
 
@@ -177,7 +185,7 @@ So **user and IP cannot be sorted cheaply**: each needs a JOIN onto the contexts
 -   An invalid `orderby` through REST is a 400 from the schema. Through `Log_Query` directly it falls back to `date`, matching how `posts_per_page` is clamped.
 -   A failed sort fetch leaves the previous rows on screen and surfaces the existing `FetchEventsErrorMessage`. The header does not show a sort state the data does not have.
 -   A failed column-config save is not worth interrupting anyone for; the choice applies for the session, same as the phase 1 view preference.
--   If Premium is active but its build is older than the Slot, core's filter still returns `false` and nothing fills the Slot. Guard against the empty case: if the Slot has no fills, render the preview.
+-   If Premium is active but its build is older than the Slot, nothing fills it and the preview renders. That is the Slot fallback doing its job, not an error state.
 
 ## Testing
 
@@ -194,7 +202,7 @@ Three properties keep this inside the WordPress.org guidelines, and they are wor
 
 1.  **Core is not degraded.** List and Compact remain complete, with no row caps, no time limits and no license check. Table is an additional lens sold by a separate plugin. Nothing was taken away to create it.
 2.  **No working code is withheld.** The free plugin contains no table logic to switch on. The preview is markup and a fixed array.
-3.  **Core does feature detection, not feature restriction.** `Helpers::is_premium_add_on_active()` and the Slot decide which component renders. No license key is consulted anywhere in the free path.
+3.  **Core does feature detection, not feature restriction.** The Slot decides which component renders — core asks "did anything fill this", never "has this person paid". No license key is consulted anywhere in the free path.
 
 The sorting added in step 2 is core infrastructure, fully usable by a free user through WP-CLI and the REST API. It is not a premium capability living in core.
 
