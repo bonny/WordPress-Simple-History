@@ -264,29 +264,19 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
-> Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
-
 **Added**
 
 -   Weekly email opens with a short summary of the week — event count, change from last week, failed logins and most active user — and closes with a changing tip.
--   Weekly email includes a plain-text version, for better deliverability.
--   Weekly email can be turned on with one click from the welcome notice, the welcome log entry and the log sidebar.
--   Live thumbnail of the weekly email in the email report settings, built from your site's last 7 days.
--   Redirection settings changes show what changed and the previous values.
--   Redirection events link to the affected redirect or group.
--   New installs get a one-time notice before Simple History starts removing their oldest events.
--   Licenses tab shows when a license renews or expired, and how many sites it's activated on.
--   Experimental — Compact view for the event log.
+-   Weekly email can now be turned on with one click from the welcome notice, the welcome log entry and the log sidebar.
+-   Experimental — Compact view for the event log, making more events fit on the screen.
 
 **Changed**
 
--   Weekly email redesign: wider layout, section icons, clickable numbers linking to matching events, shorter captions and a single "Nothing to report" line for empty sections.
--   Weekly email Premium teaser moved under the intro and matches the week's activity.
+-   Weekly email redesign: wider layout, section icons, clickable numbers linking to matching events, shorter captions and a single "Nothing to report" line for empty sections. Also now includes a plain-text version for better deliverability.
 -   WordPress, WP-CLI, anonymous user and "other" cards link to their events for all users.
 -   Repeated edits of the same Simple History setting are grouped into one row.
 -   "Similar events" link is now an expand/collapse control that keeps keyboard focus.
 -   Event details line up with the event text, and long labels wrap instead of pushing values off-screen.
--   Event details use a definition list instead of a table. Code adding `<tr>` rows via the `diff_table_output` filter still works but should switch to `<dt>`/`<dd>`.
 
 **Fixed**
 
