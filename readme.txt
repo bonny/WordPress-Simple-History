@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 7.1
-Stable tag: 5.32.0
+Stable tag: 5.33.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -262,19 +262,22 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
-### Unreleased
+### 5.33.0 (September 2026)
+
+The weekly email is redesigned. It opens with a summary of your week, and every number links to its events. Events by WordPress and visitors are no longer credited to the logged-in admin, and Redirection logging works again with Redirection 5.10. And some minor fixes here and there.
+[Read more about it in the release post](https://simple-history.com/2026/simple-history-5-33-0-released/)
 
 **Added**
 
--   Weekly email can now be turned on with one click from the welcome notice, the welcome log entry and the log sidebar.
--   Experimental — Compact view for the event log, making more events fit on the screen.
+-   Weekly email can now be turned on with one click from the welcome notice, the welcome log entry and the log sidebar (yup, we really like the weekly email, and we think you will too!).
+-   Experimental: Compact view for the event log, which fits more events on the screen.
 
 **Changed**
 
 -   Weekly email design updated:
     -   wider layout, section icons, clickable numbers linking to matching events, shorter captions and a single "Nothing to report" line for empty sections.
-    -   now includes a plain-text version for better deliverability.
-    -   opens with a short summary of the week — event count, change from last week, failed logins and most active user
+    -   now includes a plain-text version, so it's less likely to end up in spam.
+    -   opens with a short summary of the week: event count, change from last week, failed logins and most active user.
     -   ...and closes with a tip.
 -   WordPress, WP-CLI, anonymous user and "other" cards link to their events for all users.
 -   Repeated edits of the same Simple History setting are grouped into one row.
@@ -285,7 +288,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Redirection plugin events are logged again with Redirection 5.10.0 and later.
 -   Events by WordPress or visitors (update checks, failed logins, scheduled tasks) are no longer attributed to the logged-in administrator.
--   Event log loads its first page faster(fixed debounce effect).
+-   Event log loads its first page faster (fixed debounce effect).
 -   Loading placeholders and the date dropdown no longer shift while the log loads.
 -   Admin bar quick view shows a message when events can't be loaded.
 

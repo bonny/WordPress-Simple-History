@@ -126,6 +126,8 @@ Any prose written for this project (changelogs, commit messages, PR descriptions
 
 Prefer a plain, direct sentence over a polished-sounding one. If a phrase sounds like marketing copy or a LinkedIn post, cut it.
 
+Use the **simple-history-voice** skill for the project voice and rules per text type (changelog, GUI copy, blog posts, newsletters, upsell copy). It runs the draft through the user-level **humanizer** skill ([blader/humanizer](https://github.com/blader/humanizer), install with `npx skills add blader/humanizer --global`), which catches the general AI tells.
+
 ## Changelog
 
 -   Try to use format from https://keepachangelog.com
