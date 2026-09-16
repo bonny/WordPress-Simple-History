@@ -326,10 +326,36 @@ test.describe( 'Premium table view', () => {
 			.locator( '.shp-TableView__row' )
 			.count();
 
+		// Row count growing on its own does not prove loadMore() fetched
+		// anything: the virtualizer keeps a bounded number of rows mounted,
+		// and its overscan window sliding forward over rows from the first
+		// page (already in memory) can grow the mounted count without a
+		// second request ever firing. Assert the request itself lands, with
+		// the count-rule flags a scroll-triggered fetch must carry, and keep
+		// the row-count check alongside it: the response proves the fetch
+		// happened, the row count proves the result reached the DOM.
+		const nextPageResponse = page.waitForResponse(
+			( response ) =>
+				response.url().includes( '/simple-history/v1/events' ) &&
+				response.url().includes( 'page=2' ) &&
+				response.url().includes( 'skip_count_query=true' )
+		);
+
+		// scrollIntoViewIfNeeded() on the last row only brings whatever is
+		// currently mounted into view — with virtualisation, that is a
+		// handful of rows past the visible viewport (the overscan buffer),
+		// nowhere near the true bottom of the rows already loaded. Setting
+		// scrollTop to scrollHeight directly is what "scrolling to the
+		// bottom" means here: the loaded-so-far bottom, which is what
+		// should make loadMore() fire.
 		await page
-			.locator( '.shp-TableView__row' )
-			.last()
-			.scrollIntoViewIfNeeded();
+			.locator( '.shp-TableView__scrollContainer' )
+			.evaluate( ( el ) => {
+				el.scrollTop = el.scrollHeight;
+			} );
+
+		const response = await nextPageResponse;
+		expect( response.ok() ).toBe( true );
 
 		await expect
 			.poll(
