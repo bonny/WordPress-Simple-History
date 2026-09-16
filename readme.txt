@@ -264,44 +264,40 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+> Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+
 **Added**
 
--   Redirection settings changes now show which settings changed and their previous values.
--   Redirection events link to the affected redirect or group, and to the relevant Redirection screen.
--   The weekly email ends with a tip about Simple History that changes every week, picked to match what happened on the site when it can.
--   The weekly email is sent with a plain text version alongside the HTML one. Mail that is HTML-only scores worse with spam filters, some gateways strip the HTML and leave a blank message, and notification previews read the text part. The text version carries the same numbers in the same order.
--   The weekly email opens with a sentence or two about the week itself: how many events, how that compares with the week before, any failed logins, and who was most active. On a week with nothing logged it says so and still names last week's total — which is how you find out logging has stopped.
--   New installs get a one-time notice a few days before Simple History starts removing the first events it logged, with the option to keep them with Premium or get the weekly email.
--   The weekly email summary can be turned on with one click from the welcome notice, the welcome entry in the log, and the digest card in the log sidebar.
--   The email reports settings show a live thumbnail of the weekly email, built from your own site's last 7 days, while the email is turned off.
--   The Licenses tab now shows when an add-on license renews or when it expired, and how many sites the key is activated on. The status is refreshed from simple-history.com on every update check, so a renewed license no longer looks expired.
--   Experimental — Compact view for the event log, switched with the buttons at the end of the bar above the events. The log remembers your choice.
+-   Weekly email opens with a short summary of the week — event count, change from last week, failed logins and most active user — and closes with a changing tip.
+-   Weekly email includes a plain-text version, for better deliverability.
+-   Weekly email can be turned on with one click from the welcome notice, the welcome log entry and the log sidebar.
+-   Live thumbnail of the weekly email in the email report settings, built from your site's last 7 days.
+-   Redirection settings changes show what changed and the previous values.
+-   Redirection events link to the affected redirect or group.
+-   New installs get a one-time notice before Simple History starts removing their oldest events.
+-   Licenses tab shows when a license renews or expired, and how many sites it's activated on.
+-   Experimental — Compact view for the event log.
 
 **Changed**
 
--   The "similar events" link under grouped events is now a proper expand/collapse control that keeps keyboard focus, matching the expand-diff control.
--   Event details (profile edits, plugin info, changed settings) now line up with the event text: the label column is only as wide as its longest label, so values start further left and long labels wrap instead of pushing values off-screen.
--   The details list is now a definition list (`<dl>`) instead of a table. Developers who append `<tr>` rows through the `simple_history/post_logger/post_updated/diff_table_output` filter still get a working table, but should switch to `<dt>`/`<dd>` pairs.
--   Repeated edits of the same Simple History setting now group into one row with a "similar events" link, instead of one row per save.
--   The weekly email's Premium teaser sits under the intro instead of inside one of the activity sections, and rotates between texts that match the week's activity. One of them now points at the email the reader is holding — Premium fills it in with which post, which plugin and who logged in.
--   The weekly email is 600px wide instead of 500px. Activity sections carry a small icon in the heading (the same Material icons as the settings pages, served from your own site), stat captions are quieter so the numbers lead, the intro link is toned down, and sections with nothing to report collapse into a single "Nothing to report" line.
--   The "WordPress" section of the weekly email is now "WordPress core", and stat captions no longer repeat the section name ("Created" under Posts and Pages instead of "Posts created").
--   Every number in the weekly email links to the log, filtered to the events it counted over the same days, so "Successful logins 17" opens those 17 logins. Numbers that are zero stay plain text.
--   The weekly email no longer explains the link to the log under the intro. The summary above it and the button below it already cover it.
--   The WordPress, WP-CLI, anonymous user and "other" cards now link to their events in the log for everyone, not only with Premium.
--   `wp simple-history dev populate` also generates media, note, theme and WordPress core update events, plugin updates step the version up instead of picking two random versions, and post and note events reuse a small set of post IDs so a generated week looks like a handful of posts edited often rather than hundreds edited once.
+-   Weekly email redesign: wider layout, section icons, clickable numbers linking to matching events, shorter captions and a single "Nothing to report" line for empty sections.
+-   Weekly email Premium teaser moved under the intro and matches the week's activity.
+-   WordPress, WP-CLI, anonymous user and "other" cards link to their events for all users.
+-   Repeated edits of the same Simple History setting are grouped into one row.
+-   "Similar events" link is now an expand/collapse control that keeps keyboard focus.
+-   Event details line up with the event text, and long labels wrap instead of pushing values off-screen.
+-   Event details use a definition list instead of a table. Code adding `<tr>` rows via the `diff_table_output` filter still works but should switch to `<dt>`/`<dd>`.
 
 **Fixed**
 
--   Plain-text event details (Copy as text, alerts) no longer drop a value of "0" or run a group title into the first label.
 -   Redirection plugin events are logged again with Redirection 5.10.0 and later.
--   The admin bar quick view now says when events could not be loaded.
--   The event log loads its first page sooner — search options and events were each fetched twice on page load, and the first events request waited out a debounce meant for fast filter changes.
--   Loading placeholder rows keep their shape while the log loads instead of reshuffling.
--   The date dropdown keeps the same width while the log loads instead of growing when the month options arrive.
--   An expired or disabled add-on license key silently stopped updates without saying why. The Licenses tab now shows the reason and a renew or help link.
--   The weekly email, the help page and the readme said free logs are kept for 60 days; they now state your site's actual retention (30 days on new installs).
--   Events done by WordPress or by visitors (update checks, failed logins, scheduled tasks, WooCommerce background jobs) are no longer attributed to the administrator who happened to be logged in, so they stop showing up under that user in filters, stats and personal-data exports.
+-   Events by WordPress or visitors (update checks, failed logins, scheduled tasks) are no longer attributed to the logged-in administrator.
+-   Event log loads its first page faster.
+-   Loading placeholders and the date dropdown no longer shift while the log loads.
+-   Admin bar quick view shows a message when events can't be loaded.
+-   Copy as text and alerts no longer drop "0" values or merge a group title into the first label.
+-   Licenses tab explains why an expired or disabled license stopped updates, and no longer shows a renewed license as expired.
+-   Weekly email, help page and readme show your site's actual log retention instead of 60 days.
 
 **Security**
 
