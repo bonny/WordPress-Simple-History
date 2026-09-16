@@ -1145,16 +1145,22 @@ i.e. the log is inside a .postbox element.
  * Same density as the dashboard widget, but kept separate from the
  * .is-dashboard rules so a change to one never moves the other.
  */
+/* One value for the row's own padding, because the separator has to cancel it
+   exactly: its negative margin and its min-height both read this. Two numbers
+   that drifted apart here once already, and the symptom was content glued to
+   the hairline below it and floating away from the one above. */
 .SimpleHistoryLogitem--variant-compact {
-	padding-top: var(--sh-spacing-small);
-	padding-bottom: var(--sh-spacing-small);
+	--sh-compact-row-padding: 6px;
+
+	padding-top: var(--sh-compact-row-padding);
+	padding-bottom: var(--sh-compact-row-padding);
 }
 
 /* No extra space before a labelled date separator. */
 .SimpleHistoryLogitem--variant-compact:has(
 		+ .SimpleHistoryLogitem .SimpleHistoryEventSeparator--hasLabel
 	) {
-	padding-bottom: calc(var(--sh-spacing-small) * 3);
+	padding-bottom: calc(var(--sh-compact-row-padding) * 3);
 }
 
 /* Without a label the separator draws nothing but the hairline between two
@@ -1165,8 +1171,8 @@ i.e. the log is inside a .postbox element.
    rows lose their top padding entirely: content ends up glued to the line
    below it and floating away from the line above. */
 .SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator {
-	margin-top: calc(var(--sh-spacing-small) * -1);
-	min-height: var(--sh-spacing-small);
+	margin-top: calc(var(--sh-compact-row-padding) * -1);
+	min-height: var(--sh-compact-row-padding);
 }
 
 .SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator--hasLabel {
