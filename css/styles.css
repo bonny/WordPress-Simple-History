@@ -197,6 +197,15 @@
 	box-shadow: 0px 3px 3px 0px #f7f7f7;
 }
 
+/* The "Sticky" divider puts a pin inside the label (see EventSeparator.jsx).
+   @wordpress/icons renders it at 24px, which is twice the height the label's
+   max-height: 1em allows, so it spills out of the pill. Match it to the text. */
+.SimpleHistoryEventSeparator__label svg {
+	width: 1em;
+	height: 1em;
+	margin-right: var(--sh-spacing-xsmall);
+}
+
 /* Text inside event, contains tooltip and SVG icon component */
 .SimpleHistoryLogitem--sticky {
 	display: inline-block;
