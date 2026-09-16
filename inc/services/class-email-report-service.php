@@ -1270,7 +1270,9 @@ class Email_Report_Service extends Service {
 	 *
 	 * The iframe gets its src from the script below only when the thumbnail is visible.
 	 * With src in the markup, browsers load it even when hidden: loading="lazy" does not
-	 * apply to display:none iframes.
+	 * apply to display:none iframes. A display:none element never intersects, so one
+	 * IntersectionObserver covers both the container query showing it and it being near
+	 * the viewport, including width changes that are not window resizes.
 	 */
 	private function output_preview_thumbnail() {
 		if ( $this->is_email_reports_enabled() ) {
@@ -1296,6 +1298,7 @@ class Email_Report_Service extends Service {
 						tabindex="-1"
 						aria-hidden="true"
 						scrolling="no"
+						fetchpriority="low"
 					></iframe>
 				</span>
 				<span class="sh-EmailReportThumbnail-open"><?php esc_html_e( 'Open full size', 'simple-history' ); ?></span>
@@ -1308,16 +1311,16 @@ class Email_Report_Service extends Service {
 
 				thumbnail.hidden = false;
 
-				function loadIfVisible() {
-					if ( iframe.src || getComputedStyle( thumbnail ).display === 'none' ) {
+				var observer = new IntersectionObserver( function ( entries ) {
+					if ( ! entries[ 0 ].isIntersecting ) {
 						return;
 					}
 
 					iframe.src = iframe.dataset.src;
-				}
+					observer.disconnect();
+				}, { rootMargin: '200px' } );
 
-				loadIfVisible();
-				window.addEventListener( 'resize', loadIfVisible );
+				observer.observe( thumbnail );
 			} )();
 		</script>
 		<?php
