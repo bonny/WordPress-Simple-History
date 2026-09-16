@@ -71,6 +71,21 @@ module.exports = defineConfig( {
 			testMatch: /hide-event-type\.spec\.js$/,
 			dependencies: [ 'experimental-privacy' ],
 		},
+		// events-view-toggle.spec.js stores the admin's event log view
+		// preference and toggles it through the UI. Run with `fullyParallel`
+		// against the shared admin session, it races other specs that assume
+		// the detailed view (e.g. ones that look for
+		// .SimpleHistoryLogitem__details). Give it its own project so it runs
+		// on its own, like the experimental-features specs above.
+		{
+			name: 'events-view',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /events-view-toggle\.spec\.js$/,
+			dependencies: [ 'experimental-hide' ],
+		},
 		{
 			name: 'tests',
 			use: {
@@ -86,8 +101,9 @@ module.exports = defineConfig( {
 				/screenshot-.*\.spec\.js$/,
 				/privacy-data\.spec\.js$/,
 				/hide-event-type\.spec\.js$/,
+				/events-view-toggle\.spec\.js$/,
 			],
-			dependencies: [ 'experimental-hide' ],
+			dependencies: [ 'events-view' ],
 		},
 		{
 			// Teaser user-card screenshots, captured against the dev WordPress
