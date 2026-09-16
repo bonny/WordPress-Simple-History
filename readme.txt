@@ -264,9 +264,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### 5.33.0 (September 2026)
 
+A redesigned weekly email that summarizes the week and links every number to its events, WordPress and visitor events no longer attributed to the logged-in admin, and Redirection logging fixed for Redirection 5.10. And some minor fixes here and there.
+[Read more about it in the release post](https://simple-history.com/2026/simple-history-5-33-0-released/)
+
 **Added**
 
--   Weekly email can now be turned on with one click from the welcome notice, the welcome log entry and the log sidebar.
+-   Weekly email can now be turned on with one click from the welcome notice, the welcome log entry and the log sidebar (yup, we really like the weekly email, and we think you will too!).
 -   Experimental — Compact view for the event log, making more events fit on the screen.
 
 **Changed**
