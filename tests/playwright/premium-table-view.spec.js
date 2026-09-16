@@ -57,4 +57,62 @@ test.describe( 'Premium table view', () => {
 			.getAttribute( 'data-event-id' );
 		expect( Number( firstId ) ).toBeGreaterThan( 0 );
 	} );
+
+	test( 'clicking a sortable header reorders the whole result set', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const firstIdBefore = await page
+			.locator( '.shp-TableView__row' )
+			.first()
+			.getAttribute( 'data-event-id' );
+
+		// Level is sortable and uncorrelated with insertion order, so a real
+		// server-side sort changes which row comes first.
+		await page.getByRole( 'button', { name: /Level/ } ).click();
+
+		// aria-busy lives on the <table> (.shp-TableView__table), not the
+		// outer wrapper div the brief's sample checked — that div never
+		// carries the attribute, so asserting against it cannot detect the
+		// sort fetch finishing.
+		await expect(
+			page.locator( '.shp-TableView__table' )
+		).not.toHaveAttribute( 'aria-busy', 'true' );
+
+		const firstIdAfter = await page
+			.locator( '.shp-TableView__row' )
+			.first()
+			.getAttribute( 'data-event-id' );
+
+		expect( firstIdAfter ).not.toBe( firstIdBefore );
+	} );
+
+	test( 'sort survives a reload through the URL', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto(
+			SIMPLE_HISTORY_PAGE +
+				'&view=table&table_orderby=level&table_order=asc'
+		);
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		// aria-sort belongs on the <th>, not the button inside it, per ARIA's
+		// authoring practices for a sortable column header — so this checks
+		// the header cell rather than the button the brief's sample used.
+		const levelHeaderCell = page.getByRole( 'columnheader', {
+			name: /Level/,
+		} );
+		await expect( levelHeaderCell ).toHaveAttribute(
+			'aria-sort',
+			'ascending'
+		);
+	} );
 } );
