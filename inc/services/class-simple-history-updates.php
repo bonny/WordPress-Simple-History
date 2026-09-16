@@ -28,6 +28,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.30.0', [ $this, 'on_plugin_updated_details_5_30_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.31.0', [ $this, 'on_plugin_updated_details_5_31_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.32.0', [ $this, 'on_plugin_updated_details_5_32_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.33.0', [ $this, 'on_plugin_updated_details_5_33_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -377,4 +378,19 @@ class Simple_History_Updates extends Service {
 		return $this->format_new_features_list( '', $new_features, $release_link );
 	}
 
+	/**
+	 * Update details for version 5.33.0.
+	 *
+	 * @param array $extra_details Existing extra details.
+	 * @return string HTML with the highlights list.
+	 */
+	public function on_plugin_updated_details_5_33_0( $extra_details ) {
+		$new_features = [
+			__( 'The weekly email report has gotten a few nice updates. You should check it out!', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-33-0-released/';
+
+		return $this->format_new_features_list( false, $new_features, $release_link );
+	}
 }
