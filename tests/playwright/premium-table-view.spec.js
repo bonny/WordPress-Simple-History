@@ -163,4 +163,82 @@ test.describe( 'Premium table view', () => {
 			0
 		);
 	} );
+
+	test( 'export sends the ids selected before a sort, not the rows visible after it', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const checkboxes = page.locator(
+			'.shp-TableView__row input[type="checkbox"]'
+		);
+		await checkboxes.nth( 0 ).check();
+		await checkboxes.nth( 1 ).check();
+		await checkboxes.nth( 2 ).check();
+
+		// Record which events were selected before the sort re-fetches the
+		// table. If selection were ever keyed by row index instead of event
+		// id, this is the set that would silently drift once the sort
+		// reorders (or drops) rows.
+		const selectedIdsBeforeSort = await page
+			.locator( '.shp-TableView__row' )
+			.evaluateAll( ( rows ) =>
+				rows
+					.filter(
+						( row ) =>
+							row.querySelector( 'input[type="checkbox"]' )
+								.checked
+					)
+					.map( ( row ) =>
+						Number( row.getAttribute( 'data-event-id' ) )
+					)
+			);
+
+		expect( selectedIdsBeforeSort ).toHaveLength( 3 );
+
+		// Level reorders enough to change which events fall into the loaded
+		// page, so a selected row can leave the DOM entirely — the case a
+		// row-index-based selection could not survive.
+		await page.getByRole( 'button', { name: /Level/ } ).click();
+
+		await expect(
+			page.locator( '.shp-TableView__table' )
+		).not.toHaveAttribute( 'aria-busy', 'true' );
+
+		let exportRequestBody = null;
+
+		await page.route(
+			'**/simple-history/v1/premium/export**',
+			async ( route ) => {
+				exportRequestBody = route.request().postDataJSON();
+
+				// Fulfil with an empty CSV so the modal's download handling
+				// completes without the test actually saving a file.
+				await route.fulfill( {
+					status: 200,
+					contentType: 'text/csv',
+					body: '',
+				} );
+			}
+		);
+
+		await page
+			.locator( '.shp-TableView__bulkBar' )
+			.getByRole( 'button', { name: 'Export' } )
+			.click();
+
+		await page.getByRole( 'button', { name: /Export \d+ events/ } ).click();
+
+		await expect.poll( () => exportRequestBody ).not.toBeNull();
+
+		const exportedIds = exportRequestBody.query.post__in;
+
+		expect( [ ...exportedIds ].sort() ).toEqual(
+			[ ...selectedIdsBeforeSort ].sort()
+		);
+	} );
 } );
