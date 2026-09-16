@@ -266,13 +266,16 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Weekly email opens with a short summary of the week — event count, change from last week, failed logins and most active user — and closes with a changing tip.
 -   Weekly email can now be turned on with one click from the welcome notice, the welcome log entry and the log sidebar.
 -   Experimental — Compact view for the event log, making more events fit on the screen.
 
 **Changed**
 
--   Weekly email redesign: wider layout, section icons, clickable numbers linking to matching events, shorter captions and a single "Nothing to report" line for empty sections. Also now includes a plain-text version for better deliverability.
+-   Weekly email design updated:
+    -   wider layout, section icons, clickable numbers linking to matching events, shorter captions and a single "Nothing to report" line for empty sections.
+    -   now includes a plain-text version for better deliverability.
+    -   opens with a short summary of the week — event count, change from last week, failed logins and most active user
+    -   ...and closes with a tip.
 -   WordPress, WP-CLI, anonymous user and "other" cards link to their events for all users.
 -   Repeated edits of the same Simple History setting are grouped into one row.
 -   "Similar events" link is now an expand/collapse control that keeps keyboard focus.
@@ -282,12 +285,9 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Redirection plugin events are logged again with Redirection 5.10.0 and later.
 -   Events by WordPress or visitors (update checks, failed logins, scheduled tasks) are no longer attributed to the logged-in administrator.
--   Event log loads its first page faster.
+-   Event log loads its first page faster(fixed debounce effect).
 -   Loading placeholders and the date dropdown no longer shift while the log loads.
 -   Admin bar quick view shows a message when events can't be loaded.
--   Copy as text and alerts no longer drop "0" values or merge a group title into the first label.
--   Licenses tab explains why an expired or disabled license stopped updates, and no longer shows a renewed license as expired.
--   Weekly email, help page and readme show your site's actual log retention instead of 60 days.
 
 **Security**
 
