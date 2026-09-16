@@ -262,6 +262,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Changed**
+
+-   The compact event log view is no longer experimental. The Detailed/Compact switch is now available to everyone from the event log page.
+
 ### 5.33.0 (September 2026)
 
 The weekly email is redesigned. It opens with a summary of your week, and every number links to its events. Events by WordPress and visitors are no longer credited to the logged-in admin, and Redirection logging works again with Redirection 5.10. And some minor fixes here and there.
