@@ -16,7 +16,7 @@
 # Spec names match the bit after `screenshot-` in the file name:
 #   playground, banner, inline-diff, user-events, plugin-install,
 #   event-details, ip-popover, insights-widget, stats-page,
-#   dashboard-widget, email-settings, email-preview
+#   dashboard-widget, email-settings, email-preview, compact-view
 
 set -euo pipefail
 
@@ -144,6 +144,7 @@ if command -v pngquant >/dev/null 2>&1; then
 				dashboard-widget) PNG_TARGETS+=( .wordpress-org/screenshot-9.png ) ;;
 				email-settings)   PNG_TARGETS+=( .wordpress-org/screenshot-10.png ) ;;
 				email-preview)    PNG_TARGETS+=( .wordpress-org/screenshot-11.png ) ;;
+				compact-view)     PNG_TARGETS+=( "${COMPACT_VIEW_SCREENSHOT_PATH:-tests/_output/compact-view.png}" ) ;;
 				banner)           PNG_TARGETS+=( .wordpress-org/banner-1544x500.png .wordpress-org/banner-772x250.png ) ;;
 			esac
 		done

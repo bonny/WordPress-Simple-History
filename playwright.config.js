@@ -25,6 +25,7 @@ const screenshotSpecs = [
 	'email-settings',
 	'ip-popover',
 	'email-preview',
+	'compact-view',
 	'banner',
 ];
 const screenshotTestMatch = new RegExp(
