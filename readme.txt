@@ -262,7 +262,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
-### Unreleased
+### 5.33.0 (September 2026)
 
 **Added**
 
