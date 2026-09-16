@@ -365,8 +365,6 @@ class Simple_History_Updates extends Service {
 	 * @return string HTML with the highlights list.
 	 */
 	public function on_plugin_updated_details_5_32_0( $extra_details ) {
-		// $title = __( 'Highlights in this version', 'simple-history' );
-
 		$new_features = [
 			__( 'Long diffs can be expanded in place with an "Expand diff" button.', 'simple-history' ),
 			__( 'Post and page events link to the exact revision the change created. On WordPress 7.1 and later it opens the visual revision view.', 'simple-history' ),
