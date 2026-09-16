@@ -266,8 +266,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Events can now be sorted by date, level, logger or event type through the REST API (`orderby` and `order`) and on the command line (`wp simple-history event list --orderby=level --order=asc`).
--   A Table view of the event log, with sortable columns, row selection and export. Part of Simple History Premium; the free plugin shows a preview of it in the view switcher.
+-   Events can now be sorted by date, id, level, logger or event type through the REST API (`orderby` and `order`) and on the command line (`wp simple-history event list --orderby=id --order=asc`).
+-   A Table option in the event log view switcher, showing a preview of the sortable table coming to Simple History Premium.
 
 **Changed**
 

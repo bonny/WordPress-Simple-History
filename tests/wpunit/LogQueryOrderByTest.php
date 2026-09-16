@@ -7,13 +7,18 @@ use Simple_History\Log_Query;
  *
  * Runs on MySQL/MariaDB and on SQLite: the argument only affects
  * query_overview_simple(), which is the path SQLite always takes.
+ * The exception is test_non_date_orderby_forces_ungrouped(), which also
+ * asserts the grouped (date-order) path and so skips on SQLite — see
+ * OccasionsGroupingDetailedTest for why grouping is MySQL-only.
  *
  * @coversDefaultClass Simple_History\Log_Query
  */
 class LogQueryOrderByTest extends \Codeception\TestCase\WPTestCase {
+	use \Helper\SkipsOnSqlite;
 
 	/**
-	 * Log three events with known, different levels and loggers.
+	 * Log four events: three distinct ones plus a duplicate "Alpha event"
+	 * so occasion grouping has a real pair to collapse.
 	 *
 	 * @return void
 	 */
@@ -21,6 +26,15 @@ class LogQueryOrderByTest extends \Codeception\TestCase\WPTestCase {
 		// SimpleLogger() is the global helper every other test in this suite
 		// uses to write events.
 		SimpleLogger()->info( 'Alpha event' );
+
+		// Log the same message again right away. With no explicit
+		// _occasionsID, Logger::append_occasions_id_to_context() hashes
+		// level/message/initiator into one, so this row gets the same
+		// occasionsID as the row above and, logged back to back, the two
+		// are adjacent in date order too. That gives occasion grouping
+		// something real to collapse (see test_non_date_orderby_forces_ungrouped).
+		SimpleLogger()->info( 'Alpha event' );
+
 		SimpleLogger()->warning( 'Beta event' );
 		SimpleLogger()->debug( 'Gamma event' );
 	}
@@ -165,11 +179,43 @@ class LogQueryOrderByTest extends \Codeception\TestCase\WPTestCase {
 	/**
 	 * Sorting by a column other than date forces ungrouped, because
 	 * occasion grouping depends on rows arriving in date order.
+	 *
+	 * With three distinct events, the grouped (default) query also returns
+	 * subsequentOccasions === 1 for every row, so asserting only that on the
+	 * non-date-ordered query would pass even without the routing change it
+	 * is meant to catch. add_known_events() logs one event twice back to
+	 * back so grouping has a real pair to collapse, which lets this test
+	 * show the difference: 2 when grouped, 1 when the non-date order forces
+	 * ungrouped.
 	 */
 	public function test_non_date_orderby_forces_ungrouped() {
+		$this->skip_on_sqlite( 'occasion grouping is MySQL-only, so the grouped-query assertion below cannot pass on SQLite. See OccasionsGroupingDetailedTest.' );
+
 		$log_query = new Log_Query();
 
-		$result = $log_query->query(
+		// Default order (date, grouped): the two "Alpha event" rows share an
+		// occasionsID and are adjacent in date order, so they collapse into
+		// one row reporting two occurrences.
+		$grouped_result = $log_query->query( [ 'posts_per_page' => 50 ] );
+
+		$grouped_alpha_row = null;
+
+		foreach ( $grouped_result['log_rows'] as $row ) {
+			if ( $row->message === 'Alpha event' ) {
+				$grouped_alpha_row = $row;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $grouped_alpha_row, 'Expected an "Alpha event" row in the grouped result.' );
+		$this->assertEquals(
+			2,
+			(int) $grouped_alpha_row->subsequentOccasions,
+			'The grouped, date-ordered query should collapse the two "Alpha event" rows into one occasion.'
+		);
+
+		// Sorting by level instead forces ungrouped.
+		$ungrouped_result = $log_query->query(
 			[
 				'posts_per_page' => 50,
 				'orderby'        => 'level',
@@ -177,10 +223,12 @@ class LogQueryOrderByTest extends \Codeception\TestCase\WPTestCase {
 			]
 		);
 
-		$this->assertNotEmpty( $result['log_rows'] );
+		$this->assertNotEmpty( $ungrouped_result['log_rows'] );
 
-		// Every row in an ungrouped result reports a single occasion.
-		foreach ( $result['log_rows'] as $row ) {
+		// Every row in an ungrouped result reports a single occasion,
+		// including the two "Alpha event" rows the grouped query above
+		// collapsed into one.
+		foreach ( $ungrouped_result['log_rows'] as $row ) {
 			$this->assertEquals(
 				1,
 				(int) $row->subsequentOccasions,

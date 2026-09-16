@@ -277,6 +277,25 @@ test.describe( 'Event log view toggle', () => {
 		).toHaveAttribute( 'aria-pressed', 'true' );
 	} );
 
+	// Every other spec above reaches the table view through a click or
+	// ?view=table, which is exactly why a stored `table` preference being
+	// silently downgraded to `detailed` on a fresh, param-less load went
+	// unnoticed (dropins/class-react-dropin.php and EventsGui.jsx both used
+	// to accept only 'compact', collapsing anything else to 'detailed').
+	test( 'table is remembered after a reload without the parameter', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'table' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE );
+
+		await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+		await expect(
+			page.getByRole( 'button', { name: 'Table view' } )
+		).toHaveAttribute( 'aria-pressed', 'true' );
+	} );
+
 	test( 'table preview is inert and its CTA is not', async ( {
 		page,
 		requestUtils,
