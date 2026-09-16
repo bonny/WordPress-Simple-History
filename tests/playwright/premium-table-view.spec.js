@@ -84,6 +84,37 @@ test.describe( 'Premium table view', () => {
 		expect( Number( firstId ) ).toBeGreaterThan( 0 );
 	} );
 
+	test( 'clicking a row opens the event details modal', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page.locator( '.shp-TableView__row' ).first().click();
+
+		await expect( page.getByRole( 'dialog' ) ).toBeVisible();
+	} );
+
+	test( 'clicking a row checkbox does not open the event details modal', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page
+			.locator( '.shp-TableView__row input[type="checkbox"]' )
+			.first()
+			.check();
+
+		await expect( page.getByRole( 'dialog' ) ).toHaveCount( 0 );
+	} );
+
 	test( 'clicking a sortable header reorders the whole result set', async ( {
 		page,
 		requestUtils,
