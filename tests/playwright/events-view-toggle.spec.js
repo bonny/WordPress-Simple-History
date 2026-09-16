@@ -276,4 +276,132 @@ test.describe( 'Event log view toggle', () => {
 			page.getByRole( 'button', { name: 'Table view' } )
 		).toHaveAttribute( 'aria-pressed', 'true' );
 	} );
+
+	test( 'table preview is inert and its CTA is not', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.sh-TablePreview' ).waitFor();
+
+		// The sample table is decoration: hidden from screen readers and
+		// unreachable by the mouse.
+		const sampleTable = page.locator( '.sh-TablePreview__table' );
+		await expect( sampleTable ).toHaveAttribute( 'aria-hidden', 'true' );
+		await expect( sampleTable ).toHaveCSS( 'pointer-events', 'none' );
+
+		// Every checkbox in it is disabled.
+		const boxes = sampleTable.locator( 'input[type="checkbox"]' );
+		const count = await boxes.count();
+		expect( count ).toBeGreaterThan( 0 );
+
+		for ( let i = 0; i < count; i++ ) {
+			await expect( boxes.nth( i ) ).toBeDisabled();
+		}
+
+		// The upgrade link stays clickable and carries the campaign.
+		const cta = page.locator( '.sh-TablePreview__banner a' ).first();
+		await expect( cta ).toBeVisible();
+
+		const href = await cta.getAttribute( 'href' );
+		expect( href ).toContain( 'utm_campaign=premium_table_view' );
+		expect( href ).toContain( 'utm_content=' );
+	} );
+} );
+
+// The Table button carries a Premium indication for free users only — a
+// paying customer already owns the feature and shouldn't see it marked as an
+// upsell. This shares the "toggle the real premium plugin" approach from
+// license-reminder.spec.js since hasPremiumAddOn comes from whether that
+// plugin is active, not from a flag we can fake through the dev-tools option
+// toggles used above.
+test.describe( 'Table view button premium indicator', () => {
+	test.describe.configure( { mode: 'serial' } );
+
+	const PREMIUM_FILE = 'simple-history-premium/simple-history-premium.php';
+
+	let premiumWasActive;
+
+	/**
+	 * Set the premium plugin's active state, toggling only if it differs
+	 * from what's asked for.
+	 *
+	 * @param {Object}  requestUtils
+	 * @param {boolean} desiredActive
+	 */
+	async function setPremiumActive( requestUtils, desiredActive ) {
+		const status = await requestUtils.rest( {
+			path: 'simple-history/v1/dev-tools/plugin-status',
+			params: { plugin: PREMIUM_FILE },
+		} );
+
+		if ( status.is_active !== desiredActive ) {
+			await requestUtils.rest( {
+				method: 'POST',
+				path: 'simple-history/v1/dev-tools/toggle-plugin',
+				data: { plugin: PREMIUM_FILE },
+			} );
+		}
+	}
+
+	test.beforeAll( async ( { requestUtils } ) => {
+		try {
+			const status = await requestUtils.rest( {
+				path: 'simple-history/v1/dev-tools/plugin-status',
+				params: { plugin: PREMIUM_FILE },
+			} );
+			premiumWasActive = status.is_active;
+		} catch ( err ) {
+			test.skip(
+				true,
+				`Dev-tools REST endpoint unreachable — is SIMPLE_HISTORY_DEV enabled? (${ err.message })`
+			);
+		}
+	} );
+
+	test.afterAll( async ( { requestUtils } ) => {
+		if ( typeof premiumWasActive === 'boolean' ) {
+			await setPremiumActive( requestUtils, premiumWasActive );
+		}
+	} );
+
+	test( 'shows the premium indicator on the Table button when premium is not active', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setPremiumActive( requestUtils, false );
+
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.locator( '.sh-EventsViewToggle' ).waitFor();
+
+		const tableButton = page.getByRole( 'button', { name: 'Table view' } );
+		await expect( tableButton ).toHaveAttribute(
+			'aria-label',
+			'Table view'
+		);
+		await expect(
+			tableButton.locator( '.sh-PremiumIndicator' )
+		).toHaveCount( 1 );
+	} );
+
+	test( 'hides the premium indicator on the Table button when premium is active', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setPremiumActive( requestUtils, true );
+
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.locator( '.sh-EventsViewToggle' ).waitFor();
+
+		const tableButton = page.getByRole( 'button', { name: 'Table view' } );
+		await expect( tableButton ).toHaveAttribute(
+			'aria-label',
+			'Table view'
+		);
+		await expect(
+			tableButton.locator( '.sh-PremiumIndicator' )
+		).toHaveCount( 0 );
+	} );
 } );
