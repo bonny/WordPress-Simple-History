@@ -93,23 +93,27 @@ Expected: FAIL. The toggle is not rendered with the flag off, so `.sh-EventsView
 
 -   [ ] **Step 4: Remove the gate in the control bar**
 
+Locate it with `grep -n "Compact view is experimental" src/components/EventsControlBar.jsx` and match on the content — the indentation below is approximate, the file's own is deeper.
+
 In `src/components/EventsControlBar.jsx`, replace:
 
-```jsx
-{
-	/* Compact view is experimental for now. */
-}
-{
-	experimentalFeaturesEnabled && (
-		<EventsViewToggle view={ eventsView } onChange={ onEventsViewChange } />
-	);
-}
+```text
+					{ /* Compact view is experimental for now. */ }
+					{ experimentalFeaturesEnabled && (
+						<EventsViewToggle
+							view={ eventsView }
+							onChange={ onEventsViewChange }
+						/>
+					) }
 ```
 
-with:
+with (keep the same indentation as the surrounding JSX):
 
-```jsx
-<EventsViewToggle view={ eventsView } onChange={ onEventsViewChange } />
+```text
+					<EventsViewToggle
+						view={ eventsView }
+						onChange={ onEventsViewChange }
+					/>
 ```
 
 Then remove the now-unused `experimentalFeaturesEnabled` binding from this component — but only if nothing else in the file uses it. Check first:
@@ -204,7 +208,6 @@ Create `tests/wpunit/LogQueryOrderByTest.php`. It runs on both database engines,
 <?php
 
 use Simple_History\Log_Query;
-use Simple_History\Simple_History;
 
 /**
  * Test the orderby and order arguments of Log_Query.
@@ -222,16 +225,11 @@ class LogQueryOrderByTest extends \Codeception\TestCase\WPTestCase {
 	 * @return void
 	 */
 	private function add_known_events() {
-		$simple_history = Simple_History::get_instance();
-
-		$simple_history->get_instantiated_logger_by_slug( 'SimpleLogger' )
-			->info( 'Alpha event' );
-
-		$simple_history->get_instantiated_logger_by_slug( 'SimpleLogger' )
-			->warning( 'Beta event' );
-
-		$simple_history->get_instantiated_logger_by_slug( 'SimpleLogger' )
-			->debug( 'Gamma event' );
+		// SimpleLogger() is the global helper every other test in this suite
+		// uses to write events.
+		SimpleLogger()->info( 'Alpha event' );
+		SimpleLogger()->warning( 'Beta event' );
+		SimpleLogger()->debug( 'Gamma event' );
 	}
 
 	/**
@@ -588,8 +586,6 @@ Create `tests/wpunit/RestEventsOrderByTest.php`:
 ```php
 <?php
 
-use Simple_History\Simple_History;
-
 /**
  * Test the orderby and order query parameters of the events REST endpoint.
  */
@@ -615,12 +611,9 @@ class RestEventsOrderByTest extends \Codeception\TestCase\WPTestCase {
 		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 
-		$simple_history = Simple_History::get_instance();
-		$logger         = $simple_history->get_instantiated_logger_by_slug( 'SimpleLogger' );
-
-		$logger->info( 'Alpha event' );
-		$logger->warning( 'Beta event' );
-		$logger->debug( 'Gamma event' );
+		SimpleLogger()->info( 'Alpha event' );
+		SimpleLogger()->warning( 'Beta event' );
+		SimpleLogger()->debug( 'Gamma event' );
 	}
 
 	/**
