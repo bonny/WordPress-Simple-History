@@ -248,4 +248,32 @@ test.describe( 'Event log view toggle', () => {
 			expect( ( await saved ).ok() ).toBe( true );
 		} );
 	}
+
+	test( 'table view shows the premium preview', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.locator( '.sh-EventsViewToggle' ).waitFor();
+
+		await page.getByRole( 'button', { name: 'Table view' } ).click();
+
+		await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+	} );
+
+	test( 'table view can be linked to with ?view=table', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+
+		await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+		await expect(
+			page.getByRole( 'button', { name: 'Table view' } )
+		).toHaveAttribute( 'aria-pressed', 'true' );
+	} );
 } );
