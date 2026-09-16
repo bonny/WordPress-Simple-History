@@ -1581,7 +1581,7 @@ class Log_Query {
 			'message' => 'message',
 		];
 
-		$orderby = isset( $columns[ $args['orderby'] ] ) ? $columns[ $args['orderby'] ] : 'date';
+		$orderby = $columns[ $args['orderby'] ] ?? 'date';
 		$order   = $args['order'] === 'ASC' ? 'ASC' : 'DESC';
 		$prefix  = $table_alias === '' ? '' : $table_alias . '.';
 
