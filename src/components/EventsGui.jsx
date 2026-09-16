@@ -626,10 +626,26 @@ function EventsGUI() {
 		setEventsIsLoading( true );
 
 		try {
+			// In table view, Premium fetches and renders the events itself
+			// (see the SimpleHistorySlotTableView fill), so this request's
+			// only job is keeping the new-events notifier and eventsTotal
+			// accurate. Ask for the smallest response that can still answer
+			// both: one row, for the max id/date headers, and a minimal
+			// field set. The count query is not skipped, so eventsTotal
+			// still reflects the real total.
+			const fetchQueryParams =
+				eventsView === 'table'
+					? {
+							...eventsQueryParams,
+							per_page: 1,
+							_fields: 'id,date_gmt',
+					  }
+					: eventsQueryParams;
+
 			const eventsResponse = await apiFetch( {
 				path: addQueryArgs(
 					'/simple-history/v1/events',
-					eventsQueryParams
+					fetchQueryParams
 				),
 				parse: false,
 			} );
@@ -679,7 +695,7 @@ function EventsGUI() {
 		} finally {
 			setEventsIsLoading( false );
 		}
-	}, [ eventsQueryParams, page ] );
+	}, [ eventsQueryParams, page, eventsView ] );
 
 	// Debounce the loadEvents function to avoid multiple calls when user types fast.
 	const debouncedLoadEvents = useDebounce( loadEvents, 500 );
