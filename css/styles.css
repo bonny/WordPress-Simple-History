@@ -4351,6 +4351,81 @@ a.sh-EventsStatsBar--link:hover {
 	z-index: 1;
 }
 
+/* Table view preview (issue 240): a staged, inert sample table under a
+   clickable upgrade banner, shown when nothing fills SimpleHistorySlotTableView. */
+.sh-TablePreview__table {
+	width: 100%;
+	border-collapse: collapse;
+	/* Decoration, not a control. The aria-hidden above keeps it out of the
+	   accessibility tree; this keeps it out of reach of the mouse. */
+	pointer-events: none;
+	user-select: none;
+}
+
+.sh-TablePreview__table th,
+.sh-TablePreview__table td {
+	padding: 8px 10px;
+	text-align: left;
+	border-bottom: 1px solid #dcdcde;
+	font-size: 13px;
+	line-height: 1.5;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.sh-TablePreview__table th {
+	font-weight: 600;
+	color: #1d2327;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+/* The column the staged table is "sorted" by. Colour alone would not carry
+   this, so the arrow in the markup does the work and this only reinforces it. */
+.sh-TablePreview__table th.is-sorted {
+	color: #2271b1;
+}
+
+.sh-TablePreview__table td {
+	color: #50575e;
+}
+
+.sh-TablePreview__banner {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	padding: 16px;
+	margin-bottom: 16px;
+	background: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #2271b1;
+	/* The one part of the preview that is meant to be used. */
+	pointer-events: auto;
+}
+
+.sh-TablePreview__banner-content {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.sh-TablePreview__banner-title {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.sh-TablePreview__bulkBar {
+	padding: 10px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-top: none;
+	font-size: 13px;
+	color: #50575e;
+}
+
 /* Individual control bar button — compact tertiary style, matching action link sizing. */
 .sh-ControlBarButton.components-button {
 	display: inline-flex;
