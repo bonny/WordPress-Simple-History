@@ -1248,11 +1248,46 @@ i.e. the log is inside a .postbox element.
 	line-height: 1.5;
 }
 
-/* The message and its action links share one line: "Activated plugin X" is
-   short, and the links after it read as part of the same sentence. Both stay
-   inline so a long message simply wraps and takes the links with it. */
+/* The whole meta line goes grey at rest and blue once the row is hovered or
+   focused — the same deal the action links take, and for the same reason.
+   Measured over 12 rows, name and timestamp together were 1696px of blue
+   text against 3969px of black message, and 1190px of that blue said
+   "13 minutes ago" on every row: the loudest colour in the view was carrying
+   its least distinguishing datum, right down the path the eye scans. The name
+   is a <strong>, so weight already marks it as the who and colour on top of
+   that is redundant. Blue now means one thing per row — the objects named in
+   the message, which are the things you would click to go somewhere.
+
+   Both are still controls (the permalink and the user card), so they keep the
+   underline on their own hover. */
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button.is-link {
+	color: var(--sh-color-gray-3);
+	text-decoration: none;
+}
+
+.SimpleHistoryLogitem--variant-compact:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__header
+	.components-button.is-link {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button.is-link:hover,
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button.is-link:focus-visible {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+/* 1.4, not the 1.5 this started at: at 15px that was 22.5px of line box, which
+   made the message in the *compact* view more loosely leaded than the same
+   message in the detailed one (21px). */
 .SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__text {
-	line-height: 1.5;
+	line-height: 1.4;
 	margin-top: 1px;
 }
 
