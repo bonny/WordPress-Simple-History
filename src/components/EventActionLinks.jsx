@@ -1,5 +1,3 @@
-import { Fragment } from '@wordpress/element';
-
 const ACTION_ICONS = {
 	view: 'sh-Icon--visibility',
 	edit: 'sh-Icon--edit',
@@ -87,7 +85,13 @@ export function EventActionLinks( { event, trailing } ) {
 	return (
 		<div className="SimpleHistoryLogitem__actionLinks">
 			{ items.map( ( item, index ) => (
-				<Fragment key={ item.key }>
+				/* Separator and link share one wrapper, so they are a single
+				   flex item and a wrapping row can never strand a dot alone at
+				   the start or end of a line. */
+				<span
+					key={ item.key }
+					className="SimpleHistoryLogitem__actionLinks__item"
+				>
 					{ /* A real element, not a ::before on the link: generated
 					     content inside the link lands in its accessible name,
 					     and screen readers then announce "dot, All plugins".
@@ -103,7 +107,7 @@ export function EventActionLinks( { event, trailing } ) {
 					) }
 
 					{ item.node }
-				</Fragment>
+				</span>
 			) ) }
 		</div>
 	);

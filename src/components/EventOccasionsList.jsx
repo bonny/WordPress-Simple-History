@@ -39,7 +39,7 @@ export function EventOccasionsList( props ) {
 		wrapStyle = {
 			marginTop: 'var(--sh-spacing-small)',
 			marginLeft: 'calc(var(--sh-spacing-medium) * -1)',
-			marginRight: '-1.5rem',
+			marginRight: 'calc(var(--sh-spacing-medium) * -1)',
 		};
 	} else {
 		wrapStyle = {
