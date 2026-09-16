@@ -135,8 +135,10 @@ function EventsGUI() {
 	// The view the user last chose, localized at enqueue time from user meta
 	// so the first render already uses it. See REST_API::register_user_meta().
 	const [ storedEventsView, setStoredEventsView ] = useState(
-		window.simpleHistoryReactData?.eventsView === 'compact'
-			? 'compact'
+		[ 'compact', 'table' ].includes(
+			window.simpleHistoryReactData?.eventsView
+		)
+			? window.simpleHistoryReactData.eventsView
 			: 'detailed'
 	);
 	const [ settingsPageURL, setSettingsPageURL ] = useState();

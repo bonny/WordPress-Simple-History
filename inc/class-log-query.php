@@ -367,16 +367,30 @@ class Log_Query {
 		}
 
 		// Get maxId, minId, and maxDate.
-		// MaxId is the id of the first row in the result (i.e. the latest entry).
-		// MinId is the id of the last row in the result (i.e. the oldest entry).
-		// MaxDate is the date of the first row (for accurate new event detection with date ordering).
+		// MaxId is the highest id among the returned rows.
+		// MinId is the lowest id among the returned rows.
+		// MaxDate is the date of the row with maxId.
+		// These are derived from the actual ids rather than read positionally,
+		// because "first row" and "last row" only mean "newest" and "oldest"
+		// for the default date-DESC order. With orderby/order set to anything
+		// else the first row can be any row, and reading it positionally made
+		// max_id the oldest id under `orderby=id&order=asc`, which broke the
+		// new-events notifier (it treated the whole log as new).
 		$min_id   = null;
 		$max_id   = null;
 		$max_date = null;
+
 		if ( sizeof( $result_log_rows ) > 0 ) {
-			$max_id   = $result_log_rows[0]->id;
-			$min_id   = $result_log_rows[ count( $result_log_rows ) - 1 ]->id;
-			$max_date = $result_log_rows[0]->date;
+			$row_ids = wp_list_pluck( $result_log_rows, 'id' );
+			$max_id  = max( $row_ids );
+			$min_id  = min( $row_ids );
+
+			foreach ( $result_log_rows as $result_log_row ) {
+				if ( (int) $result_log_row->id === (int) $max_id ) {
+					$max_date = $result_log_row->date;
+					break;
+				}
+			}
 		}
 
 		// Create array to return.

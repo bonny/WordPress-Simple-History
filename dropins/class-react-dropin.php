@@ -68,13 +68,13 @@ class React_Dropin extends Dropin {
 			[
 				'eventsAdminPageURL'  => Helpers::get_history_admin_url(),
 				// Read at enqueue time so the first render already uses the user's view.
-				'eventsView'          => $stored_events_view === 'compact' ? 'compact' : 'detailed',
+				'eventsView'          => in_array( $stored_events_view, [ 'compact', 'table' ], true ) ? $stored_events_view : 'detailed',
 				// Used by the Table view preview's upgrade link. Built here, not in
 				// JS, so it goes through Helpers::get_tracking_url() like every
 				// other tracked link (issue 280: an untagged link lost three
 				// quarters of the user card's click attribution).
 				'tableViewUpgradeUrl' => Helpers::get_tracking_url(
-					'https://simple-history.com/premium/',
+					'https://simple-history.com/add-ons/premium/',
 					'premium_table_view',
 					'wpadmin',
 					'plugin',

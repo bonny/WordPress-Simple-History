@@ -1,5 +1,5 @@
 import { Icon } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { table } from '@wordpress/icons';
 
 // Staged sample rows. Deliberately not the reader's own events: a quiet site
@@ -81,6 +81,12 @@ const SAMPLE_ROWS = [
 	},
 ];
 
+// Derived from SAMPLE_ROWS rather than hardcoded, so the bulk bar's count
+// can't drift from which rows actually carry selected: true.
+const SELECTED_ROWS_COUNT = SAMPLE_ROWS.filter(
+	( row ) => row.selected
+).length;
+
 /**
  * Preview of the premium Table view, shown when nothing fills the
  * SimpleHistorySlotTableView Slot.
@@ -92,7 +98,7 @@ const SAMPLE_ROWS = [
  * is what the WordPress.org guidelines call trialware.
  */
 export function TablePreview() {
-	const upgradeUrl = window.simpleHistoryReactData?.tableViewUpgradeUrl ?? '';
+	const upgradeUrl = window.simpleHistoryReactData?.tableViewUpgradeUrl;
 
 	return (
 		<div className="sh-TablePreview">
@@ -117,9 +123,15 @@ export function TablePreview() {
 						) }
 					</span>
 
-					<a href={ upgradeUrl }>
-						{ __( 'Upgrade to Premium', 'simple-history' ) } →
-					</a>
+					{ upgradeUrl ? (
+						<a
+							href={ upgradeUrl }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'Upgrade to Premium', 'simple-history' ) } →
+						</a>
+					) : null }
 				</div>
 			</div>
 
@@ -160,8 +172,17 @@ export function TablePreview() {
 			</table>
 
 			<div className="sh-TablePreview__bulkBar" aria-hidden="true">
-				{ __( '2 selected', 'simple-history' ) } ·{ ' ' }
-				{ __( 'Export', 'simple-history' ) } ▾
+				{ sprintf(
+					/* translators: %s: number of selected rows */
+					_n(
+						'%s selected',
+						'%s selected',
+						SELECTED_ROWS_COUNT,
+						'simple-history'
+					),
+					SELECTED_ROWS_COUNT
+				) }{ ' ' }
+				· { __( 'Export', 'simple-history' ) } ▾
 			</div>
 		</div>
 	);
