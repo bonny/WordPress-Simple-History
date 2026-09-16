@@ -28,18 +28,17 @@ export function EventOccasionsList( props ) {
 	// The -4.5rem/-1.5rem pull-out is tuned to the normal row's geometry —
 	// roughly .SimpleHistoryLogitem__secondcol's margin-left (50px) plus the
 	// li's own padding (var(--sh-spacing-medium)), though not an exact sum
-	// of the two. Compact rows use a narrower secondcol margin-left (40px,
-	// see css/styles.css), so reusing the normal offset pulled the nested
-	// occasion rows too far left and clipped their avatars — cancel the
-	// compact geometry instead.
+	// of the two. Compact rows have no secondcol margin at all (the avatar
+	// sits in the header line), so reusing the normal offset pulled the
+	// nested occasion rows off the left edge — cancel the li's padding only.
 	let wrapStyle;
 
 	if ( isDashboard ) {
 		wrapStyle = { marginTop: '0.5rem' };
 	} else if ( isCompact ) {
 		wrapStyle = {
-			marginTop: '1rem',
-			marginLeft: 'calc(-40px - var(--sh-spacing-medium))',
+			marginTop: 'var(--sh-spacing-small)',
+			marginLeft: 'calc(var(--sh-spacing-medium) * -1)',
 			marginRight: '-1.5rem',
 		};
 	} else {

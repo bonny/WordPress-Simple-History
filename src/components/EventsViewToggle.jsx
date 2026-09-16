@@ -1,11 +1,14 @@
 import { Icon, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { menu, postList } from '@wordpress/icons';
 import { clsx } from 'clsx';
+import { viewAgenda, viewHeadline } from '../icons';
 
+// Two stacked cards for the detailed rows, plain lines for the compact ones.
+// @wordpress/icons has no pair that reads as one family here: postList is a
+// bordered box and menu is a hamburger, which says "opens a menu".
 const VIEWS = [
-	{ value: 'detailed', icon: postList },
-	{ value: 'compact', icon: menu },
+	{ value: 'detailed', icon: viewAgenda },
+	{ value: 'compact', icon: viewHeadline },
 ];
 
 /**
@@ -55,7 +58,7 @@ export function EventsViewToggle( { view, onChange } ) {
 								aria-label={ labels[ option.value ] }
 								onClick={ () => onChange( option.value ) }
 							>
-								<Icon icon={ option.icon } />
+								<Icon icon={ option.icon } size={ 16 } />
 							</button>
 						</Tooltip>
 					</li>
