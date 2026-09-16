@@ -38,9 +38,9 @@ class Simple_History_Updates extends Service {
 	/**
 	 * Format new features as an HTML list.
 	 *
-	 * @param string $custom_title Optional custom title for the section.
-	 * @param array  $features Array of feature descriptions.
-	 * @param string $release_link Optional link to release post.
+	 * @param string|bool $custom_title Optional custom title for the section.
+	 * @param array       $features Array of feature descriptions.
+	 * @param string      $release_link Optional link to release post.
 	 * @return string Formatted HTML list.
 	 */
 	private function format_new_features_list( $custom_title = '', $features = [], $release_link = '' ) {
@@ -52,8 +52,11 @@ class Simple_History_Updates extends Service {
 		$output = '<div class="sh-PluginUpdateDetails">';
 
 		// Use custom title if provided, otherwise use default.
-		$title   = empty( $custom_title ) ? __( "What's new in this version", 'simple-history' ) : $custom_title;
-		$output .= '<h4 class="sh-PluginUpdateDetails-title">' . esc_html( $title ) . '</h4>';
+		if ( $custom_title !== false ) {
+			$title   = empty( $custom_title ) ? __( "What's new in this version", 'simple-history' ) : $custom_title;
+			$output .= '<h4 class="sh-PluginUpdateDetails-title">' . esc_html( $title ) . '</h4>';
+		}
+
 
 		$output .= '<ul class="sh-PluginUpdateDetails-features">';
 
@@ -361,7 +364,7 @@ class Simple_History_Updates extends Service {
 	 * @return string HTML with the highlights list.
 	 */
 	public function on_plugin_updated_details_5_32_0( $extra_details ) {
-		$title = __( 'Highlights in this version', 'simple-history' );
+		// $title = __( 'Highlights in this version', 'simple-history' );
 
 		$new_features = [
 			__( 'Long diffs can be expanded in place with an "Expand diff" button.', 'simple-history' ),
@@ -371,6 +374,7 @@ class Simple_History_Updates extends Service {
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-32-0-released/';
 
-		return $this->format_new_features_list( $title, $new_features, $release_link );
+		return $this->format_new_features_list( '', $new_features, $release_link );
 	}
+
 }
