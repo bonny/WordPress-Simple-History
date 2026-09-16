@@ -264,6 +264,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+**Added**
+
+-   Events can now be sorted by date, level, logger or event type through the REST API (`orderby` and `order`) and on the command line (`wp simple-history event list --orderby=level --order=asc`).
+
 **Changed**
 
 -   The compact event log view is no longer experimental. The Detailed/Compact switch is now available to everyone from the event log page.
