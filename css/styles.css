@@ -1165,11 +1165,12 @@ i.e. the log is inside a .postbox element.
 	padding-bottom: var(--sh-compact-row-padding);
 }
 
-/* No extra space before a labelled date separator. */
+/* The row above a labelled divider gets no extra air: there is no pill sitting
+   on the line for it to clear. */
 .SimpleHistoryLogitem--variant-compact:has(
 		+ .SimpleHistoryLogitem .SimpleHistoryEventSeparator--hasLabel
 	) {
-	padding-bottom: calc(var(--sh-compact-row-padding) * 3);
+	padding-bottom: var(--sh-compact-row-padding);
 }
 
 /* Without a label the separator draws nothing but the hairline between two
@@ -1184,8 +1185,49 @@ i.e. the log is inside a .postbox element.
 	min-height: var(--sh-compact-row-padding);
 }
 
+/* A day label here is a caption, not a chip — the same treatment the dashboard
+   widget already ships (see the .is-dashboard rules above). The centred pill it
+   replaces was the only centred thing in a view whose every other element is
+   flush left, and it was also the heaviest type on screen: 12px/600 in near
+   black, above a 15px message in a lighter weight. Grey it and the label ranks
+   below the content it introduces, which is the right way round.
+
+   It was expensive too: 30px of reserved height plus 12px of extra padding on
+   the row above, so 48px of clear space for one word. This costs 42px, and a
+   plain row break in the same list costs 7px.
+
+   The hairline stays. It is this row's own rule, full bleed, lining up with the
+   rules above and below it — dropping it would leave the day break with nothing
+   to sit on. */
 .SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator--hasLabel {
-	min-height: 30px;
+	min-height: 0;
+	justify-content: flex-start;
+
+	/* The separator is full bleed, so its content edge sits a medium step to
+	   the left of the row's. Put that step back or the label hangs 16px left
+	   of the avatar it introduces. */
+	padding-left: var(--sh-spacing-medium);
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator__label {
+	transform: none;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	padding: 0;
+	max-height: none;
+
+	/* Three row-paddings above, one below. The asymmetry is the point: a day
+	   label belongs to the day under it, so it has to sit closer to the event
+	   it introduces than to the last event of the day before. Equal margins
+	   leave it floating between the two, and a smaller bottom margin than this
+	   glues it to the avatar line. */
+	margin: calc(var(--sh-compact-row-padding) * 3) 0
+		var(--sh-compact-row-padding);
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--sh-color-gray-3);
 }
 
 /* The avatar moves into the header line (see EventHeader.jsx), so there is no
