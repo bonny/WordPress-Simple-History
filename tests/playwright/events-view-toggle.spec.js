@@ -104,8 +104,8 @@ test.describe( 'Event log view toggle', () => {
 		await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
 
 		await expect(
-			page.getByRole( 'radio', { name: 'Detailed view' } )
-		).toBeChecked();
+			page.getByRole( 'button', { name: 'Detailed view' } )
+		).toHaveAttribute( 'aria-pressed', 'true' );
 		await expect(
 			page.locator( '.SimpleHistoryLogitem--variant-normal' ).first()
 		).toBeVisible();
@@ -122,7 +122,7 @@ test.describe( 'Event log view toggle', () => {
 
 		const saved = page.waitForResponse( isEventsViewSaveResponse );
 
-		await page.getByRole( 'radio', { name: 'Compact view' } ).check();
+		await page.getByRole( 'button', { name: 'Compact view' } ).click();
 
 		const firstCompact = page
 			.locator( '.SimpleHistoryLogitem--variant-compact' )
@@ -150,15 +150,15 @@ test.describe( 'Event log view toggle', () => {
 
 		const saved = page.waitForResponse( isEventsViewSaveResponse );
 
-		await page.getByRole( 'radio', { name: 'Compact view' } ).check();
+		await page.getByRole( 'button', { name: 'Compact view' } ).click();
 		expect( ( await saved ).ok() ).toBe( true );
 
 		await page.goto( SIMPLE_HISTORY_PAGE );
 		await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
 
 		await expect(
-			page.getByRole( 'radio', { name: 'Compact view' } )
-		).toBeChecked();
+			page.getByRole( 'button', { name: 'Compact view' } )
+		).toHaveAttribute( 'aria-pressed', 'true' );
 		await expect(
 			page.locator( '.SimpleHistoryLogitem--variant-compact' ).first()
 		).toBeVisible();
@@ -174,8 +174,8 @@ test.describe( 'Event log view toggle', () => {
 		await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
 
 		await expect(
-			page.getByRole( 'radio', { name: 'Detailed view' } )
-		).toBeChecked();
+			page.getByRole( 'button', { name: 'Detailed view' } )
+		).toHaveAttribute( 'aria-pressed', 'true' );
 		await expect(
 			page.locator( '.SimpleHistoryLogitem--variant-compact' )
 		).toHaveCount( 0 );
@@ -194,7 +194,7 @@ test.describe( 'Event log view toggle', () => {
 		await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
 
 		await expect(
-			page.getByRole( 'radio', { name: 'Compact view' } )
+			page.getByRole( 'button', { name: 'Compact view' } )
 		).toHaveCount( 0 );
 		await expect(
 			page.locator( '.SimpleHistoryLogitem--variant-compact' )
@@ -204,22 +204,41 @@ test.describe( 'Event log view toggle', () => {
 		).toBeVisible();
 	} );
 
-	test( 'arrow keys switch the view', async ( { page } ) => {
-		await page.goto( SIMPLE_HISTORY_PAGE );
-		await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
+	// Tab has to reach the button and Space or Enter has to switch the view:
+	// the first version was a radio group, where Tab landed on the already
+	// selected option and Space did nothing at all.
+	for ( const key of [ 'Space', 'Enter' ] ) {
+		test( `tab and ${ key } switch the view`, async ( { page } ) => {
+			await page.goto( SIMPLE_HISTORY_PAGE );
+			await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
 
-		const saved = page.waitForResponse( isEventsViewSaveResponse );
+			const saved = page.waitForResponse( isEventsViewSaveResponse );
 
-		await page.getByRole( 'radio', { name: 'Detailed view' } ).focus();
-		await page.keyboard.press( 'ArrowRight' );
+			// Tab from the button before the toggle, so the walk through the
+			// control bar is part of the test rather than a direct focus() call.
+			await page.getByRole( 'button', { name: /Share view/i } ).focus();
+			await page.keyboard.press( 'Tab' );
 
-		await expect(
-			page.getByRole( 'radio', { name: 'Compact view' } )
-		).toBeChecked();
-		await expect(
-			page.locator( '.SimpleHistoryLogitem--variant-compact' ).first()
-		).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: 'Detailed view' } )
+			).toBeFocused();
 
-		expect( ( await saved ).ok() ).toBe( true );
-	} );
+			await page.keyboard.press( 'Tab' );
+
+			await expect(
+				page.getByRole( 'button', { name: 'Compact view' } )
+			).toBeFocused();
+
+			await page.keyboard.press( key );
+
+			await expect(
+				page.getByRole( 'button', { name: 'Compact view' } )
+			).toHaveAttribute( 'aria-pressed', 'true' );
+			await expect(
+				page.locator( '.SimpleHistoryLogitem--variant-compact' ).first()
+			).toBeVisible();
+
+			expect( ( await saved ).ok() ).toBe( true );
+		} );
+	}
 } );
