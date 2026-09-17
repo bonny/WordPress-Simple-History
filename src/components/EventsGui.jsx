@@ -622,6 +622,12 @@ function EventsGUI() {
 	 *
 	 * TODO: Move this to a hook.
 	 */
+	// Derived rather than using eventsView itself in loadEvents' deps below:
+	// detailed and compact share this same fetch, and eventsView also flips
+	// between those two, which must not refire the full fetch — only the
+	// switch into or out of table view changes what gets requested.
+	const isTableView = eventsView === 'table';
+
 	const loadEvents = useCallback( async () => {
 		setEventsIsLoading( true );
 
@@ -633,14 +639,13 @@ function EventsGUI() {
 			// both: one row, for the max id/date headers, and a minimal
 			// field set. The count query is not skipped, so eventsTotal
 			// still reflects the real total.
-			const fetchQueryParams =
-				eventsView === 'table'
-					? {
-							...eventsQueryParams,
-							per_page: 1,
-							_fields: 'id,date_gmt',
-					  }
-					: eventsQueryParams;
+			const fetchQueryParams = isTableView
+				? {
+						...eventsQueryParams,
+						per_page: 1,
+						_fields: 'id,date_gmt',
+				  }
+				: eventsQueryParams;
 
 			const eventsResponse = await apiFetch( {
 				path: addQueryArgs(
@@ -695,7 +700,7 @@ function EventsGUI() {
 		} finally {
 			setEventsIsLoading( false );
 		}
-	}, [ eventsQueryParams, page, eventsView ] );
+	}, [ eventsQueryParams, page, isTableView ] );
 
 	// Debounce the loadEvents function to avoid multiple calls when user types fast.
 	const debouncedLoadEvents = useDebounce( loadEvents, 500 );
@@ -963,6 +968,7 @@ function EventsGUI() {
 						eventsTotal: eventsMeta.total,
 						hasAnyActiveFilters,
 						eventsIsLoading,
+						eventsReloadTime,
 					} }
 				>
 					{ ( fills ) =>
