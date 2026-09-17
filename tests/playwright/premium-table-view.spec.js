@@ -88,6 +88,29 @@ test.describe( 'Premium table view', () => {
 		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
 	} );
 
+	// Set by the Reactions column test below, so this always runs even if an
+	// assertion fails partway through — the same pattern as
+	// reactions-emoji.spec.js, and needed here for the same reason: a
+	// reaction left behind on the dev site's log is state later specs and
+	// the developer would see too.
+	let reactedEventId = null;
+
+	test.afterEach( async ( { page } ) => {
+		if ( ! reactedEventId ) {
+			return;
+		}
+
+		await page.evaluate( async ( eventId ) => {
+			await window.wp.apiFetch( {
+				path: `/simple-history/v1/events/${ eventId }/unreact`,
+				method: 'POST',
+				data: { type: 'thumbsup' },
+			} );
+		}, reactedEventId );
+
+		reactedEventId = null;
+	} );
+
 	test( 'premium replaces the preview with a real table', async ( {
 		page,
 		requestUtils,
@@ -823,5 +846,115 @@ test.describe( 'Premium table view', () => {
 		// settled value, that leaked through.
 		expect( realTotalPages ).not.toBeNull();
 		expect( maxPagerTotalSeen ).toBeLessThanOrEqual( realTotalPages );
+	} );
+
+	test( 'the Level column shows each row as a pill carrying the plain level name', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const firstLevelCell = page
+			.locator( '.shp-TableView__row' )
+			.first()
+			.locator( '.shp-TableView__td--level' );
+
+		const pill = firstLevelCell.locator( '.shp-TableView__levelPill' );
+		await expect( pill ).toBeVisible();
+
+		// The pill carries a per-level modifier class (for example
+		// shp-TableView__levelPill--info), which is what the pill's colour
+		// hangs off — see PremiumTableView.scss.
+		await expect( pill ).toHaveClass( /shp-TableView__levelPill--[a-z]+/ );
+
+		// The cell's whole text is the pill's text and nothing else — the
+		// sort test above reads .shp-TableView__td--level directly, so
+		// wrapping the label in a pill must not add or hide any of it.
+		const cellText = ( await firstLevelCell.textContent() ).trim();
+		const pillText = ( await pill.textContent() ).trim();
+		expect( pillText ).toBe( cellText );
+		expect( pillText.length ).toBeGreaterThan( 0 );
+	} );
+
+	test( 'the Reactions column can be enabled through the columns menu and shows a count', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page.getByRole( 'button', { name: /Columns/ } ).click();
+
+		const reactionsCheckbox = page.getByRole( 'checkbox', {
+			name: /Reactions/,
+		} );
+
+		// Table_View_Module::get_available_columns() only offers this column
+		// when Helpers::reactions_are_enabled() is true on the site — see the
+		// gating comment there. The dev site has reactions on (confirmed via
+		// /simple-history/v1/search-options' reactions_enabled), but skip
+		// cleanly rather than fail if a future run finds it off.
+		if ( ( await reactionsCheckbox.count() ) === 0 ) {
+			test.skip(
+				true,
+				'Reactions are not enabled on this install, so the column is not offered.'
+			);
+		}
+
+		const eventId = await page
+			.locator( '.shp-TableView__row' )
+			.first()
+			.getAttribute( 'data-event-id' );
+
+		// React to the first loaded row's event via the REST API — same
+		// cookie-authenticated wp.apiFetch pattern as reactions-emoji.spec.js
+		// — so the column has something other than zero to show.
+		const reactResponse = await page.evaluate( async ( id ) => {
+			return window.wp.apiFetch( {
+				path: `/simple-history/v1/events/${ id }/react`,
+				method: 'POST',
+				data: { type: 'thumbsup' },
+			} );
+		}, eventId );
+		reactedEventId = eventId;
+
+		expect( reactResponse.reactions.thumbsup.count ).toBeGreaterThan( 0 );
+
+		const saveResponse = page.waitForResponse(
+			( response ) =>
+				response.url().includes( 'events-table-columns' ) &&
+				response.request().method() === 'POST'
+		);
+
+		await reactionsCheckbox.check();
+		await page.keyboard.press( 'Escape' );
+		await saveResponse;
+
+		await expect(
+			page.getByRole( 'columnheader', { name: /Reactions/ } )
+		).toBeVisible();
+
+		// Enabling the column restarts the table's own fetch from page 1
+		// with the `reactions` field now requested (see includeReactions in
+		// use-table-events.js), so look the row up by event id rather than
+		// position — matches the pattern the export test above uses for the
+		// same reason.
+		const row = page.locator(
+			`.shp-TableView__row[data-event-id="${ eventId }"]`
+		);
+		await row.waitFor();
+
+		const reactionPill = row
+			.locator( '.shp-TableView__reactionPill' )
+			.first();
+		await expect( reactionPill ).toBeVisible();
+		await expect( reactionPill ).toContainText( '1' );
 	} );
 } );
