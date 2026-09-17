@@ -545,6 +545,138 @@ test.describe( 'Premium table view', () => {
 			.toBeGreaterThan( initialCount );
 	} );
 
+	test( "expanding a row fetches and shows details for that row's event, collapsing hides them again", async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		// Not the first row: picking a row a few down and checking the fetch
+		// carries that exact id is what tells this apart from a bug that
+		// always expands whichever event happens to be first/last.
+		const row = page.locator( '.shp-TableView__row' ).nth( 3 );
+		const eventId = await row.getAttribute( 'data-event-id' );
+
+		const detailsRequest = page.waitForResponse( ( response ) => {
+			const { pathname } = new URL( response.url() );
+
+			return pathname.endsWith(
+				`/simple-history/v1/events/${ eventId }`
+			);
+		} );
+
+		await row
+			.getByRole( 'button', {
+				name: `Show details for event ${ eventId }`,
+			} )
+			.click();
+
+		const response = await detailsRequest;
+		expect( response.ok() ).toBe( true );
+
+		const panel = page.locator(
+			`#shp-TableView__detailsPanel-${ eventId }`
+		);
+		await expect( panel ).toBeVisible();
+
+		// EventDetails always renders this wrapper, even for an event whose
+		// details_html happens to be empty — so this confirms core's
+		// component rendered inside the panel rather than depending on any
+		// particular event carrying non-empty content.
+		await expect(
+			panel.locator( '.SimpleHistoryLogitem__details' )
+		).toHaveCount( 1 );
+
+		const hideToggle = row.getByRole( 'button', {
+			name: `Hide details for event ${ eventId }`,
+		} );
+		await expect( hideToggle ).toHaveAttribute( 'aria-expanded', 'true' );
+
+		await hideToggle.click();
+
+		await expect( panel ).toHaveCount( 0 );
+		await expect(
+			row.getByRole( 'button', {
+				name: `Show details for event ${ eventId }`,
+			} )
+		).toHaveAttribute( 'aria-expanded', 'false' );
+	} );
+
+	test( 'expanding a row does not misposition the rows around it while scrolling', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		// A row with rows both above and below it, so growing it taller than
+		// the virtualizer's collapsed-row estimate can misplace neighbours on
+		// either side, not just below.
+		const rowToExpand = page.locator( '.shp-TableView__row' ).nth( 2 );
+		const eventId = await rowToExpand.getAttribute( 'data-event-id' );
+
+		await rowToExpand
+			.getByRole( 'button', {
+				name: `Show details for event ${ eventId }`,
+			} )
+			.click();
+
+		const panel = page.locator(
+			`#shp-TableView__detailsPanel-${ eventId }`
+		);
+		await expect( panel ).toBeVisible();
+
+		// Scroll to the loaded bottom and back to the top, so every currently
+		// loaded row passes through the virtualizer's mount/unmount cycle at
+		// least once with the expanded row's real (taller) height in play.
+		const scrollContainer = page.locator(
+			'.shp-TableView__scrollContainer'
+		);
+
+		await scrollContainer.evaluate( ( el ) => {
+			el.scrollTop = el.scrollHeight;
+		} );
+		await page.waitForTimeout( 300 );
+
+		await scrollContainer.evaluate( ( el ) => {
+			el.scrollTop = 0;
+		} );
+		await page.waitForTimeout( 300 );
+
+		// No two rows the virtualizer currently has mounted may overlap
+		// vertically. An un-measured expanded row leaves every row below it
+		// positioned at its old, collapsed-height offset — this is the direct
+		// symptom of that: the next row's top ends up above the expanded
+		// row's real bottom edge.
+		const rowRects = await page
+			.locator( '.shp-TableView__row' )
+			.evaluateAll( ( rows ) =>
+				rows
+					.map( ( row ) => row.getBoundingClientRect() )
+					.sort( ( a, b ) => a.top - b.top )
+			);
+
+		expect( rowRects.length ).toBeGreaterThan( 1 );
+
+		for ( let i = 1; i < rowRects.length; i++ ) {
+			// 1px slack for sub-pixel rounding between measured layout and
+			// the virtualizer's translateY offsets.
+			expect( rowRects[ i ].top ).toBeGreaterThanOrEqual(
+				rowRects[ i - 1 ].bottom - 1
+			);
+		}
+
+		// Expansion is centralised state (useTableRowDetails), not state on
+		// the row's own DOM node, so scrolling the row out of the
+		// virtualizer's mounted window and back does not lose it.
+		await expect( panel ).toBeVisible();
+	} );
+
 	test( 'switching out of table view never renders a stub event', async ( {
 		page,
 		requestUtils,
