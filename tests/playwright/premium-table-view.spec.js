@@ -17,6 +17,18 @@ async function setStoredView( requestUtils, view ) {
 	} );
 }
 
+/**
+ * True for core's own events-list request, not the view-preference endpoint
+ * ("…/events-view") or the new-events check ("…/events/has-updates"), both
+ * of which contain "/v1/events" as a substring too.
+ *
+ * @param {string} url
+ * @return {boolean}
+ */
+function isCoreEventsListRequest( url ) {
+	return new URL( url ).pathname === '/wp-json/simple-history/v1/events';
+}
+
 // Matches Table_View_Module::DEFAULT_COLUMNS in premium's PHP.
 const DEFAULT_COLUMNS = [ 'date', 'user', 'message', 'level' ];
 
@@ -405,5 +417,123 @@ test.describe( 'Premium table view', () => {
 				{ timeout: 10000 }
 			)
 			.toBeGreaterThan( initialCount );
+	} );
+
+	test( 'switching out of table view never renders a stub event', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		// Core's redundant fetch for table view is debounced (500ms) and only
+		// fires once the view state has actually settled on "table" — a quick
+		// automated flip in and back out again coalesces to a single fetch
+		// for the final ("detailed") state and never reproduces the bug.
+		// A real user browsing table view for more than a moment does let it
+		// land, so wait for it here: this is core's own trimmed request
+		// (per_page=1), not Premium's separate, real one.
+		const tableViewFetch = page.waitForResponse(
+			( response ) =>
+				isCoreEventsListRequest( response.url() ) &&
+				response.url().includes( 'per_page=1' )
+		);
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView' ).waitFor();
+		await tableViewFetch;
+
+		// Core's own events request in table view is trimmed to per_page: 1
+		// (Premium fetches and renders the real rows). A prior bug wrote that
+		// one-row, id-and-date-only response into core's events/eventsMeta
+		// state anyway, so switching back to Detailed briefly rendered that
+		// single stub row — "Show NaN similar events" (subsequent_occasions_count
+		// is missing), an empty initiator, and a pager reading "Page 1 of
+		// <event count>" because totalPages came from a per_page: 1 response.
+		// The debounced refetch (500ms) then overwrites it with the real
+		// list, so a check made after that settles would pass even with the
+		// bug present. A MutationObserver installed before the view switch
+		// catches every DOM mutation in between instead of sampling on an
+		// interval and risking a miss between polls.
+		await page.evaluate( () => {
+			window.__shStubEventSeen = false;
+			window.__shMaxPagerTotalSeen = 0;
+
+			const root = document.getElementById( 'simple-history-react-root' );
+
+			const scan = () => {
+				if ( root.innerText.includes( 'NaN' ) ) {
+					window.__shStubEventSeen = true;
+				}
+
+				// EventsPagination renders one <option> per page plus a
+				// leading "…" custom-page option, so option count minus one
+				// is the totalPages it is currently showing.
+				const pagerSelect = root.querySelector(
+					'select[aria-label="Current page"]'
+				);
+
+				if ( pagerSelect ) {
+					const totalPagesShown = pagerSelect.options.length - 1;
+
+					window.__shMaxPagerTotalSeen = Math.max(
+						window.__shMaxPagerTotalSeen,
+						totalPagesShown
+					);
+				}
+			};
+
+			scan();
+
+			window.__shObserver = new MutationObserver( scan );
+			window.__shObserver.observe( root, {
+				childList: true,
+				subtree: true,
+				characterData: true,
+			} );
+		} );
+
+		// The real, untrimmed refetch this view switch triggers — as opposed
+		// to core's still-pending or already-settled per_page: 1 one.
+		const detailedViewFetch = page.waitForResponse(
+			( response ) =>
+				isCoreEventsListRequest( response.url() ) &&
+				! response.url().includes( 'per_page=1' )
+		);
+
+		await page.getByRole( 'button', { name: 'Detailed view' } ).click();
+
+		await detailedViewFetch;
+
+		// Let the resolved response's setState calls actually commit before
+		// reading the DOM below — otherwise this can read the stub's
+		// still-current render from the microtask queue.
+		await page.waitForTimeout( 100 );
+
+		const { stubEventSeen, maxPagerTotalSeen, realTotalPages } =
+			await page.evaluate( () => {
+				window.__shObserver.disconnect();
+
+				const pagerSelect = document
+					.getElementById( 'simple-history-react-root' )
+					.querySelector( 'select[aria-label="Current page"]' );
+
+				return {
+					stubEventSeen: window.__shStubEventSeen,
+					maxPagerTotalSeen: window.__shMaxPagerTotalSeen,
+					realTotalPages: pagerSelect
+						? pagerSelect.options.length - 1
+						: null,
+				};
+			} );
+
+		expect( stubEventSeen ).toBe( false );
+
+		// The real, settled totalPages divides the event count by the page
+		// size, so it is small. The stub's per_page: 1 response set
+		// totalPages to the event count itself (hundreds), one "page" per
+		// event — if the pager ever showed more pages than the correct,
+		// settled value, that leaked through.
+		expect( realTotalPages ).not.toBeNull();
+		expect( maxPagerTotalSeen ).toBeLessThanOrEqual( realTotalPages );
 	} );
 } );
