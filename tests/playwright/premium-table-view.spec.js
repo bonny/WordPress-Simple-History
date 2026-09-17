@@ -58,6 +58,24 @@ function isLevelColumnNonDecreasing( levelValues ) {
 // Matches Table_View_Module::DEFAULT_COLUMNS in premium's PHP.
 const DEFAULT_COLUMNS = [ 'date', 'user', 'message', 'level' ];
 
+// Matches Table_View_Module::KNOWN_COLUMNS in premium's PHP — every optional
+// column at once, which is the state that overflows a row's width soonest
+// (see the layout test below). Storing 'reactions' when the site has
+// reactions turned off is harmless: sanitize_columns() on the server just
+// drops ids get_available_columns() does not currently offer, so this list
+// does not need to special-case that setting the way the Reactions column
+// test above does.
+const ALL_COLUMNS = [
+	'date',
+	'user',
+	'message',
+	'level',
+	'logger',
+	'event_type',
+	'ip',
+	'reactions',
+];
+
 /**
  * Save the admin's stored table columns directly, so a test starts from a
  * known column set and can be restored to the defaults afterwards.
@@ -956,5 +974,120 @@ test.describe( 'Premium table view', () => {
 			.first();
 		await expect( reactionPill ).toBeVisible();
 		await expect( reactionPill ).toContainText( '1' );
+	} );
+
+	// Regression test for a bug where .shp-TableView__row's flex-wrap: wrap
+	// (there to drop the details panel to its own line — see
+	// PremiumTableView.scss) also wrapped a data cell once the visible
+	// columns' widths added up to more than the row's width: the Actions
+	// cell broke onto a second line at the far left, doubling every row's
+	// height. Every other test in this file only reads cell *content*, so
+	// none of them would fail against that render — the row is still there,
+	// still holding the right text, just twice as tall. This checks
+	// geometry instead: every cell's top edge must match the others', for
+	// every column combination, since more columns is exactly what made the
+	// row wrap in the first place.
+	for ( const [ label, columns ] of [
+		[ 'default columns', DEFAULT_COLUMNS ],
+		[ 'every optional column enabled', ALL_COLUMNS ],
+	] ) {
+		test( `no cell in a row wraps onto its own line (${ label })`, async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'detailed' );
+			await setStoredColumns( requestUtils, columns );
+
+			await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+			await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+			// A handful of rows, not just the first: the virtualizer mounts
+			// several at once and a wrap bug affects all of them the same
+			// way, so checking more than one is cheap insurance against a
+			// fix that only happens to line up the first row.
+			const rowTops = await page
+				.locator( '.shp-TableView__row' )
+				.evaluateAll( ( rows ) =>
+					rows.slice( 0, 5 ).map( ( row ) => {
+						// Excludes the (collapsed, here) details panel on
+						// purpose — that cell is *meant* to sit on its own
+						// line below the others; it is the data cells
+						// beside it in .shp-TableView__rowCells that must
+						// never wrap.
+						const cellTops = Array.from(
+							row.querySelectorAll(
+								'.shp-TableView__rowCells > .shp-TableView__td'
+							)
+						).map( ( cell ) => cell.getBoundingClientRect().top );
+
+						return {
+							min: Math.min( ...cellTops ),
+							max: Math.max( ...cellTops ),
+							count: cellTops.length,
+						};
+					} )
+				);
+
+			expect( rowTops.length ).toBeGreaterThan( 0 );
+
+			for ( const { min, max, count } of rowTops ) {
+				// At least expand, select, message and actions — a count of
+				// 0 or 1 here would mean the selector above matched nothing
+				// (or one cell) and the top comparison below passed
+				// vacuously. Not an exact count: 'reactions' silently drops
+				// out of ALL_COLUMNS on an install with reactions turned
+				// off (see sanitize_columns()), which must not fail this
+				// test — it is a real, supported column set, just not this
+				// one's full length everywhere.
+				expect( count ).toBeGreaterThan( 3 );
+
+				// Sub-pixel slack only: a wrapped cell lands a full row
+				// height (around 40px) below the others, nowhere near this
+				// tolerance.
+				expect( max - min ).toBeLessThanOrEqual( 1 );
+			}
+		} );
+	}
+
+	// Regression test for two totals disagreeing on screen: core's control
+	// bar counts grouped occasions (repeated events collapsed into one),
+	// while the table counts individual events, because a table row has to
+	// be one event — see TableTotal() in PremiumTableView.jsx and the
+	// isTableView guard on eventsCount in EventsControlBar.jsx. Both numbers
+	// are correct for what they each measure, but showing both at once on
+	// one screen reads as a bug, so the control bar's own total is hidden
+	// while table view is active — the table already has one of its own.
+	test( "table view hides the control bar's own total, since the table already shows one", async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		// The table's own total, e.g. "2,915 matching events" — confirms
+		// this landed before checking the control bar's total is gone,
+		// rather than passing vacuously while the table is still loading.
+		await expect( page.locator( '.shp-TableView__total' ) ).toContainText(
+			/\d/
+		);
+
+		// Anchored and excluding "new" so this cannot match the unrelated
+		// "N new events" notifier that lives in the same control bar —
+		// eventsCount's own text is exactly "N events" or "N matching
+		// events" with nothing else in the string (see EventsControlBar.jsx).
+		const controlBarTotal = page
+			.locator( '.sh-EventsControlBar-actions' )
+			.getByText( /^[\d,.\s]+(matching )?events?$/ );
+
+		await expect( controlBarTotal ).toHaveCount( 0 );
+
+		// Switching to Detailed brings the control bar's own total straight
+		// back — this is scoped to table view, not a total removed for
+		// good.
+		await page.getByRole( 'button', { name: 'Detailed view' } ).click();
+
+		await expect( controlBarTotal ).toBeVisible();
 	} );
 } );
