@@ -96,7 +96,94 @@ test.describe( 'Premium table view', () => {
 		expect( Number( firstId ) ).toBeGreaterThan( 0 );
 	} );
 
-	test( 'clicking the date button opens the event details modal for that row', async ( {
+	test( 'clicking the date does not open anything', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		// The date is plain text now, not a button — clicking a date to see
+		// details was an implementation detail leaking into the interface.
+		// Details live in the row actions menu instead (see the tests below).
+		await page
+			.locator( '.shp-TableView__row' )
+			.first()
+			.locator( '.shp-TableView__td--date' )
+			.click();
+
+		await expect( page.getByRole( 'dialog' ) ).toHaveCount( 0 );
+	} );
+
+	test( 'the row actions menu opens on top of the table and its Details item opens the modal for that row', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		// Not the first row: the menu carries eleven items and is tall
+		// enough to flip upward past a row this close to the top of a
+		// short page, which is a real but unrelated quirk of a tall
+		// popover with little room below it. A row with room below keeps
+		// this test about the stacking behaviour under test, not that.
+		const row = page.locator( '.shp-TableView__row' ).nth( 4 );
+		const eventId = await row.getAttribute( 'data-event-id' );
+
+		// The dropdown's accessible name identifies its row (see
+		// dropdownLabel in PremiumTableView.jsx) rather than reading
+		// "Actions…" identically down the whole column.
+		const actionsButton = row.getByRole( 'button', {
+			name: `Actions for event ${ eventId }`,
+		} );
+
+		await expect( actionsButton ).toBeVisible();
+		await actionsButton.click();
+
+		const detailsMenuItem = page.getByRole( 'menuitem', {
+			name: 'View event details',
+		} );
+		await expect( detailsMenuItem ).toBeVisible();
+
+		// The table virtualises rows with a `transform` (a new CSS
+		// containing block) inside a scrolling `overflow` container —
+		// both of which trap an inline popover behind or clipped by
+		// sibling rows instead of on top of them (see popoverProps in
+		// PremiumTableView.jsx). `toBeVisible()` alone would not catch
+		// that: a clipped or buried element can still report visible
+		// while unusable. `elementFromPoint` at the item's own on-screen
+		// coordinates returning the item itself, rather than a table row
+		// painted over it, is a direct test of the stacking bug — it
+		// fails against the broken render, where row text sits above the
+		// menu instead of under it.
+		const isHitTestable = await detailsMenuItem.evaluate( ( el ) => {
+			const rect = el.getBoundingClientRect();
+			const hit = document.elementFromPoint(
+				rect.left + rect.width / 2,
+				rect.top + rect.height / 2
+			);
+			return el === hit || el.contains( hit );
+		} );
+		expect( isHitTestable ).toBe( true );
+
+		await detailsMenuItem.click();
+
+		const dialog = page.getByRole( 'dialog' );
+		await expect( dialog ).toBeVisible();
+
+		// Not just "a dialog appeared" — the modal's own event-details table
+		// carries the id of the event it loaded, so this confirms it opened
+		// the clicked row's event and not merely the first/last one shown.
+		await expect( dialog.locator( 'td:text-is("id") + td' ) ).toHaveText(
+			eventId
+		);
+	} );
+
+	test( 'clicking the row actions button does not toggle row selection or open details', async ( {
 		page,
 		requestUtils,
 	} ) => {
@@ -108,17 +195,17 @@ test.describe( 'Premium table view', () => {
 		const firstRow = page.locator( '.shp-TableView__row' ).first();
 		const eventId = await firstRow.getAttribute( 'data-event-id' );
 
-		await firstRow.locator( '.shp-TableView__dateButton' ).click();
+		const actionsButton = firstRow.getByRole( 'button', {
+			name: `Actions for event ${ eventId }`,
+		} );
 
-		const dialog = page.getByRole( 'dialog' );
-		await expect( dialog ).toBeVisible();
+		await actionsButton.click();
+		await page.keyboard.press( 'Escape' );
 
-		// Not just "a dialog appeared" — the modal's own event-details table
-		// carries the id of the event it loaded, so this confirms it opened
-		// the clicked row's event and not merely the first/last one shown.
-		await expect( dialog.locator( 'td:text-is("id") + td' ) ).toHaveText(
-			eventId
-		);
+		await expect( page.getByRole( 'dialog' ) ).toHaveCount( 0 );
+		await expect(
+			firstRow.locator( 'input[type="checkbox"]' )
+		).not.toBeChecked();
 	} );
 
 	test( 'clicking a row checkbox does not open the event details modal', async ( {
@@ -147,14 +234,16 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await page.locator( '.shp-TableView__row' ).first().waitFor();
 
-		const firstIdBefore = await page
-			.locator( '.shp-TableView__row' )
-			.first()
-			.getAttribute( 'data-event-id' );
-
 		// Level is sortable and uncorrelated with insertion order, so a real
-		// server-side sort changes which row comes first.
-		await page.getByRole( 'button', { name: /Level/ } ).click();
+		// server-side sort changes what is shown. The first click on a column
+		// that was not already active sorts descending (see toggleSort() in
+		// use-table-sort.js); the second click flips it to ascending, which
+		// is the direction this assertion checks.
+		const levelHeaderButton = page.getByRole( 'button', {
+			name: /Level/,
+		} );
+
+		await levelHeaderButton.click();
 
 		// aria-busy lives on the <table> (.shp-TableView__table), not the
 		// outer wrapper div the brief's sample checked — that div never
@@ -164,12 +253,49 @@ test.describe( 'Premium table view', () => {
 			page.locator( '.shp-TableView__table' )
 		).not.toHaveAttribute( 'aria-busy', 'true' );
 
-		const firstIdAfter = await page
-			.locator( '.shp-TableView__row' )
-			.first()
-			.getAttribute( 'data-event-id' );
+		await levelHeaderButton.click();
 
-		expect( firstIdAfter ).not.toBe( firstIdBefore );
+		await expect(
+			page.locator( '.shp-TableView__table' )
+		).not.toHaveAttribute( 'aria-busy', 'true' );
+
+		// Data-independent: asserting the first row's id changed is data-
+		// dependent — it can fail with nothing wrong if the log's own order
+		// already happened to put a different row first, or pass with
+		// nothing right if the visible levels are all the same. Checking
+		// that the Level column's visible values come back in non-decreasing
+		// order tests the actual claim instead — that the server sorted by
+		// that column — not a side effect that usually but not always
+		// follows it.
+		//
+		// The server sorts the raw `level` column alphabetically, and the
+		// visible labels (LOG_LEVEL_LABELS in PremiumTableView.jsx) are just
+		// capitalised versions of the same words, so a case-insensitive
+		// comparison of consecutive values is enough to catch a sort that
+		// never reached the server.
+		//
+		// aria-busy clearing only means the fetch settled, not that the
+		// virtualizer has mounted rows for the new data yet — waiting for
+		// the first Level cell closes that gap, rather than reading
+		// allTextContents() (a point-in-time query, unlike the auto-waiting
+		// assertions above) against a table that has not repainted.
+		await page.locator( '.shp-TableView__td--level' ).first().waitFor();
+
+		const levelValues = await page
+			.locator( '.shp-TableView__td--level' )
+			.allTextContents();
+
+		expect( levelValues.length ).toBeGreaterThan( 0 );
+
+		for ( let i = 1; i < levelValues.length; i++ ) {
+			expect(
+				levelValues[ i ].localeCompare(
+					levelValues[ i - 1 ],
+					undefined,
+					{ sensitivity: 'base' }
+				)
+			).toBeGreaterThanOrEqual( 0 );
+		}
 	} );
 
 	test( 'sort survives a reload through the URL', async ( {
