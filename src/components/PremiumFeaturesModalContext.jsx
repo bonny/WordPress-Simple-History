@@ -65,16 +65,9 @@ export const usePremiumFeaturesModal = () => {
 	const context = useContext( PremiumFeaturesModalContext );
 
 	if ( ! context ) {
-		// A caller can render outside this provider without a coding mistake
-		// here: Premium imports EventActionsButton (which renders
-		// EventStickMenuItem, the one caller of this hook) by relative
-		// source path, so Premium's own build compiles in its own,
-		// disconnected copy of this context module — no Provider for that
-		// copy exists anywhere in the tree. Degrade to a no-op rather than
-		// crash the menu; the real EventStickMenuItem already skips
-		// rendering this feature when hasPremiumAddOn is true, which it is
-		// whenever the caller is Premium.
-		return { showModal: () => {} };
+		throw new Error(
+			'usePremiumFeaturesModal must be used within a PremiumFeaturesModalProvider'
+		);
 	}
 
 	return context;

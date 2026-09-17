@@ -29,6 +29,32 @@ function isCoreEventsListRequest( url ) {
 	return new URL( url ).pathname === '/wp-json/simple-history/v1/events';
 }
 
+/**
+ * Whether the table's Level column reads back in non-decreasing order —
+ * what a server-side ascending sort on the raw `level` column produces,
+ * since the visible labels are just capitalised versions of the same words.
+ *
+ * @param {string[]} levelValues Visible text of every Level cell, top to bottom.
+ * @return {boolean} True if sorted (and non-empty); false otherwise.
+ */
+function isLevelColumnNonDecreasing( levelValues ) {
+	if ( levelValues.length === 0 ) {
+		return false;
+	}
+
+	for ( let i = 1; i < levelValues.length; i++ ) {
+		if (
+			levelValues[ i ].localeCompare( levelValues[ i - 1 ], undefined, {
+				sensitivity: 'base',
+			} ) < 0
+		) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 // Matches Table_View_Module::DEFAULT_COLUMNS in premium's PHP.
 const DEFAULT_COLUMNS = [ 'date', 'user', 'message', 'level' ];
 
@@ -243,21 +269,26 @@ test.describe( 'Premium table view', () => {
 			name: /Level/,
 		} );
 
-		await levelHeaderButton.click();
-
-		// aria-busy lives on the <table> (.shp-TableView__table), not the
-		// outer wrapper div the brief's sample checked — that div never
-		// carries the attribute, so asserting against it cannot detect the
-		// sort fetch finishing.
-		await expect(
-			page.locator( '.shp-TableView__table' )
-		).not.toHaveAttribute( 'aria-busy', 'true' );
+		// aria-sort belongs on the <th>, not the button inside it, per
+		// ARIA's authoring practices for a sortable column header.
+		const levelHeaderCell = page.getByRole( 'columnheader', {
+			name: /Level/,
+		} );
 
 		await levelHeaderButton.click();
+		await levelHeaderButton.click();
 
-		await expect(
-			page.locator( '.shp-TableView__table' )
-		).not.toHaveAttribute( 'aria-busy', 'true' );
+		// A positive wait, not the aria-busy-cleared checks this replaced.
+		// Those were negative assertions (`not.toHaveAttribute`), which pass
+		// the moment they are first polled if the sort fetch has not started
+		// yet — aria-busy is only ever "true" while one is in flight — so the
+		// chain could short-circuit before the server-side sort even began.
+		// Waiting for aria-sort="ascending" instead can only pass once the
+		// second click's toggle has actually landed.
+		await expect( levelHeaderCell ).toHaveAttribute(
+			'aria-sort',
+			'ascending'
+		);
 
 		// Data-independent: asserting the first row's id changed is data-
 		// dependent — it can fail with nothing wrong if the log's own order
@@ -274,28 +305,27 @@ test.describe( 'Premium table view', () => {
 		// comparison of consecutive values is enough to catch a sort that
 		// never reached the server.
 		//
-		// aria-busy clearing only means the fetch settled, not that the
-		// virtualizer has mounted rows for the new data yet — waiting for
-		// the first Level cell closes that gap, rather than reading
-		// allTextContents() (a point-in-time query, unlike the auto-waiting
-		// assertions above) against a table that has not repainted.
-		await page.locator( '.shp-TableView__td--level' ).first().waitFor();
+		// aria-sort turning "ascending" only means the client-side toggle
+		// landed, not that the fetch has settled or that the virtualizer has
+		// mounted rows for the new data yet, and allTextContents() is a
+		// point-in-time read that cannot retry on its own. Wrapped in
+		// expect.poll so a read that lands before the new rows have painted
+		// retries instead of failing once against a table that has not
+		// caught up — and returning the values alongside the verdict means a
+		// failure prints the actual Level column contents (via Playwright's
+		// standard Received: output), not a bare boolean.
+		await expect
+			.poll( async () => {
+				const levelValues = await page
+					.locator( '.shp-TableView__td--level' )
+					.allTextContents();
 
-		const levelValues = await page
-			.locator( '.shp-TableView__td--level' )
-			.allTextContents();
-
-		expect( levelValues.length ).toBeGreaterThan( 0 );
-
-		for ( let i = 1; i < levelValues.length; i++ ) {
-			expect(
-				levelValues[ i ].localeCompare(
-					levelValues[ i - 1 ],
-					undefined,
-					{ sensitivity: 'base' }
-				)
-			).toBeGreaterThanOrEqual( 0 );
-		}
+				return {
+					isNonDecreasing: isLevelColumnNonDecreasing( levelValues ),
+					levelValues,
+				};
+			} )
+			.toMatchObject( { isNonDecreasing: true } );
 	} );
 
 	test( 'sort survives a reload through the URL', async ( {
