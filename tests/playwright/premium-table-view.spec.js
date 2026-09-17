@@ -84,7 +84,7 @@ test.describe( 'Premium table view', () => {
 		expect( Number( firstId ) ).toBeGreaterThan( 0 );
 	} );
 
-	test( 'clicking a row opens the event details modal', async ( {
+	test( 'clicking the date button opens the event details modal for that row', async ( {
 		page,
 		requestUtils,
 	} ) => {
@@ -93,9 +93,20 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await page.locator( '.shp-TableView__row' ).first().waitFor();
 
-		await page.locator( '.shp-TableView__row' ).first().click();
+		const firstRow = page.locator( '.shp-TableView__row' ).first();
+		const eventId = await firstRow.getAttribute( 'data-event-id' );
 
-		await expect( page.getByRole( 'dialog' ) ).toBeVisible();
+		await firstRow.locator( '.shp-TableView__dateButton' ).click();
+
+		const dialog = page.getByRole( 'dialog' );
+		await expect( dialog ).toBeVisible();
+
+		// Not just "a dialog appeared" — the modal's own event-details table
+		// carries the id of the event it loaded, so this confirms it opened
+		// the clicked row's event and not merely the first/last one shown.
+		await expect( dialog.locator( 'td:text-is("id") + td' ) ).toHaveText(
+			eventId
+		);
 	} );
 
 	test( 'clicking a row checkbox does not open the event details modal', async ( {
