@@ -24,52 +24,35 @@ import { useEventsSettings } from './EventsSettingsContext';
  * three-dot dropdown menu.
  *
  * @param {Object} props
- * @param {Object} props.event              The event object
- * @param {string} props.eventVariant       The variant of the event ('normal' or 'modal')
- * @param {Object} props.reactionState      Reaction state from useEventReactions hook
- * @param {string} [props.dropdownLabel]    Accessible name for the dropdown
- *                                          toggle button. Defaults to the
- *                                          generic "Actions…" used in the log
- *                                          rows, where the surrounding row
- *                                          already gives the button context. A
- *                                          caller whose rows read alike without
- *                                          that context (a table row) should
- *                                          pass one that identifies the row.
- * @param {Object} [props.settingsOverride] Values to use instead of
- *                                          useEventsSettings()'s own lookup,
- *                                          keyed eventsAdminPageURL/
- *                                          hasPremiumAddOn/userCanManageOptions.
- *                                          A caller built into a *different*
- *                                          webpack bundle than this file —
- *                                          Premium imports this component by
- *                                          relative source path, so its build
- *                                          compiles in its own, disconnected
- *                                          copy of EventsSettingsContext —
- *                                          renders under no matching
- *                                          Provider, so the hook's own
- *                                          test/Storybook fallback (all
- *                                          false/undefined) would otherwise
- *                                          apply here too. Individual keys
- *                                          left out still fall back to the
- *                                          hook.
- * @param {Object} [props.popoverProps]     Replaces the dropdown's default
- *                                          `popoverProps` entirely rather
- *                                          than merging with it. The default
- *                                          renders `inline` — in normal DOM
- *                                          flow next to the toggle, which is
- *                                          what a log row wants (it never
- *                                          scrolls or transforms). A caller
- *                                          whose rows live inside a
- *                                          transformed, scrolling ancestor —
- *                                          a virtualised table row uses
- *                                          `transform` for its position and
- *                                          an `overflow` container for
- *                                          scrolling, both of which trap an
- *                                          inline popover behind or clipped
- *                                          by sibling rows — should drop
- *                                          `inline` so it portals out to
- *                                          `Popover.Slot` (or `document.body`
- *                                          with none rendered) instead.
+ * @param {Object} props.event           The event object
+ * @param {string} props.eventVariant    The variant of the event ('normal' or 'modal')
+ * @param {Object} props.reactionState   Reaction state from useEventReactions hook
+ * @param {string} [props.dropdownLabel] Accessible name for the dropdown
+ *                                       toggle button. Defaults to the
+ *                                       generic "Actions…" used in the log
+ *                                       rows, where the surrounding row
+ *                                       already gives the button context. A
+ *                                       caller whose rows read alike without
+ *                                       that context (a table row) should
+ *                                       pass one that identifies the row.
+ * @param {Object} [props.popoverProps]  Replaces the dropdown's default
+ *                                       `popoverProps` entirely rather
+ *                                       than merging with it. The default
+ *                                       renders `inline` — in normal DOM
+ *                                       flow next to the toggle, which is
+ *                                       what a log row wants (it never
+ *                                       scrolls or transforms). A caller
+ *                                       whose rows live inside a
+ *                                       transformed, scrolling ancestor —
+ *                                       a virtualised table row uses
+ *                                       `transform` for its position and
+ *                                       an `overflow` container for
+ *                                       scrolling, both of which trap an
+ *                                       inline popover behind or clipped
+ *                                       by sibling rows — should drop
+ *                                       `inline` so it portals out to
+ *                                       `Popover.Slot` (or `document.body`
+ *                                       with none rendered) instead.
  * @return {Object|null} React element or null if variant is modal
  */
 export function EventActionsButton( {
@@ -77,14 +60,10 @@ export function EventActionsButton( {
 	eventVariant,
 	reactionState,
 	dropdownLabel,
-	settingsOverride,
 	popoverProps,
 } ) {
-	const settingsFromContext = useEventsSettings();
-	const { eventsAdminPageURL, hasPremiumAddOn, userCanManageOptions } = {
-		...settingsFromContext,
-		...settingsOverride,
-	};
+	const { eventsAdminPageURL, hasPremiumAddOn, userCanManageOptions } =
+		useEventsSettings();
 	const actionsRef = useRef( null );
 
 	// Don't show actions on modal or dashboard events.
