@@ -657,17 +657,33 @@ function EventsGUI() {
 
 			const eventsJson = await eventsResponse.json();
 
-			setEventsMeta( {
-				total: parseInt(
-					eventsResponse.headers.get( 'X-Wp-Total' ),
-					10
-				),
-				totalPages: parseInt(
-					eventsResponse.headers.get( 'X-Wp-Totalpages' ),
-					10
-				),
-				link: eventsResponse.headers.get( 'Link' ),
-			} );
+			// Table view's request is trimmed to per_page: 1, so its
+			// "totalPages" is really the total event count (one "page" per
+			// event) and its single row is not a real event. Only the
+			// total itself (from the untrimmed count query) is usable, so
+			// keep the existing event list and page count untouched and
+			// just refresh the total that the control bar shows.
+			if ( isTableView ) {
+				setEventsMeta( ( previousEventsMeta ) => ( {
+					...previousEventsMeta,
+					total: parseInt(
+						eventsResponse.headers.get( 'X-Wp-Total' ),
+						10
+					),
+				} ) );
+			} else {
+				setEventsMeta( {
+					total: parseInt(
+						eventsResponse.headers.get( 'X-Wp-Total' ),
+						10
+					),
+					totalPages: parseInt(
+						eventsResponse.headers.get( 'X-Wp-Totalpages' ),
+						10
+					),
+					link: eventsResponse.headers.get( 'Link' ),
+				} );
+			}
 
 			// To keep track of new events we need to store both old max id and new max id.
 			// Extract maxId and maxDate from response headers for accurate new event detection.
@@ -688,7 +704,13 @@ function EventsGUI() {
 				}
 			}
 
-			setEvents( eventsJson );
+			// Table view's single stub row (id + date_gmt only) must never
+			// reach the event list or pager, so leave the last real
+			// events in place until the view switches back and a full
+			// refetch replaces them.
+			if ( ! isTableView ) {
+				setEvents( eventsJson );
+			}
 		} catch ( error ) {
 			// Parse before setting state, so both updates land in the same
 			// render. Awaiting between them renders an intermediate "there is
