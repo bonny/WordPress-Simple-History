@@ -94,6 +94,42 @@ const ALL_COLUMNS = [
 ];
 
 /**
+ * Wait until the table has really finished its first load.
+ *
+ * A `.shp-TableView__row` appears in the DOM before the table's row model is
+ * populated, so waiting on a row alone is not enough. Two tests failed about
+ * one run in two because of it, on `main` as well as on this branch:
+ *
+ * - The select-all checkbox derives its count from the row model, so it
+ *   renders as "Select the 0 events loaded so far" and clicking it toggles
+ *   nothing — Playwright reports "Clicking the checkbox did not change its
+ *   state", which reads like a broken control rather than a race.
+ * - Scrolling to the bottom fires maybeLoadMore() while there is still
+ *   nothing to page past, and since scrollTop is then already at the bottom,
+ *   setting it again emits no further scroll event — so the page=2 request
+ *   the test is waiting for never happens.
+ *
+ * The checkbox's own label is the readable proof that the row model has
+ * caught up, so that is what this waits on. The number is parsed out rather
+ * than matched whole because the label is translated.
+ *
+ * @param {import('@playwright/test').Page} page The page.
+ */
+async function waitForLoadedRows( page ) {
+	await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+	await expect
+		.poll( async () => {
+			const label = await page
+				.locator( '.shp-TableView__selectAll' )
+				.getAttribute( 'aria-label' );
+
+			return Number( ( label || '' ).match( /\d+/ )?.[ 0 ] ?? 0 );
+		} )
+		.toBeGreaterThan( 0 );
+}
+
+/**
  * Save the admin's stored table columns directly, so a test starts from a
  * known column set and can be restored to the defaults afterwards.
  *
@@ -166,7 +202,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const rowCount = await page.locator( '.shp-TableView__row' ).count();
 		expect( rowCount ).toBeGreaterThan( 0 );
@@ -187,7 +223,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		// The date is plain text now, not a button — clicking a date to see
 		// details was an implementation detail leaking into the interface.
@@ -208,7 +244,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		// Not the first row: the menu carries eleven items and is tall
 		// enough to flip upward past a row this close to the top of a
@@ -274,7 +310,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const firstRow = page.locator( '.shp-TableView__row' ).first();
 		const eventId = await firstRow.getAttribute( 'data-event-id' );
@@ -299,7 +335,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await page
 			.locator( '.shp-TableView__row input[type="checkbox"]' )
@@ -316,7 +352,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		// Level is sortable and uncorrelated with insertion order, so a real
 		// server-side sort changes what is shown. The first click on a column
@@ -396,7 +432,7 @@ test.describe( 'Premium table view', () => {
 			SIMPLE_HISTORY_PAGE +
 				'&view=table&table_orderby=level&table_order=asc'
 		);
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		// aria-sort belongs on the <th>, not the button inside it, per ARIA's
 		// authoring practices for a sortable column header — so this checks
@@ -417,7 +453,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await expect( page.locator( '.shp-TableView__bulkBar' ) ).toHaveCount(
 			0
@@ -441,7 +477,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const rowCount = await page.locator( '.shp-TableView__row' ).count();
 
@@ -465,7 +501,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const checkboxes = page.locator(
 			'.shp-TableView__row input[type="checkbox"]'
@@ -544,7 +580,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await expect(
 			page.getByRole( 'columnheader', { name: /Level/ } )
@@ -574,7 +610,7 @@ test.describe( 'Premium table view', () => {
 
 		// The preference is stored per user, so a fresh load keeps it.
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await expect(
 			page.getByRole( 'columnheader', { name: /Level/ } )
@@ -588,7 +624,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const initialCount = await page
 			.locator( '.shp-TableView__row' )
@@ -640,7 +676,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		// Not the first row: picking a row a few down and checking the fetch
 		// carries that exact id is what tells this apart from a bug that
@@ -700,7 +736,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		// A row with rows both above and below it, so growing it taller than
 		// the virtualizer's collapsed-row estimate can misplace neighbours on
@@ -891,7 +927,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const firstLevelCell = page
 			.locator( '.shp-TableView__row' )
@@ -923,7 +959,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await page.getByRole( 'button', { name: /Columns/ } ).click();
 
@@ -1016,7 +1052,7 @@ test.describe( 'Premium table view', () => {
 			await setStoredColumns( requestUtils, columns );
 
 			await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-			await page.locator( '.shp-TableView__row' ).first().waitFor();
+			await waitForLoadedRows( page );
 
 			// A handful of rows, not just the first: the virtualizer mounts
 			// several at once and a wrap bug affects all of them the same
@@ -1092,7 +1128,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		// The table's own total, e.g. "2,915 matching events" — confirms
 		// this landed before checking the control bar's total is gone,
@@ -1133,7 +1169,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredColumns( requestUtils, ALL_COLUMNS );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		// Content position, not box position. Since box-sizing is border-box
 		// the boxes line up on their widths alone, so comparing those would
@@ -1189,7 +1225,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const rowCount = await page.locator( '.shp-TableView__row' ).count();
 		expect( rowCount ).toBeGreaterThan( 20 );
@@ -1249,7 +1285,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const loadedCount = await page.locator( '.shp-TableView__row' ).count();
 
@@ -1294,7 +1330,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await page.getByRole( 'button', { name: 'Columns' } ).click();
 
@@ -1350,7 +1386,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const dataHeaders = async () =>
 			(
@@ -1389,7 +1425,7 @@ test.describe( 'Premium table view', () => {
 
 		// Persisted server-side, not only in the URL.
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await expect
 			.poll( dataHeaders )
@@ -1415,7 +1451,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const boxes = page.locator(
 			'.shp-TableView__row input[type="checkbox"]'
@@ -1457,7 +1493,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await page
 			.locator( '.shp-TableView__headerRow input[type="checkbox"]' )
@@ -1489,7 +1525,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await page.getByRole( 'button', { name: 'Saved views' } ).click();
 		await page
@@ -1626,7 +1662,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const skipLink = page.getByRole( 'link', {
 			name: 'Skip past the events table',
@@ -1661,7 +1697,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const bars = page.locator( '.shp-TableView__histogramBar' );
 
@@ -1712,7 +1748,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await page.getByLabel( 'Group by' ).selectOption( 'level' );
 
@@ -1760,7 +1796,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const focusedRowId = () =>
 			page.evaluate(
@@ -1810,7 +1846,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await page.keyboard.press( 'j' );
 		const focusedBefore = await page.evaluate(
@@ -1861,7 +1897,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const rowDay = (
 			await page
@@ -1918,7 +1954,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await page.getByRole( 'button', { name: 'Saved views' } ).click();
 
@@ -1937,7 +1973,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await page
 			.locator( '#shp-table-view-query' )
@@ -2010,7 +2046,7 @@ test.describe( 'Premium table view', () => {
 		await setStoredView( requestUtils, 'detailed' );
 
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		const eventId = await page
 			.locator( '.shp-TableView__row' )
@@ -2052,7 +2088,7 @@ test.describe( 'Premium table view', () => {
 		// Stored server-side, and carried on the row rather than only in the
 		// details fetch.
 		await page.reload();
-		await page.locator( '.shp-TableView__row' ).first().waitFor();
+		await waitForLoadedRows( page );
 
 		await expect
 			.poll( () =>
