@@ -1750,4 +1750,180 @@ test.describe( 'Premium table view', () => {
 			.poll( () => new URL( page.url() ).searchParams.get( 'levels' ) )
 			.not.toBeNull();
 	} );
+	// Gmail-style shortcuts for people who are in the log daily. Navigation
+	// and selection only: no single key writes, sends, or leaves the browser,
+	// because a mistyped key in an audit log should never be an incident.
+	test( 'j, k, x and o navigate and select without the mouse', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const focusedRowId = () =>
+			page.evaluate(
+				() =>
+					document.activeElement
+						?.closest?.( '.shp-TableView__row' )
+						?.getAttribute( 'data-event-id' ) ?? null
+			);
+
+		await page.keyboard.press( 'j' );
+		const first = await focusedRowId();
+		expect( first ).not.toBeNull();
+
+		await page.keyboard.press( 'j' );
+		const second = await focusedRowId();
+		expect( second ).not.toBe( first );
+
+		await page.keyboard.press( 'k' );
+		expect( await focusedRowId() ).toBe( first );
+
+		// x selects, and selecting is the most a single key is allowed to do.
+		await page.keyboard.press( 'x' );
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCount' )
+		).toHaveText( '1 event selected' );
+
+		await page.keyboard.press( 'x' );
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCount' )
+		).toHaveCount( 0 );
+
+		// o expands the focused row.
+		await page.keyboard.press( 'o' );
+		await expect
+			.poll( () =>
+				page.locator( '.shp-TableView__row--expanded, .shp-TableView__detailsPanel' ).count()
+			)
+			.toBeGreaterThan( 0 );
+	} );
+
+	// The shortcuts must not fire while the reader is typing, or `/` eats the
+	// search box the first time anyone tries to use it.
+	test( 'the shortcuts stay out of the way while typing', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page.keyboard.press( 'j' );
+		const focusedBefore = await page.evaluate(
+			() =>
+				document.activeElement
+					?.closest?.( '.shp-TableView__row' )
+					?.getAttribute( 'data-event-id' ) ?? null
+		);
+
+		// `/` moves focus to the search box.
+		await page.keyboard.press( '/' );
+		await expect
+			.poll( () =>
+				page.evaluate( () =>
+					document.activeElement?.tagName?.toLowerCase()
+				)
+			)
+			.toBe( 'input' );
+
+		await page.keyboard.type( 'jjjkkkxxx' );
+
+		// Every one of those is a shortcut, and none of them did anything.
+		expect(
+			await page.evaluate( () => document.activeElement?.value )
+		).toBe( 'jjjkkkxxx' );
+
+		expect(
+			await page.evaluate(
+				() =>
+					document.activeElement
+						?.closest?.( '.shp-TableView__row' )
+						?.getAttribute( 'data-event-id' ) ?? null
+			)
+		).not.toBe( focusedBefore );
+
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCount' )
+		).toHaveCount( 0 );
+	} );
+
+	// Filters live in the URL, so a pivot is a link — which keeps it at the
+	// view-history capability. Building it on surrounding_event_id would have
+	// inherited that parameter's admin-only capability bypass.
+	test( 'a row pivots to everything that user did that day', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const rowDay = (
+			await page
+				.locator( '.shp-TableView__row .shp-TableView__col--date' )
+				.first()
+				.innerText()
+		 )
+			.trim()
+			.slice( 0, 10 );
+
+		await page
+			.locator(
+				'.shp-TableView__row .shp-TableView__col--user .shp-TableView__filterValue'
+			)
+			.first()
+			.click();
+
+		await page
+			.locator( '.components-popover' )
+			.last()
+			.getByRole( 'menuitem', {
+				name: 'Everything this user did that day',
+			} )
+			.click();
+
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'from' ) )
+			.toBe( rowDay );
+
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'date' ) )
+			.toBe( 'customRange' );
+
+		// One user, one day.
+		await expect
+			.poll( async () => {
+				const users = await page
+					.locator(
+						'.shp-TableView__row .shp-TableView__col--user'
+					)
+					.allInnerTexts();
+
+				return new Set( users.map( ( u ) => u.trim() ) ).size;
+			} )
+			.toBe( 1 );
+	} );
+
+	test( 'the current filters can be copied as a WP-CLI command', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page.getByRole( 'button', { name: 'Saved views' } ).click();
+
+		await expect(
+			page.getByRole( 'menuitem', { name: 'Copy as WP-CLI command' } )
+		).toBeVisible();
+	} );
 } );
