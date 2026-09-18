@@ -1604,12 +1604,52 @@ class Log_Query {
 			return sprintf( 'ORDER BY %1$sid %2$s', $prefix, $order );
 		}
 
+		// Level is stored as a varchar, so ordering by the column sorts it
+		// alphabetically: alert, critical, debug, emergency, error, info,
+		// notice, warning. That is not severity order, and "worst first"
+		// would put an emergency below an info. Rank it instead.
+		if ( $orderby === 'level' ) {
+			return sprintf(
+				'ORDER BY %1$s %2$s, %3$sid %2$s',
+				$this->get_level_severity_expression( $prefix ),
+				$order,
+				$prefix
+			);
+		}
+
 		return sprintf(
 			'ORDER BY %1$s%2$s %3$s, %1$sid %3$s',
 			$prefix,
 			$orderby,
 			$order
 		);
+	}
+
+	/**
+	 * Build a CASE expression mapping the level column to its severity rank.
+	 *
+	 * A plain CASE is used rather than MySQL's FIELD(), which SQLite does not
+	 * have. The level strings come from Log_Levels constants, never from
+	 * caller input, but they still go through prepare() so the query carries
+	 * no interpolated literals.
+	 *
+	 * An unrecognised level — a row written by an old version, or by another
+	 * plugin through the logger API — ranks 0 and therefore sorts below
+	 * debug, rather than being dropped from the results.
+	 *
+	 * @param string $prefix Table alias with trailing dot, or an empty string.
+	 * @return string CASE expression, without a trailing comma.
+	 */
+	protected function get_level_severity_expression( $prefix ) {
+		global $wpdb;
+
+		$when_clauses = '';
+
+		foreach ( Log_Levels::get_log_levels_by_severity() as $rank => $level ) {
+			$when_clauses .= $wpdb->prepare( ' WHEN %s THEN %d', $level, $rank + 1 );
+		}
+
+		return sprintf( 'CASE %1$slevel%2$s ELSE 0 END', $prefix, $when_clauses );
 	}
 
 	/**
