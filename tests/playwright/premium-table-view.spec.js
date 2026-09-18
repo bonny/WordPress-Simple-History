@@ -2000,4 +2000,89 @@ test.describe( 'Premium table view', () => {
 			'Warning'
 		);
 	} );
+	// The first thing a person writes into the log. Everything else in the
+	// table was written by a logger, so this needs manage_options (matching
+	// sticky) and it keeps every earlier version.
+	test( 'an event can be annotated, and edits keep the earlier version', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const eventId = await page
+			.locator( '.shp-TableView__row' )
+			.first()
+			.getAttribute( 'data-event-id' );
+
+		const expand = () =>
+			page
+				.locator(
+					`[data-event-id="${ eventId }"] .shp-TableView__col--expand button`
+				)
+				.click();
+
+		await expand();
+
+		await page.getByRole( 'button', { name: 'Add a note' } ).first().click();
+		await page.getByLabel( 'Note' ).fill( 'First note' );
+		await page.getByRole( 'button', { name: 'Save note' } ).click();
+
+		await expect(
+			page.locator( '.shp-TableView__annotationText' ).first()
+		).toHaveText( 'First note' );
+
+		// The author is shown, and no earlier version yet.
+		await expect(
+			page.locator( '.shp-TableView__annotationMeta' ).first()
+		).not.toContainText( 'earlier version' );
+
+		// Editing does not overwrite: the previous text is kept, which is
+		// what stops a note being used to rewrite what a record said.
+		await page.getByRole( 'button', { name: 'Edit note' } ).first().click();
+		await page.getByLabel( 'Note' ).fill( 'Second note' );
+		await page.getByRole( 'button', { name: 'Save note' } ).click();
+
+		await expect(
+			page.locator( '.shp-TableView__annotationMeta' ).first()
+		).toContainText( '1 earlier version' );
+
+		// Stored server-side, and carried on the row rather than only in the
+		// details fetch.
+		await page.reload();
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await expect
+			.poll( () =>
+				page.evaluate(
+					( id ) =>
+						window.wp?.data === undefined
+							? document.querySelector(
+									`[data-event-id="${ id }"]`
+							  ) !== null
+							: document.querySelector(
+									`[data-event-id="${ id }"]`
+							  ) !== null,
+					eventId
+				)
+			)
+			.toBe( true );
+
+		await expand();
+
+		await expect(
+			page.locator( '.shp-TableView__annotationText' ).first()
+		).toHaveText( 'Second note' );
+
+		// Clean up, so the fixture is left as it was found.
+		await page.getByRole( 'button', { name: 'Edit note' } ).first().click();
+		await page.getByLabel( 'Note' ).fill( '' );
+		await page.getByRole( 'button', { name: 'Save note' } ).click();
+
+		await expect(
+			page.locator( '.shp-TableView__annotationText' )
+		).toHaveCount( 0 );
+	} );
 } );
