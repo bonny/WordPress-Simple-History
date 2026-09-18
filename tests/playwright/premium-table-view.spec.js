@@ -2085,4 +2085,45 @@ test.describe( 'Premium table view', () => {
 			page.locator( '.shp-TableView__annotationText' )
 		).toHaveCount( 0 );
 	} );
+	// Not a binding between a view and a rule — a snapshot. Alerts evaluate
+	// at insert time on the raw row, so half a view's filters cannot come
+	// along, and the reader is told which before the rule exists rather than
+	// during an incident when the alert that should have fired did not.
+	test( 'creating an alert from a view says what it can and cannot watch', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		// A level (which a rule can match) and a date range (which it cannot).
+		await page.goto(
+			SIMPLE_HISTORY_PAGE + '&view=table&levels=Warning&date=lastdays:7'
+		);
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		await page.getByRole( 'button', { name: 'Saved views' } ).click();
+		await page
+			.getByRole( 'menuitem', { name: /^Alert me about this view/ } )
+			.click();
+
+		const dialog = page.getByRole( 'dialog' );
+		await dialog.waitFor();
+
+		await expect(
+			page.locator( '.shp-TableView__alertCovered' )
+		).toContainText( 'Log level' );
+
+		await expect(
+			page.locator( '.shp-TableView__alertUncovered' )
+		).toContainText( 'Date range' );
+
+		// The conditions travel in the URL, so the rule stores its own copy —
+		// editing the view afterwards cannot change what the alert ships.
+		const href = await page
+			.getByRole( 'link', { name: 'Create the alert' } )
+			.getAttribute( 'href' );
+
+		expect( href ).toContain( 'prefill_query=' );
+		expect( href ).toContain( 'alerts_tab=custom-rules' );
+	} );
 } );
