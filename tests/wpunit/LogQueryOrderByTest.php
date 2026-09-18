@@ -37,6 +37,47 @@ class LogQueryOrderByTest extends \Codeception\TestCase\WPTestCase {
 
 		SimpleLogger()->warning( 'Beta event' );
 		SimpleLogger()->debug( 'Gamma event' );
+
+		// Emergency and error exist so the level tests can tell severity
+		// order from alphabetical order. With only debug/info/warning the
+		// two agree, which is why a level sort that was actually
+		// alphabetical passed this suite for as long as it did.
+		//
+		// alphabetical ascending: debug, emergency, error, info, warning
+		// severity ascending:     debug, info, warning, error, emergency
+		SimpleLogger()->emergency( 'Delta event' );
+		SimpleLogger()->error( 'Epsilon event' );
+	}
+
+	/**
+	 * Map a level string to its severity rank, the same way the SQL does.
+	 *
+	 * @param string $level Level string.
+	 * @return int Rank, 1 (debug) to 8 (emergency), 0 if unrecognised.
+	 */
+	private function severity_rank( $level ) {
+		$rank = array_search( $level, \Simple_History\Log_Levels::get_log_levels_by_severity(), true );
+
+		return $rank === false ? 0 : $rank + 1;
+	}
+
+	/**
+	 * Severity ranks of the given rows, in the order they were returned.
+	 *
+	 * The assertions work on ranks rather than on an expected list of
+	 * levels because the suite's database holds events beyond this
+	 * fixture's — WordPress logs some of its own during setUp — so which
+	 * rows land inside posts_per_page is not fixed. What must hold either
+	 * way is that the sequence is sorted.
+	 *
+	 * @param array $rows Log rows.
+	 * @return array
+	 */
+	private function severity_ranks( $rows ) {
+		return array_map(
+			fn( $level ) => $this->severity_rank( $level ),
+			wp_list_pluck( $rows, 'level' )
+		);
 	}
 
 	/**
@@ -104,22 +145,78 @@ class LogQueryOrderByTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
-	 * Sorting by level orders alphabetically by the level column.
+	 * Sorting by level ascending returns least severe first.
 	 */
-	public function test_order_by_level_asc() {
-		$rows = $this->query_rows(
-			[
-				'orderby' => 'level',
-				'order'   => 'ASC',
-			]
+	public function test_order_by_level_asc_is_by_severity() {
+		$ranks = $this->severity_ranks(
+			$this->query_rows(
+				[
+					'orderby' => 'level',
+					'order'   => 'ASC',
+				]
+			)
 		);
 
+		$sorted = $ranks;
+		sort( $sorted, SORT_NUMERIC );
+
+		$this->assertNotEmpty( $ranks );
+		$this->assertSame( $sorted, $ranks, 'Ascending by level should return least severe first.' );
+	}
+
+	/**
+	 * Sorting by level descending returns most severe first, which is the
+	 * direction the table view's "worst first" click produces.
+	 */
+	public function test_order_by_level_desc_is_by_severity() {
+		$rows  = $this->query_rows(
+			[
+				'orderby' => 'level',
+				'order'   => 'DESC',
+			]
+		);
+		$ranks = $this->severity_ranks( $rows );
+
+		$sorted = $ranks;
+		rsort( $sorted, SORT_NUMERIC );
+
+		$this->assertNotEmpty( $ranks );
+		$this->assertSame( $sorted, $ranks, 'Descending by level should return most severe first.' );
+
+		// The fixture logs the only emergency in the suite, so "worst
+		// first" has to start there.
 		$levels = wp_list_pluck( $rows, 'level' );
+		$this->assertSame( 'emergency', reset( $levels ), 'Descending by level should start at emergency.' );
+	}
 
-		$sorted = $levels;
-		sort( $sorted, SORT_STRING );
+	/**
+	 * The severity order is not the alphabetical order.
+	 *
+	 * Guards the fix directly. Ordering on the raw varchar column returns
+	 * warning, notice, info, error, emergency, debug, critical, alert for a
+	 * descending sort — which reads as a plausible result until you notice
+	 * an emergency sitting below an info. Sorted as text, descending starts
+	 * at "warning"; sorted by severity it starts at "emergency".
+	 */
+	public function test_level_severity_order_differs_from_alphabetical() {
+		$levels = wp_list_pluck(
+			$this->query_rows(
+				[
+					'orderby' => 'level',
+					'order'   => 'DESC',
+				]
+			),
+			'level'
+		);
 
-		$this->assertSame( $sorted, $levels, 'Levels should come back alphabetically.' );
+		$alphabetical = $levels;
+		rsort( $alphabetical, SORT_STRING );
+
+		$this->assertNotSame(
+			$alphabetical,
+			$levels,
+			'Level sort must rank by severity, not sort the level column as text.'
+		);
 	}
 
 	/**
