@@ -1037,6 +1037,147 @@ class Log_Query {
 	}
 
 	/**
+	 * Count the events matching a query, grouped into buckets.
+	 *
+	 * Answers "how many, by what" for the same filters that decide which
+	 * events a listing returns — how many per day, how many of each level,
+	 * which loggers are busiest. A caller that wanted this before had to
+	 * fetch the events and count them client-side, which is only correct
+	 * when the whole result set fits in one page.
+	 *
+	 * Only columns on the events table can be grouped by. Grouping by user
+	 * or by message key would mean joining the contexts table, and
+	 * get_inner_where() writes unqualified column names (`id`, `date`,
+	 * `logger`), which stop being unambiguous the moment a second table is
+	 * in the query. Adding those two means teaching get_inner_where() to
+	 * prefix its columns first — worth doing, but not as a side effect of
+	 * this method.
+	 *
+	 * @since 5.34.0
+	 * @param array $args {
+	 *     Query arguments. Every filtering argument query() accepts, plus these.
+	 *
+	 *     @type string $group_by       What to count by: 'date', 'level',
+	 *                                  'logger' or 'initiator'. Default 'date'.
+	 *     @type string $interval       For 'date', the bucket size: 'day' or 'hour'.
+	 *                                  Default 'day'.
+	 *     @type bool   $split_by_level Also split each bucket by log level, so a
+	 *                                  date histogram can be stacked. Default false.
+	 *     @type int    $max_buckets    Most buckets to return. Default 500.
+	 * }
+	 * @return array|\WP_Error Array of { bucket, level, count }, or an error.
+	 */
+	public function query_aggregate( $args ) {
+		$group_by       = isset( $args['group_by'] ) ? (string) $args['group_by'] : 'date';
+		$interval       = isset( $args['interval'] ) ? (string) $args['interval'] : 'day';
+		$split_by_level = ! empty( $args['split_by_level'] );
+		$max_buckets    = isset( $args['max_buckets'] ) ? (int) $args['max_buckets'] : 500;
+
+		$bucket_expression = $this->get_aggregate_bucket_expression( $group_by, $interval );
+
+		if ( $bucket_expression === null ) {
+			return new \WP_Error(
+				'simple_history_invalid_group_by',
+				__( 'Events can not be grouped by that.', 'simple-history' ),
+				[ 'status' => 400 ]
+			);
+		}
+
+		$args = $this->prepare_args( $args );
+
+		global $wpdb;
+
+		$table_name = Simple_History::get_instance()->get_events_table_name();
+
+		$inner_where_array  = $this->get_inner_where( $args );
+		$inner_where_string = empty( $inner_where_array )
+			? ''
+			: "\nWHERE " . implode( "\nAND ", $inner_where_array );
+
+		$select_parts   = [ $bucket_expression . ' AS bucket' ];
+		$group_by_parts = [ 'bucket' ];
+
+		if ( $split_by_level ) {
+			$select_parts[]   = 'level AS bucket_level';
+			$group_by_parts[] = 'bucket_level';
+		}
+
+		$select_parts[] = 'COUNT(*) AS bucket_count';
+
+		// Not built with prepare(): every part of this statement is either a
+		// table name or one of the fixed expressions get_aggregate_bucket_expression()
+		// returns, and the filtering values are already prepared inside
+		// get_inner_where(). $max_buckets is cast to int above.
+		$sql_query = implode(
+			"\n",
+			[
+				'SELECT ' . implode( ', ', $select_parts ),
+				'FROM ' . $table_name,
+				$inner_where_string,
+				'GROUP BY ' . implode( ', ', $group_by_parts ),
+				'ORDER BY bucket ASC',
+				sprintf( 'LIMIT %d', max( 1, $max_buckets ) ),
+			]
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$rows = $wpdb->get_results( $sql_query );
+
+		if ( ! empty( $wpdb->last_error ) ) {
+			return new \WP_Error(
+				'simple_history_db_error',
+				// translators: %s is the database error message.
+				sprintf( __( 'Database error: %s', 'simple-history' ), $wpdb->last_error ),
+				[ 'status' => 500 ]
+			);
+		}
+
+		$buckets = [];
+
+		foreach ( (array) $rows as $row ) {
+			$buckets[] = [
+				'bucket' => (string) $row->bucket,
+				'level'  => $split_by_level ? (string) $row->bucket_level : null,
+				'count'  => (int) $row->bucket_count,
+			];
+		}
+
+		return $buckets;
+	}
+
+	/**
+	 * The SQL expression that turns one event row into its bucket.
+	 *
+	 * Returns null for anything not in the allowed set, so a caller can
+	 * never interpolate a value of its own into the statement.
+	 *
+	 * @since 5.34.0
+	 * @param string $group_by What to group by.
+	 * @param string $interval Bucket size, when grouping by date.
+	 * @return string|null The expression, or null when the grouping is unknown.
+	 */
+	protected function get_aggregate_bucket_expression( $group_by, $interval ) {
+		if ( in_array( $group_by, [ 'level', 'logger', 'initiator' ], true ) ) {
+			return $group_by;
+		}
+
+		if ( $group_by !== 'date' ) {
+			return null;
+		}
+
+		if ( $interval === 'hour' ) {
+			// DATE_FORMAT is MySQL-only and strftime is SQLite-only, so this
+			// is one of the places that has to know which database it is on.
+			// The day bucket below needs no guard: DATE() exists in both.
+			return self::get_db_engine() === 'sqlite'
+				? "strftime('%Y-%m-%d %H:00:00', date)"
+				: "DATE_FORMAT(date, '%Y-%m-%d %H:00:00')";
+		}
+
+		return 'DATE(date)';
+	}
+
+	/**
 	 * Prepare arguments, i.e. checking that they are valid,
 	 * of the correct type, etc.
 	 *

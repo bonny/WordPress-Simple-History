@@ -91,6 +91,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// GET /wp-json/simple-history/v1/events/has-updates.
 		// Same args as /wp-json/simple-history/v1/events but returns only information
 		// if there are new events or not.
+		// Counts of the matching events, grouped into buckets.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/aggregate',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_aggregate' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+					'args'                => $this->get_collection_params_for_aggregate(),
+				],
+			],
+		);
+
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/has-updates',
@@ -901,6 +915,110 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object or error.
 	 */
 	public function get_has_updates( $request ) {
+		$args = $this->get_query_args_from_request( $request );
+
+		$query_result = $this->run_log_query( $args );
+
+		if ( is_wp_error( $query_result ) ) {
+			return $query_result;
+		}
+
+		return rest_ensure_response(
+			[
+				'new_events_count' => $query_result['total_row_count'],
+			]
+		);
+	}
+
+	/**
+	 * Count the matching events, grouped into buckets.
+	 *
+	 * Same filters as the events listing, so a histogram drawn from this
+	 * describes exactly the events the table below it would show.
+	 *
+	 * @since 5.34.0
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_aggregate( $request ) {
+		$args = $this->get_query_args_from_request( $request );
+
+		$args['group_by']       = $request['group_by'];
+		$args['interval']       = $request['interval'];
+		$args['split_by_level'] = $request['split_by_level'];
+
+		// Same guard run_log_query() uses: prepare_args() throws on an
+		// argument it cannot make sense of, and an exception out of a REST
+		// callback is a 500 where this is a 400.
+		try {
+			$buckets = ( new Log_Query() )->query_aggregate( $args );
+		} catch ( \InvalidArgumentException $exception ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				$exception->getMessage(),
+				[ 'status' => 400 ]
+			);
+		}
+
+		if ( is_wp_error( $buckets ) ) {
+			return $buckets;
+		}
+
+		return rest_ensure_response( $buckets );
+	}
+
+	/**
+	 * Query parameters the aggregate endpoint accepts.
+	 *
+	 * Every filter the listing takes, plus the three that decide how the
+	 * counting is bucketed.
+	 *
+	 * @since 5.34.0
+	 * @return array
+	 */
+	public function get_collection_params_for_aggregate() {
+		$params = $this->get_collection_params();
+
+		// Paging means nothing to a set of counts, and leaving them in would
+		// suggest an aggregate could be paged through.
+		unset( $params['page'], $params['per_page'], $params['offset'] );
+
+		$params['group_by'] = [
+			'description' => __( 'What to count the events by.', 'simple-history' ),
+			'type'        => 'string',
+			'enum'        => [ 'date', 'level', 'logger', 'initiator' ],
+			'default'     => 'date',
+		];
+
+		$params['interval'] = [
+			'description' => __( 'Bucket size when counting by date.', 'simple-history' ),
+			'type'        => 'string',
+			'enum'        => [ 'day', 'hour' ],
+			'default'     => 'day',
+		];
+
+		$params['split_by_level'] = [
+			'description' => __( 'Also split each bucket by log level.', 'simple-history' ),
+			'type'        => 'boolean',
+			'default'     => false,
+		];
+
+		return $params;
+	}
+
+	/**
+	 * Turn a REST request into Log_Query arguments.
+	 *
+	 * Shared by the events listing and the aggregate endpoint: both accept
+	 * the same filters and must agree on every one of them, or "how many
+	 * events match" would answer a different question from "which events
+	 * match".
+	 *
+	 * @since 5.34.0
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array Arguments for Log_Query.
+	 */
+	protected function get_query_args_from_request( $request ) {
 		// Retrieve the list of registered collection query parameters.
 		$registered = $this->get_collection_params();
 		$args       = [];
@@ -961,17 +1079,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// Force ungrouped for accurate count — grouping is irrelevant for "has updates" check.
 		$args['ungrouped'] = true;
 
-		$query_result = $this->run_log_query( $args );
-
-		if ( is_wp_error( $query_result ) ) {
-			return $query_result;
-		}
-
-		return rest_ensure_response(
-			[
-				'new_events_count' => $query_result['total_row_count'],
-			]
-		);
+		return $args;
 	}
 
 	/**
