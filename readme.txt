@@ -262,6 +262,20 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Added**
+
+-   Thumbnail on "Edited attachment" events, so you can see which image the event is about.
+
+**Changed**
+
+-   Preview of the weekly email stays on the settings page after you turn the email on.
+
+**Fixed**
+
+-   Changed post excerpts are labelled "Excerpt" instead of the raw field name.
+
 ### 5.33.0 (September 2026)
 
 The weekly email is redesigned. It opens with a summary of your week, and every number links to its events. Events by WordPress and visitors are no longer credited to the logged-in admin, and Redirection logging works again with Redirection 5.10. And some minor fixes here and there.
