@@ -268,10 +268,16 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Events can now be sorted by date, id, level, logger or event type through the REST API (`orderby` and `order`) and on the command line (`wp simple-history event list --orderby=id --order=asc`).
 -   A Table option in the event log view switcher, showing a preview of the sortable table coming to Simple History Premium.
+-   Events can be counted instead of listed through the REST API (`/events/aggregate`), grouped by date, level, logger or initiator. The same filters apply, so it counts exactly what the list would have shown.
 
 **Changed**
 
 -   The compact event log view is no longer experimental. The Detailed/Compact switch is now available to everyone from the event log page.
+-   Sorting by level now orders by severity, so the most serious events come first instead of alphabetically.
+
+**Security**
+
+-   Event context no longer includes IP addresses for events where the address is hidden. Anyone who could read the log could previously read the origin IP of every logged event through the REST API, even for events that showed no address in the log itself.
 
 ### 5.33.0 (September 2026)
 
