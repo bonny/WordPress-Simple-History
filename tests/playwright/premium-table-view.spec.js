@@ -1926,4 +1926,78 @@ test.describe( 'Premium table view', () => {
 			page.getByRole( 'menuitem', { name: 'Copy as WP-CLI command' } )
 		).toBeVisible();
 	} );
+	// The query bar is a different keyboard for the filter UI, not a second
+	// filtering system: it parses into the same URL parameters the chips
+	// produce, so the server cannot tell the difference and the back button
+	// undoes it.
+	test( 'a typed query applies the same filters the chips would', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page
+			.locator( '#shp-table-view-query' )
+			.fill( 'level:warning -logger:SimpleHistoryLogger' );
+		await page.getByRole( 'button', { name: 'Apply' } ).click();
+
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'levels' ) )
+			.toBe( 'Warning' );
+		await expect
+			.poll( () =>
+				new URL( page.url() ).searchParams.get( 'exclude-loggers' )
+			)
+			.toBe( 'SimpleHistoryLogger' );
+
+		// And it reads back as the same query, so the bar is a view of the
+		// URL rather than a separate place filter state lives.
+		await expect( page.locator( '#shp-table-view-query' ) ).toHaveValue(
+			'level:warning -logger:SimpleHistoryLogger'
+		);
+
+		await expect
+			.poll( async () => {
+				const levels = await page
+					.locator(
+						'.shp-TableView__row .shp-TableView__col--level'
+					)
+					.allInnerTexts();
+
+				return [
+					...new Set( levels.map( ( level ) => level.trim() ) ),
+				];
+			} )
+			.toEqual( [ 'Warning' ] );
+	} );
+
+	// A term nobody recognises must be named. Navigating anyway would show
+	// the unfiltered log, which looks exactly like a filter that matched
+	// everything.
+	test( 'an unknown term is reported instead of silently ignored', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table&levels=Warning' );
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		await page.locator( '#shp-table-view-query' ).fill( 'nonsense:x' );
+		await page.getByRole( 'button', { name: 'Apply' } ).click();
+
+		await expect(
+			page.locator( '.shp-TableView__queryProblems' )
+		).toContainText( 'nonsense' );
+
+		// Did not navigate.
+		expect( new URL( page.url() ).searchParams.get( 'levels' ) ).toBe(
+			'Warning'
+		);
+	} );
 } );
