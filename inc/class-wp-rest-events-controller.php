@@ -819,6 +819,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Whether the event is sticky.', 'simple-history' ),
 					'type'        => 'boolean',
 				),
+				'annotation'                 => array(
+					'description' => __( 'A note attached to the event, if it has one.', 'simple-history' ),
+					'type'        => array( 'object', 'null' ),
+					'readonly'    => true,
+				),
 				'sticky_appended'            => array(
 					'description' => __( 'Whether the event is sticky and appended to the result set.', 'simple-history' ),
 					'type'        => 'boolean',
@@ -1216,6 +1221,23 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Display name for whoever wrote an annotation.
+	 *
+	 * Only the name, never the email: an annotation is shown to everyone who
+	 * can read the log, which is a wider audience than the one that can write
+	 * one.
+	 *
+	 * @since 5.34.0
+	 * @param int $user_id User id.
+	 * @return string Display name, or an empty string.
+	 */
+	protected static function get_annotation_user_name( $user_id ) {
+		$user = $user_id ? get_userdata( (int) $user_id ) : false;
+
+		return $user ? $user->display_name : '';
+	}
+
+	/**
 	 * Remove IP addresses from a context array unless this event may show them.
 	 *
 	 * The `ip_addresses` field is deliberately withheld: it runs the
@@ -1417,6 +1439,31 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( rest_is_field_included( 'sticky', $fields ) ) {
 			$data['sticky'] = isset( $item->context['_sticky'] );
+		}
+
+		if ( rest_is_field_included( 'annotation', $fields ) ) {
+			// Read-only here. Writing one is a premium route, gated on
+			// manage_options the same way sticky is.
+			//
+			// Decoded straight from the context already loaded with the row,
+			// rather than through Event::get_annotation(): that constructor
+			// reloads the event, which would be one extra query per row in a
+			// hundred-row listing.
+			$annotation = json_decode( $context['_annotation'] ?? '', true );
+
+			if ( ! is_array( $annotation ) ) {
+				$annotation = null;
+			}
+
+			$data['annotation'] = $annotation === null
+				? null
+				: [
+					'text'          => (string) $annotation['text'],
+					'user_id'       => (int) ( $annotation['user_id'] ?? 0 ),
+					'user_name'     => self::get_annotation_user_name( $annotation['user_id'] ?? 0 ),
+					'updated_at'    => (string) ( $annotation['updated_at'] ?? '' ),
+					'revision_count' => count( $annotation['history'] ?? [] ),
+				];
 		}
 
 		if ( rest_is_field_included( 'sticky_appended', $fields ) ) {

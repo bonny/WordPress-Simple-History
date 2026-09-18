@@ -786,6 +786,176 @@ class Event {
 	}
 
 	/**
+	 * Longest an annotation may be, in characters.
+	 *
+	 * @since 5.34.0
+	 */
+	const ANNOTATION_MAX_LENGTH = 1000;
+
+	/**
+	 * How many previous versions of an annotation are kept.
+	 *
+	 * @since 5.34.0
+	 */
+	const ANNOTATION_MAX_HISTORY = 20;
+
+	/**
+	 * This event's annotation, if it has one.
+	 *
+	 * @since 5.34.0
+	 * @return array|null { text, user_id, updated_at, history } or null.
+	 */
+	public function get_annotation() {
+		$raw = $this->context['_annotation'] ?? null;
+
+		if ( ! $raw ) {
+			return null;
+		}
+
+		$annotation = json_decode( $raw, true );
+
+		return is_array( $annotation ) ? $annotation : null;
+	}
+
+	/**
+	 * Attach a note to this event, or replace the one it has.
+	 *
+	 * An annotation is the first thing a human writes into the log — every
+	 * other field was written by a logger. Two consequences follow, and both
+	 * are handled here rather than left to callers:
+	 *
+	 * Edits append. The previous text is kept in `history` with who wrote it
+	 * and when, so an annotation cannot be used to quietly rewrite what a
+	 * record said — which is the exact thing an audit log exists to prevent.
+	 * The list is capped, oldest dropped first, so one event cannot grow
+	 * without bound.
+	 *
+	 * The text is sanitised at the point of storage. Newlines and tabs are
+	 * kept, because people write notes in paragraphs; every other control
+	 * character goes, because this value ends up in CSV exports, webhook
+	 * payloads and syslog frames, and the ones that matter there are the
+	 * invisible ones.
+	 *
+	 * Capability is the caller's business — see the premium REST route, which
+	 * requires manage_options to match sticky.
+	 *
+	 * @since 5.34.0
+	 * @param string $text    The note. An empty string removes the annotation.
+	 * @param int    $user_id Who wrote it.
+	 * @return bool True on success.
+	 */
+	public function annotate( string $text, int $user_id ): bool {
+		$text = self::sanitize_annotation( $text );
+
+		if ( $text === '' ) {
+			return $this->save_annotation( null );
+		}
+
+		$existing = $this->get_annotation();
+		$history  = [];
+
+		if ( $existing && ! empty( $existing['text'] ) ) {
+			// Unchanged text is not a new version, so re-saving the same note
+			// does not fill the history with copies of itself.
+			if ( $existing['text'] === $text ) {
+				return true;
+			}
+
+			$history = isset( $existing['history'] ) && is_array( $existing['history'] )
+				? $existing['history']
+				: [];
+
+			$history[] = [
+				'text'       => $existing['text'],
+				'user_id'    => (int) ( $existing['user_id'] ?? 0 ),
+				'updated_at' => (string) ( $existing['updated_at'] ?? '' ),
+			];
+
+			$history = array_slice( $history, -self::ANNOTATION_MAX_HISTORY );
+		}
+
+		return $this->save_annotation(
+			[
+				'text'       => $text,
+				'user_id'    => $user_id,
+				'updated_at' => current_time( 'mysql', true ),
+				'history'    => $history,
+			]
+		);
+	}
+
+	/**
+	 * Clean annotation text for storage.
+	 *
+	 * @since 5.34.0
+	 * @param string $text Raw text.
+	 * @return string Text safe to store, capped in length.
+	 */
+	public static function sanitize_annotation( string $text ): string {
+		// Everything in the C0 range except tab and newline. A carriage
+		// return goes too: it is invisible, it survives every export, and it
+		// is the half of a line ending that breaks a syslog frame.
+		$text = preg_replace( '/[\x00-\x08\x0B-\x1F\x7F]/', '', $text );
+
+		$text = sanitize_textarea_field( $text );
+
+		if ( function_exists( 'mb_substr' ) ) {
+			return trim( mb_substr( $text, 0, self::ANNOTATION_MAX_LENGTH ) );
+		}
+
+		return trim( substr( $text, 0, self::ANNOTATION_MAX_LENGTH ) );
+	}
+
+	/**
+	 * Write or remove the annotation context row.
+	 *
+	 * @since 5.34.0
+	 * @param array|null $annotation The annotation, or null to remove it.
+	 * @return bool True on success.
+	 */
+	private function save_annotation( $annotation ): bool {
+		global $wpdb;
+
+		$simple_history = Simple_History::get_instance();
+		$contexts_table = $simple_history->get_contexts_table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$contexts_table,
+			[
+				'history_id' => $this->id,
+				'key'        => '_annotation',
+			],
+			[ '%d', '%s' ]
+		);
+
+		Helpers::clear_cache();
+
+		if ( $annotation === null ) {
+			$this->reload_data();
+
+			return true;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->insert(
+			$contexts_table,
+			[
+				'history_id' => $this->id,
+				'key'        => '_annotation',
+				'value'      => wp_json_encode( $annotation ),
+			],
+			[ '%d', '%s', '%s' ]
+		);
+
+		if ( $result ) {
+			$this->reload_data();
+		}
+
+		return (bool) $result;
+	}
+
+	/**
 	 * Save reactions to the context table.
 	 *
 	 * @param array $reactions Reactions array to persist.
