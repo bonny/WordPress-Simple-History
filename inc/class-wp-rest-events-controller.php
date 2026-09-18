@@ -922,6 +922,17 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	public function get_has_updates( $request ) {
 		$args = $this->get_query_args_from_request( $request );
 
+		// Force ungrouped for accurate count — grouping is irrelevant for
+		// "has updates" check.
+		//
+		// This belongs here and not in get_query_args_from_request(), which
+		// get_items() also calls: forcing it there routes the events listing
+		// to query_overview_simple(), which hardcodes the occasions count to
+		// 1 and has no include_sticky handling at all. Occasion grouping and
+		// pinned events both disappear, and the public `ungrouped` parameter
+		// stops meaning anything.
+		$args['ungrouped'] = true;
+
 		$query_result = $this->run_log_query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
@@ -1093,9 +1104,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 			$args[ $wp_param ] = $request[ $api_param ];
 		}
-
-		// Force ungrouped for accurate count — grouping is irrelevant for "has updates" check.
-		$args['ungrouped'] = true;
 
 		return $args;
 	}
@@ -1455,14 +1463,22 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				$annotation = null;
 			}
 
+			// Every field is read defensively. The stored value is JSON in a
+			// context row, and a context row is reachable by anything that can
+			// write to the table — so a hand-edited or half-written
+			// `_annotation` must not be able to turn one bad event into a 500
+			// for the whole listing. `count()` on a non-array is a TypeError
+			// on PHP 8, and a missing `text` is an undefined-index warning.
 			$data['annotation'] = $annotation === null
 				? null
 				: [
-					'text'          => (string) $annotation['text'],
-					'user_id'       => (int) ( $annotation['user_id'] ?? 0 ),
-					'user_name'     => self::get_annotation_user_name( $annotation['user_id'] ?? 0 ),
-					'updated_at'    => (string) ( $annotation['updated_at'] ?? '' ),
-					'revision_count' => count( $annotation['history'] ?? [] ),
+					'text'           => (string) ( $annotation['text'] ?? '' ),
+					'user_id'        => (int) ( $annotation['user_id'] ?? 0 ),
+					'user_name'      => self::get_annotation_user_name( $annotation['user_id'] ?? 0 ),
+					'updated_at'     => (string) ( $annotation['updated_at'] ?? '' ),
+					'revision_count' => is_array( $annotation['history'] ?? null )
+						? count( $annotation['history'] )
+						: 0,
 				];
 		}
 

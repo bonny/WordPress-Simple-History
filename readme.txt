@@ -275,6 +275,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The compact event log view is no longer experimental. The Detailed/Compact switch is now available to everyone from the event log page.
 -   Sorting by level now orders by severity, so the most serious events come first instead of alphabetically.
 
+**Fixed**
+
+-   Sorting the event log oldest first now works. `order=asc` was accepted and then ignored on the default event listing, which returned newest first anyway.
+-   Activity counts from the REST API (`/events/aggregate`) now cover the most recent period. On a log spanning more than 500 days the result was cut at the old end instead of the new one, so a chart drawn from it stopped before today.
+
 **Security**
 
 -   Event context no longer includes IP addresses for events where the address is hidden. Anyone who could read the log could previously read the origin IP of every logged event through the REST API, even for events that showed no address in the log itself.
