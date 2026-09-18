@@ -1264,21 +1264,18 @@ class Email_Report_Service extends Service {
 	/**
 	 * Output a scaled-down live preview of the email next to the settings.
 	 *
-	 * Shown only while the email is off: it is there to make the case for turning it on,
-	 * and it builds a full report, so users who already get the email do not pay for it.
+	 * Shown whether the email is on or off: off it makes the case for turning it on,
+	 * on it shows what recipients get after changing the settings.
 	 * Hidden by CSS when the settings card is too narrow for it.
 	 *
 	 * The iframe gets its src from the script below only when the thumbnail is visible.
 	 * With src in the markup, browsers load it even when hidden: loading="lazy" does not
 	 * apply to display:none iframes. A display:none element never intersects, so one
 	 * IntersectionObserver covers both the container query showing it and it being near
-	 * the viewport, including width changes that are not window resizes.
+	 * the viewport, including width changes that are not window resizes. That is also
+	 * what keeps the report from being built for people who never see the thumbnail.
 	 */
 	private function output_preview_thumbnail() {
-		if ( $this->is_email_reports_enabled() ) {
-			return;
-		}
-
 		$preview_url = $this->get_preview_url();
 
 		?>
