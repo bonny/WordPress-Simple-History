@@ -1953,7 +1953,7 @@ class Post_Logger extends Logger {
 					$has_diff_values = true;
 
 					$diff_table_output .= $this->extra_diff_record(
-						$this->label_for( $key_to_diff, $key_to_diff, $context ),
+						$this->label_for( $key_to_diff, $this->get_human_label_for_diff_key( $key_to_diff ), $context ),
 						$post_old_value,
 						$post_new_value
 					);
@@ -2136,6 +2136,30 @@ class Post_Logger extends Logger {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Get a human readable label for a diffed post field.
+	 *
+	 * Fields with their own branch in the diff loop get their label there. This
+	 * covers the rest, so a row does not show the raw database column name, for
+	 * example "post_excerpt" instead of "Excerpt".
+	 *
+	 * Unknown keys, like the ones added through the
+	 * `simple_history/post_logger/keys_to_diff` filter, keep the key as label.
+	 *
+	 * @param string $key Key that is diffed, without the "post_prev_" prefix.
+	 * @return string Label to show, or the key itself if we have no label for it.
+	 */
+	protected function get_human_label_for_diff_key( $key ) {
+		$labels = [
+			'post_excerpt' => __( 'Excerpt', 'simple-history' ),
+			'menu_order'   => __( 'Menu order', 'simple-history' ),
+			'ping_status'  => __( 'Ping status', 'simple-history' ),
+			'post_parent'  => __( 'Parent', 'simple-history' ),
+		];
+
+		return $labels[ $key ] ?? $key;
 	}
 
 	/**
