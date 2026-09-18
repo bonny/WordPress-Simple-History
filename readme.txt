@@ -278,7 +278,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Sorting the event log oldest first now works. `order=asc` was accepted and then ignored on the default event listing, which returned newest first anyway.
--   Activity counts from the REST API (`/events/aggregate`) now cover the most recent period. On a log spanning more than 500 days the result was cut at the old end instead of the new one, so a chart drawn from it stopped before today.
+-   Activity counts from the REST API (`/events/aggregate`) now cover the most recent period, and the bucket limit counts buckets rather than rows. Both bugs cut a chart drawn from the counts short, so it stopped well before today.
 
 **Security**
 

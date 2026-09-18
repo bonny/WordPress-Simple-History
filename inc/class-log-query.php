@@ -1078,7 +1078,10 @@ class Log_Query {
 	 *                                  Default 'day'.
 	 *     @type bool   $split_by_level Also split each bucket by log level, so a
 	 *                                  date histogram can be stacked. Default false.
-	 *     @type int    $max_buckets    Most buckets to return. Default 500.
+	 *     @type int    $max_buckets    Most buckets to return. Default 500. Counts
+	 *                                  buckets, not rows: with $split_by_level the
+	 *                                  row limit is raised to match, since each
+	 *                                  bucket can produce one row per log level.
 	 * }
 	 * @return array|\WP_Error Array of { bucket, level, count }, or an error.
 	 */
@@ -1145,10 +1148,18 @@ class Log_Query {
 
 		$select_parts[] = 'COUNT(*) AS bucket_count';
 
+		// The cap counts buckets, so when each bucket can also split into one
+		// row per level the row limit has to allow for that — otherwise
+		// asking for 500 days of a level-split histogram returned about 62 of
+		// them, and the chart quietly began two months ago. The level list is
+		// a fixed enum, so this is an exact conversion rather than a guess.
+		$rows_per_bucket = $split_by_level ? count( Log_Levels::get_log_levels_by_severity() ) : 1;
+		$row_limit       = max( 1, $max_buckets ) * $rows_per_bucket;
+
 		// Not built with prepare(): every part of this statement is either a
 		// table name or one of the fixed expressions get_aggregate_bucket_expression()
 		// returns, and the filtering values are already prepared inside
-		// get_inner_where(). $max_buckets is cast to int above.
+		// get_inner_where(). $row_limit is derived from an int cast above.
 		$sql_query = implode(
 			"\n",
 			[
@@ -1163,7 +1174,7 @@ class Log_Query {
 				// with nothing to say it had been cut — and at hourly
 				// resolution 500 buckets is only about three weeks.
 				'ORDER BY ' . implode( ', ', array_map( static fn( $part ) => $part . ' DESC', $group_by_parts ) ),
-				sprintf( 'LIMIT %d', max( 1, $max_buckets ) ),
+				sprintf( 'LIMIT %d', $row_limit ),
 			]
 		);
 
