@@ -830,6 +830,13 @@ class Event {
 	 * The list is capped, oldest dropped first, so one event cannot grow
 	 * without bound.
 	 *
+	 * Removing a note appends too. It stores an empty note rather than
+	 * deleting the row, because deleting it would take the history with it —
+	 * write A, edit to B, remove, write C, and the event would show C with no
+	 * trace that A or B ever existed. That is the rewrite this design exists
+	 * to prevent, reached by a longer route. An event that never had a note
+	 * stores nothing at all.
+	 *
 	 * The text is sanitised at the point of storage. Newlines and tabs are
 	 * kept, because people write notes in paragraphs; every other control
 	 * character goes, because this value ends up in CSV exports, webhook
@@ -848,23 +855,74 @@ class Event {
 		$text = self::sanitize_annotation( $text );
 
 		if ( $text === '' ) {
-			return $this->save_annotation( null );
+			return $this->remove_annotation( $user_id );
 		}
 
 		$existing = $this->get_annotation();
-		$history  = [];
 
-		if ( $existing && ! empty( $existing['text'] ) ) {
+		// Read the history first and unconditionally. A removed note leaves
+		// an entry behind with empty text and its whole history intact, so
+		// reading it only when there is current text would let "remove, then
+		// write a new note" drop everything that came before — the exact
+		// erasure remove_annotation() exists to prevent.
+		$history = isset( $existing['history'] ) && is_array( $existing['history'] )
+			? $existing['history']
+			: [];
+
+		if ( $existing !== null && ! empty( $existing['text'] ) ) {
 			// Unchanged text is not a new version, so re-saving the same note
 			// does not fill the history with copies of itself.
 			if ( $existing['text'] === $text ) {
 				return true;
 			}
 
-			$history = isset( $existing['history'] ) && is_array( $existing['history'] )
-				? $existing['history']
-				: [];
+			$history[] = [
+				'text'       => $existing['text'],
+				'user_id'    => (int) ( $existing['user_id'] ?? 0 ),
+				'updated_at' => (string) ( $existing['updated_at'] ?? '' ),
+			];
+		}
 
+		$history = array_slice( $history, -self::ANNOTATION_MAX_HISTORY );
+
+		return $this->save_annotation(
+			[
+				'text'       => $text,
+				'user_id'    => $user_id,
+				'updated_at' => current_time( 'mysql', true ),
+				'history'    => $history,
+			]
+		);
+	}
+
+	/**
+	 * Remove this event's note, keeping the record of what it said.
+	 *
+	 * Stores an empty note rather than deleting the annotation, so the
+	 * previous versions survive — see annotate() for why that matters. The
+	 * row is only deleted when there is nothing to preserve, which keeps an
+	 * event that never had a note from gaining an empty one.
+	 *
+	 * @since 5.34.0
+	 * @param int $user_id Who removed it.
+	 * @return bool True on success.
+	 */
+	private function remove_annotation( int $user_id ): bool {
+		$existing = $this->get_annotation();
+
+		$history = isset( $existing['history'] ) && is_array( $existing['history'] )
+			? $existing['history']
+			: [];
+
+		$had_text = $existing !== null && ! empty( $existing['text'] );
+
+		// Nothing was ever written here, or it is already empty with no
+		// history behind it. Leave no row.
+		if ( ! $had_text && $history === [] ) {
+			return $this->save_annotation( null );
+		}
+
+		if ( $had_text ) {
 			$history[] = [
 				'text'       => $existing['text'],
 				'user_id'    => (int) ( $existing['user_id'] ?? 0 ),
@@ -876,7 +934,7 @@ class Event {
 
 		return $this->save_annotation(
 			[
-				'text'       => $text,
+				'text'       => '',
 				'user_id'    => $user_id,
 				'updated_at' => current_time( 'mysql', true ),
 				'history'    => $history,
@@ -899,11 +957,14 @@ class Event {
 
 		$text = sanitize_textarea_field( $text );
 
-		if ( function_exists( 'mb_substr' ) ) {
-			return trim( mb_substr( $text, 0, self::ANNOTATION_MAX_LENGTH ) );
-		}
-
-		return trim( substr( $text, 0, self::ANNOTATION_MAX_LENGTH ) );
+		// Characters, not bytes: substr() would cut a multi-byte character in
+		// half and leave an invalid sequence in the middle of an audit
+		// record. WordPress declares mb_substr() itself in
+		// wp-includes/compat.php when the extension is missing, so this does
+		// not actually depend on mbstring being installed — which is what the
+		// sniff below is guarding against.
+		// phpcs:ignore Generic.PHP.ForbiddenFunctions.Found
+		return trim( mb_substr( $text, 0, self::ANNOTATION_MAX_LENGTH ) );
 	}
 
 	/**

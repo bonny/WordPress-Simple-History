@@ -110,10 +110,48 @@ class EventAnnotationTest extends \Codeception\TestCase\WPTestCase {
 		);
 	}
 
-	public function test_an_empty_note_removes_the_annotation() {
+	public function test_an_empty_note_clears_the_text_but_keeps_the_history() {
 		$event = $this->make_event();
 
 		$event->annotate( 'Something', $this->user_id );
+		$event->annotate( '', $this->user_id );
+
+		$annotation = $event->get_annotation();
+
+		$this->assertSame( '', $annotation['text'] );
+		$this->assertCount( 1, $annotation['history'] );
+		$this->assertSame( 'Something', $annotation['history'][0]['text'] );
+	}
+
+	/**
+	 * The route that would otherwise defeat the whole append-only design:
+	 * remove the note, then write a new one, and the record of what it used
+	 * to say is gone.
+	 */
+	public function test_removing_a_note_cannot_be_used_to_erase_earlier_versions() {
+		$event = $this->make_event();
+
+		$event->annotate( 'First', $this->user_id );
+		$event->annotate( 'Second', $this->user_id );
+		$event->annotate( '', $this->user_id );
+		$event->annotate( 'Third', $this->user_id );
+
+		$annotation = $event->get_annotation();
+
+		$this->assertSame( 'Third', $annotation['text'] );
+
+		$texts = wp_list_pluck( $annotation['history'], 'text' );
+
+		$this->assertContains( 'First', $texts );
+		$this->assertContains( 'Second', $texts );
+	}
+
+	/**
+	 * An event that never had a note does not gain an empty one.
+	 */
+	public function test_removing_a_note_that_was_never_written_stores_nothing() {
+		$event = $this->make_event();
+
 		$event->annotate( '', $this->user_id );
 
 		$this->assertNull( $event->get_annotation() );

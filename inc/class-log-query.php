@@ -148,7 +148,7 @@ class Log_Query {
 	 *      @type array $context_filters Context filters as key-value pairs. Default null.
 	 *      @type boolean $ungrouped Return ungrouped events without occasions grouping. Default false.
 	 *      @type string $orderby Column to sort by. One of 'date', 'id', 'level', 'logger', 'message'. Anything else falls back to 'date'. Setting this to anything but 'date' forces $ungrouped to true, because occasion grouping depends on rows arriving in date order. Default 'date'.
-	 *      @type string $order Sort direction, 'ASC' or 'DESC', case-insensitive. Anything else falls back to 'DESC'. Default 'DESC'.
+	 *      @type string $order Sort direction, 'ASC' or 'DESC', case-insensitive. Anything else falls back to 'DESC'. 'ASC' forces $ungrouped to true for the same reason a non-date $orderby does: the grouped statement can only return newest first. Default 'DESC'.
 	 *
 	 *    Surrounding Events (Admin Only - bypasses logger permissions).
 	 *
@@ -226,7 +226,15 @@ class Log_Query {
 			&& in_array( $args['orderby'], self::ORDERBY_COLUMNS, true )
 			&& $args['orderby'] !== 'date';
 
-		if ( ! empty( $args['ungrouped'] ) || $sorts_by_non_date_column ) {
+		// Ascending order forces it too. The grouped statement hardcodes
+		// `ORDER BY date DESC, id DESC` in both its inner and outer query, so
+		// it can only ever return newest first — asking it for oldest first
+		// used to return newest first with no error, which is worse than not
+		// supporting it.
+		$sorts_ascending = isset( $args['order'] )
+			&& strtoupper( (string) $args['order'] ) === 'ASC';
+
+		if ( ! empty( $args['ungrouped'] ) || $sorts_by_non_date_column || $sorts_ascending ) {
 			return $this->query_overview_simple( $args );
 		}
 
@@ -1148,7 +1156,13 @@ class Log_Query {
 				'FROM ' . $table_name,
 				$inner_where_string,
 				'GROUP BY ' . implode( ', ', $group_by_parts ),
-				'ORDER BY bucket ASC',
+				// Descending, then reversed in PHP below, so the cap drops
+				// the OLDEST buckets rather than the newest. Ascending plus
+				// LIMIT kept the first 500 buckets, so a log spanning more
+				// than 500 days drew a chart that stopped well before today
+				// with nothing to say it had been cut — and at hourly
+				// resolution 500 buckets is only about three weeks.
+				'ORDER BY ' . implode( ', ', array_map( static fn( $part ) => $part . ' DESC', $group_by_parts ) ),
 				sprintf( 'LIMIT %d', max( 1, $max_buckets ) ),
 			]
 		);
@@ -1167,7 +1181,12 @@ class Log_Query {
 
 		$buckets = [];
 
-		foreach ( (array) $rows as $row ) {
+		// Back to chronological. Reversing the rows also puts bucket_level
+		// back in ascending order, which is why the statement above sorts
+		// every GROUP BY part descending rather than just the bucket.
+		$rows = array_reverse( (array) $rows );
+
+		foreach ( $rows as $row ) {
 			$buckets[] = [
 				'bucket' => (string) $row->bucket,
 				'level'  => $split_by_level ? (string) $row->bucket_level : null,
@@ -1417,7 +1436,7 @@ class Log_Query {
 		// which only holds while rows arrive in date order. Sorting by anything
 		// else means the grouped query cannot run, so drop the grouping rather
 		// than silently returning date-ordered rows.
-		if ( $args['orderby'] !== 'date' ) {
+		if ( $args['orderby'] !== 'date' || $args['order'] !== 'DESC' ) {
 			$args['ungrouped'] = true;
 		}
 

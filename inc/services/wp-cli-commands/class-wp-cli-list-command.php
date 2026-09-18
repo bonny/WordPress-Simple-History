@@ -160,6 +160,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *   - level
 	 *   - logger
 	 *   - message
+	 * ---
 	 *
 	 * [--order=<direction>]
 	 * : Sort direction.
