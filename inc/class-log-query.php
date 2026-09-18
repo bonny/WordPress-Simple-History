@@ -1037,6 +1037,13 @@ class Log_Query {
 	}
 
 	/**
+	 * How long an aggregate result is cached for, in seconds.
+	 *
+	 * @since 5.34.0
+	 */
+	const AGGREGATE_CACHE_SECONDS = 60;
+
+	/**
 	 * Count the events matching a query, grouped into buckets.
 	 *
 	 * Answers "how many, by what" for the same filters that decide which
@@ -1084,6 +1091,32 @@ class Log_Query {
 		}
 
 		$args = $this->prepare_args( $args );
+
+		// Cached for a minute, per user.
+		//
+		// This is a GROUP BY over the events table with no index behind most
+		// of the groupings, and LIMIT caps the response rather than the work.
+		// The histogram refires on every filter change, so typing in the
+		// search box issues one of these per keystroke — invisible on a small
+		// log, seconds each on a site with millions of rows, from an account
+		// that only needs the view-history capability.
+		//
+		// A transient rather than wp_cache_*, which the rest of this class
+		// uses: without a persistent object cache those last one request,
+		// which is no protection at all against a repeated call. Keyed on the
+		// user because the query is filtered by the loggers that user may
+		// read. A minute is well inside what an activity histogram needs to
+		// be honest.
+		$cache_key = 'sh_agg_' . md5(
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+			serialize( [ $args, $group_by, $interval, $split_by_level, $max_buckets ] )
+		) . '_' . get_current_user_id();
+
+		$cached = get_transient( $cache_key );
+
+		if ( $cached !== false ) {
+			return $cached;
+		}
 
 		global $wpdb;
 
@@ -1141,6 +1174,8 @@ class Log_Query {
 				'count'  => (int) $row->bucket_count,
 			];
 		}
+
+		set_transient( $cache_key, $buckets, self::AGGREGATE_CACHE_SECONDS );
 
 		return $buckets;
 	}

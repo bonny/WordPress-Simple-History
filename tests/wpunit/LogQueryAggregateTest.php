@@ -192,6 +192,58 @@ class LogQueryAggregateTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * The result is cached, and a second identical call does not hit the
+	 * database again.
+	 *
+	 * This is a GROUP BY with no index behind most of the groupings, and the
+	 * histogram above the table refires on every filter change — so without
+	 * a cache, typing in the search box is one full-table scan per keystroke
+	 * from an account that only needs the view-history capability.
+	 *
+	 * @covers ::query_aggregate
+	 */
+	public function test_the_result_is_cached() {
+		global $wpdb;
+
+		$this->add_known_events();
+
+		$log_query = new Log_Query();
+		$args      = [ 'group_by' => 'level' ];
+
+		$first = $log_query->query_aggregate( $args );
+
+		$queries_before = $wpdb->num_queries;
+		$second         = $log_query->query_aggregate( $args );
+
+		$this->assertSame( $first, $second );
+		$this->assertSame(
+			$queries_before,
+			$wpdb->num_queries,
+			'The second identical call should be served from the cache.'
+		);
+	}
+
+	/**
+	 * A different question is a different cache entry, so the cache cannot
+	 * answer one grouping with another one's counts.
+	 *
+	 * @covers ::query_aggregate
+	 */
+	public function test_the_cache_is_keyed_on_the_query() {
+		$this->add_known_events();
+
+		$log_query = new Log_Query();
+
+		$by_level  = $log_query->query_aggregate( [ 'group_by' => 'level' ] );
+		$by_logger = $log_query->query_aggregate( [ 'group_by' => 'logger' ] );
+
+		$this->assertNotSame(
+			wp_list_pluck( $by_level, 'bucket' ),
+			wp_list_pluck( $by_logger, 'bucket' )
+		);
+	}
+
+	/**
 	 * max_buckets caps the result, so a query over years of events cannot
 	 * return an unbounded list.
 	 *
