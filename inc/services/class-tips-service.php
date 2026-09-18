@@ -34,6 +34,12 @@ class Tips_Service extends Service {
 	private function get_all_tips() {
 		$is_premium_active = Helpers::is_premium_add_on_active();
 
+		// Tips that point at Premium are promotional, so they follow the same rule as
+		// every other promo surface: hidden when Extended Settings is active or when a
+		// site has turned promo boxes off through the filter. The instructional tips
+		// are unaffected.
+		$show_premium_tips = Helpers::show_promo_boxes();
+
 		$tips = [
 			[
 				'text'     => __( 'Subscribe to your activity log via RSS — enable it under Simple History > Settings.', 'simple-history' ),
@@ -125,32 +131,35 @@ class Tips_Service extends Service {
 					'text'     => __( 'Pin important events with "Sticky" so they don\'t scroll away.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard', 'email' ],
 				]
-				: [
+				: ( $show_premium_tips ? [
 					'text'     => __( 'Want to pin important events so they don\'t scroll away? That\'s part of Simple History Premium.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard' ],
-				],
+				] : null ),
 			$is_premium_active
 				? [
 					'text'     => __( 'Set up alerts in Simple History > Settings to get notified when specific events happen.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard', 'email' ],
 					'triggers' => [ 'failed_logins' ],
 				]
-				: [
+				: ( $show_premium_tips ? [
 					'text'     => __( 'Want instant alerts when specific events happen? That\'s part of Simple History Premium.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard' ],
-				],
+				] : null ),
 			$is_premium_active
 				? [
 					'text'     => __( 'Use Message Control in Settings to choose exactly which events get logged.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard', 'email' ],
 				]
-				: [
+				: ( $show_premium_tips ? [
 					'text'     => __( 'Want to control exactly which events get logged? That\'s part of Simple History Premium.', 'simple-history' ),
 					'contexts' => [ 'sidebar', 'dashboard' ],
-				],
+				] : null ),
 		];
 
-		if ( ! $is_premium_active ) {
+		// Drop the premium teasers that were skipped above.
+		$tips = array_values( array_filter( $tips ) );
+
+		if ( ! $is_premium_active && $show_premium_tips ) {
 			$tips[] = [
 				'text'     => __( 'Need a longer history? Simple History Premium stores up to a full year of events.', 'simple-history' ),
 				'contexts' => [ 'sidebar', 'dashboard' ],
