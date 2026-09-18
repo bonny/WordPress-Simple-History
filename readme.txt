@@ -275,6 +275,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Changed post excerpts are labelled "Excerpt" instead of the raw field name.
+-   Tips that mention Premium are hidden on sites that have turned promotional messages off.
 
 ### 5.33.0 (September 2026)
 
