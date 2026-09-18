@@ -29,10 +29,28 @@ function isCoreEventsListRequest( url ) {
 	return new URL( url ).pathname === '/wp-json/simple-history/v1/events';
 }
 
+// PSR-3 severity, least severe first — the same order
+// Log_Levels::get_log_levels_by_severity() defines in core, which is what
+// the SQL ranks by. Deliberately not alphabetical: sorting the level column
+// as text puts emergency between error and info.
+const LEVELS_BY_SEVERITY = [
+	'debug',
+	'info',
+	'notice',
+	'warning',
+	'error',
+	'critical',
+	'alert',
+	'emergency',
+];
+
 /**
- * Whether the table's Level column reads back in non-decreasing order —
- * what a server-side ascending sort on the raw `level` column produces,
- * since the visible labels are just capitalised versions of the same words.
+ * Whether the table's Level column reads back in non-decreasing severity
+ * order, which is what an ascending sort on Level should produce.
+ *
+ * An earlier version of this compared the labels as strings, which happens
+ * to agree with severity on a log holding only debug/info/warning — so it
+ * passed while the underlying sort was alphabetical and wrong.
  *
  * @param {string[]} levelValues Visible text of every Level cell, top to bottom.
  * @return {boolean} True if sorted (and non-empty); false otherwise.
@@ -42,12 +60,11 @@ function isLevelColumnNonDecreasing( levelValues ) {
 		return false;
 	}
 
+	const rankOf = ( label ) =>
+		LEVELS_BY_SEVERITY.indexOf( label.trim().toLowerCase() );
+
 	for ( let i = 1; i < levelValues.length; i++ ) {
-		if (
-			levelValues[ i ].localeCompare( levelValues[ i - 1 ], undefined, {
-				sensitivity: 'base',
-			} ) < 0
-		) {
+		if ( rankOf( levelValues[ i ] ) < rankOf( levelValues[ i - 1 ] ) ) {
 			return false;
 		}
 	}
@@ -1005,30 +1022,41 @@ test.describe( 'Premium table view', () => {
 			// several at once and a wrap bug affects all of them the same
 			// way, so checking more than one is cheap insurance against a
 			// fix that only happens to line up the first row.
-			const rowTops = await page
-				.locator( '.shp-TableView__row' )
-				.evaluateAll( ( rows ) =>
-					rows.slice( 0, 5 ).map( ( row ) => {
-						// Excludes the (collapsed, here) details panel on
-						// purpose — that cell is *meant* to sit on its own
-						// line below the others; it is the data cells
-						// beside it in .shp-TableView__rowCells that must
-						// never wrap.
-						const cellTops = Array.from(
-							row.querySelectorAll(
-								'.shp-TableView__rowCells > .shp-TableView__td'
-							)
-						).map( ( cell ) => cell.getBoundingClientRect().top );
+			// Measured through a poll, not a single read. Waiting for the
+			// first row only proves a row existed at that instant; the
+			// table replaces its rows when the first fetch settles, and a
+			// measurement taken in that window sees none at all — which
+			// used to surface as an empty result rather than as a wrap.
+			const measureRows = () =>
+				page
+					.locator( '.shp-TableView__row' )
+					.evaluateAll( ( rows ) =>
+						rows.slice( 0, 5 ).map( ( row ) => {
+							// Excludes the (collapsed, here) details panel
+							// on purpose — that cell is *meant* to sit on
+							// its own line below the others; it is the data
+							// cells beside it in .shp-TableView__rowCells
+							// that must never wrap.
+							const cellTops = Array.from(
+								row.querySelectorAll(
+									'.shp-TableView__rowCells > .shp-TableView__td'
+								)
+							).map(
+								( cell ) => cell.getBoundingClientRect().top
+							);
 
-						return {
-							min: Math.min( ...cellTops ),
-							max: Math.max( ...cellTops ),
-							count: cellTops.length,
-						};
-					} )
-				);
+							return {
+								min: Math.min( ...cellTops ),
+								max: Math.max( ...cellTops ),
+								count: cellTops.length,
+							};
+						} )
+					);
 
-			expect( rowTops.length ).toBeGreaterThan( 0 );
+			await expect.poll( async () => ( await measureRows() ).length )
+				.toBeGreaterThan( 0 );
+
+			const rowTops = await measureRows();
 
 			for ( const { min, max, count } of rowTops ) {
 				// At least expand, select, message and actions — a count of
@@ -1089,5 +1117,637 @@ test.describe( 'Premium table view', () => {
 		await page.getByRole( 'button', { name: 'Detailed view' } ).click();
 
 		await expect( controlBarTotal ).toBeVisible();
+	} );
+
+	// Regression: every per-column style rule used to hang off a `__td--`
+	// class, which only reached body cells. The expand column's narrower
+	// padding therefore applied to cells and not to its header, and with
+	// content-box sizing that shifted every header label from Date onwards
+	// 12px right of the data underneath it — visible without measuring, and
+	// invisible to every assertion in this file, which all read text.
+	test( 'every header cell lines up with its own column of data', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+		await setStoredColumns( requestUtils, ALL_COLUMNS );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		// Content position, not box position. Since box-sizing is border-box
+		// the boxes line up on their widths alone, so comparing those would
+		// pass even with the per-column padding missing from the header —
+		// which is the actual defect. What has to match is where the label
+		// starts against where the data starts.
+		const offsets = await page.evaluate( () => {
+			const contentLeft = ( el ) =>
+				el.getBoundingClientRect().x +
+				parseFloat( getComputedStyle( el ).paddingLeft );
+
+			const headers = [
+				...document.querySelectorAll(
+					'.shp-TableView__headerRow .shp-TableView__th'
+				),
+			];
+			const cells = [
+				...document.querySelector( '.shp-TableView__rowCells' )
+					.children,
+			];
+
+			return headers.map( ( th, index ) => ( {
+				column:
+					th.className.match( /__col--([\w]+)/ )?.[ 1 ] ?? 'unknown',
+				dx: cells[ index ]
+					? Math.abs( contentLeft( cells[ index ] ) - contentLeft( th ) )
+					: 0,
+			} ) );
+		} );
+
+		expect( offsets.length ).toBeGreaterThan( 5 );
+
+		for ( const { column, dx } of offsets ) {
+			expect(
+				dx,
+				`header for "${ column }" is ${ dx }px off its data`
+			).toBeLessThan( 1 );
+		}
+	} );
+
+	// Regression: the table used to be virtualised, which unmounted the
+	// focused row as the browser scrolled it into view. Focus fell to
+	// <body> and the next Tab landed at the top of the admin page, so a
+	// keyboard user reached about thirteen rows and could not get back.
+	// Dropping the virtualizer fixed the unmounting; memoising the column
+	// definitions fixed the rest, since handing TanStack a new `columns`
+	// array remounts every cell and destroys focus the same way.
+	test( 'every loaded row is reachable with the keyboard', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const rowCount = await page.locator( '.shp-TableView__row' ).count();
+		expect( rowCount ).toBeGreaterThan( 20 );
+
+		await page.locator( '.shp-TableView__sortButton' ).first().focus();
+
+		const reached = new Set();
+
+		// Budget taken from the DOM rather than assumed. A row has the
+		// expand toggle, the checkbox and the actions menu, plus one button
+		// for every cell value that can be filtered on — which depends on
+		// the visible columns and on whether that row's value is filterable
+		// at all. Hard-coding "three per row" made this test fail the moment
+		// filterable cell values arrived, when nothing about reachability
+		// had changed.
+		const controlCount = await page
+			.locator(
+				'.shp-TableView__row button, .shp-TableView__row input, .shp-TableView__row a'
+			)
+			.count();
+
+		for ( let i = 0; i < controlCount + 10; i++ ) {
+			await page.keyboard.press( 'Tab' );
+
+			const eventId = await page.evaluate( () => {
+				const row =
+					document.activeElement?.closest?.(
+						'.shp-TableView__row'
+					);
+
+				return row?.dataset.eventId ?? null;
+			} );
+
+			if ( eventId ) {
+				reached.add( eventId );
+			} else if ( reached.size > 0 ) {
+				// Left the table through its end, which is correct.
+				break;
+			}
+		}
+
+		expect( reached.size ).toBe(
+			await page.locator( '.shp-TableView__row' ).count()
+		);
+	} );
+
+	// Regression: the header checkbox was labelled "Select all events on
+	// this page" and reported "100 events selected" against a total in the
+	// thousands. On an export path that is a confident wrong answer, so the
+	// label now states the real scope and the wider one is a separate,
+	// explicit choice.
+	test( 'select-all states how many events it actually selects, and offers the full set separately', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const loadedCount = await page.locator( '.shp-TableView__row' ).count();
+
+		await expect(
+			page.locator( '.shp-TableView__selectAll' )
+		).toHaveAttribute(
+			'aria-label',
+			`Select the ${ loadedCount } events loaded so far`
+		);
+
+		await page.locator( '.shp-TableView__selectAll' ).check();
+
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCount' )
+		).toHaveText( `${ loadedCount } events selected` );
+
+		// The total is ungrouped and larger than one page on this fixture,
+		// so the wider-scope line must be offered.
+		const scope = page.locator( '.shp-TableView__bulkBarScope' );
+		await expect( scope ).toContainText(
+			`Only the ${ loadedCount } events loaded so far are selected.`
+		);
+
+		await scope.getByRole( 'button' ).click();
+
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCount' )
+		).toContainText( 'All' );
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCount' )
+		).toContainText( 'matching events selected' );
+	} );
+
+	// Regression: unchecking every column left a table of empty rows with
+	// no way back. The PHP fell back to the defaults, but only on the next
+	// page load, so the stored value and the screen disagreed until then.
+	test( 'the columns menu cannot be emptied, and can be reset', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page.getByRole( 'button', { name: 'Columns' } ).click();
+
+		const menu = page.locator( '.shp-TableView__columnsMenuContent' );
+
+		// Addressed by role rather than by a CSS locator over the raw
+		// inputs. The popover also holds the row-height radios, and the
+		// checkboxes move between the ordered group and the hidden group as
+		// they are toggled — so an index into a list of `input` elements
+		// points somewhere different on every iteration.
+		const checkboxes = menu.getByRole( 'checkbox' );
+
+		// Uncheck until the only one left refuses to be unchecked. Reading
+		// the count fresh each time, because the list reorders underneath.
+		for ( let i = 0; i < 10; i++ ) {
+			const checkedBoxes = checkboxes.and(
+				page.locator( 'input:checked' )
+			);
+
+			const remaining = await checkedBoxes.count();
+
+			if ( remaining === 1 && ( await checkedBoxes.isDisabled() ) ) {
+				break;
+			}
+
+			await checkedBoxes.first().click();
+		}
+
+		// One column survives, and its checkbox is disabled rather than
+		// silently refusing the click.
+		const stillChecked = checkboxes.and( page.locator( 'input:checked' ) );
+
+		await expect( stillChecked ).toHaveCount( 1 );
+		await expect( stillChecked ).toBeDisabled();
+
+		await page
+			.getByRole( 'button', { name: 'Reset to defaults' } )
+			.click();
+
+		await expect(
+			checkboxes.and( page.locator( 'input:checked' ) )
+		).toHaveCount( DEFAULT_COLUMNS.length );
+	} );
+
+	// Reordering is done with a button per direction rather than by
+	// dragging, so that it works from a keyboard at all. The column moving
+	// in the table is what matters, not the row moving in the menu.
+	test( 'a column can be moved, and the move is remembered', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const dataHeaders = async () =>
+			(
+				await page.locator( '.shp-TableView__th' ).allInnerTexts()
+			 )
+				.map( ( text ) => text.split( '\n' )[ 0 ].trim() )
+				.filter( Boolean );
+
+		expect( await dataHeaders() ).toEqual( [
+			'Toggle event details',
+			'Date',
+			'User',
+			'Message',
+			'Level',
+			'Actions',
+		] );
+
+		await page.getByRole( 'button', { name: 'Columns' } ).click();
+		await page
+			.getByRole( 'button', { name: 'Move Level earlier' } )
+			.click();
+		await page
+			.getByRole( 'button', { name: 'Move Level earlier' } )
+			.click();
+
+		await expect
+			.poll( dataHeaders )
+			.toEqual( [
+				'Toggle event details',
+				'Date',
+				'Level',
+				'User',
+				'Message',
+				'Actions',
+			] );
+
+		// Persisted server-side, not only in the URL.
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await expect
+			.poll( dataHeaders )
+			.toEqual( [
+				'Toggle event details',
+				'Date',
+				'Level',
+				'User',
+				'Message',
+				'Actions',
+			] );
+
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
+	} );
+
+	// The row menu and the bulk bar render from one action list
+	// (table-actions.js), so what a selection can do is decided in one place
+	// rather than drifting between two hand-maintained menus.
+	test( 'the copy menu offers every clipboard format for a selection', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const boxes = page.locator(
+			'.shp-TableView__row input[type="checkbox"]'
+		);
+		await boxes.nth( 0 ).check();
+		await boxes.nth( 1 ).check();
+
+		await page
+			.getByRole( 'button', { name: 'Copy the selected events' } )
+			.click();
+
+		// The group label states the number of events the copy will contain,
+		// which is the honest count even when the selection is wider.
+		await expect(
+			page.getByRole( 'menu' ).getByText( '2 events', { exact: true } )
+		).toBeVisible();
+
+		for ( const label of [
+			'Copy',
+			'Copy as CSV',
+			'Copy as JSON',
+			'Copy links',
+		] ) {
+			await expect(
+				page.getByRole( 'menuitem', { name: label, exact: true } )
+			).toBeVisible();
+		}
+	} );
+
+	// The clipboard can only hold rows the browser has fetched. After the
+	// two-step "select all matching", the selection is a number the page has
+	// no data for — copying must say so rather than quietly serialising the
+	// loaded subset, which is the same failure the export scope line exists
+	// to prevent.
+	test( 'copying says so when the selection is wider than what is loaded', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page
+			.locator( '.shp-TableView__headerRow input[type="checkbox"]' )
+			.check();
+
+		const scope = page.locator( '.shp-TableView__bulkBarScope' );
+		await scope.getByRole( 'button' ).click();
+
+		const loadedCount = await page.locator( '.shp-TableView__row' ).count();
+
+		await page
+			.getByRole( 'button', { name: 'Copy the selected events' } )
+			.click();
+
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCopyNote' )
+		).toContainText(
+			`Only the ${ loadedCount } events loaded so far can be copied.`
+		);
+	} );
+	// A saved view is a named bundle of filters, columns and sort, and
+	// applying one is a navigation — the filters it restores belong to core
+	// and live in the page URL. The built-ins ship from PHP, so this also
+	// covers the localised data reaching the menu.
+	test( 'a built-in view applies its filter and reads back as active', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page.getByRole( 'button', { name: 'Saved views' } ).click();
+		await page
+			.getByRole( 'menuitemradio', { name: 'Errors and warnings' } )
+			.click();
+
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		// Core stores log levels in the URL as translated labels, not slugs
+		// — see LABEL_VALUED_KEYS in premium's table-view-url.js. A view that
+		// wrote slugs here would leave the table unfiltered.
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'levels' ) )
+			.toBe( 'Warning,Error,Critical,Alert,Emergency' );
+
+		// The button names the view while the screen still matches it.
+		await expect(
+			page.getByRole( 'button', { name: 'Saved views' } )
+		).toHaveText( 'Errors and warnings' );
+
+		// And the rows actually narrowed: nothing below warning is left.
+		// Scoped to the rows: the same class is on the column header, whose
+		// text is the word "Level" and is not a level.
+		//
+		// Polled rather than read once. Applying a view is a navigation and
+		// then a fetch; the button above renames itself from the URL, which
+		// it has before the new rows land, so a single read here can catch
+		// the table between the two.
+		const levelTexts = () =>
+			page
+				.locator( '.shp-TableView__row .shp-TableView__col--level' )
+				.allInnerTexts();
+
+		await expect
+			.poll( async () => {
+				const levels = await levelTexts();
+
+				return (
+					levels.length > 0 &&
+					levels.every( ( level ) =>
+						[
+							'Warning',
+							'Error',
+							'Critical',
+							'Alert',
+							'Emergency',
+						].includes( level.trim() )
+					)
+				);
+			} )
+			.toBe( true );
+	} );
+
+	test( 'a view can be saved, survives a reload, and can be deleted', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table&levels=Error' );
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		// Counted relative to whatever this admin already had. Asserting an
+		// absolute zero at the end would make this test depend on nothing
+		// else having ever saved a view on this install — including an
+		// earlier, interrupted run of this same test.
+		const viewCount = () =>
+			page.evaluate(
+				() => window.shpTableViewData?.savedViews?.length ?? 0
+			);
+
+		const startingCount = await viewCount();
+
+		await page.getByRole( 'button', { name: 'Saved views' } ).click();
+		await page
+			.getByRole( 'menuitem', { name: 'Save this view…' } )
+			.click();
+
+		await page.getByLabel( 'Name' ).fill( 'Playwright view' );
+		await page
+			.getByRole( 'dialog' )
+			.getByRole( 'button', { name: 'Save', exact: true } )
+			.click();
+
+		await expect( page.getByRole( 'dialog' ) ).toHaveCount( 0 );
+
+		await expect(
+			page.getByRole( 'button', { name: 'Saved views' } )
+		).toHaveText( 'Playwright view' );
+
+		// Stored server-side, not just in component state. It also stores
+		// the level as a slug rather than the label the URL carries, so the
+		// view keeps working on an admin in another language.
+		await page.reload();
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		await expect.poll( viewCount ).toBe( startingCount + 1 );
+
+		await expect
+			.poll( () =>
+				page.evaluate( () =>
+					( window.shpTableViewData?.savedViews || [] ).find(
+						( view ) => view.name === 'Playwright view'
+					)?.query
+				)
+			)
+			.toMatchObject( { levels: 'error' } );
+
+		await page.getByRole( 'button', { name: 'Saved views' } ).click();
+		await page
+			.getByRole( 'menuitem', { name: 'Delete “Playwright view”' } )
+			.click();
+		await page
+			.getByRole( 'dialog' )
+			.getByRole( 'button', { name: 'Delete', exact: true } )
+			.click();
+
+		// The dialog closes only once the server has accepted the change,
+		// so this is the signal that the delete actually landed. Reloading
+		// straight after the click raced the request instead.
+		await expect( page.getByRole( 'dialog' ) ).toHaveCount( 0 );
+
+		await page.reload();
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		await expect.poll( viewCount ).toBe( startingCount );
+	} );
+	// Several hundred controls sit between the top of the table and whatever
+	// follows it. The skip link is how a keyboard user gets past them.
+	test( 'a keyboard user can skip past the whole table', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const skipLink = page.getByRole( 'link', {
+			name: 'Skip past the events table',
+		} );
+
+		// Hidden until it has focus, the same way core's own skip links are.
+		await expect( skipLink ).not.toBeInViewport();
+
+		await skipLink.focus();
+		await expect( skipLink ).toBeInViewport();
+
+		await page.keyboard.press( 'Enter' );
+
+		// Focus lands after the table, so the next Tab does not go back into
+		// the rows.
+		await page.keyboard.press( 'Tab' );
+
+		const isInsideTable = await page.evaluate(
+			() => !! document.activeElement?.closest?.( '.shp-TableView__body' )
+		);
+
+		expect( isInsideTable ).toBe( false );
+	} );
+	// Both the histogram and the group-by summary count server-side, over
+	// the whole filtered set. Counting the hundred rows that happen to be
+	// loaded would describe the page size rather than the log — which is
+	// the failure mode worth a test, because it looks right.
+	test( 'the histogram counts the whole filtered set, and narrows to a day', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		const bars = page.locator( '.shp-TableView__histogramBar' );
+
+		await expect.poll( () => bars.count() ).toBeGreaterThan( 0 );
+
+		// The counts come from the aggregate endpoint, not from the rows:
+		// one bar alone can hold more events than the table has loaded.
+		const loadedCount = await page.locator( '.shp-TableView__row' ).count();
+		const busiest = await page
+			.locator( '.shp-TableView__histogramButton' )
+			.evaluateAll( ( buttons ) =>
+				Math.max(
+					...buttons.map( ( button ) => {
+						const label = button.getAttribute( 'aria-label' ) || '';
+
+						return parseInt( label.replace( /\D.*$/, '' ), 10 ) || 0;
+					} )
+				)
+			);
+
+		expect( busiest ).toBeGreaterThan( loadedCount );
+
+		await bars.last().getByRole( 'link' ).click();
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'date' ) )
+			.toBe( 'customRange' );
+
+		// One day, so every row shown carries the same date.
+		await expect
+			.poll( async () => {
+				const dates = await page
+					.locator( '.shp-TableView__row .shp-TableView__col--date' )
+					.allInnerTexts();
+
+				return new Set(
+					dates.map( ( date ) => date.trim().slice( 0, 10 ) )
+				).size;
+			} )
+			.toBe( 1 );
+	} );
+
+	test( 'grouping counts the matching events and narrows to a group', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await page.locator( '.shp-TableView__row' ).first().waitFor();
+
+		await page.getByLabel( 'Group by' ).selectOption( 'level' );
+
+		const groups = page.locator( '.shp-TableView__groupByRow' );
+
+		await expect.poll( () => groups.count() ).toBeGreaterThan( 0 );
+
+		// Largest first, which is the whole point of grouping.
+		const counts = await groups.evaluateAll( ( rows ) =>
+			rows.map(
+				( row ) =>
+					parseInt(
+						(
+							row.querySelector(
+								'.shp-TableView__groupByCount'
+							)?.textContent || '0'
+						 ).replace( /\D/g, '' ),
+						10
+					) || 0
+			)
+		);
+
+		expect( counts ).toEqual( [ ...counts ].sort( ( a, b ) => b - a ) );
+
+		// The biggest group holds more events than the table has loaded, so
+		// these counts cannot have come from the rows on screen.
+		expect( counts[ 0 ] ).toBeGreaterThan(
+			await page.locator( '.shp-TableView__row' ).count()
+		);
+
+		await groups.first().getByRole( 'link' ).click();
+		await page.locator( '.shp-TableView__table' ).waitFor();
+
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'levels' ) )
+			.not.toBeNull();
 	} );
 } );
