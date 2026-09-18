@@ -1053,6 +1053,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'messages'                => 'messages',
 			'users'                   => 'users',
 			'user'                    => 'user',
+			'include_sticky'          => 'include_sticky',
+			'only_sticky'             => 'only_sticky',
 			'initiator'               => 'initiator',
 			'ip_address'              => 'ip_address',
 			'context_filters'         => 'context_filters',
@@ -1062,6 +1064,17 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'orderby'                 => 'orderby',
 			'order'                   => 'order',
 			'skip_count_query'        => 'skip_count_query',
+			// Surrounding events parameters.
+			'surrounding_event_id'    => 'surrounding_event_id',
+			'surrounding_count'       => 'surrounding_count',
+			// Exclusion filters.
+			'exclude_search'          => 'exclude_search',
+			'exclude_loglevels'       => 'exclude_loglevels',
+			'exclude_loggers'         => 'exclude_loggers',
+			'exclude_messages'        => 'exclude_messages',
+			'exclude_users'           => 'exclude_users',
+			'exclude_user'            => 'exclude_user',
+			'exclude_initiator'       => 'exclude_initiator',
 		);
 
 		/*
@@ -1100,75 +1113,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
 		// return new WP_Error( 'simple_history_error', 'Something went wrong 🤷', array( 'status' => 500 ) );
 
-		// Retrieve the list of registered collection query parameters.
-		$registered = $this->get_collection_params();
-		$args       = [];
-
-		/*
-		 * This array defines mappings between public API query parameters whose
-		 * values are accepted as-passed, and their internal WP_Query parameter
-		 * name equivalents (some are the same). Only values which are also
-		 * present in $registered will be set.
-		 */
-		$parameter_mappings = array(
-			'include'                 => 'post__in',
-			'offset'                  => 'offset',
-			'page'                    => 'paged',
-			'per_page'                => 'posts_per_page',
-			'search'                  => 'search',
-			'logRowID'                => 'logRowID',
-			'occasionsID'             => 'occasionsID',
-			'occasionsCount'          => 'occasionsCount',
-			'occasionsCountMaxReturn' => 'occasionsCountMaxReturn',
-			'type'                    => 'type',
-			'max_id_first_page'       => 'max_id_first_page',
-			'since_id'                => 'since_id',
-			'since_date'              => 'since_date',
-			'date_from'               => 'date_from',
-			'date_to'                 => 'date_to',
-			'dates'                   => 'dates',
-			'lastdays'                => 'lastdays',
-			'months'                  => 'months',
-			'loglevels'               => 'loglevels',
-			'loggers'                 => 'loggers',
-			'messages'                => 'messages',
-			'users'                   => 'users',
-			'user'                    => 'user',
-			'include_sticky'          => 'include_sticky',
-			'only_sticky'             => 'only_sticky',
-			'initiator'               => 'initiator',
-			'ip_address'              => 'ip_address',
-			'context_filters'         => 'context_filters',
-			'metadata_search'         => 'metadata_search',
-			'ai_only'                 => 'ai_only',
-			'ungrouped'               => 'ungrouped',
-			'orderby'                 => 'orderby',
-			'order'                   => 'order',
-			'skip_count_query'        => 'skip_count_query',
-			// Surrounding events parameters.
-			'surrounding_event_id'    => 'surrounding_event_id',
-			'surrounding_count'       => 'surrounding_count',
-			// Exclusion filters.
-			'exclude_search'          => 'exclude_search',
-			'exclude_loglevels'       => 'exclude_loglevels',
-			'exclude_loggers'         => 'exclude_loggers',
-			'exclude_messages'        => 'exclude_messages',
-			'exclude_users'           => 'exclude_users',
-			'exclude_user'            => 'exclude_user',
-			'exclude_initiator'       => 'exclude_initiator',
-		);
-
-		/*
-		 * For each known parameter which is both registered and present in the request,
-		 * set the parameter's value on the query $args.
-		 */
-		foreach ( $parameter_mappings as $api_param => $wp_param ) {
-			if ( ! isset( $registered[ $api_param ], $request[ $api_param ] ) ) {
-				continue;
-			}
-
-			$args[ $wp_param ] = $request[ $api_param ];
-		}
+		$args = $this->get_query_args_from_request( $request );
 
 		$query_result = $this->run_log_query( $args );
 
