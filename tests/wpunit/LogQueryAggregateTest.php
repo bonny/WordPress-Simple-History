@@ -261,4 +261,36 @@ class LogQueryAggregateTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertCount( 1, $buckets );
 	}
+
+	/**
+	 * The cap counts buckets, not rows.
+	 *
+	 * Splitting by level turns one bucket into up to one row per level, so a
+	 * row-based cap made max_buckets mean roughly an eighth of what it says —
+	 * which is how the histogram, which always splits by level, drew about
+	 * two months of a chart that was asked for 500 days.
+	 *
+	 * @covers ::query_aggregate
+	 */
+	public function test_max_buckets_counts_buckets_not_rows_when_split_by_level() {
+		$this->add_known_events();
+
+		$buckets = ( new Log_Query() )->query_aggregate(
+			[
+				'group_by'       => 'level',
+				'split_by_level' => true,
+				'max_buckets'    => 3,
+			]
+		);
+
+		$distinct = array_unique( wp_list_pluck( $buckets, 'bucket' ) );
+
+		$this->assertGreaterThan(
+			1,
+			count( $distinct ),
+			'A cap of 3 buckets should not collapse to a single bucket just because each one also splits by level.'
+		);
+
+		$this->assertLessThanOrEqual( 3, count( $distinct ) );
+	}
 }

@@ -88,9 +88,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			],
 		);
 
-		// GET /wp-json/simple-history/v1/events/has-updates.
-		// Same args as /wp-json/simple-history/v1/events but returns only information
-		// if there are new events or not.
+		// GET /wp-json/simple-history/v1/events/aggregate.
 		// Counts of the matching events, grouped into buckets.
 		register_rest_route(
 			$this->namespace,
@@ -105,6 +103,9 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			],
 		);
 
+		// GET /wp-json/simple-history/v1/events/has-updates.
+		// Same args as /wp-json/simple-history/v1/events but returns only information
+		// if there are new events or not.
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/has-updates',
