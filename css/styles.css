@@ -1620,6 +1620,17 @@ a.sh-DashboardWidget-stats--link:hover {
 	border-top: 1px solid #f0f0f1;
 }
 
+/*
+ * Tip links are underlined rather than coloured, so they stay quiet enough that
+ * most tips can carry one. Underline alone is also the accessible cue, since it
+ * does not depend on colour.
+ */
+.sh-DashboardWidget-tipLink {
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
 /* Dashboard widget: main container. Spacing matches WP core dashboard widgets (12px/8px). */
 .sh-DashboardWidget {
 	--sh-dashboard-padding-x: 12px;
@@ -5548,6 +5559,13 @@ Styles for plugin update details. Markup looks like this:
 .sh-SidebarTip-label {
 	font-weight: 600;
 	color: var(--sh-color-black);
+}
+
+/* Quiet by design — see .sh-DashboardWidget-tipLink. */
+.sh-SidebarTip-link {
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: 2px;
 }
 
 /* UserCard popover — shown on avatar/name click */

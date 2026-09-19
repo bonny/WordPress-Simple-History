@@ -496,7 +496,18 @@ export function DashboardEventsWidget() {
 				{ ! eventsIsLoading && events.length > 0 && tip && (
 					<p className="sh-DashboardWidget-tip">
 						<strong>{ __( 'Tip:', 'simple-history' ) }</strong>{ ' ' }
-						{ tip }
+						{ tip.text }
+						{ tip.link_text && tip.link_url && (
+							<>
+								{ ' ' }
+								<a
+									className="sh-DashboardWidget-tipLink"
+									href={ tip.link_url }
+								>
+									{ tip.link_text }
+								</a>
+							</>
+						) }
 					</p>
 				) }
 			</div>
