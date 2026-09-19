@@ -558,7 +558,7 @@ class Media_Logger extends Logger {
 			$groups[] = $thumbnail_group;
 		}
 
-		$groups[] = ( new Event_Details_Group() )
+		$changed_values_group = ( new Event_Details_Group() )
 			->set_title( __( 'Changed values', 'simple-history' ) )
 			->add_items(
 				[
@@ -584,6 +584,19 @@ class Media_Logger extends Logger {
 					),
 				]
 			);
+
+		/**
+		 * Applied here by hand because this method used to return this group on its
+		 * own. Simple_History only runs the filter for a returned group, not for a
+		 * container, so building the container below would otherwise drop a filter
+		 * third parties may already hook.
+		 *
+		 * @param Event_Details_Group $changed_values_group
+		 * @param object $row
+		 */
+		$changed_values_group = apply_filters( 'simple_history/log_row_details_output-' . $this->get_slug(), $changed_values_group, $row );
+
+		$groups[] = $changed_values_group;
 
 		// Context goes in the constructor, not through set_context() afterwards:
 		// adding a group drops items that have no value in the context so far, so a
@@ -617,11 +630,18 @@ class Media_Logger extends Logger {
 			return null;
 		}
 
-		$thumb_html = sprintf(
-			'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s"><div class="SimpleHistoryLogitemThumbnail SimpleHistoryLogitemThumbnail--small"><img src="%2$s" alt=""></div></a>',
-			esc_url( (string) get_edit_post_link( $attachment_id ) ),
+		$thumb_inner = sprintf(
+			'<div class="SimpleHistoryLogitemThumbnail SimpleHistoryLogitemThumbnail--small"><img src="%1$s" alt=""></div>',
 			esc_url( $thumb_src[0] )
 		);
+
+		// No edit link when the viewer cannot edit the attachment. Wrapping the
+		// thumbnail in an empty href would just reload the current page.
+		$edit_link = get_edit_post_link( $attachment_id );
+
+		$thumb_html = $edit_link
+			? sprintf( '<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s">%2$s</a>', esc_url( $edit_link ), $thumb_inner )
+			: $thumb_inner;
 
 		return Event_Details_Group::create_raw(
 			$thumb_html,
