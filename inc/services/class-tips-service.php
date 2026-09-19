@@ -3,6 +3,7 @@
 namespace Simple_History\Services;
 
 use Simple_History\Helpers;
+use Simple_History\Dropins\Sidebar_Add_Ons_Dropin;
 
 /**
  * Service that provides rotating tips surfaced in the sidebar and dashboard widget.
@@ -28,8 +29,18 @@ class Tips_Service extends Service {
 	 * - text: string The tip text.
 	 * - contexts: string[] Surfaces where the tip should appear (e.g. 'sidebar', 'dashboard', 'email').
 	 * - triggers: string[] Optional. Report counter names that make this tip relevant in the weekly summary email.
+	 * - link_text: string Optional. Label for a link shown after the text. Must make sense on its own,
+	 *   since screen reader users navigate links out of context.
+	 * - link_url: string Optional. Untracked destination. UTM parameters are added per context in
+	 *   get_tips_for_context(), so the same tip can be measured separately in the sidebar and the dashboard.
+	 * - link_campaign: string Optional. UTM campaign for documentation links. Premium tips leave this
+	 *   unset and get a campaign derived from the context instead.
+	 * - is_premium: bool Optional. True for the teasers that pitch Premium to free users. Used to keep
+	 *   them from stacking with the premium card in the sidebar.
 	 *
-	 * @return array<int, array{text: string, contexts: string[], triggers?: string[]}> Structured tip list.
+	 * Links never render in the weekly email — see get_tip_for_email().
+	 *
+	 * @return array<int, array{text: string, contexts: string[], triggers?: string[], link_text?: string, link_url?: string, link_campaign?: string, is_premium?: bool}> Structured tip list.
 	 */
 	private function get_all_tips() {
 		$is_premium_active = Helpers::is_premium_add_on_active();
@@ -38,16 +49,25 @@ class Tips_Service extends Service {
 
 		$tips = [
 			[
-				'text'     => __( 'Subscribe to your activity log via RSS — enable it under Simple History > Settings.', 'simple-history' ),
-				'contexts' => [ 'sidebar', 'email' ],
+				'text'          => __( 'Subscribe to your activity log via RSS — enable it under Simple History > Settings.', 'simple-history' ),
+				'contexts'      => [ 'sidebar', 'email' ],
+				'link_text'     => __( 'How RSS feeds work', 'simple-history' ),
+				'link_url'      => 'https://simple-history.com/docs/feeds/',
+				'link_campaign' => 'docs_rss_help',
 			],
 			[
-				'text'     => __( 'Get a weekly email digest of your site\'s activity — it\'s an easy way to catch changes that happened while you were away. Enable it under Simple History > Settings.', 'simple-history' ),
-				'contexts' => [ 'sidebar', 'dashboard' ],
+				'text'          => __( 'Get a weekly email digest of your site\'s activity — it\'s an easy way to catch changes that happened while you were away. Enable it under Simple History > Settings.', 'simple-history' ),
+				'contexts'      => [ 'sidebar', 'dashboard' ],
+				'link_text'     => __( 'About the weekly email report', 'simple-history' ),
+				'link_url'      => 'https://simple-history.com/support/weekly-email-report/',
+				'link_campaign' => 'docs_tip_weekly_email',
 			],
 			[
-				'text'     => __( 'Use "wp simple-history list" to view your activity log from the terminal.', 'simple-history' ),
-				'contexts' => [ 'sidebar', 'email' ],
+				'text'          => __( 'Use "wp simple-history list" to view your activity log from the terminal.', 'simple-history' ),
+				'contexts'      => [ 'sidebar', 'email' ],
+				'link_text'     => __( 'All WP-CLI commands', 'simple-history' ),
+				'link_url'      => 'https://simple-history.com/features/wp-cli-commands/',
+				'link_campaign' => 'docs_tip_wpcli',
 			],
 			[
 				'text'     => __( 'Export your event log as CSV, JSON, or HTML — find it under Simple History > Export & Tools.', 'simple-history' ),
@@ -62,8 +82,11 @@ class Tips_Service extends Service {
 				'contexts' => [ 'sidebar', 'email' ],
 			],
 			[
-				'text'     => __( 'Use the Quick View dropdown in the admin bar to see recent events without leaving your page.', 'simple-history' ),
-				'contexts' => [ 'sidebar', 'dashboard', 'email' ],
+				'text'          => __( 'Use the Quick View dropdown in the admin bar to see recent events without leaving your page.', 'simple-history' ),
+				'contexts'      => [ 'sidebar', 'dashboard', 'email' ],
+				'link_text'     => __( 'About Quick View', 'simple-history' ),
+				'link_url'      => 'https://simple-history.com/features/admin-bar-quick-view/',
+				'link_campaign' => 'docs_tip_quick_view',
 			],
 			$is_premium_active
 				? [
@@ -83,12 +106,18 @@ class Tips_Service extends Service {
 				'contexts' => [ 'sidebar', 'email' ],
 			],
 			[
-				'text'     => __( 'Developers can log custom events from themes and plugins using the simple_history_log action.', 'simple-history' ),
-				'contexts' => [ 'sidebar', 'email' ],
+				'text'          => __( 'Developers can log custom events from themes and plugins using the simple_history_log action.', 'simple-history' ),
+				'contexts'      => [ 'sidebar', 'email' ],
+				'link_text'     => __( 'The logging API', 'simple-history' ),
+				'link_url'      => 'https://simple-history.com/docs/logging-api/',
+				'link_campaign' => 'docs_tip_logging_api',
 			],
 			[
-				'text'     => __( 'Developers can fetch events over the REST API — try the /wp-json/simple-history/v1/events endpoint.', 'simple-history' ),
-				'contexts' => [ 'sidebar', 'email' ],
+				'text'          => __( 'Developers can fetch events over the REST API — try the /wp-json/simple-history/v1/events endpoint.', 'simple-history' ),
+				'contexts'      => [ 'sidebar', 'email' ],
+				'link_text'     => __( 'REST API endpoints', 'simple-history' ),
+				'link_url'      => 'https://simple-history.com/docs/rest-api-endpoints/',
+				'link_campaign' => 'docs_tip_rest_api',
 			],
 			[
 				'text'     => __( 'Site acting strangely? Check the log — what changed right before often points straight to the cause.', 'simple-history' ),
@@ -118,9 +147,16 @@ class Tips_Service extends Service {
 				'text'     => __( 'Handing over a site? The log gives the next person a head start on understanding what\'s been happening.', 'simple-history' ),
 				'contexts' => [ 'sidebar', 'dashboard', 'email' ],
 			],
+			// Links to the privacy documentation rather than to Premium, on purpose.
+			// The anonymization itself is core, switched with the free
+			// simple_history/privacy/anonymize_ip_address filter, so a Premium pitch
+			// here would read as gating something that is not gated.
 			[
-				'text'     => __( 'IP addresses in the log are anonymized by default, balancing accountability with user privacy.', 'simple-history' ),
-				'contexts' => [ 'sidebar', 'dashboard', 'email' ],
+				'text'          => __( 'IP addresses in the log are anonymized by default, balancing accountability with user privacy.', 'simple-history' ),
+				'contexts'      => [ 'sidebar', 'dashboard', 'email' ],
+				'link_text'     => __( 'Privacy and GDPR', 'simple-history' ),
+				'link_url'      => 'https://simple-history.com/support/gdpr-and-privacy/',
+				'link_campaign' => 'docs_tip_privacy',
 			],
 		];
 
@@ -152,20 +188,32 @@ class Tips_Service extends Service {
 				$tips,
 				[
 					[
-						'text'     => __( 'Want to pin important events so they don\'t scroll away? That\'s part of Simple History Premium.', 'simple-history' ),
-						'contexts' => [ 'sidebar', 'dashboard' ],
+						'text'       => __( 'Want to pin important events so they don\'t scroll away? That\'s part of Simple History Premium.', 'simple-history' ),
+						'contexts'   => [ 'sidebar', 'dashboard' ],
+						'link_text'  => __( 'About sticky events', 'simple-history' ),
+						'link_url'   => 'https://simple-history.com/add-ons/premium/#sticky-events',
+						'is_premium' => true,
 					],
 					[
-						'text'     => __( 'Want instant alerts when specific events happen? That\'s part of Simple History Premium.', 'simple-history' ),
-						'contexts' => [ 'sidebar', 'dashboard' ],
+						'text'       => __( 'Want instant alerts when specific events happen? That\'s part of Simple History Premium.', 'simple-history' ),
+						'contexts'   => [ 'sidebar', 'dashboard' ],
+						'link_text'  => __( 'About alerts', 'simple-history' ),
+						'link_url'   => 'https://simple-history.com/add-ons/premium/#alerts',
+						'is_premium' => true,
 					],
 					[
-						'text'     => __( 'Want to control exactly which events get logged? That\'s part of Simple History Premium.', 'simple-history' ),
-						'contexts' => [ 'sidebar', 'dashboard' ],
+						'text'       => __( 'Want to control exactly which events get logged? That\'s part of Simple History Premium.', 'simple-history' ),
+						'contexts'   => [ 'sidebar', 'dashboard' ],
+						'link_text'  => __( 'About message control', 'simple-history' ),
+						'link_url'   => 'https://simple-history.com/add-ons/premium/#message-control',
+						'is_premium' => true,
 					],
 					[
-						'text'     => __( 'Need a longer history? Simple History Premium stores up to a full year of events.', 'simple-history' ),
-						'contexts' => [ 'sidebar', 'dashboard' ],
+						'text'       => __( 'Need a longer history? Simple History Premium stores up to a full year of events.', 'simple-history' ),
+						'contexts'   => [ 'sidebar', 'dashboard' ],
+						'link_text'  => __( 'About log retention', 'simple-history' ),
+						'link_url'   => 'https://simple-history.com/add-ons/premium/#log-retention',
+						'is_premium' => true,
 					],
 				]
 			);
@@ -182,10 +230,14 @@ class Tips_Service extends Service {
 	}
 
 	/**
-	 * Get tip strings filtered for a given context.
+	 * Get tips applicable to a given context, with link URLs resolved.
+	 *
+	 * Premium tips get a per-context campaign so the sidebar and the dashboard
+	 * can be told apart in the funnel reports; documentation links carry their
+	 * own campaign and are the same on every surface.
 	 *
 	 * @param string $context Context name, e.g. 'sidebar' or 'dashboard'.
-	 * @return string[] Tip texts applicable to the context.
+	 * @return array<int, array{text: string, link_text?: string, link_url?: string, is_premium?: bool}> Tips applicable to the context.
 	 */
 	public function get_tips_for_context( $context ) {
 		$all_tips = $this->get_all_tips();
@@ -196,24 +248,75 @@ class Tips_Service extends Service {
 				continue;
 			}
 
-			$tips[] = $tip['text'];
+			$tips[] = $this->prepare_tip_for_output( $tip, $context );
 		}
 
 		if ( $context === 'sidebar' ) {
+			$texts = wp_list_pluck( $tips, 'text' );
+
 			/**
 			 * Filter the list of sidebar tips.
 			 *
 			 * For tips that should appear on multiple surfaces (e.g. sidebar and dashboard),
-			 * use the structured `simple_history/tips` filter instead.
+			 * or that need a link, use the structured `simple_history/tips` filter instead.
 			 *
 			 * @since 5.24.0
 			 *
 			 * @param string[] $tips Array of tip strings.
 			 */
-			$tips = apply_filters( 'simple_history/sidebar_tips', $tips );
+			$filtered_texts = apply_filters( 'simple_history/sidebar_tips', $texts );
+
+			// A callback that changed the list only ever saw the texts, so it cannot
+			// have expressed an opinion about the links. Fall back to plain tips
+			// rather than pairing its strings with links that belonged to other tips.
+			if ( $filtered_texts !== $texts ) {
+				$tips = [];
+
+				foreach ( (array) $filtered_texts as $text ) {
+					$tips[] = [ 'text' => $text ];
+				}
+			}
 		}
 
 		return $tips;
+	}
+
+	/**
+	 * Reduce a tip to what a surface needs to render it, resolving the link URL.
+	 *
+	 * @param array  $tip     Tip as defined in get_all_tips().
+	 * @param string $context Context name, e.g. 'sidebar' or 'dashboard'.
+	 * @return array{text: string, link_text?: string, link_url?: string, is_premium?: bool} Tip ready for output.
+	 */
+	private function prepare_tip_for_output( $tip, $context ) {
+		$prepared = [ 'text' => $tip['text'] ];
+
+		if ( empty( $tip['link_text'] ) || empty( $tip['link_url'] ) ) {
+			return $prepared;
+		}
+
+		$is_premium = ! empty( $tip['is_premium'] );
+
+		// Premium tips are measured per surface, since the sidebar and the dashboard
+		// carry different competing teasers. Documentation links bring their own
+		// campaign so they stay out of the premium funnel reports.
+		$campaign = $is_premium
+			? 'premium_' . $context . '_tip'
+			: ( $tip['link_campaign'] ?? '' );
+
+		if ( $campaign === '' ) {
+			$prepared['link_url'] = $tip['link_url'];
+		} else {
+			$prepared['link_url'] = Helpers::get_tracking_url( $tip['link_url'], $campaign );
+		}
+
+		$prepared['link_text'] = $tip['link_text'];
+
+		if ( $is_premium ) {
+			$prepared['is_premium'] = true;
+		}
+
+		return $prepared;
 	}
 
 	/**
@@ -335,6 +438,20 @@ class Tips_Service extends Service {
 
 		$tips = $this->get_tips_for_context( 'sidebar' );
 
+		// The premium card renders into this same sidebar at priority 25. When it is
+		// there, drop the premium tips so a free user does not get the card and a
+		// premium tip on one screen. The instructional tips stay, so a tip still shows.
+		if ( Sidebar_Add_Ons_Dropin::should_show_premium_promo_compact() ) {
+			$tips = array_values(
+				array_filter(
+					$tips,
+					function ( $tip ) {
+						return empty( $tip['is_premium'] );
+					}
+				)
+			);
+		}
+
 		if ( empty( $tips ) ) {
 			return;
 		}
@@ -346,7 +463,10 @@ class Tips_Service extends Service {
 			<p class="sh-SidebarTip-text">
 				<span class="sh-SidebarTip-icon" aria-hidden="true">💡</span>
 				<span class="sh-SidebarTip-label"><?php esc_html_e( 'Tip:', 'simple-history' ); ?></span>
-				<?php echo esc_html( $tip ); ?>
+				<?php echo esc_html( $tip['text'] ); ?>
+				<?php if ( ! empty( $tip['link_text'] ) && ! empty( $tip['link_url'] ) ) { ?>
+					<a class="sh-SidebarTip-link" href="<?php echo esc_url( $tip['link_url'] ); ?>"><?php echo esc_html( $tip['link_text'] ); ?></a>
+				<?php } ?>
 			</p>
 		</div>
 		<?php

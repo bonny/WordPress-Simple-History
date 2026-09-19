@@ -105,21 +105,32 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output compact premium promo above History Insights.
+	 * Whether the compact premium promo card shows in the sidebar.
+	 *
+	 * Shared with Tips_Service, which drops its own premium tips when this card
+	 * is already on screen so a free user does not get two premium pitches in
+	 * the same sidebar.
+	 *
+	 * @return bool True when the card shows.
 	 */
-	public function on_sidebar_html_premium_promo_compact() {
+	public static function should_show_premium_promo_compact() {
 		$install_date       = Helpers::get_plugin_install_date();
 		$install_timestamp  = $install_date ? strtotime( $install_date ) : false;
 		$days_since_install = $install_timestamp ? ( time() - $install_timestamp ) / DAY_IN_SECONDS : 0;
 
-		$show_premium_card = Helpers::show_promo_boxes()
+		return Helpers::show_promo_boxes()
 			&& (
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only preview toggle for the promo card; no state change.
 				isset( $_GET['sh_preview_premium_promo'] )
 				|| $days_since_install >= self::MINIMUM_DAYS_BEFORE_PREMIUM_PROMO
 			);
+	}
 
-		if ( ! $show_premium_card ) {
+	/**
+	 * Output compact premium promo above History Insights.
+	 */
+	public function on_sidebar_html_premium_promo_compact() {
+		if ( ! self::should_show_premium_promo_compact() ) {
 			return;
 		}
 

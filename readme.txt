@@ -267,6 +267,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Thumbnail on "Edited attachment" events, so you can see which image the event is about.
+-   Links on tips in the sidebar and dashboard widget, pointing to the documentation or feature page for what the tip describes.
 
 **Changed**
 
