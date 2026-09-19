@@ -252,6 +252,23 @@ class Tips_Service extends Service {
 		}
 
 		if ( $context === 'sidebar' ) {
+			// The premium card renders into this same sidebar at priority 25. When it is
+			// there, drop the premium tips so a free user does not get the card and a
+			// premium tip on one screen. The instructional tips stay, so a tip still shows.
+			//
+			// This runs before the filter below on purpose: that filter only sees texts,
+			// so anything it returns has lost is_premium and could no longer be suppressed.
+			if ( $this->premium_card_shows_in_sidebar() ) {
+				$tips = array_values(
+					array_filter(
+						$tips,
+						function ( $tip ) {
+							return empty( $tip['is_premium'] );
+						}
+					)
+				);
+			}
+
 			$texts = wp_list_pluck( $tips, 'text' );
 
 			/**
@@ -279,6 +296,25 @@ class Tips_Service extends Service {
 		}
 
 		return $tips;
+	}
+
+	/**
+	 * Whether the compact premium card is on screen in the sidebar.
+	 *
+	 * Asks the dropin that renders it, and first that the dropin is loaded at all —
+	 * it can be switched off with simple_history/dropin/instantiate_Sidebar_Add_Ons_Dropin,
+	 * and on such a site there is no card to stack with.
+	 *
+	 * @return bool True when the card shows.
+	 */
+	private function premium_card_shows_in_sidebar() {
+		$dropin = $this->simple_history->get_instantiated_dropin_by_slug( 'Sidebar_Add_Ons_Dropin' );
+
+		if ( ! $dropin ) {
+			return false;
+		}
+
+		return Sidebar_Add_Ons_Dropin::should_show_premium_promo_compact();
 	}
 
 	/**
@@ -437,20 +473,6 @@ class Tips_Service extends Service {
 		}
 
 		$tips = $this->get_tips_for_context( 'sidebar' );
-
-		// The premium card renders into this same sidebar at priority 25. When it is
-		// there, drop the premium tips so a free user does not get the card and a
-		// premium tip on one screen. The instructional tips stay, so a tip still shows.
-		if ( Sidebar_Add_Ons_Dropin::should_show_premium_promo_compact() ) {
-			$tips = array_values(
-				array_filter(
-					$tips,
-					function ( $tip ) {
-						return empty( $tip['is_premium'] );
-					}
-				)
-			);
-		}
 
 		if ( empty( $tips ) ) {
 			return;
