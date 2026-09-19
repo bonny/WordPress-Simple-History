@@ -18,6 +18,16 @@ class Post_Logger extends Logger {
 	public $slug = 'SimplePostLogger';
 
 	/**
+	 * How many custom field names to store per bucket in the context.
+	 *
+	 * The count stays the truth; the names are a sample, capped so a page builder
+	 * save touching hundreds of meta rows does not bloat the context table.
+	 *
+	 * @var int
+	 */
+	const MAX_META_KEYS_IN_CONTEXT = 20;
+
+	/**
 	 * Array that will contain previous post data, before data is updated.
 	 *
 	 * Array format is
@@ -1220,15 +1230,18 @@ class Post_Logger extends Logger {
 		}
 
 		if ( $meta_changes['added'] ) {
-			$context['post_meta_added'] = count( $meta_changes['added'] );
+			$context['post_meta_added']      = count( $meta_changes['added'] );
+			$context['post_meta_added_keys'] = $this->get_meta_keys_sample( $meta_changes['added'] );
 		}
 
 		if ( $meta_changes['removed'] ) {
-			$context['post_meta_removed'] = count( $meta_changes['removed'] );
+			$context['post_meta_removed']      = count( $meta_changes['removed'] );
+			$context['post_meta_removed_keys'] = $this->get_meta_keys_sample( $meta_changes['removed'] );
 		}
 
 		if ( $meta_changes['changed'] ) {
-			$context['post_meta_changed'] = count( $meta_changes['changed'] );
+			$context['post_meta_changed']      = count( $meta_changes['changed'] );
+			$context['post_meta_changed_keys'] = $this->get_meta_keys_sample( $meta_changes['changed'] );
 		}
 
 		// Check for changes in post visibility and post password usage and store in context.
@@ -1968,25 +1981,29 @@ class Post_Logger extends Logger {
 				$meta_changed_out = '';
 				$has_diff_values  = true;
 
-				if ( isset( $context['post_meta_added'] ) ) {
-					$meta_changed_out .=
-						"<span class='SimpleHistoryLogitem__inlineDivided'>" .
-						(int) $context['post_meta_added'] .
-						' added</span> ';
-				}
+				$meta_buckets = [
+					'added'   => __( 'Added', 'simple-history' ),
+					'removed' => __( 'Removed', 'simple-history' ),
+					'changed' => __( 'Changed', 'simple-history' ),
+				];
 
-				if ( isset( $context['post_meta_removed'] ) ) {
-					$meta_changed_out .=
-						"<span class='SimpleHistoryLogitem__inlineDivided'>" .
-						(int) $context['post_meta_removed'] .
-						' removed</span> ';
-				}
+				foreach ( $meta_buckets as $meta_bucket => $meta_bucket_label ) {
+					$meta_count_key = 'post_meta_' . $meta_bucket;
 
-				if ( isset( $context['post_meta_changed'] ) ) {
+					if ( ! isset( $context[ $meta_count_key ] ) ) {
+						continue;
+					}
+
 					$meta_changed_out .=
 						"<span class='SimpleHistoryLogitem__inlineDivided'>" .
-						(int) $context['post_meta_changed'] .
-						' changed</span> ';
+						esc_html(
+							$this->get_custom_fields_summary(
+								$meta_bucket_label,
+								(int) $context[ $meta_count_key ],
+								(string) ( $context[ $meta_count_key . '_keys' ] ?? '' )
+							)
+						) .
+						'</span> ';
 				}
 
 				$diff_table_output .= sprintf(
@@ -2136,6 +2153,66 @@ class Post_Logger extends Logger {
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Summarise one bucket of changed custom fields, by name where we have them.
+	 *
+	 * Events logged before the names were stored only carry a count, so those
+	 * fall back to "Added: 3". Where more fields changed than we stored names
+	 * for, the remainder is reported rather than silently dropped.
+	 *
+	 * @param string $bucket_label What happened to the fields, e.g. "Changed".
+	 * @param int    $count        How many fields it happened to.
+	 * @param string $keys_json    JSON array of field names, or empty for older events.
+	 * @return string Summary to show after the "Custom fields" label.
+	 */
+	protected function get_custom_fields_summary( $bucket_label, $count, $keys_json ) {
+		$keys = json_decode( $keys_json, true );
+		$keys = is_array( $keys ) ? array_filter( $keys, 'is_string' ) : [];
+
+		if ( $keys === [] ) {
+			return sprintf(
+				/* translators: 1: what happened to the custom fields, e.g. "Added". 2: how many fields. */
+				__( '%1$s: %2$d', 'simple-history' ),
+				$bucket_label,
+				$count
+			);
+		}
+
+		$summary = sprintf(
+			/* translators: 1: what happened to the custom fields, e.g. "Changed". 2: comma separated field names. */
+			__( '%1$s: %2$s', 'simple-history' ),
+			$bucket_label,
+			implode( ', ', $keys )
+		);
+
+		$not_named = $count - count( $keys );
+
+		if ( $not_named > 0 ) {
+			$summary .= ' ' . sprintf(
+				/* translators: %d: number of custom fields not listed by name. */
+				_n( 'and %d more', 'and %d more', $not_named, 'simple-history' ),
+				$not_named
+			);
+		}
+
+		return $summary;
+	}
+
+	/**
+	 * Store a sample of custom field names for the context.
+	 *
+	 * Encoded as JSON rather than a comma separated string because a meta key may
+	 * itself contain a comma, which would split one name into two on output.
+	 *
+	 * @param array<string, bool> $meta_keys Changed keys, as key => true.
+	 * @return string JSON array of key names, capped at MAX_META_KEYS_IN_CONTEXT.
+	 */
+	protected function get_meta_keys_sample( $meta_keys ) {
+		$keys = array_slice( array_keys( $meta_keys ), 0, self::MAX_META_KEYS_IN_CONTEXT );
+
+		return (string) wp_json_encode( $keys );
 	}
 
 	/**

@@ -271,6 +271,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
+-   Custom field changes on posts name the fields that changed instead of only counting them.
 -   Preview of the weekly email stays on the settings page after you turn the email on.
 
 **Fixed**
