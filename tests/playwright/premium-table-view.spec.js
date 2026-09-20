@@ -72,8 +72,10 @@ function isLevelColumnNonDecreasing( levelValues ) {
 	return true;
 }
 
-// Matches Table_View_Module::DEFAULT_COLUMNS in premium's PHP.
-const DEFAULT_COLUMNS = [ 'date', 'user', 'message', 'level' ];
+// Matches Table_View_Module::DEFAULT_COLUMNS in premium's PHP, which gained
+// 'event_id' — keep the two in step, or "reset to default" asserts against a
+// column set the product no longer has.
+const DEFAULT_COLUMNS = [ 'event_id', 'date', 'user', 'message', 'level' ];
 
 // Matches Table_View_Module::KNOWN_COLUMNS in premium's PHP — every optional
 // column at once, which is the state that overflows a row's width soonest
@@ -455,8 +457,17 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
-		await expect( page.locator( '.shp-TableView__bulkBar' ) ).toHaveCount(
-			0
+		// The bar is always in the DOM, at a fixed height, so that ticking a
+		// checkbox does not push the table down the page. With nothing
+		// selected it is in its resting state and announces no count.
+		const bulkBar = page.locator( '.shp-TableView__bulkBar' );
+		await expect( bulkBar ).toHaveClass( /--resting/ );
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCount' )
+		).toHaveCount( 0 );
+
+		const restingHeight = await bulkBar.evaluate(
+			( element ) => element.getBoundingClientRect().height
 		);
 
 		const checkboxes = page.locator(
@@ -465,9 +476,17 @@ test.describe( 'Premium table view', () => {
 		await checkboxes.nth( 0 ).check();
 		await checkboxes.nth( 1 ).check();
 
-		const bulkBar = page.locator( '.shp-TableView__bulkBar' );
 		await expect( bulkBar ).toBeVisible();
+		await expect( bulkBar ).not.toHaveClass( /--resting/ );
 		await expect( bulkBar ).toContainText( '2' );
+
+		// The whole point of the resting state: filling the bar must not
+		// change its height, or the table jumps as the first row is ticked.
+		const selectedHeight = await bulkBar.evaluate(
+			( element ) => element.getBoundingClientRect().height
+		);
+
+		expect( selectedHeight ).toBe( restingHeight );
 	} );
 
 	test( 'select-all on the page toggles every row', async ( {
@@ -488,6 +507,10 @@ test.describe( 'Premium table view', () => {
 		);
 		await expect( checked ).toHaveCount( rowCount );
 
+		// Gone entirely, not back to the resting strip. The resting strip only
+		// exists to carry the "select events to…" hint, and selecting above
+		// has just retired that hint for this reader — so there is nothing
+		// left for the bar to hold and it stops reserving the space.
 		await page.locator( '.shp-TableView__selectAll' ).uncheck();
 		await expect( page.locator( '.shp-TableView__bulkBar' ) ).toHaveCount(
 			0
@@ -1064,32 +1087,29 @@ test.describe( 'Premium table view', () => {
 			// measurement taken in that window sees none at all — which
 			// used to surface as an empty result rather than as a wrap.
 			const measureRows = () =>
-				page
-					.locator( '.shp-TableView__row' )
-					.evaluateAll( ( rows ) =>
-						rows.slice( 0, 5 ).map( ( row ) => {
-							// Excludes the (collapsed, here) details panel
-							// on purpose — that cell is *meant* to sit on
-							// its own line below the others; it is the data
-							// cells beside it in .shp-TableView__rowCells
-							// that must never wrap.
-							const cellTops = Array.from(
-								row.querySelectorAll(
-									'.shp-TableView__rowCells > .shp-TableView__td'
-								)
-							).map(
-								( cell ) => cell.getBoundingClientRect().top
-							);
+				page.locator( '.shp-TableView__row' ).evaluateAll( ( rows ) =>
+					rows.slice( 0, 5 ).map( ( row ) => {
+						// Excludes the (collapsed, here) details panel
+						// on purpose — that cell is *meant* to sit on
+						// its own line below the others; it is the data
+						// cells beside it in .shp-TableView__rowCells
+						// that must never wrap.
+						const cellTops = Array.from(
+							row.querySelectorAll(
+								'.shp-TableView__rowCells > .shp-TableView__td'
+							)
+						).map( ( cell ) => cell.getBoundingClientRect().top );
 
-							return {
-								min: Math.min( ...cellTops ),
-								max: Math.max( ...cellTops ),
-								count: cellTops.length,
-							};
-						} )
-					);
+						return {
+							min: Math.min( ...cellTops ),
+							max: Math.max( ...cellTops ),
+							count: cellTops.length,
+						};
+					} )
+				);
 
-			await expect.poll( async () => ( await measureRows() ).length )
+			await expect
+				.poll( async () => ( await measureRows() ).length )
 				.toBeGreaterThan( 0 );
 
 			const rowTops = await measureRows();
@@ -1195,7 +1215,9 @@ test.describe( 'Premium table view', () => {
 				column:
 					th.className.match( /__col--([\w]+)/ )?.[ 1 ] ?? 'unknown',
 				dx: cells[ index ]
-					? Math.abs( contentLeft( cells[ index ] ) - contentLeft( th ) )
+					? Math.abs(
+							contentLeft( cells[ index ] ) - contentLeft( th )
+					  )
 					: 0,
 			} ) );
 		} );
@@ -1251,10 +1273,9 @@ test.describe( 'Premium table view', () => {
 			await page.keyboard.press( 'Tab' );
 
 			const eventId = await page.evaluate( () => {
-				const row =
-					document.activeElement?.closest?.(
-						'.shp-TableView__row'
-					);
+				const row = document.activeElement?.closest?.(
+					'.shp-TableView__row'
+				);
 
 				return row?.dataset.eventId ?? null;
 			} );
@@ -1366,9 +1387,7 @@ test.describe( 'Premium table view', () => {
 		await expect( stillChecked ).toHaveCount( 1 );
 		await expect( stillChecked ).toBeDisabled();
 
-		await page
-			.getByRole( 'button', { name: 'Reset to defaults' } )
-			.click();
+		await page.getByRole( 'button', { name: 'Reset to defaults' } ).click();
 
 		await expect(
 			checkboxes.and( page.locator( 'input:checked' ) )
@@ -1389,14 +1408,13 @@ test.describe( 'Premium table view', () => {
 		await waitForLoadedRows( page );
 
 		const dataHeaders = async () =>
-			(
-				await page.locator( '.shp-TableView__th' ).allInnerTexts()
-			 )
+			( await page.locator( '.shp-TableView__th' ).allInnerTexts() )
 				.map( ( text ) => text.split( '\n' )[ 0 ].trim() )
 				.filter( Boolean );
 
 		expect( await dataHeaders() ).toEqual( [
 			'Toggle event details',
+			'ID',
 			'Date',
 			'User',
 			'Message',
@@ -1416,6 +1434,7 @@ test.describe( 'Premium table view', () => {
 			.poll( dataHeaders )
 			.toEqual( [
 				'Toggle event details',
+				'ID',
 				'Date',
 				'Level',
 				'User',
@@ -1431,6 +1450,7 @@ test.describe( 'Premium table view', () => {
 			.poll( dataHeaders )
 			.toEqual( [
 				'Toggle event details',
+				'ID',
 				'Date',
 				'Level',
 				'User',
@@ -1600,9 +1620,7 @@ test.describe( 'Premium table view', () => {
 		const startingCount = await viewCount();
 
 		await page.getByRole( 'button', { name: 'Saved views' } ).click();
-		await page
-			.getByRole( 'menuitem', { name: 'Save this view…' } )
-			.click();
+		await page.getByRole( 'menuitem', { name: 'Save this view…' } ).click();
 
 		await page.getByLabel( 'Name' ).fill( 'Playwright view' );
 		await page
@@ -1626,10 +1644,11 @@ test.describe( 'Premium table view', () => {
 
 		await expect
 			.poll( () =>
-				page.evaluate( () =>
-					( window.shpTableViewData?.savedViews || [] ).find(
-						( view ) => view.name === 'Playwright view'
-					)?.query
+				page.evaluate(
+					() =>
+						( window.shpTableViewData?.savedViews || [] ).find(
+							( view ) => view.name === 'Playwright view'
+						)?.query
 				)
 			)
 			.toMatchObject( { levels: 'error' } );
@@ -1699,28 +1718,46 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
-		const bars = page.locator( '.shp-TableView__histogramBar' );
+		// The chart is drawn on a canvas, so the per-day controls are the
+		// keyboard layer over it — one button per day, each naming its own
+		// counts. That layer is also the only thing here a screen reader or
+		// a keyboard can reach; see HistogramDays in TableViewHistogram.jsx.
+		const days = page.locator( '.shp-TableView__histogramDay' );
 
-		await expect.poll( () => bars.count() ).toBeGreaterThan( 0 );
+		await expect.poll( () => days.count() ).toBeGreaterThan( 0 );
 
 		// The counts come from the aggregate endpoint, not from the rows:
-		// one bar alone can hold more events than the table has loaded.
+		// one day alone can hold more events than the table has loaded.
 		const loadedCount = await page.locator( '.shp-TableView__row' ).count();
-		const busiest = await page
-			.locator( '.shp-TableView__histogramButton' )
-			.evaluateAll( ( buttons ) =>
-				Math.max(
-					...buttons.map( ( button ) => {
-						const label = button.getAttribute( 'aria-label' ) || '';
+		const counts = await days.evaluateAll( ( buttons ) =>
+			buttons.map( ( button ) => {
+				const label = button.getAttribute( 'aria-label' ) || '';
+				const match = label.match( /([\d,]+)\s+events?/ );
 
-						return parseInt( label.replace( /\D.*$/, '' ), 10 ) || 0;
-					} )
-				)
-			);
+				return match
+					? parseInt( match[ 1 ].replace( /,/g, '' ), 10 )
+					: 0;
+			} )
+		);
+
+		const busiest = Math.max( ...counts );
 
 		expect( busiest ).toBeGreaterThan( loadedCount );
 
-		await bars.last().getByRole( 'link' ).click();
+		// Activated from the keyboard, not with the mouse, because that is
+		// the path that was missing: the chart has always filtered on click,
+		// but the click lived on a canvas with role="img" and no keyboard
+		// route to it at all — WCAG 2.1.1. The day buttons carry
+		// pointer-events: none so the mouse still goes through to the canvas
+		// and Chart.js keeps its own hover and click; a real mouse click
+		// here would land on the canvas, not the button.
+		//
+		// The busiest day rather than the last one: the last bucket can be a
+		// partial day with nothing in it, and an empty day is aria-disabled
+		// and deliberately does nothing.
+		await days.nth( counts.indexOf( busiest ) ).focus();
+		await page.keyboard.press( 'Enter' );
+
 		await page.locator( '.shp-TableView__table' ).waitFor();
 
 		await expect
@@ -1762,10 +1799,9 @@ test.describe( 'Premium table view', () => {
 				( row ) =>
 					parseInt(
 						(
-							row.querySelector(
-								'.shp-TableView__groupByCount'
-							)?.textContent || '0'
-						 ).replace( /\D/g, '' ),
+							row.querySelector( '.shp-TableView__groupByCount' )
+								?.textContent || '0'
+						).replace( /\D/g, '' ),
 						10
 					) || 0
 			)
@@ -1832,7 +1868,11 @@ test.describe( 'Premium table view', () => {
 		await page.keyboard.press( 'o' );
 		await expect
 			.poll( () =>
-				page.locator( '.shp-TableView__row--expanded, .shp-TableView__detailsPanel' ).count()
+				page
+					.locator(
+						'.shp-TableView__row--expanded, .shp-TableView__detailsPanel'
+					)
+					.count()
 			)
 			.toBeGreaterThan( 0 );
 	} );
@@ -1904,7 +1944,7 @@ test.describe( 'Premium table view', () => {
 				.locator( '.shp-TableView__row .shp-TableView__col--date' )
 				.first()
 				.innerText()
-		 )
+		)
 			.trim()
 			.slice( 0, 10 );
 
@@ -1937,9 +1977,7 @@ test.describe( 'Premium table view', () => {
 		await expect
 			.poll( async () => {
 				const users = await page
-					.locator(
-						'.shp-TableView__row .shp-TableView__col--user'
-					)
+					.locator( '.shp-TableView__row .shp-TableView__col--user' )
 					.allInnerTexts();
 
 				return new Set( users.map( ( u ) => u.trim() ) ).size;
@@ -2000,9 +2038,7 @@ test.describe( 'Premium table view', () => {
 		await expect
 			.poll( async () => {
 				const levels = await page
-					.locator(
-						'.shp-TableView__row .shp-TableView__col--level'
-					)
+					.locator( '.shp-TableView__row .shp-TableView__col--level' )
 					.allInnerTexts();
 
 				return [
@@ -2062,7 +2098,10 @@ test.describe( 'Premium table view', () => {
 
 		await expand();
 
-		await page.getByRole( 'button', { name: 'Add a note' } ).first().click();
+		await page
+			.getByRole( 'button', { name: 'Add a note' } )
+			.first()
+			.click();
 		await page.getByLabel( 'Note' ).fill( 'First note' );
 		await page.getByRole( 'button', { name: 'Save note' } ).click();
 

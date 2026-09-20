@@ -3815,6 +3815,22 @@ a.sh-SettingsTabs-link:hover {
 	background-color: #f9f9f9;
 }
 
+/* Stands in for the search row in the table view, which renders its own
+   query bar instead and leaves this panel out of the DOM entirely. Same
+   height as the row above — 12px padding either side of a 40px control,
+   plus its 1px border — so switching between the views does not move the
+   content below. Empty and transparent: it is reserved space, not a
+   control, so it carries neither the row's background nor its border.
+
+   One case it does not cover: below 782px the real search row wraps onto
+   two lines and is taller than this. Switching views on a phone therefore
+   still moves a little, which is the narrower case and the smaller cost
+   than reserving two rows' height on every desktop. */
+.SimpleHistory-filters__reservedSpace {
+	box-sizing: border-box;
+	height: 65px;
+}
+
 /* Chips for event types hidden from the current list. */
 .SimpleHistory-hiddenTypes {
 	display: flex;
@@ -4246,9 +4262,17 @@ a.sh-EventsStatsBar--link:hover {
 	background: #f6f7f7;
 }
 
-/* Events control bar: event count + action buttons. */
+/* Events control bar: event count + action buttons.
+
+   12px, not 16px, and the same 12px as .SimpleHistory-filters__searchRow
+   below. Those two sit directly on top of each other in every view, and at
+   16px against 12px the action row was inset four pixels further than the
+   filter panel under it — a misalignment small enough to read as sloppiness
+   rather than as a choice. In the table view the gap was the full 16px
+   against a panel that starts at the container edge, which made the
+   Export/Share row visibly narrower than everything below it. */
 .sh-EventsControlBar-actions {
-	padding: var(--sh-spacing-medium) var(--sh-spacing-medium);
+	padding: 12px;
 }
 
 /* End-of-results hint: shown at the bottom of the list on the last page

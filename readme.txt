@@ -266,8 +266,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Table view for the event log, added to the view switcher. The table itself is part of Simple History Premium; without it you get a preview of what it looks like.
 -   Events can now be sorted by date, id, level, logger or event type through the REST API (`orderby` and `order`) and on the command line (`wp simple-history event list --orderby=id --order=asc`).
--   A Table option in the event log view switcher, showing a preview of the sortable table coming to Simple History Premium.
 -   Events can be counted instead of listed through the REST API (`/events/aggregate`), grouped by date, level, logger or initiator. The same filters apply, so it counts exactly what the list would have shown.
 
 **Changed**
@@ -278,7 +278,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Sorting the event log oldest first now works. `order=asc` was accepted and then ignored on the default event listing, which returned newest first anyway.
--   Activity counts from the REST API (`/events/aggregate`) now cover the most recent period, and the bucket limit counts buckets rather than rows. Both bugs cut a chart drawn from the counts short, so it stopped well before today.
+-   Activity counts from the REST API (`/events/aggregate`) are grouped by your site's timezone rather than by GMT, so an event just after midnight is counted on the right day.
 
 **Security**
 

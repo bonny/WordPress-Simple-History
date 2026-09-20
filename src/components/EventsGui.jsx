@@ -30,8 +30,29 @@ import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
+import { useSearchOptions } from '../hooks/useSearchOptions';
 import { NewEventsNotifier } from './NewEventsNotifier';
 import { TablePreview } from './TablePreview';
+
+// The three views the events page offers, and the only values `?view=` may
+// hold. Shared by the URL parser and by readEventsViewFromLocation() below,
+// so a value the parser would reject cannot slip in through the raw URL.
+const EVENTS_VIEWS = [ 'detailed', 'compact', 'table' ];
+
+/**
+ * The view named by the current URL, read straight from `window.location`.
+ *
+ * Only for the first render, before nuqs has resolved its own state — see
+ * where this is called. Anything unrecognised reads as no view at all, which
+ * falls through to the stored preference.
+ *
+ * @return {string|null} One of EVENTS_VIEWS, or null.
+ */
+function readEventsViewFromLocation() {
+	const view = new URLSearchParams( window.location.search ).get( 'view' );
+
+	return EVENTS_VIEWS.includes( view ) ? view : null;
+}
 
 // Schema for the users object.
 const usersSchema = z.array(
@@ -348,17 +369,35 @@ function EventsGUI() {
 	// view it was copied from. Nothing is written to the URL on page load.
 	const [ urlEventsView, setUrlEventsView ] = useQueryState(
 		'view',
-		parseAsStringLiteral( [ 'detailed', 'compact', 'table' ] ).withOptions(
-			useQueryStateOptions
-		)
+		parseAsStringLiteral( EVENTS_VIEWS ).withOptions( useQueryStateOptions )
 	);
 
 	// The URL wins over the stored preference, so a shared link opens in the
 	// view it was copied from.
-	const eventsView = urlEventsView ?? storedEventsView;
+	//
+	// The middle term is for the first render only. nuqs settles its values
+	// after that render, so on a fresh load of a ?view=table link
+	// `urlEventsView` is still null and the stored preference would win for
+	// one paint — long enough to draw the wrong view's chrome and then take
+	// it away again. Reading the raw parameter is a better guess than the
+	// stored value while nuqs is still catching up; once it has, and after
+	// any in-page view switch, `urlEventsView` is authoritative and this
+	// term is never reached.
+	const eventsView =
+		urlEventsView ?? readEventsViewFromLocation() ?? storedEventsView;
+
+	// Whether the reader has changed view on this page, as opposed to
+	// arriving in one. Only the first case can produce the layout jump the
+	// reserved space below exists to absorb — see where it is rendered.
+	const [ hasSwitchedView, setHasSwitchedView ] = useState( false );
 
 	const handleEventsViewChange = useCallback(
 		( newView ) => {
+			// See where this is read: the table view only reserves the
+			// filter panel's height once a switch has actually happened on
+			// this page, because that is the only time there is a jump to
+			// prevent.
+			setHasSwitchedView( true );
 			setUrlEventsView( newView );
 			setStoredEventsView( newView );
 
@@ -424,6 +463,31 @@ function EventsGUI() {
 
 	// Store the default date option from the API so we can restore it when clearing filters.
 	const defaultDateOptionRef = useRef( '' );
+
+	// The page's one call to /search-options. It fills the filter dropdowns,
+	// but it also carries the pager size, the add-on flags, the admin page
+	// URLs and the current user — so it belongs to the page, not to the
+	// filter panel it used to live inside. See useSearchOptions().
+	const { searchOptions, dateOptionGroups } = useSearchOptions( {
+		selectedDateOption,
+		defaultDateOptionRef,
+		setSelectedDateOption,
+		setSearchOptionsLoaded,
+		setPagerSize,
+		setMapsApiKey,
+		setHasExtendedSettingsAddOn,
+		setHasPremiumAddOn,
+		setHasFailedLoginLimit,
+		setFailedLoginLimitThreshold,
+		setFailedLoginSuppressedCount,
+		setIsReactionsEnabled,
+		setIsExperimentalFeaturesEnabled,
+		setEventsAdminPageURL,
+		setEventsSettingsPageURL: setSettingsPageURL,
+		setAlertsPageURL,
+		setCurrentUserId,
+		setUserCanManageOptions,
+	} );
 
 	// Check if any non-date filter has a non-default value. Used by the
 	// end-of-results hint to decide whether "adjust filters above" is
@@ -897,8 +961,40 @@ function EventsGUI() {
 		<EventsSettingsProvider value={ eventsSettingsValue }>
 			{ /* Stats bar (EventsStatsBar) was here — removed for now, component still exists if needed. */ }
 
-			{ /* Hide filters when viewing surrounding events */ }
-			{ ! surroundingEventId && (
+			{ /* Not rendered at all in the table view, and not while viewing
+			   surrounding events.
+
+			   The table view carries its own query bar and its own chips
+			   for exactly these filters, so this panel would be a second,
+			   differently-shaped control for the same thing. Leaving it out
+			   of the DOM rather than hiding it also means table-view work
+			   no longer has to reason about a collapsed panel that is still
+			   mounted and still holding state. What made this possible was
+			   moving the /search-options fetch up into useSearchOptions()
+			   above — until then the panel was also the page's bootstrap,
+			   and not rendering it took the page's data with it. */ }
+			{ /* The table view does not render the filter panel, but after
+			   an in-page switch it keeps the space the panel occupied.
+			   Switching from Detailed or Compact to Table otherwise pulled
+			   the whole table up by the panel's height, which reads as the
+			   page breaking rather than as a view changing.
+
+			   Only after a switch, though. On a fresh load of a ?view=table
+			   link — a shared view, a bookmark, the stored preference —
+			   there is no previous layout and so no jump, and the reservation
+			   was simply 65px of blank space at the very top of the page,
+			   above everything, every time. That was the first thing on the
+			   screen and it read as a broken margin. */ }
+			{ ! surroundingEventId &&
+				eventsView === 'table' &&
+				hasSwitchedView && (
+					<div
+						className="SimpleHistory-filters__reservedSpace"
+						aria-hidden="true"
+					/>
+				) }
+
+			{ ! surroundingEventId && eventsView !== 'table' && (
 				<EventsSearchFilters
 					selectedLogLevels={ selectedLogLevels }
 					setSelectedLogLevels={ setSelectedLogLevels }
@@ -917,43 +1013,20 @@ function EventsGUI() {
 					selectedInitiator={ selectedInitiator }
 					setSelectedInitiator={ setSelectedInitiator }
 					enteredIPAddress={ enteredIPAddress }
-					setEnteredIPAddress={ setEnteredIPAddress }
 					selectedContextFilters={ selectedContextFilters }
 					setSelectedContextFilters={ setSelectedContextFilters }
 					enteredMetadataSearch={ enteredMetadataSearch }
 					setEnteredMetadataSearch={ setEnteredMetadataSearch }
 					showAIOnly={ showAIOnly }
 					setShowAIOnly={ setShowAIOnly }
+					searchOptions={ searchOptions }
+					dateOptionGroups={ dateOptionGroups }
 					searchOptionsLoaded={ searchOptionsLoaded }
-					setSearchOptionsLoaded={ setSearchOptionsLoaded }
-					setPagerSize={ setPagerSize }
-					setMapsApiKey={ setMapsApiKey }
-					setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
-					setHasPremiumAddOn={ setHasPremiumAddOn }
-					setHasFailedLoginLimit={ setHasFailedLoginLimit }
-					setFailedLoginLimitThreshold={
-						setFailedLoginLimitThreshold
-					}
-					setFailedLoginSuppressedCount={
-						setFailedLoginSuppressedCount
-					}
-					setIsReactionsEnabled={ setIsReactionsEnabled }
-					setIsExperimentalFeaturesEnabled={
-						setIsExperimentalFeaturesEnabled
-					}
-					eventsAdminPageURL={ eventsAdminPageURL }
-					setEventsAdminPageURL={ setEventsAdminPageURL }
-					setEventsSettingsPageURL={ setSettingsPageURL }
-					setAlertsPageURL={ setAlertsPageURL }
-					setPage={ setPage }
 					onReload={ handleReload }
-					setCurrentUserId={ setCurrentUserId }
-					setUserCanManageOptions={ setUserCanManageOptions }
 					excludeMessages={ excludeMessages }
 					setExcludeMessages={ setExcludeMessages }
 					hideOwnEvents={ hideOwnEvents }
 					setHideOwnEvents={ setHideOwnEvents }
-					defaultDateOptionRef={ defaultDateOptionRef }
 					handleClearFilters={ handleClearFilters }
 					hasAnyActiveFilters={ hasAnyActiveFilters }
 				/>
