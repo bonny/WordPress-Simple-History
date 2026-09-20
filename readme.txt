@@ -279,6 +279,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Sorting the event log oldest first now works. `order=asc` was accepted and then ignored on the default event listing, which returned newest first anyway.
 -   Activity counts from the REST API (`/events/aggregate`) are grouped by your site's timezone rather than by GMT, so an event just after midnight is counted on the right day.
+-   The "new events" count above the log now respects your filters. With "Hide my own events" on, or event types hidden, it counted events the list would never show — so it could announce new activity and then show you nothing when you clicked it.
 
 ### 5.33.0 (September 2026)
 
