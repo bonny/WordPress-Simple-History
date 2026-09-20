@@ -138,6 +138,30 @@ async function waitForLoadedRows( page ) {
  * @param {Object}   requestUtils
  * @param {string[]} columns
  */
+/**
+ * The number in the table's own "N matching events" line.
+ *
+ * Returns null while the line is absent or has not been given a number yet,
+ * so a caller can poll on it rather than racing the first response.
+ *
+ * @param {Object} page Playwright page.
+ * @return {Promise<number|null>} The count.
+ */
+async function readTotal( page ) {
+	const text = await page
+		.locator( '.shp-TableView__total' )
+		.textContent()
+		.catch( () => null );
+
+	if ( ! text ) {
+		return null;
+	}
+
+	const digits = text.replace( /[^\d]/g, '' );
+
+	return digits === '' ? null : Number( digits );
+}
+
 async function setStoredColumns( requestUtils, columns ) {
 	await requestUtils.rest( {
 		method: 'POST',
@@ -507,14 +531,69 @@ test.describe( 'Premium table view', () => {
 		);
 		await expect( checked ).toHaveCount( rowCount );
 
-		// Gone entirely, not back to the resting strip. The resting strip only
-		// exists to carry the "select events to…" hint, and selecting above
-		// has just retired that hint for this reader — so there is nothing
-		// left for the bar to hold and it stops reserving the space.
-		await page.locator( '.shp-TableView__selectAll' ).uncheck();
-		await expect( page.locator( '.shp-TableView__bulkBar' ) ).toHaveCount(
-			0
+		// Back to the resting strip, and still there. The bar used to retire
+		// itself once a reader had selected anything, which meant the table
+		// jumped down the page on every selection they made from then on —
+		// the exact movement the always-on bar was added to stop. It holds
+		// the space whether or not anything is selected.
+		//
+		// Measured on the row rather than on the whole bar. Selecting every
+		// row on the page also brings up the "only the N loaded events are
+		// selected" line underneath, which is meant to grow it: that line
+		// appears in answer to a click, which is the one moment movement
+		// reads as a response rather than as the layout misbehaving.
+		const bulkBarRow = page.locator( '.shp-TableView__bulkBarRow' );
+		const selectedHeight = await bulkBarRow.evaluate(
+			( el ) => el.getBoundingClientRect().height
 		);
+
+		await page.locator( '.shp-TableView__selectAll' ).uncheck();
+
+		await expect( page.locator( '.shp-TableView__bulkBar' ) ).toHaveCount(
+			1
+		);
+		await expect(
+			page.locator( '.shp-TableView__bulkBar--resting' )
+		).toHaveCount( 1 );
+
+		expect(
+			await bulkBarRow.evaluate(
+				( el ) => el.getBoundingClientRect().height
+			)
+		).toBe( selectedHeight );
+	} );
+
+	test( 'ticking one row does not move the table', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const table = page.locator( '.shp-TableView__scrollContainer' );
+		const topOf = () =>
+			table.evaluate( ( el ) => el.getBoundingClientRect().top );
+
+		const before = await topOf();
+		const checkbox = page
+			.locator( '.shp-TableView__row input[type="checkbox"]' )
+			.first();
+
+		await checkbox.check();
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCount' )
+		).toBeVisible();
+
+		expect( await topOf() ).toBe( before );
+
+		await checkbox.uncheck();
+		await expect(
+			page.locator( '.shp-TableView__bulkBar--resting' )
+		).toHaveCount( 1 );
+
+		expect( await topOf() ).toBe( before );
 	} );
 
 	test( 'export sends the ids selected before a sort, not the rows visible after it', async ( {
@@ -690,6 +769,93 @@ test.describe( 'Premium table view', () => {
 				{ timeout: 10000 }
 			)
 			.toBeGreaterThan( initialCount );
+	} );
+
+	test( 'loading more events is not confused by events logged while scrolling', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		// The ID column is the only thing that can tell a re-served row from
+		// a new one, so this test needs it on.
+		await setStoredColumns( requestUtils, DEFAULT_COLUMNS );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const idsOnScreen = async () =>
+			page
+				.locator( '.shp-TableView__col--event_id' )
+				.allTextContents()
+				.then( ( values ) =>
+					values.map( ( value ) => value.trim() ).filter( Boolean )
+				);
+
+		// Newest first, which is the order that makes this hard: the log
+		// grows at the top, so anything logged now pushes every loaded row
+		// one place further down. Offset pagination then asks for rows
+		// 101-200 of a list whose rows 1-100 are no longer the ones already
+		// on screen, and page 2 comes back carrying rows the reader has.
+		const before = await idsOnScreen();
+		expect( before.length ).toBeGreaterThan( 0 );
+
+		// Ten of them, so the overlap is unmistakable rather than a
+		// one-row coincidence.
+		for ( let index = 0; index < 10; index++ ) {
+			await requestUtils.rest( {
+				method: 'POST',
+				path: 'simple-history/v1/events',
+				data: {
+					message: `Playwright concurrent write ${ index }`,
+					level: 'info',
+					// A note, so these events carry a details panel like any
+					// other. Without one they render as detail-less rows,
+					// and since they land at the top of a shared dev log
+					// they became whatever the next test happened to pick —
+					// which is how this test broke the row-expand one.
+					note: `Row ${ index } written while the reader scrolled.`,
+				},
+			} );
+		}
+
+		const nextPageResponse = page.waitForResponse(
+			( response ) =>
+				response.url().includes( '/simple-history/v1/events' ) &&
+				response.url().includes( 'page=2' )
+		);
+
+		await page
+			.locator( '.shp-TableView__scrollContainer' )
+			.evaluate( ( el ) => {
+				el.scrollTop = el.scrollHeight;
+			} );
+
+		expect( ( await nextPageResponse ).ok() ).toBe( true );
+
+		await expect
+			.poll( async () => ( await idsOnScreen() ).length, {
+				timeout: 10000,
+			} )
+			.toBeGreaterThan( before.length );
+
+		const after = await idsOnScreen();
+
+		// No event renders twice. A duplicate here would not just look
+		// wrong: two rows sharing one id share one selection entry, so
+		// ticking either ticks both and an export sends the event twice.
+		expect( new Set( after ).size ).toBe( after.length );
+
+		// And nothing already on screen was dropped to make room.
+		for ( const id of before ) {
+			expect( after ).toContain( id );
+		}
+
+		// Deliberately no assertion that the ids run strictly downwards.
+		// The table is sorted by date, and events logged inside the same
+		// second share a timestamp — so id order and row order are allowed
+		// to disagree, and pinning it here would fail on a busy log for a
+		// reason that has nothing to do with paging.
 	} );
 
 	test( "expanding a row fetches and shows details for that row's event, collapsing hides them again", async ( {
@@ -1804,6 +1970,46 @@ test.describe( 'Premium table view', () => {
 			.toBe( 1 );
 	} );
 
+	test( 'the chart reserves its height before the counts arrive', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		// Not networkidle: the whole point is to catch the strip while the
+		// aggregate request is still in flight.
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table', {
+			waitUntil: 'domcontentloaded',
+		} );
+
+		const histogram = page.locator( '.shp-TableView__histogram' );
+		const heightOf = () =>
+			histogram.evaluate( ( el ) =>
+				Math.round( el.getBoundingClientRect().height )
+			);
+
+		await page.locator( '.shp-TableView__histogramNote' ).waitFor();
+
+		const whileCounting = await heightOf();
+
+		await page.locator( '.shp-TableView__histogramCanvas' ).waitFor();
+		await expect
+			.poll( () => page.locator( 'canvas' ).count() )
+			.toBeGreaterThan( 0 );
+
+		const whenDrawn = await heightOf();
+
+		// "Counting events over time…" used to be one line of text, and the
+		// table dropped 75px the moment the chart replaced it — under the
+		// reader's pointer, on every filter change. The note holds the
+		// chart's height instead. Measured rather than eyeballed, and here
+		// rather than only in the stylesheet, so a change to the chart's
+		// rows cannot quietly reintroduce the jump.
+		expect( Math.abs( whenDrawn - whileCounting ) ).toBeLessThanOrEqual(
+			2
+		);
+	} );
+
 	test( 'quiet buckets are told apart, not flattened onto the floor', async ( {
 		page,
 		requestUtils,
@@ -1842,17 +2048,35 @@ test.describe( 'Premium table view', () => {
 						return null;
 					}
 
-					// Severe-free buckets only. The red cap carries its own
-					// minBarLength floor, which is meant to make two warnings
-					// in a busy hour visible and does push the stack above
-					// its honest height.
-					if ( values[ 1 ][ i ] ) {
-						return null;
-					}
+					// Two heights per bucket, because the two questions
+					// below need different ones. The stack top answers
+					// "does the tallest bar fill the plot", and every
+					// bucket has one. Ordinary-only answers "are heights
+					// ordered by count", and only a bucket with no severe
+					// events can: the red cap carries its own
+					// minBarLength floor, which exists to make two
+					// warnings in a busy hour visible and does push the
+					// stack above its honest height.
+					//
+					// getProps( …, true ) asks for the *final* values.
+					// Reading el.y gives wherever the bar has animated to
+					// so far — Chart.js grows bars up from the baseline —
+					// so a measurement taken mid-flight sees every bar
+					// short of its real height, and the tallest one short
+					// of the plot. That failed about two runs in three.
+					const topOf = ( d ) =>
+						metas[ d ].data[ i ].getProps( [ 'y' ], true ).y;
+					const tops = [ 0, 1 ]
+						.filter( ( d ) => values[ d ][ i ] )
+						.map( topOf );
 
 					return {
 						count: Math.round( plotted * plotted ),
-						px: chart.chartArea.bottom - metas[ 0 ].data[ i ].y,
+						severeFree: ! values[ 1 ][ i ],
+						stackPx: chart.chartArea.bottom - Math.min( ...tops ),
+						px: values[ 0 ][ i ]
+							? chart.chartArea.bottom - topOf( 0 )
+							: 0,
 					};
 				} )
 				.filter( Boolean );
@@ -1862,14 +2086,25 @@ test.describe( 'Premium table view', () => {
 
 		// The tallest bar uses the whole plot — the axis is pinned to the
 		// busiest bucket, so nothing is spent on empty headroom.
-		const tallest = Math.max( ...bars.map( ( bar ) => bar.px ) );
+		//
+		// Measured across every bucket, not just the severe-free ones. The
+		// busiest bucket on a real log almost always holds a warning
+		// somewhere, so asking the tallest *severe-free* bar to fill the
+		// plot asks the wrong bar the wrong question — which is what an
+		// earlier version of this test did, and it failed for that reason
+		// rather than for a regression.
+		const tallest = Math.max( ...bars.map( ( bar ) => bar.stackPx ) );
 
 		expect( tallest ).toBeGreaterThan( 45 );
 
 		// Taller is always more events. This is what rules out a log scale
 		// as much as it rules out a regression: both keep quiet buckets
 		// apart, only one keeps them ordered against the loud ones.
-		const byCount = [ ...bars ].sort( ( a, b ) => a.count - b.count );
+		const ordered = bars.filter( ( bar ) => bar.severeFree );
+
+		expect( ordered.length ).toBeGreaterThan( 2 );
+
+		const byCount = [ ...ordered ].sort( ( a, b ) => a.count - b.count );
 
 		byCount.forEach( ( bar, i ) => {
 			if ( i === 0 ) {
@@ -1995,6 +2230,70 @@ test.describe( 'Premium table view', () => {
 		expect( url.searchParams.get( 'from' ) ).toBe(
 			url.searchParams.get( 'to' )
 		);
+	} );
+
+	test( 'clicking an hourly bar narrows the table to that hour', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		// One day, so the chart buckets by hour.
+		const day = new Date( Date.now() - 86400000 )
+			.toISOString()
+			.slice( 0, 10 );
+
+		await page.goto(
+			SIMPLE_HISTORY_PAGE +
+				`&view=table&date=customRange&from=${ day }&to=${ day }`
+		);
+		await waitForLoadedRows( page );
+
+		// The clock under the chart is how a reader can tell these are hours
+		// rather than days. It only appears on a single-day chart.
+		const ticks = page.locator( '.shp-TableView__histogramTick' );
+
+		await expect.poll( () => ticks.count() ).toBeGreaterThan( 2 );
+		await expect( ticks.first() ).toHaveText( /^\d{2}:00$/ );
+
+		const dayTotal = await readTotal( page );
+		const plot = await page
+			.locator( '.shp-TableView__histogramCanvas' )
+			.boundingBox();
+
+		// Somewhere in the working day, and low down where the bars are.
+		await page.mouse.click(
+			plot.x + plot.width * 0.5,
+			plot.y + plot.height * 0.85
+		);
+
+		await expect
+			.poll( () =>
+				new URL( page.url() ).searchParams.get( 'table_hour' )
+			)
+			.toMatch( /^\d{4}-\d{2}-\d{2}T\d{2}$/ );
+
+		// The day is kept alongside the hour, so core's own filters and the
+		// other two views still describe something true.
+		const url = new URL( page.url() );
+		expect( url.searchParams.get( 'from' ) ).toBe( day );
+		expect( url.searchParams.get( 'to' ) ).toBe( day );
+
+		// An hour of a day holds fewer events than the day.
+		await expect.poll( () => readTotal( page ) ).toBeLessThan( dayTotal );
+
+		// Marked on the chart rather than filtered out of it — narrowing the
+		// chart to the hour would leave one bar and no way to reach the next.
+		await expect(
+			page.locator( '.shp-TableView__histogramBand--hour' )
+		).toHaveCount( 1 );
+		await expect.poll( () => ticks.count() ).toBeGreaterThan( 2 );
+
+		// And it is named where the filters are listed, since the query bar's
+		// grammar has no way to write an hour.
+		await expect(
+			page.locator( '.shp-TableView__chip' ).filter( { hasText: ':00' } )
+		).toHaveCount( 1 );
 	} );
 
 	test( 'a keyboard user can pick a range of days in the histogram', async ( {
