@@ -67,6 +67,20 @@ class React_Dropin extends Dropin {
 			true
 		);
 
+		// The registered default hides the sidebar in the table view, because
+		// the table wants the width. Without Premium the table view is the
+		// preview instead, and the sidebar is where its upgrade card sits —
+		// so starting that reader with no sidebar would take away the one
+		// part of the page explaining what they are looking at. Only the
+		// default is overridden: a reader who has used the toggle keeps
+		// whatever they chose, Premium or not.
+		if (
+			! Helpers::is_premium_add_on_active() &&
+			! metadata_exists( 'user', get_current_user_id(), REST_API::HIDDEN_SIDEBAR_VIEWS_USER_META_KEY )
+		) {
+			$hidden_sidebar_views = '';
+		}
+
 		// The events page URL is also returned by the search-options REST endpoint,
 		// but that arrives after the first render. Anything building a link before
 		// it resolves — the surrounding-events view renders without waiting for
