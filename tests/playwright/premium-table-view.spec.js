@@ -1709,6 +1709,32 @@ test.describe( 'Premium table view', () => {
 	// the whole filtered set. Counting the hundred rows that happen to be
 	// loaded would describe the page size rather than the log — which is
 	// the failure mode worth a test, because it looks right.
+	/**
+	 * Which day button holds the most events.
+	 *
+	 * Read off the spoken labels, which are the only place the per-day counts
+	 * exist outside the canvas. Used to aim at a stretch of the chart that
+	 * certainly has something in it — an empty day, and an empty range, are
+	 * both deliberately inert.
+	 *
+	 * @param {Object} days Locator for the day buttons.
+	 * @return {Promise<number>} Index of the busiest day.
+	 */
+	async function busiestDayIndex( days ) {
+		const counts = await days.evaluateAll( ( buttons ) =>
+			buttons.map( ( button ) => {
+				const label = button.getAttribute( 'aria-label' ) || '';
+				const match = label.match( /([\d,]+)\s+events?/ );
+
+				return match
+					? parseInt( match[ 1 ].replace( /,/g, '' ), 10 )
+					: 0;
+			} )
+		);
+
+		return counts.indexOf( Math.max( ...counts ) );
+	}
+
 	test( 'the histogram counts the whole filtered set, and narrows to a day', async ( {
 		page,
 		requestUtils,
@@ -1776,6 +1802,157 @@ test.describe( 'Premium table view', () => {
 				).size;
 			} )
 			.toBe( 1 );
+	} );
+
+	test( 'dragging across the histogram narrows to the days dragged over', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		// Thirty days explicitly. A week or less is bucketed hourly, and the
+		// range a drag produces is measured in whole days — core's date
+		// filter has no way to express an hour. See buildBucketUrl().
+		await page.goto(
+			SIMPLE_HISTORY_PAGE + '&view=table&date=lastdays%3A30'
+		);
+		await waitForLoadedRows( page );
+
+		const days = page.locator( '.shp-TableView__histogramDay' );
+
+		await expect.poll( () => days.count() ).toBeGreaterThan( 4 );
+
+		// Anchored on the busiest day so the range certainly holds events: a
+		// drag across an empty stretch is refused, the same way clicking an
+		// empty bar is.
+		const busiest = await busiestDayIndex( days );
+		const last = Math.max( 3, busiest );
+		const first = last - 3;
+
+		const from = await days.nth( first ).boundingBox();
+		const to = await days.nth( last ).boundingBox();
+
+		await page.mouse.move(
+			from.x + from.width / 2,
+			from.y + from.height / 2
+		);
+		await page.mouse.down();
+		await page.mouse.move( to.x + to.width / 2, to.y + to.height / 2, {
+			steps: 10,
+		} );
+
+		// The band is the whole of the feedback while the button is down.
+		await expect(
+			page.locator( '.shp-TableView__histogramBand' )
+		).toBeVisible();
+
+		await page.mouse.up();
+
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'date' ) )
+			.toBe( 'customRange' );
+
+		const url = new URL( page.url() );
+
+		// A range, not the single day a click gives.
+		expect( url.searchParams.get( 'from' ) ).not.toBe(
+			url.searchParams.get( 'to' )
+		);
+
+		await expect(
+			page.locator( '.shp-TableView__histogramBand' )
+		).toHaveCount( 0 );
+	} );
+
+	test( 'a click on one bar still filters to its day, after the drag handling', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto(
+			SIMPLE_HISTORY_PAGE + '&view=table&date=lastdays%3A30'
+		);
+		await waitForLoadedRows( page );
+
+		const days = page.locator( '.shp-TableView__histogramDay' );
+
+		await expect.poll( () => days.count() ).toBeGreaterThan( 4 );
+
+		// Here because it broke once and nothing caught it. The drag captures
+		// the pointer, and a captured pointer delivers its click to the
+		// capturing element — so capturing a moment too early took the click
+		// away from the canvas, and clicking a bar silently stopped filtering
+		// at all. The capture now waits until the press has travelled.
+		const busiest = await busiestDayIndex( days );
+		const box = await days.nth( busiest ).boundingBox();
+
+		await page.mouse.click( box.x + box.width / 2, box.y + box.height / 2 );
+
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'date' ) )
+			.toBe( 'customRange' );
+
+		const url = new URL( page.url() );
+
+		expect( url.searchParams.get( 'from' ) ).toBe(
+			url.searchParams.get( 'to' )
+		);
+	} );
+
+	test( 'a keyboard user can pick a range of days in the histogram', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto(
+			SIMPLE_HISTORY_PAGE + '&view=table&date=lastdays%3A30'
+		);
+		await waitForLoadedRows( page );
+
+		const days = page.locator( '.shp-TableView__histogramDay' );
+
+		await expect.poll( () => days.count() ).toBeGreaterThan( 4 );
+
+		const busiest = await busiestDayIndex( days );
+
+		await days.nth( Math.max( 2, busiest ) ).focus();
+
+		await page.keyboard.press( 'Shift+ArrowLeft' );
+		await page.keyboard.press( 'Shift+ArrowLeft' );
+
+		// The moving end of the range speaks for the whole range. Focus lands
+		// on it after every Shift+Arrow, so each press announces what has
+		// been picked so far rather than the name of one more day.
+		await expect(
+			page.locator( '.shp-TableView__histogramDay:focus' )
+		).toHaveAttribute( 'aria-label', /across 3 days\. Filter to this/ );
+
+		await expect(
+			page.locator( '.shp-TableView__histogramBand' )
+		).toBeVisible();
+
+		// Moving without Shift abandons the range rather than carrying it
+		// along, so Enter can never apply one that is no longer drawn.
+		await page.keyboard.press( 'ArrowLeft' );
+		await expect(
+			page.locator( '.shp-TableView__histogramBand' )
+		).toHaveCount( 0 );
+
+		await page.keyboard.press( 'Shift+ArrowLeft' );
+		await page.keyboard.press( 'Shift+ArrowLeft' );
+		await page.keyboard.press( 'Enter' );
+
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'date' ) )
+			.toBe( 'customRange' );
+
+		const url = new URL( page.url() );
+
+		expect( url.searchParams.get( 'from' ) ).not.toBe(
+			url.searchParams.get( 'to' )
+		);
 	} );
 
 	test( 'grouping counts the matching events and narrows to a group', async ( {
