@@ -41,6 +41,59 @@ class LogQueryAggregateTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Buckets are in the site's timezone, not in GMT.
+	 *
+	 * Events are stored in GMT. A histogram built from them is read next to
+	 * a table showing local times, so bucketing on the stored value put an
+	 * event logged at 12:13 on a UTC+2 site into the 10:00 bucket — two
+	 * hours out of step with the row beside it — and pushed an event logged
+	 * just after local midnight into the previous day.
+	 *
+	 * Asserted against the offset rather than against a fixed timezone, so
+	 * this still means something wherever it runs.
+	 *
+	 * @covers ::query_aggregate
+	 */
+	public function test_date_buckets_are_in_the_site_timezone() {
+		$original = get_option( 'timezone_string' );
+
+		// A whole-hour offset with no daylight saving, so the expected
+		// bucket is the same all year.
+		update_option( 'timezone_string', 'Asia/Tokyo' );
+
+		SimpleLogger()->info( 'An event to place in an hour' );
+
+		$rows = ( new Log_Query() )->query(
+			[
+				'posts_per_page' => 1,
+				'ungrouped'      => true,
+			]
+		);
+
+		$gmt = (string) $rows['log_rows'][0]->date;
+
+		$buckets = ( new Log_Query() )->query_aggregate(
+			[
+				'group_by' => 'date',
+				'interval' => 'hour',
+			]
+		);
+
+		update_option( 'timezone_string', $original );
+
+		$timezone = new \DateTimeZone( 'Asia/Tokyo' );
+		$expected = ( new \DateTime( $gmt, new \DateTimeZone( 'UTC' ) ) )
+			->setTimezone( $timezone )
+			->format( 'Y-m-d H:00:00' );
+
+		$this->assertContains(
+			$expected,
+			wp_list_pluck( $buckets, 'bucket' ),
+			'The event should be counted in its local hour. Finding it in the GMT hour instead means the bucket expression is reading the stored value without the site offset.'
+		);
+	}
+
+	/**
 	 * Sum the counts of every bucket carrying a given level.
 	 *
 	 * @param array  $buckets Result of query_aggregate().

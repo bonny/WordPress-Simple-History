@@ -1230,16 +1230,45 @@ class Log_Query {
 			return null;
 		}
 
+		// Events are stored in GMT, but a histogram is read next to a table
+		// that shows local times, so the buckets have to be local too.
+		// Without this an event logged at 12:13 in a UTC+2 site landed in
+		// the 10:00 bucket — two hours out of step with the row beside it —
+		// and at the day boundary an event just after midnight was counted
+		// against the previous day. Same approach as
+		// Events_Stats::get_activity_by_date(): add the offset rather than
+		// CONVERT_TZ(), which needs timezone tables the host may not have
+		// loaded.
+		//
+		// The current offset is applied to every row, so a range spanning a
+		// daylight-saving change is off by an hour on one side of it. Doing
+		// better means a per-row lookup the database cannot do, and an hour
+		// twice a year is a far smaller error than the two this replaces.
+		$offset = (int) self::get_local_offset_seconds();
+
 		if ( $interval === 'hour' ) {
 			// DATE_FORMAT is MySQL-only and strftime is SQLite-only, so this
 			// is one of the places that has to know which database it is on.
-			// The day bucket below needs no guard: DATE() exists in both.
 			return self::get_db_engine() === 'sqlite'
-				? "strftime('%Y-%m-%d %H:00:00', date)"
-				: "DATE_FORMAT(date, '%Y-%m-%d %H:00:00')";
+				? sprintf( "strftime('%%Y-%%m-%%d %%H:00:00', date, '%+d seconds')", $offset )
+				: sprintf( "DATE_FORMAT(DATE_ADD(date, INTERVAL %d SECOND), '%%Y-%%m-%%d %%H:00:00')", $offset );
 		}
 
-		return 'DATE(date)';
+		return self::get_db_engine() === 'sqlite'
+			? sprintf( "date(date, '%+d seconds')", $offset )
+			: sprintf( 'DATE(DATE_ADD(date, INTERVAL %d SECOND))', $offset );
+	}
+
+	/**
+	 * The site's current UTC offset, in seconds.
+	 *
+	 * @since 5.34.0
+	 * @return int Offset in seconds, negative west of Greenwich.
+	 */
+	protected static function get_local_offset_seconds() {
+		$timezone = wp_timezone();
+
+		return $timezone->getOffset( new \DateTime( 'now', $timezone ) );
 	}
 
 	/**
