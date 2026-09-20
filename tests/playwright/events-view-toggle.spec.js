@@ -382,6 +382,32 @@ test.describe( 'Event log view toggle', () => {
 				await expect( boxes.nth( i ) ).toBeDisabled();
 			}
 
+			// Being unusable also has to be visible. The sample is drawn
+			// dimmed and greyed, with a not-allowed cursor over the whole of
+			// it, because at full fidelity readers took it for the real table
+			// and tried to use it.
+			const sample = page.locator( '.sh-TablePreview__sample' );
+			await expect( sample ).toHaveCSS( 'cursor', 'not-allowed' );
+
+			const opacity = await sample.evaluate( ( el ) =>
+				parseFloat( getComputedStyle( el ).opacity )
+			);
+			expect( opacity ).toBeLessThan( 1 );
+
+			// Said in words too, for anyone who reads before clicking and for
+			// screen readers, which get nothing from the sample itself.
+			await expect(
+				page.locator( '.sh-TablePreview__sampleNote' )
+			).toBeVisible();
+
+			// Nothing in the banner looks like a control except the one link
+			// that is one: the feature names used to be bordered white pills,
+			// which is the shape of a row of secondary buttons.
+			const feature = page
+				.locator( '.sh-TablePreview__features li' )
+				.first();
+			await expect( feature ).toHaveCSS( 'border-top-width', '0px' );
+
 			// The upgrade link stays clickable and carries the campaign.
 			const cta = page.locator( '.sh-TablePreview__banner a' ).first();
 			await expect( cta ).toBeVisible();

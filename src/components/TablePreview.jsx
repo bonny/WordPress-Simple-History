@@ -87,6 +87,74 @@ const SELECTED_ROWS_COUNT = SAMPLE_ROWS.filter(
 	( row ) => row.selected
 ).length;
 
+// The staged activity chart above the sample table: bar height in percent,
+// then how much of that height is warnings or worse.
+//
+// Hand-written rather than generated, and forty bars rather than a dozen. It
+// has to look like real hours — two quiet nights, a working-day rise and
+// fall, and one spike with a band of red where something went wrong — because
+// that shape is the whole reason to want the chart. A random sequence reads
+// as noise, and a handful of fat bars reads as a diagram of nothing.
+//
+// Plain divs, not Chart.js. The preview must stay a picture (see the note on
+// the component below), and forty fixed numbers are a picture whether or not
+// a charting library draws them.
+const SAMPLE_CHART = [
+	[ 12, 0 ],
+	[ 8, 0 ],
+	[ 5, 0 ],
+	[ 9, 0 ],
+	[ 22, 0 ],
+	[ 41, 0 ],
+	[ 58, 0 ],
+	[ 47, 0 ],
+	[ 52, 9 ],
+	[ 44, 0 ],
+	[ 61, 0 ],
+	[ 39, 0 ],
+	[ 26, 0 ],
+	[ 14, 0 ],
+	[ 9, 0 ],
+	[ 6, 0 ],
+	[ 11, 0 ],
+	[ 19, 0 ],
+	[ 37, 0 ],
+	[ 55, 0 ],
+	[ 92, 24 ],
+	[ 71, 12 ],
+	[ 48, 0 ],
+	[ 40, 0 ],
+	[ 33, 0 ],
+	[ 21, 0 ],
+	[ 12, 0 ],
+	[ 7, 0 ],
+	[ 5, 0 ],
+	[ 10, 0 ],
+	[ 24, 0 ],
+	[ 45, 0 ],
+	[ 63, 0 ],
+	[ 57, 7 ],
+	[ 49, 0 ],
+	[ 36, 0 ],
+	[ 28, 0 ],
+	[ 17, 0 ],
+	[ 10, 0 ],
+	[ 6, 0 ],
+].map( ( [ height, severe ] ) => ( { height, severe } ) );
+
+// What Premium adds here, in the order the page would show it. Named rather
+// than only pictured: the chart and the query box above the table say what
+// they are to someone who already knows what they are looking at, and this
+// list is for everyone else.
+const PREVIEW_FEATURES = [
+	__( 'Query language', 'simple-history' ),
+	__( 'Activity chart', 'simple-history' ),
+	__( 'Saved views', 'simple-history' ),
+	__( 'Pick your columns', 'simple-history' ),
+	__( 'Group and count', 'simple-history' ),
+	__( 'CSV and JSON export', 'simple-history' ),
+];
+
 /**
  * Preview of the premium Table view, shown when nothing fills the
  * SimpleHistorySlotTableView Slot.
@@ -118,10 +186,16 @@ export function TablePreview() {
 
 					<span>
 						{ __(
-							'See your events in a table you can sort, select rows from, and export to CSV or JSON.',
+							'See your events in a table you can sort, filter with a query language, chart by hour, and export to CSV or JSON.',
 							'simple-history'
 						) }
 					</span>
+
+					<ul className="sh-TablePreview__features">
+						{ PREVIEW_FEATURES.map( ( feature ) => (
+							<li key={ feature }>{ feature }</li>
+						) ) }
+					</ul>
 
 					{ upgradeUrl ? (
 						<a
@@ -135,54 +209,105 @@ export function TablePreview() {
 				</div>
 			</div>
 
-			{ /* Decoration, not data: hidden from screen readers, which get the
-			     banner above instead, and unreachable by the mouse. */ }
-			<table className="sh-TablePreview__table" aria-hidden="true">
-				<thead>
-					<tr>
-						<th>
-							<input type="checkbox" disabled />
-						</th>
-						<th className="is-sorted">
-							{ __( 'Date', 'simple-history' ) } ↓
-						</th>
-						<th>{ __( 'User', 'simple-history' ) }</th>
-						<th>{ __( 'Message', 'simple-history' ) }</th>
-						<th>{ __( 'Level', 'simple-history' ) }</th>
-					</tr>
-				</thead>
+			{ /* Said in words as well as drawn, because the picture below is
+			     a good enough likeness of the real table that readers try to
+			     use it — click a column header, tick a row — and get nothing
+			     back. Outside the muted block so it is not dimmed with it,
+			     and not aria-hidden: the sample is hidden from screen
+			     readers, so this sentence is all they get about it. */ }
+			<p className="sh-TablePreview__sampleNote">
+				{ __(
+					'Example of the table view, with made-up data. Nothing below is clickable.',
+					'simple-history'
+				) }
+			</p>
 
-				<tbody>
-					{ SAMPLE_ROWS.map( ( row ) => (
-						<tr key={ row.id }>
-							<td>
-								<input
-									type="checkbox"
-									disabled
-									defaultChecked={ row.selected }
+			{ /* Everything below is decoration, not data: hidden from screen
+			     readers, which get the banner above instead, and unreachable
+			     by the mouse. Dimmed as one block, the same way the alerts
+			     settings teaser dims its preview, so the two read as the same
+			     idea rather than two different kinds of not-quite-real. */ }
+			<div className="sh-TablePreview__sample">
+				<div className="sh-TablePreview__query" aria-hidden="true">
+					<span className="sh-TablePreview__queryText">
+						level:error days:7 deploy
+					</span>
+					<span className="sh-TablePreview__queryApply">
+						{ __( 'Apply', 'simple-history' ) }
+					</span>
+				</div>
+
+				<div className="sh-TablePreview__chart" aria-hidden="true">
+					{ SAMPLE_CHART.map( ( bar, index ) => (
+						<span
+							// Position is the identity here: these are fourteen
+							// fixed slots on a chart, not a list that reorders.
+							// eslint-disable-next-line react/no-array-index-key
+							key={ index }
+							className="sh-TablePreview__chartBar"
+							style={ { height: `${ bar.height }%` } }
+						>
+							{ bar.severe > 0 && (
+								<span
+									className="sh-TablePreview__chartBar-severe"
+									style={ {
+										height: `${ Math.round(
+											( bar.severe / bar.height ) * 100
+										) }%`,
+									} }
 								/>
-							</td>
-							<td>{ row.date }</td>
-							<td>{ row.user }</td>
-							<td>{ row.message }</td>
-							<td>{ row.level }</td>
-						</tr>
+							) }
+						</span>
 					) ) }
-				</tbody>
-			</table>
+				</div>
 
-			<div className="sh-TablePreview__bulkBar" aria-hidden="true">
-				{ sprintf(
-					/* translators: %s: number of selected rows */
-					_n(
-						'%s selected',
-						'%s selected',
-						SELECTED_ROWS_COUNT,
-						'simple-history'
-					),
-					SELECTED_ROWS_COUNT
-				) }{ ' ' }
-				· { __( 'Export', 'simple-history' ) } ▾
+				<table className="sh-TablePreview__table" aria-hidden="true">
+					<thead>
+						<tr>
+							<th>
+								<input type="checkbox" disabled />
+							</th>
+							<th className="is-sorted">
+								{ __( 'Date', 'simple-history' ) } ↓
+							</th>
+							<th>{ __( 'User', 'simple-history' ) }</th>
+							<th>{ __( 'Message', 'simple-history' ) }</th>
+							<th>{ __( 'Level', 'simple-history' ) }</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						{ SAMPLE_ROWS.map( ( row ) => (
+							<tr key={ row.id }>
+								<td>
+									<input
+										type="checkbox"
+										disabled
+										defaultChecked={ row.selected }
+									/>
+								</td>
+								<td>{ row.date }</td>
+								<td>{ row.user }</td>
+								<td>{ row.message }</td>
+								<td>{ row.level }</td>
+							</tr>
+						) ) }
+					</tbody>
+				</table>
+
+				<div className="sh-TablePreview__bulkBar" aria-hidden="true">
+					{ sprintf(
+						/* translators: %s: number of selected rows */
+						_n(
+							'%s selected',
+							'%s selected',
+							SELECTED_ROWS_COUNT,
+							'simple-history'
+						),
+						SELECTED_ROWS_COUNT
+					) }{ ' ' }
+					· { __( 'Export', 'simple-history' ) } ▾
+				</div>
 			</div>
 		</div>
 	);

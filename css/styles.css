@@ -4395,6 +4395,33 @@ a.sh-EventsStatsBar--link:hover {
 
 /* Table view preview (issue 240): a staged, inert sample table under a
    clickable upgrade banner, shown when nothing fills SimpleHistorySlotTableView. */
+
+/* Everything under the banner is a picture of the premium table, and a good
+   enough one that readers tried to use it: clicked a column header, ticked a
+   row, and got nothing back. Being unusable was never visible — the sample
+   was drawn at the same weight and colour as a real table.
+
+   So dim it as one block, with the same numbers the alerts settings teaser
+   uses for its preview (.sh-AlertsTeaser[inert]), so a reader who has seen one
+   teaser recognises the other. The children keep their own pointer-events:
+   none, which leaves this element the one that gets hit-tested, so the
+   not-allowed cursor is what the mouse finds anywhere over the sample. */
+.sh-TablePreview__sample {
+	opacity: 0.55;
+	filter: grayscale(30%);
+	cursor: not-allowed;
+	user-select: none;
+}
+
+/* The sentence above the sample saying what it is. Deliberately not dimmed
+   with the sample: it is the one part of this that has to be read. */
+.sh-TablePreview__sampleNote {
+	margin: 0 0 8px;
+	font-size: 12px;
+	font-style: italic;
+	color: #646970;
+}
+
 .sh-TablePreview__table {
 	width: 100%;
 	border-collapse: collapse;
@@ -4466,6 +4493,98 @@ a.sh-EventsStatsBar--link:hover {
 	border-top: none;
 	font-size: 13px;
 	color: #50575e;
+}
+
+/* What Premium adds, named under the banner text. A wrapping row rather than
+   a bulleted column, which at six items was taller than the banner it sits in.
+
+   Written as plain text separated by middots, not as bordered pills: six
+   white, outlined boxes in a row are the shape of six secondary buttons, and
+   readers tried to press them. Nothing in this banner is clickable except the
+   one link under it, so nothing else in it should look like it is. */
+.sh-TablePreview__features {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 6px;
+	margin: 4px 0 0;
+	padding: 0;
+	list-style: none;
+	font-size: 12px;
+	color: #646970;
+}
+
+.sh-TablePreview__features li {
+	margin: 0;
+	padding: 0;
+}
+
+.sh-TablePreview__features li + li::before {
+	content: "·";
+	margin-right: 6px;
+	color: #8c8f94;
+}
+
+/* A picture of the query box, so the preview shows the thing the feature is
+   actually built around. Inert: see the note on .sh-TablePreview__table. */
+.sh-TablePreview__query {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	margin-bottom: 8px;
+	background: #fff;
+	border: 1px solid #8c8f94;
+	border-radius: 2px;
+	pointer-events: none;
+	user-select: none;
+}
+
+.sh-TablePreview__queryText {
+	flex: 1;
+	font-family: Menlo, Consolas, monaco, monospace;
+	font-size: 13px;
+	color: #50575e;
+}
+
+.sh-TablePreview__queryApply {
+	font-size: 12px;
+	font-weight: 600;
+	color: #2271b1;
+}
+
+/* A staged week of activity. Fourteen fixed bars from SAMPLE_CHART, drawn as
+   divs because the preview must not ship working chart code — see the note on
+   the TablePreview component. */
+.sh-TablePreview__chart {
+	display: flex;
+	align-items: flex-end;
+	gap: 3px;
+	height: 50px;
+	padding: 4px 6px;
+	margin-bottom: 12px;
+	background: #f6f7f7;
+	border-radius: 2px;
+	pointer-events: none;
+	user-select: none;
+}
+
+.sh-TablePreview__chartBar {
+	position: relative;
+	flex: 1;
+	min-height: 2px;
+	background: #7e8ce0;
+	border-radius: 1px 1px 0 0;
+}
+
+/* The warning-and-above share, sitting on top of its bar, matching how the
+   real chart stacks the two. */
+.sh-TablePreview__chartBar-severe {
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	background: #9b2c2c;
+	border-radius: 1px 1px 0 0;
 }
 
 /* Individual control bar button — compact tertiary style, matching action link sizing. */
