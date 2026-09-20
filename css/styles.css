@@ -4491,6 +4491,47 @@ a.sh-EventsStatsBar--link:hover {
 	flex-shrink: 0;
 }
 
+/* Sidebar toggle, at the end of the control bar.
+
+   Separated from the view switcher by the same 8px the switcher uses to
+   separate itself from the action buttons to ITS left. Without it the toggle
+   sat 4px from the switcher's grey track — a third of the spacing every other
+   group boundary in this row gets — and a 32px button hard against a 34px
+   track reads as a fourth segment of the segmented control rather than as a
+   separate thing. 4px means "same group" here; 8px plus the row's own gap
+   means "next group".
+
+   The pressed state is spelled out because @wordpress/components fills any
+   button carrying aria-pressed with solid #1e1e1e and a white icon. Nobody
+   chose that for this button, and it made a layout preference the heaviest
+   element in a bar that also holds Export and Create alert — worst of all in
+   the table view, which defaults to hidden and so shows it pressed on
+   arrival. Grey fill and a dark icon instead, with the same #dcdcde outline
+   the switcher's own selected tile carries, drawn as an inset shadow so
+   turning it on does not move anything. The outline is what keeps pressed
+   legible while hovered, since the inherited hover is the same grey. */
+.sh-EventsSidebarToggle.components-button {
+	margin-left: var(--sh-spacing-small);
+}
+
+.sh-EventsSidebarToggle.components-button.is-pressed,
+.sh-EventsSidebarToggle.components-button.is-pressed:focus {
+	color: var(--sh-color-black);
+	background: var(--sh-color-gray-4);
+	box-shadow: inset 0 0 0 1px #dcdcde;
+}
+
+/* Hovering a pressed button has to be spelled out separately: WP has its own
+   .is-pressed:hover, and with only the rule above the button went back to
+   solid black the moment the pointer touched it — the exact treatment the
+   rule above exists to avoid. One step darker than the resting grey, so
+   hover still says something. */
+.sh-EventsSidebarToggle.components-button.is-pressed:hover {
+	color: var(--sh-color-black);
+	background: var(--sh-color-gray);
+	box-shadow: inset 0 0 0 1px #dcdcde;
+}
+
 /* "Copied!" feedback state on share button. */
 .sh-ControlBarButton--share.is-copied {
 	color: var(--sh-color-green, #3f9349);

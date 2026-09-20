@@ -1,6 +1,6 @@
 import { Button, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { sidebar } from '@wordpress/icons';
+import { drawerRight } from '@wordpress/icons';
 
 /**
  * Show or hide the page sidebar, for the view currently being read.
@@ -28,8 +28,25 @@ export function EventsSidebarToggle( { isHidden, onToggle } ) {
 	return (
 		<Tooltip text={ label }>
 			<Button
-				className="sh-EventsSidebarToggle"
-				icon={ sidebar }
+				// sh-ControlBarButton as well, which is what the four
+				// buttons to its left carry. Without it this inherited
+				// @wordpress/components' raw tertiary blue while Export,
+				// Create alert, Add log entry and Share view all sat at
+				// --sh-color-gray-3, and the quietest control in the row was
+				// drawn as the loudest. It also brings the icon down from
+				// WP's unset 24px to the 1.25em the rest of the row uses.
+				className="sh-ControlBarButton sh-EventsSidebarToggle"
+				// drawerRight, not sidebar. The `sidebar` glyph puts its
+				// solid mass on the LEFT — it draws a left-hand sidebar
+				// under a header bar — and this sidebar is on the right, so
+				// the icon described the mirror image of the thing it
+				// toggles. drawerRight is a panel down the right edge, which
+				// is the actual layout, and it still reads at 15px.
+				//
+				// @wordpress/icons is bundled rather than loaded from a WP
+				// script handle, so which icons exist is a question about
+				// this package, not about the WordPress 6.3 floor.
+				icon={ drawerRight }
 				variant="tertiary"
 				size="compact"
 				// The label is the action, so it changes with the state; the
