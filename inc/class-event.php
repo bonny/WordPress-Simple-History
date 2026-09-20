@@ -980,24 +980,33 @@ class Event {
 		$simple_history = Simple_History::get_instance();
 		$contexts_table = $simple_history->get_contexts_table_name();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->delete(
-			$contexts_table,
-			[
-				'history_id' => $this->id,
-				'key'        => '_annotation',
-			],
-			[ '%d', '%s' ]
-		);
-
-		Helpers::clear_cache();
-
+		// Removing the note is the one case that deletes first, because
+		// there is nothing to put in its place.
 		if ( $annotation === null ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->delete(
+				$contexts_table,
+				[
+					'history_id' => $this->id,
+					'key'        => '_annotation',
+				],
+				[ '%d', '%s' ]
+			);
+
+			Helpers::clear_cache();
 			$this->reload_data();
 
 			return true;
 		}
 
+		// The new row goes down BEFORE the old one comes out.
+		//
+		// Written the other way round, a failed insert left neither — taking
+		// the note and all twenty of its previous versions with it, which is
+		// precisely the record annotate() exists to keep. There is no unique
+		// key on (history_id, key) in this table, so $wpdb->replace() cannot
+		// collapse the two into one statement; the old row has to be deleted
+		// explicitly, and only once the new one is safely stored.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->insert(
 			$contexts_table,
@@ -1009,11 +1018,30 @@ class Event {
 			[ '%d', '%s', '%s' ]
 		);
 
-		if ( $result ) {
-			$this->reload_data();
+		if ( $result === false ) {
+			// The previous annotation is still there, untouched.
+			return false;
 		}
 
-		return (bool) $result;
+		$inserted_id = (int) $wpdb->insert_id;
+
+		// Every earlier row for this key, of which there is normally exactly
+		// one. Matched on the primary key rather than by value so a row
+		// written by an older version, or a duplicate left by one, goes too.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"DELETE FROM {$contexts_table} WHERE history_id = %d AND `key` = '_annotation' AND context_id <> %d",
+				$this->id,
+				$inserted_id
+			)
+		);
+
+		Helpers::clear_cache();
+		$this->reload_data();
+
+		return true;
 	}
 
 	/**

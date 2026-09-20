@@ -1052,6 +1052,16 @@ class Log_Query {
 	const AGGREGATE_CACHE_SECONDS = 60;
 
 	/**
+	 * How many aggregate results one user's cache entry holds.
+	 *
+	 * Enough for a reader moving between a few saved views and back, and far
+	 * short of what a search box can generate in a minute.
+	 *
+	 * @since 5.34.0
+	 */
+	const AGGREGATE_CACHE_ENTRIES = 10;
+
+	/**
 	 * Count the events matching a query, grouped into buckets.
 	 *
 	 * Answers "how many, by what" for the same filters that decide which
@@ -1089,7 +1099,7 @@ class Log_Query {
 		$group_by       = isset( $args['group_by'] ) ? (string) $args['group_by'] : 'date';
 		$interval       = isset( $args['interval'] ) ? (string) $args['interval'] : 'day';
 		$split_by_level = ! empty( $args['split_by_level'] );
-		$max_buckets    = isset( $args['max_buckets'] ) ? (int) $args['max_buckets'] : 500;
+		$max_buckets    = max( 1, isset( $args['max_buckets'] ) ? (int) $args['max_buckets'] : 500 );
 
 		$bucket_expression = $this->get_aggregate_bucket_expression( $group_by, $interval );
 
@@ -1118,15 +1128,24 @@ class Log_Query {
 		// user because the query is filtered by the loggers that user may
 		// read. A minute is well inside what an activity histogram needs to
 		// be honest.
-		$cache_key = 'sh_agg_' . md5(
+		//
+		// ONE transient per user holding a small map, rather than one per set
+		// of filters. The filters used to be part of the key, which meant a
+		// site with no persistent object cache got a new wp_options row per
+		// keystroke in the search box — each one only collected by the daily
+		// wp_scheduled_delete. The map is capped, so a user costs one row
+		// whatever they type.
+		$cache_key   = 'sh_agg_' . get_current_user_id();
+		$cache_entry = md5(
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			serialize( [ $args, $group_by, $interval, $split_by_level, $max_buckets ] )
-		) . '_' . get_current_user_id();
+		);
 
 		$cached = get_transient( $cache_key );
+		$cached = is_array( $cached ) ? $cached : [];
 
-		if ( $cached !== false ) {
-			return $cached;
+		if ( isset( $cached[ $cache_entry ] ) ) {
+			return $cached[ $cache_entry ];
 		}
 
 		global $wpdb;
@@ -1148,13 +1167,19 @@ class Log_Query {
 
 		$select_parts[] = 'COUNT(*) AS bucket_count';
 
-		// The cap counts buckets, so when each bucket can also split into one
-		// row per level the row limit has to allow for that — otherwise
-		// asking for 500 days of a level-split histogram returned about 62 of
-		// them, and the chart quietly began two months ago. The level list is
-		// a fixed enum, so this is an exact conversion rather than a guess.
+		// How many ROWS to fetch — not how many buckets to return. With
+		// split_by_level one bucket is up to one row per level, so the two
+		// are only the same number when the split is off.
+		//
+		// This is a bound on the work, and the real cap is applied in PHP
+		// below. Scaling it and calling that the cap was wrong twice over: a
+		// bucket rarely uses all eight levels, so 500 buckets' worth of rows
+		// held far more than 500 buckets; and because LIMIT cuts at a row
+		// boundary it could cut inside a bucket, leaving the oldest one
+		// holding only some of its levels. A bar quietly missing half its
+		// events is worse than a bar that is not drawn at all.
 		$rows_per_bucket = $split_by_level ? count( Log_Levels::get_log_levels_by_severity() ) : 1;
-		$row_limit       = max( 1, $max_buckets ) * $rows_per_bucket;
+		$row_limit       = $max_buckets * $rows_per_bucket;
 
 		// Not built with prepare(): every part of this statement is either a
 		// table name or one of the fixed expressions get_aggregate_bucket_expression()
@@ -1190,12 +1215,47 @@ class Log_Query {
 			);
 		}
 
+		$rows = (array) $rows;
+
+		// Rows arrive newest bucket first. Walk them keeping whole buckets
+		// until max_buckets of them have been seen, which is the cap the
+		// caller actually asked for and the one LIMIT cannot express.
+		$seen_buckets = [];
+		$kept         = [];
+
+		foreach ( $rows as $row ) {
+			$seen_buckets[ (string) $row->bucket ] = true;
+
+			if ( count( $seen_buckets ) > $max_buckets ) {
+				break;
+			}
+
+			$kept[] = $row;
+		}
+
+		// If the fetch came back exactly full, the statement ran out of rows
+		// rather than out of buckets, so the oldest bucket in it may be a
+		// partial one — see the note on $row_limit. Drop it, unless it is the
+		// only bucket there is, in which case a short bar beats no chart.
+		if ( count( $rows ) === $row_limit && count( $seen_buckets ) > 1 ) {
+			$partial = (string) end( $kept )->bucket;
+
+			$kept = array_values(
+				array_filter(
+					$kept,
+					static function ( $row ) use ( $partial ) {
+						return (string) $row->bucket !== $partial;
+					}
+				)
+			);
+		}
+
 		$buckets = [];
 
 		// Back to chronological. Reversing the rows also puts bucket_level
 		// back in ascending order, which is why the statement above sorts
 		// every GROUP BY part descending rather than just the bucket.
-		$rows = array_reverse( (array) $rows );
+		$rows = array_reverse( $kept );
 
 		foreach ( $rows as $row ) {
 			$buckets[] = [
@@ -1205,7 +1265,21 @@ class Log_Query {
 			];
 		}
 
-		set_transient( $cache_key, $buckets, self::AGGREGATE_CACHE_SECONDS );
+		// Newest last, and the oldest dropped once the map is full. Typing in
+		// the search box walks through entries nobody will ask for again, so
+		// an uncapped map would grow inside the row instead of across rows.
+		$cached[ $cache_entry ] = $buckets;
+
+		if ( count( $cached ) > self::AGGREGATE_CACHE_ENTRIES ) {
+			$cached = array_slice(
+				$cached,
+				-self::AGGREGATE_CACHE_ENTRIES,
+				null,
+				true
+			);
+		}
+
+		set_transient( $cache_key, $cached, self::AGGREGATE_CACHE_SECONDS );
 
 		return $buckets;
 	}
