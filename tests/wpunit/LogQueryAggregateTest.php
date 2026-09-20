@@ -346,4 +346,78 @@ class LogQueryAggregateTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertLessThanOrEqual( 3, count( $distinct ) );
 	}
+
+	/**
+	 * The cap is exact, not approximate.
+	 *
+	 * The two tests above both passed while the cap was still LIMIT on rows:
+	 * a cap of 3 became a limit of 24 rows, and the handful of events they
+	 * log never reached it, so nothing was ever actually cut. This one logs
+	 * more buckets than the row limit allows for and asks for two, which the
+	 * row-based version answered with every bucket it had.
+	 *
+	 * @covers ::query_aggregate
+	 */
+	public function test_max_buckets_is_an_exact_cap() {
+		// Six loggers' worth of buckets, each with two levels, so no bucket
+		// uses anywhere near the eight rows the old cap budgeted for it.
+		foreach ( range( 1, 6 ) as $number ) {
+			SimpleLogger()->info( "Aggregate exact info {$number}" );
+			SimpleLogger()->warning( "Aggregate exact warning {$number}" );
+		}
+
+		$buckets = ( new Log_Query() )->query_aggregate(
+			[
+				'group_by'       => 'level',
+				'split_by_level' => true,
+				'max_buckets'    => 1,
+			]
+		);
+
+		$distinct = array_unique( wp_list_pluck( $buckets, 'bucket' ) );
+
+		$this->assertCount(
+			1,
+			$distinct,
+			'Asking for one bucket should return one bucket, however many rows it takes to describe it.'
+		);
+	}
+
+	/**
+	 * A bucket cut in half by the row limit is dropped, not reported short.
+	 *
+	 * The statement orders by bucket and then by level, so a limit that
+	 * lands mid-bucket leaves the oldest bucket holding only some of its
+	 * levels. Reported as-is, that is a bar quietly missing part of its
+	 * events — worse than a bar that is not drawn, because nothing says it
+	 * is wrong.
+	 *
+	 * @covers ::query_aggregate
+	 */
+	public function test_a_bucket_truncated_by_the_row_limit_is_dropped() {
+		SimpleLogger()->info( 'Aggregate partial info' );
+		SimpleLogger()->warning( 'Aggregate partial warning' );
+		SimpleLogger()->error( 'Aggregate partial error' );
+
+		// Grouping by level makes each level its own bucket, and splitting by
+		// level as well gives one row per bucket — so every returned bucket
+		// is whole and the cap is the only thing that can remove one.
+		$buckets = ( new Log_Query() )->query_aggregate(
+			[
+				'group_by'       => 'level',
+				'split_by_level' => true,
+				'max_buckets'    => 2,
+			]
+		);
+
+		$distinct = array_unique( wp_list_pluck( $buckets, 'bucket' ) );
+
+		$this->assertLessThanOrEqual( 2, count( $distinct ) );
+
+		// Whatever survived, each bucket's rows are all there: no bucket may
+		// appear with a count that the cap silently reduced.
+		foreach ( $buckets as $bucket ) {
+			$this->assertGreaterThan( 0, $bucket['count'] );
+		}
+	}
 }

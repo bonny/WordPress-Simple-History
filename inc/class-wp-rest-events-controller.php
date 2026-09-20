@@ -934,6 +934,14 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		// stops meaning anything.
 		$args['ungrouped'] = true;
 
+		// And it is not a surrounding-events query, whatever the request
+		// said. Log_Query::query() checks this key before anything else and
+		// returns early, so leaving it in place made the notifier answer with
+		// a count of the events around some other event and ignore since_id
+		// entirely — the forced ungrouped above never getting a chance to
+		// matter. Unreachable from the UI, but wrong is wrong.
+		unset( $args['surrounding_event_id'], $args['surrounding_count'] );
+
 		$query_result = $this->run_log_query( $args );
 
 		if ( is_wp_error( $query_result ) ) {
@@ -1287,9 +1295,18 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			return $context;
 		}
 
-		$prefixes = Helpers::get_ip_address_context_key_prefixes();
+		$prefixes   = Helpers::get_ip_address_context_key_prefixes();
+		$exact_keys = Helpers::get_ip_address_context_keys();
 
 		foreach ( array_keys( $context ) as $context_key ) {
+			// Keys a logger named itself, which no prefix describes. See
+			// Helpers::get_ip_address_context_keys().
+			if ( in_array( $context_key, $exact_keys, true ) ) {
+				unset( $context[ $context_key ] );
+
+				continue;
+			}
+
 			foreach ( $prefixes as $prefix ) {
 				// Prefix rather than exact match: a request carrying more
 				// than one address per header stores them as
