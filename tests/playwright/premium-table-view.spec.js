@@ -1804,6 +1804,103 @@ test.describe( 'Premium table view', () => {
 			.toBe( 1 );
 	} );
 
+	test( 'quiet buckets are told apart, not flattened onto the floor', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+		await page.locator( '.shp-TableView__histogramDay' ).first().waitFor();
+
+		// Read straight off Chart.js rather than off the pixels: the bars are
+		// a few pixels wide at 168 hourly buckets, so sampling the canvas
+		// lands in the gaps as often as on a bar. The plotted value is the
+		// square root of the count (see BAR_SCALE_EXPONENT), so squaring the
+		// stack total gives the count back.
+		const bars = await page.evaluate( () => {
+			const canvas = document.querySelector(
+				'.shp-TableView__histogramCanvas canvas'
+			);
+			const chart = window.Chart.getChart( canvas );
+			const values = [
+				chart.data.datasets[ 0 ].data,
+				chart.data.datasets[ 1 ].data,
+			];
+			const metas = [
+				chart.getDatasetMeta( 0 ),
+				chart.getDatasetMeta( 1 ),
+			];
+
+			return chart.data.labels
+				.map( ( bucket, i ) => {
+					const plotted =
+						( values[ 0 ][ i ] || 0 ) + ( values[ 1 ][ i ] || 0 );
+
+					if ( plotted === 0 ) {
+						return null;
+					}
+
+					// Severe-free buckets only. The red cap carries its own
+					// minBarLength floor, which is meant to make two warnings
+					// in a busy hour visible and does push the stack above
+					// its honest height.
+					if ( values[ 1 ][ i ] ) {
+						return null;
+					}
+
+					return {
+						count: Math.round( plotted * plotted ),
+						px: chart.chartArea.bottom - metas[ 0 ].data[ i ].y,
+					};
+				} )
+				.filter( Boolean );
+		} );
+
+		expect( bars.length ).toBeGreaterThan( 2 );
+
+		// The tallest bar uses the whole plot — the axis is pinned to the
+		// busiest bucket, so nothing is spent on empty headroom.
+		const tallest = Math.max( ...bars.map( ( bar ) => bar.px ) );
+
+		expect( tallest ).toBeGreaterThan( 45 );
+
+		// Taller is always more events. This is what rules out a log scale
+		// as much as it rules out a regression: both keep quiet buckets
+		// apart, only one keeps them ordered against the loud ones.
+		const byCount = [ ...bars ].sort( ( a, b ) => a.count - b.count );
+
+		byCount.forEach( ( bar, i ) => {
+			if ( i === 0 ) {
+				return;
+			}
+
+			expect( bar.px ).toBeGreaterThanOrEqual(
+				byCount[ i - 1 ].px - 0.01
+			);
+		} );
+
+		// The regression itself. On a straight count a 50px plot gives one
+		// pixel to peak/50 events, so at a peak in the thousands every bucket
+		// under about 2% of it collapsed onto MIN_BAR_PIXELS together and the
+		// chart said nothing at all about the quiet stretches — which on an
+		// audit log is where the one unexpected login is.
+		const peak = Math.max( ...bars.map( ( bar ) => bar.count ) );
+		const quiet = byCount.filter( ( bar ) => bar.count < peak * 0.02 );
+
+		test.skip(
+			quiet.length < 2,
+			'needs at least two quiet buckets to compare'
+		);
+
+		const quietHeights = new Set(
+			quiet.map( ( bar ) => Math.round( bar.px ) )
+		);
+
+		expect( quietHeights.size ).toBeGreaterThan( 1 );
+	} );
+
 	test( 'dragging across the histogram narrows to the days dragged over', async ( {
 		page,
 		requestUtils,
