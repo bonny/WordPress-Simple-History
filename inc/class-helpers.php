@@ -320,36 +320,6 @@ class Helpers {
 	}
 
 	/**
-	 * Context keys that hold an IP address under a name of their own.
-	 *
-	 * The prefixes above cover every address Simple History stores itself,
-	 * because it names them after the request headers they came from. A
-	 * logger writing its own key is not covered by any prefix — the bundled
-	 * Limit Login Attempts logger stores one as plain `ip` — and prefix
-	 * matching cannot be relaxed to catch it without also stripping
-	 * `ip_country` and anything else that merely starts the same way.
-	 *
-	 * So: exact matches, and a filter, so a logger adding a key of its own
-	 * has somewhere to say so rather than silently leaking past
-	 * `?_fields=context`.
-	 *
-	 * @since 5.34.0
-	 * @return array<string> Context keys, matched exactly.
-	 */
-	public static function get_ip_address_context_keys() {
-		/**
-		 * Filter the context keys treated as IP addresses.
-		 *
-		 * @since 5.34.0
-		 * @param array<string> $keys Context keys, matched exactly.
-		 */
-		return apply_filters(
-			'simple_history/ip_address_context_keys',
-			array( 'ip' )
-		);
-	}
-
-	/**
 	 * Returns true if $haystack ends with $needle
 	 *
 	 * @param string $haystack String to check.

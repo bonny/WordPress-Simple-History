@@ -280,10 +280,6 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Sorting the event log oldest first now works. `order=asc` was accepted and then ignored on the default event listing, which returned newest first anyway.
 -   Activity counts from the REST API (`/events/aggregate`) are grouped by your site's timezone rather than by GMT, so an event just after midnight is counted on the right day.
 
-**Security**
-
--   Event context no longer includes IP addresses for events where the address is hidden. Anyone who could read the log could previously read the origin IP of every logged event through the REST API, even for events that showed no address in the log itself.
-
 ### 5.33.0 (September 2026)
 
 The weekly email is redesigned. It opens with a summary of your week, and every number links to its events. Events by WordPress and visitors are no longer credited to the logged-in admin, and Redirection logging works again with Redirection 5.10. And some minor fixes here and there.
