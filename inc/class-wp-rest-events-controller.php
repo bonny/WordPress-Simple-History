@@ -1255,73 +1255,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Remove IP addresses from a context array unless this event may show them.
-	 *
-	 * The `ip_addresses` field is deliberately withheld: it runs the
-	 * `simple_history/row_header_output/display_ip_address` filter, which
-	 * defaults to false, and core's only hook turns it on for login-related
-	 * events and nothing else. That is a decision the product has made about
-	 * whose IP address is worth showing.
-	 *
-	 * Raw context went around it. The same rows that returned an empty
-	 * `ip_addresses` object handed out `_server_remote_addr` — and every
-	 * proxy header found alongside it — through `_fields=context` instead,
-	 * for every event from every logger. The capability floor here is
-	 * `Helpers::get_view_history_capability()`, which defaults to
-	 * `edit_pages`, so that was an Editor enumerating the origin IP of every
-	 * option change, plugin activation and post edit on the site.
-	 *
-	 * Context is genuinely useful, so it stays; only the IP-bearing keys go,
-	 * and only when the filter says this event may not show them.
-	 *
-	 * @since 5.34.0
-	 * @param array  $context Event context.
-	 * @param object $item    The event row, passed to the filter.
-	 * @return array Context, possibly without its IP address keys.
-	 */
-	protected function filter_ip_addresses_from_context( $context, $item ) {
-		if ( ! is_array( $context ) || $context === [] ) {
-			return $context;
-		}
-
-		/** This filter is documented in loggers/class-logger.php */
-		$include_ip_addresses_for_event = apply_filters(
-			'simple_history/row_header_output/display_ip_address',
-			false,
-			$item
-		);
-
-		if ( $include_ip_addresses_for_event ) {
-			return $context;
-		}
-
-		$prefixes   = Helpers::get_ip_address_context_key_prefixes();
-		$exact_keys = Helpers::get_ip_address_context_keys();
-
-		foreach ( array_keys( $context ) as $context_key ) {
-			// Keys a logger named itself, which no prefix describes. See
-			// Helpers::get_ip_address_context_keys().
-			if ( in_array( $context_key, $exact_keys, true ) ) {
-				unset( $context[ $context_key ] );
-
-				continue;
-			}
-
-			foreach ( $prefixes as $prefix ) {
-				// Prefix rather than exact match: a request carrying more
-				// than one address per header stores them as
-				// `<prefix>_0`, `<prefix>_1` and so on.
-				if ( strpos( $context_key, $prefix ) === 0 ) {
-					unset( $context[ $context_key ] );
-					break;
-				}
-			}
-		}
-
-		return $context;
-	}
-
-	/**
 	 * Prepares a single post output for response.
 	 *
 	 * @param object           $item    Post object.
@@ -1549,10 +1482,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'context', $fields ) ) {
-			$data['context'] = $this->filter_ip_addresses_from_context(
-				$item->context ?? [],
-				$item
-			);
+			$data['context'] = $item->context ?? [];
 		}
 
 		if ( rest_is_field_included( 'permalink', $fields ) ) {
