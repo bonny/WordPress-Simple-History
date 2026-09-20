@@ -463,3 +463,104 @@ test.describe( 'Table view button premium indicator', () => {
 		).toHaveCount( 0 );
 	} );
 } );
+
+/**
+ * Put one view's sidebar into a known state, through the UI.
+ *
+ * Deliberately not through the REST route. The preference is user meta and so
+ * outlives the run, and requestUtils authenticates as a different user than
+ * the browser session does — so seeding it over REST wrote the preference for
+ * an account this page never loads as, and the spec failed in the confusing
+ * direction, reporting that a view it had just configured ignored the setting.
+ *
+ * @param {Object}  page       Playwright page.
+ * @param {string}  view       View to visit.
+ * @param {boolean} shouldHide Whether the sidebar should end up hidden.
+ */
+async function setSidebar( page, view, shouldHide ) {
+	const toggle = page.locator( '.sh-EventsSidebarToggle' );
+
+	await page.goto( SIMPLE_HISTORY_PAGE + '&view=' + view );
+	await toggle.waitFor();
+
+	const isHidden = ( await toggle.getAttribute( 'aria-pressed' ) ) === 'true';
+
+	if ( isHidden !== shouldHide ) {
+		await clickAndSave( page, toggle );
+	}
+
+	await expect( toggle ).toHaveAttribute(
+		'aria-pressed',
+		shouldHide ? 'true' : 'false'
+	);
+}
+
+/**
+ * Click the sidebar toggle and wait for the preference to be written.
+ *
+ * The toggle does not block on its own save — a failed one is not worth
+ * interrupting anyone for, and the sidebar moves immediately either way. That
+ * makes clicking and then reloading a race, which is fine for a person and not
+ * fine for a test: reloading inside the same tick lost the write, and this
+ * spec failed about one run in two.
+ *
+ * @param {Object} page   Playwright page.
+ * @param {Object} toggle Locator for the toggle button.
+ */
+async function clickAndSave( page, toggle ) {
+	await Promise.all( [
+		page.waitForResponse(
+			( response ) =>
+				response.url().includes( '/sidebar-visibility' ) &&
+				response.request().method() === 'POST'
+		),
+		toggle.click(),
+	] );
+}
+
+test.describe( 'Page sidebar toggle', () => {
+	test( 'the sidebar is remembered per view, not per page', async ( {
+		page,
+	} ) => {
+		const sidebar = page.locator( '.SimpleHistory__pageSidebar' );
+		const toggle = page.locator( '.sh-EventsSidebarToggle' );
+
+		// A known starting point, since the preference outlives the run.
+		await setSidebar( page, 'compact', false );
+		await setSidebar( page, 'detailed', false );
+
+		await expect( sidebar ).toBeVisible();
+
+		// Hiding it here must stick across a reload...
+		await clickAndSave( page, toggle );
+		await expect( sidebar ).toBeHidden();
+
+		await page.reload();
+		await toggle.waitFor();
+		await expect( sidebar ).toBeHidden();
+
+		// ...and must not follow the reader into a view they never touched,
+		// which is the whole reason the preference is a set of views rather
+		// than one boolean.
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=compact' );
+		await toggle.waitFor();
+		await expect( sidebar ).toBeVisible();
+
+		// The table view, the other direction: showing it there sticks too.
+		await setSidebar( page, 'table', true );
+		await expect( sidebar ).toBeHidden();
+
+		await clickAndSave( page, toggle );
+		await expect( sidebar ).toBeVisible();
+
+		await page.reload();
+		await toggle.waitFor();
+		await expect( sidebar ).toBeVisible();
+
+		// Back to the shipped defaults, so the specs that follow see the
+		// detailed list with its sidebar where they expect it.
+		await setSidebar( page, 'table', true );
+		await setSidebar( page, 'compact', false );
+		await setSidebar( page, 'detailed', false );
+	} );
+} );

@@ -77,6 +77,24 @@
 	}
 }
 
+/*
+The table view takes the whole width, sidebar included.
+
+Measured at three window widths: the sidebar costs 286px at 1280, 326 at 1440
+and 398 at 1728 — a steady ~23% of the window. At 1280 the table overflows its
+column by 69px with the sidebar in place and has around 217px to spare
+without it, and the Message column, the only one that grows, goes from 304px
+to roughly 590. A table is the one view here that can actually use the room.
+
+Hidden rather than not printed: the sidebar comes from a PHP dropin outside
+the React root, and the view switches without a page load, so the class is
+toggled from EventsGui. Display none rather than a width change, so the
+sidebar's own boxes never lay out at a size nobody sees.
+*/
+.SimpleHistoryGuiWrap--hideSidebar .SimpleHistory__pageSidebar {
+	display: none;
+}
+
 .SimpleHistory__pageSidebar .inside {
 	margin-bottom: 0;
 }

@@ -15,6 +15,7 @@ import { ExportButton } from './ExportButton';
 import { ShareFilteredViewButton } from './ShareFilteredViewButton';
 import { CreateAlertButton } from './CreateAlertButton';
 import { CreateLogEntryButton } from './CreateLogEntryButton';
+import { EventsSidebarToggle } from './EventsSidebarToggle';
 import { EventsViewToggle } from './EventsViewToggle';
 
 /**
@@ -32,6 +33,8 @@ export function EventsControlBar( props ) {
 		newEventsNotifier,
 		eventsView,
 		onEventsViewChange,
+		isSidebarHidden,
+		onToggleSidebar,
 	} = props;
 
 	const { alertsPageURL, userCanManageOptions, searchOptionsLoaded } =
@@ -173,6 +176,14 @@ export function EventsControlBar( props ) {
 						<EventsViewToggle
 							view={ eventsView }
 							onChange={ onEventsViewChange }
+						/>
+
+						{ /* Beside the view switcher because it is the same
+						   kind of choice — how this page is laid out, rather
+						   than what it shows. */ }
+						<EventsSidebarToggle
+							isHidden={ isSidebarHidden }
+							onToggle={ onToggleSidebar }
 						/>
 					</HStack>
 				</FlexItem>

@@ -162,6 +162,18 @@ function EventsGUI() {
 			? window.simpleHistoryReactData.eventsView
 			: 'detailed'
 	);
+	// The views the reader has hidden the page sidebar in, localized at
+	// enqueue time for the same reason the view is — so the first paint is
+	// already right and the page does not rearrange itself once. See
+	// REST_API::HIDDEN_SIDEBAR_VIEWS_USER_META_KEY.
+	const [ hiddenSidebarViews, setHiddenSidebarViews ] = useState( () => {
+		const stored = window.simpleHistoryReactData?.hiddenSidebarViews;
+
+		return Array.isArray( stored )
+			? stored.filter( ( view ) => EVENTS_VIEWS.includes( view ) )
+			: [ 'table' ];
+	} );
+
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ alertsPageURL, setAlertsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
@@ -692,6 +704,55 @@ function EventsGUI() {
 	// switch into or out of table view changes what gets requested.
 	const isTableView = eventsView === 'table';
 
+	const isSidebarHidden = hiddenSidebarViews.includes( eventsView );
+
+	// Take the page sidebar out, or put it back.
+	//
+	// The sidebar is printed by a PHP dropin outside this React root, so the
+	// only way to say anything about it from here is to reach up to the wrap
+	// both of them sit in. It has to be done from JavaScript rather than
+	// decided in PHP because the view switches without a page load — a
+	// server-side conditional would be right until the first time someone
+	// used the switcher. The rule itself is in css/styles.css.
+	useEffect( () => {
+		const wrap = document.querySelector( '.SimpleHistoryGuiWrap' );
+
+		if ( ! wrap ) {
+			return undefined;
+		}
+
+		wrap.classList.toggle(
+			'SimpleHistoryGuiWrap--hideSidebar',
+			isSidebarHidden
+		);
+
+		return () => {
+			wrap.classList.remove( 'SimpleHistoryGuiWrap--hideSidebar' );
+		};
+	}, [ isSidebarHidden ] );
+
+	const handleToggleSidebar = useCallback( () => {
+		setHiddenSidebarViews( ( current ) => {
+			// Only this view changes. The three views want different amounts
+			// of room, so hiding the sidebar in the table must not quietly
+			// hide it in the detailed list as well.
+			const next = current.includes( eventsView )
+				? current.filter( ( view ) => view !== eventsView )
+				: [ ...current, eventsView ];
+
+			// A failed save is not worth interrupting anyone for; the toggle
+			// still works for this visit. Same reasoning as the view
+			// preference above.
+			apiFetch( {
+				path: '/simple-history/v1/sidebar-visibility',
+				method: 'POST',
+				data: { views: next },
+			} ).catch( () => {} );
+
+			return next;
+		} );
+	}, [ eventsView ] );
+
 	const loadEvents = useCallback( async () => {
 		setEventsIsLoading( true );
 
@@ -1041,6 +1102,8 @@ function EventsGUI() {
 					hasAnyActiveFilters={ hasAnyActiveFilters }
 					eventsView={ eventsView }
 					onEventsViewChange={ handleEventsViewChange }
+					isSidebarHidden={ isSidebarHidden }
+					onToggleSidebar={ handleToggleSidebar }
 					newEventsNotifier={
 						<NewEventsNotifier
 							eventsQueryParams={ eventsQueryParams }

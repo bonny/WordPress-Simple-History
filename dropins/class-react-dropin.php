@@ -57,6 +57,16 @@ class React_Dropin extends Dropin {
 
 		$stored_events_view = get_user_meta( get_current_user_id(), REST_API::EVENTS_VIEW_USER_META_KEY, true );
 
+		// Read at enqueue time too, so the first paint already has the sidebar
+		// in the state the reader left it. Fetching it would mean drawing the
+		// page one way and then rearranging it, which is the single most
+		// visible kind of flash a layout can have.
+		$hidden_sidebar_views = get_user_meta(
+			get_current_user_id(),
+			REST_API::HIDDEN_SIDEBAR_VIEWS_USER_META_KEY,
+			true
+		);
+
 		// The events page URL is also returned by the search-options REST endpoint,
 		// but that arrives after the first render. Anything building a link before
 		// it resolves — the surrounding-events view renders without waiting for
@@ -69,6 +79,17 @@ class React_Dropin extends Dropin {
 				'eventsAdminPageURL'  => Helpers::get_history_admin_url(),
 				// Read at enqueue time so the first render already uses the user's view.
 				'eventsView'          => in_array( $stored_events_view, [ 'compact', 'table' ], true ) ? $stored_events_view : 'detailed',
+				// The views the reader has hidden the page sidebar in. An
+				// array rather than the stored string, because every reader of
+				// it wants the list. See REST_API::HIDDEN_SIDEBAR_VIEWS_USER_META_KEY.
+				'hiddenSidebarViews'  => array_values(
+					array_intersect(
+						is_string( $hidden_sidebar_views ) && $hidden_sidebar_views !== ''
+							? explode( ',', $hidden_sidebar_views )
+							: [],
+						REST_API::EVENTS_VIEWS
+					)
+				),
 				// Used by the Table view preview's upgrade link. Built here, not in
 				// JS, so it goes through Helpers::get_tracking_url() like every
 				// other tracked link (issue 280: an untagged link lost three
