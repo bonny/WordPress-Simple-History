@@ -168,6 +168,14 @@ export function EventsControlBar( props ) {
 								hasAnyActiveFilters,
 								alertsPageURL,
 								userCanManageOptions,
+								// Which view is on screen. Passed so a fill
+								// can stand down for a view that offers the
+								// same action better itself — the table view
+								// exports from its own bar, against its own
+								// filters, which these params do not carry.
+								// Additive: a fill written before this reads
+								// undefined and behaves as it always did.
+								eventsView,
 							} }
 						/>
 

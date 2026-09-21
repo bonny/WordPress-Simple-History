@@ -102,18 +102,19 @@ const ALL_COLUMNS = [
  * populated, so waiting on a row alone is not enough. Two tests failed about
  * one run in two because of it, on `main` as well as on this branch:
  *
- * - The select-all checkbox derives its count from the row model, so it
- *   renders as "Select the 0 events loaded so far" and clicking it toggles
- *   nothing — Playwright reports "Clicking the checkbox did not change its
- *   state", which reads like a broken control rather than a race.
+ * - Row controls derive from the row model, so they render against nothing
+ *   and clicking one toggles nothing — Playwright reports "Clicking the
+ *   checkbox did not change its state", which reads like a broken control
+ *   rather than a race.
  * - Scrolling to the bottom fires maybeLoadMore() while there is still
  *   nothing to page past, and since scrollTop is then already at the bottom,
  *   setting it again emits no further scroll event — so the page=2 request
  *   the test is waiting for never happens.
  *
- * The checkbox's own label is the readable proof that the row model has
- * caught up, so that is what this waits on. The number is parsed out rather
- * than matched whole because the label is translated.
+ * A row checkbox's own label is the readable proof that the row model has
+ * caught up: it is built from `row.original.id`, so it cannot read as an
+ * event id until there is a real row behind it. This used to watch the
+ * select-all checkbox's count for the same reason; that control is gone.
  *
  * @param {import('@playwright/test').Page} page The page.
  */
@@ -121,14 +122,13 @@ async function waitForLoadedRows( page ) {
 	await page.locator( '.shp-TableView__row' ).first().waitFor();
 
 	await expect
-		.poll( async () => {
-			const label = await page
-				.locator( '.shp-TableView__selectAll' )
-				.getAttribute( 'aria-label' );
-
-			return Number( ( label || '' ).match( /\d+/ )?.[ 0 ] ?? 0 );
-		} )
-		.toBeGreaterThan( 0 );
+		.poll( async () =>
+			page
+				.locator( '.shp-TableView__row input[type="checkbox"]' )
+				.first()
+				.getAttribute( 'aria-label' )
+		)
+		.toMatch( /\d+/ );
 }
 
 /**
@@ -513,7 +513,18 @@ test.describe( 'Premium table view', () => {
 		expect( selectedHeight ).toBe( restingHeight );
 	} );
 
-	test( 'select-all on the page toggles every row', async ( {
+	// Regression, and a deliberate absence. There was a select-all checkbox in
+	// the header; on an infinitely scrolled list it could only ever take what
+	// had been fetched, which is not a set anyone chose — it is how far they
+	// happened to scroll. Saying that honestly needed a second line, a second
+	// number and a Gmail-style "select all 14,054 matching" step, after which
+	// three numbers described one screen and Copy could honour none of them.
+	//
+	// The scope it was reaching for is Export's job, so the checkbox went and
+	// Export moved into the bar where it is always available. This asserts
+	// the absence, because re-adding the checkbox is the obvious "fix" for a
+	// bug report that says you cannot select everything.
+	test( 'there is no select-all, and Export covers that scope instead', async ( {
 		page,
 		requestUtils,
 	} ) => {
@@ -522,45 +533,95 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
-		const rowCount = await page.locator( '.shp-TableView__row' ).count();
+		await expect(
+			page.locator( '.shp-TableView__table thead input[type="checkbox"]' )
+		).toHaveCount( 0 );
 
-		await page.locator( '.shp-TableView__selectAll' ).check();
+		// With nothing ticked the bar still offers the wider scope, and the
+		// modal states it rather than leaving it to be inferred.
+		const bulkBar = page.locator( '.shp-TableView__bulkBar' );
+		await expect( bulkBar ).toHaveClass( /--resting/ );
 
-		const checked = page.locator(
-			'.shp-TableView__row input[type="checkbox"]:checked'
+		await page.getByRole( 'button', { name: 'Export all' } ).click();
+
+		const exportDialog = page.getByRole( 'dialog' );
+		await expect( exportDialog ).toContainText(
+			'every event matching your current filters'
 		);
-		await expect( checked ).toHaveCount( rowCount );
 
-		// Back to the resting strip, and still there. The bar used to retire
-		// itself once a reader had selected anything, which meant the table
-		// jumped down the page on every selection they made from then on —
-		// the exact movement the always-on bar was added to stop. It holds
-		// the space whether or not anything is selected.
-		//
-		// Measured on the row rather than on the whole bar. Selecting every
-		// row on the page also brings up the "only the N loaded events are
-		// selected" line underneath, which is meant to grow it: that line
-		// appears in answer to a click, which is the one moment movement
-		// reads as a response rather than as the layout misbehaving.
+		await page.keyboard.press( 'Escape' );
+	} );
+
+	// Export used to live in core's control bar, whose query params carry
+	// core's filter state and not the table's — not the typed query, not the
+	// histogram's hour, not the group-by. Side by side the two buttons
+	// offered 3,283 and 14,123 events for the same screen, and the smaller
+	// one was the one that looked official. Export moved into the table's own
+	// bar, and premium hides the control bar's copy while this view is on.
+	test( 'Export offers the same total the table says it is showing', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		// Only one Export on screen, and it is the table's.
+		await expect(
+			page.getByRole( 'button', { name: 'Export', exact: true } )
+		).toHaveCount( 0 );
+
+		const total = page.locator( '.shp-TableView__total' );
+		await expect( total ).toContainText( /\d/ );
+		const digits = ( await total.innerText() ).replace( /[^\d]/g, '' );
+
+		await page.getByRole( 'button', { name: 'Export all' } ).click();
+
+		await expect(
+			page
+				.getByRole( 'dialog' )
+				.getByRole( 'button', { name: /^Export \d+ event/ } )
+		).toContainText( digits );
+
+		await page.keyboard.press( 'Escape' );
+	} );
+
+	// The bar carries controls in both states, so it must not change height
+	// when a row is ticked — that movement is the whole reason it is
+	// always-on rather than appearing with the first selection.
+	test( 'the bar is the same height with and without a selection', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
 		const bulkBarRow = page.locator( '.shp-TableView__bulkBarRow' );
-		const selectedHeight = await bulkBarRow.evaluate(
-			( el ) => el.getBoundingClientRect().height
-		);
+		const heightOf = () =>
+			bulkBarRow.evaluate( ( el ) => el.getBoundingClientRect().height );
 
-		await page.locator( '.shp-TableView__selectAll' ).uncheck();
+		const restingHeight = await heightOf();
 
-		await expect( page.locator( '.shp-TableView__bulkBar' ) ).toHaveCount(
-			1
-		);
+		const checkbox = page
+			.locator( '.shp-TableView__row input[type="checkbox"]' )
+			.first();
+		await checkbox.check();
+
+		await expect(
+			page.locator( '.shp-TableView__bulkBarCount' )
+		).toHaveText( '1 event selected' );
+
+		expect( await heightOf() ).toBe( restingHeight );
+
+		await checkbox.uncheck();
+
 		await expect(
 			page.locator( '.shp-TableView__bulkBar--resting' )
 		).toHaveCount( 1 );
-
-		expect(
-			await bulkBarRow.evaluate(
-				( el ) => el.getBoundingClientRect().height
-			)
-		).toBe( selectedHeight );
+		expect( await heightOf() ).toBe( restingHeight );
 	} );
 
 	test( 'ticking one row does not move the table', async ( {
@@ -1474,12 +1535,13 @@ test.describe( 'Premium table view', () => {
 		);
 	} );
 
-	// Regression: the header checkbox was labelled "Select all events on
-	// this page" and reported "100 events selected" against a total in the
-	// thousands. On an export path that is a confident wrong answer, so the
-	// label now states the real scope and the wider one is a separate,
-	// explicit choice.
-	test( 'select-all states how many events it actually selects, and offers the full set separately', async ( {
+	// With rows ticked by hand the export carries those rows and nothing
+	// else, and the modal must not claim the filter-wide scope. It used to:
+	// the sentence was hardcoded for the control-bar export, which really
+	// does cover the filters, and the bulk bar reused the component without
+	// saying which of the two it was. Wrong scope on an audit log's export
+	// is the kind of mistake nobody catches by reading the file afterwards.
+	test( 'the export modal names the selection it is about to export', async ( {
 		page,
 		requestUtils,
 	} ) => {
@@ -1489,36 +1551,27 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
-		const loadedCount = await page.locator( '.shp-TableView__row' ).count();
+		const checkboxes = page.locator(
+			'.shp-TableView__row input[type="checkbox"]'
+		);
+		await checkboxes.nth( 0 ).check();
+		await checkboxes.nth( 1 ).check();
 
-		await expect(
-			page.locator( '.shp-TableView__selectAll' )
-		).toHaveAttribute(
-			'aria-label',
-			`Select the ${ loadedCount } events loaded so far`
+		// Narrow scope keeps the plain Copy label — nothing is being
+		// promised that the clipboard cannot deliver.
+		const copyToggle = page.getByRole( 'button', {
+			name: 'Copy the selected events',
+		} );
+		await expect( copyToggle ).toHaveText( 'Copy' );
+
+		await page.getByRole( 'button', { name: 'Export selected' } ).click();
+
+		const exportDialog = page.getByRole( 'dialog' );
+		await expect( exportDialog ).toContainText(
+			'The export will include the 2 events you selected.'
 		);
 
-		await page.locator( '.shp-TableView__selectAll' ).check();
-
-		await expect(
-			page.locator( '.shp-TableView__bulkBarCount' )
-		).toHaveText( `${ loadedCount } events selected` );
-
-		// The total is ungrouped and larger than one page on this fixture,
-		// so the wider-scope line must be offered.
-		const scope = page.locator( '.shp-TableView__bulkBarScope' );
-		await expect( scope ).toContainText(
-			`Only the ${ loadedCount } events loaded so far are selected.`
-		);
-
-		await scope.getByRole( 'button' ).click();
-
-		await expect(
-			page.locator( '.shp-TableView__bulkBarCount' )
-		).toContainText( 'All' );
-		await expect(
-			page.locator( '.shp-TableView__bulkBarCount' )
-		).toContainText( 'matching events selected' );
+		await page.keyboard.press( 'Escape' );
 	} );
 
 	// Regression: unchecking every column left a table of empty rows with
@@ -1595,6 +1648,7 @@ test.describe( 'Premium table view', () => {
 
 		expect( await dataHeaders() ).toEqual( [
 			'Toggle event details',
+			'Select',
 			'ID',
 			'Date',
 			'User',
@@ -1615,6 +1669,7 @@ test.describe( 'Premium table view', () => {
 			.poll( dataHeaders )
 			.toEqual( [
 				'Toggle event details',
+				'Select',
 				'ID',
 				'Date',
 				'Level',
@@ -1631,6 +1686,7 @@ test.describe( 'Premium table view', () => {
 			.poll( dataHeaders )
 			.toEqual( [
 				'Toggle event details',
+				'Select',
 				'ID',
 				'Date',
 				'Level',
@@ -1680,40 +1736,6 @@ test.describe( 'Premium table view', () => {
 				page.getByRole( 'menuitem', { name: label, exact: true } )
 			).toBeVisible();
 		}
-	} );
-
-	// The clipboard can only hold rows the browser has fetched. After the
-	// two-step "select all matching", the selection is a number the page has
-	// no data for — copying must say so rather than quietly serialising the
-	// loaded subset, which is the same failure the export scope line exists
-	// to prevent.
-	test( 'copying says so when the selection is wider than what is loaded', async ( {
-		page,
-		requestUtils,
-	} ) => {
-		await setStoredView( requestUtils, 'detailed' );
-
-		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
-		await waitForLoadedRows( page );
-
-		await page
-			.locator( '.shp-TableView__headerRow input[type="checkbox"]' )
-			.check();
-
-		const scope = page.locator( '.shp-TableView__bulkBarScope' );
-		await scope.getByRole( 'button' ).click();
-
-		const loadedCount = await page.locator( '.shp-TableView__row' ).count();
-
-		await page
-			.getByRole( 'button', { name: 'Copy the selected events' } )
-			.click();
-
-		await expect(
-			page.locator( '.shp-TableView__bulkBarCopyNote' )
-		).toContainText(
-			`Only the ${ loadedCount } events loaded so far can be copied.`
-		);
 	} );
 	// A saved view is a named bundle of filters, columns and sort, and
 	// applying one is a navigation — the filters it restores belong to core
