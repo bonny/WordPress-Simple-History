@@ -2487,6 +2487,118 @@ test.describe( 'Premium table view', () => {
 			.toBeGreaterThan( 0 );
 	} );
 
+	// `o` was the only way to open a row, and nobody finds it without the
+	// shortcuts list. Right and Left are what a reader tries first, because
+	// every tree control in every file manager works that way, and Enter is
+	// what they try second.
+	test( 'arrow keys and Enter open and close a row', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const panels = page.locator( '.shp-TableView__detailsPanel' );
+
+		await page.keyboard.press( 'j' );
+		await expect( panels ).toHaveCount( 0 );
+
+		await page.keyboard.press( 'ArrowRight' );
+		await expect( panels ).toHaveCount( 1 );
+
+		// Directional, not a toggle: holding Right through a list should
+		// open every row, not flap the one under the cursor.
+		await page.keyboard.press( 'ArrowRight' );
+		await expect( panels ).toHaveCount( 1 );
+
+		await page.keyboard.press( 'ArrowLeft' );
+		await expect( panels ).toHaveCount( 0 );
+
+		await page.keyboard.press( 'ArrowLeft' );
+		await expect( panels ).toHaveCount( 0 );
+
+		// Enter is a toggle, like o.
+		await page.keyboard.press( 'Enter' );
+		await expect( panels ).toHaveCount( 1 );
+
+		await page.keyboard.press( 'Enter' );
+		await expect( panels ).toHaveCount( 0 );
+	} );
+
+	// Enter is the one shortcut that can collide. A row carries the expand
+	// toggle, the checkbox, the actions menu and a filter button on any cell
+	// whose value can be filtered on — pressing Enter on one of those has to
+	// reach that control, not the table.
+	test( 'Enter on a control inside a row belongs to the control', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		await page
+			.locator( '.shp-TableView__row input[type="checkbox"]' )
+			.first()
+			.focus();
+
+		await page.keyboard.press( 'Enter' );
+
+		await expect(
+			page.locator( '.shp-TableView__detailsPanel' )
+		).toHaveCount( 0 );
+	} );
+
+	// "Show surrounding events" gathers rows around one event and says so in
+	// a banner. Until this, nothing on screen said which row that was, so
+	// finding it meant reading ids until one matched the sentence — on a
+	// screen whose entire point is the rows either side of it.
+	test( 'surrounding mode marks the event it gathered the rows around', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const row = page.locator( '.shp-TableView__row' ).nth( 5 );
+		const anchorId = await row.getAttribute( 'data-event-id' );
+
+		await row.locator( 'input[type="checkbox"]' ).check();
+		await page
+			.getByRole( 'button', { name: 'Show surrounding events' } )
+			.click();
+
+		await expect(
+			page.locator( '.shp-TableView__surroundingBanner' )
+		).toContainText( anchorId );
+
+		const anchor = page.locator( '.shp-TableView__row--anchor' );
+		await expect( anchor ).toHaveCount( 1 );
+		await expect( anchor ).toHaveAttribute( 'data-event-id', anchorId );
+
+		// Not colour alone.
+		await expect( anchor ).toHaveAttribute( 'aria-current', 'true' );
+
+		// And it beats the selected background, so ticking the anchor does
+		// not hide which row it is.
+		await expect(
+			anchor.evaluate( ( el ) => getComputedStyle( el ).backgroundColor )
+		).resolves.toBe( 'rgb(252, 249, 232)' );
+
+		await page
+			.getByRole( 'button', { name: 'Back to your filters' } )
+			.click();
+
+		await expect(
+			page.locator( '.shp-TableView__row--anchor' )
+		).toHaveCount( 0 );
+	} );
+
 	// The shortcuts must not fire while the reader is typing, or `/` eats the
 	// search box the first time anyone tries to use it.
 	test( 'the shortcuts stay out of the way while typing', async ( {
