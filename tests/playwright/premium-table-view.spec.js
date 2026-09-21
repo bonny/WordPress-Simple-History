@@ -2388,7 +2388,14 @@ test.describe( 'Premium table view', () => {
 		);
 	} );
 
-	test( 'grouping counts the matching events and narrows to a group', async ( {
+	// Replaces "grouping counts the matching events and narrows to a group".
+	// The Group by dropdown and the band of counts it opened are gone: the
+	// band ran to 15 rows and pushed the table to y=840 on a 1000px window,
+	// its bars lived in a 40px column so every group but the largest was a
+	// 1px sliver, and two of its three groupings rendered as blue underlined
+	// links that did nothing. What it answered now sits on the line that
+	// already carries the count.
+	test( 'the count line says what the matching events are made of', async ( {
 		page,
 		requestUtils,
 	} ) => {
@@ -2397,41 +2404,126 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
-		await page.getByLabel( 'Group by' ).selectOption( 'level' );
-
-		const groups = page.locator( '.shp-TableView__groupByRow' );
-
-		await expect.poll( () => groups.count() ).toBeGreaterThan( 0 );
-
-		// Largest first, which is the whole point of grouping.
-		const counts = await groups.evaluateAll( ( rows ) =>
-			rows.map(
-				( row ) =>
-					parseInt(
-						(
-							row.querySelector( '.shp-TableView__groupByCount' )
-								?.textContent || '0'
-						).replace( /\D/g, '' ),
-						10
-					) || 0
-			)
+		// The control and its band are gone, and nothing replaced them with
+		// another band.
+		await expect( page.getByLabel( 'Group by' ) ).toHaveCount( 0 );
+		await expect( page.locator( '.shp-TableView__groupBy' ) ).toHaveCount(
+			0
 		);
 
-		expect( counts ).toEqual( [ ...counts ].sort( ( a, b ) => b - a ) );
+		const breakdown = page.locator( '.shp-TableView__breakdown' );
+		await expect( breakdown ).toBeVisible();
 
-		// The biggest group holds more events than the table has loaded, so
-		// these counts cannot have come from the rows on screen.
-		expect( counts[ 0 ] ).toBeGreaterThan(
+		// Either the all-clear or a count of what is wrong — never nothing,
+		// since a line that simply omits the phrase reads as one that has
+		// not loaded.
+		await expect( breakdown ).toHaveText(
+			/no warnings|\d[\d,]* warnings?|\d[\d,]* severe/
+		);
+
+		// The summary drops everything below warning, so hovering has to
+		// bring the rest back. Levels only, and that is deliberate:
+		// .components-tooltip has no max-width and collapses newlines, so
+		// both lists together ran off the side of the window.
+		await breakdown.hover();
+
+		const tooltip = page.locator( '.components-tooltip' ).first();
+		await expect( tooltip ).toContainText( /Info [\d,]+/ );
+
+		// Counted server-side over the whole filtered set. The fixture holds
+		// more events than one page, so a level count larger than the rows
+		// on screen proves these did not come from what is loaded.
+		const biggest = Math.max(
+			...( await tooltip.innerText() )
+				.split( '\u00b7' )
+				.map( ( part ) => Number( part.replace( /[^\d]/g, '' ) ) || 0 )
+		);
+
+		expect( biggest ).toBeGreaterThan(
 			await page.locator( '.shp-TableView__row' ).count()
 		);
 
-		await groups.first().getByRole( 'link' ).click();
-		await page.locator( '.shp-TableView__table' ).waitFor();
-
-		await expect
-			.poll( () => new URL( page.url() ).searchParams.get( 'levels' ) )
-			.not.toBeNull();
+		// And it has to fit. Eight log levels is the ceiling, so this width
+		// is the worst case rather than a sample of one site's data.
+		const box = await tooltip.boundingBox();
+		expect( box.x + box.width ).toBeLessThanOrEqual( 1280 );
 	} );
+
+	// The key under the chart said what the two colours meant and never how
+	// much of each there was, which is the first thing anyone wants from it.
+	// Summed from the bars rather than fetched, so it can only ever describe
+	// the chart it is labelling.
+	test( 'the chart key carries the totals it is describing', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const keys = page.locator( '.shp-TableView__histogramKey' );
+		await expect( keys.first() ).toHaveText( /Info or lower [\d,]+/ );
+		await expect( keys.nth( 1 ) ).toHaveText( /Warning or higher [\d,]+/ );
+	} );
+
+	// A filter matching only info events is the quiet case, and the one a
+	// healthy site is in most of the time. It has to say so out loud.
+	test( 'a result set with nothing wrong in it says "no warnings"', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const queryBox = page.getByPlaceholder( /level:error/ );
+		await queryBox.fill( 'level:info' );
+		await queryBox.press( 'Enter' );
+
+		await expect( page.locator( '.shp-TableView__breakdown' ) ).toHaveText(
+			/no warnings/
+		);
+	} );
+
+	// The whole reason this sits inline instead of in a band. Compared
+	// against surrounding mode, which is the one state that hides it: the
+	// strip has to measure the same with and without.
+	test( 'the breakdown does not change the height of the strip', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const toolbar = page.locator( '.shp-TableView__toolbar' );
+		const heightOf = () =>
+			toolbar.evaluate( ( el ) => el.getBoundingClientRect().height );
+
+		await expect(
+			page.locator( '.shp-TableView__breakdown' )
+		).toBeVisible();
+		const withBreakdown = await heightOf();
+
+		await page
+			.locator( '.shp-TableView__row' )
+			.nth( 2 )
+			.locator( 'input[type="checkbox"]' )
+			.check();
+		await page
+			.getByRole( 'button', { name: 'Show surrounding events' } )
+			.click();
+
+		await expect( page.locator( '.shp-TableView__breakdown' ) ).toHaveCount(
+			0
+		);
+
+		expect( await heightOf() ).toBe( withBreakdown );
+	} );
+
 	// Gmail-style shortcuts for people who are in the log daily. Navigation
 	// and selection only: no single key writes, sends, or leaves the browser,
 	// because a mistyped key in an audit log should never be an incident.
