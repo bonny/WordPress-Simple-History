@@ -162,6 +162,26 @@ async function readTotal( page ) {
 	return digits === '' ? null : Number( digits );
 }
 
+/**
+ * What the chart's key adds up to: the two swatch totals, summed.
+ *
+ * These are the bars' own numbers, so they describe the chart and not the
+ * table — which is exactly the difference the hour note exists to explain.
+ *
+ * @param {Object} page Playwright page.
+ * @return {Promise<number>} Info-or-lower plus warning-or-higher.
+ */
+async function readChartKeyTotal( page ) {
+	const keys = await page
+		.locator( '.shp-TableView__histogramKey' )
+		.allTextContents();
+
+	return keys.reduce(
+		( sum, text ) => sum + Number( text.replace( /[^\d]/g, '' ) || 0 ),
+		0
+	);
+}
+
 async function setStoredColumns( requestUtils, columns ) {
 	await requestUtils.rest( {
 		method: 'POST',
@@ -2298,17 +2318,28 @@ test.describe( 'Premium table view', () => {
 			.locator( '.shp-TableView__histogramCanvas' )
 			.boundingBox();
 
-		// Somewhere in the working day, and low down where the bars are.
-		await page.mouse.click(
-			plot.x + plot.width * 0.5,
-			plot.y + plot.height * 0.85
-		);
+		// Which hours have bars is a property of the fixture, not of the
+		// feature, and a click on an empty stretch is deliberately ignored —
+		// the same rule the drag follows. So walk the 24 hour slots and take
+		// the first one that answers. This used to click the middle of the
+		// plot and trust midday to be busy, which failed outright on a day
+		// whose noon happened to be quiet.
+		//
+		// The click pushes state rather than loading a page, so the URL is
+		// updated by the time the next one lands.
+		let pickedHour = null;
 
-		await expect
-			.poll( () =>
-				new URL( page.url() ).searchParams.get( 'table_hour' )
-			)
-			.toMatch( /^\d{4}-\d{2}-\d{2}T\d{2}$/ );
+		for ( let hour = 0; hour < 24 && pickedHour === null; hour++ ) {
+			await page.mouse.click(
+				plot.x + ( plot.width * ( hour + 0.5 ) ) / 24,
+				plot.y + plot.height * 0.85
+			);
+			await page.waitForTimeout( 300 );
+
+			pickedHour = new URL( page.url() ).searchParams.get( 'table_hour' );
+		}
+
+		expect( pickedHour ).toMatch( /^\d{4}-\d{2}-\d{2}T\d{2}$/ );
 
 		// The day is kept alongside the hour, so core's own filters and the
 		// other two views still describe something true.
@@ -2331,6 +2362,18 @@ test.describe( 'Premium table view', () => {
 		await expect(
 			page.locator( '.shp-TableView__chip' ).filter( { hasText: ':00' } )
 		).toHaveCount( 1 );
+
+		// The chart keeps counting the whole day while the table counts the
+		// hour, on purpose — so the line under the chart has to say so, or
+		// the reader is left with two honest numbers and no way to tell
+		// which one answers the question they asked.
+		await expect(
+			page.locator( '.shp-TableView__histogramSummary' )
+		).toContainText( 'chart shows the day, table shows the hour' );
+
+		const keyTotal = await readChartKeyTotal( page );
+
+		expect( keyTotal ).toBeGreaterThan( await readTotal( page ) );
 	} );
 
 	test( 'a keyboard user can pick a range of days in the histogram', async ( {
@@ -2447,6 +2490,56 @@ test.describe( 'Premium table view', () => {
 		// is the worst case rather than a sample of one site's data.
 		const box = await tooltip.boundingBox();
 		expect( box.x + box.width ).toBeLessThanOrEqual( 1280 );
+	} );
+
+	// The bar used to print "Select events to copy, compare or export just
+	// those." across itself on every visit for ever, to teach a fact the
+	// reader learns for good the first time they tick a box. The band is
+	// reserved either way, so carrying the sentence bought no space back.
+	test( 'the resting bar holds export, and the column says what ticking does', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const bar = page.locator( '.shp-TableView__bulkBar' );
+
+		await expect( bar ).toHaveText( 'Export all' );
+
+		// Still reserved at its full height, which is the whole reason the
+		// bar is always on: ticking a box must not move the table.
+		const resting = await bar.boundingBox();
+
+		// The explanation moved here, as the column's description. It is a
+		// title and not a button because anything pressable in this header
+		// reads as select-all, which this table deliberately does not have.
+		const selectHeader = page.locator( '.shp-TableView__th', {
+			hasText: /^Select$/,
+		} );
+
+		await expect( selectHeader ).toHaveAttribute(
+			'title',
+			'Tick rows to copy, compare or export just those.'
+		);
+
+		// The header keeps its own short name — the title is read after it,
+		// not instead of it.
+		await expect( selectHeader ).toHaveText( 'Select' );
+
+		await page
+			.locator( '.shp-TableView__row input[type="checkbox"]' )
+			.first()
+			.check();
+
+		await expect( bar ).toContainText( '1 event selected' );
+		await expect( bar ).toContainText( 'Export selected' );
+
+		const selected = await bar.boundingBox();
+
+		expect( selected.height ).toBe( resting.height );
 	} );
 
 	// The key under the chart said what the two colours meant and never how
