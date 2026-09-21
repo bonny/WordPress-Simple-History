@@ -1415,8 +1415,20 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
-		const rowCount = await page.locator( '.shp-TableView__row' ).count();
-		expect( rowCount ).toBeGreaterThan( 20 );
+		// The ids present before the walk starts, not a count read after it.
+		// This is an infinite-scroll table and tabbing through it scrolls
+		// rows into view, which fires maybeLoadMore — so comparing against a
+		// fresh count at the end failed whenever a second page arrived
+		// mid-walk, reporting 122 of 200 as if rows were unreachable. What
+		// the test is actually about is that no loaded row is skipped, so it
+		// names the rows it means.
+		const startingIds = await page
+			.locator( '.shp-TableView__row' )
+			.evaluateAll( ( rows ) =>
+				rows.map( ( row ) => row.dataset.eventId )
+			);
+
+		expect( startingIds.length ).toBeGreaterThan( 20 );
 
 		await page.locator( '.shp-TableView__sortButton' ).first().focus();
 
@@ -1435,6 +1447,9 @@ test.describe( 'Premium table view', () => {
 			)
 			.count();
 
+		// Budget for the rows that were there when it was measured, plus
+		// slack. Rows arriving later are welcome in `reached` but are not
+		// what is being asserted.
 		for ( let i = 0; i < controlCount + 10; i++ ) {
 			await page.keyboard.press( 'Tab' );
 
@@ -1454,8 +1469,8 @@ test.describe( 'Premium table view', () => {
 			}
 		}
 
-		expect( reached.size ).toBe(
-			await page.locator( '.shp-TableView__row' ).count()
+		expect( startingIds.filter( ( id ) => ! reached.has( id ) ) ).toEqual(
+			[]
 		);
 	} );
 
