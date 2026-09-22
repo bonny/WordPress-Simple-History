@@ -97,6 +97,31 @@ class Log_Query {
 	const ORDERBY_COLUMNS = [ 'date', 'id', 'level', 'logger', 'message' ];
 
 	/**
+	 * Context keys that `metadata_search` must not look inside.
+	 *
+	 * `metadata_search` is a substring search over every context value, which
+	 * is the point of it — finding an event by an IP address or an email that
+	 * never appears in the message. That makes it a read of the context
+	 * table, not merely a filter on it: a reader who can ask "does any event
+	 * contain this phrase" and get a yes can recover the phrase itself, one
+	 * guess at a time.
+	 *
+	 * So anything the REST API deliberately declines to hand out whole has to
+	 * be excluded here too, or the withholding is decorative.
+	 *
+	 * `_annotation` is the case this was written for. The events controller
+	 * publishes a note's current text and a count of earlier versions, and
+	 * keeps the versions themselves back — every previous and deleted note
+	 * with its author and timestamp. Verified before the fix: an Editor, who
+	 * cannot write a note at all, found an event by text an administrator had
+	 * already replaced.
+	 *
+	 * @since 5.34.0
+	 * @var array<string>
+	 */
+	const METADATA_SEARCH_EXCLUDED_KEYS = [ '_annotation' ];
+
+	/**
 	 * Query the log.
 	 *
 	 * @param string|array|object $args {
@@ -2521,14 +2546,29 @@ class Log_Query {
 		// Unlike the main search which only searches visible message text,
 		// this searches ALL context values (for advanced users who need to
 		// find events by IP address, email, etc.).
+		//
+		// All of them except the ones listed in
+		// self::METADATA_SEARCH_EXCLUDED_KEYS, which are context rows the
+		// REST API deliberately does not hand out whole. Searching a value
+		// is reading it: a reader who can ask "does any event contain this
+		// phrase" and get a yes can recover the phrase itself, one guess at
+		// a time, from a field the API took care to withhold.
 		if ( ! empty( $args['metadata_search'] ) ) {
 			$metadata_words = $this->get_sanitized_search_words( $args['metadata_search'] );
+
+			$excluded_keys_placeholders = implode(
+				', ',
+				array_fill( 0, count( self::METADATA_SEARCH_EXCLUDED_KEYS ), '%s' )
+			);
 
 			foreach ( $metadata_words as $word ) {
 				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$inner_where[] = $wpdb->prepare(
-					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s )",
-					'%' . $wpdb->esc_like( $word ) . '%'
+					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s AND c.`key` NOT IN ( {$excluded_keys_placeholders} ) )",
+					array_merge(
+						[ '%' . $wpdb->esc_like( $word ) . '%' ],
+						self::METADATA_SEARCH_EXCLUDED_KEYS
+					)
 				);
 				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			}

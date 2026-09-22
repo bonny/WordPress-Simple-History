@@ -1255,6 +1255,23 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Cast a stored annotation field to a string, or give up on it.
+	 *
+	 * An annotation is JSON in a context row, and a context row is reachable
+	 * by anything that can write to the table — so the decoded value is not
+	 * guaranteed to be the shape this class wrote. `(string)` on an array
+	 * emits a notice, and on an object it is an uncatchable fatal, either of
+	 * which takes down the whole listing rather than the one bad event.
+	 *
+	 * @since 5.34.0
+	 * @param mixed $value Decoded value.
+	 * @return string The value as a string, or an empty string.
+	 */
+	protected static function scalar_or_empty_string( $value ) {
+		return is_scalar( $value ) ? (string) $value : '';
+	}
+
+	/**
 	 * Prepares a single post output for response.
 	 *
 	 * @param object           $item    Post object.
@@ -1420,13 +1437,19 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			// `_annotation` must not be able to turn one bad event into a 500
 			// for the whole listing. `count()` on a non-array is a TypeError
 			// on PHP 8, and a missing `text` is an undefined-index warning.
+			//
+			// The two string fields go through scalar_or_empty_string()
+			// rather than a bare cast, which is what the paragraph above
+			// always claimed and did not do: `(string)` on an array emits
+			// "Array to string conversion", and on an object it is a fatal —
+			// so one hand-edited row took the whole listing down.
 			$data['annotation'] = $annotation === null
 				? null
 				: [
-					'text'           => (string) ( $annotation['text'] ?? '' ),
+					'text'           => self::scalar_or_empty_string( $annotation['text'] ?? null ),
 					'user_id'        => (int) ( $annotation['user_id'] ?? 0 ),
 					'user_name'      => self::get_annotation_user_name( $annotation['user_id'] ?? 0 ),
-					'updated_at'     => (string) ( $annotation['updated_at'] ?? '' ),
+					'updated_at'     => self::scalar_or_empty_string( $annotation['updated_at'] ?? null ),
 					'revision_count' => is_array( $annotation['history'] ?? null )
 						? count( $annotation['history'] )
 						: 0,
@@ -1482,7 +1505,22 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'context', $fields ) ) {
-			$data['context'] = $item->context ?? [];
+			$context_for_output = $item->context ?? [];
+
+			// `_annotation` never goes out raw.
+			//
+			// The `annotation` field above deliberately publishes only the
+			// current text and a count of earlier versions — the history
+			// itself, every previous note with its author and timestamp, is
+			// withheld. Raw context went around that completely: the same
+			// JSON blob came back through `_fields=context`, and core's own
+			// event-details modal prints every context key, so the whole
+			// revision history of a note was one click away for anyone who
+			// can read the log. The shaped field above is the public form of
+			// an annotation; this is the private one.
+			unset( $context_for_output['_annotation'] );
+
+			$data['context'] = $context_for_output;
 		}
 
 		if ( rest_is_field_included( 'permalink', $fields ) ) {
