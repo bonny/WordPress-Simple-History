@@ -266,7 +266,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Table view for the event log, added to the view switcher. The table itself is part of Simple History Premium; without it you get a preview of what it can do, and the log keeps opening in your usual list view.
+-   Table view for research and debugging sessions: sort, filter, compare two events side by side, and export (Premium).
 -   Events can now be sorted by date, id, level, logger or event type through the REST API (`orderby` and `order`) and on the command line (`wp simple-history event list --orderby=id --order=asc`).
 -   Events can be counted instead of listed through the REST API (`/events/aggregate`), grouped by date, level, logger or initiator. The same filters apply, so it counts exactly what the list would have shown.
 
