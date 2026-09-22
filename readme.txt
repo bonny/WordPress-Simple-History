@@ -278,6 +278,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 -   Changed post excerpts are labelled "Excerpt" instead of the raw field name.
 -   Tips that mention Premium are hidden on sites that have turned promotional messages off.
+-   Image thumbnails on media events name the image for screen reader users.
 
 ### 5.33.0 (September 2026)
 
