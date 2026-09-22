@@ -262,6 +262,29 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Added**
+
+-   Table view for the event log, added to the view switcher. The table itself is part of Simple History Premium; without it you get a preview of what it looks like.
+-   Events can now be sorted by date, id, level, logger or event type through the REST API (`orderby` and `order`) and on the command line (`wp simple-history event list --orderby=id --order=asc`).
+-   Events can be counted instead of listed through the REST API (`/events/aggregate`), grouped by date, level, logger or initiator. The same filters apply, so it counts exactly what the list would have shown.
+
+**Changed**
+
+-   The compact event log view is no longer experimental. The Detailed/Compact switch is now available to everyone from the event log page.
+-   Sorting by level now orders by severity, so the most serious events come first instead of alphabetically.
+
+**Fixed**
+
+-   Sorting the event log oldest first now works. `order=asc` was accepted and then ignored on the default event listing, which returned newest first anyway.
+-   Activity counts from the REST API (`/events/aggregate`) are grouped by your site's timezone rather than by GMT, so an event just after midnight is counted on the right day.
+-   The "new events" count above the log now respects your filters. With "Hide my own events" on, or event types hidden, it counted events the list would never show — so it could announce new activity and then show you nothing when you clicked it.
+
+**Security**
+
+-   Database errors from the event log no longer include the database's own error message in the API response. Reading the log needs a lower capability than most things in WordPress, and a MySQL error names tables and columns.
+
 ### 5.33.0 (September 2026)
 
 The weekly email is redesigned. It opens with a summary of your week, and every number links to its events. Events by WordPress and visitors are no longer credited to the logged-in admin, and Redirection logging works again with Redirection 5.10. And some minor fixes here and there.

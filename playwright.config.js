@@ -88,6 +88,18 @@ module.exports = defineConfig( {
 			dependencies: [ 'experimental-hide' ],
 		},
 		{
+			// The premium table view replaces the whole log area and stores a
+			// view preference, so it races specs that assume the detailed
+			// list. Own project, like events-view above.
+			name: 'premium-table',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /premium-table-view\.spec\.js$/,
+			dependencies: [ 'events-view' ],
+		},
+		{
 			name: 'tests',
 			use: {
 				...devices[ 'Desktop Chrome' ],
@@ -103,8 +115,9 @@ module.exports = defineConfig( {
 				/privacy-data\.spec\.js$/,
 				/hide-event-type\.spec\.js$/,
 				/events-view-toggle\.spec\.js$/,
+				/premium-table-view\.spec\.js$/,
 			],
-			dependencies: [ 'events-view' ],
+			dependencies: [ 'premium-table' ],
 		},
 		{
 			// Teaser user-card screenshots, captured against the dev WordPress
