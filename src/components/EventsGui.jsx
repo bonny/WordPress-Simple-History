@@ -1134,7 +1134,15 @@ function EventsGUI() {
 					} }
 				>
 					{ ( fills ) =>
-						fills.length > 0 ? fills : <TablePreview />
+						fills.length > 0 ? (
+							fills
+						) : (
+							<TablePreview
+								onBackToList={ () =>
+									handleEventsViewChange( 'detailed' )
+								}
+							/>
+						)
 					}
 				</Slot>
 			) : (
