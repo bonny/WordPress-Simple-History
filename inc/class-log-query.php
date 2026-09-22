@@ -122,6 +122,27 @@ class Log_Query {
 	const METADATA_SEARCH_EXCLUDED_KEYS = [ '_annotation' ];
 
 	/**
+	 * Send a database error to the error log rather than to the client.
+	 *
+	 * Every caller of this class that can fail is reachable over REST by
+	 * anyone holding the view-history capability, which defaults to
+	 * `edit_pages`. `$wpdb->last_error` carries table prefixes, column names
+	 * and pieces of the statement, none of which that reader can act on and
+	 * all of which describes the schema to someone who should not have it.
+	 *
+	 * @since 5.34.0
+	 * @param string $error The database error.
+	 */
+	private static function log_db_error( $error ) {
+		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( 'Simple History: database query failed: ' . $error );
+	}
+
+	/**
 	 * Query the log.
 	 *
 	 * @param string|array|object $args {
@@ -359,10 +380,14 @@ class Log_Query {
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K );
 
 		if ( ! empty( $wpdb->last_error ) ) {
+			// Not in the error data either: rest_convert_error_to_response()
+			// hands WP_Error data back to the client, so `db_error` here was
+			// the same disclosure as putting it in the message.
+			self::log_db_error( $wpdb->last_error );
+
 			return new \WP_Error(
 				'simple_history_db_error',
-				__( 'Database query failed.', 'simple-history' ),
-				array( 'db_error' => $wpdb->last_error )
+				__( 'Database query failed.', 'simple-history' )
 			);
 		}
 
@@ -622,10 +647,14 @@ class Log_Query {
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K );
 
 		if ( ! empty( $wpdb->last_error ) ) {
+			// Not in the error data either: rest_convert_error_to_response()
+			// hands WP_Error data back to the client, so `db_error` here was
+			// the same disclosure as putting it in the message.
+			self::log_db_error( $wpdb->last_error );
+
 			return new \WP_Error(
 				'simple_history_db_error',
-				__( 'Database query failed.', 'simple-history' ),
-				array( 'db_error' => $wpdb->last_error )
+				__( 'Database query failed.', 'simple-history' )
 			);
 		}
 
@@ -1232,10 +1261,18 @@ class Log_Query {
 		$rows = $wpdb->get_results( $sql_query );
 
 		if ( ! empty( $wpdb->last_error ) ) {
+			// The database's own error text does not go to the client.
+			//
+			// This is reachable by anyone who can read the log —
+			// get_view_history_capability(), which defaults to edit_pages —
+			// and MySQL error strings carry table prefixes, column names and
+			// fragments of the statement. The reader can do nothing with the
+			// detail anyway; whoever can fix it reads the error log.
+			self::log_db_error( $wpdb->last_error );
+
 			return new \WP_Error(
 				'simple_history_db_error',
-				// translators: %s is the database error message.
-				sprintf( __( 'Database error: %s', 'simple-history' ), $wpdb->last_error ),
+				__( 'Database query failed.', 'simple-history' ),
 				[ 'status' => 500 ]
 			);
 		}
