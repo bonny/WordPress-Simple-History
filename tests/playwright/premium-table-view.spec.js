@@ -501,11 +501,11 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
-		// The bar is always in the DOM, at a fixed height, so that ticking a
+		// One strip above the table, at a fixed height, so that ticking a
 		// checkbox does not push the table down the page. With nothing
-		// selected it is in its resting state and announces no count.
-		const bulkBar = page.locator( '.shp-TableView__bulkBar' );
-		await expect( bulkBar ).toHaveClass( /--resting/ );
+		// selected it is untinted and announces no count.
+		const bulkBar = page.locator( '.shp-TableView__toolbar' );
+		await expect( bulkBar ).not.toHaveClass( /--selected/ );
 		await expect(
 			page.locator( '.shp-TableView__bulkBarCount' )
 		).toHaveCount( 0 );
@@ -521,7 +521,7 @@ test.describe( 'Premium table view', () => {
 		await checkboxes.nth( 1 ).check();
 
 		await expect( bulkBar ).toBeVisible();
-		await expect( bulkBar ).not.toHaveClass( /--resting/ );
+		await expect( bulkBar ).toHaveClass( /--selected/ );
 		await expect( bulkBar ).toContainText( '2' );
 
 		// The whole point of the resting state: filling the bar must not
@@ -557,10 +557,10 @@ test.describe( 'Premium table view', () => {
 			page.locator( '.shp-TableView__table thead input[type="checkbox"]' )
 		).toHaveCount( 0 );
 
-		// With nothing ticked the bar still offers the wider scope, and the
+		// With nothing ticked the strip still offers the wider scope, and the
 		// modal states it rather than leaving it to be inferred.
-		const bulkBar = page.locator( '.shp-TableView__bulkBar' );
-		await expect( bulkBar ).toHaveClass( /--resting/ );
+		const bulkBar = page.locator( '.shp-TableView__toolbar' );
+		await expect( bulkBar ).not.toHaveClass( /--selected/ );
 
 		await page.getByRole( 'button', { name: 'Export all' } ).click();
 
@@ -619,7 +619,7 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
-		const bulkBarRow = page.locator( '.shp-TableView__bulkBarRow' );
+		const bulkBarRow = page.locator( '.shp-TableView__toolbar' );
 		const heightOf = () =>
 			bulkBarRow.evaluate( ( el ) => el.getBoundingClientRect().height );
 
@@ -639,8 +639,8 @@ test.describe( 'Premium table view', () => {
 		await checkbox.uncheck();
 
 		await expect(
-			page.locator( '.shp-TableView__bulkBar--resting' )
-		).toHaveCount( 1 );
+			page.locator( '.shp-TableView__toolbar--selected' )
+		).toHaveCount( 0 );
 		expect( await heightOf() ).toBe( restingHeight );
 	} );
 
@@ -671,8 +671,8 @@ test.describe( 'Premium table view', () => {
 
 		await checkbox.uncheck();
 		await expect(
-			page.locator( '.shp-TableView__bulkBar--resting' )
-		).toHaveCount( 1 );
+			page.locator( '.shp-TableView__toolbar--selected' )
+		).toHaveCount( 0 );
 
 		expect( await topOf() ).toBe( before );
 	} );
@@ -740,7 +740,7 @@ test.describe( 'Premium table view', () => {
 		);
 
 		await page
-			.locator( '.shp-TableView__bulkBar' )
+			.locator( '.shp-TableView__toolbar' )
 			.getByRole( 'button', { name: 'Export' } )
 			.click();
 
@@ -2371,6 +2371,12 @@ test.describe( 'Premium table view', () => {
 			page.locator( '.shp-TableView__histogramSummary' )
 		).toContainText( 'chart shows the day, table shows the hour' );
 
+		// Said again beside the number it is about, since the chart's
+		// caption sits a line up and two-thirds of the way across.
+		await expect( page.locator( '.shp-TableView__total' ) ).toContainText(
+			'(this hour)'
+		);
+
 		const keyTotal = await readChartKeyTotal( page );
 
 		expect( keyTotal ).toBeGreaterThan( await readTotal( page ) );
@@ -2505,9 +2511,16 @@ test.describe( 'Premium table view', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
-		const bar = page.locator( '.shp-TableView__bulkBar' );
+		const bar = page.locator( '.shp-TableView__toolbar' );
 
-		await expect( bar ).toHaveText( 'Export all' );
+		await expect( bar ).toContainText( 'Export all' );
+
+		// One strip, not two. The 41px band that used to hold this button
+		// alone is gone, and with it the hairline that split one white zone
+		// into two for no reason.
+		await expect( page.locator( '.shp-TableView__bulkBar' ) ).toHaveCount(
+			0
+		);
 
 		// Still reserved at its full height, which is the whole reason the
 		// bar is always on: ticking a box must not move the table.
@@ -2528,6 +2541,13 @@ test.describe( 'Premium table view', () => {
 		// The header keeps its own short name — the title is read after it,
 		// not instead of it.
 		await expect( selectHeader ).toHaveText( 'Select' );
+
+		// And something visible to hover. Without it the cell rendered as
+		// blank space, so the explanation was reachable only by hovering
+		// nothing in particular.
+		await expect(
+			selectHeader.locator( '.shp-TableView__selectHint' )
+		).toBeVisible();
 
 		await page
 			.locator( '.shp-TableView__row input[type="checkbox"]' )
@@ -2558,6 +2578,60 @@ test.describe( 'Premium table view', () => {
 		const keys = page.locator( '.shp-TableView__histogramKey' );
 		await expect( keys.first() ).toHaveText( /Info or lower [\d,]+/ );
 		await expect( keys.nth( 1 ) ).toHaveText( /Warning or higher [\d,]+/ );
+	} );
+
+	// The key, drawn to scale. A per-level version came first and had to
+	// floor every level at 3px to keep one Critical event visible, which
+	// handed 15% of the bar to levels that were 0.006% of the events. Two
+	// buckets need no floor, so the widths can simply be true.
+	test( 'the chart key is drawn to scale, and says nothing twice', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const bar = page.locator( '.shp-TableView__levelBar' );
+
+		await expect( bar ).toBeVisible();
+
+		// The two labels beside it carry both numbers, so there is nothing
+		// here for assistive tech that the text does not already say — and
+		// nothing to land on with Tab, which is what the per-level version
+		// got wrong: a focus ring around a bar whose only description was a
+		// `title`, which browsers do not show on keyboard focus.
+		await expect( bar ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( await bar.getAttribute( 'tabindex' ) ).toBeNull();
+
+		// The squares it replaced are gone; the bar is the key now.
+		await expect(
+			page.locator( '.shp-TableView__histogramSwatch' )
+		).toHaveCount( 0 );
+
+		const [ ordinary, severe ] = await bar
+			.locator( 'span' )
+			.evaluateAll( ( parts ) =>
+				parts.map( ( part ) => part.getBoundingClientRect().width )
+			);
+
+		// Two segments filling one 120px strip, and the widths are the
+		// shares rather than a drawing of them.
+		expect( Math.round( ordinary + severe ) ).toBe( 120 );
+
+		const keys = await page
+			.locator( '.shp-TableView__histogramKey' )
+			.allTextContents();
+
+		const counts = keys.map( ( text ) =>
+			Number( text.replace( /[^\d]/g, '' ) )
+		);
+
+		const expectedSevere =
+			( counts[ 1 ] / ( counts[ 0 ] + counts[ 1 ] ) ) * 120;
+
+		expect( severe ).toBeCloseTo( expectedSevere, 0 );
 	} );
 
 	// A filter matching only info events is the quiet case, and the one a
@@ -2911,6 +2985,230 @@ test.describe( 'Premium table view', () => {
 	// filtering system: it parses into the same URL parameters the chips
 	// produce, so the server cannot tell the difference and the back button
 	// undoes it.
+	// `day:` wanted a date and nothing else, so the two days anyone actually
+	// types had to be looked up on a calendar first. A bare `today` can
+	// never work — bare words are the free text search, so it would go
+	// looking for the word in the message.
+	test( 'day: takes today and yesterday, and shows which day it got', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const queryInput = page.locator( '#shp-table-view-query' );
+
+		// Offered while typing, because nothing else on screen says the
+		// grammar takes a word here.
+		await queryInput.fill( 'day:' );
+
+		await expect(
+			page.getByRole( 'option', { name: /today/ } )
+		).toBeVisible();
+
+		// Taken from the list with the keyboard, which is where the key
+		// used to be lost: `insert` replaces the whole term, so handing
+		// back a bare value left the box reading `today` — a free text
+		// search for the word, not a date filter at all.
+		await page.keyboard.press( 'ArrowDown' );
+		await page.keyboard.press( 'Enter' );
+
+		await expect( queryInput ).toHaveValue( 'day:today' );
+
+		const localDay = ( offset ) => {
+			const date = new Date();
+
+			date.setDate( date.getDate() + offset );
+
+			const pad = ( number ) => String( number ).padStart( 2, '0' );
+
+			return `${ date.getFullYear() }-${ pad(
+				date.getMonth() + 1
+			) }-${ pad( date.getDate() ) }`;
+		};
+
+		for ( const [ word, offset ] of [
+			[ 'today', 0 ],
+			[ 'yesterday', -1 ],
+		] ) {
+			await queryInput.fill( `day:${ word }` );
+			await page.getByRole( 'button', { name: 'Apply' } ).first().click();
+
+			const day = localDay( offset );
+
+			await expect
+				.poll( () => new URL( page.url() ).searchParams.get( 'from' ) )
+				.toBe( day );
+
+			expect( new URL( page.url() ).searchParams.get( 'to' ) ).toBe(
+				day
+			);
+
+			// Written back as the date, not as the word. A range is two
+			// dates with nowhere to record that one end was a keyword, so
+			// leaving the word there would promise a saved view that
+			// follows the clock and not deliver one.
+			await expect( queryInput ).toHaveValue( `day:${ day }` );
+		}
+
+		// Anything else is still a date, and says so.
+		await queryInput.fill( 'day:lastweek' );
+		await page.getByRole( 'button', { name: 'Apply' } ).first().click();
+
+		// The notice, not wp.a11y's live region, which carries the same
+		// sentence for screen readers.
+		await expect(
+			page.locator( '.components-notice__content', {
+				hasText: /needs a date in the form/,
+			} )
+		).toBeVisible();
+	} );
+
+	// Live mode announced arrivals to screen readers and showed everyone
+	// else nothing, so rows appeared silently above whatever was being read.
+	test( 'live mode marks the rows it just put at the top', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		// The highlight runs for six seconds and the poll for ten, so this
+		// one waits out real clock time rather than a network response.
+		test.setTimeout( 90000 );
+
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		await page.getByRole( 'checkbox', { name: /live/i } ).first().check();
+
+		const lit = page.locator( '.shp-TableView__row--new' );
+
+		await expect( lit ).toHaveCount( 0 );
+
+		await requestUtils.rest( {
+			method: 'POST',
+			path: 'simple-history/v1/events',
+			data: {
+				message: 'Playwright live arrival',
+				level: 'info',
+				note: 'Written while live mode was on.',
+			},
+		} );
+
+		await expect( lit ).toHaveCount( 1, { timeout: 30000 } );
+
+		// Said in words as well, for anyone who cannot see the colour.
+		await expect(
+			page.getByText( /new event added at the top/ )
+		).toBeAttached();
+
+		// And it lets go. A mark that stayed would be lit on three batches
+		// at once and say nothing about any of them.
+		await expect( lit ).toHaveCount( 0, { timeout: 15000 } );
+	} );
+
+	// Picking a view left the menu open over the table it had just
+	// rewritten, which reads as the click not having registered.
+	test( 'choosing a view closes the menu it was chosen from', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		await page
+			.locator( '.shp-TableView__savedViews button' )
+			.first()
+			.click();
+
+		const choice = page.getByRole( 'menuitemradio', {
+			name: 'Content changes',
+		} );
+
+		await expect( choice ).toBeVisible();
+		await choice.click();
+
+		await expect(
+			page.getByRole( 'menuitemradio', { name: 'Content changes' } )
+		).toHaveCount( 0 );
+
+		// And it did apply, so the close is not hiding a dead click.
+		await expect
+			.poll( () => new URL( page.url() ).searchParams.get( 'messages' ) )
+			.toContain( 'Content' );
+	} );
+
+	// Absolute timestamps are precise and hard to read at a glance. This is
+	// the same value rendered the other way, offered as its own column so a
+	// reader can have either or both.
+	test( 'the relative date column reads in words and keeps the exact time', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+		await setStoredColumns( requestUtils, [
+			'date_relative',
+			'date',
+			'user',
+			'message',
+			'level',
+		] );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const cell = page
+			.locator( '.shp-TableView__row .shp-TableView__col--date_relative' )
+			.first();
+
+		await expect( cell ).toHaveText( /ago$/ );
+
+		// The precision is not thrown away, it moves to the title — "2
+		// hours ago" is easier to read and useless for lining an event up
+		// against a deploy.
+		await expect( cell.locator( 'span' ) ).toHaveAttribute(
+			'title',
+			/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/
+		);
+
+		// Sorted by the same key as Date, because it is the same ordering.
+		await page
+			.getByRole( 'button', { name: /Relative date/ } )
+			.first()
+			.click();
+
+		await expect
+			.poll( () =>
+				new URL( page.url() ).searchParams.get( 'table_orderby' )
+			)
+			.toBe( 'date' );
+
+		// Date speaks for the pair while both are on screen, so one sort is
+		// announced once rather than twice.
+		await expect(
+			page.locator( '.shp-TableView__th.shp-TableView__col--date' )
+		).toHaveAttribute( 'aria-sort', /ascending|descending/ );
+
+		await expect(
+			page.locator(
+				'.shp-TableView__th.shp-TableView__col--date_relative'
+			)
+		).toHaveAttribute( 'aria-sort', 'none' );
+
+		// Restored, so the columns this test chose do not leak into the next.
+		await setStoredColumns( requestUtils, [
+			'event_id',
+			'date',
+			'user',
+			'message',
+			'level',
+		] );
+	} );
+
 	test( 'a typed query applies the same filters the chips would', async ( {
 		page,
 		requestUtils,
