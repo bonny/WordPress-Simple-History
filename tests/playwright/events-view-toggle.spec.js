@@ -336,23 +336,40 @@ test.describe( 'Event log view toggle', () => {
 			).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
 
-		// Every other spec above reaches the table view through a click or
-		// ?view=table, which is exactly why a stored `table` preference being
-		// silently downgraded to `detailed` on a fresh, param-less load went
-		// unnoticed (dropins/class-react-dropin.php and EventsGui.jsx both used
-		// to accept only 'compact', collapsing anything else to 'detailed').
-		test( 'table is remembered after a reload without the parameter', async ( {
+		// Without Premium the table view is an upgrade preview, so a stored
+		// `table` choice is not honoured on a param-less load: reopening the
+		// log on the preview every visit, because the table icon was clicked
+		// once, would be a nag screen. See
+		// React_Dropin::get_initial_events_view().
+		test( 'stored table view is not remembered without Premium', async ( {
 			page,
 			requestUtils,
 		} ) => {
 			await setStoredView( requestUtils, 'table' );
 
 			await page.goto( SIMPLE_HISTORY_PAGE );
+			await page.locator( '.sh-EventsViewToggle' ).waitFor();
 
-			await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+			await expect( page.locator( '.sh-TablePreview' ) ).toHaveCount( 0 );
 			await expect(
-				page.getByRole( 'button', { name: 'Table view' } )
+				page.getByRole( 'button', { name: 'Detailed view' } )
 			).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		test( 'table view button names Premium for free users', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'detailed' );
+
+			await page.goto( SIMPLE_HISTORY_PAGE );
+
+			await expect(
+				page.getByRole( 'button', {
+					name: 'Table view (Premium)',
+					exact: true,
+				} )
+			).toBeVisible();
 		} );
 
 		test( 'table preview is inert and its CTA is not', async ( {
@@ -364,13 +381,12 @@ test.describe( 'Event log view toggle', () => {
 			await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 			await page.locator( '.sh-TablePreview' ).waitFor();
 
-			// The sample table is decoration: hidden from screen readers and
+			// The sample is decoration: hidden from screen readers and
 			// unreachable by the mouse.
+			const sample = page.locator( '.sh-TablePreview__sample' );
+			await expect( sample ).toHaveAttribute( 'aria-hidden', 'true' );
+
 			const sampleTable = page.locator( '.sh-TablePreview__table' );
-			await expect( sampleTable ).toHaveAttribute(
-				'aria-hidden',
-				'true'
-			);
 			await expect( sampleTable ).toHaveCSS( 'pointer-events', 'none' );
 
 			// Every checkbox in it is disabled.
@@ -382,39 +398,44 @@ test.describe( 'Event log view toggle', () => {
 				await expect( boxes.nth( i ) ).toBeDisabled();
 			}
 
-			// Being unusable also has to be visible. The sample is drawn
-			// dimmed and greyed, with a not-allowed cursor over the whole of
-			// it, because at full fidelity readers took it for the real table
-			// and tried to use it.
-			const sample = page.locator( '.sh-TablePreview__sample' );
+			// Being a preview is visible without dimming the sample: a
+			// ribbon says it is an example, the premium card sits on top of
+			// it, and the mouse gets a not-allowed cursor over it.
 			await expect( sample ).toHaveCSS( 'cursor', 'not-allowed' );
-
-			const opacity = await sample.evaluate( ( el ) =>
-				parseFloat( getComputedStyle( el ).opacity )
-			);
-			expect( opacity ).toBeLessThan( 1 );
-
-			// Said in words too, for anyone who reads before clicking and for
-			// screen readers, which get nothing from the sample itself.
 			await expect(
-				page.locator( '.sh-TablePreview__sampleNote' )
+				page.locator( '.sh-TablePreview__ribbon' )
+			).toBeVisible();
+			await expect(
+				page.locator( '.sh-TablePreview__card' )
 			).toBeVisible();
 
-			// Nothing in the banner looks like a control except the one link
-			// that is one: the feature names used to be bordered white pills,
-			// which is the shape of a row of secondary buttons.
-			const feature = page
-				.locator( '.sh-TablePreview__features li' )
-				.first();
-			await expect( feature ).toHaveCSS( 'border-top-width', '0px' );
-
 			// The upgrade link stays clickable and carries the campaign.
-			const cta = page.locator( '.sh-TablePreview__banner a' ).first();
+			const cta = page.locator( '.sh-TablePreview__cta' );
 			await expect( cta ).toBeVisible();
 
 			const href = await cta.getAttribute( 'href' );
+			expect( href ).toContain( '/features/table-view/' );
 			expect( href ).toContain( 'utm_campaign=premium_table_view' );
-			expect( href ).toContain( 'utm_content=' );
+			expect( href ).toContain( 'utm_content=preview_cta' );
+		} );
+
+		test( 'table preview can switch back to the list view', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'detailed' );
+
+			await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+			await page.locator( '.sh-TablePreview' ).waitFor();
+
+			await page
+				.getByRole( 'button', { name: 'Back to list view' } )
+				.click();
+
+			await expect( page.locator( '.sh-TablePreview' ) ).toHaveCount( 0 );
+			await expect(
+				page.getByRole( 'button', { name: 'Detailed view' } )
+			).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
 	} );
 } );
@@ -460,10 +481,12 @@ test.describe( 'Table view button premium indicator', () => {
 		await page.goto( SIMPLE_HISTORY_PAGE );
 		await page.locator( '.sh-EventsViewToggle' ).waitFor();
 
+		// Named as Premium too, so screen readers and the tooltip say it
+		// before the click, not only the icon.
 		const tableButton = page.getByRole( 'button', { name: 'Table view' } );
 		await expect( tableButton ).toHaveAttribute(
 			'aria-label',
-			'Table view'
+			'Table view (Premium)'
 		);
 		await expect(
 			tableButton.locator( '.sh-PremiumIndicator' )

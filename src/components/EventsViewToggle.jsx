@@ -38,7 +38,11 @@ export function EventsViewToggle( { view, onChange } ) {
 	const labels = {
 		detailed: __( 'Detailed view', 'simple-history' ),
 		compact: __( 'Compact view', 'simple-history' ),
-		table: __( 'Table view', 'simple-history' ),
+		// Named as Premium for free users, so the tooltip and screen readers
+		// say so before the click, not only the icon-only indicator.
+		table: hasPremiumAddOn
+			? __( 'Table view', 'simple-history' )
+			: __( 'Table view (Premium)', 'simple-history' ),
 	};
 
 	return (
@@ -73,8 +77,8 @@ export function EventsViewToggle( { view, onChange } ) {
 							>
 								<Icon icon={ option.icon } size={ 16 } />
 
-								{ /* Table view is Premium-only. The button already
-								     carries its own aria-label, so this icon-only
+								{ /* Table view is Premium-only. The aria-label
+								     above already says so, so this icon-only
 								     addition doesn't change the accessible name. */ }
 								{ option.value === 'table' &&
 									! hasPremiumAddOn && <PremiumIndicator /> }
