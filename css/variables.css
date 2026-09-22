@@ -18,6 +18,10 @@
 	--sh-color-blue: #004cff;
 	--sh-color-blue-light: rgba(0, 76, 255, 0.1);
 	--sh-color-green-mint: #12e2a3;
+	/* Solid premium CTA button, for a full-surface teaser where it is the one
+	   action on screen. White text on it passes WCAG AA (5.2:1). */
+	--sh-color-green-cta: #1a7f4b;
+	--sh-color-premium-cream-edge: #ece5c6;
 	--sh-color-green-light: #b0f4e6;
 	--sh-color-cream: #fcf9ec;
 	--sh-color-pink-light: #ffcee4;

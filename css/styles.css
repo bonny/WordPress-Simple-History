@@ -4393,187 +4393,101 @@ a.sh-EventsStatsBar--link:hover {
 	z-index: 1;
 }
 
-/* Table view preview (issue 240): a staged, inert sample table under a
-   clickable upgrade banner, shown when nothing fills SimpleHistorySlotTableView. */
+/* Table view preview (issue 240), shown when nothing fills
+   SimpleHistorySlotTableView.
 
-/* Everything under the banner is a picture of the premium table, and a good
-   enough one that readers tried to use it: clicked a column header, ticked a
-   row, and got nothing back. Being unusable was never visible — the sample
-   was drawn at the same weight and colour as a real table.
+   Laid out like a screenshot: a staged sample of the premium table in full
+   colour, fading out at the bottom into one cream premium card. An earlier
+   version dimmed the sample to 55% and added a "Nothing below is clickable"
+   note, because at full fidelity readers took it for the real table. That sold
+   the feature faded and with a warning first. Now the "Example" ribbon and the
+   card sitting over the table say it is a preview, and the sample keeps a
+   not-allowed cursor for anyone who tries it anyway. */
+.sh-TablePreview {
+	position: relative;
+	overflow: hidden;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
 
-   So dim it as one block, with the same numbers the alerts settings teaser
-   uses for its preview (.sh-AlertsTeaser[inert]), so a reader who has seen one
-   teaser recognises the other. The children keep their own pointer-events:
-   none, which leaves this element the one that gets hit-tested, so the
-   not-allowed cursor is what the mouse finds anywhere over the sample. */
+/* Decoration, not a control. aria-hidden in the markup keeps it out of the
+   accessibility tree; this keeps it out of reach of the mouse. Children get
+   pointer-events: none, which leaves this element the one that is
+   hit-tested, so the not-allowed cursor is what the mouse finds over it. */
 .sh-TablePreview__sample {
-	opacity: 0.55;
-	filter: grayscale(30%);
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	/* Room under the table for the card, so it covers the last rows and
+	   not the first ones. */
+	padding: 16px 16px 200px;
 	cursor: not-allowed;
 	user-select: none;
 }
 
-/* The sentence above the sample saying what it is. Deliberately not dimmed
-   with the sample: it is the one part of this that has to be read. */
-.sh-TablePreview__sampleNote {
-	margin: 0 0 8px;
-	font-size: 12px;
-	font-style: italic;
-	color: #646970;
-}
-
-.sh-TablePreview__table {
-	width: 100%;
-	border-collapse: collapse;
-	/* Decoration, not a control. The aria-hidden above keeps it out of the
-	   accessibility tree; this keeps it out of reach of the mouse. */
+.sh-TablePreview__sample > * {
 	pointer-events: none;
-	user-select: none;
 }
 
-.sh-TablePreview__table th,
-.sh-TablePreview__table td {
-	padding: 8px 10px;
-	text-align: left;
-	border-bottom: 1px solid #dcdcde;
-	font-size: 13px;
-	line-height: 1.5;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.sh-TablePreview__table th {
+.sh-TablePreview__ribbon {
+	position: absolute;
+	top: 0;
+	right: 16px;
+	padding: 3px 8px 4px;
+	background: #1d2327;
+	border-radius: 0 0 3px 3px;
+	font-size: 11px;
 	font-weight: 600;
-	color: #1d2327;
-	border-bottom: 1px solid #c3c4c7;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #fff;
 }
 
-/* The column the staged table is "sorted" by. Colour alone would not carry
-   this, so the arrow in the markup does the work and this only reinforces it. */
-.sh-TablePreview__table th.is-sorted {
-	color: #2271b1;
-}
-
-.sh-TablePreview__table td {
-	color: #50575e;
-}
-
-.sh-TablePreview__banner {
-	display: flex;
-	gap: 12px;
-	align-items: flex-start;
-	padding: 16px;
-	margin-bottom: 16px;
-	background: #f6f7f7;
-	border: 1px solid #c3c4c7;
-	border-left: 4px solid #2271b1;
-	/* The one part of the preview that is meant to be used. */
-	pointer-events: auto;
-}
-
-.sh-TablePreview__banner-content {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
-
-.sh-TablePreview__banner-title {
-	display: flex;
-	gap: 8px;
-	align-items: center;
-	font-weight: 600;
-	color: #1d2327;
-}
-
-.sh-TablePreview__bulkBar {
-	padding: 10px;
-	background: #f6f7f7;
-	border: 1px solid #dcdcde;
-	border-top: none;
-	font-size: 13px;
-	color: #50575e;
-}
-
-/* What Premium adds, named under the banner text. A wrapping row rather than
-   a bulleted column, which at six items was taller than the banner it sits in.
-
-   Written as plain text separated by middots, not as bordered pills: six
-   white, outlined boxes in a row are the shape of six secondary buttons, and
-   readers tried to press them. Nothing in this banner is clickable except the
-   one link under it, so nothing else in it should look like it is. */
-.sh-TablePreview__features {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0 6px;
-	margin: 4px 0 0;
-	padding: 0;
-	list-style: none;
-	font-size: 12px;
-	color: #646970;
-}
-
-.sh-TablePreview__features li {
-	margin: 0;
-	padding: 0;
-}
-
-.sh-TablePreview__features li + li::before {
-	content: "·";
-	margin-right: 6px;
-	color: #8c8f94;
-}
-
-/* A picture of the query box, so the preview shows the thing the feature is
-   actually built around. Inert: see the note on .sh-TablePreview__table. */
 .sh-TablePreview__query {
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	margin-top: 14px;
 	padding: 6px 10px;
-	margin-bottom: 8px;
 	background: #fff;
 	border: 1px solid #8c8f94;
-	border-radius: 2px;
-	pointer-events: none;
-	user-select: none;
+	border-radius: 3px;
 }
 
 .sh-TablePreview__queryText {
 	flex: 1;
 	font-family: Menlo, Consolas, monaco, monospace;
 	font-size: 13px;
-	color: #50575e;
+	color: #1d2327;
 }
 
 .sh-TablePreview__queryApply {
+	padding: 2px 10px;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
 	font-size: 12px;
 	font-weight: 600;
 	color: #2271b1;
 }
 
-/* A staged week of activity. Fourteen fixed bars from SAMPLE_CHART, drawn as
-   divs because the preview must not ship working chart code — see the note on
-   the TablePreview component. */
+/* A staged week of activity: fixed bars from SAMPLE_CHART, drawn as divs
+   because the preview must not ship working chart code. */
 .sh-TablePreview__chart {
 	display: flex;
 	align-items: flex-end;
-	gap: 3px;
-	height: 50px;
-	padding: 4px 6px;
-	margin-bottom: 12px;
-	background: #f6f7f7;
-	border-radius: 2px;
-	pointer-events: none;
-	user-select: none;
+	gap: 2px;
+	height: 60px;
+	border-bottom: 1px solid #dcdcde;
 }
 
 .sh-TablePreview__chartBar {
 	position: relative;
 	flex: 1;
 	min-height: 2px;
-	background: #7e8ce0;
-	border-radius: 1px 1px 0 0;
+	background: #8f97d6;
 }
 
 /* The warning-and-above share, sitting on top of its bar, matching how the
@@ -4583,8 +4497,279 @@ a.sh-EventsStatsBar--link:hover {
 	top: 0;
 	right: 0;
 	left: 0;
-	background: #9b2c2c;
-	border-radius: 1px 1px 0 0;
+	background: #d98a86;
+}
+
+.sh-TablePreview__axis {
+	display: flex;
+	justify-content: space-between;
+	margin-top: -6px;
+	font-size: 12px;
+	color: #646970;
+}
+
+.sh-TablePreview__legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	font-size: 12px;
+	color: #3c434a;
+}
+
+.sh-TablePreview__swatch {
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	margin-right: 5px;
+	background: #8f97d6;
+	border-radius: 2px;
+}
+
+.sh-TablePreview__swatch.is-severe {
+	background: #d98a86;
+}
+
+.sh-TablePreview__summary {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 12px;
+	color: #646970;
+}
+
+.sh-TablePreview__count {
+	font-size: 16px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.sh-TablePreview__warnings {
+	color: #b32d2e;
+}
+
+.sh-TablePreview__menus {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin-left: auto;
+	font-weight: 500;
+	color: #3c434a;
+}
+
+.sh-TablePreview__table {
+	width: 100%;
+	border-collapse: collapse;
+	border-top: 1px solid #c3c4c7;
+	font-variant-numeric: tabular-nums;
+}
+
+.sh-TablePreview__table th,
+.sh-TablePreview__table td {
+	padding: 9px 10px;
+	text-align: left;
+	border-bottom: 1px solid #dcdcde;
+	font-size: 13px;
+	line-height: 1.5;
+	white-space: nowrap;
+	color: #3c434a;
+}
+
+.sh-TablePreview__table th {
+	font-weight: 600;
+	color: #1d2327;
+}
+
+/* The two ticked rows the toolbar's Compare is about. */
+.sh-TablePreview__table tr.is-selected td {
+	background: #f0f6fc;
+}
+
+.sh-TablePreview__selected {
+	font-weight: 400;
+	color: #646970;
+}
+
+/* Drawn like the secondary buttons the real toolbar shows for a selection. */
+.sh-TablePreview__button {
+	padding: 3px 10px;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
+	font-size: 12px;
+	color: #2271b1;
+}
+
+.sh-TablePreview__table td.is-muted {
+	color: #646970;
+}
+
+.sh-TablePreview__table td.sh-TablePreview__message {
+	width: 100%;
+	color: #1d2327;
+}
+
+.sh-TablePreview__user {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.sh-TablePreview__avatar {
+	display: inline-grid;
+	place-items: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	font-size: 10px;
+	font-weight: 700;
+	color: #fff;
+}
+
+.sh-TablePreview__level {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.sh-TablePreview__level::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #a7aaad;
+}
+
+.sh-TablePreview__level.is-warning::before {
+	background: #dba617;
+}
+
+/* Fades the lower half of the sample into the page, so the card reads as
+   sitting on top of a screenshot rather than next to a second table. */
+.sh-TablePreview__fade {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 50%;
+	background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff 55%);
+	pointer-events: none;
+}
+
+.sh-TablePreview__card {
+	position: absolute;
+	bottom: 24px;
+	left: 50%;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: min(700px, calc(100% - 32px));
+	padding: 20px 24px;
+	background: var(--sh-color-cream);
+	border: 1px solid var(--sh-color-premium-cream-edge);
+	border-radius: 4px;
+	box-shadow: 0 10px 34px rgba(29, 35, 39, 0.14);
+	transform: translateX(-50%);
+}
+
+.sh-TablePreview__title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.3;
+	color: #1d2327;
+}
+
+.sh-TablePreview__text {
+	margin: 0;
+	font-size: 14px;
+	color: #3c434a;
+}
+
+.sh-TablePreview__features {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 18px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 13px;
+	color: #3c434a;
+}
+
+.sh-TablePreview__features li {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin: 0;
+}
+
+.sh-TablePreview__check {
+	fill: #00a32a;
+}
+
+.sh-TablePreview__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 20px;
+}
+
+.sh-TablePreview__cta {
+	display: inline-block;
+	padding: 9px 16px;
+	background: var(--sh-color-green-cta);
+	border-radius: 3px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #fff;
+	text-decoration: none;
+}
+
+/* WordPress admin colours links on hover and focus; keep the text white on
+   the button instead. No hover change of its own, on purpose. */
+.sh-TablePreview__cta:hover,
+.sh-TablePreview__cta:focus {
+	color: #fff;
+}
+
+.sh-TablePreview__cta:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+/* The rest of Premium, named quietly under the actions. */
+.sh-TablePreview__also {
+	margin: 0;
+	padding-top: 12px;
+	border-top: 1px solid var(--sh-color-premium-cream-edge);
+	font-size: 12px;
+	color: #646970;
+}
+
+/* On narrow screens the card would cover the whole sample, so it drops below
+   it instead and the fade goes. */
+@media (max-width: 782px) {
+
+	.sh-TablePreview__sample {
+		padding-bottom: 16px;
+		overflow-x: hidden;
+	}
+
+	.sh-TablePreview__fade {
+		display: none;
+	}
+
+	.sh-TablePreview__card {
+		position: static;
+		width: auto;
+		margin: 0 12px 12px;
+		box-shadow: none;
+		transform: none;
+	}
 }
 
 /* Individual control bar button — compact tertiary style, matching action link sizing. */
