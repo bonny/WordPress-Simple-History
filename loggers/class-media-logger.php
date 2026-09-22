@@ -483,10 +483,20 @@ class Media_Logger extends Logger {
 
 			if ( $full_image_width && $full_image_height && file_exists( $attached_file ) && $thumb_src ) {
 				$thumb_html = sprintf(
-					'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s"><div class="SimpleHistoryLogitemThumbnail"><img src="%2$s" alt=""></div></a>',
-					esc_url( (string) $edit_link ),
+					'<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>',
 					esc_url( $thumb_src[0] )
 				);
+
+				// No link when the viewer cannot edit the attachment, since an
+				// empty href would just reload the current page.
+				if ( $edit_link ) {
+					$thumb_html = sprintf(
+						'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s" aria-label="%2$s">%3$s</a>',
+						esc_url( $edit_link ),
+						esc_attr( $this->get_thumbnail_link_label( (int) $attachment_id ) ),
+						$thumb_html
+					);
+				}
 			}
 		} elseif ( $is_audio ) {
 			$thumb_html = '<div style="max-width: 500px;">'
@@ -640,7 +650,12 @@ class Media_Logger extends Logger {
 		$edit_link = get_edit_post_link( $attachment_id );
 
 		$thumb_html = $edit_link
-			? sprintf( '<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s">%2$s</a>', esc_url( $edit_link ), $thumb_inner )
+			? sprintf(
+				'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s" aria-label="%2$s">%3$s</a>',
+				esc_url( $edit_link ),
+				esc_attr( $this->get_thumbnail_link_label( $attachment_id ) ),
+				$thumb_inner
+			)
 			: $thumb_inner;
 
 		return Event_Details_Group::create_raw(
@@ -649,6 +664,29 @@ class Media_Logger extends Logger {
 				'type'          => 'image_thumbnail',
 				'attachment_id' => $attachment_id,
 			]
+		);
+	}
+
+	/**
+	 * Get the accessible name for a link that wraps an attachment thumbnail.
+	 *
+	 * The image inside the link has an empty alt, so without a label the link
+	 * has no name and a screen reader announces it as just "link".
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @return string
+	 */
+	protected function get_thumbnail_link_label( $attachment_id ) {
+		$title = get_the_title( $attachment_id );
+
+		if ( $title === '' ) {
+			return __( 'Edit attachment', 'simple-history' );
+		}
+
+		return sprintf(
+			/* translators: %s: attachment title. */
+			__( 'Edit attachment "%s"', 'simple-history' ),
+			$title
 		);
 	}
 
