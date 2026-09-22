@@ -955,11 +955,45 @@ class Event {
 		// is the half of a line ending that breaks a syslog frame.
 		$text = preg_replace( '/[\x00-\x08\x0B-\x1F\x7F]/', '', $text );
 
-		$text = sanitize_textarea_field( $text );
+		// Tags go; the text is otherwise stored as it was typed.
+		//
+		// This was sanitize_textarea_field(), which was wrong twice over. It
+		// strips every percent-encoded octet, so
+		// `example.com/?s=foo%20bar` was stored as `example.com/?s=foobar` —
+		// and pasting an encoded URL into a note about a request is an
+		// ordinary thing to do. It also HTML-escapes, so `A < B` became
+		// `A &lt; B` in the database, which the reader then saw literally,
+		// with no way back to what they typed. Both were silent.
+		//
+		// Escaping belongs at each output instead, which is the convention
+		// every other logged string here already follows: store what was
+		// written, escape on the way out.
+		//
+		// Traced rather than assumed, because leaving markup in the stored
+		// value moves the obligation onto whoever reads it. As of this
+		// commit the note text has exactly one output — the REST
+		// `annotation` field, rendered by React in premium's
+		// TableViewAnnotation, which escapes. Nothing else emits it: core's
+		// Export writes the rendered message, header and details rather than
+		// context values, premium's export is that same class, and the JSON
+		// feed outputs rendered HTML too. `_annotation` is also kept out of
+		// the REST `context` field and out of `metadata_search`.
+		//
+		// Anything that starts emitting a note has to escape it. That is the
+		// deal this change makes, and it is worth knowing before writing the
+		// next output path.
+		//
+		// wp_strip_all_tags() rather than nothing at all: it takes
+		// `<script>…</script>` out whole, while leaving `%20`, a lone `<`
+		// in `A < B`, `&` and the newlines people write notes in.
+		$text = wp_strip_all_tags( $text );
 
 		// Characters, not bytes: substr() would cut a multi-byte character in
 		// half and leave an invalid sequence in the middle of an audit
-		// record. WordPress declares mb_substr() itself in
+		// record. Applied after the tags come out, so the cap counts what is
+		// actually stored — when this escaped first, a note the editor
+		// accepted at exactly 1000 characters could arrive here at 1004 and
+		// lose its tail, and a cut landing inside an escape left `&l`. WordPress declares mb_substr() itself in
 		// wp-includes/compat.php when the extension is missing, so this does
 		// not actually depend on mbstring being installed — which is what the
 		// sniff below is guarding against.
@@ -984,7 +1018,7 @@ class Event {
 		// there is nothing to put in its place.
 		if ( $annotation === null ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->delete(
+			$deleted = $wpdb->delete(
 				$contexts_table,
 				[
 					'history_id' => $this->id,
@@ -996,7 +1030,13 @@ class Event {
 			Helpers::clear_cache();
 			$this->reload_data();
 
-			return true;
+			// $wpdb->delete() returns false on error and a row count
+			// otherwise, and zero rows is a success here — it means there was
+			// nothing to remove. Returning true unconditionally reported a
+			// database error as a completed removal, and the caller went on
+			// to log that the note had been taken away while it was still on
+			// the event.
+			return $deleted !== false;
 		}
 
 		// The new row goes down BEFORE the old one comes out.
@@ -1025,14 +1065,29 @@ class Event {
 
 		$inserted_id = (int) $wpdb->insert_id;
 
-		// Every earlier row for this key, of which there is normally exactly
+		// Every EARLIER row for this key, of which there is normally exactly
 		// one. Matched on the primary key rather than by value so a row
 		// written by an older version, or a duplicate left by one, goes too.
+		//
+		// Strictly less-than, not `<> $inserted_id`. With `<>`, two saves
+		// racing each other destroyed the note outright: A inserts row 100,
+		// B inserts row 101, A deletes everything that is not 100 — taking
+		// 101 — and B deletes everything that is not 101 — taking 100. No
+		// rows left, the note and all twenty previous versions gone, and
+		// both requests returning true to two people who each saw a save
+		// succeed. Two administrators on one event, or one administrator in
+		// two tabs, was enough.
+		//
+		// `<` cannot do that. Nobody deletes a row with an id above their
+		// own, so the highest id written always survives; the worst outcome
+		// is the ordinary lost update, where the slower writer's text is
+		// replaced by the faster one's. A note can be overwritten. It can no
+		// longer be erased.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"DELETE FROM {$contexts_table} WHERE history_id = %d AND `key` = '_annotation' AND context_id <> %d",
+				"DELETE FROM {$contexts_table} WHERE history_id = %d AND `key` = '_annotation' AND context_id < %d",
 				$this->id,
 				$inserted_id
 			)

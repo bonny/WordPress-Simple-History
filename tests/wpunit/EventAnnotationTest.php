@@ -201,4 +201,87 @@ class EventAnnotationTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertStringNotContainsString( '<script', $event->get_annotation()['text'] );
 	}
+
+	/**
+	 * The note comes back as it was typed.
+	 *
+	 * This ran through sanitize_textarea_field(), which quietly broke two
+	 * ordinary kinds of note. It strips every percent-encoded octet, so a
+	 * pasted encoded URL — an entirely normal thing to put in a note about a
+	 * request — lost characters from the middle of it. And it HTML-escaped,
+	 * so `A < B` was stored as `A &lt; B` and read back that way, with no
+	 * route to the original. Both were silent, and an audit note that
+	 * silently differs from what was typed is the one thing this feature
+	 * cannot do.
+	 */
+	public function test_a_note_keeps_the_characters_people_actually_type() {
+		$event = $this->make_event();
+
+		$cases = [
+			'see https://example.com/?s=foo%20bar',
+			'A < B in the cart',
+			'Price > 100 & < 200',
+			'100% sure',
+		];
+
+		foreach ( $cases as $case ) {
+			$event->annotate( $case, $this->user_id );
+
+			$this->assertSame(
+				$case,
+				$event->get_annotation()['text'],
+				'Stored note differs from what was written: ' . $case
+			);
+		}
+	}
+
+	/**
+	 * Two writers racing cannot erase the note.
+	 *
+	 * The row is written before the old one is deleted, so a failed insert
+	 * cannot take the history with it. The delete that follows used to be
+	 * `context_id <> $inserted_id`, which made two concurrent saves destroy
+	 * each other: A inserts row 100, B inserts row 101, A deletes everything
+	 * that is not 100 (taking 101) and B deletes everything that is not 101
+	 * (taking 100). Nothing left, the note and all twenty previous versions
+	 * gone, and both callers told it worked.
+	 *
+	 * Interleaving two real requests is not something a unit test can do, so
+	 * this reproduces the shape: a second row is planted with a higher id,
+	 * as a concurrent writer's insert would leave it, and the save that
+	 * follows must not end with an event that has no note at all.
+	 */
+	public function test_a_concurrent_write_cannot_erase_the_note() {
+		global $wpdb;
+
+		$event = $this->make_event();
+		$event->annotate( 'the note', $this->user_id );
+
+		$contexts_table = \Simple_History\Simple_History::get_instance()->get_contexts_table_name();
+
+		// A second writer's row, landing after ours.
+		$wpdb->insert(
+			$contexts_table,
+			[
+				'history_id' => $event->get_id(),
+				'key'        => '_annotation',
+				'value'      => wp_json_encode( [ 'text' => 'the other note', 'user_id' => $this->user_id, 'history' => [] ] ),
+			],
+			[ '%d', '%s', '%s' ]
+		);
+
+		// Our own save runs again, as the slower request would.
+		$event->annotate( 'the note, edited', $this->user_id );
+
+		$rows = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$contexts_table} WHERE history_id = %d AND `key` = '_annotation'",
+				$event->get_id()
+			)
+		);
+
+		$this->assertSame( 1, $rows, 'The race left the event with no note at all.' );
+		$this->assertNotNull( $event->get_annotation() );
+	}
 }
