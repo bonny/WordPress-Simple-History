@@ -338,6 +338,69 @@ class SearchTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * A note's text is not reachable through metadata_search.
+	 *
+	 * metadata_search is a substring search over every context value, which
+	 * makes it a read of the context table rather than merely a filter on it:
+	 * ask "does any event contain this phrase", get a yes, and the phrase is
+	 * recoverable one guess at a time.
+	 *
+	 * The REST API publishes a note's current text and a count of earlier
+	 * versions, and withholds the versions themselves — every previous and
+	 * deleted note, with its author. Before this was fixed, an Editor (who
+	 * cannot write a note at all) could find an event by text an
+	 * administrator had already replaced, which made that withholding
+	 * decorative.
+	 */
+	public function test_metadata_search_cannot_read_annotations() {
+		$this->create_event( 'SimpleLogger', 'info', 'An annotated event', [
+			'_annotation' => wp_json_encode(
+				[
+					'text'    => 'the current note',
+					'user_id' => $this->admin_user_id,
+					'history' => [
+						[ 'text' => 'ZEBRAQUARTZ withdrawn note', 'user_id' => $this->admin_user_id ],
+					],
+				]
+			),
+		] );
+
+		foreach ( [ 'ZEBRAQUARTZ', 'the current note' ] as $term ) {
+			$results = ( new Log_Query() )->query( [
+				'posts_per_page'  => 100,
+				'metadata_search' => $term,
+			] );
+
+			$this->assertEquals(
+				0,
+				(int) $results['total_row_count'],
+				'metadata_search reached inside _annotation looking for: ' . $term
+			);
+		}
+	}
+
+	/**
+	 * Excluding annotations must not break metadata_search itself.
+	 */
+	public function test_metadata_search_still_finds_other_context_on_an_annotated_event() {
+		$this->create_event( 'SimpleLogger', 'info', 'An annotated event', [
+			'_server_remote_addr' => '203.0.113.42',
+			'_annotation'         => wp_json_encode( [ 'text' => 'a note', 'user_id' => $this->admin_user_id ] ),
+		] );
+
+		$results = ( new Log_Query() )->query( [
+			'posts_per_page'  => 100,
+			'metadata_search' => '203.0.113.42',
+		] );
+
+		$this->assertEquals(
+			1,
+			(int) $results['total_row_count'],
+			'An event carrying a note became unsearchable by its other context values'
+		);
+	}
+
+	/**
 	 * Test metadata_search with email address.
 	 */
 	public function test_metadata_search_finds_email() {

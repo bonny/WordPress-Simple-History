@@ -1,7 +1,10 @@
 import { Icon, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { table } from '@wordpress/icons';
 import { clsx } from 'clsx';
 import { viewAgenda, viewHeadline } from '../icons';
+import { PremiumIndicator } from './PremiumIndicator';
+import { useEventsSettings } from './EventsSettingsContext';
 
 // Two stacked cards for the detailed rows, plain lines for the compact ones.
 // @wordpress/icons has no pair that reads as one family here: postList is a
@@ -9,6 +12,7 @@ import { viewAgenda, viewHeadline } from '../icons';
 const VIEWS = [
 	{ value: 'detailed', icon: viewAgenda },
 	{ value: 'compact', icon: viewHeadline },
+	{ value: 'table', icon: table },
 ];
 
 /**
@@ -25,13 +29,20 @@ const VIEWS = [
  * with Tab only.
  *
  * @param {Object}   props
- * @param {string}   props.view     Current view, "detailed" or "compact".
+ * @param {string}   props.view     Current view, "detailed", "compact" or "table".
  * @param {Function} props.onChange Called with the newly chosen view.
  */
 export function EventsViewToggle( { view, onChange } ) {
+	const { hasPremiumAddOn } = useEventsSettings();
+
 	const labels = {
 		detailed: __( 'Detailed view', 'simple-history' ),
 		compact: __( 'Compact view', 'simple-history' ),
+		// Named as Premium for free users, so the tooltip and screen readers
+		// say so before the click, not only the icon-only indicator.
+		table: hasPremiumAddOn
+			? __( 'Table view', 'simple-history' )
+			: __( 'Table view (Premium)', 'simple-history' ),
 	};
 
 	return (
@@ -65,6 +76,12 @@ export function EventsViewToggle( { view, onChange } ) {
 								onClick={ () => onChange( option.value ) }
 							>
 								<Icon icon={ option.icon } size={ 16 } />
+
+								{ /* Table view is Premium-only. The aria-label
+								     above already says so, so this icon-only
+								     addition doesn't change the accessible name. */ }
+								{ option.value === 'table' &&
+									! hasPremiumAddOn && <PremiumIndicator /> }
 							</button>
 						</Tooltip>
 					</li>
