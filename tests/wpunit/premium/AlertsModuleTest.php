@@ -1,6 +1,7 @@
 <?php
 
 use Helper\PremiumTestCase;
+use Simple_History\AddOns\Pro\Destinations\Destination_Secrets;
 use Simple_History\AddOns\Pro\Modules\Alerts_Module;
 
 /**
@@ -155,7 +156,14 @@ class AlertsModuleTest extends PremiumTestCase {
 		$sanitized = Alerts_Module::sanitize_destination_config( 'slack', $config );
 
 		$this->assertArrayHasKey( 'webhook_url', $sanitized );
-		$this->assertEquals( 'https://hooks.slack.com/services/T00/B00/XXX', $sanitized['webhook_url'] );
+
+		// Stored encrypted, so the sanitised value is not the value that
+		// went in — a destination's webhook URL is a bearer credential.
+		$this->assertNotEquals( 'https://hooks.slack.com/services/T00/B00/XXX', $sanitized['webhook_url'] );
+		$this->assertEquals(
+			'https://hooks.slack.com/services/T00/B00/XXX',
+			Destination_Secrets::decrypt( $sanitized['webhook_url'] )
+		);
 	}
 
 	/**
@@ -169,7 +177,14 @@ class AlertsModuleTest extends PremiumTestCase {
 		$sanitized = Alerts_Module::sanitize_destination_config( 'discord', $config );
 
 		$this->assertArrayHasKey( 'webhook_url', $sanitized );
-		$this->assertEquals( 'https://discord.com/api/webhooks/123/abc', $sanitized['webhook_url'] );
+
+		// Stored encrypted, so the sanitised value is not the value that
+		// went in — a destination's webhook URL is a bearer credential.
+		$this->assertNotEquals( 'https://discord.com/api/webhooks/123/abc', $sanitized['webhook_url'] );
+		$this->assertEquals(
+			'https://discord.com/api/webhooks/123/abc',
+			Destination_Secrets::decrypt( $sanitized['webhook_url'] )
+		);
 	}
 
 	/**
@@ -185,8 +200,58 @@ class AlertsModuleTest extends PremiumTestCase {
 
 		$this->assertArrayHasKey( 'bot_token', $sanitized );
 		$this->assertArrayHasKey( 'chat_id', $sanitized );
-		$this->assertEquals( '123456:ABC-DEF', $sanitized['bot_token'] );
+
+		// The token is a credential and is stored encrypted; the chat id is
+		// not, and is stored as it came in.
+		$this->assertNotEquals( '123456:ABC-DEF', $sanitized['bot_token'] );
+		$this->assertEquals(
+			'123456:ABC-DEF',
+			Destination_Secrets::decrypt( $sanitized['bot_token'] )
+		);
 		$this->assertEquals( '-1001234567890', $sanitized['chat_id'] );
+	}
+
+	/**
+	 * An already-encrypted value passes through untouched.
+	 *
+	 * Re-saving a destination whose secret the user did not retype must not
+	 * double-encrypt it into something the senders can no longer read.
+	 */
+	public function test_sanitize_destination_config_does_not_double_encrypt(): void {
+		$once = Alerts_Module::sanitize_destination_config(
+			'slack',
+			[ 'webhook_url' => 'https://hooks.slack.com/services/T00/B00/XXX' ]
+		);
+
+		$twice = Alerts_Module::sanitize_destination_config( 'slack', $once );
+
+		$this->assertEquals( $once['webhook_url'], $twice['webhook_url'] );
+		$this->assertEquals(
+			'https://hooks.slack.com/services/T00/B00/XXX',
+			Destination_Secrets::decrypt( $twice['webhook_url'] )
+		);
+	}
+
+	/**
+	 * An empty secret means "keep what is stored", not "clear it".
+	 *
+	 * The REST response no longer contains the secret, so the edit form
+	 * cannot pre-fill it — which means an ordinary "rename this destination"
+	 * submit arrives with an empty webhook_url.
+	 */
+	public function test_sanitize_destination_config_keeps_an_existing_secret(): void {
+		$existing = Alerts_Module::sanitize_destination_config(
+			'slack',
+			[ 'webhook_url' => 'https://hooks.slack.com/services/T00/B00/XXX' ]
+		);
+
+		$updated = Alerts_Module::sanitize_destination_config(
+			'slack',
+			[ 'webhook_url' => '' ],
+			$existing
+		);
+
+		$this->assertEquals( $existing['webhook_url'], $updated['webhook_url'] );
 	}
 
 	/**
@@ -350,7 +415,15 @@ class AlertsModuleTest extends PremiumTestCase {
 		$sanitized = Alerts_Module::sanitize_destination_config( 'teams', $config );
 
 		$this->assertArrayHasKey( 'webhook_url', $sanitized );
-		$this->assertEquals( 'https://outlook.office.com/webhook/xxx', $sanitized['webhook_url'] );
+
+		$this->assertNotEquals(
+			'https://outlook.office.com/webhook/xxx',
+			$sanitized['webhook_url']
+		);
+		$this->assertEquals(
+			'https://outlook.office.com/webhook/xxx',
+			Destination_Secrets::decrypt( $sanitized['webhook_url'] )
+		);
 	}
 
 	/**

@@ -77,6 +77,24 @@
 	}
 }
 
+/*
+The table view takes the whole width, sidebar included.
+
+Measured at three window widths: the sidebar costs 286px at 1280, 326 at 1440
+and 398 at 1728 — a steady ~23% of the window. At 1280 the table overflows its
+column by 69px with the sidebar in place and has around 217px to spare
+without it, and the Message column, the only one that grows, goes from 304px
+to roughly 590. A table is the one view here that can actually use the room.
+
+Hidden rather than not printed: the sidebar comes from a PHP dropin outside
+the React root, and the view switches without a page load, so the class is
+toggled from EventsGui. Display none rather than a width change, so the
+sidebar's own boxes never lay out at a size nobody sees.
+*/
+.SimpleHistoryGuiWrap--hideSidebar .SimpleHistory__pageSidebar {
+	display: none;
+}
+
 .SimpleHistory__pageSidebar .inside {
 	margin-bottom: 0;
 }
@@ -3826,6 +3844,22 @@ a.sh-SettingsTabs-link:hover {
 	background-color: #f9f9f9;
 }
 
+/* Stands in for the search row in the table view, which renders its own
+   query bar instead and leaves this panel out of the DOM entirely. Same
+   height as the row above — 12px padding either side of a 40px control,
+   plus its 1px border — so switching between the views does not move the
+   content below. Empty and transparent: it is reserved space, not a
+   control, so it carries neither the row's background nor its border.
+
+   One case it does not cover: below 782px the real search row wraps onto
+   two lines and is taller than this. Switching views on a phone therefore
+   still moves a little, which is the narrower case and the smaller cost
+   than reserving two rows' height on every desktop. */
+.SimpleHistory-filters__reservedSpace {
+	box-sizing: border-box;
+	height: 65px;
+}
+
 /* Chips for event types hidden from the current list. */
 .SimpleHistory-hiddenTypes {
 	display: flex;
@@ -4257,9 +4291,17 @@ a.sh-EventsStatsBar--link:hover {
 	background: #f6f7f7;
 }
 
-/* Events control bar: event count + action buttons. */
+/* Events control bar: event count + action buttons.
+
+   12px, not 16px, and the same 12px as .SimpleHistory-filters__searchRow
+   below. Those two sit directly on top of each other in every view, and at
+   16px against 12px the action row was inset four pixels further than the
+   filter panel under it — a misalignment small enough to read as sloppiness
+   rather than as a choice. In the table view the gap was the full 16px
+   against a panel that starts at the container edge, which made the
+   Export/Share row visibly narrower than everything below it. */
 .sh-EventsControlBar-actions {
-	padding: var(--sh-spacing-medium) var(--sh-spacing-medium);
+	padding: 12px;
 }
 
 /* End-of-results hint: shown at the bottom of the list on the last page
@@ -4362,6 +4404,447 @@ a.sh-EventsStatsBar--link:hover {
 	z-index: 1;
 }
 
+/* Table view preview (issue 240), shown when nothing fills
+   SimpleHistorySlotTableView.
+
+   Laid out like a screenshot: a staged sample of the premium table in full
+   colour, fading out at the bottom into one cream premium card. An earlier
+   version dimmed the sample to 55% and added a "Nothing below is clickable"
+   note, because at full fidelity readers took it for the real table. That sold
+   the feature faded and with a warning first. Now the "Example" ribbon and the
+   card sitting over the table say it is a preview, and the sample keeps a
+   not-allowed cursor for anyone who tries it anyway. */
+.sh-TablePreview {
+	position: relative;
+	overflow: hidden;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
+
+/* Decoration, not a control. aria-hidden in the markup keeps it out of the
+   accessibility tree; this keeps it out of reach of the mouse. Children get
+   pointer-events: none, which leaves this element the one that is
+   hit-tested, so the not-allowed cursor is what the mouse finds over it. */
+.sh-TablePreview__sample {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	/* Room under the table for the card, so it covers the last rows and
+	   not the first ones. */
+	padding: 16px 16px 290px;
+	cursor: not-allowed;
+	user-select: none;
+}
+
+.sh-TablePreview__sample > * {
+	pointer-events: none;
+}
+
+.sh-TablePreview__ribbon {
+	position: absolute;
+	top: 0;
+	right: 16px;
+	padding: 3px 8px 4px;
+	background: #1d2327;
+	border-radius: 0 0 3px 3px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #fff;
+}
+
+.sh-TablePreview__query {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 14px;
+	padding: 6px 10px;
+	background: #fff;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+}
+
+.sh-TablePreview__queryText {
+	flex: 1;
+	font-family: Menlo, Consolas, monaco, monospace;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.sh-TablePreview__queryApply {
+	padding: 2px 10px;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #2271b1;
+}
+
+/* A staged week of activity: fixed bars from SAMPLE_CHART, drawn as divs
+   because the preview must not ship working chart code. */
+.sh-TablePreview__chart {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 60px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.sh-TablePreview__chartBar {
+	position: relative;
+	flex: 1;
+	min-height: 2px;
+	background: #8f97d6;
+}
+
+/* The warning-and-above share, sitting on top of its bar, matching how the
+   real chart stacks the two. */
+.sh-TablePreview__chartBar-severe {
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	background: #d98a86;
+}
+
+.sh-TablePreview__axis {
+	display: flex;
+	justify-content: space-between;
+	margin-top: -6px;
+	font-size: 12px;
+	color: #646970;
+}
+
+.sh-TablePreview__legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	font-size: 12px;
+	color: #3c434a;
+}
+
+.sh-TablePreview__swatch {
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	margin-right: 5px;
+	background: #8f97d6;
+	border-radius: 2px;
+}
+
+.sh-TablePreview__swatch.is-severe {
+	background: #d98a86;
+}
+
+.sh-TablePreview__summary {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 12px;
+	color: #646970;
+}
+
+.sh-TablePreview__count {
+	font-size: 16px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.sh-TablePreview__warnings {
+	color: #b32d2e;
+}
+
+.sh-TablePreview__menus {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin-left: auto;
+	font-weight: 500;
+	color: #3c434a;
+}
+
+.sh-TablePreview__table {
+	width: 100%;
+	border-collapse: collapse;
+	border-top: 1px solid #c3c4c7;
+	font-variant-numeric: tabular-nums;
+}
+
+.sh-TablePreview__table th,
+.sh-TablePreview__table td {
+	padding: 9px 10px;
+	text-align: left;
+	border-bottom: 1px solid #dcdcde;
+	font-size: 13px;
+	line-height: 1.5;
+	white-space: nowrap;
+	color: #3c434a;
+}
+
+.sh-TablePreview__table th {
+	font-weight: 600;
+	color: #1d2327;
+}
+
+/* The two ticked rows the toolbar's Compare is about. */
+.sh-TablePreview__table tr.is-selected td {
+	background: #f0f6fc;
+}
+
+.sh-TablePreview__selected {
+	font-weight: 400;
+	color: #646970;
+}
+
+/* Drawn like the secondary buttons the real toolbar shows for a selection. */
+.sh-TablePreview__button {
+	padding: 3px 10px;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
+	font-size: 12px;
+	color: #2271b1;
+}
+
+.sh-TablePreview__table td.is-muted {
+	color: #646970;
+}
+
+.sh-TablePreview__table td.sh-TablePreview__message {
+	width: 100%;
+	color: #1d2327;
+}
+
+.sh-TablePreview__user {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+}
+
+/* The user's name as Premium draws it while its filter menu is open. */
+.sh-TablePreview__userCell {
+	position: relative;
+}
+
+.sh-TablePreview__user.is-open {
+	margin: -2px -4px;
+	padding: 2px 4px;
+	background: #f0f0f1;
+	border-radius: 2px;
+	box-shadow: inset 0 0 0 1px #2271b1;
+}
+
+/* Drawn like the WordPress components popover the real menu opens in. */
+.sh-TablePreview__menu {
+	position: absolute;
+	top: calc(100% - 4px);
+	left: 6px;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 220px;
+	padding: 8px;
+	background: #fff;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	box-shadow:
+		0 2px 6px rgba(0, 0, 0, 0.05),
+		0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.sh-TablePreview__menuItem {
+	padding: 6px 8px;
+	border-radius: 2px;
+	color: #1e1e1e;
+}
+
+.sh-TablePreview__menuItem.is-active {
+	background: #f0f0f1;
+}
+
+.sh-TablePreview__avatar {
+	display: inline-grid;
+	place-items: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	font-size: 10px;
+	font-weight: 700;
+	color: #fff;
+}
+
+.sh-TablePreview__level {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.sh-TablePreview__level::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #a7aaad;
+}
+
+.sh-TablePreview__level.is-warning::before {
+	background: #dba617;
+}
+
+/* Fades the lower half of the sample into the page, so the card reads as
+   sitting on top of a screenshot rather than next to a second table. */
+.sh-TablePreview__fade {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 50%;
+	background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff 55%);
+	pointer-events: none;
+}
+
+.sh-TablePreview__card {
+	position: absolute;
+	bottom: 24px;
+	left: 50%;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: min(920px, calc(100% - 32px));
+	padding: 20px 24px;
+	background: var(--sh-color-cream);
+	border: 1px solid var(--sh-color-premium-cream-edge);
+	border-radius: 4px;
+	box-shadow: 0 10px 34px rgba(29, 35, 39, 0.14);
+	transform: translateX(-50%);
+}
+
+.sh-TablePreview__title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.3;
+	color: #1d2327;
+}
+
+.sh-TablePreview__text {
+	margin: 0;
+	font-size: 14px;
+	color: #3c434a;
+}
+
+/* Three short lists side by side, each under a heading. */
+.sh-TablePreview__groups {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px 24px;
+}
+
+.sh-TablePreview__groupHeading {
+	margin: 0 0 6px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #646970;
+}
+
+.sh-TablePreview__features {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 13px;
+	line-height: 1.4;
+	color: #3c434a;
+}
+
+.sh-TablePreview__features li {
+	display: flex;
+	align-items: flex-start;
+	gap: 4px;
+	margin: 0;
+}
+
+.sh-TablePreview__check {
+	flex: none;
+	fill: #00a32a;
+}
+
+.sh-TablePreview__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 20px;
+}
+
+.sh-TablePreview__cta {
+	display: inline-block;
+	padding: 9px 16px;
+	background: var(--sh-color-green-cta);
+	border-radius: 3px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #fff;
+	text-decoration: none;
+}
+
+/* WordPress admin colours links on hover and focus; keep the text white on
+   the button instead. No hover change of its own, on purpose. */
+.sh-TablePreview__cta:hover,
+.sh-TablePreview__cta:focus {
+	color: #fff;
+}
+
+.sh-TablePreview__cta:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+/* The rest of Premium, named quietly under the actions. */
+.sh-TablePreview__also {
+	margin: 0;
+	padding-top: 12px;
+	border-top: 1px solid var(--sh-color-premium-cream-edge);
+	font-size: 12px;
+	color: #646970;
+}
+
+/* On narrow screens the card would cover the whole sample, so it drops below
+   it instead and the fade goes. */
+@media (max-width: 782px) {
+	.sh-TablePreview__sample {
+		padding-bottom: 16px;
+		overflow-x: hidden;
+	}
+
+	.sh-TablePreview__fade {
+		display: none;
+	}
+
+	.sh-TablePreview__card {
+		position: static;
+		width: auto;
+		margin: 0 12px 12px;
+		box-shadow: none;
+		transform: none;
+	}
+
+	.sh-TablePreview__groups {
+		grid-template-columns: 1fr;
+	}
+}
+
 /* Individual control bar button — compact tertiary style, matching action link sizing. */
 .sh-ControlBarButton.components-button {
 	display: inline-flex;
@@ -4383,6 +4866,47 @@ a.sh-EventsStatsBar--link:hover {
 	height: 1.25em;
 	fill: currentColor;
 	flex-shrink: 0;
+}
+
+/* Sidebar toggle, at the end of the control bar.
+
+   Separated from the view switcher by the same 8px the switcher uses to
+   separate itself from the action buttons to ITS left. Without it the toggle
+   sat 4px from the switcher's grey track — a third of the spacing every other
+   group boundary in this row gets — and a 32px button hard against a 34px
+   track reads as a fourth segment of the segmented control rather than as a
+   separate thing. 4px means "same group" here; 8px plus the row's own gap
+   means "next group".
+
+   The pressed state is spelled out because @wordpress/components fills any
+   button carrying aria-pressed with solid #1e1e1e and a white icon. Nobody
+   chose that for this button, and it made a layout preference the heaviest
+   element in a bar that also holds Export and Create alert — worst of all in
+   the table view, which defaults to hidden and so shows it pressed on
+   arrival. Grey fill and a dark icon instead, with the same #dcdcde outline
+   the switcher's own selected tile carries, drawn as an inset shadow so
+   turning it on does not move anything. The outline is what keeps pressed
+   legible while hovered, since the inherited hover is the same grey. */
+.sh-EventsSidebarToggle.components-button {
+	margin-left: var(--sh-spacing-small);
+}
+
+.sh-EventsSidebarToggle.components-button.is-pressed,
+.sh-EventsSidebarToggle.components-button.is-pressed:focus {
+	color: var(--sh-color-black);
+	background: var(--sh-color-gray-4);
+	box-shadow: inset 0 0 0 1px #dcdcde;
+}
+
+/* Hovering a pressed button has to be spelled out separately: WP has its own
+   .is-pressed:hover, and with only the rule above the button went back to
+   solid black the moment the pointer touched it — the exact treatment the
+   rule above exists to avoid. One step darker than the resting grey, so
+   hover still says something. */
+.sh-EventsSidebarToggle.components-button.is-pressed:hover {
+	color: var(--sh-color-black);
+	background: var(--sh-color-gray);
+	box-shadow: inset 0 0 0 1px #dcdcde;
 }
 
 /* "Copied!" feedback state on share button. */

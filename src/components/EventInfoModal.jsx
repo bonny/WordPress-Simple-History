@@ -5,6 +5,35 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Event } from './Event';
 
+// The full set of fields a single event needs to render its rich, inline
+// context — the diff tables, key/value pairs, and everything else the
+// Detailed view shows for one event. Exported so other callers that render
+// the same context (Premium's table view expands a row into this same
+// content on demand) fetch this exact list rather than a hand-copied one
+// that could drift and show different details for the same event.
+export const EVENT_DETAIL_FIELDS = [
+	'id',
+	'logger',
+	'occasions_id',
+	'subsequent_occasions_count',
+	'initiator_data',
+	'loglevel',
+	'message',
+	'message_html',
+	'message_key',
+	'details_data',
+	'details_html',
+	'message_uninterpolated',
+	'date_local',
+	'date_gmt',
+	'message',
+	'context',
+	'ip_addresses',
+	'details_data',
+	'via',
+	'initiator',
+];
+
 export function EventInfoModal( props ) {
 	const { eventId, closeModal = null } = props;
 	const [ loadedEvent, setLoadedEvent ] = useState( null );
@@ -20,28 +49,7 @@ export function EventInfoModal( props ) {
 				setIsLoadingContext( true );
 
 				const eventsQueryParams = {
-					_fields: [
-						'id',
-						'logger',
-						'occasions_id',
-						'subsequent_occasions_count',
-						'initiator_data',
-						'loglevel',
-						'message',
-						'message_html',
-						'message_key',
-						'details_data',
-						'details_html',
-						'message_uninterpolated',
-						'date_local',
-						'date_gmt',
-						'message',
-						'context',
-						'ip_addresses',
-						'details_data',
-						'via',
-						'initiator',
-					],
+					_fields: EVENT_DETAIL_FIELDS,
 				};
 
 				const eventResponse = await apiFetch( {

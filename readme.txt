@@ -266,19 +266,31 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
+-   Table view for research and debugging sessions: sort, filter, compare two events side by side, and export (Premium).
+-   Events can now be sorted by date, id, level, logger or event type through the REST API (`orderby` and `order`) and on the command line (`wp simple-history event list --orderby=id --order=asc`).
+-   Events can be counted instead of listed through the REST API (`/events/aggregate`), grouped by date, level, logger or initiator. The same filters apply, so it counts exactly what the list would have shown.
 -   Thumbnail on "Edited attachment" events, so you can see which image the event is about.
 -   Links on tips in the sidebar and dashboard widget, pointing to the documentation or feature page for what the tip describes.
 
 **Changed**
 
+-   The compact event log view is no longer experimental. The Detailed/Compact switch is now available to everyone from the event log page.
+-   Sorting by level now orders by severity, so the most serious events come first instead of alphabetically.
 -   Custom field changes on posts name the fields that changed instead of only counting them.
 -   Preview of the weekly email stays on the settings page after you turn the email on.
 
 **Fixed**
 
+-   Sorting the event log oldest first now works. `order=asc` was accepted and then ignored on the default event listing, which returned newest first anyway.
+-   Activity counts from the REST API (`/events/aggregate`) are grouped by your site's timezone rather than by GMT, so an event just after midnight is counted on the right day.
+-   The "new events" count above the log now respects your filters. With "Hide my own events" on, or event types hidden, it counted events the list would never show — so it could announce new activity and then show you nothing when you clicked it.
 -   Changed post excerpts are labelled "Excerpt" instead of the raw field name.
 -   Tips that mention Premium are hidden on sites that have turned promotional messages off.
 -   Image thumbnails on media events name the image for screen reader users.
+
+**Security**
+
+-   Database errors from the event log no longer include the database's own error message in the API response. Reading the log needs a lower capability than most things in WordPress, and a MySQL error names tables and columns.
 
 ### 5.33.0 (September 2026)
 

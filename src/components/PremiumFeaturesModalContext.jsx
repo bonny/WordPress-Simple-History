@@ -63,10 +63,12 @@ export const PremiumFeaturesModalProvider = ( { children } ) => {
 
 export const usePremiumFeaturesModal = () => {
 	const context = useContext( PremiumFeaturesModalContext );
+
 	if ( ! context ) {
 		throw new Error(
 			'usePremiumFeaturesModal must be used within a PremiumFeaturesModalProvider'
 		);
 	}
+
 	return context;
 };
