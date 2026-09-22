@@ -92,7 +92,7 @@ class React_Dropin extends Dropin {
 			[
 				'eventsAdminPageURL'  => Helpers::get_history_admin_url(),
 				// Read at enqueue time so the first render already uses the user's view.
-				'eventsView'          => in_array( $stored_events_view, [ 'compact', 'table' ], true ) ? $stored_events_view : 'detailed',
+				'eventsView'          => $this->get_initial_events_view( $stored_events_view ),
 				// The views the reader has hidden the page sidebar in. An
 				// array rather than the stored string, because every reader of
 				// it wants the list. See REST_API::HIDDEN_SIDEBAR_VIEWS_USER_META_KEY.
@@ -108,15 +108,42 @@ class React_Dropin extends Dropin {
 				// JS, so it goes through Helpers::get_tracking_url() like every
 				// other tracked link (issue 280: an untagged link lost three
 				// quarters of the user card's click attribution).
+				//
+				// Points at the table view's own feature page rather than the
+				// generic Premium page, so the click lands on what it promised.
 				'tableViewUpgradeUrl' => Helpers::get_tracking_url(
-					'https://simple-history.com/add-ons/premium/',
+					'https://simple-history.com/features/table-view/',
 					'premium_table_view',
 					'wpadmin',
 					'plugin',
-					'banner_cta'
+					'preview_cta'
 				),
 			]
 		);
+	}
+
+	/**
+	 * The view the events page opens in, from the reader's stored choice.
+	 *
+	 * A stored "table" only counts with Premium active. Without it the table
+	 * view is an upgrade preview, and reopening the log on that preview every
+	 * visit because the reader clicked the table icon once would be a nag
+	 * screen. A ?view=table link still opens the preview, since following one
+	 * is a choice made there and then.
+	 *
+	 * @param mixed $stored_events_view The stored user meta value.
+	 * @return string One of "detailed", "compact" or "table".
+	 */
+	private function get_initial_events_view( $stored_events_view ) {
+		if ( $stored_events_view === 'compact' ) {
+			return 'compact';
+		}
+
+		if ( $stored_events_view === 'table' && Helpers::is_premium_add_on_active() ) {
+			return 'table';
+		}
+
+		return 'detailed';
 	}
 
 	/**
