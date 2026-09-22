@@ -4423,7 +4423,7 @@ a.sh-EventsStatsBar--link:hover {
 
 	/* Room under the table for the card, so it covers the last rows and
 	   not the first ones. */
-	padding: 16px 16px 200px;
+	padding: 16px 16px 290px;
 	cursor: not-allowed;
 	user-select: none;
 }
@@ -4614,6 +4614,47 @@ a.sh-EventsStatsBar--link:hover {
 	gap: 7px;
 }
 
+/* The user's name as Premium draws it while its filter menu is open. */
+.sh-TablePreview__userCell {
+	position: relative;
+}
+
+.sh-TablePreview__user.is-open {
+	margin: -2px -4px;
+	padding: 2px 4px;
+	background: #f0f0f1;
+	border-radius: 2px;
+	box-shadow: inset 0 0 0 1px #2271b1;
+}
+
+/* Drawn like the WordPress components popover the real menu opens in. */
+.sh-TablePreview__menu {
+	position: absolute;
+	top: calc(100% - 4px);
+	left: 6px;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 220px;
+	padding: 8px;
+	background: #fff;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	box-shadow:
+		0 2px 6px rgba(0, 0, 0, 0.05),
+		0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.sh-TablePreview__menuItem {
+	padding: 6px 8px;
+	border-radius: 2px;
+	color: #1e1e1e;
+}
+
+.sh-TablePreview__menuItem.is-active {
+	background: #f0f0f1;
+}
+
 .sh-TablePreview__avatar {
 	display: inline-grid;
 	place-items: center;
@@ -4662,7 +4703,7 @@ a.sh-EventsStatsBar--link:hover {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
-	width: min(700px, calc(100% - 32px));
+	width: min(920px, calc(100% - 32px));
 	padding: 20px 24px;
 	background: var(--sh-color-cream);
 	border: 1px solid var(--sh-color-premium-cream-edge);
@@ -4689,25 +4730,43 @@ a.sh-EventsStatsBar--link:hover {
 	color: #3c434a;
 }
 
+/* Three short lists side by side, each under a heading. */
+.sh-TablePreview__groups {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px 24px;
+}
+
+.sh-TablePreview__groupHeading {
+	margin: 0 0 6px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #646970;
+}
+
 .sh-TablePreview__features {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 6px 18px;
+	flex-direction: column;
+	gap: 5px;
 	margin: 0;
 	padding: 0;
 	list-style: none;
 	font-size: 13px;
+	line-height: 1.4;
 	color: #3c434a;
 }
 
 .sh-TablePreview__features li {
-	display: inline-flex;
-	align-items: center;
+	display: flex;
+	align-items: flex-start;
 	gap: 4px;
 	margin: 0;
 }
 
 .sh-TablePreview__check {
+	flex: none;
 	fill: #00a32a;
 }
 
@@ -4753,7 +4812,6 @@ a.sh-EventsStatsBar--link:hover {
 /* On narrow screens the card would cover the whole sample, so it drops below
    it instead and the fade goes. */
 @media (max-width: 782px) {
-
 	.sh-TablePreview__sample {
 		padding-bottom: 16px;
 		overflow-x: hidden;
@@ -4769,6 +4827,10 @@ a.sh-EventsStatsBar--link:hover {
 		margin: 0 12px 12px;
 		box-shadow: none;
 		transform: none;
+	}
+
+	.sh-TablePreview__groups {
+		grid-template-columns: 1fr;
 	}
 }
 

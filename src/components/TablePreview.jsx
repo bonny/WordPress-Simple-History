@@ -38,6 +38,7 @@ const SAMPLE_ROWS = [
 	},
 	{
 		id: 16940,
+		userMenu: true,
 		date: '2026-09-19 13:47:20',
 		relative: __( '3 days ago', 'simple-history' ),
 		user: 'jonas',
@@ -187,18 +188,52 @@ const SAMPLE_COUNTS = {
 const formatNumber = ( number ) => number.toLocaleString();
 
 // What Premium adds here, as things the reader gets done rather than
-// feature names. One more than the premium-upsell-design skill's four,
-// because Compare earns its place: nothing in the free plugin does it.
-const PREVIEW_FEATURES = [
-	sprintf(
-		/* translators: %s: an example search, like "days:7". */
-		__( 'Search with filters like %s', 'simple-history' ),
-		'days:7'
-	),
-	__( 'Quickly see spikes in activity', 'simple-history' ),
-	__( 'Compare two events side by side', 'simple-history' ),
-	__( 'Save the views you check often', 'simple-history' ),
-	__( 'Export to CSV or JSON', 'simple-history' ),
+// feature names. Nine is more than the premium-upsell-design skill's four,
+// but the table does more than four things the list view cannot, and a
+// heading over each group of three keeps it quick to scan. Every item is a
+// real feature of Premium's table; check PremiumTableView before adding one.
+const PREVIEW_FEATURE_GROUPS = [
+	{
+		heading: __( 'Find', 'simple-history' ),
+		items: [
+			sprintf(
+				/* translators: %s: an example search, like "days:7". */
+				__( 'Search with filters like %s', 'simple-history' ),
+				'days:7'
+			),
+			__( 'Quickly see spikes in activity', 'simple-history' ),
+			__( 'Click a user or level to filter by it', 'simple-history' ),
+		],
+	},
+	{
+		heading: __( 'Work', 'simple-history' ),
+		items: [
+			__( 'Compare two events side by side', 'simple-history' ),
+			__( 'See the events just before and after one', 'simple-history' ),
+			__( 'Add notes to events', 'simple-history' ),
+		],
+	},
+	{
+		heading: __( 'Keep and share', 'simple-history' ),
+		items: [
+			__( 'Save views and share them as links', 'simple-history' ),
+			__( 'Create an alert from a view', 'simple-history' ),
+			__(
+				'Export to CSV or JSON, or copy as a WP-CLI command',
+				'simple-history'
+			),
+		],
+	},
+];
+
+// The menu Premium opens when a user's name in the table is clicked, worded
+// as the real one words it (getCellFilterActions() in Premium's
+// table-cell-filters.js). Shown open on one row, because "click a value to
+// filter by it" is easier to see than to read.
+const SAMPLE_USER_MENU = [
+	__( 'Filter by this user', 'simple-history' ),
+	__( 'Exclude this user', 'simple-history' ),
+	__( 'Everything this user did that day', 'simple-history' ),
 ];
 
 function CheckIcon() {
@@ -397,8 +432,14 @@ export function TablePreview( { onBackToList } ) {
 								<td className="is-muted">{ row.id }</td>
 								<td>{ row.date }</td>
 								<td className="is-muted">{ row.relative }</td>
-								<td>
-									<span className="sh-TablePreview__user">
+								<td className="sh-TablePreview__userCell">
+									<span
+										className={
+											row.userMenu
+												? 'sh-TablePreview__user is-open'
+												: 'sh-TablePreview__user'
+										}
+									>
 										<span
 											className="sh-TablePreview__avatar"
 											style={ {
@@ -414,6 +455,25 @@ export function TablePreview( { onBackToList } ) {
 										</span>
 										{ row.user || '—' }
 									</span>
+
+									{ row.userMenu && (
+										<span className="sh-TablePreview__menu">
+											{ SAMPLE_USER_MENU.map(
+												( item, index ) => (
+													<span
+														key={ item }
+														className={
+															index === 0
+																? 'sh-TablePreview__menuItem is-active'
+																: 'sh-TablePreview__menuItem'
+														}
+													>
+														{ item }
+													</span>
+												)
+											) }
+										</span>
+									) }
 								</td>
 								<td className="sh-TablePreview__message">
 									{ row.message }
@@ -447,19 +507,28 @@ export function TablePreview( { onBackToList } ) {
 
 				<p className="sh-TablePreview__text">
 					{ __(
-						'With Premium, your own log opens like this, with every column sortable.',
+						'With Premium, your own log opens like this, sorted by date, ID or level.',
 						'simple-history'
 					) }
 				</p>
 
-				<ul className="sh-TablePreview__features">
-					{ PREVIEW_FEATURES.map( ( feature ) => (
-						<li key={ feature }>
-							<CheckIcon />
-							{ feature }
-						</li>
+				<div className="sh-TablePreview__groups">
+					{ PREVIEW_FEATURE_GROUPS.map( ( group ) => (
+						<div key={ group.heading }>
+							<p className="sh-TablePreview__groupHeading">
+								{ group.heading }
+							</p>
+							<ul className="sh-TablePreview__features">
+								{ group.items.map( ( feature ) => (
+									<li key={ feature }>
+										<CheckIcon />
+										{ feature }
+									</li>
+								) ) }
+							</ul>
+						</div>
 					) ) }
-				</ul>
+				</div>
 
 				<div className="sh-TablePreview__actions">
 					{ upgradeUrl ? (
