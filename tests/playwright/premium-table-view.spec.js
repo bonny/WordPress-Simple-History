@@ -75,7 +75,14 @@ function isLevelColumnNonDecreasing( levelValues ) {
 // Matches Table_View_Module::DEFAULT_COLUMNS in premium's PHP, which gained
 // 'event_id' — keep the two in step, or "reset to default" asserts against a
 // column set the product no longer has.
-const DEFAULT_COLUMNS = [ 'event_id', 'date', 'user', 'message', 'level' ];
+const DEFAULT_COLUMNS = [
+	'event_id',
+	'date',
+	'date_relative',
+	'user',
+	'message',
+	'level',
+];
 
 // Matches Table_View_Module::KNOWN_COLUMNS in premium's PHP — every optional
 // column at once, which is the state that overflows a row's width soonest
@@ -188,6 +195,34 @@ async function setStoredColumns( requestUtils, columns ) {
 		path: 'simple-history/v1/premium/events-table-columns',
 		data: { columns },
 	} );
+}
+
+/**
+ * Turn experimental features on or off, leaving them in the state asked for.
+ *
+ * Notes are gated behind the flag while they get real use, so the test that
+ * writes one has to switch it on and put it back. The dev-tools endpoint only
+ * toggles, so read what came back and flip again if we overshot — the same
+ * shape hide-event-type.spec.js uses.
+ *
+ * @param {Object}  requestUtils
+ * @param {boolean} desired
+ * @return {Promise<boolean>} The state it ended up in.
+ */
+async function setExperimentalFeatures( requestUtils, desired ) {
+	let res = await requestUtils.rest( {
+		method: 'POST',
+		path: 'simple-history/v1/dev-tools/toggle-experimental-features',
+	} );
+
+	if ( res.is_enabled !== desired ) {
+		res = await requestUtils.rest( {
+			method: 'POST',
+			path: 'simple-history/v1/dev-tools/toggle-experimental-features',
+		} );
+	}
+
+	return res.is_enabled;
 }
 
 test.describe( 'Premium table view', () => {
@@ -1671,6 +1706,7 @@ test.describe( 'Premium table view', () => {
 			'Select',
 			'ID',
 			'Date',
+			'Relative date',
 			'User',
 			'Message',
 			'Level',
@@ -1692,6 +1728,7 @@ test.describe( 'Premium table view', () => {
 				'Select',
 				'ID',
 				'Date',
+				'Relative date',
 				'Level',
 				'User',
 				'Message',
@@ -1709,6 +1746,7 @@ test.describe( 'Premium table view', () => {
 				'Select',
 				'ID',
 				'Date',
+				'Relative date',
 				'Level',
 				'User',
 				'Message',
@@ -2580,6 +2618,118 @@ test.describe( 'Premium table view', () => {
 		await expect( keys.nth( 1 ) ).toHaveText( /Warning or higher [\d,]+/ );
 	} );
 
+	// Four steps of one hue, separated only by lightness, is one colour with
+	// extra steps: error/critical, critical/alert and alert/emergency
+	// measured 1.33:1, 1.45:1 and 1.49:1. The three darkest share a value
+	// now, and the level's own name says which is which.
+	test( 'the level scale stops pretending to have four reds', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const dots = await page.evaluate( () => {
+			const probe = document.createElement( 'div' );
+
+			document.body.appendChild( probe );
+
+			const read = ( level ) => {
+				probe.className = `shp-TableView__levelPill shp-TableView__levelPill--${ level }`;
+
+				return getComputedStyle( probe )
+					.getPropertyValue( '--shp-level-dot' )
+					.trim();
+			};
+
+			const out = {
+				error: read( 'error' ),
+				critical: read( 'critical' ),
+				alert: read( 'alert' ),
+				emergency: read( 'emergency' ),
+				severe: getComputedStyle(
+					document.querySelector(
+						'.shp-TableView__levelBarPart--severe'
+					)
+				).backgroundColor,
+			};
+
+			probe.remove();
+
+			return out;
+		} );
+
+		expect( dots.critical ).toBe( dots.alert );
+		expect( dots.emergency ).toBe( dots.alert );
+		expect( dots.error ).not.toBe( dots.alert );
+
+		// And the band's own red is no longer one of the dots. It used to be
+		// critical's exactly, so dark red meant one level in the table and
+		// five levels in the key sixteen pixels away.
+		expect( dots.severe ).toBe( 'rgb(179, 45, 46)' );
+		expect( [
+			dots.error,
+			dots.critical,
+			dots.alert,
+			dots.emergency,
+		] ).not.toContain( '#b32d2e' );
+	} );
+
+	// Going from two ticked to three used to take Compare off the bar, which
+	// reads as the control having broken rather than as the selection having
+	// outgrown it.
+	test( 'compare stays put past two, and says why it is off', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setStoredView( requestUtils, 'detailed' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const boxes = page.locator(
+			'.shp-TableView__row input[type="checkbox"]'
+		);
+		const compare = page.getByRole( 'button', {
+			name: 'Compare',
+			exact: true,
+		} );
+
+		// One is below its arity, and a control explaining what you could do
+		// if you carried on is the dead-button clutter the bar avoids.
+		await boxes.nth( 0 ).check();
+		await expect( compare ).toHaveCount( 0 );
+
+		await boxes.nth( 1 ).check();
+		await expect( compare ).toBeEnabled();
+
+		await boxes.nth( 2 ).check();
+		await expect( compare ).toBeDisabled();
+
+		// And the reason is reachable. A disabled button emits no pointer
+		// events, so the tooltip listens on a wrapper — without it the
+		// reader gets a dead button and no explanation.
+		await page
+			.locator( '.shp-TableView__disabledActionWrap' )
+			.first()
+			.hover();
+
+		await expect(
+			page.getByText( 'Select two events to compare.' )
+		).toBeVisible();
+
+		// Untick back to two and it works again.
+		await boxes.nth( 2 ).uncheck();
+		await expect( compare ).toBeEnabled();
+
+		// Left clean: these run serially, so a selection this test walks away
+		// from is a selection the next one starts with.
+		await page.getByRole( 'button', { name: 'Clear selection' } ).click();
+		await expect( compare ).toHaveCount( 0 );
+	} );
+
 	// The key, drawn to scale. A per-level version came first and had to
 	// floor every level at 3px to keep one Critical event visible, which
 	// handed 15% of the bar to levels that were 0.006% of the events. Two
@@ -3150,14 +3300,8 @@ test.describe( 'Premium table view', () => {
 		requestUtils,
 	} ) => {
 		await setStoredView( requestUtils, 'detailed' );
-		await setStoredColumns( requestUtils, [
-			'date_relative',
-			'date',
-			'user',
-			'message',
-			'level',
-		] );
-
+		// No setStoredColumns: it is a default column now, so a first visit
+		// already has it.
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
@@ -3198,15 +3342,6 @@ test.describe( 'Premium table view', () => {
 				'.shp-TableView__th.shp-TableView__col--date_relative'
 			)
 		).toHaveAttribute( 'aria-sort', 'none' );
-
-		// Restored, so the columns this test chose do not leak into the next.
-		await setStoredColumns( requestUtils, [
-			'event_id',
-			'date',
-			'user',
-			'message',
-			'level',
-		] );
 	} );
 
 	test( 'a typed query applies the same filters the chips would', async ( {
@@ -3286,6 +3421,11 @@ test.describe( 'Premium table view', () => {
 	} ) => {
 		await setStoredView( requestUtils, 'detailed' );
 
+		// Notes are behind experimental features. Restored at the end of the
+		// test rather than in afterAll, because the gate test below wants it
+		// off and the two must not depend on which order they run in.
+		await setExperimentalFeatures( requestUtils, true );
+
 		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
 		await waitForLoadedRows( page );
 
@@ -3329,6 +3469,25 @@ test.describe( 'Premium table view', () => {
 			page.locator( '.shp-TableView__annotationMeta' ).first()
 		).toContainText( '1 earlier version' );
 
+		// Plural, not "2 earlier version". The count comes from the server
+		// and the string is picked by _n(), so one edit past the singular is
+		// where a missing _n() shows up.
+		await page.getByRole( 'button', { name: 'Edit note' } ).first().click();
+		await page.getByLabel( 'Note' ).fill( 'Third note' );
+		await page.getByRole( 'button', { name: 'Save note' } ).click();
+
+		await expect(
+			page.locator( '.shp-TableView__annotationMeta' ).first()
+		).toContainText( '2 earlier versions' );
+
+		// The timestamp is formatted, not the raw GMT string the context row
+		// stores. Asserted as the absence of "YYYY-MM-DD HH:MM:SS" rather
+		// than as an expected string, because the expected one is whatever
+		// date format the site is set to.
+		await expect(
+			page.locator( '.shp-TableView__annotationMeta' ).first()
+		).not.toContainText( /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/ );
+
 		// Stored server-side, and carried on the row rather than only in the
 		// details fetch.
 		await page.reload();
@@ -3354,15 +3513,70 @@ test.describe( 'Premium table view', () => {
 
 		await expect(
 			page.locator( '.shp-TableView__annotationText' ).first()
-		).toHaveText( 'Second note' );
+		).toHaveText( 'Third note' );
 
-		// Clean up, so the fixture is left as it was found.
+		// Clear the note. This does NOT restore the fixture: removing a note
+		// deliberately keeps its earlier versions, so the event holds an
+		// `_annotation` row with three revisions from here on. That is the
+		// feature working — a note cannot be erased without trace — but it
+		// means this test is not idempotent against one event. It picks the
+		// newest row each run, and on a site with any activity that is a
+		// different event every time; if it ever lands on one it has already
+		// annotated, the `not.toContainText( 'earlier version' )` assertion
+		// near the top fails for a reason that has nothing to do with the
+		// code. Worth knowing before debugging that failure.
 		await page.getByRole( 'button', { name: 'Edit note' } ).first().click();
 		await page.getByLabel( 'Note' ).fill( '' );
 		await page.getByRole( 'button', { name: 'Save note' } ).click();
 
 		await expect(
 			page.locator( '.shp-TableView__annotationText' )
+		).toHaveCount( 0 );
+
+		// The removal is still on screen as a count of kept versions, which
+		// is the difference between "no note" and "the note was taken away".
+		await expect(
+			page.locator( '.shp-TableView__annotationMeta' ).first()
+		).toContainText( 'was removed' );
+
+		await setExperimentalFeatures( requestUtils, false );
+	} );
+
+	// The one feature in this table that writes into the log, so it is behind
+	// experimental features until it has had real use. With the flag off the
+	// REST route is not registered at all, and offering a button whose only
+	// possible outcome is a 404 is worse than offering nothing.
+	test( 'the note editor is not offered when experimental features are off', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setExperimentalFeatures( requestUtils, false );
+
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+		await waitForLoadedRows( page );
+
+		const eventId = await page
+			.locator( '.shp-TableView__row' )
+			.first()
+			.getAttribute( 'data-event-id' );
+
+		await page
+			.locator(
+				`[data-event-id="${ eventId }"] .shp-TableView__col--expand button`
+			)
+			.click();
+
+		// The panel opened — the details are there — but nothing invites a
+		// note, so this is not just asserting an empty page.
+		await expect(
+			page.locator( '.shp-TableView__detailsPanel' ).first()
+		).toBeVisible();
+
+		await expect(
+			page.getByRole( 'button', { name: 'Add a note' } )
+		).toHaveCount( 0 );
+		await expect(
+			page.getByRole( 'button', { name: 'Edit note' } )
 		).toHaveCount( 0 );
 	} );
 	// Not a binding between a view and a rule — a snapshot. Alerts evaluate
