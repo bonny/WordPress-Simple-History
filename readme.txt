@@ -281,6 +281,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Activity counts from the REST API (`/events/aggregate`) are grouped by your site's timezone rather than by GMT, so an event just after midnight is counted on the right day.
 -   The "new events" count above the log now respects your filters. With "Hide my own events" on, or event types hidden, it counted events the list would never show — so it could announce new activity and then show you nothing when you clicked it.
 
+**Security**
+
+-   Database errors from the event log no longer include the database's own error message in the API response. Reading the log needs a lower capability than most things in WordPress, and a MySQL error names tables and columns.
+
 ### 5.33.0 (September 2026)
 
 The weekly email is redesigned. It opens with a summary of your week, and every number links to its events. Events by WordPress and visitors are no longer credited to the logged-in admin, and Redirection logging works again with Redirection 5.10. And some minor fixes here and there.
