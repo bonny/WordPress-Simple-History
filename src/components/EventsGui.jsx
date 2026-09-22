@@ -732,26 +732,30 @@ function EventsGUI() {
 	}, [ isSidebarHidden ] );
 
 	const handleToggleSidebar = useCallback( () => {
-		setHiddenSidebarViews( ( current ) => {
-			// Only this view changes. The three views want different amounts
-			// of room, so hiding the sidebar in the table must not quietly
-			// hide it in the detailed list as well.
-			const next = current.includes( eventsView )
-				? current.filter( ( view ) => view !== eventsView )
-				: [ ...current, eventsView ];
+		// Only this view changes. The three views want different amounts of
+		// room, so hiding the sidebar in the table must not quietly hide it
+		// in the detailed list as well.
+		const next = hiddenSidebarViews.includes( eventsView )
+			? hiddenSidebarViews.filter( ( view ) => view !== eventsView )
+			: [ ...hiddenSidebarViews, eventsView ];
 
-			// A failed save is not worth interrupting anyone for; the toggle
-			// still works for this visit. Same reasoning as the view
-			// preference above.
-			apiFetch( {
-				path: '/simple-history/v1/sidebar-visibility',
-				method: 'POST',
-				data: { views: next },
-			} ).catch( () => {} );
+		setHiddenSidebarViews( next );
 
-			return next;
-		} );
-	}, [ eventsView ] );
+		// Outside the state updater, not inside it. An updater has to be a
+		// pure function of the previous state: React invokes it twice in
+		// StrictMode and may re-invoke it when a render is thrown away, so a
+		// request sent from in there went out twice per click, and would go
+		// out for a render nobody ever saw.
+		//
+		// A failed save is not worth interrupting anyone for; the toggle
+		// still works for this visit. Same reasoning as the view preference
+		// above.
+		apiFetch( {
+			path: '/simple-history/v1/sidebar-visibility',
+			method: 'POST',
+			data: { views: next },
+		} ).catch( () => {} );
+	}, [ eventsView, hiddenSidebarViews ] );
 
 	const loadEvents = useCallback( async () => {
 		setEventsIsLoading( true );
