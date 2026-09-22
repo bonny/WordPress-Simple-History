@@ -88,6 +88,21 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			],
 		);
 
+		// GET /wp-json/simple-history/v1/events/aggregate.
+		// Counts of the matching events, grouped into buckets.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/aggregate',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_aggregate' ],
+					'permission_callback' => [ $this, 'get_items_permissions_check' ],
+					'args'                => $this->get_collection_params_for_aggregate(),
+				],
+			],
+		);
+
 		// GET /wp-json/simple-history/v1/events/has-updates.
 		// Same args as /wp-json/simple-history/v1/events but returns only information
 		// if there are new events or not.
@@ -594,6 +609,20 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'default'     => false,
 		);
 
+		$query_params['orderby'] = array(
+			'description' => __( 'Column to sort events by. Sorting by anything other than date returns ungrouped events, because occasion grouping depends on date order.', 'simple-history' ),
+			'type'        => 'string',
+			'default'     => 'date',
+			'enum'        => array( 'date', 'id', 'level', 'logger', 'message' ),
+		);
+
+		$query_params['order'] = array(
+			'description' => __( 'Sort direction.', 'simple-history' ),
+			'type'        => 'string',
+			'default'     => 'desc',
+			'enum'        => array( 'asc', 'desc' ),
+		);
+
 		// Surrounding events parameters (admin only).
 		$query_params['surrounding_event_id'] = array(
 			'description' => __( 'Show events surrounding this event ID. Returns events chronologically before and after the specified event, regardless of other filters. Requires administrator privileges.', 'simple-history' ),
@@ -791,6 +820,11 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Whether the event is sticky.', 'simple-history' ),
 					'type'        => 'boolean',
 				),
+				'annotation'                 => array(
+					'description' => __( 'A note attached to the event, if it has one.', 'simple-history' ),
+					'type'        => array( 'object', 'null' ),
+					'readonly'    => true,
+				),
 				'sticky_appended'            => array(
 					'description' => __( 'Whether the event is sticky and appended to the result set.', 'simple-history' ),
 					'type'        => 'boolean',
@@ -887,63 +921,26 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 * @return \WP_REST_Response|\WP_Error Response object or error.
 	 */
 	public function get_has_updates( $request ) {
-		// Retrieve the list of registered collection query parameters.
-		$registered = $this->get_collection_params();
-		$args       = [];
+		$args = $this->get_query_args_from_request( $request );
 
-		/*
-		 * This array defines mappings between public API query parameters whose
-		 * values are accepted as-passed, and their internal WP_Query parameter
-		 * name equivalents (some are the same). Only values which are also
-		 * present in $registered will be set.
-		 */
-		$parameter_mappings = array(
-			'include'                 => 'post__in',
-			'offset'                  => 'offset',
-			'page'                    => 'paged',
-			'per_page'                => 'posts_per_page',
-			'search'                  => 'search',
-			'logRowID'                => 'logRowID',
-			'occasionsID'             => 'occasionsID',
-			'occasionsCount'          => 'occasionsCount',
-			'occasionsCountMaxReturn' => 'occasionsCountMaxReturn',
-			'type'                    => 'type',
-			'max_id_first_page'       => 'max_id_first_page',
-			'since_id'                => 'since_id',
-			'since_date'              => 'since_date',
-			'date_from'               => 'date_from',
-			'date_to'                 => 'date_to',
-			'dates'                   => 'dates',
-			'lastdays'                => 'lastdays',
-			'months'                  => 'months',
-			'loglevels'               => 'loglevels',
-			'loggers'                 => 'loggers',
-			'messages'                => 'messages',
-			'users'                   => 'users',
-			'user'                    => 'user',
-			'initiator'               => 'initiator',
-			'ip_address'              => 'ip_address',
-			'context_filters'         => 'context_filters',
-			'metadata_search'         => 'metadata_search',
-			'ai_only'                 => 'ai_only',
-			'ungrouped'               => 'ungrouped',
-			'skip_count_query'        => 'skip_count_query',
-		);
-
-		/*
-		 * For each known parameter which is both registered and present in the request,
-		 * set the parameter's value on the query $args.
-		 */
-		foreach ( $parameter_mappings as $api_param => $wp_param ) {
-			if ( ! isset( $registered[ $api_param ], $request[ $api_param ] ) ) {
-				continue;
-			}
-
-			$args[ $wp_param ] = $request[ $api_param ];
-		}
-
-		// Force ungrouped for accurate count — grouping is irrelevant for "has updates" check.
+		// Force ungrouped for accurate count — grouping is irrelevant for
+		// "has updates" check.
+		//
+		// This belongs here and not in get_query_args_from_request(), which
+		// get_items() also calls: forcing it there routes the events listing
+		// to query_overview_simple(), which hardcodes the occasions count to
+		// 1 and has no include_sticky handling at all. Occasion grouping and
+		// pinned events both disappear, and the public `ungrouped` parameter
+		// stops meaning anything.
 		$args['ungrouped'] = true;
+
+		// And it is not a surrounding-events query, whatever the request
+		// said. Log_Query::query() checks this key before anything else and
+		// returns early, so leaving it in place made the notifier answer with
+		// a count of the events around some other event and ignore since_id
+		// entirely — the forced ungrouped above never getting a chance to
+		// matter. Unreachable from the UI, but wrong is wrong.
+		unset( $args['surrounding_event_id'], $args['surrounding_count'] );
 
 		$query_result = $this->run_log_query( $args );
 
@@ -959,23 +956,94 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get items.
+	 * Count the matching events, grouped into buckets.
 	 *
-	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response|\WP_Error Response object or error.
+	 * Same filters as the events listing, so a histogram drawn from this
+	 * describes exactly the events the table below it would show.
+	 *
+	 * @since 5.34.0
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response|\WP_Error
 	 */
-	public function get_items( $request ) {
-		// Tmp slow requests to test slow response.
-		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
-		// sleep( 3 );
+	public function get_aggregate( $request ) {
+		$args = $this->get_query_args_from_request( $request );
 
-		$events = [];
+		$args['group_by']       = $request['group_by'];
+		$args['interval']       = $request['interval'];
+		$args['split_by_level'] = $request['split_by_level'];
 
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-		// Debug: return error.
-		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
-		// return new WP_Error( 'simple_history_error', 'Something went wrong 🤷', array( 'status' => 500 ) );
+		// Same guard run_log_query() uses: prepare_args() throws on an
+		// argument it cannot make sense of, and an exception out of a REST
+		// callback is a 500 where this is a 400.
+		try {
+			$buckets = ( new Log_Query() )->query_aggregate( $args );
+		} catch ( \InvalidArgumentException $exception ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				$exception->getMessage(),
+				[ 'status' => 400 ]
+			);
+		}
 
+		if ( is_wp_error( $buckets ) ) {
+			return $buckets;
+		}
+
+		return rest_ensure_response( $buckets );
+	}
+
+	/**
+	 * Query parameters the aggregate endpoint accepts.
+	 *
+	 * Every filter the listing takes, plus the three that decide how the
+	 * counting is bucketed.
+	 *
+	 * @since 5.34.0
+	 * @return array
+	 */
+	public function get_collection_params_for_aggregate() {
+		$params = $this->get_collection_params();
+
+		// Paging means nothing to a set of counts, and leaving them in would
+		// suggest an aggregate could be paged through.
+		unset( $params['page'], $params['per_page'], $params['offset'] );
+
+		$params['group_by'] = [
+			'description' => __( 'What to count the events by.', 'simple-history' ),
+			'type'        => 'string',
+			'enum'        => [ 'date', 'level', 'logger', 'initiator' ],
+			'default'     => 'date',
+		];
+
+		$params['interval'] = [
+			'description' => __( 'Bucket size when counting by date.', 'simple-history' ),
+			'type'        => 'string',
+			'enum'        => [ 'day', 'hour' ],
+			'default'     => 'day',
+		];
+
+		$params['split_by_level'] = [
+			'description' => __( 'Also split each bucket by log level.', 'simple-history' ),
+			'type'        => 'boolean',
+			'default'     => false,
+		];
+
+		return $params;
+	}
+
+	/**
+	 * Turn a REST request into Log_Query arguments.
+	 *
+	 * Shared by the events listing and the aggregate endpoint: both accept
+	 * the same filters and must agree on every one of them, or "how many
+	 * events match" would answer a different question from "which events
+	 * match".
+	 *
+	 * @since 5.34.0
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return array Arguments for Log_Query.
+	 */
+	protected function get_query_args_from_request( $request ) {
 		// Retrieve the list of registered collection query parameters.
 		$registered = $this->get_collection_params();
 		$args       = [];
@@ -1018,6 +1086,8 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			'metadata_search'         => 'metadata_search',
 			'ai_only'                 => 'ai_only',
 			'ungrouped'               => 'ungrouped',
+			'orderby'                 => 'orderby',
+			'order'                   => 'order',
 			'skip_count_query'        => 'skip_count_query',
 			// Surrounding events parameters.
 			'surrounding_event_id'    => 'surrounding_event_id',
@@ -1043,6 +1113,29 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 			$args[ $wp_param ] = $request[ $api_param ];
 		}
+
+		return $args;
+	}
+
+	/**
+	 * Get items.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error Response object or error.
+	 */
+	public function get_items( $request ) {
+		// Tmp slow requests to test slow response.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// sleep( 3 );
+
+		$events = [];
+
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// Debug: return error.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
+		// return new WP_Error( 'simple_history_error', 'Something went wrong 🤷', array( 'status' => 500 ) );
+
+		$args = $this->get_query_args_from_request( $request );
 
 		$query_result = $this->run_log_query( $args );
 
@@ -1142,6 +1235,40 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		return $logger->get_translated_message( $message_key ) ?? $item->message;
+	}
+
+	/**
+	 * Display name for whoever wrote an annotation.
+	 *
+	 * Only the name, never the email: an annotation is shown to everyone who
+	 * can read the log, which is a wider audience than the one that can write
+	 * one.
+	 *
+	 * @since 5.34.0
+	 * @param int $user_id User id.
+	 * @return string Display name, or an empty string.
+	 */
+	protected static function get_annotation_user_name( $user_id ) {
+		$user = $user_id ? get_userdata( (int) $user_id ) : false;
+
+		return $user ? $user->display_name : '';
+	}
+
+	/**
+	 * Cast a stored annotation field to a string, or give up on it.
+	 *
+	 * An annotation is JSON in a context row, and a context row is reachable
+	 * by anything that can write to the table — so the decoded value is not
+	 * guaranteed to be the shape this class wrote. `(string)` on an array
+	 * emits a notice, and on an object it is an uncatchable fatal, either of
+	 * which takes down the whole listing rather than the one bad event.
+	 *
+	 * @since 5.34.0
+	 * @param mixed $value Decoded value.
+	 * @return string The value as a string, or an empty string.
+	 */
+	protected static function scalar_or_empty_string( $value ) {
+		return is_scalar( $value ) ? (string) $value : '';
 	}
 
 	/**
@@ -1290,6 +1417,45 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			$data['sticky'] = isset( $item->context['_sticky'] );
 		}
 
+		if ( rest_is_field_included( 'annotation', $fields ) ) {
+			// Read-only here. Writing one is a premium route, gated on
+			// manage_options the same way sticky is.
+			//
+			// Decoded straight from the context already loaded with the row,
+			// rather than through Event::get_annotation(): that constructor
+			// reloads the event, which would be one extra query per row in a
+			// hundred-row listing.
+			$annotation = json_decode( $context['_annotation'] ?? '', true );
+
+			if ( ! is_array( $annotation ) ) {
+				$annotation = null;
+			}
+
+			// Every field is read defensively. The stored value is JSON in a
+			// context row, and a context row is reachable by anything that can
+			// write to the table — so a hand-edited or half-written
+			// `_annotation` must not be able to turn one bad event into a 500
+			// for the whole listing. `count()` on a non-array is a TypeError
+			// on PHP 8, and a missing `text` is an undefined-index warning.
+			//
+			// The two string fields go through scalar_or_empty_string()
+			// rather than a bare cast, which is what the paragraph above
+			// always claimed and did not do: `(string)` on an array emits
+			// "Array to string conversion", and on an object it is a fatal —
+			// so one hand-edited row took the whole listing down.
+			$data['annotation'] = $annotation === null
+				? null
+				: [
+					'text'           => self::scalar_or_empty_string( $annotation['text'] ?? null ),
+					'user_id'        => (int) ( $annotation['user_id'] ?? 0 ),
+					'user_name'      => self::get_annotation_user_name( $annotation['user_id'] ?? 0 ),
+					'updated_at'     => self::scalar_or_empty_string( $annotation['updated_at'] ?? null ),
+					'revision_count' => is_array( $annotation['history'] ?? null )
+						? count( $annotation['history'] )
+						: 0,
+				];
+		}
+
 		if ( rest_is_field_included( 'sticky_appended', $fields ) ) {
 			$data['sticky_appended'] = isset( $item->sticky_appended );
 		}
@@ -1339,7 +1505,22 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		}
 
 		if ( rest_is_field_included( 'context', $fields ) ) {
-			$data['context'] = $item->context ?? [];
+			$context_for_output = $item->context ?? [];
+
+			// `_annotation` never goes out raw.
+			//
+			// The `annotation` field above deliberately publishes only the
+			// current text and a count of earlier versions — the history
+			// itself, every previous note with its author and timestamp, is
+			// withheld. Raw context went around that completely: the same
+			// JSON blob came back through `_fields=context`, and core's own
+			// event-details modal prints every context key, so the whole
+			// revision history of a note was one click away for anyone who
+			// can read the log. The shaped field above is the public form of
+			// an annotation; this is the private one.
+			unset( $context_for_output['_annotation'] );
+
+			$data['context'] = $context_for_output;
 		}
 
 		if ( rest_is_field_included( 'permalink', $fields ) ) {

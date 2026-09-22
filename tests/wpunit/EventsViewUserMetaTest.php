@@ -92,7 +92,12 @@ class EventsViewUserMetaTest extends \Codeception\TestCase\WPTestCase {
 	public function test_invalid_value_is_rejected() {
 		wp_set_current_user( $this->admin_id );
 
-		$response = $this->post_view( 'table' );
+		// Deliberately not a real (or plausible future) view name. "table" no
+		// longer works here since Task 5 made it a valid view, and "calendar"
+		// is a planned future view for this same feature — either would make
+		// this test wrong again the day that name ships. Keep this value
+		// structurally impossible instead of merely unimplemented.
+		$response = $this->post_view( 'not-a-view' );
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame(

@@ -61,6 +61,34 @@ function isEventsViewSaveResponse( response ) {
 	);
 }
 
+// Shared with both describe blocks below: the free preview only renders when
+// nothing fills SimpleHistorySlotTableView, and Premium is active on the dev
+// site by default (see premium-helpers.js), so testing the preview means
+// toggling the real plugin off rather than faking a flag.
+const PREMIUM_FILE = 'simple-history-premium/simple-history-premium.php';
+
+/**
+ * Set the premium plugin's active state, toggling only if it differs
+ * from what's asked for.
+ *
+ * @param {Object}  requestUtils
+ * @param {boolean} desiredActive
+ */
+async function setPremiumActive( requestUtils, desiredActive ) {
+	const status = await requestUtils.rest( {
+		path: 'simple-history/v1/dev-tools/plugin-status',
+		params: { plugin: PREMIUM_FILE },
+	} );
+
+	if ( status.is_active !== desiredActive ) {
+		await requestUtils.rest( {
+			method: 'POST',
+			path: 'simple-history/v1/dev-tools/toggle-plugin',
+			data: { plugin: PREMIUM_FILE },
+		} );
+	}
+}
+
 test.describe( 'Event log view toggle', () => {
 	// All tests share the admin's stored preference and the site-wide
 	// experimental features option.
@@ -181,27 +209,34 @@ test.describe( 'Event log view toggle', () => {
 		).toHaveCount( 0 );
 	} );
 
-	test( 'the toggle is gone and the log is detailed when experimental features are off', async ( {
+	test( 'view toggle shows when experimental features are off', async ( {
 		page,
 		requestUtils,
 	} ) => {
-		// A stored compact preference from when the flag was on must not keep
-		// the compact view alive after the site turns experimental features off.
-		await setStoredView( requestUtils, 'compact' );
 		await setExperimentalFeatures( requestUtils, false );
+		await setStoredView( requestUtils, 'detailed' );
 
-		await page.goto( `${ SIMPLE_HISTORY_PAGE }&view=compact` );
-		await page.waitForSelector( '.SimpleHistoryLogitems.is-loaded' );
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.locator( '.sh-EventsViewToggle' ).waitFor();
 
 		await expect(
 			page.getByRole( 'button', { name: 'Compact view' } )
-		).toHaveCount( 0 );
-		await expect(
-			page.locator( '.SimpleHistoryLogitem--variant-compact' )
-		).toHaveCount( 0 );
-		await expect(
-			page.locator( '.SimpleHistoryLogitem--variant-normal' ).first()
 		).toBeVisible();
+	} );
+
+	test( 'compact view works when experimental features are off', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setExperimentalFeatures( requestUtils, false );
+		await setStoredView( requestUtils, 'compact' );
+
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.locator( '.sh-EventsViewToggle' ).waitFor();
+
+		await expect(
+			page.getByRole( 'button', { name: 'Compact view' } )
+		).toHaveAttribute( 'aria-pressed', 'true' );
 	} );
 
 	// Tab has to reach the button and Space or Enter has to switch the view:
@@ -241,4 +276,317 @@ test.describe( 'Event log view toggle', () => {
 			expect( ( await saved ).ok() ).toBe( true );
 		} );
 	}
+
+	// The free TablePreview only renders when nothing fills
+	// SimpleHistorySlotTableView. Since Premium now fills that Slot with a
+	// real table (see premium-table-view.spec.js), these tests deactivate
+	// Premium for their duration to exercise the free-plugin fallback that
+	// they were written to cover.
+	test.describe( 'table view free preview (Premium deactivated)', () => {
+		let premiumWasActive;
+
+		test.beforeAll( async ( { requestUtils } ) => {
+			try {
+				const status = await requestUtils.rest( {
+					path: 'simple-history/v1/dev-tools/plugin-status',
+					params: { plugin: PREMIUM_FILE },
+				} );
+				premiumWasActive = status.is_active;
+
+				await setPremiumActive( requestUtils, false );
+			} catch ( err ) {
+				test.skip(
+					true,
+					`Dev-tools REST endpoint unreachable — is SIMPLE_HISTORY_DEV enabled? (${ err.message })`
+				);
+			}
+		} );
+
+		test.afterAll( async ( { requestUtils } ) => {
+			if ( typeof premiumWasActive === 'boolean' ) {
+				await setPremiumActive( requestUtils, premiumWasActive );
+			}
+		} );
+
+		test( 'table view shows the premium preview', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'detailed' );
+
+			await page.goto( SIMPLE_HISTORY_PAGE );
+			await page.locator( '.sh-EventsViewToggle' ).waitFor();
+
+			await page.getByRole( 'button', { name: 'Table view' } ).click();
+
+			await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+		} );
+
+		test( 'table view can be linked to with ?view=table', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'detailed' );
+
+			await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+
+			await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: 'Table view' } )
+			).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		// Every other spec above reaches the table view through a click or
+		// ?view=table, which is exactly why a stored `table` preference being
+		// silently downgraded to `detailed` on a fresh, param-less load went
+		// unnoticed (dropins/class-react-dropin.php and EventsGui.jsx both used
+		// to accept only 'compact', collapsing anything else to 'detailed').
+		test( 'table is remembered after a reload without the parameter', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'table' );
+
+			await page.goto( SIMPLE_HISTORY_PAGE );
+
+			await expect( page.locator( '.sh-TablePreview' ) ).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: 'Table view' } )
+			).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		test( 'table preview is inert and its CTA is not', async ( {
+			page,
+			requestUtils,
+		} ) => {
+			await setStoredView( requestUtils, 'detailed' );
+
+			await page.goto( SIMPLE_HISTORY_PAGE + '&view=table' );
+			await page.locator( '.sh-TablePreview' ).waitFor();
+
+			// The sample table is decoration: hidden from screen readers and
+			// unreachable by the mouse.
+			const sampleTable = page.locator( '.sh-TablePreview__table' );
+			await expect( sampleTable ).toHaveAttribute(
+				'aria-hidden',
+				'true'
+			);
+			await expect( sampleTable ).toHaveCSS( 'pointer-events', 'none' );
+
+			// Every checkbox in it is disabled.
+			const boxes = sampleTable.locator( 'input[type="checkbox"]' );
+			const count = await boxes.count();
+			expect( count ).toBeGreaterThan( 0 );
+
+			for ( let i = 0; i < count; i++ ) {
+				await expect( boxes.nth( i ) ).toBeDisabled();
+			}
+
+			// Being unusable also has to be visible. The sample is drawn
+			// dimmed and greyed, with a not-allowed cursor over the whole of
+			// it, because at full fidelity readers took it for the real table
+			// and tried to use it.
+			const sample = page.locator( '.sh-TablePreview__sample' );
+			await expect( sample ).toHaveCSS( 'cursor', 'not-allowed' );
+
+			const opacity = await sample.evaluate( ( el ) =>
+				parseFloat( getComputedStyle( el ).opacity )
+			);
+			expect( opacity ).toBeLessThan( 1 );
+
+			// Said in words too, for anyone who reads before clicking and for
+			// screen readers, which get nothing from the sample itself.
+			await expect(
+				page.locator( '.sh-TablePreview__sampleNote' )
+			).toBeVisible();
+
+			// Nothing in the banner looks like a control except the one link
+			// that is one: the feature names used to be bordered white pills,
+			// which is the shape of a row of secondary buttons.
+			const feature = page
+				.locator( '.sh-TablePreview__features li' )
+				.first();
+			await expect( feature ).toHaveCSS( 'border-top-width', '0px' );
+
+			// The upgrade link stays clickable and carries the campaign.
+			const cta = page.locator( '.sh-TablePreview__banner a' ).first();
+			await expect( cta ).toBeVisible();
+
+			const href = await cta.getAttribute( 'href' );
+			expect( href ).toContain( 'utm_campaign=premium_table_view' );
+			expect( href ).toContain( 'utm_content=' );
+		} );
+	} );
+} );
+
+// The Table button carries a Premium indication for free users only — a
+// paying customer already owns the feature and shouldn't see it marked as an
+// upsell. This shares the "toggle the real premium plugin" approach from
+// license-reminder.spec.js since hasPremiumAddOn comes from whether that
+// plugin is active, not from a flag we can fake through the dev-tools option
+// toggles used above.
+test.describe( 'Table view button premium indicator', () => {
+	test.describe.configure( { mode: 'serial' } );
+
+	let premiumWasActive;
+
+	test.beforeAll( async ( { requestUtils } ) => {
+		try {
+			const status = await requestUtils.rest( {
+				path: 'simple-history/v1/dev-tools/plugin-status',
+				params: { plugin: PREMIUM_FILE },
+			} );
+			premiumWasActive = status.is_active;
+		} catch ( err ) {
+			test.skip(
+				true,
+				`Dev-tools REST endpoint unreachable — is SIMPLE_HISTORY_DEV enabled? (${ err.message })`
+			);
+		}
+	} );
+
+	test.afterAll( async ( { requestUtils } ) => {
+		if ( typeof premiumWasActive === 'boolean' ) {
+			await setPremiumActive( requestUtils, premiumWasActive );
+		}
+	} );
+
+	test( 'shows the premium indicator on the Table button when premium is not active', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setPremiumActive( requestUtils, false );
+
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.locator( '.sh-EventsViewToggle' ).waitFor();
+
+		const tableButton = page.getByRole( 'button', { name: 'Table view' } );
+		await expect( tableButton ).toHaveAttribute(
+			'aria-label',
+			'Table view'
+		);
+		await expect(
+			tableButton.locator( '.sh-PremiumIndicator' )
+		).toHaveCount( 1 );
+	} );
+
+	test( 'hides the premium indicator on the Table button when premium is active', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await setPremiumActive( requestUtils, true );
+
+		await page.goto( SIMPLE_HISTORY_PAGE );
+		await page.locator( '.sh-EventsViewToggle' ).waitFor();
+
+		const tableButton = page.getByRole( 'button', { name: 'Table view' } );
+		await expect( tableButton ).toHaveAttribute(
+			'aria-label',
+			'Table view'
+		);
+		await expect(
+			tableButton.locator( '.sh-PremiumIndicator' )
+		).toHaveCount( 0 );
+	} );
+} );
+
+/**
+ * Put one view's sidebar into a known state, through the UI.
+ *
+ * Deliberately not through the REST route. The preference is user meta and so
+ * outlives the run, and requestUtils authenticates as a different user than
+ * the browser session does — so seeding it over REST wrote the preference for
+ * an account this page never loads as, and the spec failed in the confusing
+ * direction, reporting that a view it had just configured ignored the setting.
+ *
+ * @param {Object}  page       Playwright page.
+ * @param {string}  view       View to visit.
+ * @param {boolean} shouldHide Whether the sidebar should end up hidden.
+ */
+async function setSidebar( page, view, shouldHide ) {
+	const toggle = page.locator( '.sh-EventsSidebarToggle' );
+
+	await page.goto( SIMPLE_HISTORY_PAGE + '&view=' + view );
+	await toggle.waitFor();
+
+	const isHidden = ( await toggle.getAttribute( 'aria-pressed' ) ) === 'true';
+
+	if ( isHidden !== shouldHide ) {
+		await clickAndSave( page, toggle );
+	}
+
+	await expect( toggle ).toHaveAttribute(
+		'aria-pressed',
+		shouldHide ? 'true' : 'false'
+	);
+}
+
+/**
+ * Click the sidebar toggle and wait for the preference to be written.
+ *
+ * The toggle does not block on its own save — a failed one is not worth
+ * interrupting anyone for, and the sidebar moves immediately either way. That
+ * makes clicking and then reloading a race, which is fine for a person and not
+ * fine for a test: reloading inside the same tick lost the write, and this
+ * spec failed about one run in two.
+ *
+ * @param {Object} page   Playwright page.
+ * @param {Object} toggle Locator for the toggle button.
+ */
+async function clickAndSave( page, toggle ) {
+	await Promise.all( [
+		page.waitForResponse(
+			( response ) =>
+				response.url().includes( '/sidebar-visibility' ) &&
+				response.request().method() === 'POST'
+		),
+		toggle.click(),
+	] );
+}
+
+test.describe( 'Page sidebar toggle', () => {
+	test( 'the sidebar is remembered per view, not per page', async ( {
+		page,
+	} ) => {
+		const sidebar = page.locator( '.SimpleHistory__pageSidebar' );
+		const toggle = page.locator( '.sh-EventsSidebarToggle' );
+
+		// A known starting point, since the preference outlives the run.
+		await setSidebar( page, 'compact', false );
+		await setSidebar( page, 'detailed', false );
+
+		await expect( sidebar ).toBeVisible();
+
+		// Hiding it here must stick across a reload...
+		await clickAndSave( page, toggle );
+		await expect( sidebar ).toBeHidden();
+
+		await page.reload();
+		await toggle.waitFor();
+		await expect( sidebar ).toBeHidden();
+
+		// ...and must not follow the reader into a view they never touched,
+		// which is the whole reason the preference is a set of views rather
+		// than one boolean.
+		await page.goto( SIMPLE_HISTORY_PAGE + '&view=compact' );
+		await toggle.waitFor();
+		await expect( sidebar ).toBeVisible();
+
+		// The table view, the other direction: showing it there sticks too.
+		await setSidebar( page, 'table', true );
+		await expect( sidebar ).toBeHidden();
+
+		await clickAndSave( page, toggle );
+		await expect( sidebar ).toBeVisible();
+
+		await page.reload();
+		await toggle.waitFor();
+		await expect( sidebar ).toBeVisible();
+
+		// Back to the shipped defaults, so the specs that follow see the
+		// detailed list with its sidebar where they expect it.
+		await setSidebar( page, 'table', true );
+		await setSidebar( page, 'compact', false );
+		await setSidebar( page, 'detailed', false );
+	} );
 } );

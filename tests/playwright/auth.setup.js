@@ -34,5 +34,24 @@ setup( 'authenticate as admin', async ( { page } ) => {
 		await page.waitForURL( '**/wp-admin/**' );
 	}
 
-	await page.context().storageState( { path: storagePath } );
+	// A wrong password does not throw here — WordPress re-renders the login
+	// form and Playwright happily saves a session with no auth cookie in it,
+	// after which every test fails somewhere else entirely. Check for the
+	// cookie and say so here instead.
+	//
+	// The dev password is no longer the word `claude` (Chrome's breach check
+	// raised a bubble on every login), so this fires when
+	// WP_ADMIN_PASSWORD is not exported. See CLAUDE.local.md.
+	const state = await page.context().storageState( { path: storagePath } );
+
+	const isLoggedIn = state.cookies.some( ( cookie ) =>
+		cookie.name.startsWith( 'wordpress_logged_in_' )
+	);
+
+	if ( ! isLoggedIn ) {
+		throw new Error(
+			`Logged in as "${ adminUser }" but no wordpress_logged_in cookie came back. ` +
+				'Set WP_ADMIN_PASSWORD to the password in CLAUDE.local.md and try again.'
+		);
+	}
 } );

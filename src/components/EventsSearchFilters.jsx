@@ -1,20 +1,7 @@
-import apiFetch from '@wordpress/api-fetch';
 import { Button, Disabled, Icon } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
-import {
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-	Fragment,
-} from '@wordpress/element';
+import { useEffect, useMemo, useState, Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { settings, chevronDown } from '@wordpress/icons';
-import {
-	DATE_OPTION_GROUPS_LOADING,
-	DEFAULT_DATE_OPTION_GROUPS,
-} from '../constants';
 import { DefaultFilters } from './DefaultFilters';
 import { ExpandedFilters } from './ExpandedFilters';
 import { HiddenMessageTypes } from './HiddenMessageTypes';
@@ -22,6 +9,11 @@ import { HiddenMessageTypes } from './HiddenMessageTypes';
 /**
  * Search component with a search input visible by default.
  * A "Show search options" button is visible where the user can expand the search to show more options/filters.
+ *
+ * Presentational: the /search-options request that fills these dropdowns
+ * lives in useSearchOptions(), called by EventsGui. This component can
+ * therefore be left unrendered — as the table view does — without the rest
+ * of the page losing its data.
  *
  * @param {Object} props
  */
@@ -45,34 +37,19 @@ export function EventsSearchFilters( props ) {
 		selectedInitiator,
 		setSelectedInitiator,
 		enteredIPAddress,
-		setEnteredIPAddress,
 		selectedContextFilters,
 		setSelectedContextFilters,
 		enteredMetadataSearch,
 		setEnteredMetadataSearch,
 		showAIOnly,
 		setShowAIOnly,
+		searchOptions,
+		dateOptionGroups,
 		searchOptionsLoaded,
-		setSearchOptionsLoaded,
-		setPagerSize,
-		setMapsApiKey,
-		setHasExtendedSettingsAddOn,
-		setHasPremiumAddOn,
-		setHasFailedLoginLimit,
-		setFailedLoginLimitThreshold,
-		setFailedLoginSuppressedCount,
-		setIsReactionsEnabled,
-		setIsExperimentalFeaturesEnabled,
-		setEventsAdminPageURL,
-		setEventsSettingsPageURL,
-		setAlertsPageURL,
-		setCurrentUserId,
-		setUserCanManageOptions,
 		hideOwnEvents,
 		setHideOwnEvents,
 		excludeMessages,
 		setExcludeMessages,
-		defaultDateOptionRef,
 		handleClearFilters,
 		hasAnyActiveFilters,
 	} = props;
@@ -120,20 +97,27 @@ export function EventsSearchFilters( props ) {
 		hideOwnEvents,
 	] );
 
+	// Opening the panel on load when a filter is active is the right call
+	// here: this panel is the only place those filters are visible. It used
+	// to need a "unless this is the table view" guard, because the table
+	// view rendered the panel collapsed and would have arrived from a shared
+	// link showing a 500px panel that only repeated what its own chips
+	// already said. EventsGui no longer renders this component in the table
+	// view at all, so the guard is gone with it.
+	//
+	// `show-filters=1` always opens the panel: that is someone asking.
 	const [ isAutoExpanded, setIsAutoExpanded ] = useState( () => {
 		const urlParams = new URLSearchParams( window.location.search );
-		return (
-			activeExpandedFilterCount > 0 ||
-			urlParams.get( 'show-filters' ) === '1'
-		);
+
+		if ( urlParams.get( 'show-filters' ) === '1' ) {
+			return true;
+		}
+
+		return activeExpandedFilterCount > 0;
 	} );
 	const [ isManuallyExpanded, setIsManuallyExpanded ] = useState( null );
 	const moreOptionsIsExpanded =
 		isManuallyExpanded !== null ? isManuallyExpanded : isAutoExpanded;
-	const [ dateOptionGroups, setDateOptionGroups ] = useState(
-		DATE_OPTION_GROUPS_LOADING
-	);
-	const [ searchOptions, setSearchOptions ] = useState( null );
 
 	// Wrap parent's clear handler to also reset local UI state.
 	const handleClearFiltersWithUI = () => {
@@ -148,163 +132,6 @@ export function EventsSearchFilters( props ) {
 			setIsAutoExpanded( true );
 		}
 	}, [ activeExpandedFilterCount, isAutoExpanded ] );
-
-	// The search options effect only needs to know whether a date option was
-	// already picked (from the URL) when the response arrives. Read it through
-	// a ref so the effect does not depend on the value it sets itself; with the
-	// value in the deps it re-ran after setting the default, fetching the
-	// search options twice and, via a new pagerSize object, the events twice.
-	const selectedDateOptionRef = useRef( selectedDateOption );
-	selectedDateOptionRef.current = selectedDateOption;
-
-	// Load search options when component mounts.
-	useEffect( () => {
-		const fetchSearchOptions = async () => {
-			try {
-				const searchOptionsResponse = await apiFetch( {
-					path: addQueryArgs(
-						'/simple-history/v1/search-options',
-						{}
-					),
-				} );
-
-				setSearchOptions( searchOptionsResponse );
-
-				// "All dates" is rendered as an ungrouped option at the
-				// very top — it's the conventional "reset/clear" slot
-				// in a select, immediately discoverable, and avoids the
-				// orphaned-option problem of placing it after optgroups.
-				const allDatesGroup = {
-					label: '',
-					options: [
-						{
-							label: __( 'All dates', 'simple-history' ),
-							value: 'allDates',
-						},
-					],
-				};
-
-				const monthsOptions =
-					searchOptionsResponse.dates.result_months.map(
-						( row ) => ( {
-							label: dateI18n( 'F Y', row.yearMonth ),
-							value: `month:${ row.yearMonth }`,
-						} )
-					);
-
-				const monthsGroup = {
-					label: __( 'By month', 'simple-history' ),
-					options: monthsOptions,
-				};
-
-				setDateOptionGroups( [
-					allDatesGroup,
-					...DEFAULT_DATE_OPTION_GROUPS,
-					monthsGroup,
-				] );
-
-				// Store the default date option for use when clearing filters.
-				const apiDefaultDateOption = `lastdays:${ searchOptionsResponse.dates.daysToShow }`;
-				defaultDateOptionRef.current = apiDefaultDateOption;
-
-				// Set selected date option to "recommended" option from API.
-				// Only set if not already set, because it can be set in the URL.
-				if ( ! selectedDateOptionRef.current ) {
-					setSelectedDateOption( apiDefaultDateOption );
-				}
-
-				setPagerSize( searchOptionsResponse.pager_size );
-				setMapsApiKey( searchOptionsResponse.maps_api_key );
-
-				setHasExtendedSettingsAddOn(
-					searchOptionsResponse.addons.has_extended_settings_add_on
-				);
-
-				setHasPremiumAddOn(
-					searchOptionsResponse.addons.has_premium_add_on
-				);
-
-				setIsReactionsEnabled(
-					searchOptionsResponse.reactions_enabled
-				);
-
-				setIsExperimentalFeaturesEnabled(
-					Boolean(
-						searchOptionsResponse.experimental_features_enabled
-					)
-				);
-
-				setHasFailedLoginLimit(
-					searchOptionsResponse.has_failed_login_limit
-				);
-
-				setFailedLoginLimitThreshold(
-					searchOptionsResponse.failed_login_limit_threshold || 0
-				);
-
-				setFailedLoginSuppressedCount(
-					searchOptionsResponse.failed_login_suppressed_count || 0
-				);
-
-				// Only when the response actually carries one. Add-ons can
-				// override the URL through the search options filter, but an
-				// absent field must not downgrade the value seeded at enqueue
-				// time — losing it hides the links built from it.
-				if ( searchOptionsResponse.events_admin_page_url ) {
-					setEventsAdminPageURL(
-						searchOptionsResponse.events_admin_page_url
-					);
-				}
-				setEventsSettingsPageURL(
-					searchOptionsResponse.settings_page_url
-				);
-
-				// Set alerts page URL if provided by premium add-on.
-				if ( searchOptionsResponse.alerts_page_url ) {
-					setAlertsPageURL( searchOptionsResponse.alerts_page_url );
-				}
-
-				// Set current user ID for "Hide my own events" feature.
-				if ( searchOptionsResponse.current_user_id ) {
-					setCurrentUserId( searchOptionsResponse.current_user_id );
-				}
-
-				// Set whether user can manage options (is administrator).
-				if ( searchOptionsResponse.current_user_can_manage_options ) {
-					setUserCanManageOptions(
-						searchOptionsResponse.current_user_can_manage_options
-					);
-				}
-			} catch ( error ) {
-				// eslint-disable-next-line no-console
-				console.error(
-					'Simple History: Failed to load search options',
-					error
-				);
-			} finally {
-				setSearchOptionsLoaded( true );
-			}
-		};
-
-		fetchSearchOptions();
-	}, [
-		setPagerSize,
-		setSearchOptionsLoaded,
-		setSelectedDateOption,
-		setMapsApiKey,
-		setHasExtendedSettingsAddOn,
-		setHasPremiumAddOn,
-		setHasFailedLoginLimit,
-		setFailedLoginLimitThreshold,
-		setFailedLoginSuppressedCount,
-		setIsReactionsEnabled,
-		setIsExperimentalFeaturesEnabled,
-		setEventsAdminPageURL,
-		setEventsSettingsPageURL,
-		setAlertsPageURL,
-		setCurrentUserId,
-		setUserCanManageOptions,
-	] );
 
 	const filtersButtonLabel =
 		activeExpandedFilterCount > 0
