@@ -427,13 +427,24 @@ class Log_Query {
 		// Get maxId, minId, and maxDate.
 		// MaxId is the highest id among the returned rows.
 		// MinId is the lowest id among the returned rows.
-		// MaxDate is the date of the row with maxId.
-		// These are derived from the actual ids rather than read positionally,
-		// because "first row" and "last row" only mean "newest" and "oldest"
-		// for the default date-DESC order. With orderby/order set to anything
-		// else the first row can be any row, and reading it positionally made
-		// max_id the oldest id under `orderby=id&order=asc`, which broke the
-		// new-events notifier (it treated the whole log as new).
+		// MaxDate is the latest date among the returned rows.
+		// These are derived from the actual values rather than read
+		// positionally, because "first row" and "last row" only mean "newest"
+		// and "oldest" for the default date-DESC order. With orderby/order set
+		// to anything else the first row can be any row, and reading it
+		// positionally made max_id the oldest id under
+		// `orderby=id&order=asc`, which broke the new-events notifier (it
+		// treated the whole log as new).
+		//
+		// max_date is the highest DATE, not the date of the row holding
+		// max_id. Those are the same thing only while dates rise with ids,
+		// and they do not have to: a logger can set its own `date` through
+		// the `_date` context, which importers and backfills use. A page
+		// holding A(id 100, 10:00) and B(id 101, 08:00) would otherwise
+		// report max_id 101 with max_date 08:00, and the has-updates check —
+		// `date > since_date OR (date = since_date AND id > since_id)` —
+		// would then match A on every poll forever: a "1 new event" badge
+		// that never clears.
 		$min_id   = null;
 		$max_id   = null;
 		$max_date = null;
@@ -443,11 +454,12 @@ class Log_Query {
 			$max_id  = max( $row_ids );
 			$min_id  = min( $row_ids );
 
-			foreach ( $result_log_rows as $result_log_row ) {
-				if ( (int) $result_log_row->id === (int) $max_id ) {
-					$max_date = $result_log_row->date;
-					break;
-				}
+			$row_dates = array_filter( wp_list_pluck( $result_log_rows, 'date' ) );
+
+			if ( $row_dates !== [] ) {
+				// String comparison is the right one here: these are MySQL
+				// DATETIME strings, which sort lexicographically.
+				$max_date = max( $row_dates );
 			}
 		}
 
@@ -1282,24 +1294,48 @@ class Log_Query {
 		// Rows arrive newest bucket first. Walk them keeping whole buckets
 		// until max_buckets of them have been seen, which is the cap the
 		// caller actually asked for and the one LIMIT cannot express.
-		$seen_buckets = [];
-		$kept         = [];
+		$seen_buckets   = [];
+		$kept           = [];
+		$hit_bucket_cap = false;
 
 		foreach ( $rows as $row ) {
 			$seen_buckets[ (string) $row->bucket ] = true;
 
 			if ( count( $seen_buckets ) > $max_buckets ) {
+				$hit_bucket_cap = true;
 				break;
 			}
 
 			$kept[] = $row;
 		}
 
+		$kept_buckets = [];
+
+		foreach ( $kept as $row ) {
+			$kept_buckets[ (string) $row->bucket ] = true;
+		}
+
 		// If the fetch came back exactly full, the statement ran out of rows
 		// rather than out of buckets, so the oldest bucket in it may be a
 		// partial one — see the note on $row_limit. Drop it, unless it is the
 		// only bucket there is, in which case a short bar beats no chart.
-		if ( count( $rows ) === $row_limit && count( $seen_buckets ) > 1 ) {
+		//
+		// Only when LIMIT could actually have cut inside a bucket, which is
+		// narrower than "the fetch was full":
+		//
+		// - Without $split_by_level a bucket is exactly one row, so
+		// $row_limit === $max_buckets and the cut always lands on a
+		// boundary. This dropped the oldest bucket from every chart of a
+		// log with at least $max_buckets buckets — on a log with 500 days
+		// of events, the 500th day silently vanished.
+		// - If the loop broke on the bucket cap, it stopped on a boundary
+		// itself, so whatever LIMIT did afterwards is irrelevant.
+		if (
+			$split_by_level &&
+			! $hit_bucket_cap &&
+			count( $rows ) === $row_limit &&
+			count( $kept_buckets ) > 1
+		) {
 			$partial = (string) end( $kept )->bucket;
 
 			$kept = array_values(
