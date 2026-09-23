@@ -45,6 +45,12 @@ module.exports = defineConfig( {
 	use: {
 		baseURL,
 		trace: 'on-first-retry',
+		launchOptions: {
+			// The dev and test sites use throwaway passwords like
+			// "claude", which Chrome finds in its leaked-password list and
+			// warns about on every login in headed and UI mode.
+			args: [ '--disable-features=PasswordLeakDetection' ],
+		},
 	},
 	projects: [
 		{
