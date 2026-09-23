@@ -585,7 +585,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'level'           => $row->level,
 				'who_when'        => $header_output,
 				'description'     => $text_output,
-				'via'             => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
+				'via'             => $row_logger ? $row_logger->get_via( $row ) : '',
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'count'           => $row->subsequentOccasions,
 				'reactions'       => $reactions_display,

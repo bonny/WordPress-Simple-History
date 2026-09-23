@@ -505,23 +505,52 @@ abstract class Logger {
 	}
 
 	/**
-	 * Get the log row header output for the row when "name_via" is set.
+	 * Get the "via" text for an event, e.g. "Using plugin WP Crontrol".
+	 *
+	 * An event that stores the plugin that caused it in the `_via_plugin`
+	 * context key gets "Using plugin <name>". Any logger can set that key.
+	 * Other events get the logger's fixed `name_via`, if it has one.
+	 *
+	 * The plugin name comes from a third-party plugin header, unsanitized, so
+	 * escape the return value in every HTML context (esc_html, esc_attr).
+	 *
+	 * @param object $row Log row.
+	 * @return string Plain text, NOT escaped. Empty string when there is no via.
+	 */
+	public function get_via( $row ) {
+		$context    = isset( $row->context ) && is_array( $row->context ) ? $row->context : [];
+		$via_plugin = $context['_via_plugin'] ?? '';
+
+		if ( is_string( $via_plugin ) && $via_plugin !== '' ) {
+			return sprintf(
+				/* translators: %s: plugin name */
+				__( 'Using plugin %s', 'simple-history' ),
+				$via_plugin
+			);
+		}
+
+		return (string) $this->get_info_value_by_key( 'name_via' );
+	}
+
+	/**
+	 * Get the log row header output for the row when it has a "via" text.
 	 *
 	 * @param object $row Log row.
 	 * @return string HTML
 	 */
-	public function get_log_row_header_using_plugin_output( $row ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+	public function get_log_row_header_using_plugin_output( $row ) {
 		// Logger "via" info in header, i.e. output some extra
 		// info next to the time to make it more clear what plugin etc.
 		// that "caused" this event.
-		$logger_name_via = $this->get_info_value_by_key( 'name_via' );
+		$via = $this->get_via( $row );
 
-		if ( ! $logger_name_via ) {
+		if ( $via === '' ) {
 			return '';
 		}
 
+		// Escaped because a per-event via holds a plugin name read from a third-party plugin header.
 		$via_html  = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
-		$via_html .= $logger_name_via;
+		$via_html .= esc_html( $via );
 		$via_html .= '</span>';
 
 		return $via_html;
@@ -1857,28 +1886,20 @@ abstract class Logger {
 				}
 			}
 
-			// If cron then set WordPress as responsible.
-			// A user can be logged in here: with ALTERNATE_WP_CRON, WordPress runs
-			// wp-cron.php inside the visitor's own request.
+			// WP-CLI, cron and Action Scheduler override the logged-in user.
+			$automatic_initiator = Log_Initiators::get_automatic_initiator();
+
+			if ( $automatic_initiator !== null ) {
+				$data['initiator'] = $automatic_initiator;
+			}
+
 			if ( wp_doing_cron() ) {
-				$data['initiator']           = Log_Initiators::WORDPRESS;
 				$context['_wp_cron_running'] = true;
 
 				// To aid debugging we log the current filter and a list of all filters.
 				if ( Helpers::log_debug_is_enabled() ) {
 					$context['_wp_cron_current_filter'] = current_filter();
 				}
-			}
-
-			// Action Scheduler runs queued actions from an admin-ajax request that
-			// carries the admin's cookies, so they are not cron to WordPress.
-			if ( Services\Action_Scheduler_Tracker::is_running_scheduled_action() ) {
-				$data['initiator'] = Log_Initiators::WORDPRESS;
-			}
-
-			// If running as CLI and WP_CLI_PHP_USED is set then it is WP CLI that is doing it.
-			if ( Helpers::is_wp_cli() ) {
-				$data['initiator'] = Log_Initiators::WP_CLI;
 			}
 		}
 
