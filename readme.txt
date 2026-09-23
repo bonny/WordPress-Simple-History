@@ -287,6 +287,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Changed post excerpts are labelled "Excerpt" instead of the raw field name.
 -   Tips that mention Premium are hidden on sites that have turned promotional messages off.
 -   Image thumbnails on media events name the image for screen reader users.
+-   Weekly email with no recipients set was never sent. It now goes to the site admin email until you add recipients, and the settings page tells you so.
+-   Test email is sent to the weekly email's recipients instead of to you, and the button says who that is.
 
 **Security**
 

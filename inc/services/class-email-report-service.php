@@ -192,6 +192,9 @@ class Email_Report_Service extends Service {
 	/**
 	 * Check if reports are enabled and the email address is one of the recipients.
 	 *
+	 * Counts the site admin fallback, so the admin is not offered an opt-in
+	 * for an email they already get.
+	 *
 	 * @param string $email Email address.
 	 * @return bool
 	 */
@@ -200,8 +203,7 @@ class Email_Report_Service extends Service {
 			return false;
 		}
 
-		$recipients = explode( "\n", (string) get_option( 'simple_history_email_report_recipients', '' ) );
-		$recipients = array_map( 'strtolower', array_map( 'trim', $recipients ) );
+		$recipients = array_map( 'strtolower', self::get_effective_recipients() );
 
 		return in_array( strtolower( $email ), $recipients, true );
 	}
@@ -1102,7 +1104,16 @@ class Email_Report_Service extends Service {
 	 * REST API endpoint for sending preview email.
 	 */
 	public function rest_preview_email() {
-		$current_user = wp_get_current_user();
+		$stored_recipients = self::get_stored_valid_recipients();
+		$recipients        = self::get_effective_recipients();
+
+		if ( empty( $recipients ) ) {
+			return new \WP_Error(
+				'email_no_recipients',
+				__( 'There is no valid recipient to send the test email to. Add a recipient above, or set a valid site admin email under Settings → General.', 'simple-history' ),
+				[ 'status' => 400 ]
+			);
+		}
 
 		// Preview shows last 7 days including today, matching sidebar "7 days" stat.
 		$date_range = Date_Helper::get_last_n_days_range( Date_Helper::DAYS_PER_WEEK );
@@ -1118,31 +1129,88 @@ class Email_Report_Service extends Service {
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
-		$sent = $this->send_report_email(
-			$current_user->user_email,
-			$subject,
-			$email_content,
-			$text_content,
-			$headers
-		);
+		$sent_to   = [];
+		$failed_to = [];
 
-		if ( $sent ) {
-			return rest_ensure_response(
-				[
-					'success' => true,
-					'message' => sprintf(
-						/* translators: %s: Email address */
-						__( 'Test email sent successfully to %s.', 'simple-history' ),
-						$current_user->user_email
-					),
-				]
+		foreach ( $recipients as $recipient ) {
+			$sent = $this->send_report_email(
+				$recipient,
+				$subject,
+				$email_content,
+				$text_content,
+				$headers
+			);
+
+			if ( $sent ) {
+				$sent_to[] = $recipient;
+			} else {
+				$failed_to[] = $recipient;
+			}
+		}
+
+		if ( empty( $sent_to ) ) {
+			return new \WP_Error(
+				'email_send_failed',
+				__( 'Failed to send test email.', 'simple-history' ),
+				[ 'status' => 500 ]
 			);
 		}
 
-		return new \WP_Error(
-			'email_send_failed',
-			__( 'Failed to send test email.', 'simple-history' ),
-			[ 'status' => 500 ]
+		$message = $this->get_test_email_sent_message( $sent_to, $stored_recipients );
+
+		// Some were sent and some were not. Name the failed ones, so the user
+		// does not click again and send duplicates to the ones that worked.
+		if ( ! empty( $failed_to ) ) {
+			$message .= ' ' . sprintf(
+				/* translators: %s: comma-separated list of email addresses */
+				__( 'Could not send to %s.', 'simple-history' ),
+				implode( ', ', $failed_to )
+			);
+		}
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => $message,
+			]
+		);
+	}
+
+	/**
+	 * The response message for a sent test email, based on who it went to.
+	 *
+	 * @param string[] $recipients        Recipients the test email was actually sent to.
+	 * @param string[] $stored_recipients Valid recipients from the stored setting, before
+	 *                                     the admin_email fallback was applied.
+	 * @return string
+	 */
+	private function get_test_email_sent_message( $recipients, $stored_recipients ) {
+		if ( empty( $stored_recipients ) ) {
+			return sprintf(
+				/* translators: %s: site admin email address */
+				__( 'Test email sent to the site admin, %s. The weekly email goes there until you add recipients.', 'simple-history' ),
+				$recipients[0]
+			);
+		}
+
+		if ( count( $recipients ) === 1 ) {
+			return sprintf(
+				/* translators: %s: recipient email address */
+				__( 'Test email sent to %s.', 'simple-history' ),
+				$recipients[0]
+			);
+		}
+
+		return sprintf(
+			/* translators: 1: number of recipients, 2: comma-separated list of recipient email addresses */
+			_n(
+				'Test email sent to %1$d recipient: %2$s.',
+				'Test email sent to %1$d recipients: %2$s.',
+				count( $recipients ),
+				'simple-history'
+			),
+			count( $recipients ),
+			implode( ', ', $recipients )
 		);
 	}
 
@@ -1216,7 +1284,8 @@ class Email_Report_Service extends Service {
 			Helpers::get_settings_field_title_output( __( 'Recipients', 'simple-history' ), 'group_add' ),
 			[ $this, 'settings_field_recipients' ],
 			self::SETTINGS_PAGE_SLUG,
-			'simple_history_email_report_section'
+			'simple_history_email_report_section',
+			[ 'label_for' => 'simple_history_email_report_recipients' ]
 		);
 
 		add_settings_field(
@@ -1324,11 +1393,40 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
+	 * Label for the test email button, naming who the test email goes to.
+	 *
+	 * Uses the saved recipients, with the same admin_email fallback as the
+	 * weekly email. Long lists are shown as a count to keep the label short.
+	 *
+	 * @return string
+	 */
+	private function get_test_email_button_label() {
+		$recipients = self::get_effective_recipients();
+
+		if ( empty( $recipients ) ) {
+			return __( 'Send test email', 'simple-history' );
+		}
+
+		if ( count( $recipients ) > 3 ) {
+			return sprintf(
+				/* translators: %d: number of recipients */
+				_n( 'Send test email to %d recipient', 'Send test email to %d recipients', count( $recipients ), 'simple-history' ),
+				count( $recipients )
+			);
+		}
+
+		return sprintf(
+			/* translators: %s: comma-separated list of email addresses */
+			__( 'Send test email to %s', 'simple-history' ),
+			implode( ', ', $recipients )
+		);
+	}
+
+	/**
 	 * Output for the preview and test setting field.
 	 */
 	public function settings_field_preview() {
-		$current_user = wp_get_current_user();
-		$preview_url  = $this->get_preview_url();
+		$preview_url = $this->get_preview_url();
 		?>
 		<div>
 			<p>
@@ -1337,13 +1435,7 @@ class Email_Report_Service extends Service {
 				</a>
 				|
 				<button type="button" class="button button-link" id="simple-history-email-test">
-					<?php
-					printf(
-						// translators: %s: Current user's email address.
-						esc_html__( 'Send test email to %s', 'simple-history' ),
-						esc_html( $current_user->user_email )
-					);
-					?>
+					<?php echo esc_html( $this->get_test_email_button_label() ); ?>
 				</button>
 			</p>
 		</div>
@@ -1357,7 +1449,7 @@ class Email_Report_Service extends Service {
 					}).then(function(response) {
 						alert(response.message);
 					}).catch(function(error) {
-						alert('<?php esc_html_e( 'Failed to send test email.', 'simple-history' ); ?>');
+						alert(error.message || '<?php echo esc_js( __( 'Failed to send test email.', 'simple-history' ) ); ?>');
 					});
 				});
 			});
@@ -1408,7 +1500,54 @@ class Email_Report_Service extends Service {
 		// Join back to string.
 		$textarea_contents = implode( "\n", $textarea_contents );
 
+		$this->maybe_warn_about_missing_recipients( $textarea_contents );
+
 		return $textarea_contents;
+	}
+
+	/**
+	 * Warn on the settings page when the weekly email is being saved as on
+	 * with no valid recipients, since it will silently go to the site admin
+	 * instead of nobody.
+	 *
+	 * @param string $sanitized_recipients The recipients this request is about
+	 *                                      to save, one email per line.
+	 */
+	private function maybe_warn_about_missing_recipients( $sanitized_recipients ) {
+		if ( $sanitized_recipients !== '' ) {
+			return;
+		}
+
+		// The enabled checkbox is a separate setting saved in the same request.
+		// An unchecked checkbox is not sent at all, so its absence means "off".
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The Settings API already verified the settings-page nonce before calling sanitize callbacks.
+		$enabled = isset( $_POST['simple_history_email_report_enabled'] )
+			? rest_sanitize_boolean( wp_unslash( $_POST['simple_history_email_report_enabled'] ) )
+			: false;
+
+		if ( ! $enabled ) {
+			return;
+		}
+
+		// The Settings API can call this sanitize callback twice when the
+		// option is registered for the first time in a request, so check
+		// whether the warning is already queued before adding it again.
+		foreach ( get_settings_errors( 'simple_history_email_report_recipients' ) as $existing_error ) {
+			if ( ( $existing_error['code'] ?? '' ) === 'simple_history_email_report_recipients_empty' ) {
+				return;
+			}
+		}
+
+		add_settings_error(
+			'simple_history_email_report_recipients',
+			'simple_history_email_report_recipients_empty',
+			sprintf(
+				/* translators: %s: site admin email address */
+				esc_html__( 'The weekly email is on, but no recipients are set. It will go to the site admin, %s, until you add recipients.', 'simple-history' ),
+				esc_html( get_option( 'admin_email' ) )
+			),
+			'warning'
+		);
 	}
 
 	/**
@@ -1427,6 +1566,45 @@ class Email_Report_Service extends Service {
 	 */
 	private function get_email_report_recipients() {
 		return get_option( 'simple_history_email_report_recipients', '' );
+	}
+
+	/**
+	 * Valid email addresses from the stored recipients setting.
+	 *
+	 * @return string[] Valid email addresses. Empty array when there are none.
+	 */
+	private static function get_stored_valid_recipients() {
+		$recipients = explode( "\n", (string) get_option( 'simple_history_email_report_recipients', '' ) );
+		$recipients = array_map( 'trim', $recipients );
+		$recipients = array_filter( $recipients, 'is_email' );
+
+		return array_values( $recipients );
+	}
+
+	/**
+	 * Recipients that should actually receive the report, or the test email.
+	 *
+	 * Falls back to the site admin email when the stored list has no valid
+	 * address, so the report still reaches someone instead of the whole thing
+	 * silently doing nothing.
+	 *
+	 * @return string[] Valid email addresses. Empty array when neither the
+	 *                   stored list nor admin_email has a valid address.
+	 */
+	private static function get_effective_recipients() {
+		$recipients = self::get_stored_valid_recipients();
+
+		if ( ! empty( $recipients ) ) {
+			return $recipients;
+		}
+
+		$admin_email = get_option( 'admin_email' );
+
+		if ( is_email( $admin_email ) ) {
+			return [ $admin_email ];
+		}
+
+		return [];
 	}
 
 	/**
@@ -1464,25 +1642,28 @@ class Email_Report_Service extends Service {
 	 * Output for the email recipients field.
 	 */
 	public function settings_field_recipients() {
-		$recipients         = $this->get_email_report_recipients();
-		$current_user_email = wp_get_current_user()->user_email;
+		$recipients = $this->get_email_report_recipients();
 		?>
 		<p>
 			<?php esc_html_e( 'Add team members to keep everyone informed.', 'simple-history' ); ?>
 		</p>
-		<textarea 
-			data-simple-history-email-report-recipients
-			data-simple-history-current-user-email="<?php echo esc_attr( $current_user_email ); ?>"
+		<textarea
 			placeholder="email@example.com&#10;another@example.com"
-			style="field-sizing: content; min-width: 20rem; min-height: 3rem;" 
-			name="simple_history_email_report_recipients" 
-			id="simple_history_email_report_recipients" 
-			class="regular-text" 
-			rows="5" 
+			style="field-sizing: content; min-width: 20rem; min-height: 3rem;"
+			name="simple_history_email_report_recipients"
+			id="simple_history_email_report_recipients"
+			class="regular-text"
+			rows="5"
 			cols="50"
 		><?php echo esc_textarea( $recipients ); ?></textarea>
 		<p class="description">
-			<?php esc_html_e( 'Enter one email address per line.', 'simple-history' ); ?>
+			<?php
+			printf(
+				/* translators: %s: site admin email address */
+				esc_html__( 'One email address per line. Leave empty to send the report to the site admin, %s.', 'simple-history' ),
+				'<code>' . esc_html( get_option( 'admin_email' ) ) . '</code>'
+			);
+			?>
 		</p>
 		<?php
 	}
@@ -1491,6 +1672,13 @@ class Email_Report_Service extends Service {
 	 * Schedule the email report.
 	 */
 	public function schedule_email_report() {
+		// The cron hook was renamed from simple_history_email_report to
+		// simple_history/email_report. Clear the old one so a site that
+		// scheduled it before the rename does not keep it running forever.
+		if ( wp_next_scheduled( 'simple_history_email_report' ) ) {
+			wp_clear_scheduled_hook( 'simple_history_email_report' );
+		}
+
 		// Bail if email reports are not enabled.
 		if ( ! $this->is_email_reports_enabled() ) {
 			return;
@@ -1536,13 +1724,11 @@ class Email_Report_Service extends Service {
 			return;
 		}
 
-		$recipients = $this->get_email_report_recipients();
+		$recipients = self::get_effective_recipients();
+
 		if ( empty( $recipients ) ) {
 			return;
 		}
-
-		// Convert from newline string to array.
-		$recipients = explode( "\n", $recipients );
 
 		// Get stats for last complete week (Monday-Sunday).
 		// Sent on Mondays, shows previous Mon-Sun, excludes current Monday.
