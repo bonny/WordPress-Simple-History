@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 7.1
-Stable tag: 5.33.0
+Stable tag: 5.34.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -262,13 +262,15 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
-### Unreleased
+### 5.34.0 (September 2026)
 
-> Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+Too many events in your log? The new compact view may come in handy then. And Premium users get an even more compact view with the new table view, for digging into your events. Also: the weekly email reaches you even if you forgot to add recipients. You can also hide the sidebar now, to give the log the full width of the page. And: more!
+[Read release post for info and screenshots](https://simple-history.com/2026/simple-history-5-34-0-released/)
 
 **Added**
 
--   Table view for research and debugging sessions: sort, filter, compare two events side by side, and export (Premium).
+-   [Table view](https://simple-history.com/features/table-view/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_changelog_table_view) for research and debugging sessions: sort, filter, compare two events side by side, and export (Premium).
+-   "Hide sidebar" button next to the view switcher, so the event log can use the full width of the page. Each view remembers its own choice: the table view starts without the sidebar, the detailed and compact views with it.
 -   Events can now be sorted by date, id, level, logger or event type through the REST API (`orderby` and `order`) and on the command line (`wp simple-history event list --orderby=id --order=asc`).
 -   Events can be counted instead of listed through the REST API (`/events/aggregate`), grouped by date, level, logger or initiator. The same filters apply, so it counts exactly what the list would have shown.
 -   Thumbnail on "Edited attachment" events, so you can see which image the event is about.
@@ -277,27 +279,22 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   The compact event log view is no longer experimental. The Detailed/Compact switch is now available to everyone from the event log page.
--   Sorting by level now orders by severity, so the most serious events come first instead of alphabetically.
 -   Custom field changes on posts name the fields that changed instead of only counting them.
 -   Custom field and term changes on posts are included in event details from the REST API and WP-CLI.
--   Preview of the weekly email stays on the settings page after you turn the email on.
--   The notice shown a few days before the first cleanup of old events now explains why old events are cleared out, and mentions that you can export your log.
+-   New installs get a notice a few days before their oldest events are cleared out for the first time. It explains why, mentions that you can export your log, and stays until you close it.
 
 **Fixed**
 
 -   Sorting the event log oldest first now works. `order=asc` was accepted and then ignored on the default event listing, which returned newest first anyway.
--   Activity counts from the REST API (`/events/aggregate`) are grouped by your site's timezone rather than by GMT, so an event just after midnight is counted on the right day.
 -   The "new events" count above the log now respects your filters. With "Hide my own events" on, or event types hidden, it counted events the list would never show — so it could announce new activity and then show you nothing when you clicked it.
 -   Changed post excerpts are labelled "Excerpt" instead of the raw field name.
 -   Custom field changes made in the block editor's meta boxes, like the Custom Fields panel, are now logged.
 -   Empty custom fields that some plugins create when a post is first saved are no longer listed as added.
 -   Internal keys from Advanced Custom Fields no longer clutter the list of changed custom fields.
--   Long lists of custom field names wrap instead of running off the edge of the event.
 -   Tips that mention Premium are hidden on sites that have turned promotional messages off.
 -   Image thumbnails on media events name the image for screen reader users.
 -   Weekly email with no recipients set was never sent. It now goes to the site admin email until you add recipients, and the settings page tells you so.
 -   Test email is sent to the weekly email's recipients instead of to you, and the button says who that is.
--   The notice before the first cleanup of old events no longer disappears when you reload the page. It stays until you close it.
 -   Experimental — Role and capability changes a plugin makes on its own, such as after an update, are credited to WordPress instead of whoever was logged in, and name the plugin that made them.
 
 **Security**
