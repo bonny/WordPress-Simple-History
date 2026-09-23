@@ -26,7 +26,7 @@ class EmailReportServiceCest {
         // Check for Recipients field
         $I->canSee('Recipients');
         $I->seeElement('#simple_history_email_report_recipients');
-        $I->canSee('Enter one email address per line.');
+        $I->canSee('One email address per line.');
         
         // Check for Preview field
         $I->canSee('Preview');
