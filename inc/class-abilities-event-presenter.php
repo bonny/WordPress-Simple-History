@@ -49,13 +49,13 @@ class Abilities_Event_Presenter {
 	 * PII or chrome, and neither helps an agent answer "who did this".
 	 *
 	 * Only events initiated by a logged-in user get a user. The controller
-	 * derives initiator_data from the context's _user_id, which the logger
-	 * records whenever anyone is logged in during the request — including an
-	 * anonymous request made while an administrator happens to have a session
-	 * open. Without the initiator check a failed login from an intruder is
-	 * returned carrying that administrator's identity, and an agent asked to
-	 * report on a break-in names the wrong person. The identity fields alone
-	 * cannot distinguish the two cases, because they are populated in both.
+	 * derives initiator_data from the context's _user_id, which the logger used
+	 * to record whenever anyone was logged in during the request — including an
+	 * anonymous request made while an administrator happened to have a session
+	 * open. The logger no longer does that (issue 307), but events stored before
+	 * the fix still carry it: without the initiator check a failed login from an
+	 * intruder is returned carrying that administrator's identity, and an agent
+	 * asked to report on a break-in names the wrong person.
 	 *
 	 * WP_REST_Events_Controller::prepare_item_for_response() always emits a
 	 * 7-key initiator_data array, falling back to null/empty values rather

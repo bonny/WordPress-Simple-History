@@ -215,10 +215,43 @@
 	}
 
 	.SimpleHistory-adminBarQuickView-emptyState {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		// Stable height so swapping between the empty state, the error state,
+		// and the loaded list does not shift the footer below it. box-sizing
+		// is set explicitly because #wpadminbar * sets content-box, which
+		// would otherwise add this min-height on top of the padding below.
+		box-sizing: border-box;
+		min-height: 4em;
 		padding: 2em 1em;
 		text-align: center;
-		color: rgba(240, 246, 252, 0.5);
+		color: rgba(240, 246, 252, 0.7);
 		font-size: 13px;
+
+		// The region stays mounted even when there is nothing to announce, so
+		// screen readers pick up text arriving into it. With no text it must
+		// take no space at all, or it renders as a blank strip above the
+		// footer whenever events did load.
+		&:empty {
+			min-height: 0;
+			padding: 0;
+		}
+
+		// Error state: same box, but a warning cue plus text — never colour
+		// alone — so it reads as distinct from a genuine empty result.
+		&-errorState {
+			flex-direction: row;
+			gap: 0.5em;
+			color: rgba(240, 246, 252, 0.85);
+		}
+
+		&-icon {
+			font-size: 14px;
+			line-height: 1;
+			color: #f0b849;
+		}
 	}
 
 	.SimpleHistory-adminBarEventsList-actions {

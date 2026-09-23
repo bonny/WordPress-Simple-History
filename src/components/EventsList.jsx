@@ -19,6 +19,7 @@ import { FailedLoginLimitNotice } from './FailedLoginLimitNotice';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 import { EndOfResultsHint } from './EndOfResultsHint';
+import { InitiatorFilterHint } from './InitiatorFilterHint';
 
 /**
  * Notice shown at the end of the event list when backfilled entries
@@ -126,9 +127,11 @@ export function EventsList( props ) {
 		hasActiveFilters,
 		onClearFilters,
 		canAdjustFilters,
+		selectedInitiator,
+		eventsView,
 	} = props;
 
-	const { hasPremiumAddOn, hasFailedLoginLimit } = useEventsSettings();
+	const { hasPremiumAddOn } = useEventsSettings();
 
 	const totalPages = eventsMeta.totalPages;
 	const isSurroundingEventsMode = Boolean( surroundingEventId );
@@ -178,8 +181,17 @@ export function EventsList( props ) {
 				eventsIsLoading={ eventsIsLoading }
 			/>
 
+			{ ! isSurroundingEventsMode && (
+				<InitiatorFilterHint
+					selectedInitiator={ selectedInitiator }
+					eventsIsLoading={ eventsIsLoading }
+					events={ events }
+				/>
+			) }
+
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
+				hasErrors={ eventsLoadingHasErrors }
 				events={ events }
 				hasActiveFilters={ hasActiveFilters }
 				onClearFilters={ onClearFilters }
@@ -195,6 +207,7 @@ export function EventsList( props ) {
 				events={ events }
 				prevEventsMaxId={ prevEventsMaxId }
 				surroundingEventId={ surroundingEventId }
+				eventsView={ eventsView }
 			/>
 
 			{ showBackfilledNotice && <BackfilledNotice /> }

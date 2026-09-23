@@ -3,6 +3,7 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
+use Simple_History\Services\Email_Report_Service;
 
 /**
  * Dropin that adds a promotional card to the sidebar promoting the weekly email summary feature.
@@ -127,6 +128,11 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 			Helpers::get_settings_page_url()
 		);
 
+		// The button turns the email on in one click. Fall back to the settings page
+		// when that is not possible, for example when the user has no valid email address.
+		$opt_in_url = Email_Report_Service::get_opt_in_url();
+		$cta_url    = $opt_in_url !== '' ? $opt_in_url : $settings_url;
+
 		?>
 		<div class="postbox sh-EmailPromoCard sh-PremiumFeaturesPostbox" id="simple-history-email-promo-card" style="--box-bg-color: var(--sh-color-cream);">
 			<div class="inside">
@@ -146,8 +152,25 @@ class Sidebar_Email_Promo_Dropin extends Dropin {
 					<?php esc_html_e( 'Get a weekly digest with login stats, content changes, and plugin activity.', 'simple-history' ); ?>
 				</p>
 
+				<?php
+				// Say where it goes, since the button turns the email on right away.
+				if ( $opt_in_url !== '' ) {
+					?>
+					<p class="sh-EmailPromoCard-text description">
+						<?php
+						printf(
+							/* translators: %s: email address of the current user. */
+							esc_html__( 'Sent to %s every Monday.', 'simple-history' ),
+							esc_html( wp_get_current_user()->user_email )
+						);
+						?>
+					</p>
+					<?php
+				}
+				?>
+
 				<div class="sh-EmailPromoCard-actions">
-					<a href="<?php echo esc_url( $settings_url ); ?>" class="sh-PremiumFeaturesPostbox-button sh-EmailPromoCard-cta" data-dismiss-on-click="true">
+					<a href="<?php echo esc_url( $cta_url ); ?>" class="sh-PremiumFeaturesPostbox-button sh-EmailPromoCard-cta" data-dismiss-on-click="true">
 						<?php esc_html_e( 'Get Weekly Digest', 'simple-history' ); ?>
 					</a>
 

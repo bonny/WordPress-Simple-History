@@ -114,7 +114,9 @@ class SimpleOptionsLoggerCest
     }
 
     public function testReadingOptionsPage(Admin $I) {
-        $I->havePageInDatabase(['post_title' => 'Test page']);
+        // The page id depends on how many posts the fixture holds, so read it
+        // back rather than assume it.
+        $page_id = $I->havePageInDatabase(['post_title' => 'Test page']);
         $I->amOnAdminPage('options-reading.php');
         
         $I->selectOption('[name=show_on_front]', 'page');
@@ -128,7 +130,7 @@ class SimpleOptionsLoggerCest
             'option_page' => 'reading',
             'option' => 'page_on_front',
             'old_value' => '0',
-            'new_value' => '3',
+            'new_value' => (string) $page_id,
         ], 0);
 
         $I->seeLogMessage('Updated setting "show_on_front" on the "reading" settings page', 1);

@@ -6,6 +6,12 @@ const SIMPLE_HISTORY_PAGE =
 const POST_TITLE = 'Playwright timezone test post';
 const DIVIDER_POST_TITLE = 'Playwright divider test post';
 
+// Every test here creates and then deletes a post, and the dashboard widget
+// shows only the five newest events. Run in parallel, one test's clean-up
+// pushes another test's event out of the widget before it is read, so run
+// them one at a time instead of under the config's fullyParallel.
+test.describe.configure( { mode: 'default' } );
+
 // A browser far from the site's timezone. Relative times are built from an
 // absolute instant (`getEventDate()`), so they hold whatever zone the visitor
 // is in — these tests pin that.

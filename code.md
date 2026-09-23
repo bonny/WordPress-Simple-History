@@ -78,6 +78,56 @@ Use native HTML elements and CSS before reaching for JavaScript:
 -   Don't rely on color alone to convey meaning (add text labels, icons, or patterns)
 -   Use semantic HTML (`<button>` for actions, `<a>` for navigation, `<nav>`, `<main>`, etc.)
 
+## Images
+
+### PNGs Must Be As Small As Possible
+
+Every PNG committed to the repo — wordpress.org screenshots and banners, teaser images, OG share cards, avatars, icons — goes through compression before it lands. These files ship to users and are served from wordpress.org's CDN, so bytes matter.
+
+Two-step pipeline, always in this order:
+
+```bash
+# 1. Lossy quantization to an 8-bit palette (usually 60-70% of the win).
+pngquant --quality=80-95 --strip --skip-if-larger --force --ext .png <file>.png
+
+# 2. Lossless recompression on top.
+oxipng -o max --strip safe <file>.png
+```
+
+`--skip-if-larger` means step 1 is a no-op when quantization would not help, so the pair is safe to run on anything. Both steps are idempotent — re-running on an already-optimized file changes nothing.
+
+For a whole directory:
+
+```bash
+pngquant --quality=80-95 --strip --skip-if-larger --force --ext .png *.png
+oxipng -o max --strip safe *.png
+```
+
+Check the result and mention the saving when reporting back:
+
+```bash
+ls -lh *.png
+```
+
+If a screenshot has fine gradients or text that visibly degrades at `80-95`, raise the floor (`--quality=90-100`) rather than dropping step 1 entirely. Do not commit a PNG straight out of Playwright or an image editor.
+
+### Other Formats
+
+-   **JPEG** — `jpegoptim --strip-all -m85 <file>.jpg`, or `/opt/homebrew/opt/mozjpeg/bin/cjpeg -quality 82 -optimize -progressive` when encoding from source (mozjpeg is keg-only, so it is not on `PATH`).
+-   **Resizing / format conversion** — `vipsthumbnail in.png --size 1200x -o out.png`. `vips` is the fast batch workhorse and uses mozjpeg for JPEG output automatically.
+-   **GIF** — `gifsicle -O3 --lossy=80 in.gif -o out.gif`.
+-   **WebP / AVIF** — `cwebp -q 80` and `avifenc` are available, but wordpress.org assets must stay PNG/JPEG.
+
+See CLAUDE.local.md for which of these are installed locally.
+
+## Writing Prose
+
+Any prose written for this project (changelogs, commit messages, PR descriptions, blog posts, docs) should read like a person wrote it, not an AI. Avoid stock AI filler phrases and hype words: "seamlessly", "carries through to" / "carry through", "robust", "leverage" (as a verb), "delve into", "elevate", "streamline", "unlock", "empower", "cutting-edge", "game-changer", "boasts", "a testament to", "harness the power of", "in today's ... landscape/world", "when it comes to", "at the end of the day", "it's worth noting that", "furthermore" / "moreover" as transitions.
+
+Prefer a plain, direct sentence over a polished-sounding one. If a phrase sounds like marketing copy or a LinkedIn post, cut it.
+
+Use the **simple-history-voice** skill for the project voice and rules per text type (changelog, GUI copy, blog posts, newsletters, upsell copy). It runs the draft through the user-level **humanizer** skill ([blader/humanizer](https://github.com/blader/humanizer), install with `npx skills add blader/humanizer --global`), which catches the general AI tells.
+
 ## Changelog
 
 -   Try to use format from https://keepachangelog.com
@@ -86,8 +136,11 @@ Use native HTML elements and CSS before reaching for JavaScript:
 
 ## Git
 
--   Will try to follow OneFlow:
-    https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
+-   One long-lived branch: `main`. It is always releasable. There is no `develop` branch (dropped 2026-09-05; the release-to-develop merge-back bought nothing at a one-to-three-week release cadence).
+-   **Tiny changes** (a typo, changelog wording, a colour value) go straight on `main` as one commit, if they cannot break anything.
+-   **Everything else** goes on an `issue-NNN-slug` branch and merges into `main` when the issue is done and looked at. Big or risky work uses a worktree with its own site (`scripts/parallel-dev.sh`), merges `main` into itself every few days, and is either merged early behind the experimental features flag or split if it lives longer than a release cycle.
+-   **Releases** cut `release-X.Y.Z` from `main` for the version bump and changelog heading, tag on that branch, merge back into `main` once. See the `release` skill.
+-   **Hotfixes** branch from the tag, tag `X.Y.Z+1`, merge into `main`.
 -   Run phpstan after making php changes in many files or making a larger change in a single file.
 -   Run it as `./vendor/bin/phpstan analyse --memory-limit=2G`. The default limit crashes a parallel worker part-way through with "PHPStan process crashed because it reached configured PHP memory limit", which reads like a code problem but is not.
 -   Run it with **no path argument** before committing. Passing a single file skips the check for unmatched `ignoreErrors` entries, and an ignore that no longer matches anything is a hard error here — so a per-file run can pass while the full run fails.

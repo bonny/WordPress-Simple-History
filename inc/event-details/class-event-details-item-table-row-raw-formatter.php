@@ -20,10 +20,8 @@ class Event_Details_Item_Table_Row_RAW_Formatter extends Event_Details_Item_RAW_
 
 		return sprintf(
 			'
-				<tr>
-					<td>%1$s</td>
-					<td>%2$s</td>
-				</tr>
+				<dt>%1$s</dt>
+					<dd>%2$s</dd>
 			',
 			esc_html( $this->item->name ),
 			$this->html_output

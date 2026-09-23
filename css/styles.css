@@ -77,6 +77,24 @@
 	}
 }
 
+/*
+The table view takes the whole width, sidebar included.
+
+Measured at three window widths: the sidebar costs 286px at 1280, 326 at 1440
+and 398 at 1728 — a steady ~23% of the window. At 1280 the table overflows its
+column by 69px with the sidebar in place and has around 217px to spare
+without it, and the Message column, the only one that grows, goes from 304px
+to roughly 590. A table is the one view here that can actually use the room.
+
+Hidden rather than not printed: the sidebar comes from a PHP dropin outside
+the React root, and the view switches without a page load, so the class is
+toggled from EventsGui. Display none rather than a width change, so the
+sidebar's own boxes never lay out at a size nobody sees.
+*/
+.SimpleHistoryGuiWrap--hideSidebar .SimpleHistory__pageSidebar {
+	display: none;
+}
+
 .SimpleHistory__pageSidebar .inside {
 	margin-bottom: 0;
 }
@@ -195,6 +213,15 @@
 	font-size: var(--sh-font-size-small);
 	transform: translateY(-50%);
 	box-shadow: 0px 3px 3px 0px #f7f7f7;
+}
+
+/* The "Sticky" divider puts a pin inside the label (see EventSeparator.jsx).
+   @wordpress/icons renders it at 24px, which is twice the height the label's
+   max-height: 1em allows, so it spills out of the pill. Match it to the text. */
+.SimpleHistoryEventSeparator__label svg {
+	width: 1em;
+	height: 1em;
+	margin-right: var(--sh-spacing-xsmall);
 }
 
 /* Text inside event, contains tooltip and SVG icon component */
@@ -349,6 +376,16 @@ Tag = the pill with the log level.
 	gap: 1rem;
 }
 
+/*
+Same negative left margin as .SimpleHistoryLogitem__actionLinks, so the
+button's text lines up with the event text above it at rest. The toggle
+belongs to the row, unlike the diff toggle which is right-aligned under the
+box it expands.
+*/
+.SimpleHistoryLogitem__occasions .SimpleHistory__disclosureToggle {
+	margin-left: calc(var(--sh-spacing-small) * -1);
+}
+
 .SimpleHistoryLogitem__occasionsAddOns {
 	position: relative;
 }
@@ -390,23 +427,39 @@ Tag = the pill with the log level.
 	line-height: 1.4;
 }
 
-.SimpleHistoryLogitem__actionLinks__link {
+/* Scoped under the item so this outranks the generic ".SimpleHistoryLogitem a" colour. */
+.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--sh-spacing-xsmall);
 	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
-	color: #2271b1;
+	/* Grey at rest so a list of similar events does not become a wall of blue
+	   links outweighing the event text. Blue once the row is hovered or focused. */
+	color: var(--sh-color-gray-3);
 	text-decoration: none;
+	transition: color 0.15s ease;
 }
 
-.SimpleHistoryLogitem__actionLinks__link:hover {
+.SimpleHistoryLogitem:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__actionLinks__link {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link:hover,
+.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link:focus-visible {
 	color: #135e96;
 	background-color: var(--sh-color-gray-4);
 	border-radius: var(--sh-border-radius);
 }
 
+@media (prefers-reduced-motion: reduce) {
+	.SimpleHistoryLogitem .SimpleHistoryLogitem__actionLinks__link {
+		transition: none;
+	}
+}
+
 .SimpleHistoryLogitem__actionLinks__link .sh-Icon {
-	--sh-icon-size: 1.25em;
+	--sh-icon-size: 1em;
 	top: 0;
 	/* Use mask so icon color inherits from link via currentColor. */
 	mask-size: 100%;
@@ -706,18 +759,68 @@ Tag = the pill with the log level.
 	}
 }
 
+/*
+Key-value list for event details (user profile edits, plugin meta, option
+changes). Markup is a <dl> with <dt>/<dd> pairs as direct children; the class
+name keeps "Table" from the years it was a <table>.
+
+Laid out as a grid so the key column is exactly as wide as the widest key in
+that event, never wider. A real table cannot do this: without a min-width a
+long value squeezes the key column until short keys wrap, and with one (the
+old min-width: 8em) short keys float away from the left edge.
+
+fit-content(min(16em, 45%)) caps runaway keys (WooCommerce setting labels) so
+they wrap instead of pushing every value off to the right, and minmax(0, 1fr)
+stops long unbreakable values from stealing width from the keys.
+*/
+.SimpleHistoryLogitem__keyValueTable {
+	display: grid;
+	grid-template-columns: fit-content(min(16em, 45%)) minmax(0, 1fr);
+	column-gap: 1em;
+	row-gap: 2px;
+	margin: 0;
+}
+
+/*
+A logger that adds a block of HTML without a key to a key/value group (a RAW
+item) outputs it as a direct child of the <dl>. Span both columns, or it is
+squeezed into the key column.
+*/
+.SimpleHistoryLogitem__keyValueTable > :not(dt):not(dd):not(tbody) {
+	grid-column: 1 / -1;
+}
+
+.SimpleHistoryLogitem__keyValueTable > dt,
+.SimpleHistoryLogitem__keyValueTable > dd {
+	margin: 0;
+	word-break: break-word;
+}
+
+.SimpleHistoryLogitem__keyValueTable > dt {
+	text-align: right;
+	color: #757575;
+	overflow-wrap: anywhere;
+}
+
+/*
+Third-party loggers may still emit the pre-5.33 markup, a <table> with two
+<td> per row. Flatten its rows into the same grid so they render identically.
+*/
+.SimpleHistoryLogitem__keyValueTable > tbody,
+.SimpleHistoryLogitem__keyValueTable > tbody > tr {
+	display: contents;
+}
+
 .SimpleHistoryLogitem__keyValueTable th,
 .SimpleHistoryLogitem__keyValueTable td {
 	vertical-align: top;
 	word-break: break-word;
 }
 
-.SimpleHistoryLogitem__keyValueTable tr > td:first-child {
+.SimpleHistoryLogitem__keyValueTable > tbody > tr > :first-child {
 	text-align: right;
-	padding-right: 1em;
 	color: #757575;
-	min-width: 8em;
-	/* white-space: nowrap; */
+	overflow-wrap: anywhere;
 }
 
 .SimpleHistoryLogitem__keyValueTable p {
@@ -737,6 +840,15 @@ Tag = the pill with the log level.
 /* wrap span.SimpleHistoryLogitem__inlineDivided around things that should have a bullet between them */
 .SimpleHistoryLogitem__inlineDivided {
 	white-space: nowrap;
+}
+
+/*
+Long lists of custom field names have no spaces to break at, so let them wrap
+anywhere instead of running off the right edge of the log row.
+*/
+.SimpleHistoryLogitem__inlineDivided--wrap {
+	white-space: normal;
+	overflow-wrap: anywhere;
 }
 
 .SimpleHistoryLogitem__inlineDivided em {
@@ -1016,7 +1128,7 @@ i.e. the log is inside a .postbox element.
 	color: var(--sh-color-gray-3);
 }
 
-/* Dashboard widget: tighter action links — drop icons, tighter spacing. */
+/* Dashboard widget: tighter action links. */
 .SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks {
 	gap: var(--sh-spacing-xsmall) 0;
 	margin-top: var(--sh-spacing-xsmall);
@@ -1025,15 +1137,398 @@ i.e. the log is inside a .postbox element.
 	margin-left: calc(var(--sh-spacing-xsmall) * -1);
 }
 
-.SimpleHistoryReactRoot.is-dashboard .SimpleHistoryLogitem__actionLinks__link {
+/* The dashboard widget and the compact log both drop the icons: at that
+   density a row of small glyphs is noise, and the labels alone read faster. */
+:is(
+		.SimpleHistoryReactRoot.is-dashboard,
+		.SimpleHistoryLogitem--variant-compact
+	)
+	.SimpleHistoryLogitem__actionLinks__link {
 	padding-left: var(--sh-spacing-xsmall);
 	padding-right: var(--sh-spacing-xsmall);
 }
 
-.SimpleHistoryReactRoot.is-dashboard
+:is(
+		.SimpleHistoryReactRoot.is-dashboard,
+		.SimpleHistoryLogitem--variant-compact
+	)
 	.SimpleHistoryLogitem__actionLinks__link
 	.sh-Icon {
 	display: none;
+}
+
+/* Only the icon-less views need the dot: with icons the labels already have a
+   boundary. The separator is a real element rather than a ::before on the
+   link, so it stays out of the link's accessible name — see the comment in
+   EventActionLinks.jsx. It sits between two paddings, so the hover background
+   wraps the label only and never the dot. */
+.SimpleHistoryLogitem__actionLinks__item {
+	display: inline-flex;
+	align-items: center;
+	position: relative;
+}
+
+.SimpleHistoryLogitem__actionLinks__separator {
+	display: none;
+}
+
+/* Out of flow, like the ::before this replaced, so the dot is painted in the
+   gap between two links and adds no width of its own. In flow it would be a
+   third thing the flex gap applies to on both sides. */
+:is(
+		.SimpleHistoryReactRoot.is-dashboard,
+		.SimpleHistoryLogitem--variant-compact
+	)
+	.SimpleHistoryLogitem__actionLinks__separator {
+	display: block;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	text-align: center;
+	color: var(--sh-color-gray-2);
+
+	/* The box spans the whole gap between the two labels — the flex gap plus
+	   the padding each link carries — so the centred glyph lands midway
+	   between them instead of hard against the one on its left. */
+	left: calc(var(--sh-spacing-xsmall) * -1);
+	width: var(--sh-spacing-small);
+}
+
+/*
+ * Compact view of the main event log (issue 240).
+ * Same density as the dashboard widget, but kept separate from the
+ * .is-dashboard rules so a change to one never moves the other.
+ */
+/* One value for the row's own padding, because the separator has to cancel it
+   exactly: its negative margin and its min-height both read this. Two numbers
+   that drifted apart here once already, and the symptom was content glued to
+   the hairline below it and floating away from the one above. */
+.SimpleHistoryLogitem--variant-compact {
+	--sh-compact-row-padding: 6px;
+
+	padding-top: var(--sh-compact-row-padding);
+	padding-bottom: var(--sh-compact-row-padding);
+}
+
+/* The row above a labelled divider gets no extra air: there is no pill sitting
+   on the line for it to clear. */
+.SimpleHistoryLogitem--variant-compact:has(
+		+ .SimpleHistoryLogitem .SimpleHistoryEventSeparator--hasLabel
+	) {
+	padding-bottom: var(--sh-compact-row-padding);
+}
+
+/* Without a label the separator draws nothing but the hairline between two
+   rows, so it does not need the 30px the label pill reserves — that height was
+   most of a compact row's air. The negative margin puts the line on the row's
+   real top edge, and the min-height then gives the content the same air below
+   the line as the padding gives it above the next one. Drop the min-height and
+   rows lose their top padding entirely: content ends up glued to the line
+   below it and floating away from the line above. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator {
+	margin-top: calc(var(--sh-compact-row-padding) * -1);
+	min-height: var(--sh-compact-row-padding);
+}
+
+/* A day label here is a caption, not a chip — the same treatment the dashboard
+   widget already ships (see the .is-dashboard rules above). The centred pill it
+   replaces was the only centred thing in a view whose every other element is
+   flush left, and it was also the heaviest type on screen: 12px/600 in near
+   black, above a 15px message in a lighter weight. Grey it and the label ranks
+   below the content it introduces, which is the right way round.
+
+   It was expensive too: 30px of reserved height plus 12px of extra padding on
+   the row above, so 48px of clear space for one word. This costs 42px, and a
+   plain row break in the same list costs 7px.
+
+   The hairline stays. It is this row's own rule, full bleed, lining up with the
+   rules above and below it — dropping it would leave the day break with nothing
+   to sit on. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator--hasLabel {
+	min-height: 0;
+	justify-content: flex-start;
+
+	/* The separator is full bleed, so its content edge sits a medium step to
+	   the left of the row's. Put that step back or the label hangs 16px left
+	   of the avatar it introduces. */
+	padding-left: var(--sh-spacing-medium);
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryEventSeparator__label {
+	transform: none;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	padding: 0;
+	max-height: none;
+
+	/* Three row-paddings above, one below. The asymmetry is the point: a day
+	   label belongs to the day under it, so it has to sit closer to the event
+	   it introduces than to the last event of the day before. Equal margins
+	   leave it floating between the two, and a smaller bottom margin than this
+	   glues it to the avatar line. */
+	margin: calc(var(--sh-compact-row-padding) * 3) 0
+		var(--sh-compact-row-padding);
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--sh-color-gray-3);
+}
+
+/* The avatar moves into the header line (see EventHeader.jsx), so there is no
+   left column to indent past: the avatar, the message and the action links
+   all share the row's left edge. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__secondcol {
+	margin-left: 0;
+}
+
+/* line-height: 0 keeps the box exactly as tall as the avatar. With the
+   inherited line-height the span was 23px for an 18px image, and an inline
+   box that tall stretches the header's line box — which showed up as more
+   air above the message than below it. */
+.SimpleHistoryLogitem__headerAvatar {
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: var(--sh-spacing-xsmall);
+	line-height: 0;
+}
+
+.SimpleHistoryLogitem__headerAvatar
+	.sh-UserCard__trigger.components-button.is-link {
+	display: block;
+	padding: 0;
+	height: auto;
+	line-height: 0;
+}
+
+.SimpleHistoryLogitem__headerAvatar .SimpleHistoryLogitem__senderImage {
+	display: block;
+}
+
+/* The base rule only drops the middot from a divided item that is the header's
+   :first-child, and in this view it never is: the avatar comes first, and in
+   surrounding-events mode the "#123" span comes after that. Key it on the
+   dividers themselves instead — the first one carries no middot whatever
+   undivided elements happen to sit before it. */
+.SimpleHistoryLogitem__header
+	.SimpleHistoryLogitem__inlineDivided:not(
+		:where(
+				.SimpleHistoryLogitem__inlineDivided
+					~ .SimpleHistoryLogitem__inlineDivided
+			)
+	):before {
+	content: "";
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__senderImage {
+	width: 18px;
+	height: 18px;
+	margin-top: 0;
+}
+
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-wp
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-wp_cli
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-web_user
+	.SimpleHistoryLogitem__senderImage:before,
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-other
+	.SimpleHistoryLogitem__senderImage:before {
+	font-size: 18px;
+}
+
+/* The "CLI" overlay is positioned for the 32px avatar. */
+.SimpleHistoryLogitem--variant-compact.SimpleHistoryLogitem--initiator-wp_cli
+	.SimpleHistoryLogitem__senderImage:after {
+	line-height: 18px;
+	font-size: 7px;
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__header {
+	margin-top: 0;
+	line-height: 1.5;
+}
+
+/* The date is a link-variant Button, which carries the 30px height every
+   WordPress button has. */
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button {
+	height: auto;
+	line-height: 1.5;
+}
+
+/* The whole meta line goes grey at rest and blue once the row is hovered or
+   focused — the same deal the action links take, and for the same reason.
+   Measured over 12 rows, name and timestamp together were 1696px of blue
+   text against 3969px of black message, and 1190px of that blue said
+   "13 minutes ago" on every row: the loudest colour in the view was carrying
+   its least distinguishing datum, right down the path the eye scans. The name
+   is a <strong>, so weight already marks it as the who and colour on top of
+   that is redundant. Blue now means one thing per row — the objects named in
+   the message, which are the things you would click to go somewhere.
+
+   Both are still controls (the permalink and the user card), so they keep the
+   underline on their own hover. */
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button.is-link {
+	color: var(--sh-color-gray-3);
+	text-decoration: none;
+}
+
+.SimpleHistoryLogitem--variant-compact:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__header
+	.components-button.is-link {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button.is-link:hover,
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__header
+	.components-button.is-link:focus-visible {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+/* 1.4, not the 1.5 this started at: at 15px that was 22.5px of line box, which
+   made the message in the *compact* view more loosely leaded than the same
+   message in the detailed one (21px). */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__text {
+	line-height: 1.4;
+	margin-top: 1px;
+}
+
+/* The links keep their own line under the message, tight against it. The
+   negative left margin cancels the link's own padding so the first label
+   lines up with the avatar and the message above it. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__actionLinks {
+	gap: var(--sh-spacing-xsmall) 0;
+	margin-top: 1px;
+	margin-bottom: 0;
+	margin-left: calc(var(--sh-spacing-xsmall) * -1);
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__actionLinks__link {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+/* The details disclosure shares the action links line, so it takes their
+   metrics and their colour: grey at rest, blue once the row is hovered or
+   focused, rather than the standing blue a disclosure has elsewhere. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__detailsToggle {
+	padding: 0 var(--sh-spacing-xsmall);
+	color: var(--sh-color-gray-3);
+	line-height: inherit;
+}
+
+.SimpleHistoryLogitem--variant-compact:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__detailsToggle {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__detailsToggle:hover,
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__detailsToggle:focus-visible {
+	color: #135e96;
+}
+
+/* The details sit under the links they were opened from, not tucked against
+   the message the way they are in the detailed row.
+
+   They also get a tinted panel, which the detailed row does not need: there,
+   the avatar column runs down the side of every row and keeps the details
+   attached to the event above them. Compact dropped that column, so an open
+   diff would otherwise float between two hairlines with nothing saying which
+   event it belongs to. The negative side margins let the panel bleed past the
+   text without moving the text off the row's left edge. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__details {
+	margin-top: var(--sh-spacing-small);
+	margin-bottom: var(--sh-spacing-xsmall);
+	margin-left: calc(var(--sh-spacing-medium) * -1);
+	margin-right: calc(var(--sh-spacing-medium) * -1);
+	padding: var(--sh-spacing-small) var(--sh-spacing-medium);
+	border-radius: var(--sh-border-radius);
+	/* Lighter than --sh-color-gray-4, which is the hover background for links
+	   and buttons: a panel in that same grey would swallow their hover state. */
+	background: #f6f7f7;
+}
+
+/* Reaction pills are sized for the detailed row, where a 24px pill sits under
+   a 32px avatar. In a compact row they are the tallest thing below the message
+   and outweigh the links line right above them, so scale them to the same
+   order as that line. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__reactions {
+	margin-top: 2px;
+	gap: 3px;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__reactionButton.components-button {
+	gap: 3px;
+	padding: 1px 6px;
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__reactionEmoji {
+	font-size: 12px;
+}
+
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__reactionCount {
+	font-size: 11px;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__reactionAddInline {
+	width: 19px;
+	height: 19px;
+	font-size: 12px;
+}
+
+/* A shrink-to-fit key column is sized by the longest key in that one event, so
+   two open rows line their values up at two different x. Fix the column and
+   they agree. */
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__details
+	.SimpleHistoryLogitem__keyValueTable {
+	grid-template-columns: 120px minmax(0, 1fr);
+}
+
+/* The occasions disclosure is the same kind of control as the action links
+   right above it, so it takes the same metrics and the same grey instead of a
+   standing blue at twice the height. */
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__occasions {
+	margin-top: 1px;
+	font-size: var(--sh-font-size-small);
+	line-height: 1.4;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__occasions
+	.SimpleHistory__disclosureToggle {
+	padding: 0 var(--sh-spacing-xsmall);
+	margin-left: calc(var(--sh-spacing-xsmall) * -1);
+	color: var(--sh-color-gray-3);
+	line-height: inherit;
+}
+
+.SimpleHistoryLogitem--variant-compact:is(:hover, :focus-within)
+	.SimpleHistoryLogitem__occasions
+	.SimpleHistory__disclosureToggle {
+	color: #2271b1;
+}
+
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__occasions
+	.SimpleHistory__disclosureToggle:hover,
+.SimpleHistoryLogitem--variant-compact
+	.SimpleHistoryLogitem__occasions
+	.SimpleHistory__disclosureToggle:focus-visible {
+	color: #135e96;
 }
 
 /* Dashboard widget: stats summary row. Fixed min-height prevents shift when skeleton swaps to real content. */
@@ -1150,6 +1645,17 @@ a.sh-DashboardWidget-stats--link:hover {
 	font-size: var(--sh-font-size-small);
 	color: #646970;
 	border-top: 1px solid #f0f0f1;
+}
+
+/*
+ * Tip links are underlined rather than coloured, so they stay quiet enough that
+ * most tips can carry one. Underline alone is also the accessible cue, since it
+ * does not depend on colour.
+ */
+.sh-DashboardWidget-tipLink {
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: 2px;
 }
 
 /* Dashboard widget: main container. Spacing matches WP core dashboard widgets (12px/8px). */
@@ -1695,31 +2201,10 @@ scrollbar carries "there is more" on its own.
 }
 
 /*
-Right-aligned on purpose: it sits where the scrollbar appears, which is where
-the hand goes when someone realises the diff is cropped. Tucked flush against
-the diff above it, and inset from the right edge rather than hanging its
-padding past it, so it reads as belonging to the diff rather than to the
-action links below.
+Shared recipe for a control that toggles more content in place rather than
+navigating away: "expand diff" and "show/hide similar events" both use it, so
+the next disclosure control gets this for free instead of copying it again.
 
-Styled as a control rather than a link — same hover treatment as the action
-links, no resting underline — because it changes this view instead of
-navigating away.
-*/
-.SimpleHistory__diff__expandToggle {
-	background: none;
-	border: 0;
-	color: #2271b1;
-	cursor: pointer;
-	display: block;
-	font-size: var(--sh-font-size-small);
-	margin-top: 0;
-	margin-left: auto;
-	margin-right: var(--sh-spacing-small);
-	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
-	text-decoration: none;
-}
-
-/*
 A chevron rather than one of the sh-Icon sprites, because it has to rotate to
 show state and the icon set has no chevron. Drawn from two borders so it takes
 currentColor and needs no asset.
@@ -1727,7 +2212,29 @@ currentColor and needs no asset.
 Keyed off aria-expanded rather than a class of its own, so the arrow and what
 screen readers announce are driven by the same attribute and cannot drift apart.
 */
-.SimpleHistory__diff__expandToggle::after {
+/*
+Both toggles are plain <button>s rather than the @wordpress/components link
+Button, so the reset lives here once and nothing from wp-components has to
+be out-specified.
+*/
+.SimpleHistory__disclosureToggle {
+	background: none;
+	border: 0;
+	cursor: pointer;
+	color: #2271b1;
+	font-size: var(--sh-font-size-small);
+	padding: var(--sh-spacing-xsmall) var(--sh-spacing-small);
+	text-decoration: none;
+}
+
+.SimpleHistory__disclosureToggle:hover,
+.SimpleHistory__disclosureToggle:focus-visible {
+	background-color: var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius);
+	color: #135e96;
+}
+
+.SimpleHistory__disclosureToggle::after {
 	content: "";
 	display: inline-block;
 	width: 0.35em;
@@ -1739,21 +2246,32 @@ screen readers announce are driven by the same attribute and cannot drift apart.
 	transition: transform 0.15s ease;
 }
 
-.SimpleHistory__diff__expandToggle[aria-expanded="true"]::after {
+.SimpleHistory__disclosureToggle[aria-expanded="true"]::after {
 	transform: translateY(0.1em) rotate(-135deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.SimpleHistory__diff__expandToggle::after {
+	.SimpleHistory__disclosureToggle::after {
 		transition: none;
 	}
 }
 
-.SimpleHistory__diff__expandToggle:hover,
-.SimpleHistory__diff__expandToggle:focus-visible {
-	background-color: var(--sh-color-gray-4);
-	border-radius: var(--sh-border-radius);
-	color: #135e96;
+/*
+Right-aligned on purpose: it sits where the scrollbar appears, which is where
+the hand goes when someone realises the diff is cropped. Tucked flush against
+the diff above it, and inset from the right edge rather than hanging its
+padding past it, so it reads as belonging to the diff rather than to the
+action links below.
+
+Styled as a control rather than a link — same hover treatment as the action
+links, no resting underline — because it changes this view instead of
+navigating away.
+*/
+.SimpleHistory__diff__expandToggle {
+	display: block;
+	margin-top: 0;
+	margin-left: auto;
+	margin-right: var(--sh-spacing-small);
 }
 
 .SimpleHistory__diff__contents:focus {
@@ -3151,6 +3669,15 @@ a.sh-SettingsTabs-link:hover {
 	margin-bottom: 1rem;
 }
 
+/* Licenses tab: expired, disabled or invalid key. Color plus text, never color alone. */
+.sh-LicencesPage-plugin-active--problem {
+	color: #b32d2e;
+}
+
+.sh-LicencesPage-plugin-checked {
+	margin-top: 0;
+}
+
 .sh-FeedIntroduction {
 	background: #f6f7f7;
 	border-radius: var(--sh-border-radius);
@@ -3183,6 +3710,155 @@ a.sh-SettingsTabs-link:hover {
 	line-height: 1;
 }
 
+.sh-EmailReportOptIn {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5em 1em;
+}
+
+.sh-FeedIntroduction .sh-EmailReportOptIn {
+	margin: 0.75em 0 0;
+}
+
+.sh-EmailReportOptIn-description {
+	color: #50575e;
+	font-size: 13px;
+}
+
+@media (max-width: 782px) {
+	.sh-EmailReportOptIn-description {
+		flex-basis: 100%;
+	}
+}
+
+/*
+ * First purge notice: a premium upsell, so it must never look like the blue
+ * "info" notice. Cream background with the green accent used elsewhere for
+ * Premium calls to action.
+ */
+.notice.sh-FirstPurgeNotice {
+	background: var(--sh-color-cream);
+	border-left-color: var(--sh-color-green-cta);
+}
+
+.notice.sh-FirstPurgeNotice a.sh-FirstPurgeNotice-cta,
+.notice.sh-FirstPurgeNotice a.sh-FirstPurgeNotice-cta:hover {
+	font-weight: 600;
+	color: var(--sh-color-green-cta);
+}
+
+/*
+ * Live thumbnail of the weekly email, to the right of the email report settings.
+ * The email renders at its real 640px width in the iframe and is scaled down,
+ * so the thumbnail is the email itself rather than a screenshot that can go stale.
+ * Shown only when the settings card has room for it next to the form.
+ */
+.sh-SettingsCard:has(> .sh-EmailReportThumbnail) {
+	/* Set on the card, so that the form next to the thumbnail can use them too. */
+	--sh-email-thumbnail-scale: 0.45;
+	--sh-email-thumbnail-width: calc(640px * var(--sh-email-thumbnail-scale));
+	--sh-email-thumbnail-height: calc(1100px * var(--sh-email-thumbnail-scale));
+	--sh-email-thumbnail-gap: var(--sh-spacing-xxlarge);
+	--sh-email-form-max-width: 700px;
+
+	position: relative;
+	container-type: inline-size;
+}
+
+.sh-EmailReportThumbnail {
+	display: none;
+}
+
+/*
+ * The thumbnail follows the form, a fixed gap after its widest content, so on
+ * a wide screen it does not drift off to the far edge of the card. When the
+ * card is narrower than that, it sits against the card edge instead.
+ */
+@container (min-width: 1000px) {
+	.sh-EmailReportThumbnail:not([hidden]) {
+		display: block;
+		position: absolute;
+		top: var(--sh-spacing-large);
+		inset-inline-start: min(
+			calc(
+				100% - var(--sh-spacing-large) - var(--sh-email-thumbnail-width)
+			),
+			calc(
+				var(--sh-spacing-large) + var(--sh-email-form-max-width) +
+					var(--sh-email-thumbnail-gap)
+			)
+		);
+		width: var(--sh-email-thumbnail-width);
+	}
+
+	.sh-EmailReportThumbnail:not([hidden]) ~ .form-table {
+		width: min(
+			calc(
+				100% - var(--sh-email-thumbnail-width) -
+					var(--sh-email-thumbnail-gap)
+			),
+			var(--sh-email-form-max-width)
+		);
+	}
+}
+
+.sh-EmailReportThumbnail-label {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.sh-EmailReportThumbnail-description {
+	margin: 0 0 var(--sh-spacing-small);
+	color: #50575e;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.sh-EmailReportThumbnail-link {
+	display: block;
+	color: inherit;
+	text-decoration: none;
+}
+
+.sh-EmailReportThumbnail-frame {
+	display: block;
+	position: relative;
+	overflow: hidden;
+	height: var(--sh-email-thumbnail-height);
+	border: 1px solid var(--sh-color-separator);
+	border-radius: 6px;
+	background: #fff4e4;
+}
+
+/* Fade out the cut-off bottom edge. */
+.sh-EmailReportThumbnail-frame::after {
+	content: "";
+	position: absolute;
+	inset: auto 0 0;
+	height: 48px;
+	background: linear-gradient(rgba(255, 244, 228, 0), #fff4e4);
+}
+
+.sh-EmailReportThumbnail-iframe {
+	display: block;
+	width: 640px;
+	height: 1100px;
+	border: 0;
+	transform: scale(var(--sh-email-thumbnail-scale));
+	transform-origin: 0 0;
+	pointer-events: none;
+}
+
+.sh-EmailReportThumbnail-open {
+	display: block;
+	margin-top: var(--sh-spacing-small);
+	color: var(--wp-admin-theme-color, #2271b1);
+	font-size: 12px;
+	text-decoration: underline;
+}
+
 /* .sh-FeedIntroduction-ps {
 	font-size: 13px;
 } */
@@ -3197,6 +3873,22 @@ a.sh-SettingsTabs-link:hover {
 	border-bottom: 1px solid var(--sh-color-separator);
 	flex-wrap: wrap;
 	background-color: #f9f9f9;
+}
+
+/* Stands in for the search row in the table view, which renders its own
+   query bar instead and leaves this panel out of the DOM entirely. Same
+   height as the row above — 12px padding either side of a 40px control,
+   plus its 1px border — so switching between the views does not move the
+   content below. Empty and transparent: it is reserved space, not a
+   control, so it carries neither the row's background nor its border.
+
+   One case it does not cover: below 782px the real search row wraps onto
+   two lines and is taller than this. Switching views on a phone therefore
+   still moves a little, which is the narrower case and the smaller cost
+   than reserving two rows' height on every desktop. */
+.SimpleHistory-filters__reservedSpace {
+	box-sizing: border-box;
+	height: 65px;
 }
 
 /* Chips for event types hidden from the current list. */
@@ -3236,10 +3928,12 @@ a.sh-SettingsTabs-link:hover {
 	min-width: 0;
 }
 
+/* Reserve the width the loaded options usually need, so the select does not
+   grow when the month options arrive from the API and replace the single
+   "Loading…" option. No max-width: locales with long month names may still
+   need more room, and clipping the label is worse than a rare resize. */
 .SimpleHistory-filters__dateSelect {
-	width: auto;
-	min-width: 140px;
-	max-width: 180px;
+	min-width: 180px;
 }
 
 /* Search InputControl. */
@@ -3628,9 +4322,17 @@ a.sh-EventsStatsBar--link:hover {
 	background: #f6f7f7;
 }
 
-/* Events control bar: event count + action buttons. */
+/* Events control bar: event count + action buttons.
+
+   12px, not 16px, and the same 12px as .SimpleHistory-filters__searchRow
+   below. Those two sit directly on top of each other in every view, and at
+   16px against 12px the action row was inset four pixels further than the
+   filter panel under it — a misalignment small enough to read as sloppiness
+   rather than as a choice. In the table view the gap was the full 16px
+   against a panel that starts at the container edge, which made the
+   Export/Share row visibly narrower than everything below it. */
 .sh-EventsControlBar-actions {
-	padding: var(--sh-spacing-medium) var(--sh-spacing-medium);
+	padding: 12px;
 }
 
 /* End-of-results hint: shown at the bottom of the list on the last page
@@ -3647,6 +4349,17 @@ a.sh-EventsStatsBar--link:hover {
 	margin: 0;
 }
 
+/* Premium hint above the events when filtered to one initiator.
+   Same quiet look as the end-of-results hint. The extra bottom padding
+   leaves room for the first date label, which sits half above its row. */
+.sh-InitiatorFilterHint {
+	margin: 0;
+	font-size: var(--sh-font-size-small);
+	color: var(--sh-color-gray-3);
+	line-height: 1.4;
+	padding: var(--sh-spacing-small) var(--sh-spacing-medium) 20px;
+}
+
 .sh-EndOfResultsHint__line + .sh-EndOfResultsHint__line {
 	margin-top: var(--sh-spacing-xsmall);
 }
@@ -3654,6 +4367,513 @@ a.sh-EventsStatsBar--link:hover {
 /* Inline action buttons group in control bar. */
 .sh-ControlBarButtons {
 	gap: var(--sh-spacing-xsmall);
+}
+
+/* Detailed | Compact view toggle at the end of the control bar (issue 240).
+   Built like GitHub's segmented control: the group sits on a grey track and
+   the chosen option is a white tile on top of it. The icon is small but the
+   button around it keeps a comfortable hit area. */
+.sh-EventsViewToggle {
+	display: inline-flex;
+	gap: 2px;
+	margin: 0 0 0 var(--sh-spacing-small);
+	padding: 3px;
+	border: 0;
+	border-radius: 6px;
+	background: #f0f0f1;
+	list-style: none;
+}
+
+.sh-EventsViewToggle__item {
+	margin: 0;
+	display: inline-flex;
+}
+
+.sh-EventsViewToggle__option {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 30px;
+	height: 28px;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	color: #646970;
+	background: transparent;
+	cursor: pointer;
+}
+
+.sh-EventsViewToggle__option:hover {
+	color: #1e1e1e;
+}
+
+.sh-EventsViewToggle__option.is-checked {
+	background: #fff;
+	border-color: #dcdcde;
+	color: #1e1e1e;
+}
+
+/* Windows High Contrast Mode flattens the background/color swap above, so the
+   checked option would look identical to the unchecked ones — add an outline
+   so the selection is still visible. */
+@media (forced-colors: active) {
+	.sh-EventsViewToggle__option.is-checked {
+		outline: 2px solid Highlight;
+		outline-offset: -2px;
+	}
+}
+
+.sh-EventsViewToggle__option svg {
+	fill: currentColor;
+}
+
+.sh-EventsViewToggle__option:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 1px;
+	z-index: 1;
+}
+
+/* Table view preview (issue 240), shown when nothing fills
+   SimpleHistorySlotTableView.
+
+   Laid out like a screenshot: a staged sample of the premium table in full
+   colour, fading out at the bottom into one cream premium card. An earlier
+   version dimmed the sample to 55% and added a "Nothing below is clickable"
+   note, because at full fidelity readers took it for the real table. That sold
+   the feature faded and with a warning first. Now the "Example" ribbon and the
+   card sitting over the table say it is a preview, and the sample keeps a
+   not-allowed cursor for anyone who tries it anyway. */
+.sh-TablePreview {
+	position: relative;
+	overflow: hidden;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
+
+/* Decoration, not a control. aria-hidden in the markup keeps it out of the
+   accessibility tree; this keeps it out of reach of the mouse. Children get
+   pointer-events: none, which leaves this element the one that is
+   hit-tested, so the not-allowed cursor is what the mouse finds over it. */
+.sh-TablePreview__sample {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	/* Room under the table for the card, so it covers the last rows and
+	   not the first ones. */
+	padding: 16px 16px 290px;
+	cursor: not-allowed;
+	user-select: none;
+}
+
+.sh-TablePreview__sample > * {
+	pointer-events: none;
+}
+
+.sh-TablePreview__ribbon {
+	position: absolute;
+	top: 0;
+	right: 16px;
+	padding: 3px 8px 4px;
+	background: #1d2327;
+	border-radius: 0 0 3px 3px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #fff;
+}
+
+.sh-TablePreview__query {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 14px;
+	padding: 6px 10px;
+	background: #fff;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+}
+
+.sh-TablePreview__queryText {
+	flex: 1;
+	font-family: Menlo, Consolas, monaco, monospace;
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.sh-TablePreview__queryApply {
+	padding: 2px 10px;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #2271b1;
+}
+
+/* A staged week of activity: fixed bars from SAMPLE_CHART, drawn as divs
+   because the preview must not ship working chart code. */
+.sh-TablePreview__chart {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 60px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.sh-TablePreview__chartBar {
+	position: relative;
+	flex: 1;
+	min-height: 2px;
+	background: #8f97d6;
+}
+
+/* The warning-and-above share, sitting on top of its bar, matching how the
+   real chart stacks the two. */
+.sh-TablePreview__chartBar-severe {
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	background: #d98a86;
+}
+
+.sh-TablePreview__axis {
+	display: flex;
+	justify-content: space-between;
+	margin-top: -6px;
+	font-size: 12px;
+	color: #646970;
+}
+
+.sh-TablePreview__legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	font-size: 12px;
+	color: #3c434a;
+}
+
+.sh-TablePreview__swatch {
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	margin-right: 5px;
+	background: #8f97d6;
+	border-radius: 2px;
+}
+
+.sh-TablePreview__swatch.is-severe {
+	background: #d98a86;
+}
+
+.sh-TablePreview__summary {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 12px;
+	color: #646970;
+}
+
+.sh-TablePreview__count {
+	font-size: 16px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.sh-TablePreview__warnings {
+	color: #b32d2e;
+}
+
+.sh-TablePreview__menus {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin-left: auto;
+	font-weight: 500;
+	color: #3c434a;
+}
+
+.sh-TablePreview__table {
+	width: 100%;
+	border-collapse: collapse;
+	border-top: 1px solid #c3c4c7;
+	font-variant-numeric: tabular-nums;
+}
+
+.sh-TablePreview__table th,
+.sh-TablePreview__table td {
+	padding: 9px 10px;
+	text-align: left;
+	border-bottom: 1px solid #dcdcde;
+	font-size: 13px;
+	line-height: 1.5;
+	white-space: nowrap;
+	color: #3c434a;
+}
+
+.sh-TablePreview__table th {
+	font-weight: 600;
+	color: #1d2327;
+}
+
+/* The two ticked rows the toolbar's Compare is about. */
+.sh-TablePreview__table tr.is-selected td {
+	background: #f0f6fc;
+}
+
+.sh-TablePreview__selected {
+	font-weight: 400;
+	color: #646970;
+}
+
+/* Drawn like the secondary buttons the real toolbar shows for a selection. */
+.sh-TablePreview__button {
+	padding: 3px 10px;
+	border: 1px solid #2271b1;
+	border-radius: 3px;
+	font-size: 12px;
+	color: #2271b1;
+}
+
+.sh-TablePreview__table td.is-muted {
+	color: #646970;
+}
+
+.sh-TablePreview__table td.sh-TablePreview__message {
+	width: 100%;
+	color: #1d2327;
+}
+
+.sh-TablePreview__user {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+}
+
+/* The user's name as Premium draws it while its filter menu is open. */
+.sh-TablePreview__userCell {
+	position: relative;
+}
+
+.sh-TablePreview__user.is-open {
+	margin: -2px -4px;
+	padding: 2px 4px;
+	background: #f0f0f1;
+	border-radius: 2px;
+	box-shadow: inset 0 0 0 1px #2271b1;
+}
+
+/* Drawn like the WordPress components popover the real menu opens in. */
+.sh-TablePreview__menu {
+	position: absolute;
+	top: calc(100% - 4px);
+	left: 6px;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 220px;
+	padding: 8px;
+	background: #fff;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	box-shadow:
+		0 2px 6px rgba(0, 0, 0, 0.05),
+		0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.sh-TablePreview__menuItem {
+	padding: 6px 8px;
+	border-radius: 2px;
+	color: #1e1e1e;
+}
+
+.sh-TablePreview__menuItem.is-active {
+	background: #f0f0f1;
+}
+
+.sh-TablePreview__avatar {
+	display: inline-grid;
+	place-items: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	font-size: 10px;
+	font-weight: 700;
+	color: #fff;
+}
+
+.sh-TablePreview__level {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.sh-TablePreview__level::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #a7aaad;
+}
+
+.sh-TablePreview__level.is-warning::before {
+	background: #dba617;
+}
+
+/* Fades the lower half of the sample into the page, so the card reads as
+   sitting on top of a screenshot rather than next to a second table. */
+.sh-TablePreview__fade {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 50%;
+	background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff 55%);
+	pointer-events: none;
+}
+
+.sh-TablePreview__card {
+	position: absolute;
+	bottom: 24px;
+	left: 50%;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: min(920px, calc(100% - 32px));
+	padding: 20px 24px;
+	background: var(--sh-color-cream);
+	border: 1px solid var(--sh-color-premium-cream-edge);
+	border-radius: 4px;
+	box-shadow: 0 10px 34px rgba(29, 35, 39, 0.14);
+	transform: translateX(-50%);
+}
+
+.sh-TablePreview__title {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.3;
+	color: #1d2327;
+}
+
+.sh-TablePreview__text {
+	margin: 0;
+	font-size: 14px;
+	color: #3c434a;
+}
+
+/* Three short lists side by side, each under a heading. */
+.sh-TablePreview__groups {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px 24px;
+}
+
+.sh-TablePreview__groupHeading {
+	margin: 0 0 6px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #646970;
+}
+
+.sh-TablePreview__features {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 13px;
+	line-height: 1.4;
+	color: #3c434a;
+}
+
+.sh-TablePreview__features li {
+	display: flex;
+	align-items: flex-start;
+	gap: 4px;
+	margin: 0;
+}
+
+.sh-TablePreview__check {
+	flex: none;
+	fill: #00a32a;
+}
+
+.sh-TablePreview__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px 20px;
+}
+
+.sh-TablePreview__cta {
+	display: inline-block;
+	padding: 9px 16px;
+	background: var(--sh-color-green-cta);
+	border-radius: 3px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #fff;
+	text-decoration: none;
+}
+
+/* WordPress admin colours links on hover and focus; keep the text white on
+   the button instead. No hover change of its own, on purpose. */
+.sh-TablePreview__cta:hover,
+.sh-TablePreview__cta:focus {
+	color: #fff;
+}
+
+.sh-TablePreview__cta:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+/* The rest of Premium, named quietly under the actions. */
+.sh-TablePreview__also {
+	margin: 0;
+	padding-top: 12px;
+	border-top: 1px solid var(--sh-color-premium-cream-edge);
+	font-size: 12px;
+	color: #646970;
+}
+
+/* On narrow screens the card would cover the whole sample, so it drops below
+   it instead and the fade goes. */
+@media (max-width: 782px) {
+	.sh-TablePreview__sample {
+		padding-bottom: 16px;
+		overflow-x: hidden;
+	}
+
+	.sh-TablePreview__fade {
+		display: none;
+	}
+
+	.sh-TablePreview__card {
+		position: static;
+		width: auto;
+		margin: 0 12px 12px;
+		box-shadow: none;
+		transform: none;
+	}
+
+	.sh-TablePreview__groups {
+		grid-template-columns: 1fr;
+	}
 }
 
 /* Individual control bar button — compact tertiary style, matching action link sizing. */
@@ -3677,6 +4897,47 @@ a.sh-EventsStatsBar--link:hover {
 	height: 1.25em;
 	fill: currentColor;
 	flex-shrink: 0;
+}
+
+/* Sidebar toggle, at the end of the control bar.
+
+   Separated from the view switcher by the same 8px the switcher uses to
+   separate itself from the action buttons to ITS left. Without it the toggle
+   sat 4px from the switcher's grey track — a third of the spacing every other
+   group boundary in this row gets — and a 32px button hard against a 34px
+   track reads as a fourth segment of the segmented control rather than as a
+   separate thing. 4px means "same group" here; 8px plus the row's own gap
+   means "next group".
+
+   The pressed state is spelled out because @wordpress/components fills any
+   button carrying aria-pressed with solid #1e1e1e and a white icon. Nobody
+   chose that for this button, and it made a layout preference the heaviest
+   element in a bar that also holds Export and Create alert — worst of all in
+   the table view, which defaults to hidden and so shows it pressed on
+   arrival. Grey fill and a dark icon instead, with the same #dcdcde outline
+   the switcher's own selected tile carries, drawn as an inset shadow so
+   turning it on does not move anything. The outline is what keeps pressed
+   legible while hovered, since the inherited hover is the same grey. */
+.sh-EventsSidebarToggle.components-button {
+	margin-left: var(--sh-spacing-small);
+}
+
+.sh-EventsSidebarToggle.components-button.is-pressed,
+.sh-EventsSidebarToggle.components-button.is-pressed:focus {
+	color: var(--sh-color-black);
+	background: var(--sh-color-gray-4);
+	box-shadow: inset 0 0 0 1px #dcdcde;
+}
+
+/* Hovering a pressed button has to be spelled out separately: WP has its own
+   .is-pressed:hover, and with only the rule above the button went back to
+   solid black the moment the pointer touched it — the exact treatment the
+   rule above exists to avoid. One step darker than the resting grey, so
+   hover still says something. */
+.sh-EventsSidebarToggle.components-button.is-pressed:hover {
+	color: var(--sh-color-black);
+	background: var(--sh-color-gray);
+	box-shadow: inset 0 0 0 1px #dcdcde;
 }
 
 /* "Copied!" feedback state on share button. */
@@ -3771,12 +5032,12 @@ Styles for plugin update details. Markup looks like this:
 */
 
 .sh-PluginUpdateDetails {
-	margin-top: var(--sh-spacing-medium);
 	margin-bottom: var(--sh-spacing-medium);
 }
 
 .sh-PluginUpdateDetails-title {
 	font-weight: 500;
+	margin-top: var(--sh-spacing-medium);
 	margin-bottom: var(--sh-spacing-small);
 }
 
@@ -4855,6 +6116,13 @@ Styles for plugin update details. Markup looks like this:
 	color: var(--sh-color-black);
 }
 
+/* Quiet by design — see .sh-DashboardWidget-tipLink. */
+.sh-SidebarTip-link {
+	color: inherit;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
 /* UserCard popover — shown on avatar/name click */
 .sh-UserCard__trigger.components-button.is-link {
 	text-decoration: none;
@@ -5144,58 +6412,6 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 	margin: 0 0 6px 0;
 }
 
-/* No-op kept for the non-WP-user teaser, which still passes this modifier
-   class. Cream/padding is now on the base rule above. Safe to delete once
-   that teaser is refactored. */
-.sh-UserCard__premiumTeaser--blurred {
-	/* empty */
-}
-
-/* Option A: Blurred preview. */
-.sh-UserCard__blurredPreview {
-	display: block;
-	text-decoration: none;
-	color: inherit;
-	position: relative;
-}
-
-.sh-UserCard__blurredPreview:hover {
-	text-decoration: none;
-}
-
-.sh-UserCard__blurredPreview .sh-UserCard__meta {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.sh-UserCard__detail--blurred {
-	color: var(--sh-color-gray-3);
-}
-
-.sh-UserCard__blurredAction {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	margin-top: 8px;
-	color: #2271b1;
-}
-
-.sh-UserCard__premiumBadge {
-	display: inline-block;
-	margin-top: 8px;
-	padding: 2px 7px;
-	background: #f0f0f0;
-	color: #595959;
-	border-radius: 3px;
-	font-size: 11px;
-	font-weight: 400;
-}
-
-.sh-UserCard__blurredPreview:hover .sh-UserCard__premiumBadge {
-	color: var(--sh-color-blue, #2271b1);
-}
-
 /* Premium teaser screenshot block — figure + caption + CTA.
    Screenshot regen: npm run screenshots:teaser-user-card. */
 .sh-UserCard__teaserScreenshot {
@@ -5210,10 +6426,12 @@ body.sh-has-premium .sh-UserCard--wp-user.sh-UserCard--loading {
 	   on first open (causes a scrollbar until the image loads + repositions).
 	   Ratio matches the source PNG produced by the teaser-screenshots skill;
 	   tolerant of small variance run-to-run. */
-	aspect-ratio: 640 / 580;
-	/* No box-shadow / white frame — the screenshot already has its own
-	   popover border and shadow baked in. Adding another shadow inside the
-	   cream block creates a busy triple-frame effect. */
+	aspect-ratio: 636 / 366;
+	/* The screenshot is a crop from inside the card, so it has no frame of
+	   its own. A plain border sets it off from the cream block; no shadow. */
+	background: #fff;
+	border: 1px solid var(--sh-color-gray-4);
+	border-radius: var(--sh-border-radius, 4px);
 }
 
 .sh-UserCard__teaserCaption {

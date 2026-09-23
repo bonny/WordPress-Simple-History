@@ -1,16 +1,17 @@
 import { clsx } from 'clsx';
-import { EventActionsButton } from './EventActionsButton';
-import { EventActionLinks } from './EventActionLinks';
-import { EventDetails } from './EventDetails';
-import { EventHeader } from './EventHeader';
-import { EventInitiatorImage } from './EventInitiator';
-import { EventOccasions } from './EventOccasions';
-import { EventReactions, useEventReactions } from './EventReactions';
-import { EventText } from './EventText';
+import { useEventReactions } from './EventReactions';
+import { EventRowCompact } from './EventRowCompact';
+import { EventRowDetailed } from './EventRowDetailed';
 import { EventSeparator } from './EventSeparator';
 
 /**
  * Component for a single event in the list of events.
+ *
+ * Owns what every view shares — the list item, its class names, the date
+ * separator and the reaction state — and hands the row itself to the layout
+ * for the current variant. The compact log and the detailed log arrange the
+ * same parts differently, so they get a row component each instead of a pile
+ * of variant checks in one place.
  *
  * @param {Object} props
  */
@@ -24,6 +25,8 @@ export function Event( props ) {
 		isSurroundingEventsMode,
 	} = props;
 
+	// Lives here, not in the row: EventReactions and EventActionsButton both
+	// read it, and the actions menu is what writes to it.
 	const reactionState = useEventReactions( event );
 
 	const containerClassNames = clsx(
@@ -39,6 +42,8 @@ export function Event( props ) {
 		}
 	);
 
+	const Row = variant === 'compact' ? EventRowCompact : EventRowDetailed;
+
 	return (
 		<li className={ containerClassNames }>
 			<EventSeparator
@@ -47,35 +52,12 @@ export function Event( props ) {
 				prevEvent={ prevEvent }
 			/>
 
-			<div className="SimpleHistoryLogitem__firstcol">
-				<EventInitiatorImage event={ event } />
-			</div>
-
-			<div className="SimpleHistoryLogitem__secondcol">
-				<EventHeader
-					event={ event }
-					eventVariant={ variant }
-					isSurroundingEventsMode={ isSurroundingEventsMode }
-				/>
-
-				<EventText event={ event } eventVariant={ variant } />
-
-				{ variant !== 'dashboard' && (
-					<EventDetails event={ event } eventVariant={ variant } />
-				) }
-
-				<EventActionLinks event={ event } />
-
-				<EventReactions { ...reactionState } />
-
-				<EventOccasions event={ event } eventVariant={ variant } />
-
-				<EventActionsButton
-					event={ event }
-					eventVariant={ variant }
-					reactionState={ reactionState }
-				/>
-			</div>
+			<Row
+				event={ event }
+				variant={ variant }
+				reactionState={ reactionState }
+				isSurroundingEventsMode={ isSurroundingEventsMode }
+			/>
 		</li>
 	);
 }

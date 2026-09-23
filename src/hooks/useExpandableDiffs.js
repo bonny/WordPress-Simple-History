@@ -39,6 +39,13 @@ const EXPANDED_CLASS = 'SimpleHistory__diff__contents--isExpanded';
 const TOGGLE_CLASS = 'SimpleHistory__diff__expandToggle';
 
 /**
+ * Shared with the "show similar events" toggle in EventOccasions.jsx so both
+ * disclosure controls draw the same chevron and hover/focus treatment. See
+ * `.SimpleHistory__disclosureToggle` in css/styles.css.
+ */
+const SHARED_TOGGLE_CLASS = 'SimpleHistory__disclosureToggle';
+
+/**
  * A couple of pixels of slack so sub-pixel rounding does not make a diff that
  * fits exactly look croppable.
  */
@@ -109,7 +116,7 @@ function attachToggle( contents ) {
 
 		button = document.createElement( 'button' );
 		button.type = 'button';
-		button.className = TOGGLE_CLASS;
+		button.className = `${ TOGGLE_CLASS } ${ SHARED_TOGGLE_CLASS }`;
 		button.setAttribute( 'aria-controls', contents.id );
 		setToggleState( button, false );
 		button.addEventListener( 'click', onClick );

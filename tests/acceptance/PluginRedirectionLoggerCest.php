@@ -13,23 +13,39 @@ class PluginRedirectionLoggerCest
         $I->activatePluginByFile('redirection/redirection.php');
         $I->amOnAdminPage('/tools.php?page=redirection.php');
 
-        // Go through setup wizard.
+        // Go through setup wizard. Every step is rendered by React once the
+        // previous one resolves, so wait for each control before clicking it.
+        // An unwaited click lands on whichever step is still on screen, which
+        // made this test fail roughly one run in four.
+        $I->waitForText('Start Setup', 30);
         $I->click('Start Setup');
+
+        $I->waitForText('Continue', 30);
         $I->click('Continue');
+
+        $I->waitForText('Finish Setup', 30);
         $I->click('Finish Setup');
 
         // Wait for AJAX table setup to complete (shows progress bar then "Continue").
         $I->waitForText('Continue', 30);
         $I->click('Continue');
-        $I->waitForText('Ready to begin!');
+
+        $I->waitForText('Ready to begin!', 30);
         $I->click('Ready to begin!');
+
+        // The wizard hands over to the redirect list. Wait for that form so the
+        // first test action does not race the final transition.
+        $I->waitForElement('[name=url]', 30);
     }
 
     public function testRedirects(Admin $I) {
         // Add redirect.
         $I->fillField('[name=url]', '/my-source-url');
         $I->fillField('[name=text]', '/my-target-url');
-        $I->click('Add Redirect');
+        // "Add redirect" also labels the page-title toggle button and the form's
+        // <h2>, both of which sit before the submit button in DOM order and
+        // would otherwise win a plain text-based click.
+        $I->click('.add-new .table-actions button[type=submit]');
         $I->wait(1);
         $I->seeLogMessage('Added a redirection for URL "/my-source-url"');
         $I->seeLogContext([
@@ -64,6 +80,51 @@ class PluginRedirectionLoggerCest
         $I->acceptPopup();
         $I->wait(1);
         $I->seeLogMessage('Deleted redirection for 1 URL(s)');
+    }
+
+    /**
+     * The setup wizard run in _before() leaves monitor_post/monitor_types at
+     * their defaults (both false), so it does not itself produce a change for
+     * those keys — only expire_redirect/expire_404 change there, from the
+     * wizard's logging step. To exercise issue 312's "which settings changed"
+     * detail table for monitor_post specifically, use the real Options tab
+     * (tools.php?page=redirection.php&sub=options): tick "Monitor changes to
+     * post" and click Update, which submits the whole settings form and
+     * changes both monitor_types (from [] to ["post"]) and monitor_post
+     * (from its default 0 to the id of the group the monitored redirects go
+     * into — it is a group id, not an on/off switch).
+     */
+    public function testOptionsSaved(Admin $I) {
+        $I->amOnAdminPage('/tools.php?page=redirection.php&sub=options');
+        $I->waitForElement('#monitor-type-post', 30);
+        $I->click('#monitor-type-post');
+        $I->click('Update');
+        $I->wait(1);
+
+        $history_table = $I->grabPrefixedTableNameFor('simple_history');
+        $contexts_table = $I->grabPrefixedTableNameFor('simple_history_contexts');
+
+        // The setup wizard in _before() already produced its own "settings changed"
+        // event (expire_redirect/expire_404 only), so more than one row can match
+        // this message. grabFromDatabase() has no ORDER BY, so it is not guaranteed
+        // to return the newest one — take the highest id instead, i.e. the event
+        // from this test's own Update click.
+        $row_ids = $I->grabColumnFromDatabase($history_table, 'id', [
+            'message' => 'Updated {settings_changed_count} redirection setting(s)',
+        ]);
+
+        $I->assertNotEmpty($row_ids, 'Expected a "settings changed" event from the Options tab save');
+
+        $row_id = max($row_ids);
+
+        $context_keys = $I->grabColumnFromDatabase($contexts_table, '`key`', ['history_id' => $row_id]);
+
+        $I->assertContains('redirection_option_monitor_post_new', $context_keys);
+
+        // Also verify it renders as a before/after row in the event details (issue 312).
+        // monitor_post has a human label mapped in get_option_label(), so the raw
+        // key does not appear in the HTML — assert on the label text instead.
+        $I->seeInLogKeyValueTable('Group for monitored post redirects');
     }
 
     public function testGroups(Admin $I) {

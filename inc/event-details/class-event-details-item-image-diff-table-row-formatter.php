@@ -81,9 +81,8 @@ class Event_Details_Item_Image_Diff_Table_Row_Formatter extends Event_Details_It
 	 */
 	public function to_html() {
 		return sprintf(
-			'<tr>
-				<td>%1$s</td>
-				<td>
+			'<dt>%1$s</dt>
+				<dd>
 					<div class="SimpleHistory__diff__contents SimpleHistory__diff__contents--noContentsCrop" tabindex="0">
 						<div class="SimpleHistory__diff__contentsInner">
 							<table class="diff SimpleHistory__diff">
@@ -95,8 +94,7 @@ class Event_Details_Item_Image_Diff_Table_Row_Formatter extends Event_Details_It
 							</table>
 						</div>
 					</div>
-				</td>
-			</tr>',
+				</dd>',
 			esc_html( (string) $this->item->name ),
 			$this->get_side_html( $this->prev_image ),
 			$this->get_side_html( $this->new_image )

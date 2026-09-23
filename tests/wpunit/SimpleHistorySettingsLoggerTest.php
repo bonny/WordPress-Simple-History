@@ -390,6 +390,31 @@ class SimpleHistorySettingsLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'third', $context_map['sh_test_multi_change_new'] );
 	}
 
+	public function test_repeated_edits_of_same_setting_share_occasions_id() {
+		$this->track_option( 'sh_test_occasion', 'Test occasion option' );
+		$this->track_option( 'sh_test_other_occasion', 'Test other occasion option' );
+		$this->seed_option( 'sh_test_occasion', 'off' );
+		$this->seed_option( 'sh_test_other_occasion', 'a' );
+
+		// Toggle the same setting back and forth across three requests.
+		update_option( 'sh_test_occasion', 'on' );
+		$this->logger->commit_settings_changes();
+		$first = \Simple_History\tests\get_latest_row( false )['occasionsID'];
+
+		update_option( 'sh_test_occasion', 'off' );
+		$this->logger->commit_settings_changes();
+		$second = \Simple_History\tests\get_latest_row( false )['occasionsID'];
+
+		$this->assertSame( $first, $second, 'Edits of the same setting should group into one occasion despite different values' );
+
+		// A different set of changed settings must not join that group.
+		update_option( 'sh_test_other_occasion', 'b' );
+		$this->logger->commit_settings_changes();
+		$third = \Simple_History\tests\get_latest_row( false )['occasionsID'];
+
+		$this->assertNotSame( $first, $third, 'Edits of a different setting should start a new occasion' );
+	}
+
 	public function test_long_string_value_logs_as_changed_only() {
 		$this->track_option( 'sh_test_long_string', 'Test long string' );
 		$this->seed_option( 'sh_test_long_string', 'short' );

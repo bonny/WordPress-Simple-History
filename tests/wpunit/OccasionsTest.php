@@ -5,7 +5,11 @@ use Simple_History\Log_Query;
 use Simple_History\Loggers\Logger;
 
 class OccasionsTest extends \Codeception\TestCase\WPTestCase {
+	use \Helper\SkipsOnSqlite;
+
 	function test_occasions() {
+		$this->skip_on_sqlite( 'occasion grouping is MySQL-only. Log_Query::query_overview() sends SQLite to query_overview_simple(), which returns every event ungrouped, because the grouping query counts consecutive rows with MySQL session variables. Delete this skip when grouping works on SQLite.' );
+
 		$admin_user_id = $this->factory->user->create(
 			array(
 				'role' => 'administrator',

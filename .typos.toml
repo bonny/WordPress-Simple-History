@@ -21,6 +21,10 @@ setted = "setted"
 juli = "juli"
 # Accepted English variant of "unparsable"
 unparseable = "unparseable"
+# FTC Franchise Rule: Financial Performance Representation
+FPR = "FPR"
 
 [default.extend-identifiers]
 commited = "commited"
+# Plural of PNG: typos splits it into "PN" + "Gs" and flags PN as ON.
+PNGs = "PNGs"

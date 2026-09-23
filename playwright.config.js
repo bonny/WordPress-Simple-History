@@ -25,6 +25,7 @@ const screenshotSpecs = [
 	'email-settings',
 	'ip-popover',
 	'email-preview',
+	'compact-view',
 	'banner',
 ];
 const screenshotTestMatch = new RegExp(
@@ -50,6 +51,54 @@ module.exports = defineConfig( {
 			name: 'setup',
 			testMatch: /auth\.setup\.js/,
 		},
+		// These two specs flip the site-wide experimental-features option
+		// through the dev-tools endpoint. Run in parallel they race each
+		// other, so they run as a chain of their own before `tests`.
+		{
+			name: 'experimental-privacy',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /privacy-data\.spec\.js$/,
+			dependencies: [ 'setup' ],
+		},
+		{
+			name: 'experimental-hide',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /hide-event-type\.spec\.js$/,
+			dependencies: [ 'experimental-privacy' ],
+		},
+		// events-view-toggle.spec.js stores the admin's event log view
+		// preference and toggles it through the UI. Run with `fullyParallel`
+		// against the shared admin session, it races other specs that assume
+		// the detailed view (e.g. ones that look for
+		// .SimpleHistoryLogitem__details). Give it its own project so it runs
+		// on its own, like the experimental-features specs above.
+		{
+			name: 'events-view',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /events-view-toggle\.spec\.js$/,
+			dependencies: [ 'experimental-hide' ],
+		},
+		{
+			// The premium table view replaces the whole log area and stores a
+			// view preference, so it races specs that assume the detailed
+			// list. Own project, like events-view above.
+			name: 'premium-table',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /premium-table-view\.spec\.js$/,
+			dependencies: [ 'events-view' ],
+		},
 		{
 			name: 'tests',
 			use: {
@@ -60,8 +109,15 @@ module.exports = defineConfig( {
 			// Screenshot specs are not tests — they run via the dedicated
 			// `screenshot` project (tests/screenshot/run.sh) against a fresh
 			// Playground instance, so keep them out of the regular suite.
-			testIgnore: /screenshot-.*\.spec\.js$/,
-			dependencies: [ 'setup' ],
+			// The experimental-features specs run in their own projects above.
+			testIgnore: [
+				/screenshot-.*\.spec\.js$/,
+				/privacy-data\.spec\.js$/,
+				/hide-event-type\.spec\.js$/,
+				/events-view-toggle\.spec\.js$/,
+				/premium-table-view\.spec\.js$/,
+			],
+			dependencies: [ 'premium-table' ],
 		},
 		{
 			// Teaser user-card screenshots, captured against the dev WordPress

@@ -434,17 +434,6 @@ export const useURLFragment = () => {
 };
 
 /**
- * Random function from https://stackoverflow.com/a/7228322
- *
- * @param {number} min
- * @param {number} max
- * @return {number} Random number between min and max.
- */
-export function randomIntFromInterval( min, max ) {
-	return Math.floor( Math.random() * ( max - min + 1 ) + min );
-}
-
-/**
  * Build tracking URL with standardized UTM parameters for analytics.
  *
  * Creates consistent tracking URLs for monitoring which features generate
@@ -577,6 +566,28 @@ export async function parseApiFetchError( error ) {
 	errorDetails.bodyText = __( 'Unknown error', 'simple-history' );
 
 	return errorDetails;
+}
+
+/**
+ * Whether a parsed apiFetch error is an auth failure: an expired nonce/session
+ * or a missing capability. A retry cannot fix those — the page keeps its
+ * stale nonce even after signing in again in another tab — so callers should
+ * point at a page reload instead of offering a retry.
+ *
+ * @param {Object} errorDetails Result of parseApiFetchError().
+ * @return {boolean} True for 401/403 or the REST codes WordPress uses for them.
+ */
+export function isAuthFailureError( errorDetails ) {
+	const restErrorCode = errorDetails.bodyJson?.code;
+	const status =
+		typeof errorDetails.code === 'number' ? errorDetails.code : null;
+
+	return (
+		restErrorCode === 'rest_cookie_invalid_nonce' ||
+		restErrorCode === 'rest_forbidden' ||
+		status === 401 ||
+		status === 403
+	);
 }
 
 /**

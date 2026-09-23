@@ -23,6 +23,7 @@ const OUTPUT = {
 	premium: {
 		closeup: path.join( ASSETS_DIR, 'user-card-with-premium.png' ),
 		context: path.join( ASSETS_DIR, 'user-card-with-premium-context.png' ),
+		details: path.join( ASSETS_DIR, 'user-card-premium-details.png' ),
 	},
 	free: {
 		closeup: path.join( ASSETS_DIR, 'user-card-without-premium.png' ),
@@ -214,6 +215,42 @@ test( `capture user card popover (${ MODE })`, async ( { page } ) => {
 			height: cardBox.height,
 		} ),
 	} );
+
+	// Premium details: only the rows premium adds (stats, meta lines and
+	// "View this user's events"), cut out of the card. This is the image the
+	// free teaser embeds. The whole card was taller than the free card it
+	// sat in and showed a second "User profile" link next to the real one.
+	if ( MODE === 'premium' ) {
+		const detailsBox = await page.evaluate( () => {
+			const card = document.querySelector( '.sh-UserCard--wp-user' );
+			const identity = card?.querySelector( '.sh-UserCard__identity' );
+			const viewEvents = card?.querySelector(
+				'.sh-UserCard__actions li'
+			);
+			if ( ! identity || ! viewEvents ) {
+				return null;
+			}
+			const cardRect = card.getBoundingClientRect();
+			const top = identity.getBoundingClientRect().bottom + 2;
+			const bottom = viewEvents.getBoundingClientRect().bottom + 8;
+			return {
+				x: cardRect.x + 1,
+				y: top,
+				width: cardRect.width - 1,
+				height: bottom - top,
+			};
+		} );
+		if ( ! detailsBox ) {
+			throw new Error( 'Could not measure the premium details rows' );
+		}
+		await page.screenshot( {
+			path: OUTPUT.premium.details,
+			clip: clamp( {
+				...detailsBox,
+				width: detailsBox.width - CLOSE_X_CROP,
+			} ),
+		} );
+	}
 
 	// Context clip: combine popover bounds with the trigger's event row so
 	// the screenshot shows "popover anchored to this event in the log."
