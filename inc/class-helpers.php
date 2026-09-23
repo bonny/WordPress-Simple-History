@@ -2124,6 +2124,135 @@ class Helpers {
 	}
 
 	/**
+	 * Find the plugin whose code is running, from the call stack.
+	 *
+	 * Walks the backtrace from the innermost frame outwards and returns the
+	 * first frame that is in a regular or must-use plugin, skipping Simple
+	 * History's own files. Call it from a hook that fires while something is
+	 * being changed, e.g. `update_option_{$option}`, to tell which plugin made
+	 * the change. The caller is gone once the hook has returned.
+	 *
+	 * @param array|null $backtrace Backtrace to inspect, innermost frame first. Defaults to the current one.
+	 * @return array{slug: string, type: string, file: string}|null Plugin folder (or file name without .php),
+	 *     "plugin" or "mu-plugin", and the frame's file relative to that plugin directory.
+	 *     Null when no plugin is on the stack, i.e. WordPress core or a theme made the call.
+	 */
+	public static function get_calling_plugin( $backtrace = null ) {
+		if ( $backtrace === null ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Attributes a change to a plugin, not debug output.
+			$backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+		}
+
+		$plugin_dirs = [
+			'mu-plugin' => trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ),
+			'plugin'    => trailingslashit( wp_normalize_path( WP_PLUGIN_DIR ) ),
+		];
+
+		// Based on __FILE__, so this is the real path even when the plugin is symlinked.
+		$own_dir = trailingslashit( wp_normalize_path( SIMPLE_HISTORY_PATH ) );
+
+		foreach ( $backtrace as $frame ) {
+			if ( empty( $frame['file'] ) || ! is_string( $frame['file'] ) ) {
+				continue;
+			}
+
+			$file = wp_normalize_path( $frame['file'] );
+
+			if ( strpos( $file, $own_dir ) === 0 ) {
+				continue;
+			}
+
+			$file = self::get_plugin_path_from_real_path( $file );
+
+			foreach ( $plugin_dirs as $type => $dir ) {
+				if ( strpos( $file, $dir ) !== 0 ) {
+					continue;
+				}
+
+				$relative = substr( $file, strlen( $dir ) );
+				$segments = explode( '/', $relative );
+
+				return [
+					'slug' => preg_replace( '/\.php$/', '', $segments[0] ),
+					'type' => $type,
+					'file' => $relative,
+				];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get the display name of a plugin found by get_calling_plugin().
+	 *
+	 * Reads the plugin header, so call it only when the name is needed.
+	 *
+	 * @param array{slug: string, type: string, file: string} $plugin Return value of get_calling_plugin().
+	 * @return string Plugin name, or the slug when there is no readable header.
+	 */
+	public static function get_calling_plugin_name( $plugin ) {
+		$base_dir = $plugin['type'] === 'mu-plugin' ? WPMU_PLUGIN_DIR : WP_PLUGIN_DIR;
+		$base_dir = trailingslashit( wp_normalize_path( $base_dir ) );
+
+		if ( strpos( $plugin['file'], '/' ) === false ) {
+			// Single-file plugin: the frame's file is the plugin file.
+			$candidates = [ $base_dir . $plugin['file'] ];
+		} else {
+			// Plugin folder: the header is in one of its top-level PHP files,
+			// usually the one named after the folder.
+			$folder     = $base_dir . $plugin['slug'];
+			$candidates = array_merge( [ $folder . '/' . $plugin['slug'] . '.php' ], (array) glob( $folder . '/*.php' ) );
+		}
+
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		foreach ( array_unique( $candidates ) as $candidate ) {
+			if ( ! is_string( $candidate ) || ! is_file( $candidate ) ) {
+				continue;
+			}
+
+			$plugin_data = get_plugin_data( $candidate, false, false );
+
+			if ( ! empty( $plugin_data['Name'] ) ) {
+				return $plugin_data['Name'];
+			}
+		}
+
+		return $plugin['slug'];
+	}
+
+	/**
+	 * Map a file's real path back to its path under the plugins directory.
+	 *
+	 * PHP reports real paths in backtraces, so a symlinked plugin's files do not
+	 * start with WP_PLUGIN_DIR. WordPress records each symlinked plugin's real
+	 * path in the `$wp_plugin_paths` global, the same map plugin_basename() uses.
+	 *
+	 * @param string $file Normalized file path.
+	 * @return string Path under the plugins directory, or $file unchanged.
+	 */
+	private static function get_plugin_path_from_real_path( $file ) {
+		global $wp_plugin_paths;
+
+		if ( empty( $wp_plugin_paths ) || ! is_array( $wp_plugin_paths ) ) {
+			return $file;
+		}
+
+		foreach ( $wp_plugin_paths as $plugin_path => $real_path ) {
+			$real_path = trailingslashit( $real_path );
+
+			if ( strpos( $file, $real_path ) === 0 ) {
+				return trailingslashit( $plugin_path ) . substr( $file, strlen( $real_path ) );
+			}
+		}
+
+		return $file;
+	}
+
+	/**
 	 * Check if the current request is a REST API request.
 	 *
 	 * Checks REST_REQUEST (WordPress core) and REST_API_REQUEST (a
