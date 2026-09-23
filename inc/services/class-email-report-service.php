@@ -1520,10 +1520,12 @@ class Email_Report_Service extends Service {
 
 		// The enabled checkbox is a separate setting saved in the same request.
 		// An unchecked checkbox is not sent at all, so its absence means "off".
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The Settings API already verified the settings-page nonce before calling sanitize callbacks.
+		// The Settings API already verified the settings-page nonce before calling sanitize callbacks.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		$enabled = isset( $_POST['simple_history_email_report_enabled'] )
 			? rest_sanitize_boolean( wp_unslash( $_POST['simple_history_email_report_enabled'] ) )
 			: false;
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		if ( ! $enabled ) {
 			return;
@@ -1537,6 +1539,17 @@ class Email_Report_Service extends Service {
 				return;
 			}
 		}
+
+		// WordPress only adds its own "Settings saved." notice when no other
+		// settings messages exist, so the warning below would hide it and the
+		// save would look like it failed. Add it here, with core's own string.
+		add_settings_error(
+			'general',
+			'settings_updated',
+			// phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- Reuses core's translated string.
+			__( 'Settings saved.' ),
+			'success'
+		);
 
 		add_settings_error(
 			'simple_history_email_report_recipients',
