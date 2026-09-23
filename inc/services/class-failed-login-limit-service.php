@@ -277,9 +277,11 @@ class Failed_Login_Limit_Service extends Service {
 					continue;
 				}
 
-				if ( $key === '_server_http_referer' || self::context_key_holds_ip( $key ) ) {
-					$request_context[ $key ] = (string) $value;
+				if ( $key !== '_server_http_referer' && ! self::context_key_holds_ip( $key ) ) {
+					continue;
 				}
+
+				$request_context[ $key ] = (string) $value;
 			}
 		} else {
 			$request_context = Helpers::get_remote_addr_context();
