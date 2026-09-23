@@ -2,7 +2,9 @@
 
 namespace Simple_History\Services;
 
+use Simple_History\Dropins\Export_Dropin;
 use Simple_History\Helpers;
+use Simple_History\Menu_Manager;
 
 /**
  * Shows a one-time notice shortly before a new install starts removing the
@@ -28,7 +30,12 @@ use Simple_History\Helpers;
  * and set `simple_history_install_date_gmt` to a date about retention days minus 5 ago.
  */
 class First_Purge_Notice_Service extends Service {
-	/** Option that holds the notice state: "pending", "shown" or "expired". Absent on sites installed before this existed. */
+	/**
+	 * Option that holds the notice state: "pending", "dismissed" or "expired".
+	 * Legacy sites may still have "shown" from before dismissal was tracked;
+	 * that also means done, same as any other value that is not "pending".
+	 * Absent on sites installed before this existed.
+	 */
 	const OPTION_NAME = 'simple_history_first_purge_notice';
 
 	/** Show the notice this many days before the first purge of events logged after install. */
@@ -43,11 +50,22 @@ class First_Purge_Notice_Service extends Service {
 	/** UTM campaign for the Premium link. */
 	const UTM_CAMPAIGN = 'premium_retention_first_purge';
 
+	/** Action name for the AJAX request that dismisses the notice. */
+	const DISMISS_AJAX_ACTION = 'simple_history_dismiss_first_purge_notice';
+
+	/** Nonce action used to verify the dismiss request. */
+	const DISMISS_NONCE_ACTION = 'simple_history_dismiss_first_purge_notice';
+
+	/** @var bool Whether the notice was output during this request, so admin_footer knows whether to print the dismiss script. */
+	private $notice_was_output = false;
+
 	/**
 	 * Called when service is loaded.
 	 */
 	public function loaded() {
 		add_action( 'admin_notices', [ $this, 'maybe_show_notice' ] );
+		add_action( 'wp_ajax_' . self::DISMISS_AJAX_ACTION, [ $this, 'ajax_dismiss' ] );
+		add_action( 'admin_footer', [ $this, 'maybe_print_dismiss_script' ] );
 	}
 
 	/**
@@ -55,6 +73,30 @@ class First_Purge_Notice_Service extends Service {
 	 */
 	public static function set_pending() {
 		update_option( self::OPTION_NAME, 'pending', false );
+	}
+
+	/**
+	 * Flag the notice as dismissed, so it stops showing for good.
+	 *
+	 * Called from the AJAX handler when the user closes the notice.
+	 */
+	public static function dismiss() {
+		update_option( self::OPTION_NAME, 'dismissed', false );
+	}
+
+	/**
+	 * Handle the AJAX request sent when the user dismisses the notice.
+	 */
+	public function ajax_dismiss() {
+		check_ajax_referer( self::DISMISS_NONCE_ACTION, 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error();
+		}
+
+		self::dismiss();
+
+		wp_send_json_success();
 	}
 
 	/**
@@ -92,10 +134,49 @@ class First_Purge_Notice_Service extends Service {
 			return;
 		}
 
-		// Shown once per site, to whichever admin sees it first.
-		update_option( self::OPTION_NAME, 'shown', false );
-
+		// Stays pending, and keeps showing on reload, until the user dismisses it
+		// (see dismiss()) or the window above closes and marks it "expired".
 		$this->output_notice( $retention_days, $days_until_purge );
+	}
+
+	/**
+	 * Print the script that posts the dismissal to the server.
+	 *
+	 * WordPress adds the notice's close button (`.notice-dismiss`) itself, via
+	 * its own admin-notices JavaScript, so the click listener uses event
+	 * delegation on the document rather than binding directly to the button.
+	 *
+	 * Only prints when the notice was actually output this request, so pages
+	 * without it do not carry the extra script.
+	 */
+	public function maybe_print_dismiss_script() {
+		if ( ! $this->notice_was_output ) {
+			return;
+		}
+
+		$nonce = wp_create_nonce( self::DISMISS_NONCE_ACTION );
+		?>
+		<script>
+		document.addEventListener( 'click', function ( event ) {
+			var dismissButton = event.target.closest( '.sh-FirstPurgeNotice .notice-dismiss' );
+
+			if ( ! dismissButton ) {
+				return;
+			}
+
+			var body = new URLSearchParams();
+			body.append( 'action', <?php echo wp_json_encode( self::DISMISS_AJAX_ACTION ); ?> );
+			body.append( 'nonce', <?php echo wp_json_encode( $nonce ); ?> );
+
+			fetch( ajaxurl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: body.toString(),
+			} );
+		} );
+		</script>
+		<?php
 	}
 
 	/**
@@ -190,58 +271,98 @@ class First_Purge_Notice_Service extends Service {
 			$heading = sprintf(
 				/* translators: %d: number of days until events start being removed. */
 				_n(
-					'In %d day, Simple History starts removing the activity logged since you installed it.',
-					'In %d days, Simple History starts removing the activity logged since you installed it.',
+					'In %d day, Simple History starts removing your oldest events.',
+					'In %d days, Simple History starts removing your oldest events.',
 					$days_until_purge,
 					'simple-history'
 				),
 				$days_until_purge
 			);
 		} else {
-			$heading = __( 'Simple History has started removing the activity logged since you installed it.', 'simple-history' );
+			$heading = __( 'Simple History has started removing your oldest events.', 'simple-history' );
 		}
 
 		$text = sprintf(
 			/* translators: %d: number of days events are kept. */
 			_n(
-				'Once a week, events older than %d day are removed.',
-				'Once a week, events older than %d days are removed.',
+				'Once a week, Simple History removes events older than %d day.',
+				'Once a week, Simple History removes events older than %d days.',
 				$retention_days,
 				'simple-history'
 			),
 			$retention_days
 		);
 
-		$premium_link = sprintf(
-			/* translators: 1: opening link tag, 2: closing link tag. */
-			__( '%1$sSimple History Premium%2$s lets you keep your history for as long as you need, or forever.', 'simple-history' ),
-			'<a href="' . esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', self::UTM_CAMPAIGN ) ) . '" target="_blank">',
-			'</a>'
+		$premium_text = __( 'Simple History Premium keeps them for as long as you choose, even forever, and adds alerts, log forwarding and more.', 'simple-history' );
+
+		$premium_cta = sprintf(
+			'<p><a href="%1$s" class="sh-FirstPurgeNotice-cta" target="_blank" rel="noopener">%2$s</a></p>',
+			esc_url( Helpers::get_tracking_url( 'https://simple-history.com/add-ons/premium/', self::UTM_CAMPAIGN ) ),
+			esc_html__( 'Keep your full history →', 'simple-history' )
 		);
 
 		$message = sprintf(
-			'<p><strong>%1$s</strong></p><p>%2$s %3$s</p>',
+			'<p><strong>%1$s</strong></p><p>%2$s %3$s</p>%4$s',
 			esc_html( $heading ),
 			esc_html( $text ),
+			esc_html( $premium_text ),
 			wp_kses(
-				$premium_link,
+				$premium_cta,
 				[
+					'p' => [],
 					'a' => [
 						'href'   => [],
+						'class'  => [],
 						'target' => [],
+						'rel'    => [],
 					],
 				]
 			)
 		);
 
-		// The free alternative: a weekly record outside the site. Empty when the
-		// user already gets the email or can not turn it on.
+		// The free way out for anyone who would rather not upgrade: grab a copy
+		// before it is gone. Left out when the Export tab is not available, e.g.
+		// because Export_Dropin was filtered out.
+		$export_url = Menu_Manager::get_admin_url_by_slug( Export_Dropin::MENU_SLUG );
+
+		if ( $export_url !== '' ) {
+			if ( $days_until_purge > 0 ) {
+				$export_line = sprintf(
+					/* translators: 1: opening link tag, 2: closing link tag. */
+					__( 'Or %1$sexport your log%2$s before then.', 'simple-history' ),
+					'<a href="' . esc_url( $export_url ) . '">',
+					'</a>'
+				);
+			} else {
+				$export_line = sprintf(
+					/* translators: 1: opening link tag, 2: closing link tag. */
+					__( 'Or %1$sexport your log%2$s now.', 'simple-history' ),
+					'<a href="' . esc_url( $export_url ) . '">',
+					'</a>'
+				);
+			}
+
+			$message .= sprintf(
+				'<p>%s</p>',
+				wp_kses(
+					$export_line,
+					[
+						'a' => [
+							'href' => [],
+						],
+					]
+				)
+			);
+		}
+
+		// The other free alternative: a weekly record outside the site. Empty when
+		// the user already gets the email or can not turn it on.
 		$opt_in_html = Email_Report_Service::get_opt_in_html();
 
 		if ( $opt_in_html !== '' ) {
 			$message .= sprintf(
 				'<p>%1$s</p>%2$s',
-				esc_html__( 'Or follow it by email instead.', 'simple-history' ),
+				esc_html__( 'Want a weekly overview too?', 'simple-history' ),
 				$opt_in_html
 			);
 		}
@@ -251,12 +372,14 @@ class First_Purge_Notice_Service extends Service {
 			return;
 		}
 
+		$this->notice_was_output = true;
+
 		wp_admin_notice(
 			$message,
 			[
-				'paragraph_wrap' => false,
-				'type'           => 'info',
-				'dismissible'    => true,
+				'paragraph_wrap'     => false,
+				'dismissible'        => true,
+				'additional_classes' => [ 'sh-FirstPurgeNotice' ],
 			]
 		);
 	}
