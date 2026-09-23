@@ -101,6 +101,10 @@ class Plugin_ACF_Logger extends Logger {
 
 		// Fired after a log row is inserted. Add filter so field group save is is not logged again.
 		add_action( 'simple_history/log/inserted', array( $this, 'on_log_inserted' ), 10, 3 );
+
+		// Ignore ACF's own bookkeeping meta keys when the post logger detects
+		// changed custom fields, so they don't show up as noise.
+		add_filter( 'simple_history/post_logger/meta_keys_to_ignore', array( $this, 'add_acf_meta_keys_to_ignore' ), 10, 4 );
 	}
 
 	/**
@@ -272,28 +276,30 @@ class Plugin_ACF_Logger extends Logger {
 			*/
 
 		/*
-			* We have the diff, now add it to the context
-			* This is called after Simple History already has added its row
-			* So... we must add to the context late somehow
-			* Get the latest inserted row from the SimplePostLogger, check if that postID is
-			* same as the
+			* We have the diff, now hand it over to the post logger.
+			* This is called after Simple History may already have added its
+			* row for this request (classic editor / single request saves),
+			* or before it has (the block editor's meta-box-loader request,
+			* where the post_updated event is logged, or found and appended
+			* to, later from wp_after_insert_post). Post_Logger::
+			* add_meta_box_save_context() knows which of the two this is.
 			*/
 		$post_logger = $this->simple_history->get_instantiated_logger_by_slug( 'SimplePostLogger' );
 
-		// Save ACF diff if detected post here is same as the last one used in Postlogger.
-		if ( ! isset( $post_logger->last_insert_context['post_id'] ) || $post_id !== $post_logger->last_insert_context['post_id'] ) {
+		if ( ! $post_logger instanceof Post_Logger ) {
 			return;
 		}
 
-		$last_insert_id = $post_logger->last_insert_id;
-
-		// Append new info to the context of history item with id $post_logger->last_insert_id.
 		$acf_context = array();
 		$acf_context = $this->add_acf_context( $acf_context, 'added', $post_meta_added_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
 		$acf_context = $this->add_acf_context( $acf_context, 'changed', $post_meta_changed_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
 		$acf_context = $this->add_acf_context( $acf_context, 'removed', $post_meta_removed_fields, $prev_post_meta, $new_post_meta, $fieldnames_to_field_keys );
 
-		$post_logger->append_context( $last_insert_id, $acf_context );
+		if ( empty( $acf_context ) ) {
+			return;
+		}
+
+		$post_logger->add_meta_box_save_context( (int) $post_id, $acf_context );
 	}
 
 	/**
@@ -1057,5 +1063,99 @@ class Plugin_ACF_Logger extends Logger {
 		$skip_posttypes[] = 'acf-field';
 
 		return $skip_posttypes;
+	}
+
+	/**
+	 * Add ACF's internal bookkeeping meta keys to the post logger's ignore
+	 * list, so a post save with ACF fields does not report them as
+	 * user-visible custom field changes.
+	 *
+	 * Three kinds of ACF bookkeeping/data keys can be ignored:
+	 * - "_acf_changed", set on every save that goes through ACF's own
+	 *   save routine. Always ignored.
+	 * - The "_fieldname" => "field_xxxxxxxxxxxxx" reference key ACF stores
+	 *   alongside every "fieldname" => value entry, pointing at the field's
+	 *   ACF field key. See is_acf_field_reference_key(). Always ignored —
+	 *   it is pure bookkeeping, never something a user changed on purpose.
+	 * - The "fieldname" value key itself. This is only ignored when ACF's
+	 *   own save routine is the one reporting it — i.e. an ACF form
+	 *   submission, detected by the presence of $_POST['acf'] — because
+	 *   that's what on_acf_save_post() → Post_Logger::add_meta_box_save_context()
+	 *   already reports it under, with a label. Outside that (WP-CLI,
+	 *   `wp_update_post( [ 'meta_input' => [...] ] )`, any other
+	 *   programmatic update), ACF's own save routine never runs, so nothing
+	 *   else reports the change — it must stay visible in the core meta diff.
+	 *
+	 * @param array<string>        $arr_meta_keys_to_ignore Meta keys (and wildcard patterns) to ignore.
+	 * @param array<string, mixed> $context                 Context being built for the event. Unused here.
+	 * @param array<string, mixed> $old_meta                Post meta before the save, keyed by meta key.
+	 * @param array<string, mixed> $new_meta                Post meta after the save, keyed by meta key.
+	 * @return array<string>
+	 */
+	public function add_acf_meta_keys_to_ignore( $arr_meta_keys_to_ignore, $context, $old_meta, $new_meta ) {
+		$arr_meta_keys_to_ignore[] = '_acf_changed';
+
+		// Presence only, not read as data, so no sanitization/unslashing needed.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$is_acf_form_submission = isset( $_POST['acf'] );
+
+		foreach ( array( $old_meta, $new_meta ) as $meta_set ) {
+			foreach ( $meta_set as $meta_key => $meta_value ) {
+				if ( ! $this->is_acf_field_reference_key( $meta_key, $meta_value, $meta_set ) ) {
+					continue;
+				}
+
+				$arr_meta_keys_to_ignore[] = $meta_key;
+
+				if ( ! $is_acf_form_submission ) {
+					continue;
+				}
+
+				// Also ignore the value key the reference key points to,
+				// e.g. "my_field" for reference key "_my_field" — but
+				// only when Plugin_ACF_Logger's own diff will report it
+				// instead.
+				$arr_meta_keys_to_ignore[] = substr( $meta_key, 1 );
+			}
+		}
+
+		return $arr_meta_keys_to_ignore;
+	}
+
+	/**
+	 * Check whether a meta key is one of ACF's internal field-reference keys.
+	 *
+	 * ACF stores a "_fieldname" => "field_xxxxxxxxxxxxx" entry alongside every
+	 * "fieldname" => value entry, pointing at the field's ACF field key. It is
+	 * bookkeeping for ACF itself, not a change a user made.
+	 *
+	 * The field key suffix isn't always a hex hash — code-registered and
+	 * local-JSON field keys are written by hand and commonly look like
+	 * "field_hero_title" — so the match allows any word characters, not
+	 * just 0-9a-f.
+	 *
+	 * @param string               $meta_key   Meta key being checked, e.g. "_my_field".
+	 * @param mixed                $meta_value Meta value for that key, as returned by get_post_meta() without $single.
+	 * @param array<string, mixed> $meta_set   The full meta array (old or new) the key belongs to, used to look up the field name.
+	 * @return bool
+	 */
+	private function is_acf_field_reference_key( $meta_key, $meta_value, $meta_set ) {
+		if ( strpos( $meta_key, '_' ) !== 0 ) {
+			return false;
+		}
+
+		$meta_value = (array) $meta_value;
+
+		if ( count( $meta_value ) !== 1 || ! is_string( $meta_value[0] ) ) {
+			return false;
+		}
+
+		if ( ! preg_match( '/^field_[A-Za-z0-9_]+$/', $meta_value[0] ) ) {
+			return false;
+		}
+
+		$field_name = substr( $meta_key, 1 );
+
+		return isset( $meta_set[ $field_name ] );
 	}
 }

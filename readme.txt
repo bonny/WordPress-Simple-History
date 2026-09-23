@@ -277,6 +277,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   The compact event log view is no longer experimental. The Detailed/Compact switch is now available to everyone from the event log page.
 -   Sorting by level now orders by severity, so the most serious events come first instead of alphabetically.
 -   Custom field changes on posts name the fields that changed instead of only counting them.
+-   Custom field and term changes on posts are included in event details from the REST API and WP-CLI.
 -   Preview of the weekly email stays on the settings page after you turn the email on.
 
 **Fixed**
@@ -285,6 +286,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Activity counts from the REST API (`/events/aggregate`) are grouped by your site's timezone rather than by GMT, so an event just after midnight is counted on the right day.
 -   The "new events" count above the log now respects your filters. With "Hide my own events" on, or event types hidden, it counted events the list would never show — so it could announce new activity and then show you nothing when you clicked it.
 -   Changed post excerpts are labelled "Excerpt" instead of the raw field name.
+-   Custom field changes made in the block editor's meta boxes, like the Custom Fields panel, are now logged.
+-   Empty custom fields that some plugins create when a post is first saved are no longer listed as added.
+-   Internal keys from Advanced Custom Fields no longer clutter the list of changed custom fields.
+-   Long lists of custom field names wrap instead of running off the edge of the event.
 -   Tips that mention Premium are hidden on sites that have turned promotional messages off.
 -   Image thumbnails on media events name the image for screen reader users.
 
