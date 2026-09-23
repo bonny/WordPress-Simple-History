@@ -30,6 +30,10 @@ npm run test:acceptance          # legacy browser tests (Selenium — prefer Pla
 
 # Full PHP suite (Codeception only — does NOT include Playwright)
 npm test
+
+# In a git worktree these npm scripts fail (container-name clash, symlinked
+# vendor, empty tests/plugins). See "Checks and tests inside a worktree" in
+# the worktree skill for the docker command that works there.
 ```
 
 **Note:** `npm test` runs only the Codeception suite. To get full coverage, run both `npm run test:playwright` and `npm test` separately.
@@ -82,7 +86,7 @@ instead.
 
 -   **Core `.github/workflows/test.yml`** — wpunit, functional and acceptance, one job
     each, on every push, via the same `docker compose run --rm php-cli vendor/bin/codecept
-    run <suite>` you run locally. Shared setup (`composer install`, `npm run build`,
+run <suite>` you run locally. Shared setup (`composer install`, `npm run build`,
     `scripts/install-test-plugins.sh`) is the composite action
     `.github/actions/setup-tests`. Premium is absent there, so the ~255 premium tests show
     up as _skipped_, not passed. A failed job uploads `tests/_output` as an artifact —

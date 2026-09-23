@@ -72,7 +72,20 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 		remove_role( 'test_role' );
 		remove_role( 'test_role_2' );
 		remove_role( 'test_empty_role' );
+
+		unset( $_SERVER['REQUEST_METHOD'], $_GET['_wpnonce'] );
+		remove_filter( 'wp_doing_cron', '__return_true' );
+
 		parent::tearDown();
+	}
+
+	/**
+	 * Latest event's context as key => value.
+	 *
+	 * @return array<string, string>
+	 */
+	private function latest_context_values() {
+		return array_column( get_latest_context( false ), 'value', 'key' );
 	}
 
 	/**
@@ -89,9 +102,9 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$initial->setAccessible( true );
 		$initial->setValue( $this->logger, null );
 
-		$captured = $reflection->getProperty( 'captured_plugin_context' );
-		$captured->setAccessible( true );
-		$captured->setValue( $this->logger, array() );
+		$attributions = $reflection->getProperty( 'attributions' );
+		$attributions->setAccessible( true );
+		$attributions->setValue( $this->logger, array() );
 
 		$ctx = $reflection->getProperty( 'plugin_context' );
 		$ctx->setAccessible( true );
@@ -666,5 +679,129 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$output = $this->logger->get_log_row_details_output( $row );
 
 		$this->assertEmpty( $output, 'Deleted role without plugin context or caps should return empty' );
+	}
+
+	/**
+	 * A plugin's upgrade routine on a page view is not the logged-in user's doing.
+	 * Issue 331.
+	 */
+	public function test_change_on_read_request_is_wordpress_without_user() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		add_role( 'test_role', 'Read Request Role', [ 'read' => true ] );
+		$this->flush_logger();
+
+		$context = $this->latest_context_values();
+
+		$this->assertSame( 'wp', get_latest_row()['initiator'] );
+		$this->assertArrayNotHasKey( '_user_id', $context );
+	}
+
+	/**
+	 * A form post is the user's own action.
+	 */
+	public function test_change_on_write_request_is_the_user() {
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		add_role( 'test_role', 'Write Request Role', [ 'read' => true ] );
+		$this->flush_logger();
+
+		$context = $this->latest_context_values();
+
+		$this->assertSame( 'wp_user', get_latest_row()['initiator'] );
+		$this->assertSame( (string) $this->admin_user_id, $context['_user_id'] );
+	}
+
+	/**
+	 * An action link with a nonce is the user's own action, even though it is a GET.
+	 */
+	public function test_change_on_get_with_nonce_is_the_user() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_GET['_wpnonce']          = 'abc123';
+
+		add_role( 'test_role', 'Nonce Link Role', [ 'read' => true ] );
+		$this->flush_logger();
+
+		$this->assertSame( 'wp_user', get_latest_row()['initiator'] );
+	}
+
+	/**
+	 * A write request by a visitor who is not logged in is not a deliberate role change.
+	 */
+	public function test_change_on_write_request_without_user_is_wordpress() {
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		wp_set_current_user( 0 );
+
+		add_role( 'test_role', 'Logged Out Role', [ 'read' => true ] );
+		$this->flush_logger();
+
+		$this->assertSame( 'wp', get_latest_row()['initiator'] );
+	}
+
+	/**
+	 * Cron is WordPress even on a write request with a logged-in user,
+	 * and even though cron has finished by the time the event is logged.
+	 */
+	public function test_change_during_cron_is_wordpress() {
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		add_filter( 'wp_doing_cron', '__return_true' );
+		add_role( 'test_role', 'Cron Role', [ 'read' => true ] );
+		remove_filter( 'wp_doing_cron', '__return_true' );
+
+		$this->flush_logger();
+
+		$this->assertSame( 'wp', get_latest_row()['initiator'] );
+		$this->assertArrayNotHasKey( '_user_id', $this->latest_context_values() );
+	}
+
+	/**
+	 * Activating a plugin is the user's action, also on a GET, and the plugin
+	 * is named as the event's via.
+	 */
+	public function test_change_during_activation_is_the_user_via_the_plugin() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		$this->logger->on_plugin_activation_start( 'wp-crontrol/wp-crontrol.php' );
+		add_role( 'test_role', 'Activation Role', [ 'read' => true ] );
+		$this->logger->on_plugin_activation_end( 'wp-crontrol/wp-crontrol.php' );
+		$this->flush_logger();
+
+		$context = $this->latest_context_values();
+
+		$this->assertSame( 'wp_user', get_latest_row()['initiator'] );
+		$this->assertSame( 'WP Crontrol', $context['_via_plugin'] );
+		$this->assertSame( 'wp-crontrol', $context['_via_plugin_slug'] );
+	}
+
+	/**
+	 * Each role's event is attributed to the update that changed it, not to
+	 * whichever update came first or last in the request.
+	 */
+	public function test_each_change_keeps_its_own_initiator() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		add_role( 'test_role', 'First Role', [ 'read' => true ] );
+
+		// A later update in the same request, made in a write context.
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		add_role( 'test_role_2', 'Second Role', [ 'read' => true ] );
+
+		$this->flush_logger();
+
+		global $wpdb;
+		$events_table   = $this->sh->get_events_table_name();
+		$contexts_table = $this->sh->get_contexts_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$initiators = $wpdb->get_results(
+			"SELECT c.value AS role_slug, h.initiator FROM {$events_table} h
+			INNER JOIN {$contexts_table} c ON c.history_id = h.id AND c.key = 'role_slug'
+			WHERE h.logger = 'SimpleRoleCapabilityLogger' AND c.value IN ( 'test_role', 'test_role_2' )
+			ORDER BY h.id DESC LIMIT 2",
+			OBJECT_K
+		);
+
+		$this->assertSame( 'wp', $initiators['test_role']->initiator );
+		$this->assertSame( 'wp_user', $initiators['test_role_2']->initiator );
 	}
 }

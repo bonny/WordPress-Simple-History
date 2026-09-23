@@ -1303,7 +1303,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 
 		if ( rest_is_field_included( 'via', $fields ) ) {
 			$row_logger  = $this->simple_history->get_instantiated_logger_by_slug( $item->logger );
-			$data['via'] = $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '';
+			$data['via'] = $row_logger ? $row_logger->get_via( $item ) : '';
 		}
 
 		if ( rest_is_field_included( 'message', $fields ) ) {
