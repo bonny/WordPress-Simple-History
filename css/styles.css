@@ -3726,6 +3726,27 @@ a.sh-SettingsTabs-link:hover {
 	font-size: 13px;
 }
 
+@media (max-width: 782px) {
+	.sh-EmailReportOptIn-description {
+		flex-basis: 100%;
+	}
+}
+
+/*
+ * First purge notice: a premium upsell, so it must never look like the blue
+ * "info" notice. Cream background with the green accent used elsewhere for
+ * Premium calls to action.
+ */
+.notice.sh-FirstPurgeNotice {
+	background: var(--sh-color-cream);
+	border-left-color: var(--sh-color-green-cta);
+}
+
+.sh-FirstPurgeNotice-cta {
+	font-weight: 600;
+	color: var(--sh-color-green-cta);
+}
+
 /*
  * Live thumbnail of the weekly email, to the right of the email report settings.
  * The email renders at its real 640px width in the iframe and is scaled down,

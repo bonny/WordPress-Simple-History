@@ -154,19 +154,31 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 
 		$output = $this->render_notice();
 
-		$this->assertStringContainsString( 'In 4 days, Simple History starts removing', $output );
-		$this->assertStringContainsString( 'Once a week, events older than 30 days are removed', $output );
+		$this->assertStringContainsString( 'In 4 days, Simple History starts removing your oldest events', $output );
+		$this->assertStringContainsString( 'Once a week, Simple History removes events older than 30 days', $output );
+		$this->assertStringContainsString( 'Keep your full history', $output );
 		$this->assertStringContainsString( 'utm_campaign=premium_retention_first_purge', $output );
 		$this->assertStringContainsString( 'Turn on weekly email', $output );
-		$this->assertSame( 'shown', get_option( First_Purge_Notice_Service::OPTION_NAME ) );
+		$this->assertStringContainsString( 'rel="noopener"', $output );
+
+		// Stays pending, and keeps showing, until the notice is dismissed.
+		$this->assertSame( 'pending', get_option( First_Purge_Notice_Service::OPTION_NAME ) );
+		$this->assertStringContainsString( 'In 4 days, Simple History starts removing your oldest events', $this->render_notice() );
+	}
+
+	public function test_dismiss_stops_the_notice_for_good() {
+		$this->first_purge_day_in( 4 );
+
+		First_Purge_Notice_Service::dismiss();
 
 		$this->assertSame( '', $this->render_notice() );
+		$this->assertSame( 'dismissed', get_option( First_Purge_Notice_Service::OPTION_NAME ) );
 	}
 
 	public function test_reworded_when_the_purge_has_started() {
 		$this->first_purge_day_in( -2 );
 
-		$this->assertStringContainsString( 'Simple History has started removing', $this->render_notice() );
+		$this->assertStringContainsString( 'Simple History has started removing your oldest events', $this->render_notice() );
 	}
 
 	public function test_expires_when_too_late() {
