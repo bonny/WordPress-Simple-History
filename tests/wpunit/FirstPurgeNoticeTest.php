@@ -154,8 +154,8 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 
 		$output = $this->render_notice();
 
-		$this->assertStringContainsString( 'In 4 days, Simple History starts removing your oldest events', $output );
-		$this->assertStringContainsString( 'Once a week, Simple History removes events older than 30 days', $output );
+		$this->assertStringContainsString( 'Simple History keeps the last 30 days of events', $output );
+		$this->assertStringContainsString( 'the first cleanup on this site is in 4 days', $output );
 		$this->assertStringContainsString( 'Keep your full history', $output );
 		$this->assertStringContainsString( 'utm_campaign=premium_retention_first_purge', $output );
 		$this->assertStringContainsString( 'Turn on weekly email', $output );
@@ -163,7 +163,7 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 
 		// Stays pending, and keeps showing, until the notice is dismissed.
 		$this->assertSame( 'pending', get_option( First_Purge_Notice_Service::OPTION_NAME ) );
-		$this->assertStringContainsString( 'In 4 days, Simple History starts removing your oldest events', $this->render_notice() );
+		$this->assertStringContainsString( 'Simple History keeps the last 30 days of events', $this->render_notice() );
 	}
 
 	public function test_dismiss_stops_the_notice_for_good() {
@@ -178,7 +178,7 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 	public function test_reworded_when_the_purge_has_started() {
 		$this->first_purge_day_in( -2 );
 
-		$this->assertStringContainsString( 'Simple History has started removing your oldest events', $this->render_notice() );
+		$this->assertStringContainsString( 'the first cleanup on this site has started', $this->render_notice() );
 	}
 
 	public function test_expires_when_too_late() {
@@ -206,7 +206,7 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 		global $pagenow;
 		$pagenow = 'index.php';
 
-		$this->assertStringContainsString( 'In 4 days', $this->render_notice() );
+		$this->assertStringContainsString( 'first cleanup on this site is in 4 days', $this->render_notice() );
 	}
 
 	public function test_not_shown_to_sites_without_the_flag() {
@@ -248,7 +248,7 @@ class FirstPurgeNoticeTest extends \Codeception\TestCase\WPTestCase {
 
 		delete_option( 'simple_history_email_report_recipients' );
 
-		$this->assertStringContainsString( 'In 4 days', $output );
+		$this->assertStringContainsString( 'first cleanup on this site is in 4 days', $output );
 		$this->assertStringNotContainsString( 'Turn on weekly email', $output );
 	}
 }
