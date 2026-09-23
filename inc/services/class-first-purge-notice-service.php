@@ -267,33 +267,34 @@ class First_Purge_Notice_Service extends Service {
 	 * @param int $days_until_purge Days until the first purge, zero or negative when it has started.
 	 */
 	private function output_notice( $retention_days, $days_until_purge ) {
-		if ( $days_until_purge > 0 ) {
-			$heading = sprintf(
-				/* translators: %d: number of days until events start being removed. */
-				_n(
-					'In %d day, Simple History starts removing your oldest events.',
-					'In %d days, Simple History starts removing your oldest events.',
-					$days_until_purge,
-					'simple-history'
-				),
-				$days_until_purge
-			);
-		} else {
-			$heading = __( 'Simple History has started removing your oldest events.', 'simple-history' );
-		}
-
-		$text = sprintf(
+		$heading = sprintf(
 			/* translators: %d: number of days events are kept. */
 			_n(
-				'Once a week, Simple History removes events older than %d day.',
-				'Once a week, Simple History removes events older than %d days.',
+				'Simple History keeps the last %d day of events',
+				'Simple History keeps the last %d days of events',
 				$retention_days,
 				'simple-history'
 			),
 			$retention_days
 		);
 
-		$premium_text = __( 'Simple History Premium keeps them for as long as you choose, even forever, and adds alerts, log forwarding and more.', 'simple-history' );
+		// Say why first, so the cleanup reads as housekeeping and not as a deadline.
+		if ( $days_until_purge > 0 ) {
+			$text = sprintf(
+				/* translators: %d: number of days until the first cleanup. */
+				_n(
+					'That keeps your database small and the log fast. Once a week, older events are cleared out, and the first cleanup on this site is in %d day.',
+					'That keeps your database small and the log fast. Once a week, older events are cleared out, and the first cleanup on this site is in %d days.',
+					$days_until_purge,
+					'simple-history'
+				),
+				$days_until_purge
+			);
+		} else {
+			$text = __( 'That keeps your database small and the log fast. Once a week, older events are cleared out, and the first cleanup on this site has started.', 'simple-history' );
+		}
+
+		$premium_text = __( 'If you would rather keep them longer, Premium lets you choose how long, even forever. It also adds alerts, log forwarding and more.', 'simple-history' );
 
 		$premium_cta = sprintf(
 			'<p><a href="%1$s" class="sh-FirstPurgeNotice-cta" target="_blank" rel="noopener">%2$s</a></p>',
@@ -302,7 +303,7 @@ class First_Purge_Notice_Service extends Service {
 		);
 
 		$message = sprintf(
-			'<p><strong>%1$s</strong></p><p>%2$s %3$s</p>%4$s',
+			'<p><strong>%1$s</strong></p><p>%2$s</p><p>%3$s</p>%4$s',
 			esc_html( $heading ),
 			esc_html( $text ),
 			esc_html( $premium_text ),
@@ -320,27 +321,17 @@ class First_Purge_Notice_Service extends Service {
 			)
 		);
 
-		// The free way out for anyone who would rather not upgrade: grab a copy
-		// before it is gone. Left out when the Export tab is not available, e.g.
-		// because Export_Dropin was filtered out.
+		// The free way to keep a copy, not tied to the deadline. Left out when the
+		// Export tab is not available, e.g. because Export_Dropin was filtered out.
 		$export_url = Menu_Manager::get_admin_url_by_slug( Export_Dropin::MENU_SLUG );
 
 		if ( $export_url !== '' ) {
-			if ( $days_until_purge > 0 ) {
-				$export_line = sprintf(
-					/* translators: 1: opening link tag, 2: closing link tag. */
-					__( 'Or %1$sexport your log%2$s before then.', 'simple-history' ),
-					'<a href="' . esc_url( $export_url ) . '">',
-					'</a>'
-				);
-			} else {
-				$export_line = sprintf(
-					/* translators: 1: opening link tag, 2: closing link tag. */
-					__( 'Or %1$sexport your log%2$s now.', 'simple-history' ),
-					'<a href="' . esc_url( $export_url ) . '">',
-					'</a>'
-				);
-			}
+			$export_line = sprintf(
+				/* translators: 1: opening link tag, 2: closing link tag. */
+				__( 'You can also %1$sexport your log%2$s any time you want a copy.', 'simple-history' ),
+				'<a href="' . esc_url( $export_url ) . '">',
+				'</a>'
+			);
 
 			$message .= sprintf(
 				'<p>%s</p>',

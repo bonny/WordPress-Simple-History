@@ -3742,7 +3742,8 @@ a.sh-SettingsTabs-link:hover {
 	border-left-color: var(--sh-color-green-cta);
 }
 
-.sh-FirstPurgeNotice-cta {
+.notice.sh-FirstPurgeNotice a.sh-FirstPurgeNotice-cta,
+.notice.sh-FirstPurgeNotice a.sh-FirstPurgeNotice-cta:hover {
 	font-weight: 600;
 	color: var(--sh-color-green-cta);
 }
