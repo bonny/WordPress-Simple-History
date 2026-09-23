@@ -842,6 +842,15 @@ Third-party loggers may still emit the pre-5.33 markup, a <table> with two
 	white-space: nowrap;
 }
 
+/*
+Long lists of custom field names have no spaces to break at, so let them wrap
+anywhere instead of running off the right edge of the log row.
+*/
+.SimpleHistoryLogitem__inlineDivided--wrap {
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
 .SimpleHistoryLogitem__inlineDivided em {
 	color: rgb(119, 119, 119);
 	font-style: normal;
