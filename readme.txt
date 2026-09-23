@@ -264,6 +264,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+> Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+
 **Added**
 
 -   Table view for research and debugging sessions: sort, filter, compare two events side by side, and export (Premium).
@@ -289,6 +291,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Image thumbnails on media events name the image for screen reader users.
 -   Weekly email with no recipients set was never sent. It now goes to the site admin email until you add recipients, and the settings page tells you so.
 -   Test email is sent to the weekly email's recipients instead of to you, and the button says who that is.
+-   Experimental — Role and capability changes a plugin makes on its own, such as after an update, are credited to WordPress instead of whoever was logged in, and name the plugin that made them.
 
 **Security**
 
