@@ -576,6 +576,14 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				? (string) $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ]
 				: '';
 
+			// Loggers without a "via" text give null here, as in earlier
+			// releases, so scripts reading --format=json see the same value.
+			$via = $row_logger ? $row_logger->get_via( $row ) : '';
+
+			if ( $via === '' ) {
+				$via = null;
+			}
+
 			$eventsCleaned[] = array(
 				'ID'              => $id_display,
 				'date'            => get_date_from_gmt( $row->date ),
@@ -585,7 +593,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'level'           => $row->level,
 				'who_when'        => $header_output,
 				'description'     => $text_output,
-				'via'             => $row_logger ? $row_logger->get_via( $row ) : '',
+				'via'             => $via,
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'count'           => $row->subsequentOccasions,
 				'reactions'       => $reactions_display,
