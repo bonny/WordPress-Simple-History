@@ -124,8 +124,8 @@ class FailedLoginSuppressionSummaryTest extends \Codeception\TestCase\WPTestCase
 		[ $data, $context ] = $this->get_summary_write();
 
 		$this->assertSame( Log_Initiators::WORDPRESS, $data['initiator'] );
-		$this->assertSame( 0, (int) $context['_user_id'] );
-		$this->assertArrayNotHasKey( '_user_login', $context, 'The admin who happened to log the next event must not be attached to the summary' );
+		$this->assertArrayNotHasKey( '_user_id', $context, 'The admin who happened to log the next event must not be attached to the summary' );
+		$this->assertArrayNotHasKey( '_user_login', $context );
 		$this->assertArrayNotHasKey( '_user_email', $context );
 	}
 

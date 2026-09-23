@@ -241,9 +241,6 @@ class Failed_Login_Limit_Service extends Service {
 			$request_context,
 			[
 				'_initiator'                           => Log_Initiators::WORDPRESS,
-				// Simple History skipped these attempts. No user did anything, so
-				// stop the logger from attaching whoever ended the burst.
-				'_user_id'                             => 0,
 				'failed_login_total_count'             => $recorded_count + $not_recorded_count,
 				'failed_login_recorded_count'          => $recorded_count,
 				'failed_login_not_recorded_count'      => $not_recorded_count,
