@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { Slot } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import {
 	useCallback,
@@ -16,6 +17,7 @@ import {
 	parseAsIsoDate,
 	parseAsJson,
 	parseAsString,
+	parseAsStringLiteral,
 	useQueryState,
 } from 'nuqs';
 import { z } from 'zod';
@@ -28,7 +30,29 @@ import { EventsControlBar } from './EventsControlBar';
 import { EventsList } from './EventsList';
 import { EventsModalIfFragment } from './EventsModalIfFragment';
 import { EventsSearchFilters } from './EventsSearchFilters';
+import { useSearchOptions } from '../hooks/useSearchOptions';
 import { NewEventsNotifier } from './NewEventsNotifier';
+import { TablePreview } from './TablePreview';
+
+// The three views the events page offers, and the only values `?view=` may
+// hold. Shared by the URL parser and by readEventsViewFromLocation() below,
+// so a value the parser would reject cannot slip in through the raw URL.
+const EVENTS_VIEWS = [ 'detailed', 'compact', 'table' ];
+
+/**
+ * The view named by the current URL, read straight from `window.location`.
+ *
+ * Only for the first render, before nuqs has resolved its own state — see
+ * where this is called. Anything unrecognised reads as no view at all, which
+ * falls through to the stored preference.
+ *
+ * @return {string|null} One of EVENTS_VIEWS, or null.
+ */
+function readEventsViewFromLocation() {
+	const view = new URLSearchParams( window.location.search ).get( 'view' );
+
+	return EVENTS_VIEWS.includes( view ) ? view : null;
+}
 
 // Schema for the users object.
 const usersSchema = z.array(
@@ -128,6 +152,28 @@ function EventsGUI() {
 	const [ eventsAdminPageURL, setEventsAdminPageURL ] = useState(
 		window.simpleHistoryReactData?.eventsAdminPageURL
 	);
+
+	// The view the user last chose, localized at enqueue time from user meta
+	// so the first render already uses it. See REST_API::register_user_meta().
+	const [ storedEventsView, setStoredEventsView ] = useState(
+		[ 'compact', 'table' ].includes(
+			window.simpleHistoryReactData?.eventsView
+		)
+			? window.simpleHistoryReactData.eventsView
+			: 'detailed'
+	);
+	// The views the reader has hidden the page sidebar in, localized at
+	// enqueue time for the same reason the view is — so the first paint is
+	// already right and the page does not rearrange itself once. See
+	// REST_API::HIDDEN_SIDEBAR_VIEWS_USER_META_KEY.
+	const [ hiddenSidebarViews, setHiddenSidebarViews ] = useState( () => {
+		const stored = window.simpleHistoryReactData?.hiddenSidebarViews;
+
+		return Array.isArray( stored )
+			? stored.filter( ( view ) => EVENTS_VIEWS.includes( view ) )
+			: [ 'table' ];
+	} );
+
 	const [ settingsPageURL, setSettingsPageURL ] = useState();
 	const [ alertsPageURL, setAlertsPageURL ] = useState();
 	const [ currentUserId, setCurrentUserId ] = useState( null );
@@ -331,6 +377,57 @@ function EventsGUI() {
 		parseAsInteger.withOptions( useQueryStateOptions )
 	);
 
+	// View in the URL wins over the stored one, so a shared link opens in the
+	// view it was copied from. Nothing is written to the URL on page load.
+	const [ urlEventsView, setUrlEventsView ] = useQueryState(
+		'view',
+		parseAsStringLiteral( EVENTS_VIEWS ).withOptions( useQueryStateOptions )
+	);
+
+	// The URL wins over the stored preference, so a shared link opens in the
+	// view it was copied from.
+	//
+	// The middle term is for the first render only. nuqs settles its values
+	// after that render, so on a fresh load of a ?view=table link
+	// `urlEventsView` is still null and the stored preference would win for
+	// one paint — long enough to draw the wrong view's chrome and then take
+	// it away again. Reading the raw parameter is a better guess than the
+	// stored value while nuqs is still catching up; once it has, and after
+	// any in-page view switch, `urlEventsView` is authoritative and this
+	// term is never reached.
+	const eventsView =
+		urlEventsView ?? readEventsViewFromLocation() ?? storedEventsView;
+
+	// Whether the reader has changed view on this page, as opposed to
+	// arriving in one. Only the first case can produce the layout jump the
+	// reserved space below exists to absorb — see where it is rendered.
+	const [ hasSwitchedView, setHasSwitchedView ] = useState( false );
+
+	const handleEventsViewChange = useCallback(
+		( newView ) => {
+			// See where this is read: the table view only reserves the
+			// filter panel's height once a switch has actually happened on
+			// this page, because that is the only time there is a jump to
+			// prevent.
+			setHasSwitchedView( true );
+			setUrlEventsView( newView );
+			setStoredEventsView( newView );
+
+			// Remember the choice for next time, through a dedicated route
+			// rather than /wp/v2/users/me — that endpoint always runs
+			// wp_update_user() and fires profile_update, which third-party
+			// plugins act on for actual profile changes. See
+			// REST_API::save_events_view(). A failed save is not worth
+			// interrupting the user for; the toggle still works on this visit.
+			apiFetch( {
+				path: '/simple-history/v1/events-view',
+				method: 'POST',
+				data: { view: newView },
+			} ).catch( () => {} );
+		},
+		[ setUrlEventsView ]
+	);
+
 	/**
 	 * End filter/search options states.
 	 */
@@ -378,6 +475,31 @@ function EventsGUI() {
 
 	// Store the default date option from the API so we can restore it when clearing filters.
 	const defaultDateOptionRef = useRef( '' );
+
+	// The page's one call to /search-options. It fills the filter dropdowns,
+	// but it also carries the pager size, the add-on flags, the admin page
+	// URLs and the current user — so it belongs to the page, not to the
+	// filter panel it used to live inside. See useSearchOptions().
+	const { searchOptions, dateOptionGroups } = useSearchOptions( {
+		selectedDateOption,
+		defaultDateOptionRef,
+		setSelectedDateOption,
+		setSearchOptionsLoaded,
+		setPagerSize,
+		setMapsApiKey,
+		setHasExtendedSettingsAddOn,
+		setHasPremiumAddOn,
+		setHasFailedLoginLimit,
+		setFailedLoginLimitThreshold,
+		setFailedLoginSuppressedCount,
+		setIsReactionsEnabled,
+		setIsExperimentalFeaturesEnabled,
+		setEventsAdminPageURL,
+		setEventsSettingsPageURL: setSettingsPageURL,
+		setAlertsPageURL,
+		setCurrentUserId,
+		setUserCanManageOptions,
+	} );
 
 	// Check if any non-date filter has a non-default value. Used by the
 	// end-of-results hint to decide whether "adjust filters above" is
@@ -576,31 +698,121 @@ function EventsGUI() {
 	 *
 	 * TODO: Move this to a hook.
 	 */
+	// Derived rather than using eventsView itself in loadEvents' deps below:
+	// detailed and compact share this same fetch, and eventsView also flips
+	// between those two, which must not refire the full fetch — only the
+	// switch into or out of table view changes what gets requested.
+	const isTableView = eventsView === 'table';
+
+	const isSidebarHidden = hiddenSidebarViews.includes( eventsView );
+
+	// Take the page sidebar out, or put it back.
+	//
+	// The sidebar is printed by a PHP dropin outside this React root, so the
+	// only way to say anything about it from here is to reach up to the wrap
+	// both of them sit in. It has to be done from JavaScript rather than
+	// decided in PHP because the view switches without a page load — a
+	// server-side conditional would be right until the first time someone
+	// used the switcher. The rule itself is in css/styles.css.
+	useEffect( () => {
+		const wrap = document.querySelector( '.SimpleHistoryGuiWrap' );
+
+		if ( ! wrap ) {
+			return undefined;
+		}
+
+		wrap.classList.toggle(
+			'SimpleHistoryGuiWrap--hideSidebar',
+			isSidebarHidden
+		);
+
+		return () => {
+			wrap.classList.remove( 'SimpleHistoryGuiWrap--hideSidebar' );
+		};
+	}, [ isSidebarHidden ] );
+
+	const handleToggleSidebar = useCallback( () => {
+		// Only this view changes. The three views want different amounts of
+		// room, so hiding the sidebar in the table must not quietly hide it
+		// in the detailed list as well.
+		const next = hiddenSidebarViews.includes( eventsView )
+			? hiddenSidebarViews.filter( ( view ) => view !== eventsView )
+			: [ ...hiddenSidebarViews, eventsView ];
+
+		setHiddenSidebarViews( next );
+
+		// Outside the state updater, not inside it. An updater has to be a
+		// pure function of the previous state: React invokes it twice in
+		// StrictMode and may re-invoke it when a render is thrown away, so a
+		// request sent from in there went out twice per click, and would go
+		// out for a render nobody ever saw.
+		//
+		// A failed save is not worth interrupting anyone for; the toggle
+		// still works for this visit. Same reasoning as the view preference
+		// above.
+		apiFetch( {
+			path: '/simple-history/v1/sidebar-visibility',
+			method: 'POST',
+			data: { views: next },
+		} ).catch( () => {} );
+	}, [ eventsView, hiddenSidebarViews ] );
+
 	const loadEvents = useCallback( async () => {
 		setEventsIsLoading( true );
 
 		try {
+			// In table view, Premium fetches and renders the events itself
+			// (see the SimpleHistorySlotTableView fill), so this request's
+			// only job is keeping the new-events notifier and eventsTotal
+			// accurate. Ask for the smallest response that can still answer
+			// both: one row, for the max id/date headers, and a minimal
+			// field set. The count query is not skipped, so eventsTotal
+			// still reflects the real total.
+			const fetchQueryParams = isTableView
+				? {
+						...eventsQueryParams,
+						per_page: 1,
+						_fields: 'id,date_gmt',
+				  }
+				: eventsQueryParams;
+
 			const eventsResponse = await apiFetch( {
 				path: addQueryArgs(
 					'/simple-history/v1/events',
-					eventsQueryParams
+					fetchQueryParams
 				),
 				parse: false,
 			} );
 
 			const eventsJson = await eventsResponse.json();
 
-			setEventsMeta( {
-				total: parseInt(
-					eventsResponse.headers.get( 'X-Wp-Total' ),
-					10
-				),
-				totalPages: parseInt(
-					eventsResponse.headers.get( 'X-Wp-Totalpages' ),
-					10
-				),
-				link: eventsResponse.headers.get( 'Link' ),
-			} );
+			// Table view's request is trimmed to per_page: 1, so its
+			// "totalPages" is really the total event count (one "page" per
+			// event) and its single row is not a real event. Only the
+			// total itself (from the untrimmed count query) is usable, so
+			// keep the existing event list and page count untouched and
+			// just refresh the total that the control bar shows.
+			if ( isTableView ) {
+				setEventsMeta( ( previousEventsMeta ) => ( {
+					...previousEventsMeta,
+					total: parseInt(
+						eventsResponse.headers.get( 'X-Wp-Total' ),
+						10
+					),
+				} ) );
+			} else {
+				setEventsMeta( {
+					total: parseInt(
+						eventsResponse.headers.get( 'X-Wp-Total' ),
+						10
+					),
+					totalPages: parseInt(
+						eventsResponse.headers.get( 'X-Wp-Totalpages' ),
+						10
+					),
+					link: eventsResponse.headers.get( 'Link' ),
+				} );
+			}
 
 			// To keep track of new events we need to store both old max id and new max id.
 			// Extract maxId and maxDate from response headers for accurate new event detection.
@@ -621,7 +833,13 @@ function EventsGUI() {
 				}
 			}
 
-			setEvents( eventsJson );
+			// Table view's single stub row (id + date_gmt only) must never
+			// reach the event list or pager, so leave the last real
+			// events in place until the view switches back and a full
+			// refetch replaces them.
+			if ( ! isTableView ) {
+				setEvents( eventsJson );
+			}
 		} catch ( error ) {
 			// Parse before setting state, so both updates land in the same
 			// render. Awaiting between them renders an intermediate "there is
@@ -633,15 +851,20 @@ function EventsGUI() {
 		} finally {
 			setEventsIsLoading( false );
 		}
-	}, [ eventsQueryParams, page ] );
+	}, [ eventsQueryParams, page, isTableView ] );
 
 	// Debounce the loadEvents function to avoid multiple calls when user types fast.
 	const debouncedLoadEvents = useDebounce( loadEvents, 500 );
+
+	// The debounce coalesces fast filter changes. The first load has nothing to
+	// coalesce, so waiting out the 500 ms trailing edge only delays the first paint.
+	const isFirstLoadRef = useRef( true );
 
 	/**
 	 * Load events when search options are loaded,
 	 * when the reload time is changed,
 	 * or when function debouncedLoadEvents is changed due to changes in eventsQueryParams.
+	 * The very first load happens immediately; subsequent loads are debounced.
 	 */
 	useEffect( () => {
 		// Wait for search options to be loaded before loading events,
@@ -651,8 +874,15 @@ function EventsGUI() {
 			return;
 		}
 
+		if ( isFirstLoadRef.current ) {
+			isFirstLoadRef.current = false;
+			loadEvents();
+			return;
+		}
+
 		debouncedLoadEvents();
 	}, [
+		loadEvents,
 		debouncedLoadEvents,
 		searchOptionsLoaded,
 		eventsReloadTime,
@@ -796,8 +1026,40 @@ function EventsGUI() {
 		<EventsSettingsProvider value={ eventsSettingsValue }>
 			{ /* Stats bar (EventsStatsBar) was here — removed for now, component still exists if needed. */ }
 
-			{ /* Hide filters when viewing surrounding events */ }
-			{ ! surroundingEventId && (
+			{ /* Not rendered at all in the table view, and not while viewing
+			   surrounding events.
+
+			   The table view carries its own query bar and its own chips
+			   for exactly these filters, so this panel would be a second,
+			   differently-shaped control for the same thing. Leaving it out
+			   of the DOM rather than hiding it also means table-view work
+			   no longer has to reason about a collapsed panel that is still
+			   mounted and still holding state. What made this possible was
+			   moving the /search-options fetch up into useSearchOptions()
+			   above — until then the panel was also the page's bootstrap,
+			   and not rendering it took the page's data with it. */ }
+			{ /* The table view does not render the filter panel, but after
+			   an in-page switch it keeps the space the panel occupied.
+			   Switching from Detailed or Compact to Table otherwise pulled
+			   the whole table up by the panel's height, which reads as the
+			   page breaking rather than as a view changing.
+
+			   Only after a switch, though. On a fresh load of a ?view=table
+			   link — a shared view, a bookmark, the stored preference —
+			   there is no previous layout and so no jump, and the reservation
+			   was simply 65px of blank space at the very top of the page,
+			   above everything, every time. That was the first thing on the
+			   screen and it read as a broken margin. */ }
+			{ ! surroundingEventId &&
+				eventsView === 'table' &&
+				hasSwitchedView && (
+					<div
+						className="SimpleHistory-filters__reservedSpace"
+						aria-hidden="true"
+					/>
+				) }
+
+			{ ! surroundingEventId && eventsView !== 'table' && (
 				<EventsSearchFilters
 					selectedLogLevels={ selectedLogLevels }
 					setSelectedLogLevels={ setSelectedLogLevels }
@@ -816,43 +1078,20 @@ function EventsGUI() {
 					selectedInitiator={ selectedInitiator }
 					setSelectedInitiator={ setSelectedInitiator }
 					enteredIPAddress={ enteredIPAddress }
-					setEnteredIPAddress={ setEnteredIPAddress }
 					selectedContextFilters={ selectedContextFilters }
 					setSelectedContextFilters={ setSelectedContextFilters }
 					enteredMetadataSearch={ enteredMetadataSearch }
 					setEnteredMetadataSearch={ setEnteredMetadataSearch }
 					showAIOnly={ showAIOnly }
 					setShowAIOnly={ setShowAIOnly }
+					searchOptions={ searchOptions }
+					dateOptionGroups={ dateOptionGroups }
 					searchOptionsLoaded={ searchOptionsLoaded }
-					setSearchOptionsLoaded={ setSearchOptionsLoaded }
-					setPagerSize={ setPagerSize }
-					setMapsApiKey={ setMapsApiKey }
-					setHasExtendedSettingsAddOn={ setHasExtendedSettingsAddOn }
-					setHasPremiumAddOn={ setHasPremiumAddOn }
-					setHasFailedLoginLimit={ setHasFailedLoginLimit }
-					setFailedLoginLimitThreshold={
-						setFailedLoginLimitThreshold
-					}
-					setFailedLoginSuppressedCount={
-						setFailedLoginSuppressedCount
-					}
-					setIsReactionsEnabled={ setIsReactionsEnabled }
-					setIsExperimentalFeaturesEnabled={
-						setIsExperimentalFeaturesEnabled
-					}
-					eventsAdminPageURL={ eventsAdminPageURL }
-					setEventsAdminPageURL={ setEventsAdminPageURL }
-					setEventsSettingsPageURL={ setSettingsPageURL }
-					setAlertsPageURL={ setAlertsPageURL }
-					setPage={ setPage }
 					onReload={ handleReload }
-					setCurrentUserId={ setCurrentUserId }
-					setUserCanManageOptions={ setUserCanManageOptions }
 					excludeMessages={ excludeMessages }
 					setExcludeMessages={ setExcludeMessages }
 					hideOwnEvents={ hideOwnEvents }
 					setHideOwnEvents={ setHideOwnEvents }
-					defaultDateOptionRef={ defaultDateOptionRef }
 					handleClearFilters={ handleClearFilters }
 					hasAnyActiveFilters={ hasAnyActiveFilters }
 				/>
@@ -865,6 +1104,10 @@ function EventsGUI() {
 					eventsTotal={ eventsMeta.total }
 					eventsQueryParams={ eventsQueryParams }
 					hasAnyActiveFilters={ hasAnyActiveFilters }
+					eventsView={ eventsView }
+					onEventsViewChange={ handleEventsViewChange }
+					isSidebarHidden={ isSidebarHidden }
+					onToggleSidebar={ handleToggleSidebar }
 					newEventsNotifier={
 						<NewEventsNotifier
 							eventsQueryParams={ eventsQueryParams }
@@ -876,26 +1119,57 @@ function EventsGUI() {
 				/>
 			) }
 
-			<EventsList
-				eventsIsLoading={ eventsIsLoading }
-				events={ events }
-				eventsMeta={ eventsMeta }
-				page={ page }
-				pagerSize={ pagerSize }
-				setPage={ setPage }
-				prevEventsMaxId={ prevEventsMaxId }
-				failedLoginLimitThreshold={ failedLoginLimitThreshold }
-				failedLoginSuppressedCount={ failedLoginSuppressedCount }
-				eventsLoadingHasErrors={ eventsLoadingHasErrors }
-				eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
-				surroundingEventId={ surroundingEventId }
-				surroundingCount={ surroundingCount }
-				hasActiveFilters={ hasAnyActiveFilters }
-				onClearFilters={ handleClearFilters }
-				canAdjustFilters={
-					hasNonDateActiveFilters && selectedDateOption !== 'allDates'
-				}
-			/>
+			{ eventsView === 'table' ? (
+				/* Premium fills this Slot with the real table. With no fill —
+				   no Premium, or a Premium too old to know about the Slot —
+				   the preview renders, so the view is never blank. */
+				<Slot
+					name="SimpleHistorySlotTableView"
+					fillProps={ {
+						eventsQueryParams,
+						eventsTotal: eventsMeta.total,
+						hasAnyActiveFilters,
+						eventsIsLoading,
+						eventsReloadTime,
+					} }
+				>
+					{ ( fills ) =>
+						fills.length > 0 ? (
+							fills
+						) : (
+							<TablePreview
+								onBackToList={ () =>
+									handleEventsViewChange( 'detailed' )
+								}
+							/>
+						)
+					}
+				</Slot>
+			) : (
+				<EventsList
+					eventsIsLoading={ eventsIsLoading }
+					events={ events }
+					eventsMeta={ eventsMeta }
+					page={ page }
+					pagerSize={ pagerSize }
+					setPage={ setPage }
+					prevEventsMaxId={ prevEventsMaxId }
+					failedLoginLimitThreshold={ failedLoginLimitThreshold }
+					failedLoginSuppressedCount={ failedLoginSuppressedCount }
+					eventsLoadingHasErrors={ eventsLoadingHasErrors }
+					eventsLoadingErrorDetails={ eventsLoadingErrorDetails }
+					surroundingEventId={ surroundingEventId }
+					surroundingCount={ surroundingCount }
+					hasActiveFilters={ hasAnyActiveFilters }
+					onClearFilters={ handleClearFilters }
+					canAdjustFilters={
+						hasNonDateActiveFilters &&
+						selectedDateOption !== 'allDates'
+					}
+					selectedInitiator={ selectedInitiator }
+					eventsView={ eventsView }
+				/>
+			) }
 
 			<EventsModalIfFragment />
 		</EventsSettingsProvider>

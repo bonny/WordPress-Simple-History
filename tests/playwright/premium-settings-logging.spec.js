@@ -120,7 +120,7 @@ test.describe( 'Premium settings logging', () => {
 			const settingsItem = page
 				.locator( '.SimpleHistoryLogitem', {
 					has: page.locator(
-						'.SimpleHistoryLogitem__keyValueTable tr',
+						'.SimpleHistoryLogitem__keyValueTable',
 						{ hasText: IP_SETTING_LABEL }
 					),
 				} )
@@ -134,7 +134,7 @@ test.describe( 'Premium settings logging', () => {
 			// duplicate rows).
 			await expect(
 				settingsItem.locator(
-					'.SimpleHistoryLogitem__keyValueTable tr',
+					'.SimpleHistoryLogitem__keyValueTable',
 					{ hasText: IP_SETTING_LABEL }
 				)
 			).toHaveCount( 1 );
@@ -193,7 +193,7 @@ test.describe( 'Premium settings logging', () => {
 			const modifiedSettingsItem = page
 				.locator( '.SimpleHistoryLogitem', {
 					has: page.locator(
-						'.SimpleHistoryLogitem__keyValueTable tr',
+						'.SimpleHistoryLogitem__keyValueTable',
 						{ hasText: MESSAGE_CONTROL_SETTING_LABEL }
 					),
 				} )

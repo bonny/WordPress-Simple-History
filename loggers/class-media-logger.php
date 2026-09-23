@@ -483,10 +483,20 @@ class Media_Logger extends Logger {
 
 			if ( $full_image_width && $full_image_height && file_exists( $attached_file ) && $thumb_src ) {
 				$thumb_html = sprintf(
-					'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s"><div class="SimpleHistoryLogitemThumbnail"><img src="%2$s" alt=""></div></a>',
-					esc_url( (string) $edit_link ),
+					'<div class="SimpleHistoryLogitemThumbnail"><img src="%1$s" alt=""></div>',
 					esc_url( $thumb_src[0] )
 				);
+
+				// No link when the viewer cannot edit the attachment, since an
+				// empty href would just reload the current page.
+				if ( $edit_link ) {
+					$thumb_html = sprintf(
+						'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s" aria-label="%2$s">%3$s</a>',
+						esc_url( $edit_link ),
+						esc_attr( $this->get_thumbnail_link_label( (int) $attachment_id ) ),
+						$thumb_html
+					);
+				}
 			}
 		} elseif ( $is_audio ) {
 			$thumb_html = '<div style="max-width: 500px;">'
@@ -545,9 +555,20 @@ class Media_Logger extends Logger {
 	 * Get details output for updated attachments.
 	 *
 	 * @param object $row Log row.
+	 * @return Event_Details_Container
 	 */
 	protected function get_details_output_for_updated_attachment( $row ) {
-		return ( new Event_Details_Group() )
+		$groups = [];
+
+		// Show thumbnail so it is clear which image was edited, even when the
+		// image itself is unchanged and only its title, alt text and so on changed.
+		$thumbnail_group = $this->get_small_thumbnail_group( $row );
+
+		if ( $thumbnail_group ) {
+			$groups[] = $thumbnail_group;
+		}
+
+		$changed_values_group = ( new Event_Details_Group() )
 			->set_title( __( 'Changed values', 'simple-history' ) )
 			->add_items(
 				[
@@ -573,6 +594,100 @@ class Media_Logger extends Logger {
 					),
 				]
 			);
+
+		/**
+		 * Applied here by hand because this method used to return this group on its
+		 * own. Simple_History only runs the filter for a returned group, not for a
+		 * container, so building the container below would otherwise drop a filter
+		 * third parties may already hook.
+		 *
+		 * @param Event_Details_Group $changed_values_group
+		 * @param object $row
+		 */
+		$changed_values_group = apply_filters( 'simple_history/log_row_details_output-' . $this->get_slug(), $changed_values_group, $row );
+
+		$groups[] = $changed_values_group;
+
+		// Context goes in the constructor, not through set_context() afterwards:
+		// adding a group drops items that have no value in the context so far, so a
+		// container built without context would throw away every changed value.
+		// Simple_History only applies the context itself when a logger returns a
+		// plain group, not when it returns a ready-made container.
+		return new Event_Details_Container( $groups, (array) $row->context );
+	}
+
+	/**
+	 * Get a group with a small thumbnail of the attachment an event is about.
+	 *
+	 * Used by both image edits and attachment updates, so a user scanning the log
+	 * can see which image an event is about without opening it.
+	 *
+	 * @param object $row Log row.
+	 * @return Event_Details_Group|null Group with the thumbnail, or null when the
+	 *                                  attachment is gone or is not an image.
+	 */
+	protected function get_small_thumbnail_group( $row ) {
+		$attachment_id = (int) ( $row->context['attachment_id'] ?? 0 );
+
+		if ( ! $attachment_id || ! wp_attachment_is_image( $attachment_id ) ) {
+			return null;
+		}
+
+		$attached_file = get_attached_file( $attachment_id );
+		$thumb_src     = wp_get_attachment_image_src( $attachment_id, 'medium' );
+
+		if ( ! $attached_file || ! file_exists( $attached_file ) || ! $thumb_src ) {
+			return null;
+		}
+
+		$thumb_inner = sprintf(
+			'<div class="SimpleHistoryLogitemThumbnail SimpleHistoryLogitemThumbnail--small"><img src="%1$s" alt=""></div>',
+			esc_url( $thumb_src[0] )
+		);
+
+		// No edit link when the viewer cannot edit the attachment. Wrapping the
+		// thumbnail in an empty href would just reload the current page.
+		$edit_link = get_edit_post_link( $attachment_id );
+
+		$thumb_html = $edit_link
+			? sprintf(
+				'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s" aria-label="%2$s">%3$s</a>',
+				esc_url( $edit_link ),
+				esc_attr( $this->get_thumbnail_link_label( $attachment_id ) ),
+				$thumb_inner
+			)
+			: $thumb_inner;
+
+		return Event_Details_Group::create_raw(
+			$thumb_html,
+			[
+				'type'          => 'image_thumbnail',
+				'attachment_id' => $attachment_id,
+			]
+		);
+	}
+
+	/**
+	 * Get the accessible name for a link that wraps an attachment thumbnail.
+	 *
+	 * The image inside the link has an empty alt, so without a label the link
+	 * has no name and a screen reader announces it as just "link".
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @return string
+	 */
+	protected function get_thumbnail_link_label( $attachment_id ) {
+		$title = get_the_title( $attachment_id );
+
+		if ( $title === '' ) {
+			return __( 'Edit attachment', 'simple-history' );
+		}
+
+		return sprintf(
+			/* translators: %s: attachment title. */
+			__( 'Edit attachment "%s"', 'simple-history' ),
+			$title
+		);
 	}
 
 	/**
@@ -582,31 +697,14 @@ class Media_Logger extends Logger {
 	 * @return Event_Details_Group|Event_Details_Container|string
 	 */
 	protected function get_details_output_for_image_edited( $row ) {
-		$context       = $row->context;
-		$attachment_id = (int) ( $context['attachment_id'] ?? 0 );
-		$groups        = [];
+		$context = $row->context;
+		$groups  = [];
 
 		// Show thumbnail if the image attachment is still available.
-		if ( $attachment_id && wp_attachment_is_image( $attachment_id ) ) {
-			$attached_file = get_attached_file( $attachment_id );
-			$thumb_src     = wp_get_attachment_image_src( $attachment_id, 'medium' );
-			$edit_link     = get_edit_post_link( $attachment_id );
+		$thumbnail_group = $this->get_small_thumbnail_group( $row );
 
-			if ( $attached_file && file_exists( $attached_file ) && $thumb_src ) {
-				$thumb_html = sprintf(
-					'<a class="SimpleHistoryLogitemThumbnailLink" href="%1$s"><div class="SimpleHistoryLogitemThumbnail SimpleHistoryLogitemThumbnail--small"><img src="%2$s" alt=""></div></a>',
-					esc_url( (string) $edit_link ),
-					esc_url( $thumb_src[0] )
-				);
-
-				$groups[] = Event_Details_Group::create_raw(
-					$thumb_html,
-					[
-						'type'          => 'image_thumbnail',
-						'attachment_id' => $attachment_id,
-					]
-				);
-			}
+		if ( $thumbnail_group ) {
+			$groups[] = $thumbnail_group;
 		}
 
 		// Show edit operations.

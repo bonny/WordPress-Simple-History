@@ -5,7 +5,9 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 use Simple_History\Events_Stats;
 use Simple_History\Date_Helper;
+use Simple_History\Loggers\User_Logger;
 use Simple_History\Menu_Page;
+use Simple_History\Simple_History;
 
 /**
  * Service that handles email reports.
@@ -13,6 +15,34 @@ use Simple_History\Menu_Page;
 class Email_Report_Service extends Service {
 	private const SETTINGS_PAGE_SLUG    = 'simple_history_settings_menu_slug_email_reports';
 	private const SETTINGS_OPTION_GROUP = 'simple_history_settings_group_email_reports';
+
+	/**
+	 * UTM campaign for the Premium links in the email. Uses the premium_ prefix
+	 * like every other upsell, so email clicks count in the conversion funnel.
+	 */
+	public const PREMIUM_UTM_CAMPAIGN = 'premium_email_weekly';
+
+	/** The last few periods a report was sent for, newest first, so a report can compare itself against them. */
+	private const SENT_PERIODS_OPTION = 'simple_history_email_report_sent_periods';
+
+	/**
+	 * How many sent periods to remember.
+	 *
+	 * One is enough to say "compared with last week". Keeping a few costs
+	 * nothing — it is a handful of integers in one option — and is what a
+	 * typical-week comparison would need, which is the more useful statement
+	 * and the one worth being able to add without a data migration.
+	 */
+	private const MAX_STORED_PERIODS = 5;
+
+	/** The admin-post action for the one-click opt-in offered after install. */
+	public const OPT_IN_ACTION = 'simple_history_email_report_opt_in';
+
+	/** Query arg added to the redirect after opting in, so the confirmation notice can show. */
+	private const OPT_IN_QUERY_ARG = 'simple-history-email-report-opt-in';
+
+	/** Settings sub-tab slug for the email reports settings. */
+	private const SETTINGS_SUB_TAB_SLUG = 'general_settings_subtab_email_reports';
 
 	/**
 	 * @inheritdoc
@@ -31,6 +61,246 @@ class Email_Report_Service extends Service {
 
 		// Handle enable/disable of email reports.
 		add_action( 'update_option_simple_history_email_report_enabled', [ $this, 'on_email_report_enabled_updated' ], 10, 2 );
+
+		// One-click opt-in from the welcome notice and the welcome log event.
+		add_action( 'admin_post_' . self::OPT_IN_ACTION, [ $this, 'handle_opt_in' ] );
+		add_action( 'admin_notices', [ $this, 'show_opt_in_confirmation_notice' ] );
+		add_filter( 'removable_query_args', [ $this, 'add_removable_query_args' ] );
+	}
+
+	/**
+	 * Get the one-click weekly email opt-in: button and the text that goes with it.
+	 *
+	 * Returns an empty string when the current user can not change the setting,
+	 * has no valid email address, or already gets the report, so callers can
+	 * output the result without checks of their own.
+	 *
+	 * A nonce link, not a form: wp_admin_notice() runs its message through
+	 * wp_kses_post(), which strips form and input tags. WordPress uses the same
+	 * pattern for its own Activate and Trash links.
+	 *
+	 * A secondary button: the offer is optional, and the notice shows on screens
+	 * that already have a primary action of their own.
+	 *
+	 * @return string Button HTML, escaped.
+	 */
+	public static function get_opt_in_html() {
+		if ( ! self::should_offer_opt_in() ) {
+			return '';
+		}
+
+		// Inline layout styles, matching .sh-EmailReportOptIn in styles.css: the welcome
+		// notice shows on screens where that stylesheet is not loaded.
+		return sprintf(
+			'<p class="sh-EmailReportOptIn" style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5em 1em;">
+				%1$s
+				<span class="description sh-EmailReportOptIn-description" style="color:#50575e;font-size:13px;">%2$s</span>
+			</p>',
+			self::get_opt_in_button_html(),
+			esc_html( self::get_opt_in_description() )
+		);
+	}
+
+	/**
+	 * Get the one-click opt-in button, with an envelope icon that sets it apart from
+	 * buttons that only navigate.
+	 *
+	 * @return string Button HTML, escaped. Empty string if the opt-in should not be offered.
+	 */
+	public static function get_opt_in_button_html() {
+		if ( ! self::should_offer_opt_in() ) {
+			return '';
+		}
+
+		// Say what the click does: turn the email on, or add the user when it is
+		// already on for other recipients.
+		if ( get_option( 'simple_history_email_report_enabled', false ) ) {
+			$label = __( 'Add me to the weekly email', 'simple-history' );
+		} else {
+			$label = __( 'Turn on weekly email', 'simple-history' );
+		}
+
+		return sprintf(
+			'<a href="%1$s" class="button" style="display:inline-flex;align-items:center;gap:4px;"><span class="dashicons dashicons-email-alt" style="line-height:1;" aria-hidden="true"></span>%2$s</a>',
+			esc_url( self::get_opt_in_url() ),
+			esc_html( $label )
+		);
+	}
+
+	/**
+	 * Get the text that goes with the opt-in button.
+	 *
+	 * The button label already says the click turns the email on, so this only says
+	 * what it contains, where it goes, when, and how to stop it.
+	 *
+	 * @return string Plain text, unescaped.
+	 */
+	public static function get_opt_in_description() {
+		return sprintf(
+			/* translators: %s: email address of the current user. */
+			__( 'A summary of the past week, sent to %s every Monday. You can turn it off in the Simple History settings.', 'simple-history' ),
+			wp_get_current_user()->user_email
+		);
+	}
+
+	/**
+	 * Check if the one-click opt-in should be offered to the current user: they can
+	 * change the setting, have a valid email address, and do not already get the email.
+	 *
+	 * @return bool
+	 */
+	public static function should_offer_opt_in() {
+		if ( ! self::current_user_can_opt_in() ) {
+			return false;
+		}
+
+		// Offer it unless the user already gets the email.
+		return ! self::is_email_in_active_recipients( wp_get_current_user()->user_email );
+	}
+
+	/**
+	 * Get the URL that turns on the weekly email for the current user in one click.
+	 *
+	 * @return string URL, unescaped. Empty string if the current user can not opt in.
+	 */
+	public static function get_opt_in_url() {
+		if ( ! self::current_user_can_opt_in() ) {
+			return '';
+		}
+
+		return wp_nonce_url(
+			add_query_arg( 'action', self::OPT_IN_ACTION, admin_url( 'admin-post.php' ) ),
+			self::OPT_IN_ACTION
+		);
+	}
+
+	/**
+	 * Check if the current user can use the one-click opt-in.
+	 *
+	 * Uses the same capability as the email report settings page.
+	 *
+	 * @return bool
+	 */
+	private static function current_user_can_opt_in() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return (bool) is_email( wp_get_current_user()->user_email );
+	}
+
+	/**
+	 * Check if reports are enabled and the email address is one of the recipients.
+	 *
+	 * Counts the site admin fallback, so the admin is not offered an opt-in
+	 * for an email they already get.
+	 *
+	 * @param string $email Email address.
+	 * @return bool
+	 */
+	public static function is_email_in_active_recipients( $email ) {
+		if ( ! get_option( 'simple_history_email_report_enabled', false ) ) {
+			return false;
+		}
+
+		$recipients = array_map( 'strtolower', self::get_effective_recipients() );
+
+		return in_array( strtolower( $email ), $recipients, true );
+	}
+
+	/**
+	 * Handle the one-click opt-in button.
+	 *
+	 * Enables the weekly report and adds the current user's email address to the
+	 * recipients. Recipients that are already set are kept.
+	 */
+	public function handle_opt_in() {
+		if ( ! self::current_user_can_opt_in() ) {
+			wp_die( esc_html__( 'You are not allowed to change the email report settings.', 'simple-history' ), 403 );
+		}
+
+		check_admin_referer( self::OPT_IN_ACTION );
+
+		// Add the current user and keep any recipients that are already set.
+		$recipients = $this->sanitize_email_recipients(
+			$this->get_email_report_recipients() . "\n" . wp_get_current_user()->user_email
+		);
+
+		update_option( 'simple_history_email_report_recipients', $recipients );
+		update_option( 'simple_history_email_report_enabled', true );
+
+		// update_option() only fires the "updated" hook that schedules the report when
+		// the option already existed, and on a new install it does not.
+		$this->schedule_email_report();
+
+		$redirect_url = wp_get_referer();
+
+		if ( ! $redirect_url ) {
+			$redirect_url = Helpers::get_history_admin_url();
+		}
+
+		wp_safe_redirect( add_query_arg( self::OPT_IN_QUERY_ARG, 'enabled', $redirect_url ) );
+		exit;
+	}
+
+	/**
+	 * Show a confirmation notice after opting in.
+	 */
+	public function show_opt_in_confirmation_notice() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only decides whether to show a notice.
+		$opt_in_state = isset( $_GET[ self::OPT_IN_QUERY_ARG ] ) ? sanitize_key( wp_unslash( $_GET[ self::OPT_IN_QUERY_ARG ] ) ) : '';
+
+		if ( $opt_in_state !== 'enabled' || ! function_exists( 'wp_admin_notice' ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$user_email = wp_get_current_user()->user_email;
+
+		// Confirm only what is actually true, in case the arg was added to a URL by hand.
+		if ( ! self::is_email_in_active_recipients( $user_email ) ) {
+			return;
+		}
+
+		$message = sprintf(
+			/* translators: 1: email address, 2: opening link tag, 3: closing link tag. */
+			esc_html__( 'Done. Every Monday, %1$s will get a summary of the past week. %2$sChange recipients or turn it off%3$s', 'simple-history' ),
+			'<strong>' . esc_html( $user_email ) . '</strong>',
+			'<a href="' . esc_url( Helpers::get_settings_page_sub_tab_url( self::SETTINGS_SUB_TAB_SLUG ) ) . '">',
+			'</a>'
+		);
+
+		// Opting in from the welcome notice sends people back to the screen they were on,
+		// often Plugins, so point them to the log too, unless they are already there.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check of which admin page is being viewed.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( $page !== Simple_History::MENU_PAGE_SLUG ) {
+			$message .= sprintf(
+				' | <a href="%1$s">%2$s</a>',
+				esc_url( Helpers::get_history_admin_url() ),
+				esc_html__( 'Open the activity log', 'simple-history' )
+			);
+		}
+
+		wp_admin_notice(
+			$message,
+			[
+				'type'        => 'success',
+				'dismissible' => true,
+			]
+		);
+	}
+
+	/**
+	 * Remove the opt-in query arg from the address bar after the page has loaded.
+	 *
+	 * @param array<string> $args Query args WordPress removes.
+	 * @return array<string>
+	 */
+	public function add_removable_query_args( $args ) {
+		$args[] = self::OPT_IN_QUERY_ARG;
+
+		return $args;
 	}
 
 	/**
@@ -79,7 +349,7 @@ class Email_Report_Service extends Service {
 		( new Menu_Page() )
 			->set_page_title( __( 'Email Reports', 'simple-history' ) )
 			->set_menu_title( __( 'Email Reports', 'simple-history' ) )
-			->set_menu_slug( 'general_settings_subtab_email_reports' )
+			->set_menu_slug( self::SETTINGS_SUB_TAB_SLUG )
 			->set_callback( [ $this, 'settings_output_email_reports' ] )
 			->set_order( 15 )
 			->set_parent( Setup_Settings_Page::SETTINGS_GENERAL_SUBTAB_SLUG )
@@ -309,10 +579,505 @@ class Email_Report_Service extends Service {
 		// Add history admin URL.
 		$stats['history_admin_url'] = \Simple_History\Helpers::get_history_admin_url();
 
+		// Add a log page URL behind every number in the report.
+		$stats['stat_urls'] = $this->get_stat_urls( $date_from, $date_to );
+
+		// The opening sentences, which need the numbers gathered above.
+		$stats['summary_text'] = $this->get_summary_text( $stats, $date_from, $date_to );
+
 		// Add settings URL for unsubscribe link.
 		$stats['settings_url'] = admin_url( 'admin.php?page=simple_history_settings_page&selected-tab=general_settings_subtab_general&selected-sub-tab=general_settings_subtab_email_reports' );
 
 		return $stats;
+	}
+
+	/**
+	 * Opening sentences of the report.
+	 *
+	 * Says the things the numbers below cannot: how this week compares with
+	 * the last one, and who was behind it. Everything already printed as a
+	 * large number in its own block is left out, because a number in a box is
+	 * read faster than the same number inside a sentence.
+	 *
+	 * The wording never varies for the same situation. A reader who gets this
+	 * every week learns the sentence as a shape and reads it at a glance, so
+	 * rewording it for variety would cost them that and give nothing back.
+	 *
+	 * @param array $stats     Report stats gathered so far.
+	 * @param int   $date_from Start date as Unix timestamp.
+	 * @param int   $date_to   End date as Unix timestamp.
+	 * @return string One to three sentences, or an empty string.
+	 */
+	private function get_summary_text( $stats, $date_from, $date_to ) {
+		$total     = (int) ( $stats['total_events_this_week'] ?? 0 );
+		$previous  = $this->get_previous_period_total( $date_from, $date_to );
+		$sentences = [];
+
+		// How much happened, and whether that is more or less than last time.
+		// On an empty week this is the sentence that tells someone their
+		// logging stopped working, so it is never dropped.
+		if ( $total === 0 && $previous === null ) {
+			$sentences[] = __( 'No events were logged.', 'simple-history' );
+		} elseif ( $total === 0 ) {
+			$sentences[] = sprintf(
+				/* translators: %s: number of events in the previous period */
+				__( 'No events were logged, compared with %s the week before.', 'simple-history' ),
+				number_format_i18n( $previous )
+			);
+		} elseif ( $previous === null ) {
+			$sentences[] = sprintf(
+				/* translators: %s: number of events */
+				_n( 'Your site logged %s event.', 'Your site logged %s events.', $total, 'simple-history' ),
+				number_format_i18n( $total )
+			);
+		} else {
+			$sentences[] = sprintf(
+				/* translators: 1: number of events this period, 2: number of events in the previous period */
+				_n(
+					'Your site logged %1$s event, compared with %2$s the week before.',
+					'Your site logged %1$s events, compared with %2$s the week before.',
+					$total,
+					'simple-history'
+				),
+				number_format_i18n( $total ),
+				number_format_i18n( $previous )
+			);
+		}
+
+		// Failed logins, stated plainly at any number. A threshold above which
+		// it becomes worth mentioning would be a judgement the log cannot make:
+		// twenty attempts is background noise on a public site and a real
+		// event on a private one.
+		$failed_logins = (int) ( $stats['failed_logins'] ?? 0 );
+
+		if ( $failed_logins > 0 ) {
+			$sentences[] = sprintf(
+				/* translators: %s: number of failed login attempts */
+				_n( 'There was %s failed login.', 'There were %s failed logins.', $failed_logins, 'simple-history' ),
+				number_format_i18n( $failed_logins )
+			);
+		}
+
+		$most_active_user = $this->get_most_active_user_name( $stats, $total );
+
+		if ( $most_active_user !== '' ) {
+			$sentences[] = sprintf(
+				/* translators: %s: display name of the user with the most events */
+				__( '%s was the most active user.', 'simple-history' ),
+				$most_active_user
+			);
+		}
+
+		return implode( ' ', $sentences );
+	}
+
+	/**
+	 * Name of the one user who was clearly the most active, if there is one.
+	 *
+	 * Silent unless the answer is unambiguous and worth saying: a busy enough
+	 * week, more than one person in it, and a clear leader. A tie has no single
+	 * most active user, so naming either of them would be false.
+	 *
+	 * @param array $stats Report stats.
+	 * @param int   $total Total events in the period.
+	 * @return string Display name, or an empty string when there is no clear answer.
+	 */
+	private function get_most_active_user_name( $stats, $total ) {
+		// Below this the ranking says more about chance than about the week.
+		if ( $total < 20 ) {
+			return '';
+		}
+
+		$users = $stats['most_active_users'] ?? [];
+
+		// Every entry is padded out to a fixed length, so drop the empty ones.
+		$users = array_values(
+			array_filter(
+				$users,
+				function ( $user ) {
+					return ! empty( $user['name'] ) && ! empty( $user['count'] );
+				}
+			)
+		);
+
+		if ( count( $users ) < 2 ) {
+			return '';
+		}
+
+		if ( (int) $users[0]['count'] === (int) $users[1]['count'] ) {
+			return '';
+		}
+
+		return $users[0]['name'];
+	}
+
+	/**
+	 * Total events in the period before this one, when it can be compared.
+	 *
+	 * Returns null when there is nothing stored yet, or when the stored period
+	 * covered a different number of days — "the week before" has to be true.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return int|null Previous total, or null when there is nothing to compare with.
+	 */
+	private function get_previous_period_total( $date_from, $date_to ) {
+		$days = $this->get_period_days( $date_from, $date_to );
+
+		foreach ( $this->get_sent_periods() as $period ) {
+			// A period of a different length is not "the week before", whether
+			// the schedule changed or the first report covered a part week.
+			if ( (int) $period['days'] !== $days ) {
+				continue;
+			}
+
+			$period_to = $this->parse_stored_date( $period['to'] );
+
+			// It also has to be the period that ran up to this one. Reports
+			// switched off for a month and back on again would otherwise
+			// compare against a week from before the gap and call it last week.
+			if ( $period_to === null || abs( $date_from - $period_to ) > 2 * DAY_IN_SECONDS ) {
+				continue;
+			}
+
+			return (int) $period['total'];
+		}
+
+		return null;
+	}
+
+	/**
+	 * The periods reports have been sent for, newest first.
+	 *
+	 * @return array List of [ 'from' => string, 'to' => string, 'days' => int, 'total' => int ].
+	 */
+	private function get_sent_periods() {
+		$periods = get_option( self::SENT_PERIODS_OPTION );
+
+		if ( ! is_array( $periods ) ) {
+			return [];
+		}
+
+		return array_values(
+			array_filter(
+				$periods,
+				function ( $period ) {
+					return is_array( $period ) && isset( $period['from'], $period['to'], $period['days'], $period['total'] );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Remember this period so the next report can compare against it.
+	 *
+	 * Only a report that was actually sent counts. Previews and test emails
+	 * would otherwise overwrite the number a real report is going to be
+	 * measured against.
+	 *
+	 * @param int $total     Total events in the period.
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return void
+	 */
+	private function store_period_total( $total, $date_from, $date_to ) {
+		$periods = $this->get_sent_periods();
+
+		array_unshift(
+			$periods,
+			[
+				// ISO 8601 in UTC, the same basis the events table stores its
+				// dates on. Readable when the option is opened, sorts the way
+				// it reads, and cannot drift if the site's timezone changes.
+				// Render with wp_date() to show it in the site's timezone.
+				'from'  => gmdate( 'Y-m-d\TH:i:s\Z', $date_from ),
+				'to'    => gmdate( 'Y-m-d\TH:i:s\Z', $date_to ),
+				'days'  => $this->get_period_days( $date_from, $date_to ),
+				'total' => (int) $total,
+			]
+		);
+
+		update_option(
+			self::SENT_PERIODS_OPTION,
+			array_slice( $periods, 0, self::MAX_STORED_PERIODS ),
+			false
+		);
+	}
+
+	/**
+	 * Timestamp for a date stored in the option.
+	 *
+	 * @param mixed $value ISO 8601 date string in UTC.
+	 * @return int|null Unix timestamp, or null when the value cannot be read.
+	 */
+	private function parse_stored_date( $value ) {
+		if ( ! is_string( $value ) || $value === '' ) {
+			return null;
+		}
+
+		try {
+			$date = new \DateTimeImmutable( $value );
+		} catch ( \Exception $e ) {
+			return null;
+		}
+
+		return $date->getTimestamp();
+	}
+
+	/**
+	 * Number of days a report period covers.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return int Days, at least 1.
+	 */
+	private function get_period_days( $date_from, $date_to ) {
+		$days = (int) round( ( $date_to - $date_from ) / DAY_IN_SECONDS );
+
+		return max( 1, $days );
+	}
+
+	/**
+	 * Log page URLs for the numbers in the report, keyed by stat.
+	 *
+	 * Every number in the email answers "how many", and the reader's next
+	 * question is "which ones". Each URL filters the log to the same logger and
+	 * message keys the stat was counted from, over the same days, so the page
+	 * they land on holds the events behind the number they clicked.
+	 *
+	 * @param int $date_from Start date as Unix timestamp.
+	 * @param int $date_to   End date as Unix timestamp.
+	 * @return array<string,string> Stat key to log page URL.
+	 */
+	private function get_stat_urls( $date_from, $date_to ) {
+		// Label, logger slug and message keys per stat. The keys have to stay
+		// in step with the Events_Stats methods the counts come from, or a
+		// number will lead to a page that disagrees with it.
+		$stat_events = [
+			'successful_logins'    => [ __( 'Successful logins', 'simple-history' ), 'SimpleUserLogger', [ 'user_logged_in', 'user_unknown_logged_in' ] ],
+			'failed_logins'        => [ __( 'Failed logins', 'simple-history' ), 'SimpleUserLogger', User_Logger::get_failed_login_message_keys() ],
+			'users_created'        => [ __( 'Users created', 'simple-history' ), 'SimpleUserLogger', [ 'user_created' ] ],
+			'users_updated'        => [ __( 'Profile updates', 'simple-history' ), 'SimpleUserLogger', [ 'user_updated_profile' ] ],
+			'posts_created'        => [ __( 'Posts and pages created', 'simple-history' ), 'SimplePostLogger', [ 'post_created' ] ],
+			'posts_updated'        => [ __( 'Posts and pages edited', 'simple-history' ), 'SimplePostLogger', [ 'post_updated' ] ],
+			'media_uploads'        => [ __( 'Media uploads', 'simple-history' ), 'SimpleMediaLogger', [ 'attachment_created' ] ],
+			'media_edits'          => [ __( 'Media edits', 'simple-history' ), 'SimpleMediaLogger', [ 'attachment_updated' ] ],
+			'comments_added'       => [ __( 'Comments added', 'simple-history' ), 'SimpleCommentsLogger', [ 'anon_comment_added', 'user_comment_added' ] ],
+			'comments_approved'    => [ __( 'Comments approved', 'simple-history' ), 'SimpleCommentsLogger', [ 'comment_status_approve' ] ],
+			'comments_spam'        => [ __( 'Comments marked as spam', 'simple-history' ), 'SimpleCommentsLogger', [ 'comment_status_spam' ] ],
+			'notes_added'          => [ __( 'Notes added', 'simple-history' ), 'NotesLogger', [ 'note_added', 'note_reply_added' ] ],
+			'notes_resolved'       => [ __( 'Notes resolved', 'simple-history' ), 'NotesLogger', [ 'note_resolved' ] ],
+			'plugin_activations'   => [ __( 'Plugin activations', 'simple-history' ), 'SimplePluginLogger', [ 'plugin_activated' ] ],
+			'plugin_deactivations' => [ __( 'Plugin deactivations', 'simple-history' ), 'SimplePluginLogger', [ 'plugin_deactivated' ] ],
+			'theme_switches'       => [ __( 'Theme switches', 'simple-history' ), 'SimpleThemeLogger', [ 'theme_switched' ] ],
+			'theme_updates'        => [ __( 'Theme updates', 'simple-history' ), 'SimpleThemeLogger', [ 'theme_updated' ] ],
+			'wordpress_updates'    => [ __( 'WordPress core updates', 'simple-history' ), 'SimpleCoreUpdatesLogger', [ 'core_updated', 'core_auto_updated' ] ],
+		];
+
+		// The report covers whole days in the site's timezone, so the log has to
+		// be asked for those same days rather than the last seven from now.
+		$from = ( new \DateTimeImmutable( '@' . $date_from ) )->setTimezone( wp_timezone() )->format( 'Y-m-d' );
+		$to   = ( new \DateTimeImmutable( '@' . $date_to ) )->setTimezone( wp_timezone() )->format( 'Y-m-d' );
+
+		$date_args = [
+			'date' => 'customRange',
+			'from' => $from,
+			'to'   => $to,
+		];
+
+		// The whole period, for the total events number.
+		$urls = [ 'total_events_this_week' => Helpers::get_filtered_history_url( $date_args ) ];
+
+		foreach ( $stat_events as $stat_key => $stat_event ) {
+			list( $label, $logger_slug, $message_keys ) = $stat_event;
+
+			$search_options = [];
+
+			foreach ( $message_keys as $message_key ) {
+				$search_options[] = $logger_slug . ':' . $message_key;
+			}
+
+			$urls[ $stat_key ] = Helpers::get_filtered_history_url(
+				array_merge(
+					$date_args,
+					[
+						'messages' => [
+							[
+								'value'          => $label,
+								'search_options' => $search_options,
+							],
+						],
+					]
+				)
+			);
+		}
+
+		return $urls;
+	}
+
+	/**
+	 * The Premium teaser shown under the intro, for free users.
+	 *
+	 * Every teaser that matches this week's activity goes into a pool with the
+	 * generic ones, and the pick rotates by week number so the same activity
+	 * does not produce the same line two weeks running.
+	 *
+	 * Both versions of the email ask for this, so that the text part of a
+	 * message says what its HTML part says.
+	 *
+	 * @param array $args Email template args.
+	 * @return string Teaser text, empty when there is no upsell to show.
+	 */
+	public function get_top_teaser_text( $args ) {
+		/** This filter is documented in templates/email-summary-report.php */
+		$show_upsell = apply_filters( 'simple_history/email_summary_report/show_upsell', Helpers::show_promo_boxes() );
+
+		if ( ! $show_upsell ) {
+			return '';
+		}
+
+		$teaser_pool = [];
+
+		if ( ( $args['failed_logins'] ?? 0 ) > 0 ) {
+			$teaser_pool[] = __( 'With Premium, this email shows the IP addresses and usernames behind every failed login attempt.', 'simple-history' );
+		}
+
+		if ( ( $args['plugin_activations'] ?? 0 ) + ( $args['plugin_deactivations'] ?? 0 ) > 0 ) {
+			$teaser_pool[] = __( 'With Premium, this email names each plugin and the person who changed it.', 'simple-history' );
+		}
+
+		// Only tease the posts list when activity is notable — low counts don't create curiosity.
+		if ( ( $args['posts_created'] ?? 0 ) + ( $args['posts_updated'] ?? 0 ) > 3 ) {
+			$teaser_pool[] = __( 'With Premium, this email shows who edited which posts and when.', 'simple-history' );
+		}
+
+		if ( ( $args['users_created'] ?? 0 ) > 0 ) {
+			$teaser_pool[] = __( 'With Premium, this email includes the username and role of every new account.', 'simple-history' );
+		}
+
+		// Generic teasers, always in the pool.
+		$teaser_pool[] = __( 'Premium fills this email in with the details — which post, which plugin, who logged in — and sends real-time alerts for critical events, so you don\'t have to wait for Monday to hear about them.', 'simple-history' );
+		$teaser_pool[] = __( 'With Premium, this email lists who did what — the names behind the numbers below.', 'simple-history' );
+
+		// Retention teaser only when the log is actually purged. Retention is
+		// 30 days on new installs and 60 on older ones, so never hardcode it.
+		$retention_days = Helpers::get_clear_history_interval();
+
+		if ( $retention_days > 0 ) {
+			$teaser_pool[] = sprintf(
+				/* translators: %d: number of days events are kept. */
+				_n(
+					'Free logs are removed after %d day. Premium keeps them as long as you need, so you can still see what changed months later.',
+					'Free logs are removed after %d days. Premium keeps them as long as you need, so you can still see what changed months later.',
+					$retention_days,
+					'simple-history'
+				),
+				$retention_days
+			);
+		}
+
+		$tips_service = Simple_History::get_instance()->get_service( Tips_Service::class );
+		$week_index   = $tips_service instanceof Tips_Service ? $tips_service->get_week_index( $args ) : (int) gmdate( 'W' );
+
+		$top_teaser_text = $teaser_pool[ $week_index % count( $teaser_pool ) ];
+
+		/**
+		 * Filter the teaser text shown under the intro.
+		 * Return an empty string to hide the teaser.
+		 *
+		 * @param string $top_teaser_text The teaser text.
+		 * @param array  $args The email template args.
+		 */
+		return apply_filters( 'simple_history/email_summary_report/top_teaser_text', $top_teaser_text, $args );
+	}
+
+	/**
+	 * The body text of the upsell block at the bottom of the email, for free users.
+	 *
+	 * Both versions of the email ask for this, so that the text part of a
+	 * message says what its HTML part says.
+	 *
+	 * @return string Upsell text.
+	 */
+	public function get_upsell_block_text() {
+		$retention_days = Helpers::get_clear_history_interval();
+
+		// Retention can be set to forever with a filter, then only the other features apply.
+		if ( $retention_days <= 0 ) {
+			return __( 'Premium adds real-time alerts, Slack notifications, CSV export, and log forwarding to syslog or external databases.', 'simple-history' );
+		}
+
+		return sprintf(
+			/* translators: %d: number of days events are kept. */
+			_n(
+				'Free logs are removed after %d day. Premium lets you keep them longer — and adds real-time alerts, Slack notifications, CSV export, and log forwarding to syslog or external databases.',
+				'Free logs are removed after %d days. Premium lets you keep them longer — and adds real-time alerts, Slack notifications, CSV export, and log forwarding to syslog or external databases.',
+				$retention_days,
+				'simple-history'
+			),
+			$retention_days
+		);
+	}
+
+	/**
+	 * Render one of the report templates into a string.
+	 *
+	 * @param string $template    Template file name, inside templates/.
+	 * @param array  $report_data Data the template renders.
+	 * @return string
+	 */
+	private function render_report_template( $template, $report_data ) {
+		ob_start();
+
+		load_template( SIMPLE_HISTORY_PATH . 'templates/' . $template, false, $report_data );
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Send one report email, with a plain text part alongside the HTML.
+	 *
+	 * wp_mail() cannot carry a text alternative on its own: the message it is
+	 * given goes straight to PHPMailer's Body, and AltBody is reset to an
+	 * empty string on every call. The phpmailer_init hook fires after that
+	 * reset and before the message is assembled, so setting AltBody there is
+	 * what makes PHPMailer build a multipart/alternative email.
+	 *
+	 * The hook is global, so the callback is added and removed around this one
+	 * send. Left attached it would put this report inside every email the site
+	 * sends afterwards. It runs last so that a mailer plugin generating its own
+	 * AltBody out of the HTML does not overwrite the text written for this.
+	 *
+	 * A plugin that filters pre_wp_mail short-circuits before phpmailer_init
+	 * runs, and an API mailer may only map the HTML body. Both end up sending
+	 * what was sent before this existed: HTML only, never a broken email.
+	 *
+	 * @param string   $recipient Recipient email address.
+	 * @param string   $subject   Email subject.
+	 * @param string   $html      HTML version of the report.
+	 * @param string   $text      Plain text version of the report.
+	 * @param string[] $headers   Email headers.
+	 * @return bool Whether the email was handed off for sending.
+	 */
+	private function send_report_email( $recipient, $subject, $html, $text, $headers ) {
+		/**
+		 * Add the text part to the message PHPMailer is about to build.
+		 *
+		 * @param \PHPMailer\PHPMailer\PHPMailer $phpmailer The mailer instance.
+		 */
+		$set_alt_body = function ( $phpmailer ) use ( $text ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHPMailer's property name.
+			$phpmailer->AltBody = $text;
+		};
+
+		add_action( 'phpmailer_init', $set_alt_body, PHP_INT_MAX );
+
+		try {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this goes to a single manually added recipient.
+			return wp_mail( $recipient, $subject, $html, $headers );
+		} finally {
+			remove_action( 'phpmailer_init', $set_alt_body, PHP_INT_MAX );
+		}
 	}
 
 	/**
@@ -339,50 +1104,113 @@ class Email_Report_Service extends Service {
 	 * REST API endpoint for sending preview email.
 	 */
 	public function rest_preview_email() {
-		$current_user = wp_get_current_user();
+		$stored_recipients = self::get_stored_valid_recipients();
+		$recipients        = self::get_effective_recipients();
+
+		if ( empty( $recipients ) ) {
+			return new \WP_Error(
+				'email_no_recipients',
+				__( 'There is no valid recipient to send the test email to. Add a recipient above, or set a valid site admin email under Settings → General.', 'simple-history' ),
+				[ 'status' => 400 ]
+			);
+		}
 
 		// Preview shows last 7 days including today, matching sidebar "7 days" stat.
 		$date_range = Date_Helper::get_last_n_days_range( Date_Helper::DAYS_PER_WEEK );
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
-		ob_start();
-		load_template(
-			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
-			false,
-			$this->get_summary_report_data( $date_from, $date_to, true )
-		);
-		$email_content = ob_get_clean();
+		$report_data = $this->get_summary_report_data( $date_from, $date_to, true );
+
+		$email_content = $this->render_report_template( 'email-summary-report.php', $report_data );
+		$text_content  = $this->render_report_template( 'email-summary-report-text.php', $report_data );
 
 		$subject = $this->get_email_subject( true );
 
 		$headers = [ 'Content-Type: text/html; charset=UTF-8' ];
 
-		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this is a preview email sent to a single recipient.
-		$sent = wp_mail(
-			$current_user->user_email,
-			$subject,
-			$email_content,
-			$headers
-		);
+		$sent_to   = [];
+		$failed_to = [];
 
-		if ( $sent ) {
-			return rest_ensure_response(
-				[
-					'success' => true,
-					'message' => sprintf(
-						/* translators: %s: Email address */
-						__( 'Test email sent successfully to %s.', 'simple-history' ),
-						$current_user->user_email
-					),
-				]
+		foreach ( $recipients as $recipient ) {
+			$sent = $this->send_report_email(
+				$recipient,
+				$subject,
+				$email_content,
+				$text_content,
+				$headers
+			);
+
+			if ( $sent ) {
+				$sent_to[] = $recipient;
+			} else {
+				$failed_to[] = $recipient;
+			}
+		}
+
+		if ( empty( $sent_to ) ) {
+			return new \WP_Error(
+				'email_send_failed',
+				__( 'Failed to send test email.', 'simple-history' ),
+				[ 'status' => 500 ]
 			);
 		}
 
-		return new \WP_Error(
-			'email_send_failed',
-			__( 'Failed to send test email.', 'simple-history' ),
-			[ 'status' => 500 ]
+		$message = $this->get_test_email_sent_message( $sent_to, $stored_recipients );
+
+		// Some were sent and some were not. Name the failed ones, so the user
+		// does not click again and send duplicates to the ones that worked.
+		if ( ! empty( $failed_to ) ) {
+			$message .= ' ' . sprintf(
+				/* translators: %s: comma-separated list of email addresses */
+				__( 'Could not send to %s.', 'simple-history' ),
+				implode( ', ', $failed_to )
+			);
+		}
+
+		return rest_ensure_response(
+			[
+				'success' => true,
+				'message' => $message,
+			]
+		);
+	}
+
+	/**
+	 * The response message for a sent test email, based on who it went to.
+	 *
+	 * @param string[] $recipients        Recipients the test email was actually sent to.
+	 * @param string[] $stored_recipients Valid recipients from the stored setting, before
+	 *                                     the admin_email fallback was applied.
+	 * @return string
+	 */
+	private function get_test_email_sent_message( $recipients, $stored_recipients ) {
+		if ( empty( $stored_recipients ) ) {
+			return sprintf(
+				/* translators: %s: site admin email address */
+				__( 'Test email sent to the site admin, %s. The weekly email goes there until you add recipients.', 'simple-history' ),
+				$recipients[0]
+			);
+		}
+
+		if ( count( $recipients ) === 1 ) {
+			return sprintf(
+				/* translators: %s: recipient email address */
+				__( 'Test email sent to %s.', 'simple-history' ),
+				$recipients[0]
+			);
+		}
+
+		return sprintf(
+			/* translators: 1: number of recipients, 2: comma-separated list of recipient email addresses */
+			_n(
+				'Test email sent to %1$d recipient: %2$s.',
+				'Test email sent to %1$d recipients: %2$s.',
+				count( $recipients ),
+				'simple-history'
+			),
+			count( $recipients ),
+			implode( ', ', $recipients )
 		);
 	}
 
@@ -456,7 +1284,8 @@ class Email_Report_Service extends Service {
 			Helpers::get_settings_field_title_output( __( 'Recipients', 'simple-history' ), 'group_add' ),
 			[ $this, 'settings_field_recipients' ],
 			self::SETTINGS_PAGE_SLUG,
-			'simple_history_email_report_section'
+			'simple_history_email_report_section',
+			[ 'label_for' => 'simple_history_email_report_recipients' ]
 		);
 
 		add_settings_field(
@@ -484,19 +1313,120 @@ class Email_Report_Service extends Service {
 			<strong><?php esc_html_e( 'Stay on top of your site without logging in.', 'simple-history' ); ?></strong>
 		</p>
 		<?php
+		$this->output_preview_thumbnail();
+	}
+
+	/**
+	 * Get the URL of the HTML preview of the email.
+	 *
+	 * @return string URL, unescaped.
+	 */
+	private function get_preview_url() {
+		return add_query_arg(
+			[
+				'_wpnonce' => wp_create_nonce( 'wp_rest' ),
+			],
+			rest_url( 'simple-history/v1/email-report/preview/html' )
+		);
+	}
+
+	/**
+	 * Output a scaled-down live preview of the email next to the settings.
+	 *
+	 * Shown whether the email is on or off: off it makes the case for turning it on,
+	 * on it shows what recipients get after changing the settings.
+	 * Hidden by CSS when the settings card is too narrow for it.
+	 *
+	 * The iframe gets its src from the script below only when the thumbnail is visible.
+	 * With src in the markup, browsers load it even when hidden: loading="lazy" does not
+	 * apply to display:none iframes. A display:none element never intersects, so one
+	 * IntersectionObserver covers both the container query showing it and it being near
+	 * the viewport, including width changes that are not window resizes. That is also
+	 * what keeps the report from being built for people who never see the thumbnail.
+	 */
+	private function output_preview_thumbnail() {
+		$preview_url = $this->get_preview_url();
+
+		?>
+		<aside class="sh-EmailReportThumbnail" aria-labelledby="sh-EmailReportThumbnail-label" hidden>
+			<p class="sh-EmailReportThumbnail-label" id="sh-EmailReportThumbnail-label">
+				<?php esc_html_e( 'Preview', 'simple-history' ); ?>
+			</p>
+			<p class="sh-EmailReportThumbnail-description">
+				<?php esc_html_e( 'Using real data from the last 7 days.', 'simple-history' ); ?>
+			</p>
+			<a class="sh-EmailReportThumbnail-link" href="<?php echo esc_url( $preview_url ); ?>" target="_blank">
+				<span class="sh-EmailReportThumbnail-frame">
+					<iframe
+						class="sh-EmailReportThumbnail-iframe"
+						data-src="<?php echo esc_url( $preview_url ); ?>"
+						title="<?php esc_attr_e( 'Preview of the weekly email', 'simple-history' ); ?>"
+						tabindex="-1"
+						aria-hidden="true"
+						scrolling="no"
+						fetchpriority="low"
+					></iframe>
+				</span>
+				<span class="sh-EmailReportThumbnail-open"><?php esc_html_e( 'Open full size', 'simple-history' ); ?></span>
+			</a>
+		</aside>
+		<script>
+			( function () {
+				var thumbnail = document.currentScript.previousElementSibling;
+				var iframe = thumbnail.querySelector( 'iframe' );
+
+				thumbnail.hidden = false;
+
+				var observer = new IntersectionObserver( function ( entries ) {
+					if ( ! entries[ 0 ].isIntersecting ) {
+						return;
+					}
+
+					iframe.src = iframe.dataset.src;
+					observer.disconnect();
+				}, { rootMargin: '200px' } );
+
+				observer.observe( thumbnail );
+			} )();
+		</script>
+		<?php
+	}
+
+	/**
+	 * Label for the test email button, naming who the test email goes to.
+	 *
+	 * Uses the saved recipients, with the same admin_email fallback as the
+	 * weekly email. Long lists are shown as a count to keep the label short.
+	 *
+	 * @return string
+	 */
+	private function get_test_email_button_label() {
+		$recipients = self::get_effective_recipients();
+
+		if ( empty( $recipients ) ) {
+			return __( 'Send test email', 'simple-history' );
+		}
+
+		if ( count( $recipients ) > 3 ) {
+			return sprintf(
+				/* translators: %d: number of recipients */
+				_n( 'Send test email to %d recipient', 'Send test email to %d recipients', count( $recipients ), 'simple-history' ),
+				count( $recipients )
+			);
+		}
+
+		return sprintf(
+			/* translators: %s: comma-separated list of email addresses */
+			__( 'Send test email to %s', 'simple-history' ),
+			implode( ', ', $recipients )
+		);
 	}
 
 	/**
 	 * Output for the preview and test setting field.
 	 */
 	public function settings_field_preview() {
-		$current_user = wp_get_current_user();
-		$preview_url  = add_query_arg(
-			[
-				'_wpnonce' => wp_create_nonce( 'wp_rest' ),
-			],
-			rest_url( 'simple-history/v1/email-report/preview/html' )
-		);
+		$preview_url = $this->get_preview_url();
 		?>
 		<div>
 			<p>
@@ -505,13 +1435,7 @@ class Email_Report_Service extends Service {
 				</a>
 				|
 				<button type="button" class="button button-link" id="simple-history-email-test">
-					<?php
-					printf(
-						// translators: %s: Current user's email address.
-						esc_html__( 'Send test email to %s', 'simple-history' ),
-						esc_html( $current_user->user_email )
-					);
-					?>
+					<?php echo esc_html( $this->get_test_email_button_label() ); ?>
 				</button>
 			</p>
 		</div>
@@ -525,7 +1449,7 @@ class Email_Report_Service extends Service {
 					}).then(function(response) {
 						alert(response.message);
 					}).catch(function(error) {
-						alert('<?php esc_html_e( 'Failed to send test email.', 'simple-history' ); ?>');
+						alert(error.message || '<?php echo esc_js( __( 'Failed to send test email.', 'simple-history' ) ); ?>');
 					});
 				});
 			});
@@ -576,7 +1500,54 @@ class Email_Report_Service extends Service {
 		// Join back to string.
 		$textarea_contents = implode( "\n", $textarea_contents );
 
+		$this->maybe_warn_about_missing_recipients( $textarea_contents );
+
 		return $textarea_contents;
+	}
+
+	/**
+	 * Warn on the settings page when the weekly email is being saved as on
+	 * with no valid recipients, since it will silently go to the site admin
+	 * instead of nobody.
+	 *
+	 * @param string $sanitized_recipients The recipients this request is about
+	 *                                      to save, one email per line.
+	 */
+	private function maybe_warn_about_missing_recipients( $sanitized_recipients ) {
+		if ( $sanitized_recipients !== '' ) {
+			return;
+		}
+
+		// The enabled checkbox is a separate setting saved in the same request.
+		// An unchecked checkbox is not sent at all, so its absence means "off".
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The Settings API already verified the settings-page nonce before calling sanitize callbacks.
+		$enabled = isset( $_POST['simple_history_email_report_enabled'] )
+			? rest_sanitize_boolean( wp_unslash( $_POST['simple_history_email_report_enabled'] ) )
+			: false;
+
+		if ( ! $enabled ) {
+			return;
+		}
+
+		// The Settings API can call this sanitize callback twice when the
+		// option is registered for the first time in a request, so check
+		// whether the warning is already queued before adding it again.
+		foreach ( get_settings_errors( 'simple_history_email_report_recipients' ) as $existing_error ) {
+			if ( ( $existing_error['code'] ?? '' ) === 'simple_history_email_report_recipients_empty' ) {
+				return;
+			}
+		}
+
+		add_settings_error(
+			'simple_history_email_report_recipients',
+			'simple_history_email_report_recipients_empty',
+			sprintf(
+				/* translators: %s: site admin email address */
+				esc_html__( 'The weekly email is on, but no recipients are set. It will go to the site admin, %s, until you add recipients.', 'simple-history' ),
+				esc_html( get_option( 'admin_email' ) )
+			),
+			'warning'
+		);
 	}
 
 	/**
@@ -595,6 +1566,45 @@ class Email_Report_Service extends Service {
 	 */
 	private function get_email_report_recipients() {
 		return get_option( 'simple_history_email_report_recipients', '' );
+	}
+
+	/**
+	 * Valid email addresses from the stored recipients setting.
+	 *
+	 * @return string[] Valid email addresses. Empty array when there are none.
+	 */
+	private static function get_stored_valid_recipients() {
+		$recipients = explode( "\n", (string) get_option( 'simple_history_email_report_recipients', '' ) );
+		$recipients = array_map( 'trim', $recipients );
+		$recipients = array_filter( $recipients, 'is_email' );
+
+		return array_values( $recipients );
+	}
+
+	/**
+	 * Recipients that should actually receive the report, or the test email.
+	 *
+	 * Falls back to the site admin email when the stored list has no valid
+	 * address, so the report still reaches someone instead of the whole thing
+	 * silently doing nothing.
+	 *
+	 * @return string[] Valid email addresses. Empty array when neither the
+	 *                   stored list nor admin_email has a valid address.
+	 */
+	private static function get_effective_recipients() {
+		$recipients = self::get_stored_valid_recipients();
+
+		if ( ! empty( $recipients ) ) {
+			return $recipients;
+		}
+
+		$admin_email = get_option( 'admin_email' );
+
+		if ( is_email( $admin_email ) ) {
+			return [ $admin_email ];
+		}
+
+		return [];
 	}
 
 	/**
@@ -632,25 +1642,28 @@ class Email_Report_Service extends Service {
 	 * Output for the email recipients field.
 	 */
 	public function settings_field_recipients() {
-		$recipients         = $this->get_email_report_recipients();
-		$current_user_email = wp_get_current_user()->user_email;
+		$recipients = $this->get_email_report_recipients();
 		?>
 		<p>
 			<?php esc_html_e( 'Add team members to keep everyone informed.', 'simple-history' ); ?>
 		</p>
-		<textarea 
-			data-simple-history-email-report-recipients
-			data-simple-history-current-user-email="<?php echo esc_attr( $current_user_email ); ?>"
+		<textarea
 			placeholder="email@example.com&#10;another@example.com"
-			style="field-sizing: content; min-width: 20rem; min-height: 3rem;" 
-			name="simple_history_email_report_recipients" 
-			id="simple_history_email_report_recipients" 
-			class="regular-text" 
-			rows="5" 
+			style="field-sizing: content; min-width: 20rem; min-height: 3rem;"
+			name="simple_history_email_report_recipients"
+			id="simple_history_email_report_recipients"
+			class="regular-text"
+			rows="5"
 			cols="50"
 		><?php echo esc_textarea( $recipients ); ?></textarea>
 		<p class="description">
-			<?php esc_html_e( 'Enter one email address per line.', 'simple-history' ); ?>
+			<?php
+			printf(
+				/* translators: %s: site admin email address */
+				esc_html__( 'One email address per line. Leave empty to send the report to the site admin, %s.', 'simple-history' ),
+				'<code>' . esc_html( get_option( 'admin_email' ) ) . '</code>'
+			);
+			?>
 		</p>
 		<?php
 	}
@@ -659,6 +1672,13 @@ class Email_Report_Service extends Service {
 	 * Schedule the email report.
 	 */
 	public function schedule_email_report() {
+		// The cron hook was renamed from simple_history_email_report to
+		// simple_history/email_report. Clear the old one so a site that
+		// scheduled it before the rename does not keep it running forever.
+		if ( wp_next_scheduled( 'simple_history_email_report' ) ) {
+			wp_clear_scheduled_hook( 'simple_history_email_report' );
+		}
+
 		// Bail if email reports are not enabled.
 		if ( ! $this->is_email_reports_enabled() ) {
 			return;
@@ -704,13 +1724,11 @@ class Email_Report_Service extends Service {
 			return;
 		}
 
-		$recipients = $this->get_email_report_recipients();
+		$recipients = self::get_effective_recipients();
+
 		if ( empty( $recipients ) ) {
 			return;
 		}
-
-		// Convert from newline string to array.
-		$recipients = explode( "\n", $recipients );
 
 		// Get stats for last complete week (Monday-Sunday).
 		// Sent on Mondays, shows previous Mon-Sun, excludes current Monday.
@@ -718,13 +1736,10 @@ class Email_Report_Service extends Service {
 		$date_from  = $date_range['from'];
 		$date_to    = $date_range['to'];
 
-		ob_start();
-		load_template(
-			SIMPLE_HISTORY_PATH . 'templates/email-summary-report.php',
-			false,
-			$this->get_summary_report_data( $date_from, $date_to, false )
-		);
-		$email_content = ob_get_clean();
+		$report_data = $this->get_summary_report_data( $date_from, $date_to, false );
+
+		$email_content = $this->render_report_template( 'email-summary-report.php', $report_data );
+		$text_content  = $this->render_report_template( 'email-summary-report-text.php', $report_data );
 
 		$subject = $this->get_email_subject( false );
 
@@ -732,13 +1747,15 @@ class Email_Report_Service extends Service {
 
 		// Send to each recipient.
 		foreach ( $recipients as $recipient ) {
-			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- Not bulk, this is the email that is sent to a short list of manually added recipients.
-			wp_mail(
+			$this->send_report_email(
 				$recipient,
 				$subject,
 				$email_content,
+				$text_content,
 				$headers
 			);
 		}
+
+		$this->store_period_total( $report_data['total_events_this_week'] ?? 0, $date_from, $date_to );
 	}
 }

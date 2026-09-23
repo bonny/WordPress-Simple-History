@@ -30,6 +30,10 @@ npm run test:acceptance          # legacy browser tests (Selenium — prefer Pla
 
 # Full PHP suite (Codeception only — does NOT include Playwright)
 npm test
+
+# In a git worktree these npm scripts fail (container-name clash, symlinked
+# vendor, empty tests/plugins). See "Checks and tests inside a worktree" in
+# the worktree skill for the docker command that works there.
 ```
 
 **Note:** `npm test` runs only the Codeception suite. To get full coverage, run both `npm run test:playwright` and `npm test` separately.
@@ -39,12 +43,12 @@ npm test
 Premium **is** covered by PHP tests — but they live in **this** (core) repo, not in the
 add-ons repo. One harness, in core; Premium borrows it.
 
-| Location | What's there |
-| --- | --- |
-| `tests/wpunit/premium/` | 11 test files, ~229 tests. Alerts (evaluator/logger/module), custom rules, destination senders, formatters, extended settings, WP-CLI alerts command, both REST controllers, core-vs-premium behaviour |
-| `tests/functional/premium/` | `AlertsCliCest.php` |
-| `tests/playwright/` | `premium-settings-logging.spec.js`, `license-reminder.spec.js`, plus `premium-helpers.js` |
-| `tests/_support/Helper/PremiumTestCase.php` | Base class — call `$this->activate_premium()`; it skips (not fails) when Premium isn't installed |
+| Location                                    | What's there                                                                                                                                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tests/wpunit/premium/`                     | 11 test files, ~229 tests. Alerts (evaluator/logger/module), custom rules, destination senders, formatters, extended settings, WP-CLI alerts command, both REST controllers, core-vs-premium behaviour |
+| `tests/functional/premium/`                 | `AlertsCliCest.php`                                                                                                                                                                                    |
+| `tests/playwright/`                         | `premium-settings-logging.spec.js`, `license-reminder.spec.js`, plus `premium-helpers.js`                                                                                                              |
+| `tests/_support/Helper/PremiumTestCase.php` | Base class — call `$this->activate_premium()`; it skips (not fails) when Premium isn't installed                                                                                                       |
 
 Run them:
 
@@ -57,7 +61,8 @@ docker compose run --rm php-cli vendor/bin/codecept run wpunit premium   # ~15s
 Premium is mounted into the test WordPress at `tests/plugins/simple-history-premium`,
 a **symlink** to the local add-ons checkout, wired up in `compose.yaml`. The symlink is
 **not tracked in git** — on a fresh machine it's absent and every Premium test silently
-*skips*. A green run therefore does not prove Premium passed; check the skip count.
+_skips_. A green run therefore does not prove Premium passed; check the skip count.
+Create the link with `npm run pair -- link` in the add-ons repo (it is what CI runs too).
 
 It is deliberately not in `wpunit.suite.yml`'s `plugins` list — tests activate it
 on demand via `activate_premium()`.
@@ -70,17 +75,38 @@ on demand via `activate_premium()`.
 
 ### What the add-ons repo does and doesn't have
 
-The add-ons repo has **no test runner** — no Codeception config, no `tests/` dir, and its
-`npm test` is a stub that exits 1. Its only local gates are `phpcs` and `phpstan`
-(`npm run addons:lint` / `addons:phpstan` from core). **Don't add a Codeception stack
-there** — add the test to `tests/wpunit/premium/` here instead.
+The add-ons repo has **no test runner of its own** — no Codeception config, no `tests/`
+dir. Its `npm run test:wpunit` runs `codecept run wpunit premium` through **core's**
+Docker stack (`SH_CORE_PATH`, default `../WordPress-Simple-History`). Its other local
+gates are `phpcs` and `phpstan` (`npm run addons:lint` / `addons:phpstan` from core).
+**Don't add a Codeception stack there** — add the test to `tests/wpunit/premium/` here
+instead.
 
-### Nothing runs in CI yet
+### What runs in CI
 
-There is no GitHub Actions workflow running any test suite, in either repo — core's
-`.github/workflows/` has spelling, the Claude bots, and deploy, and the add-ons repo has
-no workflows at all. Every suite is local-and-manual. Tracked in local issue
-`293 - Run the PHP test suites in CI`; coverage gaps in `292 - Close premium test coverage gaps`.
+-   **Core `.github/workflows/test.yml`** — wpunit, functional and acceptance, one job
+    each, on every push, via the same `docker compose run --rm php-cli vendor/bin/codecept
+run <suite>` you run locally. Shared setup (`composer install`, `npm run build`,
+    `scripts/install-test-plugins.sh`) is the composite action
+    `.github/actions/setup-tests`. Premium is absent there, so the ~255 premium tests show
+    up as _skipped_, not passed. A failed job uploads `tests/_output` as an artifact —
+    for acceptance that is the screenshot and page HTML of each failure.
+-   **Add-ons `.github/workflows/test.yml`** — checks out public core (same branch name
+    if it exists, else `main`), runs `pair.sh link`, then `codecept run wpunit premium`.
+    This is the only place premium tests run automatically.
+
+**The database fixture is generated, not committed.** functional and acceptance import
+`tests/_data/dump.sql` before every test. `scripts/build-test-fixture.sh` builds it from
+the WordPress in the container (`wp core install`, empty site, only Simple History
+active, backfill marked done, Simple History tables truncated) and downloads the plugin
+and theme zips the acceptance tests upload. CI runs it every time; locally, rerun it
+after bumping `WORDPRESS_VERSION` — that is what used to make the dump drift and send
+every admin request to `upgrade.php`. It resets `wp_test_site` and empties
+`data/wp-uploads`, and backs up the previous dump first.
+
+A fresh environment also needs the `tests_db` database for wpunit;
+`docker/db-init/tests-db.sql` creates it when the db container first starts on an empty
+data directory.
 
 ## Playwright setup
 
@@ -233,6 +259,8 @@ test( 'logs post creation', async ( { page } ) => {
 -   Write assertions that are true regardless of existing data ("at least one event", not "exactly 5 events")
 -   When a test needs specific data, create it in `beforeEach` via `requestUtils` and clean up in `afterEach`
 -   Cleanup deletions are also logged by Simple History — that's expected and correct, just accept it
+-   **Two specs must not run in parallel with the rest.** `privacy-data.spec.js` and `hide-event-type.spec.js` flip the site-wide experimental-features option through the dev-tools endpoint, so `playwright.config.js` runs them as their own chained projects before `tests`. Add any new spec that toggles a site-wide option to that chain, not to `tests`.
+-   **The dashboard widget shows only five events.** A spec that reads a row from the widget must not run its tests in parallel with each other: `event-date-timezone.spec.js` sets `test.describe.configure( { mode: 'default' } )` because every test there creates and deletes a post, and one test's clean-up pushed another's row out of the widget.
 
 ### Available `requestUtils` methods (selection)
 
@@ -249,8 +277,79 @@ requestUtils.rest( { path, method, params, data } ); // arbitrary REST API call
 
 -   **Config:** `codeception.dist.yml`, `tests/*.suite.yml`
 -   **Tests:** `tests/wpunit/`, `tests/functional/`, `tests/acceptance/`
--   **Environment:** `tests/.env.testing`
+-   **Environment:** `.env.testing` in the repo root (params for the suite ymls)
 -   All PHP tests run inside Docker via `docker compose run --rm php-cli`
+-   `wp` is not on the php-cli image's PATH. Use `vendor/bin/wp --allow-root --path=/wordpress/`.
+
+### When functional or acceptance tests fail, rebuild the fixture first
+
+The functional and acceptance suites load `tests/_data/dump.sql` into the test
+database before every test. **That file is gitignored** and is generated by
+`scripts/build-test-fixture.sh` from the WordPress in the container. Pär's rule
+is that a version does not ship with failing tests, so if a suite that passed
+on the last release fails on a different machine, rebuild the fixture before
+suspecting the plugin.
+
+Symptoms that meant a stale hand-made dump before the script existed
+(2026-09-03, 35 of 50 functional tests "failed"), kept here so they are
+recognised if a dump is ever edited by hand again:
+
+-   **Every admin-page test fails with "Form field … not found"** and the saved
+    `tests/_output/*.fail.html` pages are titled **"WordPress › Update"**: the
+    dump's `db_version` is older than the test container's WordPress.
+-   **Wrong fixture values**: stray events (`WPCliCest` expects event id 1 in
+    the ten-row `list` output), a tagline, a theme the container does not ship
+    (`SimpleThemeLoggerCest` asserts "from Twenty Twenty-Five").
+-   **Tests that land on the dashboard or read the previous event.** A
+    never-visited install does its one-time work on the first admin request of
+    every test, which widens two races the helpers now absorb: `loginAsAdmin()`
+    waits for the dashboard, and `seeLogMessage()`/`seeLogContext()`/
+    `seeLogInitiator()` retry for up to 5s until the newest row matches.
+
+To tell a fixture problem from a real regression, run the failing Cests against
+the previous release tag: `git checkout <tag>`, run them, `git checkout -`.
+The test site serves the working directory, so nothing else changes.
+
+### `npm test` stops at the first failing suite
+
+It chains `wpunit && functional && acceptance`. A functional failure means the
+acceptance suite never ran. Look for the last suite name in the output before
+calling a run green.
+
+### Acceptance suite: it is green, keep it that way
+
+As of 2026-09-12 all 50 acceptance tests pass, twice in a row, on a fixture
+built by `scripts/build-test-fixture.sh` with the plugins pinned by
+`scripts/install-test-plugins.sh`. Every "known failure" listed here before
+had an environmental cause: `PluginDuplicatePostLoggerCest` needed
+Duplicate Post 4.6 (4.5 never fires `duplicate_post_after_duplicated`),
+`SimplePluginLoggerCest` needed Akismet 5.5 (the local directory was empty),
+`SimpleMediaLoggerCest` and `SimpleOptionsLoggerCest` hard-coded post ids and
+now read them back, and the rest were the fixture races above. One genuine
+flake remains: ChromeDriver's "Node with given id does not belong to the
+document" during `waitForText` right after a form submit, roughly once per
+fifty runs; CI reruns failed tests once (`codecept run acceptance -g failed`).
+Treat any other failure as real.
+
+`tests/plugins/*` (Redirection, Akismet, Jetpack, the premium symlink, …) is
+gitignored and bind-mounted into the test site, so third-party plugin
+_versions_ are machine-local too. A Redirection test that times out on
+"Start Setup" with "Problem starting Redirection" in the saved page means the
+local copy is broken, not the logger. Replace the directory with the release
+zip from wordpress.org and recreate the container
+(`docker compose up -d --force-recreate wordpress`) so the mount follows.
+
+Redirection is **5.10.0** on this machine as of 2026-09-05 (was 5.3.2), and
+`scripts/install-test-plugins.sh` pins the same version for CI. Bump
+was forced by issue 308: Redirection 5.10.0 moved its REST callbacks from
+legacy classes (`Redirection_Api_Redirect`) into namespaced ones
+(`Redirection\Api\Route\Redirect`), so `Plugin_Redirection_Logger` needed to
+match both spellings — a fixture pinned at 5.3.2 could never have caught that.
+Both `PluginRedirectionLoggerCest` tests pass against 5.10.0. Its UI also
+relabelled the redirect submit button from "Add Redirect" to "Add redirect"
+and reused that same text on a page-title toggle button and a form heading,
+so `testRedirects` now targets the submit button by CSS
+(`.add-new .table-actions button[type=submit]`) instead of by text.
 
 ## Migrating old acceptance tests to Playwright
 

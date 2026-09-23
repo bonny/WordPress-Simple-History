@@ -4,6 +4,8 @@ use Simple_History\Log_Query;
 use Simple_History\Simple_History;
 
 class DateOrderingDataIntegrityTest extends \Codeception\TestCase\WPTestCase {
+	use \Helper\SkipsOnSqlite;
+
 	/**
 	 * Set up before each test.
 	 * Clear event history so ordering assertions aren't affected by data
@@ -194,6 +196,8 @@ class DateOrderingDataIntegrityTest extends \Codeception\TestCase\WPTestCase {
 	 * Test that occasions grouping doesn't cause events to disappear.
 	 */
 	function test_grouped_events_not_lost() {
+		$this->skip_on_sqlite( 'occasion grouping is MySQL-only. Log_Query::query_overview() sends SQLite to query_overview_simple(), which returns every event ungrouped, because the grouping query counts consecutive rows with MySQL session variables. Delete this skip when grouping works on SQLite.' );
+
 		$admin_user_id = $this->factory->user->create(
 			array(
 				'role' => 'administrator',

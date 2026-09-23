@@ -7,7 +7,6 @@ on:
     push:
         branches:
             - 'main'
-            - 'develop'
 # Add [skip ci] to commit message to skip CI.
 
 permissions:

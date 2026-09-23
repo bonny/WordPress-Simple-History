@@ -505,23 +505,52 @@ abstract class Logger {
 	}
 
 	/**
-	 * Get the log row header output for the row when "name_via" is set.
+	 * Get the "via" text for an event, e.g. "Using plugin WP Crontrol".
+	 *
+	 * An event that stores the plugin that caused it in the `_via_plugin`
+	 * context key gets "Using plugin <name>". Any logger can set that key.
+	 * Other events get the logger's fixed `name_via`, if it has one.
+	 *
+	 * The plugin name comes from a third-party plugin header, unsanitized, so
+	 * escape the return value in every HTML context (esc_html, esc_attr).
+	 *
+	 * @param object $row Log row.
+	 * @return string Plain text, NOT escaped. Empty string when there is no via.
+	 */
+	public function get_via( $row ) {
+		$context    = isset( $row->context ) && is_array( $row->context ) ? $row->context : [];
+		$via_plugin = $context['_via_plugin'] ?? '';
+
+		if ( is_string( $via_plugin ) && $via_plugin !== '' ) {
+			return sprintf(
+				/* translators: %s: plugin name */
+				__( 'Using plugin %s', 'simple-history' ),
+				$via_plugin
+			);
+		}
+
+		return (string) $this->get_info_value_by_key( 'name_via' );
+	}
+
+	/**
+	 * Get the log row header output for the row when it has a "via" text.
 	 *
 	 * @param object $row Log row.
 	 * @return string HTML
 	 */
-	public function get_log_row_header_using_plugin_output( $row ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+	public function get_log_row_header_using_plugin_output( $row ) {
 		// Logger "via" info in header, i.e. output some extra
 		// info next to the time to make it more clear what plugin etc.
 		// that "caused" this event.
-		$logger_name_via = $this->get_info_value_by_key( 'name_via' );
+		$via = $this->get_via( $row );
 
-		if ( ! $logger_name_via ) {
+		if ( $via === '' ) {
 			return '';
 		}
 
+		// Escaped because a per-event via holds a plugin name read from a third-party plugin header.
 		$via_html  = "<span class='SimpleHistoryLogitem__inlineDivided SimpleHistoryLogitem__via'>";
-		$via_html .= $logger_name_via;
+		$via_html .= esc_html( $via );
 		$via_html .= '</span>';
 
 		return $via_html;
@@ -1343,7 +1372,7 @@ abstract class Logger {
 			$context = array();
 		}
 
-		$context = $this->append_user_context( $context );
+		$context = $this->append_user_context( $context, $data['initiator'] ?? '' );
 		$context = $this->append_remote_addr_to_context( $context );
 
 		/**
@@ -1776,13 +1805,32 @@ abstract class Logger {
 	}
 
 	/**
-	 * Append user data to context.
+	 * Append the current user's data to context.
 	 *
-	 * @param array $context Context.
+	 * Only when the event was initiated by someone who can be the current user.
+	 * WordPress itself, anonymous visitors and unknown sources are not the
+	 * administrator who happens to be logged in during the request (an update
+	 * check on an admin page load, a failed login from a browser that still
+	 * holds a session, a backfill run on admin_init), so those events get no
+	 * user. WP-CLI keeps it, since `wp --user=<id>` is a real identity.
+	 *
+	 * @param array  $context   Context.
+	 * @param string $initiator Initiator the event will be stored with.
 	 * @return array $context Context with user data appended.
 	 */
-	private function append_user_context( $context ) {
+	private function append_user_context( $context, $initiator ) {
+		// A logger that knows who did it has already said so.
 		if ( isset( $context['_user_id'] ) ) {
+			return $context;
+		}
+
+		$initiators_without_user = [
+			Log_Initiators::WORDPRESS,
+			Log_Initiators::WEB_USER,
+			Log_Initiators::OTHER,
+		];
+
+		if ( in_array( $initiator, $initiators_without_user, true ) ) {
 			return $context;
 		}
 
@@ -1828,31 +1876,30 @@ abstract class Logger {
 			$data['initiator'] = Log_Initiators::OTHER;
 
 			// Check if user is responsible.
+			// The user's identity itself is added later by append_user_context(),
+			// once the final initiator is known.
 			if ( function_exists( 'wp_get_current_user' ) ) {
 				$current_user = wp_get_current_user();
 
 				if ( isset( $current_user->ID ) && $current_user->ID ) {
-					$data['initiator']      = Log_Initiators::WP_USER;
-					$context['_user_id']    = $current_user->ID;
-					$context['_user_login'] = $current_user->user_login;
-					$context['_user_email'] = $current_user->user_email;
+					$data['initiator'] = Log_Initiators::WP_USER;
 				}
 			}
 
-			// If cron then set WordPress as responsible.
+			// WP-CLI, cron and Action Scheduler override the logged-in user.
+			$automatic_initiator = Log_Initiators::get_automatic_initiator();
+
+			if ( $automatic_initiator !== null ) {
+				$data['initiator'] = $automatic_initiator;
+			}
+
 			if ( wp_doing_cron() ) {
-				$data['initiator']           = Log_Initiators::WORDPRESS;
 				$context['_wp_cron_running'] = true;
 
 				// To aid debugging we log the current filter and a list of all filters.
 				if ( Helpers::log_debug_is_enabled() ) {
 					$context['_wp_cron_current_filter'] = current_filter();
 				}
-			}
-
-			// If running as CLI and WP_CLI_PHP_USED is set then it is WP CLI that is doing it.
-			if ( Helpers::is_wp_cli() ) {
-				$data['initiator'] = Log_Initiators::WP_CLI;
 			}
 		}
 

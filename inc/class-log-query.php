@@ -84,6 +84,65 @@ use Simple_History\Services;
  */
 class Log_Query {
 	/**
+	 * Columns that $args['orderby'] is allowed to sort by.
+	 *
+	 * Shared between prepare_args(), which falls back to 'date' for anything
+	 * not in this list, and query_overview(), which routes to the ungrouped
+	 * query for anything in this list except 'date'. Keeping both reads from
+	 * one constant means adding a sortable column can't update one and miss
+	 * the other.
+	 *
+	 * @var string[]
+	 */
+	const ORDERBY_COLUMNS = [ 'date', 'id', 'level', 'logger', 'message' ];
+
+	/**
+	 * Context keys that `metadata_search` must not look inside.
+	 *
+	 * `metadata_search` is a substring search over every context value, which
+	 * is the point of it — finding an event by an IP address or an email that
+	 * never appears in the message. That makes it a read of the context
+	 * table, not merely a filter on it: a reader who can ask "does any event
+	 * contain this phrase" and get a yes can recover the phrase itself, one
+	 * guess at a time.
+	 *
+	 * So anything the REST API deliberately declines to hand out whole has to
+	 * be excluded here too, or the withholding is decorative.
+	 *
+	 * `_annotation` is the case this was written for. The events controller
+	 * publishes a note's current text and a count of earlier versions, and
+	 * keeps the versions themselves back — every previous and deleted note
+	 * with its author and timestamp. Verified before the fix: an Editor, who
+	 * cannot write a note at all, found an event by text an administrator had
+	 * already replaced.
+	 *
+	 * @since 5.34.0
+	 * @var array<string>
+	 */
+	const METADATA_SEARCH_EXCLUDED_KEYS = [ '_annotation' ];
+
+	/**
+	 * Send a database error to the error log rather than to the client.
+	 *
+	 * Every caller of this class that can fail is reachable over REST by
+	 * anyone holding the view-history capability, which defaults to
+	 * `edit_pages`. `$wpdb->last_error` carries table prefixes, column names
+	 * and pieces of the statement, none of which that reader can act on and
+	 * all of which describes the schema to someone who should not have it.
+	 *
+	 * @since 5.34.0
+	 * @param string $error The database error.
+	 */
+	private static function log_db_error( $error ) {
+		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( 'Simple History: database query failed: ' . $error );
+	}
+
+	/**
 	 * Query the log.
 	 *
 	 * @param string|array|object $args {
@@ -134,6 +193,8 @@ class Log_Query {
 	 *      @type boolean $only_sticky Only return sticky events. Default false.
 	 *      @type array $context_filters Context filters as key-value pairs. Default null.
 	 *      @type boolean $ungrouped Return ungrouped events without occasions grouping. Default false.
+	 *      @type string $orderby Column to sort by. One of 'date', 'id', 'level', 'logger', 'message'. Anything else falls back to 'date'. Setting this to anything but 'date' forces $ungrouped to true, because occasion grouping depends on rows arriving in date order. Default 'date'.
+	 *      @type string $order Sort direction, 'ASC' or 'DESC', case-insensitive. Anything else falls back to 'DESC'. 'ASC' forces $ungrouped to true for the same reason a non-date $orderby does: the grouped statement can only return newest first. Default 'DESC'.
 	 *
 	 *    Surrounding Events (Admin Only - bypasses logger permissions).
 	 *
@@ -198,7 +259,28 @@ class Log_Query {
 	 */
 	public function query_overview( $args ) {
 		// Force simple query for ungrouped results.
-		if ( ! empty( $args['ungrouped'] ) ) {
+		//
+		// Sorting by anything other than date also forces the simple query,
+		// because occasion grouping depends on rows arriving in date order.
+		// prepare_args() normalises this too, but that runs inside
+		// query_overview_simple()/query_overview_mysql(), which is too late
+		// to decide which of the two gets called — so the same check is
+		// done again here, against the raw arg, reading from the same
+		// self::ORDERBY_COLUMNS list prepare_args() uses so the two can't
+		// drift apart.
+		$sorts_by_non_date_column = isset( $args['orderby'] )
+			&& in_array( $args['orderby'], self::ORDERBY_COLUMNS, true )
+			&& $args['orderby'] !== 'date';
+
+		// Ascending order forces it too. The grouped statement hardcodes
+		// `ORDER BY date DESC, id DESC` in both its inner and outer query, so
+		// it can only ever return newest first — asking it for oldest first
+		// used to return newest first with no error, which is worse than not
+		// supporting it.
+		$sorts_ascending = isset( $args['order'] )
+			&& strtoupper( (string) $args['order'] ) === 'ASC';
+
+		if ( ! empty( $args['ungrouped'] ) || $sorts_by_non_date_column || $sorts_ascending ) {
 			return $this->query_overview_simple( $args );
 		}
 
@@ -273,7 +355,7 @@ class Log_Query {
 				1 AS subsequentOccasions
 			FROM %1$s AS simple_history_1
 			%2$s
-			ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
+			%4$s
 			%3$s
 		';
 
@@ -290,17 +372,22 @@ class Log_Query {
 			$sql_statement_log_rows,
 			$Simple_History->get_events_table_name(), // 1
 			$inner_where_string, // 2
-			$limit_clause // 3
+			$limit_clause, // 3
+			$this->get_order_by_clause( $args, 'simple_history_1' ) // 4
 		);
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.NotPrepared
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K );
 
 		if ( ! empty( $wpdb->last_error ) ) {
+			// Not in the error data either: rest_convert_error_to_response()
+			// hands WP_Error data back to the client, so `db_error` here was
+			// the same disclosure as putting it in the message.
+			self::log_db_error( $wpdb->last_error );
+
 			return new \WP_Error(
 				'simple_history_db_error',
-				__( 'Database query failed.', 'simple-history' ),
-				array( 'db_error' => $wpdb->last_error )
+				__( 'Database query failed.', 'simple-history' )
 			);
 		}
 
@@ -322,7 +409,6 @@ class Log_Query {
 				SELECT count(*) as count
 				FROM %1$s AS simple_history_1
 				%2$s
-				ORDER BY simple_history_1.date DESC, simple_history_1.id DESC
 			';
 
 			$sql_query_log_rows_count = sprintf(
@@ -339,16 +425,42 @@ class Log_Query {
 		}
 
 		// Get maxId, minId, and maxDate.
-		// MaxId is the id of the first row in the result (i.e. the latest entry).
-		// MinId is the id of the last row in the result (i.e. the oldest entry).
-		// MaxDate is the date of the first row (for accurate new event detection with date ordering).
+		// MaxId is the highest id among the returned rows.
+		// MinId is the lowest id among the returned rows.
+		// MaxDate is the latest date among the returned rows.
+		// These are derived from the actual values rather than read
+		// positionally, because "first row" and "last row" only mean "newest"
+		// and "oldest" for the default date-DESC order. With orderby/order set
+		// to anything else the first row can be any row, and reading it
+		// positionally made max_id the oldest id under
+		// `orderby=id&order=asc`, which broke the new-events notifier (it
+		// treated the whole log as new).
+		//
+		// max_date is the highest DATE, not the date of the row holding
+		// max_id. Those are the same thing only while dates rise with ids,
+		// and they do not have to: a logger can set its own `date` through
+		// the `_date` context, which importers and backfills use. A page
+		// holding A(id 100, 10:00) and B(id 101, 08:00) would otherwise
+		// report max_id 101 with max_date 08:00, and the has-updates check —
+		// `date > since_date OR (date = since_date AND id > since_id)` —
+		// would then match A on every poll forever: a "1 new event" badge
+		// that never clears.
 		$min_id   = null;
 		$max_id   = null;
 		$max_date = null;
+
 		if ( sizeof( $result_log_rows ) > 0 ) {
-			$max_id   = $result_log_rows[0]->id;
-			$min_id   = $result_log_rows[ count( $result_log_rows ) - 1 ]->id;
-			$max_date = $result_log_rows[0]->date;
+			$row_ids = wp_list_pluck( $result_log_rows, 'id' );
+			$max_id  = max( $row_ids );
+			$min_id  = min( $row_ids );
+
+			$row_dates = array_filter( wp_list_pluck( $result_log_rows, 'date' ) );
+
+			if ( $row_dates !== [] ) {
+				// String comparison is the right one here: these are MySQL
+				// DATETIME strings, which sort lexicographically.
+				$max_date = max( $row_dates );
+			}
 		}
 
 		// Create array to return.
@@ -547,10 +659,14 @@ class Log_Query {
 		$result_log_rows = $wpdb->get_results( $sql_query_log_rows, OBJECT_K );
 
 		if ( ! empty( $wpdb->last_error ) ) {
+			// Not in the error data either: rest_convert_error_to_response()
+			// hands WP_Error data back to the client, so `db_error` here was
+			// the same disclosure as putting it in the message.
+			self::log_db_error( $wpdb->last_error );
+
 			return new \WP_Error(
 				'simple_history_db_error',
-				__( 'Database query failed.', 'simple-history' ),
-				array( 'db_error' => $wpdb->last_error )
+				__( 'Database query failed.', 'simple-history' )
 			);
 		}
 
@@ -995,6 +1111,339 @@ class Log_Query {
 	}
 
 	/**
+	 * How long an aggregate result is cached for, in seconds.
+	 *
+	 * @since 5.34.0
+	 */
+	const AGGREGATE_CACHE_SECONDS = 60;
+
+	/**
+	 * How many aggregate results one user's cache entry holds.
+	 *
+	 * Enough for a reader moving between a few saved views and back, and far
+	 * short of what a search box can generate in a minute.
+	 *
+	 * @since 5.34.0
+	 */
+	const AGGREGATE_CACHE_ENTRIES = 10;
+
+	/**
+	 * Count the events matching a query, grouped into buckets.
+	 *
+	 * Answers "how many, by what" for the same filters that decide which
+	 * events a listing returns — how many per day, how many of each level,
+	 * which loggers are busiest. A caller that wanted this before had to
+	 * fetch the events and count them client-side, which is only correct
+	 * when the whole result set fits in one page.
+	 *
+	 * Only columns on the events table can be grouped by. Grouping by user
+	 * or by message key would mean joining the contexts table, and
+	 * get_inner_where() writes unqualified column names (`id`, `date`,
+	 * `logger`), which stop being unambiguous the moment a second table is
+	 * in the query. Adding those two means teaching get_inner_where() to
+	 * prefix its columns first — worth doing, but not as a side effect of
+	 * this method.
+	 *
+	 * @since 5.34.0
+	 * @param array $args {
+	 *     Query arguments. Every filtering argument query() accepts, plus these.
+	 *
+	 *     @type string $group_by       What to count by: 'date', 'level',
+	 *                                  'logger' or 'initiator'. Default 'date'.
+	 *     @type string $interval       For 'date', the bucket size: 'day' or 'hour'.
+	 *                                  Default 'day'.
+	 *     @type bool   $split_by_level Also split each bucket by log level, so a
+	 *                                  date histogram can be stacked. Default false.
+	 *     @type int    $max_buckets    Most buckets to return. Default 500. Counts
+	 *                                  buckets, not rows: with $split_by_level the
+	 *                                  row limit is raised to match, since each
+	 *                                  bucket can produce one row per log level.
+	 * }
+	 * @return array|\WP_Error Array of { bucket, level, count }, or an error.
+	 */
+	public function query_aggregate( $args ) {
+		$group_by       = isset( $args['group_by'] ) ? (string) $args['group_by'] : 'date';
+		$interval       = isset( $args['interval'] ) ? (string) $args['interval'] : 'day';
+		$split_by_level = ! empty( $args['split_by_level'] );
+		$max_buckets    = max( 1, isset( $args['max_buckets'] ) ? (int) $args['max_buckets'] : 500 );
+
+		$bucket_expression = $this->get_aggregate_bucket_expression( $group_by, $interval );
+
+		if ( $bucket_expression === null ) {
+			return new \WP_Error(
+				'simple_history_invalid_group_by',
+				__( 'Events can not be grouped by that.', 'simple-history' ),
+				[ 'status' => 400 ]
+			);
+		}
+
+		$args = $this->prepare_args( $args );
+
+		// Cached for a minute, per user.
+		//
+		// This is a GROUP BY over the events table with no index behind most
+		// of the groupings, and LIMIT caps the response rather than the work.
+		// The histogram refires on every filter change, so typing in the
+		// search box issues one of these per keystroke — invisible on a small
+		// log, seconds each on a site with millions of rows, from an account
+		// that only needs the view-history capability.
+		//
+		// A transient rather than wp_cache_*, which the rest of this class
+		// uses: without a persistent object cache those last one request,
+		// which is no protection at all against a repeated call. Keyed on the
+		// user because the query is filtered by the loggers that user may
+		// read. A minute is well inside what an activity histogram needs to
+		// be honest.
+		//
+		// ONE transient per user holding a small map, rather than one per set
+		// of filters. The filters used to be part of the key, which meant a
+		// site with no persistent object cache got a new wp_options row per
+		// keystroke in the search box — each one only collected by the daily
+		// wp_scheduled_delete. The map is capped, so a user costs one row
+		// whatever they type.
+		$cache_key   = 'sh_agg_' . get_current_user_id();
+		$cache_entry = md5(
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+			serialize( [ $args, $group_by, $interval, $split_by_level, $max_buckets ] )
+		);
+
+		$cached = get_transient( $cache_key );
+		$cached = is_array( $cached ) ? $cached : [];
+
+		if ( isset( $cached[ $cache_entry ] ) ) {
+			return $cached[ $cache_entry ];
+		}
+
+		global $wpdb;
+
+		$table_name = Simple_History::get_instance()->get_events_table_name();
+
+		$inner_where_array  = $this->get_inner_where( $args );
+		$inner_where_string = empty( $inner_where_array )
+			? ''
+			: "\nWHERE " . implode( "\nAND ", $inner_where_array );
+
+		$select_parts   = [ $bucket_expression . ' AS bucket' ];
+		$group_by_parts = [ 'bucket' ];
+
+		if ( $split_by_level ) {
+			$select_parts[]   = 'level AS bucket_level';
+			$group_by_parts[] = 'bucket_level';
+		}
+
+		$select_parts[] = 'COUNT(*) AS bucket_count';
+
+		// How many ROWS to fetch — not how many buckets to return. With
+		// split_by_level one bucket is up to one row per level, so the two
+		// are only the same number when the split is off.
+		//
+		// This is a bound on the work, and the real cap is applied in PHP
+		// below. Scaling it and calling that the cap was wrong twice over: a
+		// bucket rarely uses all eight levels, so 500 buckets' worth of rows
+		// held far more than 500 buckets; and because LIMIT cuts at a row
+		// boundary it could cut inside a bucket, leaving the oldest one
+		// holding only some of its levels. A bar quietly missing half its
+		// events is worse than a bar that is not drawn at all.
+		$rows_per_bucket = $split_by_level ? count( Log_Levels::get_log_levels_by_severity() ) : 1;
+		$row_limit       = $max_buckets * $rows_per_bucket;
+
+		// Not built with prepare(): every part of this statement is either a
+		// table name or one of the fixed expressions get_aggregate_bucket_expression()
+		// returns, and the filtering values are already prepared inside
+		// get_inner_where(). $row_limit is derived from an int cast above.
+		$sql_query = implode(
+			"\n",
+			[
+				'SELECT ' . implode( ', ', $select_parts ),
+				'FROM ' . $table_name,
+				$inner_where_string,
+				'GROUP BY ' . implode( ', ', $group_by_parts ),
+				// Descending, then reversed in PHP below, so the cap drops
+				// the OLDEST buckets rather than the newest. Ascending plus
+				// LIMIT kept the first 500 buckets, so a log spanning more
+				// than 500 days drew a chart that stopped well before today
+				// with nothing to say it had been cut — and at hourly
+				// resolution 500 buckets is only about three weeks.
+				'ORDER BY ' . implode( ', ', array_map( static fn( $part ) => $part . ' DESC', $group_by_parts ) ),
+				sprintf( 'LIMIT %d', $row_limit ),
+			]
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$rows = $wpdb->get_results( $sql_query );
+
+		if ( ! empty( $wpdb->last_error ) ) {
+			// The database's own error text does not go to the client.
+			//
+			// This is reachable by anyone who can read the log —
+			// get_view_history_capability(), which defaults to edit_pages —
+			// and MySQL error strings carry table prefixes, column names and
+			// fragments of the statement. The reader can do nothing with the
+			// detail anyway; whoever can fix it reads the error log.
+			self::log_db_error( $wpdb->last_error );
+
+			return new \WP_Error(
+				'simple_history_db_error',
+				__( 'Database query failed.', 'simple-history' ),
+				[ 'status' => 500 ]
+			);
+		}
+
+		$rows = (array) $rows;
+
+		// Rows arrive newest bucket first. Walk them keeping whole buckets
+		// until max_buckets of them have been seen, which is the cap the
+		// caller actually asked for and the one LIMIT cannot express.
+		$seen_buckets   = [];
+		$kept           = [];
+		$hit_bucket_cap = false;
+
+		foreach ( $rows as $row ) {
+			$seen_buckets[ (string) $row->bucket ] = true;
+
+			if ( count( $seen_buckets ) > $max_buckets ) {
+				$hit_bucket_cap = true;
+				break;
+			}
+
+			$kept[] = $row;
+		}
+
+		$kept_buckets = [];
+
+		foreach ( $kept as $row ) {
+			$kept_buckets[ (string) $row->bucket ] = true;
+		}
+
+		// If the fetch came back exactly full, the statement ran out of rows
+		// rather than out of buckets, so the oldest bucket in it may be a
+		// partial one — see the note on $row_limit. Drop it, unless it is the
+		// only bucket there is, in which case a short bar beats no chart.
+		//
+		// Only when LIMIT could actually have cut inside a bucket, which is
+		// narrower than "the fetch was full":
+		//
+		// - Without $split_by_level a bucket is exactly one row, so
+		// $row_limit === $max_buckets and the cut always lands on a
+		// boundary. This dropped the oldest bucket from every chart of a
+		// log with at least $max_buckets buckets — on a log with 500 days
+		// of events, the 500th day silently vanished.
+		// - If the loop broke on the bucket cap, it stopped on a boundary
+		// itself, so whatever LIMIT did afterwards is irrelevant.
+		if (
+			$split_by_level &&
+			! $hit_bucket_cap &&
+			count( $rows ) === $row_limit &&
+			count( $kept_buckets ) > 1
+		) {
+			$partial = (string) end( $kept )->bucket;
+
+			$kept = array_values(
+				array_filter(
+					$kept,
+					static function ( $row ) use ( $partial ) {
+						return (string) $row->bucket !== $partial;
+					}
+				)
+			);
+		}
+
+		$buckets = [];
+
+		// Back to chronological. Reversing the rows also puts bucket_level
+		// back in ascending order, which is why the statement above sorts
+		// every GROUP BY part descending rather than just the bucket.
+		$rows = array_reverse( $kept );
+
+		foreach ( $rows as $row ) {
+			$buckets[] = [
+				'bucket' => (string) $row->bucket,
+				'level'  => $split_by_level ? (string) $row->bucket_level : null,
+				'count'  => (int) $row->bucket_count,
+			];
+		}
+
+		// Newest last, and the oldest dropped once the map is full. Typing in
+		// the search box walks through entries nobody will ask for again, so
+		// an uncapped map would grow inside the row instead of across rows.
+		$cached[ $cache_entry ] = $buckets;
+
+		if ( count( $cached ) > self::AGGREGATE_CACHE_ENTRIES ) {
+			$cached = array_slice(
+				$cached,
+				-self::AGGREGATE_CACHE_ENTRIES,
+				null,
+				true
+			);
+		}
+
+		set_transient( $cache_key, $cached, self::AGGREGATE_CACHE_SECONDS );
+
+		return $buckets;
+	}
+
+	/**
+	 * The SQL expression that turns one event row into its bucket.
+	 *
+	 * Returns null for anything not in the allowed set, so a caller can
+	 * never interpolate a value of its own into the statement.
+	 *
+	 * @since 5.34.0
+	 * @param string $group_by What to group by.
+	 * @param string $interval Bucket size, when grouping by date.
+	 * @return string|null The expression, or null when the grouping is unknown.
+	 */
+	protected function get_aggregate_bucket_expression( $group_by, $interval ) {
+		if ( in_array( $group_by, [ 'level', 'logger', 'initiator' ], true ) ) {
+			return $group_by;
+		}
+
+		if ( $group_by !== 'date' ) {
+			return null;
+		}
+
+		// Events are stored in GMT, but a histogram is read next to a table
+		// that shows local times, so the buckets have to be local too.
+		// Without this an event logged at 12:13 in a UTC+2 site landed in
+		// the 10:00 bucket — two hours out of step with the row beside it —
+		// and at the day boundary an event just after midnight was counted
+		// against the previous day. Same approach as
+		// Events_Stats::get_activity_by_date(): add the offset rather than
+		// CONVERT_TZ(), which needs timezone tables the host may not have
+		// loaded.
+		//
+		// The current offset is applied to every row, so a range spanning a
+		// daylight-saving change is off by an hour on one side of it. Doing
+		// better means a per-row lookup the database cannot do, and an hour
+		// twice a year is a far smaller error than the two this replaces.
+		$offset = (int) self::get_local_offset_seconds();
+
+		if ( $interval === 'hour' ) {
+			// DATE_FORMAT is MySQL-only and strftime is SQLite-only, so this
+			// is one of the places that has to know which database it is on.
+			return self::get_db_engine() === 'sqlite'
+				? sprintf( "strftime('%%Y-%%m-%%d %%H:00:00', date, '%+d seconds')", $offset )
+				: sprintf( "DATE_FORMAT(DATE_ADD(date, INTERVAL %d SECOND), '%%Y-%%m-%%d %%H:00:00')", $offset );
+		}
+
+		return self::get_db_engine() === 'sqlite'
+			? sprintf( "date(date, '%+d seconds')", $offset )
+			: sprintf( 'DATE(DATE_ADD(date, INTERVAL %d SECOND))', $offset );
+	}
+
+	/**
+	 * The site's current UTC offset, in seconds.
+	 *
+	 * @since 5.34.0
+	 * @return int Offset in seconds, negative west of Greenwich.
+	 */
+	protected static function get_local_offset_seconds() {
+		$timezone = wp_timezone();
+
+		return $timezone->getOffset( new \DateTime( 'now', $timezone ) );
+	}
+
+	/**
 	 * Prepare arguments, i.e. checking that they are valid,
 	 * of the correct type, etc.
 	 *
@@ -1127,6 +1576,12 @@ class Log_Query {
 				// Initiator(s) to exclude.
 				'exclude_initiator' => null,
 
+				// Column to sort by. See the query() docblock for accepted values.
+				'orderby'           => 'date',
+
+				// Sort direction, ASC or DESC.
+				'order'             => 'DESC',
+
 			// Can also contain:
 			// logRowID
 			// occasionsCount
@@ -1174,6 +1629,27 @@ class Log_Query {
 
 		if ( isset( $args['paged'] ) ) {
 			$args['paged'] = (int) $args['paged'];
+		}
+
+		// Normalise orderby to a known column. An unknown value falls back to
+		// the default rather than throwing, the same way an out-of-range
+		// posts_per_page is clamped. The value never reaches SQL as-is — it is
+		// mapped to a literal column name in get_order_by_clause().
+		if ( ! isset( $args['orderby'] ) || ! in_array( $args['orderby'], self::ORDERBY_COLUMNS, true ) ) {
+			$args['orderby'] = 'date';
+		}
+
+		// Normalise order to ASC or DESC.
+		$order = isset( $args['order'] ) ? strtoupper( (string) $args['order'] ) : 'DESC';
+
+		$args['order'] = in_array( $order, [ 'ASC', 'DESC' ], true ) ? $order : 'DESC';
+
+		// Occasion grouping counts consecutive rows with the same occasionsID,
+		// which only holds while rows arrive in date order. Sorting by anything
+		// else means the grouped query cannot run, so drop the grouping rather
+		// than silently returning date-ordered rows.
+		if ( $args['orderby'] !== 'date' || $args['order'] !== 'DESC' ) {
+			$args['ungrouped'] = true;
 		}
 
 		// "post__in" must be array and must only contain integers.
@@ -1503,6 +1979,84 @@ class Log_Query {
 		}
 
 		return $args;
+	}
+
+	/**
+	 * Build the ORDER BY clause for a query.
+	 *
+	 * The column name is never taken from the args directly — it is looked up
+	 * in a map of literal strings, so no caller-supplied text reaches SQL.
+	 * The id column is always appended as a tiebreaker: without it, paging
+	 * over a low-cardinality column like level can repeat a row on two pages.
+	 *
+	 * @param array  $args        Prepared query args.
+	 * @param string $table_alias Table alias to prefix columns with, without the trailing dot.
+	 * @return string Complete ORDER BY clause.
+	 */
+	protected function get_order_by_clause( $args, $table_alias = '' ) {
+		$columns = [
+			'date'    => 'date',
+			'id'      => 'id',
+			'level'   => 'level',
+			'logger'  => 'logger',
+			'message' => 'message',
+		];
+
+		$orderby = $columns[ $args['orderby'] ] ?? 'date';
+		$order   = $args['order'] === 'ASC' ? 'ASC' : 'DESC';
+		$prefix  = $table_alias === '' ? '' : $table_alias . '.';
+
+		// Sorting by id already is the tiebreaker.
+		if ( $orderby === 'id' ) {
+			return sprintf( 'ORDER BY %1$sid %2$s', $prefix, $order );
+		}
+
+		// Level is stored as a varchar, so ordering by the column sorts it
+		// alphabetically: alert, critical, debug, emergency, error, info,
+		// notice, warning. That is not severity order, and "worst first"
+		// would put an emergency below an info. Rank it instead.
+		if ( $orderby === 'level' ) {
+			return sprintf(
+				'ORDER BY %1$s %2$s, %3$sid %2$s',
+				$this->get_level_severity_expression( $prefix ),
+				$order,
+				$prefix
+			);
+		}
+
+		return sprintf(
+			'ORDER BY %1$s%2$s %3$s, %1$sid %3$s',
+			$prefix,
+			$orderby,
+			$order
+		);
+	}
+
+	/**
+	 * Build a CASE expression mapping the level column to its severity rank.
+	 *
+	 * A plain CASE is used rather than MySQL's FIELD(), which SQLite does not
+	 * have. The level strings come from Log_Levels constants, never from
+	 * caller input, but they still go through prepare() so the query carries
+	 * no interpolated literals.
+	 *
+	 * An unrecognised level — a row written by an old version, or by another
+	 * plugin through the logger API — ranks 0 and therefore sorts below
+	 * debug, rather than being dropped from the results.
+	 *
+	 * @param string $prefix Table alias with trailing dot, or an empty string.
+	 * @return string CASE expression, without a trailing comma.
+	 */
+	protected function get_level_severity_expression( $prefix ) {
+		global $wpdb;
+
+		$when_clauses = '';
+
+		foreach ( Log_Levels::get_log_levels_by_severity() as $rank => $level ) {
+			$when_clauses .= $wpdb->prepare( ' WHEN %s THEN %d', $level, $rank + 1 );
+		}
+
+		return sprintf( 'CASE %1$slevel%2$s ELSE 0 END', $prefix, $when_clauses );
 	}
 
 	/**
@@ -2065,14 +2619,29 @@ class Log_Query {
 		// Unlike the main search which only searches visible message text,
 		// this searches ALL context values (for advanced users who need to
 		// find events by IP address, email, etc.).
+		//
+		// All of them except the ones listed in
+		// self::METADATA_SEARCH_EXCLUDED_KEYS, which are context rows the
+		// REST API deliberately does not hand out whole. Searching a value
+		// is reading it: a reader who can ask "does any event contain this
+		// phrase" and get a yes can recover the phrase itself, one guess at
+		// a time, from a field the API took care to withhold.
 		if ( ! empty( $args['metadata_search'] ) ) {
 			$metadata_words = $this->get_sanitized_search_words( $args['metadata_search'] );
+
+			$excluded_keys_placeholders = implode(
+				', ',
+				array_fill( 0, count( self::METADATA_SEARCH_EXCLUDED_KEYS ), '%s' )
+			);
 
 			foreach ( $metadata_words as $word ) {
 				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$inner_where[] = $wpdb->prepare(
-					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s )",
-					'%' . $wpdb->esc_like( $word ) . '%'
+					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s AND c.`key` NOT IN ( {$excluded_keys_placeholders} ) )",
+					array_merge(
+						[ '%' . $wpdb->esc_like( $word ) . '%' ],
+						self::METADATA_SEARCH_EXCLUDED_KEYS
+					)
 				);
 				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			}

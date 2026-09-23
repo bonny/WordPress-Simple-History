@@ -4,6 +4,8 @@ namespace Simple_History\Loggers;
 
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Helpers;
+use Simple_History\Log_Initiators;
 
 /**
  * Logs changes to WordPress roles and capabilities.
@@ -48,14 +50,25 @@ class Role_Capability_Logger extends Logger {
 	private $initial_roles = null;
 
 	/**
-	 * Plugin context captured at the time roles were updated.
+	 * Who and what made each change in this request, keyed by change.
 	 *
-	 * Since plugin_context is cleared after activation/deactivation completes,
-	 * we need to preserve it for the shutdown handler.
+	 * Recorded when the roles option is updated, because by shutdown the
+	 * plugin that made the change is no longer on the call stack and the
+	 * activation and Action Scheduler state is gone. Keys are a role slug
+	 * (role created or deleted), "<slug>|name" (display name) or
+	 * "<slug>|cap|<cap>" (capability). A later update overwrites an earlier
+	 * one for the same key.
 	 *
-	 * @var array
+	 * @var array<string, array{sequence: int, initiator: string|null, plugin_context: array, calling_plugin: array|null}>
 	 */
-	private $captured_plugin_context = array();
+	private $attributions = array();
+
+	/**
+	 * Counter that orders the attributions, so the most recent can be picked.
+	 *
+	 * @var int
+	 */
+	private $attribution_sequence = 0;
 
 	/**
 	 * Get array with information about this logger.
@@ -212,13 +225,172 @@ class Role_Capability_Logger extends Logger {
 			add_action( 'shutdown', array( $this, 'on_shutdown_log_role_changes' ) );
 		}
 
-		// Capture plugin context if available (it gets cleared after activation completes).
-		// No other work needed here — the actual logging happens in the shutdown handler.
-		if ( empty( $this->plugin_context ) ) {
+		$change_keys = $this->get_change_keys( $old_value, $new_value );
+
+		if ( empty( $change_keys ) ) {
 			return;
 		}
 
-		$this->captured_plugin_context = $this->plugin_context;
+		// Record who made the changes while the code that made them is still
+		// running. The logging itself happens in the shutdown handler.
+		$attribution = array(
+			'sequence'       => ++$this->attribution_sequence,
+			'initiator'      => $this->get_initiator_for_role_change(),
+			'plugin_context' => $this->plugin_context,
+			// During activation the plugin is already known, so skip the backtrace.
+			'calling_plugin' => empty( $this->plugin_context ) ? Helpers::get_calling_plugin() : null,
+		);
+
+		foreach ( $change_keys as $change_key ) {
+			$this->attributions[ $change_key ] = $attribution;
+		}
+	}
+
+	/**
+	 * Get a key for each change between two role arrays.
+	 *
+	 * @param array $old_value Previous roles array.
+	 * @param array $new_value Updated roles array.
+	 * @return string[] Keys in the format described for $attributions.
+	 */
+	private function get_change_keys( $old_value, $new_value ) {
+		$keys = array();
+
+		foreach ( array_keys( $old_value + $new_value ) as $role_slug ) {
+			$old_role = $old_value[ $role_slug ] ?? null;
+			$new_role = $new_value[ $role_slug ] ?? null;
+
+			if ( $old_role === $new_role ) {
+				continue;
+			}
+
+			if ( ! is_array( $old_role ) || ! is_array( $new_role ) ) {
+				$keys[] = (string) $role_slug;
+				continue;
+			}
+
+			if ( ( $old_role['name'] ?? '' ) !== ( $new_role['name'] ?? '' ) ) {
+				$keys[] = $role_slug . '|name';
+			}
+
+			$old_granted = array_keys( array_filter( $old_role['capabilities'] ?? array() ) );
+			$new_granted = array_keys( array_filter( $new_role['capabilities'] ?? array() ) );
+			$changed     = array_merge( array_diff( $new_granted, $old_granted ), array_diff( $old_granted, $new_granted ) );
+
+			foreach ( $changed as $cap ) {
+				$keys[] = $role_slug . '|cap|' . $cap;
+			}
+		}
+
+		return $keys;
+	}
+
+	/**
+	 * Decide who is responsible for a role change happening right now.
+	 *
+	 * The user is responsible only when their request was the reason for the
+	 * change: activating a plugin, or a form or API call that writes. Plugins
+	 * also change roles from their own upgrade routines, which run on whatever
+	 * request comes first after an update: a page view, a REST call from the
+	 * block editor, a cron run. Those are WordPress, whoever is logged in.
+	 *
+	 * @return string|null Initiator to store, or null to use the default detection (the current user).
+	 */
+	private function get_initiator_for_role_change() {
+		// Activating or deactivating a plugin is the user's own action.
+		if ( ! empty( $this->plugin_context ) ) {
+			return null;
+		}
+
+		// WP-CLI, cron and Action Scheduler. Checked now, because the
+		// Action Scheduler state is gone by shutdown.
+		$automatic_initiator = Log_Initiators::get_automatic_initiator();
+
+		if ( $automatic_initiator !== null ) {
+			return $automatic_initiator;
+		}
+
+		if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() && self::is_write_request() ) {
+			return null;
+		}
+
+		return Log_Initiators::WORDPRESS;
+	}
+
+	/**
+	 * Whether the current request is one a user makes to change something.
+	 *
+	 * That is any method other than GET, HEAD and OPTIONS (a form post, an
+	 * admin-ajax post, a REST write), or a GET action link carrying a nonce
+	 * (activate, trash and so on). Read requests never change state on
+	 * purpose, even when they carry the REST nonce header.
+	 *
+	 * This is coarse on purpose: a plugin's upgrade routine that happens to run
+	 * during a post the user sent for some other reason is still credited to
+	 * the user. Telling those apart would mean guessing from hook names, and
+	 * many plugins handle their own form posts on admin_init.
+	 *
+	 * @return bool
+	 */
+	private static function is_write_request() {
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
+
+		if ( ! in_array( $method, array( 'GET', 'HEAD', 'OPTIONS' ), true ) ) {
+			return true;
+		}
+
+		// Only checks that a nonce is present, to tell an action link from a
+		// page view. Nothing is processed.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return isset( $_GET['_wpnonce'] ) || isset( $_GET['_ajax_nonce'] );
+	}
+
+	/**
+	 * Get the context that says who and what made a change.
+	 *
+	 * Uses the most recent attribution among the given change keys.
+	 *
+	 * @param string[] $change_keys Keys of the changes that make up one event.
+	 * @return array Context with plugin activation keys, `_initiator` and `_via_plugin` as they apply.
+	 */
+	private function get_attribution_context( $change_keys ) {
+		$attribution = null;
+
+		foreach ( $change_keys as $change_key ) {
+			$candidate = $this->attributions[ $change_key ] ?? null;
+
+			if ( $candidate === null ) {
+				continue;
+			}
+
+			if ( $attribution !== null && $candidate['sequence'] <= $attribution['sequence'] ) {
+				continue;
+			}
+
+			$attribution = $candidate;
+		}
+
+		if ( $attribution === null ) {
+			return array();
+		}
+
+		$context = $attribution['plugin_context'];
+
+		if ( $attribution['initiator'] !== null ) {
+			$context['_initiator'] = $attribution['initiator'];
+		}
+
+		if ( ! empty( $attribution['plugin_context'] ) ) {
+			$basename = $attribution['plugin_context']['plugin_context'];
+
+			$context['_via_plugin']      = $attribution['plugin_context']['plugin_context_name'];
+			$context['_via_plugin_slug'] = dirname( $basename ) === '.' ? basename( $basename, '.php' ) : dirname( $basename );
+		} elseif ( ! empty( $attribution['calling_plugin'] ) ) {
+			$context['_via_plugin']      = Helpers::get_calling_plugin_name( $attribution['calling_plugin'] );
+			$context['_via_plugin_slug'] = $attribution['calling_plugin']['slug'];
+		}
+
+		return $context;
 	}
 
 	/**
@@ -240,9 +412,6 @@ class Role_Capability_Logger extends Logger {
 		if ( ! is_array( $final_roles ) ) {
 			return;
 		}
-
-		// Set captured plugin context for logging (cleared after activation completes).
-		$this->plugin_context = $this->captured_plugin_context;
 
 		$this->log_created_roles( $this->initial_roles, $final_roles );
 		$this->log_deleted_roles( $this->initial_roles, $final_roles );
@@ -272,7 +441,7 @@ class Role_Capability_Logger extends Logger {
 						'capabilities' => implode( ', ', $caps ),
 						'_occasionsID' => self::class . '/role_created/' . $role_slug,
 					),
-					$this->plugin_context
+					$this->get_attribution_context( array( (string) $role_slug ) )
 				)
 			);
 		}
@@ -296,7 +465,7 @@ class Role_Capability_Logger extends Logger {
 						'role_name'    => $role_data['name'] ?? $role_slug,
 						'_occasionsID' => self::class . '/role_deleted/' . $role_slug,
 					),
-					$this->plugin_context
+					$this->get_attribution_context( array( (string) $role_slug ) )
 				)
 			);
 		}
@@ -343,7 +512,7 @@ class Role_Capability_Logger extends Logger {
 					'new_name'     => $new_name,
 					'_occasionsID' => self::class . '/role_display_name_changed/' . $role_slug,
 				),
-				$this->plugin_context
+				$this->get_attribution_context( array( $role_slug . '|name' ) )
 			)
 		);
 	}
@@ -380,7 +549,7 @@ class Role_Capability_Logger extends Logger {
 						'capabilities' => implode( ', ', $added_caps ),
 						'_occasionsID' => self::class . '/role_caps_added/' . $role_slug . '/' . implode( ',', $added_caps ),
 					),
-					$this->plugin_context
+					$this->get_attribution_context( $this->get_cap_change_keys( $role_slug, $added_caps ) )
 				)
 			);
 		}
@@ -400,8 +569,24 @@ class Role_Capability_Logger extends Logger {
 					'capabilities' => implode( ', ', $removed_caps ),
 					'_occasionsID' => self::class . '/role_caps_removed/' . $role_slug . '/' . implode( ',', $removed_caps ),
 				),
-				$this->plugin_context
+				$this->get_attribution_context( $this->get_cap_change_keys( $role_slug, $removed_caps ) )
 			)
+		);
+	}
+
+	/**
+	 * Get the change keys for capabilities changed on a role.
+	 *
+	 * @param string   $role_slug Role slug.
+	 * @param string[] $caps      Capabilities.
+	 * @return string[]
+	 */
+	private function get_cap_change_keys( $role_slug, $caps ) {
+		return array_map(
+			function ( $cap ) use ( $role_slug ) {
+				return $role_slug . '|cap|' . $cap;
+			},
+			$caps
 		);
 	}
 

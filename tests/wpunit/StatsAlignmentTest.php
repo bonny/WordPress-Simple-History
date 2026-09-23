@@ -84,9 +84,15 @@ class StatsAlignmentTest extends \Codeception\TestCase\WPTestCase {
 		update_option( 'timezone_string', 'Europe/Stockholm' );
 
 		// Clear event history for clean tests
+		// Use DELETE (not TRUNCATE) so the cleanup stays inside the test's
+		// transaction and is rolled back in tearDown -- TRUNCATE is DDL, so it
+		// commits implicitly, cannot be rolled back, and resets the events
+		// table's AUTO_INCREMENT to 1. Ids then repeat between runs while the
+		// contexts rows written under them survive, so a later
+		// `WHERE history_id = N` matches rows from several unrelated events.
 		global $wpdb;
-		$wpdb->query( "TRUNCATE TABLE {$this->sh->get_events_table_name()}" );
-		$wpdb->query( "TRUNCATE TABLE {$this->sh->get_contexts_table_name()}" );
+		$wpdb->query( "DELETE FROM {$this->sh->get_events_table_name()}" );
+		$wpdb->query( "DELETE FROM {$this->sh->get_contexts_table_name()}" );
 
 		// Create users with different roles
 		$this->admin_user_id = $this->factory->user->create(

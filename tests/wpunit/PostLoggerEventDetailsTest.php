@@ -206,6 +206,53 @@ class PostLoggerEventDetailsTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'string', $captured['first_arg_type'], 'diff_table_output filter must still receive a string as first arg' );
 	}
 
+	public function test_post_updated_details_are_a_definition_list() {
+		$row = $this->make_row( array(
+			'_message_key'         => 'post_updated',
+			'post_prev_post_title' => 'Old',
+			'post_new_post_title'  => 'New',
+		) );
+
+		$html = (string) $this->sh->get_log_row_details_output( $row );
+
+		$this->assertStringContainsString( '<dl class="SimpleHistoryLogitem__keyValueTable">', $html );
+		$this->assertStringContainsString( '<dt>Title</dt>', $html );
+		$this->assertStringContainsString( '<dd>', $html );
+		$this->assertStringNotContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html );
+	}
+
+	/**
+	 * A callback written against the pre-5.33 contract appends <tr> rows.
+	 * Browsers drop tr/td inside a <dl>, so the whole list must fall back to a
+	 * table, with our own pairs translated so nothing is lost.
+	 */
+	public function test_legacy_table_rows_from_filter_render_as_table() {
+		$callback = function ( $diff_html, $context ) {
+			return $diff_html . '<tr><td>SEO title</td><td>New title</td></tr>';
+		};
+
+		add_filter( 'simple_history/post_logger/post_updated/diff_table_output', $callback, 10, 2 );
+
+		try {
+			$row = $this->make_row( array(
+				'_message_key'         => 'post_updated',
+				'post_prev_post_title' => 'Old',
+				'post_new_post_title'  => 'New',
+			) );
+
+			$html = (string) $this->sh->get_log_row_details_output( $row );
+		} finally {
+			remove_filter( 'simple_history/post_logger/post_updated/diff_table_output', $callback, 10 );
+		}
+
+		$this->assertStringContainsString( '<table class="SimpleHistoryLogitem__keyValueTable">', $html );
+		$this->assertStringContainsString( '<tr><td>Title</td>', $html, 'Our own pair is converted to a table row' );
+		$this->assertStringContainsString( '<tr><td>SEO title</td><td>New title</td></tr>', $html, 'The appended legacy row is kept as is' );
+		$this->assertStringNotContainsString( '<dt>', $html );
+		$this->assertStringNotContainsString( '<dl', $html );
+		$this->assertSame( 2, substr_count( $html, '<tr><td>' ), 'Exactly two key-value rows' );
+	}
+
 	/**
 	 * Build a mock row object suitable for get_log_row_details_output().
 	 *

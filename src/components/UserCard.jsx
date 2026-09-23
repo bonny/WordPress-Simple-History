@@ -95,11 +95,11 @@ function renderDetailValue( detail ) {
 /**
  * Premium link helper.
  *
- * @param {string} [content] utm_content value — lets us tell apart clicks
- *                           from the screenshot vs the CTA vs other surfaces.
+ * @param {string} content utm_content value — lets us tell apart clicks
+ *                         from the screenshot vs the CTA.
  * @return {string} Premium URL with tracking.
  */
-function getPremiumUrl( content = '' ) {
+function getPremiumUrl( content ) {
 	return getTrackingUrl(
 		'https://simple-history.com/features/user-card/',
 		'premium_user_card',
@@ -165,9 +165,11 @@ function MetaDetailsList( { details } ) {
  * Premium upsell block shown inside the user card for free users.
  *
  * Visually walled off (cream background + border + corner badge) so the
- * eye reads it as marketing, not as more card content. Contains an
- * embedded screenshot of the same popup with premium active, a caption
- * listing what premium adds, and a clearly marketing-framed CTA — the
+ * eye reads it as marketing, not as more card content. Contains a
+ * screenshot of only the rows premium adds to this card (not the whole
+ * card, which made the teaser taller than the card it advertises and showed
+ * a second "User profile" link), a caption, and a clearly marketing-framed
+ * CTA — the
  * label deliberately doesn't mirror any real in-app action so it can't
  * be mistaken for one.
  *
@@ -176,7 +178,7 @@ function MetaDetailsList( { details } ) {
  */
 function PremiumTeaserBlurred() {
 	const screenshotUrl =
-		'/wp-content/plugins/simple-history/assets/images/user-card-with-premium.png';
+		'/wp-content/plugins/simple-history/assets/images/user-card-premium-details.png';
 
 	return (
 		<div
@@ -204,16 +206,16 @@ function PremiumTeaserBlurred() {
 					<img
 						src={ screenshotUrl }
 						alt={ __(
-							'Preview of the user card with Simple History Premium.',
+							'Premium user card rows: event counts for today, the last 7 days and in total, last login, last event, IP address and browser, and a link to the user’s events.',
 							'simple-history'
 						) }
-						width={ 640 }
-						height={ 580 }
+						width={ 636 }
+						height={ 366 }
 					/>
 				</a>
 				<figcaption className="sh-UserCard__teaserCaption">
 					{ __(
-						'With Premium, this card also shows event counts, last login, IP, and browser — plus a direct link to everything they’ve done.',
+						'Premium adds event counts, last login, IP address and browser to every user card.',
 						'simple-history'
 					) }
 				</figcaption>
@@ -374,20 +376,52 @@ function WPUserCardContent( { event, cardData, isLoading } ) {
 }
 
 /**
+ * Avatar for a non-WP-user initiator card.
+ *
+ * @param {Object} props
+ * @param {string} props.initiator Initiator type (web_user, wp_cli, wp, other).
+ * @param {string} props.avatarUrl Avatar URL from the event, if any.
+ */
+function NonUserAvatar( { initiator, avatarUrl } ) {
+	if ( initiator === 'wp' ) {
+		return (
+			<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--wp">
+				<Icon icon={ wordpress } size={ 36 } />
+			</div>
+		);
+	}
+
+	if ( initiator === 'wp_cli' ) {
+		return (
+			<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--cli">
+				{ terminalPrompt }
+			</div>
+		);
+	}
+
+	if ( avatarUrl ) {
+		return <img className="sh-UserCard__avatar" src={ avatarUrl } alt="" />;
+	}
+
+	return (
+		<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder" />
+	);
+}
+
+/**
  * Card content for non-WP-user initiators (web_user, wp_cli, wp, other).
  *
  * Uses the data-driven `actions` array from the REST API,
  * so add-ons can extend the card via server-side filters.
  *
  * @param {Object}  props
- * @param {Object}  props.event    The event object.
- * @param {Object}  props.cardData Data from the REST API (or null).
+ * @param {Object}  props.event     The event object.
+ * @param {Object}  props.cardData  Data from the REST API (or null).
  * @param {boolean} props.isLoading Whether API data is loading.
  */
 function NonUserCardContent( { event, cardData, isLoading } ) {
 	const { initiator, initiator_data: initiatorData } = event;
 
-	const hasPremium = cardData?.has_premium_add_on;
 	const actions = cardData?.actions || [];
 	const allDetails = cardData?.details || [];
 	const statDetails = allDetails.filter( ( d ) => d.type === 'stat' );
@@ -395,17 +429,12 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 
 	let label;
 	let description;
-	let activityLabel;
 
 	switch ( initiator ) {
 		case 'web_user':
 			label = __( 'Anonymous web user', 'simple-history' );
 			description = __(
 				'A visitor to your site who was not logged in.',
-				'simple-history'
-			);
-			activityLabel = __(
-				'View all anonymous activity',
 				'simple-history'
 			);
 			break;
@@ -415,16 +444,11 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 				'Action performed via the WP-CLI command line tool.',
 				'simple-history'
 			);
-			activityLabel = __( 'View all WP-CLI activity', 'simple-history' );
 			break;
 		case 'wp':
 			label = __( 'WordPress', 'simple-history' );
 			description = __(
 				'An automatic action by WordPress, such as a scheduled task or auto-update.',
-				'simple-history'
-			);
-			activityLabel = __(
-				'View all WordPress activity',
 				'simple-history'
 			);
 			break;
@@ -434,37 +458,19 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 				'Action triggered by a plugin, theme, or external process.',
 				'simple-history'
 			);
-			activityLabel = __(
-				'View all activity from other sources',
-				'simple-history'
-			);
 			break;
 		default:
 			label = initiator;
 			description = null;
-			activityLabel = null;
 	}
 
 	return (
 		<div className="sh-UserCard__content">
 			<div className="sh-UserCard__identity">
-				{ initiator === 'wp' ? (
-					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--wp">
-						<Icon icon={ wordpress } size={ 36 } />
-					</div>
-				) : initiator === 'wp_cli' ? (
-					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder sh-UserCard__avatar--cli">
-						{ terminalPrompt }
-					</div>
-				) : initiatorData?.user_avatar_url ? (
-					<img
-						className="sh-UserCard__avatar"
-						src={ initiatorData.user_avatar_url }
-						alt=""
-					/>
-				) : (
-					<div className="sh-UserCard__avatar sh-UserCard__avatar--placeholder" />
-				) }
+				<NonUserAvatar
+					initiator={ initiator }
+					avatarUrl={ initiatorData?.user_avatar_url }
+				/>
 				<div className="sh-UserCard__info">
 					<h4 className="sh-UserCard__name">{ label }</h4>
 					{ description && (
@@ -524,24 +530,6 @@ function NonUserCardContent( { event, cardData, isLoading } ) {
 						) ) }
 					</ul>
 				</nav>
-			) }
-			{ ! isLoading && cardData && activityLabel && ! hasPremium && (
-				<div className="sh-UserCard__premiumTeaser sh-UserCard__premiumTeaser--blurred">
-					<a
-						href={ getPremiumUrl() }
-						className="sh-UserCard__blurredPreview"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<span className="sh-UserCard__blurredAction">
-							<Icon icon={ external } size={ 16 } />
-							{ activityLabel }
-						</span>
-						<span className="sh-UserCard__premiumBadge">
-							{ __( 'Available with Premium', 'simple-history' ) }
-						</span>
-					</a>
-				</div>
 			) }
 		</div>
 	);
