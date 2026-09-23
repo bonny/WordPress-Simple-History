@@ -107,6 +107,37 @@ class Log_Initiators {
 	}
 
 	/**
+	 * Get the initiator implied by how the current request is running, if any.
+	 *
+	 * WP-CLI is always WP_CLI. A WP-Cron run or an executing Action Scheduler
+	 * action is WordPress, even when an administrator is logged in: with
+	 * ALTERNATE_WP_CRON, cron runs inside the visitor's own request, and Action
+	 * Scheduler's async runner forwards the admin's cookies.
+	 *
+	 * Returns null for an ordinary request, where who is responsible depends on
+	 * the event. Loggers that log later than the change happened (for example at
+	 * shutdown) should call this when the change happens, since the Action
+	 * Scheduler state is gone by then.
+	 *
+	 * @return string|null One of the initiator constants, or null.
+	 */
+	public static function get_automatic_initiator() {
+		if ( Helpers::is_wp_cli() ) {
+			return self::WP_CLI;
+		}
+
+		if ( wp_doing_cron() ) {
+			return self::WORDPRESS;
+		}
+
+		if ( Services\Action_Scheduler_Tracker::is_running_scheduled_action() ) {
+			return self::WORDPRESS;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Get all valid initiator constants.
 	 *
 	 * @return array Array of valid initiator constants.

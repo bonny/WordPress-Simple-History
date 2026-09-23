@@ -264,6 +264,8 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 ### Unreleased
 
+> Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+
 **Added**
 
 -   Table view for research and debugging sessions: sort, filter, compare two events side by side, and export (Premium).
@@ -287,6 +289,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Changed post excerpts are labelled "Excerpt" instead of the raw field name.
 -   Tips that mention Premium are hidden on sites that have turned promotional messages off.
 -   Image thumbnails on media events name the image for screen reader users.
+-   Experimental — Role and capability changes a plugin makes on its own, such as after an update, are credited to WordPress instead of whoever was logged in, and name the plugin that made them.
 
 **Security**
 
