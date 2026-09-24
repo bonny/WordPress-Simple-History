@@ -25,11 +25,15 @@ See `CLAUDE.local.md` for the premium add-on path. Read it first to determine th
 
 ### Files to Update
 
-Update the version in these three locations (all relative to the premium add-on path):
+Update the version in these locations (all relative to the premium add-on path):
 
 1. **readme.txt** — Update the `Stable tag:` line
 2. **simple-history-premium.php** — Update the `Version:` line in the plugin header comment
-3. **simple-history-premium.php** — Update the `'version'` value in the `Config::init()` array
+3. **simple-history-premium.php** — Update the `SIMPLE_HISTORY_PREMIUM_VERSION` constant. `Config::init()` reads its `'version'` from this constant, so there is no separate value to change there.
+4. **package.json** — Update `"version"`
+5. **package-lock.json** — Update the two `"version"` fields at the top (the root and `packages[""]`)
+
+Then run `npm run addons:check` from the core repo. It compares the header, the Stable tag and `package.json`, and fails on any mismatch.
 
 ### After Updates
 
@@ -52,6 +56,10 @@ Once the version is bumped, committed, and tagged, build the distributable zip a
     ```
 
     This produces `simple-history-premium.zip` in the plugin root, wrapping everything in a top-level `simple-history-premium/` folder (the structure WordPress expects).
+
+    The script runs a pinned `npx '@wordpress/scripts@35' plugin-zip`, on purpose. Don't swap in the project's installed `wp-scripts` (v27): its `plugin-zip` leaves out the top folder, so WordPress unpacks the update into the wrong directory. Don't go back to `@latest` either: on 2026-09-23 it failed to install with a peer-dependency conflict and blocked the 1.16.0 zip. If 35 stops working, pin another known-good major.
+
+    Check the zip before archiving it: `unzip -l simple-history-premium.zip` shows `simple-history-premium/` as the only top folder, `languages/*.mo` and `languages/*.l10n.php` for every locale in `translation-config.json`, and the same files as the previous release's zip plus only the new ones you expect.
 
 3. **Rename and archive it.** Move the zip to the release archive, renamed with the version number:
 
