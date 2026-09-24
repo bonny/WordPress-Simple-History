@@ -50,6 +50,13 @@ If no locales are provided, use all locales defined in the translation config.
 
 Confirm that each locale is valid and defined in the translation config. If not, show an error and exit.
 
+Premium is translated into seven languages only: `de_DE`, `fr_FR`, `es_ES`,
+`sv_SE`, `nl_NL`, `pl_PL` and `it_IT`. They were picked from paying customers
+per country, and the other 15 catalogues were deleted in 1.16.0. See
+`$PREMIUM/languages/README.md` for the numbers. Never add a locale to the
+config on your own: adding a language is Pär's call, made when customers who
+use it ask.
+
 Show the locales to be translated for confirmation.
 
 ### Step 1: Update Source Strings (once)
@@ -70,7 +77,7 @@ echo "msgids: $BEFORE -> $(grep -c '^msgid "' "$POT")"
 The count must not go _down_, and if strings were added to the source it must
 go up. An unchanged or shrinking count means `make-pot` scanned the wrong tree
 — check `$PREMIUM` before going further, because the next command merges the
-result into all 22 catalogues.
+result into every catalogue.
 
 Match `'^msgid "'` and not `'^msgid'`: the latter also counts every
 `msgid_plural` line and inflates the number.
@@ -85,11 +92,28 @@ npm --prefix "$PREMIUM" run i18n:update-po
 
 **If translating 1-2 locales:** Translate sequentially in the main conversation.
 
-**If translating 3+ locales:** Use batched parallel agents:
+**If translating 3+ locales:** spawn one agent per locale, all in parallel (at
+most seven). A lower-power model such as Sonnet does this well. Give each agent
+this workflow, which only touches the untranslated entries:
 
--   Process locales in batches of 5 at a time
--   For each batch, spawn parallel agents (one per locale) using the Agent tool
--   Wait for the batch to complete before starting the next batch
+1. `msgattrib --untranslated --no-obsolete <po> -o <tmp>/todo.po`
+2. Fill every `msgstr` in `todo.po`, keeping the header and all `#.`, `#:` and
+   `#, php-format` lines.
+3. `msgcat --use-first <tmp>/todo.po <po> -o <tmp>/merged.po`, run
+   `msgfmt -c` on it, then copy it over `<po>`.
+
+`msgcat` reorders and rewraps the file, so after all agents are done run
+`npm --prefix "$PREMIUM" run i18n:update-po` once more to put every catalogue
+back in POT order. Without it the diff shows thousands of moved lines.
+
+Context the strings do not carry on their own, worth passing to every agent:
+
+-   Query-language tokens stay in English, including `today`, `yesterday`,
+    `YYYY-MM-DD`, `day:`, `days:` and `level:`. The parser only accepts the
+    English words.
+-   "Move %s earlier" / "Move %s later" move a column up or down in the
+    vertical Columns menu. One run translated them as left/right.
+-   "%1$s and %2$s others" in the weekly email means other people.
 
 **Translation rules for each locale:**
 
@@ -122,18 +146,17 @@ This is not hypothetical: `pl_PL.po:2327` shipped exactly this defect.
 Every locale needs a correct `Plural-Forms:` header, and every entry with a
 `msgid_plural` needs all `msgstr[0..N-1]` filled in for that locale's
 `nplurals`. Leaving the header off is the single most common failure here —
-10 of 22 catalogues were missing it, so WordPress silently fell back to
+10 of the 22 catalogues shipped up to 1.15.0 were missing it, so WordPress silently fell back to
 `nplurals=2; plural=(n != 1);`, which is wrong for every CJK locale.
 
-| Locales                                                                              | Header                                                                                                            |
-| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| `ja` `ko_KR` `zh_CN` `zh_TW`                                                         | `nplurals=1; plural=0;`                                                                                           |
-| `de_DE` `es_ES` `it_IT` `pt_PT` `nl_NL` `sv_SE` `da_DK` `nb_NO` `nn_NO` `fi` `hi_IN` | `nplurals=2; plural=(n != 1);`                                                                                    |
-| `fr_FR` `pt_BR` `tr_TR`                                                              | `nplurals=2; plural=(n > 1);`                                                                                     |
-| `ro_RO`                                                                              | `nplurals=3; plural=n==1 ? 0 : (n==0 \|\| (n%100 > 0 && n%100 < 20)) ? 1 : 2;`                                    |
-| `pl_PL`                                                                              | `nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 \|\| n%100>14) ? 1 : 2);`                         |
-| `ru_RU`                                                                              | `nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 \|\| n%100>=20) ? 1 : 2);`        |
-| `ar`                                                                                 | `nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;` |
+| Locales                                     | Header                                                                                    |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `de_DE` `es_ES` `it_IT` `nl_NL` `sv_SE`     | `nplurals=2; plural=(n != 1);`                                                            |
+| `fr_FR`                                     | `nplurals=2; plural=(n > 1);`                                                             |
+| `pl_PL`                                     | `nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 \|\| n%100>14) ? 1 : 2);` |
+
+If a language is ever added back, take its rule from WordPress core's own
+catalogue for that locale, and check it with `msgfmt -c`.
 
 `(n != 1)` and `(n > 1)` are both two-form rules but disagree on zero, so do
 not assume a language uses the first just because it has two forms. Every rule
