@@ -45,14 +45,6 @@ docker compose run --rm wpcli_mariadb simple-history --help
 
 See @CLAUDE.local.md for specific commands for stable and nightly WordPress installations.
 
-## Code Standards
-
-### Quick Reference
-
--   **Prefixes**: Use `sh`, `simplehistory`, or `simple_history`
--   **Text Domain**: `simple-history`
--   **PHP**: 7.4+ compatibility, WordPress Coding Standards
-
 ## Project Management
 
 ### Private Skills
