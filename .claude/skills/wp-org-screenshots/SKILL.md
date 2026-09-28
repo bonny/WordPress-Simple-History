@@ -21,7 +21,7 @@ This skill captures **(a)** the event mix that does that and **(b)** the reprodu
 | Dashboard widget  | `.wordpress-org/screenshot-10.png`    | 2880×1800 (retina, 1440×900 @ 2×) — classic 16:10 |
 | Other screenshots | `.wordpress-org/screenshot-{2-9}.png` | varies                                            |
 
-All sync to wordpress.org via `.github/workflows/deploy.yml` (10up/action-wordpress-plugin-deploy) on next tag push.
+All sync to wordpress.org via `.github/workflows/deploy.yml` (10up/action-wordpress-plugin-deploy) on next tag push, or right away with the manual `readme-assets.yml` workflow (see the `release` skill).
 
 Sizes are fixed by wordpress.org — see [developer.wordpress.org/plugins/wordpress-org/plugin-assets](https://developer.wordpress.org/plugins/wordpress-org/plugin-assets/). Key constraints:
 
