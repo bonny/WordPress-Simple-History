@@ -82,6 +82,8 @@ Simple History includes built-in logging for:
 -   **Duplicate Post** – Post and page cloning
 -   **Beaver Builder** – Layout, template, and settings saves
 
+Plugins that log to Simple History themselves include my [CMS Tree Page View](https://wordpress.org/plugins/cms-tree-page-view/) (page moves and new pages) and [Simple SEO](https://wordpress.org/plugins/simple-seo/) (SEO title and description changes, with before and after).
+
 Is your plugin missing? Plugin authors can add support using the [logging API](https://simple-history.com/docs/logging-api/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_logging_api).
 
 ### 💬 What Users Say
