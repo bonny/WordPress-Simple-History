@@ -50,6 +50,7 @@ SKILLS=(
   night-shift
   website-seo
   premium-update-troubleshooting
+  devlog
 )
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
