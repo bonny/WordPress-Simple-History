@@ -49,6 +49,7 @@ SKILLS=(
   freemium-conversion
   night-shift
   website-seo
+  premium-update-troubleshooting
 )
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
