@@ -228,7 +228,7 @@ What Simple History does by default:
 -   ✅ Masks IP addresses: the last part is removed before storing (192.168.1.x; IPv6 addresses keep only the first half)
 -   ✅ Looks up an IP address at ipinfo.io only when an administrator clicks it
 
-The log can contain personal data (called personal information in some laws), such as usernames, email addresses and masked IP addresses. A masked IP address can still be linked to a person through the rest of the log entry. Which privacy laws apply, and what they require, depends on your site, so mention the activity log in your privacy policy.
+The log can contain personal data (called personal information in some laws), such as usernames, email addresses and masked IP addresses. A masked IP address can still be linked to a person through the rest of the log entry. Which privacy laws apply, and what they require, depends on your site, so mention the activity log in your privacy policy. Simple History adds suggested text for this under Settings → Privacy → Policy Guide.
 
 For more information, see our support page [GDPR and Privacy: How Your Data is Stored in Simple History](https://simple-history.com/support/gdpr-and-privacy/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_gdpr_support).
 
@@ -267,6 +267,10 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
 ### Unreleased
+
+**Added**
+
+-   Suggested privacy policy text for the activity log, under Settings → Privacy → Policy Guide.
 
 **Changed**
 
