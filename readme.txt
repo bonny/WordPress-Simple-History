@@ -264,6 +264,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Fixed**
+
+-   Core files check no longer reports official WordPress files in the site's language or in English as modified, such as a German `wp-config-sample.php` on a site installed in English.
+
 ### 5.34.0 (September 2026)
 
 Too many events in your log to get an overview? The new _compact view_ may come in handy then. And Premium users get an even more compact view with the new _table view_, for digging into your events. There is also a new button that hides the sidebar, to give you full focus on the log with less distraction. [Read more about this and more in the release post →](https://simple-history.com/2026/simple-history-5-34-0-released/).
