@@ -279,6 +279,50 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test that granting a capability that controls the site is a warning.
+	 */
+	public function test_sensitive_cap_added_to_role_is_warning() {
+		$role = get_role( 'editor' );
+		$role->add_cap( 'test_custom_cap' );
+		$role->add_cap( 'install_plugins' );
+		$this->flush_logger();
+
+		$latest_row = get_latest_row();
+
+		$this->assertEquals( 'warning', $latest_row['level'] );
+		$this->assertContains(
+			[ 'key' => 'capabilities', 'value' => 'install_plugins, test_custom_cap' ],
+			get_latest_context()
+		);
+
+		// Clean up.
+		$role->remove_cap( 'test_custom_cap' );
+		$role->remove_cap( 'install_plugins' );
+		$this->flush_logger();
+	}
+
+	/**
+	 * Test that removing a capability that controls the site is a notice.
+	 */
+	public function test_sensitive_cap_removed_from_role_is_notice() {
+		$role = get_role( 'administrator' );
+		$role->remove_cap( 'install_plugins' );
+		$this->flush_logger();
+
+		$latest_row = get_latest_row();
+
+		$this->assertEquals( 'notice', $latest_row['level'] );
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'role_caps_removed' ],
+			get_latest_context()
+		);
+
+		// Clean up.
+		$role->add_cap( 'install_plugins' );
+		$this->flush_logger();
+	}
+
+	/**
 	 * Test logging when capabilities are removed from an existing role.
 	 */
 	public function test_caps_removed_from_role() {
@@ -293,7 +337,7 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$latest_row = get_latest_row();
 
 		$this->assertEquals( 'SimpleRoleCapabilityLogger', $latest_row['logger'] );
-		$this->assertEquals( 'warning', $latest_row['level'] );
+		$this->assertEquals( 'notice', $latest_row['level'] );
 
 		$context = get_latest_context();
 
