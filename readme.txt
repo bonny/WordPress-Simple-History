@@ -264,6 +264,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
 
+### Unreleased
+
+**Changed**
+
+-   Weekly email settings have a "Site admin" checkbox that sends the email to the site's admin address and follows it when it changes, and adding more recipients no longer stops the email to the admin.
+
 ### 5.34.0 (September 2026)
 
 Too many events in your log to get an overview? The new _compact view_ may come in handy then. And Premium users get an even more compact view with the new _table view_, for digging into your events. There is also a new button that hides the sidebar, to give you full focus on the log with less distraction. [Read more about this and more in the release post →](https://simple-history.com/2026/simple-history-5-34-0-released/).
