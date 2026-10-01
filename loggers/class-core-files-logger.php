@@ -163,6 +163,9 @@ class Core_Files_Logger extends Logger {
 	 *         )
 	 * )
 	 *
+	 * `checksum_locales` lists the package locale and the other locales whose
+	 * checksums were fetched and compared.
+	 *
 	 * @return array{modified_files: array, files_checked: int, checksum_locales: string[]}|\WP_Error
 	 */
 	public static function run_integrity_check() {
@@ -248,7 +251,8 @@ class Core_Files_Logger extends Logger {
 		return [
 			'modified_files'   => $modified_files,
 			'files_checked'    => $files_checked,
-			'checksum_locales' => array_merge( [ $primary_locale ], $locales ),
+			// Only locales whose checksums were fetched: the others were either not needed or not available.
+			'checksum_locales' => array_merge( [ $primary_locale ], array_keys( $other_checksums ?? [] ) ),
 		];
 	}
 

@@ -172,6 +172,17 @@ class CoreFilesLoggerLocaleTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( [ 'en_US', 'de_DE' ], $this->requested_locales );
 	}
 
+	public function test_locale_whose_checksums_fail_is_not_listed() {
+		$this->site_locale                  = 'de_DE';
+		$this->checksums_by_locale['en_US'] = [ 'index.php' => 'aaaa0000000000000000000000000000' ];
+
+		$result = Core_Files_Logger::run_integrity_check();
+
+		$this->assertCount( 1, $result['modified_files'] );
+		$this->assertSame( [ 'en_US' ], $result['checksum_locales'] );
+		$this->assertSame( [ 'en_US', 'de_DE' ], $this->requested_locales );
+	}
+
 	public function test_failed_package_checksums_is_an_error() {
 		$result = Core_Files_Logger::run_integrity_check();
 
