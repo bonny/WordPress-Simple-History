@@ -545,6 +545,7 @@ class Simple_History {
 		// Experimental loggers, only loaded when experimental features are enabled.
 		if ( Helpers::experimental_features_is_enabled() ) {
 			$loggers[] = Loggers\Role_Capability_Logger::class;
+			$loggers[] = Loggers\Mail_Failure_Logger::class;
 		}
 
 		/**
