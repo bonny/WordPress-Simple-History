@@ -4,6 +4,7 @@ require_once 'functions.php';
 
 use Simple_History\Simple_History;
 use Simple_History\Loggers\Mail_Failure_Logger;
+use Simple_History\Dropins\Sidebar_Mail_Failures_Dropin;
 
 /**
  * Tests the experimental Mail_Failure_Logger, which logs emails WordPress failed to send.
@@ -40,6 +41,12 @@ class MailFailureLoggerTest extends \Codeception\TestCase\WPTestCase {
 
 		delete_option( Mail_Failure_Logger::OPTION_WINDOW );
 		wp_clear_scheduled_hook( Mail_Failure_Logger::CRON_HOOK );
+		delete_transient( Mail_Failure_Logger::TRANSIENT_STATS );
+
+		// Start each test without events from earlier tests.
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$this->sh->get_events_table_name()} WHERE logger = %s", 'MailFailureLogger' ) );
 	}
 
 	public function tearDown(): void {
@@ -234,5 +241,55 @@ class MailFailureLoggerTest extends \Codeception\TestCase\WPTestCase {
 			'Failed: ***@example.com, <***@mail.example.org>',
 			Mail_Failure_Logger::mask_error_message( 'Failed: first.last+tag@example.com, <x@mail.example.org>' )
 		);
+	}
+
+	public function test_stats_count_logged_and_skipped_failures() {
+		$total = Mail_Failure_Logger::MAX_LOGGED_PER_WINDOW + 3;
+
+		for ( $i = 0; $i < $total; $i++ ) {
+			do_action( 'wp_mail_failed', $this->make_error( 'Error number ' . $i ) );
+		}
+
+		// Writes the summary for the 3 skipped ones.
+		do_action( Mail_Failure_Logger::CRON_HOOK );
+
+		$stats = Mail_Failure_Logger::get_recent_failure_stats();
+
+		$this->assertSame( $total, $stats['count'] );
+		$this->assertSame( 'Error number 4', $stats['last_error'], 'Last error is from the newest logged failure, not the summary.' );
+		$this->assertNotSame( '', $stats['last_date'] );
+	}
+
+	public function test_stats_are_empty_without_failures() {
+		$stats = Mail_Failure_Logger::get_recent_failure_stats();
+
+		$this->assertSame( 0, $stats['count'] );
+		$this->assertSame( '', $stats['last_error'] );
+	}
+
+	public function test_stats_cache_is_cleared_when_a_failure_is_logged() {
+		$this->assertSame( 0, Mail_Failure_Logger::get_recent_failure_stats()['count'] );
+
+		do_action( 'wp_mail_failed', $this->make_error() );
+
+		$this->assertSame( 1, Mail_Failure_Logger::get_recent_failure_stats()['count'] );
+	}
+
+	public function test_notice_shown_to_admins_with_failures_only() {
+		$admin = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		$editor = $this->factory->user->create( [ 'role' => 'editor' ] );
+
+		wp_set_current_user( $admin );
+		$this->assertSame( '', Sidebar_Mail_Failures_Dropin::get_notice_html( 'sidebar' ), 'No notice without failures.' );
+
+		do_action( 'wp_mail_failed', $this->make_error( 'Could not <b>connect</b>' ) );
+
+		$html = Sidebar_Mail_Failures_Dropin::get_notice_html( 'sidebar' );
+		$this->assertStringContainsString( '1 email failed to send', $html );
+		$this->assertStringContainsString( 'Could not &lt;b&gt;connect&lt;/b&gt;', $html, 'The error is escaped.' );
+		$this->assertStringContainsString( 'MailFailureLogger', urldecode( $html ), 'Links to the failed email events.' );
+
+		wp_set_current_user( $editor );
+		$this->assertSame( '', Sidebar_Mail_Failures_Dropin::get_notice_html( 'sidebar' ), 'Hidden from non-admins.' );
 	}
 }
