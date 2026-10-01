@@ -99,6 +99,7 @@ export const EVENT_FIELDS = [
 	'ip_addresses',
 	'via',
 	'ai_origin',
+	'cli_origin',
 	'permalink',
 	'sticky',
 	'sticky_appended',
