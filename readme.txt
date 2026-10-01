@@ -64,7 +64,8 @@ _"I see three failed logins from an unfamiliar IP address overnight. Let me clic
 
 -   Privacy data export and user data erasure requests
 -   Privacy page changes
--   IP addresses anonymized by default — no cookies, no external fonts
+-   IP addresses are masked by default: the last part is removed before storing
+-   Sets no cookies and loads no external fonts
 -   WordPress AI plugin activity is logged without ever storing API keys or prompt content
 
 ### 🔌 Built-in Third-Party Plugin Support
@@ -219,14 +220,15 @@ Yes! You can **filter logs by username**, making it easy to track individual act
 
 GDPR compliance depends on **how you use the plugin** and how you handle collected data. WordPress guidelines prohibit plugins from making legal compliance claims, so you should review your site's data policies to ensure compliance.
 
-That said, Simple History follows **privacy-friendly practices**:
+What Simple History does by default:
 
--   ❌ No Google Fonts
--   ❌ No cookies
--   ❌ No local storage
--   ✅ IP addresses are anonymized by default
+-   ❌ Loads no Google Fonts
+-   ❌ Sets no cookies
+-   ❌ Keeps no data in the browser's local storage
+-   ✅ Masks IP addresses: the last part is removed before storing (192.168.1.x; IPv6 addresses keep only the first half)
+-   ✅ Looks up an IP address at ipinfo.io only when an administrator clicks it
 
-Since the plugin logs events (which may contain personal data), it's **your responsibility** to ensure GDPR compliance based on your site's usage.
+The log can contain personal data (called personal information in some laws), such as usernames, email addresses and masked IP addresses. A masked IP address can still be linked to a person through the rest of the log entry. Which privacy laws apply, and what they require, depends on your site, so mention the activity log in your privacy policy.
 
 For more information, see our support page [GDPR and Privacy: How Your Data is Stored in Simple History](https://simple-history.com/support/gdpr-and-privacy/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_gdpr_support).
 
@@ -263,6 +265,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
 > Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+
+### Unreleased
+
+**Changed**
+
+-   IP addresses are described as masked instead of anonymized, since a masked address can still be linked to a person through the rest of the log entry.
 
 ### 5.34.0 (September 2026)
 

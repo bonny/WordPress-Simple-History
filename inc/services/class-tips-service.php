@@ -148,11 +148,11 @@ class Tips_Service extends Service {
 				'contexts' => [ 'sidebar', 'dashboard', 'email' ],
 			],
 			// Links to the privacy documentation rather than to Premium, on purpose.
-			// The anonymization itself is core, switched with the free
+			// The masking itself is core, switched with the free
 			// simple_history/privacy/anonymize_ip_address filter, so a Premium pitch
 			// here would read as gating something that is not gated.
 			[
-				'text'          => __( 'IP addresses in the log are anonymized by default, balancing accountability with user privacy.', 'simple-history' ),
+				'text'          => __( 'IP addresses in the log are masked by default. The last part is removed before storing, so you can see roughly where activity came from without keeping the full address.', 'simple-history' ),
 				'contexts'      => [ 'sidebar', 'dashboard', 'email' ],
 				'link_text'     => __( 'Privacy and GDPR', 'simple-history' ),
 				'link_url'      => 'https://simple-history.com/support/gdpr-and-privacy/',
