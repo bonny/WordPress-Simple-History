@@ -210,4 +210,59 @@ class CLIOriginDetectorTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertNull( $event['cli_origin'] );
 	}
+
+	/**
+	 * Count events found through the REST API with the given query params.
+	 *
+	 * @param array $params Query params.
+	 * @return int
+	 */
+	private function count_rest_events( $params ) {
+		$request = new WP_REST_Request( 'GET', '/simple-history/v1/events' );
+		$request->set_param( '_fields', 'id' );
+
+		foreach ( $params as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+
+		$response = rest_do_request( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		return count( $response->get_data() );
+	}
+
+	public function test_editor_cannot_search_or_filter_on_hidden_cli_keys() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		SimpleLogger()->info(
+			'Test event from WP-CLI',
+			[
+				'_cli_command'       => 'plugin deactivate',
+				'_cli_process_user'  => 'secretuser',
+				'_cli_ssh_client_ip' => '198.18.7.x',
+			]
+		);
+
+		$filter_by_user = [ 'context_filters' => [ '_cli_process_user' => 'secretuser' ] ];
+		$search_ip      = [ 'metadata_search' => '198.18.7' ];
+		$filter_command = [ 'context_filters' => [ '_cli_command' => 'plugin deactivate' ] ];
+
+		// Admins can find the event by its server user and SSH address.
+		$this->assertSame( 1, $this->count_rest_events( $filter_by_user ) );
+		$this->assertSame( 1, $this->count_rest_events( $search_ip ) );
+
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'editor' ] ) );
+
+		// For an editor the hidden keys must not narrow the result, or each
+		// query would confirm or rule out a guessed username or address.
+		$all_events = $this->count_rest_events( [] );
+
+		$this->assertGreaterThan( 1, $all_events );
+		$this->assertSame( $all_events, $this->count_rest_events( $filter_by_user ) );
+		$this->assertSame( 0, $this->count_rest_events( $search_ip ) );
+
+		// The command is not hidden, so filtering on it still works.
+		$this->assertSame( 1, $this->count_rest_events( $filter_command ) );
+	}
 }
