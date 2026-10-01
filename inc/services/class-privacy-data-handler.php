@@ -52,6 +52,9 @@ class Privacy_Data_Handler extends Service {
 	 * @inheritdoc
 	 */
 	public function loaded() {
+		// Suggested privacy policy text, under Settings → Privacy → Policy Guide.
+		add_action( 'admin_init', array( $this, 'add_privacy_policy_content' ) );
+
 		// Exporter — always on. Read-only; zero behavioural risk.
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_exporter' ) );
 
@@ -63,6 +66,51 @@ class Privacy_Data_Handler extends Service {
 		}
 
 		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_eraser' ) );
+	}
+
+	/**
+	 * Add suggested text for the site's privacy policy.
+	 *
+	 * WordPress shows it under Settings → Privacy → Policy Guide for the site
+	 * owner to copy and adapt; it is never written into the policy page.
+	 *
+	 * The text is a fixed template with placeholders, not built from the
+	 * settings. WordPress fingerprints it and tells admins when it changes,
+	 * so a text that followed the settings would raise that notice on every
+	 * settings change, and every rewording raises it on every site.
+	 */
+	public function add_privacy_policy_content() {
+		if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
+			return;
+		}
+
+		wp_add_privacy_policy_content( 'Simple History', wp_kses_post( self::get_privacy_policy_content() ) );
+	}
+
+	/**
+	 * Get the suggested privacy policy text as HTML.
+	 *
+	 * @return string
+	 */
+	public static function get_privacy_policy_content() {
+		$paragraphs = array(
+			__( 'This site keeps an activity log of changes and sign-ins, used for [security and troubleshooting].', 'simple-history' ),
+			__( 'When you are logged in and make changes, such as editing a post or updating your profile, the log records your username, email address, user role and the time of the change. When anyone logs in, or tries to log in and fails, the log also records the username that was entered and the browser\'s user agent string.', 'simple-history' ),
+			__( 'The log also stores the IP address the request came from and the address of the previous page (the referrer). IP addresses are masked before they are stored: the last part is removed, so 192.168.1.23 is saved as 192.168.1.x. A masked address is stored with the rest of the log entry, so it can still be linked to you. [If this site stores full IP addresses, replace the two sentences above with: "The full IP address is stored."]', 'simple-history' ),
+			__( 'Log entries are deleted automatically after [number] days. [Or: Log entries are kept until an administrator deletes them.]', 'simple-history' ),
+			__( '[List any services that receive log data, such as log forwarding or monitoring services, and IP lookup services (ipinfo.io) that administrators use. Delete this paragraph if there are none.]', 'simple-history' ),
+			__( 'If you have an account on this site, an export of your personal data includes log entries for actions you performed. [Describe how people can ask to access or delete their data, as set out elsewhere in this policy.]', 'simple-history' ),
+			__( '[Optional, for sites subject to the GDPR or UK GDPR: the legal basis is usually legitimate interests in keeping the site secure and administering it (Art. 6(1)(f); see Recital 49). For staff accounts, employment law may also apply.]', 'simple-history' ),
+		);
+
+		// An instruction to the site owner. Core leaves elements with this class out when the text is copied.
+		$html = '<p class="privacy-policy-tutorial">' . esc_html__( '[Suggested text for the site owner to adapt. Remove anything that does not match how this site is set up.]', 'simple-history' ) . '</p>';
+
+		foreach ( $paragraphs as $paragraph ) {
+			$html .= '<p>' . esc_html( $paragraph ) . '</p>';
+		}
+
+		return $html;
 	}
 
 	/**
