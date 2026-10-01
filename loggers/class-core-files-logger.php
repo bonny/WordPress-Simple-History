@@ -22,6 +22,13 @@ class Core_Files_Logger extends Logger {
 	const CRON_HOOK = 'simple_history/core_files_integrity_check';
 
 	/**
+	 * Locales whose checksums the last check accepted, the installed package locale first.
+	 *
+	 * @var string[]
+	 */
+	private $checksum_locales = [];
+
+	/**
 	 * Get array with information about this logger
 	 *
 	 * @return array
@@ -96,7 +103,54 @@ class Core_Files_Logger extends Logger {
 	/**
 	 * Check WordPress core files integrity using official checksums.
 	 *
-	 * If modified files are found, they are returned like this:
+	 * @return array|\WP_Error Array of modified files (see run_integrity_check()) or WP_Error if there is an error.
+	 */
+	private function check_core_files_integrity() {
+		$result = self::run_integrity_check();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$this->checksum_locales = $result['checksum_locales'];
+
+		return $result['modified_files'];
+	}
+
+	/**
+	 * Get the locales whose official checksums a core file may match.
+	 *
+	 * The first one is the locale of the installed package
+	 * (`$wp_local_package` in `wp-includes/version.php`), which is the one
+	 * WordPress itself checks against. A site can still have files from
+	 * another package, for example a German `wp-config-sample.php` next to
+	 * an English `version.php` after a mixed install or update, so the
+	 * site locale and en_US are accepted too. A file must still be
+	 * byte-identical to an official package file to pass.
+	 *
+	 * @return string[] Unique locales, the installed package locale first.
+	 */
+	public static function get_checksum_locales() {
+		global $wp_local_package;
+
+		$locales = [
+			is_string( $wp_local_package ) && $wp_local_package !== '' ? $wp_local_package : 'en_US',
+			get_locale(),
+			'en_US',
+		];
+
+		return array_values( array_unique( array_filter( $locales ) ) );
+	}
+
+	/**
+	 * Compare core files on disk with the official checksums.
+	 *
+	 * Files are checked against the checksums of the installed package
+	 * locale. Checksums for the other locales from get_checksum_locales()
+	 * are only fetched when a file does not match, and the file passes if
+	 * it matches one of them.
+	 *
+	 * Modified files are returned like this:
 	 *
 	 * Array
 	 * (
@@ -107,19 +161,11 @@ class Core_Files_Logger extends Logger {
 	 *             [expected_hash] => fb407463c202f1a8ab8783fa5b24ec13
 	 *             [actual_hash] => 57cb4f86b855614dd3e7d565b2f6f888
 	 *         )
-	 *
-	 *     [1] => Array
-	 *         (
-	 *             [file] => wp-settings.php
-	 *             [issue] => modified
-	 *             [expected_hash] => 0f52e2e688de1d2d776a12e55e5ca9c3
-	 *             [actual_hash] => 2e60a9b2c1daef9089a8fea7e0a691dd
-	 *         )
 	 * )
 	 *
-	 * @return array|\WP_Error Array of modified files with their details or WP_Error if there is an error.
+	 * @return array{modified_files: array, files_checked: int, checksum_locales: string[]}|\WP_Error
 	 */
-	private function check_core_files_integrity() {
+	public static function run_integrity_check() {
 		global $wp_version;
 
 		// Make sure the `get_core_checksums()` function is available.
@@ -127,16 +173,21 @@ class Core_Files_Logger extends Logger {
 			require_once ABSPATH . 'wp-admin/includes/update.php';
 		}
 
+		$locales        = self::get_checksum_locales();
+		$primary_locale = array_shift( $locales );
+
 		// Get official WordPress checksums for current version.
-		global $wp_local_package;
-		$checksums = get_core_checksums( $wp_version, $wp_local_package ?? 'en_US' );
+		$checksums = get_core_checksums( $wp_version, $primary_locale );
 
 		if ( ! is_array( $checksums ) || empty( $checksums ) ) {
-			return new \WP_Error( 'core_files_check_failed', 'Unable to retrieve WordPress core checksums for version ' . esc_html( $wp_version ) );
+			return new \WP_Error( 'core_files_check_failed', 'Unable to retrieve WordPress core checksums for version ' . esc_html( $wp_version ) . ' (locale: ' . esc_html( $primary_locale ) . ')' );
 		}
 
-		$modified_files = [];
-		$wp_root        = ABSPATH;
+		// Checksums for the other locales, fetched on the first mismatch.
+		$other_checksums = null;
+		$modified_files  = [];
+		$files_checked   = 0;
+		$wp_root         = ABSPATH;
 
 		// Check each file in the checksums array.
 		foreach ( $checksums as $file => $expected_hash ) {
@@ -145,6 +196,7 @@ class Core_Files_Logger extends Logger {
 				continue;
 			}
 
+			++$files_checked;
 			$file_path = $wp_root . $file;
 
 			// Check if file doesn't exist (missing core files should be logged).
@@ -177,6 +229,14 @@ class Core_Files_Logger extends Logger {
 				continue;
 			}
 
+			if ( $other_checksums === null ) {
+				$other_checksums = self::get_checksums_for_locales( $wp_version, $locales );
+			}
+
+			if ( self::hash_matches_other_locale( $file, $actual_hash, $other_checksums ) ) {
+				continue;
+			}
+
 			$modified_files[] = [
 				'file'          => $file,
 				'issue'         => 'modified',
@@ -185,7 +245,54 @@ class Core_Files_Logger extends Logger {
 			];
 		}
 
-		return $modified_files;
+		return [
+			'modified_files'   => $modified_files,
+			'files_checked'    => $files_checked,
+			'checksum_locales' => array_merge( [ $primary_locale ], $locales ),
+		];
+	}
+
+	/**
+	 * Fetch the official checksums for several locales.
+	 *
+	 * A locale whose checksums can't be fetched is left out.
+	 *
+	 * @param string   $version WordPress version.
+	 * @param string[] $locales Locales.
+	 * @return array<string, array<string, string>> Checksums keyed by locale.
+	 */
+	private static function get_checksums_for_locales( $version, $locales ) {
+		$checksums_by_locale = [];
+
+		foreach ( $locales as $locale ) {
+			$checksums = get_core_checksums( $version, $locale );
+
+			if ( ! is_array( $checksums ) || empty( $checksums ) ) {
+				continue;
+			}
+
+			$checksums_by_locale[ $locale ] = $checksums;
+		}
+
+		return $checksums_by_locale;
+	}
+
+	/**
+	 * Check if a file's hash matches the official checksum in another locale.
+	 *
+	 * @param string                               $file                File path relative to ABSPATH.
+	 * @param string                               $actual_hash         MD5 hash of the file on disk.
+	 * @param array<string, array<string, string>> $checksums_by_locale Checksums keyed by locale.
+	 * @return bool
+	 */
+	private static function hash_matches_other_locale( $file, $actual_hash, $checksums_by_locale ) {
+		foreach ( $checksums_by_locale as $checksums ) {
+			if ( isset( $checksums[ $file ] ) && $checksums[ $file ] === $actual_hash ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -209,9 +316,10 @@ class Core_Files_Logger extends Logger {
 		// Log new issues.
 		if ( ! empty( $new_issues ) ) {
 			$context = [
-				'file_count'     => count( $new_issues ),
-				'modified_files' => array_keys( $new_issues ),
-				'file_details'   => array_values( $new_issues ),
+				'file_count'       => count( $new_issues ),
+				'modified_files'   => array_keys( $new_issues ),
+				'file_details'     => array_values( $new_issues ),
+				'checksum_locales' => implode( ', ', $this->checksum_locales ),
 			];
 
 			$this->warning_message( 'core_files_modified', $context );
@@ -224,6 +332,7 @@ class Core_Files_Logger extends Logger {
 				'restored_files'       => array_keys( $resolved_issues ),
 				'file_details'         => array_values( $resolved_issues ),
 				'still_modified_count' => count( $current_results ),
+				'checksum_locales'     => implode( ', ', $this->checksum_locales ),
 			];
 
 			$this->info_message( 'core_files_restored', $context );
@@ -363,6 +472,22 @@ class Core_Files_Logger extends Logger {
 					)
 				);
 			}
+		}
+
+		// Which official packages the files were compared with. Older events don't have it.
+		if ( ! empty( $context['checksum_locales'] ) ) {
+			$event_details_group->add_item(
+				( new Event_Details_Item(
+					null,
+					__( 'Compared with', 'simple-history' )
+				) )->set_new_value(
+					sprintf(
+						/* translators: %s: comma separated list of locales, for example "en_US, de_DE" */
+						__( 'Official WordPress files for %s', 'simple-history' ),
+						$context['checksum_locales']
+					)
+				)
+			);
 		}
 
 		return $event_details_group;
