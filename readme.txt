@@ -268,7 +268,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Changed**
 
--   Experimental — Role logger: removing capabilities from a role is a notice instead of a warning, and granting a capability that controls the site (such as `manage_options` or `install_plugins`) is now a warning.
+-   Experimental — Role logger: removing capabilities from a role is a notice instead of a warning, and granting a capability that controls the site (such as `manage_options` or `install_plugins`), or creating a role with one, is now a warning.
 
 ### 5.34.0 (September 2026)
 
