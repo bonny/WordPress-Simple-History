@@ -32,9 +32,11 @@ class Role_Capability_Logger extends Logger {
 	/**
 	 * Capabilities that give a role control over the site.
 	 *
-	 * Granting one of these is logged as a warning, since it is how a
-	 * role is escalated. Other grants and all removals are notices:
-	 * removing a capability only narrows access.
+	 * Granting one of these, or creating a role that has one, is logged as
+	 * a warning, since it is how a role is escalated. Other grants and all
+	 * capability removals are notices: removing a capability only narrows
+	 * access. Deleting a role stays a warning, because it leaves its users
+	 * without the role.
 	 *
 	 * @var string[]
 	 */
@@ -42,11 +44,17 @@ class Role_Capability_Logger extends Logger {
 		'activate_plugins',
 		'create_users',
 		'delete_plugins',
+		'delete_site',
+		'delete_sites',
+		'delete_themes',
 		'delete_users',
+		'edit_files',
 		'edit_plugins',
 		'edit_theme_options',
 		'edit_themes',
 		'edit_users',
+		'erase_others_personal_data',
+		'export_others_personal_data',
 		'install_plugins',
 		'install_themes',
 		'manage_network',
@@ -57,6 +65,9 @@ class Role_Capability_Logger extends Logger {
 		'manage_options',
 		'manage_sites',
 		'promote_users',
+		'remove_users',
+		'setup_network',
+		'switch_themes',
 		'unfiltered_html',
 		'unfiltered_upload',
 		'update_core',
@@ -466,7 +477,9 @@ class Role_Capability_Logger extends Logger {
 			$caps = isset( $role_data['capabilities'] ) ? array_keys( array_filter( $role_data['capabilities'] ) ) : array();
 			sort( $caps );
 
-			$this->notice_message(
+			$log_method = self::has_sensitive_cap( $caps ) ? 'warning_message' : 'notice_message';
+
+			$this->{$log_method}(
 				'role_created',
 				array_merge(
 					array(
@@ -575,8 +588,7 @@ class Role_Capability_Logger extends Logger {
 		if ( ! empty( $added_caps ) ) {
 			sort( $added_caps );
 
-			$grants_sensitive_cap = ! empty( array_intersect( $added_caps, self::SENSITIVE_CAPS ) );
-			$log_method           = $grants_sensitive_cap ? 'warning_message' : 'notice_message';
+			$log_method = self::has_sensitive_cap( $added_caps ) ? 'warning_message' : 'notice_message';
 
 			$this->{$log_method}(
 				'role_caps_added',
@@ -611,6 +623,16 @@ class Role_Capability_Logger extends Logger {
 				$this->get_attribution_context( $this->get_cap_change_keys( $role_slug, $removed_caps ) )
 			)
 		);
+	}
+
+	/**
+	 * Whether any of the capabilities gives control over the site.
+	 *
+	 * @param string[] $caps Capabilities.
+	 * @return bool
+	 */
+	private static function has_sensitive_cap( $caps ) {
+		return ! empty( array_intersect( $caps, self::SENSITIVE_CAPS ) );
 	}
 
 	/**

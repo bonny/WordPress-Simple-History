@@ -305,21 +305,63 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 	 * Test that removing a capability that controls the site is a notice.
 	 */
 	public function test_sensitive_cap_removed_from_role_is_notice() {
-		$role = get_role( 'administrator' );
-		$role->remove_cap( 'install_plugins' );
+		add_role( 'test_role', 'Test Role', [ 'read' => true, 'install_plugins' => true ] );
 		$this->flush_logger();
 
-		$latest_row = get_latest_row();
+		get_role( 'test_role' )->remove_cap( 'install_plugins' );
+		$this->flush_logger();
 
-		$this->assertEquals( 'notice', $latest_row['level'] );
+		$this->assertEquals( 'notice', get_latest_row()['level'] );
 		$this->assertContains(
 			[ 'key' => '_message_key', 'value' => 'role_caps_removed' ],
 			get_latest_context()
 		);
+	}
 
-		// Clean up.
-		$role->add_cap( 'install_plugins' );
+	/**
+	 * Test that creating a role that can control the site is a warning.
+	 */
+	public function test_role_created_with_sensitive_cap_is_warning() {
+		add_role( 'test_role', 'Test Role', [ 'read' => true, 'switch_themes' => true ] );
 		$this->flush_logger();
+
+		$this->assertEquals( 'warning', get_latest_row()['level'] );
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'role_created' ],
+			get_latest_context()
+		);
+	}
+
+	/**
+	 * Test that granting a sensitive capability that was stored as false is a warning.
+	 */
+	public function test_sensitive_cap_flipped_from_false_is_warning() {
+		add_role( 'test_role', 'Test Role', [ 'read' => true, 'edit_users' => false ] );
+		$this->flush_logger();
+
+		get_role( 'test_role' )->add_cap( 'edit_users' );
+		$this->flush_logger();
+
+		$this->assertEquals( 'warning', get_latest_row()['level'] );
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'role_caps_added' ],
+			get_latest_context()
+		);
+	}
+
+	/**
+	 * Test that every sensitive capability is a real WordPress capability name.
+	 */
+	public function test_sensitive_caps_are_known_capabilities() {
+		$caps = ( new \ReflectionClass( Role_Capability_Logger::class ) )->getConstant( 'SENSITIVE_CAPS' );
+
+		// Multisite capabilities and meta capabilities that can still be granted to a role directly.
+		$known = array_merge(
+			array_keys( get_role( 'administrator' )->capabilities ),
+			[ 'manage_network', 'manage_network_options', 'manage_network_plugins', 'manage_network_themes', 'manage_network_users', 'manage_sites', 'delete_site', 'delete_sites', 'setup_network', 'upgrade_network', 'erase_others_personal_data', 'export_others_personal_data' ]
+		);
+
+		$this->assertSame( [], array_values( array_diff( $caps, $known ) ) );
 	}
 
 	/**
