@@ -39,6 +39,12 @@ class Mail_Failure_Logger extends Logger {
 	/** @var string Cron hook that writes the summary when a window ends. */
 	public const CRON_HOOK = 'simple_history/mail_failure_logger/write_summary';
 
+	/** @var string Transient caching get_recent_failure_stats(). Cleared when a failure is logged. */
+	public const TRANSIENT_STATS = 'simple_history_mail_failure_stats';
+
+	/** @var int Days counted by get_recent_failure_stats(). */
+	public const STATS_DAYS = 30;
+
 	/** @var string Slug of the Debug and Monitor add-on's mail logger. */
 	private const DEBUG_AND_MONITOR_MAIL_LOGGER_SLUG = 'WPMailLogger';
 
@@ -128,6 +134,8 @@ class Mail_Failure_Logger extends Logger {
 				'mail_recipient_count' => count( $recipients ),
 			)
 		);
+
+		delete_transient( self::TRANSIENT_STATS );
 	}
 
 	/**
@@ -154,6 +162,86 @@ class Mail_Failure_Logger extends Logger {
 				'mail_window_end'    => wp_date( 'Y-m-d H:i:s', (int) $window['start'] + self::WINDOW_SECONDS ),
 			)
 		);
+
+		delete_transient( self::TRANSIENT_STATS );
+	}
+
+	/**
+	 * Count failed emails in the last STATS_DAYS days, from this logger's events.
+	 *
+	 * Failures that were only counted by the throttle are included through the
+	 * summary events. Cached for an hour, and cleared whenever a failure is logged.
+	 *
+	 * @return array{count: int, last_date: string, last_error: string} last_date is GMT
+	 *                                                                    'Y-m-d H:i:s', or '' when count is 0.
+	 */
+	public static function get_recent_failure_stats() {
+		$cached = get_transient( self::TRANSIENT_STATS );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		global $wpdb;
+
+		$simple_history = \Simple_History\Simple_History::get_instance();
+		$events_table   = $simple_history->get_events_table_name();
+		$contexts_table = $simple_history->get_contexts_table_name();
+		$since          = gmdate( 'Y-m-d H:i:s', time() - self::STATS_DAYS * DAY_IN_SECONDS );
+
+		// Table names come from Simple History. Cached in a transient below.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT e.id, e.date, c.`key`, c.value FROM {$events_table} AS e
+				INNER JOIN {$contexts_table} AS c ON c.history_id = e.id
+				WHERE e.logger = %s AND e.date >= %s AND c.`key` IN ( '_message_key', 'mail_skipped_count', 'mail_error' )
+				ORDER BY e.id DESC",
+				'MailFailureLogger',
+				$since
+			)
+		);
+		// phpcs:enable
+
+		// Group context rows per event, newest event first.
+		$events = array();
+
+		foreach ( $rows as $row ) {
+			$events[ $row->id ]['date']      = $row->date;
+			$events[ $row->id ][ $row->key ] = $row->value;
+		}
+
+		$stats = array(
+			'count'      => 0,
+			'last_date'  => '',
+			'last_error' => '',
+		);
+
+		foreach ( $events as $event ) {
+			$message_key = $event['_message_key'] ?? '';
+
+			if ( $message_key === 'mail_send_failures_skipped' ) {
+				$stats['count'] += (int) ( $event['mail_skipped_count'] ?? 0 );
+				continue;
+			}
+
+			if ( $message_key !== 'mail_send_failed' ) {
+				continue;
+			}
+
+			++$stats['count'];
+
+			if ( $stats['last_date'] !== '' ) {
+				continue;
+			}
+
+			$stats['last_date']  = $event['date'];
+			$stats['last_error'] = $event['mail_error'] ?? '';
+		}
+
+		set_transient( self::TRANSIENT_STATS, $stats, HOUR_IN_SECONDS );
+
+		return $stats;
 	}
 
 	/**
