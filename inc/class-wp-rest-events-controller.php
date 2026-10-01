@@ -575,7 +575,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		);
 
 		$query_params['ip_address'] = array(
-			'description'       => __( 'Limit result set to events from a specific IP address. Supports anonymized IPs with ".x" suffix.', 'simple-history' ),
+			'description'       => __( 'Limit result set to events from a specific IP address. Supports masked IPv4 addresses ending in ".x".', 'simple-history' ),
 			'type'              => 'string',
 			'validate_callback' => static function ( $value ) {
 				return Helpers::is_valid_ip_address_filter( $value );

@@ -312,7 +312,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Export search results as CSV and JSON', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Customize log retention by setting the number of days to keep logs', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Limit number of failed login attempts that are logged', 'simple-history' ); ?></li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Control how to store IP Addresses – anonymized or not', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Store full IP addresses instead of masked ones', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'View a map of where failed login attempts happened', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Control what messages that are logged to match your needs', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Remove banners like this one', 'simple-history' ); ?></li>
