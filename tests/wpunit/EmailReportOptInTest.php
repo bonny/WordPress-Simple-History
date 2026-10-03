@@ -19,6 +19,7 @@ class EmailReportOptInTest extends \Codeception\TestCase\WPTestCase {
 
 		delete_option( 'simple_history_email_report_enabled' );
 		delete_option( 'simple_history_email_report_recipients' );
+		delete_option( Email_Report_Service::OPTION_INCLUDE_ADMIN );
 		wp_clear_scheduled_hook( 'simple_history/email_report' );
 
 		// Stop at the redirect instead of calling exit.
@@ -36,6 +37,7 @@ class EmailReportOptInTest extends \Codeception\TestCase\WPTestCase {
 
 		delete_option( 'simple_history_email_report_enabled' );
 		delete_option( 'simple_history_email_report_recipients' );
+		delete_option( Email_Report_Service::OPTION_INCLUDE_ADMIN );
 		wp_clear_scheduled_hook( 'simple_history/email_report' );
 
 		parent::tearDown();
@@ -143,5 +145,40 @@ class EmailReportOptInTest extends \Codeception\TestCase\WPTestCase {
 		$this->expectException( \WPDieException::class );
 
 		$this->run_opt_in_handler();
+	}
+
+	public function test_site_admin_opting_in_ticks_the_checkbox_instead_of_typing_the_address() {
+		$this->login_as( 'administrator' );
+
+		// Make the logged-in user the site admin.
+		$admin_email = function () {
+			return 'Admin-OptIn@example.com';
+		};
+
+		add_filter( 'pre_option_admin_email', $admin_email );
+
+		update_option( 'simple_history_email_report_recipients', 'someone@example.com' );
+
+		$this->run_opt_in_handler();
+
+		$included = Email_Report_Service::is_site_admin_included();
+
+		remove_filter( 'pre_option_admin_email', $admin_email );
+
+		$this->assertTrue( $included );
+		$this->assertSame( 'someone@example.com', get_option( 'simple_history_email_report_recipients' ) );
+	}
+
+	public function test_opting_in_on_a_site_that_relied_on_the_admin_keeps_the_admin() {
+		$this->login_as( 'administrator' );
+
+		// Never saved the checkbox and no list: the admin gets the report.
+		$this->assertTrue( Email_Report_Service::is_site_admin_included() );
+
+		$this->run_opt_in_handler();
+
+		$this->assertTrue( Email_Report_Service::is_site_admin_included(), 'Adding someone must not drop the site admin.' );
+		$this->assertTrue( Email_Report_Service::is_email_in_active_recipients( get_option( 'admin_email' ) ) );
+		$this->assertTrue( Email_Report_Service::is_email_in_active_recipients( 'admin-optin@example.com' ) );
 	}
 }

@@ -269,6 +269,11 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Experimental — Emails that WordPress fails to send are now logged as errors, with the error message and the number of recipients.
+-   Experimental — WP-CLI events store the command, the server user and, for commands run over SSH, the masked IP address they came from. Nothing is shown in the log yet.
+
+**Changed**
+
+-   Weekly email settings have a "Site admin" checkbox that sends the email to the site's admin address and follows it when it changes, and adding more recipients no longer stops the email to the admin.
 
 ### 5.34.0 (September 2026)
 
