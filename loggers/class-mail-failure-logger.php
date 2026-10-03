@@ -4,6 +4,7 @@ namespace Simple_History\Loggers;
 
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Item;
+use Simple_History\Services\Mail_Failure_Tracker;
 
 /**
  * Logs emails that WordPress failed to send.
@@ -16,7 +17,12 @@ use Simple_History\Event_Details\Event_Details_Item;
  *
  * A broken mail setup can fail hundreds of times an hour, so at most
  * MAX_LOGGED_PER_WINDOW failures are logged per WINDOW_SECONDS. The rest are
- * counted and written as one summary event when the window ends.
+ * counted and written as one summary event when the window ends. The window
+ * is kept in memory and written once per request, on shutdown.
+ *
+ * Counting failures for the notice is Mail_Failure_Tracker's job, not this
+ * logger's, so the notice works even when the
+ * simple_history/mail_failures/log_events filter turns logging off.
  *
  * Requires experimental features to be enabled.
  */
@@ -30,23 +36,28 @@ class Mail_Failure_Logger extends Logger {
 	/** @var int Length of the throttling window, in seconds. */
 	public const WINDOW_SECONDS = HOUR_IN_SECONDS;
 
-	/** @var int Longest error message stored, in characters. */
-	public const MAX_ERROR_LENGTH = 500;
-
 	/** @var string Option holding the current throttling window. */
 	public const OPTION_WINDOW = 'simple_history_mail_failure_window';
 
 	/** @var string Cron hook that writes the summary when a window ends. */
 	public const CRON_HOOK = 'simple_history/mail_failure_logger/write_summary';
 
-	/** @var string Transient caching get_recent_failure_stats(). Cleared when a failure is logged. */
-	public const TRANSIENT_STATS = 'simple_history_mail_failure_stats';
-
-	/** @var int Days counted by get_recent_failure_stats(). */
-	public const STATS_DAYS = 30;
-
 	/** @var string Slug of the Debug and Monitor add-on's mail logger. */
-	private const DEBUG_AND_MONITOR_MAIL_LOGGER_SLUG = 'WPMailLogger';
+	public const DEBUG_AND_MONITOR_MAIL_LOGGER_SLUG = 'WPMailLogger';
+
+	/**
+	 * The current throttling window, null until read in this request.
+	 *
+	 * @var array{start: string, logged: int, skipped: int}|null
+	 */
+	private $window = null;
+
+	/**
+	 * Whether the window changed in this request and needs to be written.
+	 *
+	 * @var bool
+	 */
+	private $window_changed = false;
 
 	/**
 	 * Get array with information about this logger.
@@ -93,6 +104,25 @@ class Mail_Failure_Logger extends Logger {
 	}
 
 	/**
+	 * Whether failed emails are logged as events.
+	 *
+	 * @return bool
+	 */
+	public static function is_logging_events() {
+		/**
+		 * Filters whether failed emails are logged as events.
+		 *
+		 * When false, failures are still counted for the notice in the
+		 * sidebar and the email settings, but nothing is added to the log.
+		 *
+		 * @since 5.35.0
+		 *
+		 * @param bool $log_events Whether to log failed emails. Default true.
+		 */
+		return (bool) apply_filters( 'simple_history/mail_failures/log_events', true );
+	}
+
+	/**
 	 * Log a failed email, unless the throttle or the Debug and Monitor add-on says not to.
 	 *
 	 * @param \WP_Error $error Error from wp_mail(). Its data has the recipients,
@@ -100,6 +130,10 @@ class Mail_Failure_Logger extends Logger {
 	 */
 	public function on_wp_mail_failed( $error ) {
 		if ( ! $error instanceof \WP_Error ) {
+			return;
+		}
+
+		if ( ! self::is_logging_events() ) {
 			return;
 		}
 
@@ -111,18 +145,18 @@ class Mail_Failure_Logger extends Logger {
 
 		if ( $window['logged'] >= self::MAX_LOGGED_PER_WINDOW ) {
 			++$window['skipped'];
-			update_option( self::OPTION_WINDOW, $window, false );
+			$this->set_window( $window );
 
 			// Write the summary when the window ends, even if no more emails fail.
 			if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-				wp_schedule_single_event( $window['start'] + self::WINDOW_SECONDS, self::CRON_HOOK );
+				wp_schedule_single_event( strtotime( $window['start'] ) + self::WINDOW_SECONDS, self::CRON_HOOK );
 			}
 
 			return;
 		}
 
 		++$window['logged'];
-		update_option( self::OPTION_WINDOW, $window, false );
+		$this->set_window( $window );
 
 		$error_data = $error->get_error_data();
 		$recipients = is_array( $error_data ) ? (array) ( $error_data['to'] ?? array() ) : array();
@@ -130,12 +164,10 @@ class Mail_Failure_Logger extends Logger {
 		$this->error_message(
 			'mail_send_failed',
 			array(
-				'mail_error'           => self::mask_error_message( $error->get_error_message() ),
+				'mail_error'           => Mail_Failure_Tracker::mask_error_message( $error->get_error_message() ),
 				'mail_recipient_count' => count( $recipients ),
 			)
 		);
-
-		delete_transient( self::TRANSIENT_STATS );
 	}
 
 	/**
@@ -145,130 +177,101 @@ class Mail_Failure_Logger extends Logger {
 	 * failure arrives after the window ended but before cron ran.
 	 */
 	public function write_summary() {
-		$window = get_option( self::OPTION_WINDOW );
+		$window = $this->window ?? self::read_window();
 
 		delete_option( self::OPTION_WINDOW );
 		wp_clear_scheduled_hook( self::CRON_HOOK );
 
-		if ( ! is_array( $window ) || empty( $window['skipped'] ) ) {
+		$this->window         = null;
+		$this->window_changed = false;
+
+		if ( $window === null || $window['skipped'] === 0 ) {
 			return;
 		}
+
+		$start = strtotime( $window['start'] );
 
 		$this->error_message(
 			'mail_send_failures_skipped',
 			array(
-				'mail_skipped_count' => (int) $window['skipped'],
-				'mail_window_start'  => wp_date( 'Y-m-d H:i:s', (int) $window['start'] ),
-				'mail_window_end'    => wp_date( 'Y-m-d H:i:s', (int) $window['start'] + self::WINDOW_SECONDS ),
+				'mail_skipped_count' => $window['skipped'],
+				'mail_window_start'  => wp_date( 'Y-m-d H:i:s', $start ),
+				'mail_window_end'    => wp_date( 'Y-m-d H:i:s', $start + self::WINDOW_SECONDS ),
 			)
 		);
-
-		delete_transient( self::TRANSIENT_STATS );
 	}
 
 	/**
-	 * Count failed emails in the last STATS_DAYS days, from this logger's events.
-	 *
-	 * Failures that were only counted by the throttle are included through the
-	 * summary events. Cached for an hour, and cleared whenever a failure is logged.
-	 *
-	 * @return array{count: int, last_date: string, last_error: string} last_date is GMT
-	 *                                                                    'Y-m-d H:i:s', or '' when count is 0.
+	 * Write the window to its option, if it changed in this request.
 	 */
-	public static function get_recent_failure_stats() {
-		$cached = get_transient( self::TRANSIENT_STATS );
-
-		if ( is_array( $cached ) ) {
-			return $cached;
+	public function save_window() {
+		if ( ! $this->window_changed || $this->window === null ) {
+			return;
 		}
 
-		global $wpdb;
+		update_option( self::OPTION_WINDOW, $this->window, false );
 
-		$simple_history = \Simple_History\Simple_History::get_instance();
-		$events_table   = $simple_history->get_events_table_name();
-		$contexts_table = $simple_history->get_contexts_table_name();
-		$since          = gmdate( 'Y-m-d H:i:s', time() - self::STATS_DAYS * DAY_IN_SECONDS );
-
-		// Table names come from Simple History. Cached in a transient below.
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$rows = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT e.id, e.date, c.`key`, c.value FROM {$events_table} AS e
-				INNER JOIN {$contexts_table} AS c ON c.history_id = e.id
-				WHERE e.logger = %s AND e.date >= %s AND c.`key` IN ( '_message_key', 'mail_skipped_count', 'mail_error' )
-				ORDER BY e.id DESC",
-				'MailFailureLogger',
-				$since
-			)
-		);
-		// phpcs:enable
-
-		// Group context rows per event, newest event first.
-		$events = array();
-
-		foreach ( $rows as $row ) {
-			$events[ $row->id ]['date']      = $row->date;
-			$events[ $row->id ][ $row->key ] = $row->value;
-		}
-
-		$stats = array(
-			'count'      => 0,
-			'last_date'  => '',
-			'last_error' => '',
-		);
-
-		foreach ( $events as $event ) {
-			$message_key = $event['_message_key'] ?? '';
-
-			if ( $message_key === 'mail_send_failures_skipped' ) {
-				$stats['count'] += (int) ( $event['mail_skipped_count'] ?? 0 );
-				continue;
-			}
-
-			if ( $message_key !== 'mail_send_failed' ) {
-				continue;
-			}
-
-			++$stats['count'];
-
-			if ( $stats['last_date'] !== '' ) {
-				continue;
-			}
-
-			$stats['last_date']  = $event['date'];
-			$stats['last_error'] = $event['mail_error'] ?? '';
-		}
-
-		set_transient( self::TRANSIENT_STATS, $stats, HOUR_IN_SECONDS );
-
-		return $stats;
+		$this->window_changed = false;
 	}
 
 	/**
 	 * Get the current throttling window, starting a new one if the last one ended.
 	 *
-	 * @return array{start: int, logged: int, skipped: int}
+	 * @return array{start: string, logged: int, skipped: int} start is ISO 8601 UTC.
 	 */
 	private function get_current_window() {
-		$window = get_option( self::OPTION_WINDOW );
+		if ( $this->window === null ) {
+			$this->window = self::read_window();
+		}
 
-		if ( is_array( $window ) && time() < (int) $window['start'] + self::WINDOW_SECONDS ) {
-			return array(
-				'start'   => (int) $window['start'],
-				'logged'  => (int) $window['logged'],
-				'skipped' => (int) $window['skipped'],
-			);
+		if ( $this->window !== null && time() < strtotime( $this->window['start'] ) + self::WINDOW_SECONDS ) {
+			return $this->window;
 		}
 
 		// The last window ended. Write its summary before starting a new one.
-		if ( is_array( $window ) ) {
+		if ( $this->window !== null ) {
 			$this->write_summary();
 		}
 
 		return array(
-			'start'   => time(),
+			'start'   => gmdate( 'Y-m-d\TH:i:s\Z' ),
 			'logged'  => 0,
 			'skipped' => 0,
+		);
+	}
+
+	/**
+	 * Keep the changed window in memory, to be written on shutdown.
+	 *
+	 * @param array{start: string, logged: int, skipped: int} $window Window.
+	 */
+	private function set_window( $window ) {
+		$this->window         = $window;
+		$this->window_changed = true;
+
+		if ( has_action( 'shutdown', array( $this, 'save_window' ) ) ) {
+			return;
+		}
+
+		add_action( 'shutdown', array( $this, 'save_window' ) );
+	}
+
+	/**
+	 * Read the window option.
+	 *
+	 * @return array{start: string, logged: int, skipped: int}|null Null when there is none, or it can't be read.
+	 */
+	private static function read_window() {
+		$window = get_option( self::OPTION_WINDOW );
+
+		if ( ! is_array( $window ) || ! isset( $window['start'] ) || ! is_string( $window['start'] ) || strtotime( $window['start'] ) === false ) {
+			return null;
+		}
+
+		return array(
+			'start'   => $window['start'],
+			'logged'  => (int) ( $window['logged'] ?? 0 ),
+			'skipped' => (int) ( $window['skipped'] ?? 0 ),
 		);
 	}
 
@@ -279,31 +282,6 @@ class Mail_Failure_Logger extends Logger {
 	 */
 	protected function is_debug_and_monitor_mail_logger_active() {
 		return $this->simple_history->get_instantiated_logger_by_slug( self::DEBUG_AND_MONITOR_MAIL_LOGGER_SLUG ) !== false;
-	}
-
-	/**
-	 * Mask email addresses in an error message and cap its length.
-	 *
-	 * Tags are kept as they are, since mail errors write addresses as <x@y>.
-	 * Output is escaped like all other context values.
-	 *
-	 * Mail errors can name the recipient ("The following recipients failed: ...").
-	 * The domain is kept, since "failed for every gmail.com address" is useful
-	 * when debugging, but the part before the @ is not.
-	 *
-	 * @param string $message Error message.
-	 * @return string
-	 */
-	public static function mask_error_message( $message ) {
-		$message = (string) preg_replace( '/[^\s<>"\'(),;:]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})/', '***@$1', (string) $message );
-		$message = trim( $message );
-
-		// Cut on a character boundary. PCRE's u flag works without mbstring.
-		if ( preg_match( '/^.{' . self::MAX_ERROR_LENGTH . '}(?=.)/us', $message, $matches ) ) {
-			$message = $matches[0] . '…';
-		}
-
-		return $message;
 	}
 
 	/**

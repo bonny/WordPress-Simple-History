@@ -36,6 +36,9 @@ function simple_history_cleanup_site() {
 		'simple_history_total_logged_events_count',
 		'simple_history_email_report_enabled',
 		'simple_history_email_report_recipients',
+		'simple_history_email_report_include_admin',
+		'simple_history_mail_failures',
+		'simple_history_mail_failure_window',
 		'simple_history_channel_file',
 		'simple_history_retention_days',
 		'sh_core_failed_login_count',
@@ -45,6 +48,9 @@ function simple_history_cleanup_site() {
 	foreach ( $arr_options as $one_option ) {
 		delete_option( $one_option );
 	}
+
+	// Per-user dismissal of the failed email notice.
+	delete_metadata( 'user', 0, 'simple_history_mail_failures_dismissed', '', true );
 
 	// Remove database tables.
 	$table_name = $wpdb->prefix . 'simple_history';
