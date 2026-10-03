@@ -20,6 +20,7 @@
  * docker compose run --rm php-cli vendor/bin/codecept run wpunit RestEventsGroupingTest
  */
 class RestEventsGroupingTest extends \Codeception\TestCase\WPTestCase {
+	use \Helper\SkipsOnSqlite;
 
 	/**
 	 * @var int
@@ -55,6 +56,8 @@ class RestEventsGroupingTest extends \Codeception\TestCase\WPTestCase {
 	 * Repeated identical events collapse into one row carrying the count.
 	 */
 	public function test_default_listing_groups_repeated_events() {
+		$this->skip_on_sqlite( 'occasion grouping is MySQL-only. Log_Query::query_overview() sends SQLite to query_overview_simple(), which returns every event ungrouped, because the grouping query counts consecutive rows with MySQL session variables. Delete this skip when grouping works on SQLite.' );
+
 		for ( $i = 0; $i < 5; $i++ ) {
 			SimpleLogger()->info( 'A repeated event' );
 		}
@@ -89,6 +92,8 @@ class RestEventsGroupingTest extends \Codeception\TestCase\WPTestCase {
 	 * other half of the same regression.
 	 */
 	public function test_sticky_events_are_included_by_default() {
+		$this->skip_on_sqlite( 'occasion grouping is MySQL-only. Log_Query::query_overview() sends SQLite to query_overview_simple(), which returns every event ungrouped, because the grouping query counts consecutive rows with MySQL session variables. Delete this skip when grouping works on SQLite.' );
+
 		SimpleLogger()->info( 'An event that gets pinned' );
 
 		$rows = ( new \Simple_History\Log_Query() )->query(
