@@ -5,6 +5,7 @@ namespace Simple_History\Services;
 use Simple_History\Helpers;
 use Simple_History\Events_Stats;
 use Simple_History\Date_Helper;
+use Simple_History\Dropins\Sidebar_Mail_Failures_Dropin;
 use Simple_History\Loggers\User_Logger;
 use Simple_History\Menu_Page;
 use Simple_History\Simple_History;
@@ -1329,6 +1330,14 @@ class Email_Report_Service extends Service {
 			<strong><?php esc_html_e( 'Stay on top of your site without logging in.', 'simple-history' ); ?></strong>
 		</p>
 		<?php
+		// Failed emails affect the weekly email too, so say so here.
+		$mail_failures_html = Sidebar_Mail_Failures_Dropin::get_notice_html( 'email_settings' );
+
+		if ( $mail_failures_html !== '' ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in get_notice_html().
+			echo '<div class="notice notice-warning inline">' . $mail_failures_html . '</div>';
+		}
+
 		$this->output_preview_thumbnail();
 	}
 
