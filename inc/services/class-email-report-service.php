@@ -38,6 +38,9 @@ class Email_Report_Service extends Service {
 	/** The admin-post action for the one-click opt-in offered after install. */
 	public const OPT_IN_ACTION = 'simple_history_email_report_opt_in';
 
+	/** @var string Option for the "Site admin" recipient checkbox. */
+	public const OPTION_INCLUDE_ADMIN = 'simple_history_email_report_include_admin';
+
 	/** Query arg added to the redirect after opting in, so the confirmation notice can show. */
 	private const OPT_IN_QUERY_ARG = 'simple-history-email-report-opt-in';
 
@@ -192,8 +195,8 @@ class Email_Report_Service extends Service {
 	/**
 	 * Check if reports are enabled and the email address is one of the recipients.
 	 *
-	 * Counts the site admin fallback, so the admin is not offered an opt-in
-	 * for an email they already get.
+	 * Counts the site admin when "Site admin" is ticked, so the admin is not
+	 * offered an opt-in for an email they already get.
 	 *
 	 * @param string $email Email address.
 	 * @return bool
@@ -221,12 +224,25 @@ class Email_Report_Service extends Service {
 
 		check_admin_referer( self::OPT_IN_ACTION );
 
-		// Add the current user and keep any recipients that are already set.
-		$recipients = $this->sanitize_email_recipients(
-			$this->get_email_report_recipients() . "\n" . wp_get_current_user()->user_email
-		);
+		// Save whether the site admin gets the report before the list changes.
+		// On a site that never saved it, an empty list means "yes", and adding
+		// someone below would otherwise drop the admin without anyone noticing.
+		$include_admin = self::is_site_admin_included();
+		$user_email    = wp_get_current_user()->user_email;
 
-		update_option( 'simple_history_email_report_recipients', $recipients );
+		// The site admin follows Settings → General through the checkbox, so tick
+		// it instead of typing in an address that would go stale.
+		if ( strtolower( $user_email ) === strtolower( (string) get_option( 'admin_email' ) ) ) {
+			$include_admin = true;
+		} else {
+			// Add the current user and keep any recipients that are already set.
+			update_option(
+				'simple_history_email_report_recipients',
+				$this->sanitize_email_recipients( $this->get_email_report_recipients() . "\n" . $user_email )
+			);
+		}
+
+		update_option( self::OPTION_INCLUDE_ADMIN, $include_admin ? 'yes' : 'no' );
 		update_option( 'simple_history_email_report_enabled', true );
 
 		// update_option() only fires the "updated" hook that schedules the report when
@@ -1104,13 +1120,12 @@ class Email_Report_Service extends Service {
 	 * REST API endpoint for sending preview email.
 	 */
 	public function rest_preview_email() {
-		$stored_recipients = self::get_stored_valid_recipients();
-		$recipients        = self::get_effective_recipients();
+		$recipients = self::get_effective_recipients();
 
 		if ( empty( $recipients ) ) {
 			return new \WP_Error(
 				'email_no_recipients',
-				__( 'There is no valid recipient to send the test email to. Add a recipient above, or set a valid site admin email under Settings → General.', 'simple-history' ),
+				__( 'There is no valid recipient to send the test email to. Tick "Site admin" or add an email address above, then save.', 'simple-history' ),
 				[ 'status' => 400 ]
 			);
 		}
@@ -1156,7 +1171,7 @@ class Email_Report_Service extends Service {
 			);
 		}
 
-		$message = $this->get_test_email_sent_message( $sent_to, $stored_recipients );
+		$message = $this->get_test_email_sent_message( $sent_to );
 
 		// Some were sent and some were not. Name the failed ones, so the user
 		// does not click again and send duplicates to the ones that worked.
@@ -1179,20 +1194,10 @@ class Email_Report_Service extends Service {
 	/**
 	 * The response message for a sent test email, based on who it went to.
 	 *
-	 * @param string[] $recipients        Recipients the test email was actually sent to.
-	 * @param string[] $stored_recipients Valid recipients from the stored setting, before
-	 *                                     the admin_email fallback was applied.
+	 * @param string[] $recipients Recipients the test email was actually sent to.
 	 * @return string
 	 */
-	private function get_test_email_sent_message( $recipients, $stored_recipients ) {
-		if ( empty( $stored_recipients ) ) {
-			return sprintf(
-				/* translators: %s: site admin email address */
-				__( 'Test email sent to the site admin, %s. The weekly email goes there until you add recipients.', 'simple-history' ),
-				$recipients[0]
-			);
-		}
-
+	private function get_test_email_sent_message( $recipients ) {
 		if ( count( $recipients ) === 1 ) {
 			return sprintf(
 				/* translators: %s: recipient email address */
@@ -1256,7 +1261,18 @@ class Email_Report_Service extends Service {
 			[
 				'type'              => 'boolean',
 				'default'           => false,
-				'sanitize_callback' => 'rest_sanitize_boolean',
+				'sanitize_callback' => [ $this, 'sanitize_enabled' ],
+			]
+		);
+
+		// No 'default' on purpose: a missing option is told apart from a saved
+		// "no" in is_site_admin_included(), so existing sites keep their behaviour.
+		register_setting(
+			self::SETTINGS_OPTION_GROUP,
+			self::OPTION_INCLUDE_ADMIN,
+			[
+				'type'              => 'string',
+				'sanitize_callback' => [ $this, 'sanitize_include_admin' ],
 			]
 		);
 
@@ -1395,8 +1411,8 @@ class Email_Report_Service extends Service {
 	/**
 	 * Label for the test email button, naming who the test email goes to.
 	 *
-	 * Uses the saved recipients, with the same admin_email fallback as the
-	 * weekly email. Long lists are shown as a count to keep the label short.
+	 * Uses the same recipients as the weekly email. Long lists are shown as a
+	 * count to keep the label short.
 	 *
 	 * @return string
 	 */
@@ -1500,49 +1516,41 @@ class Email_Report_Service extends Service {
 		// Join back to string.
 		$textarea_contents = implode( "\n", $textarea_contents );
 
-		$this->maybe_warn_about_missing_recipients( $textarea_contents );
-
 		return $textarea_contents;
 	}
 
 	/**
-	 * Warn on the settings page when the weekly email is being saved as on
-	 * with no valid recipients, since it will silently go to the site admin
-	 * instead of nobody.
+	 * Sanitize the enabled setting, and refuse to turn the weekly email on
+	 * when the settings form would leave it with nobody to send to.
 	 *
-	 * @param string $sanitized_recipients The recipients this request is about
-	 *                                      to save, one email per line.
+	 * Only the settings form is checked. Other code that turns the email on,
+	 * like the one-click opt-in, sets a recipient itself.
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return bool
 	 */
-	private function maybe_warn_about_missing_recipients( $sanitized_recipients ) {
-		if ( $sanitized_recipients !== '' ) {
-			return;
+	public function sanitize_enabled( $value ) {
+		$enabled = rest_sanitize_boolean( $value );
+
+		if ( ! $enabled || ! $this->is_settings_form_request() ) {
+			return $enabled;
 		}
 
-		// The enabled checkbox is a separate setting saved in the same request.
-		// An unchecked checkbox is not sent at all, so its absence means "off".
-		// The Settings API already verified the settings-page nonce before calling sanitize callbacks.
-		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$enabled = isset( $_POST['simple_history_email_report_enabled'] )
-			? rest_sanitize_boolean( wp_unslash( $_POST['simple_history_email_report_enabled'] ) )
-			: false;
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
-
-		if ( ! $enabled ) {
-			return;
+		if ( $this->posted_form_has_recipients() ) {
+			return $enabled;
 		}
 
-		// The Settings API can call this sanitize callback twice when the
-		// option is registered for the first time in a request, so check
-		// whether the warning is already queued before adding it again.
-		foreach ( get_settings_errors( 'simple_history_email_report_recipients' ) as $existing_error ) {
-			if ( ( $existing_error['code'] ?? '' ) === 'simple_history_email_report_recipients_empty' ) {
-				return;
+		// The Settings API can call a sanitize callback twice when the option is
+		// registered for the first time in a request, so add the error once.
+		foreach ( get_settings_errors( 'simple_history_email_report_enabled' ) as $existing_error ) {
+			if ( ( $existing_error['code'] ?? '' ) === 'simple_history_email_report_no_recipients' ) {
+				return false;
 			}
 		}
 
 		// WordPress only adds its own "Settings saved." notice when no other
-		// settings messages exist, so the warning below would hide it and the
-		// save would look like it failed. Add it here, with core's own string.
+		// settings messages exist, so the error below would hide it and the other
+		// settings would look unsaved. Add it here, with core's own string.
 		add_settings_error(
 			'general',
 			'settings_updated',
@@ -1552,15 +1560,65 @@ class Email_Report_Service extends Service {
 		);
 
 		add_settings_error(
-			'simple_history_email_report_recipients',
-			'simple_history_email_report_recipients_empty',
-			sprintf(
-				/* translators: %s: site admin email address */
-				esc_html__( 'The weekly email is on, but no recipients are set. It will go to the site admin, %s, until you add recipients.', 'simple-history' ),
-				esc_html( get_option( 'admin_email' ) )
-			),
-			'warning'
+			'simple_history_email_report_enabled',
+			'simple_history_email_report_no_recipients',
+			esc_html__( 'The weekly email was not turned on because it has no recipients. Tick "Site admin" or add an email address.', 'simple-history' ),
+			'error'
 		);
+
+		return false;
+	}
+
+	/**
+	 * Sanitize the "Site admin" checkbox to "yes" or "no".
+	 *
+	 * Stored as strings, not booleans: update_option() does not save false
+	 * for an option that does not exist yet, so an unticked box on a site that
+	 * never saved it would be silently ignored.
+	 *
+	 * @param mixed $value Submitted value. An unticked checkbox arrives as null.
+	 * @return string "yes" or "no".
+	 */
+	public function sanitize_include_admin( $value ) {
+		return in_array( $value, [ true, 1, '1', 'yes', 'on' ], true ) ? 'yes' : 'no';
+	}
+
+	/**
+	 * Check if this request is the email report settings form being saved.
+	 *
+	 * @return bool
+	 */
+	private function is_settings_form_request() {
+		// The Settings API verified the nonce before calling sanitize callbacks.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$option_page = isset( $_POST['option_page'] ) ? sanitize_text_field( wp_unslash( $_POST['option_page'] ) ) : '';
+
+		return $option_page === self::SETTINGS_OPTION_GROUP;
+	}
+
+	/**
+	 * Check if the submitted settings form names at least one recipient.
+	 *
+	 * Unticked checkboxes are not sent at all, so their absence means "off".
+	 *
+	 * @return bool
+	 */
+	private function posted_form_has_recipients() {
+		// The Settings API verified the nonce before calling sanitize callbacks.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		$include_admin = isset( $_POST[ self::OPTION_INCLUDE_ADMIN ] )
+			&& rest_sanitize_boolean( wp_unslash( $_POST[ self::OPTION_INCLUDE_ADMIN ] ) );
+
+		$recipients = isset( $_POST['simple_history_email_report_recipients'] )
+			? sanitize_textarea_field( wp_unslash( $_POST['simple_history_email_report_recipients'] ) )
+			: '';
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		if ( $include_admin && is_email( get_option( 'admin_email' ) ) ) {
+			return true;
+		}
+
+		return ! empty( array_filter( (array) preg_split( '/[\s,]+/', $recipients ), 'is_email' ) );
 	}
 
 	/**
@@ -1595,29 +1653,56 @@ class Email_Report_Service extends Service {
 	}
 
 	/**
+	 * Check if the site admin email gets the report.
+	 *
+	 * Sites that never saved the setting get the behaviour they had before it
+	 * existed: the site admin gets the report when no other recipients are set.
+	 * That makes it ticked on new installs and unticked on sites that already
+	 * list recipients.
+	 *
+	 * @return bool
+	 */
+	public static function is_site_admin_included() {
+		$include_admin = get_option( self::OPTION_INCLUDE_ADMIN, null );
+
+		if ( $include_admin === null ) {
+			return empty( self::get_stored_valid_recipients() );
+		}
+
+		return $include_admin === 'yes';
+	}
+
+	/**
 	 * Recipients that should actually receive the report, or the test email.
 	 *
-	 * Falls back to the site admin email when the stored list has no valid
-	 * address, so the report still reaches someone instead of the whole thing
-	 * silently doing nothing.
+	 * The site admin email, read at send time so it follows changes under
+	 * Settings → General, when "Site admin" is ticked, then the stored list.
+	 * Each address appears once, even if the admin address is also typed in.
 	 *
-	 * @return string[] Valid email addresses. Empty array when neither the
-	 *                   stored list nor admin_email has a valid address.
+	 * @return string[] Valid email addresses. Empty array when there are none.
 	 */
 	private static function get_effective_recipients() {
-		$recipients = self::get_stored_valid_recipients();
-
-		if ( ! empty( $recipients ) ) {
-			return $recipients;
-		}
-
+		$recipients  = self::get_stored_valid_recipients();
 		$admin_email = get_option( 'admin_email' );
 
-		if ( is_email( $admin_email ) ) {
-			return [ $admin_email ];
+		if ( self::is_site_admin_included() && is_email( $admin_email ) ) {
+			array_unshift( $recipients, $admin_email );
 		}
 
-		return [];
+		// Remove duplicates, ignoring case, and keep the first spelling.
+		$unique = [];
+
+		foreach ( $recipients as $recipient ) {
+			$key = strtolower( $recipient );
+
+			if ( isset( $unique[ $key ] ) ) {
+				continue;
+			}
+
+			$unique[ $key ] = $recipient;
+		}
+
+		return array_values( $unique );
 	}
 
 	/**
@@ -1655,13 +1740,63 @@ class Email_Report_Service extends Service {
 	 * Output for the email recipients field.
 	 */
 	public function settings_field_recipients() {
-		$recipients = $this->get_email_report_recipients();
+		$recipients        = $this->get_email_report_recipients();
+		$admin_email       = (string) get_option( 'admin_email' );
+		$admin_email_valid = (bool) is_email( $admin_email );
 		?>
 		<p>
-			<?php esc_html_e( 'Add team members to keep everyone informed.', 'simple-history' ); ?>
+			<?php
+			// A disabled checkbox is not submitted, so keep the saved choice
+			// while the admin email is invalid.
+			if ( ! $admin_email_valid && self::is_site_admin_included() ) {
+				?>
+				<input type="hidden" name="<?php echo esc_attr( self::OPTION_INCLUDE_ADMIN ); ?>" value="1" />
+				<?php
+			}
+			?>
+			<label>
+				<input
+					type="checkbox"
+					name="<?php echo esc_attr( self::OPTION_INCLUDE_ADMIN ); ?>"
+					value="1"
+					<?php checked( $admin_email_valid && self::is_site_admin_included() ); ?>
+					<?php disabled( ! $admin_email_valid ); ?>
+				/>
+				<?php
+				if ( $admin_email_valid ) {
+					printf(
+						/* translators: %s: site admin email address */
+						esc_html__( 'Site admin – %s', 'simple-history' ),
+						esc_html( $admin_email )
+					);
+				} else {
+					esc_html_e( 'Site admin', 'simple-history' );
+				}
+				?>
+			</label>
+		</p>
+		<p class="description">
+			<?php
+			if ( $admin_email_valid ) {
+				printf(
+					/* translators: %s: link to Settings → General */
+					esc_html__( 'Follows the admin email in %s.', 'simple-history' ),
+					'<a href="' . esc_url( admin_url( 'options-general.php' ) ) . '">' . esc_html__( 'Settings → General', 'simple-history' ) . '</a>'
+				);
+			} else {
+				printf(
+					/* translators: %s: link to Settings → General */
+					esc_html__( 'The admin email in %s is not a valid address.', 'simple-history' ),
+					'<a href="' . esc_url( admin_url( 'options-general.php' ) ) . '">' . esc_html__( 'Settings → General', 'simple-history' ) . '</a>'
+				);
+			}
+			?>
+		</p>
+
+		<p style="margin-top: 1.5em;">
+			<label for="simple_history_email_report_recipients"><?php esc_html_e( 'Also send to', 'simple-history' ); ?></label>
 		</p>
 		<textarea
-			placeholder="email@example.com&#10;another@example.com"
 			style="field-sizing: content; min-width: 20rem; min-height: 3rem;"
 			name="simple_history_email_report_recipients"
 			id="simple_history_email_report_recipients"
@@ -1670,13 +1805,7 @@ class Email_Report_Service extends Service {
 			cols="50"
 		><?php echo esc_textarea( $recipients ); ?></textarea>
 		<p class="description">
-			<?php
-			printf(
-				/* translators: %s: site admin email address */
-				esc_html__( 'One email address per line. Leave empty to send the report to the site admin, %s.', 'simple-history' ),
-				'<code>' . esc_html( get_option( 'admin_email' ) ) . '</code>'
-			);
-			?>
+			<?php esc_html_e( 'One email address per line.', 'simple-history' ); ?>
 		</p>
 		<?php
 	}
