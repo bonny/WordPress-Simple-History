@@ -121,6 +121,7 @@ class Simple_History_Logger extends Logger {
 			'simple_history_reactions_enabled'             => __( 'Reactions', 'simple-history' ),
 			'simple_history_email_report_enabled'          => __( 'Email report enabled', 'simple-history' ),
 			'simple_history_email_report_recipients'       => __( 'Email report recipients', 'simple-history' ),
+			'simple_history_email_report_include_admin'    => __( 'Email report to site admin', 'simple-history' ),
 			Licences_Settings_Page::OPTION_NAME_LICENSE_KEY => __( 'License key', 'simple-history' ),
 		];
 
