@@ -9,9 +9,10 @@ use WP_CLI;
  * Records where a WP-CLI command came from: the command, the server user
  * that ran it and, for commands run over SSH, the client IP address.
  *
- * Attached as context to every event logged during a WP-CLI run, so a
- * "WP-CLI" event can show for example "wp plugin deactivate over SSH from
- * 203.0.113.x as par".
+ * Attached as context to every event logged during a WP-CLI run. Only
+ * stored for now, nothing in the log UI shows it: it is being evaluated on
+ * real servers first. Users without manage_options can't read, search or
+ * filter on the server users and SSH IP.
  *
  * Only the process user comes from the kernel. SSH_CONNECTION and SUDO_USER
  * are environment variables that anyone with a shell can set or unset, so

@@ -138,7 +138,7 @@ class CLIOriginDetectorTest extends \Codeception\TestCase\WPTestCase {
 
 		$request = new WP_REST_Request( 'GET', '/simple-history/v1/events' );
 		$request->set_param( 'per_page', 1 );
-		$request->set_param( '_fields', 'id,cli_origin,context' );
+		$request->set_param( '_fields', 'id,context' );
 
 		$response = rest_do_request( $request );
 
@@ -147,21 +147,15 @@ class CLIOriginDetectorTest extends \Codeception\TestCase\WPTestCase {
 		return $response->get_data()[0];
 	}
 
-	public function test_admin_sees_full_cli_origin() {
+	public function test_admin_sees_cli_origin_context() {
 		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
 
 		$event = $this->get_rest_event_with_cli_origin();
 
-		$this->assertSame(
-			[
-				'command'       => 'plugin deactivate',
-				'process_user'  => 'www-data',
-				'sudo_user'     => 'par',
-				'ssh_client_ip' => '203.0.113.x',
-			],
-			$event['cli_origin']
-		);
+		$this->assertSame( 'plugin deactivate', $event['context']['_cli_command'] );
+		$this->assertSame( 'www-data', $event['context']['_cli_process_user'] );
 		$this->assertSame( 'par', $event['context']['_cli_sudo_user'] );
+		$this->assertSame( '203.0.113.x', $event['context']['_cli_ssh_client_ip'] );
 	}
 
 	public function test_editor_sees_command_but_no_users_or_ip() {
@@ -182,7 +176,7 @@ class CLIOriginDetectorTest extends \Codeception\TestCase\WPTestCase {
 
 		$request = new WP_REST_Request( 'GET', '/simple-history/v1/events' );
 		$request->set_param( 'per_page', 1 );
-		$request->set_param( '_fields', 'id,cli_origin,context' );
+		$request->set_param( '_fields', 'id,context' );
 
 		$response = rest_do_request( $request );
 
@@ -190,25 +184,10 @@ class CLIOriginDetectorTest extends \Codeception\TestCase\WPTestCase {
 
 		$event = $response->get_data()[0];
 
-		$this->assertSame( [ 'command' => 'plugin deactivate' ], $event['cli_origin'] );
 		$this->assertArrayHasKey( '_cli_command', $event['context'] );
 		$this->assertArrayNotHasKey( '_cli_process_user', $event['context'] );
 		$this->assertArrayNotHasKey( '_cli_sudo_user', $event['context'] );
 		$this->assertArrayNotHasKey( '_cli_ssh_client_ip', $event['context'] );
-	}
-
-	public function test_event_without_cli_origin_has_null() {
-		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
-
-		SimpleLogger()->info( 'Test event from the web' );
-
-		$request = new WP_REST_Request( 'GET', '/simple-history/v1/events' );
-		$request->set_param( 'per_page', 1 );
-		$request->set_param( '_fields', 'id,cli_origin' );
-
-		$event = rest_do_request( $request )->get_data()[0];
-
-		$this->assertNull( $event['cli_origin'] );
 	}
 
 	/**
