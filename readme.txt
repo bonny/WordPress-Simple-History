@@ -271,10 +271,19 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Suggested privacy policy text for the activity log, under Settings → Privacy → Policy Guide.
+-   Experimental — Emails that WordPress fails to send are logged as errors, and a notice in the sidebar and email settings shows how many failed in the last 30 days.
+-   Experimental — WP-CLI events store the command, the server user and, for commands run over SSH, the masked IP address they came from. Nothing is shown in the log yet.
 
 **Changed**
 
+-   Weekly email settings have a "Site admin" checkbox that sends the email to the site's admin address and follows it when it changes, and adding more recipients no longer stops the email to the admin.
 -   IP addresses are described as masked instead of anonymized, since a masked address can still be linked to a person through the rest of the log entry.
+-   XML export events say what was exported (all content or a post type) and show the author, category, date and status filters used, also for past exports.
+-   Experimental — Role logger: removing capabilities from a role is a notice instead of a warning, and granting a capability that controls the site (such as `manage_options` or `install_plugins`), or creating a role with one, is now a warning.
+
+**Fixed**
+
+-   Core files check no longer reports official WordPress files in the site's language or in English as modified, such as a German `wp-config-sample.php` on a site installed in English.
 
 ### 5.34.0 (September 2026)
 
