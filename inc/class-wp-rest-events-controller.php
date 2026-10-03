@@ -10,6 +10,7 @@ use Simple_History\Event;
 use Simple_History\Helpers;
 use Simple_History\Log_Initiators;
 use Simple_History\Services;
+use Simple_History\Services\CLI_Origin_Detector;
 
 /**
  * REST API controller for events.
@@ -1507,6 +1508,13 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 		if ( rest_is_field_included( 'context', $fields ) ) {
 			$context_for_output = $item->context ?? [];
 
+			// Server usernames and SSH client IPs from WP-CLI runs, see can_view_cli_origin_details().
+			if ( ! self::can_view_cli_origin_details() ) {
+				foreach ( CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS as $sensitive_key ) {
+					unset( $context_for_output[ $sensitive_key ] );
+				}
+			}
+
 			// `_annotation` never goes out raw.
 			//
 			// The `annotation` field above deliberately publishes only the
@@ -1925,5 +1933,18 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 				'type_stats' => $type_stats,
 			]
 		);
+	}
+
+	/**
+	 * Whether the current user may see server usernames and SSH client IPs.
+	 *
+	 * Valid SSH login names and the addresses admins connect from are
+	 * reconnaissance data, and WP-CLI context is attached to events that
+	 * less privileged users can read, such as post edits.
+	 *
+	 * @return bool
+	 */
+	private static function can_view_cli_origin_details() {
+		return current_user_can( 'manage_options' );
 	}
 }
