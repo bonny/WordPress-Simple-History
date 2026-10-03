@@ -77,6 +77,8 @@ build/
 .claude/skills/freemium-conversion
 .claude/skills/night-shift
 .claude/skills/website-seo
+.claude/skills/premium-update-troubleshooting
+.claude/skills/devlog
 !.claude/hooks/
 !.claude/agents/
 scripts/copy-current-to-simple-history-com.sh
