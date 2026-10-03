@@ -122,6 +122,25 @@ class Log_Query {
 	const METADATA_SEARCH_EXCLUDED_KEYS = [ '_annotation' ];
 
 	/**
+	 * Get the context keys the current user may not search or filter on.
+	 *
+	 * The keys in METADATA_SEARCH_EXCLUDED_KEYS for everyone, plus the
+	 * WP-CLI server usernames and SSH client IP for users who can't see them
+	 * in the REST response, for the reason given above.
+	 *
+	 * @return array<string>
+	 */
+	private static function get_unsearchable_context_keys() {
+		$keys = self::METADATA_SEARCH_EXCLUDED_KEYS;
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			$keys = array_merge( $keys, Services\CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS );
+		}
+
+		return $keys;
+	}
+
+	/**
 	 * Send a database error to the error log rather than to the client.
 	 *
 	 * Every caller of this class that can fail is reachable over REST by
@@ -2597,7 +2616,14 @@ class Log_Query {
 
 		// Add where clause for context filters.
 		if ( ! empty( $args['context_filters'] ) && is_array( $args['context_filters'] ) ) {
+			$unsearchable_keys = self::get_unsearchable_context_keys();
+
 			foreach ( $args['context_filters'] as $context_key => $context_value ) {
+				// Filtering on a value is reading it, one guess at a time.
+				if ( in_array( (string) $context_key, $unsearchable_keys, true ) ) {
+					continue;
+				}
+
 				$inner_where[] = $wpdb->prepare(
 					'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 					$context_key,
@@ -2620,18 +2646,19 @@ class Log_Query {
 		// this searches ALL context values (for advanced users who need to
 		// find events by IP address, email, etc.).
 		//
-		// All of them except the ones listed in
-		// self::METADATA_SEARCH_EXCLUDED_KEYS, which are context rows the
+		// All of them except the ones from
+		// self::get_unsearchable_context_keys(), which are context rows the
 		// REST API deliberately does not hand out whole. Searching a value
 		// is reading it: a reader who can ask "does any event contain this
 		// phrase" and get a yes can recover the phrase itself, one guess at
 		// a time, from a field the API took care to withhold.
 		if ( ! empty( $args['metadata_search'] ) ) {
 			$metadata_words = $this->get_sanitized_search_words( $args['metadata_search'] );
+			$excluded_keys  = self::get_unsearchable_context_keys();
 
 			$excluded_keys_placeholders = implode(
 				', ',
-				array_fill( 0, count( self::METADATA_SEARCH_EXCLUDED_KEYS ), '%s' )
+				array_fill( 0, count( $excluded_keys ), '%s' )
 			);
 
 			foreach ( $metadata_words as $word ) {
@@ -2640,7 +2667,7 @@ class Log_Query {
 					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s AND c.`key` NOT IN ( {$excluded_keys_placeholders} ) )",
 					array_merge(
 						[ '%' . $wpdb->esc_like( $word ) . '%' ],
-						self::METADATA_SEARCH_EXCLUDED_KEYS
+						$excluded_keys
 					)
 				);
 				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared

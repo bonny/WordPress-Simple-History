@@ -3792,6 +3792,9 @@ a.sh-SettingsTabs-link:hover {
 		width: var(--sh-email-thumbnail-width);
 	}
 
+	/* The failed email notice comes before the thumbnail, so it is reached through the card. */
+	.sh-SettingsCard:has(> .sh-EmailReportThumbnail:not([hidden]))
+		> .sh-EmailReportMailFailures,
 	.sh-EmailReportThumbnail:not([hidden]) ~ .form-table {
 		width: min(
 			calc(
@@ -3800,6 +3803,12 @@ a.sh-SettingsTabs-link:hover {
 			),
 			var(--sh-email-form-max-width)
 		);
+	}
+
+	/* Include the notice padding and border, so it lines up with the form. */
+	.sh-SettingsCard:has(> .sh-EmailReportThumbnail:not([hidden]))
+		> .sh-EmailReportMailFailures {
+		box-sizing: border-box;
 	}
 }
 
