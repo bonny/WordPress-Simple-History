@@ -284,6 +284,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Fixed**
 
 -   Core files check no longer reports official WordPress files in the site's language or in English as modified, such as a German `wp-config-sample.php` on a site installed in English.
+-   Image changes in event details, such as a new featured image, line up with the text changes above them.
 
 ### 5.34.0 (September 2026)
 
