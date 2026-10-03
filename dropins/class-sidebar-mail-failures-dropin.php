@@ -68,8 +68,16 @@ class Sidebar_Mail_Failures_Dropin extends Dropin {
 	private static function is_dismissed( $last_at ) {
 		$dismissed_at = get_user_meta( get_current_user_id(), self::USER_META_DISMISSED, true );
 
-		// Same format on both sides, so comparing strings compares times.
-		return is_string( $dismissed_at ) && $dismissed_at !== '' && $last_at <= $dismissed_at;
+		if ( ! is_string( $dismissed_at ) || $dismissed_at === '' ) {
+			return false;
+		}
+
+		// Compare as timestamps, not strings: the SQLite integration rewrites
+		// "2026-10-03T06:00:00Z" to "2026-10-03 06:00:00" when it is saved.
+		$dismissed_time = strtotime( $dismissed_at . ( strpos( $dismissed_at, 'T' ) === false ? ' UTC' : '' ) );
+		$last_time      = strtotime( $last_at );
+
+		return $dismissed_time !== false && $last_time !== false && $last_time <= $dismissed_time;
 	}
 
 	/**
