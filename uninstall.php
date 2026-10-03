@@ -67,6 +67,7 @@ function simple_history_cleanup_site() {
 		'simple_history/maybe_purge_db',
 		'simple_history/core_files_integrity_check',
 		'simple_history_cleanup_log_files',
+		'simple_history/mail_failure_logger/write_summary',
 	);
 
 	foreach ( $cron_hooks as $hook ) {
