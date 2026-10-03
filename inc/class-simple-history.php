@@ -153,6 +153,7 @@ class Simple_History {
 			Services\Auto_Backfill_Service::class,
 			Services\Channels_Service::class,
 			Services\Channels_Settings_Page::class,
+			Services\CLI_Origin_Detector::class,
 			Services\Command_Palette::class,
 			Services\Dashboard_Widget::class,
 			Services\Dropins_Loader::class,
