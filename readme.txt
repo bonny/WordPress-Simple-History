@@ -268,7 +268,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Experimental — Emails that WordPress fails to send are now logged as errors, with the error message and the number of recipients.
+-   Experimental — Emails that WordPress fails to send are logged as errors, and a notice in the sidebar and email settings shows how many failed in the last 30 days.
 -   Experimental — WP-CLI events store the command, the server user and, for commands run over SSH, the masked IP address they came from. Nothing is shown in the log yet.
 
 **Changed**
