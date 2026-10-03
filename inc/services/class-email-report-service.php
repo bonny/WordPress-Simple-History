@@ -1335,7 +1335,7 @@ class Email_Report_Service extends Service {
 
 		if ( $mail_failures_html !== '' ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped in get_notice_html().
-			echo '<div class="notice notice-warning inline">' . $mail_failures_html . '</div>';
+			echo '<div class="notice notice-warning inline sh-EmailReportMailFailures">' . $mail_failures_html . '</div>';
 		}
 
 		$this->output_preview_thumbnail();
