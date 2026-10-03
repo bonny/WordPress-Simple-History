@@ -49,7 +49,7 @@ class Sidebar_Mail_Failures_Dropin extends Dropin {
 		check_admin_referer( self::DISMISS_ACTION );
 
 		// Store what the user saw, not "now", so a failure between page load and click still shows.
-		$last_at = isset( $_POST['last_at'] ) ? sanitize_text_field( wp_unslash( $_POST['last_at'] ) ) : '';
+		$last_at = isset( $_GET['last_at'] ) ? sanitize_text_field( wp_unslash( $_GET['last_at'] ) ) : '';
 
 		if ( preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $last_at ) ) {
 			update_user_meta( get_current_user_id(), self::USER_META_DISMISSED, $last_at );
@@ -213,12 +213,22 @@ class Sidebar_Mail_Failures_Dropin extends Dropin {
 		}
 		?>
 
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-			<input type="hidden" name="action" value="<?php echo esc_attr( self::DISMISS_ACTION ); ?>">
-			<input type="hidden" name="last_at" value="<?php echo esc_attr( $stats['last_at'] ); ?>">
-			<?php wp_nonce_field( self::DISMISS_ACTION ); ?>
-			<button type="submit" class="button-link"><?php esc_html_e( 'Dismiss until the next failure', 'simple-history' ); ?></button>
-		</form>
+		<?php
+		// A link, not a form: on the email settings page this is inside the settings form, and forms can't be nested.
+		$dismiss_url = wp_nonce_url(
+			add_query_arg(
+				[
+					'action'  => self::DISMISS_ACTION,
+					'last_at' => $stats['last_at'],
+				],
+				admin_url( 'admin-post.php' )
+			),
+			self::DISMISS_ACTION
+		);
+		?>
+		<p>
+			<a href="<?php echo esc_url( $dismiss_url ); ?>"><?php esc_html_e( 'Dismiss until the next failure', 'simple-history' ); ?></a>
+		</p>
 		<?php
 
 		return (string) ob_get_clean();

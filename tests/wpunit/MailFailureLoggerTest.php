@@ -427,7 +427,11 @@ class MailFailureLoggerTest extends \Codeception\TestCase\WPTestCase {
 			false
 		);
 
-		$this->assertStringContainsString( 'Dismiss until the next failure', Sidebar_Mail_Failures_Dropin::get_notice_html( 'sidebar' ) );
+		$html = Sidebar_Mail_Failures_Dropin::get_notice_html( 'email_settings' );
+		$this->assertStringContainsString( 'Dismiss until the next failure', $html );
+
+		// The notice is shown inside the email settings form, and forms can't be nested.
+		$this->assertStringNotContainsString( '<form', $html );
 
 		update_user_meta( $user_id, Sidebar_Mail_Failures_Dropin::USER_META_DISMISSED, '2026-10-03T06:00:00Z' );
 		$this->assertSame( '', Sidebar_Mail_Failures_Dropin::get_notice_html( 'sidebar' ), 'Hidden after dismissing.' );
