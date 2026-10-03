@@ -165,6 +165,7 @@ class Simple_History {
 			Services\History_Insights_Sidebar_Service::class,
 			Services\Import_Handler::class,
 			Services\License_Reminder_Service::class,
+			Services\Mail_Failure_Tracker::class,
 			Services\Licences_Settings_Page::class,
 			Services\Loggers_Loader::class,
 			Services\Menu_Service::class,
@@ -546,6 +547,7 @@ class Simple_History {
 		// Experimental loggers, only loaded when experimental features are enabled.
 		if ( Helpers::experimental_features_is_enabled() ) {
 			$loggers[] = Loggers\Role_Capability_Logger::class;
+			$loggers[] = Loggers\Mail_Failure_Logger::class;
 		}
 
 		/**
@@ -583,6 +585,7 @@ class Simple_History {
 			Dropins\Sidebar_Add_Ons_Dropin::class,
 			Dropins\Sidebar_Dropin::class,
 			Dropins\Sidebar_Email_Promo_Dropin::class,
+			Dropins\Sidebar_Mail_Failures_Dropin::class,
 			Dropins\Tools_Menu_Dropin::class,
 		);
 
