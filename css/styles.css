@@ -910,8 +910,12 @@ anywhere instead of running off the right edge of the log row.
 /*
 Images/thumbs can be styles nicely
 */
+/* max-width keeps the frame inside a narrow diff cell. The image only shrinks
+   with it in narrow event columns, see the sh-logitem container query. */
 .SimpleHistoryLogitemThumbnail {
 	display: inline-block;
+	box-sizing: border-box;
+	max-width: 100%;
 	margin: 0.5em 0 0 0;
 	padding: 5px;
 	border: 1px solid #ddd;
@@ -1535,6 +1539,50 @@ i.e. the log is inside a .postbox element.
    they agree. */
 .SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__details {
 	--sh-key-value-columns: 120px minmax(0, 1fr);
+}
+
+/*
+When the event column is narrow, as on a phone, a key column next to the
+values leaves a diff table too little room to read. Stack each key above its
+value instead. A container query rather than a media query, because the
+column's width depends on where the log is shown (page, sidebar layout,
+modal), not only on the screen. Placed after the compact rule above so it
+wins there as well.
+*/
+.SimpleHistoryLogitem__secondcol {
+	container: sh-logitem / inline-size;
+}
+
+@container sh-logitem (max-width: 480px) {
+	.SimpleHistoryLogitem .SimpleHistoryLogitem__details {
+		--sh-key-value-columns: minmax(0, 1fr);
+	}
+
+	.SimpleHistoryLogitem__keyValueTable > dt,
+	.SimpleHistoryLogitem__keyValueTable > tbody > tr > :first-child {
+		text-align: left;
+	}
+
+	/* Let thumbnails shrink to fit a narrow cell. Only here: a percentage
+	   max-width cannot be resolved while the frame sizes itself to its
+	   image, so on a wide screen a wide image would stretch the frame across
+	   the whole cell. In a narrow column that does no harm. */
+	.SimpleHistoryLogitemThumbnail img {
+		max-width: min(200px, 100%);
+	}
+
+	.SimpleHistoryLogitemThumbnail--small img {
+		max-width: min(100px, 100%);
+	}
+
+	/* Space between one key/value pair and the next key, so a key reads as
+	   belonging to the value below it, not the one above. */
+	.SimpleHistoryLogitem__keyValueTable > dd + dt,
+	.SimpleHistoryLogitem__details
+		> .SimpleHistoryLogitem__keyValueTable
+		+ .SimpleHistoryLogitem__keyValueTable {
+		margin-top: var(--sh-spacing-small);
+	}
 }
 
 /* The occasions disclosure is the same kind of control as the action links
