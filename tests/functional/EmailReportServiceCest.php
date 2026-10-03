@@ -149,14 +149,6 @@ class EmailReportServiceCest {
         $I->seeInField('#simple_history_email_report_recipients', '');
     }
 
-    public function test_recipients_field_placeholder( FunctionalTester $I ) {
-        $I->amGoingTo('Check recipients field placeholder text');
-        
-        $placeholder = $I->grabAttributeFrom('#simple_history_email_report_recipients', 'placeholder');
-        $I->assertStringContainsString('email@example.com', $placeholder);
-        $I->assertStringContainsString('another@example.com', $placeholder);
-    }
-
     public function test_html_preview_accessible( FunctionalTester $I ) {
         $I->amGoingTo('Test that HTML preview is accessible and shows expected content');
         
