@@ -775,10 +775,51 @@ stops long unbreakable values from stealing width from the keys.
 */
 .SimpleHistoryLogitem__keyValueTable {
 	display: grid;
-	grid-template-columns: fit-content(min(16em, 45%)) minmax(0, 1fr);
+	grid-template-columns: var(
+		--sh-key-value-columns,
+		fit-content(min(16em, 45%)) minmax(0, 1fr)
+	);
 	column-gap: 1em;
 	row-gap: 2px;
 	margin: 0;
+}
+
+/*
+An event can have several key/value groups, such as a text diff group and a
+featured image group. Each is its own <dl>, so each would size its key column
+by its own keys and the values would start at different x. Make the details a
+grid with the same columns and let each <dl> borrow them through subgrid, so
+the key column fits the longest key across all groups. Only when there are two
+or more groups, so other details markup keeps its normal block flow. Browsers
+without subgrid fall back to one column width per group.
+*/
+.SimpleHistoryLogitem__details:has(
+		> .SimpleHistoryLogitem__keyValueTable
+			~ .SimpleHistoryLogitem__keyValueTable
+	) {
+	display: grid;
+	grid-template-columns: var(
+		--sh-key-value-columns,
+		fit-content(min(16em, 45%)) minmax(0, 1fr)
+	);
+	column-gap: 1em;
+	row-gap: 2px;
+}
+
+.SimpleHistoryLogitem__details:has(
+		> .SimpleHistoryLogitem__keyValueTable
+			~ .SimpleHistoryLogitem__keyValueTable
+	)
+	> * {
+	grid-column: 1 / -1;
+}
+
+.SimpleHistoryLogitem__details:has(
+		> .SimpleHistoryLogitem__keyValueTable
+			~ .SimpleHistoryLogitem__keyValueTable
+	)
+	> .SimpleHistoryLogitem__keyValueTable {
+	grid-template-columns: subgrid;
 }
 
 /*
@@ -1492,10 +1533,8 @@ i.e. the log is inside a .postbox element.
 /* A shrink-to-fit key column is sized by the longest key in that one event, so
    two open rows line their values up at two different x. Fix the column and
    they agree. */
-.SimpleHistoryLogitem--variant-compact
-	.SimpleHistoryLogitem__details
-	.SimpleHistoryLogitem__keyValueTable {
-	grid-template-columns: 120px minmax(0, 1fr);
+.SimpleHistoryLogitem--variant-compact .SimpleHistoryLogitem__details {
+	--sh-key-value-columns: 120px minmax(0, 1fr);
 }
 
 /* The occasions disclosure is the same kind of control as the action links
