@@ -798,24 +798,6 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 					'description' => __( 'The context of the event.', 'simple-history' ),
 					'type'        => 'object',
 				),
-				'cli_origin'                 => array(
-					'description' => __( 'Where a WP-CLI command came from: the command, the server user and the SSH client IP address. Users and IP address are only included for users who can manage options.', 'simple-history' ),
-					'type'        => array( 'object', 'null' ),
-					'properties'  => array(
-						'command'       => array(
-							'type' => 'string',
-						),
-						'process_user'  => array(
-							'type' => 'string',
-						),
-						'sudo_user'     => array(
-							'type' => 'string',
-						),
-						'ssh_client_ip' => array(
-							'type' => 'string',
-						),
-					),
-				),
 				'ai_origin'                  => array(
 					'description' => __( 'AI agent origin information when the event was triggered by an AI tool.', 'simple-history' ),
 					'type'        => array( 'object', 'null' ),
@@ -1523,14 +1505,10 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			}
 		}
 
-		if ( rest_is_field_included( 'cli_origin', $fields ) ) {
-			$data['cli_origin'] = $this->get_cli_origin_for_output( $context );
-		}
-
 		if ( rest_is_field_included( 'context', $fields ) ) {
 			$context_for_output = $item->context ?? [];
 
-			// Server usernames and SSH client IPs follow the WP-CLI origin rules below.
+			// Server usernames and SSH client IPs from WP-CLI runs, see can_view_cli_origin_details().
 			if ( ! self::can_view_cli_origin_details() ) {
 				foreach ( CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS as $sensitive_key ) {
 					unset( $context_for_output[ $sensitive_key ] );
@@ -1956,6 +1934,7 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 			]
 		);
 	}
+
 	/**
 	 * Whether the current user may see server usernames and SSH client IPs.
 	 *
@@ -1967,37 +1946,5 @@ class WP_REST_Events_Controller extends WP_REST_Controller {
 	 */
 	private static function can_view_cli_origin_details() {
 		return current_user_can( 'manage_options' );
-	}
-
-	/**
-	 * Shape the WP-CLI origin context for the REST response.
-	 *
-	 * @param array $context Event context.
-	 * @return array<string, string>|null Null when the event has no WP-CLI origin.
-	 */
-	private function get_cli_origin_for_output( $context ) {
-		$keys = array(
-			'command'       => CLI_Origin_Detector::CONTEXT_KEY_COMMAND,
-			'process_user'  => CLI_Origin_Detector::CONTEXT_KEY_PROCESS_USER,
-			'sudo_user'     => CLI_Origin_Detector::CONTEXT_KEY_SUDO_USER,
-			'ssh_client_ip' => CLI_Origin_Detector::CONTEXT_KEY_SSH_CLIENT_IP,
-		);
-
-		$can_view_details = self::can_view_cli_origin_details();
-		$cli_origin       = array();
-
-		foreach ( $keys as $output_key => $context_key ) {
-			if ( ! isset( $context[ $context_key ] ) || $context[ $context_key ] === '' ) {
-				continue;
-			}
-
-			if ( ! $can_view_details && in_array( $context_key, CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS, true ) ) {
-				continue;
-			}
-
-			$cli_origin[ $output_key ] = (string) $context[ $context_key ];
-		}
-
-		return empty( $cli_origin ) ? null : $cli_origin;
 	}
 }

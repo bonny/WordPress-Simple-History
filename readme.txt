@@ -268,7 +268,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Added**
 
--   Experimental — WP-CLI events show the command, the server user and, for commands run over SSH, the IP address they came from. Server users and IP addresses are shown only to administrators.
+-   Experimental — WP-CLI events store the command, the server user and, for commands run over SSH, the masked IP address they came from. Nothing is shown in the log yet.
 
 ### 5.34.0 (September 2026)
 
