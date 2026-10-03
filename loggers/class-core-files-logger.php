@@ -317,6 +317,16 @@ class Core_Files_Logger extends Logger {
 		$new_issues      = array_diff_key( $current_results, $previous_results );
 		$resolved_issues = array_diff_key( $previous_results, $current_results );
 
+		// A file can pass now without having changed, when it matches an official file
+		// in another locale that was not accepted when it was flagged. Nothing was
+		// restored then, so it is dropped without a "restored" event.
+		$resolved_issues = array_filter(
+			$resolved_issues,
+			function ( $file_data ) {
+				return ! self::is_unchanged_since_flagged( $file_data );
+			}
+		);
+
 		// Log new issues.
 		if ( ! empty( $new_issues ) ) {
 			$context = [
@@ -344,6 +354,22 @@ class Core_Files_Logger extends Logger {
 
 		// Update stored results (no autoload — only used during cron checks).
 		update_option( self::OPTION_NAME_FILE_CHECK_RESULTS, $current_results, false );
+	}
+
+	/**
+	 * Check if a flagged file still has the content it had when it was flagged.
+	 *
+	 * @param mixed $file_data Stored result for one file, with file and actual_hash.
+	 * @return bool
+	 */
+	private static function is_unchanged_since_flagged( $file_data ) {
+		if ( ! is_array( $file_data ) || empty( $file_data['file'] ) || empty( $file_data['actual_hash'] ) ) {
+			return false;
+		}
+
+		$file_path = ABSPATH . $file_data['file'];
+
+		return is_file( $file_path ) && md5_file( $file_path ) === $file_data['actual_hash'];
 	}
 
 	/**

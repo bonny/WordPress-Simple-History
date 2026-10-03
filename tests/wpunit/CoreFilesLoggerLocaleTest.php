@@ -188,4 +188,68 @@ class CoreFilesLoggerLocaleTest extends \Codeception\TestCase\WPTestCase {
 
 		$this->assertWPError( $result );
 	}
+
+	/**
+	 * Count core files events with the given message key.
+	 *
+	 * @param string $message_key Message key.
+	 * @return int
+	 */
+	private function count_core_files_events( $message_key ) {
+		global $wpdb;
+
+		$simple_history = \Simple_History\Simple_History::get_instance();
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$simple_history->get_events_table_name()} e
+				INNER JOIN {$simple_history->get_contexts_table_name()} c ON c.history_id = e.id
+				WHERE e.logger = 'CoreFilesLogger' AND c.`key` = '_message_key' AND c.value = %s",
+				$message_key
+			)
+		);
+	}
+
+	/**
+	 * Run the daily check, with index.php stored as flagged by an earlier check.
+	 *
+	 * @param string $stored_actual_hash The hash index.php had when it was flagged.
+	 */
+	private function run_check_with_flagged_index_php( $stored_actual_hash ) {
+		$this->site_locale                  = 'de_DE';
+		$this->checksums_by_locale['en_US'] = [ 'index.php' => 'aaaa0000000000000000000000000000' ];
+		$this->checksums_by_locale['de_DE'] = [ 'index.php' => $this->real_hash ];
+
+		update_option(
+			Core_Files_Logger::OPTION_NAME_FILE_CHECK_RESULTS,
+			[
+				'index.php' => [
+					'file'          => 'index.php',
+					'issue'         => 'modified',
+					'expected_hash' => 'aaaa0000000000000000000000000000',
+					'actual_hash'   => $stored_actual_hash,
+				],
+			],
+			false
+		);
+
+		$logger = \Simple_History\Simple_History::get_instance()->get_instantiated_logger_by_slug( 'CoreFilesLogger' );
+		$logger->perform_integrity_check();
+	}
+
+	public function test_file_accepted_by_new_locale_rules_is_not_reported_as_restored() {
+		// Flagged before the update with the content it still has.
+		$this->run_check_with_flagged_index_php( $this->real_hash );
+
+		$this->assertSame( 0, $this->count_core_files_events( 'core_files_restored' ) );
+		$this->assertSame( [], get_option( Core_Files_Logger::OPTION_NAME_FILE_CHECK_RESULTS ) );
+	}
+
+	public function test_file_that_changed_since_flagged_is_reported_as_restored() {
+		$this->run_check_with_flagged_index_php( 'bbbb0000000000000000000000000000' );
+
+		$this->assertSame( 1, $this->count_core_files_events( 'core_files_restored' ) );
+		$this->assertSame( [], get_option( Core_Files_Logger::OPTION_NAME_FILE_CHECK_RESULTS ) );
+	}
 }
