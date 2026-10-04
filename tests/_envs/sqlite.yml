@@ -10,12 +10,12 @@
 # wp-content/db.php, which is what defines the DB_ENGINE constant that
 # Log_Query::get_db_engine() reads.
 #
-# Careful locally: that drop-in lands in the shared `wordpress` volume, so the
-# MySQL test site keeps using SQLite until it is removed. CI gets a fresh
-# volume per job, so it only bites on a development machine.
+# That drop-in lands in the shared `wordpress` volume, where it would make the
+# MySQL test site use SQLite too. The SqliteDropinCleanup extension removes it
+# after an SQLite run, and before any other suite in case a run was cut short.
+# If it is ever left behind anyway, remove it by hand:
 #
 #   docker compose exec -u root wordpress rm -f /var/www/html/wp-content/db.php
-#   rm -rf tests/_data/sqlite tests/_data/mu-plugins/sqlite-database-integration
 #
 # The directory below must exist before the run; tests/_data/sqlite/.gitkeep
 # is committed for that reason.
