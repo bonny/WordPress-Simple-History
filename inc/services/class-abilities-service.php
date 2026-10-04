@@ -795,6 +795,7 @@ class Abilities_Service extends Service {
 			'SimpleUserLogger:user_unknown_login_failed',
 			'SimpleUserLogger:user_application_password_login_failed',
 			'SimpleUserLogger:user_application_password_unknown_login_failed',
+			'SimpleUserLogger:user_two_factor_login_failed',
 		];
 
 		return $this->present_events( $this->dispatch( '/simple-history/v1/events', $params ), $include_context );
