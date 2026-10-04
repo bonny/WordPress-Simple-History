@@ -1115,11 +1115,13 @@ class Simple_History {
 		$data_attrs .= sprintf( ' data-occasions-id="%1$s" ', esc_attr( $one_log_row->occasionsID ) );
 
 		// Add data attributes for remote address and other ip number headers.
-		if ( isset( $one_log_row->context['_server_remote_addr'] ) ) {
+		$can_view_ip_addresses = Helpers::current_user_can_view_ip_addresses();
+
+		if ( $can_view_ip_addresses && isset( $one_log_row->context['_server_remote_addr'] ) ) {
 			$data_attrs .= sprintf( ' data-ip-address="%1$s" ', esc_attr( $one_log_row->context['_server_remote_addr'] ) );
 		}
 
-		$arr_found_additional_ip_headers = Helpers::get_event_ip_number_headers( $one_log_row );
+		$arr_found_additional_ip_headers = $can_view_ip_addresses ? Helpers::get_event_ip_number_headers( $one_log_row ) : [];
 
 		if ( $arr_found_additional_ip_headers !== [] ) {
 			$data_attrs .= ' data-ip-address-multiple="1" ';
