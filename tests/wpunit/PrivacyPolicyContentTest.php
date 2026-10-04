@@ -19,6 +19,13 @@ class PrivacyPolicyContentTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertStringContainsString( 'ipinfo.io', $content );
 	}
 
+	public function test_content_covers_people_who_did_not_make_the_change() {
+		$content = Privacy_Data_Handler::get_privacy_policy_content();
+
+		$this->assertStringContainsString( 'commenter&#039;s name, email address, website, IP address', $content );
+		$this->assertStringContainsString( 'creates, edits or deletes a user account', $content );
+	}
+
 	public function test_content_does_not_follow_settings() {
 		// WordPress notifies admins whenever the text changes, so it must not depend on settings.
 		$before = Privacy_Data_Handler::get_privacy_policy_content();
