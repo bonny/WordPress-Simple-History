@@ -320,11 +320,31 @@ class Helpers {
 	}
 
 	/**
+	 * Returns the exact context keys gated by the view IP address capability,
+	 * on top of the prefixes from get_ip_address_context_key_prefixes().
+	 *
+	 * The commenter IP address the comments logger stores, and the WP-CLI
+	 * server usernames and SSH client IP. Both the output gate and the search
+	 * exclusions read this list, so a key added here is hidden and unsearchable.
+	 *
+	 * @since 5.35.0
+	 *
+	 * @return array<string> Context keys.
+	 */
+	public static function get_ip_address_context_keys() {
+		return array_merge(
+			array( 'comment_author_IP' ),
+			Services\CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS
+		);
+	}
+
+	/**
 	 * Whether a context key is gated by the view IP address capability.
 	 *
-	 * True for the keys from get_ip_address_context_key_prefixes(), and for the
-	 * WP-CLI server usernames and SSH client IP: valid SSH login names and the
-	 * addresses admins connect from are reconnaissance data of the same kind.
+	 * True for the keys from get_ip_address_context_keys() and
+	 * get_ip_address_context_key_prefixes(). The WP-CLI server usernames are
+	 * there because valid SSH login names are reconnaissance data of the same
+	 * kind as the addresses admins connect from.
 	 *
 	 * @since 5.35.0
 	 *
@@ -332,7 +352,7 @@ class Helpers {
 	 * @return bool
 	 */
 	public static function is_ip_address_context_key( $key ) {
-		if ( in_array( $key, Services\CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS, true ) ) {
+		if ( in_array( $key, self::get_ip_address_context_keys(), true ) ) {
 			return true;
 		}
 
