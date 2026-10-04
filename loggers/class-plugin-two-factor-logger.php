@@ -42,7 +42,8 @@ class Plugin_Two_Factor_Logger extends Logger {
 	 * Called when logger is loaded.
 	 */
 	public function loaded() {
-		add_filter( 'simple_history/user_logger/two_factor_login', array( $this, 'on_two_factor_login' ) );
+		// Late, so a plugin that knows how the login happened, like Wordfence, answers first.
+		add_filter( 'simple_history/user_logger/two_factor_login', array( $this, 'on_two_factor_login' ), 20 );
 		add_filter( 'simple_history/user_logger/login_pending_second_factor', array( $this, 'on_login_pending_second_factor' ), 10, 2 );
 		add_action( 'two_factor_user_authenticated', array( $this, 'on_two_factor_user_authenticated' ), 10, 2 );
 	}

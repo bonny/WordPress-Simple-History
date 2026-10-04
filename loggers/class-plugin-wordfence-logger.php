@@ -28,6 +28,9 @@ class Plugin_Wordfence_Logger extends Logger {
 	/** @var int|null ID of the user who just logged in with a passkey in this request. */
 	private $passkey_user_id = null;
 
+	/** @var int|null ID of the user that passed `authenticate`, including Wordfence's check, in this request. */
+	private $authenticated_user_id = null;
+
 	/**
 	 * Get array with information about this logger
 	 *
@@ -48,6 +51,7 @@ class Plugin_Wordfence_Logger extends Logger {
 	 */
 	public function loaded() {
 		add_action( 'wordfence_ls_passkey_login_succeeded', array( $this, 'on_passkey_login_succeeded' ), 10, 1 );
+		add_filter( 'authenticate', array( $this, 'on_authenticate' ), PHP_INT_MAX, 1 );
 		add_filter( 'simple_history/user_logger/two_factor_login', array( $this, 'on_two_factor_login' ), 10, 2 );
 	}
 
@@ -62,6 +66,23 @@ class Plugin_Wordfence_Logger extends Logger {
 		}
 
 		$this->passkey_user_id = $user->ID;
+	}
+
+	/**
+	 * Remember who passed `authenticate`, which is where Wordfence checks the code.
+	 *
+	 * A login that fires `wp_login` without `authenticate`, for example from a
+	 * single sign-on plugin, never went through Wordfence's check.
+	 *
+	 * @param \WP_User|\WP_Error|null $user Result of the authentication.
+	 * @return \WP_User|\WP_Error|null Unchanged.
+	 */
+	public function on_authenticate( $user ) {
+		if ( is_a( $user, 'WP_User' ) ) {
+			$this->authenticated_user_id = $user->ID;
+		}
+
+		return $user;
 	}
 
 	/**
@@ -84,6 +105,13 @@ class Plugin_Wordfence_Logger extends Logger {
 
 			return $this->two_factor_details( true, __( 'Passkey', 'simple-history' ) );
 		}
+
+		// Wordfence did not check this login, so it cannot say anything about it.
+		if ( $this->authenticated_user_id !== $user->ID ) {
+			return $two_factor;
+		}
+
+		$this->authenticated_user_id = null;
 
 		// Wordfence skips two-factor for IP addresses on its allowlist.
 		if ( $this->is_ip_allowlisted() ) {
