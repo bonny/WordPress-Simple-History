@@ -92,9 +92,7 @@ Use the **simple-history-voice** skill for the project voice and rules per text 
 
 ## Changelog
 
--   Try to use format from https://keepachangelog.com
--   Also read and try to follow https://developer.wordpress.org/news/2025/11/the-importance-of-a-good-changelog/
--   Use the **changelog** skill to add entries to readme.txt
+Use the **changelog** skill to add entries to readme.txt.
 
 ## Git
 
