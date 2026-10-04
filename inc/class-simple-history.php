@@ -520,6 +520,7 @@ class Simple_History {
 			Loggers\Plugin_Enable_Media_Replace_Logger::class,
 			Loggers\Plugin_Two_Factor_Logger::class,
 			Loggers\Plugin_User_Switching_Logger::class,
+			Loggers\Plugin_Wordfence_Logger::class,
 			Loggers\Plugin_WP_Crontrol_Logger::class,
 			Loggers\Plugin_Jetpack_Logger::class,
 			Loggers\Plugin_WP_AI_Logger::class,

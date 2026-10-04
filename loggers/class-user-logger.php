@@ -1143,15 +1143,7 @@ class User_Logger extends Logger {
 			return;
 		}
 
-		$context = array();
-		$plugin  = $this->get_two_factor_plugin( $user_obj );
-
-		if ( $plugin !== '' ) {
-			$context[ self::CONTEXT_TWO_FACTOR_USED ]   = 0;
-			$context[ self::CONTEXT_TWO_FACTOR_PLUGIN ] = $plugin;
-		}
-
-		$this->log_user_logged_in( $user_obj, $context );
+		$this->log_user_logged_in( $user_obj, $this->get_two_factor_login_context( $user_obj ) );
 	}
 
 	/**
@@ -1170,18 +1162,7 @@ class User_Logger extends Logger {
 			return;
 		}
 
-		$context = array(
-			self::CONTEXT_TWO_FACTOR_USED   => 1,
-			self::CONTEXT_TWO_FACTOR_PLUGIN => $plugin,
-		);
-
-		$method_label = wp_strip_all_tags( (string) $method_label );
-
-		if ( $method_label !== '' ) {
-			$context[ self::CONTEXT_TWO_FACTOR_METHOD ] = $method_label;
-		}
-
-		$this->log_user_logged_in( $user, $context );
+		$this->log_user_logged_in( $user, $this->build_two_factor_context( $plugin, true, $method_label ) );
 	}
 
 	/**
@@ -1263,27 +1244,65 @@ class User_Logger extends Logger {
 	}
 
 	/**
-	 * Get the slug of the two-factor plugin that is active for a user's login.
+	 * Get two-factor context for a login that completed on `wp_login`.
 	 *
 	 * @param \WP_User $user User logging in.
-	 * @return string wordpress.org slug, or empty string when none is active.
+	 * @return array Context to store, empty when no supported two-factor plugin is active.
 	 */
-	private function get_two_factor_plugin( $user ) {
+	private function get_two_factor_login_context( $user ) {
 		/**
-		 * Filter the two-factor plugin active on this site.
+		 * Filter how a login that completed on `wp_login` used two-factor.
 		 *
-		 * Return the plugin's wordpress.org slug when it handles two-factor
-		 * logins on this site, also for users who have not turned it on.
-		 * Logins then store whether a second factor was used.
+		 * Return an array when a two-factor plugin handles logins on this site,
+		 * also for users who have not turned it on:
+		 *
+		 * - `plugin` (string) wordpress.org slug of the plugin. Required.
+		 * - `used` (bool) Whether this login used a second factor.
+		 * - `method` (string) Label of the method used, for example "Passkey". Optional.
+		 *
+		 * Return null when no two-factor plugin handled the login. Plugins that
+		 * challenge after `wp_login` use the `login_pending_second_factor`
+		 * filter and User_Logger::log_two_factor_login() instead.
 		 *
 		 * @since 5.35.0
 		 *
-		 * @param string   $plugin wordpress.org slug of the plugin. Default empty.
-		 * @param \WP_User $user   User logging in.
+		 * @param array|null $two_factor Two-factor details for this login. Default null.
+		 * @param \WP_User   $user       User logging in.
 		 */
-		$plugin = apply_filters( 'simple_history/user_logger/two_factor_plugin', '', $user );
+		$two_factor = apply_filters( 'simple_history/user_logger/two_factor_login', null, $user );
 
-		return is_string( $plugin ) ? $plugin : '';
+		if ( ! is_array( $two_factor ) || empty( $two_factor['plugin'] ) || ! is_string( $two_factor['plugin'] ) ) {
+			return array();
+		}
+
+		return $this->build_two_factor_context(
+			$two_factor['plugin'],
+			! empty( $two_factor['used'] ),
+			$two_factor['method'] ?? ''
+		);
+	}
+
+	/**
+	 * Build the shared two-factor context keys for a successful login.
+	 *
+	 * @param string $plugin       wordpress.org slug of the two-factor plugin.
+	 * @param bool   $used         Whether the login used a second factor.
+	 * @param string $method_label Label of the method used.
+	 * @return array
+	 */
+	private function build_two_factor_context( $plugin, $used, $method_label = '' ) {
+		$context = array(
+			self::CONTEXT_TWO_FACTOR_USED   => $used ? 1 : 0,
+			self::CONTEXT_TWO_FACTOR_PLUGIN => $plugin,
+		);
+
+		$method_label = is_string( $method_label ) ? wp_strip_all_tags( $method_label ) : '';
+
+		if ( $method_label !== '' ) {
+			$context[ self::CONTEXT_TWO_FACTOR_METHOD ] = $method_label;
+		}
+
+		return $context;
 	}
 
 	/**
