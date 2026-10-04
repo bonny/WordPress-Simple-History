@@ -518,6 +518,7 @@ class Simple_History {
 			Loggers\Plugin_Limit_Login_Attempts_Logger::class,
 			Loggers\Plugin_Redirection_Logger::class,
 			Loggers\Plugin_Enable_Media_Replace_Logger::class,
+			Loggers\Plugin_Two_Factor_Logger::class,
 			Loggers\Plugin_User_Switching_Logger::class,
 			Loggers\Plugin_WP_Crontrol_Logger::class,
 			Loggers\Plugin_Jetpack_Logger::class,
