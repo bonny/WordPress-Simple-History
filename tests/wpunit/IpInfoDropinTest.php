@@ -54,6 +54,7 @@ class IpInfoDropinTest extends \Codeception\TestCase\WPTestCase {
 			'unknown user logged in'                  => [ 'user_unknown_logged_in' ],
 			'app-password login failed'               => [ 'user_application_password_login_failed' ],
 			'app-password unknown user login failed'  => [ 'user_application_password_unknown_login_failed' ],
+			'two-factor login failed'                 => [ 'user_two_factor_login_failed' ],
 		];
 	}
 
