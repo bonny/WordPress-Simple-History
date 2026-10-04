@@ -18,12 +18,12 @@ Add entries to the Simple History plugin's `readme.txt` changelog.
 ## Format
 
 ```
--   Fixed post creation via Gutenberg autosave not being logged. [#599](https://github.com/bonny/WordPress-Simple-History/issues/599)
+-   Fixed post creation via Gutenberg autosave not being logged.
 ```
 
 -   Start with `-   ` (hyphen + 3 spaces)
 -   Do NOT repeat the category verb — the heading already says Added/Changed/Fixed, so don't start entries with "Added...", "Fixed...", etc.
--   Link GitHub issue/PR if available
+-   Don't link issues: they are tracked privately in Obsidian, not on GitHub
 -   End with period
 
 ## Writing Guidelines

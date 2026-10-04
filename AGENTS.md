@@ -51,16 +51,10 @@ See @CLAUDE.local.md for specific commands for stable and nightly WordPress inst
 
 Some skills live in the maintainer's Obsidian vault rather than in this repo. Run `scripts/setup-private-skills.sh` to wire them up; see the comments at the top of that script for setup details. Contributors without the vault can ignore this.
 
-### GitHub Project Board
-
-Use the **github-project** skill for project board automation, IDs, and GraphQL queries.
-
 ### Git Workflow
 
--   Create a new branch for each GitHub issue or feature
--   Branch naming: `issue-NUMBER-brief-description`
--   Follow OneFlow model (see code.md for details)
--   Issues are tracked locally in Obsidian (use the `local-issues` skill), not on GitHub
+-   Branching: see the Git section in code.md
+-   GitHub is used for code and CI only. Issues and project management live in Obsidian (use the `local-issues` skill), never GitHub issues or project boards
 -   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos. Never add any sensitive information to this document, like API keys or passwords, since this document will be commited to GIT and can be shown on GitHub.
 -   Don't add to git or commit without user explicitly saying so
 -   Pushing branch commits does NOT deploy. The WordPress.org deploy runs only when a **semver tag** is pushed (see `.github/workflows/deploy.yml`; `workflow_dispatch` allows a manual run). So pushing `main` without a new tag is safe — it will not release. (Pushing is still an outward, shared-remote action, so confirm before doing it.)
