@@ -585,7 +585,9 @@ abstract class Logger {
 			$row
 		);
 
-		if ( ! $show_ip_address ) {
+		// The filter decides whether an IP is interesting for this event,
+		// the capability whether the reader may see it at all.
+		if ( ! $show_ip_address || ! Helpers::current_user_can_view_ip_addresses() ) {
 			return '';
 		}
 
