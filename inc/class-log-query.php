@@ -122,22 +122,42 @@ class Log_Query {
 	const METADATA_SEARCH_EXCLUDED_KEYS = [ '_annotation' ];
 
 	/**
-	 * Get the context keys the current user may not search or filter on.
+	 * Get the exact context keys the current user may not search or filter on.
 	 *
 	 * The keys in METADATA_SEARCH_EXCLUDED_KEYS for everyone, plus the
 	 * WP-CLI server usernames and SSH client IP for users who can't see them
 	 * in the REST response, for the reason given above.
+	 *
+	 * IP address keys are matched by prefix rather than listed here, see
+	 * get_unsearchable_context_key_prefixes().
 	 *
 	 * @return array<string>
 	 */
 	private static function get_unsearchable_context_keys() {
 		$keys = self::METADATA_SEARCH_EXCLUDED_KEYS;
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Helpers::current_user_can_view_ip_addresses() ) {
 			$keys = array_merge( $keys, Services\CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS );
 		}
 
 		return $keys;
+	}
+
+	/**
+	 * Get the context key prefixes the current user may not search or filter on.
+	 *
+	 * The IP address keys, for users without the view IP address capability.
+	 * The REST API withholds them from those users, so searching them would
+	 * hand the addresses out one guess at a time.
+	 *
+	 * @return array<string>
+	 */
+	private static function get_unsearchable_context_key_prefixes() {
+		if ( Helpers::current_user_can_view_ip_addresses() ) {
+			return [];
+		}
+
+		return Helpers::get_ip_address_context_key_prefixes();
 	}
 
 	/**
@@ -2582,7 +2602,12 @@ class Log_Query {
 		// header, so matching only the former would make the filter useless on
 		// exactly the sites that need it most. The UI shows all of an event's
 		// addresses, so all of them are filterable.
-		if ( ! empty( $args['ip_address'] ) ) {
+		if ( ! empty( $args['ip_address'] ) && ! Helpers::current_user_can_view_ip_addresses() ) {
+			// Filtering on an address is reading it, one guess at a time. Match
+			// nothing rather than ignoring the filter, so the result does not
+			// pretend to be filtered.
+			$inner_where[] = '1 = 0';
+		} elseif ( ! empty( $args['ip_address'] ) ) {
 			$ip_address = $args['ip_address'];
 
 			// Replace ".x" octets (anonymized IP) with ".%" for LIKE matching.
@@ -2616,12 +2641,19 @@ class Log_Query {
 
 		// Add where clause for context filters.
 		if ( ! empty( $args['context_filters'] ) && is_array( $args['context_filters'] ) ) {
-			$unsearchable_keys = self::get_unsearchable_context_keys();
+			$unsearchable_keys     = self::get_unsearchable_context_keys();
+			$unsearchable_prefixes = self::get_unsearchable_context_key_prefixes();
 
 			foreach ( $args['context_filters'] as $context_key => $context_value ) {
 				// Filtering on a value is reading it, one guess at a time.
 				if ( in_array( (string) $context_key, $unsearchable_keys, true ) ) {
 					continue;
+				}
+
+				foreach ( $unsearchable_prefixes as $unsearchable_prefix ) {
+					if ( str_starts_with( (string) $context_key, $unsearchable_prefix ) ) {
+						continue 2;
+					}
 				}
 
 				$inner_where[] = $wpdb->prepare(
@@ -2661,13 +2693,22 @@ class Log_Query {
 				array_fill( 0, count( $excluded_keys ), '%s' )
 			);
 
+			// esc_like() because "_" is a single character wildcard in LIKE.
+			$excluded_prefix_patterns = array_map(
+				static fn( $prefix ) => $wpdb->esc_like( $prefix ) . '%',
+				self::get_unsearchable_context_key_prefixes()
+			);
+
+			$excluded_prefixes_sql = str_repeat( ' AND c.`key` NOT LIKE %s', count( $excluded_prefix_patterns ) );
+
 			foreach ( $metadata_words as $word ) {
 				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$inner_where[] = $wpdb->prepare(
-					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s AND c.`key` NOT IN ( {$excluded_keys_placeholders} ) )",
+					"id IN ( SELECT history_id FROM {$contexts_table_name} AS c WHERE c.value LIKE %s AND c.`key` NOT IN ( {$excluded_keys_placeholders} ){$excluded_prefixes_sql} )",
 					array_merge(
 						[ '%' . $wpdb->esc_like( $word ) . '%' ],
-						$excluded_keys
+						$excluded_keys,
+						$excluded_prefix_patterns
 					)
 				);
 				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared

@@ -584,7 +584,7 @@ class WP_REST_User_Card_Controller extends WP_REST_Controller {
 
 		return [
 			'date'       => self::to_iso_utc( $event->date ),
-			'ip'         => $event->context['_server_remote_addr'] ?? null,
+			'ip'         => Helpers::current_user_can_view_ip_addresses() ? ( $event->context['_server_remote_addr'] ?? null ) : null,
 			'user_agent' => $event->context['server_http_user_agent'] ?? null,
 		];
 	}

@@ -320,6 +320,32 @@ class Helpers {
 	}
 
 	/**
+	 * Whether a context key is gated by the view IP address capability.
+	 *
+	 * True for the keys from get_ip_address_context_key_prefixes(), and for the
+	 * WP-CLI server usernames and SSH client IP: valid SSH login names and the
+	 * addresses admins connect from are reconnaissance data of the same kind.
+	 *
+	 * @since 5.35.0
+	 *
+	 * @param string $key Context key.
+	 * @return bool
+	 */
+	public static function is_ip_address_context_key( $key ) {
+		if ( in_array( $key, Services\CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS, true ) ) {
+			return true;
+		}
+
+		foreach ( self::get_ip_address_context_key_prefixes() as $prefix ) {
+			if ( str_starts_with( $key, $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true if $haystack ends with $needle
 	 *
 	 * @param string $haystack String to check.
@@ -1435,6 +1461,90 @@ class Helpers {
 		 * @param bool $can_view Defaults to current_user_can( 'list_users' ).
 		 */
 		return apply_filters( 'simple_history/user_can_view_user_pii', current_user_can( 'list_users' ) );
+	}
+
+	/**
+	 * Return the capability required to see IP addresses in the log.
+	 *
+	 * Reading the log only takes get_view_history_capability(), which is
+	 * "edit_pages" — an Editor, and on multi-author sites often a freelancer or
+	 * contractor. IP addresses are personal data that a content role rarely
+	 * needs, so they get a capability of their own.
+	 *
+	 * Not to be confused with the 'simple_history/row_header_output/display_ip_address'
+	 * filter. That one decides whether an IP is interesting for a kind of event;
+	 * this one decides whether the reader may see it at all.
+	 *
+	 * @since 5.35.0
+	 * @return string Capability. Default "manage_options".
+	 */
+	public static function get_view_ip_address_capability() {
+		/**
+		 * Filters the capability required to see IP addresses in the log.
+		 *
+		 * @example Let Editors see IP addresses again.
+		 *
+		 * ```php
+		 * add_filter(
+		 *     'simple_history/view_ip_address_capability',
+		 *     function () {
+		 *         return 'edit_pages';
+		 *     }
+		 * );
+		 * ```
+		 *
+		 * @since 5.35.0
+		 *
+		 * @param string $capability Capability. Default "manage_options".
+		 */
+		return apply_filters( 'simple_history/view_ip_address_capability', 'manage_options' );
+	}
+
+	/**
+	 * Whether the current user may see IP addresses in the log.
+	 *
+	 * WP-CLI always may: anyone who can run commands on the server can read the
+	 * database directly, and the CLI commands already bypass the logger read
+	 * capabilities for the same reason.
+	 *
+	 * @since 5.35.0
+	 * @return bool
+	 */
+	public static function current_user_can_view_ip_addresses() {
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			return true;
+		}
+
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_ip_address_capability(), filterable.
+		return current_user_can( self::get_view_ip_address_capability() );
+	}
+
+	/**
+	 * Remove IP addresses from an event context unless the current user may see them.
+	 *
+	 * The one place every output path goes through — REST, the row header,
+	 * export — so the next output path inherits the gate instead of having to
+	 * remember it. See is_ip_address_context_key() for the keys removed.
+	 *
+	 * @since 5.35.0
+	 *
+	 * @param array<string,mixed> $context Event context.
+	 * @return array<string,mixed> Context, without IP address keys if the user may not see them.
+	 */
+	public static function filter_ip_addresses_for_current_user( $context ) {
+		if ( ! is_array( $context ) || self::current_user_can_view_ip_addresses() ) {
+			return $context;
+		}
+
+		foreach ( array_keys( $context ) as $key ) {
+			if ( ! self::is_ip_address_context_key( (string) $key ) ) {
+				continue;
+			}
+
+			unset( $context[ $key ] );
+		}
+
+		return $context;
 	}
 
 	/**
