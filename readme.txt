@@ -284,6 +284,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 
 **Fixed**
 
+-   The IP address of people who comment is now masked like every other IP address in the log, and only administrators can see it. Earlier comment events keep the full address but are hidden from other roles.
 -   Core files check no longer reports official WordPress files in the site's language or in English as modified, such as a German `wp-config-sample.php` on a site installed in English.
 -   Image changes in event details, such as a new featured image, line up with the text changes above them.
 -   Event details are easier to read on phones: each label sits above its value, and image thumbnails fit inside their column.

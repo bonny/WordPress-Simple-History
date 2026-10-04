@@ -124,8 +124,8 @@ class Log_Query {
 	/**
 	 * Get the exact context keys the current user may not search or filter on.
 	 *
-	 * The keys in METADATA_SEARCH_EXCLUDED_KEYS for everyone, plus the
-	 * WP-CLI server usernames and SSH client IP for users who can't see them
+	 * The keys in METADATA_SEARCH_EXCLUDED_KEYS for everyone, plus the keys
+	 * from Helpers::get_ip_address_context_keys() for users who can't see them
 	 * in the REST response, for the reason given above.
 	 *
 	 * IP address keys are matched by prefix rather than listed here, see
@@ -137,7 +137,7 @@ class Log_Query {
 		$keys = self::METADATA_SEARCH_EXCLUDED_KEYS;
 
 		if ( ! Helpers::current_user_can_view_ip_addresses() ) {
-			$keys = array_merge( $keys, Services\CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS );
+			$keys = array_merge( $keys, Helpers::get_ip_address_context_keys() );
 		}
 
 		return $keys;
