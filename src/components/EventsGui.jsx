@@ -1166,7 +1166,6 @@ function EventsGUI() {
 						hasNonDateActiveFilters &&
 						selectedDateOption !== 'allDates'
 					}
-					selectedInitiator={ selectedInitiator }
 					eventsView={ eventsView }
 				/>
 			) }
