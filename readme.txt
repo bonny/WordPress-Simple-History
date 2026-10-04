@@ -271,6 +271,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Added**
 
 -   Suggested privacy policy text for the activity log, under Settings → Privacy → Policy Guide.
+-   Support for the Two Factor plugin: logins are logged when the two-factor code is accepted, not when the password is entered, and show whether two-factor authentication was used.
 -   Experimental — Emails that WordPress fails to send are logged as errors, and a notice in the sidebar and email settings shows how many failed in the last 30 days.
 -   Experimental — WP-CLI events store the command, the server user and, for commands run over SSH, the masked IP address they came from. Nothing is shown in the log yet.
 
@@ -288,6 +289,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   Core files check no longer reports official WordPress files in the site's language or in English as modified, such as a German `wp-config-sample.php` on a site installed in English.
 -   Image changes in event details, such as a new featured image, line up with the text changes above them.
 -   Event details are easier to read on phones: each label sits above its value, and image thumbnails fit inside their column.
+-   Wrong two-factor codes from the Two Factor, Kadence Security (formerly Solid Security) and Wordfence plugins are logged as failed logins.
 
 ### 5.34.0 (September 2026)
 

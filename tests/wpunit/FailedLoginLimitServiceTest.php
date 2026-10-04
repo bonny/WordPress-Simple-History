@@ -40,7 +40,7 @@ class FailedLoginLimitServiceTest extends \Codeception\TestCase\WPTestCase {
 		return self::THRESHOLD;
 	}
 
-	public function test_user_logger_exposes_all_four_failed_login_message_keys() {
+	public function test_user_logger_exposes_all_failed_login_message_keys() {
 		$keys = User_Logger::get_failed_login_message_keys();
 
 		$this->assertEqualsCanonicalizing(
@@ -49,6 +49,7 @@ class FailedLoginLimitServiceTest extends \Codeception\TestCase\WPTestCase {
 				'user_unknown_login_failed',
 				'user_application_password_login_failed',
 				'user_application_password_unknown_login_failed',
+				'user_two_factor_login_failed',
 			],
 			$keys
 		);

@@ -44,6 +44,7 @@ class SimpleHistoryTest extends \Codeception\TestCase\WPTestCase {
 			'Plugin_LimitLoginAttempts',
 			'Plugin_Redirection',
 			'PluginEnableMediaReplaceLogger',
+			'PluginTwoFactorLogger',
 			'PluginUserSwitchingLogger',
 			'PluginWPCrontrolLogger',
 			'SimpleCategoriesLogger',
