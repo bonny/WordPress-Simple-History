@@ -282,6 +282,10 @@ class RSS_Dropin extends Dropin {
 					$action_tag = 'simple_history/loggers_user_can_read/can_read_single_logger';
 					add_filter( $action_tag, '__return_true', 10, 0 );
 
+					// The secret also grants what the IP capability would, so feed
+					// readers keep seeing the IP addresses of failed logins.
+					add_filter( 'simple_history/current_user_can_view_ip_addresses', '__return_true' );
+
 					// Modify header time output so it does not show relative date or time ago-format
 					// Because we don't know when a user reads the RSS feed, time ago format may be very inaccurate.
 					add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );

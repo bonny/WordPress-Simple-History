@@ -1516,7 +1516,19 @@ class Helpers {
 		}
 
 		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_ip_address_capability(), filterable.
-		return current_user_can( self::get_view_ip_address_capability() );
+		$can_view = current_user_can( self::get_view_ip_address_capability() );
+
+		/**
+		 * Filter whether the current request may see IP addresses.
+		 *
+		 * For requests that are authorized some other way than a logged in
+		 * user, like the RSS feed with a valid secret.
+		 *
+		 * @since 5.35.0
+		 *
+		 * @param bool $can_view Whether the current user has the capability.
+		 */
+		return (bool) apply_filters( 'simple_history/current_user_can_view_ip_addresses', $can_view );
 	}
 
 	/**
