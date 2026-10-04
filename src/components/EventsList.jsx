@@ -19,7 +19,6 @@ import { FailedLoginLimitNotice } from './FailedLoginLimitNotice';
 import { FetchEventsErrorMessage } from './FetchEventsErrorMessage';
 import { FetchEventsNoResultsMessage } from './FetchEventsNoResultsMessage';
 import { EndOfResultsHint } from './EndOfResultsHint';
-import { InitiatorFilterHint } from './InitiatorFilterHint';
 
 /**
  * Notice shown at the end of the event list when backfilled entries
@@ -127,7 +126,6 @@ export function EventsList( props ) {
 		hasActiveFilters,
 		onClearFilters,
 		canAdjustFilters,
-		selectedInitiator,
 		eventsView,
 	} = props;
 
@@ -181,13 +179,9 @@ export function EventsList( props ) {
 				eventsIsLoading={ eventsIsLoading }
 			/>
 
-			{ ! isSurroundingEventsMode && (
-				<InitiatorFilterHint
-					selectedInitiator={ selectedInitiator }
-					eventsIsLoading={ eventsIsLoading }
-					events={ events }
-				/>
-			) }
+			{ /* InitiatorFilterHint is switched off for now: no placement
+			   on this page worked well enough (issue 327). The component
+			   is kept so it can come back with the layout refactor. */ }
 
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
