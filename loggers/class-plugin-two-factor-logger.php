@@ -42,23 +42,30 @@ class Plugin_Two_Factor_Logger extends Logger {
 	 * Called when logger is loaded.
 	 */
 	public function loaded() {
-		add_filter( 'simple_history/user_logger/two_factor_plugin', array( $this, 'on_two_factor_plugin' ) );
+		add_filter( 'simple_history/user_logger/two_factor_login', array( $this, 'on_two_factor_login' ) );
 		add_filter( 'simple_history/user_logger/login_pending_second_factor', array( $this, 'on_login_pending_second_factor' ), 10, 2 );
 		add_action( 'two_factor_user_authenticated', array( $this, 'on_two_factor_user_authenticated' ), 10, 2 );
 	}
 
 	/**
-	 * Report Two Factor as the site's two-factor plugin.
+	 * Report a login that Two Factor did not challenge.
 	 *
-	 * @param string $plugin wordpress.org slug of the two-factor plugin.
-	 * @return string
+	 * Logins that Two Factor challenges are skipped on `wp_login` and logged by
+	 * on_two_factor_user_authenticated(), so a login that reaches this filter
+	 * did not use a second factor.
+	 *
+	 * @param array|null $two_factor Two-factor details from another plugin.
+	 * @return array|null
 	 */
-	public function on_two_factor_plugin( $plugin ) {
-		if ( ! class_exists( 'Two_Factor_Core' ) ) {
-			return $plugin;
+	public function on_two_factor_login( $two_factor ) {
+		if ( $two_factor !== null || ! class_exists( 'Two_Factor_Core' ) ) {
+			return $two_factor;
 		}
 
-		return self::PLUGIN_SLUG;
+		return array(
+			'plugin' => self::PLUGIN_SLUG,
+			'used'   => false,
+		);
 	}
 
 	/**

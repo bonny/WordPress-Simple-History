@@ -59,7 +59,7 @@ class UserLoggerTwoFactorTest extends \Codeception\TestCase\WPTestCase {
 	public function tearDown(): void {
 		remove_filter( 'simple_history/log_insert_data_and_context', [ $this, 'capture_log_write' ], 10 );
 		remove_filter( 'simple_history/user_logger/login_pending_second_factor', '__return_true' );
-		remove_filter( 'simple_history/user_logger/two_factor_plugin', [ $this, 'filter_two_factor_plugin' ] );
+		remove_filter( 'simple_history/user_logger/two_factor_login', [ $this, 'filter_two_factor_login' ] );
 		parent::tearDown();
 	}
 
@@ -78,8 +78,11 @@ class UserLoggerTwoFactorTest extends \Codeception\TestCase\WPTestCase {
 		return $data_and_context;
 	}
 
-	public function filter_two_factor_plugin() {
-		return 'two-factor';
+	/** @var array|null Returned by filter_two_factor_login(). */
+	private $two_factor_login = null;
+
+	public function filter_two_factor_login() {
+		return $this->two_factor_login;
 	}
 
 	/**
@@ -112,7 +115,8 @@ class UserLoggerTwoFactorTest extends \Codeception\TestCase\WPTestCase {
 	 * is logged straight away and says that no second factor was used.
 	 */
 	public function test_login_without_second_factor_on_two_factor_site_is_marked_not_used() {
-		add_filter( 'simple_history/user_logger/two_factor_plugin', [ $this, 'filter_two_factor_plugin' ] );
+		$this->two_factor_login = [ 'plugin' => 'two-factor', 'used' => false ];
+		add_filter( 'simple_history/user_logger/two_factor_login', [ $this, 'filter_two_factor_login' ] );
 
 		$this->logger->on_wp_login( $this->user->user_login, $this->user );
 
@@ -121,6 +125,39 @@ class UserLoggerTwoFactorTest extends \Codeception\TestCase\WPTestCase {
 		$context = $this->captured_logs[0][1];
 		$this->assertSame( 0, $context[ User_Logger::CONTEXT_TWO_FACTOR_USED ] );
 		$this->assertSame( 'two-factor', $context[ User_Logger::CONTEXT_TWO_FACTOR_PLUGIN ] );
+		$this->assertArrayNotHasKey( User_Logger::CONTEXT_TWO_FACTOR_METHOD, $context );
+	}
+
+	/**
+	 * A plugin that checks the code before `wp_login`, like Wordfence, reports
+	 * on `wp_login` that the second factor was used and how.
+	 */
+	public function test_login_checked_before_wp_login_stores_method() {
+		$this->two_factor_login = [ 'plugin' => 'wordfence', 'used' => true, 'method' => 'Passkey <i>' ];
+		add_filter( 'simple_history/user_logger/two_factor_login', [ $this, 'filter_two_factor_login' ] );
+
+		$this->logger->on_wp_login( $this->user->user_login, $this->user );
+
+		$context = $this->captured_logs[0][1];
+		$this->assertSame( 1, $context[ User_Logger::CONTEXT_TWO_FACTOR_USED ] );
+		$this->assertSame( 'wordfence', $context[ User_Logger::CONTEXT_TWO_FACTOR_PLUGIN ] );
+		$this->assertSame( 'Passkey', $context[ User_Logger::CONTEXT_TWO_FACTOR_METHOD ] );
+	}
+
+	/**
+	 * Anything else than a details array with a plugin slug is ignored.
+	 */
+	public function test_invalid_two_factor_login_details_are_ignored() {
+		add_filter( 'simple_history/user_logger/two_factor_login', [ $this, 'filter_two_factor_login' ] );
+
+		foreach ( [ 'wordfence', [ 'used' => true ], [ 'plugin' => 5 ] ] as $details ) {
+			$this->two_factor_login = $details;
+			$this->logger->on_wp_login( $this->user->user_login, $this->user );
+		}
+
+		foreach ( $this->captured_logs as $log ) {
+			$this->assertArrayNotHasKey( User_Logger::CONTEXT_TWO_FACTOR_USED, $log[1] );
+		}
 	}
 
 	public function test_login_pending_second_factor_is_not_logged_on_wp_login() {
@@ -150,10 +187,15 @@ class UserLoggerTwoFactorTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertSame( 'Authenticator App', $context[ User_Logger::CONTEXT_TWO_FACTOR_METHOD ] );
 	}
 
-	public function test_two_factor_logger_reports_nothing_when_plugin_is_missing() {
+	public function test_plugin_loggers_report_nothing_when_plugin_is_missing() {
 		$this->assertFalse( class_exists( 'Two_Factor_Core' ) );
-		$this->assertSame( '', $this->two_factor_logger->on_two_factor_plugin( '' ) );
+		$this->assertNull( $this->two_factor_logger->on_two_factor_login( null ) );
 		$this->assertFalse( $this->two_factor_logger->on_login_pending_second_factor( false, $this->user ) );
+
+		$wordfence_logger = Simple_History::get_instance()->get_instantiated_logger_by_slug( 'PluginWordfenceLogger' );
+
+		$this->assertFalse( class_exists( 'WordfenceLS\Controller_Users' ) );
+		$this->assertNull( $wordfence_logger->on_two_factor_login( null, $this->user ) );
 	}
 
 	public function test_failed_second_factor_is_logged_as_failed_login() {
