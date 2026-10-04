@@ -277,7 +277,7 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 **Changed**
 
 -   Weekly email settings have a "Site admin" checkbox that sends the email to the site's admin address and follows it when it changes, and adding more recipients no longer stops the email to the admin.
--   IP addresses in the log are shown only to administrators. Editors and other roles that can read the log no longer see them in events, event details, exports or search.
+-   IP addresses in the log are shown only to administrators. Editors and other roles that can read the log no longer see them in events, event details, exports or search. The secret RSS feed still shows them.
 -   IP addresses are described as masked instead of anonymized, since a masked address can still be linked to a person through the rest of the log entry.
 -   XML export events say what was exported (all content or a post type) and show the author, category, date and status filters used, also for past exports.
 -   Experimental — Role logger: removing capabilities from a role is a notice instead of a warning, and granting a capability that controls the site (such as `manage_options` or `install_plugins`), or creating a role with one, is now a warning.
