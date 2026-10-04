@@ -103,6 +103,7 @@ class IpAddressCapabilityTest extends \Codeception\TestCase\WPTestCase {
 		$this->assertTrue( Helpers::is_ip_address_context_key( '_server_http_x_forwarded_for_0' ) );
 		$this->assertTrue( Helpers::is_ip_address_context_key( '_cli_ssh_client_ip' ) );
 		$this->assertTrue( Helpers::is_ip_address_context_key( '_cli_process_user' ) );
+		$this->assertTrue( Helpers::is_ip_address_context_key( 'comment_author_IP' ) );
 
 		// Share the "_server_http_" prefix but hold no address.
 		$this->assertFalse( Helpers::is_ip_address_context_key( '_server_http_referer' ) );
@@ -206,6 +207,33 @@ class IpAddressCapabilityTest extends \Codeception\TestCase\WPTestCase {
 				"Context filter key \"{$key_variant}\" tells a right guess from a wrong one."
 			);
 		}
+	}
+
+	public function test_editor_cannot_search_or_filter_on_commenter_ip_address() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		// Comment events logged before masking hold the full address.
+		SimpleLogger()->info(
+			'Commenter IP test event',
+			[ 'comment_author_IP' => '198.51.100.45' ]
+		);
+
+		$search_ip      = [ 'metadata_search' => '198.51.100.45' ];
+		$context_filter = [ 'context_filters' => [ 'comment_author_IP' => '198.51.100.45' ] ];
+
+		$this->assertSame( 1, $this->count_rest_events( $search_ip ) );
+		$this->assertSame( 1, $this->count_rest_events( $context_filter ) );
+
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'editor' ] ) );
+
+		$all_events = $this->count_rest_events( [] );
+
+		$this->assertSame( 0, $this->count_rest_events( $search_ip ) );
+		$this->assertSame( $all_events, $this->count_rest_events( $context_filter ) );
+		$this->assertSame(
+			$this->count_rest_events( [ 'context_filters' => [ 'COMMENT_AUTHOR_IP' => '192.0.2.1' ] ] ),
+			$this->count_rest_events( [ 'context_filters' => [ 'COMMENT_AUTHOR_IP' => '198.51.100.45' ] ] )
+		);
 	}
 
 	public function test_filter_ip_addresses_for_current_user() {

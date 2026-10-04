@@ -384,7 +384,8 @@ class Comments_Logger extends Logger {
 			'comment_author'       => $comment_data->comment_author,
 			'comment_author_email' => $comment_data->comment_author_email,
 			'comment_author_url'   => $comment_data->comment_author_url,
-			'comment_author_IP'    => $comment_data->comment_author_IP,
+			// Masked like every other IP address in the log. WordPress keeps the full address on the comment itself.
+			'comment_author_IP'    => $comment_data->comment_author_IP ? Helpers::privacy_anonymize_ip( $comment_data->comment_author_IP ) : '',
 			'comment_content'      => $comment_data->comment_content,
 			'comment_approved'     => $comment_data->comment_approved,
 			'comment_agent'        => $comment_data->comment_agent,
