@@ -193,6 +193,19 @@ class IpAddressCapabilityTest extends \Codeception\TestCase\WPTestCase {
 
 		// A context filter on an IP key is ignored, so it can't confirm a guess.
 		$this->assertSame( $all_events, $this->count_rest_events( $context_filter ) );
+
+		// The database compares keys ignoring case and trailing spaces, so
+		// these variants must not reach the address either: a right guess and
+		// a wrong one must get the same answer.
+		$key_variants = [ '_SERVER_REMOTE_ADDR', '_server_remote_addr ', '_Server_Remote_Addr' ];
+
+		foreach ( $key_variants as $key_variant ) {
+			$this->assertSame(
+				$this->count_rest_events( [ 'context_filters' => [ $key_variant => '192.0.2.x' ] ] ),
+				$this->count_rest_events( [ 'context_filters' => [ $key_variant => '198.51.100.x' ] ] ),
+				"Context filter key \"{$key_variant}\" tells a right guess from a wrong one."
+			);
+		}
 	}
 
 	public function test_filter_ip_addresses_for_current_user() {
