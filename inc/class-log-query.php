@@ -2644,6 +2644,15 @@ class Log_Query {
 			$unsearchable_keys     = self::get_unsearchable_context_keys();
 			$unsearchable_prefixes = self::get_unsearchable_context_key_prefixes();
 
+			// esc_like() because "_" is a single character wildcard in LIKE.
+			$unsearchable_patterns = array_map(
+				static fn( $prefix ) => $wpdb->esc_like( $prefix ) . '%',
+				$unsearchable_prefixes
+			);
+
+			$unsearchable_keys_sql = ' AND c.key NOT IN ( ' . implode( ', ', array_fill( 0, count( $unsearchable_keys ), '%s' ) ) . ' )'
+				. str_repeat( ' AND c.key NOT LIKE %s', count( $unsearchable_patterns ) );
+
 			foreach ( $args['context_filters'] as $context_key => $context_value ) {
 				// Filtering on a value is reading it, one guess at a time.
 				if ( in_array( (string) $context_key, $unsearchable_keys, true ) ) {
@@ -2656,11 +2665,17 @@ class Log_Query {
 					}
 				}
 
+				// The checks above compare exactly, but `c.key = %s` uses the
+				// table's collation, which usually ignores case and trailing
+				// spaces: "_SERVER_REMOTE_ADDR" gets past them and still
+				// matches. So the database excludes the same keys itself, with
+				// the same collation, and such a filter matches nothing.
+				// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Placeholders in $unsearchable_keys_sql match the merged array.
 				$inner_where[] = $wpdb->prepare(
-					'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s )', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-					$context_key,
-					$context_value
+					'id IN ( SELECT history_id FROM ' . $contexts_table_name . ' AS c WHERE c.key = %s AND c.value = %s' . $unsearchable_keys_sql . ' )',
+					array_merge( [ $context_key, $context_value ], $unsearchable_keys, $unsearchable_patterns )
 				);
+				// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 			}
 		}
 
