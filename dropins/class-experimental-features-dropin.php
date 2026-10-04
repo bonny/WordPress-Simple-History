@@ -79,7 +79,13 @@ class Experimental_Features_Dropin extends Dropin {
 			</summary>
 			<ul class="description" style="margin-top: 0.5em; list-style: disc; padding-left: 1.5em;">
 				<li><?php esc_html_e( 'Role & Capability change logging', 'simple-history' ); ?></li>
-				<li><?php esc_html_e( 'Personal-data erasure integration — anonymize a user\'s activity-log entries from Tools → Erase Personal Data', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Failed email logging', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Failed application password logins are logged', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'WP-CLI events show the SSH connection they came from', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'History column and "View history" link in the post and page lists', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Personal-data erasure: anonymize a user\'s activity-log entries from Tools → Erase Personal Data', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Personal-data export includes activity by others about the person, with the other people\'s names and emails redacted', 'simple-history' ); ?></li>
+				<li><?php esc_html_e( 'Read-only Abilities API access to the event log (WordPress 6.9 and later)', 'simple-history' ); ?></li>
 			</ul>
 		</details>
 		<?php
