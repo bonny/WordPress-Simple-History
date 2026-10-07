@@ -70,7 +70,7 @@ Run the orchestrator instead of invoking Playwright directly — the script hand
 
 1. **Write a Playwright spec** at `tests/playwright/screenshot-teaser-<name>.spec.js`. Pattern to follow: copy `screenshot-teaser-user-card.spec.js`. Key bits:
     - `test.use({ viewport, deviceScaleFactor: 2 })` for retina output
-    - Use the cached admin session (default `chromium` project handles auth via `auth.setup.js`)
+    - Use the cached admin session (the `teaser` project in `playwright.config.js` handles auth through the `setup` project, `auth.setup.js`)
     - Read `SH_TEASER_MODE` (or whatever flag makes sense) to pick filenames
     - Wait for the target UI to be fully populated before clipping
     - Capture both a tight popover/element clip AND a wider context clip
