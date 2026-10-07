@@ -421,9 +421,9 @@ class Simple_History_Updates extends Service {
 	 */
 	public function on_plugin_updated_details_5_35_0( $extra_details ) {
 		$new_features = [
-			__( 'Logins on sites using the Two Factor plugin are logged when the code is accepted, not when the password is entered. Two Factor and Wordfence logins show whether two-factor authentication was used.', 'simple-history' ),
-			__( 'IP addresses in the log are now shown only to administrators, and commenter IP addresses are masked like every other address.', 'simple-history' ),
-			__( 'Suggested privacy policy text for the activity log, under Settings → Privacy → Policy Guide.', 'simple-history' ),
+			__( 'Two-factor logins are now logged when the code is accepted, and show which method was used.', 'simple-history' ),
+			__( 'Editors can now read the log without seeing IP addresses. Only administrators see them.', 'simple-history' ),
+			__( 'It\'s now easier to choose who gets the weekly email. Tick "Site admin" and add as many others as you like.', 'simple-history' ),
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-35-0-released/';
