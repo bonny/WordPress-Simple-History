@@ -30,6 +30,7 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.32.0', [ $this, 'on_plugin_updated_details_5_32_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.33.0', [ $this, 'on_plugin_updated_details_5_33_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.34.0', [ $this, 'on_plugin_updated_details_5_34_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.35.0', [ $this, 'on_plugin_updated_details_5_35_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -408,6 +409,24 @@ class Simple_History_Updates extends Service {
 		];
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-34-0-released/';
+
+		return $this->format_new_features_list( '', $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.35.0.
+	 *
+	 * @param array $extra_details Existing extra details.
+	 * @return string HTML with the highlights list.
+	 */
+	public function on_plugin_updated_details_5_35_0( $extra_details ) {
+		$new_features = [
+			__( 'Logins on sites using the Two Factor plugin are logged when the code is accepted, not when the password is entered. Two Factor and Wordfence logins show whether two-factor authentication was used.', 'simple-history' ),
+			__( 'IP addresses in the log are now shown only to administrators, and commenter IP addresses are masked like every other address.', 'simple-history' ),
+			__( 'Suggested privacy policy text for the activity log, under Settings → Privacy → Policy Guide.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-35-0-released/';
 
 		return $this->format_new_features_list( '', $new_features, $release_link );
 	}

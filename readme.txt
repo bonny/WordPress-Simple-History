@@ -4,7 +4,7 @@ Contributors: eskapism, wpsimplehistory
 Donate link: https://simple-history.com/sponsor/?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=sponsorship&utm_content=readme_donate_link
 Tags: history, audit log, event log, user tracking, activity
 Tested up to: 7.1
-Stable tag: 5.34.0
+Stable tag: 5.35.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -264,9 +264,12 @@ For more information, see our support page [GDPR and Privacy: How Your Data is S
 -   [Add a 5-star review so other users know it's good.](https://wordpress.org/support/plugin/simple-history/reviews/?filter=5)
 -   [Get the premium add-on for more features.](https://simple-history.com/add-ons/premium?utm_source=wordpress_org&utm_medium=plugin_directory&utm_campaign=documentation&utm_content=readme_doc_premium)
 
-> Experimental entries are gated behind the experimental features setting (Settings → Simple History → Experimental). Enable it to try them, then share feedback so we know what to ship for everyone.
+> Experimental entries are gated behind the "Experimental features" checkbox under Simple History → Settings. Tick it to try them, then share feedback so we know what to ship for everyone.
 
-### Unreleased
+### 5.35.0 (October 2026)
+
+This release is about logins and privacy. Logins with two-factor authentication are logged when the code is accepted, IP addresses in the log are only shown to administrators, and there is suggested text about the log for your privacy policy. The weekly email settings got simpler too.
+[Read more about it in the release post](https://simple-history.com/2026/simple-history-5-35-0-released/)
 
 **Added**
 
