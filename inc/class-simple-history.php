@@ -144,6 +144,7 @@ class Simple_History {
 	private function get_services() {
 		$services = array(
 			Services\Abilities_Service::class,
+			Services\Action_Scheduler_Tracker::class,
 			Services\AddOns_Licences::class,
 			Services\Admin_Page_Premium_Promo::class,
 			Services\Admin_Pages::class,
@@ -152,6 +153,7 @@ class Simple_History {
 			Services\Auto_Backfill_Service::class,
 			Services\Channels_Service::class,
 			Services\Channels_Settings_Page::class,
+			Services\CLI_Origin_Detector::class,
 			Services\Command_Palette::class,
 			Services\Dashboard_Widget::class,
 			Services\Dropins_Loader::class,
@@ -159,9 +161,11 @@ class Simple_History {
 			Services\Experimental_Features_Page::class,
 			Services\Failed_Login_Limit_Service::class,
 			Services\Failed_Logins_Settings_Page_Teaser::class,
+			Services\First_Purge_Notice_Service::class,
 			Services\History_Insights_Sidebar_Service::class,
 			Services\Import_Handler::class,
 			Services\License_Reminder_Service::class,
+			Services\Mail_Failure_Tracker::class,
 			Services\Licences_Settings_Page::class,
 			Services\Loggers_Loader::class,
 			Services\Menu_Service::class,
@@ -515,7 +519,9 @@ class Simple_History {
 			Loggers\Plugin_Limit_Login_Attempts_Logger::class,
 			Loggers\Plugin_Redirection_Logger::class,
 			Loggers\Plugin_Enable_Media_Replace_Logger::class,
+			Loggers\Plugin_Two_Factor_Logger::class,
 			Loggers\Plugin_User_Switching_Logger::class,
+			Loggers\Plugin_Wordfence_Logger::class,
 			Loggers\Plugin_WP_Crontrol_Logger::class,
 			Loggers\Plugin_Jetpack_Logger::class,
 			Loggers\Plugin_WP_AI_Logger::class,
@@ -544,6 +550,7 @@ class Simple_History {
 		// Experimental loggers, only loaded when experimental features are enabled.
 		if ( Helpers::experimental_features_is_enabled() ) {
 			$loggers[] = Loggers\Role_Capability_Logger::class;
+			$loggers[] = Loggers\Mail_Failure_Logger::class;
 		}
 
 		/**
@@ -581,6 +588,7 @@ class Simple_History {
 			Dropins\Sidebar_Add_Ons_Dropin::class,
 			Dropins\Sidebar_Dropin::class,
 			Dropins\Sidebar_Email_Promo_Dropin::class,
+			Dropins\Sidebar_Mail_Failures_Dropin::class,
 			Dropins\Tools_Menu_Dropin::class,
 		);
 
@@ -1110,11 +1118,13 @@ class Simple_History {
 		$data_attrs .= sprintf( ' data-occasions-id="%1$s" ', esc_attr( $one_log_row->occasionsID ) );
 
 		// Add data attributes for remote address and other ip number headers.
-		if ( isset( $one_log_row->context['_server_remote_addr'] ) ) {
+		$can_view_ip_addresses = Helpers::current_user_can_view_ip_addresses();
+
+		if ( $can_view_ip_addresses && isset( $one_log_row->context['_server_remote_addr'] ) ) {
 			$data_attrs .= sprintf( ' data-ip-address="%1$s" ', esc_attr( $one_log_row->context['_server_remote_addr'] ) );
 		}
 
-		$arr_found_additional_ip_headers = Helpers::get_event_ip_number_headers( $one_log_row );
+		$arr_found_additional_ip_headers = $can_view_ip_addresses ? Helpers::get_event_ip_number_headers( $one_log_row ) : [];
 
 		if ( $arr_found_additional_ip_headers !== [] ) {
 			$data_attrs .= ' data-ip-address-multiple="1" ';

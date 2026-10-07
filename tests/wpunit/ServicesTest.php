@@ -58,15 +58,19 @@ class ServicesTest extends \Codeception\TestCase\WPTestCase {
 			'Message_Control_Settings_Page_Teaser',
 			'Command_Palette',
 			'Welcome_Message_Service',
+			'First_Purge_Notice_Service',
 			'Tips_Service',
 			'Failed_Login_Limit_Service',
 			'Status_Box_Service',
 			'AI_Initiator_Detector',
+			'Action_Scheduler_Tracker',
 			'Post_History_Column',
 			'Post_Row_Actions',
 			'Privacy_Data_Handler',
 			'Privacy_Settings_Page',
 			'License_Reminder_Service',
+			'Mail_Failure_Tracker',
+			'CLI_Origin_Detector',
 		];
 
 		$this->assertEqualsCanonicalizing($expected_slugs, $actual_slugs);

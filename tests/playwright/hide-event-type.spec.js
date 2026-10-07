@@ -81,8 +81,13 @@ test.describe( 'Hide event type from the current view', () => {
 		await openFirstEventActions( page );
 
 		// The menu is open (a neighbouring item is there) but ours is not.
+		//
+		// Not one of the "Find events…" items: those render only when the
+		// event carries a user id or a filterable IP, so whichever event
+		// happens to be first decides whether they exist. This one is on
+		// every event, which is what makes it a proof that the menu opened.
 		await expect(
-			page.getByRole( 'menuitem', { name: /Find events/ } )
+			page.getByRole( 'menuitem', { name: 'View event details' } )
 		).toBeVisible();
 		await expect(
 			page.getByRole( 'menuitem', { name: 'Hide events of this type' } )

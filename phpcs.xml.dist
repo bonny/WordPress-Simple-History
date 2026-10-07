@@ -21,8 +21,10 @@
 	<!-- Only scan PHP files. -->
 	<arg name="extensions" value="php"/>
 
-	<!-- Whenever possible, cache the scan results and re-use those for unchanged files on the next scan. -->
-	<arg name="cache"/>
+	<!-- Whenever possible, cache the scan results and re-use those for unchanged files on the next scan.
+	     The path is explicit so CI can restore it between runs; without a value phpcs
+	     picks a temp location that does not survive a job. Gitignored. -->
+	<arg name="cache" value=".cache/phpcs.json"/>
 
 	<!-- Strip the filepaths down to the relevant bit. -->
 	<arg name="basepath" value="./"/>
@@ -40,7 +42,19 @@
 	<exclude-pattern>*/build/</exclude-pattern>
 	<exclude-pattern>*/tests/</exclude-pattern>
 	<exclude-pattern>*/data/</exclude-pattern>
-	<exclude-pattern>*/.claude/</exclude-pattern>
+	<!-- Skip .claude/ (skills, hooks, worktrees) without skipping the code of
+	     a worktree, which lives at .claude/worktrees/<slug>/. A plain
+	     "*/.claude/" matched the worktree's own absolute path, so phpcs run
+	     inside a worktree silently checked nothing.
+	     1. Any .claude/ dir except the worktrees/ folder, in any checkout.
+	     2. The worktrees/ folder, when the main checkout is scanned from its
+	        root (relative patterns match against the scanned directory). -->
+	<exclude-pattern>/\.claude/(?!worktrees/)</exclude-pattern>
+	<exclude-pattern type="relative">^\.claude/worktrees/</exclude-pattern>
+	<!-- phpstan's result cache lives here and is a thousand-plus generated PHP
+	     files. Scanning them wedges phpcs, and on a memory-limited runner it
+	     dies outright. -->
+	<exclude-pattern>*/.cache/</exclude-pattern>
 	<exclude-pattern>*/phpcs-rules/</exclude-pattern>
 
 	<!-- 

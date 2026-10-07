@@ -17,6 +17,13 @@ class AddOns_Licences extends Service {
 	private $addon_plugins = [];
 
 	/**
+	 * Updater instances, keyed by plugin slug.
+	 *
+	 * @var array<string,Plugin_Updater>
+	 */
+	private $updaters = [];
+
+	/**
 	 * @inheritdoc
 	 */
 	public function loaded() {
@@ -86,6 +93,16 @@ class AddOns_Licences extends Service {
 	}
 
 	/**
+	 * Get the updater instance for a plugin, by slug.
+	 *
+	 * @param string $plugin_slug Slug of plugin, eg "simple-history-extended-settings".
+	 * @return Plugin_Updater|null Updater, or null if none has been created for this slug.
+	 */
+	public function get_updater( $plugin_slug ) {
+		return $this->updaters[ $plugin_slug ] ?? null;
+	}
+
+	/**
 	 * Init the plugin updater for a plugin.
 	 *
 	 * @param AddOn_Plugin $plugin Plugin to init updater for.
@@ -94,7 +111,7 @@ class AddOns_Licences extends Service {
 		/**
 		 * Instantiate the updater class for each Plus plugin.
 		 */
-		new Plugin_Updater(
+		$this->updaters[ $plugin->slug ] = new Plugin_Updater(
 			plugin_basename( $plugin->id ), // "simple-history-plus/index.php"
 			$plugin->slug, // "simple-history-plus"
 			$plugin->version, // "1.0.0"

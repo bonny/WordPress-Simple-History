@@ -121,6 +121,7 @@ class Simple_History_Logger extends Logger {
 			'simple_history_reactions_enabled'             => __( 'Reactions', 'simple-history' ),
 			'simple_history_email_report_enabled'          => __( 'Email report enabled', 'simple-history' ),
 			'simple_history_email_report_recipients'       => __( 'Email report recipients', 'simple-history' ),
+			'simple_history_email_report_include_admin'    => __( 'Email report to site admin', 'simple-history' ),
 			Licences_Settings_Page::OPTION_NAME_LICENSE_KEY => __( 'License key', 'simple-history' ),
 		];
 
@@ -587,11 +588,17 @@ class Simple_History_Logger extends Logger {
 			$context[ "{$base}_new" ]  = $change['new'];
 		}
 
+		$changed_options        = array_keys( $this->settings_changes );
 		$this->settings_changes = [];
 
 		if ( count( $context ) === 0 ) {
 			return;
 		}
+
+		// Group consecutive edits of the same set of settings into one occasion,
+		// so repeatedly toggling a setting collapses into a single row.
+		sort( $changed_options );
+		$context['_occasionsID'] = self::class . '/modified_settings/' . implode( ',', $changed_options );
 
 		$this->info_message( 'modified_settings', $context );
 	}

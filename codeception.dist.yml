@@ -8,6 +8,9 @@ actor_suffix: Tester
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
+        # Removes the SQLite drop-in that `--env sqlite` leaves in the shared
+        # wordpress volume. See tests/_support/Extension/SqliteDropinCleanup.php.
+        - Extension\SqliteDropinCleanup
     commands:
         - "lucatume\\WPBrowser\\Command\\GenerateWPUnit"
         - "lucatume\\WPBrowser\\Command\\GenerateWPRestApi"

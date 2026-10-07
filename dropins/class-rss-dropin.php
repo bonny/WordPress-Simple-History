@@ -282,6 +282,10 @@ class RSS_Dropin extends Dropin {
 					$action_tag = 'simple_history/loggers_user_can_read/can_read_single_logger';
 					add_filter( $action_tag, '__return_true', 10, 0 );
 
+					// The secret also grants what the IP capability would, so feed
+					// readers keep seeing the IP addresses of failed logins.
+					add_filter( 'simple_history/current_user_can_view_ip_addresses', '__return_true' );
+
 					// Modify header time output so it does not show relative date or time ago-format
 					// Because we don't know when a user reads the RSS feed, time ago format may be very inaccurate.
 					add_filter( 'simple_history/header_just_now_max_time', '__return_zero' );
@@ -449,49 +453,49 @@ class RSS_Dropin extends Dropin {
 	 */
 	public function get_allowed_html() {
 		return array(
-				'a'      => array(
-					'href'            => array(),
-					'class'           => array(),
-					'data-ip-address' => array(),
-					'target'          => array(),
-					'title'           => array(),
-				),
-				'em'     => array(),
-				'span'   => array(
-					'class'       => array(),
-					'title'       => array(),
-					'aria-hidden' => array(),
-				),
-				'time'   => array(
-					'datetime' => array(),
-					'class'    => array(),
-				),
-				'strong' => array(
-					'class' => array(),
-				),
-				'div'    => array(
-					'class'    => array(),
-					'tabindex' => array(),
-				),
-				'p'      => array(),
-				'del'    => array(),
-				'ins'    => array(),
-				'dl'     => array(
-					'class' => array(),
-				),
-				'dt'     => array(),
-				'dd'     => array(),
-				'table'  => array(
-					'class' => array(),
-				),
-				'tbody'  => array(),
-				'tr'     => array(),
-				'td'     => array(
-					'class' => array(),
-				),
-				'col'    => array(
-					'class' => array(),
-				),
+			'a'      => array(
+				'href'            => array(),
+				'class'           => array(),
+				'data-ip-address' => array(),
+				'target'          => array(),
+				'title'           => array(),
+			),
+			'em'     => array(),
+			'span'   => array(
+				'class'       => array(),
+				'title'       => array(),
+				'aria-hidden' => array(),
+			),
+			'time'   => array(
+				'datetime' => array(),
+				'class'    => array(),
+			),
+			'strong' => array(
+				'class' => array(),
+			),
+			'div'    => array(
+				'class'    => array(),
+				'tabindex' => array(),
+			),
+			'p'      => array(),
+			'del'    => array(),
+			'ins'    => array(),
+			'dl'     => array(
+				'class' => array(),
+			),
+			'dt'     => array(),
+			'dd'     => array(),
+			'table'  => array(
+				'class' => array(),
+			),
+			'tbody'  => array(),
+			'tr'     => array(),
+			'td'     => array(
+				'class' => array(),
+			),
+			'col'    => array(
+				'class' => array(),
+			),
 		);
 	}
 

@@ -12,6 +12,24 @@ const UPDATE_CHECK_INTERVAL = 30000;
 // Maximum number of new events to display before stopping polling.
 const MAX_NEW_EVENTS_BEFORE_STOP = 10;
 
+// Event a view fills the events Slot with can dispatch on `window` to say it
+// is keeping itself up to date, and that this notifier should stand down.
+//
+// Premium's table view has a Live toggle that polls on its own and puts new
+// events straight at the top. With both running, a reader who turned Live on
+// watched rows arrive and was then told by this notifier that there were N
+// new events to load — counting the very rows already on screen, badging the
+// tab title for events they were looking at, and offering a button whose
+// reload would throw away their scroll position, their selection and their
+// expanded rows.
+//
+// A window event rather than a prop because the two components are in
+// different plugins with no shared parent: state flows down through the Slot
+// and there is nothing to carry it back up. It also degrades on its own —
+// a premium too old to dispatch this leaves the notifier exactly as it was,
+// and a core too old to listen ignores a dispatch it never hears.
+export const LIVE_MODE_EVENT = 'simple_history/live_mode';
+
 function setDocumentTitle( newNum ) {
 	let title = document.title;
 
@@ -40,10 +58,39 @@ export function NewEventsNotifier( props ) {
 	const { eventsQueryParams, eventsMaxId, eventsMaxDate, onReload } = props;
 	const [ newEventsCount, setNewEventsCount ] = useState( 0 );
 	const [ shouldPoll, setShouldPoll ] = useState( true );
+	const [ isLiveElsewhere, setIsLiveElsewhere ] = useState( false );
+
+	// See LIVE_MODE_EVENT above.
+	useEffect( () => {
+		const onLiveMode = ( event ) => {
+			setIsLiveElsewhere( Boolean( event.detail?.isLive ) );
+		};
+
+		window.addEventListener( LIVE_MODE_EVENT, onLiveMode );
+
+		return () => {
+			window.removeEventListener( LIVE_MODE_EVENT, onLiveMode );
+		};
+	}, [] );
+
+	// Anything this notifier had to say is about events the live view has
+	// since put on screen, so drop the count rather than leaving a stale
+	// one to reappear when live mode goes off again.
+	useEffect( () => {
+		if ( isLiveElsewhere ) {
+			setNewEventsCount( 0 );
+			setShouldPoll( true );
+		}
+	}, [ isLiveElsewhere ] );
 
 	useEffect( () => {
 		// Bail if no eventsQueryParams, eventsMaxId, or eventsMaxDate
 		if ( ! eventsQueryParams || ! eventsMaxId || ! eventsMaxDate ) {
+			return;
+		}
+
+		// Bail if another view is keeping itself up to date.
+		if ( isLiveElsewhere ) {
 			return;
 		}
 
@@ -95,23 +142,33 @@ export function NewEventsNotifier( props ) {
 		return () => {
 			clearInterval( intervalId );
 		};
-	}, [ eventsQueryParams, eventsMaxId, eventsMaxDate, shouldPoll ] );
+	}, [
+		eventsQueryParams,
+		eventsMaxId,
+		eventsMaxDate,
+		shouldPoll,
+		isLiveElsewhere,
+	] );
 
 	// When we've stopped polling due to reaching limit, show "10+ new events"
 	const hasReachedLimit =
 		! shouldPoll && newEventsCount >= MAX_NEW_EVENTS_BEFORE_STOP;
 
+	// The verb belongs in the visible label, not only in the tooltip. This
+	// used to read "3 new events" with "Click to load new events" hidden in
+	// an aria-label, so a screen-reader user was told what the button did
+	// and everyone else was told a number and left to guess.
 	const newEventsCountText = hasReachedLimit
 		? sprintf(
 				// translators: %d: maximum number of events shown before stopping polling
-				__( '%d+ new events', 'simple-history' ),
+				__( 'Show %d+ new events', 'simple-history' ),
 				MAX_NEW_EVENTS_BEFORE_STOP
 		  )
 		: sprintf(
 				// translators: %s: number of new events
 				_n(
-					'%s new event',
-					'%s new events',
+					'Show %s new event',
+					'Show %s new events',
 					newEventsCount,
 					'simple-history'
 				),
@@ -119,18 +176,32 @@ export function NewEventsNotifier( props ) {
 		  );
 
 	// Update page title with new events count.
+	//
+	// Not while another view is live: the badge counts events the reader
+	// has not seen, and there are none — they are on screen, in the tab the
+	// badge would be shouting at them from.
 	useEffect( () => {
+		if ( isLiveElsewhere ) {
+			setDocumentTitle( 0 );
+
+			return;
+		}
+
 		const titleCount = hasReachedLimit
 			? MAX_NEW_EVENTS_BEFORE_STOP + '+'
 			: newEventsCount;
 		setDocumentTitle( titleCount );
-	}, [ hasReachedLimit, newEventsCount ] );
+	}, [ hasReachedLimit, newEventsCount, isLiveElsewhere ] );
 
 	const handleUpdateClick = () => {
 		onReload();
 		setNewEventsCount( 0 );
 		setShouldPoll( true );
 	};
+
+	if ( isLiveElsewhere ) {
+		return null;
+	}
 
 	return (
 		<div
@@ -143,7 +214,6 @@ export function NewEventsNotifier( props ) {
 			<Button
 				icon={ update }
 				onClick={ handleUpdateClick }
-				label={ __( 'Click to load new events', 'simple-history' ) }
 				showTooltip={ true }
 				variant="tertiary"
 			>

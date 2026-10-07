@@ -15,6 +15,8 @@ import { ExportButton } from './ExportButton';
 import { ShareFilteredViewButton } from './ShareFilteredViewButton';
 import { CreateAlertButton } from './CreateAlertButton';
 import { CreateLogEntryButton } from './CreateLogEntryButton';
+import { EventsSidebarToggle } from './EventsSidebarToggle';
+import { EventsViewToggle } from './EventsViewToggle';
 
 /**
  * Control bar between filters and the events listing,
@@ -29,6 +31,10 @@ export function EventsControlBar( props ) {
 		eventsQueryParams,
 		hasAnyActiveFilters,
 		newEventsNotifier,
+		eventsView,
+		onEventsViewChange,
+		isSidebarHidden,
+		onToggleSidebar,
 	} = props;
 
 	const { alertsPageURL, userCanManageOptions, searchOptionsLoaded } =
@@ -77,31 +83,43 @@ export function EventsControlBar( props ) {
 	// locale-formatted string to sprintf() so the user sees "187 304", not "187304".
 	const eventsTotalFormatted = numberFormatI18n( eventsTotal );
 
-	const eventsCount = eventsTotal ? (
-		<Text as="span">
-			{ hasAnyActiveFilters
-				? sprintf(
-						/* translators: %s: number of matching events */
-						_n(
-							'%s matching event',
-							'%s matching events',
-							eventsTotal,
-							'simple-history'
-						),
-						eventsTotalFormatted
-				  )
-				: sprintf(
-						/* translators: %s: number of events. Events are grouped so similar events are counted as one. */
-						_n(
-							'%s event',
-							'%s events',
-							eventsTotal,
-							'simple-history'
-						),
-						eventsTotalFormatted
-				  ) }
-		</Text>
-	) : null;
+	// This total counts grouped occasions — repeated events collapsed into
+	// one, the count the Detailed and Compact lists actually show. Table
+	// view renders one row per event instead (selection and export need a
+	// stable id per row, so it cannot group), and shows its own total for
+	// that. Showing this count alongside it read as a bug: two totals for
+	// "the same" filters that never agree, off by whatever the grouping
+	// ratio happens to be. Table view has its own total already, so this
+	// one is hidden there rather than relabelled — a relabelled count next
+	// to a differently-labelled count is still two numbers to reconcile.
+	const isTableView = eventsView === 'table';
+
+	const eventsCount =
+		eventsTotal && ! isTableView ? (
+			<Text as="span">
+				{ hasAnyActiveFilters
+					? sprintf(
+							/* translators: %s: number of matching events */
+							_n(
+								'%s matching event',
+								'%s matching events',
+								eventsTotal,
+								'simple-history'
+							),
+							eventsTotalFormatted
+					  )
+					: sprintf(
+							/* translators: %s: number of events. Events are grouped so similar events are counted as one. */
+							_n(
+								'%s event',
+								'%s events',
+								eventsTotal,
+								'simple-history'
+							),
+							eventsTotalFormatted
+					  ) }
+			</Text>
+		) : null;
 
 	return (
 		<div className="sh-EventsControlBar-actions">
@@ -150,10 +168,31 @@ export function EventsControlBar( props ) {
 								hasAnyActiveFilters,
 								alertsPageURL,
 								userCanManageOptions,
+								// Which view is on screen. Passed so a fill
+								// can stand down for a view that offers the
+								// same action better itself — the table view
+								// exports from its own bar, against its own
+								// filters, which these params do not carry.
+								// Additive: a fill written before this reads
+								// undefined and behaves as it always did.
+								eventsView,
 							} }
 						/>
 
 						<ShareFilteredViewButton />
+
+						<EventsViewToggle
+							view={ eventsView }
+							onChange={ onEventsViewChange }
+						/>
+
+						{ /* Beside the view switcher because it is the same
+						   kind of choice — how this page is laid out, rather
+						   than what it shows. */ }
+						<EventsSidebarToggle
+							isHidden={ isSidebarHidden }
+							onToggle={ onToggleSidebar }
+						/>
 					</HStack>
 				</FlexItem>
 

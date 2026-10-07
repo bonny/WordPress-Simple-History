@@ -28,6 +28,9 @@ class Simple_History_Updates extends Service {
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.30.0', [ $this, 'on_plugin_updated_details_5_30_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.31.0', [ $this, 'on_plugin_updated_details_5_31_0' ] );
 		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.32.0', [ $this, 'on_plugin_updated_details_5_32_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.33.0', [ $this, 'on_plugin_updated_details_5_33_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.34.0', [ $this, 'on_plugin_updated_details_5_34_0' ] );
+		add_filter( 'simple_history/pluginlogger/plugin_updated_details/simple-history/5.35.0', [ $this, 'on_plugin_updated_details_5_35_0' ] );
 
 
 		// To test the output of a specific version, you can enable it for any just recently updated plugin that is visible in the GUI.
@@ -38,9 +41,9 @@ class Simple_History_Updates extends Service {
 	/**
 	 * Format new features as an HTML list.
 	 *
-	 * @param string $custom_title Optional custom title for the section.
-	 * @param array  $features Array of feature descriptions.
-	 * @param string $release_link Optional link to release post.
+	 * @param string|bool $custom_title Optional custom title for the section.
+	 * @param array       $features Array of feature descriptions.
+	 * @param string      $release_link Optional link to release post.
 	 * @return string Formatted HTML list.
 	 */
 	private function format_new_features_list( $custom_title = '', $features = [], $release_link = '' ) {
@@ -52,8 +55,11 @@ class Simple_History_Updates extends Service {
 		$output = '<div class="sh-PluginUpdateDetails">';
 
 		// Use custom title if provided, otherwise use default.
-		$title   = empty( $custom_title ) ? __( "What's new in this version", 'simple-history' ) : $custom_title;
-		$output .= '<h4 class="sh-PluginUpdateDetails-title">' . esc_html( $title ) . '</h4>';
+		if ( $custom_title !== false ) {
+			$title   = empty( $custom_title ) ? __( "What's new in this version", 'simple-history' ) : $custom_title;
+			$output .= '<h4 class="sh-PluginUpdateDetails-title">' . esc_html( $title ) . '</h4>';
+		}
+
 
 		$output .= '<ul class="sh-PluginUpdateDetails-features">';
 
@@ -361,8 +367,6 @@ class Simple_History_Updates extends Service {
 	 * @return string HTML with the highlights list.
 	 */
 	public function on_plugin_updated_details_5_32_0( $extra_details ) {
-		$title = __( 'Highlights in this version', 'simple-history' );
-
 		$new_features = [
 			__( 'Long diffs can be expanded in place with an "Expand diff" button.', 'simple-history' ),
 			__( 'Post and page events link to the exact revision the change created. On WordPress 7.1 and later it opens the visual revision view.', 'simple-history' ),
@@ -371,6 +375,59 @@ class Simple_History_Updates extends Service {
 
 		$release_link = 'https://simple-history.com/2026/simple-history-5-32-0-released/';
 
-		return $this->format_new_features_list( $title, $new_features, $release_link );
+		return $this->format_new_features_list( '', $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.33.0.
+	 *
+	 * @param array $extra_details Existing extra details.
+	 * @return string HTML with the highlights list.
+	 */
+	public function on_plugin_updated_details_5_33_0( $extra_details ) {
+		$new_features = [
+			__( 'The weekly email report has gotten a few nice updates. You should check it out!', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-33-0-released/';
+
+		return $this->format_new_features_list( false, $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.34.0.
+	 *
+	 * @param array $extra_details Existing extra details.
+	 * @return string HTML with the highlights list.
+	 */
+	public function on_plugin_updated_details_5_34_0( $extra_details ) {
+		$new_features = [
+			__( 'New compact view for the event log. It fits many more events on the screen, so you can scan a busy day at a glance. Switch views at the top of the log.', 'simple-history' ),
+			__( 'Premium: New table view for when you need to dig into what happened. Sort and filter your events, compare two side by side, and export them.', 'simple-history' ),
+			__( 'Custom field changes on posts name the fields that changed, and changes made in the block editor\'s meta boxes are now logged.', 'simple-history' ),
+			__( 'Forgot to add recipients to the weekly email? It now goes to the site admin email, so you still get it.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-34-0-released/';
+
+		return $this->format_new_features_list( '', $new_features, $release_link );
+	}
+
+	/**
+	 * Update details for version 5.35.0.
+	 *
+	 * @param array $extra_details Existing extra details.
+	 * @return string HTML with the highlights list.
+	 */
+	public function on_plugin_updated_details_5_35_0( $extra_details ) {
+		$new_features = [
+			__( 'Two-factor logins are now logged when the code is accepted, and show which method was used.', 'simple-history' ),
+			__( 'Editors can now read the log without seeing IP addresses. Only administrators see them.', 'simple-history' ),
+			__( 'It\'s now easier to choose who gets the weekly email. Tick "Site admin" and add as many others as you like.', 'simple-history' ),
+		];
+
+		$release_link = 'https://simple-history.com/2026/simple-history-5-35-0-released/';
+
+		return $this->format_new_features_list( '', $new_features, $release_link );
 	}
 }

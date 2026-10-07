@@ -25,6 +25,7 @@ const screenshotSpecs = [
 	'email-settings',
 	'ip-popover',
 	'email-preview',
+	'compact-view',
 	'banner',
 ];
 const screenshotTestMatch = new RegExp(
@@ -44,6 +45,12 @@ module.exports = defineConfig( {
 	use: {
 		baseURL,
 		trace: 'on-first-retry',
+		launchOptions: {
+			// The dev and test sites use throwaway passwords like
+			// "claude", which Chrome finds in its leaked-password list and
+			// warns about on every login in headed and UI mode.
+			args: [ '--disable-features=PasswordLeakDetection' ],
+		},
 	},
 	projects: [
 		{
@@ -71,6 +78,33 @@ module.exports = defineConfig( {
 			testMatch: /hide-event-type\.spec\.js$/,
 			dependencies: [ 'experimental-privacy' ],
 		},
+		// events-view-toggle.spec.js stores the admin's event log view
+		// preference and toggles it through the UI. Run with `fullyParallel`
+		// against the shared admin session, it races other specs that assume
+		// the detailed view (e.g. ones that look for
+		// .SimpleHistoryLogitem__details). Give it its own project so it runs
+		// on its own, like the experimental-features specs above.
+		{
+			name: 'events-view',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /events-view-toggle\.spec\.js$/,
+			dependencies: [ 'experimental-hide' ],
+		},
+		{
+			// The premium table view replaces the whole log area and stores a
+			// view preference, so it races specs that assume the detailed
+			// list. Own project, like events-view above.
+			name: 'premium-table',
+			use: {
+				...devices[ 'Desktop Chrome' ],
+				storageState,
+			},
+			testMatch: /premium-table-view\.spec\.js$/,
+			dependencies: [ 'events-view' ],
+		},
 		{
 			name: 'tests',
 			use: {
@@ -86,8 +120,10 @@ module.exports = defineConfig( {
 				/screenshot-.*\.spec\.js$/,
 				/privacy-data\.spec\.js$/,
 				/hide-event-type\.spec\.js$/,
+				/events-view-toggle\.spec\.js$/,
+				/premium-table-view\.spec\.js$/,
 			],
-			dependencies: [ 'experimental-hide' ],
+			dependencies: [ 'premium-table' ],
 		},
 		{
 			// Teaser user-card screenshots, captured against the dev WordPress

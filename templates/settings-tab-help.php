@@ -40,7 +40,7 @@ $faq_items = [
 		'question' => 'How do I clear the log?',
 	],
 	[
-		'question' => 'Can I keep items longer than 60 days?',
+		'question' => 'How long are events kept, and can I keep them longer?',
 	],
 	[
 		'question' => 'How do I see more details about an event?',

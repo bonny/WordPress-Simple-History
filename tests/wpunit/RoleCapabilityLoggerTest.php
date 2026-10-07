@@ -72,7 +72,20 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 		remove_role( 'test_role' );
 		remove_role( 'test_role_2' );
 		remove_role( 'test_empty_role' );
+
+		unset( $_SERVER['REQUEST_METHOD'], $_GET['_wpnonce'] );
+		remove_filter( 'wp_doing_cron', '__return_true' );
+
 		parent::tearDown();
+	}
+
+	/**
+	 * Latest event's context as key => value.
+	 *
+	 * @return array<string, string>
+	 */
+	private function latest_context_values() {
+		return array_column( get_latest_context( false ), 'value', 'key' );
 	}
 
 	/**
@@ -89,9 +102,9 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$initial->setAccessible( true );
 		$initial->setValue( $this->logger, null );
 
-		$captured = $reflection->getProperty( 'captured_plugin_context' );
-		$captured->setAccessible( true );
-		$captured->setValue( $this->logger, array() );
+		$attributions = $reflection->getProperty( 'attributions' );
+		$attributions->setAccessible( true );
+		$attributions->setValue( $this->logger, array() );
 
 		$ctx = $reflection->getProperty( 'plugin_context' );
 		$ctx->setAccessible( true );
@@ -266,6 +279,92 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 	}
 
 	/**
+	 * Test that granting a capability that controls the site is a warning.
+	 */
+	public function test_sensitive_cap_added_to_role_is_warning() {
+		$role = get_role( 'editor' );
+		$role->add_cap( 'test_custom_cap' );
+		$role->add_cap( 'install_plugins' );
+		$this->flush_logger();
+
+		$latest_row = get_latest_row();
+
+		$this->assertEquals( 'warning', $latest_row['level'] );
+		$this->assertContains(
+			[ 'key' => 'capabilities', 'value' => 'install_plugins, test_custom_cap' ],
+			get_latest_context()
+		);
+
+		// Clean up.
+		$role->remove_cap( 'test_custom_cap' );
+		$role->remove_cap( 'install_plugins' );
+		$this->flush_logger();
+	}
+
+	/**
+	 * Test that removing a capability that controls the site is a notice.
+	 */
+	public function test_sensitive_cap_removed_from_role_is_notice() {
+		add_role( 'test_role', 'Test Role', [ 'read' => true, 'install_plugins' => true ] );
+		$this->flush_logger();
+
+		get_role( 'test_role' )->remove_cap( 'install_plugins' );
+		$this->flush_logger();
+
+		$this->assertEquals( 'notice', get_latest_row()['level'] );
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'role_caps_removed' ],
+			get_latest_context()
+		);
+	}
+
+	/**
+	 * Test that creating a role that can control the site is a warning.
+	 */
+	public function test_role_created_with_sensitive_cap_is_warning() {
+		add_role( 'test_role', 'Test Role', [ 'read' => true, 'switch_themes' => true ] );
+		$this->flush_logger();
+
+		$this->assertEquals( 'warning', get_latest_row()['level'] );
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'role_created' ],
+			get_latest_context()
+		);
+	}
+
+	/**
+	 * Test that granting a sensitive capability that was stored as false is a warning.
+	 */
+	public function test_sensitive_cap_flipped_from_false_is_warning() {
+		add_role( 'test_role', 'Test Role', [ 'read' => true, 'edit_users' => false ] );
+		$this->flush_logger();
+
+		get_role( 'test_role' )->add_cap( 'edit_users' );
+		$this->flush_logger();
+
+		$this->assertEquals( 'warning', get_latest_row()['level'] );
+		$this->assertContains(
+			[ 'key' => '_message_key', 'value' => 'role_caps_added' ],
+			get_latest_context()
+		);
+	}
+
+	/**
+	 * Test that every sensitive capability is a real WordPress capability name.
+	 */
+	public function test_sensitive_caps_are_known_capabilities() {
+		$caps = ( new \ReflectionClass( Role_Capability_Logger::class ) )->getConstant( 'SENSITIVE_CAPS' );
+
+		// Multisite capabilities and meta capabilities that can still be granted to a role directly.
+		$known = array_merge(
+			array_keys( get_role( 'administrator' )->capabilities ),
+			[ 'manage_network', 'manage_network_options', 'manage_network_plugins', 'manage_network_themes', 'manage_network_users', 'manage_sites', 'delete_site', 'delete_sites', 'setup_network', 'upgrade_network', 'erase_others_personal_data', 'export_others_personal_data' ]
+		);
+
+		$this->assertSame( [], array_values( array_diff( $caps, $known ) ) );
+	}
+
+	/**
 	 * Test logging when capabilities are removed from an existing role.
 	 */
 	public function test_caps_removed_from_role() {
@@ -280,7 +379,7 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$latest_row = get_latest_row();
 
 		$this->assertEquals( 'SimpleRoleCapabilityLogger', $latest_row['logger'] );
-		$this->assertEquals( 'warning', $latest_row['level'] );
+		$this->assertEquals( 'notice', $latest_row['level'] );
 
 		$context = get_latest_context();
 
@@ -666,5 +765,129 @@ class RoleCapabilityLoggerTest extends \Codeception\TestCase\WPTestCase {
 		$output = $this->logger->get_log_row_details_output( $row );
 
 		$this->assertEmpty( $output, 'Deleted role without plugin context or caps should return empty' );
+	}
+
+	/**
+	 * A plugin's upgrade routine on a page view is not the logged-in user's doing.
+	 * Issue 331.
+	 */
+	public function test_change_on_read_request_is_wordpress_without_user() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		add_role( 'test_role', 'Read Request Role', [ 'read' => true ] );
+		$this->flush_logger();
+
+		$context = $this->latest_context_values();
+
+		$this->assertSame( 'wp', get_latest_row()['initiator'] );
+		$this->assertArrayNotHasKey( '_user_id', $context );
+	}
+
+	/**
+	 * A form post is the user's own action.
+	 */
+	public function test_change_on_write_request_is_the_user() {
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		add_role( 'test_role', 'Write Request Role', [ 'read' => true ] );
+		$this->flush_logger();
+
+		$context = $this->latest_context_values();
+
+		$this->assertSame( 'wp_user', get_latest_row()['initiator'] );
+		$this->assertSame( (string) $this->admin_user_id, $context['_user_id'] );
+	}
+
+	/**
+	 * An action link with a nonce is the user's own action, even though it is a GET.
+	 */
+	public function test_change_on_get_with_nonce_is_the_user() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_GET['_wpnonce']          = 'abc123';
+
+		add_role( 'test_role', 'Nonce Link Role', [ 'read' => true ] );
+		$this->flush_logger();
+
+		$this->assertSame( 'wp_user', get_latest_row()['initiator'] );
+	}
+
+	/**
+	 * A write request by a visitor who is not logged in is not a deliberate role change.
+	 */
+	public function test_change_on_write_request_without_user_is_wordpress() {
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		wp_set_current_user( 0 );
+
+		add_role( 'test_role', 'Logged Out Role', [ 'read' => true ] );
+		$this->flush_logger();
+
+		$this->assertSame( 'wp', get_latest_row()['initiator'] );
+	}
+
+	/**
+	 * Cron is WordPress even on a write request with a logged-in user,
+	 * and even though cron has finished by the time the event is logged.
+	 */
+	public function test_change_during_cron_is_wordpress() {
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		add_filter( 'wp_doing_cron', '__return_true' );
+		add_role( 'test_role', 'Cron Role', [ 'read' => true ] );
+		remove_filter( 'wp_doing_cron', '__return_true' );
+
+		$this->flush_logger();
+
+		$this->assertSame( 'wp', get_latest_row()['initiator'] );
+		$this->assertArrayNotHasKey( '_user_id', $this->latest_context_values() );
+	}
+
+	/**
+	 * Activating a plugin is the user's action, also on a GET, and the plugin
+	 * is named as the event's via.
+	 */
+	public function test_change_during_activation_is_the_user_via_the_plugin() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		$this->logger->on_plugin_activation_start( 'wp-crontrol/wp-crontrol.php' );
+		add_role( 'test_role', 'Activation Role', [ 'read' => true ] );
+		$this->logger->on_plugin_activation_end( 'wp-crontrol/wp-crontrol.php' );
+		$this->flush_logger();
+
+		$context = $this->latest_context_values();
+
+		$this->assertSame( 'wp_user', get_latest_row()['initiator'] );
+		$this->assertSame( 'WP Crontrol', $context['_via_plugin'] );
+		$this->assertSame( 'wp-crontrol', $context['_via_plugin_slug'] );
+	}
+
+	/**
+	 * Each role's event is attributed to the update that changed it, not to
+	 * whichever update came first or last in the request.
+	 */
+	public function test_each_change_keeps_its_own_initiator() {
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		add_role( 'test_role', 'First Role', [ 'read' => true ] );
+
+		// A later update in the same request, made in a write context.
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		add_role( 'test_role_2', 'Second Role', [ 'read' => true ] );
+
+		$this->flush_logger();
+
+		global $wpdb;
+		$events_table   = $this->sh->get_events_table_name();
+		$contexts_table = $this->sh->get_contexts_table_name();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$initiators = $wpdb->get_results(
+			"SELECT c.value AS role_slug, h.initiator FROM {$events_table} h
+			INNER JOIN {$contexts_table} c ON c.history_id = h.id AND c.key = 'role_slug'
+			WHERE h.logger = 'SimpleRoleCapabilityLogger' AND c.value IN ( 'test_role', 'test_role_2' )
+			ORDER BY h.id DESC LIMIT 2",
+			OBJECT_K
+		);
+
+		$this->assertSame( 'wp', $initiators['test_role']->initiator );
+		$this->assertSame( 'wp_user', $initiators['test_role_2']->initiator );
 	}
 }

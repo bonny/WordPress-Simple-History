@@ -22,7 +22,7 @@ See the **wordpress-org-compliance** skill for detailed guidelines on implementi
 -   Supports both MySQL/MariaDB and SQLite databases
 -   Use `Log_Query::get_db_engine()` to check database type (`'mysql'` or `'sqlite'`)
 -   Avoid MySQL-specific SQL (e.g., `OPTIMIZE TABLE`, `SHOW TABLE STATUS`) without a database type guard
--   Some vendor packages are patched via `cweagans/composer-patches`. Patches live in `patches/` and are auto-applied on `composer install`. See [patches/README.md](patches/README.md) before editing anything under `vendor/`.
+-   Composer's resolver is pinned to PHP 7.4 via `composer.json` `config.platform.php`, so never silence a platform error with `--ignore-platform-req=php`. See [docs/composer.md](docs/composer.md).
 -   Premium declares a **minimum core version** and calls core methods directly. Users update the two plugins independently, so adding a method here and calling it from premium is a fatal error for anyone on an older core. When premium starts using a new core API, bump `SIMPLE_HISTORY_PREMIUM_MIN_CORE_VERSION` in the add-ons repo. Run `npm run addons:check` from here to catch misses — it runs the add-ons repo's version and minimum-core checks without leaving core. `npm run addons:lint` and `npm run addons:phpstan` are also available.
 
 ## Quick Start
@@ -45,30 +45,16 @@ docker compose run --rm wpcli_mariadb simple-history --help
 
 See @CLAUDE.local.md for specific commands for stable and nightly WordPress installations.
 
-## Code Standards
-
-### Quick Reference
-
--   **Prefixes**: Use `sh`, `simplehistory`, or `simple_history`
--   **Text Domain**: `simple-history`
--   **PHP**: 7.4+ compatibility, WordPress Coding Standards
-
 ## Project Management
 
 ### Private Skills
 
 Some skills live in the maintainer's Obsidian vault rather than in this repo. Run `scripts/setup-private-skills.sh` to wire them up; see the comments at the top of that script for setup details. Contributors without the vault can ignore this.
 
-### GitHub Project Board
-
-Use the **github-project** skill for project board automation, IDs, and GraphQL queries.
-
 ### Git Workflow
 
--   Create a new branch for each GitHub issue or feature
--   Branch naming: `issue-NUMBER-brief-description`
--   Follow OneFlow model (see code.md for details)
--   Issues are tracked locally in Obsidian (use the `local-issues` skill), not on GitHub
+-   Branching: see the Git section in code.md
+-   GitHub is used for code and CI only. Issues and project management live in Obsidian (use the `local-issues` skill), never GitHub issues or project boards
 -   When working with branches a readme file is created for most branches, called `readme.<branch-or-issue>.md`. See and use that file for findings, progress, and todos. Never add any sensitive information to this document, like API keys or passwords, since this document will be commited to GIT and can be shown on GitHub.
 -   Don't add to git or commit without user explicitly saying so
 -   Pushing branch commits does NOT deploy. The WordPress.org deploy runs only when a **semver tag** is pushed (see `.github/workflows/deploy.yml`; `workflow_dispatch` allows a manual run). So pushing `main` without a new tag is safe — it will not release. (Pushing is still an outward, shared-remote action, so confirm before doing it.)

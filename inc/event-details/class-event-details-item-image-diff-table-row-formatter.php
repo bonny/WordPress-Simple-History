@@ -6,7 +6,9 @@ namespace Simple_History\Event_Details;
  * Table row that shows a previous and a new image side by side.
  *
  * Uses the same red/green diff table WordPress draws for revisions, so the
- * reader can tell which image is which by position and colour. A struck-
+ * reader can tell which image is which by position and colour. Two cells,
+ * like the text diff table, so an image row in the same event lines up with
+ * the text rows above it. A struck-
  * through <del> does nothing visible to an image, so the inline diff
  * formatters are the wrong tool here.
  *
@@ -88,7 +90,6 @@ class Event_Details_Item_Image_Diff_Table_Row_Formatter extends Event_Details_It
 							<table class="diff SimpleHistory__diff">
 								<tr>
 									<td class="diff-deletedline">%2$s</td>
-									<td>&nbsp;</td>
 									<td class="diff-addedline">%3$s</td>
 								</tr>
 							</table>

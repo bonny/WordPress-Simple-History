@@ -6,6 +6,8 @@
  * @package SimpleHistoryDev
  */
 
+// phpcs:disable WordPress.Files.FileName, WordPress.NamingConventions.PrefixAllGlobals -- dev-only mu-plugin under scripts/, never shipped; the sh_dev_ prefix is deliberate.
+
 use Simple_History\Event_Details\Event_Details_Container;
 use Simple_History\Event_Details\Event_Details_Group;
 use Simple_History\Event_Details\Event_Details_Group_Diff_Table_Formatter;
@@ -27,74 +29,78 @@ add_filter(
 		 * - kv_groups      JSON: list of groups, each { "formatter": "table"|"diff", "rows": [ { "name", "new", "prev" }, ... ] }.
 		 */
 		if ( ! class_exists( 'SH_Dev_Key_Value_Examples_Logger' ) ) {
-		// phpcs:ignore Squiz.Classes.ClassDeclaration
-		class SH_Dev_Key_Value_Examples_Logger extends \Simple_History\Loggers\Logger {
-			/** @var string */
-			protected $slug = 'SHDevKeyValueExamplesLogger';
-
+			// phpcs:disable Squiz.Classes.ClassDeclaration -- declared inside a class_exists() guard.
 			/**
-			 * @return array
+			 * Dev logger whose events exercise the key-value table edge cases.
 			 */
-			public function get_info() {
-				return [
-					'name'        => 'Dev: key-value table examples',
-					'description' => 'Development-only logger producing key-value table edge cases.',
-					'capability'  => 'manage_options',
-					'messages'    => [
-						// Message strings must pass through gettext, or the logger never learns the key.
-						// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-						'kv_example' => __( '{example_title}', 'simple-history' ),
-					],
-				];
-			}
+			class SH_Dev_Key_Value_Examples_Logger extends \Simple_History\Loggers\Logger {
+				// phpcs:enable Squiz.Classes.ClassDeclaration
+				/** @var string */
+				protected $slug = 'SHDevKeyValueExamplesLogger';
 
-			/**
-			 * @param object $row Log row.
-			 * @return Event_Details_Container|null
-			 */
-			public function get_log_row_details_output( $row ) {
-				$context = $row->context;
-				$groups  = json_decode( $context['kv_groups'] ?? '[]', true );
-
-				if ( ! is_array( $groups ) || $groups === [] ) {
-					return null;
+				/**
+				 * @return array
+				 */
+				public function get_info() {
+					return [
+						'name'        => 'Dev: key-value table examples',
+						'description' => 'Development-only logger producing key-value table edge cases.',
+						'capability'  => 'manage_options',
+						'messages'    => [
+							// Message strings must pass through gettext, or the logger never learns the key.
+							// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+							'kv_example' => __( '{example_title}', 'simple-history' ),
+						],
+					];
 				}
 
-				$out = [];
+				/**
+				 * @param object $row Log row.
+				 * @return Event_Details_Container|null
+				 */
+				public function get_log_row_details_output( $row ) {
+					$context = $row->context;
+					$groups  = json_decode( $context['kv_groups'] ?? '[]', true );
 
-				foreach ( $groups as $group_config ) {
-					$group = new Event_Details_Group();
+					if ( ! is_array( $groups ) || $groups === [] ) {
+						return null;
+					}
 
-					$formatter = ( $group_config['formatter'] ?? 'table' ) === 'diff'
+					$out = [];
+
+					foreach ( $groups as $group_config ) {
+						$group = new Event_Details_Group();
+
+						$formatter = ( $group_config['formatter'] ?? 'table' ) === 'diff'
 						? new Event_Details_Group_Diff_Table_Formatter()
 						: new Event_Details_Group_Table_Formatter();
 
-					$group->set_formatter( $formatter );
+						$group->set_formatter( $formatter );
 
-					if ( ! empty( $group_config['title'] ) ) {
-						$group->set_title( $group_config['title'] );
-					}
-
-					foreach ( $group_config['rows'] as $r ) {
-						$item = new Event_Details_Item( null, $r['name'] ?? '' );
-
-						if ( array_key_exists( 'new', $r ) && array_key_exists( 'prev', $r ) ) {
-							$item->set_values( $r['new'], $r['prev'] );
-						} elseif ( array_key_exists( 'new', $r ) ) {
-							$item->set_new_value( $r['new'] );
-						} elseif ( array_key_exists( 'prev', $r ) ) {
-							$item->set_prev_value( $r['prev'] );
+						if ( ! empty( $group_config['title'] ) ) {
+							$group->set_title( $group_config['title'] );
 						}
 
-						$group->add_item( $item );
+						foreach ( $group_config['rows'] as $r ) {
+							$item = new Event_Details_Item( null, $r['name'] ?? '' );
+
+							if ( array_key_exists( 'new', $r ) && array_key_exists( 'prev', $r ) ) {
+								$item->set_values( $r['new'], $r['prev'] );
+							} elseif ( array_key_exists( 'new', $r ) ) {
+								$item->set_new_value( $r['new'] );
+							} elseif ( array_key_exists( 'prev', $r ) ) {
+								$item->set_prev_value( $r['prev'] );
+							}
+
+							$group->add_item( $item );
+						}
+
+						$out[] = $group;
 					}
 
-					$out[] = $group;
+					return new Event_Details_Container( $out, $context );
 				}
-
-				return new Event_Details_Container( $out, $context );
 			}
-		}
 		}
 
 		$loggers[] = 'SH_Dev_Key_Value_Examples_Logger';
@@ -131,81 +137,175 @@ function sh_dev_kv_examples() {
 	};
 
 	return [
-		'01 Short keys, short values (profile edit)' => [
+		'01 Short keys, short values (profile edit)'       => [
 			$table(
 				[
-					[ 'name' => 'First name', 'new' => 'Pär', 'prev' => 'Par' ],
-					[ 'name' => 'Last name', 'new' => 'Thernström', 'prev' => 'T' ],
-					[ 'name' => 'Nickname', 'new' => 'Bonny', 'prev' => 'par' ],
-					[ 'name' => 'Display name', 'new' => 'Pär Thernström', 'prev' => 'Par T' ],
+					[
+						'name' => 'First name',
+						'new'  => 'Pär',
+						'prev' => 'Par',
+					],
+					[
+						'name' => 'Last name',
+						'new'  => 'Thernström',
+						'prev' => 'T',
+					],
+					[
+						'name' => 'Nickname',
+						'new'  => 'Bonny',
+						'prev' => 'par',
+					],
+					[
+						'name' => 'Display name',
+						'new'  => 'Pär Thernström',
+						'prev' => 'Par T',
+					],
 				]
 			),
 		],
-		'01b Added-only rows (plugin installed)' => [
+		'01b Added-only rows (plugin installed)'           => [
 			$table(
 				[
-					[ 'name' => 'Description', 'new' => 'Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.' ],
-					[ 'name' => 'Version', 'new' => '5.32.0' ],
-					[ 'name' => 'Author', 'new' => 'Pär Thernström' ],
-					[ 'name' => 'URL', 'new' => 'https://simple-history.com' ],
+					[
+						'name' => 'Description',
+						'new'  => 'Plugin that logs various things that occur in WordPress and then presents those events in a very nice GUI.',
+					],
+					[
+						'name' => 'Version',
+						'new'  => '5.32.0',
+					],
+					[
+						'name' => 'Author',
+						'new'  => 'Pär Thernström',
+					],
+					[
+						'name' => 'URL',
+						'new'  => 'https://simple-history.com',
+					],
 				]
 			),
 		],
-		'02 Single row (redirect edit)' => [
-			$table( [ [ 'name' => 'Source URL', 'new' => '/sourceb', 'prev' => '/source' ] ] ),
-		],
-		'03 Long keys with spaces (WooCommerce settings)' => [
+		'02 Single row (redirect edit)'                    => [
 			$table(
 				[
-					[ 'name' => 'Currency', 'new' => 'SEK', 'prev' => 'EUR' ],
-					[ 'name' => 'Enable the legacy REST API for external integrations', 'new' => 'Yes', 'prev' => 'No' ],
-					[ 'name' => 'Product reviews: require a verified owner before the review is shown on the product page', 'new' => 'Enabled', 'prev' => 'Disabled' ],
-					[ 'name' => 'Number of decimals', 'new' => '2', 'prev' => '0' ],
+					[
+						'name' => 'Source URL',
+						'new'  => '/sourceb',
+						'prev' => '/source',
+					],
+				] 
+			),
+		],
+		'03 Long keys with spaces (WooCommerce settings)'  => [
+			$table(
+				[
+					[
+						'name' => 'Currency',
+						'new'  => 'SEK',
+						'prev' => 'EUR',
+					],
+					[
+						'name' => 'Enable the legacy REST API for external integrations',
+						'new'  => 'Yes',
+						'prev' => 'No',
+					],
+					[
+						'name' => 'Product reviews: require a verified owner before the review is shown on the product page',
+						'new'  => 'Enabled',
+						'prev' => 'Disabled',
+					],
+					[
+						'name' => 'Number of decimals',
+						'new'  => '2',
+						'prev' => '0',
+					],
 				]
 			),
 		],
-		'04 Very long unbreakable key' => [
+		'04 Very long unbreakable key'                     => [
 			$table(
 				[
-					[ 'name' => 'woocommerce_email_customer_completed_order_additional_content_setting_name', 'new' => 'Thanks for shopping with us.', 'prev' => '' ],
-					[ 'name' => 'Short', 'new' => 'value', 'prev' => 'old' ],
+					[
+						'name' => 'woocommerce_email_customer_completed_order_additional_content_setting_name',
+						'new'  => 'Thanks for shopping with us.',
+						'prev' => '',
+					],
+					[
+						'name' => 'Short',
+						'new'  => 'value',
+						'prev' => 'old',
+					],
 				]
 			),
 		],
-		'05 Very long unbreakable value (URL)' => [
+		'05 Very long unbreakable value (URL)'             => [
 			$table(
 				[
-					[ 'name' => 'Target URL', 'new' => $long_url, 'prev' => 'https://example.com/old' ],
-					[ 'name' => 'Match type', 'new' => 'URL and query string', 'prev' => 'URL only' ],
+					[
+						'name' => 'Target URL',
+						'new'  => $long_url,
+						'prev' => 'https://example.com/old',
+					],
+					[
+						'name' => 'Match type',
+						'new'  => 'URL and query string',
+						'prev' => 'URL only',
+					],
 				]
 			),
 		],
 		'06 Long unbreakable value without slashes (token)' => [
 			$table(
 				[
-					[ 'name' => 'API key', 'new' => $long_token, 'prev' => 'sk_live_short' ],
+					[
+						'name' => 'API key',
+						'new'  => $long_token,
+						'prev' => 'sk_live_short',
+					],
 				]
 			),
 		],
-		'07 Added-only and removed-only rows' => [
+		'07 Added-only and removed-only rows'              => [
 			$table(
 				[
-					[ 'name' => 'Role added', 'new' => 'Editor' ],
-					[ 'name' => 'Role removed', 'prev' => 'Subscriber' ],
-					[ 'name' => 'Website', 'new' => 'https://simple-history.com', 'prev' => '' ],
-					[ 'name' => 'Description', 'new' => '', 'prev' => 'Old bio text that was removed entirely.' ],
+					[
+						'name' => 'Role added',
+						'new'  => 'Editor',
+					],
+					[
+						'name' => 'Role removed',
+						'prev' => 'Subscriber',
+					],
+					[
+						'name' => 'Website',
+						'new'  => 'https://simple-history.com',
+						'prev' => '',
+					],
+					[
+						'name' => 'Description',
+						'new'  => '',
+						'prev' => 'Old bio text that was removed entirely.',
+					],
 				]
 			),
 		],
-		'08 Long prose values wrapping' => [
+		'08 Long prose values wrapping'                    => [
 			$table(
 				[
-					[ 'name' => 'Description', 'new' => 'A fairly long biography paragraph that will need to wrap onto several lines inside the value column so we can see how the key column behaves when the value is tall. It keeps going for a while to make sure of that.', 'prev' => 'A previous, also fairly long, biography paragraph that also wraps onto several lines so that both the new and the old value are multi-line at the same time.' ],
-					[ 'name' => 'Tagline', 'new' => 'Just another WordPress site', 'prev' => 'Hello world' ],
+					[
+						'name' => 'Description',
+						'new'  => 'A fairly long biography paragraph that will need to wrap onto several lines inside the value column so we can see how the key column behaves when the value is tall. It keeps going for a while to make sure of that.',
+						'prev' => 'A previous, also fairly long, biography paragraph that also wraps onto several lines so that both the new and the old value are multi-line at the same time.',
+					],
+					[
+						'name' => 'Tagline',
+						'new'  => 'Just another WordPress site',
+						'prev' => 'Hello world',
+					],
 				]
 			),
 		],
-		'09 Many rows (15)' => [
+		'09 Many rows (15)'                                => [
 			$table(
 				array_map(
 					function ( $i ) {
@@ -219,78 +319,170 @@ function sh_dev_kv_examples() {
 				)
 			),
 		],
-		'10 Diff table (post content)' => [
+		'10 Diff table (post content)'                     => [
 			$diff(
 				[
-					[ 'name' => 'Title', 'new' => 'Hello world, again', 'prev' => 'Hello world' ],
-					[ 'name' => 'Content', 'new' => $lorem_new, 'prev' => $lorem_old ],
-					[ 'name' => 'Excerpt', 'new' => 'Short excerpt here.', 'prev' => '' ],
+					[
+						'name' => 'Title',
+						'new'  => 'Hello world, again',
+						'prev' => 'Hello world',
+					],
+					[
+						'name' => 'Content',
+						'new'  => $lorem_new,
+						'prev' => $lorem_old,
+					],
+					[
+						'name' => 'Excerpt',
+						'new'  => 'Short excerpt here.',
+						'prev' => '',
+					],
 				]
 			),
 		],
-		'11 Diff table with a very long unbreakable line' => [
+		'11 Diff table with a very long unbreakable line'  => [
 			$diff(
 				[
-					[ 'name' => 'Permalink', 'new' => $long_url, 'prev' => 'https://example.com/old' ],
+					[
+						'name' => 'Permalink',
+						'new'  => $long_url,
+						'prev' => 'https://example.com/old',
+					],
 				]
 			),
 		],
-		'12 Two groups in one event' => [
+		'12 Two groups in one event'                       => [
 			$table(
 				[
-					[ 'name' => 'Status', 'new' => 'Published', 'prev' => 'Draft' ],
-					[ 'name' => 'Author', 'new' => 'Pär', 'prev' => 'admin' ],
+					[
+						'name' => 'Status',
+						'new'  => 'Published',
+						'prev' => 'Draft',
+					],
+					[
+						'name' => 'Author',
+						'new'  => 'Pär',
+						'prev' => 'admin',
+					],
 				],
 				'Meta'
 			),
 			$diff(
 				[
-					[ 'name' => 'Content', 'new' => $lorem_new, 'prev' => $lorem_old ],
+					[
+						'name' => 'Content',
+						'new'  => $lorem_new,
+						'prev' => $lorem_old,
+					],
 				],
 				'Content'
 			),
 		],
-		'13 Empty and whitespace keys' => [
+		'13 Empty and whitespace keys'                     => [
 			$table(
 				[
-					[ 'name' => '', 'new' => 'value with empty key', 'prev' => 'old' ],
-					[ 'name' => ' ', 'new' => 'value with blank key', 'prev' => 'old' ],
-					[ 'name' => 'Normal', 'new' => 'ok', 'prev' => 'was' ],
+					[
+						'name' => '',
+						'new'  => 'value with empty key',
+						'prev' => 'old',
+					],
+					[
+						'name' => ' ',
+						'new'  => 'value with blank key',
+						'prev' => 'old',
+					],
+					[
+						'name' => 'Normal',
+						'new'  => 'ok',
+						'prev' => 'was',
+					],
 				]
 			),
 		],
-		'14 Values with markup and newlines (escaped)' => [
+		'14 Values with markup and newlines (escaped)'     => [
 			$table(
 				[
-					[ 'name' => 'Custom HTML', 'new' => '<script>alert(1)</script><b>bold</b>', 'prev' => '<i>old</i>' ],
-					[ 'name' => 'Multiline', 'new' => "Line one\nLine two\nLine three", 'prev' => "Line one\nLine 2" ],
+					[
+						'name' => 'Custom HTML',
+						'new'  => '<script>alert(1)</script><b>bold</b>',
+						'prev' => '<i>old</i>',
+					],
+					[
+						'name' => 'Multiline',
+						'new'  => "Line one\nLine two\nLine three",
+						'prev' => "Line one\nLine 2",
+					],
 				]
 			),
 		],
 		'16 Single value-only row (settings "changed" marker)' => [
-			$table( [ [ 'name' => 'Message Control', 'new' => '(changed)' ] ] ),
+			$table(
+				[
+					[
+						'name' => 'Message Control',
+						'new'  => '(changed)',
+					],
+				] 
+			),
 		],
 		'17 Added-only short rows (template part updated)' => [
 			$table(
 				[
-					[ 'name' => 'Slug', 'new' => 'header' ],
-					[ 'name' => 'Area', 'new' => 'header' ],
-					[ 'name' => 'Theme', 'new' => 'Twenty Twenty-Four' ],
+					[
+						'name' => 'Slug',
+						'new'  => 'header',
+					],
+					[
+						'name' => 'Area',
+						'new'  => 'header',
+					],
+					[
+						'name' => 'Theme',
+						'new'  => 'Twenty Twenty-Four',
+					],
 				]
 			),
 		],
 		'18 Diff table, single row, empty previous value (post created)' => [
-			$diff( [ [ 'name' => 'Status', 'new' => 'publish', 'prev' => '' ] ] ),
+			$diff(
+				[
+					[
+						'name' => 'Status',
+						'new'  => 'publish',
+						'prev' => '',
+					],
+				] 
+			),
 		],
 		'19 Diff table, single row, empty new value (field cleared)' => [
-			$diff( [ [ 'name' => 'Excerpt', 'new' => '', 'prev' => 'An excerpt that was removed.' ] ] ),
+			$diff(
+				[
+					[
+						'name' => 'Excerpt',
+						'new'  => '',
+						'prev' => 'An excerpt that was removed.',
+					],
+				] 
+			),
 		],
-		'15 Numeric and boolean-ish values' => [
+		'15 Numeric and boolean-ish values'                => [
 			$table(
 				[
-					[ 'name' => 'Posts per page', 'new' => '10', 'prev' => '20' ],
-					[ 'name' => 'Comments', 'new' => 'Enabled', 'prev' => 'Disabled' ],
-					[ 'name' => 'Timezone', 'new' => 'Europe/Stockholm', 'prev' => 'UTC+0' ],
+					[
+						'name' => 'Posts per page',
+						'new'  => '10',
+						'prev' => '20',
+					],
+					[
+						'name' => 'Comments',
+						'new'  => 'Enabled',
+						'prev' => 'Disabled',
+					],
+					[
+						'name' => 'Timezone',
+						'new'  => 'Europe/Stockholm',
+						'prev' => 'UTC+0',
+					],
 				]
 			),
 		],

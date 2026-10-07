@@ -18,9 +18,7 @@ export function EventInitiatorName( props ) {
 
 			let userDisplay;
 
-			if ( eventVariant === 'compact' ) {
-				userDisplay = <strong>{ nameToDisplay }</strong>;
-			} else if ( eventVariant === 'dashboard' ) {
+			if ( eventVariant === 'compact' || eventVariant === 'dashboard' ) {
 				userDisplay = (
 					<UserCard event={ event }>
 						<strong>{ nameToDisplay }</strong>

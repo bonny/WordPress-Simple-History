@@ -18,11 +18,11 @@ Use this skill when the user wants to power through a batch of small issues. The
 
 ### Step 1 — list candidate issues
 
-Pull all `2-todo` issues with their size/complexity:
+Pull all `2-todo` issues with their size/complexity. `project: website` issues are left out: that work happens on simple-history.com, not in this repo.
 
 ```bash
-obsidian base:query vault=nvALT path="Simple History issues.base" format=json \
-  | jq '[.[] | select(.status == "2-todo") | {name, prio, type, size, complexity}]'
+obsidian base:query vault=nvALT path="Simple History issues.base" view="Everything" format=json \
+  | jq '[.[] | select(.status == "2-todo" and .meta != "true" and .Project != "website") | {name, prio, type, size, complexity}]'
 ```
 
 Filenames also act as a length proxy (longer file = more spec written down):

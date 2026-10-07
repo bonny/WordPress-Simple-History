@@ -128,7 +128,18 @@ export function EventDate( props ) {
 
 	let output;
 	if ( eventVariant === 'compact' ) {
-		output = <span>{ formattedDateLiveUpdated }</span>;
+		output = (
+			<Tooltip text={ tooltipText } delay={ 500 }>
+				<Button variant="link" onClick={ handleDateClick }>
+					<time
+						dateTime={ event.date_gmt }
+						className="SimpleHistoryLogitem__when__liveRelative"
+					>
+						{ formattedDateLiveUpdated }
+					</time>
+				</Button>
+			</Tooltip>
+		);
 	} else if ( eventVariant === 'dashboard' ) {
 		const eventPermalink = eventsAdminPageURL
 			? `${ eventsAdminPageURL }#simple-history/event/${ event.id }`

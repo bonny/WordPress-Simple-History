@@ -21,6 +21,14 @@ class SimpleMediaLoggerCest
             'attachment_filesize' => '601223',
         ]);
 
+        // The attachment id depends on how many posts the fixture holds, so
+        // read it back rather than assume it.
+        $attachment_id = $I->grabFromDatabase(
+            $I->grabPostsTableName(),
+            'ID',
+            ['post_type' => 'attachment', 'post_title' => 'Image 1']
+        );
+
         // Edit media.
         $I->amOnAdminPage('upload.php?mode=list');
         $I->moveMouseOver('.wp-list-table tbody tr:nth-child(1)');
@@ -32,7 +40,7 @@ class SimpleMediaLoggerCest
         $I->executeJS('document.getElementById("publish").click()');
         $I->seeLogContext([
             'post_type' => 'attachment',
-            'attachment_id' => '3',
+            'attachment_id' => (string) $attachment_id,
             'attachment_title' => 'My image title',
             'attachment_title_new' => 'My image title',
             'attachment_title_prev' => 'Image 1',

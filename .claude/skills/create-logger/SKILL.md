@@ -351,7 +351,7 @@ public function get_action_links( $row ) {
 
 ### For Core Loggers (in this repository)
 
-Add the class to the loader array in `inc/services/class-loggers-loader.php`.
+Add `Loggers\My_Feature_Logger::class` to `get_core_loggers()` in `inc/class-simple-history.php`.
 
 ### For External Plugins
 
@@ -380,7 +380,7 @@ docker compose run --rm wpcli_mariadb simple-history list
 
 ### Automated Tests
 
-Create a test in `tests/wpunit/loggers/` that:
+Create `tests/wpunit/<Name>LoggerTest.php` that:
 
 1. Instantiates Simple History and loads the logger.
 2. Triggers the WordPress hook.
@@ -420,6 +420,6 @@ Before submitting a new logger:
 | `loggers/class-plugin-logger.php`       | Complex example with many events      |
 | `inc/class-log-initiators.php`          | Initiator constants                   |
 | `inc/class-log-levels.php`              | Log level constants                   |
-| `inc/services/class-loggers-loader.php` | Core logger registration              |
+| `inc/class-simple-history.php` (`get_core_loggers()`) | Core logger registration |
 | `docs/architecture/event-details.md`    | Full Event Details API reference      |
 | `tests/_data/mu-plugins/mu-plugin.php`  | External logger registration example  |

@@ -320,6 +320,52 @@ class Helpers {
 	}
 
 	/**
+	 * Returns the exact context keys gated by the view IP address capability,
+	 * on top of the prefixes from get_ip_address_context_key_prefixes().
+	 *
+	 * The commenter IP address the comments logger stores, and the WP-CLI
+	 * server usernames and SSH client IP. Both the output gate and the search
+	 * exclusions read this list, so a key added here is hidden and unsearchable.
+	 *
+	 * @since 5.35.0
+	 *
+	 * @return array<string> Context keys.
+	 */
+	public static function get_ip_address_context_keys() {
+		return array_merge(
+			array( 'comment_author_IP' ),
+			Services\CLI_Origin_Detector::SENSITIVE_CONTEXT_KEYS
+		);
+	}
+
+	/**
+	 * Whether a context key is gated by the view IP address capability.
+	 *
+	 * True for the keys from get_ip_address_context_keys() and
+	 * get_ip_address_context_key_prefixes(). The WP-CLI server usernames are
+	 * there because valid SSH login names are reconnaissance data of the same
+	 * kind as the addresses admins connect from.
+	 *
+	 * @since 5.35.0
+	 *
+	 * @param string $key Context key.
+	 * @return bool
+	 */
+	public static function is_ip_address_context_key( $key ) {
+		if ( in_array( $key, self::get_ip_address_context_keys(), true ) ) {
+			return true;
+		}
+
+		foreach ( self::get_ip_address_context_key_prefixes() as $prefix ) {
+			if ( str_starts_with( $key, $prefix ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true if $haystack ends with $needle
 	 *
 	 * @param string $haystack String to check.
@@ -1438,6 +1484,102 @@ class Helpers {
 	}
 
 	/**
+	 * Return the capability required to see IP addresses in the log.
+	 *
+	 * Reading the log only takes get_view_history_capability(), which is
+	 * "edit_pages" — an Editor, and on multi-author sites often a freelancer or
+	 * contractor. IP addresses are personal data that a content role rarely
+	 * needs, so they get a capability of their own.
+	 *
+	 * Not to be confused with the 'simple_history/row_header_output/display_ip_address'
+	 * filter. That one decides whether an IP is interesting for a kind of event;
+	 * this one decides whether the reader may see it at all.
+	 *
+	 * @since 5.35.0
+	 * @return string Capability. Default "manage_options".
+	 */
+	public static function get_view_ip_address_capability() {
+		/**
+		 * Filters the capability required to see IP addresses in the log.
+		 *
+		 * @example Let Editors see IP addresses again.
+		 *
+		 * ```php
+		 * add_filter(
+		 *     'simple_history/view_ip_address_capability',
+		 *     function () {
+		 *         return 'edit_pages';
+		 *     }
+		 * );
+		 * ```
+		 *
+		 * @since 5.35.0
+		 *
+		 * @param string $capability Capability. Default "manage_options".
+		 */
+		return apply_filters( 'simple_history/view_ip_address_capability', 'manage_options' );
+	}
+
+	/**
+	 * Whether the current user may see IP addresses in the log.
+	 *
+	 * WP-CLI always may: anyone who can run commands on the server can read the
+	 * database directly, and the CLI commands already bypass the logger read
+	 * capabilities for the same reason.
+	 *
+	 * @since 5.35.0
+	 * @return bool
+	 */
+	public static function current_user_can_view_ip_addresses() {
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			return true;
+		}
+
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Dynamic capability from Helpers::get_view_ip_address_capability(), filterable.
+		$can_view = current_user_can( self::get_view_ip_address_capability() );
+
+		/**
+		 * Filter whether the current request may see IP addresses.
+		 *
+		 * For requests that are authorized some other way than a logged in
+		 * user, like the RSS feed with a valid secret.
+		 *
+		 * @since 5.35.0
+		 *
+		 * @param bool $can_view Whether the current user has the capability.
+		 */
+		return (bool) apply_filters( 'simple_history/current_user_can_view_ip_addresses', $can_view );
+	}
+
+	/**
+	 * Remove IP addresses from an event context unless the current user may see them.
+	 *
+	 * The one place every output path goes through — REST, the row header,
+	 * export — so the next output path inherits the gate instead of having to
+	 * remember it. See is_ip_address_context_key() for the keys removed.
+	 *
+	 * @since 5.35.0
+	 *
+	 * @param array<string,mixed> $context Event context.
+	 * @return array<string,mixed> Context, without IP address keys if the user may not see them.
+	 */
+	public static function filter_ip_addresses_for_current_user( $context ) {
+		if ( ! is_array( $context ) || self::current_user_can_view_ip_addresses() ) {
+			return $context;
+		}
+
+		foreach ( array_keys( $context ) as $key ) {
+			if ( ! self::is_ip_address_context_key( (string) $key ) ) {
+				continue;
+			}
+
+			unset( $context[ $key ] );
+		}
+
+		return $context;
+	}
+
+	/**
 	 * Return capability required to view settings.
 	 * Default capability is "manage_options",
 	 * but can be modified using filter.
@@ -2124,6 +2266,135 @@ class Helpers {
 	}
 
 	/**
+	 * Find the plugin whose code is running, from the call stack.
+	 *
+	 * Walks the backtrace from the innermost frame outwards and returns the
+	 * first frame that is in a regular or must-use plugin, skipping Simple
+	 * History's own files. Call it from a hook that fires while something is
+	 * being changed, e.g. `update_option_{$option}`, to tell which plugin made
+	 * the change. The caller is gone once the hook has returned.
+	 *
+	 * @param array|null $backtrace Backtrace to inspect, innermost frame first. Defaults to the current one.
+	 * @return array{slug: string, type: string, file: string}|null Plugin folder (or file name without .php),
+	 *     "plugin" or "mu-plugin", and the frame's file relative to that plugin directory.
+	 *     Null when no plugin is on the stack, i.e. WordPress core or a theme made the call.
+	 */
+	public static function get_calling_plugin( $backtrace = null ) {
+		if ( $backtrace === null ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Attributes a change to a plugin, not debug output.
+			$backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+		}
+
+		$plugin_dirs = [
+			'mu-plugin' => trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ),
+			'plugin'    => trailingslashit( wp_normalize_path( WP_PLUGIN_DIR ) ),
+		];
+
+		// Based on __FILE__, so this is the real path even when the plugin is symlinked.
+		$own_dir = trailingslashit( wp_normalize_path( SIMPLE_HISTORY_PATH ) );
+
+		foreach ( $backtrace as $frame ) {
+			if ( empty( $frame['file'] ) || ! is_string( $frame['file'] ) ) {
+				continue;
+			}
+
+			$file = wp_normalize_path( $frame['file'] );
+
+			if ( strpos( $file, $own_dir ) === 0 ) {
+				continue;
+			}
+
+			$file = self::get_plugin_path_from_real_path( $file );
+
+			foreach ( $plugin_dirs as $type => $dir ) {
+				if ( strpos( $file, $dir ) !== 0 ) {
+					continue;
+				}
+
+				$relative = substr( $file, strlen( $dir ) );
+				$segments = explode( '/', $relative );
+
+				return [
+					'slug' => preg_replace( '/\.php$/', '', $segments[0] ),
+					'type' => $type,
+					'file' => $relative,
+				];
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get the display name of a plugin found by get_calling_plugin().
+	 *
+	 * Reads the plugin header, so call it only when the name is needed.
+	 *
+	 * @param array{slug: string, type: string, file: string} $plugin Return value of get_calling_plugin().
+	 * @return string Plugin name, or the slug when there is no readable header.
+	 */
+	public static function get_calling_plugin_name( $plugin ) {
+		$base_dir = $plugin['type'] === 'mu-plugin' ? WPMU_PLUGIN_DIR : WP_PLUGIN_DIR;
+		$base_dir = trailingslashit( wp_normalize_path( $base_dir ) );
+
+		if ( strpos( $plugin['file'], '/' ) === false ) {
+			// Single-file plugin: the frame's file is the plugin file.
+			$candidates = [ $base_dir . $plugin['file'] ];
+		} else {
+			// Plugin folder: the header is in one of its top-level PHP files,
+			// usually the one named after the folder.
+			$folder     = $base_dir . $plugin['slug'];
+			$candidates = array_merge( [ $folder . '/' . $plugin['slug'] . '.php' ], (array) glob( $folder . '/*.php' ) );
+		}
+
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		foreach ( array_unique( $candidates ) as $candidate ) {
+			if ( ! is_string( $candidate ) || ! is_file( $candidate ) ) {
+				continue;
+			}
+
+			$plugin_data = get_plugin_data( $candidate, false, false );
+
+			if ( ! empty( $plugin_data['Name'] ) ) {
+				return $plugin_data['Name'];
+			}
+		}
+
+		return $plugin['slug'];
+	}
+
+	/**
+	 * Map a file's real path back to its path under the plugins directory.
+	 *
+	 * PHP reports real paths in backtraces, so a symlinked plugin's files do not
+	 * start with WP_PLUGIN_DIR. WordPress records each symlinked plugin's real
+	 * path in the `$wp_plugin_paths` global, the same map plugin_basename() uses.
+	 *
+	 * @param string $file Normalized file path.
+	 * @return string Path under the plugins directory, or $file unchanged.
+	 */
+	private static function get_plugin_path_from_real_path( $file ) {
+		global $wp_plugin_paths;
+
+		if ( empty( $wp_plugin_paths ) || ! is_array( $wp_plugin_paths ) ) {
+			return $file;
+		}
+
+		foreach ( $wp_plugin_paths as $plugin_path => $real_path ) {
+			$real_path = trailingslashit( $real_path );
+
+			if ( strpos( $file, $real_path ) === 0 ) {
+				return trailingslashit( $plugin_path ) . substr( $file, strlen( $real_path ) );
+			}
+		}
+
+		return $file;
+	}
+
+	/**
 	 * Check if the current request is a REST API request.
 	 *
 	 * Checks REST_REQUEST (WordPress core) and REST_API_REQUEST (a
@@ -2511,6 +2782,9 @@ class Helpers {
 	 *     Optional. Filter arguments.
 	 *
 	 *     @type string $date         Date filter. E.g. 'allDates', 'lastdays:30', 'month:2025-04'.
+	 *                                Use 'customRange' together with $from and $to for exact days.
+	 *     @type string $from         Start date as 'Y-m-d'. Only used with $date set to 'customRange'.
+	 *     @type string $to           End date as 'Y-m-d'. Only used with $date set to 'customRange'.
 	 *     @type string $context      Context filter. E.g. 'post_id:123'.
 	 *     @type bool   $show_filters Whether to expand the filter panel. Default false.
 	 *     @type array  $messages     Array of message filter objects, each with 'value' and 'search_options' keys.
@@ -2523,6 +2797,14 @@ class Helpers {
 
 		if ( ! empty( $args['date'] ) ) {
 			$query_args['date'] = $args['date'];
+		}
+
+		if ( ! empty( $args['from'] ) ) {
+			$query_args['from'] = $args['from'];
+		}
+
+		if ( ! empty( $args['to'] ) ) {
+			$query_args['to'] = $args['to'];
 		}
 
 		if ( ! empty( $args['context'] ) ) {
@@ -2541,6 +2823,64 @@ class Helpers {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Get a URL to the history page filtered to one post's events.
+	 *
+	 * Defaults to every posts and pages event for that post, over all time —
+	 * what the History column and the post row action link to. Callers that
+	 * count a narrower set of events pass their own search options and date
+	 * range, so the page they open agrees with the number they showed.
+	 *
+	 * @param int   $post_id The post ID to filter by.
+	 * @param array $args {
+	 *     Optional. Overrides for the default filters.
+	 *
+	 *     @type string $date           Date filter. Default 'allDates'.
+	 *     @type string $from           Start date as 'Y-m-d'. Only used with $date set to 'customRange'.
+	 *     @type string $to             End date as 'Y-m-d'. Only used with $date set to 'customRange'.
+	 *     @type bool   $show_filters   Whether to expand the filter panel. Default true.
+	 *     @type string $label          Display label for the message filter chip.
+	 *     @type array  $search_options "LoggerSlug:message_key" entries to filter on.
+	 * }
+	 * @return string Full admin URL with all filter parameters.
+	 */
+	public static function get_post_history_url( $post_id, $args = array() ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'date'           => 'allDates',
+				'from'           => '',
+				'to'             => '',
+				'show_filters'   => true,
+				// Display-only label; the frontend filters on search_options.
+				'label'          => _x( 'All posts & pages activity', 'Post logger: search', 'simple-history' ),
+				'search_options' => array(
+					'SimplePostLogger:post_created',
+					'SimplePostLogger:post_updated',
+					'SimplePostLogger:post_trashed',
+					'SimplePostLogger:post_deleted',
+					'SimplePostLogger:post_restored',
+				),
+			)
+		);
+
+		return self::get_filtered_history_url(
+			array(
+				'context'      => 'post_id:' . $post_id,
+				'date'         => $args['date'],
+				'from'         => $args['from'],
+				'to'           => $args['to'],
+				'show_filters' => $args['show_filters'],
+				'messages'     => array(
+					array(
+						'value'          => $args['label'],
+						'search_options' => $args['search_options'],
+					),
+				),
+			)
+		);
 	}
 
 	/**

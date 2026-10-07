@@ -66,76 +66,22 @@ class WP_CLI_Core_Files_Command extends WP_CLI_Command {
 		// Start timing.
 		$start_time = microtime( true );
 
-		global $wp_version, $wp_local_package;
+		$result = Core_Files_Logger::run_integrity_check();
 
-		// Get locale to use for checksums, fall back to 'en_US' if not set.
-		$locale = $wp_local_package ?? 'en_US';
-
-		// Get official WordPress checksums for current version and locale.
-		$checksums = get_core_checksums( $wp_version, $locale );
-
-		if ( ! is_array( $checksums ) || empty( $checksums ) ) {
-			WP_CLI::error( 'Unable to retrieve WordPress core checksums for version ' . $wp_version . ' (locale: ' . $locale . ')' );
+		if ( is_wp_error( $result ) ) {
+			WP_CLI::error( $result->get_error_message() );
 			return;
 		}
 
-		$modified_files      = [];
-		$wp_root             = ABSPATH;
-		$total_files_checked = 0;
-
-		// Check each file in the checksums array.
-		foreach ( $checksums as $file => $expected_hash ) {
-			// Skip files which get updated.
-			if ( str_starts_with( $file, 'wp-content' ) ) {
-				continue;
-			}
-
-			++$total_files_checked;
-			$file_path = $wp_root . $file;
-
-			// Check if file doesn't exist (missing core files should be logged).
-			if ( ! file_exists( $file_path ) ) {
-				$modified_files[] = [
-					'file'          => $file,
-					'issue'         => 'missing',
-					'expected_hash' => $expected_hash,
-					'actual_hash'   => null,
-				];
-				continue;
-			}
-
-			// Calculate actual file hash.
-			$actual_hash = md5_file( $file_path );
-
-			if ( $actual_hash === false ) {
-				// File exists but can't be read.
-				$modified_files[] = [
-					'file'          => $file,
-					'issue'         => 'unreadable',
-					'expected_hash' => $expected_hash,
-					'actual_hash'   => null,
-				];
-				continue;
-			}
-
-			// Compare hashes.
-			if ( $actual_hash === $expected_hash ) {
-				continue;
-			}
-
-			$modified_files[] = [
-				'file'          => $file,
-				'issue'         => 'modified',
-				'expected_hash' => $expected_hash,
-				'actual_hash'   => $actual_hash,
-			];
-		}
+		$modified_files      = $result['modified_files'];
+		$total_files_checked = $result['files_checked'];
 
 		// End timing.
 		$end_time       = microtime( true );
 		$execution_time = round( $end_time - $start_time, 2 );
 
 		WP_CLI::log( sprintf( 'Checked %d core files in %s seconds.', $total_files_checked, $execution_time ) );
+		WP_CLI::log( sprintf( 'Accepted official files for: %s.', implode( ', ', $result['checksum_locales'] ) ) );
 
 		if ( empty( $modified_files ) ) {
 			WP_CLI::success( 'All WordPress core files are intact.' );

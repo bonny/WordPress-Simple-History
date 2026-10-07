@@ -1,65 +1,63 @@
-> [!note] For Pär — draft only, not published
+> [!note] For Pär — published 2026-09-15
 >
-> -   **Suggested slug:** `/support/ftc-franchise-rule-compliance-with-simple-history/` (matches the HIPAA page pattern, `/support/hipaa-compliance-with-simple-history/`)
-> -   **Suggested title:** FTC Franchise Rule Compliance with Simple History
-> -   The support email from **2026-09-01** (agency asking on behalf of a franchise client whether we "document if and when these numbers changed") is still waiting on a reply. Once this page is live you can link to it from that reply instead of writing the whole explanation out.
-> -   Still unanswered in that thread: which editor the franchise sales page uses. If it is Elementor or another page builder, the content diff does not apply — see the Limitations section before promising anything.
+> -   **Slug:** `/support/ftc-franchise-rule-compliance-with-simple-history/` (matches the HIPAA page pattern, `/support/hipaa-compliance-with-simple-history/`)
+> -   **Title:** FTC Franchise Rule Compliance with Simple History
+> -   **Live draft:** page id 4903 on simple-history.com, published 2026-09-15, author Pär (id 1). This file and the draft were rewritten together on 2026-09-14 after a review.
+> -   **Excerpt:** Simple History records who changed the earnings figures on a franchise sales page, when, and what changed. What the FTC Franchise Rule asks for, what the log covers, and where it stops.
+> -   The support email from **2026-09-01** (agency asking on behalf of a franchise client whether we "document if and when these numbers changed") is still waiting on a reply. A corrected draft reply is in issue 41. Link this page from it once published.
+> -   Still unanswered in that thread: which editor the franchise sales page uses. If it is Elementor or another page builder's own editor, the content diff does not apply.
+> -   **Copy review 2026-09-15:** body below rewritten for voice (AI tells removed, no facts changed, button name corrected to "Clear log now"). Page is published; the reviewed text went live on 2026-09-15, plus the `wp simple-history db clear` line in Limitations.
+>
+> **Claims and sources (checked 2026-09-14):**
+>
+> -   FPR definition: 16 CFR 436.1(e). Item 19 + reasonable basis + written substantiation, and the "results may differ" admonition: 436.9(c). Exceptions that make it "generally": 436.5(s)(4), (s)(5). Retention of disclosure documents and receipts: 436.6(h), (i).
+> -   Retention default 30 days for fresh installs, 60 for older ones: `inc/services/class-setup-database.php:445`, `Helpers::get_clear_history_interval()`. Filter `simple_history/db_purge_days_interval`. Premium days or keep forever: premium `inc/modules/class-misc-settings-module.php:130`; 0 days never purges, `inc/services/class-setup-purge-db-cron.php:107`.
+> -   IP anonymized by default (`142.250.74.x`): `Helpers::privacy_anonymize_ip()`. Premium "Store full IP address": premium `class-misc-settings-module.php:70`.
+> -   Content stored as the changed passage (compact word diff since 5.24.0), full text only when that is not smaller: `loggers/class-post-logger.php:1061-1104`. Events link to the revision they created since 5.32.0: `class-post-logger.php:1672`.
+> -   Page builders: a "before" copy is only taken for the classic edit form, Quick Edit, bulk edit, REST (block editor) and WP-CLI (`class-post-logger.php:110-113`, `233-236`, `441-451`). **Tested 2026-09-14** in a throwaway Playground with Elementor: changing a heading from 184000 to 250000 in the Elementor editor logged three "Updated page" events with "custom fields added" and no content diff, although Elementor did write the new figure to `post_content` and the linked revision holds it. A block editor save on the same site logged the full before/after text. Divi and WPBakery were not tested (commercial), hence "likely".
+> -   Export: free exports the whole log; Premium exports the filtered view (same `Export` class). CSV has no IP and no content change (`inc/class-export.php:243-289`); HTML includes the details/diff (`313-345`); JSON has the full context (`299-306`). No event cap: batches of 250, all pages (`inc/class-export.php:113-114`, `165-196`).
+> -   Forwarding: only the Remote Database channel stores full context (premium `inc/channels/class-external-database-channel.php:368-394`); file, syslog, Datadog, Splunk, webhook send message + user + IP (`inc/channels/class-formatter.php:37-43`). Beta label: `inc/services/class-channels-settings-page.php:477`.
+> -   Clear log: `manage_options` (`Helpers::user_can_clear_log()`), logs "Cleared the log" when used from settings; `wp simple-history db clear` leaves no event (`inc/services/wp-cli-commands/class-wp-cli-db-command.php`) (`inc/services/class-setup-settings-page.php:756`, `loggers/class-simple-history-logger.php:42`).
 
 ---
 
 # FTC Franchise Rule Compliance with Simple History
 
-If you sell franchises and your website carries earnings or revenue figures, you need to be able to show what those numbers were and when they changed. Simple History gives you that record.
+Do your franchise sales pages show earnings or revenue figures? Then you may need to prove what those figures said, and when they changed. Simple History keeps that record.
 
-## What the rule asks for
+## What the rule requires
 
-The [FTC Franchise Rule](https://en.wikipedia.org/wiki/Franchise_rule) (16 CFR Part 436) covers _financial performance representations_ — any claim about the revenue, sales or profits a franchisee might earn. If you make one — and the rule counts claims made in the general media, not just those made directly to a prospect — you may not disseminate it at all unless it is already disclosed in Item 19 of your Franchise Disclosure Document and you have a reasonable basis and written substantiation for it at the time you make it. You also have to make that substantiation available to a prospective franchisee, and to the FTC, on reasonable request.
+The [FTC Franchise Rule](https://www.ecfr.gov/current/title-16/chapter-I/subchapter-D/part-436) (16 CFR Part 436) covers _financial performance representations_. That's any statement, express or implied, of a specific level or range of actual or potential sales, income or profits, including historical figures from existing outlets. A figure on your website counts.
 
-A number on a web page is easy to change and leaves no trace by itself. So if the figures on your franchise sales page were updated last spring, you want to be able to say exactly what the page said before, what it says now, who changed it and when. That is a page-content audit trail, and it is what an activity log is for.
+With a few exceptions, you can only use one if it's also in Item 19 of your Franchise Disclosure Document, and you had a reasonable basis and written substantiation for it when you made it ([16 CFR 436.9](https://www.ecfr.gov/current/title-16/section-436.9)). It also needs the warning that a new franchisee's results may differ. More in the FTC's [compliance guide](https://www.ftc.gov/business-guidance/resources/franchise-rule-compliance-guide).
 
 ## What the free plugin records
 
-Every time a page or post is updated, Simple History logs an event with:
+When a page is updated, Simple History logs:
 
--   **Who** made the change — the WordPress user account, with name and email
--   **When** it happened, to the second
--   **The IP address** the change came from — anonymized by default, so an IPv4 address is stored as `142.250.74.x` and an IPv6 address loses its whole second half
--   **A diff of the content** — the event details show the text that was removed and the text that was added, highlighted, so a changed figure stands out
--   **Other fields that changed**, such as the title, the URL slug, the publish date, the status and the author
+-   who made the change, with name and email
+-   when, to the second
+-   the IP address, anonymized by default (`142.250.74.x`). Premium can store the full address.
+-   what changed: the edited text before and after, plus title, slug, status, date and author
 
-You do not have to turn any of this on. If the page is edited in the block editor or the classic editor, the numbers on it are already being tracked.
+For pages edited in the block editor or the classic editor, there's nothing to switch on.
 
 ## What Premium adds
 
-Three things matter for a compliance record, and [Simple History Premium](https://simple-history.com/add-ons/premium/) covers the ones the free plugin does not:
+The free plugin keeps 30 days of events (60 on older installs), which you can change [with a filter](https://simple-history.com/support/change-number-of-days-to-keep-log/). [Premium](https://simple-history.com/add-ons/premium/) keeps any number of days, or forever.
 
--   **Longer retention.** The free plugin keeps 30 days of history on new installs and 60 days on installs that have been around a while, then deletes older events. Premium lets you set your own retention period — a number of days you choose, or keep everything forever.
--   **Export.** The free plugin already exports the whole log as CSV, JSON or HTML, so you can hand a lawyer or an auditor the full record. Premium adds exporting a filtered view, so you can hand over just the events they asked for.
--   **Log forwarding.** The free plugin can already write events to a local log file on the server. Premium adds external destinations — a syslog server, Datadog, Splunk, a webhook or an external MySQL/MariaDB database — plus structured formats (JSON Lines, logfmt, RFC 5424) for the local log file, so the record also lives somewhere other than the WordPress site it describes. Log forwarding is currently a beta feature.
+The free plugin exports the whole log. Premium can export just the page and dates you're asked about. Pick HTML or JSON to get the before-and-after text. CSV has one summary line per event.
 
-## Limitations — read this part
+Premium can also send events off-site. An external MySQL or MariaDB database gets the full event. Syslog, Datadog, Splunk and webhooks get a one-line summary. Log forwarding is in beta.
 
-Being honest about what the plugin does not do is more useful to you than a longer feature list.
+## Limitations
 
--   **Content stored in custom fields is not diffed.** Elementor keeps the page layout in a custom field rather than in the WordPress content field, and so do ACF fields and most block-based builders. For those, Simple History still logs that the page was updated, by whom and when, and that a number of custom fields changed — but not the before-and-after text: you get the _when_ and the _who_, not the _what_. Shortcode-based builders behave differently: Divi and WPBakery store their layout in the WordPress content field, so their changes _are_ diffed, though the diff is shortcode markup rather than clean prose. Check which editor the page uses before you rely on this.
--   **Retention has to be set before you need it.** The log is not retroactive. If retention is at the 30- or 60-day default when an auditor asks about a change from two years ago, that event is already gone. Decide on a retention period and set it now, not when the question arrives.
--   **It records changed fields, not page snapshots.** An event captures the fields that changed — often including the complete before and after text of the content field — but not the page as rendered, with its template, menus and widgets. Reconstructing exactly how a page looked on a given date usually means combining the log with WordPress revisions or a backup.
--   **This is not legal advice.** Simple History is a record-keeping tool. Whether your particular disclosures satisfy the Franchise Rule is a question for your franchise counsel, and every system is different. Talk to a lawyer about the requirement; use the plugin for the record.
-
-## Questions we get
-
-**Does installing Simple History make our site FTC-compliant?**
-No. Nothing you install makes you compliant. The rule is about the claims you make and your basis for them. What the plugin gives you is evidence of what your site said and when, which is the part that is otherwise very hard to produce after the fact.
-
-**Our sales page is built with Elementor. Will the figures be tracked?**
-Partly. You will see that the page was edited, by whom, at what time, and that custom fields changed — but not a diff of the wording, because Elementor stores the layout in a custom field. (Divi and WPBakery store theirs in the WordPress content field, so those _do_ produce a diff, of shortcode markup.) If a content-level record matters for that page, consider keeping the regulated figures in the WordPress editor rather than in builder widgets.
-
-**How long should we keep the log?**
-The Franchise Rule does not hand you a single number you can type into a plugin setting. Its own retention requirements are narrow — three years for a sample of each materially different disclosure document and for each signed receipt (16 CFR 436.6(h) and (i)) — and they say nothing about your website. Record-keeping expectations also vary by state and by what your FDD says. Ask your franchise counsel what period applies to you, then set retention to match. Premium can keep events indefinitely if the answer is "don't throw anything away".
-
-**Can we give the log to an auditor or a lawyer?**
-Yes. Filter the log down to the page and the date range in question and export the result as CSV, JSON or HTML with Premium. Log forwarding is worth setting up too, so a copy of the record lives outside the site — note that it is still a beta feature.
+-   Page builders work differently. We tested Elementor: saving from its editor logs who and when, but not the before-and-after text, though the linked WordPress revision has the new version. Divi's and WPBakery's front-end editors likely behave the same.
+-   Retention isn't retroactive. Set it before anyone asks about an old change.
+-   The log records changes, not snapshots. To show exactly how a page looked on a certain date, keep WordPress revisions on, or keep backups.
+-   The log is stored in your site's database. An administrator can empty it with the Clear log now button (that gets logged too) or with the WP-CLI command `wp simple-history db clear` (that doesn't), and anyone with database access can change it. For a record that stands on its own, forward events to an external database.
+-   This isn't legal advice. The rule's own record-keeping covers disclosure documents and signed receipts for three years (16 CFR 436.6(h), (i)), and state laws can add more. Ask your franchise counsel what applies.
 
 ---
 
-Still not sure whether this covers your setup? [Get in touch](https://simple-history.com/support/) and tell us which editor the page uses — that is usually the deciding detail.
+Not sure if this covers your setup? [Get in touch](https://simple-history.com/support/) and tell us which editor you use for the page.

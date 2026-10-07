@@ -142,3 +142,23 @@ add_filter(
 	10,
 	2
 );
+
+// Compact view screenshot: screenshot-compact-view.spec.js sets this cookie,
+// which turns on experimental features and the compact event log view for
+// that browser only, so the other screenshots keep the detailed view.
+if ( isset( $_COOKIE['sh_screenshot_compact'] ) ) {
+	add_filter( 'simple_history/experimental_features_enabled', '__return_true' );
+
+	add_filter(
+		'get_user_metadata',
+		function ( $value, $object_id, $meta_key ) {
+			if ( $meta_key === 'simple_history_events_view' ) {
+				return [ 'compact' ];
+			}
+
+			return $value;
+		},
+		10,
+		3
+	);
+}

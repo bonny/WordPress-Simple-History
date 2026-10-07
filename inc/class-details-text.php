@@ -286,19 +286,19 @@ class Details_Text {
 	 * Read a cell of a diff table.
 	 *
 	 * @param bool   $is_closer Whether the token is the closing tag.
-	 * @param string $class     Class attribute of the opening tag.
+	 * @param string $class_attr Class attribute of the opening tag.
 	 * @param int    $depth     Depth of the token.
 	 * @return void
 	 */
-	private function handle_diff_cell( $is_closer, $class, $depth ) {
+	private function handle_diff_cell( $is_closer, $class_attr, $depth ) {
 		if ( ! $is_closer ) {
-			if ( self::has_class( $class, 'diff-deletedline' ) ) {
+			if ( self::has_class( $class_attr, 'diff-deletedline' ) ) {
 				$this->diff_cell = 'deleted';
 				$this->diff_text = '';
-			} elseif ( self::has_class( $class, 'diff-addedline' ) ) {
+			} elseif ( self::has_class( $class_attr, 'diff-addedline' ) ) {
 				$this->diff_cell = 'added';
 				$this->diff_text = '';
-			} elseif ( self::has_class( $class, 'diff-context' ) ) {
+			} elseif ( self::has_class( $class_attr, 'diff-context' ) ) {
 				// Unchanged lines add noise in plain text.
 				$this->skip_depth = $depth;
 			}

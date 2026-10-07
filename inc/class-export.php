@@ -297,6 +297,10 @@ class Export {
 	 * @param int      $row_loop Row loop counter.
 	 */
 	protected function output_json_row( $fp, $one_row, $row_loop ) {
+		// Copy before filtering, the row object is shared with the caller.
+		$one_row          = clone $one_row;
+		$one_row->context = Helpers::filter_ip_addresses_for_current_user( $one_row->context ?? [] );
+
 		$comma    = $row_loop === 0 ? "\n" : ",\n";
 		$json_row = $comma . Helpers::json_encode( $one_row );
 

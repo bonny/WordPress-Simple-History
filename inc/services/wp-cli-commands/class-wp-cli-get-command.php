@@ -90,7 +90,7 @@ class WP_CLI_Get_Command extends WP_CLI_Command {
 			'date'         => $event_row->date,
 			'initiator'    => $initiator,
 			'message'      => $text_output,
-			'via'          => $event_logger ? $event_logger->get_info_value_by_key( 'name_via' ) : '',
+			'via'          => $event_logger ? $event_logger->get_via( $event_row ) : '',
 			'logger'       => $event_row->logger,
 			'level'        => $event_row->level,
 			'count'        => $event_row->subsequentOccasions, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase

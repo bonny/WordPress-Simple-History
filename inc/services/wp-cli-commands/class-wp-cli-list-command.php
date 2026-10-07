@@ -150,6 +150,27 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 * [--only_sticky]
 	 * : Show only sticky events.
 	 *
+	 * [--orderby=<column>]
+	 * : Column to sort events by.
+	 * ---
+	 * default: date
+	 * options:
+	 *   - date
+	 *   - id
+	 *   - level
+	 *   - logger
+	 *   - message
+	 * ---
+	 *
+	 * [--order=<direction>]
+	 * : Sort direction.
+	 * ---
+	 * default: desc
+	 * options:
+	 *   - asc
+	 *   - desc
+	 * ---
+	 *
 	 * ## Surrounding Events
 	 *
 	 * Show events chronologically before and after a specific event. Useful for debugging
@@ -209,6 +230,12 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 	 *
 	 *     # Show only sticky events
 	 *     wp simple-history event list --only_sticky --format=json
+	 *
+	 *     # Show the oldest events first
+	 *     wp simple-history event list --orderby=id --order=asc
+	 *
+	 *     # Group the output by log level
+	 *     wp simple-history event list --orderby=level --order=asc --count=50
 	 *
 	 *     # Exclude debug level events
 	 *     wp simple-history event list --exclude_log_level=debug --count=50
@@ -293,6 +320,8 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'months'               => '',
 				'include_sticky'       => false,
 				'only_sticky'          => false,
+				'orderby'              => 'date',
+				'order'                => 'desc',
 				'exclude_search'       => '',
 				'exclude_log_level'    => '',
 				'exclude_logger'       => '',
@@ -352,6 +381,8 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 		$query_args = array(
 			'posts_per_page' => $assoc_args['count'],
 			'ungrouped'      => true,
+			'orderby'        => $assoc_args['orderby'],
+			'order'          => $assoc_args['order'],
 		);
 
 		// Add filters to query args if provided.
@@ -545,6 +576,14 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				? (string) $row->context[ \Simple_History\Services\AI_Initiator_Detector::CONTEXT_KEY_APPLICATION ]
 				: '';
 
+			// Loggers without a "via" text give null here, as in earlier
+			// releases, so scripts reading --format=json see the same value.
+			$via = $row_logger ? $row_logger->get_via( $row ) : '';
+
+			if ( $via === '' ) {
+				$via = null;
+			}
+
 			$eventsCleaned[] = array(
 				'ID'              => $id_display,
 				'date'            => get_date_from_gmt( $row->date ),
@@ -554,7 +593,7 @@ class WP_CLI_List_Command extends WP_CLI_Command {
 				'level'           => $row->level,
 				'who_when'        => $header_output,
 				'description'     => $text_output,
-				'via'             => $row_logger ? $row_logger->get_info_value_by_key( 'name_via' ) : '',
+				'via'             => $via,
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'count'           => $row->subsequentOccasions,
 				'reactions'       => $reactions_display,

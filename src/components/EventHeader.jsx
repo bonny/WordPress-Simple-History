@@ -9,12 +9,17 @@ import { EventBackfilledIndicator } from './EventBackfilledIndicator';
  * Outputs event "meta": name of the event initiator (who), the date, and the via text (if any).
  *
  * @param {Object} props
+ * @param {Object} props.leading Optional node placed before everything else.
+ *                               The compact row puts its avatar here, since it
+ *                               has no left column to put it in.
  */
 export function EventHeader( props ) {
-	const { event, eventVariant, isSurroundingEventsMode } = props;
+	const { event, eventVariant, isSurroundingEventsMode, leading } = props;
 
 	return (
 		<div className="SimpleHistoryLogitem__header">
+			{ leading }
+
 			{ isSurroundingEventsMode && (
 				<span className="SimpleHistoryLogitem__eventId">
 					#{ event.id }

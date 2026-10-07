@@ -3,13 +3,16 @@
 -   Tests use [wpbrowser](https://wpbrowser.wptestkit.dev/).
 -   Tests are run using Docker.
 -   Install required composer dependencies with `$ docker-compose run --rm php-cli composer install`.
--   Copy `dump.sql` to `tests/_data/dump.sql`.
-    -   This is the starting database fixture, containing the WordPress state that the tests start from. It's a minimal, starting environment shared by all tests. The file is not included in the repo.
--   Copy `twentysixteen.2.6.zip` and `twentysixteen.2.7.zip` to `tests/_data/twentysixteen.2.6.zip` and `tests/_data/twentysixteen.2.7.zip`.
--   Manually download [Jetpack](https://wordpress.org/plugins/jetpack/) and [WP Crontrol](https://wordpress.org/plugins/wp-crontrol/) and place in `tests/plugins`. The plugins are are used to test that Simple History catches changes in those plugins.
+-   Run `scripts/build-test-fixture.sh` to create `tests/_data/dump.sql` and download the plugin and theme zips the acceptance tests upload.
+    -   The dump is the starting database fixture: the WordPress state every functional and acceptance test starts from. It is generated from the WordPress in the `wordpress` container, so it can never be a different version than the one the tests run against. It is not committed. The script resets the `wp_test_site` database and empties `data/wp-uploads`, and backs up an existing dump next to itself first.
+-   Run `scripts/install-test-plugins.sh` to fetch the third-party plugins the suites and phpstan need (Jetpack, WP Crontrol, Redirection, …) into `tests/plugins/` at pinned versions. The directory is gitignored; `wpunit.suite.yml` lists six of them and WPLoader dies at bootstrap if any is missing.
+-   To run the premium tests (`tests/wpunit/premium/`), link the premium checkout in with `npm run pair -- link` from the add-ons repo. Without the link they skip rather than fail.
+-   The wpunit suite installs its own WordPress into the `tests_db` database. `docker/db-init/tests-db.sql` creates it the first time the database container starts on an empty `data/mysql`, so nothing needs doing by hand.
 -   Start containers required for testing:
-    `$ docker compose up -d`.
-    This will start **WordPress**, **MariaDB** and a **Headless Chrome** using Selenium.
+    `$ docker compose up -d --wait`.
+    This will start **WordPress**, **MariaDB** and a **Headless Chrome** using Selenium, and wait until each is actually ready rather than merely started.
+    -   `wpunit` and `functional` only need WordPress and MariaDB — `php-cli` starts those itself, so you can skip this step for them.
+    -   **Acceptance needs Chrome, and `php-cli` does not start it.** `npm run test:acceptance` brings it up for you; if you invoke `codecept run acceptance` directly, run `$ docker compose up -d --wait chrome` first or the first browser action fails with a WebDriver connection error.
 -   Run _unit_, _acceptance_, and _functional_ tests using PHP 7.4:
     -   `$ docker-compose run --rm php-cli vendor/bin/codecept run wpunit`
         -   Faster tests to test things that does not require so much user input.
@@ -22,11 +25,27 @@
     -   Run single test:
         -   `docker-compose run --rm php-cli vendor/bin/codecept run acceptance FirstCest:visitPluginPage`
 
+## Continuous integration
+
+`.github/workflows/test.yml` runs all three suites on every push, one job each, through
+the same `docker compose run --rm php-cli vendor/bin/codecept run <suite>` a developer
+uses. The shared setup (`composer install`, `npm run build` because the React dropins
+include `build/*.asset.php` unconditionally, `scripts/install-test-plugins.sh`) lives in
+`.github/actions/setup-tests`. The functional and acceptance jobs run
+`scripts/build-test-fixture.sh` first; acceptance also starts the `chrome` service.
+Failed runs upload `tests/_output` (screenshots and page HTML) as an artifact.
+
+Premium is absent in core's CI, so its tests skip; the add-ons repository has a matching
+workflow that checks out core, links premium in and runs `codecept run wpunit premium`.
+
 ## Run a single test
 
 To run for example `UserCest:logUserProfileUpdated`:
 
-`$ docker-compose run --rm php-cli vendor/bin/codecept run acceptance UserCest:logUserProfileUpdated`
+`$ docker compose up -d --wait chrome && docker compose run --rm php-cli vendor/bin/codecept run acceptance UserCest:logUserProfileUpdated`
+
+The `chrome` part is only needed for acceptance tests. For a single `wpunit` or
+`functional` test, `docker compose run --rm php-cli …` on its own is enough.
 
 ## Setting up the starting database fixture
 
@@ -34,7 +53,7 @@ The `dump.sql` file must match a specific state for tests to pass. Here's what t
 
 ### Required state
 
--   **WordPress version:** Must match the version in `compose.yaml` (currently 6.8)
+-   **WordPress version:** Must match the version in `compose.yaml` (currently 6.8). Generating the dump from the container guarantees this.
 -   **Site URL:** `http://wordpress` (the Docker service name)
 -   **Site title:** `wp-tests`
 -   **Admin user:** `admin` / `admin` / `test@example.com`
@@ -47,41 +66,11 @@ The `dump.sql` file must match a specific state for tests to pass. Here's what t
 ### Generating the dump
 
 ```sh
-# 1. Start containers
-docker compose up -d
-
-# 2. Reset and install WordPress fresh
-docker compose run --rm wp-cli wp db reset --yes
-docker compose run --rm wp-cli wp core install \
-    --url=http://wordpress \
-    --title=wp-tests \
-    --admin_user=admin \
-    --admin_email=test@example.com \
-    --admin_password=admin \
-    --skip-email
-
-# 3. Empty site (removes default post, page, etc.)
-docker compose run --rm wp-cli wp site empty --yes --uploads
-
-# 4. Activate only Simple History
-docker compose run --rm wp-cli wp plugin deactivate --all
-docker compose run --rm wp-cli wp plugin activate simple-history
-
-# 5. Fix uploads directory permissions (wp site empty may recreate it as root)
-docker compose exec -u root wordpress chown -R www-data:www-data /var/www/html/wp-content/uploads
-
-# 6. Trigger the auto-backfill so it won't run during tests.
-#    The backfill hooks into admin_init, so visit any admin page to trigger it.
-#    Open http://localhost:9191/wp-admin/ in a browser, or use curl:
-curl -s -o /dev/null -u admin:admin http://localhost:9191/wp-admin/
-
-# 7. Clear all Simple History events created during setup (backfill, login, etc.)
-docker compose run --rm wp-cli wp db query \
-    "TRUNCATE TABLE wp_simple_history; TRUNCATE TABLE wp_simple_history_contexts;"
-
-# 8. Export
-docker compose run --rm wp-cli wp db export - > tests/_data/dump.sql
+scripts/build-test-fixture.sh          # zips + dump
+scripts/build-test-fixture.sh --dump   # just the dump
 ```
+
+The script does what the old hand-typed recipe did — `wp db reset`, `wp core install`, `wp site empty`, activate only Simple History, mark the auto-backfill completed, truncate the Simple History tables, `wp db export` — and is what CI runs before the functional and acceptance jobs. Rerun it after changing `WORDPRESS_VERSION` in `compose.yaml`.
 
 ### Verifying the dump state
 
@@ -159,7 +148,7 @@ Two things to know before doing this:
 
 If you only need the image and the exact tag is not on disk, an already-present image can be retagged rather than pulling a gigabyte: `docker tag wordpress:6.9 wordpress:6.9-php8.1`. The `wordpress` container only populates core files; the tests themselves execute in `php-cli`, so that image's bundled PHP version does not affect the run.
 
-Do **not** reach for `docker compose run --no-deps` to skip starting Chrome. The run container then never joins the project network and every test dies with `getaddrinfo for db failed: Name does not resolve`. Chrome is only needed for acceptance tests, but `wpunit` still has to start with the normal dependency chain.
+Do **not** reach for `docker compose run --no-deps`. The run container then never joins the project network and every test dies with `getaddrinfo for db failed: Name does not resolve`. (Chrome is no longer in `php-cli`'s dependency chain, so there is nothing to save by skipping it — see the acceptance note at the top of this file.)
 
 This procedure is verified: run on 6.9.1 the abilities suite goes from 18 skipped to 24 passing, and `docker compose down -v` followed by a plain `docker compose up -d` returns the volume to 6.8.3 with the skips restored.
 

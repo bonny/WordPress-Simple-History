@@ -3,8 +3,15 @@ on:
     workflow_dispatch:
     push:
         tags:
-            # Semver (https://semver.org/) release pattern.
-            - '[0-9]+.[0-9]+.[0-9]+*'
+            # Semver (https://semver.org/) release pattern, deliberately with
+            # no trailing wildcard. GitHub reads `*` as "anything after", so
+            # the old `[0-9]+.[0-9]+.[0-9]+*` also matched a pre-release tag
+            # like 5.34.0-dev — which would have pushed a development build
+            # to the WordPress.org SVN repo for every user to auto-update to.
+            # Every release tag in this repo's history is a plain X.Y.Z, so
+            # the wildcard bought nothing. Pre-release tags now do not deploy;
+            # use workflow_dispatch if one ever has to.
+            - '[0-9]+.[0-9]+.[0-9]+'
 jobs:
     tag:
         name: Deploy Tag

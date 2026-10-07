@@ -431,6 +431,30 @@ if ( $user_logger ) {
 }
 
 // ---------------------------------------------------------------------------
+// Spread today's curated events over the last couple of hours. Loggers stamp
+// NOW, so without this every event reads "a second ago", which looks staged.
+// Newest event first; offsets are in minutes before now.
+// ---------------------------------------------------------------------------
+$todays_event_ids = $wpdb->get_col(
+	$wpdb->prepare(
+		"SELECT id FROM {$events_table} WHERE date >= %s ORDER BY id DESC",
+		gmdate( 'Y-m-d H:i:s', time() - 10 * MINUTE_IN_SECONDS )
+	)
+);
+
+$minute_offsets = [ 3, 9, 22, 37, 51, 64, 78, 86, 97, 108, 116, 124, 131 ];
+
+foreach ( $todays_event_ids as $index => $todays_event_id ) {
+	$offset = $minute_offsets[ $index ] ?? ( 131 + $index );
+
+	$wpdb->update(
+		$events_table,
+		[ 'date' => gmdate( 'Y-m-d H:i:s', time() - $offset * MINUTE_IN_SECONDS ) ],
+		[ 'id' => $todays_event_id ]
+	);
+}
+
+// ---------------------------------------------------------------------------
 // Historical noise — generic events spread across the last 28 days so
 // "Daily activity over last 30 days" in History Insights looks populated
 // (varied bars, not a single spike today) and "Most active users" reads
@@ -485,10 +509,97 @@ $templates = [
 	],
 ];
 
+// Yesterday gets a fixed set of events instead of random noise, so the
+// compact view screenshot (screenshot-compact-view.spec.js) shows a
+// believable "Yesterday" group under today's curated events.
+$yesterday = gmdate( 'Y-m-d', time() - DAY_IN_SECONDS );
+$mike_id   = $extra_user_ids[0] ?? $alex_id;
+
+$yesterday_events = [
+	[
+		'time'    => '17:48:00',
+		'logger'  => 'SimplePluginLogger',
+		'message' => 'Updated plugin "{plugin_name}" to version {plugin_version} from {plugin_prev_version}',
+		'key'     => 'plugin_updated',
+		'user_id' => $alex_id,
+		'extra'   => [
+			'plugin_name'         => 'Yoast SEO',
+			'plugin_version'      => '25.2',
+			'plugin_prev_version' => '25.1',
+		],
+	],
+	[
+		'time'    => '15:20:00',
+		'logger'  => 'SimplePostLogger',
+		'message' => 'Created {post_type} "{post_title}"',
+		'key'     => 'post_created',
+		'user_id' => $robin_id,
+		'extra'   => [ 'post_title' => 'Autumn lookbook', 'post_type' => 'post' ],
+	],
+	[
+		'time'    => '11:05:00',
+		'logger'  => 'SimplePostLogger',
+		'message' => 'Updated {post_type} "{post_title}"',
+		'key'     => 'post_updated',
+		'user_id' => $sally_id,
+		'extra'   => [ 'post_title' => 'Contact', 'post_type' => 'page' ],
+	],
+	[
+		'time'    => '09:32:00',
+		'logger'  => 'SimpleUserLogger',
+		'message' => 'Logged in',
+		'key'     => 'user_logged_in',
+		'user_id' => $mike_id,
+		'extra'   => [],
+	],
+];
+
+foreach ( $yesterday_events as $index => $ye ) {
+	$wpdb->insert(
+		$events_table,
+		[
+			'date'        => $yesterday . ' ' . $ye['time'],
+			'logger'      => $ye['logger'],
+			'level'       => 'info',
+			'message'     => $ye['message'],
+			'initiator'   => 'wp_user',
+			'occasionsID' => md5( 'yesterday' . $ye['logger'] . $ye['key'] . $index ),
+		]
+	);
+
+	$event_id = (int) $wpdb->insert_id;
+	$user     = get_userdata( $ye['user_id'] );
+
+	$context = array_merge(
+		[
+			'_user_id'            => (string) $ye['user_id'],
+			'_user_login'         => $user ? $user->user_login : '',
+			'_user_email'         => $user ? $user->user_email : '',
+			'_message_key'        => $ye['key'],
+			'_loggerSlug'         => $ye['logger'],
+			'_initiator'          => 'wp_user',
+			// RFC 5737 documentation range; reads like a real visitor IP.
+			'_server_remote_addr' => '198.51.100.23',
+		],
+		$ye['extra']
+	);
+
+	foreach ( $context as $key => $value ) {
+		$wpdb->insert(
+			$context_table,
+			[
+				'history_id' => $event_id,
+				'key'        => $key,
+				'value'      => (string) $value,
+			]
+		);
+	}
+}
+
 // Walk back day-by-day; some days are quiet, some busy, a couple are empty.
 // Total lands around 50 events across 28 days.
 $event_counter = 0;
-for ( $days_ago = 1; $days_ago <= 28; $days_ago++ ) {
+for ( $days_ago = 2; $days_ago <= 28; $days_ago++ ) {
 	$roll = wp_rand( 1, 10 );
 	if ( $roll <= 3 ) {
 		$events_today = 0;
