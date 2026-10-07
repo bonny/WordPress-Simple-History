@@ -78,11 +78,21 @@ Use native HTML elements and CSS before reaching for JavaScript:
 -   Don't rely on color alone to convey meaning (add text labels, icons, or patterns)
 -   Use semantic HTML (`<button>` for actions, `<a>` for navigation, `<nav>`, `<main>`, etc.)
 
+## Images
+
+Every PNG committed to the repo (wordpress.org screenshots and banners, teaser images, OG share cards, icons) must go through `pngquant` then `oxipng` before it lands. Never commit a PNG straight out of Playwright or an image editor. The full pipeline and other formats are in the **image-optimization** skill.
+
+## Writing Prose
+
+Any prose written for this project (changelogs, commit messages, PR descriptions, blog posts, docs) should read like a person wrote it, not an AI. Avoid stock AI filler phrases and hype words: "seamlessly", "carries through to" / "carry through", "robust", "leverage" (as a verb), "delve into", "elevate", "streamline", "unlock", "empower", "cutting-edge", "game-changer", "boasts", "a testament to", "harness the power of", "in today's ... landscape/world", "when it comes to", "at the end of the day", "it's worth noting that", "furthermore" / "moreover" as transitions.
+
+Prefer a plain, direct sentence over a polished-sounding one. If a phrase sounds like marketing copy or a LinkedIn post, cut it.
+
+Use the **simple-history-voice** skill for the project voice and rules per text type (changelog, GUI copy, blog posts, newsletters, upsell copy). It runs the draft through the user-level **humanizer** skill ([blader/humanizer](https://github.com/blader/humanizer), install with `npx skills add blader/humanizer --global`), which catches the general AI tells.
+
 ## Changelog
 
--   Try to use format from https://keepachangelog.com
--   Also read and try to follow https://developer.wordpress.org/news/2025/11/the-importance-of-a-good-changelog/
--   Use the **changelog** skill to add entries to readme.txt
+Use the **changelog** skill to add entries to readme.txt.
 
 ## Git
 

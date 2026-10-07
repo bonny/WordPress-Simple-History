@@ -3,6 +3,7 @@
 namespace Simple_History\Dropins;
 
 use Simple_History\Helpers;
+use Simple_History\Services\REST_API;
 
 /**
  * Loads the new GUI based on React.
@@ -54,6 +55,18 @@ class React_Dropin extends Dropin {
 		wp_enqueue_script( 'simple_history_wp_scripts' );
 		wp_set_script_translations( 'simple_history_wp_scripts', 'simple-history' );
 
+		$stored_events_view = get_user_meta( get_current_user_id(), REST_API::EVENTS_VIEW_USER_META_KEY, true );
+
+		// Read at enqueue time too, so the first paint already has the sidebar
+		// in the state the reader left it. Fetching it would mean drawing the
+		// page one way and then rearranging it, which is the single most
+		// visible kind of flash a layout can have.
+		$hidden_sidebar_views = get_user_meta(
+			get_current_user_id(),
+			REST_API::HIDDEN_SIDEBAR_VIEWS_USER_META_KEY,
+			true
+		);
+
 		// The events page URL is also returned by the search-options REST endpoint,
 		// but that arrives after the first render. Anything building a link before
 		// it resolves — the surrounding-events view renders without waiting for
@@ -63,9 +76,60 @@ class React_Dropin extends Dropin {
 			'simple_history_wp_scripts',
 			'simpleHistoryReactData',
 			[
-				'eventsAdminPageURL' => Helpers::get_history_admin_url(),
+				'eventsAdminPageURL'  => Helpers::get_history_admin_url(),
+				// Read at enqueue time so the first render already uses the user's view.
+				'eventsView'          => $this->get_initial_events_view( $stored_events_view ),
+				// The views the reader has hidden the page sidebar in. An
+				// array rather than the stored string, because every reader of
+				// it wants the list. See REST_API::HIDDEN_SIDEBAR_VIEWS_USER_META_KEY.
+				'hiddenSidebarViews'  => array_values(
+					array_intersect(
+						is_string( $hidden_sidebar_views ) && $hidden_sidebar_views !== ''
+							? explode( ',', $hidden_sidebar_views )
+							: [],
+						REST_API::EVENTS_VIEWS
+					)
+				),
+				// Used by the Table view preview's upgrade link. Built here, not in
+				// JS, so it goes through Helpers::get_tracking_url() like every
+				// other tracked link (issue 280: an untagged link lost three
+				// quarters of the user card's click attribution).
+				//
+				// Points at the table view's own feature page rather than the
+				// generic Premium page, so the click lands on what it promised.
+				'tableViewUpgradeUrl' => Helpers::get_tracking_url(
+					'https://simple-history.com/features/table-view/',
+					'premium_table_view',
+					'wpadmin',
+					'plugin',
+					'preview_cta'
+				),
 			]
 		);
+	}
+
+	/**
+	 * The view the events page opens in, from the reader's stored choice.
+	 *
+	 * A stored "table" only counts with Premium active. Without it the table
+	 * view is an upgrade preview, and reopening the log on that preview every
+	 * visit because the reader clicked the table icon once would be a nag
+	 * screen. A ?view=table link still opens the preview, since following one
+	 * is a choice made there and then.
+	 *
+	 * @param mixed $stored_events_view The stored user meta value.
+	 * @return string One of "detailed", "compact" or "table".
+	 */
+	private function get_initial_events_view( $stored_events_view ) {
+		if ( $stored_events_view === 'compact' ) {
+			return 'compact';
+		}
+
+		if ( $stored_events_view === 'table' && Helpers::is_premium_add_on_active() ) {
+			return 'table';
+		}
+
+		return 'detailed';
 	}
 
 	/**

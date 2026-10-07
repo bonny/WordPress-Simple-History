@@ -100,6 +100,11 @@ See the [README](./tests/readme.md) in `tests` directory.
 
 ## Sponsors
 
+### More plugins by the same author
+
+- [CMS Tree Page View](https://wordpress.org/plugins/cms-tree-page-view/): reorder pages in a drag-and-drop tree. Logs its moves to Simple History.
+- [Simple SEO](https://wordpress.org/plugins/simple-seo/): a tiny SEO plugin. Logs SEO changes to Simple History.
+
 ### Hosting Sponsor
 
 <a href="https://www.oderland.se" style="float: right; margin-left: 20px;">

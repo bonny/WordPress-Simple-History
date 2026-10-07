@@ -119,6 +119,33 @@ class Log_Levels {
 	}
 
 	/**
+	 * Get all log levels ordered by severity, least severe first.
+	 *
+	 * This is PSR-3's order, and it is the order anything that ranks levels
+	 * must use. Levels are stored as varchars, so sorting on the column
+	 * itself sorts alphabetically — which puts emergency between error and
+	 * info and makes "show me the worst first" meaningless.
+	 *
+	 * The array index is the rank, so a caller that needs a number can use
+	 * array_search() or array_flip() rather than repeating the order.
+	 *
+	 * @since 5.34.0
+	 * @return array Log levels, least severe first.
+	 */
+	public static function get_log_levels_by_severity() {
+		return array(
+			self::DEBUG,
+			self::INFO,
+			self::NOTICE,
+			self::WARNING,
+			self::ERROR,
+			self::CRITICAL,
+			self::ALERT,
+			self::EMERGENCY,
+		);
+	}
+
+	/**
 	 * Check if a string is a valid log level.
 	 *
 	 * @since 4.0.0

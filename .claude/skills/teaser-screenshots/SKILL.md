@@ -11,11 +11,12 @@ These screenshots are embedded _inside the free version's UI_ (e.g. the user car
 
 ## Captured screenshots
 
-A single capture run produces four PNGs in `assets/images/`. The orchestrator (`scripts/capture-teaser-screenshots.sh`) toggles the premium plugin between the two passes and trap-restores it on exit.
+A single capture run produces five PNGs in `assets/images/`. The orchestrator (`scripts/capture-teaser-screenshots.sh`) toggles the premium plugin between the two passes and trap-restores it on exit.
 
 | File                                    | Mode                | Variant                | Used in                                                                 |
 | --------------------------------------- | ------------------- | ---------------------- | ----------------------------------------------------------------------- |
-| `user-card-with-premium.png`            | premium active      | close-up               | `src/components/UserCard.jsx` — `PremiumTeaserBlurred` embedded preview |
+| `user-card-premium-details.png`         | premium active      | premium rows only      | `src/components/UserCard.jsx` — `PremiumTeaserBlurred` embedded preview |
+| `user-card-with-premium.png`            | premium active      | close-up               | Marketing / docs                                                        |
 | `user-card-with-premium-context.png`    | premium active      | with event-row context | Marketing / blog / docs                                                 |
 | `user-card-without-premium.png`         | premium deactivated | close-up               | Marketing / docs ("what free users see")                                |
 | `user-card-without-premium-context.png` | premium deactivated | with event-row context | Marketing / blog                                                        |
@@ -27,7 +28,7 @@ Add a row whenever a new in-product screenshot is wired up.
 1. **Premium add-on must be installed** on the stable WP install (the orchestrator handles activate/deactivate itself, but the plugin files need to exist). Verify:
 
     ```bash
-    cd /Users/bonny/Projects/_docker-compose-to-run-on-system-boot
+    cd ../_docker-compose-to-run-on-system-boot   # or $SH_DOCKER_DIR
     docker compose run --rm wpcli_mariadb plugin list | grep simple-history-premium
     ```
 
@@ -50,7 +51,13 @@ Runs in ~30 seconds (two Playwright passes + plugin toggles). For each mode the 
 
 After capture, the orchestrator runs each PNG through `pngquant` (`--quality=80-95 --strip --skip-if-larger`) — typically shrinks files ~65–70% with no visible quality loss. If `pngquant` isn't installed (`brew install pngquant`), the step is skipped with a hint and the un-optimized PNGs still ship.
 
-Run the orchestrator instead of invoking Playwright directly — the script handles the premium activate/deactivate dance, the optimization step, and trap-restores premium on exit even if a test fails. Manual single-mode runs are still possible via `SH_TEASER_MODE=premium|free playwright test tests/playwright/screenshot-teaser-user-card.spec.js --project=teaser` (but you'll need to run `pngquant` yourself afterwards).
+The orchestrator does **not** yet run the lossless second pass, so finish the job by hand before committing (see [code.md](../../../code.md#images)):
+
+```bash
+oxipng -o max --strip safe assets/images/user-card-*.png
+```
+
+Run the orchestrator instead of invoking Playwright directly — the script handles the premium activate/deactivate dance, the optimization step, and trap-restores premium on exit even if a test fails. Manual single-mode runs are still possible via `SH_TEASER_MODE=premium|free playwright test tests/playwright/screenshot-teaser-user-card.spec.js --project=teaser` (but you'll need to run `pngquant` and `oxipng` yourself afterwards).
 
 ## When to re-run
 
@@ -63,7 +70,7 @@ Run the orchestrator instead of invoking Playwright directly — the script hand
 
 1. **Write a Playwright spec** at `tests/playwright/screenshot-teaser-<name>.spec.js`. Pattern to follow: copy `screenshot-teaser-user-card.spec.js`. Key bits:
     - `test.use({ viewport, deviceScaleFactor: 2 })` for retina output
-    - Use the cached admin session (default `chromium` project handles auth via `auth.setup.js`)
+    - Use the cached admin session (the `teaser` project in `playwright.config.js` handles auth through the `setup` project, `auth.setup.js`)
     - Read `SH_TEASER_MODE` (or whatever flag makes sense) to pick filenames
     - Wait for the target UI to be fully populated before clipping
     - Capture both a tight popover/element clip AND a wider context clip

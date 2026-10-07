@@ -126,9 +126,10 @@ export function EventsList( props ) {
 		hasActiveFilters,
 		onClearFilters,
 		canAdjustFilters,
+		eventsView,
 	} = props;
 
-	const { hasPremiumAddOn, hasFailedLoginLimit } = useEventsSettings();
+	const { hasPremiumAddOn } = useEventsSettings();
 
 	const totalPages = eventsMeta.totalPages;
 	const isSurroundingEventsMode = Boolean( surroundingEventId );
@@ -178,6 +179,10 @@ export function EventsList( props ) {
 				eventsIsLoading={ eventsIsLoading }
 			/>
 
+			{ /* InitiatorFilterHint is switched off for now: no placement
+			   on this page worked well enough (issue 327). The component
+			   is kept so it can come back with the layout refactor. */ }
+
 			<FetchEventsNoResultsMessage
 				eventsIsLoading={ eventsIsLoading }
 				hasErrors={ eventsLoadingHasErrors }
@@ -196,6 +201,7 @@ export function EventsList( props ) {
 				events={ events }
 				prevEventsMaxId={ prevEventsMaxId }
 				surroundingEventId={ surroundingEventId }
+				eventsView={ eventsView }
 			/>
 
 			{ showBackfilledNotice && <BackfilledNotice /> }

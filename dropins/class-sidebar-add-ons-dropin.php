@@ -74,7 +74,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 					<?php
 					printf(
 						/* translators: %s: Simple History Premium (bold text). */
-						esc_html__( "Don't lose important history after 60 days. %s keeps your logs as long as you need, plus adds exports, custom events, and more.", 'simple-history' ),
+						esc_html__( "Don't lose important history to automatic cleanup. %s keeps your logs as long as you need, plus adds exports, custom events, and more.", 'simple-history' ),
 						'<strong>' . esc_html__( 'Simple History Premium', 'simple-history' ) . '</strong>'
 					);
 					?>
@@ -105,21 +105,32 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 	}
 
 	/**
-	 * Output compact premium promo above History Insights.
+	 * Whether the compact premium promo card shows in the sidebar.
+	 *
+	 * Shared with Tips_Service, which drops its own premium tips when this card
+	 * is already on screen so a free user does not get two premium pitches in
+	 * the same sidebar.
+	 *
+	 * @return bool True when the card shows.
 	 */
-	public function on_sidebar_html_premium_promo_compact() {
+	public static function should_show_premium_promo_compact() {
 		$install_date       = Helpers::get_plugin_install_date();
 		$install_timestamp  = $install_date ? strtotime( $install_date ) : false;
 		$days_since_install = $install_timestamp ? ( time() - $install_timestamp ) / DAY_IN_SECONDS : 0;
 
-		$show_premium_card = Helpers::show_promo_boxes()
+		return Helpers::show_promo_boxes()
 			&& (
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only preview toggle for the promo card; no state change.
 				isset( $_GET['sh_preview_premium_promo'] )
 				|| $days_since_install >= self::MINIMUM_DAYS_BEFORE_PREMIUM_PROMO
 			);
+	}
 
-		if ( ! $show_premium_card ) {
+	/**
+	 * Output compact premium promo above History Insights.
+	 */
+	public function on_sidebar_html_premium_promo_compact() {
+		if ( ! self::should_show_premium_promo_compact() ) {
 			return;
 		}
 
@@ -301,7 +312,7 @@ class Sidebar_Add_Ons_Dropin extends Dropin {
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Export search results as CSV and JSON', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Customize log retention by setting the number of days to keep logs', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Limit number of failed login attempts that are logged', 'simple-history' ); ?></li>
-					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Control how to store IP Addresses – anonymized or not', 'simple-history' ); ?></li>
+					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Store full IP addresses instead of masked ones', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'View a map of where failed login attempts happened', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Control what messages that are logged to match your needs', 'simple-history' ); ?></li>
 					<li class="sh-PremiumFeaturesPostbox-featuresList-item"><?php echo esc_html__( 'Remove banners like this one', 'simple-history' ); ?></li>

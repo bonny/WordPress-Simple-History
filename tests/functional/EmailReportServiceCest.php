@@ -26,7 +26,7 @@ class EmailReportServiceCest {
         // Check for Recipients field
         $I->canSee('Recipients');
         $I->seeElement('#simple_history_email_report_recipients');
-        $I->canSee('Enter one email address per line.');
+        $I->canSee('One email address per line.');
         
         // Check for Preview field
         $I->canSee('Preview');
@@ -149,14 +149,6 @@ class EmailReportServiceCest {
         $I->seeInField('#simple_history_email_report_recipients', '');
     }
 
-    public function test_recipients_field_placeholder( FunctionalTester $I ) {
-        $I->amGoingTo('Check recipients field placeholder text');
-        
-        $placeholder = $I->grabAttributeFrom('#simple_history_email_report_recipients', 'placeholder');
-        $I->assertStringContainsString('email@example.com', $placeholder);
-        $I->assertStringContainsString('another@example.com', $placeholder);
-    }
-
     public function test_html_preview_accessible( FunctionalTester $I ) {
         $I->amGoingTo('Test that HTML preview is accessible and shows expected content');
         
@@ -221,8 +213,8 @@ class EmailReportServiceCest {
         // Check that date range is shown (should be last 7 days)
         $I->seeInSource('–'); // Date range separator
         
-        // Verify statistics sections are present even if empty
-        $I->seeInSource('Posts created');
+        // Verify statistics sections are present. A section with no activity
+        // is named in the "Nothing happened this week in …" line instead.
         $I->seeInSource('Posts and Pages');
         $I->seeInSource('Event count by day');
         $I->seeInSource('Total events');

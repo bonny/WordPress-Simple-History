@@ -70,7 +70,45 @@ PLAYWRIGHT_BASE_URL=$(jq -r .url .playground.json) WP_ADMIN_USER=admin WP_ADMIN_
   npx playwright test tests/playwright/<spec>.spec.js
 ```
 
-The manual steps below remain useful for special setups (multisite, custom blueprints).
+The manual steps below remain useful for special setups (custom blueprints).
+
+### Adding a test plugin to the instance
+
+To reproduce what another plugin does (e.g. change roles from `init`), add it with a custom blueprint rather than editing the mounted dirs. Copy the generated `.playground-blueprint.json`, append the steps, and restart with it (`parallel-dev.sh` strips and re-injects its own steps, so starting from the generated file is fine):
+
+```bash
+jq --rawfile php my-plugin.php '.steps += [
+  {"step":"mkdir","path":"/wordpress/wp-content/plugins/my-plugin"},
+  {"step":"writeFile","path":"/wordpress/wp-content/plugins/my-plugin/my-plugin.php","data":$php},
+  {"step":"activatePlugin","pluginPath":"my-plugin/my-plugin.php"}
+]' .playground-blueprint.json > /path/to/scratchpad/blueprint.json
+
+scripts/parallel-dev.sh down <slug>
+scripts/parallel-dev.sh up <slug> --blueprint=/path/to/scratchpad/blueprint.json
+```
+
+`writeFile` does not create parent directories; without the `mkdir` step the blueprint fails and the instance never starts (the error is only in `.playground.log`).
+
+REST calls authenticated with the application password have **no current user during `init`**. WordPress only accepts application passwords once `REST_REQUEST` is defined, which happens after `init`, and the REST server then clears the cached anonymous user (`class-wp-rest-server.php`). Code that runs on `init` sees a logged-out request even though the endpoint later runs as admin. Cookie-authenticated requests do have the user on `init`.
+
+## Checks and tests inside a worktree
+
+Worktrees live under `.claude/worktrees/<slug>/`, and several tools treat `.claude/` specially:
+
+-   **phpcs**: `phpcs.xml.dist` used to exclude `*/.claude/`, which matched the worktree's own absolute path, so phpcs inside a worktree silently checked **nothing** and reported success. Fixed in issue 331 (two exclude patterns: `.claude/` except `worktrees/` anywhere, plus `worktrees/` relative to the scanned root). If a worktree branches from a commit before that fix, phpcs there is still blind: a clean run in a few tens of milliseconds is the tell. Piping a file through stdin (`phpcs - < file.php`) works around it but reports bogus "PHP syntax error" lines on files that are fine.
+-   **phpstan**: works as usual (`./vendor/bin/phpstan analyse --memory-limit=2G`); its paths are relative.
+-   **Codeception (wpunit etc.)**: `docker compose run` from the worktree fails, because `compose.yaml` pins container names (`simple-history-database`) that the main checkout's stack already uses. Run against the main stack with `-p wordpress-simple-history` from the worktree dir, so `./` mounts the worktree's code. Two more mounts are needed: the worktree's `vendor` is a symlink to the main checkout's absolute host path, which the container can't follow, and `tests/plugins/` (gitignored) is empty in a worktree:
+
+    ```bash
+    M=/path/to/main/checkout
+    args=(-v "$M/vendor:/srv/vendor" -v "$M/vendor:/wordpress/wp-content/plugins/simple-history/vendor")
+    for p in akismet jetpack wp-crontrol duplicate-post redirection enable-media-replace user-switching simple-history-premium; do
+        args+=(-v "$M/tests/plugins/$p:/wordpress/wp-content/plugins/$p")
+    done
+    docker compose -p wordpress-simple-history run --rm "${args[@]}" php-cli vendor/bin/codecept run wpunit <TestName>
+    ```
+
+    Put this in a script file and run that. Claude Code's worktree isolation refuses inline commands that combine variables, loops and `docker`/`git`.
 
 ## When to Use Worktrees
 
@@ -117,17 +155,15 @@ scripts/parallel-dev.sh up issue-name-short --no-premium
 
 ### Multisite
 
-If the issue involves network/multisite functionality, ask the user if they want a multisite install. If yes, pass a custom blueprint:
+If the issue involves network/multisite functionality, ask the user if they want a multisite install. If yes, add `--multisite`:
 
 ```bash
-# Generate a multisite blueprint from the template
-WORKTREE_NAME="issue-name-short"
-MAIN_REPO="$(git rev-parse --git-common-dir)/.."
-sed "s/WORKTREE_NAME/$WORKTREE_NAME/" "$MAIN_REPO/.claude/worktree-blueprint.json" > /tmp/wp-blueprint-$WORKTREE_NAME.json
-jq '.steps = [{"step": "enableMultisite"}] + .steps' /tmp/wp-blueprint-$WORKTREE_NAME.json > /tmp/wp-blueprint-$WORKTREE_NAME-tmp.json && mv /tmp/wp-blueprint-$WORKTREE_NAME-tmp.json /tmp/wp-blueprint-$WORKTREE_NAME.json
-
-scripts/parallel-dev.sh up $WORKTREE_NAME --blueprint=/tmp/wp-blueprint-$WORKTREE_NAME.json
+scripts/parallel-dev.sh up issue-name-short --multisite
 ```
+
+You get a subdirectory network with two sites (`/` and `/site2/`), Simple History network-activated (Premium too when it is mounted), and Network Admin at `<url>/wp-admin/network/`. Pass the flag on every `up`; Playground rebuilds from the blueprint each start.
+
+Do **not** use Playground's `enableMultisite` blueprint step. It refuses any URL with a port ("WordPress multisites do not support custom ports"), and every parallel-dev URL has one. WordPress itself has allowed ports in multisite since 6.6; the flag replays what the step does after that outdated guard. Subdomain networks are not supported (wildcard DNS per slug, and impossible on the `localhost` fallback).
 
 ## Copying Uncommitted Changes
 

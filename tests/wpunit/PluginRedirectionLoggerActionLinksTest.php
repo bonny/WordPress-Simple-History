@@ -65,6 +65,8 @@ class PluginRedirectionLoggerActionLinksTest extends \Codeception\TestCase\WPTes
 	public function setUp(): void {
 		parent::setUp();
 
+		$this->skip_without_redirection();
+
 		$this->logger_slug = 'Plugin_Redirection';
 
 		$sh           = Simple_History::get_instance();

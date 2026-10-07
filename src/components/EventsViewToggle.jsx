@@ -1,0 +1,92 @@
+import { Icon, Tooltip } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { table } from '@wordpress/icons';
+import { clsx } from 'clsx';
+import { viewAgenda, viewHeadline } from '../icons';
+import { PremiumIndicator } from './PremiumIndicator';
+import { useEventsSettings } from './EventsSettingsContext';
+
+// Two stacked cards for the detailed rows, plain lines for the compact ones.
+// @wordpress/icons has no pair that reads as one family here: postList is a
+// bordered box and menu is a hamburger, which says "opens a menu".
+const VIEWS = [
+	{ value: 'detailed', icon: viewAgenda },
+	{ value: 'compact', icon: viewHeadline },
+	{ value: 'table', icon: table },
+];
+
+/**
+ * Switch between the detailed and the compact event list.
+ *
+ * Segmented control built the way GitHub builds theirs: a labelled list of
+ * plain buttons carrying aria-pressed. Buttons answer to both Enter and Space,
+ * and each one is its own tab stop.
+ *
+ * A radio group was tried first and was wrong here: it implies a form you
+ * submit, Tab lands on the already-selected option, and Space there does
+ * nothing — so the control looked dead to anyone who did not guess the arrow
+ * keys. Arrow keys are deliberately not handled, same as GitHub: focus moves
+ * with Tab only.
+ *
+ * @param {Object}   props
+ * @param {string}   props.view     Current view, "detailed", "compact" or "table".
+ * @param {Function} props.onChange Called with the newly chosen view.
+ */
+export function EventsViewToggle( { view, onChange } ) {
+	const { hasPremiumAddOn } = useEventsSettings();
+
+	const labels = {
+		detailed: __( 'Detailed view', 'simple-history' ),
+		compact: __( 'Compact view', 'simple-history' ),
+		// Named as Premium for free users, so the tooltip and screen readers
+		// say so before the click, not only the icon-only indicator.
+		table: hasPremiumAddOn
+			? __( 'Table view', 'simple-history' )
+			: __( 'Table view (Premium)', 'simple-history' ),
+	};
+
+	return (
+		// Safari strips the implicit list role from a list-style: none list, and
+		// an aria-label on a role-less element is not exposed — so without the
+		// explicit role the group label is lost for VoiceOver users, who are
+		// exactly who it was written for.
+		// eslint-disable-next-line jsx-a11y/no-redundant-roles
+		<ul
+			className="sh-EventsViewToggle"
+			role="list"
+			aria-label={ __( 'Event list view', 'simple-history' ) }
+		>
+			{ VIEWS.map( ( option ) => {
+				const isPressed = view === option.value;
+
+				return (
+					<li
+						key={ option.value }
+						className="sh-EventsViewToggle__item"
+					>
+						<Tooltip text={ labels[ option.value ] }>
+							<button
+								type="button"
+								className={ clsx(
+									'sh-EventsViewToggle__option',
+									{ 'is-checked': isPressed }
+								) }
+								aria-pressed={ isPressed }
+								aria-label={ labels[ option.value ] }
+								onClick={ () => onChange( option.value ) }
+							>
+								<Icon icon={ option.icon } size={ 16 } />
+
+								{ /* Table view is Premium-only. The aria-label
+								     above already says so, so this icon-only
+								     addition doesn't change the accessible name. */ }
+								{ option.value === 'table' &&
+									! hasPremiumAddOn && <PremiumIndicator /> }
+							</button>
+						</Tooltip>
+					</li>
+				);
+			} ) }
+		</ul>
+	);
+}
