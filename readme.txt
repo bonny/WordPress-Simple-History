@@ -72,6 +72,9 @@ _"I see three failed logins from an unfamiliar IP address overnight. Let me clic
 
 Simple History includes built-in logging for:
 
+-   **Two Factor** – Logins are logged when the two-factor code is accepted, with the method used, and wrong codes as failed logins
+-   **Wordfence** – Whether a login used two-factor authentication and which method, and wrong codes as failed logins
+-   **Kadence Security (formerly Solid Security)** – Wrong two-factor codes as failed logins
 -   **WordPress AI plugin** – Feature toggles, AI provider and model changes, and connector approval requests, grants, and revocations
 -   **Jetpack** – Module activations and deactivations
 -   **Advanced Custom Fields (ACF)** – Field group and field changes
